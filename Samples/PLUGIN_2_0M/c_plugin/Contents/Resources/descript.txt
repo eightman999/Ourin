@@ -1,0 +1,4 @@
+charset,UTF-8
+name,サンプルプラグイン
+id,21AC84B0-6B1F-11E4-9803-0800200C9A66
+filename,MyPlugin.plugin
