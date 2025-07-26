@@ -24,25 +24,25 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		DF88A7F02E35199C00644F8A /* MacUkagaka.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacUkagaka.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF88A7FE2E35199D00644F8A /* MacUkagakaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacUkagakaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF88A8082E35199D00644F8A /* MacUkagakaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacUkagakaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF88A7F02E35199C00644F8A /* Ourin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ourin.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF88A7FE2E35199D00644F8A /* OurinTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF88A8082E35199D00644F8A /* OurinUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		DF88A7F22E35199C00644F8A /* MacUkagaka */ = {
+		DF88A7F22E35199C00644F8A /* Ourin */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MacUkagaka;
+			path = Ourin;
 			sourceTree = "<group>";
 		};
-		DF88A8012E35199D00644F8A /* MacUkagakaTests */ = {
+		DF88A8012E35199D00644F8A /* OurinTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MacUkagakaTests;
+			path = OurinTests;
 			sourceTree = "<group>";
 		};
-		DF88A80B2E35199D00644F8A /* MacUkagakaUITests */ = {
+		DF88A80B2E35199D00644F8A /* OurinUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MacUkagakaUITests;
+			path = OurinUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,9 +75,9 @@
 		DF88A7E72E35199C00644F8A = {
 			isa = PBXGroup;
 			children = (
-				DF88A7F22E35199C00644F8A /* MacUkagaka */,
-				DF88A8012E35199D00644F8A /* MacUkagakaTests */,
-				DF88A80B2E35199D00644F8A /* MacUkagakaUITests */,
+				DF88A7F22E35199C00644F8A /* Ourin */,
+				DF88A8012E35199D00644F8A /* OurinTests */,
+				DF88A80B2E35199D00644F8A /* OurinUITests */,
 				DF88A7F12E35199C00644F8A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,9 +85,9 @@
 		DF88A7F12E35199C00644F8A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DF88A7F02E35199C00644F8A /* MacUkagaka.app */,
-				DF88A7FE2E35199D00644F8A /* MacUkagakaTests.xctest */,
-				DF88A8082E35199D00644F8A /* MacUkagakaUITests.xctest */,
+				DF88A7F02E35199C00644F8A /* Ourin.app */,
+				DF88A7FE2E35199D00644F8A /* OurinTests.xctest */,
+				DF88A8082E35199D00644F8A /* OurinUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		DF88A7EF2E35199C00644F8A /* MacUkagaka */ = {
+		DF88A7EF2E35199C00644F8A /* Ourin */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DF88A8122E35199D00644F8A /* Build configuration list for PBXNativeTarget "MacUkagaka" */;
+			buildConfigurationList = DF88A8122E35199D00644F8A /* Build configuration list for PBXNativeTarget "Ourin" */;
 			buildPhases = (
 				DF88A7EC2E35199C00644F8A /* Sources */,
 				DF88A7ED2E35199C00644F8A /* Frameworks */,
@@ -108,18 +108,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				DF88A7F22E35199C00644F8A /* MacUkagaka */,
+				DF88A7F22E35199C00644F8A /* Ourin */,
 			);
-			name = MacUkagaka;
+			name = Ourin;
 			packageProductDependencies = (
 			);
 			productName = MacUkagaka;
-			productReference = DF88A7F02E35199C00644F8A /* MacUkagaka.app */;
+			productReference = DF88A7F02E35199C00644F8A /* Ourin.app */;
 			productType = "com.apple.product-type.application";
 		};
-		DF88A7FD2E35199D00644F8A /* MacUkagakaTests */ = {
+		DF88A7FD2E35199D00644F8A /* OurinTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DF88A8152E35199D00644F8A /* Build configuration list for PBXNativeTarget "MacUkagakaTests" */;
+			buildConfigurationList = DF88A8152E35199D00644F8A /* Build configuration list for PBXNativeTarget "OurinTests" */;
 			buildPhases = (
 				DF88A7FA2E35199D00644F8A /* Sources */,
 				DF88A7FB2E35199D00644F8A /* Frameworks */,
@@ -131,18 +131,18 @@
 				DF88A8002E35199D00644F8A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				DF88A8012E35199D00644F8A /* MacUkagakaTests */,
+				DF88A8012E35199D00644F8A /* OurinTests */,
 			);
-			name = MacUkagakaTests;
+			name = OurinTests;
 			packageProductDependencies = (
 			);
 			productName = MacUkagakaTests;
-			productReference = DF88A7FE2E35199D00644F8A /* MacUkagakaTests.xctest */;
+			productReference = DF88A7FE2E35199D00644F8A /* OurinTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		DF88A8072E35199D00644F8A /* MacUkagakaUITests */ = {
+		DF88A8072E35199D00644F8A /* OurinUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DF88A8182E35199D00644F8A /* Build configuration list for PBXNativeTarget "MacUkagakaUITests" */;
+			buildConfigurationList = DF88A8182E35199D00644F8A /* Build configuration list for PBXNativeTarget "OurinUITests" */;
 			buildPhases = (
 				DF88A8042E35199D00644F8A /* Sources */,
 				DF88A8052E35199D00644F8A /* Frameworks */,
@@ -154,13 +154,13 @@
 				DF88A80A2E35199D00644F8A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				DF88A80B2E35199D00644F8A /* MacUkagakaUITests */,
+				DF88A80B2E35199D00644F8A /* OurinUITests */,
 			);
-			name = MacUkagakaUITests;
+			name = OurinUITests;
 			packageProductDependencies = (
 			);
 			productName = MacUkagakaUITests;
-			productReference = DF88A8082E35199D00644F8A /* MacUkagakaUITests.xctest */;
+			productReference = DF88A8082E35199D00644F8A /* OurinUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -186,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = DF88A7EB2E35199C00644F8A /* Build configuration list for PBXProject "MacUkagaka" */;
+			buildConfigurationList = DF88A7EB2E35199C00644F8A /* Build configuration list for PBXProject "Ourin" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -200,9 +200,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DF88A7EF2E35199C00644F8A /* MacUkagaka */,
-				DF88A7FD2E35199D00644F8A /* MacUkagakaTests */,
-				DF88A8072E35199D00644F8A /* MacUkagakaUITests */,
+				DF88A7EF2E35199C00644F8A /* Ourin */,
+				DF88A7FD2E35199D00644F8A /* OurinTests */,
+				DF88A8072E35199D00644F8A /* OurinUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		DF88A8002E35199D00644F8A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DF88A7EF2E35199C00644F8A /* MacUkagaka */;
+			target = DF88A7EF2E35199C00644F8A /* Ourin */;
 			targetProxy = DF88A7FF2E35199D00644F8A /* PBXContainerItemProxy */;
 		};
 		DF88A80A2E35199D00644F8A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DF88A7EF2E35199C00644F8A /* MacUkagaka */;
+			target = DF88A7EF2E35199C00644F8A /* Ourin */;
 			targetProxy = DF88A8092E35199D00644F8A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -481,7 +481,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacUkagaka.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MacUkagaka";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ourin.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Ourin";
 				XROS_DEPLOYMENT_TARGET = 2.5;
 			};
 			name = Debug;
@@ -504,7 +504,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacUkagaka.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MacUkagaka";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ourin.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Ourin";
 				XROS_DEPLOYMENT_TARGET = 2.5;
 			};
 			name = Release;
@@ -556,7 +556,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DF88A7EB2E35199C00644F8A /* Build configuration list for PBXProject "MacUkagaka" */ = {
+		DF88A7EB2E35199C00644F8A /* Build configuration list for PBXProject "Ourin" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DF88A8102E35199D00644F8A /* Debug */,
@@ -565,7 +565,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DF88A8122E35199D00644F8A /* Build configuration list for PBXNativeTarget "MacUkagaka" */ = {
+		DF88A8122E35199D00644F8A /* Build configuration list for PBXNativeTarget "Ourin" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DF88A8132E35199D00644F8A /* Debug */,
@@ -574,7 +574,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DF88A8152E35199D00644F8A /* Build configuration list for PBXNativeTarget "MacUkagakaTests" */ = {
+		DF88A8152E35199D00644F8A /* Build configuration list for PBXNativeTarget "OurinTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DF88A8162E35199D00644F8A /* Debug */,
@@ -583,7 +583,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DF88A8182E35199D00644F8A /* Build configuration list for PBXNativeTarget "MacUkagakaUITests" */ = {
+		DF88A8182E35199D00644F8A /* Build configuration list for PBXNativeTarget "OurinUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DF88A8192E35199D00644F8A /* Debug */,

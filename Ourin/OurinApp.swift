@@ -3,7 +3,7 @@ import AppKit
 // FMO 機能を組み込み、起動時に初期化する
 
 @main
-struct MacUkagakaApp: App {
+struct OurinApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {
         WindowGroup {
