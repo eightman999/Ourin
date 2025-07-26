@@ -8,7 +8,7 @@ import Darwin
 
 final class FmoMutex {
     private let name: String
-    private var sem: OpaquePointer?
+    private var sem: UnsafeMutablePointer<sem_t>?  // ← 型を変更
 
     init(name: String) throws {
         self.name = name
@@ -22,19 +22,16 @@ final class FmoMutex {
         }
     }
 
-    /// セマフォを獲得する。失敗時は例外を投げる。
     func lock() throws {
         if fmo_sem_wait(sem) == -1 {
             throw FmoError.systemError("sem_wait failed")
         }
     }
 
-    /// セマフォを解放する。
     func unlock() {
         _ = fmo_sem_post(sem)
     }
 
-    /// セマフォをクローズし、名前付きセマフォを削除する。
     func close() {
         if let s = sem {
             fmo_sem_close(s)
