@@ -1,5 +1,8 @@
 import SwiftUI
 import AppKit
+
+// Plugin host
+import Foundation
 // FMO 機能を組み込み、起動時に初期化する
 
 @main
@@ -14,6 +17,7 @@ struct OurinApp: App {
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var fmo: FmoManager?
+    var pluginRegistry: PluginRegistry?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 起動時に FMO を初期化。既に起動していれば終了する
@@ -25,10 +29,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } catch {
             NSLog("FMO init failed: \(error)")
         }
+
+        // プラグインを探索してロード
+        let registry = PluginRegistry()
+        registry.discoverAndLoad()
+        pluginRegistry = registry
     }
 
     func applicationWillTerminate(_ notification: Notification) {
         // 終了時に共有メモリとセマフォを開放
         fmo?.cleanup()
+        pluginRegistry?.unloadAll()
     }
 }
