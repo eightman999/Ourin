@@ -12,6 +12,7 @@ final class FmoMutex {
 
     init(name: String) throws {
         self.name = name
+        NSLog("Opening semaphore '%@'", name)
         sem = fmo_sem_open(name, O_CREAT | O_EXCL, 0o666, 1)
         if sem == nil {
             if errno == EEXIST {
