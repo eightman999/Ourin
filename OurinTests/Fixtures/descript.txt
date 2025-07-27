@@ -1,0 +1,2 @@
+charset,Shift_JIS
+foo,bar
