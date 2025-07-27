@@ -1,16 +1,24 @@
 import Foundation
 
+private extension String.Encoding {
+    /// Windows 互換の Shift_JIS コードページ (CP932)
+    static let shiftJIS = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.shiftJIS.rawValue)))
+}
+
 /// SJIS 受理→UTF-8 正規化ユーティリティ
 enum EncodingNormalizer {
-    /// 指定エンコーディングから UTF-8 へ変換する
+    /// 文字コードラベルから `String.Encoding` を得る
+    static func encoding(from label: String) -> String.Encoding {
+        let lower = label.lowercased()
+        if lower == "utf-8" || lower == "utf8" { return .utf8 }
+        if ["shift_jis", "windows-31j", "cp932", "ms932", "sjis"].contains(lower) {
+            return .shiftJIS
+        }
+        return .utf8
+    }
+
+    /// 指定エンコーディングから UTF-8 文字列へ変換する
     static func utf8String(from data: Data, encoding: String.Encoding) -> String? {
-        if encoding == .utf8 {
-            return String(data: data, encoding: .utf8)
-        }
-        // Shift_JIS 系文字列を UTF-8 へ変換
-        if let str = String(data: data, encoding: encoding) {
-            return str
-        }
-        return nil
+        String(data: data, encoding: encoding)
     }
 }

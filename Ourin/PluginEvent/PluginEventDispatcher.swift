@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import OSLog
 
 /// PLUGIN イベントをプラグインへ配送するディスパッチャ
 final class PluginEventDispatcher {
@@ -7,10 +8,18 @@ final class PluginEventDispatcher {
     private let registry: PluginRegistry
     /// OnSecondChange 用タイマー
     private var timer: DispatchSourceTimer?
+    /// プラグインごとの直列キュー
+    private var queues: [Plugin: DispatchQueue] = [:]
+    /// ロガー
+    private let logger = Logger(subsystem: "Ourin", category: "PluginEvent")
 
     /// 初期化時にプラグインメタ情報を参照してタイマーを開始する
     init(registry: PluginRegistry) {
         self.registry = registry
+        // 各プラグイン用の直列キューを生成
+        for plugin in registry.plugins {
+            queues[plugin] = DispatchQueue(label: "plugin.queue." + plugin.bundle.bundleURL.lastPathComponent)
+        }
         setupTimer()
         sendVersion()
     }
@@ -38,7 +47,16 @@ final class PluginEventDispatcher {
         let frame = PluginFrame(id: id, references: refs, notify: notify)
         let req = frame.build()
         for plugin in registry.plugins {
-            _ = plugin.send(req)
+            guard let q = queues[plugin] else { continue }
+            q.async { [logger, id, req, plugin] in
+                let start = Date()
+                let _ = plugin.send(req)
+                let elapsed = Date().timeIntervalSince(start)
+                logger.debug("ID \(id, privacy: .public) to \(plugin.bundle.bundleURL.lastPathComponent, privacy: .public) (\(elapsed)s)")
+                if elapsed > 3 {
+                    logger.warning("timeout: \(id, privacy: .public) >3s")
+                }
+            }
         }
     }
 
@@ -46,8 +64,41 @@ final class PluginEventDispatcher {
     private func sendVersion() {
         for plugin in registry.plugins {
             let req = PluginFrame(id: "version").build()
-            _ = plugin.send(req)
+            queues[plugin]?.async { [logger, req, plugin] in
+                let _ = plugin.send(req)
+                logger.debug("version request -> \(plugin.bundle.bundleURL.lastPathComponent, privacy: .public)")
+            }
         }
+    }
+
+    // MARK: - Catalog events
+    /// インストール済みプラグイン一覧を通知
+    func notifyInstalledPlugin() {
+        let list = registry.metas.values.map { "\($0.name),\($0.id)" }
+        sendFrame(id: "installedplugin", refs: [ListDelimiter.join(list)], notify: true)
+    }
+
+    /// 任意のパスリストを通知するユーティリティ
+    private func notifyPathList(id: String, paths: [String]) {
+        let normalized = paths.map { PathNormalizer.posix($0) }
+        sendFrame(id: id, refs: normalized, notify: true)
+    }
+
+    func notifyPluginPathList(paths: [String]) { notifyPathList(id: "pluginpathlist", paths: paths) }
+    func notifyGhostPathList(paths: [String]) { notifyPathList(id: "ghostpathlist", paths: paths) }
+    func notifyBalloonPathList(paths: [String]) { notifyPathList(id: "balloonpathlist", paths: paths) }
+    func notifyHeadlinePathList(paths: [String]) { notifyPathList(id: "headlinepathlist", paths: paths) }
+
+    func notifyInstalledGhostName(names0: [String], names1: [String], names2: [String]) {
+        let r0 = ListDelimiter.join(names0)
+        let r1 = ListDelimiter.join(names1)
+        let r2 = ListDelimiter.join(names2)
+        sendFrame(id: "installedghostname", refs: [r0, r1, r2], notify: true)
+    }
+
+    func notifyInstalledBalloonName(names: [String]) {
+        let r0 = ListDelimiter.join(names)
+        sendFrame(id: "installedballoonname", refs: [r0], notify: true)
     }
 
     /// 秒周期イベント
