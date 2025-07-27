@@ -10,18 +10,21 @@ final class PowerObserver {
     private var handler: ((ShioriEvent)->Void)?
 
     /// 監視を開始する
-    func start(_ handler: @escaping (ShioriEvent)->Void) {
+    func start(_ handler: @escaping (ShioriEvent) -> Void) {
         self.handler = handler
-        var ctx = IOPowerSourceContext(version: 0, info: UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()), retain: nil, release: nil, copyDescription: nil)
+
         let cb: IOPowerSourceCallbackType = { context in
             let me = Unmanaged<PowerObserver>.fromOpaque(context!).takeUnretainedValue()
             me.emit()
         }
-        rl = IOPSNotificationCreateRunLoopSource(cb, &ctx)?.takeRetainedValue()
+        let ctx = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
+        rl = IOPSNotificationCreateRunLoopSource(cb, ctx)?.takeRetainedValue()
         if let rl = rl {
             CFRunLoopAddSource(CFRunLoopGetMain(), rl, .defaultMode)
         }
+
         emit() // 初期値の送出
+
         // Thermal (M-Add)
         NotificationCenter.default.addObserver(self, selector: #selector(thermalChanged), name: ProcessInfo.thermalStateDidChangeNotification, object: nil)
     }
