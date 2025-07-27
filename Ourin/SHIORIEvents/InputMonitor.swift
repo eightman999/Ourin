@@ -1,4 +1,5 @@
 // InputMonitor.swift
+// キーボード・マウス入力を監視して SHIORI イベントへ変換する
 import AppKit
 
 final class InputMonitor {
@@ -9,6 +10,7 @@ final class InputMonitor {
     private var global: Any?
     private var handler: ((ShioriEvent)->Void)?
 
+    /// 監視を開始し、イベント発生時にハンドラへ通知する
     func start(handler: @escaping (ShioriEvent)->Void) {
         self.handler = handler
         local = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged, .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp, .mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged, .scrollWheel]) { [weak self] ev in
@@ -20,11 +22,13 @@ final class InputMonitor {
         }
     }
 
+    /// 監視を停止する
     func stop() {
         if let l = local { NSEvent.removeMonitor(l); local = nil }
         if let g = global { NSEvent.removeMonitor(g); global = nil }
     }
 
+    /// NSEvent を SHIORI イベントへ変換してハンドラに渡す
     private func dispatch(_ ev: NSEvent) {
         let mod = ev.modifierFlags
         let modifiers = [
@@ -42,9 +46,11 @@ final class InputMonitor {
             let p = w.convertToScreen(NSRect(origin: loc, size: .zero)).origin
             screenLoc = p
         } else {
-            screenLoc = ev.locationInWindow // already in screen coords for global monitor
+            // グローバルモニタでは既にスクリーン座標が得られる
+            screenLoc = ev.locationInWindow
         }
 
+        // NSEvent の種類に応じてイベント ID を決定
         let id: String
         switch ev.type {
         case .keyDown: id = "OnKeyDown"
@@ -56,6 +62,7 @@ final class InputMonitor {
         default: return
         }
 
+        // SHIORI へ渡すパラメータを構築
         var params: [String:String] = [
             "screenX": String(Int(screenLoc.x)),
             "screenY": String(Int(screenLoc.y)),
@@ -69,6 +76,7 @@ final class InputMonitor {
             params["deltaX"] = String(Int(ev.scrollingDeltaX))
             params["deltaY"] = String(Int(ev.scrollingDeltaY))
         }
+        // 構築したイベントをハンドラに通知
         handler?(ShioriEvent(id: id, params: params))
     }
 }
