@@ -19,11 +19,7 @@ struct ContentView: View {
             Text("Hello, world!")
         }
         .padding()
-        // SSP風右クリックメニュー
-        // 詳細は ukadoc などの SHIORI 仕様を参照
-        .contextMenu {
-            RightClickMenu()
-        }
+        // 右クリックメニューはメニューバーに移動
     }
 }
 
