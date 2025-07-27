@@ -25,6 +25,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var pluginRegistry: PluginRegistry?
     var headlineRegistry: HeadlineRegistry?
     var eventBridge: EventBridge?
+    /// 外部 SHIORI イベントサーバ
+    var externalServer: OurinExternalServer?
     /// PLUGIN Event 配送用ディスパッチャ
     var pluginDispatcher: PluginEventDispatcher?
 
@@ -58,6 +60,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let bridge = EventBridge.shared
         bridge.start()
         eventBridge = bridge
+
+        // 外部 SSTP サーバを起動
+        let ext = OurinExternalServer()
+        ext.start()
+        externalServer = ext
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -66,6 +73,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         pluginRegistry?.unloadAll()
         headlineRegistry?.unloadAll()
         eventBridge?.stop()
+        externalServer?.stop()
         // PLUGIN ディスパッチャ停止
         pluginDispatcher?.stop()
     }
