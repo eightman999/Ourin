@@ -6,7 +6,7 @@ public typealias PluginLoadFn = @convention(c) (UnsafePointer<CChar>) -> Int32
 public typealias PluginUnloadFn = @convention(c) () -> Void
 
 /// Single plugin bundle wrapper
-public struct Plugin {
+public struct Plugin: Hashable {
     let bundle: Bundle
     let request: PluginRequestFn
     let load: PluginLoadFn?
@@ -42,6 +42,16 @@ public struct Plugin {
         guard let p = respPtr else { return "" }
         let buf = UnsafeBufferPointer(start: p, count: outLen)
         return String(decoding: buf, as: UTF8.self)
+    }
+}
+
+extension Plugin {
+    public static func == (lhs: Plugin, rhs: Plugin) -> Bool {
+        lhs.bundle.bundleURL == rhs.bundle.bundleURL
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(bundle.bundleURL)
     }
 }
 

@@ -5,7 +5,7 @@ public typealias HeadlineLoadFn = @convention(c) (UnsafePointer<CChar>) -> Int32
 public typealias HeadlineUnloadFn = @convention(c) () -> Void
 
 /// Wrapper for a HEADLINE/2.0M module bundle
-public struct HeadlineModule {
+public struct HeadlineModule: Hashable {
     let bundle: Bundle
     let execute: HeadlineExecuteFn
     let load: HeadlineLoadFn?
@@ -40,6 +40,16 @@ public struct HeadlineModule {
         guard let p = respPtr else { return "" }
         let buf = UnsafeBufferPointer(start: p, count: outLen)
         return String(decoding: buf, as: UTF8.self)
+    }
+}
+
+extension HeadlineModule {
+    public static func == (lhs: HeadlineModule, rhs: HeadlineModule) -> Bool {
+        lhs.bundle.bundleURL == rhs.bundle.bundleURL
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(bundle.bundleURL)
     }
 }
 
