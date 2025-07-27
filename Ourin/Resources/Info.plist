@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key><string>Ourin</string>
+    <key>CFBundleIdentifier</key><string>furin-lab.Ourin</string>
+    <key>CFBundleVersion</key><string>1</string>
+    <key>CFBundleShortVersionString</key><string>1.0</string>
+    <key>LSMinimumSystemVersion</key><string>10.15</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key><string>org.ukagaka.link</string>
+            <key>CFBundleURLSchemes</key>
+            <array><string>x-ukagaka-link</string></array>
+            <key>CFBundleTypeRole</key><string>Viewer</string>
+        </dict>
+    </array>
+    <key>UTExportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key><string>com.ourin.nar</string>
+            <key>UTTypeConformsTo</key>
+            <array><string>public.zip-archive</string></array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key><array><string>nar</string></array>
+                <key>public.mime-type</key>
+                <array>
+                    <string>application/x-nar</string>
+                    <string>application/zip</string>
+                </array>
+            </dict>
+        </dict>
+    </array>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key><string>Ukagaka Archive</string>
+            <key>LSItemContentTypes</key>
+            <array><string>com.ourin.nar</string></array>
+            <key>CFBundleTypeRole</key><string>Viewer</string>
+        </dict>
+    </array>
+</dict>
+</plist>

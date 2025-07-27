@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import ApplicationServices
 
 // Plugin host
 import Foundation
@@ -30,6 +31,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } catch {
             NSLog("FMO init failed: \(error)")
         }
+
+        // Register handler for x-ukagaka-link scheme early
+        WebHandler.shared.register()
 
         // プラグインを探索してロード
         let registry = PluginRegistry()
