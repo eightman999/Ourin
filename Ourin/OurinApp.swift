@@ -25,6 +25,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var pluginRegistry: PluginRegistry?
     var headlineRegistry: HeadlineRegistry?
     var eventBridge: EventBridge?
+    /// PLUGIN Event 配送用ディスパッチャ
+    var pluginDispatcher: PluginEventDispatcher?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 起動時に FMO を初期化。既に起動していれば終了する
@@ -44,6 +46,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let registry = PluginRegistry()
         registry.discoverAndLoad()
         pluginRegistry = registry
+        // プラグイン読み込み後にディスパッチャを開始
+        pluginDispatcher = PluginEventDispatcher(registry: registry)
 
         // HEADLINE モジュールも探索してロード
         let hRegistry = HeadlineRegistry()
@@ -62,5 +66,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         pluginRegistry?.unloadAll()
         headlineRegistry?.unloadAll()
         eventBridge?.stop()
+        // PLUGIN ディスパッチャ停止
+        pluginDispatcher?.stop()
     }
 }
