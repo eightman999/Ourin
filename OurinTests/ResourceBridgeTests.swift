@@ -20,4 +20,31 @@ struct ResourceBridgeTests {
         let item = bridge.menuItem(for: "menu.test.caption")
         #expect(item?.title.contains("Placeholder") == true)
     }
+
+    @Test
+    func colorAndRecommend() async throws {
+        BridgeToSHIORI.reset()
+        BridgeToSHIORI.setResource("menu.test.color.r", value: "255")
+        BridgeToSHIORI.setResource("menu.test.color.g", value: "128")
+        BridgeToSHIORI.setResource("menu.test.color.b", value: "0")
+        BridgeToSHIORI.setResource("sakura.recommendsites", value: "Foo\u{01}https://example.com\u{01}banner.png\u{01}talk\u{02}")
+        let bridge = ResourceBridge.shared
+        bridge.invalidateAll()
+        if let color = bridge.colorValue(for: "menu.test.color") {
+            #expect(Int(color.redComponent * 255) == 255)
+            #expect(Int(color.greenComponent * 255) == 128)
+            #expect(Int(color.blueComponent * 255) == 0)
+        } else {
+            #fail("color nil")
+        }
+        if let list = bridge.recommendSites(for: "sakura.recommendsites", base: nil) {
+            #expect(list.count == 1)
+            #expect(list[0].title == "Foo")
+            #expect(list[0].url == "https://example.com")
+            #expect(list[0].talk == "talk")
+        } else {
+            #fail("list nil")
+        }
+        BridgeToSHIORI.reset()
+    }
 }
