@@ -24,6 +24,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var fmo: FmoManager?
     var pluginRegistry: PluginRegistry?
     var headlineRegistry: HeadlineRegistry?
+    var eventBridge: EventBridge?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 起動時に FMO を初期化。既に起動していれば終了する
@@ -48,6 +49,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let hRegistry = HeadlineRegistry()
         hRegistry.discoverAndLoad()
         headlineRegistry = hRegistry
+
+        // Start SHIORI event bridge
+        let bridge = EventBridge.shared
+        bridge.start()
+        eventBridge = bridge
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -55,5 +61,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         fmo?.cleanup()
         pluginRegistry?.unloadAll()
         headlineRegistry?.unloadAll()
+        eventBridge?.stop()
     }
 }
