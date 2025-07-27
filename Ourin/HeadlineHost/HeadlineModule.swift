@@ -34,8 +34,9 @@ public struct HeadlineModule: Hashable {
     public func send(_ text: String) -> String {
         var outLen: Int = 0
         var bytes = Array(text.utf8)
+        let byteCount = bytes.count // ★ countを事前にコピー
         let respPtr = bytes.withUnsafeMutableBytes { raw -> UnsafePointer<UInt8>? in
-            return execute(raw.bindMemory(to: UInt8.self).baseAddress!, bytes.count, &outLen)
+            return execute(raw.bindMemory(to: UInt8.self).baseAddress!, byteCount, &outLen)
         }
         guard let p = respPtr else { return "" }
         let buf = UnsafeBufferPointer(start: p, count: outLen)
