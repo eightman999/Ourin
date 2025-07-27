@@ -15,6 +15,7 @@ final class FmoSharedMemory {
     init(name: String, size: Int = 64 * 1024) throws {
         self.name = name
         self.size = size
+        NSLog("Opening shared memory '%@' (%d bytes)", name, size)
         let fdTemp = fmo_open_shared(name, size)
         if fdTemp == -1 {
             throw FmoError.systemError(String(cString: strerror(errno)))
