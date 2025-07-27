@@ -13,6 +13,10 @@ struct OurinApp: App {
         WindowGroup {
             ContentView()
         }
+        // The right-click menu has moved to the menu bar.
+        MenuBarExtra("Ourin") {
+            RightClickMenu()
+        }
     }
 }
 
