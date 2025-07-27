@@ -1,7 +1,6 @@
-# Project Title / プロジェクト名
+# Ourin /  桜鈴
 
-A brief description of your project in English.  
-このプロジェクトの簡単な説明（日本語）。
+Macネイティブの伺かベースウェア
 
 ---
 
