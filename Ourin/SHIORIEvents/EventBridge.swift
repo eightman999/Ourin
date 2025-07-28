@@ -13,6 +13,9 @@ final class EventBridge {
 
     /// すべてのオブザーバを開始する
     func start() {
+        // periodic timers and system state observers
+        TimerEmitter.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
+        SleepObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         InputMonitor.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         DragDropReceiver.shared.activate { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         DisplayObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
@@ -20,16 +23,24 @@ final class EventBridge {
         PowerObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         LocaleObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         AppearanceObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) } // M-Add
+
+        // boot event (GET)
+        _ = dispatcher.sendGet(id: "OnBoot", params: [:])
     }
 
     /// すべてのオブザーバを停止する
     func stop() {
+        TimerEmitter.shared.stop()
+        SleepObserver.shared.stop()
         InputMonitor.shared.stop()
         DisplayObserver.shared.stop()
         SpaceObserver.shared.stop()
         PowerObserver.shared.stop()
         LocaleObserver.shared.stop()
         AppearanceObserver.shared.stop()
+
+        // close event (GET)
+        _ = dispatcher.sendGet(id: "OnClose", params: [:])
     }
 }
 
@@ -42,10 +53,10 @@ struct ShioriEvent {
 }
 
 final class ShioriDispatcher {
-    /// イベント ID とパラメータから NOTIFY リクエスト文字列を組み立てる
-    private func buildRequest(id: String, params: [String:String]) -> String {
+    /// イベント ID とパラメータからリクエスト文字列を組み立てる
+    private func buildRequest(method: String, id: String, params: [String:String]) -> String {
         var lines = [
-            "NOTIFY SHIORI/3.0",
+            "\(method) SHIORI/3.0",
             "Charset: UTF-8",
             "Sender: Ourin",
             "ID: \(id)"
@@ -60,8 +71,16 @@ final class ShioriDispatcher {
 
     /// BridgeToSHIORI 経由で SHIORI モジュールへ NOTIFY を送出する
     func sendNotify(id: String, params: [String:String]) {
-        let req = buildRequest(id: id, params: params)
+        let req = buildRequest(method: "NOTIFY", id: id, params: params)
         let _ = BridgeToSHIORI.handle(event: id, references: Array(params.values))
         NSLog("[Ourin] NOTIFY built:\n%@", req)
+    }
+
+    /// BridgeToSHIORI 経由で SHIORI モジュールへ GET を送出し応答を返す
+    func sendGet(id: String, params: [String:String]) -> String {
+        let req = buildRequest(method: "GET", id: id, params: params)
+        let res = BridgeToSHIORI.handle(event: id, references: Array(params.values))
+        NSLog("[Ourin] GET built:\n%@", req)
+        return res
     }
 }
