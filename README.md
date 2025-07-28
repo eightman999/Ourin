@@ -1,5 +1,7 @@
 # Ourin /  桜鈴
 
+![Ourin Logo](logo/ourin_512x.png)
+
 Macネイティブの伺かベースウェア
 
 ---
