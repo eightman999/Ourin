@@ -2,10 +2,14 @@ import AppKit
 import Foundation
 import ApplicationServices
 
+// `x-ukagaka-link` スキームを処理するハンドラ。
+// 詳細は docs/WEB_1.0M_SPEC.md を参照。
+
 public final class WebHandler: NSObject {
+    /// シングルトンインスタンス。アプリ全体で1つだけ生成して使う
     public static let shared = WebHandler()
 
-    /// Register kAEGetURL handler for the custom scheme
+    /// `kAEGetURL` イベントにハンドラを登録し、カスタムスキームを受理できるようにする
     public func register() {
         let manager = NSAppleEventManager.shared()
         manager.setEventHandler(self,
@@ -14,6 +18,7 @@ public final class WebHandler: NSObject {
                                 andEventID: AEEventID(kAEGetURL))
     }
 
+    /// URL 受理イベントを処理する
     @objc private func handleGetURLEvent(_ event: NSAppleEventDescriptor,
                                          withReplyEvent replyEvent: NSAppleEventDescriptor) {
         guard let urlString = event.paramDescriptor(forKeyword: keyDirectObject)?.stringValue,
@@ -21,6 +26,7 @@ public final class WebHandler: NSObject {
         handle(url: url)
     }
 
+    /// 受け取った URL を解析して個別処理に振り分ける
     private func handle(url: URL) {
         guard url.scheme?.lowercased() == "x-ukagaka-link" else { return }
         let schemePrefix = "x-ukagaka-link:"
@@ -50,6 +56,7 @@ public final class WebHandler: NSObject {
         }
     }
 
+    /// HTMLフォーム形式の文字列を辞書に変換するヘルパー
     static func parseForm(_ s: String) -> [String:String] {
         var dict: [String:String] = [:]
         for pair in s.split(separator: "&") {
