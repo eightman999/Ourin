@@ -23,7 +23,9 @@ public final class HeadlineRegistry {
             for item in items where item.pathExtension == "plugin" || item.pathExtension == "bundle" {
                 do {
                     let mod = try HeadlineModule(url: item)
-                    mod.load?(item.path)
+                    if let load = mod.load {
+                        _ = load(item.path)
+                    }
                     modules.append(mod)
                     if let meta = HeadlineRegistry.readMeta(from: mod.bundle) {
                         metas[mod] = meta
