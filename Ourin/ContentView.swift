@@ -9,6 +9,7 @@ import SwiftUI
 
 /// SSP風右クリックメニューの表示に利用
 import AppKit
+import OSLog
 
 struct ContentView: View {
     /// サイドバーの表示項目
@@ -25,6 +26,9 @@ struct ContentView: View {
     }
 
     @State private var selection: Section? = .general
+    @State private var runningTask: Task<Void, Never>? = nil
+
+    private let logger = Logger(subsystem: "jp.ourin.devtools", category: "ui")
 
     var body: some View {
         NavigationView {
@@ -40,23 +44,23 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .toolbar {
                     ToolbarItemGroup {
-                        Button(action: {}) {
+                        Button(action: reload) {
                             Image(systemName: "arrow.clockwise")
                         }.help("Reload")
-                        Button(action: {}) {
+                        Button(action: runTestScenario) {
                             Image(systemName: "play.fill")
                         }.help("Run Test")
-                        Button(action: {}) {
+                        Button(action: stopScenario) {
                             Image(systemName: "stop.fill")
                         }.help("Stop")
-                        Button(action: {}) {
+                        Button(action: exportDiagnostics) {
                             Image(systemName: "square.and.arrow.up")
                         }.help("Export")
                     }
                 }
         }
         // 右クリックメニューはメニューバーに移動
-        
+
     }
 
     @ViewBuilder
@@ -79,6 +83,45 @@ struct ContentView: View {
         case .none:
             Text("Select a section")
         }
+    }
+
+    // MARK: - Toolbar actions
+    private func reload() {
+        logger.info("reload triggered")
+        ResourceBridge.shared.invalidateAll()
+        if let app = NSApp.delegate as? AppDelegate {
+            app.pluginRegistry?.unloadAll()
+            app.pluginRegistry?.discoverAndLoad()
+        }
+    }
+
+    private func runTestScenario() {
+        logger.info("run test scenario")
+        stopScenario()
+        guard let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher else { return }
+        let windows = NSApplication.shared.windows
+        let path = Bundle.main.bundlePath
+        runningTask = Task {
+            dispatcher.onGhostBoot(windows: windows, ghostName: "TestGhost", shellName: "default", ghostID: "test", path: path)
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            dispatcher.onMenuExec(windows: windows, ghostName: "TestGhost", shellName: "default", ghostID: "test", path: path)
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            dispatcher.onGhostExit(windows: windows, ghostName: "TestGhost", shellName: "default", ghostID: "test", path: path)
+        }
+    }
+
+    private func stopScenario() {
+        logger.info("stop scenario")
+        runningTask?.cancel()
+        runningTask = nil
+    }
+
+    private func exportDiagnostics() {
+        logger.info("export diagnostics")
+        let text = "Diagnostics exported at \(Date())\n"
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("OurinDiagnostics.txt")
+        try? text.write(to: url, atomically: true, encoding: .utf8)
+        NSWorkspace.shared.activateFileViewerSelecting([url])
     }
 }
 
