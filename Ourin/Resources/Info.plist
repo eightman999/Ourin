@@ -19,26 +19,24 @@
     <key>UTExportedTypeDeclarations</key>
     <array>
         <dict>
-            <key>UTTypeIdentifier</key><string>com.ourin.nar</string>
+            <key>UTTypeIdentifier</key><string>jp.ourin.nar</string>
+            <key>UTTypeDescription</key><string>Ukagaka NAR</string>
             <key>UTTypeConformsTo</key>
             <array><string>public.zip-archive</string></array>
             <key>UTTypeTagSpecification</key>
             <dict>
-                <key>public.filename-extension</key><array><string>nar</string></array>
-                <key>public.mime-type</key>
-                <array>
-                    <string>application/x-nar</string>
-                    <string>application/zip</string>
-                </array>
+                <key>public.filename-extension</key>
+                <array><string>nar</string></array>
+                <key>public.mime-type</key><string>application/x-ukagaka-nar</string>
             </dict>
         </dict>
     </array>
     <key>CFBundleDocumentTypes</key>
     <array>
         <dict>
-            <key>CFBundleTypeName</key><string>Ukagaka Archive</string>
+            <key>CFBundleTypeName</key><string>Ukagaka NAR</string>
             <key>LSItemContentTypes</key>
-            <array><string>com.ourin.nar</string></array>
+            <array><string>jp.ourin.nar</string></array>
             <key>CFBundleTypeRole</key><string>Viewer</string>
             <key>CFBundleTypeIconFile</key><string>Ourin.icns</string>
         </dict>

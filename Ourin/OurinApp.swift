@@ -29,6 +29,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var externalServer: OurinExternalServer?
     /// PLUGIN Event 配送用ディスパッチャ
     var pluginDispatcher: PluginEventDispatcher?
+    /// NAR インストーラ
+    private let narInstaller = NarInstaller()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 起動時に FMO を初期化。既に起動していれば終了する
@@ -76,5 +78,53 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         externalServer?.stop()
         // PLUGIN ディスパッチャ停止
         pluginDispatcher?.stop()
+    }
+
+    func application(_ app: NSApplication, openFiles filenames: [String]) {
+        for path in filenames {
+            if URL(fileURLWithPath: path).pathExtension.lowercased() == "nar" {
+                installNar(at: URL(fileURLWithPath: path))
+            }
+        }
+        app.reply(toOpenOrPrint: .success)
+    }
+
+    func application(_ app: NSApplication, open urls: [URL]) {
+        for url in urls where url.pathExtension.lowercased() == "nar" {
+            installNar(at: url)
+        }
+    }
+
+    private func installNar(at url: URL) {
+        do {
+            try narInstaller.install(fromNar: url)
+            NSApp.presentAlert(style: .informational,
+                               title: "Installed",
+                               text: "Installed: \(url.lastPathComponent)")
+        } catch {
+            NSApp.presentAlert(style: .critical,
+                               title: "Install failed",
+                               text: String(describing: error))
+        }
+    }
+}
+
+extension NSApplication {
+    enum Reply { case success, failure }
+    func reply(toOpenOrPrint reply: Reply) {
+        switch reply {
+        case .success: self.reply(toOpenOrPrint: .success)
+        case .failure: self.reply(toOpenOrPrint: .failure)
+        }
+    }
+}
+
+private extension NSApplication {
+    func presentAlert(style: NSAlert.Style, title: String, text: String) {
+        let alert = NSAlert()
+        alert.alertStyle = style
+        alert.messageText = title
+        alert.informativeText = text
+        alert.runModal()
     }
 }
