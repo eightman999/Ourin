@@ -9,6 +9,14 @@ public final class PropertyManager {
     public init() {
         register("system", provider: SystemPropertyProvider())
         register("baseware", provider: BasewarePropertyProvider())
+        // Sample ghost data used for property responses.
+        let sampleGhosts = [
+            Ghost(name: "Sample", path: "/Applications/Sample.ghost", icon: "/Applications/Sample/icon.png")
+        ]
+        let active = [0]
+        register("ghostlist", provider: GhostPropertyProvider(mode: .ghostlist, ghosts: sampleGhosts, activeIndices: active))
+        register("activeghostlist", provider: GhostPropertyProvider(mode: .activeghostlist, ghosts: sampleGhosts, activeIndices: active))
+        register("currentghost", provider: GhostPropertyProvider(mode: .currentghost, ghosts: sampleGhosts, activeIndices: active))
     }
 
     /// `prefix.*` を処理するプロバイダを登録する。
