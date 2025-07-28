@@ -20,6 +20,7 @@ struct ContentView: View {
         }
         .padding()
         // 右クリックメニューはメニューバーに移動
+        
     }
 }
 
