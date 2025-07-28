@@ -7,4 +7,10 @@ struct PropertyTests {
         let mgr = PropertyManager()
         #expect(mgr.get("baseware.name") == "Ourin")
     }
+
+    @Test
+    func ghostlistCount() async throws {
+        let mgr = PropertyManager()
+        #expect(mgr.get("ghostlist.count") == "1")
+    }
 }
