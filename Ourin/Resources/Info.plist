@@ -40,6 +40,7 @@
             <key>LSItemContentTypes</key>
             <array><string>com.ourin.nar</string></array>
             <key>CFBundleTypeRole</key><string>Viewer</string>
+            <key>CFBundleTypeIconFile</key><string>Ourin.icns</string>
         </dict>
     </array>
 </dict>
