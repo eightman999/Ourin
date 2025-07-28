@@ -4,7 +4,7 @@ typealias ReqFn = @convention(c) (UnsafePointer<UInt8>, Int, UnsafeMutablePointe
 typealias LoadFn = @convention(c) (UnsafePointer<CChar>) -> Int32
 typealias UnloadFn = @convention(c) () -> Void
 
-public struct Plugin {
+public struct SamplePlugin {
     let bundle: Bundle
     let request: ReqFn
     let load: LoadFn?

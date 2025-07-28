@@ -6,7 +6,7 @@ private extension String.Encoding {
 }
 
 /// SJIS 受理→UTF-8 正規化ユーティリティ
-enum EncodingNormalizer {
+enum PluginEncodingNormalizer {
     /// 文字コードラベルから `String.Encoding` を得る
     static func encoding(from label: String) -> String.Encoding {
         let lower = label.lowercased()
