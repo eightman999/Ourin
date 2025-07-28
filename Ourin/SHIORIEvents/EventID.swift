@@ -71,6 +71,7 @@ public enum EventID: String, CaseIterable {
     case OnKeyDown = "OnKeyDown" // M-Add
     case OnKeyUp = "OnKeyUp" // M-Add
     case OnKeyPress = "OnKeyPress"
+    case OnLocaleChange = "OnLocaleChange"
     case OnLanguageChange = "OnLanguageChange"
     case OnMemoryLoadHigh = "OnMemoryLoadHigh"
     case OnMemoryLoadLow = "OnMemoryLoadLow" // M-Add
