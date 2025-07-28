@@ -41,20 +41,20 @@ final class DragDropReceiver: NSView {
                 if let u = it.string(forType: .fileURL) { urls.append(u) }
             }
             if !urls.isEmpty {
-                onEvent?(ShioriEvent(id: "OnFileDrop", params: Dictionary(uniqueKeysWithValues: urls.enumerated().map{ ("Reference\($0.offset)", $0.element) } )))
+                onEvent?(ShioriEvent(id: .OnFileDrop, params: Dictionary(uniqueKeysWithValues: urls.enumerated().map{ ("Reference\($0.offset)", $0.element) } )))
                 return true
             }
             // URL 文字列
             for it in items {
                 if let u = it.string(forType: .URL) {
-                    onEvent?(ShioriEvent(id: "OnURLDrop", params: ["Reference0": u]))
+                    onEvent?(ShioriEvent(id: .OnURLDrop, params: ["Reference0": u]))
                     return true
                 }
             }
             // プレーンテキスト
             for it in items {
                 if let s = it.string(forType: .string) {
-                    onEvent?(ShioriEvent(id: "OnTextDrop", params: ["Reference0": s]))
+                    onEvent?(ShioriEvent(id: .OnTextDrop, params: ["Reference0": s]))
                     return true
                 }
             }

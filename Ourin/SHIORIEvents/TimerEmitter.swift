@@ -18,7 +18,7 @@ final class TimerEmitter {
         let idle = DispatchSource.makeTimerSource()
         idle.schedule(deadline: .now() + .seconds(1), repeating: .seconds(1))
         idle.setEventHandler { [weak self] in
-            self?.handler?(ShioriEvent(id: "OnIdle", params: [:]))
+            self?.handler?(ShioriEvent(id: .OnIdle, params: [:]))
         }
         idle.resume()
         idleTimer = idle
@@ -26,7 +26,7 @@ final class TimerEmitter {
         let minute = DispatchSource.makeTimerSource()
         minute.schedule(deadline: .now() + .seconds(60), repeating: .seconds(60))
         minute.setEventHandler { [weak self] in
-            self?.handler?(ShioriEvent(id: "OnMinuteChange", params: [:]))
+            self?.handler?(ShioriEvent(id: .OnMinuteChange, params: [:]))
         }
         minute.resume()
         minuteTimer = minute

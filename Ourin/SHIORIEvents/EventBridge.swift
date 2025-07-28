@@ -23,9 +23,12 @@ final class EventBridge {
         PowerObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         LocaleObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         AppearanceObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) } // M-Add
+        SessionObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
+        NetworkObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
+        SystemLoadObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
 
         // boot event (GET)
-        _ = dispatcher.sendGet(id: "OnBoot", params: [:])
+        _ = dispatcher.sendGet(id: .OnBoot, params: [:])
     }
 
     /// すべてのオブザーバを停止する
@@ -38,16 +41,19 @@ final class EventBridge {
         PowerObserver.shared.stop()
         LocaleObserver.shared.stop()
         AppearanceObserver.shared.stop()
+        SessionObserver.shared.stop()
+        NetworkObserver.shared.stop()
+        SystemLoadObserver.shared.stop()
 
         // close event (GET)
-        _ = dispatcher.sendGet(id: "OnClose", params: [:])
+        _ = dispatcher.sendGet(id: .OnClose, params: [:])
     }
 }
 
 /// 個別の SHIORI イベントを表す構造体
 struct ShioriEvent {
-    /// イベント名
-    let id: String
+    /// イベント識別子
+    let id: EventID
     /// パラメータ辞書（ReferenceN に相当）
     let params: [String:String]
 }
@@ -70,16 +76,16 @@ final class ShioriDispatcher {
     }
 
     /// BridgeToSHIORI 経由で SHIORI モジュールへ NOTIFY を送出する
-    func sendNotify(id: String, params: [String:String]) {
-        let req = buildRequest(method: "NOTIFY", id: id, params: params)
-        let _ = BridgeToSHIORI.handle(event: id, references: Array(params.values))
+    func sendNotify(id: EventID, params: [String:String]) {
+        let req = buildRequest(method: "NOTIFY", id: id.rawValue, params: params)
+        let _ = BridgeToSHIORI.handle(event: id.rawValue, references: Array(params.values))
         NSLog("[Ourin] NOTIFY built:\n%@", req)
     }
 
     /// BridgeToSHIORI 経由で SHIORI モジュールへ GET を送出し応答を返す
-    func sendGet(id: String, params: [String:String]) -> String {
-        let req = buildRequest(method: "GET", id: id, params: params)
-        let res = BridgeToSHIORI.handle(event: id, references: Array(params.values))
+    func sendGet(id: EventID, params: [String:String]) -> String {
+        let req = buildRequest(method: "GET", id: id.rawValue, params: params)
+        let res = BridgeToSHIORI.handle(event: id.rawValue, references: Array(params.values))
         NSLog("[Ourin] GET built:\n%@", req)
         return res
     }

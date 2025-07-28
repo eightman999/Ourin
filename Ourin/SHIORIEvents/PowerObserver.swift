@@ -40,7 +40,7 @@ final class PowerObserver {
         if let ps = IOPSCopyPowerSourcesInfo()?.takeRetainedValue() {
             // アダプタ有無のみで AC/Battery を判定
             let ac = IOPSCopyExternalPowerAdapterDetails()?.takeRetainedValue() != nil
-            handler?(ShioriEvent(id: "OnPowerSourceChanged", params: ["Source": ac ? "AC" : "Battery"]))
+            handler?(ShioriEvent(id: .OnPowerSourceChanged, params: ["Source": ac ? "AC" : "Battery"]))
         }
     }
 
@@ -54,6 +54,6 @@ final class PowerObserver {
         case .critical: state = "critical"
         @unknown default: state = "unknown"
         }
-        handler?(ShioriEvent(id: "OnThermalStateChanged", params: ["State": state]))
+        handler?(ShioriEvent(id: .OnThermalStateChanged, params: ["State": state]))
     }
 }

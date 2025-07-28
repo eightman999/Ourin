@@ -51,14 +51,14 @@ final class InputMonitor {
         }
 
         // NSEvent の種類に応じてイベント ID を決定
-        let id: String
+        let id: EventID
         switch ev.type {
-        case .keyDown: id = "OnKeyDown"
-        case .keyUp: id = "OnKeyUp"
-        case .leftMouseDown, .rightMouseDown, .otherMouseDown: id = "OnMouseDown"
-        case .leftMouseUp, .rightMouseUp, .otherMouseUp: id = "OnMouseUp"
-        case .mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged: id = "OnMouseMove"
-        case .scrollWheel: id = "OnMouseWheel"
+        case .keyDown: id = .OnKeyDown
+        case .keyUp: id = .OnKeyUp
+        case .leftMouseDown, .rightMouseDown, .otherMouseDown: id = .OnMouseDown
+        case .leftMouseUp, .rightMouseUp, .otherMouseUp: id = .OnMouseUp
+        case .mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged: id = .OnMouseMove
+        case .scrollWheel: id = .OnMouseWheel
         default: return
         }
 

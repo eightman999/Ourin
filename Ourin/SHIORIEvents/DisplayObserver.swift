@@ -12,7 +12,7 @@ final class DisplayObserver {
     func start(_ handler: @escaping (ShioriEvent)->Void) {
         self.handler = handler
         token = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.handler?(ShioriEvent(id: "OnDisplayChange", params: [:]))
+            self?.handler?(ShioriEvent(id: .OnDisplayChange, params: [:]))
         }
     }
 
