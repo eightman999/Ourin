@@ -12,7 +12,7 @@ final class SpaceObserver {
     func start(_ handler: @escaping (ShioriEvent)->Void) {
         self.handler = handler
         token = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.handler?(ShioriEvent(id: "OnSpaceChanged", params: [:]))
+            self?.handler?(ShioriEvent(id: .OnSpaceChanged, params: [:]))
         }
     }
 

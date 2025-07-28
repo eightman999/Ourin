@@ -12,7 +12,7 @@ final class LocaleObserver {
     func start(_ handler: @escaping (ShioriEvent)->Void) {
         self.handler = handler
         token = NotificationCenter.default.addObserver(forName: NSLocale.currentLocaleDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.handler?(ShioriEvent(id: "OnLocaleChange", params: [:]))
+            self?.handler?(ShioriEvent(id: .OnLocaleChange, params: [:]))
         }
     }
 

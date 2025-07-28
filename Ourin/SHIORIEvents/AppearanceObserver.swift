@@ -32,7 +32,7 @@ final class AppearanceObserver {
     private func emit() {
         let isDark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         let name = isDark ? "dark" : "light"
-        handler?(ShioriEvent(id: "OnAppearanceChanged", params: ["Appearance": name]))
+        handler?(ShioriEvent(id: .OnAppearanceChanged, params: ["Appearance": name]))
     }
 }
 
