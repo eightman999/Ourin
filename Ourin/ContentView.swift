@@ -27,6 +27,7 @@ struct ContentView: View {
 
     @State private var selection: Section? = .general
     @State private var runningTask: Task<Void, Never>? = nil
+    @State private var closeDelegate: CloseConfirmationDelegate? = nil
 
     private let logger = Logger(subsystem: "jp.ourin.devtools", category: "ui")
 
@@ -59,6 +60,15 @@ struct ContentView: View {
                     }
                 }
         }
+        .background(
+            WindowAccessor { win in
+                if let win = win, closeDelegate == nil {
+                    let del = CloseConfirmationDelegate()
+                    win.delegate = del
+                    closeDelegate = del
+                }
+            }
+        )
         // 右クリックメニューはメニューバーに移動
 
     }
