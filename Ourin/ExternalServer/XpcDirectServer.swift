@@ -9,7 +9,7 @@ import OSLog
 public final class XpcDirectServer: NSObject, NSXPCListenerDelegate, OurinExternalSstpXPC {
     private let listener: NSXPCListener
     public var onRequest: ((String) -> String)?
-    private let logger = Logger(subsystem: "Ourin", category: "SSTP_XPC")
+    private let logger = CompatLogger(subsystem: "Ourin", category: "SSTP_XPC")
     private let maxSize = 512 * 1024
 
     public init(machServiceName: String = "jp.ourin.sstp") {

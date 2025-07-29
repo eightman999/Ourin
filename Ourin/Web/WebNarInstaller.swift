@@ -4,7 +4,7 @@ import os.log
 /// `.nar` アーカイブをダウンロードして展開する簡易インストーラ。
 /// 挙動の詳細仕様は docs/NAR_INSTALL_1.0M_SPEC.md を参照。
 
-public enum NarInstaller {
+public enum WebNarInstaller {
     enum Error: Swift.Error, CustomStringConvertible {
         case notZip
         case unzipFailed(String)
@@ -17,44 +17,44 @@ public enum NarInstaller {
 
         var description: String {
             switch self {
-            case .notZip: return "NAR (ZIP) \u3067\u306F\u3042\u308A\u307E\u305B\u3093"
-            case .unzipFailed(let s): return "\u5c55\u958b\u306b\u5931\u6557: \(s)"
-            case .installTxtNotFound: return "install.txt \u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093"
-            case .installTxtDecodeFailed: return "install.txt \u3092\u8aad\u307f\u53d6\u308c\u307e\u305b\u3093\uff08UTF-8/SJIS\uff09"
-            case .installTxtMissingKey(let k): return "install.txt \u306e\u5fc5\u8981\u30ad\u30fc\u304c\u4e0d\u8db3: \(k)"
-            case .unsupportedType(let t): return "\u672a\u5bfe\u5fdc\u306e type: \(t)"
-            case .zipSlipDetected(let p): return "\u5371\u967a\u306a\u30d1\u30b9\u304c\u691c\u51fa\u3055\u308c\u307e\u3057\u305f: \(p)"
-            case .directoryConflict(let d): return "\u8a2d\u7f6e\u5148\u304c\u885d\u7a81: \(d)"
+            case .notZip: return "NAR (ZIP) ではありません"
+            case .unzipFailed(let s): return "展開に失敗: \(s)"
+            case .installTxtNotFound: return "install.txt が見つかりません"
+            case .installTxtDecodeFailed: return "install.txt を読み取れません（UTF-8/SJIS）"
+            case .installTxtMissingKey(let k): return "install.txt の必須キーが不足: \(k)"
+            case .unsupportedType(let t): return "未対応の type: \(t)"
+            case .zipSlipDetected(let p): return "危険なパスが検出されました: \(p)"
+            case .directoryConflict(let d): return "設置先が衝突: \(d)"
             }
         }
     }
 
-    private static let log = Logger(subsystem: "jp.ourin.web", category: "nar")
+    private static let log = CompatLogger(subsystem: "jp.ourin.web", category: "nar")
     /// Download and install a NAR archive from https URL
 
     public static func install(from urlString: String) {
         // URL の妥当性チェック。https 以外は拒否
         guard let url = URL(string: urlString), url.scheme?.lowercased() == "https" else {
-            NSLog("[NarInstaller] invalid url: \(urlString)")
+            NSLog("[WebNarInstaller] invalid url: \(urlString)")
             return
         }
 
         // URLSession で非同期ダウンロード
         let task = URLSession.shared.downloadTask(with: url) { local, response, error in
             if let error = error {
-                NSLog("[NarInstaller] download error: \(error)")
+                NSLog("[WebNarInstaller] download error: \(error)")
                 return
             }
             guard let local = local else { return }
-            log.info("downloaded: \(local.path, privacy: .public)")
+            log.info("downloaded: \(local.path)")
             do {
                 try installLocalNar(local)
                 log.info("install finished")
             } catch {
-                log.error("install failed: \(String(describing: error), privacy: .public)")
+                log.fault("install failed: \(String(describing: error))")
             }
 
-            NSLog("[NarInstaller] downloaded: \(local.path)")
+            NSLog("[WebNarInstaller] downloaded: \(local.path)")
 
 
         }
@@ -73,7 +73,7 @@ public enum NarInstaller {
         let tmpExtract = tmpRoot.appendingPathComponent("extract", isDirectory: true)
         try FileManager.default.createDirectory(at: tmpExtract, withIntermediateDirectories: true)
 
-        log.info("extracting to tmp: \(tmpExtract.path, privacy: .public)")
+        log.info("extracting to tmp: \(tmpExtract.path)")
         try ZipUtil.extractZip(narURL, to: tmpExtract)
 
         // 3) read install.txt
@@ -85,7 +85,7 @@ public enum NarInstaller {
 
         // 4) resolve target
         let target = try OurinPaths.installTarget(forType: manifest.type, directory: manifest.directory)
-        log.info("resolved target: \(target.path, privacy: .public)")
+        log.info("resolved target: \(target.path)")
 
         // 5) conflict check
         if FileManager.default.fileExists(atPath: target.path) && manifest.accept == nil {

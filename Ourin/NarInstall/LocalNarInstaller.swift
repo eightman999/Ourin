@@ -2,6 +2,7 @@
 import Foundation
 import os.log
 
+
 final class NarInstaller {
     enum Error: Swift.Error, CustomStringConvertible {
         case notZip
@@ -27,7 +28,7 @@ final class NarInstaller {
         }
     }
 
-    private let log = Logger(subsystem: "jp.ourin.installer", category: "nar")
+    private let log = CompatLogger(subsystem: "jp.ourin.installer", category: "nar")
 
     func install(fromNar narURL: URL) throws {
         // 1) 形式検証（拡張子 + 軽いヘッダチェック）
@@ -41,7 +42,7 @@ final class NarInstaller {
         let tmpExtract = tmpRoot.appendingPathComponent("extract", isDirectory: true)
         try FileManager.default.createDirectory(at: tmpExtract, withIntermediateDirectories: true)
 
-        log.info("extracting to tmp: \(tmpExtract.path, privacy: .public)")
+        log.info("extracting to tmp: \(tmpExtract.path,)")
         try ZipUtil.extractZip(narURL, to: tmpExtract)
 
         // 3) install.txt を読む
@@ -53,7 +54,7 @@ final class NarInstaller {
 
         // 4) 設置先解決
         let target = try OurinPaths.installTarget(forType: manifest.type, directory: manifest.directory)
-        log.info("resolved target: \(target.path, privacy: .public)")
+        log.info("resolved target: \(target.path,)")
 
         // 5) 衝突確認（accept 等の運用は上位で UI 提示。ここでは最小限チェック）
         if FileManager.default.fileExists(atPath: target.path) && manifest.accept == nil {

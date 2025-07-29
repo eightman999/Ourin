@@ -1,6 +1,8 @@
 import SwiftUI
 import OSLog
 
+// Use compat logger to support macOS 10.15
+
 /// DevTools main view with sidebar and toolbar
 struct DevToolsView: View {
     /// sidebar sections
@@ -11,7 +13,7 @@ struct DevToolsView: View {
     }
 
     @State private var selection: Section? = .general
-    private let logger = Logger(subsystem: "jp.ourin.devtools", category: "ui")
+    private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "ui")
 
     var body: some View {
         NavigationSplitView {

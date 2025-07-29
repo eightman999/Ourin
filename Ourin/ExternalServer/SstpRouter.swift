@@ -1,9 +1,11 @@
 import Foundation
 import OSLog
 
+/// Network routing helper with logger compatible to 10.15
+
 /// 解析済みの SSTP メッセージを SHIORI ブリッジへルーティングする。
 public final class SstpRouter {
-    private let logger = Logger(subsystem: "Ourin", category: "ExternalSSTP")
+    private let logger = CompatLogger(subsystem: "Ourin", category: "ExternalSSTP")
     public init() {}
 
     /// 生の SSTP 文字列を処理し、SSTP 形式の応答を返す。
@@ -37,7 +39,7 @@ public final class SstpRouter {
             ]
             resp = lines.joined(separator: "\r\n")
         }
-        logger.info("event=\(event, privacy: .public) duration=\(duration)")
+        logger.info("event=\(event) duration=\(duration)")
         ServerMetrics.shared.record(duration: duration, error: false)
         return resp
     }

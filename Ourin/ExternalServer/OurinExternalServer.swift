@@ -15,7 +15,7 @@ public final class OurinExternalServer {
     /// リクエストを解釈して SHIORI へ転送するルーター
     private let router = SstpRouter()
     /// OSLog 用ロガー
-    private let logger = Logger(subsystem: "Ourin", category: "ExternalServer")
+    private let logger = CompatLogger(subsystem: "Ourin", category: "ExternalServer")
 
     /// サーバ群の初期設定を行う
     public init() {
