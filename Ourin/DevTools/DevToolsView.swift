@@ -25,13 +25,7 @@ struct DevToolsView: View {
         } detail: {
             detailView
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .toolbar {
-                    ToolbarItemGroup {
-                        Button(action: reload) {
-                            Image(systemName: "arrow.clockwise")
-                        }.help("再読込")
-                    }
-                }
+                .applyToolbar(reload: reload)
         }
     }
 
@@ -53,6 +47,34 @@ struct DevToolsView: View {
     }
 }
 
+#if os(macOS)
+private struct ToolbarCompat: ViewModifier {
+    let action: () -> Void
+    func body(content: Content) -> some View {
+        if #available(macOS 11.0, *) {
+            content.toolbar {
+                ToolbarItemGroup {
+                    Button(action: action) {
+                        Image(systemName: "arrow.clockwise")
+                    }.help("再読込")
+                }
+            }
+        } else {
+            content
+        }
+    }
+}
+
+private extension View {
+    func applyToolbar(reload: @escaping () -> Void) -> some View {
+        modifier(ToolbarCompat(action: reload))
+    }
+}
+#else
+private extension View {
+    func applyToolbar(reload: @escaping () -> Void) -> some View { self }
+}
+#endif
 #Preview {
     DevToolsView()
 }

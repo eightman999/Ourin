@@ -9,7 +9,8 @@ private extension String.Encoding {
 
 /// SHIORI の Resource キーを取得してキャッシュするブリッジ。
 /// 仕様は `docs/PROPERTY_Resource_3.0M_SPEC.md` を参照。
-@available(macOS 11.0, *)
+/// ResourceBridge does not rely on modern APIs other than logging. Use
+/// `CompatLogger` so the class works on older macOS versions as well.
 public final class ResourceBridge {
     /// シングルトンインスタンス
     public static let shared = ResourceBridge()
@@ -24,7 +25,7 @@ public final class ResourceBridge {
     /// キャッシュ保持時間（秒）
     private let ttl: TimeInterval = 5
     /// ロガー
-    private let logger = Logger(subsystem: "Ourin", category: "ResourceBridge")
+    private let logger = CompatLogger(subsystem: "Ourin", category: "ResourceBridge")
 
     /// Get resource value for given key via SHIORI. Uses cache if valid.
     public func get(_ key: String) -> String? {
