@@ -4,21 +4,30 @@ import Testing
 struct ResourceBridgeTests {
     @Test
     func cacheBehavior() async throws {
+        BridgeToSHIORI.reset()
+        BridgeToSHIORI.setResource("test.key", value: "value1")
         let bridge = ResourceBridge.shared
         bridge.invalidateAll()
         let v1 = bridge.get("test.key")
         let v2 = bridge.get("test.key")
+        #expect(v1 == "value1")
         // same result when cached
         #expect(v1 == v2)
+        BridgeToSHIORI.reset()
     }
 
     @Test
     func menuParsing() async throws {
+        BridgeToSHIORI.reset()
+        BridgeToSHIORI.setResource("menu.test.caption", value: "T&est")
+        BridgeToSHIORI.setResource("menu.test.visible", value: "0")
         let bridge = ResourceBridge.shared
         bridge.invalidateAll()
-        // BridgeToSHIORI は固定文字列を返すため caption として扱う
         let item = bridge.menuItem(for: "menu.test.caption")
-        #expect(item?.title.contains("Placeholder") == true)
+        #expect(item?.title == "Test")
+        #expect(item?.shortcut == "e")
+        #expect(item?.visible == false)
+        BridgeToSHIORI.reset()
     }
 
     @Test
