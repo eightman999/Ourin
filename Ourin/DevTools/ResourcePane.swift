@@ -14,10 +14,7 @@ struct ResourcePane: View {
                 Button("読み込み") { load() }
                 Spacer()
             }
-            Table(items) {
-                TableColumn("キー") { Text($0.key) }
-                TableColumn("値") { Text($0.value) }
-            }
+            tableView
         }
         .padding()
         .onAppear(perform: load)
@@ -26,6 +23,24 @@ struct ResourcePane: View {
     private func load() {
         items = ["sakura.name", "kero.name"].map { key in
             Item(key: key, value: ResourceBridge.shared.get(key) ?? "")
+        }
+    }
+
+    @ViewBuilder
+    private var tableView: some View {
+        if #available(macOS 12.0, *) {
+            Table(items) {
+                TableColumn("キー") { Text($0.key) }
+                TableColumn("値") { Text($0.value) }
+            }
+        } else {
+            List(items) { item in
+                HStack {
+                    Text(item.key).frame(minWidth: 120, alignment: .leading)
+                    Spacer()
+                    Text(item.value)
+                }
+            }
         }
     }
 }
