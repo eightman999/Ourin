@@ -1,4 +1,4 @@
-// Ourin/NarInstall/NarInstaller.swift
+// Ourin/NarInstall/LocalNarInstaller.swift
 import Foundation
 import os.log
 
