@@ -13,9 +13,15 @@ struct OurinApp: App {
         WindowGroup {
             ContentView()
         }
+        WindowGroup("DevTools", id: "DevTools") {
+            DevToolsView()
+        }
         // The right-click menu has moved to the menu bar.
         MenuBarExtra("Ourin") {
             RightClickMenu()
+        }
+        Commands {
+            DevToolsCommands()
         }
     }
 }
