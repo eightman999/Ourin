@@ -21,5 +21,6 @@ struct DevToolsCommands: Commands {
     // unconditionally defined lets the compiler resolve the symbol when
     // building with a modern SDK while older macOS versions simply ignore it
     // at runtime via the availability check in `openDevTools()`.
+    @available(macOS 13.0, *)
     @Environment(\.openWindow) private var openWindow
 }
