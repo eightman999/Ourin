@@ -11,7 +11,7 @@ final class PluginEventDispatcher {
     /// プラグインごとの直列キュー
     private var queues: [Plugin: DispatchQueue] = [:]
     /// ロガー
-    private let logger = Logger(subsystem: "Ourin", category: "PluginEvent")
+    private let logger = CompatLogger(subsystem: "Ourin", category: "PluginEvent")
 
     /// 初期化時にプラグインメタ情報を参照してタイマーを開始する
     init(registry: PluginRegistry) {
@@ -52,9 +52,9 @@ final class PluginEventDispatcher {
                 let start = Date()
                 let _ = plugin.send(req)
                 let elapsed = Date().timeIntervalSince(start)
-                logger.debug("ID \(id, privacy: .public) to \(plugin.bundle.bundleURL.lastPathComponent, privacy: .public) (\(elapsed)s)")
+                logger.debug("ID \(id) to \(plugin.bundle.bundleURL.lastPathComponent) (\(elapsed)s)")
                 if elapsed > 3 {
-                    logger.warning("timeout: \(id, privacy: .public) >3s")
+                    logger.warning("timeout: \(id) >3s")
                 }
             }
         }
@@ -66,7 +66,7 @@ final class PluginEventDispatcher {
             let req = PluginFrame(id: "version").build()
             queues[plugin]?.async { [logger, req, plugin] in
                 let _ = plugin.send(req)
-                logger.debug("version request -> \(plugin.bundle.bundleURL.lastPathComponent, privacy: .public)")
+                logger.debug("version request -> \(plugin.bundle.bundleURL.lastPathComponent)")
             }
         }
     }

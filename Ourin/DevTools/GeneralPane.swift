@@ -1,9 +1,11 @@
 import SwiftUI
 import OSLog
 
+// compat logger ensures 10.15 support
+
 struct GeneralPane: View {
     @State private var dataPath: String = ""
-    private let logger = Logger(subsystem: "jp.ourin.devtools", category: "settings")
+    private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "settings")
 
     var body: some View {
         Form {
@@ -29,7 +31,7 @@ struct GeneralPane: View {
         panel.begin { resp in
             if resp == .OK, let url = panel.url {
                 dataPath = url.path
-                logger.info("data folder set: \(url.path, privacy: .public)")
+                logger.info("data folder set: \(url.path)")
             }
         }
     }

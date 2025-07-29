@@ -44,12 +44,12 @@ public final class WebHandler: NSObject {
         case "install":
             if let enc = params["url"], let decoded = enc.removingPercentEncoding {
                 NSLog("[Ourin] install from URL \(decoded)")
-                NarInstaller.install(from: decoded)
+                WebNarInstaller.install(from: decoded)
             }
         case "homeurl":
             if let enc = params["url"], let decoded = enc.removingPercentEncoding {
                 NSLog("[Ourin] homeurl \(decoded)")
-                NarInstaller.install(from: decoded)
+                WebNarInstaller.install(from: decoded)
             }
         default:
             NSLog("[Ourin] unsupported type \(params["type"] ?? "nil")")

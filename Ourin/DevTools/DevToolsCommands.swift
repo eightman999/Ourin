@@ -1,13 +1,19 @@
 import SwiftUI
 
 struct DevToolsCommands: Commands {
-    @Environment(\.openWindow) private var openWindow
     var body: some Commands {
         CommandMenu("DevTools") {
             Button("DevToolsを表示") {
-                openWindow(id: "DevTools")
+                if #available(macOS 13.0, *) {
+                    openWindow(id: "DevTools")
+                } else {
+                    (NSApp.delegate as? AppDelegate)?.showDevTools()
+                }
             }
             .keyboardShortcut("d", modifiers: [.command, .option])
         }
     }
+
+    @available(macOS 13.0, *)
+    @Environment(\.openWindow) private var openWindow
 }

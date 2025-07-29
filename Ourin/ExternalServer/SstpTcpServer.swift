@@ -6,7 +6,7 @@ import OSLog
 public final class SstpTcpServer {
     private var listener: NWListener?
     public var onRequest: ((String) -> String)?
-    private let logger = Logger(subsystem: "Ourin", category: "SSTP_TCP")
+    private let logger = CompatLogger(subsystem: "Ourin", category: "SSTP_TCP")
     private let timeout: TimeInterval = 5
     private let maxSize = 64 * 1024
 

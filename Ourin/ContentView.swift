@@ -11,6 +11,8 @@ import SwiftUI
 import AppKit
 import OSLog
 
+// Logger replacement that works on macOS 10.15
+
 struct ContentView: View {
     /// サイドバーの表示項目
     enum Section: String, CaseIterable, Identifiable {
@@ -29,7 +31,7 @@ struct ContentView: View {
     @State private var runningTask: Task<Void, Never>? = nil
     @State private var closeDelegate: CloseConfirmationDelegate? = nil
 
-    private let logger = Logger(subsystem: "jp.ourin.devtools", category: "ui")
+    private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "ui")
 
     var body: some View {
         NavigationView {

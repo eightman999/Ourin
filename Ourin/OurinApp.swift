@@ -6,7 +6,7 @@ import ApplicationServices
 import Foundation
 // FMO 機能を組み込み、起動時に初期化する
 
-@main
+@available(macOS 11.0, *)
 struct OurinApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {
@@ -17,11 +17,13 @@ struct OurinApp: App {
             DevToolsView()
         }
         // The right-click menu has moved to the menu bar.
-        MenuBarExtra("Ourin") {
-            RightClickMenu()
-        }
-        Commands {
-            DevToolsCommands()
+        if #available(macOS 13.0, *) {
+            MenuBarExtra("Ourin") {
+                RightClickMenu()
+            }
+            Commands {
+                DevToolsCommands()
+            }
         }
     }
 }
@@ -37,6 +39,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var pluginDispatcher: PluginEventDispatcher?
     /// NAR インストーラ
     private let narInstaller = NarInstaller()
+    /// DevTools window for legacy macOS
+    private var devToolsWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 起動時に FMO を初期化。既に起動していれば終了する
@@ -112,6 +116,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                                title: "Install failed",
                                text: String(describing: error))
         }
+    }
+
+    /// Show DevTools window on macOS < 13
+    func showDevTools() {
+        if devToolsWindow == nil {
+            let controller = NSHostingController(rootView: DevToolsView())
+            let win = NSWindow(contentViewController: controller)
+            win.setContentSize(NSSize(width: 700, height: 500))
+            win.title = "DevTools"
+            devToolsWindow = win
+        }
+        devToolsWindow?.makeKeyAndOrderFront(nil)
     }
 }
 

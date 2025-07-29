@@ -9,6 +9,7 @@ private extension String.Encoding {
 
 /// SHIORI の Resource キーを取得してキャッシュするブリッジ。
 /// 仕様は `docs/PROPERTY_Resource_3.0M_SPEC.md` を参照。
+@available(macOS 11.0, *)
 public final class ResourceBridge {
     /// シングルトンインスタンス
     public static let shared = ResourceBridge()
@@ -33,7 +34,7 @@ public final class ResourceBridge {
         }
         let value = query(key: key)
         cache[key] = Entry(value: value, time: now)
-        logger.debug("query \(key, privacy: .public) -> \(value ?? "nil", privacy: .public)")
+        logger.debug("query \(key) -> \(value ?? \"nil\")")
         return value
     }
 
