@@ -1,5 +1,6 @@
 import SwiftUI
 
+@available(macOS 11.0, *)
 struct DevToolsCommands: Commands {
     var body: some Commands {
         CommandMenu("DevTools") {

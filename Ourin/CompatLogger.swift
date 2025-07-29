@@ -1,92 +1,51 @@
 import os.log
 
-#if swift(>=5.5)
-@available(macOS 11.0, *)
-private typealias ModernLogger = Logger
-#endif
-
 struct CompatLogger {
     private let subsystem: String
     private let category: String
-    #if swift(>=5.5)
-    @available(macOS 11.0, *)
-    private var logger: ModernLogger
-    private var oslog: OSLog?
-    #else
-    private var logger: OSLog
-    #endif
+    private let oslog: OSLog
+    private var modern: Any?
 
     init(subsystem: String, category: String) {
         self.subsystem = subsystem
         self.category = category
+        self.oslog = OSLog(subsystem: subsystem, category: category)
         if #available(macOS 11.0, *) {
-            #if swift(>=5.5)
-            self.logger = ModernLogger(subsystem: subsystem, category: category)
-            self.oslog = nil
-            #endif
+            self.modern = Logger(subsystem: subsystem, category: category)
         } else {
-            #if swift(>=5.5)
-            self.logger = Logger(subsystem: subsystem, category: category) // will not be used
-            self.oslog = OSLog(subsystem: subsystem, category: category)
-            #else
-            self.logger = OSLog(subsystem: subsystem, category: category)
-            #endif
+            self.modern = nil
         }
     }
 
     func info(_ message: String) {
-        if #available(macOS 11.0, *) {
-            #if swift(>=5.5)
-            logger.info("\(message, privacy: .public)")
-            #endif
+        if #available(macOS 11.0, *), let log = modern as? Logger {
+            log.info("\(message)")
         } else {
-            #if swift(>=5.5)
-            os_log("%{public}@", log: oslog ?? .default, type: .info, message)
-            #else
-            os_log("%{public}@", log: logger, type: .info, message)
-            #endif
+            os_log("%{public}@", log: oslog, type: .info, message)
         }
     }
 
     func debug(_ message: String) {
-        if #available(macOS 11.0, *) {
-            #if swift(>=5.5)
-            logger.debug("\(message, privacy: .public)")
-            #endif
+        if #available(macOS 11.0, *), let log = modern as? Logger {
+            log.debug("\(message)")
         } else {
-            #if swift(>=5.5)
-            os_log("%{public}@", log: oslog ?? .default, type: .debug, message)
-            #else
-            os_log("%{public}@", log: logger, type: .debug, message)
-            #endif
+            os_log("%{public}@", log: oslog, type: .debug, message)
         }
     }
 
     func warning(_ message: String) {
-        if #available(macOS 11.0, *) {
-            #if swift(>=5.5)
-            logger.warning("\(message, privacy: .public)")
-            #endif
+        if #available(macOS 11.0, *), let log = modern as? Logger {
+            log.warning("\(message)")
         } else {
-            #if swift(>=5.5)
-            os_log("%{public}@", log: oslog ?? .default, type: .error, message)
-            #else
-            os_log("%{public}@", log: logger, type: .error, message)
-            #endif
+            os_log("%{public}@", log: oslog, type: .error, message)
         }
     }
 
     func fault(_ message: String) {
-        if #available(macOS 11.0, *) {
-            #if swift(>=5.5)
-            logger.fault("\(message, privacy: .public)")
-            #endif
+        if #available(macOS 11.0, *), let log = modern as? Logger {
+            log.fault("\(message)")
         } else {
-            #if swift(>=5.5)
-            os_log("%{public}@", log: oslog ?? .default, type: .fault, message)
-            #else
-            os_log("%{public}@", log: logger, type: .fault, message)
-            #endif
+            os_log("%{public}@", log: oslog, type: .fault, message)
         }
     }
 }

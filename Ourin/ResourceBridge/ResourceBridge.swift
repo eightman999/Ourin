@@ -34,7 +34,7 @@ public final class ResourceBridge {
         }
         let value = query(key: key)
         cache[key] = Entry(value: value, time: now)
-        logger.debug("query \(key) -> \(value ?? \"nil\")")
+        logger.debug("query \(key) -> \(value ?? "nil")")
         return value
     }
 
