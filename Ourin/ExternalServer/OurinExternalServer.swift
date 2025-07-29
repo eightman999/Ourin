@@ -1,14 +1,23 @@
 import Foundation
 import OSLog
 
+// 外部 SSTP サーバ群の管理を行うクラス。
+// モジュールの概要は docs/SSTP_Host_Modules_JA.md を参照。
+
 /// 外部からの SSTP イベントを受信する TCP/HTTP/XPC サーバ群を管理するクラス。
 public final class OurinExternalServer {
+    /// TCP ベースの SSTP サーバ
     private let tcp = SstpTcpServer()
+    /// HTTP ベースの SSTP サーバ
     private let http = SstpHttpServer()
+    /// XPC 直接通信サーバ
     private let xpc = XpcDirectServer()
+    /// リクエストを解釈して SHIORI へ転送するルーター
     private let router = SstpRouter()
+    /// OSLog 用ロガー
     private let logger = Logger(subsystem: "Ourin", category: "ExternalServer")
 
+    /// サーバ群の初期設定を行う
     public init() {
         tcp.onRequest = { [weak self] in self?.router.handle(raw: $0) ?? "" }
         http.onRequest = { [weak self] in self?.router.handle(raw: $0) ?? "" }

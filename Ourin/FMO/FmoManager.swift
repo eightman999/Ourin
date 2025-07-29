@@ -1,8 +1,12 @@
-// FMO全体の初期化と後始末をまとめる管理クラス
+// FMO全体の初期化と後始末をまとめる管理クラス。
+// 実装方針は docs/About_FMO.md を参照。
 import Foundation
 
+/// FMO の初期化と後始末を司る管理クラス
 final class FmoManager {
+    /// 排他制御用の名前付きセマフォ
     let mutex: FmoMutex
+    /// 共有メモリ領域のラッパー
     let memory: FmoSharedMemory
 
     /// 共有メモリとセマフォを初期化する
@@ -16,6 +20,8 @@ final class FmoManager {
     }
 
     /// 使用したリソースを解放する
+    ///
+    /// アプリケーション終了時に必ず呼び出してメモリリークを防ぐ
     func cleanup() {
         memory.close()
         mutex.close()

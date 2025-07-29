@@ -1,4 +1,5 @@
-// 共有メモリ領域を扱うSwiftラッパー。64KBを確保し先頭にサイズを書き込む
+// 共有メモリ領域を扱うSwiftラッパー。64KBを確保し先頭にサイズを書き込む。
+// FMO の詳細は docs/About_FMO.md を参照。
 import Foundation
 #if os(Linux)
 import Glibc
@@ -6,12 +7,18 @@ import Glibc
 import Darwin
 #endif
 
+/// POSIX 共有メモリを扱うためのラッパークラス
 final class FmoSharedMemory {
+    /// 共有メモリ名（作成後すぐに unlink する）
     private let name: String
+    /// 確保するバイト数
     private let size: Int
+    /// マッピングしたポインタ
     private var ptr: UnsafeMutableRawPointer
+    /// ファイルディスクリプタ
     private let fd: Int32
 
+    /// 新規共有メモリ領域を確保してマッピングする
     init(name: String, size: Int = 64 * 1024) throws {
         self.name = name
         self.size = size

@@ -1,6 +1,9 @@
 import Foundation
 import os.log
 
+/// `.nar` アーカイブをダウンロードして展開する簡易インストーラ。
+/// 挙動の詳細仕様は docs/NAR_INSTALL_1.0M_SPEC.md を参照。
+
 public enum NarInstaller {
     enum Error: Swift.Error, CustomStringConvertible {
         case notZip
@@ -28,11 +31,15 @@ public enum NarInstaller {
 
     private static let log = Logger(subsystem: "jp.ourin.web", category: "nar")
     /// Download and install a NAR archive from https URL
+
     public static func install(from urlString: String) {
+        // URL の妥当性チェック。https 以外は拒否
         guard let url = URL(string: urlString), url.scheme?.lowercased() == "https" else {
             NSLog("[NarInstaller] invalid url: \(urlString)")
             return
         }
+
+        // URLSession で非同期ダウンロード
         let task = URLSession.shared.downloadTask(with: url) { local, response, error in
             if let error = error {
                 NSLog("[NarInstaller] download error: \(error)")
@@ -46,6 +53,10 @@ public enum NarInstaller {
             } catch {
                 log.error("install failed: \(String(describing: error), privacy: .public)")
             }
+
+            NSLog("[NarInstaller] downloaded: \(local.path)")
+
+
         }
         task.resume()
     }
