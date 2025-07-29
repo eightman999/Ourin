@@ -136,7 +136,7 @@ OURIN_NAR_INSTALL_1_0M/
   sample/
     Sources/OurinNarInstallerSample/
       AppDelegate.swift
-      NarInstaller.swift
+      SampleNarInstaller.swift
       InstallTxtParser.swift
       ZipUtil.swift
       Paths.swift
