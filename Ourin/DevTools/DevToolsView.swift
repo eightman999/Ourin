@@ -16,13 +16,35 @@ struct DevToolsView: View {
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "ui")
 
     var body: some View {
-        NavigationSplitView {
+#if compiler(>=5.7)
+        if #available(macOS 13.0, *) {
+            NavigationSplitView {
+                List(Section.allCases, selection: $selection) { section in
+                    Text(section.rawValue)
+                }
+                .listStyle(SidebarListStyle())
+                .frame(minWidth: 180)
+            } detail: {
+                detailView
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .applyToolbar(reload: reload)
+            }
+        } else {
+            navigationViewCompat
+        }
+#else
+        navigationViewCompat
+#endif
+    }
+
+    private var navigationViewCompat: some View {
+        NavigationView {
             List(Section.allCases, selection: $selection) { section in
                 Text(section.rawValue)
             }
             .listStyle(SidebarListStyle())
             .frame(minWidth: 180)
-        } detail: {
+
             detailView
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .applyToolbar(reload: reload)

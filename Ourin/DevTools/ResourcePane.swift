@@ -28,18 +28,26 @@ struct ResourcePane: View {
 
     @ViewBuilder
     private var tableView: some View {
+#if compiler(>=5.5)
         if #available(macOS 12.0, *) {
             Table(items) {
                 TableColumn("キー") { Text($0.key) }
                 TableColumn("値") { Text($0.value) }
             }
         } else {
-            List(items) { item in
-                HStack {
-                    Text(item.key).frame(minWidth: 120, alignment: .leading)
-                    Spacer()
-                    Text(item.value)
-                }
+            legacyList
+        }
+#else
+        legacyList
+#endif
+    }
+
+    private var legacyList: some View {
+        List(items) { item in
+            HStack {
+                Text(item.key).frame(minWidth: 120, alignment: .leading)
+                Spacer()
+                Text(item.value)
             }
         }
     }
