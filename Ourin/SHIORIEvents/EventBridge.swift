@@ -8,6 +8,7 @@ final class EventBridge {
     private init() {}
 
     private let dispatcher = ShioriDispatcher()
+    private let defaults = UserDefaults.standard
 
     // MARK: - 開始・終了
 
@@ -27,7 +28,12 @@ final class EventBridge {
         NetworkObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         SystemLoadObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
 
-        // boot event (GET)
+        // boot events (GET)
+        if !defaults.bool(forKey: "Ourin_FirstBootDone") {
+            _ = dispatcher.sendGet(id: .OnFirstBoot, params: [:])
+            defaults.set(true, forKey: "Ourin_FirstBootDone")
+        }
+        // normal boot event (GET)
         _ = dispatcher.sendGet(id: .OnBoot, params: [:])
     }
 
