@@ -5,6 +5,7 @@ import AppKit
 // メニュー構成例は docs/RightClickMenuMockup.md を参照。
 
 /// 右クリックメニュー UI の SwiftUI 実装
+@available(macOS 11.0, *)
 struct RightClickMenu: View {
     /// メニュー項目一覧を返す
     var body: some View {
