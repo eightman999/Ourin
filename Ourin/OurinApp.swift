@@ -21,7 +21,7 @@ struct OurinApp: App {
             MenuBarExtra("Ourin") {
                 RightClickMenu()
             }
-            Commands {
+            .commands {
                 DevToolsCommands()
             }
         }
@@ -96,7 +96,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 installNar(at: URL(fileURLWithPath: path))
             }
         }
-        app.reply(toOpenOrPrint: .success)
+        app.reply(toOpenOrPrint: NSApplication.DelegateReply.success)
     }
 
     func application(_ app: NSApplication, open urls: [URL]) {
@@ -131,15 +131,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
-extension NSApplication {
-    enum Reply { case success, failure }
-    func reply(toOpenOrPrint reply: Reply) {
-        switch reply {
-        case .success: self.reply(toOpenOrPrint: .success)
-        case .failure: self.reply(toOpenOrPrint: .failure)
-        }
-    }
-}
+
+
+
 
 private extension NSApplication {
     func presentAlert(style: NSAlert.Style, title: String, text: String) {

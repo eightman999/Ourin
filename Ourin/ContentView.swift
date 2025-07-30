@@ -6,15 +6,10 @@
 //
 
 import SwiftUI
-
-/// SSP風右クリックメニューの表示に利用
 import AppKit
 import OSLog
 
-// Logger replacement that works on macOS 10.15
-
 struct ContentView: View {
-    /// サイドバーの表示項目
     enum Section: String, CaseIterable, Identifiable {
         case general = "General"
         case shioriResource = "SHIORI Resource"
@@ -35,33 +30,21 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            // Sidebar list
             List(Section.allCases, selection: $selection) { section in
                 Text(section.rawValue)
             }
             .listStyle(SidebarListStyle())
             .frame(minWidth: 200)
 
-            // Detail pane with simple placeholders
             detailView
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .toolbar {
-                    ToolbarItemGroup {
-                        Button(action: reload) {
-                            Image(systemName: "arrow.clockwise")
-                        }.help("Reload")
-                        Button(action: runTestScenario) {
-                            Image(systemName: "play.fill")
-                        }.help("Run Test")
-                        Button(action: stopScenario) {
-                            Image(systemName: "stop.fill")
-                        }.help("Stop")
-                        Button(action: exportDiagnostics) {
-                            Image(systemName: "square.and.arrow.up")
-                        }.help("Export")
-                    }
-                }
         }
+        .modifier(ToolbarModifierIfAvailable(
+            reload: reload,
+            runTest: runTestScenario,
+            stop: stopScenario,
+            export: exportDiagnostics
+        ))
         .background(
             WindowAccessor { win in
                 if let win = win, closeDelegate == nil {
@@ -71,8 +54,6 @@ struct ContentView: View {
                 }
             }
         )
-        // 右クリックメニューはメニューバーに移動
-
     }
 
     @ViewBuilder
@@ -97,7 +78,6 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Toolbar actions
     private func reload() {
         logger.info("reload triggered")
         ResourceBridge.shared.invalidateAll()
@@ -134,6 +114,41 @@ struct ContentView: View {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("OurinDiagnostics.txt")
         try? text.write(to: url, atomically: true, encoding: .utf8)
         NSWorkspace.shared.activateFileViewerSelecting([url])
+    }
+}
+
+// MARK: - Conditional toolbar modifier for macOS 11.0+
+private struct ToolbarModifierIfAvailable: ViewModifier {
+    var reload: () -> Void
+    var runTest: () -> Void
+    var stop: () -> Void
+    var export: () -> Void
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(macOS 11.0, *) {
+            content.toolbar {
+                ToolbarItemGroup(placement: .automatic) {
+                    Button(action: reload) {
+                        Image(systemName: "arrow.clockwise")
+                    }.help("Reload")
+
+                    Button(action: runTest) {
+                        Image(systemName: "play.fill")
+                    }.help("Run Test")
+
+                    Button(action: stop) {
+                        Image(systemName: "stop.fill")
+                    }.help("Stop")
+
+                    Button(action: export) {
+                        Image(systemName: "square.and.arrow.up")
+                    }.help("Export")
+                }
+            }
+        } else {
+            content
+        }
     }
 }
 

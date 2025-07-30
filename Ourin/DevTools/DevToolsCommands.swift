@@ -12,7 +12,7 @@ struct DevToolsCommands: Commands {
     private func openDevTools() {
 #if compiler(>=5.7)
         if #available(macOS 13.0, *) {
-            openWindow(id: "DevTools")
+            DevToolsWindowOpener.shared?.open()
         } else {
             (NSApp.delegate as? AppDelegate)?.showDevTools()
         }
@@ -20,13 +20,26 @@ struct DevToolsCommands: Commands {
         (NSApp.delegate as? AppDelegate)?.showDevTools()
 #endif
     }
-
-    // `openWindow` is available from macOS 13.0. Keeping the property
-    // unconditionally defined when compiling with a modern SDK lets the
-    // compiler resolve the symbol while older macOS versions simply ignore it
-    // at runtime via the availability check in `openDevTools()`.
-#if compiler(>=5.7)
-    @available(macOS 13.0, *)
-    @Environment(\.openWindow) private var openWindow
-#endif
 }
+
+// MARK: - macOS13以降用のWindowOpenerを別スコープで定義
+#if compiler(>=5.7)
+@available(macOS 13.0, *)
+private struct DevToolsWindowOpener: View {
+    @Environment(\.openWindow) private var openWindow
+
+    static var shared: Self? = {
+        // Dummy View を生成して Environment を使わせる
+        let opener = Self()
+        return opener
+    }()
+
+    func open() {
+        openWindow(id: "DevTools")
+    }
+
+    var body: some View {
+        EmptyView()
+    }
+}
+#endif
