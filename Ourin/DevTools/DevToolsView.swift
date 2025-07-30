@@ -9,6 +9,7 @@ struct DevToolsView: View {
     enum Section: String, CaseIterable, Identifiable {
         case general = "基本設定"
         case shioriResource = "SHIORIリソース"
+        case narList = "NAR一覧"
         var id: String { rawValue }
     }
 
@@ -58,6 +59,8 @@ struct DevToolsView: View {
             GeneralPane()
         case .shioriResource:
             ResourcePane()
+        case .narList:
+            NarListPane()
         case .none:
             Text("セクションを選択")
         }
