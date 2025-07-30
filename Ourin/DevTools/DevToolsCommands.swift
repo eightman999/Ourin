@@ -26,6 +26,7 @@ struct DevToolsCommands: Commands {
     // compiler resolve the symbol while older macOS versions simply ignore it
     // at runtime via the availability check in `openDevTools()`.
 #if compiler(>=5.7)
+    @available(macOS 13.0, *)
     @Environment(\.openWindow) private var openWindow
 #endif
 }
