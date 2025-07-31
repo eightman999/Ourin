@@ -29,7 +29,7 @@ final class NarInstaller {
 
     private let log = Logger(subsystem: "jp.ourin.installer", category: "nar")
 
-    func install(fromNar narURL: URL) throws {
+    func install(fromNar narURL: URL) throws -> URL {
         // 1) 形式検証（拡張子 + 軽いヘッダチェック）
         guard narURL.pathExtension.lowercased() == "nar" else { throw Error.notZip }
         let data = try Data(contentsOf: narURL, options: .mappedIfSafe)
@@ -68,5 +68,6 @@ final class NarInstaller {
         // 7) 後始末
         try? FileManager.default.removeItem(at: tmpRoot)
         log.info("install finished")
+        return target
     }
 }
