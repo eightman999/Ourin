@@ -37,13 +37,33 @@ final class DragDropReceiver: NSView {
         if let items = pb.pasteboardItems {
             // ファイル URL の取り出し
             var urls: [String] = []
+            var narFiles: [URL] = []
             for it in items {
-                if let u = it.string(forType: .fileURL) { urls.append(u) }
+                if let u = it.string(forType: .fileURL), let url = URL(string: u) {
+                    urls.append(u)
+                    // .nar ファイルをチェック
+                    if url.pathExtension.lowercased() == "nar" {
+                        narFiles.append(url)
+                    }
+                }
             }
+            
+            // .nar ファイルが含まれている場合はアプリの標準ファイル開処理に委譲
+            if !narFiles.isEmpty {
+                for narUrl in narFiles {
+                    if let appDelegate = NSApp.delegate as? AppDelegate {
+                        appDelegate.application(NSApp, open: [narUrl])
+                    }
+                }
+                return true
+            }
+            
+            // .nar 以外のファイルは従来通り SHIORI イベントとして処理
             if !urls.isEmpty {
                 onEvent?(ShioriEvent(id: .OnFileDrop, params: Dictionary(uniqueKeysWithValues: urls.enumerated().map{ ("Reference\($0.offset)", $0.element) } )))
                 return true
             }
+            
             // URL 文字列
             for it in items {
                 if let u = it.string(forType: .URL) {
