@@ -37,13 +37,10 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            List(Section.allCases, selection: $selection) { section in
-                NavigationLink(
-                    destination: EmptyView(),
-                    tag: section,
-                    selection: $selection
-                ) {
+            List(selection: $selection) {
+                ForEach(Section.allCases) { section in
                     Text(section.localized)
+                        .tag(section)
                 }
             }
             .listStyle(SidebarListStyle())
