@@ -25,6 +25,10 @@ struct RightClickMenu: View {
             }
             Divider()
             Button("設定") {}
+            Button("DevTools を開く") {
+                (NSApp.delegate as? AppDelegate)?.showDevTools()
+            }
+            Divider()
             Button("終了") { NSApplication.shared.terminate(nil) }
         }
     }

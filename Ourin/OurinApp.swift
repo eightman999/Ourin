@@ -149,9 +149,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
+// MARK: - Notification Names
 
-
-
+extension Notification.Name {
+    static let devToolsReload = Notification.Name("devToolsReload")
+    static let testScenarioStarted = Notification.Name("testScenarioStarted")
+    static let testScenarioStopped = Notification.Name("testScenarioStopped")
+}
 
 private extension NSApplication {
     func presentAlert(style: NSAlert.Style, title: String, text: String) {
