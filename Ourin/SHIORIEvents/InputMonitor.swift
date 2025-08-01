@@ -14,6 +14,23 @@ final class InputMonitor {
     func start(handler: @escaping (ShioriEvent)->Void) {
         self.handler = handler
         local = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged, .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp, .mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged, .scrollWheel]) { [weak self] ev in
+            // マウスダウン・アップイベントの場合、UI要素上でのクリックか判定する
+            if ev.type == .leftMouseDown || ev.type == .rightMouseDown || ev.type == .otherMouseDown ||
+               ev.type == .leftMouseUp || ev.type == .rightMouseUp || ev.type == .otherMouseUp {
+                if let window = ev.window {
+                    // hitTestでクリック位置にUI要素があるかチェック
+                    let hitView = window.contentView?.hitTest(ev.locationInWindow)
+                    NSLog("[InputMonitor] Click at (%f, %f), hitView: %@", ev.locationInWindow.x, ev.locationInWindow.y, hitView?.description ?? "nil")
+                    if hitView != nil {
+                        // UI要素上のクリックなので、SHIORIイベントは送らずに通常のイベント処理に任せる
+                        NSLog("[InputMonitor] UI element clicked, passing to SwiftUI")
+                        return ev
+                    }
+                    NSLog("[InputMonitor] Background clicked, dispatching to SHIORI")
+                }
+            }
+
+            // 背景クリック、またはマウスダウン以外のイベントは通常通りディスパッチする
             self?.dispatch(ev)
             return ev
         }

@@ -17,7 +17,7 @@ final class EventBridge {
         // periodic timers and system state observers
         TimerEmitter.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         SleepObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
-        InputMonitor.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
+        // InputMonitor.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         DragDropReceiver.shared.activate { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         DisplayObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) }
         SpaceObserver.shared.start { [weak self] ev in self?.dispatcher.sendNotify(id: ev.id, params: ev.params) } // M-Add
@@ -41,7 +41,7 @@ final class EventBridge {
     func stop() {
         TimerEmitter.shared.stop()
         SleepObserver.shared.stop()
-        InputMonitor.shared.stop()
+        // InputMonitor.shared.stop()
         DisplayObserver.shared.stop()
         SpaceObserver.shared.stop()
         PowerObserver.shared.stop()

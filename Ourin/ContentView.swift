@@ -16,10 +16,15 @@ struct ContentView: View {
         case pluginsEvents = "Plugins & Events"
         case external = "External"
         case headline = "Headline / Balloon"
+        case narInstall = "NAR Install"
         case logging = "Logging & Diagnostics"
         case network = "Network"
 
         var id: String { rawValue }
+
+        var localized: LocalizedStringKey {
+            LocalizedStringKey(rawValue)
+        }
     }
 
     @State private var selection: Section? = .general
@@ -31,7 +36,13 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List(Section.allCases, selection: $selection) { section in
-                Text(section.rawValue)
+                NavigationLink(
+                    destination: EmptyView(),
+                    tag: section,
+                    selection: $selection
+                ) {
+                    Text(section.localized)
+                }
             }
             .listStyle(SidebarListStyle())
             .frame(minWidth: 200)
@@ -69,6 +80,8 @@ struct ContentView: View {
             Text("External Events Harness")
         case .headline:
             Text("Headline / Balloon Test")
+        case .narInstall:
+            NarInstallView()
         case .logging:
             Text("Logging & Diagnostics")
         case .network:
@@ -110,7 +123,8 @@ struct ContentView: View {
 
     private func exportDiagnostics() {
         logger.info("export diagnostics")
-        let text = "Diagnostics exported at \(Date())\n"
+        let format = NSLocalizedString("Diagnostics exported at %@", comment: "Diagnostics export message")
+        let text = String(format: format, Date().description)
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("OurinDiagnostics.txt")
         try? text.write(to: url, atomically: true, encoding: .utf8)
         NSWorkspace.shared.activateFileViewerSelecting([url])
@@ -126,28 +140,24 @@ private struct ToolbarModifierIfAvailable: ViewModifier {
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        if #available(macOS 11.0, *) {
-            content.toolbar {
-                ToolbarItemGroup(placement: .automatic) {
-                    Button(action: reload) {
-                        Image(systemName: "arrow.clockwise")
-                    }.help("Reload")
+        content.toolbar {
+            ToolbarItemGroup(placement: .automatic) {
+                Button(action: reload) {
+                    Image(systemName: "arrow.clockwise")
+                }.help(Text("Reload"))
 
-                    Button(action: runTest) {
-                        Image(systemName: "play.fill")
-                    }.help("Run Test")
+                Button(action: runTest) {
+                    Image(systemName: "play.fill")
+                }.help(Text("Run Test"))
 
-                    Button(action: stop) {
-                        Image(systemName: "stop.fill")
-                    }.help("Stop")
+                Button(action: stop) {
+                    Image(systemName: "stop.fill")
+                }.help(Text("Stop"))
 
-                    Button(action: export) {
-                        Image(systemName: "square.and.arrow.up")
-                    }.help("Export")
-                }
+                Button(action: export) {
+                    Image(systemName: "square.and.arrow.up")
+                }.help(Text("Export"))
             }
-        } else {
-            content
         }
     }
 }

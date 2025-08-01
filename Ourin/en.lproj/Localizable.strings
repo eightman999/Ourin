@@ -1,0 +1,27 @@
+/* General UI Elements */
+"General" = "General";
+"SHIORI Resource" = "SHIORI Resource";
+"Plugins & Events" = "Plugins & Events";
+"External" = "External";
+"Headline / Balloon" = "Headline / Balloon";
+"NAR Install" = "NAR Install";
+"Logging & Diagnostics" = "Logging & Diagnostics";
+"Network" = "Network";
+
+/* Detail View Titles */
+"General Settings" = "General Settings";
+"SHIORI Resource Viewer" = "SHIORI Resource Viewer";
+"Plugin Manager / Event Injector" = "Plugin Manager / Event Injector";
+"External Events Harness" = "External Events Harness";
+"Headline / Balloon Test" = "Headline / Balloon Test";
+"NAR Install is available on macOS 11.0 or later." = "NAR Install is available on macOS 11.0 or later.";
+"Select a section" = "Select a section";
+
+/* Toolbar Actions */
+"Reload" = "Reload";
+"Run Test" = "Run Test";
+"Stop" = "Stop";
+"Export" = "Export";
+
+/* Messages */
+"Diagnostics exported at %@" = "Diagnostics exported at %@";

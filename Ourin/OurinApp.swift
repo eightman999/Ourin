@@ -6,7 +6,6 @@ import ApplicationServices
 import Foundation
 // FMO 機能を組み込み、起動時に初期化する
 
-@available(macOS 11.0, *)
 struct OurinApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {

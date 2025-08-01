@@ -21,7 +21,13 @@ struct DevToolsView: View {
         if #available(macOS 13.0, *) {
             NavigationSplitView {
                 List(Section.allCases, selection: $selection) { section in
-                    Text(section.rawValue)
+                    NavigationLink(
+                        destination: EmptyView(),
+                        tag: section,
+                        selection: $selection
+                    ) {
+                        Text(section.rawValue)
+                    }
                 }
                 .listStyle(SidebarListStyle())
                 .frame(minWidth: 180)
@@ -41,7 +47,13 @@ struct DevToolsView: View {
     private var navigationViewCompat: some View {
         NavigationView {
             List(Section.allCases, selection: $selection) { section in
-                Text(section.rawValue)
+                NavigationLink(
+                    destination: EmptyView(),
+                    tag: section,
+                    selection: $selection
+                ) {
+                    Text(section.rawValue)
+                }
             }
             .listStyle(SidebarListStyle())
             .frame(minWidth: 180)
@@ -76,16 +88,12 @@ struct DevToolsView: View {
 private struct ToolbarCompat: ViewModifier {
     let action: () -> Void
     func body(content: Content) -> some View {
-        if #available(macOS 11.0, *) {
-            content.toolbar {
-                ToolbarItemGroup {
-                    Button(action: action) {
-                        Image(systemName: "arrow.clockwise")
-                    }.help("再読込")
-                }
+        content.toolbar {
+            ToolbarItemGroup {
+                Button(action: action) {
+                    Image(systemName: "arrow.clockwise")
+                }.help("再読込")
             }
-        } else {
-            content
         }
     }
 }

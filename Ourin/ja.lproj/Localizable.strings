@@ -1,0 +1,27 @@
+/* General UI Elements */
+"General" = "一般";
+"SHIORI Resource" = "SHIORI リソース";
+"Plugins & Events" = "プラグイン・イベント";
+"External" = "外部連携";
+"Headline / Balloon" = "ヘッドライン・バルーン";
+"NAR Install" = "NAR インストール";
+"Logging & Diagnostics" = "ログ・診断";
+"Network" = "ネットワーク";
+
+/* Detail View Titles */
+"General Settings" = "一般設定";
+"SHIORI Resource Viewer" = "SHIORI リソースビューア";
+"Plugin Manager / Event Injector" = "プラグイン管理・イベント注入";
+"External Events Harness" = "外部イベントハーネス";
+"Headline / Balloon Test" = "ヘッドライン・バルーンテスト";
+"NAR Install is available on macOS 11.0 or later." = "NAR インストール機能は macOS 11.0 以降で利用可能です。";
+"Select a section" = "セクションを選択してください";
+
+/* Toolbar Actions */
+"Reload" = "再読み込み";
+"Run Test" = "テスト実行";
+"Stop" = "停止";
+"Export" = "エクスポート";
+
+/* Messages */
+"Diagnostics exported at %@" = "診断情報をエクスポートしました: %@";

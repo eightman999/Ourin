@@ -32,7 +32,8 @@ final class NarInstaller {
 
     func install(fromNar narURL: URL) throws -> URL {
         // 1) 形式検証（拡張子 + 軽いヘッダチェック）
-        guard narURL.pathExtension.lowercased() == "nar" else { throw Error.notZip }
+        let allowedExtensions = ["nar", "zip"]
+        guard allowedExtensions.contains(narURL.pathExtension.lowercased()) else { throw Error.notZip }
         let data = try Data(contentsOf: narURL, options: .mappedIfSafe)
         guard data.starts(with: [0x50, 0x4b]) else { throw Error.notZip } // 'PK'
 
