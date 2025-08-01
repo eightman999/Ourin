@@ -24,7 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func installNar(at url: URL) {
         do {
-            try installer.install(fromNar: url)
+            _ = try installer.install(fromNar: url)
             NSApp.presentAlert(style: .informational,
                                title: "Installed",
                                text: "Installed: \(url.lastPathComponent)")

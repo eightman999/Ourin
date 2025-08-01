@@ -39,6 +39,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var pluginDispatcher: PluginEventDispatcher?
     /// NAR インストーラ
     private let narInstaller = NarInstaller()
+    private var yayaAdapter: YayaAdapter?
     /// DevTools window for legacy macOS
     private var devToolsWindow: NSWindow?
 
@@ -107,15 +108,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func installNar(at url: URL) {
         do {
-            try narInstaller.install(fromNar: url)
+            let target = try narInstaller.install(fromNar: url)
             NSApp.presentAlert(style: .informational,
                                title: "Installed",
                                text: "Installed: \(url.lastPathComponent)")
+            runGhost(at: target)
         } catch {
             NSApp.presentAlert(style: .critical,
                                title: "Install failed",
                                text: String(describing: error))
         }
+    }
+
+    private func runGhost(at root: URL) {
+        let ghostRoot = root.appendingPathComponent("ghost/master", isDirectory: true)
+        let fm = FileManager.default
+        guard let contents = try? fm.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil) else { return }
+        let dics = contents.filter { $0.pathExtension.lowercased() == "dic" }.map { $0.lastPathComponent }
+        guard let adapter = YayaAdapter() else { return }
+        yayaAdapter = adapter
+        guard adapter.load(ghostRoot: ghostRoot, dics: dics) else { return }
+        if let res = adapter.request(method: "GET", id: "OnBoot"), res.ok {
+            if let script = res.value {
+                NSApp.presentAlert(style: .informational, title: "OnBoot", text: script)
+            }
+        }
+        adapter.unload()
+        yayaAdapter = nil
     }
 
     /// Show DevTools window on macOS < 13

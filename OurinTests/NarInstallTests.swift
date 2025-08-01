@@ -15,7 +15,8 @@ struct NarInstallTests {
         let nar = try makeSampleNar(encoding: .utf8, dirName: "sample1")
         defer { try? FileManager.default.removeItem(at: nar.deletingLastPathComponent()) }
         let installer = NarInstaller()
-        try installer.install(fromNar: nar)
+        let target = try installer.install(fromNar: nar)
+        #expect(FileManager.default.fileExists(atPath: target.path))
     }
 
     @Test
@@ -24,7 +25,8 @@ struct NarInstallTests {
         let nar = try makeSampleNar(encoding: sjisEnc, dirName: "sample_sjis")
         defer { try? FileManager.default.removeItem(at: nar.deletingLastPathComponent()) }
         let installer = NarInstaller()
-        try installer.install(fromNar: nar)
+        let target = try installer.install(fromNar: nar)
+        #expect(FileManager.default.fileExists(atPath: target.path))
     }
 
     private func makeSampleNar(encoding: String.Encoding, dirName: String) throws -> URL {
