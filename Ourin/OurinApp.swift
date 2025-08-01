@@ -105,6 +105,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Install bundled emily4.nar and run it if present
+    func installDefaultGhost() {
+        if let url = Bundle.main.url(forResource: "emily4", withExtension: "nar") {
+            installNar(at: url)
+        } else {
+            NSLog("Bundled emily4.nar not found")
+        }
+    }
+
     private func installNar(at url: URL) {
         do {
             let target = try narInstaller.install(fromNar: url)
