@@ -20,13 +20,10 @@ struct DevToolsView: View {
 #if compiler(>=5.7)
         if #available(macOS 13.0, *) {
             NavigationSplitView {
-                List(Section.allCases, selection: $selection) { section in
-                    NavigationLink(
-                        destination: EmptyView(),
-                        tag: section,
-                        selection: $selection
-                    ) {
+                List(selection: $selection) {
+                    ForEach(Section.allCases) { section in
                         Text(section.rawValue)
+                            .tag(section)
                     }
                 }
                 .listStyle(SidebarListStyle())
@@ -46,13 +43,10 @@ struct DevToolsView: View {
 
     private var navigationViewCompat: some View {
         NavigationView {
-            List(Section.allCases, selection: $selection) { section in
-                NavigationLink(
-                    destination: EmptyView(),
-                    tag: section,
-                    selection: $selection
-                ) {
+            List(selection: $selection) {
+                ForEach(Section.allCases) { section in
                     Text(section.rawValue)
+                        .tag(section)
                 }
             }
             .listStyle(SidebarListStyle())
