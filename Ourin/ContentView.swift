@@ -114,31 +114,9 @@ struct ContentView: View {
     private func runTestScenario() {
         logger.info("run test scenario")
         stopScenario()
-        
-        // ゴーストウィンドウを表示
-        showGhostWindow()
-        
-        guard let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher else { return }
-        let windows = NSApplication.shared.windows
-        let path = Bundle.main.bundlePath
-        
-        runningTask = Task {
-            // まずテスト用のゴーストを起動してみる
-            await startTestGhost()
-            
-            // プラグインイベントを送信
-            dispatcher.onGhostBoot(windows: windows, ghostName: "TestGhost", shellName: "default", ghostID: "test", path: path)
-            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2秒待機
-            
-            dispatcher.onMenuExec(windows: windows, ghostName: "TestGhost", shellName: "default", ghostID: "test", path: path)
-            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2秒待機
-            
-            dispatcher.onGhostExit(windows: windows, ghostName: "TestGhost", shellName: "default", ghostID: "test", path: path)
-            
-            // ゴーストウィンドウを閉じる
-            await MainActor.run {
-                closeGhostWindow()
-            }
+
+        if let delegate = NSApp.delegate as? AppDelegate {
+            delegate.installDefaultGhost()
         }
     }
 
