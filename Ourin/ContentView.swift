@@ -115,6 +115,9 @@ struct ContentView: View {
         if let delegate = NSApp.delegate as? AppDelegate {
             delegate.installDefaultGhost()
         }
+
+        // Ensure the test ghost window is visible during the scenario
+        showGhostWindow()
     }
 
     private func stopScenario() {
