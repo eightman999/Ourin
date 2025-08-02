@@ -91,11 +91,11 @@ struct DevToolsCommands: Commands {
         let path = Bundle.main.bundlePath
         
         Task {
-            dispatcher.onGhostBoot(windows: windows, ghostName: "TestGhost", shellName: "default", ghostID: "test", path: path)
+            dispatcher.onGhostBoot(windows: windows, ghostName: "emily4", shellName: "default", ghostID: "emily4", path: path)
             try? await Task.sleep(nanoseconds: 500_000_000)
-            dispatcher.onMenuExec(windows: windows, ghostName: "TestGhost", shellName: "default", ghostID: "test", path: path)
+            dispatcher.onMenuExec(windows: windows, ghostName: "emily4", shellName: "default", ghostID: "emily4", path: path)
             try? await Task.sleep(nanoseconds: 500_000_000)
-            dispatcher.onGhostExit(windows: windows, ghostName: "TestGhost", shellName: "default", ghostID: "test", path: path)
+            dispatcher.onGhostExit(windows: windows, ghostName: "emily4", shellName: "default", ghostID: "emily4", path: path)
         }
         
         NotificationCenter.default.post(name: .testScenarioStarted, object: nil)
