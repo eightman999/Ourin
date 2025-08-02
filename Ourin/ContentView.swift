@@ -30,8 +30,6 @@ struct ContentView: View {
     @State private var selection: Section? = .general
     @State private var runningTask: Task<Void, Never>? = nil
     @State private var closeDelegate: CloseConfirmationDelegate? = nil
-    @State private var ghostWindow: NSWindow? = nil
-    @State private var testYaya: YayaAdapter? = nil
 
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "ui")
 
@@ -115,74 +113,14 @@ struct ContentView: View {
         if let delegate = NSApp.delegate as? AppDelegate {
             delegate.installDefaultGhost()
         }
-
-        // Ensure the test ghost window is visible during the scenario
-        showGhostWindow()
     }
 
     private func stopScenario() {
         logger.info("stop scenario")
         runningTask?.cancel()
         runningTask = nil
-        closeGhostWindow()
-        testYaya?.unload()
-        testYaya = nil
     }
     
-    private func showGhostWindow() {
-        if ghostWindow == nil {
-            let controller = NSHostingController(rootView: TestGhostView())
-            let window = NSWindow(contentViewController: controller)
-            window.setContentSize(NSSize(width: 300, height: 400))
-            window.title = "Test Ghost"
-            window.styleMask = [.titled, .closable, .miniaturizable]
-            window.isReleasedWhenClosed = false
-            window.center()
-            ghostWindow = window
-        }
-        ghostWindow?.makeKeyAndOrderFront(nil)
-        logger.info("Ghost window displayed")
-    }
-    
-    private func closeGhostWindow() {
-        ghostWindow?.close()
-        ghostWindow = nil
-        logger.info("Ghost window closed")
-    }
-    
-    private func startTestGhost() async {
-        logger.info("Starting test ghost with YAYA adapter")
-        
-        // サンプルのゴーストパス（実在しない場合は単純なテキスト表示）
-        let sampleGhostPaths = [
-            Bundle.main.bundlePath + "/Contents/Resources/ghost/test",
-            NSHomeDirectory() + "/Desktop/ghost/test",
-            "/tmp/test_ghost"
-        ]
-        
-        for ghostPath in sampleGhostPaths {
-            if FileManager.default.fileExists(atPath: ghostPath) {
-                if let yaya = YayaAdapter() {
-                    testYaya = yaya
-                    let ghostRoot = URL(fileURLWithPath: ghostPath).appendingPathComponent("ghost/master")
-                    
-                    // YAYA辞書ファイルを探す
-                    if let contents = try? FileManager.default.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil) {
-                        let dics = contents.filter { $0.pathExtension.lowercased() == "dic" }.map { $0.lastPathComponent }
-                        
-                        if yaya.load(ghostRoot: ghostRoot, dics: dics) {
-                            if let res = yaya.request(method: "GET", id: "OnBoot"), res.ok {
-                                logger.info("Ghost OnBoot: \(res.value ?? "empty")")
-                                return
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        logger.info("No valid ghost found, showing demo ghost")
-    }
 
     private func exportDiagnostics() {
         logger.info("export diagnostics")
@@ -585,82 +523,6 @@ fileprivate struct GeneralSettingsView: View {
     }
 }
 
-// MARK: - Test Ghost View
-
-fileprivate struct TestGhostView: View {
-    @State private var currentMessage = "👻 テストゴーストが起動中..."
-    @State private var messageIndex = 0
-    @State private var timer: Timer?
-    
-    private let messages = [
-        "👻 こんにちは！テストゴーストです",
-        "🎭 SHIORI システムをテスト中...",
-        "📝 プラグインイベントを受信しました",
-        "🔄 OnGhostBoot イベント実行中",
-        "⚡ OnMenuExec イベント実行中",
-        "👋 OnGhostExit - まもなく終了します"
-    ]
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            // ゴーストキャラクター表示エリア
-            ZStack {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.blue.opacity(0.1))
-                    .frame(width: 200, height: 200)
-                
-                VStack {
-                    Text("👻")
-                        .font(.system(size: 60))
-                        .scaleEffect(sin(Date().timeIntervalSince1970 * 2) * 0.1 + 1.0)
-                        .animation(.easeInOut(duration: 1).repeatForever(), value: Date())
-                    
-                    Text("テストゴースト")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
-            
-            // メッセージバルーン
-            VStack {
-                Text(currentMessage)
-                    .padding()
-                    .background(Color.primary.opacity(0.1))
-                    .cornerRadius(10)
-                    .frame(maxWidth: 250)
-                    .multilineTextAlignment(.center)
-                    .animation(.easeInOut, value: currentMessage)
-                
-                Text("SHIORI Test Mode")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
-            
-            Spacer()
-            
-            Text("DevTools Test Scenario実行中")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onAppear {
-            startMessageCycle()
-        }
-        .onDisappear {
-            timer?.invalidate()
-        }
-    }
-    
-    private func startMessageCycle() {
-        timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
-            withAnimation(.easeInOut(duration: 0.5)) {
-                currentMessage = messages[messageIndex % messages.count]
-                messageIndex += 1
-            }
-        }
-    }
-}
 
 // MARK: - Headline/Balloon Test View
 
