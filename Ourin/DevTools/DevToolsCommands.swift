@@ -94,14 +94,17 @@ struct DevToolsCommands: Commands {
             dispatcher.onGhostBoot(windows: windows, ghostName: "emily4", shellName: "default", ghostID: "emily4", path: path)
             try? await Task.sleep(nanoseconds: 500_000_000)
             dispatcher.onMenuExec(windows: windows, ghostName: "emily4", shellName: "default", ghostID: "emily4", path: path)
-            try? await Task.sleep(nanoseconds: 500_000_000)
-            dispatcher.onGhostExit(windows: windows, ghostName: "emily4", shellName: "default", ghostID: "emily4", path: path)
         }
-        
+
         NotificationCenter.default.post(name: .testScenarioStarted, object: nil)
     }
-    
+
     private func stopTestScenario() {
+        if let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher {
+            let windows = NSApplication.shared.windows
+            let path = Bundle.main.bundlePath
+            dispatcher.onGhostExit(windows: windows, ghostName: "emily4", shellName: "default", ghostID: "emily4", path: path)
+        }
         NotificationCenter.default.post(name: .testScenarioStopped, object: nil)
     }
     
