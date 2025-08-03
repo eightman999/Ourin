@@ -2,6 +2,10 @@ import SwiftUI
 
 @available(macOS 11.0, *)
 struct DevToolsCommands: Commands {
+#if compiler(>=5.7)
+    @Environment(\.openWindow) private var openWindow
+#endif
+
     var body: some Commands {
         // View メニューにDevTools項目を追加
         CommandMenu("View") {
@@ -66,7 +70,7 @@ struct DevToolsCommands: Commands {
     private func openDevTools() {
 #if compiler(>=5.7)
         if #available(macOS 13.0, *) {
-            DevToolsWindowOpener.shared?.open()
+            openWindow(id: "DevTools")
         } else {
             (NSApp.delegate as? AppDelegate)?.showDevTools()
         }
@@ -149,25 +153,3 @@ struct DevToolsCommands: Commands {
         }
     }
 }
-
-// MARK: - macOS13以降用のWindowOpenerを別スコープで定義
-#if compiler(>=5.7)
-@available(macOS 13.0, *)
-private struct DevToolsWindowOpener: View {
-    @Environment(\.openWindow) private var openWindow
-
-    static var shared: Self? = {
-        // Dummy View を生成して Environment を使わせる
-        let opener = Self()
-        return opener
-    }()
-
-    func open() {
-        openWindow(id: "DevTools")
-    }
-
-    var body: some View {
-        EmptyView()
-    }
-}
-#endif
