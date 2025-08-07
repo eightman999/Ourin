@@ -21,7 +21,7 @@ struct OurinApp: App {
                 RightClickMenu()
             }
             .commands {
-                DevToolsCommands()
+                ModernDevToolsCommands()
             }
         }
     }
