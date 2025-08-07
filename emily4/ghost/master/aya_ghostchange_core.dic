@@ -1,0 +1,160 @@
+﻿/*-------------------------------------------------------------------------------------------
+ *  Tuned system dictionary for SHIORI/3.0 "EP4/FullThrottle"
+ *  
+ *  ゴースト切換え辞書コア
+ * ------------------------------------------------------------------------------------------
+*/
+
+//**** ゴースト切り替え処理 **********************************************************
+
+#globaldefine {{START_CHANGE { case _argv[0] {
+#globaldefine }}END_CHANGE } }
+
+#globaldefine EMS_GC_CHANGING     0
+#globaldefine EMS_GC_CHANGED      1
+#globaldefine EMS_GC_CALLING      2
+#globaldefine EMS_GC_CALLED       3
+#globaldefine EMS_GC_CALLCOMPLETE 4
+#globaldefine EMS_GC_CLOSED       5
+
+//---- 呼び出し処理 -----------------------------------------------------------
+GhostChangeCallCore
+{
+	_script = ''
+	change_plain_talk = SHIORI3FW.RemoveAllTags(reference[1])
+	SHIORI3FW.RegisterTempVar('change_plain_talk')
+	
+	//フルネームで探索
+	_fname = SHIORI3FW.TranslateSystemChar(CUTSPACE(reference[2]))
+	if STRLEN(_fname) {
+		if ISFUNC("OnGhostChangeCall_%(_fname)") {
+			_script = EVAL("OnGhostChangeCall_%(_fname)(%(_argv[0]))")
+			if _script && STRLEN(_script) {
+				_script
+				return
+			}
+		}
+	}
+	
+	//なければSakura名
+	_sname = SHIORI3FW.TranslateSystemChar(CUTSPACE(reference[0]))
+	if STRLEN(_sname) {
+		if ISFUNC("OnGhostChangeCall_%(_sname)") {
+			_script = EVAL("OnGhostChangeCall_%(_sname)(%(_argv[0]))")
+			if _script && STRLEN(_script) {
+				_script
+				return
+			}
+		}
+	}
+	
+	//それもなければ変換処理を介したもの
+	if ISFUNC('GhostNameConvert') {
+		_gname = EVAL('GhostNameConvert(_sname)')
+		if STRLEN(_gname) && ISFUNC("OnGhostChangeCall_%(_gname)") {
+			_script = EVAL("OnGhostChangeCall_%(_gname)(%(_argv[0]))")
+			if _script && STRLEN(_script) {
+				_script
+				return
+			}
+		}
+	}
+	
+	//それもなければ標準
+	if ISFUNC('OnGhostChangeCallNormal') {
+		_script = EVAL("OnGhostChangeCallNormal(%(_argv[0]))")
+		if _script && STRLEN(_script) {
+			_script
+			return
+		}
+	}
+}
+
+//---- 他のゴーストへ切り替え -----------------------------------------------------------
+OnGhostChanging
+{
+	S.DontExecuteBaseID = 1
+	_script = GhostChangeCallCore(EMS_GC_CHANGING)
+
+	if ! _script || STRLEN(_script) == 0 {
+		_script = OnClose
+	}
+	
+	_script = REPLACE(_script,'\e','')
+	_script = REPLACE(_script,'\-','') //OnClose対策
+	_script + '\w9\w9\e'
+}
+
+//---- 他のゴーストから切り替り ---------------------------------------------------------
+OnGhostChanged
+{
+	S.DontExecuteBaseID = 1
+	_script = GhostChangeCallCore(EMS_GC_CHANGED)
+
+	if ! _script || STRLEN(_script) == 0 {
+		OnBoot
+	}
+	else {
+		_script
+	}
+}
+
+//---- 他のゴーストを呼び出し -----------------------------------------------------------
+OnGhostCalling
+{
+	S.DontExecuteBaseID = 1
+	_script = GhostChangeCallCore(EMS_GC_CALLING)
+	_script
+}
+
+//---- 他のゴーストから呼び出された ---------------------------------------------------------
+OnGhostCalled
+{
+	S.DontExecuteBaseID = 1
+	_script = GhostChangeCallCore(EMS_GC_CALLED)
+
+	if ! _script || STRLEN(_script) == 0 {
+		OnBoot
+	}
+	else {
+		_script
+	}
+}
+
+//---- 他のゴーストの呼び出しが終わった ---------------------------------------------------------
+OnGhostCallComplete
+{
+	S.DontExecuteBaseID = 1
+	_script = GhostChangeCallCore(EMS_GC_CALLCOMPLETE)
+	if _script && STRLEN(_script) {
+		SHIORI3FW.SetDelayEvent('OnGhostCallCompleteDelayEvent',1,_script)
+	}
+}
+
+OnGhostCallCompleteDelayEvent
+{
+	reference[0]
+}
+
+//---- 他のゴーストが終了した ---------------------------------------------------------
+// aya_systemex.dicから飛んでくる
+// otherghostnameの監視による
+OnEMGhostClosed
+{
+	if ! config_ghostclose_event_disable && ! ghostcloseevent_notified {
+		GhostChangeCallCore(EMS_GC_CLOSED)
+	}
+}
+
+//新機能
+OnOtherGhostClosed
+{
+	ghostcloseevent_notified = 1
+	if S.GetDelayEvent[0] == 'OnEMGhostClosed' {
+		SHIORI3FW.SetDelayEvent('',0)
+	}
+	
+	if ! config_ghostclose_event_disable {
+		GhostChangeCallCore(EMS_GC_CLOSED)
+	}
+}

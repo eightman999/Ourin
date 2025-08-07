@@ -1,0 +1,198 @@
+///////// アンカー処理辞書
+
+OnAnchorSelect
+{
+	_data = reference[0]
+	if ( (SUBSTR(_data,0,7) == 'http://') || (SUBSTR(_data,0,8) == 'https://') ) {
+		"\C\![set,choicetimeout,-1]\![set,balloontimeout,-1]\j[%(reference[0])]"
+	}
+	elseif ( SUBSTR(_data,0,7) == 'script:' ) {
+		"\C\![set,choicetimeout,-1]\![set,balloontimeout,-1]" + SUBSTR(_data,7,10000)
+	}
+	elseif ( SUBSTR(_data,0,6) == 'GHOST_' ) {
+		_data = ERASE(_data,0,6)
+		GhostIntroduce(_data,'')
+	}
+	elseif ( SUBSTR(_data,0,5) == 'WORD_' ) {
+		_data = ERASE(_data,0,5)
+		EVAL("AnchorWord_%(_data)")
+	}
+	else {
+		EVAL("OnAnchorSelect_%(reference[0])")
+	}
+}
+
+/*===========================================================
+	処理（変更しないでね！）
+===========================================================*/
+
+/*-----------------------------------------------------------
+	アンカー自動置換
+	OnTranslate関数に
+	_text = TranslateAnchor(_text)
+	と追加すること
+-----------------------------------------------------------*/
+TranslateAnchor
+{
+	//大括弧＝タグパラメータの内側とエスケープ部分は無視
+	//このへんほんとはちゃんと解析しないと……
+	_resarr = RE_SPLIT(_argv[0],'(\\_[?!a].+?\\_[?!a])|\\_*[0-9a-z!?]\[.+?\]')
+	_restok = RE_GETSTR
+	
+	_n = ARRAYSIZE(_resarr)
+	_m = ARRAYSIZE(AnchorWordList)
+	_x = ARRAYSIZE(AnchorWordURLList)
+	for _i = 0 ; _i < _n ; _i++ {
+		for _j = 0 ; _j < _m ; _j++ {
+			_resarr[_i] = REPLACE(_resarr[_i],AnchorWordList[_j],'\_a[OnAnchorWordExec,' + AnchorWordList[_j] + ']' + AnchorWordList[_j] + '\_a')
+		}
+		for _j = 0 ; _j < _x ; _j++ {
+			_resarr[_i] = REPLACE(_resarr[_i],AnchorWordURLList[_j],"\_a[%(AnchorWordURLListContent[_j])]%(AnchorWordURLList[_j])\_a")
+		}
+	}
+	
+	_text = _resarr[0]
+	for _i = 1 ; _i < _n ; _i++ {
+		_text += _restok[_i-1]
+		_text += _resarr[_i]
+	}
+	
+	if STRSTR(_text,'OnAnchorWordReturn',0) >= 0 {
+		LastAnchorWordScript = SHIORI3FW.LastTalk
+	}
+	else {
+		LastAnchorWordScript = ""
+	}
+	
+	_text
+}
+
+OnSystemLoad.ANCHOR
+{
+	AnchorWordList = GETFUNCLIST('アンカー解説：')
+	_n = ARRAYSIZE(AnchorWordList)
+	for _i = 0 ; _i < _n ; _i++ {
+		AnchorWordList[_i] = SUBSTR(AnchorWordList[_i],7,STRLEN(AnchorWordList[_i])-7)
+	}
+	
+	AnchorWordURLList = IARRAY
+	AnchorWordURLListContent = IARRAY
+	
+	_aw = アンカーURLリスト
+	_n = ARRAYSIZE(_aw)
+	for _i = 0 ; _i < _n ; _i++ {
+		_ac = RE_SPLIT(_aw[_i],'[ 　\t]+\|[ 　\t]+',2)
+		AnchorWordURLList ,= _ac[0]
+		AnchorWordURLListContent ,= _ac[1]
+	}
+	
+	LastAnchorWordScript = ""
+}
+
+OnSystemUnload.ANCHOR
+{
+	ERASEVAR('AnchorWordList')
+	ERASEVAR('AnchorWordURLList')
+	ERASEVAR('AnchorWordURLListContent')
+	ERASEVAR('LastAnchorWordScript')
+}
+
+
+/*-----------------------------------------------------------
+	単語解説処理用
+-----------------------------------------------------------*/
+OnLib.AnchorWordSelect
+{
+	_txt = EVAL('アンカー解説：' + reference[0])
+	アンカー単語解説(reference[0],_txt)
+}
+
+OnAnchorWordExec
+{
+	E.Title("解説：%(reference[0])")
+	--
+	REPLACE(EVAL('アンカー解説：' + reference[0]),'\e','')
+	--
+	'\0\n\n[half]' + メニュー('戻る','OnAnchorWordReturn') + '\e'
+}
+
+ToolTip_OnAnchorWordExec
+{
+	"!解説：%(reference[2])"
+}
+
+OnAnchorWordReturn
+{
+	LastAnchorWordScript
+}
+
+/*-----------------------------------------------------------
+	単語リスト作成
+-----------------------------------------------------------*/
+アンカー単語リスト表示
+{
+	_wa = AnchorWordList
+	_n = ARRAYSIZE(_wa)
+	
+	_txt = '\_q'
+	for _i = 0 ; _i < _n ; _i++ {
+		_txt += '\q[' + _wa[_i] + ',OnLib.AnchorWordSelect,' + _wa[_i] + ']\n'
+	}
+	_txt += '\_q'
+	
+	アンカー単語リスト(_txt)
+}
+
+/*===========================================================
+	データ（ここからは変えよう）
+===========================================================*/
+
+//URLのみのリスト
+アンカーURLリスト : array
+{
+	//参照URL
+	'TortoiseSVN | http://tortoisesvn.net/'
+	'IPMessenger | http://www.ipmsg.org/'
+	'YAYA | https://github.com/ponapalt/yaya-shiori/wiki'
+	'SSP BUGTRAQ | http://ssp.shillest.net/'
+	
+}
+
+//単語リストの選択肢を表示する
+アンカー単語リスト
+{
+	//_argv[0] = 単語リスト（選択肢スクリプト）
+	
+	''
+	--
+	_argv[0]
+	--
+	'\0\n[half]' + メニュー('戻る','OpenMenu')
+}
+
+//解説・「戻る」
+アンカー単語解説
+{
+	//_argv[0] = 単語
+	//_argv[1] = 解説スクリプト
+	
+	_argv[1]
+	--
+	'\0\n\n[half]' + メニュー('戻る','アンカー単語リスト表示')
+}
+
+//実際の説明
+アンカー解説：ゴースト
+{
+	"\u\s[10]\p2\s[200]\h\s[5]ボクたちのことだね。\w9\w9\p2\s[204]姉貴、\w5それじゃわからないって。\w9\w9\uまあ、\w5でも見ての通りだからね。\w9\nデスクトップにお邪魔して、\w5おしゃべりしたり、\w5役に立ったりする何かのこと。"
+}
+
+アンカー解説：SERIKO
+{
+	"\h\s[0]\u\s[10]僕たちのアニメーション仕様のことだね。\w9\w9\h\s[24]\u\n\nこんなことしたりできます。\w9\nそしてたいていは、\w5\h\s[40]\uこうなります。\w9\w9\hけふ。\w5けふ。"
+}
+
+アンカー解説：バルーン
+{
+	"\u\s[10]\h\s[5]フキダシのことだね。\w9\w9\u僕たちがこうやって喋っている枠のこと。"
+}

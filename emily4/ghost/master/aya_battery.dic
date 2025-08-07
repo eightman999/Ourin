@@ -1,0 +1,103 @@
+﻿///////// バッテリー残量表示機能
+OnSystemLoad.BATT
+{
+	battery_percent = -1
+	battery_time = -1
+	battery_status = 'online'
+	iconname = ''
+}
+
+OnSystemUnload.BATT
+{
+	ERASEVAR('battery_status')
+	ERASEVAR('battery_percent')
+	ERASEVAR('battery_time')
+}
+
+//％,time,offline/online(/backup)
+OnBatteryNotify : void
+{
+	if reference[2] != 'online' && reference[2] != 'offline' { //状態不明
+		return
+	}
+	
+	battery_status = reference[2]
+	battery_percent = TOINT(reference[0])
+	battery_time = TOINT(reference[1])
+	
+	if battery_percent < 0 { //状態不明
+		return
+	}
+	
+	_num = 0
+	if battery_percent {
+		_num = battery_percent * 14 / 100;
+	}
+	
+	_iconname_new = ''
+	if reference[2] == 'online' && battery_percent == 100 {
+		_iconname_new = 'icon.ico'
+	}
+	else {
+		_iconname_new = "img/batt_%(reference[2])_%(STRFORM('$02u',_num)).ico"
+	}
+	
+	if ! disable_battery_notify {
+		if basewarename == 'SSP' { //いまのところSSPのみ\C対応のためはやめに通知可能
+			iconname = _iconname_new
+			SHIORI3FW.SetDelayEvent('OnBatteryDelayEvent',1)
+		}
+		else {
+			if iconname != _iconname_new {
+				SHIORI3FW.SetDelayEvent('OnBatteryDelayEvent',10)
+			}
+		}
+	}
+}
+
+//遅延発生イベント
+BatteryTag
+{
+	_t = "\![set,trayicon,%(iconname),"
+	_t += '"' + REPLACE(SHIORI3FW.GhostName,'"','""') + '\n'
+	if battery_status == 'offline' {
+		_t += "▽DC"
+	}
+	else {
+		_t += "▲AC"
+	}
+	_t += " - %(battery_percent)％"
+	if battery_time > 0 {
+		_s = battery_time
+		_h = _s / 3600
+		_s -= _h * 3600;
+		_m = _s / 60;
+		_s -= _m * 60;
+		
+		_t += ' / '
+		_t += STRFORM("$d:$02d:$02d",_h,_m,_s)
+	}
+	_t += '"]'
+	
+	_t
+}
+
+OnBatteryDelayEvent
+{
+	if iconname && STRLEN(iconname) && ! disable_battery_notify {
+		"\C%(BatteryTag)\e"
+	}
+}
+
+BatteryTrayIconInit
+{
+	if iconname && STRLEN(iconname) && ! disable_battery_notify {
+		if S.GetDelayEvent[0] == 'OnBatteryDelayEvent' {
+			SHIORI3FW.SetDelayEvent('',0)
+		}
+		BatteryTag
+		return
+	}
+	
+	''
+}

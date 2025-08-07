@@ -1,0 +1,65 @@
+﻿///////// 音楽反応系
+OnSystemUnload.MUSIC
+{
+	ERASEVAR('info_key','info_value')
+}
+
+E.GetMusicInfo
+{
+	_r = ASEARCH(_argv[0],info_key)
+	if _r < 0 {
+		''
+		return
+	}
+	info_value[_r]
+}
+
+OnMusicPlayEx
+{
+	E.Title(SHIORI3FW.MakeShortText(reference[1] + '/' + reference[0],36))
+	--
+	_name = SHIORI3FW.TranslateSystemChar(CUTSPACE(reference[0]))
+	_artist = SHIORI3FW.TranslateSystemChar(CUTSPACE(reference[1]))
+	
+	_n = ARRAYSIZE(reference)
+	info_key = ('name','artist')
+	info_value = (_name,_artist)
+	
+	for _i = 2 ; _i < _n ; _i++ {
+		_kv = SPLIT(reference[_i],CHR(1),2)
+		info_key ,= _kv[0]
+		info_value ,= SHIORI3FW.TranslateSystemChar(CUTSPACE(_kv[1]))
+	}
+	
+	_album = E.GetMusicInfo('album')
+	
+	_fname = ("MusicPlayEx_%(_artist)","MusicPlayEx_%(_name)","MusicPlayEx_%(_album)")
+	for _i = 0 ; _i < ARRAYSIZE(_fname) ; _i++ {
+		if ISFUNC(_fname[_i]) {
+			EVAL(_fname[_i] + "(_artist,_name,_album)")
+			return
+		}
+	}
+	
+	"\u\s[10]\h\s[5]%(reference[1])の、\w5「%(reference[0])」\w5を再生中だよ。"
+	"\u\s[10]\h\s[27]今かかってるのは\w5…\w5…\w9\s[5]%(reference[1])の、\w5「%(reference[0])」\w5だね。"
+	
+	ERASEVAR(info_key)
+	ERASEVAR(info_value)
+}
+
+//**********************************************************************
+MusicPlayEx_カズン
+{
+	if '風の街' _in_ _argv[0] {
+		"\u\s[10]\h\s[6]三拍子のリズムが心地よく響く歌だね。\w9\w9\u継ぎ目の音、\w5ガタンゴトン、\w5っていうのをもとに作り始めたらしいね。"
+	}
+}
+
+//**********************************************************************
+MusicPlayEx_THE_BOOM
+{
+	if '島唄' _in_ _argv[0] {
+		"\u\s[10]\p2\s[200]\h\s[5]♪芋唄よ\w5　風に乗り～\w9\n　落ち葉と共に～\w5　うまく焼けろ～♪\w9\w9\n♪芋唄よ\w5　風に乗り～\w9\n　とどけてたもれ～\w5　おいもの山を～♪\w9\w9\p2\s[204]ねえちゃんがまた怪音波出してる。\w9\w9\u\s[11]…\w5…\w5その変な替え歌禁止ね。\w9\w9\h\s[4]\n\nえ～～～。\e"
+	}
+}

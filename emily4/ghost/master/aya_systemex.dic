@@ -1,0 +1,869 @@
+﻿///////// 特殊処理
+//---- 遅延展開 -------------------------------------------
+E.EvalEmbedValue
+{
+	if STRSTR(_argv[0],'"',0) < 0 { //"がないときはふつうの処理でいい
+		EVAL('"' + _argv[0] + '"')
+		return
+	}
+	
+	_text = _argv[0]
+	_result = "''"
+	
+	while 1 {
+		_array = SPLIT(_text,'%(',2) // )
+		
+		if STRLEN(_array[0]) != 0 {
+			_result += ' + "' + REPLACE(_array[0],'"','%(CHR(0x22))') + '"'
+		}
+		
+		if ! _array[1] {
+			break
+		}
+		
+		_pos = 0    //現在の処理位置
+		_pare = 1   //括弧ネスト段数
+		_open = 0   //開き括弧
+		_close = 0  //閉じ括弧
+		_dq = 0     //ダブルクォート
+		_dqend = 0  //ダブルクォート終了
+		_qt = 0     //クォート
+		_qtend = 0  //クォート終了
+		_eq = ''    //式と処理結果
+		_text = _array[1]
+		_len = STRLEN(_text)    //長さ
+		
+		while 1 {
+			_open  = STRSTR(_text,'(',_pos)
+			_close = STRSTR(_text,')',_pos)
+			_dq    = STRSTR(_text,'"',_pos)
+			_qt    = STRSTR(_text,"'",_pos)
+			
+			if _open < 0 && _close < 0 && _dq < 0 && _qt < 0 {
+				_pos = -1 //異常
+				break
+			}
+
+			if _open < 0 { _open = _len }
+			if _close < 0 { _close = _len }
+			if _dq < 0 { _dq = _len }
+			if _qt < 0 { _qt = _len }
+			
+			if _qt < _open && _qt < _close {
+				_qtend = STRSTR(_text,"'",_qt + 1)
+				if _qtend < 0 {
+					_pos = -1 //異常
+					break
+				}
+				_pos = _qtend + 1
+				continue
+			}
+			elseif _dq < _open && _dq < _close {
+				_dqend = STRSTR(_text,'"',_dq + 1)
+				if _dqend < 0 {
+					_pos = -1 //異常
+					break
+				}
+				_pos = _dqend + 1
+				continue
+			}
+			
+			if _open < _close {
+				_pare += 1
+				_pos = _open + 1
+			}
+			else {
+				_pare -= 1
+				_pos = _close + 1
+				if _pare <= 0 {
+					break
+				}
+			}
+		}
+		
+		if _pos < 0 { //異常時
+			_result += " + '" + '%(' + _text + "'" //文字列として扱う)
+			break
+		}
+		else {
+			if _pos > 1 { //少なくとも1文字以上の式
+				_eq = SUBSTR(_text,0,_pos - 1)
+				_result += " + '" + REPLACE(TOSTR(EVAL(_eq)),"'","' + CHR(0x27) + '") + "'"
+			}
+			_text = ERASE(_text,0,_pos)
+			
+			if STRLEN(_text) == 0 {
+				break
+			}
+		}
+	}
+	
+	if _result {
+		EVAL(RE_REPLACE(_result,"(''[ \t]+\+[ \t]+|[ \t]+\+[ \t]+'')",''))
+	}
+}
+
+//---- ->半角数字 -------------------------------------------
+E.ConvertToNum
+{
+	TOINT(ZEN2HAN(_argv[0]));
+}
+
+//---- 並行しゃべり -------------------------------------------
+E.Parallel
+{
+	_textarray  = IARRAY
+	_scopearray = IARRAY
+	_scopenum = 0
+	_maxlen = 0
+	_textlenarray = IARRAY
+	
+	for _i = 0 ; _i < _argc ; _i++ {
+		_type = GETTYPE(_argv[_i])
+		if _type == 1 { //整数
+			_scopearray[_scopenum] = _argv[_i]
+		}
+		elseif _type == 3 { //文字列
+			_textarray ,= _argv[_i]
+
+			_textlenarray[_scopenum] = STRLEN(_argv[_i])
+			if _maxlen < _textlenarray[_scopenum] {
+				_maxlen = _textlenarray[_scopenum]
+			}
+			
+			if ARRAYSIZE(_scopearray) <= _scopenum { //スコープ初期化
+				_scopearray[_scopenum] = _scopenum
+			}
+			_scopenum += 1
+		}
+	}
+	
+	_curposarray = IARRAY
+	for _i = 0 ; _i < _scopenum ; _i++ {
+		_curposarray ,= 0
+	}
+	
+	_nextpos = 0       //文字切り出し計算用
+	_j = 0             //内側ループ変数
+	_result = ''       //結果スクリプト
+	_lastscope = -1    //直前のスコープ
+	_temptext = IARRAY //分割後の文字列を一時保存
+	_outcount = 0      //クイックセッション制御用カウンタ
+	
+	_isreverse = 0     //出力スクリプト最適化のためのHack
+	_joinpos = 0           //同上
+	
+	for _i = 0 ; _i < _maxlen ; _i++ {
+		for _j = 0 ; _j < _scopenum ; _j++ {
+			_nextpos = (_i * _textlenarray[_j] / _maxlen) + 1
+			if _curposarray[_j] < _nextpos {
+				_temptext[_j] = SUBSTR(_textarray[_j],_curposarray[_j],1)
+				_curposarray[_j] = _nextpos
+			}
+			else {
+				_temptext[_j] = ''
+			}
+		}
+		
+		_outcount = 0
+		
+		for _j = 0 ; _j < _scopenum ; _j++ {
+			if _isreverse {
+				_joinpos = _scopenum - _j - 1
+			}
+			else {
+				_joinpos = _j
+			}
+			
+			if ! STRLEN(_temptext[_joinpos]) {
+				continue
+			}
+			
+			_outcount += 1
+			if _outcount == 2 { //2つめ以降はクイックセッションでウェイトなし
+				_result += '\_q'
+			}
+			
+			if _lastscope != _scopearray[_joinpos] {
+				_lastscope = _scopearray[_joinpos]
+				
+				if _lastscope == 0 {
+					_result += '\h'
+				}
+				elseif _lastscope == 1 {
+					_result += '\u'
+				}
+				else {
+					_result += "\p[%(_lastscope)]"
+				}
+			}
+			_result += _temptext[_joinpos]
+		}
+		
+		if _outcount >= 2 { //クイックセッション解除
+			_result += '\_q'
+		}
+		_isreverse = ! _isreverse
+	}
+	
+	_result
+}
+
+/*-------------------------------------------------------------------------------------------------
+	配列ソート関数 for AYA5
+	By ちに
+-------------------------------------------------------------------------------------------------*/
+E.SortArray.Ssort
+{
+	_array = _argv
+	_arraysize = _argc
+	_assist = ''
+
+	for _i = 0; _i <= (_arraysize - 1); _i++ {
+		for _j = _i; _j <= _arraysize; _j++ {
+			if _array[_i] > _array[_j] {	// >:小さい順　<:大きい順
+				_assist = _array[_i]
+				_array[_i] = _array[_j]
+				_array[_j] = _assist
+			}
+		}
+	}
+	_array
+}
+
+
+E.SortArray.Qsort
+{
+	_left = _argv[0]
+	_right = _argv[1]
+	_last = 0
+	_array = SPLIT(_argv[2],",")
+
+	if _left >= _right {
+		_argv[2] = TOSTR(_array)
+		return
+	}
+
+	_temp = (_left + _right) / 2
+	E.Swap(&_array[_left], &_array[_temp])
+	_last = _left
+	for _i = _left + 1; _i <= _right; _i++ {
+		if _array[_i] < _array[_left] {
+			_last += 1
+			E.Swap(&_array[_last], &_array[_i])
+		}
+	}
+	E.Swap(&_array[_left], &_array[_last])
+	_last -= 1
+	_array = TOSTR(_array)
+	E.SortArray.Qsort(_left, _last, &_array)
+	_last += 1
+	E.SortArray.Qsort(_last, _right, &_array)
+	_argv[2] = _array
+}
+
+
+E.Swap
+{
+	_temp = _argv[0]
+	_argv[0] = _argv[1]
+	_argv[1] = _temp
+}
+
+
+//---- お気に入りメニュー変換 -------------------------------------------
+E.LinkMenuConvert
+{
+	_text = ''
+	_data = IARRAY
+	for _i = 0 ; _i < _argc ; _i++ {
+		_data = (RE_SPLIT(_argv[_i],'[ \t]*\|[ \t]*'),'','') //ダミー
+		_text += "%(_data[0])%(CHR(1))%(_data[1])%(CHR(1))%(_data[2])%(CHR(1))%(CHR(2))"
+	}
+	_text;
+}
+
+//---- インストール済リスト -------------------------------------------------------
+E.IsGhostInstalled
+{
+	if ASEARCH(_argv[0],installedghostlist) >= 0 {
+		1
+	}
+	else {
+		0
+	}
+}
+
+//---- 起動中の他のゴースト名取得 -------------------------------------------------------
+On_otherghostname : void
+{
+	_lastotherghostname = IARRAY
+	if ! ghostcloseevent_notified {
+		_lastotherghostname = otherghostname
+	}
+	
+	// 現在起動中のゴーストのリストを作成する
+	_n = ARRAYSIZE(reference)
+	otherghostname = IARRAY
+	_ghost = ''
+	_found = 0
+	
+	for _i = 0 ; _i < _n ; _i++ {
+		_ghost = SPLIT(reference[_i],CHR(1),2)[0];
+		otherghostname ,= _ghost;
+		
+		_found = ASEARCH(_ghost,_lastotherghostname)
+		if _found >= 0 { //前回もあった
+			_lastotherghostname[_found] = IARRAY //消去
+		}
+	}
+	
+	if ! ghostcloseevent_notified {
+		if ARRAYSIZE(_lastotherghostname) {
+			_ghost = SHIORI3FW.TranslateSystemChar(_lastotherghostname[0])
+			SHIORI3FW.SetDelayEvent('OnEMGhostClosed',1,_ghost)
+		}
+	}
+}
+
+E.IsGhostBooting
+{
+	if ASEARCH(_argv[0],otherghostname) >= 0 {
+		1
+	}
+	else {
+		0
+	}
+}
+
+OnCacheSuspend
+{
+	otherghostname = IARRAY
+}
+
+OnCacheRestore
+{
+	
+}
+
+//---- トークのトランスレート ------------------------------------------------------------------------
+OnTranslate
+{
+	_result = reference[0]
+	
+	//\Cは先にフィルタしておく
+	_dontdel = 0
+	if SUBSTR(_result,0,2) == '\C' {
+		_result = ERASE(_result,0,2)
+		_dontdel = 1
+	}
+	
+	//p2以降のキャラが出てる、かつトークで使われてない＝消去、の処理。
+	_text = ''
+	if _dontdel { //\Cのときは制御しない
+		_text = '\C'
+	}
+	else {
+		_start = 2
+		
+		if config_disp_emilio {
+			_start = 3
+			if RE_SEARCH(_result,"\\p\[?2\]?") == 0 {
+				_text += '\p[2]\s[200]'
+			}
+		}
+		
+		for _i = _start ; _i < 4 ; _i++ {
+			if SHIORI3FW.IsVisible[_i] {
+				if RE_SEARCH(_result,"\\p\[?%(_i)\]?") == 0 {
+					_text += "\p[%(_i)]\s[-1]\b[-1]"
+				}
+			}
+		}
+	}
+	
+	if STRLEN(_text) != 0 {
+		_text + '\0' + _result
+	}
+	else {
+		_result
+	}
+}
+
+//---- 内部トランスレート ------------------------------------------------------------------------
+OnTranslateInternal
+{
+	_result = _argv[0]
+
+	if SUBSTR(SHIORI3FW.Eventid,0,3) == 'On_' {
+		_result
+		return
+	}
+	
+	_isscript = (STRSTR(_result,'\',0) >= 0)
+	if ! _isscript {
+		_result
+		return
+	}
+	
+	//\e除去
+	_result = REPLACE(_result,'\e','')
+	
+	//内部スクリプトの変換
+	if is_special_balloon {
+		_result = REPLACE(_result,'\![*]','\_b[img/check.png,inline]')
+		_result = REPLACE(_result,'\![-]','\_b[img/uncheck.png,inline]')
+		_result = REPLACE(_result,'\![X]','\_b[img/close.png,inline]')
+		_result = REPLACE(_result,'\![#]','\_b[img/back.png,inline]')
+		_result = REPLACE(_result,'\![<]','\_b[img/prev.png,inline]')
+		_result = REPLACE(_result,'\![>]','\_b[img/next.png,inline]')
+	}
+	else {
+		_result = RE_REPLACE(_result,'\\!\[[-X#<>]\]','\![*]')
+	}
+	
+	if is_small_balloon {
+		_result = RE_REPLACE(_result,'\\n\[1[0-9]0\]','\n')
+		_result = RE_REPLACE(_result,'\\_l\[.+?\]','')
+	}
+	
+	//\p2->\p[2]
+	_array = RE_SPLIT(_result,'\\p[0-9]')
+	_found = RE_GETSTR
+	_result = _array[0]
+	
+	_n = ARRAYSIZE(_found)
+	for _i = 0 ; _i < _n ; _i++ {
+		_result += '\p['
+		_result += SUBSTR(_found[_i],2,1)
+		_result += ']'
+		_result += _array[_i + 1]
+	}
+	
+	//自動アンカー
+	_result = TranslateAnchor(_result)
+	
+	if bootinit {
+		_result + '\e'
+	}
+	else {
+		REPLACE(E.BootInitScriptBegin,'\e','') + _result + REPLACE(E.BootInitScriptEnd,'\e','') + '\e'
+		bootinit = 1
+	}
+}
+
+//---- がめん ------------------------------------------------------------------------
+OnDisplayChange : void
+{
+	//---- 変数にディスプレイ解像度と色深度に関する情報を取得
+	displaybpp    = TOINT(reference[0])
+	displaysize   = (TOINT(reference[1]),TOINT(reference[2]))
+}
+
+//---- 現在の情報 ------------------------------------------------------------------------
+OnSHIORI3FW.ChangeSelfInfo : void
+{
+	is_small_balloon = ('minimum' _in_ SHIORI3FW.BalloonName)
+	is_special_balloon = (SHIORI3FW.BalloonName == 'Balloon for Emily/P4')
+}
+
+On_basewareversion : void
+{
+	basewareversion = reference[0]
+	basewareversionarray = IARRAY
+	
+	if STRLEN(reference[2]) != 0 {
+		_v = reference[2]
+		SETDELIM(_v,'.')
+		basewareversionarray = (TOINT(_v[0]),TOINT(_v[1]),TOINT(_v[2]),TOINT(_v[3]))
+		return
+	}
+	
+	if RE_MATCH(reference[0],'(\d+)\.(\d+)\.(\d+) Test(\d+)') {
+		_v = RE_GETSTR
+		basewareversionarray = (TOINT(_v[1]),TOINT(_v[2]),TOINT(_v[3]),TOINT(_v[4]) + 2000)
+		return
+	}
+	if RE_MATCH(reference[0],'(\d+)\.(\d+)\.(\d+) Pre(\d+)') {
+		_v = RE_GETSTR
+		basewareversionarray = (TOINT(_v[1]),TOINT(_v[2]),TOINT(_v[3]),TOINT(_v[4]) + 1000)
+		return
+	}
+	if RE_MATCH(reference[0],'(\d+)\.(\d+)\.(\d+) RC(\d+)') {
+		_v = RE_GETSTR
+		basewareversionarray = (TOINT(_v[1]),TOINT(_v[2]),TOINT(_v[3]),TOINT(_v[4]) + 2000)
+		return
+	}
+	if RE_MATCH(reference[0],'(\d+)\.(\d+)\.(\d+)\[([A-Z])\]') {
+		_v = RE_GETSTR
+		basewareversionarray = (TOINT(_v[1]),TOINT(_v[2]),TOINT(_v[3]),TOINT(CHR(_v[4]) - 65 + 3001)) //65 = A
+		return
+	}
+	if RE_MATCH(reference[0],'(\d+)\.(\d+)\.(\d+)') {
+		_v = RE_GETSTR
+		basewareversionarray = (TOINT(_v[1]),TOINT(_v[2]),TOINT(_v[3]),3000)
+		return
+	}
+}
+
+//---- ユーザ情報 ------------------------------------------------------------------------
+OnNotifyUserInfo : void
+{
+	if ( STRLEN(reference[0]) != 0 ) {
+		username = reference[0]
+	}
+	username_notify = reference[0]
+	
+	userbirthday = reference[2]
+	
+	_bt = SPLIT(reference[2],',')
+	userbirthday_date = STRFORM("$02d$02d",TOINT(_bt[1]),TOINT(_bt[2]))
+}
+
+//---- Plugin ------------------------------------------------------------------------
+On_installedplugin : void
+{
+	_n = ARRAYSIZE(reference)
+	installedplugin = IARRAY
+	
+	for _i = 0 ; _i < _n ; _i++ {
+		installedplugin ,= SPLIT(reference[_i],CHR(1))[1]
+	}
+}
+
+//---- キャラ名 ------------------------------------------------------------------------
+charname
+{
+	switch TOINT(_argv[0]) {
+		'エミリ' //\0
+		'テディ' //\1
+		'エミリオ' //\p2
+	}
+}
+
+//---- さんづけ ----
+username_san
+{
+	E.AddKeisyou(username,'さん')
+}
+
+//---- チェックマーク -------------------------------------------
+E.CheckMark
+{
+	if _argv[0] {
+		'\![*]'
+	}
+	else {
+		'\![-]'
+	}
+}
+
+//---- プラグイン状態 -------------------------------------------
+E.IsPluginInstalled
+{
+	if _argc == 0 {
+		0
+		return
+	}
+	
+	if ASEARCH(_argv[0],installedplugin) >= 0 {
+		1
+		return
+	}
+	0
+}
+
+//---- いままでしゃべったトークに追加 -------------------------------------------
+#define TALKLOG_SIZE 20
+
+E.AddLastTalk : void
+{
+	lasttalk = (_argv[0],lasttalk)
+	
+	_summary = STRFORM('($02d:$02d)',GETTIME[4],GETTIME[5])
+	_summary += SHIORI3FW.MakeJustText(SHIORI3FW.RemoveAllTags(_argv[0]),39)
+	
+	lasttalksummary = (_summary,lasttalksummary)
+	
+	while ARRAYSIZE(lasttalk) > TALKLOG_SIZE {
+		lasttalk[ARRAYSIZE(lasttalk) - 1] = IARRAY
+	}
+	while ARRAYSIZE(lasttalksummary) > TALKLOG_SIZE {
+		lasttalksummary[ARRAYSIZE(lasttalksummary) - 1] = IARRAY
+	}
+}
+
+//---- サーフィスの状態初期化 -------------------------------------------
+E.BootInitScriptBegin
+{
+	if ! config_disp_emilio {
+		'\p2\s[-1]'
+	}
+	--
+	'\p3\s[-1]'
+	--
+	if 'Phase4' _in_ SHIORI3FW.ShellName { //Phase4 Phase4.5
+		ShowHideNewbiesInfo(! config_newbies_info_disable)
+		--
+		'\0'
+	}
+	elseif SHIORI3FW.ShellName == '32x32 Emily' {
+		'\0\![set,alignmenttodesktop,free]\1\![set,alignmenttodesktop,free]\p2\![set,alignmenttodesktop,free]\p3\![set,alignmenttodesktop,free]\0'
+	}
+	else {
+		'\0\![set,alignmenttodesktop,bottom]\1\![set,alignmenttodesktop,bottom]\p2\![set,alignmenttodesktop,bottom]\p3\![set,alignmenttodesktop,bottom]\0'
+	}
+	--
+	BatteryTrayIconInit
+}
+
+//---- 朝/昼/夜などをおおざっぱに調べる関数 -------------------------------------------
+GetTimeSlot
+{
+	_time = GETTIME[4] * 100 + GETTIME[5]
+	if _time >= 500 && _time <= 800
+	{
+		'earlymorning'
+	}
+	elseif _time >= 800 && _time <= 1200
+	{
+		'morning'
+	}
+	elseif _time >= 1200 && _time <= 1300
+	{
+		'lunch'
+	}
+	elseif _time >= 1300 && _time <= 1630
+	{
+		'afternoon'
+	}
+	elseif _time >= 1630 && _time <= 2230
+	{
+		'night'
+	}
+	else
+	{
+		'midnight'
+	}
+}
+
+//---- 季節をおおざっぱに調べる関数 -------------------------------------------
+GetMonthSlot
+{
+	_mtime = GETTIME[1]
+	if _mtime >= 4 && _mtime <= 6
+	{
+		'spring'
+	}
+	elseif _mtime >= 7 && _mtime <= 9
+	{
+		'summer'
+	}
+	elseif _mtime >= 10 && _mtime <= 11
+	{
+		'fall'
+	}
+	else
+	{
+		'winter'
+	}
+}
+
+GetMonthSlotDetail
+{
+	_a = GETTIME
+	_m = _a[1]
+	_d = _a[2]
+	
+	case GETTIME[1] {
+		when 1 {
+			'mid_winter'
+		}
+		when 2 {
+			'mid_winter'
+		}
+		when 3 {
+			if _d <= 15 {
+				'late_winter'
+			}
+			else {
+				'early_spring'
+			}
+		}
+		when 4 {
+			'mid_spring'
+		}
+		when 5 {
+			'late_spring'
+		}
+		when 6 {
+			'rainy_season'
+		}
+		when 7 {
+			'early_summer'
+		}
+		when 8 {
+			'mid_summer'
+		}
+		when 9 {
+			if _d <= 15 {
+				'late_summer'
+			}
+			else {
+				'early_fall'
+			}
+		}
+		when 10 {
+			'mid_fall'
+		}
+		when 11 {
+			'late_fall'
+		}
+		when 12 {
+			'early_winter'
+		}
+	}
+}
+
+//---- あいさつ -------------------------------------------
+GetGreeting
+{
+	_slot = GetTimeSlot
+	if 'morning' _in_ _slot {
+		'おはようございます'
+	}
+	elseif _slot == 'lunch' || _slot == 'afternoon' {
+		'こんにちは'
+	}
+	else {
+		'こんばんは'
+	}
+}
+
+//---- 敬称が「さんさん」とかになるのをふせぐ -------------------------------------------
+E.AddKeisyou
+{
+	if RE_SEARCH(_argv[0],'(様|君|さん|くん|さま|たん|ちゃん)$') {
+		_argv[0]
+		return
+	}
+	_argv[0] + _argv[1]
+}
+
+//---- 指定したキャラがいまいるか -------------------------------------------
+E.IsCharExist
+{
+	if _argv[0] == 0 {
+		if SHIORI3FW.IsVisible[0] && SHIORI3FW.LastSurface[0] != 20 {
+			1
+			return
+		}
+	}
+	else {
+		if SHIORI3FW.IsVisible[TOINT(_argv[0])] {
+			1
+			return
+		}
+	}
+	0
+}
+
+//---- タイトル表示 -------------------------------------------
+E.Title
+{
+	"\h\_q\f[bold,true]■\_?%(_argv[0])\_?■\f[default]\n\_q"
+}
+
+//---- 読み込み/終了 ------------------------------------------------------------------------
+OnSystemLoad.EmilyEX : void
+{
+	mikireflag = 0
+	stroke = (0,0,0,0)
+	stroketimer = (0,0,0,0)
+	
+	communicate_onetime_ghost = IARRAY
+	communicate_onetime_keyword = IARRAY
+	communicate_onetime_event = IARRAY
+	
+	lasttalk = IARRAY
+	lasttalksummary = IARRAY
+	
+	installedplugin = IARRAY
+	
+	GhostIntroduceToMenu
+	
+	installedghostname = IARRAY
+	
+	is_special_balloon = 0
+	is_small_balloon = 0
+	
+	iconname = ''
+	
+	menuid = -1
+	menucurrentid = -1
+	menuarray = IARRAY
+	
+	ghostcloseevent_notified = 0
+	
+	bootinit = 0
+	
+	EMGoodsLoad
+	EMInitMenuFileName //いったん仮初期化
+}
+
+OnSystemUnload.EmilyEX : void
+{
+	ERASEVAR('ghostcloseevent_notified')
+	
+	ERASEVAR('menuid')
+	ERASEVAR('menucurrentid')
+	ERASEVAR('menuarray')
+	
+	ERASEVAR('iconname')
+	
+	ERASEVAR('menu.sakura.portalsites')
+	ERASEVAR('menu.sakura.recommendsites')
+	ERASEVAR('menu.kero.recommendsites')
+	
+	ERASEVAR('is_special_balloon')
+	ERASEVAR('is_small_balloon')
+	
+	ERASEVAR('installedplugin')
+	
+	ERASEVAR('lasttalk')
+	ERASEVAR('lasttalksummary')
+	
+	ERASEVAR('userbirthday')
+	ERASEVAR('username_notify')
+	
+	ERASEVAR('basewareversion')
+	ERASEVAR('basewareversionarray')
+	
+	ERASEVAR('mikireflag')
+	
+	ERASEVAR('stroke')
+	ERASEVAR('stroketimer')
+	
+	ERASEVAR('otherghostname')
+	
+	ERASEVAR('mouse_double_click_name')
+	ERASEVAR('mouse_double_click_counter')
+	
+	ERASEVAR('mouse_click_name')
+	ERASEVAR('mouse_click_counter')
+	
+	ERASEVAR('call_from_menu')
+	
+	ERASEVAR('communicate_onetime_ghost')
+	ERASEVAR('communicate_onetime_keyword')
+	ERASEVAR('communicate_onetime_event')
+	
+	ERASEVAR('displaybpp')
+	ERASEVAR('displaysize')
+	
+	ERASEVAR('menucount')
+	
+	ERASEVAR('installedghostname')
+	
+	ERASEVAR('bootinit')
+}

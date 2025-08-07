@@ -1,0 +1,152 @@
+﻿///////// ランダムトーク辞書
+
+//**** ランダムトーク *******************************************************************
+
+//---- OnAiTalkイベント -----------------------------------------------------------------
+OnAITalk
+{
+	OnAiTalk
+}
+
+OnTalk
+{
+	if sender != basewarename {
+		if sender == '斗月' {
+			"\u\s[10]\h\s[5]じゃ、\w5お願いされちゃうにょ。\w9\w9\u\s[11]…\w5…\w5誰。\w9\w9\w9\h\c\u\c\h"
+		}
+	}
+	--
+	OnAiTalk
+}
+
+OnAiTalk
+{
+	_lasttalk = ''
+	if SHIORI3FW.IsChain {
+		_lasttalk = ChainTalk
+		if ! STRLEN(_lasttalk) {
+			_lasttalk = EMRandomTalk
+		}
+	}
+	else {
+		_lasttalk = EMRandomTalk
+	}
+	E.AddLastTalk(_lasttalk)
+	_lasttalk
+}
+
+/*---------------------------------------------------------------------------------------
+ *  関数名：RandomTalk
+ *  機能　：ランダムトーク処理＋変数置き換え
+ * --------------------------------------------------------------------------------------
+*/
+EMRandomTalk
+{
+	if GETTYPE(new_talk_array) != 4 {
+		new_talk_array = IARRAY
+	}
+	
+	_new_talk = RandomTalkNew
+	if _new_talk[0] != new_talk_id {
+		new_talk_id = _new_talk[0]
+		new_talk_array = _new_talk
+		new_talk_array[0] = IARRAY
+	}
+	
+	if ARRAYSIZE(new_talk_array) != 0 {
+		_num = RAND(ARRAYSIZE(new_talk_array))
+		_talk = new_talk_array[_num]
+		new_talk_array[_num] = IARRAY
+		E.EvalEmbedValue(_talk)
+		return
+	}
+	
+	E.EvalEmbedValue(EMRandomTalkSub)
+}
+
+//---- ランダムトーク -------------------------------------------------------------------
+EMRandomTalkParallel
+{
+	if ISFUNC(_argv[0]) {
+		_var = EVAL(_argv[0])
+		_type = GETTYPE(_var)
+		if _type == 4 {
+			_var
+		}
+		elseif _type == 0 {
+			IARRAY
+		}
+		else {
+			CVSTR(_var)
+			if STRLEN(_var) {
+				(_var,IARRAY)
+			}
+			else {
+				IARRAY
+			}
+		}
+	}
+	else {
+		IARRAY
+	}
+}
+
+EMRandomTalkSubArray : array
+{
+	//******** 質問 ***************************************************************************
+	'%(AiTalk_Question_Exec)'
+	
+	_m  = GetMonthSlot
+	_md = GetMonthSlotDetail
+	_t  = GetTimeSlot
+	_mn = GETTIME[1]
+	
+	//******** 季節 ***************************************************************************
+	parallel EMRandomTalkParallel("RandomTalkSub_%(_m)")
+	parallel EMRandomTalkParallel("RandomTalkSub_%(_m)_%(_t)")
+	parallel EMRandomTalkParallel("RandomTalkSub_%(_md)")
+	parallel EMRandomTalkParallel("RandomTalkSub_%(_md)_%(_t)")
+	
+	//******** 時間帯 ***************************************************************
+	parallel EMRandomTalkParallel("BootRandomTalkSub_%(_t)")
+	parallel EMRandomTalkParallel("RandomTalkSub_%(_t)")
+	
+	//******** 月 *******************************************************************
+	parallel EMRandomTalkParallel("RandomTalkSub_%(_mn)")
+	_tmparray = IARRAY
+	if GETTIME[2] <= 15 {
+		_tmparray = EMRandomTalkParallel("RandomTalkSub_%(_mn)_firsthalf") //前半
+	}
+	else {
+		_tmparray = EMRandomTalkParallel("RandomTalkSub_%(_mn)_secondhalf") //後半
+	}
+	parallel _tmparray
+	
+	//******** まほーネタ ***************************************************************
+	//aya_aitalk_magic
+	_tmparray = IARRAY
+	if magic_flag {
+		_tmparray = RandomTalkMagic
+	}
+	parallel _tmparray
+	
+	//******** ふつうネタ ****************************************************************
+	//aya_aitalk_normal
+	parallel RandomTalkNormal
+	
+	_tmparray = IARRAY
+	if 'Phase4.5' _in_ SHIORI3FW.ShellName {
+		_tmparray = RandomTalkBustNew
+	}
+	else {
+		_tmparray = RandomTalkBustOld
+	}
+	parallel _tmparray
+}
+
+EMRandomTalkSub : nonoverlap
+{
+	parallel EMRandomTalkSubArray
+}
+
+

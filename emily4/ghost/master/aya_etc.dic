@@ -1,0 +1,1090 @@
+﻿//**** 時報/重なり **********************************************************************
+
+//---- OnMinuteChangeイベント -----------------------------------------------------------
+//OnMinuteChange
+//{
+//}
+
+
+//**** 見切れ ***************************************************************************
+
+//---- OnSecondChangeイベント -----------------------------------------------------------
+//OnSecondChange
+//{
+//}
+
+//**** サーフィス復元 *******************************************************************
+
+//---- OnAYASurfaceRestoreイベント ---------------------------------------------------------
+OnSurfaceRestore //通常のRestoreを無効化
+{
+	"\C\0\1\e"
+}
+
+OnSHIORI3FW.SurfaceRestore
+{
+	if disable_surface_restore {
+		''
+		return
+	}
+	
+	_tx = SurfaceRestoreReal()
+	if _tx != '' {
+		_tx = '\C' + SHIORI3FW.InitBalloons + _tx
+		_tx = REPLACE(_tx,'\t','')
+		_tx = REPLACE(_tx,'\e','')
+		_tx += '\![raise,OnSurfaceRestoreEnd]\e'
+		
+		_tx
+	}
+}
+
+SurfaceRestoreReal
+{
+	_s = TOINT(SHIORI3FW.LastSurface[0])
+	_k = TOINT(SHIORI3FW.LastSurface[1])
+	
+	if SHIORI3FW.IsVisible[0] {
+		if RAND(3) != 0 { //発動確率1/3
+			return
+		}
+		
+		if _s == 1 {
+			"\0\s[1]\1\s[10]…\w5…\w5いつまで照れてるの。\w9\w9\0\s[0]ん。"
+			
+			"\0\s[1]\1\s[10]いつまでそんな顔してるの？\w9\w9\0\s[4]そ、\w5そんな顔って…\w5…\w5"
+			
+			"\0\s[1]\p[2]\s[203]ねえちゃん、\w5そんな顔しててもお芋さんは貰えないよ？\w9\w9\0\s[7]ボクはそこまでっ！\w9\w9\1\s[10]嫌いなの？\w9お芋さん。\w9\w9\0\s[5]\n\n好き～！\w9\w9\p[2]\s[204]\n\nまったく。"
+		}
+		elseif _s == 2 {
+			"\0\s[2]\1\s[10]…\w5…\w5目、\w5乾くよ？\w9\w9\0\s[4]だよねー。"
+			
+			"\0\s[2]\1\s[10]…\w5…\w5目、\w5落ちるよ？\w9\w9\0\s[4]そうだよねー、\w5気をつけないと。\w9\w9\1\n\n…\w5…\w5え、\w5もしかして真面目に言ってる？"
+			
+			"\0\s[2]\1\s[10]ぷっ。\w9\w9\p[2]\s[205]はい、\w5テディの負けー。\w9\w9\0\s[7]にらめっこしてるわけじゃないっ！！"
+		}
+		elseif _s == 3 {
+			"\0\s[3]\1\s[10]…\w5…\w5お色気流し目？\w9\w9\0\s[4]なにそれ。\e"
+			
+			"\0\s[3]\1\s[10]…\w5…\w5%(username)の手元をじっと見るエミリ。\w9\w9\0\s[4]見てない見てない。\e"
+		}
+		elseif _s == 4 {
+			"\0\s[4]\1\s[10]何をいつまでも落ち込んでるの。\w9\w9\0だ、\w5だってぇ…\w5…\w5\e"
+			
+			"\0\s[4]\1\s[10]お芋さんあげるから、\w5元気出しなよ。\w9\w9\0\s[5]わーい！\w9\w9\1\n\n機嫌治りすぎ。\e"
+		}
+		elseif _s == 5 {
+			"\0\s[5]\1\s[10]笑顔が一番。\w9\w9\0\s[6]お芋が一番。\w9\w9\1\n\n…\w5…\w5…\w5\e"
+			
+			"\0\s[5]\1\s[10]…\w5…\w5バカに見えるよ？\w9\w9\p[2]\s[218]大丈夫、\w5元から。\w9\w9\0\s[7]がるるるるるるるる…\w5…\w5\e"
+			
+		}
+		elseif _s == 6 {
+			"\0\s[6]\1\s[10]…\w5…\w5起きてる？\w9\w9\0ぐー…\w5…\w5…\w5\e"
+			
+			"\0\s[6]\1\s[10]起きたら？\w9\w9\0\s[7]寝てないっ！\e"
+			
+		}
+		elseif _s == 7 {
+			"\0\s[7]\1\s[10]怒ってばかりいると痩せるよ？\w9\w9\0\s[5]望むところだっ！\e"
+			
+			"\0\s[7]\1\s[10]しわが増えるよ？\w9\w9\0\s[2]し、\w5しわっ！？\e"
+			
+			"\0\s[7]\1\s[10]可愛い顔が台無しだよ？\w9\w9\0\s[1]え、\w5そ…\w5…\w5そうかな…\w5…\w5\w9\w9\1\n\n冗談だけど。\w9\w9\0\s[4]\n\nああもうっ。\e"
+			
+		}
+		elseif _s == 8 {
+			"\0\s[8]\1\s[10]笑うのか困るのか、\w5はっきりしようよ。\w9\w9\0\s[4]そ、\w5そんな事言っても…\w5…\w5\e"
+			
+			"\0\s[8]\1\s[10]マンガみたいな汗をかけるエミリを尊敬したりしなかったり。\w9\w9\0\s[4]しょうがないでしょ…\w5…\w5\e"
+			
+		}
+		elseif _s == 9 {
+			"\0\s[9]\1\s[10]やぶにらみ？\w9\w9\0\s[4]そ、\w5そんなんじゃないもん。\e"
+			
+			"\0\s[9]\1\s[10]どこを見てるの？\w9\w9\0%(username)の背後霊。\w9\w9\1\s[12]\n\n！？\e"
+			
+		}
+		elseif _s == 24 || _s == 124 || _s == 1024 || _s == 1124 {
+			"\0\s[9]\1\s[10]お願いだから、\w5その魔力を収めてくれない？\w9\w9\0お芋さんくれたら考える。\e"
+			
+			"\0\s[9]\1\s[10]余計なカロリーを使わないでね。\w9\w9\0\s[8]ダイエット。\w9\w9\1\n\nならないから。\e"
+		}
+		elseif _s == 40 {
+			"\0\s[40]\1\s[10]なんでエミリは回復魔法使えないの？\w9\w9\0覚えるのめんどくさいの。\w9\w9\1\n\n…\w5…\w5…\w5駄目じゃん。\e"
+			
+			"\0\s[40]\1\s[10]…\w5…\w5そろそろ魔法の制御を覚えようよ。\w9\w9\0めんどくさいー…\w5…\w5\w9\w9\p[2]\s[208]覚えられないの間違いでしょ？\w9\w9\0\s[24]\n\n…\w5…\w5…\w5…\w5…\w5\w9\w9\1\s[12]\n\nまたー！？\e"
+			
+		}
+	}
+}
+
+//**** URL D&D *****************************************************************
+
+OnURLDropping
+{
+	E.Title('ダウンロード開始')
+	--
+	"\u\s[10]\h\s[5]\_q\_?%(reference[0])\_?\_q\w9\nをとってくるよ～。\w9\w9\u慌てて行くとまた失敗するから気をつけてね。\e"
+}
+
+OnURLDropped
+{
+	E.Title('ダウンロード成功')
+	--
+	"\u\s[10]\h\s[5]\_q\_?%(reference[1])\_?\_q\w9\nをとってきたよ～。"
+	--
+	if ( STRLEN(reference[0]) ) {
+		"\w9\w9\u\_q\_?%(reference[0])\_?\_q\w9\nに置いてあるから、\w5もし必要なら取ってきてね。\e"
+	}
+}
+
+OnURLDropFailure
+{
+	if reference[0] == "artificial" {
+		E.Title('ダウンロード中断')
+		--
+		"\u\s[10]\h\s[6]ほい、\w5やめて戻ってきたよ。\e"
+	}
+	else {
+		E.Title('ダウンロード失敗')
+		--
+		"\u\s[10]\h\s[4]と、\w5途中でコケちゃった\w5…\w5…。\w9\nぐすん。\w9\w9\u\s[11]だから慌てて行かないようにっていつも言ってるのに。\e"
+	}
+}
+
+//**** インストール関連 *****************************************************************
+
+//---- インストール中のメッセージ -------------------------------------------------------
+OnInstallBegin
+{
+	E.Title('インストール開始')
+	--
+	"\u\s[10]\h\s[5]%(charname(1))、\w5何か来たよ～。\w9\w9\u友達が増えるのかな？\e"
+}
+
+//---- インストール完了メッセージ -------------------------------------------------------
+OnInstallComplete
+{
+	_installtype = SPLIT(reference[0],'with')
+	_installtype = (_installtype[0],SPLIT(_installtype[1],','))
+	reference[0] = JOIN(_installtype,CHR(1))
+	
+	if ( STRLEN(reference[2]) ) {
+		reference[1] = "%(reference[1])%(CHR(1))%(reference[2])"
+		reference[2] = ''
+	}
+	OnInstallCompleteEx
+}
+
+OnInstallCompleteEx
+{
+	E.Title('インストール成功')
+	--
+	"\u\s[10]\h\s[5]"
+	--
+	_installtype = reference[0]
+	SETDELIM(_installtype,CHR(1))
+	
+	_installname = reference[1]
+	SETDELIM(_installname,CHR(1))
+	
+	_n1 = ARRAYSIZE(_installtype)
+	_n2 = ARRAYSIZE(_installname)
+	_n = 0
+	if _n1 < _n2 {
+		_n = _n1
+	}
+	else {
+		_n = _n2
+	}
+	
+	_installtext = ''
+	_ghostinclude = 0
+	_lastinstalled = ''
+	_lasttype = ''
+	
+	for _i = 0 ; _i < _n ; _i++ {
+		_installtext += "・"
+		
+		if _installtype[_i] == "shell" {
+			_installtext += "シェル"
+		}
+		elseif _installtype[_i] == "ghost" {
+			_installtext += "ゴースト"
+			_ghostinclude = 1
+			_lastinstalled = _installname[_i]
+			_lasttype = _installtype[_i]
+		}
+		elseif _installtype[_i] == "balloon" {
+			_installtext += "バルーン"
+			if STRLEN(_lastinstalled) == 0 {
+				_lastinstalled = _installname[_i]
+				_lasttype = _installtype[_i]
+			}
+		}
+		elseif _installtype[_i] == "plugin" {
+			_installtext += "プラグイン"
+		}
+		elseif _installtype[_i] == "headline" {
+			_installtext += "ヘッドライン"
+		}
+		elseif _installtype[_i] == "calendar skin" {
+			_installtext += "カレンダースキン"
+		}
+		elseif _installtype[_i] == "calendar plugin" {
+			_installtext += "スケジュールセンサ"
+		}
+		elseif _installtype[_i] == "rss" {
+			_installtext += "RSSフィード"
+		}
+		else {
+			_installtext += _installtype[_i]
+		}
+		if STRLEN(_installname[_i]) != 0 {
+			_installtext += " - "
+			_installtext += _installname[_i]
+		}
+		_installtext += "\n"
+	}
+	"\_q%(_installtext)\_q"
+	--
+	'インストール完了したよ～。'
+	--
+	if STRLEN(_lastinstalled) != 0 {
+		if _ghostinclude {
+			'\w9\n[150]さっそく呼んでみる？\n\![set,choicetimeout,0]'
+			--
+			"\n\![*]\q[%(MenuItem('呼んでみる')),OnInstallComplete_Choice,call,ghost,%(_lastinstalled)]"
+			--
+			"\n\![*]\q[%(MenuItem('切り替えてみる')),OnInstallComplete_Choice,change,ghost,%(_lastinstalled)]"
+			--
+			"\n\![X]\q[%(MenuItem('なにもしない')),CANCEL_NOTALK]"
+		}
+		else {
+			'\w9\n[150]さっそく切り替えてみる？\n'
+			--
+			"\n\![*]\q[%(MenuItem('切り替えてみる')),OnInstallComplete_Choice,change,%(_lasttype),%(_lastinstalled)]"
+			--
+			"\n\![X]\q[%(MenuItem('なにもしない')),CANCEL_NOTALK]"
+		}
+	}
+	--
+	'\e'
+}
+
+OnInstallComplete_Choice
+{
+	if basewarename == 'SSP' {
+		"\![%(reference[0]),%(reference[1]),lastinstalled]"
+	}
+	else {
+		"\![%(reference[0]),%(reference[1]),%(reference[2])]"
+	}
+}
+
+//---- インストール失敗メッセージ -------------------------------------------------------
+OnInstallFailure
+{
+	if reference[0] == "artificial" {
+		E.Title('インストール中断')
+		--
+		"\u\s[10]\h\s[0]中断したよ。\w9\w9\u何か間違ったのかな。\e"
+	}
+	else {
+		E.Title('インストール失敗')
+		--
+		"\u\s[10]\h\s[4]インストール失敗したよ\w5…\w5…\w9\w9\u"
+		--
+		if reference[0] == "unsupported" {
+			"これは、\w5そもそもインストールできるものではないみたいだね。\e"
+		}
+		elseif reference[0] == "extraction" {
+			"解凍に失敗したみたい。\w5ファイルが壊れてると思うから、\w5もう一度取ってきてみてね。\e"
+		}
+		else {
+			"駄目みたいだね。\w5%(reference[0])だってさ。\w9\w9\h\n\n何でだろうね\w5…\w5…。\e"
+		}
+	}
+}
+
+//---- インストール拒否（他のゴーストのためのアーカイブだった） -------------------------
+OnInstallRefuse
+{
+	E.Title('インストール不可')
+	--
+	_name = E.AddKeisyou(reference[0],'さん')
+	"\u\s[10]\h\s[4]%(username)ごめん。\w9\nこれ、\w5%(_name)にあげてね。\w9\w9\u僕達宛てのものじゃないみたいだね。\e"
+}
+
+
+//**** メールチェック *******************************************************************
+
+//---- メールチェック開始 ---------------------------------------------------------------
+OnBIFFBegin
+{
+	E.Title('メールチェック開始')
+	--
+	"\u\s[10]\h\s[5]メールチェックしてくるよー。\w9\w9\u気をつけてね。\w9\w9\e"
+	
+	"\u\s[10]\p2\s[200]\h\s[5]メールチェック～。\w9\w9\p2新しいメールは届いてるかな？\w9\w9\h\s[0]\n\n白い粉が入ってると幸せになるって聞いたことあるよ。\w9\w9\u\s[11]…\w5…\w5危険なネタ禁止。\e"
+	
+	"\u\s[10]\h\s[4]はあ。\w9\w9\uどうしたの。\w9\w9\h\s[3]\n\nう～～ん。\w9\s[21]やだな～。\w9\w9\u\n\nだから、\w5なに。\w9\w9\h\s[31]\n\n…\w5…\w5滅入るチェック。\w9\w9\u\s[11]\n\n帰ってもいい？"
+	
+	"\u\s[10]\h\s[0]ねぇ、\w5テディ。\w9\n郵便受け見てきてくれない？\w9\w9\u\s[11]何で僕が。\w5自分で見てきなよ。\w9\nその方が%(username)も喜ぶと思うよ。\w9\w9\h\s[3]\n\n…\w5…\w5むう～。\w9\n仕方が無い、\w5ボクが見てくるっ。\w9\w9\u\n\nいってらっしゃい。\e"
+	
+}
+
+//---- メールチェック成功 ---------------------------------------------------------------
+OnBIFFComplete
+{
+	if TOINT(reference[0]) == 0
+	{
+		//---- メールは無かった
+		E.Title('メールは届いていません')
+		--
+		"\h\s[4]メール無しー。\w9\w9\u\s[10]ま、\w5そんな日もあるね。\e"
+		
+		"\u\s[10]\h\s[3]メールがないね。\w9\w9\uまぁ、\w5こんな日もあるね。\w9\w9\h\s[5]\n\n寂しそうだし、\w5「エミリです。今日会いに行きます！」\w5とか%(username)に送ろうかな。\w8\w8\u\s[11]\n\nSPAM扱いで一瞬でポイだね。\w8\w8\h\s[3]\n\nむぅ。\e"
+		
+		"\h\s[4]\u\s[10]どうだったの？\w9\w9\hなにもきてなかった\w5…\w5…\w9\w9\u\n\n何で%(charname(0))が落ち込むのさ？\w9\w9\h\n\nだって、\w5この前、\w5懸賞に応募して\w5…\w5…。\w9\n当選通知がこないかな～、\w5って…\w9\w9\u\s[11]\n\n勝手に応募しない。\w9\w9\h\n\nえー。\e"
+	}
+	else
+	{
+		//---- メールが届いていた
+		E.Title('メールが届いていました')
+		--
+
+		_text = reference[7]
+		_text = REPLACE(_text,CHR(92),"%(CHR(92))%(CHR(92))") // \ を \\
+		_text = REPLACE(_text,CHR(1),"\n\![*]")
+		_text = "\![*]" + _text
+		
+		"\u\s[10]\h\b[2]\s[5]メールあったよーっ！\w9\n\s[1]ボク宛てのファンレターかなっ♪\w9\w9\u\s[11]そんなわけないでしょ。\u\n\n[half]\h\n\n[half]\_q%(_text)\_q"
+
+		"\u\s[10]\h\b[2]\s[5]%(reference[0])通、\w5メール来てたよー。\w9\n\s[0]えーっと、\w5こんな感じ。\w9\n\n[half]\_q%(_text)\_q"
+		--
+		"\w9\w9\uチェックしてみる？\n\n[half]\![*]\q[%(MenuItem('メーラーを開く')),OPENMAILER]\n\![X]\q[%(MenuItem('無視')),CANCEL_NOTALK]\e\e"
+	}
+}
+
+OnChoiceSelect_OPENMAILER
+{
+	"\![open,mailer]"
+}
+
+//---- メールチェック失敗 ---------------------------------------------------------------
+OnBIFFFailure
+{
+	if reference[0] == "artificial" {
+		E.Title('メールチェック中断')
+		--
+		"\u\s[10]\h\s[5]ほい、\w5中断したよー。\w9\w9\u何かトラブルがあるのかな？\e"
+	}
+	else {
+		E.Title("ERROR: メールチェック/%(reference[0])")
+		--
+		if reference[0] == "timeout" {
+			"\u\s[10]\h\s[4]サーバさんが返事をしてくれなかったよ。\w9\w9\uちゃんとネットに接続できてるか調べて、\w5それでも異常がなかったら、\w5とりあえずしばらく待ってからもう一度試してみるといいかも。\e"
+		}
+		elseif reference[0] == "kick" {
+			"\u\s[10]\h\s[4]門前払いにされちゃった\w5…\w5…\w9\w9\uパスワードかユーザ名、\w5どっちかが間違ってるかもね。\w9\n設定を確認してみて。\e"
+		}
+		else {
+			"\u\s[10]\h\s[4]うう、\w5なんだかわからないけど、\w5とにかく失敗しちゃった。\w9\w9\u…\w5…\w5これは、\w5確かに何でだろうね。\e"
+		}
+	}
+}
+
+
+//**** ネットワーク更新 *****************************************************************
+
+//---- ネットワーク更新開始 -------------------------------------------------------------
+OnUpdateBegin
+{
+	E.Title('更新開始')
+	--
+	"\u\s[10]\h\s[6]お勉強の時間です。\n\n\w9\w9\u今日は何するの？\n\n"
+}
+
+//---- ネットワーク更新準備完了 ---------------------------------------------------------
+OnUpdateReady
+{
+	SHIORI3FW.RegisterTempVar('update.max')
+	SHIORI3FW.RegisterTempVar('update.num')
+
+	"\C%(TOINT(reference[0]) + 1)個の宿題発見～。\w9\w9\uまぁ、\w5とりあえずがんばって。\e"
+}
+
+//---- ネットワーク更新終了 -------------------------------------------------------------
+OnUpdateComplete
+{
+	if reference[0] == "none"
+	{
+		E.Title('更新なし')
+		--
+		//---- 更新すべきファイルが無かった
+		"\u\s[10]\h\s[0]今日は宿題がなかったよ。\w9\n\s[5]さぁ、\w5あそぼあそぼ～。\w9\w9\u\s[11]…\w5…\w5サボってるね。\e"
+	}
+	else
+	{
+		E.Title('更新終了')
+		--
+		//---- 実際に更新が完了した
+		"\u\s[10]\h\s[4]ふう。\w9\nやっとおわったよ。\w9\w9\uおつかれさま。\e"
+	}
+}
+
+//---- ネットワーク更新失敗 -------------------------------------------------------------
+OnUpdateFailure
+{
+	if reference[0] == 'artificial' {
+		E.Title('更新中断')
+		--
+		"\u\s[10]\h\s[4]ごめん、\w5勉強より先にやることあったみたい。\w9\w9\uとりあえず中断だね。\e"
+	}
+	else {
+		E.Title("ERROR: 更新/%(reference[0])")
+		--
+		"\u\s[10]\h\s[4]ああ、\w5なんだか今日は調子が悪いからやめとくよ。\w9\w9\uそうやって、\w5いつのまにか山盛りになってて僕に泣きついてきても知らないよ？\w9\w9\h\n\nうあ～。\w5そんなこと先に言わないでよぅ。\e"
+	}
+}
+
+//---- ネットワーク更新 ダウンロード開始 ------------------------------------------------
+OnUpdate.OnDownloadBegin
+{
+	update.max = TOINT(reference[2]) + 1
+	update.num = TOINT(reference[1]) + 1
+	
+	E.Title("受信中: %(reference[0])")
+	--
+	"\h\s[0]\u\s[10]第%(update.num)問。\n"
+	--
+	"ゴースト界で一番"
+	--
+	{
+		"高い";"低い"
+		--
+		"山"
+	}
+	{
+		"長い";"短い";"急な";"ゆるやかな"
+		--
+		"川"
+	}
+	{
+		"おいしい料理店"
+		"おもしろい漫才ネタ"
+	}
+	--
+	"は次のうちどれ？"
+}
+
+//---- ネットワーク更新 MD5値照合開始 ---------------------------------------------------
+OnUpdate.OnMD5CompareBegin
+{
+	"\C\w9\w9\h\s[6]えーと、\w5…\w5…\w5これかな。\n\n"
+}
+
+//---- ネットワーク更新 MD5値一致 -------------------------------------------------------
+OnUpdate.OnMD5CompareComplete
+{
+	"\C\w9\w9\u\s[10]\n\n正解。\w9\w9\h\s[5]やった～。"
+	--
+	if update.max > update.num {
+		"\w5次つぎぃ。"
+	}
+	--
+	"\e"
+}
+
+//---- ネットワーク更新 MD5値不一致 -----------------------------------------------------
+OnUpdate.OnMD5CompareFailure
+{
+	"\C\u\s[11]まちがい。\w9\w9\h\s[4]え～。\e"
+}
+
+//**** ヘッドラインセンス ***************************************************************
+
+//---- ヘッドラインセンス開始 -----------------------------------------------------------
+OnHeadlinesenseBegin
+{
+	_title = 'ヘッドライン'
+	if _argc && _argv[0] {
+		_title = _argv[0]
+	}
+	
+	E.Title(_title + '/取得')
+	--
+	"\u\s[10]\h\s[5]%(reference[0])を買ってくるよ～。\w9\w9\uいってらっしゃい。\e"
+}
+
+//---- ヘッドライン読み上げ -------------------------------------------------------------
+OnHeadlinesense.OnFind
+{
+	"\h\t\b[2]\![set,choicetimeout,-1]"
+	--
+	E.Title("%(reference[0])ヘッドライン")
+	--
+	//---- はじめのセリフ
+	if reference[2] == "First" || reference[2] == "First and Last"
+	{
+		//---- 最初のページ
+		"\h\s[5]%(reference[0])買ってきたよ～。"
+	}
+	elseif reference[2] == "Next"
+	{
+		//---- 真ん中あたりのページ
+		"\h\s[5]続き～。"
+	}
+	elseif reference[2] == "Last"
+	{
+		//---- 最後のページ
+		"\h\s[0]これが最後のページだよ。"
+	}
+	--
+	//---- ヘッドライン本体
+	"\![quicksession,true]\n\n\_q%(reference[3])\n\n"
+	--
+	//---- 選択肢
+	_pagenavishow = 0
+	if "First" !_in_ reference[2] {
+		//---- 前のページがある場合
+		"\![<]\q[%(MenuItem('前のページ')),__HEADLINE_PREV]\n"
+		_pagenavishow = 1
+	}
+	--
+	if "Last" !_in_ reference[2] {
+		//---- 次のページがある場合
+		//"\![>]\q[次のページ,__HEADLINE_NEXT]\n"
+		"\![>]\q[%(MenuItem('次のページ')),]\n"
+		_pagenavishow = 1
+	}
+	--
+	if _pagenavishow {
+		'\n[50]'
+	}
+	--
+	"\![*]\q[%(MenuItem('サイトへ')),%(reference[1])]\n/
+	\![X]\q[%(MenuItem('閉じる')),CANCEL_NOTALK]\e"
+}
+
+//---- ヘッドライン更新が無かった -------------------------------------------------------
+OnHeadlinesenseComplete
+{
+	_title = 'ヘッドライン'
+	if _argc && _argv[0] {
+		_title = _argv[0]
+	}
+	
+	E.Title(_title + '/更新無し')
+	--
+	"\u\s[10]\h\s[4]まだ発売日じゃなかったみたい。\w9\w9\u\s[11]よく確認もせずに出て行くから\w5…\w5…\e"
+}
+
+//---- ヘッドラインセンス失敗 -----------------------------------------------------------
+OnHeadlinesenseFailure
+{
+	_title = 'ヘッドライン'
+	if _argc && _argv[0] {
+		_title = _argv[0]
+	}
+	
+	if reference[0] == "artificial" {
+		E.Title(_title + '/処理中断')
+		--
+		"\u\s[10]\h\s[4]ああ、\w5えっと、\w5先にやることがあったんだっけ。\w9\w9\u\s[11]全くそそっかしいんだから。\e"
+	}
+	else {
+		E.Title(_title + '/ERR:' + reference[0])
+		--
+		"\u\s[10]\h\s[4]ぐすん。\w9\n途中でコケちゃった～。\w9\w9\u\s[11]…\w5…\w5何やってるんだか。\e"
+	}
+}
+
+//**** RSSセンス ***************************************************************
+OnRSSBegin
+{
+	OnHeadlinesenseBegin('RSS')
+}
+
+OnRSSFailure
+{
+	OnHeadlinesenseFailure('RSS')
+}
+
+OnRSSComplete
+{
+	if ( ARRAYSIZE(reference) <= 1 ) { //更新なし
+		OnHeadlinesenseComplete('RSS')
+		return
+	}
+	
+	"\h\b[2]\s[5]\![set,choicetimeout,-1]\![set,balloontimeout,-1]"
+	--
+	_title = SHIORI3FW.RemoveAllTags(reference[0])
+	E.Title(SHIORI3FW.MakeShortText(_title,30) + 'のRSS')
+	--
+	_title + 'のにゅ～すだよ～。'
+	--
+	_n = ARRAYSIZE(reference)
+	if _n <= 2 {
+		'\w9\s[8]\nって、\w5なかみがないね。\n\n[half]'
+		--
+		'\_q'
+	}
+	else {
+		'\_q\n\n[half]'
+		--
+		_script = ''
+		for _i = 2 ; _i < _n ; _i++ {
+			_kv = SPLIT(reference[_i],CHR(1))
+			
+			if ( STRLEN(_kv[2]) ) {
+				_date = SPLIT(_kv[2],',')
+				_kv[0] = STRFORM("[$02d/$02d]",TOINT(_date[1]),TOINT(_date[2])) + _kv[0]
+			}
+			
+			if ( STRLEN(_kv[1]) ) {
+				_script += "\_a[%(_kv[1])]\_?"
+			}
+			_script += SHIORI3FW.MakeShortText(_kv[0],45)
+			if ( STRLEN(_kv[1]) ) {
+				_script += "\_?\_a"
+			}
+			_script += "\n"
+		}
+		_script
+		--
+		'\n[half]'
+	}
+	--
+	"\![*]\q[%(MenuItem('サイトへ')),%(reference[1])]\n/
+	\![X]\q[%(MenuItem('閉じる')),CANCEL_NOTALK]\e"
+}
+
+//**** ファイル作成関連 *****************************************************************
+
+//---- updates2.dau作成開始 -------------------------------------------------------------
+OnUpdatedataCreating
+{
+	E.Title('更新ファイル作成')
+	--
+	"\u\s[10]\h\s[5]おと～さんこ～し～ん。\w9\w9\u\s[11]…\w5…\w5いきなり何それ。\e"
+}
+
+//---- updates2.dau作成完了 -------------------------------------------------------------
+OnUpdatedataCreated
+{
+	E.Title('更新ファイル作成完了')
+	--
+	"\u\s[10]\h\s[5]おと～さんこ～しんかんりょ～。\w9\w9\u\s[11]…\w5…\w5だから何それ。\e"
+}
+
+//---- NAR作成開始 ----------------------------------------------------------------------
+OnNarCreating
+{
+	E.Title('NAR作成')
+	--
+	"\u\s[10]\h\s[5]\_sな～\_s\h！\u。\e"
+}
+
+//---- NAR作成完了 ----------------------------------------------------------------------
+OnNarCreated
+{
+	E.Title('NAR作成完了')
+	--
+	"\u\s[10]\h\s[5]%(reference[0])をな～しておいたよ～。\e"
+}
+
+//****　時計合わせ　*********************************************************************
+
+//----　時計合わせ開始 ------------------------------------------------------------------
+OnSNTPBegin
+{
+	SHIORI3FW.RegisterTempVar('sntpflag')
+	sntpflag = ""
+	
+	E.Title('時刻合わせ')
+	--
+	"\u\s[10]\h\s[5]じゃ、\w5あっちの時計を見に行ってくるね。\w9\w9\u…\w5…\w5いや、\w5手動で合わせるわけじゃないんだけどこれ。\e"
+	"\u\s[10]\h\s[7]なんと！\w9ボクは時計合わせができるのです！\w9\w9\u\s[11]…\w5…\w5いまどきできない子を探す方が難しいよ。\e"
+}
+
+//----　時刻取得成功、比較開始 ----------------------------------------------------------
+SNTPCompare_StrForm
+{
+	_txt = _argv[0]
+	SETDELIM(_txt,",")
+	STRFORM("$04d/$02d/$02d $02d:$02d:$02d",TOINT(_txt[0]),TOINT(_txt[1]),TOINT(_txt[2]),TOINT(_txt[3]),TOINT(_txt[4]),TOINT(_txt[5]))
+}
+
+SNTPCompare_AboutTime
+{
+	_txt = _argv[0]
+	SETDELIM(_txt,",")
+	
+	if TOINT(_txt[4]) > 45 {
+		TOINT(_txt[3]) + 1
+	}
+	else {
+		_txt[3]
+	}
+}
+
+OnSNTPCompare
+{
+	SHIORI3FW.RegisterTempVar('sntpflag')
+	sntpflag = "execute"
+	
+	E.Title('時刻合わせ成功')
+	--
+	"\h\s[0]\_q/
+	あっち %(SNTPCompare_StrForm(reference[1]))\n/
+	こっち %(SNTPCompare_StrForm(reference[2]))\n/
+	\n\_q\w9"
+	
+	"\h\s[0]かなり強めの時計が%(SNTPCompare_StrForm(reference[1]))です。\w9\s[6]\nローカルの弱い時計が%(SNTPCompare_StrForm(reference[2]))です。\w9\w9\uわかりやすいようなわかりにくいような。\n\n\w9\w9\h\n\n"
+	
+	"\h\s[6]原子時計が%(SNTPCompare_StrForm(reference[1]))。\w9\n原始時計が%(SNTPCompare_StrForm(reference[2]))です。\w9\w9\u…\w5…\w5\s[11]PCのは原始的なのか。\n\n\h\n\n\w9\w9"
+	
+	"\h\s[6]あっちの時計が%(SNTPCompare_AboutTime(reference[1]))時くらい。\w9\nこっちの時計が%(SNTPCompare_AboutTime(reference[2]))時くらいです。\w9\w9\u\s[11]くらい、\w5って\w5…\w5…\n\n\h\n\n\w9\w9"
+	
+	"\h\s[6]精工舎の時報が%(hour)時%(minute)分をお知らせします。\w9\w9\u\s[11]…\w5…\w5どこそれ。\w9\w9\h\s[0]\n\n1951年9月1日、\w5日本初の民間放送ラジオとなる中部日本放送の時報なんだって。\w9\u\s[12]\n\n何時にあわせるの？！\n\n\h\n\n\w9\w9"
+	
+	--
+	if TOINT(reference[3]) == 0
+	{
+		"\h\s[5]ぴったりだね。\w9\w9\u\s[10]几帳面な人みたいだね。\e"
+		
+		"\h\s[2]え？\w9ぴったり一致？\w9\w9\uおやおや。\w9\s[10]エミリの出番はないようだね。\w9\w9\p2\s[218]ねえちゃんに任せるのは不安だから、\w5俺がやっといたよ。\w9\w9\h\s[9]\n\nなんてことを～～。\e"
+	}
+	else
+	{
+		"\h\s[5]\6%(reference[3])秒ずれてたから、\w5合わせたよ。\e"
+		
+		"\h\s[6]\6%(reference[3])秒ずれてますね～。\w9\s[5]\n直してあげてもいいけど、\w5おいも買ってくれる？\w9\w9\u\s[11]…\w5…\w5何か寝言言ってるよ。\w9\n時計合わせくらいで何もくれないって。\w9\w9\h\s[3]\n\n仕方ないな～。\w9タダで直してあげるよ。\w9\w9\p2\s[205]\w9ほい、\w5修正～。\w9\s[-1]\w9\w9\h\s[7]\n\nボクの仕事を～～～。\w9\w9\u\s[12]\n\n待てコラ落ち着け！\e"
+	}
+}
+
+OnSNTPCorrect
+{
+	//SNTPCompareの\6は無視
+	if sntpflag != "execute"
+	{
+		E.Title('時刻合わせ成功')
+		--
+		"\u\s[10]\h\s[5]時計、\w5合わせておいたよ～。\e"
+	}
+}
+
+//----　時計合わせ失敗 ------------------------------------------------------------------
+OnSNTPFailure
+{
+	E.Title('時刻合わせ失敗')
+	--
+	"\u\s[10]\h\s[4]あれ。\w9\n時計壊れてた。\w9\w9\u…\w5…\w5ホントに？\e"
+}
+
+//**** カレンダー *****************************************************************
+
+//---- 読む ------------------------------------------------------------------
+OnSchedule5MinutesToGo
+{
+	ScheduleReadProc(1)
+}
+
+OnScheduleRead
+{
+	ScheduleReadProc(0)
+}
+
+#define SCHEDULE_TITLELEN 15
+
+ScheduleCutTitle
+{
+	_n = STRLEN(_argv[0])
+	if _n > SCHEDULE_TITLELEN {
+		_argv[0] = SUBSTR(_argv[0],0,SCHEDULE_TITLELEN)
+		_argv[0] += "..."
+	}
+	_argv[0]
+}
+
+ScheduleTranslateScript
+{
+	_text = _argv[0]
+	_text = REPLACE(_text,"\1","\\1")
+	_text = REPLACE(_text,"\4","\\4")
+	_text = REPLACE(_text,"\5","\\5")
+	_text = REPLACE(_text,"\6","\\6")
+	_text = REPLACE(_text,"\7","\\7")
+	_text
+}
+
+ScheduleReadProc
+{
+	if _argv[0] {
+		E.Title("5分前：%(ScheduleCutTitle(reference[1]))")
+	}
+	else {
+		E.Title("予定：%(ScheduleCutTitle(reference[1]))")
+	}
+	--
+	"\u\s[10]\h\s[0]"
+	--
+	if _argv[0] {
+		"\u\s[10]\0\s[5]みなさ～ん！\w9\n%(reference[1])、５分前で～す！\w9\w9\1…\w5…\w5みなさんって、%(username)に言えばいいだけじゃないの？\w9\w9\0\s[6]\n\nちょうど時間になった時、後ろにいる人達が…\w5…\w5\w9\w9\1\s[12]\n\n後ろ！？\e"
+
+		"\u\s[10]\0\s[5]あっとごっふん！あっとごっふん！\w9\n%(reference[1])まであっとごっふん！\w9\w9\1…\w5…\w5楽しそうだね。\w9\w9\0\n\nお仕事ですから！\w9\w9\1\n\nそんなに仕事熱心だったっけ…\w5…\w5\e"
+	}
+	else {
+		ScheduleTranslateScript(reference[3])
+	}
+	
+	res_securitylevel = "External"
+}
+
+//---- センス開始 ------------------------------------------------------------------
+OnSchedulesenseBegin
+{
+	E.Title("スケジュール取得：%(reference[0])")
+	--
+	"\u\s[10]\h\s[5]何か用事がないか聞いてくるね。\e"
+}
+
+//---- センス終了 ------------------------------------------------------------------
+OnSchedulesenseComplete
+{
+	E.Title("取得成功：%(reference[0])")
+	--
+	"\u\s[10]\h\s[5]%(reference[1])件の用件があったよ～。\w9\w9\u用件のマークにマウスを重ねたままにすると、\w5内容を確認できるよ。\e"
+}
+
+//---- センス失敗 ------------------------------------------------------------------
+OnSchedulesenseFailure
+{
+	E.Title("取得失敗：%(reference[0])")
+	--
+	"\u\s[10]\h\s[4]…\w5…\w5ごめん。\w9\n聞きそびれちゃった。\w9\w9\u\s[11]…\w5…\w5…。"
+}
+
+
+//**** 最小化 *****************************************************************
+
+OnWindowStateRestore
+{
+	if 'Phase4' _in_ SHIORI3FW.ShellName { //Phase4 Phase4.5
+		ShowHideNewbiesInfo(! config_newbies_info_disable)
+	}
+	--
+	"\u\s[10]\h\s[20]（こっそり。）\w9\w9\u\s[11]…\w5…\w5いや、\w5でてきなよ。\w9\w9\h\s[3]\n\nなんか邪魔だったみたいだからいいのかなーって。\w9\w9\u\n\n…\w5…\w5トラウマ？\e"
+}
+
+OnOtherGhostVanished
+{
+	OnVanished
+}
+OnVanished
+{
+	if reference[0] == 'メリー' {
+		"\u\s[10]\h\s[6]そう言うと、\w5彼女は回転体を残して去っていった。\w9\w9\n\s[1]ああ、\w5回転体\w5…\w5…！\w9\w9\u\s[11]…\w5…\w5何か乗り移ってやしない？"
+	}
+	else {
+		"\p2\s[203]\u\s[10]\h\s[3]む～、\w5%(E.AddKeisyou(reference[0],'さん'))、\w5そんなに思いつめなくても。\w9\w9\p2そうだね、\w5友達はたくさんいたほうがいいもんね。\w9\w9\h\s[5]\n\nたまにはいいこと言うね～。\w9\nさすがボクの弟だ～。\w9\w9\u\s[11]…\w5…\w5…。"
+	}
+}
+
+OnVanishSelecting
+{
+	if sender != basewarename {
+		"\u\s[10]\h\s[4]え、\w5え～と、\w5ボク一応SSPのナビゲーターで、\w5だからその、\w5あの\w5…\w5…\w9\w9\u\s[11]あんまりにも仕事しないもんだから、\w5こんなこと言われちゃうんだよ。"
+	}
+}
+
+//**** バーチャルプラグイン ********************************************
+OnDive
+{
+	if reference[0] == 'インターネット' {
+		"\u\s[10]\h\s[4]あれ、\w5明日の献立何にしようか調べてたら、\w5いつのまにか\_a[http://ja.wikipedia.org/wiki/%E3%82%B5%E3%83%84%E3%83%9E%E3%82%A4%E3%83%A2]Wikipediaのお芋さんのページ\_a開いてた\w5…\w5…\w9\w9\u\s[11]…\w5…\w5まさに、\w5インターネットの大海にドボンだね。\w9\n派手に溺れてるし。"
+	}
+	else {
+		"\u\s[10]\h\s[5]%(reference[0])にどぼ～ん！\w9\nぱちゃぱちゃ。\w5ぱちゃぱちゃ。\w9\w9\u\s[11]…\w5…\w5無駄に楽しそうだ。\w9\w9\h\s[3]\n\nでも、\w5この水汚れてる～。\w9\w9\u\n\n…\w5…\w5猫って水嫌いじゃなかったっけ？"
+	}
+}
+
+OnBeerShower
+{
+	"\u\s[10]\p2\s[200]\h\s[3]む～、\w5ビールは苦手なんだよね。\w9\w9\uかけるなんてもったいない。\w9\n僕が全部飲むよ。\w9\w9\p2\s[218]\h\s[28]\n\n\_s[0,2]%(charname(1))、\w5飲んべ～。\_s\w9\w9\u\s[17]\n\n…\w5…\w5うるさいなあ。"
+}
+
+//**** プロパティ *****************************************************************
+
+OnRequestProperty
+{
+	_text = ''
+	if TOINT(reference[1]) < 0 { //負の場合はキャラ数を返すでっちあげ仕様
+		_text = '3'
+	}
+	else {
+		_text = EVAL('プロパティ' + reference[1] + "('" + reference[2] + "')")
+	}
+	
+	if STRLEN(_text) {
+		"\C\![raiseother,%(reference[0]),OnGetProperty,Emily,%(reference[1]),%(reference[2]),%(_text)]"
+	}
+}
+
+プロパティ0 {
+	case _argv[0] {
+		when 'name','キャラクター名' {
+			'エミリ'
+		}
+		when '年齢層','世代' {
+			'若者'
+		}
+		when '性別' {
+			'女性'
+		}
+		when '種族' {
+			'猫'
+		}
+		when '種族タイプ' {
+			'人型'
+		}
+		when 'プロフィール' {
+			'「エミリ」\n自称SSPナビゲーター。\n火属性。でも制御不可。\nさつまいも料理が特に好き。'
+		}
+		//CyberSphere
+		//プレリリース版に忠実に従ってます。
+		//UP30% AT30% AB0% AV10% 6GB
+		//Skill　「魔法[炎]魔術＋1」　「調理[家庭＋１]」　「ボケ」
+		//Ability　「サポート　常時発動　自サーバー上の他のキャラの判定時、判定を＋１する
+		//TECHNIQUE　拳2/長剣-/短剣-/槍-/斧-/杖-/弓-/鞭-/銃-/投-/防1/飾3
+		when '行動タイプ' { //物理攻撃 or 精神攻撃
+			'精神攻撃' //まほうつかい。
+		}
+		when 'LIFE' { //体力
+			12
+		}
+		when 'STR' { //筋力
+			13
+		}
+		when 'DEX' { //器用
+			6
+		}
+		when 'AGL' { //敏捷
+			6
+		}
+		when 'MIN' { //精神
+			12
+		}
+		when 'INT' { //知力
+			7
+		}
+		when 'SEN' { //感性
+			13
+		}
+	}
+}
+
+プロパティ1 {
+	case _argv[0] {
+		when 'name','キャラクター名' {
+			'テディ'
+		}
+		when '年齢層','世代' {
+			'大人'
+		}
+		when '性別' {
+			'男性'
+		}
+		when '種族' {
+			'火ねずみ'
+		}
+		when '種族タイプ' {
+			'獣型'
+		}
+		when 'プロフィール' {
+			'「テディ」\n自称火ねずみだが詳細は不明。\nやたらと落ち着いている。\nおつまみの類いが好き。'
+		}
+		//CyberSphere
+		//とりあえず基本的にLIFE以外を足して60前後になるように調整すると「ふつう」になる
+		when '行動タイプ' { //物理攻撃 or 精神攻撃
+			'物理攻撃' //ひっかいたりするんだろうか？
+		}
+		when 'LIFE' { //体力
+			7 //しょぼい。
+		}
+		when 'STR' { //筋力
+			6 //やっぱりしょぼい。
+		}
+		when 'DEX' { //器用
+			14 //かなり器用
+		}
+		when 'AGL' { //敏捷
+			12 //ちょこまか。
+		}
+		when 'MIN' { //精神
+			10 //ふつう
+		}
+		when 'INT' { //知力
+			12 //常識人
+		}
+		when 'SEN' { //感性
+			10 //ふつう
+		}
+	}
+}
+
+プロパティ2 {
+	case _argv[0] {
+		when 'name','キャラクター名' {
+			'エミリオ'
+		}
+		when '年齢層','世代' {
+			'子供'
+		}
+		when '性別' {
+			'男性'
+		}
+		when '種族' {
+			'猫'
+		}
+		when '種族タイプ' {
+			'人型'
+		}
+		when 'プロフィール' {
+			'「エミリオ」\nエミリの弟。生意気盛り。\nなぜかプリンが好き。'
+		}
+		//CyberSphere
+		//とりあえず基本的にLIFE以外を足して60前後になるように調整すると「ふつう」になる
+		when '行動タイプ' { //物理攻撃 or 精神攻撃
+			'精神攻撃' //まほうつかい弟。
+		}
+		when 'LIFE' { //体力
+			12 //育ち盛り
+		}
+		when 'STR' { //筋力
+			11 //けっこう。
+		}
+		when 'DEX' { //器用
+			10 //ふつう
+		}
+		when 'AGL' { //敏捷
+			11 //子供ですから。
+		}
+		when 'MIN' { //精神
+			8 //注意力はちょっと？
+		}
+		when 'INT' { //知力
+			10 //ふつう
+		}
+		when 'SEN' { //感性
+			9 //経験がちとたりないなあ？
+		}
+	}
+}
+
+
+

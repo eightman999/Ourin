@@ -1,0 +1,233 @@
+﻿/*-------------------------------------------------------------------------------------------
+ *  Tuned system dictionary for SHIORI/3.0 "EP4/FullThrottle"
+ *  
+ *  コミュニケート辞書コア
+ * ------------------------------------------------------------------------------------------
+*/
+
+//**** こちらから話しかける *************************************************************
+
+StartCommunicate
+{
+	for _i = 0 ; _i < _argc ; _i++ {
+		res_reference[_i] = TOSTR(_argv[_i])
+	}
+}
+
+StartCommunicateScenario
+{
+	StartCommunicate(_argv[0],'ECHO/1.0',_argv[1,100])
+	
+	marker = 'Communicate from Emily/Phase4.5'
+}
+
+
+//**** 話しかけられたので返事する *******************************************************
+
+/*---------------------------------------------------------------------------------------
+  OnCommunicateイベント
+  呼び出しreference[1] = SSTP Reference0 = 受信 reference[2] に注意
+---------------------------------------------------------------------------------------*/
+OnCommunicate
+{
+	if ARRAYSIZE(reference) >= 4 {
+		if STRLEN(reference[3]) {
+			if reference[2] == 'ECHO/1.0' { //台本コミュニケート(受信)
+				if ISFUNC('台本コミュニケート有効') && (TOINT(EVAL('台本コミュニケート有効')) > 0) {
+					res_securitylevel = 'External'
+					res_reference[0] = reference[0]
+					
+					if STRLEN(marker) == 0 {
+						marker = "Communicate from %(reference[0])"
+					}
+					
+					SHIORI3FW.EscapeDangerousTags(reference[3])
+				}
+				return
+			}
+			elseif reference[2] == 'JPRadish' { //大根コミュニケート(受信)
+				ExecuteJPRadish(reference[3,100]) //範囲外指示は切り詰められるのでこれでよい
+				return
+			}
+		}
+	}
+
+	if reference[0] == 'user' || reference[0] == 'User' {
+		//---- ユーザーからの話しかけ
+		OnCommunicate_User
+	}
+	else {
+		//---- ゴーストからの話しかけ
+		ReplyToGhost
+	}
+}
+
+//---- ゴーストからの話しかけ -----------------------------------------------------------
+ReplyToGhost
+{
+	_event = ''
+	
+	if ARRAYSIZE(communicate_onetime_ghost) {
+		_n = ASEARCH(reference[0],communicate_onetime_ghost)
+		if _n >= 0 {
+			_kw = communicate_onetime_keyword[_n]
+			if _kw _in_ reference[1] {
+				_event = communicate_onetime_event[_n]
+			}
+		}
+	}
+	
+	communicate_onetime_ghost = IARRAY
+	communicate_onetime_keyword = IARRAY
+	communicate_onetime_event = IARRAY
+	
+	if STRLEN(_event) {
+		_script =  TOSTR(EVAL(_event))
+		if STRLEN(_script) != 0 {
+			_script
+			return
+		}
+	}
+	
+	_gname = SHIORI3FW.TranslateSystemChar(reference[0])
+	
+	_script = TOSTR(EVAL("OnCommunicate_%(_gname)"))
+	if STRLEN(_script) != 0 {
+		_script
+		return
+	}
+	
+	_script = EVAL('OnCommunicateGhostOther')
+	if STRLEN(_script) != 0 {
+		_script
+		return
+	}
+}
+
+/*-----------------------------------------------------------------------------
+	だいこん
+-----------------------------------------------------------------------------*/
+MakeJPRadishReply : void
+{
+	SendJPRadishCommunicate(reference[0],_argv[0,100])
+}
+
+SendJPRadishCommunicate : void
+{
+	StartCommunicate(_argv[0],'JPRadish',_argv[1,100])
+}
+
+//ユーティリティ
+FindJPRadish
+{
+	_n = ARRAYSIZE(jpradish_name_array)
+	for _i = 0 ; _i < _n ; _i++ {
+		if jpradish_name_array[_i] = _argv[0] {
+			_i
+			return
+		}
+	}
+	-1
+	return
+}
+
+SetJPRadish
+{
+	_n = FindJPRadish(_argv[0])
+	if _n >= 0 {
+		jpradish_value_array[_n] = _argv[1]
+		return
+	}
+	
+	jpradish_name_array ,= _argv[0]
+	jpradish_value_array ,= _argv[1]
+}
+
+GetJPRadish
+{
+	_n = FindJPRadish(_argv[0])
+	if _n >= 0 {
+		jpradish_value_array[_n]
+		return
+	}
+	
+	''
+	return
+}
+
+//_argv[0] = reference[3] = 識別子
+ExecuteJPRadish
+{
+	case _argv[0] {
+		when '足す','引く','参照' {
+			if STRLEN(_argv[1]) == 0 {
+				return
+			}
+			_n = FindJPRadish(_argv[1])
+			if _n >= 0 {
+				_ref = TOINT(E.ConvertToNum(_argv[2]))
+				_var = jpradish_value_array[_n]
+				
+				if _argv[0] == '足す' {
+					CVINT(_var)
+					_var += _ref
+				}
+				elseif _argv[0] == '引く' {
+					CVINT(_var)
+					_var -= _ref
+				}
+				
+				jpradish_value_array[_n] = _var
+				MakeJPRadishReply("%(_argv[0])の返信",_argv[1],_var)
+			}
+		}
+		when '代入' {
+			if STRLEN(_argv[1]) == 0 {
+				return
+			}
+			_tmp = ZEN2HAN(_argv[2],'number')
+			if ISINTSTR(_tmp) { //整数だった
+				SetJPRadish(_argv[1],TOINT(_tmp))
+			}
+			else {
+				SetJPRadish(_argv[1],_argv[2])
+			}
+		}
+		others {
+			_sender = SHIORI3FW.TranslateSystemChar(reference[0])
+			_name = SHIORI3FW.TranslateSystemChar(_argv[0])
+			_fname = "JPRadish_%(_name)_%(_sender)"
+			
+			if ! ISFUNC(_fname) {
+				_fname = "JPRadish_%(_name)"
+				if ! ISFUNC(_fname) {
+					return
+				}
+			}
+			
+			_script = EVAL(_fname + '(_argv[1,100])')
+			if _script {
+				_script
+			}
+		}
+	}
+}
+
+/*---------------------------------------------------------------------------------------
+ *  関数名：RegisterOneTimeCommunicate
+ *  機能　：一度だけのコミュニケートを登録します
+ *  引数　：0:ゴースト名　1:キーワード　2:イベント名
+ *  注意　：次にコミュニケートが来た時一度だけチェックされ、該当しなくても始末されます
+ * --------------------------------------------------------------------------------------
+*/
+RegisterOneTimeCommunicate
+{
+	if _argc < 3 {
+		return
+	}
+	
+	communicate_onetime_ghost ,= _argv[0]
+	communicate_onetime_keyword ,= _argv[1]
+	communicate_onetime_event ,= _argv[2]
+}
+

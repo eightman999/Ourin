@@ -1,0 +1,335 @@
+﻿///////// ほかのゴースト紹介（アンカー／メニューより呼び出し）
+
+#define GHOST_MENUID      0
+#define GHOST_FULLNAME    1
+#define GHOST_SAKURANAME  2
+#define GHOST_KERONAME    3
+#define GHOST_AUTHOR      4
+#define GHOST_URL         5
+#define GHOST_SCRIPT      6
+
+//単語辞書
+ms_ghost_introduce_array
+{
+	GhostIntroduceData(GHOST_SAKURANAME)
+}
+
+//お気に入りメニュー
+OnRecommendsiteChoice
+{
+	if ARRAYSIZE(reference) >= 5 {
+		if reference[3] == 'recommend' {
+			GhostIntroduce(reference[0],reference[1],TOINT(reference[4]))
+		}
+	}
+	else {
+		GhostIntroduce(reference[0],reference[1],-1)
+	}
+}
+
+//ジャンプ
+GI_JumpToDistributorMenu
+{
+	'\h\_q'
+	--
+	"\n[150]\![*]\q[%(MenuItem('呼びに行ってみる(配布元)')),%(_argv[0])]"
+	--
+	"\n\![X]\q[%(MenuItem('閉じる')),CANCEL_NOTALK]\_q\e"
+}
+
+GI_GhostBootMenu
+{
+	'\h\_q'
+	--
+	'\n[150]\![*]\q[' + MenuItem('ゴーストを呼ぶ') + ",OnGIGhostBootMenuExec,%(_argv[0])]"
+	--
+	"\n\![X]\q[%(MenuItem('閉じる')),CANCEL_NOTALK]\_q\e"
+}
+
+OnGIGhostBootMenuExec
+{
+	_index = TOINT(reference[0])
+	_fullname = GhostIntroduceData(GHOST_FULLNAME)[_index]
+	'\![call,ghost,"'
+	--
+	REPLACE(_fullname,'"','\"')
+	--
+	'"]'
+	--
+	reference = (GhostIntroduceData(GHOST_SAKURANAME)[_index],'manual',_fullname)
+	OnGhostCalling
+}
+
+#define GHOST_INTRODUCE_ELEMSIZE 4
+
+//紹介コア
+GhostIntroduce
+{
+	_found = -1
+	_isjump = 0
+	
+	if STRLEN(_argv[1]) == 0 { //お気に入り以外から来た
+		_isjump = 1
+	}
+
+	_id   = GhostIntroduceData(GHOST_MENUID)
+	_arr  = GhostIntroduceData(GHOST_SAKURANAME)
+	_url  = GhostIntroduceData(GHOST_URL)
+	_full = GhostIntroduceData(GHOST_FULLNAME)
+	
+	_n = ARRAYSIZE(_arr)
+	
+	if STRLEN(_argv[1]) {
+		for _i = 0 ; _i < _n ; _i++ {
+			if _argv[2] >= 0 && _argv[2] != _id[_i] {
+				continue
+			}
+			
+			if _full[_i] == _argv[0] {
+				if _url[_i] == _argv[1] {
+					_found = _i
+					break
+				}
+			}
+		}
+	}
+	else {
+		for _i = 0 ; _i < _n ; _i++ {
+			if _arr[_i] == _argv[0] {
+				_found = _i
+				break
+			}
+		}
+	}
+	
+	if _found < 0 {
+		return
+	}
+	
+	_text = GhostIntroduceData(GHOST_SCRIPT)[_found]
+	if STRLEN(_text) <= 0 {
+		return
+	}
+	_text = REPLACE(_text,'\e','')
+	_text = E.EvalEmbedValue(_text)
+
+	E.Title('紹介：' + _arr[_found] + '/' + GhostIntroduceData(GHOST_KERONAME)[_found])
+	--
+	_text
+	--
+	
+	_booting = E.IsGhostBooting(_arr[_found])
+	
+	_fullname = _full[_found]
+	if E.IsGhostInstalled(_fullname) {
+		if ! _booting {
+			GI_GhostBootMenu(_found)
+		}
+	}
+	else {
+		if _isjump {
+			GI_JumpToDistributorMenu(_url[_found])
+		}
+	}
+	
+	if _booting {
+		SendJPRadishCommunicate(_arr[_found],'紹介')
+	}
+}
+
+//-----データからメニュー作成------------------------------------------------------------------
+GhostIntroduceToMenu : void
+{
+	_arr =    GhostIntroduceData(GHOST_FULLNAME)
+	_url =    GhostIntroduceData(GHOST_URL)
+	_id  =    GhostIntroduceData(GHOST_MENUID)
+	
+	_n = ARRAYSIZE(_arr)
+	_result.sakura = IARRAY
+	_result.kero   = IARRAY
+	
+	for _i = 0 ; _i < _n ; _i++ {
+		if _id[_i] == 0 {
+			_result.sakura ,= _arr[_i] + CHR(1) + _url[_i] + CHR(1) + CHR(1) + CHR(2)
+		}
+		else {
+			_result.kero ,= _arr[_i] + CHR(1) + _url[_i] + CHR(1) + CHR(1) + CHR(2)
+		}
+	}
+	
+	_result.sakura = E.SortArray.Ssort(_result.sakura)
+	menu.sakura.recommendsites = JOIN(_result.sakura,'')
+	
+	_result.kero = E.SortArray.Ssort(_result.kero)
+	menu.kero.recommendsites = JOIN(_result.kero,'')
+}
+
+//-----ここから紹介------------------------------------------------------------------
+GhostIntroduceData : array
+{
+	_flag = TOINT(_argv[0])
+	
+	//=====(Emily Side)==============================================================================
+	//----------------------------------------------
+	switch _flag {
+		0
+		'とらぶる☆ばぐとらっく'
+		'所長たん';'ばぐたん'
+		'整備班'
+		'http://ms.shillest.net/'
+		
+		'\u\s[10]\h\s[5]いつもボクたちがお世話になってる人です。\w9\n…\w5…\w5\s[8]ちょっと変わった人だけどね。\w9\w9\u\s[11]そんなこと言ってたらまたお小遣い減らされるよ？\w9\w9\h\s[4]\n\n…\w5…\w5うぁ。'
+	}
+	//----------------------------------------------
+	switch _flag {
+		0
+		'舞子とうにゅ丸'
+		'舞子';'うにゅ丸'
+		'青葉のぞみ'
+		'http://aobanozomi.pa.land.to/'
+		
+		'\u\s[10]\h\s[0]\p2\s[207]いつもべたべたくっついてくる変わったねえちゃん。\w9\w9\h\s[8]あはは\w5…\w5…\w9\w9\n\s[0]まぁ、\w5いろいろ面倒も見てもらってるんだし、\w5あまり変な事言っちゃだめだよ。\w9\w9\p2\s[204]\n\nうーん。'
+	}
+	//----------------------------------------------
+	switch _flag {
+		0
+		'クラスメート'
+		'典子';'良太'
+		'青葉のぞみ'
+		'http://aobanozomi.pa.land.to/'
+		
+		'\u\s[10]\h\s[5]いつも仲の良いふたりだね～。\w9\w9\u仲いいねぇ。\w9\w9\h\n\n今は\w5「北島」、\w5「井上」\w5って呼び合ってるけど、\w5そのうち\w5「良太」、\w5「典子」\w5って呼び合うようになるよね。\w9\w9\u\n\nそうなりそうだね。\w9\w9\h\s[8]\n\nそして、\w5「あんた、寝相悪すぎ」、\w5「お前だって歯ぎしりがうるさすぎるんだよ！」\w5とか言うようになったりして。\w9\w9\u\s[11]\n\n…\w5…\w5…\w5…\w5…。'
+	}
+	//----------------------------------------------
+	switch _flag {
+		0
+		'コノハと鯱丸'
+		'コノハ';'鯱丸'
+		'黒いの'
+		'http://kuroino.shillest.net/'
+
+		'\u\s[10]\h\s[5]にゃごや大使さん。\w9\w9\u\s[11]…\w5…\w5まぁ、\w5確かにそうだけど。\w9\w9\h\n\nまほーを使っていつでもどこでも味噌を出せるんだって。\w9\w9\u\n\nそんなウソ情報、\w5どこから聞いたの。'
+	}
+	//----------------------------------------------
+	switch _flag {
+		0
+		'キノメとホーロク'
+		'キノメ';'ホーロク'
+		'小春'
+		'http://cohal.sakura.ne.jp/'
+
+		'\u\s[10]\h\s[5]プチにゃごや大使さん。\w9\w9\u\s[11]…\w5…\w5まぁ、\w5確かに\_a[GHOST_コノハ]コノハちゃんを慕ってるようだけど\_a。\w9\w9\h\n\nまほーを使っていつでもどこでも味噌を出せる修行をしてるんだって。\w9\w9\u\n\nだからそのウソ情報は禁止。'
+	}
+	//--------------------------------------------------------------------------------------------
+	switch _flag {
+		0
+		'夕菜とリン'
+		'夕菜';'リン'
+		'水無月　藍'
+		'http://ponkotsu.shillest.net/'
+		
+		'\h\s[5]不健全なお姉さんだよ～♪\w9\w9\u\s[11]不健全って\w5…\w5そんな事言ったらスロットのドラムみたいに回されちゃうよ？\w9\nぐるぐるーって。\w9\w9\h\s[2]\n\nえぇっ！\w9\nだって、\w5\_a[GHOST_舞子]舞子ちゃん\_aが言ってたんだよ！？\w9\w9\p2\s[214]まったく、\w5あの姉ちゃんは\w5…\w5…\e'
+	}
+	
+	//--------------------------------------------------------------------------------------------
+	switch _flag {
+		0
+		'#　由加+ダオにゅう　#'
+		'由加';'ダオにゅう'
+		'FA-X'
+		'http://emily.nanika.jp/'
+		
+		'\h\s[0]\u\s[10]%(charname(0))から見ると、\w5設定では妹、\w5実質は姉で先輩にあたる人だね。\w9\w9\h\s[27]何の話？\w9\w9\u\n\nああ、\w5気にしないで、\w5独り言だから。\w9\w9\h\s[4]\n\n何それ～。\w9\w9\n\s[5]あ、\w5そうそう、\w5毒物に詳しくて、\w5何だか怪しい化学実験とかもしてるみたいだけど、\w5おやつの好きな普通の女の子です。\w9\w9\u\s[11]\n\nそれのどこが普通？\w9\w9\h\s[4]\n\nだ、\w5だって。'
+	}
+	
+	//--------------------------------------------------------------------------------------------
+	switch _flag {
+		0
+		'ちゃこととーる'
+		'ちゃこ';'トール'
+		'FA-X'
+		'http://emily.nanika.jp/'
+		
+		'\u\s[10]\h\s[5]かわいいわんちゃんと、\w5もっさりわんちゃんの二人組で～す。\w9\w9\u\s[11]も、\w5もっさりって。\w9\w9\h\s[1]\n\nでもあの、\w5もさもさ～っとしたようなトールって、\w5ふあふあしてて気持ちよさそうなんだよね。\w9\w9\u\s[10]\n\n…\w5…\w5そうだね。'
+	}
+	
+	//--------------------------------------------------------------------------------------------
+	switch _flag {
+		0
+		'背後霊（小夜＆幽ゅう）'
+		'小夜';'幽ゅう'
+		'FA-X'
+		'http://emily.nanika.jp/'
+		
+		'\u\s[10]\h\s[5]正真正銘の幽霊さんです！\w9\n幽霊100％添加物一切なし！\w9\w9\u\s[11]…\w5…\w5その言い方もどうかと思うけど\w5…\w5…\w9\w9\h\s[27]\n\nでもさ、\w5よくボクのところにも来たりするんだけど、\w5つまりそれって成仏できてないってことだよね？\w9\w9\u\n\n\s[10]この世になにか未練があるってことなんだろうけど。\w9\w9\h\s[3]\n\nおいもさん食べそこねたとか\w5…\w5…\w9\w9\u\s[11]\n\n…\w5…\w5そんな理由で居残るなら、\w5今頃幽霊で大混雑してるよ。'
+	}
+	
+	//--------------------------------------------------------------------------------------------
+	switch _flag {
+		0
+		'ゆかさくら？'
+		'床さくら';'うにゅう'
+		'北の国の魔法使い/白いの/青っぽいの'
+		'http://ms.shillest.net/shiroino/yukasakura/'
+		
+		'\u\s[10]\h\s[21]…\w5…\w5お昼寝しほうだいでうらやましいね。\w9\w9\u\s[11]いや、\w5どう考えても寝すぎだから。\w9\w9\h\n\nでも、\w5足をくすぐっても起きないなんて、\w5よほど幸せな夢見てるんだろうね。\w9\w9\u\n\n意外と、\w5延々とものすごい悪夢にうなされててくすぐりなんて感じてられないのかも。\w9\w9\h\s[4]\n\nうぁ。'
+	}
+	
+	//--------------------------------------------------------------------------------------------
+	switch _flag {
+		0
+		'紀菜と岩魚'
+		'紀菜';'岩魚'
+		'謎の人'
+		'http://mikageyaryokan.jpn.ch/'
+		
+		''
+	}
+	
+	//--------------------------------------------------------------------------------------------
+	switch _flag {
+		0
+		'理世(仮)'
+		'理世';'白いの'
+		'白いの/青いの'
+		'http://ms.shillest.net/shiroino/riyo/'
+		
+		''
+	}
+	
+	//--------------------------------------------------------------------------------------------
+	switch _flag {
+		0
+		'鉄の夢'
+		'栄子';'もにゅう'
+		'畝傍'
+		'http://nonamefactory.shillest.net/'
+		
+		''
+	}
+
+	//=====(Teddy Side)==============================================================================
+	
+	//--------------------------------------------------------------------------------------------
+	switch _flag {
+		1
+		'真夢瑠とタマゴボーロ'
+		'真夢瑠';'タマゴボーロ'
+		'一魔'
+		'http://kazuma.qp.land.to/'
+
+		'\u\s[10]\h\s[5]猫大好き猫耳少女さんで～す。\w9\w9\u\s[11]…\w5…\w5この前、\w5本物の猫耳少女になるためには、\w5%(charname(0))の耳をもいじゃって自分につけないととかつぶやいてたよ？\w9\w9\h\s[2]\n\nにゃあぁぁぁぁぁ！？\w9\nだめっ！\w5だめだめっ！！\w9\w9\u\s[10]\n\n…\w5…\w5嘘。\w9\w9\h\s[3]\n\n%(charname(1))のいじわる。\e'
+	}
+	
+	//--------------------------------------------------------------------------------------------
+	switch _flag {
+		1
+		'芽生ちゃんとプーニー'
+		'芽生';'プーニー'
+		'唯原陽幸'
+		'http://www5e.biglobe.ne.jp/~madobe/'
+		
+		'\u\s[10]\p2\s[200]\h\s[2]小学生で霊媒師！\w9\w9\n…\w5…\w5\s[5]な、\w5すごくおませさんです。\w9\w9\u%(charname(2))とほとんど同じくらいの子だったはずだね。\w9\w9\p2\s[203]うーん\w5…\w5…\w9\w9\h\s[8]\n\nど、\w5どうしたの？\w9\w9\p2\s[204]\n\nどうしても比べられちゃうからやだなーって。\w9\w9\h\s[3]\n\nあ\w5…\w5…\w5ごめんね～。\w9\w9\u\n\nでも、\w5たとえ比べられても胸張って対抗できるくらいになれるよう%(charname(2))もがんばらないとね。\w9\w9\p2\s[205]\n\nそうだね。'
+	}
+}
+

@@ -1,0 +1,141 @@
+///////// マウス入力関連辞書（特殊）
+
+//********** The Hand ************************************************************
+
+//Activate
+OnHandActivate
+{
+	_fname = "HandActivate_%(reference[0])_%(reference[1])"
+	if ISFUNC(_fname) {
+		EVAL(_fname)
+	}
+}
+
+HandActivate_NormalStart_Ribbon
+{
+	if 'エアバッグ' _in_ reference[3] {
+		"\u\s[10]\h\s[7]エアバッグじゃない！\w5ちゃんと！！\w9\w9\uあ～、\w5実はそれ本当にエアバッグで、\w5いやらしい手が触りに来た時に急激に膨らんで吹き飛ばすんだよ。\w9\w9\h\s[2]\n\nええっ！？\w5本当に！？\w9\w9\u\n\n…\w5…\w5嘘。\w9\w9\h\s[4]\n\n…\w5…\w5…。"
+	}
+}
+
+HandActivate_NormalStart_Mouth
+{
+	if 'くれてやる' _in_ reference[3] {
+		"\u\s[10]\h\s[7]指のかわりに芋でないとだめっ！\w9\n\s[9]でないとかみついてやるっ。\w9\w9\u\s[11]…\w5…\w5また乱暴だね。"
+	}
+}
+
+HandActivate_NormalStart_Ear1
+{
+	if 'なのかっ' _in_ reference[3] {
+		"\u\s[10]\h\s[9]みみだっ！\w5それがどうしたっ！！\w9\w9\u\s[11]…\w5…\w5そんなにむきにならなくても。"
+	}
+}
+
+HandActivate_SuperStart_1
+{
+	"\h\s[4]\c"
+}
+
+HandActivate_SuperContinue_1 : nonoverlap
+{
+	'\C'
+	--
+	'あっ '
+	'うっ '
+	'ほぇ '
+	'うぁ '
+	'へふ '
+}
+
+HandActivate_SuperEnd_1
+{
+	"\u\s[10]\h\s[40]や、\w5やられた\w5…\w5…。\w9\w9\u\s[11]すさまじい攻撃というかなんというか。\w9\w9\h\n\nへぅ～～～。"
+}
+
+HandActivate_SuperStart_2
+{
+	"\h\s[4]\c"
+}
+
+HandActivate_SuperContinue_2 : nonoverlap
+{
+	'\u\s[10]\h\s[4]'
+	--
+	'へぅ～～。'
+	'うわぁ～～。'
+	'むぅ～～。'
+	'あぅ～～。'
+}
+
+HandActivate_SuperEnd_2
+{
+	"\u\s[10]\h\s[4]ボク、\w5ヨゴレちゃったんだ\w5…\w5…。\w9\w9\u\s[11]…\w5…\w5その言い方は問題があると思うけど。\w9\w9\n\s[10]とはいえ、\w5そろそろあの手は野放しにはしておけないね。"
+}
+
+//Response
+TheHandResponseMessage
+{
+	'' //ひとつはからっぽ
+	
+	"\w9\w9\u\s[11]…\w5…\w5鬱陶しい手だね。"
+	
+	"\w9\w9\u\s[11]…\w5…\w5まったく、\w5節操のない手だね。"
+	
+	"\w9\w9\s[7]\n\_a[GHOST_所長たん]所長さん\_aに頼んで起動不能にしてやるんだからっ！！\w9\w9\u\s[11]…\w5…\w5それ、\w5SSPナビゲーターが言うせりふじゃないと思う。"
+	
+	"\w9\w9\s[9]\nそのうちかじりついてやる。\w9\w9\u\s[11]あ～、\w5かじったらおなかこわすからやめたほうがいいよ。\w9\w9\h\s[4]\n\nむぅ。"
+}
+
+//MouseSpecial
+MouseTH_DoubleClick0
+{
+	"\u\s[10]\h\s[7]たたくなっ！\w5さわるなっ！！"
+	
+	"\u\s[10]\h\s[9]がるるるるる。"
+	
+	"\u\s[10]\h\s[7]ぺたぺたするなっ！"
+	--
+	TheHandResponseMessage
+}
+
+MouseTH_DoubleClick0Mouth
+{
+	"\u\s[10]\h\s[9]（もごもごもご、\w5もごご、\w5もご）\w9\w9\u\s[11]…\w5…\w5芋つっこまれるのなら許すのにと申しております。\w9\w9\h\s[7]\n\n（ぶはっ）\w5言ってないちゃんと！！"
+}
+
+MouseTH_DoubleClick0Ribbon
+{
+	"\u\s[10]\h\s[4]だいじな鈴がいやらしい手に汚された\w5…\w5…\w9\nうわーん\w5…\w5…\w9\w9\uまぁ、\w5代えのない鈴だから、\w5いくらなんでも少しは考えてほしいよね。"
+}
+
+MouseTH_Nade0Ear
+{
+	"\u\s[10]\h\s[7]耳はだめっていってるのに！！"
+	--
+	TheHandResponseMessage
+}
+
+MouseTH_Nade0Bust
+{
+	"\u\s[10]\h\s[9]む、\w5胸までさわりにきて\w5…\w5…"
+	--
+	TheHandResponseMessage
+}
+
+MouseTH_Nade0Ribbon
+{
+	MouseTH_DoubleClick0Ribbon
+}
+
+MouseTH_Wheel0Skirt
+{
+	"\u\s[10]\h\s[9]め、\w5め、\w5めくるなっ！！"
+	--
+	TheHandResponseMessage
+}
+
+MouseTH_Wheel0Ribbon
+{
+	MouseTH_DoubleClick0Ribbon
+}

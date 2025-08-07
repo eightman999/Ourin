@@ -1,0 +1,56 @@
+﻿///////// aya.txt (設定ファイル)
+
+//---- 文字コード -------------------------------------------------------
+charset.dic, UTF-8
+charset.output, UTF-8
+charset.file, UTF-8
+charset.save, UTF-8
+charset.save.old, UTF-8
+charset.extension, UTF-8
+
+//---- システム辞書 -------------------------------------------------------
+include, system_config.txt		// YAYA:設定辞書。必ず最初に指定すること。
+include, lilith_config.txt		// YAYA:設定辞書。必ず最初に指定すること。
+
+//---- 読み込む辞書 ---------------------------------------------------------------------
+dic, aya_systemex.dic			// Emily/4 CORE
+
+dic, aya_aitalk.dic				// ランダムトークコア
+dic, aya_aitalk_datetime.dic	// 日付時刻限定
+dic, aya_aitalk_magic.dic		// まほう
+dic, aya_aitalk_normal.dic		// 通常ランダムトーク
+
+dic, aya_word.dic				// 単語辞書
+dic, aya_word_takumi.dic		// 匠単語辞書
+dic, aya_string.dic				// 文字列リソース辞書
+dic, aya_bootend.dic			// 起動/終了/切り替えトーク辞書
+dic, aya_application.dic		// 汎用アプリケーション/どりふ/きのこ辞書
+dic, aya_etc.dic				// 種々のイベント辞書
+dic, aya_question.dic			// 質問コーナー
+dic, aya_battery.dic			// バッテリ残量表示
+
+dic, aya_anchor.dic				// アンカー（用語解説系）
+dic, aya_menu.dic				// メニュー処理辞書
+dic, aya_ghostintroduce.dic		// 他ゴースト紹介
+
+dic, aya_communicate.dic		// コミュニケートコア
+dic, aya_communicate_dic.dic	// 台本
+dic, aya_communicate_jpr.dic	// 大根
+dic, aya_communicate_normal.dic // その他
+
+dic, aya_ghostchange_core.dic	// ゴーストチェンジ専用（こっち先）
+dic, aya_ghostchange.dic		
+
+dic, aya_mouse_core.dic			// マウス入力コア（こっち先）
+dic, aya_mouse.dic				// 通常マウス入力
+dic, aya_mouse_special.dic		// 特殊マウス入力
+
+dic, aya_goods.dic				// 持ち物帳
+dic, aya_music.dic				// 音楽
+
+dic, aya_help.dic				// ヘルプ
+
+//---- 実行ログ -------------------------------------------------------------------------
+// log, ayame.log
+
+ignoreiolog,SHIORI/

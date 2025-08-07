@@ -1,0 +1,195 @@
+﻿///////// 文字列リソース辞書
+
+//---- ユーザー名 -----------------------------------------------------------------------
+On_username
+{
+	username
+}
+
+//---- ネットワーク更新の基準位置となるURL ----------------------------------------------
+On_homeurl
+{
+	'http://ssp.shillest.net/ghost/emily4/'
+}
+
+//---- ポータルサイトのボタンキャプション -----------------------------------------------
+On_sakura.portalbuttoncaption
+{
+	On_portalrootbutton.caption
+}
+On_portalrootbutton.caption
+{
+	'おきにいり'
+}
+
+//---- ポータルサイトのリスト -----------------------------------------------------------
+On_sakura.portalsites
+{
+	if ! STRLEN(menu.sakura.portalsites) {
+		menu.sakura.portalsites = E.LinkMenuConvert(On_sakura.portalsites_EX)
+	}
+	menu.sakura.portalsites
+}
+
+On_sakura.portalsites_EX : array
+{
+	'SSP BUGTRAQ				| http://ssp.shillest.net/								| '
+	'CROW						| http://crow.aqrs.jp/									| '
+//	'S Software					| http://www.s-software.net/							| '
+//	'うさださくら				| http://usada.sakura.vg/								| '
+	'偽林檎						| http://ccm.sherry.jp/									| '
+	'ninix-aya					| http://ninix-aya.osdn.jp/								| '
+	'-							|														| '
+	'ゴーストセンター			| http://ngc.aqrs.jp/									| '
+	'GHOST TOWN					| http://ghosttown.mikage.jp/							| '
+	'-							|														| '
+	'Yet Another AYA			| http://ms.shillest.net/yaya.xhtml						| '
+	'華和梨(KAWARI)				| http://kawari.sourceforge.net/						| '
+	'里々(SATORI)改造版			| http://ms.shillest.net/satoriya.xhtml					| '
+	'なゆきwith里珠				| http://nayuki.sherry.jp/								| '
+	'灯							| http://le.silk.to/									| '
+	'-							|														| '
+	'浮子屋本舗					| http://ukiya.sakura.ne.jp/							| '
+	"SSTP-Viewer's STREET		| http://sakura.nanika.jp/sstpviewer/					| "
+	'-							|														| '
+	'SSTP BOTTLE				| http://bottle.mikage.to/								| '
+//	'極秘生産拠点「ぐんにょり」	| http://k-a2shi.hp.infoseek.co.jp/ukagaka/				| '
+	'-							|														| '
+	'葦野 香さん				|														| '
+	'ししゃも屋さん				|														| '
+	'Hiro.Sさん					|														| '
+	'またくさん					|														| '
+}
+
+//---- 本体側おすすめサイトのボタンキャプション -----------------------------------------
+On_sakura.recommendbuttoncaption
+{
+	On_recommendrootbutton.caption
+}
+On_recommendrootbutton.caption
+{
+	'おともだち'
+}
+
+//---- 本体側おすすめサイトのリスト -----------------------------------------------------
+On_sakura.recommendsites
+{
+	menu.sakura.recommendsites
+}
+
+//---- kero側おすすめサイトのボタンキャプション -----------------------------------------
+On_kero.recommendbuttoncaption
+{
+	'おともだち'
+}
+
+//---- kero側おすすめサイトのリスト -----------------------------------------------------
+On_kero.recommendsites
+{
+	menu.kero.recommendsites
+}
+
+//---- エミリオ側おすすめサイトのボタンキャプション -----------------------------------------
+On_char2.recommendbuttoncaption
+{
+	'機能実行'
+}
+
+//---- エミリオ側おすすめサイトのリスト -----------------------------------------------------
+On_char2.recommendsites
+{
+	_arr = MainMenuArray
+	_n = ARRAYSIZE(_arr)
+	_tx = ""
+	
+	_c1 = CHR(1)
+	_c2 = CHR(2)
+	
+	for _i = 0 ; _i < _n ; _i++ {
+		if _arr[_i] != '-' {
+			_s = SPLIT(_arr[_i],',')
+			_tx += "%(_s[0])%(_c1)script:\![raise,OnChoiceSelect,%(_s[1])]%(_c1)%(_c2)"
+		}
+	}
+	_tx
+}
+
+//---- ポップアップメニュー表示 -----------------------------------------------------
+On_sakura.popupmenu.visible
+{
+	EMSetMenuFileName
+	'1'
+}
+On_kero.popupmenu.visible
+{
+	EMSetMenuFileName
+	'1'
+}
+On_char2.popupmenu.visible
+{
+	EMSetMenuFileName
+	'1'
+}
+On_char3.popupmenu.visible
+{
+	'0'
+}
+
+On_sakura.popupmenu.type
+{
+}
+On_kero.popupmenu.type
+{
+}
+On_char2.popupmenu.type
+{
+}
+On_char3.popupmenu.type
+{
+}
+
+//---- ネットワーク更新ボタンのキャプション ---------------------------------------------
+On_updatebuttoncaption
+{
+	On_updatebutton.caption
+}
+On_updatebutton.caption
+{
+	'こうしん'
+}
+
+//---- readmeボタンのキャプション -------------------------------------------------------
+On_readmebuttoncaption
+{
+	On_readmebutton.caption
+}
+On_readmebutton.caption
+{
+	'よんでね'
+}
+
+//---- 消滅指示ボタン表示切り替え -------------------------------------------------------
+On_vanishbuttonvisible
+{
+	On_vanishbutton.visible
+}
+On_vanishbutton.visible
+{
+	//デフォルトが消滅させられちゃかなわん
+	'0'
+}
+
+On_vanishbuttoncaption
+{
+	On_vanishbutton.caption
+}
+On_vanishbutton.caption
+{
+}
+
+//---- 0オリジン -------------------------------------------------------
+On_useorigin1
+{
+	'0'
+}
+

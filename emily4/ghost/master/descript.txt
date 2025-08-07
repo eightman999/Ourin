@@ -1,0 +1,31 @@
+charset,Shift_JIS
+
+type,ghost
+
+name,Emily/Phase4.5
+sakura.name,Emily
+kero.name,Teddy
+
+balloon,emily4
+
+id,Emily/Phase4.5
+title,Slapstick Beauty
+
+char2.seriko.defaultsurface,200
+
+name.allowoverride,0
+install.accept,Emily,ÉGÉ~Éä,Ç¶Ç›ÇËÇ°
+
+craftmanurl,http://ssp.shillest.net/
+craftman,[SSPBT/GL03B]Emily Development Team
+
+updateurl,http://ssp.shillest.net/ghost/emily4/
+
+sstp.allowunspecifiedsend,1
+
+icon,icon.ico
+icon.minimize,icon_minimize.ico
+
+shiori,yaya.dll
+shiori.version,SHIORI/3.0
+

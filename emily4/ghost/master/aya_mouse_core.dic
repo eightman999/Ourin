@@ -1,0 +1,252 @@
+///////// マウス入力関連辞書（コア）
+
+EMMouseHitExec
+{
+	_name = _argv[0]
+	if ISFUNC(_name) {
+		_text = EVAL(_name)
+		if STRLEN(_text) != 0 {
+			_text
+			return
+		}
+	}
+
+	if RE_MATCH(_name,"(.+)[0-9]+") != 0 {
+		_name = RE_GETSTR[1]
+		if ISFUNC(_name) {
+			_text = EVAL(_name)
+			if STRLEN(_text) != 0 {
+				_text
+				return
+			}
+		}
+	}
+}
+
+EMGetPrefix
+{
+	if sender == 'The Hand' {
+		'MouseTH'
+	}
+	else {
+		'Mouse'
+	}
+}
+
+//---- OnMouseMoveイベント --------------------------------------------------------------
+OnMouseMove
+{
+	OnMouseMoveWheel(0,64)
+}
+
+OnMouseWheel
+{
+	OnMouseMoveWheel(1,4)
+}
+
+OnMouseMoveWheel
+{
+	_side = TOINT(reference[3])
+	if _argv[0] {
+		_side += 10
+	}
+	
+	_specialsuffix = GetSpecialSuffix
+	
+	if STRLEN(reference[4]) != 0
+	{
+		if (GETTICKCOUNT - TOINT(stroketimer[_side])) > 1500 {
+			stroke[_side] = 0
+		}
+		stroketimer[_side] = GETTICKCOUNT
+		
+		//----どこかが撫でられている
+		_stroke = TOINT(stroke[_side])
+		_stroke += 1
+		stroke[_side] = _stroke
+		
+		//---- 撫でられた量が一定量に達したら「なでられている」と判断
+		if _stroke >= _argv[1] {
+			//talking判定は不評なので解除
+			//if 'talking' !_in_ status {
+			//---- 撫でられた。撫でられた部位を見てトークする
+			_name = ""
+			_prefix = EMGetPrefix
+			if _argv[0] {
+				_name = "%(_prefix)_Wheel%(reference[3])%(reference[4])"
+			}
+			else {
+				_name = "%(_prefix)_Nade%(reference[3])%(reference[4])"
+			}
+			EMMouseHitExec(_name)
+			stroke[_side] = 0
+			//}
+		}
+	}
+	else
+	{
+		// 定義された部位はどこも撫でられていない
+		stroke[_side] = 0
+	}
+}
+
+//---- OnMouseDoubleClickイベント -------------------------------------------------------
+OnMouseDoubleClick
+{
+	_prefix = EMGetPrefix
+	_name = "%(_prefix)_DoubleClick%(reference[3])%(reference[4])"
+	if mouse_double_click_name != _name {
+		mouse_double_click_name = _name
+		mouse_double_click_counter = 0
+	}
+	else {
+		mouse_double_click_counter += 1
+	}
+	
+	_script = EMMouseHitExec(_name)
+	if STRLEN(_script) != 0 {
+		_script
+		return
+	}
+	
+	EVAL("%(_prefix)_DoubleClick%(reference[3])")
+}
+
+//---- OnMouseClickイベント -------------------------------------------------------
+OnMouseClick
+{
+	if TOINT(reference[5]) != 0 {
+		return
+	}
+	
+	_prefix = EMGetPrefix
+	_name = "%(_prefix)_Click%(reference[3])%(reference[4])"
+	if mouse_click_name != _name {
+		mouse_click_name = _name
+		mouse_click_counter = 0
+	}
+	else {
+		mouse_click_counter += 1
+	}
+	
+	_script = EMMouseHitExec(_name)
+	if STRLEN(_script) != 0 {
+		_script
+		return
+	}
+	
+	EVAL("%(_prefix)_Click%(reference[3])")
+}
+
+/*--------------------------------------------------------------
+	マウスジェスチャ
+	
+	呼び出される関数
+		OnMouseGestureCall(_argv[0],...) - 通常用
+		OnMouseGestureCallCircle(_argv[0],...) - 回転用
+		
+	_argcに現在までのアクションの数
+	_argv[0]～[_argc-1]にはアクション方向が日本語で8方向＋回転
+--------------------------------------------------------------*/
+
+OnMouseGesture
+{
+	_name = ''
+	case reference[5] {
+		when 'right_up' { _name = '右上'; }
+		when 'up' { _name = '上'; }
+		when 'left_up' { _name = '左上'; }
+		when 'left' { _name = '左'; }
+		when 'left_down' { _name = '左下'; }
+		when 'down' { _name = '下'; }
+		when 'right_down' { _name = '右下'; }
+		when 'right' { _name = '右'; }
+		when 'circle.cw' { _name = '時計回り'; }
+		when 'circle.ccw' { _name = '反時計回り'; }
+		when 'end' {
+			ERASEVAR('gesture_name_array')
+			ERASEVAR('gesture_circle_array')
+			ERASEVAR('gesture_name_array_e')
+			ERASEVAR('gesture_circle_array_e')
+			return
+		}
+	}
+	
+	_postfix = ''
+	_garray = IARRAY
+	_garray_e = ''
+	if '回り' _in_ _name {
+		if ISVAR('gesture_circle_array') == 0 {
+			gesture_circle_array   = IARRAY
+			gesture_circle_array_e = ''
+		}
+		gesture_circle_array   ,= _name
+		gesture_circle_array_e += '_' + reference[5]
+		_postfix = 'Circle'
+		_garray = gesture_circle_array
+		_garray_e = gesture_circle_array_e
+	}
+	else {
+		if ISVAR('gesture_name_array') == 0 {
+			gesture_name_array   = IARRAY
+			gesture_name_array_e = ''
+		}
+		gesture_name_array   ,= _name
+		gesture_name_array_e += '_' + reference[5]
+		_garray = gesture_name_array
+		_garray_e = gesture_name_array_e
+	}
+	
+	_fname = "OnMouseGestureCall%(_postfix)%(reference[0])%(reference[4])%(_garray_e)"
+	if ISFUNC(_fname) {
+		_r = EVAL(_fname)
+		if _r != '' {
+			_r
+			return
+		}
+	}
+	
+	_fname = "OnMouseGestureCall%(_postfix)%(reference[0])%(reference[4])"
+	if ISFUNC(_fname) {
+		_r = EVAL(_fname + '(_garray)')
+		if _r != '' {
+			_r
+			return
+		}
+	}
+	
+	_fname = "OnMouseGestureCall%(_postfix)%(reference[0])%(_garray_e)"
+	if ISFUNC(_fname) {
+		_r = EVAL(_fname)
+		if _r != '' {
+			_r
+			return
+		}
+	}
+
+	_fname = "OnMouseGestureCall%(_postfix)%(reference[0])"
+	if ISFUNC(_fname) {
+		_r = EVAL(_fname + '(_garray)')
+		if _r != '' {
+			_r
+			return
+		}
+	}
+}
+
+/*サンプル
+OnMouseGestureCall0Face_left_right_left_right
+{
+	"TEST"
+}
+
+OnMouseGestureCallCircle0Face_circle.cw_circle.cw_circle.cw
+{
+	"時計回り3回"
+}
+OnMouseGestureCallCircle0Face_circle.ccw_circle.ccw_circle.ccw
+{
+	"反時計回り3回"
+}
+*/
+

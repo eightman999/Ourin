@@ -1,0 +1,1330 @@
+﻿///////// メニュー処理辞書
+
+//ツールチップ処理
+On_balloon_tooltip
+{
+	if SUBSTR(reference[1],0,7) == 'http://' {
+		"URLをブラウザで開く : " + reference[1]
+	}
+	
+	_r0 = RE_REPLACE(reference[0],'[ 　]+$','')
+	_f = 'ToolTip_' + reference[1]
+	if ISFUNC(_f) {
+		_tx = EVAL(_f + '(reference[0])')
+		if _tx != '' {
+			if SUBSTR(_tx,0,1) == '!' {
+				SUBSTR(_tx,1,STRLEN(_tx)-1)
+			}
+			else {
+				"■%(_r0)■\n%(_tx)"
+			}
+		}
+	}
+}
+
+//通常メニュー
+MenuItem
+{
+	if is_small_balloon {
+		_argv[0]
+	}
+	else {
+		SHIORI3FW.MakeJustText(_argv[0],46)
+	}
+}
+
+//半分メニュー
+MenuItemHalf
+{
+	if is_small_balloon {
+		_argv[0]
+	}
+	else {
+		SHIORI3FW.MakeJustText(_argv[0],22)
+	}
+}
+
+
+DispReturnCommand
+{
+	"\h\n[140]\![#]\q[もどる,%(_argv[0])]　\![X]\q[閉じる,CANCEL_NOTALK]"
+}
+
+//**** メインメニューの展開 *************************************************************
+
+//---- メインメニュー展開 ---------------------------------------------------------------
+OpenMenu
+{
+	"\u\s[10]\h"
+	--
+	"\b[2]"
+	--
+	if sender != basewarename {
+		"\s[5]ほいほい、\w5何かな？"
+	}
+	else {
+		"\s[5]どうしたのかな？"
+		"\s[0]ん、\w5メニューね。"
+	}
+	--
+	DispMainMenu(0)
+}
+
+//**** メニュー項目選択 *****************************************************************
+
+//---- OnChoiceSelectイベント -----------------------------------------------------------
+OnChoiceSelect
+{
+	EVAL("OnChoiceSelect_%(reference[0])")
+}
+
+//---- メインメニュー
+OnChoiceSelect_MAINMENU
+{
+	"\u\s[10]\h\s[0]"
+	--
+	"\b[2]"
+	--
+	"戻ったよ。"
+	--
+	DispMainMenu(1)
+}
+
+DispMainMenu_LF
+{
+	if is_small_balloon {
+		"\n"
+	}
+	else {
+		if menucount % 2 == 0 {
+			"\n"
+		}
+		else {
+			"\_l[148]"
+		}	
+		menucount += 1
+	}
+}
+
+MainMenuArray
+{
+	_arr = IARRAY
+	
+	_arr ,= "なんか話して,AITALK"
+
+	if ARRAYSIZE(lasttalk) {
+		_arr ,= "さっき何て言ったの,LASTTALK"
+	}
+
+	_arr ,= '-'
+
+	_arr ,= "自己紹介しなおして,INTRODUCE"
+	_arr ,= "質問コーナー,QUESTION"
+	_arr ,= "おたすけへるぷみぃ,HELP"
+
+	_arr ,= '-'
+
+	_arr ,= "Emilyにおねがい,CONFIG"
+
+	_time1 = FATTRIB('../../updates2.dau')[10]
+	_time2 = FATTRIB('../../.svn/entries')[10]
+	if _time1 < _time2 {
+		_time1 = _time2
+	}
+	_time1 = GETTIME(_time1)
+	_date = STRFORM("$04d/$02d/$02d $02d:$02d",_time1[0],_time1[1],_time1[2],_time1[4],_time1[5])
+	
+	_arr ,= "ネットワーク更新 %(_date),UPDATE"
+
+	if E.IsPluginInstalled('379E0DA0-131C-11DD-E1AC-90009E101CFE') {
+		_arr ,= "スタンプぽん,STAMP"
+	}
+
+	_arr ,= '-'
+
+	_arr ,= "ゴーストランキング,RATEOFUSE"
+	_arr ,= "お気に入りゴースト,FAV"
+	_arr ,= "お役立ちメニュー,SWISSARMY"
+
+	_arr
+}
+
+DispMainMenu
+{
+	"\n\_q"
+	--
+	_arr = MainMenuArray
+	_n = ARRAYSIZE(_arr)
+	_tx = ''
+	for _i = 0 ; _i < _n ; _i++ {
+		if _arr[_i] == '-' {
+			_tx += '\n\f[height,12]────────────────────────\f[height,default]'
+		}
+		else {
+			_s = SPLIT(_arr[_i],',')
+			_tx += "\n\![*]\q[%(MenuItem(_s[0])),%(_s[1])]"
+		}
+	}
+	_tx
+	--
+	if _argv[0] {
+		"\n\n\![X]\q[%(MenuItem('閉じる')),CANCEL_NOTALK]\_q\e"
+	}
+	else {
+		"\n\n\![X]\q[%(MenuItem('なんでもない')),CANCEL]\_q\e"
+	}
+	
+	_ver = GETSETTING(0)
+	SETDELIM(_ver,".")
+	marker = "Powered by %(basewarename) %(basewareversion) / %(GETSETTING('coreinfo.name')) %(GETSETTING('coreinfo.version'))"
+}
+
+OnChoiceSelect_CANCEL
+{
+	//---- キャンセルされた
+	"\u\s[10]\h\s[4]ありゃりゃ。\w9\s[0]\nまた用があったら呼んでね。\e"
+}
+
+OnChoiceSelect_CANCEL_NOTALK
+{
+	'\0\b[-1]\1\b[-1]\e'
+}
+
+//============なにかしゃべって=================================================================================
+ToolTip_AITALK
+{
+	"みんなでおしゃべりします。"
+}
+
+OnChoiceSelect_AITALK
+{
+	OnAiTalk
+}
+
+//============ネットワーク更新=================================================================================
+ToolTip_UPDATE
+{
+	"Emilyを最新版に更新します。右側は最終更新日付です。"
+}
+
+OnChoiceSelect_UPDATE
+{
+	"\![updatebymyself]"
+}
+
+//============ヘルプ=================================================================================
+ToolTip_HELP
+{
+	"いわゆるヘルプやTipsです。"
+}
+
+OnChoiceSelect_HELP
+{
+	E.Title('メニュー：ヘルプ')
+	--
+	"\t\h\s[5]%(charname(0))ちゃんのなんでも相談室～！\w9\w9\u\s[11]普通にヘルプって言ったほうがいいと思うけど。\h\n[50]\_q"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('使い方の説明書を開いて')),HELP_SYSTEM]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('いろいろ設定したいんだけど')),HELP_CONFIG]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('設定の方法がいまいちわからない')),HELP_CONFIG2]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('バッテリー状態表示について')),HELP_BATT]"
+	--
+	DispReturnCommand('MAINMENU')
+}
+
+ToolTip_HELP_SYSTEM
+{
+	'SSP添付の本体操作用ヘルプを開きます。'
+}
+
+OnChoiceSelect_HELP_SYSTEM
+{
+	E.Title('メニュー：ヘルプ/説明書')
+	--
+	"\t\u\s[10]\h\s[27]\![open,help]え～っと、\w5説明書ね。\w9\nたぶんこれだと思うけど。\w9\w9\u\s[11]…\w5…\w5たぶん、\w5って。\w9\nそれでよくSSPナビゲータを名乗れたもんだね。"
+	--
+	DispReturnCommand('HELP')
+}
+
+ToolTip_HELP_CONFIG
+{
+	'SSP本体設定ダイアログの「逆引き」説明です。'
+}
+
+OnChoiceSelect_HELP_CONFIG
+{
+	E.Title('メニュー：ヘルプ/設定')
+	--
+	"\t\u\s[10]\h\s[5]とりあえず、\w5できることはこんな感じかな。\w9\w9\uもっといろいろ設定したいときは、\w5僕らを右クリックするといいと思うよ。\_q\h\n[50]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('喋るスピードを変えたい')),OnChoiceSelectEx_HelpConfig,talk]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('半透明表示にしたい')),OnChoiceSelectEx_HelpConfig,display]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('私の呼び方を変えてほしい')),OnChoiceSelectEx_HelpConfig,setup]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('メールチェック機能の設定')),OnChoiceSelectEx_HelpConfig,biff]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('使うブラウザやメールソフトの設定')),OnChoiceSelectEx_HelpConfig,application]"
+	--
+	DispReturnCommand('HELP')
+}
+
+ToolTip_HELP_CONFIG2
+{
+	'SSP設定ダイアログの「ヘルプのヘルプ」です。'
+}
+
+OnChoiceSelect_HELP_CONFIG2
+{
+	E.Title('メニュー：ヘルプ/設定')
+	--
+	"\u\s[10]\h\s[27]えーっと。\w9\n\_b[img/help_hatena.png,inline,opaque] \_b[img/help_help.png,inline,opaque] こんなボタンを押して、\w9\n\_b[img/help_cursor.png,inline,opaque] こんなマークになったところで知りたい場所をクリックすると。\w9\w9\n\s[5]なんとボクたちが説明しちゃいます！\w9\w9\u\s[11]なんと、って言うほどのこと？"
+	--
+	DispReturnCommand('HELP')
+}
+
+ToolTip_OnChoiceSelectEx_HelpConfig
+{
+	'上記機能を設定する画面を開きます。'
+}
+
+OnChoiceSelectEx_HelpConfig
+{
+	E.Title('メニュー：ヘルプ/設定')
+	--
+	"\u\s[10]\h\s[27]\![open,config,%(reference[0])]え～っと、\w5たぶんこのへんにあると思うんだけど\w5…\w5…\w9\w9\u\s[11]そんな頼りないこと言ってちゃだめだよ。\h"
+	--
+	DispReturnCommand('HELP_CONFIG')
+}
+
+ToolTip_HELP_BATT
+{
+	'通知領域アイコンのバッテリーメーターの説明です。'
+}
+
+OnChoiceSelect_HELP_BATT
+{
+	"\t\u\s[10]\h\s[5]バッテリーの残りお知らせ機能～。\w9\w9\uノートパソコンとかを使っていて、\w5タスクトレイにアイコンを表示する設定にしているなら、\w5バッテリーの残りに応じて"
+	--
+	'\_q\h\n０％　　　　　　　　　　　　　　　　　１００％'
+	--
+	_text = ''
+	'\n<< \_b[img/batt_offline_00.ico,inline,opaque] '
+	--
+	for _i = 1 ; _i < 14 ; _i++ {
+		_text += '\_b[img/batt_offline_' + STRFORM('$02d',_i) + '.ico,inline,opaque]'
+	}
+	_text
+	--
+	' \_b[img/batt_offline_14.ico,inline,opaque]'
+	--
+	_text = ''
+	'\n>> \_b[img/batt_online_00.ico,inline,opaque] '
+	--
+	for _i = 1 ; _i < 14 ; _i++ {
+		_text += '\_b[img/batt_online_'  + STRFORM('$02d',_i) + '.ico,inline,opaque]'
+	}
+	_text
+	--
+	' \_b[icon.ico,inline,opaque]\n[150]\_q'
+	--
+	"\w9\w9\u\n[150]…\w5…\w5と、\w5こんな感じでいつも%(charname(0))がバッテリーをチェックして出してるんだよね。\w9\n\f[bold,true]\f[color,100,100,100]充電中が灰色\f[color,default]\f[bold,default]、\w5\f[bold,true]\f[color,255,0,0]放電中が赤色\f[color,default]\f[bold,default]の棒。\w9\w9\h\s[8]…\w5…\w5よく失敗しちゃったりするから、\w5あまり当てにしないでね。\w9\w9\u\s[11]\n\nそれくらいちゃんと見ようよ。"
+	--
+	DispReturnCommand('HELP')
+}
+
+//============ログ=================================================================================
+ToolTip_LASTTALK
+{
+	"最近しゃべった内容をもう一度聞きます。"
+}
+
+OnChoiceSelect_LASTTALK
+{
+	_n = ARRAYSIZE(lasttalksummary)
+	
+	if _n > 5 {
+		'\h\b[2]'
+	}
+	--
+	E.Title('メニュー：さっき何て言ったの')
+	--
+	'\u\s[10]\h\s[27]えーと\w5…\w5…\w9'
+	'\u\s[10]\h\s[6]最近言ったことを思い出すとかできます。\w9\w9\u\s[11]…\w5…\w5忘れる方が問題だって。'
+	'\u\s[10]\h\s[5]プレイバック♪\w5プレイバック♪\w9\w9\u\s[11]…\w5…\w5エミリって何歳？'
+	--
+	'\h\n[50]\_q'
+	--
+	_menu = ''
+	
+	for _i = 0 ; _i < _n ; _i++ {
+		_menu += "\n\_l[4]\![*]\q["
+		_menu += MenuItem(lasttalksummary[_i])
+		_menu += ",OnChoiceSelect_LASTTALKEXEC,%(_i)]"
+	}
+	
+	_menu
+	--
+	DispReturnCommand('MAINMENU')
+}
+
+OnChoiceSelect_LASTTALKEXEC
+{
+	lasttalk[TOINT(reference[0])]
+}
+
+//============自己紹介=================================================================================
+IntroduceMenu
+{
+	'\_q\t'
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('エミリについて')),INTRODUCE_EMILY]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('テディについて')),INTRODUCE_TEDDY]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('エミリオについて')),INTRODUCE_EMILIO]"
+	--
+	if RAND(3) == 0 {
+		"\n\_l[4]\![*]\q[%(MenuItem('？？？？？')),INTRODUCE_NAZO]"
+	}
+	--
+	DispReturnCommand('MAINMENU')
+	--
+	'\_q'
+}
+
+ToolTip_INTRODUCE
+{
+	"みんなの自己紹介です。"
+}
+
+OnChoiceSelect_INTRODUCE
+{
+	E.Title('メニュー：自己紹介')
+	--
+	"\p2\s[204]\u\s[10]\h\s[5]みんなの自己紹介のコーナー！！\n[50]\w9\w9\uいつからコーナーになったっけ。\w9\w9\p2（こういうの苦手だって\w5…\w5…）\h"
+	--
+	IntroduceMenu
+}
+
+OnChoiceSelect_INTRODUCE_RETURN
+{
+	E.Title('メニュー：自己紹介')
+	--
+	"\p2\s[200]\u\s[10]\h\s[5]戻ったよ。\n[50]"
+	--
+	IntroduceMenu
+}
+
+OnChoiceSelect_INTRODUCE_EMILY
+{
+	"\t\![set,choicetimeout,0]"
+	--
+	"\u\s[10]\p2\s[200]\h\s[5]ボク、\w5エミリ。\w9\n\s[1]花も恥らう16歳。\w9\w9\n\s[5]好きな食べ物はおいもさん♪\w9\n特技は火炎魔法だよ♪\w9\w9\w9\n…\w5…\w5\s[4]でもたまに失敗しちゃうけどね。\w9\w9\p2\s[204]（…\w5…\w5たまにじゃないし）\w9\h\s[7]\n\n（そこうるさいっ。）\w9\w9\n\s[5]SSPのおふぃしゃるなびけーたーってやつをやってます。\w9わからないことがあったらなんでも訊いてね♪\w9\w9\s[1]\nスリーサイズと体重は内緒だけどね。\w9\w9\u\s[11]（言える体型じゃないし。）\w9\h\s[7]\n\n（うるさーい！）\w9\w9\w9\n\s[5]それじゃっ、\w5そんなところでねっ。\w9\w9\u\n\n…\w5…\w5%(RAND(20) + 10)点。\w9\w9\p2\s[218]\n\n…\w5…\w5似合わない。\w9\w9\h\n\n\s[7]きみたちーっ！？\w9\w9\u\s[12]\p2\s[202]\_s[1,2]\n\nおおっと！\_s\w9\_s[1,2]\s[-1]\_s"
+	--
+	DispReturnCommand('INTRODUCE_RETURN')
+	
+	magic_flag = 1
+}
+
+OnChoiceSelect_INTRODUCE_TEDDY
+{
+	"\t\![set,choicetimeout,0]"
+	--
+	"\h\s[4]\p2\s[200]\u\s[10]（ぽりぽり）\w9\w9\nん？\w5僕？\w9\n名前はテディ、\w5一応こいつのお目付け役。\w9\w9\nなにしでかすかわからないので。\w9\w9\h…\w5…\w5…。\w9\w9\u\n\nそんなわけでまあよろしく。\w9\w9\p2\s[204]食べるか喋るかどっちかにしなよ。\w9\w9\h\n\n\s[21]…\w5…\w5…\w5…。\w9\n（おいしそう\w5…\w5…。）\w9\w9\u\s[11]\n\nふっ。"
+	--
+	DispReturnCommand('INTRODUCE_RETURN')
+}
+
+OnChoiceSelect_INTRODUCE_EMILIO
+{
+	"\t\![set,choicetimeout,0]"
+	--
+	"\u\s[10]\h\s[0]\p2\s[200]\w9え、\w5俺の番？\w9\n俺はエミリオ。\w9\w9\u…\w5…\w5それで終わり？\w9\w9\p2\s[204]\n\n他に何を言えっての。\w9\w9\h\s[3]エミリオ、\w5もうちょっと愛想良くしないと捨てられるよ？\w9\w9\p2\s[207]\n\nめんどくせーなー。\w9\s[204]\nバカ姉で苦労の絶えない悲劇の弟だよ。\w9\w9\s[200]\n好きな食い物は…\w5…\w5\s[203]\w9\w9\w9\w9\h\s[0]\n\n忘れたの？\w9プリンでしょ。\w9\w9\p2\s[217]\n\nう、\w5うるせえな。\w9言うなよ。\w9\w9\h\s[4]\n\nそんな恥ずかしがることもないのに。\w9\w9\p2\s[205]\n\nま、\w5ねえちゃんみたいに芋食っておなら連発よりマシだよな。\w9\w9\h\s[7]\n\nで、\w5でたらめ言うな！"
+	--
+	DispReturnCommand('INTRODUCE_RETURN')
+}
+
+OnChoiceSelect_INTRODUCE_NAZO
+{
+	<<"
+	\u\s[-1]\0\s[4]ふー、ゴミ出し終わりっと…\w5…\w5\w9\nなんでこんなにゴミが出るかなぁ。\w9\s[3]\nまあ、ほとんどお芋の皮とか、プリンの器とか、おつまみの袋なんだけどね…\w5…\w5\w9\s[4]\nちょっと我慢しないとなぁ。\w9\n最近ちょっと、体型が気になるし…\w5…\w5\w9\w9\p[3]\s[500]ぴゃあ。\w9\w9\0\s[2]\n\nわぁっ、びっくりした！\w9\w9\p[3]\n\nぴゃあ。ぴゃあ。\w9\w9\0\s[8]\n\n…\w5…\w5えーと。\w9\w9\p[3]\n\nぴゃぴゃ。\w9\w9\0\n\nあの、どこの星からいらっしゃった方でしょうか…\w5…\w5\w9\w9\p[3]\n\nぴゃ？\w9\w9\0\s[4]\n\n…\w5…\w5通じないか。やっぱり。\w9\s[0]\nで、キミはだれ？\w9\w9\p[3]\n\n…\w5…\w5ぴゃー。\s[-1]\w9\w9\0\s[4]\n\nあれ、行っちゃった…\w5…\w5\w9\s[1]\n何か言いたそうだったんだけどなぁ…\w5…\w5\e
+	==========
+	\u\s[10]\0\s[0]…\w5…\w5と言うわけで、変な子がいたんだよ。\w9\w9\1…\w5…\w5変な子ねえ。\w9\w9\p[2]\s[201]野良犬かなんかじゃないの？\w9\w9\0\s[4]\n\nいや、犬だったら、「わん！」って鳴くでしょ？\w9\w9\1\n\nそれもそうだ。\w9\w9\0\s[3]\n\nテディ、ちょっと一緒に来てくれない？\w9\nなんか気になるんだよね。\w9\w9\1\n\n…\w5…\w5あのー、ボクは通訳じゃないんだけど。\w9\w9\0\s[7]\n\nカニ缶買ってあげるから！！\w9\w9\1\s[11]\n\nさ、何してるの。さっさと行くよ？\w9\w9\p[2]\s[208]\n\n…\w5…\w5ああ、おつまみに釣られた…\w5…\w5\e
+	==========
+	\u\s[10]\0\s[0]…\w5…\w5ここなんだよね。\w9\w9\1ゴミ捨て場？\w9\w9\0\n\n多分、お腹が空いてゴミでも漁りに来たんじゃないかと思うんだけど…\w5…\w5\w9\w9\1\s[11]\n\n今日は燃えないゴミでしょ？いくらなんでも…\w5…\w5\w9\w9\0\s[3]\n\nでも、動物にはそんなのわからないよ…\w5…\w5\w9\w9\1\s[10]\n\nそれもそうか。\w9\w9\p[3]\s[500]…\w5…\w5ぴゃ。\w9\w9\0\s[2]\n\nあ、いた！\w9\w9\1\n\n…\w5…\w5白くてもこもこ…\w5…\w5\w9\nこれはもしかして。\w9\w9\0\n\nし、知っているのからいでん！\w9\w9\1\n\n誰それ。\w9\w9\p[3]\n\nぴゃー。ぴゃー。\w9\w9\1\n\n…\w5…\w5\w9\nわたあめっ！\w9\w9\p[3]\s[-1]\n\n（くるりん）\w9\w9\0\s[8]\n\n…\w5…\w5すごい、丸くなったらわたあめみたい。\w9\nでもこれ、やってもいいネタなのかな。\w9\w9\1\n\nきにしない。\w9\w9\p[3]\s[500]\n\nぴゃ！ぴゃー！\w9\w9\0\n\nほら怒ってる。\w9\w9\1\n\nうーん。\w9\nじゃあ…\w5…\w5モップ！\w9\w9\p[3]\s[-1]\n\n（すいーっ、すいーっ）\w9\w9\0\s[2]\n\nおお、すごい！舗装道路にモップ掛けしてるつもりになってる！\w9\w9\1\n\n…\w5…\w5うん、白い毛が台無しだね。\w9\w9\p[3]\s[500]\n\nぴゃー！！\w9\w9\0\s[8]\n\nほら、また怒った。\e
+	==========
+	\p[3]\s[500]\0\s[3]で、結局この子はなんなの？\w9\w9\1\s[10]さあ？\w9\w9\0\s[4]\n\nって、言葉が分かってたわけじゃないの？\w9\w9\1\n\nなんとなくは判るよ。\w9\nエミリの事は、よく知ってるって言ってるよ。\w9\w9\p[3]ぴゃ。\w9\w9\0\s[27]\n\nでも、ボクはキミの事を知らないよ？\w9\w9\p[3]\n\nぴゃー。ぴゃー。\w9\w9\1\n\nきれいなおねーさんが、いつもこの辺りを楽しそうに歩いてるから、気になってたんだって。\w9\w9\0\s[1]\n\nそ、それって…\w5…\w5ボク？\w9\w9\p[3]\n\nぴゃ。\w9\w9\1\n\n…\w5…\w5多分、だって。\w9\w9\0\s[4]\n\nああもう。\w9\w9\p[3]\n\nぴゃぴゃ。ぴゃー。\w9\w9\1\n\n…\w5…\w5いつも、おねーさんの側にいるよ、だって。\p[3]\s[-1]\n\n\w9\w9\0\s[0]\n\n…\w5…\w5側に？\s[4]って、もういないじゃない。\w9\w9\1\n\n…\w5…\w5…\w5\e
+	==========
+	\p[2]\s[200]\0\s[0]で、一体なんだったんだろうね。\w9\w9\1\s[10]…\w5…\w5…\w5ね。\w9\w9\p[2]\s[214]結局テディも判らなかったんだ。\w9\w9\0\s[27]\n\nでも、なんだろう？どっかで見たことがあるような気がするんだけど…\w5…\w5\w9\w9\p[2]\s[203]\n\nいつもいっしょにいるって、どういう事なんだろう？\w9\w9\1\n\n（…\w5…\w5まさか、お芋の精霊とか…\w5…\w5\w9\n　ちょっと信じられない話だね。\w9\n　でも、エミリといっしょにいるって…\w5…\w5\w9\n　それぐらいしか考えられないんだよなぁ。）\w9\w9\0\s[5]\n\nま、とりあえずご飯にしよう！お腹空いちゃった。\w9\w9\p[2]\s[208]\n\nはははは…\w5…\w5\w9\w9\1\n\nで、今日のごはんは？\w9\w9\0\n\n芋ご飯だよ！\w9\w9\p[2]\s[204]\n\nまた芋か。\w9\w9\0\s[7]\n\n文句あるなら、自分で作るっ！\w9\w9\p[2]\n\nごめんなさい。\e
+	==========
+	\p[2]\s[200]\0\s[5]ふー、ごちそうさま～！\w9\w9\1\s[10]お腹いっぱいだね。\w9\w9\p[2]\s[204]あー、たまには外食したいなぁ。\w9\w9\0\s[4]\n\nだーめ、ちょっと節約しないと…\w5…\w5\w9\n（ぴゃっ）\w9\w9\1\n\n…\w5…\w5ん？あの子？\w9\w9\p[2]\s[202]\n\nえ、どこどこ？\w9\w9\0\s[8]\n\nえ？い、いないでしょ？\w9\w9\1\n\n今、確かに声が…\w5…\w5\w9\w9\p[2]\s[203]\n\nしたよねえ？\w9\w9\0\n\nき、気のせいじゃないかな…\w5…\w5\w9\w9\1\n\nいーや、絶対そうだ。あの声だもん。\w9\w9\0\s[9]\n\nい\w9な\w9い！！ちゃんと！！\w9\w9\1\n\n…\w5…\w5何をムキになってるのかなあ。\w9\n逢うって言ったり、いないって言ったり…\w5…\w5\w9\w9\p[2]\s[218]\n\n…\w5…\w5もしかしてねーちゃん、おならした？\w9\w9\0\n\nし、してないもん！\w9\w9\1\n\n…\w5…\w5…\w5…\w5その慌て方が怪しいよね。\w9\w9\0\n\nし～て～な～い～！！\w9\w9\p[2]\s[204]\n\nま、いいけどさ。いつものことだし。\w9\w9\1\n\nそれもそうだ。\w9\n（…\w5…\w5まさか、お芋じゃなくて…\w5…\w5）\w9\w9\0\s[-1]\n\nう、うわぁぁぁぁん！！\w9\w9\1\n\n…\w5…\w5あ。\w9\w9\p[2]\n\nちょっと言い過ぎちゃったか。\w9\w9\1\n\n…\w5…\w5まあ、いつでも逢えるよ。多分。\e
+	">>
+}
+
+//============設定=================================================================================
+ToolTip_CONFIG
+{
+	"Emilyのみに適用される設定のメニューです。"
+}
+
+OnChoiceSelect_CONFIG
+{
+	E.Title('メニュー：設定')
+	--
+	"\u\s[10]\h\s[4]なんだかわからないけど設定。\n[50]\w9\w9\u\s[11]…\w5…\w5…\w9"
+	--
+	Config_Menu
+}
+
+Config_Disp
+{
+	E.Title('メニュー：設定')
+	--
+	if _argc {
+		REPLACE(_argv[0],'\e','')
+	}
+	else {
+		"\u\s[10]\h\s[5]変更完了～。"
+	}
+	--
+	Config_Menu
+}
+
+Config_AITalk_Interval_Disp
+{
+	if aitalkinterval {
+		if aitalkinterval >= 60 {
+			if aitalkinterval % 60 == 0 {
+				'　' + HAN2ZEN(STRFORM('$2d',aitalkinterval / 60),'number,symbol') + '分'
+			}
+			else {
+				"%(STRFORM('$2d',aitalkinterval / 60))分%(STRFORM('$2d',aitalkinterval % 60))秒"
+			}
+		}
+		else {
+			'　' + HAN2ZEN(STRFORM('$2d',aitalkinterval),'number,symbol') + '秒'
+		}
+	}
+	else {
+		'　ＯＦＦ'
+	}
+}
+
+Config_Menu
+{
+	"\h\_q\b[2]\t"
+	--
+
+	//////////////////////////////////////////////////////////////////
+	'\n\_l[4]' + E.CheckMark(aitalkinterval) + '\q['
+	--
+	MenuItem("［%(Config_AITalk_Interval_Disp)］勝手にしゃべる頻度") + ',CONFIG_TALKINTERVAL]'
+	--
+
+	//////////////////////////////////////////////////////////////////
+	'\n\_l[4]' + E.CheckMark(config_disp_emilio) + '\q['
+	--
+	if config_disp_emilio {
+		"%(MenuItem('［　　ＯＮ］エミリオを常に表示')),CONFIG_EMILIO]"
+	}
+	else {
+		"%(MenuItem('［　ＯＦＦ］エミリオを常に表示')),CONFIG_EMILIO]"
+	}
+	--
+	
+	//////////////////////////////////////////////////////////////////
+	if 'Phase4' _in_ SHIORI3FW.ShellName { //Phase4 Phase4.5
+		'\n\_l[4]' + E.CheckMark(! config_newbies_info_disable) + '\q['
+		--
+		if ! config_newbies_info_disable {
+			"%(MenuItem('［　　ＯＮ］「はじめてのひとへ」を表示')),CONFIG_NEWBIES]"
+		}
+		else {
+			"%(MenuItem('［　ＯＦＦ］「はじめてのひとへ」を表示')),CONFIG_NEWBIES]"
+		}
+	}
+	--
+
+	//////////////////////////////////////////////////////////////////
+	'\n\_l[4]' + E.CheckMark(! config_ghostclose_event_disable) + '\q['
+	--
+	if ! config_ghostclose_event_disable {
+		"%(MenuItem('［　　ＯＮ］ゴースト終了時に反応する')),CONFIG_GHOSTCLOSE]"
+	}
+	else {
+		"%(MenuItem('［　ＯＦＦ］ゴースト終了時に反応する')),CONFIG_GHOSTCLOSE]"
+	}
+	--
+	
+	//////////////////////////////////////////////////////////////////
+	'\n\_l[4]' + E.CheckMark(! disable_battery_notify) + '\q['
+	--
+	if ! disable_battery_notify {
+		"%(MenuItem('［　　ＯＮ］バッテリー状態を表示')),CONFIG_BATTERY]"
+	}
+	else {
+		"%(MenuItem('［　ＯＦＦ］バッテリー状態を表示')),CONFIG_BATTERY]"
+	}
+	--
+	
+	//////////////////////////////////////////////////////////////////
+	'\n\_l[4]' + E.CheckMark(! disable_surface_restore) + '\q['
+	--
+	if ! disable_surface_restore {
+		"%(MenuItem('［　　ＯＮ］表情復旧トークを有効')),CONFIG_SURFACERESTORE]"
+	}
+	else {
+		"%(MenuItem('［　ＯＦＦ］表情復旧トークを有効')),CONFIG_SURFACERESTORE]"
+	}
+	--
+	
+	//////////////////////////////////////////////////////////////////
+	_menutext = '［' + HAN2ZEN(STRFORM('$4d',TOINT(news_talk_flag)),'number,symbol') + '］時事ネタカウンタリセット'
+	
+	'\n\_l[4]' + E.CheckMark(news_talk_flag) + '\q[' + MenuItem(_menutext) + ',CONFIG_RESET_NEWS]'
+	--
+	
+	//////////////////////////////////////////////////////////////////
+	_menutext = '［' + HAN2ZEN(STRFORM('$4d',ARRAYSIZE(lasttalksummary)),'number,symbol') + '］スクリプトログリセット'
+
+	'\n\_l[4]' + E.CheckMark(ARRAYSIZE(lasttalksummary)) + '\q[' + MenuItem(_menutext) + ',CONFIG_RESET_LOG]'
+	--
+	DispReturnCommand('MAINMENU')
+	--
+	'\_q'
+}
+
+//============黒板============================================================================
+ToolTip_CONFIG_NEWBIES
+{
+	'「はじめてのひとへ」の操作説明が書かれた黒板の表示設定です。'
+}
+
+OnChoiceSelect_CONFIG_NEWBIES
+{
+	config_newbies_info_disable = ! config_newbies_info_disable
+	
+	ShowHideNewbiesInfo(!config_newbies_info_disable)
+	--
+	Config_Disp
+}
+
+ShowHideNewbiesInfo
+{
+	if _argv[0] {
+		'\p[4]\s[700]'
+		--
+		if ! newbies_pos_not_inited {
+			'\w1\![move,0,0,0,0,center.top,center.bottom]'
+			newbies_pos_not_inited = 1
+		}
+	}
+	else {
+		'\p[4]\s[-1]'
+	}
+}
+
+//============喋り頻度============================================================================
+ConfigTalkInterval
+{
+	E.Title("メニュー：設定-喋り頻度［%(Config_AITalk_Interval_Disp)］")
+	--
+	//---- トーク頻度の調整
+	"%(_argv[0])\_q\h\n[50]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('マシンガン(15秒ごと)')),CONFIG_TALKMAXHEART]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('やかましい(1分ごと)')),CONFIG_TALKMAX]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('ふつう(2分ごと)')),CONFIG_TALKNORMAL]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('静か(5分ごと)')),CONFIG_TALKPOOR]"
+	--
+	"\n\_l[4]\![*]\q[%(MenuItem('黙ってて')),CONFIG_TALKNONE]"
+	--
+	if basewarename == 'SSP' {
+		"\n\_l[4]\![*]\q[%(MenuItem('おこのみ設定')),CONFIG_TALKCUSTOM]"
+	}
+	--
+	DispReturnCommand('CONFIG')
+}
+
+ToolTip_CONFIG_TALKINTERVAL
+{
+	'エミリたちが勝手にとりとめのないことを喋る頻度です。'
+}
+
+OnChoiceSelect_CONFIG_TALKINTERVAL
+{
+	ConfigTalkInterval("\0\s[0]どのくらいがいいのかな？")
+}
+
+OnChoiceSelect_CONFIG_TALKMAXHEART
+{
+	//---- マシンガン(15秒間隔)
+	aitalkinterval = 15
+	ConfigTalkInterval("\u\s[10]\h\s[7]そんなに話すことなんてない！！\w9\w9\u…\w5…\w5まぁ、\w5そうだね。")
+}
+
+OnChoiceSelect_CONFIG_TALKMAX
+{
+	//---- うるさく話す(1分間隔)
+	aitalkinterval = 60
+	ConfigTalkInterval("\u\s[10]\h\s[7]そんなに話すことなんてない！！\w9\w9\u…\w5…\w5まぁ、\w5そうだね。")
+}
+
+OnChoiceSelect_CONFIG_TALKNORMAL
+{
+	//---- ふつうに話す(2分間隔)
+	aitalkinterval = 120
+	ConfigTalkInterval("\u\s[10]\h\s[4]ふつうっていちばんむずかしいんだよね。\w9\w9\uまぁ、\w5いつものペースで喋ってるといいと思うよ。")
+}
+
+OnChoiceSelect_CONFIG_TALKPOOR
+{
+	//---- 静かに話す(5分間隔)
+	aitalkinterval = 300
+	ConfigTalkInterval("\u\s[10]\h\s[21]ちょっとやかましすぎたかな。\w9\w9\uたまに話すくらいがいいらしいね。")
+}
+
+OnChoiceSelect_CONFIG_TALKNONE
+{
+	//---- 話さない
+	aitalkinterval = 0
+	ConfigTalkInterval("\u\s[11]\h\s[4]\_s…\w5…\w5…\w5…。\_s")
+}
+
+OnChoiceSelect_CONFIG_TALKCUSTOM
+{
+	//---- カスタム
+	"\![open,sliderinput,OnChoiceSelect_CONFIG_TALKCUSTOM_DONE,0,%(aitalkinterval),10,900]"
+	--
+	"\u\s[10]\h\s[0]一番右側が15分ごと、\w5一番左側が10秒ごとだよ。\w9\w9\u設定せずに閉じたい時はESCキーね。"
+}
+
+OnChoiceSelect_CONFIG_TALKCUSTOM_DONE
+{
+	//---- カスタム完了
+	aitalkinterval = TOINT(ZEN2HAN(reference[0]))
+	ConfigTalkInterval("\u\s[10]\h\s[5]設定完了っ。")
+}
+
+//============エミリオぬき=======================================================================
+ToolTip_CONFIG_EMILIO
+{
+	'エミリオが関係するトークかどうかにかかわらず、常にエミリオを表示します。'
+}
+
+OnChoiceSelect_CONFIG_EMILIO
+{
+	if config_disp_emilio {
+		config_disp_emilio = 0
+		Config_Disp("\p[2]\s[200]\h\s[3]むう。\w9%(charname(2))が邪魔だって。\w9\w9\p2\s[203]…\w5…\w5…\w5…\w5…。\w9\w9\s[-1]\b[-1]")
+	}
+	else {
+		config_disp_emilio = 1
+		Config_Disp("\p2\s[-1]\u\s[10]\h\s[5]%(charname(2))～、\w5おいで～。\w9\w9\p2\s[204]なんだよもう、\w5うるさいなぁ。")
+	}
+}
+
+//============バッテリ状態表示====================================================================
+ToolTip_CONFIG_BATTERY
+{
+	'通知領域にバッテリー残量を示すバーを表示するかどうかを設定します。'
+}
+
+OnChoiceSelect_CONFIG_BATTERY
+{
+	disable_battery_notify = ! disable_battery_notify
+	if disable_battery_notify {
+		'\![set,trayicon,icon.ico]'
+	}
+	else {
+		BatteryTrayIconInit
+	}
+	--
+	Config_Disp
+}
+
+//============ゴーストが閉じた時反応====================================================================
+ToolTip_CONFIG_GHOSTCLOSE
+{
+	'他のゴーストが終了した際に何か喋るかどうかを設定します。'
+}
+
+OnChoiceSelect_CONFIG_GHOSTCLOSE
+{
+	config_ghostclose_event_disable = ! config_ghostclose_event_disable
+	
+	Config_Disp
+}
+
+//============表情復旧トークを有効====================================================================
+ToolTip_CONFIG_SURFACERESTORE
+{
+	'表情が通常に戻る(OnSurfaceRestore)時のトークを有効にします。'
+}
+
+OnChoiceSelect_CONFIG_SURFACERESTORE
+{
+	disable_surface_restore = ! disable_surface_restore 
+	
+	Config_Disp
+}
+
+//============ニュースリセット====================================================================
+ToolTip_CONFIG_RESET_NEWS
+{
+	'トークの中で喋るニュースのフラグを消去し、最初から喋ります。\n選択肢からはこの設定に関係なく常に喋ります。'
+}
+
+OnChoiceSelect_CONFIG_RESET_NEWS
+{
+	ERASEVAR('news_talk_flag')
+	Config_Disp
+}
+
+//============ログリセット====================================================================
+ToolTip_CONFIG_RESET_LOG
+{
+	'「さっき何て言ったの」のログをすべて消去します。'
+}
+
+OnChoiceSelect_CONFIG_RESET_LOG
+{
+	lasttalk = IARRAY
+	lasttalksummary = IARRAY
+	Config_Disp
+}
+
+//============十徳ナイフ=================================================================================
+ToolTip_SWISSARMY
+{
+	'十徳ナイフプラグインを実行し、いろいろな機能を呼び出します。'
+}
+
+OnChoiceSelect_SWISSARMY
+{
+	if E.IsPluginInstalled('8F8BCFB8-B27A-456f-9BA0-551484856DDC') {
+		call_from_menu = 1
+		'\![raiseplugin,8F8BCFB8-B27A-456f-9BA0-551484856DDC,OnMenuExec]'
+	}
+	else {
+		OnSwissArmyKnifeMenu('noplugin')
+	}
+}
+
+OnSwissArmyKnifeMenu
+{
+	_noplugin = 0
+	
+ 	if _argc && _argv[0] == 'noplugin' {
+ 		call_from_menu = 1
+ 		_noplugin = 1
+	}
+	
+	E.Title('メニュー：お役立ちメニュー')
+	menucount = 0
+	--
+	'\u\s[10]\h\s[5]いろいろお役立ちメニューのコーナー！！\w9\w9\u\s[11]…\w5…\w5コーナー？\w9\w9\h\n[50]'
+	--
+	'\_q'
+	--
+	if _noplugin == 0 {
+		SHIORI3FW.RegisterTempVar('samenu_text','samenu_id')
+		
+		samenu_text = IARRAY
+		samenu_id = IARRAY
+		
+		_text = ""
+		_data = IARRAY
+		
+		foreach reference ; _ref {
+			_data = SPLIT(_ref,',',2)
+			_id = SPLIT(_data[1],',')
+			
+			samenu_text ,= _data[0]
+			samenu_id ,= _id[0]
+			
+			if _data[1] != 'cancel' {
+				_text += "%(DispMainMenu_LF)\![*]\q[" + MenuItemHalf(_data[0]) + ',' + _data[1] + ']'
+			}
+		}
+		_text
+	}
+	--
+	if call_from_menu {
+		"%(DispMainMenu_LF)\![*]\q[%(MenuItemHalf('時刻合わせ')),SNTP]"
+		--
+		if basewarename == 'SSP' {
+			"%(DispMainMenu_LF)\![*]\q[%(MenuItemHalf('カレンダー')),CALENDAR]"
+		}
+		--
+		DispReturnCommand('MAINMENU')
+	}
+	else {
+		"\n[170]\![X]\q[%(MenuItem('閉じる')),CANCEL_NOTALK]"
+	}
+	--
+	'\_q'
+	call_from_menu = 0
+}
+
+OnSwissArmyKnifeExecute
+{
+	"\u\s[10]\h\s[5]"
+	--
+	_i = 0
+	foreach samenu_id; _id {
+		if _id == reference[0] {
+			samenu_text[_i]
+			break
+		}
+		_i += 1
+	}
+	--
+	"、\w5おわったよ～。\e"
+}
+
+//============時刻合わせ=================================================================================
+OnChoiceSelect_SNTP
+{
+	'\![executesntp]'
+}
+
+//============カレンダー=================================================================================
+OnChoiceSelect_CALENDAR
+{
+	"\p2\s[205]\u\s[10]\h\s[5]\![open,calendar]カレンダー！\w9\w9\p2誰んだー。\w9\w9\uオラんだー。\w9\w9\_s[0,1,2]\n\n…\w5…\w5…\w5…\w5…。\_s\w9\w9\h\s[4]\n\nやめようかなこれ。\w9\w9\p2\n\n\s[204]だから、\w5最初からやめとけばって言ったのに。\w9\w9\u\s[11]\n\n古典的すぎて%(username)も絶句してるよたぶん。\e"
+}
+
+//============質問コーナー====================================================
+ToolTip_QUESTION
+{
+	"みなさんからの質問に答えます。"
+}
+
+OnChoiceSelect_QUESTION
+{
+	"\h\b[2]"
+	--
+	E.Title('メニュー：質問コーナー')
+	--
+	"\u\s[10]\h\s[5]なんでも答えちゃうよっ！！\w9\w9\u\s[11]…\w5…\w5ホントに？"
+	--
+	"\h\_q\n[50]"
+	--
+	Question_Select
+	--
+	DispReturnCommand('MAINMENU')
+	--
+	'\_q'
+}
+
+//============すたんぷ====================================================
+ToolTip_STAMP
+{
+	"スタンプ帳プラグインにスタンプを押します。"
+}
+
+OnChoiceSelect_STAMP
+{
+	'\![raiseplugin,379E0DA0-131C-11DD-E1AC-90009E101CFE,OnStampInfoCall]\![raise,OnEM_StampMenuDisplay]'
+}
+
+OnEM_StampMenuDisplay
+{
+	if stamp_already_exist {
+		"\u\s[10]\h\s[27]ん～。\w9\nもう押してあると思うんだけど。\w9\w9\uスタンプ帳を開いてみてね。\h\n\n[half]"
+		--
+		"\![*]\q[%(MenuItem('スタンプ帳を開く')),"
+		--
+		'"script:\![raiseplugin,379E0DA0-131C-11DD-E1AC-90009E101CFE,OnMenuExec]"'
+		--
+		"]"
+	}
+	else {
+		"\u\s[10]\h\s[5]みてみて%(charname(1))。\w9\nさつまいもでさつまいものスタンプ作ったんだよー。\w9\nこれがホントのイモ判だね。\w9\w9\u…\w5…\w5いもでいもってどういうことだろう。\w9\nちょっと見せて。\w9\w9\h\s[5]\n\nはい、\w5どうぞー。\w9\w9\u\s[11]\n\n…\w5…\w5ああ。\w5なるほど。\w9\nなんというか、\w5%(charname(0))らしいね。\w9\w9\h\n\n%(username)にも押してあげるね～。\w9ぽんっ。"
+		--
+		"\![raiseplugin,379E0DA0-131C-11DD-E1AC-90009E101CFE,OnStampAdd,ghost\master\img\stamp0.png,"
+		--
+		"さつまいもマークのイモ判"
+		--
+		","
+		--
+		"%(charname(0))がイモ判で作ったさつまいもの図案のスタンプ。これが本当のイモ判にちがいない。"
+		--
+		"]"
+	}
+	--
+	"\n[half]"
+	--
+	DispReturnCommand('MAINMENU')
+}
+
+OnStampInfo : void
+{
+	stamp_already_exist = TOINT(reference[1])
+}
+
+OnGhostUnload.Stamp
+{
+	ERASEVAR('stamp_already_exist')
+}
+
+//============ゴーストリスト作成====================================================
+CreateDispGhostList
+{
+	SHIORI3FW.RegisterTempVar('found_myself')
+	SHIORI3FW.RegisterTempVar('array_list')
+	
+	found_myself = 0
+	_len = 22
+	_tx = '  名前                     時間:分 操作'
+	
+	if _argv[0] {
+		_len = 28
+		_tx = '  名前                         操作'
+	}
+	
+	_n = ARRAYSIZE(array_list)
+	
+	_c1 = CHR(1)
+	_found = 0
+	_count = 0
+	for _i = 0 ; _i < _n ; _i++ {
+		if _count >= 15 {
+			break
+		}
+		_count++
+		
+		_ar = SPLIT(array_list[_i],_c1)
+		if _ar[6] == 'vanish' {
+			continue
+		}
+		if _ar[0] == SHIORI3FW.GhostName {
+			found_myself = _i+1
+		}
+		_tx += '\n・' + SHIORI3FW.MakeJustText(_ar[0],_len) + ' '
+		if ! _argv[0] {
+			_ut = TOINT(_ar[4])
+			_tx += STRFORM("$6d:$02d",_ut/60,_ut%60) + ' '
+		}
+		
+		_name = '"' + REPLACE(_ar[0],'"','""') + '"'
+		
+		if _argv[0] {
+			_tx += "\_a[OnGetGhostParameters,%(_argv[1])Delete,%(_name),%(_i+1)]<削>\_a"
+		}
+		if _ar[6] != 'boot' {
+			_tx += "\_a[OnGetGhostParameters,%(_argv[1])Change,%(_name),%(_i+1)]<交替\_a|\_a[OnGetGhostParameters,%(_argv[1])Call,%(_name),%(_i+1)]呼出>\_a"
+		}
+	}
+	
+	array_list[_i,10000] = IARRAY
+	_tx
+}
+
+ToolTip_OnGetGhostParameters
+{
+	"!%(reference[3])"
+	--
+	if 'Delete' _in_ reference[2] {
+		"をリストから削除"
+	}
+	elseif 'Change' _in_ reference[2] {
+		"に切り替え"
+	}
+	elseif 'Call' _in_ reference[2] {
+		"を呼び出し"
+	}
+}
+
+OnGetGhostParameters
+{
+	SHIORI3FW.RegisterTempVar('call_event')
+	SHIORI3FW.RegisterTempVar('change_name')
+	SHIORI3FW.RegisterTempVar('rate_rank')
+
+	call_event = reference[0]
+	change_name = reference[1]
+	rate_rank = TOINT(reference[2])
+
+	_name = '"' + REPLACE("ghostlist(%(change_name)).",'"','""')
+	
+	_p1 = _name + 'sakuraname"'
+	_p2 = _name + 'path"'
+
+	"\![get,property,OnGetGhostParameters2,%(_p1),%(_p2)]\![embed,OnGetGhostParameters3]"
+}
+
+OnGetGhostParameters2
+{
+	SHIORI3FW.RegisterTempVar('pseudo_reference')
+	
+	pseudo_reference = IARRAY
+	
+	pseudo_reference[0] = reference[0]
+	pseudo_reference[2] = change_name
+	pseudo_reference[3] = reference[1]
+}
+
+OnGetGhostParameters3
+{
+	reference = pseudo_reference
+	EVAL(call_event)
+}
+
+//============人気ランキング====================================================
+ToolTip_RATEOFUSE
+{
+	"ゴーストの使用ランキングを表示＆そこから起動できます"
+}
+
+On_rateofusegraph
+{
+	SHIORI3FW.RegisterTempVar('array_rateofuse')
+	
+	array_rateofuse = reference
+}
+
+OnChoiceSelect_RATEOFUSE
+{
+	array_list = array_rateofuse
+	_tx = CreateDispGhostList(0,'OnRateGhost')
+	
+	"\0\b[2]"
+	--
+	E.Title('ゴーストランキング')
+	--
+	"\0\s[5]\![set,choicetimeout,0]ゴーストランキングのコーナー！\w9\w9\u\s[10]%(ARRAYSIZE(array_list))組分だね。\0"
+	--
+	if found_myself > 0 {
+		"\w9\w9\0\s[2]\n\n[half]あっ、ボクもランクインしてる！"
+	}
+	--
+	"\n\n[half]\_q"
+	--
+	_tx
+	--
+	"\n\n[half]\![*]\q[%(MenuItem('グラフで表示する')),OPEN_GRAPH]"
+	--
+	DispReturnCommand('MAINMENU')
+}
+
+OnChoiceSelect_OPEN_GRAPH
+{
+	"\C\![open,rateofusegraphtotal]"
+}
+
+RateGhostChangeCallMessage_Normal
+{
+	"\u\s[10]\0\s[5]それでは今週の、第%(_argv[0])位！\w9\w9\1だらららららららら…\w5…\w5…\w5…\w5じゃんっ♪\w9\w9\0\n\n%(_argv[1])さんですっ！はくしゅっ！\w9\w9\1\n\n（ぱふぱふぱふぱふ）\w9\w9\0\s[4]\n\n…\w5…\w5耳でなにしてるの。\e"
+}
+
+RateGhostChangeCallMessage_Higher
+{
+	"\u\s[10]\0\s[2]ああっ！\w9\w9\1何？\w9\w9\0\n\n%(_argv[1])さん、ボクより、%(username)と長く居る…\w5…\w5！\w9\w9\1\n\nしょうがないでしょ。\w9\w9\0\s[4]\n\nあーうー…\w5…\w5\e"
+
+	"\u\s[10]\0\s[3]…\w5…\w5いっぱい遊んで貰って、いいなぁ…\w5…\w5\w9\w9\1子供じゃないんだから、そういう羨ましがり方はどうかと思うよ？\w9\w9\0\s[4]\n\nだぁってぇ。待ってるのも退屈なんだもん。\e"
+}
+
+GetRateGhostChangeCallMessage
+{
+	_rt = IARRAY
+
+	_tx = RateGhostChangeCallMessage_Normal(rate_rank,reference[0])
+	if _tx != '' {
+		_rt ,= _tx
+	}
+
+	if rate_rank < found_myself {
+		_tx = RateGhostChangeCallMessage_Higher(rate_rank,reference[0])
+		if _tx != '' {
+			_rt ,= _tx
+		}
+	}
+
+	_tx = EVAL(_argv[0])
+	if _tx != '' {
+		_rt ,= _tx
+	}
+	
+	REPLACE(ANY(_rt),'\e','')
+}
+
+OnRateGhostChange
+{
+	_tx = GetRateGhostChangeCallMessage('OnGhostChanging')
+	
+	_name = '"' + REPLACE(reference[2],'"','""') + '"'
+	_tx += "\w9\w9\![change,ghost,%(_name)]"
+	
+	_tx
+}
+
+OnRateGhostCall
+{
+	_tx = GetRateGhostChangeCallMessage('OnGhostCalling')
+	
+	_name = '"' + REPLACE(reference[2],'"','""') + '"'
+	_tx += "\w9\w9\![call,ghost,%(_name)]"
+	
+	_tx
+}
+
+//============お気に入り====================================================
+ToolTip_FAV
+{
+	"お気に入りのゴーストを記録し、起動することができます。"
+}
+
+OnChoiceSelect_FAV
+{
+	FavListDisp('\s[0]お気に入りのゴーストさんたちだよ。')
+}
+
+FavListDisp
+{
+	if ! ISVAR('ghost_fav_list') {
+		ghost_fav_list = IARRAY
+	}
+	
+	array_list = ghost_fav_list
+	_tx = CreateDispGhostList(1,'OnFavGhost')
+	_cnt = ARRAYSIZE(array_list)
+	
+	"\0\b[2]"
+	--
+	E.Title('お気に入りゴースト')
+	--
+	"\0\![set,choicetimeout,0]%(_argv[0])\w9\w9\u\s[10]"
+	--
+	if _cnt {
+		"%(_cnt)組登録済。"
+	}
+	else {
+		"誰も登録されてないね。"
+	}
+	--
+	"\0\n\n[half]\_q"
+	--
+	_tx
+	--
+	"\n\n[half]\![*]\q[%(MenuItem('起動中のゴーストを追加')),ADDBOOTGHOST]"
+	--
+	DispReturnCommand('MAINMENU')
+}
+
+OnChoiceSelect_ADDBOOTGHOST
+{
+	"\![get,property,OnActiveGhostListCountGet,activeghostlist.count]\![embed,OnActiveGhostListGetFirst]"
+}
+
+OnActiveGhostListCountGet
+{
+	SHIORI3FW.RegisterTempVar('active_count')
+	SHIORI3FW.RegisterTempVar('active_array')
+	
+	active_count = TOINT(reference[0])
+}
+
+OnActiveGhostListGetFirst
+{
+	_tx = '\![get,property,OnActiveGhostListGet,'
+	for _i = 0 ; _i < active_count ; _i++ {
+		if _i != 0 {
+			_tx += ','
+		}
+		_tx += "activeghostlist.index(%(_i)).name"
+	}
+	_tx += ']\![embed,OnActiveGhostListGetLast]'
+	
+	_tx
+}
+
+OnActiveGhostListGet
+{
+	active_array = reference
+}
+
+OnActiveGhostListGetLast
+{
+	_n = ARRAYSIZE(active_array)
+	_add_count = 0
+	_modify_count = 0
+	
+	for _i = 0 ; _i < _n ; _i++ {
+		_name = active_array[_i]
+		if _name == SHIORI3FW.GhostName {
+			continue
+		}
+		
+		_m = ARRAYSIZE(ghost_fav_list)
+		for _j = 0 ; _j < _m ; _j++ {
+			if ghost_fav_list[_j] == _name {
+				ghost_fav_list[_j] = IARRAY
+				_modify_count++
+				break
+			}
+		}
+		
+		_add_count++
+		ghost_fav_list = (_name,ghost_fav_list)
+	}
+	
+	_n = ARRAYSIZE(active_array)
+	_del_count = 0
+	if _n > 15 {
+		_del_count = _n - 15
+		active_array[15,10000] = IARRAY
+	}
+	
+	if (_add_count - _modify_count) > 0 {
+		FavListDisp('\s[5]追加したよ。')
+	}
+	elseif _modify_count > 0 {
+		FavListDisp('\s[0]もう登録済だね。')
+	}
+	else {
+		FavListDisp('\s[4]ボクたちのほかに誰もいないね。\w9\w9\u\s[10]他のゴーストさんを呼んでみてね。\n')
+	}
+}
+
+OnFavGhostChange
+{
+	_name = '"' + REPLACE(reference[2],'"','""') + '"'
+
+	_tx = REPLACE(OnGhostChanging,'\e','')
+	_tx += "\w9\w9\![change,ghost,%(_name)]"
+	
+	_tx
+}
+
+OnFavGhostCall
+{
+	_name = '"' + REPLACE(reference[2],'"','""') + '"'
+
+	_tx = REPLACE(OnGhostCalling,'\e','')
+	_tx += "\w9\w9\![call,ghost,%(_name)]"
+	
+	_tx
+}
+
+OnFavGhostDelete
+{
+	_m = ARRAYSIZE(ghost_fav_list)
+	for _j = 0 ; _j < _m ; _j++ {
+		if ghost_fav_list[_j] == reference[2] {
+			ghost_fav_list[_j] = IARRAY
+			break
+		}
+	}
+	
+	FavListDisp('\s[0]削除したよ。')
+}

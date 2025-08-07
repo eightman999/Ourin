@@ -1,0 +1,167 @@
+////// 持ち物帳
+
+//バイト値1を削除
+EMGoodsNameFilter
+{
+	_data = IARRAY
+	for _i = 0 ; _i < _argc ; _i++ {
+		_data ,= REPLACE(TOSTR(_argv[_i]),CHR(1),'')
+	}
+	_data
+}
+
+/*------------------------------------------------------------------------------------------
+	読み込み時データ変換
+------------------------------------------------------------------------------------------*/
+EMGoodsLoad : void
+{
+	if ! ISVAR('money_used') {
+		money_used = 0
+		money_used_total = 0
+	}
+	if ! ISVAR('goodsarray') {
+		return
+	}
+	
+	//旧形式変換と空白除去
+	_n = ARRAYSIZE(goodsarray)
+	for _i = 0 ; _i < _n ; _i++ {
+		if STRLEN(goodsarray[_i]) <= 0 {
+			goodsarray[_i] = IARRAY
+			_i--
+			_n--
+		}
+	}
+	
+	if _n <= 0 {
+		return
+	}
+
+	_line = SPLIT(goodsarray[0],CHR(1))
+	if ARRAYSIZE(_line) > 3 { //旧形式
+		_name = IARRAY
+		_quan = IARRAY
+		_found = 0
+		for _i = 0 ; _i < _n ; _i++ {
+			_line = SPLIT(goodsarray[_i],CHR(1))
+			_found = ASEARCH(_line[0],_name)
+			if _found >= 0 {
+				_quan[_found] += TOINT(_line[3])
+			}
+			else {
+				_name ,= _line[0]
+				_quan ,= TOINT(_line[3])
+			}
+		}
+		
+		goodsarray = IARRAY
+		
+		_n = ARRAYSIZE(_name)
+		for _i = 0 ; _i < _n ; _i++ {
+			goodsarray ,= _name[_i] + CHR(1) + TOSTR(_quan[_i]) + CHR(1)
+		}
+	}
+	
+	//ほかの処理
+	if GETTIME[1] != lastmonth {
+		lastmonth = GETTIME[1]
+		
+		money_used_total += money_used
+		money_used = 0 //むだづかい統計月リセット
+	}
+	if GETTIME[2] != lastday {
+		_diff = GETTIME[2] - lastday
+		lastday = GETTIME[2]
+		
+		//毎日1回つかう
+		EMGoodsAdd('健胃薬',0 - _diff)
+		
+		//傷薬はちょこちょこ - 5日に1回くらい？
+		if RAND(5) + 1 <= _diff {
+			EMGoodsAdd('傷薬',-1)
+		}
+	}
+}
+
+/*------------------------------------------------------------------------------------------
+	もちもの追加
+	何を,何個
+------------------------------------------------------------------------------------------*/
+EMGoodsAdd : void
+{
+	_data = EMGoodsNameFilter(_argv)
+	
+	_found = EMGoodsFind(_data[0])
+	if _found[0] >= 0 {
+		_found[2] += TOINT(_data[1])
+		if _found[2] <= 0 {
+			goodsarray[_found[0]] = IARRAY
+		}
+		else {
+			goodsarray[_found[0]] = "%(_found[1])%(CHR(1))%(_found[2])%(CHR(1))"
+		}
+	}
+	else {
+		_num = TOINT(_data[1])
+		if _num > 0 {
+			if ! ISVAR('goodsarray') {
+				goodsarray = IARRAY
+			}
+			goodsarray ,= "%(_data[0])%(CHR(1))%(_num)%(CHR(1))"
+		}
+	}
+}
+
+/*------------------------------------------------------------------------------------------
+	もちものの数
+------------------------------------------------------------------------------------------*/
+EMGoodsNum
+{
+	if ISVAR('goodsarray') {
+		ARRAYSIZE(goodsarray)
+	}
+	else {
+		0
+	}
+}
+
+/*------------------------------------------------------------------------------------------
+	検索
+------------------------------------------------------------------------------------------*/
+EMGoodsFind
+{
+	_n = ARRAYSIZE(goodsarray)
+	if ! ISVAR('goodsarray') || _n <= 0 {
+		(-1,'',0)
+		return
+	}
+
+	_found = (-1,'',0)
+	_line = IARRAY
+	
+	for _i = 0 ; _i < _n ; _i++ {
+		_line = SPLIT(goodsarray[_i],CHR(1))
+		if _line[0] == _argv[0] {
+			_found[0] = _i
+			_found[1] = _line[0]
+			_found[2] = TOINT(_line[1])
+			break
+		}
+	}
+	
+	_found
+}
+
+/*------------------------------------------------------------------------------------------
+	もちものの数調査
+------------------------------------------------------------------------------------------*/
+EMGoodsQueryNum
+{
+	_found = EMGoodsFind(_argv[0])
+	if _found[0] < 0 {
+		0
+		return
+	}
+	_found[2]
+}
+
