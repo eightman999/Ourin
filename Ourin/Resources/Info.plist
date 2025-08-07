@@ -6,7 +6,7 @@
     <key>CFBundleIdentifier</key><string>furin-lab.Ourin</string>
     <key>CFBundleVersion</key><string>1</string>
     <key>CFBundleShortVersionString</key><string>1.0</string>
-    <key>LSMinimumSystemVersion</key><string>10.15</string>
+    <key>LSMinimumSystemVersion</key><string>11.0</string>
     <key>CFBundleURLTypes</key>
     <array>
         <dict>
