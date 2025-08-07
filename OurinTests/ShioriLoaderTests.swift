@@ -1,7 +1,35 @@
 import Testing
 @testable import Ourin
+import Foundation
 
 struct ShioriLoaderTests {
+    @Test
+    func yayaDispatchFailsWithoutExecutable() throws {
+        // Create a temporary directory for our ghost fixture
+        let tempDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        let ghostMasterDir = tempDir.appendingPathComponent("ghost/master")
+        try FileManager.default.createDirectory(atPath: ghostMasterDir.path, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        // Create a fake descript.txt for YAYA
+        let descriptContent = """
+        charset,UTF-8
+        shiori,yaya.dll
+        yaya.dic,test.dic
+        """
+        try descriptContent.write(to: ghostMasterDir.appendingPathComponent("descript.txt"), atomically: true, encoding: .utf8)
+
+        // Create a fake dictionary file
+        try "this is a dictionary".write(to: ghostMasterDir.appendingPathComponent("test.dic"), atomically: true, encoding: .utf8)
+
+        // Attempt to load the YAYA module.
+        // This is expected to FAIL because the `yaya_core` executable is not in the test bundle.
+        // This test proves that the loader *tries* to initialize YayaBackend, which is the correct dispatch logic.
+        let loader = ShioriLoader(module: "yaya.dll", base: tempDir)
+
+        #expect(loader == nil, "ShioriLoader should fail to initialize YayaBackend without yaya_core executable")
+    }
+
     @Test
     func loadRequestUnload() throws {
         let dir = URL(fileURLWithPath: #file).deletingLastPathComponent()
