@@ -2,17 +2,10 @@ import SwiftUI
 
 @available(macOS 11.0, *)
 struct DevToolsCommands: Commands {
-#if compiler(>=5.7)
-    @Environment(\.openWindow) private var openWindow
-#endif
-
     var body: some Commands {
         // View メニューにDevTools項目を追加
         CommandMenu("View") {
-            Button("DevTools を表示") {
-                openDevTools()
-            }
-            .keyboardShortcut("d", modifiers: [.command])
+            OpenDevToolsProxy()
         }
         
         // Debug メニューを追加
@@ -65,18 +58,6 @@ struct DevToolsCommands: Commands {
                 openPluginGuide()
             }
         }
-    }
-
-    private func openDevTools() {
-#if compiler(>=5.7)
-        if #available(macOS 13.0, *) {
-            openWindow(id: "DevTools")
-        } else {
-            (NSApp.delegate as? AppDelegate)?.showDevTools()
-        }
-#else
-        (NSApp.delegate as? AppDelegate)?.showDevTools()
-#endif
     }
     
     private func reloadDevTools() {
@@ -151,5 +132,36 @@ struct DevToolsCommands: Commands {
         if let url = URL(string: "https://github.com/eightman999/Ourin/wiki/Plugin-Development") {
             NSWorkspace.shared.open(url)
         }
+    }
+}
+
+struct OpenDevToolsProxy: Commands {
+    var body: some Commands {
+        if #available(macOS 13.0, *) {
+            ModernDevToolsButton()
+        } else {
+            LegacyDevToolsButton()
+        }
+    }
+}
+
+@available(macOS 13.0, *)
+struct ModernDevToolsButton: Commands {
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some Commands {
+        Button("DevTools を表示") {
+            openWindow(id: "DevTools")
+        }
+        .keyboardShortcut("d", modifiers: [.command])
+    }
+}
+
+struct LegacyDevToolsButton: Commands {
+    var body: some Commands {
+        Button("DevTools を表示") {
+            (NSApp.delegate as? AppDelegate)?.showDevTools()
+        }
+        .keyboardShortcut("d", modifiers: [.command])
     }
 }
