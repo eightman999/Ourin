@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 /// NARインストールUIの状態管理
+@MainActor
 final class NarInstallViewModel: ObservableObject {
     @Published var isInstalling: Bool = false
     @Published var progress: Double = 0.0
@@ -94,13 +95,13 @@ final class NarInstallViewModel: ObservableObject {
 
     private func scanInstalledGhosts() -> [NarPackage] {
         guard let ghostsPath = try? OurinPaths.baseDirectory().appendingPathComponent("ghost", isDirectory: true) else {
-            logger.error("Failed to get ghosts directory path")
+            logger.warning("Failed to get ghosts directory path")
             return []
         }
 
         let fileManager = FileManager.default
         guard let ghostDirs = try? fileManager.contentsOfDirectory(at: ghostsPath, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) else {
-            logger.error("Failed to list contents of ghosts directory")
+            logger.warning("Failed to list contents of ghosts directory")
             return []
         }
 
@@ -142,9 +143,9 @@ final class NarInstallViewModel: ObservableObject {
     private func parseDescriptContent(_ content: String) -> String? {
         let lines = content.split(separator: "\n")
         for line in lines {
-            let parts = line.split(separator: ",", limit: 1)
-            if parts.count == 2, parts[0].trimmingCharacters(in: .whitespaces) == "name" {
-                return parts[1].trimmingCharacters(in: .whitespaces).trimmingCharacters(in: ["\r"])
+            let parts = line.split(separator: ",", maxSplits: 1)
+            if parts.count == 2, parts[0].trimmingCharacters(in: .whitespacesAndNewlines) == "name" {
+                return parts[1].trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: ["\r"])
             }
         }
         return nil
