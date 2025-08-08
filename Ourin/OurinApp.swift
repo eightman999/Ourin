@@ -163,8 +163,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 extension Notification.Name {
     static let devToolsReload = Notification.Name("devToolsReload")
-    static let testScenarioStarted = Notification.Name("testScenarioStarted")
-    static let testScenarioStopped = Notification.Name("testScenarioStopped")
 }
 
 private extension NSApplication {
