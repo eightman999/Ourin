@@ -19,8 +19,8 @@ final class TimerEmitter {
         self.handler = handler
 
         // Listen for test scenario notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(testScenarioStarted), name: .testScenarioStarted, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(testScenarioStopped), name: .testScenarioStopped, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(testScenarioStarted), name: .testScenarioStarted, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(testScenarioStopped), name: .testScenarioStopped, object: nil)
 
         let timer = DispatchSource.makeTimerSource()
         timer.schedule(deadline: .now() + .seconds(1), repeating: .seconds(1))
