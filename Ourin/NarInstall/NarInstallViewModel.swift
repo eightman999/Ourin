@@ -87,18 +87,67 @@ final class NarInstallViewModel: ObservableObject {
     func loadInstalledPackages() {
         logger.info("インストール済みパッケージを読み込み中")
         
-        // サンプルデータ（実際の実装では、インストールディレクトリを走査する）
-        installedPackages = [
-            NarPackage(name: "Sample Ghost A", version: "1.2.0", installPath: "/path/to/ghost_a"),
-            NarPackage(name: "Sample Ghost B", version: "2.0.1", installPath: "/path/to/ghost_b")
-        ]
-        
-        // TODO: 実際のインストールディレクトリを走査してパッケージリストを構築
-        // let ghostsPath = Paths.ghostsInstallPath()
-        // let packages = scanInstalledPackages(at: ghostsPath)
-        // installedPackages = packages
+        installedPackages = scanInstalledGhosts()
         
         logger.info("インストール済みパッケージ数: \(installedPackages.count)")
+    }
+
+    private func scanInstalledGhosts() -> [NarPackage] {
+        guard let ghostsPath = try? OurinPaths.baseDirectory().appendingPathComponent("ghost", isDirectory: true) else {
+            logger.error("Failed to get ghosts directory path")
+            return []
+        }
+
+        let fileManager = FileManager.default
+        guard let ghostDirs = try? fileManager.contentsOfDirectory(at: ghostsPath, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) else {
+            logger.error("Failed to list contents of ghosts directory")
+            return []
+        }
+
+        var packages: [NarPackage] = []
+
+        for ghostDir in ghostDirs {
+            let descriptPath = ghostDir.appendingPathComponent("ghost/master/descript.txt")
+            if fileManager.fileExists(atPath: descriptPath.path) {
+                let attributes = try? fileManager.attributesOfItem(atPath: ghostDir.path)
+                let installDate = attributes?[.creationDate] as? Date ?? Date()
+
+                if let name = parseDescript(at: descriptPath) {
+                    let package = NarPackage(
+                        name: name,
+                        version: "不明", // descript.txtにバージョン情報がないため
+                        installPath: ghostDir.path,
+                        installDate: installDate
+                    )
+                    packages.append(package)
+                }
+            }
+        }
+
+        return packages
+    }
+
+    private func parseDescript(at url: URL) -> String? {
+        guard let content = try? String(contentsOf: url, encoding: .shiftJIS) else {
+            // Shift_JISで読めなかったらUTF-8で試す
+            guard let content = try? String(contentsOf: url, encoding: .utf8) else {
+                logger.warning("Failed to read descript.txt at \(url.path)")
+                return nil
+            }
+            return parseDescriptContent(content)
+        }
+        return parseDescriptContent(content)
+    }
+
+    private func parseDescriptContent(_ content: String) -> String? {
+        let lines = content.split(separator: "\n")
+        for line in lines {
+            let parts = line.split(separator: ",", limit: 1)
+            if parts.count == 2, parts[0].trimmingCharacters(in: .whitespaces) == "name" {
+                return parts[1].trimmingCharacters(in: .whitespaces).trimmingCharacters(in: ["\r"])
+            }
+        }
+        return nil
     }
     
     /// エラーメッセージをクリア
