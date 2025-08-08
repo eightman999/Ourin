@@ -147,7 +147,7 @@ public final class SakuraScriptEngine {
                     tokens.append(.command(name: "!", args: args))
                     i = j
                 default:
-                    var name = String(next)
+                    let name = String(next)
                     var j = i + 2
                     var args: [String] = []
                     if j < chars.count && chars[j] == "[" {

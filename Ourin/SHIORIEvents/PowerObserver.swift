@@ -37,7 +37,7 @@ final class PowerObserver {
 
     /// 電源情報を取得してイベントを送出
     private func emit() {
-        if let ps = IOPSCopyPowerSourcesInfo()?.takeRetainedValue() {
+        if IOPSCopyPowerSourcesInfo() != nil {
             // アダプタ有無のみで AC/Battery を判定
             let ac = IOPSCopyExternalPowerAdapterDetails()?.takeRetainedValue() != nil
             handler?(ShioriEvent(id: .OnPowerSourceChanged, params: ["Source": ac ? "AC" : "Battery"]))
