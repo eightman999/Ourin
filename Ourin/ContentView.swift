@@ -108,11 +108,35 @@ struct ContentView: View {
 
     private func exportDiagnostics() {
         logger.info("export diagnostics")
-        let format = NSLocalizedString("Diagnostics exported at %@", comment: "Diagnostics export message")
-        let text = String(format: format, Date().description)
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("OurinDiagnostics.txt")
-        try? text.write(to: url, atomically: true, encoding: .utf8)
-        NSWorkspace.shared.activateFileViewerSelecting([url])
+
+        if #available(macOS 11.0, *) {
+            let logStore = LogStore()
+            let since = Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+            let entries = logStore.fetchLogEntries(subsystem: "jp.ourin.devtools", category: "", level: .undefined, since: since)
+
+            var logText = "Ourin Diagnostics Log - Exported at \(Date())\n\n"
+            logText += "Found \(entries.count) entries in the last 24 hours for subsystem 'jp.ourin.devtools'.\n\n"
+
+            for entry in entries {
+                logText += "[\(entry.timestamp)] [\(entry.level.uppercased())] [\(entry.category)] \(entry.message)\n"
+            }
+
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent("OurinDiagnostics.txt")
+            do {
+                try logText.write(to: url, atomically: true, encoding: .utf8)
+                NSWorkspace.shared.activateFileViewerSelecting([url])
+                logger.info("Diagnostics exported to \(url.path)")
+            } catch {
+                logger.error("Failed to write diagnostics file: \(error.localizedDescription)")
+            }
+        } else {
+            // Fallback for older macOS versions
+            let format = NSLocalizedString("Diagnostics exported at %@", comment: "Diagnostics export message")
+            let text = String(format: format, Date().description)
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent("OurinDiagnostics.txt")
+            try? text.write(to: url, atomically: true, encoding: .utf8)
+            NSWorkspace.shared.activateFileViewerSelecting([url])
+        }
     }
 }
 
@@ -1065,6 +1089,8 @@ fileprivate struct LoggingDiagnosticsView: View {
     @State private var signpostData: [SignpostEntry] = []
     @State private var showSignpostTimeline = false
     
+    @State private var logStore = LogStore()
+
     private let subsystems = ["jp.ourin.*", "jp.ourin.devtools", "Ourin", "jp.ourin.plugin"]
     private let categories = ["", "ui", "plugin", "resource", "external", "settings"]
     private let levels = ["all", "debug", "info", "notice", "error", "fault"]
@@ -1242,16 +1268,28 @@ fileprivate struct LoggingDiagnosticsView: View {
     }
     
     private func loadLogs() {
-        // OSLogStore からログを取得する（模擬実装）
-        logEntries = [
-            LogEntry(timestamp: Date(), level: "info", category: "ui", message: "DevTools started", metadata: ""),
-            LogEntry(timestamp: Date().addingTimeInterval(-60), level: "debug", category: "plugin", message: "Plugin loaded: TestPlugin", metadata: "bundle: TestPlugin.plugin"),
-            LogEntry(timestamp: Date().addingTimeInterval(-120), level: "error", category: "resource", message: "Failed to load resource", metadata: "key: ghost.name"),
-            LogEntry(timestamp: Date().addingTimeInterval(-180), level: "notice", category: "external", message: "SSTP server started", metadata: "port: 9801"),
-            LogEntry(timestamp: Date().addingTimeInterval(-240), level: "info", category: "settings", message: "Settings loaded", metadata: "path: ~/Library/Preferences/...")
-        ]
+        if #available(macOS 11.0, *) {
+            let sinceDate: Date
+            switch sincePeriod {
+            case "1h": sinceDate = Calendar.current.date(byAdding: .hour, value: -1, to: Date())!
+            case "6h": sinceDate = Calendar.current.date(byAdding: .hour, value: -6, to: Date())!
+            case "1d": sinceDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+            case "3d": sinceDate = Calendar.current.date(byAdding: .day, value: -3, to: Date())!
+            case "1w": sinceDate = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date())!
+            default: sinceDate = Date().addingTimeInterval(-3600)
+            }
+
+            let level = OSLogEntryLog.Level.fromString(selectedLevel)
+
+            logEntries = logStore.fetchLogEntries(
+                subsystem: selectedSubsystem,
+                category: selectedCategory,
+                level: level,
+                since: sinceDate
+            ).sorted(by: { $0.timestamp > $1.timestamp })
+        }
         
-        // Signpost データの模擬実装
+        // Signpost データの模擬実装はそのまま
         signpostData = [
             SignpostEntry(name: "ourin.resource.apply", type: .interval, duration: 0.12),
             SignpostEntry(name: "ourin.plugin.inject", type: .interval, duration: 0.05),
@@ -1262,28 +1300,6 @@ fileprivate struct LoggingDiagnosticsView: View {
     }
 }
 
-// MARK: - Log Data Models
-
-fileprivate struct LogEntry: Identifiable {
-    let id = UUID()
-    let timestamp: Date
-    let level: String
-    let category: String
-    let message: String
-    let metadata: String
-}
-
-fileprivate struct SignpostEntry: Identifiable {
-    let id = UUID()
-    let name: String
-    let type: SignpostType
-    let duration: Double
-}
-
-fileprivate enum SignpostType {
-    case interval
-    case instant
-}
 
 // MARK: - Network Status View
 
