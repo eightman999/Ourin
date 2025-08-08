@@ -80,14 +80,34 @@ struct ModernDevToolsCommands: Commands {
     }
     
     private func runTestScenario() {
-        guard let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher else { return }
+        guard let appDelegate = NSApp.delegate as? AppDelegate,
+              let dispatcher = appDelegate.pluginDispatcher else { return }
         let windows = NSApplication.shared.windows
         let path = Bundle.main.bundlePath
         
+        // SHIORIイベントを構築
+        let ghostName = "emily4"
+        let shellName = "default"
+        let ghostID = "emily4"
+        let pathPosix = PathNormalizer.posix(path)
+        let windowID = WindowIDMapper.ids(for: windows)
+        let bootRefs = [windowID, ghostName, shellName, ghostID, pathPosix]
+        let menuRefs = [windowID, ghostName, shellName, ghostID, pathPosix]
+
         Task {
-            dispatcher.onGhostBoot(windows: windows, ghostName: "emily4", shellName: "default", ghostID: "emily4", path: path)
+            // プラグインへ通知
+            dispatcher.onGhostBoot(windows: windows, ghostName: ghostName, shellName: shellName, ghostID: ghostID, path: path)
+
+            // ゴーストへ通知
+            _ = appDelegate.yayaAdapter?.request(method: "NOTIFY", id: "OnGhostBoot", refs: bootRefs)
+
             try? await Task.sleep(nanoseconds: 500_000_000)
-            dispatcher.onMenuExec(windows: windows, ghostName: "emily4", shellName: "default", ghostID: "emily4", path: path)
+
+            // プラグインへ通知
+            dispatcher.onMenuExec(windows: windows, ghostName: ghostName, shellName: shellName, ghostID: ghostID, path: path)
+
+            // ゴーストへ通知
+            _ = appDelegate.yayaAdapter?.request(method: "GET", id: "OnMenuExec", refs: menuRefs)
         }
 
         NotificationCenter.default.post(name: .testScenarioStarted, object: nil)

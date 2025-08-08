@@ -5,6 +5,8 @@ import Foundation
 
 final class TimerEmitter {
     static let shared = TimerEmitter()
+    private var isTesting = false
+
     private init() {}
 
     private var timer: DispatchSourceTimer?
@@ -15,6 +17,10 @@ final class TimerEmitter {
     /// Start emitting timer based events
     func start(_ handler: @escaping (ShioriEvent) -> Void) {
         self.handler = handler
+
+        // Listen for test scenario notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(testScenarioStarted), name: .testScenarioStarted, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(testScenarioStopped), name: .testScenarioStopped, object: nil)
 
         let timer = DispatchSource.makeTimerSource()
         timer.schedule(deadline: .now() + .seconds(1), repeating: .seconds(1))
@@ -28,11 +34,22 @@ final class TimerEmitter {
     /// Stop timers
     func stop() {
         timer?.cancel(); timer = nil
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func testScenarioStarted() {
+        isTesting = true
+    }
+
+    @objc private func testScenarioStopped() {
+        isTesting = false
     }
 
     private func tick() {
-        handler?(ShioriEvent(id: .OnIdle, params: [:]))
-        handler?(ShioriEvent(id: .OnSecondChange, params: [:]))
+        if !isTesting {
+            handler?(ShioriEvent(id: .OnIdle, params: [:]))
+            handler?(ShioriEvent(id: .OnSecondChange, params: [:]))
+        }
 
         let now = Date()
         let cal = Calendar.current
