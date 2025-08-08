@@ -49,8 +49,7 @@ struct ContentView: View {
         }
         .modifier(ToolbarModifierIfAvailable(
             reload: reload,
-            runTest: runTestScenario,
-            stop: stopScenario,
+            start: startDefaultGhost,
             export: exportDiagnostics
         ))
         .background(
@@ -64,12 +63,6 @@ struct ContentView: View {
         )
         .onReceive(NotificationCenter.default.publisher(for: .devToolsReload)) { _ in
             reload()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .testScenarioStarted)) { _ in
-            runTestScenario()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .testScenarioStopped)) { _ in
-            stopScenario()
         }
     }
 
@@ -106,21 +99,12 @@ struct ContentView: View {
         }
     }
 
-    private func runTestScenario() {
-        logger.info("run test scenario")
-        stopScenario()
-
+    private func startDefaultGhost() {
+        logger.info("start default ghost")
         if let delegate = NSApp.delegate as? AppDelegate {
             delegate.installDefaultGhost()
         }
     }
-
-    private func stopScenario() {
-        logger.info("stop scenario")
-        runningTask?.cancel()
-        runningTask = nil
-    }
-    
 
     private func exportDiagnostics() {
         logger.info("export diagnostics")
@@ -135,8 +119,7 @@ struct ContentView: View {
 // MARK: - Conditional toolbar modifier for macOS 11.0+
 private struct ToolbarModifierIfAvailable: ViewModifier {
     var reload: () -> Void
-    var runTest: () -> Void
-    var stop: () -> Void
+    var start: () -> Void
     var export: () -> Void
 
     @ViewBuilder
@@ -147,13 +130,9 @@ private struct ToolbarModifierIfAvailable: ViewModifier {
                     Image(systemName: "arrow.clockwise")
                 }.help(Text("Reload"))
 
-                Button(action: runTest) {
+                Button(action: start) {
                     Image(systemName: "play.fill")
-                }.help(Text("Run Test"))
-
-                Button(action: stop) {
-                    Image(systemName: "stop.fill")
-                }.help(Text("Stop"))
+                }.help(Text("Start"))
 
                 Button(action: export) {
                     Image(systemName: "square.and.arrow.up")
