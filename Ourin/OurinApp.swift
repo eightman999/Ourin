@@ -118,16 +118,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func installNar(at url: URL) {
-        do {
-            let target = try narInstaller.install(fromNar: url)
-            NSApp.presentAlert(style: .informational,
-                               title: "Installed",
-                               text: "Installed: \(url.lastPathComponent)")
-            runGhost(at: target)
-        } catch {
-            NSApp.presentAlert(style: .critical,
-                               title: "Install failed",
-                               text: String(describing: error))
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                let target = try self.narInstaller.install(fromNar: url)
+                DispatchQueue.main.async {
+                    NSApp.presentAlert(style: .informational,
+                                       title: "Installed",
+                                       text: "Installed: \(url.lastPathComponent)")
+                    self.runGhost(at: target)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    NSApp.presentAlert(style: .critical,
+                                       title: "Install failed",
+                                       text: String(describing: error))
+                }
+            }
         }
     }
 

@@ -39,7 +39,7 @@ final class YayaBackend: ShioriBackend {
         }
 
         guard let adapter = YayaAdapter() else {
-            //NSLog("[Ourin.YayaBackend] Failed to initialize YayaAdapter (is yaya_core missing?)")
+            NSLog("[Ourin.YayaBackend] Failed to initialize YayaAdapter (is yaya_core missing?)")
             return nil
         }
 
