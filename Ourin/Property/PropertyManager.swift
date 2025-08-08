@@ -9,9 +9,9 @@ public final class PropertyManager {
     public init() {
         register("system", provider: SystemPropertyProvider())
         register("baseware", provider: BasewarePropertyProvider())
-        // Sample ghost data used for property responses.
+        // Emily4をベースゴーストとして設定
         let sampleGhosts = [
-            Ghost(name: "Sample", path: "/Applications/Sample.ghost", icon: "/Applications/Sample/icon.png")
+            Ghost(name: "Emily/Phase4.5", path: "emily4", icon: "emily4/ghost/master/icon.ico")
         ]
         let active = [0]
         register("ghostlist", provider: GhostPropertyProvider(mode: .ghostlist, ghosts: sampleGhosts, activeIndices: active))
