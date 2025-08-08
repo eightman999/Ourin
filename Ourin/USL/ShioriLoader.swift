@@ -18,20 +18,23 @@ final class YayaBackend: ShioriBackend {
     private let yayaAdapter: YayaAdapter
 
     init?(ghostURL: URL, descript: [String:String]) {
-        let descriptURL = ghostURL.appendingPathComponent("ghost/master/descript.txt")
-        let parsedDescript = YayaBackend.parseDescript(url: descriptURL)
+        let yayaTxtURL = ghostURL.appendingPathComponent("ghost/master/yaya.txt")
+        // yaya.txtはUTF-8 BOM付きの可能性があるため、BOMを許容するString.init(contentsOf:)を使用する
+        guard let yayaTxtContents = try? String(contentsOf: yayaTxtURL) else {
+            //NSLog("[Ourin.YayaBackend] Failed to read yaya.txt")
+            return nil
+        }
 
-        var dicFiles: [String] = []
-        if let mainDic = parsedDescript["yaya.dic"] {
-            dicFiles.append(mainDic)
+        let dicFiles = yayaTxtContents.components(separatedBy: .newlines).compactMap { line -> String? in
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+            if trimmedLine.lowercased().starts(with: "dic,") {
+                return String(trimmedLine.dropFirst(4)).trimmingCharacters(in: .whitespaces)
+            }
+            return nil
         }
-        var i = 2
-        while let dicN = parsedDescript["yaya.dic\(i)"] {
-            dicFiles.append(dicN)
-            i += 1
-        }
+
         if dicFiles.isEmpty {
-            //NSLog("[Ourin.YayaBackend] No yaya.dic files found in descript.txt")
+            //NSLog("[Ourin.YayaBackend] No dic files found in yaya.txt")
             return nil
         }
 
