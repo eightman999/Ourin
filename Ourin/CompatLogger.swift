@@ -41,6 +41,14 @@ struct CompatLogger {
         }
     }
 
+    func error(_ message: String) {
+        if #available(macOS 11.0, *), let log = modern as? Logger {
+            log.error("\(message)")
+        } else {
+            os_log("%{public}@", log: oslog, type: .error, message)
+        }
+    }
+
     func fault(_ message: String) {
         if #available(macOS 11.0, *), let log = modern as? Logger {
             log.fault("\(message)")
