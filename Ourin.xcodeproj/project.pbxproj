@@ -29,9 +29,22 @@
 		DF88A8082E35199D00644F8A /* OurinUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DF0007A22E4651560030E4DC /* Exceptions for "Ourin" folder in "Ourin" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/Info.plist,
+			);
+			target = DF88A7EF2E35199C00644F8A /* Ourin */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DF88A7F22E35199C00644F8A /* Ourin */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DF0007A22E4651560030E4DC /* Exceptions for "Ourin" folder in "Ourin" target */,
+			);
 			path = Ourin;
 			sourceTree = "<group>";
 		};
