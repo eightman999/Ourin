@@ -77,6 +77,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let ext = OurinExternalServer()
         ext.start()
         externalServer = ext
+
+        // デフォルトゴーストをインストール・実行
+        self.installDefaultGhost()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -141,8 +144,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 NSApp.presentAlert(style: .informational, title: "OnBoot", text: script)
             }
         }
-        adapter.unload()
-        yayaAdapter = nil
     }
 
     /// Show DevTools window on macOS < 13
