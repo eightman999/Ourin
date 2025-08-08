@@ -9,7 +9,12 @@ class LogStore {
         var entries: [LogEntry] = []
 
         do {
-            let store = try OSLogStore(scope: .currentProcessIdentifier)
+            let store: OSLogStore
+            if #available(macOS 12.0, *) {
+                store = try OSLogStore(scope: .currentProcessIdentifier)
+            } else {
+                store = try OSLogStore.local()
+            }
             let position = store.position(date: since)
 
             // NSPredicate is tricky. We'll build it carefully.
@@ -39,7 +44,7 @@ class LogStore {
             logger.info("Fetched \(entries.count) log entries.")
 
         } catch {
-            logger.error("Failed to fetch log entries: \(error.localizedDescription)")
+            logger.warning("Failed to fetch log entries: \(error.localizedDescription)")
         }
 
         return entries
