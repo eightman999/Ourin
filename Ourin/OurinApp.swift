@@ -38,7 +38,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var pluginDispatcher: PluginEventDispatcher?
     /// NAR インストーラ
     private let narInstaller = NarInstaller()
-    private var yayaAdapter: YayaAdapter?
+    var yayaAdapter: YayaAdapter?
     /// DevTools window for legacy macOS
     private var devToolsWindow: NSWindow?
 
