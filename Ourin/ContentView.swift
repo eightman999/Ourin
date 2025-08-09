@@ -49,7 +49,7 @@ struct ContentView: View {
         }
         .modifier(ToolbarModifierIfAvailable(
             reload: reload,
-            start: startDefaultGhost,
+            start: startSelectedGhost,
             export: exportDiagnostics
         ))
         .background(
@@ -99,10 +99,18 @@ struct ContentView: View {
         }
     }
 
-    private func startDefaultGhost() {
-        logger.info("start default ghost")
-        if let delegate = NSApp.delegate as? AppDelegate {
-            delegate.installDefaultGhost()
+    private func startSelectedGhost() {
+        let startupGhostKey = "OurinStartupGhost"
+        if let ghostName = UserDefaults.standard.string(forKey: startupGhostKey), !ghostName.isEmpty {
+            logger.info("starting selected ghost: \(ghostName)")
+            if let delegate = NSApp.delegate as? AppDelegate {
+                delegate.runNamedGhost(name: ghostName)
+            }
+        } else {
+            logger.info("no selected ghost, starting default")
+            if let delegate = NSApp.delegate as? AppDelegate {
+                delegate.installDefaultGhost()
+            }
         }
     }
 
@@ -391,8 +399,11 @@ fileprivate struct GeneralSettingsView: View {
     @State private var autoStart = false
     @State private var autoUpdate = true
     @State private var rosettaStatus = "Unknown"
-    
+    @State private var startupGhost = ""
+    @State private var availableGhosts: [String] = []
+
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "settings")
+    private let startupGhostKey = "OurinStartupGhost"
     
     var body: some View {
         Form {
@@ -433,6 +444,17 @@ fileprivate struct GeneralSettingsView: View {
                 Text("システム設定").font(.headline).padding(.bottom, 5)
                 Toggle("自動起動", isOn: $autoStart)
                 Toggle("自動アップデート確認", isOn: $autoUpdate)
+                HStack {
+                    Text("起動ゴースト:")
+                        .frame(width: 120, alignment: .trailing)
+                    Picker("起動ゴースト", selection: $startupGhost) {
+                        ForEach(availableGhosts, id: \.self) { ghost in
+                            Text(ghost).tag(ghost)
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .frame(width: 200)
+                }
             }
             
             Group {
@@ -465,6 +487,14 @@ fileprivate struct GeneralSettingsView: View {
         // Rosetta状態を確認
         checkRosettaStatus()
         
+        // Load ghosts
+        availableGhosts = NarRegistry.shared.installedGhosts()
+        if let savedGhost = UserDefaults.standard.string(forKey: startupGhostKey), availableGhosts.contains(savedGhost) {
+            startupGhost = savedGhost
+        } else if let firstGhost = availableGhosts.first {
+            startupGhost = firstGhost
+        }
+
         logger.info("General settings loaded")
     }
     
@@ -505,6 +535,7 @@ fileprivate struct GeneralSettingsView: View {
         ] as [String : Any]
         
         UserDefaults.standard.set(settings, forKey: "OurinGeneralSettings")
+        UserDefaults.standard.set(startupGhost, forKey: startupGhostKey)
         logger.info("Settings saved: \(settings)")
         
         // 設定適用の通知
@@ -521,6 +552,10 @@ fileprivate struct GeneralSettingsView: View {
         acceptCP932 = true
         autoStart = false
         autoUpdate = true
+        if let firstGhost = availableGhosts.first {
+            startupGhost = firstGhost
+        }
+        UserDefaults.standard.removeObject(forKey: startupGhostKey)
         
         logger.info("Settings reset to defaults")
     }
@@ -532,14 +567,16 @@ fileprivate struct GeneralSettingsView: View {
 fileprivate struct HeadlineBalloonView: View {
     @State private var headlineURL = "https://example.com/feed.rss"
     @State private var headlineResponse = ""
-    @State private var selectedShell = "master"
-    @State private var selectedBalloon = "balloon1"
+    @State private var selectedGhost = ""
+    @State private var selectedShell = ""
+    @State private var selectedBalloon = ""
     @State private var balloonPreviewScale = 1.0
     @State private var showDPI = false
     @State private var testScript = "\\h\\s[0]こんにちは！\\nこれはテストメッセージです。\\e"
     
-    private let shells = ["master", "shell1", "shell2"]
-    private let balloons = ["balloon1", "balloon2", "balloon3"]
+    @State private var ghosts: [String] = []
+    @State private var shells: [String] = []
+    @State private var balloons: [String] = []
     
     var body: some View {
         HSplitView {
@@ -587,6 +624,17 @@ fileprivate struct HeadlineBalloonView: View {
                 Text("Balloon テスト").font(.headline)
                 
                 VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text("ゴースト:")
+                        Picker("ゴースト", selection: $selectedGhost) {
+                            ForEach(ghosts, id: \.self) { ghost in
+                                Text(ghost).tag(ghost)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        .frame(width: 120)
+                    }
+
                     HStack {
                         Text("シェル:")
                         Picker("シェル", selection: $selectedShell) {
@@ -669,6 +717,23 @@ fileprivate struct HeadlineBalloonView: View {
             }
             .padding()
             .frame(minWidth: 350)
+        }
+        .onAppear(perform: loadData)
+    }
+
+    private func loadData() {
+        self.ghosts = NarRegistry.shared.installedGhosts()
+        self.shells = NarRegistry.shared.installedShells(for: selectedGhost)
+        self.balloons = NarRegistry.shared.installedBalloons()
+
+        if selectedGhost.isEmpty, let firstGhost = ghosts.first {
+            selectedGhost = firstGhost
+        }
+        if selectedShell.isEmpty, let firstShell = shells.first {
+            selectedShell = firstShell
+        }
+        if selectedBalloon.isEmpty, let firstBalloon = balloons.first {
+            selectedBalloon = firstBalloon
         }
     }
     
