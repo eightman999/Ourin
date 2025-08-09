@@ -24,18 +24,11 @@ struct NarListPane: View {
 
     private func load() {
         items.removeAll()
-        guard let base = try? OurinPaths.baseDirectory() else { return }
-        let fm = FileManager.default
         let kinds = ["ghost", "balloon", "shell", "plugin", "package"]
         for kind in kinds {
-            let dir = base.appendingPathComponent(kind, isDirectory: true)
-            guard let children = try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles]) else { continue }
-            for child in children {
-                var isDir: ObjCBool = false
-                if fm.fileExists(atPath: child.path, isDirectory: &isDir), isDir.boolValue {
-                    items.append(Item(type: kind, name: child.lastPathComponent, path: child.path))
-                }
-            }
+            let packages = NarRegistry.shared.installedItems(ofType: kind)
+            let newItems = packages.map { Item(type: $0.type, name: $0.name, path: $0.path.path) }
+            items.append(contentsOf: newItems)
         }
     }
 

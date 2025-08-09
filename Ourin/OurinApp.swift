@@ -78,8 +78,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         ext.start()
         externalServer = ext
 
-        // デフォルトゴーストをインストール・実行
-        self.installDefaultGhost()
+        // ユーザーが選択したゴースト、またはデフォルトのゴーストを起動
+        let startupGhostKey = "OurinStartupGhost"
+        if let ghostName = UserDefaults.standard.string(forKey: startupGhostKey), !ghostName.isEmpty {
+            self.runNamedGhost(name: ghostName)
+        } else {
+            self.installDefaultGhost()
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -115,6 +120,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             NSLog("Bundled emily4.nar not found")
         }
+    }
+
+    func runNamedGhost(name: String) {
+        guard let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == name }) else {
+            NSLog("Could not find ghost named \(name)")
+            DispatchQueue.main.async {
+                NSApp.presentAlert(style: .critical,
+                                   title: "Ghost not found",
+                                   text: "The ghost '\(name)' could not be found. It may have been moved or deleted.")
+            }
+            return
+        }
+        runGhost(at: ghost.path)
     }
 
     private func installNar(at url: URL) {
