@@ -38,7 +38,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var pluginDispatcher: PluginEventDispatcher?
     /// NAR インストーラ
     private let narInstaller = NarInstaller()
-    var yayaAdapter: YayaAdapter?
+    /// The currently running ghost's manager.
+    var ghostManager: GhostManager?
     /// DevTools window for legacy macOS
     private var devToolsWindow: NSWindow?
 
@@ -96,6 +97,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         externalServer?.stop()
         // PLUGIN ディスパッチャ停止
         pluginDispatcher?.stop()
+        // ゴーストをシャットダウン
+        ghostManager?.shutdown()
     }
 
     func application(_ app: NSApplication, openFiles filenames: [String]) {
@@ -156,18 +159,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func runGhost(at root: URL) {
-        let ghostRoot = root.appendingPathComponent("ghost/master", isDirectory: true)
-        let fm = FileManager.default
-        guard let contents = try? fm.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil) else { return }
-        let dics = contents.filter { $0.pathExtension.lowercased() == "dic" }.map { $0.lastPathComponent }
-        guard let adapter = YayaAdapter() else { return }
-        yayaAdapter = adapter
-        guard adapter.load(ghostRoot: ghostRoot, dics: dics) else { return }
-        if let res = adapter.request(method: "GET", id: "OnBoot"), res.ok {
-            if let script = res.value {
-                NSApp.presentAlert(style: .informational, title: "OnBoot", text: script)
-            }
+        // If a ghost is already running, shut it down first.
+        if let existingManager = self.ghostManager {
+            existingManager.shutdown()
+            self.ghostManager = nil
         }
+
+        // Create and start the new ghost manager.
+        let newManager = GhostManager(ghostURL: root)
+        self.ghostManager = newManager
+        newManager.start()
     }
 
     /// Show DevTools window on macOS < 13
