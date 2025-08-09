@@ -188,7 +188,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let shellURL = ghostURL.appendingPathComponent("shell/master")
         // TODO: This needs to handle shell.txt for surface definitions properly.
         // This is a simplified loader for now.
-        let surfaceFilename = String(format: "surface%@%d.png", surfacePrefix, surfaceId)
+        let surfaceFilename = String(format: "surface%@%04d.png", surfacePrefix, surfaceId)
         let imageURL = shellURL.appendingPathComponent(surfaceFilename)
 
         print("Loading image: \(imageURL.path)")
