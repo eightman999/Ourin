@@ -102,7 +102,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     private func setupWindows() {
         // Create Character Window
-        let characterView = CharacterView(viewModel: characterViewModel)
+        let characterView = CharacterView(viewModel: self.characterViewModel)
         let hostingController = NSHostingController(rootView: characterView)
 
         let window = NSWindow(contentViewController: hostingController)
@@ -116,7 +116,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         self.characterWindow = window
 
         // Create Balloon Window
-        let balloonView = BalloonView(viewModel: balloonViewModel)
+        let balloonView = BalloonView(viewModel: self.balloonViewModel)
         let balloonHostingController = NSHostingController(rootView: balloonView)
 
         let bWindow = NSWindow(contentViewController: balloonHostingController)
