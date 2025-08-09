@@ -3,7 +3,7 @@ name: macOS CI (xcodebuild test)
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
 
 permissions:
@@ -15,12 +15,11 @@ concurrency:
 
 jobs:
   test:
-    runs-on: macos-14   # 安定を取るなら固定。最新に追随するなら macos-latest でもOK
+    runs-on: macos-14
     timeout-minutes: 60
 
     env:
-      XCODE_VERSION: latest-stable   # 必要なら "16.4" などピン留め推奨
-      PROJECT_PATH: Ourin/Ourin.xcodeproj
+      XCODE_VERSION: latest-stable
       SCHEME: Ourin
       RESULT_BUNDLE: TestResults.xcresult
 
@@ -37,7 +36,6 @@ jobs:
         run: |
           xcodebuild -version
           swift --version
-          system_profiler SPSoftwareDataType | grep "System Version" || true
           uname -m
 
       - name: Cache SwiftPM
@@ -50,15 +48,47 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      - name: Resolve dependencies
+      - name: Resolve dependencies (optional)
         run: |
-          # SwiftPM併用プロジェクトなら先に解決（Xcodeのみならスキップ可）
           swift package resolve || true
 
-      - name: Install xcbeautify (pretty logs)
+      - name: Install xcbeautify
         run: |
           brew update >/dev/null
           brew install xcbeautify
+
+      - name: Show repo tree (depth 2)
+        run: |
+          pwd
+          find . -maxdepth 2 -type d -name "*.xcodeproj" -print
+          find . -maxdepth 2 -type d -name "*.xcworkspace" -print
+
+      - name: Detect Xcode container (project/workspace)
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          WS=$(find . -maxdepth 3 -name "*.xcworkspace" | head -n 1 || true)
+          PRJ=$(find . -maxdepth 3 -name "*.xcodeproj"   | head -n 1 || true)
+          if [[ -n "$WS" ]]; then
+            echo "type=workspace" >> "$GITHUB_OUTPUT"
+            echo "path=$WS"       >> "$GITHUB_OUTPUT"
+            echo "Detected workspace: $WS"
+          elif [[ -n "$PRJ" ]]; then
+            echo "type=project"   >> "$GITHUB_OUTPUT"
+            echo "path=$PRJ"      >> "$GITHUB_OUTPUT"
+            echo "Detected project: $PRJ"
+          else
+            echo "No .xcworkspace or .xcodeproj found"; exit 66
+          fi
+
+      - name: List schemes
+        run: |
+          if [[ "${{ steps.detect.outputs.type }}" == "workspace" ]]; then
+            xcodebuild -list -workspace "${{ steps.detect.outputs.path }}"
+          else
+            xcodebuild -list -project "${{ steps.detect.outputs.path }}"
+          fi
 
       - name: Build & Test (macOS)
         shell: bash
@@ -69,14 +99,26 @@ jobs:
           else
             DEST="platform=macOS,arch=x86_64"
           fi
-          xcodebuild \
-            -project "$PROJECT_PATH" \
-            -scheme "$SCHEME" \
-            -destination "$DEST" \
-            -enableCodeCoverage YES \
-            -resultBundlePath "$RESULT_BUNDLE" \
-            CODE_SIGNING_ALLOWED=NO \
-            test | tee xcodebuild.log | xcbeautify
+
+          if [[ "${{ steps.detect.outputs.type }}" == "workspace" ]]; then
+            xcodebuild \
+              -workspace "${{ steps.detect.outputs.path }}" \
+              -scheme "${SCHEME}" \
+              -destination "$DEST" \
+              -enableCodeCoverage YES \
+              -resultBundlePath "${RESULT_BUNDLE}" \
+              CODE_SIGNING_ALLOWED=NO \
+              test | tee xcodebuild.log | xcbeautify
+          else
+            xcodebuild \
+              -project "${{ steps.detect.outputs.path }}" \
+              -scheme "${SCHEME}" \
+              -destination "$DEST" \
+              -enableCodeCoverage YES \
+              -resultBundlePath "${RESULT_BUNDLE}" \
+              CODE_SIGNING_ALLOWED=NO \
+              test | tee xcodebuild.log | xcbeautify
+          fi
 
       - name: Upload test result bundle
         if: always()
