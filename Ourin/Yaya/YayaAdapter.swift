@@ -32,6 +32,7 @@ final class YayaAdapter {
     /// Create adapter. The helper executable is searched in the app bundle by default.
     init?() {
         guard let url = Bundle.main.url(forAuxiliaryExecutable: "yaya_core") else {
+            NSLog("[YayaAdapter] Could not locate yaya_core executable in bundle")
             return nil
         }
         proc.executableURL = url
@@ -39,7 +40,9 @@ final class YayaAdapter {
         proc.standardOutput = outPipe
         do {
             try proc.run()
+            NSLog("[YayaAdapter] Launched yaya_core at \(url.path)")
         } catch {
+            NSLog("[YayaAdapter] Failed to launch yaya_core at \(url.path): \(error)")
             return nil
         }
     }
