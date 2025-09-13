@@ -23,7 +23,6 @@ struct YayaResponse: Codable {
 }
 
 /// Adapter that communicates with YAYA core via JSON line IPC.
-/// Adapter that communicates with YAYA core via JSON line IPC.
 final class YayaAdapter {
     private var proc = Process()
     private var inPipe = Pipe()
