@@ -61,10 +61,11 @@ Token Lexer::readString() {
     int startLine = line_;
     int startCol = column_;
     std::string value;
+    char quote = current(); // Can be '"' or '\''
     
     advance(); // Skip opening quote
     
-    while (current() != '\0' && current() != '"') {
+    while (current() != '\0' && current() != quote) {
         if (current() == '\\') {
             advance();
             if (current() != '\0') {
@@ -75,6 +76,7 @@ Token Lexer::readString() {
                     case 'r': value += '\r'; break;
                     case '\\': value += '\\'; break;
                     case '"': value += '"'; break;
+                    case '\'': value += '\''; break;
                     default: value += current(); break;
                 }
                 advance();
@@ -85,7 +87,7 @@ Token Lexer::readString() {
         }
     }
     
-    if (current() == '"') {
+    if (current() == quote) {
         advance(); // Skip closing quote
     }
     
@@ -151,8 +153,8 @@ std::vector<Token> Lexer::tokenize() {
             continue;
         }
         
-        // String
-        if (ch == '"') {
+        // String (double or single quotes)
+        if (ch == '"' || ch == '\'') {
             tokens.push_back(readString());
             continue;
         }
@@ -221,6 +223,7 @@ std::vector<Token> Lexer::tokenize() {
             case ',': tokens.push_back(Token(TokenType::Comma, ",", startLine, startCol)); break;
             case ':': tokens.push_back(Token(TokenType::Colon, ":", startLine, startCol)); break;
             case '?': tokens.push_back(Token(TokenType::Question, "?", startLine, startCol)); break;
+            case '.': tokens.push_back(Token(TokenType::Dot, ".", startLine, startCol)); break;
             default:
                 tokens.push_back(Token(TokenType::Unknown, std::string(1, ch), startLine, startCol));
                 break;

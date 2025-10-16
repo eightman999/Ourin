@@ -25,15 +25,20 @@ std::string DictionaryManager::loadFile(const std::string& path) {
 bool DictionaryManager::parseDictionary(const std::string& content) {
     try {
         // Tokenize
+        std::cerr << "[DictionaryManager] Starting tokenization..." << std::endl;
         Lexer lexer(content);
         auto tokens = lexer.tokenize();
+        std::cerr << "[DictionaryManager] Tokenized " << tokens.size() << " tokens" << std::endl;
         
         // Parse
+        std::cerr << "[DictionaryManager] Starting parsing..." << std::endl;
         Parser parser(tokens);
         auto functions = parser.parse();
+        std::cerr << "[DictionaryManager] Parsed " << functions.size() << " functions" << std::endl;
         
         // Register functions in VM
         for (const auto& func : functions) {
+            std::cerr << "[DictionaryManager] Registering function: " << func->name << std::endl;
             vm_->registerFunction(func->name, func);
         }
         

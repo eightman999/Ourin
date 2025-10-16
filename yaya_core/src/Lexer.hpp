@@ -42,6 +42,7 @@ enum class TokenType {
     Comma,
     Colon,
     Question,
+    Dot,
     
     // Keywords
     If,

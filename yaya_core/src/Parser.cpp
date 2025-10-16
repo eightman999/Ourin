@@ -350,10 +350,20 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
         return std::make_shared<AST::LiteralNode>(value, false);
     }
     
-    // Identifier (variable or function call)
+    // Identifier (variable or function call or member access)
     if (check(TokenType::Identifier)) {
         std::string name = current().value;
         advance();
+        
+        // Member access: identifier.member
+        while (match(TokenType::Dot)) {
+            if (check(TokenType::Identifier)) {
+                name += "." + current().value;
+                advance();
+            } else {
+                throw std::runtime_error("Expected identifier after '.' at line " + std::to_string(current().line));
+            }
+        }
         
         // Array access: identifier[index]
         if (match(TokenType::LeftBracket)) {
