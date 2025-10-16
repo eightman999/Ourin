@@ -11,10 +11,20 @@ std::string YayaCore::processCommand(const std::string &line) {
         auto req = json::parse(line);
         std::string cmd = req.value("cmd", "");
         if (cmd == "load") {
-            std::vector<std::string> dics = req.value("dics", std::vector<std::string>{});
+            std::string ghostRoot = req.value("ghost_root", "");
+            std::vector<std::string> dicNames = req.value("dic", std::vector<std::string>{});
             std::string encoding = req.value("encoding", "UTF-8");
-            bool ok = dictManager.load(dics, encoding);
+            
+            // Build full paths from ghost_root and dic names
+            std::vector<std::string> dicPaths;
+            for (const auto& name : dicNames) {
+                std::string fullPath = ghostRoot + "/" + name;
+                dicPaths.push_back(fullPath);
+            }
+            
+            bool ok = dictManager.load(dicPaths, encoding);
             response["ok"] = ok;
+            response["status"] = ok ? 200 : 500;
         } else if (cmd == "request") {
             std::string id = req.value("id", "");
             auto refs = req.value("ref", std::vector<std::string>{});
@@ -26,12 +36,15 @@ std::string YayaCore::processCommand(const std::string &line) {
         } else if (cmd == "unload") {
             dictManager.unload();
             response["ok"] = true;
+            response["status"] = 200;
         } else {
             response["ok"] = false;
+            response["status"] = 400;
             response["error"] = "unknown command";
         }
     } catch (const std::exception &e) {
         response["ok"] = false;
+        response["status"] = 500;
         response["error"] = e.what();
     }
     return response.dump();
