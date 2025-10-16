@@ -1,0 +1,15 @@
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/bin/Release/net6.0/MacUkagaka.SHIORI
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/bin/Release/net6.0/MacUkagaka.SHIORI.deps.json
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/bin/Release/net6.0/MacUkagaka.SHIORI.runtimeconfig.json
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/bin/Release/net6.0/MacUkagaka.SHIORI.dll
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/bin/Release/net6.0/MacUkagaka.SHIORI.pdb
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/obj/Release/net6.0/MacUkagaka.SHIORI.GeneratedMSBuildEditorConfig.editorconfig
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/obj/Release/net6.0/MacUkagaka.SHIORI.AssemblyInfoInputs.cache
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/obj/Release/net6.0/MacUkagaka.SHIORI.AssemblyInfo.cs
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/obj/Release/net6.0/MacUkagaka.SHIORI.csproj.CoreCompileInputs.cache
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/obj/Release/net6.0/MacUkagaka.SHIORI.sourcelink.json
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/obj/Release/net6.0/MacUkagaka.SHIORI.dll
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/obj/Release/net6.0/refint/MacUkagaka.SHIORI.dll
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/obj/Release/net6.0/MacUkagaka.SHIORI.pdb
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/obj/Release/net6.0/MacUkagaka.SHIORI.genruntimeconfig.cache
+/Users/eightman/Desktop/software_develop/AINanikaAIChan/MacUkagaka.SHIORI/obj/Release/net6.0/ref/MacUkagaka.SHIORI.dll

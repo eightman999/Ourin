@@ -1,0 +1,17 @@
+{
+  "ai_settings": {
+    "default_service": "chatgpt",
+    "chatgpt": {
+      "api_key": "test-chatgpt-key",
+      "model": "gpt-3.5-turbo"
+    },
+    "claude": {
+      "api_key": "test-claude-key",
+      "model": "claude-3-haiku-20240307"
+    },
+    "gemini": {
+      "api_key": "test-gemini-key",
+      "model": "gemini-pro"
+    }
+  }
+}
