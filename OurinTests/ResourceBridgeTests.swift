@@ -56,4 +56,18 @@ struct ResourceBridgeTests {
         }
         BridgeToSHIORI.reset()
     }
+
+    @Test
+    func refreshesAfterNilFetch() async throws {
+        BridgeToSHIORI.reset()
+        BridgeToSHIORI.setResource("dynamic.key", value: "")
+        let bridge = ResourceBridge.shared
+        bridge.invalidateAll()
+        let initial = bridge.get("dynamic.key")
+        #expect(initial == nil)
+        BridgeToSHIORI.setResource("dynamic.key", value: "updated")
+        let refreshed = bridge.get("dynamic.key")
+        #expect(refreshed == "updated")
+        BridgeToSHIORI.reset()
+    }
 }

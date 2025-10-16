@@ -30,11 +30,16 @@ public final class ResourceBridge {
     /// Get resource value for given key via SHIORI. Uses cache if valid.
     public func get(_ key: String) -> String? {
         let now = Date()
-        if let entry = cache[key], now.timeIntervalSince(entry.time) < ttl {
-            return entry.value
+        if let entry = cache[key], let cachedValue = entry.value,
+           now.timeIntervalSince(entry.time) < ttl {
+            return cachedValue
         }
         let value = query(key: key)
-        cache[key] = Entry(value: value, time: now)
+        if let value = value {
+            cache[key] = Entry(value: value, time: now)
+        } else {
+            cache.removeValue(forKey: key)
+        }
         logger.debug("query \(key) -> \(value ?? "nil")")
         return value
     }
