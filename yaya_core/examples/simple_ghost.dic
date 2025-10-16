@@ -1,0 +1,55 @@
+// Simple Test Ghost for YAYA Core
+// This demonstrates basic YAYA functionality without advanced features
+
+OnBoot
+{
+    _greeting = "こんにちは！"
+    "\0\s[0]" + _greeting + "\w9\nボクはテストゴーストです。\e"
+}
+
+OnClose
+{
+    "\0\s[0]またね！\w9\e"
+}
+
+OnMouseDoubleClick
+{
+    if reference[3] == "0" {
+        "\0\s[1]頭をダブルクリックしたね！\e"
+    }
+    else {
+        "\0\s[0]それは頭じゃないよ。\e"
+    }
+}
+
+OnAiTalk
+{
+    _rand = RAND(3)
+    if _rand == 0 {
+        "\0\s[0]今日はいい天気だね。\e"
+    }
+    else {
+        if _rand == 1 {
+            "\0\s[1]何か話そうか？\e"
+        }
+        else {
+            "\0\s[2]暇だなぁ。\e"
+        }
+    }
+}
+
+GetCurrentTime
+{
+    _hour = GETTIME[4]
+    if _hour < 12 {
+        "おはよう"
+    }
+    else {
+        if _hour < 18 {
+            "こんにちは"
+        }
+        else {
+            "こんばんは"
+        }
+    }
+}
