@@ -64,7 +64,7 @@ std::vector<std::shared_ptr<AST::FunctionNode>> Parser::parse() {
 }
 
 std::shared_ptr<AST::FunctionNode> Parser::parseFunction() {
-    // Function: FunctionName { statements }
+    // Function: FunctionName [: type] { statements }
     if (!check(TokenType::Identifier)) {
         return nullptr;
     }
@@ -73,6 +73,17 @@ std::shared_ptr<AST::FunctionNode> Parser::parseFunction() {
     advance();
     
     skipNewlines();
+    
+    // Optional type annotation (: array, : void, etc.)
+    if (match(TokenType::Colon)) {
+        skipNewlines();
+        // Skip the type annotation for now - we'll just ignore it
+        if (check(TokenType::Identifier)) {
+            advance(); // Skip "array", "void", etc.
+        }
+        skipNewlines();
+    }
+    
     consume(TokenType::LeftBrace, "Expected '{' after function name");
     skipNewlines();
     

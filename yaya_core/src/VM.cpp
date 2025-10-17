@@ -53,7 +53,9 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
         case AST::NodeType::Literal: {
             auto* lit = dynamic_cast<AST::LiteralNode*>(node.get());
             if (lit->isString) {
-                return Value(lit->value);
+                // Interpolate embedded expressions in string literals
+                std::string interpolated = interpolateString(lit->value);
+                return Value(interpolated);
             } else {
                 try {
                     return Value(std::stoi(lit->value));
@@ -65,7 +67,16 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
         
         case AST::NodeType::Variable: {
             auto* var = dynamic_cast<AST::VariableNode*>(node.get());
-            return getVariable(var->name);
+            // First try as a variable
+            Value val = getVariable(var->name);
+            if (!val.isVoid()) {
+                return val;
+            }
+            // If variable doesn't exist, try as a function call (YAYA allows bare function names)
+            if (functions_.find(var->name) != functions_.end() || builtins_.find(var->name) != builtins_.end()) {
+                return execute(var->name, {});
+            }
+            return Value();
         }
         
         case AST::NodeType::BinaryOp: {
@@ -285,8 +296,6 @@ void VM::registerBuiltins() {
     builtins_["ISFUNC"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         std::string funcName = args[0].asString();
-        // Interpolate the function name in case it contains variables
-        funcName = interpolateString(funcName);
         return Value(functions_.find(funcName) != functions_.end() ? 1 : 0);
     };
     
@@ -294,8 +303,6 @@ void VM::registerBuiltins() {
     builtins_["EVAL"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value();
         std::string funcName = args[0].asString();
-        // Interpolate the function name in case it contains variables
-        funcName = interpolateString(funcName);
         std::vector<Value> funcArgs;
         for (size_t i = 1; i < args.size(); i++) {
             funcArgs.push_back(args[i]);
