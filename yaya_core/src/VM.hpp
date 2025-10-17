@@ -43,6 +43,7 @@ private:
     Value evaluateBinaryOp(const std::string& op, const Value& left, const Value& right);
     Value evaluateUnaryOp(const std::string& op, const Value& operand);
     Value callBuiltin(const std::string& name, const std::vector<Value>& args);
+    std::string interpolateString(const std::string& str);
     
     // Register built-in functions
     void registerBuiltins();

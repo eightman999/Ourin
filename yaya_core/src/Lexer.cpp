@@ -202,6 +202,11 @@ std::vector<Token> Lexer::tokenize() {
             advance(); advance();
             continue;
         }
+        if (ch == ',' && peek() == '=') {
+            tokens.push_back(Token(TokenType::CommaAssign, ",=", startLine, startCol));
+            advance(); advance();
+            continue;
+        }
         
         // Single-character tokens
         switch (ch) {

@@ -47,6 +47,13 @@ const std::vector<Value>& Value::asArray() const {
     return arrayValue_;
 }
 
+std::vector<Value>& Value::asArrayMutable() {
+    if (type_ != Type::Array) {
+        throw std::runtime_error("Value is not an array");
+    }
+    return arrayValue_;
+}
+
 const std::map<std::string, Value>& Value::asDict() const {
     if (type_ != Type::Dictionary) {
         throw std::runtime_error("Value is not a dictionary");
@@ -141,4 +148,47 @@ bool Value::operator<=(const Value& other) const {
 
 bool Value::operator>=(const Value& other) const {
     return !(*this < other);
+}
+
+// Array operations
+size_t Value::arraySize() const {
+    if (type_ == Type::Array) {
+        return arrayValue_.size();
+    }
+    return 0;
+}
+
+Value Value::arrayGet(size_t index) const {
+    if (type_ == Type::Array && index < arrayValue_.size()) {
+        return arrayValue_[index];
+    }
+    return Value();
+}
+
+void Value::arraySet(size_t index, const Value& value) {
+    if (type_ == Type::Array) {
+        if (index >= arrayValue_.size()) {
+            arrayValue_.resize(index + 1);
+        }
+        arrayValue_[index] = value;
+    }
+}
+
+void Value::arrayPush(const Value& value) {
+    if (type_ == Type::Array) {
+        arrayValue_.push_back(value);
+    }
+}
+
+void Value::arrayConcat(const Value& other) {
+    if (type_ == Type::Array) {
+        if (other.type_ == Type::Array) {
+            // Concatenate arrays
+            const auto& otherArray = other.asArray();
+            arrayValue_.insert(arrayValue_.end(), otherArray.begin(), otherArray.end());
+        } else {
+            // Add single element
+            arrayValue_.push_back(other);
+        }
+    }
 }

@@ -26,6 +26,7 @@ enum class TokenType {
     
     // Assignment
     Assign,
+    CommaAssign,  // ,= for array concatenation
     
     // Logical
     And,

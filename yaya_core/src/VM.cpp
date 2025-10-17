@@ -119,6 +119,40 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
         
         case AST::NodeType::Call: {
             auto* call = dynamic_cast<AST::CallNode*>(node.get());
+            
+            // Handle special array operations
+            if (call->functionName == "__array_literal__") {
+                // Create an array from the arguments
+                std::vector<Value> elements;
+                for (const auto& argNode : call->arguments) {
+                    elements.push_back(executeNode(argNode));
+                }
+                return Value(elements);
+            }
+            
+            if (call->functionName == "__array_concat_assign__") {
+                // Array concatenation assignment: var ,= value
+                if (call->arguments.size() >= 2) {
+                    auto* varNode = dynamic_cast<AST::VariableNode*>(call->arguments[0].get());
+                    if (varNode) {
+                        Value currentValue = getVariable(varNode->name);
+                        Value newValue = executeNode(call->arguments[1]);
+                        
+                        // If current value is not an array, make it one
+                        if (currentValue.getType() != Value::Type::Array) {
+                            currentValue = Value(std::vector<Value>());
+                        }
+                        
+                        // Concatenate
+                        currentValue.arrayConcat(newValue);
+                        setVariable(varNode->name, currentValue);
+                        return currentValue;
+                    }
+                }
+                return Value();
+            }
+            
+            // Regular function call
             std::vector<Value> args;
             for (const auto& argNode : call->arguments) {
                 args.push_back(executeNode(argNode));
@@ -139,7 +173,12 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 return Value();
             }
             
-            // For other arrays, try to get from variables (Phase 2 feature)
+            // For other arrays, get from variables
+            Value arrayVar = getVariable(access->arrayName);
+            if (arrayVar.getType() == Value::Type::Array) {
+                return arrayVar.arrayGet(index);
+            }
+            
             return Value();
         }
         
@@ -246,6 +285,8 @@ void VM::registerBuiltins() {
     builtins_["ISFUNC"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         std::string funcName = args[0].asString();
+        // Interpolate the function name in case it contains variables
+        funcName = interpolateString(funcName);
         return Value(functions_.find(funcName) != functions_.end() ? 1 : 0);
     };
     
@@ -253,6 +294,8 @@ void VM::registerBuiltins() {
     builtins_["EVAL"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value();
         std::string funcName = args[0].asString();
+        // Interpolate the function name in case it contains variables
+        funcName = interpolateString(funcName);
         std::vector<Value> funcArgs;
         for (size_t i = 1; i < args.size(); i++) {
             funcArgs.push_back(args[i]);
@@ -260,13 +303,62 @@ void VM::registerBuiltins() {
         return execute(funcName, funcArgs);
     };
     
-    // ARRAYSIZE(arr) - Get array size (Phase 2, stub for now)
+    // ARRAYSIZE(arr) - Get array size
     builtins_["ARRAYSIZE"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        if (args[0].getType() == Value::Type::Array) {
+            return Value(static_cast<int>(args[0].arraySize()));
+        }
         return Value(0);
     };
     
-    // IARRAY - Create empty array (Phase 2, stub for now)
+    // IARRAY - Create empty array
     builtins_["IARRAY"] = [](const std::vector<Value>& args) -> Value {
-        return Value("");
+        (void)args;
+        return Value(std::vector<Value>());
     };
+}
+
+// Interpolate embedded expressions in strings like %(_varname) or %(funcname())
+std::string VM::interpolateString(const std::string& str) {
+    std::string result;
+    size_t pos = 0;
+    
+    while (pos < str.length()) {
+        // Look for %(
+        size_t start = str.find("%(", pos);
+        if (start == std::string::npos) {
+            // No more embedded expressions
+            result += str.substr(pos);
+            break;
+        }
+        
+        // Add text before %(
+        result += str.substr(pos, start - pos);
+        
+        // Find matching )
+        size_t end = str.find(')', start + 2);
+        if (end == std::string::npos) {
+            // Malformed - just add the rest
+            result += str.substr(start);
+            break;
+        }
+        
+        // Extract the embedded expression
+        std::string expr = str.substr(start + 2, end - start - 2);
+        
+        // Try to evaluate as variable first
+        Value val = getVariable(expr);
+        if (!val.isVoid()) {
+            result += val.asString();
+        } else {
+            // Try as function call - for now, just leave it as is
+            // Full function call parsing would require re-parsing
+            result += "%(" + expr + ")";
+        }
+        
+        pos = end + 1;
+    }
+    
+    return result;
 }

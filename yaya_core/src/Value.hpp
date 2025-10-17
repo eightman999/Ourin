@@ -30,7 +30,15 @@ public:
     std::string asString() const;
     int asInt() const;
     const std::vector<Value>& asArray() const;
+    std::vector<Value>& asArrayMutable();
     const std::map<std::string, Value>& asDict() const;
+    
+    // Array operations
+    size_t arraySize() const;
+    Value arrayGet(size_t index) const;
+    void arraySet(size_t index, const Value& value);
+    void arrayPush(const Value& value);
+    void arrayConcat(const Value& other);
     
     // Operators
     bool toBool() const;

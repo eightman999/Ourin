@@ -107,7 +107,7 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
     // Assignment or expression
     if (check(TokenType::Identifier)) {
         // Check if this is an assignment
-        if (peek().type == TokenType::Assign || peek().type == TokenType::LeftBracket) {
+        if (peek().type == TokenType::Assign || peek().type == TokenType::LeftBracket || peek().type == TokenType::CommaAssign) {
             return parseAssignment();
         }
     }
@@ -128,6 +128,17 @@ std::shared_ptr<AST::Node> Parser::parseAssignment() {
         auto value = parseExpression();
         // For now, treat this as a simple assignment (array handling is Phase 2)
         return std::make_shared<AST::AssignmentNode>(varName, value);
+    }
+    
+    // Array concatenation assignment: var ,= value
+    if (match(TokenType::CommaAssign)) {
+        auto value = parseExpression();
+        // Create a special node for array concatenation
+        return std::make_shared<AST::CallNode>("__array_concat_assign__", 
+            std::vector<std::shared_ptr<AST::Node>>{
+                std::make_shared<AST::VariableNode>(varName),
+                value
+            });
     }
     
     // Simple assignment: var = value
@@ -390,11 +401,32 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
         return std::make_shared<AST::VariableNode>(name);
     }
     
-    // Parenthesized expression
+    // Parenthesized expression or array literal
     if (match(TokenType::LeftParen)) {
-        auto expr = parseExpression();
-        consume(TokenType::RightParen, "Expected ')' after expression");
-        return expr;
+        // Check if this is an array literal by looking for comma
+        auto firstExpr = parseExpression();
+        
+        if (match(TokenType::Comma)) {
+            // This is an array literal
+            std::vector<std::shared_ptr<AST::Node>> elements;
+            elements.push_back(firstExpr);
+            
+            do {
+                // Allow empty elements or trailing commas
+                if (!check(TokenType::RightParen)) {
+                    elements.push_back(parseExpression());
+                }
+            } while (match(TokenType::Comma) && !check(TokenType::RightParen));
+            
+            consume(TokenType::RightParen, "Expected ')' after array literal");
+            
+            // Create an array literal node
+            return std::make_shared<AST::CallNode>("__array_literal__", elements);
+        } else {
+            // Regular parenthesized expression
+            consume(TokenType::RightParen, "Expected ')' after expression");
+            return firstExpr;
+        }
     }
     
     throw std::runtime_error("Unexpected token in expression at line " + std::to_string(current().line));
