@@ -906,6 +906,550 @@ void VM::registerBuiltins() {
         const char* val = std::getenv(varName.c_str());
         return Value(val ? std::string(val) : "");
     };
+    
+    // ===== File Operations =====
+    // Note: For security, file operations are simplified and may return errors/empty values
+    
+    // FOPEN(filename, mode) - Open file (stub - returns handle number)
+    builtins_["FOPEN"] = [](const std::vector<Value>& args) -> Value {
+        // Security: File operations disabled in this implementation
+        // Return error code
+        return Value(-1);
+    };
+    
+    // FCLOSE(handle) - Close file (stub)
+    builtins_["FCLOSE"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FREAD(handle) - Read from file (stub)
+    builtins_["FREAD"] = [](const std::vector<Value>& args) -> Value {
+        return Value("");
+    };
+    
+    // FWRITE(handle, data) - Write to file (stub)
+    builtins_["FWRITE"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FWRITE2(filename, data) - Write to file directly (stub)
+    builtins_["FWRITE2"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FSIZE(filename) - Get file size (stub)
+    builtins_["FSIZE"] = [](const std::vector<Value>& args) -> Value {
+        return Value(-1);
+    };
+    
+    // FENUM(path, pattern) - Enumerate files (stub)
+    builtins_["FENUM"] = [](const std::vector<Value>& args) -> Value {
+        return Value(std::vector<Value>());
+    };
+    
+    // FCOPY(src, dst) - Copy file (stub)
+    builtins_["FCOPY"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FMOVE(src, dst) - Move file (stub)
+    builtins_["FMOVE"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FDEL(filename) - Delete file (stub)
+    builtins_["FDEL"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FRENAME(old, new) - Rename file (stub)
+    builtins_["FRENAME"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // MKDIR(path) - Create directory (stub)
+    builtins_["MKDIR"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // RMDIR(path) - Remove directory (stub)
+    builtins_["RMDIR"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FSEEK(handle, pos) - Seek in file (stub)
+    builtins_["FSEEK"] = [](const std::vector<Value>& args) -> Value {
+        return Value(-1);
+    };
+    
+    // FTELL(handle) - Get file position (stub)
+    builtins_["FTELL"] = [](const std::vector<Value>& args) -> Value {
+        return Value(-1);
+    };
+    
+    // FCHARSET(filename) - Detect file charset (stub)
+    builtins_["FCHARSET"] = [](const std::vector<Value>& args) -> Value {
+        return Value("UTF-8");
+    };
+    
+    // FATTRIB(filename) - Get file attributes (stub)
+    builtins_["FATTRIB"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FREADBIN(handle) - Read binary from file (stub)
+    builtins_["FREADBIN"] = [](const std::vector<Value>& args) -> Value {
+        return Value("");
+    };
+    
+    // FWRITEBIN(handle, data) - Write binary to file (stub)
+    builtins_["FWRITEBIN"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FREADENCODE(handle, encoding) - Read with encoding (stub)
+    builtins_["FREADENCODE"] = [](const std::vector<Value>& args) -> Value {
+        return Value("");
+    };
+    
+    // FWRITEDECODE(handle, data, encoding) - Write with encoding (stub)
+    builtins_["FWRITEDECODE"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FDIGEST(filename, algorithm) - File hash/digest (stub)
+    builtins_["FDIGEST"] = [](const std::vector<Value>& args) -> Value {
+        return Value("");
+    };
+    
+    // ===== Regular Expression Functions =====
+    // Note: Regular expressions require a regex library - providing stubs
+    
+    // RE_SEARCH(pattern, str) - Search for pattern (stub)
+    builtins_["RE_SEARCH"] = [](const std::vector<Value>& args) -> Value {
+        return Value(-1);
+    };
+    
+    // RE_MATCH(pattern, str) - Match pattern (stub)
+    builtins_["RE_MATCH"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // RE_GREP(pattern, str) - Grep for pattern (stub)
+    builtins_["RE_GREP"] = [](const std::vector<Value>& args) -> Value {
+        return Value(std::vector<Value>());
+    };
+    
+    // RE_REPLACE(pattern, str, replacement) - Replace with regex (stub)
+    builtins_["RE_REPLACE"] = [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value("");
+        return args[1]; // Just return original string
+    };
+    
+    // RE_REPLACEEX(pattern, str, replacement) - Replace extended (stub)
+    builtins_["RE_REPLACEEX"] = [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value("");
+        return args[1];
+    };
+    
+    // RE_SPLIT(pattern, str) - Split by regex (stub - use simple split)
+    builtins_["RE_SPLIT"] = [](const std::vector<Value>& args) -> Value {
+        return Value(std::vector<Value>());
+    };
+    
+    // RE_OPTION(options) - Set regex options (stub)
+    builtins_["RE_OPTION"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // RE_GETSTR() - Get last match string (stub)
+    builtins_["RE_GETSTR"] = [](const std::vector<Value>& args) -> Value {
+        return Value("");
+    };
+    
+    // RE_GETPOS() - Get last match position (stub)
+    builtins_["RE_GETPOS"] = [](const std::vector<Value>& args) -> Value {
+        return Value(-1);
+    };
+    
+    // RE_GETLEN() - Get last match length (stub)
+    builtins_["RE_GETLEN"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // RE_ASEARCH(array, pattern) - Array regex search (stub)
+    builtins_["RE_ASEARCH"] = [](const std::vector<Value>& args) -> Value {
+        return Value(-1);
+    };
+    
+    // RE_ASEARCHEX(array, pattern) - Array regex search extended (stub)
+    builtins_["RE_ASEARCHEX"] = [](const std::vector<Value>& args) -> Value {
+        return Value(std::vector<Value>());
+    };
+    
+    // ===== Encoding/Decoding Functions =====
+    
+    // STRENCODE(str, encoding) - Encode string (stub - URL encode)
+    builtins_["STRENCODE"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        // Simple URL encoding stub
+        return args[0];
+    };
+    
+    // STRDECODE(str, encoding) - Decode string (stub - URL decode)
+    builtins_["STRDECODE"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        // Simple URL decoding stub
+        return args[0];
+    };
+    
+    // GETSTRURLENCODE, GETSTRURLDECODE - Aliases for STRENCODE, STRDECODE
+    builtins_["GETSTRURLENCODE"] = builtins_["STRENCODE"];
+    builtins_["GETSTRURLDECODE"] = builtins_["STRDECODE"];
+    
+    // STRDIGEST(str, algorithm) - String hash/digest (stub)
+    builtins_["STRDIGEST"] = [](const std::vector<Value>& args) -> Value {
+        return Value("");
+    };
+    
+    // CHARSETLIB(encoding) - Set charset for library operations (stub)
+    builtins_["CHARSETLIB"] = [](const std::vector<Value>& args) -> Value {
+        return Value(1);
+    };
+    
+    // CHARSETLIBEX(encoding) - Set charset extended (stub)
+    builtins_["CHARSETLIBEX"] = [](const std::vector<Value>& args) -> Value {
+        return Value(1);
+    };
+    
+    // CHARSETTEXTTOID(text) - Convert charset name to ID (stub)
+    builtins_["CHARSETTEXTTOID"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // CHARSETIDTOTEXT(id) - Convert charset ID to name (stub)
+    builtins_["CHARSETIDTOTEXT"] = [](const std::vector<Value>& args) -> Value {
+        return Value("UTF-8");
+    };
+    
+    // ZEN2HAN(str) - Convert full-width to half-width (stub)
+    builtins_["ZEN2HAN"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        return args[0];
+    };
+    
+    // HAN2ZEN(str) - Convert half-width to full-width (stub)
+    builtins_["HAN2ZEN"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        return args[0];
+    };
+    
+    // ===== Additional Variable/Function Management =====
+    
+    // SAVEVAR(filename) - Save variables to file (stub)
+    builtins_["SAVEVAR"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // RESTOREVAR(filename) - Restore variables from file (stub)
+    builtins_["RESTOREVAR"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // DUMPVAR() - Dump all variables (for debugging)
+    builtins_["DUMPVAR"] = [this](const std::vector<Value>& args) -> Value {
+        (void)args;
+        std::string result;
+        for (const auto& pair : variables_) {
+            result += pair.first + " = " + pair.second.asString() + "\n";
+        }
+        return Value(result);
+    };
+    
+    // LOGGING(message) - Log message (stub - just returns success)
+    builtins_["LOGGING"] = [](const std::vector<Value>& args) -> Value {
+        return Value(1);
+    };
+    
+    // LETTONAME(varname, value) - Assign to variable by name
+    builtins_["LETTONAME"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value(0);
+        std::string varName = args[0].asString();
+        setVariable(varName, args[1]);
+        return Value(1);
+    };
+    
+    // LSO() - Get last selected option (stub)
+    builtins_["LSO"] = [](const std::vector<Value>& args) -> Value {
+        (void)args;
+        return Value(0);
+    };
+    
+    // ISEVALUABLE(str) - Check if string is evaluable (stub)
+    builtins_["ISEVALUABLE"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        return Value(1);
+    };
+    
+    // DICLOAD(filename) - Load dictionary file (stub)
+    builtins_["DICLOAD"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // DICUNLOAD(filename) - Unload dictionary file (stub)
+    builtins_["DICUNLOAD"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // UNDEFFUNC(funcname) - Undefine function (stub)
+    builtins_["UNDEFFUNC"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // ===== Additional System/Utility Functions =====
+    
+    // EXECUTE(command) - Execute system command (stub - security risk)
+    builtins_["EXECUTE"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // EXECUTE_WAIT(command) - Execute and wait (stub - security risk)
+    builtins_["EXECUTE_WAIT"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // SLEEP(milliseconds) - Sleep (stub - not implemented in this context)
+    builtins_["SLEEP"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // GETMEMINFO() - Get memory information (stub)
+    builtins_["GETMEMINFO"] = [](const std::vector<Value>& args) -> Value {
+        return Value(std::vector<Value>());
+    };
+    
+    // READFMO(name) - Read from FMO (Forged Memory Object) (stub)
+    builtins_["READFMO"] = [](const std::vector<Value>& args) -> Value {
+        return Value("");
+    };
+    
+    // SETTAMAHWND(hwnd) - Set TAMA window handle (stub - Windows-specific)
+    builtins_["SETTAMAHWND"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // TRANSLATE(str, mode) - Translate string (stub)
+    builtins_["TRANSLATE"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        return args[0];
+    };
+    
+    // LICENSE() - Get license information
+    builtins_["LICENSE"] = [](const std::vector<Value>& args) -> Value {
+        (void)args;
+        return Value("YAYA_core - YAYA interpreter for Ourin\nBased on YAYA specification");
+    };
+    
+    // SPLITPATH(path) - Split file path into components
+    builtins_["SPLITPATH"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(std::vector<Value>());
+        std::string path = args[0].asString();
+        
+        std::vector<Value> result;
+        // Simple split by / or backslash
+        size_t pos = 0;
+        size_t found;
+        while ((found = path.find_first_of("/\\\\", pos)) != std::string::npos) {
+            if (found > pos) {
+                result.push_back(Value(path.substr(pos, found - pos)));
+            }
+            pos = found + 1;
+        }
+        if (pos < path.length()) {
+            result.push_back(Value(path.substr(pos)));
+        }
+        
+        return Value(result);
+    };
+    
+    // GETSTRBYTES(str) - Get string byte length
+    builtins_["GETSTRBYTES"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        return Value(static_cast<int>(args[0].asString().length()));
+    };
+    
+    // ASEARCHEX(array, value, start) - Array search from position
+    builtins_["ASEARCHEX"] = [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value(-1);
+        if (args[0].getType() != Value::Type::Array) return Value(-1);
+        
+        const auto& arr = args[0].asArray();
+        const Value& searchVal = args[1];
+        int start = (args.size() >= 3) ? args[2].asInt() : 0;
+        
+        if (start < 0) start = 0;
+        
+        for (size_t i = start; i < arr.size(); i++) {
+            if (arr[i] == searchVal) {
+                return Value(static_cast<int>(i));
+            }
+        }
+        return Value(-1);
+    };
+    
+    // GETDELIM() - Get delimiter (stub)
+    builtins_["GETDELIM"] = [](const std::vector<Value>& args) -> Value {
+        (void)args;
+        return Value(",");
+    };
+    
+    // SETDELIM(delim) - Set delimiter (stub)
+    builtins_["SETDELIM"] = [](const std::vector<Value>& args) -> Value {
+        return Value(1);
+    };
+    
+    // GETSETTING(key) - Get setting (stub)
+    builtins_["GETSETTING"] = [](const std::vector<Value>& args) -> Value {
+        return Value("");
+    };
+    
+    // SETSETTING(key, value) - Set setting (stub)
+    builtins_["SETSETTING"] = [](const std::vector<Value>& args) -> Value {
+        return Value(1);
+    };
+    
+    // GETLASTERROR() - Get last error code
+    builtins_["GETLASTERROR"] = [](const std::vector<Value>& args) -> Value {
+        (void)args;
+        return Value(0);
+    };
+    
+    // SETLASTERROR(code) - Set last error code
+    builtins_["SETLASTERROR"] = [](const std::vector<Value>& args) -> Value {
+        return Value(1);
+    };
+    
+    // GETERRORLOG() - Get error log (stub)
+    builtins_["GETERRORLOG"] = [](const std::vector<Value>& args) -> Value {
+        (void)args;
+        return Value("");
+    };
+    
+    // CLEARERRORLOG() - Clear error log
+    builtins_["CLEARERRORLOG"] = [](const std::vector<Value>& args) -> Value {
+        (void)args;
+        return Value(1);
+    };
+    
+    // GETCALLSTACK() - Get call stack (stub)
+    builtins_["GETCALLSTACK"] = [](const std::vector<Value>& args) -> Value {
+        (void)args;
+        return Value(std::vector<Value>());
+    };
+    
+    // GETFUNCINFO(funcname) - Get function information (stub)
+    builtins_["GETFUNCINFO"] = [](const std::vector<Value>& args) -> Value {
+        return Value("");
+    };
+    
+    // LOADLIB(filename) - Load SAORI library (stub - not supported)
+    builtins_["LOADLIB"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // UNLOADLIB(filename) - Unload SAORI library (stub)
+    builtins_["UNLOADLIB"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // REQUESTLIB(filename, args) - Request from SAORI library (stub)
+    builtins_["REQUESTLIB"] = [](const std::vector<Value>& args) -> Value {
+        return Value("");
+    };
+    
+    // GETTYPEEX(value) - Get extended type information
+    builtins_["GETTYPEEX"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("void");
+        switch (args[0].getType()) {
+            case Value::Type::Void: return Value("void");
+            case Value::Type::Integer: return Value("int");
+            case Value::Type::String: return Value("str");
+            case Value::Type::Array: return Value("array");
+            case Value::Type::Dictionary: return Value("dict");
+            default: return Value("unknown");
+        }
+    };
+    
+    // TOAUTO(value) - Auto-convert type (tries to detect best type)
+    builtins_["TOAUTO"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value();
+        return args[0]; // Just return as-is
+    };
+    
+    // TOAUTOEX(value) - Auto-convert extended
+    builtins_["TOAUTOEX"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value();
+        return args[0];
+    };
+    
+    // CVAUTO, CVAUTOEX - Aliases for TOAUTO, TOAUTOEX
+    builtins_["CVAUTO"] = builtins_["TOAUTO"];
+    builtins_["CVAUTOEX"] = builtins_["TOAUTOEX"];
+    
+    // ===== Advanced/Undocumented Functions =====
+    
+    // ISGLOBALDEFINE(name) - Check if global define exists (stub)
+    builtins_["ISGLOBALDEFINE"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // SETGLOBALDEFINE(name, value) - Set global define (stub)
+    builtins_["SETGLOBALDEFINE"] = [](const std::vector<Value>& args) -> Value {
+        return Value(1);
+    };
+    
+    // UNDEFGLOBALDEFINE(name) - Undefine global define (stub)
+    builtins_["UNDEFGLOBALDEFINE"] = [](const std::vector<Value>& args) -> Value {
+        return Value(1);
+    };
+    
+    // PROCESSGLOBALDEFINE(str) - Process global defines (stub)
+    builtins_["PROCESSGLOBALDEFINE"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        return args[0];
+    };
+    
+    // APPEND_RUNTIME_DIC(code) - Append runtime dictionary (stub)
+    builtins_["APPEND_RUNTIME_DIC"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FUNCDECL_READ(funcname) - Read function declaration (stub)
+    builtins_["FUNCDECL_READ"] = [](const std::vector<Value>& args) -> Value {
+        return Value("");
+    };
+    
+    // FUNCDECL_WRITE(funcname, decl) - Write function declaration (stub)
+    builtins_["FUNCDECL_WRITE"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // FUNCDECL_ERASE(funcname) - Erase function declaration (stub)
+    builtins_["FUNCDECL_ERASE"] = [](const std::vector<Value>& args) -> Value {
+        return Value(0);
+    };
+    
+    // OUTPUTNUM(format, number) - Format number output (stub)
+    builtins_["OUTPUTNUM"] = [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value("");
+        return Value(args[1].asString());
+    };
+    
+    // EmBeD_HiStOrY - Embedded history function (stub)
+    builtins_["EmBeD_HiStOrY"] = [](const std::vector<Value>& args) -> Value {
+        (void)args;
+        return Value("");
+    };
 }
 
 // Interpolate embedded expressions in strings like %(_varname) or %(funcname())
