@@ -27,6 +27,7 @@ final class YayaAdapter {
     private var proc = Process()
     private var inPipe = Pipe()
     private var outPipe = Pipe()
+    private var errPipe = Pipe()
 
     /// Create adapter. The helper executable is searched in the app bundle by default.
     init?() {
@@ -37,6 +38,16 @@ final class YayaAdapter {
         proc.executableURL = url
         proc.standardInput = inPipe
         proc.standardOutput = outPipe
+        proc.standardError = errPipe
+
+        // Monitor stderr in background
+        errPipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            if let str = String(data: data, encoding: .utf8), !str.isEmpty {
+                NSLog("[yaya_core stderr] \(str.trimmingCharacters(in: .newlines))")
+            }
+        }
+
         do {
             try proc.run()
             NSLog("[YayaAdapter] Launched yaya_core at \(url.path)")
@@ -75,9 +86,23 @@ final class YayaAdapter {
 
     /// Load dictionaries for a ghost and perform capability handshake.
     func load(ghostRoot: URL, dics: [String], encoding: String = "utf-8") -> Bool {
+        NSLog("[YayaAdapter] load() called with ghostRoot: \(ghostRoot.path), dics: \(dics.count) files")
         let req = YayaRequest(cmd: "load", ghost_root: ghostRoot.path, dic: dics, encoding: encoding, env: ["LANG":"ja_JP.UTF-8"], method: nil, id: nil, headers: ["Charset":"UTF-8"], ref: nil)
-        guard (try? exchange(req)?.ok) == true else { return false }
+
+        do {
+            let response = try exchange(req)
+            NSLog("[YayaAdapter] load() response: ok=\(response?.ok ?? false), status=\(response?.status ?? -1), error=\(response?.error ?? "nil")")
+            guard response?.ok == true else {
+                NSLog("[YayaAdapter] load() failed: response.ok is false or nil")
+                return false
+            }
+        } catch {
+            NSLog("[YayaAdapter] load() exchange threw error: \(error)")
+            return false
+        }
+
         _ = capability()
+        NSLog("[YayaAdapter] load() succeeded")
         return true
     }
 
