@@ -1,0 +1,113 @@
+// Phase 2 Features Demo
+// Demonstrates array operations, interpolation, and Emily4 patterns
+
+// Bare function call example
+GetTimeSlot
+{
+    _hour = GETTIME[4]
+    if _hour < 12 {
+        "morning"
+    }
+    else {
+        if _hour < 18 {
+            "afternoon"
+        }
+        else {
+            "evening"
+        }
+    }
+}
+
+// Array-typed function
+RandomGreeting : array
+{
+    "こんにちは！"
+    "やあ！"
+    "おっす！"
+}
+
+// Time-specific boot messages
+OnBoot_morning
+{
+    "おはよう！今日も良い一日を！"
+}
+
+OnBoot_afternoon
+{
+    "こんにちは！お昼ご飯は食べた？"
+}
+
+OnBoot_evening
+{
+    "こんばんは！今日はどうだった？"
+}
+
+// Main boot function using Phase 2 features
+OnBoot
+{
+    // Bare function call (no parentheses)
+    _timeslot = GetTimeSlot
+    
+    // String interpolation
+    _funcname = "OnBoot_%(_timeslot)"
+    
+    // Dynamic function checking and calling
+    if ISFUNC(_funcname) {
+        _message = EVAL(_funcname)
+    }
+    else {
+        _message = "Hello!"
+    }
+    
+    // Array operations
+    _greetings = RandomGreeting
+    _random_greeting = _greetings[RAND(ARRAYSIZE(_greetings))]
+    
+    // Result
+    "\0\s[0]" + _message + "\n" + _random_greeting + "\e"
+}
+
+// Array concatenation example
+OnTest
+{
+    _choices = IARRAY
+    _choices ,= "Option A"
+    _choices ,= "Option B"
+    _choices ,= "Option C"
+    
+    if ARRAYSIZE(_choices) {
+        _selected = _choices[RAND(ARRAYSIZE(_choices))]
+        "\0\s[1]Selected: " + _selected + "\e"
+    }
+    else {
+        "\0\s[0]No options available\e"
+    }
+}
+
+// Complex Emily4-style pattern
+OnAiTalk
+{
+    _array = IARRAY
+    
+    // Add time-specific talks
+    _slot = GetTimeSlot
+    if ISFUNC("OnBoot_%(_slot)") {
+        _array ,= EVAL("OnBoot_%(_slot)")
+    }
+    
+    // Add random greetings
+    _greetings = RandomGreeting
+    _n = ARRAYSIZE(_greetings)
+    if _n {
+        _array ,= _greetings[RAND(_n)]
+    }
+    
+    // Select from combined array
+    if ARRAYSIZE(_array) {
+        _result = _array[RAND(ARRAYSIZE(_array))]
+        "\0\s[0]" + _result + "\e"
+    }
+    else {
+        "\0\s[0]...\e"
+    }
+}

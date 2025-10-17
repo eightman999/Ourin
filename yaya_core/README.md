@@ -273,3 +273,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 **Maintainer**: Ourin Project  
 **Contact**: https://github.com/eightman999/Ourin
+
+---
+
+## Xcode Integration
+
+### Quick Setup
+
+1. Build yaya_core:
+   ```bash
+   cd yaya_core
+   ./build.sh
+   ```
+
+2. In Xcode, add to Ourin target's "Copy Files" build phase:
+   - Destination: "Executables"
+   - File: `yaya_core/build/yaya_core`
+
+3. The binary will be accessible via:
+   ```swift
+   Bundle.main.url(forAuxiliaryExecutable: "yaya_core")
+   ```
+
+### Automated Build (Optional)
+
+Add a "Run Script" build phase before "Copy Files":
+
+```bash
+cd "${SRCROOT}/yaya_core"
+if [ ! -f "build/yaya_core" ] || [ "src" -nt "build/yaya_core" ]; then
+    ./build.sh
+fi
+```
+
+This automatically rebuilds yaya_core when source files change.
+
