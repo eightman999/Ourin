@@ -119,9 +119,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// Install bundled emily4.nar and run it if present
     func installDefaultGhost() {
         if let url = Bundle.main.url(forResource: "emily4", withExtension: "nar") {
+            NSLog("[installDefaultGhost] Found emily4.nar at: \(url.path)")
             installNar(at: url)
         } else {
-            NSLog("Bundled emily4.nar not found")
+            NSLog("[installDefaultGhost] Bundled emily4.nar not found")
+            // If emily4.nar is not bundled, try to run emily4 if it's already installed
+            if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == "emily4" }) {
+                NSLog("[installDefaultGhost] emily4 already installed, running it")
+                runGhost(at: ghost.path)
+            }
         }
     }
 
@@ -139,16 +145,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func installNar(at url: URL) {
+        NSLog("[installNar] Installing NAR from: \(url.path)")
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let target = try self.narInstaller.install(fromNar: url)
+                NSLog("[installNar] Installed to: \(target.path)")
                 DispatchQueue.main.async {
                     NSApp.presentAlert(style: .informational,
                                        title: "Installed",
                                        text: "Installed: \(url.lastPathComponent)")
+                    NSLog("[installNar] Running ghost at: \(target.path)")
                     self.runGhost(at: target)
                 }
+            } catch NarInstaller.Error.directoryConflict(let ghostName) {
+                NSLog("[installNar] Ghost \(ghostName) already installed, running it instead")
+                // Find the already-installed ghost and run it
+                DispatchQueue.main.async {
+                    if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == ghostName }) {
+                        NSLog("[installNar] Found already-installed ghost at: \(ghost.path.path)")
+                        self.runGhost(at: ghost.path)
+                    } else {
+                        NSLog("[installNar] Could not find already-installed ghost: \(ghostName)")
+                        NSApp.presentAlert(style: .warning,
+                                           title: "Ghost conflict",
+                                           text: "Ghost '\(ghostName)' is already installed but could not be loaded.")
+                    }
+                }
             } catch {
+                NSLog("[installNar] Install failed: \(error)")
                 DispatchQueue.main.async {
                     NSApp.presentAlert(style: .critical,
                                        title: "Install failed",
@@ -159,15 +183,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func runGhost(at root: URL) {
+        NSLog("[runGhost] Starting ghost from: \(root.path)")
         // If a ghost is already running, shut it down first.
         if let existingManager = self.ghostManager {
+            NSLog("[runGhost] Shutting down existing ghost")
             existingManager.shutdown()
             self.ghostManager = nil
         }
 
         // Create and start the new ghost manager.
+        NSLog("[runGhost] Creating GhostManager for: \(root.path)")
         let newManager = GhostManager(ghostURL: root)
         self.ghostManager = newManager
+        NSLog("[runGhost] Starting GhostManager")
         newManager.start()
     }
 

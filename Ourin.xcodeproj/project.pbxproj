@@ -23,11 +23,59 @@
 		};
 /* End PBXContainerItemProxy section */
 
+
+/* Begin PBXShellScriptBuildPhase section */
+		FB9B89652D3B4A46A677B797 /* Build yaya_core */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build yaya_core";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd \"${SRCROOT}/yaya_core\"
+if [ ! -f \"build/yaya_core\" ] || [ \"src\" -nt \"build/yaya_core\" ]; then
+    ./build.sh
+fi
+";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+
+/* Begin PBXCopyFilesBuildPhase section */
+		77944998B8914360ADE8454F /* Copy yaya_core */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				A0F475111AF14D23831E8DFA /* yaya_core in Copy Files */,
+			);
+			name = "Copy yaya_core";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		DF88A7F02E35199C00644F8A /* Ourin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ourin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF88A7FE2E35199D00644F8A /* OurinTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF88A8082E35199D00644F8A /* OurinUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4461E2FD564847458C545C0E /* yaya_core */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = yaya_core; path = yaya_core/build/yaya_core; sourceTree = "<group>"; };
+		8684A3B06E824388A6939F39 /* emily4.nar */ = {isa = PBXFileReference; lastKnownFileType = archive; path = emily4.nar; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXBuildFile section */
+		A0F475111AF14D23831E8DFA /* yaya_core in Copy Files */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */ = {isa = PBXBuildFile; fileRef = 8684A3B06E824388A6939F39 /* emily4.nar */; };
+/* End PBXBuildFile section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DF88A7F22E35199C00644F8A /* Ourin */ = {
@@ -99,9 +147,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = DF88A8122E35199D00644F8A /* Build configuration list for PBXNativeTarget "Ourin" */;
 			buildPhases = (
+				FB9B89652D3B4A46A677B797 /* Build yaya_core */,
 				DF88A7EC2E35199C00644F8A /* Sources */,
 				DF88A7ED2E35199C00644F8A /* Frameworks */,
 				DF88A7EE2E35199C00644F8A /* Resources */,
+				77944998B8914360ADE8454F /* Copy yaya_core */,
 			);
 			buildRules = (
 			);
@@ -213,7 +263,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
+			3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */,
+				);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		DF88A7FC2E35199D00644F8A /* Resources */ = {

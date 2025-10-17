@@ -50,37 +50,47 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // MARK: - Public API
 
     func start() {
+        NSLog("[GhostManager] start() called for ghost at: \(ghostURL.path)")
         setupWindows()
+        NSLog("[GhostManager] Windows setup complete")
 
         DispatchQueue.global(qos: .userInitiated).async {
             let ghostRoot = self.ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
+            NSLog("[GhostManager] Ghost root: \(ghostRoot.path)")
             let fm = FileManager.default
 
             guard let contents = try? fm.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil) else {
-                print("Failed to read contents of \(ghostRoot.path)")
+                NSLog("[GhostManager] Failed to read contents of \(ghostRoot.path)")
                 return
             }
 
             let dics = contents.filter { $0.pathExtension.lowercased() == "dic" }.map { $0.lastPathComponent }
+            NSLog("[GhostManager] Found \(dics.count) .dic files: \(dics)")
 
             guard let adapter = YayaAdapter() else {
-                print("Failed to initialize YayaAdapter.")
+                NSLog("[GhostManager] Failed to initialize YayaAdapter.")
                 return
             }
+            NSLog("[GhostManager] YayaAdapter initialized successfully")
 
             self.yayaAdapter = adapter
 
             guard adapter.load(ghostRoot: ghostRoot, dics: dics) else {
-                print("Failed to load ghost with Yaya.")
+                NSLog("[GhostManager] Failed to load ghost with Yaya.")
                 return
             }
 
-            if let res = adapter.request(method: "GET", id: "OnBoot"), res.ok, let script = res.value {
+            NSLog("[GhostManager] Ghost loaded, requesting OnBoot...")
+            let res = adapter.request(method: "GET", id: "OnBoot")
+            NSLog("[GhostManager] OnBoot response: ok=\(res?.ok ?? false), value=\(res?.value?.prefix(100) ?? "nil")")
+
+            if let res = res, res.ok, let script = res.value {
+                NSLog("[GhostManager] OnBoot script received: \(script.prefix(200))")
                 DispatchQueue.main.async {
                     self.runScript(script)
                 }
             } else {
-                print("OnBoot script request failed or returned no script.")
+                NSLog("[GhostManager] OnBoot script request failed or returned no script. Showing default surface.")
                 // Even if OnBoot fails, we might want to show a default surface.
                 DispatchQueue.main.async {
                     self.updateSurface(id: 0)
@@ -101,6 +111,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // MARK: - Window Setup
 
     private func setupWindows() {
+        NSLog("[GhostManager] Setting up windows")
         // Create Character Window
         let characterView = CharacterView(viewModel: self.characterViewModel)
         let hostingController = NSHostingController(rootView: characterView)
@@ -114,6 +125,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         window.setFrame(.init(x: 200, y: 200, width: 300, height: 400), display: true)
         window.makeKeyAndOrderFront(nil)
         self.characterWindow = window
+        NSLog("[GhostManager] Character window created at (200, 200, 300x400)")
 
         // Create Balloon Window
         let balloonView = BalloonView(viewModel: self.balloonViewModel)
@@ -128,11 +140,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         bWindow.setFrame(.init(x: 450, y: 300, width: 250, height: 200), display: true)
         bWindow.makeKeyAndOrderFront(nil)
         self.balloonWindow = bWindow
+        NSLog("[GhostManager] Balloon window created at (450, 300, 250x200)")
     }
 
     // MARK: - Scripting
 
     func runScript(_ script: String) {
+        NSLog("[GhostManager] runScript called with: \(script.prefix(200))")
         // Reset balloon text for new script
         balloonViewModel.text = ""
         sakuraEngine.run(script: script)
@@ -144,9 +158,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         switch token {
         case .scope(let id):
             currentScope = id
-            print("Switched to scope \(id)")
+            NSLog("[GhostManager] Switched to scope \(id)")
 
         case .surface(let id):
+            NSLog("[GhostManager] Updating surface to id: \(id)")
             updateSurface(id: id)
 
         case .text(let text):
@@ -157,11 +172,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
         case .end:
             // The view updates automatically. We could do cleanup here if needed.
-            print("Script end. Final text: \(balloonViewModel.text)")
+            NSLog("[GhostManager] Script end. Final text: \(balloonViewModel.text)")
 
         case .animation, .command:
             // TODO: Handle other tokens
-            print("Received unhandled token: \(token)")
+            NSLog("[GhostManager] Received unhandled token: \(token)")
         }
     }
 
@@ -191,12 +206,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let surfaceFilename = String(format: "surface%@%d.png", surfacePrefix, surfaceId)
         let imageURL = shellURL.appendingPathComponent(surfaceFilename)
 
-        print("Loading image: \(imageURL.path)")
+        NSLog("[GhostManager] Loading image: \(imageURL.path)")
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            print("Image not found at path: \(imageURL.path)")
+            NSLog("[GhostManager] Image not found at path: \(imageURL.path)")
             return nil
         }
 
-        return NSImage(contentsOf: imageURL)
+        let image = NSImage(contentsOf: imageURL)
+        NSLog("[GhostManager] Image loaded successfully: \(image != nil)")
+        return image
     }
 }

@@ -19,6 +19,50 @@ enum ZipUtil {
             let err = String(data: data, encoding: .utf8) ?? "unknown"
             throw NarInstaller.Error.unzipFailed(err)
         }
+
+        // Windows形式のパス区切り文字（バックスラッシュ）を含むファイルを正規化
+        try normalizeWindowsPaths(at: dst)
+    }
+
+    /// Windows形式のパス（バックスラッシュ区切り）を含むファイルを、正しいディレクトリ構造に変換
+    private static func normalizeWindowsPaths(at root: URL) throws {
+        let fm = FileManager.default
+        guard let enumerator = fm.enumerator(at: root, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsSubdirectoryDescendants]) else { return }
+
+        var filesToMove: [(from: URL, to: URL)] = []
+
+        // 最初のレベルのみをスキャンして、バックスラッシュを含むファイル/ディレクトリを検出
+        for case let fileURL as URL in enumerator {
+            let filename = fileURL.lastPathComponent
+            if filename.contains("\\") {
+                // バックスラッシュをスラッシュに置き換えてパスを正規化
+                let normalizedPath = filename.replacingOccurrences(of: "\\", with: "/")
+                let targetURL = root.appendingPathComponent(normalizedPath)
+                filesToMove.append((from: fileURL, to: targetURL))
+            }
+        }
+
+        // バックスラッシュを含むファイルを移動
+        for (fromURL, toURL) in filesToMove {
+            // ターゲットのディレクトリを作成
+            let targetDir = toURL.deletingLastPathComponent()
+            try fm.createDirectory(at: targetDir, withIntermediateDirectories: true)
+
+            // ファイル/ディレクトリを移動
+            if fm.fileExists(atPath: toURL.path) {
+                try fm.removeItem(at: toURL)
+            }
+            try fm.moveItem(at: fromURL, to: toURL)
+        }
+
+        // 再帰的に全サブディレクトリを処理
+        guard let fullEnumerator = fm.enumerator(at: root, includingPropertiesForKeys: [.isDirectoryKey], options: []) else { return }
+        for case let dirURL as URL in fullEnumerator {
+            let vals = try dirURL.resourceValues(forKeys: [.isDirectoryKey])
+            if vals.isDirectory == true {
+                try normalizeWindowsPaths(at: dirURL)
+            }
+        }
     }
 
     /// Zip Slip 対策：dst 内へのコピー時に、正規化した最終パスが必ずターゲット配下であることを確認
