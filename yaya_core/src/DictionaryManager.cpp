@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <chrono>
 
 DictionaryManager::DictionaryManager() {
     vm_ = std::make_unique<VM>();
@@ -31,6 +32,8 @@ std::string DictionaryManager::loadFile(const std::string& path) {
 bool DictionaryManager::parseDictionary(const std::string& content) {
     try {
         std::cerr << "[DictionaryManager] Tokenizing..." << std::endl;
+        auto start_time = std::chrono::steady_clock::now();
+
         // Tokenize
         Lexer lexer(content);
         auto tokens = lexer.tokenize();
@@ -40,7 +43,15 @@ bool DictionaryManager::parseDictionary(const std::string& content) {
         Parser parser(tokens);
         std::cerr << "[DictionaryManager] Parser created, calling parse()..." << std::endl;
         auto functions = parser.parse();
-        std::cerr << "[DictionaryManager] Parsed " << functions.size() << " functions, registering..." << std::endl;
+
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+        std::cerr << "[DictionaryManager] Parsed " << functions.size() << " functions in " << duration << "ms" << std::endl;
+
+        // ★ Timeout check
+        if (duration > 10000) { // 10 seconds
+            std::cerr << "[DictionaryManager] WARNING: Parsing took too long (" << duration << "ms)" << std::endl;
+        }
 
         // Register functions in VM
         for (const auto& func : functions) {

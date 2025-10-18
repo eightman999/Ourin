@@ -41,6 +41,20 @@ void Lexer::skipComment() {
         }
         return;
     }
+    // Line comment -- (YAYA/Lua-style)
+    if (current() == '-' && peek() == '-') {
+        while (current() != '\0' && current() != '\n') {
+            advance();
+        }
+        return;
+    }
+    // Line comment starting with '#'
+    if (current() == '#') {
+        while (current() != '\0' && current() != '\n') {
+            advance();
+        }
+        return;
+    }
     
     // Block comment /* */
     if (current() == '/' && peek() == '*') {
@@ -121,20 +135,32 @@ Token Lexer::readIdentifier() {
     TokenType type = TokenType::Identifier;
     if (value == "if") type = TokenType::If;
     else if (value == "else") type = TokenType::Else;
+    else if (value == "elseif") type = TokenType::ElseIf;
     else if (value == "while") type = TokenType::While;
     else if (value == "foreach") type = TokenType::Foreach;
+    else if (value == "for") type = TokenType::For;
     
     return Token(type, value, startLine, startCol);
 }
 
 std::vector<Token> Lexer::tokenize() {
     std::vector<Token> tokens;
-    
+    // Skip UTF-8 BOM if present
+    if (pos_ == 0 && source_.size() >= 3 &&
+        static_cast<unsigned char>(source_[0]) == 0xEF &&
+        static_cast<unsigned char>(source_[1]) == 0xBB &&
+        static_cast<unsigned char>(source_[2]) == 0xBF) {
+        pos_ = 3;
+        column_ = 4; // 1-based column; advanced by 3
+    }
+
     while (current() != '\0') {
         skipWhitespace();
         
         // Skip comments
-        if (current() == '/' && (peek() == '/' || peek() == '*')) {
+        if ((current() == '/' && (peek() == '/' || peek() == '*')) ||
+            (current() == '-' && peek() == '-') ||
+            (current() == '#')) {
             skipComment();
             continue;
         }
@@ -153,6 +179,18 @@ std::vector<Token> Lexer::tokenize() {
             continue;
         }
         
+        // Here-doc block starting with <<' or <<"
+        if (ch == '<' && peek() == '<' && (peek(2) == '\'' || peek(2) == '"')) {
+            char q = peek(2);
+            // consume <<q
+            advance(); advance(); advance();
+            // consume optional end of line (CR/LF)
+            if (current() == '\r') advance();
+            if (current() == '\n') advance();
+            tokens.push_back(readHereDoc(q));
+            continue;
+        }
+
         // String (double or single quotes)
         if (ch == '"' || ch == '\'') {
             tokens.push_back(readString());
@@ -172,6 +210,16 @@ std::vector<Token> Lexer::tokenize() {
         }
         
         // Two-character operators
+        if (ch == '+' && peek() == '+') {
+            tokens.push_back(Token(TokenType::PlusPlus, "++", startLine, startCol));
+            advance(); advance();
+            continue;
+        }
+        if (ch == '-' && peek() == '-') {
+            tokens.push_back(Token(TokenType::MinusMinus, "--", startLine, startCol));
+            advance(); advance();
+            continue;
+        }
         if (ch == '=' && peek() == '=') {
             tokens.push_back(Token(TokenType::Equal, "==", startLine, startCol));
             advance(); advance();
@@ -207,6 +255,32 @@ std::vector<Token> Lexer::tokenize() {
             advance(); advance();
             continue;
         }
+        // Compound assignments
+        if (ch == '+' && peek() == '=') {
+            tokens.push_back(Token(TokenType::PlusAssign, "+=", startLine, startCol));
+            advance(); advance();
+            continue;
+        }
+        if (ch == '-' && peek() == '=') {
+            tokens.push_back(Token(TokenType::MinusAssign, "-=", startLine, startCol));
+            advance(); advance();
+            continue;
+        }
+        if (ch == '*' && peek() == '=') {
+            tokens.push_back(Token(TokenType::StarAssign, "*=", startLine, startCol));
+            advance(); advance();
+            continue;
+        }
+        if (ch == '/' && peek() == '=') {
+            tokens.push_back(Token(TokenType::SlashAssign, "/=", startLine, startCol));
+            advance(); advance();
+            continue;
+        }
+        if (ch == '%' && peek() == '=') {
+            tokens.push_back(Token(TokenType::PercentAssign, "%=", startLine, startCol));
+            advance(); advance();
+            continue;
+        }
         
         // Single-character tokens
         switch (ch) {
@@ -229,6 +303,8 @@ std::vector<Token> Lexer::tokenize() {
             case ':': tokens.push_back(Token(TokenType::Colon, ":", startLine, startCol)); break;
             case '?': tokens.push_back(Token(TokenType::Question, "?", startLine, startCol)); break;
             case '.': tokens.push_back(Token(TokenType::Dot, ".", startLine, startCol)); break;
+            case ';': tokens.push_back(Token(TokenType::Semicolon, ";", startLine, startCol)); break;
+            case '&': tokens.push_back(Token(TokenType::Ampersand, "&", startLine, startCol)); break;
             default:
                 tokens.push_back(Token(TokenType::Unknown, std::string(1, ch), startLine, startCol));
                 break;
@@ -239,4 +315,47 @@ std::vector<Token> Lexer::tokenize() {
     
     tokens.push_back(Token(TokenType::EndOfFile, "", line_, column_));
     return tokens;
+}
+
+Token Lexer::readHereDoc(char quote) {
+    int startLine = line_;
+    int startCol = column_;
+    std::string value;
+
+    // Read until a line that begins (ignoring spaces/tabs) with quote + ">>"
+    bool atLineStart = true;
+    while (current() != '\0') {
+        // Check for terminator only at the start of a line
+        if (atLineStart) {
+            // Skip spaces/tabs at the start of the line
+            size_t k = pos_;
+            while (k < source_.size() && (source_[k] == ' ' || source_[k] == '\t')) {
+                k++;
+            }
+            if (k + 2 < source_.size() && source_[k] == quote && source_[k+1] == '>' && source_[k+2] == '>') {
+                // Advance past the terminator
+                pos_ = k + 3;
+                column_ += static_cast<int>((k + 3) - pos_); // column_ will be corrected below on newline
+                // Consume optional CR/LF after terminator
+                if (current() == '\r') advance();
+                if (current() == '\n') advance();
+                break;
+            }
+        }
+
+        char c = current();
+        value += c;
+        advance();
+
+        if (c == '\n') {
+            atLineStart = true;
+        } else if (c == '\r') {
+            // CR may be followed by LF
+            atLineStart = true;
+        } else {
+            atLineStart = false;
+        }
+    }
+
+    return Token(TokenType::String, value, startLine, startCol);
 }

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */ = {isa = PBXBuildFile; fileRef = 8684A3B06E824388A6939F39 /* emily4.nar */; };
 		A0F475111AF14D23831E8DFA /* yaya_core in Copy yaya_core */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		DFC17CB12EA33CC600D2F390 /* yaya_core in Resources */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -246,6 +247,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFC17CB12EA33CC600D2F390 /* yaya_core in Resources */,
 				3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

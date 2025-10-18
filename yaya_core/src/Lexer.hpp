@@ -15,6 +15,8 @@ enum class TokenType {
     Star,
     Slash,
     Percent,
+    PlusPlus,     // ++
+    MinusMinus,   // --
     
     // Comparison
     Equal,
@@ -27,6 +29,11 @@ enum class TokenType {
     // Assignment
     Assign,
     CommaAssign,  // ,= for array concatenation
+    PlusAssign,   // +=
+    MinusAssign,  // -=
+    StarAssign,   // *=
+    SlashAssign,  // /=
+    PercentAssign,// %=
     
     // Logical
     And,
@@ -44,12 +51,16 @@ enum class TokenType {
     Colon,
     Question,
     Dot,
+    Semicolon,
+    Ampersand,
     
     // Keywords
     If,
     Else,
+    ElseIf,
     While,
     Foreach,
+    For,
     
     // Special
     Newline,
@@ -85,6 +96,7 @@ private:
     void skipComment();
     
     Token readString();
+    Token readHereDoc(char quote);
     Token readNumber();
     Token readIdentifier();
 };

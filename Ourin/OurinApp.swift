@@ -99,11 +99,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         hRegistry.discoverAndLoad()
         headlineRegistry = hRegistry
 
-        // Start SHIORI event bridge
-        let bridge = EventBridge.shared
-        bridge.start()
-        eventBridge = bridge
-
         // 外部 SSTP サーバを起動
         let ext = OurinExternalServer()
         ext.start()

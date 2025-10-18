@@ -36,4 +36,6 @@ private:
     std::shared_ptr<AST::Node> parseAssignment();
     std::shared_ptr<AST::Node> parseIf();
     std::shared_ptr<AST::Node> parseWhile();
+    std::shared_ptr<AST::Node> parseFor();
+    std::shared_ptr<AST::Node> parseBlock();
 };

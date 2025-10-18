@@ -80,7 +80,19 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 return
             }
 
-            NSLog("[GhostManager] Ghost loaded, requesting OnBoot...")
+            NSLog("[GhostManager] Ghost loaded successfully, starting EventBridge...")
+            // Start SHIORI event bridge after yaya_core parsing is complete
+            DispatchQueue.main.async {
+                let bridge = EventBridge.shared
+                bridge.start()
+                // Save bridge reference in AppDelegate
+                if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+                    appDelegate.eventBridge = bridge
+                }
+                NSLog("[GhostManager] EventBridge started")
+            }
+
+            NSLog("[GhostManager] Requesting OnBoot...")
             let res = adapter.request(method: "GET", id: "OnBoot")
             NSLog("[GhostManager] OnBoot response: ok=\(res?.ok ?? false), value=\(res?.value?.prefix(100) ?? "nil")")
 

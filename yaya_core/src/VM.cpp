@@ -172,6 +172,32 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 }
                 return Value();
             }
+
+            // Generic indexing on any expression: __index__(base, index)
+            if (call->functionName == "__index__") {
+                if (call->arguments.size() == 2) {
+                    Value base = executeNode(call->arguments[0]);
+                    Value idxV = executeNode(call->arguments[1]);
+                    int idx = idxV.asInt();
+
+                    if (base.getType() == Value::Type::Array) {
+                        return base.arrayGet(idx);
+                    }
+
+                    // Special handling if base was a variable named 'reference'
+                    if (auto* varNode = dynamic_cast<AST::VariableNode*>(call->arguments[0].get())) {
+                        if (varNode->name == "reference") {
+                            if (idx >= 0 && idx < static_cast<int>(references_.size())) {
+                                return references_[idx];
+                            }
+                            return Value();
+                        }
+                    }
+
+                    return Value();
+                }
+                return Value();
+            }
             
             // Regular function call
             std::vector<Value> args;
