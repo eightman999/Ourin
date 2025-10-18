@@ -146,6 +146,11 @@ std::shared_ptr<AST::FunctionNode> Parser::parseFunction() {
 
     if (check(TokenType::RightBrace)) {
         consume(TokenType::RightBrace, "Expected '}' at end of function");
+        
+        // Optional label after closing brace (e.g., }END_CHANGE)
+        if (check(TokenType::Identifier)) {
+            advance(); // consume the label
+        }
     } else {
         std::cerr << "[Parser] WARNING: Function '" << name
                   << "' ended at EOF instead of '}'" << std::endl;
@@ -171,7 +176,19 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
     }
 
     // Block as a statement (tolerate stray '{ ... }')
+    // Also handle {{LABEL pattern - double braces with label
     if (check(TokenType::LeftBrace)) {
+        // Check if this is a labeled block pattern: { { IDENT or { IDENT {
+        if (peek().type == TokenType::LeftBrace && peek(2).type == TokenType::Identifier) {
+            // This is {{LABEL pattern - consume first brace and let label handling take over
+            advance(); // consume first {
+            // Now we should have {LABEL which will be handled below
+            if (check(TokenType::LeftBrace) && peek().type == TokenType::Identifier) {
+                advance(); // consume second {
+                advance(); // consume label
+                return parseBlock();
+            }
+        }
         return parseBlock();
     }
 
@@ -653,6 +670,12 @@ std::shared_ptr<AST::Node> Parser::parseBlock() {
         skipNewlines();
     }
     consume(TokenType::RightBrace, "Expected '}' to close block");
+    
+    // Optional label after closing brace (e.g., }END_CHANGE)
+    if (check(TokenType::Identifier)) {
+        advance(); // consume the label
+    }
+    
     return std::make_shared<AST::BlockNode>(stmts);
 }
 
@@ -907,6 +930,35 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
         }
 
         return node;
+    }
+    
+    // Block literal with -- separator: { expr1 -- expr2 -- expr3 }
+    if (match(TokenType::LeftBrace)) {
+        std::vector<std::shared_ptr<AST::Node>> elements;
+        skipNewlines();
+        
+        while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+            // Parse an expression
+            auto expr = parseExpression();
+            elements.push_back(expr);
+            skipNewlines();
+            
+            // Check for -- separator (treated as MinusMinus token in this context)
+            if (check(TokenType::MinusMinus)) {
+                advance(); // consume --
+                skipNewlines();
+            }
+            
+            // If we hit a closing brace or another expression separator, continue
+            if (check(TokenType::RightBrace)) {
+                break;
+            }
+        }
+        
+        consume(TokenType::RightBrace, "Expected '}' after block literal");
+        
+        // Create an array literal from the block
+        return std::make_shared<AST::CallNode>("__array_literal__", elements);
     }
     
     // Parenthesized expression or array literal; allow postfix indexing after ')'
