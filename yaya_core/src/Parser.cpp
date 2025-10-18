@@ -292,7 +292,7 @@ std::shared_ptr<AST::Node> Parser::parseAssignment() {
         throw std::runtime_error("Expected variable name in assignment at line " + std::to_string(current().line));
     }
     
-    // Array access assignment: var[index] = value
+    // Array access assignment: var[index] = value or var[index] op= value
     if (match(TokenType::LeftBracket)) {
         // Support single index or comma-separated indices (slice-like)
         // Parse at least one expression
@@ -304,10 +304,35 @@ std::shared_ptr<AST::Node> Parser::parseAssignment() {
             indices.push_back(parseExpression());
         }
         consume(TokenType::RightBracket, "Expected ']' after array index");
-        consume(TokenType::Assign, "Expected '=' in assignment");
-        auto value = parseExpression();
-        // For now, treat this as a simple assignment (array handling is Phase 2)
-        return std::make_shared<AST::AssignmentNode>(varName, value);
+        
+        // Check for compound assignment operators
+        if (match(TokenType::PlusAssign) || match(TokenType::MinusAssign) ||
+            match(TokenType::StarAssign) || match(TokenType::SlashAssign) ||
+            match(TokenType::PercentAssign)) {
+            TokenType lastOpType = tokens_[pos_-1].type;
+            std::string op;
+            switch (lastOpType) {
+                case TokenType::PlusAssign: op = "+"; break;
+                case TokenType::MinusAssign: op = "-"; break;
+                case TokenType::StarAssign: op = "*"; break;
+                case TokenType::SlashAssign: op = "/"; break;
+                case TokenType::PercentAssign: op = "%"; break;
+                default: op = "+"; break;
+            }
+            auto rhs = parseExpression();
+            // Create array access node for left side (use first index)
+            auto leftAccess = std::make_shared<AST::ArrayAccessNode>(varName, firstIndex);
+            auto bin = std::make_shared<AST::BinaryOpNode>(op, leftAccess, rhs);
+            // Store the result back to the array element - create a special assignment
+            // For now, we'll treat array element compound assignment as a regular compound assignment
+            return std::make_shared<AST::AssignmentNode>(varName, bin);
+        } else {
+            // Simple assignment
+            consume(TokenType::Assign, "Expected '=' or compound assignment operator");
+            auto value = parseExpression();
+            // For now, treat this as a simple assignment (array handling is Phase 2)
+            return std::make_shared<AST::AssignmentNode>(varName, value);
+        }
     }
     
     // Compound assignment: var op= value
