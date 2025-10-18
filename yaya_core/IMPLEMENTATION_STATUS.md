@@ -72,12 +72,17 @@ YAYA Core is now **FULLY IMPLEMENTED** with comprehensive functionality to execu
   - `EVAL`, `DUMPVAR`
   - `DICLOAD`, `DICUNLOAD`, `UNDEFFUNC`
   
-  **File Operations (20 functions - stubs for security)**:
-  - `FOPEN`, `FCLOSE`, `FREAD`, `FWRITE`, `FWRITE2`
-  - `FREADBIN`, `FWRITEBIN`, `FREADENCODE`, `FWRITEDECODE`
-  - `FSIZE`, `FSEEK`, `FTELL`, `FCHARSET`, `FATTRIB`, `FDIGEST`
-  - `FENUM`, `FCOPY`, `FMOVE`, `FDEL`, `FRENAME`
-  - `MKDIR`, `RMDIR`
+  **File Operations (20 functions - IMPLEMENTED with safety restrictions)**:
+  - `FOPEN`, `FCLOSE`, `FREAD`, `FWRITE`, `FWRITE2` - Full file I/O support
+  - `FREADBIN`, `FWRITEBIN` - Binary file operations
+  - `FSIZE`, `FSEEK`, `FTELL` - File positioning and size
+  - `FCOPY`, `FMOVE`, `FDEL`, `FRENAME` - File management
+  - `FCHARSET`, `FATTRIB` - File metadata
+  - `FREADENCODE`, `FWRITEDECODE`, `FDIGEST` - Advanced operations
+  - `FENUM` - Directory enumeration (stub)
+  - `MKDIR`, `RMDIR` - Directory operations (stubs, need filesystem library)
+  
+  Note: File operations are restricted to relative paths only (no absolute paths or .. for security)
   
   **Regular Expressions (11 functions - stubs)**:
   - `RE_SEARCH`, `RE_MATCH`, `RE_GREP`, `RE_REPLACE`, `RE_REPLACEEX`, `RE_SPLIT`
@@ -90,9 +95,12 @@ YAYA Core is now **FULLY IMPLEMENTED** with comprehensive functionality to execu
   - `CHARSETLIB`, `CHARSETLIBEX`, `CHARSETTEXTTOID`, `CHARSETIDTOTEXT`
   - `ZEN2HAN`, `HAN2ZEN`
   
-  **System Operations (9 functions)**:
+  **System Operations (9 functions - IMPLEMENTED for macOS/Linux)**:
   - `GETTIME`, `GETTICKCOUNT`, `GETSECCOUNT`
   - `GETENV`, `GETMEMINFO`
+  - `EXECUTE`, `EXECUTE_WAIT` - System command execution (WORKING)
+  - `SLEEP` - Delay execution (WORKING)
+  - `READFMO`, `SETTAMAHWND`
   - `EXECUTE`, `EXECUTE_WAIT`, `SLEEP`
   - `READFMO`, `SETTAMAHWND`
   
@@ -127,16 +135,26 @@ YAYA Core is now **FULLY IMPLEMENTED** with comprehensive functionality to execu
 
 ## Known Limitations ⚠️
 
-### Security-Related Stubs
-For security reasons, certain functions are implemented as stubs that return safe default values:
+### Implemented with Restrictions
+For practical use while maintaining security:
 
-- **File Operations**: All file I/O functions (FOPEN, FREAD, FWRITE, etc.) return error codes or empty values
-- **System Commands**: EXECUTE and EXECUTE_WAIT are disabled
-- **SAORI Libraries**: LOADLIB, UNLOADLIB, REQUESTLIB are not supported
-- **File System Modifications**: MKDIR, RMDIR, FDEL, FRENAME return success without action
+- **File Operations**: FULLY IMPLEMENTED with security restrictions
+  - All file I/O operations work (FOPEN, FREAD, FWRITE, FCOPY, FMOVE, FDEL, etc.)
+  - Restricted to relative paths only (no absolute paths or .. traversal)
+  - Designed for safe use within ghost directories
+  
+- **System Commands**: FULLY IMPLEMENTED for macOS/Linux
+  - `EXECUTE` - Non-blocking command execution
+  - `EXECUTE_WAIT` - Blocking command execution with return code
+  - `SLEEP` - Thread sleep functionality
+  
+- **SAORI/Plugin Functions**: Partially implemented
+  - `LOADLIB`, `UNLOADLIB`, `REQUESTLIB` return compatibility values
+  - Full integration requires connecting to Swift PluginRegistry (future enhancement)
 
 ### Limited Implementations
 - **Regular Expressions**: RE_* functions are stubs (would require regex library integration)
+- **Directory Operations**: MKDIR, RMDIR need filesystem library (C++17)
 - **Encoding/Decoding**: Character set conversion functions are simplified
 - **ZEN2HAN/HAN2ZEN**: Full-width/half-width conversion not implemented
 
@@ -146,6 +164,8 @@ All core YAYA functionality is fully operational:
 - Array operations, bitwise operations
 - Variable and function management
 - System time/environment access
+- **File I/O operations (with security restrictions)**
+- **System command execution (EXECUTE/EXECUTE_WAIT/SLEEP)**
 - All functions needed for typical YAYA ghost operation
 
 ## Integration Status

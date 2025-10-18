@@ -9,6 +9,9 @@ class DictionaryManager {
 public:
     DictionaryManager();
     
+    // Set VM callback for host operations
+    void setCallback(VMCallback* callback);
+    
     bool load(const std::vector<std::string>& dicPaths,
               const std::string& encoding);
     void unload();
