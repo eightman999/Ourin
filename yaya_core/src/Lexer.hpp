@@ -39,6 +39,7 @@ enum class TokenType {
     And,
     Or,
     Not,
+    In,           // _in_ operator for substring/array contains check
     
     // Delimiters
     LeftParen,
@@ -61,6 +62,13 @@ enum class TokenType {
     While,
     Foreach,
     For,
+    Switch,
+    Case,
+    When,
+    Default,
+    Break,
+    Continue,
+    Return,
     
     // Special
     Newline,

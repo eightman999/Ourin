@@ -146,6 +146,11 @@ std::shared_ptr<AST::FunctionNode> Parser::parseFunction() {
 
     if (check(TokenType::RightBrace)) {
         consume(TokenType::RightBrace, "Expected '}' at end of function");
+        
+        // Optional label after closing brace (e.g., }END_CHANGE)
+        if (check(TokenType::Identifier)) {
+            advance(); // consume the label
+        }
     } else {
         std::cerr << "[Parser] WARNING: Function '" << name
                   << "' ended at EOF instead of '}'" << std::endl;
@@ -171,13 +176,30 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
     }
 
     // Block as a statement (tolerate stray '{ ... }')
+    // Also handle {{LABEL pattern - double braces with label
     if (check(TokenType::LeftBrace)) {
+        // Check if this is a labeled block pattern: { { IDENT or { IDENT {
+        if (peek().type == TokenType::LeftBrace && peek(2).type == TokenType::Identifier) {
+            // This is {{LABEL pattern - consume first brace and let label handling take over
+            advance(); // consume first {
+            // Now we should have {LABEL which will be handled below
+            if (check(TokenType::LeftBrace) && peek().type == TokenType::Identifier) {
+                advance(); // consume second {
+                advance(); // consume label
+                return parseBlock();
+            }
+        }
         return parseBlock();
     }
 
     // for statement (C-style)
     if (check(TokenType::For)) {
         return parseFor();
+    }
+    
+    // foreach statement
+    if (check(TokenType::Foreach)) {
+        return parseForeach();
     }
 
     // If statement
@@ -203,11 +225,74 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
         }
     }
 
+    // Switch statement
+    if (check(TokenType::Switch)) {
+        return parseSwitch();
+    }
+    
+    // Case statement (pattern matching)
+    if (check(TokenType::Case)) {
+        return parseCase();
+    }
+    
+    // Standalone when statement (like case but without explicit test expr)
+    if (check(TokenType::When)) {
+        return parseStandaloneWhen();
+    }
+    
+    // Break statement
+    if (check(TokenType::Break)) {
+        advance();
+        return std::make_shared<AST::BreakNode>();
+    }
+    
+    // Continue statement
+    if (check(TokenType::Continue)) {
+        advance();
+        return std::make_shared<AST::ContinueNode>();
+    }
+    
+    // Return statement
+    if (check(TokenType::Return)) {
+        advance();
+        if (check(TokenType::Newline) || check(TokenType::EndOfFile) || check(TokenType::RightBrace)) {
+            return std::make_shared<AST::ReturnNode>(nullptr);
+        }
+        auto expr = parseExpression();
+        return std::make_shared<AST::ReturnNode>(expr);
+    }
+    
     // Assignment (simple, array, compound)
+    // Need to look ahead more carefully to distinguish array access from array assignment
     if (check(TokenType::Identifier)) {
         TokenType nt = peek().type;
-        if (nt == TokenType::Assign ||
-            nt == TokenType::LeftBracket ||
+        
+        // Handle dotted variable assignment: menu.sakura.portalsites = ...
+        if (nt == TokenType::Dot) {
+            // Look ahead across dotted segments to find the operator after the name
+            int offset = 1; // at dot after identifier
+            while (peek(offset).type == TokenType::Dot) {
+                offset++; // skip dot
+                if (peek(offset).type == TokenType::Identifier) {
+                    offset++; // skip identifier
+                } else {
+                    break;
+                }
+            }
+            TokenType next = peek(offset).type;
+            if (next == TokenType::Assign ||
+                next == TokenType::LeftBracket ||
+                next == TokenType::CommaAssign ||
+                next == TokenType::PlusAssign ||
+                next == TokenType::MinusAssign ||
+                next == TokenType::StarAssign ||
+                next == TokenType::SlashAssign ||
+                next == TokenType::PercentAssign) {
+                return parseAssignment();
+            }
+            // Otherwise, fall through to expression parsing
+        }
+        else if (nt == TokenType::Assign ||
             nt == TokenType::CommaAssign ||
             nt == TokenType::PlusAssign ||
             nt == TokenType::MinusAssign ||
@@ -215,6 +300,33 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
             nt == TokenType::SlashAssign ||
             nt == TokenType::PercentAssign) {
             return parseAssignment();
+        }
+        // For array access, check if there's an assignment operator after the bracket
+        else if (nt == TokenType::LeftBracket) {
+            // Look ahead past the bracket expression to see if there's an assignment
+            size_t saved_pos = pos_;
+            advance(); // skip identifier
+            advance(); // skip [
+            int bracket_depth = 1;
+            while (bracket_depth > 0 && !check(TokenType::EndOfFile)) {
+                if (check(TokenType::LeftBracket)) bracket_depth++;
+                if (check(TokenType::RightBracket)) bracket_depth--;
+                advance();
+            }
+            // Now check if there's an assignment operator
+            bool is_assignment = check(TokenType::Assign) ||
+                                 check(TokenType::PlusAssign) ||
+                                 check(TokenType::MinusAssign) ||
+                                 check(TokenType::StarAssign) ||
+                                 check(TokenType::SlashAssign) ||
+                                 check(TokenType::PercentAssign) ||
+                                 check(TokenType::CommaAssign);
+            pos_ = saved_pos; // restore position
+            
+            if (is_assignment) {
+                return parseAssignment();
+            }
+            // Otherwise, fall through to expression parsing
         }
     }
     // Support dot-prefixed variable assignment: .name(.sub)* op= ... or [] ...
@@ -292,7 +404,7 @@ std::shared_ptr<AST::Node> Parser::parseAssignment() {
         throw std::runtime_error("Expected variable name in assignment at line " + std::to_string(current().line));
     }
     
-    // Array access assignment: var[index] = value
+    // Array access assignment: var[index] = value or var[index] op= value
     if (match(TokenType::LeftBracket)) {
         // Support single index or comma-separated indices (slice-like)
         // Parse at least one expression
@@ -304,10 +416,38 @@ std::shared_ptr<AST::Node> Parser::parseAssignment() {
             indices.push_back(parseExpression());
         }
         consume(TokenType::RightBracket, "Expected ']' after array index");
-        consume(TokenType::Assign, "Expected '=' in assignment");
-        auto value = parseExpression();
-        // For now, treat this as a simple assignment (array handling is Phase 2)
-        return std::make_shared<AST::AssignmentNode>(varName, value);
+        
+        // Check for compound assignment operators
+        if (match(TokenType::PlusAssign) || match(TokenType::MinusAssign) ||
+            match(TokenType::StarAssign) || match(TokenType::SlashAssign) ||
+            match(TokenType::PercentAssign)) {
+            TokenType lastOpType = tokens_[pos_-1].type;
+            std::string op;
+            switch (lastOpType) {
+                case TokenType::PlusAssign: op = "+"; break;
+                case TokenType::MinusAssign: op = "-"; break;
+                case TokenType::StarAssign: op = "*"; break;
+                case TokenType::SlashAssign: op = "/"; break;
+                case TokenType::PercentAssign: op = "%"; break;
+                default: op = "+"; break;
+            }
+            auto rhs = parseExpression();
+            // Create array access node for left side (use first index)
+            auto leftAccess = std::make_shared<AST::ArrayAccessNode>(varName, firstIndex);
+            auto bin = std::make_shared<AST::BinaryOpNode>(op, leftAccess, rhs);
+            // Store the result back to the array element - create a special assignment
+            // For now, we'll treat array element compound assignment as a regular compound assignment
+            return std::make_shared<AST::AssignmentNode>(varName, bin);
+        } else if (match(TokenType::Assign)) {
+            // Simple assignment
+            auto value = parseExpression();
+            // For now, treat this as a simple assignment (array handling is Phase 2)
+            return std::make_shared<AST::AssignmentNode>(varName, value);
+        } else {
+            // No assignment operator - this is an array access expression, not assignment
+            // We should not have gotten here - this should be handled as an expression
+            throw std::runtime_error("Internal error: array access without assignment at line " + std::to_string(current().line));
+        }
     }
     
     // Compound assignment: var op= value
@@ -536,8 +676,11 @@ std::shared_ptr<AST::Node> Parser::parseFor() {
             // best-effort expression
             try { (void)parseExpression(); } catch (...) {}
         }
-    } else {
-        while (!check(TokenType::LeftBrace) && !check(TokenType::EndOfFile)) advance();
+    }
+    
+    // Consume any remaining tokens before the '{'
+    while (!check(TokenType::LeftBrace) && !check(TokenType::EndOfFile) && !check(TokenType::Newline)) {
+        advance();
     }
 
     skipNewlines();
@@ -558,6 +701,51 @@ std::shared_ptr<AST::Node> Parser::parseFor() {
     return std::make_shared<AST::WhileNode>(cond, body);
 }
 
+std::shared_ptr<AST::Node> Parser::parseForeach() {
+    consume(TokenType::Foreach, "Expected 'foreach'");
+    
+    // Parse: foreach array ; variable { body }
+    // The array expression - just parse identifier for now
+    skipNewlines();
+    if (!check(TokenType::Identifier)) {
+        throw std::runtime_error("Expected identifier for array in foreach at line " + std::to_string(current().line));
+    }
+    std::string arrayName = current().value;
+    advance();
+    auto arrayExpr = std::make_shared<AST::VariableNode>(arrayName);
+    
+    // Expect semicolon separator (don't skip newlines before it!)
+    if (!check(TokenType::Semicolon)) {
+        throw std::runtime_error("Expected ';' after array in foreach (got '" + current().value + "' type=" + std::to_string(static_cast<int>(current().type)) + ") at line " + std::to_string(current().line));
+    }
+    advance(); // consume semicolon
+    skipNewlines();
+    
+    // The loop variable (identifier)
+    if (!check(TokenType::Identifier)) {
+        throw std::runtime_error("Expected identifier after ';' in foreach at line " + std::to_string(current().line));
+    }
+    std::string varName = current().value;
+    advance();
+    skipNewlines();
+    
+    // Parse the body
+    consume(TokenType::LeftBrace, "Expected '{' after foreach header");
+    skipNewlines();
+    
+    std::vector<std::shared_ptr<AST::Node>> body;
+    while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+        auto stmt = parseStatement();
+        if (stmt) body.push_back(stmt);
+        skipNewlines();
+    }
+    consume(TokenType::RightBrace, "Expected '}' after foreach body");
+    
+    // Represent 'foreach' as a while node for now (simplified)
+    auto cond = std::make_shared<AST::LiteralNode>("1", false);
+    return std::make_shared<AST::WhileNode>(cond, body);
+}
+
 std::shared_ptr<AST::Node> Parser::parseBlock() {
     consume(TokenType::LeftBrace, "Expected '{' to start block");
     skipNewlines();
@@ -568,7 +756,149 @@ std::shared_ptr<AST::Node> Parser::parseBlock() {
         skipNewlines();
     }
     consume(TokenType::RightBrace, "Expected '}' to close block");
+    
+    // Optional label after closing brace (e.g., }END_CHANGE)
+    if (check(TokenType::Identifier)) {
+        advance(); // consume the label
+    }
+    
     return std::make_shared<AST::BlockNode>(stmts);
+}
+
+std::shared_ptr<AST::Node> Parser::parseSwitch() {
+    consume(TokenType::Switch, "Expected 'switch'");
+    skipNewlines();
+    
+    // Parse the switch expression
+    auto expr = parseExpression();
+    skipNewlines();
+    
+    consume(TokenType::LeftBrace, "Expected '{' after switch expression");
+    skipNewlines();
+    
+    // Parse case values (in YAYA, these are just expressions, one per line)
+    // The switch returns the expression at index equal to the switch value
+    std::vector<std::shared_ptr<AST::Node>> cases;
+    while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+        // Each line in the switch block is a potential return value
+        auto caseExpr = parseExpression();
+        if (caseExpr) {
+            cases.push_back(caseExpr);
+        }
+        skipNewlines();
+    }
+    
+    consume(TokenType::RightBrace, "Expected '}' after switch cases");
+    
+    return std::make_shared<AST::SwitchNode>(expr, cases);
+}
+
+std::shared_ptr<AST::Node> Parser::parseCase() {
+    consume(TokenType::Case, "Expected 'case'");
+    skipNewlines();
+    
+    // Parse the case expression (value to match against)
+    auto expr = parseExpression();
+    skipNewlines();
+    
+    consume(TokenType::LeftBrace, "Expected '{' after case expression");
+    skipNewlines();
+    
+    // Parse when clauses
+    // Syntax: when val1, val2, val3 { block }
+    // We'll implement this as a series of if-else checks
+    std::vector<std::shared_ptr<AST::Node>> whenClauses;
+    
+    while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+        if (check(TokenType::When)) {
+            advance(); // consume 'when'
+            skipNewlines();
+            
+            // Parse comma-separated match values
+            std::vector<std::shared_ptr<AST::Node>> matchValues;
+            matchValues.push_back(parseExpression());
+            
+            while (match(TokenType::Comma)) {
+                skipNewlines();
+                matchValues.push_back(parseExpression());
+            }
+            
+            skipNewlines();
+            
+            // Parse the when block
+            auto block = parseBlock();
+            
+            // Create an if-else chain: if (expr == val1 || expr == val2 ...) { block }
+            // We need to clone the expr node for each comparison
+            // For simplicity, we'll use a variable node if expr is an identifier
+            std::shared_ptr<AST::Node> condition = nullptr;
+            for (size_t i = 0; i < matchValues.size(); i++) {
+                // Create a new comparison for each value
+                // Note: This assumes expr is side-effect free (typically a variable)
+                auto comparison = std::make_shared<AST::BinaryOpNode>("==", expr, matchValues[i]);
+                if (condition == nullptr) {
+                    condition = comparison;
+                } else {
+                    condition = std::make_shared<AST::BinaryOpNode>("||", condition, comparison);
+                }
+            }
+            
+            std::vector<std::shared_ptr<AST::Node>> blockBody = { block };
+            whenClauses.push_back(std::make_shared<AST::IfNode>(condition, blockBody, std::vector<std::shared_ptr<AST::Node>>()));
+            
+            skipNewlines();
+        } else if (check(TokenType::Default)) {
+            advance(); // consume 'default'
+            skipNewlines();
+            auto block = parseBlock();
+            whenClauses.push_back(block);
+            skipNewlines();
+        } else if (check(TokenType::Identifier) && current().value == "others") {
+            // 'others' is an alias for 'default'
+            advance(); // consume 'others'
+            skipNewlines();
+            auto block = parseBlock();
+            whenClauses.push_back(block);
+            skipNewlines();
+        } else {
+            // Skip unexpected tokens
+            advance();
+        }
+    }
+    
+    consume(TokenType::RightBrace, "Expected '}' after case body");
+    
+    // Return a block containing all the when clauses
+    return std::make_shared<AST::BlockNode>(whenClauses);
+}
+
+std::shared_ptr<AST::Node> Parser::parseStandaloneWhen() {
+    // Standalone when statement: when val1, val2 { block }
+    // This is like a case clause without an explicit test expression
+    // We'll treat it as if it's checking against some implicit state variable
+    
+    advance(); // consume 'when'
+    skipNewlines();
+    
+    // Parse comma-separated match values
+    std::vector<std::shared_ptr<AST::Node>> matchValues;
+    matchValues.push_back(parseExpression());
+    
+    while (match(TokenType::Comma)) {
+        skipNewlines();
+        matchValues.push_back(parseExpression());
+    }
+    
+    skipNewlines();
+    
+    // Parse the when block
+    auto block = parseBlock();
+    
+    // For standalone when, we can't build a proper condition without knowing
+    // what to compare against. We'll just return the block for now.
+    // In actual YAYA, these are typically handled by runtime context.
+    // For parsing purposes, we'll wrap it in a labeled block.
+    return block;
 }
 
 std::shared_ptr<AST::Node> Parser::parseExpression() {
@@ -577,6 +907,29 @@ std::shared_ptr<AST::Node> Parser::parseExpression() {
 
 std::shared_ptr<AST::Node> Parser::parseTernary() {
     auto expr = parseLogicalOr();
+    
+    // Check for assignment operators (in YAYA, assignment can be an expression)
+    if (check(TokenType::Assign) || check(TokenType::CommaAssign) ||
+        check(TokenType::PlusAssign) || check(TokenType::MinusAssign) ||
+        check(TokenType::StarAssign) || check(TokenType::SlashAssign) ||
+        check(TokenType::PercentAssign)) {
+        // This is an assignment expression
+        // For now, just parse it as a special function call: __assign__(lhs, rhs)
+        TokenType assignOp = current().type;
+        advance();
+        auto rhs = parseExpression();
+        
+        // Create assignment as a function call (simplified approach)
+        std::string assignFunc = "__assign__";
+        if (assignOp == TokenType::CommaAssign) assignFunc = "__concat_assign__";
+        else if (assignOp == TokenType::PlusAssign) assignFunc = "__plus_assign__";
+        else if (assignOp == TokenType::MinusAssign) assignFunc = "__minus_assign__";
+        else if (assignOp == TokenType::StarAssign) assignFunc = "__star_assign__";
+        else if (assignOp == TokenType::SlashAssign) assignFunc = "__slash_assign__";
+        else if (assignOp == TokenType::PercentAssign) assignFunc = "__percent_assign__";
+        
+        return std::make_shared<AST::CallNode>(assignFunc, std::vector<std::shared_ptr<AST::Node>>{ expr, rhs });
+    }
     
     if (match(TokenType::Question)) {
         auto trueBranch = parseExpression();
@@ -620,6 +973,16 @@ std::shared_ptr<AST::Node> Parser::parseEquality() {
         } else if (match(TokenType::NotEqual)) {
             auto right = parseComparison();
             left = std::make_shared<AST::BinaryOpNode>("!=", left, right);
+        } else if (check(TokenType::Not) && peek().type == TokenType::In) {
+            // Handle !_in_ as negated _in_ operator
+            advance(); // consume '!'
+            advance(); // consume '_in_'
+            auto right = parseComparison();
+            auto inNode = std::make_shared<AST::BinaryOpNode>("_in_", left, right);
+            left = std::make_shared<AST::UnaryOpNode>("!", inNode);
+        } else if (match(TokenType::In)) {
+            auto right = parseComparison();
+            left = std::make_shared<AST::BinaryOpNode>("_in_", left, right);
         } else {
             break;
         }
@@ -769,21 +1132,73 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
         // Support chained indexing after variable or call result: foo[0], foo()[0], a[0][1], ...
         while (match(TokenType::LeftBracket)) {
             auto indexExpr = parseExpression();
-            consume(TokenType::RightBracket, "Expected ']' after array index");
-
-            // If current node is a plain variable, keep using ArrayAccessNode for compatibility
-            if (auto* var = dynamic_cast<AST::VariableNode*>(node.get())) {
-                node = std::make_shared<AST::ArrayAccessNode>(var->name, indexExpr);
+            
+            // Check for array range syntax: [start, end]
+            if (match(TokenType::Comma)) {
+                auto endExpr = parseExpression();
+                // Create a special range access using __range__ call
+                if (auto* var = dynamic_cast<AST::VariableNode*>(node.get())) {
+                    node = std::make_shared<AST::CallNode>(
+                        "__range__",
+                        std::vector<std::shared_ptr<AST::Node>>{ 
+                            std::make_shared<AST::VariableNode>(var->name), 
+                            indexExpr, 
+                            endExpr 
+                        }
+                    );
+                } else {
+                    node = std::make_shared<AST::CallNode>(
+                        "__range__",
+                        std::vector<std::shared_ptr<AST::Node>>{ node, indexExpr, endExpr }
+                    );
+                }
             } else {
-                // For call results or nested accesses, use special __index__ call: __index__(base, index)
-                node = std::make_shared<AST::CallNode>(
-                    "__index__",
-                    std::vector<std::shared_ptr<AST::Node>>{ node, indexExpr }
-                );
+                // Regular array access
+                // If current node is a plain variable, keep using ArrayAccessNode for compatibility
+                if (auto* var = dynamic_cast<AST::VariableNode*>(node.get())) {
+                    node = std::make_shared<AST::ArrayAccessNode>(var->name, indexExpr);
+                } else {
+                    // For call results or nested accesses, use special __index__ call: __index__(base, index)
+                    node = std::make_shared<AST::CallNode>(
+                        "__index__",
+                        std::vector<std::shared_ptr<AST::Node>>{ node, indexExpr }
+                    );
+                }
             }
+            
+            consume(TokenType::RightBracket, "Expected ']' after array index");
         }
 
         return node;
+    }
+    
+    // Block literal with -- separator: { expr1 -- expr2 -- expr3 }
+    if (match(TokenType::LeftBrace)) {
+        std::vector<std::shared_ptr<AST::Node>> elements;
+        skipNewlines();
+        
+        while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+            // Parse an expression
+            auto expr = parseExpression();
+            elements.push_back(expr);
+            skipNewlines();
+            
+            // Check for -- separator (treated as MinusMinus token in this context)
+            if (check(TokenType::MinusMinus)) {
+                advance(); // consume --
+                skipNewlines();
+            }
+            
+            // If we hit a closing brace or another expression separator, continue
+            if (check(TokenType::RightBrace)) {
+                break;
+            }
+        }
+        
+        consume(TokenType::RightBrace, "Expected '}' after block literal");
+        
+        // Create an array literal from the block
+        return std::make_shared<AST::CallNode>("__array_literal__", elements);
     }
     
     // Parenthesized expression or array literal; allow postfix indexing after ')'

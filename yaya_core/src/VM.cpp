@@ -229,6 +229,37 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             return Value();
         }
         
+        case AST::NodeType::Switch: {
+            auto* switchNode = dynamic_cast<AST::SwitchNode*>(node.get());
+            auto switchVal = executeNode(switchNode->expression);
+            int index = switchVal.asInt();
+            
+            // Return the case at the given index
+            if (index >= 0 && index < static_cast<int>(switchNode->cases.size())) {
+                return executeNode(switchNode->cases[index]);
+            }
+            
+            return Value();
+        }
+        
+        case AST::NodeType::Return: {
+            auto* returnNode = dynamic_cast<AST::ReturnNode*>(node.get());
+            if (returnNode->value) {
+                return executeNode(returnNode->value);
+            }
+            return Value();
+        }
+        
+        case AST::NodeType::Break: {
+            // For now, break is a no-op (proper implementation would need loop context)
+            return Value();
+        }
+        
+        case AST::NodeType::Continue: {
+            // For now, continue is a no-op (proper implementation would need loop context)
+            return Value();
+        }
+        
         default:
             return Value();
     }
@@ -256,6 +287,25 @@ Value VM::evaluateBinaryOp(const std::string& op, const Value& left, const Value
     if (op == ">=") return Value(left >= right ? 1 : 0);
     if (op == "&&") return Value(left.toBool() && right.toBool() ? 1 : 0);
     if (op == "||") return Value(left.toBool() || right.toBool() ? 1 : 0);
+    if (op == "_in_") {
+        // String contains check: "substring" _in_ "full string"
+        // or array contains check: "value" _in_ array
+        if (right.getType() == Value::Type::Array) {
+            // Check if left is in array right
+            const auto& arr = right.asArray();
+            for (const auto& elem : arr) {
+                if (elem == left) {
+                    return Value(1);
+                }
+            }
+            return Value(0);
+        } else {
+            // String contains check
+            std::string haystack = right.asString();
+            std::string needle = left.asString();
+            return Value(haystack.find(needle) != std::string::npos ? 1 : 0);
+        }
+    }
     return Value();
 }
 

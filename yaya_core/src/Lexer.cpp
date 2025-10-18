@@ -81,6 +81,29 @@ Token Lexer::readString() {
     
     while (current() != '\0' && current() != quote) {
         if (current() == '\\') {
+            // Look ahead to see what follows the backslash
+            char next = peek();
+            
+            // If backslash is followed by the closing quote, check if it's escaping the quote
+            // or if it's a literal backslash at the end of the string
+            if (next == quote) {
+                // In YAYA, '\' at the end means a literal backslash, not an escape
+                // We need to check if there's content after the quote
+                char after_quote = peek(2);
+                
+                // If after the quote we have comma, paren, or other delimiters,
+                // treat this as a literal backslash ending the string
+                if (after_quote == ',' || after_quote == ')' || after_quote == '}' || 
+                    after_quote == ']' || after_quote == '\n' || after_quote == '\r' ||
+                    after_quote == ' ' || after_quote == '\t' || after_quote == '\0') {
+                    // This is a literal backslash at end of string
+                    value += '\\';
+                    advance(); // consume the backslash
+                    break; // Let the main loop consume the quote
+                }
+            }
+            
+            // Normal escape sequence handling
             advance();
             if (current() != '\0') {
                 // Handle escape sequences
@@ -126,9 +149,27 @@ Token Lexer::readIdentifier() {
     int startCol = column_;
     std::string value;
     
-    while (current() != '\0' && (std::isalnum(current()) || current() == '_')) {
-        value += current();
-        advance();
+    // Allow ASCII alphanumeric, underscore, backslash, and UTF-8 multi-byte characters
+    while (current() != '\0') {
+        unsigned char ch = static_cast<unsigned char>(current());
+        // ASCII alphanumeric or underscore
+        if (std::isalnum(ch) || ch == '_') {
+            value += current();
+            advance();
+        }
+        // Backslash (for function names like On_\ms)
+        else if (ch == '\\') {
+            value += current();
+            advance();
+        }
+        // UTF-8 multi-byte character (0x80-0xFF)
+        else if (ch >= 0x80) {
+            value += current();
+            advance();
+        }
+        else {
+            break;
+        }
     }
     
     // Check for keywords
@@ -139,6 +180,14 @@ Token Lexer::readIdentifier() {
     else if (value == "while") type = TokenType::While;
     else if (value == "foreach") type = TokenType::Foreach;
     else if (value == "for") type = TokenType::For;
+    else if (value == "switch") type = TokenType::Switch;
+    else if (value == "case") type = TokenType::Case;
+    else if (value == "when") type = TokenType::When;
+    else if (value == "default") type = TokenType::Default;
+    else if (value == "break") type = TokenType::Break;
+    else if (value == "continue") type = TokenType::Continue;
+    else if (value == "return") type = TokenType::Return;
+    else if (value == "_in_") type = TokenType::In;
     
     return Token(type, value, startLine, startCol);
 }
@@ -157,17 +206,33 @@ std::vector<Token> Lexer::tokenize() {
     while (current() != '\0') {
         skipWhitespace();
         
-        // Skip comments
+        int startLine = line_;
+        int startCol = column_;
+        char ch = current();
+        
+        // Skip comments (but check for -- operator first)
         if ((current() == '/' && (peek() == '/' || peek() == '*')) ||
-            (current() == '-' && peek() == '-') ||
             (current() == '#')) {
             skipComment();
             continue;
         }
-        
-        int startLine = line_;
-        int startCol = column_;
-        char ch = current();
+        // Special handling for '--': only treat as comment at start of statement
+        // If last token was an identifier or ), then -- is an operator
+        if (current() == '-' && peek() == '-') {
+            bool isComment = true;
+            if (!tokens.empty()) {
+                TokenType lastType = tokens.back().type;
+                if (lastType == TokenType::Identifier || 
+                    lastType == TokenType::RightParen ||
+                    lastType == TokenType::RightBracket) {
+                    isComment = false;
+                }
+            }
+            if (isComment) {
+                skipComment();
+                continue;
+            }
+        }
         
         // End of file
         if (ch == '\0') break;
@@ -203,8 +268,8 @@ std::vector<Token> Lexer::tokenize() {
             continue;
         }
         
-        // Identifier or keyword
-        if (std::isalpha(ch) || ch == '_') {
+        // Identifier or keyword (including UTF-8 characters)
+        if (std::isalpha(ch) || ch == '_' || static_cast<unsigned char>(ch) >= 0x80) {
             tokens.push_back(readIdentifier());
             continue;
         }
