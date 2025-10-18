@@ -38,4 +38,5 @@ private:
     std::shared_ptr<AST::Node> parseWhile();
     std::shared_ptr<AST::Node> parseFor();
     std::shared_ptr<AST::Node> parseBlock();
+    std::shared_ptr<AST::Node> parseSwitch();
 };

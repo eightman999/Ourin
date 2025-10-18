@@ -13,6 +13,9 @@ enum class NodeType {
     Assignment,
     If,
     While,
+    Switch,
+    Break,
+    Continue,
     BinaryOp,
     UnaryOp,
     Ternary,
@@ -153,6 +156,28 @@ struct FunctionNode : Node {
     FunctionNode(const std::string& n, const std::vector<std::shared_ptr<Node>>& b)
         : name(n), body(b) {
         type = NodeType::Function;
+    }
+};
+
+struct SwitchNode : Node {
+    std::shared_ptr<Node> expression;
+    std::vector<std::shared_ptr<Node>> cases;  // Each case is an expression (the value to return)
+    
+    SwitchNode(std::shared_ptr<Node> expr, const std::vector<std::shared_ptr<Node>>& c)
+        : expression(expr), cases(c) {
+        type = NodeType::Switch;
+    }
+};
+
+struct BreakNode : Node {
+    BreakNode() {
+        type = NodeType::Break;
+    }
+};
+
+struct ContinueNode : Node {
+    ContinueNode() {
+        type = NodeType::Continue;
     }
 };
 

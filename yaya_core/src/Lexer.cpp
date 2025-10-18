@@ -139,6 +139,12 @@ Token Lexer::readIdentifier() {
     else if (value == "while") type = TokenType::While;
     else if (value == "foreach") type = TokenType::Foreach;
     else if (value == "for") type = TokenType::For;
+    else if (value == "switch") type = TokenType::Switch;
+    else if (value == "case") type = TokenType::Case;
+    else if (value == "default") type = TokenType::Default;
+    else if (value == "break") type = TokenType::Break;
+    else if (value == "continue") type = TokenType::Continue;
+    else if (value == "return") type = TokenType::Return;
     else if (value == "_in_") type = TokenType::In;
     
     return Token(type, value, startLine, startCol);
@@ -158,17 +164,33 @@ std::vector<Token> Lexer::tokenize() {
     while (current() != '\0') {
         skipWhitespace();
         
-        // Skip comments
+        int startLine = line_;
+        int startCol = column_;
+        char ch = current();
+        
+        // Skip comments (but check for -- operator first)
         if ((current() == '/' && (peek() == '/' || peek() == '*')) ||
-            (current() == '-' && peek() == '-') ||
             (current() == '#')) {
             skipComment();
             continue;
         }
-        
-        int startLine = line_;
-        int startCol = column_;
-        char ch = current();
+        // Special handling for '--': only treat as comment at start of statement
+        // If last token was an identifier or ), then -- is an operator
+        if (current() == '-' && peek() == '-') {
+            bool isComment = true;
+            if (!tokens.empty()) {
+                TokenType lastType = tokens.back().type;
+                if (lastType == TokenType::Identifier || 
+                    lastType == TokenType::RightParen ||
+                    lastType == TokenType::RightBracket) {
+                    isComment = false;
+                }
+            }
+            if (isComment) {
+                skipComment();
+                continue;
+            }
+        }
         
         // End of file
         if (ch == '\0') break;

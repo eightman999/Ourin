@@ -203,11 +203,38 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
         }
     }
 
+    // Switch statement
+    if (check(TokenType::Switch)) {
+        return parseSwitch();
+    }
+    
+    // Break statement
+    if (check(TokenType::Break)) {
+        advance();
+        return std::make_shared<AST::BreakNode>();
+    }
+    
+    // Continue statement
+    if (check(TokenType::Continue)) {
+        advance();
+        return std::make_shared<AST::ContinueNode>();
+    }
+    
+    // Return statement
+    if (check(TokenType::Return)) {
+        advance();
+        if (check(TokenType::Newline) || check(TokenType::EndOfFile) || check(TokenType::RightBrace)) {
+            return std::make_shared<AST::ReturnNode>(nullptr);
+        }
+        auto expr = parseExpression();
+        return std::make_shared<AST::ReturnNode>(expr);
+    }
+    
     // Assignment (simple, array, compound)
+    // Need to look ahead more carefully to distinguish array access from array assignment
     if (check(TokenType::Identifier)) {
         TokenType nt = peek().type;
         if (nt == TokenType::Assign ||
-            nt == TokenType::LeftBracket ||
             nt == TokenType::CommaAssign ||
             nt == TokenType::PlusAssign ||
             nt == TokenType::MinusAssign ||
@@ -215,6 +242,33 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
             nt == TokenType::SlashAssign ||
             nt == TokenType::PercentAssign) {
             return parseAssignment();
+        }
+        // For array access, check if there's an assignment operator after the bracket
+        if (nt == TokenType::LeftBracket) {
+            // Look ahead past the bracket expression to see if there's an assignment
+            size_t saved_pos = pos_;
+            advance(); // skip identifier
+            advance(); // skip [
+            int bracket_depth = 1;
+            while (bracket_depth > 0 && !check(TokenType::EndOfFile)) {
+                if (check(TokenType::LeftBracket)) bracket_depth++;
+                if (check(TokenType::RightBracket)) bracket_depth--;
+                advance();
+            }
+            // Now check if there's an assignment operator
+            bool is_assignment = check(TokenType::Assign) ||
+                                 check(TokenType::PlusAssign) ||
+                                 check(TokenType::MinusAssign) ||
+                                 check(TokenType::StarAssign) ||
+                                 check(TokenType::SlashAssign) ||
+                                 check(TokenType::PercentAssign) ||
+                                 check(TokenType::CommaAssign);
+            pos_ = saved_pos; // restore position
+            
+            if (is_assignment) {
+                return parseAssignment();
+            }
+            // Otherwise, fall through to expression parsing
         }
     }
     // Support dot-prefixed variable assignment: .name(.sub)* op= ... or [] ...
@@ -326,12 +380,15 @@ std::shared_ptr<AST::Node> Parser::parseAssignment() {
             // Store the result back to the array element - create a special assignment
             // For now, we'll treat array element compound assignment as a regular compound assignment
             return std::make_shared<AST::AssignmentNode>(varName, bin);
-        } else {
+        } else if (match(TokenType::Assign)) {
             // Simple assignment
-            consume(TokenType::Assign, "Expected '=' or compound assignment operator");
             auto value = parseExpression();
             // For now, treat this as a simple assignment (array handling is Phase 2)
             return std::make_shared<AST::AssignmentNode>(varName, value);
+        } else {
+            // No assignment operator - this is an array access expression, not assignment
+            // We should not have gotten here - this should be handled as an expression
+            throw std::runtime_error("Internal error: array access without assignment at line " + std::to_string(current().line));
         }
     }
     
@@ -561,8 +618,11 @@ std::shared_ptr<AST::Node> Parser::parseFor() {
             // best-effort expression
             try { (void)parseExpression(); } catch (...) {}
         }
-    } else {
-        while (!check(TokenType::LeftBrace) && !check(TokenType::EndOfFile)) advance();
+    }
+    
+    // Consume any remaining tokens before the '{'
+    while (!check(TokenType::LeftBrace) && !check(TokenType::EndOfFile) && !check(TokenType::Newline)) {
+        advance();
     }
 
     skipNewlines();
@@ -594,6 +654,34 @@ std::shared_ptr<AST::Node> Parser::parseBlock() {
     }
     consume(TokenType::RightBrace, "Expected '}' to close block");
     return std::make_shared<AST::BlockNode>(stmts);
+}
+
+std::shared_ptr<AST::Node> Parser::parseSwitch() {
+    consume(TokenType::Switch, "Expected 'switch'");
+    skipNewlines();
+    
+    // Parse the switch expression
+    auto expr = parseExpression();
+    skipNewlines();
+    
+    consume(TokenType::LeftBrace, "Expected '{' after switch expression");
+    skipNewlines();
+    
+    // Parse case values (in YAYA, these are just expressions, one per line)
+    // The switch returns the expression at index equal to the switch value
+    std::vector<std::shared_ptr<AST::Node>> cases;
+    while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+        // Each line in the switch block is a potential return value
+        auto caseExpr = parseExpression();
+        if (caseExpr) {
+            cases.push_back(caseExpr);
+        }
+        skipNewlines();
+    }
+    
+    consume(TokenType::RightBrace, "Expected '}' after switch cases");
+    
+    return std::make_shared<AST::SwitchNode>(expr, cases);
 }
 
 std::shared_ptr<AST::Node> Parser::parseExpression() {

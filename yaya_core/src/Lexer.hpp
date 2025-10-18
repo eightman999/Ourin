@@ -62,6 +62,12 @@ enum class TokenType {
     While,
     Foreach,
     For,
+    Switch,
+    Case,
+    Default,
+    Break,
+    Continue,
+    Return,
     
     // Special
     Newline,
