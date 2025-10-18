@@ -620,6 +620,13 @@ std::shared_ptr<AST::Node> Parser::parseEquality() {
         } else if (match(TokenType::NotEqual)) {
             auto right = parseComparison();
             left = std::make_shared<AST::BinaryOpNode>("!=", left, right);
+        } else if (check(TokenType::Not) && peek().type == TokenType::In) {
+            // Handle !_in_ as negated _in_ operator
+            advance(); // consume '!'
+            advance(); // consume '_in_'
+            auto right = parseComparison();
+            auto inNode = std::make_shared<AST::BinaryOpNode>("_in_", left, right);
+            left = std::make_shared<AST::UnaryOpNode>("!", inNode);
         } else if (match(TokenType::In)) {
             auto right = parseComparison();
             left = std::make_shared<AST::BinaryOpNode>("_in_", left, right);
