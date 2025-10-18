@@ -64,6 +64,7 @@ enum class TokenType {
     For,
     Switch,
     Case,
+    When,
     Default,
     Break,
     Continue,

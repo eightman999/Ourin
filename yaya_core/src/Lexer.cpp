@@ -182,6 +182,7 @@ Token Lexer::readIdentifier() {
     else if (value == "for") type = TokenType::For;
     else if (value == "switch") type = TokenType::Switch;
     else if (value == "case") type = TokenType::Case;
+    else if (value == "when") type = TokenType::When;
     else if (value == "default") type = TokenType::Default;
     else if (value == "break") type = TokenType::Break;
     else if (value == "continue") type = TokenType::Continue;

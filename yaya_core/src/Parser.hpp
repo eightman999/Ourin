@@ -40,4 +40,5 @@ private:
     std::shared_ptr<AST::Node> parseForeach();
     std::shared_ptr<AST::Node> parseBlock();
     std::shared_ptr<AST::Node> parseSwitch();
+    std::shared_ptr<AST::Node> parseCase();
 };
