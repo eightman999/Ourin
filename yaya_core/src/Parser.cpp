@@ -196,6 +196,11 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
     if (check(TokenType::For)) {
         return parseFor();
     }
+    
+    // foreach statement
+    if (check(TokenType::Foreach)) {
+        return parseForeach();
+    }
 
     // If statement
     if (check(TokenType::If)) {
@@ -251,7 +256,33 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
     // Need to look ahead more carefully to distinguish array access from array assignment
     if (check(TokenType::Identifier)) {
         TokenType nt = peek().type;
-        if (nt == TokenType::Assign ||
+        
+        // Handle dotted variable assignment: menu.sakura.portalsites = ...
+        if (nt == TokenType::Dot) {
+            // Look ahead across dotted segments to find the operator after the name
+            int offset = 1; // at dot after identifier
+            while (peek(offset).type == TokenType::Dot) {
+                offset++; // skip dot
+                if (peek(offset).type == TokenType::Identifier) {
+                    offset++; // skip identifier
+                } else {
+                    break;
+                }
+            }
+            TokenType next = peek(offset).type;
+            if (next == TokenType::Assign ||
+                next == TokenType::LeftBracket ||
+                next == TokenType::CommaAssign ||
+                next == TokenType::PlusAssign ||
+                next == TokenType::MinusAssign ||
+                next == TokenType::StarAssign ||
+                next == TokenType::SlashAssign ||
+                next == TokenType::PercentAssign) {
+                return parseAssignment();
+            }
+            // Otherwise, fall through to expression parsing
+        }
+        else if (nt == TokenType::Assign ||
             nt == TokenType::CommaAssign ||
             nt == TokenType::PlusAssign ||
             nt == TokenType::MinusAssign ||
@@ -261,7 +292,7 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
             return parseAssignment();
         }
         // For array access, check if there's an assignment operator after the bracket
-        if (nt == TokenType::LeftBracket) {
+        else if (nt == TokenType::LeftBracket) {
             // Look ahead past the bracket expression to see if there's an assignment
             size_t saved_pos = pos_;
             advance(); // skip identifier
@@ -656,6 +687,51 @@ std::shared_ptr<AST::Node> Parser::parseFor() {
 
     // Represent 'for' as a while node for now (condition not preserved)
     // Use 'true' literal as condition to keep AST simple
+    auto cond = std::make_shared<AST::LiteralNode>("1", false);
+    return std::make_shared<AST::WhileNode>(cond, body);
+}
+
+std::shared_ptr<AST::Node> Parser::parseForeach() {
+    consume(TokenType::Foreach, "Expected 'foreach'");
+    
+    // Parse: foreach array ; variable { body }
+    // The array expression - just parse identifier for now
+    skipNewlines();
+    if (!check(TokenType::Identifier)) {
+        throw std::runtime_error("Expected identifier for array in foreach at line " + std::to_string(current().line));
+    }
+    std::string arrayName = current().value;
+    advance();
+    auto arrayExpr = std::make_shared<AST::VariableNode>(arrayName);
+    
+    // Expect semicolon separator (don't skip newlines before it!)
+    if (!check(TokenType::Semicolon)) {
+        throw std::runtime_error("Expected ';' after array in foreach (got '" + current().value + "' type=" + std::to_string(static_cast<int>(current().type)) + ") at line " + std::to_string(current().line));
+    }
+    advance(); // consume semicolon
+    skipNewlines();
+    
+    // The loop variable (identifier)
+    if (!check(TokenType::Identifier)) {
+        throw std::runtime_error("Expected identifier after ';' in foreach at line " + std::to_string(current().line));
+    }
+    std::string varName = current().value;
+    advance();
+    skipNewlines();
+    
+    // Parse the body
+    consume(TokenType::LeftBrace, "Expected '{' after foreach header");
+    skipNewlines();
+    
+    std::vector<std::shared_ptr<AST::Node>> body;
+    while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+        auto stmt = parseStatement();
+        if (stmt) body.push_back(stmt);
+        skipNewlines();
+    }
+    consume(TokenType::RightBrace, "Expected '}' after foreach body");
+    
+    // Represent 'foreach' as a while node for now (simplified)
     auto cond = std::make_shared<AST::LiteralNode>("1", false);
     return std::make_shared<AST::WhileNode>(cond, body);
 }
