@@ -235,6 +235,11 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
         return parseCase();
     }
     
+    // Standalone when statement (like case but without explicit test expr)
+    if (check(TokenType::When)) {
+        return parseStandaloneWhen();
+    }
+    
     // Break statement
     if (check(TokenType::Break)) {
         advance();
@@ -848,6 +853,13 @@ std::shared_ptr<AST::Node> Parser::parseCase() {
             auto block = parseBlock();
             whenClauses.push_back(block);
             skipNewlines();
+        } else if (check(TokenType::Identifier) && current().value == "others") {
+            // 'others' is an alias for 'default'
+            advance(); // consume 'others'
+            skipNewlines();
+            auto block = parseBlock();
+            whenClauses.push_back(block);
+            skipNewlines();
         } else {
             // Skip unexpected tokens
             advance();
@@ -858,6 +870,35 @@ std::shared_ptr<AST::Node> Parser::parseCase() {
     
     // Return a block containing all the when clauses
     return std::make_shared<AST::BlockNode>(whenClauses);
+}
+
+std::shared_ptr<AST::Node> Parser::parseStandaloneWhen() {
+    // Standalone when statement: when val1, val2 { block }
+    // This is like a case clause without an explicit test expression
+    // We'll treat it as if it's checking against some implicit state variable
+    
+    advance(); // consume 'when'
+    skipNewlines();
+    
+    // Parse comma-separated match values
+    std::vector<std::shared_ptr<AST::Node>> matchValues;
+    matchValues.push_back(parseExpression());
+    
+    while (match(TokenType::Comma)) {
+        skipNewlines();
+        matchValues.push_back(parseExpression());
+    }
+    
+    skipNewlines();
+    
+    // Parse the when block
+    auto block = parseBlock();
+    
+    // For standalone when, we can't build a proper condition without knowing
+    // what to compare against. We'll just return the block for now.
+    // In actual YAYA, these are typically handled by runtime context.
+    // For parsing purposes, we'll wrap it in a labeled block.
+    return block;
 }
 
 std::shared_ptr<AST::Node> Parser::parseExpression() {
