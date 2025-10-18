@@ -6,10 +6,29 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <nlohmann/json.hpp>
+
+// Callback interface for VM to request operations from host
+class VMCallback {
+public:
+    virtual ~VMCallback() = default;
+    
+    // File I/O operations
+    virtual nlohmann::json fileOperation(const std::string& op, const nlohmann::json& params) = 0;
+    
+    // Execute system command
+    virtual nlohmann::json executeCommand(const std::string& command, bool wait) = 0;
+    
+    // Plugin/SAORI operations
+    virtual nlohmann::json pluginOperation(const std::string& op, const nlohmann::json& params) = 0;
+};
 
 class VM {
 public:
     VM();
+    
+    // Set callback for host operations
+    void setCallback(VMCallback* callback) { callback_ = callback; }
     
     // Register a function
     void registerFunction(const std::string& name, std::shared_ptr<AST::FunctionNode> func);
@@ -25,6 +44,7 @@ public:
     void setReferences(const std::vector<std::string>& refs);
     
 private:
+    VMCallback* callback_ = nullptr;
     // Function registry
     std::map<std::string, std::shared_ptr<AST::FunctionNode>> functions_;
     

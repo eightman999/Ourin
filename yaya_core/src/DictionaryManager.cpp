@@ -10,6 +10,12 @@ DictionaryManager::DictionaryManager() {
     vm_ = std::make_unique<VM>();
 }
 
+void DictionaryManager::setCallback(VMCallback* callback) {
+    if (vm_) {
+        vm_->setCallback(callback);
+    }
+}
+
 std::string DictionaryManager::loadFile(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {

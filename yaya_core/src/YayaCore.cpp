@@ -3,7 +3,72 @@
 
 using json = nlohmann::json;
 
-YayaCore::YayaCore() = default;
+YayaCore::YayaCore() {
+    // Set this instance as the callback for VM operations
+    dictManager.setCallback(this);
+}
+
+// Request operation from host (Swift) via stdout/stdin
+std::string YayaCore::requestHostOperation(const std::string& type, const json& params) {
+    json request;
+    request["host_op"] = type;
+    request["params"] = params;
+    
+    // Send request to stdout for host to intercept
+    std::cout << request.dump() << std::endl;
+    std::cout.flush();
+    
+    // Read response from stdin
+    std::string responseLine;
+    if (std::getline(std::cin, responseLine)) {
+        try {
+            auto response = json::parse(responseLine);
+            return response.dump();
+        } catch (...) {
+            return "{}";
+        }
+    }
+    return "{}";
+}
+
+json YayaCore::fileOperation(const std::string& op, const json& params) {
+    json req;
+    req["operation"] = op;
+    req["params"] = params;
+    
+    std::string response = requestHostOperation("file", req);
+    try {
+        return json::parse(response);
+    } catch (...) {
+        return json{{"error", "failed to parse response"}};
+    }
+}
+
+json YayaCore::executeCommand(const std::string& command, bool wait) {
+    json req;
+    req["command"] = command;
+    req["wait"] = wait;
+    
+    std::string response = requestHostOperation("execute", req);
+    try {
+        return json::parse(response);
+    } catch (...) {
+        return json{{"error", "failed to parse response"}};
+    }
+}
+
+json YayaCore::pluginOperation(const std::string& op, const json& params) {
+    json req;
+    req["operation"] = op;
+    req["params"] = params;
+    
+    std::string response = requestHostOperation("plugin", req);
+    try {
+        return json::parse(response);
+    } catch (...) {
+        return json{{"error", "failed to parse response"}};
+    }
+}
 
 std::string YayaCore::processCommand(const std::string &line) {
     json response;
