@@ -9,9 +9,19 @@ import Foundation
 struct OurinApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {
-        WindowGroup {
+        // Settings window - hidden by default, can be opened from menu
+        WindowGroup("Settings", id: "Settings") {
             ContentView()
         }
+        .commands {
+            CommandGroup(replacing: .appSettings) {
+                Button("Settings...") {
+                    openSettingsWindow()
+                }
+                .keyboardShortcut(",", modifiers: .command)
+            }
+        }
+
         WindowGroup("DevTools", id: "DevTools") {
             DevToolsView()
         }
@@ -24,6 +34,17 @@ struct OurinApp: App {
                 ModernDevToolsCommands()
             }
         }
+    }
+
+    private func openSettingsWindow() {
+        for window in NSApplication.shared.windows {
+            if window.title == "Settings" {
+                window.makeKeyAndOrderFront(nil)
+                return
+            }
+        }
+        // If no settings window exists, open a new one
+        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:")!)
     }
 }
 
@@ -52,6 +73,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             NSApplication.shared.terminate(nil)
         } catch {
             NSLog("FMO init failed: \(error)")
+        }
+
+        // Hide the default Settings window on startup
+        DispatchQueue.main.async {
+            for window in NSApplication.shared.windows {
+                if window.title == "Settings" || window.contentViewController?.view.className.contains("ContentView") == true {
+                    window.close()
+                }
+            }
         }
 
         // Register handler for x-ukagaka-link scheme early

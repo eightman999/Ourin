@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */ = {isa = PBXBuildFile; fileRef = 8684A3B06E824388A6939F39 /* emily4.nar */; };
+		A0F475111AF14D23831E8DFA /* yaya_core in Copy yaya_core */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		DF88A7FF2E35199D00644F8A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -23,33 +28,6 @@
 		};
 /* End PBXContainerItemProxy section */
 
-
-/* Begin PBXShellScriptBuildPhase section */
-		FB9B89652D3B4A46A677B797 /* Build yaya_core */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Build yaya_core";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cd \"${SRCROOT}/yaya_core\"
-if [ ! -f \"build/yaya_core\" ] || [ \"src\" -nt \"build/yaya_core\" ]; then
-    ./build.sh
-fi
-";
-		};
-/* End PBXShellScriptBuildPhase section */
-
-
 /* Begin PBXCopyFilesBuildPhase section */
 		77944998B8914360ADE8454F /* Copy yaya_core */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -57,7 +35,7 @@ fi
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				A0F475111AF14D23831E8DFA /* yaya_core in Copy Files */,
+				A0F475111AF14D23831E8DFA /* yaya_core in Copy yaya_core */,
 			);
 			name = "Copy yaya_core";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -65,17 +43,12 @@ fi
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4461E2FD564847458C545C0E /* yaya_core */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = yaya_core; path = yaya_core/build/yaya_core; sourceTree = "<group>"; };
+		8684A3B06E824388A6939F39 /* emily4.nar */ = {isa = PBXFileReference; lastKnownFileType = archive; path = emily4.nar; sourceTree = "<group>"; };
 		DF88A7F02E35199C00644F8A /* Ourin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ourin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF88A7FE2E35199D00644F8A /* OurinTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF88A8082E35199D00644F8A /* OurinUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		4461E2FD564847458C545C0E /* yaya_core */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = yaya_core; path = yaya_core/build/yaya_core; sourceTree = "<group>"; };
-		8684A3B06E824388A6939F39 /* emily4.nar */ = {isa = PBXFileReference; lastKnownFileType = archive; path = emily4.nar; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXBuildFile section */
-		A0F475111AF14D23831E8DFA /* yaya_core in Copy Files */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */ = {isa = PBXBuildFile; fileRef = 8684A3B06E824388A6939F39 /* emily4.nar */; };
-/* End PBXBuildFile section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DF88A7F22E35199C00644F8A /* Ourin */ = {
@@ -127,6 +100,7 @@ fi
 				DF88A8012E35199D00644F8A /* OurinTests */,
 				DF88A80B2E35199D00644F8A /* OurinUITests */,
 				DF88A7F12E35199C00644F8A /* Products */,
+				DFC17AD22EA272E800D2F390 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -138,6 +112,15 @@ fi
 				DF88A8082E35199D00644F8A /* OurinUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		DFC17AD22EA272E800D2F390 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				8684A3B06E824388A6939F39 /* emily4.nar */,
+				4461E2FD564847458C545C0E /* yaya_core */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -263,8 +246,8 @@ fi
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */,
-				);
+				3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		DF88A7FC2E35199D00644F8A /* Resources */ = {
@@ -282,6 +265,27 @@ fi
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		FB9B89652D3B4A46A677B797 /* Build yaya_core */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build yaya_core";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd \"${SRCROOT}/yaya_core\"\nif [ ! -f \"build/yaya_core\" ] || [ \"src\" -nt \"build/yaya_core\" ]; then\n    ./build.sh\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		DF88A7EC2E35199C00644F8A /* Sources */ = {
@@ -359,7 +363,7 @@ fi
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -421,7 +425,7 @@ fi
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -447,8 +451,21 @@ fi
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				EXCLUDED_SOURCE_FILE_NAMES = "**/Info.plist";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Ourin/Resources/Info.plist;
@@ -490,8 +507,21 @@ fi
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				EXCLUDED_SOURCE_FILE_NAMES = "**/Info.plist";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Ourin/Resources/Info.plist;
