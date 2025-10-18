@@ -126,9 +126,27 @@ Token Lexer::readIdentifier() {
     int startCol = column_;
     std::string value;
     
-    while (current() != '\0' && (std::isalnum(current()) || current() == '_')) {
-        value += current();
-        advance();
+    // Allow ASCII alphanumeric, underscore, backslash, and UTF-8 multi-byte characters
+    while (current() != '\0') {
+        unsigned char ch = static_cast<unsigned char>(current());
+        // ASCII alphanumeric or underscore
+        if (std::isalnum(ch) || ch == '_') {
+            value += current();
+            advance();
+        }
+        // Backslash (for function names like On_\ms)
+        else if (ch == '\\') {
+            value += current();
+            advance();
+        }
+        // UTF-8 multi-byte character (0x80-0xFF)
+        else if (ch >= 0x80) {
+            value += current();
+            advance();
+        }
+        else {
+            break;
+        }
     }
     
     // Check for keywords
@@ -226,8 +244,8 @@ std::vector<Token> Lexer::tokenize() {
             continue;
         }
         
-        // Identifier or keyword
-        if (std::isalpha(ch) || ch == '_') {
+        // Identifier or keyword (including UTF-8 characters)
+        if (std::isalpha(ch) || ch == '_' || static_cast<unsigned char>(ch) >= 0x80) {
             tokens.push_back(readIdentifier());
             continue;
         }
