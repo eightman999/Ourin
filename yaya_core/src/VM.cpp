@@ -256,6 +256,25 @@ Value VM::evaluateBinaryOp(const std::string& op, const Value& left, const Value
     if (op == ">=") return Value(left >= right ? 1 : 0);
     if (op == "&&") return Value(left.toBool() && right.toBool() ? 1 : 0);
     if (op == "||") return Value(left.toBool() || right.toBool() ? 1 : 0);
+    if (op == "_in_") {
+        // String contains check: "substring" _in_ "full string"
+        // or array contains check: "value" _in_ array
+        if (right.getType() == Value::Type::Array) {
+            // Check if left is in array right
+            const auto& arr = right.asArray();
+            for (const auto& elem : arr) {
+                if (elem == left) {
+                    return Value(1);
+                }
+            }
+            return Value(0);
+        } else {
+            // String contains check
+            std::string haystack = right.asString();
+            std::string needle = left.asString();
+            return Value(haystack.find(needle) != std::string::npos ? 1 : 0);
+        }
+    }
     return Value();
 }
 

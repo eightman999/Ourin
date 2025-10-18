@@ -139,6 +139,7 @@ Token Lexer::readIdentifier() {
     else if (value == "while") type = TokenType::While;
     else if (value == "foreach") type = TokenType::Foreach;
     else if (value == "for") type = TokenType::For;
+    else if (value == "_in_") type = TokenType::In;
     
     return Token(type, value, startLine, startCol);
 }
