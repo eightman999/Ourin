@@ -81,6 +81,29 @@ Token Lexer::readString() {
     
     while (current() != '\0' && current() != quote) {
         if (current() == '\\') {
+            // Look ahead to see what follows the backslash
+            char next = peek();
+            
+            // If backslash is followed by the closing quote, check if it's escaping the quote
+            // or if it's a literal backslash at the end of the string
+            if (next == quote) {
+                // In YAYA, '\' at the end means a literal backslash, not an escape
+                // We need to check if there's content after the quote
+                char after_quote = peek(2);
+                
+                // If after the quote we have comma, paren, or other delimiters,
+                // treat this as a literal backslash ending the string
+                if (after_quote == ',' || after_quote == ')' || after_quote == '}' || 
+                    after_quote == ']' || after_quote == '\n' || after_quote == '\r' ||
+                    after_quote == ' ' || after_quote == '\t' || after_quote == '\0') {
+                    // This is a literal backslash at end of string
+                    value += '\\';
+                    advance(); // consume the backslash
+                    break; // Let the main loop consume the quote
+                }
+            }
+            
+            // Normal escape sequence handling
             advance();
             if (current() != '\0') {
                 // Handle escape sequences
