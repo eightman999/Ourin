@@ -18,20 +18,20 @@ final class YayaBackend: ShioriBackend {
     private let yayaAdapter: YayaAdapter
 
     init?(ghostURL: URL, descript: [String:String]) {
-        let yayaTxtURL = ghostURL.appendingPathComponent("ghost/master/yaya.txt")
+        let ghostMasterURL = ghostURL.appendingPathComponent("ghost/master")
+        let yayaTxtURL = ghostMasterURL.appendingPathComponent("yaya.txt")
+
         // yaya.txtはUTF-8 BOM付きの可能性があるため、BOMを許容するString.init(contentsOf:)を使用する
         guard let yayaTxtContents = try? String(contentsOf: yayaTxtURL) else {
             //NSLog("[Ourin.YayaBackend] Failed to read yaya.txt")
             return nil
         }
 
-        let dicFiles = yayaTxtContents.components(separatedBy: .newlines).compactMap { line -> String? in
-            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
-            if trimmedLine.lowercased().starts(with: "dic,") {
-                return String(trimmedLine.dropFirst(4)).trimmingCharacters(in: .whitespaces)
-            }
-            return nil
-        }
+        // Recursively parse config files to collect all dic entries
+        var dicFiles: [String] = []
+        parseYayaConfigFile(content: yayaTxtContents, baseURL: ghostMasterURL, dicFiles: &dicFiles, visited: [])
+
+        NSLog("[YayaBackend] Collected \(dicFiles.count) dic file entries from yaya.txt and includes")
 
         if dicFiles.isEmpty {
             //NSLog("[Ourin.YayaBackend] No dic files found in yaya.txt")
@@ -43,7 +43,6 @@ final class YayaBackend: ShioriBackend {
             return nil
         }
 
-        let ghostMasterURL = ghostURL.appendingPathComponent("ghost/master")
         let ok = adapter.load(ghostRoot: ghostMasterURL, dics: dicFiles, encoding: "utf-8")
         if !ok {
             //NSLog("[Ourin.YayaBackend] YayaAdapter.load failed")
@@ -59,7 +58,7 @@ final class YayaBackend: ShioriBackend {
             return "SHIORI/3.0 400 Bad Request\r\n\r\n"
         }
 
-        guard let yayaResponse = yayaAdapter.request(method: parsed.method, id: parsed.id, headers: parsed.headers, refs: parsed.refs) else {
+        guard let yayaResponse = yayaAdapter.request(method: parsed.method, id: parsed.id, headers: parsed.headers, refs: parsed.refs, timeout: 5.0) else {
             return "SHIORI/3.0 500 Internal Server Error\r\n\r\n"
         }
 
@@ -69,6 +68,68 @@ final class YayaBackend: ShioriBackend {
     func unload() {
         yayaAdapter.unload()
     }
+}
+
+// MARK: - YAYA Config Parsing Helpers
+/// Recursively parse YAYA config files (yaya.txt, system_config.txt, etc.) to collect dic entries
+/// @param content The content of the config file
+/// @param baseURL The base directory (ghost/master)
+/// @param dicFiles In-out array to collect dic file paths
+/// @param visited Set of already-visited file paths to prevent infinite recursion
+func parseYayaConfigFile(content: String, baseURL: URL, dicFiles: inout [String], visited: Set<String>) {
+        var newVisited = visited
+        let lines = content.components(separatedBy: .newlines)
+
+        for line in lines {
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+
+            // Skip comments and empty lines
+            if trimmedLine.isEmpty || trimmedLine.starts(with: "//") {
+                continue
+            }
+
+            // Remove inline comments
+            let lineWithoutComment: String
+            if let commentIndex = trimmedLine.range(of: "//") {
+                lineWithoutComment = String(trimmedLine[..<commentIndex.lowerBound]).trimmingCharacters(in: .whitespaces)
+            } else {
+                lineWithoutComment = trimmedLine
+            }
+
+            // Parse "dic, filename" or "dic, path/filename, encoding"
+            if lineWithoutComment.lowercased().starts(with: "dic,") {
+                let remainder = String(lineWithoutComment.dropFirst(4)).trimmingCharacters(in: .whitespaces)
+                // Split by comma to handle encoding parameter
+                let parts = remainder.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+                if let dicPath = parts.first, !dicPath.isEmpty {
+                    NSLog("[YayaBackend] Adding dic file: \(dicPath)")
+                    dicFiles.append(dicPath)
+                }
+            }
+            // Parse "include, filename"
+            else if lineWithoutComment.lowercased().starts(with: "include,") {
+                let includePath = String(lineWithoutComment.dropFirst(8)).trimmingCharacters(in: .whitespaces)
+                let includeURL = baseURL.appendingPathComponent(includePath)
+                let absolutePath = includeURL.path
+
+                NSLog("[YayaBackend] Processing include: \(includePath)")
+
+                // Prevent infinite recursion
+                if newVisited.contains(absolutePath) {
+                    NSLog("[YayaBackend] Skipping already visited: \(includePath)")
+                    continue
+                }
+                newVisited.insert(absolutePath)
+
+                // Try to read the included file (try Shift-JIS first, then UTF-8)
+                if let includeContent = (try? String(contentsOf: includeURL, encoding: .shiftJIS)) ?? (try? String(contentsOf: includeURL, encoding: .utf8)) {
+                    NSLog("[YayaBackend] Successfully read include file: \(includePath)")
+                    parseYayaConfigFile(content: includeContent, baseURL: baseURL, dicFiles: &dicFiles, visited: newVisited)
+                } else {
+                    NSLog("[YayaBackend] Failed to read include file: \(includePath)")
+                }
+            }
+        }
 }
 
 // MARK: - YayaBackend Helpers

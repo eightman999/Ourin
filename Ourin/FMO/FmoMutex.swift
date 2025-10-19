@@ -12,19 +12,34 @@ final class FmoMutex {
     /// セマフォの識別名
     private let name: String
     /// POSIX セマフォの実体ポインタ
-    private var sem: UnsafeMutablePointer<sem_t>?  // ← 型を変更
+    private var sem: UnsafeMutablePointer<sem_t>?
+    /// このインスタンスがセマフォを作成したか (cleanup時にunlinkするため)
+    private let isCreator: Bool
 
     /// 新規セマフォを作成する。既に存在すればエラーを投げる
-    init(name: String) throws {
+    init(name: String, createNew: Bool = true) throws {
         self.name = name
-        NSLog("Opening semaphore '%@'", name)
-        sem = fmo_sem_open(name, O_CREAT | O_EXCL, 0o666, 1)
-        if sem == nil {
-            if errno == EEXIST {
-                throw FmoError.alreadyRunning
-            } else {
+
+        if createNew {
+            // 新規作成モード: O_CREAT | O_EXCL で排他的に作成
+            NSLog("Creating new semaphore '%@'", name)
+            sem = fmo_sem_open(name, O_CREAT | O_EXCL, 0o666, 1)
+            if sem == nil {
+                if errno == EEXIST {
+                    throw FmoError.alreadyRunning
+                } else {
+                    throw FmoError.systemError(String(cString: strerror(errno)))
+                }
+            }
+            isCreator = true
+        } else {
+            // 既存オープンモード: O_CREAT なしで開く
+            NSLog("Opening existing semaphore '%@'", name)
+            sem = fmo_sem_open(name, 0, 0, 0)
+            if sem == nil {
                 throw FmoError.systemError(String(cString: strerror(errno)))
             }
+            isCreator = false
         }
     }
 
@@ -44,7 +59,10 @@ final class FmoMutex {
     func close() {
         if let s = sem {
             fmo_sem_close(s)
-            fmo_sem_unlink(name)
+            // 作成者のみがunlinkする
+            if isCreator {
+                fmo_sem_unlink(name)
+            }
             sem = nil
         }
     }

@@ -162,13 +162,13 @@ std::shared_ptr<AST::FunctionNode> Parser::parseFunction() {
 std::shared_ptr<AST::Node> Parser::parseStatement() {
     skipNewlines();
 
-    // デバッグ出力（最初の数回のみ）
-    static int call_count = 0;
-    if (call_count++ < 20) {
-        std::cerr << "[parseStatement #" << call_count << "] token='"
-                  << current().value << "' type=" << static_cast<int>(current().type)
-                  << " line=" << current().line << std::endl;
-    }
+    // デバッグ出力は無効化（パフォーマンスとログ氾濫防止のため）
+    // static int call_count = 0;
+    // if (call_count++ < 20) {
+    //     std::cerr << "[parseStatement #" << call_count << "] token='"
+    //               << current().value << "' type=" << static_cast<int>(current().type)
+    //               << " line=" << current().line << std::endl;
+    // }
 
     // EOF チェック
     if (check(TokenType::EndOfFile)) {
@@ -255,6 +255,11 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
     // Return statement
     if (check(TokenType::Return)) {
         advance();
+        // Support bare 'return' and 'return;' with no expression
+        if (check(TokenType::Semicolon)) {
+            advance();
+            return std::make_shared<AST::ReturnNode>(nullptr);
+        }
         if (check(TokenType::Newline) || check(TokenType::EndOfFile) || check(TokenType::RightBrace)) {
             return std::make_shared<AST::ReturnNode>(nullptr);
         }
@@ -281,7 +286,6 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
             }
             TokenType next = peek(offset).type;
             if (next == TokenType::Assign ||
-                next == TokenType::LeftBracket ||
                 next == TokenType::CommaAssign ||
                 next == TokenType::PlusAssign ||
                 next == TokenType::MinusAssign ||
@@ -289,6 +293,31 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
                 next == TokenType::SlashAssign ||
                 next == TokenType::PercentAssign) {
                 return parseAssignment();
+            }
+            // If the next token is '[', look ahead past the bracket expression
+            // to ensure there's an assignment operator; otherwise treat as expression
+            if (next == TokenType::LeftBracket) {
+                size_t saved_pos = pos_;
+                advance(); // consume identifier
+                while (match(TokenType::Dot)) {
+                    if (check(TokenType::Identifier)) advance(); else break;
+                }
+                if (check(TokenType::LeftBracket)) {
+                    advance();
+                    int bracket_depth = 1;
+                    while (bracket_depth > 0 && !check(TokenType::EndOfFile)) {
+                        if (check(TokenType::LeftBracket)) bracket_depth++;
+                        else if (check(TokenType::RightBracket)) bracket_depth--;
+                        advance();
+                    }
+                    if (check(TokenType::Assign) || check(TokenType::PlusAssign) || check(TokenType::MinusAssign) ||
+                        check(TokenType::StarAssign) || check(TokenType::SlashAssign) || check(TokenType::PercentAssign) ||
+                        check(TokenType::CommaAssign)) {
+                        pos_ = saved_pos;
+                        return parseAssignment();
+                    }
+                }
+                pos_ = saved_pos; // restore position to start of identifier
             }
             // Otherwise, fall through to expression parsing
         }
@@ -342,7 +371,6 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
         }
         TokenType next = peek(offset).type;
         if (next == TokenType::Assign ||
-            next == TokenType::LeftBracket ||
             next == TokenType::CommaAssign ||
             next == TokenType::PlusAssign ||
             next == TokenType::MinusAssign ||
@@ -350,6 +378,36 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
             next == TokenType::SlashAssign ||
             next == TokenType::PercentAssign) {
             return parseAssignment();
+        }
+        // Special case: if the next token is '[' we need to look past the index to
+        // determine whether this is an assignment (like a[i] = ...) or an expression
+        if (next == TokenType::LeftBracket) {
+            size_t saved = pos_;
+            // advance over .name(.sub)* sequence consumed above
+            advance(); // '.'
+            while (check(TokenType::Identifier) && peek().type == TokenType::Dot) {
+                advance(); // IDENT
+                advance(); // '.'
+            }
+            if (check(TokenType::Identifier)) advance(); // last IDENT
+            // now at '['
+            if (check(TokenType::LeftBracket)) {
+                advance();
+                int depth = 1;
+                while (depth > 0 && !check(TokenType::EndOfFile)) {
+                    if (check(TokenType::LeftBracket)) depth++;
+                    else if (check(TokenType::RightBracket)) depth--;
+                    advance();
+                }
+                // Check for assignment operators
+                if (check(TokenType::Assign) || check(TokenType::PlusAssign) || check(TokenType::MinusAssign) ||
+                    check(TokenType::StarAssign) || check(TokenType::SlashAssign) || check(TokenType::PercentAssign) ||
+                    check(TokenType::CommaAssign)) {
+                    pos_ = saved;
+                    return parseAssignment();
+                }
+            }
+            pos_ = saved;
         }
     }
 
@@ -505,19 +563,16 @@ std::shared_ptr<AST::Node> Parser::parseIf() {
         // Use dummy condition
         condition = std::make_shared<AST::LiteralNode>("1", false);
     }
-    skipNewlines();
-    consume(TokenType::LeftBrace, "Expected '{' after if condition");
-    skipNewlines();
-
+    // Then body: either a braced block or a single statement
     std::vector<std::shared_ptr<AST::Node>> thenBody;
-    while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+    skipNewlines();
+    if (check(TokenType::LeftBrace)) {
+        auto blk = parseBlock();
+        thenBody.push_back(blk);
+    } else {
         auto stmt = parseStatement();
-        if (stmt) {
-            thenBody.push_back(stmt);
-        }
-        skipNewlines();
+        if (stmt) thenBody.push_back(stmt);
     }
-    consume(TokenType::RightBrace, "Expected '}' after if body");
 
     // Build the root If node
     auto root = std::make_shared<AST::IfNode>(condition, thenBody, std::vector<std::shared_ptr<AST::Node>>{});
@@ -536,19 +591,16 @@ std::shared_ptr<AST::Node> Parser::parseIf() {
                 while (!check(TokenType::LeftBrace) && !check(TokenType::EndOfFile)) advance();
                 elifCond = std::make_shared<AST::LiteralNode>("1", false);
             }
-            skipNewlines();
-            consume(TokenType::LeftBrace, "Expected '{' after elseif condition");
-            skipNewlines();
-
+            // Body: either a braced block or a single statement
             std::vector<std::shared_ptr<AST::Node>> elifBody;
-            while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
-                auto stmt = parseStatement();
-                if (stmt) {
-                    elifBody.push_back(stmt);
-                }
-                skipNewlines();
+            skipNewlines();
+            if (check(TokenType::LeftBrace)) {
+                auto blk = parseBlock();
+                elifBody.push_back(blk);
+            } else {
+                auto s = parseStatement();
+                if (s) elifBody.push_back(s);
             }
-            consume(TokenType::RightBrace, "Expected '}' after elseif body");
 
             // Chain: else { if (...) { ... } }
             auto chained = std::make_shared<AST::IfNode>(elifCond, elifBody, std::vector<std::shared_ptr<AST::Node>>{});
@@ -569,19 +621,16 @@ std::shared_ptr<AST::Node> Parser::parseIf() {
                     while (!check(TokenType::LeftBrace) && !check(TokenType::EndOfFile)) advance();
                     elifCond = std::make_shared<AST::LiteralNode>("1", false);
                 }
-                skipNewlines();
-                consume(TokenType::LeftBrace, "Expected '{' after else-if condition");
-                skipNewlines();
-
+                // Body: either a braced block or a single statement
                 std::vector<std::shared_ptr<AST::Node>> elifBody;
-                while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
-                    auto stmt = parseStatement();
-                    if (stmt) {
-                        elifBody.push_back(stmt);
-                    }
-                    skipNewlines();
+                skipNewlines();
+                if (check(TokenType::LeftBrace)) {
+                    auto blk = parseBlock();
+                    elifBody.push_back(blk);
+                } else {
+                    auto s = parseStatement();
+                    if (s) elifBody.push_back(s);
                 }
-                consume(TokenType::RightBrace, "Expected '}' after else-if body");
 
                 auto chained = std::make_shared<AST::IfNode>(elifCond, elifBody, std::vector<std::shared_ptr<AST::Node>>{});
                 currentIf->elseBody = { chained };
@@ -589,18 +638,16 @@ std::shared_ptr<AST::Node> Parser::parseIf() {
                 // Continue loop to allow further elseif/else
                 continue;
             } else {
-                consume(TokenType::LeftBrace, "Expected '{' after else");
-                skipNewlines();
-
+                // Else body: braced block or single statement
                 std::vector<std::shared_ptr<AST::Node>> elseBody;
-                while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
-                    auto stmt = parseStatement();
-                    if (stmt) {
-                        elseBody.push_back(stmt);
-                    }
-                    skipNewlines();
+                skipNewlines();
+                if (check(TokenType::LeftBrace)) {
+                    auto blk = parseBlock();
+                    elseBody.push_back(blk);
+                } else {
+                    auto s = parseStatement();
+                    if (s) elseBody.push_back(s);
                 }
-                consume(TokenType::RightBrace, "Expected '}' after else body");
                 currentIf->elseBody = elseBody;
             }
         }
@@ -705,13 +752,20 @@ std::shared_ptr<AST::Node> Parser::parseForeach() {
     consume(TokenType::Foreach, "Expected 'foreach'");
     
     // Parse: foreach array ; variable { body }
-    // The array expression - just parse identifier for now
+    // The array expression - support dotted identifiers (e.g., A.B.C)
     skipNewlines();
     if (!check(TokenType::Identifier)) {
         throw std::runtime_error("Expected identifier for array in foreach at line " + std::to_string(current().line));
     }
     std::string arrayName = current().value;
     advance();
+    while (match(TokenType::Dot)) {
+        if (!check(TokenType::Identifier)) {
+            throw std::runtime_error("Expected identifier after '.' in foreach array at line " + std::to_string(current().line));
+        }
+        arrayName += "." + current().value;
+        advance();
+    }
     auto arrayExpr = std::make_shared<AST::VariableNode>(arrayName);
     
     // Expect semicolon separator (don't skip newlines before it!)
@@ -747,6 +801,8 @@ std::shared_ptr<AST::Node> Parser::parseForeach() {
 }
 
 std::shared_ptr<AST::Node> Parser::parseBlock() {
+    // Tolerate newlines/semicolons before the opening brace
+    skipNewlines();
     consume(TokenType::LeftBrace, "Expected '{' to start block");
     skipNewlines();
     std::vector<std::shared_ptr<AST::Node>> stmts;
@@ -825,8 +881,18 @@ std::shared_ptr<AST::Node> Parser::parseCase() {
             
             skipNewlines();
             
-            // Parse the when block
-            auto block = parseBlock();
+            // Parse the when body: allow either a braced block or a single statement
+            std::shared_ptr<AST::Node> block;
+            if (check(TokenType::LeftBrace)) {
+                block = parseBlock();
+            } else {
+                auto stmt = parseStatement();
+                if (stmt) {
+                    block = std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{stmt});
+                } else {
+                    block = std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{});
+                }
+            }
             
             // Create an if-else chain: if (expr == val1 || expr == val2 ...) { block }
             // We need to clone the expr node for each comparison
@@ -848,17 +914,37 @@ std::shared_ptr<AST::Node> Parser::parseCase() {
             
             skipNewlines();
         } else if (check(TokenType::Default)) {
+            // default { ... } もしくは default <single-statement>
             advance(); // consume 'default'
             skipNewlines();
-            auto block = parseBlock();
-            whenClauses.push_back(block);
+            if (check(TokenType::LeftBrace)) {
+                auto block = parseBlock();
+                whenClauses.push_back(block);
+            } else {
+                // Single statement/default line without braces
+                auto stmt = parseStatement();
+                if (stmt) {
+                    whenClauses.push_back(std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{stmt}));
+                } else {
+                    whenClauses.push_back(std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{}));
+                }
+            }
             skipNewlines();
         } else if (check(TokenType::Identifier) && current().value == "others") {
-            // 'others' is an alias for 'default'
+            // 'others' は 'default' のエイリアス。{ } 省略も許容
             advance(); // consume 'others'
             skipNewlines();
-            auto block = parseBlock();
-            whenClauses.push_back(block);
+            if (check(TokenType::LeftBrace)) {
+                auto block = parseBlock();
+                whenClauses.push_back(block);
+            } else {
+                auto stmt = parseStatement();
+                if (stmt) {
+                    whenClauses.push_back(std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{stmt}));
+                } else {
+                    whenClauses.push_back(std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{}));
+                }
+            }
             skipNewlines();
         } else {
             // Skip unexpected tokens
@@ -1078,6 +1164,39 @@ std::shared_ptr<AST::Node> Parser::parseUnary() {
 }
 
 std::shared_ptr<AST::Node> Parser::parsePrimary() {
+    // Regex-like concatenation used in YAYA optional scripts:
+    // pattern written as: / 'part1' + / 'part2' + ... possibly across newlines.
+    // Accept it as a single string literal by concatenating quoted parts, ignoring '/'
+    // and '+', and skipping newlines/semicolons, until reaching a ',' or ')' delimiter.
+    if (check(TokenType::Slash)) {
+        std::string accum;
+        while (!check(TokenType::EndOfFile) && !check(TokenType::Comma) && !check(TokenType::RightParen)) {
+            if (match(TokenType::Slash)) {
+                continue; // ignore marker
+            }
+            if (check(TokenType::Plus)) {
+                // Only consume '+' if it's joining another slash-literal or string part
+                TokenType nxt = peek().type;
+                if (nxt == TokenType::Slash || nxt == TokenType::String || nxt == TokenType::Newline) {
+                    advance();
+                    continue;
+                } else {
+                    break; // leave '+' for the outer expression parser
+                }
+            }
+            if (match(TokenType::Newline) || match(TokenType::Semicolon)) {
+                continue; // ignore line breaks between parts
+            }
+            if (check(TokenType::String)) {
+                accum += current().value;
+                advance();
+                continue;
+            }
+            // Any other token likely indicates end of this pseudo-literal
+            break;
+        }
+        return std::make_shared<AST::LiteralNode>(accum, true);
+    }
     // String literal
     if (check(TokenType::String)) {
         auto value = current().value;

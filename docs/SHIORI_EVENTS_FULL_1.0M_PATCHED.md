@@ -1,5 +1,47 @@
 # SHIORI Events FULL (Ourin/1.0M)
 
+> Method rule (per UKADOC):
+> - Unless an event is explicitly marked as "[NOTIFY]" in the UKADOC list (https://ssp.shillest.net/ukadoc/manual/list_shiori_event.html), its default method is GET.
+> - Only events documented with "[NOTIFY]" are NOTIFY by default. All others are GET by default.
+> - This document follows the same convention. When the "Method" is not shown for an ID below, assume GET by default unless otherwise noted by implementation-specific remarks.
+
+## Notify-only events (return ignored)
+Per UKADOC “Notifyイベント”, the following IDs are sent via NOTIFY and any returned script must be ignored by the baseware. Ourin follows the same behavior.
+
+- `basewareversion`
+- `hwnd`
+- `uniqueid`
+- `capability`
+- `ownerghostname`
+- `otherghostname`
+- `installedsakuraname`
+- `installedkeroname`
+- `installedghostname`
+- `installedshellname`
+- `installedballoonname`
+- `installedheadlinename`
+- `installedplugin`
+- `configuredbiffname`
+- `ghostpathlist`
+- `balloonpathlist`
+- `headlinepathlist`
+- `pluginpathlist`
+- `calendarskinpathlist`
+- `calendarpluginpathlist`
+- `rateofusegraph`
+- `enable_log`
+- `enable_debug`
+- `OnNotifySelfInfo`
+- `OnNotifyBalloonInfo`
+- `OnNotifyShellInfo`
+- `OnNotifyDressupInfo`
+- `OnNotifyUserInfo`
+- `OnNotifyOSInfo`
+- `OnNotifyFontInfo`
+- `OnNotifyInternationalInfo`
+
+Reference: https://ssp.shillest.net/ukadoc/manual/list_shiori_event.html
+
 | ID | Ourin(mac) メモ |
 |---|---|
 | `OnFirstBoot` | OS-agnostic |

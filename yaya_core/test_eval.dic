@@ -1,0 +1,10 @@
+TestFunc
+{
+    "Hello from TestFunc"
+}
+
+TestEval
+{
+    // Test EVAL with a simple function name
+    EVAL("TestFunc")
+}

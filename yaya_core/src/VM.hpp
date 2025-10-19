@@ -47,16 +47,30 @@ private:
     VMCallback* callback_ = nullptr;
     // Function registry
     std::map<std::string, std::shared_ptr<AST::FunctionNode>> functions_;
-    
+
     // Variable storage
     std::map<std::string, Value> variables_;
-    
+
     // SHIORI reference values
     std::vector<Value> references_;
-    
+
     // Built-in functions
     std::map<std::string, std::function<Value(const std::vector<Value>&)>> builtins_;
-    
+
+    // 再帰深度制限（無限ループ防止）
+    int recursion_depth_ = 0;
+    static constexpr int MAX_RECURSION_DEPTH = 1000;
+
+    // 実行タイムアウト（無限ループ防止）
+    std::chrono::steady_clock::time_point execution_start_time_;
+    static constexpr int MAX_EXECUTION_TIME_MS = 5000; // 5秒
+
+    // Early return exception for control flow
+    struct ReturnException {
+        Value value;
+        explicit ReturnException(const Value& v) : value(v) {}
+    };
+
     // Execution helpers
     Value executeNode(std::shared_ptr<AST::Node> node);
     Value executeBlock(const std::vector<std::shared_ptr<AST::Node>>& statements);

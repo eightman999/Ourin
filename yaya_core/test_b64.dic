@@ -1,0 +1,8 @@
+__B64Enc {
+    _s = "hi"
+    return STRENCODE(_s, "base64")
+}
+__B64Dec {
+    _s = "aGk="
+    return STRDECODE(_s, "base64")
+}

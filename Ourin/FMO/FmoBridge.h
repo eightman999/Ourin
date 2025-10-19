@@ -27,4 +27,8 @@ int fmo_sem_post(sem_t *sem);
 int fmo_sem_close(sem_t *sem);
 int fmo_sem_unlink(const char *name);
 
+/* 起動判定用関数 (ninix仕様準拠) */
+int fmo_check_running(const char *shm_name);
+int fmo_open_existing_shared(const char *name);
+
 #endif

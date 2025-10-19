@@ -1,0 +1,14 @@
+__TestURLEncode {
+    _s = "Hello World!あ"
+    return STRENCODE(_s, "url")
+}
+__TestURLDecode {
+    _s = "Hello+World%21%41"
+    return STRDECODE(_s, "url")
+}
+__TestDigests {
+    _a = STRDIGEST("abc", "md5")
+    _b = STRDIGEST("abc", "sha1")
+    _c = STRDIGEST("abc", "crc32")
+    return _a + "," + _b + "," + _c
+}

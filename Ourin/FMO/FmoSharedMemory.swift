@@ -17,19 +17,36 @@ final class FmoSharedMemory {
     private var ptr: UnsafeMutableRawPointer
     /// ファイルディスクリプタ
     private let fd: Int32
+    /// このインスタンスが共有メモリを作成したか
+    private let isCreator: Bool
 
-    /// 新規共有メモリ領域を確保してマッピングする
-    init(name: String, size: Int = 64 * 1024) throws {
+    /// 新規共有メモリ領域を確保してマッピングする、または既存のものを開く
+    init(name: String, size: Int = 64 * 1024, createNew: Bool = true) throws {
         self.name = name
         self.size = size
-        NSLog("Opening shared memory '%@' (%d bytes)", name, size)
-        let fdTemp = fmo_open_shared(name, size)
-        if fdTemp == -1 {
-            throw FmoError.systemError(String(cString: strerror(errno)))
+
+        let fdTemp: Int32
+        if createNew {
+            // 新規作成モード
+            NSLog("Creating new shared memory '%@' (%d bytes)", name, size)
+            fdTemp = fmo_open_shared(name, size)
+            if fdTemp == -1 {
+                throw FmoError.systemError(String(cString: strerror(errno)))
+            }
+            // エフェメラルに運用するため作成直後に名前を削除
+            _ = fmo_shm_unlink(name)
+            isCreator = true
+        } else {
+            // 既存オープンモード
+            NSLog("Opening existing shared memory '%@'", name)
+            fdTemp = fmo_open_existing_shared(name)
+            if fdTemp == -1 {
+                throw FmoError.systemError(String(cString: strerror(errno)))
+            }
+            isCreator = false
         }
+
         fd = Int32(fdTemp)
-        // エフェメラルに運用するため作成直後に名前を削除
-        _ = fmo_shm_unlink(name)
         guard let p = fmo_map(fdTemp, size) else {
             fmo_close_fd(fdTemp)
             throw FmoError.systemError("mmap failed")
@@ -64,6 +81,9 @@ final class FmoSharedMemory {
     func close() {
         fmo_munmap(ptr, size)
         fmo_close_fd(fd)
-        fmo_shm_unlink(name)
+        // 作成者のみがunlinkする (ただしエフェメラルモードでは作成直後に既にunlink済み)
+        if isCreator {
+            fmo_shm_unlink(name)
+        }
     }
 }

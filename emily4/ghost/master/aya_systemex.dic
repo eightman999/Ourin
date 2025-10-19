@@ -72,12 +72,17 @@ E.EvalEmbedValue
 				_pare += 1
 				_pos = _open + 1
 			}
-			else {
+			elseif _close < _open {
 				_pare -= 1
 				_pos = _close + 1
 				if _pare <= 0 {
 					break
 				}
+			}
+			else {
+				// _open == _close (両方とも_len) の場合は異常として扱う
+				_pos = -1
+				break
 			}
 		}
 		

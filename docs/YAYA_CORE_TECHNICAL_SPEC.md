@@ -302,7 +302,7 @@ RAND(max)        // 0 〜 max-1 の整数乱数
 **文字列操作**:
 ```yaya
 STRLEN(str)      // 文字列長（UTF-8文字数）
-STRSTR(hay, needle)  // 部分文字列検索（位置返却、-1=未発見）
+STRSTR(hay, needle, [start])  // 部分文字列検索（位置返却、-1=未発見、start省略可）
 SUBSTR(str, start, len)  // 部分文字列取得
 TOUPPER(str)     // 大文字化
 TOLOWER(str)     // 小文字化

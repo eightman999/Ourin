@@ -1,0 +1,4 @@
+TestBackslash
+{
+    "\t\u\s[10]\h\s[5]テスト\w9\w9"
+}

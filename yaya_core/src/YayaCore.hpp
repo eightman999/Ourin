@@ -3,6 +3,7 @@
 #include <string>
 #include <nlohmann/json.hpp>
 #include "DictionaryManager.hpp"
+#include "MessageManager.hpp"
 #include "VM.hpp"
 
 class YayaCore : public VMCallback {
@@ -17,5 +18,6 @@ public:
     
 private:
     DictionaryManager dictManager;
+    MessageManager messageManager;
     std::string requestHostOperation(const std::string& type, const nlohmann::json& params);
 };

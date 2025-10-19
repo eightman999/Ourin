@@ -10,17 +10,68 @@ final class InputMonitor {
     private var global: Any?
     private var handler: ((ShioriEvent)->Void)?
 
+    // Track mouse down events to detect clicks
+    private var mouseDownLocation: CGPoint?
+    private var mouseDownTime: Date?
+    private var mouseDownButton: NSEvent.EventType?
+
     /// 監視を開始し、イベント発生時にハンドラへ通知する
     func start(handler: @escaping (ShioriEvent)->Void) {
         self.handler = handler
         local = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged, .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp, .mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged, .scrollWheel]) { [weak self] ev in
-            // マウスダウン・アップイベントの場合、UI要素上でのクリックか判定する
+            guard let self = self else { return ev }
+
+            // マウスダウン・アップイベントの場合、ゴースト/バルーンウィンドウかどうかを判定する
             if ev.type == .leftMouseDown || ev.type == .rightMouseDown || ev.type == .otherMouseDown ||
                ev.type == .leftMouseUp || ev.type == .rightMouseUp || ev.type == .otherMouseUp {
                 if let window = ev.window {
-                    // hitTestでクリック位置にUI要素があるかチェック
+                    let windowId = window.identifier?.rawValue ?? ""
+                    NSLog("[InputMonitor] Click at (%f, %f) in window: %@", ev.locationInWindow.x, ev.locationInWindow.y, windowId)
+
+                    // ゴーストキャラクターウィンドウまたはバルーンウィンドウの場合、SHIORIに送信する
+                    if windowId == "GhostCharacterWindow" || windowId == "GhostBalloonWindow" {
+                        NSLog("[InputMonitor] Ghost/Balloon window clicked, dispatching to SHIORI")
+
+                        // Track mouse down for click detection
+                        if ev.type == .leftMouseDown || ev.type == .rightMouseDown || ev.type == .otherMouseDown {
+                            self.mouseDownLocation = ev.locationInWindow
+                            self.mouseDownTime = Date()
+                            self.mouseDownButton = ev.type
+                        }
+
+                        // Detect click on mouse up
+                        if ev.type == .leftMouseUp || ev.type == .rightMouseUp || ev.type == .otherMouseUp {
+                            if let downLoc = self.mouseDownLocation,
+                               let downTime = self.mouseDownTime,
+                               let downButton = self.mouseDownButton {
+                                let upLoc = ev.locationInWindow
+                                let distance = hypot(upLoc.x - downLoc.x, upLoc.y - downLoc.y)
+                                let duration = Date().timeIntervalSince(downTime)
+
+                                // Check if it's a click (small movement, short duration, matching button)
+                                let isClick = distance < 5.0 && duration < 1.0 &&
+                                    ((downButton == .leftMouseDown && ev.type == .leftMouseUp) ||
+                                     (downButton == .rightMouseDown && ev.type == .rightMouseUp) ||
+                                     (downButton == .otherMouseDown && ev.type == .otherMouseUp))
+
+                                if isClick {
+                                    NSLog("[InputMonitor] Click detected, dispatching OnMouseClick")
+                                    self.dispatchClick(ev)
+                                }
+
+                                // Reset tracking
+                                self.mouseDownLocation = nil
+                                self.mouseDownTime = nil
+                                self.mouseDownButton = nil
+                            }
+                        }
+
+                        self.dispatch(ev)
+                        return ev
+                    }
+
+                    // その他のウィンドウの場合、hitTestでクリック位置にUI要素があるかチェック
                     let hitView = window.contentView?.hitTest(ev.locationInWindow)
-                    NSLog("[InputMonitor] Click at (%f, %f), hitView: %@", ev.locationInWindow.x, ev.locationInWindow.y, hitView?.description ?? "nil")
                     if hitView != nil {
                         // UI要素上のクリックなので、SHIORIイベントは送らずに通常のイベント処理に任せる
                         NSLog("[InputMonitor] UI element clicked, passing to SwiftUI")
@@ -31,7 +82,7 @@ final class InputMonitor {
             }
 
             // 背景クリック、またはマウスダウン以外のイベントは通常通りディスパッチする
-            self?.dispatch(ev)
+            self.dispatch(ev)
             return ev
         }
         global = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .scrollWheel]) { [weak self] ev in
@@ -95,5 +146,45 @@ final class InputMonitor {
         }
         // 構築したイベントをハンドラに通知
         handler?(ShioriEvent(id: id, params: params))
+    }
+
+    /// Dispatch OnMouseClick event
+    private func dispatchClick(_ ev: NSEvent) {
+        let mod = ev.modifierFlags
+        let modifiers = [
+            mod.contains(.command) ? "Command" : nil,
+            mod.contains(.option) ? "Option" : nil,
+            mod.contains(.shift) ? "Shift" : nil,
+            mod.contains(.control) ? "Control" : nil,
+            mod.contains(.capsLock) ? "CapsLock" : nil,
+            mod.contains(.function) ? "Function" : nil
+        ].compactMap{$0}.joined(separator: "|")
+
+        let loc = ev.locationInWindow
+        let screenLoc: NSPoint
+        if let w = ev.window {
+            let p = w.convertToScreen(NSRect(origin: loc, size: .zero)).origin
+            screenLoc = p
+        } else {
+            screenLoc = ev.locationInWindow
+        }
+
+        // Determine button type
+        let button: String
+        switch ev.type {
+        case .leftMouseUp: button = "left"
+        case .rightMouseUp: button = "right"
+        case .otherMouseUp: button = "middle"
+        default: button = "left"
+        }
+
+        let params: [String:String] = [
+            "screenX": String(Int(screenLoc.x)),
+            "screenY": String(Int(screenLoc.y)),
+            "modifiers": modifiers,
+            "button": button
+        ]
+
+        handler?(ShioriEvent(id: .OnMouseClick, params: params))
     }
 }

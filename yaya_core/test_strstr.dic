@@ -1,0 +1,36 @@
+// Test STRSTR with optional start parameter
+
+OnTest
+{
+    _result = ""
+
+    // Test 1: Basic STRSTR (2 args)
+    _pos1 = STRSTR("hello world", "o")
+    _result += "Test 1 (basic): " + _pos1 + " (expected: 4)" + CHR(10)
+
+    // Test 2: STRSTR with start position
+    _pos2 = STRSTR("hello world", "o", 5)
+    _result += "Test 2 (with start): " + _pos2 + " (expected: 7)" + CHR(10)
+
+    // Test 3: Simulating the aya_systemex.dic loop pattern
+    _text = "test('quoted')"
+    _pos = 0
+    _qt = STRSTR(_text, "'", _pos)
+    _result += "Test 3a (first quote): " + _qt + " (expected: 5)" + CHR(10)
+
+    _qtend = STRSTR(_text, "'", _qt + 1)
+    _result += "Test 3b (second quote): " + _qtend + " (expected: 12)" + CHR(10)
+
+    // Test 4: Search from middle of string
+    _text2 = "(((test)))"
+    _open1 = STRSTR(_text2, "(", 0)
+    _open2 = STRSTR(_text2, "(", _open1 + 1)
+    _open3 = STRSTR(_text2, "(", _open2 + 1)
+    _result += "Test 4 (multiple parens): " + _open1 + ", " + _open2 + ", " + _open3 + " (expected: 0, 1, 2)" + CHR(10)
+
+    // Test 5: Not found with start position
+    _notfound = STRSTR("abc", "x", 1)
+    _result += "Test 5 (not found): " + _notfound + " (expected: -1)" + CHR(10)
+
+    _result
+}

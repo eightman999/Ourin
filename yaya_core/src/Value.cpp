@@ -1,6 +1,7 @@
 #include "Value.hpp"
 #include <sstream>
 #include <stdexcept>
+#include <random>
 
 Value::Value() : type_(Type::Void), intValue_(0) {}
 
@@ -19,6 +20,17 @@ std::string Value::asString() const {
         case Type::Integer:
             return std::to_string(intValue_);
         case Type::Void:
+            return "";
+        case Type::Array:
+            // For arrays, randomly select one element
+            // This matches YAYA/SHIORI behavior where arrays are script candidates
+            if (!arrayValue_.empty()) {
+                static std::random_device rd;
+                static std::mt19937 gen(rd());
+                std::uniform_int_distribution<> dis(0, arrayValue_.size() - 1);
+                int randomIndex = dis(gen);
+                return arrayValue_[randomIndex].asString();
+            }
             return "";
         default:
             return "";

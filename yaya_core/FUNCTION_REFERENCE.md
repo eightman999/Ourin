@@ -28,7 +28,7 @@ This document lists all 160 functions implemented in YAYA_core, matching the yay
 | Function | Description | Example |
 |----------|-------------|---------|
 | `STRLEN(str)` | Get string length | `STRLEN("hello")` → `5` |
-| `STRSTR(haystack, needle)` | Find substring position (-1 if not found) | `STRSTR("hello", "ll")` → `2` |
+| `STRSTR(haystack, needle, [start])` | Find substring position (-1 if not found), optionally starting from position | `STRSTR("hello", "ll")` → `2`<br/>`STRSTR("hello", "l", 3)` → `3` |
 | `SUBSTR(str, pos, len)` | Extract substring | `SUBSTR("hello", 0, 3)` → `"hel"` |
 | `REPLACE(str, old, new)` | Replace all occurrences | `REPLACE("aa", "a", "b")` → `"bb"` |
 | `ERASE(str, pos, len)` | Remove substring | `ERASE("hello", 1, 2)` → `"hlo"` |
@@ -45,7 +45,7 @@ This document lists all 160 functions implemented in YAYA_core, matching the yay
 
 | Function | Description | Example |
 |----------|-------------|---------|
-| `RAND(max)` | Random integer 0 to max-1 | `RAND(10)` → `0-9` |
+| `RAND(max)` or `RAND(array)` | Random integer 0 to max-1, or random element from array | `RAND(10)` → `0-9`<br/>`RAND(("a","b","c"))` → random element |
 | `SRAND(seed)` | Seed random number generator | `SRAND(12345)` |
 | `FLOOR(value)` | Round down | `FLOOR(3.7)` → `3` |
 | `CEIL(value)` | Round up | `CEIL(3.2)` → `4` |
@@ -172,14 +172,14 @@ SLEEP(1000)  // Wait 1 second
 | `FWRITEBIN(handle, data)` | Write binary data | Bytes written | ✅ Working |
 | `FREADENCODE(handle, enc)` | Read with encoding | `""` | Stub |
 | `FWRITEDECODE(handle, data, enc)` | Write with encoding | `0` | Stub |
-| `FDIGEST(file, algo)` | File hash/digest | `""` | Stub |
+| `FDIGEST(file, algo)` | File hash/digest (`md5`/`sha1`/`crc32`) | hex string | ✅ Working |
 | `FENUM(path, pattern)` | Enumerate files | `[]` | Stub |
 | `FCOPY(src, dst)` | Copy file | 1 on success, 0 on failure | ✅ Working |
 | `FMOVE(src, dst)` | Move/rename file | 1 on success, 0 on failure | ✅ Working |
 | `FDEL(file)` | Delete file | 1 on success, 0 on failure | ✅ Working |
 | `FRENAME(old, new)` | Rename file | 1 on success, 0 on failure | ✅ Working |
-| `MKDIR(path)` | Create directory | `0` | Stub (needs C++17 filesystem) |
-| `RMDIR(path)` | Remove directory | `0` | Stub (needs C++17 filesystem) |
+| `MKDIR(path)` | Create directory | 1 on success, 0 on failure | ✅ Working |
+| `RMDIR(path)` | Remove directory | 1 on success, 0 on failure | ✅ Working |
 
 **Example Usage**:
 ```yaya
@@ -204,7 +204,7 @@ FDEL("old_file.txt")
 
 ### Regular Expression Functions (11 - Stubs)
 
-**Note**: Regex functions are stubs. Full implementation requires regex library integration.
+Regex functions implemented via C++ `std::regex` (ECMAScript syntax). 
 
 | Function | Description | Returns |
 |----------|-------------|---------|
@@ -225,11 +225,11 @@ FDEL("old_file.txt")
 
 | Function | Description | Example |
 |----------|-------------|---------|
-| `STRENCODE(str, encoding)` | Encode string (stub) | `STRENCODE("test", "url")` |
-| `STRDECODE(str, encoding)` | Decode string (stub) | `STRDECODE("test", "url")` |
+| `STRENCODE(str, encoding)` | URL encode (`url`/`url+`) | `STRENCODE("a b", "url")` → `"a+b"` |
+| `STRDECODE(str, encoding)` | URL decode (`url`/`url+`) | `STRDECODE("a+b", "url")` → `"a b"` |
 | `GETSTRURLENCODE(str)` | URL encode (alias) | `GETSTRURLENCODE("test")` |
 | `GETSTRURLDECODE(str)` | URL decode (alias) | `GETSTRURLDECODE("test")` |
-| `STRDIGEST(str, algo)` | String hash (stub) | `STRDIGEST("test", "md5")` |
+| `STRDIGEST(str, algo)` | String hash (`md5`/`sha1`/`crc32`) | `STRDIGEST("test", "md5")` |
 | `CHARSETLIB(encoding)` | Set charset (stub) | `CHARSETLIB("UTF-8")` → `1` |
 | `CHARSETLIBEX(encoding)` | Set charset ext (stub) | `CHARSETLIBEX("UTF-8")` → `1` |
 | `CHARSETTEXTTOID(text)` | Charset name to ID | `CHARSETTEXTTOID("UTF-8")` → `0` |

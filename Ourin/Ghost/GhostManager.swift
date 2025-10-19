@@ -1,5 +1,7 @@
 import SwiftUI
 import AppKit
+import CoreImage
+import Combine
 
 // MARK: - ViewModels
 
@@ -24,16 +26,42 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     private let ghostURL: URL
     private var yayaAdapter: YayaAdapter?
     private let sakuraEngine = SakuraScriptEngine()
+    private var eventToken: UUID?
+    private let resourceManager = ResourceManager()
 
     // Window management
-    private var characterWindow: NSWindow?
-    private var balloonWindow: NSWindow?
+    private var characterWindows: [Int: NSWindow] = [:] // Support multiple scopes (0=master, 1=partner)
+    private var balloonWindows: [Int: NSWindow] = [:]
 
     // ViewModels
-    private let characterViewModel = CharacterViewModel()
-    private let balloonViewModel = BalloonViewModel()
+    private var characterViewModels: [Int: CharacterViewModel] = [:] // One per scope
+    private var balloonViewModels: [Int: BalloonViewModel] = [:]
 
     private var currentScope: Int = 0
+    private var balloonTextCancellables: [Int: AnyCancellable] = [:]
+
+    // Typing playback state
+    private enum PlaybackUnit {
+        case text(Character)
+        case textChunk(String)
+        case newline
+        case scope(Int)
+        case surface(Int)
+        case wait(TimeInterval)
+        case waitUntil(TimeInterval) // seconds from precise base
+        case resetPrecise
+        case clickWait(noclear: Bool)
+        case end
+    }
+    private var playbackQueue: [PlaybackUnit] = []
+    private var isPlaying: Bool = false
+    private var quickMode: Bool = false
+    private var preciseBase: Date = Date()
+    private let defaultTypingInterval: TimeInterval = 0.1
+    private var typingInterval: TimeInterval = 0.1
+    private var syncEnabled: Bool = false
+    private var syncScopes: Set<Int> = []
+    private var pendingClick: Bool? = nil
 
     // MARK: - Initialization
 
@@ -41,6 +69,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         self.ghostURL = ghostURL
         super.init()
         self.sakuraEngine.delegate = self
+
+        // Load saved username into environment expander
+        if let username = resourceManager.username {
+            sakuraEngine.envExpander.username = username
+        }
     }
 
     deinit {
@@ -50,13 +83,18 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // MARK: - Public API
 
     func start() {
-        NSLog("[GhostManager] start() called for ghost at: \(ghostURL.path)")
+        Log.info("[GhostManager] start() called for ghost at: \(ghostURL.path)")
         setupWindows()
-        NSLog("[GhostManager] Windows setup complete")
+        Log.debug("[GhostManager] Windows setup complete")
+
+        // Show a placeholder surface immediately so the user sees the ghost
+        DispatchQueue.main.async {
+            self.updateSurface(id: 0)
+        }
 
         DispatchQueue.global(qos: .userInitiated).async {
             let ghostRoot = self.ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
-            NSLog("[GhostManager] Ghost root: \(ghostRoot.path)")
+            Log.debug("[GhostManager] Ghost root: \(ghostRoot.path)")
             let fm = FileManager.default
 
             guard let contents = try? fm.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil) else {
@@ -64,168 +102,712 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 return
             }
 
-            let dics = contents.filter { $0.pathExtension.lowercased() == "dic" }.map { $0.lastPathComponent }
-            NSLog("[GhostManager] Found \(dics.count) .dic files: \(dics)")
+            // yaya.txt から辞書リストを読み込む（順序が重要）
+            // includeディレクティブも再帰的に処理する
+            var dics: [String] = []
+            let yayaTxtPath = ghostRoot.appendingPathComponent("yaya.txt")
+            if let yayaContent = (try? String(contentsOf: yayaTxtPath, encoding: .utf8)) ??
+                                 (try? String(contentsOf: yayaTxtPath, encoding: .shiftJIS)) {
+                Log.debug("[GhostManager] Found yaya.txt, parsing dictionary list with includes...")
+                parseYayaConfigFile(content: yayaContent, baseURL: ghostRoot, dicFiles: &dics, visited: [])
+                Log.debug("[GhostManager] Found \(dics.count) dictionaries (including from includes): \(dics.prefix(5))...")
+            } else {
+                // yaya.txt がない場合は全ファイルをロード
+                dics = contents.filter { $0.pathExtension.lowercased() == "dic" }.map { $0.lastPathComponent }
+                Log.debug("[GhostManager] yaya.txt not found, loading all \(dics.count) .dic files")
+            }
 
             guard let adapter = YayaAdapter() else {
-                NSLog("[GhostManager] Failed to initialize YayaAdapter.")
+                Log.info("[GhostManager] Failed to initialize YayaAdapter.")
                 return
             }
-            NSLog("[GhostManager] YayaAdapter initialized successfully")
+            Log.debug("[GhostManager] YayaAdapter initialized successfully")
+
+            // Connect ResourceManager to YayaAdapter for SHIORI resource handling
+            adapter.resourceManager = self.resourceManager
 
             self.yayaAdapter = adapter
+            // Register this ghost to receive NOTIFY broadcasts
+            DispatchQueue.main.async {
+                self.eventToken = EventBridge.shared.register(adapter: adapter, ghostManager: self)
+            }
 
+            // 全辞書をロード（yaya_coreが並列化やキャッシュで最適化すべき）
+            Log.debug("[GhostManager] Starting dictionary load...")
+            let loadStart = Date()
             guard adapter.load(ghostRoot: ghostRoot, dics: dics) else {
-                NSLog("[GhostManager] Failed to load ghost with Yaya.")
+                Log.info("[GhostManager] Failed to load ghost with Yaya.")
                 return
             }
+            let loadTime = Date().timeIntervalSince(loadStart)
+            Log.debug("[GhostManager] Dictionary load complete in \(String(format: "%.2f", loadTime))s")
 
-            NSLog("[GhostManager] Ghost loaded successfully, starting EventBridge...")
-            // Start SHIORI event bridge after yaya_core parsing is complete
+            // Per UKADOC, OnFirstBoot/OnBoot are GET events (not NOTIFY).
+            // Only emit an internal OnInitialize notify; GET is handled below via obtainBootScript().
             DispatchQueue.main.async {
-                let bridge = EventBridge.shared
-                bridge.start()
-                // Save bridge reference in AppDelegate
-                if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
-                    appDelegate.eventBridge = bridge
-                }
-                NSLog("[GhostManager] EventBridge started")
+                EventBridge.shared.notify(.OnInitialize)
+                let defaults = UserDefaults.standard
+                let count = defaults.integer(forKey: "OurinBootCount")
+                defaults.set(count + 1, forKey: "OurinBootCount")
             }
 
-            NSLog("[GhostManager] Requesting OnBoot...")
-            let res = adapter.request(method: "GET", id: "OnBoot")
-            NSLog("[GhostManager] OnBoot response: ok=\(res?.ok ?? false), value=\(res?.value?.prefix(100) ?? "nil")")
+            // Request boot script with a timeout; keep placeholder visible meanwhile.
+            Log.info("[GhostManager] Requesting boot script (OnFirstBoot/OnBoot)...")
+            let sem = DispatchSemaphore(value: 0)
 
-            if let res = res, res.ok, let script = res.value {
-                NSLog("[GhostManager] OnBoot script received: \(script.prefix(200))")
-                DispatchQueue.main.async {
-                    self.runScript(script)
+            DispatchQueue.global(qos: .userInitiated).async {
+                let script = self.obtainBootScript(using: adapter)
+                if let script = script {
+                    let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !trimmed.isEmpty {
+                        Log.debug("[GhostManager] Boot script resolved (len=\(trimmed.count))")
+                        // Print a safe preview via NSLog so it always appears in logs
+                        let preview = trimmed.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
+                        NSLog("[GhostManager] Boot script preview: \(preview)")
+                        DispatchQueue.main.async {
+                            self.runScript(trimmed)
+                            self.startEventBridgeIfNeeded()
+                        }
+                    } else {
+                        NSLog("[GhostManager] Boot script is whitespace-only after trim; skipping display")
+                        DispatchQueue.main.async {
+                            self.startEventBridgeIfNeeded()
+                        }
+                    }
+                } else {
+                    Log.info("[GhostManager] Boot script could not be resolved; starting EventBridge only.")
+                    DispatchQueue.main.async {
+                        self.startEventBridgeIfNeeded()
+                    }
                 }
-            } else {
-                NSLog("[GhostManager] OnBoot script request failed or returned no script. Showing default surface.")
-                // Even if OnBoot fails, we might want to show a default surface.
+                sem.signal()
+            }
+
+            // If OnBoot takes too long, start EventBridge so NOTIFY can begin, keeping placeholder.
+            let timeout: DispatchTime = .now() + .seconds(5)
+            if sem.wait(timeout: timeout) == .timedOut {
+                Log.info("[GhostManager] OnBoot timed out (5s). Starting EventBridge and keeping placeholder.")
                 DispatchQueue.main.async {
-                    self.updateSurface(id: 0)
+                    self.startEventBridgeIfNeeded()
                 }
+                // The request will still complete later and update the UI when ready.
             }
         }
     }
 
     func shutdown() {
-        characterWindow?.orderOut(nil)
-        balloonWindow?.orderOut(nil)
-        characterWindow = nil
-        balloonWindow = nil
+        NotificationCenter.default.removeObserver(self)
+        for w in characterWindows.values { w.orderOut(nil) }
+        for w in balloonWindows.values { w.orderOut(nil) }
+        characterWindows.removeAll()
+        balloonWindows.removeAll()
         yayaAdapter?.unload()
         yayaAdapter = nil
+        if let token = eventToken { EventBridge.shared.unregister(token); eventToken = nil }
     }
 
     // MARK: - Window Setup
 
     private func setupWindows() {
-        NSLog("[GhostManager] Setting up windows")
-        // Create Character Window
-        let characterView = CharacterView(viewModel: self.characterViewModel)
+        Log.debug("[GhostManager] Setting up windows")
+        // Create Character Windows for scope 0 (master), 1 (partner), and potentially 2-3 (additional characters)
+        // Always create at least scope 0 and 1; additional scopes can be created dynamically
+        for scope in 0..<4 {
+            setupCharacterWindow(for: scope)
+        }
+    }
+
+    private func setupCharacterWindow(for scope: Int) {
+        let dragDropHandler: (ShioriEvent) -> Void = { event in
+            // Forward drag-drop events to EventBridge for broadcasting
+            EventBridge.shared.notify(event.id, params: event.params)
+        }
+
+        let vm = CharacterViewModel()
+        characterViewModels[scope] = vm
+
+        let characterView = CharacterView(viewModel: vm, onDragDropEvent: dragDropHandler)
         let hostingController = NSHostingController(rootView: characterView)
 
         let window = NSWindow(contentViewController: hostingController)
         window.isOpaque = false
         window.backgroundColor = .clear
         window.styleMask = [.borderless]
-        window.ignoresMouseEvents = true // Click-through
-        window.level = .normal
-        window.setFrame(.init(x: 200, y: 200, width: 300, height: 400), display: true)
+        window.ignoresMouseEvents = false
+        // Ghost windows: above normal windows but below balloons
+        // Use .statusBar (25) so ghosts are above normal apps but below popUpMenu (balloons)
+        window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
+        window.hidesOnDeactivate = false
+        window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+
+        // Enable dragging the window by its content
+        window.isMovableByWindowBackground = true
+        window.isMovable = true
+
+        // Position character windows
+        let characterWidth: CGFloat = 300
+        let characterHeight: CGFloat = 400
+
+        // Try to restore saved position first
+        var didRestore = false
+        if let savedX = resourceManager.getCharDefaultLeft(scope: scope),
+           let savedY = resourceManager.getCharDefaultTop(scope: scope) {
+            window.setFrame(.init(x: CGFloat(savedX), y: CGFloat(savedY), width: characterWidth, height: characterHeight), display: true)
+            Log.debug("[GhostManager] Scope \(scope) window restored to saved position (\(savedX), \(savedY))")
+            didRestore = true
+        }
+
+        // Otherwise use default positions
+        if !didRestore {
+            if let screen = NSScreen.main {
+                let screenFrame = screen.visibleFrame
+                let margin: CGFloat = 10 // Small margin between characters
+                let baseY = screenFrame.minY + 5
+
+                // Calculate positions: all characters line up from right side
+                // Scope 0 (sakura/master) is rightmost
+                // Scope 1+ (kero/partners) are to the left of scope 0
+                let baseX = screenFrame.maxX - characterWidth - 20
+                let x = baseX - (CGFloat(scope) * (characterWidth + margin))
+
+                window.setFrame(.init(x: x, y: baseY, width: characterWidth, height: characterHeight), display: true)
+                Log.debug("[GhostManager] Scope \(scope) window at default position (\(x), \(baseY))")
+            } else {
+                // Fallback positioning
+                let x: CGFloat = 200 + (CGFloat(scope) * 320)
+                window.setFrame(.init(x: x, y: 200, width: characterWidth, height: characterHeight), display: true)
+            }
+        }
+
+        window.identifier = NSUserInterfaceItemIdentifier("GhostCharacterWindow_\(scope)")
+
+        // Always show ghost window - it stays visible until explicit shutdown command
         window.makeKeyAndOrderFront(nil)
-        self.characterWindow = window
-        NSLog("[GhostManager] Character window created at (200, 200, 300x400)")
 
-        // Create Balloon Window
-        let balloonView = BalloonView(viewModel: self.balloonViewModel)
-        let balloonHostingController = NSHostingController(rootView: balloonView)
+        // Keep window visible and prevent auto-hiding
+        window.isReleasedWhenClosed = false
 
-        let bWindow = NSWindow(contentViewController: balloonHostingController)
-        bWindow.isOpaque = false
-        bWindow.backgroundColor = .clear
-        bWindow.styleMask = [.borderless]
-        bWindow.hasShadow = false
-        bWindow.level = .normal
-        bWindow.setFrame(.init(x: 450, y: 300, width: 250, height: 200), display: true)
-        bWindow.makeKeyAndOrderFront(nil)
-        self.balloonWindow = bWindow
-        NSLog("[GhostManager] Balloon window created at (450, 300, 250x200)")
+        characterWindows[scope] = window
+
+        // Track window movement/resize
+        NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidChangeFrame(_:)), name: NSWindow.didMoveNotification, object: window)
+        NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidChangeFrame(_:)), name: NSWindow.didResizeNotification, object: window)
     }
 
     // MARK: - Scripting
 
     func runScript(_ script: String) {
-        NSLog("[GhostManager] runScript called with: \(script.prefix(200))")
-        // Reset balloon text for new script
-        balloonViewModel.text = ""
-        sakuraEngine.run(script: script)
+        let preview = script.prefix(200)
+        Log.debug("[GhostManager] runScript called with: \(preview)")
+        // Avoid clearing the balloon when script is effectively empty (whitespace only)
+        let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        // Reset playback state and balloon text for new script
+        playbackQueue.removeAll()
+        isPlaying = false
+        quickMode = false
+        preciseBase = Date()
+        for vm in balloonViewModels.values { vm.text = "" }
+        typingInterval = defaultTypingInterval
+        sakuraEngine.run(script: trimmed)
+        startPlaybackIfNeeded()
+    }
+
+    /// Run a script originating from NOTIFY. If the script contains no visible text
+    /// tokens, keep the current balloon text and apply only commands (surface/scope/etc.).
+    func runNotifyScript(_ script: String) {
+        let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        let hasText = sakuraEngine.containsText(in: trimmed)
+        if hasText {
+            // New visible text: cancel pending playback and clear balloon
+            playbackQueue.removeAll()
+            isPlaying = false
+            quickMode = false
+            preciseBase = Date()
+            for vm in balloonViewModels.values { vm.text = "" }
+            typingInterval = defaultTypingInterval
+        }
+        sakuraEngine.run(script: trimmed)
+        startPlaybackIfNeeded()
     }
 
     // MARK: - SakuraScriptEngineDelegate
 
     func sakuraEngine(_ engine: SakuraScriptEngine, didEmit token: SakuraScriptEngine.Token) {
+        // Enqueue tokens for playback with per-character typing delay for text
         switch token {
         case .scope(let id):
-            currentScope = id
-            NSLog("[GhostManager] Switched to scope \(id)")
-
+            playbackQueue.append(.scope(id))
         case .surface(let id):
-            NSLog("[GhostManager] Updating surface to id: \(id)")
-            updateSurface(id: id)
-
+            playbackQueue.append(.surface(id))
         case .text(let text):
-            balloonViewModel.text += text
-
+            // Display text character by character with typing effect
+            for ch in text { playbackQueue.append(.text(ch)) }
         case .newline:
-            balloonViewModel.text += "\n"
-
+            playbackQueue.append(.newline)
         case .end:
-            // The view updates automatically. We could do cleanup here if needed.
-            NSLog("[GhostManager] Script end. Final text: \(balloonViewModel.text)")
-
-        case .animation, .command:
-            // TODO: Handle other tokens
-            NSLog("[GhostManager] Received unhandled token: \(token)")
+            playbackQueue.append(.end)
+        case .animation:
+            break
+        case .command(let name, let args):
+            switch name.lowercased() {
+            case "w":
+                if let first = args.first, let n = Int(first) {
+                    if (1...9).contains(n) {
+                        playbackQueue.append(.wait(Double(n) * 0.05))
+                    } else if n >= 10 {
+                        // \w10 => 50ms then output "0"
+                        playbackQueue.append(.wait(0.05))
+                        playbackQueue.append(.text("0"))
+                    }
+                } else {
+                    // No arg: default pause
+                    playbackQueue.append(.wait(defaultTypingInterval))
+                }
+            case "_w":
+                if let first = args.first, let ms = Double(first) {
+                    playbackQueue.append(.wait(ms/1000.0))
+                }
+            case "__w":
+                if let first = args.first?.lowercased() {
+                    if first == "clear" {
+                        playbackQueue.append(.resetPrecise)
+                    } else if let ms = Double(first) {
+                        playbackQueue.append(.waitUntil(ms/1000.0))
+                    }
+                }
+            case "x":
+                let noclear = (args.first?.lowercased() == "noclear")
+                playbackQueue.append(.clickWait(noclear: noclear))
+            case "_q":
+                quickMode.toggle()
+            case "!":
+                if let first = args.first?.lowercased() {
+                    if first == "raise" {
+                        // \![raise,イベント名,Reference0,Reference1,...]
+                        // Explicitly trigger a SHIORI event from script
+                        if args.count >= 2 {
+                            let eventName = args[1]
+                            var params: [String: String] = [:]
+                            // Collect Reference parameters (Reference0, Reference1, etc.)
+                            for i in 2..<args.count {
+                                params["Reference\(i-2)"] = args[i]
+                            }
+                            // Convert event name to EventID if possible, or use custom event
+                            if let eventID = EventID(rawValue: eventName) {
+                                EventBridge.shared.notify(eventID, params: params)
+                            } else {
+                                // Custom event name - still broadcast it
+                                Log.debug("[GhostManager] Raising custom event: \(eventName) with params: \(params)")
+                                EventBridge.shared.notifyCustom(eventName, params: params)
+                            }
+                        }
+                    } else if first == "quicksection", args.count >= 2 {
+                        let v = args[1].lowercased()
+                        quickMode = (v == "1" || v == "true")
+                    } else if first == "wait", args.count >= 2, args[1].lowercased() == "syncobject" {
+                        let name = args.count >= 3 ? args[2] : ""
+                        let timeout = args.count >= 4 ? (Double(args[3]) ?? 0) : 0
+                        let delay = timeout <= 0 ? TimeInterval.infinity : timeout/1000.0
+                        let result = SyncCenter.shared.wait(name: name, timeout: delay)
+                        playbackQueue.append(.wait(result))
+                    } else if first == "signal", args.count >= 2, args[1].lowercased() == "syncobject" {
+                        let name = args.count >= 3 ? args[2] : ""
+                        SyncCenter.shared.signal(name: name)
+                    } else if first == "open", args.count >= 2, args[1].lowercased() == "configurationdialog" {
+                        // \![open,configurationdialog,setup] - Show name input dialog
+                        if args.count >= 3, args[2].lowercased() == "setup" {
+                            DispatchQueue.main.async {
+                                self.showNameInputDialog()
+                            }
+                        }
+                    }
+                }
+            case "_s":
+                if args.isEmpty {
+                    syncEnabled.toggle()
+                    if syncEnabled && syncScopes.isEmpty { syncScopes = [0,1] }
+                    if !syncEnabled { syncScopes = [] }
+                } else {
+                    syncEnabled = true
+                    syncScopes = Set(args.compactMap { Int($0) })
+                }
+            default:
+                break
+            }
         }
     }
 
     // MARK: - Helper Methods
 
+    private func startPlaybackIfNeeded() {
+        if !isPlaying {
+            isPlaying = true
+            DispatchQueue.main.async { self.processNextUnit() }
+        }
+    }
+
+    private func processNextUnit() {
+        // Process immediate units (scope/surface/end) without delay; delay only text/newline
+        while true {
+            guard !playbackQueue.isEmpty else { isPlaying = false; return }
+            let unit = playbackQueue.removeFirst()
+            switch unit {
+            case .scope(let id):
+                // Clear other scopes' balloons to ensure sequential dialogue (no parallel display)
+                for (scopeId, vm) in balloonViewModels {
+                    if scopeId != id {
+                        vm.text = ""
+                    }
+                }
+                currentScope = id
+                Log.debug("[GhostManager] Switched to scope \(id)")
+                positionBalloonWindow()
+                continue
+            case .surface(let id):
+                Log.debug("[GhostManager] Updating surface to id: \(id)")
+                // Don't clear balloon - keep displaying until next script
+                updateSurface(id: id)
+                // Add a small delay after surface change to respect script timing
+                scheduleNext(after: 0.05)
+                return
+            case .end:
+                Log.debug("[GhostManager] Script end.")
+                quickMode = false
+                syncEnabled = false
+                continue
+            case .resetPrecise:
+                preciseBase = Date()
+                continue
+            case .waitUntil(let sec):
+                let target = preciseBase.addingTimeInterval(sec)
+                let now = Date()
+                let delay = max(0.0, target.timeIntervalSince(now))
+                scheduleNext(after: delay)
+                return
+            case .wait(let sec):
+                scheduleNext(after: max(0.0, sec))
+                return
+            case .clickWait(let noclear):
+                pendingClick = noclear
+                return
+            case .text(let ch):
+                // Character-by-character mode with typing effect
+                appendText(String(ch))
+                scheduleNext(after: typingInterval)
+                return
+            case .textChunk(let s):
+                // Chunk mode (for quickMode) - display immediately
+                appendText(s)
+                continue
+            case .newline:
+                // Display newline with delay
+                appendText("\n")
+                scheduleNext(after: typingInterval)
+                return
+            }
+        }
+    }
+
+    private func scheduleNext(after delay: TimeInterval) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.processNextUnit()
+        }
+    }
+
+    // MARK: - Balloon helpers
+    private func getBalloonVM(for scope: Int) -> BalloonViewModel {
+        if let vm = balloonViewModels[scope] { return vm }
+        let vm = BalloonViewModel()
+        balloonViewModels[scope] = vm
+
+        let view = BalloonView(viewModel: vm, onClick: { [weak self] in self?.onBalloonClicked(fromScope: scope) })
+        let hc = NSHostingController(rootView: view)
+        let win = NSWindow(contentViewController: hc)
+        win.isOpaque = false
+        win.backgroundColor = .clear
+        win.styleMask = [.borderless]
+        win.hasShadow = false
+        // Balloon windows: highest level, above everything (ghost + other apps)
+        // Use popUpMenu (101) to ensure balloons are always on top
+        win.level = .popUpMenu
+        win.hidesOnDeactivate = false
+        win.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+
+        // Enable dragging the balloon window by its content
+        win.isMovableByWindowBackground = true
+        win.isMovable = true
+
+        // Start with a reasonable initial size; it will resize based on content
+        win.setFrame(.init(x: 450, y: 300, width: 250, height: 100), display: true)
+        win.identifier = NSUserInterfaceItemIdentifier("GhostBalloonWindow_\(scope)")
+        win.orderOut(nil)
+        balloonWindows[scope] = win
+
+        // show/hide per text and resize window to fit content
+        // Use debouncing to prevent flickering from rapid text updates
+        balloonTextCancellables[scope] = vm.$text
+            .debounce(for: .milliseconds(50), scheduler: RunLoop.main)
+            .sink { [weak self, weak win, weak hc] text in
+                guard let self = self, let win = win, let hc = hc else { return }
+                if text.isEmpty {
+                    if win.isVisible {
+                        win.orderOut(nil)
+                    }
+                } else {
+                    let wasVisible = win.isVisible
+
+                    // Resize window to fit content
+                    let fittingSize = hc.view.fittingSize
+                    let newSize = CGSize(width: max(250, min(fittingSize.width, 400)),
+                                       height: max(50, min(fittingSize.height, 600)))
+
+                    // Only update if size changed significantly (avoid micro-adjustments)
+                    let currentSize = win.frame.size
+                    if abs(currentSize.width - newSize.width) > 5 || abs(currentSize.height - newSize.height) > 5 {
+                        var frame = win.frame
+                        frame.size = newSize
+                        win.setFrame(frame, display: false, animate: false)
+                        self.positionBalloonWindow()
+                    }
+
+                    // Only call orderFront if not already visible
+                    if !wasVisible {
+                        win.orderFront(nil)
+                    }
+                }
+            }
+        positionBalloonWindow()
+        return vm
+    }
+
+    private func appendText(_ s: String) {
+        // Always use current scope only - no parallel display for character dialogue
+        // if syncEnabled {
+        //     let targets = syncScopes.isEmpty ? [0,1] : Array(syncScopes)
+        //     for sc in targets { getBalloonVM(for: sc).text += s }
+        // } else {
+            getBalloonVM(for: currentScope).text += s
+        // }
+    }
+
+    private func onBalloonClicked(fromScope: Int) {
+        guard let waitNoclear = pendingClick else { return }
+        if !waitNoclear {
+            for vm in balloonViewModels.values { vm.text = "" }
+        }
+        currentScope = 0
+        positionBalloonWindow()
+        pendingClick = nil
+        scheduleNext(after: 0)
+    }
+
+    /// Try to obtain a boot script in order:
+    /// 1) GET OnFirstBoot (YAYA)
+    /// 2) GET OnBoot (YAYA)
+    /// 3) BridgeToSHIORI for OnBoot (may return placeholder)
+    /// 4) Built-in minimal greeting
+    private func obtainBootScript(using adapter: YayaAdapter) -> String? {
+        // 1) OnFirstBoot
+        if let r = adapter.request(method: "GET", id: "OnFirstBoot", timeout: 4.0), r.ok {
+            let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
+            NSLog("[GhostManager] OnFirstBoot response: ok=true, len=\(v.count), preview=\(pv)")
+            if !v.isEmpty { return v }
+        } else {
+            NSLog("[GhostManager] OnFirstBoot request failed or no response")
+        }
+
+        // 2) OnBoot
+        if let r = adapter.request(method: "GET", id: "OnBoot", timeout: 4.0), r.ok {
+            let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
+            NSLog("[GhostManager] OnBoot response: ok=true, len=\(v.count), preview=\(pv)")
+            if !v.isEmpty { return v }
+        } else {
+            NSLog("[GhostManager] OnBoot request failed or no response")
+        }
+
+        // 3) Bridge fallback
+        let bridge = BridgeToSHIORI.handle(event: "OnBoot", references: [])
+        let bv = bridge.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !bv.isEmpty {
+            NSLog("[GhostManager] BridgeToSHIORI fallback used (len=\(bv.count))")
+            return bridge
+        }
+
+        // 4) Built-in minimal greeting (SakuraScript)
+        let builtin = "\\h\\s0こんにちは、起動しました。\\n\\e"
+        NSLog("[GhostManager] Using built-in greeting fallback")
+        return builtin
+    }
+
+    private func startEventBridgeIfNeeded() {
+        // Start the event bridge only after the initial UI is ready
+        guard (NSApplication.shared.delegate as? AppDelegate)?.eventBridge == nil else { return }
+        let bridge = EventBridge.shared
+        bridge.start()
+        if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+            appDelegate.eventBridge = bridge
+        }
+        Log.debug("[GhostManager] EventBridge started (post-initialization)")
+    }
+
     private func updateSurface(id: Int) {
+        let scope = currentScope
         DispatchQueue.global(qos: .userInitiated).async {
-            let image = self.loadImage(surfaceId: id)
+            let image = self.loadImage(surfaceId: id, scope: scope)
             DispatchQueue.main.async {
-                self.characterViewModel.image = image
-                if let image = image {
+                if let vm = self.characterViewModels[scope] {
+                    vm.image = image
+                }
+                if let image = image, let win = self.characterWindows[scope] {
                     // Resize window to fit the new surface
-                    self.characterWindow?.setContentSize(image.size)
+                    win.setContentSize(image.size)
+                    self.positionBalloonWindow()
                 }
             }
         }
     }
 
-    private func loadImage(surfaceId: Int) -> NSImage? {
-        // In Ukagaka, scope 1 (u) surfaces are often prefixed with '1'
-        // e.g., \u\s[10] -> surface1010.png
-        let surfacePrefix = currentScope == 1 ? "1" : ""
-
+    private func loadImage(surfaceId: Int, scope: Int) -> NSImage? {
         let shellURL = ghostURL.appendingPathComponent("shell/master")
-        // TODO: This needs to handle shell.txt for surface definitions properly.
-        // This is a simplified loader for now.
-        let surfaceFilename = String(format: "surface%@%d.png", surfacePrefix, surfaceId)
-        let imageURL = shellURL.appendingPathComponent(surfaceFilename)
+        // いくつかのシェルは surface0000.png のような4桁ゼロ埋めを使う。
+        func pad4(_ n: Int) -> String { String(format: "%04d", n) }
 
-        NSLog("[GhostManager] Loading image: \(imageURL.path)")
-        guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            NSLog("[GhostManager] Image not found at path: \(imageURL.path)")
-            return nil
+        var candidates: [String] = []
+        // スコープ付きの命名: surface{scope}{id}.png / surface{scope}{0000id}.png
+        if scope == 1 {
+            candidates.append("surface1\(surfaceId).png")
+            candidates.append("surface1\(pad4(surfaceId)).png")
+        }
+        // 共通命名: surface{n}.png / surface{000n}.png
+        candidates.append("surface\(surfaceId).png")
+        candidates.append("surface\(pad4(surfaceId)).png")
+
+        for name in candidates {
+            let url = shellURL.appendingPathComponent(name)
+            Log.debug("[GhostManager] Loading image candidate: \(url.path)")
+            if FileManager.default.fileExists(atPath: url.path), let img = NSImage(contentsOf: url) {
+                // PNA マスクがあれば適用（白=不透明、黒=透明として扱う想定）
+                let pnaURL = url.deletingPathExtension().appendingPathExtension("pna")
+                if FileManager.default.fileExists(atPath: pnaURL.path),
+                   let masked = applyPNAMask(baseURL: url, maskURL: pnaURL) {
+                    Log.debug("[GhostManager] Image loaded with PNA mask: \(name)")
+                    return masked
+                }
+                Log.debug("[GhostManager] Image loaded: \(name)")
+                return img
+            }
+        }
+        Log.debug("[GhostManager] No surface image found for id=\(surfaceId) scope=\(currentScope). Tried: \(candidates)")
+        return nil
+    }
+
+    // PNA マスクを適用して透過画像を生成
+    private func applyPNAMask(baseURL: URL, maskURL: URL) -> NSImage? {
+        guard let baseCI = CIImage(contentsOf: baseURL),
+              let maskCI = CIImage(contentsOf: maskURL) else { return nil }
+        let clear = CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 0)).cropped(to: baseCI.extent)
+        guard let output = CIFilter(name: "CIBlendWithMask",
+                                    parameters: [kCIInputImageKey: baseCI,
+                                                 kCIInputBackgroundImageKey: clear,
+                                                 kCIInputMaskImageKey: maskCI])?.outputImage else { return nil }
+        let ctx = CIContext(options: nil)
+        guard let cg = ctx.createCGImage(output, from: baseCI.extent) else { return nil }
+        let size = NSSize(width: cg.width, height: cg.height)
+        let nsimg = NSImage(size: size)
+        nsimg.lockFocus()
+        NSGraphicsContext.current?.cgContext.draw(cg, in: CGRect(origin: .zero, size: size))
+        nsimg.unlockFocus()
+        return nsimg
+    }
+
+    // MARK: - Balloon Positioning
+
+    @objc private func characterWindowDidChangeFrame(_ notification: Notification) {
+        positionBalloonWindow()
+
+        // Save window positions when moved
+        if let window = notification.object as? NSWindow,
+           let identifier = window.identifier?.rawValue,
+           identifier.hasPrefix("GhostCharacterWindow_") {
+            let scopeStr = identifier.replacingOccurrences(of: "GhostCharacterWindow_", with: "")
+            if let scope = Int(scopeStr) {
+                let frame = window.frame
+                resourceManager.setCharDefaultLeft(scope: scope, value: Int(frame.origin.x))
+                resourceManager.setCharDefaultTop(scope: scope, value: Int(frame.origin.y))
+                Log.debug("[GhostManager] Saved scope \(scope) position: (\(Int(frame.origin.x)), \(Int(frame.origin.y)))")
+            }
+        }
+    }
+
+    private func positionBalloonWindow() {
+        let margin: CGFloat = 8
+        let verticalOffset: CGFloat = 80 // Move balloon higher above character head
+
+        // Position each balloon next to its corresponding character window
+        for (scope, balloonWin) in balloonWindows {
+            guard let charWin = characterWindows[scope] else { continue }
+            let cFrame = charWin.frame
+
+            var f = balloonWin.frame
+
+            // Position balloon to the right of character for all scopes
+            // This provides consistent positioning regardless of scope
+            f.origin.x = cFrame.maxX + margin
+            f.origin.y = cFrame.maxY - f.height + verticalOffset
+
+            // Keep balloon within screen bounds
+            if let screen = charWin.screen?.visibleFrame {
+                if f.maxX > screen.maxX { f.origin.x = screen.maxX - f.width - margin }
+                if f.minX < screen.minX { f.origin.x = screen.minX + margin }
+                if f.maxY > screen.maxY { f.origin.y = screen.maxY - f.height - margin }
+                if f.minY < screen.minY { f.origin.y = screen.minY + margin }
+            }
+            balloonWin.setFrameOrigin(f.origin)
+        }
+    }
+
+    // MARK: - Configuration Dialog
+
+    private func showNameInputDialog() {
+        let alert = NSAlert()
+        alert.messageText = "あなたのお名前は？"
+        alert.informativeText = "お名前を入力してください"
+        alert.alertStyle = .informational
+
+        let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
+        textField.placeholderString = "名前"
+
+        // Load existing name from UserDefaults if available
+        let defaults = UserDefaults.standard
+        if let savedName = defaults.string(forKey: "OurinUserName") {
+            textField.stringValue = savedName
         }
 
-        let image = NSImage(contentsOf: imageURL)
-        NSLog("[GhostManager] Image loaded successfully: \(image != nil)")
-        return image
+        alert.accessoryView = textField
+        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "キャンセル")
+
+        alert.window.initialFirstResponder = textField
+
+        let response = alert.runModal()
+        if response == .alertFirstButtonReturn {
+            let userName = textField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !userName.isEmpty {
+                // Save to both UserDefaults (legacy) and ResourceManager
+                defaults.set(userName, forKey: "OurinUserName")
+                resourceManager.username = userName
+                sakuraEngine.envExpander.username = userName
+                Log.info("[GhostManager] User name set to: \(userName)")
+
+                // Notify YAYA of the name change via NOTIFY OnNameChanged
+                EventBridge.shared.notify(.OnNameChanged, params: ["Reference0": userName])
+            }
+        }
     }
 }

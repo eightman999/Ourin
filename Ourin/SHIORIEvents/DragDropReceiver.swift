@@ -1,8 +1,13 @@
 // DragDropReceiver.swift
 // ドラッグ＆ドロップされたデータを受け取り SHIORI イベントに変換
+// DEPRECATED: This implementation is deprecated in favor of DragDropView.swift
+// which properly integrates with SwiftUI using NSViewRepresentable.
+// This file is kept for backward compatibility only.
+
 import AppKit
 import UniformTypeIdentifiers
 
+@available(*, deprecated, message: "Use DragDropView instead for SwiftUI integration")
 final class DragDropReceiver: NSView {
     static let shared = DragDropReceiver()
     private var onEvent: ((ShioriEvent)->Void)?
@@ -14,6 +19,8 @@ final class DragDropReceiver: NSView {
     required init?(coder: NSCoder) { fatalError() }
 
     /// ドロップ受付を有効化し、最前面ビューへ自身を追加する
+    /// WARNING: This method is deprecated and should not be used with NSHostingController
+    @available(*, deprecated, message: "This causes view hierarchy issues with NSHostingController. Use DragDropView in SwiftUI instead.")
     func activate(_ onEvent: @escaping (ShioriEvent)->Void) {
         self.onEvent = onEvent
         if self.superview == nil {
@@ -47,7 +54,7 @@ final class DragDropReceiver: NSView {
                     }
                 }
             }
-            
+
             // .nar ファイルが含まれている場合はアプリの標準ファイル開処理に委譲
             if !narFiles.isEmpty {
                 for narUrl in narFiles {
@@ -57,13 +64,13 @@ final class DragDropReceiver: NSView {
                 }
                 return true
             }
-            
+
             // .nar 以外のファイルは従来通り SHIORI イベントとして処理
             if !urls.isEmpty {
                 onEvent?(ShioriEvent(id: .OnFileDrop, params: Dictionary(uniqueKeysWithValues: urls.enumerated().map{ ("Reference\($0.offset)", $0.element) } )))
                 return true
             }
-            
+
             // URL 文字列
             for it in items {
                 if let u = it.string(forType: .URL) {

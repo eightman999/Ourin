@@ -218,6 +218,7 @@ public enum EventID: String, CaseIterable {
     case OnMouseUpEx = "OnMouseUpEx"
     case OnMouseWheel = "OnMouseWheel"
     case OnMusicPlay = "OnMusicPlay"
+    case OnNameChanged = "OnNameChanged"
     case OnNSLookupComplete = "OnNSLookupComplete"
     case OnNSLookupFailure = "OnNSLookupFailure"
     case OnNarCreated = "OnNarCreated"

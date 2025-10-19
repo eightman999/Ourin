@@ -12,10 +12,17 @@ add_executable(yaya_core
     src/main.cpp
     src/YayaCore.cpp
     src/DictionaryManager.cpp
+    src/MessageManager.cpp
+    src/Digest.cpp
+    src/Base64.cpp
     src/Lexer.cpp
     src/Parser.cpp
     src/Value.cpp
     src/VM.cpp
+    third_party/yaya/md5c.c
+    third_party/yaya/sha1.c
+    third_party/yaya/crc32.c
+    third_party/yaya/posix_utils.cpp
 )
 
 set_target_properties(yaya_core PROPERTIES

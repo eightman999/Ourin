@@ -65,14 +65,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var devToolsWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // 起動時に FMO を初期化。既に起動していれば終了する
-        do {
-            fmo = try FmoManager()
-        } catch FmoError.alreadyRunning {
-            NSLog("Application already running")
+        // Ensure single instance and clean helper state by killing others first
+        ProcessKiller.killOtherOurinAndYaya()
+
+        // ninix仕様に準拠した起動判定: shm_open("/ninix", O_RDWR, 0) で判定
+        if FmoManager.isAnotherInstanceRunning(sharedName: "/ninix") {
+            NSLog("Another baseware instance is already running. Terminating.")
             NSApplication.shared.terminate(nil)
+            return
+        }
+
+        // 起動時に FMO を初期化。
+        // ninixとの互換性のため "/ninix" という共有メモリ名を使用
+        do {
+            fmo = try FmoManager(mutexName: "/ninix_mutex", sharedName: "/ninix")
+        } catch FmoError.alreadyRunning {
+            // 判定をすり抜けた場合のフォールバック
+            NSLog("Application already running (FMO). Retrying after short delay...")
+            usleep(300_000)
+            do {
+                fmo = try FmoManager(mutexName: "/ninix_mutex", sharedName: "/ninix")
+            } catch {
+                NSLog("Application already running (FMO) after retry. Terminating.")
+                NSApplication.shared.terminate(nil)
+            }
         } catch {
+            // 権限エラーなどの場合でも、他インスタンスが起動していなければ続行を試みる
             NSLog("FMO init failed: \(error)")
+            NSLog("Continuing without FMO (single instance enforcement disabled)")
         }
 
         // Hide the default Settings window on startup
@@ -113,6 +133,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        // Don't terminate when Settings window is closed - ghost windows should remain visible
+        return false
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         // 終了時に共有メモリとセマフォを開放
         fmo?.cleanup()
@@ -124,6 +149,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         pluginDispatcher?.stop()
         // ゴーストをシャットダウン
         ghostManager?.shutdown()
+        // 念のため残留プロセスを掃除
+        ProcessKiller.killOtherOurinAndYaya()
     }
 
     func application(_ app: NSApplication, openFiles filenames: [String]) {

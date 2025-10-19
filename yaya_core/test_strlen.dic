@@ -1,0 +1,3 @@
+__Len {
+    return STRLEN("hi")
+}

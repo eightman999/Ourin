@@ -9,9 +9,23 @@ public protocol SakuraScriptEngineDelegate: AnyObject {
 public final class SakuraScriptEngine {
     public weak var delegate: SakuraScriptEngineDelegate?
     /// Property manager used for `%property[...]` expansion in text.
-    public var propertyManager: PropertyManager = PropertyManager()
+    public var propertyManager: PropertyManager = PropertyManager() {
+        didSet { envExpander.propertyManager = propertyManager }
+    }
+    /// Environment/placeholder expander
+    public private(set) var envExpander: EnvironmentExpander
 
-    public init() {}
+    public init() {
+        self.envExpander = EnvironmentExpander(propertyManager: propertyManager)
+    }
+
+    /// Quick check whether the script contains any visible text token.
+    public func containsText(in script: String) -> Bool {
+        for token in parse(script: script) {
+            if case .text(let t) = token, !t.isEmpty { return true }
+        }
+        return false
+    }
 
     /// Parse given script and notify delegate token by token.
     public func run(script: String) {
@@ -42,7 +56,7 @@ public final class SakuraScriptEngine {
 
         func flush() {
             guard !buffer.isEmpty else { return }
-            tokens.append(.text(propertyManager.expand(text: buffer)))
+            tokens.append(.text(envExpander.expand(text: buffer)))
             buffer.removeAll()
         }
 
@@ -67,7 +81,19 @@ public final class SakuraScriptEngine {
 
         while i < chars.count {
             let ch = chars[i]
-            if ch == "\\" { // command prefix
+            if ch == "%" { // percent variable shortcut checks
+                // Special-case: %* -> same as \![*] (marker)
+                if i + 1 < chars.count, chars[i+1] == "*" {
+                    flush()
+                    tokens.append(.command(name: "!", args: ["*"]))
+                    i += 2
+                    continue
+                }
+                // Otherwise, treat as plain text; expansion happens in flush()
+                buffer.append(ch)
+                i += 1
+                continue
+            } else if ch == "\\" { // command prefix
                 if i + 1 >= chars.count { buffer.append("\\"); break }
                 let next = chars[i+1]
                 if next == "\\" { // escaped backslash
@@ -135,6 +161,23 @@ public final class SakuraScriptEngine {
                 case "e":
                     tokens.append(.end)
                     i += 2
+                case "w":
+                    var j = i + 2
+                    var num = ""
+                    if j < chars.count && chars[j] == "[" {
+                        if let (content, end) = readBracket(start: j + 1) {
+                            num = content
+                            j = end
+                        }
+                    } else {
+                        while j < chars.count, chars[j].isNumber { num.append(chars[j]); j += 1 }
+                    }
+                    if num.isEmpty {
+                        tokens.append(.command(name: "w", args: []))
+                    } else {
+                        tokens.append(.command(name: "w", args: [num]))
+                    }
+                    i = j
                 case "!":
                     var j = i + 2
                     var args: [String] = []
@@ -145,6 +188,23 @@ public final class SakuraScriptEngine {
                         }
                     }
                     tokens.append(.command(name: "!", args: args))
+                    i = j
+                case "_":
+                    // Support multi-letter underscore commands like _q, _w, __w, _s
+                    var j = i + 2
+                    var name = "_"
+                    while j < chars.count {
+                        let c = chars[j]
+                        if c.isLetter || c == "_" { name.append(c); j += 1 } else { break }
+                    }
+                    var args: [String] = []
+                    if j < chars.count && chars[j] == "[" {
+                        if let (content, end) = readBracket(start: j + 1) {
+                            args = parseArguments(content)
+                            j = end
+                        }
+                    }
+                    tokens.append(.command(name: name, args: args))
                     i = j
                 default:
                     let name = String(next)
@@ -167,6 +227,8 @@ public final class SakuraScriptEngine {
         flush()
         return tokens
     }
+
+    // Note: Do not attempt to auto-normalize scripts; adhere to UKADOC.
 
     /// Split a comma separated argument string with simple quoting rules.
     private func parseArguments(_ s: String) -> [String] {

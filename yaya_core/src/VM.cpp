@@ -1,4 +1,6 @@
 #include "VM.hpp"
+#include "Lexer.hpp"
+#include "Parser.hpp"
 #include <random>
 #include <stdexcept>
 #include <ctime>
@@ -8,10 +10,15 @@
 #include <chrono>
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <thread>
 #include <sys/wait.h>
+#include <regex>
+#include <unordered_set>
+#include "Digest.hpp"
+#include "Base64.hpp"
 
 VM::VM() {
     registerBuiltins();
@@ -22,19 +29,66 @@ void VM::registerFunction(const std::string& name, std::shared_ptr<AST::Function
 }
 
 Value VM::execute(const std::string& functionName, const std::vector<Value>& args) {
+    // 空の関数名は無視（EVALで空文字列が渡されることがある）
+    if (functionName.empty()) {
+        std::cerr << "[VM::execute] WARNING: Empty function name, returning void" << std::endl;
+        return Value();
+    }
+
+    // 再帰深度チェック（無限ループ防止）
+    recursion_depth_++;
+    if (recursion_depth_ > MAX_RECURSION_DEPTH) {
+        std::cerr << "[VM::execute] ERROR: Maximum recursion depth (" << MAX_RECURSION_DEPTH
+                  << ") exceeded while calling: " << functionName << std::endl;
+        recursion_depth_--;
+        return Value();
+    }
+
+    // 再帰深度が深い場合は警告（デバッグ用）
+    if (recursion_depth_ > 100 && recursion_depth_ % 100 == 0) {
+        std::cerr << "[VM::execute] WARNING: Recursion depth is " << recursion_depth_
+                  << " while calling: " << functionName << std::endl;
+    }
+
+    std::cerr << "[VM::execute] [depth=" << recursion_depth_ << "] Looking for function: " << functionName << std::endl;
+
     // Check if it's a built-in function
     if (builtins_.find(functionName) != builtins_.end()) {
-        return callBuiltin(functionName, args);
+        Value result = callBuiltin(functionName, args);
+        recursion_depth_--;
+        return result;
     }
-    
+
     // Check if it's a user-defined function
     auto it = functions_.find(functionName);
     if (it == functions_.end()) {
-        return Value(); // Function not found, return void
+        std::cerr << "[VM::execute] WARNING: Function not found: \"" << functionName << "\", returning void" << std::endl;
+        recursion_depth_--;
+        return Value();
     }
-    
-    // Execute the function body
-    return executeBlock(it->second->body);
+
+    std::cerr << "[VM::execute] Found user function: " << functionName << ", executing..." << std::endl;
+    auto exec_start = std::chrono::steady_clock::now();
+
+    // トップレベル関数の場合、実行開始時刻を記録
+    if (recursion_depth_ == 1) {
+        execution_start_time_ = exec_start;
+    }
+
+    // Execute the function body, catching early returns
+    Value result;
+    try {
+        result = executeBlock(it->second->body);
+    } catch (const ReturnException& ret) {
+        result = ret.value;
+    }
+
+    auto exec_end = std::chrono::steady_clock::now();
+    auto exec_duration = std::chrono::duration_cast<std::chrono::milliseconds>(exec_end - exec_start).count();
+    std::cerr << "[VM::execute] Function execution complete: " << functionName << " (took " << exec_duration << "ms)" << std::endl;
+
+    recursion_depth_--;
+    return result;
 }
 
 void VM::setVariable(const std::string& name, const Value& value) {
@@ -58,7 +112,18 @@ void VM::setReferences(const std::vector<std::string>& refs) {
 
 Value VM::executeNode(std::shared_ptr<AST::Node> node) {
     if (!node) return Value();
-    
+
+    // タイムアウトチェック（無限ループ防止）
+    if (recursion_depth_ > 0) { // トップレベル関数内でのみチェック
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - execution_start_time_).count();
+        if (elapsed > MAX_EXECUTION_TIME_MS) {
+            std::cerr << "[VM::executeNode] ERROR: Execution timeout (" << MAX_EXECUTION_TIME_MS
+                      << "ms) exceeded. Aborting..." << std::endl;
+            return Value(); // 空のValueを返して処理を中断
+        }
+    }
+
     switch (node->type) {
         case AST::NodeType::Literal: {
             auto* lit = dynamic_cast<AST::LiteralNode*>(node.get());
@@ -68,7 +133,15 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 return Value(interpolated);
             } else {
                 try {
-                    return Value(std::stoi(lit->value));
+                    const std::string& s = lit->value;
+                    // Support hex literals like 0xFF / 0Xff
+                    if (s.size() > 2 && s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
+                        // Parse hex (skip 0x prefix)
+                        int v = std::stoi(s.substr(2), nullptr, 16);
+                        return Value(v);
+                    }
+                    // Decimal fallback
+                    return Value(std::stoi(s, nullptr, 10));
                 } catch (...) {
                     return Value(0);
                 }
@@ -244,10 +317,8 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
         
         case AST::NodeType::Return: {
             auto* returnNode = dynamic_cast<AST::ReturnNode*>(node.get());
-            if (returnNode->value) {
-                return executeNode(returnNode->value);
-            }
-            return Value();
+            Value returnValue = returnNode->value ? executeNode(returnNode->value) : Value();
+            throw ReturnException(returnValue);
         }
         
         case AST::NodeType::Break: {
@@ -324,9 +395,21 @@ Value VM::callBuiltin(const std::string& name, const std::vector<Value>& args) {
 }
 
 void VM::registerBuiltins() {
-    // RAND(max) - Returns a random number from 0 to max-1
+    // RAND(max) or RAND(array) - Returns a random number from 0 to max-1, or random element from array
     builtins_["RAND"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
+
+        // If argument is an array, return a random element
+        if (args[0].getType() == Value::Type::Array) {
+            size_t size = args[0].arraySize();
+            if (size == 0) return Value();
+            static std::random_device rd;
+            static std::mt19937 gen(rd());
+            std::uniform_int_distribution<> dis(0, size - 1);
+            return args[0].arrayGet(dis(gen));
+        }
+
+        // Otherwise, treat as integer max value
         int max = args[0].asInt();
         if (max <= 0) return Value(0);
         static std::random_device rd;
@@ -388,12 +471,67 @@ void VM::registerBuiltins() {
     // EVAL(funcname) - Execute a function by name
     builtins_["EVAL"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value();
-        std::string funcName = args[0].asString();
-        std::vector<Value> funcArgs;
-        for (size_t i = 1; i < args.size(); i++) {
-            funcArgs.push_back(args[i]);
+
+        // EVAL can work in multiple modes:
+        // 1. EVAL("functionName") - call a function with no args
+        // 2. EVAL("functionName", arg1, arg2, ...) - call a function with args
+        // 3. EVAL("expression") - parse and evaluate an expression/statement
+
+        std::string firstArg = args[0].asString();
+
+        // If there are additional arguments, definitely a function call
+        if (args.size() > 1) {
+            std::vector<Value> funcArgs;
+            for (size_t i = 1; i < args.size(); i++) {
+                funcArgs.push_back(args[i]);
+            }
+            return execute(firstArg, funcArgs);
         }
-        return execute(funcName, funcArgs);
+
+        // Single argument: Try as function call first, then as expression
+        // Check if it's a known function name
+        if (functions_.find(firstArg) != functions_.end() ||
+            builtins_.find(firstArg) != builtins_.end()) {
+            return execute(firstArg, {});
+        }
+
+        // Check if the string looks like a simple identifier (potential function name)
+        // If so, try to execute it even if not yet in functions_ map (may be defined later)
+        bool looksLikeIdentifier = !firstArg.empty();
+        for (char c : firstArg) {
+            if (!std::isalnum(static_cast<unsigned char>(c)) && c != '_') {
+                looksLikeIdentifier = false;
+                break;
+            }
+        }
+
+        if (looksLikeIdentifier) {
+            // Try to execute as function name, even if not found
+            // This handles cases where functions are called before being fully registered
+            try {
+                return execute(firstArg, {});
+            } catch (...) {
+                // Function doesn't exist, fall through to expression parsing
+            }
+        }
+
+        // Not a function name, parse and evaluate as expression
+        try {
+            Lexer lexer(firstArg);
+            Parser parser(lexer.tokenize());
+            auto nodes = parser.parse();
+
+            // Evaluate all nodes and return the last result
+            Value result;
+            for (const auto& node : nodes) {
+                result = executeNode(node);
+            }
+            return result;
+        } catch (const std::exception& e) {
+            // If parsing fails, might be an undefined function - return void
+            std::cerr << "[EVAL] Failed to evaluate: \"" << firstArg << "\" - " << e.what() << std::endl;
+            return Value();
+        }
     };
     
     // ARRAYSIZE(arr) - Get array size
@@ -471,13 +609,39 @@ void VM::registerBuiltins() {
         return Value(str);
     };
     
-    // STRSTR(haystack, needle) - Find substring position (-1 if not found)
-    builtins_["STRSTR"] = [](const std::vector<Value>& args) -> Value {
+    // STRSTR(haystack, needle, [start]) - Find substring position (-1 if not found)
+    // Optional third parameter specifies starting position for search
+    builtins_["STRSTR"] = [this](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(-1);
         std::string haystack = args[0].asString();
         std::string needle = args[1].asString();
-        size_t pos = haystack.find(needle);
-        return Value(pos == std::string::npos ? -1 : static_cast<int>(pos));
+
+        // Optional start position (default: 0)
+        int start = (args.size() >= 3) ? args[2].asInt() : 0;
+
+        // Validate start position - allow start == length (search from end)
+        if (start < 0 || start > static_cast<int>(haystack.length())) {
+            return Value(-1);
+        }
+
+        // Search from start position
+        size_t pos = haystack.find(needle, start);
+        int result = (pos == std::string::npos ? -1 : static_cast<int>(pos));
+
+        // Debug logging for troubleshooting infinite loops
+        static int call_count = 0;
+        call_count++;
+        if (call_count <= 20 || call_count % 10 == 0) {
+            std::string hay_preview = haystack.length() > 50 ?
+                haystack.substr(0, 47) + "..." : haystack;
+            std::cerr << "[STRSTR #" << call_count << "] "
+                      << "haystack=\"" << hay_preview << "\" (len=" << haystack.length() << ")"
+                      << ", needle=\"" << needle << "\""
+                      << ", start=" << start
+                      << " => " << result << std::endl;
+        }
+
+        return Value(result);
     };
     
     // SUBSTR(str, pos, len) - Extract substring
@@ -552,12 +716,17 @@ void VM::registerBuiltins() {
         return Value(str.substr(start, end - start + 1));
     };
     
-    // CHR(code) - Convert ASCII code to character
+    // CHR(code, ...) - Convert ASCII codes to characters (supports multiple arguments)
     builtins_["CHR"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
-        int code = args[0].asInt();
-        if (code < 0 || code > 255) return Value("");
-        return Value(std::string(1, static_cast<char>(code)));
+        std::string result;
+        for (const auto& arg : args) {
+            int code = arg.asInt();
+            if (code >= 0 && code <= 255) {
+                result += static_cast<char>(code);
+            }
+        }
+        return Value(result);
     };
     
     // CHRCODE(str) - Get ASCII code of first character
@@ -697,24 +866,53 @@ void VM::registerBuiltins() {
         if (args.size() < 2) return Value(std::vector<Value>());
         std::string str = args[0].asString();
         std::string delim = args[1].asString();
-        
+
+        // Optional third parameter: max number of splits (0 = unlimited)
+        int maxSplits = (args.size() >= 3) ? args[2].asInt() : 0;
+
+        static int split_call_count = 0;
+        split_call_count++;
+
         std::vector<Value> result;
         if (delim.empty()) {
             // Split into individual characters
             for (char c : str) {
                 result.push_back(Value(std::string(1, c)));
+                if (maxSplits > 0 && result.size() >= static_cast<size_t>(maxSplits)) {
+                    break;
+                }
             }
         } else {
             size_t pos = 0;
             size_t found;
+            int splitCount = 0;
+
             while ((found = str.find(delim, pos)) != std::string::npos) {
                 result.push_back(Value(str.substr(pos, found - pos)));
                 pos = found + delim.length();
+                splitCount++;
+
+                // If max splits reached, add remainder and stop
+                if (maxSplits > 0 && splitCount >= maxSplits - 1) {
+                    result.push_back(Value(str.substr(pos)));
+                    if (split_call_count <= 5 || split_call_count % 10 == 0) {
+                        std::cerr << "[SPLIT #" << split_call_count << "] "
+                                  << "str=\"" << str << "\", delim=\"" << delim << "\", maxSplits=" << maxSplits
+                                  << " => [" << result.size() << " elements, early return]" << std::endl;
+                    }
+                    return Value(result);
+                }
             }
             // Add the last part
             result.push_back(Value(str.substr(pos)));
         }
-        
+
+        if (split_call_count <= 5 || split_call_count % 10 == 0) {
+            std::cerr << "[SPLIT #" << split_call_count << "] "
+                      << "str=\"" << str << "\", delim=\"" << delim << "\", maxSplits=" << maxSplits
+                      << " => [" << result.size() << " elements]" << std::endl;
+        }
+
         return Value(result);
     };
     
@@ -1125,11 +1323,27 @@ void VM::registerBuiltins() {
         }
     };
     
-    // FENUM(path, pattern) - Enumerate files
+    // FENUM(path, pattern) - Enumerate files (simple substring match)
     builtins_["FENUM"] = [](const std::vector<Value>& args) -> Value {
-        // Complex operation - return empty for now
-        // Would need filesystem library or platform-specific code
-        return Value(std::vector<Value>());
+        std::vector<Value> out;
+        if (args.size() < 2) return Value(out);
+        std::string dir = args[0].asString();
+        std::string pat = args[1].asString();
+        // Security: only relative paths without parent traversal
+        if (dir.empty() || dir[0] == '/' || dir.find("..") != std::string::npos) return Value(out);
+        try {
+            std::string needle;
+            for (char c : pat) if (c != '*') needle += c;
+            namespace fs = std::filesystem;
+            for (const auto& entry : fs::directory_iterator(dir)) {
+                if (!entry.is_regular_file()) continue;
+                std::string name = entry.path().filename().string();
+                if (needle.empty() || name.find(needle) != std::string::npos) {
+                    out.emplace_back(name);
+                }
+            }
+        } catch (...) {}
+        return Value(out);
     };
     
     // FCOPY(src, dst) - Copy file
@@ -1224,14 +1438,31 @@ void VM::registerBuiltins() {
     
     // MKDIR(path) - Create directory
     builtins_["MKDIR"] = [](const std::vector<Value>& args) -> Value {
-        // Would need platform-specific code or C++17 filesystem
-        return Value(0);
+        if (args.empty()) return Value(0);
+        std::string path = args[0].asString();
+        // Security: only relative paths without parent traversal
+        if (path.empty() || path[0] == '/' || path.find("..") != std::string::npos) return Value(0);
+        try {
+            namespace fs = std::filesystem;
+            fs::create_directories(path);
+            return Value(1);
+        } catch (...) {
+            return Value(0);
+        }
     };
     
-    // RMDIR(path) - Remove directory
+    // RMDIR(path) - Remove directory (only if empty)
     builtins_["RMDIR"] = [](const std::vector<Value>& args) -> Value {
-        // Would need platform-specific code or C++17 filesystem
-        return Value(0);
+        if (args.empty()) return Value(0);
+        std::string path = args[0].asString();
+        if (path.empty() || path[0] == '/' || path.find("..") != std::string::npos) return Value(0);
+        try {
+            namespace fs = std::filesystem;
+            bool removed = fs::remove(path);
+            return Value(removed ? 1 : 0);
+        } catch (...) {
+            return Value(0);
+        }
     };
     
     // FSEEK(handle, pos) - Seek in file
@@ -1317,64 +1548,79 @@ void VM::registerBuiltins() {
         return Value(0);
     };
     
-    // FDIGEST(filename, algorithm) - File hash/digest (stub)
+    // FDIGEST(filename, algorithm) - File hash/digest (md5/sha1/crc32)
     builtins_["FDIGEST"] = [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value("");
+        std::string filename = args[0].asString();
+        std::string algo = args[1].asString();
+        for (auto& ch : algo) ch = static_cast<char>(std::tolower(ch));
+        if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) return Value("");
+        std::ifstream f(filename, std::ios::binary);
+        if (!f.is_open()) return Value("");
+        std::ostringstream buffer;
+        buffer << f.rdbuf();
+        std::string data = buffer.str();
+        if (algo == "md5") return Value(md5_hex(data));
+        if (algo == "sha1") return Value(sha1_hex(data));
+        if (algo == "crc32") return Value(crc32_hex(data));
         return Value("");
     };
     
-    // ===== Regular Expression Functions =====
-    // Note: Regular expressions require a regex library - providing stubs
-    
-    // RE_SEARCH(pattern, str) - Search for pattern (stub)
+    // ===== Regular Expression Functions (std::regex-based) =====
+    // RE_SEARCH(pattern, str) - Search for pattern; return start index or -1
     builtins_["RE_SEARCH"] = [](const std::vector<Value>& args) -> Value {
-        return Value(-1);
+        if (args.size() < 2) return Value(-1);
+        try {
+            std::regex re(args[0].asString());
+            std::smatch m;
+            std::string s = args[1].asString();
+            if (std::regex_search(s, m, re)) {
+                return Value(static_cast<int>(m.position()));
+            }
+            return Value(-1);
+        } catch (...) { return Value(-1); }
     };
     
-    // RE_MATCH(pattern, str) - Match pattern (stub)
+    // RE_MATCH(pattern, str) - Full match; return 1/0
     builtins_["RE_MATCH"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
+        if (args.size() < 2) return Value(0);
+        try { return Value(std::regex_match(args[1].asString(), std::regex(args[0].asString())) ? 1 : 0); }
+        catch (...) { return Value(0); }
     };
     
-    // RE_GREP(pattern, str) - Grep for pattern (stub)
+    // RE_GREP(pattern, str) - Return all matches as array
     builtins_["RE_GREP"] = [](const std::vector<Value>& args) -> Value {
-        return Value(std::vector<Value>());
+        std::vector<Value> out;
+        if (args.size() < 2) return Value(out);
+        try {
+            std::regex re(args[0].asString());
+            const std::string s = args[1].asString();
+            for (std::sregex_iterator it(s.begin(), s.end(), re), end; it != end; ++it) {
+                out.emplace_back((*it).str());
+            }
+        } catch (...) {}
+        return Value(out);
     };
     
-    // RE_REPLACE(pattern, str, replacement) - Replace with regex (stub)
+    // RE_REPLACE(pattern, str, replacement) - Replace all occurrences
     builtins_["RE_REPLACE"] = [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value("");
-        return args[1]; // Just return original string
+        if (args.size() < 3) return Value("");
+        try {
+            return Value(std::regex_replace(args[1].asString(), std::regex(args[0].asString()), args[2].asString()));
+        } catch (...) { return args[1]; }
     };
     
-    // RE_REPLACEEX(pattern, str, replacement) - Replace extended (stub)
-    builtins_["RE_REPLACEEX"] = [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value("");
-        return args[1];
-    };
-    
-    // RE_SPLIT(pattern, str) - Split by regex (stub - use simple split)
+    // RE_SPLIT(pattern, str) - Split by regex
     builtins_["RE_SPLIT"] = [](const std::vector<Value>& args) -> Value {
-        return Value(std::vector<Value>());
-    };
-    
-    // RE_OPTION(options) - Set regex options (stub)
-    builtins_["RE_OPTION"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
-    };
-    
-    // RE_GETSTR() - Get last match string (stub)
-    builtins_["RE_GETSTR"] = [](const std::vector<Value>& args) -> Value {
-        return Value("");
-    };
-    
-    // RE_GETPOS() - Get last match position (stub)
-    builtins_["RE_GETPOS"] = [](const std::vector<Value>& args) -> Value {
-        return Value(-1);
-    };
-    
-    // RE_GETLEN() - Get last match length (stub)
-    builtins_["RE_GETLEN"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
+        std::vector<Value> out;
+        if (args.size() < 2) return Value(out);
+        try {
+            std::regex re(args[0].asString());
+            const std::string s = args[1].asString();
+            std::sregex_token_iterator it(s.begin(), s.end(), re, -1), end;
+            for (; it != end; ++it) out.emplace_back(it->str());
+        } catch (...) {}
+        return Value(out);
     };
     
     // RE_ASEARCH(array, pattern) - Array regex search (stub)
@@ -1388,27 +1634,99 @@ void VM::registerBuiltins() {
     };
     
     // ===== Encoding/Decoding Functions =====
-    
-    // STRENCODE(str, encoding) - Encode string (stub - URL encode)
-    builtins_["STRENCODE"] = [](const std::vector<Value>& args) -> Value {
+    // URL encode/decode helpers
+    auto url_encode = [](const std::string& s, bool plus) {
+        std::string out;
+        out.reserve(s.size() * 3);
+        static const char* hex = "0123456789ABCDEF";
+        for (unsigned char c : s) {
+            bool unreserved = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c=='.' || c=='_' || c=='-';
+            if (unreserved) {
+                out.push_back(static_cast<char>(c));
+            } else if (c == ' ' && plus) {
+                out.push_back('+');
+            } else {
+                out.push_back('%');
+                out.push_back(hex[(c >> 4) & 0xF]);
+                out.push_back(hex[c & 0xF]);
+            }
+        }
+        return out;
+    };
+    auto url_decode = [](const std::string& s, bool plus) {
+        std::string out;
+        out.reserve(s.size());
+        for (size_t i = 0; i < s.size(); ++i) {
+            unsigned char c = s[i];
+            if (c == '%' && i + 2 < s.size()) {
+                auto hexval = [](unsigned char h) -> int {
+                    if (h >= '0' && h <= '9') return h - '0';
+                    if (h >= 'a' && h <= 'f') return 10 + (h - 'a');
+                    if (h >= 'A' && h <= 'F') return 10 + (h - 'A');
+                    return -1;
+                };
+                int hi = hexval(s[i+1]);
+                int lo = hexval(s[i+2]);
+                if (hi >= 0 && lo >= 0) {
+                    out.push_back(static_cast<char>((hi << 4) | lo));
+                    i += 2;
+                } else {
+                    out.push_back('%');
+                }
+            } else if (plus && c == '+') {
+                out.push_back(' ');
+            } else {
+                out.push_back(static_cast<char>(c));
+            }
+        }
+        return out;
+    };
+
+    // STRENCODE(str, encoding) - Encode string (supports "url" / "url+" / "base64")
+    builtins_["STRENCODE"] = [url_encode](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
-        // Simple URL encoding stub
-        return args[0];
+        std::string enc = (args.size() >= 2) ? args[1].asString() : std::string("url");
+        for (auto& ch : enc) ch = static_cast<char>(std::tolower(ch));
+        if (enc == "base64") {
+            return Value(Base64::encode(args[0].asString()));
+        } else {
+            bool plus = (enc.find("url+") != std::string::npos) || (enc == "url");
+            return Value(url_encode(args[0].asString(), plus));
+        }
     };
     
-    // STRDECODE(str, encoding) - Decode string (stub - URL decode)
-    builtins_["STRDECODE"] = [](const std::vector<Value>& args) -> Value {
+    // STRDECODE(str, encoding) - Decode string (supports "url" / "url+" / "base64")
+    builtins_["STRDECODE"] = [url_decode](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
-        // Simple URL decoding stub
-        return args[0];
+        std::string enc = (args.size() >= 2) ? args[1].asString() : std::string("url");
+        for (auto& ch : enc) ch = static_cast<char>(std::tolower(ch));
+        if (enc == "base64") {
+            return Value(Base64::decode(args[0].asString()));
+        } else {
+            bool plus = (enc.find("url+") != std::string::npos) || (enc == "url");
+            return Value(url_decode(args[0].asString(), plus));
+        }
     };
     
-    // GETSTRURLENCODE, GETSTRURLDECODE - Aliases for STRENCODE, STRDECODE
-    builtins_["GETSTRURLENCODE"] = builtins_["STRENCODE"];
-    builtins_["GETSTRURLDECODE"] = builtins_["STRDECODE"];
+    // GETSTRURLENCODE, GETSTRURLDECODE - URL encode/decode with '+' for spaces
+    builtins_["GETSTRURLENCODE"] = [url_encode](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        return Value(url_encode(args[0].asString(), true));
+    };
+    builtins_["GETSTRURLDECODE"] = [url_decode](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        return Value(url_decode(args[0].asString(), true));
+    };
     
-    // STRDIGEST(str, algorithm) - String hash/digest (stub)
+    // STRDIGEST(str, algorithm) - String hash/digest (md5/sha1/crc32)
     builtins_["STRDIGEST"] = [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value("");
+        std::string algo = args[1].asString();
+        for (auto& ch : algo) ch = static_cast<char>(std::tolower(ch));
+        std::string s = args[0].asString();
+        if (algo == "md5") return Value(md5_hex(s));
+        if (algo == "sha1") return Value(sha1_hex(s));
+        if (algo == "crc32") return Value(crc32_hex(s));
         return Value("");
     };
     
@@ -1780,10 +2098,18 @@ void VM::registerBuiltins() {
 }
 
 // Interpolate embedded expressions in strings like %(_varname) or %(funcname())
+// IMPORTANT: SSP/baseware percent variables like %(charname(0)) should NOT be interpolated by YAYA
 std::string VM::interpolateString(const std::string& str) {
     std::string result;
     size_t pos = 0;
-    
+
+    // List of SSP/baseware variables that should NOT be interpolated by YAYA
+    static const std::unordered_set<std::string> ssp_vars = {
+        "charname", "username", "selfname", "selfname2", "keroname",
+        "month", "day", "hour", "minute", "second",
+        "screenwidth", "screenheight", "property"
+    };
+
     while (pos < str.length()) {
         // Look for %(
         size_t start = str.find("%(", pos);
@@ -1792,33 +2118,53 @@ std::string VM::interpolateString(const std::string& str) {
             result += str.substr(pos);
             break;
         }
-        
+
         // Add text before %(
         result += str.substr(pos, start - pos);
-        
-        // Find matching )
-        size_t end = str.find(')', start + 2);
-        if (end == std::string::npos) {
+
+        // Find matching ) - need to handle nested parentheses for function calls
+        int depth = 1;
+        size_t end = start + 2;
+        while (end < str.length() && depth > 0) {
+            if (str[end] == '(') depth++;
+            else if (str[end] == ')') depth--;
+            if (depth > 0) end++;
+        }
+
+        if (depth != 0) {
             // Malformed - just add the rest
             result += str.substr(start);
             break;
         }
-        
+
         // Extract the embedded expression
         std::string expr = str.substr(start + 2, end - start - 2);
-        
-        // Try to evaluate as variable first
-        Value val = getVariable(expr);
-        if (!val.isVoid()) {
-            result += val.asString();
-        } else {
-            // Try as function call - for now, just leave it as is
-            // Full function call parsing would require re-parsing
-            result += "%(" + expr + ")";
+
+        // Check if this looks like an SSP/baseware variable (e.g., charname(...))
+        bool is_ssp_var = false;
+        for (const auto& ssp_var : ssp_vars) {
+            if (expr == ssp_var || expr.rfind(ssp_var + "(", 0) == 0 || expr.rfind(ssp_var + "[", 0) == 0) {
+                is_ssp_var = true;
+                break;
+            }
         }
-        
+
+        if (is_ssp_var) {
+            // Leave SSP variables for baseware to expand
+            result += "%(" + expr + ")";
+        } else {
+            // Try to evaluate as YAYA variable
+            Value val = getVariable(expr);
+            if (!val.isVoid()) {
+                result += val.asString();
+            } else {
+                // Variable not found - leave as is for baseware expansion
+                result += "%(" + expr + ")";
+            }
+        }
+
         pos = end + 1;
     }
-    
+
     return result;
 }

@@ -103,20 +103,50 @@ Token Lexer::readString() {
                 }
             }
             
-            // Normal escape sequence handling
+            // YAYA string escape handling
+            // In YAYA, backslashes are mostly literal (for SakuraScript tags like \t, \u, \s, \w, etc.)
+            // Only handle specific escape sequences: \\, \", \'
+            // All other backslashes should be preserved as-is
             advance();
             if (current() != '\0') {
-                // Handle escape sequences
                 switch (current()) {
-                    case 'n': value += '\n'; break;
-                    case 't': value += '\t'; break;
-                    case 'r': value += '\r'; break;
-                    case '\\': value += '\\'; break;
-                    case '"': value += '"'; break;
-                    case '\'': value += '\''; break;
-                    default: value += current(); break;
+                    case '\\':
+                        // \\ -> single backslash
+                        value += '\\';
+                        advance();
+                        break;
+                    case '"':
+                        // \" -> quote (only if quote matches string delimiter)
+                        if (quote == '"') {
+                            value += '"';
+                            advance();
+                        } else {
+                            // Not escaping, backslash is literal
+                            value += '\\';
+                            value += current();
+                            advance();
+                        }
+                        break;
+                    case '\'':
+                        // \' -> quote (only if quote matches string delimiter)
+                        if (quote == '\'') {
+                            value += '\'';
+                            advance();
+                        } else {
+                            // Not escaping, backslash is literal
+                            value += '\\';
+                            value += current();
+                            advance();
+                        }
+                        break;
+                    default:
+                        // All other cases: preserve backslash + character
+                        // This includes SakuraScript tags like \t, \u, \s, \w, \n, etc.
+                        value += '\\';
+                        value += current();
+                        advance();
+                        break;
                 }
-                advance();
             }
         } else {
             value += current();
@@ -135,12 +165,36 @@ Token Lexer::readNumber() {
     int startLine = line_;
     int startCol = column_;
     std::string value;
-    
-    while (std::isdigit(current())) {
+
+    // Hex literal: 0x... or 0X...
+    if (current() == '0' && (peek() == 'x' || peek() == 'X')) {
+        value += current();      // '0'
+        advance();
+        value += current();      // 'x' or 'X'
+        advance();
+
+        // Read at least one hex digit (0-9, a-f, A-F)
+        bool hasHexDigit = false;
+        while (std::isxdigit(static_cast<unsigned char>(current()))) {
+            hasHexDigit = true;
+            value += current();
+            advance();
+        }
+
+        // If no hex digits followed, treat as integer 0
+        if (!hasHexDigit) {
+            value = "0";
+        }
+
+        return Token(TokenType::Integer, value, startLine, startCol);
+    }
+
+    // Decimal integer
+    while (std::isdigit(static_cast<unsigned char>(current()))) {
         value += current();
         advance();
     }
-    
+
     return Token(TokenType::Integer, value, startLine, startCol);
 }
 

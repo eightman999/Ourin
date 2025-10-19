@@ -2,6 +2,7 @@
  * POSIX 共有メモリとセマフォを扱うブリッジ実装
  */
 #include "FmoBridge.h"
+#include <errno.h>
 
 /* 名前付き共有メモリを開き、指定サイズに拡張する */
 /*
@@ -76,4 +77,32 @@ int fmo_sem_close(sem_t *sem) {
 /* セマフォを削除 */
 int fmo_sem_unlink(const char *name) {
     return sem_unlink(name);
+}
+
+/*
+ * 他のベースウェアが起動しているかを判定する (ninix仕様準拠)
+ * shm_open(name, O_RDWR, 0) が成功するかで判定
+ * 戻り値: 1=起動中, 0=起動していない, -1=エラー
+ */
+int fmo_check_running(const char *shm_name) {
+    int fd = shm_open(shm_name, O_RDWR, 0);
+    if (fd == -1) {
+        if (errno == ENOENT) {
+            /* 共有メモリが存在しない = 起動していない */
+            return 0;
+        }
+        /* その他のエラー */
+        return -1;
+    }
+    /* 開けた = 既に起動している */
+    close(fd);
+    return 1;
+}
+
+/*
+ * 既存の共有メモリを開く (読み書きモード)
+ * 新規作成はしない
+ */
+int fmo_open_existing_shared(const char *name) {
+    return shm_open(name, O_RDWR, 0);
 }
