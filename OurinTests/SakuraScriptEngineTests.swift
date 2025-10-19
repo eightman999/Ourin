@@ -1960,4 +1960,165 @@ struct SakuraScriptEngineTests {
             #expect(args == ["anchornotselectstyle", "line"])
         }
     }
+
+    // MARK: - Comprehensive Integration Tests
+
+    @Test
+    func complexScriptWithNewCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\0\\s[0]Hello\\t\\8[sound.wav]\\nPress to continue\\x"
+        let tokens = engine.parse(script: script)
+        
+        #expect(tokens.count == 8)
+        #expect(tokens[0] == .scope(0))
+        #expect(tokens[1] == .surface(0))
+        #expect(tokens[2] == .text("Hello"))
+        #expect(tokens[3] == .wait)
+        #expect(tokens[4] == .playSound("sound.wav"))
+        #expect(tokens[5] == .newline)
+        #expect(tokens[6] == .text("Press to continue"))
+        #expect(tokens[7] == .endConversation(clearBalloon: true))
+    }
+
+    @Test
+    func choiceDialogWithAllFeatures() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\0Choose:\\n\\q[Yes,OnYes]\\q[No,OnNo]\\z"
+        let tokens = engine.parse(script: script)
+        
+        #expect(tokens.count == 6)
+        #expect(tokens[0] == .scope(0))
+        #expect(tokens[1] == .text("Choose:"))
+        #expect(tokens[2] == .newline)
+        if case .command(let name, let args) = tokens[3] {
+            #expect(name == "q")
+            #expect(args == ["Yes", "OnYes"])
+        }
+        if case .command(let name, let args) = tokens[4] {
+            #expect(name == "q")
+            #expect(args == ["No", "OnNo"])
+        }
+        #expect(tokens[5] == .choiceCancel)
+    }
+
+    @Test
+    func eventCommandSequence() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\0Opening URL\\6\\nOpening Email\\7\\nBooting ghost\\+"
+        let tokens = engine.parse(script: script)
+        
+        var foundOpenURL = false
+        var foundOpenEmail = false
+        var foundBootGhost = false
+        
+        for token in tokens {
+            if token == .openURL { foundOpenURL = true }
+            if token == .openEmail { foundOpenEmail = true }
+            if token == .bootGhost { foundBootGhost = true }
+        }
+        
+        #expect(foundOpenURL)
+        #expect(foundOpenEmail)
+        #expect(foundBootGhost)
+    }
+
+    @Test
+    func multiScopeConversation() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\0\\s[0]Sakura speaks\\t\\1\\s[10]Unyuu replies\\t\\p[2]Third character\\x[noclear]"
+        let tokens = engine.parse(script: script)
+        
+        // Verify we have the expected scopes
+        var scopes: [Int] = []
+        for token in tokens {
+            if case .scope(let id) = token {
+                scopes.append(id)
+            }
+        }
+        #expect(scopes == [0, 1, 2])
+        
+        // Verify end conversation without clear
+        if case .endConversation(let clearBalloon) = tokens.last! {
+            #expect(clearBalloon == false)
+        }
+    }
+
+    @Test
+    func fontStylingWithChoices() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\f[bold,1]\\f[color,red]Bold Red\\f[default]\\nNormal\\n\\q[Continue,OnContinue]"
+        let tokens = engine.parse(script: script)
+        
+        #expect(tokens.count == 7)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "f")
+            #expect(args == ["bold", "1"])
+        }
+        if case .command(let name, let args) = tokens[1] {
+            #expect(name == "f")
+            #expect(args == ["color", "red"])
+        }
+    }
+
+    @Test
+    func soundAndAnimationSequence() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\8[bgm.mp3]\\i[100,wait]\\s[5]Animation done"
+        let tokens = engine.parse(script: script)
+        
+        #expect(tokens[0] == .playSound("bgm.mp3"))
+        #expect(tokens[1] == .animation(100, wait: true))
+        #expect(tokens[2] == .surface(5))
+        #expect(tokens[3] == .text("Animation done"))
+    }
+
+    @Test
+    func allNewTokenTypesInOneScript() async throws {
+        let engine = SakuraScriptEngine()
+        // Test a script that uses all new token types
+        let script = "\\0Start\\t\\8[s.wav]\\*Choice\\a\\-Break\\+\\z\\6\\7\\v\\_+\\x"
+        let tokens = engine.parse(script: script)
+        
+        // Verify all new token types are present
+        var foundWait = false
+        var foundPlaySound = false
+        var foundChoiceMarker = false
+        var foundAnchor = false
+        var foundChoiceLineBr = false
+        var foundBootGhost = false
+        var foundChoiceCancel = false
+        var foundOpenURL = false
+        var foundOpenEmail = false
+        var foundOpenPreferences = false
+        var foundBootAllGhosts = false
+        var foundEndConversation = false
+        
+        for token in tokens {
+            if token == .wait { foundWait = true }
+            if case .playSound(_) = token { foundPlaySound = true }
+            if token == .choiceMarker { foundChoiceMarker = true }
+            if token == .anchor { foundAnchor = true }
+            if token == .choiceLineBr { foundChoiceLineBr = true }
+            if token == .bootGhost { foundBootGhost = true }
+            if token == .choiceCancel { foundChoiceCancel = true }
+            if token == .openURL { foundOpenURL = true }
+            if token == .openEmail { foundOpenEmail = true }
+            if token == .openPreferences { foundOpenPreferences = true }
+            if token == .bootAllGhosts { foundBootAllGhosts = true }
+            if case .endConversation(_) = token { foundEndConversation = true }
+        }
+        
+        #expect(foundWait)
+        #expect(foundPlaySound)
+        #expect(foundChoiceMarker)
+        #expect(foundAnchor)
+        #expect(foundChoiceLineBr)
+        #expect(foundBootGhost)
+        #expect(foundChoiceCancel)
+        #expect(foundOpenURL)
+        #expect(foundOpenEmail)
+        #expect(foundOpenPreferences)
+        #expect(foundBootAllGhosts)
+        #expect(foundEndConversation)
+    }
 }
