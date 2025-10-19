@@ -47,7 +47,7 @@ struct ShioriLoaderTests {
         defer { try? FileManager.default.removeItem(at: dylib) }
 
         guard let loader = ShioriLoader(module: "test_shiori.so", base: base) else {
-            #fail("load failed")
+            Issue.record("load failed")
             return
         }
         let req = "GET SHIORI/3.0\r\nCharset: UTF-8\r\nSender: Test\r\nID: Ping\r\n\r\n"

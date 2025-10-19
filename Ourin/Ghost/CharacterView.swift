@@ -14,6 +14,8 @@ struct CharacterView: View {
                 Image(nsImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .scaleEffect(x: viewModel.scaleX, y: viewModel.scaleY)
+                    .opacity(viewModel.alpha)
                     .contentShape(Rectangle()) // Make entire image area tappable
                     .gesture(
                         DragGesture(minimumDistance: 0)
@@ -21,6 +23,7 @@ struct CharacterView: View {
                                 handleTap(at: value.location)
                             }
                     )
+                    .allowsHitTesting(!viewModel.repaintLocked)
             } else {
                 // The view is transparent and shows nothing if there is no image.
                 EmptyView()

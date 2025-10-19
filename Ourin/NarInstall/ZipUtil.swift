@@ -2,6 +2,39 @@
 import Foundation
 
 enum ZipUtil {
+    /// Files and directories to ignore when creating NAR archives or extracting DAU files
+    /// Per SSP/ukagaka specifications: https://ssp.shillest.net/ukadoc/manual/
+    static let ignoredFiles: Set<String> = [
+        "desktop.ini",     // Windows folder settings
+        "thumbs.db",       // Windows thumbnail cache
+        "folder.htt",      // Windows folder customization
+        "mscreate.dir",    // Windows Media Player cache
+        ".DS_Store",       // macOS folder metadata
+        "_CATALOG.VIX"     // Windows catalog index
+    ]
+
+    static let ignoredDirectories: Set<String> = [
+        "profile",         // SSP profile data (user-specific, should not be archived)
+        "var",             // SSP variable data (runtime state)
+        "__MACOSX",        // macOS resource fork metadata
+        "XtraStuf.mac"     // Stuffit Expander metadata
+    ]
+
+    /// Check if a file should be ignored during NAR/DAU operations
+    static func shouldIgnore(fileName: String) -> Bool {
+        return ignoredFiles.contains(fileName)
+    }
+
+    /// Check if a directory should be ignored during NAR/DAU operations
+    static func shouldIgnore(directoryName: String) -> Bool {
+        return ignoredDirectories.contains(directoryName)
+    }
+
+    /// Check if a path contains any ignored directory components
+    static func pathContainsIgnoredDirectory(_ path: String) -> Bool {
+        let components = path.split(separator: "/").map(String.init)
+        return components.contains { ignoredDirectories.contains($0) }
+    }
     /// 解凍先は空ディレクトリであること。/usr/bin/ditto を利用（10.15+ 標準で利用可）
     static func extractZip(_ zipURL: URL, to dst: URL) throws {
         let fm = FileManager.default
@@ -70,11 +103,21 @@ enum ZipUtil {
         let fm = FileManager.default
         try fm.createDirectory(at: dst, withIntermediateDirectories: true)
         guard let enumerator = fm.enumerator(at: src, includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles], errorHandler: nil) else { return }
-        let bannedNames = Set([".DS_Store", "__MACOSX"])
+
         for case let fileURL as URL in enumerator {
-            let rel = fileURL.path.replacingOccurrences(of: src.path, with: "")
-            let last = fileURL.lastPathComponent
-            if bannedNames.contains(last) || rel.contains("__MACOSX") { continue }
+            let fileName = fileURL.lastPathComponent
+            let relativePath = fileURL.path.replacingOccurrences(of: src.path, with: "")
+
+            // Skip ignored files
+            if shouldIgnore(fileName: fileName) {
+                continue
+            }
+
+            // Skip ignored directories and paths containing them
+            if shouldIgnore(directoryName: fileName) || pathContainsIgnoredDirectory(relativePath) {
+                continue
+            }
+
             // シンボリックリンクは無視
             let vals = try fileURL.resourceValues(forKeys: [.isSymbolicLinkKey, .isDirectoryKey])
             if vals.isSymbolicLink == true { continue }

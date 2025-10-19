@@ -72,6 +72,7 @@ public final class HeadlineRegistry {
         guard let text = String(data: raw, encoding: encoding) else { return nil }
         var name = ""
         var filename = ""
+        var dllname = ""
         var urlStr = ""
         var openurl = ""
         for line in text.split(whereSeparator: { $0.isNewline }) {
@@ -82,6 +83,7 @@ public final class HeadlineRegistry {
             switch key {
             case "name": name = value
             case "filename": filename = value
+            case "dllname": dllname = value
             case "url": urlStr = value
             case "openurl": openurl = value
             case "charset":
@@ -91,7 +93,9 @@ public final class HeadlineRegistry {
             default: break
             }
         }
-        guard !name.isEmpty, !filename.isEmpty else { return nil }
-        return HeadlineMeta(name: name, filename: filename, url: urlStr, openurl: openurl, charset: encoding)
+        // Prefer filename over dllname (2.0M spec), but accept dllname for 2.0 compatibility
+        let finalFilename = !filename.isEmpty ? filename : dllname
+        guard !name.isEmpty, !finalFilename.isEmpty else { return nil }
+        return HeadlineMeta(name: name, filename: finalFilename, url: urlStr, openurl: openurl, charset: encoding)
     }
 }

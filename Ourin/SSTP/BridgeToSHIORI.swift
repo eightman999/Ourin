@@ -41,13 +41,14 @@ public enum BridgeToSHIORI {
     /// - Parameters:
     ///   - event: イベント名
     ///   - references: 参照引数
+    ///   - headers: 追加ヘッダー（例: SecurityLevel）
     /// - Returns: 登録済み値または固定文字列
 
-    public static func handle(event: String, references: [String]) -> String {
+    public static func handle(event: String, references: [String], headers: [String: String] = [:]) -> String {
         if event == "Resource", let key = references.first, let val = resourceMap[key] {
             return val
         }
-        if let res = host?.request(event: event, references: references) {
+        if let res = host?.request(event: event, references: references, headers: headers) {
             return res
         }
         return "\\h\\s0Placeholder"
@@ -94,7 +95,7 @@ private final class ShioriHost {
 
     deinit { unload() }
 
-    func request(event: String, references: [String]) -> String? {
+    func request(event: String, references: [String], headers: [String: String] = [:]) -> String? {
         var lines = [
             "GET SHIORI/3.0",
             "Charset: UTF-8",
@@ -103,6 +104,9 @@ private final class ShioriHost {
         ]
         for (i, ref) in references.enumerated() {
             lines.append("Reference\(i): \(ref)")
+        }
+        for (key, value) in headers {
+            lines.append("\(key): \(value)")
         }
         lines.append("")
         let req = lines.joined(separator: "\r\n") + "\r\n"

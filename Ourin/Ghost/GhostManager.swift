@@ -8,6 +8,32 @@ import Combine
 /// ViewModel for the character view.
 class CharacterViewModel: ObservableObject {
     @Published var image: NSImage?
+
+    // Visual effects state (persists until ghost terminates)
+    @Published var scaleX: Double = 1.0
+    @Published var scaleY: Double = 1.0
+    @Published var alpha: Double = 1.0  // 0.0 to 1.0
+
+    // Position and alignment state
+    @Published var position: CGPoint?  // nil = free movement, set = locked position
+    @Published var alignment: DesktopAlignment = .free
+
+    // Rendering control
+    @Published var repaintLocked: Bool = false
+    @Published var manualRepaintLock: Bool = false
+
+    // Window stacking
+    var zOrderGroup: [Int]? = nil  // nil = default, or array of scope IDs in front-to-back order
+    var stickyGroup: [Int]? = nil  // nil = independent, or array of scope IDs that move together
+
+    /// Desktop alignment options
+    enum DesktopAlignment {
+        case free
+        case top
+        case bottom
+        case left
+        case right
+    }
 }
 
 /// ViewModel for the balloon view.
@@ -28,6 +54,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     private let sakuraEngine = SakuraScriptEngine()
     private var eventToken: UUID?
     private let resourceManager = ResourceManager()
+    private var ghostConfig: GhostConfiguration?
 
     // Window management
     private var characterWindows: [Int: NSWindow] = [:] // Support multiple scopes (0=master, 1=partner)
@@ -96,6 +123,20 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             let ghostRoot = self.ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
             Log.debug("[GhostManager] Ghost root: \(ghostRoot.path)")
             let fm = FileManager.default
+
+            // Load ghost configuration from descript.txt
+            if let config = GhostConfiguration.load(from: ghostRoot) {
+                self.ghostConfig = config
+                Log.info("[GhostManager] Loaded ghost configuration: \(config.name)")
+                Log.debug("[GhostManager]   - Sakura: \(config.sakuraName), Kero: \(config.keroName ?? "none")")
+                Log.debug("[GhostManager]   - SHIORI: \(config.shiori)")
+                Log.debug("[GhostManager]   - Default shell: \(config.defaultShellDirectory)")
+
+                // Apply configuration settings to environment
+                self.applyGhostConfiguration(config, ghostRoot: ghostRoot)
+            } else {
+                Log.info("[GhostManager] Failed to load ghost configuration from descript.txt")
+            }
 
             guard let contents = try? fm.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil) else {
                 NSLog("[GhostManager] Failed to read contents of \(ghostRoot.path)")
@@ -348,9 +389,30 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             for ch in text { playbackQueue.append(.text(ch)) }
         case .newline:
             playbackQueue.append(.newline)
+        case .newlineVariation(let variation):
+            // \n[half] or \n[percent] - custom newline height
+            // TODO: Implement variable height newlines
+            // For now, treat as regular newline
+            playbackQueue.append(.newline)
+        case .balloon(let id):
+            // \bN or \b[ID] - change balloon ID
+            // TODO: Implement balloon ID switching
+            Log.debug("[GhostManager] Balloon ID switch to \(id) not yet implemented")
+        case .appendMode:
+            // \C - append to previous balloon
+            // TODO: Implement append mode
+            Log.debug("[GhostManager] Append mode not yet implemented")
         case .end:
             playbackQueue.append(.end)
         case .animation:
+            break
+        case .moveAway:
+            // \4 - Move away from other character
+            // TODO: Implement character movement logic
+            break
+        case .moveClose:
+            // \5 - Move close to other character
+            // TODO: Implement character movement logic
             break
         case .command(let name, let args):
             switch name.lowercased() {
@@ -405,6 +467,26 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 EventBridge.shared.notifyCustom(eventName, params: params)
                             }
                         }
+                    } else if first == "get", args.count >= 3, args[1].lowercased() == "property" {
+                        // \![get,property,イベント名,プロパティ名]
+                        // Get property value and raise SHIORI event with value in Reference0
+                        let eventName = args[2]
+                        let propertyKey = args[3]
+                        let propertyValue = sakuraEngine.propertyManager.get(propertyKey) ?? ""
+                        var params: [String: String] = ["Reference0": propertyValue]
+                        // Additional references if provided
+                        for i in 4..<args.count {
+                            params["Reference\(i-3)"] = args[i]
+                        }
+                        Log.debug("[GhostManager] Property get: \(propertyKey) = \(propertyValue), raising event: \(eventName)")
+                        EventBridge.shared.notifyCustom(eventName, params: params)
+                    } else if first == "set", args.count >= 3, args[1].lowercased() == "property" {
+                        // \![set,property,プロパティ名,値]
+                        // Set property value
+                        let propertyKey = args[2]
+                        let propertyValue = args.count >= 4 ? args[3] : ""
+                        let success = sakuraEngine.propertyManager.set(propertyKey, value: propertyValue)
+                        Log.debug("[GhostManager] Property set: \(propertyKey) = \(propertyValue), success: \(success)")
                     } else if first == "quicksection", args.count >= 2 {
                         let v = args[1].lowercased()
                         quickMode = (v == "1" || v == "true")
@@ -424,6 +506,183 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 self.showNameInputDialog()
                             }
                         }
+                    } else if first == "set", args.count >= 2 {
+                        // Handle \![set,*] commands
+                        let subcmd = args[1].lowercased()
+                        switch subcmd {
+                        case "scaling":
+                            // \![set,scaling,ratio] or \![set,scaling,x,y] or \![set,scaling,x,y,time]
+                            if args.count >= 3 {
+                                if let ratio = Double(args[2]) {
+                                    let scaleValue = ratio / 100.0  // Convert percentage to scale factor
+                                    DispatchQueue.main.async {
+                                        guard let vm = self.characterViewModels[self.currentScope] else { return }
+                                        if args.count >= 4, let yRatio = Double(args[3]) {
+                                            // Non-uniform scaling
+                                            vm.scaleX = scaleValue
+                                            vm.scaleY = yRatio / 100.0
+                                        } else {
+                                            // Uniform scaling
+                                            vm.scaleX = scaleValue
+                                            vm.scaleY = scaleValue
+                                        }
+                                        // TODO: Implement animated scaling with time parameter (args[4])
+                                    }
+                                }
+                            }
+                        case "alpha":
+                            // \![set,alpha,value] (0-100)
+                            if args.count >= 3, let alphaValue = Double(args[2]) {
+                                DispatchQueue.main.async {
+                                    guard let vm = self.characterViewModels[self.currentScope] else { return }
+                                    vm.alpha = alphaValue / 100.0  // Convert 0-100 to 0.0-1.0
+                                }
+                            }
+                        case "alignmentondesktop", "alignmenttodesktop":
+                            // \![set,alignmenttodesktop,direction]
+                            if args.count >= 3 {
+                                let direction = args[2].lowercased()
+                                DispatchQueue.main.async {
+                                    guard let vm = self.characterViewModels[self.currentScope] else { return }
+                                    switch direction {
+                                    case "top": vm.alignment = .top
+                                    case "bottom": vm.alignment = .bottom
+                                    case "left": vm.alignment = .left
+                                    case "right": vm.alignment = .right
+                                    case "free": vm.alignment = .free
+                                    case "default": vm.alignment = .free
+                                    default: break
+                                    }
+                                    // TODO: Actually apply window position constraints based on alignment
+                                }
+                            }
+                        case "position":
+                            // \![set,position,x,y,scopeID]
+                            if args.count >= 5, let x = Double(args[2]), let y = Double(args[3]), let scopeID = Int(args[4]) {
+                                DispatchQueue.main.async {
+                                    guard let vm = self.characterViewModels[scopeID] else { return }
+                                    vm.position = CGPoint(x: x, y: y)
+                                    // TODO: Actually lock window position
+                                }
+                            }
+                        case "zorder":
+                            // \![set,zorder,ID1,ID2,...] - front to back
+                            if args.count >= 3 {
+                                let scopeIDs = args.dropFirst(2).compactMap { Int($0) }
+                                // Apply z-order to all scopes in the group
+                                for scopeID in scopeIDs {
+                                    DispatchQueue.main.async {
+                                        guard let vm = self.characterViewModels[scopeID] else { return }
+                                        vm.zOrderGroup = scopeIDs
+                                        // TODO: Actually reorder windows
+                                    }
+                                }
+                            }
+                        case "sticky-window":
+                            // \![set,sticky-window,ID1,ID2,...] - windows move together
+                            if args.count >= 3 {
+                                let scopeIDs = args.dropFirst(2).compactMap { Int($0) }
+                                // Apply sticky group to all scopes
+                                for scopeID in scopeIDs {
+                                    DispatchQueue.main.async {
+                                        guard let vm = self.characterViewModels[scopeID] else { return }
+                                        vm.stickyGroup = scopeIDs
+                                        // TODO: Actually implement window movement synchronization
+                                    }
+                                }
+                            }
+                        default:
+                            break
+                        }
+                    } else if first == "reset", args.count >= 2 {
+                        // Handle \![reset,*] commands
+                        let subcmd = args[1].lowercased()
+                        switch subcmd {
+                        case "position":
+                            // \![reset,position] - unlock position
+                            DispatchQueue.main.async {
+                                guard let vm = self.characterViewModels[self.currentScope] else { return }
+                                vm.position = nil
+                            }
+                        case "zorder":
+                            // \![reset,zorder] - reset to default z-order
+                            for (_, vm) in self.characterViewModels {
+                                DispatchQueue.main.async {
+                                    vm.zOrderGroup = nil
+                                }
+                            }
+                        case "sticky-window":
+                            // \![reset,sticky-window] - unlink windows
+                            for (_, vm) in self.characterViewModels {
+                                DispatchQueue.main.async {
+                                    vm.stickyGroup = nil
+                                }
+                            }
+                        default:
+                            break
+                        }
+                    } else if first == "lock", args.count >= 2 {
+                        // Handle \![lock,*] commands
+                        let subcmd = args[1].lowercased()
+                        if subcmd == "repaint" {
+                            let manual = args.count >= 3 && args[2].lowercased() == "manual"
+                            DispatchQueue.main.async {
+                                guard let vm = self.characterViewModels[self.currentScope] else { return }
+                                vm.repaintLocked = true
+                                vm.manualRepaintLock = manual
+                            }
+                        }
+                    } else if first == "unlock", args.count >= 2 {
+                        // Handle \![unlock,*] commands
+                        let subcmd = args[1].lowercased()
+                        if subcmd == "repaint" {
+                            DispatchQueue.main.async {
+                                guard let vm = self.characterViewModels[self.currentScope] else { return }
+                                vm.repaintLocked = false
+                                vm.manualRepaintLock = false
+                            }
+                        }
+                    } else if first == "execute", args.count >= 2 {
+                        // Handle \![execute,*] commands
+                        let subcmd = args[1].lowercased()
+                        if subcmd == "resetwindowpos" {
+                            // \![execute,resetwindowpos] - reset all windows to initial positions
+                            DispatchQueue.main.async {
+                                // TODO: Implement actual window position reset
+                                for (_, vm) in self.characterViewModels {
+                                    vm.position = nil
+                                    vm.alignment = .free
+                                }
+                            }
+                        }
+                    } else if first == "anim", args.count >= 2 {
+                        // Handle \![anim,*] commands - animation control
+                        let subcmd = args[1].lowercased()
+                        switch subcmd {
+                        case "clear", "pause", "resume", "stop":
+                            // TODO: Implement animation control
+                            Log.debug("[GhostManager] Animation command not yet implemented: \(subcmd)")
+                        case "offset":
+                            // TODO: Implement animation offset
+                            Log.debug("[GhostManager] Animation offset not yet implemented")
+                        case "add":
+                            // TODO: Implement animation layering
+                            Log.debug("[GhostManager] Animation add not yet implemented")
+                        default:
+                            break
+                        }
+                    } else if first == "bind", args.count >= 2 {
+                        // Handle \![bind,category,part,value] - dressup control
+                        // TODO: Implement dressup system
+                        Log.debug("[GhostManager] Bind/dressup command not yet implemented")
+                    } else if first == "move" || first == "moveasync" {
+                        // Handle \![move,...] and \![moveasync,...]
+                        // TODO: Implement character movement with parameters
+                        Log.debug("[GhostManager] Move command not yet implemented: \(first)")
+                    } else if first == "effect" || first == "effect2" || first == "filter" {
+                        // Handle \![effect,...], \![effect2,...], \![filter,...]
+                        // TODO: Implement visual effects/filters via plugins
+                        Log.debug("[GhostManager] Effect/filter command not yet implemented: \(first)")
                     }
                 }
             case "_s":
@@ -661,10 +920,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         DispatchQueue.global(qos: .userInitiated).async {
             let image = self.loadImage(surfaceId: id, scope: scope)
             DispatchQueue.main.async {
+                // If the requested surface doesn't exist, keep the current surface
+                guard let image = image else {
+                    Log.info("[GhostManager] Surface \(id) not found for scope \(scope), keeping current surface")
+                    return
+                }
+
                 if let vm = self.characterViewModels[scope] {
                     vm.image = image
                 }
-                if let image = image, let win = self.characterWindows[scope] {
+                if let win = self.characterWindows[scope] {
                     // Resize window to fit the new surface
                     win.setContentSize(image.size)
                     self.positionBalloonWindow()
@@ -690,7 +955,6 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
         for name in candidates {
             let url = shellURL.appendingPathComponent(name)
-            Log.debug("[GhostManager] Loading image candidate: \(url.path)")
             if FileManager.default.fileExists(atPath: url.path), let img = NSImage(contentsOf: url) {
                 // PNA マスクがあれば適用（白=不透明、黒=透明として扱う想定）
                 let pnaURL = url.deletingPathExtension().appendingPathExtension("pna")
@@ -703,7 +967,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 return img
             }
         }
-        Log.debug("[GhostManager] No surface image found for id=\(surfaceId) scope=\(currentScope). Tried: \(candidates)")
+        Log.info("[GhostManager] No surface image found for id=\(surfaceId) scope=\(scope). Tried: \(candidates)")
         return nil
     }
 
@@ -770,6 +1034,82 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             }
             balloonWin.setFrameOrigin(f.origin)
         }
+    }
+
+    // MARK: - Ghost Configuration Application
+
+    /// Apply ghost configuration settings loaded from descript.txt
+    private func applyGhostConfiguration(_ config: GhostConfiguration, ghostRoot: URL) {
+        Log.debug("[GhostManager] Applying ghost configuration...")
+
+        // Store homeurl in ResourceManager if specified
+        if let homeurl = config.homeurl {
+            resourceManager.homeurl = homeurl
+            Log.debug("[GhostManager]   - Set homeurl: \(homeurl)")
+        }
+
+        // Apply default surface positions if specified
+        if let sakuraX = config.sakuraDefaultX {
+            resourceManager.sakuraDefaultX = sakuraX
+        }
+        if let sakuraY = config.sakuraDefaultY {
+            resourceManager.sakuraDefaultY = sakuraY
+        }
+        if let keroX = config.keroDefaultX {
+            resourceManager.keroDefaultX = keroX
+        }
+        if let keroY = config.keroDefaultY {
+            resourceManager.keroDefaultY = keroY
+        }
+
+        // Apply default display positions if specified and alignment is free
+        let sakuraAlignmentIsFree = (config.sakuraAlignment ?? config.alignmentToDesktop) == .free
+        let keroAlignmentIsFree = (config.keroAlignment ?? config.alignmentToDesktop) == .free
+
+        if sakuraAlignmentIsFree {
+            if let left = config.sakuraDefaultLeft {
+                resourceManager.sakuraDefaultLeft = left
+            }
+            if let top = config.sakuraDefaultTop {
+                resourceManager.sakuraDefaultTop = top
+            }
+        }
+
+        if keroAlignmentIsFree {
+            if let left = config.keroDefaultLeft {
+                resourceManager.keroDefaultLeft = left
+            }
+            if let top = config.keroDefaultTop {
+                resourceManager.keroDefaultTop = top
+            }
+        }
+
+        // Apply additional character positions
+        for (charNum, x) in config.charDefaultX {
+            if let key = "char\(charNum).defaultx" as String? {
+                resourceManager.set(key, value: String(x))
+            }
+        }
+        for (charNum, y) in config.charDefaultY {
+            if let key = "char\(charNum).defaulty" as String? {
+                resourceManager.set(key, value: String(y))
+            }
+        }
+        for (charNum, left) in config.charDefaultLeft {
+            resourceManager.setCharDefaultLeft(scope: charNum, value: left)
+        }
+        for (charNum, top) in config.charDefaultTop {
+            resourceManager.setCharDefaultTop(scope: charNum, value: top)
+        }
+
+        // Note: Other configuration values are used directly when needed:
+        // - SHIORI settings (shiori, shioriVersion, etc.) are used by adapter loading
+        // - Surface defaults are used by SERIKO engine
+        // - SSTP settings are used by SSTP server
+        // - UI settings (cursors, icons) are applied when creating UI elements
+        // - Balloon settings are used by balloon system
+
+        Log.debug("[GhostManager] Ghost configuration applied successfully")
     }
 
     // MARK: - Configuration Dialog

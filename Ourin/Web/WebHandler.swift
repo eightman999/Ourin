@@ -40,7 +40,7 @@ public final class WebHandler: NSObject {
             let ghost = params["ghost"] ?? ""
             let info = params["info"] ?? ""
             NSLog("[Ourin] event ghost=\(ghost) info=\(info)")
-            _ = BridgeToSHIORI.handle(event: "OnXUkagakaLinkOpen", references: [info])
+            _ = BridgeToSHIORI.handle(event: "OnXUkagakaLinkOpen", references: [info], headers: ["SecurityLevel": "external"])
         case "install":
             if let enc = params["url"], let decoded = enc.removingPercentEncoding {
                 NSLog("[Ourin] install from URL \(decoded)")

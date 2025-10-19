@@ -9,14 +9,35 @@ public final class PropertyManager {
     public init() {
         register("system", provider: SystemPropertyProvider())
         register("baseware", provider: BasewarePropertyProvider())
+
         // Emily4をベースゴーストとして設定
         let sampleGhosts = [
-            Ghost(name: "Emily/Phase4.5", path: "emily4", icon: "emily4/ghost/master/icon.ico")
+            Ghost(name: "Emily/Phase4.5", sakuraname: "Emily", keroname: "Teddy",
+                  craftmanw: "Yuyuko", craftmanurl: "https://emily.shillest.net/",
+                  path: "emily4", icon: "emily4/ghost/master/icon.ico",
+                  homeurl: "https://emily.shillest.net/")
         ]
+        let sampleShells = [
+            Shell(name: "ULTIMATE FORM", path: "emily4/shell/master"),
+            Shell(name: "Casual", path: "emily4/shell/casual")
+        ]
+        let sampleBalloons = [
+            Balloon(name: "SSP Default", path: "/path/to/balloon", craftmanw: "SSP Team", craftmanurl: "")
+        ]
+        let sampleHeadlines = [
+            Headline(name: "News Feed", path: "/path/to/headline")
+        ]
+        let samplePlugins = [
+            PropertyPlugin(name: "Sample Plugin", path: "/path/to/plugin", id: "plugin001")
+        ]
+
         let active = [0]
-        register("ghostlist", provider: GhostPropertyProvider(mode: .ghostlist, ghosts: sampleGhosts, activeIndices: active))
+        register("ghostlist", provider: GhostPropertyProvider(mode: .ghostlist, ghosts: sampleGhosts, activeIndices: active, shells: sampleShells))
         register("activeghostlist", provider: GhostPropertyProvider(mode: .activeghostlist, ghosts: sampleGhosts, activeIndices: active))
-        register("currentghost", provider: GhostPropertyProvider(mode: .currentghost, ghosts: sampleGhosts, activeIndices: active))
+        register("currentghost", provider: GhostPropertyProvider(mode: .currentghost, ghosts: sampleGhosts, activeIndices: active, shells: sampleShells))
+        register("balloonlist", provider: BalloonPropertyProvider(mode: .balloonlist, balloons: sampleBalloons))
+        register("headlinelist", provider: HeadlinePropertyProvider(headlines: sampleHeadlines))
+        register("pluginlist", provider: PluginPropertyProvider(plugins: samplePlugins))
     }
 
     /// `prefix.*` を処理するプロバイダを登録する。

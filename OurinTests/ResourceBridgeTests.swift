@@ -44,7 +44,7 @@ struct ResourceBridgeTests {
             #expect(Int(color.greenComponent * 255) == 128)
             #expect(Int(color.blueComponent * 255) == 0)
         } else {
-            #fail("color nil")
+            Issue.record("color nil")
         }
         if let list = bridge.recommendSites(for: "sakura.recommendsites", base: nil) {
             #expect(list.count == 1)
@@ -52,7 +52,7 @@ struct ResourceBridgeTests {
             #expect(list[0].url == "https://example.com")
             #expect(list[0].talk == "talk")
         } else {
-            #fail("list nil")
+            Issue.record("list nil")
         }
         BridgeToSHIORI.reset()
     }
