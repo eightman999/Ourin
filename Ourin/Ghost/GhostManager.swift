@@ -89,6 +89,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     private var syncEnabled: Bool = false
     private var syncScopes: Set<Int> = []
     private var pendingClick: Bool? = nil
+    
+    // Sound playback tracking
+    private var currentSounds: [NSSound] = []
 
     // MARK: - Initialization
 
@@ -414,6 +417,71 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             // \5 - Move close to other character
             // TODO: Implement character movement logic
             break
+        
+        // New token types - added for comprehensive Sakura Script support
+        case .wait:
+            // \t - Quick wait/click wait
+            playbackQueue.append(.clickWait(noclear: false))
+        
+        case .endConversation(let clearBalloon):
+            // \x or \x[noclear] - End conversation
+            playbackQueue.append(.clickWait(noclear: !clearBalloon))
+        
+        case .choiceCancel:
+            // \z - Choice cancellation
+            Log.debug("[GhostManager] Choice cancel marker")
+            // Mark that choices can be cancelled with right-click or ESC
+            // This is typically handled by the choice display system
+            break
+        
+        case .choiceMarker:
+            // \* - Choice marker (indicates start of choice section)
+            Log.debug("[GhostManager] Choice marker")
+            break
+        
+        case .anchor:
+            // \a - Anchor marker (for clickable text)
+            Log.debug("[GhostManager] Anchor marker")
+            break
+        
+        case .choiceLineBr:
+            // \- - Line break in choice
+            playbackQueue.append(.newline)
+        
+        case .bootGhost:
+            // \+ - Boot/call other ghost
+            Log.debug("[GhostManager] Boot ghost command")
+            // TODO: Implement ghost booting via FMO/SSTP
+            break
+        
+        case .bootAllGhosts:
+            // \_+ - Boot all ghosts
+            Log.debug("[GhostManager] Boot all ghosts command")
+            // TODO: Implement system-wide ghost booting
+            break
+        
+        case .openPreferences:
+            // \v - Open preferences dialog
+            DispatchQueue.main.async {
+                NSApp.sendAction(#selector(NSApplication.showPreferencesWindow), to: nil, from: nil)
+            }
+        
+        case .openURL:
+            // \6 - Open URL (URL should be in preceding text or next command)
+            Log.debug("[GhostManager] Open URL command")
+            // TODO: Extract URL from context and open in browser
+            break
+        
+        case .openEmail:
+            // \7 - Open email client
+            Log.debug("[GhostManager] Open email command")
+            // TODO: Extract email address from context and open mail client
+            break
+        
+        case .playSound(let filename):
+            // \8[filename] - Play sound file
+            playSound(filename: filename)
+        
         case .command(let name, let args):
             switch name.lowercased() {
             case "w":
@@ -666,8 +734,20 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             // TODO: Implement animation offset
                             Log.debug("[GhostManager] Animation offset not yet implemented")
                         case "add":
-                            // TODO: Implement animation layering
-                            Log.debug("[GhostManager] Animation add not yet implemented")
+                            // \![anim,add,overlay,ID] or \![anim,add,base,ID] or \![anim,add,text,...]
+                            if args.count >= 4 {
+                                let addType = args[2].lowercased()
+                                if addType == "overlay" {
+                                    if let surfaceID = Int(args[3]) {
+                                        handleSurfaceOverlay(surfaceID: surfaceID)
+                                    }
+                                } else if addType == "base" {
+                                    Log.debug("[GhostManager] Animation add base not yet implemented")
+                                } else if addType == "text" {
+                                    // \![anim,add,text,x,y,width,height,text,time,r,g,b,size,font]
+                                    Log.debug("[GhostManager] Animation add text not yet implemented")
+                                }
+                            }
                         default:
                             break
                         }
@@ -694,6 +774,34 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     syncEnabled = true
                     syncScopes = Set(args.compactMap { Int($0) })
                 }
+            
+            case "q":
+                // \q[title,ID] or various choice formats
+                handleChoiceCommand(args: args)
+            
+            case "_a":
+                // \_a[ID] or \_a[OnID,r0,r1,...] - anchor/clickable text
+                if !args.isEmpty {
+                    let eventID = args[0]
+                    let references = Array(args.dropFirst())
+                    Log.debug("[GhostManager] Anchor event: \(eventID) with refs: \(references)")
+                    // TODO: Store anchor for clickable text display
+                }
+            
+            case "_b":
+                // \_b[filepath,...] - balloon image display
+                handleBalloonImage(args: args)
+            
+            case "_v":
+                // \_v[filename] - play voice file
+                if let filename = args.first {
+                    playSound(filename: filename)
+                }
+            
+            case "_V":
+                // \_V - stop voice playback
+                stopAllSounds()
+            
             default:
                 break
             }
@@ -1149,5 +1257,126 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 EventBridge.shared.notify(.OnNameChanged, params: ["Reference0": userName])
             }
         }
+    }
+    
+    // MARK: - Sound Playback
+    
+    /// Play a sound file from the ghost's sound directory
+    private func playSound(filename: String) {
+        guard !filename.isEmpty else { return }
+        
+        // Resolve sound file path relative to ghost directory
+        let soundPath = ghostURL.appendingPathComponent("sound").appendingPathComponent(filename)
+        
+        // Check if file exists
+        guard FileManager.default.fileExists(atPath: soundPath.path) else {
+            Log.warning("[GhostManager] Sound file not found: \(soundPath.path)")
+            return
+        }
+        
+        // Play sound using NSSound
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let sound = NSSound(contentsOf: soundPath, byReference: false) {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    self.currentSounds.append(sound)
+                    sound.play()
+                    Log.debug("[GhostManager] Playing sound: \(filename)")
+                }
+            } else {
+                Log.warning("[GhostManager] Failed to load sound: \(filename)")
+            }
+        }
+    }
+    
+    /// Stop all currently playing sounds
+    private func stopAllSounds() {
+        for sound in currentSounds {
+            if sound.isPlaying {
+                sound.stop()
+            }
+        }
+        currentSounds.removeAll()
+        Log.debug("[GhostManager] Stopped all sounds")
+    }
+    
+    // MARK: - Choice Command Support
+    
+    /// Handle choice command - \q[title,ID] or variants
+    private func handleChoiceCommand(args: [String]) {
+        guard args.count >= 2 else {
+            Log.warning("[GhostManager] Invalid choice command: insufficient arguments")
+            return
+        }
+        
+        let title = args[0]
+        let idOrScript = args[1]
+        
+        // Check if this is a script: format
+        if idOrScript.hasPrefix("script:") {
+            let script = String(idOrScript.dropFirst(7)) // Remove "script:" prefix
+            Log.debug("[GhostManager] Choice '\(title)' will execute script: \(script)")
+            // TODO: Store choice and script for display
+        } else {
+            // Event ID format
+            let eventID = idOrScript
+            let references = Array(args.dropFirst(2))
+            Log.debug("[GhostManager] Choice '\(title)' will trigger event: \(eventID) with refs: \(references)")
+            // TODO: Store choice and event for display
+        }
+    }
+    
+    // MARK: - Balloon Image Display
+    
+    /// Handle balloon image display - \_b[filepath,x,y,...] or \_b[filepath,inline,...]
+    private func handleBalloonImage(args: [String]) {
+        guard !args.isEmpty else {
+            Log.warning("[GhostManager] Invalid balloon image command: no filepath")
+            return
+        }
+        
+        let filepath = args[0]
+        
+        // Check for inline mode
+        if args.count >= 2 && args[1].lowercased() == "inline" {
+            Log.debug("[GhostManager] Balloon inline image: \(filepath)")
+            // TODO: Load and display inline image in balloon
+            // Parse additional options (opaque, --option=value, etc.)
+            let options = Array(args.dropFirst(2))
+            for option in options {
+                if option.lowercased() == "opaque" {
+                    Log.debug("[GhostManager]   - Opaque mode")
+                } else if option.hasPrefix("--") {
+                    Log.debug("[GhostManager]   - Option: \(option)")
+                }
+            }
+        } else if args.count >= 3 {
+            // Positioned mode: filepath,x,y[,options...]
+            if let x = Int(args[1]), let y = Int(args[2]) {
+                Log.debug("[GhostManager] Balloon positioned image: \(filepath) at (\(x), \(y))")
+                // TODO: Load and display image at specified position
+                let options = Array(args.dropFirst(3))
+                for option in options {
+                    if option.lowercased() == "opaque" {
+                        Log.debug("[GhostManager]   - Opaque mode")
+                    } else if option.hasPrefix("--") {
+                        Log.debug("[GhostManager]   - Option: \(option)")
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Surface Compositing
+    
+    /// Handle surface overlay/compositing - \![anim,add,overlay,ID]
+    private func handleSurfaceOverlay(surfaceID: Int) {
+        Log.debug("[GhostManager] Adding surface overlay: \(surfaceID)")
+        // TODO: Implement surface compositing system
+        // This requires:
+        // 1. Loading the specified surface image
+        // 2. Compositing it over the current surface
+        // 3. Managing the overlay stack
+        // 4. Updating the display
     }
 }
