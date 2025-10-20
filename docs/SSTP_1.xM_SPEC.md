@@ -115,15 +115,75 @@ Command: GetName
 - **Bind**: 127.0.0.1 / ::1（外部公開はオプトイン）。
 - **Charset**: 既定 UTF‑8、SJIS 系ラベルは CP932 として受理。
 
-## 11. 適合チェックリスト
-- [ ] CRLF と空行終端の正しい処理。  
-- [ ] `Charset` 必須（UTF‑8 推奨）。SJIS 系は CP932 として受理。  
-- [ ] `SecurityLevel`/`SecurityOrigin` の解釈。  
-- [ ] `ReceiverGhostName` によるゴースト固定（未発見は 404）。  
-- [ ] **DirectSSTP (macOS)** = **XPC** で `request(Data)->Data` の橋渡し。  
-- [ ] **SSTP over HTTP** `/api/sstp/v1` を localhost 限定で実装。
+## 11. 実装状況（Implementation Status）
 
-## 12. 付録 A: XPC 版 DirectSSTP の最小IF
+**更新日:** 2025-10-20
+
+### 11.1 Ourin ホスト側の実装
+
+- [x] **TCP SSTP サーバ**: `SstpTcpServer.swift` にて Network.framework を使用して実装済み
+- [x] **HTTP SSTP サーバ**: `SstpHttpServer.swift` にて実装済み
+- [x] **XPC DirectSSTP**: `XpcDirectServer.swift` および `DirectSSTPXPC.swift` にて実装済み
+- [x] **SSTP パーサー**: `SstpParser.swift` にてリクエスト解析を実装済み
+- [x] **SSTP ディスパッチャ**: `SSTPDispatcher.swift` にて基本的なメソッド処理を実装済み
+- [x] **文字コード対応**: UTF-8 既定、Shift_JIS/CP932 の受理機能を実装済み
+- [x] **統合管理**: `OurinExternalServer.swift` にて TCP/HTTP/XPC の統合管理を実装済み
+- [ ] **完全な SSTP/1.x プロトコル**: 基本機能は実装済みだが、全てのオプションヘッダの完全実装は未達成
+
+### 11.2 実装済みの機能
+
+1. **SocketSSTP (TCP)**
+   - Network.framework による TCP サーバ実装
+   - ポート 9801 でのリスニング
+   - ローカルホスト限定の受信（127.0.0.1/::1）
+   - 基本的な SEND/NOTIFY/COMMUNICATE/EXECUTE メソッドの処理
+
+2. **SSTP over HTTP**
+   - HTTP サーバの実装
+   - `/api/sstp/v1` エンドポイント
+   - Content-Type: text/plain でのリクエスト受信
+
+3. **DirectSSTP (XPC)**
+   - NSXPCConnection によるプロセス間通信
+   - `OurinSSTPXPC` プロトコルの実装
+   - `executeSSTP(_:withReply:)` メソッドの実装
+
+4. **リクエスト処理**
+   - CRLF + 空行終端の解析
+   - `Charset` ヘッダの処理
+   - 基本的なレスポンス生成
+
+5. **ルーティング**
+   - `SstpRouter.swift` によるリクエストの SHIORI への転送
+   - 各種サーバからのリクエスト統合処理
+
+### 11.3 未実装の機能
+
+1. **完全なヘッダサポート**
+   - `ReceiverGhostName` による特定ゴーストへの送信
+   - `SecurityLevel`/`SecurityOrigin` の完全実装
+   - `Option` の全パターン (`nodescript`/`notranslate`/`nobreak`)
+
+2. **詳細なステータスコード**
+   - 404 Not Found（ゴースト未発見時）
+   - 408 Request Timeout
+   - 409 Conflict
+   - 413 Payload Too Large
+   - など、一部のステータスコードは未実装
+
+3. **外部公開設定**
+   - 現在はローカルホスト限定
+   - 設定による外部公開機能は未実装
+
+## 12. 適合チェックリスト
+- [x] CRLF と空行終端の正しい処理（実装済み）  
+- [x] `Charset` 必須（UTF‑8 推奨）。SJIS 系は CP932 として受理（実装済み）  
+- [ ] `SecurityLevel`/`SecurityOrigin` の解釈（未実装）  
+- [ ] `ReceiverGhostName` によるゴースト固定（未発見は 404）（未実装）  
+- [x] **DirectSSTP (macOS)** = **XPC** で `request(Data)->Data` の橋渡し（実装済み）  
+- [x] **SSTP over HTTP** `/api/sstp/v1` を localhost 限定で実装（実装済み）
+
+## 13. 付録 A: XPC 版 DirectSSTP の最小IF
 ```swift
 @objc public protocol OurinSSTPXPC {
     func executeSSTP(_ request: Data, withReply reply: @escaping (Data) -> Void)

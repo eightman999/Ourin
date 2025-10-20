@@ -162,14 +162,57 @@ void shiori_free(unsigned char* p){ free(p); }
 - **XPC 分離**する場合は、`request(Data)->Data` の固定 IF で橋渡し。  
 - **macOS 10.15+ / 64bit 専用**、**Universal 2** 配布を基本とする。
 
-## 11. 適合チェックリスト
-- [ ] `GET/NOTIFY SHIORI/3.0`、CRLF＋空行終端で往復できる。  
-- [ ] `Charset` 未指定は UTF‑8、SJIS系ラベルは CP932 として受理。  
-- [ ] `Value`/`ValueNotify` 等の拡張を必要に応じて実装。  
-- [ ] 実体は `.bundle/.plugin`（Universal 2）＋ **C ABI**。  
-- [ ] **shiori_free** による戻り値解放。
+## 11. 実装状況（Implementation Status）
 
-## 12. 参照（Normative/Informative）
+**更新日:** 2025-10-20
+
+### 11.1 Ourin ホスト側の実装
+
+- [x] **CFBundle によるロード**: `ShioriLoader.swift` にて実装済み
+- [x] **YAYA バックエンド**: `YayaBackend` および `YayaAdapter.swift` にて YAYA ゴーストのサポート実装済み
+- [x] **文字コード対応**: UTF-8 既定、Shift_JIS/CP932 受理機能を実装済み
+- [x] **リクエスト/レスポンス処理**: CRLF + 空行終端の基本的なワイヤプロトコル処理を実装済み
+- [ ] **Bundle/Plugin 形式の SHIORI**: C ABI での直接ロードは未実装（現在は YAYA のみ対応）
+- [ ] **XPC 分離実行**: 未実装（現在は同一プロセス内で実行）
+- [ ] **shiori_free メモリ管理**: C ABI 未実装のため該当なし
+
+### 11.2 実装済みの機能
+
+1. **YAYA ゴースト対応**
+   - `yaya.txt` の解析とロード
+   - `dic` ファイルの再帰的読み込み
+   - リクエスト/レスポンス処理
+   - `OnBoot`, `OnCommunicate` 等の基本イベント
+
+2. **文字エンコーディング**
+   - UTF-8 既定での処理
+   - Shift_JIS/CP932 の自動検出と変換
+
+3. **イベントシステム**
+   - システムイベントの監視と SHIORI への転送
+   - `EventBridge` によるイベント配信
+
+### 11.3 未実装の機能
+
+1. **C ABI での Bundle/Plugin ロード**
+   - `shiori_load`, `shiori_request`, `shiori_unload`, `shiori_free` 関数の実装
+   - CFBundle からの関数ポインタ解決
+
+2. **XPC サービス分離**
+   - SHIORI の別プロセス実行
+   - セキュリティサンドボックス分離
+
+3. **SHIORI/2.x 互換**
+   - 2.x プロトコルのサポート
+
+## 12. 適合チェックリスト
+- [x] `GET/NOTIFY SHIORI/3.0`、CRLF＋空行終端で往復できる（YAYA バックエンドで実装）  
+- [x] `Charset` 未指定は UTF‑8、SJIS系ラベルは CP932 として受理  
+- [x] `Value`/`ValueNotify` 等の拡張を必要に応じて実装（基本実装済み）  
+- [ ] 実体は `.bundle/.plugin`（Universal 2）＋ **C ABI**（未実装）  
+- [ ] **shiori_free** による戻り値解放（未実装）
+
+## 13. 参照（Normative/Informative）
 - SHIORI/3.0（UKADOC）  
 - SHIORI Event リスト／メモ  
 - DLL 共通仕様（Windows の GlobalAlloc 規約の根拠。3.0M では置換）  
