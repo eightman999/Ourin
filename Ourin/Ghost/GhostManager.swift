@@ -693,6 +693,34 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     }
                                 }
                             }
+                        case "wallpaper":
+                            // \![set,wallpaper,filename,options]
+                            if args.count >= 3 {
+                                let filename = args[2]
+                                let options = args.count >= 4 ? args[3] : ""
+                                setWallpaper(filename: filename, options: options)
+                            }
+                        case "tasktrayicon":
+                            // \![set,tasktrayicon,filename,text]
+                            if args.count >= 3 {
+                                let filename = args[2]
+                                let text = args.count >= 4 ? args[3] : ""
+                                setTaskTrayIcon(filename: filename, text: text)
+                            }
+                        case "trayballoon":
+                            // \![set,trayballoon,options...]
+                            let options = Array(args.dropFirst(2))
+                            setTrayBalloon(options: options)
+                        case "otherghosttalk":
+                            // \![set,otherghosttalk,true/false/before/after]
+                            if args.count >= 3 {
+                                setOtherGhostTalk(mode: args[2])
+                            }
+                        case "othersurfacechange":
+                            // \![set,othersurfacechange,true/false]
+                            if args.count >= 3 {
+                                setOtherSurfaceChange(enabled: args[2].lowercased() == "true")
+                            }
                         default:
                             break
                         }
@@ -756,7 +784,31 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     vm.alignment = .free
                                 }
                             }
+                        } else if subcmd == "headline" {
+                            // \![execute,headline,headlineName]
+                            let headlineName = args.count >= 3 ? args[2] : ""
+                            executeHeadline(name: headlineName)
                         }
+                    } else if first == "executesntp" {
+                        // \![executesntp] - execute SNTP time synchronization
+                        executeSNTP()
+                    } else if first == "biff" {
+                        // \![biff] - check for new mail
+                        executeBiff()
+                    } else if first == "updatebymyself" {
+                        // \![updatebymyself] - check for updates to this ghost
+                        executeUpdate(target: "self", options: [])
+                    } else if first == "update" {
+                        // \![update,platform] or \![update,target,options...]
+                        let target = args.count >= 2 ? args[1] : "platform"
+                        let options = Array(args.dropFirst(2))
+                        executeUpdate(target: target, options: options)
+                    } else if first == "updateother" {
+                        // \![updateother] - check for updates to all other ghosts
+                        executeUpdate(target: "other", options: [])
+                    } else if first == "vanishbymyself" {
+                        // \![vanishbymyself] - terminate this ghost
+                        executeVanish()
                     } else if first == "anim", args.count >= 2 {
                         // Handle \![anim,*] commands - animation control
                         let subcmd = args[1].lowercased()
@@ -1755,4 +1807,199 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         animationEngine.loadAnimations(surfaceID: surfaceID, content: surfacesContent)
         Log.debug("[GhostManager] Loaded animations for surface \(surfaceID)")
     }
+    
+    // MARK: - System Commands Implementation
+    
+    /// Set desktop wallpaper
+    private func setWallpaper(filename: String, options: String) {
+        let wallpaperURL = ghostURL.appendingPathComponent(filename)
+        
+        guard FileManager.default.fileExists(atPath: wallpaperURL.path) else {
+            Log.warning("[GhostManager] Wallpaper file not found: \(filename)")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            do {
+                let workspace = NSWorkspace.shared
+                if let screen = NSScreen.main {
+                    try workspace.setDesktopImageURL(wallpaperURL, for: screen, options: [:])
+                    Log.debug("[GhostManager] Set wallpaper: \(filename)")
+                }
+            } catch {
+                Log.error("[GhostManager] Failed to set wallpaper: \(error)")
+            }
+        }
+    }
+    
+    /// Set task tray (dock) icon
+    private func setTaskTrayIcon(filename: String, text: String) {
+        let iconURL = ghostURL.appendingPathComponent(filename)
+        
+        DispatchQueue.main.async {
+            if let image = NSImage(contentsOf: iconURL) {
+                NSApp.applicationIconImage = image
+                Log.debug("[GhostManager] Set dock icon: \(filename)")
+            } else {
+                Log.warning("[GhostManager] Failed to load icon: \(filename)")
+            }
+        }
+    }
+    
+    /// Set tray balloon (notification)
+    private func setTrayBalloon(options: [String]) {
+        // Parse options like title=..., message=..., icon=...
+        var title = "Ourin"
+        var message = ""
+        var sound = true
+        
+        for option in options {
+            let parts = option.split(separator: "=", maxSplits: 1)
+            if parts.count == 2 {
+                let key = parts[0].lowercased()
+                let value = String(parts[1])
+                switch key {
+                case "title": title = value
+                case "message", "text": message = value
+                case "sound": sound = value.lowercased() != "false"
+                default: break
+                }
+            } else {
+                // If no key, assume it's the message
+                if message.isEmpty {
+                    message = option
+                }
+            }
+        }
+        
+        DispatchQueue.main.async {
+            let notification = NSUserNotification()
+            notification.title = title
+            notification.informativeText = message
+            if sound {
+                notification.soundName = NSUserNotificationDefaultSoundName
+            }
+            NSUserNotificationCenter.default.deliver(notification)
+            Log.debug("[GhostManager] Delivered notification: \(title) - \(message)")
+        }
+    }
+    
+    /// Set other ghost talk mode
+    private func setOtherGhostTalk(mode: String) {
+        // Store setting for whether to show other ghosts' conversations
+        // Options: true, false, before, after
+        Log.debug("[GhostManager] Set other ghost talk mode: \(mode)")
+        // TODO: Store in user preferences and implement filtering
+    }
+    
+    /// Set whether to observe other ghosts' surface changes
+    private func setOtherSurfaceChange(enabled: Bool) {
+        Log.debug("[GhostManager] Set other surface change observation: \(enabled)")
+        // TODO: Subscribe/unsubscribe from SSTP surface change notifications
+    }
+    
+    /// Execute SNTP time synchronization
+    private func executeSNTP() {
+        Log.debug("[GhostManager] Executing SNTP time synchronization")
+        // TODO: Implement SNTP client to sync system time
+        DispatchQueue.global(qos: .utility).async {
+            // Would connect to NTP server and sync time
+            // For now, just log the request
+            Log.info("[GhostManager] SNTP sync requested (not yet implemented)")
+        }
+    }
+    
+    /// Execute headline (RSS feed check)
+    private func executeHeadline(name: String) {
+        Log.debug("[GhostManager] Executing headline check: \(name)")
+        // TODO: Fetch RSS feed specified in headline configuration
+        DispatchQueue.global(qos: .utility).async {
+            // Would fetch RSS/Atom feed and trigger OnHeadline event
+            Log.info("[GhostManager] Headline check for '\(name)' (not yet implemented)")
+        }
+    }
+    
+    /// Execute mail check (biff)
+    private func executeBiff() {
+        Log.debug("[GhostManager] Executing mail check (biff)")
+        // TODO: Check configured mail accounts for new messages
+        DispatchQueue.global(qos: .utility).async {
+            // Would check POP3/IMAP servers and trigger OnBIFF event
+            Log.info("[GhostManager] Mail check requested (not yet implemented)")
+        }
+    }
+    
+    /// Execute update check
+    private func executeUpdate(target: String, options: [String]) {
+        Log.debug("[GhostManager] Executing update check for: \(target)")
+        
+        DispatchQueue.global(qos: .utility).async {
+            // Determine what to update
+            switch target.lowercased() {
+            case "self", "ghost":
+                // Check for updates to this ghost
+                self.checkGhostUpdate(options: options)
+            case "platform", "baseware":
+                // Check for updates to Ourin itself
+                self.checkPlatformUpdate(options: options)
+            case "other", "all":
+                // Check for updates to all installed ghosts
+                self.checkAllGhostsUpdate(options: options)
+            default:
+                Log.warning("[GhostManager] Unknown update target: \(target)")
+            }
+        }
+    }
+    
+    /// Check for ghost updates
+    private func checkGhostUpdate(options: [String]) {
+        guard let updateURL = ghostConfig?.homeurl else {
+            Log.info("[GhostManager] No update URL configured for ghost")
+            return
+        }
+        
+        Log.info("[GhostManager] Checking for ghost updates at: \(updateURL)")
+        // TODO: Fetch update.txt/updates2.dau, compare versions, download if needed
+        // Trigger OnUpdateReady or OnUpdateComplete events
+    }
+    
+    /// Check for platform (Ourin) updates
+    private func checkPlatformUpdate(options: [String]) {
+        Log.info("[GhostManager] Checking for Ourin platform updates")
+        // TODO: Check GitHub releases or update server for new Ourin versions
+    }
+    
+    /// Check for updates to all ghosts
+    private func checkAllGhostsUpdate(options: [String]) {
+        Log.info("[GhostManager] Checking for updates to all installed ghosts")
+        // TODO: Enumerate all ghosts and check their update URLs
+    }
+    
+    /// Terminate this ghost (vanish)
+    private func executeVanish() {
+        Log.info("[GhostManager] Ghost terminating (vanish)")
+        
+        DispatchQueue.main.async {
+            // Trigger OnVanished event first
+            if let yaya = self.yayaAdapter {
+                _ = yaya.request(id: "OnVanished", references: [:])
+            }
+            
+            // Close all windows
+            for window in self.characterWindows.values {
+                window.close()
+            }
+            for window in self.balloonWindows.values {
+                window.close()
+            }
+            
+            // Clean up resources
+            self.characterWindows.removeAll()
+            self.balloonWindows.removeAll()
+            self.stopPlayback()
+            
+            Log.debug("[GhostManager] Ghost vanished successfully")
+        }
+    }
 }
+
