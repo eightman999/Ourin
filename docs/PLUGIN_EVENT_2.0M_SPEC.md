@@ -163,3 +163,100 @@ Value: OK
 ## 8. 付録: 用語
 - **CGWindowID**：Window Server のウィンドウ番号（`NSWindow.windowNumber` から取得可、列挙は CGWindowList）。  
 - **POSIX パス**：macOS の絶対パス。必要に応じ `file://` URL で表現。
+
+---
+
+## 実装状況（Implementation Status）
+
+**更新日:** 2025-10-20
+
+### Ourin におけるプラグインイベント実装
+
+- [x] **基本構造**: `PluginEventDispatcher.swift` にてイベント配信の基盤を実装済み
+- [x] **フレーム処理**: `PluginFrame.swift` にてリクエスト/レスポンスのフレーム構造を実装済み
+- [x] **エンコーディング正規化**: `PluginEncodingNormalizer.swift` にて文字コード処理を実装済み
+- [x] **パス正規化**: `PathNormalizer.swift` にて macOS パス処理を実装済み
+- [x] **ウィンドウ ID マッピング**: `WindowIDMapper.swift` にて CGWindowID 処理を実装済み
+- [ ] **完全なイベント実装**: 全てのプラグインイベントの完全実装は未達成
+
+### 実装済みの機能
+
+1. **プラグインイベントディスパッチャ**
+   - イベントの配信基盤
+   - 登録されたプラグインへのイベント転送
+   - エラーハンドリング
+
+2. **フレーム処理**
+   - PLUGIN/2.0 プロトコルのリクエスト/レスポンス構造
+   - ID, Reference*, Script, ScriptOption の処理
+   - LF/CRLF 改行の受理
+
+3. **文字コード処理**
+   - UTF-8 既定処理
+   - Shift_JIS/CP932 の自動検出と変換
+   - `Charset` ヘッダの処理
+
+4. **macOS 固有処理**
+   - POSIX パス正規化
+   - `file://` URL 処理
+   - CGWindowID によるウィンドウ識別
+
+5. **リスト区切り処理**
+   - `ListDelimiter.swift` による配列データの処理
+
+### 実装済みのイベント
+
+- [ ] `version`: 未実装
+- [ ] `installedplugin` [NOTIFY]: 未実装
+- [ ] `installedghostname` [NOTIFY]: 未実装
+- [ ] `installedballoonname` [NOTIFY]: 未実装
+- [ ] `ghostpathlist` [NOTIFY]: 未実装
+- [ ] `balloonpathlist` [NOTIFY]: 未実装
+- [ ] `headlinepathlist` [NOTIFY]: 未実装
+- [ ] `pluginpathlist` [NOTIFY]: 未実装
+- [ ] `OnSecondChange`: 未実装
+- [ ] `OnOtherGhostTalk`: 未実装
+- [ ] `OnGhostBoot`: 未実装
+- [ ] `OnGhostExit` [NOTIFY]: 未実装
+- [ ] `OnGhostInfoUpdate` [NOTIFY]: 未実装
+- [ ] `OnMenuExec`: 未実装
+- [ ] `OnInstallComplete`: 未実装
+- [ ] `OnChoiceSelect(Ex)`: 未実装
+- [ ] `OnAnchorSelect(Ex)`: 未実装
+- [ ] `![raiseplugin]`/`![notifyplugin]`: 未実装
+
+### 実装ファイル
+
+- `Ourin/PluginEvent/PluginEventDispatcher.swift`: イベント配信
+- `Ourin/PluginEvent/PluginFrame.swift`: フレーム構造
+- `Ourin/PluginEvent/PluginEncodingNormalizer.swift`: 文字コード処理
+- `Ourin/PluginEvent/PathNormalizer.swift`: パス正規化
+- `Ourin/PluginEvent/WindowIDMapper.swift`: ウィンドウ ID 処理
+- `Ourin/PluginEvent/ListDelimiter.swift`: リスト区切り処理
+
+### 未実装の機能
+
+1. **全てのイベントハンドラ**
+   - 現在は基盤のみ実装
+   - 個別イベントの実装が必要
+
+2. **完全な PLUGIN/2.0M プロトコル**
+   - リクエスト/レスポンスの完全処理
+   - 全てのヘッダオプションの実装
+
+3. **プラグインとの実際の通信**
+   - PluginRegistry との連携強化
+   - イベント発火のトリガー実装
+
+### macOS 差分の実装状況
+
+- [x] **HWND → CGWindowID**: `WindowIDMapper` にて実装済み
+- [x] **Windows パス → POSIX パス**: `PathNormalizer` にて実装済み
+- [x] **文字コード正規化**: UTF-8 既定、CP932 受理を実装済み
+- [ ] **完全なウィンドウ列挙**: CGWindowList の活用は部分実装
+
+---
+
+## 変更履歴
+- 2025-10-20: 実装状況セクションを追加
+- 2025-07-27 (JST): 初版

@@ -154,3 +154,124 @@ func buildGET(id: String, refs: [String]) -> Data {
   return Data(head.utf8)
 }
 ```
+
+---
+
+## 実装状況（Implementation Status）
+
+**更新日:** 2025-10-20
+
+### Ourin における YAYA Adapter 実装
+
+- [x] **完全実装済み**: YAYA Adapter は実装され、動作確認済み
+- [x] **USL (Universal SHIORI Loader)**: `ShioriLoader.swift` にて実装済み
+- [x] **YAYA Backend**: `YayaBackend` クラスにて実装済み
+- [x] **YAYA Adapter**: `YayaAdapter.swift` にてヘルパープロセスとの通信を実装済み
+- [x] **SHIORI/3.0M ブリッジ**: リクエスト/レスポンスの変換処理を実装済み
+- [x] **文字コード対応**: UTF-8 既定、CP932 フォールバックを実装済み
+- [x] **.dic ファイルロード**: 再帰的な設定ファイル解析を実装済み
+
+### 実装済みの機能
+
+1. **USL (Universal SHIORI Loader)**
+   - `descript.txt` の `shiori` フィールド解析
+   - YAYA 系 DLL の検出と YAYA Backend へのルーティング
+   - 複数バックエンド対応の基盤
+
+2. **YAYA Backend**
+   - YAYA ゴーストの検出とロード
+   - `yaya.txt` の解析
+   - `dic` エントリの再帰的収集
+   - include ファイルの処理
+   - ゴースト master ディレクトリの管理
+
+3. **YAYA Adapter**
+   - ヘルパープロセス (`yaya_core`) との通信
+   - `load()`, `request()`, `unload()` API
+   - タイムアウト処理（5秒デフォルト）
+   - JSON ベースの IPC プロトコル
+
+4. **SHIORI/3.0M ブリッジ**
+   - `GET`/`NOTIFY` メソッドの処理
+   - リクエストパース（ID, Reference*, Charset など）
+   - レスポンス生成（Status, Value, Charset）
+   - CRLF + 空行終端の処理
+
+5. **文字コード処理**
+   - UTF-8 既定での処理
+   - CP932/Shift_JIS のフォールバック
+   - BOM 付き UTF-8 の許容
+
+6. **辞書ロード**
+   - `yaya.txt` の解析
+   - `dic, filename` エントリの処理
+   - `dic, path/filename, encoding` 形式のサポート
+   - 相対パス解決（ghost/master 基準）
+   - `#include` による再帰的設定ファイルロード
+
+7. **エラーハンドリング**
+   - ロード失敗の検出
+   - タイムアウトエラー
+   - 不正な設定ファイルの処理
+   - ログ出力による診断
+
+### 実装ファイル
+
+- `Ourin/USL/ShioriLoader.swift`: USL とバックエンド選択
+- `Ourin/Yaya/YayaAdapter.swift`: YAYA プロセスとの通信
+- YAYA Core は別リポジトリ `yaya_core/` にて実装
+
+### 動作確認済み機能
+
+- ✅ YAYA ゴーストのロード
+- ✅ `OnBoot` イベントの処理
+- ✅ `OnCommunicate` イベントの処理
+- ✅ `yaya.txt` の解析と dic ファイル収集
+- ✅ UTF-8 および CP932 辞書の読み込み
+- ✅ SHIORI/3.0 プロトコルでの通信
+- ✅ Value の返却とスクリプト表示
+
+### 未実装の機能
+
+1. **dylib 形式の直接ロード**
+   - 現在はヘルパープロセス方式のみ
+   - `libyaya.dylib` の直接ロードは未実装
+
+2. **高度なエラーリカバリ**
+   - 連続クラッシュ時のバックオフ
+   - 自動再起動機能
+
+3. **詳細なロギング**
+   - tama 互換ログ形式
+   - 構造化ログの完全実装
+
+4. **SAORI 連携**
+   - Windows 専用 SAORI のネイティブ置換
+   - SAORI ブリッジ機能
+
+### アーキテクチャ
+
+```
+Ourin.app
+ └ Contents/
+    ├ MacOS/Ourin              # ベースウェア本体
+    │  └ ShioriLoader         # USL 実装
+    │     └ YayaBackend       # YAYA 検出・管理
+    │        └ YayaAdapter    # プロセス通信
+    └ (外部) yaya_core        # YAYA ランタイム（別プロセス）
+```
+
+### IPC プロトコル実装状況
+
+- [x] JSON ベースのメッセージング
+- [x] `load` コマンド（ghost_root, dics, encoding）
+- [x] `request` コマンド（method, id, headers, refs）
+- [x] `unload` コマンド
+- [x] レスポンス処理（ok, status, headers, value, error）
+- [x] タイムアウト処理（5秒デフォルト）
+
+---
+
+## 変更履歴
+- 2025-10-20: 実装状況セクションを追加
+- 2025-07-30 22:57 UTC+09:00 (JST): 初版
