@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .toc {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1 id="shiori-resource-30mmacos-2x-madd">SHIORI Resource — <strong>3.0M（macOS）</strong> 仕様書（2.x互換, M‑Add付き）</h1>
+<p><strong>Updated:</strong> 2025-07-27 (JST)<br />
+<strong>対象:</strong> Ourin (macOS 10.15+ / Universal 2)<br />
+<strong>互換:</strong> UKADOC「SHIORI Resourceリスト」に準拠。返却は<strong>短いテキスト</strong>（bool様含む）、IDは小文字で「On」無し。</p>
+<h2 id="_1">目次</h2>
+<ul>
+<li><a href="#1-基本方針">1. 基本方針</a></li>
+<li><a href="#2-文字コード改行">2. 文字コード/改行</a></li>
+<li><a href="#3-座標パスm-diff">3. 座標・パス（M‑Diff）</a></li>
+<li><a href="#4-キー一覧完全">4. キー一覧（完全）</a></li>
+<li><a href="#41-shiori情報">4.1 SHIORI情報</a></li>
+<li><a href="#42-ゴースト情報">4.2 ゴースト情報</a></li>
+<li><a href="#43-更新情報">4.3 更新情報</a></li>
+<li><a href="#44-オーナードローメニュー画像">4.4 オーナードローメニュー画像</a></li>
+<li><a href="#45-オーナードローメニュー文字色">4.5 オーナードローメニュー文字色</a></li>
+<li><a href="#46-オーナードローメニュー項目表示">4.6 オーナードローメニュー項目表示</a></li>
+<li><a href="#47-オーナードローメニュー項目名--ショートカット">4.7 オーナードローメニュー項目名 / ショートカット</a></li>
+<li><a href="#5-返答コード規約">5. 返答コード規約</a></li>
+<li><a href="#6-m-add--注意">6. M‑Add / 注意</a></li>
+<li><a href="#7-出典">7. 出典</a></li>
+</ul>
+<hr />
+<h2 id="1">1. 基本方針</h2>
+<ul>
+<li><strong>語彙互換</strong>：UKADOC のキー名・意味を継承。  </li>
+<li><strong>macOS 置換（M‑Diff）</strong>：パスは POSIX/URL、座標は<strong>左上原点で解釈</strong>→内部では AppKit の<strong>左下原点</strong>に変換。</li>
+</ul>
+<h2 id="2">2. 文字コード/改行</h2>
+<ul>
+<li>送受信 <strong>UTF‑8</strong> 標準。CP932/SJIS 受理→内部UTF‑8。  </li>
+<li>改行は <code>LF</code>（<code>CRLF</code> 受理）。</li>
+</ul>
+<h2 id="3-mdiff">3. 座標・パス（M‑Diff）</h2>
+<ul>
+<li><code>*.defaultleft/top</code> 等は <strong>左上原点スクリーン座標</strong>として受理。Ourin内部で <code>y' = screenHeight - 1 - y</code> 等に変換。  </li>
+<li>画像/ログのパスは <strong>SHIORIの位置からの相対</strong>または <code>file://</code>/POSIX を推奨。</li>
+</ul>
+<h2 id="4">4. キー一覧（完全）</h2>
+<h3 id="41-shiori">4.1 SHIORI情報</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>version</td>
+<td>SHIORI情報</td>
+<td>string</td>
+<td>例:"Satori/3.0"</td>
+<td>SHIORI本体の名称/版。</td>
+</tr>
+<tr>
+<td>craftman</td>
+<td>SHIORI情報</td>
+<td>string(ASCII)</td>
+<td>作者名(7bit)</td>
+<td>作者名(7bit)。</td>
+</tr>
+<tr>
+<td>craftmanw</td>
+<td>SHIORI情報</td>
+<td>string</td>
+<td>作者名(マルチバイト可)</td>
+<td>作者名(拡張)。</td>
+</tr>
+<tr>
+<td>name</td>
+<td>SHIORI情報</td>
+<td>string(ASCII)</td>
+<td>例:"A.L.I.C.E"</td>
+<td>SHIORIの名前。</td>
+</tr>
+<tr>
+<td>log_path</td>
+<td>SHIORI情報</td>
+<td>path</td>
+<td>フルパス</td>
+<td>SHIORIログのパス。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42">4.2 ゴースト情報</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>homeurl</td>
+<td>ゴースト情報</td>
+<td>URL</td>
+<td>http(s)://...</td>
+<td>ネットワーク更新のベースURL。</td>
+</tr>
+<tr>
+<td>useorigin1</td>
+<td>ゴースト情報</td>
+<td>int(0</td>
+<td>1)</td>
+<td>0 or 1</td>
+</tr>
+<tr>
+<td>username</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>任意</td>
+<td>ユーザー名。</td>
+</tr>
+<tr>
+<td>sakura.defaultx</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースX</td>
+</tr>
+<tr>
+<td>kero.defaultx</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースX</td>
+</tr>
+<tr>
+<td>char*.defaultx</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースX</td>
+</tr>
+<tr>
+<td>sakura.defaulty</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースY</td>
+</tr>
+<tr>
+<td>kero.defaulty</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースY</td>
+</tr>
+<tr>
+<td>char*.defaulty</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースY</td>
+</tr>
+<tr>
+<td>sakura.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td>左上原点X</td>
+</tr>
+<tr>
+<td>kero.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td>左上原点X</td>
+</tr>
+<tr>
+<td>char*.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td>左上原点X</td>
+</tr>
+<tr>
+<td>sakura.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td>左上原点Y</td>
+</tr>
+<tr>
+<td>kero.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td>左上原点Y</td>
+</tr>
+<tr>
+<td>char*.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td>左上原点Y</td>
+</tr>
+<tr>
+<td>communicatebox.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td>入力ボックス既定X</td>
+</tr>
+<tr>
+<td>communicatebox.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td>入力ボックス既定Y</td>
+</tr>
+<tr>
+<td>scriptbox.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>scriptbox.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>addressbar.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>addressbar.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>teachbox.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>teachbox.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>dateinput.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>dateinput.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>timeinput.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>timeinput.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>ipinput.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>ipinput.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>sliderinput.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>sliderinput.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>passwordinput.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>passwordinput.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>inputbox.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>inputbox.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>sakura.recommendsites</td>
+<td>ゴースト情報</td>
+<td>list(string)</td>
+<td>特殊区切り</td>
+<td>項目名/URL/バナー/スクリプト</td>
+</tr>
+<tr>
+<td>sakura.portalsites</td>
+<td>ゴースト情報</td>
+<td>list(string)</td>
+<td>特殊区切り</td>
+<td></td>
+</tr>
+<tr>
+<td>kero.recommendsites</td>
+<td>ゴースト情報</td>
+<td>list(string)</td>
+<td>特殊区切り</td>
+<td></td>
+</tr>
+<tr>
+<td>char*.recommendsites</td>
+<td>ゴースト情報</td>
+<td>list(string)</td>
+<td>特殊区切り</td>
+<td></td>
+</tr>
+<tr>
+<td>sakura.recommendbuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td>従来ボタン名</td>
+</tr>
+<tr>
+<td>sakura.portalbuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>kero.recommendbuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>char*.recommendbuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>updatebuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>vanishbuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>readmebuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>vanishbuttonvisible</td>
+<td>ゴースト情報</td>
+<td>int(0</td>
+<td>1)</td>
+<td>0/1</td>
+</tr>
+<tr>
+<td>sakura.popupmenu.visible</td>
+<td>ゴースト情報</td>
+<td>int(0</td>
+<td>1)</td>
+<td>0/1</td>
+</tr>
+<tr>
+<td>kero.popupmenu.visible</td>
+<td>ゴースト情報</td>
+<td>int(0</td>
+<td>1)</td>
+<td>0/1</td>
+</tr>
+<tr>
+<td>char*.popupmenu.visible</td>
+<td>ゴースト情報</td>
+<td>int(0</td>
+<td>1)</td>
+<td>0/1</td>
+</tr>
+<tr>
+<td>sakura.popupmenu.type</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>型名</td>
+<td>SSP定義に準拠</td>
+</tr>
+<tr>
+<td>kero.popupmenu.type</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>型名</td>
+<td></td>
+</tr>
+<tr>
+<td>char*.popupmenu.type</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>型名</td>
+<td></td>
+</tr>
+<tr>
+<td>getaistate</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>数値列 + 区切り</td>
+<td>AIグラフ</td>
+</tr>
+<tr>
+<td>getaistateex</td>
+<td>ゴースト情報</td>
+<td>string/204</td>
+<td>数値列 or 無</td>
+<td>AIグラフ(多重)</td>
+</tr>
+<tr>
+<td>legacyinterface</td>
+<td>ゴースト情報</td>
+<td>int(0</td>
+<td>1)</td>
+<td>0/1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 更新情報</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>other_homeurl_override</td>
+<td>更新情報</td>
+<td>special</td>
+<td>URL or 空/204</td>
+<td>更新先URLの強制置換</td>
+</tr>
+</tbody>
+</table>
+<h3 id="44">4.4 オーナードローメニュー画像</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>menu.sidebar.bitmap.filename</td>
+<td>メニュー画像</td>
+<td>path</td>
+<td>相対パス</td>
+<td>サイドバー</td>
+</tr>
+<tr>
+<td>menu.background.bitmap.filename</td>
+<td>メニュー画像</td>
+<td>path</td>
+<td>相対パス</td>
+<td>背景</td>
+</tr>
+<tr>
+<td>menu.foreground.bitmap.filename</td>
+<td>メニュー画像</td>
+<td>path</td>
+<td>相対パス</td>
+<td>前景</td>
+</tr>
+</tbody>
+</table>
+<h3 id="45">4.5 オーナードローメニュー文字色</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>menu.background.font.color.r</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>背景文字色</td>
+</tr>
+<tr>
+<td>menu.background.font.color.g</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>背景文字色</td>
+</tr>
+<tr>
+<td>menu.background.font.color.b</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>背景文字色</td>
+</tr>
+<tr>
+<td>menu.foreground.font.color.r</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>前景文字色</td>
+</tr>
+<tr>
+<td>menu.foreground.font.color.g</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>前景文字色</td>
+</tr>
+<tr>
+<td>menu.foreground.font.color.b</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>前景文字色</td>
+</tr>
+<tr>
+<td>menu.separator.color.r</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>セパレータ色</td>
+</tr>
+<tr>
+<td>menu.separator.color.g</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>セパレータ色</td>
+</tr>
+<tr>
+<td>menu.separator.color.b</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>セパレータ色</td>
+</tr>
+<tr>
+<td>menu.frame.color.r</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>枠色</td>
+</tr>
+<tr>
+<td>menu.frame.color.g</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>枠色</td>
+</tr>
+<tr>
+<td>menu.frame.color.b</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>枠色</td>
+</tr>
+<tr>
+<td>menu.disable.font.color.r</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>無効文字色</td>
+</tr>
+<tr>
+<td>menu.disable.font.color.g</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>無効文字色</td>
+</tr>
+<tr>
+<td>menu.disable.font.color.b</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>無効文字色</td>
+</tr>
+</tbody>
+</table>
+<h3 id="46">4.6 オーナードローメニュー項目表示</h3>
+<p>（<strong>規則</strong>）「項目名の <code>.caption</code> を <code>.visible</code> に置換したキー」が存在し、<strong>1=表示、0=非表示</strong>。<br />
+|キー|カテゴリ|型|例/値域|備考|
+|---|---|---|---|---|
+|activaterootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|addressbarbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|alignrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|alwaysstayontopbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|alwaystrayiconvisiblebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|balloonhistorybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|balloonrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|biffallbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|biffbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|calendarbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|callghosthistorybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|callghostrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|callsstpsendboxbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|char*.recommendsites.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|charsetbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|closeballoonbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|closebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|collisionvisiblebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|configurationbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|configurationrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|debugballoonbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|definedsurfaceonlybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|dressuprootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|duibutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|enableballoonmovebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|firststaffbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|ghostexplorerbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|ghosthistorybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|ghostinstallbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|ghostrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|headlinesensehistorybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|headlinesenserootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|helpbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|hidebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|historyrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|inforootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|leavepassivebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|messengerbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|pluginhistorybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|pluginrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|portalrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|purgeghostcachebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|quitbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|rateofuseballoonbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|rateofusebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|rateofuserootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|rateofusetotalbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|readmebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|termsbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|recommendrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|regionenabledbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|reloadinfobutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|resetballoonpositionbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|resettodefaultbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|scriptlogbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|shellrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|shellscaleotherbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|shellscalerootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|sntpbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchactivatewhentalkbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchactivatewhentalkexceptupdatebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchautobiffbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchautoheadlinesensebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchblacklistingbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchcompatiblemodebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchconsolealwaysvisiblebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchconsolevisiblebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchdeactivatebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchdontactivatebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchdontforcealignbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchduivisiblebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchforcealignfreebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchforcealignlimitbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchignoreserikomovebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchlocalsstpbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchmovetodefaultpositionbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchproxybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchquietbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchreloadbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchreloadtempghostbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchremotesstpbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|switchtalkghostbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|systeminfobutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|updatebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|updatefmobutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|updateplatformbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|utilityrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|vanishbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|aistatebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|dictationbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|texttospeechbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|</p>
+<h3 id="47">4.7 オーナードローメニュー項目名 / ショートカット</h3>
+<p>キャプション文字列中に <strong><code>&amp;X</code></strong> を含めると <strong>X</strong> がショートカットキーになる（大/小区別なし、記号も可）。<br />
+|キー|カテゴリ|型|例/値域|備考|
+|---|---|---|---|---|
+|activaterootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|addressbarbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|alignrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|alwaysstayontopbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|alwaystrayiconvisiblebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|balloonhistorybutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|balloonrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|biffallbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|biffbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|calendarbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|callghosthistorybutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|callghostrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|callsstpsendboxbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|char*.recommendsites.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|charsetbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|closeballoonbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|closebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|collisionvisiblebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|configurationbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|configurationrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|debugballoonbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|definedsurfaceonlybutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|dressuprootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|duibutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|enableballoonmovebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|firststaffbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|ghostexplorerbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|ghosthistorybutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|ghostinstallbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|ghostrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|headlinesensehistorybutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|headlinesenserootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|helpbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|hidebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|historyrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|inforootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|leavepassivebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|messengerbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|pluginhistorybutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|pluginrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|portalrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|purgeghostcachebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|quitbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|rateofuseballoonbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|rateofusebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|rateofuserootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|rateofusetotalbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|readmebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|termsbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|recommendrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|regionenabledbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|reloadinfobutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|resetballoonpositionbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|resettodefaultbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|scriptlogbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|shellrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|shellscaleotherbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|shellscalerootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|sntpbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchactivatewhentalkbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchactivatewhentalkexceptupdatebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchautobiffbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchautoheadlinesensebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchblacklistingbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchcompatiblemodebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchconsolealwaysvisiblebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchconsolevisiblebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchdeactivatebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchdontactivatebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchdontforcealignbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchduivisiblebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchforcealignfreebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchforcealignlimitbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchignoreserikomovebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchlocalsstpbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchmovetodefaultpositionbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchproxybutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchquietbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchreloadbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchreloadtempghostbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchremotesstpbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|switchtalkghostbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|systeminfobutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|updatebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|updatefmobutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|updateplatformbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|utilityrootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|vanishbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|aistatebutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|dictationbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|
+|texttospeechbutton.caption|メニュー項目名|string|表示名|ショートカット: '&amp;X' を文字列に含める|</p>
+<h2 id="5">5. 返答コード規約</h2>
+<ul>
+<li><strong>200 OK</strong>：値あり（本文=短いテキスト）。  </li>
+<li><strong>204 No Content</strong>：未設定/該当なし（例：<code>getaistateex</code> で範囲外）。</li>
+</ul>
+<h2 id="6-madd">6. M‑Add / 注意</h2>
+<ul>
+<li><code>log_path</code> は Ourin の UI から「ログを開く」で使用可能（パスは macOS のファイルURLに正規化可）。  </li>
+<li><code>sakura.recommendsites</code> 等の<strong>特殊区切り</strong>は UKADOC の定義に従う（<code>[バイト1]</code> 区切り等）。  </li>
+<li><code>.visible</code>/<code>.caption</code> の<strong>組</strong>をまとめて問い合わせる最適化キャッシュを実装可。</li>
+</ul>
+<h2 id="7">7. 出典</h2>
+<ul>
+<li>UKADOC「SHIORI Resourceリスト」全体、<code>getaistate(ex)</code>、<code>legacyinterface</code>、オーナードローメニュー各種、ショートカット規定 等。  </li>
+</ul>
+        <div class="footer">
+            <p>Ourin (桜鈴) - macOS ネイティブ伺かベースウェア</p>
+        </div>
+    </div>
+</body>
+</html>

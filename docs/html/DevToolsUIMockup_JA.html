@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin DevTools — 設定 & テスト & デバッグ UI モック（macOS）</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .toc {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1 id="ourin-devtools-ui-macos">Ourin DevTools — 設定 &amp; テスト &amp; デバッグ UI モック（macOS）</h1>
+<p><strong>更新日:</strong> 2025-07-27 (JST)
+<strong>対象:</strong> macOS 10.15+ / Universal 2</p>
+<h2 id="_1">目次</h2>
+<ol>
+<li>画面マップ（ワイヤーフレーム）</li>
+<li>共通UI規約</li>
+<li>ペイン別モック
+   2.1 General（基本設定）
+   2.2 SHIORI Resource Viewer/Overlay
+   2.3 Plugin Manager / Event Injector
+   2.4 External Events（SSTP/HTTP/XPC）Harness
+   2.5 Headline / Balloon テスト
+   2.6 Logging &amp; Diagnostics
+   2.7 Network &amp; Listener 状態</li>
+<li>テストシナリオ（プリセット）</li>
+<li>アクセシビリティ/国際化</li>
+<li>収集ログとエクスポート</li>
+<li>既知の課題と未決事項</li>
+</ol>
+<h2 id="0">0. 画面マップ（ワイヤーフレーム）</h2>
+<pre><code>┌──────────────────────────────────────────────────────────────┐
+│  Ourin DevTools                                      [Search]│
+│  ─────────────────────────────────────────────────────────── │
+│  ▸ General                                                  ││
+│  ▸ SHIORI Resource                                          ││
+│  ▸ Plugins &amp; Events                                         ││  ← サイドバー（source list）
+│  ▸ External (SSTP/HTTP/XPC)                                 ││     セクション見出し＋項目
+│  ▸ Headline / Balloon                                       ││
+│  ▸ Logging &amp; Diagnostics                                    ││
+│  ▸ Network                                                  ││
+│                                                              │
+│  ─────────────────────────────────────────────────────────── │
+│  [Toolbar:  ⟳ Reload   ▶ Run Test   ⏹ Stop   ⎘ Export  ]    │  ← 右ペイン ツールバー
+│  ─────────────────────────────────────────────────────────── │
+│  [Detail View / Form / Table / Live Preview / Log Console]  │
+└──────────────────────────────────────────────────────────────┘
+</code></pre>
+<p>サイドバーは主要領域の一貫したナビゲーションに適し、検索やセクション分割と相性が良い。
+メニューバーから「表示 &gt; サイドバーを表示/非表示」を提供して、HIG に沿ったレイアウトを実現する。
+横並びのコントロールは 2〜3 個までなど、macOS 標準の密度ガイドラインを踏襲する。</p>
+<h2 id="1-ui">1. 共通UI規約</h2>
+<ul>
+<li>検索欄は各ペインのリストやテーブルにフィルタを適用する。</li>
+<li>ツールバーは Reload / Run Test / Stop / Export の少数ボタンに絞る。</li>
+<li>状態バッジを右上に表示し、Success / Warning / Error をアイコンと短いツールチップで示す。</li>
+<li>ショートカット: <strong>⌘R</strong>（実行）、<strong>⌘S</strong>（保存/エクスポート）、<strong>⌘F</strong>（検索）。</li>
+<li>UI 操作は <code>Logger</code> (subsystem <code>jp.ourin.devtools</code>, category <code>ui</code>) に記録し、計測には <code>Signpost</code> を利用する。</li>
+</ul>
+<h2 id="2">2. ペイン別モック</h2>
+<h3 id="21-general">2.1 General（基本設定）</h3>
+<p>目的: Ourin 全体の既定動作やパス、互換設定を編集する。
+主なコントロール:
+- 「データフォルダ」 […] (POSIX/file://)
+- 文字コード既定 UTF‑8（CP932 受理トグル）
+- Rosetta 検出・互換モード（読み取り専用表示）
+- 自動起動・自動更新チェック
+- 「保存」「既定に戻す」ボタン
+バリデーションではパスの存在や書き込み権限を確認し、設定保存時に <code>Logger</code> (category:"settings") で info を記録する。</p>
+<h3 id="22-shiori-resource-vieweroverlay">2.2 SHIORI Resource Viewer/Overlay</h3>
+<p>目的: Resource 値の閲覧（読み取り標準）と Ourin オーバーレイ（任意で上書き）の管理。
+UI:
+- 上部セグメント: All | SHIORI | Ghost | Menu | Colors | Update
+- テーブル: Key / Value (read-only) / Overlay (Ourin) / Effective / Last Fetched
+- 右側プレビュー: メニュー色やビットマップを表示し、ショートカット <code>&amp;X</code> 解析結果も併記
+操作:
+- Reload（再取得）
+- Overlay を適用（Ourin 優先）／Overlay をクリア
+- 変更が UI に反映されたら Signpost <code>apply_resource_overlay</code> を記録</p>
+<h3 id="23-plugin-manager-event-injector">2.3 Plugin Manager / Event Injector</h3>
+<p>目的: プラグインの有効化・順序・イベント注入テストを行う。
+UI:
+- 左側: プラグイン一覧（Enabled、ID、Version、Path）
+- 右側: Event Injector
+    - Event ID（ドロップダウン）
+    - ReferenceN（動的フォーム）
+    - Sender、Charset
+    - <strong>▶ Send (GET)</strong>、<strong>⟲ Notify</strong>、<strong>⎘ Save as Preset</strong>
+ロギングでは送信前後で <code>Logger</code> (category:"plugin") に debug を残し、Signpost <code>inject_event</code> で所要時間を測定する。</p>
+<h3 id="24-external-eventssstphttpxpcharness">2.4 External Events（SSTP/HTTP/XPC）Harness</h3>
+<p>目的: 外部イベント受信ルートの検証。
+UI:
+- SSTP (TCP/9801): Start/Stop / Bind: 127.0.0.1 / ステータス表示
+- HTTP (POST /api/sstp/v1): Start/Stop / 受信件数・平均遅延
+- XPC (machService: jp.ourin.sstp): Start / 接続中クライアント一覧
+- ヘルプ表示: "SSTP の TCP サーバは Network.framework の NWListener で実装" などの注記をサブテキストに記載
+ツール:
+- Sample Request（NOTIFY/SEND ひな形をエディタへ）
+- <strong>Send（自己宛 SSTP）</strong>／<strong>Open curl（HTTP サンプル）</strong>
+- <strong>Copy XPC Snippet</strong>（接続クライアント用の最小コード例）</p>
+<h3 id="25-headline-balloon">2.5 Headline / Balloon テスト</h3>
+<ul>
+<li>Headline: URL/Path 設定、更新テスト（レスポンスを表形式で表示）</li>
+<li>Balloon: シェル/バルーン選択、PNG プレビュー（32bit 透過・影の有無）、スケール/DPI 確認、アンカーや選択肢レイアウトを可視化
+情報量が多い画面ではサイドバーとセカンダリツールバーで段階的に表示する。</li>
+</ul>
+<h3 id="26-logging-diagnosticsoslogsignpost">2.6 Logging &amp; Diagnostics（OSLog/Signpost）</h3>
+<p>目的: 開発時の構造化ログと計測を統合表示する。
+UI:
+- クエリバー: Subsystem（既定 <code>jp.ourin.*</code>）／Category／Level（debug, info, error …）／Since
+- テーブル: Time / Level / Category / Message / Metadata
+- Signpost Timeline: 区間・インスタントを図示し凡例を表示
+実装メモ: OSLogStore からログを取得し <code>Logger</code> で出力。期間内 Signpost は <code>OSSignposter</code> で記録し <code>OSLogEntrySignpost</code> を可視化する。</p>
+<h3 id="27-network-listener">2.7 Network &amp; Listener 状態</h3>
+<p>目的: SSTP/HTTP/XPC リスナーの稼働と統計を監視する。
+- SSTP (TCP/9801): 接続数、受信/秒、エラー/秒
+- HTTP (9810): 2xx/4xx/5xx、平均処理時間
+- XPC: 接続アプリ ID、要求/秒
+参考: Network.framework の利用は Apple 推奨 (ソケット代替)。技術選定ノート (TN3151) も併記。</p>
+<h2 id="3">3. テストシナリオ（プリセット）</h2>
+<ul>
+<li>Ghost Boot → Menu Exec → Exit</li>
+<li>OnGhostBoot 注入 → Resource 再取得 → OnMenuExec → OnGhostExit</li>
+<li>Signpost: <code>scenario_boot_menu_exit</code> を区間として記録</li>
+<li>External NOTIFY（SSTP）往復</li>
+<li>NOTIFY SSTP/1.1 を 9801 自己宛送出 → 204 応答 → ログ整合性を確認</li>
+<li>NWListener の接続/切断イベントを info レベルで記録</li>
+<li>HTTP 経由 SEND（返却スクリプト）</li>
+<li><code>/api/sstp/v1</code> に SEND を POST → 200 + Script を検証</li>
+<li>XPC 直送（DirectSSTP‑Mac）</li>
+<li>別プロセスから <code>deliverSSTP(Data)</code> → 200/204。接続拒否やサイズ過大時のハンドリングも確認</li>
+</ul>
+<h2 id="4">4. アクセシビリティ/国際化</h2>
+<ul>
+<li>VoiceOver: テーブル列に適切なアクセシビリティラベルを付与</li>
+<li>キーボード: サイドバーと詳細を ⌘1/⌘2 などで切り替え</li>
+<li>ローカライズ: 英日ランタイム切替に対応し、長文時は行高を自動調整</li>
+<li>HIG 準拠: macOS 標準パターン (Sidebar/Toolbar/Menu) を活用し、ユーザーの期待通りに動作させる</li>
+</ul>
+<h2 id="5">5. 収集ログとエクスポート</h2>
+<p><code>File &gt; Export Diagnostics…</code> から OSLog 抽出 (期間/レベル/カテゴリ)、Signpost JSON、設定スナップショット、環境情報を ZIP 化して保存できる。
+ログ実装は <code>Logger</code> に統一し、OSLog の subsystem/category で分類する。必要に応じてファイル出力層を追加する。</p>
+<h2 id="6">6. 既知の課題と未決事項</h2>
+<ul>
+<li>長大な Resource 列のページングや差分適用タイミング</li>
+<li>Signpost の運用 (カテゴリと命名規則): <code>ourin.resource.apply</code>, <code>ourin.plugin.inject</code>, <code>ourin.net.sstp</code> などに統一</li>
+<li>XPC の権限制御 (TeamID/コード署名の要件と UI への露出)</li>
+<li>Network 権限文言 (ローカルネットワーク使用理由の説明)</li>
+</ul>
+<hr />
+<p><em>最終更新: 2025-07-27</em></p>
+        <div class="footer">
+            <p>Ourin (桜鈴) - macOS ネイティブ伺かベースウェア</p>
+        </div>
+    </div>
+</body>
+</html>

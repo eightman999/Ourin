@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .toc {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1 id="plugin-event-20mmacos-ukadoc">PLUGIN Event — <strong>2.0M（macOS）</strong> 仕様書（UKADOC互換）</h1>
+<p><strong>Status:</strong> Draft / Ourin (macOS 10.15+ / Universal 2: arm64+x86_64)<br />
+<strong>Updated:</strong> 2025-07-27 (JST)<br />
+<strong>互換方針:</strong> UKADOC「PLUGIN Eventリスト」のイベント <strong>ID・意味・Reference順</strong>を踏襲し、<strong>OS 依存値のみ macOS ネイティブ</strong>へ置換。<br />
+<strong>文字コード:</strong> 既定 <strong>UTF‑8</strong>（SJIS/CP932 受理→内部 UTF‑8 正規化）。<code>version</code> 応答の <code>Charset:</code> 指定があれば切り替え可。<br />
+<strong>改行:</strong> <code>LF</code> 推奨（<code>CRLF</code> 受理）。</p>
+<hr />
+<h2 id="_1">目次</h2>
+<ul>
+<li><a href="#1-本仕様の目的">1. 本仕様の目的</a></li>
+<li><a href="#2-通信符号化改行">2. 通信・符号化・改行</a></li>
+<li><a href="#3-macos置換m-diff">3. macOS置換（M‑Diff）</a></li>
+<li><a href="#4-イベント一覧完全">4. イベント一覧（完全）</a></li>
+<li><a href="#41-version">4.1 version</a></li>
+<li><a href="#42-installedplugin-notify">4.2 installedplugin [NOTIFY]</a></li>
+<li><a href="#43-installedghostname-notify">4.3 installedghostname [NOTIFY]</a></li>
+<li><a href="#44-installedballoonname-notify">4.4 installedballoonname [NOTIFY]</a></li>
+<li><a href="#45-ghostpathlist-notify">4.5 ghostpathlist [NOTIFY]</a></li>
+<li><a href="#46-balloonpathlist-notify">4.6 balloonpathlist [NOTIFY]</a></li>
+<li><a href="#47-headlinepathlist-notify">4.7 headlinepathlist [NOTIFY]</a></li>
+<li><a href="#48-pluginpathlist-notify">4.8 pluginpathlist [NOTIFY]</a></li>
+<li><a href="#49-onsecondchange">4.9 OnSecondChange</a></li>
+<li><a href="#410-onotherghosttalk">4.10 OnOtherGhostTalk</a></li>
+<li><a href="#411-onghostboot">4.11 OnGhostBoot</a></li>
+<li><a href="#412-onghostexit-notify">4.12 OnGhostExit [NOTIFY]</a></li>
+<li><a href="#413-onghostinfoupdate-notify">4.13 OnGhostInfoUpdate [NOTIFY]</a></li>
+<li><a href="#414-onmenuexec">4.14 OnMenuExec</a></li>
+<li><a href="#415-oninstallcomplete">4.15 OnInstallComplete</a></li>
+<li><a href="#416-onchoiceselectexonanchorselectexq-任意名">4.16 OnChoiceSelect(Ex)/OnAnchorSelect(Ex)/\q 任意名</a></li>
+<li><a href="#417-raiseplugin--notifyplugin-任意名">4.17 ![raiseplugin] / ![notifyplugin] 任意名</a></li>
+<li><a href="#5-セキュリティとサンドボックス">5. セキュリティとサンドボックス</a></li>
+<li><a href="#6-スレッド順序タイムアウト">6. スレッド/順序/タイムアウト</a></li>
+<li><a href="#7-例-フレーム">7. 例: フレーム</a></li>
+<li><a href="#8-付録-用語">8. 付録: 用語</a></li>
+</ul>
+<hr />
+<h2 id="1">1. 本仕様の目的</h2>
+<ul>
+<li>Windows 前提の要素（<code>HWND</code>/パス等）を <strong>macOS ネイティブ値</strong>へ置換しつつ、<strong>イベント語彙と意味を完全互換</strong>で提供する。</li>
+</ul>
+<h2 id="2">2. 通信・符号化・改行</h2>
+<ul>
+<li>リクエスト/レスポンスの書式は PLUGIN/2.0 に準拠。  </li>
+<li><strong>既定文字コードは UTF‑8</strong>。互換のため <strong>SJIS/CP932 入力も受理</strong>し内部で UTF‑8 に正規化。  </li>
+<li>改行は <code>LF</code> 推奨（<code>CRLF</code> 受理）。</li>
+</ul>
+<h2 id="3-macosmdiff">3. macOS置換（M‑Diff）</h2>
+<ul>
+<li><strong>ウィンドウ識別</strong>：<code>HWND</code> は <strong><code>CGWindowID</code>（32bit, Window Server のウィンドウ番号）</strong>に置換。アプリ内の <code>NSWindow.windowNumber</code>（window server 番号）から変換可。  </li>
+<li>列挙や他プロセス窓の照会は <code>CGWindowListCopyWindowInfo</code> と <code>kCGWindowNumber</code> を用いる。  </li>
+<li><strong>パス</strong>：Windows 形式は <strong>POSIX/<code>file://</code> URL</strong> に置換。相対はゴースト/プラグインの基点から解決。  </li>
+<li><strong>通知種別</strong>：UKADOC で <code>[NOTIFY]</code> 明記のものは常に NOTIFY、無印は状況に応じ GET/NOTIFY を踏襲。</li>
+</ul>
+<hr />
+<h2 id="4">4. イベント一覧（完全）</h2>
+<h3 id="41-version">4.1 <code>version</code></h3>
+<ul>
+<li><strong>タイミング</strong>：プラグインのロード直後。  </li>
+<li><strong>応答</strong>：<code>Value</code> にバージョン文字列、任意で <code>Charset: &lt;encoding&gt;</code> を付加（以降の通信に適用）。  </li>
+<li><strong>M‑Diff</strong>：既定は UTF‑8（互換で SJIS も受理）。</li>
+</ul>
+<h3 id="42-installedplugin-notify">4.2 <code>installedplugin</code> <strong>[NOTIFY]</strong></h3>
+<ul>
+<li><strong>意味</strong>：インストール済プラグインの列挙。  </li>
+<li><strong>Ref</strong>*：バイト値1区切りで「プラグイン名,プラグインID」。  </li>
+<li><strong>M‑Diff</strong>：なし（語彙互換）。</li>
+</ul>
+<h3 id="43-installedghostname-notify">4.3 <code>installedghostname</code> <strong>[NOTIFY]</strong></h3>
+<ul>
+<li><strong>意味</strong>：インストール済ゴースト名の列挙。  </li>
+<li><strong>Ref0/1/2</strong>：各種名のバイト1区切りリスト。  </li>
+<li><strong>M‑Diff</strong>：なし。</li>
+</ul>
+<h3 id="44-installedballoonname-notify">4.4 <code>installedballoonname</code> <strong>[NOTIFY]</strong></h3>
+<ul>
+<li><strong>Ref0</strong>：バルーン名のバイト1区切りリスト。</li>
+</ul>
+<h3 id="45-ghostpathlist-notify">4.5 <code>ghostpathlist</code> <strong>[NOTIFY]</strong></h3>
+<ul>
+<li><strong>Ref</strong><em>：読み込んでいる </em><em>ゴーストフォルダのフルパス</em>*。  </li>
+<li><strong>M‑Diff</strong>：<strong>POSIX 絶対パス</strong>または <code>file://</code> URL。</li>
+</ul>
+<h3 id="46-balloonpathlist-notify">4.6 <code>balloonpathlist</code> <strong>[NOTIFY]</strong></h3>
+<ul>
+<li><strong>Ref0</strong>：読み込んでいる <strong>バルーンフォルダのフルパス</strong>（POSIX/<code>file://</code>）。</li>
+</ul>
+<h3 id="47-headlinepathlist-notify">4.7 <code>headlinepathlist</code> <strong>[NOTIFY]</strong></h3>
+<ul>
+<li><strong>Ref</strong><em>：読み込んでいる </em><em>ヘッドラインフォルダのフルパス</em>*。</li>
+</ul>
+<h3 id="48-pluginpathlist-notify">4.8 <code>pluginpathlist</code> <strong>[NOTIFY]</strong></h3>
+<ul>
+<li><strong>Ref</strong><em>：読み込んでいる </em><em>プラグインフォルダのフルパス</em>*。</li>
+</ul>
+<h3 id="49-onsecondchange">4.9 <code>OnSecondChange</code></h3>
+<ul>
+<li><strong>意味</strong>：秒間隔の通知。  </li>
+<li><strong>間隔</strong>：<code>descript.txt</code> の <code>secondchangeinterval</code> に従う。  </li>
+<li><strong>M‑Diff</strong>：タイマーは <code>DispatchSourceTimer</code> 等で実装。</li>
+</ul>
+<h3 id="410-onotherghosttalk">4.10 <code>OnOtherGhostTalk</code></h3>
+<ul>
+<li><strong>Ref0</strong>：ゴースト名。  </li>
+<li><strong>Ref1</strong>：本体側名。  </li>
+<li><strong>Ref2</strong>：原因列挙（<code>break/communicate/sstp-send/owned/remote/notranslate/plugin-script/plugin-event</code> のカンマ区切り）。  </li>
+<li><strong>Ref3</strong>：話したイベントID。  </li>
+<li><strong>Ref4</strong>：話した内容のスクリプト。  </li>
+<li><strong>Ref5</strong>：バイト1区切りで、ゴーストへ渡された Reference 群。  </li>
+<li><strong>M‑Diff</strong>：なし。</li>
+</ul>
+<h3 id="411-onghostboot">4.11 <code>OnGhostBoot</code></h3>
+<ul>
+<li><strong>Ref0</strong>：<strong>起動したゴーストの各キャラクタウィンドウの <code>CGWindowID</code> 列</strong>（未構築は <code>0</code>）。  </li>
+<li><strong>Ref1..4</strong>：ゴースト名／現在シェル名／ゴーストID（Owned SSTP 同等）／フルパス（POSIX）。</li>
+</ul>
+<h3 id="412-onghostexit-notify">4.12 <code>OnGhostExit</code> <strong>[NOTIFY]</strong></h3>
+<ul>
+<li><strong>Ref0</strong>：終了したゴーストの <strong><code>CGWindowID</code> 列</strong>。  </li>
+<li><strong>Ref1..4</strong>：ゴースト名／現在シェル名／ID／フルパス（POSIX）。</li>
+</ul>
+<h3 id="413-onghostinfoupdate-notify">4.13 <code>OnGhostInfoUpdate</code> <strong>[NOTIFY]</strong></h3>
+<ul>
+<li><strong>Ref0</strong>：変更があったゴーストの <strong><code>CGWindowID</code> 列</strong>。  </li>
+<li><strong>Ref1..4</strong>：同上。</li>
+</ul>
+<h3 id="414-onmenuexec">4.14 <code>OnMenuExec</code></h3>
+<ul>
+<li><strong>意味</strong>：オーナードローメニューからプラグインが実行された。  </li>
+<li><strong>Ref0</strong>：呼び出し元ゴーストの <strong><code>CGWindowID</code> 列</strong>。  </li>
+<li><strong>Ref1..4</strong>：ゴースト名／シェル名／ID／フルパス（POSIX）。</li>
+</ul>
+<h3 id="415-oninstallcomplete">4.15 <code>OnInstallComplete</code></h3>
+<ul>
+<li><strong>Ref0</strong>：インストールタイプ（バイト1区切り）。  </li>
+<li><strong>Ref1</strong>：インストールされたものの名前（バイト1区切り）。  </li>
+<li><strong>Ref2</strong>：インストールされたものの <strong>フルパス</strong>（POSIX）。</li>
+</ul>
+<h3 id="416-onchoiceselectex-onanchorselectex-q">4.16 <code>OnChoiceSelect(Ex)</code> / <code>OnAnchorSelect(Ex)</code> / <code>\q</code> 等に指定された任意名</h3>
+<ul>
+<li><strong>意味</strong>：選択肢/アンカー選択時の <strong>SHIORI Event 横流し</strong>。  </li>
+<li><strong>Ref</strong>*：発生した SHIORI Event の Reference 群（そのまま）。</li>
+</ul>
+<h3 id="417-raiseplugin-notifyplugin">4.17 <code>\![raiseplugin]</code> / <code>\![notifyplugin]</code> に指定された任意名</h3>
+<ul>
+<li><strong>意味</strong>：当該コマンドの実行でプラグインに通知（<code>notifyplugin</code> は [NOTIFY]）。  </li>
+<li><strong>Ref</strong>*：指定された任意引数。</li>
+</ul>
+<hr />
+<h2 id="5">5. セキュリティとサンドボックス</h2>
+<ul>
+<li>フルパスはユーザ領域の <strong>Application Support/Ourin</strong> を既定。サンドボックス時はコンテナ配下へ。  </li>
+<li>外部入力のパスは <code>file://</code> に正規化し、必要時 <strong>security‑scoped URL</strong> を使用。</li>
+</ul>
+<h2 id="6">6. スレッド/順序/タイムアウト</h2>
+<ul>
+<li>Ourin は <strong>プラグイン単位で直列配送</strong>（同一プラグインの同時呼び出しなし）。  </li>
+<li>既定 <strong>タイムアウト 3 秒</strong>（推奨値）。応答無では次イベントへ。  </li>
+<li>[NOTIFY] へのスクリプト返却は <strong>無視</strong>（UKADOC準拠）。</li>
+</ul>
+<h2 id="7">7. 例: フレーム</h2>
+<pre><code># OnGhostBoot の例（2.0M）
+GET PLUGIN/2.0
+ID: OnGhostBoot
+Sender: Ourin
+Reference0: 12345,67890         # CGWindowID 列（未構築は 0）
+Reference1: 里々さん
+Reference2: default.shell
+Reference3: ourin-ghost-uuid
+Reference4: /Users/you/Library/Application Support/Ourin/Ghosts/Satori
+
+###
+
+PLUGIN/2.0 200 OK
+Value: OK
+</code></pre>
+<h2 id="8">8. 付録: 用語</h2>
+<ul>
+<li><strong>CGWindowID</strong>：Window Server のウィンドウ番号（<code>NSWindow.windowNumber</code> から取得可、列挙は CGWindowList）。  </li>
+<li><strong>POSIX パス</strong>：macOS の絶対パス。必要に応じ <code>file://</code> URL で表現。</li>
+</ul>
+<hr />
+<h2 id="implementation-status">実装状況（Implementation Status）</h2>
+<p><strong>更新日:</strong> 2025-10-20</p>
+<h3 id="ourin">Ourin におけるプラグインイベント実装</h3>
+<ul>
+<li>[x] <strong>基本構造</strong>: <code>PluginEventDispatcher.swift</code> にてイベント配信の基盤を実装済み</li>
+<li>[x] <strong>フレーム処理</strong>: <code>PluginFrame.swift</code> にてリクエスト/レスポンスのフレーム構造を実装済み</li>
+<li>[x] <strong>エンコーディング正規化</strong>: <code>PluginEncodingNormalizer.swift</code> にて文字コード処理を実装済み</li>
+<li>[x] <strong>パス正規化</strong>: <code>PathNormalizer.swift</code> にて macOS パス処理を実装済み</li>
+<li>[x] <strong>ウィンドウ ID マッピング</strong>: <code>WindowIDMapper.swift</code> にて CGWindowID 処理を実装済み</li>
+<li>[ ] <strong>完全なイベント実装</strong>: 全てのプラグインイベントの完全実装は未達成</li>
+</ul>
+<h3 id="_2">実装済みの機能</h3>
+<ol>
+<li><strong>プラグインイベントディスパッチャ</strong></li>
+<li>イベントの配信基盤</li>
+<li>登録されたプラグインへのイベント転送</li>
+<li>
+<p>エラーハンドリング</p>
+</li>
+<li>
+<p><strong>フレーム処理</strong></p>
+</li>
+<li>PLUGIN/2.0 プロトコルのリクエスト/レスポンス構造</li>
+<li>ID, Reference*, Script, ScriptOption の処理</li>
+<li>
+<p>LF/CRLF 改行の受理</p>
+</li>
+<li>
+<p><strong>文字コード処理</strong></p>
+</li>
+<li>UTF-8 既定処理</li>
+<li>Shift_JIS/CP932 の自動検出と変換</li>
+<li>
+<p><code>Charset</code> ヘッダの処理</p>
+</li>
+<li>
+<p><strong>macOS 固有処理</strong></p>
+</li>
+<li>POSIX パス正規化</li>
+<li><code>file://</code> URL 処理</li>
+<li>
+<p>CGWindowID によるウィンドウ識別</p>
+</li>
+<li>
+<p><strong>リスト区切り処理</strong></p>
+</li>
+<li><code>ListDelimiter.swift</code> による配列データの処理</li>
+</ol>
+<h3 id="_3">実装済みのイベント</h3>
+<ul>
+<li>[ ] <code>version</code>: 未実装</li>
+<li>[ ] <code>installedplugin</code> [NOTIFY]: 未実装</li>
+<li>[ ] <code>installedghostname</code> [NOTIFY]: 未実装</li>
+<li>[ ] <code>installedballoonname</code> [NOTIFY]: 未実装</li>
+<li>[ ] <code>ghostpathlist</code> [NOTIFY]: 未実装</li>
+<li>[ ] <code>balloonpathlist</code> [NOTIFY]: 未実装</li>
+<li>[ ] <code>headlinepathlist</code> [NOTIFY]: 未実装</li>
+<li>[ ] <code>pluginpathlist</code> [NOTIFY]: 未実装</li>
+<li>[ ] <code>OnSecondChange</code>: 未実装</li>
+<li>[ ] <code>OnOtherGhostTalk</code>: 未実装</li>
+<li>[ ] <code>OnGhostBoot</code>: 未実装</li>
+<li>[ ] <code>OnGhostExit</code> [NOTIFY]: 未実装</li>
+<li>[ ] <code>OnGhostInfoUpdate</code> [NOTIFY]: 未実装</li>
+<li>[ ] <code>OnMenuExec</code>: 未実装</li>
+<li>[ ] <code>OnInstallComplete</code>: 未実装</li>
+<li>[ ] <code>OnChoiceSelect(Ex)</code>: 未実装</li>
+<li>[ ] <code>OnAnchorSelect(Ex)</code>: 未実装</li>
+<li>[ ] <code>![raiseplugin]</code>/<code>![notifyplugin]</code>: 未実装</li>
+</ul>
+<h3 id="_4">実装ファイル</h3>
+<ul>
+<li><code>Ourin/PluginEvent/PluginEventDispatcher.swift</code>: イベント配信</li>
+<li><code>Ourin/PluginEvent/PluginFrame.swift</code>: フレーム構造</li>
+<li><code>Ourin/PluginEvent/PluginEncodingNormalizer.swift</code>: 文字コード処理</li>
+<li><code>Ourin/PluginEvent/PathNormalizer.swift</code>: パス正規化</li>
+<li><code>Ourin/PluginEvent/WindowIDMapper.swift</code>: ウィンドウ ID 処理</li>
+<li><code>Ourin/PluginEvent/ListDelimiter.swift</code>: リスト区切り処理</li>
+</ul>
+<h3 id="_5">未実装の機能</h3>
+<ol>
+<li><strong>全てのイベントハンドラ</strong></li>
+<li>現在は基盤のみ実装</li>
+<li>
+<p>個別イベントの実装が必要</p>
+</li>
+<li>
+<p><strong>完全な PLUGIN/2.0M プロトコル</strong></p>
+</li>
+<li>リクエスト/レスポンスの完全処理</li>
+<li>
+<p>全てのヘッダオプションの実装</p>
+</li>
+<li>
+<p><strong>プラグインとの実際の通信</strong></p>
+</li>
+<li>PluginRegistry との連携強化</li>
+<li>イベント発火のトリガー実装</li>
+</ol>
+<h3 id="macos">macOS 差分の実装状況</h3>
+<ul>
+<li>[x] <strong>HWND → CGWindowID</strong>: <code>WindowIDMapper</code> にて実装済み</li>
+<li>[x] <strong>Windows パス → POSIX パス</strong>: <code>PathNormalizer</code> にて実装済み</li>
+<li>[x] <strong>文字コード正規化</strong>: UTF-8 既定、CP932 受理を実装済み</li>
+<li>[ ] <strong>完全なウィンドウ列挙</strong>: CGWindowList の活用は部分実装</li>
+</ul>
+<hr />
+<h2 id="_6">変更履歴</h2>
+<ul>
+<li>2025-10-20: 実装状況セクションを追加</li>
+<li>2025-07-27 (JST): 初版</li>
+</ul>
+        <div class="footer">
+            <p>Ourin (桜鈴) - macOS ネイティブ伺かベースウェア</p>
+        </div>
+    </div>
+</body>
+</html>

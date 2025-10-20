@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FMO機能について</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .toc {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1 id="fmo">FMO機能について</h1>
+<p>このドキュメントでは、Windows向けゲームやゴーストで利用されているFMO(Forged Memory Object)をmacOS上で再現するための実装方針を説明します。</p>
+<h2 id="_1">目的</h2>
+<ul>
+<li>名前付き共有メモリを用いてプロセス間で64KBのデータ領域を共有する</li>
+<li>名前付きセマフォを利用して排他制御を行う</li>
+<li>ninix仕様に準拠した起動判定を実装する</li>
+</ul>
+<h2 id="ninix">ninix仕様準拠について</h2>
+<p>本実装はninix/ninix-kagariのFMO仕様に準拠しています。</p>
+<h3 id="_2">起動判定方法</h3>
+<p>POSIX環境では <code>shm_open('/ninix', O_RDWR, 0)</code> が成功するかで他のベースウェアが起動しているかを判定します。</p>
+<ul>
+<li>成功 → 既に他のベースウェアが起動中</li>
+<li>失敗(errno == ENOENT) → 起動していない</li>
+<li>その他のエラー → 権限不足など</li>
+</ul>
+<h3 id="_3">使用するリソース名</h3>
+<p>ninixとの互換性のため、以下の名前を使用します：</p>
+<ul>
+<li>共有メモリ名: <code>/ninix</code></li>
+<li>セマフォ名: <code>/ninix_mutex</code></li>
+</ul>
+<h3 id="fmo_1">FMO内容</h3>
+<p>共有メモリには以下の構造でデータを格納します：</p>
+<pre><code class="language-c">struct shm_t {
+    uint32_t size;      // データサイズ（先頭4バイト）
+    sem_t sem;          // セマフォ（POSIX環境）
+    char buf[PATH_MAX]; // UNIXソケットがあるディレクトリのパス
+};
+</code></pre>
+<p>ninixではFMOはベースウェアの情報ではなく、ベースウェアの情報を取得できるUNIXソケットがあるディレクトリを保持します。パスは末尾が <code>/</code> で終わります（例：<code>/home/user/.ninix/sock/</code>）。</p>
+<h2 id="_4">主要クラス</h2>
+<h3 id="fmomutex"><code>FmoMutex</code></h3>
+<ul>
+<li>名前付きセマフォをラップしたMutexクラス</li>
+<li><code>lock()</code> と <code>unlock()</code> で排他制御を行います</li>
+<li><code>createNew</code> パラメータで新規作成モードと既存オープンモードを切り替え可能</li>
+<li>作成者のみが <code>cleanup()</code> 時に <code>sem_unlink</code> を実行します</li>
+</ul>
+<h3 id="fmosharedmemory"><code>FmoSharedMemory</code></h3>
+<ul>
+<li>POSIX共有メモリをSwiftから扱うためのラッパー</li>
+<li><code>shm_open</code> 後に <code>shm_unlink</code> を行い、最後のクローズで自動削除されるエフェメラル運用を採用</li>
+<li>先頭4バイトにデータサイズ、末尾にNUL終端を書き込みます</li>
+<li><code>createNew</code> パラメータで新規作成モードと既存オープンモードを切り替え可能</li>
+<li>作成者のみが <code>cleanup()</code> 時に <code>shm_unlink</code> を実行します（ただしエフェメラルモードでは作成直後に既にunlink済み）</li>
+</ul>
+<h3 id="fmomanager"><code>FmoManager</code></h3>
+<ul>
+<li>上記2つをまとめて初期化し、アプリケーション起動時に使用します</li>
+<li><code>isAnotherInstanceRunning()</code> 静的メソッドで他のベースウェアの起動判定が可能</li>
+</ul>
+<h2 id="_5">使用例</h2>
+<h3 id="_6">起動判定と初期化</h3>
+<pre><code class="language-swift">// 1. まず他のベースウェアが起動しているか確認
+if FmoManager.isAnotherInstanceRunning(sharedName: &quot;/ninix&quot;) {
+    NSLog(&quot;Another baseware instance is already running&quot;)
+    exit(1)
+}
+
+// 2. 起動していなければFMOリソースを作成
+do {
+    let manager = try FmoManager(mutexName: &quot;/ninix_mutex&quot;, sharedName: &quot;/ninix&quot;)
+    // 使用...
+} catch {
+    NSLog(&quot;FMO initialization failed: \(error)&quot;)
+}
+</code></pre>
+<h3 id="_7">データの読み書き</h3>
+<pre><code class="language-swift">try manager.memory.write(data, mutex: manager.mutex)
+let received = try manager.memory.read(mutex: manager.mutex)
+</code></pre>
+<h3 id="_8">クリーンアップ</h3>
+<p>アプリケーション終了時には <code>cleanup()</code> を呼び、共有メモリとセマフォを解放します：</p>
+<pre><code class="language-swift">manager.cleanup()
+</code></pre>
+<h2 id="_9">実装の流れ</h2>
+<ol>
+<li><strong>起動判定</strong>: <code>FmoManager.isAnotherInstanceRunning()</code> で他インスタンスの存在を確認</li>
+<li><strong>FMO作成</strong>: 他インスタンスがなければ <code>FmoManager(mutexName:sharedName:)</code> で初期化</li>
+<li><strong>データ共有</strong>: mutex で保護しながら共有メモリにデータを読み書き</li>
+<li><strong>クリーンアップ</strong>: 終了時に <code>cleanup()</code> でリソース解放</li>
+</ol>
+<h2 id="_10">エラーハンドリング</h2>
+<ul>
+<li><code>FmoError.alreadyRunning</code>: セマフォまたは共有メモリが既に存在する（他インスタンス起動中）</li>
+<li><code>FmoError.systemError(String)</code>: システムエラー（権限不足、リソース不足など）</li>
+</ul>
+<p>起動判定を先に行うことで、不必要な <code>alreadyRunning</code> エラーを回避できます。</p>
+<h2 id="_11">技術的な詳細</h2>
+<h3 id="c-bridge">C Bridge関数</h3>
+<p>Swift から POSIX API を呼び出すために以下のブリッジ関数を実装しています（<code>FmoBridge.c/h</code>）：</p>
+<h4 id="_12">共有メモリ操作</h4>
+<ul>
+<li><code>fmo_open_shared()</code>: 共有メモリを新規作成</li>
+<li><code>fmo_open_existing_shared()</code>: 既存の共有メモリを開く</li>
+<li><code>fmo_map()</code>: メモリマッピング</li>
+<li><code>fmo_munmap()</code>: マッピング解除</li>
+<li><code>fmo_shm_unlink()</code>: 共有メモリ削除</li>
+</ul>
+<h4 id="_13">セマフォ操作</h4>
+<ul>
+<li><code>fmo_sem_open()</code>: セマフォを開く/作成</li>
+<li><code>fmo_sem_wait()</code>: ロック取得</li>
+<li><code>fmo_sem_post()</code>: ロック解放</li>
+<li><code>fmo_sem_close()</code>: セマフォクローズ</li>
+<li><code>fmo_sem_unlink()</code>: セマフォ削除</li>
+</ul>
+<h4 id="_14">起動判定</h4>
+<ul>
+<li><code>fmo_check_running()</code>: ninix仕様に基づく起動判定</li>
+<li><code>shm_open(name, O_RDWR, 0)</code> で既存の共有メモリを開けるか試行</li>
+<li>戻り値: 1=起動中, 0=未起動, -1=エラー</li>
+</ul>
+<h3 id="_15">注意事項</h3>
+<ul>
+<li><strong>32/64bit非互換</strong>: 32bitと64bitプロセス間ではFMOをやり取りできません</li>
+<li><strong>権限</strong>: サンドボックス環境では共有メモリやセマフォへのアクセスが制限される場合があります</li>
+<li><strong>リソース名</strong>: ninix互換性のため <code>/ninix</code> と <code>/ninix_mutex</code> を使用しますが、必要に応じて変更可能です</li>
+<li><strong>エフェメラル運用</strong>: 共有メモリは作成直後に <code>shm_unlink</code> され、全プロセスがクローズすると自動削除されます</li>
+</ul>
+<h2 id="implementation-status">実装状況（Implementation Status）</h2>
+<p><strong>更新日:</strong> 2025-10-20</p>
+<h3 id="ourin">Ourin における実装</h3>
+<ul>
+<li>[x] <strong>完全実装済み</strong>: FMO システムは完全に実装され、動作確認済み</li>
+<li>[x] <strong>起動判定</strong>: <code>FmoManager.isAnotherInstanceRunning()</code> による ninix 仕様準拠の起動判定</li>
+<li>[x] <strong>共有メモリ管理</strong>: <code>FmoSharedMemory</code> による POSIX 共有メモリの管理</li>
+<li>[x] <strong>排他制御</strong>: <code>FmoMutex</code> による名前付きセマフォの実装</li>
+<li>[x] <strong>C ブリッジ</strong>: POSIX API へのブリッジ関数群（<code>FmoBridge.c/h</code>）</li>
+<li>[x] <strong>エフェメラル運用</strong>: 共有メモリの自動削除機能</li>
+<li>[x] <strong>エラーハンドリング</strong>: <code>FmoError</code> による適切なエラー処理</li>
+</ul>
+<h3 id="_16">実装済みの機能</h3>
+<ol>
+<li><strong>POSIX 共有メモリ</strong></li>
+<li><code>shm_open()</code> による共有メモリの作成/オープン</li>
+<li><code>mmap()</code> によるメモリマッピング</li>
+<li>
+<p><code>shm_unlink()</code> による自動削除</p>
+</li>
+<li>
+<p><strong>名前付きセマフォ</strong></p>
+</li>
+<li><code>sem_open()</code> によるセマフォの作成/オープン</li>
+<li><code>sem_wait()</code>/<code>sem_post()</code> による排他制御</li>
+<li>
+<p><code>sem_unlink()</code> による削除</p>
+</li>
+<li>
+<p><strong>ninix 互換起動判定</strong></p>
+</li>
+<li><code>/ninix</code> 共有メモリの存在確認</li>
+<li><code>O_RDWR</code> モードでの既存メモリオープン試行</li>
+<li>
+<p>errno に基づくエラー判定</p>
+</li>
+<li>
+<p><strong>Swift インターフェース</strong></p>
+</li>
+<li><code>FmoManager</code>: 全体管理クラス</li>
+<li><code>FmoSharedMemory</code>: 共有メモリラッパー</li>
+<li><code>FmoMutex</code>: セマフォラッパー</li>
+<li><code>FmoError</code>: エラー型定義</li>
+</ol>
+<h3 id="_17">実装ファイル</h3>
+<ul>
+<li><code>Ourin/FMO/FmoManager.swift</code>: FMO 管理クラス</li>
+<li><code>Ourin/FMO/FmoSharedMemory.swift</code>: 共有メモリラッパー</li>
+<li><code>Ourin/FMO/FmoMutex.swift</code>: Mutex ラッパー</li>
+<li><code>Ourin/FMO/FmoError.swift</code>: エラー定義</li>
+<li><code>Ourin/FMO/FmoBridge.c</code>: C ブリッジ実装</li>
+<li><code>Ourin/FMO/FmoBridge.h</code>: C ブリッジヘッダ</li>
+</ul>
+<h3 id="_18">動作確認</h3>
+<ul>
+<li>✅ 単一インスタンス起動制御</li>
+<li>✅ 複数インスタンス起動時のエラー検出</li>
+<li>✅ 共有メモリへの読み書き</li>
+<li>✅ セマフォによる排他制御</li>
+<li>✅ プロセス終了時のリソース解放</li>
+</ul>
+        <div class="footer">
+            <p>Ourin (桜鈴) - macOS ネイティブ伺かベースウェア</p>
+        </div>
+    </div>
+</body>
+</html>
