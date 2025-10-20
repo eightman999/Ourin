@@ -24,6 +24,16 @@ class CharacterViewModel: ObservableObject {
     
     // Surface compositing - overlay surfaces
     @Published var overlays: [SurfaceOverlay] = []
+    
+    // Effects and filters
+    var activeEffects: [EffectConfig] = []
+    var activeFilters: [FilterConfig] = []
+    
+    // Dressup bindings
+    var dressupBindings: [String: [String: String]] = [:] // category -> part -> value
+    
+    // Text animations
+    var textAnimations: [TextAnimationConfig] = []
 
     // Window stacking
     var zOrderGroup: [Int]? = nil  // nil = default, or array of scope IDs in front-to-back order
@@ -627,16 +637,34 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     let scaleValue = ratio / 100.0  // Convert percentage to scale factor
                                     DispatchQueue.main.async {
                                         guard let vm = self.characterViewModels[self.currentScope] else { return }
+                                        
+                                        let targetScaleX: Double
+                                        let targetScaleY: Double
+                                        
                                         if args.count >= 4, let yRatio = Double(args[3]) {
                                             // Non-uniform scaling
-                                            vm.scaleX = scaleValue
-                                            vm.scaleY = yRatio / 100.0
+                                            targetScaleX = scaleValue
+                                            targetScaleY = yRatio / 100.0
                                         } else {
                                             // Uniform scaling
-                                            vm.scaleX = scaleValue
-                                            vm.scaleY = scaleValue
+                                            targetScaleX = scaleValue
+                                            targetScaleY = scaleValue
                                         }
-                                        // TODO: Implement animated scaling with time parameter (args[4])
+                                        
+                                        // Check if animation time specified
+                                        if args.count >= 5, let timeMs = Double(args[4]), timeMs > 0 {
+                                            // Animated scaling
+                                            NSAnimationContext.runAnimationGroup({ context in
+                                                context.duration = timeMs / 1000.0
+                                                context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                                                vm.scaleX = targetScaleX
+                                                vm.scaleY = targetScaleY
+                                            })
+                                        } else {
+                                            // Instant scaling
+                                            vm.scaleX = targetScaleX
+                                            vm.scaleY = targetScaleY
+                                        }
                                     }
                                 }
                             }
@@ -653,7 +681,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             if args.count >= 3 {
                                 let direction = args[2].lowercased()
                                 DispatchQueue.main.async {
-                                    guard let vm = self.characterViewModels[self.currentScope] else { return }
+                                    guard let vm = self.characterViewModels[self.currentScope],
+                                          let window = self.characterWindows[self.currentScope] else { return }
+                                    
                                     switch direction {
                                     case "top": vm.alignment = .top
                                     case "bottom": vm.alignment = .bottom
@@ -663,7 +693,32 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     case "default": vm.alignment = .free
                                     default: break
                                     }
-                                    // TODO: Actually apply window position constraints based on alignment
+                                    
+                                    // Apply window position constraints based on alignment
+                                    if let screen = NSScreen.main {
+                                        let screenFrame = screen.visibleFrame
+                                        var newOrigin = window.frame.origin
+                                        let windowSize = window.frame.size
+                                        
+                                        switch vm.alignment {
+                                        case .top:
+                                            newOrigin.y = screenFrame.maxY - windowSize.height
+                                        case .bottom:
+                                            newOrigin.y = screenFrame.minY
+                                        case .left:
+                                            newOrigin.x = screenFrame.minX
+                                        case .right:
+                                            newOrigin.x = screenFrame.maxX - windowSize.width
+                                        case .free:
+                                            break
+                                        }
+                                        
+                                        if vm.alignment != .free {
+                                            window.setFrameOrigin(newOrigin)
+                                            // Save new position
+                                            self.resourceManager.saveWindowPosition(scope: self.currentScope, position: newOrigin)
+                                        }
+                                    }
                                 }
                             }
                         case "position":
@@ -713,6 +768,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             // \![set,othersurfacechange,true/false]
                             if args.count >= 3 {
                                 setOtherSurfaceChange(enabled: args[2].lowercased() == "true")
+                            }
+                        case "windowstate":
+                            // \![set,windowstate,stayontop/!stayontop/minimize]
+                            if args.count >= 3 {
+                                setWindowState(state: args[2])
                             }
                         default:
                             break
@@ -828,16 +888,57 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     Log.debug("[GhostManager] Animation add base not yet implemented")
                                 } else if addType == "text" {
                                     // \![anim,add,text,x,y,width,height,text,time,r,g,b,size,font]
-                                    Log.debug("[GhostManager] Animation add text not yet implemented")
+                                    if args.count >= 13 {
+                                        let x = Int(args[3]) ?? 0
+                                        let y = Int(args[4]) ?? 0
+                                        let width = Int(args[5]) ?? 100
+                                        let height = Int(args[6]) ?? 20
+                                        let text = args[7]
+                                        let time = Int(args[8]) ?? 1000
+                                        let r = Int(args[9]) ?? 0
+                                        let g = Int(args[10]) ?? 0
+                                        let b = Int(args[11]) ?? 0
+                                        let size = Int(args[12]) ?? 12
+                                        let font = args.count >= 14 ? args[13] : "sans-serif"
+                                        addTextAnimation(x: x, y: y, width: width, height: height, text: text, 
+                                                       time: time, r: r, g: g, b: b, size: size, font: font)
+                                    }
                                 }
                             }
                         default:
                             break
                         }
-                    } else if first == "bind", args.count >= 2 {
+                    } else if first == "bind", args.count >= 4 {
                         // Handle \![bind,category,part,value] - dressup control
-                        // TODO: Implement dressup system
-                        Log.debug("[GhostManager] Bind/dressup command not yet implemented")
+                        let category = args[1]
+                        let part = args[2]
+                        let value = args[3]
+                        handleBindDressup(category: category, part: part, value: value)
+                    } else if first == "effect", args.count >= 2 {
+                        // \![effect,plugin,speed,params] - apply effect plugin
+                        let plugin = args[1]
+                        let speed = args.count >= 3 ? Double(args[2]) ?? 1.0 : 1.0
+                        let params = Array(args.dropFirst(3))
+                        applyEffect(plugin: plugin, speed: speed, params: params, surfaceID: nil)
+                    } else if first == "effect2", args.count >= 3 {
+                        // \![effect2,surfaceID,plugin,speed,params] - apply effect to specific surface
+                        if let surfaceID = Int(args[1]) {
+                            let plugin = args[2]
+                            let speed = args.count >= 4 ? Double(args[3]) ?? 1.0 : 1.0
+                            let params = Array(args.dropFirst(4))
+                            applyEffect(plugin: plugin, speed: speed, params: params, surfaceID: surfaceID)
+                        }
+                    } else if first == "filter" {
+                        if args.count >= 2 {
+                            // \![filter,plugin,time,params] - apply filter plugin
+                            let plugin = args[1]
+                            let time = args.count >= 3 ? Double(args[2]) ?? 0 : 0
+                            let params = Array(args.dropFirst(3))
+                            applyFilter(plugin: plugin, time: time, params: params)
+                        } else {
+                            // \![filter] - clear all filters
+                            clearFilters()
+                        }
                     } else if first == "move", args.count >= 3 {
                         // Handle \![move,x,y,time,method,scopeID] - synchronous window move
                         if let x = Int(args[1]), let y = Int(args[2]) {
@@ -2262,5 +2363,160 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let newFrame = NSRect(x: x, y: y, width: windowWidth, height: windowHeight)
         window.setFrame(newFrame, display: true)
     }
+    
+    // MARK: - Display Settings Commands
+    
+    /// Set window state (stayontop, minimize, etc.)
+    private func setWindowState(state: String) {
+        Log.debug("[GhostManager] Setting window state: \(state)")
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[self.currentScope] else { return }
+            
+            let stateLC = state.lowercased()
+            if stateLC == "stayontop" {
+                window.level = .floating
+                Log.info("[GhostManager] Window set to stay on top")
+            } else if stateLC == "!stayontop" {
+                window.level = .normal
+                Log.info("[GhostManager] Window stay on top disabled")
+            } else if stateLC == "minimize" {
+                window.miniaturize(nil)
+                Log.info("[GhostManager] Window minimized")
+            }
+        }
+    }
+    
+    // MARK: - Effect and Filter Commands
+    
+    /// Apply effect plugin
+    private func applyEffect(plugin: String, speed: Double, params: [String], surfaceID: Int?) {
+        Log.debug("[GhostManager] Applying effect: \(plugin), speed: \(speed), surface: \(surfaceID?.description ?? "current")")
+        
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            
+            // Store effect parameters
+            let effect = EffectConfig(plugin: plugin, speed: speed, params: params, surfaceID: surfaceID)
+            vm.activeEffects.append(effect)
+            
+            // TODO: Implement actual effect rendering through plugin system
+            Log.info("[GhostManager] Effect '\(plugin)' applied (rendering not yet implemented)")
+        }
+    }
+    
+    /// Apply filter plugin
+    private func applyFilter(plugin: String, time: Double, params: [String]) {
+        Log.debug("[GhostManager] Applying filter: \(plugin), time: \(time)")
+        
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            
+            // Store filter parameters
+            let filter = FilterConfig(plugin: plugin, time: time, params: params)
+            vm.activeFilters.append(filter)
+            
+            // Schedule filter removal if time specified
+            if time > 0 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + time / 1000.0) {
+                    vm.activeFilters.removeAll { $0.plugin == plugin }
+                }
+            }
+            
+            // TODO: Implement actual filter rendering through plugin system
+            Log.info("[GhostManager] Filter '\(plugin)' applied (rendering not yet implemented)")
+        }
+    }
+    
+    /// Clear all filters
+    private func clearFilters() {
+        Log.debug("[GhostManager] Clearing all filters")
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            vm.activeFilters.removeAll()
+            Log.info("[GhostManager] All filters cleared")
+        }
+    }
+    
+    // MARK: - Dressup Command
+    
+    /// Handle bind/dressup command
+    private func handleBindDressup(category: String, part: String, value: String) {
+        Log.debug("[GhostManager] Bind dressup: category=\(category), part=\(part), value=\(value)")
+        
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            
+            // Store dressup binding
+            if vm.dressupBindings[category] == nil {
+                vm.dressupBindings[category] = [:]
+            }
+            vm.dressupBindings[category]?[part] = value
+            
+            // TODO: Implement actual dressup rendering
+            // This would load additional surface layers based on bindings
+            Log.info("[GhostManager] Dressup binding set (rendering not yet implemented)")
+        }
+    }
+    
+    // MARK: - Text Animation Command
+    
+    /// Add text animation overlay
+    private func addTextAnimation(x: Int, y: Int, width: Int, height: Int, text: String, 
+                                 time: Int, r: Int, g: Int, b: Int, size: Int, font: String) {
+        Log.debug("[GhostManager] Adding text animation: '\(text)' at (\(x),\(y))")
+        
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            
+            let textAnim = TextAnimationConfig(
+                x: x, y: y, width: width, height: height,
+                text: text, duration: time,
+                r: r, g: g, b: b,
+                fontSize: size, fontName: font
+            )
+            
+            vm.textAnimations.append(textAnim)
+            
+            // Schedule removal after duration
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(time) / 1000.0) {
+                vm.textAnimations.removeAll { $0.text == text && $0.x == x && $0.y == y }
+            }
+            
+            // TODO: Implement actual text rendering overlay
+            Log.info("[GhostManager] Text animation added (rendering not yet implemented)")
+        }
+    }
+}
+
+// MARK: - Supporting Structures
+
+/// Effect configuration
+struct EffectConfig {
+    let plugin: String
+    let speed: Double
+    let params: [String]
+    let surfaceID: Int?
+}
+
+/// Filter configuration
+struct FilterConfig {
+    let plugin: String
+    let time: Double
+    let params: [String]
+}
+
+/// Text animation configuration
+struct TextAnimationConfig {
+    let x: Int
+    let y: Int
+    let width: Int
+    let height: Int
+    let text: String
+    let duration: Int // milliseconds
+    let r: Int
+    let g: Int
+    let b: Int
+    let fontSize: Int
+    let fontName: String
 }
 
