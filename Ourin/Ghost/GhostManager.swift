@@ -477,6 +477,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             // \- - Line break in choice
             playbackQueue.append(.newline)
         
+        case .moveAway:
+            // \4 - Move window to back (away from other windows)
+            moveWindowToBack(scope: currentScope)
+        
+        case .moveClose:
+            // \5 - Move window to front (close to user)
+            moveWindowToFront(scope: currentScope)
+        
         case .bootGhost:
             // \+ - Boot/call other ghost via SSTP
             // The ghost name should be specified in a following command or in context
@@ -660,37 +668,22 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             }
                         case "position":
                             // \![set,position,x,y,scopeID]
-                            if args.count >= 5, let x = Double(args[2]), let y = Double(args[3]), let scopeID = Int(args[4]) {
-                                DispatchQueue.main.async {
-                                    guard let vm = self.characterViewModels[scopeID] else { return }
-                                    vm.position = CGPoint(x: x, y: y)
-                                    // TODO: Actually lock window position
-                                }
+                            if args.count >= 5, let x = Int(args[2]), let y = Int(args[3]), let scopeID = Int(args[4]) {
+                                setWindowPosition(x: x, y: y, scopeID: scopeID)
                             }
                         case "zorder":
                             // \![set,zorder,ID1,ID2,...] - front to back
                             if args.count >= 3 {
                                 let scopeIDs = args.dropFirst(2).compactMap { Int($0) }
-                                // Apply z-order to all scopes in the group
-                                for scopeID in scopeIDs {
-                                    DispatchQueue.main.async {
-                                        guard let vm = self.characterViewModels[scopeID] else { return }
-                                        vm.zOrderGroup = scopeIDs
-                                        // TODO: Actually reorder windows
-                                    }
-                                }
+                                setWindowZOrder(scopes: scopeIDs)
                             }
                         case "sticky-window":
                             // \![set,sticky-window,ID1,ID2,...] - windows move together
                             if args.count >= 3 {
                                 let scopeIDs = args.dropFirst(2).compactMap { Int($0) }
-                                // Apply sticky group to all scopes
-                                for scopeID in scopeIDs {
-                                    DispatchQueue.main.async {
-                                        guard let vm = self.characterViewModels[scopeID] else { return }
-                                        vm.stickyGroup = scopeIDs
-                                        // TODO: Actually implement window movement synchronization
-                                    }
+                                if let master = scopeIDs.first {
+                                    let followers = Array(scopeIDs.dropFirst())
+                                    setStickyWindow(masterScope: master, followerScopes: followers)
                                 }
                             }
                         case "wallpaper":
@@ -730,24 +723,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         switch subcmd {
                         case "position":
                             // \![reset,position] - unlock position
-                            DispatchQueue.main.async {
-                                guard let vm = self.characterViewModels[self.currentScope] else { return }
-                                vm.position = nil
-                            }
+                            resetWindowPosition()
                         case "zorder":
                             // \![reset,zorder] - reset to default z-order
-                            for (_, vm) in self.characterViewModels {
-                                DispatchQueue.main.async {
-                                    vm.zOrderGroup = nil
-                                }
-                            }
+                            resetWindowZOrder()
                         case "sticky-window":
                             // \![reset,sticky-window] - unlink windows
-                            for (_, vm) in self.characterViewModels {
-                                DispatchQueue.main.async {
-                                    vm.stickyGroup = nil
-                                }
-                            }
+                            resetStickyWindow()
                         default:
                             break
                         }
@@ -777,13 +759,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let subcmd = args[1].lowercased()
                         if subcmd == "resetwindowpos" {
                             // \![execute,resetwindowpos] - reset all windows to initial positions
-                            DispatchQueue.main.async {
-                                // TODO: Implement actual window position reset
-                                for (_, vm) in self.characterViewModels {
-                                    vm.position = nil
-                                    vm.alignment = .free
-                                }
-                            }
+                            executeResetWindowPos()
                         } else if subcmd == "headline" {
                             // \![execute,headline,headlineName]
                             let headlineName = args.count >= 3 ? args[2] : ""
@@ -862,10 +838,22 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // Handle \![bind,category,part,value] - dressup control
                         // TODO: Implement dressup system
                         Log.debug("[GhostManager] Bind/dressup command not yet implemented")
-                    } else if first == "move" || first == "moveasync" {
-                        // Handle \![move,...] and \![moveasync,...]
-                        // TODO: Implement character movement with parameters
-                        Log.debug("[GhostManager] Move command not yet implemented: \(first)")
+                    } else if first == "move", args.count >= 3 {
+                        // Handle \![move,x,y,time,method,scopeID] - synchronous window move
+                        if let x = Int(args[1]), let y = Int(args[2]) {
+                            let time = args.count >= 4 ? Int(args[3]) ?? 0 : 0
+                            let method = args.count >= 5 ? args[4] : ""
+                            let scopeID = args.count >= 6 ? Int(args[5]) ?? currentScope : currentScope
+                            moveWindow(scope: scopeID, x: x, y: y, time: time, method: method)
+                        }
+                    } else if first == "moveasync", args.count >= 3 {
+                        // Handle \![moveasync,x,y,time,method,scopeID] - asynchronous window move
+                        if let x = Int(args[1]), let y = Int(args[2]) {
+                            let time = args.count >= 4 ? Int(args[3]) ?? 0 : 0
+                            let method = args.count >= 5 ? args[4] : ""
+                            let scopeID = args.count >= 6 ? Int(args[5]) ?? currentScope : currentScope
+                            moveWindowAsync(scope: scopeID, x: x, y: y, time: time, method: method)
+                        }
                     } else if first == "effect" || first == "effect2" || first == "filter" {
                         // Handle \![effect,...], \![effect2,...], \![filter,...]
                         // TODO: Implement visual effects/filters via plugins
@@ -2000,6 +1988,279 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             
             Log.debug("[GhostManager] Ghost vanished successfully")
         }
+    }
+    
+    // MARK: - Window Position and Display Control
+    
+    /// Move window to back (behind other windows)
+    private func moveWindowToBack(scope: Int) {
+        Log.debug("[GhostManager] Moving scope \(scope) window to back")
+        DispatchQueue.main.async {
+            if let window = self.characterWindows[scope] {
+                window.orderBack(nil)
+                window.level = .normal
+                Log.info("[GhostManager] Moved scope \(scope) to background")
+            }
+        }
+    }
+    
+    /// Move window to front (above other windows)
+    private func moveWindowToFront(scope: Int) {
+        Log.debug("[GhostManager] Moving scope \(scope) window to front")
+        DispatchQueue.main.async {
+            if let window = self.characterWindows[scope] {
+                window.orderFront(nil)
+                window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
+                Log.info("[GhostManager] Moved scope \(scope) to foreground")
+            }
+        }
+    }
+    
+    /// Synchronous window move
+    private func moveWindow(scope: Int, x: Int, y: Int, time: Int, method: String) {
+        Log.debug("[GhostManager] Moving scope \(scope) to (\(x), \(y)) over \(time)ms with method '\(method)'")
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[scope] else {
+                Log.warning("[GhostManager] No window found for scope \(scope)")
+                return
+            }
+            
+            let targetFrame = NSRect(x: CGFloat(x), y: CGFloat(y), width: window.frame.width, height: window.frame.height)
+            
+            if time > 0 {
+                // Animated move
+                NSAnimationContext.runAnimationGroup({ context in
+                    context.duration = TimeInterval(time) / 1000.0
+                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    window.animator().setFrame(targetFrame, display: true)
+                }, completionHandler: {
+                    Log.debug("[GhostManager] Window move animation completed for scope \(scope)")
+                })
+            } else {
+                // Instant move
+                window.setFrame(targetFrame, display: true)
+            }
+            
+            // Save new position
+            self.resourceManager.setCharDefaultLeft(scope: scope, value: x)
+            self.resourceManager.setCharDefaultTop(scope: scope, value: y)
+        }
+    }
+    
+    /// Asynchronous window move (non-blocking)
+    private func moveWindowAsync(scope: Int, x: Int, y: Int, time: Int, method: String) {
+        Log.debug("[GhostManager] Moving scope \(scope) asynchronously to (\(x), \(y))")
+        // Move asynchronously without blocking script execution
+        DispatchQueue.main.async {
+            self.moveWindow(scope: scope, x: x, y: y, time: time, method: method)
+        }
+        // Don't wait for completion - script continues immediately
+    }
+    
+    /// Set window position for specific scope
+    private func setWindowPosition(x: Int, y: Int, scopeID: Int) {
+        Log.debug("[GhostManager] Setting window position for scope \(scopeID) to (\(x), \(y))")
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[scopeID] else {
+                Log.warning("[GhostManager] No window found for scope \(scopeID)")
+                return
+            }
+            
+            let newFrame = NSRect(x: CGFloat(x), y: CGFloat(y), width: window.frame.width, height: window.frame.height)
+            window.setFrame(newFrame, display: true)
+            
+            // Lock window position (prevent user dragging)
+            window.isMovable = false
+            
+            // Save position
+            self.resourceManager.setCharDefaultLeft(scope: scopeID, value: x)
+            self.resourceManager.setCharDefaultTop(scope: scopeID, value: y)
+            
+            Log.info("[GhostManager] Scope \(scopeID) position locked to (\(x), \(y))")
+        }
+    }
+    
+    /// Reset window position to default (allow user movement)
+    private func resetWindowPosition() {
+        Log.debug("[GhostManager] Resetting window positions")
+        DispatchQueue.main.async {
+            for (scope, window) in self.characterWindows {
+                // Unlock window movement
+                window.isMovable = true
+                
+                // Restore default position if available
+                let savedX = self.resourceManager.getCharDefaultLeft(scope: scope)
+                let savedY = self.resourceManager.getCharDefaultTop(scope: scope)
+                
+                if savedX != 0 || savedY != 0 {
+                    let newFrame = NSRect(x: CGFloat(savedX), y: CGFloat(savedY), 
+                                        width: window.frame.width, height: window.frame.height)
+                    window.setFrame(newFrame, display: true)
+                }
+                
+                Log.info("[GhostManager] Scope \(scope) position unlocked")
+            }
+        }
+    }
+    
+    /// Set Z-order (window layering)
+    private func setWindowZOrder(scopes: [Int]) {
+        Log.debug("[GhostManager] Setting Z-order: \(scopes)")
+        DispatchQueue.main.async {
+            // Order windows from back to front based on scopes array
+            for (index, scope) in scopes.enumerated() {
+                if let window = self.characterWindows[scope] {
+                    if index == scopes.count - 1 {
+                        // Last window (topmost)
+                        window.orderFront(nil)
+                    } else {
+                        // Order behind the next window
+                        if let nextWindow = self.characterWindows[scopes[index + 1]] {
+                            window.order(.below, relativeTo: nextWindow.windowNumber)
+                        }
+                    }
+                }
+            }
+            Log.info("[GhostManager] Z-order set successfully")
+        }
+    }
+    
+    /// Reset Z-order to default
+    private func resetWindowZOrder() {
+        Log.debug("[GhostManager] Resetting Z-order to default")
+        DispatchQueue.main.async {
+            // Restore default floating window level for all
+            for (scope, window) in self.characterWindows {
+                window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
+                window.orderFront(nil)
+                Log.info("[GhostManager] Scope \(scope) Z-order reset")
+            }
+        }
+    }
+    
+    /// Set sticky window (window follows another window)
+    private var stickyWindowRelationships: [Int: Set<Int>] = [:] // Master scope -> follower scopes
+    
+    private func setStickyWindow(masterScope: Int, followerScopes: [Int]) {
+        Log.debug("[GhostManager] Setting sticky windows: \(followerScopes) follow scope \(masterScope)")
+        DispatchQueue.main.async {
+            // Store relationships
+            self.stickyWindowRelationships[masterScope] = Set(followerScopes)
+            
+            // Add observer for master window movement
+            if let masterWindow = self.characterWindows[masterScope] {
+                NotificationCenter.default.addObserver(
+                    self,
+                    selector: #selector(self.stickyMasterWindowMoved(_:)),
+                    name: NSWindow.didMoveNotification,
+                    object: masterWindow
+                )
+                Log.info("[GhostManager] Sticky window relationships established")
+            }
+        }
+    }
+    
+    @objc private func stickyMasterWindowMoved(_ notification: Notification) {
+        guard let masterWindow = notification.object as? NSWindow,
+              let masterScope = characterWindows.first(where: { $0.value == masterWindow })?.key,
+              let followers = stickyWindowRelationships[masterScope] else {
+            return
+        }
+        
+        let masterFrame = masterWindow.frame
+        
+        // Move all follower windows relative to master
+        for followerScope in followers {
+            if let followerWindow = characterWindows[followerScope] {
+                let offset: CGFloat = CGFloat((followerScope - masterScope) * 100) // Simple offset logic
+                let newFrame = NSRect(
+                    x: masterFrame.origin.x + offset,
+                    y: masterFrame.origin.y,
+                    width: followerWindow.frame.width,
+                    height: followerWindow.frame.height
+                )
+                followerWindow.setFrame(newFrame, display: true)
+            }
+        }
+    }
+    
+    /// Reset sticky window relationships
+    private func resetStickyWindow() {
+        Log.debug("[GhostManager] Resetting sticky window relationships")
+        DispatchQueue.main.async {
+            // Remove all observers
+            for window in self.characterWindows.values {
+                NotificationCenter.default.removeObserver(
+                    self,
+                    name: NSWindow.didMoveNotification,
+                    object: window
+                )
+            }
+            
+            // Clear relationships
+            self.stickyWindowRelationships.removeAll()
+            
+            Log.info("[GhostManager] All sticky window relationships removed")
+        }
+    }
+    
+    /// Reset all window positions to default
+    private func executeResetWindowPos() {
+        Log.debug("[GhostManager] Executing window position reset")
+        DispatchQueue.main.async {
+            // Reset each window to its default/saved position
+            for (scope, window) in self.characterWindows {
+                // Get saved position or use default
+                let savedX = self.resourceManager.getCharDefaultLeft(scope: scope)
+                let savedY = self.resourceManager.getCharDefaultTop(scope: scope)
+                
+                if savedX != 0 || savedY != 0 {
+                    let newFrame = NSRect(
+                        x: CGFloat(savedX),
+                        y: CGFloat(savedY),
+                        width: window.frame.width,
+                        height: window.frame.height
+                    )
+                    window.setFrame(newFrame, display: true)
+                } else {
+                    // Use default positions (scope-based)
+                    self.positionWindowAtDefault(scope: scope, window: window)
+                }
+                
+                // Unlock window
+                window.isMovable = true
+            }
+            
+            Log.info("[GhostManager] All window positions reset")
+        }
+    }
+    
+    /// Position window at default location based on scope
+    private func positionWindowAtDefault(scope: Int, window: NSWindow) {
+        guard let screen = NSScreen.main else { return }
+        
+        let screenFrame = screen.visibleFrame
+        let windowWidth = window.frame.width
+        let windowHeight = window.frame.height
+        
+        // Default positions based on scope
+        let x: CGFloat
+        let y: CGFloat
+        
+        switch scope {
+        case 0: // Master at right-center
+            x = screenFrame.maxX - windowWidth - 100
+            y = screenFrame.midY - windowHeight / 2
+        case 1: // Partner at left-center
+            x = screenFrame.minX + 100
+            y = screenFrame.midY - windowHeight / 2
+        default: // Others spaced out
+            x = screenFrame.midX - windowWidth / 2 + CGFloat(scope * 50)
+            y = screenFrame.midY - windowHeight / 2
+        }
+        
+        let newFrame = NSRect(x: x, y: y, width: windowWidth, height: windowHeight)
+        window.setFrame(newFrame, display: true)
     }
 }
 
