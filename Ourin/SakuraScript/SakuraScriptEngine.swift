@@ -75,6 +75,18 @@ public final class SakuraScriptEngine {
         case moveClose         // \5 - move close to other character
         case balloon(Int)      // \bN or \b[ID] - change balloon ID
         case appendMode        // \C - append to previous balloon
+        case wait              // \t - click wait / quick wait
+        case endConversation(clearBalloon: Bool) // \x or \x[noclear]
+        case choiceCancel      // \z - choice cancellation
+        case choiceMarker      // \* - choice marker
+        case anchor            // \a - anchor marker (for choices)
+        case choiceLineBr      // \- - line break in choice
+        case bootGhost         // \+ - boot/call other ghost
+        case bootAllGhosts     // \_+ - boot all ghosts
+        case openPreferences   // \v - open preferences/settings
+        case openURL           // \6 - open URL
+        case openEmail         // \7 - open email
+        case playSound(String) // \8[filename] - play sound
         case command(name: String, args: [String])
 
         /// Returns true if this token represents displayable text or speech.
@@ -328,13 +340,114 @@ public final class SakuraScriptEngine {
                     }
                     tokens.append(.command(name: "c", args: args))
                     i = j
+                case "t":
+                    // Quick wait / click wait
+                    tokens.append(.wait)
+                    i += 2
+                case "x":
+                    // End conversation: \x or \x[noclear]
+                    var j = i + 2
+                    var clearBalloon = true
+                    if j < chars.count && chars[j] == "[" {
+                        if let (content, end) = readBracket(start: j + 1) {
+                            if content.lowercased() == "noclear" {
+                                clearBalloon = false
+                            }
+                            j = end
+                        }
+                    }
+                    tokens.append(.endConversation(clearBalloon: clearBalloon))
+                    i = j
+                case "z":
+                    // Choice cancellation
+                    tokens.append(.choiceCancel)
+                    i += 2
+                case "*":
+                    // Choice marker
+                    tokens.append(.choiceMarker)
+                    i += 2
+                case "a":
+                    // Anchor marker (for choices)
+                    tokens.append(.anchor)
+                    i += 2
+                case "-":
+                    // Line break in choice
+                    tokens.append(.choiceLineBr)
+                    i += 2
+                case "+":
+                    // Boot/call other ghost
+                    tokens.append(.bootGhost)
+                    i += 2
+                case "v":
+                    // Open preferences/settings
+                    tokens.append(.openPreferences)
+                    i += 2
+                case "6":
+                    // Open URL
+                    tokens.append(.openURL)
+                    i += 2
+                case "7":
+                    // Open email
+                    tokens.append(.openEmail)
+                    i += 2
+                case "8":
+                    // Play sound: \8[filename]
+                    var j = i + 2
+                    var filename = ""
+                    if j < chars.count && chars[j] == "[" {
+                        if let (content, end) = readBracket(start: j + 1) {
+                            filename = content
+                            j = end
+                        }
+                    }
+                    tokens.append(.playSound(filename))
+                    i = j
+                case "q":
+                    // Choice commands: \q[title,ID] or various other forms
+                    var j = i + 2
+                    var args: [String] = []
+                    if j < chars.count && chars[j] == "[" {
+                        if let (content, end) = readBracket(start: j + 1) {
+                            args = parseArguments(content)
+                            j = end
+                        }
+                    }
+                    // Special handling for \q[ID][title] format
+                    if j < chars.count && chars[j] == "[" {
+                        if let (content, end) = readBracket(start: j + 1) {
+                            // This is the title for \q[ID][title] format
+                            args.append(content)
+                            j = end
+                        }
+                    }
+                    tokens.append(.command(name: "q", args: args))
+                    i = j
+                case "f":
+                    // Font commands: \f[align,center] etc.
+                    var j = i + 2
+                    var args: [String] = []
+                    if j < chars.count && chars[j] == "[" {
+                        if let (content, end) = readBracket(start: j + 1) {
+                            args = parseArguments(content)
+                            j = end
+                        }
+                    }
+                    tokens.append(.command(name: "f", args: args))
+                    i = j
                 case "_":
-                    // Support multi-letter underscore commands like _q, _w, __w, _s, _n, _l, _b, _!, _?, __v
+                    // Support multi-letter underscore commands like _q, _w, __w, _s, _n, _l, _b, _!, _?, __v, _+, _v, _V, _a
                     var j = i + 2
                     var name = "_"
                     while j < chars.count {
                         let c = chars[j]
                         if c.isLetter || c == "_" || c == "!" || c == "?" { name.append(c); j += 1 } else { break }
+                    }
+
+                    // Special handling for \_+ (boot all ghosts)
+                    if name == "_+" {
+                        tokens.append(.bootAllGhosts)
+                        i = j
+                        continue
                     }
 
                     // Special handling for \_! and \_? tag passthrough commands

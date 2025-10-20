@@ -1209,4 +1209,916 @@ struct SakuraScriptEngineTests {
             #expect(args == ["default"])
         }
     }
+
+    // MARK: - Wait Commands
+
+    @Test
+    func waitClickCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\0Text\\tMore text")
+        #expect(tokens.count == 4)
+        #expect(tokens[0] == .scope(0))
+        #expect(tokens[1] == .text("Text"))
+        #expect(tokens[2] == .wait)
+        #expect(tokens[3] == .text("More text"))
+    }
+
+    @Test
+    func waitNumericCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\w5")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "w")
+            #expect(args == ["5"])
+        }
+    }
+
+    @Test
+    func waitBracketCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\_w[1000]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "_w")
+            #expect(args == ["1000"])
+        }
+    }
+
+    @Test
+    func waitDoubleUnderscoreCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\__w[500]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "__w")
+            #expect(args == ["500"])
+        }
+    }
+
+    // MARK: - End Conversation Commands
+
+    @Test
+    func endConversationBasic() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\0Done\\x")
+        #expect(tokens.count == 3)
+        #expect(tokens[0] == .scope(0))
+        #expect(tokens[1] == .text("Done"))
+        #expect(tokens[2] == .endConversation(clearBalloon: true))
+    }
+
+    @Test
+    func endConversationNoClear() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\0Done\\x[noclear]")
+        #expect(tokens.count == 3)
+        #expect(tokens[2] == .endConversation(clearBalloon: false))
+    }
+
+    // MARK: - Choice Commands
+
+    @Test
+    func choiceCancelCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\q[Yes,OnYes]\\q[No,OnNo]\\z")
+        #expect(tokens.count == 3)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "q")
+            #expect(args == ["Yes", "OnYes"])
+        }
+        #expect(tokens[2] == .choiceCancel)
+    }
+
+    @Test
+    func choiceMarkerCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\*Choice text")
+        #expect(tokens.count == 2)
+        #expect(tokens[0] == .choiceMarker)
+        #expect(tokens[1] == .text("Choice text"))
+    }
+
+    @Test
+    func anchorMarkerCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\aLink text")
+        #expect(tokens.count == 2)
+        #expect(tokens[0] == .anchor)
+        #expect(tokens[1] == .text("Link text"))
+    }
+
+    @Test
+    func choiceLineBrCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "Line 1\\-Line 2")
+        #expect(tokens.count == 3)
+        #expect(tokens[0] == .text("Line 1"))
+        #expect(tokens[1] == .choiceLineBr)
+        #expect(tokens[2] == .text("Line 2"))
+    }
+
+    @Test
+    func choiceIDTitleFormat() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\q[OnTest][Test Choice]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "q")
+            #expect(args == ["OnTest", "Test Choice"])
+        }
+    }
+
+    @Test
+    func choiceScriptFormat() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\q[Execute,script:\\![raise,OnTest]]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "q")
+            #expect(args.count == 2)
+            #expect(args[0] == "Execute")
+            #expect(args[1] == "script:\\![raise,OnTest]")
+        }
+    }
+
+    @Test
+    func anchorCommandWithArgs() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\_a[OnClick]Link\\_a")
+        #expect(tokens.count == 3)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "_a")
+            #expect(args == ["OnClick"])
+        }
+        #expect(tokens[1] == .text("Link"))
+        if case .command(let name, let args) = tokens[2] {
+            #expect(name == "_a")
+            #expect(args == [])
+        }
+    }
+
+    @Test
+    func anchorWithReferences() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\_a[OnTest,r0,r1]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "_a")
+            #expect(args == ["OnTest", "r0", "r1"])
+        }
+    }
+
+    @Test
+    func quickSectionMarker() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\_qQuick section")
+        #expect(tokens.count == 2)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "_q")
+            #expect(args == [])
+        }
+    }
+
+    @Test
+    func choiceTimeoutCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![set,choicetimeout,5000]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["set", "choicetimeout", "5000"])
+        }
+    }
+
+    @Test
+    func choiceQueueCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\__q[OnTest,OnTest2]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "__q")
+            #expect(args == ["OnTest", "OnTest2"])
+        }
+    }
+
+    // MARK: - Event/Boot Commands
+
+    @Test
+    func bootGhostCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\+Boot ghost")
+        #expect(tokens.count == 2)
+        #expect(tokens[0] == .bootGhost)
+        #expect(tokens[1] == .text("Boot ghost"))
+    }
+
+    @Test
+    func bootAllGhostsCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\_+Boot all")
+        #expect(tokens.count == 2)
+        #expect(tokens[0] == .bootAllGhosts)
+        #expect(tokens[1] == .text("Boot all"))
+    }
+
+    @Test
+    func openPreferencesCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\vPreferences")
+        #expect(tokens.count == 2)
+        #expect(tokens[0] == .openPreferences)
+        #expect(tokens[1] == .text("Preferences"))
+    }
+
+    @Test
+    func openURLCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\6URL")
+        #expect(tokens.count == 2)
+        #expect(tokens[0] == .openURL)
+        #expect(tokens[1] == .text("URL"))
+    }
+
+    @Test
+    func openEmailCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\7Email")
+        #expect(tokens.count == 2)
+        #expect(tokens[0] == .openEmail)
+        #expect(tokens[1] == .text("Email"))
+    }
+
+    @Test
+    func changeGhostCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![change,ghost,emily]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["change", "ghost", "emily"])
+        }
+    }
+
+    @Test
+    func changeShellCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![change,shell,master]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["change", "shell", "master"])
+        }
+    }
+
+    @Test
+    func changeBalloonCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![change,balloon,SSP]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["change", "balloon", "SSP"])
+        }
+    }
+
+    @Test
+    func callGhostCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![call,ghost,emily]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["call", "ghost", "emily"])
+        }
+    }
+
+    // MARK: - Sound Commands
+
+    @Test
+    func playSoundCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\8[sound.wav]")
+        #expect(tokens.count == 1)
+        #expect(tokens[0] == .playSound("sound.wav"))
+    }
+
+    @Test
+    func playSoundWithPath() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\8[sound\\effect.mp3]")
+        #expect(tokens.count == 1)
+        #expect(tokens[0] == .playSound("sound\\effect.mp3"))
+    }
+
+    @Test
+    func voiceFileCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\_v[voice.wav]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "_v")
+            #expect(args == ["voice.wav"])
+        }
+    }
+
+    @Test
+    func voiceStopCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\_V")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "_V")
+            #expect(args == [])
+        }
+    }
+
+    // MARK: - Advanced Event Commands
+
+    @Test
+    func updateBymyselfCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![updatebymyself]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["updatebymyself"])
+        }
+    }
+
+    @Test
+    func updatePlatformCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![update,platform]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["update", "platform"])
+        }
+    }
+
+    @Test
+    func updateOtherCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![updateother]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["updateother"])
+        }
+    }
+
+    @Test
+    func executeSntpCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![executesntp]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["executesntp"])
+        }
+    }
+
+    @Test
+    func executeHeadlineCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![execute,headline,RSS Feed]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["execute", "headline", "RSS Feed"])
+        }
+    }
+
+    @Test
+    func biffCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![biff]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["biff"])
+        }
+    }
+
+    @Test
+    func vanishBymyselfCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![vanishbymyself]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["vanishbymyself"])
+        }
+    }
+
+    @Test
+    func raiseEventCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![raise,OnTest,value1,value2]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["raise", "OnTest", "value1", "value2"])
+        }
+    }
+
+    @Test
+    func embedEventCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![embed,OnTest,arg0,arg1]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["embed", "OnTest", "arg0", "arg1"])
+        }
+    }
+
+    @Test
+    func timerRaiseCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![timerraise,5000,1,OnTimer]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["timerraise", "5000", "1", "OnTimer"])
+        }
+    }
+
+    @Test
+    func raiseOtherCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![raiseother,emily,OnTest]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["raiseother", "emily", "OnTest"])
+        }
+    }
+
+    @Test
+    func notifyCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![notify,OnNotify]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["notify", "OnNotify"])
+        }
+    }
+
+    @Test
+    func notifyOtherCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![notifyother,emily,OnNotify]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["notifyother", "emily", "OnNotify"])
+        }
+    }
+
+    @Test
+    func raisePluginCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![raiseplugin,MyPlugin,OnEvent]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["raiseplugin", "MyPlugin", "OnEvent"])
+        }
+    }
+
+    // MARK: - Window State Commands
+
+    @Test
+    func setWindowStateStayOnTop() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![set,windowstate,stayontop]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["set", "windowstate", "stayontop"])
+        }
+    }
+
+    @Test
+    func setWindowStateNotStayOnTop() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![set,windowstate,!stayontop]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["set", "windowstate", "!stayontop"])
+        }
+    }
+
+    @Test
+    func setWindowStateMinimize() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![set,windowstate,minimize]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["set", "windowstate", "minimize"])
+        }
+    }
+
+    @Test
+    func setWallpaperCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![set,wallpaper,image.jpg,center]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["set", "wallpaper", "image.jpg", "center"])
+        }
+    }
+
+    @Test
+    func setTasktrayIconCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![set,tasktrayicon,icon.ico,tooltip]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["set", "tasktrayicon", "icon.ico", "tooltip"])
+        }
+    }
+
+    @Test
+    func setTrayBalloonCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![set,trayballoon,title=Test,text=Message]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["set", "trayballoon", "title=Test", "text=Message"])
+        }
+    }
+
+    @Test
+    func setOtherGhostTalkCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![set,otherghosttalk,true]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["set", "otherghosttalk", "true"])
+        }
+    }
+
+    @Test
+    func setOtherSurfaceChangeCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![set,othersurfacechange,false]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["set", "othersurfacechange", "false"])
+        }
+    }
+
+    // MARK: - Synchronization Commands
+
+    @Test
+    func syncCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\_s")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "_s")
+            #expect(args == [])
+        }
+    }
+
+    @Test
+    func syncWithIDsCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\_s[100,200,300]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "_s")
+            #expect(args == ["100", "200", "300"])
+        }
+    }
+
+    @Test
+    func waitSyncObjectCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![wait,syncobject,myobject,5000]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["wait", "syncobject", "myobject", "5000"])
+        }
+    }
+
+    @Test
+    func quickSectionTrueCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![quicksection,true]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["quicksection", "true"])
+        }
+    }
+
+    @Test
+    func quickSectionFalseCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![quicksection,false]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["quicksection", "false"])
+        }
+    }
+
+    // MARK: - Animation Control Commands
+
+    @Test
+    func animStopCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![anim,stop]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["anim", "stop"])
+        }
+    }
+
+    @Test
+    func animAddTextCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![anim,add,text,100,200,500,50,Hello,1000,255,0,0,20,Arial]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["anim", "add", "text", "100", "200", "500", "50", "Hello", "1000", "255", "0", "0", "20", "Arial"])
+        }
+    }
+
+    @Test
+    func effect2Command() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![effect2,100,plugin,1.5,param]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["effect2", "100", "plugin", "1.5", "param"])
+        }
+    }
+
+    @Test
+    func filterClearCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![filter]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["filter"])
+        }
+    }
+
+    // MARK: - Choice Marker Style Commands
+
+    @Test
+    func cursorStyleCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\f[cursorstyle,underline]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "f")
+            #expect(args == ["cursorstyle", "underline"])
+        }
+    }
+
+    @Test
+    func cursorColorCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\f[cursorcolor,255,0,0]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["cursorcolor", "255", "0", "0"])
+        }
+    }
+
+    @Test
+    func cursorBrushColorCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\f[cursorbrushcolor,#ff0000]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["cursorbrushcolor", "#ff0000"])
+        }
+    }
+
+    @Test
+    func cursorPenColorCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\f[cursorpencolor,blue]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["cursorpencolor", "blue"])
+        }
+    }
+
+    @Test
+    func cursorFontColorCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\f[cursorfontcolor,128,128,255]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["cursorfontcolor", "128", "128", "255"])
+        }
+    }
+
+    @Test
+    func cursorMethodCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\f[cursormethod,base]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["cursormethod", "base"])
+        }
+    }
+
+    @Test
+    func anchorStyleCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\f[anchorstyle,none]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["anchorstyle", "none"])
+        }
+    }
+
+    @Test
+    func anchorColorCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\f[anchorcolor,0,0,255]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["anchorcolor", "0", "0", "255"])
+        }
+    }
+
+    @Test
+    func anchorVisitedStyleCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\f[anchorvisitedstyle,strike]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["anchorvisitedstyle", "strike"])
+        }
+    }
+
+    @Test
+    func anchorVisitedColorCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\f[anchorvisitedcolor,128,0,128]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["anchorvisitedcolor", "128", "0", "128"])
+        }
+    }
+
+    @Test
+    func anchorNotSelectStyleCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\f[anchornotselectstyle,line]")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(args == ["anchornotselectstyle", "line"])
+        }
+    }
+
+    // MARK: - Comprehensive Integration Tests
+
+    @Test
+    func complexScriptWithNewCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\0\\s[0]Hello\\t\\8[sound.wav]\\nPress to continue\\x"
+        let tokens = engine.parse(script: script)
+        
+        #expect(tokens.count == 8)
+        #expect(tokens[0] == .scope(0))
+        #expect(tokens[1] == .surface(0))
+        #expect(tokens[2] == .text("Hello"))
+        #expect(tokens[3] == .wait)
+        #expect(tokens[4] == .playSound("sound.wav"))
+        #expect(tokens[5] == .newline)
+        #expect(tokens[6] == .text("Press to continue"))
+        #expect(tokens[7] == .endConversation(clearBalloon: true))
+    }
+
+    @Test
+    func choiceDialogWithAllFeatures() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\0Choose:\\n\\q[Yes,OnYes]\\q[No,OnNo]\\z"
+        let tokens = engine.parse(script: script)
+        
+        #expect(tokens.count == 6)
+        #expect(tokens[0] == .scope(0))
+        #expect(tokens[1] == .text("Choose:"))
+        #expect(tokens[2] == .newline)
+        if case .command(let name, let args) = tokens[3] {
+            #expect(name == "q")
+            #expect(args == ["Yes", "OnYes"])
+        }
+        if case .command(let name, let args) = tokens[4] {
+            #expect(name == "q")
+            #expect(args == ["No", "OnNo"])
+        }
+        #expect(tokens[5] == .choiceCancel)
+    }
+
+    @Test
+    func eventCommandSequence() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\0Opening URL\\6\\nOpening Email\\7\\nBooting ghost\\+"
+        let tokens = engine.parse(script: script)
+        
+        var foundOpenURL = false
+        var foundOpenEmail = false
+        var foundBootGhost = false
+        
+        for token in tokens {
+            if token == .openURL { foundOpenURL = true }
+            if token == .openEmail { foundOpenEmail = true }
+            if token == .bootGhost { foundBootGhost = true }
+        }
+        
+        #expect(foundOpenURL)
+        #expect(foundOpenEmail)
+        #expect(foundBootGhost)
+    }
+
+    @Test
+    func multiScopeConversation() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\0\\s[0]Sakura speaks\\t\\1\\s[10]Unyuu replies\\t\\p[2]Third character\\x[noclear]"
+        let tokens = engine.parse(script: script)
+        
+        // Verify we have the expected scopes
+        var scopes: [Int] = []
+        for token in tokens {
+            if case .scope(let id) = token {
+                scopes.append(id)
+            }
+        }
+        #expect(scopes == [0, 1, 2])
+        
+        // Verify end conversation without clear
+        if case .endConversation(let clearBalloon) = tokens.last! {
+            #expect(clearBalloon == false)
+        }
+    }
+
+    @Test
+    func fontStylingWithChoices() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\f[bold,1]\\f[color,red]Bold Red\\f[default]\\nNormal\\n\\q[Continue,OnContinue]"
+        let tokens = engine.parse(script: script)
+        
+        #expect(tokens.count == 7)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "f")
+            #expect(args == ["bold", "1"])
+        }
+        if case .command(let name, let args) = tokens[1] {
+            #expect(name == "f")
+            #expect(args == ["color", "red"])
+        }
+    }
+
+    @Test
+    func soundAndAnimationSequence() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\8[bgm.mp3]\\i[100,wait]\\s[5]Animation done"
+        let tokens = engine.parse(script: script)
+        
+        #expect(tokens[0] == .playSound("bgm.mp3"))
+        #expect(tokens[1] == .animation(100, wait: true))
+        #expect(tokens[2] == .surface(5))
+        #expect(tokens[3] == .text("Animation done"))
+    }
+
+    @Test
+    func allNewTokenTypesInOneScript() async throws {
+        let engine = SakuraScriptEngine()
+        // Test a script that uses all new token types
+        let script = "\\0Start\\t\\8[s.wav]\\*Choice\\a\\-Break\\+\\z\\6\\7\\v\\_+\\x"
+        let tokens = engine.parse(script: script)
+        
+        // Verify all new token types are present
+        var foundWait = false
+        var foundPlaySound = false
+        var foundChoiceMarker = false
+        var foundAnchor = false
+        var foundChoiceLineBr = false
+        var foundBootGhost = false
+        var foundChoiceCancel = false
+        var foundOpenURL = false
+        var foundOpenEmail = false
+        var foundOpenPreferences = false
+        var foundBootAllGhosts = false
+        var foundEndConversation = false
+        
+        for token in tokens {
+            if token == .wait { foundWait = true }
+            if case .playSound(_) = token { foundPlaySound = true }
+            if token == .choiceMarker { foundChoiceMarker = true }
+            if token == .anchor { foundAnchor = true }
+            if token == .choiceLineBr { foundChoiceLineBr = true }
+            if token == .bootGhost { foundBootGhost = true }
+            if token == .choiceCancel { foundChoiceCancel = true }
+            if token == .openURL { foundOpenURL = true }
+            if token == .openEmail { foundOpenEmail = true }
+            if token == .openPreferences { foundOpenPreferences = true }
+            if token == .bootAllGhosts { foundBootAllGhosts = true }
+            if case .endConversation(_) = token { foundEndConversation = true }
+        }
+        
+        #expect(foundWait)
+        #expect(foundPlaySound)
+        #expect(foundChoiceMarker)
+        #expect(foundAnchor)
+        #expect(foundChoiceLineBr)
+        #expect(foundBootGhost)
+        #expect(foundChoiceCancel)
+        #expect(foundOpenURL)
+        #expect(foundOpenEmail)
+        #expect(foundOpenPreferences)
+        #expect(foundBootAllGhosts)
+        #expect(foundEndConversation)
+    }
 }

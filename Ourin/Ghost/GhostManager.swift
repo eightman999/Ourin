@@ -21,10 +21,34 @@ class CharacterViewModel: ObservableObject {
     // Rendering control
     @Published var repaintLocked: Bool = false
     @Published var manualRepaintLock: Bool = false
+    
+    // Balloon state
+    @Published var currentBalloonID: Int = 0  // Current balloon style ID
+    
+    // Surface compositing - overlay surfaces
+    @Published var overlays: [SurfaceOverlay] = []
+    
+    // Effects and filters
+    var activeEffects: [EffectConfig] = []
+    var activeFilters: [FilterConfig] = []
+    
+    // Dressup bindings
+    var dressupBindings: [String: [String: String]] = [:] // category -> part -> value
+    
+    // Text animations
+    var textAnimations: [TextAnimationConfig] = []
 
     // Window stacking
     var zOrderGroup: [Int]? = nil  // nil = default, or array of scope IDs in front-to-back order
     var stickyGroup: [Int]? = nil  // nil = independent, or array of scope IDs that move together
+    
+    /// Surface overlay data
+    struct SurfaceOverlay: Identifiable {
+        let id: Int
+        let image: NSImage
+        var offset: CGPoint = .zero
+        var alpha: Double = 1.0
+    }
 
     /// Desktop alignment options
     enum DesktopAlignment {
@@ -66,6 +90,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     private var currentScope: Int = 0
     private var balloonTextCancellables: [Int: AnyCancellable] = [:]
+    
+    // Context tracking for URL/email commands
+    private var pendingURL: String?
+    private var pendingEmail: String?
 
     // Typing playback state
     private enum PlaybackUnit {
@@ -89,6 +117,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     private var syncEnabled: Bool = false
     private var syncScopes: Set<Int> = []
     private var pendingClick: Bool? = nil
+    
+    // Sound playback tracking
+    private var currentSounds: [NSSound] = []
+    
+    // Animation engine
+    private var animationEngine: AnimationEngine = AnimationEngine()
+    private var waitingForAnimation: Int? = nil  // Animation ID we're waiting for
 
     // MARK: - Initialization
 
@@ -101,6 +136,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         if let username = resourceManager.username {
             sakuraEngine.envExpander.username = username
         }
+        
+        // Setup animation engine callbacks
+        setupAnimationCallbacks()
+        
+        // Setup screen change observer for desktop alignment
+        setupScreenChangeObserver()
     }
 
     deinit {
@@ -396,16 +437,26 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             playbackQueue.append(.newline)
         case .balloon(let id):
             // \bN or \b[ID] - change balloon ID
-            // TODO: Implement balloon ID switching
-            Log.debug("[GhostManager] Balloon ID switch to \(id) not yet implemented")
+            Log.debug("[GhostManager] Switching to balloon ID: \(id)")
+            switchBalloon(to: id, scope: currentScope)
+            
         case .appendMode:
             // \C - append to previous balloon
-            // TODO: Implement append mode
-            Log.debug("[GhostManager] Append mode not yet implemented")
+            Log.debug("[GhostManager] Append mode - maintaining current balloon")
+            // Append mode keeps the current balloon open and adds new text
+            // This is implemented by not clearing the text buffer
+            // The balloon view will continue displaying the previous content
         case .end:
             playbackQueue.append(.end)
-        case .animation:
-            break
+        case .animation(let id, let wait):
+            // \i[ID] or \i[ID,wait] - play surface animation
+            if wait {
+                // Wait for animation to complete before continuing
+                playAnimationAndWait(id: id)
+            } else {
+                // Play animation without waiting
+                playAnimation(id: id, wait: false)
+            }
         case .moveAway:
             // \4 - Move away from other character
             // TODO: Implement character movement logic
@@ -414,6 +465,85 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             // \5 - Move close to other character
             // TODO: Implement character movement logic
             break
+        
+        // New token types - added for comprehensive Sakura Script support
+        case .wait:
+            // \t - Quick wait/click wait
+            playbackQueue.append(.clickWait(noclear: false))
+        
+        case .endConversation(let clearBalloon):
+            // \x or \x[noclear] - End conversation
+            playbackQueue.append(.clickWait(noclear: !clearBalloon))
+        
+        case .choiceCancel:
+            // \z - Choice cancellation
+            Log.debug("[GhostManager] Choice cancel marker")
+            choiceHasCancelOption = true
+        
+        case .choiceMarker:
+            // \* - Choice marker (indicates start of choice section)
+            Log.debug("[GhostManager] Choice marker - displaying choices")
+            // Display accumulated choices
+            showChoiceDialog()
+        
+        case .anchor:
+            // \a - Anchor marker (for clickable text)
+            Log.debug("[GhostManager] Anchor marker")
+            // Anchor is similar to choice but inline in text
+            // For now, treat as choice marker
+            showChoiceDialog()
+        
+        case .choiceLineBr:
+            // \- - Line break in choice
+            playbackQueue.append(.newline)
+        
+        case .moveAway:
+            // \4 - Move window to back (away from other windows)
+            moveWindowToBack(scope: currentScope)
+        
+        case .moveClose:
+            // \5 - Move window to front (close to user)
+            moveWindowToFront(scope: currentScope)
+        
+        case .bootGhost:
+            // \+ - Boot/call other ghost via SSTP
+            // The ghost name should be specified in a following command or in context
+            Log.debug("[GhostManager] Boot ghost command - attempting to boot ghost via SSTP")
+            bootOtherGhost()
+        
+        case .bootAllGhosts:
+            // \_+ - Boot all ghosts via SSTP broadcast
+            Log.debug("[GhostManager] Boot all ghosts command")
+            bootAllGhosts()
+        
+        case .openPreferences:
+            // \v - Open preferences dialog
+            DispatchQueue.main.async {
+                NSApp.sendAction(#selector(NSApplication.showPreferencesWindow), to: nil, from: nil)
+            }
+        
+        case .openURL:
+            // \6 - Open URL in browser
+            if let url = pendingURL {
+                openURL(url)
+                pendingURL = nil
+            } else {
+                Log.warning("[GhostManager] Open URL command but no URL in context")
+            }
+        
+        case .openEmail:
+            // \7 - Open email client
+            if let email = pendingEmail {
+                openEmail(email)
+                pendingEmail = nil
+            } else {
+                Log.warning("[GhostManager] Open email command but no email in context")
+            }
+        
+        case .playSound(let filename):
+            // \8[filename] - Play sound file
+            playSound(filename: filename)
+        
         case .command(let name, let args):
             switch name.lowercased() {
             case "w":
@@ -517,16 +647,34 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     let scaleValue = ratio / 100.0  // Convert percentage to scale factor
                                     DispatchQueue.main.async {
                                         guard let vm = self.characterViewModels[self.currentScope] else { return }
+                                        
+                                        let targetScaleX: Double
+                                        let targetScaleY: Double
+                                        
                                         if args.count >= 4, let yRatio = Double(args[3]) {
                                             // Non-uniform scaling
-                                            vm.scaleX = scaleValue
-                                            vm.scaleY = yRatio / 100.0
+                                            targetScaleX = scaleValue
+                                            targetScaleY = yRatio / 100.0
                                         } else {
                                             // Uniform scaling
-                                            vm.scaleX = scaleValue
-                                            vm.scaleY = scaleValue
+                                            targetScaleX = scaleValue
+                                            targetScaleY = scaleValue
                                         }
-                                        // TODO: Implement animated scaling with time parameter (args[4])
+                                        
+                                        // Check if animation time specified
+                                        if args.count >= 5, let timeMs = Double(args[4]), timeMs > 0 {
+                                            // Animated scaling
+                                            NSAnimationContext.runAnimationGroup({ context in
+                                                context.duration = timeMs / 1000.0
+                                                context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                                                vm.scaleX = targetScaleX
+                                                vm.scaleY = targetScaleY
+                                            })
+                                        } else {
+                                            // Instant scaling
+                                            vm.scaleX = targetScaleX
+                                            vm.scaleY = targetScaleY
+                                        }
                                     }
                                 }
                             }
@@ -543,7 +691,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             if args.count >= 3 {
                                 let direction = args[2].lowercased()
                                 DispatchQueue.main.async {
-                                    guard let vm = self.characterViewModels[self.currentScope] else { return }
+                                    guard let vm = self.characterViewModels[self.currentScope],
+                                          let window = self.characterWindows[self.currentScope] else { return }
+                                    
                                     switch direction {
                                     case "top": vm.alignment = .top
                                     case "bottom": vm.alignment = .bottom
@@ -553,43 +703,63 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     case "default": vm.alignment = .free
                                     default: break
                                     }
-                                    // TODO: Actually apply window position constraints based on alignment
+                                    
+                                    // Apply desktop alignment constraint
+                                    self.enforceDesktopAlignment(for: self.currentScope)
                                 }
                             }
                         case "position":
                             // \![set,position,x,y,scopeID]
-                            if args.count >= 5, let x = Double(args[2]), let y = Double(args[3]), let scopeID = Int(args[4]) {
-                                DispatchQueue.main.async {
-                                    guard let vm = self.characterViewModels[scopeID] else { return }
-                                    vm.position = CGPoint(x: x, y: y)
-                                    // TODO: Actually lock window position
-                                }
+                            if args.count >= 5, let x = Int(args[2]), let y = Int(args[3]), let scopeID = Int(args[4]) {
+                                setWindowPosition(x: x, y: y, scopeID: scopeID)
                             }
                         case "zorder":
                             // \![set,zorder,ID1,ID2,...] - front to back
                             if args.count >= 3 {
                                 let scopeIDs = args.dropFirst(2).compactMap { Int($0) }
-                                // Apply z-order to all scopes in the group
-                                for scopeID in scopeIDs {
-                                    DispatchQueue.main.async {
-                                        guard let vm = self.characterViewModels[scopeID] else { return }
-                                        vm.zOrderGroup = scopeIDs
-                                        // TODO: Actually reorder windows
-                                    }
-                                }
+                                setWindowZOrder(scopes: scopeIDs)
                             }
                         case "sticky-window":
                             // \![set,sticky-window,ID1,ID2,...] - windows move together
                             if args.count >= 3 {
                                 let scopeIDs = args.dropFirst(2).compactMap { Int($0) }
-                                // Apply sticky group to all scopes
-                                for scopeID in scopeIDs {
-                                    DispatchQueue.main.async {
-                                        guard let vm = self.characterViewModels[scopeID] else { return }
-                                        vm.stickyGroup = scopeIDs
-                                        // TODO: Actually implement window movement synchronization
-                                    }
+                                if let master = scopeIDs.first {
+                                    let followers = Array(scopeIDs.dropFirst())
+                                    setStickyWindow(masterScope: master, followerScopes: followers)
                                 }
+                            }
+                        case "wallpaper":
+                            // \![set,wallpaper,filename,options]
+                            if args.count >= 3 {
+                                let filename = args[2]
+                                let options = args.count >= 4 ? args[3] : ""
+                                setWallpaper(filename: filename, options: options)
+                            }
+                        case "tasktrayicon":
+                            // \![set,tasktrayicon,filename,text]
+                            if args.count >= 3 {
+                                let filename = args[2]
+                                let text = args.count >= 4 ? args[3] : ""
+                                setTaskTrayIcon(filename: filename, text: text)
+                            }
+                        case "trayballoon":
+                            // \![set,trayballoon,options...]
+                            let options = Array(args.dropFirst(2))
+                            setTrayBalloon(options: options)
+                        case "otherghosttalk":
+                            // \![set,otherghosttalk,true/false/before/after]
+                            if args.count >= 3 {
+                                setOtherGhostTalk(mode: args[2])
+                            }
+                        case "othersurfacechange":
+                            // \![set,othersurfacechange,true/false]
+                            if args.count >= 3 {
+                                setOtherSurfaceChange(enabled: args[2].lowercased() == "true")
+                            }
+                        case "windowstate":
+                            // \![set,windowstate,stayontop/!stayontop/minimize]
+                            if args.count >= 3 {
+                                setWindowState(state: args[2])
                             }
                         default:
                             break
@@ -600,24 +770,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         switch subcmd {
                         case "position":
                             // \![reset,position] - unlock position
-                            DispatchQueue.main.async {
-                                guard let vm = self.characterViewModels[self.currentScope] else { return }
-                                vm.position = nil
-                            }
+                            resetWindowPosition()
                         case "zorder":
                             // \![reset,zorder] - reset to default z-order
-                            for (_, vm) in self.characterViewModels {
-                                DispatchQueue.main.async {
-                                    vm.zOrderGroup = nil
-                                }
-                            }
+                            resetWindowZOrder()
                         case "sticky-window":
                             // \![reset,sticky-window] - unlink windows
-                            for (_, vm) in self.characterViewModels {
-                                DispatchQueue.main.async {
-                                    vm.stickyGroup = nil
-                                }
-                            }
+                            resetStickyWindow()
                         default:
                             break
                         }
@@ -647,42 +806,156 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let subcmd = args[1].lowercased()
                         if subcmd == "resetwindowpos" {
                             // \![execute,resetwindowpos] - reset all windows to initial positions
-                            DispatchQueue.main.async {
-                                // TODO: Implement actual window position reset
-                                for (_, vm) in self.characterViewModels {
-                                    vm.position = nil
-                                    vm.alignment = .free
-                                }
-                            }
+                            executeResetWindowPos()
+                        } else if subcmd == "headline" {
+                            // \![execute,headline,headlineName]
+                            let headlineName = args.count >= 3 ? args[2] : ""
+                            executeHeadline(name: headlineName)
                         }
+                    } else if first == "executesntp" {
+                        // \![executesntp] - execute SNTP time synchronization
+                        executeSNTP()
+                    } else if first == "biff" {
+                        // \![biff] - check for new mail
+                        executeBiff()
+                    } else if first == "updatebymyself" {
+                        // \![updatebymyself] - check for updates to this ghost
+                        executeUpdate(target: "self", options: [])
+                    } else if first == "update" {
+                        // \![update,platform] or \![update,target,options...]
+                        let target = args.count >= 2 ? args[1] : "platform"
+                        let options = Array(args.dropFirst(2))
+                        executeUpdate(target: target, options: options)
+                    } else if first == "updateother" {
+                        // \![updateother] - check for updates to all other ghosts
+                        executeUpdate(target: "other", options: [])
+                    } else if first == "vanishbymyself" {
+                        // \![vanishbymyself] - terminate this ghost
+                        executeVanish()
                     } else if first == "anim", args.count >= 2 {
                         // Handle \![anim,*] commands - animation control
                         let subcmd = args[1].lowercased()
                         switch subcmd {
-                        case "clear", "pause", "resume", "stop":
-                            // TODO: Implement animation control
-                            Log.debug("[GhostManager] Animation command not yet implemented: \(subcmd)")
+                        case "clear":
+                            // \![anim,clear,ID] - clear specific animation/overlay
+                            if args.count >= 3, let overlayID = Int(args[2]) {
+                                animationEngine.clearAnimation(id: overlayID)
+                                clearSpecificOverlay(id: overlayID)
+                            }
+                        case "pause":
+                            // \![anim,pause,ID] - pause animation
+                            if args.count >= 3, let animID = Int(args[2]) {
+                                animationEngine.pauseAnimation(id: animID)
+                            }
+                        case "resume":
+                            // \![anim,resume,ID] - resume animation
+                            if args.count >= 3, let animID = Int(args[2]) {
+                                animationEngine.resumeAnimation(id: animID)
+                            }
+                        case "stop":
+                            // \![anim,stop] - stop all animations and clear all overlays
+                            animationEngine.stopAllAnimations()
+                            clearSurfaceOverlays()
                         case "offset":
-                            // TODO: Implement animation offset
-                            Log.debug("[GhostManager] Animation offset not yet implemented")
+                            // \![anim,offset,ID,x,y] - offset an animation/overlay
+                            if args.count >= 5, let overlayID = Int(args[2]),
+                               let x = Double(args[3]), let y = Double(args[4]) {
+                                animationEngine.offsetAnimation(id: overlayID, x: x, y: y)
+                                offsetOverlay(id: overlayID, x: x, y: y)
+                            }
                         case "add":
-                            // TODO: Implement animation layering
-                            Log.debug("[GhostManager] Animation add not yet implemented")
+                            // \![anim,add,overlay,ID] or \![anim,add,base,ID] or \![anim,add,text,...]
+                            if args.count >= 4 {
+                                let addType = args[2].lowercased()
+                                if addType == "overlay" {
+                                    if let surfaceID = Int(args[3]) {
+                                        handleSurfaceOverlay(surfaceID: surfaceID)
+                                    }
+                                } else if addType == "base" {
+                                    Log.debug("[GhostManager] Animation add base not yet implemented")
+                                } else if addType == "text" {
+                                    // \![anim,add,text,x,y,width,height,text,time,r,g,b,size,font]
+                                    if args.count >= 13 {
+                                        let x = Int(args[3]) ?? 0
+                                        let y = Int(args[4]) ?? 0
+                                        let width = Int(args[5]) ?? 100
+                                        let height = Int(args[6]) ?? 20
+                                        let text = args[7]
+                                        let time = Int(args[8]) ?? 1000
+                                        let r = Int(args[9]) ?? 0
+                                        let g = Int(args[10]) ?? 0
+                                        let b = Int(args[11]) ?? 0
+                                        let size = Int(args[12]) ?? 12
+                                        let font = args.count >= 14 ? args[13] : "sans-serif"
+                                        addTextAnimation(x: x, y: y, width: width, height: height, text: text, 
+                                                       time: time, r: r, g: g, b: b, size: size, font: font)
+                                    }
+                                }
+                            }
                         default:
                             break
                         }
-                    } else if first == "bind", args.count >= 2 {
+                    } else if first == "bind", args.count >= 4 {
                         // Handle \![bind,category,part,value] - dressup control
-                        // TODO: Implement dressup system
-                        Log.debug("[GhostManager] Bind/dressup command not yet implemented")
-                    } else if first == "move" || first == "moveasync" {
-                        // Handle \![move,...] and \![moveasync,...]
-                        // TODO: Implement character movement with parameters
-                        Log.debug("[GhostManager] Move command not yet implemented: \(first)")
+                        let category = args[1]
+                        let part = args[2]
+                        let value = args[3]
+                        handleBindDressup(category: category, part: part, value: value)
+                    } else if first == "effect", args.count >= 2 {
+                        // \![effect,plugin,speed,params] - apply effect plugin
+                        let plugin = args[1]
+                        let speed = args.count >= 3 ? Double(args[2]) ?? 1.0 : 1.0
+                        let params = Array(args.dropFirst(3))
+                        applyEffect(plugin: plugin, speed: speed, params: params, surfaceID: nil)
+                    } else if first == "effect2", args.count >= 3 {
+                        // \![effect2,surfaceID,plugin,speed,params] - apply effect to specific surface
+                        if let surfaceID = Int(args[1]) {
+                            let plugin = args[2]
+                            let speed = args.count >= 4 ? Double(args[3]) ?? 1.0 : 1.0
+                            let params = Array(args.dropFirst(4))
+                            applyEffect(plugin: plugin, speed: speed, params: params, surfaceID: surfaceID)
+                        }
+                    } else if first == "filter" {
+                        if args.count >= 2 {
+                            // \![filter,plugin,time,params] - apply filter plugin
+                            let plugin = args[1]
+                            let time = args.count >= 3 ? Double(args[2]) ?? 0 : 0
+                            let params = Array(args.dropFirst(3))
+                            applyFilter(plugin: plugin, time: time, params: params)
+                        } else {
+                            // \![filter] - clear all filters
+                            clearFilters()
+                        }
+                    } else if first == "move", args.count >= 3 {
+                        // Handle \![move,x,y,time,method,scopeID] - synchronous window move
+                        if let x = Int(args[1]), let y = Int(args[2]) {
+                            let time = args.count >= 4 ? Int(args[3]) ?? 0 : 0
+                            let method = args.count >= 5 ? args[4] : ""
+                            let scopeID = args.count >= 6 ? Int(args[5]) ?? currentScope : currentScope
+                            moveWindow(scope: scopeID, x: x, y: y, time: time, method: method)
+                        }
+                    } else if first == "moveasync", args.count >= 3 {
+                        // Handle \![moveasync,x,y,time,method,scopeID] - asynchronous window move
+                        if let x = Int(args[1]), let y = Int(args[2]) {
+                            let time = args.count >= 4 ? Int(args[3]) ?? 0 : 0
+                            let method = args.count >= 5 ? args[4] : ""
+                            let scopeID = args.count >= 6 ? Int(args[5]) ?? currentScope : currentScope
+                            moveWindowAsync(scope: scopeID, x: x, y: y, time: time, method: method)
+                        }
                     } else if first == "effect" || first == "effect2" || first == "filter" {
                         // Handle \![effect,...], \![effect2,...], \![filter,...]
                         // TODO: Implement visual effects/filters via plugins
                         Log.debug("[GhostManager] Effect/filter command not yet implemented: \(first)")
+                    } else if first == "open", args.count >= 2 {
+                        // Handle \![open,browser,URL] and \![open,mailer,email]
+                        let target = args[1].lowercased()
+                        if target == "browser" && args.count >= 3 {
+                            let url = args[2]
+                            openURL(url)
+                        } else if target == "mailer" && args.count >= 3 {
+                            let email = args[2]
+                            openEmail(email)
+                        }
                     }
                 }
             case "_s":
@@ -694,6 +967,34 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     syncEnabled = true
                     syncScopes = Set(args.compactMap { Int($0) })
                 }
+            
+            case "q":
+                // \q[title,ID] or various choice formats
+                handleChoiceCommand(args: args)
+            
+            case "_a":
+                // \_a[ID] or \_a[OnID,r0,r1,...] - anchor/clickable text
+                if !args.isEmpty {
+                    let eventID = args[0]
+                    let references = Array(args.dropFirst())
+                    Log.debug("[GhostManager] Anchor event: \(eventID) with refs: \(references)")
+                    // TODO: Store anchor for clickable text display
+                }
+            
+            case "_b":
+                // \_b[filepath,...] - balloon image display
+                handleBalloonImage(args: args)
+            
+            case "_v":
+                // \_v[filename] - play voice file
+                if let filename = args.first {
+                    playSound(filename: filename)
+                }
+            
+            case "_V":
+                // \_V - stop voice playback
+                stopAllSounds()
+            
             default:
                 break
             }
@@ -917,6 +1218,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     private func updateSurface(id: Int) {
         let scope = currentScope
+        
+        // Clear overlays when surface changes (per UKADOC spec)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if let vm = self.characterViewModels[scope] {
+                vm.overlays.removeAll()
+                Log.debug("[GhostManager] Cleared overlays for scope \(scope) due to surface change")
+            }
+        }
+        
         DispatchQueue.global(qos: .userInitiated).async {
             let image = self.loadImage(surfaceId: id, scope: scope)
             DispatchQueue.main.async {
@@ -1150,4 +1461,1209 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             }
         }
     }
+    
+    // MARK: - Sound Playback
+    
+    /// Play a sound file from the ghost's sound directory
+    private func playSound(filename: String) {
+        guard !filename.isEmpty else { return }
+        
+        // Resolve sound file path relative to ghost directory
+        let soundPath = ghostURL.appendingPathComponent("sound").appendingPathComponent(filename)
+        
+        // Check if file exists
+        guard FileManager.default.fileExists(atPath: soundPath.path) else {
+            Log.warning("[GhostManager] Sound file not found: \(soundPath.path)")
+            return
+        }
+        
+        // Play sound using NSSound
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let sound = NSSound(contentsOf: soundPath, byReference: false) {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    self.currentSounds.append(sound)
+                    sound.play()
+                    Log.debug("[GhostManager] Playing sound: \(filename)")
+                }
+            } else {
+                Log.warning("[GhostManager] Failed to load sound: \(filename)")
+            }
+        }
+    }
+    
+    /// Stop all currently playing sounds
+    private func stopAllSounds() {
+        for sound in currentSounds {
+            if sound.isPlaying {
+                sound.stop()
+            }
+        }
+        currentSounds.removeAll()
+        Log.debug("[GhostManager] Stopped all sounds")
+    }
+    
+    // MARK: - URL and Email Handling
+    
+    /// Open a URL in the default browser
+    private func openURL(_ urlString: String) {
+        guard !urlString.isEmpty else {
+            Log.warning("[GhostManager] Empty URL string")
+            return
+        }
+        
+        // Ensure URL has a scheme
+        var finalURL = urlString
+        if !urlString.hasPrefix("http://") && !urlString.hasPrefix("https://") {
+            finalURL = "https://" + urlString
+        }
+        
+        guard let url = URL(string: finalURL) else {
+            Log.warning("[GhostManager] Invalid URL: \(urlString)")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            NSWorkspace.shared.open(url)
+            Log.debug("[GhostManager] Opened URL: \(finalURL)")
+        }
+    }
+    
+    /// Open email client with the specified email address
+    private func openEmail(_ emailAddress: String) {
+        guard !emailAddress.isEmpty else {
+            Log.warning("[GhostManager] Empty email address")
+            return
+        }
+        
+        // Create mailto URL
+        let mailtoString = emailAddress.hasPrefix("mailto:") ? emailAddress : "mailto:\(emailAddress)"
+        
+        guard let url = URL(string: mailtoString) else {
+            Log.warning("[GhostManager] Invalid email address: \(emailAddress)")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            NSWorkspace.shared.open(url)
+            Log.debug("[GhostManager] Opened email client for: \(emailAddress)")
+        }
+    }
+    
+    // MARK: - Ghost Booting via SSTP
+    
+    /// Boot another ghost using SSTP NOTIFY command
+    private func bootOtherGhost(name: String? = nil) {
+        // If no name provided, try to boot a random available ghost
+        // In a real implementation, this would query FMO for available ghosts
+        // For now, we'll send a generic SSTP NOTIFY to localhost
+        
+        let ghostName = name ?? "default"
+        Log.debug("[GhostManager] Attempting to boot ghost: \(ghostName)")
+        
+        // Send SSTP NOTIFY to localhost
+        sendSSTPNotify(event: "OnBoot", references: ["Reference0": ghostName])
+    }
+    
+    /// Boot all ghosts by broadcasting SSTP
+    private func bootAllGhosts() {
+        Log.debug("[GhostManager] Broadcasting boot command to all ghosts")
+        
+        // Send broadcast SSTP NOTIFY
+        sendSSTPNotify(event: "OnBootAll", references: [:])
+    }
+    
+    /// Send an SSTP NOTIFY request
+    private func sendSSTPNotify(event: String, references: [String: String]) {
+        DispatchQueue.global(qos: .utility).async {
+            // Construct SSTP NOTIFY request
+            var request = "NOTIFY SSTP/1.1\r\n"
+            request += "Sender: Ourin\r\n"
+            request += "Event: \(event)\r\n"
+            request += "Charset: UTF-8\r\n"
+            
+            // Add references
+            for (key, value) in references.sorted(by: { $0.key < $1.key }) {
+                request += "\(key): \(value)\r\n"
+            }
+            request += "\r\n"
+            
+            // Try to send to localhost:9801 (default SSTP port)
+            self.sendSSTPToLocalhost(request: request)
+        }
+    }
+    
+    /// Send SSTP request to localhost
+    private func sendSSTPToLocalhost(request: String) {
+        let host = "127.0.0.1"
+        let port = 9801
+        
+        var sock: Int32 = -1
+        var hints = addrinfo()
+        var result: UnsafeMutablePointer<addrinfo>?
+        
+        hints.ai_family = AF_INET
+        hints.ai_socktype = SOCK_STREAM
+        
+        let portString = String(port)
+        guard getaddrinfo(host, portString, &hints, &result) == 0 else {
+            Log.warning("[GhostManager] Failed to resolve SSTP host: \(host):\(port)")
+            return
+        }
+        
+        defer {
+            if let result = result {
+                freeaddrinfo(result)
+            }
+            if sock >= 0 {
+                close(sock)
+            }
+        }
+        
+        guard let addr = result else {
+            Log.warning("[GhostManager] No address info for SSTP")
+            return
+        }
+        
+        sock = socket(addr.pointee.ai_family, addr.pointee.ai_socktype, addr.pointee.ai_protocol)
+        guard sock >= 0 else {
+            Log.warning("[GhostManager] Failed to create socket for SSTP")
+            return
+        }
+        
+        // Set timeout
+        var timeout = timeval(tv_sec: 2, tv_usec: 0)
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size))
+        setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size))
+        
+        guard connect(sock, addr.pointee.ai_addr, addr.pointee.ai_addrlen) >= 0 else {
+            Log.debug("[GhostManager] No SSTP server at \(host):\(port) - this is normal if no other ghosts are running")
+            return
+        }
+        
+        // Send request
+        let data = request.data(using: .utf8) ?? Data()
+        let sent = data.withUnsafeBytes { ptr in
+            send(sock, ptr.baseAddress, data.count, 0)
+        }
+        
+        if sent > 0 {
+            Log.debug("[GhostManager] Sent SSTP request to \(host):\(port)")
+        } else {
+            Log.warning("[GhostManager] Failed to send SSTP request")
+        }
+    }
+    
+    // MARK: - Choice Command Support
+    
+    /// Stored choices for dialog display
+    private var pendingChoices: [(title: String, action: ChoiceAction)] = []
+    private var choiceHasCancelOption: Bool = false
+    private var choiceTimeout: TimeInterval? = nil
+    
+    enum ChoiceAction {
+        case event(id: String, references: [String])
+        case script(String)
+    }
+    
+    /// Handle choice command - \q[title,ID] or variants
+    private func handleChoiceCommand(args: [String]) {
+        guard args.count >= 2 else {
+            Log.warning("[GhostManager] Invalid choice command: insufficient arguments")
+            return
+        }
+        
+        let title = args[0]
+        let idOrScript = args[1]
+        
+        // Check if this is a script: format
+        if idOrScript.hasPrefix("script:") {
+            let script = String(idOrScript.dropFirst(7)) // Remove "script:" prefix
+            Log.debug("[GhostManager] Choice '\(title)' will execute script: \(script)")
+            pendingChoices.append((title: title, action: .script(script)))
+        } else {
+            // Event ID format
+            let eventID = idOrScript
+            let references = Array(args.dropFirst(2))
+            Log.debug("[GhostManager] Choice '\(title)' will trigger event: \(eventID) with refs: \(references)")
+            pendingChoices.append((title: title, action: .event(id: eventID, references: references)))
+        }
+    }
+    
+    /// Display choice dialog when choices are ready
+    private func showChoiceDialog() {
+        guard !pendingChoices.isEmpty else { return }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            let alert = NSAlert()
+            alert.messageText = "選択してください" // "Please choose"
+            alert.alertStyle = .informational
+            
+            // Add choice buttons in order
+            for choice in self.pendingChoices {
+                alert.addButton(withTitle: choice.title)
+            }
+            
+            // Add cancel button if \z was present
+            if self.choiceHasCancelOption {
+                alert.addButton(withTitle: "キャンセル") // "Cancel"
+            }
+            
+            // Handle timeout if specified
+            var timeoutTimer: Timer? = nil
+            if let timeout = self.choiceTimeout, timeout > 0 {
+                let startTime = Date()
+                alert.informativeText = String(format: "残り時間: %.0f秒", timeout)
+                
+                timeoutTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in
+                    let elapsed = Date().timeIntervalSince(startTime)
+                    let remaining = max(0, timeout - elapsed)
+                    
+                    if remaining <= 0 {
+                        timer.invalidate()
+                        // Auto-select first choice on timeout
+                        NSApp.abortModal()
+                    } else {
+                        alert.informativeText = String(format: "残り時間: %.0f秒", remaining)
+                    }
+                }
+            }
+            
+            // Show dialog
+            let response = alert.runModal()
+            timeoutTimer?.invalidate()
+            
+            // Process response
+            let buttonIndex = response.rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
+            
+            if buttonIndex >= 0 && buttonIndex < self.pendingChoices.count {
+                // User selected a choice
+                let choice = self.pendingChoices[buttonIndex]
+                
+                switch choice.action {
+                case .event(let id, let references):
+                    // Trigger event
+                    self.raiseEvent(id, withReferences: references)
+                    
+                case .script(let script):
+                    // Execute inline script
+                    self.scriptEngine.parse(script: script)
+                }
+            } else {
+                // Cancel was selected
+                self.raiseEvent("OnChoiceCancel", withReferences: [])
+            }
+            
+            // Clear choice state
+            self.pendingChoices.removeAll()
+            self.choiceHasCancelOption = false
+            self.choiceTimeout = nil
+        }
+    }
+    
+    // MARK: - Balloon Image Display
+    
+    /// Handle balloon image display - \_b[filepath,x,y,...] or \_b[filepath,inline,...]
+    private func handleBalloonImage(args: [String]) {
+        guard !args.isEmpty else {
+            Log.warning("[GhostManager] Invalid balloon image command: no filepath")
+            return
+        }
+        
+        let filepath = args[0]
+        
+        // Check for inline mode
+        if args.count >= 2 && args[1].lowercased() == "inline" {
+            Log.debug("[GhostManager] Balloon inline image: \(filepath)")
+            // TODO: Load and display inline image in balloon
+            // Parse additional options (opaque, --option=value, etc.)
+            let options = Array(args.dropFirst(2))
+            for option in options {
+                if option.lowercased() == "opaque" {
+                    Log.debug("[GhostManager]   - Opaque mode")
+                } else if option.hasPrefix("--") {
+                    Log.debug("[GhostManager]   - Option: \(option)")
+                }
+            }
+        } else if args.count >= 3 {
+            // Positioned mode: filepath,x,y[,options...]
+            if let x = Int(args[1]), let y = Int(args[2]) {
+                Log.debug("[GhostManager] Balloon positioned image: \(filepath) at (\(x), \(y))")
+                // TODO: Load and display image at specified position
+                let options = Array(args.dropFirst(3))
+                for option in options {
+                    if option.lowercased() == "opaque" {
+                        Log.debug("[GhostManager]   - Opaque mode")
+                    } else if option.hasPrefix("--") {
+                        Log.debug("[GhostManager]   - Option: \(option)")
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Surface Compositing
+    
+    /// Handle surface overlay/compositing - \![anim,add,overlay,ID]
+    private func handleSurfaceOverlay(surfaceID: Int) {
+        Log.debug("[GhostManager] Adding surface overlay: \(surfaceID)")
+        
+        // Load the surface image from the shell directory
+        guard let shellPath = loadShellPath() else {
+            Log.warning("[GhostManager] Cannot add overlay - shell path not found")
+            return
+        }
+        
+        // Surface files are named surface<ID>.png
+        let surfaceFileName = "surface\(surfaceID).png"
+        let surfacePath = shellPath.appendingPathComponent(surfaceFileName)
+        
+        guard FileManager.default.fileExists(atPath: surfacePath.path) else {
+            Log.warning("[GhostManager] Surface file not found: \(surfacePath.path)")
+            return
+        }
+        
+        guard let image = NSImage(contentsOf: surfacePath) else {
+            Log.warning("[GhostManager] Failed to load surface image: \(surfaceFileName)")
+            return
+        }
+        
+        // Add overlay to current scope's character view model
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            
+            let overlay = CharacterViewModel.SurfaceOverlay(
+                id: surfaceID,
+                image: image,
+                offset: .zero,
+                alpha: 1.0
+            )
+            
+            vm.overlays.append(overlay)
+            Log.debug("[GhostManager] Added surface overlay \(surfaceID) to scope \(self.currentScope)")
+        }
+    }
+    
+    /// Get the current shell directory path
+    private func loadShellPath() -> URL? {
+        // Try to get shell path from ghost configuration
+        // Default to "master" shell if not specified
+        let shellName = "master" // TODO: Get from ghost config
+        return ghostURL.appendingPathComponent("shell").appendingPathComponent(shellName)
+    }
+    
+    /// Clear all overlays for the current scope
+    private func clearSurfaceOverlays() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            vm.overlays.removeAll()
+            Log.debug("[GhostManager] Cleared all surface overlays for scope \(self.currentScope)")
+        }
+    }
+    
+    /// Clear a specific overlay by ID
+    private func clearSpecificOverlay(id: Int) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            vm.overlays.removeAll { $0.id == id }
+            Log.debug("[GhostManager] Cleared overlay \(id) for scope \(self.currentScope)")
+        }
+    }
+    
+    /// Offset a specific overlay
+    private func offsetOverlay(id: Int, x: Double, y: Double) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            if let index = vm.overlays.firstIndex(where: { $0.id == id }) {
+                vm.overlays[index].offset = CGPoint(x: x, y: y)
+                Log.debug("[GhostManager] Offset overlay \(id) by (\(x), \(y))")
+            }
+        }
+    }
+    
+    // MARK: - Animation Engine Integration
+    
+    /// Setup animation engine callbacks
+    private func setupAnimationCallbacks() {
+        animationEngine.onAnimationUpdate = { [weak self] animID, pattern in
+            guard let self = self, let pattern = pattern else { return }
+            
+            // Update surface overlay based on animation pattern
+            if pattern.surfaceID >= 0 {
+                self.handleSurfaceOverlay(surfaceID: pattern.surfaceID)
+                
+                // Apply offset if specified
+                if pattern.x != 0 || pattern.y != 0 {
+                    self.offsetOverlay(id: pattern.surfaceID, x: Double(pattern.x), y: Double(pattern.y))
+                }
+            }
+        }
+        
+        animationEngine.onAnimationComplete = { [weak self] animID in
+            guard let self = self else { return }
+            
+            // If we were waiting for this animation, resume playback
+            if self.waitingForAnimation == animID {
+                self.waitingForAnimation = nil
+                if self.isPlaying {
+                    self.processNextUnit()
+                }
+            }
+        }
+    }
+    
+    /// Play an animation
+    private func playAnimation(id: Int, wait: Bool) {
+        // Load animations from surfaces.txt if not already loaded
+        loadAnimationsForCurrentSurface()
+        
+        animationEngine.playAnimation(id: id, wait: wait)
+    }
+    
+    /// Play an animation and wait for completion
+    private func playAnimationAndWait(id: Int) {
+        waitingForAnimation = id
+        playAnimation(id: id, wait: true)
+        // Playback will resume when animation completes via callback
+    }
+    
+    /// Load animations from surfaces.txt for the current surface
+    private func loadAnimationsForCurrentSurface() {
+        guard let shellPath = loadShellPath() else { return }
+        
+        let surfacesPath = shellPath.appendingPathComponent("surfaces.txt")
+        guard FileManager.default.fileExists(atPath: surfacesPath.path) else {
+            Log.warning("[GhostManager] surfaces.txt not found at: \(surfacesPath.path)")
+            return
+        }
+        
+        // Try to load with different encodings
+        var content: String?
+        if let utf8Content = try? String(contentsOf: surfacesPath, encoding: .utf8) {
+            content = utf8Content
+        } else if let shiftJISContent = try? String(contentsOf: surfacesPath, encoding: .shiftJIS) {
+            content = shiftJISContent
+        }
+        
+        guard let surfacesContent = content else {
+            Log.warning("[GhostManager] Failed to read surfaces.txt")
+            return
+        }
+        
+        // Get current surface ID from character view model
+        guard let vm = characterViewModels[currentScope] else { return }
+        
+        // Parse surface ID from image if available
+        // For now, assume surface 0 - in production, track current surface ID
+        let surfaceID = 0 // TODO: Track actual current surface ID
+        
+        animationEngine.loadAnimations(surfaceID: surfaceID, content: surfacesContent)
+        Log.debug("[GhostManager] Loaded animations for surface \(surfaceID)")
+    }
+    
+    // MARK: - System Commands Implementation
+    
+    /// Set desktop wallpaper
+    private func setWallpaper(filename: String, options: String) {
+        let wallpaperURL = ghostURL.appendingPathComponent(filename)
+        
+        guard FileManager.default.fileExists(atPath: wallpaperURL.path) else {
+            Log.warning("[GhostManager] Wallpaper file not found: \(filename)")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            do {
+                let workspace = NSWorkspace.shared
+                if let screen = NSScreen.main {
+                    try workspace.setDesktopImageURL(wallpaperURL, for: screen, options: [:])
+                    Log.debug("[GhostManager] Set wallpaper: \(filename)")
+                }
+            } catch {
+                Log.error("[GhostManager] Failed to set wallpaper: \(error)")
+            }
+        }
+    }
+    
+    /// Set task tray (dock) icon
+    private func setTaskTrayIcon(filename: String, text: String) {
+        let iconURL = ghostURL.appendingPathComponent(filename)
+        
+        DispatchQueue.main.async {
+            if let image = NSImage(contentsOf: iconURL) {
+                NSApp.applicationIconImage = image
+                Log.debug("[GhostManager] Set dock icon: \(filename)")
+            } else {
+                Log.warning("[GhostManager] Failed to load icon: \(filename)")
+            }
+        }
+    }
+    
+    /// Set tray balloon (notification)
+    private func setTrayBalloon(options: [String]) {
+        // Parse options like title=..., message=..., icon=...
+        var title = "Ourin"
+        var message = ""
+        var sound = true
+        
+        for option in options {
+            let parts = option.split(separator: "=", maxSplits: 1)
+            if parts.count == 2 {
+                let key = parts[0].lowercased()
+                let value = String(parts[1])
+                switch key {
+                case "title": title = value
+                case "message", "text": message = value
+                case "sound": sound = value.lowercased() != "false"
+                default: break
+                }
+            } else {
+                // If no key, assume it's the message
+                if message.isEmpty {
+                    message = option
+                }
+            }
+        }
+        
+        DispatchQueue.main.async {
+            let notification = NSUserNotification()
+            notification.title = title
+            notification.informativeText = message
+            if sound {
+                notification.soundName = NSUserNotificationDefaultSoundName
+            }
+            NSUserNotificationCenter.default.deliver(notification)
+            Log.debug("[GhostManager] Delivered notification: \(title) - \(message)")
+        }
+    }
+    
+    /// Set other ghost talk mode
+    private func setOtherGhostTalk(mode: String) {
+        // Store setting for whether to show other ghosts' conversations
+        // Options: true, false, before, after
+        Log.debug("[GhostManager] Set other ghost talk mode: \(mode)")
+        // TODO: Store in user preferences and implement filtering
+    }
+    
+    /// Set whether to observe other ghosts' surface changes
+    private func setOtherSurfaceChange(enabled: Bool) {
+        Log.debug("[GhostManager] Set other surface change observation: \(enabled)")
+        // TODO: Subscribe/unsubscribe from SSTP surface change notifications
+    }
+    
+    /// Execute SNTP time synchronization
+    private func executeSNTP() {
+        Log.debug("[GhostManager] Executing SNTP time synchronization")
+        // TODO: Implement SNTP client to sync system time
+        DispatchQueue.global(qos: .utility).async {
+            // Would connect to NTP server and sync time
+            // For now, just log the request
+            Log.info("[GhostManager] SNTP sync requested (not yet implemented)")
+        }
+    }
+    
+    /// Execute headline (RSS feed check)
+    private func executeHeadline(name: String) {
+        Log.debug("[GhostManager] Executing headline check: \(name)")
+        // TODO: Fetch RSS feed specified in headline configuration
+        DispatchQueue.global(qos: .utility).async {
+            // Would fetch RSS/Atom feed and trigger OnHeadline event
+            Log.info("[GhostManager] Headline check for '\(name)' (not yet implemented)")
+        }
+    }
+    
+    /// Execute mail check (biff)
+    private func executeBiff() {
+        Log.debug("[GhostManager] Executing mail check (biff)")
+        // TODO: Check configured mail accounts for new messages
+        DispatchQueue.global(qos: .utility).async {
+            // Would check POP3/IMAP servers and trigger OnBIFF event
+            Log.info("[GhostManager] Mail check requested (not yet implemented)")
+        }
+    }
+    
+    /// Execute update check
+    private func executeUpdate(target: String, options: [String]) {
+        Log.debug("[GhostManager] Executing update check for: \(target)")
+        
+        DispatchQueue.global(qos: .utility).async {
+            // Determine what to update
+            switch target.lowercased() {
+            case "self", "ghost":
+                // Check for updates to this ghost
+                self.checkGhostUpdate(options: options)
+            case "platform", "baseware":
+                // Check for updates to Ourin itself
+                self.checkPlatformUpdate(options: options)
+            case "other", "all":
+                // Check for updates to all installed ghosts
+                self.checkAllGhostsUpdate(options: options)
+            default:
+                Log.warning("[GhostManager] Unknown update target: \(target)")
+            }
+        }
+    }
+    
+    /// Check for ghost updates
+    private func checkGhostUpdate(options: [String]) {
+        guard let updateURL = ghostConfig?.homeurl else {
+            Log.info("[GhostManager] No update URL configured for ghost")
+            return
+        }
+        
+        Log.info("[GhostManager] Checking for ghost updates at: \(updateURL)")
+        // TODO: Fetch update.txt/updates2.dau, compare versions, download if needed
+        // Trigger OnUpdateReady or OnUpdateComplete events
+    }
+    
+    /// Check for platform (Ourin) updates
+    private func checkPlatformUpdate(options: [String]) {
+        Log.info("[GhostManager] Checking for Ourin platform updates")
+        // TODO: Check GitHub releases or update server for new Ourin versions
+    }
+    
+    /// Check for updates to all ghosts
+    private func checkAllGhostsUpdate(options: [String]) {
+        Log.info("[GhostManager] Checking for updates to all installed ghosts")
+        // TODO: Enumerate all ghosts and check their update URLs
+    }
+    
+    /// Terminate this ghost (vanish)
+    private func executeVanish() {
+        Log.info("[GhostManager] Ghost terminating (vanish)")
+        
+        DispatchQueue.main.async {
+            // Trigger OnVanished event first
+            if let yaya = self.yayaAdapter {
+                _ = yaya.request(id: "OnVanished", references: [:])
+            }
+            
+            // Close all windows
+            for window in self.characterWindows.values {
+                window.close()
+            }
+            for window in self.balloonWindows.values {
+                window.close()
+            }
+            
+            // Clean up resources
+            self.characterWindows.removeAll()
+            self.balloonWindows.removeAll()
+            self.stopPlayback()
+            
+            Log.debug("[GhostManager] Ghost vanished successfully")
+        }
+    }
+    
+    // MARK: - Window Position and Display Control
+    
+    /// Move window to back (behind other windows)
+    private func moveWindowToBack(scope: Int) {
+        Log.debug("[GhostManager] Moving scope \(scope) window to back")
+        DispatchQueue.main.async {
+            if let window = self.characterWindows[scope] {
+                window.orderBack(nil)
+                window.level = .normal
+                Log.info("[GhostManager] Moved scope \(scope) to background")
+            }
+        }
+    }
+    
+    /// Move window to front (above other windows)
+    private func moveWindowToFront(scope: Int) {
+        Log.debug("[GhostManager] Moving scope \(scope) window to front")
+        DispatchQueue.main.async {
+            if let window = self.characterWindows[scope] {
+                window.orderFront(nil)
+                window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
+                Log.info("[GhostManager] Moved scope \(scope) to foreground")
+            }
+        }
+    }
+    
+    /// Synchronous window move
+    private func moveWindow(scope: Int, x: Int, y: Int, time: Int, method: String) {
+        Log.debug("[GhostManager] Moving scope \(scope) to (\(x), \(y)) over \(time)ms with method '\(method)'")
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[scope] else {
+                Log.warning("[GhostManager] No window found for scope \(scope)")
+                return
+            }
+            
+            let targetFrame = NSRect(x: CGFloat(x), y: CGFloat(y), width: window.frame.width, height: window.frame.height)
+            
+            if time > 0 {
+                // Animated move
+                NSAnimationContext.runAnimationGroup({ context in
+                    context.duration = TimeInterval(time) / 1000.0
+                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    window.animator().setFrame(targetFrame, display: true)
+                }, completionHandler: {
+                    Log.debug("[GhostManager] Window move animation completed for scope \(scope)")
+                })
+            } else {
+                // Instant move
+                window.setFrame(targetFrame, display: true)
+            }
+            
+            // Save new position
+            self.resourceManager.setCharDefaultLeft(scope: scope, value: x)
+            self.resourceManager.setCharDefaultTop(scope: scope, value: y)
+        }
+    }
+    
+    /// Asynchronous window move (non-blocking)
+    private func moveWindowAsync(scope: Int, x: Int, y: Int, time: Int, method: String) {
+        Log.debug("[GhostManager] Moving scope \(scope) asynchronously to (\(x), \(y))")
+        // Move asynchronously without blocking script execution
+        DispatchQueue.main.async {
+            self.moveWindow(scope: scope, x: x, y: y, time: time, method: method)
+        }
+        // Don't wait for completion - script continues immediately
+    }
+    
+    /// Set window position for specific scope
+    private func setWindowPosition(x: Int, y: Int, scopeID: Int) {
+        Log.debug("[GhostManager] Setting window position for scope \(scopeID) to (\(x), \(y))")
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[scopeID] else {
+                Log.warning("[GhostManager] No window found for scope \(scopeID)")
+                return
+            }
+            
+            let newFrame = NSRect(x: CGFloat(x), y: CGFloat(y), width: window.frame.width, height: window.frame.height)
+            window.setFrame(newFrame, display: true)
+            
+            // Lock window position (prevent user dragging)
+            window.isMovable = false
+            
+            // Save position
+            self.resourceManager.setCharDefaultLeft(scope: scopeID, value: x)
+            self.resourceManager.setCharDefaultTop(scope: scopeID, value: y)
+            
+            Log.info("[GhostManager] Scope \(scopeID) position locked to (\(x), \(y))")
+        }
+    }
+    
+    /// Reset window position to default (allow user movement)
+    private func resetWindowPosition() {
+        Log.debug("[GhostManager] Resetting window positions")
+        DispatchQueue.main.async {
+            for (scope, window) in self.characterWindows {
+                // Unlock window movement
+                window.isMovable = true
+                
+                // Restore default position if available
+                let savedX = self.resourceManager.getCharDefaultLeft(scope: scope)
+                let savedY = self.resourceManager.getCharDefaultTop(scope: scope)
+                
+                if savedX != 0 || savedY != 0 {
+                    let newFrame = NSRect(x: CGFloat(savedX), y: CGFloat(savedY), 
+                                        width: window.frame.width, height: window.frame.height)
+                    window.setFrame(newFrame, display: true)
+                }
+                
+                Log.info("[GhostManager] Scope \(scope) position unlocked")
+            }
+        }
+    }
+    
+    /// Set Z-order (window layering)
+    private func setWindowZOrder(scopes: [Int]) {
+        Log.debug("[GhostManager] Setting Z-order: \(scopes)")
+        DispatchQueue.main.async {
+            // Order windows from back to front based on scopes array
+            for (index, scope) in scopes.enumerated() {
+                if let window = self.characterWindows[scope] {
+                    if index == scopes.count - 1 {
+                        // Last window (topmost)
+                        window.orderFront(nil)
+                    } else {
+                        // Order behind the next window
+                        if let nextWindow = self.characterWindows[scopes[index + 1]] {
+                            window.order(.below, relativeTo: nextWindow.windowNumber)
+                        }
+                    }
+                }
+            }
+            Log.info("[GhostManager] Z-order set successfully")
+        }
+    }
+    
+    /// Reset Z-order to default
+    private func resetWindowZOrder() {
+        Log.debug("[GhostManager] Resetting Z-order to default")
+        DispatchQueue.main.async {
+            // Restore default floating window level for all
+            for (scope, window) in self.characterWindows {
+                window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
+                window.orderFront(nil)
+                Log.info("[GhostManager] Scope \(scope) Z-order reset")
+            }
+        }
+    }
+    
+    /// Set sticky window (window follows another window)
+    private var stickyWindowRelationships: [Int: Set<Int>] = [:] // Master scope -> follower scopes
+    
+    private func setStickyWindow(masterScope: Int, followerScopes: [Int]) {
+        Log.debug("[GhostManager] Setting sticky windows: \(followerScopes) follow scope \(masterScope)")
+        DispatchQueue.main.async {
+            // Store relationships
+            self.stickyWindowRelationships[masterScope] = Set(followerScopes)
+            
+            // Add observer for master window movement
+            if let masterWindow = self.characterWindows[masterScope] {
+                NotificationCenter.default.addObserver(
+                    self,
+                    selector: #selector(self.stickyMasterWindowMoved(_:)),
+                    name: NSWindow.didMoveNotification,
+                    object: masterWindow
+                )
+                Log.info("[GhostManager] Sticky window relationships established")
+            }
+        }
+    }
+    
+    @objc private func stickyMasterWindowMoved(_ notification: Notification) {
+        guard let masterWindow = notification.object as? NSWindow,
+              let masterScope = characterWindows.first(where: { $0.value == masterWindow })?.key,
+              let followers = stickyWindowRelationships[masterScope] else {
+            return
+        }
+        
+        let masterFrame = masterWindow.frame
+        
+        // Move all follower windows relative to master
+        for followerScope in followers {
+            if let followerWindow = characterWindows[followerScope] {
+                let offset: CGFloat = CGFloat((followerScope - masterScope) * 100) // Simple offset logic
+                let newFrame = NSRect(
+                    x: masterFrame.origin.x + offset,
+                    y: masterFrame.origin.y,
+                    width: followerWindow.frame.width,
+                    height: followerWindow.frame.height
+                )
+                followerWindow.setFrame(newFrame, display: true)
+            }
+        }
+    }
+    
+    /// Reset sticky window relationships
+    private func resetStickyWindow() {
+        Log.debug("[GhostManager] Resetting sticky window relationships")
+        DispatchQueue.main.async {
+            // Remove all observers
+            for window in self.characterWindows.values {
+                NotificationCenter.default.removeObserver(
+                    self,
+                    name: NSWindow.didMoveNotification,
+                    object: window
+                )
+            }
+            
+            // Clear relationships
+            self.stickyWindowRelationships.removeAll()
+            
+            Log.info("[GhostManager] All sticky window relationships removed")
+        }
+    }
+    
+    /// Reset all window positions to default
+    private func executeResetWindowPos() {
+        Log.debug("[GhostManager] Executing window position reset")
+        DispatchQueue.main.async {
+            // Reset each window to its default/saved position
+            for (scope, window) in self.characterWindows {
+                // Get saved position or use default
+                let savedX = self.resourceManager.getCharDefaultLeft(scope: scope)
+                let savedY = self.resourceManager.getCharDefaultTop(scope: scope)
+                
+                if savedX != 0 || savedY != 0 {
+                    let newFrame = NSRect(
+                        x: CGFloat(savedX),
+                        y: CGFloat(savedY),
+                        width: window.frame.width,
+                        height: window.frame.height
+                    )
+                    window.setFrame(newFrame, display: true)
+                } else {
+                    // Use default positions (scope-based)
+                    self.positionWindowAtDefault(scope: scope, window: window)
+                }
+                
+                // Unlock window
+                window.isMovable = true
+            }
+            
+            Log.info("[GhostManager] All window positions reset")
+        }
+    }
+    
+    /// Position window at default location based on scope
+    private func positionWindowAtDefault(scope: Int, window: NSWindow) {
+        guard let screen = NSScreen.main else { return }
+        
+        let screenFrame = screen.visibleFrame
+        let windowWidth = window.frame.width
+        let windowHeight = window.frame.height
+        
+        // Default positions based on scope
+        let x: CGFloat
+        let y: CGFloat
+        
+        switch scope {
+        case 0: // Master at right-center
+            x = screenFrame.maxX - windowWidth - 100
+            y = screenFrame.midY - windowHeight / 2
+        case 1: // Partner at left-center
+            x = screenFrame.minX + 100
+            y = screenFrame.midY - windowHeight / 2
+        default: // Others spaced out
+            x = screenFrame.midX - windowWidth / 2 + CGFloat(scope * 50)
+            y = screenFrame.midY - windowHeight / 2
+        }
+        
+        let newFrame = NSRect(x: x, y: y, width: windowWidth, height: windowHeight)
+        window.setFrame(newFrame, display: true)
+    }
+    
+    // MARK: - Display Settings Commands
+    
+    /// Set window state (stayontop, minimize, etc.)
+    private func setWindowState(state: String) {
+        Log.debug("[GhostManager] Setting window state: \(state)")
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[self.currentScope] else { return }
+            
+            let stateLC = state.lowercased()
+            if stateLC == "stayontop" {
+                window.level = .floating
+                Log.info("[GhostManager] Window set to stay on top")
+            } else if stateLC == "!stayontop" {
+                window.level = .normal
+                Log.info("[GhostManager] Window stay on top disabled")
+            } else if stateLC == "minimize" {
+                window.miniaturize(nil)
+                Log.info("[GhostManager] Window minimized")
+            }
+        }
+    }
+    
+    // MARK: - Effect and Filter Commands
+    
+    /// Apply effect plugin
+    private func applyEffect(plugin: String, speed: Double, params: [String], surfaceID: Int?) {
+        Log.debug("[GhostManager] Applying effect: \(plugin), speed: \(speed), surface: \(surfaceID?.description ?? "current")")
+        
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            
+            // Store effect parameters
+            let effect = EffectConfig(plugin: plugin, speed: speed, params: params, surfaceID: surfaceID)
+            vm.activeEffects.append(effect)
+            
+            // TODO: Implement actual effect rendering through plugin system
+            Log.info("[GhostManager] Effect '\(plugin)' applied (rendering not yet implemented)")
+        }
+    }
+    
+    /// Apply filter plugin
+    private func applyFilter(plugin: String, time: Double, params: [String]) {
+        Log.debug("[GhostManager] Applying filter: \(plugin), time: \(time)")
+        
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            
+            // Store filter parameters
+            let filter = FilterConfig(plugin: plugin, time: time, params: params)
+            vm.activeFilters.append(filter)
+            
+            // Schedule filter removal if time specified
+            if time > 0 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + time / 1000.0) {
+                    vm.activeFilters.removeAll { $0.plugin == plugin }
+                }
+            }
+            
+            // TODO: Implement actual filter rendering through plugin system
+            Log.info("[GhostManager] Filter '\(plugin)' applied (rendering not yet implemented)")
+        }
+    }
+    
+    /// Clear all filters
+    private func clearFilters() {
+        Log.debug("[GhostManager] Clearing all filters")
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            vm.activeFilters.removeAll()
+            Log.info("[GhostManager] All filters cleared")
+        }
+    }
+    
+    // MARK: - Dressup Command
+    
+    /// Handle bind/dressup command
+    private func handleBindDressup(category: String, part: String, value: String) {
+        Log.debug("[GhostManager] Bind dressup: category=\(category), part=\(part), value=\(value)")
+        
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            
+            // Store dressup binding
+            if vm.dressupBindings[category] == nil {
+                vm.dressupBindings[category] = [:]
+            }
+            vm.dressupBindings[category]?[part] = value
+            
+            // TODO: Implement actual dressup rendering
+            // This would load additional surface layers based on bindings
+            Log.info("[GhostManager] Dressup binding set (rendering not yet implemented)")
+        }
+    }
+    
+    // MARK: - Text Animation Command
+    
+    /// Add text animation overlay
+    private func addTextAnimation(x: Int, y: Int, width: Int, height: Int, text: String, 
+                                 time: Int, r: Int, g: Int, b: Int, size: Int, font: String) {
+        Log.debug("[GhostManager] Adding text animation: '\(text)' at (\(x),\(y))")
+        
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            
+            let textAnim = TextAnimationConfig(
+                x: x, y: y, width: width, height: height,
+                text: text, duration: time,
+                r: r, g: g, b: b,
+                fontSize: size, fontName: font
+            )
+            
+            vm.textAnimations.append(textAnim)
+            
+            // Schedule removal after duration
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(time) / 1000.0) {
+                vm.textAnimations.removeAll { $0.text == text && $0.x == x && $0.y == y }
+            }
+            
+            // TODO: Implement actual text rendering overlay
+            Log.info("[GhostManager] Text animation added (rendering not yet implemented)")
+        }
+    }
+    
+    // MARK: - Balloon Switching
+    
+    /// Switch to a different balloon style
+    private func switchBalloon(to balloonID: Int, scope: Int) {
+        guard let vm = characterViewModels[scope] else {
+            Log.warning("[GhostManager] Cannot switch balloon: no viewmodel for scope \(scope)")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            vm.currentBalloonID = balloonID
+            Log.info("[GhostManager] Switched to balloon ID \(balloonID) for scope \(scope)")
+            
+            // TODO: Load balloon configuration from ghost/balloon directory
+            // Balloon descript.txt should be loaded and applied
+            // For now, just update the ID and let the UI handle the style change
+        }
+    }
+    
+    // MARK: - Desktop Alignment
+    
+    /// Enforce desktop alignment constraints
+    private func enforceDesktopAlignment(for scope: Int) {
+        guard let vm = characterViewModels[scope],
+              let window = characterWindows[scope] else {
+            return
+        }
+        
+        guard vm.alignment != .free else {
+            // No constraint, allow free positioning
+            return
+        }
+        
+        DispatchQueue.main.async {
+            guard let screen = window.screen ?? NSScreen.main else { return }
+            
+            let visibleFrame = screen.visibleFrame // Excludes menu bar and dock
+            var newOrigin = window.frame.origin
+            
+            switch vm.alignment {
+            case .top:
+                newOrigin.y = visibleFrame.maxY - window.frame.height - 20 // 20pt offset from top
+                
+            case .bottom:
+                newOrigin.y = visibleFrame.minY + 20 // 20pt offset from bottom
+                
+            case .left:
+                newOrigin.x = visibleFrame.minX + 20 // 20pt offset from left
+                
+            case .right:
+                newOrigin.x = visibleFrame.maxX - window.frame.width - 20 // 20pt offset from right
+                
+            case .free:
+                break // Already handled above
+            }
+            
+            window.setFrameOrigin(newOrigin)
+            Log.debug("[GhostManager] Applied \(vm.alignment) alignment to scope \(scope)")
+        }
+    }
+    
+    /// Setup screen change observation for alignment enforcement
+    private func setupScreenChangeObserver() {
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            
+            // Re-apply alignment constraints when screen configuration changes
+            for scope in self.characterViewModels.keys {
+                self.enforceDesktopAlignment(for: scope)
+            }
+        }
+    }
 }
+
+// MARK: - Supporting Structures
+
+/// Effect configuration
+struct EffectConfig {
+    let plugin: String
+    let speed: Double
+    let params: [String]
+    let surfaceID: Int?
+}
+
+/// Filter configuration
+struct FilterConfig {
+    let plugin: String
+    let time: Double
+    let params: [String]
+}
+
+/// Text animation configuration
+struct TextAnimationConfig {
+    let x: Int
+    let y: Int
+    let width: Int
+    let height: Int
+    let text: String
+    let duration: Int // milliseconds
+    let r: Int
+    let g: Int
+    let b: Int
+    let fontSize: Int
+    let fontName: String
+}
+
