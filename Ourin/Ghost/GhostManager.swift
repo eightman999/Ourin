@@ -21,10 +21,21 @@ class CharacterViewModel: ObservableObject {
     // Rendering control
     @Published var repaintLocked: Bool = false
     @Published var manualRepaintLock: Bool = false
+    
+    // Surface compositing - overlay surfaces
+    @Published var overlays: [SurfaceOverlay] = []
 
     // Window stacking
     var zOrderGroup: [Int]? = nil  // nil = default, or array of scope IDs in front-to-back order
     var stickyGroup: [Int]? = nil  // nil = independent, or array of scope IDs that move together
+    
+    /// Surface overlay data
+    struct SurfaceOverlay: Identifiable {
+        let id: Int
+        let image: NSImage
+        var offset: CGPoint = .zero
+        var alpha: Double = 1.0
+    }
 
     /// Desktop alignment options
     enum DesktopAlignment {
@@ -66,6 +77,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     private var currentScope: Int = 0
     private var balloonTextCancellables: [Int: AnyCancellable] = [:]
+    
+    // Context tracking for URL/email commands
+    private var pendingURL: String?
+    private var pendingEmail: String?
 
     // Typing playback state
     private enum PlaybackUnit {
@@ -449,16 +464,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             playbackQueue.append(.newline)
         
         case .bootGhost:
-            // \+ - Boot/call other ghost
-            Log.debug("[GhostManager] Boot ghost command")
-            // TODO: Implement ghost booting via FMO/SSTP
-            break
+            // \+ - Boot/call other ghost via SSTP
+            // The ghost name should be specified in a following command or in context
+            Log.debug("[GhostManager] Boot ghost command - attempting to boot ghost via SSTP")
+            bootOtherGhost()
         
         case .bootAllGhosts:
-            // \_+ - Boot all ghosts
+            // \_+ - Boot all ghosts via SSTP broadcast
             Log.debug("[GhostManager] Boot all ghosts command")
-            // TODO: Implement system-wide ghost booting
-            break
+            bootAllGhosts()
         
         case .openPreferences:
             // \v - Open preferences dialog
@@ -467,16 +481,22 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             }
         
         case .openURL:
-            // \6 - Open URL (URL should be in preceding text or next command)
-            Log.debug("[GhostManager] Open URL command")
-            // TODO: Extract URL from context and open in browser
-            break
+            // \6 - Open URL in browser
+            if let url = pendingURL {
+                openURL(url)
+                pendingURL = nil
+            } else {
+                Log.warning("[GhostManager] Open URL command but no URL in context")
+            }
         
         case .openEmail:
             // \7 - Open email client
-            Log.debug("[GhostManager] Open email command")
-            // TODO: Extract email address from context and open mail client
-            break
+            if let email = pendingEmail {
+                openEmail(email)
+                pendingEmail = nil
+            } else {
+                Log.warning("[GhostManager] Open email command but no email in context")
+            }
         
         case .playSound(let filename):
             // \8[filename] - Play sound file
@@ -727,12 +747,23 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // Handle \![anim,*] commands - animation control
                         let subcmd = args[1].lowercased()
                         switch subcmd {
-                        case "clear", "pause", "resume", "stop":
-                            // TODO: Implement animation control
-                            Log.debug("[GhostManager] Animation command not yet implemented: \(subcmd)")
+                        case "clear":
+                            // \![anim,clear,ID] - clear specific animation/overlay
+                            if args.count >= 3, let overlayID = Int(args[2]) {
+                                clearSpecificOverlay(id: overlayID)
+                            }
+                        case "stop":
+                            // \![anim,stop] - stop all animations and clear all overlays
+                            clearSurfaceOverlays()
+                        case "pause", "resume":
+                            // Animation pause/resume - not yet implemented for overlays
+                            Log.debug("[GhostManager] Animation \(subcmd) not yet implemented")
                         case "offset":
-                            // TODO: Implement animation offset
-                            Log.debug("[GhostManager] Animation offset not yet implemented")
+                            // \![anim,offset,ID,x,y] - offset an overlay
+                            if args.count >= 5, let overlayID = Int(args[2]),
+                               let x = Double(args[3]), let y = Double(args[4]) {
+                                offsetOverlay(id: overlayID, x: x, y: y)
+                            }
                         case "add":
                             // \![anim,add,overlay,ID] or \![anim,add,base,ID] or \![anim,add,text,...]
                             if args.count >= 4 {
@@ -763,6 +794,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // Handle \![effect,...], \![effect2,...], \![filter,...]
                         // TODO: Implement visual effects/filters via plugins
                         Log.debug("[GhostManager] Effect/filter command not yet implemented: \(first)")
+                    } else if first == "open", args.count >= 2 {
+                        // Handle \![open,browser,URL] and \![open,mailer,email]
+                        let target = args[1].lowercased()
+                        if target == "browser" && args.count >= 3 {
+                            let url = args[2]
+                            openURL(url)
+                        } else if target == "mailer" && args.count >= 3 {
+                            let email = args[2]
+                            openEmail(email)
+                        }
                     }
                 }
             case "_s":
@@ -1025,6 +1066,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     private func updateSurface(id: Int) {
         let scope = currentScope
+        
+        // Clear overlays when surface changes (per UKADOC spec)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if let vm = self.characterViewModels[scope] {
+                vm.overlays.removeAll()
+                Log.debug("[GhostManager] Cleared overlays for scope \(scope) due to surface change")
+            }
+        }
+        
         DispatchQueue.global(qos: .userInitiated).async {
             let image = self.loadImage(surfaceId: id, scope: scope)
             DispatchQueue.main.async {
@@ -1300,6 +1351,157 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         Log.debug("[GhostManager] Stopped all sounds")
     }
     
+    // MARK: - URL and Email Handling
+    
+    /// Open a URL in the default browser
+    private func openURL(_ urlString: String) {
+        guard !urlString.isEmpty else {
+            Log.warning("[GhostManager] Empty URL string")
+            return
+        }
+        
+        // Ensure URL has a scheme
+        var finalURL = urlString
+        if !urlString.hasPrefix("http://") && !urlString.hasPrefix("https://") {
+            finalURL = "https://" + urlString
+        }
+        
+        guard let url = URL(string: finalURL) else {
+            Log.warning("[GhostManager] Invalid URL: \(urlString)")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            NSWorkspace.shared.open(url)
+            Log.debug("[GhostManager] Opened URL: \(finalURL)")
+        }
+    }
+    
+    /// Open email client with the specified email address
+    private func openEmail(_ emailAddress: String) {
+        guard !emailAddress.isEmpty else {
+            Log.warning("[GhostManager] Empty email address")
+            return
+        }
+        
+        // Create mailto URL
+        let mailtoString = emailAddress.hasPrefix("mailto:") ? emailAddress : "mailto:\(emailAddress)"
+        
+        guard let url = URL(string: mailtoString) else {
+            Log.warning("[GhostManager] Invalid email address: \(emailAddress)")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            NSWorkspace.shared.open(url)
+            Log.debug("[GhostManager] Opened email client for: \(emailAddress)")
+        }
+    }
+    
+    // MARK: - Ghost Booting via SSTP
+    
+    /// Boot another ghost using SSTP NOTIFY command
+    private func bootOtherGhost(name: String? = nil) {
+        // If no name provided, try to boot a random available ghost
+        // In a real implementation, this would query FMO for available ghosts
+        // For now, we'll send a generic SSTP NOTIFY to localhost
+        
+        let ghostName = name ?? "default"
+        Log.debug("[GhostManager] Attempting to boot ghost: \(ghostName)")
+        
+        // Send SSTP NOTIFY to localhost
+        sendSSTPNotify(event: "OnBoot", references: ["Reference0": ghostName])
+    }
+    
+    /// Boot all ghosts by broadcasting SSTP
+    private func bootAllGhosts() {
+        Log.debug("[GhostManager] Broadcasting boot command to all ghosts")
+        
+        // Send broadcast SSTP NOTIFY
+        sendSSTPNotify(event: "OnBootAll", references: [:])
+    }
+    
+    /// Send an SSTP NOTIFY request
+    private func sendSSTPNotify(event: String, references: [String: String]) {
+        DispatchQueue.global(qos: .utility).async {
+            // Construct SSTP NOTIFY request
+            var request = "NOTIFY SSTP/1.1\r\n"
+            request += "Sender: Ourin\r\n"
+            request += "Event: \(event)\r\n"
+            request += "Charset: UTF-8\r\n"
+            
+            // Add references
+            for (key, value) in references.sorted(by: { $0.key < $1.key }) {
+                request += "\(key): \(value)\r\n"
+            }
+            request += "\r\n"
+            
+            // Try to send to localhost:9801 (default SSTP port)
+            self.sendSSTPToLocalhost(request: request)
+        }
+    }
+    
+    /// Send SSTP request to localhost
+    private func sendSSTPToLocalhost(request: String) {
+        let host = "127.0.0.1"
+        let port = 9801
+        
+        var sock: Int32 = -1
+        var hints = addrinfo()
+        var result: UnsafeMutablePointer<addrinfo>?
+        
+        hints.ai_family = AF_INET
+        hints.ai_socktype = SOCK_STREAM
+        
+        let portString = String(port)
+        guard getaddrinfo(host, portString, &hints, &result) == 0 else {
+            Log.warning("[GhostManager] Failed to resolve SSTP host: \(host):\(port)")
+            return
+        }
+        
+        defer {
+            if let result = result {
+                freeaddrinfo(result)
+            }
+            if sock >= 0 {
+                close(sock)
+            }
+        }
+        
+        guard let addr = result else {
+            Log.warning("[GhostManager] No address info for SSTP")
+            return
+        }
+        
+        sock = socket(addr.pointee.ai_family, addr.pointee.ai_socktype, addr.pointee.ai_protocol)
+        guard sock >= 0 else {
+            Log.warning("[GhostManager] Failed to create socket for SSTP")
+            return
+        }
+        
+        // Set timeout
+        var timeout = timeval(tv_sec: 2, tv_usec: 0)
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size))
+        setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size))
+        
+        guard connect(sock, addr.pointee.ai_addr, addr.pointee.ai_addrlen) >= 0 else {
+            Log.debug("[GhostManager] No SSTP server at \(host):\(port) - this is normal if no other ghosts are running")
+            return
+        }
+        
+        // Send request
+        let data = request.data(using: .utf8) ?? Data()
+        let sent = data.withUnsafeBytes { ptr in
+            send(sock, ptr.baseAddress, data.count, 0)
+        }
+        
+        if sent > 0 {
+            Log.debug("[GhostManager] Sent SSTP request to \(host):\(port)")
+        } else {
+            Log.warning("[GhostManager] Failed to send SSTP request")
+        }
+    }
+    
     // MARK: - Choice Command Support
     
     /// Handle choice command - \q[title,ID] or variants
@@ -1372,11 +1574,81 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// Handle surface overlay/compositing - \![anim,add,overlay,ID]
     private func handleSurfaceOverlay(surfaceID: Int) {
         Log.debug("[GhostManager] Adding surface overlay: \(surfaceID)")
-        // TODO: Implement surface compositing system
-        // This requires:
-        // 1. Loading the specified surface image
-        // 2. Compositing it over the current surface
-        // 3. Managing the overlay stack
-        // 4. Updating the display
+        
+        // Load the surface image from the shell directory
+        guard let shellPath = loadShellPath() else {
+            Log.warning("[GhostManager] Cannot add overlay - shell path not found")
+            return
+        }
+        
+        // Surface files are named surface<ID>.png
+        let surfaceFileName = "surface\(surfaceID).png"
+        let surfacePath = shellPath.appendingPathComponent(surfaceFileName)
+        
+        guard FileManager.default.fileExists(atPath: surfacePath.path) else {
+            Log.warning("[GhostManager] Surface file not found: \(surfacePath.path)")
+            return
+        }
+        
+        guard let image = NSImage(contentsOf: surfacePath) else {
+            Log.warning("[GhostManager] Failed to load surface image: \(surfaceFileName)")
+            return
+        }
+        
+        // Add overlay to current scope's character view model
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            
+            let overlay = CharacterViewModel.SurfaceOverlay(
+                id: surfaceID,
+                image: image,
+                offset: .zero,
+                alpha: 1.0
+            )
+            
+            vm.overlays.append(overlay)
+            Log.debug("[GhostManager] Added surface overlay \(surfaceID) to scope \(self.currentScope)")
+        }
+    }
+    
+    /// Get the current shell directory path
+    private func loadShellPath() -> URL? {
+        // Try to get shell path from ghost configuration
+        // Default to "master" shell if not specified
+        let shellName = "master" // TODO: Get from ghost config
+        return ghostURL.appendingPathComponent("shell").appendingPathComponent(shellName)
+    }
+    
+    /// Clear all overlays for the current scope
+    private func clearSurfaceOverlays() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            vm.overlays.removeAll()
+            Log.debug("[GhostManager] Cleared all surface overlays for scope \(self.currentScope)")
+        }
+    }
+    
+    /// Clear a specific overlay by ID
+    private func clearSpecificOverlay(id: Int) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            vm.overlays.removeAll { $0.id == id }
+            Log.debug("[GhostManager] Cleared overlay \(id) for scope \(self.currentScope)")
+        }
+    }
+    
+    /// Offset a specific overlay
+    private func offsetOverlay(id: Int, x: Double, y: Double) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            if let index = vm.overlays.firstIndex(where: { $0.id == id }) {
+                vm.overlays[index].offset = CGPoint(x: x, y: y)
+                Log.debug("[GhostManager] Offset overlay \(id) by (\(x), \(y))")
+            }
+        }
     }
 }
