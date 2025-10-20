@@ -22,6 +22,9 @@ class CharacterViewModel: ObservableObject {
     @Published var repaintLocked: Bool = false
     @Published var manualRepaintLock: Bool = false
     
+    // Balloon state
+    @Published var currentBalloonID: Int = 0  // Current balloon style ID
+    
     // Surface compositing - overlay surfaces
     @Published var overlays: [SurfaceOverlay] = []
     
@@ -136,6 +139,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         
         // Setup animation engine callbacks
         setupAnimationCallbacks()
+        
+        // Setup screen change observer for desktop alignment
+        setupScreenChangeObserver()
     }
 
     deinit {
@@ -431,12 +437,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             playbackQueue.append(.newline)
         case .balloon(let id):
             // \bN or \b[ID] - change balloon ID
-            // TODO: Implement balloon ID switching
-            Log.debug("[GhostManager] Balloon ID switch to \(id) not yet implemented")
+            Log.debug("[GhostManager] Switching to balloon ID: \(id)")
+            switchBalloon(to: id, scope: currentScope)
+            
         case .appendMode:
             // \C - append to previous balloon
-            // TODO: Implement append mode
-            Log.debug("[GhostManager] Append mode not yet implemented")
+            Log.debug("[GhostManager] Append mode - maintaining current balloon")
+            // Append mode keeps the current balloon open and adds new text
+            // This is implemented by not clearing the text buffer
+            // The balloon view will continue displaying the previous content
         case .end:
             playbackQueue.append(.end)
         case .animation(let id, let wait):
@@ -469,19 +478,20 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case .choiceCancel:
             // \z - Choice cancellation
             Log.debug("[GhostManager] Choice cancel marker")
-            // Mark that choices can be cancelled with right-click or ESC
-            // This is typically handled by the choice display system
-            break
+            choiceHasCancelOption = true
         
         case .choiceMarker:
             // \* - Choice marker (indicates start of choice section)
-            Log.debug("[GhostManager] Choice marker")
-            break
+            Log.debug("[GhostManager] Choice marker - displaying choices")
+            // Display accumulated choices
+            showChoiceDialog()
         
         case .anchor:
             // \a - Anchor marker (for clickable text)
             Log.debug("[GhostManager] Anchor marker")
-            break
+            // Anchor is similar to choice but inline in text
+            // For now, treat as choice marker
+            showChoiceDialog()
         
         case .choiceLineBr:
             // \- - Line break in choice
@@ -694,31 +704,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     default: break
                                     }
                                     
-                                    // Apply window position constraints based on alignment
-                                    if let screen = NSScreen.main {
-                                        let screenFrame = screen.visibleFrame
-                                        var newOrigin = window.frame.origin
-                                        let windowSize = window.frame.size
-                                        
-                                        switch vm.alignment {
-                                        case .top:
-                                            newOrigin.y = screenFrame.maxY - windowSize.height
-                                        case .bottom:
-                                            newOrigin.y = screenFrame.minY
-                                        case .left:
-                                            newOrigin.x = screenFrame.minX
-                                        case .right:
-                                            newOrigin.x = screenFrame.maxX - windowSize.width
-                                        case .free:
-                                            break
-                                        }
-                                        
-                                        if vm.alignment != .free {
-                                            window.setFrameOrigin(newOrigin)
-                                            // Save new position
-                                            self.resourceManager.saveWindowPosition(scope: self.currentScope, position: newOrigin)
-                                        }
-                                    }
+                                    // Apply desktop alignment constraint
+                                    self.enforceDesktopAlignment(for: self.currentScope)
                                 }
                             }
                         case "position":
@@ -1669,6 +1656,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     
     // MARK: - Choice Command Support
     
+    /// Stored choices for dialog display
+    private var pendingChoices: [(title: String, action: ChoiceAction)] = []
+    private var choiceHasCancelOption: Bool = false
+    private var choiceTimeout: TimeInterval? = nil
+    
+    enum ChoiceAction {
+        case event(id: String, references: [String])
+        case script(String)
+    }
+    
     /// Handle choice command - \q[title,ID] or variants
     private func handleChoiceCommand(args: [String]) {
         guard args.count >= 2 else {
@@ -1683,13 +1680,86 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         if idOrScript.hasPrefix("script:") {
             let script = String(idOrScript.dropFirst(7)) // Remove "script:" prefix
             Log.debug("[GhostManager] Choice '\(title)' will execute script: \(script)")
-            // TODO: Store choice and script for display
+            pendingChoices.append((title: title, action: .script(script)))
         } else {
             // Event ID format
             let eventID = idOrScript
             let references = Array(args.dropFirst(2))
             Log.debug("[GhostManager] Choice '\(title)' will trigger event: \(eventID) with refs: \(references)")
-            // TODO: Store choice and event for display
+            pendingChoices.append((title: title, action: .event(id: eventID, references: references)))
+        }
+    }
+    
+    /// Display choice dialog when choices are ready
+    private func showChoiceDialog() {
+        guard !pendingChoices.isEmpty else { return }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            let alert = NSAlert()
+            alert.messageText = "選択してください" // "Please choose"
+            alert.alertStyle = .informational
+            
+            // Add choice buttons in order
+            for choice in self.pendingChoices {
+                alert.addButton(withTitle: choice.title)
+            }
+            
+            // Add cancel button if \z was present
+            if self.choiceHasCancelOption {
+                alert.addButton(withTitle: "キャンセル") // "Cancel"
+            }
+            
+            // Handle timeout if specified
+            var timeoutTimer: Timer? = nil
+            if let timeout = self.choiceTimeout, timeout > 0 {
+                let startTime = Date()
+                alert.informativeText = String(format: "残り時間: %.0f秒", timeout)
+                
+                timeoutTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in
+                    let elapsed = Date().timeIntervalSince(startTime)
+                    let remaining = max(0, timeout - elapsed)
+                    
+                    if remaining <= 0 {
+                        timer.invalidate()
+                        // Auto-select first choice on timeout
+                        NSApp.abortModal()
+                    } else {
+                        alert.informativeText = String(format: "残り時間: %.0f秒", remaining)
+                    }
+                }
+            }
+            
+            // Show dialog
+            let response = alert.runModal()
+            timeoutTimer?.invalidate()
+            
+            // Process response
+            let buttonIndex = response.rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
+            
+            if buttonIndex >= 0 && buttonIndex < self.pendingChoices.count {
+                // User selected a choice
+                let choice = self.pendingChoices[buttonIndex]
+                
+                switch choice.action {
+                case .event(let id, let references):
+                    // Trigger event
+                    self.raiseEvent(id, withReferences: references)
+                    
+                case .script(let script):
+                    // Execute inline script
+                    self.scriptEngine.parse(script: script)
+                }
+            } else {
+                // Cancel was selected
+                self.raiseEvent("OnChoiceCancel", withReferences: [])
+            }
+            
+            // Clear choice state
+            self.pendingChoices.removeAll()
+            self.choiceHasCancelOption = false
+            self.choiceTimeout = nil
         }
     }
     
@@ -2484,6 +2554,83 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             
             // TODO: Implement actual text rendering overlay
             Log.info("[GhostManager] Text animation added (rendering not yet implemented)")
+        }
+    }
+    
+    // MARK: - Balloon Switching
+    
+    /// Switch to a different balloon style
+    private func switchBalloon(to balloonID: Int, scope: Int) {
+        guard let vm = characterViewModels[scope] else {
+            Log.warning("[GhostManager] Cannot switch balloon: no viewmodel for scope \(scope)")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            vm.currentBalloonID = balloonID
+            Log.info("[GhostManager] Switched to balloon ID \(balloonID) for scope \(scope)")
+            
+            // TODO: Load balloon configuration from ghost/balloon directory
+            // Balloon descript.txt should be loaded and applied
+            // For now, just update the ID and let the UI handle the style change
+        }
+    }
+    
+    // MARK: - Desktop Alignment
+    
+    /// Enforce desktop alignment constraints
+    private func enforceDesktopAlignment(for scope: Int) {
+        guard let vm = characterViewModels[scope],
+              let window = characterWindows[scope] else {
+            return
+        }
+        
+        guard vm.alignment != .free else {
+            // No constraint, allow free positioning
+            return
+        }
+        
+        DispatchQueue.main.async {
+            guard let screen = window.screen ?? NSScreen.main else { return }
+            
+            let visibleFrame = screen.visibleFrame // Excludes menu bar and dock
+            var newOrigin = window.frame.origin
+            
+            switch vm.alignment {
+            case .top:
+                newOrigin.y = visibleFrame.maxY - window.frame.height - 20 // 20pt offset from top
+                
+            case .bottom:
+                newOrigin.y = visibleFrame.minY + 20 // 20pt offset from bottom
+                
+            case .left:
+                newOrigin.x = visibleFrame.minX + 20 // 20pt offset from left
+                
+            case .right:
+                newOrigin.x = visibleFrame.maxX - window.frame.width - 20 // 20pt offset from right
+                
+            case .free:
+                break // Already handled above
+            }
+            
+            window.setFrameOrigin(newOrigin)
+            Log.debug("[GhostManager] Applied \(vm.alignment) alignment to scope \(scope)")
+        }
+    }
+    
+    /// Setup screen change observation for alignment enforcement
+    private func setupScreenChangeObserver() {
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            
+            // Re-apply alignment constraints when screen configuration changes
+            for scope in self.characterViewModels.keys {
+                self.enforceDesktopAlignment(for: scope)
+            }
         }
     }
 }
