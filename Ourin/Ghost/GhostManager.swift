@@ -107,6 +107,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     
     // Sound playback tracking
     private var currentSounds: [NSSound] = []
+    
+    // Animation engine
+    private var animationEngine: AnimationEngine = AnimationEngine()
+    private var waitingForAnimation: Int? = nil  // Animation ID we're waiting for
 
     // MARK: - Initialization
 
@@ -119,6 +123,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         if let username = resourceManager.username {
             sakuraEngine.envExpander.username = username
         }
+        
+        // Setup animation engine callbacks
+        setupAnimationCallbacks()
     }
 
     deinit {
@@ -422,8 +429,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             Log.debug("[GhostManager] Append mode not yet implemented")
         case .end:
             playbackQueue.append(.end)
-        case .animation:
-            break
+        case .animation(let id, let wait):
+            // \i[ID] or \i[ID,wait] - play surface animation
+            if wait {
+                // Wait for animation to complete before continuing
+                playAnimationAndWait(id: id)
+            } else {
+                // Play animation without waiting
+                playAnimation(id: id, wait: false)
+            }
         case .moveAway:
             // \4 - Move away from other character
             // TODO: Implement character movement logic
@@ -750,18 +764,28 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         case "clear":
                             // \![anim,clear,ID] - clear specific animation/overlay
                             if args.count >= 3, let overlayID = Int(args[2]) {
+                                animationEngine.clearAnimation(id: overlayID)
                                 clearSpecificOverlay(id: overlayID)
+                            }
+                        case "pause":
+                            // \![anim,pause,ID] - pause animation
+                            if args.count >= 3, let animID = Int(args[2]) {
+                                animationEngine.pauseAnimation(id: animID)
+                            }
+                        case "resume":
+                            // \![anim,resume,ID] - resume animation
+                            if args.count >= 3, let animID = Int(args[2]) {
+                                animationEngine.resumeAnimation(id: animID)
                             }
                         case "stop":
                             // \![anim,stop] - stop all animations and clear all overlays
+                            animationEngine.stopAllAnimations()
                             clearSurfaceOverlays()
-                        case "pause", "resume":
-                            // Animation pause/resume - not yet implemented for overlays
-                            Log.debug("[GhostManager] Animation \(subcmd) not yet implemented")
                         case "offset":
-                            // \![anim,offset,ID,x,y] - offset an overlay
+                            // \![anim,offset,ID,x,y] - offset an animation/overlay
                             if args.count >= 5, let overlayID = Int(args[2]),
                                let x = Double(args[3]), let y = Double(args[4]) {
+                                animationEngine.offsetAnimation(id: overlayID, x: x, y: y)
                                 offsetOverlay(id: overlayID, x: x, y: y)
                             }
                         case "add":
@@ -1650,5 +1674,85 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 Log.debug("[GhostManager] Offset overlay \(id) by (\(x), \(y))")
             }
         }
+    }
+    
+    // MARK: - Animation Engine Integration
+    
+    /// Setup animation engine callbacks
+    private func setupAnimationCallbacks() {
+        animationEngine.onAnimationUpdate = { [weak self] animID, pattern in
+            guard let self = self, let pattern = pattern else { return }
+            
+            // Update surface overlay based on animation pattern
+            if pattern.surfaceID >= 0 {
+                self.handleSurfaceOverlay(surfaceID: pattern.surfaceID)
+                
+                // Apply offset if specified
+                if pattern.x != 0 || pattern.y != 0 {
+                    self.offsetOverlay(id: pattern.surfaceID, x: Double(pattern.x), y: Double(pattern.y))
+                }
+            }
+        }
+        
+        animationEngine.onAnimationComplete = { [weak self] animID in
+            guard let self = self else { return }
+            
+            // If we were waiting for this animation, resume playback
+            if self.waitingForAnimation == animID {
+                self.waitingForAnimation = nil
+                if self.isPlaying {
+                    self.processNextUnit()
+                }
+            }
+        }
+    }
+    
+    /// Play an animation
+    private func playAnimation(id: Int, wait: Bool) {
+        // Load animations from surfaces.txt if not already loaded
+        loadAnimationsForCurrentSurface()
+        
+        animationEngine.playAnimation(id: id, wait: wait)
+    }
+    
+    /// Play an animation and wait for completion
+    private func playAnimationAndWait(id: Int) {
+        waitingForAnimation = id
+        playAnimation(id: id, wait: true)
+        // Playback will resume when animation completes via callback
+    }
+    
+    /// Load animations from surfaces.txt for the current surface
+    private func loadAnimationsForCurrentSurface() {
+        guard let shellPath = loadShellPath() else { return }
+        
+        let surfacesPath = shellPath.appendingPathComponent("surfaces.txt")
+        guard FileManager.default.fileExists(atPath: surfacesPath.path) else {
+            Log.warning("[GhostManager] surfaces.txt not found at: \(surfacesPath.path)")
+            return
+        }
+        
+        // Try to load with different encodings
+        var content: String?
+        if let utf8Content = try? String(contentsOf: surfacesPath, encoding: .utf8) {
+            content = utf8Content
+        } else if let shiftJISContent = try? String(contentsOf: surfacesPath, encoding: .shiftJIS) {
+            content = shiftJISContent
+        }
+        
+        guard let surfacesContent = content else {
+            Log.warning("[GhostManager] Failed to read surfaces.txt")
+            return
+        }
+        
+        // Get current surface ID from character view model
+        guard let vm = characterViewModels[currentScope] else { return }
+        
+        // Parse surface ID from image if available
+        // For now, assume surface 0 - in production, track current surface ID
+        let surfaceID = 0 // TODO: Track actual current surface ID
+        
+        animationEngine.loadAnimations(surfaceID: surfaceID, content: surfacesContent)
+        Log.debug("[GhostManager] Loaded animations for surface \(surfaceID)")
     }
 }
