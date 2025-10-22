@@ -20,11 +20,17 @@ struct OurinApp: App {
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }
+            CommandGroup(replacing: .appInfo) {
+                Button("About Ourin") {
+                    appDelegate.showAboutWindow()
+                }
+            }
         }
 
         WindowGroup("DevTools", id: "DevTools") {
             DevToolsView()
         }
+        
         // The right-click menu has moved to the menu bar.
         if #available(macOS 13.0, *) {
             MenuBarExtra("Ourin") {
@@ -46,6 +52,19 @@ struct OurinApp: App {
         // If no settings window exists, open a new one
         NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:")!)
     }
+
+    private func openAboutWindow() {
+        for window in NSApplication.shared.windows {
+            if window.title == "About Ourin" {
+                window.makeKeyAndOrderFront(nil)
+                return
+            }
+        }
+        // Create the About window by opening the scene
+        NSApp.sendAction(Selector(("showAboutWindow:")), to: nil, from: nil)
+        // Fallback: explicitly open via scene id
+        NSApplication.shared.activate(ignoringOtherApps: true)
+    }
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -63,6 +82,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var ghostManager: GhostManager?
     /// DevTools window for legacy macOS
     private var devToolsWindow: NSWindow?
+    /// About window
+    private var aboutWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Ensure single instance and clean helper state by killing others first
@@ -261,6 +282,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             devToolsWindow = win
         }
         devToolsWindow?.makeKeyAndOrderFront(nil)
+    }
+
+    /// Show About window
+    func showAboutWindow() {
+        if aboutWindow == nil {
+            let controller = NSHostingController(rootView: AboutView())
+            let win = NSWindow(contentViewController: controller)
+            win.styleMask = [.titled, .closable, .miniaturizable, .fullSizeContentView]
+            win.isReleasedWhenClosed = false
+            win.center()
+            win.setContentSize(NSSize(width: 520, height: 280))
+            win.title = "About Ourin"
+            aboutWindow = win
+        }
+        aboutWindow?.makeKeyAndOrderFront(nil)
+        NSApplication.shared.activate(ignoringOtherApps: true)
     }
 }
 

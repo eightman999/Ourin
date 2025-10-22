@@ -248,7 +248,7 @@ public final class SakuraScriptEngine {
                     }
                     i = j
                 case "n":
-                    var j = i + 2
+                    let j = i + 2
                     // Check for \n[half] or \n[percent]
                     if j < chars.count && chars[j] == "[" {
                         if let (content, end) = readBracket(start: j + 1) {

@@ -127,6 +127,32 @@ public final class ResourceManager {
         if let v = value { set(key, value: String(v)) } else { remove(key) }
     }
 
+    // MARK: - Balloon positions
+
+    /// Get saved balloon left position for scope
+    public func getBalloonLeft(scope: Int) -> Int? {
+        let key = scope == 0 ? "balloon0.defaultleft" : "balloon\(scope).defaultleft"
+        return get(key).flatMap { Int($0) }
+    }
+
+    /// Set saved balloon left position for scope
+    public func setBalloonLeft(scope: Int, value: Int?) {
+        let key = scope == 0 ? "balloon0.defaultleft" : "balloon\(scope).defaultleft"
+        if let v = value { set(key, value: String(v)) } else { remove(key) }
+    }
+
+    /// Get saved balloon top position for scope
+    public func getBalloonTop(scope: Int) -> Int? {
+        let key = scope == 0 ? "balloon0.defaulttop" : "balloon\(scope).defaulttop"
+        return get(key).flatMap { Int($0) }
+    }
+
+    /// Set saved balloon top position for scope
+    public func setBalloonTop(scope: Int, value: Int?) {
+        let key = scope == 0 ? "balloon0.defaulttop" : "balloon\(scope).defaulttop"
+        if let v = value { set(key, value: String(v)) } else { remove(key) }
+    }
+
     // MARK: - Update Configuration
 
     /// Whether to use 1-based file numbering for updates (useorigin1 resource)

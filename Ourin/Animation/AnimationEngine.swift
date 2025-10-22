@@ -24,7 +24,7 @@ struct AnimationDefinition {
     let interval: AnimationInterval          // When to run
     let patterns: [AnimationPattern]         // Animation frames
     
-    enum AnimationInterval: String {
+    enum AnimationInterval: Equatable {
         case always        // Run continuously
         case sometimes     // Run randomly
         case rarely        // Run very rarely
@@ -32,16 +32,31 @@ struct AnimationDefinition {
         case never         // Don't run automatically
         case random(Int)   // Custom random interval
         case periodic(Int) // Fixed periodic interval
-        
+
         init(from string: String) {
-            if let value = Int(string) {
-                if string.hasPrefix("random,") {
+            if string.hasPrefix("random,") {
+                let valueStr = string.replacingOccurrences(of: "random,", with: "")
+                if let value = Int(valueStr) {
                     self = .random(value)
-                } else {
-                    self = .periodic(value)
+                    return
                 }
+            }
+
+            if let value = Int(string) {
+                self = .periodic(value)
             } else {
-                self = AnimationInterval(rawValue: string) ?? .never
+                switch string {
+                case "always":
+                    self = .always
+                case "sometimes":
+                    self = .sometimes
+                case "rarely":
+                    self = .rarely
+                case "runonce":
+                    self = .runonce
+                default:
+                    self = .never
+                }
             }
         }
     }
@@ -114,13 +129,13 @@ class AnimationEngine {
     
     private func setupMetal() {
         guard let device = MTLCreateSystemDefaultDevice() else {
-            Log.warning("[AnimationEngine] Metal is not supported on this device")
+            Log.info("[AnimationEngine] Metal is not supported on this device")
             return
         }
-        
+
         self.device = device
         self.commandQueue = device.makeCommandQueue()
-        
+
         Log.info("[AnimationEngine] Metal initialized: \(device.name)")
     }
     
@@ -197,15 +212,15 @@ class AnimationEngine {
     /// Start playing an animation
     func playAnimation(id: Int, wait: Bool = false) {
         guard let definition = animations[id] else {
-            Log.warning("[AnimationEngine] Animation \(id) not found")
+            Log.info("[AnimationEngine] Animation \(id) not found")
             return
         }
-        
+
         let active = ActiveAnimation(definition: definition)
         activeAnimations[id] = active
-        
+
         startUpdateLoop()
-        
+
         Log.debug("[AnimationEngine] Started animation \(id), wait: \(wait)")
     }
     
@@ -301,8 +316,8 @@ class AnimationEngine {
     
     /// Prepare Metal textures for animation frames (future enhancement)
     func prepareMetalTextures(for images: [NSImage]) {
-        guard let device = device else { return }
-        
+        guard device != nil else { return }
+
         // TODO: Convert NSImages to Metal textures
         // This would allow GPU-accelerated compositing
         Log.debug("[AnimationEngine] Preparing \(images.count) textures for Metal rendering")
