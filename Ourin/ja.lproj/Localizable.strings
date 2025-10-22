@@ -8,6 +8,12 @@
 "Logging & Diagnostics" = "ログ・診断";
 "Network" = "ネットワーク";
 
+/* App Menus and Windows */
+"Settings" = "設定";
+"Settings..." = "設定…";
+"About Ourin" = "Ourin について";
+"DevTools" = "開発ツール";
+
 /* Detail View Titles */
 "General Settings" = "一般設定";
 "SHIORI Resource Viewer" = "SHIORI リソースビューア";
@@ -25,3 +31,108 @@
 
 /* Messages */
 "Diagnostics exported at %@" = "診断情報をエクスポートしました: %@";
+"Ghost not found" = "ゴーストが見つかりません";
+"The ghost '%@' could not be found. It may have been moved or deleted." = "ゴースト『%@』が見つかりません。移動または削除された可能性があります。";
+"Installed" = "インストール完了";
+"Installed: %@" = "インストールしました: %@";
+"Ghost conflict" = "ゴーストの競合";
+"Ghost '%@' is already installed but could not be loaded." = "ゴースト『%@』は既にインストールされていますが、読み込めませんでした。";
+"Install failed" = "インストール失敗";
+
+/* English UI -> Japanese */
+"Error" = "エラー";
+"No preview available." = "プレビューは利用できません。";
+"Select an item to see a preview." = "プレビューする項目を選択してください。";
+"Item not found" = "項目が見つかりません";
+"Menu Item Preview" = "メニュー項目プレビュー";
+"Caption:" = "キャプション:";
+"Shortcut:" = "ショートカット:";
+"None" = "なし";
+"Visible:" = "表示:";
+"Yes" = "はい";
+"No" = "いいえ";
+"Bitmap Preview" = "ビットマッププレビュー";
+"Preview not available." = "プレビューは利用できません。";
+"Select an item" = "項目を選択してください";
+"Select a section" = "セクションを選択してください";
+"URL/Path:" = "URL/パス:";
+"Headline URL" = "ヘッドラインURL";
+"Stopped" = "停止";
+"Running" = "稼働中";
+"Loaded Plugins" = "読み込まれたプラグイン";
+"Enabled" = "有効";
+"Name" = "名前";
+"ID" = "ID";
+"Version" = "バージョン";
+"Path" = "パス";
+"Event Injector" = "イベントインジェクタ";
+"Event ID" = "イベントID";
+"Value" = "値";
+"Dispatch" = "送信";
+"External Events Harness" = "外部イベントハーネス";
+"Server Status" = "サーバーステータス";
+"Utility Tools" = "ユーティリティツール";
+"Sample SSTP Request" = "SSTP リクエスト例";
+"Send to TCP" = "TCP に送信";
+"Send via HTTP" = "HTTP で送信";
+"Copy curl Command" = "curl コマンドをコピー";
+"Copy XPC Snippet" = "XPC スニペットをコピー";
+"Balloon Preview" = "バルーンプレビュー";
+"Shell:" = "シェル:";
+"Balloon:" = "バルーン:";
+"Scale:" = "スケール:";
+"DPI:" = "DPI表示:";
+"Enabled" = "有効";
+"Disabled" = "無効";
+"Start" = "開始";
+"Stop" = "停止";
+"Status:" = "状態:";
+"Connections:" = "接続数:";
+"Requests:" = "リクエスト数:";
+"Clients:" = "クライアント数:";
+"Script Result" = "スクリプト実行結果";
+"Executed Script:" = "実行スクリプト:";
+"Parse Result:" = "パース結果:";
+"- Surface:" = "- Surface:";
+"- Text:" = "- テキスト:";
+"- End tag detected" = "- 終了タグ検出";
+"View" = "表示";
+"Debug" = "デバッグ";
+"Help" = "ヘルプ";
+"SHIORIリソース" = "SHIORIリソース";
+"NAR一覧" = "NAR一覧";
+"セクションを選択" = "セクションを選択";
+"再読込" = "再読込";
+"データフォルダ" = "データフォルダ";
+"参照…" = "参照…";
+"再読み込み" = "再読み込み";
+"種別" = "種別";
+"読み込み" = "読み込み";
+"キー" = "キー";
+"値" = "値";
+"ゴースト情報" = "ゴースト情報";
+"ゴースト切替" = "ゴースト切替";
+"シェル切替" = "シェル切替";
+"バルーン切替" = "バルーン切替";
+"設定" = "設定";
+"DevTools を開く" = "DevTools を開く";
+
+/* Headline test strings */
+"Error: %@" = "エラー: %@";
+"Invalid URL" = "無効な URL";
+"Loading..." = "読み込み中...";
+"Status: %d" = "ステータス: %d";
+"Headers: %@" = "ヘッダー: %@";
+"Binary data (%d bytes)" = "バイナリデータ (%d バイト)";
+"Content:\n%@" = "内容:\n%@";
+"... (truncated)" = "… (省略)";
+"Subsystem:" = "サブシステム:";
+"Category:" = "カテゴリ:";
+"Level:" = "レベル:";
+"Since:" = "期間:";
+"All" = "すべて";
+"Signpost Timeline" = "サインポストタイムライン";
+"Time" = "時刻";
+"Message" = "メッセージ";
+"Metadata" = "メタデータ";
+"Network & Listener Status" = "ネットワーク・リスナー ステータス";

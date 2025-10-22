@@ -1,9 +1,21 @@
-Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+Ourin — CC BY-NC-SA 4.0 / 表示-非営利-継承 4.0
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
-See https://creativecommons.org/licenses/by-nc-sa/4.0/ for the full license text.
+EN: This software (Ourin) is licensed under the Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International License
+(CC BY-NC-SA 4.0).
 
-For commercial use, please contact:
+JA: 本ソフトウェア（Ourin）は、クリエイティブ・コモンズ
+表示-非営利-継承 4.0 国際ライセンス（CC BY-NC-SA 4.0）のもとで
+提供されています。
+
+Links / リンク:
+- EN: https://creativecommons.org/licenses/by-nc-sa/4.0/
+- JA: https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja
+
+Commercial use / 商用利用:
+Please contact the copyright holders for commercial use.
+商用利用をご希望の場合は、著作権者までご連絡ください。
+
+Contacts / 連絡先:
 - eightman: eight@eightman999.com
 - 風鈴ラボ / Furin Lab: contact@furinlab.com
-

@@ -1,0 +1,13 @@
+YAYA Core — CC BY-NC-SA 4.0 / 表示-非営利-継承 4.0
+
+EN: The integrated YAYA Core within this repository is provided
+under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+International License (CC BY-NC-SA 4.0), unless otherwise noted.
+
+JA: 本リポジトリに含まれる統合版 YAYA Core は、特記がない限り
+クリエイティブ・コモンズ 表示-非営利-継承 4.0 国際ライセンス
+（CC BY-NC-SA 4.0）で提供されます。
+
+Links / リンク:
+- EN: https://creativecommons.org/licenses/by-nc-sa/4.0/
+- JA: https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja

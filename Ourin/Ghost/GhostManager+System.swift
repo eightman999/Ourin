@@ -152,7 +152,7 @@ extension GhostManager {
             guard let self = self else { return }
             
             let alert = NSAlert()
-            alert.messageText = "選択してください" // "Please choose"
+            alert.messageText = NSLocalizedString("選択してください", comment: "Please choose")
             alert.alertStyle = .informational
             
             // Add choice buttons in order
@@ -162,14 +162,14 @@ extension GhostManager {
             
             // Add cancel button if \z was present
             if self.choiceHasCancelOption {
-                alert.addButton(withTitle: "キャンセル") // "Cancel"
+                alert.addButton(withTitle: NSLocalizedString("キャンセル", comment: "Cancel"))
             }
             
             // Handle timeout if specified
             var timeoutTimer: Timer? = nil
             if let timeout = self.choiceTimeout, timeout > 0 {
                 let startTime = Date()
-                alert.informativeText = String(format: "残り時間: %.0f秒", timeout)
+                alert.informativeText = String(format: NSLocalizedString("残り時間: %.0f秒", comment: "time remaining"), timeout)
                 
                 timeoutTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in
                     let elapsed = Date().timeIntervalSince(startTime)
@@ -180,7 +180,7 @@ extension GhostManager {
                         // Auto-select first choice on timeout
                         NSApp.abortModal()
                     } else {
-                        alert.informativeText = String(format: "残り時間: %.0f秒", remaining)
+                        alert.informativeText = String(format: NSLocalizedString("残り時間: %.0f秒", comment: "time remaining"), remaining)
                     }
                 }
             }

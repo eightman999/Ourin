@@ -87,45 +87,54 @@ final class NarInstallViewModel: ObservableObject {
     /// インストール済みパッケージ一覧を読み込む
     func loadInstalledPackages() {
         logger.info("インストール済みパッケージを読み込み中")
-        
-        installedPackages = scanInstalledGhosts()
-        
+        var all: [NarPackage] = []
+        // Ghost/Shell/Balloon/Plugin/Package の順で走査
+        all.append(contentsOf: scanInstalled(kind: "ghost"))
+        all.append(contentsOf: scanInstalled(kind: "shell"))
+        all.append(contentsOf: scanInstalled(kind: "balloon"))
+        all.append(contentsOf: scanInstalled(kind: "plugin"))
+        all.append(contentsOf: scanInstalled(kind: "package"))
+        installedPackages = all
         logger.info("インストール済みパッケージ数: \(installedPackages.count)")
     }
 
-    private func scanInstalledGhosts() -> [NarPackage] {
-        guard let ghostsPath = try? OurinPaths.baseDirectory().appendingPathComponent("ghost", isDirectory: true) else {
-            logger.warning("Failed to get ghosts directory path")
+    /// 指定種別のインストール済みパッケージを走査
+    private func scanInstalled(kind: String) -> [NarPackage] {
+        guard let base = try? OurinPaths.baseDirectory() else { return [] }
+        let root = base.appendingPathComponent(kind, isDirectory: true)
+        let fm = FileManager.default
+        guard let dirs = try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) else {
             return []
         }
-
-        let fileManager = FileManager.default
-        guard let ghostDirs = try? fileManager.contentsOfDirectory(at: ghostsPath, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) else {
-            logger.warning("Failed to list contents of ghosts directory")
-            return []
-        }
-
-        var packages: [NarPackage] = []
-
-        for ghostDir in ghostDirs {
-            let descriptPath = ghostDir.appendingPathComponent("ghost/master/descript.txt")
-            if fileManager.fileExists(atPath: descriptPath.path) {
-                let attributes = try? fileManager.attributesOfItem(atPath: ghostDir.path)
-                let installDate = attributes?[.creationDate] as? Date ?? Date()
-
-                if let name = parseDescript(at: descriptPath) {
-                    let package = NarPackage(
-                        name: name,
-                        version: "不明", // descript.txtにバージョン情報がないため
-                        installPath: ghostDir.path,
-                        installDate: installDate
-                    )
-                    packages.append(package)
+        var result: [NarPackage] = []
+        for dir in dirs {
+            let attrs = (try? fm.attributesOfItem(atPath: dir.path)) ?? [:]
+            let cdate = (attrs[.creationDate] as? Date) ?? Date()
+            let displayName: String? = {
+                switch kind {
+                case "ghost":
+                    let path = dir.appendingPathComponent("ghost/master/descript.txt")
+                    return parseDescript(at: path)
+                case "shell":
+                    let path = dir.appendingPathComponent("shell/master/descript.txt")
+                    return parseDescript(at: path)
+                case "balloon":
+                    // balloon はルート直下に descript.txt がある想定
+                    let root = dir.appendingPathComponent("balloon", isDirectory: true)
+                    // いくつかの配布では balloon/ を含まずに直接置かれることがあるため両方試す
+                    let balloonRoot = FileManager.default.fileExists(atPath: root.path) ? root : dir
+                    if let dict = try? DescriptorLoader.load(from: balloonRoot), let name = dict["name"] {
+                        return name
+                    }
+                    return nil
+                default:
+                    return nil
                 }
-            }
+            }()
+            let pkgName = displayName ?? dir.lastPathComponent
+            result.append(NarPackage(name: pkgName, version: "不明", installPath: dir.path, installDate: cdate))
         }
-
-        return packages
+        return result
     }
 
     private func parseDescript(at url: URL) -> String? {

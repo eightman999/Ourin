@@ -43,19 +43,32 @@ struct OurinApp: App {
     }
 
     private func openSettingsWindow() {
+        // If a Settings window already exists, just focus it (identify by custom identifier or localized title)
+        let settingsID = NSUserInterfaceItemIdentifier("SettingsWindow")
         for window in NSApplication.shared.windows {
-            if window.title == "Settings" {
+            if window.identifier == settingsID || window.title == NSLocalizedString("Settings", comment: "Settings window title") {
                 window.makeKeyAndOrderFront(nil)
+                NSApplication.shared.activate(ignoringOtherApps: true)
                 return
             }
         }
-        // If no settings window exists, open a new one
-        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:")!)
+
+        // Create an in-app Settings window (instead of opening System Settings)
+        let controller = NSHostingController(rootView: ContentView())
+        let win = NSWindow(contentViewController: controller)
+        win.identifier = settingsID
+        win.title = NSLocalizedString("Settings", comment: "Settings window title")
+        win.setContentSize(NSSize(width: 900, height: 600))
+        win.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        win.isReleasedWhenClosed = false
+        win.center()
+        win.makeKeyAndOrderFront(nil)
+        NSApplication.shared.activate(ignoringOtherApps: true)
     }
 
     private func openAboutWindow() {
         for window in NSApplication.shared.windows {
-            if window.title == "About Ourin" {
+            if window.title == NSLocalizedString("About Ourin", comment: "About window title") {
                 window.makeKeyAndOrderFront(nil)
                 return
             }
@@ -118,8 +131,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Hide the default Settings window on startup
         DispatchQueue.main.async {
+            let settingsTitle = NSLocalizedString("Settings", comment: "Settings window title")
             for window in NSApplication.shared.windows {
-                if window.title == "Settings" || window.contentViewController?.view.className.contains("ContentView") == true {
+                if window.title == settingsTitle || window.contentViewController?.view.className.contains("ContentView") == true {
                     window.close()
                 }
             }
@@ -208,9 +222,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == name }) else {
             NSLog("Could not find ghost named \(name)")
             DispatchQueue.main.async {
-                NSApp.presentAlert(style: .critical,
-                                   title: "Ghost not found",
-                                   text: "The ghost '\(name)' could not be found. It may have been moved or deleted.")
+                let title = NSLocalizedString("Ghost not found", comment: "Alert title when ghost is missing")
+                let format = NSLocalizedString("The ghost '%@' could not be found. It may have been moved or deleted.", comment: "Alert body when ghost is missing")
+                let text = String(format: format, name)
+                NSApp.presentAlert(style: .critical, title: title, text: text)
             }
             return
         }
@@ -224,9 +239,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 let target = try self.narInstaller.install(fromNar: url)
                 NSLog("[installNar] Installed to: \(target.path)")
                 DispatchQueue.main.async {
-                    NSApp.presentAlert(style: .informational,
-                                       title: "Installed",
-                                       text: "Installed: \(url.lastPathComponent)")
+                    let title = NSLocalizedString("Installed", comment: "Alert title when installation succeeded")
+                    let fmt = NSLocalizedString("Installed: %@", comment: "Alert body for installed file")
+                    let text = String(format: fmt, url.lastPathComponent)
+                    NSApp.presentAlert(style: .informational, title: title, text: text)
                     NSLog("[installNar] Running ghost at: \(target.path)")
                     self.runGhost(at: target)
                 }
@@ -239,17 +255,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         self.runGhost(at: ghost.path)
                     } else {
                         NSLog("[installNar] Could not find already-installed ghost: \(ghostName)")
-                        NSApp.presentAlert(style: .warning,
-                                           title: "Ghost conflict",
-                                           text: "Ghost '\(ghostName)' is already installed but could not be loaded.")
+                        let title = NSLocalizedString("Ghost conflict", comment: "Alert title for ghost conflict")
+                        let fmt = NSLocalizedString("Ghost '%@' is already installed but could not be loaded.", comment: "Alert body for ghost conflict")
+                        let text = String(format: fmt, ghostName)
+                        NSApp.presentAlert(style: .warning, title: title, text: text)
                     }
                 }
             } catch {
                 NSLog("[installNar] Install failed: \(error)")
                 DispatchQueue.main.async {
-                    NSApp.presentAlert(style: .critical,
-                                       title: "Install failed",
-                                       text: String(describing: error))
+                    let title = NSLocalizedString("Install failed", comment: "Alert title for install failure")
+                    NSApp.presentAlert(style: .critical, title: title, text: String(describing: error))
                 }
             }
         }
@@ -278,7 +294,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let controller = NSHostingController(rootView: DevToolsView())
             let win = NSWindow(contentViewController: controller)
             win.setContentSize(NSSize(width: 700, height: 500))
-            win.title = "DevTools"
+            win.title = NSLocalizedString("DevTools", comment: "DevTools window title")
             devToolsWindow = win
         }
         devToolsWindow?.makeKeyAndOrderFront(nil)
@@ -293,7 +309,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             win.isReleasedWhenClosed = false
             win.center()
             win.setContentSize(NSSize(width: 520, height: 280))
-            win.title = "About Ourin"
+            win.title = NSLocalizedString("About Ourin", comment: "About window title")
             aboutWindow = win
         }
         aboutWindow?.makeKeyAndOrderFront(nil)

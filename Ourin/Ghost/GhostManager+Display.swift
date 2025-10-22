@@ -88,12 +88,12 @@ extension GhostManager {
 
     func showNameInputDialog() {
         let alert = NSAlert()
-        alert.messageText = "あなたのお名前は？"
-        alert.informativeText = "お名前を入力してください"
+        alert.messageText = NSLocalizedString("あなたのお名前は？", comment: "Name prompt title")
+        alert.informativeText = NSLocalizedString("お名前を入力してください", comment: "Name prompt message")
         alert.alertStyle = .informational
 
         let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
-        textField.placeholderString = "名前"
+        textField.placeholderString = NSLocalizedString("名前", comment: "Name placeholder")
 
         // Load existing name from UserDefaults if available
         let defaults = UserDefaults.standard
@@ -102,8 +102,8 @@ extension GhostManager {
         }
 
         alert.accessoryView = textField
-        alert.addButton(withTitle: "OK")
-        alert.addButton(withTitle: "キャンセル")
+        alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
+        alert.addButton(withTitle: NSLocalizedString("キャンセル", comment: "Cancel"))
 
         alert.window.initialFirstResponder = textField
 

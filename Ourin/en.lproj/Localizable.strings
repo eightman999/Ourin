@@ -8,6 +8,12 @@
 "Logging & Diagnostics" = "Logging & Diagnostics";
 "Network" = "Network";
 
+/* App Menus and Windows */
+"Settings" = "Settings";
+"Settings..." = "Settings...";
+"About Ourin" = "About Ourin";
+"DevTools" = "DevTools";
+
 /* Detail View Titles */
 "General Settings" = "General Settings";
 "SHIORI Resource Viewer" = "SHIORI Resource Viewer";
@@ -25,3 +31,161 @@
 
 /* Messages */
 "Diagnostics exported at %@" = "Diagnostics exported at %@";
+"Ghost not found" = "Ghost not found";
+"The ghost '%@' could not be found. It may have been moved or deleted." = "The ghost '%@' could not be found. It may have been moved or deleted.";
+"Installed" = "Installed";
+"Installed: %@" = "Installed: %@";
+"Ghost conflict" = "Ghost conflict";
+"Ghost '%@' is already installed but could not be loaded." = "Ghost '%@' is already installed but could not be loaded.";
+"Install failed" = "Install failed";
+
+/* Unlocalized Japanese UI -> English */
+"基本設定" = "Basic Settings";
+"データフォルダ:" = "Data Folder:";
+"文字コード:" = "Character Encoding:";
+"Rosetta互換:" = "Rosetta Compatibility:";
+"システム設定" = "System Settings";
+"起動ゴースト:" = "Startup Ghost:";
+"操作" = "Actions";
+"設定が保存されました" = "Settings saved";
+"変更は次回起動時に適用されます" = "Changes will apply on next launch";
+"Headline テスト" = "Headline Test";
+"更新テスト" = "Update Test";
+"クリア" = "Clear";
+"レスポンス:" = "Response:";
+"更新テストを実行してください" = "Run update test";
+"Balloon テスト" = "Balloon Test";
+"ゴースト:" = "Ghost:";
+"シェル:" = "Shell:";
+"バルーン:" = "Balloon:";
+"スケール:" = "Scale:";
+"テストスクリプト:" = "Test Script:";
+"プレビュー" = "Preview";
+"スクリプト実行" = "Run Script";
+"バルーンプレビュー" = "Balloon Preview";
+"72 DPI • 32bit • 透過" = "72 DPI • 32bit • Transparent";
+"DPI情報を表示" = "Show DPI info";
+"左の一覧から選択してください" = "Select an item from the left";
+"ライセンスを表示…" = "Show Licenses…";
+"Ourin ライセンス" = "Ourin License";
+"ライセンス" = "Licenses";
+"閉じる" = "Close";
+
+/* Network/Status Japanese -> English */
+"アクティブ接続数: %d" = "Active connections: %d";
+"受信/秒:" = "Recv/sec:";
+"エラー/秒:" = "Errors/sec:";
+"Network.framework の NWListener を使用" = "Using Network.framework NWListener";
+"サーバー稼働中" = "Server running";
+"平均処理時間" = "Average processing time";
+"POST /api/sstp/v1 エンドポイントを提供" = "Provides POST /api/sstp/v1 endpoint";
+"サービス稼働中" = "Service running";
+"接続中のアプリ:" = "Connected apps:";
+"接続なし" = "No connections";
+"要求/秒:" = "Requests/sec:";
+"machService 経由の直接通信" = "Direct communication via machService";
+"技術仕様" = "Technical Specs";
+"• Network.framework を使用（Apple推奨、ソケット代替）" = "• Uses Network.framework (Apple-recommended, socket alternative)";
+"• 技術選定ノート TN3151 準拠" = "• Conforms to Tech Note TN3151";
+"• ローカルネットワーク権限が必要" = "• Requires Local Network permission";
+"• TeamID/コード署名によるXPC権限制御" = "• XPC access controlled by TeamID/code signing";
+
+/* Misc English literals shown in UI */
+"Stopped" = "Stopped";
+"Running" = "Running";
+"Loaded Plugins" = "Loaded Plugins";
+"Enabled" = "Enabled";
+"Name" = "Name";
+"Version" = "Version";
+"Path" = "Path";
+"ID" = "ID";
+"Event Injector" = "Event Injector";
+"Event ID" = "Event ID";
+"Value" = "Value";
+"Dispatch" = "Dispatch";
+"Server Status" = "Server Status";
+"Utility Tools" = "Utility Tools";
+"Sample SSTP Request" = "Sample SSTP Request";
+"Send to TCP" = "Send to TCP";
+"Send via HTTP" = "Send via HTTP";
+"Copy curl Command" = "Copy curl Command";
+"Copy XPC Snippet" = "Copy XPC Snippet";
+"External Events Harness" = "External Events Harness";
+"URL/Path:" = "URL/Path:";
+"Headline URL" = "Headline URL";
+"Balloon Preview" = "Balloon Preview";
+"Shell:" = "Shell:";
+"Balloon:" = "Balloon:";
+"Scale:" = "Scale:";
+"DPI:" = "DPI:";
+"Enabled" = "Enabled";
+"Disabled" = "Disabled";
+"Script Result" = "Script Result";
+"Executed Script:" = "Executed Script:";
+"Parse Result:" = "Parse Result:";
+"- Surface:" = "- Surface:";
+"- Text:" = "- Text:";
+"- End tag detected" = "- End tag detected";
+
+/* About window Japanese -> English */
+"バージョン: %@" = "Version: %@";
+"リリース日: %@" = "Release date: %@";
+"終了しますか?" = "Quit the app?";
+"アプリを終了するか最小化するか選択してください。" = "Choose to quit the app or minimize it.";
+"あなたのお名前は？" = "What is your name?";
+"お名前を入力してください" = "Please enter your name";
+"選択してください" = "Please choose";
+"残り時間: %.0f秒" = "Time remaining: %.0fs";
+"診断情報は %@ にエクスポートされました" = "Diagnostics were exported to %@";
+"名前" = "Name";
+"OK" = "OK";
+"キャンセル" = "Cancel";
+"終了" = "Quit";
+"最小化" = "Minimize";
+"DevTools を表示" = "Show DevTools";
+"リロード" = "Reload";
+"診断情報をエクスポート" = "Export Diagnostics";
+"プラグインを再読み込み" = "Reload Plugins";
+"外部サーバーを再起動" = "Restart External Servers";
+"DevTools ヘルプ" = "DevTools Help";
+"SHIORI 仕様書を開く" = "Open SHIORI Specification";
+"プラグイン開発ガイド" = "Plugin Development Guide";
+
+/* DevToolsView */
+"SHIORIリソース" = "SHIORI Resources";
+"NAR一覧" = "NAR List";
+"セクションを選択" = "Select a section";
+"再読込" = "Reload";
+
+/* GeneralPane */
+"データフォルダ" = "Data Folder";
+"参照…" = "Browse…";
+
+/* NarListPane */
+"再読み込み" = "Reload";
+"種別" = "Type";
+"パス" = "Path";
+
+/* ResourcePane */
+"読み込み" = "Load";
+"キー" = "Key";
+"値" = "Value";
+
+/* RightClickMenu */
+"ゴースト情報" = "Ghost Info";
+"ゴースト切替" = "Switch Ghost";
+"シェル切替" = "Switch Shell";
+"バルーン切替" = "Switch Balloon";
+"設定" = "Settings";
+"DevTools を開く" = "Open DevTools";
+"更新" = "Refresh";
+
+/* Headline test strings */
+"Error: %@" = "Error: %@";
+"Invalid URL" = "Invalid URL";
+"Loading..." = "Loading...";
+"Status: %d" = "Status: %d";
+"Headers: %@" = "Headers: %@";
+"Binary data (%d bytes)" = "Binary data (%d bytes)";
+"Content:\n%@" = "Content:\n%@";
+"... (truncated)" = "... (truncated)";

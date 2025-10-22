@@ -202,24 +202,71 @@ fileprivate struct ShioriResourceView: View {
         var id: String { rawValue }
     }
 
+    // Sort field selector
+    private enum SortField: String, CaseIterable, Identifiable {
+        case key = "Key"
+        case value = "Value"
+        case effective = "Effective"
+        case lastFetched = "Last Fetched"
+        var id: String { rawValue }
+    }
+
     @State private var items: [ResourceItem] = []
     @State private var filter: ResourceFilter = .all
     @State private var selection: ResourceItem.ID?
     @State private var overlayStore: [String: String] = [:] // Mock persistence
+    @State private var searchText: String = ""
+    @State private var sortField: SortField = .key
+    @State private var sortAscending: Bool = true
+    @State private var showOnlyOverridden: Bool = false
 
-    private var filteredItems: [ResourceItem] {
-        if filter == .all { return items }
-        return items.filter { item in
-            let key = item.key.lowercased()
-            switch filter {
-            case .all: return true
-            case .shiori: return key.hasPrefix("version") || key.hasPrefix("shiori.") || key.hasPrefix("name") || key.hasPrefix("craftman")
-            case .ghost: return key.hasPrefix("ghost.") || key.hasPrefix("shell.")
-            case .menu: return key.hasPrefix("menu.")
-            case .colors: return key.contains(".color")
-            case .update: return key.hasPrefix("update.")
+    private var displayedItems: [ResourceItem] {
+        // 1) Category filter
+        var arr: [ResourceItem]
+        if filter == .all {
+            arr = items
+        } else {
+            arr = items.filter { item in
+                let key = item.key.lowercased()
+                switch filter {
+                case .all: return true
+                case .shiori: return key.hasPrefix("version") || key.hasPrefix("shiori.") || key.hasPrefix("name") || key.hasPrefix("craftman")
+                case .ghost: return key.hasPrefix("ghost.") || key.hasPrefix("shell.")
+                case .menu: return key.hasPrefix("menu.")
+                case .colors: return key.contains(".color")
+                case .update: return key.hasPrefix("update.")
+                }
             }
         }
+        // 2) Overridden only
+        if showOnlyOverridden {
+            arr = arr.filter { !$0.overlay.isEmpty }
+        }
+        // 3) Search
+        let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if !q.isEmpty {
+            arr = arr.filter { item in
+                item.key.lowercased().contains(q) ||
+                (item.value ?? "").lowercased().contains(q) ||
+                item.effectiveValue.lowercased().contains(q)
+            }
+        }
+        // 4) Sort
+        arr.sort { lhs, rhs in
+            let cmp: ComparisonResult
+            switch sortField {
+            case .key:
+                cmp = lhs.key.localizedCaseInsensitiveCompare(rhs.key)
+            case .value:
+                cmp = (lhs.value ?? "").localizedCaseInsensitiveCompare(rhs.value ?? "")
+            case .effective:
+                cmp = lhs.effectiveValue.localizedCaseInsensitiveCompare(rhs.effectiveValue)
+            case .lastFetched:
+                cmp = lhs.lastFetched.compare(rhs.lastFetched)
+            }
+            return sortAscending ? (cmp == .orderedAscending) : (cmp == .orderedDescending)
+        }
+        return arr
     }
     
     private var selectedItem: ResourceItem? {
@@ -240,42 +287,108 @@ fileprivate struct ShioriResourceView: View {
     }
 
     private var toolBar: some View {
-        HStack {
+        HStack(spacing: 12) {
             Picker("Filter", selection: $filter) {
                 ForEach(ResourceFilter.allCases) { f in Text(f.rawValue).tag(f) }
             }
-            .pickerStyle(SegmentedPickerStyle()).frame(maxWidth: 400)
-            Spacer()
+            .pickerStyle(SegmentedPickerStyle())
+            .frame(maxWidth: 420)
+
+            Toggle("Overridden only", isOn: $showOnlyOverridden).toggleStyle(.switch)
+
+            Spacer(minLength: 8)
+
+            // Sort controls (compact)
+            Picker("Sort", selection: $sortField) {
+                ForEach(SortField.allCases) { f in Text(f.rawValue).tag(f) }
+            }.frame(width: 140)
+            Toggle("Asc", isOn: $sortAscending).frame(width: 60)
+
+            // Search
+            if #available(macOS 12.0, *) {
+                TextField("Search…", text: $searchText)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(width: 220)
+            } else {
+                TextField("Search…", text: $searchText).frame(width: 220)
+            }
+
             Button(action: loadResources) { Label("Reload", systemImage: "arrow.clockwise") }
-            Button(action: applyOverlay) { Label("Apply Overlay", systemImage: "checkmark.circle") }
-            Button(action: clearOverlay) { Label("Clear Overlay", systemImage: "xmark.circle") }
-        }.padding()
+            Button(action: applyOverlay) { Label("Apply", systemImage: "checkmark.circle") }
+            Button(action: clearOverlay) { Label("Clear", systemImage: "xmark.circle") }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
     }
 
     @ViewBuilder
     private var resourceTable: some View {
         if #available(macOS 12.0, *) {
-            Table(filteredItems, selection: $selection) {
-                TableColumn("Key", value: \.key).width(min: 150, ideal: 200)
-                TableColumn("Value (read-only)") { item in Text(item.value ?? "N/A") }.width(min: 150, ideal: 200)
+            Table(displayedItems, selection: $selection) {
+                TableColumn("Key") { item in
+                    Text(item.key)
+                        .font(.system(.body, design: .monospaced))
+                        .textSelection(.enabled)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                .width(min: 180, ideal: 220)
+
+                TableColumn("Value (read-only)") { item in
+                    Text(item.value ?? "N/A")
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(.secondary)
+                        .textSelection(.enabled)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                .width(min: 180, ideal: 240)
+
                 TableColumn("Overlay (Ourin)") { item in
                     if let index = items.firstIndex(where: { $0.id == item.id }) {
-                        TextField("Override", text: $items[index].overlay).onSubmit(applyOverlay)
-                    } else { Text("Error") }
-                }.width(min: 150, ideal: 200)
+                        TextField("Override", text: $items[index].overlay)
+                            .textFieldStyle(.roundedBorder)
+                            .onSubmit(applyOverlay)
+                    } else {
+                        Text("")
+                    }
+                }
+                .width(min: 180, ideal: 220)
+
                 TableColumn("Effective") { item in
-                    Text(item.effectiveValue).fontWeight(item.overlay.isEmpty ? .regular : .bold)
-                }.width(min: 150, ideal: 200)
-                TableColumn("Last Fetched") { item in Text(item.lastFetched, style: .time) }.width(min: 80, ideal: 100)
-            }.frame(minWidth: 600)
+                    HStack(spacing: 6) {
+                        Text(item.effectiveValue)
+                            .font(item.overlay.isEmpty ? .body : .body.bold())
+                            .textSelection(.enabled)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                        if !item.overlay.isEmpty {
+                            Text("Overridden")
+                                .font(.caption2)
+                                .padding(.horizontal, 6).padding(.vertical, 2)
+                                .background(Color.accentColor.opacity(0.15))
+                                .cornerRadius(6)
+                        }
+                    }
+                }
+                .width(min: 200, ideal: 260)
+
+                TableColumn("Last Fetched") { item in
+                    Text(item.lastFetched, style: .time)
+                        .foregroundColor(.secondary)
+                }
+                .width(min: 100, ideal: 120)
+            }
+            .frame(minWidth: 800)
+            .contextMenu { contextMenu }
         } else {
-            List(filteredItems, selection: $selection) { item in
+            List(displayedItems, selection: $selection) { item in
                 HStack {
-                    Text(item.key).frame(width: 150)
-                    Text(item.effectiveValue)
+                    Text(item.key).font(.system(.body, design: .monospaced)).frame(width: 160, alignment: .leading)
+                    Text(item.effectiveValue).lineLimit(1)
                     Spacer()
                 }
-            }
+            }.contextMenu { contextMenu }
         }
     }
 
@@ -387,6 +500,22 @@ fileprivate struct ShioriResourceView: View {
             items[index].overlay = ""
         }
         overlayStore.removeAll()
+    }
+}
+
+// MARK: - Context Menu for copy
+fileprivate extension ShioriResourceView {
+    @ViewBuilder
+    var contextMenu: some View {
+        Button("Copy key") {
+            if let item = selectedItem { NSPasteboard.general.setString(item.key, forType: .string) }
+        }
+        Button("Copy value") {
+            if let item = selectedItem { NSPasteboard.general.setString(item.value ?? "", forType: .string) }
+        }
+        Button("Copy effective") {
+            if let item = selectedItem { NSPasteboard.general.setString(item.effectiveValue, forType: .string) }
+        }
     }
 }
 
@@ -540,8 +669,8 @@ fileprivate struct GeneralSettingsView: View {
         
         // 設定適用の通知
         let alert = NSAlert()
-        alert.messageText = "設定が保存されました"
-        alert.informativeText = "変更は次回起動時に適用されます"
+        alert.messageText = NSLocalizedString("設定が保存されました", comment: "Settings saved title")
+        alert.informativeText = NSLocalizedString("変更は次回起動時に適用されます", comment: "Settings saved note")
         alert.alertStyle = .informational
         alert.runModal()
     }
@@ -740,29 +869,36 @@ fileprivate struct HeadlineBalloonView: View {
     private func testHeadlineUpdate() {
         // Headline URL からデータを取得するテスト
         guard let url = URL(string: headlineURL) else {
-            headlineResponse = "Error: Invalid URL"
+            let fmt = NSLocalizedString("Error: %@", comment: "error prefix with message")
+            headlineResponse = String(format: fmt, NSLocalizedString("Invalid URL", comment: "invalid URL"))
             return
         }
         
-        headlineResponse = "Loading..."
+        headlineResponse = NSLocalizedString("Loading...", comment: "loading status")
         
         URLSession.shared.dataTask(with: url) { data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    headlineResponse = "Error: \(error.localizedDescription)"
+                    let fmt = NSLocalizedString("Error: %@", comment: "error prefix with message")
+                    headlineResponse = String(format: fmt, error.localizedDescription)
                     return
                 }
                 
                 if let httpResponse = response as? HTTPURLResponse {
-                    headlineResponse = "Status: \(httpResponse.statusCode)\n"
-                    headlineResponse += "Headers: \(httpResponse.allHeaderFields)\n\n"
+                    let statusFmt = NSLocalizedString("Status: %d", comment: "http status code line")
+                    headlineResponse = String(format: statusFmt, httpResponse.statusCode) + "\n"
+                    let headersFmt = NSLocalizedString("Headers: %@", comment: "http headers line")
+                    headlineResponse += String(format: headersFmt, String(describing: httpResponse.allHeaderFields)) + "\n\n"
                 }
                 
                 if let data = data {
-                    let content = String(data: data, encoding: .utf8) ?? "Binary data (\(data.count) bytes)"
-                    headlineResponse += "Content:\n\(content.prefix(500))"
+                    let utf8 = String(data: data, encoding: .utf8)
+                    let content = utf8 ?? String(format: NSLocalizedString("Binary data (%d bytes)", comment: "binary data placeholder"), data.count)
+                    let contentTitle = NSLocalizedString("Content:\n%@", comment: "content block")
+                    let body = String(content.prefix(500))
+                    headlineResponse += String(format: contentTitle, body)
                     if content.count > 500 {
-                        headlineResponse += "\n... (truncated)"
+                        headlineResponse += "\n" + NSLocalizedString("... (truncated)", comment: "truncated suffix")
                     }
                 }
             }
@@ -772,13 +908,14 @@ fileprivate struct HeadlineBalloonView: View {
     private func previewBalloon() {
         // バルーンプレビューの更新
         let alert = NSAlert()
-        alert.messageText = "バルーンプレビュー"
-        alert.informativeText = """
-        シェル: \(selectedShell)
-        バルーン: \(selectedBalloon)
-        スケール: \(String(format: "%.1f", balloonPreviewScale))x
-        DPI表示: \(showDPI ? "有効" : "無効")
-        """
+        alert.messageText = NSLocalizedString("Balloon Preview", comment: "Balloon preview title")
+        let shellLabel = NSLocalizedString("Shell:", comment: "shell label")
+        let balloonLabel = NSLocalizedString("Balloon:", comment: "balloon label")
+        let scaleLabel = NSLocalizedString("Scale:", comment: "scale label")
+        let dpiLabel = NSLocalizedString("DPI:", comment: "dpi label")
+        let enabled = NSLocalizedString("Enabled", comment: "enabled state")
+        let disabled = NSLocalizedString("Disabled", comment: "disabled state")
+        alert.informativeText = "\(shellLabel) \(selectedShell)\n\(balloonLabel) \(selectedBalloon)\n\(scaleLabel) \(String(format: "%.1f", balloonPreviewScale))x\n\(dpiLabel) \(showDPI ? enabled : disabled)"
         alert.alertStyle = .informational
         alert.runModal()
     }
@@ -786,16 +923,13 @@ fileprivate struct HeadlineBalloonView: View {
     private func executeScript() {
         // さくらスクリプト実行のテスト
         let alert = NSAlert()
-        alert.messageText = "スクリプト実行結果"
-        alert.informativeText = """
-        実行スクリプト:
-        \(testScript)
-        
-        パース結果:
-        - Surface: 0
-        - テキスト: "こんにちは！これはテストメッセージです。"
-        - 終了タグ検出
-        """
+        alert.messageText = NSLocalizedString("Script Result", comment: "Script execution result title")
+        let execLabel = NSLocalizedString("Executed Script:", comment: "executed script label")
+        let parseLabel = NSLocalizedString("Parse Result:", comment: "parse result label")
+        let surfaceLabel = NSLocalizedString("- Surface:", comment: "surface label")
+        let textLabel = NSLocalizedString("- Text:", comment: "text label")
+        let endDetected = NSLocalizedString("- End tag detected", comment: "end tag detected")
+        alert.informativeText = "\(execLabel)\n\(testScript)\n\n\(parseLabel)\n\(surfaceLabel) 0\n\(textLabel) \"こんにちは！これはテストメッセージです。\"\n\(endDetected)"
         alert.alertStyle = .informational
         alert.runModal()
     }

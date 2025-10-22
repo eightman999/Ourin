@@ -51,7 +51,7 @@ struct AboutView: View {
         .frame(minWidth: 420, minHeight: 220)
         .onAppear(perform: loadLicenses)
         .sheet(isPresented: $showLicenses) {
-            LicenseBrowser(files: thirdPartyFilesWithAppLicense(), selected: $selectedLicense)
+            LicenseBrowser(files: thirdPartyFilesWithAppLicense(), selected: $selectedLicense, isPresented: $showLicenses)
         }
     }
 
@@ -88,8 +88,7 @@ struct AboutView: View {
 private struct LicenseBrowser: View {
     let files: [AboutView.LicenseFile]
     @Binding var selected: AboutView.LicenseFile?
-
-    @Environment(\.dismiss) private var dismiss
+    @Binding var isPresented: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -97,7 +96,7 @@ private struct LicenseBrowser: View {
                 Text("ライセンス")
                     .font(.headline)
                 Spacer()
-                Button("閉じる") { dismiss() }
+                Button("閉じる") { isPresented = false }
             }
             .padding(12)
             Divider()
@@ -112,10 +111,16 @@ private struct LicenseBrowser: View {
                 Divider()
                 if let sel = selected ?? files.first {
                     ScrollView {
-                        Text(sel.content)
-                            .font(.system(.body, design: .monospaced))
-                            .textSelection(.enabled)
-                            .padding(12)
+                        if #available(macOS 12.0, *) {
+                            Text(sel.content)
+                                .font(.system(.body, design: .monospaced))
+                                .textSelection(.enabled)
+                                .padding(12)
+                        } else {
+                            Text(sel.content)
+                                .font(.system(.body, design: .monospaced))
+                                .padding(12)
+                        }
                     }
                 } else {
                     Text("左の一覧から選択してください")

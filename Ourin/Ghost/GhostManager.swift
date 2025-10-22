@@ -278,8 +278,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let preview = trimmed.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
                         NSLog("[GhostManager] Boot script preview: \(preview)")
                         DispatchQueue.main.async {
-                            self.runScript(trimmed)
+                            // Start EventBridge at the moment OnBoot begins
                             self.startEventBridgeIfNeeded()
+                            self.runScript(trimmed)
                         }
                     } else {
                         NSLog("[GhostManager] Boot script is whitespace-only after trim; skipping display")
@@ -1096,6 +1097,6 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
             appDelegate.eventBridge = bridge
         }
-        Log.debug("[GhostManager] EventBridge started (post-initialization) with enableAutoEvents=\(enableAutoEvents)")
+        Log.debug("[GhostManager] EventBridge started with enableAutoEvents=\(enableAutoEvents)")
     }
 }
