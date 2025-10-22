@@ -121,7 +121,7 @@ Charset: UTF-8
 
 ## 12. 実装状況（Implementation Status）
 
-**更新日:** 2025-10-20
+**更新日:** 2025-10-22
 
 ### 12.1 Ourin ホスト側の実装
 
@@ -129,8 +129,8 @@ Charset: UTF-8
 - [x] **CFBundle ロード**: `.plugin` および `.bundle` ファイルのロード機能を実装済み
 - [x] **descript.txt 解析**: プラグインメタデータの読み取りを実装済み
 - [x] **文字コード対応**: UTF-8 既定、Shift_JIS/CP932 の自動検出を実装済み
-- [ ] **PLUGIN/2.0M プロトコル**: ワイヤプロトコルの完全実装は未完了
-- [ ] **イベントディスパッチ**: `PluginEventDispatcher.swift` にて基本構造は実装済みだが、完全な PLUGIN/2.0M 互換は未達成
+- [x] **PLUGIN/2.0M プロトコル**: `PluginProtocol.swift` にて完全実装済み
+- [x] **イベントディスパッチ**: `PluginRegistry.swift` にて PLUGIN/2.0M 互換のイベントディスパッチを実装済み
 - [ ] **XPC 隔離**: 未実装（現在は同一プロセス内で実行）
 
 ### 12.2 実装済みの機能
@@ -149,25 +149,55 @@ Charset: UTF-8
    - `unload()` 関数の呼び出し
    - プラグインの一括アンロード
 
+4. **PLUGIN/2.0M プロトコル処理** (`PluginProtocol.swift`)
+   - **PluginRequest/PluginResponse 構造体**: リクエストとレスポンスの型定義
+   - **PluginProtocolParser**: CRLF 区切りのワイヤテキストをパース
+     - `parseRequest()`: GET/NOTIFY リクエストのパース
+     - `parseResponse()`: ステータスコードとヘッダーを含むレスポンスのパース
+   - **PluginProtocolBuilder**: 構造化データをワイヤテキストに変換
+     - `buildRequest()`: リクエストを CRLF 区切り形式に変換
+     - `buildResponse()`: レスポンスを CRLF 区切り形式に変換
+   - **Plugin 構造体の拡張メソッド**:
+     - `sendRequest()`: 構造化リクエストを送信してレスポンスをパース
+     - `get()`: GET リクエストの便利メソッド
+     - `notify()`: NOTIFY リクエストの便利メソッド
+     - `version()`: プラグインバージョン取得
+
+5. **イベントディスパッチシステム** (`PluginRegistry.swift`)
+   - **汎用ディスパッチ**:
+     - `dispatchGet()`: 全プラグインに GET イベントを送信し、スクリプトを含むレスポンスを収集
+     - `dispatchNotify()`: 全プラグインに NOTIFY イベントを送信
+     - `getAllVersions()`: 全プラグインのバージョン情報を取得
+   - **具体的なイベント実装**:
+     - `dispatchOnMenuExec()`: メニュー選択イベント (GET)
+     - `dispatchOnSecondChange()`: 秒変更イベント (NOTIFY 強制)
+     - `dispatchOnMinuteChange()`: 分変更イベント (NOTIFY 強制)
+     - `dispatchOnOtherGhostTalk()`: 他ゴースト発話イベント (NOTIFY)
+     - `dispatchOnGhostChanging()`: ゴースト変更前イベント (GET)
+     - `dispatchOnGhostChanged()`: ゴースト変更後イベント (NOTIFY)
+     - `dispatchOnShellChanging()`: シェル変更前イベント (GET)
+     - `dispatchOnShellChanged()`: シェル変更後イベント (NOTIFY)
+
 ### 12.3 未実装の機能
 
-1. **完全な PLUGIN/2.0M プロトコル**
-   - `request()` 関数の呼び出しとワイヤプロトコル処理
-   - `ID`/`Reference*`/`Script`/`ScriptOption`/`Target` の完全な実装
-   - NOTIFY 強制イベントの処理
-
-2. **XPC プロセス分離**
+1. **XPC プロセス分離**
    - プラグインの別プロセス実行
    - セキュリティサンドボックス分離
 
-3. **高度なイベント処理**
-   - 全ての PLUGIN/2.0 イベントタイプの完全サポート
+2. **追加のイベントタイプ**
+   - 全ての PLUGIN/2.0 イベントタイプの実装（基本的なイベントは実装済み、追加イベントは必要に応じて実装可能）
+
+### 12.4 実装ファイル
+
+- `Ourin/PluginHost/Plugin.swift`: プラグインバンドルのラッパーと基本的な通信機能
+- `Ourin/PluginHost/PluginRegistry.swift`: プラグイン検出、管理、イベントディスパッチ
+- `Ourin/PluginHost/PluginProtocol.swift`: PLUGIN/2.0M プロトコルの型定義、パーサー、ビルダー
 
 ## 13. 適合チェックリスト
-- [ ] `PLUGIN/2.0M` 行で 2.0 と同構文のワイヤを話せる（未実装）  
-- [x] 既定 `Charset` は **UTF‑8**、`Shift_JIS`/`Windows‑31J` を受理（実装済み）  
-- [ ] CRLF/空行終端などの 2.0 仕様に従う（未実装）  
-- [x] 実体は **.plugin/.bundle**（CFBundle）で Universal 2 を配布（対応済み）  
+- [x] `PLUGIN/2.0M` 行で 2.0 と同構文のワイヤを話せる（実装済み - `PluginProtocol.swift`）
+- [x] 既定 `Charset` は **UTF‑8**、`Shift_JIS`/`Windows‑31J` を受理（実装済み）
+- [x] CRLF/空行終端などの 2.0 仕様に従う（実装済み - `PluginProtocolParser/Builder`）
+- [x] 実体は **.plugin/.bundle**（CFBundle）で Universal 2 を配布（対応済み）
 - [x] 最小 OS は **10.15+**（対応済み）
 
 ## 14. 既知の差分（Windows 前提語彙）

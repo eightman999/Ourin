@@ -45,6 +45,43 @@ public struct Plugin: Hashable {
         let buf = UnsafeBufferPointer(start: p, count: outLen)
         return String(decoding: buf, as: UTF8.self)
     }
+
+    /// Send structured PLUGIN/2.0M request to plugin and parse response
+    public func sendRequest(_ request: PluginRequest) throws -> PluginResponse {
+        let wireText = PluginProtocolBuilder.buildRequest(request)
+        let responseText = send(wireText)
+        return try PluginProtocolParser.parseResponse(responseText)
+    }
+
+    /// Convenient method to send GET request with ID
+    public func get(id: String, charset: String = "UTF-8", sender: String? = "Host", references: [String: String] = [:]) throws -> PluginResponse {
+        let request = PluginRequest(
+            method: .get,
+            id: id,
+            charset: charset,
+            sender: sender,
+            references: references
+        )
+        return try sendRequest(request)
+    }
+
+    /// Convenient method to send NOTIFY request with ID
+    public func notify(id: String, charset: String = "UTF-8", sender: String? = "Host", references: [String: String] = [:]) throws -> PluginResponse {
+        let request = PluginRequest(
+            method: .notify,
+            id: id,
+            charset: charset,
+            sender: sender,
+            references: references
+        )
+        return try sendRequest(request)
+    }
+
+    /// Get plugin version
+    public func version() throws -> String? {
+        let response = try get(id: "version")
+        return response.value
+    }
 }
 
 extension Plugin {

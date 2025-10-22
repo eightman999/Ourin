@@ -44,6 +44,105 @@ public final class PluginRegistry {
         metas.removeAll()
     }
 
+    // MARK: - Event Dispatch
+
+    /// Send GET event to all plugins and collect responses with scripts
+    public func dispatchGet(id: String, references: [String: String] = [:]) -> [(Plugin, PluginResponse)] {
+        var results: [(Plugin, PluginResponse)] = []
+        for plugin in plugins {
+            do {
+                let response = try plugin.get(id: id, references: references)
+                // Only collect responses with script content
+                if response.script != nil || response.value != nil {
+                    results.append((plugin, response))
+                }
+            } catch {
+                NSLog("Plugin GET dispatch failed for \(id): \(error)")
+            }
+        }
+        return results
+    }
+
+    /// Send NOTIFY event to all plugins (responses are typically ignored)
+    public func dispatchNotify(id: String, references: [String: String] = [:]) {
+        for plugin in plugins {
+            do {
+                _ = try plugin.notify(id: id, references: references)
+            } catch {
+                NSLog("Plugin NOTIFY dispatch failed for \(id): \(error)")
+            }
+        }
+    }
+
+    /// Get versions of all loaded plugins
+    public func getAllVersions() -> [Plugin: String] {
+        var versions: [Plugin: String] = [:]
+        for plugin in plugins {
+            do {
+                if let version = try plugin.version() {
+                    versions[plugin] = version
+                }
+            } catch {
+                NSLog("Failed to get plugin version: \(error)")
+            }
+        }
+        return versions
+    }
+
+    /// Dispatch specific event types based on PLUGIN/2.0M spec
+
+    /// OnMenuExec - User selected a plugin menu item
+    public func dispatchOnMenuExec(reference0: String) -> [(Plugin, PluginResponse)] {
+        return dispatchGet(id: "OnMenuExec", references: ["Reference0": reference0])
+    }
+
+    /// OnSecondChange - Timer tick (NOTIFY forced event)
+    public func dispatchOnSecondChange() {
+        dispatchNotify(id: "OnSecondChange")
+    }
+
+    /// OnMinuteChange - Minute changed (NOTIFY forced event)
+    public func dispatchOnMinuteChange() {
+        dispatchNotify(id: "OnMinuteChange")
+    }
+
+    /// OnOtherGhostTalk - Another ghost is talking
+    public func dispatchOnOtherGhostTalk(script: String, ghostName: String) {
+        let refs = [
+            "Reference0": script,
+            "Reference1": ghostName
+        ]
+        dispatchNotify(id: "OnOtherGhostTalk", references: refs)
+    }
+
+    /// OnGhostChanging - Ghost is about to change
+    public func dispatchOnGhostChanging(newGhost: String) -> [(Plugin, PluginResponse)] {
+        return dispatchGet(id: "OnGhostChanging", references: ["Reference0": newGhost])
+    }
+
+    /// OnGhostChanged - Ghost has changed
+    public func dispatchOnGhostChanged(previousGhost: String, currentGhost: String) {
+        let refs = [
+            "Reference0": previousGhost,
+            "Reference1": currentGhost
+        ]
+        dispatchNotify(id: "OnGhostChanged", references: refs)
+    }
+
+    /// OnShellChanging - Shell is about to change
+    public func dispatchOnShellChanging(newShell: String) -> [(Plugin, PluginResponse)] {
+        return dispatchGet(id: "OnShellChanging", references: ["Reference0": newShell])
+    }
+
+    /// OnShellChanged - Shell has changed
+    public func dispatchOnShellChanged(previousShell: String, currentShell: String) {
+        let refs = [
+            "Reference0": previousShell,
+            "Reference1": currentShell
+        ]
+        dispatchNotify(id: "OnShellChanged", references: refs)
+    }
+
     // MARK: Utilities
     private static func searchPaths() -> [URL] {
         var urls: [URL] = []
