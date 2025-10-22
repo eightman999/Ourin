@@ -132,3 +132,57 @@ Swift から POSIX API を呼び出すために以下のブリッジ関数を実
 - **権限**: サンドボックス環境では共有メモリやセマフォへのアクセスが制限される場合があります
 - **リソース名**: ninix互換性のため `/ninix` と `/ninix_mutex` を使用しますが、必要に応じて変更可能です
 - **エフェメラル運用**: 共有メモリは作成直後に `shm_unlink` され、全プロセスがクローズすると自動削除されます
+
+## 実装状況（Implementation Status）
+
+**更新日:** 2025-10-20
+
+### Ourin における実装
+
+- [x] **完全実装済み**: FMO システムは完全に実装され、動作確認済み
+- [x] **起動判定**: `FmoManager.isAnotherInstanceRunning()` による ninix 仕様準拠の起動判定
+- [x] **共有メモリ管理**: `FmoSharedMemory` による POSIX 共有メモリの管理
+- [x] **排他制御**: `FmoMutex` による名前付きセマフォの実装
+- [x] **C ブリッジ**: POSIX API へのブリッジ関数群（`FmoBridge.c/h`）
+- [x] **エフェメラル運用**: 共有メモリの自動削除機能
+- [x] **エラーハンドリング**: `FmoError` による適切なエラー処理
+
+### 実装済みの機能
+
+1. **POSIX 共有メモリ**
+   - `shm_open()` による共有メモリの作成/オープン
+   - `mmap()` によるメモリマッピング
+   - `shm_unlink()` による自動削除
+
+2. **名前付きセマフォ**
+   - `sem_open()` によるセマフォの作成/オープン
+   - `sem_wait()`/`sem_post()` による排他制御
+   - `sem_unlink()` による削除
+
+3. **ninix 互換起動判定**
+   - `/ninix` 共有メモリの存在確認
+   - `O_RDWR` モードでの既存メモリオープン試行
+   - errno に基づくエラー判定
+
+4. **Swift インターフェース**
+   - `FmoManager`: 全体管理クラス
+   - `FmoSharedMemory`: 共有メモリラッパー
+   - `FmoMutex`: セマフォラッパー
+   - `FmoError`: エラー型定義
+
+### 実装ファイル
+
+- `Ourin/FMO/FmoManager.swift`: FMO 管理クラス
+- `Ourin/FMO/FmoSharedMemory.swift`: 共有メモリラッパー
+- `Ourin/FMO/FmoMutex.swift`: Mutex ラッパー
+- `Ourin/FMO/FmoError.swift`: エラー定義
+- `Ourin/FMO/FmoBridge.c`: C ブリッジ実装
+- `Ourin/FMO/FmoBridge.h`: C ブリッジヘッダ
+
+### 動作確認
+
+- ✅ 単一インスタンス起動制御
+- ✅ 複数インスタンス起動時のエラー検出
+- ✅ 共有メモリへの読み書き
+- ✅ セマフォによる排他制御
+- ✅ プロセス終了時のリソース解放

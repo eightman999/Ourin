@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin Onboarding Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .toc {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1 id="ourin-onboarding-guide">Ourin Onboarding Guide</h1>
+<h2 id="1">1. プロジェクト概要</h2>
+<ul>
+<li><strong>Ourin (桜鈴)</strong> は、macOS ネイティブの ukagaka ベースウェアであり、SHIORI や SSTP などの既存規格と互換性を持つデスクトップキャラクター基盤です。【F:CLAUDE.md†L7-L8】</li>
+<li>リポジトリには Xcode プロジェクトと Swift/C++ で実装された多数のサブシステムが含まれ、既存の ukagaka エコシステムと連携します。【F:CLAUDE.md†L60-L80】</li>
+</ul>
+<h2 id="2">2. リポジトリ構成の俯瞰</h2>
+<ul>
+<li><code>Ourin/</code>: macOS アプリ本体。SwiftUI ベースの UI と、FMO・SHIORI・プラグインなど主要機能モジュールを含みます。【F:CLAUDE.md†L60-L72】</li>
+<li><code>OurinTests/</code>: Swift 製ユニットテスト群。<code>xcodebuild</code> の <code>test</code> ターゲットで実行されます。【F:CLAUDE.md†L60-L72】</li>
+<li><code>docs/</code>: SHIORI/SSTP/PLUGIN 仕様や実装ガイドを収録したドキュメント集。新機能の設計時には参照が推奨されます。【F:CLAUDE.md†L73-L79】</li>
+<li><code>Samples/</code>: リファレンス実装・モックアップ等の補助資料。探索してベストプラクティスを把握してください。【F:CLAUDE.md†L67-L72】</li>
+<li><code>yaya_core/</code>: YAYA 互換の C++ ランタイム。Swift プラグインとの連携は <code>docs/connect_swift.md</code> を参照します。【F:docs/connect_swift.md†L1-L134】</li>
+</ul>
+<h2 id="3">3. アプリ起動時に動作する主要サブシステム</h2>
+<p><code>OurinApp.swift</code> の <code>AppDelegate.applicationDidFinishLaunching</code> では、下記のようにサブシステム初期化が段階的に進みます。【F:Ourin/OurinApp.swift†L30-L172】</p>
+<ol>
+<li><strong>FMO 初期化</strong>: <code>FmoManager</code> を生成し、既に別プロセスが動作していないか確認します。【F:Ourin/OurinApp.swift†L46-L55】</li>
+<li><strong>Web ハンドラ登録</strong>: <code>x-ukagaka-link</code> スキームを Swift 側で処理できるようにします。【F:Ourin/OurinApp.swift†L57-L58】</li>
+<li><strong>プラグイン検出</strong>: <code>PluginRegistry</code> が <code>.plugin</code> / <code>.bundle</code> を探索・ロードし、メタ情報を解析します。【F:Ourin/OurinApp.swift†L60-L66】【F:Ourin/PluginHost/PluginRegistry.swift†L12-L95】</li>
+<li><strong>HEADLINE モジュール読込</strong>: ニュースティッカー等の Headline API プラグインを登録します。【F:Ourin/OurinApp.swift†L67-L70】</li>
+<li><strong>SHIORI イベントブリッジ起動</strong>: <code>EventBridge</code> がシステムイベントを SHIORI/SSTP へ転送します。【F:Ourin/OurinApp.swift†L72-L75】</li>
+<li><strong>外部 SSTP サーバ</strong>: <code>OurinExternalServer</code> が TCP/HTTP/XPC の受け口を開き、外部クライアントとの通信を受け付けます。【F:Ourin/OurinApp.swift†L77-L80】【F:CLAUDE.md†L39-L43】</li>
+<li><strong>プラグインイベントディスパッチャ</strong>: ロード済みプラグインへイベント配送を開始します。【F:Ourin/OurinApp.swift†L60-L66】</li>
+<li><strong>ゴースト選択と起動</strong>: ユーザー設定または同梱の <code>emily4.nar</code> を <code>NarInstaller</code> で展開し、<code>GhostManager</code> がゴーストの UI を描画します。【F:Ourin/OurinApp.swift†L82-L172】【F:Ourin/Ghost/GhostManager.swift†L19-L200】</li>
+</ol>
+<h2 id="4">4. サブシステム別の理解ポイント</h2>
+<ul>
+<li><strong>FMO (Forged Memory Object)</strong>: POSIX 共有メモリと名前付きセマフォで 64KB の共有領域を提供し、単一インスタンス制御や他プロセスとの通信に利用します。<code>FmoManager</code> が <code>FmoMutex</code> / <code>FmoSharedMemory</code> を統合します。【F:docs/About_FMO.md†L1-L28】</li>
+<li><strong>ゴースト実行環境</strong>: <code>GhostManager</code> が YAYA 辞書の読み込み、SakuraScript 実行、ウィンドウ描画を担当します。Surface/Scope 切り替えやバルーン文字列更新もここで行われます。【F:Ourin/Ghost/GhostManager.swift†L19-L200】</li>
+<li><strong>NAR パッケージ管理</strong>: <code>NarRegistry</code> と <code>NarInstaller</code> が <code>ghost/</code>・<code>balloon/</code> 等のディレクトリを走査し、ユーザーが導入したパッケージを列挙・展開します。【F:Ourin/Nar/NarRegistry.swift†L3-L68】【F:Ourin/OurinApp.swift†L141-L172】</li>
+<li><strong>プラグイン連携</strong>: <code>PluginRegistry</code> が <code>descript.txt</code> のメタデータを Shift_JIS/UTF-8 を自動判別しつつ解析し、ロード済みプラグインへイベントを送出します。Swift でプラグインを実装する場合は C ABI でのエクスポートやメモリ管理指針に留意してください。【F:Ourin/PluginHost/PluginRegistry.swift†L12-L95】【F:docs/connect_swift.md†L5-L134】</li>
+<li><strong>外部通信</strong>: <code>OurinExternalServer</code> 以下のサーバ群が SSTP や XPC を通じて他アプリ・外部ゴーストと連携します。イベントブリッジやプラグインディスパッチャと組み合わせて、Ourin 外部との相互運用を実現します。【F:CLAUDE.md†L39-L48】</li>
+</ul>
+<h2 id="5">5. ビルド・テスト・デバッグ</h2>
+<ul>
+<li>開発は Xcode (macOS) を前提とし、<code>xcodebuild -project Ourin.xcodeproj -scheme Ourin build</code> でビルド、<code>xcodebuild -project Ourin.xcodeproj -scheme Ourin test</code> でテストを実行します。【F:CLAUDE.md†L9-L18】</li>
+<li>ローカル起動は Xcode から実行するか、<code>xcodebuild ... build &amp;&amp; open build/Release/Ourin.app</code> のワンライナーを使用します。【F:CLAUDE.md†L13-L16】</li>
+<li>プラグイン連携の検証では、<code>docs/connect_swift.md</code> のテスト戦略（単体・結合・ロングラン）を参考にしてください。【F:docs/connect_swift.md†L126-L130】</li>
+</ul>
+<h2 id="6">6. 次に取り組むと良い学習ステップ</h2>
+<ol>
+<li><strong>仕様ドキュメントの熟読</strong>: <code>docs/</code> 配下の SHIORI/SSTP/PLUGIN 仕様を読み、Ourin 固有拡張との違いを把握する。【F:CLAUDE.md†L73-L79】</li>
+<li><strong>GhostManager の追跡</strong>: <code>GhostManager</code> のフローを追い、YAYA 辞書読込から SakuraScript 表示までの処理を Xcode のブレークポイントで確認する。【F:Ourin/Ghost/GhostManager.swift†L52-L200】</li>
+<li><strong>プラグイン試作</strong>: <code>docs/connect_swift.md</code> を基に最小限の Swift プラグインを作成し、<code>PluginRegistry</code> によるロード挙動を観察する。【F:Ourin/PluginHost/PluginRegistry.swift†L19-L95】【F:docs/connect_swift.md†L5-L134】</li>
+<li><strong>FMO デバッグ</strong>: 共有メモリの初期化・解放シーケンスを <code>FmoManager</code> のコードと <code>docs/About_FMO.md</code> で復習し、マルチインスタンス検出ロジックを理解する。【F:Ourin/OurinApp.swift†L46-L55】【F:docs/About_FMO.md†L5-L28】</li>
+</ol>
+<p>このガイドを出発点に、各モジュールの実装と周辺ドキュメントを行き来しながら理解を深めてください。新しい機能追加時は、既存のサブシステムとの連携や規格準拠を最優先で検討することを推奨します。</p>
+        <div class="footer">
+            <p>Ourin (桜鈴) - macOS ネイティブ伺かベースウェア</p>
+        </div>
+    </div>
+</body>
+</html>

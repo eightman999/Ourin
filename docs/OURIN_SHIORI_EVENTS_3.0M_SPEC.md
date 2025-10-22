@@ -225,5 +225,113 @@ basewareversion / hwnd / uniqueid / capability / ownerghostname / otherghostname
 
 ---
 
+## 実装状況（Implementation Status）
+
+**更新日:** 2025-10-20
+
+### Ourin におけるイベントシステム実装
+
+- [x] **イベントブリッジ**: `EventBridge.swift` にてシステムイベントの統合管理を実装済み
+- [x] **システムオブザーバー**: 各種システムイベント監視を実装済み
+- [ ] **完全なイベント網羅**: 全ての SHIORI イベントの完全実装は未達成
+
+### 実装済みのイベントカテゴリ
+
+1. **時間系イベント**
+   - [x] `OnSecondChange`, `OnMinuteChange`: `TimerEmitter.swift` にて実装済み
+   - [x] タイマーベースのイベント発火
+
+2. **OS 状態イベント**
+   - [x] `OnSleep`, `OnResume`: `SleepObserver.swift` にて実装済み
+   - [x] `OnDisplayChange`: `DisplayObserver.swift` にて実装済み
+   - [x] `OnSessionLock`, `OnSessionUnlock`: `SessionObserver.swift` にて実装済み
+   - [x] システム負荷監視: `SystemLoadObserver.swift` にて実装済み
+
+3. **ネットワークイベント**
+   - [x] `OnNetworkConnect`, `OnNetworkDisconnect`: `NetworkObserver.swift` にて実装済み
+   - [x] Network.framework による監視
+
+4. **入力系イベント**
+   - [x] マウス/キーボード監視: `InputMonitor.swift` にて実装済み
+   - [x] グローバルイベント監視（NSEvent）
+
+5. **ドラッグ&ドロップ**
+   - [x] ファイルドロップ: `DragDropReceiver.swift` にて実装済み
+   - [x] NSPasteboard による URL/ファイル受信
+
+6. **外観変更**
+   - [x] `OnAppearanceChange`: `AppearanceObserver.swift` にてダークモード切り替えを監視
+
+7. **SSTP イベント**
+   - [x] `OnSendSSTP`, `OnNotifySSTP`: SSTP サーバにて実装済み
+   - [x] TCP/HTTP/XPC での受信
+
+### 実装済みのコンポーネント
+
+- **EventBridge.swift**: 全イベントオブザーバーの統合管理
+- **TimerEmitter.swift**: 秒/分単位のタイマーイベント
+- **SleepObserver.swift**: スリープ/復帰の監視
+- **DisplayObserver.swift**: ディスプレイ構成変更の監視
+- **SessionObserver.swift**: ログイン/ロック/アンロックの監視
+- **SystemLoadObserver.swift**: CPU/メモリ負荷の監視
+- **NetworkObserver.swift**: ネットワーク接続状態の監視
+- **InputMonitor.swift**: グローバル入力イベントの監視
+- **DragDropReceiver.swift**: ドラッグ&ドロップの受信
+- **AppearanceObserver.swift**: システム外観変更の監視
+
+### 未実装のイベントカテゴリ
+
+1. **入力ボックス系**
+   - [ ] `OnUserInput`, `OnUserInputCancel`
+   - [ ] macOS 向け入力 UI 未実装
+
+2. **ダイアログ系**
+   - [ ] `OnChoiceSelect`, `OnChoiceSelectEx`
+   - [ ] 選択肢ダイアログの完全実装
+
+3. **ネットワーク更新**
+   - [ ] `OnUpdateReady`, `OnUpdateComplete`
+   - [ ] 自動更新機能未実装
+
+4. **ヘッドライン/RSS**
+   - [ ] `OnHeadline*` イベント群
+   - [ ] RSS フィード機能未実装
+
+5. **メール BIFF**
+   - [ ] `OnBIFF*` イベント群
+   - [ ] メールチェック機能未実装
+
+6. **音声認識・合成**
+   - [ ] `OnSpeechInput`, `OnSpeechDone`
+   - [ ] macOS Speech API 統合未実装
+
+7. **カレンダー**
+   - [ ] `OnCalendar*` イベント群
+
+### イベント発火の流れ
+
+```
+システムイベント発生
+  ↓
+各 Observer が検出（DisplayObserver, SleepObserver など）
+  ↓
+EventBridge にイベント転送
+  ↓
+SHIORI リクエスト形式に変換
+  ↓
+ShioriLoader 経由で YAYA Backend へ送信
+  ↓
+ゴーストがレスポンスを返却
+```
+
+### 座標系とパス処理
+
+- [x] **仮想デスクトップグローバル座標**: CoreGraphics により実装済み
+- [x] **POSIX 絶対パス**: FileManager による標準パス処理
+- [x] **file:// URL**: URL 型による処理
+
+---
+
 ## 変更履歴
+- 2025-10-20: 実装状況セクションを追加
 - 2025-07-28 (JST): 初版（3.0M for macOS）。

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .toc {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1 id="sstp1xm-macos-draft">SSTP/1.xM — macOS 差分仕様（Draft）</h1>
+<p><strong>Status:</strong> Draft<br />
+<strong>Updated:</strong> 2025-07-26<br />
+<strong>Audience:</strong> Ourin（桜鈴）/ ベースウェア実装者・クライアント開発者<br />
+<strong>Scope:</strong> UKADOC <strong>SSTP/1.x</strong> の語彙と挙動を維持しつつ、<strong>macOS ネイティブ</strong>（Network.framework + XPC）で安全に動作させるための差分を定義する。<br />
+<strong>非目標:</strong> WindowsのWM_COPYDATAに代表されるバイナリ互換。語彙・挙動の互換のみ。</p>
+<hr />
+<h2 id="_1">目次</h2>
+<ul>
+<li><a href="#1-方針と非目標">1. 方針と非目標</a></li>
+<li><a href="#2-用語">2. 用語</a></li>
+<li><a href="#3-互換ポリシーそのまま踏襲">3. 互換ポリシー（そのまま踏襲）</a></li>
+<li><a href="#4-macos-差分置き換える追加する">4. macOS 差分（置き換える/追加する）</a></li>
+<li><a href="#5-文字コードポリシー">5. 文字コードポリシー</a></li>
+<li><a href="#6-ヘッダ差分受理非適用">6. ヘッダ差分（受理/非適用）</a></li>
+<li><a href="#7-ステータスコード">7. ステータスコード</a></li>
+<li><a href="#8-sstp-over-http互換">8. SSTP over HTTP（互換）</a></li>
+<li><a href="#9-例sendnotifyexecute">9. 例（SEND/NOTIFY/EXECUTE）</a></li>
+<li><a href="#10-参考実装パラメータ推奨既定値">10. 参考実装パラメータ（推奨既定値）</a></li>
+<li><a href="#11-適合チェックリスト">11. 適合チェックリスト</a></li>
+<li><a href="#12-付録-a-xpc-版-directsstp-の最小if">12. 付録 A: XPC 版 DirectSSTP の最小IF</a></li>
+</ul>
+<hr />
+<h2 id="1">1. 方針と非目標</h2>
+<ul>
+<li><strong>ワイヤ（メソッド/ヘッダ/CRLF終端）は SSTP/1.x 準拠</strong>。<code>SEND/NOTIFY/COMMUNICATE/EXECUTE/GIVE</code>、<code>Charset</code>、<code>Sender</code>、<code>Option</code> 等の解釈は原典を踏襲。<strong>keep‑alive は前提とせず、通信毎に切断</strong>。  </li>
+<li><strong>輸送レイヤ</strong>：TCP サーバを <strong>Network.framework</strong> で実装（既定ポート <strong>9801/tcp</strong>。SSP 互換用に 9821 を任意対応）。<strong>既定はループバックのみ</strong>。  </li>
+<li><strong>DirectSSTP の置換</strong>：Windows の <code>WM_COPYDATA</code> に依存する DirectSSTP を、macOS では <strong>XPC（NSXPCConnection）</strong> による同等 IPC として規定。</li>
+</ul>
+<h2 id="2">2. 用語</h2>
+<ul>
+<li><strong>(Socket)SSTP</strong>：TCP 上でやりとりする SSTP。  </li>
+<li><strong>DirectSSTP</strong>：OS の IPC を使う軽量 SSTP。macOS では <strong>XPC</strong> とする。  </li>
+<li><strong>SSTP over HTTP</strong>：HTTP のメッセージボディに SSTP リクエスト/レスポンスをそのまま載せる互換ブリッジ。</li>
+</ul>
+<h2 id="3">3. 互換ポリシー（そのまま踏襲）</h2>
+<ul>
+<li><strong>SSTP の概要とポート</strong>：SSTP はゴースト間汎用通信。実装は 9801/tcp（SSP は 9821 を使用可）。<strong>現在の実運用は 9801 が主</strong>。ローカルホスト限定の待受が標準。  </li>
+<li><strong>構文</strong>：<code>CRLF</code> 改行、<strong>空行で終端</strong>。<strong>Charset ヘッダは必須</strong>（省略時はエラー扱いか実装依存で OS 既定にフォールバック）。<strong>レスポンスには追加データが付く場合がある</strong>。<strong>リクエストとレスポンスで SSTP の版が異なることがある</strong>ため、<strong>版番号に依存した解釈は禁止</strong>。  </li>
+<li><strong>メソッド</strong>：<code>NOTIFY</code>（イベント通知）、<code>SEND</code>（スクリプト送出）、<code>COMMUNICATE</code>（ユーザ入力相当の反応）、<code>EXECUTE</code>（状態取得/制御）、<code>GIVE</code>（旧仕様）を保持。</li>
+</ul>
+<h2 id="4-macos">4. macOS 差分（置き換える/追加する）</h2>
+<h3 id="41-socketsstptcp">4.1 (Socket)SSTP（TCP）</h3>
+<ul>
+<li><strong>実装</strong>：<code>NWListener(using: .tcp, on: 9801)</code> で起動。<strong>既定は 127.0.0.1/::1 に限定</strong>して bind。外部公開は設定で明示。  </li>
+<li><strong>サンドボックス</strong>：App Sandbox 下では、サーバは <strong><code>com.apple.security.network.server</code></strong>、クライアントは <strong><code>com.apple.security.network.client</code></strong> を付与。  </li>
+<li><strong>ファイアウォール</strong>：アプリケーション・ファイアウォール有効時は、<strong>受信を許可</strong>する必要がある。署名/ダウンロードアプリの自動許可設定がある。</li>
+</ul>
+<h3 id="42-directsstpmacos-xpc">4.2 DirectSSTP（macOS XPC 版）</h3>
+<ul>
+<li><strong>実体</strong>：<code>App.app/Contents/XPCServices/ukagaka.sstp.xpc</code> などの <strong>XPC サービス</strong>。  </li>
+<li><strong>IF</strong>：<code>executeSSTP(request: Data, withReply: (Data)-&gt;Void)</code>（<strong>リクエスト/レスポンスの内容は SSTP/1.x テキスト</strong>）。  </li>
+<li><strong>接続</strong>：<code>NSXPCConnection(serviceName:)</code> or <code>NSXPCConnection(machServiceName:)</code>。必要に応じてコード署名要件を設定。  </li>
+<li><strong>セキュリティ</strong>：XPC は<strong>同一開発者署名</strong>での疎通が基本。外部プロセスとの接続には Mach サービス/エンドポイントの設計が必要。</li>
+</ul>
+<h3 id="43">4.3 受信ゴーストの特定</h3>
+<ul>
+<li><strong>ReceiverGhostName</strong> を推奨。<strong>ReceiverGhostHWnd</strong> は macOS では <strong>非適用</strong>（無視）。<br />
+（(Socket)SSTP でもゴーストを<strong>名前</strong>で固定可能。見つからない場合は <strong>404 Not Found</strong> を返す。）</li>
+</ul>
+<h2 id="5">5. 文字コードポリシー</h2>
+<ul>
+<li>既定は <strong>UTF‑8</strong>。  </li>
+<li>互換のため、<code>Shift_JIS</code>/<code>Windows‑31J</code>/<code>CP932</code>/<code>SJIS</code> 等のラベルは <strong>同一系（CP932 ≒ Windows‑31J）として受理</strong>する。WHATWG Encoding では <code>shift_jis</code> と <code>windows-31j</code> を<strong>同一のデコーダ</strong>で扱う。</li>
+</ul>
+<h2 id="6">6. ヘッダ差分（受理/非適用）</h2>
+<ul>
+<li><strong>保持</strong>：<code>Sender</code>、<code>SecurityLevel</code>（local/external）、<code>SecurityOrigin</code>、<code>Option</code>（<code>nodescript</code>/<code>notranslate</code>/<code>nobreak</code>）、<code>ID</code>（Owned SSTP）、<code>X‑SSTP‑PassThru-*</code>。  </li>
+<li><strong>非適用</strong>：<code>HWnd</code>（DirectSSTP 専用）→ macOS では XPC のため <strong>無視</strong>。<code>ReceiverGhostHWnd</code> も同様。  </li>
+<li><strong>SEND 特有</strong>：<code>Option: notify</code> を実装（SSP 2.6.76 相当の挙動）。</li>
+</ul>
+<h2 id="7">7. ステータスコード</h2>
+<ul>
+<li><strong>200 OK</strong>（返り値つき）/ <strong>204 No Content</strong>（返り値なし）/ <strong>210 Break</strong>（実行はされたがブレーク）/ <strong>400</strong>/ <strong>404</strong>/ <strong>408</strong>/ <strong>409</strong>/ <strong>413</strong>/ <strong>420</strong>/ <strong>500</strong>/ <strong>501</strong>/ <strong>503</strong>/ <strong>505</strong>/ <strong>512</strong> を維持。</li>
+</ul>
+<h2 id="8-sstp-over-http">8. SSTP over HTTP（互換）</h2>
+<ul>
+<li><strong>エンドポイント</strong>：<code>POST http://localhost:9801/api/sstp/v1</code>、<code>Content‑Type: text/plain</code>、<strong>Content‑Length 必須</strong>。  </li>
+<li><strong>応答</strong>：HTTP は常に <strong>200 OK</strong>（中身は SSTP レスポンス）。<strong>Origin が localhost 以外</strong>の場合は<strong>強制的に external</strong>扱いとなる。</li>
+</ul>
+<h2 id="9-sendnotifyexecute">9. 例（SEND/NOTIFY/EXECUTE）</h2>
+<h3 id="91-send">9.1 SEND（最小）</h3>
+<pre><code>SEND SSTP/1.0
+Charset: UTF-8
+Sender: Ourin
+Script: \h\s0こんにちは
+
+</code></pre>
+<p><strong>Response</strong></p>
+<pre><code>SSTP/1.4 200 OK
+Charset: UTF-8
+Script: \h\s0受信したよ
+
+</code></pre>
+<h3 id="92-notify">9.2 NOTIFY（イベント通知のみ）</h3>
+<pre><code>NOTIFY SSTP/1.0
+Charset: UTF-8
+Sender: Media Player
+Event: OnMusicPlay
+Reference0: 自由の翼
+Reference1: Linked Horizon
+
+</code></pre>
+<h3 id="93-execute">9.3 EXECUTE（情報取得）</h3>
+<pre><code>EXECUTE SSTP/1.1
+Charset: UTF-8
+Sender: Ourin
+Command: GetName
+
+</code></pre>
+<h2 id="10">10. 参考実装パラメータ（推奨既定値）</h2>
+<ul>
+<li><strong>Port</strong>: 9801/tcp（必要なら 9821 も待受）。</li>
+<li><strong>Bind</strong>: 127.0.0.1 / ::1（外部公開はオプトイン）。</li>
+<li><strong>Charset</strong>: 既定 UTF‑8、SJIS 系ラベルは CP932 として受理。</li>
+</ul>
+<h2 id="11-implementation-status">11. 実装状況（Implementation Status）</h2>
+<p><strong>更新日:</strong> 2025-10-20</p>
+<h3 id="111-ourin">11.1 Ourin ホスト側の実装</h3>
+<ul>
+<li>[x] <strong>TCP SSTP サーバ</strong>: <code>SstpTcpServer.swift</code> にて Network.framework を使用して実装済み</li>
+<li>[x] <strong>HTTP SSTP サーバ</strong>: <code>SstpHttpServer.swift</code> にて実装済み</li>
+<li>[x] <strong>XPC DirectSSTP</strong>: <code>XpcDirectServer.swift</code> および <code>DirectSSTPXPC.swift</code> にて実装済み</li>
+<li>[x] <strong>SSTP パーサー</strong>: <code>SstpParser.swift</code> にてリクエスト解析を実装済み</li>
+<li>[x] <strong>SSTP ディスパッチャ</strong>: <code>SSTPDispatcher.swift</code> にて基本的なメソッド処理を実装済み</li>
+<li>[x] <strong>文字コード対応</strong>: UTF-8 既定、Shift_JIS/CP932 の受理機能を実装済み</li>
+<li>[x] <strong>統合管理</strong>: <code>OurinExternalServer.swift</code> にて TCP/HTTP/XPC の統合管理を実装済み</li>
+<li>[ ] <strong>完全な SSTP/1.x プロトコル</strong>: 基本機能は実装済みだが、全てのオプションヘッダの完全実装は未達成</li>
+</ul>
+<h3 id="112">11.2 実装済みの機能</h3>
+<ol>
+<li><strong>SocketSSTP (TCP)</strong></li>
+<li>Network.framework による TCP サーバ実装</li>
+<li>ポート 9801 でのリスニング</li>
+<li>ローカルホスト限定の受信（127.0.0.1/::1）</li>
+<li>
+<p>基本的な SEND/NOTIFY/COMMUNICATE/EXECUTE メソッドの処理</p>
+</li>
+<li>
+<p><strong>SSTP over HTTP</strong></p>
+</li>
+<li>HTTP サーバの実装</li>
+<li><code>/api/sstp/v1</code> エンドポイント</li>
+<li>
+<p>Content-Type: text/plain でのリクエスト受信</p>
+</li>
+<li>
+<p><strong>DirectSSTP (XPC)</strong></p>
+</li>
+<li>NSXPCConnection によるプロセス間通信</li>
+<li><code>OurinSSTPXPC</code> プロトコルの実装</li>
+<li>
+<p><code>executeSSTP(_:withReply:)</code> メソッドの実装</p>
+</li>
+<li>
+<p><strong>リクエスト処理</strong></p>
+</li>
+<li>CRLF + 空行終端の解析</li>
+<li><code>Charset</code> ヘッダの処理</li>
+<li>
+<p>基本的なレスポンス生成</p>
+</li>
+<li>
+<p><strong>ルーティング</strong></p>
+</li>
+<li><code>SstpRouter.swift</code> によるリクエストの SHIORI への転送</li>
+<li>各種サーバからのリクエスト統合処理</li>
+</ol>
+<h3 id="113">11.3 未実装の機能</h3>
+<ol>
+<li><strong>完全なヘッダサポート</strong></li>
+<li><code>ReceiverGhostName</code> による特定ゴーストへの送信</li>
+<li><code>SecurityLevel</code>/<code>SecurityOrigin</code> の完全実装</li>
+<li>
+<p><code>Option</code> の全パターン (<code>nodescript</code>/<code>notranslate</code>/<code>nobreak</code>)</p>
+</li>
+<li>
+<p><strong>詳細なステータスコード</strong></p>
+</li>
+<li>404 Not Found（ゴースト未発見時）</li>
+<li>408 Request Timeout</li>
+<li>409 Conflict</li>
+<li>413 Payload Too Large</li>
+<li>
+<p>など、一部のステータスコードは未実装</p>
+</li>
+<li>
+<p><strong>外部公開設定</strong></p>
+</li>
+<li>現在はローカルホスト限定</li>
+<li>設定による外部公開機能は未実装</li>
+</ol>
+<h2 id="12">12. 適合チェックリスト</h2>
+<ul>
+<li>[x] CRLF と空行終端の正しい処理（実装済み）  </li>
+<li>[x] <code>Charset</code> 必須（UTF‑8 推奨）。SJIS 系は CP932 として受理（実装済み）  </li>
+<li>[ ] <code>SecurityLevel</code>/<code>SecurityOrigin</code> の解釈（未実装）  </li>
+<li>[ ] <code>ReceiverGhostName</code> によるゴースト固定（未発見は 404）（未実装）  </li>
+<li>[x] <strong>DirectSSTP (macOS)</strong> = <strong>XPC</strong> で <code>request(Data)-&gt;Data</code> の橋渡し（実装済み）  </li>
+<li>[x] <strong>SSTP over HTTP</strong> <code>/api/sstp/v1</code> を localhost 限定で実装（実装済み）</li>
+</ul>
+<h2 id="13-a-xpc-directsstp-if">13. 付録 A: XPC 版 DirectSSTP の最小IF</h2>
+<pre><code class="language-swift">@objc public protocol OurinSSTPXPC {
+    func executeSSTP(_ request: Data, withReply reply: @escaping (Data) -&gt; Void)
+}
+// Host側: NSXPCConnection(serviceName: &quot;app.ourin.sstp&quot;) で接続し、
+// requestはSSTPテキスト(UTF-8)をData化して送る。
+</code></pre>
+        <div class="footer">
+            <p>Ourin (桜鈴) - macOS ネイティブ伺かベースウェア</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAYA Core Architecture Diagram</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .toc {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1 id="yaya-core-architecture-diagram">YAYA Core Architecture Diagram</h1>
+<p>This document provides visual diagrams of the YAYA Core architecture.</p>
+<hr />
+<h2 id="system-overview">System Overview</h2>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                        Ourin.app (Swift)                        │
+│                                                                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
+│  │  ContentView │  │  DevToolsView│  │  Ghost Manager│         │
+│  └──────┬───────┘  └──────────────┘  └──────┬───────┘         │
+│         │                                     │                 │
+│         └──────────────────┬──────────────────┘                 │
+│                            │                                     │
+│                    ┌───────▼────────┐                           │
+│                    │  YayaAdapter   │ ◄── Swift IPC Client     │
+│                    │   (Swift)      │                           │
+│                    └───────┬────────┘                           │
+└────────────────────────────┼──────────────────────────────────┘
+                             │
+                             │ JSON over Process I/O
+                             │ (stdin/stdout, line-based)
+                             │
+┌────────────────────────────▼──────────────────────────────────┐
+│                   yaya_core (C++ Executable)                   │
+│                                                                 │
+│  ┌──────────────────────────────────────────────────────────┐ │
+│  │                    main.cpp                              │ │
+│  │              (IPC Server - JSON Lines)                   │ │
+│  └────────────────────────┬─────────────────────────────────┘ │
+│                           │                                    │
+│  ┌────────────────────────▼─────────────────────────────────┐ │
+│  │                     YayaCore                             │ │
+│  │              (Command Dispatcher)                        │ │
+│  │                                                          │ │
+│  │  Commands:                                               │ │
+│  │    • load(ghost_root, dics[], encoding)                 │ │
+│  │    • request(method, id, headers, refs[])               │ │
+│  │    • unload()                                            │ │
+│  └────────────────────────┬─────────────────────────────────┘ │
+│                           │                                    │
+│  ┌────────────────────────▼─────────────────────────────────┐ │
+│  │                DictionaryManager                         │ │
+│  │                                                          │ │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │ │
+│  │  │ Loader       │  │   Parser     │  │   VM         │  │ │
+│  │  │              │  │              │  │              │  │ │
+│  │  │ • File I/O   │  │ • Lexer      │  │ • Execute    │  │ │
+│  │  │ • UTF-8/932  │  │ • Parser     │  │ • Variables  │  │ │
+│  │  │ • Validation │  │ • AST        │  │ • Functions  │  │ │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘  │ │
+│  │                                                          │ │
+│  │  ┌──────────────┐  ┌──────────────┐                    │ │
+│  │  │BuiltinFuncs  │  │ShioriAdapter │                    │ │
+│  │  │              │  │              │                    │ │
+│  │  │ • RAND()     │  │ • Request    │                    │ │
+│  │  │ • STRLEN()   │  │ • Response   │                    │ │
+│  │  │ • SUBSTR()   │  │ • Headers    │                    │ │
+│  │  └──────────────┘  └──────────────┘                    │ │
+│  └──────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="data-flow-load-dictionary">Data Flow: Load Dictionary</h2>
+<pre><code>User Action: Ghost Selection
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│ YayaAdapter.swift                                           │
+│   adapter.load(                                             │
+│     ghostRoot: &quot;/path/to/ghost/master&quot;,                    │
+│     dics: [&quot;aya_bootend.dic&quot;, &quot;aya_menu.dic&quot;],            │
+│     encoding: &quot;utf-8&quot;                                       │
+│   )                                                         │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+                 │ JSON {&quot;cmd&quot;:&quot;load&quot;, &quot;ghost_root&quot;:&quot;...&quot;, &quot;dic&quot;:[...]}
+                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│ yaya_core: main.cpp                                         │
+│   std::getline(std::cin, line)                             │
+│   YayaCore::processCommand(line)                           │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│ DictionaryManager::load(dics, encoding)                     │
+│                                                              │
+│   FOR EACH dic_file IN dics:                                │
+│     1. DictionaryLoader::readFile(path)                     │
+│        ├─ Detect encoding (UTF-8/CP932)                     │
+│        └─ Convert to UTF-8                                   │
+│                                                              │
+│     2. Lexer::tokenize(source)                              │
+│        ├─ Scan characters                                    │
+│        ├─ Identify tokens (keywords, operators, literals)   │
+│        └─ Skip comments                                      │
+│                                                              │
+│     3. Parser::parse(tokens)                                │
+│        ├─ Build Abstract Syntax Tree (AST)                  │
+│        ├─ Validate syntax                                    │
+│        └─ Extract function definitions                       │
+│                                                              │
+│     4. FunctionRegistry::register(functions)                │
+│        └─ Store function name → AST mapping                 │
+│                                                              │
+│   RETURN success/failure                                     │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+                 │ JSON {&quot;ok&quot;: true/false}
+                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│ YayaAdapter.swift                                           │
+│   return Bool (success/failure)                             │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="data-flow-execute-event-get-onboot">Data Flow: Execute Event (GET OnBoot)</h2>
+<pre><code>Event: Ghost Boot
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│ YayaAdapter.swift                                           │
+│   adapter.request(                                          │
+│     method: &quot;GET&quot;,                                          │
+│     id: &quot;OnBoot&quot;,                                           │
+│     headers: [&quot;Charset&quot;: &quot;UTF-8&quot;],                         │
+│     refs: []                                                │
+│   )                                                         │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+                 │ JSON {&quot;cmd&quot;:&quot;request&quot;, &quot;method&quot;:&quot;GET&quot;, &quot;id&quot;:&quot;OnBoot&quot;, ...}
+                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│ yaya_core: YayaCore::processCommand()                       │
+│   DictionaryManager::execute(&quot;OnBoot&quot;, [])                 │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│ DictionaryManager::execute(funcName, args)                  │
+│                                                              │
+│   1. FunctionRegistry::find(&quot;OnBoot&quot;)                       │
+│      └─ Retrieve function AST                               │
+│                                                              │
+│   2. VM::execute(function, args)                            │
+│      ├─ Create new call frame                               │
+│      ├─ Set reference[0..n] variables                       │
+│      │                                                       │
+│      └─ Evaluate AST nodes:                                 │
+│          │                                                   │
+│          ├─ Variable assignment                             │
+│          │  _var = &quot;value&quot;                                  │
+│          │  VariableStore::set(&quot;_var&quot;, &quot;value&quot;)            │
+│          │                                                   │
+│          ├─ Function call                                    │
+│          │  RAND(10)                                        │
+│          │  BuiltinFunctions::call(&quot;RAND&quot;, [10])           │
+│          │                                                   │
+│          ├─ Conditional execution                           │
+│          │  if condition { ... } else { ... }              │
+│          │                                                   │
+│          └─ String concatenation                            │
+│             &quot;\0\s[0]&quot; + &quot;Hello&quot; + &quot;\e&quot;                      │
+│             = &quot;\0\s[0]Hello\e&quot;                              │
+│                                                              │
+│   3. Return SakuraScript string                             │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+                 │ JSON {&quot;ok&quot;: true, &quot;status&quot;: 200, &quot;value&quot;: &quot;\\0\\s[0]Hello\\e&quot;}
+                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│ YayaAdapter.swift                                           │
+│   return YayaResponse                                       │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│ Ourin: SakuraScript Renderer                                │
+│   Parse: \0 = Sakura scope                                  │
+│          \s[0] = Surface 0                                  │
+│          Hello = Text                                        │
+│          \e = End                                            │
+│                                                              │
+│   Display in balloon                                        │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="component-responsibilities">Component Responsibilities</h2>
+<h3 id="swift-layer-ourinapp">Swift Layer (Ourin.app)</h3>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│ YayaAdapter.swift                                       │
+│                                                         │
+│ Responsibilities:                                       │
+│  • Launch yaya_core process                            │
+│  • Manage process lifecycle                            │
+│  • Encode requests to JSON                             │
+│  • Decode responses from JSON                          │
+│  • Handle process termination                          │
+│  • Error propagation to UI                             │
+│                                                         │
+│ Does NOT:                                               │
+│  • Parse YAYA dictionaries                             │
+│  • Execute YAYA code                                    │
+│  • Understand YAYA syntax                              │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="c-layer-yaya_core">C++ Layer (yaya_core)</h3>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│ main.cpp + YayaCore                                     │
+│                                                         │
+│ Responsibilities:                                       │
+│  • Read JSON from stdin                                │
+│  • Write JSON to stdout                                │
+│  • Dispatch commands                                    │
+│  • Top-level error handling                            │
+│                                                         │
+│ Does NOT:                                               │
+│  • Know about Swift                                     │
+│  • Access UI                                            │
+│  • Manage ghost files                                   │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ DictionaryManager                                       │
+│                                                         │
+│ Responsibilities:                                       │
+│  • Load and parse .dic files                           │
+│  • Manage function registry                            │
+│  • Execute YAYA functions                              │
+│  • Coordinate Lexer/Parser/VM                          │
+│                                                         │
+│ Does NOT:                                               │
+│  • Render SakuraScript                                 │
+│  • Manage ghost lifecycle                              │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ Lexer + Parser                                          │
+│                                                         │
+│ Responsibilities:                                       │
+│  • Tokenize YAYA source code                           │
+│  • Build Abstract Syntax Tree                          │
+│  • Syntax validation                                    │
+│  • Error reporting                                      │
+│                                                         │
+│ Does NOT:                                               │
+│  • Execute code                                         │
+│  • Manage variables                                     │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ VM (Virtual Machine)                                    │
+│                                                         │
+│ Responsibilities:                                       │
+│  • Execute AST nodes                                    │
+│  • Manage variables (local + global)                   │
+│  • Call built-in functions                             │
+│  • Handle control flow (if/while/return)               │
+│  • Stack management                                     │
+│                                                         │
+│ Does NOT:                                               │
+│  • Parse source code                                    │
+│  • Load files                                           │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ BuiltinFunctions                                        │
+│                                                         │
+│ Responsibilities:                                       │
+│  • Implement YAYA built-in functions                   │
+│  • Type conversion                                      │
+│  • String manipulation                                  │
+│  • Random number generation                            │
+│  • Array operations                                     │
+│                                                         │
+│ Does NOT:                                               │
+│  • Parse code                                           │
+│  • Manage user-defined functions                       │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ ShioriAdapter                                           │
+│                                                         │
+│ Responsibilities:                                       │
+│  • Map SHIORI requests to YAYA functions               │
+│  • Set reference[] variables                           │
+│  • Format SHIORI responses                             │
+│  • Handle status codes                                  │
+│                                                         │
+│ Does NOT:                                               │
+│  • Execute YAYA code directly                          │
+│  • Parse dictionaries                                   │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="implementation-status">Implementation Status</h2>
+<pre><code>Component             Status      Phase
+─────────────────────────────────────────
+main.cpp              ✅ Done     -
+YayaCore              ✅ Done     -
+YayaAdapter.swift     ✅ Done     -
+DictionaryManager     ⚠️  Stub    Phase 1
+Lexer                 ❌ TODO     Phase 1 Week 1
+Parser                ❌ TODO     Phase 1 Week 1-2
+AST                   ❌ TODO     Phase 1 Week 1-2
+VM                    ❌ TODO     Phase 1 Week 2
+Value                 ❌ TODO     Phase 1 Week 2
+VariableStore         ❌ TODO     Phase 1 Week 2
+FunctionRegistry      ❌ TODO     Phase 1 Week 2
+BuiltinFunctions      ❌ TODO     Phase 1 Week 2-3
+ShioriAdapter         ❌ TODO     Phase 1 Week 3
+Encoding Support      ❌ TODO     Phase 1 Week 1
+Error Handling        ❌ TODO     Phase 1 Week 3
+Unit Tests            ❌ TODO     Phase 1 Week 1-3
+─────────────────────────────────────────
+Arrays/Dicts          ❌ TODO     Phase 2
+Loops                 ❌ TODO     Phase 2
+Regex                 ❌ TODO     Phase 2
+Performance Opt       ❌ TODO     Phase 2-3
+</code></pre>
+<hr />
+<h2 id="directory-layout">Directory Layout</h2>
+<pre><code>/home/runner/work/Ourin/Ourin/
+│
+├── yaya_core/                      # C++ YAYA Core Module
+│   ├── CMakeLists.txt              # Build config (Universal Binary)
+│   ├── README.md                   # Quick start guide
+│   ├── .gitignore                  # Build artifacts exclusion
+│   │
+│   ├── src/                        # Source code
+│   │   ├── main.cpp                # ✅ IPC entry point
+│   │   ├── YayaCore.{cpp,hpp}      # ✅ Command dispatcher
+│   │   ├── DictionaryManager.{cpp,hpp}  # ⚠️ Stub only
+│   │   ├── Lexer.{cpp,hpp}         # ❌ TODO Phase 1
+│   │   ├── Parser.{cpp,hpp}        # ❌ TODO Phase 1
+│   │   ├── AST.{cpp,hpp}           # ❌ TODO Phase 1
+│   │   ├── VM.{cpp,hpp}            # ❌ TODO Phase 1
+│   │   ├── Value.{cpp,hpp}         # ❌ TODO Phase 1
+│   │   ├── VariableStore.{cpp,hpp} # ❌ TODO Phase 1
+│   │   ├── FunctionRegistry.{cpp,hpp}  # ❌ TODO Phase 1
+│   │   ├── BuiltinFunctions.{cpp,hpp}  # ❌ TODO Phase 1
+│   │   ├── ShioriAdapter.{cpp,hpp}     # ❌ TODO Phase 1
+│   │   └── Utils.{cpp,hpp}         # ❌ TODO Phase 1
+│   │
+│   ├── tests/                      # ❌ TODO Phase 1
+│   │   ├── lexer_test.cpp
+│   │   ├── parser_test.cpp
+│   │   ├── vm_test.cpp
+│   │   └── integration_test.cpp
+│   │
+│   └── build/                      # Git-ignored build directory
+│
+├── Ourin/Yaya/                     # Swift Integration
+│   └── YayaAdapter.swift           # ✅ Process manager + IPC client
+│
+├── docs/                           # Documentation
+│   ├── YAYA_CORE_INVESTIGATION_REPORT.md      # 🆕 調査報告
+│   ├── YAYA_CORE_IMPLEMENTATION_PLAN.md       # 🆕 実装計画
+│   ├── YAYA_CORE_TECHNICAL_SPEC.md            # 🆕 技術仕様
+│   ├── YAYA_CORE_EXECUTIVE_SUMMARY.md         # 🆕 エグゼクティブサマリー
+│   ├── YAYA_CORE_ARCHITECTURE.md              # 🆕 This file
+│   ├── OURIN_YAYA_ADAPTER_SPEC_1.0M.md        # ✅ IPC仕様
+│   └── OURIN_USL_1.0M_SPEC.md                 # ✅ USL仕様
+│
+└── emily4/                         # Test Data
+    └── ghost/master/*.dic          # 50+ YAYA dictionary files
+</code></pre>
+<hr />
+<p><strong>Document</strong>: Architecture Diagram<br />
+<strong>Created</strong>: 2025-10-16<br />
+<strong>Project</strong>: Ourin (eightman999/Ourin)</p>
+        <div class="footer">
+            <p>Ourin (桜鈴) - macOS ネイティブ伺かベースウェア</p>
+        </div>
+    </div>
+</body>
+</html>

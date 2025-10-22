@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIORI External Events — **3.0M‑Mac 仕様書（UKADOC準拠）**</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .toc {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1 id="shiori-external-events-30mmac-ukadoc">SHIORI External Events — <strong>3.0M‑Mac 仕様書（UKADOC準拠）</strong></h1>
+<p><strong>Status:</strong> Draft / Ourin (macOS 10.15+ / Universal 2)<br />
+<strong>Updated:</strong> 2025-07-27 (JST)<br />
+<strong>互換方針:</strong> UKADOC「<strong>外部からのSHIORI Event</strong>」の<strong>イベント名・意味・Reference順</strong>を踏襲。Windows依存の通信路は <strong>macOSネイティブ</strong>に置換。<br />
+<strong>想定読者:</strong> Ourin（ベースウェア）実装者・外部アプリ開発者。</p>
+<hr />
+<h2 id="_1">目次</h2>
+<ul>
+<li><a href="#1-目的と範囲">1. 目的と範囲</a></li>
+<li><a href="#2-トランスポート通信路">2. トランスポート（通信路）</a></li>
+<li><a href="#21-socket-sstp-tcp9801">2.1 Socket SSTP (TCP/9801)</a></li>
+<li><a href="#22-sstp-over-http-拡張">2.2 SSTP-over-HTTP (拡張)</a></li>
+<li><a href="#23-directsstp-mac-as-xpc-拡張">2.3 DirectSSTP‑Mac as XPC (拡張)</a></li>
+<li><a href="#3-文字コード改行パス表現">3. 文字コード/改行/パス表現</a></li>
+<li><a href="#4-イベント互換ルール">4. イベント互換ルール</a></li>
+<li><a href="#5-フレーム例sstphttpxpc">5. フレーム例（SSTP/HTTP/XPC）</a></li>
+<li><a href="#6-セキュリティサンドボックス">6. セキュリティ/サンドボックス</a></li>
+<li><a href="#7-テスト観点チェックリスト">7. テスト観点チェックリスト</a></li>
+<li><a href="#8-変更履歴">8. 変更履歴</a></li>
+</ul>
+<hr />
+<h2 id="1">1. 目的と範囲</h2>
+<ul>
+<li><strong>外部アプリ/他ゴースト/プラグイン</strong>等が発火する「外部SHIORI Event」を、Ourin 上で<strong>語彙互換</strong>のまま受信・転送する。  </li>
+<li>本ページは <strong>UKADOCの集録</strong>に基づく互換実装ガイドであり、個別イベントの詳細は <strong>各発行元の公式</strong>を正とする。</li>
+</ul>
+<h2 id="2">2. トランスポート（通信路）</h2>
+<h3 id="21-socket-sstp-tcp9801">2.1 Socket SSTP (TCP/9801)</h3>
+<ul>
+<li><strong>送受信</strong>: <code>NOTIFY SSTP/1.x</code> / <code>SEND SSTP/1.x</code> 等の<strong>SSTP/1.x</strong>フレームを <strong>TCP:9801</strong>で受信。  </li>
+<li><strong>応答</strong>: <code>SSTP/1.x 200 OK</code> / <code>204 No Content</code> など（[NOTIFY]はスクリプト無視）。  </li>
+<li><strong>互換</strong>: 原典どおり <strong>CRLF 改行</strong>, <code>Charset:</code> 任意指定（なければ UTF‑8）。</li>
+</ul>
+<h3 id="22-sstp-over-http">2.2 SSTP-over-HTTP (拡張)</h3>
+<ul>
+<li><strong>メソッド/パス</strong>: <code>POST /api/sstp/v1</code>  </li>
+<li><strong>ヘッダ</strong>: <code>Content-Type: text/plain; charset=&lt;enc&gt;</code>（推奨）  </li>
+<li><strong>ボディ</strong>: <strong>SSTP/1.xの生テキスト</strong>（<code>NOTIFY ...</code> ～ <code>CRLFCRLF</code>）。  </li>
+<li><strong>目的</strong>: Firewalls/プロキシ越しや HTTP 標準ログの活用。互換維持のため <strong>SSTP文法は変更しない</strong>。</li>
+</ul>
+<h3 id="23-directsstpmac-as-xpc">2.3 DirectSSTP‑Mac as XPC (拡張)</h3>
+<ul>
+<li><strong>IPC</strong>: <code>NSXPCListener(machServiceName: "jp.ourin.sstp")</code> を使う<strong>Machサービス</strong>として受信。  </li>
+<li><strong>インターフェース</strong>: <code>deliverSSTP(request: Data, reply: (Data)-&gt;Void)</code>（UTF‑8/CP932を受理）。  </li>
+<li><strong>用途</strong>: ローカル高速配送・プロセス隔離。</li>
+</ul>
+<h2 id="3">3. 文字コード/改行/パス表現</h2>
+<ul>
+<li><strong>文字コード</strong>: 既定 <strong>UTF‑8</strong>。互換のため <strong>CP932/Shift_JIS</strong>受理→内部UTF‑8正規化。<code>Charset:</code> 指定があれば優先。  </li>
+<li><strong>改行</strong>: 受信は <strong>CRLF</strong> を厳守（内部処理は LF 正規化可）。  </li>
+<li><strong>パス</strong>: <strong>POSIX絶対パス</strong>または <strong><code>file://</code> URL</strong>を標準。Windows形式が来た場合は受信側で正規化。</li>
+</ul>
+<h2 id="4">4. イベント互換ルール</h2>
+<ul>
+<li><strong>[NOTIFY] 明記のイベント</strong>は必ず NOTIFY で通知され、<strong>返却スクリプトは無視</strong>。  </li>
+<li><strong>無印</strong>は状況に応じ <strong>GET/NOTIFY いずれも</strong>あり得る。  </li>
+<li>Ourin は<strong>未知のイベント名でも透過</strong>で SHIORI/3.0 へ横流し（語彙保持）。</li>
+</ul>
+<h2 id="5-sstphttpxpc">5. フレーム例（SSTP/HTTP/XPC）</h2>
+<h3 id="51-socket-sstptcp9801-notify">5.1 Socket SSTP（TCP/9801, NOTIFY）</h3>
+<pre><code>NOTIFY SSTP/1.1
+Sender: ExternalApp
+Charset: UTF-8
+Event: OnRequestValues
+Reference0: OtherGhost
+Reference1: プロフィール
+Reference2: LIFE
+
+\r\n
+</code></pre>
+<h3 id="52-sstp-over-httppost">5.2 SSTP-over-HTTP（POST）</h3>
+<pre><code>POST /api/sstp/v1 HTTP/1.1
+Host: 127.0.0.1
+Content-Type: text/plain; charset=UTF-8
+Content-Length: &lt;len&gt;
+
+NOTIFY SSTP/1.1
+Sender: ExternalApp
+Event: OnRequestValues
+...
+</code></pre>
+<h3 id="53-directsstpmacxpc">5.3 DirectSSTP‑Mac（XPC）</h3>
+<ul>
+<li><code>request</code> には <strong>SSTP/1.x の生バイト列</strong>を渡す。応答は <code>SSTP/1.x 200 OK ...</code> の生バイト列。</li>
+</ul>
+<h2 id="6">6. セキュリティ/サンドボックス</h2>
+<ul>
+<li><strong>受信バインド</strong>: 既定は <code>127.0.0.1</code> のみ（ローカル限定）。  </li>
+<li><strong>パス受領</strong>: <code>file://</code> 正規化と、必要時 <strong>security‑scoped URL</strong> 管理。  </li>
+<li><strong>XPC</strong>: <code>NSXPCListener</code> の<strong>エクスポートインターフェース</strong>を厳密化、署名/識別子で接続制御。</li>
+</ul>
+<h2 id="7">7. テスト観点チェックリスト</h2>
+<ul>
+<li>[ ] CRLF 行末・<code>Charset:</code> 解釈・CP932混在の受理  </li>
+<li>[ ] [NOTIFY]/無印の動作差・返却コード（200/204/400 等）  </li>
+<li>[ ] Socket/HTTP/XPC のいずれでも同一イベントが SHIORI へ渡ること  </li>
+<li>[ ] ローカルバインド・ポート占有時の自動再試行  </li>
+<li>[ ] 大きな本文・複数 <code>ReferenceN</code>・未知イベント名の透過</li>
+</ul>
+<h2 id="8">8. 変更履歴</h2>
+<ul>
+<li>2025-07-27: 初版（3.0M‑Mac）。</li>
+</ul>
+        <div class="footer">
+            <p>Ourin (桜鈴) - macOS ネイティブ伺かベースウェア</p>
+        </div>
+    </div>
+</body>
+</html>

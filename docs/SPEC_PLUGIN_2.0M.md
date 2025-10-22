@@ -119,24 +119,68 @@ Charset: UTF-8
 ```
 （スクリプトを返しても処理系で無視され得る。`204 No Content` または `200 OK` のみ推奨）
 
-## 12. 適合チェックリスト
-- [ ] `PLUGIN/2.0M` 行で 2.0 と同構文のワイヤを話せる。  
-- [ ] 既定 `Charset` は **UTF‑8**、`Shift_JIS`/`Windows‑31J` を受理。  
-- [ ] CRLF/空行終端などの 2.0 仕様に従う。  
-- [ ] 実体は **.plugin/.bundle**（CFBundle）で Universal 2 を配布。  
-- [ ] 最小 OS は **10.15+**。
+## 12. 実装状況（Implementation Status）
 
-## 13. 既知の差分（Windows 前提語彙）
+**更新日:** 2025-10-20
+
+### 12.1 Ourin ホスト側の実装
+
+- [x] **プラグイン検出とロード**: `PluginRegistry.swift` にて実装済み
+- [x] **CFBundle ロード**: `.plugin` および `.bundle` ファイルのロード機能を実装済み
+- [x] **descript.txt 解析**: プラグインメタデータの読み取りを実装済み
+- [x] **文字コード対応**: UTF-8 既定、Shift_JIS/CP932 の自動検出を実装済み
+- [ ] **PLUGIN/2.0M プロトコル**: ワイヤプロトコルの完全実装は未完了
+- [ ] **イベントディスパッチ**: `PluginEventDispatcher.swift` にて基本構造は実装済みだが、完全な PLUGIN/2.0M 互換は未達成
+- [ ] **XPC 隔離**: 未実装（現在は同一プロセス内で実行）
+
+### 12.2 実装済みの機能
+
+1. **プラグイン検出**
+   - App バンドル内の `Contents/PlugIns/` からの検出
+   - `~/Library/Application Support/Ourin/PlugIns/` からの検出
+   - `.plugin` および `.bundle` 拡張子のサポート
+
+2. **プラグインメタデータ**
+   - `descript.txt` の解析（name, id, filename, secondchange.interval など）
+   - UTF-8 および Shift_JIS のエンコーディング自動検出
+
+3. **ライフサイクル管理**
+   - `load()`/`loadu()` 関数の呼び出し
+   - `unload()` 関数の呼び出し
+   - プラグインの一括アンロード
+
+### 12.3 未実装の機能
+
+1. **完全な PLUGIN/2.0M プロトコル**
+   - `request()` 関数の呼び出しとワイヤプロトコル処理
+   - `ID`/`Reference*`/`Script`/`ScriptOption`/`Target` の完全な実装
+   - NOTIFY 強制イベントの処理
+
+2. **XPC プロセス分離**
+   - プラグインの別プロセス実行
+   - セキュリティサンドボックス分離
+
+3. **高度なイベント処理**
+   - 全ての PLUGIN/2.0 イベントタイプの完全サポート
+
+## 13. 適合チェックリスト
+- [ ] `PLUGIN/2.0M` 行で 2.0 と同構文のワイヤを話せる（未実装）  
+- [x] 既定 `Charset` は **UTF‑8**、`Shift_JIS`/`Windows‑31J` を受理（実装済み）  
+- [ ] CRLF/空行終端などの 2.0 仕様に従う（未実装）  
+- [x] 実体は **.plugin/.bundle**（CFBundle）で Universal 2 を配布（対応済み）  
+- [x] 最小 OS は **10.15+**（対応済み）
+
+## 14. 既知の差分（Windows 前提語彙）
 - `HWND` 相当のフィールドは macOS では **未使用/0** とする（必要なら将来の UI 連携拡張で定義）。
 
-## 14. 付録A：DLL → .plugin ポーティング手順（最短）
+## 15. 付録A：DLL → .plugin ポーティング手順（最短）
 1) **ターゲットを Bundle（Mach‑O: bundle）** に切替（Xcode）。**Universal 2** を有効化。  
 2) **エクスポート関数**は `request/load(u)/unload` を **C ABI** で再掲（`__declspec` は不要）。  
 3) **文字コード**は **UTF‑8 既定**、`Shift_JIS`/`Windows‑31J` ラベルは **CP932 同等**として受理。  
 4) **配置**は `MyPlugin.plugin/Contents/{MacOS,Resources}`。App 側は `Contents/PlugIns/` からロード。  
 5) **Rosetta 注意**：x86_64 のみの配布ならホストも x86_64 で実行（Apple silicon では Rosetta）。
 
-## 15. 付録B：ビルドレシピ（Xcode/CMake）
+## 16. 付録B：ビルドレシピ（Xcode/CMake）
 - **Xcode（推奨）**
   - Target: *Bundle*（Mach‑O Type: *Bundle*）  
   - Architectures: **Standard**（`arm64`/`x86_64`）＝ Universal 2  
@@ -149,7 +193,7 @@ Charset: UTF-8
   set_target_properties(MyPlugin PROPERTIES BUNDLE TRUE BUNDLE_EXTENSION "plugin" OUTPUT_NAME "MyPlugin")
   ```
 
-## 16. 付録C：最小ホストローダ（Swift）
+## 17. 付録C：最小ホストローダ（Swift）
 > macOS の **Bundle** API で `.plugin` をロードし、`request` 関数にワイヤ文字列（CRLF/空行終端）を渡す最小例。
 
 ```swift
@@ -196,7 +240,7 @@ struct Plugin {
 private extension Bundle { var _cfBundle: CFBundle { CFBundleGetBundleWithIdentifier(self.bundleIdentifier! as CFString)! } }
 ```
 
-## 17. 参照（Normative / Informative）
+## 18. 参照（Normative / Informative）
 - UKADOC: PLUGIN/2.0（リクエスト/レスポンス、CRLF、ID/Reference/Script/Target 等）  
 - UKADOC: Plugin 設定（descript.txt）  
 - Apple: CFBundle / Bundle（バンドル実体・ロード）  

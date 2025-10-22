@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .toc {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1 id="shiori30m-macos-draft">SHIORI/3.0M — macOS ネイティブ差分仕様（Draft）</h1>
+<p><strong>Status:</strong> Draft<br />
+<strong>Updated:</strong> 2025-07-27<br />
+<strong>Audience:</strong> ベースウェア Ourin（桜鈴）実装者・SHIORI作者<br />
+<strong>Scope:</strong> UKADOC <strong>SHIORI/3.0</strong> の語彙・挙動互換を維持しつつ、Windows DLL 依存（GlobalAlloc等）を <strong>macOS の Bundle（.bundle/.plugin）＋C ABI</strong> に置換する。<br />
+<strong>非目標:</strong> Windows DLL のバイナリ互換（語彙・挙動のみ互換）。</p>
+<hr />
+<h2 id="_1">目次</h2>
+<ul>
+<li><a href="#1-目的と方針">1. 目的と方針</a></li>
+<li><a href="#2-用語">2. 用語</a></li>
+<li><a href="#3-互換変えないもの">3. 互換（変えないもの）</a></li>
+<li><a href="#4-macos-差分置き換えるもの">4. macOS 差分（置き換えるもの）</a></li>
+<li><a href="#5-文字コードポリシー">5. 文字コードポリシー</a></li>
+<li><a href="#6-リクエストレスポンスワイヤ規定">6. リクエスト/レスポンス（ワイヤ規定）</a></li>
+<li><a href="#7-2x205互換の扱い">7. 2.x（2.0/2.5）互換の扱い</a></li>
+<li><a href="#8-例onbootoncommunicate">8. 例（OnBoot/OnCommunicate）</a></li>
+<li><a href="#9-最小実装c-abi-と雛形">9. 最小実装（C ABI と雛形）</a></li>
+<li><a href="#10-ourin-ホスト実装メモ">10. Ourin ホスト実装メモ</a></li>
+<li><a href="#11-適合チェックリスト">11. 適合チェックリスト</a></li>
+<li><a href="#12-参照normativeinformative">12. 参照（Normative/Informative）</a></li>
+</ul>
+<hr />
+<h2 id="1">1. 目的と方針</h2>
+<ul>
+<li><strong>SHIORI/3.0 の語彙・挙動</strong>（<code>GET/NOTIFY</code>、<code>ID</code>、<code>Reference*</code>、<code>Charset</code>、<code>SecurityLevel/Origin</code> 等）を<strong>そのまま準用</strong>する。  </li>
+<li>実体（Windows の DLL 規約）は <strong>macOS の Bundle + C ABI</strong> に<strong>読み替え</strong>る。<strong>XPC 分離</strong>は任意の推奨事項とする。</li>
+</ul>
+<h2 id="2">2. 用語</h2>
+<ul>
+<li><strong>3.0M</strong>: 本仕様の macOS 差分版識別。  </li>
+<li><strong>ホスト</strong>: Ourin などのベースウェア。  </li>
+<li><strong>モジュール</strong>: SHIORI 実装本体（<code>.bundle</code>/<code>.plugin</code>）。  </li>
+<li><strong>ワイヤ</strong>: CRLF 改行＋空行終端の SHIORI メッセージ（3.0 の構文）。</li>
+</ul>
+<h2 id="3">3. 互換（変えないもの）</h2>
+<ul>
+<li><strong>メソッド</strong>：<code>GET</code>（値を返す前提）、<code>NOTIFY</code>（返さない前提）。  </li>
+<li><strong>ワイヤ構文</strong>：CRLF 改行、<strong>空行で終端</strong>、ヘッダの並び（<code>Charset</code> は先頭近くに）。  </li>
+<li><strong>主要ヘッダ</strong>：<code>ID</code>、<code>Reference0..N</code>、<code>Sender</code>、<code>SenderType</code>、<code>SecurityLevel</code>、<code>SecurityOrigin</code>、<code>BaseID</code>、<code>Status</code> ほか。  </li>
+<li><strong>レスポンス</strong>：<code>SHIORI/3.0 200/204/...</code> と <code>Value</code>（場合により <code>ValueNotify</code> など拡張）。</li>
+</ul>
+<h2 id="4-macos">4. macOS 差分（置き換えるもの）</h2>
+<h3 id="41-dll-bundle">4.1 実体（DLL → Bundle）とエクスポート</h3>
+<ul>
+<li>配布：<code>.bundle</code>（または <code>.plugin</code>）。<strong>Universal 2</strong>（<code>arm64</code>/<code>x86_64</code>）推奨。  </li>
+<li>エクスポート（<strong>C ABI</strong>）:
+  <code>c
+  bool shiori_load(const char* dir_utf8);
+  void shiori_unload(void);
+  bool shiori_request(const unsigned char* req, size_t req_len,
+                      unsigned char** res, size_t* res_len);
+  void shiori_free(unsigned char* p);</code></li>
+<li><strong>ロード/解決</strong>：CFBundle から <strong>関数名</strong>で解決（<code>CFBundleGetFunctionPointerForName</code>）。  </li>
+<li><strong>メモリ管理</strong>：戻り値は <strong>呼び出し側（ホスト）が shiori_free する</strong>。グローバルアロケータの混在は不可。</li>
+</ul>
+<h3 id="42">4.2 実行コンテナ（任意）</h3>
+<ul>
+<li>最小は <strong>同一プロセス内ロード</strong>。  </li>
+<li>解析や安定性重視の場合、<strong>XPC サービス</strong>へ分離し <code>Data -&gt; Data</code> で橋渡し。</li>
+</ul>
+<h2 id="5">5. 文字コードポリシー</h2>
+<ul>
+<li><strong>既定は UTF‑8</strong>。  </li>
+<li>互換として <code>Shift_JIS / Windows‑31J / CP932 / SJIS</code> ラベルは <strong>同一系</strong>として受理（CP932 相当）。  </li>
+<li>レスポンスの <code>Charset</code> はリクエストに揃えることを推奨。</li>
+</ul>
+<h2 id="6">6. リクエスト/レスポンス（ワイヤ規定）</h2>
+<ul>
+<li><strong>先頭行</strong>：<code>GET SHIORI/3.0</code> または <code>NOTIFY SHIORI/3.0</code>。  </li>
+<li><strong>終端</strong>：CRLF + CRLF。<strong>ゼロ終端は前提にしない</strong>。  </li>
+<li><strong>例（最小）</strong>：
+  ```
+  GET SHIORI/3.0
+  Charset: UTF-8
+  ID: OnBoot</li>
+</ul>
+<p><code>**Response**</code>
+  SHIORI/3.0 200 OK
+  Charset: UTF-8
+  Value: \h\s0Hello from 3.0M</p>
+<p>```</p>
+<h2 id="7-2x2025">7. 2.x（2.0/2.5）互換の扱い</h2>
+<ul>
+<li><strong>語彙・挙動互換のみ</strong>を提供。<strong>バイナリ互換は提供しない</strong>。  </li>
+<li><strong>SHIORI Resource</strong>（2.5 由来）は 3.0 以降、<strong>通常の Event とほぼ同等</strong>に整理。戻り値は<strong>短いテキスト</strong>として扱う。  </li>
+<li>2.x 的な問い合わせは、可能な限り <strong>3.0 の <code>ID</code>/<code>Reference*</code> へ写像</strong>する。</li>
+</ul>
+<h2 id="8-onbootoncommunicate">8. 例（OnBoot/OnCommunicate）</h2>
+<p><strong>OnBoot（起動）</strong></p>
+<pre><code>GET SHIORI/3.0
+Charset: UTF-8
+Sender: Ourin
+ID: OnBoot
+
+</code></pre>
+<p><strong>OnCommunicate（対話）</strong></p>
+<pre><code>GET SHIORI/3.0
+Charset: UTF-8
+Sender: Ourin
+ID: OnCommunicate
+Reference0: こんにちは
+
+</code></pre>
+<h2 id="9-c-abi">9. 最小実装（C ABI と雛形）</h2>
+<p><strong>ヘッダ</strong></p>
+<pre><code class="language-c">// shiori.h (3.0M)
+#pragma once
+#include &lt;stddef.h&gt;
+#include &lt;stdbool.h&gt;
+
+#ifdef __cplusplus
+extern &quot;C&quot; {
+#endif
+bool shiori_load(const char* dir_utf8);
+void shiori_unload(void);
+bool shiori_request(const unsigned char* req, size_t req_len,
+                    unsigned char** res, size_t* res_len);
+void shiori_free(unsigned char* p);
+#ifdef __cplusplus
+} // extern &quot;C&quot;
+#endif
+</code></pre>
+<p><strong>実装（超最小）</strong></p>
+<pre><code class="language-c">// shiori.c (3.0M minimal)
+#include &quot;shiori.h&quot;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+bool shiori_load(const char* dir_utf8){ (void)dir_utf8; return true; }
+void shiori_unload(void){}
+
+static unsigned char* duputf8(const char* s, size_t* out){
+  size_t n = strlen(s);
+  unsigned char* p = (unsigned char*)malloc(n);
+  if(!p) return NULL; memcpy(p, s, n); *out = n; return p;
+}
+
+bool shiori_request(const unsigned char* req, size_t len,
+                    unsigned char** res, size_t* res_len){
+  (void)len;
+  const char *ok =
+    &quot;SHIORI/3.0 200 OK\r\n&quot;
+    &quot;Charset: UTF-8\r\n&quot;
+    &quot;Value: \\h\\s0Hello from 3.0M\r\n&quot;
+    &quot;\r\n&quot;;
+  *res = duputf8(ok, res_len);
+  return *res != NULL;
+}
+
+void shiori_free(unsigned char* p){ free(p); }
+</code></pre>
+<h2 id="10-ourin">10. Ourin ホスト実装メモ</h2>
+<ul>
+<li><code>CFBundle</code> でロードし、<code>shiori_load</code>→<code>shiori_request</code>→<code>shiori_unload</code>（終了時）を呼ぶ。  </li>
+<li><strong>XPC 分離</strong>する場合は、<code>request(Data)-&gt;Data</code> の固定 IF で橋渡し。  </li>
+<li><strong>macOS 10.15+ / 64bit 専用</strong>、<strong>Universal 2</strong> 配布を基本とする。</li>
+</ul>
+<h2 id="11-implementation-status">11. 実装状況（Implementation Status）</h2>
+<p><strong>更新日:</strong> 2025-10-20</p>
+<h3 id="111-ourin">11.1 Ourin ホスト側の実装</h3>
+<ul>
+<li>[x] <strong>CFBundle によるロード</strong>: <code>ShioriLoader.swift</code> にて実装済み</li>
+<li>[x] <strong>YAYA バックエンド</strong>: <code>YayaBackend</code> および <code>YayaAdapter.swift</code> にて YAYA ゴーストのサポート実装済み</li>
+<li>[x] <strong>文字コード対応</strong>: UTF-8 既定、Shift_JIS/CP932 受理機能を実装済み</li>
+<li>[x] <strong>リクエスト/レスポンス処理</strong>: CRLF + 空行終端の基本的なワイヤプロトコル処理を実装済み</li>
+<li>[ ] <strong>Bundle/Plugin 形式の SHIORI</strong>: C ABI での直接ロードは未実装（現在は YAYA のみ対応）</li>
+<li>[ ] <strong>XPC 分離実行</strong>: 未実装（現在は同一プロセス内で実行）</li>
+<li>[ ] <strong>shiori_free メモリ管理</strong>: C ABI 未実装のため該当なし</li>
+</ul>
+<h3 id="112">11.2 実装済みの機能</h3>
+<ol>
+<li><strong>YAYA ゴースト対応</strong></li>
+<li><code>yaya.txt</code> の解析とロード</li>
+<li><code>dic</code> ファイルの再帰的読み込み</li>
+<li>リクエスト/レスポンス処理</li>
+<li>
+<p><code>OnBoot</code>, <code>OnCommunicate</code> 等の基本イベント</p>
+</li>
+<li>
+<p><strong>文字エンコーディング</strong></p>
+</li>
+<li>UTF-8 既定での処理</li>
+<li>
+<p>Shift_JIS/CP932 の自動検出と変換</p>
+</li>
+<li>
+<p><strong>イベントシステム</strong></p>
+</li>
+<li>システムイベントの監視と SHIORI への転送</li>
+<li><code>EventBridge</code> によるイベント配信</li>
+</ol>
+<h3 id="113">11.3 未実装の機能</h3>
+<ol>
+<li><strong>C ABI での Bundle/Plugin ロード</strong></li>
+<li><code>shiori_load</code>, <code>shiori_request</code>, <code>shiori_unload</code>, <code>shiori_free</code> 関数の実装</li>
+<li>
+<p>CFBundle からの関数ポインタ解決</p>
+</li>
+<li>
+<p><strong>XPC サービス分離</strong></p>
+</li>
+<li>SHIORI の別プロセス実行</li>
+<li>
+<p>セキュリティサンドボックス分離</p>
+</li>
+<li>
+<p><strong>SHIORI/2.x 互換</strong></p>
+</li>
+<li>2.x プロトコルのサポート</li>
+</ol>
+<h2 id="12">12. 適合チェックリスト</h2>
+<ul>
+<li>[x] <code>GET/NOTIFY SHIORI/3.0</code>、CRLF＋空行終端で往復できる（YAYA バックエンドで実装）  </li>
+<li>[x] <code>Charset</code> 未指定は UTF‑8、SJIS系ラベルは CP932 として受理  </li>
+<li>[x] <code>Value</code>/<code>ValueNotify</code> 等の拡張を必要に応じて実装（基本実装済み）  </li>
+<li>[ ] 実体は <code>.bundle/.plugin</code>（Universal 2）＋ <strong>C ABI</strong>（未実装）  </li>
+<li>[ ] <strong>shiori_free</strong> による戻り値解放（未実装）</li>
+</ul>
+<h2 id="13-normativeinformative">13. 参照（Normative/Informative）</h2>
+<ul>
+<li>SHIORI/3.0（UKADOC）  </li>
+<li>SHIORI Event リスト／メモ  </li>
+<li>DLL 共通仕様（Windows の GlobalAlloc 規約の根拠。3.0M では置換）  </li>
+<li>Apple: CFBundle（関数名でポインタ解決）/ NSXPCConnection（分離実行）  </li>
+<li>macOS 10.15 以降 32bit 非対応</li>
+</ul>
+        <div class="footer">
+            <p>Ourin (桜鈴) - macOS ネイティブ伺かベースウェア</p>
+        </div>
+    </div>
+</body>
+</html>
