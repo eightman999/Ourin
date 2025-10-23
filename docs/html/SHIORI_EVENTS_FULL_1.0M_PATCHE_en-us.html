@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIORI Events FULL (Ourin/1.0M)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="shiori-events-full-ourin10m">SHIORI Events FULL (Ourin/1.0M)</h1>
+<blockquote>
+<p>Method rule (per UKADOC):
+- Unless an event is explicitly marked as "[NOTIFY]" in the UKADOC list (https://ssp.shillest.net/ukadoc/manual/list_shiori_event.html), its default method is GET.
+- Only events documented with "[NOTIFY]" are NOTIFY by default. All others are GET by default.
+- This document follows the same convention. When the "Method" is not shown for an ID below, assume GET by default unless otherwise noted by implementation-specific remarks.</p>
+</blockquote>
+<h2 id="notify-only-events-return-ignored">Notify-only events (return ignored)</h2>
+<p>Per UKADOC “Notifyイベント”, the following IDs are sent via NOTIFY and any returned script must be ignored by the baseware. Ourin follows the same behavior.</p>
+<ul>
+<li><code>basewareversion</code></li>
+<li><code>hwnd</code></li>
+<li><code>uniqueid</code></li>
+<li><code>capability</code></li>
+<li><code>ownerghostname</code></li>
+<li><code>otherghostname</code></li>
+<li><code>installedsakuraname</code></li>
+<li><code>installedkeroname</code></li>
+<li><code>installedghostname</code></li>
+<li><code>installedshellname</code></li>
+<li><code>installedballoonname</code></li>
+<li><code>installedheadlinename</code></li>
+<li><code>installedplugin</code></li>
+<li><code>configuredbiffname</code></li>
+<li><code>ghostpathlist</code></li>
+<li><code>balloonpathlist</code></li>
+<li><code>headlinepathlist</code></li>
+<li><code>pluginpathlist</code></li>
+<li><code>calendarskinpathlist</code></li>
+<li><code>calendarpluginpathlist</code></li>
+<li><code>rateofusegraph</code></li>
+<li><code>enable_log</code></li>
+<li><code>enable_debug</code></li>
+<li><code>OnNotifySelfInfo</code></li>
+<li><code>OnNotifyBalloonInfo</code></li>
+<li><code>OnNotifyShellInfo</code></li>
+<li><code>OnNotifyDressupInfo</code></li>
+<li><code>OnNotifyUserInfo</code></li>
+<li><code>OnNotifyOSInfo</code></li>
+<li><code>OnNotifyFontInfo</code></li>
+<li><code>OnNotifyInternationalInfo</code></li>
+</ul>
+<p>Reference: https://ssp.shillest.net/ukadoc/manual/list_shiori_event.html</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Ourin(mac) メモ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OnFirstBoot</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBoot</code></td>
+<td>Lifecycle mapping in EventHub</td>
+</tr>
+<tr>
+<td><code>OnClose</code></td>
+<td>Lifecycle mapping in EventHub</td>
+</tr>
+<tr>
+<td><code>OnCloseAll</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnGhostChanged</code></td>
+<td>Lifecycle mapping in EventHub</td>
+</tr>
+<tr>
+<td><code>OnGhostChanging</code></td>
+<td>Lifecycle mapping in EventHub</td>
+</tr>
+<tr>
+<td><code>OnGhostCalled</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnGhostCalling</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnGhostCallComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOtherGhostBooted</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOtherGhostChanged</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOtherGhostClosed</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnShellChanged</code></td>
+<td>Shell/Balloon updates in Ourin</td>
+</tr>
+<tr>
+<td><code>OnShellChanging</code></td>
+<td>Shell/Balloon updates in Ourin</td>
+</tr>
+<tr>
+<td><code>OnDressupChanged</code></td>
+<td>Dressup hooks (SERIKO parts)</td>
+</tr>
+<tr>
+<td><code>OnBalloonChange</code></td>
+<td>Shell/Balloon updates in Ourin</td>
+</tr>
+<tr>
+<td><code>OnWindowStateRestore</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnWindowStateMinimize</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnFullScreenAppMinimize</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnFullScreenAppRestore</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnVirtualDesktopChanged</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnCacheSuspend</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnCacheRestore</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnInitialize</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnDestroy</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSysResume</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSysSuspend</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBasewareUpdating</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBasewareUpdated</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTeachStart</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTeachInputCancel</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTeach</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnCommunicate</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnCommunicateInputCancel</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUserInput</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUserInputCancel</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSystemDialog</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSystemDialogCancel</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnConfigurationDialogHelp</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnGhostTermsAccept</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnGhostTermsDecline</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSecondChange</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMinuteChange</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnHourTimeSignal</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnVanishSelecting</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnVanishSelected</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnVanishCancel</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnVanishButtonHold</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnVanished</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOtherGhostVanished</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnChoiceSelect</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnChoiceSelectEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnChoiceEnter</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnChoiceTimeout</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnChoiceHover</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnAnchorSelect</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnAnchorSelectEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnAnchorEnter</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnAnchorHover</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSurfaceChange</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSurfaceRestore</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOtherSurfaceChange</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseClick</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseClickEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseDoubleClick</code></td>
+<td>Map from NSEvent (screen→logical coords)</td>
+</tr>
+<tr>
+<td><code>OnMouseDoubleClickEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseMultipleClick</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseMultipleClickEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseUp</code></td>
+<td>Map from NSEvent (screen→logical coords)</td>
+</tr>
+<tr>
+<td><code>OnMouseUpEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseDown</code></td>
+<td>Map from NSEvent (screen→logical coords)</td>
+</tr>
+<tr>
+<td><code>OnMouseDownEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseMove</code></td>
+<td>Map from NSEvent (screen→logical coords)</td>
+</tr>
+<tr>
+<td><code>OnMouseWheel</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseEnterAll</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseLeaveAll</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseEnter</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseLeave</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseDragStart</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseDragEnd</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseHover</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMouseGesture</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBalloonBreak</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBalloonClose</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBalloonTimeout</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTrayBalloonClick</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTrayBalloonTimeout</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnInstallBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnInstallComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnInstallCompleteEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnInstallCompleteAll</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnInstallFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnInstallRefuse</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnInstallReroute</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnFileDropping</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnFileDropped</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOtherObjectDropping</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOtherObjectDropped</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnDirectoryDrop</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnWallpaperChange</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnFileDrop</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnFileDropEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnFileDrop2</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdatedataCreating</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdatedataCreated</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNarCreating</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNarCreated</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnURLDragDropping</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnURLDropping</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnURLDropped</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnURLDropFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnURLQuery</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnXUkagakaLinkOpen</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateProcessExec</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateReady</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdate</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnDownloadBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMD5CompareBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMD5CompareComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMD5CompareFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateOtherBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateOtherReady</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateOtherComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateOtherFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateOther</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateCheckComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateCheckFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateResult</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateResultEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateCheckResult</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateCheckResultEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUpdateResultExplorer</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSNTPBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSNTPCompareEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSNTPCompare</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSNTPCorrectEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSNTPCorrect</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSNTPFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBIFFBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBIFFComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBIFF2Complete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBIFFFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnHeadlinesenseBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnHeadlinesense</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnFind</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnHeadlinesenseComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnHeadlinesenseFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnRSSBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnRSSComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnRSSFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSchedule5MinutesToGo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnScheduleRead</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSchedulesenseBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSchedulesenseComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSchedulesenseFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSchedulepostBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSchedulepostComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSSTPBreak</code></td>
+<td>SSTP localhost-only by default</td>
+</tr>
+<tr>
+<td><code>OnSSTPBlacklisting</code></td>
+<td>SSTP localhost-only by default</td>
+</tr>
+<tr>
+<td><code>OnExecuteHTTPComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnExecuteHTTPFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnExecuteHTTPProgress</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnExecuteHTTPSSLInfo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnExecuteRSSComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnExecuteRSSFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnExecuteRSS_SSLInfo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnPingComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnPingProgress</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNSLookupComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNSLookupFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnRaisePluginFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNotifyPluginFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnRaiseOtherFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNotifyOtherFailure</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOverlap</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOtherOverlap</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOffscreen</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOtherOffscreen</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNetworkHeavy</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNetworkStatusChange</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnScreenSaverStart</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnScreenSaverEnd</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSessionLock</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSessionUnlock</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSessionDisconnect</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSessionReconnect</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnCPULoadHigh</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnCPULoadLow</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMemoryLoadHigh</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMemoryLoadLow</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnDisplayChange</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnDisplayHandover</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnDisplayChangeEx</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnDisplayPowerStatus</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBatteryNotify</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBatteryLow</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBatteryCritical</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBatteryChargingStart</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBatteryChargingStop</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnDeviceArrival</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnDeviceRemove</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTabletMode</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnDarkTheme</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOSUpdateInfo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnRecycleBinEmpty</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnRecycleBinEmptyFromOther</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnRecycleBinStatusUpdate</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSelectModeBegin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSelectModeCancel</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSelectModeComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSelectModeMouseDown</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSelectModeMouseUp</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSpeechSynthesisStatus</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnVoiceRecognitionStatus</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnVoiceRecognitionWord</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnKeyPress</code></td>
+<td>Map from key events (IME aware)</td>
+</tr>
+<tr>
+<td><code>OnRecommendsiteChoice</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTranslate</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnAITalk</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnOtherGhostTalk</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnEmbryoExist</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNekodorifExist</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSoundStop</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSoundError</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTextDrop</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnShellScaling</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBalloonScaling</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnLanguageChange</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnResetWindowPos</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNotifySelfInfo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNotifyBalloonInfo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNotifyShellInfo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNotifyDressupInfo</code></td>
+<td>Dressup hooks (SERIKO parts)</td>
+</tr>
+<tr>
+<td><code>OnNotifyUserInfo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNotifyOSInfo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNotifyFontInfo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNotifyInternationalInfo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnRequestValues</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnGetValues</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTalkRequest</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnHandActivate</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnJitenBattle</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnJitenTagBattle</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMglBattle</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnKanadeTeaPartyInfomationRequest</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnKanadeTeaParty</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnKanadeTeaPartyEnd</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnPoker</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnPokerNotify</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMopClear</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNeedlePoke</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnBeerShower</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnDive</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnHitThunder</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnStampInfo</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnStampAdd</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnStampInfoCall</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnPotatoReturn</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnPotatoFileNotFound</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnPotatoError</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnCrystalDiskInfoEvent</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnCrystalDiskInfoClear</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnWeatherStation</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSpectrePlugin</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnHttpcNotify</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnKinokoObjectCreate</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnKinokoObjectDestroy</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnKinokoObjectChanging</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnKinokoObjectChanged</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnKinokoObjectInstalled</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSysResourceLow</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSysResourceCritical</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNekodorifObjectEmerge</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNekodorifObjectHit</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNekodorifObjectDrop</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNekodorifObjectVanish</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNekodorifObjectDodge</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMusicPlay</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnFleetClockComplete</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventNewGame</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventGameLoad</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventGameQuit</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventHourPlayed</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventMapChanged</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventLevelUp</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventSkillUp</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventSkillDown</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventBelieveGod</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventJoinParty</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventSleep</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventAwake</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventInvestNPC</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventRandomEvent</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventAddNewsTopic</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventWish</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventWished</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventDead</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventPetDead</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventLastword</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventTravelGuide</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventAbandonPet</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventSaleSlave</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventSaleWife</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventMarriage</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventRefuseMarriage</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventJoinGuild</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventMutation</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventMutationCured</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventEtherDisease</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventEtherDiseaseCured</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventAdventGod</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventMewmewmew</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventBuyNuke</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventSetNuke</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventNukeExploded</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventLomiasInTheParty</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventLomiasKilled</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventZeomeKilled</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventConqueredLesimas</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventAtonement</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventBecomeCriminal</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventPerformance</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventClothOut</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventStealItem</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventTreasureDigging</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventReadTreasureMap</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventSkillLearned</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventWeatherChanged</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventRagnarok</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventSisterRagnarok</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventPray</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventOffer</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventPrayFailed</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventPrayEyth</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventAreaChanged</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventPayTax</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventCooking</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventHour</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElonaOmakeMMAEventGrandmapocalypse</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMahjong</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnMahjongResponse</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnNostr</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSatolistBoot</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSatolistGhostOpened</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSatolistSaved</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSatolistClosed</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSatolistEventAdded</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnSatolistDictionaryFolderChanged</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTourabuConquestStart</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTourabuConquestEnd</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTourabuDutyStart</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnTourabuDutyEnd</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElinAllyCondition</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElinAllyDead</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElinCatchFish</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElinMapCharaGenerate</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElinMapEnter</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElinMapItemGenerate</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElinPCCondition</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElinPCDead</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnElinTarget</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnApplicationBoot</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnApplicationClose</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnApplicationExist</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnApplicationVersion</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnApplicationOperationFinish</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnApplicationFileOpen</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnWebsiteUpdateNotify</code></td>
+<td>OS-agnostic</td>
+</tr>
+<tr>
+<td><code>OnUkadocScriptExample</code></td>
+<td>OS-agnostic</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="appendix-ourinmac-2025-07-29-2106-utc0900">Appendix: Ourin(mac) 差分注記（イベント, 2025-07-29 21:06 UTC+09:00）</h1>
+<p>Ourin における <strong>OS 依存イベント</strong>のマッピング／制約を明文化します。本文の ID/意味は Ukadoc に準拠し、ここでは <strong>発火源と公開API</strong>を明記します。</p>
+<h2 id="_1">電源/スリープ/画面</h2>
+<table>
+<thead>
+<tr>
+<th>イベント例</th>
+<th>Ourin(mac) 発火源/メモ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OnSysSuspend</code> / <code>OnSysResume</code></td>
+<td><strong>NSWorkspace.willSleepNotification / didWakeNotification</strong> をブリッジ。</td>
+</tr>
+<tr>
+<td><code>OnScreenSaverStart</code> / <code>OnScreenSaverEnd</code></td>
+<td>画面スリープ/復帰は <strong>screensDidSleepNotification / screensDidWakeNotification</strong> を準用。</td>
+</tr>
+<tr>
+<td><code>OnDisplay*</code></td>
+<td>画面構成変化は NSWorkspace 通知や CGDisplay 変更の観測で補完（必要最小限）。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">バッテリー/電源</h2>
+<table>
+<thead>
+<tr>
+<th>イベント例</th>
+<th>Ourin(mac) 発火源/メモ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OnBattery*</code>（残量/充電/AC接続など）</td>
+<td><strong>IOKit IOPowerSources</strong>（<code>IOPSCopyPowerSourcesInfo</code> 系）をポーリング/通知で監視。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">通知/トレイ相当</h2>
+<table>
+<thead>
+<tr>
+<th>イベント例</th>
+<th>Ourin(mac) 発火源/メモ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OnTrayBalloon*</code> 系</td>
+<td><strong>NSStatusItem</strong> 常駐＋ <strong>UNUserNotificationCenter</strong> で代替。タイムアウト等は <strong>OS 依存</strong>。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="recycle-bin">ファイル/ゴミ箱（Recycle Bin 相当）</h2>
+<table>
+<thead>
+<tr>
+<th>イベント例</th>
+<th>Ourin(mac) 発火源/メモ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OnRecycleBin*</code></td>
+<td><code>~/.Trash</code> 配下を <strong>FSEvents</strong> で監視（Best‑Effort）。APFS/権限により検出粒度は変動。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">外観/テーマ</h2>
+<table>
+<thead>
+<tr>
+<th>イベント例</th>
+<th>Ourin(mac) 発火源/メモ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OnDarkTheme</code>（相当の独自拡張を含む）</td>
+<td><strong>NSApplication.effectiveAppearance</strong> を監視（KVO 等）。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="mac">非推奨/縮退候補（mac に概念差あり）</h2>
+<table>
+<thead>
+<tr>
+<th>イベント例</th>
+<th>Ourin(mac) 方針</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OnTabletMode</code></td>
+<td>macOS にタブレットモード概念なし。<strong>非対応</strong>（常に未発火）。</td>
+</tr>
+<tr>
+<td><code>OnVirtualDesktopChanged</code> 等</td>
+<td><strong>Spaces</strong> は<strong>安定した公開 API が乏しい</strong>ため、既定は未対応。必要なら実験的に通知のみに留める。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_5">参考（出典）</h4>
+<ul>
+<li>Ukadoc: <strong>SHIORI Event リスト（本体／外部）</strong>。  </li>
+<li>Apple: <strong>NSWorkspace</strong> の各通知（sleep/wake/screens）、<strong>IOKit IOPowerSources</strong>（バッテリー/AC 判定）、<strong>File System Events (FSEvents)</strong>、<strong>UNUserNotificationCenter</strong>、<strong>NSStatusItem</strong>、<strong>effectiveAppearance</strong>。</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

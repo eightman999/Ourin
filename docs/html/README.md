@@ -1,50 +1,63 @@
-# Ourin ドキュメント（HTML版）
+# Ourin ドキュメント（HTML版） / Ourin Documentation (HTML)
 
-このディレクトリには、Ourin（桜鈴）の全ドキュメントの HTML 版が含まれています。
+このディレクトリには、Ourin（桜鈴）の全ドキュメントの HTML 版が含まれています。  
+This directory contains HTML versions of all Ourin documentation.
 
-## 閲覧方法
+## 閲覧方法 / How to View
 
-1. **索引ページから閲覧**: [index.html](index.html) を開いて、カテゴリ別に整理されたドキュメント一覧から選択
-2. **直接閲覧**: 各 HTML ファイルを直接開く
+1. **索引ページから閲覧 / Browse from Index**: [index.html](index.html) を開いて、カテゴリ別に整理されたドキュメント一覧から選択  
+   Open [index.html](index.html) and select from categorized document list
+2. **直接閲覧 / Direct Access**: 各 HTML ファイルを直接開く  
+   Open individual HTML files directly
 
-## ドキュメントについて
+## ドキュメントについて / About Documentation
 
-- **言語**: 第一言語は日本語です
-- **内容**: マークダウン版（`../` ディレクトリ）と同じ内容です
-- **実装状況**: 各仕様書には「実装状況（Implementation Status）」セクションが追加され、現在の実装の有無や状況が記載されています
-- **更新日**: 2025-10-20
+### 言語サポート / Language Support
+- **バイリンガル / Bilingual**: 全ドキュメントに日本語版と英語版があります  
+  All documents are available in both Japanese and English
+- **言語切り替え / Language Switching**: 各ドキュメントページ上部で言語を切り替えられます  
+  Switch languages using the controls at the top of each document
 
-## 主要ドキュメント
+### ファイル命名規則 / File Naming Convention
+- 日本語版 / Japanese: `{DocumentName}_ja-jp.html`
+- 英語版 / English: `{DocumentName}_en-us.html`
 
-### コア仕様書（完全実装・部分実装）
-- [SHIORI/3.0M 仕様](SHIORI_3.0M_SPEC.html) - YAYA バックエンドで実装済み
-- [SSTP/1.xM 仕様](SSTP_1.xM_SPEC.html) - TCP/HTTP/XPC サーバ実装済み
-- [PLUGIN/2.0M 仕様](SPEC_PLUGIN_2.0M.html) - ロード機構は実装済み
-- [NAR INSTALL/1.0M 仕様](NAR_INSTALL_1.0M_SPEC.html) - 基本機能実装済み
+### 翻訳ステータス / Translation Status
+- ✅ 完全翻訳 / Fully Translated: 5 documents
+- ⏳ 翻訳待ち / Translation Pending: 31 documents (placeholders)
 
-### システム実装（完全実装）
-- [FMO について](About_FMO.html) - POSIX 共有メモリで完全実装
-- [YAYA Adapter 仕様](OURIN_YAYA_ADAPTER_SPEC_1.0M.html) - 完全実装済み
-- [USL 仕様](OURIN_USL_1.0M_SPEC.html) - 実装済み
+## 主要ドキュメント / Key Documents
 
-### イベントシステム（部分実装）
-- [SHIORI Events 3.0M](OURIN_SHIORI_EVENTS_3.0M_SPEC.html) - 主要イベント実装済み
-- [Plugin Event 2.0M](PLUGIN_EVENT_2.0M_SPEC.html) - 基盤実装済み
+### コア仕様書 / Core Specifications
+- [SHIORI/3.0M 仕様 / Specification](SHIORI_3.0M_SPE_ja-jp.html) ([EN](SHIORI_3.0M_SPE_en-us.html))
+- [SSTP/1.xM 仕様 / Specification](SSTP_1.xM_SPE_ja-jp.html) ([EN](SSTP_1.xM_SPE_en-us.html))
+- [PLUGIN/2.0M 仕様 / Specification](SPEC_PLUGIN_2.0_ja-jp.html) ([EN](SPEC_PLUGIN_2.0_en-us.html))
+- [NAR INSTALL/1.0M 仕様 / Specification](NAR_INSTALL_1.0M_SPE_ja-jp.html) ([EN](NAR_INSTALL_1.0M_SPE_en-us.html))
 
-## 実装状況の凡例
+### システム実装 / System Implementation
+- [FMO について / About FMO](About_FM_ja-jp.html) ([EN](About_FM_en-us.html))
+- [YAYA Adapter 仕様 / Specification](OURIN_YAYA_ADAPTER_SPEC_1.0_ja-jp.html) ([EN](OURIN_YAYA_ADAPTER_SPEC_1.0_en-us.html))
 
-各ドキュメントの実装状況セクションでは、以下の記号を使用しています：
+## 生成について / Generation
 
-- `[x]` - 実装済み
-- `[ ]` - 未実装
-- `✅` - 動作確認済み
+### 自動生成 / Automated Generation
+これらの HTML ファイルは、マークダウン版から Python の markdown パッケージを使用して自動生成されています。  
+These HTML files are automatically generated from markdown source using Python's markdown package.
 
-## 生成について
+### 再生成方法 / How to Regenerate
+```bash
+cd docs
+python3 generate_html.py
+```
 
-これらの HTML ファイルは、マークダウン版から Python の markdown パッケージを使用して自動生成されています。
+### スタイル / Styling
+日本語フォントとコードブロックの読みやすさを重視して設計されています。  
+Designed with emphasis on Japanese font rendering and code block readability.
 
-変換に使用したスタイルは、日本語フォントとコードブロックの読みやすさを重視して設計されています。
+## ライセンス / License
 
-## ライセンス
+Ourin プロジェクトのライセンスに従います（CC BY-NC-SA 4.0）。  
+Follows Ourin project license (CC BY-NC-SA 4.0).
 
-Ourin プロジェクトのライセンスに従います（CC BY-NC-SA 4.0）。
+## 更新日 / Last Updated
+2025-10-23
