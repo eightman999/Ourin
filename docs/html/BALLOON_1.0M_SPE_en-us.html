@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BALLOON/1.0M — Ourin (macOS) Balloon Specification (Draft)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="balloon10m-ourin-macos-balloon-specification-draft">BALLOON/1.0M — Ourin (macOS) Balloon Specification (Draft)</h1>
+<p><strong>Status:</strong> Draft / macOS 10.15+ / Universal 2 (arm64, x86_64)
+<strong>Updated:</strong> 2025-07-27 (JST)
+<strong>Compatibility Policy:</strong> Maintain <strong>vocabulary and behavioral compatibility</strong> with UKADOC "Balloon Settings" and related specifications (descript.txt / balloons<em>s.txt, etc.), while replacing windowing, rendering, and input with </em><em>native macOS APIs</em><em>.
+</em><em>Non-Goals:</em>* Replicating Windows-specific UI, registry, or GDI-compliant behavior (limited to vocabulary and behavioral compatibility).</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#1-scope-and-coverage">1. Scope and Coverage</a></li>
+<li><a href="#2-file-structure-and-character-encoding">2. File Structure and Character Encoding</a></li>
+<li><a href="#3-image-formats-and-transparency-ssp-compatible">3. Image Formats and Transparency (SSP Compatible)</a></li>
+<li><a href="#4-rendering-retinamulti-display">4. Rendering (Retina/Multi-display)</a></li>
+<li><a href="#5-window-characteristics-foregroundnon-activatinghit-testing">5. Window Characteristics (Foreground/Non-activating/Hit-testing)</a></li>
+<li><a href="#6-text-rendering-and-decoration">6. Text Rendering and Decoration</a></li>
+<li><a href="#7-input-box-and-associated-assets">7. Input Box and Associated Assets</a></li>
+<li><a href="#8-compatibility-options-windowsmacos-replacements">8. Compatibility Options (Windows→macOS Replacements)</a></li>
+<li><a href="#9-error-handling">9. Error Handling</a></li>
+<li><a href="#10-conformance-checklist">10. Conformance Checklist</a></li>
+<li><a href="#appendix-a-key-correspondence-difference-memo">Appendix A. Key Correspondence (Difference Memo)</a></li>
+<li><a href="#appendix-b-image-loading-pipeline">Appendix B. Image Loading Pipeline</a></li>
+</ul>
+<hr />
+<h2 id="1-scope-and-coverage">1. Scope and Coverage</h2>
+<ul>
+<li>Settings from <code>descript.txt</code> and overrides from <code>balloons*s.txt/balloonk*s.txt/balloonc*s.txt</code> will be <strong>interpreted equally</strong>.</li>
+<li>Inherit the <strong>meaning of asset names</strong> such as <code>arrow*.png</code>, <code>online*.png</code>, and <code>sstp.png</code>.</li>
+</ul>
+<h2 id="2-file-structure-and-character-encoding">2. File Structure and Character Encoding</h2>
+<ul>
+<li><strong>UTF-8 is standard</strong>. If <code>charset,Shift_JIS</code> is specified in <code>descript.txt</code> or similar files, it will be <strong>accepted as CP932</strong>.</li>
+<li>Files are located under the baseware's balloon storage folder (same as UKADOC).</li>
+</ul>
+<h2 id="3-image-formats-and-transparency-ssp-compatible">3. Image Formats and Transparency (SSP Compatible)</h2>
+<ul>
+<li><strong>Supported Read Formats (Compatible)</strong>: <strong>BMP / PNG / JPEG / GIF / MAG / XBM / PI / ICO / CUR</strong>.</li>
+<li>Default is <strong>Image I/O</strong> (for common formats like PNG/JPEG/GIF/BMP).</li>
+<li><strong>ICO/CUR</strong> use a built-in parser (see the minimal implementation in this distribution).</li>
+<li><strong>MAG / PI / XBM</strong> will be provided incrementally through an <strong>extended decoder SPI</strong>.</li>
+<li>Supports <strong>transparent display with 32-bit PNG (RGBA)</strong> (alpha blending).</li>
+<li>Also compatible with <strong>PNA</strong> (separate alpha file).</li>
+</ul>
+<h2 id="4-rendering-retinamulti-display">4. Rendering (Retina/Multi-display)</h2>
+<ul>
+<li>Coordinates are described in <strong>logical pixels</strong>. During rendering, the resolution is selected according to the <strong>backingScaleFactor</strong> to <strong>ensure a consistent appearance even at high DPI</strong>.</li>
+<li>When the screen moves or the scale changes, hook <code>viewDidChangeBackingProperties</code> to recalculate image/font scales.</li>
+</ul>
+<h2 id="5-window-characteristics-foregroundnon-activatinghit-testing">5. Window Characteristics (Foreground/Non-activating/Hit-testing)</h2>
+<ul>
+<li>Based on <strong>NSPanel (nonactivating)</strong>, display in the foreground <strong>without stealing focus</strong> (using an appropriate level like <code>.floating</code>).</li>
+<li>For click-through, override <code>NSView.hitTest(_:)</code> to <strong>pass only transparent pixels to the background</strong> (for full transparency, <code>ignoresMouseEvents=true</code> is also an option).</li>
+</ul>
+<h2 id="6-text-rendering-and-decoration">6. Text Rendering and Decoration</h2>
+<ul>
+<li>Font resolution is handled by <strong>NSFont/CTFont</strong>. A fallback font is used if not installed.</li>
+<li>Bold/italic/underline/strikethrough/shadow/outline are represented by <strong>NSAttributedString</strong> attributes.</li>
+<li>The default wrapping is <strong>byCharWrapping</strong>. If necessary, extend with Core Text for line-breaking rules (kinsoku), ruby text, etc.</li>
+</ul>
+<h2 id="7-input-box-and-associated-assets">7. Input Box and Associated Assets</h2>
+<ul>
+<li><code>communicatebox.*</code> is reproduced with an <strong>NSTextView equivalent</strong> (translucency with <code>use_input_alpha</code>).</li>
+<li>Inherit the meaning and priority of <code>arrow*.png</code>, <code>online*.png</code>, <code>sstp.png</code>, <code>marker.png</code>, etc.</li>
+</ul>
+<h2 id="8-compatibility-options-windowsmacos-replacements">8. Compatibility Options (Windows→macOS Replacements)</h2>
+<ul>
+<li><code>cursor.style</code> is reproduced by drawing a rectangle/underline.</li>
+<li><code>wordwrappoint.x</code> is reflected in the Core Text layout width.</li>
+<li>Recommended ghosts (<code>recommended.*</code>) display a warning in the UI.</li>
+</ul>
+<h2 id="9-error-handling">9. Error Handling</h2>
+<ul>
+<li>For unknown keys, log a warning and <strong>continue with the default value</strong>.</li>
+<li>For missing fonts or image loading failures, notify the UI and apply a fallback.</li>
+<li>On scale changes, perform an <strong>immediate relayout</strong> to suppress fringing.</li>
+</ul>
+<h2 id="10-conformance-checklist">10. Conformance Checklist</h2>
+<ul>
+<li>[ ] Implement the <strong>override rules</strong> for <code>descript.txt</code> and <code>balloons*s.txt</code>.</li>
+<li>[ ] <strong>Standard UTF-8 / Accept CP932</strong>.</li>
+<li>[ ] Read <strong>PNG/JPEG/GIF/BMP</strong> (Image I/O).</li>
+<li>[ ] Read <strong>ICO/CUR</strong> (built-in parser).</li>
+<li>[ ] <strong>MAG/XBM/PI</strong> are extensible via SPI.</li>
+<li>[ ] Correctly handle transparency with <strong>32-bit PNG alpha</strong>.</li>
+<li>[ ] Equivalent display on <strong>Retina/multi-display</strong> setups.</li>
+<li>[ ] <strong>Non-activating foreground</strong> + <strong>transparent hit-testing</strong>.</li>
+</ul>
+<hr />
+<h2 id="appendix-a-key-correspondence-difference-memo">Appendix A. Key Correspondence (Difference Memo)</h2>
+<ul>
+<li><code>font.*</code>, <code>validrect.*</code>, <code>origin.*</code>, <code>windowposition.*</code>, <code>use_self_alpha</code>, <code>use_input_alpha</code>, <code>paint_transparent_region_black</code>, <code>overlay_outside_balloon</code>, <code>communicatebox.*</code>, <code>arrow/online/sstp/marker</code> … <strong>Support UKADOC vocabulary as is</strong>.</li>
+</ul>
+<h2 id="appendix-b-image-loading-pipeline">Appendix B. Image Loading Pipeline</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">Data</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">UTI</span><span class="w"> </span><span class="n">estimation</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Image</span><span class="w"> </span><span class="n">I</span><span class="o">/</span><span class="n">O</span><span class="w"> </span><span class="p">(</span><span class="n">PNG</span><span class="o">/</span><span class="n">JPEG</span><span class="o">/</span><span class="n">GIF</span><span class="o">/</span><span class="n">BMP</span><span class="p">)</span>
+<span class="w">                         </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ICO</span><span class="o">/</span><span class="n">CUR</span><span class="w"> </span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="w"> </span><span class="n">parser</span><span class="w"> </span><span class="p">(</span><span class="n">PNG</span><span class="w"> </span><span class="n">payload</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">32</span><span class="n">bpp</span><span class="w"> </span><span class="n">BMP</span><span class="err">→</span><span class="n">RGBA</span><span class="p">)</span>
+<span class="w">                         </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">MAG</span><span class="o">/</span><span class="bp">PI</span><span class="o">/</span><span class="n">XBM</span><span class="p">:</span><span class="w"> </span><span class="n">Ourin</span><span class="w"> </span><span class="n">Decoder</span><span class="w"> </span><span class="n">SPI</span><span class="w"> </span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="reference-implementation-notes">Reference (Implementation Notes)</h3>
+<ul>
+<li>ICO/CUR files have an <strong>ICONDIR + ICONDIRENTRY</strong> header. Each entry contains either <strong>PNG or DIB (BMP)</strong> data. CUR has a <strong>hotspot(x,y)</strong> in the position of the planes/bitcount fields of the ICONDIRENTRY. A 32bpp BMP is treated as BGRA with alpha; if the alpha is all zeros, it is supplemented with an AND mask.</li>
+<li>Retina support utilizes <code>backingScaleFactor</code> and <code>viewDidChangeBackingProperties()</code>.</li>
+<li>Non-activating foreground uses a <strong>nonactivatingPanel</strong>, and click-through is controlled by <strong>hitTest</strong>.</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

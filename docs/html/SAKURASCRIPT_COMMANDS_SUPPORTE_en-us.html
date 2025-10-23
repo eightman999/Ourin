@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sakura Script Commands - Supported in Ourin</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="sakura-script-commands-supported-in-ourin">Sakura Script Commands - Supported in Ourin</h1>
+<p>This document lists all Sakura Script commands that are currently supported by Ourin's <code>SakuraScriptEngine</code>.</p>
+<h2 id="scope-commands">Scope Commands</h2>
+<h3 id="characterscope-selection">Character/Scope Selection</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\0</code> or <code>\h</code></td>
+<td>Switch to Sakura (character 0)</td>
+<td><code>\0Hello from Sakura</code></td>
+</tr>
+<tr>
+<td><code>\1</code> or <code>\u</code></td>
+<td>Switch to Unyuu (character 1)</td>
+<td><code>\1Hello from Unyuu</code></td>
+</tr>
+<tr>
+<td><code>\pN</code></td>
+<td>Switch to character N (0-9)</td>
+<td><code>\p2Hello from third character</code></td>
+</tr>
+<tr>
+<td><code>\p[N]</code></td>
+<td>Switch to character N (any ID)</td>
+<td><code>\p[15]Hello from character 15</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="surface-commands">Surface Commands</h2>
+<h3 id="surface-display">Surface Display</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\sN</code></td>
+<td>Change surface to ID N (0-9)</td>
+<td><code>\s1Switch to surface 1</code></td>
+</tr>
+<tr>
+<td><code>\s[N]</code></td>
+<td>Change surface to ID N (any ID)</td>
+<td><code>\s[100]Switch to surface 100</code></td>
+</tr>
+<tr>
+<td><code>\s[-1]</code></td>
+<td>Hide surface</td>
+<td><code>\s[-1]Character becomes invisible</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="animation-commands">Animation Commands</h2>
+<h3 id="basic-animation">Basic Animation</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\i[ID]</code></td>
+<td>Play animation ID</td>
+<td><code>\i[10]Play animation 10</code></td>
+</tr>
+<tr>
+<td><code>\i[ID,wait]</code></td>
+<td>Play animation and wait for completion</td>
+<td><code>\i[100,wait]This text appears after animation</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="animation-control-via-command">Animation Control (via <code>\!</code> command)</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![anim,clear,ID]</code></td>
+<td>Stop animation ID</td>
+<td><code>\![anim,clear,100]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,pause,ID]</code></td>
+<td>Pause animation ID</td>
+<td><code>\![anim,pause,200]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,resume,ID]</code></td>
+<td>Resume paused animation ID</td>
+<td><code>\![anim,resume,200]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,offset,ID,x,y]</code></td>
+<td>Offset animation position</td>
+<td><code>\![anim,offset,300,40,50]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,stop]</code></td>
+<td>Stop all animations</td>
+<td><code>\![anim,stop]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="animation-layer-control">Animation Layer Control</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![anim,add,overlay,ID]</code></td>
+<td>Overlay surface ID on current surface</td>
+<td><code>\![anim,add,overlay,10]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,add,overlayfast,ID]</code></td>
+<td>Overlay with overlayfast mode</td>
+<td><code>\![anim,add,overlayfast,10]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,add,base,ID]</code></td>
+<td>Change base surface to ID</td>
+<td><code>\![anim,add,base,5]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,add,move,x,y]</code></td>
+<td>Move surface to coordinates</td>
+<td><code>\![anim,add,move,100,200]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="balloon-commands">Balloon Commands</h2>
+<h3 id="balloon-id-switching">Balloon ID Switching</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\bN</code></td>
+<td>Change balloon to ID N (0-9 only)</td>
+<td><code>\b2Switch to balloon 2</code></td>
+</tr>
+<tr>
+<td><code>\b[ID]</code></td>
+<td>Change balloon to ID (any ID, negative to hide)</td>
+<td><code>\b[2]Large balloon</code></td>
+</tr>
+<tr>
+<td><code>\b[-1]</code></td>
+<td>Hide balloon</td>
+<td><code>\b[-1]Hidden</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong>
+- Only even IDs (0, 2, 4, 6, 8) are usable for main character balloons
+- Odd IDs are reserved for partner/right-side balloons
+- SSP 2.6.34+ supports fallback syntax: <code>\b[ID1,--fallback=ID2,--fallback=ID3]</code></p>
+<h3 id="balloon-images">Balloon Images</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\_b[file,x,y]</code></td>
+<td>Display image at XY coordinates (top-left transparent)</td>
+<td><code>\_b[image\test.png,50,100]</code></td>
+</tr>
+<tr>
+<td><code>\_b[file,x,y,opaque]</code></td>
+<td>Display image without transparency</td>
+<td><code>\_b[test.png,0,15,opaque]</code></td>
+</tr>
+<tr>
+<td><code>\_b[file,inline]</code></td>
+<td>Display image inline with text</td>
+<td><code>Text\_b[icon.png,inline]more</code></td>
+</tr>
+<tr>
+<td><code>\_b[file,inline,opaque]</code></td>
+<td>Display inline image without transparency</td>
+<td><code>\_b[icon.png,inline,opaque]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Options</strong> (for <code>\_b[file,x,y,options...]</code> or <code>\_b[file,inline,options...]</code>):
+- <code>--option=opaque</code> - No transparency
+- <code>--option=use_self_alpha</code> - Use PNG alpha channel
+- <code>--clipping=left top right bottom</code> - Crop image region
+- <code>--option=fixed</code> - Don't scroll with text
+- <code>--option=background</code> - Display behind text (default)
+- <code>--option=foreground</code> - Display in front of text</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">\_b[test.png,10,20,--option=use_self_alpha,--clipping=100</span><span class="w"> </span><span class="mh">30</span><span class="w"> </span><span class="mh">150</span><span class="w"> </span><span class="mh">90</span><span class="p">,</span><span class="o">--</span><span class="n">option</span><span class="o">=</span><span class="n">foreground</span><span class="p">]</span>
+</code></pre></div>
+
+<h3 id="balloon-control">Balloon Control</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,autoscroll,disable]</code></td>
+<td>Disable auto-scroll</td>
+<td><code>\![set,autoscroll,disable]</code></td>
+</tr>
+<tr>
+<td><code>\![set,autoscroll,enable]</code></td>
+<td>Enable auto-scroll</td>
+<td><code>\![set,autoscroll,enable]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonoffset,x,y]</code></td>
+<td>Set balloon offset</td>
+<td><code>\![set,balloonoffset,100,-50]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonoffset,@x,@y]</code></td>
+<td>Set relative balloon offset</td>
+<td><code>\![set,balloonoffset,@100,@-50]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonalign,DIR]</code></td>
+<td>Set balloon alignment (left/center/top/right/bottom/none)</td>
+<td><code>\![set,balloonalign,top]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonmarker,text]</code></td>
+<td>Set SSTP receive marker</td>
+<td><code>\![set,balloonmarker,SSTP]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonnum,file,cur,max]</code></td>
+<td>Set file transfer indicator</td>
+<td><code>\![set,balloonnum,test.zip,1,5]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloontimeout,ms]</code></td>
+<td>Set balloon timeout (0 or -1 = no timeout)</td>
+<td><code>\![set,balloontimeout,3000]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonwait,rate]</code></td>
+<td>Set text speed multiplier</td>
+<td><code>\![set,balloonwait,1.5]</code></td>
+</tr>
+<tr>
+<td><code>\![set,serikotalk,true/false]</code></td>
+<td>Enable/disable SERIKO mouth animation</td>
+<td><code>\![set,serikotalk,false]</code></td>
+</tr>
+<tr>
+<td><code>\![enter,onlinemode]</code></td>
+<td>Force online marker display</td>
+<td><code>\![enter,onlinemode]</code></td>
+</tr>
+<tr>
+<td><code>\![leave,onlinemode]</code></td>
+<td>Hide online marker</td>
+<td><code>\![leave,onlinemode]</code></td>
+</tr>
+<tr>
+<td><code>\![enter,nouserbreakmode]</code></td>
+<td>Disable user script interruption</td>
+<td><code>\![enter,nouserbreakmode]</code></td>
+</tr>
+<tr>
+<td><code>\![leave,nouserbreakmode]</code></td>
+<td>Enable user script interruption</td>
+<td><code>\![leave,nouserbreakmode]</code></td>
+</tr>
+<tr>
+<td><code>\![lock,balloonrepaint]</code></td>
+<td>Lock balloon repaint until unlock or script end</td>
+<td><code>\![lock,balloonrepaint]</code></td>
+</tr>
+<tr>
+<td><code>\![lock,balloonrepaint,manual]</code></td>
+<td>Lock balloon repaint until explicit unlock</td>
+<td><code>\![lock,balloonrepaint,manual]</code></td>
+</tr>
+<tr>
+<td><code>\![unlock,balloonrepaint]</code></td>
+<td>Unlock balloon repaint</td>
+<td><code>\![unlock,balloonrepaint]</code></td>
+</tr>
+<tr>
+<td><code>\![lock,balloonmove]</code></td>
+<td>Prevent balloon drag movement</td>
+<td><code>\![lock,balloonmove]</code></td>
+</tr>
+<tr>
+<td><code>\![unlock,balloonmove]</code></td>
+<td>Allow balloon drag movement</td>
+<td><code>\![unlock,balloonmove]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="text-control-commands">Text Control Commands</h2>
+<h3 id="basic-text-control">Basic Text Control</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\n</code></td>
+<td>Newline</td>
+<td><code>Line 1\nLine 2</code></td>
+</tr>
+<tr>
+<td><code>\n[half]</code></td>
+<td>Half-height newline</td>
+<td><code>Line 1\n[half]Line 2</code></td>
+</tr>
+<tr>
+<td><code>\n[percent]</code></td>
+<td>Custom height newline (% of line height)</td>
+<td><code>Line 1\n[150]Line 2</code></td>
+</tr>
+<tr>
+<td><code>\e</code></td>
+<td>End script</td>
+<td><code>Done\e</code></td>
+</tr>
+<tr>
+<td><code>\C</code></td>
+<td>Append mode (append to previous balloon)</td>
+<td><code>\CAppend to previous</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="text-positioning">Text Positioning</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\_l[x,y]</code></td>
+<td>Position cursor at XY coordinates</td>
+<td><code>\_l[30,100]Positioned</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Coordinate formats:</strong>
+- Numeric: Pixels from top-left (e.g., <code>30</code>)
+- em: Character heights (e.g., <code>5em</code>)
+- lh: Line heights (e.g., <code>2lh</code>)
+- %: Percentage of character height (e.g., <code>100%</code>)
+- @: Relative to current position (e.g., <code>@-100</code>)
+- Omit parameter to keep current value (e.g., <code>\_l[,@-100]</code> only moves Y)</p>
+<p><strong>Examples:</strong></p>
+<div class="codehilite"><pre><span></span><code>\_l[30,5em]       Text at X=30px, Y=5 characters
+\_l[@-1650%,100]  X=left 16.5 characters, Y=100px
+\_l[,@-100]       Same X, 100px up
+</code></pre></div>
+
+<h3 id="text-clearing">Text Clearing</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\c</code></td>
+<td>Clear current scope balloon</td>
+<td><code>Text\cCleared</code></td>
+</tr>
+<tr>
+<td><code>\c[char,N]</code></td>
+<td>Clear N characters from cursor</td>
+<td><code>Delete\c[char,3]End</code></td>
+</tr>
+<tr>
+<td><code>\c[char,N,start]</code></td>
+<td>Clear N characters from position</td>
+<td><code>Text\c[char,3,4]End</code></td>
+</tr>
+<tr>
+<td><code>\c[line,N]</code></td>
+<td>Clear N lines from cursor</td>
+<td><code>Line 1\nLine 2\c[line,1]</code></td>
+</tr>
+<tr>
+<td><code>\c[line,N,start]</code></td>
+<td>Clear N lines from position</td>
+<td><code>\c[line,1,2]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong>
+- Character/line counting follows script order, not display position
+- <code>\_b[file,inline]</code> images count as 1 character
+- Lines separated by <code>\n</code>, <code>\n[...]</code>, <code>\_l[x,y]</code> count as separate lines
+- Empty lines (e.g., <code>\n\n</code>) don't count</p>
+<h3 id="text-wrapping">Text Wrapping</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\_n</code></td>
+<td>Disable auto-wrap (until next <code>\_n</code>)</td>
+<td><code>\_nNo wrap\_n</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="wait-commands">Wait Commands</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\w[N]</code></td>
+<td>Wait N×50ms</td>
+<td><code>\w[10]Wait 500ms</code></td>
+</tr>
+<tr>
+<td><code>\__w[animation,ID]</code></td>
+<td>Wait for animation ID to complete</td>
+<td><code>\__w[animation,400]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="tag-passthrough">Tag Passthrough</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\_!...\_!</code></td>
+<td>Display tags literally (old format)</td>
+<td><code>\_!\1Text\n\_!</code> displays <code>\1Text\n</code></td>
+</tr>
+<tr>
+<td><code>\_?...\_?</code></td>
+<td>Display tags literally</td>
+<td><code>\_?\1Text\n\_?</code> displays <code>\1Text\n</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong>
+- Text between opening and closing tags is not parsed as SakuraScript
+- Useful for displaying example scripts or debugging</p>
+<h3 id="voice-synthesis-control">Voice Synthesis Control</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\__v[disable]...\__v</code></td>
+<td>Disable voice synthesis for text</td>
+<td><code>\__v[disable]Silent\__v</code></td>
+</tr>
+<tr>
+<td><code>\__v[alternate,text]...\__v</code></td>
+<td>Override pronunciation</td>
+<td><code>\__v[alternate,ひらがな]漢字\__v</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="font-text-styling-commands">Font &amp; Text Styling Commands</h2>
+<h3 id="text-alignment">Text Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[align,left]</code></td>
+<td>Left-align text</td>
+<td><code>\f[align,left]Left aligned</code></td>
+</tr>
+<tr>
+<td><code>\f[align,center]</code></td>
+<td>Center-align text</td>
+<td><code>\f[align,center]Centered</code></td>
+</tr>
+<tr>
+<td><code>\f[align,right]</code></td>
+<td>Right-align text</td>
+<td><code>\f[align,right]Right aligned</code></td>
+</tr>
+<tr>
+<td><code>\f[valign,top]</code></td>
+<td>Vertical align to top</td>
+<td><code>\f[valign,top]Top</code></td>
+</tr>
+<tr>
+<td><code>\f[valign,center]</code></td>
+<td>Vertical align to center</td>
+<td><code>\f[valign,center]Middle</code></td>
+</tr>
+<tr>
+<td><code>\f[valign,bottom]</code></td>
+<td>Vertical align to bottom</td>
+<td><code>\f[valign,bottom]Bottom</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong>
+- <code>\f[align,...]</code> affects text until next intentional newline (<code>\n</code>, <code>\_l</code>)
+- <code>\_l</code> tag resets alignment to left
+- <code>\f[valign,...]</code> does NOT reset on newline (unlike <code>align</code>)
+- Text added after alignment command will retroactively align previous text on same line</p>
+<h3 id="font-properties">Font Properties</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[name,font]</code></td>
+<td>Change font (single name or file)</td>
+<td><code>\f[name,Arial]Arial font</code></td>
+</tr>
+<tr>
+<td><code>\f[name,font1,font2,...]</code></td>
+<td>Change font with fallbacks</td>
+<td><code>\f[name,メイリオ,meiryo.ttf]Text</code></td>
+</tr>
+<tr>
+<td><code>\f[height,size]</code></td>
+<td>Set font size (pixels)</td>
+<td><code>\f[height,15]Size 15</code></td>
+</tr>
+<tr>
+<td><code>\f[height,+N]</code></td>
+<td>Relative size increase</td>
+<td><code>\f[height,+3]Bigger</code></td>
+</tr>
+<tr>
+<td><code>\f[height,-N]</code></td>
+<td>Relative size decrease</td>
+<td><code>\f[height,-3]Smaller</code></td>
+</tr>
+<tr>
+<td><code>\f[height,N%]</code></td>
+<td>Percentage of default size</td>
+<td><code>\f[height,200%]Double size</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Font name notes:</strong>
+- <code>default</code> - Reset to balloon default font
+- <code>disable</code> - Use disabled text font
+- Can specify font files in <code>ghost/master/</code> or balloon folder
+- Multiple comma-separated names = priority order (SSP only)</p>
+<h3 id="text-colors">Text Colors</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[color,name]</code></td>
+<td>Named color</td>
+<td><code>\f[color,red]Red text</code></td>
+</tr>
+<tr>
+<td><code>\f[color,r,g,b]</code></td>
+<td>RGB color (0-255)</td>
+<td><code>\f[color,100,150,200]Blue</code></td>
+</tr>
+<tr>
+<td><code>\f[color,#RRGGBB]</code></td>
+<td>Hex color</td>
+<td><code>\f[color,#ff6600]Orange</code></td>
+</tr>
+<tr>
+<td><code>\f[color,default]</code></td>
+<td>Reset to balloon default</td>
+<td><code>\f[color,default]Normal</code></td>
+</tr>
+<tr>
+<td><code>\f[shadowcolor,...]</code></td>
+<td>Shadow color (same formats)</td>
+<td><code>\f[shadowcolor,#ffff00]Yellow shadow</code></td>
+</tr>
+<tr>
+<td><code>\f[shadowcolor,none]</code></td>
+<td>Disable shadow</td>
+<td><code>\f[shadowcolor,none]No shadow</code></td>
+</tr>
+<tr>
+<td><code>\f[shadowstyle,offset]</code></td>
+<td>Offset shadow (default)</td>
+<td><code>\f[shadowstyle,offset]Offset</code></td>
+</tr>
+<tr>
+<td><code>\f[shadowstyle,outline]</code></td>
+<td>Outline shadow</td>
+<td><code>\f[shadowstyle,outline]Outlined</code></td>
+</tr>
+<tr>
+<td><code>\f[anchor.font.color,...]</code></td>
+<td>Anchor text color</td>
+<td><code>\f[anchor.font.color,50%,90%,20%]Link</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Color format notes:</strong>
+- Named colors: <code>red</code>, <code>blue</code>, <code>green</code>, <code>black</code>, <code>white</code>, etc.
+- RGB: Three numbers 0-255, or percentages like <code>50%,90%,20%</code>
+- Hex: Standard web format <code>#RRGGBB</code></p>
+<h3 id="text-styles">Text Styles</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[bold,1]</code> or <code>\f[bold,true]</code></td>
+<td>Enable bold</td>
+<td><code>\f[bold,1]Bold text</code></td>
+</tr>
+<tr>
+<td><code>\f[bold,0]</code> or <code>\f[bold,false]</code></td>
+<td>Disable bold</td>
+<td><code>\f[bold,0]Normal</code></td>
+</tr>
+<tr>
+<td><code>\f[bold,default]</code></td>
+<td>Reset to balloon default</td>
+<td><code>\f[bold,default]Default</code></td>
+</tr>
+<tr>
+<td><code>\f[bold,disable]</code></td>
+<td>Use disabled text style</td>
+<td><code>\f[bold,disable]Disabled</code></td>
+</tr>
+<tr>
+<td><code>\f[italic,1]</code></td>
+<td>Enable italic</td>
+<td><code>\f[italic,1]Italic</code></td>
+</tr>
+<tr>
+<td><code>\f[strike,1]</code></td>
+<td>Enable strikethrough</td>
+<td><code>\f[strike,1]Strike</code></td>
+</tr>
+<tr>
+<td><code>\f[underline,1]</code></td>
+<td>Enable underline</td>
+<td><code>\f[underline,1]Underline</code></td>
+</tr>
+<tr>
+<td><code>\f[outline,1]</code></td>
+<td>Enable outline (white text)</td>
+<td><code>\f[outline,1]Outlined</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong>
+- All style commands support: <code>1</code>/<code>true</code> (enable), <code>0</code>/<code>false</code> (disable), <code>default</code>, <code>disable</code>
+- Font must support the style (some fonts don't have bold/italic variants)</p>
+<h3 id="text-position">Text Position</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[sub,1]</code></td>
+<td>Enable subscript</td>
+<td><code>H\f[sub,1]2\f[sub,0]O</code></td>
+</tr>
+<tr>
+<td><code>\f[sup,1]</code></td>
+<td>Enable superscript</td>
+<td><code>X\f[sup,1]2\f[sup,0]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="reset-commands">Reset Commands</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[default]</code></td>
+<td>Reset all font attributes to balloon default</td>
+<td><code>\f[default]Reset all</code></td>
+</tr>
+<tr>
+<td><code>\f[disable]</code></td>
+<td>Set all attributes to disabled text style</td>
+<td><code>\f[disable]Disabled</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example combinations:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">shadowcolor,#6699cc</span><span class="o">]</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">bold,1</span><span class="o">]</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">underline,1</span><span class="o">]</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">height,20</span><span class="o">]</span><span class="n">Styled</span><span class="w"> </span><span class="nc">text</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">default</span><span class="o">]</span><span class="n">Normal</span>
+<span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">align,center</span><span class="o">]</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">color,red</span><span class="o">]</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">height,24</span><span class="o">]</span><span class="n">Centered</span><span class="w"> </span><span class="n">Red</span><span class="w"> </span><span class="n">Title</span><span class="err">\</span><span class="n">n</span>
+<span class="n">H</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,1</span><span class="o">]</span><span class="mi">2</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,0</span><span class="o">]</span><span class="n">O</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">O</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,1</span><span class="o">]</span><span class="mi">2</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,0</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">H</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,1</span><span class="o">]</span><span class="mi">2</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,0</span><span class="o">]</span><span class="n">O</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,1</span><span class="o">]</span><span class="mi">2</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,0</span><span class="o">]</span>
+</code></pre></div>
+
+<h2 id="character-movement-commands">Character Movement Commands</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\4</code></td>
+<td>Move away from other character</td>
+<td><code>Moving...\4Done</code></td>
+</tr>
+<tr>
+<td><code>\5</code></td>
+<td>Move close to other character</td>
+<td><code>Moving...\5Done</code></td>
+</tr>
+<tr>
+<td><code>\![move,args...]</code></td>
+<td>Move to position (see below)</td>
+<td>See Movement section</td>
+</tr>
+<tr>
+<td><code>\![moveasync,args...]</code></td>
+<td>Move asynchronously</td>
+<td>See Movement section</td>
+</tr>
+<tr>
+<td><code>\![moveasync,cancel]</code></td>
+<td>Cancel async movement</td>
+<td><code>\![moveasync,cancel]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="move-command-parameters">Move Command Parameters</h3>
+<p>Format: <code>\![move,--X=x,--Y=y,--time=ms,--base=ref,--base-offset=pos,--move-offset=pos,--option=opt]</code></p>
+<p><strong>Parameters:</strong>
+- <code>--X=value</code>: X coordinate (can be negative)
+- <code>--Y=value</code>: Y coordinate (can be negative)
+- <code>--time=ms</code>: Movement time in milliseconds
+- <code>--base=ref</code>: Reference point (screen, primaryscreen, ID, ghost/ID, me, global)
+- <code>--base-offset=pos</code>: Reference anchor (left.top, right.bottom, center.center, etc.)
+- <code>--move-offset=pos</code>: Character anchor to align
+- <code>--option=opt</code>: Options (ignore-sticky-window)</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code>\![move,--X=80,--Y=-400,--time=2500,--base=screen,--base-offset=left.bottom,--move-offset=left.top]
+</code></pre></div>
+
+<h2 id="dressupbind-commands">Dressup/Bind Commands</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![bind,category,part,1]</code></td>
+<td>Equip part in category</td>
+<td><code>\![bind,head,ribbon,1]</code></td>
+</tr>
+<tr>
+<td><code>\![bind,category,part,0]</code></td>
+<td>Remove part from category</td>
+<td><code>\![bind,head,ribbon,0]</code></td>
+</tr>
+<tr>
+<td><code>\![bind,category,,0]</code></td>
+<td>Remove all parts in category</td>
+<td><code>\![bind,arm,,0]</code></td>
+</tr>
+<tr>
+<td><code>\![bind,category,part]</code></td>
+<td>Toggle part on/off</td>
+<td><code>\![bind,head,ribbon]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="rendering-control">Rendering Control</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![lock,repaint]</code></td>
+<td>Stop repainting until unlock or script end</td>
+<td><code>\![lock,repaint]</code></td>
+</tr>
+<tr>
+<td><code>\![lock,repaint,manual]</code></td>
+<td>Stop repainting until explicit unlock</td>
+<td><code>\![lock,repaint,manual]</code></td>
+</tr>
+<tr>
+<td><code>\![unlock,repaint]</code></td>
+<td>Resume repainting</td>
+<td><code>\![unlock,repaint]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="position-alignment">Position &amp; Alignment</h2>
+<h3 id="desktop-alignment">Desktop Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,alignmentondesktop,bottom]</code></td>
+<td>Snap to desktop bottom</td>
+<td><code>\![set,alignmentondesktop,bottom]</code></td>
+</tr>
+<tr>
+<td><code>\![set,alignmentondesktop,top]</code></td>
+<td>Snap to desktop top</td>
+<td><code>\![set,alignmentondesktop,top]</code></td>
+</tr>
+<tr>
+<td><code>\![set,alignmenttodesktop,DIR]</code></td>
+<td>Set alignment direction</td>
+<td>See table below</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Alignment Directions:</strong>
+- <code>top</code> - Snap to top
+- <code>bottom</code> - Snap to bottom
+- <code>left</code> - Snap to left
+- <code>right</code> - Snap to right
+- <code>free</code> - No snapping
+- <code>default</code> - Reset to default</p>
+<h3 id="position-locking">Position Locking</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,position,x,y,scopeID]</code></td>
+<td>Lock character at position</td>
+<td><code>\![set,position,100,200,0]</code></td>
+</tr>
+<tr>
+<td><code>\![reset,position]</code></td>
+<td>Unlock position</td>
+<td><code>\![reset,position]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="visual-effects">Visual Effects</h2>
+<h3 id="scaling">Scaling</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,scaling,ratio]</code></td>
+<td>Uniform scaling (%)</td>
+<td><code>\![set,scaling,50]</code></td>
+</tr>
+<tr>
+<td><code>\![set,scaling,x,y]</code></td>
+<td>Non-uniform scaling (%)</td>
+<td><code>\![set,scaling,50,100]</code></td>
+</tr>
+<tr>
+<td><code>\![set,scaling,x,y,time]</code></td>
+<td>Animated scaling (time in ms)</td>
+<td><code>\![set,scaling,50,100,2500]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong>
+- 100 = user's configured scale (100%)
+- Negative values flip the axis (-100 = flipped)
+- Persists until ghost terminates</p>
+<h3 id="transparency">Transparency</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,alpha,value]</code></td>
+<td>Set transparency (0-100)</td>
+<td><code>\![set,alpha,50]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong>
+- 0 = fully transparent (invisible)
+- 100 = fully opaque
+- Persists until ghost terminates</p>
+<h3 id="effects-filters">Effects &amp; Filters</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![effect,plugin,speed,params]</code></td>
+<td>Apply plugin effect</td>
+<td><code>\![effect,plugin1,2.0,param]</code></td>
+</tr>
+<tr>
+<td><code>\![effect2,surfaceID,plugin,speed,params]</code></td>
+<td>Effect on added surface</td>
+<td><code>\![effect2,10,plugin1,2.0,param]</code></td>
+</tr>
+<tr>
+<td><code>\![filter,plugin,time,params]</code></td>
+<td>Apply continuous filter</td>
+<td><code>\![filter,plugin2,1000,param]</code></td>
+</tr>
+<tr>
+<td><code>\![filter]</code></td>
+<td>Clear filter</td>
+<td><code>\![filter]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="window-management">Window Management</h2>
+<h3 id="z-order">Z-Order</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,zorder,ID1,ID2,...]</code></td>
+<td>Set window stacking order</td>
+<td><code>\![set,zorder,1,0]</code></td>
+</tr>
+<tr>
+<td><code>\![reset,zorder]</code></td>
+<td>Reset to default z-order</td>
+<td><code>\![reset,zorder]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong>
+- IDs listed left to right = front to back
+- Example: <code>\![set,zorder,1,0]</code> makes character 1 always in front of character 0</p>
+<h3 id="sticky-windows">Sticky Windows</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,sticky-window,ID1,ID2,...]</code></td>
+<td>Link windows to move together</td>
+<td><code>\![set,sticky-window,1,0]</code></td>
+</tr>
+<tr>
+<td><code>\![reset,sticky-window]</code></td>
+<td>Unlink windows</td>
+<td><code>\![reset,sticky-window]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong>
+- Linked windows move together when dragged
+- Works with <code>\![move]</code> commands (unless --option=ignore-sticky-window)</p>
+<h3 id="window-reset">Window Reset</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![execute,resetwindowpos]</code></td>
+<td>Reset all windows to initial positions</td>
+<td><code>\![execute,resetwindowpos]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="special-commands">Special Commands</h2>
+<h3 id="marker">Marker</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>%*</code> or <code>\![*]</code></td>
+<td>Insert marker</td>
+<td><code>Text before%*Text after</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="escape-sequences">Escape Sequences</h2>
+<table>
+<thead>
+<tr>
+<th>Sequence</th>
+<th>Result</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\\</code></td>
+<td>Literal <code>\</code></td>
+<td><code>C:\\Users</code> → <code>C:\Users</code></td>
+</tr>
+<tr>
+<td><code>\%</code></td>
+<td>Literal <code>%</code></td>
+<td><code>100\%</code> → <code>100%</code></td>
+</tr>
+<tr>
+<td><code>\]</code></td>
+<td>Literal <code>]</code> (in brackets)</td>
+<td><code>\![test,a\]b]</code> → args: <code>["test", "a]b"]</code></td>
+</tr>
+<tr>
+<td><code>\[</code></td>
+<td>Literal <code>[</code> (in brackets)</td>
+<td><code>\![test,a\[b]</code> → args: <code>["test", "a[b"]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="argument-quoting">Argument Quoting</h2>
+<p>Arguments in <code>[...]</code> brackets are comma-separated and support quoting:</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Example</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Basic</td>
+<td><code>\![raise,OnTest,100]</code></td>
+<td><code>["raise", "OnTest", "100"]</code></td>
+</tr>
+<tr>
+<td>Quoted comma</td>
+<td><code>\![raise,OnTest,"100,2"]</code></td>
+<td><code>["raise", "OnTest", "100,2"]</code></td>
+</tr>
+<tr>
+<td>Escaped quote</td>
+<td><code>\![call,ghost,"the ""Master"""]</code></td>
+<td><code>["call", "ghost", "the \"Master\""]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="implementation-status">Implementation Status</h2>
+<h3 id="fully-implemented">✅ Fully Implemented</h3>
+<h4 id="parser-level-sakurascriptengineswift">Parser Level (SakuraScriptEngine.swift)</h4>
+<p>All commands listed above are <strong>parsed correctly</strong>. The parser converts Sakura Script text into tokens that can be processed by the rendering engine.</p>
+<h4 id="rendering-level-ghostmanagerswift-characterviewmodelcharacterview">Rendering Level (GhostManager.swift + CharacterViewModel/CharacterView)</h4>
+<p><strong>Visual Effects - IMPLEMENTED:</strong>
+- ✅ <code>\![set,scaling,ratio]</code> - Uniform scaling
+- ✅ <code>\![set,scaling,x,y]</code> - Non-uniform scaling
+- ✅ <code>\![set,alpha,value]</code> - Transparency (0-100)
+- ✅ <code>\![lock,repaint]</code> / <code>\![unlock,repaint]</code> - Rendering control
+- ✅ <code>\![set,alignmenttodesktop,DIR]</code> - Desktop alignment state
+- ✅ <code>\![set,position,x,y,scopeID]</code> / <code>\![reset,position]</code> - Position locking state
+- ✅ <code>\![set,zorder,...]</code> / <code>\![reset,zorder]</code> - Z-order grouping state
+- ✅ <code>\![set,sticky-window,...]</code> / <code>\![reset,sticky-window]</code> - Sticky window grouping state
+- ✅ <code>\![execute,resetwindowpos]</code> - Reset all window positions/alignments</p>
+<p><strong>Command Handling:</strong>
+- Character visual state is stored in <code>CharacterViewModel</code> with <code>@Published</code> properties
+- Visual effects are applied in <code>CharacterView</code> using SwiftUI modifiers (<code>.scaleEffect()</code>, <code>.opacity()</code>, <code>.allowsHitTesting()</code>)
+- All settings persist until ghost terminates (per UKADOC specification)
+- <code>\![lock,repaint]</code> auto-unlocks at script end unless <code>manual</code> option is used</p>
+<h3 id="partially-implemented">⚠️ Partially Implemented</h3>
+<p><strong>Window Management - STATE STORED, BEHAVIOR TODO:</strong>
+These commands update the ViewModel state correctly, but actual window behavior needs platform implementation:
+- ⚠️ Alignment constraints (preventing window movement in certain directions)
+- ⚠️ Position locking (disabling window drag)
+- ⚠️ Z-order enforcement (keeping windows in specified stacking order)
+- ⚠️ Sticky window synchronization (moving multiple windows together)</p>
+<h3 id="not-yet-implemented-execution-level">❌ Not Yet Implemented (Execution Level)</h3>
+<p><strong>Balloon &amp; Text Commands - PARSED ONLY:</strong>
+All balloon and text commands are fully parsed, but execution is not yet implemented:
+- ❌ <code>\bN</code> / <code>\b[ID]</code> - Balloon ID switching (parsed, placeholder exists)
+- ❌ <code>\C</code> - Append mode (parsed, placeholder exists)
+- ❌ <code>\n[half]</code> / <code>\n[percent]</code> - Variable newline height (parsed, treated as regular newline)
+- ❌ <code>\_b[...]</code> - Balloon images (inline and positioned)
+- ❌ <code>\_l[x,y]</code> - Text cursor positioning
+- ❌ <code>\c</code> / <code>\c[char/line,...]</code> - Text clearing
+- ❌ <code>\_n</code> - No auto-wrap mode
+- ❌ <code>\_!...\_!</code> / <code>\_?...\_?</code> - Tag passthrough (parsed correctly)
+- ❌ <code>\__v[...]</code> - Voice synthesis control
+- ❌ <code>\![set,autoscroll,...]</code> - Auto-scroll control
+- ❌ <code>\![set,balloonoffset,...]</code> - Balloon offset
+- ❌ <code>\![set,balloonalign,...]</code> - Balloon alignment
+- ❌ <code>\![set,balloonmarker,...]</code> - SSTP marker
+- ❌ <code>\![set,balloonnum,...]</code> - File transfer indicator
+- ❌ <code>\![set,balloontimeout,...]</code> - Balloon timeout
+- ❌ <code>\![set,balloonwait,...]</code> - Text speed
+- ❌ <code>\![set,serikotalk,...]</code> - SERIKO mouth animation
+- ❌ <code>\![enter/leave,onlinemode]</code> - Online marker
+- ❌ <code>\![enter/leave,nouserbreakmode]</code> - User break control
+- ❌ <code>\![lock/unlock,balloonrepaint]</code> - Balloon repaint control
+- ❌ <code>\![lock/unlock,balloonmove]</code> - Balloon drag control</p>
+<p><strong>Font &amp; Text Styling Commands - PARSED ONLY:</strong>
+All font and text styling commands are fully parsed, but execution is not yet implemented:
+- ❌ <code>\f[align,...]</code> - Text alignment (left/center/right)
+- ❌ <code>\f[valign,...]</code> - Vertical text alignment (top/center/bottom)
+- ❌ <code>\f[name,...]</code> - Font family change
+- ❌ <code>\f[height,...]</code> - Font size (absolute, relative, percentage)
+- ❌ <code>\f[color,...]</code> - Text color
+- ❌ <code>\f[shadowcolor,...]</code> - Shadow color
+- ❌ <code>\f[shadowstyle,...]</code> - Shadow style (offset/outline)
+- ❌ <code>\f[anchor.font.color,...]</code> - Anchor text color
+- ❌ <code>\f[bold,...]</code> - Bold text style
+- ❌ <code>\f[italic,...]</code> - Italic text style
+- ❌ <code>\f[strike,...]</code> - Strikethrough text
+- ❌ <code>\f[underline,...]</code> - Underline text
+- ❌ <code>\f[outline,...]</code> - Outline (white text) style
+- ❌ <code>\f[sub,...]</code> - Subscript text
+- ❌ <code>\f[sup,...]</code> - Superscript text
+- ❌ <code>\f[default]</code> - Reset all font attributes
+- ❌ <code>\f[disable]</code> - Set disabled text style</p>
+<p><strong>Movement:</strong>
+- ❌ <code>\4</code> and <code>\5</code> - Basic character movement (parsed, handler placeholder exists)
+- ❌ <code>\![move,...]</code> / <code>\![moveasync,...]</code> - Complex movement with parameters</p>
+<p><strong>Animation:</strong>
+- ❌ <code>\![anim,clear,ID]</code> / <code>\![anim,pause,ID]</code> / <code>\![anim,resume,ID]</code> / <code>\![anim,stop]</code>
+- ❌ <code>\![anim,offset,ID,x,y]</code>
+- ❌ <code>\![anim,add,*]</code> - Animation layering
+- ❌ <code>\__w[animation,ID]</code> - Wait for animation completion</p>
+<p><strong>Dressup:</strong>
+- ❌ <code>\![bind,category,part,value]</code> - Full dressup system not yet implemented</p>
+<p><strong>Effects &amp; Filters:</strong>
+- ❌ <code>\![effect,...]</code> / <code>\![effect2,...]</code> / <code>\![filter,...]</code> - Plugin-based effects
+- ❌ <code>\![set,scaling,x,y,time]</code> - Animated scaling over time</p>
+<p><strong>Notes:</strong>
+- Parser correctly identifies all commands and extracts parameters
+- Placeholder handlers exist with TODO comments for future implementation
+- Some features require platform-specific NSWindow manipulation
+- Animation, balloon, and dressup systems require additional infrastructure</p>
+<h2 id="testing">Testing</h2>
+<p>All commands have comprehensive test coverage in <code>OurinTests/SakuraScriptEngineTests.swift</code>. Run tests with:</p>
+<div class="codehilite"><pre><span></span><code>xcodebuild<span class="w"> </span>-project<span class="w"> </span>Ourin.xcodeproj<span class="w"> </span>-scheme<span class="w"> </span>Ourin<span class="w"> </span>-only-testing:OurinTests/SakuraScriptEngineTests<span class="w"> </span><span class="nb">test</span>
+</code></pre></div>
+
+<h2 id="references">References</h2>
+<ul>
+<li>Full specification: <code>docs/SAKURASCRIPT_FULL_1.0M_PATCHED.md</code></li>
+<li>Parser implementation: <code>Ourin/SakuraScript/SakuraScriptEngine.swift</code></li>
+<li>Test suite: <code>OurinTests/SakuraScriptEngineTests.swift</code></li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

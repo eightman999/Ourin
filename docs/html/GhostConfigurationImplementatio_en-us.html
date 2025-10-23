@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Configuration System Implementation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="ghost-configuration-system-implementation">Ghost Configuration System Implementation</h1>
+<h2 id="overview">Overview</h2>
+<p>Implemented a comprehensive system to load and apply ghost configuration from <code>descript.txt</code> files. This allows ghosts to set environment variables and properties during startup and loading, following the ukagaka specification.</p>
+<h2 id="implementation-summary">Implementation Summary</h2>
+<h3 id="1-ghostconfiguration-structure-ouringhostghostconfigurationswift">1. GhostConfiguration Structure (<code>Ourin/Ghost/GhostConfiguration.swift</code>)</h3>
+<p>Created a comprehensive structure to hold all <code>descript.txt</code> values:</p>
+<p><strong>Basic Information:</strong>
+- <code>charset</code>, <code>type</code>, <code>name</code>
+- <code>sakura.name</code>, <code>kero.name</code>, <code>char*.name</code>
+- <code>id</code>, <code>title</code></p>
+<p><strong>Author Information:</strong>
+- <code>craftman</code>, <code>craftmanw</code>, <code>craftmanurl</code>
+- <code>homeurl</code></p>
+<p><strong>SHIORI Configuration:</strong>
+- <code>shiori</code> (DLL filename)
+- <code>shiori.version</code>, <code>shiori.cache</code>, <code>shiori.encoding</code>, <code>shiori.forceencoding</code>
+- <code>shiori.escape_unknown</code></p>
+<p><strong>Surface Configuration:</strong>
+- <code>sakura.seriko.defaultsurface</code>, <code>kero.seriko.defaultsurface</code>
+- <code>char*.seriko.defaultsurface</code>
+- <code>balloon.defaultsurface</code></p>
+<p><strong>Position Configuration:</strong>
+- <code>seriko.alignmenttodesktop</code> (top/bottom/free)
+- Scope-specific alignments: <code>sakura.seriko.alignmenttodesktop</code>, <code>kero.seriko.alignmenttodesktop</code>, <code>char*.seriko.alignmenttodesktop</code>
+- Base positions: <code>sakura.defaultx/y</code>, <code>kero.defaultx/y</code>, <code>char*.defaultx/y</code>
+- Display positions: <code>sakura.defaultleft/top</code>, <code>kero.defaultleft/top</code>, <code>char*.defaultleft/top</code></p>
+<p><strong>SSTP Configuration:</strong>
+- <code>sstp.allowunspecifiedsend</code>, <code>sstp.allowcommunicate</code>, <code>sstp.alwaystranslate</code></p>
+<p><strong>Balloon Configuration:</strong>
+- <code>balloon</code>, <code>default.balloon.path</code>
+- <code>recommended.balloon</code>, <code>recommended.balloon.path</code>
+- <code>balloon.dontmove</code>, <code>balloon.syncscale</code></p>
+<p><strong>UI Configuration:</strong>
+- <code>icon</code>, <code>icon.minimize</code>
+- <code>mousecursor</code>, <code>mousecursor.text</code>, <code>mousecursor.wait</code>, <code>mousecursor.hand</code>, <code>mousecursor.grip</code>, <code>mousecursor.arrow</code>
+- <code>menu.font.name</code>, <code>menu.font.height</code></p>
+<p><strong>Behavior Settings:</strong>
+- <code>name.allowoverride</code>
+- <code>don't need onmousemove</code>, <code>don't need bind</code>, <code>don't need seriko talk</code></p>
+<p><strong>AI Graph Configuration:</strong>
+- <code>shiori.logo.file</code>, <code>shiori.logo.x</code>, <code>shiori.logo.y</code>, <code>shiori.logo.align</code></p>
+<p><strong>Installation:</strong>
+- <code>install.accept</code>, <code>readme</code>, <code>readme.charset</code></p>
+<h3 id="2-ghost-integration-ourinpropertyghostpropertyproviderswift">2. Ghost Integration (<code>Ourin/Property/GhostPropertyProvider.swift</code>)</h3>
+<p>Extended the <code>Ghost</code> struct to include configuration:
+- Added <code>configuration: GhostConfiguration?</code> property
+- Added <code>init(from config: GhostConfiguration, path: String, username: String?)</code>  initializer</p>
+<h3 id="3-ghostmanager-integration-ouringhostghostmanagerswift">3. GhostManager Integration (<code>Ourin/Ghost/GhostManager.swift</code>)</h3>
+<p><strong>Loading Configuration:</strong>
+- Added <code>ghostConfig: GhostConfiguration?</code> property
+- Load configuration from <code>descript.txt</code> during <code>start()</code>
+- Log configuration details for debugging</p>
+<p><strong>Applying Configuration:</strong>
+- Added <code>applyGhostConfiguration(_:ghostRoot:)</code> method
+- Applies homeurl to ResourceManager
+- Applies default surface positions (sakura/kero/char*.defaultx/y)
+- Applies display positions based on alignment settings
+- Respects <code>seriko.alignmenttodesktop</code> when applying positions
+- Stores positions in ResourceManager for persistence</p>
+<h3 id="4-comprehensive-test-suite-ourintestsghostconfigurationtestsswift">4. Comprehensive Test Suite (<code>OurinTests/GhostConfigurationTests.swift</code>)</h3>
+<p>Created extensive tests covering:
+- Basic parsing (required/optional fields)
+- Surface configuration
+- Position configuration (including alignments)
+- Character-specific positions (char2, char3, etc.)
+- SSTP configuration
+- Balloon configuration
+- UI configuration
+- Behavior settings
+- SHIORI configuration
+- Installation configuration
+- AI graph configuration
+- Emily4 real-world test case
+- Ghost struct integration</p>
+<h2 id="usage">Usage</h2>
+<h3 id="automatic-loading">Automatic Loading</h3>
+<p>Configuration is automatically loaded when a ghost starts:</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">let</span> <span class="nv">ghostRoot</span> <span class="p">=</span> <span class="n">ghostURL</span><span class="p">.</span><span class="n">appendingPathComponent</span><span class="p">(</span><span class="s">&quot;ghost/master&quot;</span><span class="p">,</span> <span class="n">isDirectory</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+<span class="k">if</span> <span class="kd">let</span> <span class="nv">config</span> <span class="p">=</span> <span class="n">GhostConfiguration</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="n">ghostRoot</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kc">self</span><span class="p">.</span><span class="n">ghostConfig</span> <span class="p">=</span> <span class="n">config</span>
+    <span class="n">applyGhostConfiguration</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ghostRoot</span><span class="p">:</span> <span class="n">ghostRoot</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="manual-loading">Manual Loading</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Load from a ghost directory</span>
+<span class="kd">let</span> <span class="nv">config</span> <span class="p">=</span> <span class="n">GhostConfiguration</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="n">ghostRootURL</span><span class="p">)</span>
+
+<span class="c1">// Parse from a dictionary</span>
+<span class="kd">let</span> <span class="nv">dict</span> <span class="p">=</span> <span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;MyGhost&quot;</span><span class="p">,</span> <span class="s">&quot;sakura.name&quot;</span><span class="p">:</span> <span class="s">&quot;Sakura&quot;</span><span class="p">]</span>
+<span class="kd">let</span> <span class="nv">config</span> <span class="p">=</span> <span class="n">GhostConfiguration</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="n">dict</span><span class="p">)</span>
+
+<span class="c1">// Create programmatically</span>
+<span class="kd">let</span> <span class="nv">config</span> <span class="p">=</span> <span class="n">GhostConfiguration</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="s">&quot;TestGhost&quot;</span><span class="p">,</span>
+    <span class="n">sakuraName</span><span class="p">:</span> <span class="s">&quot;Sakura&quot;</span><span class="p">,</span>
+    <span class="n">keroName</span><span class="p">:</span> <span class="s">&quot;Kero&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="creating-ghost-from-configuration">Creating Ghost from Configuration</h3>
+<div class="codehilite"><pre><span></span><code><span class="kd">let</span> <span class="nv">ghost</span> <span class="p">=</span> <span class="n">Ghost</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="n">config</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="s">&quot;/path/to/ghost&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h2 id="configuration-priority">Configuration Priority</h2>
+<ol>
+<li><strong>Position Settings:</strong></li>
+<li><code>seriko.alignmenttodesktop</code> sets global default (top/bottom/free)</li>
+<li><code>sakura.seriko.alignmenttodesktop</code> overrides for sakura</li>
+<li><code>kero.seriko.alignmenttodesktop</code> overrides for kero</li>
+<li><code>char*.seriko.alignmenttodesktop</code> overrides for additional characters</li>
+<li>
+<p>Display positions (<code>defaultleft/top</code>) only apply when alignment is <code>free</code></p>
+</li>
+<li>
+<p><strong>Runtime vs descript.txt:</strong></p>
+</li>
+<li>Configuration values are loaded at startup</li>
+<li>Runtime values from ResourceManager take precedence for user-modified settings</li>
+<li>Configuration provides sensible defaults</li>
+</ol>
+<h2 id="supported-encoding">Supported Encoding</h2>
+<ul>
+<li>UTF-8 (preferred)</li>
+<li>Shift_JIS/CP932 (fallback for compatibility)</li>
+</ul>
+<h2 id="example-descripttxt">Example descript.txt</h2>
+<div class="codehilite"><pre><span></span><code><span class="nx">charset</span><span class="p">,</span><span class="nx">Shift_JIS</span>
+<span class="k">type</span><span class="p">,</span><span class="nx">ghost</span>
+<span class="nx">name</span><span class="p">,</span><span class="nx">Emily</span><span class="o">/</span><span class="nx">Phase4</span><span class="m m-Double">.5</span>
+<span class="nx">sakura</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span><span class="nx">Emily</span>
+<span class="nx">kero</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span><span class="nx">Teddy</span>
+<span class="nx">balloon</span><span class="p">,</span><span class="nx">emily4</span>
+<span class="nx">id</span><span class="p">,</span><span class="nx">Emily</span><span class="o">/</span><span class="nx">Phase4</span><span class="m m-Double">.5</span>
+<span class="nx">char2</span><span class="p">.</span><span class="nx">seriko</span><span class="p">.</span><span class="nx">defaultsurface</span><span class="p">,</span><span class="mi">200</span>
+<span class="nx">name</span><span class="p">.</span><span class="nx">allowoverride</span><span class="p">,</span><span class="mi">0</span>
+<span class="nx">craftmanurl</span><span class="p">,</span><span class="nx">http</span><span class="p">:</span><span class="c1">//ssp.shillest.net/</span>
+<span class="nx">craftman</span><span class="p">,[</span><span class="nx">SSPBT</span><span class="o">/</span><span class="nx">GL03B</span><span class="p">]</span><span class="nx">Emily</span><span class="w"> </span><span class="nx">Development</span><span class="w"> </span><span class="nx">Team</span>
+<span class="nx">sstp</span><span class="p">.</span><span class="nx">allowunspecifiedsend</span><span class="p">,</span><span class="mi">1</span>
+<span class="nx">icon</span><span class="p">,</span><span class="nx">icon</span><span class="p">.</span><span class="nx">ico</span>
+<span class="nx">shiori</span><span class="p">,</span><span class="nx">yaya</span><span class="p">.</span><span class="nx">dll</span>
+<span class="nx">shiori</span><span class="p">.</span><span class="nx">version</span><span class="p">,</span><span class="nx">SHIORI</span><span class="o">/</span><span class="m m-Double">3.0</span>
+</code></pre></div>
+
+<h2 id="future-enhancements">Future Enhancements</h2>
+<p>Potential additions identified in the specification:</p>
+<ol>
+<li><strong>MAKOTO Support:</strong></li>
+<li>
+<p><code>makoto</code> DLL specification</p>
+</li>
+<li>
+<p><strong>Advanced Position Control:</strong></p>
+</li>
+<li>Shell-specific position overrides</li>
+<li>
+<p>Runtime position persistence</p>
+</li>
+<li>
+<p><strong>Cursor Management:</strong></p>
+</li>
+<li>Loading and applying custom cursor files</li>
+<li>
+<p>Scope-specific cursor settings</p>
+</li>
+<li>
+<p><strong>Tooltip Configuration:</strong></p>
+</li>
+<li>
+<p><code>currentghost.seriko.tooltip.*</code> properties</p>
+</li>
+<li>
+<p><strong>History Tracking:</strong></p>
+</li>
+<li>Most recently used ghosts/balloons/shells</li>
+<li>Usage statistics</li>
+</ol>
+<h2 id="references">References</h2>
+<ul>
+<li>UKADOC descript.txt specification: https://ssp.shillest.net/ukadoc/manual/descript_ghost.html</li>
+<li>SSP Property System specification</li>
+<li>Ourin Property System documentation: <code>docs/PropertySystem.md</code></li>
+</ul>
+<h2 id="files-modified">Files Modified</h2>
+<ul>
+<li><strong>New:</strong> <code>Ourin/Ghost/GhostConfiguration.swift</code></li>
+<li><strong>New:</strong> <code>OurinTests/GhostConfigurationTests.swift</code></li>
+<li><strong>Modified:</strong> <code>Ourin/Property/GhostPropertyProvider.swift</code></li>
+<li><strong>Modified:</strong> <code>Ourin/Ghost/GhostManager.swift</code></li>
+<li><strong>Fixed:</strong> <code>OurinTests/NarInstallTests.swift</code> (added missing Foundation import)</li>
+<li><strong>Fixed:</strong> <code>OurinTests/ShioriLoaderTests.swift</code> (replaced deprecated <code>#fail</code> with <code>Issue.record</code>)</li>
+</ul>
+<h2 id="build-status">Build Status</h2>
+<p>✅ Build successful
+✅ All code compiles without errors
+✅ Comprehensive test suite created (18 tests covering all configuration aspects)</p>
+<h2 id="technical-details">Technical Details</h2>
+<h3 id="parsing-strategy">Parsing Strategy</h3>
+<p>The implementation uses a two-phase parsing approach:</p>
+<ol>
+<li>
+<p><strong>File Reading:</strong> Uses the existing <code>DescriptorLoader</code> pattern for encoding detection (UTF-8 first, then Shift_JIS fallback)</p>
+</li>
+<li>
+<p><strong>Value Parsing:</strong> <code>GhostConfiguration.parse(from:)</code> processes the dictionary:</p>
+</li>
+<li>Required fields validated (name must exist)</li>
+<li>Optional fields with sensible defaults</li>
+<li>Type conversion with safety (Int parsing, enum matching)</li>
+<li><code>char*</code> entries parsed via regex pattern matching</li>
+</ol>
+<h3 id="character-pattern-parsing">Character Pattern Parsing</h3>
+<p>Additional characters (char2, char3, etc.) are parsed using regex:</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">let</span> <span class="nv">charPattern</span> <span class="p">=</span> <span class="s">&quot;^char(</span><span class="se">\\</span><span class="s">d+)</span><span class="se">\\</span><span class="s">.(.+)$&quot;</span>
+<span class="c1">// Matches: char2.name, char3.defaultx, etc.</span>
+</code></pre></div>
+
+<h3 id="error-handling">Error Handling</h3>
+<ul>
+<li>Returns <code>nil</code> if required fields are missing</li>
+<li>Gracefully handles invalid values (falls back to defaults)</li>
+<li>Logs warnings for malformed configuration</li>
+<li>Uses Swift optionals for non-critical fields</li>
+</ul>
+<h3 id="performance">Performance</h3>
+<ul>
+<li>Parsing is done once at ghost startup</li>
+<li>Configuration is cached in memory</li>
+<li>No performance impact on runtime operations</li>
+</ul>
+<h2 id="integration-with-existing-systems">Integration with Existing Systems</h2>
+<ul>
+<li><strong>PropertyManager:</strong> Can use configuration values for property queries</li>
+<li><strong>ResourceManager:</strong> Receives initial values from configuration, stores runtime changes</li>
+<li><strong>GhostPropertyProvider:</strong> Can expose configuration via property system</li>
+<li><strong>SERIKO Engine:</strong> Uses surface defaults from configuration</li>
+<li><strong>SSTP Server:</strong> Respects SSTP permission settings</li>
+<li><strong>Balloon System:</strong> Uses balloon preferences from configuration</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About the FMO Feature</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="about-the-fmo-feature">About the FMO Feature</h1>
+<p>This document explains the implementation policy for reproducing FMO (Forged Memory Object), used in Windows games and ghosts, on macOS.</p>
+<h2 id="objective">Objective</h2>
+<ul>
+<li>Share a 64KB data area between processes using named shared memory.</li>
+<li>Perform exclusive control using named semaphores.</li>
+<li>Implement a launch check compliant with the ninix specification.</li>
+</ul>
+<h2 id="ninix-specification-compliance">ninix Specification Compliance</h2>
+<p>This implementation complies with the FMO specification of ninix/ninix-kagari.</p>
+<h3 id="launch-check-method">Launch Check Method</h3>
+<p>In a POSIX environment, it is determined whether another baseware is running by checking if <code>shm_open('/ninix', O_RDWR, 0)</code> succeeds.</p>
+<ul>
+<li>Success → Another baseware is already running.</li>
+<li>Failure (errno == ENOENT) → Not running.</li>
+<li>Other errors → Insufficient permissions, etc.</li>
+</ul>
+<h3 id="resource-names-to-use">Resource Names to Use</h3>
+<p>For compatibility with ninix, the following names are used:</p>
+<ul>
+<li>Shared memory name: <code>/ninix</code></li>
+<li>Semaphore name: <code>/ninix_mutex</code></li>
+</ul>
+<h3 id="fmo-content">FMO Content</h3>
+<p>Data is stored in the shared memory with the following structure:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">shm_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w">      </span><span class="c1">// Data size (first 4 bytes)</span>
+<span class="w">    </span><span class="n">sem_t</span><span class="w"> </span><span class="n">sem</span><span class="p">;</span><span class="w">          </span><span class="c1">// Semaphore (POSIX environment)</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">buf</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span><span class="w"> </span><span class="c1">// Path to the directory containing the UNIX socket</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>In ninix, the FMO does not hold the baseware's information itself, but rather the directory path where the UNIX socket for retrieving the baseware's information is located. The path ends with a <code>/</code> (e.g., <code>/home/user/.ninix/sock/</code>).</p>
+<h2 id="main-classes">Main Classes</h2>
+<h3 id="fmomutex"><code>FmoMutex</code></h3>
+<ul>
+<li>A Mutex class that wraps a named semaphore.</li>
+<li>Performs exclusive control with <code>lock()</code> and <code>unlock()</code>.</li>
+<li>The <code>createNew</code> parameter allows switching between new creation mode and existing open mode.</li>
+<li>Only the creator executes <code>sem_unlink</code> during <code>cleanup()</code>.</li>
+</ul>
+<h3 id="fmosharedmemory"><code>FmoSharedMemory</code></h3>
+<ul>
+<li>A wrapper for handling POSIX shared memory from Swift.</li>
+<li>Adopts an ephemeral operation where <code>shm_unlink</code> is called after <code>shm_open</code>, and the memory is automatically deleted on the final close.</li>
+<li>Writes the data size in the first 4 bytes and a NUL terminator at the end.</li>
+<li>The <code>createNew</code> parameter allows switching between new creation mode and existing open mode.</li>
+<li>Only the creator executes <code>shm_unlink</code> during <code>cleanup()</code> (however, in ephemeral mode, it is already unlinked immediately after creation).</li>
+</ul>
+<h3 id="fmomanager"><code>FmoManager</code></h3>
+<ul>
+<li>Initializes the above two together and is used at application launch.</li>
+<li>The <code>isAnotherInstanceRunning()</code> static method allows checking if another baseware is running.</li>
+</ul>
+<h2 id="usage-example">Usage Example</h2>
+<h3 id="launch-check-and-initialization">Launch Check and Initialization</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 1. First, check if another baseware is running</span>
+<span class="k">if</span> <span class="n">FmoManager</span><span class="p">.</span><span class="n">isAnotherInstanceRunning</span><span class="p">(</span><span class="n">sharedName</span><span class="p">:</span> <span class="s">&quot;/ninix&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">&quot;Another baseware instance is already running&quot;</span><span class="p">)</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 2. If not running, create FMO resources</span>
+<span class="k">do</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nv">manager</span> <span class="p">=</span> <span class="k">try</span> <span class="n">FmoManager</span><span class="p">(</span><span class="n">mutexName</span><span class="p">:</span> <span class="s">&quot;/ninix_mutex&quot;</span><span class="p">,</span> <span class="n">sharedName</span><span class="p">:</span> <span class="s">&quot;/ninix&quot;</span><span class="p">)</span>
+    <span class="c1">// Use...</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">&quot;FMO initialization failed: </span><span class="si">\(</span><span class="n">error</span><span class="si">)</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="reading-and-writing-data">Reading and Writing Data</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">try</span> <span class="n">manager</span><span class="p">.</span><span class="n">memory</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mutex</span><span class="p">:</span> <span class="n">manager</span><span class="p">.</span><span class="n">mutex</span><span class="p">)</span>
+<span class="kd">let</span> <span class="nv">received</span> <span class="p">=</span> <span class="k">try</span> <span class="n">manager</span><span class="p">.</span><span class="n">memory</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">mutex</span><span class="p">:</span> <span class="n">manager</span><span class="p">.</span><span class="n">mutex</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="cleanup">Cleanup</h3>
+<p>When the application terminates, call <code>cleanup()</code> to release the shared memory and semaphore:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">manager</span><span class="p">.</span><span class="n">cleanup</span><span class="p">()</span>
+</code></pre></div>
+
+<h2 id="implementation-flow">Implementation Flow</h2>
+<ol>
+<li><strong>Launch Check</strong>: Check for the existence of other instances with <code>FmoManager.isAnotherInstanceRunning()</code>.</li>
+<li><strong>FMO Creation</strong>: If no other instance exists, initialize with <code>FmoManager(mutexName:sharedName:)</code>.</li>
+<li><strong>Data Sharing</strong>: Read and write data to shared memory while protecting it with a mutex.</li>
+<li><strong>Cleanup</strong>: Release resources with <code>cleanup()</code> on exit.</li>
+</ol>
+<h2 id="error-handling">Error Handling</h2>
+<ul>
+<li><code>FmoError.alreadyRunning</code>: The semaphore or shared memory already exists (another instance is running).</li>
+<li><code>FmoError.systemError(String)</code>: System error (insufficient permissions, lack of resources, etc.).</li>
+</ul>
+<p>By performing the launch check first, unnecessary <code>alreadyRunning</code> errors can be avoided.</p>
+<h2 id="technical-details">Technical Details</h2>
+<h3 id="c-bridge-functions">C Bridge Functions</h3>
+<p>The following bridge functions are implemented (<code>FmoBridge.c/h</code>) to call POSIX APIs from Swift:</p>
+<h4 id="shared-memory-operations">Shared Memory Operations</h4>
+<ul>
+<li><code>fmo_open_shared()</code>: Create new shared memory.</li>
+<li><code>fmo_open_existing_shared()</code>: Open existing shared memory.</li>
+<li><code>fmo_map()</code>: Memory mapping.</li>
+<li><code>fmo_munmap()</code>: Unmap memory.</li>
+<li><code>fmo_shm_unlink()</code>: Delete shared memory.</li>
+</ul>
+<h4 id="semaphore-operations">Semaphore Operations</h4>
+<ul>
+<li><code>fmo_sem_open()</code>: Open/create a semaphore.</li>
+<li><code>fmo_sem_wait()</code>: Acquire a lock.</li>
+<li><code>fmo_sem_post()</code>: Release a lock.</li>
+<li><code>fmo_sem_close()</code>: Close a semaphore.</li>
+<li><code>fmo_sem_unlink()</code>: Delete a semaphore.</li>
+</ul>
+<h4 id="launch-check">Launch Check</h4>
+<ul>
+<li><code>fmo_check_running()</code>: Launch check based on the ninix specification.</li>
+<li>Attempts to open existing shared memory with <code>shm_open(name, O_RDWR, 0)</code>.</li>
+<li>Return value: 1=running, 0=not running, -1=error.</li>
+</ul>
+<h3 id="notes">Notes</h3>
+<ul>
+<li><strong>32/64bit Incompatibility</strong>: FMO cannot be exchanged between 32-bit and 64-bit processes.</li>
+<li><strong>Permissions</strong>: Access to shared memory and semaphores may be restricted in a sandboxed environment.</li>
+<li><strong>Resource Names</strong>: <code>/ninix</code> and <code>/ninix_mutex</code> are used for ninix compatibility, but can be changed if necessary.</li>
+<li><strong>Ephemeral Operation</strong>: The shared memory is unlinked immediately after creation (<code>shm_unlink</code>) and is automatically deleted when all processes close it.</li>
+</ul>
+<h2 id="implementation-status">Implementation Status</h2>
+<p><strong>Last Updated:</strong> 2025-10-20</p>
+<h3 id="implementation-in-ourin">Implementation in Ourin</h3>
+<ul>
+<li>[x] <strong>Fully Implemented</strong>: The FMO system is fully implemented and verified.</li>
+<li>[x] <strong>Launch Check</strong>: ninix specification compliant launch check using <code>FmoManager.isAnotherInstanceRunning()</code>.</li>
+<li>[x] <strong>Shared Memory Management</strong>: Management of POSIX shared memory by <code>FmoSharedMemory</code>.</li>
+<li>[x] <strong>Exclusive Control</strong>: Implementation of named semaphores with <code>FmoMutex</code>.</li>
+<li>[x] <strong>C Bridge</strong>: A set of bridge functions for the POSIX API (<code>FmoBridge.c/h</code>).</li>
+<li>[x] <strong>Ephemeral Operation</strong>: Automatic deletion feature for shared memory.</li>
+<li>[x] <strong>Error Handling</strong>: Appropriate error handling with <code>FmoError</code>.</li>
+</ul>
+<h3 id="implemented-features">Implemented Features</h3>
+<ol>
+<li>
+<p><strong>POSIX Shared Memory</strong></p>
+<ul>
+<li>Creation/opening of shared memory with <code>shm_open()</code>.</li>
+<li>Memory mapping with <code>mmap()</code>.</li>
+<li>Automatic deletion with <code>shm_unlink()</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Named Semaphores</strong></p>
+<ul>
+<li>Creation/opening of semaphores with <code>sem_open()</code>.</li>
+<li>Exclusive control with <code>sem_wait()</code>/<code>sem_post()</code>.</li>
+<li>Deletion with <code>sem_unlink()</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>ninix Compatible Launch Check</strong></p>
+<ul>
+<li>Existence check for <code>/ninix</code> shared memory.</li>
+<li>Attempt to open existing memory in <code>O_RDWR</code> mode.</li>
+<li>Error determination based on errno.</li>
+</ul>
+</li>
+<li>
+<p><strong>Swift Interface</strong></p>
+<ul>
+<li><code>FmoManager</code>: Overall management class.</li>
+<li><code>FmoSharedMemory</code>: Shared memory wrapper.</li>
+<li><code>FmoMutex</code>: Semaphore wrapper.</li>
+<li><code>FmoError</code>: Error type definition.</li>
+</ul>
+</li>
+</ol>
+<h3 id="implementation-files">Implementation Files</h3>
+<ul>
+<li><code>Ourin/FMO/FmoManager.swift</code>: FMO management class</li>
+<li><code>Ourin/FMO/FmoSharedMemory.swift</code>: Shared memory wrapper</li>
+<li><code>Ourin/FMO/FmoMutex.swift</code>: Mutex wrapper</li>
+<li><code>Ourin/FMO/FmoError.swift</code>: Error definition</li>
+<li><code>Ourin/FMO/FmoBridge.c</code>: C bridge implementation</li>
+<li><code>Ourin/FMO/FmoBridge.h</code>: C bridge header</li>
+</ul>
+<h3 id="operation-check">Operation Check</h3>
+<ul>
+<li>✅ Single instance launch control</li>
+<li>✅ Error detection when launching multiple instances</li>
+<li>✅ Reading from and writing to shared memory</li>
+<li>✅ Exclusive control with semaphores</li>
+<li>✅ Resource release on process termination</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

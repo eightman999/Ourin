@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procedure for Handling Swift-based Plugins from yaya_core</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="procedure-for-handling-swift-based-plugins-from-yaya_core">Procedure for Handling Swift-based Plugins from yaya_core</h1>
+<p>This document outlines the procedure for loading macOS native Swift plugins (<code>.plugin</code> / <code>.bundle</code>) from <code>yaya_core</code> (a C++ helper executable) and handling SHIORI/PLUGIN protocol interactions. All content assumes UTF-8 as the default, and descriptions are standardized in English.</p>
+<h2 id="1-overview">1. Overview</h2>
+<ol>
+<li>Prepare a loadable bundle in Swift that complies with the PLUGIN/2.0M specification.</li>
+<li>Place the bundle in a default directory, such as <code>Ourin.app/Contents/PlugIns/</code>.</li>
+<li><code>yaya_core</code> loads the plugin via the CFBundle API and calls <code>load</code>, <code>request</code>, and <code>unload</code>.</li>
+<li>The wire string returned by the PLUGIN is parsed by <code>yaya_core</code> and returned to the Swift layer as a JSON IPC response.</li>
+</ol>
+<p>Although Swift plugins are implemented in Swift code, they are exported with a C ABI, allowing them to be called transparently from <code>yaya_core</code> (C++).</p>
+<h2 id="2-swift-plugin-requirements">2. Swift Plugin Requirements</h2>
+<h3 id="21-target-settings">2.1 Target Settings</h3>
+<ul>
+<li>In Xcode, select <strong>Bundle (Mach-O Type: Bundle)</strong> and set the output extension to <code>.plugin</code>.</li>
+<li><strong>Architectures:</strong> Enable <code>arm64</code> / <code>x86_64</code> (Universal 2).</li>
+<li><strong>Deployment Target:</strong> macOS 10.15 or later.</li>
+</ul>
+<h3 id="22-exported-functions">2.2 Exported Functions</h3>
+<p>Expose C ABI functions from Swift code using <code>@_cdecl</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="p">@</span><span class="n">_cdecl</span><span class="p">(</span><span class="s">&quot;load&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">pluginLoad</span><span class="p">(</span><span class="kc">_</span> <span class="n">pluginDir</span><span class="p">:</span> <span class="nb">UnsafePointer</span><span class="p">&lt;</span><span class="nb">CChar</span><span class="p">&gt;)</span> <span class="p">-&gt;</span> <span class="nb">Int32</span> <span class="p">{</span>
+    <span class="c1">// Initialization process (e.g., parsing the bundle path if necessary)</span>
+    <span class="k">return</span> <span class="mi">0</span>
+<span class="p">}</span>
+
+<span class="p">@</span><span class="n">_cdecl</span><span class="p">(</span><span class="s">&quot;request&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">pluginRequest</span><span class="p">(</span><span class="kc">_</span> <span class="n">bytes</span><span class="p">:</span> <span class="nb">UnsafePointer</span><span class="p">&lt;</span><span class="nb">UInt8</span><span class="p">&gt;,</span> <span class="kc">_</span> <span class="n">length</span><span class="p">:</span> <span class="nb">Int</span><span class="p">,</span> <span class="kc">_</span> <span class="n">outLength</span><span class="p">:</span> <span class="nb">UnsafeMutablePointer</span><span class="p">&lt;</span><span class="nb">Int</span><span class="p">&gt;)</span> <span class="p">-&gt;</span> <span class="nb">UnsafePointer</span><span class="p">&lt;</span><span class="nb">UInt8</span><span class="p">&gt;?</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nv">data</span> <span class="p">=</span> <span class="n">Data</span><span class="p">(</span><span class="n">bytes</span><span class="p">:</span> <span class="n">bytes</span><span class="p">,</span> <span class="bp">count</span><span class="p">:</span> <span class="n">length</span><span class="p">)</span>
+    <span class="k">guard</span> <span class="kd">let</span> <span class="nv">response</span> <span class="p">=</span> <span class="n">handleWire</span><span class="p">(</span><span class="nb">String</span><span class="p">(</span><span class="n">decoding</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="k">as</span><span class="p">:</span> <span class="nb">UTF8</span><span class="p">.</span><span class="kc">self</span><span class="p">))</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">outLength</span><span class="p">.</span><span class="n">pointee</span> <span class="p">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="kc">nil</span>
+    <span class="p">}</span>
+    <span class="kd">let</span> <span class="nv">utf8</span> <span class="p">=</span> <span class="nb">Array</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">utf8</span><span class="p">)</span>
+    <span class="kd">let</span> <span class="nv">buffer</span> <span class="p">=</span> <span class="nb">UnsafeMutablePointer</span><span class="p">&lt;</span><span class="nb">UInt8</span><span class="p">&gt;.</span><span class="n">allocate</span><span class="p">(</span><span class="n">capacity</span><span class="p">:</span> <span class="n">utf8</span><span class="p">.</span><span class="bp">count</span><span class="p">)</span>
+    <span class="kc">_</span> <span class="p">=</span> <span class="n">buffer</span><span class="p">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="n">utf8</span><span class="p">,</span> <span class="bp">count</span><span class="p">:</span> <span class="n">utf8</span><span class="p">.</span><span class="bp">count</span><span class="p">)</span>
+    <span class="n">outLength</span><span class="p">.</span><span class="n">pointee</span> <span class="p">=</span> <span class="n">utf8</span><span class="p">.</span><span class="bp">count</span>
+    <span class="k">return</span> <span class="nb">UnsafePointer</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="p">@</span><span class="n">_cdecl</span><span class="p">(</span><span class="s">&quot;unload&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">pluginUnload</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Cleanup</span>
+<span class="p">}</span>
+<span class="p">@</span><span class="n">_cdecl</span><span class="p">(</span><span class="s">&quot;plugin_free&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">pluginFree</span><span class="p">(</span><span class="kc">_</span> <span class="n">pointer</span><span class="p">:</span> <span class="nb">UnsafeMutablePointer</span><span class="p">&lt;</span><span class="nb">UInt8</span><span class="p">&gt;?)</span> <span class="p">{</span>
+    <span class="n">pointer</span><span class="p">?.</span><span class="n">deallocate</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<blockquote>
+<p><strong>Note:</strong> Lifecycle management of the buffer returned from <code>request</code> is critical. If you return a copy, also expose <code>plugin_free</code> so that <code>yaya_core</code> can deallocate it.</p>
+</blockquote>
+<h2 id="3-plugin-placement">3. Plugin Placement</h2>
+<ul>
+<li>It is recommended to place the plugin in <code>Contents/PlugIns/</code> within the <code>Ourin.app</code> bundle.</li>
+<li>The plugin bundle must contain at least <code>Contents/Info.plist</code>, <code>Contents/MacOS/&lt;Executable&gt;</code>, and <code>Contents/Resources/descript.txt</code>.</li>
+<li>In <code>descript.txt</code>, specify the <code>filename</code> as <code>.plugin</code> and using UTF-8 encoding is recommended.</li>
+</ul>
+<h2 id="4-loading-process-in-yaya_core">4. Loading Process in yaya_core</h2>
+<p>Link CoreFoundation in C++17 or later and use the <code>CFBundle</code> API. The following is a conceptual code snippet.</p>
+<div class="codehilite"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;CoreFoundation/CoreFoundation.h&gt;</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">PluginHandle</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">CFBundleRef</span><span class="w"> </span><span class="n">bundle</span><span class="p">;</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">LoadFn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int32_t</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="p">);</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">RequestFn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="o">*</span><span class="p">);</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">UnloadFn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">void</span><span class="p">(</span><span class="o">*</span><span class="p">)();</span>
+
+<span class="w">    </span><span class="n">LoadFn</span><span class="w"> </span><span class="n">load</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="n">RequestFn</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="n">UnloadFn</span><span class="w"> </span><span class="n">unload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="n">PluginHandle</span><span class="w"> </span><span class="nf">loadPlugin</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">path</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">PluginHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">{};</span>
+<span class="w">    </span><span class="n">CFURLRef</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CFURLCreateWithFileSystemPath</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span><span class="w"> </span><span class="n">CFStringCreateWithCString</span><span class="p">(</span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">kCFStringEncodingUTF8</span><span class="p">),</span><span class="w"> </span><span class="n">kCFURLPOSIXPathStyle</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+<span class="w">    </span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CFBundleCreate</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CFRelease</span><span class="p">(</span><span class="n">url</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">CFBundleLoadExecutable</span><span class="p">(</span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Failed to load plugin bundle&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">handle</span><span class="p">.</span><span class="n">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">PluginHandle</span><span class="o">::</span><span class="n">RequestFn</span><span class="o">&gt;</span><span class="p">(</span><span class="n">CFBundleGetFunctionPointerForName</span><span class="p">(</span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">CFSTR</span><span class="p">(</span><span class="s">&quot;request&quot;</span><span class="p">)));</span>
+<span class="w">    </span><span class="n">handle</span><span class="p">.</span><span class="n">load</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">PluginHandle</span><span class="o">::</span><span class="n">LoadFn</span><span class="o">&gt;</span><span class="p">(</span><span class="n">CFBundleGetFunctionPointerForName</span><span class="p">(</span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">CFSTR</span><span class="p">(</span><span class="s">&quot;load&quot;</span><span class="p">)));</span>
+<span class="w">    </span><span class="n">handle</span><span class="p">.</span><span class="n">unload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">PluginHandle</span><span class="o">::</span><span class="n">UnloadFn</span><span class="o">&gt;</span><span class="p">(</span><span class="n">CFBundleGetFunctionPointerForName</span><span class="p">(</span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">CFSTR</span><span class="p">(</span><span class="s">&quot;unload&quot;</span><span class="p">)));</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">handle</span><span class="p">.</span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;request symbol missing&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="41-lifecycle">4.1 Lifecycle</h3>
+<ol>
+<li>If <code>load()</code> exists, initialize it by passing the bundle directory (UTF-8 path).</li>
+<li>In <code>request()</code>, pass the wire string (terminated by CRLF + blank line) as a UTF-8 byte sequence.</li>
+<li>If <code>unload()</code> exists, be sure to call it during the termination process.</li>
+<li>Deallocate the bundle with <code>CFBundleUnloadExecutable</code> and <code>CFRelease</code>.</li>
+</ol>
+<h2 id="5-wire-json-conversion">5. Wire ↔ JSON Conversion</h2>
+<ul>
+<li>Communication with the plugin is via a <strong>PLUGIN/2.0M</strong> wire string.</li>
+<li><code>yaya_core</code> receives this, extracts <code>status</code> and <code>Value</code> at the SHIORI layer, and maps them to the JSON IPC format.</li>
+<li>Example: If a Swift plugin returns <code>PLUGIN/2.0M 200 OK</code>, <code>yaya_core</code> converts it to <code>{ "ok": true, "status": 200, ... }</code>.</li>
+</ul>
+<h2 id="6-error-handling-and-debugging">6. Error Handling and Debugging</h2>
+<ul>
+<li>If symbol retrieval fails, unload immediately and return an error via JSON IPC.</li>
+<li>If the return value of <code>request()</code> is <code>nullptr</code>, treat it as an error equivalent to <code>500</code>.</li>
+<li>You can check the loading status with <code>DYLD_PRINT_LIBRARIES</code> or <code>CFBundleCopyBundleURL</code> in Xcode.</li>
+<li>Logs should be output in JSON format and cross-referenced between the Swift side and the <code>yaya_core</code> side.</li>
+</ul>
+<h2 id="7-multi-architecture-support">7. Multi-Architecture Support</h2>
+<ul>
+<li>Build both the plugin and <code>yaya_core</code> as Universal 2 to avoid inconsistencies when running under Rosetta.</li>
+<li>Check the architecture with <code>lipo -info MyPlugin.plugin/Contents/MacOS/MyPlugin</code>.</li>
+</ul>
+<h2 id="8-testing-strategy">8. Testing Strategy</h2>
+<ol>
+<li><strong>Unit Tests:</strong> Verify the input/output of <code>request()</code> on the Swift plugin side with XCTest.</li>
+<li><strong>Integration Tests:</strong> Prepare a script to actually load from <code>yaya_core</code> and verify the response via JSON IPC.</li>
+<li><strong>Long-run:</strong> Continuously load/unload the plugin and monitor for memory leaks with Instruments.</li>
+</ol>
+<hr />
+<p>The above are the steps for safely handling Swift-based plugins from <code>yaya_core</code>. During implementation, please also refer to the specifications in <code>SPEC_PLUGIN_2.0M.md</code> and <code>OURIN_YAYA_ADAPTER_SPEC_1.0M.md</code> to ensure consistency with the wire specification and IPC.</p>
+        <div class="footer">
+            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

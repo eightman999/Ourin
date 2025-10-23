@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROPERTY/1.0M — Ourin（macOS）プロパティシステム仕様書</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="property10m-ourinmacos">PROPERTY/1.0M — Ourin（macOS）プロパティシステム仕様書</h1>
+<p><strong>Status:</strong> Draft / 2025-07-27<br />
+<strong>Target:</strong> Ourin（ベースウェア, macOS 10.15+ / Universal 2）<br />
+<strong>互換方針:</strong> SSP「プロパティシステム」の<strong>語彙・挙動互換</strong>（1.0 相当）。本書は macOS 向け置換（“M 拡張”）のみ定義。<br />
+<strong>文字コード:</strong> 内部 UTF‑8。ただし<strong>SJIS(CP932) 入力は受理→UTF‑8 正規化</strong>（返却は UTF‑8）。</p>
+<hr />
+<h2 id="_1">目次</h2>
+<ul>
+<li><a href="#1-概要">1. 概要</a></li>
+<li><a href="#2-アクセス手段互換">2. アクセス手段（互換）</a></li>
+<li><a href="#3-値の表記と座標単位">3. 値の表記と座標・単位</a></li>
+<li><a href="#31-座標系の定義m-仕様">3.1 座標系の定義（M 仕様）</a></li>
+<li><a href="#32-例座標変換の疑似コード">3.2 例：座標変換の疑似コード</a></li>
+<li><a href="#4-プロパティ語彙macos-マッピング">4. プロパティ語彙（macOS マッピング）</a></li>
+<li><a href="#41-system">4.1 system.*</a></li>
+<li><a href="#42-baseware">4.2 baseware.*</a></li>
+<li><a href="#43-ghostlistactiveghostlistcurrentghost">4.3 ghostlist/activeghostlist/currentghost.*</a></li>
+<li><a href="#44-balloonlistheadlinelistpluginlisthistoryrateofuselist">4.4 balloonlist/headlinelist/pluginlist/history/rateofuselist</a></li>
+<li><a href="#5-書込可能フラグset-有効一覧">5. 書込可能フラグ（SET 有効）一覧</a></li>
+<li><a href="#6-セキュリティとサンドボックス">6. セキュリティとサンドボックス</a></li>
+<li><a href="#7-互換性と差分">7. 互換性と差分</a></li>
+<li><a href="#付録a-rosetta-検出サンプルswiftc">付録A: Rosetta 検出サンプル（Swift/C）</a></li>
+<li><a href="#付録b-実装ヒントcpumemoryos-情報">付録B: 実装ヒント（CPU/メモリ/OS 情報）</a></li>
+<li><a href="#付録c-参考情報">付録C: 参考情報</a></li>
+</ul>
+<hr />
+<h2 id="1">1. 概要</h2>
+<ul>
+<li>Ourin 上で<strong>ゴースト側から</strong>ベースウェアの内部状態やインストール資産へ<strong>読み取り／一部書き込み</strong>を行う仕組み。  </li>
+<li>既存 UKADOC のプロパティ語彙・取得方法を踏襲。Windows 固有の値は<strong>同義の macOS 情報</strong>に置換。</li>
+</ul>
+<h2 id="2">2. アクセス手段（互換）</h2>
+<ul>
+<li><strong>環境変数展開</strong>：<code>%property[プロパティ名]</code><br />
+  例: <code>%property[baseware.name] ver %property[baseware.version]</code></li>
+<li><strong>取得</strong>：<code>\![get,property,イベント名,プロパティ名,...]</code>  </li>
+<li><strong>設定</strong>：<code>\![set,property,プロパティ名,値]</code>（[SET 有効]項目のみ）</li>
+</ul>
+<blockquote>
+<p>互換上の注意：複数指定時は Reference0 から順番に返す。値は UTF‑8。</p>
+</blockquote>
+<h2 id="3">3. 値の表記と座標・単位</h2>
+<ul>
+<li><strong>文字列は UTF‑8</strong>。SJIS 入力は CP932 → UTF‑8 に正規化し処理。  </li>
+<li><strong>パスは POSIX 形式</strong>（<code>/</code> 区切り）。</li>
+<li><strong>座標／サイズの単位</strong>：<strong>ピクセル相当の “論理ピクセル（pt）”</strong>。Retina 等の拡縮は Ourin 内で吸収し、<strong>1 論理 px = 1pt</strong>として返却。<br />
+  必要に応じ <code>backingScaleFactor</code> を用いて実デバイスピクセルへ変換可能。</li>
+</ul>
+<h3 id="31-m">3.1 座標系の定義（M 仕様）</h3>
+<ul>
+<li><strong>原点：仮想デスクトップの左上 (0,0)</strong>。<br />
+  macOS のグローバル座標は<strong>左下原点</strong>（デフォルト）だが、SSP 互換のため<strong>左上原点</strong>に変換して返す。  </li>
+<li>マルチディスプレイ時は <code>NSScreen.screens</code> の <strong>frame の合成矩形</strong>を仮想デスクトップとみなし、その左上を (0,0) とする。</li>
+</ul>
+<h3 id="32">3.2 例：座標変換の疑似コード</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Cocoaのグローバル座標(左下原点) -&gt; 互換座標(左上原点) への変換</span>
+<span class="kd">func</span> <span class="nf">compatibleCursorPositionString</span><span class="p">()</span> <span class="p">-&gt;</span> <span class="nb">String</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nv">union</span> <span class="p">=</span> <span class="n">NSScreen</span><span class="p">.</span><span class="n">screens</span><span class="p">.</span><span class="bp">reduce</span><span class="p">(.</span><span class="n">null</span><span class="p">)</span> <span class="p">{</span> <span class="nv">$0</span><span class="p">.</span><span class="n">union</span><span class="p">(</span><span class="nv">$1</span><span class="p">.</span><span class="n">frame</span><span class="p">)</span> <span class="p">}</span> <span class="c1">// グローバル座標</span>
+    <span class="kd">let</span> <span class="nv">p</span> <span class="p">=</span> <span class="bp">NSEvent</span><span class="p">.</span><span class="n">mouseLocation</span> <span class="c1">// グローバル座標・左下原点・単位pt</span>
+    <span class="kd">let</span> <span class="nv">x</span> <span class="p">=</span> <span class="n">p</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">union</span><span class="p">.</span><span class="n">minX</span>
+    <span class="kd">let</span> <span class="nv">y</span> <span class="p">=</span> <span class="n">union</span><span class="p">.</span><span class="n">maxY</span> <span class="o">-</span> <span class="n">p</span><span class="p">.</span><span class="n">y</span>      <span class="c1">// Y反転して左上原点へ</span>
+    <span class="k">return</span> <span class="s">&quot;</span><span class="si">\(</span><span class="nb">Int</span><span class="si">(</span><span class="n">x</span><span class="si">))</span><span class="s">,</span><span class="si">\(</span><span class="nb">Int</span><span class="si">(</span><span class="n">y</span><span class="si">))</span><span class="s">&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4-macos">4. プロパティ語彙（macOS マッピング）</h2>
+<h3 id="41-system">4.1 <code>system.*</code></h3>
+<ul>
+<li><code>system.year/month/day/hour/minute/second/millisecond/dayofweek</code><br />
+  → ローカルタイムの整数。  </li>
+<li><code>system.cursor.pos</code><br />
+  → 現在マウス座標 <code>"X,Y"</code>（上記 <strong>左上原点</strong>・単位 pt）。  </li>
+<li><code>system.os.(id)</code>  </li>
+<li><code>type</code> = <code>"macOS"</code> 固定。  </li>
+<li><code>name</code> = <code>"macOS &lt;major.minor[.patch]&gt;"</code>（<code>ProcessInfo.operatingSystemVersion</code> 由来）。  </li>
+<li><code>version</code> = <strong>Darwin カーネル版</strong>（<code>sysctl kern.osrelease</code>）。  </li>
+<li><code>build</code> = <strong>ビルド番号</strong>（<code>sysctl kern.osversion</code>）。  </li>
+<li><code>parenttype</code> / <code>parentname</code> = Rosetta 2 翻訳実行時のみ、<code>"Rosetta 2"</code> / <code>"macOS &lt;version&gt;"</code>。</li>
+<li><code>system.cpu.(id)</code>  </li>
+<li><code>load</code>：%（移動平均可）。  </li>
+<li><code>num</code>：論理コア数（<code>hw.ncpu</code>）。  </li>
+<li><code>vendor</code> / <code>name</code>：<code>machdep.cpu.brand_string</code> など。Apple Silicon は <code>vendor="Apple"</code> を想定。  </li>
+<li><code>clock</code>：<code>hw.cpufrequency</code>。  </li>
+<li><code>features</code>：<code>hw.optional.*</code> / <code>machdep.cpu.features</code> の可読化文字列。  </li>
+<li><code>system.memory.(id)</code>  </li>
+<li><code>load</code>：%（Ourin 内部で計算）。  </li>
+<li><code>phyt</code>：総物理メモリ (MB) = <code>hw.memsize</code>。  </li>
+<li><code>phya</code>：空き (MB) = <code>vm_stat</code>/<code>host_statistics</code> の値から推算（実装例は付録B）。</li>
+</ul>
+<h3 id="42-baseware">4.2 <code>baseware.*</code></h3>
+<ul>
+<li><code>baseware.name</code> = <code>"Ourin"</code>、<code>baseware.version</code>：SemVer 文字列。</li>
+</ul>
+<h3 id="43-ghostlistactiveghostlistcurrentghost">4.3 <code>ghostlist/activeghostlist/currentghost.*</code></h3>
+<ul>
+<li><strong>語彙は UKADOC 同名キーを踏襲</strong>（<code>汎用プロパティ名</code> 群を含む）。  </li>
+<li><code>... .path</code> は <strong>POSIX パス</strong>で返す。  </li>
+<li><code>currentghost.balloon.scope(ID).validwidth/validheight/lines</code> 等の描画寸法は <strong>論理 px</strong>。</li>
+</ul>
+<h3 id="44-balloonlistheadlinelistpluginlisthistoryrateofuselist">4.4 <code>balloonlist/headlinelist/pluginlist/history/rateofuselist</code></h3>
+<ul>
+<li>語彙・取得挙動は同名互換。<code>index(ID)</code> / <code>count</code> 等も踏襲。</li>
+</ul>
+<hr />
+<h2 id="5-set">5. 書込可能フラグ（SET 有効）一覧</h2>
+<blockquote>
+<p><strong>注意</strong>：ここに列挙のないキーは <strong>既定で読み取り専用</strong>。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>キー（ワイルドカード表記）</th>
+<th style="text-align: center;">SET</th>
+<th>設定値の例</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>currentghost.shelllist(&lt;name-or-path&gt;).menu</code></td>
+<td style="text-align: center;">✓</td>
+<td><code>hidden</code> / 空文字</td>
+<td>オーナードローメニューからの非表示/表示切り替え</td>
+</tr>
+<tr>
+<td><code>currentghost.seriko.cursor.scope(ID).mouse????list(&lt;hit&gt;).path</code></td>
+<td style="text-align: center;">✓</td>
+<td><code>頭.cur</code> / 空文字</td>
+<td><code>mouseuplist/mousedownlist/mousehoverlist/mousewheellist</code> のいずれか。空で定義削除</td>
+</tr>
+<tr>
+<td><code>currentghost.seriko.cursor.scope(ID).mouse????list.index(ID2).path</code></td>
+<td style="text-align: center;">✓</td>
+<td><code>xxx.cur</code></td>
+<td>上記の index 指定版</td>
+</tr>
+<tr>
+<td><code>currentghost.seriko.tooltip.scope(ID).textlist(&lt;hit&gt;).text</code></td>
+<td style="text-align: center;">✓</td>
+<td>任意文字列 / 空文字</td>
+<td>ツールチップ文字列。空で定義削除</td>
+</tr>
+<tr>
+<td><code>currentghost.seriko.tooltip.scope(ID).textlist.index(ID2).text</code></td>
+<td style="text-align: center;">✓</td>
+<td>任意文字列</td>
+<td>index 指定版</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>実装では <strong>存在しないキーへの SET</strong> を無視（もしくは警告ログ）し、副作用を発生させないこと。</p>
+</blockquote>
+<hr />
+<h2 id="6">6. セキュリティとサンドボックス</h2>
+<ul>
+<li><strong>外部入力（SSTP/HEADLINE/PLUGIN/SHIORI）由来の SET</strong> はレベル分離し、必要に応じ<strong>無視</strong>する。  </li>
+<li>値にパスを含む場合は <strong>ベースウェア管理下のセーフパス</strong>に制限。</li>
+</ul>
+<h2 id="7">7. 互換性と差分</h2>
+<ul>
+<li>Windows 固有の <code>system.os.*</code> の具体値は macOS 相当へ置換。  </li>
+<li>座標系は<strong>左上原点</strong>で返す（macOS 内部から変換）。  </li>
+<li>返却の文字コードは UTF‑8 固定。</li>
+</ul>
+<hr />
+<h2 id="a-rosetta-swiftc">付録A: Rosetta 検出サンプル（Swift/C）</h2>
+<p><strong>Swift</strong>（<code>sysctl.proc_translated</code> を利用）:</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">import</span> <span class="nc">Foundation</span>
+
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">isRunningUnderRosetta</span><span class="p">()</span> <span class="p">-&gt;</span> <span class="nb">Bool</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nv">flag</span><span class="p">:</span> <span class="nb">Int32</span> <span class="p">=</span> <span class="mi">0</span>
+    <span class="kd">var</span> <span class="nv">size</span> <span class="p">=</span> <span class="n">MemoryLayout</span><span class="p">&lt;</span><span class="nb">Int32</span><span class="p">&gt;.</span><span class="n">size</span>
+    <span class="kd">let</span> <span class="nv">rc</span> <span class="p">=</span> <span class="n">sysctlbyname</span><span class="p">(</span><span class="s">&quot;sysctl.proc_translated&quot;</span><span class="p">,</span> <span class="p">&amp;</span><span class="n">flag</span><span class="p">,</span> <span class="p">&amp;</span><span class="n">size</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rc</span> <span class="p">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">flag</span> <span class="p">==</span> <span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>C</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdbool.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/sysctl.h&gt;</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="nf">ourin_is_rosetta</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">flag</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sysctlbyname</span><span class="p">(</span><span class="s">&quot;sysctl.proc_translated&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">flag</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="b-cpumemoryos">付録B: 実装ヒント（CPU/Memory/OS 情報）</h2>
+<ul>
+<li>OS 名（<code>name</code>）: <code>ProcessInfo.processInfo.operatingSystemVersion</code> → <code>"macOS X.Y[.Z]"</code> を合成。  </li>
+<li>Darwin 版（<code>version</code>）: <code>sysctlbyname("kern.osrelease", ...)</code>。  </li>
+<li>ビルド（<code>build</code>）: <code>sysctlbyname("kern.osversion", ...)</code>。  </li>
+<li>CPU：<code>hw.ncpu</code>, <code>machdep.cpu.brand_string</code>, <code>machdep.cpu.features</code>, <code>hw.cpufrequency</code>。  </li>
+<li>Memory：<code>hw.memsize</code>。<code>vm_stat</code> or <code>host_statistics</code> を参照し <code>phya</code> を推算（例：<code>free + inactive</code> ページ）。</li>
+</ul>
+<h2 id="c">付録C: 参考情報</h2>
+<ul>
+<li>プロパティ語彙・SET 可否の例（UKADOC）  </li>
+<li><code>currentghost.shelllist(...).menu</code> の SET 例  </li>
+<li><code>currentghost.seriko.cursor... .path</code> / <code>... .text</code> は [SET有効]  </li>
+<li>座標系・Retina  </li>
+<li>Cocoa の既定は左下原点、<code>NSEvent.mouseLocation</code> は<strong>スクリーン座標</strong>  </li>
+<li><code>NSWindow.setFrameTopLeftPoint</code>、<code>NSView.viewDidChangeBackingProperties()</code>、<code>backingScaleFactor</code></li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

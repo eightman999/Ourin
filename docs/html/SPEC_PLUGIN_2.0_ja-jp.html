@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLUGIN/2.0M — macOS ネイティブ差分仕様（Draft）</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="plugin20m-macos-draft">PLUGIN/2.0M — macOS ネイティブ差分仕様（Draft）</h1>
+<p><strong>Status:</strong> Draft<br />
+<strong>Updated:</strong> 2025-07-26<br />
+<strong>Audience:</strong> ベースウェア実装者 / プラグイン作者<br />
+<strong>Scope:</strong> UKADOC <strong>PLUGIN/2.0</strong> を母体に、macOS ネイティブで運用するための差分を規定<br />
+<strong>非目標:</strong> PLUGIN/1.0 DLL のバイナリ互換（※語彙・挙動の互換のみ対象）</p>
+<hr />
+<h2 id="_1">目次</h2>
+<ul>
+<li><a href="#1-目的と設計方針">1. 目的と設計方針</a></li>
+<li><a href="#2-用語">2. 用語</a></li>
+<li><a href="#3-適用範囲と互換性">3. 適用範囲と互換性</a></li>
+<li><a href="#4-os--cpu-要件">4. OS / CPU 要件</a></li>
+<li><a href="#5-実体バンドル形式">5. 実体（バンドル形式）</a></li>
+<li><a href="#6-ワイヤプロトコル20-との差分">6. ワイヤプロトコル（2.0 との差分）</a></li>
+<li><a href="#7-apiエクスポート関数メモリ管理">7. API（エクスポート関数・メモリ管理）</a></li>
+<li><a href="#8-イベント分岐実装指針">8. イベント分岐（実装指針）</a></li>
+<li><a href="#9-設定ファイルdescripttxt差分">9. 設定ファイル（descript.txt）差分</a></li>
+<li><a href="#10-セキュリティ安定性xpc隔離推奨">10. セキュリティ/安定性：XPC隔離（推奨）</a></li>
+<li><a href="#11-例">11. 例</a></li>
+<li><a href="#12-適合チェックリスト">12. 適合チェックリスト</a></li>
+<li><a href="#13-既知の差分windows-前提語彙">13. 既知の差分（Windows 前提語彙）</a></li>
+<li><a href="#14-付録adll--plugin-ポーティング手順最短">14. 付録A：DLL → .plugin ポーティング手順（最短）</a></li>
+<li><a href="#15-付録bビルドレシピxcodecmake">15. 付録B：ビルドレシピ（Xcode/CMake）</a></li>
+<li><a href="#16-付録c最小ホストローダswift">16. 付録C：最小ホストローダ（Swift）</a></li>
+<li><a href="#17-参照normative--informative">17. 参照（Normative / Informative）</a></li>
+</ul>
+<hr />
+<h2 id="1">1. 目的と設計方針</h2>
+<ul>
+<li><strong>PLUGIN/2.0</strong> の語彙・プロトコル（<code>GET/NOTIFY PLUGIN/2.x</code>・CRLF区切り・<code>ID/Reference*</code>・<code>Script/ScriptOption</code>・<code>Target</code> など）を維持しつつ、<strong>macOS のネイティブ実体（Bundle/.plugin）</strong>で安全に拡張できるよう差分規定する。  </li>
+<li>文字コードは <strong>UTF‑8 を既定</strong>に改め、<strong>JIS 系（Shift_JIS / Windows‑31J）互換</strong>は受理する方針。  </li>
+<li><strong>1.0 互換は挙動互換</strong>（語彙・振る舞い）に限り、<strong>バイナリ互換は対象外</strong>。</li>
+</ul>
+<h2 id="2">2. 用語</h2>
+<ul>
+<li><strong>2.0M</strong>: 本仕様の版識別子（Mac 差分）。  </li>
+<li><strong>ホスト</strong>: ベースウェア本体（プラグインをロードする側）。  </li>
+<li><strong>プラグイン</strong>: .plugin/.bundle で配布される拡張。  </li>
+<li><strong>ワイヤ</strong>: <code>GET/NOTIFY PLUGIN/2.x</code> のヘッダ文法と往復。</li>
+</ul>
+<h2 id="3">3. 適用範囲と互換性</h2>
+<ul>
+<li><strong>PLUGIN/2.0 とワイヤ互換</strong>：行構造（CRLF 区切り/空行終端）、<code>ID</code>/<code>Reference*</code>/<code>Script</code>/<code>ScriptOption</code>/<code>Target</code> の意味論を維持する。  </li>
+<li><strong>NOTIFY 強制イベント</strong>では、返したスクリプトは無視される——2.0 と同一解釈。</li>
+</ul>
+<h2 id="4-os-cpu">4. OS / CPU 要件</h2>
+<ul>
+<li><strong>最小 OS:</strong> <strong>macOS 10.15（Catalina）以降</strong>（= 32bit 非対応世代）。  </li>
+<li><strong>配布形態:</strong> <strong>Universal 2</strong>（<code>arm64 + x86_64</code>）を推奨必須。  </li>
+<li><strong>Rosetta 2:</strong> Apple silicon 上で <strong>x86_64 ホストを Rosetta</strong>で動かす場合、<strong>読み込むプラグインも x86_64</strong>で一致させる。</li>
+</ul>
+<h2 id="5">5. 実体（バンドル形式）</h2>
+<ul>
+<li>Windows の <strong>DLL</strong> に相当する実体は、macOS では <strong>Loadable Bundle（<code>.plugin</code> / <code>.bundle</code>）</strong> とする。ロードは <strong>CFBundle/Bundle</strong> API を用いる。  </li>
+<li>バンドル構造（典型）：
+  <code>text
+  MyPlugin.plugin/
+    Contents/
+      Info.plist
+      MacOS/MyPlugin      # 実行ファイル（Mach-O, Universal 2）
+      Resources/descript.txt</code>
+  App バンドル配下の <strong><code>Contents/PlugIns/</code></strong> に配置するのが通例。</li>
+</ul>
+<h2 id="6-20">6. ワイヤプロトコル（2.0 との差分）</h2>
+<ul>
+<li><strong>版表記:</strong> 先頭行のプロトコル名は <code>PLUGIN/2.0M</code> を用いる（構文は 2.0 と同形）。  </li>
+<li><strong>Charset 既定:</strong> 2.0M では <strong>UTF‑8</strong> を未指定時の既定とする。互換のため <code>Shift_JIS</code> / <code>Windows‑31J</code> 等のラベルを受理する（実体は CP932 相当として扱ってよい）。  </li>
+<li><strong>改行・終端:</strong> 2.0 と同じく <strong>CRLF</strong>、<strong>空行でヘッダ終端</strong>。値中の改行等は URL エンコードを推奨（2.0 の慣行に従う）。</li>
+</ul>
+<h2 id="7-api">7. API（エクスポート関数・メモリ管理）</h2>
+<ul>
+<li><strong>必須エクスポート（C ABI）</strong>
+  <code>c
+  int  load (const char* plugin_dir_utf8);
+  int  loadu(const char* plugin_dir_utf8);   // UTF-8 パス受領
+  void unload(void);
+  const unsigned char* request(const unsigned char* buf, size_t len, size_t* out_len);
+  /* optional */ void plugin_free(void* p);</code>
+  ※ 2.0 の関数構成を C ABI に読み替える（HGLOBAL 等の WinAPI 前提は撤廃）。</li>
+<li><strong>メモリ管理</strong>：既定は <strong>呼び出し側（ホスト）でコピー/破棄</strong>。必要なら <code>plugin_free()</code> を任意提供。</li>
+</ul>
+<h2 id="8">8. イベント分岐（実装指針）</h2>
+<ul>
+<li>リクエストは <strong>ID ヘッダ</strong>と任意個の <strong>ReferenceN</strong> で表現される（2.0 と同様）。ID ごとに処理を分岐する。  </li>
+<li>代表例：</li>
+<li><code>ID: version</code> … <code>Value:</code> ヘッダで自プラグインのバージョンを返す。必要なら <code>Charset:</code> をここで宣言。  </li>
+<li><code>ID: OnMenuExec</code>（GET） … メニュー選択に応じた <code>Script:</code> を返す。  </li>
+<li><code>ID: OnSecondChange</code>（NOTIFY 強制） … スクリプトは返しても処理系で無視され得るため、<code>204 No Content</code> か <code>200 OK</code> のみ返す実装を推奨。  </li>
+<li><code>Sender</code>/<code>Target</code> の意味は 2.0 と同一（Sender は起点、Target は返信先）。</li>
+</ul>
+<h2 id="9-descripttxt">9. 設定ファイル（descript.txt）差分</h2>
+<ul>
+<li><strong>必須:</strong> <code>name</code> / <code>id</code> / <code>filename</code>（2.0 踏襲）。  </li>
+<li><strong>文字コード:</strong> 「旧環境配慮なら Shift_JIS、そうでなければ UTF‑8 推奨」。  </li>
+<li><strong>2.0M 追加許容:</strong> <code>filename</code> に <strong><code>.plugin</code> / <code>.bundle</code></strong> を指定可。</li>
+</ul>
+<h2 id="10-xpc">10. セキュリティ/安定性：XPC隔離（推奨）</h2>
+<ul>
+<li>不安定/高負荷プラグインは <strong>XPC サービス</strong>として別プロセスに分離し、ホスト↔プラグイン間は<strong>テキスト（ワイヤ文字列）のまま透過転送</strong>する。  </li>
+<li>型安全にしたい場合は、<code>request(Data) -&gt; Data</code> 相当のメソッドを持つ <strong>NSXPCConnection</strong> ベースのインターフェースを定義する。  </li>
+<li>XPC 隔離は<strong>規格必須ではない</strong>が、クラッシュ隔離・権限最小化の観点から強く推奨。</li>
+</ul>
+<h2 id="11">11. 例</h2>
+<h3 id="111-version-get">11.1 version 問合せ（GET）</h3>
+<div class="codehilite"><pre><span></span><code>GET PLUGIN/2.0M
+ID: version
+Charset: UTF-8
+Sender: Host
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>PLUGIN/2.0M 200 OK
+Charset: UTF-8
+Value: SamplePlugin 1.0.0
+</code></pre></div>
+
+<h3 id="112-notify-onsecondchange">11.2 NOTIFY 強制イベント（OnSecondChange）</h3>
+<div class="codehilite"><pre><span></span><code>NOTIFY PLUGIN/2.0M
+ID: OnSecondChange
+Charset: UTF-8
+</code></pre></div>
+
+<p>（スクリプトを返しても処理系で無視され得る。<code>204 No Content</code> または <code>200 OK</code> のみ推奨）</p>
+<h2 id="12-implementation-status">12. 実装状況（Implementation Status）</h2>
+<p><strong>更新日:</strong> 2025-10-22</p>
+<h3 id="121-ourin">12.1 Ourin ホスト側の実装</h3>
+<ul>
+<li>[x] <strong>プラグイン検出とロード</strong>: <code>PluginRegistry.swift</code> にて実装済み</li>
+<li>[x] <strong>CFBundle ロード</strong>: <code>.plugin</code> および <code>.bundle</code> ファイルのロード機能を実装済み</li>
+<li>[x] <strong>descript.txt 解析</strong>: プラグインメタデータの読み取りを実装済み</li>
+<li>[x] <strong>文字コード対応</strong>: UTF-8 既定、Shift_JIS/CP932 の自動検出を実装済み</li>
+<li>[x] <strong>PLUGIN/2.0M プロトコル</strong>: <code>PluginProtocol.swift</code> にて完全実装済み</li>
+<li>[x] <strong>イベントディスパッチ</strong>: <code>PluginRegistry.swift</code> にて PLUGIN/2.0M 互換のイベントディスパッチを実装済み</li>
+<li>[ ] <strong>XPC 隔離</strong>: 未実装（現在は同一プロセス内で実行）</li>
+</ul>
+<h3 id="122">12.2 実装済みの機能</h3>
+<ol>
+<li><strong>プラグイン検出</strong></li>
+<li>App バンドル内の <code>Contents/PlugIns/</code> からの検出</li>
+<li><code>~/Library/Application Support/Ourin/PlugIns/</code> からの検出</li>
+<li>
+<p><code>.plugin</code> および <code>.bundle</code> 拡張子のサポート</p>
+</li>
+<li>
+<p><strong>プラグインメタデータ</strong></p>
+</li>
+<li><code>descript.txt</code> の解析（name, id, filename, secondchange.interval など）</li>
+<li>
+<p>UTF-8 および Shift_JIS のエンコーディング自動検出</p>
+</li>
+<li>
+<p><strong>ライフサイクル管理</strong></p>
+</li>
+<li><code>load()</code>/<code>loadu()</code> 関数の呼び出し</li>
+<li><code>unload()</code> 関数の呼び出し</li>
+<li>
+<p>プラグインの一括アンロード</p>
+</li>
+<li>
+<p><strong>PLUGIN/2.0M プロトコル処理</strong> (<code>PluginProtocol.swift</code>)</p>
+</li>
+<li><strong>PluginRequest/PluginResponse 構造体</strong>: リクエストとレスポンスの型定義</li>
+<li><strong>PluginProtocolParser</strong>: CRLF 区切りのワイヤテキストをパース<ul>
+<li><code>parseRequest()</code>: GET/NOTIFY リクエストのパース</li>
+<li><code>parseResponse()</code>: ステータスコードとヘッダーを含むレスポンスのパース</li>
+</ul>
+</li>
+<li><strong>PluginProtocolBuilder</strong>: 構造化データをワイヤテキストに変換<ul>
+<li><code>buildRequest()</code>: リクエストを CRLF 区切り形式に変換</li>
+<li><code>buildResponse()</code>: レスポンスを CRLF 区切り形式に変換</li>
+</ul>
+</li>
+<li>
+<p><strong>Plugin 構造体の拡張メソッド</strong>:</p>
+<ul>
+<li><code>sendRequest()</code>: 構造化リクエストを送信してレスポンスをパース</li>
+<li><code>get()</code>: GET リクエストの便利メソッド</li>
+<li><code>notify()</code>: NOTIFY リクエストの便利メソッド</li>
+<li><code>version()</code>: プラグインバージョン取得</li>
+</ul>
+</li>
+<li>
+<p><strong>イベントディスパッチシステム</strong> (<code>PluginRegistry.swift</code>)</p>
+</li>
+<li><strong>汎用ディスパッチ</strong>:<ul>
+<li><code>dispatchGet()</code>: 全プラグインに GET イベントを送信し、スクリプトを含むレスポンスを収集</li>
+<li><code>dispatchNotify()</code>: 全プラグインに NOTIFY イベントを送信</li>
+<li><code>getAllVersions()</code>: 全プラグインのバージョン情報を取得</li>
+</ul>
+</li>
+<li><strong>具体的なイベント実装</strong>:<ul>
+<li><code>dispatchOnMenuExec()</code>: メニュー選択イベント (GET)</li>
+<li><code>dispatchOnSecondChange()</code>: 秒変更イベント (NOTIFY 強制)</li>
+<li><code>dispatchOnMinuteChange()</code>: 分変更イベント (NOTIFY 強制)</li>
+<li><code>dispatchOnOtherGhostTalk()</code>: 他ゴースト発話イベント (NOTIFY)</li>
+<li><code>dispatchOnGhostChanging()</code>: ゴースト変更前イベント (GET)</li>
+<li><code>dispatchOnGhostChanged()</code>: ゴースト変更後イベント (NOTIFY)</li>
+<li><code>dispatchOnShellChanging()</code>: シェル変更前イベント (GET)</li>
+<li><code>dispatchOnShellChanged()</code>: シェル変更後イベント (NOTIFY)</li>
+</ul>
+</li>
+</ol>
+<h3 id="123">12.3 未実装の機能</h3>
+<ol>
+<li><strong>XPC プロセス分離</strong></li>
+<li>プラグインの別プロセス実行</li>
+<li>
+<p>セキュリティサンドボックス分離</p>
+</li>
+<li>
+<p><strong>追加のイベントタイプ</strong></p>
+</li>
+<li>全ての PLUGIN/2.0 イベントタイプの実装（基本的なイベントは実装済み、追加イベントは必要に応じて実装可能）</li>
+</ol>
+<h3 id="124">12.4 実装ファイル</h3>
+<ul>
+<li><code>Ourin/PluginHost/Plugin.swift</code>: プラグインバンドルのラッパーと基本的な通信機能</li>
+<li><code>Ourin/PluginHost/PluginRegistry.swift</code>: プラグイン検出、管理、イベントディスパッチ</li>
+<li><code>Ourin/PluginHost/PluginProtocol.swift</code>: PLUGIN/2.0M プロトコルの型定義、パーサー、ビルダー</li>
+</ul>
+<h2 id="13">13. 適合チェックリスト</h2>
+<ul>
+<li>[x] <code>PLUGIN/2.0M</code> 行で 2.0 と同構文のワイヤを話せる（実装済み - <code>PluginProtocol.swift</code>）</li>
+<li>[x] 既定 <code>Charset</code> は <strong>UTF‑8</strong>、<code>Shift_JIS</code>/<code>Windows‑31J</code> を受理（実装済み）</li>
+<li>[x] CRLF/空行終端などの 2.0 仕様に従う（実装済み - <code>PluginProtocolParser/Builder</code>）</li>
+<li>[x] 実体は <strong>.plugin/.bundle</strong>（CFBundle）で Universal 2 を配布（対応済み）</li>
+<li>[x] 最小 OS は <strong>10.15+</strong>（対応済み）</li>
+</ul>
+<h2 id="14-windows">14. 既知の差分（Windows 前提語彙）</h2>
+<ul>
+<li><code>HWND</code> 相当のフィールドは macOS では <strong>未使用/0</strong> とする（必要なら将来の UI 連携拡張で定義）。</li>
+</ul>
+<h2 id="15-adll-plugin">15. 付録A：DLL → .plugin ポーティング手順（最短）</h2>
+<p>1) <strong>ターゲットを Bundle（Mach‑O: bundle）</strong> に切替（Xcode）。<strong>Universal 2</strong> を有効化。<br />
+2) <strong>エクスポート関数</strong>は <code>request/load(u)/unload</code> を <strong>C ABI</strong> で再掲（<code>__declspec</code> は不要）。<br />
+3) <strong>文字コード</strong>は <strong>UTF‑8 既定</strong>、<code>Shift_JIS</code>/<code>Windows‑31J</code> ラベルは <strong>CP932 同等</strong>として受理。<br />
+4) <strong>配置</strong>は <code>MyPlugin.plugin/Contents/{MacOS,Resources}</code>。App 側は <code>Contents/PlugIns/</code> からロード。<br />
+5) <strong>Rosetta 注意</strong>：x86_64 のみの配布ならホストも x86_64 で実行（Apple silicon では Rosetta）。</p>
+<h2 id="16-bxcodecmake">16. 付録B：ビルドレシピ（Xcode/CMake）</h2>
+<ul>
+<li><strong>Xcode（推奨）</strong></li>
+<li>Target: <em>Bundle</em>（Mach‑O Type: <em>Bundle</em>）  </li>
+<li>Architectures: <strong>Standard</strong>（<code>arm64</code>/<code>x86_64</code>）＝ Universal 2  </li>
+<li>Deployment Target: <code>macOS 10.15</code> 以上  </li>
+<li>出力: <code>MyPlugin.plugin</code>（自動で <code>Contents/</code> 構造を生成）</li>
+<li><strong>CMake</strong>
+  <code>cmake
+  set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+  add_library(MyPlugin MODULE plugin.c)
+  set_target_properties(MyPlugin PROPERTIES BUNDLE TRUE BUNDLE_EXTENSION "plugin" OUTPUT_NAME "MyPlugin")</code></li>
+</ul>
+<h2 id="17-cswift">17. 付録C：最小ホストローダ（Swift）</h2>
+<blockquote>
+<p>macOS の <strong>Bundle</strong> API で <code>.plugin</code> をロードし、<code>request</code> 関数にワイヤ文字列（CRLF/空行終端）を渡す最小例。</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="kd">import</span> <span class="nc">Foundation</span>
+
+<span class="kd">typealias</span> <span class="n">ReqFn</span> <span class="p">=</span> <span class="p">@</span><span class="n">convention</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="p">(</span><span class="nb">UnsafePointer</span><span class="p">&lt;</span><span class="nb">UInt8</span><span class="p">&gt;,</span> <span class="nb">Int</span><span class="p">,</span> <span class="nb">UnsafeMutablePointer</span><span class="p">&lt;</span><span class="nb">Int</span><span class="p">&gt;)</span> <span class="p">-&gt;</span> <span class="nb">UnsafePointer</span><span class="p">&lt;</span><span class="nb">UInt8</span><span class="p">&gt;?</span>
+<span class="kd">typealias</span> <span class="n">LoadFn</span> <span class="p">=</span> <span class="p">@</span><span class="n">convention</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="p">(</span><span class="nb">UnsafePointer</span><span class="p">&lt;</span><span class="nb">CChar</span><span class="p">&gt;)</span> <span class="p">-&gt;</span> <span class="nb">Int32</span>
+<span class="kd">typealias</span> <span class="n">UnloadFn</span> <span class="p">=</span> <span class="p">@</span><span class="n">convention</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="p">()</span> <span class="p">-&gt;</span> <span class="nb">Void</span>
+
+<span class="kd">struct</span> <span class="nc">Plugin</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nv">bundle</span><span class="p">:</span> <span class="n">Bundle</span>
+    <span class="kd">let</span> <span class="nv">request</span><span class="p">:</span> <span class="n">ReqFn</span>
+    <span class="kd">let</span> <span class="nv">load</span><span class="p">:</span> <span class="n">LoadFn</span><span class="p">?</span>
+    <span class="kd">let</span> <span class="nv">unload</span><span class="p">:</span> <span class="n">UnloadFn</span><span class="p">?</span>
+
+    <span class="kd">init</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="n">URL</span><span class="p">)</span> <span class="kr">throws</span> <span class="p">{</span>
+        <span class="k">guard</span> <span class="kd">let</span> <span class="nv">bundle</span> <span class="p">=</span> <span class="n">Bundle</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span> <span class="k">throw</span> <span class="bp">NSError</span><span class="p">(</span><span class="n">domain</span><span class="p">:</span> <span class="s">&quot;Plugin&quot;</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">}</span>
+        <span class="kc">self</span><span class="p">.</span><span class="n">bundle</span> <span class="p">=</span> <span class="n">bundle</span>
+        <span class="c1">// Force load the bundle image</span>
+        <span class="kc">_</span> <span class="p">=</span> <span class="n">bundle</span><span class="p">.</span><span class="n">principalClass</span>
+        <span class="kd">func</span> <span class="nf">sym</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;(</span><span class="kc">_</span> <span class="n">name</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">T</span><span class="p">?</span> <span class="p">{</span>
+            <span class="kd">let</span> <span class="nv">fp</span> <span class="p">=</span> <span class="n">CFBundleGetFunctionPointerForName</span><span class="p">(</span><span class="n">bundle</span><span class="p">.</span><span class="n">_cfBundle</span><span class="p">,</span> <span class="n">name</span> <span class="k">as</span> <span class="n">CFString</span><span class="p">)</span>
+            <span class="k">guard</span> <span class="n">fp</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="kc">nil</span> <span class="p">}</span>
+            <span class="k">return</span> <span class="bp">unsafeBitCast</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="nb">Optional</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;.</span><span class="kc">self</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">guard</span> <span class="kd">let</span> <span class="nv">req</span><span class="p">:</span> <span class="n">ReqFn</span> <span class="p">=</span> <span class="n">sym</span><span class="p">(</span><span class="s">&quot;request&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span> <span class="k">throw</span> <span class="bp">NSError</span><span class="p">(</span><span class="n">domain</span><span class="p">:</span><span class="s">&quot;Plugin&quot;</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="p">}</span>
+        <span class="kc">self</span><span class="p">.</span><span class="n">request</span> <span class="p">=</span> <span class="n">req</span>
+        <span class="kc">self</span><span class="p">.</span><span class="n">load</span> <span class="p">=</span> <span class="n">sym</span><span class="p">(</span><span class="s">&quot;load&quot;</span><span class="p">)</span>
+        <span class="kc">self</span><span class="p">.</span><span class="n">unload</span> <span class="p">=</span> <span class="n">sym</span><span class="p">(</span><span class="s">&quot;unload&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="kd">func</span> <span class="nf">send</span><span class="p">(</span><span class="kc">_</span> <span class="n">text</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nb">String</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nv">outLen</span><span class="p">:</span> <span class="nb">Int</span> <span class="p">=</span> <span class="mi">0</span>
+        <span class="kd">var</span> <span class="nv">bytes</span> <span class="p">=</span> <span class="nb">Array</span><span class="p">(</span><span class="n">text</span><span class="p">.</span><span class="n">utf8</span><span class="p">)</span>
+        <span class="kd">let</span> <span class="nv">respPtr</span> <span class="p">=</span> <span class="n">bytes</span><span class="p">.</span><span class="n">withUnsafeMutableBytes</span> <span class="p">{</span> <span class="n">raw</span> <span class="p">-&gt;</span> <span class="nb">UnsafePointer</span><span class="p">&lt;</span><span class="nb">UInt8</span><span class="p">&gt;?</span> <span class="k">in</span>
+            <span class="k">return</span> <span class="n">request</span><span class="p">(</span><span class="n">raw</span><span class="p">.</span><span class="n">bindMemory</span><span class="p">(</span><span class="n">to</span><span class="p">:</span> <span class="nb">UInt8</span><span class="p">.</span><span class="kc">self</span><span class="p">).</span><span class="n">baseAddress</span><span class="p">!,</span> <span class="n">bytes</span><span class="p">.</span><span class="bp">count</span><span class="p">,</span> <span class="p">&amp;</span><span class="n">outLen</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">guard</span> <span class="kd">let</span> <span class="nv">p</span> <span class="p">=</span> <span class="n">respPtr</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="s">&quot;&quot;</span> <span class="p">}</span>
+        <span class="kd">let</span> <span class="nv">buf</span> <span class="p">=</span> <span class="nb">UnsafeBufferPointer</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="bp">count</span><span class="p">:</span> <span class="n">outLen</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">String</span><span class="p">(</span><span class="n">decoding</span><span class="p">:</span> <span class="n">buf</span><span class="p">,</span> <span class="k">as</span><span class="p">:</span> <span class="nb">UTF8</span><span class="p">.</span><span class="kc">self</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">private</span> <span class="kd">extension</span> <span class="nc">Bundle</span> <span class="p">{</span> <span class="kd">var</span> <span class="nv">_cfBundle</span><span class="p">:</span> <span class="n">CFBundle</span> <span class="p">{</span> <span class="n">CFBundleGetBundleWithIdentifier</span><span class="p">(</span><span class="kc">self</span><span class="p">.</span><span class="n">bundleIdentifier</span><span class="p">!</span> <span class="k">as</span> <span class="n">CFString</span><span class="p">)</span><span class="o">!</span> <span class="p">}</span> <span class="p">}</span>
+</code></pre></div>
+
+<h2 id="18-normative-informative">18. 参照（Normative / Informative）</h2>
+<ul>
+<li>UKADOC: PLUGIN/2.0（リクエスト/レスポンス、CRLF、ID/Reference/Script/Target 等）  </li>
+<li>UKADOC: Plugin 設定（descript.txt）  </li>
+<li>Apple: CFBundle / Bundle（バンドル実体・ロード）  </li>
+<li>Apple: Building a universal macOS binary（Universal 2）  </li>
+<li>Apple: 32‑bit 非対応（macOS 10.15+）  </li>
+<li>Apple: XPC / XPC Service（プロセス分離）  </li>
+<li>WHATWG/MDN: Encoding labels（Shift_JIS / Windows‑31J 等の同義ラベル集合）</li>
+</ul>
+<blockquote>
+<p>注: 本文中の例・定数は説明用。実装では例外処理・境界チェック・SJIS→UTF‑8 変換のエラー処理等を追加すること。</p>
+</blockquote>
+        <div class="footer">
+            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

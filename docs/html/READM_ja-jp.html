@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin (桜鈴) ドキュメント索引</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="ourin">Ourin (桜鈴) ドキュメント索引</h1>
+<p>このディレクトリには、Ourin の全仕様書とドキュメントが含まれています。</p>
+<h2 id="_1">📖 閲覧方法</h2>
+<ul>
+<li><strong>マークダウン版</strong>: このディレクトリの <code>.md</code> ファイルを直接閲覧</li>
+<li><strong>HTML版</strong>: <code>html/</code> ディレクトリの HTML ファイルを閲覧（<a href="html/index.html">索引ページ</a>から選択可能）</li>
+</ul>
+<h2 id="_2">🎯 入門・概要</h2>
+<ul>
+<li><a href="ONBOARDING.md">ONBOARDING.md</a> - Ourin の概要と始め方</li>
+</ul>
+<h2 id="macos">📚 コア仕様書（macOS 差分版）</h2>
+<p>これらの仕様書には、現在の実装状況が追記されています。</p>
+<h3 id="shiori">SHIORI システム</h3>
+<ul>
+<li><a href="SHIORI_3.0M_SPEC.md">SHIORI/3.0M 仕様</a> 🟡 <strong>部分実装</strong> - SHIORI プロトコルの macOS ネイティブ実装仕様</li>
+<li>YAYA バックエンドで実装済み</li>
+<li>C ABI での Bundle/Plugin ロードは未実装</li>
+</ul>
+<h3 id="sstp">SSTP プロトコル</h3>
+<ul>
+<li><a href="SSTP_1.xM_SPEC.md">SSTP/1.xM 仕様</a> 🟢 <strong>実装済み</strong> - SSTP プロトコルの macOS 差分仕様</li>
+<li>TCP/HTTP/XPC サーバ実装済み</li>
+<li>基本的な SEND/NOTIFY/COMMUNICATE/EXECUTE メソッド対応</li>
+</ul>
+<h3 id="_3">プラグインシステム</h3>
+<ul>
+<li><a href="SPEC_PLUGIN_2.0M.md">PLUGIN/2.0M 仕様</a> 🟡 <strong>部分実装</strong> - プラグインシステムの macOS 差分仕様</li>
+<li>プラグイン検出とロード機構は実装済み</li>
+<li>完全な PLUGIN/2.0M プロトコルは未実装</li>
+</ul>
+<h3 id="nar">NAR インストール</h3>
+<ul>
+<li><a href="NAR_INSTALL_1.0M_SPEC.md">NAR INSTALL/1.0M 仕様</a> 🟢 <strong>実装済み</strong> - NAR パッケージインストールの仕様</li>
+<li>ダブルクリック/D&amp;D インストール対応</li>
+<li>基本的な展開とエラー処理実装済み</li>
+</ul>
+<h2 id="_4">⚙️ システム実装仕様</h2>
+<h3 id="fmo">FMO（共有メモリ）</h3>
+<ul>
+<li><a href="About_FMO.md">FMO について</a> 🟢 <strong>完全実装</strong> - プロセス間共有メモリの実装</li>
+<li>POSIX 共有メモリとセマフォで完全実装</li>
+<li>ninix 仕様準拠の起動判定</li>
+</ul>
+<h3 id="yaya">YAYA システム</h3>
+<ul>
+<li><a href="OURIN_YAYA_ADAPTER_SPEC_1.0M.md">YAYA Adapter 仕様 1.0M</a> 🟢 <strong>完全実装</strong> - YAYA ゴーストの実行アダプタ</li>
+<li>ヘルパープロセスとの IPC 実装済み</li>
+<li><code>yaya.txt</code> および <code>.dic</code> ファイルの解析対応</li>
+<li>SHIORI/3.0M ブリッジ実装済み</li>
+</ul>
+<h3 id="usl">USL（ローダー）</h3>
+<ul>
+<li><a href="OURIN_USL_1.0M_SPEC.md">USL 仕様 1.0M</a> 🟢 <strong>実装済み</strong> - Universal SHIORI Loader</li>
+<li>YAYA バックエンド選択機構実装済み</li>
+</ul>
+<h3 id="_5">イベントシステム</h3>
+<ul>
+<li><a href="OURIN_SHIORI_EVENTS_3.0M_SPEC.md">SHIORI Events 3.0M 仕様</a> 🟡 <strong>部分実装</strong> - システムイベントと SHIORI の連携</li>
+<li>主要イベント（時間、OS 状態、ネットワーク、入力、D&amp;D）実装済み</li>
+<li>
+<p>一部イベント（ヘッドライン、メール BIFF、音声認識など）未実装</p>
+</li>
+<li>
+<p><a href="PLUGIN_EVENT_2.0M_SPEC.md">Plugin Event 2.0M 仕様</a> 🟡 <strong>部分実装</strong> - プラグインイベントシステム</p>
+</li>
+<li>基盤となるディスパッチャ実装済み</li>
+<li>個別イベントハンドラは未実装</li>
+</ul>
+<h2 id="ui">🎨 表示・UI 仕様</h2>
+<ul>
+<li><a href="BALLOON_1.0M_SPEC.md">BALLOON/1.0M 仕様</a> - バルーン（吹き出し）システムの仕様</li>
+<li><a href="SAKURASCRIPT_FULL_1.0M_PATCHED.md">SakuraScript 完全仕様 1.0M</a> - SakuraScript の完全なコマンドリファレンス</li>
+<li><a href="SAKURASCRIPT_COMMANDS_SUPPORTED.md">SakuraScript 対応コマンド一覧</a> - 実装済み・未実装のコマンド一覧</li>
+</ul>
+<h2 id="_6">🔧 開発者向け資料</h2>
+<ul>
+<li><a href="DevToolsUIMockup_JA.md">DevTools UI モックアップ（日本語版）</a> - 開発者ツール UI の設計案</li>
+<li><a href="DevToolsUIMockup.md">DevTools UI モックアップ（英語版）</a> - Developer Tools UI mockup</li>
+<li><a href="connect_swift.md">Swift 連携ガイド</a> - Swift との連携方法</li>
+<li><a href="PropertySystem.md">Property System 実装</a> - プロパティシステムの実装詳細</li>
+<li><a href="GhostConfigurationImplementation.md">Ghost Configuration Implementation</a> - ゴースト設定の実装</li>
+</ul>
+<h2 id="_7">📖 詳細仕様</h2>
+<h3 id="shiori_1">SHIORI 関連</h3>
+<ul>
+<li><a href="SHIORI_EVENTS_3.0M_SPEC.md">SHIORI Events 3.0M 仕様</a> - SHIORI イベントの詳細仕様</li>
+<li><a href="SHIORI_EVENTS_FULL_1.0M_PATCHED.md">SHIORI Events FULL 1.0M</a> - SHIORI イベントの完全版</li>
+<li><a href="SHIORI_RESOURCE_3.0M_SPEC.md">SHIORI Resource 3.0M 仕様</a> - SHIORI リソース管理の仕様</li>
+<li><a href="SHIORI_EXTERNAL_3.0M_SPEC.md">SHIORI External 3.0M 仕様</a> - 外部 SHIORI 連携の仕様</li>
+</ul>
+<h3 id="_8">プロパティシステム</h3>
+<ul>
+<li><a href="PROPERTY_1.0M_SPEC.md">PROPERTY/1.0M 仕様</a> - プロパティシステムの仕様</li>
+<li><a href="PROPERTY_1.0M_SPEC_FULL.md">PROPERTY/1.0M 完全版</a> - プロパティシステムの完全仕様</li>
+<li><a href="PROPERTY_Resource_3.0M_SPEC.md">PROPERTY Resource 3.0M 仕様</a> - プロパティリソースの仕様</li>
+</ul>
+<h3 id="_9">プラグイン</h3>
+<ul>
+<li><a href="PLUGIN_EVENT_2.0M_SPEC_FULL.md">Plugin Event 2.0M 完全版</a> - プラグインイベントの完全仕様</li>
+</ul>
+<h3 id="_10">その他のシステム</h3>
+<ul>
+<li><a href="HEADLINE_2.0M_SPEC.md">HEADLINE/2.0M 仕様</a> - ヘッドラインシステムの仕様</li>
+<li><a href="WEB_1.0M_SPEC.md">WEB/1.0M 仕様</a> - Web 機能の仕様</li>
+<li><a href="SSTP_Host_Modules_JA.md">SSTP ホストモジュール（日本語）</a> - SSTP ホストモジュールの説明</li>
+</ul>
+<h2 id="yaya-core">📖 YAYA Core ドキュメント</h2>
+<p>YAYA Core は別リポジトリで開発されていますが、参考資料がこのディレクトリに含まれています。</p>
+<ul>
+<li><a href="YAYA_CORE_EXECUTIVE_SUMMARY.md">YAYA Core エグゼクティブサマリー</a> - YAYA Core の概要と方針</li>
+<li><a href="YAYA_CORE_TECHNICAL_SPEC.md">YAYA Core 技術仕様</a> - YAYA Core の技術詳細</li>
+<li><a href="YAYA_CORE_ARCHITECTURE.md">YAYA Core アーキテクチャ</a> - YAYA Core の設計とアーキテクチャ</li>
+<li><a href="YAYA_CORE_IMPLEMENTATION_PLAN.md">YAYA Core 実装計画</a> - YAYA Core の実装計画</li>
+<li><a href="YAYA_CORE_INVESTIGATION_REPORT.md">YAYA Core 調査報告</a> - YAYA Core の調査報告</li>
+<li><a href="YAYA_CORE_INDEX.md">YAYA Core インデックス</a> - YAYA Core ドキュメントの索引</li>
+</ul>
+<h2 id="ui_1">📋 UI モックアップ</h2>
+<ul>
+<li><a href="RightClickMenuMockup.md">Right Click Menu モックアップ</a> - 右クリックメニューの設計案</li>
+</ul>
+<h2 id="_11">🎨 実装状況の凡例</h2>
+<p>仕様書内の実装状況セクションでは、以下の記号を使用しています：</p>
+<ul>
+<li>🟢 <strong>完全実装</strong> - 機能が完全に実装され、動作確認済み</li>
+<li>🟡 <strong>部分実装</strong> - 基本機能は実装済みだが、一部機能が未実装</li>
+<li>🔵 <strong>計画中</strong> - 仕様は確定しているが未実装</li>
+<li><code>[x]</code> - 実装済み</li>
+<li><code>[ ]</code> - 未実装</li>
+<li><code>✅</code> - 動作確認済み</li>
+</ul>
+<h2 id="_12">📝 ドキュメント更新履歴</h2>
+<ul>
+<li><strong>2025-10-20</strong>: 実装状況セクションを各仕様書に追加、HTML 版を生成</li>
+<li><strong>2025-07-28</strong>: 初版ドキュメント作成</li>
+</ul>
+<h2 id="_13">🔗 関連リンク</h2>
+<ul>
+<li><a href="https://github.com/eightman999/Ourin">GitHub リポジトリ</a></li>
+<li><a href="../README.md">プロジェクト README</a></li>
+<li><a href="html/index.html">HTML 版ドキュメント索引</a></li>
+</ul>
+<h2 id="_14">📄 ライセンス</h2>
+<p>ドキュメントは Ourin プロジェクトのライセンスに従います（CC BY-NC-SA 4.0）。</p>
+        <div class="footer">
+            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>
