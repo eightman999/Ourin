@@ -12,6 +12,11 @@ public final class SstpTcpServer {
 
     public init() {}
 
+    /// サーバーが稼働中かどうかを返す
+    public var isRunning: Bool {
+        return listener != nil
+    }
+
     public func start(host: String = "127.0.0.1", port: UInt16 = 9801) throws {
         let params = NWParameters.tcp
         listener = try NWListener(using: params, on: NWEndpoint.Port(rawValue: port)!)

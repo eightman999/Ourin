@@ -264,6 +264,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 defaults.set(count + 1, forKey: "OurinBootCount")
             }
 
+            // Start EventBridge immediately after OnBoot load (dictionary loading completed)
+            Log.info("[GhostManager] Starting EventBridge immediately after OnBoot load")
+            DispatchQueue.main.async {
+                self.startEventBridgeIfNeeded()
+            }
+
             // Request boot script with a timeout; keep placeholder visible meanwhile.
             Log.info("[GhostManager] Requesting boot script (OnFirstBoot/OnBoot)...")
             let sem = DispatchSemaphore(value: 0)
@@ -278,32 +284,19 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let preview = trimmed.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
                         NSLog("[GhostManager] Boot script preview: \(preview)")
                         DispatchQueue.main.async {
-                            // Start EventBridge at the moment OnBoot begins
-                            self.startEventBridgeIfNeeded()
                             self.runScript(trimmed)
                         }
                     } else {
                         NSLog("[GhostManager] Boot script is whitespace-only after trim; skipping display")
-                        DispatchQueue.main.async {
-                            self.startEventBridgeIfNeeded()
-                        }
-                    }
-                } else {
-                    Log.info("[GhostManager] Boot script could not be resolved; starting EventBridge only.")
-                    DispatchQueue.main.async {
-                        self.startEventBridgeIfNeeded()
                     }
                 }
                 sem.signal()
             }
 
-            // If OnBoot takes too long, start EventBridge so NOTIFY can begin, keeping placeholder.
+            // If OnBoot takes too long, just wait - EventBridge is already started
             let timeout: DispatchTime = .now() + .seconds(5)
             if sem.wait(timeout: timeout) == .timedOut {
-                Log.info("[GhostManager] OnBoot timed out (5s). Starting EventBridge and keeping placeholder.")
-                DispatchQueue.main.async {
-                    self.startEventBridgeIfNeeded()
-                }
+                Log.info("[GhostManager] OnBoot timed out (5s). EventBridge already running, keeping placeholder.")
                 // The request will still complete later and update the UI when ready.
             }
         }
