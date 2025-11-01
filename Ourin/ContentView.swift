@@ -1345,7 +1345,8 @@ fileprivate struct LoggingDiagnosticsView: View {
     @State private var logEntries: [LogEntry] = []
     @State private var signpostData: [SignpostEntry] = []
     @State private var showSignpostTimeline = false
-    
+    @State private var selection: Set<LogEntry.ID> = []
+
     @State private var logStore = LogStore()
 
     private let subsystems = ["jp.ourin.*", "jp.ourin.devtools", "Ourin", "jp.ourin.plugin"]
@@ -1414,7 +1415,12 @@ fileprivate struct LoggingDiagnosticsView: View {
                 Button("クリア") {
                     logEntries.removeAll()
                 }
-                
+
+                Button("コピー") {
+                    copySelectedLogs()
+                }
+                .disabled(selection.isEmpty)
+
                 Toggle("Signpost Timeline", isOn: $showSignpostTimeline)
             }
             .padding()
@@ -1449,33 +1455,46 @@ fileprivate struct LoggingDiagnosticsView: View {
                     .padding(.horizontal)
                 
                 if #available(macOS 12.0, *) {
-                    Table(logEntries) {
+                    Table(logEntries, selection: $selection) {
                         TableColumn("Time") { entry in
                             Text(entry.timestamp, style: .time)
+                                .textSelection(.enabled)
                         }.width(min: 80, ideal: 100)
-                        
+
                         TableColumn("Level") { entry in
                             HStack {
                                 Circle()
                                     .fill(colorForLevel(entry.level))
                                     .frame(width: 8, height: 8)
                                 Text(entry.level.capitalized)
+                                    .textSelection(.enabled)
                             }
                         }.width(min: 60, ideal: 80)
-                        
-                        TableColumn("Category", value: \.category).width(min: 80, ideal: 120)
-                        TableColumn("Message", value: \.message).width(min: 200)
-                        
+
+                        TableColumn("Category") { entry in
+                            Text(entry.category)
+                                .textSelection(.enabled)
+                        }.width(min: 80, ideal: 120)
+
+                        TableColumn("Message") { entry in
+                            Text(entry.message)
+                                .textSelection(.enabled)
+                        }.width(min: 200)
+
                         TableColumn("Metadata") { entry in
                             if !entry.metadata.isEmpty {
                                 Text(entry.metadata)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
+                                    .textSelection(.enabled)
                             }
                         }.width(min: 100, ideal: 150)
                     }
+                    .contextMenu {
+                        contextMenuContent
+                    }
                 } else {
-                    List(logEntries) { entry in
+                    List(logEntries, selection: $selection) { entry in
                         HStack {
                             Text(entry.timestamp, style: .time)
                                 .frame(width: 80)
@@ -1489,6 +1508,9 @@ fileprivate struct LoggingDiagnosticsView: View {
                             Text(entry.message)
                             Spacer()
                         }
+                    }
+                    .contextMenu {
+                        contextMenuContent
                     }
                 }
             }
@@ -1523,7 +1545,60 @@ fileprivate struct LoggingDiagnosticsView: View {
         default: return .primary
         }
     }
-    
+
+    @ViewBuilder
+    private var contextMenuContent: some View {
+        Button("選択したログをコピー") {
+            copySelectedLogs()
+        }
+        .disabled(selection.isEmpty)
+
+        Button("すべてコピー") {
+            copyAllLogs()
+        }
+        .disabled(logEntries.isEmpty)
+
+        Divider()
+
+        Button("選択をクリア") {
+            selection.removeAll()
+        }
+        .disabled(selection.isEmpty)
+    }
+
+    private func copySelectedLogs() {
+        let selectedEntries = logEntries.filter { selection.contains($0.id) }
+        guard !selectedEntries.isEmpty else { return }
+
+        let text = selectedEntries.map { entry in
+            formatLogEntry(entry)
+        }.joined(separator: "\n")
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+    }
+
+    private func copyAllLogs() {
+        let text = logEntries.map { entry in
+            formatLogEntry(entry)
+        }.joined(separator: "\n")
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+    }
+
+    private func formatLogEntry(_ entry: LogEntry) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+        let timeString = formatter.string(from: entry.timestamp)
+
+        var parts = [timeString, entry.level.uppercased(), entry.category, entry.message]
+        if !entry.metadata.isEmpty {
+            parts.append("[\(entry.metadata)]")
+        }
+        return parts.joined(separator: " | ")
+    }
+
     private func loadLogs() {
         if #available(macOS 11.0, *) {
             let sinceDate: Date
