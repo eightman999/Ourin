@@ -530,80 +530,109 @@ fileprivate struct GeneralSettingsView: View {
     @State private var rosettaStatus = "Unknown"
     @State private var startupGhost = ""
     @State private var availableGhosts: [String] = []
+    @State private var logOutputPath = ""
+    @State private var enableFileLogging = false
 
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "settings")
     private let startupGhostKey = "OurinStartupGhost"
+    private let logOutputPathKey = "OurinLogOutputPath"
+    private let enableFileLoggingKey = "OurinEnableFileLogging"
     
     var body: some View {
-        Form {
-            Group {
-                Text("基本設定").font(.headline).padding(.bottom, 5)
-                HStack {
-                    Text("データフォルダ:")
-                        .frame(width: 120, alignment: .trailing)
-                    TextField("パス", text: $dataFolderPath)
-                    Button("参照...") {
-                        selectDataFolder()
-                    }
-                }
-                
-                HStack {
-                    Text("文字コード:")
-                        .frame(width: 120, alignment: .trailing)
-                    Picker("文字コード", selection: $defaultEncoding) {
-                        Text("UTF-8").tag("UTF-8")
-                        Text("Shift_JIS").tag("Shift_JIS")
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .frame(width: 120)
-                    
-                    Toggle("CP932 受理", isOn: $acceptCP932)
-                }
-                
-                HStack {
-                    Text("Rosetta互換:")
-                        .frame(width: 120, alignment: .trailing)
-                    Text(rosettaStatus)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                }
-            }
-            
-            Group {
-                Text("システム設定").font(.headline).padding(.bottom, 5)
-                Toggle("自動起動", isOn: $autoStart)
-                Toggle("自動アップデート確認", isOn: $autoUpdate)
-                HStack {
-                    Text("起動ゴースト:")
-                        .frame(width: 120, alignment: .trailing)
-                    Picker("起動ゴースト", selection: $startupGhost) {
-                        ForEach(availableGhosts, id: \.self) { ghost in
-                            Text(ghost).tag(ghost)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                Group {
+                    Text("基本設定").font(.headline)
+                    HStack(alignment: .top) {
+                        Text("データフォルダ:")
+                            .frame(minWidth: 100, alignment: .trailing)
+                        TextField("パス", text: $dataFolderPath)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        Button("参照...") {
+                            selectDataFolder()
                         }
                     }
-                    .pickerStyle(MenuPickerStyle())
-                    .frame(width: 200)
+
+                    HStack(alignment: .top) {
+                        Text("文字コード:")
+                            .frame(minWidth: 100, alignment: .trailing)
+                        Picker("文字コード", selection: $defaultEncoding) {
+                            Text("UTF-8").tag("UTF-8")
+                            Text("Shift_JIS").tag("Shift_JIS")
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        .frame(minWidth: 100)
+
+                        Toggle("CP932 受理", isOn: $acceptCP932)
+                        Spacer()
+                    }
+
+                    HStack(alignment: .top) {
+                        Text("Rosetta互換:")
+                            .frame(minWidth: 100, alignment: .trailing)
+                        Text(rosettaStatus)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
                 }
-            }
             
-            Group {
-                Text("操作").font(.headline).padding(.bottom, 5)
-                HStack {
-                    Button("設定を保存") {
-                        saveSettings()
+                Group {
+                    Text("システム設定").font(.headline)
+                    Toggle("自動起動", isOn: $autoStart)
+                    Toggle("自動アップデート確認", isOn: $autoUpdate)
+                    HStack(alignment: .top) {
+                        Text("起動ゴースト:")
+                            .frame(minWidth: 100, alignment: .trailing)
+                        Picker("起動ゴースト", selection: $startupGhost) {
+                            ForEach(availableGhosts, id: \.self) { ghost in
+                                Text(ghost).tag(ghost)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        .frame(minWidth: 150)
+                        Spacer()
                     }
-                    .buttonStyle(DefaultButtonStyle())
-                    
-                    Button("デフォルトに戻す") {
-                        resetToDefaults()
+                }
+
+                Group {
+                    Text("ログ設定").font(.headline)
+                    Toggle("ファイルへのログ出力を有効化", isOn: $enableFileLogging)
+                    HStack(alignment: .top) {
+                        Text("ログ出力先:")
+                            .frame(minWidth: 100, alignment: .trailing)
+                        TextField("パス", text: $logOutputPath)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .disabled(!enableFileLogging)
+                        Button("参照...") {
+                            selectLogOutputPath()
+                        }
+                        .disabled(!enableFileLogging)
                     }
-                    .buttonStyle(BorderedButtonStyle())
-                    
-                    Spacer()
+                    Text("ログはシステムログと同時にファイルにも出力されます")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.leading, 100)
+                }
+
+                Group {
+                    Text("操作").font(.headline)
+                    HStack {
+                        Button("設定を保存") {
+                            saveSettings()
+                        }
+                        .buttonStyle(DefaultButtonStyle())
+
+                        Button("デフォルトに戻す") {
+                            resetToDefaults()
+                        }
+                        .buttonStyle(BorderedButtonStyle())
+
+                        Spacer()
+                    }
                 }
             }
+            .padding()
         }
-        .padding()
         .onAppear(perform: loadSettings)
     }
     
@@ -612,16 +641,24 @@ fileprivate struct GeneralSettingsView: View {
         if let url = try? OurinPaths.baseDirectory() {
             dataFolderPath = url.path
         }
-        
+
         // Rosetta状態を確認
         checkRosettaStatus()
-        
+
         // Load ghosts
         availableGhosts = NarRegistry.shared.installedGhosts()
         if let savedGhost = UserDefaults.standard.string(forKey: startupGhostKey), availableGhosts.contains(savedGhost) {
             startupGhost = savedGhost
         } else if let firstGhost = availableGhosts.first {
             startupGhost = firstGhost
+        }
+
+        // Load log settings
+        enableFileLogging = UserDefaults.standard.bool(forKey: enableFileLoggingKey)
+        logOutputPath = UserDefaults.standard.string(forKey: logOutputPathKey) ?? ""
+        // デフォルトのログパスを設定
+        if logOutputPath.isEmpty {
+            logOutputPath = NSHomeDirectory() + "/Library/Logs/Ourin/ourin.log"
         }
 
         logger.info("General settings loaded")
@@ -634,11 +671,26 @@ fileprivate struct GeneralSettingsView: View {
         panel.allowsMultipleSelection = false
         panel.canCreateDirectories = true
         panel.title = "データフォルダを選択"
-        
+
         panel.begin { response in
             if response == .OK, let url = panel.url {
                 dataFolderPath = url.path
                 logger.info("Data folder selected: \(url.path)")
+            }
+        }
+    }
+
+    private func selectLogOutputPath() {
+        let panel = NSSavePanel()
+        panel.canCreateDirectories = true
+        panel.nameFieldStringValue = "ourin.log"
+        panel.title = "ログファイルの保存先を選択"
+        panel.message = "ログファイルを保存する場所を選択してください"
+
+        panel.begin { response in
+            if response == .OK, let url = panel.url {
+                logOutputPath = url.path
+                logger.info("Log output path selected: \(url.path)")
             }
         }
     }
@@ -662,11 +714,13 @@ fileprivate struct GeneralSettingsView: View {
             "autoStart": autoStart,
             "autoUpdate": autoUpdate
         ] as [String : Any]
-        
+
         UserDefaults.standard.set(settings, forKey: "OurinGeneralSettings")
         UserDefaults.standard.set(startupGhost, forKey: startupGhostKey)
+        UserDefaults.standard.set(enableFileLogging, forKey: enableFileLoggingKey)
+        UserDefaults.standard.set(logOutputPath, forKey: logOutputPathKey)
         logger.info("Settings saved: \(settings)")
-        
+
         // 設定適用の通知
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("設定が保存されました", comment: "Settings saved title")
@@ -684,8 +738,12 @@ fileprivate struct GeneralSettingsView: View {
         if let firstGhost = availableGhosts.first {
             startupGhost = firstGhost
         }
+        enableFileLogging = false
+        logOutputPath = NSHomeDirectory() + "/Library/Logs/Ourin/ourin.log"
         UserDefaults.standard.removeObject(forKey: startupGhostKey)
-        
+        UserDefaults.standard.removeObject(forKey: enableFileLoggingKey)
+        UserDefaults.standard.removeObject(forKey: logOutputPathKey)
+
         logger.info("Settings reset to defaults")
     }
 }
@@ -1287,7 +1345,8 @@ fileprivate struct LoggingDiagnosticsView: View {
     @State private var logEntries: [LogEntry] = []
     @State private var signpostData: [SignpostEntry] = []
     @State private var showSignpostTimeline = false
-    
+    @State private var selection: Set<LogEntry.ID> = []
+
     @State private var logStore = LogStore()
 
     private let subsystems = ["jp.ourin.*", "jp.ourin.devtools", "Ourin", "jp.ourin.plugin"]
@@ -1356,7 +1415,12 @@ fileprivate struct LoggingDiagnosticsView: View {
                 Button("クリア") {
                     logEntries.removeAll()
                 }
-                
+
+                Button("コピー") {
+                    copySelectedLogs()
+                }
+                .disabled(selection.isEmpty)
+
                 Toggle("Signpost Timeline", isOn: $showSignpostTimeline)
             }
             .padding()
@@ -1391,33 +1455,46 @@ fileprivate struct LoggingDiagnosticsView: View {
                     .padding(.horizontal)
                 
                 if #available(macOS 12.0, *) {
-                    Table(logEntries) {
+                    Table(logEntries, selection: $selection) {
                         TableColumn("Time") { entry in
                             Text(entry.timestamp, style: .time)
+                                .textSelection(.enabled)
                         }.width(min: 80, ideal: 100)
-                        
+
                         TableColumn("Level") { entry in
                             HStack {
                                 Circle()
                                     .fill(colorForLevel(entry.level))
                                     .frame(width: 8, height: 8)
                                 Text(entry.level.capitalized)
+                                    .textSelection(.enabled)
                             }
                         }.width(min: 60, ideal: 80)
-                        
-                        TableColumn("Category", value: \.category).width(min: 80, ideal: 120)
-                        TableColumn("Message", value: \.message).width(min: 200)
-                        
+
+                        TableColumn("Category") { entry in
+                            Text(entry.category)
+                                .textSelection(.enabled)
+                        }.width(min: 80, ideal: 120)
+
+                        TableColumn("Message") { entry in
+                            Text(entry.message)
+                                .textSelection(.enabled)
+                        }.width(min: 200)
+
                         TableColumn("Metadata") { entry in
                             if !entry.metadata.isEmpty {
                                 Text(entry.metadata)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
+                                    .textSelection(.enabled)
                             }
                         }.width(min: 100, ideal: 150)
                     }
+                    .contextMenu {
+                        contextMenuContent
+                    }
                 } else {
-                    List(logEntries) { entry in
+                    List(logEntries, selection: $selection) { entry in
                         HStack {
                             Text(entry.timestamp, style: .time)
                                 .frame(width: 80)
@@ -1431,6 +1508,9 @@ fileprivate struct LoggingDiagnosticsView: View {
                             Text(entry.message)
                             Spacer()
                         }
+                    }
+                    .contextMenu {
+                        contextMenuContent
                     }
                 }
             }
@@ -1465,7 +1545,60 @@ fileprivate struct LoggingDiagnosticsView: View {
         default: return .primary
         }
     }
-    
+
+    @ViewBuilder
+    private var contextMenuContent: some View {
+        Button("選択したログをコピー") {
+            copySelectedLogs()
+        }
+        .disabled(selection.isEmpty)
+
+        Button("すべてコピー") {
+            copyAllLogs()
+        }
+        .disabled(logEntries.isEmpty)
+
+        Divider()
+
+        Button("選択をクリア") {
+            selection.removeAll()
+        }
+        .disabled(selection.isEmpty)
+    }
+
+    private func copySelectedLogs() {
+        let selectedEntries = logEntries.filter { selection.contains($0.id) }
+        guard !selectedEntries.isEmpty else { return }
+
+        let text = selectedEntries.map { entry in
+            formatLogEntry(entry)
+        }.joined(separator: "\n")
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+    }
+
+    private func copyAllLogs() {
+        let text = logEntries.map { entry in
+            formatLogEntry(entry)
+        }.joined(separator: "\n")
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+    }
+
+    private func formatLogEntry(_ entry: LogEntry) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+        let timeString = formatter.string(from: entry.timestamp)
+
+        var parts = [timeString, entry.level.uppercased(), entry.category, entry.message]
+        if !entry.metadata.isEmpty {
+            parts.append("[\(entry.metadata)]")
+        }
+        return parts.joined(separator: " | ")
+    }
+
     private func loadLogs() {
         if #available(macOS 11.0, *) {
             let sinceDate: Date
@@ -1503,16 +1636,14 @@ fileprivate struct LoggingDiagnosticsView: View {
 // MARK: - Network Status View
 
 fileprivate struct NetworkStatusView: View {
-    @State private var sstpConnections = 0
-    @State private var sstpRequestsPerSecond = 0.0
-    @State private var sstpErrorsPerSecond = 0.0
-    @State private var httpRequests2xx = 42
-    @State private var httpRequests4xx = 3
-    @State private var httpRequests5xx = 1
-    @State private var httpAverageTime = 85.5
-    @State private var xpcConnectedApps: [String] = []
-    @State private var xpcRequestsPerSecond = 1.2
+    @State private var tcpRunning = false
+    @State private var httpRunning = false
+    @State private var xpcRunning = false
+    @State private var averageLatency: Double = 0
+    @State private var errorRate: Double = 0
     @State private var updateTimer: Timer?
+
+    private let externalServer = (NSApp.delegate as? AppDelegate)?.externalServer
     
     var body: some View {
         ScrollView {
@@ -1526,28 +1657,27 @@ fileprivate struct NetworkStatusView: View {
                     Text("SSTP (TCP/9801)").font(.headline)
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
-                            statusIndicator(color: sstpConnections > 0 ? .green : .gray)
-                            Text("アクティブ接続数: \(sstpConnections)")
+                            statusIndicator(color: tcpRunning ? .green : .gray)
+                            Text("状態: \(tcpRunning ? "稼働中" : "停止中")")
                             Spacer()
                         }
-                        
-                        HStack {
-                            Text("受信/秒:")
-                            ProgressView(value: sstpRequestsPerSecond, total: 10.0)
-                                .frame(width: 100)
-                            Text("\(String(format: "%.1f", sstpRequestsPerSecond))")
-                            Spacer()
+
+                        if tcpRunning {
+                            HStack {
+                                Text("平均レイテンシ:")
+                                Text("\(String(format: "%.1f", averageLatency * 1000))ms")
+                                    .foregroundColor(averageLatency > 0.1 ? .orange : .green)
+                                Spacer()
+                            }
+
+                            HStack {
+                                Text("エラー率:")
+                                Text("\(String(format: "%.2f", errorRate * 100))%")
+                                    .foregroundColor(errorRate > 0.05 ? .red : .green)
+                                Spacer()
+                            }
                         }
-                        
-                        HStack {
-                            Text("エラー/秒:")
-                            ProgressView(value: sstpErrorsPerSecond, total: 5.0)
-                                .progressViewStyle(LinearProgressViewStyle(tint: .red))
-                                .frame(width: 100)
-                            Text("\(String(format: "%.1f", sstpErrorsPerSecond))")
-                            Spacer()
-                        }
-                        
+
                         Text("Network.framework の NWListener を使用")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -1562,32 +1692,27 @@ fileprivate struct NetworkStatusView: View {
                     Text("HTTP (9810)").font(.headline)
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
-                            statusIndicator(color: .green)
-                            Text("サーバー稼働中")
+                            statusIndicator(color: httpRunning ? .green : .gray)
+                            Text("状態: \(httpRunning ? "稼働中" : "停止中")")
                             Spacer()
                         }
-                        
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("2xx: \(httpRequests2xx)")
-                                    .foregroundColor(.green)
-                                Text("4xx: \(httpRequests4xx)")
-                                    .foregroundColor(.orange)
-                                Text("5xx: \(httpRequests5xx)")
-                                    .foregroundColor(.red)
+
+                        if httpRunning {
+                            HStack {
+                                Text("平均レイテンシ:")
+                                Text("\(String(format: "%.1f", averageLatency * 1000))ms")
+                                    .foregroundColor(averageLatency > 0.1 ? .orange : .green)
+                                Spacer()
                             }
-                            
-                            Spacer()
-                            
-                            VStack(alignment: .trailing) {
-                                Text("平均処理時間")
-                                Text("\(String(format: "%.1f", httpAverageTime))ms")
-                                    .font(.title2)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(httpAverageTime > 100 ? .orange : .green)
+
+                            HStack {
+                                Text("エラー率:")
+                                Text("\(String(format: "%.2f", errorRate * 100))%")
+                                    .foregroundColor(errorRate > 0.05 ? .red : .green)
+                                Spacer()
                             }
                         }
-                        
+
                         Text("POST /api/sstp/v1 エンドポイントを提供")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -1602,36 +1727,27 @@ fileprivate struct NetworkStatusView: View {
                     Text("XPC (jp.ourin.sstp)").font(.headline)
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
-                            statusIndicator(color: .green)
-                            Text("サービス稼働中")
+                            statusIndicator(color: xpcRunning ? .green : .gray)
+                            Text("状態: \(xpcRunning ? "稼働中" : "停止中")")
                             Spacer()
                         }
-                        
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("接続中のアプリ:")
-                            if xpcConnectedApps.isEmpty {
-                                Text("接続なし")
-                                    .foregroundColor(.secondary)
-                            } else {
-                                ForEach(xpcConnectedApps, id: \.self) { app in
-                                    HStack {
-                                        Circle()
-                                            .fill(Color.green)
-                                            .frame(width: 6, height: 6)
-                                        Text(app)
-                                    }
-                                }
+
+                        if xpcRunning {
+                            HStack {
+                                Text("平均レイテンシ:")
+                                Text("\(String(format: "%.1f", averageLatency * 1000))ms")
+                                    .foregroundColor(averageLatency > 0.1 ? .orange : .green)
+                                Spacer()
+                            }
+
+                            HStack {
+                                Text("エラー率:")
+                                Text("\(String(format: "%.2f", errorRate * 100))%")
+                                    .foregroundColor(errorRate > 0.05 ? .red : .green)
+                                Spacer()
                             }
                         }
-                        
-                        HStack {
-                            Text("要求/秒:")
-                            ProgressView(value: xpcRequestsPerSecond, total: 10.0)
-                                .frame(width: 100)
-                            Text("\(String(format: "%.1f", xpcRequestsPerSecond))")
-                            Spacer()
-                        }
-                        
+
                         Text("machService 経由の直接通信")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -1684,23 +1800,25 @@ fileprivate struct NetworkStatusView: View {
     }
     
     private func startUpdating() {
-        // 模擬データの更新
-        xpcConnectedApps = ["TestApp.app", "DevHelper"]
-        
+        // 初回の状態取得
+        updateStatus()
+
+        // 定期的に状態を更新
         updateTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
-            // ランダムな統計データを生成
-            sstpConnections = Int.random(in: 0...5)
-            sstpRequestsPerSecond = Double.random(in: 0...8)
-            sstpErrorsPerSecond = Double.random(in: 0...2)
-            
-            httpRequests2xx += Int.random(in: 0...3)
-            httpRequests4xx += Int.random(in: 0...1)
-            if Bool.random() {
-                httpRequests5xx += 1
-            }
-            httpAverageTime = Double.random(in: 50...150)
-            
-            xpcRequestsPerSecond = Double.random(in: 0...5)
+            self.updateStatus()
         }
+    }
+
+    private func updateStatus() {
+        guard let server = externalServer else { return }
+
+        // サーバーの稼働状態を取得
+        tcpRunning = server.tcp.isRunning
+        httpRunning = server.http.isRunning
+        xpcRunning = server.xpc.isRunning
+
+        // メトリクスを取得
+        averageLatency = ServerMetrics.shared.averageLatency
+        errorRate = ServerMetrics.shared.errorRate
     }
 }

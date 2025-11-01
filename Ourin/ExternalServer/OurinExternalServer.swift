@@ -7,11 +7,11 @@ import OSLog
 /// 外部からの SSTP イベントを受信する TCP/HTTP/XPC サーバ群を管理するクラス。
 public final class OurinExternalServer {
     /// TCP ベースの SSTP サーバ
-    private let tcp = SstpTcpServer()
+    public let tcp = SstpTcpServer()
     /// HTTP ベースの SSTP サーバ
-    private let http = SstpHttpServer()
+    public let http = SstpHttpServer()
     /// XPC 直接通信サーバ
-    private let xpc = XpcDirectServer()
+    public let xpc = XpcDirectServer()
     /// リクエストを解釈して SHIORI へ転送するルーター
     private let router = SstpRouter()
     /// OSLog 用ロガー

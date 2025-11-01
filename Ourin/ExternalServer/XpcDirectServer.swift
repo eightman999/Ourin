@@ -11,6 +11,7 @@ public final class XpcDirectServer: NSObject, NSXPCListenerDelegate, OurinExtern
     public var onRequest: ((String) -> String)?
     private let logger = CompatLogger(subsystem: "Ourin", category: "SSTP_XPC")
     private let maxSize = 512 * 1024
+    private var _isRunning = false
 
     public init(machServiceName: String = "jp.ourin.sstp") {
         self.listener = NSXPCListener(machServiceName: machServiceName)
@@ -18,8 +19,21 @@ public final class XpcDirectServer: NSObject, NSXPCListenerDelegate, OurinExtern
         self.listener.delegate = self
     }
 
-    public func start() { listener.resume(); logger.info("xpc started") }
-    public func stop() { listener.invalidate() }
+    /// サーバーが稼働中かどうかを返す
+    public var isRunning: Bool {
+        return _isRunning
+    }
+
+    public func start() {
+        listener.resume()
+        _isRunning = true
+        logger.info("xpc started")
+    }
+
+    public func stop() {
+        listener.invalidate()
+        _isRunning = false
+    }
 
     public func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
         newConnection.exportedInterface = NSXPCInterface(with: OurinExternalSstpXPC.self)

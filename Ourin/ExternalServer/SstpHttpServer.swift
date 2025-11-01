@@ -12,6 +12,11 @@ public final class SstpHttpServer {
 
     public init() {}
 
+    /// サーバーが稼働中かどうかを返す
+    public var isRunning: Bool {
+        return listener != nil
+    }
+
     public func start(host: String = "127.0.0.1", port: UInt16 = 9810) throws {
         listener = try NWListener(using: .tcp, on: NWEndpoint.Port(rawValue: port)!)
         listener?.newConnectionHandler = { [weak self] conn in
