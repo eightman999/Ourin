@@ -6,7 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 
-find_package(nlohmann_json REQUIRED)
+# nlohmann/json dependency (version 3.12.0 or later recommended)
+# Note: If the exact version is not found, CMake will try to find any compatible version
+find_package(nlohmann_json 3.11.0 REQUIRED)
 
 add_executable(yaya_core
     src/main.cpp
