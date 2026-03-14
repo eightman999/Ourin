@@ -201,6 +201,91 @@ private extension YayaBackend {
     }
 }
 
+// MARK: - Bundle Backend
+/// Backend for SHIORI modules loaded from .bundle/.plugin files (macOS native)
+final class BundleBackend: ShioriBackend {
+    private let bundle: CFBundle
+    private var loadFn: ShioriLoad?
+    private var requestFn: ShioriRequest?
+    private var unloadFn: ShioriUnload?
+    private var freeFn: ShioriFree?
+    
+    /// Path of loaded module
+    public let moduleURL: URL
+    
+    init(url: URL) throws {
+        guard let b = CFBundleCreate(kCFAllocatorDefault, url as CFURL) else {
+            throw NSError(domain: "USL.BundleBackend", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to create CFBundle from \(url.path)"])
+        }
+        guard CFBundleLoadExecutable(b) else {
+            let error = NSError(domain: NSCocoaErrorDomain, code: NSFileReadNoSuchFileError, userInfo: [NSLocalizedDescriptionKey: "Failed to load bundle executable from \(url.path)"])
+            throw error
+        }
+        
+        self.bundle = b
+        self.moduleURL = url
+        
+        func loadSymbol<T>(_ name: String, as type: T.Type) -> T? {
+            guard let sym = CFBundleGetFunctionPointerForName(b, name as CFString) else { return nil }
+            return unsafeBitCast(sym, to: type)
+        }
+        
+        loadFn = loadSymbol("shiori_load", as: ShioriLoad.self)
+        requestFn = loadSymbol("shiori_request", as: ShioriRequest.self)
+        unloadFn = loadSymbol("shiori_unload", as: ShioriUnload.self)
+        freeFn = loadSymbol("shiori_free", as: ShioriFree.self)
+        
+        NSLog("[BundleBackend] Loaded bundle: \(url.lastPathComponent)")
+        NSLog("[BundleBackend] Found symbols: load=\(loadFn != nil), request=\(requestFn != nil), unload=\(unloadFn != nil), free=\(freeFn != nil)")
+        
+        if let l = loadFn {
+            let dirPath = url.deletingLastPathComponent().path
+            let dirCString = (dirPath as NSString).utf8String
+            _ = l(dirCString)
+            NSLog("[BundleBackend] Called shiori_load with path: \(dirPath)")
+        }
+    }
+    
+    deinit {
+        unload()
+    }
+    
+    func request(_ text: String) -> String? {
+        guard let req = requestFn else {
+            NSLog("[BundleBackend] shiori_request not available")
+            return nil
+        }
+        
+        let bytes = Array(text.utf8)
+        var outPtr: UnsafeMutablePointer<UInt8>? = nil
+        var outLen: Int = 0
+        
+        let ok = bytes.withUnsafeBytes {
+            req($0.baseAddress?.assumingMemoryBound(to: UInt8.self), bytes.count, &outPtr, &outLen)
+        }
+        
+        guard ok, let p = outPtr else {
+            NSLog("[BundleBackend] shiori_request failed")
+            return nil
+        }
+        
+        let data = Data(bytes: p, count: outLen)
+        freeFn?(p)
+        return String(data: data, encoding: .utf8)
+    }
+    
+    func unload() {
+        if let u = unloadFn {
+            u()
+            NSLog("[BundleBackend] Called shiori_unload")
+        }
+        loadFn = nil
+        requestFn = nil
+        unloadFn = nil
+        freeFn = nil
+    }
+}
+
 // MARK: - Dylib Backend
 /// Backend for traditional SHIORI ghosts loaded from .dylib files.
 final class DylibBackend: ShioriBackend {
@@ -276,6 +361,9 @@ public final class ShioriLoader {
         if let dylib = backend as? DylibBackend {
             return dylib.moduleURL
         }
+        if let bundle = backend as? BundleBackend {
+            return bundle.moduleURL
+        }
         return nil
     }
 
@@ -289,22 +377,31 @@ public final class ShioriLoader {
     public convenience init?(module name: String, base: URL) {
         let shioriName = (name as NSString).lastPathComponent.lowercased()
         let backend: ShioriBackend?
-
+        
         if shioriName == "yaya.dll" {
-            // It's YAYA. Instantiate the YayaBackend.
+            // It's YAYA. Instantiate YayaBackend.
             // The descript dictionary will be loaded inside YayaBackend's initializer.
             // For now, we pass an empty dictionary as a placeholder.
             backend = YayaBackend(ghostURL: base, descript: [:])
         } else {
-            // It's a traditional dylib.
+            // Search for the module file
             let paths = ShioriLoader.searchPaths(base: base)
             guard let url = ShioriLoader.find(name: name, in: paths) else {
                 // Module not found
                 return nil
             }
-            backend = try? DylibBackend(url: url)
+            
+            // Determine backend type based on file extension
+            let ext = url.pathExtension.lowercased()
+            if ext == "bundle" || ext == "plugin" {
+                // Use BundleBackend for .bundle/.plugin files (macOS native)
+                backend = try? BundleBackend(url: url)
+            } else {
+                // Use DylibBackend for .dylib/.so files
+                backend = try? DylibBackend(url: url)
+            }
         }
-
+        
         if let finalBackend = backend {
             self.init(backend: finalBackend)
         } else {

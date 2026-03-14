@@ -118,15 +118,28 @@ extension GhostManager {
             return
         }
         
+        // Hide balloon if ID is -1
+        if balloonID == -1 {
+            DispatchQueue.main.async {
+                if let balloonWindow = self.balloonWindows[scope] {
+                    balloonWindow.orderOut(nil)
+                    Log.info("[GhostManager] Hiding balloon for scope \(scope)")
+                }
+            }
+            return
+        }
+        
         DispatchQueue.main.async {
             vm.currentBalloonID = balloonID
-            Log.info("[GhostManager] Switched to balloon ID \(balloonID) for scope \(scope)")
             
-            // TODO: Load balloon configuration from ghost/balloon directory
-            // Balloon descript.txt should be loaded and applied
-            // For now, just update the ID and let the UI handle the style change
+            // Also update the BalloonViewModel's balloonID
+            if let balloonVM = self.balloonViewModels[scope] {
+                balloonVM.balloonID = balloonID
+            }
+            
+            Log.info("[GhostManager] Switched to balloon ID \(balloonID) for scope \(scope)")
         }
     }
-    
+
     // MARK: - Desktop Alignment
 }

@@ -7,10 +7,19 @@ public final class SstpTcpServer {
     private var listener: NWListener?
     public var onRequest: ((String) -> String)?
     private let logger = CompatLogger(subsystem: "Ourin", category: "SSTP_TCP")
-    private let timeout: TimeInterval = 5
-    private let maxSize = 64 * 1024
+
+    private var config: Config = Config()
+
+    public struct Config {
+        var timeout: TimeInterval = 5
+        var maxSize: Int = 64 * 1024
+    }
 
     public init() {}
+
+    public func updateConfig(_ config: Config) {
+        self.config = config
+    }
 
     /// サーバーが稼働中かどうかを返す
     public var isRunning: Bool {
@@ -33,12 +42,12 @@ public final class SstpTcpServer {
 
     private func handle(conn: NWConnection) {
         var buffer = Data()
-        let deadline = DispatchTime.now() + timeout
+        let deadline = DispatchTime.now() + config.timeout
         func readMore() {
             conn.receive(minimumIncompleteLength: 1, maximumLength: 4096) { data, _, isComplete, error in
                 if let d = data { buffer.append(d) }
-                if buffer.count > self.maxSize { self.send400(conn); return }
-                if DispatchTime.now() > deadline { self.send400(conn); return }
+                if buffer.count > self.config.maxSize { self.sendErrorResponse(conn, status: 413); return }
+                if DispatchTime.now() > deadline { self.sendErrorResponse(conn, status: 408); return }
                 if isComplete || error != nil { conn.cancel(); return }
                 if let range = buffer.range(of: Data([13,10,13,10])) {
                     let header = buffer.subdata(in: 0..<range.lowerBound)
@@ -63,9 +72,15 @@ public final class SstpTcpServer {
         return String(data: data, encoding: .shiftJIS)
     }
 
-    private func send400(_ conn: NWConnection) {
-        let resp = "SSTP/1.1 400 Bad Request\r\n\r\n"
-        logger.fault("tcp error")
+    private func sendErrorResponse(_ conn: NWConnection, status: Int) {
+        let statusText: String
+        switch status {
+        case 408: statusText = "Request Timeout"
+        case 413: statusText = "Payload Too Large"
+        default: statusText = "Bad Request"
+        }
+        let resp = "SSTP/1.1 \(status) \(statusText)\r\n\r\n"
+        logger.fault("tcp error status=\(status)")
         ServerMetrics.shared.record(duration: 0, error: true)
         conn.send(content: resp.data(using: .utf8), completion: .contentProcessed { _ in conn.cancel() })
     }

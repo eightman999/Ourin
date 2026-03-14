@@ -74,6 +74,11 @@ final class GhostPropertyProvider: PropertyProvider {
 
     // Scope-related runtime data (for currentghost mode)
     private var scopeData: [Int: ScopeData]
+    private var mouseCursor: [String: String]
+    private var balloonMouseCursor: [String: String]
+    private var serikoTooltips: [Int: [String: String]]
+    private var serikoSurfaceListAll: String
+    private var serikoSurfaceListDefined: String
 
     struct ScopeData {
         var surfaceNum: Int
@@ -88,13 +93,23 @@ final class GhostPropertyProvider: PropertyProvider {
 
     init(mode: Mode, ghosts: [Ghost], activeIndices: [Int],
          shells: [Shell] = [], currentShellIndex: Int = 0,
-         scopeData: [Int: ScopeData] = [:]) {
+         scopeData: [Int: ScopeData] = [:],
+         mouseCursor: [String: String] = [:],
+         balloonMouseCursor: [String: String] = [:],
+         serikoTooltips: [Int: [String: String]] = [:],
+         serikoSurfaceListAll: String = "",
+         serikoSurfaceListDefined: String = "") {
         self.mode = mode
         self.ghosts = ghosts
         self.activeIndices = activeIndices
         self.shells = shells
         self.currentShellIndex = currentShellIndex
         self.scopeData = scopeData
+        self.mouseCursor = mouseCursor
+        self.balloonMouseCursor = balloonMouseCursor
+        self.serikoTooltips = serikoTooltips
+        self.serikoSurfaceListAll = serikoSurfaceListAll
+        self.serikoSurfaceListDefined = serikoSurfaceListDefined
     }
 
     func get(key: String) -> String? {
@@ -121,7 +136,42 @@ final class GhostPropertyProvider: PropertyProvider {
             }
         }
 
+        if key.hasPrefix("mousecursor.") {
+            let subKey = String(key.dropFirst("mousecursor.".count))
+            mouseCursor[subKey] = value
+            return true
+        }
+
+        if key.hasPrefix("balloon.mousecursor.") {
+            let subKey = String(key.dropFirst("balloon.mousecursor.".count))
+            balloonMouseCursor[subKey] = value
+            return true
+        }
+
+        if key.hasPrefix("seriko.tooltip.scope(") {
+            return setSerikoTooltip(key: key, value: value)
+        }
+
         return false
+    }
+
+    func writableProperties() -> [String] {
+        guard mode == .currentghost else { return [] }
+        var props: [String] = []
+        for shell in shells {
+            props.append("shelllist(\(shell.name)).menu")
+        }
+        props.append(contentsOf: [
+            "mousecursor.text",
+            "mousecursor.wait",
+            "mousecursor.hand",
+            "mousecursor.grip",
+            "mousecursor.arrow",
+            "balloon.mousecursor.text",
+            "balloon.mousecursor.wait",
+            "balloon.mousecursor.arrow"
+        ])
+        return props
     }
 
     // MARK: - ghostlist
@@ -193,6 +243,28 @@ final class GhostPropertyProvider: PropertyProvider {
         // scope properties
         if key.hasPrefix("scope") {
             return handleScope(key: key)
+        }
+
+        if key.hasPrefix("mousecursor.") {
+            let subKey = String(key.dropFirst("mousecursor.".count))
+            return mouseCursor[subKey]
+        }
+
+        if key.hasPrefix("balloon.mousecursor.") {
+            let subKey = String(key.dropFirst("balloon.mousecursor.".count))
+            return balloonMouseCursor[subKey]
+        }
+
+        if key == "seriko.surfacelist.all" {
+            return serikoSurfaceListAll.isEmpty ? nil : serikoSurfaceListAll
+        }
+
+        if key == "seriko.surfacelist.defined" {
+            return serikoSurfaceListDefined.isEmpty ? nil : serikoSurfaceListDefined
+        }
+
+        if key.hasPrefix("seriko.tooltip.scope(") {
+            return getSerikoTooltip(key: key)
         }
 
         return nil
@@ -380,5 +452,68 @@ final class GhostPropertyProvider: PropertyProvider {
         guard rest.first == "." else { return nil }
         let prop = String(rest.dropFirst())
         return (scopeId, prop)
+    }
+
+    private func getSerikoTooltip(key: String) -> String? {
+        // seriko.tooltip.scope(ID).textlist(...)
+        guard let (scopeID, scopeTail) = parseScopePrefix(key: key, prefix: "seriko.tooltip.scope") else {
+            return nil
+        }
+        let list = serikoTooltips[scopeID] ?? [:]
+        if scopeTail == "textlist.count" {
+            return String(list.count)
+        }
+
+        if let (name, prop) = parseNamedAccess(key: scopeTail, prefix: "textlist") {
+            switch prop {
+            case "text":
+                return list[name]
+            case "name":
+                return name
+            default:
+                return nil
+            }
+        }
+
+        if scopeTail.hasPrefix("textlist.index(") {
+            let sub = String(scopeTail.dropFirst("textlist.".count))
+            if let (idx, prop) = parseIndex(key: sub) {
+                let names = list.keys.sorted()
+                guard names.indices.contains(idx) else { return nil }
+                let name = names[idx]
+                if prop == "name" { return name }
+                if prop == "text" { return list[name] }
+            }
+        }
+        return nil
+    }
+
+    private func setSerikoTooltip(key: String, value: String) -> Bool {
+        guard let (scopeID, scopeTail) = parseScopePrefix(key: key, prefix: "seriko.tooltip.scope") else {
+            return false
+        }
+        guard let (name, prop) = parseNamedAccess(key: scopeTail, prefix: "textlist"), prop == "text" else {
+            return false
+        }
+        var tooltips = serikoTooltips[scopeID] ?? [:]
+        if value.isEmpty {
+            tooltips.removeValue(forKey: name)
+        } else {
+            tooltips[name] = value
+        }
+        serikoTooltips[scopeID] = tooltips
+        return true
+    }
+
+    private func parseScopePrefix(key: String, prefix: String) -> (Int, String)? {
+        let expected = "\(prefix)("
+        guard key.hasPrefix(expected), let close = key.firstIndex(of: ")") else {
+            return nil
+        }
+        let start = key.index(key.startIndex, offsetBy: expected.count)
+        guard let scopeID = Int(String(key[start..<close])) else { return nil }
+        let rest = String(key[key.index(after: close)...])
+        guard rest.first == "." else { return nil }
+        return (scopeID, String(rest.dropFirst()))
     }
 }

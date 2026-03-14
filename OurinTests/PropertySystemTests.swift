@@ -118,6 +118,13 @@ struct PropertySystemTests {
         // Ghost properties
         #expect(manager.get("ghostlist.count") != nil)
         #expect(manager.get("currentghost.name") != nil)
+        #expect(manager.get("headlinelist.count") == "0")
+        #expect(manager.get("pluginlist.count") == "0")
+        #expect(manager.get("history.ghost.count") == "0")
+        #expect(manager.get("history.balloon.count") == "0")
+        #expect(manager.get("history.headline.count") == "0")
+        #expect(manager.get("history.plugin.count") == "0")
+        #expect(manager.get("rateofuselist.count") == "0")
     }
 
     @Test("PropertyManager - %property[] expansion")
@@ -125,7 +132,7 @@ struct PropertySystemTests {
         let manager = PropertyManager()
 
         let text = "Welcome to %property[baseware.name] version %property[baseware.version]!"
-        let expanded = manager.expand(text: text)
+        let expanded = manager.expand(text)
 
         #expect(expanded.contains("Ourin"))
         #expect(!expanded.contains("%property"))
@@ -180,5 +187,32 @@ struct PropertySystemTests {
         let success = provider.set(key: "shelllist(Default).menu", value: "hidden")
         #expect(success == true)
         #expect(provider.get(key: "shelllist(Default).menu") == "hidden")
+    }
+
+    @Test("CurrentGhost mousecursor/seriko tooltip properties")
+    func testCurrentGhostCursorAndSerikoProperties() {
+        let ghosts = [Ghost(name: "TestGhost", path: "/test")]
+        let provider = GhostPropertyProvider(
+            mode: .currentghost,
+            ghosts: ghosts,
+            activeIndices: [0],
+            mouseCursor: ["text": "ibeam"],
+            balloonMouseCursor: ["arrow": "default"],
+            serikoTooltips: [0: ["Head": "なでる"]],
+            serikoSurfaceListAll: "0,1,2",
+            serikoSurfaceListDefined: "0,2"
+        )
+
+        #expect(provider.get(key: "mousecursor.text") == "ibeam")
+        #expect(provider.get(key: "balloon.mousecursor.arrow") == "default")
+        #expect(provider.get(key: "seriko.surfacelist.all") == "0,1,2")
+        #expect(provider.get(key: "seriko.tooltip.scope(0).textlist(Head).text") == "なでる")
+        #expect(provider.get(key: "seriko.tooltip.scope(0).textlist.count") == "1")
+
+        #expect(provider.set(key: "mousecursor.wait", value: "busy"))
+        #expect(provider.get(key: "mousecursor.wait") == "busy")
+
+        #expect(provider.set(key: "seriko.tooltip.scope(0).textlist(Hand).text", value: "つつく"))
+        #expect(provider.get(key: "seriko.tooltip.scope(0).textlist(Hand).text") == "つつく")
     }
 }

@@ -10,6 +10,7 @@ import UserNotifications
 extension GhostManager {
     func updateSurface(id: Int) {
         let scope = currentScope
+        let oldSurfaceID = characterViewModels[scope]?.image != nil ? -1 : 0 // Simplified tracking
         
         // Clear overlays when surface changes (per UKADOC spec)
         DispatchQueue.main.async { [weak self] in
@@ -18,6 +19,45 @@ extension GhostManager {
                 vm.overlays.removeAll()
                 Log.debug("[GhostManager] Cleared overlays for scope \(scope) due to surface change")
             }
+        }
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            let image = self.loadImage(surfaceId: id, scope: scope)
+            DispatchQueue.main.async {
+                // If requested surface doesn't exist, keep current surface
+                guard let image = image else {
+                    Log.info("[GhostManager] Surface \(id) not found for scope \(scope), keeping current surface")
+                    return
+                }
+
+                if let vm = self.characterViewModels[scope] {
+                    vm.image = image
+                }
+                if let win = self.characterWindows[scope] {
+                    // Resize window to fit to new surface
+                    win.setContentSize(image.size)
+                    self.positionBalloonWindow()
+                }
+                
+                // Dispatch OnSurfaceChange event
+                let params: [String: String] = [
+                    "Reference0": String(oldSurfaceID),
+                    "Reference1": String(id)
+                ]
+                EventBridge.shared.notify(.OnSurfaceChange, params: params)
+                Log.debug("[GhostManager] OnSurfaceChange dispatched: \(oldSurfaceID) -> \(id)")
+            }
+        }
+        
+        // Schedule OnSurfaceRestore after a delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) { [weak self] in
+            guard let self = self else { return }
+            let params: [String: String] = [
+                "Reference0": oldSurfaceID >= 0 ? String(oldSurfaceID) : "0",
+                "Reference1": String(id)
+            ]
+            EventBridge.shared.notify(.OnSurfaceRestore, params: params)
+            Log.debug("[GhostManager] OnSurfaceRestore dispatched")
         }
         
         DispatchQueue.global(qos: .userInitiated).async {
@@ -96,10 +136,34 @@ extension GhostManager {
     // MARK: - Surface Compositing
     
     /// Handle surface overlay/compositing - \![anim,add,overlay,ID]
-    func handleSurfaceOverlay(surfaceID: Int) {
-        Log.debug("[GhostManager] Adding surface overlay: \(surfaceID)")
+    /// - Parameters:
+    ///   - surfaceID: The surface ID to overlay
+    ///   - type: The animation pattern type (overlay/base/replace/bind)
+    func handleSurfaceOverlay(surfaceID: Int, type: AnimationPatternType = .overlay) {
+        Log.debug("[GhostManager] Adding surface overlay: \(surfaceID), type: \(type)")
         
-        // Load the surface image from the shell directory
+        // Process based on pattern type
+        switch type {
+        case .base:
+            // Replace base surface
+            updateSurface(id: surfaceID)
+            return
+            
+        case .replace:
+            // Replace current surface with this one
+            updateSurface(id: surfaceID)
+            return
+            
+        case .bind:
+            // Bind dressup part as a persistent overlay that can coexist with base surface.
+            break
+            
+        case .overlay:
+            // Default overlay behavior - continue to load surface
+            break
+        }
+        
+        // Load surface image from shell directory
         guard let shellPath = loadShellPath() else {
             Log.info("[GhostManager] Cannot add overlay - shell path not found")
             return
@@ -124,10 +188,10 @@ extension GhostManager {
             guard let self = self else { return }
             guard let vm = self.characterViewModels[self.currentScope] else { return }
             
-            let overlay = CharacterViewModel.SurfaceOverlay(
-                id: surfaceID,
+            let overlay = SurfaceOverlay(
+                id: type == .bind ? "dressup_bind_\(surfaceID)_\(UUID().uuidString)" : "surface_\(surfaceID)_\(UUID().uuidString)",
                 image: image,
-                offset: .zero,
+                offset: CGPoint.zero,
                 alpha: 1.0
             )
             
@@ -155,7 +219,7 @@ extension GhostManager {
     }
     
     /// Clear a specific overlay by ID
-    func clearSpecificOverlay(id: Int) {
+    func clearSpecificOverlay(id: String) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             guard let vm = self.characterViewModels[self.currentScope] else { return }
@@ -163,9 +227,9 @@ extension GhostManager {
             Log.debug("[GhostManager] Cleared overlay \(id) for scope \(self.currentScope)")
         }
     }
-    
+
     /// Offset a specific overlay
-    func offsetOverlay(id: Int, x: Double, y: Double) {
+    func offsetOverlay(id: String, x: Double, y: Double) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             guard let vm = self.characterViewModels[self.currentScope] else { return }
@@ -175,5 +239,4 @@ extension GhostManager {
             }
         }
     }
-    
 }

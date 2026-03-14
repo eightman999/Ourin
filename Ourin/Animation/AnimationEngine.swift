@@ -10,12 +10,21 @@ import AppKit
 import Metal
 import MetalKit
 
+/// Animation pattern type from surfaces.txt
+enum AnimationPatternType {
+    case overlay       // Add overlay surface (default)
+    case base          // Replace base surface
+    case replace       // Replace current surface
+    case bind          // Bind dressup part
+}
+
 /// Animation pattern definition from surfaces.txt
 struct AnimationPattern {
-    let surfaceID: Int        // Surface overlay ID (-1 for end/wait)
-    let duration: Int         // Duration in milliseconds
-    let x: Int                // X offset
-    let y: Int                // Y offset
+    let surfaceID: Int              // Surface overlay ID (-1 for end/wait)
+    let duration: Int               // Duration in milliseconds
+    let x: Int                      // X offset
+    let y: Int                      // Y offset
+    let type: AnimationPatternType    // Pattern type (overlay/base/replace/bind)
 }
 
 /// Animation definition from surfaces.txt
@@ -60,6 +69,12 @@ struct AnimationDefinition {
             }
         }
     }
+}
+
+/// Collision region for mouse event handling
+struct CollisionRegion {
+    let name: String
+    let rect: CGRect
 }
 
 /// Active animation instance
@@ -117,6 +132,10 @@ class AnimationEngine {
     private var displayLink: CVDisplayLink?
     private var isRunning: Bool = false
     
+    // Collision and point data
+    private var collisions: [Int: [CollisionRegion]] = [:]
+    private var points: [Int: [String: CGPoint]] = [:]
+    
     // Callbacks
     var onAnimationUpdate: ((Int, AnimationPattern?) -> Void)?
     var onAnimationComplete: ((Int) -> Void)?
@@ -148,6 +167,12 @@ class AnimationEngine {
         var currentAnimationID: Int? = nil
         var animationPatterns: [AnimationPattern] = []
         var animationInterval: AnimationDefinition.AnimationInterval = .never
+        
+        // Initialize collision and point data for this surface
+        if !collisions.keys.contains(surfaceID) {
+            collisions[surfaceID] = []
+            points[surfaceID] = [:]
+        }
         
         for line in lines {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
@@ -187,9 +212,60 @@ class AnimationEngine {
                         surfaceID: surfaceID,
                         duration: duration,
                         x: x,
-                        y: y
+                        y: y,
+                        type: .overlay
                     )
                     animationPatterns.append(pattern)
+                }
+            }
+            
+            // Parse collision region
+            if trimmed.contains(".collision,") {
+                let parts = trimmed.components(separatedBy: ",")
+                if parts.count >= 6 {
+                    let indexStr = parts[0].components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+                    let x1 = Int(parts[1]) ?? 0
+                    let y1 = Int(parts[2]) ?? 0
+                    let x2 = Int(parts[3]) ?? 0
+                    let y2 = Int(parts[4]) ?? 0
+                    let name = parts.count > 6 ? parts[6] : ""
+                    
+                    if let surface = currentSurface {
+                        let region = CollisionRegion(
+                            name: name,
+                            rect: CGRect(x: CGFloat(min(x1, x2)), 
+                                       y: CGFloat(min(y1, y2)), 
+                                       width: CGFloat(abs(x2 - x1)), 
+                                       height: CGFloat(abs(y2 - y1)))
+                        )
+                        collisions[surface]?.append(region)
+                    }
+                }
+            }
+            
+            // Parse point definition
+            if trimmed.contains(".centerx,") || trimmed.contains(".centery,") {
+                let parts = trimmed.components(separatedBy: ",")
+                if parts.count >= 3 {
+                    let fullKey = parts[0]
+                    var pointName = ""
+                    if let dot = fullKey.firstIndex(of: ".") {
+                        pointName = String(fullKey[fullKey.startIndex..<dot])
+                    }
+                    let value = Int(parts[1]) ?? 0
+                    
+                    if let surface = currentSurface, !pointName.isEmpty {
+                        if points[surface] == nil {
+                            points[surface] = [:]
+                        }
+                        if fullKey.hasSuffix("centerx") {
+                            var existing = points[surface]?[pointName] ?? CGPoint(x: 0, y: 0)
+                            points[surface]?[pointName] = CGPoint(x: CGFloat(value), y: existing.y)
+                        } else {
+                            var existing = points[surface]?[pointName] ?? CGPoint(x: 0, y: 0)
+                            points[surface]?[pointName] = CGPoint(x: existing.x, y: CGFloat(value))
+                        }
+                    }
                 }
             }
             
@@ -260,6 +336,21 @@ class AnimationEngine {
         Log.debug("[AnimationEngine] Stopped all animations")
     }
     
+    /// Get collision regions for a surface
+    func getCollisions(for surfaceID: Int) -> [CollisionRegion] {
+        return collisions[surfaceID] ?? []
+    }
+    
+    /// Get point definition for a surface
+    func getPoint(named pointName: String, for surfaceID: Int) -> CGPoint? {
+        return points[surfaceID]?[pointName]
+    }
+    
+    /// Get all point definitions for a surface
+    func getAllPoints(for surfaceID: Int) -> [String: CGPoint]? {
+        return points[surfaceID]
+    }
+    
     // MARK: - Update Loop
     
     private func startUpdateLoop() {
@@ -295,7 +386,8 @@ class AnimationEngine {
                         surfaceID: pattern.surfaceID,
                         duration: pattern.duration,
                         x: pattern.x + Int(animation.offset.x),
-                        y: pattern.y + Int(animation.offset.y)
+                        y: pattern.y + Int(animation.offset.y),
+                        type: pattern.type
                     )
                 }
                 onAnimationUpdate?(id, adjustedPattern)

@@ -195,6 +195,15 @@ final class EventBridge {
 
     // Immediately broadcast a NOTIFY to all registered sessions (bypassing queue)
     private func broadcastNotifyImmediate(id: EventID, params: [String:String]) {
+        // Save character names on OnNotifySelfInfo
+        if id == .OnNotifySelfInfo {
+            let sakuraName = params["Reference0"] ?? params["Reference1"] ?? ""
+            let keroName = params["Reference2"]
+            for (_, s) in sessions {
+                s.ghostManager?.saveCharacterNames(sakuraName: sakuraName, keroName: keroName)
+            }
+        }
+        
         for (_, s) in sessions {
             s.dispatcher.sendNotify(id: id, params: params)
         }

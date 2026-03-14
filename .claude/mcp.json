@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/mcp.json",
+  "mcpServers": {
+    "ukadoc-mcp": {
+      "command": "node",
+      "args": [
+        "/Users/eightman/Desktop/software_develop/Ourin/ukadoc-mcp/dist/index.js"
+      ]
+    },
+    "ourin-autonomy": {
+      "command": "node",
+      "args": [
+        "/Users/eightman/Desktop/software_develop/Ourin/ourin-autonomy/dist/index.js"
+      ]
+    }
+  }
+}

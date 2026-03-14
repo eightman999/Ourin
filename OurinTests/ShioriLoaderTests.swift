@@ -55,4 +55,50 @@ struct ShioriLoaderTests {
         #expect(res?.contains("200 OK") == true)
         loader.unload()
     }
+    
+    @Test
+    func bundleBackendLoadFailsForInvalidBundle() throws {
+        // Create a temporary directory
+        let tempDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(atPath: tempDir.path, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+        
+        // Create an invalid bundle (missing executable)
+        let bundleDir = tempDir.appendingPathComponent("TestInvalid.bundle")
+        try FileManager.default.createDirectory(atPath: bundleDir.path, withIntermediateDirectories: true)
+        
+        // Create Info.plist
+        let infoPlist = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>CFBundleExecutable</key>
+            <string>TestInvalid</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.ourin.test.invalid</string>
+            <key>CFBundlePackageType</key>
+            <string>BNDL</string>
+        </dict>
+        </plist>
+        """
+        try infoPlist.write(to: bundleDir.appendingPathComponent("Contents/Info.plist"), atomically: true, encoding: .utf8)
+        
+        // Attempt to load - should fail because executable is missing
+        let loader = ShioriLoader(module: "TestInvalid.bundle", base: tempDir)
+        #expect(loader == nil, "ShioriLoader should fail to load invalid bundle")
+    }
+    
+    @Test
+    func normalizedNamesIncludesBundleAndPlugin() throws {
+        // Test that normalizedNames generates correct variants for .bundle/.plugin
+        let variants = ShioriLoader.normalizedNames(for: "TestModule")
+        
+        let expectedVariants = ["TestModule", "TestModule.dylib", "libTestModule.dylib", "TestModule.bundle", "TestModule.plugin", "TestModule.so", "libTestModule.so"]
+        
+        #expect(variants.count == expectedVariants.count)
+        for variant in expectedVariants {
+            #expect(variants.contains(variant), "Expected to find \(variant) in variants")
+        }
+    }
 }

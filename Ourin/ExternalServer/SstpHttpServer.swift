@@ -7,10 +7,19 @@ public final class SstpHttpServer {
     private var listener: NWListener?
     public var onRequest: ((String) -> String)?
     private let logger = CompatLogger(subsystem: "Ourin", category: "SSTP_HTTP")
-    private let timeout: TimeInterval = 5
-    private let maxSize = 64 * 1024
+
+    private var config: Config = Config()
+
+    public struct Config {
+        var timeout: TimeInterval = 5
+        var maxSize: Int = 64 * 1024
+    }
 
     public init() {}
+
+    public func updateConfig(_ config: Config) {
+        self.config = config
+    }
 
     /// サーバーが稼働中かどうかを返す
     public var isRunning: Bool {
@@ -32,22 +41,26 @@ public final class SstpHttpServer {
 
     private func handle(conn: NWConnection) {
         var buffer = Data()
-        let deadline = DispatchTime.now() + timeout
+        let deadline = DispatchTime.now() + config.timeout
         func readMore() {
             conn.receive(minimumIncompleteLength: 1, maximumLength: 8192) { data, _, isComplete, error in
                 if let d = data { buffer.append(d) }
-                if buffer.count > self.maxSize { self.send400(conn); return }
-                if DispatchTime.now() > deadline { self.send400(conn); return }
+                if buffer.count > self.config.maxSize { self.sendErrorResponse(conn, status: 413); return }
+                if DispatchTime.now() > deadline { self.sendErrorResponse(conn, status: 408); return }
                 if isComplete || error != nil { conn.cancel(); return }
                 if let headerEnd = buffer.range(of: Data([13,10,13,10])) {
                     let header = buffer.subdata(in: 0..<headerEnd.upperBound)
                     let headersText = String(data: header, encoding: .utf8) ?? ""
                     var contentLength = 0
+                    var originHeader: String?
                     for rawLine in headersText.split(separator: "\n") {
                         let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
                         if line.lowercased().hasPrefix("content-length:") {
                             let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
                             contentLength = Int(v) ?? 0
+                        } else if line.lowercased().hasPrefix("origin:") {
+                            let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
+                            originHeader = v
                         }
                     }
                     let bodyStart = headerEnd.upperBound
@@ -55,7 +68,8 @@ public final class SstpHttpServer {
                         let body = buffer.subdata(in: bodyStart..<bodyStart+contentLength)
                         if let sstp = Self.decode(body) {
                             let start = Date()
-                            let respSstp = self.onRequest?(sstp) ?? "SSTP/1.1 204 No Content\r\n\r\n"
+                            let routedSstp = Self.injectSecurityHeaders(into: sstp, origin: originHeader)
+                            let respSstp = self.onRequest?(routedSstp) ?? "SSTP/1.1 204 No Content\r\n\r\n"
                             let duration = Date().timeIntervalSince(start)
                             let lines = [
                                 "HTTP/1.1 200 OK\r",
@@ -83,9 +97,34 @@ public final class SstpHttpServer {
         return String(data: data, encoding: .shiftJIS)
     }
 
-    private func send400(_ conn: NWConnection) {
-        let resp = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n"
-        logger.fault("http error")
+    private static func injectSecurityHeaders(into sstp: String, origin: String?) -> String {
+        guard let origin, !origin.isEmpty else { return sstp }
+        let level = isLocalOrigin(origin) ? "local" : "external"
+        let headers = "SecurityOrigin: \(origin)\r\nSecurityLevel: \(level)\r\n"
+        if let range = sstp.range(of: "\r\n\r\n") {
+            var result = sstp
+            result.insert(contentsOf: headers, at: range.lowerBound)
+            return result
+        }
+        return sstp + "\r\n" + headers + "\r\n"
+    }
+
+    private static func isLocalOrigin(_ origin: String) -> Bool {
+        guard let url = URL(string: origin), let host = url.host?.lowercased() else {
+            return false
+        }
+        return host == "localhost" || host == "127.0.0.1" || host == "::1"
+    }
+
+    private func sendErrorResponse(_ conn: NWConnection, status: Int) {
+        let statusText: String
+        switch status {
+        case 408: statusText = "Request Timeout"
+        case 413: statusText = "Payload Too Large"
+        default: statusText = "Bad Request"
+        }
+        let resp = "HTTP/1.1 \(status) \(statusText)\r\nContent-Length: 0\r\n\r\n"
+        logger.fault("http error status=\(status)")
         ServerMetrics.shared.record(duration: 0, error: true)
         conn.send(content: resp.data(using: .utf8), completion: .contentProcessed { _ in conn.cancel() })
     }

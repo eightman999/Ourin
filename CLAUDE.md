@@ -78,3 +78,36 @@ The `docs/` directory contains comprehensive specifications:
 - Implementation guides for various subsystems
 
 This codebase implements a complex multi-protocol system for desktop companions with extensive plugin support, cross-process communication, and compatibility with existing ukagaka ecosystem standards.
+
+## yaya_core (Rustクレート)
+
+### 概要
+`yaya_core/` ディレクトリにはRust製のYAYA言語パーサーとVMが含まれています。
+
+### 重要パス
+- `yaya_core/src/`: Rustソースファイル
+- `yaya_core/Cargo.toml`: Rust設定
+- `yaya_core/build.sh`: ビルドスクリプト
+- ゴーストデータ: `~/Library/Containers/furin-lab.Ourin/Data/Library/Application Support/Ourin/ghost/`
+
+### デバッグログ
+stderr出力で以下のプレフィックスを使用:
+- `[Parser]`: パーサー関連
+- `[VM]`: 仮想マシン実行
+- `[DictionaryManager]`: 辞書ファイル読み込み
+
+### よくあるエラー
+- `Expected '{' after function name`: 関数定義の構文エラー
+- `Expected '=' in assignment`: 代入文の構文エラー
+- `Unexpected token '++'`: インクリメント演算子の処理
+
+### ビルドコマンド
+```bash
+cd yaya_core && ./build.sh
+```
+
+## 参考リソース
+- **SHIORI 3.0仕様:** https://ssp.shillest.net/ukadoc/manual/spec_shiori3.html
+- **桜スクリプト:** https://ssp.shillest.net/ukadoc/manual/list_sakura_script.html
+- **プロパティシステム:** https://ssp.shillest.net/ukadoc/manual/list_propertysystem.html
+- **YAYA言語:** http://usada.sakura.vg/contents/shiori.html

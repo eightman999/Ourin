@@ -17,11 +17,41 @@ public final class OurinExternalServer {
     /// OSLog 用ロガー
     private let logger = CompatLogger(subsystem: "Ourin", category: "ExternalServer")
 
+    public struct Config {
+        var securityLocalOnly: Bool = true
+        var maxPayloadSize: Int = 1024 * 1024
+        var timeout: TimeInterval = 30
+    }
+
     /// サーバ群の初期設定を行う
     public init() {
         tcp.onRequest = { [weak self] in self?.router.handle(raw: $0) ?? "" }
         http.onRequest = { [weak self] in self?.router.handle(raw: $0) ?? "" }
         xpc.onRequest = { [weak self] in self?.router.handle(raw: $0) ?? "" }
+    }
+
+    /// 設定を更新する
+    public func updateConfig(_ config: Config) {
+        let routerConfig = SstpRouter.Config(
+            securityLocalOnly: config.securityLocalOnly,
+            maxPayloadSize: config.maxPayloadSize,
+            timeout: config.timeout
+        )
+        router.updateConfig(routerConfig)
+
+        let tcpConfig = SstpTcpServer.Config(
+            timeout: config.timeout,
+            maxSize: config.maxPayloadSize
+        )
+        tcp.updateConfig(tcpConfig)
+
+        let httpConfig = SstpHttpServer.Config(
+            timeout: config.timeout,
+            maxSize: config.maxPayloadSize
+        )
+        http.updateConfig(httpConfig)
+
+        logger.info("external servers config updated")
     }
 
     /// すべてのリスナーを起動する。エラーは現状無視する。

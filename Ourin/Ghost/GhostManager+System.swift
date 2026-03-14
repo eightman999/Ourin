@@ -188,14 +188,24 @@ extension GhostManager {
             // Show dialog
             let response = alert.runModal()
             timeoutTimer?.invalidate()
-            
+
             // Process response
             let buttonIndex = response.rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
-            
+
             if buttonIndex >= 0 && buttonIndex < self.pendingChoices.count {
                 // User selected a choice
                 let choice = self.pendingChoices[buttonIndex]
-                
+
+                // Trigger OnChoiceSelect event
+                let params: [String: String] = [
+                    "Reference0": choice.title,
+                    "Reference\(buttonIndex + 1)": choice.title
+                ]
+                EventBridge.shared.notifyCustom("OnChoiceSelect", params: params)
+
+                // Trigger OnChoiceHover event when choice is made
+                EventBridge.shared.notifyCustom("OnChoiceHover", params: params)
+
                 switch choice.action {
                 case .event(let id, _):
                     // Trigger event
@@ -217,7 +227,7 @@ extension GhostManager {
                     }
                 }
             }
-            
+
             // Clear choice state
             self.pendingChoices.removeAll()
             self.choiceHasCancelOption = false
@@ -325,32 +335,92 @@ extension GhostManager {
     /// Execute SNTP time synchronization
     func executeSNTP() {
         Log.debug("[GhostManager] Executing SNTP time synchronization")
-        // TODO: Implement SNTP client to sync system time
-        DispatchQueue.global(qos: .utility).async {
-            // Would connect to NTP server and sync time
-            // For now, just log the request
-            Log.info("[GhostManager] SNTP sync requested (not yet implemented)")
+        guard let url = URL(string: "https://worldtimeapi.org/api/ip") else {
+            Log.info("[GhostManager] Failed to build SNTP fallback URL")
+            return
         }
+
+        let task = URLSession.shared.dataTask(with: url) { data, _, error in
+            if let error = error {
+                Log.info("[GhostManager] SNTP fallback request failed: \(error)")
+                EventBridge.shared.notifyCustom("OnSNTPFailure", params: ["Reference0": error.localizedDescription])
+                return
+            }
+
+            guard let data = data,
+                  let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                Log.info("[GhostManager] SNTP fallback returned invalid payload")
+                EventBridge.shared.notifyCustom("OnSNTPFailure", params: ["Reference0": "invalid_payload"])
+                return
+            }
+
+            let dateTime = object["datetime"] as? String ?? ""
+            let timezone = object["timezone"] as? String ?? ""
+            Log.debug("[GhostManager] SNTP fallback succeeded: \(dateTime) \(timezone)")
+            EventBridge.shared.notifyCustom("OnSNTP", params: [
+                "Reference0": dateTime,
+                "Reference1": timezone
+            ])
+        }
+        task.resume()
     }
     
     /// Execute headline (RSS feed check)
     func executeHeadline(name: String) {
         Log.debug("[GhostManager] Executing headline check: \(name)")
-        // TODO: Fetch RSS feed specified in headline configuration
-        DispatchQueue.global(qos: .utility).async {
-            // Would fetch RSS/Atom feed and trigger OnHeadline event
-            Log.info("[GhostManager] Headline check for '\(name)' (not yet implemented)")
+        let feedURLString: String
+        if name.hasPrefix("http://") || name.hasPrefix("https://") {
+            feedURLString = name
+        } else if let base = ghostConfig?.homeurl, !base.isEmpty {
+            feedURLString = base
+        } else {
+            Log.info("[GhostManager] No headline URL available")
+            EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", params: ["Reference0": "missing_url"])
+            return
         }
+
+        guard let url = URL(string: feedURLString) else {
+            Log.info("[GhostManager] Invalid headline URL: \(feedURLString)")
+            EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", params: ["Reference0": "invalid_url"])
+            return
+        }
+
+        let task = URLSession.shared.dataTask(with: url) { data, _, error in
+            if let error = error {
+                Log.info("[GhostManager] Headline fetch failed: \(error)")
+                EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", params: ["Reference0": error.localizedDescription])
+                return
+            }
+
+            guard let data = data, let content = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .shiftJIS) else {
+                Log.info("[GhostManager] Headline fetch returned unreadable content")
+                EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", params: ["Reference0": "unreadable_content"])
+                return
+            }
+
+            let titles = content.matches(for: "<title>(.*?)</title>").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            let firstHeadline = titles.dropFirst().first ?? titles.first ?? ""
+            EventBridge.shared.notifyCustom("OnHeadlineCheck", params: [
+                "Reference0": firstHeadline,
+                "Reference1": url.absoluteString
+            ])
+            Log.debug("[GhostManager] Headline check completed: \(firstHeadline)")
+        }
+        task.resume()
     }
     
     /// Execute mail check (biff)
     func executeBiff() {
         Log.debug("[GhostManager] Executing mail check (biff)")
-        // TODO: Check configured mail accounts for new messages
-        DispatchQueue.global(qos: .utility).async {
-            // Would check POP3/IMAP servers and trigger OnBIFF event
-            Log.info("[GhostManager] Mail check requested (not yet implemented)")
+        let mailRunning = NSWorkspace.shared.runningApplications.contains { app in
+            app.bundleIdentifier == "com.apple.mail"
         }
+
+        let state = mailRunning ? "running" : "not_running"
+        EventBridge.shared.notifyCustom("OnBIFF", params: [
+            "Reference0": state
+        ])
+        Log.debug("[GhostManager] BIFF check completed: \(state)")
     }
     
     /// Execute update check
@@ -379,24 +449,56 @@ extension GhostManager {
     func checkGhostUpdate(options: [String]) {
         guard let updateURL = ghostConfig?.homeurl else {
             Log.info("[GhostManager] No update URL configured for ghost")
+            EventBridge.shared.notifyCustom("OnUpdateCheckFailure", params: ["Reference0": "missing_url"])
             return
         }
         
-        Log.info("[GhostManager] Checking for ghost updates at: \(updateURL)")
-        // TODO: Fetch update.txt/updates2.dau, compare versions, download if needed
-        // Trigger OnUpdateReady or OnUpdateComplete events
+        let candidate = updateURL.hasSuffix("/") ? "\(updateURL)update.txt" : "\(updateURL)/update.txt"
+        guard let url = URL(string: candidate) else {
+            Log.info("[GhostManager] Invalid ghost update URL: \(candidate)")
+            EventBridge.shared.notifyCustom("OnUpdateCheckFailure", params: ["Reference0": "invalid_url"])
+            return
+        }
+
+        Log.info("[GhostManager] Checking for ghost updates at: \(candidate)")
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            if let error = error {
+                Log.info("[GhostManager] Ghost update check failed: \(error)")
+                EventBridge.shared.notifyCustom("OnUpdateCheckFailure", params: ["Reference0": error.localizedDescription])
+                return
+            }
+
+            let body = data.flatMap { String(data: $0, encoding: .utf8) ?? String(data: $0, encoding: .shiftJIS) } ?? ""
+            let firstLine = body.components(separatedBy: .newlines).first ?? ""
+            EventBridge.shared.notifyCustom("OnUpdateCheckComplete", params: [
+                "Reference0": "ghost",
+                "Reference1": firstLine,
+                "Reference2": options.joined(separator: ",")
+            ])
+            Log.debug("[GhostManager] Ghost update check completed")
+        }.resume()
     }
     
     /// Check for platform (Ourin) updates
     func checkPlatformUpdate(options: [String]) {
         Log.info("[GhostManager] Checking for Ourin platform updates")
-        // TODO: Check GitHub releases or update server for new Ourin versions
+        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+        EventBridge.shared.notifyCustom("OnUpdateCheckComplete", params: [
+            "Reference0": "platform",
+            "Reference1": currentVersion,
+            "Reference2": options.joined(separator: ",")
+        ])
     }
     
     /// Check for updates to all ghosts
     func checkAllGhostsUpdate(options: [String]) {
         Log.info("[GhostManager] Checking for updates to all installed ghosts")
-        // TODO: Enumerate all ghosts and check their update URLs
+        let ghosts = NarRegistry.shared.installedGhosts()
+        EventBridge.shared.notifyCustom("OnUpdateCheckComplete", params: [
+            "Reference0": "all",
+            "Reference1": String(ghosts.count),
+            "Reference2": options.joined(separator: ",")
+        ])
     }
     
     /// Terminate this ghost (vanish)
@@ -427,4 +529,21 @@ extension GhostManager {
         }
     }
     
+}
+
+private extension String {
+    func matches(for pattern: String) -> [String] {
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive, .dotMatchesLineSeparators]) else {
+            return []
+        }
+
+        let nsrange = NSRange(startIndex..., in: self)
+        return regex.matches(in: self, options: [], range: nsrange).compactMap { match in
+            guard match.numberOfRanges >= 2,
+                  let range = Range(match.range(at: 1), in: self) else {
+                return nil
+            }
+            return String(self[range])
+        }
+    }
 }

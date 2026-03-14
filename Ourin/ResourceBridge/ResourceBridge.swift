@@ -187,3 +187,147 @@ public final class ResourceBridge {
         return res.isEmpty ? nil : res
     }
 }
+
+// MARK: - Owner Draw Menu Extension
+extension ResourceBridge {
+    /// オーナードローメニュー設定を取得
+    public func ownerDrawMenuConfig(base: URL? = nil) -> OwnerDrawMenuConfig {
+        var config = OwnerDrawMenuConfig()
+        
+        // 背景画像
+        if let bgPath = urlValue(for: "menu.background.bitmap.filename", relativeTo: base),
+           let bgImage = NSImage(contentsOf: bgPath) {
+            config.backgroundImage = bgImage
+        }
+        
+        // 前景画像
+        if let fgPath = urlValue(for: "menu.foreground.bitmap.filename", relativeTo: base),
+           let fgImage = NSImage(contentsOf: fgPath) {
+            config.foregroundImage = fgImage
+        }
+        
+        // サイドバー画像
+        if let sbPath = urlValue(for: "menu.sidebar.bitmap.filename", relativeTo: base),
+           let sbImage = NSImage(contentsOf: sbPath) {
+            config.sidebarImage = sbImage
+            config.sidebarWidth = sbImage.size.width
+        }
+        
+        // 色
+        if let bgColor = colorValue(for: "menu.background.font.color") {
+            config.backgroundColor = bgColor
+        }
+        
+        if let fgColor = colorValue(for: "menu.foreground.font.color") {
+            config.foregroundColor = fgColor
+        }
+        
+        if let sepColor = colorValue(for: "menu.separator.color") {
+            config.separatorColor = sepColor
+        }
+        
+        if let disabledColor = colorValue(for: "menu.disable.font.color") {
+            config.disabledColor = disabledColor
+        }
+        
+        // 配置
+        if let bgAlign = get("menu.background.alignment").flatMap(MenuAlignment.init(rawValue:)) {
+            config.backgroundAlignment = bgAlign
+        }
+        
+        if let fgAlign = get("menu.foreground.alignment").flatMap(MenuAlignment.init(rawValue:)) {
+            config.foregroundAlignment = fgAlign
+        }
+        
+        if let sbAlign = get("menu.sidebar.alignment").flatMap(MenuAlignment.init(rawValue:)) {
+            config.sidebarAlignment = sbAlign
+        }
+        
+        return config
+    }
+    
+    /// メニュー項目一覧を取得
+    public func menuItems() -> [OwnerDrawMenuItem] {
+        var items: [OwnerDrawMenuItem] = []
+        
+        // ゴースト情報
+        if let item = menuItem(caption: "inforootbutton") {
+            items.append(OwnerDrawMenuItem(type: .button(action: "menu_ghost_info"), caption: item.title))
+        }
+        
+        // ゴースト切替
+        if let item = menuItem(caption: "ghostrootbutton") {
+            items.append(OwnerDrawMenuItem(
+                type: .submenu(items: availableGhostItems(), action: nil),
+                caption: item.title
+            ))
+        }
+        
+        // シェル切替
+        if let item = menuItem(caption: "shellrootbutton") {
+            items.append(OwnerDrawMenuItem(
+                type: .submenu(items: availableShellItems(), action: nil),
+                caption: item.title
+            ))
+        }
+        
+        // バルーン切替
+        if let item = menuItem(caption: "balloonrootbutton") {
+            items.append(OwnerDrawMenuItem(
+                type: .submenu(items: availableBalloonItems(), action: nil),
+                caption: item.title
+            ))
+        }
+        
+        // 区切り
+        items.append(OwnerDrawMenuItem(type: .separator, caption: ""))
+        
+        // 設定
+        if let item = menuItem(caption: "configurationbutton") {
+            items.append(OwnerDrawMenuItem(type: .button(action: "menu_settings"), caption: item.title))
+        }
+        
+        // 終了
+        if let item = menuItem(caption: "quitbutton") {
+            items.append(OwnerDrawMenuItem(type: .button(action: "menu_quit"), caption: item.title))
+        }
+        
+        return items
+    }
+    
+    /// 利用可能なゴースト項目
+    private func availableGhostItems() -> [OwnerDrawMenuItem] {
+        // TODO: GhostManager から利用可能なゴーストリストを取得
+        return [
+            OwnerDrawMenuItem(type: .button(action: "switch_ghost:ghost1"), caption: "Ghost 1"),
+            OwnerDrawMenuItem(type: .button(action: "switch_ghost:ghost2"), caption: "Ghost 2")
+        ]
+    }
+    
+    /// 利用可能なシェル項目
+    private func availableShellItems() -> [OwnerDrawMenuItem] {
+        // TODO: GhostManager から利用可能なシェルリストを取得
+        return [
+            OwnerDrawMenuItem(type: .button(action: "switch_shell:shell1"), caption: "Shell 1"),
+            OwnerDrawMenuItem(type: .button(action: "switch_shell:shell2"), caption: "Shell 2")
+        ]
+    }
+    
+    /// 利用可能なバルーン項目
+    private func availableBalloonItems() -> [OwnerDrawMenuItem] {
+        // TODO: GhostManager から利用可能なバルーンリストを取得
+        return [
+            OwnerDrawMenuItem(type: .button(action: "switch_balloon:balloon1"), caption: "Balloon 1")
+        ]
+    }
+    
+    /// メニューキャプションを取得
+    private func menuItem(caption: String) -> (title: String, shortcut: Character?, visible: Bool)? {
+        guard let itemInfo = menuItem(for: "\(caption).caption") else { return nil }
+        
+        let visibleKey = "\(caption).visible"
+        let visible = boolValue(for: visibleKey) ?? true
+        
+        return (itemInfo.title, itemInfo.shortcut, visible)
+    }
+}

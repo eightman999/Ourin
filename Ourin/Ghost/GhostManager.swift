@@ -30,26 +30,21 @@ class CharacterViewModel: ObservableObject {
     @Published var overlays: [SurfaceOverlay] = []
     
     // Effects and filters
-    var activeEffects: [EffectConfig] = []
-    var activeFilters: [FilterConfig] = []
+    @Published var activeEffects: [EffectConfig] = []
+    @Published var activeFilters: [FilterConfig] = []
     
     // Dressup bindings
     var dressupBindings: [String: [String: String]] = [:] // category -> part -> value
-    
+
+    // Dressup parts
+    @Published var dressupParts: [DressupPart] = []
+
     // Text animations
-    var textAnimations: [TextAnimationConfig] = []
+    @Published var textAnimations: [TextAnimationConfig] = []
 
     // Window stacking
     var zOrderGroup: [Int]? = nil  // nil = default, or array of scope IDs in front-to-back order
     var stickyGroup: [Int]? = nil  // nil = independent, or array of scope IDs that move together
-    
-    /// Surface overlay data
-    struct SurfaceOverlay: Identifiable {
-        let id: Int
-        let image: NSImage
-        var offset: CGPoint = .zero
-        var alpha: Double = 1.0
-    }
 
     /// Desktop alignment options
     enum DesktopAlignment {
@@ -64,6 +59,83 @@ class CharacterViewModel: ObservableObject {
 /// ViewModel for the balloon view.
 class BalloonViewModel: ObservableObject {
     @Published var text: String = ""
+    @Published var balloonID: Int = 0  // Current balloon style ID (0, 2, 4, etc.)
+
+    // Cursor position for \_l[x,y] command
+    @Published var cursorX: CGFloat = 0
+    @Published var cursorY: CGFloat = 0
+
+    // Balloon offset for \![set,balloonoffset,...] command
+    @Published var balloonOffsetX: CGFloat = 0
+    @Published var balloonOffsetY: CGFloat = 0
+    @Published var useCustomOffset: Bool = false
+
+    // Balloon alignment for \![set,balloonalign,...] command
+    @Published var balloonAlignment: BalloonAlignment = .none
+
+    // Font settings for \f[...] commands
+    @Published var fontName: String = ""
+    @Published var fontSize: CGFloat = 12
+    @Published var fontWeight: Font.Weight = .regular
+    @Published var fontItalic: Bool = false
+    @Published var fontUnderline: Bool = false
+    @Published var fontStrike: Bool = false
+    @Published var fontColor: NSColor = .textColor
+    @Published var anchorFontColor: NSColor = .linkColor
+    @Published var anchorActive: Bool = false
+    @Published var shadowColor: NSColor = .clear
+    @Published var shadowStyle: BalloonShadowStyle = .none
+    @Published var textAlign: BalloonTextAlign = .left
+    @Published var textVAlign: BalloonTextVAlign = .top
+
+    // Balloon control settings
+    @Published var autoscrollEnabled: Bool = true
+    @Published var balloonTimeout: TimeInterval = 60
+    @Published var balloonWaitEnabled: Bool = true
+    @Published var repaintLocked: Bool = false
+    @Published var balloonMoveLocked: Bool = false
+
+    enum BalloonAlignment {
+        case none
+        case left
+        case center
+        case right
+        case top
+        case bottom
+    }
+
+    enum BalloonShadowStyle {
+        case none
+        case offset
+        case outline
+    }
+
+    enum BalloonTextAlign {
+        case left
+        case center
+        case right
+    }
+
+    enum BalloonTextVAlign {
+        case top
+        case center
+        case bottom
+    }
+
+    // Balloon images
+    struct BalloonImage: Identifiable {
+        let id = UUID()
+        let filepath: String
+        let x: CGFloat
+        let y: CGFloat
+        let isInline: Bool
+        let isOpaque: Bool
+        let useSelfAlpha: Bool
+        let clipping: CGRect?
+        let isForeground: Bool
+        let image: NSImage?
+    }
+    @Published var balloonImages: [BalloonImage] = []
 }
 
 
@@ -123,6 +195,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     private var syncEnabled: Bool = false
     private var syncScopes: Set<Int> = []
     var pendingClick: Bool? = nil
+    var pendingAnchorAction: ChoiceAction? = nil
+    
+    // Append mode flag - when true, balloon text is not cleared on script start
+    private var appendModeEnabled: Bool = false
     
     // Sound playback tracking
     var currentSounds: [NSSound] = []
@@ -139,9 +215,26 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var choiceHasCancelOption: Bool = false
     var choiceTimeout: TimeInterval? = nil
 
+    // Dressup configuration
+    var dressupConfigurations: [DressupConfig] = []
+
     enum ChoiceAction {
         case event(id: String, references: [String])
         case script(String)
+    }
+
+    // Dressup configuration types
+    struct DressupConfig {
+        let category: String
+        let parts: [DressupPartBinding]
+    }
+
+    struct DressupPartBinding {
+        let partName: String
+        let surfaceID: Int
+        let x: Int
+        let y: Int
+        let overlay: Bool
     }
 
     // MARK: - Initialization
@@ -156,15 +249,111 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             sakuraEngine.envExpander.username = username
         }
         
+        // Load persistent character names
+        loadPersistentCharacterNames()
+        
         // Setup animation engine callbacks
         setupAnimationCallbacks()
-        
+
+        // Load dressup configuration
+        loadDressupConfiguration()
+
         // Setup screen change observer for desktop alignment
         setupScreenChangeObserver()
     }
 
     deinit {
         shutdown()
+    }
+    
+    // MARK: - Character Name Persistence
+    
+    func loadPersistentCharacterNames() {
+        let defaults = UserDefaults.standard
+        
+        if let savedSakuraName = defaults.string(forKey: "OurinSakuraName") {
+            sakuraEngine.envExpander.selfname = savedSakuraName
+            Log.debug("[GhostManager] Loaded sakura name: \(savedSakuraName)")
+        }
+        
+        if let savedKeroName = defaults.string(forKey: "OurinKeroName") {
+            sakuraEngine.envExpander.keroname = savedKeroName
+            Log.debug("[GhostManager] Loaded kero name: \(savedKeroName)")
+        }
+    }
+    
+    func loadDressupConfiguration() {
+        // Load dressup configuration from shell descript.txt
+        guard let shellPath = loadShellPath() else { return }
+        let descriptPath = shellPath.appendingPathComponent("descript.txt")
+
+        var content: String?
+        if let utf8Content = try? String(contentsOf: descriptPath, encoding: .utf8) {
+            content = utf8Content
+        } else if let shiftJISContent = try? String(contentsOf: descriptPath, encoding: .shiftJIS) {
+            content = shiftJISContent
+        }
+
+        guard let fileContent = content else {
+            Log.debug("[GhostManager] Failed to load shell descript.txt")
+            return
+        }
+
+        // Parse dressup binding format from descript.txt
+        // Format: dressup,category,partName,surfaceID,x,y
+        var config: DressupConfig? = nil
+        var parts: [DressupPartBinding] = []
+
+        let lines = fileContent.components(separatedBy: .newlines)
+        for line in lines {
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+            guard !trimmedLine.isEmpty, !trimmedLine.hasPrefix("//") else { continue }
+
+            if trimmedLine.lowercased().hasPrefix("dressup,") {
+                // Parse dressup binding line
+                let components = trimmedLine.split(separator: ",", maxSplits: 5)
+                if components.count >= 4 {
+                    let category = String(components[1]).trimmingCharacters(in: .whitespaces)
+                    let partName = String(components[2]).trimmingCharacters(in: .whitespaces)
+                    let surfaceID = Int(components[3]) ?? 0
+                    let x = components.count >= 5 ? Int(components[4]) ?? 0 : 0
+                    let y = components.count >= 6 ? Int(components[5]) ?? 0 : 0
+
+                    parts.append(DressupPartBinding(
+                        partName: partName,
+                        surfaceID: surfaceID,
+                        x: x,
+                        y: y,
+                        overlay: true
+                    ))
+
+                    // Store config (single category per file for now)
+                    if config == nil {
+                        config = DressupConfig(category: category, parts: parts)
+                    }
+                }
+            }
+        }
+
+        if let finalConfig = config {
+            dressupConfigurations.append(finalConfig)
+            Log.debug("[GhostManager] Dressup configuration loaded: \(finalConfig.category) with \(finalConfig.parts.count) parts")
+        } else {
+            Log.debug("[GhostManager] No dressup configuration found in descript.txt")
+        }
+    }
+    
+    func saveCharacterNames(sakuraName: String, keroName: String?) {
+        let defaults = UserDefaults.standard
+        defaults.set(sakuraName, forKey: "OurinSakuraName")
+        if let kero = keroName {
+            defaults.set(kero, forKey: "OurinKeroName")
+        }
+        sakuraEngine.envExpander.selfname = sakuraName
+        if let kero = keroName {
+            sakuraEngine.envExpander.keroname = kero
+        }
+        Log.debug("[GhostManager] Saved character names - Sakura: \(sakuraName), Kero: \(keroName ?? "none")")
     }
 
     // MARK: - Public API
@@ -194,6 +383,23 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
                 // Apply configuration settings to environment
                 self.applyGhostConfiguration(config, ghostRoot: ghostRoot)
+                
+                // Send OnNotifySelfInfo only if names are not yet persisted
+                let defaults = UserDefaults.standard
+                if defaults.string(forKey: "OurinSakuraName") == nil {
+                    Log.debug("[GhostManager] Sending OnNotifySelfInfo (first boot)")
+                    DispatchQueue.main.async {
+                        EventBridge.shared.notify(.OnNotifySelfInfo, params: [
+                            "Reference0": config.sakuraName,
+                            "Reference1": config.sakuraName,
+                            "Reference2": config.keroName ?? "",
+                            "Reference3": config.name,
+                            "Reference4": "",
+                            "Reference5": "",
+                            "Reference6": ""
+                        ])
+                    }
+                }
             } else {
                 Log.info("[GhostManager] Failed to load ghost configuration from descript.txt")
             }
@@ -327,7 +533,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         isPlaying = false
         quickMode = false
         preciseBase = Date()
-        for vm in balloonViewModels.values { vm.text = "" }
+        for vm in balloonViewModels.values {
+            vm.text = ""
+            vm.anchorActive = false
+        }
         typingInterval = defaultTypingInterval
         sakuraEngine.run(script: trimmed)
         startPlaybackIfNeeded()
@@ -346,7 +555,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             isPlaying = false
             quickMode = false
             preciseBase = Date()
-            for vm in balloonViewModels.values { vm.text = "" }
+            for vm in balloonViewModels.values {
+                vm.text = ""
+                vm.anchorActive = false
+            }
             typingInterval = defaultTypingInterval
         }
         sakuraEngine.run(script: trimmed)
@@ -368,11 +580,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             for ch in text { playbackQueue.append(.text(ch)) }
         case .newline:
             playbackQueue.append(.newline)
-        case .newlineVariation(_):
-            // \n[half] or \n[percent] - custom newline height
-            // TODO: Implement variable height newlines
-            // For now, treat as regular newline
-            playbackQueue.append(.newline)
+         case .newlineVariation(let type):
+              // \n[half] or \n[percent] - custom newline height
+              handleNewline(type: type)
+              scheduleNext(after: typingInterval)
+              return
         case .balloon(let id):
             // \bN or \b[ID] - change balloon ID
             Log.debug("[GhostManager] Switching to balloon ID: \(id)")
@@ -380,11 +592,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             
         case .appendMode:
             // \C - append to previous balloon
-            Log.debug("[GhostManager] Append mode - maintaining current balloon")
+            Log.debug("[GhostManager] Append mode enabled - will not clear balloon text")
+            appendModeEnabled = true
             // Append mode keeps the current balloon open and adds new text
-            // This is implemented by not clearing the text buffer
             // The balloon view will continue displaying the previous content
-        case .end:
+         case .end:
             playbackQueue.append(.end)
         case .animation(let id, let wait):
             // \i[ID] or \i[ID,wait] - play surface animation
@@ -671,6 +883,52 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     setStickyWindow(masterScope: master, followerScopes: followers)
                                 }
                             }
+                        case "balloonoffset":
+                            // \![set,balloonoffset,x,y]
+                            if args.count >= 4, args[1].lowercased() == "x" {
+                                // \![set,balloonoffset,x,y]
+                                let xValue = args[2]
+                                let yValue = args[3]
+                                handleBalloonOffset(x: xValue, y: yValue)
+                            } else if args.count >= 3 {
+                                // \![set,balloonoffset,@x,@y]
+                                handleBalloonOffset(x: args[1], y: args[2], isRelative: true)
+                            }
+                        case "balloonalign":
+                            // \![set,balloonalign,direction]
+                            if args.count >= 3 {
+                                let direction = args[2].lowercased()
+                                handleBalloonAlignment(direction: direction)
+                            }
+                        case "autoscroll":
+                            // \![set,autoscroll,0/1/true/false]
+                            if args.count >= 3 {
+                                let value = args[2].lowercased()
+                                DispatchQueue.main.async {
+                                    guard let vm = self.balloonViewModels[self.currentScope] else { return }
+                                    vm.autoscrollEnabled = (value == "1" || value == "true")
+                                    Log.debug("[GhostManager] Autoscroll set to: \(vm.autoscrollEnabled)")
+                                }
+                            }
+                        case "balloontimeout":
+                            // \![set,balloontimeout,time]
+                            if args.count >= 3, let timeout = Double(args[2]) {
+                                DispatchQueue.main.async {
+                                    guard let vm = self.balloonViewModels[self.currentScope] else { return }
+                                    vm.balloonTimeout = timeout / 1000.0
+                                    Log.debug("[GhostManager] Balloon timeout set to: \(vm.balloonTimeout)s")
+                                }
+                            }
+                        case "balloonwait":
+                            // \![set,balloonwait,0/1/true/false]
+                            if args.count >= 3 {
+                                let value = args[2].lowercased()
+                                DispatchQueue.main.async {
+                                    guard let vm = self.balloonViewModels[self.currentScope] else { return }
+                                    vm.balloonWaitEnabled = (value == "1" || value == "true")
+                                    Log.debug("[GhostManager] Balloon wait set to: \(vm.balloonWaitEnabled)")
+                                }
+                            }
                         case "wallpaper":
                             // \![set,wallpaper,filename,options]
                             if args.count >= 3 {
@@ -723,6 +981,24 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         default:
                             break
                         }
+                    } else if first == "bind", args.count >= 2 {
+                        // Handle \![bind,*] commands
+                        let subcmd = args[1].lowercased()
+                        if subcmd == "category" {
+                            // \![bind,category,part,value] - dressup binding
+                            if args.count >= 4 {
+                                let category = args[2]
+                                let part = args[3]
+                                let value = args.count >= 5 ? args[4] : "true"
+                                applyDressup(category: category, part: part, value: value)
+                            }
+                        } else if args.count >= 4 {
+                            // \![bind,category,part,value] (standard form)
+                            let category = args[1]
+                            let part = args[2]
+                            let value = args[3]
+                            handleBindDressup(category: category, part: part, value: value)
+                        }
                     } else if first == "lock", args.count >= 2 {
                         // Handle \![lock,*] commands
                         let subcmd = args[1].lowercased()
@@ -733,6 +1009,19 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 vm.repaintLocked = true
                                 vm.manualRepaintLock = manual
                             }
+                        } else if subcmd == "balloonrepaint" {
+                            let manual = args.count >= 3 && args[2].lowercased() == "manual"
+                            DispatchQueue.main.async {
+                                guard let vm = self.balloonViewModels[self.currentScope] else { return }
+                                vm.repaintLocked = true
+                                Log.debug("[GhostManager] Balloon repaint locked: \(manual)")
+                            }
+                        } else if subcmd == "balloonmove" {
+                            DispatchQueue.main.async {
+                                guard let vm = self.balloonViewModels[self.currentScope] else { return }
+                                vm.balloonMoveLocked = true
+                                Log.debug("[GhostManager] Balloon move locked")
+                            }
                         }
                     } else if first == "unlock", args.count >= 2 {
                         // Handle \![unlock,*] commands
@@ -742,6 +1031,18 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 guard let vm = self.characterViewModels[self.currentScope] else { return }
                                 vm.repaintLocked = false
                                 vm.manualRepaintLock = false
+                            }
+                        } else if subcmd == "balloonrepaint" {
+                            DispatchQueue.main.async {
+                                guard let vm = self.balloonViewModels[self.currentScope] else { return }
+                                vm.repaintLocked = false
+                                Log.debug("[GhostManager] Balloon repaint unlocked")
+                            }
+                        } else if subcmd == "balloonmove" {
+                            DispatchQueue.main.async {
+                                guard let vm = self.balloonViewModels[self.currentScope] else { return }
+                                vm.balloonMoveLocked = false
+                                Log.debug("[GhostManager] Balloon move unlocked")
                             }
                         }
                     } else if first == "execute", args.count >= 2 {
@@ -781,8 +1082,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         switch subcmd {
                         case "clear":
                             // \![anim,clear,ID] - clear specific animation/overlay
-                            if args.count >= 3, let overlayID = Int(args[2]) {
-                                animationEngine.clearAnimation(id: overlayID)
+                            if args.count >= 3 {
+                                let overlayID = args[2]
+                                animationEngine.clearAnimation(id: Int(overlayID) ?? 0)
                                 clearSpecificOverlay(id: overlayID)
                             }
                         case "pause":
@@ -801,10 +1103,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             clearSurfaceOverlays()
                         case "offset":
                             // \![anim,offset,ID,x,y] - offset an animation/overlay
-                            if args.count >= 5, let overlayID = Int(args[2]),
-                               let x = Double(args[3]), let y = Double(args[4]) {
-                                animationEngine.offsetAnimation(id: overlayID, x: x, y: y)
-                                offsetOverlay(id: overlayID, x: x, y: y)
+                            if args.count >= 5 {
+                                if let overlayID = Int(args[2]),
+                                   let x = Double(args[3]), let y = Double(args[4]) {
+                                    animationEngine.offsetAnimation(id: overlayID, x: x, y: y)
+                                    offsetOverlay(id: "surface_\(overlayID)_", x: x, y: y)
+                                }
                             }
                         case "add":
                             // \![anim,add,overlay,ID] or \![anim,add,base,ID] or \![anim,add,text,...]
@@ -815,7 +1119,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                         handleSurfaceOverlay(surfaceID: surfaceID)
                                     }
                                 } else if addType == "base" {
-                                    Log.debug("[GhostManager] Animation add base not yet implemented")
+                                    if let surfaceID = Int(args[3]) {
+                                        handleAnimAddBase(id: surfaceID)
+                                    }
+                                } else if addType == "bind" {
+                                    if let surfaceID = Int(args[3]) {
+                                        handleSurfaceOverlay(surfaceID: surfaceID, type: .bind)
+                                    }
                                 } else if addType == "text" {
                                     // \![anim,add,text,x,y,width,height,text,time,r,g,b,size,font]
                                     if args.count >= 13 {
@@ -885,10 +1195,6 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let scopeID = args.count >= 6 ? Int(args[5]) ?? currentScope : currentScope
                             moveWindowAsync(scope: scopeID, x: x, y: y, time: time, method: method)
                         }
-                    } else if first == "effect" || first == "effect2" || first == "filter" {
-                        // Handle \![effect,...], \![effect2,...], \![filter,...]
-                        // TODO: Implement visual effects/filters via plugins
-                        Log.debug("[GhostManager] Effect/filter command not yet implemented: \(first)")
                     } else if first == "open", args.count >= 2 {
                         // Handle \![open,browser,URL] and \![open,mailer,email]
                         let target = args[1].lowercased()
@@ -921,12 +1227,21 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     let eventID = args[0]
                     let references = Array(args.dropFirst())
                     Log.debug("[GhostManager] Anchor event: \(eventID) with refs: \(references)")
-                    // TODO: Store anchor for clickable text display
+                    pendingAnchorAction = .event(id: eventID, references: references)
+                    if let vm = balloonViewModels[currentScope] {
+                        vm.anchorActive = true
+                    }
                 }
             
             case "_b":
                 // \_b[filepath,...] - balloon image display
                 handleBalloonImage(args: args)
+
+            case "_l":
+                // \_l[x,y] - move cursor position
+                if args.count >= 2 {
+                    handleCursorMove(x: args[0], y: args[1])
+                }
             
             case "_v":
                 // \_v[filename] - play voice file
@@ -938,9 +1253,146 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 // \_V - stop voice playback
                 stopAllSounds()
             
+            case "c":
+                // \c[char,line,...] - clear text
+                handleTextClear(args: args)
+            
+            case "f":
+                // \f[align,...], \f[name,...], \f[height,...], \f[color,...], \f[shadowcolor,...], \f[shadowstyle,...], \f[bold,...], \f[italic,...], \f[strike,...], \f[underline,...], \f[sub,...], \f[sup,...], \f[default], \f[disable], \f[anchor.font.color,...]
+                if args.isEmpty {
+                    break
+                }
+                let subcmd = args[0].lowercased()
+                DispatchQueue.main.async {
+                    guard let vm = self.balloonViewModels[self.currentScope] else { return }
+                    
+                    switch subcmd {
+                    case "align":
+                        // \f[align,left/center/right]
+                        if args.count >= 2 {
+                            let align = args[1].lowercased()
+                            switch align {
+                            case "left":
+                                vm.textAlign = .left
+                            case "center":
+                                vm.textAlign = .center
+                            case "right":
+                                vm.textAlign = .right
+                            default:
+                                Log.info("[GhostManager] Unknown text align: \(align)")
+                            }
+                            Log.debug("[GhostManager] Text align set to: \(align)")
+                        }
+                    case "valign":
+                        // \f[valign,top/center/bottom]
+                        if args.count >= 2 {
+                            let valign = args[1].lowercased()
+                            switch valign {
+                            case "top":
+                                vm.textVAlign = .top
+                            case "center":
+                                vm.textVAlign = .center
+                            case "bottom":
+                                vm.textVAlign = .bottom
+                            default:
+                                Log.info("[GhostManager] Unknown text valign: \(valign)")
+                            }
+                            Log.debug("[GhostManager] Text valign set to: \(valign)")
+                        }
+                    case "name":
+                        // \f[name,fontname,...]
+                        if args.count >= 2 {
+                            let fontNames = Array(args.dropFirst()).joined(separator: ",")
+                            vm.fontName = fontNames
+                            Log.debug("[GhostManager] Font name set to: \(fontNames)")
+                        }
+                    case "height":
+                        // \f[height,size]
+                        if args.count >= 2 {
+                            let sizeStr = args[1]
+                            let size = self.parseFontHeight(sizeStr, baseFontSize: CGFloat(self.balloonConfig?.fontHeight ?? 12))
+                            vm.fontSize = size
+                            Log.debug("[GhostManager] Font height set to: \(size)")
+                        }
+                    case "color":
+                        // \f[color,r,g,b] or \f[color,#RRGGBB] or \f[color,name]
+                        if args.count >= 2 {
+                            let color = self.parseColor(from: args[1], defaultValue: vm.fontColor)
+                            vm.fontColor = color
+                            Log.debug("[GhostManager] Font color set to: \(color)")
+                        }
+                    case "shadowcolor":
+                        // \f[shadowcolor,r,g,b] or \f[shadowcolor,#RRGGBB] or \f[shadowcolor,name]
+                        if args.count >= 2 {
+                            let color = self.parseColor(from: args[1], defaultValue: vm.shadowColor)
+                            vm.shadowColor = color
+                            Log.debug("[GhostManager] Shadow color set to: \(color)")
+                        }
+                    case "shadowstyle":
+                        // \f[shadowstyle,offset/outline]
+                        if args.count >= 2 {
+                            let style = args[1].lowercased()
+                            switch style {
+                            case "offset":
+                                vm.shadowStyle = .offset
+                            case "outline":
+                                vm.shadowStyle = .outline
+                            case "none":
+                                vm.shadowStyle = .none
+                            default:
+                                Log.info("[GhostManager] Unknown shadow style: \(style)")
+                            }
+                            Log.debug("[GhostManager] Shadow style set to: \(style)")
+                        }
+                    case "bold":
+                        // \f[bold,0/1/true/false/default/disable]
+                        if args.count >= 2 {
+                            let value = args[1].lowercased()
+                            let isBold = self.parseTriState(value, currentValue: vm.fontWeight == .bold ? "1" : "0")
+                            vm.fontWeight = isBold ? .bold : .regular
+                            Log.debug("[GhostManager] Font bold set to: \(isBold)")
+                        }
+                    case "italic":
+                        // \f[italic,0/1/true/false/default/disable]
+                        if args.count >= 2 {
+                            let value = args[1].lowercased()
+                            vm.fontItalic = self.parseTriState(value, currentValue: vm.fontItalic ? "1" : "0")
+                            Log.debug("[GhostManager] Font italic set to: \(vm.fontItalic)")
+                        }
+                    case "strike":
+                        // \f[strike,0/1/true/false/default/disable]
+                        if args.count >= 2 {
+                            let value = args[1].lowercased()
+                            vm.fontStrike = self.parseTriState(value, currentValue: vm.fontStrike ? "1" : "0")
+                            Log.debug("[GhostManager] Font strike set to: \(vm.fontStrike)")
+                        }
+                    case "underline":
+                        // \f[underline,0/1/true/false/default/disable]
+                        if args.count >= 2 {
+                            let value = args[1].lowercased()
+                            vm.fontUnderline = self.parseTriState(value, currentValue: vm.fontUnderline ? "1" : "0")
+                            Log.debug("[GhostManager] Font underline set to: \(vm.fontUnderline)")
+                        }
+                    case "default":
+                        // \f[default] - reset to default
+                        self.resetFontDefaults(vm: vm)
+                    case "disable":
+                        // \f[disable] - set all to disabled style
+                        self.setFontDisabled(vm: vm)
+                    case "anchor.font.color":
+                        // \f[anchor.font.color,r,g,b] or \f[anchor.font.color,#RRGGBB] or \f[anchor.font.color,name]
+                        if args.count >= 2 {
+                            vm.anchorFontColor = self.parseColor(from: args[1], defaultValue: vm.anchorFontColor)
+                            Log.debug("[GhostManager] Anchor font color set")
+                        }
+                    default:
+                        Log.info("[GhostManager] Unknown font command: \(subcmd)")
+                    }
+                }
+            
             default:
                 break
-            }
+             }
         }
     }
 
@@ -966,6 +1418,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         vm.text = ""
                     }
                 }
+                
+                // Clear current scope balloon text unless append mode is enabled
+                if !appendModeEnabled {
+                    balloonViewModels[id]?.text = ""
+                }
+                
                 currentScope = id
                 Log.debug("[GhostManager] Switched to scope \(id)")
 
@@ -988,6 +1446,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 Log.debug("[GhostManager] Script end.")
                 quickMode = false
                 syncEnabled = false
+                appendModeEnabled = false
                 continue
             case .resetPrecise:
                 preciseBase = Date()
@@ -1091,5 +1550,64 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             appDelegate.eventBridge = bridge
         }
         Log.debug("[GhostManager] EventBridge started with enableAutoEvents=\(enableAutoEvents)")
+    }
+}
+
+// MARK: - Owner Draw Menu Actions
+extension GhostManager {
+    /// メニューアクションを処理
+    func handleMenuAction(_ action: String) {
+        switch action {
+        case "menu_ghost_info":
+            showGhostInfo()
+        case let action where action.hasPrefix("switch_ghost:"):
+            let ghostID = String(action.dropFirst("switch_ghost:".count))
+            switchGhost(to: ghostID)
+        case let action where action.hasPrefix("switch_shell:"):
+            let shellID = String(action.dropFirst("switch_shell:".count))
+            switchShell(to: shellID)
+        case let action where action.hasPrefix("switch_balloon:"):
+            let balloonID = String(action.dropFirst("switch_balloon:".count))
+            switchBalloon(to: balloonID)
+        case "menu_settings":
+            showSettings()
+        case "menu_quit":
+            NSApplication.shared.terminate(nil)
+        default:
+            Log.info("[GhostManager] Unknown menu action: \(action)")
+        }
+    }
+    
+    /// ゴースト情報を表示
+    private func showGhostInfo() {
+        // TODO: ゴースト情報ダイアログを表示
+        Log.info("[GhostManager] Show ghost info")
+    }
+    
+    /// 設定を表示
+    private func showSettings() {
+        // TODO: 設定ウィンドウを表示
+        Log.info("[GhostManager] Show settings")
+    }
+    
+    /// ゴーストを切り替え
+    private func switchGhost(to ghostID: String) {
+        // TODO: ゴースト切り替えを実装
+        Log.info("[GhostManager] Switch to ghost: \(ghostID)")
+    }
+    
+    /// シェルを切り替え
+    private func switchShell(to shellID: String) {
+        // TODO: シェル切り替えを実装
+        Log.info("[GhostManager] Switch to shell: \(shellID)")
+    }
+    
+    /// バルーンを切り替え
+    private func switchBalloon(to balloonID: String) {
+        if let id = Int(balloonID) {
+            switchBalloon(to: id, scope: currentScope)
+        } else {
+            Log.info("[GhostManager] Invalid balloon ID: \(balloonID)")
+        }
     }
 }

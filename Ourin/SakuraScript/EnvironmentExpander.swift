@@ -27,33 +27,93 @@ public final class EnvironmentExpander {
     /// Expand percent variables in given text.
     public func expand(text: String, now: Date = Date()) -> String {
         if text.isEmpty { return text }
-        // Match %key or %key[arg]; allow letters, '?' and '*' in key
-        // Regex (as Swift string): "%([a-zA-Z?*]+)(?:\\[([^\\]]+)\\])?"
-        let pattern = "%([a-zA-Z?*]+)(?:\\[([^\\]]+)\\])?"
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return text }
-
-        let ns = text as NSString
-        var result = text
-        let matches = regex.matches(in: text, range: NSRange(location: 0, length: ns.length))
-
-        // Replace from the end to preserve ranges
-        for m in matches.reversed() {
-            guard m.numberOfRanges >= 2, let keyRange = Range(m.range(at: 1), in: text) else { continue }
-            let key = String(text[keyRange]).lowercased()
-            let arg: String? = {
-                if m.numberOfRanges >= 3, m.range(at: 2).location != NSNotFound, let r = Range(m.range(at: 2), in: text) { return String(text[r]) }
-                return nil
-            }()
-
-            let replacement = expandVariable(key: key, arg: arg, now: now)
-            if let full = Range(m.range(at: 0), in: result) {
+        // Match %("key(arg)") - e.g., %("charname(0)")
+        let pattern1 = "%\\(([^\\)]+)\\(([^\\)]+)\\)\\)"
+        if let regex1 = try? NSRegularExpression(pattern: pattern1) {
+            let matches = regex1.matches(in: text, range: NSRange(location: 0, length: text.utf16.count))
+            Foundation.NSLog("[EnvironmentExpander] Pattern 1: \(pattern1), matches: \(matches.count)")
+            
+            var result = text
+            for m in matches.reversed() {
+                let full = Range(m.range(at: 0), in: result)!
+                let keyRange = Range(m.range(at: 1), in: result)!
+                let argRange = Range(m.range(at: 2), in: result)!
+                let key = String(result[keyRange]).lowercased()
+                let arg = String(result[argRange])
+                
+                Foundation.NSLog("[EnvironmentExpander] Pattern 1 matched: key=\(key), arg=\(arg)")
+                
+                let replacement = expandVariable(key: key, arg: arg, now: now)
+                Foundation.NSLog("[EnvironmentExpander] Replacement: \(replacement)")
                 result.replaceSubrange(full, with: replacement)
             }
+            if !matches.isEmpty {
+                Foundation.NSLog("[EnvironmentExpander] Final result: \(result)")
+                return result
+            }
         }
-        return result
+        
+        // Match %key[arg] or %key(arg) - e.g., %charname[0] or %charname(0)
+        let pattern2 = "%([a-zA-Z?*]+)(?:\\[([^\\]]+)\\]|\\(([^\\)]+)\\))"
+        if let regex2 = try? NSRegularExpression(pattern: pattern2) {
+            let matches = regex2.matches(in: text, range: NSRange(location: 0, length: text.utf16.count))
+            Foundation.NSLog("[EnvironmentExpander] Pattern 2: \(pattern2), matches: \(matches.count)")
+            
+            var result = text
+            for m in matches.reversed() {
+                let full = Range(m.range(at: 0), in: result)!
+                let keyRange = Range(m.range(at: 1), in: result)!
+                let argRange: Range<String.Index>?
+                
+                if m.range(at: 2).location != NSNotFound {
+                    argRange = Range(m.range(at: 2), in: result)!
+                } else if m.range(at: 3).location != NSNotFound {
+                    argRange = Range(m.range(at: 3), in: result)!
+                } else {
+                    argRange = nil
+                }
+                
+                let key = String(result[keyRange]).lowercased()
+                let arg = argRange.map { String(result[$0]) }
+                
+                Foundation.NSLog("[EnvironmentExpander] Pattern 2 matched: key=\(key), arg=\(arg ?? "nil")")
+                
+                let replacement = expandVariable(key: key, arg: arg, now: now)
+                Foundation.NSLog("[EnvironmentExpander] Replacement: \(replacement)")
+                result.replaceSubrange(full, with: replacement)
+            }
+            Foundation.NSLog("[EnvironmentExpander] Final result: \(result)")
+            return result
+        }
+        
+        // Match %key - e.g., %charname
+        let pattern3 = "%([a-zA-Z?*]+)"
+        if let regex3 = try? NSRegularExpression(pattern: pattern3) {
+            let matches = regex3.matches(in: text, range: NSRange(location: 0, length: text.utf16.count))
+            Foundation.NSLog("[EnvironmentExpander] Pattern 3: \(pattern3), matches: \(matches.count)")
+            
+            var result = text
+            for m in matches.reversed() {
+                let full = Range(m.range(at: 0), in: result)!
+                let keyRange = Range(m.range(at: 1), in: result)!
+                let key = String(result[keyRange]).lowercased()
+                
+                Foundation.NSLog("[EnvironmentExpander] Pattern 3 matched: key=\(key)")
+                
+                let replacement = expandVariable(key: key, arg: nil, now: now)
+                Foundation.NSLog("[EnvironmentExpander] Replacement: \(replacement)")
+                result.replaceSubrange(full, with: replacement)
+            }
+            Foundation.NSLog("[EnvironmentExpander] Final result: \(result)")
+            return result
+        }
+        
+        return text
     }
 
     private func expandVariable(key: String, arg: String?, now: Date) -> String {
+        Foundation.NSLog("[EnvironmentExpander] expandVariable() called: key=\(key), arg=\(arg ?? "nil")")
+
         // Date/time
         let cal = Calendar.current
         switch key {
@@ -69,14 +129,22 @@ public final class EnvironmentExpander {
         case "selfname2": return selfname2 ?? ""
         case "keroname":  return keroname ?? ""
         case "charname":
+            Foundation.NSLog("[EnvironmentExpander] charname: arg=\(arg ?? "nil"), selfname=\(selfname ?? "nil"), keroname=\(keroname ?? "nil")")
             // %(charname[scope]) - Get character name for scope
             if let arg = arg, let scope = Int(arg) {
                 switch scope {
-                case 0: return selfname ?? ""
-                case 1: return keroname ?? ""
-                default: return ""
+                case 0:
+                    Foundation.NSLog("[EnvironmentExpander] charname(0) returning: \(selfname ?? "")")
+                    return selfname ?? ""
+                case 1:
+                    Foundation.NSLog("[EnvironmentExpander] charname(1) returning: \(keroname ?? "")")
+                    return keroname ?? ""
+                default:
+                    Foundation.NSLog("[EnvironmentExpander] charname(\(scope)) returning empty")
+                    return ""
                 }
             }
+            Foundation.NSLog("[EnvironmentExpander] charname: no valid arg, returning empty")
             return ""
         case "screenwidth":
             return String(Int(NSScreen.main?.frame.width ?? 0))

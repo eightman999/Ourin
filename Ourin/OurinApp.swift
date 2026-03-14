@@ -166,6 +166,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             self.installDefaultGhost()
         }
+        
+        // オーナードローメニューアクションの通知を監視
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleOwnerDrawMenuAction(_:)),
+            name: NSNotification.Name("OwnerDrawMenuAction"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleOwnerDrawMenuAction(_ notification: Notification) {
+        guard let action = notification.userInfo?["action"] as? String else { return }
+        ghostManager?.handleMenuAction(action)
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {

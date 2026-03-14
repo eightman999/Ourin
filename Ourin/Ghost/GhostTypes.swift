@@ -1,6 +1,7 @@
 import Foundation
+import AppKit
 
-// Shared configuration types for effects, filters, and text animations
+// MARK: - Effects and Filters
 
 struct EffectConfig {
     let plugin: String
@@ -27,5 +28,45 @@ struct TextAnimationConfig {
     let b: Int
     let fontSize: Int
     let fontName: String
+}
+
+// MARK: - Surface Overlay
+
+/// Surface overlay data for character rendering
+struct SurfaceOverlay: Identifiable {
+    let id: String
+    let image: NSImage
+    var offset: CGPoint = .zero
+    var alpha: Double = 1.0
+}
+
+/// Desktop alignment options
+enum DesktopAlignment {
+    case free
+    case top
+    case bottom
+    case left
+    case right
+}
+
+// MARK: - Dressup Part
+
+/// Dressup part data for character rendering
+struct DressupPart: Identifiable {
+    let id = UUID()
+    let category: String
+    let partName: String
+    let image: NSImage
+    let frame: CGRect
+    var zOrder: Int = 0
+    var isEnabled: Bool = true
+}
+
+// MARK: - Extensions
+
+extension NSImage {
+    var isValid: Bool {
+        return size.width > 0 && size.height > 0
+    }
 }
 

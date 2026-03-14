@@ -1789,8 +1789,28 @@ void VM::registerBuiltins() {
         return Value(1);
     };
     
+    // ZEN2HAN(text) - Convert full-width to half-width characters (stub)
+    builtins_["ZEN2HAN"] = [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 1) return args[0];
+        std::string text = args[0].asString();
+        
+        // TODO: Implement full-width to half-width conversion
+        // For now, return original text
+        return Value(text);
+    };
+    
+    // HAN2ZEN(text) - Convert half-width to full-width characters (stub)
+    builtins_["HAN2ZEN"] = [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 1) return args[0];
+        std::string text = args[0].asString();
+        
+        // TODO: Implement half-width to full-width conversion
+        // For now, return original text
+        return Value(text);
+    };
+    
     // LETTONAME(varname, value) - Assign to variable by name
-    builtins_["LETTONAME"] = [this](const std::vector<Value>& args) -> Value {
+    builtins_["LETTONAME"] = [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string varName = args[0].asString();
         setVariable(varName, args[1]);
