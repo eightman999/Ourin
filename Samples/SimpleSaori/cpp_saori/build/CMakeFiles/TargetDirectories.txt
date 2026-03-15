@@ -1,3 +1,0 @@
-/Users/eightman/Desktop/software_develop/Ourin/Samples/SimpleSaori/cpp_saori/build/CMakeFiles/SimpleSaoriCpp.dir
-/Users/eightman/Desktop/software_develop/Ourin/Samples/SimpleSaori/cpp_saori/build/CMakeFiles/edit_cache.dir
-/Users/eightman/Desktop/software_develop/Ourin/Samples/SimpleSaori/cpp_saori/build/CMakeFiles/rebuild_cache.dir
