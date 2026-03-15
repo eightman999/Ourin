@@ -33,6 +33,7 @@ final class YayaAdapter {
 
     /// Resource manager for handling SHIORI resource GET requests
     public var resourceManager: ResourceManager?
+    private let saoriManager = SaoriManager()
 
     /// Create adapter. The helper executable is searched in the app bundle by default.
     init?() {
@@ -272,6 +273,21 @@ final class YayaAdapter {
             kill(pid_t(pid), SIGKILL)
             #endif
         }
+        saoriManager.unloadAll()
+    }
+
+    /// Bridge helper for upcoming yaya_core SAORI plugin operations.
+    func handleSaoriRequest(module: String, request: String, charset: String = "UTF-8") -> String? {
+        do {
+            return try saoriManager.request(moduleName: module, requestText: request, charset: charset)
+        } catch {
+            NSLog("[YayaAdapter] SAORI request failed: \(error)")
+            return nil
+        }
+    }
+
+    func handlePluginOperation(_ operation: String, params: [String: Any]) -> [String: Any] {
+        saoriManager.handlePluginOperation(operation, params: params)
     }
 }
 
