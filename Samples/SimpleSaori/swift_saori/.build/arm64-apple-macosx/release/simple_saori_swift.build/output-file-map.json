@@ -1,0 +1,13 @@
+{
+  "": {
+    "dependencies": "/Users/eightman/Desktop/software_develop/Ourin/Samples/SimpleSaori/swift_saori/.build/arm64-apple-macosx/release/simple_saori_swift.build/simple_saori_swift.d",
+    "object": "/Users/eightman/Desktop/software_develop/Ourin/Samples/SimpleSaori/swift_saori/.build/arm64-apple-macosx/release/simple_saori_swift.build/simple_saori_swift.o",
+    "swift-dependencies": "/Users/eightman/Desktop/software_develop/Ourin/Samples/SimpleSaori/swift_saori/.build/arm64-apple-macosx/release/simple_saori_swift.build/master.swiftdeps"
+  },
+  "/Users/eightman/Desktop/software_develop/Ourin/Samples/SimpleSaori/swift_saori/Sources/saori.swift": {
+    "object": "/Users/eightman/Desktop/software_develop/Ourin/Samples/SimpleSaori/swift_saori/.build/arm64-apple-macosx/release/simple_saori_swift.build/saori.swift.o",
+    "swiftmodule": "/Users/eightman/Desktop/software_develop/Ourin/Samples/SimpleSaori/swift_saori/.build/arm64-apple-macosx/release/simple_saori_swift.build/saori~partial.swiftmodule",
+    "swift-dependencies": "/Users/eightman/Desktop/software_develop/Ourin/Samples/SimpleSaori/swift_saori/.build/arm64-apple-macosx/release/simple_saori_swift.build/saori.swiftdeps",
+    "diagnostics": "/Users/eightman/Desktop/software_develop/Ourin/Samples/SimpleSaori/swift_saori/.build/arm64-apple-macosx/release/simple_saori_swift.build/saori.dia"
+  }
+}

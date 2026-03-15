@@ -1,0 +1,1 @@
+/usr/bin/c++  -arch arm64 -mmacosx-version-min=10.15 -dynamiclib -Wl,-headerpad_max_install_names -L/opt/homebrew/opt/tcl-tk/lib -o simple_saori_cpp.dylib -install_name @rpath/simple_saori_cpp.dylib CMakeFiles/SimpleSaoriCpp.dir/saori.cpp.o
