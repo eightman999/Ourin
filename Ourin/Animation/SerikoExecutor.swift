@@ -175,6 +175,13 @@ public final class SerikoExecutor {
         activeAnimations[id] = state
     }
 
+    public func offsetAnimation(id: Int, x: Int, y: Int) {
+        guard var state = activeAnimations[id] else { return }
+        state.offsetX = x
+        state.offsetY = y
+        activeAnimations[id] = state
+    }
+
     public func triggerYenE() { pendingIntervalEvents.insert(.yenE) }
     public func triggerTalk() { pendingIntervalEvents.insert(.talk) }
     public func triggerBind() { pendingIntervalEvents.insert(.bind) }
@@ -231,4 +238,3 @@ public final class SerikoExecutor {
         }
     }
 }
-

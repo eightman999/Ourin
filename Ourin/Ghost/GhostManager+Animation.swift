@@ -9,6 +9,39 @@ import UserNotifications
 extension GhostManager {
     // MARK: - Animation Engine Integration
 
+    private struct SerikoStorage {
+        static var executors: [ObjectIdentifier: SerikoExecutor] = [:]
+        static var timers: [ObjectIdentifier: Timer] = [:]
+    }
+
+    private var serikoExecutor: SerikoExecutor {
+        let key = ObjectIdentifier(self)
+        if let existing = SerikoStorage.executors[key] {
+            return existing
+        }
+        let created = SerikoExecutor()
+        SerikoStorage.executors[key] = created
+        return created
+    }
+
+    private var serikoLoopTimer: Timer? {
+        get { SerikoStorage.timers[ObjectIdentifier(self)] }
+        set {
+            let key = ObjectIdentifier(self)
+            if let timer = newValue {
+                SerikoStorage.timers[key] = timer
+            } else {
+                SerikoStorage.timers.removeValue(forKey: key)
+            }
+        }
+    }
+
+    func shutdownSerikoLoop() {
+        serikoLoopTimer?.invalidate()
+        serikoLoopTimer = nil
+        serikoExecutor.stopAllAnimations()
+    }
+
     /// Setup animation engine callbacks
     func setupAnimationCallbacks() {
         animationEngine.onAnimationUpdate = { [weak self] animID, pattern in
@@ -36,6 +69,41 @@ extension GhostManager {
                 }
             }
         }
+
+        serikoExecutor.onMethodInvoked = { [weak self] animID, method, surfaceID, x, y in
+            guard let self = self else { return }
+            switch method {
+            case .overlay:
+                self.handleSurfaceOverlay(surfaceID: surfaceID, type: .overlay)
+            case .overlayFast:
+                self.handleSurfaceOverlay(surfaceID: surfaceID, type: .overlay)
+            case .base:
+                self.handleAnimAddBase(id: surfaceID)
+            case .move:
+                self.handleAnimAddMove(x: x, y: y)
+            case .replace:
+                self.handleSurfaceOverlay(surfaceID: surfaceID, type: .replace)
+            case .start:
+                _ = self.serikoExecutor.executeAnimation(id: surfaceID)
+            case .alternativeStart:
+                _ = self.serikoExecutor.executeAnimation(id: surfaceID)
+            case .stop:
+                self.serikoExecutor.stopAnimation(id: animID)
+            case .reduce, .asis, .unknown:
+                break
+            }
+        }
+
+        serikoExecutor.onAnimationFinished = { [weak self] animID in
+            guard let self = self else { return }
+            if self.waitingForAnimation == animID {
+                self.waitingForAnimation = nil
+                if self.isPlaying {
+                    self.processNextUnit()
+                }
+            }
+            self.stopSerikoLoopIfIdle()
+        }
     }
 
     /// Play an animation
@@ -43,14 +111,29 @@ extension GhostManager {
         // Load animations from surfaces.txt if not already loaded
         loadAnimationsForCurrentSurface()
 
+        if serikoExecutor.executeAnimation(id: id) {
+            startSerikoLoopIfNeeded()
+            return
+        }
         animationEngine.playAnimation(id: id, wait: wait)
     }
 
     /// Play an animation and wait for completion
     func playAnimationAndWait(id: Int) {
         waitingForAnimation = id
+        if serikoExecutor.activeAnimations[id] != nil {
+            return
+        }
         playAnimation(id: id, wait: true)
         // Playback will resume when animation completes via callback
+    }
+
+    func waitForAnimation(id: Int) {
+        waitingForAnimation = id
+        if serikoExecutor.activeAnimations[id] == nil {
+            _ = serikoExecutor.executeAnimation(id: id)
+            startSerikoLoopIfNeeded()
+        }
     }
 
     /// Load animations from surfaces.txt for current surface
@@ -84,6 +167,10 @@ extension GhostManager {
         let surfaceID = 0 // TODO: Track actual current surface ID
 
         animationEngine.loadAnimations(surfaceID: surfaceID, content: surfacesContent)
+        let parsed = SerikoParser.parseSurfaces(surfacesContent)
+        if let surface = parsed[surfaceID] {
+            serikoExecutor.register(animations: surface.animations)
+        }
         Log.debug("[GhostManager] Loaded animations for surface \(surfaceID)")
     }
 
@@ -91,6 +178,7 @@ extension GhostManager {
 
     /// Handle \![anim,clear,ID] command
     func handleAnimClear(id: Int) {
+        serikoExecutor.stopAnimation(id: id)
         animationEngine.clearAnimation(id: id)
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -103,18 +191,22 @@ extension GhostManager {
 
     /// Handle \![anim,pause,ID] command
     func handleAnimPause(id: Int) {
+        serikoExecutor.pauseAnimation(id: id)
         animationEngine.pauseAnimation(id: id)
         Log.debug("[GhostManager] Paused animation \(id)")
     }
 
     /// Handle \![anim,resume,ID] command
     func handleAnimResume(id: Int) {
+        serikoExecutor.resumeAnimation(id: id)
+        startSerikoLoopIfNeeded()
         animationEngine.resumeAnimation(id: id)
         Log.debug("[GhostManager] Resumed animation \(id)")
     }
 
     /// Handle \![anim,offset,ID,x,y] command
     func handleAnimOffset(id: Int, x: Int, y: Int) {
+        serikoExecutor.offsetAnimation(id: id, x: x, y: y)
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             guard let vm = self.characterViewModels[self.currentScope] else { return }
@@ -128,6 +220,8 @@ extension GhostManager {
 
     /// Handle \![anim,stop] command
     func handleAnimStop() {
+        serikoExecutor.stopAllAnimations()
+        stopSerikoLoopIfIdle()
         animationEngine.stopAllAnimations()
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -180,5 +274,20 @@ extension GhostManager {
             }
             Log.debug("[GhostManager] Moved all overlays by (\(x), \(y))")
         }
+    }
+
+    private func startSerikoLoopIfNeeded() {
+        guard serikoLoopTimer == nil else { return }
+        serikoLoopTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            self.serikoExecutor.startLoop()
+            self.stopSerikoLoopIfIdle()
+        }
+    }
+
+    private func stopSerikoLoopIfIdle() {
+        guard serikoExecutor.activeAnimations.isEmpty else { return }
+        serikoLoopTimer?.invalidate()
+        serikoLoopTimer = nil
     }
 }
