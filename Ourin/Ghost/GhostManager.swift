@@ -1179,21 +1179,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             // \![filter] - clear all filters
                             clearFilters()
                         }
-                    } else if first == "move", args.count >= 3 {
-                        // Handle \![move,x,y,time,method,scopeID] - synchronous window move
-                        if let x = Int(args[1]), let y = Int(args[2]) {
-                            let time = args.count >= 4 ? Int(args[3]) ?? 0 : 0
-                            let method = args.count >= 5 ? args[4] : ""
-                            let scopeID = args.count >= 6 ? Int(args[5]) ?? currentScope : currentScope
-                            moveWindow(scope: scopeID, x: x, y: y, time: time, method: method)
-                        }
-                    } else if first == "moveasync", args.count >= 3 {
-                        // Handle \![moveasync,x,y,time,method,scopeID] - asynchronous window move
-                        if let x = Int(args[1]), let y = Int(args[2]) {
-                            let time = args.count >= 4 ? Int(args[3]) ?? 0 : 0
-                            let method = args.count >= 5 ? args[4] : ""
-                            let scopeID = args.count >= 6 ? Int(args[5]) ?? currentScope : currentScope
-                            moveWindowAsync(scope: scopeID, x: x, y: y, time: time, method: method)
+                    } else if first == "move" {
+                        executeMoveCommand(args: Array(args.dropFirst()), async: false)
+                    } else if first == "moveasync" {
+                        let params = Array(args.dropFirst())
+                        if params.first?.lowercased() == "cancel" {
+                            let scopeID = params.count >= 2 ? Int(params[1]) : nil
+                            cancelMoveWindowAsync(scope: scopeID)
+                        } else {
+                            executeMoveCommand(args: params, async: true)
                         }
                     } else if first == "open", args.count >= 2 {
                         // Handle \![open,browser,URL] and \![open,mailer,email]

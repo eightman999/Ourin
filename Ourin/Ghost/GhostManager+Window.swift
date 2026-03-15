@@ -8,6 +8,33 @@ import UserNotifications
 // MARK: - Window Setup and Position Control
 
 extension GhostManager {
+    private struct WindowCommandStorage {
+        static var stickyIgnoreScopes: [ObjectIdentifier: Set<Int>] = [:]
+        static var asyncMoveWorkItems: [ObjectIdentifier: [Int: DispatchWorkItem]] = [:]
+    }
+
+    private var stickyIgnoreScopes: Set<Int> {
+        get { WindowCommandStorage.stickyIgnoreScopes[ObjectIdentifier(self)] ?? [] }
+        set { WindowCommandStorage.stickyIgnoreScopes[ObjectIdentifier(self)] = newValue }
+    }
+
+    private var asyncMoveWorkItems: [Int: DispatchWorkItem] {
+        get { WindowCommandStorage.asyncMoveWorkItems[ObjectIdentifier(self)] ?? [:] }
+        set { WindowCommandStorage.asyncMoveWorkItems[ObjectIdentifier(self)] = newValue }
+    }
+
+    private struct MoveCommandSpec {
+        var x: Int?
+        var y: Int?
+        var time: Int = 0
+        var method: String = ""
+        var scopeID: Int?
+        var base: String?
+        var baseOffset: String?
+        var moveOffset: String?
+        var ignoreStickyWindow: Bool = false
+    }
+
     // Note: This extension uses the following properties declared in the main GhostManager class:
     // - stickyWindowRelationships
 
@@ -134,16 +161,21 @@ extension GhostManager {
     }
     
     /// Synchronous window move
-    func moveWindow(scope: Int, x: Int, y: Int, time: Int, method: String) {
+    func moveWindow(scope: Int, x: Int, y: Int, time: Int, method: String, ignoreStickyWindow: Bool = false) {
         Log.debug("[GhostManager] Moving scope \(scope) to (\(x), \(y)) over \(time)ms with method '\(method)'")
         DispatchQueue.main.async {
             guard let window = self.characterWindows[scope] else {
                 Log.info("[GhostManager] No window found for scope \(scope)")
                 return
             }
-            
+
             let targetFrame = NSRect(x: CGFloat(x), y: CGFloat(y), width: window.frame.width, height: window.frame.height)
-            
+            if ignoreStickyWindow {
+                var ignored = self.stickyIgnoreScopes
+                ignored.insert(scope)
+                self.stickyIgnoreScopes = ignored
+            }
+
             if time > 0 {
                 // Animated move
                 NSAnimationContext.runAnimationGroup({ context in
@@ -151,13 +183,23 @@ extension GhostManager {
                     context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
                     window.animator().setFrame(targetFrame, display: true)
                 }, completionHandler: {
+                    if ignoreStickyWindow {
+                        var ignored = self.stickyIgnoreScopes
+                        ignored.remove(scope)
+                        self.stickyIgnoreScopes = ignored
+                    }
                     Log.debug("[GhostManager] Window move animation completed for scope \(scope)")
                 })
             } else {
                 // Instant move
                 window.setFrame(targetFrame, display: true)
+                if ignoreStickyWindow {
+                    var ignored = self.stickyIgnoreScopes
+                    ignored.remove(scope)
+                    self.stickyIgnoreScopes = ignored
+                }
             }
-            
+
             // Save new position
             self.resourceManager.setCharDefaultLeft(scope: scope, value: x)
             self.resourceManager.setCharDefaultTop(scope: scope, value: y)
@@ -165,13 +207,176 @@ extension GhostManager {
     }
     
     /// Asynchronous window move (non-blocking)
-    func moveWindowAsync(scope: Int, x: Int, y: Int, time: Int, method: String) {
+    func moveWindowAsync(scope: Int, x: Int, y: Int, time: Int, method: String, ignoreStickyWindow: Bool = false) {
         Log.debug("[GhostManager] Moving scope \(scope) asynchronously to (\(x), \(y))")
-        // Move asynchronously without blocking script execution
-        DispatchQueue.main.async {
-            self.moveWindow(scope: scope, x: x, y: y, time: time, method: method)
+        cancelMoveWindowAsync(scope: scope)
+
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            self.moveWindow(scope: scope, x: x, y: y, time: time, method: method, ignoreStickyWindow: ignoreStickyWindow)
+            var pending = self.asyncMoveWorkItems
+            pending.removeValue(forKey: scope)
+            self.asyncMoveWorkItems = pending
         }
-        // Don't wait for completion - script continues immediately
+        var pending = asyncMoveWorkItems
+        pending[scope] = workItem
+        asyncMoveWorkItems = pending
+
+        DispatchQueue.main.async(execute: workItem)
+    }
+
+    func cancelMoveWindowAsync(scope: Int?) {
+        var pending = asyncMoveWorkItems
+        if let scope {
+            pending[scope]?.cancel()
+            pending.removeValue(forKey: scope)
+            Log.debug("[GhostManager] Canceled async move for scope \(scope)")
+        } else {
+            for (_, workItem) in pending {
+                workItem.cancel()
+            }
+            pending.removeAll()
+            Log.debug("[GhostManager] Canceled all async move commands")
+        }
+        asyncMoveWorkItems = pending
+    }
+
+    func executeMoveCommand(args: [String], async: Bool) {
+        guard let spec = parseMoveCommand(args: args) else { return }
+        let scopeID = spec.scopeID ?? currentScope
+        guard let (x, y) = resolveMoveTarget(scope: scopeID, spec: spec) else { return }
+
+        if async {
+            moveWindowAsync(scope: scopeID, x: x, y: y, time: spec.time, method: spec.method, ignoreStickyWindow: spec.ignoreStickyWindow)
+        } else {
+            moveWindow(scope: scopeID, x: x, y: y, time: spec.time, method: spec.method, ignoreStickyWindow: spec.ignoreStickyWindow)
+        }
+    }
+
+    private func parseMoveCommand(args: [String]) -> MoveCommandSpec? {
+        var spec = MoveCommandSpec()
+        guard !args.isEmpty else { return nil }
+
+        if args.first?.lowercased() == "cancel" {
+            spec.method = "cancel"
+            if args.count >= 2 {
+                spec.scopeID = Int(args[1])
+            }
+            return spec
+        }
+
+        if args.contains(where: { $0.hasPrefix("--") }) {
+            for arg in args {
+                if arg == "--option=ignore-sticky-window" {
+                    spec.ignoreStickyWindow = true
+                    continue
+                }
+                guard arg.hasPrefix("--") else { continue }
+                let parts = arg.dropFirst(2).split(separator: "=", maxSplits: 1).map(String.init)
+                guard parts.count == 2 else { continue }
+                let key = parts[0].lowercased()
+                let value = parts[1]
+                switch key {
+                case "x":
+                    spec.x = Int(value)
+                case "y":
+                    spec.y = Int(value)
+                case "time":
+                    spec.time = Int(value) ?? 0
+                case "base":
+                    spec.base = value
+                case "base-offset":
+                    spec.baseOffset = value
+                case "move-offset":
+                    spec.moveOffset = value
+                case "method":
+                    spec.method = value
+                case "scope", "scopeid":
+                    spec.scopeID = Int(value)
+                case "option":
+                    if value.lowercased() == "ignore-sticky-window" {
+                        spec.ignoreStickyWindow = true
+                    }
+                default:
+                    break
+                }
+            }
+            return spec
+        }
+
+        guard args.count >= 2, let x = Int(args[0]), let y = Int(args[1]) else { return nil }
+        spec.x = x
+        spec.y = y
+        spec.time = args.count >= 3 ? (Int(args[2]) ?? 0) : 0
+        spec.method = args.count >= 4 ? args[3] : ""
+        spec.scopeID = args.count >= 5 ? Int(args[4]) : nil
+        return spec
+    }
+
+    private func resolveMoveTarget(scope: Int, spec: MoveCommandSpec) -> (Int, Int)? {
+        guard let window = characterWindows[scope] else { return nil }
+        let currentFrame = window.frame
+
+        if spec.method == "cancel" {
+            cancelMoveWindowAsync(scope: spec.scopeID ?? scope)
+            return nil
+        }
+
+        let baseRect = resolveMoveBaseRect(scope: scope, spec: spec) ?? currentFrame
+        let baseAnchorPoint = resolveAnchorPoint(token: spec.baseOffset, rect: baseRect) ?? CGPoint(x: baseRect.origin.x, y: baseRect.origin.y)
+        let moveAnchorPoint = resolveAnchorPoint(token: spec.moveOffset, rect: currentFrame) ?? CGPoint(x: 0, y: 0)
+
+        if spec.base != nil {
+            let targetX = Int(baseAnchorPoint.x + CGFloat(spec.x ?? 0) - moveAnchorPoint.x)
+            let targetY = Int(baseAnchorPoint.y + CGFloat(spec.y ?? 0) - moveAnchorPoint.y)
+            return (targetX, targetY)
+        }
+
+        return (spec.x ?? Int(currentFrame.origin.x), spec.y ?? Int(currentFrame.origin.y))
+    }
+
+    private func resolveMoveBaseRect(scope: Int, spec: MoveCommandSpec) -> CGRect? {
+        guard let base = spec.base?.lowercased() else { return nil }
+        switch base {
+        case "screen":
+            return NSScreen.main?.visibleFrame
+        case "window", "current":
+            return characterWindows[scope]?.frame
+        default:
+            if let value = Int(base) {
+                return characterWindows[value]?.frame
+            }
+            if base.hasPrefix("scope"), let value = Int(base.replacingOccurrences(of: "scope", with: "")) {
+                return characterWindows[value]?.frame
+            }
+            return nil
+        }
+    }
+
+    private func resolveAnchorPoint(token: String?, rect: CGRect) -> CGPoint? {
+        guard let token = token?.lowercased() else { return nil }
+        let parts = token.split(separator: ".", maxSplits: 1).map(String.init)
+        guard parts.count == 2 else { return nil }
+        let horizontal = parts[0]
+        let vertical = parts[1]
+
+        let x: CGFloat
+        switch horizontal {
+        case "left": x = rect.minX
+        case "center", "middle": x = rect.midX
+        case "right": x = rect.maxX
+        default: return nil
+        }
+
+        let y: CGFloat
+        switch vertical {
+        case "top": y = rect.maxY
+        case "center", "middle": y = rect.midY
+        case "bottom": y = rect.minY
+        default: return nil
+        }
+
+        return CGPoint(x: x, y: y)
     }
     
     /// Set window position for specific scope
@@ -279,6 +484,10 @@ extension GhostManager {
         guard let masterWindow = notification.object as? NSWindow,
               let masterScope = characterWindows.first(where: { $0.value == masterWindow })?.key,
               let followers = stickyWindowRelationships[masterScope] else {
+            return
+        }
+
+        if stickyIgnoreScopes.contains(masterScope) {
             return
         }
         
