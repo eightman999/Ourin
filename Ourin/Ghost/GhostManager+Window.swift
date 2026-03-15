@@ -378,6 +378,181 @@ extension GhostManager {
 
         return CGPoint(x: x, y: y)
     }
+
+    private func parseLongOptions(_ args: [String]) -> (named: [String: String], positional: [String]) {
+        var named: [String: String] = [:]
+        var positional: [String] = []
+        for arg in args {
+            guard arg.hasPrefix("--") else {
+                positional.append(arg)
+                continue
+            }
+            let body = String(arg.dropFirst(2))
+            let parts = body.split(separator: "=", maxSplits: 1).map(String.init)
+            if parts.count == 2 {
+                named[parts[0].lowercased()] = parts[1]
+            } else {
+                named[parts[0].lowercased()] = "true"
+            }
+        }
+        return (named, positional)
+    }
+
+    private func parseWaitFlag(_ named: [String: String], fallback: String?) -> Bool {
+        if let wait = named["wait"]?.lowercased() {
+            return wait == "1" || wait == "true" || wait == "yes"
+        }
+        guard let fallback = fallback?.lowercased() else { return false }
+        return fallback == "wait" || fallback == "--wait" || fallback == "true"
+    }
+
+    func executeSetScalingCommand(args: [String]) {
+        guard args.count >= 3 else { return }
+        let params = Array(args.dropFirst(2))
+        let parsed = parseLongOptions(params)
+
+        let xPercent: Double?
+        let yPercent: Double?
+        let timeMs: Double
+        let wait: Bool
+
+        if !parsed.named.isEmpty {
+            xPercent = Double(parsed.named["x"] ?? parsed.named["scaling"] ?? "")
+            yPercent = Double(parsed.named["y"] ?? "")
+            timeMs = Double(parsed.named["time"] ?? "0") ?? 0
+            wait = parseWaitFlag(parsed.named, fallback: parsed.positional.first)
+        } else {
+            xPercent = Double(params[0])
+            yPercent = params.count >= 2 ? Double(params[1]) : nil
+            timeMs = params.count >= 3 ? (Double(params[2]) ?? 0) : 0
+            wait = params.count >= 4 ? parseWaitFlag([:], fallback: params[3]) : false
+        }
+
+        guard let xPercent else { return }
+        let targetScaleX = xPercent / 100.0
+        let targetScaleY = (yPercent ?? xPercent) / 100.0
+
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            if timeMs > 0 {
+                NSAnimationContext.runAnimationGroup({ context in
+                    context.duration = timeMs / 1000.0
+                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    vm.scaleX = targetScaleX
+                    vm.scaleY = targetScaleY
+                })
+            } else {
+                vm.scaleX = targetScaleX
+                vm.scaleY = targetScaleY
+            }
+        }
+
+        if wait && timeMs > 0 {
+            playbackQueue.append(.wait(timeMs / 1000.0))
+        }
+    }
+
+    func executeSetAlphaCommand(args: [String]) {
+        guard args.count >= 3 else { return }
+        let params = Array(args.dropFirst(2))
+        let parsed = parseLongOptions(params)
+
+        let alphaPercent: Double?
+        let timeMs: Double
+        let wait: Bool
+
+        if !parsed.named.isEmpty {
+            alphaPercent = Double(parsed.named["value"] ?? parsed.named["alpha"] ?? "")
+            timeMs = Double(parsed.named["time"] ?? "0") ?? 0
+            wait = parseWaitFlag(parsed.named, fallback: parsed.positional.first)
+        } else {
+            alphaPercent = Double(params[0])
+            timeMs = params.count >= 2 ? (Double(params[1]) ?? 0) : 0
+            wait = params.count >= 3 ? parseWaitFlag([:], fallback: params[2]) : false
+        }
+
+        guard let alphaPercent else { return }
+        let targetAlpha = min(max(alphaPercent / 100.0, 0.0), 1.0)
+
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            if timeMs > 0 {
+                NSAnimationContext.runAnimationGroup({ context in
+                    context.duration = timeMs / 1000.0
+                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    vm.alpha = targetAlpha
+                })
+            } else {
+                vm.alpha = targetAlpha
+            }
+        }
+
+        if wait && timeMs > 0 {
+            playbackQueue.append(.wait(timeMs / 1000.0))
+        }
+    }
+
+    private func parseScopeTokenList(_ tokens: [String]) -> [Int] {
+        var result: [Int] = []
+        for token in tokens {
+            let lowered = token.lowercased()
+            if lowered == "current" {
+                result.append(currentScope)
+                continue
+            }
+            if lowered == "all" {
+                result.append(contentsOf: characterWindows.keys.sorted())
+                continue
+            }
+            let split = token.split { [",", ";", "|", "/"].contains($0) }.map(String.init)
+            for part in split {
+                if let id = Int(part.trimmingCharacters(in: .whitespaces)) {
+                    result.append(id)
+                }
+            }
+        }
+        var deduped: [Int] = []
+        for id in result where !deduped.contains(id) {
+            deduped.append(id)
+        }
+        return deduped
+    }
+
+    func executeSetZOrderCommand(args: [String]) {
+        guard args.count >= 3 else { return }
+        let tokens = Array(args.dropFirst(2))
+        let parsed = parseLongOptions(tokens)
+        let targetTokens = parsed.named["order"]?.split(separator: ",").map(String.init) ?? tokens
+        let scopes = parseScopeTokenList(targetTokens)
+        guard !scopes.isEmpty else { return }
+        setWindowZOrder(scopes: scopes)
+    }
+
+    func executeSetStickyWindowCommand(args: [String]) {
+        guard args.count >= 3 else { return }
+        let tokens = Array(args.dropFirst(2))
+        let parsed = parseLongOptions(tokens)
+        var groups: [[Int]] = []
+
+        if let groupSpec = parsed.named["group"] {
+            let rawGroups = groupSpec.split(separator: "|").map(String.init)
+            for raw in rawGroups {
+                let ids = parseScopeTokenList([raw])
+                if ids.count >= 2 { groups.append(ids) }
+            }
+        } else {
+            let ids = parseScopeTokenList(tokens)
+            if ids.count >= 2 { groups.append(ids) }
+        }
+
+        guard !groups.isEmpty else { return }
+        resetStickyWindow()
+        for group in groups {
+            let master = group[0]
+            let followers = Array(group.dropFirst())
+            setStickyWindow(masterScope: master, followerScopes: followers)
+        }
+    }
     
     /// Set window position for specific scope
     func setWindowPosition(x: Int, y: Int, scopeID: Int) {

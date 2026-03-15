@@ -67,16 +67,58 @@ extension GhostManager {
         
         DispatchQueue.main.async {
             guard let vm = self.characterViewModels[self.currentScope] else { return }
-            
-            // Store dressup binding
-            if vm.dressupBindings[category] == nil {
-                vm.dressupBindings[category] = [:]
+
+            let lowered = value.lowercased()
+            let disable = lowered == "0" || lowered == "false" || lowered == "off" || lowered == "none" || lowered == "default"
+            if disable {
+                vm.dressupBindings[category]?[part] = nil
+                if vm.dressupBindings[category]?.isEmpty == true {
+                    vm.dressupBindings[category] = nil
+                }
+            } else {
+                if vm.dressupBindings[category] == nil {
+                    vm.dressupBindings[category] = [:]
+                }
+                vm.dressupBindings[category]?[part] = value
             }
-            vm.dressupBindings[category]?[part] = value
             
             // TODO: Implement actual dressup rendering
             // This would load additional surface layers based on bindings
             Log.info("[GhostManager] Dressup binding set (rendering not yet implemented)")
+        }
+    }
+
+    func executeBindCommand(args: [String]) {
+        guard args.count >= 2 else { return }
+        let subcmd = args[1].lowercased()
+
+        if subcmd == "category" {
+            // \![bind,category,part,value]
+            if args.count >= 4 {
+                let category = args[2]
+                let part = args[3]
+                let value = args.count >= 5 ? args[4] : "true"
+                applyDressup(category: category, part: part, value: value)
+            }
+            return
+        }
+
+        // Supports repeated tuples: \![bind,cat,part,val,cat2,part2,val2,...]
+        if args.count >= 4 {
+            var idx = 1
+            while idx + 2 < args.count {
+                let category = args[idx]
+                let part = args[idx + 1]
+                let value = args[idx + 2]
+                handleBindDressup(category: category, part: part, value: value)
+                idx += 3
+            }
+            return
+        }
+
+        // Fallback: \![bind,cat,part] => true
+        if args.count == 3 {
+            handleBindDressup(category: args[1], part: args[2], value: "true")
         }
     }
     
@@ -139,6 +181,47 @@ extension GhostManager {
             
             Log.info("[GhostManager] Switched to balloon ID \(balloonID) for scope \(scope)")
         }
+    }
+
+    /// Switch balloon by numeric ID or balloon directory/name.
+    @discardableResult
+    func switchBalloon(named identifier: String, scope: Int, raiseEvent: Bool = false) -> Bool {
+        let trimmed = identifier.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            Log.info("[GhostManager] change,balloon ignored: empty identifier")
+            return false
+        }
+
+        let previousBalloon = balloonConfig?.name ?? ""
+        if raiseEvent {
+            EventBridge.shared.notify(.OnBalloonChange, params: ["Reference0": previousBalloon, "Reference1": trimmed, "Reference2": "changing"])
+        }
+
+        if let id = Int(trimmed) {
+            switchBalloon(to: id, scope: scope)
+            EventBridge.shared.notify(.OnBalloonChange, params: ["Reference0": previousBalloon, "Reference1": trimmed, "Reference2": "changed"])
+            return true
+        }
+
+        let baseBalloonDir = ghostURL.appendingPathComponent("balloon", isDirectory: true)
+        let namedBalloonDir = baseBalloonDir.appendingPathComponent(trimmed, isDirectory: true)
+        let descriptCandidates = [
+            namedBalloonDir.appendingPathComponent("descript.txt").path,
+            baseBalloonDir.appendingPathComponent("descript.txt").path
+        ]
+
+        for path in descriptCandidates {
+            guard let config = BalloonConfig.load(from: path) else { continue }
+            let dirPath = (path as NSString).deletingLastPathComponent
+            balloonConfig = config
+            balloonImageLoader = BalloonImageLoader(balloonPath: dirPath)
+            Log.info("[GhostManager] Switched balloon config to \(config.name)")
+            EventBridge.shared.notify(.OnBalloonChange, params: ["Reference0": previousBalloon, "Reference1": config.name, "Reference2": "changed"])
+            return true
+        }
+
+        Log.info("[GhostManager] Balloon not found: \(trimmed)")
+        return false
     }
 
     // MARK: - Desktop Alignment
