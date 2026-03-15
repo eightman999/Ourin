@@ -214,35 +214,14 @@ public enum SSTPDispatcher {
         data: String?,
         passThru: String?
     ) -> String {
-        let statusText = statusText(for: status)
-        var lines: [String] = [
-            "\(version) \(status) \(statusText)",
-            "Charset: \(charset)"
-        ]
-        if let passThru, !passThru.isEmpty {
-            lines.append("X-SSTP-PassThru: \(passThru)")
-        }
-        if let script, !script.isEmpty {
-            lines.append("Script: \(script)")
-        }
-        if let data, !data.isEmpty {
-            lines.append("Data: \(data)")
-        }
-        lines.append("")
-        lines.append("")
-        return lines.joined(separator: "\r\n")
-    }
-
-    private static func statusText(for status: Int) -> String {
-        switch status {
-        case 200: return "OK"
-        case 204: return "No Content"
-        case 400: return "Bad Request"
-        case 404: return "Not Found"
-        case 420: return "Refuse"
-        case 500: return "Internal Server Error"
-        case 501: return "Not Implemented"
-        default: return "Status"
-        }
+        var response = SSTPResponse(
+            version: version,
+            statusCode: status,
+            headers: ["Charset": charset]
+        )
+        response.setScript(script)
+        response.setData(data)
+        response.setPassThru(passThru)
+        return response.toWireFormat()
     }
 }
