@@ -1,6 +1,6 @@
 import Foundation
 
-public enum SerikoInterval: Equatable {
+public enum SerikoInterval: Hashable {
     case always
     case sometimes
     case rarely
