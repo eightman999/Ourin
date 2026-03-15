@@ -60,15 +60,37 @@ json YayaCore::executeCommand(const std::string& command, bool wait) {
 }
 
 json YayaCore::pluginOperation(const std::string& op, const json& params) {
+    static const std::unordered_set<std::string> supportedOps = {
+        "saori_load",
+        "saori_unload",
+        "saori_request"
+    };
+    if (supportedOps.find(op) == supportedOps.end()) {
+        return json{
+            {"ok", false},
+            {"error", "unsupported plugin operation: " + op}
+        };
+    }
+
     json req;
     req["operation"] = op;
     req["params"] = params;
     
     std::string response = requestHostOperation("plugin", req);
     try {
-        return json::parse(response);
-    } catch (...) {
-        return json{{"error", "failed to parse response"}};
+        auto parsed = json::parse(response);
+        if (!parsed.contains("ok")) {
+            return json{
+                {"ok", false},
+                {"error", "invalid plugin response: missing ok"}
+            };
+        }
+        return parsed;
+    } catch (const std::exception& e) {
+        return json{
+            {"ok", false},
+            {"error", std::string("failed to parse response: ") + e.what()}
+        };
     }
 }
 

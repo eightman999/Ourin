@@ -1810,7 +1810,7 @@ void VM::registerBuiltins() {
     };
     
     // LETTONAME(varname, value) - Assign to variable by name
-    builtins_["LETTONAME"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["LETTONAME"] = [this](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string varName = args[0].asString();
         setVariable(varName, args[1]);
@@ -2006,29 +2006,47 @@ void VM::registerBuiltins() {
         return Value("");
     };
     
-    // LOADLIB(filename) - Load SAORI/Plugin library
-    // Note: This requires integration with Swift PluginRegistry
-    // For now, returns success to allow scripts to run
+    // LOADLIB(filename) - Load SAORI library
     builtins_["LOADLIB"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
-        // TODO: Integrate with Swift PluginRegistry through callback
-        return Value(1); // Return success for compatibility
+        if (!callback_) return Value(0);
+
+        nlohmann::json params;
+        params["module"] = args[0].asString();
+        auto result = callback_->pluginOperation("saori_load", params);
+        bool ok = result.value("ok", false);
+        return Value(ok ? 1 : 0);
     };
     
-    // UNLOADLIB(filename) - Unload SAORI/Plugin library
-    // Note: This requires integration with Swift PluginRegistry
+    // UNLOADLIB(filename) - Unload SAORI library
     builtins_["UNLOADLIB"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
-        // TODO: Integrate with Swift PluginRegistry through callback
-        return Value(1); // Return success for compatibility
+        if (!callback_) return Value(0);
+
+        nlohmann::json params;
+        params["module"] = args[0].asString();
+        auto result = callback_->pluginOperation("saori_unload", params);
+        bool ok = result.value("ok", false);
+        return Value(ok ? 1 : 0);
     };
     
-    // REQUESTLIB(filename, request_text) - Request from SAORI/Plugin library
-    // Note: This requires integration with Swift PluginRegistry
+    // REQUESTLIB(filename, request_text) - Request from SAORI library
     builtins_["REQUESTLIB"] = [this](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value("");
-        // TODO: Integrate with Swift PluginRegistry through callback
-        // For now, return empty response
+        if (!callback_) return Value("");
+
+        nlohmann::json params;
+        params["module"] = args[0].asString();
+        params["request"] = args[1].asString();
+        params["charset"] = (args.size() >= 3) ? args[2].asString() : "UTF-8";
+
+        auto result = callback_->pluginOperation("saori_request", params);
+        bool ok = result.value("ok", false);
+        if (!ok) return Value("");
+
+        if (result.contains("response") && result["response"].is_string()) {
+            return Value(result["response"].get<std::string>());
+        }
         return Value("");
     };
     

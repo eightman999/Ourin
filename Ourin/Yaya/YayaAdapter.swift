@@ -79,6 +79,15 @@ final class YayaAdapter {
     /// Send encodable object as one JSON line.
     private func send<T: Encodable>(_ obj: T) throws {
         let data = try JSONEncoder().encode(obj)
+        try sendJSONLine(data)
+    }
+
+    private func sendJSONObject(_ obj: [String: Any]) throws {
+        let data = try JSONSerialization.data(withJSONObject: obj)
+        try sendJSONLine(data)
+    }
+
+    private func sendJSONLine(_ data: Data) throws {
         inPipe.fileHandleForWriting.write(data)
         inPipe.fileHandleForWriting.write(Data([0x0a]))
     }
@@ -101,32 +110,41 @@ final class YayaAdapter {
         Log.debug("[YayaAdapter] exchange() sending request: cmd=\(req.cmd), id=\(req.id ?? "nil")")
         try send(req)
         Log.debug("[YayaAdapter] exchange() request sent, waiting for response...")
-        guard let line = try readLine() else {
-            NSLog("[YayaAdapter] exchange() readLine() returned nil")
-            return nil
-        }
-        Log.debug("[YayaAdapter] exchange() received \(line.count) bytes, decoding...")
+        while true {
+            guard let line = try readLine() else {
+                NSLog("[YayaAdapter] exchange() readLine() returned nil")
+                return nil
+            }
 
-        // Debug: Show raw JSON string before decoding
-        if let jsonStr = String(data: line, encoding: .utf8) {
-            let preview = String(jsonStr.prefix(300))
-            Log.debug("[YayaAdapter] Raw JSON preview: \(preview)")
-            // Count backslashes in JSON
-            let backslashCount = jsonStr.filter { $0 == "\\" }.count
-            Log.debug("[YayaAdapter] Backslash count in JSON: \(backslashCount)")
-        }
+            if let jsonAny = try? JSONSerialization.jsonObject(with: line),
+               let jsonObj = jsonAny as? [String: Any],
+               let hostOp = jsonObj["host_op"] as? String {
+                try handleHostOperation(hostOp, payload: jsonObj)
+                continue
+            }
 
-        let response = try JSONDecoder().decode(YayaResponse.self, from: line)
-        Log.debug("[YayaAdapter] exchange() decoded response: ok=\(response.ok)")
-
-        // Debug: Show decoded value with backslash count
-        if let value = response.value {
-            let preview = String(value.prefix(200))
-            Log.debug("[YayaAdapter] Decoded value preview: \(preview)")
-            let backslashCount = value.filter { $0 == "\\" }.count
-            Log.debug("[YayaAdapter] Backslash count in decoded value: \(backslashCount)")
+            Log.debug("[YayaAdapter] exchange() received \(line.count) bytes, decoding...")
+            let response = try JSONDecoder().decode(YayaResponse.self, from: line)
+            Log.debug("[YayaAdapter] exchange() decoded response: ok=\(response.ok)")
+            if let value = response.value {
+                let preview = String(value.prefix(200))
+                Log.debug("[YayaAdapter] Decoded value preview: \(preview)")
+            }
+            return response
         }
-        return response
+    }
+
+    private func handleHostOperation(_ hostOp: String, payload: [String: Any]) throws {
+        switch hostOp {
+        case "plugin":
+            let req = payload["params"] as? [String: Any] ?? [:]
+            let operation = req["operation"] as? String ?? ""
+            let params = req["params"] as? [String: Any] ?? [:]
+            let response = handlePluginOperation(operation, params: params)
+            try sendJSONObject(response)
+        default:
+            try sendJSONObject(["ok": false, "error": "unsupported host_op: \(hostOp)"])
+        }
     }
 
     /// Try an exchange with timeout; returns nil on timeout.
@@ -161,9 +179,7 @@ final class YayaAdapter {
                     // Create a manual JSON request since YayaRequest doesn't have message_path
                     do {
                         let msgDict: [String: Any] = ["cmd": "load_messages", "message_path": messagePath.path]
-                        let msgData = try JSONSerialization.data(withJSONObject: msgDict)
-                        inPipe.fileHandleForWriting.write(msgData)
-                        inPipe.fileHandleForWriting.write(Data([0x0a]))
+                        try sendJSONObject(msgDict)
 
                         // Read response
                         if let line = try readLine() {
