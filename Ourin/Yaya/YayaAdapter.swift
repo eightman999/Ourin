@@ -292,7 +292,7 @@ final class YayaAdapter {
         saoriManager.unloadAll()
     }
 
-    /// Bridge helper for upcoming yaya_core SAORI plugin operations.
+    /// Bridge helper for yaya_core SAORI request operations.
     func handleSaoriRequest(module: String, request: String, charset: String = "UTF-8") -> String? {
         do {
             return try saoriManager.request(moduleName: module, requestText: request, charset: charset)
@@ -303,7 +303,61 @@ final class YayaAdapter {
     }
 
     func handlePluginOperation(_ operation: String, params: [String: Any]) -> [String: Any] {
-        saoriManager.handlePluginOperation(operation, params: params)
+        switch operation {
+        case "saori_load":
+            guard let module = params["module"] as? String, !module.isEmpty else {
+                return ["ok": false, "error": "module parameter required"]
+            }
+            do {
+                _ = try saoriManager.loadModule(named: module)
+                return ["ok": true]
+            } catch {
+                NSLog("[YayaAdapter] SAORI load failed: \(error)")
+                return ["ok": false, "error": "\(error)"]
+            }
+
+        case "saori_unload":
+            guard let module = params["module"] as? String, !module.isEmpty else {
+                return ["ok": false, "error": "module parameter required"]
+            }
+            saoriManager.unloadModule(named: module)
+            return ["ok": true]
+
+        case "saori_request":
+            guard let module = params["module"] as? String, !module.isEmpty else {
+                return ["ok": false, "error": "module parameter required"]
+            }
+            let requestText = (params["request"] as? String) ?? ""
+            let charset = (params["charset"] as? String) ?? "UTF-8"
+            guard let response = handleSaoriRequest(module: module, request: requestText, charset: charset) else {
+                return ["ok": false, "error": "saori request failed"]
+            }
+            return ["ok": true, "response": response]
+
+        case "saori_execute":
+            guard let module = params["module"] as? String, !module.isEmpty else {
+                return ["ok": false, "error": "module parameter required"]
+            }
+            let charset = (params["charset"] as? String) ?? "UTF-8"
+            let securityLevel = params["securityLevel"] as? String
+            let securityOrigin = params["securityOrigin"] as? String
+            let arguments = (params["arguments"] as? [String]) ?? []
+            do {
+                let response = try saoriManager.execute(
+                    moduleName: module,
+                    arguments: arguments,
+                    charset: charset,
+                    securityLevel: securityLevel,
+                    securityOrigin: securityOrigin
+                )
+                return ["ok": true, "status": response.statusCode, "response": SaoriProtocol.buildResponse(response)]
+            } catch {
+                return ["ok": false, "error": "\(error)"]
+            }
+
+        default:
+            return ["ok": false, "error": "unsupported operation: \(operation)"]
+        }
     }
 }
 

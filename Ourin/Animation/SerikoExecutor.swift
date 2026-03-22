@@ -9,6 +9,7 @@ public final class SerikoExecutor {
         public var offsetX: Int
         public var offsetY: Int
         public var lastTickAt: Date
+        public var stepDirection: Int  // 1: forward, -1: backward (for ping-pong)
     }
 
     public private(set) var activeAnimations: [Int: AnimationState] = [:]
@@ -35,9 +36,23 @@ public final class SerikoExecutor {
         definitions.merge(animations) { _, new in new }
     }
 
+    /// Return registered definition for an animation id
+    public func definition(for id: Int) -> SerikoParser.AnimationDefinition? {
+        definitions[id]
+    }
+
     @discardableResult
     public func executeAnimation(id: Int) -> Bool {
         guard let definition = definitions[id], !definition.patterns.isEmpty else { return false }
+        if hasOption("shared", in: definition), activeAnimations[id] != nil {
+            return true
+        }
+        if let series = definition.seriesOption {
+            stopAnimations(inSeries: series, except: id)
+        }
+        if hasOption("exclusive", in: definition) {
+            stopAnimations(except: id)
+        }
         let now = nowProvider()
         let state = AnimationState(
             animationID: id,
@@ -46,7 +61,8 @@ public final class SerikoExecutor {
             isPaused: false,
             offsetX: 0,
             offsetY: 0,
-            lastTickAt: now
+            lastTickAt: now,
+            stepDirection: 1
         )
         activeAnimations[id] = state
         executeCurrentPattern(for: id)
@@ -69,16 +85,30 @@ public final class SerikoExecutor {
                 continue
             }
 
-            state.currentPatternIndex += 1
+            // advance by step (supports ping-pong)
+            state.currentPatternIndex += max(min(state.stepDirection, 1), -1)
             state.lastTickAt = now
 
-            if state.currentPatternIndex >= state.definition.patterns.count {
+            let count = state.definition.patterns.count
+            if state.currentPatternIndex >= count || state.currentPatternIndex < 0 {
                 if case .runonce = state.definition.interval {
+                    // runonce: finish immediately
                     activeAnimations.removeValue(forKey: id)
                     onAnimationFinished?(id)
                     continue
                 }
-                state.currentPatternIndex = 0
+                if state.definition.pingPong && count > 1 {
+                    // reverse direction and bounce inside range
+                    state.stepDirection *= -1
+                    if state.currentPatternIndex >= count {
+                        state.currentPatternIndex = count - 2
+                    } else if state.currentPatternIndex < 0 {
+                        state.currentPatternIndex = 1
+                    }
+                } else {
+                    // simple loop
+                    state.currentPatternIndex = 0
+                }
             }
             activeAnimations[id] = state
             executeCurrentPattern(for: id)
@@ -196,7 +226,14 @@ public final class SerikoExecutor {
     private func startScheduledAnimations(now: Date) {
         for (id, definition) in definitions {
             guard activeAnimations[id] == nil else { continue }
+            if let series = definition.seriesOption,
+               hasActiveAnimation(inSeries: series, excluding: id) {
+                continue
+            }
             guard shouldStart(definition: definition, animationID: id) else { continue }
+            if hasOption("exclusive", in: definition) {
+                stopAnimations(except: id)
+            }
 
             let state = AnimationState(
                 animationID: id,
@@ -210,6 +247,46 @@ public final class SerikoExecutor {
             activeAnimations[id] = state
             executeCurrentPattern(for: id)
         }
+    }
+
+    private func hasOption(_ option: String, in definition: SerikoParser.AnimationDefinition) -> Bool {
+        let target = option.lowercased()
+        return definition.options.contains { $0.lowercased() == target }
+    }
+
+    private func stopAnimations(except animationID: Int) {
+        let targets = activeAnimations.keys.filter { id in
+            id != animationID && !isBackgroundAnimation(id)
+        }
+        for id in targets {
+            stopAnimation(id: id)
+        }
+    }
+
+    private func stopAnimations(inSeries series: String, except animationID: Int) {
+        let normalized = series.lowercased()
+        let targets = activeAnimations.keys.filter { id in
+            guard id != animationID else { return false }
+            guard let definition = definitions[id], let currentSeries = definition.seriesOption else { return false }
+            return currentSeries.lowercased() == normalized
+        }
+        for id in targets {
+            stopAnimation(id: id)
+        }
+    }
+
+    private func hasActiveAnimation(inSeries series: String, excluding animationID: Int) -> Bool {
+        let normalized = series.lowercased()
+        return activeAnimations.keys.contains { id in
+            guard id != animationID else { return false }
+            guard let definition = definitions[id], let currentSeries = definition.seriesOption else { return false }
+            return currentSeries.lowercased() == normalized
+        }
+    }
+
+    private func isBackgroundAnimation(_ animationID: Int) -> Bool {
+        guard let state = activeAnimations[animationID] else { return false }
+        return hasOption("background", in: state.definition)
     }
 
     private func shouldStart(definition: SerikoParser.AnimationDefinition, animationID: Int) -> Bool {

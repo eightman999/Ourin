@@ -43,6 +43,7 @@ public struct OwnerDrawMenuConfig {
     public var separatorColor: NSColor = NSColor(red: 0, green: 0, blue: 0, alpha: 1)
     public var disabledColor: NSColor = NSColor(red: 120, green: 120, blue: 120, alpha: 1)
     public var frameColor: NSColor? = nil
+    public var customColors: [String: NSColor] = [:]
     
     // フォント
     public var font: NSFont = NSFont.systemFont(ofSize: 13)

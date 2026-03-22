@@ -149,8 +149,14 @@ For practical use while maintaining security:
   - `SLEEP` - Thread sleep functionality
   
 - **SAORI/Plugin Functions**: Partially implemented
-  - `LOADLIB`, `UNLOADLIB`, `REQUESTLIB` return compatibility values
-  - Full integration requires connecting to Swift PluginRegistry (future enhancement)
+  - `LOADLIB`, `UNLOADLIB`, `REQUESTLIB` return compatibility values (stubs)
+  - **NOT INTEGRATED with Swift SaoriManager**
+  - Integration requires:
+    - VM.cpp to emit JSON "host_op" for plugin operations
+    - YayaCore.cpp to handle "host_op" and route to Swift
+    - YayaAdapter.handlePluginOperation() to delegate to SaoriManager
+  - See BLOCKER_TRACKER.md ID-001, ID-002
+  - See INTEGRATION_ROADMAP.md Phase 1 for integration steps
 
 ### Limited Implementations
 - **Regular Expressions**: RE_* functions are stubs (would require regex library integration)

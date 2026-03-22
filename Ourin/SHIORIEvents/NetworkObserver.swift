@@ -23,6 +23,7 @@ final class NetworkObserver {
                 self.lastStatus = status
                 let value = status == .satisfied ? "online" : "offline"
                 self.handler?(ShioriEvent(id: .OnNetworkStatusChange, params: ["Status": value]))
+                self.handler?(ShioriEvent(id: status == .satisfied ? .OnNetworkOnline : .OnNetworkOffline, params: [:]))
             }
             if path.isExpensive != self.lastExpensive {
                 self.lastExpensive = path.isExpensive

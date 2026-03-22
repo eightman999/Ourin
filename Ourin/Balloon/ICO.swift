@@ -27,7 +27,9 @@ struct BITMAPINFOHEADER {
     var biClrUsed: UInt32; var biClrImportant: UInt32
 }
 
-@inline(__always) private func loadLE<T>(_ data: Data, _ off: Int) -> T { data.withUnsafeBytes { $0.baseAddress!.advanced(by: off).load(as: T.self) } }
+@inline(__always) private func loadLE<T>(_ data: Data, _ off: Int) -> T {
+    data.withUnsafeBytes { $0.loadUnaligned(fromByteOffset: off, as: T.self) }
+}
 private let pngSig: [UInt8] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
 
 public enum OurinICOError: Error { case invalid, unsupported }
@@ -69,7 +71,7 @@ public func parseICOorCUR(_ data: Data) throws -> OurinIcoCurImage {
     }
     // PNG でない場合は 32bpp BMP と仮定してデコードする
     if payload.count < 40 { throw OurinICOError.unsupported }
-    let bih: BITMAPINFOHEADER = payload.withUnsafeBytes { $0.load(as: BITMAPINFOHEADER.self) }
+    let bih: BITMAPINFOHEADER = payload.withUnsafeBytes { $0.loadUnaligned(as: BITMAPINFOHEADER.self) }
     guard bih.biSize >= 40, bih.biCompression == 0, bih.biBitCount == 32 else { throw OurinICOError.unsupported }
     let w = Int(bih.biWidth)
     let h = Int(bih.biHeight) / 2

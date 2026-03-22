@@ -72,13 +72,22 @@ json YayaCore::pluginOperation(const std::string& op, const json& params) {
         };
     }
 
+    return handlePluginOperation(op, params);
+}
+
+json YayaCore::handlePluginOperation(const std::string& op, const json& params) {
     json req;
     req["operation"] = op;
     req["params"] = params;
-    
+
     std::string response = requestHostOperation("plugin", req);
     try {
         auto parsed = json::parse(response);
+        // Allow either a direct plugin response, or a wrapped host_op response.
+        if (parsed.contains("host_op") && parsed.value("host_op", "") == "plugin" &&
+            parsed.contains("params") && parsed["params"].is_object()) {
+            parsed = parsed["params"];
+        }
         if (!parsed.contains("ok")) {
             return json{
                 {"ok", false},

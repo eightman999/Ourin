@@ -9,6 +9,7 @@ import UserNotifications
 /// ViewModel for the character view.
 class CharacterViewModel: ObservableObject {
     @Published var image: NSImage?
+    @Published var currentSurfaceID: Int = 0
 
     // Visual effects state (persists until ghost terminates)
     @Published var scaleX: Double = 1.0
@@ -80,11 +81,14 @@ class BalloonViewModel: ObservableObject {
     @Published var fontItalic: Bool = false
     @Published var fontUnderline: Bool = false
     @Published var fontStrike: Bool = false
+    @Published var fontSubscript: Bool = false
+    @Published var fontSuperscript: Bool = false
     @Published var fontColor: NSColor = .textColor
     @Published var anchorFontColor: NSColor = .linkColor
     @Published var anchorActive: Bool = false
     @Published var shadowColor: NSColor = .clear
     @Published var shadowStyle: BalloonShadowStyle = .none
+    @Published var outlineWidth: CGFloat = 0
     @Published var textAlign: BalloonTextAlign = .left
     @Published var textVAlign: BalloonTextVAlign = .top
 
@@ -92,6 +96,9 @@ class BalloonViewModel: ObservableObject {
     @Published var autoscrollEnabled: Bool = true
     @Published var balloonTimeout: TimeInterval = 60
     @Published var balloonWaitEnabled: Bool = true
+    @Published var balloonWaitMultiplier: Double = 1.0
+    @Published var balloonMarkerText: String = ""
+    @Published var balloonNumberVisible: Bool = false
     @Published var repaintLocked: Bool = false
     @Published var balloonMoveLocked: Bool = false
 
@@ -185,6 +192,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case surface(Int)
         case wait(TimeInterval)
         case waitUntil(TimeInterval) // seconds from precise base
+        case waitAnimation(Int) // wait until SERIKO animation ID completes
         case resetPrecise
         case clickWait(noclear: Bool)
         case end
@@ -223,9 +231,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var localEventTimers: [String: Timer] = [:]
     var remoteEventTimers: [String: Timer] = [:]
     var pluginEventTimers: [String: Timer] = [:]
+    var selectModeActive: Bool = false
+    var collisionModeActive: Bool = false
+    var passiveModeActive: Bool = false
+    var inductionModeActive: Bool = false
+    var noUserBreakModeActive: Bool = false
 
     // Dressup configuration
     var dressupConfigurations: [DressupConfig] = []
+    var dressupBindGroupsByScope: [Int: [Int: DressupBindGroupMeta]] = [:]
+    var dressupMenuItemsByScope: [Int: [Int: Int]] = [:] // scope -> menuIndex -> bindgroupID
 
     enum ChoiceAction {
         case event(id: String, references: [String])
@@ -244,6 +259,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let x: Int
         let y: Int
         let overlay: Bool
+    }
+
+    struct DressupBindGroupMeta: Equatable {
+        let scope: Int
+        let bindGroupID: Int
+        let category: String
+        let part: String
+        let thumbnail: String?
+        let isDefault: Bool
     }
 
     // MARK: - Initialization
@@ -293,6 +317,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     
     func loadDressupConfiguration() {
         dressupConfigurations.removeAll()
+        dressupBindGroupsByScope.removeAll()
+        dressupMenuItemsByScope.removeAll()
         // Load dressup configuration from shell descript.txt
         guard let shellPath = loadShellPath() else { return }
         let descriptPath = shellPath.appendingPathComponent("descript.txt")
@@ -309,18 +335,53 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             return
         }
 
-        // Parse dressup binding format from descript.txt
-        // Format: dressup,category,partName,surfaceID,x,y
-        var config: DressupConfig? = nil
-        var parts: [DressupPartBinding] = []
+        let parsed = Self.parseDressupMetadata(content: fileContent)
+        let partsByCategory = parsed.partsByCategory
 
-        let lines = fileContent.components(separatedBy: .newlines)
+        if partsByCategory.isEmpty {
+            Log.debug("[GhostManager] No dressup configuration found in descript.txt")
+        } else {
+            let configs = partsByCategory
+                .map { DressupConfig(category: $0.key, parts: $0.value) }
+                .sorted { $0.category < $1.category }
+            dressupConfigurations.append(contentsOf: configs)
+            let totalParts = configs.reduce(0) { $0 + $1.parts.count }
+            Log.debug("[GhostManager] Dressup configuration loaded: categories=\(configs.count), parts=\(totalParts)")
+        }
+
+        for (scope, groups) in parsed.bindGroupNameByScope {
+            for (id, groupValue) in groups {
+                let meta = DressupBindGroupMeta(
+                    scope: scope,
+                    bindGroupID: id,
+                    category: groupValue.category,
+                    part: groupValue.part,
+                    thumbnail: groupValue.thumbnail,
+                    isDefault: parsed.bindGroupDefaultByScope[scope]?[id] ?? false
+                )
+                dressupBindGroupsByScope[scope, default: [:]][id] = meta
+            }
+        }
+        dressupMenuItemsByScope = parsed.menuItemsByScope
+    }
+
+    static func parseDressupMetadata(content: String) -> (
+        partsByCategory: [String: [DressupPartBinding]],
+        bindGroupNameByScope: [Int: [Int: (category: String, part: String, thumbnail: String?)]],
+        bindGroupDefaultByScope: [Int: [Int: Bool]],
+        menuItemsByScope: [Int: [Int: Int]]
+    ) {
+        var partsByCategory: [String: [DressupPartBinding]] = [:]
+        var bindGroupNameByScope: [Int: [Int: (category: String, part: String, thumbnail: String?)]] = [:]
+        var bindGroupDefaultByScope: [Int: [Int: Bool]] = [:]
+        var menuItemsByScope: [Int: [Int: Int]] = [:]
+
+        let lines = content.components(separatedBy: .newlines)
         for line in lines {
             let trimmedLine = line.trimmingCharacters(in: .whitespaces)
             guard !trimmedLine.isEmpty, !trimmedLine.hasPrefix("//") else { continue }
 
             if trimmedLine.lowercased().hasPrefix("dressup,") {
-                // Parse dressup binding line
                 let components = trimmedLine.split(separator: ",", maxSplits: 5)
                 if components.count >= 4 {
                     let category = String(components[1]).trimmingCharacters(in: .whitespaces)
@@ -329,28 +390,100 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     let x = components.count >= 5 ? Int(components[4]) ?? 0 : 0
                     let y = components.count >= 6 ? Int(components[5]) ?? 0 : 0
 
-                    parts.append(DressupPartBinding(
+                    let binding = DressupPartBinding(
                         partName: partName,
                         surfaceID: surfaceID,
                         x: x,
                         y: y,
                         overlay: true
-                    ))
-
-                    // Store config (single category per file for now)
-                    if config == nil {
-                        config = DressupConfig(category: category, parts: parts)
-                    }
+                    )
+                    partsByCategory[category, default: []].append(binding)
                 }
+                continue
+            }
+
+            let segments = trimmedLine.split(separator: ",", maxSplits: 1).map(String.init)
+            guard !segments.isEmpty else { continue }
+            let key = segments[0].trimmingCharacters(in: .whitespaces)
+            let value = segments.count > 1 ? segments[1].trimmingCharacters(in: .whitespaces) : ""
+
+            if let parsed = parseBindGroupNameKey(key) {
+                let fields = value.split(separator: ",", maxSplits: 2).map { String($0).trimmingCharacters(in: .whitespaces) }
+                if fields.count >= 2 {
+                    let thumbnail = fields.count >= 3 && !fields[2].isEmpty ? fields[2] : nil
+                    bindGroupNameByScope[parsed.scope, default: [:]][parsed.bindGroupID] = (
+                        category: fields[0],
+                        part: fields[1],
+                        thumbnail: thumbnail
+                    )
+                }
+                continue
+            }
+
+            if let parsed = parseBindGroupDefaultKey(key) {
+                let flag = value == "1" || value.lowercased() == "true"
+                bindGroupDefaultByScope[parsed.scope, default: [:]][parsed.bindGroupID] = flag
+                continue
+            }
+
+            if let parsed = parseMenuItemKey(key), let bindID = Int(value) {
+                menuItemsByScope[parsed.scope, default: [:]][parsed.menuIndex] = bindID
             }
         }
 
-        if let finalConfig = config {
-            dressupConfigurations.append(finalConfig)
-            Log.debug("[GhostManager] Dressup configuration loaded: \(finalConfig.category) with \(finalConfig.parts.count) parts")
-        } else {
-            Log.debug("[GhostManager] No dressup configuration found in descript.txt")
+        return (partsByCategory, bindGroupNameByScope, bindGroupDefaultByScope, menuItemsByScope)
+    }
+
+    private static func parseBindGroupNameKey(_ key: String) -> (scope: Int, bindGroupID: Int)? {
+        guard let regex = try? NSRegularExpression(pattern: #"^(sakura|kero|char\d+)\.bindgroup(\d+)\.name$"#, options: [.caseInsensitive]) else {
+            return nil
         }
+        let nsKey = key as NSString
+        guard let match = regex.firstMatch(in: key, range: NSRange(location: 0, length: nsKey.length)),
+              let scopeRange = Range(match.range(at: 1), in: key),
+              let idRange = Range(match.range(at: 2), in: key),
+              let bindGroupID = Int(key[idRange]) else {
+            return nil
+        }
+        return (scopeTokenToID(String(key[scopeRange])), bindGroupID)
+    }
+
+    private static func parseBindGroupDefaultKey(_ key: String) -> (scope: Int, bindGroupID: Int)? {
+        guard let regex = try? NSRegularExpression(pattern: #"^(sakura|kero|char\d+)\.bindgroup(\d+)\.default$"#, options: [.caseInsensitive]) else {
+            return nil
+        }
+        let nsKey = key as NSString
+        guard let match = regex.firstMatch(in: key, range: NSRange(location: 0, length: nsKey.length)),
+              let scopeRange = Range(match.range(at: 1), in: key),
+              let idRange = Range(match.range(at: 2), in: key),
+              let bindGroupID = Int(key[idRange]) else {
+            return nil
+        }
+        return (scopeTokenToID(String(key[scopeRange])), bindGroupID)
+    }
+
+    private static func parseMenuItemKey(_ key: String) -> (scope: Int, menuIndex: Int)? {
+        guard let regex = try? NSRegularExpression(pattern: #"^(sakura|kero|char\d+)\.menuitem(\d+)$"#, options: [.caseInsensitive]) else {
+            return nil
+        }
+        let nsKey = key as NSString
+        guard let match = regex.firstMatch(in: key, range: NSRange(location: 0, length: nsKey.length)),
+              let scopeRange = Range(match.range(at: 1), in: key),
+              let indexRange = Range(match.range(at: 2), in: key),
+              let menuIndex = Int(key[indexRange]) else {
+            return nil
+        }
+        return (scopeTokenToID(String(key[scopeRange])), menuIndex)
+    }
+
+    private static func scopeTokenToID(_ token: String) -> Int {
+        let lowered = token.lowercased()
+        if lowered == "sakura" { return 0 }
+        if lowered == "kero" { return 1 }
+        if lowered.hasPrefix("char"), let value = Int(lowered.dropFirst(4)) {
+            return value
+        }
+        return 0
     }
     
     func saveCharacterNames(sakuraName: String, keroName: String?) {
@@ -387,6 +520,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             if let config = GhostConfiguration.load(from: ghostRoot) {
                 self.ghostConfig = config
                 self.activeShellName = config.defaultShellDirectory.isEmpty ? "master" : config.defaultShellDirectory
+                self.loadDressupConfiguration()
                 Log.info("[GhostManager] Loaded ghost configuration: \(config.name)")
                 Log.debug("[GhostManager]   - Sakura: \(config.sakuraName), Kero: \(config.keroName ?? "none")")
                 Log.debug("[GhostManager]   - SHIORI: \(config.shiori)")
@@ -394,6 +528,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
                 // Apply configuration settings to environment
                 self.applyGhostConfiguration(config, ghostRoot: ghostRoot)
+                DispatchQueue.main.async {
+                    self.applyDefaultDressupBindings(for: self.currentScope)
+                }
                 
                 // Send OnNotifySelfInfo only if names are not yet persisted
                 let defaults = UserDefaults.standard
@@ -472,13 +609,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             let loadTime = Date().timeIntervalSince(loadStart)
             Log.debug("[GhostManager] Dictionary load complete in \(String(format: "%.2f", loadTime))s")
 
-            // Per UKADOC, OnFirstBoot/OnBoot are GET events (not NOTIFY).
+            let defaults = UserDefaults.standard
+            let bootCount = defaults.integer(forKey: "OurinBootCount")
+
+            // Per UKADOC, OnFirstBoot/OnSecondBoot/OnBoot are GET events (not NOTIFY).
             // Only emit an internal OnInitialize notify; GET is handled below via obtainBootScript().
             DispatchQueue.main.async {
                 EventBridge.shared.notify(.OnInitialize)
-                let defaults = UserDefaults.standard
-                let count = defaults.integer(forKey: "OurinBootCount")
-                defaults.set(count + 1, forKey: "OurinBootCount")
+                defaults.set(bootCount + 1, forKey: "OurinBootCount")
             }
 
             // Start EventBridge immediately after OnBoot load (dictionary loading completed)
@@ -492,7 +630,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             let sem = DispatchSemaphore(value: 0)
 
             DispatchQueue.global(qos: .userInitiated).async {
-                let script = self.obtainBootScript(using: adapter)
+                let script = self.obtainBootScript(using: adapter, bootCount: bootCount)
                 if let script = script {
                     let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
                     if !trimmed.isEmpty {
@@ -624,8 +762,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case .animation(let id, let wait):
             // \i[ID] or \i[ID,wait] - play surface animation
             if wait {
-                // Wait for animation to complete before continuing
-                playAnimationAndWait(id: id)
+                // Start animation then enqueue a wait-for-animation unit
+                playAnimation(id: id, wait: false)
+                playbackQueue.append(.waitAnimation(id))
             } else {
                 // Play animation without waiting
                 playAnimation(id: id, wait: false)
@@ -660,17 +799,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             showChoiceDialog()
         
         case .choiceLineBr:
-            // \- - terminate this ghost after script playback (ukadoc semantics).
-            // Backward compatibility: while collecting choices, keep old line-break behavior.
-            if !pendingChoices.isEmpty {
-                playbackQueue.append(.newline)
-            } else {
-                playbackQueue.append(.deferredCommand {
-                    DispatchQueue.main.async {
-                        self.executeVanish()
-                    }
-                })
-            }
+            // \- - line break in choice context / compatibility newline.
+            playbackQueue.append(.newline)
         
         case .moveAway:
             // \4 - Move window to back (away from other windows)
@@ -737,6 +867,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 if let first = args.first?.lowercased() {
                     if first == "clear" {
                         playbackQueue.append(.resetPrecise)
+                    } else if first == "animation" {
+                        // \__w[animation,ID] – wait until SERIKO animation with ID completes
+                        if args.count >= 2, let animID = Int(args[1]) {
+                            playbackQueue.append(.waitAnimation(animID))
+                        }
                     } else if let ms = Double(first) {
                         playbackQueue.append(.waitUntil(ms/1000.0))
                     }
@@ -876,19 +1011,35 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let options = Array(args.dropFirst(3))
                             callGhost(named: value, options: options)
                         }
-                    } else if first == "get", args.count >= 3, args[1].lowercased() == "property" {
-                        // \![get,property,イベント名,プロパティ名]
-                        // Get property value and raise SHIORI event with value in Reference0
-                        let eventName = args[2]
-                        let propertyKey = args[3]
-                        let propertyValue = sakuraEngine.propertyManager.get(propertyKey) ?? ""
-                        var params: [String: String] = ["Reference0": propertyValue]
-                        // Additional references if provided
-                        for i in 4..<args.count {
-                            params["Reference\(i-3)"] = args[i]
+                    } else if first == "get", args.count >= 2 {
+                        let getType = args[1].lowercased()
+                        if getType == "property", args.count >= 4 {
+                            // \![get,property,イベント名,プロパティ名]
+                            // Get property value and raise SHIORI event with value in Reference0
+                            let eventName = args[2]
+                            let propertyKey = args[3]
+                            let propertyValue = sakuraEngine.propertyManager.get(propertyKey) ?? ""
+                            var params: [String: String] = ["Reference0": propertyValue]
+                            // Additional references if provided
+                            for i in 4..<args.count {
+                                params["Reference\(i-3)"] = args[i]
+                            }
+                            Log.debug("[GhostManager] Property get: \(propertyKey) = \(propertyValue), raising event: \(eventName)")
+                            EventBridge.shared.notifyCustom(eventName, params: params)
+                        } else {
+                            let eventByGetType: [String: String] = [
+                                "word": "OnGetWord",
+                                "string": "OnGetString",
+                                "integer": "OnGetInteger",
+                                "wordcount": "OnGetWordCount",
+                                "wordposition": "OnGetWordPosition"
+                            ]
+                            if let eventID = eventByGetType[getType] {
+                                let references = Array(args.dropFirst(2))
+                                Log.debug("[GhostManager] Dispatching SHIORI GET event: \(eventID), refs=\(references.count)")
+                                _ = requestDialogEvent(eventID: eventID, references: references)
+                            }
                         }
-                        Log.debug("[GhostManager] Property get: \(propertyKey) = \(propertyValue), raising event: \(eventName)")
-                        EventBridge.shared.notifyCustom(eventName, params: params)
                     } else if first == "set", args.count >= 3, args[1].lowercased() == "property" {
                         // \![set,property,プロパティ名,値]
                         // Set property value
@@ -905,9 +1056,97 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let delay = timeout <= 0 ? TimeInterval.infinity : timeout/1000.0
                         let result = SyncCenter.shared.wait(name: name, timeout: delay)
                         playbackQueue.append(.wait(result))
+                    } else if first == "wait", args.count >= 2, args[1].lowercased() == "timer" {
+                        // \![wait,timer,ms]
+                        if args.count >= 3, let ms = Double(args[2]) {
+                            playbackQueue.append(.wait(max(0, ms / 1000.0)))
+                        }
                     } else if first == "signal", args.count >= 2, args[1].lowercased() == "syncobject" {
                         let name = args.count >= 3 ? args[2] : ""
                         SyncCenter.shared.signal(name: name)
+                    } else if first == "input", args.count >= 2 {
+                        // Compatibility aliases: \![input,*]
+                        let inputType = args[1].lowercased()
+                        let parsed = parseCommandArguments(Array(args.dropFirst(2)))
+                        let id = parsed.positionals.first ?? parsed.options["id"] ?? "input"
+                        let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
+                            ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
+
+                        if inputType == "textbox" || inputType == "text" {
+                            let initialText = parsed.options["text"]
+                                ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async {
+                                    self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText)
+                                }
+                            })
+                        } else if inputType == "pass" || inputType == "password" {
+                            let initialText = parsed.options["text"]
+                                ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async {
+                                    self.showPasswordInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText)
+                                }
+                            })
+                        } else if inputType == "date" {
+                            let csv = parsed.options["text"]?.split(separator: ",").map(String.init) ?? []
+                            let year = csv.count >= 1 ? Int(csv[0]) : (parsed.positionals.count >= 3 ? Int(parsed.positionals[2]) : nil)
+                            let month = csv.count >= 2 ? Int(csv[1]) : (parsed.positionals.count >= 4 ? Int(parsed.positionals[3]) : nil)
+                            let day = csv.count >= 3 ? Int(csv[2]) : (parsed.positionals.count >= 5 ? Int(parsed.positionals[4]) : nil)
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async {
+                                    self.showDateInputDialog(id: id, timeoutMs: timeoutMs, year: year, month: month, day: day)
+                                }
+                            })
+                        } else if inputType == "choice" {
+                            let choices = parsed.positionals.count >= 3
+                                ? Array(parsed.positionals.dropFirst(2))
+                                : parsed.options["choices"]?.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespaces) } ?? []
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async {
+                                    self.showChoiceInputDialog(id: id, timeoutMs: timeoutMs, choices: choices)
+                                }
+                            })
+                        } else if inputType == "capture" {
+                            // Minimal compatibility: route to text input and raise OnUserInput.
+                            let initialText = parsed.options["text"]
+                                ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async {
+                                    self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText)
+                                }
+                            })
+                        }
+                    } else if first == "file", args.count >= 2 {
+                        let fileAction = args[1].lowercased()
+                        if fileAction == "open" {
+                            let eventID = args.count >= 3 ? args[2] : ""
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async {
+                                    self.showSystemDialog(type: "open", parameters: ["--id=\(eventID)"])
+                                }
+                            })
+                        } else if fileAction == "save" {
+                            let eventID = args.count >= 3 ? args[2] : ""
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async {
+                                    self.showSystemDialog(type: "save", parameters: ["--id=\(eventID)"])
+                                }
+                            })
+                        }
+                    } else if first == "hide" {
+                        setCurrentWindowHidden(true)
+                    } else if first == "show" {
+                        setCurrentWindowHidden(false)
+                    } else if first == "focus" {
+                        focusCurrentWindow()
+                    } else if first == "b" {
+                        // \![b] compatibility: bring/focus current window.
+                        focusCurrentWindow()
+                    } else if first == "minimize" {
+                        setWindowState(state: "minimize")
+                    } else if first == "maximize" {
+                        maximizeCurrentWindow()
                     } else if first == "open", args.count >= 2 {
                         let openType = args[1].lowercased()
                         switch openType {
@@ -916,6 +1155,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             if args.count >= 3, args[2].lowercased() == "setup" {
                                 playbackQueue.append(.deferredCommand {
                                     DispatchQueue.main.async { self.showNameInputDialog() }
+                                })
+                            } else {
+                                playbackQueue.append(.deferredCommand {
+                                    DispatchQueue.main.async { self.showSettings() }
                                 })
                             }
                         case "inputbox":
@@ -989,8 +1232,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let id = parsed.positionals.first ?? parsed.options["id"] ?? "ipinput"
                             let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
                                 ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
-                            let initialText = parsed.options["text"]
-                                ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
+                            let initialText: String = {
+                                if let text = parsed.options["text"] {
+                                    return text
+                                }
+                                if parsed.positionals.count >= 6 {
+                                    return parsed.positionals[2...5].joined(separator: ",")
+                                }
+                                return parsed.positionals.count >= 3 ? parsed.positionals[2] : ""
+                            }()
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
                                     self.showIPInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText)
@@ -1016,7 +1266,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         case "communicatebox":
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showInputBoxDialog(id: "communicatebox", timeoutMs: nil, initialText: "")
+                                    self.showCommunicateBoxDialog(timeoutMs: nil, initialText: "")
                                 }
                             })
                         case "browser":
@@ -1026,6 +1276,17 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     DispatchQueue.main.async { self.openURL(target) }
                                 })
                             }
+                        case "http":
+                            if args.count >= 3 {
+                                let params = Array(args.dropFirst(2))
+                                executeHTTP(subcommand: "http-get", params: params)
+                            }
+                        case "send":
+                            if args.count >= 3 {
+                                let target = args[2]
+                                let body = args.count >= 4 ? args[3] : ""
+                                executeHTTP(subcommand: "http-post", params: [target, body])
+                            }
                         case "mailer":
                             if args.count >= 3 {
                                 let target = args[2]
@@ -1034,10 +1295,19 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 })
                             }
                         case "editor", "file":
-                            if args.count >= 3 {
-                                let path = args[2]
+                            let parsed = parseCommandArguments(Array(args.dropFirst(2)))
+                            let path = parsed.positionals.first ?? parsed.options["path"] ?? ""
+                            if !path.isEmpty {
+                                let line = parsed.options["line"].flatMap(Int.init)
+                                    ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
+                                let app = parsed.options["app"]
+                                let allowExternal = parsed.flags.contains("allow-external")
+                                    || (parsed.options["allow-external"]?.lowercased() == "1")
+                                    || (parsed.options["allow-external"]?.lowercased() == "true")
                                 playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async { self.openFilePath(path) }
+                                    DispatchQueue.main.async {
+                                        self.openFilePath(path: path, line: line, appName: app, allowExternal: allowExternal)
+                                    }
                                 })
                             }
                         case "explorer":
@@ -1094,7 +1364,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             })
                         case "terms":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openFilePath("terms.txt") }
+                                DispatchQueue.main.async { self.handleGhostTermsConsent() }
                             })
                         case "help":
                             if let homeurl = self.ghostConfig?.homeurl, !homeurl.isEmpty {
@@ -1106,6 +1376,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     DispatchQueue.main.async { self.openFilePath("readme.txt") }
                                 })
                             }
+                        case "developer", "shiorirequest", "dressupexplorer":
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async { self.openDeveloperTool(openType) }
+                            })
                         case "surfacetest":
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async { self.openFilePath("surfaces.txt") }
@@ -1124,12 +1398,47 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let id = args.count >= 3 ? args[2] : "inputbox"
                             emitUserInputCancel(id: id, timedOut: false)
                         case "communicatebox":
-                            emitUserInputCancel(id: "communicatebox", timedOut: false)
+                            emitCommunicateInputCancel(timedOut: false)
                         case "dialog":
                             let id = args.count >= 3 ? args[2] : ""
                             emitSystemDialogCancel(type: "dialog", eventID: id)
                         case "teachbox":
                             _ = requestDialogEvent(eventID: "OnTeachInputCancel", references: [])
+                        default:
+                            break
+                        }
+                    } else if first == "enter", args.count >= 2 {
+                        let enterType = args[1].lowercased()
+                        switch enterType {
+                        case "selectmode":
+                            let params = Array(args.dropFirst(2))
+                            enterSelectMode(params: params)
+                        case "collisionmode":
+                            enterCollisionMode()
+                        case "passivemode":
+                            enterPassiveMode()
+                        case "inductionmode":
+                            let params = Array(args.dropFirst(2))
+                            enterInductionMode(params: params)
+                        case "nouserbreakmode":
+                            enterNoUserBreakMode()
+                        default:
+                            break
+                        }
+                    } else if first == "leave", args.count >= 2 {
+                        let leaveType = args[1].lowercased()
+                        switch leaveType {
+                        case "selectmode":
+                            let params = Array(args.dropFirst(2))
+                            leaveSelectMode(params: params)
+                        case "collisionmode":
+                            leaveCollisionMode()
+                        case "passivemode":
+                            leavePassiveMode()
+                        case "inductionmode":
+                            leaveInductionMode()
+                        case "nouserbreakmode":
+                            leaveNoUserBreakMode()
                         default:
                             break
                         }
@@ -1214,6 +1523,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             executeSetZOrderCommand(args: args)
                         case "sticky-window":
                             executeSetStickyWindowCommand(args: args)
+                        case "timerinterval":
+                            if args.count >= 3, let ms = Double(args[2]) {
+                                typingInterval = max(0, ms / 1000.0)
+                            }
                         case "balloonoffset":
                             // \![set,balloonoffset,x,y]
                             if args.count >= 4, args[1].lowercased() == "x" {
@@ -1250,15 +1563,35 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     Log.debug("[GhostManager] Balloon timeout set to: \(vm.balloonTimeout)s")
                                 }
                             }
+                        case "choicetimeout":
+                            // \![set,choicetimeout,time]
+                            if args.count >= 3, let timeoutMs = Double(args[2]) {
+                                choiceTimeout = timeoutMs > 0 ? timeoutMs / 1000.0 : nil
+                                Log.debug("[GhostManager] Choice timeout set to: \(choiceTimeout ?? -1)s")
+                            }
                         case "balloonwait":
-                            // \![set,balloonwait,0/1/true/false]
+                            // \![set,balloonwait,0/1/true/false or multiplier]
                             if args.count >= 3 {
                                 let value = args[2].lowercased()
                                 DispatchQueue.main.async {
                                     guard let vm = self.balloonViewModels[self.currentScope] else { return }
-                                    vm.balloonWaitEnabled = (value == "1" || value == "true")
+                                    if let multiplier = Double(value) {
+                                        vm.balloonWaitMultiplier = max(0, multiplier)
+                                        vm.balloonWaitEnabled = multiplier != 0
+                                    } else {
+                                        vm.balloonWaitEnabled = (value == "1" || value == "true")
+                                        vm.balloonWaitMultiplier = vm.balloonWaitEnabled ? 1.0 : 0.0
+                                    }
                                     Log.debug("[GhostManager] Balloon wait set to: \(vm.balloonWaitEnabled)")
                                 }
+                            }
+                        case "balloonmarker":
+                            if args.count >= 3 {
+                                setBalloonMarker(args[2])
+                            }
+                        case "balloonnum":
+                            if args.count >= 3 {
+                                setBalloonNumberDisplay(enabled: args[2].lowercased() == "1" || args[2].lowercased() == "true")
                             }
                         case "wallpaper":
                             // \![set,wallpaper,filename,options]
@@ -1286,12 +1619,23 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         case "othersurfacechange":
                             // \![set,othersurfacechange,true/false]
                             if args.count >= 3 {
-                                setOtherSurfaceChange(enabled: args[2].lowercased() == "true")
+                                let value = args[2].lowercased()
+                                setOtherSurfaceChange(enabled: value == "true" || value == "1" || value == "on")
                             }
                         case "windowstate":
                             // \![set,windowstate,stayontop/!stayontop/minimize]
                             if args.count >= 3 {
                                 setWindowState(state: args[2])
+                            }
+                        case "shioridebugmode":
+                            if args.count >= 3 {
+                                let enabled = args[2].lowercased() == "1" || args[2].lowercased() == "true" || args[2].lowercased() == "on"
+                                UserDefaults.standard.set(enabled, forKey: "OurinShioriDebugMode")
+                                EventBridge.shared.notifyCustom("OnShioriDebugModeChanged", params: ["Reference0": enabled ? "1" : "0"])
+                            }
+                        case "serikotalk":
+                            if args.count >= 3 {
+                                setSerikoTalk(mode: args[2])
                             }
                         default:
                             break
@@ -1314,6 +1658,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         }
                     } else if first == "bind", args.count >= 2 {
                         executeBindCommand(args: args)
+                    } else if first == "reload", args.count >= 2 {
+                        let target = args[1].lowercased()
+                        if target == "surfaces.txt" {
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async {
+                                    self.reloadSurfacesDefinition()
+                                }
+                            })
+                        }
                     } else if first == "lock", args.count >= 2 {
                         // Handle \![lock,*] commands
                         let subcmd = args[1].lowercased()
@@ -1370,7 +1723,58 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             // \![execute,headline,headlineName]
                             let headlineName = args.count >= 3 ? args[2] : ""
                             executeHeadline(name: headlineName)
+                        } else if subcmd.hasPrefix("http-") {
+                            let params = Array(args.dropFirst(2))
+                            executeHTTP(subcommand: subcmd, params: params)
+                        } else if subcmd.hasPrefix("rss-") {
+                            let params = Array(args.dropFirst(2))
+                            executeRSS(subcommand: subcmd, params: params)
+                        } else if subcmd == "extractarchive" {
+                            executeExtractArchive(params: Array(args.dropFirst(2)))
+                        } else if subcmd == "compressarchive" {
+                            executeCompressArchive(params: Array(args.dropFirst(2)))
+                        } else if subcmd == "dumpsurface" {
+                            executeDumpSurface(params: Array(args.dropFirst(2)))
+                        } else if subcmd == "install" {
+                            executeInstall(params: Array(args.dropFirst(2)))
+                        } else if subcmd == "createnar" {
+                            executeCreateNar()
+                        } else if subcmd == "createupdatedata" {
+                            executeCreateUpdateData()
+                        } else if subcmd == "emptyrecyclebin" {
+                            executeEmptyRecycleBin()
+                        } else if subcmd == "ping" {
+                            executePing(params: Array(args.dropFirst(2)))
+                        } else if subcmd == "nslookup" {
+                            executeNslookup(params: Array(args.dropFirst(2)))
                         }
+                    } else if first == "create", args.count >= 2 {
+                        let createType = args[1].lowercased()
+                        if createType == "shortcut" {
+                            executeCreateShortcut(params: Array(args.dropFirst(2)))
+                        }
+                    } else if first == "clipboard", args.count >= 2 {
+                        let subcmd = args[1].lowercased()
+                        if subcmd == "set" || subcmd == "copy" {
+                            let text = args.count >= 3 ? args[2] : ""
+                            setClipboardText(text)
+                        } else if subcmd == "get" || subcmd == "paste" {
+                            let text = getClipboardText()
+                            if args.count >= 3 {
+                                let eventID = args[2]
+                                _ = requestDialogEvent(eventID: eventID, references: [text])
+                            } else {
+                                EventBridge.shared.notifyCustom("OnClipboardRead", params: ["Reference0": text])
+                            }
+                        } else if subcmd == "clear" {
+                            clearClipboard()
+                        }
+                    } else if first == "systemmessage" || (first == "system" && args.count >= 2 && args[1].lowercased() == "message") {
+                        let offset = first == "systemmessage" ? 1 : 2
+                        let title = args.count > offset ? args[offset] : ""
+                        let body = args.count > offset + 1 ? args[offset + 1] : ""
+                        let level = args.count > offset + 2 ? args[offset + 2] : "info"
+                        postSystemMessage(title: title, body: body, level: level)
                     } else if first == "executesntp" {
                         // \![executesntp] - execute SNTP time synchronization
                         executeSNTP()
@@ -1381,49 +1785,60 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // \![updatebymyself] - check for updates to this ghost
                         executeUpdate(target: "self", options: [])
                     } else if first == "update" {
-                        // \![update,platform] or \![update,target,options...]
-                        let target = args.count >= 2 ? args[1] : "platform"
-                        let options = Array(args.dropFirst(2))
-                        executeUpdate(target: target, options: options)
+                        // \![update,http,url] or \![update,target,options...]
+                        if args.count >= 3, args[1].lowercased() == "http" {
+                            let params = Array(args.dropFirst(2))
+                            executeHTTP(subcommand: "http-get", params: params)
+                        } else {
+                            let target = args.count >= 2 ? args[1] : "platform"
+                            let options = Array(args.dropFirst(2))
+                            executeUpdate(target: target, options: options)
+                        }
                     } else if first == "updateother" {
                         // \![updateother] - check for updates to all other ghosts
                         executeUpdate(target: "other", options: [])
                     } else if first == "vanishbymyself" {
                         // \![vanishbymyself] - terminate this ghost
+                        EventBridge.shared.notify(.OnVanishSelecting, params: [:])
+                        EventBridge.shared.notify(.OnVanishSelected, params: [:])
                         executeVanish()
+                    } else if first == "reloadsurface" {
+                        executeReloadSurface()
+                    } else if first == "reload", args.count >= 2 {
+                        executeReload(target: args[1], params: Array(args.dropFirst(2)))
+                    } else if first == "unload", args.count >= 2 {
+                        executeUnload(target: args[1])
+                    } else if first == "load", args.count >= 2 {
+                        executeLoad(target: args[1])
                     } else if first == "anim", args.count >= 2 {
                         // Handle \![anim,*] commands - animation control
                         let subcmd = args[1].lowercased()
                         switch subcmd {
                         case "clear":
                             // \![anim,clear,ID] - clear specific animation/overlay
-                            if args.count >= 3 {
-                                let overlayID = args[2]
-                                animationEngine.clearAnimation(id: Int(overlayID) ?? 0)
-                                clearSpecificOverlay(id: overlayID)
+                            if args.count >= 3, let animID = Int(args[2]) {
+                                handleAnimClear(id: animID)
                             }
                         case "pause":
                             // \![anim,pause,ID] - pause animation
                             if args.count >= 3, let animID = Int(args[2]) {
-                                animationEngine.pauseAnimation(id: animID)
+                                handleAnimPause(id: animID)
                             }
                         case "resume":
                             // \![anim,resume,ID] - resume animation
                             if args.count >= 3, let animID = Int(args[2]) {
-                                animationEngine.resumeAnimation(id: animID)
+                                handleAnimResume(id: animID)
                             }
                         case "stop":
                             // \![anim,stop] - stop all animations and clear all overlays
-                            animationEngine.stopAllAnimations()
-                            clearSurfaceOverlays()
+                            handleAnimStop()
                         case "offset":
                             // \![anim,offset,ID,x,y] - offset an animation/overlay
-                            if args.count >= 5 {
-                                if let overlayID = Int(args[2]),
-                                    let x = Double(args[3]), let y = Double(args[4]) {
-                                    animationEngine.offsetAnimation(id: overlayID, x: x, y: y)
-                                    offsetOverlay(id: "surface_\(overlayID)_", x: x, y: y)
-                                }
+                            if args.count >= 5,
+                               let overlayID = Int(args[2]),
+                               let x = Int(args[3]),
+                               let y = Int(args[4]) {
+                                handleAnimOffset(id: overlayID, x: x, y: y)
                             }
                         case "add":
                             // \![anim,add,overlay,ID] or \![anim,add,base,ID] or \![anim,add,text,...]
@@ -1431,11 +1846,21 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 let addType = args[2].lowercased()
                                 if addType == "overlay" {
                                     if let surfaceID = Int(args[3]) {
-                                        handleSurfaceOverlay(surfaceID: surfaceID)
+                                        handleAnimAddOverlay(id: surfaceID)
+                                    }
+                                } else if addType == "overlayfast" {
+                                    if let surfaceID = Int(args[3]) {
+                                        handleAnimAddOverlayFast(id: surfaceID)
                                     }
                                 } else if addType == "base" {
                                     if let surfaceID = Int(args[3]) {
                                         handleAnimAddBase(id: surfaceID)
+                                    }
+                                } else if addType == "move" {
+                                    if args.count >= 5,
+                                       let moveX = Int(args[3]),
+                                       let moveY = Int(args[4]) {
+                                        handleAnimAddMove(x: moveX, y: moveY)
                                     }
                                 } else if addType == "bind" {
                                     if let surfaceID = Int(args[3]) {
@@ -1491,14 +1916,28 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             clearFilters()
                         }
                     } else if first == "move" {
-                        executeMoveCommand(args: Array(args.dropFirst()), async: false)
+                        let params = Array(args.dropFirst())
+                        if params.first?.lowercased() == "window" {
+                            executeMoveCommand(args: Array(params.dropFirst()), async: false)
+                        } else {
+                            executeMoveCommand(args: params, async: false)
+                        }
                     } else if first == "moveasync" {
                         let params = Array(args.dropFirst())
                         if params.first?.lowercased() == "cancel" {
                             let scopeID = params.count >= 2 ? Int(params[1]) : nil
                             cancelMoveWindowAsync(scope: scopeID)
+                        } else if params.first?.lowercased() == "window" {
+                            executeMoveCommand(args: Array(params.dropFirst()), async: true)
                         } else {
                             executeMoveCommand(args: params, async: true)
+                        }
+                    } else if first == "resize" {
+                        let params = Array(args.dropFirst())
+                        if params.first?.lowercased() == "window" {
+                            executeResizeCommand(args: Array(params.dropFirst()))
+                        } else {
+                            executeResizeCommand(args: params)
                         }
                     } else if first == "open", args.count >= 2 {
                         // Handle \![open,browser,URL] and \![open,mailer,email]
@@ -1533,6 +1972,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     let references = Array(args.dropFirst())
                     Log.debug("[GhostManager] Anchor event: \(eventID) with refs: \(references)")
                     pendingAnchorAction = .event(id: eventID, references: references)
+                    EventBridge.shared.notifyCustom("OnAnchorEnter", params: ["Reference0": eventID])
+                    EventBridge.shared.notifyCustom("OnAnchorHover", params: ["Reference0": eventID])
                     if let vm = balloonViewModels[currentScope] {
                         vm.anchorActive = true
                     }
@@ -1552,6 +1993,37 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 // \_v[filename] - play voice file
                 if let filename = args.first {
                     playSound(filename: filename)
+                }
+
+            case "_u":
+                // \_u[0xXXXX] - append Unicode scalar text
+                if let scalar = decodeScalarLiteral(args.first) {
+                    playbackQueue.append(.textChunk(String(scalar)))
+                }
+
+            case "_m":
+                // \_m[0xNN] - append single-byte scalar text
+                if let scalar = decodeScalarLiteral(args.first) {
+                    playbackQueue.append(.textChunk(String(scalar)))
+                }
+
+            case "&":
+                // \&[ID] - compatibility anchor/event marker
+                if let eventID = args.first, !eventID.isEmpty {
+                    pendingAnchorAction = .event(id: eventID, references: Array(args.dropFirst()))
+                    EventBridge.shared.notifyCustom("OnAnchorEnter", params: ["Reference0": eventID])
+                    EventBridge.shared.notifyCustom("OnAnchorHover", params: ["Reference0": eventID])
+                    if let vm = balloonViewModels[currentScope] {
+                        vm.anchorActive = true
+                    }
+                }
+
+            case "m":
+                // \m[umsg,wparam,lparam] - message dispatch
+                if let umsg = args.first, !umsg.isEmpty {
+                    var refs = [umsg]
+                    refs.append(contentsOf: Array(args.dropFirst()))
+                    _ = requestDialogEvent(eventID: "OnMessage", references: refs)
                 }
             
             case "_V":
@@ -1598,7 +2070,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             switch valign {
                             case "top":
                                 vm.textVAlign = .top
-                            case "center":
+                            case "center", "middle":
                                 vm.textVAlign = .center
                             case "bottom":
                                 vm.textVAlign = .bottom
@@ -1625,14 +2097,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     case "color":
                         // \f[color,r,g,b] or \f[color,#RRGGBB] or \f[color,name]
                         if args.count >= 2 {
-                            let color = self.parseColor(from: args[1], defaultValue: vm.fontColor)
+                            let color = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.fontColor)
                             vm.fontColor = color
                             Log.debug("[GhostManager] Font color set to: \(color)")
                         }
                     case "shadowcolor":
                         // \f[shadowcolor,r,g,b] or \f[shadowcolor,#RRGGBB] or \f[shadowcolor,name]
                         if args.count >= 2 {
-                            let color = self.parseColor(from: args[1], defaultValue: vm.shadowColor)
+                            let color = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.shadowColor)
                             vm.shadowColor = color
                             Log.debug("[GhostManager] Shadow color set to: \(color)")
                         }
@@ -1681,6 +2153,22 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             vm.fontUnderline = self.parseTriState(value, currentValue: vm.fontUnderline ? "1" : "0")
                             Log.debug("[GhostManager] Font underline set to: \(vm.fontUnderline)")
                         }
+                    case "sub":
+                        // \f[sub,0/1/true/false/default/disable]
+                        if args.count >= 2 {
+                            let value = args[1].lowercased()
+                            vm.fontSubscript = self.parseTriState(value, currentValue: vm.fontSubscript ? "1" : "0")
+                            if vm.fontSubscript { vm.fontSuperscript = false }
+                            Log.debug("[GhostManager] Font subscript set to: \(vm.fontSubscript)")
+                        }
+                    case "sup":
+                        // \f[sup,0/1/true/false/default/disable]
+                        if args.count >= 2 {
+                            let value = args[1].lowercased()
+                            vm.fontSuperscript = self.parseTriState(value, currentValue: vm.fontSuperscript ? "1" : "0")
+                            if vm.fontSuperscript { vm.fontSubscript = false }
+                            Log.debug("[GhostManager] Font superscript set to: \(vm.fontSuperscript)")
+                        }
                     case "default":
                         // \f[default] - reset to default
                         self.resetFontDefaults(vm: vm)
@@ -1690,8 +2178,26 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     case "anchor.font.color":
                         // \f[anchor.font.color,r,g,b] or \f[anchor.font.color,#RRGGBB] or \f[anchor.font.color,name]
                         if args.count >= 2 {
-                            vm.anchorFontColor = self.parseColor(from: args[1], defaultValue: vm.anchorFontColor)
+                            vm.anchorFontColor = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.anchorFontColor)
                             Log.debug("[GhostManager] Anchor font color set")
+                        }
+                    case "outline":
+                        // \f[outline,width]
+                        if args.count >= 2 {
+                            let value = args[1].lowercased()
+                            if value == "default" || value == "disable" || value == "0" || value == "false" {
+                                vm.outlineWidth = 0
+                                if vm.shadowStyle == .outline {
+                                    vm.shadowStyle = .none
+                                }
+                            } else if let width = Double(value) {
+                                vm.outlineWidth = max(0, CGFloat(width))
+                                vm.shadowStyle = vm.outlineWidth > 0 ? .outline : vm.shadowStyle
+                            } else {
+                                vm.outlineWidth = 1
+                                vm.shadowStyle = .outline
+                            }
+                            Log.debug("[GhostManager] Font outline width set to: \(vm.outlineWidth)")
                         }
                     default:
                         Log.info("[GhostManager] Unknown font command: \(subcmd)")
@@ -1768,6 +2274,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             case .wait(let sec):
                 scheduleNext(after: max(0.0, sec))
                 return
+            case .waitAnimation(let animID):
+                // If the animation is currently active, set wait flag and pause processing.
+                // When the animation finishes, onAnimationFinished will resume playback.
+                if serikoExecutor.activeAnimations[animID] != nil {
+                    waitingForAnimation = animID
+                    return
+                } else {
+                    // Animation not active; continue immediately.
+                    continue
+                }
             case .clickWait(let noclear):
                 pendingClick = noclear
                 return
@@ -1801,19 +2317,29 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     }
 
     /// Try to obtain a boot script in order:
-    /// 1) GET OnFirstBoot (YAYA)
+    /// 1) GET OnFirstBoot/OnSecondBoot (first/second launch)
     /// 2) GET OnBoot (YAYA)
-    /// 3) BridgeToSHIORI for OnBoot (may return placeholder)
+    /// 3) BridgeToSHIORI for OnBoot
     /// 4) Built-in minimal greeting
-    private func obtainBootScript(using adapter: YayaAdapter) -> String? {
-        // 1) OnFirstBoot
-        if let r = adapter.request(method: "GET", id: "OnFirstBoot", timeout: 4.0), r.ok {
-            let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
-            NSLog("[GhostManager] OnFirstBoot response: ok=true, len=\(v.count), preview=\(pv)")
-            if !v.isEmpty { return v }
-        } else {
-            NSLog("[GhostManager] OnFirstBoot request failed or no response")
+    private func obtainBootScript(using adapter: YayaAdapter, bootCount: Int) -> String? {
+        if bootCount == 0 {
+            if let r = adapter.request(method: "GET", id: "OnFirstBoot", timeout: 4.0), r.ok {
+                let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
+                NSLog("[GhostManager] OnFirstBoot response: ok=true, len=\(v.count), preview=\(pv)")
+                if !v.isEmpty { return v }
+            } else {
+                NSLog("[GhostManager] OnFirstBoot request failed or no response")
+            }
+        } else if bootCount == 1 {
+            if let r = adapter.request(method: "GET", id: "OnSecondBoot", timeout: 4.0), r.ok {
+                let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
+                NSLog("[GhostManager] OnSecondBoot response: ok=true, len=\(v.count), preview=\(pv)")
+                if !v.isEmpty { return v }
+            } else {
+                NSLog("[GhostManager] OnSecondBoot request failed or no response")
+            }
         }
 
         // 2) OnBoot
@@ -1877,6 +2403,14 @@ extension GhostManager {
         case let action where action.hasPrefix("switch_balloon:"):
             let balloonID = String(action.dropFirst("switch_balloon:".count))
             switchBalloon(to: balloonID)
+        case let action where action.hasPrefix("dressup_bindgroup:"):
+            let raw = String(action.dropFirst("dressup_bindgroup:".count))
+            let parts = raw.split(separator: ":").map(String.init)
+            if parts.count == 2, let scope = Int(parts[0]), let bindID = Int(parts[1]) {
+                toggleDressupBindGroup(scope: scope, bindGroupID: bindID)
+            } else if let bindID = Int(raw) {
+                toggleDressupBindGroup(scope: currentScope, bindGroupID: bindID)
+            }
         case "menu_settings":
             showSettings()
         case "menu_quit":
@@ -1888,26 +2422,110 @@ extension GhostManager {
     
     /// ゴースト情報を表示
     private func showGhostInfo() {
-        // TODO: ゴースト情報ダイアログを表示
-        Log.info("[GhostManager] Show ghost info")
+        let alert = NSAlert()
+        alert.messageText = ghostConfig?.name ?? NSLocalizedString("Ghost Info", comment: "ghost info dialog title")
+        var lines: [String] = []
+        lines.append("Path: \(ghostURL.path)")
+        lines.append("Shell: \(activeShellName)")
+        if let sakura = ghostConfig?.sakuraName, !sakura.isEmpty {
+            lines.append("Sakura: \(sakura)")
+        }
+        if let kero = ghostConfig?.keroName, !kero.isEmpty {
+            lines.append("Kero: \(kero)")
+        }
+        if let home = ghostConfig?.homeurl, !home.isEmpty {
+            lines.append("Home URL: \(home)")
+        }
+        alert.informativeText = lines.joined(separator: "\n")
+        alert.addButton(withTitle: NSLocalizedString("OK", comment: "ok button"))
+        alert.alertStyle = .informational
+        alert.runModal()
     }
     
     /// 設定を表示
     private func showSettings() {
-        // TODO: 設定ウィンドウを表示
-        Log.info("[GhostManager] Show settings")
+        DispatchQueue.main.async {
+            if #available(macOS 13, *) {
+                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            } else {
+                NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
+            }
+            let settingsID = NSUserInterfaceItemIdentifier("SettingsWindow")
+            for window in NSApplication.shared.windows {
+                if window.identifier == settingsID || window.title == NSLocalizedString("Settings", comment: "Settings window title") {
+                    window.makeKeyAndOrderFront(nil)
+                    NSApplication.shared.activate(ignoringOtherApps: true)
+                    return
+                }
+            }
+            let controller = NSHostingController(rootView: ContentView())
+            let window = NSWindow(contentViewController: controller)
+            window.identifier = settingsID
+            window.title = NSLocalizedString("Settings", comment: "Settings window title")
+            window.setContentSize(NSSize(width: 900, height: 600))
+            window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+            window.isReleasedWhenClosed = false
+            window.center()
+            window.makeKeyAndOrderFront(nil)
+            NSApplication.shared.activate(ignoringOtherApps: true)
+        }
     }
     
     /// ゴーストを切り替え
     private func switchGhost(to ghostID: String) {
-        // TODO: ゴースト切り替えを実装
-        Log.info("[GhostManager] Switch to ghost: \(ghostID)")
+        let target = ghostID.trimmingCharacters(in: .whitespacesAndNewlines).removingPercentEncoding ?? ghostID
+        guard !target.isEmpty else {
+            Log.info("[GhostManager] switch_ghost ignored: empty target")
+            return
+        }
+        switchGhost(named: target, options: ["--option=raise-event"])
     }
     
     /// シェルを切り替え
     private func switchShell(to shellID: String) {
-        // TODO: シェル切り替えを実装
-        Log.info("[GhostManager] Switch to shell: \(shellID)")
+        let rawTarget = shellID.trimmingCharacters(in: .whitespacesAndNewlines)
+        let target = rawTarget.removingPercentEncoding ?? rawTarget
+        guard !target.isEmpty else {
+            Log.info("[GhostManager] switch_shell ignored: empty target")
+            return
+        }
+
+        if switchShell(named: target, raiseEvent: true) {
+            return
+        }
+
+        // Fallback for menu actions that pass index-like values (e.g. "0" / "shell1")
+        let shellRoot = ghostURL.appendingPathComponent("shell")
+        guard let entries = try? FileManager.default.contentsOfDirectory(
+            at: shellRoot,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else {
+            Log.info("[GhostManager] switch_shell failed: shell directory is unavailable")
+            return
+        }
+        let shellNames = entries
+            .filter { $0.hasDirectoryPath }
+            .map(\.lastPathComponent)
+            .sorted()
+
+        let normalized = target.lowercased()
+        var resolvedIndex: Int?
+        if let n = Int(normalized) {
+            resolvedIndex = n
+        } else if normalized.hasPrefix("shell"), let n = Int(normalized.dropFirst("shell".count)) {
+            resolvedIndex = n
+        }
+
+        guard let index = resolvedIndex, shellNames.indices.contains(index) else {
+            Log.info("[GhostManager] switch_shell failed: unknown target \(target)")
+            return
+        }
+
+        let resolvedName = shellNames[index]
+        if !switchShell(named: resolvedName, raiseEvent: true) {
+            Log.info("[GhostManager] switch_shell failed: resolved shell not available \(resolvedName)")
+        }
     }
     
     /// バルーンを切り替え

@@ -1,0 +1,12 @@
+OnBoot
+{
+    // Replace with your actual built dylib path before running.
+    _module = "/ABSOLUTE/PATH/TO/libsimple_saori_swift.dylib"
+
+    _load = LOADLIB(_module)
+    _req = "EXECUTE SAORI/1.0%(C_CRLF)Charset: UTF-8%(C_CRLF)Sender: Ourin%(C_CRLF)Argument0: Ping%(C_CRLF2)"
+    _res = REQUESTLIB(_module, _req)
+    _unload = UNLOADLIB(_module)
+
+    "\0\s[0]SAORI load=%(_load) unload=%(_unload)\n%(_res)\e"
+}

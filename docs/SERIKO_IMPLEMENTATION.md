@@ -91,8 +91,98 @@ Current linkage is command-level through `GhostManager` handlers:
   - runonce completion
   - interval trigger behavior
 
-## Current limitations
+## Current Status / 現在のステータス
 
+**Status**: Parser Complete, Executor Exists but Not Integrated / パーサー完了、エグゼキューターは存在するが統合されていない / 2026-03-15
+
+### Implemented Components / 実装済みコンポーネント
+
+#### ✅ **SerikoParser.swift** (Complete / 完全)
+Complete SERIKO/2.0 parser with:
+- All interval types (always, sometimes, rarely, random, runonce, yen-e, talk, bind, never)
+- All method types (overlay, overlayfast, base, move, isReducing, replace, start, alternativestart, stop, asis)
+- Pattern parsing and surface definitions
+- surfaces.txt parsing
+
+#### ✅ **SerikoExecutor.swift** (Exists but Not Connected / 存在するが接続されていない)
+Fully functional animation execution engine with:
+- Animation state management
+- executeAnimation(), startLoop() methods
+- All execute methods (overlay, base, move, reduce, replace, start, stop, etc.)
+- Pause/resume/offset capabilities
+- Callback system (onMethodInvoked, onPatternExecuted, onAnimationFinished)
+- **BUT: Callbacks not wired to GhostManager**
+
+#### ⚠️ **GhostManager+Animation.swift** (Partial / 部分的)
+Integration hooks exist but:
+- SerikoExecutor callbacks not connected
+- Handler methods (handleSurfaceOverlay, etc.) may not invoke actual rendering
+
+### Integration Gaps / 統合のギャップ
+- ✅ **SerikoExecutor callbacks connected** - wired via GhostManager animation handlers
+- ✅ **SakuraScript animation commands routed** - \![anim,*] path controls animation handling
+- ⚠️ **Advanced dressup behavior coverage** - functional path exists, but broader ghost-matrix validation is ongoing
+
+### Blocking Issues / ブロック中の問題
+- No active SERIKO blockers in current tracker.
+
+### Integration Required / 必要な統合
+
+See INTEGRATION_ROADMAP.md **Phase 3** for detailed integration steps:
+
+INTEGRATION_ROADMAP.mdの**フェーズ3**を参照して詳細な統合手順を確認してください：
+
+1. **Wire SerikoExecutor to GhostManager** (Task 3.1):
+   - In GhostManager+Animation.swift:
+     ```swift
+     serikoExecutor.onMethodInvoked = { [weak self] method in
+         self?.handleSerikoMethod(method)
+     }
+     
+     serikoExecutor.onPatternExecuted = { [weak self] pattern in
+         self?.handleSerikoPattern(pattern)
+     }
+     
+     serikoExecutor.onAnimationFinished = { [weak self] animationId in
+         self?.handleAnimationFinished(animationId)
+     }
+     ```
+   - Implement handler methods to update surface/rendering
+
+2. **Implement SakuraScript animation commands** (Task 3.2):
+   - In SakuraScriptEngine.swift:
+     ```swift
+     private func handleAnimCommand(arguments: [String]) {
+         let command = arguments[0]
+         switch command {
+         case "clear":
+             serikoExecutor.stopAnimation(id: animId)
+         case "pause":
+             serikoExecutor.pauseAnimation(id: animId)
+         // ... etc
+         }
+     }
+     ```
+   - Implement wait handler for \__w[animation,ID]
+
+3. **Testing** (Task 3.3):
+   - Load ghost with animations
+   - Trigger via SakuraScript
+   - Verify playback works
+   - Test pause/resume/offset
+
+### Success Criteria / 成功基準
+- [x] GhostManager callbacks connected
+- [x] Animation commands execute
+- [x] Pause/resume/offset work
+- [x] Critical SERIKO blockers resolved
+- [ ] Full multi-ghost on-screen matrix validation
+
+---
+
+## Current limitations / 現在の制限
+
+- Advanced option compatibility varies by ghost data shape.
 - Not all SERIKO options in `animation<ID>.option` are applied at runtime yet.
 - Integration with advanced SakuraScript animation wait patterns remains partial.
 - Legacy and new paths coexist for compatibility; behavior may differ by command/data shape.

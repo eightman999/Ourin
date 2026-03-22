@@ -42,15 +42,20 @@ struct BalloonView: View {
                 }
 
                 // Text overlay with proper positioning
-                Text(viewModel.text)
+                styledText(for: viewModel)
                     .lineLimit(nil)
                     .multilineTextAlignment(textAlignment(for: viewModel.textAlign))
-                    .font(font(for: viewModel))
                     .foregroundColor(Color(viewModel.anchorActive ? viewModel.anchorFontColor : viewModel.fontColor))
-                    .shadow(color: Color(viewModel.shadowColor), radius: viewModel.shadowStyle == .none ? 0 : 1)
+                    .shadow(
+                        color: Color(viewModel.shadowColor),
+                        radius: shadowRadius(for: viewModel),
+                        x: viewModel.shadowStyle == .offset ? 1 : 0,
+                        y: viewModel.shadowStyle == .offset ? -1 : 0
+                    )
                     .frame(
                         width: balloonWidth - CGFloat((config?.originX ?? 20) * 2),
-                        height: nil
+                        height: nil,
+                        alignment: textFrameAlignment(for: viewModel.textVAlign)
                     )
                     .padding(
                         EdgeInsets(
@@ -84,10 +89,58 @@ struct BalloonView: View {
 
     /// Create Font from BalloonViewModel properties
     private func font(for vm: BalloonViewModel) -> Font {
+        let baseSize = vm.fontSize
+        let effectiveSize = (vm.fontSubscript || vm.fontSuperscript) ? baseSize * 0.85 : baseSize
         if !vm.fontName.isEmpty {
-            return Font.custom(vm.fontName, size: vm.fontSize)
+            return Font.custom(vm.fontName, size: effectiveSize)
         } else {
-            return Font.system(size: vm.fontSize, weight: vm.fontWeight)
+            return Font.system(size: effectiveSize, weight: vm.fontWeight)
+        }
+    }
+
+    @ViewBuilder
+    private func styledText(for vm: BalloonViewModel) -> some View {
+        let text = Text(vm.text).font(font(for: vm))
+        if #available(macOS 13.0, *) {
+            text
+                .italic(vm.fontItalic)
+                .underline(vm.fontUnderline)
+                .strikethrough(vm.fontStrike)
+                .baselineOffset(baselineOffset(for: vm))
+        } else {
+            text
+        }
+    }
+
+    private func textFrameAlignment(for valign: BalloonViewModel.BalloonTextVAlign) -> Alignment {
+        switch valign {
+        case .top:
+            return .topLeading
+        case .center:
+            return .leading
+        case .bottom:
+            return .bottomLeading
+        }
+    }
+
+    private func baselineOffset(for vm: BalloonViewModel) -> CGFloat {
+        if vm.fontSubscript {
+            return -vm.fontSize * 0.2
+        }
+        if vm.fontSuperscript {
+            return vm.fontSize * 0.2
+        }
+        return 0
+    }
+
+    private func shadowRadius(for vm: BalloonViewModel) -> CGFloat {
+        switch vm.shadowStyle {
+        case .none:
+            return 0
+        case .offset:
+            return 1
+        case .outline:
+            return max(1, vm.outlineWidth)
         }
     }
 }

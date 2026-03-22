@@ -99,6 +99,7 @@ struct NarInstallView: View {
 /// パッケージリストの行表示
 private struct PackageRowView: View {
     let package: NarPackage
+    @State private var showDetail = false
     
     var body: some View {
         HStack {
@@ -127,11 +128,50 @@ private struct PackageRowView: View {
             Spacer()
             
             Button("詳細") {
-                // TODO: パッケージ詳細表示
+                showDetail = true
             }
             .font(.caption)
         }
         .padding(.vertical, 4)
+        .sheet(isPresented: $showDetail) {
+            PackageDetailView(package: package)
+        }
+    }
+}
+
+private struct PackageDetailView: View {
+    let package: NarPackage
+    @Environment(\.presentationMode) private var presentationMode
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(package.name)
+                .font(.title3)
+                .bold()
+            Group {
+                detailRow(label: "バージョン", value: package.version)
+                detailRow(label: "インストール日", value: DateFormatter.localizedString(from: package.installDate, dateStyle: .medium, timeStyle: .short))
+                detailRow(label: "パス", value: package.installPath)
+            }
+            Spacer()
+            HStack {
+                Spacer()
+                Button("閉じる") { presentationMode.wrappedValue.dismiss() }
+            }
+        }
+        .padding(16)
+        .frame(minWidth: 520, minHeight: 240)
+    }
+
+    @ViewBuilder
+    private func detailRow(label: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Text(value)
+                .font(.body)
+        }
     }
 }
 

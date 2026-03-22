@@ -110,6 +110,124 @@ public final class ResourceBridge {
         public var talk: String
     }
 
+    /// UKADOC のオーナードローメニュー項目キー（接尾辞 `.caption`/`.visible` は別途付与）
+    public static let ownerDrawMenuButtonBaseKeys: [String] = [
+        "activaterootbutton", "addressbarbutton", "alignrootbutton",
+        "alwaysstayontopbutton", "alwaystrayiconvisiblebutton", "balloonhistorybutton",
+        "balloonrootbutton", "biffallbutton", "biffbutton",
+        "calendarbutton", "callghosthistorybutton", "callghostrootbutton",
+        "callsstpsendboxbutton", "char*.recommendsites", "charsetbutton",
+        "closeballoonbutton", "closebutton", "collisionvisiblebutton",
+        "configurationbutton", "configurationrootbutton", "debugballoonbutton",
+        "definedsurfaceonlybutton", "dressuprootbutton", "duibutton",
+        "enableballoonmovebutton", "firststaffbutton", "ghostexplorerbutton",
+        "ghosthistorybutton", "ghostinstallbutton", "ghostrootbutton",
+        "headlinesensehistorybutton", "headlinesenserootbutton", "helpbutton",
+        "hidebutton", "historyrootbutton", "inforootbutton",
+        "leavepassivebutton", "messengerbutton", "pluginhistorybutton",
+        "pluginrootbutton", "portalrootbutton", "purgeghostcachebutton",
+        "quitbutton", "rateofuseballoonbutton", "rateofusebutton",
+        "rateofuserootbutton", "rateofusetotalbutton", "readmebutton",
+        "termsbutton", "recommendrootbutton", "regionenabledbutton",
+        "reloadinfobutton", "resetballoonpositionbutton", "resettodefaultbutton",
+        "scriptlogbutton", "shellrootbutton", "shellscaleotherbutton",
+        "shellscalerootbutton", "sntpbutton", "switchactivatewhentalkbutton",
+        "switchactivatewhentalkexceptupdatebutton", "switchautobiffbutton", "switchautoheadlinesensebutton",
+        "switchblacklistingbutton", "switchcompatiblemodebutton", "switchconsolealwaysvisiblebutton",
+        "switchconsolevisiblebutton", "switchdeactivatebutton", "switchdontactivatebutton",
+        "switchdontforcealignbutton", "switchduivisiblebutton", "switchforcealignfreebutton",
+        "switchforcealignlimitbutton", "switchignoreserikomovebutton", "switchlocalsstpbutton",
+        "switchmovetodefaultpositionbutton", "switchproxybutton", "switchquietbutton",
+        "switchreloadbutton", "switchreloadtempghostbutton", "switchremotesstpbutton",
+        "switchrootbutton", "switchtalkghostbutton", "systeminfobutton",
+        "updatebutton", "updatefmobutton", "updateplatformbutton",
+        "utilityrootbutton", "vanishbutton", "aistatebutton",
+        "dictationbutton", "texttospeechbutton"
+    ]
+
+    public static let defaultRecommendSiteScopes: [String] = [
+        "sakura", "kero", "char2", "char3", "char4", "char5", "char6", "char7", "char8", "char9"
+    ]
+
+    public static let ownerDrawMenuColorPrefixes: [String] = [
+        "menu.background.font.color", "menu.foreground.font.color",
+        "menu.background.color", "menu.foreground.color",
+        "menu.separator.color", "menu.frame.color", "menu.disable.font.color"
+    ]
+
+    public func menuBitmapURLs(base: URL?) -> (sidebar: URL?, background: URL?, foreground: URL?) {
+        (
+            sidebar: urlValue(for: "menu.sidebar.bitmap.filename", relativeTo: base),
+            background: urlValue(for: "menu.background.bitmap.filename", relativeTo: base),
+            foreground: urlValue(for: "menu.foreground.bitmap.filename", relativeTo: base)
+        )
+    }
+
+    public func ownerDrawMenuColorMap() -> [String: NSColor] {
+        var result: [String: NSColor] = [:]
+        for prefix in Self.ownerDrawMenuColorPrefixes {
+            if let color = colorValue(for: prefix) {
+                result[prefix] = color
+            }
+        }
+        return result
+    }
+
+    public func ownerDrawMenuCaptionKeys(recommendSiteScopes: [String] = ResourceBridge.defaultRecommendSiteScopes) -> [String] {
+        expandedOwnerDrawMenuBaseKeys(recommendSiteScopes: recommendSiteScopes).map { "\($0).caption" }
+    }
+
+    public func ownerDrawMenuVisibilityKeys(recommendSiteScopes: [String] = ResourceBridge.defaultRecommendSiteScopes) -> [String] {
+        expandedOwnerDrawMenuBaseKeys(recommendSiteScopes: recommendSiteScopes).map { "\($0).visible" }
+    }
+
+    public func ownerDrawMenuCaptions(recommendSiteScopes: [String] = ResourceBridge.defaultRecommendSiteScopes) -> [String: (title: String, shortcut: Character?, visible: Bool)] {
+        var result: [String: (title: String, shortcut: Character?, visible: Bool)] = [:]
+        for key in ownerDrawMenuCaptionKeys(recommendSiteScopes: recommendSiteScopes) {
+            if let item = menuItem(for: key) {
+                result[key] = item
+            }
+        }
+        return result
+    }
+
+    public func aiState() -> String? {
+        get("getaistate")
+    }
+
+    public func aiStateExRaw() -> String? {
+        get("getaistateex")
+    }
+
+    public func aiStateEx() -> [String]? {
+        guard let raw = aiStateExRaw() else { return nil }
+        return splitEscaped(raw, separator: "\u{01}").filter { !$0.isEmpty }
+    }
+
+    public func tooltipEventName() -> String? {
+        get("tooltip")
+    }
+
+    public func balloonTooltipEventName() -> String? {
+        get("balloon_tooltip")
+    }
+
+    public func portalSites(base: URL?) -> [RecommendSite]? {
+        recommendSites(for: "sakura.portalsites", base: base)
+    }
+
+    public func recommendSites(forCharacter character: String, base: URL?) -> [RecommendSite]? {
+        recommendSites(for: "\(character).recommendsites", base: base)
+    }
+
+    public func legacyInterfaceEnabled() -> Bool {
+        boolValue(for: "legacyinterface") ?? false
+    }
+
+    public func otherHomeURLOverride() -> String? {
+        get("other_homeurl_override")
+    }
+
     /// `recommendsites` / `portalsites` を配列に展開する
     public func recommendSites(for key: String, base: URL?) -> [RecommendSite]? {
         guard let raw = get(key) else { return nil }
@@ -149,10 +267,16 @@ public final class ResourceBridge {
     public func menuItem(for captionKey: String) -> (title: String, shortcut: Character?, visible: Bool)? {
         guard var caption = get(captionKey) else { return nil }
         var shortcut: Character? = nil
-        if let amp = caption.firstIndex(of: "&"), caption.index(after: amp) < caption.endIndex {
+        if let open = caption.range(of: "(&"), let close = caption[open.upperBound...].firstIndex(of: ")"),
+           open.upperBound < close {
+            let keyChar = caption[open.upperBound]
+            shortcut = keyChar
+            caption.replaceSubrange(open.lowerBound...close, with: " \(keyChar)")
+        } else if let amp = caption.firstIndex(of: "&"), caption.index(after: amp) < caption.endIndex {
             shortcut = caption[caption.index(after: amp)]
             caption.remove(at: amp)
         }
+        caption = caption.replacingOccurrences(of: "  ", with: " ").trimmingCharacters(in: .whitespacesAndNewlines)
         let visibleKey = captionKey.replacingOccurrences(of: ".caption", with: ".visible")
         let visible = boolValue(for: visibleKey) ?? true
         return (caption, shortcut, visible)
@@ -178,6 +302,13 @@ public final class ResourceBridge {
         }
         result.append(current)
         return result
+    }
+
+    private func expandedOwnerDrawMenuBaseKeys(recommendSiteScopes: [String]) -> [String] {
+        Self.ownerDrawMenuButtonBaseKeys.flatMap { key -> [String] in
+            guard key == "char*.recommendsites" else { return [key] }
+            return recommendSiteScopes.map { "\($0).recommendsites" }
+        }
     }
 
     // MARK: - Internal query
@@ -214,11 +345,11 @@ extension ResourceBridge {
         }
         
         // 色
-        if let bgColor = colorValue(for: "menu.background.font.color") {
+        if let bgColor = colorValue(for: "menu.background.font.color") ?? colorValue(for: "menu.background.color") {
             config.backgroundColor = bgColor
         }
         
-        if let fgColor = colorValue(for: "menu.foreground.font.color") {
+        if let fgColor = colorValue(for: "menu.foreground.font.color") ?? colorValue(for: "menu.foreground.color") {
             config.foregroundColor = fgColor
         }
         
@@ -229,6 +360,10 @@ extension ResourceBridge {
         if let disabledColor = colorValue(for: "menu.disable.font.color") {
             config.disabledColor = disabledColor
         }
+        if let frameColor = colorValue(for: "menu.frame.color") {
+            config.frameColor = frameColor
+        }
+        config.customColors = ownerDrawMenuColorMap()
         
         // 配置
         if let bgAlign = get("menu.background.alignment").flatMap(MenuAlignment.init(rawValue:)) {
@@ -252,31 +387,43 @@ extension ResourceBridge {
         
         // ゴースト情報
         if let item = menuItem(caption: "inforootbutton") {
-            items.append(OwnerDrawMenuItem(type: .button(action: "menu_ghost_info"), caption: item.title))
+            var menuItem = OwnerDrawMenuItem(type: .button(action: "menu_ghost_info"), caption: item.title)
+            menuItem.shortcut = item.shortcut
+            menuItem.visible = item.visible
+            items.append(menuItem)
         }
         
         // ゴースト切替
         if let item = menuItem(caption: "ghostrootbutton") {
-            items.append(OwnerDrawMenuItem(
+            var menuItem = OwnerDrawMenuItem(
                 type: .submenu(items: availableGhostItems(), action: nil),
                 caption: item.title
-            ))
+            )
+            menuItem.shortcut = item.shortcut
+            menuItem.visible = item.visible
+            items.append(menuItem)
         }
         
         // シェル切替
         if let item = menuItem(caption: "shellrootbutton") {
-            items.append(OwnerDrawMenuItem(
+            var menuItem = OwnerDrawMenuItem(
                 type: .submenu(items: availableShellItems(), action: nil),
                 caption: item.title
-            ))
+            )
+            menuItem.shortcut = item.shortcut
+            menuItem.visible = item.visible
+            items.append(menuItem)
         }
         
         // バルーン切替
         if let item = menuItem(caption: "balloonrootbutton") {
-            items.append(OwnerDrawMenuItem(
+            var menuItem = OwnerDrawMenuItem(
                 type: .submenu(items: availableBalloonItems(), action: nil),
                 caption: item.title
-            ))
+            )
+            menuItem.shortcut = item.shortcut
+            menuItem.visible = item.visible
+            items.append(menuItem)
         }
         
         // 区切り
@@ -284,12 +431,18 @@ extension ResourceBridge {
         
         // 設定
         if let item = menuItem(caption: "configurationbutton") {
-            items.append(OwnerDrawMenuItem(type: .button(action: "menu_settings"), caption: item.title))
+            var menuItem = OwnerDrawMenuItem(type: .button(action: "menu_settings"), caption: item.title)
+            menuItem.shortcut = item.shortcut
+            menuItem.visible = item.visible
+            items.append(menuItem)
         }
         
         // 終了
         if let item = menuItem(caption: "quitbutton") {
-            items.append(OwnerDrawMenuItem(type: .button(action: "menu_quit"), caption: item.title))
+            var menuItem = OwnerDrawMenuItem(type: .button(action: "menu_quit"), caption: item.title)
+            menuItem.shortcut = item.shortcut
+            menuItem.visible = item.visible
+            items.append(menuItem)
         }
         
         return items
@@ -297,28 +450,46 @@ extension ResourceBridge {
     
     /// 利用可能なゴースト項目
     private func availableGhostItems() -> [OwnerDrawMenuItem] {
-        // TODO: GhostManager から利用可能なゴーストリストを取得
-        return [
-            OwnerDrawMenuItem(type: .button(action: "switch_ghost:ghost1"), caption: "Ghost 1"),
-            OwnerDrawMenuItem(type: .button(action: "switch_ghost:ghost2"), caption: "Ghost 2")
-        ]
+        let ghosts = NarRegistry.shared.installedItems(ofType: "ghost")
+            .map(\.name)
+            .sorted()
+        return ghosts.map { ghost in
+            OwnerDrawMenuItem(type: .button(action: "switch_ghost:\(actionSafeIdentifier(ghost))"), caption: ghost)
+        }
     }
     
     /// 利用可能なシェル項目
     private func availableShellItems() -> [OwnerDrawMenuItem] {
-        // TODO: GhostManager から利用可能なシェルリストを取得
-        return [
-            OwnerDrawMenuItem(type: .button(action: "switch_shell:shell1"), caption: "Shell 1"),
-            OwnerDrawMenuItem(type: .button(action: "switch_shell:shell2"), caption: "Shell 2")
-        ]
+        var names: Set<String> = []
+        if let currentGhostPath = PropertyManager.shared.get("currentghost.path") {
+            let shellRoot = URL(fileURLWithPath: currentGhostPath).appendingPathComponent("shell", isDirectory: true)
+            names.formUnion(shellNames(in: shellRoot))
+        }
+
+        if names.isEmpty {
+            let ghostRoots = NarRegistry.shared.installedItems(ofType: "ghost").map(\.path)
+            for ghostRoot in ghostRoots {
+                names.formUnion(shellNames(in: ghostRoot.appendingPathComponent("shell", isDirectory: true)))
+            }
+        }
+
+        if names.isEmpty {
+            names.formUnion(NarRegistry.shared.installedItems(ofType: "shell").map(\.name))
+        }
+
+        return names.sorted().map { shell in
+            OwnerDrawMenuItem(type: .button(action: "switch_shell:\(actionSafeIdentifier(shell))"), caption: shell)
+        }
     }
     
     /// 利用可能なバルーン項目
     private func availableBalloonItems() -> [OwnerDrawMenuItem] {
-        // TODO: GhostManager から利用可能なバルーンリストを取得
-        return [
-            OwnerDrawMenuItem(type: .button(action: "switch_balloon:balloon1"), caption: "Balloon 1")
-        ]
+        let balloons = NarRegistry.shared.installedItems(ofType: "balloon")
+            .map(\.name)
+            .sorted()
+        return balloons.map { balloon in
+            OwnerDrawMenuItem(type: .button(action: "switch_balloon:\(actionSafeIdentifier(balloon))"), caption: balloon)
+        }
     }
     
     /// メニューキャプションを取得
@@ -329,5 +500,21 @@ extension ResourceBridge {
         let visible = boolValue(for: visibleKey) ?? true
         
         return (itemInfo.title, itemInfo.shortcut, visible)
+    }
+
+    private func actionSafeIdentifier(_ value: String) -> String {
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-._~"))
+        return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
+    }
+
+    private func shellNames(in root: URL) -> [String] {
+        guard let entries = try? FileManager.default.contentsOfDirectory(
+            at: root,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return []
+        }
+        return entries.filter { $0.hasDirectoryPath }.map(\.lastPathComponent)
     }
 }

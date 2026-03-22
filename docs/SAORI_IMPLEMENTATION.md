@@ -91,8 +91,54 @@ Samples:
 
 Both sample modules implement `load/unload/request`.
 
-## Current limitations
+## Current Status / 現在のステータス
+
+**Status**: Integration Complete (Core Path) / 統合完了（コアパス） / 2026-03-15
+
+Core SAORI components are now integrated with the YAYA runtime through VM → YayaCore → YayaAdapter → SaoriManager.
+
+主要なSAORIコンポーネントは、VM → YayaCore → YayaAdapter → SaoriManager 経路でYAYAランタイムへ統合されました。
+
+### Implemented Components / 実装済みコンポーネント
+- ✅ **SaoriLoader.swift** - macOS native .dylib loading with dlopen/dlsym
+- ✅ **SaoriProtocol.swift** - SAORI/1.0 request/response parsing
+- ✅ **SaoriRegistry.swift** - Module discovery and caching
+- ✅ **SaoriManager.swift** - Unified API for SAORI operations
+- ✅ **Test files** - SaoriProtocolTests.swift, SaoriRegistryTests.swift
+
+### Integration Status / 統合ステータス
+- ✅ **VM.cpp** - LOADLIB/UNLOADLIB/REQUESTLIB call pluginOperation bridge
+- ✅ **YayaCore.cpp** - pluginOperation routed via handlePluginOperation with validation
+- ✅ **YayaAdapter.swift** - handlePluginOperation / handleSaoriRequest delegate to SaoriManager
+- ✅ **Operational path** - YAYA scripts can load/request/unload SAORI modules
+
+### Blocking Issues / ブロック中の問題
+- ✅ **ID-001**: Resolved
+- ✅ **ID-002**: Resolved
+
+### Integration Record / 統合実施記録
+
+Phase 1 integration work is complete and tracked in code/tests:
+
+フェーズ1の統合作業は完了し、コードとテストで追跡されています：
+
+1. ✅ **VM.cpp bridge path** (Task 1.1 complete)
+2. ✅ **YayaCore plugin operation routing** (Task 1.2 complete)
+3. ✅ **YayaAdapter SAORI bridge wiring** (Task 1.3 complete)
+4. ✅ **Sample + smoke coverage** (Tasks 1.4-1.5 complete)
+
+### Success Criteria / 成功基準
+- [x] LOADLIB successfully loads .dylib module
+- [x] REQUESTLIB sends request and receives response
+- [x] UNLOADLIB unloads module
+- [x] Integration smoke tests pass
+- [x] No SAORI blockers remain (ID-001, ID-002 resolved)
+
+---
+
+## Current limitations / 現在の制限
 
 - SAORI module ABI variance is handled by common symbol aliases only.
 - Response memory ownership depends on module behavior; modules should follow SAORI conventions.
 - Extended SAORI security policies are not fully formalized yet (future hardening item).
+- End-to-end ghost behavior validation is still ongoing for broader real-ghost coverage.

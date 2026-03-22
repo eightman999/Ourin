@@ -15,9 +15,13 @@ final class SleepObserver {
         let center = NSWorkspace.shared.notificationCenter
         tokens.append(center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in
             self?.handler?(ShioriEvent(id: .OnSysSuspend, params: [:]))
+            self?.handler?(ShioriEvent(id: .OnSleep, params: [:]))
+            self?.handler?(ShioriEvent(id: .OnCacheSuspend, params: [:]))
         })
         tokens.append(center.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
             self?.handler?(ShioriEvent(id: .OnSysResume, params: [:]))
+            self?.handler?(ShioriEvent(id: .OnWake, params: [:]))
+            self?.handler?(ShioriEvent(id: .OnCacheRestore, params: [:]))
         })
         tokens.append(center.addObserver(forName: NSWorkspace.screensDidSleepNotification, object: nil, queue: .main) { [weak self] _ in
             self?.handler?(ShioriEvent(id: .OnScreenSaverStart, params: [:]))

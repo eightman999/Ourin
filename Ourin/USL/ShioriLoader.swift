@@ -5,6 +5,33 @@ import Glibc
 import Darwin
 #endif
 
+@objc public protocol OurinShioriXPC {
+    func execute(_ request: Data, bundlePath: String, withReply reply: @escaping (Data?, String?) -> Void)
+}
+
+public enum ShioriLoaderError: Error, CustomStringConvertible {
+    case openFailed(String)
+    case missingRequiredSymbol(String)
+    case xpcUnavailable(String)
+    case requestTimeout
+    case requestFailed(String)
+
+    public var description: String {
+        switch self {
+        case .openFailed(let detail):
+            return "Failed to open SHIORI module: \(detail)"
+        case .missingRequiredSymbol(let name):
+            return "Required SHIORI symbol missing: \(name)"
+        case .xpcUnavailable(let detail):
+            return "SHIORI XPC backend unavailable: \(detail)"
+        case .requestTimeout:
+            return "SHIORI XPC request timed out."
+        case .requestFailed(let detail):
+            return "SHIORI request failed: \(detail)"
+        }
+    }
+}
+
 // MARK: - Backend Protocol
 /// Common interface for different SHIORI backends.
 protocol ShioriBackend {
@@ -59,10 +86,14 @@ final class YayaBackend: ShioriBackend {
         }
 
         guard let yayaResponse = yayaAdapter.request(method: parsed.method, id: parsed.id, headers: parsed.headers, refs: parsed.refs, timeout: 5.0) else {
-            return "SHIORI/3.0 500 Internal Server Error\r\n\r\n"
+            return "\(parsed.protocolVersion) 500 Internal Server Error\r\n\r\n"
         }
 
-        return YayaBackend.buildResponse(from: yayaResponse)
+        return YayaBackend.buildResponse(
+            from: yayaResponse,
+            requestVersion: parsed.protocolVersion,
+            requestMethod: parsed.originalMethod
+        )
     }
 
     func unload() {
@@ -133,7 +164,16 @@ func parseYayaConfigFile(content: String, baseURL: URL, dicFiles: inout [String]
 }
 
 // MARK: - YayaBackend Helpers
-private extension YayaBackend {
+extension YayaBackend {
+    struct ParsedRequest {
+        let method: String
+        let originalMethod: String
+        let protocolVersion: String
+        let id: String
+        let headers: [String: String]
+        let refs: [String]
+    }
+
     static func parseDescript(url: URL) -> [String: String] {
         guard let contents = (try? String(contentsOf: url, encoding: .shiftJIS)) ?? (try? String(contentsOf: url, encoding: .utf8)) else {
             return [:]
@@ -153,13 +193,15 @@ private extension YayaBackend {
         return dict
     }
 
-    static func parseRequest(_ text: String) -> (method: String, id: String, headers: [String: String], refs: [String])? {
+    static func parseRequest(_ text: String) -> ParsedRequest? {
         let lines = text.components(separatedBy: "\r\n")
         guard lines.count >= 2, let firstLine = lines.first else { return nil }
         let parts = firstLine.components(separatedBy: .whitespaces)
         guard parts.count >= 2 else { return nil }
-        let method = parts[0]
+        let originalMethod = parts[0].uppercased()
+        let protocolVersion = parts[1].uppercased()
         var headers: [String: String] = [:]
+        var lowercasedHeaders: [String: String] = [:]
         var refs: [String] = []
         for line in lines.dropFirst() {
             if line.isEmpty { break }
@@ -167,27 +209,57 @@ private extension YayaBackend {
                 let key = String(line[..<separatorIndex])
                 let value = String(line[separatorIndex...]).dropFirst().trimmingCharacters(in: .whitespaces)
                 headers[key] = value
+                lowercasedHeaders[key.lowercased()] = value
             }
         }
-        guard let id = headers["ID"] else { return nil }
+
+        let id = lowercasedHeaders["id"]
+            ?? lowercasedHeaders["event"]
+            ?? (originalMethod == "TEACH" ? "OnTeach" : nil)
+        guard let resolvedID = id, !resolvedID.isEmpty else { return nil }
+
         var i = 0
-        while let ref = headers["Reference\(i)"] {
+        while let ref = headers["Reference\(i)"] ?? lowercasedHeaders["reference\(i)"] {
             refs.append(ref)
             i += 1
         }
-        return (method, id, headers, refs)
+
+        if originalMethod == "TEACH", refs.isEmpty, let sentence = lowercasedHeaders["sentence"], !sentence.isEmpty {
+            refs.append(sentence)
+        }
+
+        let method: String
+        if originalMethod == "TEACH" {
+            method = "NOTIFY"
+        } else {
+            method = originalMethod
+        }
+        return ParsedRequest(
+            method: method,
+            originalMethod: originalMethod,
+            protocolVersion: protocolVersion.hasPrefix("SHIORI/2.") ? protocolVersion : "SHIORI/3.0",
+            id: resolvedID,
+            headers: headers,
+            refs: refs
+        )
     }
 
-    static func buildResponse(from yayaResponse: YayaResponse) -> String {
-        let status = yayaResponse.status
+    static func buildResponse(from yayaResponse: YayaResponse, requestVersion: String, requestMethod: String) -> String {
+        var status = yayaResponse.status
+        if requestVersion.hasPrefix("SHIORI/2."), requestMethod == "TEACH", status == 204 {
+            // SHIORI/2.x TEACH legacy mapping.
+            status = 312
+        }
         var statusText = "OK"
         switch status {
         case 204: statusText = "No Content"
+        case 311: statusText = "Insecure"
+        case 312: statusText = "No Content (Not Trusted)"
         case 400: statusText = "Bad Request"
         case 500: statusText = "Internal Server Error"
         default: break
         }
-        var responseString = "SHIORI/3.0 \(status) \(statusText)\r\n"
+        var responseString = "\(requestVersion) \(status) \(statusText)\r\n"
         if let headers = yayaResponse.headers {
             for (key, value) in headers {
                 responseString += "\(key): \(value)\r\n"
@@ -198,6 +270,69 @@ private extension YayaBackend {
         }
         responseString += "\r\n"
         return responseString
+    }
+}
+
+// MARK: - XPC Backend
+/// Backend that executes SHIORI requests in an external XPC service.
+final class XpcBackend: ShioriBackend {
+    private let connection: NSXPCConnection
+    private let moduleURL: URL
+    private let timeout: TimeInterval
+
+    init(serviceName: String, moduleURL: URL, timeout: TimeInterval = 5.0) throws {
+        guard !serviceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw ShioriLoaderError.xpcUnavailable("Empty service name")
+        }
+        self.connection = NSXPCConnection(machServiceName: serviceName, options: [])
+        self.connection.remoteObjectInterface = NSXPCInterface(with: OurinShioriXPC.self)
+        self.connection.resume()
+        self.moduleURL = moduleURL
+        self.timeout = timeout
+    }
+
+    func request(_ text: String) -> String? {
+        let requestData = Data(text.utf8)
+        let sem = DispatchSemaphore(value: 0)
+        var responseData: Data?
+        var responseError: String?
+        var connectionError: Error?
+
+        guard let proxy = connection.remoteObjectProxyWithErrorHandler({ error in
+            connectionError = error
+            sem.signal()
+        }) as? OurinShioriXPC else {
+            NSLog("[XpcBackend] Failed to create remote proxy")
+            return nil
+        }
+
+        proxy.execute(requestData, bundlePath: moduleURL.path) { data, errorText in
+            responseData = data
+            responseError = errorText
+            sem.signal()
+        }
+
+        if sem.wait(timeout: .now() + timeout) == .timedOut {
+            NSLog("[XpcBackend] Request timeout")
+            return nil
+        }
+
+        if let connectionError {
+            NSLog("[XpcBackend] Connection error: \(connectionError.localizedDescription)")
+            return nil
+        }
+        if let responseError {
+            NSLog("[XpcBackend] Remote error: \(responseError)")
+            return nil
+        }
+        guard let responseData else {
+            return nil
+        }
+        return String(data: responseData, encoding: .utf8)
+    }
+
+    func unload() {
+        connection.invalidate()
     }
 }
 
@@ -234,6 +369,13 @@ final class BundleBackend: ShioriBackend {
         requestFn = loadSymbol("shiori_request", as: ShioriRequest.self)
         unloadFn = loadSymbol("shiori_unload", as: ShioriUnload.self)
         freeFn = loadSymbol("shiori_free", as: ShioriFree.self)
+
+        guard requestFn != nil else {
+            throw ShioriLoaderError.missingRequiredSymbol("shiori_request")
+        }
+        guard freeFn != nil else {
+            throw ShioriLoaderError.missingRequiredSymbol("shiori_free")
+        }
         
         NSLog("[BundleBackend] Loaded bundle: \(url.lastPathComponent)")
         NSLog("[BundleBackend] Found symbols: load=\(loadFn != nil), request=\(requestFn != nil), unload=\(unloadFn != nil), free=\(freeFn != nil)")
@@ -300,7 +442,8 @@ final class DylibBackend: ShioriBackend {
 
     init(url: URL) throws {
         guard let h = dlopen(url.path, RTLD_NOW) else {
-            throw NSError(domain: "USL.DylibBackend", code: 1, userInfo: [NSLocalizedDescriptionKey: String(cString: dlerror())])
+            let detail = dlerror().map { String(cString: $0) } ?? "unknown"
+            throw ShioriLoaderError.openFailed(detail)
         }
         handle = h
         func loadSymbol<T>(_ name: String, as type: T.Type) -> T? {
@@ -312,6 +455,17 @@ final class DylibBackend: ShioriBackend {
         unloadFn = loadSymbol("shiori_unload", as: ShioriUnload.self)
         freeFn = loadSymbol("shiori_free", as: ShioriFree.self)
         self.moduleURL = url
+
+        guard requestFn != nil else {
+            dlclose(h)
+            handle = nil
+            throw ShioriLoaderError.missingRequiredSymbol("shiori_request")
+        }
+        guard freeFn != nil else {
+            dlclose(h)
+            handle = nil
+            throw ShioriLoaderError.missingRequiredSymbol("shiori_free")
+        }
 
         // call load if available
         if let l = loadFn {
@@ -373,16 +527,30 @@ public final class ShioriLoader {
 
     deinit { unload() }
 
+    /// Initialize SHIORI backend from an explicit module path.
+    public convenience init?(moduleURL: URL, xpcServiceName: String? = ShioriLoader.resolvedXpcServiceName()) {
+        do {
+            let backend = try ShioriLoader.makeBackend(moduleURL: moduleURL, xpcServiceName: xpcServiceName)
+            self.init(backend: backend)
+        } catch {
+            NSLog("[ShioriLoader] Failed to initialize backend for \(moduleURL.lastPathComponent): \(error)")
+            return nil
+        }
+    }
+
     /// Attempt to load module by name searching typical USL paths
     public convenience init?(module name: String, base: URL) {
         let shioriName = (name as NSString).lastPathComponent.lowercased()
-        let backend: ShioriBackend?
+        let backend: ShioriBackend
         
         if shioriName == "yaya.dll" {
             // It's YAYA. Instantiate YayaBackend.
             // The descript dictionary will be loaded inside YayaBackend's initializer.
             // For now, we pass an empty dictionary as a placeholder.
-            backend = YayaBackend(ghostURL: base, descript: [:])
+            guard let yaya = YayaBackend(ghostURL: base, descript: [:]) else {
+                return nil
+            }
+            backend = yaya
         } else {
             // Search for the module file
             let paths = ShioriLoader.searchPaths(base: base)
@@ -390,24 +558,15 @@ public final class ShioriLoader {
                 // Module not found
                 return nil
             }
-            
-            // Determine backend type based on file extension
-            let ext = url.pathExtension.lowercased()
-            if ext == "bundle" || ext == "plugin" {
-                // Use BundleBackend for .bundle/.plugin files (macOS native)
-                backend = try? BundleBackend(url: url)
-            } else {
-                // Use DylibBackend for .dylib/.so files
-                backend = try? DylibBackend(url: url)
+            do {
+                backend = try ShioriLoader.makeBackend(moduleURL: url, xpcServiceName: ShioriLoader.resolvedXpcServiceName())
+            } catch {
+                NSLog("[ShioriLoader] Failed to create backend for \(url.lastPathComponent): \(error)")
+                return nil
             }
         }
-        
-        if let finalBackend = backend {
-            self.init(backend: finalBackend)
-        } else {
-            // Backend initialization failed
-            return nil
-        }
+
+        self.init(backend: backend)
     }
 
     /// Send SHIORI request and return raw response string
@@ -423,6 +582,38 @@ public final class ShioriLoader {
 
 // MARK: - Search path & name normalization helpers
 extension ShioriLoader {
+    public static func resolvedXpcServiceName(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
+        if let explicit = environment["SHIORI_XPC_SERVICE_NAME"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !explicit.isEmpty {
+            return explicit
+        }
+        if let explicit = environment["OURIN_SHIORI_XPC_SERVICE"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !explicit.isEmpty {
+            return explicit
+        }
+        let mode = environment["OURIN_SHIORI_ISOLATION_MODE"]?.lowercased()
+        if mode == "xpc" {
+            return "jp.ourin.shiori"
+        }
+        return nil
+    }
+
+    private static func makeBackend(moduleURL: URL, xpcServiceName: String?) throws -> ShioriBackend {
+        if let xpcServiceName {
+            do {
+                NSLog("[ShioriLoader] Trying XPC backend (\(xpcServiceName)) for \(moduleURL.lastPathComponent)")
+                return try XpcBackend(serviceName: xpcServiceName, moduleURL: moduleURL)
+            } catch {
+                NSLog("[ShioriLoader] XPC backend unavailable, falling back to native loader: \(error)")
+            }
+        }
+        let ext = moduleURL.pathExtension.lowercased()
+        if ext == "bundle" || ext == "plugin" {
+            return try BundleBackend(url: moduleURL)
+        }
+        return try DylibBackend(url: moduleURL)
+    }
+
     /// Default search paths defined by USL spec
     static func searchPaths(base: URL) -> [URL] {
         var arr: [URL] = []
@@ -464,5 +655,107 @@ extension ShioriLoader {
         list.append("\(stem).so")
         list.append("lib\(stem).so")
         return Array(NSOrderedSet(array: list)) as! [String]
+    }
+}
+
+// MARK: - SHIORI XPC Service Host
+public protocol ShioriRequesting {
+    func request(_ text: String) -> String?
+    func unload()
+}
+
+extension ShioriLoader: ShioriRequesting {}
+
+/// Listener-side service implementation for `OurinShioriXPC`.
+public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinShioriXPC {
+    private let listener: NSXPCListener
+    private let loaderFactory: (URL) -> ShioriRequesting?
+    private let lock = NSLock()
+    private var loaders: [String: ShioriRequesting] = [:]
+
+    public init(
+        listener: NSXPCListener = .service(),
+        loaderFactory: @escaping (URL) -> ShioriRequesting? = { url in
+            ShioriLoader(moduleURL: url, xpcServiceName: nil)
+        }
+    ) {
+        self.listener = listener
+        self.loaderFactory = loaderFactory
+        super.init()
+        self.listener.delegate = self
+    }
+
+    public func resume() {
+        listener.resume()
+    }
+
+    public func invalidateAllLoaders() {
+        lock.lock()
+        let current = loaders.values
+        loaders.removeAll()
+        lock.unlock()
+        current.forEach { $0.unload() }
+    }
+
+    public func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
+        newConnection.exportedInterface = NSXPCInterface(with: OurinShioriXPC.self)
+        newConnection.exportedObject = self
+        newConnection.resume()
+        return true
+    }
+
+    public func execute(_ request: Data, bundlePath: String, withReply reply: @escaping (Data?, String?) -> Void) {
+        guard let requestText = String(data: request, encoding: .utf8), !requestText.isEmpty else {
+            reply(nil, "Invalid SHIORI request payload")
+            return
+        }
+
+        let trimmedPath = bundlePath.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedPath.isEmpty else {
+            reply(nil, "Empty SHIORI module path")
+            return
+        }
+
+        let moduleURL = URL(fileURLWithPath: trimmedPath)
+        guard FileManager.default.fileExists(atPath: moduleURL.path) else {
+            reply(nil, "SHIORI module not found: \(moduleURL.path)")
+            return
+        }
+
+        guard let loader = resolveLoader(moduleURL: moduleURL) else {
+            reply(nil, "Failed to load SHIORI module: \(moduleURL.lastPathComponent)")
+            return
+        }
+
+        guard let response = loader.request(requestText) else {
+            reply(nil, "SHIORI request failed.")
+            return
+        }
+        reply(Data(response.utf8), nil)
+    }
+
+    private func resolveLoader(moduleURL: URL) -> ShioriRequesting? {
+        let key = moduleURL.standardizedFileURL.path
+
+        lock.lock()
+        if let cached = loaders[key] {
+            lock.unlock()
+            return cached
+        }
+        lock.unlock()
+
+        guard let created = loaderFactory(moduleURL) else {
+            return nil
+        }
+
+        lock.lock()
+        if let existing = loaders[key] {
+            lock.unlock()
+            created.unload()
+            return existing
+        }
+        loaders[key] = created
+        lock.unlock()
+        return created
     }
 }

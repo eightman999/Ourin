@@ -98,14 +98,22 @@ extension GhostManager {
         //     for sc in targets { getBalloonVM(for: sc).text += s }
         // } else {
             getBalloonVM(for: currentScope).text += s
+            scheduleBalloonTimeout(for: currentScope)
+            triggerSerikoTalkAnimationIfEnabled()
         // }
     }
 
     func onBalloonClicked(fromScope: Int) {
         if let noclear = pendingClick {
+            if noUserBreakModeActive {
+                Log.debug("[GhostManager] Balloon click ignored: nouserbreakmode active")
+                return
+            }
             pendingClick = nil
             if !noclear {
                 getBalloonVM(for: fromScope).text = ""
+                EventBridge.shared.notify(.OnBalloonBreak, params: ["Reference0": String(fromScope)])
+                EventBridge.shared.notify(.OnBalloonClose, params: ["Reference0": String(fromScope)])
             }
             processNextUnit()
             return
@@ -135,6 +143,23 @@ extension GhostManager {
         case .script(let script):
             sakuraEngine.run(script: script)
         }
+    }
+
+    private func scheduleBalloonTimeout(for scope: Int) {
+        let key = "balloon-timeout-\(scope)"
+        if let timer = localEventTimers[key] {
+            timer.invalidate()
+            localEventTimers.removeValue(forKey: key)
+        }
+        guard let vm = balloonViewModels[scope], vm.balloonTimeout > 0 else { return }
+        let timer = Timer.scheduledTimer(withTimeInterval: vm.balloonTimeout, repeats: false) { [weak self] _ in
+            guard let self else { return }
+            self.getBalloonVM(for: scope).text = ""
+            EventBridge.shared.notify(.OnBalloonTimeout, params: ["Reference0": String(scope)])
+            EventBridge.shared.notify(.OnBalloonClose, params: ["Reference0": String(scope)])
+            self.localEventTimers.removeValue(forKey: key)
+        }
+        localEventTimers[key] = timer
     }
     // MARK: - Balloon Positioning
 
@@ -572,6 +597,19 @@ extension GhostManager {
         }
     }
 
+    /// Parse color from command args (supports r,g,b positional triplets and scalar color spec).
+    func parseColor(from values: [String], defaultValue: NSColor) -> NSColor {
+        let normalized = values.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        guard !normalized.isEmpty else { return defaultValue }
+        if normalized.count >= 3,
+           let r = Double(normalized[0]),
+           let g = Double(normalized[1]),
+           let b = Double(normalized[2]) {
+            return NSColor(red: CGFloat(r) / 255.0, green: CGFloat(g) / 255.0, blue: CGFloat(b) / 255.0, alpha: 1.0)
+        }
+        return parseColor(from: normalized.joined(separator: ","), defaultValue: defaultValue)
+    }
+
     /// Parse tri-state value (0/1/true/false/default/disable)
     func parseTriState(_ value: String, currentValue: String) -> Bool {
         let v = value.lowercased()
@@ -593,9 +631,12 @@ extension GhostManager {
         vm.fontItalic = false
         vm.fontUnderline = false
         vm.fontStrike = false
+        vm.fontSubscript = false
+        vm.fontSuperscript = false
         vm.fontColor = config?.fontColor ?? .textColor
         vm.shadowColor = .clear
         vm.shadowStyle = .none
+        vm.outlineWidth = 0
     }
 
     /// Set font to disabled style
@@ -607,9 +648,12 @@ extension GhostManager {
         vm.fontItalic = false
         vm.fontUnderline = false
         vm.fontStrike = true
+        vm.fontSubscript = false
+        vm.fontSuperscript = false
         vm.fontColor = .gray
         vm.shadowColor = .clear
         vm.shadowStyle = .none
+        vm.outlineWidth = 0
     }
 
     /// Clear text - \c[char,line,...]

@@ -10,7 +10,7 @@ import UserNotifications
 extension GhostManager {
     func updateSurface(id: Int) {
         let scope = currentScope
-        let oldSurfaceID = characterViewModels[scope]?.image != nil ? -1 : 0 // Simplified tracking
+        let oldSurfaceID = characterViewModels[scope]?.currentSurfaceID ?? 0
         
         // Clear overlays when surface changes (per UKADOC spec)
         DispatchQueue.main.async { [weak self] in
@@ -32,6 +32,7 @@ extension GhostManager {
 
                 if let vm = self.characterViewModels[scope] {
                     vm.image = image
+                    vm.currentSurfaceID = id
                 }
                 if let win = self.characterWindows[scope] {
                     // Resize window to fit to new surface
@@ -51,7 +52,7 @@ extension GhostManager {
         
         // Schedule OnSurfaceRestore after a delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) { [weak self] in
-            guard let self = self else { return }
+            guard self != nil else { return }
             let params: [String: String] = [
                 "Reference0": oldSurfaceID >= 0 ? String(oldSurfaceID) : "0",
                 "Reference1": String(id)
@@ -59,30 +60,13 @@ extension GhostManager {
             EventBridge.shared.notify(.OnSurfaceRestore, params: params)
             Log.debug("[GhostManager] OnSurfaceRestore dispatched")
         }
-        
-        DispatchQueue.global(qos: .userInitiated).async {
-            let image = self.loadImage(surfaceId: id, scope: scope)
-            DispatchQueue.main.async {
-                // If the requested surface doesn't exist, keep the current surface
-                guard let image = image else {
-                    Log.info("[GhostManager] Surface \(id) not found for scope \(scope), keeping current surface")
-                    return
-                }
-
-                if let vm = self.characterViewModels[scope] {
-                    vm.image = image
-                }
-                if let win = self.characterWindows[scope] {
-                    // Resize window to fit the new surface
-                    win.setContentSize(image.size)
-                    self.positionBalloonWindow()
-                }
-            }
-        }
     }
 
     func loadImage(surfaceId: Int, scope: Int) -> NSImage? {
-        let shellURL = ghostURL.appendingPathComponent("shell/master")
+        guard let shellURL = loadShellPath() else {
+            Log.info("[GhostManager] Cannot load surface: shell path unavailable")
+            return nil
+        }
         // いくつかのシェルは surface0000.png のような4桁ゼロ埋めを使う。
         func pad4(_ n: Int) -> String { String(format: "%04d", n) }
 
@@ -139,7 +123,8 @@ extension GhostManager {
     /// - Parameters:
     ///   - surfaceID: The surface ID to overlay
     ///   - type: The animation pattern type (overlay/base/replace/bind)
-    func handleSurfaceOverlay(surfaceID: Int, type: AnimationPatternType = .overlay) {
+    ///   - animationID: Optional owner animation ID for deterministic overlay tracking
+    func handleSurfaceOverlay(surfaceID: Int, type: AnimationPatternType = .overlay, animationID: Int? = nil, initialOffset: CGPoint? = nil) {
         Log.debug("[GhostManager] Adding surface overlay: \(surfaceID), type: \(type)")
         
         // Process based on pattern type
@@ -187,13 +172,27 @@ extension GhostManager {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             guard let vm = self.characterViewModels[self.currentScope] else { return }
+            let insertionOrder = (vm.overlays.map(\.insertionOrder).max() ?? -1) + 1
+            let zOrder: Int
+            switch type {
+            case .base, .replace:
+                zOrder = 0
+            case .overlay:
+                zOrder = 100
+            case .bind:
+                zOrder = 200
+            }
+            let idPrefix = type == .bind ? "dressup_bind_\(surfaceID)_" : "surface_\(surfaceID)_"
+            let animationMarker = animationID.map { "anim_\($0)_" } ?? ""
             
-            let overlay = SurfaceOverlay(
-                id: type == .bind ? "dressup_bind_\(surfaceID)_\(UUID().uuidString)" : "surface_\(surfaceID)_\(UUID().uuidString)",
-                image: image,
-                offset: CGPoint.zero,
-                alpha: 1.0
-            )
+        let overlay = SurfaceOverlay(
+            id: "\(idPrefix)\(animationMarker)\(UUID().uuidString)",
+            image: image,
+            offset: initialOffset ?? CGPoint.zero,
+            alpha: 1.0,
+            zOrder: zOrder,
+            insertionOrder: insertionOrder
+        )
             
             vm.overlays.append(overlay)
             Log.debug("[GhostManager] Added surface overlay \(surfaceID) to scope \(self.currentScope)")
@@ -202,10 +201,43 @@ extension GhostManager {
     
     /// Get the current shell directory path
     func loadShellPath() -> URL? {
-        // Try to get shell path from ghost configuration
-        // Default to "master" shell if not specified
-        let shellName = "master" // TODO: Get from ghost config
+        let shellName = activeShellName.isEmpty ? "master" : activeShellName
         return ghostURL.appendingPathComponent("shell").appendingPathComponent(shellName)
+    }
+
+    /// Switch active shell directory and refresh current surfaces.
+    @discardableResult
+    func switchShell(named shellName: String, raiseEvent: Bool = false) -> Bool {
+        let trimmed = shellName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            Log.info("[GhostManager] change,shell ignored: empty shell name")
+            return false
+        }
+
+        let shellPath = ghostURL.appendingPathComponent("shell").appendingPathComponent(trimmed)
+        guard FileManager.default.fileExists(atPath: shellPath.path) else {
+            Log.info("[GhostManager] Shell not found: \(trimmed)")
+            return false
+        }
+
+        let previousShell = activeShellName
+        if raiseEvent {
+            EventBridge.shared.notify(.OnShellChanging, params: ["Reference0": previousShell, "Reference1": trimmed])
+        }
+        activeShellName = trimmed
+        loadDressupConfiguration()
+
+        let sakuraSurface = ghostConfig?.sakuraDefaultSurface ?? 0
+        let keroSurface = ghostConfig?.keroDefaultSurface ?? 10
+        let previousScope = currentScope
+
+        currentScope = 0
+        updateSurface(id: sakuraSurface)
+        currentScope = 1
+        updateSurface(id: keroSurface)
+        currentScope = previousScope
+        EventBridge.shared.notify(.OnShellChanged, params: ["Reference0": previousShell, "Reference1": trimmed])
+        return true
     }
     
     /// Clear all overlays for the current scope
@@ -233,10 +265,30 @@ extension GhostManager {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             guard let vm = self.characterViewModels[self.currentScope] else { return }
-            if let index = vm.overlays.firstIndex(where: { $0.id == id }) {
+            let exactMatches = vm.overlays.indices.filter { vm.overlays[$0].id == id }
+            let targetIndices = exactMatches.isEmpty
+                ? vm.overlays.indices.filter { vm.overlays[$0].id.hasPrefix(id) }
+                : exactMatches
+            guard !targetIndices.isEmpty else { return }
+            for index in targetIndices {
                 vm.overlays[index].offset = CGPoint(x: x, y: y)
-                Log.debug("[GhostManager] Offset overlay \(id) by (\(x), \(y))")
+            }
+            Log.debug("[GhostManager] Offset overlay \(id) by (\(x), \(y)) targets=\(targetIndices.count)")
+        }
+    }
+
+    // MARK: - SERIKO Collision Helpers
+    /// 現在のサーフェスのコリジョン領域に、与えられたウィンドウ座標の点が含まれる場合はその領域名を返す。
+    /// サーフェス座標系=ウィンドウ座標系として扱う（将来的に拡張時はスケール/オフセットを考慮）。
+    func collisionRegionName(at pointInWindow: CGPoint, scope: Int) -> String? {
+        guard let vm = characterViewModels[scope] else { return nil }
+        let surfaceID = vm.currentSurfaceID
+        let regions = animationEngine.getCollisions(for: surfaceID)
+        for region in regions {
+            if region.rect.contains(pointInWindow) {
+                return region.name
             }
         }
+        return nil
     }
 }

@@ -33,6 +33,14 @@ extension GhostManager {
         var baseOffset: String?
         var moveOffset: String?
         var ignoreStickyWindow: Bool = false
+        var wait: Bool = false
+    }
+
+    private struct ResizeCommandSpec {
+        var width: Int?
+        var height: Int?
+        var time: Int = 0
+        var scopeID: Int?
     }
 
     // Note: This extension uses the following properties declared in the main GhostManager class:
@@ -132,6 +140,8 @@ extension GhostManager {
         // Track window movement/resize
         NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidChangeFrame(_:)), name: NSWindow.didMoveNotification, object: window)
         NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidChangeFrame(_:)), name: NSWindow.didResizeNotification, object: window)
+        NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidMiniaturize(_:)), name: NSWindow.didMiniaturizeNotification, object: window)
+        NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidDeminiaturize(_:)), name: NSWindow.didDeminiaturizeNotification, object: window)
     }
 
     // MARK: - Window Position and Display Control
@@ -146,6 +156,18 @@ extension GhostManager {
                 Log.info("[GhostManager] Moved scope \(scope) to background")
             }
         }
+    }
+
+    @objc func characterWindowDidMiniaturize(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow,
+              let id = window.identifier?.rawValue else { return }
+        EventBridge.shared.notify(.OnWindowStateMinimize, params: ["Reference0": id])
+    }
+
+    @objc func characterWindowDidDeminiaturize(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow,
+              let id = window.identifier?.rawValue else { return }
+        EventBridge.shared.notify(.OnWindowStateRestore, params: ["Reference0": id])
     }
     
     /// Move window to front (above other windows)
@@ -250,7 +272,43 @@ extension GhostManager {
             moveWindowAsync(scope: scopeID, x: x, y: y, time: spec.time, method: spec.method, ignoreStickyWindow: spec.ignoreStickyWindow)
         } else {
             moveWindow(scope: scopeID, x: x, y: y, time: spec.time, method: spec.method, ignoreStickyWindow: spec.ignoreStickyWindow)
+            if spec.wait && spec.time > 0 {
+                playbackQueue.append(.wait(TimeInterval(spec.time) / 1000.0))
+            }
         }
+    }
+
+    func resizeWindow(scope: Int, width: Int?, height: Int?, time: Int) {
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[scope] else {
+                Log.info("[GhostManager] No window found for resize scope \(scope)")
+                return
+            }
+            let newWidth = max(1, width ?? Int(window.frame.width))
+            let newHeight = max(1, height ?? Int(window.frame.height))
+            let targetFrame = NSRect(
+                x: window.frame.origin.x,
+                y: window.frame.origin.y,
+                width: CGFloat(newWidth),
+                height: CGFloat(newHeight)
+            )
+            if time > 0 {
+                NSAnimationContext.runAnimationGroup { context in
+                    context.duration = TimeInterval(time) / 1000.0
+                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    window.animator().setFrame(targetFrame, display: true)
+                }
+            } else {
+                window.setFrame(targetFrame, display: true)
+            }
+            Log.debug("[GhostManager] Resized scope \(scope) to \(newWidth)x\(newHeight)")
+        }
+    }
+
+    func executeResizeCommand(args: [String]) {
+        guard let spec = parseResizeCommand(args: args) else { return }
+        let scopeID = spec.scopeID ?? currentScope
+        resizeWindow(scope: scopeID, width: spec.width, height: spec.height, time: spec.time)
     }
 
     private func parseMoveCommand(args: [String]) -> MoveCommandSpec? {
@@ -266,40 +324,27 @@ extension GhostManager {
         }
 
         if args.contains(where: { $0.hasPrefix("--") }) {
-            for arg in args {
-                if arg == "--option=ignore-sticky-window" {
-                    spec.ignoreStickyWindow = true
-                    continue
-                }
-                guard arg.hasPrefix("--") else { continue }
-                let parts = arg.dropFirst(2).split(separator: "=", maxSplits: 1).map(String.init)
-                guard parts.count == 2 else { continue }
-                let key = parts[0].lowercased()
-                let value = parts[1]
-                switch key {
-                case "x":
-                    spec.x = Int(value)
-                case "y":
-                    spec.y = Int(value)
-                case "time":
-                    spec.time = Int(value) ?? 0
-                case "base":
-                    spec.base = value
-                case "base-offset":
-                    spec.baseOffset = value
-                case "move-offset":
-                    spec.moveOffset = value
-                case "method":
-                    spec.method = value
-                case "scope", "scopeid":
-                    spec.scopeID = Int(value)
+            let parsed = parseLongOptions(args)
+            for (key, value) in parsed.named {
+                switch key.lowercased() {
+                case "x": spec.x = Int(value)
+                case "y": spec.y = Int(value)
+                case "time": spec.time = Int(value) ?? 0
+                case "base": spec.base = value
+                case "base-offset": spec.baseOffset = value
+                case "move-offset": spec.moveOffset = value
+                case "method": spec.method = value
+                case "scope", "scopeid": spec.scopeID = Int(value)
                 case "option":
-                    if value.lowercased() == "ignore-sticky-window" {
-                        spec.ignoreStickyWindow = true
-                    }
-                default:
-                    break
+                    if value.lowercased() == "ignore-sticky-window" { spec.ignoreStickyWindow = true }
+                case "wait":
+                    // A truthy wait value or presence of wait flag implies waiting
+                    spec.wait = parseWaitFlag(parsed.named, fallback: parsed.positional.first)
+                default: break
                 }
+            }
+            if !spec.wait {
+                spec.wait = parseWaitFlag(parsed.named, fallback: parsed.positional.first)
             }
             return spec
         }
@@ -310,6 +355,50 @@ extension GhostManager {
         spec.time = args.count >= 3 ? (Int(args[2]) ?? 0) : 0
         spec.method = args.count >= 4 ? args[3] : ""
         spec.scopeID = args.count >= 5 ? Int(args[4]) : nil
+        // Allow a bare wait token in positional form
+        if args.map({ $0.lowercased() }).contains(where: { $0 == "wait" || $0 == "--wait" || $0 == "true" }) {
+            spec.wait = true
+        }
+        return spec
+    }
+
+    private func parseResizeCommand(args: [String]) -> ResizeCommandSpec? {
+        var spec = ResizeCommandSpec()
+        guard !args.isEmpty else { return nil }
+
+        if args.contains(where: { $0.hasPrefix("--") }) {
+            for arg in args where arg.hasPrefix("--") {
+                let parts = arg.dropFirst(2).split(separator: "=", maxSplits: 1).map(String.init)
+                guard parts.count == 2 else { continue }
+                let key = parts[0].lowercased()
+                let value = parts[1]
+                switch key {
+                case "width", "w":
+                    spec.width = Int(value)
+                case "height", "h":
+                    spec.height = Int(value)
+                case "time":
+                    spec.time = Int(value) ?? 0
+                case "scope", "scopeid":
+                    spec.scopeID = Int(value)
+                default:
+                    break
+                }
+            }
+            return spec.width != nil || spec.height != nil ? spec : nil
+        }
+
+        guard let width = Int(args[0]) else { return nil }
+        spec.width = width
+        if args.count >= 2 {
+            spec.height = Int(args[1])
+        }
+        if args.count >= 3 {
+            spec.time = Int(args[2]) ?? 0
+        }
+        if args.count >= 4 {
+            spec.scopeID = Int(args[3])
+        }
         return spec
     }
 
@@ -771,16 +860,70 @@ extension GhostManager {
             guard let window = self.characterWindows[self.currentScope] else { return }
             
             let stateLC = state.lowercased()
-            if stateLC == "stayontop" {
+            if stateLC == "stayontop" || stateLC == "topmost" {
                 window.level = .floating
                 Log.info("[GhostManager] Window set to stay on top")
-            } else if stateLC == "!stayontop" {
+            } else if stateLC == "!stayontop" || stateLC == "normal" {
                 window.level = .normal
                 Log.info("[GhostManager] Window stay on top disabled")
             } else if stateLC == "minimize" {
                 window.miniaturize(nil)
                 Log.info("[GhostManager] Window minimized")
+            } else if stateLC == "maximize" {
+                if !window.isZoomed {
+                    window.zoom(nil)
+                }
+                window.makeKeyAndOrderFront(nil)
+                Log.info("[GhostManager] Window maximized")
+            } else if stateLC == "restore" {
+                if window.isMiniaturized {
+                    window.deminiaturize(nil)
+                }
+                if window.isZoomed {
+                    window.zoom(nil)
+                }
+                window.orderFront(nil)
+                Log.info("[GhostManager] Window restored")
+            } else if stateLC == "hide" {
+                window.orderOut(nil)
+                Log.info("[GhostManager] Window hidden")
+            } else if stateLC == "show" {
+                window.orderFront(nil)
+                Log.info("[GhostManager] Window shown")
+            } else if stateLC == "focus" || stateLC == "activate" {
+                NSApp.activate(ignoringOtherApps: true)
+                window.makeKeyAndOrderFront(nil)
+                Log.info("[GhostManager] Window focused")
             }
+        }
+    }
+
+    func setCurrentWindowHidden(_ hidden: Bool) {
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[self.currentScope] else { return }
+            if hidden {
+                window.orderOut(nil)
+            } else {
+                window.orderFront(nil)
+            }
+        }
+    }
+
+    func focusCurrentWindow() {
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[self.currentScope] else { return }
+            NSApp.activate(ignoringOtherApps: true)
+            window.makeKeyAndOrderFront(nil)
+        }
+    }
+
+    func maximizeCurrentWindow() {
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[self.currentScope] else { return }
+            if !window.isZoomed {
+                window.zoom(nil)
+            }
+            window.makeKeyAndOrderFront(nil)
         }
     }
     

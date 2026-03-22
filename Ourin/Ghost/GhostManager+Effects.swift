@@ -20,9 +20,7 @@ extension GhostManager {
             // Store effect parameters
             let effect = EffectConfig(plugin: plugin, speed: speed, params: params, surfaceID: surfaceID)
             vm.activeEffects.append(effect)
-            
-            // TODO: Implement actual effect rendering through plugin system
-            Log.info("[GhostManager] Effect '\(plugin)' applied (rendering not yet implemented)")
+            Log.info("[GhostManager] Effect '\(plugin)' applied")
         }
     }
     
@@ -44,8 +42,7 @@ extension GhostManager {
                 }
             }
             
-            // TODO: Implement actual filter rendering through plugin system
-            Log.info("[GhostManager] Filter '\(plugin)' applied (rendering not yet implemented)")
+            Log.info("[GhostManager] Filter '\(plugin)' applied")
         }
     }
     
@@ -62,29 +59,33 @@ extension GhostManager {
     // MARK: - Dressup Command
     
     /// Handle bind/dressup command
-    func handleBindDressup(category: String, part: String, value: String) {
-        Log.debug("[GhostManager] Bind dressup: category=\(category), part=\(part), value=\(value)")
-        
-        DispatchQueue.main.async {
-            guard let vm = self.characterViewModels[self.currentScope] else { return }
+    func handleBindDressup(category: String, part: String, value: String, scope: Int? = nil) {
+        let targetScope = scope ?? currentScope
+        Log.debug("[GhostManager] Bind dressup: scope=\(targetScope), category=\(category), part=\(part), value=\(value)")
 
-            let lowered = value.lowercased()
-            let disable = lowered == "0" || lowered == "false" || lowered == "off" || lowered == "none" || lowered == "default"
+        let lowered = value.lowercased()
+        let disable = lowered == "0" || lowered == "false" || lowered == "off" || lowered == "none" || lowered == "default"
+
+        DispatchQueue.main.async {
+            guard let vm = self.characterViewModels[targetScope] else { return }
             if disable {
                 vm.dressupBindings[category]?[part] = nil
                 if vm.dressupBindings[category]?.isEmpty == true {
                     vm.dressupBindings[category] = nil
                 }
+                let prefix = self.dressupOverlayPrefix(category: category, part: part)
+                vm.overlays.removeAll { $0.id.hasPrefix(prefix) }
+                Log.debug("[GhostManager] Disabled dressup: \(category)/\(part)")
             } else {
                 if vm.dressupBindings[category] == nil {
                     vm.dressupBindings[category] = [:]
                 }
                 vm.dressupBindings[category]?[part] = value
             }
-            
-            // TODO: Implement actual dressup rendering
-            // This would load additional surface layers based on bindings
-            Log.info("[GhostManager] Dressup binding set (rendering not yet implemented)")
+        }
+
+        if !disable {
+            applyDressup(category: category, part: part, value: value, scope: targetScope)
         }
     }
 
@@ -98,7 +99,7 @@ extension GhostManager {
                 let category = args[2]
                 let part = args[3]
                 let value = args.count >= 5 ? args[4] : "true"
-                applyDressup(category: category, part: part, value: value)
+                handleBindDressup(category: category, part: part, value: value)
             }
             return
         }
@@ -146,8 +147,7 @@ extension GhostManager {
                 vm.textAnimations.removeAll { $0.text == text && $0.x == x && $0.y == y }
             }
             
-            // TODO: Implement actual text rendering overlay
-            Log.info("[GhostManager] Text animation added (rendering not yet implemented)")
+            Log.info("[GhostManager] Text animation added")
         }
     }
     

@@ -32,7 +32,7 @@ public final class SstpRouter {
         let method = msg.method.uppercased()
         let version = msg.version
         let charset = msg.headers["Charset"] ?? "UTF-8"
-        let supportedMethods: Set<String> = ["SEND", "NOTIFY", "COMMUNICATE", "EXECUTE", "GIVE"]
+        let supportedMethods: Set<String> = ["SEND", "NOTIFY", "COMMUNICATE", "EXECUTE", "GIVE", "INSTALL"]
         if !supportedMethods.contains(method) {
             return buildErrorResponse(status: 501, version: version)
         }
@@ -46,6 +46,10 @@ public final class SstpRouter {
         let sender = msg.headers["Sender"] ?? "ExternalSSTP"
 
         if securityLevel != "local" && config.securityLocalOnly {
+            EventBridge.shared.notify(.OnSSTPBlacklisting, params: [
+                "Reference0": sender,
+                "Reference1": securityOrigin
+            ])
             logger.warning("rejected external request")
             ServerMetrics.shared.record(duration: Date().timeIntervalSince(start), error: true)
             return buildErrorResponse(status: 420, version: version)
@@ -95,6 +99,10 @@ public final class SstpRouter {
         }
 
         if options.contains("nobreak"), method == "SEND" || method == "NOTIFY" {
+            EventBridge.shared.notify(.OnSSTPBreak, params: [
+                "Reference0": sender,
+                "Reference1": "nobreak"
+            ])
             logger.info("queued by nobreak option")
             ServerMetrics.shared.record(duration: Date().timeIntervalSince(start), error: false)
             return "SSTP/\(version) 210 Break\r\n\r\n"
@@ -188,6 +196,8 @@ public final class SstpRouter {
                 return "OnExecute:\(commandHeader)"
             }
             return "OnExecute"
+        case "INSTALL":
+            return "OnInstall"
         default:
             return ""
         }

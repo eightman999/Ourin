@@ -16,16 +16,28 @@ final class SessionObserver {
         let center = DistributedNotificationCenter.default()
         tokens.append(center.addObserver(forName: NSNotification.Name("com.apple.screenIsLocked"), object: nil, queue: .main) { [weak self] _ in
             self?.handler?(ShioriEvent(id: .OnSessionLock, params: [:]))
+            self?.handler?(ShioriEvent(id: .OnScreenLock, params: [:]))
         })
         tokens.append(center.addObserver(forName: NSNotification.Name("com.apple.screenIsUnlocked"), object: nil, queue: .main) { [weak self] _ in
             self?.handler?(ShioriEvent(id: .OnSessionUnlock, params: [:]))
+            self?.handler?(ShioriEvent(id: .OnScreenUnlock, params: [:]))
+        })
+        tokens.append(NotificationCenter.default.addObserver(forName: NSApplication.didResignActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.handler?(ShioriEvent(id: .OnFullScreenAppMinimize, params: [:]))
+        })
+        tokens.append(NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.handler?(ShioriEvent(id: .OnFullScreenAppRestore, params: [:]))
         })
     }
 
     /// Stop observing
     func stop() {
-        let center = DistributedNotificationCenter.default()
-        for t in tokens { center.removeObserver(t) }
+        let distributed = DistributedNotificationCenter.default()
+        let standard = NotificationCenter.default
+        for t in tokens {
+            distributed.removeObserver(t)
+            standard.removeObserver(t)
+        }
         tokens.removeAll()
     }
 }

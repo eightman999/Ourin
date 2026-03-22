@@ -26,7 +26,8 @@ public struct HeadlineWireEngine {
         sender: String = "Ourin"
     ) -> String {
         let cs = charsetString(for: charset)
-        return "GET Headline \(version.rawValue)\r\nCharset: \(cs)\r\nSender: \(sender)\r\nOption: url\r\nPath: \(path)\r\n\r\n"
+        let normalizedPath = normalizePathForWire(path)
+        return "GET Headline \(version.rawValue)\r\nCharset: \(cs)\r\nSender: \(sender)\r\nOption: url\r\nPath: \(normalizedPath)\r\n\r\n"
     }
 
     /// Legacy method for backward compatibility
@@ -38,8 +39,9 @@ public struct HeadlineWireEngine {
     public static func parseLines(_ response: String) -> [(String, String?)] {
         var results: [(String, String?)] = []
         for line in response.split(whereSeparator: { $0.isNewline }) {
-            guard line.hasPrefix("Headline:") else { continue }
-            let value = line.dropFirst("Headline:".count).trimmingCharacters(in: .whitespaces)
+            let raw = String(line)
+            guard raw.lowercased().hasPrefix("headline:") else { continue }
+            let value = raw.dropFirst("Headline:".count).trimmingCharacters(in: .whitespaces)
             if let sep = value.firstIndex(of: "\u{01}") {
                 let text = String(value[..<sep])
                 let url = String(value[value.index(after: sep)...])
@@ -54,8 +56,9 @@ public struct HeadlineWireEngine {
     /// Parse Version response to get version string
     public static func parseVersion(_ response: String) -> String? {
         for line in response.split(whereSeparator: { $0.isNewline }) {
-            guard line.hasPrefix("Value:") else { continue }
-            return String(line.dropFirst("Value:".count).trimmingCharacters(in: .whitespaces))
+            let raw = String(line)
+            guard raw.lowercased().hasPrefix("value:") else { continue }
+            return String(raw.dropFirst("Value:".count).trimmingCharacters(in: .whitespaces))
         }
         return nil
     }
@@ -63,8 +66,9 @@ public struct HeadlineWireEngine {
     /// Parse response charset
     public static func parseCharset(_ response: String) -> String.Encoding {
         for line in response.split(whereSeparator: { $0.isNewline }) {
-            guard line.hasPrefix("Charset:") else { continue }
-            let value = line.dropFirst("Charset:".count).trimmingCharacters(in: .whitespaces).lowercased()
+            let raw = String(line)
+            guard raw.lowercased().hasPrefix("charset:") else { continue }
+            let value = raw.dropFirst("Charset:".count).trimmingCharacters(in: .whitespaces).lowercased()
             if ["shift_jis", "windows-31j", "cp932", "ms932", "sjis"].contains(value) {
                 return .shiftJIS
             }
@@ -76,8 +80,9 @@ public struct HeadlineWireEngine {
     /// Parse RequestCharset (next request's preferred charset)
     public static func parseRequestCharset(_ response: String) -> String.Encoding? {
         for line in response.split(whereSeparator: { $0.isNewline }) {
-            guard line.hasPrefix("RequestCharset:") else { continue }
-            let value = line.dropFirst("RequestCharset:".count).trimmingCharacters(in: .whitespaces).lowercased()
+            let raw = String(line)
+            guard raw.lowercased().hasPrefix("requestcharset:") else { continue }
+            let value = raw.dropFirst("RequestCharset:".count).trimmingCharacters(in: .whitespaces).lowercased()
             if ["shift_jis", "windows-31j", "cp932", "ms932", "sjis"].contains(value) {
                 return .shiftJIS
             }
@@ -93,5 +98,29 @@ public struct HeadlineWireEngine {
         case .shiftJIS: return "Shift_JIS"
         default: return "UTF-8"
         }
+    }
+
+    private static func normalizePathForWire(_ rawPath: String) -> String {
+        let trimmed = rawPath.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return trimmed }
+
+        if trimmed.lowercased().hasPrefix("file://") {
+            return trimmed
+        }
+
+        if trimmed.range(of: #"^[A-Za-z]:\\"#, options: .regularExpression) != nil {
+            let pathPart = trimmed.replacingOccurrences(of: "\\", with: "/")
+            let absolute = pathPart.hasPrefix("/") ? pathPart : "/" + pathPart
+            if let encoded = absolute.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) {
+                return "file://\(encoded)"
+            }
+            return "file://\(absolute)"
+        }
+
+        if trimmed.hasPrefix("/") {
+            return URL(fileURLWithPath: trimmed).standardizedFileURL.absoluteString
+        }
+
+        return trimmed
     }
 }

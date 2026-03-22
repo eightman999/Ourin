@@ -116,6 +116,7 @@ public final class SakuraScriptEngine {
         func readBracket(start: Int) -> (String, Int)? {
             var j = start
             var result = ""
+            var nestedDepth = 0
             while j < chars.count {
                 let c = chars[j]
                 // Handle escape sequences inside brackets: \], \[
@@ -131,8 +132,20 @@ public final class SakuraScriptEngine {
                         continue
                     }
                 }
+                if c == "[" {
+                    nestedDepth += 1
+                    result.append(c)
+                    j += 1
+                    continue
+                }
                 if c == "]" {
-                    return (result, j + 1)
+                    if nestedDepth == 0 {
+                        return (result, j + 1)
+                    }
+                    nestedDepth -= 1
+                    result.append(c)
+                    j += 1
+                    continue
                 }
                 result.append(c)
                 j += 1
@@ -367,9 +380,21 @@ public final class SakuraScriptEngine {
                     tokens.append(.choiceMarker)
                     i += 2
                 case "a":
-                    // Anchor marker (for choices)
-                    tokens.append(.anchor)
-                    i += 2
+                    // Anchor marker or command: \a or \a[...]
+                    var j = i + 2
+                    if j < chars.count && chars[j] == "[" {
+                        var args: [String] = []
+                        if let (content, end) = readBracket(start: j + 1) {
+                            args = parseArguments(content)
+                            j = end
+                        }
+                        // Route \a[...] to anchor action command path (\_a compatible handling).
+                        tokens.append(.command(name: "_a", args: args))
+                        i = j
+                    } else {
+                        tokens.append(.anchor)
+                        i += 2
+                    }
                 case "-":
                     // Line break in choice
                     tokens.append(.choiceLineBr)
@@ -435,22 +460,33 @@ public final class SakuraScriptEngine {
                     tokens.append(.command(name: "f", args: args))
                     i = j
                 case "_":
-                    // Support multi-letter underscore commands like _q, _w, __w, _s, _n, _l, _b, _!, _?, __v, _+, _v, _V, _a
+                    // Support underscore-prefixed commands.
                     var j = i + 2
                     var name = "_"
-                    while j < chars.count {
+
+                    if j < chars.count {
                         let c = chars[j]
-                        if c.isLetter || c == "_" || c == "!" || c == "?" { name.append(c); j += 1 } else { break }
+                        if c == "+" {
+                            tokens.append(.bootAllGhosts)
+                            i = j + 1
+                            continue
+                        } else if c == "!" || c == "?" {
+                            name.append(c)
+                            j += 1
+                        } else if c == "_" {
+                            name.append(c)
+                            j += 1
+                            if j < chars.count, chars[j].isLetter {
+                                name.append(chars[j])
+                                j += 1
+                            }
+                        } else if c.isLetter {
+                            name.append(c)
+                            j += 1
+                        }
                     }
 
-                    // Special handling for \_+ (boot all ghosts)
-                    if name == "_+" {
-                        tokens.append(.bootAllGhosts)
-                        i = j
-                        continue
-                    }
-
-                    // Special handling for \_! and \_? tag passthrough commands
+                    // Special handling for \_! and \_? tag passthrough commands.
                     if name == "_!" || name == "_?" {
                         tokens.append(.command(name: name, args: []))
                         // Read until closing tag (same as opening tag)
@@ -509,6 +545,7 @@ public final class SakuraScriptEngine {
         var result: [String] = []
         var current = ""
         var quoted = false
+        var bracketDepth = 0
         var i = s.startIndex
         while i < s.endIndex {
             let ch = s[i]
@@ -528,7 +565,13 @@ public final class SakuraScriptEngine {
                     // Start of quoted section
                     quoted = true
                 }
-            } else if ch == "," && !quoted {
+            } else if !quoted && ch == "[" {
+                bracketDepth += 1
+                current.append(ch)
+            } else if !quoted && ch == "]" {
+                if bracketDepth > 0 { bracketDepth -= 1 }
+                current.append(ch)
+            } else if ch == "," && !quoted && bracketDepth == 0 {
                 // Unquoted comma → argument separator
                 result.append(current)
                 current.removeAll()

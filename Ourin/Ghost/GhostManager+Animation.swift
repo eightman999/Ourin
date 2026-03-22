@@ -49,7 +49,7 @@ extension GhostManager {
 
             // Update surface overlay based on animation pattern and type
             if pattern.surfaceID >= 0 {
-                self.handleSurfaceOverlay(surfaceID: pattern.surfaceID, type: pattern.type)
+                self.handleSurfaceOverlay(surfaceID: pattern.surfaceID, type: pattern.type, animationID: animID)
 
                 // Apply offset if specified
                 if pattern.x != 0 || pattern.y != 0 {
@@ -72,37 +72,17 @@ extension GhostManager {
 
         serikoExecutor.onMethodInvoked = { [weak self] animID, method, surfaceID, x, y in
             guard let self = self else { return }
-            switch method {
-            case .overlay:
-                self.handleSurfaceOverlay(surfaceID: surfaceID, type: .overlay)
-            case .overlayFast:
-                self.handleSurfaceOverlay(surfaceID: surfaceID, type: .overlay)
-            case .base:
-                self.handleAnimAddBase(id: surfaceID)
-            case .move:
-                self.handleAnimAddMove(x: x, y: y)
-            case .replace:
-                self.handleSurfaceOverlay(surfaceID: surfaceID, type: .replace)
-            case .start:
-                _ = self.serikoExecutor.executeAnimation(id: surfaceID)
-            case .alternativeStart:
-                _ = self.serikoExecutor.executeAnimation(id: surfaceID)
-            case .stop:
-                self.serikoExecutor.stopAnimation(id: animID)
-            case .reduce, .asis, .unknown:
-                break
-            }
+            self.handleSerikoMethod(animationID: animID, method: method, surfaceID: surfaceID, x: x, y: y)
+        }
+
+        serikoExecutor.onPatternExecuted = { [weak self] animID, pattern in
+            guard let self = self else { return }
+            self.handleSerikoPattern(animationID: animID, pattern: pattern)
         }
 
         serikoExecutor.onAnimationFinished = { [weak self] animID in
             guard let self = self else { return }
-            if self.waitingForAnimation == animID {
-                self.waitingForAnimation = nil
-                if self.isPlaying {
-                    self.processNextUnit()
-                }
-            }
-            self.stopSerikoLoopIfIdle()
+            self.handleAnimationFinished(animationID: animID)
         }
     }
 
@@ -159,12 +139,8 @@ extension GhostManager {
             return
         }
 
-        // Get current surface ID from character view model
-        guard characterViewModels[currentScope] != nil else { return }
-
-        // Parse surface ID from image if available
-        // For now, assume surface 0 - in production, track current surface ID
-        let surfaceID = 0 // TODO: Track actual current surface ID
+        guard let vm = characterViewModels[currentScope] else { return }
+        let surfaceID = vm.currentSurfaceID
 
         animationEngine.loadAnimations(surfaceID: surfaceID, content: surfacesContent)
         let parsed = SerikoParser.parseSurfaces(surfacesContent)
@@ -172,6 +148,21 @@ extension GhostManager {
             serikoExecutor.register(animations: surface.animations)
         }
         Log.debug("[GhostManager] Loaded animations for surface \(surfaceID)")
+    }
+
+    func reloadSurfacesDefinition() {
+        animationEngine.stopAllAnimations()
+        shutdownSerikoLoop()
+        loadAnimationsForCurrentSurface()
+        EventBridge.shared.notifyCustom("OnSurfacesReloaded", params: ["Reference0": activeShellName])
+        Log.debug("[GhostManager] Reloaded surfaces.txt definitions")
+    }
+
+    func triggerSerikoTalkAnimationIfEnabled() {
+        let enabled = UserDefaults.standard.object(forKey: "OurinSerikoTalkEnabled") as? Bool ?? true
+        guard enabled else { return }
+        serikoExecutor.triggerTalk()
+        startSerikoLoopIfNeeded()
     }
 
     // MARK: - Animation Control Handlers
@@ -273,6 +264,127 @@ extension GhostManager {
                 vm.overlays[i].offset.y += CGFloat(y)
             }
             Log.debug("[GhostManager] Moved all overlays by (\(x), \(y))")
+        }
+    }
+
+    private func handleSerikoMethod(animationID: Int, method: SerikoMethod, surfaceID: Int, x: Int, y: Int) {
+        switch method {
+        case .overlay:
+            var offset: CGPoint? = nil
+            if let def = serikoExecutor.definition(for: animationID),
+               (def.alignX != nil || def.alignY != nil),
+               let vm = characterViewModels[currentScope], let base = vm.image {
+                if let shellPath = loadShellPath() {
+                    let surfaceFileName = "surface\(surfaceID).png"
+                    let overlayURL = shellPath.appendingPathComponent(surfaceFileName)
+                    if let overlayImage = NSImage(contentsOf: overlayURL) {
+                        let bw = base.size.width, bh = base.size.height
+                        let ow = overlayImage.size.width, oh = overlayImage.size.height
+                        var ox: CGFloat = 0
+                        var oy: CGFloat = 0
+                        if let ax = def.alignX {
+                            switch ax {
+                            case .left: ox = 0
+                            case .center: ox = (bw - ow) / 2
+                            case .right: ox = (bw - ow)
+                            }
+                        }
+                        if let ay = def.alignY {
+                            switch ay {
+                            case .bottom: oy = 0
+                            case .center: oy = (bh - oh) / 2
+                            case .top: oy = (bh - oh)
+                            }
+                        }
+                        offset = CGPoint(x: ox, y: oy)
+                    }
+                }
+            }
+            handleSurfaceOverlay(surfaceID: surfaceID, type: .overlay, animationID: animationID, initialOffset: offset)
+        case .overlayFast:
+            // Treat as overlay; could skip certain redraw costs in future.
+            var offset: CGPoint? = nil
+            if let def = serikoExecutor.definition(for: animationID),
+               (def.alignX != nil || def.alignY != nil),
+               let vm = characterViewModels[currentScope], let base = vm.image {
+                if let shellPath = loadShellPath() {
+                    let surfaceFileName = "surface\(surfaceID).png"
+                    let overlayURL = shellPath.appendingPathComponent(surfaceFileName)
+                    if let overlayImage = NSImage(contentsOf: overlayURL) {
+                        let bw = base.size.width, bh = base.size.height
+                        let ow = overlayImage.size.width, oh = overlayImage.size.height
+                        var ox: CGFloat = 0
+                        var oy: CGFloat = 0
+                        if let ax = def.alignX {
+                            switch ax {
+                            case .left: ox = 0
+                            case .center: ox = (bw - ow) / 2
+                            case .right: ox = (bw - ow)
+                            }
+                        }
+                        if let ay = def.alignY {
+                            switch ay {
+                            case .bottom: oy = 0
+                            case .center: oy = (bh - oh) / 2
+                            case .top: oy = (bh - oh)
+                            }
+                        }
+                        offset = CGPoint(x: ox, y: oy)
+                    }
+                }
+            }
+            handleSurfaceOverlay(surfaceID: surfaceID, type: .overlay, animationID: animationID, initialOffset: offset)
+        case .base:
+            handleAnimAddBase(id: surfaceID)
+        case .move:
+            handleAnimAddMove(x: x, y: y)
+        case .reduce:
+            handleSurfaceReduce(surfaceID: surfaceID)
+        case .replace:
+            handleSurfaceOverlay(surfaceID: surfaceID, type: .replace, animationID: animationID)
+        case .start:
+            _ = serikoExecutor.executeAnimation(id: surfaceID)
+            startSerikoLoopIfNeeded()
+        case .alternativeStart:
+            _ = serikoExecutor.executeAnimation(id: surfaceID)
+            startSerikoLoopIfNeeded()
+        case .stop:
+            serikoExecutor.stopAnimation(id: animationID)
+        case .asis, .unknown:
+            break
+        }
+    }
+
+    private func handleSerikoPattern(animationID: Int, pattern: SerikoPattern) {
+        // Keep overlay motion in sync with latest pattern offset.
+        if pattern.x != 0 || pattern.y != 0 {
+            offsetOverlay(
+                id: "surface_\(pattern.surfaceID)_",
+                x: Double(pattern.x),
+                y: Double(pattern.y)
+            )
+        }
+        Log.debug("[GhostManager] SERIKO pattern executed: anim=\(animationID), method=\(pattern.method), surface=\(pattern.surfaceID)")
+    }
+
+    private func handleAnimationFinished(animationID: Int) {
+        if waitingForAnimation == animationID {
+            waitingForAnimation = nil
+            if isPlaying {
+                processNextUnit()
+            }
+        }
+        stopSerikoLoopIfIdle()
+        EventBridge.shared.notifyCustom("OnAnimationFinished", params: ["Reference0": String(animationID)], ignoreResponseScript: true)
+    }
+
+    private func handleSurfaceReduce(surfaceID: Int) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            let prefix = "surface_\(surfaceID)_"
+            vm.overlays.removeAll { $0.id.hasPrefix(prefix) }
+            Log.debug("[GhostManager] Reduced overlays for surface \(surfaceID)")
         }
     }
 

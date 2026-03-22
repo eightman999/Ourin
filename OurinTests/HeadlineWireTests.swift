@@ -42,7 +42,7 @@ struct HeadlineWireTests {
         #expect(req.contains("Charset: UTF-8"))
         #expect(req.contains("Sender: SSP"))
         #expect(req.contains("Option: url"))
-        #expect(req.contains("Path: /tmp/test.html"))
+        #expect(req.contains("Path: file:///tmp/test.html"))
         #expect(req.hasSuffix("\r\n\r\n"))
     }
 
@@ -65,6 +65,16 @@ struct HeadlineWireTests {
             charset: .shiftJIS
         )
         #expect(req.contains("Charset: Shift_JIS"))
+        #expect(req.contains("Path: file:///C:/SSP/temp/test.html"))
+    }
+
+    @Test
+    func buildHeadlineRequestPosixPathBecomesFileURL() async throws {
+        let req = HeadlineWireEngine.buildHeadlineRequest(
+            path: "/Users/test/Library/Application Support/Ourin/cache/news.html",
+            version: .v2_0M
+        )
+        #expect(req.contains("Path: file:///Users/test/Library/Application%20Support/Ourin/cache/news.html"))
     }
 
     @Test
@@ -77,6 +87,25 @@ struct HeadlineWireTests {
         """
         let version = HeadlineWireEngine.parseVersion(resp)
         #expect(version == "HeadlineModule 1.1")
+    }
+
+    @Test
+    func parseHeadersCaseInsensitive() async throws {
+        let resp = """
+        HEADLINE/2.0M 200 OK\r
+        charset: Shift_JIS\r
+        value: HeadlineModule 2.0M\r
+        requestcharset: UTF-8\r
+        headline: test\u{01}https://example.com\r
+        \r
+        """
+        #expect(HeadlineWireEngine.parseCharset(resp) == .shiftJIS)
+        #expect(HeadlineWireEngine.parseVersion(resp) == "HeadlineModule 2.0M")
+        #expect(HeadlineWireEngine.parseRequestCharset(resp) == .utf8)
+        let lines = HeadlineWireEngine.parseLines(resp)
+        #expect(lines.count == 1)
+        #expect(lines[0].0 == "test")
+        #expect(lines[0].1 == "https://example.com")
     }
 
     @Test

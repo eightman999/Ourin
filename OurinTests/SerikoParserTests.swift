@@ -56,5 +56,53 @@ struct SerikoParserTests {
         #expect(parsed.isEmpty == false)
         #expect(parsed[0]?.animations[50]?.patterns.isEmpty == false)
     }
-}
 
+    @Test
+    func parseAnimationOptionSplitsCompositeTokens() async throws {
+        let text = """
+        surface1
+        {
+          animation10.interval,always
+          animation10.option,exclusive+background,shared
+        }
+        """
+        let parsed = SerikoParser.parseSurfaces(text)
+        let options = parsed[1]?.animations[10]?.options ?? []
+        #expect(options.contains("exclusive"))
+        #expect(options.contains("background"))
+        #expect(options.contains("shared"))
+    }
+
+    @Test
+    func parseAnimationOptionKeyValuePairs() async throws {
+        let text = """
+        surface3
+        {
+          animation12.option,interval=talk,surface=3,series=mouth,exclusive
+        }
+        """
+        let parsed = SerikoParser.parseSurfaces(text)
+        let animation = parsed[3]?.animations[12]
+        #expect(animation?.interval == .talk)
+        #expect(animation?.surfaceOption == 3)
+        #expect(animation?.seriesOption == "mouth")
+        #expect(animation?.options.contains("exclusive") == true)
+    }
+
+    @Test
+    func parseAnimationOverlayExtensionLine() async throws {
+        let text = """
+        surface5
+        {
+          animation90.overlay,4200,150,8,9
+        }
+        """
+        let parsed = SerikoParser.parseSurfaces(text)
+        let pattern = parsed[5]?.animations[90]?.patterns.first
+        #expect(pattern?.method == .overlay)
+        #expect(pattern?.surfaceID == 4200)
+        #expect(pattern?.duration == 150)
+        #expect(pattern?.x == 8)
+        #expect(pattern?.y == 9)
+    }
+}

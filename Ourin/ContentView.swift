@@ -551,6 +551,9 @@ fileprivate struct GeneralSettingsView: View {
                         Button("参照...") {
                             selectDataFolder()
                         }
+                        Button("Finderで開く") {
+                            openDataFolderInFinder()
+                        }
                     }
 
                     HStack(alignment: .top) {
@@ -678,6 +681,31 @@ fileprivate struct GeneralSettingsView: View {
                 logger.info("Data folder selected: \(url.path)")
             }
         }
+    }
+
+    private func openDataFolderInFinder() {
+        let rawPath = dataFolderPath.trimmingCharacters(in: .whitespacesAndNewlines)
+        let targetURL: URL
+        if rawPath.isEmpty {
+            guard let base = try? OurinPaths.baseDirectory() else {
+                logger.warning("Failed to resolve Ourin base directory for Finder open")
+                return
+            }
+            targetURL = base
+            dataFolderPath = base.path
+        } else {
+            targetURL = URL(fileURLWithPath: rawPath, isDirectory: true)
+        }
+
+        do {
+            try FileManager.default.createDirectory(at: targetURL, withIntermediateDirectories: true)
+        } catch {
+            logger.warning("Failed to prepare data directory for Finder open: \(error.localizedDescription)")
+            return
+        }
+
+        NSWorkspace.shared.activateFileViewerSelecting([targetURL])
+        logger.info("Opened data folder in Finder: \(targetURL.path)")
     }
 
     private func selectLogOutputPath() {

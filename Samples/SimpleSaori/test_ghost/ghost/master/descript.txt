@@ -1,0 +1,7 @@
+name,SimpleSaoriTestGhost
+sakura.name,SimpleSaori
+kero.name,Tester
+charset,UTF-8
+type,ghost
+shiori,yaya.dll
+seriko.defaultsurfacedirectoryname,master

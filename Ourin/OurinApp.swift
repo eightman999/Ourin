@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import ApplicationServices
+import UserNotifications
 
 // Plugin host
 import Foundation
@@ -80,7 +81,7 @@ struct OurinApp: App {
     }
 }
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     var fmo: FmoManager?
     var pluginRegistry: PluginRegistry?
     var headlineRegistry: HeadlineRegistry?
@@ -97,8 +98,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var devToolsWindow: NSWindow?
     /// About window
     private var aboutWindow: NSWindow?
+    private var isRunningUnderTests: Bool {
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if isRunningUnderTests {
+            NSLog("[AppDelegate] Detected XCTest environment; skipping full app bootstrap")
+            return
+        }
+
         // Ensure single instance and clean helper state by killing others first
         ProcessKiller.killOtherOurinAndYaya()
 
@@ -141,6 +150,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Register handler for x-ukagaka-link scheme early
         WebHandler.shared.register()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleWebHomeURL(_:)),
+            name: .ourinWebHomeURLReceived,
+            object: nil
+        )
+        UNUserNotificationCenter.current().delegate = self
 
         // プラグインを探索してロード
         let registry = PluginRegistry()
@@ -156,6 +172,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 外部 SSTP サーバを起動
         let ext = OurinExternalServer()
+        let securitySettings = ExternalServerSecuritySettings.load()
+        ext.updateConfig(securitySettings.asServerConfig())
         ext.start()
         externalServer = ext
 
@@ -187,6 +205,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        NotificationCenter.default.removeObserver(self, name: .ourinWebHomeURLReceived, object: nil)
         // 終了時に共有メモリとセマフォを開放
         fmo?.cleanup()
         pluginRegistry?.unloadAll()
@@ -201,6 +220,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         ProcessKiller.killOtherOurinAndYaya()
     }
 
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        defer { completionHandler() }
+        let info = response.notification.request.content.userInfo
+        guard (info["ourinTrayBalloon"] as? String) == "1" else { return }
+        EventBridge.shared.notify(.OnTrayBalloonClick, params: [
+            "Reference0": response.notification.request.identifier,
+            "Reference1": (info["title"] as? String) ?? "",
+            "Reference2": (info["message"] as? String) ?? ""
+        ])
+    }
+
     func application(_ app: NSApplication, openFiles filenames: [String]) {
         for path in filenames {
             if URL(fileURLWithPath: path).pathExtension.lowercased() == "nar" {
@@ -211,9 +241,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func application(_ app: NSApplication, open urls: [URL]) {
-        for url in urls where url.pathExtension.lowercased() == "nar" {
+        for url in urls where ["nar", "zip"].contains(url.pathExtension.lowercased()) {
             installNar(at: url)
         }
+    }
+
+    @objc private func handleWebHomeURL(_ notification: Notification) {
+        guard let urlString = notification.userInfo?["url"] as? String,
+              let url = URL(string: urlString),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https" else {
+            NSLog("[WebHandler] Ignored invalid homeurl notification")
+            return
+        }
+
+        ResourceManager().homeurl = urlString
+        ghostManager?.resourceManager.homeurl = urlString
+        ghostManager?.ghostConfig?.homeurl = urlString
+        ghostManager?.checkGhostUpdate(options: ["web-homeurl"])
+        NSLog("[WebHandler] Applied homeurl from web link: \(urlString)")
     }
 
     /// Install bundled emily4.nar and run it if present

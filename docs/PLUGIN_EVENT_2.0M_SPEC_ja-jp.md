@@ -223,13 +223,14 @@ Value: OK
 - [ ] `OnInstallComplete`: 未実装
 - [ ] `OnChoiceSelect(Ex)`: 未実装
 - [ ] `OnAnchorSelect(Ex)`: 未実装
-- [ ] `![raiseplugin]`/`![notifyplugin]`: 未実装
+- [x] `![raiseplugin]`/`![notifyplugin]`: 実装済み（`OurinPluginEventBridge.swift` 経由で transport 処理）
 
 ### 実装ファイル
 
 - `Ourin/PluginEvent/PluginEventDispatcher.swift`: イベント配信
 - `Ourin/PluginEvent/PluginFrame.swift`: フレーム構造
 - `Ourin/PluginEvent/PluginEncodingNormalizer.swift`: 文字コード処理
+- `Ourin/PluginEvent/OurinPluginEventBridge.swift`: `raiseplugin`/`notifyplugin` 応答 transport（Script/Event/Reference/Target）
 - `Ourin/PluginEvent/PathNormalizer.swift`: パス正規化
 - `Ourin/PluginEvent/WindowIDMapper.swift`: ウィンドウ ID 処理
 - `Ourin/PluginEvent/ListDelimiter.swift`: リスト区切り処理

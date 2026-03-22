@@ -2,9 +2,16 @@ import Foundation
 
 public struct SaoriRequest: Equatable {
     public let method: String
+    public let target: String?
     public let version: String
     public let headers: [String: String]
     public let body: String?
+
+    public func headerValue(_ name: String) -> String? {
+        if let direct = headers[name] { return direct }
+        let lowered = name.lowercased()
+        return headers.first(where: { $0.key.lowercased() == lowered })?.value
+    }
 }
 
 public struct SaoriResponse: Equatable {
@@ -59,14 +66,22 @@ public enum SaoriProtocol {
         }
 
         let parts = first.split(separator: " ", omittingEmptySubsequences: true)
-        guard parts.count == 2 else {
+        guard parts.count == 2 || parts.count == 3 else {
             throw SaoriProtocolError.malformedStartLine
         }
 
         let method = String(parts[0])
-        let version = String(parts[1])
+        let target: String?
+        let version: String
+        if parts.count == 3 {
+            target = String(parts[1])
+            version = String(parts[2])
+        } else {
+            target = nil
+            version = String(parts[1])
+        }
         let headers = parseHeaders(lines.dropFirst())
-        return SaoriRequest(method: method, version: version, headers: headers, body: body)
+        return SaoriRequest(method: method, target: target, version: version, headers: headers, body: body)
     }
 
     public static func parseResponse(_ text: String) throws -> SaoriResponse {
@@ -120,6 +135,26 @@ public enum SaoriProtocol {
         return head + "\r\n"
     }
 
+    public static func buildRequest(_ request: SaoriRequest) -> String {
+        var lines: [String] = []
+        if let target = request.target, !target.isEmpty {
+            lines.append("\(request.method) \(target) \(request.version)")
+        } else {
+            lines.append("\(request.method) \(request.version)")
+        }
+        for key in request.headers.keys.sorted() {
+            if let value = request.headers[key] {
+                lines.append("\(key): \(value)")
+            }
+        }
+        lines.append("")
+        let head = lines.joined(separator: "\r\n")
+        if let body = request.body, !body.isEmpty {
+            return head + "\r\n" + body
+        }
+        return head + "\r\n"
+    }
+
     public static func encode(_ text: String, charset: String) throws -> Data {
         guard let encoding = stringEncoding(for: charset) else {
             throw SaoriProtocolError.unsupportedEncoding(charset)
@@ -162,6 +197,8 @@ public enum SaoriProtocol {
         case 400: return "Bad Request"
         case 401: return "Unauthorized"
         case 404: return "Not Found"
+        case 311: return "Insecure"
+        case 312: return "No Content (Not Trusted)"
         case 500: return "Internal Server Error"
         case 503: return "Service Unavailable"
         default: return "Status"

@@ -125,6 +125,7 @@ class AnimationEngine {
     private var device: MTLDevice?
     private var commandQueue: MTLCommandQueue?
     private var pipelineState: MTLRenderPipelineState?
+    private var preparedTextures: [Int: MTLTexture] = [:]
     
     // Animation state
     private var animations: [Int: AnimationDefinition] = [:]
@@ -219,38 +220,100 @@ class AnimationEngine {
                 }
             }
             
-            // Parse collision region
-            if trimmed.contains(".collision,") {
+            // Parse collision region (legacy and collisionex)
+            if trimmed.contains(".collision,") || trimmed.hasPrefix("collision,") || trimmed.hasPrefix("collisionex,") {
                 let parts = trimmed.components(separatedBy: ",")
-                if parts.count >= 6 {
-                    let indexStr = parts[0].components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
-                    let x1 = Int(parts[1]) ?? 0
-                    let y1 = Int(parts[2]) ?? 0
-                    let x2 = Int(parts[3]) ?? 0
-                    let y2 = Int(parts[4]) ?? 0
-                    let name = parts.count > 6 ? parts[6] : ""
-                    
-                    if let surface = currentSurface {
-                        let region = CollisionRegion(
-                            name: name,
-                            rect: CGRect(x: CGFloat(min(x1, x2)), 
-                                       y: CGFloat(min(y1, y2)), 
-                                       width: CGFloat(abs(x2 - x1)), 
-                                       height: CGFloat(abs(y2 - y1)))
-                        )
-                        collisions[surface]?.append(region)
+                // collisionex,rect,x1,y1,x2,y2,name
+                if trimmed.hasPrefix("collisionex,") {
+                    if parts.count >= 7 {
+                        let shape = parts[1].lowercased()
+                        if shape == "rect" || shape == "rectangle" {
+                            let x1 = Int(parts[2]) ?? 0
+                            let y1 = Int(parts[3]) ?? 0
+                            let x2 = Int(parts[4]) ?? 0
+                            let y2 = Int(parts[5]) ?? 0
+                            let name = parts[6]
+                            if let surface = currentSurface {
+                                let region = CollisionRegion(
+                                    name: name,
+                                    rect: CGRect(x: CGFloat(min(x1, x2)),
+                                                 y: CGFloat(min(y1, y2)),
+                                                 width: CGFloat(abs(x2 - x1)),
+                                                 height: CGFloat(abs(y2 - y1)))
+                                )
+                                collisions[surface]?.append(region)
+                            }
+                        } else if shape == "circle" {
+                            // collisionex,circle,cx,cy,r,name
+                            if parts.count >= 7 {
+                                let cx = Int(parts[2]) ?? 0
+                                let cy = Int(parts[3]) ?? 0
+                                let r = Int(parts[4]) ?? 0
+                                let name = parts[5]
+                                if let surface = currentSurface {
+                                    let rect = CGRect(x: CGFloat(cx - r), y: CGFloat(cy - r), width: CGFloat(r * 2), height: CGFloat(r * 2))
+                                    let region = CollisionRegion(name: name, rect: rect)
+                                    collisions[surface]?.append(region)
+                                }
+                            }
+                        } else if shape == "polygon" || shape == "poly" {
+                            // collisionex,polygon,x1,y1,x2,y2,...,name
+                            // Build bounding box for now
+                            if parts.count >= 7 {
+                                var xs: [Int] = []
+                                var ys: [Int] = []
+                                // Last token is name; points span from index 2 to count-2
+                                for i in stride(from: 2, to: parts.count - 1, by: 2) {
+                                    let x = Int(parts[i])
+                                    let y = (i + 1) < parts.count ? Int(parts[i + 1]) : nil
+                                    if let x, let y { xs.append(x); ys.append(y) }
+                                }
+                                let name = parts.last ?? "polygon"
+                                if let surface = currentSurface, !xs.isEmpty, !ys.isEmpty {
+                                    let minX = xs.min() ?? 0
+                                    let maxX = xs.max() ?? 0
+                                    let minY = ys.min() ?? 0
+                                    let maxY = ys.max() ?? 0
+                                    let rect = CGRect(x: CGFloat(minX), y: CGFloat(minY), width: CGFloat(maxX - minX), height: CGFloat(maxY - minY))
+                                    let region = CollisionRegion(name: name, rect: rect)
+                                    collisions[surface]?.append(region)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // legacy: *.collision,x1,y1,x2,y2,name or collision,x1,y1,x2,y2,name
+                    if parts.count >= 6 {
+                        let x1 = Int(parts[1]) ?? 0
+                        let y1 = Int(parts[2]) ?? 0
+                        let x2 = Int(parts[3]) ?? 0
+                        let y2 = Int(parts[4]) ?? 0
+                        let name = parts[5]
+                        if let surface = currentSurface {
+                            let region = CollisionRegion(
+                                name: name,
+                                rect: CGRect(x: CGFloat(min(x1, x2)),
+                                             y: CGFloat(min(y1, y2)),
+                                             width: CGFloat(abs(x2 - x1)),
+                                             height: CGFloat(abs(y2 - y1)))
+                            )
+                            collisions[surface]?.append(region)
+                        }
                     }
                 }
             }
             
             // Parse point definition
-            if trimmed.contains(".centerx,") || trimmed.contains(".centery,") {
+            if trimmed.contains("centerx,") || trimmed.contains("centery,") {
                 let parts = trimmed.components(separatedBy: ",")
-                if parts.count >= 3 {
+                if parts.count >= 2 {
                     let fullKey = parts[0]
-                    var pointName = ""
-                    if let dot = fullKey.firstIndex(of: ".") {
-                        pointName = String(fullKey[fullKey.startIndex..<dot])
+                    let keyParts = fullKey.split(separator: ".").map(String.init)
+                    let pointName: String
+                    if keyParts.count >= 2, keyParts[0] == "point" {
+                        pointName = keyParts.count == 2 ? "center" : keyParts[1]
+                    } else {
+                        pointName = ""
                     }
                     let value = Int(parts[1]) ?? 0
                     
@@ -408,11 +471,24 @@ class AnimationEngine {
     
     /// Prepare Metal textures for animation frames (future enhancement)
     func prepareMetalTextures(for images: [NSImage]) {
-        guard device != nil else { return }
-
-        // TODO: Convert NSImages to Metal textures
-        // This would allow GPU-accelerated compositing
-        Log.debug("[AnimationEngine] Preparing \(images.count) textures for Metal rendering")
+        guard let device else { return }
+        let loader = MTKTextureLoader(device: device)
+        var generated: [Int: MTLTexture] = [:]
+        for (index, image) in images.enumerated() {
+            guard let tiff = image.tiffRepresentation,
+                  let rep = NSBitmapImageRep(data: tiff),
+                  let cgImage = rep.cgImage else {
+                continue
+            }
+            do {
+                let texture = try loader.newTexture(cgImage: cgImage, options: [.SRGB: false])
+                generated[index] = texture
+            } catch {
+                Log.info("[AnimationEngine] Failed to create Metal texture for frame \(index): \(error.localizedDescription)")
+            }
+        }
+        preparedTextures = generated
+        Log.debug("[AnimationEngine] Prepared \(generated.count)/\(images.count) textures for Metal rendering")
     }
     
     deinit {

@@ -2,6 +2,54 @@
 
 This document lists all Sakura Script commands that are currently supported by Ourin's `SakuraScriptEngine`.
 
+## 2026-03 ukadoc gap audit (priority order)
+
+Compared against ukadoc (`/manual/list_sakura_script.html`) and current runtime handlers in `GhostManager`, the main remaining gaps are:
+
+1. **Event integration gaps (high)**  
+   - `\![embed,event,...]` inline event embedding  
+   - `\![timerraise,ms,repeat,event,...]` delayed/repeating event raise  
+   - Status: **Implemented in this update**
+
+2. **Runtime switching gaps (high)**  
+    - `\![change,ghost,name]` full ghost switch semantics  
+    - `\![change,shell,name]` shell switch and redraw  
+    - `\![change,balloon,name]` balloon config switch  
+   - Status: **Expanded in this update** (`--option=raise-event`, `OnGhostChanging/Changed`, `OnShellChanging/Changed`, `OnBalloonChange`)
+   - Related: `\![call,ghost,name]` runtime path added with `OnGhostCalling/OnGhostCalled`
+
+3. **Dialog family gaps (high)**  
+   - `\![open,inputbox|dateinput|sliderinput|dialog|teachbox,...]`  
+   - Status: **Expanded in this update** (added `passwordinput|timeinput|ipinput`, with option-style args like `--timeout`, `--text`, and dialog subtypes `open/save/folder/color`)
+
+8. **Open non-input family (high)**  
+   - `\![open,browser|mailer|editor|explorer|file|readme|terms|help,...]` and `\![open,communicatebox]`  
+   - `\![close,inputbox|communicatebox|dialog|teachbox,...]`  
+   - Status: **Implemented in this update** (runtime routing added and existing dialog event paths reused)
+   - Extended: `\![open,ghostexplorer|shellexplorer|balloonexplorer|headlinesensorexplorer|pluginexplorer|rateofusegraph|calendar|messenger|surfacetest|aigraph]`
+
+9. **Plugin event family (high)**  
+   - `\![raiseplugin|notifyplugin,plugin,event,...]`  
+   - `\![timerraiseplugin|timernotifyplugin,ms,repeat,plugin,event,...]`  
+   - Status: **Implemented in this update** (plugin target resolution by id/name/filename plus `random`/`lastinstalled`, timer overwrite/cancel semantics)
+
+4. **Sound extended family (medium)**  
+   - `\![sound,play|load|loop|wait|pause|resume|stop|option,...]`  
+   - Status: **Expanded in this update** (`load/wait/pause/resume/option` runtime path added)
+
+5. **Semantic mismatch commands (medium)**  
+   - `\6`, `\7`, `\-` behavior differs from some ukadoc expectations  
+   - Status: **Addressed in this update** (`\7` begins SNTP flow, `\6` applies SNTP adjustment action, `\-` exits ghost)
+
+6. **Cross-ghost event routing (high)**  
+   - `\![raiseother,...]`, `\![notifyother,...]`  
+   - `\![timerraiseother,...]`, `\![timernotifyother,...]`  
+   - Status: **Implemented in this update** (target parsing including byte-1 separators and `__SYSTEM_ALL_GHOST__`, timer scheduling/cancel by key)
+
+7. **Notify timer semantics (high)**  
+   - `\![notify,...]`, `\![timernotify,...]` return handling and timer behavior  
+   - Status: **Implemented in this update** (`notify` now discards response script; `timerraise/timernotify` now follow 0=repeat, >=1=one-shot and support per-event cancel/overwrite with `ms=0`)
+
 ## Scope Commands
 
 ### Character/Scope Selection

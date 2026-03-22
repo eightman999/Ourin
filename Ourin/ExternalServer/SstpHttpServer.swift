@@ -51,17 +51,43 @@ public final class SstpHttpServer {
                 if let headerEnd = buffer.range(of: Data([13,10,13,10])) {
                     let header = buffer.subdata(in: 0..<headerEnd.upperBound)
                     let headersText = String(data: header, encoding: .utf8) ?? ""
+                    let headerLines = headersText.split(separator: "\n").map {
+                        $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                    }
+                    guard let requestLine = headerLines.first,
+                          let request = Self.parseRequestLine(requestLine) else {
+                        self.sendErrorResponse(conn, status: 400)
+                        return
+                    }
+                    guard request.method == "POST" else {
+                        self.sendErrorResponse(conn, status: 405)
+                        return
+                    }
+                    guard request.path == "/api/sstp/v1" else {
+                        self.sendErrorResponse(conn, status: 404)
+                        return
+                    }
+
                     var contentLength = 0
+                    var hasContentLength = false
                     var originHeader: String?
-                    for rawLine in headersText.split(separator: "\n") {
-                        let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
+                    for line in headerLines.dropFirst() {
                         if line.lowercased().hasPrefix("content-length:") {
                             let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
                             contentLength = Int(v) ?? 0
+                            hasContentLength = true
                         } else if line.lowercased().hasPrefix("origin:") {
                             let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
                             originHeader = v
                         }
+                    }
+                    guard hasContentLength else {
+                        self.sendErrorResponse(conn, status: 411)
+                        return
+                    }
+                    if let originHeader, !Self.isAcceptedOrigin(originHeader) {
+                        self.sendErrorResponse(conn, status: 403)
+                        return
                     }
                     let bodyStart = headerEnd.upperBound
                     if buffer.count - bodyStart >= contentLength {
@@ -116,10 +142,38 @@ public final class SstpHttpServer {
         return host == "localhost" || host == "127.0.0.1" || host == "::1"
     }
 
+    static func isAcceptedOrigin(_ origin: String) -> Bool {
+        let trimmed = origin.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return false }
+        if trimmed == "null" { return true }
+        return isLocalOrigin(trimmed)
+    }
+
+    struct HttpRequestLine {
+        let method: String
+        let path: String
+    }
+
+    static func parseRequestLine(_ line: String) -> HttpRequestLine? {
+        let parts = line.split(separator: " ", omittingEmptySubsequences: true)
+        guard parts.count >= 3 else { return nil }
+        let method = String(parts[0]).uppercased()
+        let target = String(parts[1])
+        guard String(parts[2]).hasPrefix("HTTP/1.") else { return nil }
+        guard let url = URL(string: target), let path = url.path.isEmpty ? nil : url.path else {
+            return HttpRequestLine(method: method, path: target)
+        }
+        return HttpRequestLine(method: method, path: path)
+    }
+
     private func sendErrorResponse(_ conn: NWConnection, status: Int) {
         let statusText: String
         switch status {
+        case 403: statusText = "Forbidden"
+        case 404: statusText = "Not Found"
+        case 405: statusText = "Method Not Allowed"
         case 408: statusText = "Request Timeout"
+        case 411: statusText = "Length Required"
         case 413: statusText = "Payload Too Large"
         default: statusText = "Bad Request"
         }

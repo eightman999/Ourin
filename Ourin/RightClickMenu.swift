@@ -7,28 +7,50 @@ import AppKit
 /// 右クリックメニュー UI の SwiftUI 実装
 @available(macOS 11.0, *)
 struct RightClickMenu: View {
+    private var ghostManager: GhostManager? {
+        (NSApp.delegate as? AppDelegate)?.ghostManager
+    }
+
     /// メニュー項目一覧を返す
     var body: some View {
-        // 実際のメニュー構成はドキュメントのモックアップを元に仮実装
         Group {
-            Button("ゴースト情報") {}
-            Menu("ゴースト切替") {
-                Button("ゴースト1") {}
-                Button("ゴースト2") {}
+            Button("ゴースト情報") {
+                ghostManager?.handleMenuAction("menu_ghost_info")
             }
-            Menu("シェル切替") {
-                Button("シェル1") {}
-                Button("シェル2") {}
-            }
-            Menu("バルーン切替") {
-                Button("バルーン1") {}
+            if let manager = ghostManager {
+                let scope = manager.currentScope
+                let entries = manager.dressupMenuEntries(for: scope)
+                if !entries.isEmpty {
+                    Menu("着せ替え") {
+                        ForEach(entries, id: \.bindGroupID) { entry in
+                            let enabled = manager.isDressupBindGroupEnabled(scope: scope, bindGroupID: entry.bindGroupID)
+                            Button {
+                                manager.toggleDressupBindGroup(scope: scope, bindGroupID: entry.bindGroupID)
+                            } label: {
+                                if let image = manager.dressupThumbnailImage(for: entry) {
+                                    Label {
+                                        Text("\(enabled ? "✓ " : "")\(entry.category) / \(entry.part)")
+                                    } icon: {
+                                        Image(nsImage: image)
+                                            .resizable()
+                                            .frame(width: 16, height: 16)
+                                    }
+                                } else {
+                                    Text("\(enabled ? "✓ " : "")\(entry.category) / \(entry.part)")
+                                }
+                            }
+                        }
+                    }
+                }
             }
             Divider()
             Button("新しいNARを読み込む...") {
                 selectAndLoadNAR()
             }
             Divider()
-            Button("設定") {}
+            Button("設定") {
+                ghostManager?.handleMenuAction("menu_settings")
+            }
             Button("DevTools を開く") {
                 (NSApp.delegate as? AppDelegate)?.showDevTools()
             }

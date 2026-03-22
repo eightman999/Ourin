@@ -33,25 +33,46 @@ public enum WebNarInstaller {
     /// Download and install a NAR archive from https URL
 
     public static func install(from urlString: String) {
-        // URL の妥当性チェック。https 以外は拒否
-        guard let url = URL(string: urlString), url.scheme?.lowercased() == "https" else {
+        // URL の妥当性チェック。既定は https のみ許可。設定で http を明示許可可。
+        guard let url = URL(string: urlString), let scheme = url.scheme?.lowercased() else {
             NSLog("[WebNarInstaller] invalid url: \(urlString)")
             return
+        }
+        let allowHttp = allowInsecureHTTPInstall()
+        if !(scheme == "https" || (scheme == "http" && allowHttp)) {
+            NSLog("[WebNarInstaller] insecure http blocked: \(urlString)")
+            EventBridge.shared.notifyCustom("OnSecurityWarning", params: [
+                "Reference0": "nar_install_blocked",
+                "Reference1": "http_scheme",
+                "Reference2": urlString
+            ])
+            return
+        }
+        if scheme == "http" && allowHttp {
+            EventBridge.shared.notifyCustom("OnSecurityWarning", params: [
+                "Reference0": "nar_install_insecure_allowed",
+                "Reference1": "http_scheme",
+                "Reference2": urlString
+            ])
         }
 
         // URLSession で非同期ダウンロード
         let task = URLSession.shared.downloadTask(with: url) { local, response, error in
             if let error = error {
                 NSLog("[WebNarInstaller] download error: \(error)")
+                EventBridge.shared.notify(.OnURLDropFailure, params: ["Reference0": error.localizedDescription])
                 return
             }
             guard let local = local else { return }
             log.info("downloaded: \(local.path)")
+            EventBridge.shared.notify(.OnNarCreating, params: ["Reference0": local.path])
             do {
                 try installLocalNar(local)
                 log.info("install finished")
+                EventBridge.shared.notify(.OnNarCreated, params: ["Reference0": local.path])
             } catch {
                 log.fault("install failed: \(String(describing: error))")
+                EventBridge.shared.notify(.OnURLDropFailure, params: ["Reference0": String(describing: error)])
             }
 
             NSLog("[WebNarInstaller] downloaded: \(local.path)")
@@ -61,9 +82,18 @@ public enum WebNarInstaller {
         task.resume()
     }
 
+    /// http を許可するかを環境変数/ユーザデフォルトから判定
+    /// - Env: OURIN_ALLOW_HTTP_NAR=1 で有効
+    /// - UserDefaults: OurinAllowInsecureNarInstall=true で有効
+    private static func allowInsecureHTTPInstall(environment: [String: String] = ProcessInfo.processInfo.environment) -> Bool {
+        if environment["OURIN_ALLOW_HTTP_NAR"] == "1" { return true }
+        return UserDefaults.standard.bool(forKey: "OurinAllowInsecureNarInstall")
+    }
+
     private static func installLocalNar(_ narURL: URL) throws {
         // 1) validate zip header
-        guard narURL.pathExtension.lowercased() == "nar" else { throw Error.notZip }
+        let ext = narURL.pathExtension.lowercased()
+        guard ext == "nar" || ext == "zip" else { throw Error.notZip }
         let data = try Data(contentsOf: narURL, options: .mappedIfSafe)
         guard data.starts(with: [0x50, 0x4b]) else { throw Error.notZip }
 

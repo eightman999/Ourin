@@ -342,6 +342,26 @@ struct SakuraScriptEngineTests {
     }
 
     @Test
+    func moveWindowAliasCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![move,window,100,200,300,0]")
+        #expect(tokens.count == 1)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["move", "window", "100", "200", "300", "0"])
+        }
+    }
+
+    @Test
+    func resizeWindowAliasCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![resize,window,640,480,200,1]")
+        #expect(tokens.count == 1)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["resize", "window", "640", "480", "200", "1"])
+        }
+    }
+
+    @Test
     func moveasyncCommand() async throws {
         let engine = SakuraScriptEngine()
         let tokens = engine.parse(script: "\\![moveasync,--X=-175,--Y=200,--time=5000]")
@@ -1528,6 +1548,42 @@ struct SakuraScriptEngineTests {
         }
     }
 
+    @Test
+    func soundPlayCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![sound,play,se.wav]")
+        #expect(tokens.count == 1)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["sound", "play", "se.wav"])
+        }
+    }
+
+    @Test
+    func soundLoopAndStopCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![sound,loop,bgm.mp3]\\![sound,stop,bgm.mp3]")
+        #expect(tokens.count == 2)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["sound", "loop", "bgm.mp3"])
+        }
+        if case .command(_, let args) = tokens[1] {
+            #expect(args == ["sound", "stop", "bgm.mp3"])
+        }
+    }
+
+    @Test
+    func soundLoadWaitPauseResumeOptionCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\![sound,load,bgm.mp3]\\![sound,wait]\\![sound,pause,bgm.mp3]\\![sound,resume,bgm.mp3]\\![sound,option,bgm.mp3,--volume=25]"
+        let tokens = engine.parse(script: script)
+        #expect(tokens.count == 5)
+        if case .command(_, let args) = tokens[0] { #expect(args == ["sound", "load", "bgm.mp3"]) }
+        if case .command(_, let args) = tokens[1] { #expect(args == ["sound", "wait"]) }
+        if case .command(_, let args) = tokens[2] { #expect(args == ["sound", "pause", "bgm.mp3"]) }
+        if case .command(_, let args) = tokens[3] { #expect(args == ["sound", "resume", "bgm.mp3"]) }
+        if case .command(_, let args) = tokens[4] { #expect(args == ["sound", "option", "bgm.mp3", "--volume=25"]) }
+    }
+
     // MARK: - Advanced Event Commands
 
     @Test
@@ -1591,6 +1647,127 @@ struct SakuraScriptEngineTests {
     }
 
     @Test
+    func openInputBoxCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![open,inputbox,OnInput,5000,hello]")
+        #expect(tokens.count == 1)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["open", "inputbox", "OnInput", "5000", "hello"])
+        }
+    }
+
+    @Test
+    func openDateAndSliderCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![open,dateinput,OnDate,1000,2026,3,14]\\![open,sliderinput,OnSlider,1500,30,0,100]")
+        #expect(tokens.count == 2)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["open", "dateinput", "OnDate", "1000", "2026", "3", "14"])
+        }
+        if case .command(_, let args) = tokens[1] {
+            #expect(args == ["open", "sliderinput", "OnSlider", "1500", "30", "0", "100"])
+        }
+    }
+
+    @Test
+    func openPasswordTimeAndIpInputCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\![open,passwordinput,OnPassword,5000,secret]\\![open,timeinput,OnTime,2000,12,34,56]\\![open,ipinput,OnIP,3000,127.0.0.1]"
+        let tokens = engine.parse(script: script)
+        #expect(tokens.count == 3)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["open", "passwordinput", "OnPassword", "5000", "secret"])
+        }
+        if case .command(_, let args) = tokens[1] {
+            #expect(args == ["open", "timeinput", "OnTime", "2000", "12", "34", "56"])
+        }
+        if case .command(_, let args) = tokens[2] {
+            #expect(args == ["open", "ipinput", "OnIP", "3000", "127.0.0.1"])
+        }
+    }
+
+    @Test
+    func openExternalCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\![open,browser,https://example.com]\\![open,mailer,test@example.com]\\![open,editor,descript.txt,12]\\![open,explorer,descript.txt]\\![open,file,readme.txt]\\![open,readme]\\![open,terms]\\![open,help,menu]"
+        let tokens = engine.parse(script: script)
+        #expect(tokens.count == 8)
+        if case .command(_, let args) = tokens[0] { #expect(args == ["open", "browser", "https://example.com"]) }
+        if case .command(_, let args) = tokens[1] { #expect(args == ["open", "mailer", "test@example.com"]) }
+        if case .command(_, let args) = tokens[2] { #expect(args == ["open", "editor", "descript.txt", "12"]) }
+        if case .command(_, let args) = tokens[3] { #expect(args == ["open", "explorer", "descript.txt"]) }
+        if case .command(_, let args) = tokens[4] { #expect(args == ["open", "file", "readme.txt"]) }
+        if case .command(_, let args) = tokens[5] { #expect(args == ["open", "readme"]) }
+        if case .command(_, let args) = tokens[6] { #expect(args == ["open", "terms"]) }
+        if case .command(_, let args) = tokens[7] { #expect(args == ["open", "help", "menu"]) }
+    }
+
+    @Test
+    func openHttpAndSendCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\![open,http,https://example.com/api]\\![open,send,https://example.com/post,payload]"
+        let tokens = engine.parse(script: script)
+        #expect(tokens.count == 2)
+        if case .command(_, let args) = tokens[0] { #expect(args == ["open", "http", "https://example.com/api"]) }
+        if case .command(_, let args) = tokens[1] { #expect(args == ["open", "send", "https://example.com/post", "payload"]) }
+    }
+
+    @Test
+    func inputAliasCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\![input,textbox,OnInput]\\![input,choice,OnChoice,A,B]\\![input,date,OnDate,2026,3,16]\\![input,pass,OnPass]\\![input,capture,OnCap]"
+        let tokens = engine.parse(script: script)
+        #expect(tokens.count == 5)
+        if case .command(_, let args) = tokens[0] { #expect(args == ["input", "textbox", "OnInput"]) }
+        if case .command(_, let args) = tokens[1] { #expect(args == ["input", "choice", "OnChoice", "A", "B"]) }
+        if case .command(_, let args) = tokens[2] { #expect(args == ["input", "date", "OnDate", "2026", "3", "16"]) }
+        if case .command(_, let args) = tokens[3] { #expect(args == ["input", "pass", "OnPass"]) }
+        if case .command(_, let args) = tokens[4] { #expect(args == ["input", "capture", "OnCap"]) }
+    }
+
+    @Test
+    func modeAndReloadCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\![enter,nouserbreakmode]\\![leave,nouserbreakmode]\\![reload,surfaces.txt]"
+        let tokens = engine.parse(script: script)
+        #expect(tokens.count == 3)
+        if case .command(_, let args) = tokens[0] { #expect(args == ["enter", "nouserbreakmode"]) }
+        if case .command(_, let args) = tokens[1] { #expect(args == ["leave", "nouserbreakmode"]) }
+        if case .command(_, let args) = tokens[2] { #expect(args == ["reload", "surfaces.txt"]) }
+    }
+
+    @Test
+    func closeDialogCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\![close,inputbox,OnInput]\\![close,communicatebox]\\![close,dialog,OnDialog]\\![close,teachbox]"
+        let tokens = engine.parse(script: script)
+        #expect(tokens.count == 4)
+        if case .command(_, let args) = tokens[0] { #expect(args == ["close", "inputbox", "OnInput"]) }
+        if case .command(_, let args) = tokens[1] { #expect(args == ["close", "communicatebox"]) }
+        if case .command(_, let args) = tokens[2] { #expect(args == ["close", "dialog", "OnDialog"]) }
+        if case .command(_, let args) = tokens[3] { #expect(args == ["close", "teachbox"]) }
+    }
+
+    @Test
+    func openExplorerAliasCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let script = "\\![open,ghostexplorer]\\![open,shellexplorer,shellA]\\![open,balloonexplorer,balloonA]\\![open,headlinesensorexplorer,headlineA]\\![open,pluginexplorer,pluginA]\\![open,rateofusegraph]\\![open,calendar]\\![open,messenger]\\![open,explorer,ghost,emily]\\![open,surfacetest]\\![open,aigraph]"
+        let tokens = engine.parse(script: script)
+        #expect(tokens.count == 11)
+        if case .command(_, let args) = tokens[0] { #expect(args == ["open", "ghostexplorer"]) }
+        if case .command(_, let args) = tokens[1] { #expect(args == ["open", "shellexplorer", "shellA"]) }
+        if case .command(_, let args) = tokens[2] { #expect(args == ["open", "balloonexplorer", "balloonA"]) }
+        if case .command(_, let args) = tokens[3] { #expect(args == ["open", "headlinesensorexplorer", "headlineA"]) }
+        if case .command(_, let args) = tokens[4] { #expect(args == ["open", "pluginexplorer", "pluginA"]) }
+        if case .command(_, let args) = tokens[5] { #expect(args == ["open", "rateofusegraph"]) }
+        if case .command(_, let args) = tokens[6] { #expect(args == ["open", "calendar"]) }
+        if case .command(_, let args) = tokens[7] { #expect(args == ["open", "messenger"]) }
+        if case .command(_, let args) = tokens[8] { #expect(args == ["open", "explorer", "ghost", "emily"]) }
+        if case .command(_, let args) = tokens[9] { #expect(args == ["open", "surfacetest"]) }
+        if case .command(_, let args) = tokens[10] { #expect(args == ["open", "aigraph"]) }
+    }
+
+    @Test
     func vanishBymyselfCommand() async throws {
         let engine = SakuraScriptEngine()
         let tokens = engine.parse(script: "\\![vanishbymyself]")
@@ -1641,12 +1818,32 @@ struct SakuraScriptEngineTests {
     }
 
     @Test
+    func timerRaiseOtherCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![timerraiseother,30000,0,emily,OnTest,value0]")
+        #expect(tokens.count == 1)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["timerraiseother", "30000", "0", "emily", "OnTest", "value0"])
+        }
+    }
+
+    @Test
     func notifyCommand() async throws {
         let engine = SakuraScriptEngine()
         let tokens = engine.parse(script: "\\![notify,OnNotify]")
         #expect(tokens.count == 1)
         if case .command(let name, let args) = tokens[0] {
             #expect(args == ["notify", "OnNotify"])
+        }
+    }
+
+    @Test
+    func timerNotifyCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![timernotify,1000,0,OnNotify,arg0]")
+        #expect(tokens.count == 1)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["timernotify", "1000", "0", "OnNotify", "arg0"])
         }
     }
 
@@ -1661,12 +1858,45 @@ struct SakuraScriptEngineTests {
     }
 
     @Test
+    func timerNotifyOtherCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![timernotifyother,1000,1,emily,OnNotify,arg]")
+        #expect(tokens.count == 1)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["timernotifyother", "1000", "1", "emily", "OnNotify", "arg"])
+        }
+    }
+
+    @Test
     func raisePluginCommand() async throws {
         let engine = SakuraScriptEngine()
         let tokens = engine.parse(script: "\\![raiseplugin,MyPlugin,OnEvent]")
         #expect(tokens.count == 1)
         if case .command(let name, let args) = tokens[0] {
             #expect(args == ["raiseplugin", "MyPlugin", "OnEvent"])
+        }
+    }
+
+    @Test
+    func timerRaisePluginCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![timerraiseplugin,60000,0,MyPlugin,OnEvent,arg0]")
+        #expect(tokens.count == 1)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["timerraiseplugin", "60000", "0", "MyPlugin", "OnEvent", "arg0"])
+        }
+    }
+
+    @Test
+    func notifyPluginCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![notifyplugin,MyPlugin,OnEvent]\\![timernotifyplugin,1000,1,MyPlugin,OnEvent,arg]")
+        #expect(tokens.count == 2)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["notifyplugin", "MyPlugin", "OnEvent"])
+        }
+        if case .command(_, let args) = tokens[1] {
+            #expect(args == ["timernotifyplugin", "1000", "1", "MyPlugin", "OnEvent", "arg"])
         }
     }
 
@@ -2049,7 +2279,7 @@ struct SakuraScriptEngineTests {
         let script = "\\f[bold,1]\\f[color,red]Bold Red\\f[default]\\nNormal\\n\\q[Continue,OnContinue]"
         let tokens = engine.parse(script: script)
         
-        #expect(tokens.count == 7)
+        #expect(tokens.count == 8)
         if case .command(let name, let args) = tokens[0] {
             #expect(name == "f")
             #expect(args == ["bold", "1"])

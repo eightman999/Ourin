@@ -54,8 +54,8 @@ struct CharacterView: View {
                     .aspectRatio(contentMode: .fit)
             }
 
-            // Overlay layers (sorted by Z-order)
-            ForEach(viewModel.overlays.sorted { $0.id < $1.id }) { overlay in
+            // Overlay layers sorted by z-order then insertion for deterministic stacking.
+            ForEach(SurfaceOverlay.sortedForDisplay(viewModel.overlays)) { overlay in
                 OverlayView(overlay: overlay)
                     .offset(x: overlay.offset.x, y: overlay.offset.y)
             }

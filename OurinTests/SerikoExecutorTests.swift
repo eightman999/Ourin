@@ -96,5 +96,102 @@ struct SerikoExecutorTests {
         executor.startLoop()
         #expect(executor.activeAnimations[22] != nil)
     }
-}
 
+    @Test
+    func exclusiveOptionStopsOtherActiveAnimations() async throws {
+        let executor = SerikoExecutor()
+        let normal = SerikoParser.AnimationDefinition(
+            id: 1,
+            interval: .never,
+            options: [],
+            patterns: [SerikoPattern(index: 0, method: .overlay, surfaceID: 10, duration: 10, x: 0, y: 0, rawArguments: [])]
+        )
+        let exclusive = SerikoParser.AnimationDefinition(
+            id: 2,
+            interval: .never,
+            options: ["exclusive"],
+            patterns: [SerikoPattern(index: 0, method: .overlay, surfaceID: 20, duration: 10, x: 0, y: 0, rawArguments: [])]
+        )
+        executor.register(animations: [1: normal, 2: exclusive])
+
+        _ = executor.executeAnimation(id: 1)
+        #expect(executor.activeAnimations[1] != nil)
+        _ = executor.executeAnimation(id: 2)
+
+        #expect(executor.activeAnimations[1] == nil)
+        #expect(executor.activeAnimations[2] != nil)
+    }
+
+    @Test
+    func sharedOptionDoesNotRestartActiveAnimation() async throws {
+        let executor = SerikoExecutor()
+        let shared = SerikoParser.AnimationDefinition(
+            id: 3,
+            interval: .never,
+            options: ["shared"],
+            patterns: [SerikoPattern(index: 0, method: .overlay, surfaceID: 30, duration: 10, x: 0, y: 0, rawArguments: [])]
+        )
+        executor.register(animations: [3: shared])
+
+        var executionCount = 0
+        executor.onPatternExecuted = { _, _ in executionCount += 1 }
+
+        _ = executor.executeAnimation(id: 3)
+        _ = executor.executeAnimation(id: 3)
+
+        #expect(executionCount == 1)
+        #expect(executor.activeAnimations[3] != nil)
+    }
+
+    @Test
+    func exclusiveOptionKeepsBackgroundAnimations() async throws {
+        let executor = SerikoExecutor()
+        let background = SerikoParser.AnimationDefinition(
+            id: 4,
+            interval: .never,
+            options: ["background"],
+            patterns: [SerikoPattern(index: 0, method: .overlay, surfaceID: 40, duration: 10, x: 0, y: 0, rawArguments: [])]
+        )
+        let exclusive = SerikoParser.AnimationDefinition(
+            id: 5,
+            interval: .never,
+            options: ["exclusive"],
+            patterns: [SerikoPattern(index: 0, method: .overlay, surfaceID: 50, duration: 10, x: 0, y: 0, rawArguments: [])]
+        )
+        executor.register(animations: [4: background, 5: exclusive])
+
+        _ = executor.executeAnimation(id: 4)
+        _ = executor.executeAnimation(id: 5)
+
+        #expect(executor.activeAnimations[4] != nil)
+        #expect(executor.activeAnimations[5] != nil)
+    }
+
+    @Test
+    func seriesOptionReplacesExistingSeriesAnimation() async throws {
+        let executor = SerikoExecutor()
+        let a = SerikoParser.AnimationDefinition(
+            id: 30,
+            interval: .never,
+            options: [],
+            patterns: [SerikoPattern(index: 0, method: .overlay, surfaceID: 100, duration: 10, x: 0, y: 0, rawArguments: [])],
+            surfaceOption: nil,
+            seriesOption: "mouth"
+        )
+        let b = SerikoParser.AnimationDefinition(
+            id: 31,
+            interval: .never,
+            options: [],
+            patterns: [SerikoPattern(index: 0, method: .overlay, surfaceID: 101, duration: 10, x: 0, y: 0, rawArguments: [])],
+            surfaceOption: nil,
+            seriesOption: "mouth"
+        )
+        executor.register(animations: [30: a, 31: b])
+
+        _ = executor.executeAnimation(id: 30)
+        #expect(executor.activeAnimations[30] != nil)
+        _ = executor.executeAnimation(id: 31)
+        #expect(executor.activeAnimations[30] == nil)
+        #expect(executor.activeAnimations[31] != nil)
+    }
+}

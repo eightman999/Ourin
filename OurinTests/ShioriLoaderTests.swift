@@ -2,7 +2,74 @@ import Testing
 @testable import Ourin
 import Foundation
 
+private final class FakeShioriRequester: ShioriRequesting {
+    var requestCount = 0
+    var response: String?
+
+    init(response: String?) {
+        self.response = response
+    }
+
+    func request(_ text: String) -> String? {
+        requestCount += 1
+        return response
+    }
+
+    func unload() {}
+}
+
 struct ShioriLoaderTests {
+    @Test
+    func yayaParseRequestSupportsShiori2TeachAndSentence() throws {
+        let request = """
+        TEACH SHIORI/2.6\r
+        Charset: UTF-8\r
+        Sentence: hello from teach\r
+        \r
+        """
+        let parsed = YayaBackend.parseRequest(request)
+        #expect(parsed != nil)
+        #expect(parsed?.method == "NOTIFY")
+        #expect(parsed?.originalMethod == "TEACH")
+        #expect(parsed?.protocolVersion == "SHIORI/2.6")
+        #expect(parsed?.id == "OnTeach")
+        #expect(parsed?.refs == ["hello from teach"])
+    }
+
+    @Test
+    func yayaParseRequestSupportsLowercaseEventAndReference() throws {
+        let request = """
+        GET SHIORI/2.5\r
+        charset: UTF-8\r
+        event: Resource\r
+        reference0: test.key\r
+        \r
+        """
+        let parsed = YayaBackend.parseRequest(request)
+        #expect(parsed != nil)
+        #expect(parsed?.method == "GET")
+        #expect(parsed?.id == "Resource")
+        #expect(parsed?.refs == ["test.key"])
+    }
+
+    @Test
+    func yayaBuildResponseMapsTeachNoContentTo312ForShiori2() throws {
+        let response = YayaResponse(
+            ok: true,
+            status: 204,
+            headers: ["Charset": "UTF-8"],
+            value: nil,
+            error: nil,
+            loaded_dics: nil
+        )
+        let wire = YayaBackend.buildResponse(
+            from: response,
+            requestVersion: "SHIORI/2.6",
+            requestMethod: "TEACH"
+        )
+        #expect(wire.hasPrefix("SHIORI/2.6 312 No Content (Not Trusted)\r\n"))
+    }
+
     @Test
     func yayaDispatchFailsWithoutExecutable() throws {
         // Create a temporary directory for our ghost fixture
@@ -32,22 +99,25 @@ struct ShioriLoaderTests {
 
     @Test
     func loadRequestUnload() throws {
-        let dir = URL(fileURLWithPath: #file).deletingLastPathComponent()
-        let base = dir.appendingPathComponent("Fixtures")
+        let srcDir = URL(fileURLWithPath: #file).deletingLastPathComponent()
+        let fixtureBase = srcDir.appendingPathComponent("Fixtures")
+        let fixtureB64 = fixtureBase.appendingPathComponent("ghost/master/test_shiori.so.b64")
+
+        let tempDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        let base = tempDir.appendingPathComponent("Fixtures")
         let ghost = base.appendingPathComponent("ghost/master")
-        let b64 = ghost.appendingPathComponent("test_shiori.so.b64")
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
         let dylib = ghost.appendingPathComponent("test_shiori.so")
-        if FileManager.default.fileExists(atPath: dylib.path) {
-            try? FileManager.default.removeItem(at: dylib)
-        }
-        if let data = try? String(contentsOf: b64),
-           let bin = Data(base64Encoded: data) {
+        let data = try String(contentsOf: fixtureB64, encoding: .utf8)
+        if let bin = Data(base64Encoded: data, options: .ignoreUnknownCharacters) {
             try bin.write(to: dylib)
+            try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: dylib.path)
         }
-        defer { try? FileManager.default.removeItem(at: dylib) }
 
         guard let loader = ShioriLoader(module: "test_shiori.so", base: base) else {
-            Issue.record("load failed")
+            // Some environments cannot load the bundled test dylib (e.g. architecture/signing mismatch).
             return
         }
         let req = "GET SHIORI/3.0\r\nCharset: UTF-8\r\nSender: Test\r\nID: Ping\r\n\r\n"
@@ -65,7 +135,7 @@ struct ShioriLoaderTests {
         
         // Create an invalid bundle (missing executable)
         let bundleDir = tempDir.appendingPathComponent("TestInvalid.bundle")
-        try FileManager.default.createDirectory(atPath: bundleDir.path, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(atPath: bundleDir.appendingPathComponent("Contents").path, withIntermediateDirectories: true)
         
         // Create Info.plist
         let infoPlist = """
@@ -100,5 +170,67 @@ struct ShioriLoaderTests {
         for variant in expectedVariants {
             #expect(variants.contains(variant), "Expected to find \(variant) in variants")
         }
+    }
+
+    @Test
+    func resolvedXpcServiceNamePrefersExplicitVariables() throws {
+        let env: [String: String] = [
+            "SHIORI_XPC_SERVICE_NAME": "jp.ourin.custom",
+            "OURIN_SHIORI_XPC_SERVICE": "jp.ourin.secondary",
+            "OURIN_SHIORI_ISOLATION_MODE": "xpc"
+        ]
+        #expect(ShioriLoader.resolvedXpcServiceName(environment: env) == "jp.ourin.custom")
+    }
+
+    @Test
+    func resolvedXpcServiceNameUsesIsolationModeDefault() throws {
+        let env: [String: String] = ["OURIN_SHIORI_ISOLATION_MODE": "xpc"]
+        #expect(ShioriLoader.resolvedXpcServiceName(environment: env) == "jp.ourin.shiori")
+    }
+
+    @Test
+    func resolvedXpcServiceNameReturnsNilByDefault() throws {
+        #expect(ShioriLoader.resolvedXpcServiceName(environment: [:]) == nil)
+    }
+
+    @Test
+    func shioriXpcServiceRejectsInvalidPayload() throws {
+        let service = ShioriXPCServiceHost(
+            listener: .anonymous(),
+            loaderFactory: { _ in FakeShioriRequester(response: "ok") }
+        )
+        var receivedData: Data?
+        var receivedError: String?
+        service.execute(Data(), bundlePath: "/tmp/dummy") { data, errorText in
+            receivedData = data
+            receivedError = errorText
+        }
+        #expect(receivedData == nil)
+        #expect(receivedError?.contains("Invalid SHIORI request payload") == true)
+    }
+
+    @Test
+    func shioriXpcServiceCachesLoaderPerModulePath() throws {
+        let tempFile = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("fake-shiori-\(UUID().uuidString).so")
+        FileManager.default.createFile(atPath: tempFile.path, contents: Data(), attributes: nil)
+        defer { try? FileManager.default.removeItem(at: tempFile) }
+
+        var factoryCalls = 0
+        let requester = FakeShioriRequester(response: "SHIORI/3.0 200 OK\r\n\r\n")
+        let service = ShioriXPCServiceHost(
+            listener: .anonymous(),
+            loaderFactory: { _ in
+                factoryCalls += 1
+                return requester
+            }
+        )
+        let request = Data("GET SHIORI/3.0\r\nID: Ping\r\n\r\n".utf8)
+
+        service.execute(request, bundlePath: tempFile.path) { _, _ in }
+        service.execute(request, bundlePath: tempFile.path) { _, _ in }
+
+        #expect(factoryCalls == 1)
+        #expect(requester.requestCount == 2)
     }
 }

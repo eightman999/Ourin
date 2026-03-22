@@ -4,6 +4,11 @@ import AppKit
 // MARK: - Dressup System
 
 extension GhostManager {
+    func dressupOverlayPrefix(category: String, part: String) -> String {
+        let normalizedCategory = category.replacingOccurrences(of: " ", with: "_")
+        let normalizedPart = part.replacingOccurrences(of: " ", with: "_")
+        return "dressup_\(normalizedCategory)_\(normalizedPart)_"
+    }
 
     /// Parse individual dressup configuration file
     private func parseDressupConfigFile(filePath: URL, category: String) -> DressupConfig? {
@@ -51,7 +56,8 @@ extension GhostManager {
     }
 
     /// Apply dressup configuration for a category
-    func applyDressup(category: String, part: String, value: String) {
+    func applyDressup(category: String, part: String, value: String, scope: Int? = nil) {
+        let targetScope = scope ?? currentScope
         guard let config = dressupConfigurations.first(where: { $0.category == category }) else {
             Log.info("[GhostManager] No dressup config found for category: \(category)")
             return
@@ -65,21 +71,24 @@ extension GhostManager {
         // Apply dressup binding
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            guard let vm = self.characterViewModels[targetScope] else { return }
 
             // Load dressup part image
             if let shellPath = self.loadShellPath() {
                 let imagePath = shellPath.appendingPathComponent("surface\(binding.surfaceID).png")
                 if let image = NSImage(contentsOf: imagePath) {
                     // Remove existing overlays with same part name
-                    vm.overlays.removeAll { $0.id.hasPrefix("dressup_\(part)_") }
+                    let prefix = self.dressupOverlayPrefix(category: category, part: part)
+                    vm.overlays.removeAll { $0.id.hasPrefix(prefix) }
 
                     // Add new overlay
                     let overlay = SurfaceOverlay(
-                        id: "dressup_\(part)_\(UUID().uuidString)",
+                        id: "\(prefix)\(UUID().uuidString)",
                         image: image,
                         offset: CGPoint(x: Double(binding.x), y: Double(binding.y)),
-                        alpha: 1.0
+                        alpha: 1.0,
+                        zOrder: 200,
+                        insertionOrder: (vm.overlays.map(\.insertionOrder).max() ?? -1) + 1
                     )
                     vm.overlays.append(overlay)
 
@@ -127,5 +136,60 @@ extension GhostManager {
             vm.overlays.removeAll { $0.id.hasPrefix("dressup_") }
             Log.debug("[GhostManager] Cleared all dressup")
         }
+    }
+
+    func dressupMenuEntries(for scope: Int) -> [DressupBindGroupMeta] {
+        guard let groups = dressupBindGroupsByScope[scope], !groups.isEmpty else {
+            return []
+        }
+
+        let menuItems = dressupMenuItemsByScope[scope] ?? [:]
+        if menuItems.isEmpty {
+            return groups.values.sorted(by: { $0.bindGroupID < $1.bindGroupID })
+        }
+
+        var used: Set<Int> = []
+        var ordered: [DressupBindGroupMeta] = []
+        for (_, bindID) in menuItems.sorted(by: { $0.key < $1.key }) {
+            if let item = groups[bindID] {
+                ordered.append(item)
+                used.insert(bindID)
+            }
+        }
+        let remained = groups.values
+            .filter { !used.contains($0.bindGroupID) }
+            .sorted(by: { $0.bindGroupID < $1.bindGroupID })
+        ordered.append(contentsOf: remained)
+        return ordered
+    }
+
+    func isDressupBindGroupEnabled(scope: Int, bindGroupID: Int) -> Bool {
+        guard let meta = dressupBindGroupsByScope[scope]?[bindGroupID],
+              let vm = characterViewModels[scope] else {
+            return false
+        }
+        return vm.dressupBindings[meta.category]?[meta.part] != nil
+    }
+
+    func toggleDressupBindGroup(scope: Int, bindGroupID: Int) {
+        guard let meta = dressupBindGroupsByScope[scope]?[bindGroupID] else { return }
+        let currentlyEnabled = isDressupBindGroupEnabled(scope: scope, bindGroupID: bindGroupID)
+        handleBindDressup(category: meta.category, part: meta.part, value: currentlyEnabled ? "false" : "true", scope: scope)
+    }
+
+    func applyDefaultDressupBindings(for scope: Int) {
+        let defaults = dressupMenuEntries(for: scope).filter(\.isDefault)
+        for item in defaults {
+            handleBindDressup(category: item.category, part: item.part, value: "true", scope: scope)
+        }
+    }
+
+    func dressupThumbnailImage(for entry: DressupBindGroupMeta) -> NSImage? {
+        guard let relativePath = entry.thumbnail, !relativePath.isEmpty,
+              let shellPath = loadShellPath() else {
+            return nil
+        }
+        let absolute = shellPath.appendingPathComponent(relativePath)
+        return NSImage(contentsOf: absolute)
     }
 }

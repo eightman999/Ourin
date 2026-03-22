@@ -42,3 +42,34 @@ struct InstallTxtParser {
         return manifest
     }
 }
+
+struct UpdateDescriptorParser {
+    static func parse(_ text: String, baseURL: URL) -> [URL] {
+        let normalized = text.replacingOccurrences(of: "\r\n", with: "\n")
+        var results: [URL] = []
+
+        for raw in normalized.split(separator: "\n", omittingEmptySubsequences: false) {
+            let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !line.isEmpty, !line.hasPrefix(";"), !line.hasPrefix("#"), !line.hasPrefix("//") else { continue }
+
+            let components = line
+                .replacingOccurrences(of: "\u{0001}", with: ",")
+                .split(separator: ",")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+
+            guard let rawTarget = components.first(where: { !$0.isEmpty }) else { continue }
+            let candidate = rawTarget.replacingOccurrences(of: "\\", with: "/")
+
+            if let absolute = URL(string: candidate), let scheme = absolute.scheme?.lowercased(),
+               scheme == "https" || scheme == "http" {
+                results.append(absolute)
+                continue
+            }
+            if let relative = URL(string: candidate, relativeTo: baseURL)?.absoluteURL {
+                results.append(relative)
+            }
+        }
+
+        return Array(Set(results)).sorted { $0.absoluteString < $1.absoluteString }
+    }
+}

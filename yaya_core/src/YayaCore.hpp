@@ -20,4 +20,5 @@ private:
     DictionaryManager dictManager;
     MessageManager messageManager;
     std::string requestHostOperation(const std::string& type, const nlohmann::json& params);
+    nlohmann::json handlePluginOperation(const std::string& op, const nlohmann::json& params);
 };

@@ -38,6 +38,17 @@ struct SurfaceOverlay: Identifiable {
     let image: NSImage
     var offset: CGPoint = .zero
     var alpha: Double = 1.0
+    var zOrder: Int = 0
+    var insertionOrder: Int = 0
+
+    static func sortedForDisplay(_ overlays: [SurfaceOverlay]) -> [SurfaceOverlay] {
+        overlays.sorted {
+            if $0.zOrder == $1.zOrder {
+                return $0.insertionOrder < $1.insertionOrder
+            }
+            return $0.zOrder < $1.zOrder
+        }
+    }
 }
 
 /// Desktop alignment options
@@ -69,4 +80,3 @@ extension NSImage {
         return size.width > 0 && size.height > 0
     }
 }
-

@@ -76,6 +76,7 @@ final class GhostPropertyProvider: PropertyProvider {
     private var scopeData: [Int: ScopeData]
     private var mouseCursor: [String: String]
     private var balloonMouseCursor: [String: String]
+    private var serikoCursor: [Int: [String: String]]
     private var serikoTooltips: [Int: [String: String]]
     private var serikoSurfaceListAll: String
     private var serikoSurfaceListDefined: String
@@ -96,6 +97,7 @@ final class GhostPropertyProvider: PropertyProvider {
          scopeData: [Int: ScopeData] = [:],
          mouseCursor: [String: String] = [:],
          balloonMouseCursor: [String: String] = [:],
+         serikoCursor: [Int: [String: String]] = [:],
          serikoTooltips: [Int: [String: String]] = [:],
          serikoSurfaceListAll: String = "",
          serikoSurfaceListDefined: String = "") {
@@ -107,6 +109,7 @@ final class GhostPropertyProvider: PropertyProvider {
         self.scopeData = scopeData
         self.mouseCursor = mouseCursor
         self.balloonMouseCursor = balloonMouseCursor
+        self.serikoCursor = serikoCursor
         self.serikoTooltips = serikoTooltips
         self.serikoSurfaceListAll = serikoSurfaceListAll
         self.serikoSurfaceListDefined = serikoSurfaceListDefined
@@ -150,6 +153,10 @@ final class GhostPropertyProvider: PropertyProvider {
 
         if key.hasPrefix("seriko.tooltip.scope(") {
             return setSerikoTooltip(key: key, value: value)
+        }
+
+        if key.hasPrefix("seriko.cursor.scope(") {
+            return setSerikoCursor(key: key, value: value)
         }
 
         return false
@@ -220,6 +227,10 @@ final class GhostPropertyProvider: PropertyProvider {
 
     // MARK: - currentghost
     private func currentghost(key: String) -> String? {
+        if key == "status" {
+            return ShioriStatusStore.shared.currentStatus
+        }
+
         guard let idx = activeIndices.first, ghosts.indices.contains(idx) else {
             return nil
         }
@@ -228,11 +239,6 @@ final class GhostPropertyProvider: PropertyProvider {
         // Simple properties
         if let value = getGhostProperty(g, prop: key) {
             return value
-        }
-
-        // status
-        if key == "status" {
-            return "online"
         }
 
         // shelllist properties
@@ -265,6 +271,10 @@ final class GhostPropertyProvider: PropertyProvider {
 
         if key.hasPrefix("seriko.tooltip.scope(") {
             return getSerikoTooltip(key: key)
+        }
+
+        if key.hasPrefix("seriko.cursor.scope(") {
+            return getSerikoCursor(key: key)
         }
 
         return nil
@@ -488,6 +498,40 @@ final class GhostPropertyProvider: PropertyProvider {
         return nil
     }
 
+    private func getSerikoCursor(key: String) -> String? {
+        // seriko.cursor.scope(ID).mouselist(...)
+        guard let (scopeID, scopeTail) = parseScopePrefix(key: key, prefix: "seriko.cursor.scope") else {
+            return nil
+        }
+        let list = serikoCursor[scopeID] ?? [:]
+        if scopeTail == "mouselist.count" {
+            return String(list.count)
+        }
+
+        if let (name, prop) = parseNamedAccess(key: scopeTail, prefix: "mouselist") {
+            switch prop {
+            case "path":
+                return list[name]
+            case "name":
+                return name
+            default:
+                return nil
+            }
+        }
+
+        if scopeTail.hasPrefix("mouselist.index(") {
+            let sub = String(scopeTail.dropFirst("mouselist.".count))
+            if let (idx, prop) = parseIndex(key: sub) {
+                let names = list.keys.sorted()
+                guard names.indices.contains(idx) else { return nil }
+                let name = names[idx]
+                if prop == "name" { return name }
+                if prop == "path" { return list[name] }
+            }
+        }
+        return nil
+    }
+
     private func setSerikoTooltip(key: String, value: String) -> Bool {
         guard let (scopeID, scopeTail) = parseScopePrefix(key: key, prefix: "seriko.tooltip.scope") else {
             return false
@@ -502,6 +546,23 @@ final class GhostPropertyProvider: PropertyProvider {
             tooltips[name] = value
         }
         serikoTooltips[scopeID] = tooltips
+        return true
+    }
+
+    private func setSerikoCursor(key: String, value: String) -> Bool {
+        guard let (scopeID, scopeTail) = parseScopePrefix(key: key, prefix: "seriko.cursor.scope") else {
+            return false
+        }
+        guard let (name, prop) = parseNamedAccess(key: scopeTail, prefix: "mouselist"), prop == "path" else {
+            return false
+        }
+        var cursors = serikoCursor[scopeID] ?? [:]
+        if value.isEmpty {
+            cursors.removeValue(forKey: name)
+        } else {
+            cursors[name] = value
+        }
+        serikoCursor[scopeID] = cursors
         return true
     }
 

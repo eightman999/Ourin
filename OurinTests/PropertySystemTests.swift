@@ -1,6 +1,44 @@
 import Testing
 @testable import Ourin
 
+private final class CountingPropertyProvider: PropertyProvider {
+    var value: String
+    var getCount: Int = 0
+
+    init(value: String) {
+        self.value = value
+    }
+
+    func get(key: String) -> String? {
+        guard key == "value" else { return nil }
+        getCount += 1
+        return value
+    }
+
+    func set(key: String, value: String) -> Bool {
+        guard key == "value" else { return false }
+        self.value = value
+        return true
+    }
+}
+
+private final class DictionaryPropertyProvider: PropertyProvider {
+    var values: [String: String]
+
+    init(values: [String: String]) {
+        self.values = values
+    }
+
+    func get(key: String) -> String? {
+        values[key]
+    }
+
+    func set(key: String, value: String) -> Bool {
+        values[key] = value
+        return true
+    }
+}
+
 /// Tests for the Property System
 struct PropertySystemTests {
 
@@ -138,6 +176,67 @@ struct PropertySystemTests {
         #expect(!expanded.contains("%property"))
     }
 
+    @Test("PropertyManager - nested %property[] expansion")
+    func testNestedPropertyExpansion() {
+        let manager = PropertyManager()
+        manager.register("nested", provider: DictionaryPropertyProvider(values: [
+            "first": "Hello %property[nested.second]",
+            "second": "World"
+        ]))
+        let expanded = manager.expand("%property[nested.first]!")
+        #expect(expanded == "Hello World!")
+    }
+
+    @Test("PropertyManager - cyclic %property[] expansion is guarded")
+    func testCyclicPropertyExpansionGuard() {
+        let manager = PropertyManager()
+        manager.register("loop", provider: DictionaryPropertyProvider(values: [
+            "first": "%property[loop.second]",
+            "second": "%property[loop.first]"
+        ]))
+        let expanded = manager.expand("%property[loop.first]")
+        #expect(!expanded.contains("%property["))
+        #expect(expanded.isEmpty)
+    }
+
+    @Test("PropertyManager cache invalidation on set")
+    func testPropertyCacheInvalidationOnSet() {
+        let manager = PropertyManager()
+        let provider = CountingPropertyProvider(value: "A")
+        manager.register("cachetest", provider: provider)
+
+        #expect(manager.get("cachetest.value") == "A")
+        #expect(manager.get("cachetest.value") == "A")
+        #expect(provider.getCount == 1)
+
+        #expect(manager.set("cachetest.value", value: "B"))
+        #expect(manager.get("cachetest.value") == "B")
+        #expect(provider.getCount == 2)
+    }
+
+    @Test("PropertyManager list and dictionary parsing")
+    func testPropertyListAndDictionaryParsing() {
+        let manager = PropertyManager()
+        let provider = CountingPropertyProvider(value: "alpha, beta , gamma")
+        manager.register("typed", provider: provider)
+
+        #expect(manager.getList("typed.value") == ["alpha", "beta", "gamma"])
+
+        #expect(manager.set("typed.value", value: "a:1, b:2 , c: 3"))
+        let dict = manager.getDictionary("typed.value")
+        #expect(dict?["a"] == "1")
+        #expect(dict?["b"] == "2")
+        #expect(dict?["c"] == "3")
+    }
+
+    @Test("PropertyManager dictionary parsing rejects malformed value")
+    func testPropertyDictionaryParsingRejectsMalformed() {
+        let manager = PropertyManager()
+        let provider = CountingPropertyProvider(value: "alpha,beta:2")
+        manager.register("typedbad", provider: provider)
+        #expect(manager.getDictionary("typedbad.value") == nil)
+    }
+
     @Test("BalloonPropertyProvider")
     func testBalloonProperties() {
         let balloons = [
@@ -198,6 +297,7 @@ struct PropertySystemTests {
             activeIndices: [0],
             mouseCursor: ["text": "ibeam"],
             balloonMouseCursor: ["arrow": "default"],
+            serikoCursor: [0: ["Head": "cursor/head.cur"]],
             serikoTooltips: [0: ["Head": "なでる"]],
             serikoSurfaceListAll: "0,1,2",
             serikoSurfaceListDefined: "0,2"
@@ -205,6 +305,8 @@ struct PropertySystemTests {
 
         #expect(provider.get(key: "mousecursor.text") == "ibeam")
         #expect(provider.get(key: "balloon.mousecursor.arrow") == "default")
+        #expect(provider.get(key: "seriko.cursor.scope(0).mouselist(Head).path") == "cursor/head.cur")
+        #expect(provider.get(key: "seriko.cursor.scope(0).mouselist.count") == "1")
         #expect(provider.get(key: "seriko.surfacelist.all") == "0,1,2")
         #expect(provider.get(key: "seriko.tooltip.scope(0).textlist(Head).text") == "なでる")
         #expect(provider.get(key: "seriko.tooltip.scope(0).textlist.count") == "1")
@@ -214,5 +316,14 @@ struct PropertySystemTests {
 
         #expect(provider.set(key: "seriko.tooltip.scope(0).textlist(Hand).text", value: "つつく"))
         #expect(provider.get(key: "seriko.tooltip.scope(0).textlist(Hand).text") == "つつく")
+        #expect(provider.set(key: "seriko.cursor.scope(0).mouselist(Hand).path", value: "cursor/hand.cur"))
+        #expect(provider.get(key: "seriko.cursor.scope(0).mouselist(Hand).path") == "cursor/hand.cur")
+    }
+
+    @Test("CurrentGhost status property")
+    func testCurrentGhostStatusProperty() {
+        ShioriStatusStore.shared.update(status: "timecritical")
+        let provider = GhostPropertyProvider(mode: .currentghost, ghosts: [], activeIndices: [])
+        #expect(provider.get(key: "status") == "timecritical")
     }
 }

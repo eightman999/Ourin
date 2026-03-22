@@ -45,7 +45,7 @@ Status marks:
 
 - ✅ `\w[n]`
 - ✅ `\_w[ms]`
-- ⚠️ `\__w[...]` (`clear` and numeric timing implemented; animation-specific waits are limited)
+- ✅ `\__w[...]` (`clear`, numeric timing, and `animation,ID` wait implemented)
 - ✅ `\t`
 - ✅ `\x`, `\x[noclear]`
 
@@ -98,8 +98,8 @@ Status marks:
 
 ## Related commands with known partial behavior
 
-- ⚠️ `\![move,...]` (basic x/y/time/method/scope works; advanced option set is incomplete)
-- ⚠️ `\![moveasync,...]` (basic async move works; cancellation/options are incomplete)
+- ⚠️ `\![move,...]` (x/y/time/method/scope works; `--base`, `--base-offset`, `--move-offset`, and `--wait` supported; some edge-cases remain)
+- ⚠️ `\![moveasync,...]` (async move with cancel supported; some advanced options remain incomplete)
 - ⚠️ `\![set,scaling,...]` (core scaling implemented; some extended flags are incomplete)
 - ⚠️ `\![set,alpha,...]` (basic alpha set implemented; timed/wait variants are incomplete)
 - ⚠️ `\![set,zorder,...]` (core ordering implemented; complex combinations are incomplete)

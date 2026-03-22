@@ -127,13 +127,17 @@ extension GhostManager {
     }
     
     // MARK: - Sound Playback
+
+    private func resolveSoundPath(filename: String) -> URL {
+        ghostURL.appendingPathComponent("sound").appendingPathComponent(filename)
+    }
     
     /// Play a sound file from the ghost's sound directory
-    func playSound(filename: String) {
+    func playSound(filename: String, loop: Bool = false) {
         guard !filename.isEmpty else { return }
         
         // Resolve sound file path relative to ghost directory
-        let soundPath = ghostURL.appendingPathComponent("sound").appendingPathComponent(filename)
+        let soundPath = resolveSoundPath(filename: filename)
         
         // Check if file exists
         guard FileManager.default.fileExists(atPath: soundPath.path) else {
@@ -141,19 +145,107 @@ extension GhostManager {
             return
         }
         
-        // Play sound using NSSound
-        DispatchQueue.global(qos: .userInitiated).async {
-            if let sound = NSSound(contentsOf: soundPath, byReference: false) {
-                DispatchQueue.main.async { [weak self] in
-                    guard let self = self else { return }
-                    self.currentSounds.append(sound)
-                    sound.play()
-                    Log.debug("[GhostManager] Playing sound: \(filename)")
-                }
-            } else {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            let sound = self.preloadedSounds[filename] ?? NSSound(contentsOf: soundPath, byReference: false)
+            guard let sound else {
                 Log.info("[GhostManager] Failed to load sound: \(filename)")
+                return
+            }
+            sound.loops = loop
+            self.currentSounds.append(sound)
+            self.namedSounds[filename, default: []].append(sound)
+            sound.play()
+            Log.debug("[GhostManager] Playing sound: \(filename) loop=\(loop)")
+        }
+    }
+
+    /// Preload sound data for faster playback.
+    func loadSound(filename: String) {
+        guard !filename.isEmpty else { return }
+        let soundPath = resolveSoundPath(filename: filename)
+        guard FileManager.default.fileExists(atPath: soundPath.path) else {
+            Log.info("[GhostManager] Sound file not found: \(soundPath.path)")
+            return
+        }
+        DispatchQueue.main.async {
+            guard let sound = NSSound(contentsOf: soundPath, byReference: false) else {
+                Log.info("[GhostManager] Failed to preload sound: \(filename)")
+                return
+            }
+            self.preloadedSounds[filename] = sound
+            Log.debug("[GhostManager] Preloaded sound: \(filename)")
+        }
+    }
+
+    func pauseSound(filename: String?) {
+        let targets = activeSounds(filename: filename)
+        for sound in targets where sound.isPlaying {
+            _ = sound.pause()
+        }
+        Log.debug("[GhostManager] Paused sounds count: \(targets.count)")
+    }
+
+    func resumeSound(filename: String?) {
+        let targets = activeSounds(filename: filename)
+        for sound in targets where !sound.isPlaying {
+            sound.play()
+        }
+        Log.debug("[GhostManager] Resumed sounds count: \(targets.count)")
+    }
+
+    func applySoundOptions(filename: String, options: [String]) {
+        guard !filename.isEmpty else { return }
+        var volume: Float?
+        for option in options {
+            guard option.hasPrefix("--") else { continue }
+            let body = String(option.dropFirst(2))
+            guard let eq = body.firstIndex(of: "=") else { continue }
+            let key = String(body[..<eq]).lowercased()
+            let value = String(body[body.index(after: eq)...])
+            if key == "volume", let parsed = Float(value) {
+                volume = max(0, min(100, parsed)) / 100.0
             }
         }
+        guard let volume else { return }
+        let targets = activeSounds(filename: filename)
+        for sound in targets {
+            sound.volume = volume
+        }
+        preloadedSounds[filename]?.volume = volume
+        Log.debug("[GhostManager] Updated sound option volume for \(filename): \(volume)")
+    }
+
+    func estimatedSoundWaitDuration() -> TimeInterval {
+        currentSounds.removeAll { !$0.isPlaying }
+        var maxRemaining: TimeInterval = 0
+        for sound in currentSounds where !sound.loops {
+            let remaining = max(0, sound.duration - sound.currentTime)
+            maxRemaining = max(maxRemaining, remaining)
+        }
+        return maxRemaining
+    }
+
+    private func activeSounds(filename: String?) -> [NSSound] {
+        if let filename, !filename.isEmpty {
+            return namedSounds[filename] ?? []
+        }
+        return currentSounds
+    }
+
+    /// Stop sounds by filename
+    func stopSound(filename: String) {
+        guard let sounds = namedSounds[filename], !sounds.isEmpty else {
+            Log.info("[GhostManager] No active sound for filename: \(filename)")
+            return
+        }
+        for sound in sounds where sound.isPlaying {
+            sound.stop()
+        }
+        currentSounds.removeAll { sounds.contains($0) }
+        namedSounds[filename] = nil
+        preloadedSounds[filename] = nil
+        Log.debug("[GhostManager] Stopped sound: \(filename)")
     }
     
     /// Stop all currently playing sounds
@@ -164,6 +256,8 @@ extension GhostManager {
             }
         }
         currentSounds.removeAll()
+        namedSounds.removeAll()
+        preloadedSounds.removeAll()
         Log.debug("[GhostManager] Stopped all sounds")
     }
     
@@ -211,6 +305,91 @@ extension GhostManager {
         DispatchQueue.main.async {
             NSWorkspace.shared.open(url)
             Log.debug("[GhostManager] Opened email client for: \(emailAddress)")
+        }
+    }
+
+    /// Open a file path relative to current ghost root (or absolute path).
+    func openFilePath(_ path: String) {
+        guard !path.isEmpty else { return }
+        let resolvedURL: URL
+        if path.hasPrefix("/") {
+            resolvedURL = URL(fileURLWithPath: path)
+        } else {
+            resolvedURL = ghostURL.appendingPathComponent(path)
+        }
+        DispatchQueue.main.async {
+            NSWorkspace.shared.open(resolvedURL)
+            Log.debug("[GhostManager] Opened file path: \(resolvedURL.path)")
+        }
+    }
+
+    /// Open a file path with option parsing used by \![open,file,*].
+    /// By default, absolute paths outside ghost root are denied for safety.
+    func openFilePath(path: String, line: Int?, appName: String?, allowExternal: Bool) {
+        guard !path.isEmpty else { return }
+        let resolvedURL: URL
+        if path.hasPrefix("/") {
+            resolvedURL = URL(fileURLWithPath: path)
+        } else {
+            resolvedURL = ghostURL.appendingPathComponent(path)
+        }
+
+        let standardized = resolvedURL.standardizedFileURL.path
+        let ghostRoot = ghostURL.standardizedFileURL.path
+        if !allowExternal && !standardized.hasPrefix(ghostRoot) {
+            Log.info("[GhostManager] Refused to open external file path: \(standardized)")
+            EventBridge.shared.notifyCustom("OnSecurityWarning", params: [
+                "Reference0": "open_file_denied",
+                "Reference1": standardized
+            ])
+            return
+        }
+
+        DispatchQueue.main.async {
+            if let appName, !appName.isEmpty {
+                let config = NSWorkspace.OpenConfiguration()
+                NSWorkspace.shared.open([resolvedURL], withApplicationAt: URL(fileURLWithPath: "/Applications/\(appName).app"), configuration: config) { _, error in
+                    if let error {
+                        Log.info("[GhostManager] Failed to open file with app \(appName): \(error.localizedDescription)")
+                    }
+                }
+            } else {
+                NSWorkspace.shared.open(resolvedURL)
+            }
+            let lineInfo = line.map { " line=\($0)" } ?? ""
+            Log.debug("[GhostManager] Opened file path with options: \(standardized)\(lineInfo)")
+        }
+    }
+
+    /// Reveal a file or folder in Finder.
+    func revealInExplorer(_ path: String) {
+        guard !path.isEmpty else { return }
+        let resolvedURL: URL
+        if path.hasPrefix("/") {
+            resolvedURL = URL(fileURLWithPath: path)
+        } else {
+            resolvedURL = ghostURL.appendingPathComponent(path)
+        }
+        DispatchQueue.main.async {
+            if FileManager.default.fileExists(atPath: resolvedURL.path) {
+                NSWorkspace.shared.activateFileViewerSelecting([resolvedURL])
+            } else {
+                NSWorkspace.shared.open(resolvedURL.deletingLastPathComponent())
+            }
+            Log.debug("[GhostManager] Revealed in explorer: \(resolvedURL.path)")
+        }
+    }
+
+    func openInstalledTypeDirectory(type: String, name: String? = nil) {
+        guard let base = try? OurinPaths.baseDirectory() else {
+            Log.info("[GhostManager] Failed to resolve base directory for explorer")
+            return
+        }
+        let target = base.appendingPathComponent(type, isDirectory: true)
+        let resolved = (name?.isEmpty == false) ? target.appendingPathComponent(name!, isDirectory: true) : target
+        DispatchQueue.main.async {
+            NSWorkspace.shared.open(resolved)
+            Log.debug("[GhostManager] Opened installed type directory: \(resolved.path)")
         }
     }
     

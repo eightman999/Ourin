@@ -33,7 +33,18 @@ final class DragDropReceiverView: NSView {
 
     /// Drag entered - always allow copy operation
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        onEvent?(ShioriEvent(id: .OnDragEnter, params: [:]))
+        emitDroppingEvent(from: sender.draggingPasteboard)
         return .copy
+    }
+
+    override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
+        emitDroppingEvent(from: sender.draggingPasteboard)
+        return .copy
+    }
+
+    override func draggingExited(_ sender: NSDraggingInfo?) {
+        onEvent?(ShioriEvent(id: .OnDragLeave, params: [:]))
     }
 
     /// Handle the drop operation
@@ -65,13 +76,18 @@ final class DragDropReceiverView: NSView {
 
             // For non-.nar files, process as SHIORI events
             if !urls.isEmpty {
-                onEvent?(ShioriEvent(id: .OnFileDrop, params: Dictionary(uniqueKeysWithValues: urls.enumerated().map{ ("Reference\($0.offset)", $0.element) } )))
+                let params = Dictionary(uniqueKeysWithValues: urls.enumerated().map { ("Reference\($0.offset)", $0.element) })
+                onEvent?(ShioriEvent(id: .OnDragDrop, params: params))
+                onEvent?(ShioriEvent(id: .OnFileDropped, params: params))
+                onEvent?(ShioriEvent(id: .OnFileDrop, params: params))
                 return true
             }
 
             // URL strings
             for it in items {
                 if let u = it.string(forType: .URL) {
+                    onEvent?(ShioriEvent(id: .OnURLDropping, params: ["Reference0": u]))
+                    onEvent?(ShioriEvent(id: .OnURLDropped, params: ["Reference0": u]))
                     onEvent?(ShioriEvent(id: .OnURLDrop, params: ["Reference0": u]))
                     return true
                 }
@@ -85,6 +101,24 @@ final class DragDropReceiverView: NSView {
                 }
             }
         }
+        onEvent?(ShioriEvent(id: .OnURLDropFailure, params: ["Reference0": "unsupported_payload"]))
         return false
+    }
+
+    private func emitDroppingEvent(from pasteboard: NSPasteboard) {
+        guard let items = pasteboard.pasteboardItems else { return }
+        var fileURLs: [String] = []
+        for item in items {
+            if let fileURL = item.string(forType: .fileURL) {
+                fileURLs.append(fileURL)
+            }
+            if let urlString = item.string(forType: .URL) {
+                onEvent?(ShioriEvent(id: .OnURLDragDropping, params: ["Reference0": urlString]))
+            }
+        }
+        if !fileURLs.isEmpty {
+            let params = Dictionary(uniqueKeysWithValues: fileURLs.enumerated().map { ("Reference\($0.offset)", $0.element) })
+            onEvent?(ShioriEvent(id: .OnFileDropping, params: params))
+        }
     }
 }

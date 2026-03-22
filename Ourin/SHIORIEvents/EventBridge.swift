@@ -13,7 +13,7 @@ final class EventBridge {
     // Queue for NOTIFY events that occur when autoEvents are disabled
     private enum QueuedNotify {
         case standard(id: EventID, params: [String: String])
-        case custom(eventName: String, params: [String: String])
+        case custom(eventName: String, params: [String: String], ignoreResponseScript: Bool)
     }
     private var pendingNotifies: [QueuedNotify] = []
 
@@ -63,6 +63,9 @@ final class EventBridge {
             AppearanceObserver.shared.start(forward)
             SessionObserver.shared.start(forward)
             NetworkObserver.shared.start(forward)
+            GamepadObserver.shared.start(forward)
+            DeviceObserver.shared.start(forward)
+            SpeechObserver.shared.start(forward)
 
             // Flush any queued NOTIFY events that occurred while auto events were disabled
             flushPendingNotifies()
@@ -83,6 +86,9 @@ final class EventBridge {
         SessionObserver.shared.stop()
         NetworkObserver.shared.stop()
         SystemLoadObserver.shared.stop()
+        GamepadObserver.shared.stop()
+        DeviceObserver.shared.stop()
+        SpeechObserver.shared.stop()
         started = false
         autoEventsEnabled = false
         // Send OnClose to each session
@@ -111,6 +117,9 @@ final class EventBridge {
             AppearanceObserver.shared.start(forward)
             SessionObserver.shared.start(forward)
             NetworkObserver.shared.start(forward)
+            GamepadObserver.shared.start(forward)
+            DeviceObserver.shared.start(forward)
+            SpeechObserver.shared.start(forward)
 
             // Flush any queued NOTIFY events
             flushPendingNotifies()
@@ -127,6 +136,9 @@ final class EventBridge {
             SessionObserver.shared.stop()
             NetworkObserver.shared.stop()
             SystemLoadObserver.shared.stop()
+            GamepadObserver.shared.stop()
+            DeviceObserver.shared.stop()
+            SpeechObserver.shared.stop()
         }
     }
 
@@ -139,8 +151,8 @@ final class EventBridge {
             switch queued {
             case .standard(let id, let params):
                 broadcastNotifyImmediate(id: id, params: params)
-            case .custom(let eventName, let params):
-                broadcastNotifyCustomImmediate(eventName: eventName, params: params)
+            case .custom(let eventName, let params, let ignoreResponseScript):
+                broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript)
             }
         }
         pendingNotifies.removeAll()
@@ -165,8 +177,8 @@ final class EventBridge {
     }
 
     /// Public helper to send a NOTIFY event by custom name (for \![raise,...])
-    func notifyCustom(_ eventName: String, params: [String:String] = [:]) {
-        broadcastNotifyCustom(eventName: eventName, params: params)
+    func notifyCustom(_ eventName: String, params: [String:String] = [:], ignoreResponseScript: Bool = false) {
+        broadcastNotifyCustom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript)
     }
 
     // Broadcast a NOTIFY to all registered sessions
@@ -183,14 +195,14 @@ final class EventBridge {
 
     // Broadcast a custom NOTIFY to all registered sessions
     // If auto events are disabled, queue the event for later delivery
-    private func broadcastNotifyCustom(eventName: String, params: [String:String]) {
+    private func broadcastNotifyCustom(eventName: String, params: [String:String], ignoreResponseScript: Bool) {
         if !autoEventsEnabled {
             // Queue this event for later when auto events are enabled
-            pendingNotifies.append(.custom(eventName: eventName, params: params))
+            pendingNotifies.append(.custom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript))
             Log.debug("[EventBridge] Queued custom NOTIFY event: \(eventName) (auto events disabled)")
             return
         }
-        broadcastNotifyCustomImmediate(eventName: eventName, params: params)
+        broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript)
     }
 
     // Immediately broadcast a NOTIFY to all registered sessions (bypassing queue)
@@ -210,9 +222,9 @@ final class EventBridge {
     }
 
     // Immediately broadcast a custom NOTIFY to all registered sessions (bypassing queue)
-    private func broadcastNotifyCustomImmediate(eventName: String, params: [String:String]) {
+    private func broadcastNotifyCustomImmediate(eventName: String, params: [String:String], ignoreResponseScript: Bool) {
         for (_, s) in sessions {
-            s.dispatcher.sendNotifyCustom(eventName: eventName, params: params)
+            s.dispatcher.sendNotifyCustom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript)
         }
     }
 }
@@ -283,7 +295,7 @@ final class ShioriDispatcher {
     }
 
     /// BridgeToSHIORI 経由で SHIORI モジュールへカスタム名の NOTIFY を送出する（\![raise,...]用）
-    func sendNotifyCustom(eventName: String, params: [String:String]) {
+    func sendNotifyCustom(eventName: String, params: [String:String], ignoreResponseScript: Bool = false) {
         let req = buildRequest(method: "NOTIFY", id: eventName, params: params)
         let refs = Array(params.values)
         var script: String = ""
@@ -296,7 +308,9 @@ final class ShioriDispatcher {
             script = BridgeToSHIORI.handle(event: eventName, references: refs)
         }
         Log.debug("[Ourin] Custom NOTIFY built:\n\(req)")
-        // Custom events are not in the ignore list, so process the returned script
+        if ignoreResponseScript {
+            return
+        }
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty {
             DispatchQueue.main.async { self.ghostManager?.runNotifyScript(trimmed) }

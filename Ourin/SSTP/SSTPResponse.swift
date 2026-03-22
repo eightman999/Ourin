@@ -42,6 +42,16 @@ public struct SSTPResponse: Equatable {
         }
     }
 
+    public mutating func setHeaders(_ additionalHeaders: [String: String]) {
+        for (key, value) in additionalHeaders {
+            if value.isEmpty {
+                headers.removeValue(forKey: key)
+            } else {
+                headers[key] = value
+            }
+        }
+    }
+
     public func toWireFormat() -> String {
         var lines = ["\(version) \(statusCode) \(statusMessage)"]
         for key in headerOutputOrder() {
@@ -77,7 +87,11 @@ public struct SSTPResponse: Equatable {
     }
 
     private func headerOutputOrder() -> [String] {
-        var order = ["Charset", "Sender", "Script", "Data", "X-SSTP-PassThru"]
+        var order = [
+            "Charset", "Sender", "Script", "ValueNotify", "Data", "Reference0",
+            "Status", "BaseID", "Marker", "MarkerSend", "Age",
+            "BalloonOffset", "ErrorLevel", "ErrorDescription", "X-SSTP-PassThru"
+        ]
         let others = headers.keys
             .filter { !order.contains($0) }
             .sorted()
@@ -85,4 +99,3 @@ public struct SSTPResponse: Equatable {
         return order
     }
 }
-
