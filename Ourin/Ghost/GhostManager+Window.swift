@@ -144,8 +144,90 @@ extension GhostManager {
         NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidDeminiaturize(_:)), name: NSWindow.didDeminiaturizeNotification, object: window)
     }
 
+    // MARK: - Right-Click Menu
+
+    func setupRightClickMenu() {
+        InputMonitor.shared.rightClickMenuHandler = { [weak self] screenPoint in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                self.showOwnerDrawMenu(at: screenPoint)
+            }
+        }
+    }
+
+    func showOwnerDrawMenu(at screenPoint: NSPoint) {
+        let bridge = ResourceBridge.shared
+        let shellBase = ghostURL.appendingPathComponent("shell/\(activeShellName)", isDirectory: true)
+        let config = bridge.ownerDrawMenuConfig(base: shellBase)
+        var items = bridge.menuItems()
+
+        if items.isEmpty {
+            items = defaultMenuItems()
+        }
+
+        OwnerDrawMenuCoordinator.shared.showMenu(at: screenPoint, config: config, items: items) { [weak self] action in
+            self?.handleMenuAction(action)
+        }
+    }
+
+    private func defaultMenuItems() -> [OwnerDrawMenuItem] {
+        var items: [OwnerDrawMenuItem] = []
+
+        let ghosts = NarRegistry.shared.installedItems(ofType: "ghost").map(\.name).sorted()
+        if !ghosts.isEmpty {
+            let ghostItems = ghosts.map { name in
+                let safe = name.addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(.init(charactersIn: "-._~"))) ?? name
+                return OwnerDrawMenuItem(type: .button(action: "switch_ghost:\(safe)"), caption: name)
+            }
+            items.append(OwnerDrawMenuItem(type: .submenu(items: ghostItems, action: nil), caption: "ゴースト(G)"))
+        }
+
+        let shellRoot = ghostURL.appendingPathComponent("shell", isDirectory: true)
+        if let entries = try? FileManager.default.contentsOfDirectory(at: shellRoot, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]) {
+            let shells = entries.filter(\.hasDirectoryPath).map(\.lastPathComponent).sorted()
+            if shells.count > 1 {
+                let shellItems = shells.map { name in
+                    let safe = name.addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(.init(charactersIn: "-._~"))) ?? name
+                    return OwnerDrawMenuItem(type: .button(action: "switch_shell:\(safe)"), caption: name)
+                }
+                items.append(OwnerDrawMenuItem(type: .submenu(items: shellItems, action: nil), caption: "シェル(S)"))
+            }
+        }
+
+        let balloons = NarRegistry.shared.installedItems(ofType: "balloon").map(\.name).sorted()
+        if !balloons.isEmpty {
+            let balloonItems = balloons.map { name in
+                let safe = name.addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(.init(charactersIn: "-._~"))) ?? name
+                return OwnerDrawMenuItem(type: .button(action: "switch_balloon:\(safe)"), caption: name)
+            }
+            items.append(OwnerDrawMenuItem(type: .submenu(items: balloonItems, action: nil), caption: "バルーン(B)"))
+        }
+
+        let scope = currentScope
+        let dressupEntries = dressupMenuEntries(for: scope)
+        if !dressupEntries.isEmpty {
+            let dressupItems = dressupEntries.map { entry in
+                let enabled = isDressupBindGroupEnabled(scope: scope, bindGroupID: entry.bindGroupID)
+                let prefix = enabled ? "✓ " : ""
+                return OwnerDrawMenuItem(type: .button(action: "dressup_bindgroup:\(scope):\(entry.bindGroupID)"), caption: "\(prefix)\(entry.category) / \(entry.part)")
+            }
+            items.append(OwnerDrawMenuItem(type: .submenu(items: dressupItems, action: nil), caption: "着せ替え(D)"))
+        }
+
+        items.append(OwnerDrawMenuItem(type: .separator, caption: ""))
+        items.append(OwnerDrawMenuItem(type: .button(action: "menu_ghost_info"), caption: "情報(I)"))
+        items.append(OwnerDrawMenuItem(type: .button(action: "menu_communicate"), caption: "話しかける(T)"))
+        items.append(OwnerDrawMenuItem(type: .separator, caption: ""))
+        items.append(OwnerDrawMenuItem(type: .button(action: "menu_reload"), caption: "再読み込み(R)"))
+        items.append(OwnerDrawMenuItem(type: .button(action: "menu_settings"), caption: "設定(O)"))
+        items.append(OwnerDrawMenuItem(type: .separator, caption: ""))
+        items.append(OwnerDrawMenuItem(type: .button(action: "menu_quit"), caption: "終了(Q)"))
+
+        return items
+    }
+
     // MARK: - Window Position and Display Control
-    
+
     /// Move window to back (behind other windows)
     func moveWindowToBack(scope: Int) {
         Log.debug("[GhostManager] Moving scope \(scope) window to back")

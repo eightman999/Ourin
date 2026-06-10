@@ -153,9 +153,15 @@ std::string DictionaryManager::execute(const std::string& functionName,
     // Set SHIORI references
     vm_->setReferences(args);
 
+    // Convert string args to Value args for _argv
+    std::vector<Value> valueArgs;
+    for (const auto& a : args) {
+        valueArgs.push_back(Value(a));
+    }
+
     // Execute the function
     std::cerr << "[DictionaryManager::execute] Calling vm_->execute()..." << std::endl;
-    Value result = vm_->execute(functionName, {});
+    Value result = vm_->execute(functionName, valueArgs);
     std::cerr << "[DictionaryManager::execute] VM execution complete, converting result..." << std::endl;
 
     // Return the result as a string
@@ -163,4 +169,9 @@ std::string DictionaryManager::execute(const std::string& functionName,
     std::cerr << "[DictionaryManager::execute] Result length: " << resultStr.length() << std::endl;
 
     return resultStr;
+}
+
+bool DictionaryManager::hasFunction(const std::string& functionName) const {
+    if (!vm_) return false;
+    return vm_->hasFunction(functionName);
 }

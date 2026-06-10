@@ -122,7 +122,7 @@ public enum SerikoParser {
         let lines = content.components(separatedBy: .newlines)
         var result: [Int: SerikoSurfaceDefinition] = [:]
 
-        var currentSurface: Int?
+        var currentSurfaceIDs: [Int] = []
         var inSurfaceBlock = false
 
         for raw in lines {
@@ -130,27 +130,29 @@ public enum SerikoParser {
             if line.isEmpty { continue }
 
             if line.hasPrefix("surface"), line.contains("{") == false {
-                currentSurface = parseSurfaceID(from: line)
+                currentSurfaceIDs = parseSurfaceIDs(from: line)
                 continue
             }
-            if line == "{", currentSurface != nil {
+            if line == "{", !currentSurfaceIDs.isEmpty {
                 inSurfaceBlock = true
                 continue
             }
             if line == "}" {
                 inSurfaceBlock = false
-                currentSurface = nil
+                currentSurfaceIDs = []
                 continue
             }
-            guard inSurfaceBlock, let surfaceID = currentSurface else { continue }
+            guard inSurfaceBlock, !currentSurfaceIDs.isEmpty else { continue }
 
-            if var surface = result[surfaceID] {
-                parseAnimationLine(line, into: &surface)
-                result[surfaceID] = surface
-            } else {
-                var surface = SerikoSurfaceDefinition(surfaceID: surfaceID, animations: [:])
-                parseAnimationLine(line, into: &surface)
-                result[surfaceID] = surface
+            for surfaceID in currentSurfaceIDs {
+                if var surface = result[surfaceID] {
+                    parseAnimationLine(line, into: &surface)
+                    result[surfaceID] = surface
+                } else {
+                    var surface = SerikoSurfaceDefinition(surfaceID: surfaceID, animations: [:])
+                    parseAnimationLine(line, into: &surface)
+                    result[surfaceID] = surface
+                }
             }
         }
 
@@ -363,11 +365,88 @@ public enum SerikoParser {
     }
 
     private static func parseSurfaceID(from line: String) -> Int? {
-        guard line.hasPrefix("surface") else { return nil }
-        let tail = line.dropFirst("surface".count)
-        let digits = String(tail.prefix { $0.isNumber })
-        guard !digits.isEmpty else { return nil }
-        return Int(digits)
+        let ids = parseSurfaceIDs(from: line)
+        return ids.first
+    }
+
+    static func parseSurfaceIDs(from line: String) -> [Int] {
+        guard line.hasPrefix("surface") else { return [] }
+        let tail = String(line.dropFirst("surface".count))
+        let parts = tail.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        return parts.compactMap { Int($0) }
+    }
+
+    /// Parse surface alias blocks (e.g. `sakura.surface.alias { 35,[55] }`)
+    /// Returns a mapping from alias surface ID to target surface ID.
+    public static func parseSurfaceAliases(_ content: String) -> [Int: Int] {
+        let lines = content.components(separatedBy: .newlines)
+        var result: [Int: Int] = [:]
+        var inAliasBlock = false
+
+        for raw in lines {
+            let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            if line.hasSuffix("surface.alias") {
+                inAliasBlock = false
+                continue
+            }
+            if line == "{" && !inAliasBlock {
+                // Check if previous non-empty line was a surface.alias header
+                inAliasBlock = true
+                continue
+            }
+            if line == "}" {
+                inAliasBlock = false
+                continue
+            }
+            if inAliasBlock {
+                // Format: aliasID,[targetID] or aliasID,targetID
+                let parts = line.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                if parts.count >= 2 {
+                    let aliasID = Int(parts[0])
+                    let targetStr = parts[1].replacingOccurrences(of: "[", with: "").replacingOccurrences(of: "]", with: "")
+                    let targetID = Int(targetStr)
+                    if let a = aliasID, let t = targetID {
+                        result[a] = t
+                    }
+                }
+            }
+        }
+
+        // Also detect the header properly
+        var result2: [Int: Int] = [:]
+        var sawAliasHeader = false
+        var inBlock = false
+        for raw in lines {
+            let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            if line.hasSuffix("surface.alias") {
+                sawAliasHeader = true
+                inBlock = false
+                continue
+            }
+            if sawAliasHeader && line == "{" {
+                inBlock = true
+                sawAliasHeader = false
+                continue
+            }
+            if line == "}" {
+                inBlock = false
+                sawAliasHeader = false
+                continue
+            }
+            if !line.isEmpty { sawAliasHeader = false }
+            if inBlock {
+                let parts = line.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                if parts.count >= 2 {
+                    let aliasID = Int(parts[0])
+                    let targetStr = parts[1].replacingOccurrences(of: "[", with: "").replacingOccurrences(of: "]", with: "")
+                    let targetID = Int(targetStr)
+                    if let a = aliasID, let t = targetID {
+                        result2[a] = t
+                    }
+                }
+            }
+        }
+        return result2
     }
 
     private static func stripComment(from line: String) -> String {

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cctype>
 #include <chrono>
+#include <set>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -50,7 +51,9 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
                   << " while calling: " << functionName << std::endl;
     }
 
-    std::cerr << "[VM::execute] [depth=" << recursion_depth_ << "] Looking for function: " << functionName << std::endl;
+    if (recursion_depth_ <= 2) {
+        std::cerr << "[VM::execute] [depth=" << recursion_depth_ << "] Looking for function: " << functionName << std::endl;
+    }
 
     // Check if it's a built-in function
     if (builtins_.find(functionName) != builtins_.end()) {
@@ -75,6 +78,17 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         execution_start_time_ = exec_start;
     }
 
+    // Push new local variable scope (YAYA: variables starting with '_' are function-local)
+    localScopes_.emplace_back();
+
+    // Set _argv / _argc for this function call (now goes to local scope)
+    std::vector<Value> argArray;
+    for (const auto& a : args) {
+        argArray.push_back(a);
+    }
+    setVariable("_argv", Value(argArray));
+    setVariable("_argc", Value(static_cast<int>(args.size())));
+
     // Execute the function body, catching early returns
     Value result;
     try {
@@ -83,19 +97,40 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         result = ret.value;
     }
 
+    // Pop local variable scope
+    localScopes_.pop_back();
+
     auto exec_end = std::chrono::steady_clock::now();
     auto exec_duration = std::chrono::duration_cast<std::chrono::milliseconds>(exec_end - exec_start).count();
-    std::cerr << "[VM::execute] Function execution complete: " << functionName << " (took " << exec_duration << "ms)" << std::endl;
+    std::cerr << "[VM::execute] Function execution complete: " << functionName << " (took " << exec_duration << "ms)";
+    if (recursion_depth_ <= 3) {
+        std::string rv = result.asString();
+        if (rv.size() > 100) rv = rv.substr(0, 100) + "...";
+        std::cerr << " => \"" << rv << "\"";
+    }
+    std::cerr << std::endl;
 
     recursion_depth_--;
     return result;
 }
 
 void VM::setVariable(const std::string& name, const Value& value) {
-    variables_[name] = value;
+    if (!name.empty() && name[0] == '_' && !localScopes_.empty()) {
+        localScopes_.back()[name] = value;
+    } else {
+        variables_[name] = value;
+    }
 }
 
 Value VM::getVariable(const std::string& name) const {
+    if (!name.empty() && name[0] == '_' && !localScopes_.empty()) {
+        auto& scope = localScopes_.back();
+        auto it = scope.find(name);
+        if (it != scope.end()) {
+            return it->second;
+        }
+        return Value();
+    }
     auto it = variables_.find(name);
     if (it != variables_.end()) {
         return it->second;
@@ -108,6 +143,10 @@ void VM::setReferences(const std::vector<std::string>& refs) {
     for (const auto& ref : refs) {
         references_.push_back(Value(ref));
     }
+}
+
+bool VM::hasFunction(const std::string& name) const {
+    return functions_.find(name) != functions_.end();
 }
 
 Value VM::executeNode(std::shared_ptr<AST::Node> node) {
@@ -188,6 +227,9 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
         case AST::NodeType::Assignment: {
             auto* assign = dynamic_cast<AST::AssignmentNode*>(node.get());
             auto value = executeNode(assign->value);
+            if (assign->variableName.find("SHIORI3FW") == 0) {
+                std::cerr << "[VM::assign] " << assign->variableName << " = \"" << value.asString().substr(0, 50) << "\"" << std::endl;
+            }
             setVariable(assign->variableName, value);
             return value;
         }
@@ -246,6 +288,33 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 return Value();
             }
 
+            // Range/slice: __range__(base, start, length)
+            // YAYA syntax: str[start, length] or array[start, count]
+            if (call->functionName == "__range__") {
+                if (call->arguments.size() == 3) {
+                    Value base = executeNode(call->arguments[0]);
+                    int start = executeNode(call->arguments[1]).asInt();
+                    int len   = executeNode(call->arguments[2]).asInt();
+
+                    if (base.getType() == Value::Type::String) {
+                        std::string s = base.asString();
+                        if (start < 0) start = 0;
+                        if (start >= static_cast<int>(s.size())) return Value(std::string(""));
+                        if (len < 0) len = 0;
+                        return Value(s.substr(start, len));
+                    }
+                    if (base.getType() == Value::Type::Array) {
+                        const auto& arr = base.asArray();
+                        std::vector<Value> sub;
+                        for (int i = start; i < start + len && i < static_cast<int>(arr.size()); i++) {
+                            if (i >= 0) sub.push_back(arr[i]);
+                        }
+                        return Value(sub);
+                    }
+                }
+                return Value();
+            }
+
             // Generic indexing on any expression: __index__(base, index)
             if (call->functionName == "__index__") {
                 if (call->arguments.size() == 2) {
@@ -272,6 +341,73 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 return Value();
             }
             
+            // Assignment operators: __assign__, __plus_assign__, etc.
+            static const std::set<std::string> assignOps = {
+                "__assign__", "__plus_assign__", "__minus_assign__",
+                "__star_assign__", "__slash_assign__", "__percent_assign__",
+                "__concat_assign__"
+            };
+            if (assignOps.count(call->functionName) &&
+                call->arguments.size() == 2) {
+                auto rhs = executeNode(call->arguments[1]);
+
+                // Determine target variable name from LHS AST node
+                std::string varName;
+                int arrayIdx = -1;
+                if (auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get())) {
+                    varName = var->name;
+                } else if (auto* acc = dynamic_cast<AST::ArrayAccessNode*>(call->arguments[0].get())) {
+                    varName = acc->arrayName;
+                    arrayIdx = executeNode(acc->index).asInt();
+                }
+
+                if (!varName.empty()) {
+                    if (call->functionName == "__assign__") {
+                        if (arrayIdx >= 0) {
+                            Value arr = getVariable(varName);
+                            arr.arraySet(arrayIdx, rhs);
+                            setVariable(varName, arr);
+                        } else {
+                            setVariable(varName, rhs);
+                        }
+                        return rhs;
+                    }
+                    // Compound assignments
+                    Value current = (arrayIdx >= 0) ? getVariable(varName).arrayGet(arrayIdx) : getVariable(varName);
+                    Value result;
+                    if (call->functionName == "__plus_assign__") {
+                        result = evaluateBinaryOp("+", current, rhs);
+                    } else if (call->functionName == "__minus_assign__") {
+                        result = evaluateBinaryOp("-", current, rhs);
+                    } else if (call->functionName == "__star_assign__") {
+                        result = evaluateBinaryOp("*", current, rhs);
+                    } else if (call->functionName == "__slash_assign__") {
+                        result = evaluateBinaryOp("/", current, rhs);
+                    } else if (call->functionName == "__percent_assign__") {
+                        result = evaluateBinaryOp("%", current, rhs);
+                    } else if (call->functionName == "__concat_assign__") {
+                        // YAYA ,= operator: array append or string concat
+                        if (current.getType() == Value::Type::Array) {
+                            current.arrayConcat(rhs);
+                            result = current;
+                        } else {
+                            result = Value(current.asString() + rhs.asString());
+                        }
+                    } else {
+                        result = rhs;
+                    }
+                    if (arrayIdx >= 0) {
+                        Value arr = getVariable(varName);
+                        arr.arraySet(arrayIdx, result);
+                        setVariable(varName, arr);
+                    } else {
+                        setVariable(varName, result);
+                    }
+                    return result;
+                }
+                return Value();
+            }
+
             // Regular function call
             std::vector<Value> args;
             for (const auto& argNode : call->arguments) {
@@ -496,10 +632,10 @@ void VM::registerBuiltins() {
         }
 
         // Check if the string looks like a simple identifier (potential function name)
-        // If so, try to execute it even if not yet in functions_ map (may be defined later)
+        // YAYA function names can contain dots (e.g., SHIORI3FW.ResetAITalkInterval)
         bool looksLikeIdentifier = !firstArg.empty();
         for (char c : firstArg) {
-            if (!std::isalnum(static_cast<unsigned char>(c)) && c != '_') {
+            if (!std::isalnum(static_cast<unsigned char>(c)) && c != '_' && c != '.') {
                 looksLikeIdentifier = false;
                 break;
             }
@@ -1132,12 +1268,17 @@ void VM::registerBuiltins() {
         return Value(0);
     };
     
-    // GETFUNCLIST() - Get list of user-defined functions
+    // GETFUNCLIST(prefix) - Get list of user-defined functions matching prefix
     builtins_["GETFUNCLIST"] = [this](const std::vector<Value>& args) -> Value {
-        (void)args;
+        std::string prefix;
+        if (!args.empty()) {
+            prefix = args[0].asString();
+        }
         std::vector<Value> result;
         for (const auto& pair : functions_) {
-            result.push_back(Value(pair.first));
+            if (prefix.empty() || pair.first.compare(0, prefix.size(), prefix) == 0) {
+                result.push_back(Value(pair.first));
+            }
         }
         return Value(result);
     };

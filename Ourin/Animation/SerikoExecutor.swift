@@ -242,7 +242,8 @@ public final class SerikoExecutor {
                 isPaused: false,
                 offsetX: 0,
                 offsetY: 0,
-                lastTickAt: now
+                lastTickAt: now,
+                stepDirection: 1
             )
             activeAnimations[id] = state
             executeCurrentPattern(for: id)

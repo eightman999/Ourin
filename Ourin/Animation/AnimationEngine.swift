@@ -164,31 +164,29 @@ class AnimationEngine {
     /// Load animations from surfaces.txt content
     func loadAnimations(surfaceID: Int, content: String) {
         let lines = content.components(separatedBy: .newlines)
-        var currentSurface: Int? = nil
+        var currentSurfaceIDs: Set<Int> = []
         var currentAnimationID: Int? = nil
         var animationPatterns: [AnimationPattern] = []
         var animationInterval: AnimationDefinition.AnimationInterval = .never
-        
+
         // Initialize collision and point data for this surface
         if !collisions.keys.contains(surfaceID) {
             collisions[surfaceID] = []
             points[surfaceID] = [:]
         }
-        
+
         for line in lines {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
-            
-            // Parse surface definition
-            if trimmed.hasPrefix("surface") {
-                let surfaceStr = trimmed.replacingOccurrences(of: "surface", with: "")
-                    .components(separatedBy: CharacterSet.decimalDigits.inverted)
-                    .joined()
-                currentSurface = Int(surfaceStr)
+
+            // Parse surface definition (supports groups: surface0,3,5,6)
+            if trimmed.hasPrefix("surface") && !trimmed.contains("{") {
+                let ids = SerikoParser.parseSurfaceIDs(from: trimmed)
+                currentSurfaceIDs = Set(ids)
                 continue
             }
-            
-            // Only process animations for the current surface
-            guard currentSurface == surfaceID else { continue }
+
+            // Only process animations for the target surface
+            guard currentSurfaceIDs.contains(surfaceID) else { continue }
             
             // Parse animation interval
             if trimmed.contains(".interval,") {
@@ -220,8 +218,22 @@ class AnimationEngine {
                 }
             }
             
-            // Parse collision region (legacy and collisionex)
-            if trimmed.contains(".collision,") || trimmed.hasPrefix("collision,") || trimmed.hasPrefix("collisionex,") {
+            // Parse collision region (legacy numbered: collision0, collision1, ... and collisionex)
+            let isCollisionLine: Bool = {
+                if trimmed.hasPrefix("collisionex,") { return true }
+                if trimmed.contains(".collision,") { return true }
+                if trimmed.hasPrefix("collision,") { return true }
+                // Numbered collision: collision0, collision1, ... collision99
+                if trimmed.hasPrefix("collision") {
+                    let rest = trimmed.dropFirst("collision".count)
+                    if let commaIdx = rest.firstIndex(of: ",") {
+                        let num = rest[rest.startIndex..<commaIdx]
+                        return num.allSatisfy(\.isNumber)
+                    }
+                }
+                return false
+            }()
+            if isCollisionLine {
                 let parts = trimmed.components(separatedBy: ",")
                 // collisionex,rect,x1,y1,x2,y2,name
                 if trimmed.hasPrefix("collisionex,") {
@@ -233,16 +245,14 @@ class AnimationEngine {
                             let x2 = Int(parts[4]) ?? 0
                             let y2 = Int(parts[5]) ?? 0
                             let name = parts[6]
-                            if let surface = currentSurface {
-                                let region = CollisionRegion(
+                            let region = CollisionRegion(
                                     name: name,
                                     rect: CGRect(x: CGFloat(min(x1, x2)),
                                                  y: CGFloat(min(y1, y2)),
                                                  width: CGFloat(abs(x2 - x1)),
                                                  height: CGFloat(abs(y2 - y1)))
                                 )
-                                collisions[surface]?.append(region)
-                            }
+                                collisions[surfaceID]?.append(region)
                         } else if shape == "circle" {
                             // collisionex,circle,cx,cy,r,name
                             if parts.count >= 7 {
@@ -250,11 +260,9 @@ class AnimationEngine {
                                 let cy = Int(parts[3]) ?? 0
                                 let r = Int(parts[4]) ?? 0
                                 let name = parts[5]
-                                if let surface = currentSurface {
                                     let rect = CGRect(x: CGFloat(cx - r), y: CGFloat(cy - r), width: CGFloat(r * 2), height: CGFloat(r * 2))
                                     let region = CollisionRegion(name: name, rect: rect)
-                                    collisions[surface]?.append(region)
-                                }
+                                    collisions[surfaceID]?.append(region)
                             }
                         } else if shape == "polygon" || shape == "poly" {
                             // collisionex,polygon,x1,y1,x2,y2,...,name
@@ -269,14 +277,14 @@ class AnimationEngine {
                                     if let x, let y { xs.append(x); ys.append(y) }
                                 }
                                 let name = parts.last ?? "polygon"
-                                if let surface = currentSurface, !xs.isEmpty, !ys.isEmpty {
+                                if !xs.isEmpty, !ys.isEmpty {
                                     let minX = xs.min() ?? 0
                                     let maxX = xs.max() ?? 0
                                     let minY = ys.min() ?? 0
                                     let maxY = ys.max() ?? 0
                                     let rect = CGRect(x: CGFloat(minX), y: CGFloat(minY), width: CGFloat(maxX - minX), height: CGFloat(maxY - minY))
                                     let region = CollisionRegion(name: name, rect: rect)
-                                    collisions[surface]?.append(region)
+                                    collisions[surfaceID]?.append(region)
                                 }
                             }
                         }
@@ -289,16 +297,14 @@ class AnimationEngine {
                         let x2 = Int(parts[3]) ?? 0
                         let y2 = Int(parts[4]) ?? 0
                         let name = parts[5]
-                        if let surface = currentSurface {
-                            let region = CollisionRegion(
-                                name: name,
-                                rect: CGRect(x: CGFloat(min(x1, x2)),
-                                             y: CGFloat(min(y1, y2)),
-                                             width: CGFloat(abs(x2 - x1)),
-                                             height: CGFloat(abs(y2 - y1)))
-                            )
-                            collisions[surface]?.append(region)
-                        }
+                        let region = CollisionRegion(
+                            name: name,
+                            rect: CGRect(x: CGFloat(min(x1, x2)),
+                                         y: CGFloat(min(y1, y2)),
+                                         width: CGFloat(abs(x2 - x1)),
+                                         height: CGFloat(abs(y2 - y1)))
+                        )
+                        collisions[surfaceID]?.append(region)
                     }
                 }
             }
@@ -317,16 +323,16 @@ class AnimationEngine {
                     }
                     let value = Int(parts[1]) ?? 0
                     
-                    if let surface = currentSurface, !pointName.isEmpty {
-                        if points[surface] == nil {
-                            points[surface] = [:]
+                    if !pointName.isEmpty {
+                        if points[surfaceID] == nil {
+                            points[surfaceID] = [:]
                         }
                         if fullKey.hasSuffix("centerx") {
-                            var existing = points[surface]?[pointName] ?? CGPoint(x: 0, y: 0)
-                            points[surface]?[pointName] = CGPoint(x: CGFloat(value), y: existing.y)
+                            var existing = points[surfaceID]?[pointName] ?? CGPoint(x: 0, y: 0)
+                            points[surfaceID]?[pointName] = CGPoint(x: CGFloat(value), y: existing.y)
                         } else {
-                            var existing = points[surface]?[pointName] ?? CGPoint(x: 0, y: 0)
-                            points[surface]?[pointName] = CGPoint(x: existing.x, y: CGFloat(value))
+                            var existing = points[surfaceID]?[pointName] ?? CGPoint(x: 0, y: 0)
+                            points[surfaceID]?[pointName] = CGPoint(x: existing.x, y: CGFloat(value))
                         }
                     }
                 }

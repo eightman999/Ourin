@@ -42,14 +42,20 @@ public:
     
     // Set reference values (from SHIORI request)
     void setReferences(const std::vector<std::string>& refs);
+
+    // Check if a function is registered
+    bool hasFunction(const std::string& name) const;
     
 private:
     VMCallback* callback_ = nullptr;
     // Function registry
     std::map<std::string, std::shared_ptr<AST::FunctionNode>> functions_;
 
-    // Variable storage
+    // Variable storage (global variables)
     std::map<std::string, Value> variables_;
+
+    // Local variable scope stack (for variables starting with '_')
+    std::vector<std::map<std::string, Value>> localScopes_;
 
     // SHIORI reference values
     std::vector<Value> references_;
@@ -63,7 +69,7 @@ private:
 
     // 実行タイムアウト（無限ループ防止）
     std::chrono::steady_clock::time_point execution_start_time_;
-    static constexpr int MAX_EXECUTION_TIME_MS = 5000; // 5秒
+    static constexpr int MAX_EXECUTION_TIME_MS = 120000; // 120秒（load()初期化用）
 
     // Early return exception for control flow
     struct ReturnException {

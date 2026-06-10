@@ -8,7 +8,8 @@ import UserNotifications
 // MARK: - Surface Loading and Compositing
 
 extension GhostManager {
-    func updateSurface(id: Int) {
+    func updateSurface(id rawID: Int) {
+        let id = surfaceAliases[rawID] ?? rawID
         let scope = currentScope
         let oldSurfaceID = characterViewModels[scope]?.currentSurfaceID ?? 0
         

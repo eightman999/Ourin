@@ -219,6 +219,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     
     // Animation engine
     var animationEngine: AnimationEngine = AnimationEngine()
+    var surfaceAliases: [Int: Int] = [:]
     var waitingForAnimation: Int? = nil  // Animation ID we're waiting for
 
     // Window management (used by Window extension)
@@ -232,6 +233,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var remoteEventTimers: [String: Timer] = [:]
     var pluginEventTimers: [String: Timer] = [:]
     var selectModeActive: Bool = false
+    var quickSessionEnabled: Bool = false
     var collisionModeActive: Bool = false
     var passiveModeActive: Bool = false
     var inductionModeActive: Bool = false
@@ -504,6 +506,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func start() {
         Log.info("[GhostManager] start() called for ghost at: \(ghostURL.path)")
         setupWindows()
+        setupRightClickMenu()
         Log.debug("[GhostManager] Windows setup complete")
 
         // Show a placeholder surface immediately so the user sees the ghost
@@ -532,22 +535,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     self.applyDefaultDressupBindings(for: self.currentScope)
                 }
                 
-                // Send OnNotifySelfInfo only if names are not yet persisted
-                let defaults = UserDefaults.standard
-                if defaults.string(forKey: "OurinSakuraName") == nil {
-                    Log.debug("[GhostManager] Sending OnNotifySelfInfo (first boot)")
-                    DispatchQueue.main.async {
-                        EventBridge.shared.notify(.OnNotifySelfInfo, params: [
-                            "Reference0": config.sakuraName,
-                            "Reference1": config.sakuraName,
-                            "Reference2": config.keroName ?? "",
-                            "Reference3": config.name,
-                            "Reference4": "",
-                            "Reference5": "",
-                            "Reference6": ""
-                        ])
-                    }
-                }
+                // Initialization notifies (hwnd, capability, OnNotifySelfInfo etc.)
+                // are sent later after EventBridge registration and window creation.
             } else {
                 Log.info("[GhostManager] Failed to load ghost configuration from descript.txt")
             }
@@ -652,7 +641,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             let timeout: DispatchTime = .now() + .seconds(5)
             if sem.wait(timeout: timeout) == .timedOut {
                 Log.info("[GhostManager] OnBoot timed out (5s). EventBridge already running, keeping placeholder.")
-                // The request will still complete later and update the UI when ready.
+            }
+
+            // Send initialization NOTIFYs after boot (windows and EventBridge exist)
+            if let config = self.ghostConfig {
+                DispatchQueue.main.async {
+                    self.sendInitializationNotifies(config: config)
+                }
             }
         }
     }
@@ -1150,8 +1145,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     } else if first == "open", args.count >= 2 {
                         let openType = args[1].lowercased()
                         switch openType {
-                        case "configurationdialog":
-                            // \![open,configurationdialog,setup] - Show name input dialog
+                        case "configurationdialog", "config":
+                            // \![open,configurationdialog,setup] / \![open,config,setup]
                             if args.count >= 3, args[2].lowercased() == "setup" {
                                 playbackQueue.append(.deferredCommand {
                                     DispatchQueue.main.async { self.showNameInputDialog() }
@@ -1600,8 +1595,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 let options = args.count >= 4 ? args[3] : ""
                                 setWallpaper(filename: filename, options: options)
                             }
-                        case "tasktrayicon":
-                            // \![set,tasktrayicon,filename,text]
+                        case "tasktrayicon", "trayicon":
+                            // \![set,tasktrayicon,filename,text] (trayicon is SSP alias)
                             if args.count >= 3 {
                                 let filename = args[2]
                                 let text = args.count >= 4 ? args[3] : ""
@@ -1775,6 +1770,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let body = args.count > offset + 1 ? args[offset + 1] : ""
                         let level = args.count > offset + 2 ? args[offset + 2] : "info"
                         postSystemMessage(title: title, body: body, level: level)
+                    } else if first == "quicksession" {
+                        // \![quicksession,true/false] - enable/disable quick session mode
+                        let enabled = args.count >= 2 && args[1].lowercased() == "true"
+                        quickSessionEnabled = enabled
+                        Log.debug("[GhostManager] Quick session mode: \(enabled)")
                     } else if first == "executesntp" {
                         // \![executesntp] - execute SNTP time synchronization
                         executeSNTP()
@@ -1949,6 +1949,18 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let email = args[2]
                             openEmail(email)
                         }
+                    } else if ["*", "#", "x", "<", ">"].contains(first) {
+                        // Choice marker shorthand: \![*], \![#], \![X], \![<], \![>]
+                        let marker: String
+                        switch first {
+                        case "*": marker = "*"
+                        case "#": marker = "#"
+                        case "x": marker = "X"
+                        case "<": marker = "<"
+                        case ">": marker = ">"
+                        default: marker = first
+                        }
+                        setBalloonMarker(marker)
                     }
                 }
             case "_s":
@@ -2385,6 +2397,96 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
         Log.debug("[GhostManager] EventBridge started with enableAutoEvents=\(enableAutoEvents)")
     }
+
+    // MARK: - SHIORI Initialization NOTIFYs
+
+    func sendInitializationNotifies(config: GhostConfiguration) {
+        let bridge = EventBridge.shared
+
+        // hwnd: Reference0 = comma-separated character window handles
+        let hwndValues = characterWindows.sorted(by: { $0.key < $1.key })
+            .map { String($0.value.windowNumber) }
+        let hwndRef0 = hwndValues.joined(separator: ",")
+        let balloonHwnds = balloonWindows.sorted(by: { $0.key < $1.key })
+            .map { String($0.value.windowNumber) }
+        let hwndRef1 = balloonHwnds.joined(separator: ",")
+        bridge.notifyCustom("hwnd", params: [
+            "Reference0": hwndRef0,
+            "Reference1": hwndRef1
+        ], ignoreResponseScript: true)
+
+        // uniqueid
+        let uniqueID = ghostURL.lastPathComponent
+        bridge.notifyCustom("uniqueid", params: [
+            "Reference0": uniqueID
+        ], ignoreResponseScript: true)
+
+        // basewareversion
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        bridge.notifyCustom("basewareversion", params: [
+            "Reference0": "Ourin/\(version)"
+        ], ignoreResponseScript: true)
+
+        // capability
+        bridge.notifyCustom("capability", params: [
+            "Reference0": "response",
+            "Reference1": "nobreak",
+            "Reference2": "communicate",
+            "Reference3": "lock",
+            "Reference4": "notify"
+        ], ignoreResponseScript: true)
+
+        // OnNotifySelfInfo: ref0=ghostName, ref1=sakuraName, ref2=keroName,
+        //   ref3=shellName, ref4=shellPath, ref5=balloonName, ref6=balloonPath
+        let shellPath = loadShellPath()?.path ?? ""
+        let shellName = activeShellName
+        let balloonName = balloonConfig?.name ?? ""
+        let balloonPath = self.ghostURL.appendingPathComponent("balloon").path
+        bridge.notify(.OnNotifySelfInfo, params: [
+            "Reference0": config.sakuraName,
+            "Reference1": config.sakuraName,
+            "Reference2": config.keroName ?? "",
+            "Reference3": shellName,
+            "Reference4": shellPath,
+            "Reference5": balloonName,
+            "Reference6": balloonPath
+        ])
+
+        // OnNotifyShellInfo: ref0=shellName, ref1=shellPath
+        bridge.notify(.OnNotifyShellInfo, params: [
+            "Reference0": shellName,
+            "Reference1": shellPath
+        ])
+
+        // OnNotifyBalloonInfo: ref0=balloonName, ref1=balloonPath
+        bridge.notify(.OnNotifyBalloonInfo, params: [
+            "Reference0": balloonName,
+            "Reference1": balloonPath
+        ])
+
+        // OnNotifyUserInfo: ref0=userName
+        let userName = NSFullUserName()
+        bridge.notify(.OnNotifyUserInfo, params: [
+            "Reference0": userName,
+            "Reference1": userName,
+            "Reference2": "",
+            "Reference3": ""
+        ])
+
+        // OnNotifyOSInfo
+        let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
+        bridge.notify(.OnNotifyOSInfo, params: [
+            "Reference0": "macOS \(osVersion)"
+        ])
+
+        // ownerghostname: list of all running ghosts
+        let ghostName = config.sakuraName
+        bridge.notifyCustom("ownerghostname", params: [
+            "Reference0": ghostName
+        ], ignoreResponseScript: true)
+
+        Log.info("[GhostManager] Sent initialization NOTIFY events (hwnd, uniqueid, capability, OnNotifySelfInfo, etc.)")
+    }
 }
 
 // MARK: - Owner Draw Menu Actions
@@ -2411,6 +2513,14 @@ extension GhostManager {
             } else if let bindID = Int(raw) {
                 toggleDressupBindGroup(scope: currentScope, bindGroupID: bindID)
             }
+        case "menu_communicate":
+            showCommunicateBox()
+        case "menu_reload":
+            reloadGhost()
+        case "menu_vanish":
+            vanishCurrentGhost()
+        case "menu_update":
+            checkNetworkUpdate()
         case "menu_settings":
             showSettings()
         case "menu_quit":
@@ -2471,6 +2581,46 @@ extension GhostManager {
         }
     }
     
+    /// 話しかけるダイアログを表示
+    private func showCommunicateBox() {
+        DispatchQueue.main.async {
+            self.showCommunicateBoxDialog(timeoutMs: nil, initialText: "")
+        }
+    }
+
+    /// ゴーストを再読み込み
+    private func reloadGhost() {
+        let name = ghostConfig?.name ?? ""
+        Log.info("[GhostManager] Reloading ghost: \(name)")
+        EventBridge.shared.notify(.OnClose, params: ["Reference0": "reload"])
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            if let appDelegate = NSApp.delegate as? AppDelegate {
+                appDelegate.runGhost(at: self.ghostURL)
+            }
+        }
+    }
+
+    /// ゴーストを消滅させる
+    private func vanishCurrentGhost() {
+        let name = ghostConfig?.name ?? "Unknown"
+        let alert = NSAlert()
+        alert.messageText = "ゴーストの消滅"
+        alert.informativeText = "「\(name)」を消滅させますか？\nこの操作は取り消せません。"
+        alert.alertStyle = .critical
+        alert.addButton(withTitle: "消滅")
+        alert.addButton(withTitle: "キャンセル")
+        let response = alert.runModal()
+        guard response == .alertFirstButtonReturn else { return }
+
+        EventBridge.shared.notify(.OnVanishSelecting, params: [:])
+        EventBridge.shared.notify(.OnVanishSelected, params: ["Reference0": name])
+    }
+
+    /// ネットワーク更新を確認
+    private func checkNetworkUpdate() {
+        EventBridge.shared.notify(.OnUpdateBegin, params: ["Reference0": "manual"])
+    }
+
     /// ゴーストを切り替え
     private func switchGhost(to ghostID: String) {
         let target = ghostID.trimmingCharacters(in: .whitespacesAndNewlines).removingPercentEncoding ?? ghostID

@@ -330,7 +330,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
     }
 
-    private func runGhost(at root: URL) {
+    func runGhost(at root: URL) {
         NSLog("[runGhost] Starting ghost from: \(root.path)")
         // If a ghost is already running, shut it down first.
         if let existingManager = self.ghostManager {

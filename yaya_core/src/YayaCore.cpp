@@ -143,11 +143,84 @@ std::string YayaCore::processCommand(const std::string &line) {
             if (ok) {
                 const auto& loadedFiles = dictManager.getLoadedDicFiles();
                 response["loaded_dics"] = loadedFiles;
+
+                // Call YAYA framework's `load` function if it exists (sets SHIORI3FW.Path etc.)
+                if (dictManager.hasFunction("load")) {
+                    std::string ghostPath = ghostRoot;
+                    if (!ghostPath.empty() && ghostPath.back() != '/') {
+                        ghostPath += '/';
+                    }
+                    std::cerr << "[YayaCore] Calling YAYA framework load() with path: " << ghostPath << std::endl;
+                    dictManager.execute("load", {ghostPath});
+                }
             }
         } else if (cmd == "request") {
             std::string id = req.value("id", "");
             auto refs = req.value("ref", std::vector<std::string>{});
             std::string method = req.value("method", "GET");
+            auto headers = req.value("headers", std::map<std::string, std::string>{});
+
+            std::cerr << "[YayaCore] Executing request: method=" << method << ", id=" << id << ", refs=" << refs.size() << std::endl;
+            auto exec_start = std::chrono::steady_clock::now();
+
+            // Build raw SHIORI protocol request to pass through YAYA framework's `request` function.
+            // The framework parses this text to set SHIORI3FW.* variables and dispatch to SHIORI3EV.* handlers.
+            std::string shioriReq = method + " SHIORI/3.0\r\n";
+            shioriReq += "Charset: UTF-8\r\n";
+            shioriReq += "Sender: Ourin\r\n";
+            shioriReq += "SecurityLevel: local\r\n";
+            shioriReq += "ID: " + id + "\r\n";
+            for (auto& kv : headers) {
+                if (kv.first != "Charset" && kv.first != "ID") {
+                    shioriReq += kv.first + ": " + kv.second + "\r\n";
+                }
+            }
+            for (size_t i = 0; i < refs.size(); i++) {
+                shioriReq += "Reference" + std::to_string(i) + ": " + refs[i] + "\r\n";
+            }
+            shioriReq += "\r\n";
+
+            std::string value;
+            // Try YAYA framework's `request` function first (handles event dispatch, SHIORI3FW.* setup)
+            bool usedFramework = false;
+            if (dictManager.hasFunction("request")) {
+                value = dictManager.execute("request", {shioriReq});
+                usedFramework = true;
+                // The YAYA framework returns a full SHIORI protocol response.
+                // For GET: "SHIORI/3.0 200 OK\r\nValue: <script>\r\n...\r\n"
+                // For NOTIFY: "SHIORI/3.0 204 No Content\r\n...\r\n"
+                // Extract the Value: header content as the script.
+                std::string extracted;
+                std::string searchKey = "Value: ";
+                auto valPos = value.find(searchKey);
+                if (valPos != std::string::npos) {
+                    auto valStart = valPos + searchKey.length();
+                    auto valEnd = value.find("\r\n", valStart);
+                    if (valEnd != std::string::npos) {
+                        extracted = value.substr(valStart, valEnd - valStart);
+                    } else {
+                        extracted = value.substr(valStart);
+                    }
+                }
+                value = extracted;
+                std::cerr << "[YayaCore] Used YAYA framework request() dispatcher" << std::endl;
+            } else {
+                // Fallback: call function directly (for simple ghosts without YAYA framework)
+                value = dictManager.execute(id, refs);
+                std::cerr << "[YayaCore] Direct function call (no YAYA framework)" << std::endl;
+            }
+
+            auto exec_end = std::chrono::steady_clock::now();
+            auto exec_duration = std::chrono::duration_cast<std::chrono::milliseconds>(exec_end - exec_start).count();
+            std::cerr << "[YayaCore] Request completed: id=" << id << ", took " << exec_duration << "ms, result length=" << value.length() << std::endl;
+
+            if (value.length() > 0) {
+                std::string preview = value.substr(0, std::min(size_t(200), value.length()));
+                std::cerr << "[YayaCore] Result preview (raw): " << preview << std::endl;
+            }
+
+            response["ok"] = true;
+            response["headers"] = { {"Charset", "UTF-8"} };
 
             // UKADOC Notify-only events whose return value must be ignored by host
             static const std::unordered_set<std::string> notifyReturnIgnored = {
@@ -164,31 +237,6 @@ std::string YayaCore::processCommand(const std::string &line) {
                 "OnNotifyFontInfo","OnNotifyInternationalInfo"
             };
 
-            std::cerr << "[YayaCore] Executing request: method=" << method << ", id=" << id << ", refs=" << refs.size() << std::endl;
-            auto exec_start = std::chrono::steady_clock::now();
-
-            std::string value = dictManager.execute(id, refs);
-
-            auto exec_end = std::chrono::steady_clock::now();
-            auto exec_duration = std::chrono::duration_cast<std::chrono::milliseconds>(exec_end - exec_start).count();
-            std::cerr << "[YayaCore] Request completed: id=" << id << ", took " << exec_duration << "ms, result length=" << value.length() << std::endl;
-
-            // Debug: Show first 200 chars with backslashes visible
-            if (value.length() > 0) {
-                std::string preview = value.substr(0, std::min(size_t(200), value.length()));
-                std::cerr << "[YayaCore] Result preview (raw): " << preview << std::endl;
-                // Count backslashes in result
-                size_t backslash_count = 0;
-                for (char c : value) {
-                    if (c == '\\') backslash_count++;
-                }
-                std::cerr << "[YayaCore] Backslash count in result: " << backslash_count << std::endl;
-            }
-
-            response["ok"] = true;
-            response["headers"] = { {"Charset", "UTF-8"} };
-
-            // For NOTIFY-only events, return 204 No Content with no value
             if (!method.empty() && (method == "NOTIFY" || method == "notify") && notifyReturnIgnored.count(id) > 0) {
                 response["status"] = 204;
             } else {
@@ -201,6 +249,11 @@ std::string YayaCore::processCommand(const std::string &line) {
             response["status"] = 200;
             response["loaded_dics"] = loadedFiles;
         } else if (cmd == "unload") {
+            // Call YAYA framework's `unload` function before teardown
+            if (dictManager.hasFunction("unload")) {
+                std::cerr << "[YayaCore] Calling YAYA framework unload()" << std::endl;
+                dictManager.execute("unload", {});
+            }
             dictManager.unload();
             response["ok"] = true;
             response["status"] = 200;

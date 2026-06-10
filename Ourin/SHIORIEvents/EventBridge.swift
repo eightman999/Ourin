@@ -264,30 +264,33 @@ final class ShioriDispatcher {
             "Sender: Ourin",
             "ID: \(id)"
         ]
-        // パラメータは与えられた順に ReferenceN として追加する
-        for (idx, value) in params.values.enumerated() {
-            lines.append("Reference\(idx): \(value)")
+        for (key, value) in params.sorted(by: { $0.key < $1.key }) {
+            lines.append("\(key): \(value)")
         }
         lines.append("\r")
         return lines.joined(separator: "\r\n")
     }
 
+    /// Extract ordered reference values from params dict (sorted by key: Reference0, Reference1, ...)
+    private func orderedRefs(from params: [String:String]) -> [String] {
+        params.sorted(by: { $0.key < $1.key }).map(\.value)
+    }
+
     /// BridgeToSHIORI 経由で SHIORI モジュールへ NOTIFY を送出する
     func sendNotify(id: EventID, params: [String:String]) {
         let req = buildRequest(method: "NOTIFY", id: id.rawValue, params: params)
-        let refs = Array(params.values)
+        let refs = orderedRefs(from: params)
         var script: String = ""
 
         if let ya = yayaAdapter {
-            if let res = ya.request(method: "NOTIFY", id: id.rawValue, headers: ["Charset":"UTF-8"], refs: refs, timeout: 2.0), res.ok, let val = res.value {
+            let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
+            if let res = ya.request(method: "NOTIFY", id: id.rawValue, headers: hdrs, refs: refs, timeout: 2.0), res.ok, let val = res.value {
                 script = val
             }
         } else {
             script = BridgeToSHIORI.handle(event: id.rawValue, references: refs)
         }
         Log.debug("[Ourin] NOTIFY built:\n\(req)")
-        // Per UKADOC: for specific Notify events, returned script must be ignored
-        // Also ignore whitespace-only responses to avoid clearing current balloon text.
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty && !ShioriDispatcher.notifyReturnIgnored.contains(id.rawValue) {
             DispatchQueue.main.async { self.ghostManager?.runNotifyScript(trimmed) }
@@ -297,11 +300,12 @@ final class ShioriDispatcher {
     /// BridgeToSHIORI 経由で SHIORI モジュールへカスタム名の NOTIFY を送出する（\![raise,...]用）
     func sendNotifyCustom(eventName: String, params: [String:String], ignoreResponseScript: Bool = false) {
         let req = buildRequest(method: "NOTIFY", id: eventName, params: params)
-        let refs = Array(params.values)
+        let refs = orderedRefs(from: params)
         var script: String = ""
 
+        let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
         if let ya = yayaAdapter {
-            if let res = ya.request(method: "NOTIFY", id: eventName, headers: ["Charset":"UTF-8"], refs: refs, timeout: 2.0), res.ok, let val = res.value {
+            if let res = ya.request(method: "NOTIFY", id: eventName, headers: hdrs, refs: refs, timeout: 2.0), res.ok, let val = res.value {
                 script = val
             }
         } else {
@@ -320,10 +324,11 @@ final class ShioriDispatcher {
     /// BridgeToSHIORI 経由で SHIORI モジュールへ GET を送出し応答を返す
     func sendGet(id: EventID, params: [String:String]) -> String {
         let req = buildRequest(method: "GET", id: id.rawValue, params: params)
-        let refs = Array(params.values)
+        let refs = orderedRefs(from: params)
+        let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
         var res = ""
         if let ya = yayaAdapter {
-            if let r = ya.request(method: "GET", id: id.rawValue, headers: ["Charset":"UTF-8"], refs: refs, timeout: 3.0), r.ok, let val = r.value {
+            if let r = ya.request(method: "GET", id: id.rawValue, headers: hdrs, refs: refs, timeout: 3.0), r.ok, let val = r.value {
                 res = val
             }
         } else {

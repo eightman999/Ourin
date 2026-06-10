@@ -14,7 +14,7 @@ extension GhostManager {
         static var timers: [ObjectIdentifier: Timer] = [:]
     }
 
-    private var serikoExecutor: SerikoExecutor {
+    var serikoExecutor: SerikoExecutor {
         let key = ObjectIdentifier(self)
         if let existing = SerikoStorage.executors[key] {
             return existing
@@ -137,6 +137,13 @@ extension GhostManager {
         guard let surfacesContent = content else {
             Log.info("[GhostManager] Failed to read surfaces.txt")
             return
+        }
+
+        if surfaceAliases.isEmpty {
+            surfaceAliases = SerikoParser.parseSurfaceAliases(surfacesContent)
+            if !surfaceAliases.isEmpty {
+                Log.debug("[GhostManager] Loaded \(surfaceAliases.count) surface aliases")
+            }
         }
 
         guard let vm = characterViewModels[currentScope] else { return }

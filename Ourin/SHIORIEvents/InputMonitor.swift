@@ -9,6 +9,9 @@ final class InputMonitor {
     private var local: Any?
     private var global: Any?
     private var handler: ((ShioriEvent)->Void)?
+    /// Called when a right-click (non-gesture) is detected on a ghost character window.
+    /// The parameter is the screen-space click location.
+    var rightClickMenuHandler: ((NSPoint) -> Void)?
 
     // Track mouse down events to detect clicks
     private var mouseDownLocation: CGPoint?
@@ -76,6 +79,11 @@ final class InputMonitor {
                                 if isClick {
                                     NSLog("[InputMonitor] Click detected, dispatching OnMouseClick")
                                     self.dispatchClick(ev)
+
+                                    if ev.type == .rightMouseUp && windowId.hasPrefix("GhostCharacterWindow") {
+                                        let screenPoint = ev.window?.convertPoint(toScreen: ev.locationInWindow) ?? ev.locationInWindow
+                                        self.rightClickMenuHandler?(screenPoint)
+                                    }
                                 }
 
                                 // Reset tracking

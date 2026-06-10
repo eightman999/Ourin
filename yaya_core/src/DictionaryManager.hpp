@@ -18,6 +18,9 @@ public:
     std::string execute(const std::string& functionName,
                         const std::vector<std::string>& args);
 
+    // Check if a function exists in the loaded dictionaries
+    bool hasFunction(const std::string& functionName) const;
+
     // Get list of loaded dictionary files
     const std::vector<std::string>& getLoadedDicFiles() const { return loadedDicFiles_; }
 
