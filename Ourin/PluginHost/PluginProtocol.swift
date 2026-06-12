@@ -220,8 +220,14 @@ public struct PluginProtocolBuilder {
             lines.append("Target: \(target)")
         }
 
-        // References (sorted by key for consistency)
-        for (key, value) in request.references.sorted(by: { $0.key < $1.key }) {
+        // References (numeric order — lexical sort would put Reference10 before Reference2)
+        let sortedRefs = request.references.sorted { lhs, rhs in
+            let l = Int(lhs.key.dropFirst("Reference".count))
+            let r = Int(rhs.key.dropFirst("Reference".count))
+            if let l, let r { return l < r }
+            return lhs.key < rhs.key
+        }
+        for (key, value) in sortedRefs {
             lines.append("\(key): \(value)")
         }
 

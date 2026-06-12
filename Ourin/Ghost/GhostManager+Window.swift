@@ -264,6 +264,48 @@ extension GhostManager {
         }
     }
     
+    /// \4 - 相方キャラクターから離れる方向へ水平移動する（UKADOC）
+    func moveAwayFromPartner(scope: Int) {
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[scope],
+                  let partner = self.partnerWindow(for: scope) else { return }
+            let screen = (window.screen ?? NSScreen.main)?.visibleFrame ?? .zero
+            let step: CGFloat = 120
+            var frame = window.frame
+            // 相方より左に居るなら更に左へ、右に居るなら更に右へ
+            if frame.midX <= partner.frame.midX {
+                frame.origin.x = max(screen.minX, frame.origin.x - step)
+            } else {
+                frame.origin.x = min(screen.maxX - frame.width, frame.origin.x + step)
+            }
+            window.setFrame(frame, display: true, animate: true)
+            Log.info("[GhostManager] \\4 moved scope \(scope) away from partner")
+        }
+    }
+
+    /// \5 - 相方キャラクターと接触する距離まで水平移動する（UKADOC）
+    func moveTowardPartner(scope: Int) {
+        DispatchQueue.main.async {
+            guard let window = self.characterWindows[scope],
+                  let partner = self.partnerWindow(for: scope) else { return }
+            var frame = window.frame
+            // 相方の左右どちら側に居るかを保ち、辺が接する位置へ移動する
+            if frame.midX <= partner.frame.midX {
+                frame.origin.x = partner.frame.minX - frame.width
+            } else {
+                frame.origin.x = partner.frame.maxX
+            }
+            window.setFrame(frame, display: true, animate: true)
+            Log.info("[GhostManager] \\5 moved scope \(scope) adjacent to partner")
+        }
+    }
+
+    /// 相方キャラクターのウィンドウ（scope 0 ↔ 1、その他のスコープは scope 0 を相方とみなす）
+    private func partnerWindow(for scope: Int) -> NSWindow? {
+        let partnerScope = (scope == 0) ? 1 : 0
+        return characterWindows[partnerScope]
+    }
+
     /// Synchronous window move
     func moveWindow(scope: Int, x: Int, y: Int, time: Int, method: String, ignoreStickyWindow: Bool = false) {
         Log.debug("[GhostManager] Moving scope \(scope) to (\(x), \(y)) over \(time)ms with method '\(method)'")
@@ -1008,5 +1050,55 @@ extension GhostManager {
             window.makeKeyAndOrderFront(nil)
         }
     }
-    
+
+    // MARK: - 見切れ / 重なり 判定 (UKADOC OnSecondChange Reference1 / Reference2)
+
+    /// 見切れ（screen cutoff）状態のスコープ ID リストを返す。
+    /// キャラクターウィンドウが所属スクリーンの可視フレーム外にはみ出している場合に見切れと判定する。
+    /// - Returns: 該当スコープ ID を数値順にカンマ区切りした文字列（none → 空文字列）
+    func mikireScopes() -> String {
+        let scopes = collectVisibleCharacterFrames()
+        var hit: [Int] = []
+        for (scope, frame, screenFrame) in scopes {
+            // 可視フレームに完全に含まれていなければ見切れ
+            if !screenFrame.contains(frame) {
+                hit.append(scope)
+            }
+        }
+        return hit.sorted().map(String.init).joined(separator: ",")
+    }
+
+    /// 重なり（overlap with another character window）状態のスコープ ID リストを返す。
+    /// 同一ゴーストの他キャラウィンドウと矩形が交差している場合に重なりと判定する。
+    /// - Returns: 該当スコープ ID を数値順にカンマ区切りした文字列（none → 空文字列）
+    func kasanariScopes() -> String {
+        let scopes = collectVisibleCharacterFrames()
+        var hit: Set<Int> = []
+        for i in 0..<scopes.count {
+            let (a, fa, _) = scopes[i]
+            for j in (i+1)..<scopes.count {
+                let (b, fb, _) = scopes[j]
+                if fa.intersects(fb) {
+                    hit.insert(a)
+                    hit.insert(b)
+                }
+            }
+        }
+        return hit.sorted().map(String.init).joined(separator: ",")
+    }
+
+    /// 表示中のキャラウィンドウについて (scope, ウィンドウ矩形, 所属スクリーンの可視矩形) を集める。
+    /// 非表示／ミニ化中／所属スクリーン不明のウィンドウは除外する。
+    private func collectVisibleCharacterFrames() -> [(scope: Int, frame: CGRect, screenVisible: CGRect)] {
+        var result: [(scope: Int, frame: CGRect, screenVisible: CGRect)] = []
+        for (scope, window) in characterWindows {
+            guard window.isVisible, !window.isMiniaturized else { continue }
+            let frame = window.frame
+            guard frame.width > 0, frame.height > 0 else { continue }
+            let screenVisible = (window.screen ?? NSScreen.main)?.visibleFrame ?? .zero
+            guard screenVisible.width > 0, screenVisible.height > 0 else { continue }
+            result.append((scope, frame, screenVisible))
+        }
+        return result
+    }
 }

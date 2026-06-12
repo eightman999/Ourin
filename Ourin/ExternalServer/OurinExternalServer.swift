@@ -5,6 +5,7 @@ import OSLog
 // モジュールの概要は docs/SSTP_Host_Modules_JA.md を参照。
 
 /// 外部からの SSTP イベントを受信する TCP/HTTP/XPC サーバ群を管理するクラス。
+/// 受信した生 SSTP は SSTPParser で解析し SSTPDispatcher へ一本化して処理する（P2-10）。
 public final class OurinExternalServer {
     /// TCP ベースの SSTP サーバ
     public let tcp = SstpTcpServer()
@@ -12,8 +13,6 @@ public final class OurinExternalServer {
     public let http = SstpHttpServer()
     /// XPC 直接通信サーバ
     public let xpc = XpcDirectServer()
-    /// リクエストを解釈して SHIORI へ転送するルーター
-    private let router = SstpRouter()
     /// OSLog 用ロガー
     private let logger = CompatLogger(subsystem: "Ourin", category: "ExternalServer")
 
@@ -32,9 +31,9 @@ public final class OurinExternalServer {
 
     /// サーバ群の初期設定を行う
     public init() {
-        tcp.onRequest = { [weak self] in self?.router.handle(raw: $0) ?? "" }
-        http.onRequest = { [weak self] in self?.router.handle(raw: $0) ?? "" }
-        xpc.onRequest = { [weak self] in self?.router.handle(raw: $0) ?? "" }
+        tcp.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
+        http.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
+        xpc.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
         applyRuntimeConfig()
     }
 
@@ -45,14 +44,29 @@ public final class OurinExternalServer {
         applyListenerState()
     }
 
-    private func applyRuntimeConfig() {
-        let routerConfig = SstpRouter.Config(
-            securityLocalOnly: config.securityLocalOnly,
-            maxPayloadSize: config.maxPayloadSize,
-            timeout: config.timeout
-        )
-        router.updateConfig(routerConfig)
+    /// 生の SSTP テキストを解析して SSTP ディスパッチャへ渡し、応答を返す。
+    func handleRaw(_ raw: String) -> String {
+        let start = Date()
+        let request = SSTPParser.parseRequest(text: raw)
+        guard !request.method.isEmpty else {
+            logger.fault("parse failure")
+            ServerMetrics.shared.record(duration: 0, error: true)
+            return SSTPResponse(version: "SSTP/1.4", statusCode: 400).toWireFormat()
+        }
+        let response = SSTPDispatcher.dispatch(request: request, securityLocalOnly: config.securityLocalOnly)
+        let duration = Date().timeIntervalSince(start)
+        ServerMetrics.shared.record(duration: duration, error: isErrorResponse(response))
+        return response
+    }
 
+    private func isErrorResponse(_ response: String) -> Bool {
+        guard let statusLine = response.components(separatedBy: "\r\n").first else { return true }
+        let parts = statusLine.split(separator: " ")
+        guard parts.count >= 2, let code = Int(parts[1]) else { return true }
+        return code >= 400
+    }
+
+    private func applyRuntimeConfig() {
         let tcpConfig = SstpTcpServer.Config(
             timeout: config.timeout,
             maxSize: config.maxPayloadSize
@@ -129,7 +143,7 @@ public final class OurinExternalServer {
                   let raw = info["request"] as? String else {
                 return
             }
-            let response = self.router.handle(raw: raw)
+            let response = self.handleRaw(raw)
             center.postNotificationName(
                 NSNotification.Name("jp.ourin.sstp.response"),
                 object: nil,

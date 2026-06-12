@@ -1,0 +1,13 @@
+OnReTest2
+{
+	RE_SEARCH("hello world 123", "(\w+) (\d+)")
+	_s = RE_GETSTR()
+	_p = RE_GETPOS()
+	_l = RE_GETLEN()
+	_s0 = _s[0]
+	_s1 = _s[1]
+	_s2 = _s[2]
+	_p0 = _p[0]
+	_l0 = _l[0]
+	"s0=%(_s0) s1=%(_s1) s2=%(_s2) p0=%(_p0) l0=%(_l0)"
+}

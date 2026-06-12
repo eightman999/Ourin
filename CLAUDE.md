@@ -39,7 +39,7 @@ For running single tests, use Xcode's test navigator or:
 4. **External Server** - `ExternalServer/`
    - Multi-protocol server supporting TCP, HTTP, and XPC communication
    - `OurinExternalServer` coordinates `SstpTcpServer`, `SstpHttpServer`, `XpcDirectServer`
-   - `SstpRouter` handles request routing to SHIORI system
+   - Raw SSTP from all channels is parsed by `SSTPParser` and handled by `SSTP/SSTPDispatcher` (single SSTP stack; the old `SstpRouter` was removed)
 
 5. **Event System** - `SHIORIEvents/`, `PluginEvent/`
    - System event monitoring (sleep, display, input, network, etc.)
@@ -79,14 +79,14 @@ The `docs/` directory contains comprehensive specifications:
 
 This codebase implements a complex multi-protocol system for desktop companions with extensive plugin support, cross-process communication, and compatibility with existing ukagaka ecosystem standards.
 
-## yaya_core (Rustクレート)
+## yaya_core (C++実装)
 
 ### 概要
-`yaya_core/` ディレクトリにはRust製のYAYA言語パーサーとVMが含まれています。
+`yaya_core/` ディレクトリにはC++製のYAYA言語パーサーとVMが含まれています（ヘルパープロセスとして JSON line IPC で Swift 側と通信）。
 
 ### 重要パス
-- `yaya_core/src/`: Rustソースファイル
-- `yaya_core/Cargo.toml`: Rust設定
+- `yaya_core/src/`: C++ソースファイル（Lexer/Parser/VM/DictionaryManager/YayaCore）
+- `yaya_core/CMakeLists.txt`: CMake設定（nlohmann_json, iconv に依存）
 - `yaya_core/build.sh`: ビルドスクリプト
 - ゴーストデータ: `~/Library/Containers/furin-lab.Ourin/Data/Library/Application Support/Ourin/ghost/`
 

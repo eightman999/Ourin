@@ -1,5 +1,4 @@
 // POSIX名前付きセマフォをSwiftオブジェクトとして扱うクラス。
-// FMO の詳細は docs/About_FMO.md を参照。
 import Foundation
 #if os(Linux)
 import Glibc
@@ -16,24 +15,29 @@ final class FmoMutex {
     /// このインスタンスがセマフォを作成したか (cleanup時にunlinkするため)
     private let isCreator: Bool
 
-    /// 新規セマフォを作成する。既に存在すればエラーを投げる
+    /// セマフォを作成する。
+    /// クラッシュ後に残ったセマフォがあれば自動的に上書き再作成する。
     init(name: String, createNew: Bool = true) throws {
         self.name = name
 
         if createNew {
-            // 新規作成モード: O_CREAT | O_EXCL で排他的に作成
-            NSLog("Creating new semaphore '%@'", name)
+            NSLog("Creating semaphore '%@'", name)
             sem = fmo_sem_open(name, O_CREAT | O_EXCL, 0o666, 1)
             if sem == nil {
                 if errno == EEXIST {
-                    throw FmoError.alreadyRunning
+                    // クラッシュ後に残った古いセマフォ → unlink して再作成
+                    NSLog("Stale semaphore '%@' found, reclaiming", name)
+                    fmo_sem_unlink(name)
+                    sem = fmo_sem_open(name, O_CREAT | O_EXCL, 0o666, 1)
+                    if sem == nil {
+                        throw FmoError.systemError(String(cString: strerror(errno)))
+                    }
                 } else {
                     throw FmoError.systemError(String(cString: strerror(errno)))
                 }
             }
             isCreator = true
         } else {
-            // 既存オープンモード: O_CREAT なしで開く
             NSLog("Opening existing semaphore '%@'", name)
             sem = fmo_sem_open(name, 0, 0, 0)
             if sem == nil {
@@ -59,7 +63,6 @@ final class FmoMutex {
     func close() {
         if let s = sem {
             fmo_sem_close(s)
-            // 作成者のみがunlinkする
             if isCreator {
                 fmo_sem_unlink(name)
             }

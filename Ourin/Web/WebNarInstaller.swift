@@ -117,10 +117,9 @@ public enum WebNarInstaller {
         let target = try OurinPaths.installTarget(forType: manifest.type, directory: manifest.directory)
         log.info("resolved target: \(target.path)")
 
-        // 5) conflict check
-        if FileManager.default.fileExists(atPath: target.path) && manifest.accept == nil {
-            throw Error.directoryConflict(target.lastPathComponent)
-        }
+        // 5) 上書きポリシー: accept は UKADOC では type=shell の親ゴースト名検証用であり、
+        //    上書き判定とは独立。既存先がある場合は更新インストールとして許容する。
+        //    （旧実装は accept 未設定で常に conflict 扱いで失敗していた）
 
         // 6) secure copy
         let parent = target.deletingLastPathComponent()

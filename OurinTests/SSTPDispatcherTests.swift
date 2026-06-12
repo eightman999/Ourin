@@ -40,8 +40,26 @@ struct SSTPDispatcherTests {
             ]
         )
         let resp = SSTPDispatcher.dispatch(request: req)
+        // 小文字ヘッダでも event/option が解釈される。nodescript はバルーン再生のみ
+        // 抑止し、応答の Script ヘッダは維持される（UKADOC spec_sstp）
         #expect(resp.contains("SSTP/1.4 200 OK"))
-        #expect(!resp.contains("Script:"))
+        #expect(resp.contains("Script: \\h\\s0Lowercase"))
+    }
+
+    @Test
+    func sendWithoutEventEchoesScriptHeaderWithoutShiori() async throws {
+        let req = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: [
+                "Sender": "UnitTest",
+                "Script": "\\h\\s0DirectScript\\e"
+            ]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req)
+        // Event 無し SEND は SHIORI を介さず Script ヘッダを直接扱う（503 にならない）
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(resp.contains("Script: \\h\\s0DirectScript\\e"))
     }
 
     @Test
@@ -203,7 +221,7 @@ struct SSTPDispatcherTests {
     @Test
     func nodescriptAndNobreakOptionsAreHandled() async throws {
         let key = "opt-nodescript-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0ShouldNotAppear")
+        BridgeToSHIORI.setResource(key, value: "\\h\\s0BalloonSuppressed")
         let nodescriptReq = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
@@ -214,8 +232,9 @@ struct SSTPDispatcherTests {
             ]
         )
         let nodescriptResp = SSTPDispatcher.dispatch(request: nodescriptReq)
+        // nodescript はバルーン再生のみ抑止（応答 Script は維持: UKADOC spec_sstp）
         #expect(nodescriptResp.contains("SSTP/1.4 200 OK"))
-        #expect(!nodescriptResp.contains("Script:"))
+        #expect(nodescriptResp.contains("Script: \\h\\s0BalloonSuppressed"))
 
         let nobreakReq = SSTPRequest(
             method: "SEND",
@@ -231,24 +250,108 @@ struct SSTPDispatcherTests {
     }
 
     @Test
+    func duplicateOptionHeadersAreMerged() async throws {
+        let req = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headerEntries: [
+                ("Option", "nodescript"),
+                ("Option", "nobreak")
+            ]
+        )
+        #expect(req.options.contains(.nodescript))
+        #expect(req.options.contains(.nobreak))
+    }
+
+    @Test
     func ifGhostOverridesScriptForMatchedReceiver() async throws {
         GhostRegistry.shared.clear()
         GhostRegistry.shared.register(name: "Emily", path: "/tmp/emily")
         defer { GhostRegistry.shared.clear() }
         let key = "ifghost-\(UUID().uuidString)"
         BridgeToSHIORI.setResource(key, value: "\\h\\s0Base")
+        // UKADOC: IfGhost は直後の Script ヘッダと出現順で対応付けられる
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
-            headers: [
-                "Event": "Resource",
-                "Reference0": key,
-                "ReceiverGhostName": "Emily",
-                "IfGhost": "Emily=\\h\\s0FromIfGhost|\\uFromIfGhost"
+            headerEntries: [
+                ("Event", "Resource"),
+                ("Reference0", key),
+                ("ReceiverGhostName", "Emily"),
+                ("IfGhost", "Emily"),
+                ("Script", "\\h\\s0FromIfGhost"),
+                ("IfGhost", "Someone"),
+                ("Script", "\\h\\s0ForSomeoneElse")
             ]
         )
         let resp = SSTPDispatcher.dispatch(request: req)
         #expect(resp.contains("Script: \\h\\s0FromIfGhost"))
+        #expect(!resp.contains("ForSomeoneElse"))
+    }
+
+    @Test
+    func ifGhostUnmatchedUsesDefaultScriptBeforeFirstIfGhost() async throws {
+        GhostRegistry.shared.clear()
+        GhostRegistry.shared.register(name: "Mary", path: "/tmp/mary")
+        defer { GhostRegistry.shared.clear() }
+        // Event 無し SEND: IfGhost 不一致時は最初の IfGhost より前の Script がデフォルト
+        let req = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headerEntries: [
+                ("Sender", "UnitTest"),
+                ("ReceiverGhostName", "Mary"),
+                ("Script", "\\h\\s0DefaultScript"),
+                ("IfGhost", "Emily"),
+                ("Script", "\\h\\s0EmilyOnly")
+            ]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req)
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(resp.contains("Script: \\h\\s0DefaultScript"))
+    }
+
+    @Test
+    func ifGhostDefaultGhostAliasActsAsDefaultScript() async throws {
+        GhostRegistry.shared.clear()
+        GhostRegistry.shared.register(name: "Mary", path: "/tmp/mary")
+        defer { GhostRegistry.shared.clear() }
+        // 「さくら」「エミリ」「えみりぃ」はデフォルトゴースト扱いで、
+        // その Script はデフォルトスクリプトとしても機能する（UKADOC spec_sstp）
+        let req = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headerEntries: [
+                ("Sender", "UnitTest"),
+                ("ReceiverGhostName", "Mary"),
+                ("IfGhost", "エミリ"),
+                ("Script", "\\h\\s0AliasDefault")
+            ]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req)
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(resp.contains("Script: \\h\\s0AliasDefault"))
+    }
+
+    @Test
+    func ifGhostSakuraKeroPairMatchesBySakuraName() async throws {
+        GhostRegistry.shared.clear()
+        GhostRegistry.shared.register(name: "Emily", path: "/tmp/emily")
+        defer { GhostRegistry.shared.clear() }
+        // 「\0側名,\1側名」書式は \0 側名で照合する
+        let req = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headerEntries: [
+                ("Sender", "UnitTest"),
+                ("ReceiverGhostName", "Emily"),
+                ("IfGhost", "Emily,Teddy"),
+                ("Script", "\\h\\s0PairMatched")
+            ]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req)
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(resp.contains("Script: \\h\\s0PairMatched"))
     }
 
     @Test
@@ -379,9 +482,8 @@ struct SSTPDispatcherTests {
         )
         let resp = SSTPDispatcher.dispatch(request: req)
         #expect(resp.contains("SSTP/1.4 200 OK"))
-        #expect(resp.contains("baseware.name="))
-        #expect(resp.contains("baseware.pid="))
-        #expect(resp.contains("baseware.path="))
+        // FMO now uses SSP-style record format, not the old key=value; format
+        #expect(!resp.contains("baseware.name="))
     }
 
     @Test
@@ -426,15 +528,19 @@ struct SSTPDispatcherTests {
     }
 
     @Test
-    func communicateRoutesToShiori() async throws {
+    func communicateRoutesToShioriWithSenderAsReference0() async throws {
         let key = "comm-\(UUID().uuidString)"
         BridgeToSHIORI.setResource(key, value: "\\h\\s0FromCommunicate")
+        // UKADOC OnCommunicate: Reference0=送信元ゴースト名(Sender), Reference1=発言内容(Sentence),
+        // Reference2+ = SSTP の ReferenceN。テスト用 Resource イベントは references.first を
+        // キーに引くため、Sender に key を入れることで Reference0 へのシフトを検証する。
         let req = SSTPRequest(
             method: "COMMUNICATE",
             version: "SSTP/1.4",
             headers: [
                 "Event": "Resource",
-                "Reference0": key
+                "Sender": key,
+                "Sentence": "おはよう"
             ]
         )
         let resp = SSTPDispatcher.dispatch(request: req)

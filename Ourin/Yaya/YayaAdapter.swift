@@ -164,7 +164,8 @@ final class YayaAdapter {
     }
 
     /// Load dictionaries for a ghost and perform capability handshake.
-    func load(ghostRoot: URL, dics: [String], encoding: String = "utf-8") -> Bool {
+    /// - Parameter encoding: yaya.txt の charset 指定（"Shift_JIS" 等）。"auto" は自動判定（UTF-8妥当→UTF-8、それ以外はCP932変換）。
+    func load(ghostRoot: URL, dics: [String], encoding: String = "auto") -> Bool {
         Log.debug("[YayaAdapter] load() called with ghostRoot: \(ghostRoot.path), dics: \(dics.count) files")
 
         // First, try to load messagetxt file if available

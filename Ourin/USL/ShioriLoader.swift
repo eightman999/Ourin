@@ -54,11 +54,12 @@ final class YayaBackend: ShioriBackend {
             return nil
         }
 
-        // Recursively parse config files to collect all dic entries
+        // Recursively parse config files to collect all dic entries (+ charset 指定)
         var dicFiles: [String] = []
-        parseYayaConfigFile(content: yayaTxtContents, baseURL: ghostMasterURL, dicFiles: &dicFiles, visited: [])
+        var charset: String? = nil
+        parseYayaConfigFile(content: yayaTxtContents, baseURL: ghostMasterURL, dicFiles: &dicFiles, charset: &charset, visited: [])
 
-        NSLog("[YayaBackend] Collected \(dicFiles.count) dic file entries from yaya.txt and includes")
+        NSLog("[YayaBackend] Collected \(dicFiles.count) dic file entries from yaya.txt and includes (charset: \(charset ?? "auto"))")
 
         if dicFiles.isEmpty {
             //NSLog("[Ourin.YayaBackend] No dic files found in yaya.txt")
@@ -70,7 +71,7 @@ final class YayaBackend: ShioriBackend {
             return nil
         }
 
-        let ok = adapter.load(ghostRoot: ghostMasterURL, dics: dicFiles, encoding: "utf-8")
+        let ok = adapter.load(ghostRoot: ghostMasterURL, dics: dicFiles, encoding: charset ?? "auto")
         if !ok {
             //NSLog("[Ourin.YayaBackend] YayaAdapter.load failed")
             return nil
@@ -108,6 +109,13 @@ final class YayaBackend: ShioriBackend {
 /// @param dicFiles In-out array to collect dic file paths
 /// @param visited Set of already-visited file paths to prevent infinite recursion
 func parseYayaConfigFile(content: String, baseURL: URL, dicFiles: inout [String], visited: Set<String>) {
+    var ignoredCharset: String? = nil
+    parseYayaConfigFile(content: content, baseURL: baseURL, dicFiles: &dicFiles, charset: &ignoredCharset, visited: visited)
+}
+
+/// charset 指定（"charset,Shift_JIS" 等）も収集するバージョン。
+/// 収集した charset は yaya_core の辞書デコードのヒントとして渡す。
+func parseYayaConfigFile(content: String, baseURL: URL, dicFiles: inout [String], charset: inout String?, visited: Set<String>) {
         var newVisited = visited
         let lines = content.components(separatedBy: .newlines)
 
@@ -127,8 +135,15 @@ func parseYayaConfigFile(content: String, baseURL: URL, dicFiles: inout [String]
                 lineWithoutComment = trimmedLine
             }
 
+            // Parse "charset, Shift_JIS" (辞書の文字コード指定)
+            if lineWithoutComment.lowercased().starts(with: "charset,") {
+                let value = String(lineWithoutComment.dropFirst("charset,".count)).trimmingCharacters(in: .whitespaces)
+                if !value.isEmpty && charset == nil {
+                    charset = value
+                }
+            }
             // Parse "dic, filename" or "dic, path/filename, encoding"
-            if lineWithoutComment.lowercased().starts(with: "dic,") {
+            else if lineWithoutComment.lowercased().starts(with: "dic,") {
                 let remainder = String(lineWithoutComment.dropFirst(4)).trimmingCharacters(in: .whitespaces)
                 // Split by comma to handle encoding parameter
                 let parts = remainder.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
@@ -152,10 +167,10 @@ func parseYayaConfigFile(content: String, baseURL: URL, dicFiles: inout [String]
                 }
                 newVisited.insert(absolutePath)
 
-                // Try to read the included file (try Shift-JIS first, then UTF-8)
-                if let includeContent = (try? String(contentsOf: includeURL, encoding: .shiftJIS)) ?? (try? String(contentsOf: includeURL, encoding: .utf8)) {
+                // Try to read the included file (try UTF-8 first, then Shift-JIS)
+                if let includeContent = (try? String(contentsOf: includeURL, encoding: .utf8)) ?? (try? String(contentsOf: includeURL, encoding: .shiftJIS)) {
                     NSLog("[YayaBackend] Successfully read include file: \(includePath)")
-                    parseYayaConfigFile(content: includeContent, baseURL: baseURL, dicFiles: &dicFiles, visited: newVisited)
+                    parseYayaConfigFile(content: includeContent, baseURL: baseURL, dicFiles: &dicFiles, charset: &charset, visited: newVisited)
                 } else {
                     NSLog("[YayaBackend] Failed to read include file: \(includePath)")
                 }

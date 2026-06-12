@@ -63,21 +63,109 @@ final class NarInstaller {
         let target = try OurinPaths.installTarget(forType: manifest.type, directory: manifest.directory)
         log.info("resolved target: \(target.path,)")
 
-        // 5) 衝突確認（accept 等の運用は上位で UI 提示。ここでは最小限チェック）
-        if FileManager.default.fileExists(atPath: target.path) && manifest.accept == nil {
-            throw Error.directoryConflict(target.lastPathComponent)
+        // 5) 上書きポリシー
+        //   旧実装は「target が存在し accept 未設定」を常に conflict 扱いにしていたため、
+        //   既存ゴーストの再インストール（更新）が必ず失敗していた。UKADOC では type=shell の
+        //   accept は親ゴースト名の検証用であり、上書き判定とは関係ない。
+        //   既存先がある場合は通常の更新インストールとして許容する。
+        if manifest.type.lowercased() == "shell", let accept = manifest.accept, !accept.isEmpty {
+            try validateShellAccept(accept)
         }
 
-        // 6) 安全コピー（Zip Slip 対策）
+        // 6) refresh,1 が指定されていれば設置先をクリア（refreshundeletemask に合致するパスは保持）
+        if manifest.refresh, FileManager.default.fileExists(atPath: target.path) {
+            try refreshTarget(at: target, keepingMasks: manifest.refreshUndeleteMask)
+        }
+
+        // 7) 安全コピー（Zip Slip 対策）
         let parent = target.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
         try ZipUtil.secureCopyTree(from: tmpExtract, to: target)
         try applyDeleteInstructions(from: tmpExtract, to: target)
 
-        // 7) 後始末
+        // 8) type=ghost に同梱されたバルーンを balloon/<name> へも展開
+        if manifest.type.lowercased() == "ghost",
+           let balloonDir = manifest.balloonDirectory?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !balloonDir.isEmpty {
+            try installBundledBalloon(
+                fromExtract: tmpExtract,
+                balloonDirectory: balloonDir,
+                balloonSourceDirectory: manifest.balloonSourceDirectory
+            )
+        }
+
+        // 9) 後始末
         try? FileManager.default.removeItem(at: tmpRoot)
         log.info("install finished")
         return target
+    }
+
+    /// type=shell の accept ヘッダで指定された親ゴーストがインストール済みか確認する。
+    /// 未インストールでも処理を継続するが、警告ログを出す（UKADOC のままでは厳格すぎるため寛容寄り）。
+    private func validateShellAccept(_ accept: String) throws {
+        let base = try OurinPaths.baseDirectory()
+        let ghostDir = base.appendingPathComponent("ghost", isDirectory: true)
+        let candidate = ghostDir.appendingPathComponent(accept, isDirectory: true)
+        if !FileManager.default.fileExists(atPath: candidate.path) {
+            log.warning("shell.accept=\(accept,) : 親ゴーストが見つかりません（インストールは継続）")
+        }
+    }
+
+    /// refresh,1 のインストール時に設置先を空にする。refreshundeletemask に合致するパスは残す。
+    /// マスクはターゲット相対パスへの正規表現として評価する（UKADOC）。
+    private func refreshTarget(at target: URL, keepingMasks masks: [String]) throws {
+        let fm = FileManager.default
+        let regexes: [NSRegularExpression] = masks.compactMap { pattern in
+            try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
+        }
+        guard let entries = try? fm.contentsOfDirectory(at: target, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]) else {
+            return
+        }
+        for entry in entries {
+            let relative = entry.path.replacingOccurrences(of: target.path, with: "")
+                .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            if matchesAny(regexes: regexes, path: relative) {
+                continue
+            }
+            try? fm.removeItem(at: entry)
+        }
+    }
+
+    private func matchesAny(regexes: [NSRegularExpression], path: String) -> Bool {
+        guard !regexes.isEmpty else { return false }
+        let range = NSRange(path.startIndex..<path.endIndex, in: path)
+        for regex in regexes {
+            if regex.firstMatch(in: path, options: [], range: range) != nil {
+                return true
+            }
+        }
+        return false
+    }
+
+    /// 同梱バルーンを balloon/<dest> へ追加インストールする。
+    /// ソース位置は (1) balloon.source.directory が NAR ルート相対の有効なパスならそれを使い、
+    /// (2) 既定は <NAR root>/balloon/<balloonDirectory>、(3) なければ <NAR root>/<balloon.source.directory> を試す。
+    private func installBundledBalloon(fromExtract extractRoot: URL, balloonDirectory: String, balloonSourceDirectory: String?) throws {
+        let fm = FileManager.default
+        let trimmedSource = balloonSourceDirectory?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let sourceName = trimmedSource.isEmpty ? balloonDirectory : trimmedSource
+        let candidates: [URL] = [
+            extractRoot.appendingPathComponent("balloon", isDirectory: true).appendingPathComponent(sourceName, isDirectory: true),
+            extractRoot.appendingPathComponent(sourceName, isDirectory: true)
+        ]
+        guard let srcDir = candidates.first(where: { isDirectory($0) }) else {
+            log.warning("balloon.directory=\(balloonDirectory,) : ソースディレクトリが見つかりません")
+            return
+        }
+        let balloonTarget = try OurinPaths.installTarget(forType: "balloon", directory: balloonDirectory)
+        try fm.createDirectory(at: balloonTarget.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try ZipUtil.secureCopyTree(from: srcDir, to: balloonTarget)
+        log.info("bundled balloon installed to: \(balloonTarget.path,)")
+    }
+
+    private func isDirectory(_ url: URL) -> Bool {
+        var isDir: ObjCBool = false
+        return FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir) && isDir.boolValue
     }
 
     /// updates2.dau / updates.txt / update.txt を順に解決して更新候補 URL を返す
@@ -136,3 +224,4 @@ final class NarInstaller {
         }
     }
 }
+

@@ -111,29 +111,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // Ensure single instance and clean helper state by killing others first
         ProcessKiller.killOtherOurinAndYaya()
 
-        // ninix仕様に準拠した起動判定: shm_open("/ninix", O_RDWR, 0) で判定
-        if FmoManager.isAnotherInstanceRunning(sharedName: "/ninix") {
+        // 共有メモリの存在で他のベースウェアが起動しているか判定
+        if FmoManager.isAnotherInstanceRunning() {
             NSLog("Another baseware instance is already running. Terminating.")
             NSApplication.shared.terminate(nil)
             return
         }
 
-        // 起動時に FMO を初期化。
-        // ninixとの互換性のため "/ninix" という共有メモリ名を使用
+        // FMO を初期化（クラッシュ後の残留セマフォ/共有メモリは自動的に上書き再作成される）
         do {
-            fmo = try FmoManager(mutexName: "/ninix_mutex", sharedName: "/ninix")
-        } catch FmoError.alreadyRunning {
-            // 判定をすり抜けた場合のフォールバック
-            NSLog("Application already running (FMO). Retrying after short delay...")
-            usleep(300_000)
-            do {
-                fmo = try FmoManager(mutexName: "/ninix_mutex", sharedName: "/ninix")
-            } catch {
-                NSLog("Application already running (FMO) after retry. Terminating.")
-                NSApplication.shared.terminate(nil)
-            }
+            fmo = try FmoManager()
         } catch {
-            // 権限エラーなどの場合でも、他インスタンスが起動していなければ続行を試みる
             NSLog("FMO init failed: \(error)")
             NSLog("Continuing without FMO (single instance enforcement disabled)")
         }
@@ -157,6 +145,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             object: nil
         )
         UNUserNotificationCenter.current().delegate = self
+
+        // FMO 更新通知を監視
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleFmoRefresh(_:)),
+            name: .fmoNeedsRefresh,
+            object: nil
+        )
 
         // プラグインを探索してロード
         let registry = PluginRegistry()
@@ -204,8 +200,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         return false
     }
 
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        // OnClose を GET で送り、応答スクリプト（お別れトーク、末尾 \-）を再生してから終了する（UKADOC）
+        if isRunningUnderTests { return .terminateNow }
+        guard let gm = ghostManager, !gm.isShuttingDown else {
+            return .terminateNow
+        }
+        if gm.beginCloseSequence(reason: "user", replyToTermination: true) {
+            return .terminateLater
+        }
+        return .terminateNow
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         NotificationCenter.default.removeObserver(self, name: .ourinWebHomeURLReceived, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .fmoNeedsRefresh, object: nil)
         // 終了時に共有メモリとセマフォを開放
         fmo?.cleanup()
         pluginRegistry?.unloadAll()
@@ -244,6 +253,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         for url in urls where ["nar", "zip"].contains(url.pathExtension.lowercased()) {
             installNar(at: url)
         }
+    }
+
+    @objc private func handleFmoRefresh(_ notification: Notification) {
+        refreshFmo()
     }
 
     @objc private func handleWebHomeURL(_ notification: Notification) {
@@ -330,6 +343,29 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
     }
 
+    /// 現在のゴースト情報から FmoGhostRecord を収集する
+    func collectFmoRecords() -> [FmoGhostRecord] {
+        guard let gm = ghostManager, let config = gm.ghostConfig else {
+            return []
+        }
+        var record = FmoGhostRecord()
+        record.name = config.sakuraName
+        record.keroname = config.keroName ?? ""
+        record.path = gm.ghostURL.path
+        record.shell = gm.activeShellName
+        record.balloon = gm.balloonConfig?.name ?? ""
+        record.sakuraSurface = gm.characterViewModels[0]?.currentSurfaceID ?? 0
+        record.keroSurface = gm.characterViewModels[1]?.currentSurfaceID ?? 10
+        return [record]
+    }
+
+    /// FMO 共有メモリを現在のゴースト状態で更新する
+    func refreshFmo() {
+        guard let fmo else { return }
+        let records = collectFmoRecords()
+        fmo.writeSnapshot(records: records)
+    }
+
     func runGhost(at root: URL) {
         NSLog("[runGhost] Starting ghost from: \(root.path)")
         // If a ghost is already running, shut it down first.
@@ -380,6 +416,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
 extension Notification.Name {
     static let devToolsReload = Notification.Name("devToolsReload")
+    static let fmoNeedsRefresh = Notification.Name("fmoNeedsRefresh")
 }
 
 private extension NSApplication {

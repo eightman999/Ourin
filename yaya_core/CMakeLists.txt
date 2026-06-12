@@ -31,4 +31,5 @@ set_target_properties(yaya_core PROPERTIES
     OUTPUT_NAME "yaya_core"
 )
 
-target_link_libraries(yaya_core PRIVATE nlohmann_json::nlohmann_json)
+# iconv: 辞書ファイルの CP932/Shift_JIS -> UTF-8 変換に使用（macOS は libiconv が標準搭載）
+target_link_libraries(yaya_core PRIVATE nlohmann_json::nlohmann_json iconv)

@@ -6,6 +6,89 @@
 #include <sstream>
 #include <iostream>
 #include <chrono>
+#include <algorithm>
+#include <cctype>
+#include <cerrno>
+#include <vector>
+#include <iconv.h>
+
+namespace {
+
+// UTF-8 として妥当なバイト列かを検査する（構造チェックのみ）
+bool isValidUTF8(const std::string& s) {
+    const unsigned char* b = reinterpret_cast<const unsigned char*>(s.data());
+    size_t n = s.size();
+    size_t i = 0;
+    while (i < n) {
+        unsigned char c = b[i];
+        size_t len;
+        if (c < 0x80) { i++; continue; }
+        else if ((c & 0xE0) == 0xC0) len = 2;
+        else if ((c & 0xF0) == 0xE0) len = 3;
+        else if ((c & 0xF8) == 0xF0) len = 4;
+        else return false;
+        if (i + len > n) return false;
+        for (size_t j = 1; j < len; ++j) {
+            if ((b[i + j] & 0xC0) != 0x80) return false;
+        }
+        i += len;
+    }
+    return true;
+}
+
+bool hasNonAscii(const std::string& s) {
+    for (unsigned char c : s) {
+        if (c >= 0x80) return true;
+    }
+    return false;
+}
+
+// yaya.txt の charset 表記ゆれを吸収する。戻り値: "UTF-8" / "CP932" / "AUTO"
+std::string normalizeEncodingName(std::string enc) {
+    std::transform(enc.begin(), enc.end(), enc.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    enc.erase(std::remove_if(enc.begin(), enc.end(),
+                             [](char c) { return c == '-' || c == '_' || c == ' '; }),
+              enc.end());
+    if (enc == "utf8") return "UTF-8";
+    if (enc == "shiftjis" || enc == "sjis" || enc == "cp932" ||
+        enc == "windows31j" || enc == "ms932" || enc == "ms_kanji") return "CP932";
+    if (enc.empty() || enc == "auto" || enc == "default") return "AUTO";
+    std::cerr << "[DictionaryManager] Unknown encoding name '" << enc
+              << "', falling back to auto-detection" << std::endl;
+    return "AUTO";
+}
+
+bool convertWithIconv(const std::string& input, const char* fromCode, std::string& output) {
+    iconv_t cd = iconv_open("UTF-8", fromCode);
+    if (cd == (iconv_t)-1) {
+        std::cerr << "[DictionaryManager] iconv_open(UTF-8, " << fromCode
+                  << ") failed: " << strerror(errno) << std::endl;
+        return false;
+    }
+    std::string result;
+    result.reserve(input.size() * 2);
+    std::vector<char> buf(65536);
+    char* inPtr = const_cast<char*>(input.data());
+    size_t inLeft = input.size();
+    bool ok = true;
+    while (inLeft > 0) {
+        char* outPtr = buf.data();
+        size_t outLeft = buf.size();
+        size_t rc = iconv(cd, &inPtr, &inLeft, &outPtr, &outLeft);
+        result.append(buf.data(), buf.size() - outLeft);
+        if (rc == (size_t)-1) {
+            if (errno == E2BIG) continue; // 出力バッファ満杯 → 続行
+            ok = false;
+            break;
+        }
+    }
+    iconv_close(cd);
+    if (ok) output = std::move(result);
+    return ok;
+}
+
+} // namespace
 
 DictionaryManager::DictionaryManager() {
     vm_ = std::make_unique<VM>();
@@ -18,15 +101,73 @@ void DictionaryManager::setCallback(VMCallback* callback) {
 }
 
 std::string DictionaryManager::loadFile(const std::string& path) {
-    std::ifstream file(path);
+    std::ifstream file(path, std::ios::binary);
     if (!file.is_open()) {
         std::cerr << "[DictionaryManager] Failed to open file: " << path << std::endl;
         return "";
     }
-    
+
     std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
+}
+
+// 辞書バイト列を UTF-8 テキストに正規化する。
+// 優先順位: UTF-8 BOM → 指定エンコーディング → 自動判定（UTF-8妥当性 → CP932変換）。
+// 既存の UTF-8 辞書を壊さないため、宣言が CP932 でも内容が妥当な非ASCII UTF-8 なら UTF-8 として扱う。
+std::string DictionaryManager::decodeContent(const std::string& raw,
+                                             const std::string& encoding,
+                                             const std::string& filename) {
+    // UTF-8 BOM があれば除去して UTF-8 として確定
+    if (raw.size() >= 3 &&
+        (unsigned char)raw[0] == 0xEF &&
+        (unsigned char)raw[1] == 0xBB &&
+        (unsigned char)raw[2] == 0xBF) {
+        return raw.substr(3);
+    }
+
+    const std::string norm = normalizeEncodingName(encoding);
+
+    if (norm == "UTF-8") {
+        if (isValidUTF8(raw)) return raw;
+        std::string converted;
+        if (convertWithIconv(raw, "CP932", converted)) {
+            std::cerr << "[DictionaryManager] WARNING: " << filename
+                      << " declared UTF-8 but contains invalid UTF-8; converted from CP932" << std::endl;
+            return converted;
+        }
+        std::cerr << "[DictionaryManager] ERROR: " << filename
+                  << " is not valid UTF-8 and CP932 conversion failed; loading raw bytes (may mis-parse)" << std::endl;
+        return raw;
+    }
+
+    if (norm == "CP932") {
+        // 宣言と異なり実体が UTF-8 のケース（作者が charset 更新を忘れた等）を保護する
+        if (hasNonAscii(raw) && isValidUTF8(raw)) {
+            std::cerr << "[DictionaryManager] WARNING: " << filename
+                      << " declared Shift_JIS/CP932 but content is valid UTF-8; using as UTF-8" << std::endl;
+            return raw;
+        }
+        std::string converted;
+        if (convertWithIconv(raw, "CP932", converted)) {
+            return converted;
+        }
+        std::cerr << "[DictionaryManager] ERROR: " << filename
+                  << ": CP932 -> UTF-8 conversion failed; loading raw bytes (may mis-parse)" << std::endl;
+        return raw;
+    }
+
+    // AUTO: UTF-8 として妥当ならそのまま、そうでなければ CP932 とみなして変換
+    if (isValidUTF8(raw)) return raw;
+    std::string converted;
+    if (convertWithIconv(raw, "CP932", converted)) {
+        std::cerr << "[DictionaryManager] " << filename
+                  << ": detected CP932/Shift_JIS, converted to UTF-8" << std::endl;
+        return converted;
+    }
+    std::cerr << "[DictionaryManager] ERROR: " << filename
+              << ": encoding detection failed (not UTF-8, CP932 conversion failed); loading raw bytes" << std::endl;
+    return raw;
 }
 
 bool DictionaryManager::parseDictionary(const std::string& content) {
@@ -75,8 +216,6 @@ bool DictionaryManager::parseDictionary(const std::string& content) {
 
 bool DictionaryManager::load(const std::vector<std::string>& dicPaths,
                              const std::string& encoding) {
-    (void)encoding; // TODO: Handle encoding conversion (UTF-8/CP932)
-
     auto load_start = std::chrono::steady_clock::now();
     // std::cerr << "[DictionaryManager] Starting load of " << dicPaths.size() << " dictionaries" << std::endl;
 
@@ -108,6 +247,9 @@ bool DictionaryManager::load(const std::vector<std::string>& dicPaths,
             continue;
         }
 
+        // 文字コードを UTF-8 に正規化（yaya.txt の charset 指定を尊重しつつ自動判定）
+        content = decodeContent(content, encoding, filename);
+
         // std::cerr << "[DictionaryManager] Loaded " << content.size() << " bytes, parsing..." << std::endl;
 
         if (!parseDictionary(content)) {
@@ -133,7 +275,8 @@ bool DictionaryManager::load(const std::vector<std::string>& dicPaths,
         std::cerr << "[DictionaryManager] " << fail_count << " failed" << std::endl;
     }
 
-    return true;
+    // 全辞書が読めなかった場合のみ失敗扱い（一部失敗は継続）
+    return success_count > 0 || dicPaths.empty();
 }
 
 void DictionaryManager::unload() {

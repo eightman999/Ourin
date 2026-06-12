@@ -5,7 +5,15 @@ struct InstallManifest {
     var type: String = ""
     var directory: String = ""
     var accept: String?
-    var extras: [String: String] = [:] // balloon.directory, *.source.directory etc.
+    /// refresh,1 でインストール前に既存インストール先を削除する（更新インストール）
+    var refresh: Bool = false
+    /// refresh 時に残すパスを表す正規表現の集合（UKADOC: カンマ区切り）
+    var refreshUndeleteMask: [String] = []
+    /// type=ghost に同梱されたバルーンのインストール先ディレクトリ名
+    var balloonDirectory: String?
+    /// 同梱バルーンの NAR 内ソースディレクトリ名（既定は balloonDirectory）
+    var balloonSourceDirectory: String?
+    var extras: [String: String] = [:] // shell.directory, *.source.directory etc.
 }
 
 enum TextEncodingDetector {
@@ -33,6 +41,19 @@ struct InstallTxtParser {
             case "type": manifest.type = value
             case "directory": manifest.directory = value
             case "accept": manifest.accept = value
+            case "refresh":
+                manifest.refresh = (value == "1" || value.lowercased() == "true")
+            case "refreshundeletemask":
+                manifest.refreshUndeleteMask = value
+                    .split(separator: ",")
+                    .map { $0.trimmingCharacters(in: .whitespaces) }
+                    .filter { !$0.isEmpty }
+            case "balloon.directory":
+                manifest.balloonDirectory = value
+                manifest.extras[key] = value
+            case "balloon.source.directory":
+                manifest.balloonSourceDirectory = value
+                manifest.extras[key] = value
             default:
                 manifest.extras[key] = value
             }

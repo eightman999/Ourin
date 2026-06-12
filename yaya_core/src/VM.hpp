@@ -63,6 +63,14 @@ private:
     // Built-in functions
     std::map<std::string, std::function<Value(const std::vector<Value>&)>> builtins_;
 
+    // 直近の RE_SEARCH / RE_MATCH / RE_GREP のマッチ結果
+    // （RE_GETSTR / RE_GETPOS / RE_GETLEN で取得する）
+    std::vector<Value> reMatchStrings_;
+    std::vector<Value> reMatchPositions_;
+    std::vector<Value> reMatchLengths_;
+    // RE_OPTION で設定する正規表現オプション（bit0: icase, bit1: multiline）
+    int reOptions_ = 0;
+
     // 再帰深度制限（無限ループ防止）
     int recursion_depth_ = 0;
     static constexpr int MAX_RECURSION_DEPTH = 1000;

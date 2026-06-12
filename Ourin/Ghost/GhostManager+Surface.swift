@@ -47,6 +47,7 @@ extension GhostManager {
                     "Reference1": String(id)
                 ]
                 EventBridge.shared.notify(.OnSurfaceChange, params: params)
+                NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
                 Log.debug("[GhostManager] OnSurfaceChange dispatched: \(oldSurfaceID) -> \(id)")
             }
         }
@@ -238,6 +239,7 @@ extension GhostManager {
         updateSurface(id: keroSurface)
         currentScope = previousScope
         EventBridge.shared.notify(.OnShellChanged, params: ["Reference0": previousShell, "Reference1": trimmed])
+        NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         return true
     }
     

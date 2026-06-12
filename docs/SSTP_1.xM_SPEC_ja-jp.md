@@ -124,7 +124,7 @@ Command: GetName
 - [x] **TCP SSTP サーバ**: `SstpTcpServer.swift` にて Network.framework を使用して実装済み
 - [x] **HTTP SSTP サーバ**: `SstpHttpServer.swift` にて実装済み
 - [x] **XPC DirectSSTP**: `XpcDirectServer.swift` および `DirectSSTPXPC.swift` にて実装済み
-- [x] **SSTP パーサー**: `SstpParser.swift` にてリクエスト解析を実装済み
+- [x] **SSTP パーサー**: `SSTPParser.swift` にてリクエスト解析を実装済み（順序保持ヘッダ対応）
 - [x] **SSTP ディスパッチャ**: `SSTPDispatcher.swift` にて基本的なメソッド処理を実装済み
 - [x] **文字コード対応**: UTF-8 既定、Shift_JIS/CP932 の受理機能を実装済み
 - [x] **統合管理**: `OurinExternalServer.swift` にて TCP/HTTP/XPC の統合管理を実装済み
@@ -154,7 +154,7 @@ Command: GetName
    - 基本的なレスポンス生成
 
 5. **ルーティング**
-   - `SstpRouter.swift` によるリクエストの SHIORI への転送
+   - `SSTPDispatcher.swift` によるリクエストの SHIORI への転送（全経路を一本化、旧 `SstpRouter` は廃止）
    - 各種サーバからのリクエスト統合処理
 
 ### 11.3 未実装の機能

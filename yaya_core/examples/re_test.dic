@@ -1,0 +1,24 @@
+OnReTest
+{
+	_r = RE_SEARCH("hello world 123", "(\w+) (\d+)")
+	_s = RE_GETSTR()
+	_p = RE_GETPOS()
+	_l = RE_GETLEN()
+	"r=%(_r) s0=%(_s[0]) s1=%(_s[1]) s2=%(_s[2]) p0=%(_p[0]) l0=%(_l[0])"
+}
+
+OnReCase
+{
+	RE_OPTION(1)
+	_r = RE_MATCH("ABC", "abc")
+	RE_OPTION(0)
+	_r2 = RE_MATCH("ABC", "abc")
+	"icase=%(_r) noicase=%(_r2)"
+}
+
+OnReGrep
+{
+	_n = RE_GREP("a1 b2 c3", "[a-z]\d")
+	_s = RE_GETSTR()
+	"n=%(_n) m0=%(_s[0]) m2=%(_s[2])"
+}

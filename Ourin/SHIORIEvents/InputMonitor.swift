@@ -149,26 +149,6 @@ final class InputMonitor {
 
     /// NSEvent を SHIORI イベントへ変換してハンドラに渡す
     private func dispatch(_ ev: NSEvent) {
-        let mod = ev.modifierFlags
-        let modifiers = [
-            mod.contains(.command) ? "Command" : nil,
-            mod.contains(.option) ? "Option" : nil,
-            mod.contains(.shift) ? "Shift" : nil,
-            mod.contains(.control) ? "Control" : nil,
-            mod.contains(.capsLock) ? "CapsLock" : nil,
-            mod.contains(.function) ? "Function" : nil
-        ].compactMap{$0}.joined(separator: "|")
-
-        let loc = ev.locationInWindow
-        let screenLoc: NSPoint
-        if let w = ev.window {
-            let p = w.convertToScreen(NSRect(origin: loc, size: .zero)).origin
-            screenLoc = p
-        } else {
-            // グローバルモニタでは既にスクリーン座標が得られる
-            screenLoc = ev.locationInWindow
-        }
-
         // NSEvent の種類に応じてイベント ID を決定
         let id: EventID
         switch ev.type {
@@ -181,24 +161,22 @@ final class InputMonitor {
         default: return
         }
 
-        // SHIORI へ渡すパラメータを構築
-        var params: [String:String] = [
-            "screenX": String(Int(screenLoc.x)),
-            "screenY": String(Int(screenLoc.y)),
-            "modifiers": modifiers
-        ]
+        // SHIORI へ渡すパラメータを構築（UKADOC: ReferenceN 形式）
+        var params: [String:String]
         if ev.type == .keyDown || ev.type == .keyUp {
-            params["keyCode"] = String(ev.keyCode)
-            params["characters"] = ev.characters ?? ""
-        }
-        if ev.type == .scrollWheel {
-            params["deltaX"] = String(Int(ev.scrollingDeltaX))
-            params["deltaY"] = String(Int(ev.scrollingDeltaY))
-        }
-        if ev.type == .otherMouseDown || ev.type == .otherMouseUp || ev.type == .otherMouseDragged {
-            let button = mouseButtonName(for: ev)
-            params["button"] = button
-            params["buttonNumber"] = String(ev.buttonNumber)
+            // OnKeyDown/OnKeyUp: Reference0=キー識別子
+            params = [
+                "Reference0": ev.characters ?? "",
+                "Reference1": String(ev.keyCode),
+                "modifiers": modifierString(for: ev)
+            ]
+        } else {
+            let includeButton = ev.type != .mouseMoved && ev.type != .scrollWheel
+            params = mouseParams(for: ev, includeButton: includeButton)
+            if ev.type == .scrollWheel {
+                // OnMouseWheel: Reference2=ホイール回転量
+                params["Reference2"] = String(Int(ev.scrollingDeltaY))
+            }
         }
         // 構築したイベントをハンドラに通知
         handler?(ShioriEvent(id: id, params: params))
@@ -220,7 +198,7 @@ final class InputMonitor {
     /// Dispatch OnMouseClick event
     private func dispatchClick(_ ev: NSEvent) {
         let params = mouseParams(for: ev, includeButton: true)
-        let button = params["button"] ?? "left"
+        let button = mouseButtonName(for: ev)
         let isExButton = isExtendedButton(button)
 
         handler?(ShioriEvent(id: .OnMouseClick, params: params))
@@ -252,6 +230,7 @@ final class InputMonitor {
         }
         if clickStreak >= 3 {
             var multi = params
+            // OnMouseMultipleClick: 連続クリック回数（補助ヘッダ。位置引数には含めない）
             multi["count"] = String(clickStreak)
             if isExButton {
                 handler?(ShioriEvent(id: .OnMouseMultipleClickEx, params: multi))
@@ -308,7 +287,7 @@ final class InputMonitor {
         dragStarted = true
         var params = mouseParams(for: ev, includeButton: true)
         if let dragButton {
-            params["button"] = dragButton
+            params["Reference5"] = buttonReference(for: dragButton)
         }
         handler?(ShioriEvent(id: .OnMouseDragStart, params: params))
     }
@@ -318,7 +297,7 @@ final class InputMonitor {
         dragStarted = false
         var params = mouseParams(for: ev, includeButton: true)
         if let dragButton {
-            params["button"] = dragButton
+            params["Reference5"] = buttonReference(for: dragButton)
         }
         handler?(ShioriEvent(id: .OnMouseDragEnd, params: params))
     }
@@ -367,9 +346,9 @@ final class InputMonitor {
         button != "left" && button != "right"
     }
 
-    private func mouseParams(for ev: NSEvent, includeButton: Bool) -> [String: String] {
+    private func modifierString(for ev: NSEvent) -> String {
         let mod = ev.modifierFlags
-        let modifiers = [
+        return [
             mod.contains(.command) ? "Command" : nil,
             mod.contains(.option) ? "Option" : nil,
             mod.contains(.shift) ? "Shift" : nil,
@@ -377,29 +356,59 @@ final class InputMonitor {
             mod.contains(.capsLock) ? "CapsLock" : nil,
             mod.contains(.function) ? "Function" : nil
         ].compactMap { $0 }.joined(separator: "|")
+    }
 
-        let screen = mouseScreenLocation(for: ev)
-        var params: [String: String] = [
-            "screenX": String(Int(screen.x)),
-            "screenY": String(Int(screen.y)),
-            "modifiers": modifiers
-        ]
-        // 可能ならコリジョン領域名を付与（キャラクターウィンドウ内のみ）
-        if let id = ev.window?.identifier?.rawValue, id.hasPrefix("GhostCharacterWindow_") {
-            let parts = id.split(separator: "_")
-            if let last = parts.last, let scope = Int(last) {
-                let point = ev.locationInWindow
-                if let gm = (NSApp.delegate as? AppDelegate)?.ghostManager,
-                   let region = gm.collisionRegionName(at: point, scope: scope), !region.isEmpty {
-                    params["region"] = region
+    /// UKADOC のボタン識別子（Reference5）。0=左 1=右 2=中央、拡張ボタンは名前のまま
+    private func buttonReference(for name: String) -> String {
+        switch name {
+        case "left": return "0"
+        case "right": return "1"
+        case "wheel": return "2"
+        default: return name
+        }
+    }
+
+    /// マウス系イベントの ReferenceN パラメータを構築する（UKADOC list_shiori_event 準拠）。
+    /// Reference0=X座標 Reference1=Y座標 Reference2=ホイール回転量
+    /// Reference3=キャラクターID Reference4=当たり判定識別子 Reference5=ボタン Reference6=デバイス種別
+    private func mouseParams(for ev: NSEvent, includeButton: Bool) -> [String: String] {
+        // ローカル座標（キャラクターウィンドウ内なら左上原点に変換）、それ以外はスクリーン座標
+        var x: Int
+        var y: Int
+        var scope = 0
+        var region = ""
+        if let window = ev.window, isGhostOrBalloonWindow(window) {
+            let point = ev.locationInWindow
+            x = Int(point.x)
+            // AppKit は左下原点なので、SSP 互換の左上原点に反転する
+            y = Int(window.frame.height - point.y)
+            if let id = window.identifier?.rawValue, id.hasPrefix("GhostCharacterWindow_") {
+                if let last = id.split(separator: "_").last, let s = Int(last) {
+                    scope = s
+                    if let gm = (NSApp.delegate as? AppDelegate)?.ghostManager,
+                       let r = gm.collisionRegionName(at: point, scope: s), !r.isEmpty {
+                        region = r
+                    }
                 }
             }
+        } else {
+            let screen = mouseScreenLocation(for: ev)
+            x = Int(screen.x)
+            y = Int(screen.y)
         }
+
+        var params: [String: String] = [
+            "Reference0": String(x),
+            "Reference1": String(y),
+            "Reference2": "0",
+            "Reference3": String(scope),
+            "Reference4": region,
+            "Reference6": "mouse",
+            // 補助情報（位置引数には混入しない）
+            "modifiers": modifierString(for: ev)
+        ]
         if includeButton {
-            params["button"] = mouseButtonName(for: ev)
-            if ev.type == .otherMouseDown || ev.type == .otherMouseUp || ev.type == .otherMouseDragged {
-                params["buttonNumber"] = String(ev.buttonNumber)
-            }
+            params["Reference5"] = buttonReference(for: mouseButtonName(for: ev))
         }
         return params
     }

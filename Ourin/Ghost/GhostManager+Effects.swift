@@ -217,6 +217,7 @@ extension GhostManager {
             balloonImageLoader = BalloonImageLoader(balloonPath: dirPath)
             Log.info("[GhostManager] Switched balloon config to \(config.name)")
             EventBridge.shared.notify(.OnBalloonChange, params: ["Reference0": previousBalloon, "Reference1": config.name, "Reference2": "changed"])
+            NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
             return true
         }
 

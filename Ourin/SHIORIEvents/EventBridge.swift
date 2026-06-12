@@ -91,8 +91,8 @@ final class EventBridge {
         SpeechObserver.shared.stop()
         started = false
         autoEventsEnabled = false
-        // Send OnClose to each session
-        for (_, s) in sessions { _ = s.dispatcher.sendGet(id: .OnClose, params: [:]) }
+        // OnClose は GhostManager.beginCloseSequence が GET で送出し応答スクリプトを再生する
+        // （ここで送ると二重送信になるため送らない）
     }
 
     /// Enable or disable auto events dynamically
@@ -176,6 +176,43 @@ final class EventBridge {
         broadcastNotify(id: id, params: params)
     }
 
+    /// 外部SSTP（SEND の Script ヘッダ等）から、登録済みゴーストのバルーンでスクリプトを再生する。
+    /// - Parameters:
+    ///   - script: 再生する SakuraScript
+    ///   - ghostName: ReceiverGhostName 指定。nil なら全セッションへ送る
+    /// - Returns: 再生先セッションが1つでもあれば true
+    @discardableResult
+    func playScriptOnGhosts(_ script: String, ghostName: String? = nil) -> Bool {
+        let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return false }
+        return playScriptOnGhostsResolving(ghostName: ghostName) { _ in trimmed }
+    }
+
+    /// ゴースト毎に異なるスクリプトを再生する（SSTP の IfGhost 振り分け用）。
+    /// resolve はセッションのゴースト名（descript.txt の name、不明時 nil）を受け取り
+    /// 再生するスクリプトを返す。nil または空を返したセッションでは再生しない。
+    @discardableResult
+    func playScriptOnGhostsResolving(ghostName: String? = nil, resolve: (String?) -> String?) -> Bool {
+        var targets = sessions.values.compactMap { $0.ghostManager }
+        if let name = ghostName?.lowercased(), !name.isEmpty {
+            targets = targets.filter {
+                ($0.ghostConfig?.name.lowercased() == name) || ($0.ghostURL.lastPathComponent.lowercased() == name)
+            }
+        }
+        var jobs: [(GhostManager, String)] = []
+        for gm in targets {
+            let resolved = resolve(gm.ghostConfig?.name)?.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let script = resolved, !script.isEmpty {
+                jobs.append((gm, script))
+            }
+        }
+        guard !jobs.isEmpty else { return false }
+        DispatchQueue.main.async {
+            for (gm, script) in jobs { gm.runScript(script) }
+        }
+        return true
+    }
+
     /// Public helper to send a NOTIFY event by custom name (for \![raise,...])
     func notifyCustom(_ eventName: String, params: [String:String] = [:], ignoreResponseScript: Bool = false) {
         broadcastNotifyCustom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript)
@@ -205,6 +242,19 @@ final class EventBridge {
         broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript)
     }
 
+    // 時刻系イベント: Reference3（トーク再生可否）に応じて GET / NOTIFY を切り替える（UKADOC）
+    private static let timeSignalEvents: Set<EventID> = [.OnSecondChange, .OnMinuteChange, .OnHourTimeSignal]
+
+    // \t タイムクリティカルセクション中に通知を抑止するマウス系イベント（UKADOC: \t）
+    private static let mouseEvents: Set<EventID> = [
+        .OnMouseClick, .OnMouseClickEx, .OnMouseDoubleClick, .OnMouseDoubleClickEx,
+        .OnMouseMultipleClick, .OnMouseMultipleClickEx,
+        .OnMouseDown, .OnMouseDownEx, .OnMouseUp, .OnMouseUpEx,
+        .OnMouseMove, .OnMouseWheel, .OnMouseEnter, .OnMouseEnterAll,
+        .OnMouseLeave, .OnMouseLeaveAll, .OnMouseHover,
+        .OnMouseDragStart, .OnMouseDragEnd, .OnMouseGesture
+    ]
+
     // Immediately broadcast a NOTIFY to all registered sessions (bypassing queue)
     private func broadcastNotifyImmediate(id: EventID, params: [String:String]) {
         // Save character names on OnNotifySelfInfo
@@ -215,8 +265,38 @@ final class EventBridge {
                 s.ghostManager?.saveCharacterNames(sakuraName: sakuraName, keroName: keroName)
             }
         }
-        
+
+        if Self.timeSignalEvents.contains(id) {
+            for (_, s) in sessions {
+                var p = params
+                let cantalk = s.ghostManager?.canPlayTalkNow() ?? false
+                p["Reference3"] = cantalk ? "1" : "0"
+                // 見切れ/重なりはセッション毎のキャラウィンドウから判定する（UKADOC Reference1/Reference2）
+                if let gm = s.ghostManager {
+                    p["Reference1"] = gm.mikireScopes()
+                    p["Reference2"] = gm.kasanariScopes()
+                }
+                if cantalk {
+                    // 再生可能: GET で送り、返値スクリプトを再生する（ランダムトークの基本動線）
+                    let script = s.dispatcher.sendGet(id: id, params: p)
+                    let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !trimmed.isEmpty {
+                        let gm = s.ghostManager
+                        DispatchQueue.main.async { gm?.runScript(trimmed) }
+                    }
+                } else {
+                    // 再生不能: NOTIFY で送り、返値は無視する
+                    s.dispatcher.sendNotify(id: id, params: p, ignoreResponseScript: true)
+                }
+            }
+            return
+        }
+
         for (_, s) in sessions {
+            // \t タイムクリティカルセクション中はマウス系イベントを通知しない（UKADOC）
+            if Self.mouseEvents.contains(id), s.ghostManager?.timeCriticalActive == true {
+                continue
+            }
             s.dispatcher.sendNotify(id: id, params: params)
         }
     }
@@ -264,20 +344,51 @@ final class ShioriDispatcher {
             "Sender: Ourin",
             "ID: \(id)"
         ]
-        for (key, value) in params.sorted(by: { $0.key < $1.key }) {
+        // ReferenceN は数値順（辞書順だと Reference10 が Reference2 より前に並ぶ）
+        for (key, value) in Self.referencePairs(from: params) {
+            lines.append("\(key): \(value)")
+        }
+        // Reference 以外のヘッダは後ろにまとめる
+        for (key, value) in params.sorted(by: { $0.key < $1.key }) where Self.referenceIndex(of: key) == nil {
             lines.append("\(key): \(value)")
         }
         lines.append("\r")
         return lines.joined(separator: "\r\n")
     }
 
-    /// Extract ordered reference values from params dict (sorted by key: Reference0, Reference1, ...)
+    /// "ReferenceN" 形式のキーなら N を返す
+    private static func referenceIndex(of key: String) -> Int? {
+        guard key.hasPrefix("Reference"), let n = Int(key.dropFirst("Reference".count)), n >= 0 else { return nil }
+        return n
+    }
+
+    /// ReferenceN キーのみを数値順に並べた (key, value) 配列
+    private static func referencePairs(from params: [String:String]) -> [(key: String, value: String)] {
+        params.compactMap { key, value -> (Int, String, String)? in
+            guard let n = referenceIndex(of: key) else { return nil }
+            return (n, key, value)
+        }
+        .sorted { $0.0 < $1.0 }
+        .map { (key: $0.1, value: $0.2) }
+    }
+
+    /// Extract ordered reference values from params dict (numeric order, gaps padded with "").
+    /// 非Referenceキー（補助情報）は位置引数に混入させない。
     private func orderedRefs(from params: [String:String]) -> [String] {
-        params.sorted(by: { $0.key < $1.key }).map(\.value)
+        var byIndex: [Int: String] = [:]
+        var maxIndex = -1
+        for (key, value) in params {
+            guard let n = Self.referenceIndex(of: key) else { continue }
+            byIndex[n] = value
+            maxIndex = max(maxIndex, n)
+        }
+        guard maxIndex >= 0 else { return [] }
+        return (0...maxIndex).map { byIndex[$0] ?? "" }
     }
 
     /// BridgeToSHIORI 経由で SHIORI モジュールへ NOTIFY を送出する
-    func sendNotify(id: EventID, params: [String:String]) {
+    /// - Parameter ignoreResponseScript: true の場合、返値スクリプトを再生しない（cantalk=0 の時刻系イベント等）
+    func sendNotify(id: EventID, params: [String:String], ignoreResponseScript: Bool = false) {
         let req = buildRequest(method: "NOTIFY", id: id.rawValue, params: params)
         let refs = orderedRefs(from: params)
         var script: String = ""
@@ -291,6 +402,7 @@ final class ShioriDispatcher {
             script = BridgeToSHIORI.handle(event: id.rawValue, references: refs)
         }
         Log.debug("[Ourin] NOTIFY built:\n\(req)")
+        if ignoreResponseScript { return }
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty && !ShioriDispatcher.notifyReturnIgnored.contains(id.rawValue) {
             DispatchQueue.main.async { self.ghostManager?.runNotifyScript(trimmed) }

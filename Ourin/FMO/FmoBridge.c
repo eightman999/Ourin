@@ -7,8 +7,8 @@
 /* 名前付き共有メモリを開き、指定サイズに拡張する */
 /*
  * 名前付き共有メモリを開き、指定サイズに拡張する。
- * Windows の FMO に近づけるため、生成後すぐに unlink して
- * クラッシュ時に残骸が残らないようにする。
+ * プロセス生存中は名前を保持し、外部プロセスからアタッチ可能にする。
+ * クラッシュ後に残った共有メモリは次回起動時に上書き初期化される。
  */
 int fmo_open_shared(const char *name, size_t size) {
     int fd = shm_open(name, O_CREAT | O_RDWR, 0666);
@@ -19,8 +19,6 @@ int fmo_open_shared(const char *name, size_t size) {
         close(fd);
         return -1;
     }
-    /* エフェメラル運用のため直後に名前を削除 */
-    shm_unlink(name);
     return fd;
 }
 

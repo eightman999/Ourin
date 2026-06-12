@@ -1,5 +1,5 @@
 // 共有メモリ領域を扱うSwiftラッパー。64KBを確保し先頭にサイズを書き込む。
-// FMO の詳細は docs/About_FMO.md を参照。
+// プロセス生存中は共有メモリ名を保持し、外部プロセスからアタッチ可能にする。
 import Foundation
 #if os(Linux)
 import Glibc
@@ -9,7 +9,7 @@ import Darwin
 
 /// POSIX 共有メモリを扱うためのラッパークラス
 final class FmoSharedMemory {
-    /// 共有メモリ名（作成後すぐに unlink する）
+    /// 共有メモリ名
     private let name: String
     /// 確保するバイト数
     private let size: Int
@@ -21,23 +21,22 @@ final class FmoSharedMemory {
     private let isCreator: Bool
 
     /// 新規共有メモリ領域を確保してマッピングする、または既存のものを開く
+    ///
+    /// `createNew: true` の場合、既にクラッシュ等で残った共有メモリがあっても
+    /// O_CREAT で安全に上書き・初期化する。名前はプロセス生存中は保持される。
     init(name: String, size: Int = 64 * 1024, createNew: Bool = true) throws {
         self.name = name
         self.size = size
 
         let fdTemp: Int32
         if createNew {
-            // 新規作成モード
-            NSLog("Creating new shared memory '%@' (%d bytes)", name, size)
+            NSLog("Creating shared memory '%@' (%d bytes)", name, size)
             fdTemp = fmo_open_shared(name, size)
             if fdTemp == -1 {
                 throw FmoError.systemError(String(cString: strerror(errno)))
             }
-            // エフェメラルに運用するため作成直後に名前を削除
-            _ = fmo_shm_unlink(name)
             isCreator = true
         } else {
-            // 既存オープンモード
             NSLog("Opening existing shared memory '%@'", name)
             fdTemp = fmo_open_existing_shared(name)
             if fdTemp == -1 {
@@ -81,7 +80,6 @@ final class FmoSharedMemory {
     func close() {
         fmo_munmap(ptr, size)
         fmo_close_fd(fd)
-        // 作成者のみがunlinkする (ただしエフェメラルモードでは作成直後に既にunlink済み)
         if isCreator {
             fmo_shm_unlink(name)
         }

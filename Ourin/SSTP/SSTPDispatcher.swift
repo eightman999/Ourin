@@ -6,7 +6,10 @@ public enum SSTPDispatcher {
     private static let passThruPrefix = "x-sstp-passthru-"
     private static let maxPayloadBytes = 1024 * 1024
 
-    public static func dispatch(request: SSTPRequest) -> String {
+    /// SSTP リクエストを処理して応答文字列を返す。
+    /// securityLocalOnly: 外部サーバ経路のローカル限定ポリシー。nil の場合は環境変数
+    /// OURIN_SSTP_LOCAL_ONLY に従う（既定: 制限なし）。
+    public static func dispatch(request: SSTPRequest, securityLocalOnly: Bool? = nil) -> String {
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         let charset = request.headerValue("Charset") ?? "UTF-8"
         guard isSupportedVersion(version) else {
@@ -23,6 +26,22 @@ public enum SSTPDispatcher {
             return buildResponse(
                 version: version,
                 status: 413,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        }
+        let localOnly = securityLocalOnly
+            ?? (ProcessInfo.processInfo.environment["OURIN_SSTP_LOCAL_ONLY"] == "1")
+        if localOnly, resolveSecurityLevel(from: request.headers) == "external" {
+            EventBridge.shared.notify(.OnSSTPBlacklisting, params: [
+                "Reference0": request.headerValue("Sender") ?? "ExternalSSTP",
+                "Reference1": request.headerValue("SecurityOrigin") ?? "security_local_only"
+            ])
+            return buildResponse(
+                version: version,
+                status: 420,
                 charset: charset,
                 script: nil,
                 data: nil,
@@ -70,22 +89,6 @@ public enum SSTPDispatcher {
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         let charset = request.headerValue("Charset") ?? "UTF-8"
         let options = request.options
-        let securityLevel = (request.headerValue("SecurityLevel") ?? "local").lowercased()
-        let localOnly = ProcessInfo.processInfo.environment["OURIN_SSTP_LOCAL_ONLY"] == "1"
-        if localOnly && securityLevel == "external" {
-            EventBridge.shared.notify(.OnSSTPBlacklisting, params: [
-                "Reference0": request.headerValue("Sender") ?? "ExternalSSTP",
-                "Reference1": "security_local_only"
-            ])
-            return buildResponse(
-                version: version,
-                status: 420,
-                charset: charset,
-                script: nil,
-                data: nil,
-                responseHeaders: collectPassThruHeaders(from: request.headers)
-            )
-        }
         if request.receiverGhostName != nil,
            !GhostRegistry.shared.hasEntries() {
             return buildResponse(
@@ -138,6 +141,31 @@ public enum SSTPDispatcher {
                 responseHeaders: collectPassThruHeaders(from: request.headers)
             )
         }
+        // Event 無しの SEND は SHIORI を介さず Script ヘッダを直接バルーン再生する（SSTP の基本動作）。
+        // IfGhost がある場合は UKADOC の振り分けルールに従う。
+        if method == .send, (request.headerValue("Event") ?? "").isEmpty {
+            if !options.contains(.nodescript) {
+                _ = playScriptOnGhosts(request: request, shioriScript: nil)
+            }
+            let script = resolveScript(
+                forGhost: request.receiverGhostName ?? currentGhostName(),
+                request: request,
+                shioriScript: nil
+            )
+            var responseHeaders = collectPassThruHeaders(from: request.headers)
+            if let entryHeader = SstpSessionStore.shared.allEntriesHeaderValue() {
+                responseHeaders["Entry"] = entryHeader
+            }
+            return buildResponse(
+                version: version,
+                status: 200,
+                charset: charset,
+                script: script,
+                data: nil,
+                responseHeaders: responseHeaders
+            )
+        }
+
         let refs = extractReferences(from: request)
         let event = resolveEvent(request: request, method: method)
         let shioriHeaders = buildShioriHeaders(from: request, charset: charset, options: options)
@@ -192,11 +220,16 @@ public enum SSTPDispatcher {
             .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty })
 
-        let finalScript: String?
-        if options.contains(.nodescript) || scriptOptionTokens.contains("nodescript") {
-            finalScript = nil
-        } else {
-            finalScript = resolveIfGhostScript(request: request, fallback: scriptForSstp)
+        // nodescript はバルーン再生のみ抑止する。応答の Script ヘッダや
+        // イベント処理（SHIORI送出）には影響しない（UKADOC spec_sstp）
+        let suppressBalloon = options.contains(.nodescript) || scriptOptionTokens.contains("nodescript")
+        let finalScript = resolveScript(
+            forGhost: request.receiverGhostName ?? currentGhostName(),
+            request: request,
+            shioriScript: scriptForSstp
+        )
+        if method != .notify, !suppressBalloon {
+            playScriptOnGhosts(request: request, shioriScript: scriptForSstp)
         }
 
         let data = mapped.data
@@ -490,33 +523,8 @@ public enum SSTPDispatcher {
     }
 
     private static func buildGetFmoPayload(appDelegate: AppDelegate?) -> String {
-        var pairs: [String] = []
-        let processInfo = ProcessInfo.processInfo
-        let bundle = Bundle.main
-        let appName = bundle.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Ourin"
-        let appVersion = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
-        let appPath = bundle.bundleURL.path
-
-        pairs.append("baseware.name=\(appName)")
-        pairs.append("baseware.version=\(appVersion)")
-        pairs.append("baseware.pid=\(processInfo.processIdentifier)")
-        pairs.append("baseware.path=\(appPath)")
-
-        let ghosts = GhostRegistry.shared.allEntries().sorted(by: { $0.key < $1.key })
-        for (name, path) in ghosts {
-            pairs.append("ghost.\(name)=\(path)")
-        }
-
-        if let fmo = appDelegate?.fmo {
-            if let sharedData = try? fmo.memory.read(mutex: fmo.mutex), !sharedData.isEmpty {
-                if let utf8 = String(data: sharedData, encoding: .utf8), !utf8.isEmpty {
-                    pairs.append("fmo.shared.utf8=\(utf8)")
-                }
-                pairs.append("fmo.shared.base64=\(sharedData.base64EncodedString())")
-            }
-        }
-
-        return pairs.joined(separator: ";")
+        let records = appDelegate?.collectFmoRecords() ?? []
+        return FmoManager.buildSnapshot(records: records)
     }
 
     private static func resolveSecurityLevel(from headers: [String: String]) -> String {
@@ -585,10 +593,15 @@ public enum SSTPDispatcher {
                 break
             }
         }
-        if request.method.uppercased() == "COMMUNICATE",
-           let sentence = request.headerValue("Sentence"),
-           !sentence.isEmpty {
+        if request.method.uppercased() == "COMMUNICATE" {
+            // UKADOC OnCommunicate:
+            //   Reference0 = 送信元ゴースト名 (Sender ヘッダ)
+            //   Reference1 = 発言内容 (Sentence ヘッダ)
+            //   Reference2+ = SSTP の ReferenceN（Reference0,1,... を 2 つシフト）
+            let sentence = request.headerValue("Sentence") ?? ""
+            let senderName = request.headerValue("Sender") ?? ""
             refs.insert(sentence, at: 0)
+            refs.insert(senderName, at: 0)
         }
         if request.method.uppercased() == "EXECUTE",
            let command = request.headerValue("Command"),
@@ -778,17 +791,59 @@ public enum SSTPDispatcher {
         }
     }
 
-    private static func resolveIfGhostScript(request: SSTPRequest, fallback: String?) -> String? {
-        guard !request.ifGhost.isEmpty else { return fallback }
-        let receiver = request.receiverGhostName?.lowercased() ?? "*"
-        if let matched = request.ifGhost.first(where: { entry in
-            let ghost = entry.ghost.lowercased()
-            return ghost == "*" || ghost == receiver
-        }) {
-            let script = matched.sakura.isEmpty ? fallback : matched.sakura
-            return script
+    /// UKADOC「IfGhostによるスクリプト振り分け」でデフォルトゴースト（さくら）扱いとなる名前。
+    /// これらの Script はデフォルトスクリプトとしても機能する。
+    private static let defaultGhostAliases: Set<String> = ["さくら", "エミリ", "えみりぃ"]
+
+    /// 再生・応答に使うスクリプトを決定する。
+    /// IfGhost と Script は出現順で対応付けられ、最初の IfGhost より前の Script はデフォルトスクリプト。
+    /// IfGhost 一致 > SHIORI 応答スクリプト > デフォルトスクリプト（Script ヘッダ）の順で採用する。
+    private static func resolveScript(
+        forGhost ghostName: String?,
+        request: SSTPRequest,
+        shioriScript: String?
+    ) -> String? {
+        let bindings = request.scriptBindings
+        let shiori = (shioriScript?.isEmpty == false) ? shioriScript : nil
+        let defaultScript = bindings.first { binding in
+            guard let ifGhost = binding.ifGhost else { return true }
+            return defaultGhostAliases.contains(sakuraName(of: ifGhost))
+        }?.script
+        guard bindings.contains(where: { $0.ifGhost != nil }) else {
+            // IfGhost 無し: SHIORI 応答を優先し、無ければ Script ヘッダを保険として使う
+            return shiori ?? defaultScript
         }
-        return fallback
+        if let target = ghostName?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !target.isEmpty,
+           let matched = bindings.first(where: { binding in
+               guard let ifGhost = binding.ifGhost else { return false }
+               return sakuraName(of: ifGhost).caseInsensitiveCompare(target) == .orderedSame
+           }),
+           !matched.script.isEmpty {
+            return matched.script
+        }
+        return shiori ?? defaultScript
+    }
+
+    /// IfGhost ヘッダ「\0側名,\1側名」書式から \0 側名を取り出す
+    private static func sakuraName(of ifGhost: String) -> String {
+        ifGhost.split(separator: ",").first.map { String($0).trimmingCharacters(in: .whitespaces) } ?? ifGhost
+    }
+
+    private static func currentGhostName() -> String? {
+        PropertyManager.shared.get("currentghost.name") ?? GhostRegistry.shared.allNames().first
+    }
+
+    /// 確定したスクリプトをバルーンで再生する。IfGhost がある場合はゴースト毎に振り分ける。
+    @discardableResult
+    private static func playScriptOnGhosts(request: SSTPRequest, shioriScript: String?) -> Bool {
+        EventBridge.shared.playScriptOnGhostsResolving(ghostName: request.receiverGhostName) { sessionGhostName in
+            resolveScript(
+                forGhost: sessionGhostName ?? request.receiverGhostName,
+                request: request,
+                shioriScript: shioriScript
+            )
+        }
     }
 
     private static func isLocalOrigin(_ origin: String) -> Bool {

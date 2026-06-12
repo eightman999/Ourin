@@ -28,5 +28,8 @@ private:
     std::unique_ptr<VM> vm_;
     std::vector<std::string> loadedDicFiles_;  // Paths of successfully loaded dic files
     std::string loadFile(const std::string& path);
+    std::string decodeContent(const std::string& raw,
+                              const std::string& encoding,
+                              const std::string& filename);
     bool parseDictionary(const std::string& content);
 };

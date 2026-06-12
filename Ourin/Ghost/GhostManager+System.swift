@@ -1082,6 +1082,11 @@ extension GhostManager {
     func executeVanish() {
         Log.info("[GhostManager] Ghost terminating (vanish)")
         let currentName = ghostConfig?.name ?? ghostURL.lastPathComponent
+        // OnFirstBoot の Reference0（vanish された回数）用に記録する
+        let defaults = UserDefaults.standard
+        defaults.set(defaults.integer(forKey: "OurinVanishCount") + 1, forKey: "OurinVanishCount")
+        // 次回起動を初回扱い（OnFirstBoot）にする
+        defaults.set(0, forKey: "OurinBootCount")
         
         DispatchQueue.main.async {
             // Trigger OnVanished event first

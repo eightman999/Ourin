@@ -144,7 +144,6 @@ public enum EventID: String, CaseIterable {
     case OnFileDropping = "OnFileDropping"
     case OnFind = "OnFind"
     case OnFirstBoot = "OnFirstBoot"
-    case OnSecondBoot = "OnSecondBoot"
     case OnFleetClockComplete = "OnFleetClockComplete"
     case OnFullScreenAppMinimize = "OnFullScreenAppMinimize"
     case OnFullScreenAppRestore = "OnFullScreenAppRestore"

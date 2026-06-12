@@ -1708,59 +1708,148 @@ void VM::registerBuiltins() {
     };
     
     // ===== Regular Expression Functions (std::regex-based) =====
-    // RE_SEARCH(pattern, str) - Search for pattern; return start index or -1
-    builtins_["RE_SEARCH"] = [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value(-1);
-        try {
-            std::regex re(args[0].asString());
-            std::smatch m;
-            std::string s = args[1].asString();
-            if (std::regex_search(s, m, re)) {
-                return Value(static_cast<int>(m.position()));
-            }
-            return Value(-1);
-        } catch (...) { return Value(-1); }
+    // NOTE: 本家 YAYA と同じく、検索系 RE_* は直近のマッチ結果を保持し、
+    //       RE_GETSTR / RE_GETPOS / RE_GETLEN で取得できる。
+    //       引数順も本家準拠: RE_xxx(対象文字列, パターン)。
+    //       （旧実装は (パターン, 文字列) 順だったが本家は (str, pattern)）
+
+    // RE_OPTION を反映した std::regex を生成する
+    auto makeRegex = [this](const std::string& pattern) {
+        auto flags = std::regex::ECMAScript;
+        if (reOptions_ & 1) flags |= std::regex::icase;
+        if (reOptions_ & 2) flags |= std::regex::multiline;
+        return std::regex(pattern, flags);
     };
-    
-    // RE_MATCH(pattern, str) - Full match; return 1/0
-    builtins_["RE_MATCH"] = [](const std::vector<Value>& args) -> Value {
+
+    auto clearReState = [this]() {
+        reMatchStrings_.clear();
+        reMatchPositions_.clear();
+        reMatchLengths_.clear();
+    };
+
+    // マッチ結果（グループ含む）を保存する
+    auto storeMatch = [this](const std::smatch& m) {
+        for (size_t i = 0; i < m.size(); ++i) {
+            reMatchStrings_.emplace_back(m[i].str());
+            if (m[i].matched) {
+                reMatchPositions_.emplace_back(static_cast<int>(m.position(i)));
+                reMatchLengths_.emplace_back(static_cast<int>(m.length(i)));
+            } else {
+                reMatchPositions_.emplace_back(-1);
+                reMatchLengths_.emplace_back(-1);
+            }
+        }
+    };
+
+    // RE_SEARCH(str, pattern) - Search for pattern; return 1/0 (マッチ結果は RE_GET* で取得)
+    builtins_["RE_SEARCH"] = [this, makeRegex, clearReState, storeMatch](const std::vector<Value>& args) -> Value {
+        clearReState();
         if (args.size() < 2) return Value(0);
-        try { return Value(std::regex_match(args[1].asString(), std::regex(args[0].asString())) ? 1 : 0); }
-        catch (...) { return Value(0); }
-    };
-    
-    // RE_GREP(pattern, str) - Return all matches as array
-    builtins_["RE_GREP"] = [](const std::vector<Value>& args) -> Value {
-        std::vector<Value> out;
-        if (args.size() < 2) return Value(out);
         try {
-            std::regex re(args[0].asString());
-            const std::string s = args[1].asString();
-            for (std::sregex_iterator it(s.begin(), s.end(), re), end; it != end; ++it) {
-                out.emplace_back((*it).str());
+            std::regex re = makeRegex(args[1].asString());
+            std::smatch m;
+            std::string s = args[0].asString();
+            if (std::regex_search(s, m, re)) {
+                storeMatch(m);
+                return Value(1);
             }
-        } catch (...) {}
-        return Value(out);
+            return Value(0);
+        } catch (const std::exception& e) {
+            std::cerr << "[VM] RE_SEARCH regex error: " << e.what() << std::endl;
+            return Value(0);
+        }
     };
-    
-    // RE_REPLACE(pattern, str, replacement) - Replace all occurrences
-    builtins_["RE_REPLACE"] = [](const std::vector<Value>& args) -> Value {
+
+    // RE_MATCH(str, pattern) - Full match; return 1/0
+    builtins_["RE_MATCH"] = [this, makeRegex, clearReState, storeMatch](const std::vector<Value>& args) -> Value {
+        clearReState();
+        if (args.size() < 2) return Value(0);
+        try {
+            std::regex re = makeRegex(args[1].asString());
+            std::smatch m;
+            std::string s = args[0].asString();
+            if (std::regex_match(s, m, re)) {
+                storeMatch(m);
+                return Value(1);
+            }
+            return Value(0);
+        } catch (const std::exception& e) {
+            std::cerr << "[VM] RE_MATCH regex error: " << e.what() << std::endl;
+            return Value(0);
+        }
+    };
+
+    // RE_GREP(str, pattern) - Return match count; matches stored for RE_GET*
+    builtins_["RE_GREP"] = [this, makeRegex, clearReState](const std::vector<Value>& args) -> Value {
+        clearReState();
+        if (args.size() < 2) return Value(0);
+        int count = 0;
+        try {
+            std::regex re = makeRegex(args[1].asString());
+            const std::string s = args[0].asString();
+            for (std::sregex_iterator it(s.begin(), s.end(), re), end; it != end; ++it) {
+                reMatchStrings_.emplace_back(it->str());
+                reMatchPositions_.emplace_back(static_cast<int>(it->position()));
+                reMatchLengths_.emplace_back(static_cast<int>(it->length()));
+                ++count;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "[VM] RE_GREP regex error: " << e.what() << std::endl;
+        }
+        return Value(count);
+    };
+
+    // RE_GETSTR() - 直近マッチの文字列群（汎用配列）
+    builtins_["RE_GETSTR"] = [this](const std::vector<Value>&) -> Value {
+        return Value(reMatchStrings_);
+    };
+
+    // RE_GETPOS() - 直近マッチの開始位置群
+    builtins_["RE_GETPOS"] = [this](const std::vector<Value>&) -> Value {
+        return Value(reMatchPositions_);
+    };
+
+    // RE_GETLEN() - 直近マッチの長さ群
+    builtins_["RE_GETLEN"] = [this](const std::vector<Value>&) -> Value {
+        return Value(reMatchLengths_);
+    };
+
+    // RE_OPTION(flags) - 以降の RE_* のオプションを設定（bit0: 大小無視, bit1: 複数行）
+    builtins_["RE_OPTION"] = [this](const std::vector<Value>& args) -> Value {
+        int prev = reOptions_;
+        if (!args.empty()) {
+            reOptions_ = args[0].asInt();
+        }
+        return Value(prev);
+    };
+
+    // RE_REPLACE(str, pattern, replacement) - Replace all occurrences
+    builtins_["RE_REPLACE"] = [this, makeRegex](const std::vector<Value>& args) -> Value {
         if (args.size() < 3) return Value("");
         try {
-            return Value(std::regex_replace(args[1].asString(), std::regex(args[0].asString()), args[2].asString()));
-        } catch (...) { return args[1]; }
+            return Value(std::regex_replace(args[0].asString(), makeRegex(args[1].asString()), args[2].asString()));
+        } catch (const std::exception& e) {
+            std::cerr << "[VM] RE_REPLACE regex error: " << e.what() << std::endl;
+            return args[0];
+        }
     };
+
+    // RE_REPLACEEX(str, pattern, replacement) - $0/$1 等の後方参照を使った置換
+    // std::regex_replace は ECMAScript 形式 ($1) をそのまま解釈するため同実装で良い
+    builtins_["RE_REPLACEEX"] = builtins_["RE_REPLACE"];
     
-    // RE_SPLIT(pattern, str) - Split by regex
-    builtins_["RE_SPLIT"] = [](const std::vector<Value>& args) -> Value {
+    // RE_SPLIT(str, pattern) - Split by regex（本家準拠の引数順）
+    builtins_["RE_SPLIT"] = [this, makeRegex](const std::vector<Value>& args) -> Value {
         std::vector<Value> out;
         if (args.size() < 2) return Value(out);
         try {
-            std::regex re(args[0].asString());
-            const std::string s = args[1].asString();
+            std::regex re = makeRegex(args[1].asString());
+            const std::string s = args[0].asString();
             std::sregex_token_iterator it(s.begin(), s.end(), re, -1), end;
             for (; it != end; ++it) out.emplace_back(it->str());
-        } catch (...) {}
+        } catch (const std::exception& e) {
+            std::cerr << "[VM] RE_SPLIT regex error: " << e.what() << std::endl;
+        }
         return Value(out);
     };
     

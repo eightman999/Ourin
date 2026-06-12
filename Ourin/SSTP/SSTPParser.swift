@@ -17,7 +17,8 @@ public enum SSTPParser {
             if let idx = line.firstIndex(of: ":") {
                 let key = String(line[..<idx]).trimmingCharacters(in: .whitespaces)
                 let value = String(line[line.index(after: idx)...]).trimmingCharacters(in: .whitespaces)
-                req.headers[key] = value
+                // IfGhost/Script の対応付けや重複 Option のため受信順のまま追加する
+                req.appendHeader(key, value)
             }
         }
         return req

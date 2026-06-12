@@ -229,6 +229,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var pendingChoices: [(title: String, action: ChoiceAction)] = []
     var choiceHasCancelOption: Bool = false
     var choiceTimeout: TimeInterval? = nil
+    /// \* 指定（このスクリプトの選択肢をタイムアウトさせない）
+    var choiceTimeoutDisabled: Bool = false
     var localEventTimers: [String: Timer] = [:]
     var remoteEventTimers: [String: Timer] = [:]
     var pluginEventTimers: [String: Timer] = [:]
@@ -238,6 +240,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var passiveModeActive: Bool = false
     var inductionModeActive: Bool = false
     var noUserBreakModeActive: Bool = false
+    /// \t タイムクリティカルセクション中（スクリプトブレークまたは \e まで、マウス系イベント通知を抑止）
+    var timeCriticalActive: Bool = false
+
+    // 終了シーケンス管理（OnClose 応答再生 → \- → 終了確定）
+    var isShuttingDown: Bool = false
+    var awaitingTerminateReply: Bool = false
+    var didFinalizeTermination: Bool = false
+    var terminateAfterPlayback: Bool = false
 
     // Dressup configuration
     var dressupConfigurations: [DressupConfig] = []
@@ -561,12 +571,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             // yaya.txt から辞書リストを読み込む（順序が重要）
             // includeディレクティブも再帰的に処理する
             var dics: [String] = []
+            var dicCharset: String? = nil
             let yayaTxtPath = ghostRoot.appendingPathComponent("yaya.txt")
             if let yayaContent = (try? String(contentsOf: yayaTxtPath, encoding: .utf8)) ??
                                  (try? String(contentsOf: yayaTxtPath, encoding: .shiftJIS)) {
                 Log.debug("[GhostManager] Found yaya.txt, parsing dictionary list with includes...")
-                parseYayaConfigFile(content: yayaContent, baseURL: ghostRoot, dicFiles: &dics, visited: [])
-                Log.debug("[GhostManager] Found \(dics.count) dictionaries (including from includes): \(dics.prefix(5))...")
+                parseYayaConfigFile(content: yayaContent, baseURL: ghostRoot, dicFiles: &dics, charset: &dicCharset, visited: [])
+                Log.debug("[GhostManager] Found \(dics.count) dictionaries (including from includes, charset: \(dicCharset ?? "auto")): \(dics.prefix(5))...")
             } else {
                 // yaya.txt がない場合は全ファイルをロード
                 dics = contents.filter { $0.pathExtension.lowercased() == "dic" }.map { $0.lastPathComponent }
@@ -591,7 +602,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             // 全辞書をロード（yaya_coreが並列化やキャッシュで最適化すべき）
             Log.debug("[GhostManager] Starting dictionary load...")
             let loadStart = Date()
-            guard adapter.load(ghostRoot: ghostRoot, dics: dics) else {
+            guard adapter.load(ghostRoot: ghostRoot, dics: dics, encoding: dicCharset ?? "auto") else {
                 Log.info("[GhostManager] Failed to load ghost with Yaya.")
                 return
             }
@@ -601,7 +612,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             let defaults = UserDefaults.standard
             let bootCount = defaults.integer(forKey: "OurinBootCount")
 
-            // Per UKADOC, OnFirstBoot/OnSecondBoot/OnBoot are GET events (not NOTIFY).
+            // Per UKADOC, OnFirstBoot/OnBoot are GET events (not NOTIFY).
             // Only emit an internal OnInitialize notify; GET is handled below via obtainBootScript().
             DispatchQueue.main.async {
                 EventBridge.shared.notify(.OnInitialize)
@@ -647,12 +658,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             if let config = self.ghostConfig {
                 DispatchQueue.main.async {
                     self.sendInitializationNotifies(config: config)
+                    NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
                 }
             }
         }
     }
 
     func shutdown() {
+        NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         NotificationCenter.default.removeObserver(self)
         for timer in localEventTimers.values {
             timer.invalidate()
@@ -677,6 +690,136 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     // MARK: - Scripting
 
+    /// 今すぐトークを再生してよい状態かどうか（OnSecondChange 等の Reference3 / GET・NOTIFY 切替に使用）。
+    /// 再生中・タイムクリティカルセクション中・受動/誘導モード中は false。
+    func canPlayTalkNow() -> Bool {
+        return !isPlaying && !timeCriticalActive && !passiveModeActive && !inductionModeActive
+    }
+
+    // MARK: - Termination sequence
+
+    /// 終了シーケンスを開始する。OnClose を GET で送り、応答スクリプト（お別れトーク、通常は末尾 \-）を
+    /// 再生してから終了する（UKADOC）。
+    /// - Parameters:
+    ///   - reason: OnClose の Reference0（user / system 等）
+    ///   - replyToTermination: applicationShouldTerminate から呼ばれた場合 true（reply で完了を通知する）
+    /// - Returns: シーケンスを開始した場合 true（既に終了処理中なら false）
+    @discardableResult
+    func beginCloseSequence(reason: String = "user", replyToTermination: Bool = false) -> Bool {
+        guard !isShuttingDown else { return false }
+        isShuttingDown = true
+        awaitingTerminateReply = replyToTermination
+        Log.info("[GhostManager] Close sequence started (reason: \(reason))")
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            var script = ""
+            if let yaya = self.yayaAdapter {
+                let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
+                if let r = yaya.request(method: "GET", id: "OnClose", headers: hdrs, refs: [reason], timeout: 4.0),
+                   r.ok, let v = r.value {
+                    script = v.trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+            } else {
+                script = BridgeToSHIORI.handle(event: "OnClose", references: [reason])
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            DispatchQueue.main.async {
+                if script.isEmpty {
+                    self.finalizeTermination()
+                } else {
+                    // \- が含まれていなくても再生完了後に終了できるようフラグを立てる
+                    self.terminateAfterPlayback = true
+                    self.runScript(script)
+                }
+            }
+        }
+        return true
+    }
+
+    /// ゴースト終了を確定する（\- ハンドラ／OnClose 応答再生完了から呼ばれる）。
+    func finalizeTermination() {
+        guard !didFinalizeTermination else { return }
+        didFinalizeTermination = true
+        isShuttingDown = true
+        Log.info("[GhostManager] Finalizing ghost termination")
+        DispatchQueue.main.async {
+            if self.awaitingTerminateReply {
+                self.awaitingTerminateReply = false
+                NSApp.reply(toApplicationShouldTerminate: true)
+            } else {
+                NSApplication.shared.terminate(nil)
+            }
+        }
+    }
+
+    // MARK: - Entity reference / Jump
+
+    /// \&[ID] の実体参照を解決する。数値文字参照（#NNN / #xHHHH）と主要な名前付き実体に対応。
+    static func resolveEntityReference(_ id: String) -> String? {
+        // 数値文字参照: #123 / #x30A2 / 0x30A2
+        if id.hasPrefix("#") || id.lowercased().hasPrefix("0x") {
+            var body = id.hasPrefix("#") ? String(id.dropFirst()) : String(id.dropFirst(2))
+            var radix = 10
+            if body.lowercased().hasPrefix("x") {
+                body = String(body.dropFirst())
+                radix = 16
+            } else if id.lowercased().hasPrefix("0x") {
+                radix = 16
+            }
+            guard let value = UInt32(body, radix: radix), let scalar = UnicodeScalar(value) else { return nil }
+            return String(scalar)
+        }
+        // 名前付き実体（HTML互換の主要なもの）
+        let named: [String: String] = [
+            "amp": "&", "lt": "<", "gt": ">", "quot": "\"", "apos": "'", "nbsp": "\u{00A0}",
+            "copy": "©", "reg": "®", "trade": "™", "hellip": "…", "mdash": "—", "ndash": "–"
+        ]
+        return named[id.lowercased()]
+    }
+
+    /// \j[ID] - ジャンプタグ。URL/ファイルはオープン、それ以外はイベント起動（raise 相当）として扱う。
+    func handleJumpCommand(args: [String]) {
+        guard let target = args.first?.trimmingCharacters(in: .whitespaces), !target.isEmpty else {
+            Log.info("[GhostManager] \\j with no target (ignored)")
+            return
+        }
+        let lowered = target.lowercased()
+        if lowered.hasPrefix("http://") || lowered.hasPrefix("https://") {
+            // URLジャンプ: 既定ブラウザで開く
+            playbackQueue.append(.deferredCommand {
+                if let url = URL(string: target) {
+                    Log.info("[GhostManager] \\j opening URL: \(target)")
+                    NSWorkspace.shared.open(url)
+                }
+            })
+        } else if lowered.hasPrefix("file://") {
+            playbackQueue.append(.deferredCommand {
+                if let url = URL(string: target) {
+                    Log.info("[GhostManager] \\j opening file: \(target)")
+                    NSWorkspace.shared.open(url)
+                }
+            })
+        } else if target.hasPrefix("On") || target.hasPrefix("\\") == false && lowered.hasPrefix("on") {
+            // イベントジャンプ: SHIORI へ GET し、返値スクリプトを再生する
+            let references = Array(args.dropFirst())
+            playbackQueue.append(.deferredCommand { [weak self] in
+                guard let self else { return }
+                DispatchQueue.global(qos: .userInitiated).async {
+                    guard let yaya = self.yayaAdapter,
+                          let r = yaya.request(method: "GET", id: target, headers: ["Charset": "UTF-8"], refs: references, timeout: 3.0),
+                          r.ok, let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines), !v.isEmpty else {
+                        Log.info("[GhostManager] \\j[\(target)] event jump returned no script")
+                        return
+                    }
+                    DispatchQueue.main.async { self.runScript(v) }
+                }
+            })
+        } else {
+            // TODO: スクリプト内ラベルへのジャンプ等は未対応
+            Log.info("[GhostManager] \\j[\(target)] - unsupported jump target (ignored)")
+        }
+    }
+
     func runScript(_ script: String) {
         let preview = script.prefix(200)
         Log.debug("[GhostManager] runScript called with: \(preview)")
@@ -689,6 +832,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         isPlaying = false
         quickMode = false
         preciseBase = Date()
+        // 新しいスクリプト開始 = スクリプトブレーク扱い: タイムクリティカル区間と \* 指定を解除
+        timeCriticalActive = false
+        choiceTimeoutDisabled = false
         for vm in balloonViewModels.values {
             vm.text = ""
             vm.anchorActive = false
@@ -711,6 +857,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             isPlaying = false
             quickMode = false
             preciseBase = Date()
+            timeCriticalActive = false
+            choiceTimeoutDisabled = false
             for vm in balloonViewModels.values {
                 vm.text = ""
                 vm.anchorActive = false
@@ -766,44 +914,55 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             }
         // New token types - added for comprehensive Sakura Script support
         case .wait:
-            // \t - Quick wait (short pause, not click wait)
-            // According to Sakura Script spec, \t is a brief pause, not a click wait
-            // Click wait should be done with \x or \_w commands
-            playbackQueue.append(.wait(0.1)) // 100ms pause
-        
+            // \t - タイムクリティカルセクション（UKADOC）。
+            // スクリプトブレークまたは \e までマウス系イベント通知を抑止する（ポーズではない）。
+            playbackQueue.append(.deferredCommand { [weak self] in
+                self?.timeCriticalActive = true
+            })
+
         case .endConversation(let clearBalloon):
             // \x or \x[noclear] - End conversation
             playbackQueue.append(.clickWait(noclear: !clearBalloon))
-        
+
         case .choiceCancel:
             // \z - Choice cancellation
             Log.debug("[GhostManager] Choice cancel marker")
             choiceHasCancelOption = true
-        
+
         case .choiceMarker:
-            // \* - Choice marker (indicates start of choice section)
-            Log.debug("[GhostManager] Choice marker - displaying choices")
-            // Display accumulated choices
-            showChoiceDialog()
-        
+            // \* - このスクリプトの選択肢をタイムアウトさせない（UKADOC）
+            Log.debug("[GhostManager] \\* - disabling choice timeout for this script")
+            choiceTimeout = nil
+            choiceTimeoutDisabled = true
+
         case .anchor:
-            // \a - Anchor marker (for clickable text)
-            Log.debug("[GhostManager] Anchor marker")
-            // Anchor is similar to choice but inline in text
-            // For now, treat as choice marker
-            showChoiceDialog()
-        
+            // \a - 旧仕様: OnAITalk（ランダムトーク）を発生させる（UKADOC）。
+            // GET で送り、返値スクリプトがあれば再生する。
+            Log.debug("[GhostManager] \\a - raising OnAITalk (legacy)")
+            playbackQueue.append(.deferredCommand { [weak self] in
+                guard let self else { return }
+                DispatchQueue.global(qos: .userInitiated).async {
+                    guard let yaya = self.yayaAdapter,
+                          let r = yaya.request(method: "GET", id: "OnAITalk", timeout: 3.0), r.ok,
+                          let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines), !v.isEmpty else { return }
+                    DispatchQueue.main.async { self.runScript(v) }
+                }
+            })
+
         case .choiceLineBr:
-            // \- - line break in choice context / compatibility newline.
-            playbackQueue.append(.newline)
-        
+            // \- - 当該ゴーストの終了（UKADOC）。先行テキストの表示後に終了処理を行う。
+            Log.info("[GhostManager] \\- - ghost termination requested by script")
+            playbackQueue.append(.deferredCommand { [weak self] in
+                self?.finalizeTermination()
+            })
+
         case .moveAway:
-            // \4 - Move window to back (away from other windows)
-            moveWindowToBack(scope: currentScope)
-        
+            // \4 - 相方キャラクターから離れる方向へ移動（UKADOC）
+            moveAwayFromPartner(scope: currentScope)
+
         case .moveClose:
-            // \5 - Move window to front (close to user)
-            moveWindowToFront(scope: currentScope)
+            // \5 - 相方キャラクターと接触する距離まで移動（UKADOC）
+            moveTowardPartner(scope: currentScope)
         
         case .bootGhost:
             // \+ - Boot/call other ghost via SSTP
@@ -817,15 +976,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             bootAllGhosts()
         
         case .openPreferences:
-            // \v - Open preferences dialog
-            DispatchQueue.main.async {
-                // Open Settings window (macOS 13+) or Preferences (older macOS)
-                if #available(macOS 13, *) {
-                    NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-                } else {
-                    NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
-                }
-            }
+            // \v - このスクリプト以降、最前面表示（stay-on-top）にする（UKADOC）。
+            // 旧実装の「設定ウィンドウを開く」は誤り。
+            playbackQueue.append(.deferredCommand { [weak self] in
+                self?.setWindowState(state: "stayontop")
+            })
         
         case .openURL:
             // \6 - execute SNTP correction action (ukadoc semantics)
@@ -840,6 +995,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             playSound(filename: filename)
         
         case .command(let name, let args):
+            // SakuraScript タグは大文字小文字を区別する（\_V=再生完了待ち と \_v=再生 は別タグ）。
+            // 下の switch は小文字化して照合するため、大文字を含むタグはここで先に分岐する。
+            if name == "_V" {
+                // \_V - wait for currently playing voice/sound to complete
+                let duration = estimatedSoundWaitDuration()
+                if duration > 0 {
+                    playbackQueue.append(.wait(duration))
+                }
+                break
+            }
             switch name.lowercased() {
             case "w":
                 if let first = args.first, let n = Int(first) {
@@ -1561,7 +1726,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         case "choicetimeout":
                             // \![set,choicetimeout,time]
                             if args.count >= 3, let timeoutMs = Double(args[2]) {
-                                choiceTimeout = timeoutMs > 0 ? timeoutMs / 1000.0 : nil
+                                // \* で「このスクリプトの選択肢をタイムアウトさせない」指定中は上書きしない
+                                if !choiceTimeoutDisabled {
+                                    choiceTimeout = timeoutMs > 0 ? timeoutMs / 1000.0 : nil
+                                }
                                 Log.debug("[GhostManager] Choice timeout set to: \(choiceTimeout ?? -1)s")
                             }
                         case "balloonwait":
@@ -2020,15 +2188,18 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 }
 
             case "&":
-                // \&[ID] - compatibility anchor/event marker
-                if let eventID = args.first, !eventID.isEmpty {
-                    pendingAnchorAction = .event(id: eventID, references: Array(args.dropFirst()))
-                    EventBridge.shared.notifyCustom("OnAnchorEnter", params: ["Reference0": eventID])
-                    EventBridge.shared.notifyCustom("OnAnchorHover", params: ["Reference0": eventID])
-                    if let vm = balloonViewModels[currentScope] {
-                        vm.anchorActive = true
+                // \&[ID] - 識別子による実体参照（UKADOC）。アンカーイベントではない。
+                if let entityID = args.first, !entityID.isEmpty {
+                    if let text = Self.resolveEntityReference(entityID) {
+                        playbackQueue.append(.textChunk(text))
+                    } else {
+                        Log.info("[GhostManager] \\&[\(entityID)] - unknown entity reference (ignored)")
                     }
                 }
+
+            case "j":
+                // \j[ID] - ジャンプ（UKADOC）。URL はブラウザで開く。イベントIDは raise 相当。
+                handleJumpCommand(args: args)
 
             case "m":
                 // \m[umsg,wparam,lparam] - message dispatch
@@ -2036,13 +2207,6 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     var refs = [umsg]
                     refs.append(contentsOf: Array(args.dropFirst()))
                     _ = requestDialogEvent(eventID: "OnMessage", references: refs)
-                }
-            
-            case "_V":
-                // \_V - wait for currently playing voice/sound to complete
-                let duration = estimatedSoundWaitDuration()
-                if duration > 0 {
-                    playbackQueue.append(.wait(duration))
                 }
             
             case "c":
@@ -2234,7 +2398,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func processNextUnit() {
         // Process immediate units (scope/surface/end) without delay; delay only text/newline
         while true {
-            guard !playbackQueue.isEmpty else { isPlaying = false; return }
+            guard !playbackQueue.isEmpty else {
+                isPlaying = false
+                // OnClose 応答スクリプトの再生完了後に終了する（スクリプトが \- を含まない場合の保険）
+                if terminateAfterPlayback {
+                    finalizeTermination()
+                }
+                return
+            }
             let unit = playbackQueue.removeFirst()
             switch unit {
             case .scope(let id):
@@ -2273,6 +2444,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 quickMode = false
                 syncEnabled = false
                 appendModeEnabled = false
+                // \e でタイムクリティカルセクション終了（UKADOC: \t はスクリプトブレークか \e まで）
+                timeCriticalActive = false
                 continue
             case .resetPrecise:
                 preciseBase = Date()
@@ -2329,13 +2502,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     }
 
     /// Try to obtain a boot script in order:
-    /// 1) GET OnFirstBoot/OnSecondBoot (first/second launch)
-    /// 2) GET OnBoot (YAYA)
+    /// 1) 初回起動のみ GET OnFirstBoot（Reference0 = vanish回数）
+    /// 2) GET OnBoot（Reference0 = シェル名。2回目以降の起動もすべて OnBoot。UKADOC に OnSecondBoot は存在しない）
     /// 3) BridgeToSHIORI for OnBoot
     /// 4) Built-in minimal greeting
     private func obtainBootScript(using adapter: YayaAdapter, bootCount: Int) -> String? {
+        let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
         if bootCount == 0 {
-            if let r = adapter.request(method: "GET", id: "OnFirstBoot", timeout: 4.0), r.ok {
+            // UKADOC: OnFirstBoot Reference0 = vanish された回数（通常 0）
+            let vanishCount = UserDefaults.standard.integer(forKey: "OurinVanishCount")
+            if let r = adapter.request(method: "GET", id: "OnFirstBoot", headers: hdrs, refs: [String(vanishCount)], timeout: 4.0), r.ok {
                 let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                 let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
                 NSLog("[GhostManager] OnFirstBoot response: ok=true, len=\(v.count), preview=\(pv)")
@@ -2343,19 +2519,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             } else {
                 NSLog("[GhostManager] OnFirstBoot request failed or no response")
             }
-        } else if bootCount == 1 {
-            if let r = adapter.request(method: "GET", id: "OnSecondBoot", timeout: 4.0), r.ok {
-                let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-                let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
-                NSLog("[GhostManager] OnSecondBoot response: ok=true, len=\(v.count), preview=\(pv)")
-                if !v.isEmpty { return v }
-            } else {
-                NSLog("[GhostManager] OnSecondBoot request failed or no response")
-            }
         }
 
-        // 2) OnBoot
-        if let r = adapter.request(method: "GET", id: "OnBoot", timeout: 4.0), r.ok {
+        // 2) OnBoot（UKADOC: Reference0 = 起動したシェル名）
+        let shellName = activeShellName
+        if let r = adapter.request(method: "GET", id: "OnBoot", headers: hdrs, refs: [shellName], timeout: 4.0), r.ok {
             let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
             NSLog("[GhostManager] OnBoot response: ok=true, len=\(v.count), preview=\(pv)")
@@ -2365,7 +2533,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
 
         // 3) Bridge fallback
-        let bridge = BridgeToSHIORI.handle(event: "OnBoot", references: [])
+        let bridge = BridgeToSHIORI.handle(event: "OnBoot", references: [shellName])
         let bv = bridge.trimmingCharacters(in: .whitespacesAndNewlines)
         if !bv.isEmpty {
             NSLog("[GhostManager] BridgeToSHIORI fallback used (len=\(bv.count))")

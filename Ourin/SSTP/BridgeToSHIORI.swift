@@ -114,7 +114,6 @@ public enum BridgeToSHIORI {
 // MARK: - Internal SHIORI host bridge
 private final class ShioriHost {
     private let loader: ShioriLoader
-    private var negotiatedProtocol = "SHIORI/3.0"
 
     init?(bundlePath: String) {
         let moduleURL = URL(fileURLWithPath: bundlePath)
@@ -128,48 +127,23 @@ private final class ShioriHost {
     deinit { loader.unload() }
 
     func request(event: String, references: [String], headers: [String: String] = [:]) -> String? {
-        func buildRequest(version: String) -> String {
-            var lines = [
-                "GET \(version)",
-                "Charset: UTF-8",
-                "Sender: Ourin",
-                "ID: \(event)"
-            ]
-            for (i, ref) in references.enumerated() {
-                lines.append("Reference\(i): \(ref)")
-            }
-            for (key, value) in headers {
-                lines.append("\(key): \(value)")
-            }
-            lines.append("")
-            return lines.joined(separator: "\r\n") + "\r\n"
+        // SHIORI/2.x はバイナリ IPC ベースで 3.0 と全く互換性がない。
+        // 過去の「3.0 形式ヘッダで 2.6 を名乗る」フォールバックは 2.x 実装には届かないため削除し、
+        // 3.0 一本に統一する（旧式 SHIORI が必要な場合は別途 ShioriLoader を拡張する）。
+        var lines = [
+            "GET SHIORI/3.0",
+            "Charset: UTF-8",
+            "Sender: Ourin",
+            "ID: \(event)"
+        ]
+        for (i, ref) in references.enumerated() {
+            lines.append("Reference\(i): \(ref)")
         }
-
-        func send(_ req: String) -> String? {
-            loader.request(req)
+        for (key, value) in headers {
+            lines.append("\(key): \(value)")
         }
-
-        func statusCode(_ response: String) -> Int? {
-            guard let firstLine = response.components(separatedBy: "\r\n").first else { return nil }
-            let parts = firstLine.split(separator: " ")
-            guard parts.count >= 2 else { return nil }
-            return Int(parts[1])
-        }
-
-        let response = send(buildRequest(version: negotiatedProtocol))
-        if negotiatedProtocol == "SHIORI/3.0", let response, let code = statusCode(response), code == 400 || code == 505 {
-            if let legacy = send(buildRequest(version: "SHIORI/2.6")) {
-                negotiatedProtocol = "SHIORI/2.6"
-                return legacy
-            }
-            return response
-        }
-        if response == nil, negotiatedProtocol == "SHIORI/3.0" {
-            if let legacy = send(buildRequest(version: "SHIORI/2.6")) {
-                negotiatedProtocol = "SHIORI/2.6"
-                return legacy
-            }
-        }
-        return response
+        lines.append("")
+        let req = lines.joined(separator: "\r\n") + "\r\n"
+        return loader.request(req)
     }
 }

@@ -92,23 +92,33 @@ public final class PropertyManager {
         return didSet
     }
 
+    /// 動的に値が変わる名前空間はキャッシュしない（system.second / system.cursor.pos 等が
+    /// 初回取得値で固定されるのを防ぐ）。
+    private static let uncachedPrefixes: Set<String> = ["system"]
+
     public func get(_ key: String) -> String? {
         let lower = key.lowercased()
-        if let cached = valueCache[lower] {
-            return cached
-        }
-        if missingValueCache.contains(lower) {
-            return nil
-        }
         guard let dot = lower.firstIndex(of: ".") else { return nil }
         let prefix = String(lower[..<dot])
+        let cacheable = !Self.uncachedPrefixes.contains(prefix)
+
+        if cacheable {
+            if let cached = valueCache[lower] {
+                return cached
+            }
+            if missingValueCache.contains(lower) {
+                return nil
+            }
+        }
         let rest = String(lower[lower.index(after: dot)...])
         guard let provider = providers[prefix] else { return nil }
         let value = provider.get(key: rest)
-        if let value {
-            valueCache[lower] = value
-        } else {
-            missingValueCache.insert(lower)
+        if cacheable {
+            if let value {
+                valueCache[lower] = value
+            } else {
+                missingValueCache.insert(lower)
+            }
         }
         return value
     }

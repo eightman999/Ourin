@@ -126,7 +126,7 @@ std::string YayaCore::processCommand(const std::string &line) {
         } else if (cmd == "load") {
             std::string ghostRoot = req.value("ghost_root", "");
             std::vector<std::string> dicNames = req.value("dic", std::vector<std::string>{});
-            std::string encoding = req.value("encoding", "UTF-8");
+            std::string encoding = req.value("encoding", "auto");
             
             // Build full paths from ghost_root and dic names
             std::vector<std::string> dicPaths;
@@ -181,29 +181,58 @@ std::string YayaCore::processCommand(const std::string &line) {
             shioriReq += "\r\n";
 
             std::string value;
+            // SHIORI 応答の全ヘッダ（Value 以外も Swift 側へ引き渡す: Reference0 / ValueNotify / Status / Balloon 等）
+            json shioriHeaders = json::object();
+            shioriHeaders["Charset"] = "UTF-8";
+            int shioriStatus = 0;
+
             // Try YAYA framework's `request` function first (handles event dispatch, SHIORI3FW.* setup)
             bool usedFramework = false;
             if (dictManager.hasFunction("request")) {
-                value = dictManager.execute("request", {shioriReq});
+                std::string raw = dictManager.execute("request", {shioriReq});
                 usedFramework = true;
-                // The YAYA framework returns a full SHIORI protocol response.
-                // For GET: "SHIORI/3.0 200 OK\r\nValue: <script>\r\n...\r\n"
-                // For NOTIFY: "SHIORI/3.0 204 No Content\r\n...\r\n"
-                // Extract the Value: header content as the script.
-                std::string extracted;
-                std::string searchKey = "Value: ";
-                auto valPos = value.find(searchKey);
-                if (valPos != std::string::npos) {
-                    auto valStart = valPos + searchKey.length();
-                    auto valEnd = value.find("\r\n", valStart);
-                    if (valEnd != std::string::npos) {
-                        extracted = value.substr(valStart, valEnd - valStart);
+                // The YAYA framework returns a full SHIORI protocol response:
+                //   "SHIORI/3.0 200 OK\r\nValue: <script>\r\nReference0: ...\r\n\r\n"
+                // ヘッダ単位でパースする（"Value: " の部分文字列検索は本文中の同文字列を誤検出するため行わない）。
+                size_t lineStart = 0;
+                bool firstLine = true;
+                while (lineStart <= raw.size()) {
+                    size_t lineEnd = raw.find("\r\n", lineStart);
+                    std::string line;
+                    if (lineEnd == std::string::npos) {
+                        line = raw.substr(lineStart);
+                        lineStart = raw.size() + 1;
                     } else {
-                        extracted = value.substr(valStart);
+                        line = raw.substr(lineStart, lineEnd - lineStart);
+                        lineStart = lineEnd + 2;
                     }
+                    if (line.empty()) break; // 空行 = ヘッダ終端
+                    if (firstLine) {
+                        firstLine = false;
+                        // "SHIORI/3.0 200 OK" からステータスコードを取り出す
+                        auto sp1 = line.find(' ');
+                        if (sp1 != std::string::npos) {
+                            auto sp2 = line.find(' ', sp1 + 1);
+                            std::string codeStr = (sp2 == std::string::npos)
+                                ? line.substr(sp1 + 1)
+                                : line.substr(sp1 + 1, sp2 - sp1 - 1);
+                            try { shioriStatus = std::stoi(codeStr); } catch (...) {}
+                        }
+                        continue;
+                    }
+                    auto colon = line.find(':');
+                    if (colon == std::string::npos) continue;
+                    std::string key = line.substr(0, colon);
+                    std::string val = line.substr(colon + 1);
+                    // 先頭の空白を1つだけ除去（"Key: Value" 形式）
+                    if (!val.empty() && val.front() == ' ') val.erase(0, 1);
+                    if (key == "Value") {
+                        value = val;
+                    }
+                    shioriHeaders[key] = val;
                 }
-                value = extracted;
-                std::cerr << "[YayaCore] Used YAYA framework request() dispatcher" << std::endl;
+                std::cerr << "[YayaCore] Used YAYA framework request() dispatcher (status="
+                          << shioriStatus << ", headers=" << shioriHeaders.size() << ")" << std::endl;
             } else {
                 // Fallback: call function directly (for simple ghosts without YAYA framework)
                 value = dictManager.execute(id, refs);
@@ -220,7 +249,7 @@ std::string YayaCore::processCommand(const std::string &line) {
             }
 
             response["ok"] = true;
-            response["headers"] = { {"Charset", "UTF-8"} };
+            response["headers"] = shioriHeaders;
 
             // UKADOC Notify-only events whose return value must be ignored by host
             static const std::unordered_set<std::string> notifyReturnIgnored = {
@@ -240,7 +269,8 @@ std::string YayaCore::processCommand(const std::string &line) {
             if (!method.empty() && (method == "NOTIFY" || method == "notify") && notifyReturnIgnored.count(id) > 0) {
                 response["status"] = 204;
             } else {
-                response["status"] = 200;
+                // フレームワークが返したステータス（200/204/400等）をそのまま伝える
+                response["status"] = (usedFramework && shioriStatus > 0) ? shioriStatus : 200;
                 response["value"] = value;
             }
         } else if (cmd == "get_loaded_dics") {

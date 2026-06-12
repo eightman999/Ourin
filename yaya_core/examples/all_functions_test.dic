@@ -291,15 +291,14 @@ TestFileOperations
 
 TestRegexFunctions
 {
-    // Regular expression functions (11 functions - stubs)
-    // Would require regex library for full implementation
+    // Regular expression functions（本家YAYA準拠の引数順: RE_xxx(対象文字列, 正規表現)）
     
-    _search = RE_SEARCH("pattern", "text")
-    _match = RE_MATCH("pattern", "text")
-    _grep = RE_GREP("pattern", "text")
-    _replace = RE_REPLACE("pattern", "text", "new")
-    _replaceEx = RE_REPLACEEX("pattern", "text", "new")
-    _split = RE_SPLIT("pattern", "text")
+    _search = RE_SEARCH("text", "pattern")
+    _match = RE_MATCH("text", "pattern")
+    _grep = RE_GREP("text", "pattern")
+    _replace = RE_REPLACE("text", "pattern", "new")
+    _replaceEx = RE_REPLACEEX("text", "pattern", "new")
+    _split = RE_SPLIT("text", "pattern")
     
     _option = RE_OPTION(0)
     _getStr = RE_GETSTR()
