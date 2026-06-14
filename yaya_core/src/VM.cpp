@@ -7,6 +7,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cctype>
+#include <cstdint>
 #include <chrono>
 #include <set>
 #include <cstdlib>
@@ -20,6 +21,94 @@
 #include <unordered_set>
 #include "Digest.hpp"
 #include "Base64.hpp"
+
+namespace {
+
+// UTF-8 バイト列をコードポイント配列にデコードする。
+// 不正なバイトは置換せず、そのまま 1 バイト = 1 コードポイントとして扱い、
+// 元の文字列を壊さない（往復で同一バイト列に戻せる範囲を優先）。
+std::vector<uint32_t> decodeUtf8(const std::string& s) {
+    std::vector<uint32_t> out;
+    size_t i = 0;
+    const size_t n = s.size();
+    while (i < n) {
+        unsigned char c = static_cast<unsigned char>(s[i]);
+        uint32_t cp;
+        size_t len;
+        if (c < 0x80) { cp = c; len = 1; }
+        else if ((c & 0xE0) == 0xC0) { cp = c & 0x1F; len = 2; }
+        else if ((c & 0xF0) == 0xE0) { cp = c & 0x0F; len = 3; }
+        else if ((c & 0xF8) == 0xF0) { cp = c & 0x07; len = 4; }
+        else { out.push_back(c); i++; continue; } // 不正な先頭バイト
+        if (i + len > n) { out.push_back(c); i++; continue; } // 途中で切れている
+        bool valid = true;
+        for (size_t k = 1; k < len; k++) {
+            unsigned char cc = static_cast<unsigned char>(s[i + k]);
+            if ((cc & 0xC0) != 0x80) { valid = false; break; }
+            cp = (cp << 6) | (cc & 0x3F);
+        }
+        if (!valid) { out.push_back(c); i++; continue; }
+        out.push_back(cp);
+        i += len;
+    }
+    return out;
+}
+
+// 単一コードポイントを UTF-8 バイト列に追記する。
+void appendUtf8(std::string& out, uint32_t cp) {
+    if (cp < 0x80) {
+        out.push_back(static_cast<char>(cp));
+    } else if (cp < 0x800) {
+        out.push_back(static_cast<char>(0xC0 | (cp >> 6)));
+        out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+    } else if (cp < 0x10000) {
+        out.push_back(static_cast<char>(0xE0 | (cp >> 12)));
+        out.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+        out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+    } else {
+        out.push_back(static_cast<char>(0xF0 | (cp >> 18)));
+        out.push_back(static_cast<char>(0x80 | ((cp >> 12) & 0x3F)));
+        out.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+        out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+    }
+}
+
+// 全角英数字・記号・空白を半角へ変換する（ZEN2HAN）。
+// 対象: 全角 ASCII 変種 U+FF01..U+FF5E と全角スペース U+3000。
+// それ以外のコードポイント（漢字・かな等）はそのまま保持する。
+std::string convertZenToHan(const std::string& s) {
+    std::vector<uint32_t> cps = decodeUtf8(s);
+    std::string out;
+    out.reserve(s.size());
+    for (uint32_t cp : cps) {
+        if (cp >= 0xFF01 && cp <= 0xFF5E) {
+            cp -= 0xFEE0; // 全角 ASCII -> 半角 ASCII
+        } else if (cp == 0x3000) {
+            cp = 0x0020; // 全角スペース -> 半角スペース
+        }
+        appendUtf8(out, cp);
+    }
+    return out;
+}
+
+// 半角英数字・記号・空白を全角へ変換する（HAN2ZEN）。
+// 対象: 半角 ASCII U+0021..U+007E と半角スペース U+0020。
+std::string convertHanToZen(const std::string& s) {
+    std::vector<uint32_t> cps = decodeUtf8(s);
+    std::string out;
+    out.reserve(s.size() * 2);
+    for (uint32_t cp : cps) {
+        if (cp >= 0x0021 && cp <= 0x007E) {
+            cp += 0xFEE0; // 半角 ASCII -> 全角 ASCII
+        } else if (cp == 0x0020) {
+            cp = 0x3000; // 半角スペース -> 全角スペース
+        }
+        appendUtf8(out, cp);
+    }
+    return out;
+}
+
+} // namespace
 
 VM::VM() {
     registerBuiltins();
@@ -1980,16 +2069,16 @@ void VM::registerBuiltins() {
         return Value("UTF-8");
     };
     
-    // ZEN2HAN(str) - Convert full-width to half-width (stub)
+    // ZEN2HAN(str) - Convert full-width ASCII/space to half-width
     builtins_["ZEN2HAN"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
-        return args[0];
+        return Value(convertZenToHan(args[0].asString()));
     };
-    
-    // HAN2ZEN(str) - Convert half-width to full-width (stub)
+
+    // HAN2ZEN(str) - Convert half-width ASCII/space to full-width
     builtins_["HAN2ZEN"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
-        return args[0];
+        return Value(convertHanToZen(args[0].asString()));
     };
     
     // ===== Additional Variable/Function Management =====
@@ -2019,24 +2108,16 @@ void VM::registerBuiltins() {
         return Value(1);
     };
     
-    // ZEN2HAN(text) - Convert full-width to half-width characters (stub)
+    // ZEN2HAN(text) - Convert full-width ASCII/space to half-width
     builtins_["ZEN2HAN"] = [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return args[0];
-        std::string text = args[0].asString();
-        
-        // TODO: Implement full-width to half-width conversion
-        // For now, return original text
-        return Value(text);
+        if (args.empty()) return Value("");
+        return Value(convertZenToHan(args[0].asString()));
     };
-    
-    // HAN2ZEN(text) - Convert half-width to full-width characters (stub)
+
+    // HAN2ZEN(text) - Convert half-width ASCII/space to full-width
     builtins_["HAN2ZEN"] = [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return args[0];
-        std::string text = args[0].asString();
-        
-        // TODO: Implement half-width to full-width conversion
-        // For now, return original text
-        return Value(text);
+        if (args.empty()) return Value("");
+        return Value(convertHanToZen(args[0].asString()));
     };
     
     // LETTONAME(varname, value) - Assign to variable by name
