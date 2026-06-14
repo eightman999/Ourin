@@ -142,6 +142,39 @@ struct PropertySystemTests {
         #expect(provider.get(key: "shelllist(Winter).menu") == "hidden")
     }
 
+    @Test("Ghost generic property names (PROPERTY/1.0M §4.12)")
+    func testGhostGenericPropertyNames() {
+        let ghosts = [
+            Ghost(name: "GhostA", sakuraname: "A", path: "/a"),
+            Ghost(name: "GhostB", sakuraname: "B", path: "/b",
+                  thumbnail: "thumb.png", updateResult: "none", updateTime: "20260615",
+                  shioriVars: ["mood": "happy"])
+        ]
+        let list = GhostPropertyProvider(mode: .ghostlist, ghosts: ghosts, activeIndices: [0])
+
+        // index 汎用名（リスト内順位）
+        #expect(list.get(key: "index(1).index") == "1")
+        #expect(list.get(key: "(GhostB).index") == "1")
+        // thumbnail / update_result / update_time
+        #expect(list.get(key: "(GhostB).thumbnail") == "thumb.png")
+        #expect(list.get(key: "(GhostB).update_result") == "none")
+        #expect(list.get(key: "(GhostB).update_time") == "20260615")
+        // 未設定は nil
+        #expect(list.get(key: "(GhostA).thumbnail") == nil)
+        // shiori.<変数名>
+        #expect(list.get(key: "(GhostB).shiori.mood") == "happy")
+        #expect(list.get(key: "(GhostB).shiori.unknown") == nil)
+
+        // currentghost の *.bind.menu は SET/GET 可
+        let current = GhostPropertyProvider(mode: .currentghost, ghosts: ghosts, activeIndices: [1])
+        #expect(current.get(key: "sakura.bind.menu") == nil)
+        #expect(current.set(key: "sakura.bind.menu", value: "hidden"))
+        #expect(current.get(key: "sakura.bind.menu") == "hidden")
+        #expect(current.set(key: "char2.bind.menu", value: "auto"))
+        #expect(current.get(key: "char2.bind.menu") == "auto")
+        #expect(current.writableProperties().contains("sakura.bind.menu"))
+    }
+
     @Test("PropertyManager - Integration")
     func testPropertyManagerIntegration() {
         let manager = PropertyManager()
@@ -297,7 +330,8 @@ struct PropertySystemTests {
             activeIndices: [0],
             mouseCursor: ["text": "ibeam"],
             balloonMouseCursor: ["arrow": "default"],
-            serikoCursor: [0: ["Head": "cursor/head.cur"]],
+            // PROPERTY/1.0M: カーソルは mouseup/mousedown/mousehover/mousewheellist の4分岐
+            serikoCursor: [0: ["mousedownlist": ["Head": "cursor/head.cur"]]],
             serikoTooltips: [0: ["Head": "なでる"]],
             serikoSurfaceListAll: "0,1,2",
             serikoSurfaceListDefined: "0,2"
@@ -305,8 +339,10 @@ struct PropertySystemTests {
 
         #expect(provider.get(key: "mousecursor.text") == "ibeam")
         #expect(provider.get(key: "balloon.mousecursor.arrow") == "default")
-        #expect(provider.get(key: "seriko.cursor.scope(0).mouselist(Head).path") == "cursor/head.cur")
-        #expect(provider.get(key: "seriko.cursor.scope(0).mouselist.count") == "1")
+        #expect(provider.get(key: "seriko.cursor.scope(0).mousedownlist(Head).path") == "cursor/head.cur")
+        #expect(provider.get(key: "seriko.cursor.scope(0).mousedownlist.count") == "1")
+        // 種別が異なれば独立（mouseuplist は未定義なので 0 件）
+        #expect(provider.get(key: "seriko.cursor.scope(0).mouseuplist.count") == "0")
         #expect(provider.get(key: "seriko.surfacelist.all") == "0,1,2")
         #expect(provider.get(key: "seriko.tooltip.scope(0).textlist(Head).text") == "なでる")
         #expect(provider.get(key: "seriko.tooltip.scope(0).textlist.count") == "1")
@@ -316,8 +352,8 @@ struct PropertySystemTests {
 
         #expect(provider.set(key: "seriko.tooltip.scope(0).textlist(Hand).text", value: "つつく"))
         #expect(provider.get(key: "seriko.tooltip.scope(0).textlist(Hand).text") == "つつく")
-        #expect(provider.set(key: "seriko.cursor.scope(0).mouselist(Hand).path", value: "cursor/hand.cur"))
-        #expect(provider.get(key: "seriko.cursor.scope(0).mouselist(Hand).path") == "cursor/hand.cur")
+        #expect(provider.set(key: "seriko.cursor.scope(0).mousehoverlist(Hand).path", value: "cursor/hand.cur"))
+        #expect(provider.get(key: "seriko.cursor.scope(0).mousehoverlist(Hand).path") == "cursor/hand.cur")
     }
 
     @Test("CurrentGhost status property")

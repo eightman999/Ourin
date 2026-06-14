@@ -93,7 +93,9 @@ Current linkage is command-level through `GhostManager` handlers:
 
 ## Current Status / 現在のステータス
 
-**Status**: Parser Complete, Executor Exists but Not Integrated / パーサー完了、エグゼキューターは存在するが統合されていない / 2026-03-15
+**Status**: Parser Complete, Executor Integrated / パーサー完了・エグゼキューター統合済み / updated 2026-06-15
+（旧 2026-03-15 版は「統合されていない」と記載していたが、`GhostManager+Animation.swift` 経由で
+コールバック配線・タイマー駆動・`\![anim,*]` ルーティングが完了済み。下記の旧ギャップ記述は解消済み。）
 
 ### Implemented Components / 実装済みコンポーネント
 
@@ -104,19 +106,18 @@ Complete SERIKO/2.0 parser with:
 - Pattern parsing and surface definitions
 - surfaces.txt parsing
 
-#### ✅ **SerikoExecutor.swift** (Exists but Not Connected / 存在するが接続されていない)
+#### ✅ **SerikoExecutor.swift** (Connected / 接続済み)
 Fully functional animation execution engine with:
 - Animation state management
 - executeAnimation(), startLoop() methods
 - All execute methods (overlay, base, move, reduce, replace, start, stop, etc.)
 - Pause/resume/offset capabilities
 - Callback system (onMethodInvoked, onPatternExecuted, onAnimationFinished)
-- **BUT: Callbacks not wired to GhostManager**
+- ✅ Callbacks wired to GhostManager (`GhostManager+Animation.swift`)
 
-#### ⚠️ **GhostManager+Animation.swift** (Partial / 部分的)
-Integration hooks exist but:
-- SerikoExecutor callbacks not connected
-- Handler methods (handleSurfaceOverlay, etc.) may not invoke actual rendering
+#### ✅ **GhostManager+Animation.swift** (Integrated / 統合済み)
+- SerikoExecutor callbacks connected
+- Timer-driven loop (`serikoExecutor.startLoop()`) and `\![anim,*]` routing in place
 
 ### Integration Gaps / 統合のギャップ
 - ✅ **SerikoExecutor callbacks connected** - wired via GhostManager animation handlers

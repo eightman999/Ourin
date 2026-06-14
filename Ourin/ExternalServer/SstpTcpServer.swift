@@ -40,30 +40,42 @@ public final class SstpTcpServer {
 
     public func stop() { listener?.cancel(); listener = nil }
 
-    private func handle(conn: NWConnection) {
-        var buffer = Data()
+    /// 多重化リスナーから、先頭バイトを読み取り済みの接続を引き継いで生 SSTP として処理する。
+    func adopt(conn: NWConnection, initialBuffer: Data) {
+        handle(conn: conn, initialBuffer: initialBuffer)
+    }
+
+    private func handle(conn: NWConnection, initialBuffer: Data = Data()) {
+        var buffer = initialBuffer
         let deadline = DispatchTime.now() + config.timeout
+        // バッファに完全なリクエスト（CRLF+空行終端）が揃っていれば処理して true を返す。
+        func tryProcess() -> Bool {
+            if buffer.count > self.config.maxSize { self.sendErrorResponse(conn, status: 413); return true }
+            if let range = buffer.range(of: Data([13,10,13,10])) {
+                let header = buffer.subdata(in: 0..<range.lowerBound)
+                if let text = Self.decode(header) {
+                    let start = Date()
+                    let resp = self.onRequest?(text) ?? "SSTP/1.1 204 No Content\r\n\r\n"
+                    let duration = Date().timeIntervalSince(start)
+                    self.logger.info("tcp request size=\(buffer.count) duration=\(duration)")
+                    ServerMetrics.shared.record(duration: duration, error: false)
+                    conn.send(content: resp.data(using: .utf8), completion: .contentProcessed { _ in conn.cancel() })
+                    return true
+                }
+            }
+            return false
+        }
         func readMore() {
             conn.receive(minimumIncompleteLength: 1, maximumLength: 4096) { data, _, isComplete, error in
                 if let d = data { buffer.append(d) }
-                if buffer.count > self.config.maxSize { self.sendErrorResponse(conn, status: 413); return }
                 if DispatchTime.now() > deadline { self.sendErrorResponse(conn, status: 408); return }
+                if tryProcess() { return }
                 if isComplete || error != nil { conn.cancel(); return }
-                if let range = buffer.range(of: Data([13,10,13,10])) {
-                    let header = buffer.subdata(in: 0..<range.lowerBound)
-                    if let text = Self.decode(header) {
-                        let start = Date()
-                        let resp = self.onRequest?(text) ?? "SSTP/1.1 204 No Content\r\n\r\n"
-                        let duration = Date().timeIntervalSince(start)
-                        self.logger.info("tcp request size=\(buffer.count) duration=\(duration)")
-                        ServerMetrics.shared.record(duration: duration, error: false)
-                        conn.send(content: resp.data(using: .utf8), completion: .contentProcessed { _ in conn.cancel() })
-                        return
-                    }
-                }
                 readMore()
             }
         }
+        // 引き継いだバッファに既に全リクエストが含まれている場合があるので先に検査する。
+        if tryProcess() { return }
         readMore()
     }
 

@@ -7,14 +7,17 @@ import OSLog
 /// 外部からの SSTP イベントを受信する TCP/HTTP/XPC サーバ群を管理するクラス。
 /// 受信した生 SSTP は SSTPParser で解析し SSTPDispatcher へ一本化して処理する（P2-10）。
 public final class OurinExternalServer {
-    /// TCP ベースの SSTP サーバ
-    public let tcp = SstpTcpServer()
-    /// HTTP ベースの SSTP サーバ
-    public let http = SstpHttpServer()
+    /// TCP/HTTP を 9801 単一ポートで多重化するリスナー（生 SSTP と HTTP を先頭行で振り分け）
+    public let unified = UnifiedSstpListener()
     /// XPC 直接通信サーバ
     public let xpc = XpcDirectServer()
     /// OSLog 用ロガー
     private let logger = CompatLogger(subsystem: "Ourin", category: "ExternalServer")
+
+    /// TCP(生 SSTP) が有効かつリスナー稼働中か（UI 表示・互換用）
+    public var tcpRunning: Bool { unified.isRunning && config.enableTCP }
+    /// HTTP が有効かつリスナー稼働中か（UI 表示・互換用）
+    public var httpRunning: Bool { unified.isRunning && config.enableHTTP }
 
     public struct Config {
         var securityLocalOnly: Bool = true
@@ -31,8 +34,7 @@ public final class OurinExternalServer {
 
     /// サーバ群の初期設定を行う
     public init() {
-        tcp.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
-        http.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
+        unified.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
         xpc.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
         applyRuntimeConfig()
     }
@@ -67,35 +69,22 @@ public final class OurinExternalServer {
     }
 
     private func applyRuntimeConfig() {
-        let tcpConfig = SstpTcpServer.Config(
+        unified.updateConfig(.init(
             timeout: config.timeout,
             maxSize: config.maxPayloadSize
-        )
-        tcp.updateConfig(tcpConfig)
-
-        let httpConfig = SstpHttpServer.Config(
-            timeout: config.timeout,
-            maxSize: config.maxPayloadSize
-        )
-        http.updateConfig(httpConfig)
+        ))
         logger.info("external server runtime config updated")
     }
 
     private func applyListenerState() {
-        if config.enableTCP {
-            if !tcp.isRunning {
-                try? tcp.start()
+        // 生 SSTP / HTTP は同じ 9801 ポートで多重化する。どちらかが有効なら単一リスナーを起動。
+        let wantUnified = config.enableTCP || config.enableHTTP
+        if wantUnified {
+            if !unified.isRunning {
+                try? unified.start()
             }
-        } else if tcp.isRunning {
-            tcp.stop()
-        }
-
-        if config.enableHTTP {
-            if !http.isRunning {
-                try? http.start()
-            }
-        } else if http.isRunning {
-            http.stop()
+        } else if unified.isRunning {
+            unified.stop()
         }
 
         if config.enableXPC {
@@ -122,8 +111,7 @@ public final class OurinExternalServer {
 
     /// すべてのリスナーを停止する。
     public func stop() {
-        tcp.stop()
-        http.stop()
+        unified.stop()
         xpc.stop()
         stopDistributedIpc()
         logger.info("external servers stopped")

@@ -57,8 +57,10 @@ public final class SaoriLoader {
         }
 
         requestFn = loadSymbol(["request", "saori_request"], as: SaoriRequestFn.self)
-        loadFn = loadSymbol(["load", "saori_load"], as: SaoriLoadFn.self)
-        unloadFn = loadSymbol(["unload", "saori_unload"], as: SaoriUnloadFn.self)
+        // ukagaka DLL 規約: `loadu` は UTF-8 パス版の load エントリ。存在すれば優先する
+        // （macOS のパスは UTF-8 なので withCString はそのまま UTF-8 を渡せる）。
+        loadFn = loadSymbol(["loadu", "saori_loadu", "load", "saori_load"], as: SaoriLoadFn.self)
+        unloadFn = loadSymbol(["unloadu", "unload", "saori_unloadu", "saori_unload"], as: SaoriUnloadFn.self)
 
         guard requestFn != nil else {
             closeHandle()

@@ -131,7 +131,7 @@ Charset: UTF-8
 - [x] **文字コード対応**: UTF-8 既定、Shift_JIS/CP932 の自動検出を実装済み
 - [x] **PLUGIN/2.0M プロトコル**: `PluginProtocol.swift` にて完全実装済み
 - [x] **イベントディスパッチ**: `PluginRegistry.swift` にて PLUGIN/2.0M 互換のイベントディスパッチを実装済み
-- [ ] **XPC 隔離**: 未実装（現在は同一プロセス内で実行）
+- [x] **XPC 隔離**: 実装済み (2026-06-15)。`PluginXpcBackend.swift`(`OurinPluginXPC`/`PluginXpcClient`) を新設し、`OURIN_PLUGIN_ISOLATION_MODE=xpc` または `OURIN_PLUGIN_XPC_SERVICE` 指定時に `PluginEventDispatcher` が別プロセスのワーカーへ透過転送する（既定はインプロセス）。
 
 ### 12.2 実装済みの機能
 
@@ -180,9 +180,7 @@ Charset: UTF-8
 
 ### 12.3 未実装の機能
 
-1. **XPC プロセス分離**
-   - プラグインの別プロセス実行
-   - セキュリティサンドボックス分離
+1. ~~**XPC プロセス分離**~~ → 実装済み (2026-06-15)。`PluginXpcClient` 経由で別プロセスワーカーへ透過転送（env で有効化）。
 
 2. **追加のイベントタイプ**
    - 全ての PLUGIN/2.0 イベントタイプの実装（基本的なイベントは実装済み、追加イベントは必要に応じて実装可能）

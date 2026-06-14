@@ -14,7 +14,8 @@ extension GhostManager {
 
     // MARK: - Ghost Booting via SSTP
     
-    /// Boot another ghost using SSTP NOTIFY command
+    /// Boot another ghost (\+). 複数ゴースト同時実行に対応: 対象ゴーストを別 GhostManager として
+    /// 同時起動する。起動できない場合は従来の SSTP NOTIFY 通知にフォールバックする。
     func bootOtherGhost(name: String? = nil) {
         let installedGhosts = NarRegistry.shared.installedGhosts()
         let currentGhostName = ghostConfig?.name
@@ -24,9 +25,18 @@ extension GhostManager {
             ? (candidates.randomElement() ?? currentGhostName ?? "default")
             : provided
         Log.debug("[GhostManager] Attempting to boot ghost: \(ghostName)")
-        
-        sendSSTPNotify(event: "OnBoot", references: ["Reference0": ghostName])
-        EventBridge.shared.notify(.OnOtherGhostBooted, params: ["Reference0": ghostName])
+
+        // 追加ゴーストとして in-process で同時起動する（プライマリは置き換えない）。
+        DispatchQueue.main.async {
+            if let appDelegate = NSApp.delegate as? AppDelegate,
+               appDelegate.launchAdditionalGhost(named: ghostName) != nil {
+                EventBridge.shared.notify(.OnOtherGhostBooted, params: ["Reference0": ghostName])
+                return
+            }
+            // フォールバック: 外部インスタンス向け SSTP 通知
+            self.sendSSTPNotify(event: "OnBoot", references: ["Reference0": ghostName])
+            EventBridge.shared.notify(.OnOtherGhostBooted, params: ["Reference0": ghostName])
+        }
     }
     
     /// Boot all ghosts by broadcasting SSTP
@@ -361,6 +371,13 @@ extension GhostManager {
     }
     
     /// Display choice dialog when choices are ready
+    /// 選択肢/アンカー選択イベントを、登録済みプラグインへも横流しする（PLUGIN_EVENT/2.0M）。
+    /// EventBridge への notifyCustom と並行して PluginEventDispatcher.onArbitraryEvent を呼ぶ。
+    func forwardEventToPlugins(id: String, references: [String], notify: Bool = false) {
+        guard let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher else { return }
+        dispatcher.onArbitraryEvent(id: id, refs: references, notify: notify)
+    }
+
     func showChoiceDialog() {
         guard !pendingChoices.isEmpty else { return }
         EventBridge.shared.notify(.OnChoiceEnter, params: ["Reference0": String(pendingChoices.count)])
@@ -423,6 +440,9 @@ extension GhostManager {
                 ]
                 EventBridge.shared.notifyCustom("OnChoiceSelect", params: params)
                 EventBridge.shared.notifyCustom("OnChoiceSelectEx", params: params)
+                // プラグインへも横流し（Reference0 に選択タイトル）
+                self.forwardEventToPlugins(id: "OnChoiceSelect", references: [choice.title])
+                self.forwardEventToPlugins(id: "OnChoiceSelectEx", references: [choice.title])
 
                 // Trigger OnChoiceHover event when choice is made
                 EventBridge.shared.notifyCustom("OnChoiceHover", params: params)
@@ -869,11 +889,11 @@ extension GhostManager {
         }
 
         Log.info("[GhostManager] Checking for ghost updates at homeurl: \(updateURL)")
-        NarInstaller().checkUpdates(homeURLString: updateURL) { result in
+        let installer = NarInstaller()
+        installer.checkUpdates(homeURLString: updateURL) { result in
             switch result {
             case .success(let entries):
                 let fileList = entries.map(\.lastPathComponent).joined(separator: ",")
-                let reason = entries.isEmpty ? "none" : "changed"
                 self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareBegin", params: [
                     "Reference0": updateURL,
                     "Reference1": String(entries.count)
@@ -886,11 +906,6 @@ extension GhostManager {
                     "Reference0": fileList,
                     "Reference3": "ghost"
                 ])
-                EventBridge.shared.notify(.OnUpdateComplete, params: [
-                    "Reference0": reason,
-                    "Reference1": fileList,
-                    "Reference3": "ghost"
-                ])
                 let first = entries.first?.absoluteString ?? ""
                 EventBridge.shared.notifyCustom("OnUpdateCheckComplete", params: [
                     "Reference0": "ghost",
@@ -898,13 +913,42 @@ extension GhostManager {
                     "Reference2": String(entries.count),
                     "Reference3": options.joined(separator: ",")
                 ])
-                self.emitUpdateResultEvents(
-                    target: "ghost",
-                    reason: reason,
-                    fileList: fileList,
-                    explorerPath: self.ghostURL.path
-                )
-                Log.debug("[GhostManager] Ghost update check completed entries=\(entries.count)")
+
+                // 変更が無ければ即完了。あればダウンロード→適用してから完了イベントを出す。
+                guard !entries.isEmpty else {
+                    EventBridge.shared.notify(.OnUpdateComplete, params: [
+                        "Reference0": "none",
+                        "Reference1": "",
+                        "Reference3": "ghost"
+                    ])
+                    self.emitUpdateResultEvents(target: "ghost", reason: "none", fileList: "", explorerPath: self.ghostURL.path)
+                    Log.debug("[GhostManager] Ghost update: no changes")
+                    return
+                }
+                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadBegin", params: [
+                    "Reference0": updateURL,
+                    "Reference1": String(entries.count)
+                ])
+                installer.downloadAndApply(entries: entries, homeURLString: updateURL, targetRoot: self.ghostURL) { applied in
+                    let appliedList = applied.joined(separator: ",")
+                    let reason = applied.isEmpty ? "none" : "changed"
+                    self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadComplete", params: [
+                        "Reference0": updateURL,
+                        "Reference1": String(applied.count)
+                    ])
+                    EventBridge.shared.notify(.OnUpdateComplete, params: [
+                        "Reference0": reason,
+                        "Reference1": appliedList.isEmpty ? fileList : appliedList,
+                        "Reference3": "ghost"
+                    ])
+                    self.emitUpdateResultEvents(
+                        target: "ghost",
+                        reason: reason,
+                        fileList: appliedList.isEmpty ? fileList : appliedList,
+                        explorerPath: self.ghostURL.path
+                    )
+                    Log.debug("[GhostManager] Ghost update applied=\(applied.count)/\(entries.count)")
+                }
             case .failure(let error):
                 Log.info("[GhostManager] Ghost update check failed: \(error)")
                 let reason = self.normalizeUpdateFailureReason(error)

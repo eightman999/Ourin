@@ -26,8 +26,9 @@ public struct HeadlineModule: Hashable {
             throw NSError(domain: "HeadlineModule", code: -2, userInfo: [NSLocalizedDescriptionKey: "execute not found"])
         }
         self.execute = exe
-        self.load = sym("load")
-        self.unload = sym("unload")
+        // ukagaka DLL 規約: `loadu` は UTF-8 パス版 load。存在すれば優先（macOS のパスは UTF-8）。
+        self.load = sym("loadu") ?? sym("load")
+        self.unload = sym("unloadu") ?? sym("unload")
     }
 
     /// Send raw wire text to the module and get UTF-8 response string

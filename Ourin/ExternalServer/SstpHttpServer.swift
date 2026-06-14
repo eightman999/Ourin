@@ -26,7 +26,9 @@ public final class SstpHttpServer {
         return listener != nil
     }
 
-    public func start(host: String = "127.0.0.1", port: UInt16 = 9810) throws {
+    // 仕様(SSTP/1.xM)では HTTP も SSTP と同じ 9801 を多重化して使う。
+    // 単体起動時の既定も 9801 に揃える（通常は UnifiedSstpListener 経由で adopt される）。
+    public func start(host: String = "127.0.0.1", port: UInt16 = 9801) throws {
         listener = try NWListener(using: .tcp, on: NWEndpoint.Port(rawValue: port)!)
         listener?.newConnectionHandler = { [weak self] conn in
             guard let self else { return }
@@ -39,82 +41,90 @@ public final class SstpHttpServer {
 
     public func stop() { listener?.cancel(); listener = nil }
 
-    private func handle(conn: NWConnection) {
-        var buffer = Data()
+    /// 多重化リスナーから、先頭バイトを読み取り済みの接続を引き継いで HTTP として処理する。
+    func adopt(conn: NWConnection, initialBuffer: Data) {
+        handle(conn: conn, initialBuffer: initialBuffer)
+    }
+
+    private func handle(conn: NWConnection, initialBuffer: Data = Data()) {
+        var buffer = initialBuffer
         let deadline = DispatchTime.now() + config.timeout
+        // ヘッダ＋本文が揃っていれば処理して true を返す。途中なら false（追加読込が必要）。
+        func tryProcess() -> Bool {
+            if buffer.count > self.config.maxSize { self.sendErrorResponse(conn, status: 413); return true }
+            guard let headerEnd = buffer.range(of: Data([13,10,13,10])) else { return false }
+            let header = buffer.subdata(in: 0..<headerEnd.upperBound)
+            let headersText = String(data: header, encoding: .utf8) ?? ""
+            let headerLines = headersText.split(separator: "\n").map {
+                $0.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            guard let requestLine = headerLines.first,
+                  let request = Self.parseRequestLine(requestLine) else {
+                self.sendErrorResponse(conn, status: 400)
+                return true
+            }
+            guard request.method == "POST" else {
+                self.sendErrorResponse(conn, status: 405)
+                return true
+            }
+            guard request.path == "/api/sstp/v1" else {
+                self.sendErrorResponse(conn, status: 404)
+                return true
+            }
+
+            var contentLength = 0
+            var hasContentLength = false
+            var originHeader: String?
+            for line in headerLines.dropFirst() {
+                if line.lowercased().hasPrefix("content-length:") {
+                    let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
+                    contentLength = Int(v) ?? 0
+                    hasContentLength = true
+                } else if line.lowercased().hasPrefix("origin:") {
+                    let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
+                    originHeader = v
+                }
+            }
+            guard hasContentLength else {
+                self.sendErrorResponse(conn, status: 411)
+                return true
+            }
+            if let originHeader, !Self.isAcceptedOrigin(originHeader) {
+                self.sendErrorResponse(conn, status: 403)
+                return true
+            }
+            let bodyStart = headerEnd.upperBound
+            // 本文がまだ全部届いていなければ追加読込を待つ。
+            guard buffer.count - bodyStart >= contentLength else { return false }
+            let body = buffer.subdata(in: bodyStart..<bodyStart+contentLength)
+            guard let sstp = Self.decode(body) else { return false }
+            let start = Date()
+            let routedSstp = Self.injectSecurityHeaders(into: sstp, origin: originHeader)
+            let respSstp = self.onRequest?(routedSstp) ?? "SSTP/1.1 204 No Content\r\n\r\n"
+            let duration = Date().timeIntervalSince(start)
+            let lines = [
+                "HTTP/1.1 200 OK\r",
+                "Content-Type: text/plain; charset=UTF-8\r",
+                "Content-Length: \(respSstp.utf8.count)\r",
+                "\r",
+                respSstp
+            ]
+            let http = lines.joined()
+            self.logger.info("http size=\(buffer.count) duration=\(duration)")
+            ServerMetrics.shared.record(duration: duration, error: false)
+            conn.send(content: http.data(using: .utf8), completion: .contentProcessed { _ in conn.cancel() })
+            return true
+        }
         func readMore() {
             conn.receive(minimumIncompleteLength: 1, maximumLength: 8192) { data, _, isComplete, error in
                 if let d = data { buffer.append(d) }
-                if buffer.count > self.config.maxSize { self.sendErrorResponse(conn, status: 413); return }
                 if DispatchTime.now() > deadline { self.sendErrorResponse(conn, status: 408); return }
+                if tryProcess() { return }
                 if isComplete || error != nil { conn.cancel(); return }
-                if let headerEnd = buffer.range(of: Data([13,10,13,10])) {
-                    let header = buffer.subdata(in: 0..<headerEnd.upperBound)
-                    let headersText = String(data: header, encoding: .utf8) ?? ""
-                    let headerLines = headersText.split(separator: "\n").map {
-                        $0.trimmingCharacters(in: .whitespacesAndNewlines)
-                    }
-                    guard let requestLine = headerLines.first,
-                          let request = Self.parseRequestLine(requestLine) else {
-                        self.sendErrorResponse(conn, status: 400)
-                        return
-                    }
-                    guard request.method == "POST" else {
-                        self.sendErrorResponse(conn, status: 405)
-                        return
-                    }
-                    guard request.path == "/api/sstp/v1" else {
-                        self.sendErrorResponse(conn, status: 404)
-                        return
-                    }
-
-                    var contentLength = 0
-                    var hasContentLength = false
-                    var originHeader: String?
-                    for line in headerLines.dropFirst() {
-                        if line.lowercased().hasPrefix("content-length:") {
-                            let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
-                            contentLength = Int(v) ?? 0
-                            hasContentLength = true
-                        } else if line.lowercased().hasPrefix("origin:") {
-                            let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
-                            originHeader = v
-                        }
-                    }
-                    guard hasContentLength else {
-                        self.sendErrorResponse(conn, status: 411)
-                        return
-                    }
-                    if let originHeader, !Self.isAcceptedOrigin(originHeader) {
-                        self.sendErrorResponse(conn, status: 403)
-                        return
-                    }
-                    let bodyStart = headerEnd.upperBound
-                    if buffer.count - bodyStart >= contentLength {
-                        let body = buffer.subdata(in: bodyStart..<bodyStart+contentLength)
-                        if let sstp = Self.decode(body) {
-                            let start = Date()
-                            let routedSstp = Self.injectSecurityHeaders(into: sstp, origin: originHeader)
-                            let respSstp = self.onRequest?(routedSstp) ?? "SSTP/1.1 204 No Content\r\n\r\n"
-                            let duration = Date().timeIntervalSince(start)
-                            let lines = [
-                                "HTTP/1.1 200 OK\r",
-                                "Content-Type: text/plain; charset=UTF-8\r",
-                                "Content-Length: \(respSstp.utf8.count)\r",
-                                "\r",
-                                respSstp
-                            ]
-                            let http = lines.joined()
-                            self.logger.info("http size=\(buffer.count) duration=\(duration)")
-                            ServerMetrics.shared.record(duration: duration, error: false)
-                            conn.send(content: http.data(using: .utf8), completion: .contentProcessed { _ in conn.cancel() })
-                            return
-                        }
-                    }
-                }
                 readMore()
             }
         }
+        if tryProcess() { return }
         readMore()
     }
 

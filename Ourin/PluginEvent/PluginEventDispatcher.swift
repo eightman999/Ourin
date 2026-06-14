@@ -15,6 +15,21 @@ final class PluginEventDispatcher {
     /// version 応答で交渉したプラグインごとの文字コード（複数キュー間で共有するため要ロック）
     private let charsetLock = NSLock()
     private var pluginCharsets: [Plugin: String] = [:]
+    /// XPC プロセス分離が有効な場合のクライアント（nil ならインプロセス実行）
+    private let xpcClient: PluginXpcClient?
+
+    /// プラグインへワイヤテキストを送信する。XPC 分離が有効なら別プロセスのワーカーへ、
+    /// それ以外は従来通りインプロセス（CFBundle ロード）で実行する。
+    private func transportSend(_ req: String, to plugin: Plugin) -> String {
+        if let xpc = xpcClient {
+            if let resp = xpc.send(req, bundlePath: plugin.bundle.bundleURL.path) {
+                return resp
+            }
+            logger.warning("plugin XPC send failed; bundle=\(plugin.bundle.bundleURL.lastPathComponent)")
+            return ""
+        }
+        return plugin.send(req)
+    }
 
     /// プラグインに適用する送信文字コードを取得（既定 UTF-8）
     private func charset(for plugin: Plugin) -> String {
@@ -31,6 +46,13 @@ final class PluginEventDispatcher {
     /// 初期化時にプラグインメタ情報を参照してタイマーを開始する
     init(registry: PluginRegistry) {
         self.registry = registry
+        // プロセス分離モードが有効なら XPC クライアントを用意する（既定はインプロセス）
+        if let serviceName = PluginIsolation.resolvedXpcServiceName() {
+            self.xpcClient = PluginXpcClient(serviceName: serviceName)
+            logger.info("plugin isolation=xpc service=\(serviceName)")
+        } else {
+            self.xpcClient = nil
+        }
         // 各プラグイン用の直列キューを生成
         for plugin in registry.plugins {
             queues[plugin] = DispatchQueue(label: "plugin.queue." + plugin.bundle.bundleURL.lastPathComponent)
@@ -63,9 +85,9 @@ final class PluginEventDispatcher {
             guard let q = queues[plugin] else { continue }
             // version 交渉で得た文字コードを Charset ヘッダへ反映する
             let req = PluginFrame(id: id, references: refs, charset: charset(for: plugin), notify: notify).build()
-            q.async { [logger, id, req, plugin] in
+            q.async { [weak self, logger, id, req, plugin] in
                 let start = Date()
-                let _ = plugin.send(req)
+                _ = self?.transportSend(req, to: plugin)
                 let elapsed = Date().timeIntervalSince(start)
                 logger.debug("ID \(id) to \(plugin.bundle.bundleURL.lastPathComponent) (\(elapsed)s)")
                 if elapsed > 3 {
@@ -80,7 +102,7 @@ final class PluginEventDispatcher {
         for plugin in registry.plugins {
             let req = PluginFrame(id: "version").build()
             queues[plugin]?.async { [weak self, logger, req, plugin] in
-                let resp = plugin.send(req)
+                let resp = self?.transportSend(req, to: plugin) ?? ""
                 let name = plugin.bundle.bundleURL.lastPathComponent
                 // 応答の Charset ヘッダを以降の通信へ適用する(PLUGIN_EVENT/2.0M §4.1)
                 if let parsed = try? PluginProtocolParser.parseResponse(resp) {

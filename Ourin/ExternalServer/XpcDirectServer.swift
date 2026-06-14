@@ -2,11 +2,9 @@ import Foundation
 import OSLog
 
 /// XPC 経由で SSTP メッセージを受信するサーバ。
-@objc public protocol OurinExternalSstpXPC {
-    func deliverSSTP(_ request: Data, with reply: @escaping (Data) -> Void)
-}
-
-public final class XpcDirectServer: NSObject, NSXPCListenerDelegate, OurinExternalSstpXPC {
+/// プロトコルは DirectSSTP と共通の `OurinSSTPXPC`（`executeSSTP(_:withReply:)`）に統一する
+/// （SSTP/1.xM 仕様準拠。旧 `OurinExternalSstpXPC.deliverSSTP` は廃止）。
+public final class XpcDirectServer: NSObject, NSXPCListenerDelegate, OurinSSTPXPC {
     private let listener: NSXPCListener
     public var onRequest: ((String) -> String)?
     private let logger = CompatLogger(subsystem: "Ourin", category: "SSTP_XPC")
@@ -36,14 +34,14 @@ public final class XpcDirectServer: NSObject, NSXPCListenerDelegate, OurinExtern
     }
 
     public func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
-        newConnection.exportedInterface = NSXPCInterface(with: OurinExternalSstpXPC.self)
+        newConnection.exportedInterface = NSXPCInterface(with: OurinSSTPXPC.self)
         newConnection.exportedObject = self
         newConnection.resume()
         return true
     }
 
     /// XPC クライアントから SSTP データを受け取り応答する。
-    public func deliverSSTP(_ request: Data, with reply: @escaping (Data) -> Void) {
+    public func executeSSTP(_ request: Data, withReply reply: @escaping (Data) -> Void) {
         guard request.count <= maxSize else {
             logger.fault("xpc oversized")
             ServerMetrics.shared.record(duration: 0, error: true)

@@ -461,14 +461,20 @@ final class DylibBackend: ShioriBackend {
             throw ShioriLoaderError.openFailed(detail)
         }
         handle = h
-        func loadSymbol<T>(_ name: String, as type: T.Type) -> T? {
-            guard let sym = dlsym(h, name) else { return nil }
-            return unsafeBitCast(sym, to: type)
+        func loadSymbol<T>(_ names: [String], as type: T.Type) -> T? {
+            for name in names {
+                if let sym = dlsym(h, name) {
+                    return unsafeBitCast(sym, to: type)
+                }
+            }
+            return nil
         }
-        loadFn = loadSymbol("shiori_load", as: ShioriLoad.self)
-        requestFn = loadSymbol("shiori_request", as: ShioriRequest.self)
-        unloadFn = loadSymbol("shiori_unload", as: ShioriUnload.self)
-        freeFn = loadSymbol("shiori_free", as: ShioriFree.self)
+        // 汎用 dylib 規約に対応: `shiori_` 接頭辞付き・無印（Windows 由来の load/unload/request）・
+        // および UTF-8 パス版 `loadu` を順に解決する。`loadu` を優先（macOS のパスは UTF-8）。
+        loadFn = loadSymbol(["shiori_loadu", "loadu", "shiori_load", "load"], as: ShioriLoad.self)
+        requestFn = loadSymbol(["shiori_request", "request"], as: ShioriRequest.self)
+        unloadFn = loadSymbol(["shiori_unloadu", "unloadu", "shiori_unload", "unload"], as: ShioriUnload.self)
+        freeFn = loadSymbol(["shiori_free", "free"], as: ShioriFree.self)
         self.moduleURL = url
 
         guard requestFn != nil else {

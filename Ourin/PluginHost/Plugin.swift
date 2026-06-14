@@ -28,8 +28,9 @@ public struct Plugin: Hashable {
             throw NSError(domain: "Plugin", code: -2, userInfo: [NSLocalizedDescriptionKey: "request not found"])
         }
         self.request = req
-        self.load = sym("load")
-        self.unload = sym("unload")
+        // ukagaka DLL 規約: `loadu` は UTF-8 パス版 load。存在すれば優先（macOS のパスは UTF-8）。
+        self.load = sym("loadu") ?? sym("load")
+        self.unload = sym("unloadu") ?? sym("unload")
     }
 
     /// Send raw wire text to plugin and return response string (UTF-8)

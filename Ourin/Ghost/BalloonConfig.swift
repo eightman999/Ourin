@@ -208,7 +208,8 @@ class BalloonImageLoader {
             image = maskedImage
             NSLog("[BalloonImageLoader] Loaded \(filename) with PNA transparency")
         } else {
-            image = NSImage(contentsOfFile: imagePath)
+            // @2x/@3x バリアントがあれば高解像度 rep を取り込む（Retina 対応）
+            image = RetinaImageLoader.image(contentsOfFile: imagePath)
         }
 
         if let image = image {
@@ -251,7 +252,7 @@ class BalloonImageLoader {
         }
 
         let imagePath = (balloonPath as NSString).appendingPathComponent(filename)
-        guard let image = NSImage(contentsOfFile: imagePath) else {
+        guard let image = RetinaImageLoader.image(contentsOfFile: imagePath) else {
             return nil
         }
 
@@ -268,7 +269,7 @@ class BalloonImageLoader {
         }
 
         let imagePath = (balloonPath as NSString).appendingPathComponent(filename)
-        guard let image = NSImage(contentsOfFile: imagePath) else {
+        guard let image = RetinaImageLoader.image(contentsOfFile: imagePath) else {
             return nil
         }
 
@@ -285,7 +286,7 @@ class BalloonImageLoader {
         }
 
         let imagePath = (balloonPath as NSString).appendingPathComponent(filename)
-        guard let image = NSImage(contentsOfFile: imagePath) else {
+        guard let image = RetinaImageLoader.image(contentsOfFile: imagePath) else {
             return nil
         }
 
@@ -302,7 +303,7 @@ class BalloonImageLoader {
         }
 
         let imagePath = (balloonPath as NSString).appendingPathComponent(filename)
-        guard let image = NSImage(contentsOfFile: imagePath) else {
+        guard let image = RetinaImageLoader.image(contentsOfFile: imagePath) else {
             return nil
         }
 

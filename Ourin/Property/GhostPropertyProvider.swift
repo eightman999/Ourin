@@ -12,11 +12,19 @@ public struct Ghost {
     public let homeurl: String
     public var username: String?
     public var configuration: GhostConfiguration?
+    // PROPERTY/1.0M §4.12 汎用プロパティ名（未設定時は空 → nil 相当）
+    public var thumbnail: String
+    public var updateResult: String
+    public var updateTime: String
+    /// `shiori.<変数名>` で参照する SHIORI 由来の値（必要に応じて外部から設定）
+    public var shioriVars: [String: String]
 
     public init(name: String, sakuraname: String = "", keroname: String = "",
                 craftmanw: String = "", craftmanurl: String = "",
                 path: String, icon: String = "", homeurl: String = "", username: String? = nil,
-                configuration: GhostConfiguration? = nil) {
+                configuration: GhostConfiguration? = nil,
+                thumbnail: String = "", updateResult: String = "", updateTime: String = "",
+                shioriVars: [String: String] = [:]) {
         self.name = name
         self.sakuraname = sakuraname.isEmpty ? name : sakuraname
         self.keroname = keroname
@@ -27,6 +35,10 @@ public struct Ghost {
         self.homeurl = homeurl
         self.username = username
         self.configuration = configuration
+        self.thumbnail = thumbnail
+        self.updateResult = updateResult
+        self.updateTime = updateTime
+        self.shioriVars = shioriVars
     }
 
     /// Initialize from a GhostConfiguration.
@@ -41,6 +53,10 @@ public struct Ghost {
         self.homeurl = config.homeurl ?? ""
         self.username = username
         self.configuration = config
+        self.thumbnail = ""
+        self.updateResult = ""
+        self.updateTime = ""
+        self.shioriVars = [:]
     }
 }
 
@@ -76,10 +92,16 @@ final class GhostPropertyProvider: PropertyProvider {
     private var scopeData: [Int: ScopeData]
     private var mouseCursor: [String: String]
     private var balloonMouseCursor: [String: String]
-    private var serikoCursor: [Int: [String: String]]
+    // SERIKO カーソルは scope → リスト種別(mouseup/down/hover/wheel) → 名前 → パス
+    private var serikoCursor: [Int: [String: [String: String]]]
     private var serikoTooltips: [Int: [String: String]]
+
+    /// PROPERTY/1.0M の `mouse????list` 4種（当たり判定リスト）
+    private static let cursorListKinds = ["mouseuplist", "mousedownlist", "mousehoverlist", "mousewheellist"]
     private var serikoSurfaceListAll: String
     private var serikoSurfaceListDefined: String
+    /// `(sakura|kero|char*).bind.menu` のメニュー表示状態（currentghost の runtime 状態、SET 可）
+    private var bindMenus: [String: String] = [:]
 
     struct ScopeData {
         var surfaceNum: Int
@@ -97,7 +119,7 @@ final class GhostPropertyProvider: PropertyProvider {
          scopeData: [Int: ScopeData] = [:],
          mouseCursor: [String: String] = [:],
          balloonMouseCursor: [String: String] = [:],
-         serikoCursor: [Int: [String: String]] = [:],
+         serikoCursor: [Int: [String: [String: String]]] = [:],
          serikoTooltips: [Int: [String: String]] = [:],
          serikoSurfaceListAll: String = "",
          serikoSurfaceListDefined: String = "") {
@@ -159,6 +181,15 @@ final class GhostPropertyProvider: PropertyProvider {
             return setSerikoCursor(key: key, value: value)
         }
 
+        // (sakura|kero|char*).bind.menu の表示状態（SET 有効：PROPERTY/1.0M §5）
+        if key.hasSuffix(".bind.menu") {
+            let scope = String(key.dropLast(".bind.menu".count))
+            if scope == "sakura" || scope == "kero" || scope.hasPrefix("char") {
+                bindMenus[scope] = value
+                return true
+            }
+        }
+
         return false
     }
 
@@ -176,7 +207,9 @@ final class GhostPropertyProvider: PropertyProvider {
             "mousecursor.arrow",
             "balloon.mousecursor.text",
             "balloon.mousecursor.wait",
-            "balloon.mousecursor.arrow"
+            "balloon.mousecursor.arrow",
+            "sakura.bind.menu",
+            "kero.bind.menu"
         ])
         return props
     }
@@ -190,14 +223,15 @@ final class GhostPropertyProvider: PropertyProvider {
         // ghostlist(name/sakuraname/path).property
         if let (identifier, prop) = parseNamedAccess(key: key, prefix: "") {
             if let g = findGhost(by: identifier) {
-                return getGhostProperty(g, prop: prop)
+                let idx = ghosts.firstIndex { $0.name == g.name && $0.path == g.path }
+                return getGhostProperty(g, prop: prop, index: idx)
             }
         }
 
         // ghostlist.index(n).property
         if let (index, prop) = parseIndex(key: key) {
             guard ghosts.indices.contains(index) else { return nil }
-            return getGhostProperty(ghosts[index], prop: prop)
+            return getGhostProperty(ghosts[index], prop: prop, index: index)
         }
 
         return nil
@@ -212,14 +246,15 @@ final class GhostPropertyProvider: PropertyProvider {
         // activeghostlist(name/sakuraname/path).property
         if let (identifier, prop) = parseNamedAccess(key: key, prefix: "") {
             if let g = findActiveGhost(by: identifier) {
-                return getGhostProperty(g, prop: prop)
+                let idx = activeIndices.firstIndex { ghosts.indices.contains($0) && ghosts[$0].name == g.name && ghosts[$0].path == g.path }
+                return getGhostProperty(g, prop: prop, index: idx)
             }
         }
 
         // activeghostlist.index(n).property
         if let (index, prop) = parseIndex(key: key) {
             guard activeIndices.indices.contains(index) else { return nil }
-            return getGhostProperty(ghosts[activeIndices[index]], prop: prop)
+            return getGhostProperty(ghosts[activeIndices[index]], prop: prop, index: index)
         }
 
         return nil
@@ -236,8 +271,8 @@ final class GhostPropertyProvider: PropertyProvider {
         }
         let g = ghosts[idx]
 
-        // Simple properties
-        if let value = getGhostProperty(g, prop: key) {
+        // Simple properties（汎用名・index・shiori.<var>・*.bind.menu を含む）
+        if let value = getGhostProperty(g, prop: key, index: idx) {
             return value
         }
 
@@ -341,7 +376,9 @@ final class GhostPropertyProvider: PropertyProvider {
 
     // MARK: - Helpers
 
-    private func getGhostProperty(_ ghost: Ghost, prop: String) -> String? {
+    /// 汎用プロパティ名を解決する（PROPERTY/1.0M §4.12）。
+    /// - Parameter index: `index` プロパティ用のリスト内順位（不明なら nil）。
+    private func getGhostProperty(_ ghost: Ghost, prop: String, index: Int? = nil) -> String? {
         switch prop {
         case "name":
             return ghost.name
@@ -361,7 +398,25 @@ final class GhostPropertyProvider: PropertyProvider {
             return ghost.homeurl
         case "username":
             return ghost.username
+        case "thumbnail":
+            return ghost.thumbnail.isEmpty ? nil : ghost.thumbnail
+        case "update_result":
+            return ghost.updateResult.isEmpty ? nil : ghost.updateResult
+        case "update_time":
+            return ghost.updateTime.isEmpty ? nil : ghost.updateTime
+        case "index":
+            return index.map(String.init)
         default:
+            // shiori.<変数名>
+            if prop.hasPrefix("shiori.") {
+                let varName = String(prop.dropFirst("shiori.".count))
+                return ghost.shioriVars[varName]
+            }
+            // (sakura|kero|char*).bind.menu : currentghost の runtime 状態（bindMenus）から解決
+            if prop.hasSuffix(".bind.menu") {
+                let scope = String(prop.dropLast(".bind.menu".count))
+                return bindMenus[scope]
+            }
             return nil
         }
     }
@@ -499,16 +554,21 @@ final class GhostPropertyProvider: PropertyProvider {
     }
 
     private func getSerikoCursor(key: String) -> String? {
-        // seriko.cursor.scope(ID).mouselist(...)
+        // seriko.cursor.scope(ID).mouse????list(...)  (???? = up / down / hover / wheel)
         guard let (scopeID, scopeTail) = parseScopePrefix(key: key, prefix: "seriko.cursor.scope") else {
             return nil
         }
-        let list = serikoCursor[scopeID] ?? [:]
-        if scopeTail == "mouselist.count" {
+        guard let listName = Self.cursorListKinds.first(where: {
+            scopeTail == "\($0).count" || scopeTail.hasPrefix("\($0)(") || scopeTail.hasPrefix("\($0).index(")
+        }) else {
+            return nil
+        }
+        let list = serikoCursor[scopeID]?[listName] ?? [:]
+        if scopeTail == "\(listName).count" {
             return String(list.count)
         }
 
-        if let (name, prop) = parseNamedAccess(key: scopeTail, prefix: "mouselist") {
+        if let (name, prop) = parseNamedAccess(key: scopeTail, prefix: listName) {
             switch prop {
             case "path":
                 return list[name]
@@ -519,8 +579,8 @@ final class GhostPropertyProvider: PropertyProvider {
             }
         }
 
-        if scopeTail.hasPrefix("mouselist.index(") {
-            let sub = String(scopeTail.dropFirst("mouselist.".count))
+        if scopeTail.hasPrefix("\(listName).index(") {
+            let sub = String(scopeTail.dropFirst("\(listName).".count))
             if let (idx, prop) = parseIndex(key: sub) {
                 let names = list.keys.sorted()
                 guard names.indices.contains(idx) else { return nil }
@@ -553,16 +613,26 @@ final class GhostPropertyProvider: PropertyProvider {
         guard let (scopeID, scopeTail) = parseScopePrefix(key: key, prefix: "seriko.cursor.scope") else {
             return false
         }
-        guard let (name, prop) = parseNamedAccess(key: scopeTail, prefix: "mouselist"), prop == "path" else {
+        guard let listName = Self.cursorListKinds.first(where: { scopeTail.hasPrefix("\($0)(") }) else {
             return false
         }
-        var cursors = serikoCursor[scopeID] ?? [:]
+        guard let (name, prop) = parseNamedAccess(key: scopeTail, prefix: listName), prop == "path" else {
+            return false
+        }
+        var byKind = serikoCursor[scopeID] ?? [:]
+        var cursors = byKind[listName] ?? [:]
         if value.isEmpty {
             cursors.removeValue(forKey: name)
         } else {
             cursors[name] = value
         }
-        serikoCursor[scopeID] = cursors
+        // 空になった種別は削除し、scope ごと空なら除去（PROPERTY/1.0M: 空文字で定義削除）
+        if cursors.isEmpty {
+            byKind.removeValue(forKey: listName)
+        } else {
+            byKind[listName] = cursors
+        }
+        serikoCursor[scopeID] = byKind.isEmpty ? nil : byKind
         return true
     }
 
