@@ -33,14 +33,15 @@ final class PluginPropertyProvider: PropertyProvider {
         // pluginlist(name/path/id).property
         if let (identifier, prop) = parseNamedAccess(key: key) {
             if let plugin = findPlugin(by: identifier) {
-                return getPluginProperty(plugin, prop: prop)
+                let idx = plugins.firstIndex { $0.id == plugin.id && $0.path == plugin.path }
+                return getPluginProperty(plugin, prop: prop, index: idx)
             }
         }
 
         // pluginlist.index(n).property
         if let (index, prop) = parseIndex(key: key) {
             guard plugins.indices.contains(index) else { return nil }
-            return getPluginProperty(plugins[index], prop: prop)
+            return getPluginProperty(plugins[index], prop: prop, index: index)
         }
 
         return nil
@@ -48,7 +49,7 @@ final class PluginPropertyProvider: PropertyProvider {
 
     // MARK: - Helpers
 
-    private func getPluginProperty(_ plugin: PropertyPlugin, prop: String) -> String? {
+    private func getPluginProperty(_ plugin: PropertyPlugin, prop: String, index: Int? = nil) -> String? {
         switch prop {
         case "name":
             return plugin.name
@@ -60,6 +61,8 @@ final class PluginPropertyProvider: PropertyProvider {
             return plugin.craftmanw
         case "craftmanurl":
             return plugin.craftmanurl
+        case "index":
+            return index.map(String.init)
         default:
             return nil
         }

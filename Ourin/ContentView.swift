@@ -1327,7 +1327,7 @@ fileprivate struct ExternalEventsView: View {
             // Send to localhost:9801
         case .http:
             logger.info("Sending sample request via HTTP")
-            // POST to localhost:9810/api/sstp/v1
+            // POST to localhost:9801/api/sstp/v1
         case .xpc:
             logger.info("Sending sample request via XPC")
             // Send via XPC connection
@@ -1336,7 +1336,7 @@ fileprivate struct ExternalEventsView: View {
     
     private func copyCurlCommand() {
         let curlCommand = """
-        curl -X POST http://localhost:9810/api/sstp/v1 \\
+        curl -X POST http://localhost:9801/api/sstp/v1 \\
         -H "Content-Type: text/plain" \\
         -d "\(sampleRequest)"
         """
@@ -1349,11 +1349,11 @@ fileprivate struct ExternalEventsView: View {
         let xpcSnippet = """
         // Swift XPC Client Code
         let connection = NSXPCConnection(machServiceName: "jp.ourin.sstp")
-        connection.remoteObjectInterface = NSXPCInterface(with: OurinSSTPProtocol.self)
+        connection.remoteObjectInterface = NSXPCInterface(with: OurinSSTPXPC.self)
         connection.resume()
-        
-        let service = connection.remoteObjectProxy as? OurinSSTPProtocol
-        service?.deliverSSTP("\(sampleRequest)".data(using: .utf8)!) { response in
+
+        let service = connection.remoteObjectProxy as? OurinSSTPXPC
+        service?.executeSSTP("\(sampleRequest)".data(using: .utf8)!) { response in
             print("Response: \\(response)")
         }
         """
@@ -1715,9 +1715,9 @@ fileprivate struct NetworkStatusView: View {
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(8)
                 
-                // HTTP (9810) Status
+                // HTTP (9801, 多重化) Status
                 VStack(alignment: .leading) {
-                    Text("HTTP (9810)").font(.headline)
+                    Text("HTTP (9801)").font(.headline)
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             statusIndicator(color: httpRunning ? .green : .gray)
@@ -1840,9 +1840,9 @@ fileprivate struct NetworkStatusView: View {
     private func updateStatus() {
         guard let server = externalServer else { return }
 
-        // サーバーの稼働状態を取得
-        tcpRunning = server.tcp.isRunning
-        httpRunning = server.http.isRunning
+        // サーバーの稼働状態を取得（TCP/HTTP は 9801 単一ポートで多重化）
+        tcpRunning = server.tcpRunning
+        httpRunning = server.httpRunning
         xpcRunning = server.xpc.isRunning
 
         // メトリクスを取得

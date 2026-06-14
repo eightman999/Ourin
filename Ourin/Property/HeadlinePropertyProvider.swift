@@ -31,14 +31,15 @@ final class HeadlinePropertyProvider: PropertyProvider {
         // headlinelist(name/path).property
         if let (identifier, prop) = parseNamedAccess(key: key) {
             if let headline = findHeadline(by: identifier) {
-                return getHeadlineProperty(headline, prop: prop)
+                let idx = headlines.firstIndex { $0.name == headline.name && $0.path == headline.path }
+                return getHeadlineProperty(headline, prop: prop, index: idx)
             }
         }
 
         // headlinelist.index(n).property
         if let (index, prop) = parseIndex(key: key) {
             guard headlines.indices.contains(index) else { return nil }
-            return getHeadlineProperty(headlines[index], prop: prop)
+            return getHeadlineProperty(headlines[index], prop: prop, index: index)
         }
 
         return nil
@@ -46,7 +47,7 @@ final class HeadlinePropertyProvider: PropertyProvider {
 
     // MARK: - Helpers
 
-    private func getHeadlineProperty(_ headline: Headline, prop: String) -> String? {
+    private func getHeadlineProperty(_ headline: Headline, prop: String, index: Int? = nil) -> String? {
         switch prop {
         case "name":
             return headline.name
@@ -56,6 +57,8 @@ final class HeadlinePropertyProvider: PropertyProvider {
             return headline.craftmanw
         case "craftmanurl":
             return headline.craftmanurl
+        case "index":
+            return index.map(String.init)
         default:
             return nil
         }

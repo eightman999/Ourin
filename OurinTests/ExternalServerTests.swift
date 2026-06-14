@@ -4,7 +4,19 @@ import Testing
 
 /// 外部 SSTP サーバ経路（生テキスト → SSTPParser → SSTPDispatcher）のテスト。
 /// P2-10 の一本化により SstpRouter / SstpMessage は廃止された。
+///
+/// `ShioriStatusStore` / `SstpSessionStore` / `GhostRegistry` / `BridgeToSHIORI` の共有シングルトンを
+/// 変更するため、並列ワーカー実行下でのレースを避けるべく `.serialized` とし、各テスト前に状態を初期化する。
+@Suite(.serialized)
 struct ExternalServerTests {
+    init() {
+        BridgeToSHIORI.reset()
+        GhostRegistry.shared.clear()
+        SstpSessionStore.shared.reset()
+        ShioriStatusStore.shared.reset(to: "online")
+        unsetenv("OURIN_SSTP_LOCAL_ONLY")
+    }
+
     private func makeServer(securityLocalOnly: Bool = true) -> OurinExternalServer {
         let server = OurinExternalServer()
         server.updateConfig(.init(

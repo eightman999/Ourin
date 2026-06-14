@@ -134,11 +134,15 @@ extension GhostManager {
 
             if id.hasPrefix("On") {
                 EventBridge.shared.notifyCustom(id, params: params)
+                forwardEventToPlugins(id: id, references: references)
             } else {
                 var exParams = params
                 exParams["Reference1"] = id
                 EventBridge.shared.notifyCustom("OnAnchorSelectEx", params: exParams)
                 EventBridge.shared.notifyCustom("OnAnchorSelect", params: ["Reference0": id])
+                // プラグインへも横流し（OnAnchorSelect: Reference0=アンカーID）
+                forwardEventToPlugins(id: "OnAnchorSelect", references: [id])
+                forwardEventToPlugins(id: "OnAnchorSelectEx", references: references + [id])
             }
         case .script(let script):
             sakuraEngine.run(script: script)

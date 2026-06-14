@@ -1,32 +1,17 @@
-# SSP Right-Click Menu Mockup
+> 本ドキュメントは英語版原文 `RightClickMenuMockup_en-us.md` の日本語版です。
 
-**ステータス:** 翻訳待ち  
-**原本:** [RightClickMenuMockup_en-us.md](./RightClickMenuMockup_en-us.md)  
-**言語:** 日本語
+# SSP 右クリックメニューのモックアップ
 
----
+以下のコンテキストメニューは、[ukadoc](https://ssp.shillest.net/ukadoc/ssphelp/howto-rclick.html) に記載されているメニューと、SHIORI プロトコル仕様（[spec_shiori3](https://ssp.shillest.net/ukadoc/manual/spec_shiori3.html)、[specification2](http://usada.sakura.vg/contents/specification2.html#shioriprotocol)）を参考にしています。
 
-## 翻訳ノート
+```
+ゴースト情報
+ゴースト切替 > ゴースト1, ゴースト2
+シェル切替 > シェル1, シェル2
+バルーン切替 > バルーン1
+----------------
+設定
+終了
+```
 
-このドキュメントは英語原本の日本語翻訳用プレースホルダーです。
-
-英語版が正式な仕様を含んでいます。この日本語版は以下を維持しながら翻訳すべきです：
-
-- 技術的正確性
-- 他の日本語ドキュメントとの用語の一貫性
-- 元の構造とフォーマット
-- すべてのコード例は変更なし
-- コメントと説明部分の適切な翻訳
-
----
-
-## 内容
-
-*(英語原本から翻訳予定)*
-
----
-
-**翻訳ステータス:** ⏳ 待機中  
-**翻訳者:** 未定  
-**レビュー:** 未定  
-**最終更新日:** 2025-10-23
+このモックアップは `RightClickMenu.swift` に実装されており、`ContentView.swift` から使用されます。

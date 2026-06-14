@@ -1,3 +1,9 @@
+> ⚠️ **DEPRECATED (2026-06-15)**: この文書は 2025-10-21 時点のもので内容が古く、
+> `\![embed]` / `\![timerraise]` / `\![change,*]` / `\_l[x,y]` / `\f[...]` などを「未実装」と
+> 誤記している（いずれも `GhostManager.swift` に実装済み）。
+> さくらスクリプトの対応状況は **`docs/SAKURASCRIPT_COMMANDS_SUPPORTED_en-us.md` / `docs/SUPPORTED_SAKURA_SCRIPT.md` を正本**とすること。
+> 本ファイルは履歴用に残置。
+
 # SakuraScript Implementation Status
 
 **Source**: https://ssp.shillest.net/ukadoc/manual/list_sakura_script.html

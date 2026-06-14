@@ -1,4 +1,9 @@
-# コードと仕様書の差異レポート (2026-06-14)
+# コードと仕様書の差異レポート (2026-06-14、追記 2026-06-15)
+
+> 2026-06-15 追記: §1 の #5(HTTPポート)・#6(XPC命名)・#7(SERIKOカーソル) を解決（詳細は §5）。
+> §2 の NAR 記載を実態（delete.txt/refresh/更新記述子取得は実装済み、更新の実適用のみ未配線）に訂正。
+> さらに §2 の プロパティ汎用名(P1)・dylib `loadu`(P2)・Plugin XPC分離(P3)・SHIORI SecurityLevel差し込み(P4) を実装（🔧）。
+
 
 `docs/` の各仕様書（ja-jp優先）と `Ourin/`・`yaya_core/` の実装を、
 SHIORI / SSTP / さくらスクリプト・SERIKO / プロパティ / FMO他 / Plugin の6領域で突き合わせた結果。
@@ -23,22 +28,23 @@ SHIORI / SSTP / さくらスクリプト・SERIKO / プロパティ / FMO他 / P
 | 2 | P1 | **メモリプロパティのキー名相違**。実装 `system.memory.physical/.available` ⇔ 仕様 `.phyt/.phya` | `PropertyManager.swift:251-252` / `PROPERTY_1.0M_SPEC_ja-jp.md:86-88` | 🔧 phyt/phya を正式キーに追加（英語別名も互換維持） |
 | 3 | P1 | **Plugin `OnOtherGhostTalk` の Ref5 仕様ずれ**。Ref5は「0x01区切りの単一Reference」だが実装は複数Referenceに展開 | `PluginEventDispatcher.swift:142-146` / `PLUGIN_EVENT_2.0M_SPEC_FULL_ja-jp.md:88-94` | 🔧 `ListDelimiter.join` で結合 |
 | 4 | P1 | **Plugin version応答が破棄**。仕様は応答Valueと任意`Charset:`を以降の通信に適用。実装は `let _ = plugin.send(req)` でログのみ | `PluginEventDispatcher.swift:64-72` / `PLUGIN_EVENT_2.0M_SPEC_ja-jp.md §4.1` | 🔧 応答をparseし交渉Charsetをプラグイン毎に保持・送信に反映 |
-| 5 | P1 | **HTTP SSTP のポートが 9810**（仕様はTCPと同じ9801） | `SstpHttpServer.swift:29`(9810) / `SstpTcpServer.swift:29`(9801) / `SSTP_1.xM_SPEC_ja-jp.md:71` | 📝 未対応（理由は §5） |
-| 6 | P1 | **XPCプロトコル二重定義・メソッド名不一致**。`OurinSSTPXPC.executeSSTP` と `OurinExternalSstpXPC.deliverSSTP`。仕様は `executeSSTP(_:withReply:)` 単一 | `Ourin/SSTP/DirectSSTPXPC.swift:3` / `Ourin/ExternalServer/XpcDirectServer.swift:5` / `SSTP_1.xM_SPEC_ja-jp.md:50,188-190` | 📝 未対応（理由は §5） |
-| 7 | P0/P1 | **SERIKOカーソルキーの構造相違**。実装は単一 `cursor.scope(ID).mouselist`、仕様は `mouseup/mousedown/mousehover/mousewheellist` の4分岐 | `GhostPropertyProvider.swift:502-533` / `PROPERTY_1.0M_SPEC_ja-jp.md:109` | 📝 未対応（要構造再設計） |
+| 5 | P1 | **HTTP SSTP のポートが 9810**（仕様はTCPと同じ9801） | `SstpHttpServer.swift` / `SstpTcpServer.swift` / `SSTP_1.xM_SPEC_ja-jp.md:71` | 🔧 **修正済 (2026-06-15)**。`UnifiedSstpListener` を新設し 9801 単一ポートで HTTP/生SSTP を先頭行判定により多重化。HTTP 専用 9810 リスナーは廃止 |
+| 6 | P1 | **XPCプロトコル二重定義・メソッド名不一致**。`OurinSSTPXPC.executeSSTP` と `OurinExternalSstpXPC.deliverSSTP`。仕様は `executeSSTP(_:withReply:)` 単一 | `Ourin/SSTP/DirectSSTPXPC.swift` / `Ourin/ExternalServer/XpcDirectServer.swift` | 🔧 **修正済 (2026-06-15)**。`OurinExternalSstpXPC` を廃止し `XpcDirectServer` を共通 `OurinSSTPXPC.executeSSTP(_:withReply:)` に統一 |
+| 7 | P0/P1 | **SERIKOカーソルキーの構造相違**。実装は単一 `cursor.scope(ID).mouselist`、仕様は `mouseup/mousedown/mousehover/mousewheellist` の4分岐 | `GhostPropertyProvider.swift` / `PROPERTY_1.0M_SPEC_ja-jp.md:109` | 🔧 **修正済 (2026-06-15)**。`serikoCursor` を `[scope:[種別:[name:path]]]` に再設計し4種リストの GET/SET に対応 |
 
 ---
 
 ## 2. 未実装・部分実装（機能拡張として計画）
 
-- 📝 **NAR更新機能(updates2.dau/updates.txt)・delete.txt 未実装**。設計のみ。`LocalNarInstaller.swift` / `NAR_INSTALL_1.0M:162-164`
-- 📝 **汎用dylib直接ロード・`loadu`エントリ未対応**。`HeadlineModule.swift:26-30`・`HeadlineRegistry.swift:26-28` は `load` のみ解決。USLはYAYA専用。
-- 📝 **Plugin XPC/プロセス分離 未実装**（`DispatchQueue`直列のみ）。`SPEC_PLUGIN_2.0M_ja-jp.md:134` でも「未実装」と記載。
-- 📝 **プロパティ汎用名 未実装**: `thumbnail / update_result / update_time / shiori.<var> / index / sakura.bind.menu`。`GhostPropertyProvider.swift:344-379`
-- 📝 **SHIORI Resource のベースウェア側キャッシュ/SET書込が無い**（毎回 `ResourceBridge.query()`）。`ResourceManager.swift`
-- 📝 **バルーン高機能描画が薄い**疑い。`Balloon/`（多形式画像/Retina/装飾が `BALLOON_1.0M_SPEC` 要求に対し簡潔）。
-- 📝 **Plugin `OnChoiceSelect(Ex)/OnAnchorSelect(Ex)/\q`** は `onArbitraryEvent()` があるが呼び出し元なし。`PluginEventDispatcher.swift:149`
-- 📝 **SHIORI 内部イベントの SecurityLevel が常に "local" 固定**（C ABI経路は SecurityLevel/Origin 差し込み機構なし）。`EventBridge.swift:397,418,440` / `ShioriLoader.swift:410-432`
+- 🔧 **NAR更新の実適用 → 対応済み (2026-06-15)**。`NarInstaller.downloadAndApply(entries:homeURLString:targetRoot:)` を新設し、`checkGhostUpdate` が更新記述子の列挙後に各ファイルをダウンロードして適用する（`.nar`/`.zip` は `install(fromNar:)`、それ以外は homeurl 基準の相対パスでゴーストルートへ保存、パストラバーサル防止）。OnUpdate.OnDownloadBegin/Complete・OnUpdateComplete を実適用結果で発火。`delete.txt`/`refresh`/`refreshundeletemask`/同梱`balloon.directory` は既存実装。
+- 🔧 **汎用dylib直接ロード・`loadu`エントリ → 対応済み (2026-06-15)**。SAORI/SHIORI(DylibBackend)/Headline/Plugin の各ローダで `loadu`(UTF-8パス版)を `load` より優先解決。SHIORI DylibBackend は無印 `load/request/unload/free`（Windows由来）も解決する汎用化。
+- 🔧 **Plugin XPC/プロセス分離 → 対応済み (2026-06-15)**。`PluginXpcBackend.swift`(`OurinPluginXPC`/`PluginXpcClient`)を新設。`OURIN_PLUGIN_ISOLATION_MODE=xpc` または `OURIN_PLUGIN_XPC_SERVICE` 指定時に `PluginEventDispatcher` が別プロセスワーカーへ送信（既定はインプロセス）。SHIORI XpcBackend と同設計。
+- 🔧 **プロパティ汎用名 → 対応済み (2026-06-15)**: `thumbnail / update_result / update_time / shiori.<var> / index` を Ghost で解決、`(sakura|kero|char*).bind.menu` を currentghost runtime 状態として GET/SET 対応。`index` は Balloon/Headline/Plugin list でも対応。
+- 🔧 **SHIORI Resource キャッシュ/SET → 対応済み (2026-06-15)**。`ResourceBridge` は既に5秒TTLキャッシュを保持。新たに SET 上書き層（`set(key:value:)`/`clearOverride(_:)`）を追加し、上書き値を SHIORI 問い合わせより優先（空文字=定義削除）。NSLock でスレッド安全化。
+- 🔧 **バルーン高機能描画 → 一部対応 (2026-06-15)**。汎用 `ImageLoader.load` に PNA（別アルファファイル）合成を追加（`CIBlendWithMask`）。`BalloonView` の縁取りを単一ブラーから8方向オフセット影による実アウトラインに改善。残: Retina(@2x) アセット選択。
+- 🔧 **Plugin `OnChoiceSelect(Ex)/OnAnchorSelect(Ex)` → 配線済み (2026-06-15)**。`GhostManager.forwardEventToPlugins` を新設し、選択肢確定（`showChoiceDialog`）とアンカークリック（`onBalloonClicked`）から `PluginEventDispatcher.onArbitraryEvent` へ横流し。残: `\q`(キュー済み選択肢) のプラグイン配線。
+- 🔧 **SHIORI 内部イベントの SecurityLevel 差し込み → 対応済み (2026-06-15)**。`EventBridge` に `ShioriSecurityContext`(level/origin)を導入し `notify`/`notifyCustom`/`sendNotify`/`sendNotifyCustom`/`sendGet` へ伝搬（既定 local）。非YAYA(`BridgeToSHIORI.handle`)経路にもヘッダを渡すよう修正（従来は SecurityLevel が欠落していた）。
+- 🔧 **大量Character表示 → 対応済み (2026-06-15)**。`GhostManager.ensureCharacterWindow(for:)` で scope ウィンドウを遅延生成。`setupWindows` は scope 0/1 のみ先行生成し、`\p[N]`(任意 N)はスコープ切替・サーフェス更新時に生成。残: 複数ゴースト同時実行（AppDelegate は単一 GhostManager 保持。アーキテクチャ変更が必要）。
 
 ---
 
@@ -64,18 +70,33 @@ SHIORI / SSTP / さくらスクリプト・SERIKO / プロパティ / FMO他 / P
 
 ---
 
-## 5. 本コミットで「修正しなかった」項目と理由
+## 5. #5/#6/#7 の対応記録（2026-06-15 解決）
 
-- **#5 HTTPポート(9810→9801)**: TCPサーバ(9801)とHTTPサーバ(9810)は `OurinExternalServer.swift:87,95` で**同時に別リスナーとしてバインド**される。HTTPを9801に変えると起動時にポート競合で破綻する。SSPは単一ポートを多重化(プロトコル判定)するが、Ourinはリスナー分離設計。正しい対応は「9801での多重化」または「設定可能ポート＋仕様文書の追従」であり、設計判断を要するため本コミットでは変更せず。
-- **#6 XPCプロトコル名**: `DirectSSTP`(同一機内ダイレクト)と`External`(外部配送)は**用途の異なる2サービス**。安易な改名は対の接続コードを破壊する。命名統一は両サービスのクライアント整合を要するため保留。
-- **#7 SERIKOカーソル構造**: 単一 `mouselist` → 4分岐への変更はプロパティ生成側の構造再設計が必要。互換影響が広く別タスクとして計画。
+当初コミットでは設計判断を要するとして保留した3件を、2026-06-15 に以下の通り解決した。
+
+- **#5 HTTPポート(9810→9801)**: 旧設計は TCP(9801)/HTTP(9810) を別リスナーとして同時バインドしていた。
+  SSP 同様の単一ポート多重化へ移行。`UnifiedSstpListener` を新設し 9801 で待ち受け、接続の先頭リクエスト行に
+  ` HTTP/` を含むかで HTTP / 生 SSTP を判別し、それぞれ `SstpHttpServer.adopt` / `SstpTcpServer.adopt`
+  （先読みバッファ引き継ぎ）に委譲する。HTTP 専用 9810 は廃止。
+- **#6 XPCプロトコル名**: `OurinExternalSstpXPC.deliverSSTP` を廃止し、`XpcDirectServer` を DirectSSTP と
+  共通の `OurinSSTPXPC.executeSSTP(_:withReply:)` へ統一。direct/external の2リスナーは用途別に維持しつつ、
+  プロトコル定義とメソッド名のみ一本化（exportedInterface も `OurinSSTPXPC` に統一）。
+- **#7 SERIKOカーソル構造**: `serikoCursor` の格納を `[scope:[name:path]]` から
+  `[scope:[種別:[name:path]]]` に再設計し、`mouseuplist/mousedownlist/mousehoverlist/mousewheellist`
+  4種の `.count` / `(hit).path|name` / `.index(ID2).path|name` を GET/SET 両対応にした。
 
 ---
 
 ## 6. 推奨対応（優先度順）
 
-1. 🔧（本コミット）CPUバグ・メモリキー・Plugin Ref5/version。
-2. ポート/XPC命名の設計判断（§5）— 外部連携互換に直結。
-3. SERIKOカーソルキー・プロパティ汎用名の仕様準拠 — 既存ゴースト資産互換。
-4. ドキュメント同期: `TODO/todo.md` 廃止、各SPECの「未実装」記載と更新日の更新、ja-jp翻訳スタブ解消。
-5. NAR更新/削除、dylib汎用ロード/`loadu`、Plugin XPC分離は機能拡張として別途計画。
+1. ✅（PR #92）CPUバグ・メモリキー・Plugin Ref5/version。
+2. ✅（2026-06-15）ポート多重化(#5)・XPC命名統一(#6)・SERIKOカーソル4分岐(#7)。
+3. ✅（2026-06-15）プロパティ汎用名(P1)・dylib `loadu`(P2)・Plugin XPC分離(P3)・SHIORI SecurityLevel差し込み(P4)。
+3b. ✅（2026-06-15 第2弾）NAR更新の実適用(R1)・Resource SET層(R2)・バルーンPNA/縁取り(R3)・Plugin選択/アンカー配線(R4)・大量Character遅延生成(R5)。
+3c. ✅（2026-06-15 第3弾）複数ゴースト同時実行 基盤(M1)・サーフェス/バルーン @2x Retina(M2)・Plugin `\q` 配線(M3)・ja-jp 翻訳スタブ解消(M4)・ExternalServerTests 並列分離(M5)。
+   - **M1**: `AppDelegate.additionalGhosts` / `launchAdditionalGhost(at:|named:)` / `terminateAdditionalGhost` を新設し複数 GhostManager を同時保持。FMO は全ゴースト集約。`\+`(bootOtherGhost) は in-process で追加起動。EventBridge は既に複数セッション対応。残: SSTP 応答ヘッダ副作用（Surface/Balloon）は依然プライマリ宛。
+   - **M2**: `RetinaImageLoader`(新規)で `name@2x.png`/`@3x` を高解像度 representation として取り込み。surface/balloon/arrow/marker ローダに適用。
+   - **M3**: `showChoiceDialog()` を再生完了時に発火するよう配線（従来は定義のみで未呼び出し）。`\q`/`\__q` が機能し、選択時に R4 経由でプラグインへ横流し。
+   - **M4**: SHIORI_RESOURCE_3.0M / SAKURASCRIPT_COMMANDS_SUPPORTED / PropertySystem / GhostConfigurationImplementation / RightClickMenuMockup / SHIORI_EVENTS_FULL_1.0M_PATCHED の ja-jp を整備。残: `YAYA_CORE_*`（内部アーキテクチャ文書、低優先）。
+   - **M5**: `ExternalServerTests` に `@Suite(.serialized)` と per-test シングルトン reset を付与（`SSTPDispatcherTests` と同方式）。
+4. 📝 残（要アーキテクチャ判断）: 複数ゴーストの SSTP 応答ヘッダ個別ルーティング・右クリックメニューのゴースト選択、`YAYA_CORE_*` 内部文書の翻訳。

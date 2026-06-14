@@ -206,23 +206,26 @@ Value: OK
 
 ### 実装済みのイベント
 
-- [ ] `version`: 未実装
-- [ ] `installedplugin` [NOTIFY]: 未実装
-- [ ] `installedghostname` [NOTIFY]: 未実装
-- [ ] `installedballoonname` [NOTIFY]: 未実装
-- [ ] `ghostpathlist` [NOTIFY]: 未実装
-- [ ] `balloonpathlist` [NOTIFY]: 未実装
-- [ ] `headlinepathlist` [NOTIFY]: 未実装
-- [ ] `pluginpathlist` [NOTIFY]: 未実装
-- [ ] `OnSecondChange`: 未実装
-- [ ] `OnOtherGhostTalk`: 未実装
-- [ ] `OnGhostBoot`: 未実装
-- [ ] `OnGhostExit` [NOTIFY]: 未実装
-- [ ] `OnGhostInfoUpdate` [NOTIFY]: 未実装
-- [ ] `OnMenuExec`: 未実装
-- [ ] `OnInstallComplete`: 未実装
-- [ ] `OnChoiceSelect(Ex)`: 未実装
-- [ ] `OnAnchorSelect(Ex)`: 未実装
+> 更新 2026-06-15: 旧版は全イベント「未実装」と誤記していた。実態は `PluginEventDispatcher.swift` に
+> 主要イベントが実装済み。以下を実コードに合わせて訂正。
+
+- [x] `version`: 実装済み（応答 Value/Charset を交渉しプラグイン毎に保持）
+- [x] `installedplugin` [NOTIFY]: 実装済み（`ListDelimiter.join` で結合）
+- [x] `installedghostname` [NOTIFY]: 実装済み（`sendFrame` 経由の NOTIFY）
+- [x] `installedballoonname` [NOTIFY]: 実装済み（`sendFrame` 経由の NOTIFY）
+- [x] `ghostpathlist` [NOTIFY]: 実装済み（`sendFrame` 経由の NOTIFY）
+- [x] `balloonpathlist` [NOTIFY]: 実装済み（`sendFrame` 経由の NOTIFY）
+- [x] `headlinepathlist` [NOTIFY]: 実装済み（`sendFrame` 経由の NOTIFY）
+- [x] `pluginpathlist` [NOTIFY]: 実装済み（`sendFrame` 経由の NOTIFY）
+- [x] `OnSecondChange`: 実装済み（`onSecondChange` + タイマー）
+- [x] `OnOtherGhostTalk`: 実装済み（Ref5 は 0x01 区切り単一 Reference）
+- [x] `OnGhostBoot`: 実装済み（`onGhostBoot`）
+- [x] `OnGhostExit` [NOTIFY]: 実装済み（`onGhostExit`）
+- [x] `OnGhostInfoUpdate` [NOTIFY]: 実装済み（`onGhostInfoUpdate`）
+- [x] `OnMenuExec`: 実装済み（`onMenuExec`）
+- [x] `OnInstallComplete`: 実装済み（`onInstallComplete`）
+- [~] `OnChoiceSelect(Ex)`: 送信経路は汎用 `onArbitraryEvent` で対応可能だが**呼び出し元が未配線**（要接続）
+- [~] `OnAnchorSelect(Ex)`: 同上（`onArbitraryEvent` 経由・呼び出し元未配線）
 - [x] `![raiseplugin]`/`![notifyplugin]`: 実装済み（`OurinPluginEventBridge.swift` 経由で transport 処理）
 
 ### 実装ファイル

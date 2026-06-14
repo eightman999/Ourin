@@ -2403,6 +2403,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 // OnClose 応答スクリプトの再生完了後に終了する（スクリプトが \- を含まない場合の保険）
                 if terminateAfterPlayback {
                     finalizeTermination()
+                } else if !pendingChoices.isEmpty {
+                    // \q / \__q で蓄積された選択肢を再生完了後に提示する。
+                    // 選択時に OnChoiceSelect(Ex) が発火し、プラグインへも横流しされる（showChoiceDialog 内）。
+                    showChoiceDialog()
                 }
                 return
             }
@@ -2424,8 +2428,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 currentScope = id
                 Log.debug("[GhostManager] Switched to scope \(id)")
 
-                // Show the character window for this scope (in case it was hidden)
-                if let window = characterWindows[id] {
+                // Show the character window for this scope (遅延生成: 未作成スコープはここで生成)
+                if let window = ensureCharacterWindow(for: id) {
                     window.orderFront(nil)
                     Log.debug("[GhostManager] Ordered scope \(id) window to front")
                 }

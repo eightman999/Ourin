@@ -22,6 +22,10 @@ public final class ResourceBridge {
         var time: Date
     }
     private var cache: [String: Entry] = [:]
+    /// SET で上書きされたリソース値（SHIORI 問い合わせより優先。空文字は「定義削除」を表す）。
+    private var overrides: [String: String] = [:]
+    /// cache/overrides の同時アクセス保護
+    private let lock = NSLock()
     /// キャッシュ保持時間（秒）
     private let ttl: TimeInterval = 5
     /// ロガー
@@ -30,28 +34,57 @@ public final class ResourceBridge {
     /// Get resource value for given key via SHIORI. Uses cache if valid.
     public func get(_ key: String) -> String? {
         let now = Date()
+        lock.lock()
+        // SET 上書きが最優先（空文字は定義削除＝nil 相当）。
+        if let overridden = overrides[key] {
+            lock.unlock()
+            return overridden.isEmpty ? nil : overridden
+        }
         if let entry = cache[key], let cachedValue = entry.value,
            now.timeIntervalSince(entry.time) < ttl {
+            lock.unlock()
             return cachedValue
         }
+        lock.unlock()
+
         let value = query(key: key)
+        lock.lock()
         if let value = value {
             cache[key] = Entry(value: value, time: now)
         } else {
             cache.removeValue(forKey: key)
         }
+        lock.unlock()
         logger.debug("query \(key) -> \(value ?? "nil")")
         return value
     }
 
-    /// Force invalidate all cached values
-    public func invalidateAll() {
-        cache.removeAll()
+    /// リソース値を SET（上書き）する。以降の `get` は SHIORI を介さず上書き値を返す。
+    /// 空文字を渡すと「定義削除」（`get` は nil を返す）。UKADOC のリソース SET 相当。
+    public func set(_ key: String, value: String) {
+        lock.lock()
+        overrides[key] = value
+        cache.removeValue(forKey: key)
+        lock.unlock()
+        logger.debug("set \(key) = \(value)")
     }
 
-    /// 指定キーのみキャッシュを無効化する
+    /// SET 上書きを解除し、以降は SHIORI 問い合わせに戻す。
+    public func clearOverride(_ key: String) {
+        lock.lock()
+        overrides.removeValue(forKey: key)
+        cache.removeValue(forKey: key)
+        lock.unlock()
+    }
+
+    /// Force invalidate all cached values（上書きは保持する）
+    public func invalidateAll() {
+        lock.lock(); cache.removeAll(); lock.unlock()
+    }
+
+    /// 指定キーのみキャッシュを無効化する（上書きは保持する）
     public func invalidate(keys: [String]) {
-        for k in keys { cache.removeValue(forKey: k) }
+        lock.lock(); for k in keys { cache.removeValue(forKey: k) }; lock.unlock()
     }
 
     // MARK: - Parsing helpers

@@ -183,6 +183,83 @@ final class NarInstaller {
         fetchUpdateDescriptor(from: candidates, baseURL: URL(string: baseWithSlash) ?? base, completion: completion)
     }
 
+    /// 更新記述子で列挙されたファイルを実ダウンロードし設置先へ適用する。
+    /// - `.nar`/`.zip` は `install(fromNar:)` でパッケージ展開（install.txt に従う）。
+    /// - それ以外は `homeURLString` を基準にした相対パスで `targetRoot` 配下へ保存（増分更新）。
+    /// - Parameters:
+    ///   - entries: ダウンロード対象 URL（checkUpdates の結果）
+    ///   - homeURLString: 相対パス算出の基準（ゴーストの homeurl）
+    ///   - targetRoot: 増分ファイルの設置先ルート（通常はゴーストのルート URL）
+    ///   - completion: 適用できたファイル名（lastPathComponent）の配列を返す
+    func downloadAndApply(entries: [URL], homeURLString: String, targetRoot: URL,
+                          completion: @escaping ([String]) -> Void) {
+        guard !entries.isEmpty else { completion([]); return }
+        let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
+        let group = DispatchGroup()
+        let lock = NSLock()
+        var applied: [String] = []
+
+        for entry in entries {
+            group.enter()
+            URLSession.shared.downloadTask(with: entry) { [weak self] local, response, error in
+                defer { group.leave() }
+                guard let self, let local else { return }
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 200
+                guard (200..<300).contains(statusCode) else {
+                    self.log.warning("update download failed status=\(statusCode,) url=\(entry.absoluteString,)")
+                    return
+                }
+                let ext = entry.pathExtension.lowercased()
+                do {
+                    if ext == "nar" || ext == "zip" {
+                        // パッケージ更新: 一時ファイルへ拡張子付きでコピーしてから install
+                        let tmp = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+                            .appendingPathComponent("OurinUpd_\(UUID().uuidString).\(ext)")
+                        try? FileManager.default.removeItem(at: tmp)
+                        try FileManager.default.moveItem(at: local, to: tmp)
+                        defer { try? FileManager.default.removeItem(at: tmp) }
+                        _ = try self.install(fromNar: tmp)
+                    } else {
+                        // 増分ファイル更新: homeurl 基準の相対パスへ保存
+                        try self.applyIncrementalFile(downloaded: local, entry: entry,
+                                                      baseWithSlash: baseWithSlash, targetRoot: targetRoot)
+                    }
+                    lock.lock(); applied.append(entry.lastPathComponent); lock.unlock()
+                } catch {
+                    self.log.warning("update apply failed: \(String(describing: error),) url=\(entry.absoluteString,)")
+                }
+            }.resume()
+        }
+        group.notify(queue: .global()) { completion(applied) }
+    }
+
+    /// 増分更新ファイルを homeurl 基準の相対パスで targetRoot 配下へ保存する（パストラバーサル防止つき）。
+    private func applyIncrementalFile(downloaded: URL, entry: URL, baseWithSlash: String, targetRoot: URL) throws {
+        var relative = entry.absoluteString
+        if relative.hasPrefix(baseWithSlash) {
+            relative = String(relative.dropFirst(baseWithSlash.count))
+        } else {
+            relative = entry.lastPathComponent
+        }
+        relative = (relative.removingPercentEncoding ?? relative)
+            .replacingOccurrences(of: "\\", with: "/")
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        guard !relative.isEmpty, !relative.contains("..") else {
+            throw Error.invalidDeletePath(relative)
+        }
+        let dest = targetRoot.appendingPathComponent(relative)
+        let resolved = dest.resolvingSymlinksInPath()
+        let rootResolved = targetRoot.resolvingSymlinksInPath()
+        guard resolved.path.hasPrefix(rootResolved.path) || dest.path.hasPrefix(targetRoot.path) else {
+            throw Error.zipSlipDetected(dest.path)
+        }
+        try FileManager.default.createDirectory(at: dest.deletingLastPathComponent(), withIntermediateDirectories: true)
+        if FileManager.default.fileExists(atPath: dest.path) {
+            try FileManager.default.removeItem(at: dest)
+        }
+        try FileManager.default.moveItem(at: downloaded, to: dest)
+    }
+
     private func fetchUpdateDescriptor(from candidates: [URL], baseURL: URL, completion: @escaping (Result<[URL], Swift.Error>) -> Void) {
         guard let current = candidates.first else {
             completion(.failure(Error.updateDescriptorNotFound))

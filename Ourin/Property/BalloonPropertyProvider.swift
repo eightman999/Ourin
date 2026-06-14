@@ -84,14 +84,15 @@ final class BalloonPropertyProvider: PropertyProvider {
         // balloonlist(name/path).property
         if let (identifier, prop) = parseNamedAccess(key: key) {
             if let balloon = findBalloon(by: identifier) {
-                return getBalloonProperty(balloon, prop: prop)
+                let idx = balloons.firstIndex { $0.name == balloon.name && $0.path == balloon.path }
+                return getBalloonProperty(balloon, prop: prop, index: idx)
             }
         }
 
         // balloonlist.index(n).property
         if let (index, prop) = parseIndex(key: key) {
             guard balloons.indices.contains(index) else { return nil }
-            return getBalloonProperty(balloons[index], prop: prop)
+            return getBalloonProperty(balloons[index], prop: prop, index: index)
         }
 
         return nil
@@ -112,7 +113,7 @@ final class BalloonPropertyProvider: PropertyProvider {
 
     // MARK: - Helpers
 
-    private func getBalloonProperty(_ balloon: Balloon, prop: String) -> String? {
+    private func getBalloonProperty(_ balloon: Balloon, prop: String, index: Int? = nil) -> String? {
         switch prop {
         case "name":
             return balloon.name
@@ -122,6 +123,8 @@ final class BalloonPropertyProvider: PropertyProvider {
             return balloon.craftmanw
         case "craftmanurl":
             return balloon.craftmanurl
+        case "index":
+            return index.map(String.init)
         default:
             return nil
         }

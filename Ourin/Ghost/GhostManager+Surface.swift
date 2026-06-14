@@ -31,6 +31,9 @@ extension GhostManager {
                     return
                 }
 
+                // 遅延生成: 未作成スコープのウィンドウ/VM をここで生成する（大量キャラ対応）
+                self.ensureCharacterWindow(for: scope)
+
                 if let vm = self.characterViewModels[scope] {
                     vm.image = image
                     vm.currentSurfaceID = id
@@ -84,7 +87,8 @@ extension GhostManager {
 
         for name in candidates {
             let url = shellURL.appendingPathComponent(name)
-            if FileManager.default.fileExists(atPath: url.path), let img = NSImage(contentsOf: url) {
+            // @2x/@3x バリアントがあれば高解像度 rep を取り込む（Retina 対応）
+            if FileManager.default.fileExists(atPath: url.path), let img = RetinaImageLoader.image(contentsOf: url) {
                 // PNA マスクがあれば適用（白=不透明、黒=透明として扱う想定）
                 let pnaURL = url.deletingPathExtension().appendingPathExtension("pna")
                 if FileManager.default.fileExists(atPath: pnaURL.path),

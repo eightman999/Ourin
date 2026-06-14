@@ -173,7 +173,7 @@ void shiori_free(unsigned char* p){ free(p); }
 - [x] **文字コード対応**: UTF-8 既定、Shift_JIS/CP932 受理機能を実装済み
 - [x] **リクエスト/レスポンス処理**: CRLF + 空行終端の基本的なワイヤプロトコル処理を実装済み
 - [ ] **Bundle/Plugin 形式の SHIORI**: C ABI での直接ロードは未実装（現在は YAYA のみ対応）
-- [ ] **XPC 分離実行**: 未実装（現在は同一プロセス内で実行）
+- [x] **XPC 分離実行**: 実装済み（`ShioriLoader.swift` の `XpcBackend` が `OurinShioriXPC` で `Data->Data` を橋渡し。更新 2026-06-15）
 - [ ] **shiori_free メモリ管理**: C ABI 未実装のため該当なし
 
 ### 11.2 実装済みの機能
@@ -198,12 +198,10 @@ void shiori_free(unsigned char* p){ free(p); }
    - `shiori_load`, `shiori_request`, `shiori_unload`, `shiori_free` 関数の実装
    - CFBundle からの関数ポインタ解決
 
-2. **XPC サービス分離**
-   - SHIORI の別プロセス実行
-   - セキュリティサンドボックス分離
+2. ~~**XPC サービス分離**~~ → 実装済み（`XpcBackend`）。別プロセス実行・サンドボックス分離に対応。
 
 3. **SHIORI/2.x 互換**
-   - 2.x プロトコルのサポート
+   - 2.x プロトコルのサポート（バイナリ IPC 規約のため未対応。3.0 一本化）
 
 ## 12. 適合チェックリスト
 - [x] `GET/NOTIFY SHIORI/3.0`、CRLF＋空行終端で往復できる（YAYA バックエンドで実装）  

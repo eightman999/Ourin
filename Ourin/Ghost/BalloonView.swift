@@ -42,16 +42,9 @@ struct BalloonView: View {
                 }
 
                 // Text overlay with proper positioning
-                styledText(for: viewModel)
+                decoratedText(for: viewModel)
                     .lineLimit(nil)
                     .multilineTextAlignment(textAlignment(for: viewModel.textAlign))
-                    .foregroundColor(Color(viewModel.anchorActive ? viewModel.anchorFontColor : viewModel.fontColor))
-                    .shadow(
-                        color: Color(viewModel.shadowColor),
-                        radius: shadowRadius(for: viewModel),
-                        x: viewModel.shadowStyle == .offset ? 1 : 0,
-                        y: viewModel.shadowStyle == .offset ? -1 : 0
-                    )
                     .frame(
                         width: balloonWidth - CGFloat((config?.originX ?? 20) * 2),
                         height: nil,
@@ -133,14 +126,31 @@ struct BalloonView: View {
         return 0
     }
 
-    private func shadowRadius(for vm: BalloonViewModel) -> CGFloat {
+    /// 文字色＋装飾（影／縁取り）を適用したテキストビューを返す。
+    /// - `.offset`: ドロップシャドウ（右下 1px）
+    /// - `.outline`: 8方向のオフセット影による縁取り（単純なブラーではなく実際のアウトライン）
+    @ViewBuilder
+    private func decoratedText(for vm: BalloonViewModel) -> some View {
+        let base = styledText(for: vm)
+            .foregroundColor(Color(vm.anchorActive ? vm.anchorFontColor : vm.fontColor))
         switch vm.shadowStyle {
         case .none:
-            return 0
+            base
         case .offset:
-            return 1
+            base.shadow(color: Color(vm.shadowColor), radius: 1, x: 1, y: -1)
         case .outline:
-            return max(1, vm.outlineWidth)
+            let w = max(1, vm.outlineWidth)
+            let c = Color(vm.shadowColor)
+            // 上下左右＋斜め4方向に縁取り色の影を重ね、文字の輪郭を描く
+            base
+                .shadow(color: c, radius: 0, x:  w, y: 0)
+                .shadow(color: c, radius: 0, x: -w, y: 0)
+                .shadow(color: c, radius: 0, x: 0, y:  w)
+                .shadow(color: c, radius: 0, x: 0, y: -w)
+                .shadow(color: c, radius: 0, x:  w, y:  w)
+                .shadow(color: c, radius: 0, x: -w, y: -w)
+                .shadow(color: c, radius: 0, x:  w, y: -w)
+                .shadow(color: c, radius: 0, x: -w, y:  w)
         }
     }
 }

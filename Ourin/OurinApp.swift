@@ -92,8 +92,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     var pluginDispatcher: PluginEventDispatcher?
     /// NAR インストーラ
     private let narInstaller = NarInstaller()
-    /// The currently running ghost's manager.
+    /// The currently running ghost's manager (primary). 既存の単一ゴースト経路の互換のため維持。
     var ghostManager: GhostManager?
+    /// 同時起動している追加ゴースト（プライマリ以外）。複数ゴースト同時実行用。
+    var additionalGhosts: [GhostManager] = []
+    /// 起動中の全ゴースト（プライマリ＋追加）。FMO 集約・一括終了に使う。
+    var allGhostManagers: [GhostManager] {
+        ([ghostManager].compactMap { $0 }) + additionalGhosts
+    }
     /// DevTools window for legacy macOS
     private var devToolsWindow: NSWindow?
     /// About window
@@ -223,7 +229,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         externalServer?.stop()
         // PLUGIN ディスパッチャ停止
         pluginDispatcher?.stop()
-        // ゴーストをシャットダウン
+        // ゴーストをシャットダウン（追加ゴースト→プライマリ）
+        terminateAllAdditionalGhosts()
         ghostManager?.shutdown()
         // 念のため残留プロセスを掃除
         ProcessKiller.killOtherOurinAndYaya()
@@ -343,20 +350,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
     }
 
-    /// 現在のゴースト情報から FmoGhostRecord を収集する
+    /// 起動中の全ゴースト（プライマリ＋追加）から FmoGhostRecord を収集する。
+    /// 複数ゴースト同時実行時は各ゴーストが 1 レコードを占める（FMO ID は出力側で連番付与）。
     func collectFmoRecords() -> [FmoGhostRecord] {
-        guard let gm = ghostManager, let config = gm.ghostConfig else {
-            return []
+        allGhostManagers.compactMap { gm in
+            guard let config = gm.ghostConfig else { return nil }
+            var record = FmoGhostRecord()
+            record.name = config.sakuraName
+            record.keroname = config.keroName ?? ""
+            record.path = gm.ghostURL.path
+            record.shell = gm.activeShellName
+            record.balloon = gm.balloonConfig?.name ?? ""
+            record.sakuraSurface = gm.characterViewModels[0]?.currentSurfaceID ?? 0
+            record.keroSurface = gm.characterViewModels[1]?.currentSurfaceID ?? 10
+            return record
         }
-        var record = FmoGhostRecord()
-        record.name = config.sakuraName
-        record.keroname = config.keroName ?? ""
-        record.path = gm.ghostURL.path
-        record.shell = gm.activeShellName
-        record.balloon = gm.balloonConfig?.name ?? ""
-        record.sakuraSurface = gm.characterViewModels[0]?.currentSurfaceID ?? 0
-        record.keroSurface = gm.characterViewModels[1]?.currentSurfaceID ?? 10
-        return [record]
     }
 
     /// FMO 共有メモリを現在のゴースト状態で更新する
@@ -381,6 +389,53 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         self.ghostManager = newManager
         NSLog("[runGhost] Starting GhostManager")
         newManager.start()
+    }
+
+    // MARK: - Multiple concurrent ghosts
+
+    /// 追加ゴーストを同時起動する（プライマリは置き換えない）。
+    /// EventBridge は各ゴーストを個別セッションとして登録し、NOTIFY を全ゴーストへ配信する。
+    /// SSTP は ReceiverGhostName で対象を絞り込める。
+    /// - Returns: 起動した GhostManager（既に同一パスが起動中なら既存を返す）
+    @discardableResult
+    func launchAdditionalGhost(at root: URL) -> GhostManager {
+        if let existing = allGhostManagers.first(where: { $0.ghostURL.standardizedFileURL == root.standardizedFileURL }) {
+            NSLog("[launchAdditionalGhost] already running: \(root.lastPathComponent)")
+            return existing
+        }
+        NSLog("[launchAdditionalGhost] launching: \(root.path)")
+        let manager = GhostManager(ghostURL: root)
+        additionalGhosts.append(manager)
+        manager.start()
+        NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
+        return manager
+    }
+
+    /// インストール済みゴースト名から追加ゴーストを起動する。
+    @discardableResult
+    func launchAdditionalGhost(named name: String) -> GhostManager? {
+        guard let item = NarRegistry.shared.installedItems(ofType: "ghost")
+            .first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) else {
+            NSLog("[launchAdditionalGhost] not found: \(name)")
+            return nil
+        }
+        return launchAdditionalGhost(at: item.path)
+    }
+
+    /// 追加ゴーストを終了する（プライマリは対象外）。
+    func terminateAdditionalGhost(_ manager: GhostManager) {
+        guard let idx = additionalGhosts.firstIndex(where: { $0 === manager }) else { return }
+        additionalGhosts.remove(at: idx)
+        manager.shutdown()
+        NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
+    }
+
+    /// すべての追加ゴーストを終了する。
+    func terminateAllAdditionalGhosts() {
+        let managers = additionalGhosts
+        additionalGhosts.removeAll()
+        for m in managers { m.shutdown() }
+        NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
     }
 
     /// Show DevTools window on macOS < 13

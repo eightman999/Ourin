@@ -51,11 +51,23 @@ extension GhostManager {
 
     func setupWindows() {
         Log.debug("[GhostManager] Setting up windows")
-        // Create Character Windows for scope 0 (master), 1 (partner), and potentially 2-3 (additional characters)
-        // Always create at least scope 0 and 1; additional scopes can be created dynamically
-        for scope in 0..<4 {
+        // よく使う scope 0(本体)/1(相方) のみ先行生成する。
+        // 追加キャラ（\p[N] / scope>=2）は参照時に ensureCharacterWindow で遅延生成し、
+        // 多数キャラ・複数ゴーストでも起動コストとメモリを抑える（大量表示対応）。
+        for scope in 0..<2 {
             setupCharacterWindow(for: scope)
         }
+    }
+
+    /// 指定スコープのキャラウィンドウが未生成なら生成して返す（遅延生成・大量キャラ対応）。
+    /// NSWindow を扱うため必ずメインスレッドで呼ぶこと。冪等。
+    @discardableResult
+    func ensureCharacterWindow(for scope: Int) -> NSWindow? {
+        if let existing = characterWindows[scope] { return existing }
+        guard scope >= 0 else { return nil }
+        Log.debug("[GhostManager] Lazily creating character window for scope \(scope)")
+        setupCharacterWindow(for: scope)
+        return characterWindows[scope]
     }
 
     func setupCharacterWindow(for scope: Int) {

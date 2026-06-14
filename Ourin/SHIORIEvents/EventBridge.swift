@@ -3,6 +3,31 @@
 import AppKit
 import UniformTypeIdentifiers
 
+/// SHIORI へ送るイベントのセキュリティ文脈。
+/// システム由来の内部イベントは `.local`、外部SSTP等に由来する場合は `.external(origin:)`。
+/// SHIORI 側が `SecurityLevel` / `SecurityOrigin` で発生源を判別できるようにする（UKADOC）。
+struct ShioriSecurityContext: Equatable {
+    /// "local" または "external"
+    let level: String
+    /// SecurityOrigin（URL等）。無い場合は nil。
+    let origin: String?
+
+    /// 内部システムイベント既定（ローカル）
+    static let local = ShioriSecurityContext(level: "local", origin: nil)
+
+    /// 外部由来（必要なら origin を付与）
+    static func external(origin: String? = nil) -> ShioriSecurityContext {
+        ShioriSecurityContext(level: "external", origin: origin)
+    }
+
+    /// SHIORI リクエストヘッダへ差し込む辞書を返す（Charset/Sender 込み）
+    func shioriHeaders() -> [String: String] {
+        var h: [String: String] = ["Charset": "UTF-8", "Sender": "Ourin", "SecurityLevel": level]
+        if let origin, !origin.isEmpty { h["SecurityOrigin"] = origin }
+        return h
+    }
+}
+
 final class EventBridge {
     static let shared = EventBridge()
     private init() {}
@@ -12,8 +37,8 @@ final class EventBridge {
 
     // Queue for NOTIFY events that occur when autoEvents are disabled
     private enum QueuedNotify {
-        case standard(id: EventID, params: [String: String])
-        case custom(eventName: String, params: [String: String], ignoreResponseScript: Bool)
+        case standard(id: EventID, params: [String: String], security: ShioriSecurityContext)
+        case custom(eventName: String, params: [String: String], ignoreResponseScript: Bool, security: ShioriSecurityContext)
     }
     private var pendingNotifies: [QueuedNotify] = []
 
@@ -149,10 +174,10 @@ final class EventBridge {
         Log.debug("[EventBridge] Flushing \(pendingNotifies.count) queued NOTIFY events")
         for queued in pendingNotifies {
             switch queued {
-            case .standard(let id, let params):
-                broadcastNotifyImmediate(id: id, params: params)
-            case .custom(let eventName, let params, let ignoreResponseScript):
-                broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript)
+            case .standard(let id, let params, let security):
+                broadcastNotifyImmediate(id: id, params: params, security: security)
+            case .custom(let eventName, let params, let ignoreResponseScript, let security):
+                broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
             }
         }
         pendingNotifies.removeAll()
@@ -172,8 +197,9 @@ final class EventBridge {
     }
 
     /// Public helper to send a NOTIFY event by ID
-    func notify(_ id: EventID, params: [String:String] = [:]) {
-        broadcastNotify(id: id, params: params)
+    /// - Parameter security: 発生源のセキュリティ文脈（既定: 内部システム = local）
+    func notify(_ id: EventID, params: [String:String] = [:], security: ShioriSecurityContext = .local) {
+        broadcastNotify(id: id, params: params, security: security)
     }
 
     /// 外部SSTP（SEND の Script ヘッダ等）から、登録済みゴーストのバルーンでスクリプトを再生する。
@@ -214,32 +240,33 @@ final class EventBridge {
     }
 
     /// Public helper to send a NOTIFY event by custom name (for \![raise,...])
-    func notifyCustom(_ eventName: String, params: [String:String] = [:], ignoreResponseScript: Bool = false) {
-        broadcastNotifyCustom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript)
+    /// - Parameter security: 発生源のセキュリティ文脈（既定: 内部 = local）
+    func notifyCustom(_ eventName: String, params: [String:String] = [:], ignoreResponseScript: Bool = false, security: ShioriSecurityContext = .local) {
+        broadcastNotifyCustom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
     }
 
     // Broadcast a NOTIFY to all registered sessions
     // If auto events are disabled, queue the event for later delivery
-    private func broadcastNotify(id: EventID, params: [String:String]) {
+    private func broadcastNotify(id: EventID, params: [String:String], security: ShioriSecurityContext = .local) {
         if !autoEventsEnabled {
             // Queue this event for later when auto events are enabled
-            pendingNotifies.append(.standard(id: id, params: params))
+            pendingNotifies.append(.standard(id: id, params: params, security: security))
             Log.debug("[EventBridge] Queued NOTIFY event: \(id.rawValue) (auto events disabled)")
             return
         }
-        broadcastNotifyImmediate(id: id, params: params)
+        broadcastNotifyImmediate(id: id, params: params, security: security)
     }
 
     // Broadcast a custom NOTIFY to all registered sessions
     // If auto events are disabled, queue the event for later delivery
-    private func broadcastNotifyCustom(eventName: String, params: [String:String], ignoreResponseScript: Bool) {
+    private func broadcastNotifyCustom(eventName: String, params: [String:String], ignoreResponseScript: Bool, security: ShioriSecurityContext = .local) {
         if !autoEventsEnabled {
             // Queue this event for later when auto events are enabled
-            pendingNotifies.append(.custom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript))
+            pendingNotifies.append(.custom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security))
             Log.debug("[EventBridge] Queued custom NOTIFY event: \(eventName) (auto events disabled)")
             return
         }
-        broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript)
+        broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
     }
 
     // 時刻系イベント: Reference3（トーク再生可否）に応じて GET / NOTIFY を切り替える（UKADOC）
@@ -256,7 +283,7 @@ final class EventBridge {
     ]
 
     // Immediately broadcast a NOTIFY to all registered sessions (bypassing queue)
-    private func broadcastNotifyImmediate(id: EventID, params: [String:String]) {
+    private func broadcastNotifyImmediate(id: EventID, params: [String:String], security: ShioriSecurityContext = .local) {
         // Save character names on OnNotifySelfInfo
         if id == .OnNotifySelfInfo {
             let sakuraName = params["Reference0"] ?? params["Reference1"] ?? ""
@@ -278,7 +305,7 @@ final class EventBridge {
                 }
                 if cantalk {
                     // 再生可能: GET で送り、返値スクリプトを再生する（ランダムトークの基本動線）
-                    let script = s.dispatcher.sendGet(id: id, params: p)
+                    let script = s.dispatcher.sendGet(id: id, params: p, security: security)
                     let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
                     if !trimmed.isEmpty {
                         let gm = s.ghostManager
@@ -286,7 +313,7 @@ final class EventBridge {
                     }
                 } else {
                     // 再生不能: NOTIFY で送り、返値は無視する
-                    s.dispatcher.sendNotify(id: id, params: p, ignoreResponseScript: true)
+                    s.dispatcher.sendNotify(id: id, params: p, ignoreResponseScript: true, security: security)
                 }
             }
             return
@@ -297,14 +324,14 @@ final class EventBridge {
             if Self.mouseEvents.contains(id), s.ghostManager?.timeCriticalActive == true {
                 continue
             }
-            s.dispatcher.sendNotify(id: id, params: params)
+            s.dispatcher.sendNotify(id: id, params: params, security: security)
         }
     }
 
     // Immediately broadcast a custom NOTIFY to all registered sessions (bypassing queue)
-    private func broadcastNotifyCustomImmediate(eventName: String, params: [String:String], ignoreResponseScript: Bool) {
+    private func broadcastNotifyCustomImmediate(eventName: String, params: [String:String], ignoreResponseScript: Bool, security: ShioriSecurityContext = .local) {
         for (_, s) in sessions {
-            s.dispatcher.sendNotifyCustom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript)
+            s.dispatcher.sendNotifyCustom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
         }
     }
 }
@@ -388,18 +415,18 @@ final class ShioriDispatcher {
 
     /// BridgeToSHIORI 経由で SHIORI モジュールへ NOTIFY を送出する
     /// - Parameter ignoreResponseScript: true の場合、返値スクリプトを再生しない（cantalk=0 の時刻系イベント等）
-    func sendNotify(id: EventID, params: [String:String], ignoreResponseScript: Bool = false) {
+    func sendNotify(id: EventID, params: [String:String], ignoreResponseScript: Bool = false, security: ShioriSecurityContext = .local) {
         let req = buildRequest(method: "NOTIFY", id: id.rawValue, params: params)
         let refs = orderedRefs(from: params)
         var script: String = ""
 
+        let hdrs = security.shioriHeaders()
         if let ya = yayaAdapter {
-            let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
             if let res = ya.request(method: "NOTIFY", id: id.rawValue, headers: hdrs, refs: refs, timeout: 2.0), res.ok, let val = res.value {
                 script = val
             }
         } else {
-            script = BridgeToSHIORI.handle(event: id.rawValue, references: refs)
+            script = BridgeToSHIORI.handle(event: id.rawValue, references: refs, headers: hdrs)
         }
         Log.debug("[Ourin] NOTIFY built:\n\(req)")
         if ignoreResponseScript { return }
@@ -410,18 +437,18 @@ final class ShioriDispatcher {
     }
 
     /// BridgeToSHIORI 経由で SHIORI モジュールへカスタム名の NOTIFY を送出する（\![raise,...]用）
-    func sendNotifyCustom(eventName: String, params: [String:String], ignoreResponseScript: Bool = false) {
+    func sendNotifyCustom(eventName: String, params: [String:String], ignoreResponseScript: Bool = false, security: ShioriSecurityContext = .local) {
         let req = buildRequest(method: "NOTIFY", id: eventName, params: params)
         let refs = orderedRefs(from: params)
         var script: String = ""
 
-        let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
+        let hdrs = security.shioriHeaders()
         if let ya = yayaAdapter {
             if let res = ya.request(method: "NOTIFY", id: eventName, headers: hdrs, refs: refs, timeout: 2.0), res.ok, let val = res.value {
                 script = val
             }
         } else {
-            script = BridgeToSHIORI.handle(event: eventName, references: refs)
+            script = BridgeToSHIORI.handle(event: eventName, references: refs, headers: hdrs)
         }
         Log.debug("[Ourin] Custom NOTIFY built:\n\(req)")
         if ignoreResponseScript {
@@ -434,17 +461,17 @@ final class ShioriDispatcher {
     }
 
     /// BridgeToSHIORI 経由で SHIORI モジュールへ GET を送出し応答を返す
-    func sendGet(id: EventID, params: [String:String]) -> String {
+    func sendGet(id: EventID, params: [String:String], security: ShioriSecurityContext = .local) -> String {
         let req = buildRequest(method: "GET", id: id.rawValue, params: params)
         let refs = orderedRefs(from: params)
-        let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
+        let hdrs = security.shioriHeaders()
         var res = ""
         if let ya = yayaAdapter {
             if let r = ya.request(method: "GET", id: id.rawValue, headers: hdrs, refs: refs, timeout: 3.0), r.ok, let val = r.value {
                 res = val
             }
         } else {
-            res = BridgeToSHIORI.handle(event: id.rawValue, references: refs)
+            res = BridgeToSHIORI.handle(event: id.rawValue, references: refs, headers: hdrs)
         }
         Log.debug("[Ourin] GET built:\n\(req)")
         return res
