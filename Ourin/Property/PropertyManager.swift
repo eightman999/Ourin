@@ -248,8 +248,9 @@ final class SystemPropertyProvider: PropertyProvider {
         case "cpu.clock": return sysctlInt("hw.cpufrequency").map { String($0) }
         case "cpu.features": return sysctlString("machdep.cpu.features")
         case "cpu.load": return cpuLoad().map { String(Int($0)) }
-        case "memory.physical": return sysctlInt64("hw.memsize").map { String($0 / 1024 / 1024) }
-        case "memory.available": return memoryAvailable().map { String($0) }
+        // 仕様(PROPERTY/1.0M)準拠の phyt/phya を正式キーとし、英語別名も互換のため受理
+        case "memory.phyt", "memory.physical": return sysctlInt64("hw.memsize").map { String($0 / 1024 / 1024) }
+        case "memory.phya", "memory.available": return memoryAvailable().map { String($0) }
         case "memory.load":
             if let total = sysctlInt64("hw.memsize"), let avail = memoryAvailable() {
                 let used = Double(total / 1024 / 1024 - Int64(avail))
@@ -289,7 +290,8 @@ final class SystemPropertyProvider: PropertyProvider {
         let total = deltaUser + deltaSystem + deltaIdle + deltaNice
         lastCPULoad = info
         guard total > 0 else { return nil }
-        return (deltaUser + deltaSystem + deltaIdle + deltaNice) / total * 100
+        // 使用率はアイドルを除いた割合。idle を分子に含めると常に 100% になる
+        return (deltaUser + deltaSystem + deltaNice) / total * 100
     }
 
     private func memoryAvailable() -> Int? {
