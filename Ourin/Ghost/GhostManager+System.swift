@@ -1460,9 +1460,16 @@ extension GhostManager {
     }
 
     private func installNarFile(_ narURL: URL) {
+        EventBridge.shared.notifyCustom("OnInstallBegin", params: [:])
         do {
             let installed = try NarInstaller().install(fromNar: narURL)
-            EventBridge.shared.notifyCustom("OnInstallComplete", params: ["Reference0": installed.path])
+            let name = installed.lastPathComponent
+            // UKADOC: Reference0=識別子, Reference1=名前, Reference2=副名（Ourin はパスも付与）
+            EventBridge.shared.notifyCustom("OnInstallComplete", params: [
+                "Reference0": name,
+                "Reference1": name,
+                "Reference2": installed.path
+            ])
         } catch {
             EventBridge.shared.notifyCustom("OnInstallFailure", params: ["Reference0": error.localizedDescription])
         }
@@ -1568,10 +1575,14 @@ extension GhostManager {
         let raiseEvent = parsed.options["option"]?.lowercased() == "raise-event" || parsed.flags.contains("option=raise-event")
 
         let previous = ghostConfig?.name ?? ""
+        let previousPath = ghostURL.path
         if raiseEvent {
+            // UKADOC: Reference0=新ゴースト名, Reference1=manual/automatic, Reference2=新ゴースト名, Reference3=新パス
             EventBridge.shared.notify(.OnGhostChanging, params: [
                 "Reference0": normalized,
-                "Reference1": previous
+                "Reference1": "manual",
+                "Reference2": normalized,
+                "Reference3": previous
             ])
         }
 
@@ -1585,9 +1596,13 @@ extension GhostManager {
             bootOtherGhost(name: normalized)
         }
 
+        // UKADOC: Reference0=旧ゴースト\0名, Reference2=旧ゴースト名, Reference3=旧ゴーストパス
+        // （Reference1 は OnGhostChanging スクリプト枠。互換のため新ゴースト名も残す）
         EventBridge.shared.notify(.OnGhostChanged, params: [
             "Reference0": previous,
-            "Reference1": normalized
+            "Reference1": normalized,
+            "Reference2": previous,
+            "Reference3": previousPath
         ])
         EventBridge.shared.notify(.OnOtherGhostChanged, params: [
             "Reference0": previous,

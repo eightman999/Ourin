@@ -9,6 +9,8 @@ import OSLog
 public final class OurinExternalServer {
     /// TCP/HTTP を 9801 単一ポートで多重化するリスナー（生 SSTP と HTTP を先頭行で振り分け）
     public let unified = UnifiedSstpListener()
+    /// SSP 互換の副ポート(9821)で同じく生 SSTP/HTTP を多重化するリスナー
+    public let unifiedCompat = UnifiedSstpListener()
     /// XPC 直接通信サーバ
     public let xpc = XpcDirectServer()
     /// OSLog 用ロガー
@@ -35,6 +37,7 @@ public final class OurinExternalServer {
     /// サーバ群の初期設定を行う
     public init() {
         unified.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
+        unifiedCompat.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
         xpc.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
         applyRuntimeConfig()
     }
@@ -69,10 +72,12 @@ public final class OurinExternalServer {
     }
 
     private func applyRuntimeConfig() {
-        unified.updateConfig(.init(
+        let listenerConfig = UnifiedSstpListener.Config(
             timeout: config.timeout,
             maxSize: config.maxPayloadSize
-        ))
+        )
+        unified.updateConfig(listenerConfig)
+        unifiedCompat.updateConfig(listenerConfig)
         logger.info("external server runtime config updated")
     }
 
@@ -83,8 +88,13 @@ public final class OurinExternalServer {
             if !unified.isRunning {
                 try? unified.start()
             }
-        } else if unified.isRunning {
-            unified.stop()
+            // SSP 互換: 副ポート 9821 でも待ち受ける
+            if !unifiedCompat.isRunning {
+                try? unifiedCompat.start(port: 9821)
+            }
+        } else {
+            if unified.isRunning { unified.stop() }
+            if unifiedCompat.isRunning { unifiedCompat.stop() }
         }
 
         if config.enableXPC {
@@ -112,6 +122,7 @@ public final class OurinExternalServer {
     /// すべてのリスナーを停止する。
     public func stop() {
         unified.stop()
+        unifiedCompat.stop()
         xpc.stop()
         stopDistributedIpc()
         logger.info("external servers stopped")

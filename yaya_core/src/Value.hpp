@@ -13,6 +13,7 @@ public:
         Void,
         String,
         Integer,
+        Real,
         Array,
         Dictionary
     };
@@ -20,15 +21,18 @@ public:
     Value();
     explicit Value(const std::string& str);
     explicit Value(int num);
+    explicit Value(double num);
     explicit Value(const std::vector<Value>& arr);
     explicit Value(const std::map<std::string, Value>& dict);
 
     Type getType() const { return type_; }
     bool isVoid() const { return type_ == Type::Void; }
-    
+    bool isReal() const { return type_ == Type::Real; }
+
     // Conversion methods
     std::string asString() const;
     int asInt() const;
+    double asReal() const;
     const std::vector<Value>& asArray() const;
     std::vector<Value>& asArrayMutable();
     const std::map<std::string, Value>& asDict() const;
@@ -59,6 +63,7 @@ private:
     Type type_;
     std::string strValue_;
     int intValue_;
+    double real_ = 0.0;
     std::vector<Value> arrayValue_;
     std::map<std::string, Value> dictValue_;
 };

@@ -27,6 +27,7 @@ private:
     std::shared_ptr<AST::Node> parseTernary();
     std::shared_ptr<AST::Node> parseLogicalOr();
     std::shared_ptr<AST::Node> parseLogicalAnd();
+    std::shared_ptr<AST::Node> parseBitwiseAnd();
     std::shared_ptr<AST::Node> parseEquality();
     std::shared_ptr<AST::Node> parseComparison();
     std::shared_ptr<AST::Node> parseAddition();

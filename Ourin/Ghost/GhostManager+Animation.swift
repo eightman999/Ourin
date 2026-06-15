@@ -139,19 +139,38 @@ extension GhostManager {
             return
         }
 
-        if surfaceAliases.isEmpty {
-            surfaceAliases = SerikoParser.parseSurfaceAliases(surfacesContent)
-            if !surfaceAliases.isEmpty {
-                Log.debug("[GhostManager] Loaded \(surfaceAliases.count) surface aliases")
+        // alias.txt / surfacetable.txt（あれば）も結合し、別名・element 定義を補完する
+        var combined = surfacesContent
+        for extra in ["alias.txt", "surfacetable.txt"] {
+            let url = shellPath.appendingPathComponent(extra)
+            guard FileManager.default.fileExists(atPath: url.path) else { continue }
+            if let c = (try? String(contentsOf: url, encoding: .utf8))
+                ?? (try? String(contentsOf: url, encoding: .shiftJIS)) {
+                combined += "\n" + c
+                Log.debug("[GhostManager] Merged \(extra) into surface definitions")
             }
         }
+
+        if surfaceAliases.isEmpty {
+            surfaceAliases = SerikoParser.parseSurfaceAliases(combined)
+            if !surfaceAliases.isEmpty {
+                Log.debug("[GhostManager] Loaded \(surfaceAliases.count) numeric surface aliases")
+            }
+        }
+        if surfaceNameAliases.isEmpty {
+            surfaceNameAliases = SerikoParser.parseNamedSurfaceAliases(combined)
+            if !surfaceNameAliases.isEmpty {
+                Log.debug("[GhostManager] Loaded \(surfaceNameAliases.count) named surface aliases")
+            }
+        }
+        // 全サーフェス定義（element 合成・surface.append マージ込み）をキャッシュ
+        parsedSurfaceDefs = SerikoParser.parseSurfaces(combined)
 
         guard let vm = characterViewModels[currentScope] else { return }
         let surfaceID = vm.currentSurfaceID
 
-        animationEngine.loadAnimations(surfaceID: surfaceID, content: surfacesContent)
-        let parsed = SerikoParser.parseSurfaces(surfacesContent)
-        if let surface = parsed[surfaceID] {
+        animationEngine.loadAnimations(surfaceID: surfaceID, content: combined)
+        if let surface = parsedSurfaceDefs[surfaceID] {
             serikoExecutor.register(animations: surface.animations)
         }
         Log.debug("[GhostManager] Loaded animations for surface \(surfaceID)")

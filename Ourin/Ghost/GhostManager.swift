@@ -220,6 +220,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // Animation engine
     var animationEngine: AnimationEngine = AnimationEngine()
     var surfaceAliases: [Int: Int] = [:]
+    var surfaceNameAliases: [String: Int] = [:]   // \s[alias] 用: 文字列別名 → サーフェスID
+    var parsedSurfaceDefs: [Int: SerikoSurfaceDefinition] = [:]  // element 合成・アニメ定義のキャッシュ
     var waitingForAnimation: Int? = nil  // Animation ID we're waiting for
 
     // Window management (used by Window extension)
@@ -879,6 +881,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             playbackQueue.append(.scope(id))
         case .surface(let id):
             playbackQueue.append(.surface(id))
+        case .surfaceNamed(let name):
+            // \s[alias]: 文字列別名を surfaceNameAliases で解決して数値サーフェスへ
+            if let id = surfaceNameAliases[name.lowercased()] {
+                playbackQueue.append(.surface(id))
+            } else {
+                NSLog("[GhostManager] Unknown surface alias \(name) in \\s[...]")
+            }
         case .text(let text):
             // Display text character by character with typing effect
             for ch in text { playbackQueue.append(.text(ch)) }
@@ -1043,6 +1052,18 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 quickMode.toggle()
             case "__q":
                 handleQueuedChoiceCommand(args: args)
+            case "__t":
+                // \__t メタタグ: 教えてダイアログを開く（\![open,teachbox] と同等）
+                playbackQueue.append(.deferredCommand {
+                    DispatchQueue.main.async { self.showTeachBoxDialog() }
+                })
+            case "_n":
+                // \_n: 自動改行（ワードラップ）抑制メタタグ。現行レンダラはワードラップ非依存の
+                // ため認識のみ（誤った改行挿入はしない）。
+                NSLog("[GhostManager] \\_n (no-wrap) recognized")
+            case "__v":
+                // \__v: 代替読み/音声制御メタタグ。発話表示には影響しないため認識して無視。
+                NSLog("[GhostManager] \\__v recognized (no-op)")
             case "!":
                 NSLog("[GhostManager] ! command with args: \(args)")
                 if let first = args.first?.lowercased() {

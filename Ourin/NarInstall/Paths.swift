@@ -27,18 +27,53 @@ enum OurinPaths {
 
         return base
     }
-    static func installTarget(forType type: String, directory: String) throws -> URL {
+    /// install.txt の type/directory/accept から設置先 URL を解決する。
+    /// - shell      → ghost/<accept>/shell/<directory>   （対象ゴーストの配下にネスト）
+    /// - supplement → ghost/<accept>/                     （対象ゴーストへ追加マージ。directory は空可）
+    /// - その他      → <kind>/<directory>
+    /// `accept` は対象ゴーストの解決済みディレクトリ名（descript.txt の name から逆引き済み）を渡す。
+    static func installTarget(forType type: String, directory: String, accept: String? = nil) throws -> URL {
         let base = try baseDirectory()
-        let kind: String
+        let trimmedAccept = accept?.trimmingCharacters(in: .whitespaces)
+
         switch type.lowercased() {
-        case "ghost":  kind = "ghost"
-        case "balloon":kind = "balloon"
-        case "shell":  kind = "shell"
-        case "plugin": kind = "plugin"
-        case "package":kind = "package"
-        default: throw NarInstaller.Error.unsupportedType(type)
+        case "ghost":
+            return base.appendingPathComponent("ghost", isDirectory: true)
+                       .appendingPathComponent(directory, isDirectory: true)
+        case "balloon":
+            return base.appendingPathComponent("balloon", isDirectory: true)
+                       .appendingPathComponent(directory, isDirectory: true)
+        case "plugin":
+            return base.appendingPathComponent("plugin", isDirectory: true)
+                       .appendingPathComponent(directory, isDirectory: true)
+        case "headline":
+            return base.appendingPathComponent("headline", isDirectory: true)
+                       .appendingPathComponent(directory, isDirectory: true)
+        case "package":
+            return base.appendingPathComponent("package", isDirectory: true)
+                       .appendingPathComponent(directory, isDirectory: true)
+        case "shell":
+            // 対象ゴースト配下の shell/<directory> へネストして設置する。
+            guard let accept = trimmedAccept, !accept.isEmpty else {
+                throw NarInstaller.Error.installTxtMissingKey("accept")
+            }
+            return base.appendingPathComponent("ghost", isDirectory: true)
+                       .appendingPathComponent(accept, isDirectory: true)
+                       .appendingPathComponent("shell", isDirectory: true)
+                       .appendingPathComponent(directory, isDirectory: true)
+        case "supplement":
+            // 対象ゴーストのルートへ追加ファイルをマージする。directory は任意。
+            guard let accept = trimmedAccept, !accept.isEmpty else {
+                throw NarInstaller.Error.installTxtMissingKey("accept")
+            }
+            let ghostRoot = base.appendingPathComponent("ghost", isDirectory: true)
+                                .appendingPathComponent(accept, isDirectory: true)
+            if directory.isEmpty {
+                return ghostRoot
+            }
+            return ghostRoot.appendingPathComponent(directory, isDirectory: true)
+        default:
+            throw NarInstaller.Error.unsupportedType(type)
         }
-        return base.appendingPathComponent(kind, isDirectory: true)
-                   .appendingPathComponent(directory, isDirectory: true)
     }
 }

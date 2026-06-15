@@ -129,8 +129,11 @@ public final class SstpHttpServer {
     }
 
     private static func decode(_ data: Data) -> String? {
-        if let s = String(data: data, encoding: .utf8) { return s }
-        return String(data: data, encoding: .shiftJIS)
+        // 宣言された Charset を尊重しつつ、未指定時は UTF-8→Shift_JIS の順でフォールバック
+        let charset = EncodingAdapter.detectCharset(in: data)
+        return EncodingAdapter.decode(data, charset: charset)
+            ?? String(data: data, encoding: .utf8)
+            ?? String(data: data, encoding: .shiftJIS)
     }
 
     private static func injectSecurityHeaders(into sstp: String, origin: String?) -> String {

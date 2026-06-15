@@ -1,5 +1,13 @@
 import Foundation
 
+/// PLUGIN/2.0M の SecurityLevel ヘッダ値
+/// - local: アプリ内部で発生したイベント（既定）
+/// - external: SSTP 経由など外部由来で中継されたイベント
+enum PluginSecurityLevel: String {
+    case local
+    case external
+}
+
 /// PLUGIN/2.0M フレーム構築用構造体
 struct PluginFrame {
     /// イベント ID
@@ -10,6 +18,8 @@ struct PluginFrame {
     var charset: String = "UTF-8"
     /// GET か NOTIFY かを示す
     var notify: Bool = false
+    /// SecurityLevel ヘッダ値（既定 local。SSTP 中継等では external を指定）
+    var securityLevel: PluginSecurityLevel = .local
 
     /// 文字列フレームを組み立てる
     func build() -> String {
@@ -19,6 +29,7 @@ struct PluginFrame {
         lines.append("Charset: \(charset)")
         lines.append("ID: \(id)")
         lines.append("Sender: Ourin")
+        lines.append("SecurityLevel: \(securityLevel.rawValue)")
         for (i, ref) in references.enumerated() {
             lines.append("Reference\(i): \(ref)")
         }

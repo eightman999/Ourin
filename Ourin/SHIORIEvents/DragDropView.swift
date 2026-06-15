@@ -77,9 +77,24 @@ final class DragDropReceiverView: NSView {
             // For non-.nar files, process as SHIORI events
             if !urls.isEmpty {
                 let params = Dictionary(uniqueKeysWithValues: urls.enumerated().map { ("Reference\($0.offset)", $0.element) })
+                // 旧仕様の互換イベント（複数ファイルを Reference0.. に列挙）
                 onEvent?(ShioriEvent(id: .OnDragDrop, params: params))
                 onEvent?(ShioriEvent(id: .OnFileDropped, params: params))
                 onEvent?(ShioriEvent(id: .OnFileDrop, params: params))
+                // 現行標準: ファイル/ディレクトリごとに送出
+                //   OnFileDrop2  Reference0=ファイル名, Reference1=フルパス
+                //   OnDirectoryDrop Reference0=ディレクトリパス
+                for u in urls {
+                    guard let url = URL(string: u) else { continue }
+                    let path = url.path
+                    var isDir: ObjCBool = false
+                    let exists = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
+                    if exists && isDir.boolValue {
+                        onEvent?(ShioriEvent(id: .OnDirectoryDrop, params: ["Reference0": path]))
+                    } else {
+                        onEvent?(ShioriEvent(id: .OnFileDrop2, params: ["Reference0": url.lastPathComponent, "Reference1": path]))
+                    }
+                }
                 return true
             }
 

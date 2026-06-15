@@ -76,9 +76,20 @@ public struct SerikoPattern: Equatable {
     public let rawArguments: [String]
 }
 
+/// SERIKO/2.0 の element 定義（基底サーフェスを複数画像で合成する）。
+/// 形式: `elementN,method,filename,x,y`
+public struct SerikoElement: Equatable {
+    public let index: Int
+    public let method: SerikoMethod
+    public let filename: String
+    public let x: Int
+    public let y: Int
+}
+
 public struct SerikoSurfaceDefinition: Equatable {
     public let surfaceID: Int
     public var animations: [Int: SerikoParser.AnimationDefinition]
+    public var elements: [SerikoElement] = []
 }
 
 public enum SerikoParser {
@@ -160,6 +171,13 @@ public enum SerikoParser {
     }
 
     private static func parseAnimationLine(_ line: String, into surface: inout SerikoSurfaceDefinition) {
+        // SERIKO/2.0 element 行（基底サーフェスの画像合成）
+        if let element = parseElementLine(line) {
+            surface.elements.append(element)
+            surface.elements.sort { $0.index < $1.index }
+            return
+        }
+
         if let (animID, intervalRaw) = parseAnimationInterval(line) {
             var definition = surface.animations[animID] ?? AnimationDefinition(
                 id: animID,
@@ -371,9 +389,31 @@ public enum SerikoParser {
 
     static func parseSurfaceIDs(from line: String) -> [Int] {
         guard line.hasPrefix("surface") else { return [] }
-        let tail = String(line.dropFirst("surface".count))
+        var tail = String(line.dropFirst("surface".count))
+        // surface.append123 → 123（既存サーフェス定義への追記マージ）
+        if tail.hasPrefix(".append") {
+            tail = String(tail.dropFirst(".append".count))
+        }
         let parts = tail.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
         return parts.compactMap { Int($0) }
+    }
+
+    private static func parseElementLine(_ line: String) -> SerikoElement? {
+        let prefix = "element"
+        guard line.hasPrefix(prefix) else { return nil }
+        let afterPrefix = line.dropFirst(prefix.count)
+        guard let comma = afterPrefix.firstIndex(of: ",") else { return nil }
+        guard let id = Int(afterPrefix[..<comma]) else { return nil }
+        let argsPart = String(afterPrefix[afterPrefix.index(after: comma)...])
+        // elementN,method,filename,x,y （filename にカンマは想定しない）
+        let args = argsPart.split(separator: ",", omittingEmptySubsequences: false)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+        guard args.count >= 2 else { return nil }
+        let method = SerikoMethod.parse(args[0])
+        let filename = args[1]
+        let x = args.count > 2 ? (Int(args[2]) ?? 0) : 0
+        let y = args.count > 3 ? (Int(args[3]) ?? 0) : 0
+        return SerikoElement(index: id, method: method, filename: filename, x: x, y: y)
     }
 
     /// Parse surface alias blocks (e.g. `sakura.surface.alias { 35,[55] }`)
@@ -447,6 +487,36 @@ public enum SerikoParser {
             }
         }
         return result2
+    }
+
+    /// Parse surface alias blocks capturing string-named aliases too
+    /// (e.g. `sakura.surface.alias { smile,[5,6] }`). Returns name(lowercased) → first surface ID.
+    /// Used to resolve non-numeric `\s[name]` surface references.
+    public static func parseNamedSurfaceAliases(_ content: String) -> [String: Int] {
+        let lines = content.components(separatedBy: .newlines)
+        var result: [String: Int] = [:]
+        var sawHeader = false
+        var inBlock = false
+        for raw in lines {
+            let line = stripComment(from: raw).trimmingCharacters(in: .whitespacesAndNewlines)
+            if line.hasSuffix("surface.alias") { sawHeader = true; inBlock = false; continue }
+            if sawHeader && line == "{" { inBlock = true; sawHeader = false; continue }
+            if line == "}" { inBlock = false; sawHeader = false; continue }
+            if !line.isEmpty && !inBlock { sawHeader = false }
+            if inBlock {
+                guard let comma = line.firstIndex(of: ",") else { continue }
+                let key = line[..<comma].trimmingCharacters(in: .whitespaces).lowercased()
+                let valuePart = line[line.index(after: comma)...]
+                    .replacingOccurrences(of: "[", with: "")
+                    .replacingOccurrences(of: "]", with: "")
+                let firstID = valuePart.split(separator: ",").first
+                    .flatMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+                if !key.isEmpty, let id = firstID {
+                    result[key] = id
+                }
+            }
+        }
+        return result
     }
 
     private static func stripComment(from line: String) -> String {

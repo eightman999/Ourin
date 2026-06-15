@@ -32,7 +32,7 @@ struct FmoTests {
 
         // Every line ends with \r\n
         let lines = snapshot.components(separatedBy: "\r\n").filter { !$0.isEmpty }
-        #expect(lines.count == 8)
+        #expect(lines.count == 14)
 
         // No bare \n without preceding \r
         let withoutCRLF = snapshot.replacingOccurrences(of: "\r\n", with: "")
@@ -89,10 +89,17 @@ struct FmoTests {
         #expect(snapshot.isEmpty)
     }
 
-    @Test func hwndIsDummyZero() {
-        let record = FmoGhostRecord(name: "Test", keroname: "", path: "/tmp", shell: "master", balloon: "", sakuraSurface: 0, keroSurface: 10)
+    @Test func hwndReflectsRecord() {
+        var record = FmoGhostRecord(name: "Test", keroname: "", path: "/tmp", shell: "master", balloon: "", sakuraSurface: 0, keroSurface: 10)
+        record.hwnd = 42
+        record.kerohwnd = 43
+        record.hwndList = "42,43"
         let snapshot = FmoManager.buildSnapshot(records: [record])
-        #expect(snapshot.contains("0.hwnd\u{01}0\r\n"))
+        // hwnd はダミー0ではなくレコード固有の安定・一意な値を出力する
+        #expect(snapshot.contains("0.hwnd\u{01}42\r\n"))
+        #expect(snapshot.contains("0.kerohwnd\u{01}43\r\n"))
+        #expect(snapshot.contains("0.hwndlist\u{01}42,43\r\n"))
+        #expect(snapshot.contains("0.module.state\u{01}running\r\n"))
     }
 
     @Test func recordFieldOrder() {
@@ -100,14 +107,20 @@ struct FmoTests {
         let snapshot = FmoManager.buildSnapshot(records: [record])
         let lines = snapshot.components(separatedBy: "\r\n").filter { !$0.isEmpty }
 
-        #expect(lines.count == 8)
+        #expect(lines.count == 14)
         #expect(lines[0].hasPrefix("0.name\u{01}"))
         #expect(lines[1].hasPrefix("0.keroname\u{01}"))
-        #expect(lines[2].hasPrefix("0.path\u{01}"))
-        #expect(lines[3].hasPrefix("0.shell\u{01}"))
-        #expect(lines[4].hasPrefix("0.balloon\u{01}"))
-        #expect(lines[5].hasPrefix("0.sakura.surface\u{01}"))
-        #expect(lines[6].hasPrefix("0.kero.surface\u{01}"))
-        #expect(lines[7].hasPrefix("0.hwnd\u{01}"))
+        #expect(lines[2].hasPrefix("0.fullname\u{01}"))
+        #expect(lines[3].hasPrefix("0.ghostname\u{01}"))
+        #expect(lines[4].hasPrefix("0.path\u{01}"))
+        #expect(lines[5].hasPrefix("0.ghostpath\u{01}"))
+        #expect(lines[6].hasPrefix("0.sakura.surface\u{01}"))
+        #expect(lines[7].hasPrefix("0.kero.surface\u{01}"))
+        #expect(lines[8].hasPrefix("0.hwnd\u{01}"))
+        #expect(lines[9].hasPrefix("0.kerohwnd\u{01}"))
+        #expect(lines[10].hasPrefix("0.hwndlist\u{01}"))
+        #expect(lines[11].hasPrefix("0.module.state\u{01}"))
+        #expect(lines[12].hasPrefix("0.shell\u{01}"))
+        #expect(lines[13].hasPrefix("0.balloon\u{01}"))
     }
 }

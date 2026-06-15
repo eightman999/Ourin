@@ -44,14 +44,20 @@ extension GhostManager {
                     self.positionBalloonWindow()
                 }
                 
-                // Dispatch OnSurfaceChange event
+                // Dispatch OnSurfaceChange event.
+                // UKADOC: Reference0 = sakura(scope0) の現在サーフェスID,
+                //         Reference1 = kero(scope1) の現在サーフェスID,
+                //         Reference2 = 変化したキャラのスコープ,サーフェスID。
+                let sakuraSurface = self.characterViewModels[0]?.currentSurfaceID ?? (scope == 0 ? id : 0)
+                let keroSurface = self.characterViewModels[1]?.currentSurfaceID ?? (scope == 1 ? id : 0)
                 let params: [String: String] = [
-                    "Reference0": String(oldSurfaceID),
-                    "Reference1": String(id)
+                    "Reference0": String(sakuraSurface),
+                    "Reference1": String(keroSurface),
+                    "Reference2": "\(scope),\(id)"
                 ]
                 EventBridge.shared.notify(.OnSurfaceChange, params: params)
                 NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
-                Log.debug("[GhostManager] OnSurfaceChange dispatched: \(oldSurfaceID) -> \(id)")
+                Log.debug("[GhostManager] OnSurfaceChange dispatched: sakura=\(sakuraSurface) kero=\(keroSurface) (changed scope\(scope) \(oldSurfaceID)->\(id))")
             }
         }
         
@@ -71,6 +77,12 @@ extension GhostManager {
         guard let shellURL = loadShellPath() else {
             Log.info("[GhostManager] Cannot load surface: shell path unavailable")
             return nil
+        }
+        // SERIKO/2.0: element 合成で定義されるサーフェスは複数画像を重ねて生成する
+        if let elements = parsedSurfaceDefs[surfaceId]?.elements, !elements.isEmpty,
+           let composed = compositeSurfaceElements(elements, shellURL: shellURL) {
+            Log.debug("[GhostManager] Surface \(surfaceId) composed from \(elements.count) elements")
+            return composed
         }
         // いくつかのシェルは surface0000.png のような4桁ゼロ埋めを使う。
         func pad4(_ n: Int) -> String { String(format: "%04d", n) }
@@ -121,6 +133,54 @@ extension GhostManager {
         NSGraphicsContext.current?.cgContext.draw(cg, in: CGRect(origin: .zero, size: size))
         nsimg.unlockFocus()
         return nsimg
+    }
+
+    /// 任意ファイルのサーフェス画像を読み込む（Retina + 同名 PNA マスク対応）。element 合成で使用。
+    func loadSurfaceFile(url: URL) -> NSImage? {
+        guard FileManager.default.fileExists(atPath: url.path),
+              let img = RetinaImageLoader.image(contentsOf: url) else { return nil }
+        let pnaURL = url.deletingPathExtension().appendingPathExtension("pna")
+        if FileManager.default.fileExists(atPath: pnaURL.path),
+           let masked = applyPNAMask(baseURL: url, maskURL: pnaURL) {
+            return masked
+        }
+        return img
+    }
+
+    /// SERIKO/2.0 element 定義を index 順に重ねて1枚の基底サーフェス画像を合成する。
+    func compositeSurfaceElements(_ elements: [SerikoElement], shellURL: URL) -> NSImage? {
+        guard !elements.isEmpty else { return nil }
+        struct Loaded { let img: NSImage; let x: Int; let y: Int; let method: SerikoMethod }
+        var loaded: [Loaded] = []
+        for el in elements.sorted(by: { $0.index < $1.index }) {
+            let url = shellURL.appendingPathComponent(el.filename)
+            guard let img = loadSurfaceFile(url: url) else {
+                Log.info("[GhostManager] element image not found: \(el.filename)")
+                continue
+            }
+            loaded.append(Loaded(img: img, x: el.x, y: el.y, method: el.method))
+        }
+        guard !loaded.isEmpty else { return nil }
+        // キャンバスサイズ = 全 element の包含矩形（原点(0,0)基準）
+        var maxW = 0, maxH = 0
+        for l in loaded {
+            maxW = max(maxW, l.x + Int(l.img.size.width.rounded()))
+            maxH = max(maxH, l.y + Int(l.img.size.height.rounded()))
+        }
+        guard maxW > 0, maxH > 0 else { return nil }
+        let canvasSize = NSSize(width: maxW, height: maxH)
+        let canvas = NSImage(size: canvasSize)
+        canvas.lockFocus()
+        for l in loaded {
+            // SERIKO は左上原点・y 下方向。NSImage は左下原点なので変換する。
+            let drawPoint = NSPoint(x: CGFloat(l.x),
+                                    y: canvasSize.height - CGFloat(l.y) - l.img.size.height)
+            // reduce はアルファ間引き(destinationIn)、その他は通常の上書き合成(sourceOver)で近似
+            let op: NSCompositingOperation = (l.method == .reduce) ? .destinationIn : .sourceOver
+            l.img.draw(at: drawPoint, from: .zero, operation: op, fraction: 1.0)
+        }
+        canvas.unlockFocus()
+        return canvas
     }
 
     // MARK: - Surface Compositing

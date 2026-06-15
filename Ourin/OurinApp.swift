@@ -166,6 +166,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         pluginRegistry = registry
         // プラグイン読み込み後にディスパッチャを開始
         pluginDispatcher = PluginEventDispatcher(registry: registry)
+        // プラグインが返した Script:/Event: をホスト（アクティブゴースト）へ配線する
+        pluginDispatcher?.onScript = { [weak self] script in
+            DispatchQueue.main.async { self?.ghostManager?.runScript(script) }
+        }
+        pluginDispatcher?.onEmitEvent = { event, refs in
+            DispatchQueue.main.async { EventBridge.shared.notifyCustom(event, params: refs) }
+        }
 
         // HEADLINE モジュールも探索してロード
         let hRegistry = HeadlineRegistry()
@@ -363,6 +370,42 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             record.balloon = gm.balloonConfig?.name ?? ""
             record.sakuraSurface = gm.characterViewModels[0]?.currentSurfaceID ?? 0
             record.keroSurface = gm.characterViewModels[1]?.currentSurfaceID ?? 10
+
+            // 標準 SSP/UKADOC FMO フィールド
+            record.fullname = config.name
+            record.ghostname = config.name
+            record.ghostpath = gm.ghostURL.path
+            record.moduleState = "running"
+
+            // ウィンドウ識別子: 実ウィンドウ番号（NSWindow.windowNumber, 安定・一意・非ゼロ）を優先。
+            // ウィンドウが未生成・未表示で番号が取れない場合はゴーストパス由来の安定ハッシュで代替する。
+            // ハッシュは各スコープにスコープ番号を加味し、ゴースト間・スコープ間で衝突しないようにする。
+            func stableID(forScope scope: Int) -> Int {
+                if let n = gm.characterWindows[scope]?.windowNumber, n != 0 {
+                    return n
+                }
+                // 安定ハッシュ（負値や 0 を避けるため絶対値+1）
+                var hasher = Hasher()
+                hasher.combine(gm.ghostURL.standardizedFileURL.path)
+                hasher.combine(scope)
+                let h = hasher.finalize()
+                return abs(h % 0x7FFF_FFFF) + 1
+            }
+
+            record.hwnd = stableID(forScope: 0)
+            record.kerohwnd = stableID(forScope: 1)
+
+            // hwndlist: このゴーストの全キャラクターウィンドウ識別子をスコープ順で並べる。
+            // 実ウィンドウが存在するスコープのみ列挙し、無ければ sakura/kero の安定 ID を使う。
+            if !gm.characterWindows.isEmpty {
+                record.hwndList = gm.characterWindows
+                    .sorted(by: { $0.key < $1.key })
+                    .map { String(stableID(forScope: $0.key)) }
+                    .joined(separator: ",")
+            } else {
+                record.hwndList = "\(record.hwnd),\(record.kerohwnd)"
+            }
+
             return record
         }
     }

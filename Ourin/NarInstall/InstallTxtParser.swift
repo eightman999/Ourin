@@ -5,6 +5,8 @@ struct InstallManifest {
     var type: String = ""
     var directory: String = ""
     var accept: String?
+    /// install.txt の charset 宣言値（宣言されていた場合のみ）
+    var charset: String?
     /// refresh,1 でインストール前に既存インストール先を削除する（更新インストール）
     var refresh: Bool = false
     /// refresh 時に残すパスを表す正規表現の集合（UKADOC: カンマ区切り）
@@ -17,16 +19,69 @@ struct InstallManifest {
 }
 
 enum TextEncodingDetector {
+    /// Windows 互換 Shift_JIS (CP932)
+    static let shiftJIS = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.shiftJIS.rawValue)))
+
     static func decode(_ data: Data) -> String? {
         if let s = String(data: data, encoding: .utf8) { return s }
         // Try Shift_JIS (CP932)
-        let enc = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.shiftJIS.rawValue)))
-        if let s = String(data: data, encoding: enc) { return s }
+        if let s = String(data: data, encoding: shiftJIS) { return s }
+        return nil
+    }
+
+    /// `charset,<value>` / `charset:<value>` の宣言値（小文字）を String.Encoding へ写像する。
+    /// 未対応・不明な値は nil を返す。
+    static func encoding(forCharset declared: String) -> String.Encoding? {
+        let v = declared.lowercased().trimmingCharacters(in: .whitespaces)
+        switch v {
+        case "utf-8", "utf8":
+            return .utf8
+        case "shift_jis", "shift-jis", "shiftjis", "sjis", "cp932", "windows-31j", "ms932":
+            return shiftJIS
+        default:
+            return nil
+        }
+    }
+
+    /// install.txt 等の生バイト列の先頭行を走査し、`charset` 宣言を探す。
+    /// 宣言があれば対応するエンコーディング、なければ nil を返す。
+    static func declaredCharset(in data: Data) -> String.Encoding? {
+        // 先頭部分だけを ASCII 互換として安全に走査する（最大 4KB）。
+        let probeCount = min(data.count, 4096)
+        let probe = data.prefix(probeCount)
+        guard let ascii = String(data: probe, encoding: .isoLatin1) else { return nil }
+        let lines = ascii.replacingOccurrences(of: "\r\n", with: "\n").split(separator: "\n", omittingEmptySubsequences: false)
+        for raw in lines {
+            let line = raw.trimmingCharacters(in: .whitespaces)
+            if line.isEmpty || line.hasPrefix(";") || line.hasPrefix("#") { continue }
+            // `charset,<value>` または `charset:<value>` の両表記を許容する。
+            let lower = line.lowercased()
+            guard lower.hasPrefix("charset") else { continue }
+            let afterKey = line.dropFirst("charset".count)
+            guard let sep = afterKey.first, sep == "," || sep == ":" else { continue }
+            let value = afterKey.dropFirst().trimmingCharacters(in: .whitespaces)
+            if let enc = encoding(forCharset: value) { return enc }
+        }
         return nil
     }
 }
 
 struct InstallTxtParser {
+    /// install.txt の生バイト列を解析する。
+    /// 先頭行に `charset` 宣言があればそのエンコーディングで優先的にデコードし、
+    /// 宣言が無い／デコード失敗時は従来の推定（UTF-8 → Shift_JIS）へフォールバックする。
+    static func parse(data: Data) throws -> InstallManifest {
+        var text: String?
+        if let declared = TextEncodingDetector.declaredCharset(in: data) {
+            text = String(data: data, encoding: declared)
+        }
+        if text == nil {
+            text = TextEncodingDetector.decode(data)
+        }
+        guard let str = text else { throw NarInstaller.Error.installTxtDecodeFailed }
+        return try parse(str)
+    }
+
     static func parse(_ text: String) throws -> InstallManifest {
         var manifest = InstallManifest()
         let lines = text.replacingOccurrences(of: "\r\n", with: "\n").split(separator: "\n", omittingEmptySubsequences: false)
@@ -38,6 +93,7 @@ struct InstallTxtParser {
             let key = parts[0].lowercased()
             let value = parts[1]
             switch key {
+            case "charset": manifest.charset = value
             case "type": manifest.type = value
             case "directory": manifest.directory = value
             case "accept": manifest.accept = value
@@ -59,7 +115,12 @@ struct InstallTxtParser {
             }
         }
         guard !manifest.type.isEmpty else { throw NarInstaller.Error.installTxtMissingKey("type") }
-        guard !manifest.directory.isEmpty else { throw NarInstaller.Error.installTxtMissingKey("directory") }
+        // UKADOC: directory は supplement / package では任意、それ以外では必須。
+        let typeLower = manifest.type.lowercased()
+        let directoryOptional = (typeLower == "supplement" || typeLower == "package")
+        if !directoryOptional {
+            guard !manifest.directory.isEmpty else { throw NarInstaller.Error.installTxtMissingKey("directory") }
+        }
         return manifest
     }
 }

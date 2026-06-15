@@ -56,11 +56,16 @@ final class NarInstaller {
         let installTxt = tmpExtract.appendingPathComponent("install.txt")
         guard FileManager.default.fileExists(atPath: installTxt.path) else { throw Error.installTxtNotFound }
         let itData = try Data(contentsOf: installTxt)
-        guard let itStr = TextEncodingDetector.decode(itData) else { throw Error.installTxtDecodeFailed }
-        let manifest = try InstallTxtParser.parse(itStr)
+        // charset 宣言があればそのエンコーディングで優先デコードする（parse(data:) 内で処理）。
+        let manifest = try InstallTxtParser.parse(data: itData)
 
         // 4) 設置先解決
-        let target = try OurinPaths.installTarget(forType: manifest.type, directory: manifest.directory)
+        //    shell / supplement は accept（親ゴースト）配下へネストするため、
+        //    accept を descript.txt の name から実ディレクトリへ解決してから渡す。
+        let resolvedAccept = resolveAcceptDirectory(manifest.accept)
+        let target = try OurinPaths.installTarget(forType: manifest.type,
+                                                  directory: manifest.directory,
+                                                  accept: resolvedAccept)
         log.info("resolved target: \(target.path,)")
 
         // 5) 上書きポリシー
@@ -68,8 +73,10 @@ final class NarInstaller {
         //   既存ゴーストの再インストール（更新）が必ず失敗していた。UKADOC では type=shell の
         //   accept は親ゴースト名の検証用であり、上書き判定とは関係ない。
         //   既存先がある場合は通常の更新インストールとして許容する。
-        if manifest.type.lowercased() == "shell", let accept = manifest.accept, !accept.isEmpty {
-            try validateShellAccept(accept)
+        let typeLower = manifest.type.lowercased()
+        if (typeLower == "shell" || typeLower == "supplement"),
+           let accept = manifest.accept, !accept.isEmpty {
+            try validateShellAccept(resolvedAccept ?? accept)
         }
 
         // 6) refresh,1 が指定されていれば設置先をクリア（refreshundeletemask に合致するパスは保持）
@@ -100,15 +107,67 @@ final class NarInstaller {
         return target
     }
 
-    /// type=shell の accept ヘッダで指定された親ゴーストがインストール済みか確認する。
+    /// type=shell / supplement の accept で指定された親ゴーストがインストール済みか確認する。
     /// 未インストールでも処理を継続するが、警告ログを出す（UKADOC のままでは厳格すぎるため寛容寄り）。
+    /// 引数は解決済みのディレクトリ名を想定する。
     private func validateShellAccept(_ accept: String) throws {
         let base = try OurinPaths.baseDirectory()
         let ghostDir = base.appendingPathComponent("ghost", isDirectory: true)
         let candidate = ghostDir.appendingPathComponent(accept, isDirectory: true)
         if !FileManager.default.fileExists(atPath: candidate.path) {
-            log.warning("shell.accept=\(accept,) : 親ゴーストが見つかりません（インストールは継続）")
+            log.warning("accept=\(accept,) : 親ゴーストが見つかりません（インストールは継続）")
         }
+    }
+
+    /// install.txt の `accept`（対象ゴーストの descript.txt の name）を実ディレクトリ名へ解決する。
+    /// 1) ghost/<accept> がそのまま存在すればその名前を返す（ディレクトリ名と一致する一般的なケース）。
+    /// 2) 無ければ ghost/*/ghost/master/descript.txt を走査し name == accept のゴーストのディレクトリ名を返す。
+    /// 3) いずれも見つからなければ accept をそのまま返す（呼び出し側で警告。クラッシュさせない）。
+    private func resolveAcceptDirectory(_ accept: String?) -> String? {
+        guard let accept = accept?.trimmingCharacters(in: .whitespaces), !accept.isEmpty else { return accept }
+        guard let base = try? OurinPaths.baseDirectory() else { return accept }
+        let fm = FileManager.default
+        let ghostDir = base.appendingPathComponent("ghost", isDirectory: true)
+
+        // 1) ディレクトリ名がそのまま一致
+        let direct = ghostDir.appendingPathComponent(accept, isDirectory: true)
+        var isDir: ObjCBool = false
+        if fm.fileExists(atPath: direct.path, isDirectory: &isDir), isDir.boolValue {
+            return accept
+        }
+
+        // 2) descript.txt の name で逆引き
+        guard let entries = try? fm.contentsOfDirectory(at: ghostDir, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]) else {
+            return accept
+        }
+        for entry in entries {
+            var entryIsDir: ObjCBool = false
+            guard fm.fileExists(atPath: entry.path, isDirectory: &entryIsDir), entryIsDir.boolValue else { continue }
+            let descript = entry.appendingPathComponent("ghost/master/descript.txt")
+            guard fm.fileExists(atPath: descript.path) else { continue }
+            guard let data = try? Data(contentsOf: descript), let text = TextEncodingDetector.decode(data) else { continue }
+            if descriptName(in: text) == accept {
+                log.info("accept=\(accept,) を ghost/\(entry.lastPathComponent,) へ解決しました")
+                return entry.lastPathComponent
+            }
+        }
+
+        // 3) 見つからず: そのまま返す
+        return accept
+    }
+
+    /// descript.txt 本文から `name` フィールドの値を取り出す。
+    private func descriptName(in text: String) -> String? {
+        let lines = text.replacingOccurrences(of: "\r\n", with: "\n").split(separator: "\n", omittingEmptySubsequences: false)
+        for raw in lines {
+            let line = raw.trimmingCharacters(in: .whitespaces)
+            if line.isEmpty || line.hasPrefix(";") || line.hasPrefix("#") { continue }
+            let parts = line.split(separator: ",", maxSplits: 1).map { String($0).trimmingCharacters(in: .whitespaces) }
+            if parts.count == 2, parts[0].lowercased() == "name" {
+                return parts[1]
+            }
+        }
+        return nil
     }
 
     /// refresh,1 のインストール時に設置先を空にする。refreshundeletemask に合致するパスは残す。
