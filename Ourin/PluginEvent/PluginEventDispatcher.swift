@@ -18,6 +18,15 @@ final class PluginEventDispatcher {
     /// XPC プロセス分離が有効な場合のクライアント（nil ならインプロセス実行）
     private let xpcClient: PluginXpcClient?
 
+    /// プラグインが Script を返したときにホスト側で実行させるためのコールバック。
+    /// 構築側（AppDelegate 等）が `sakuraEngine.run(script:)` 等へ配線する。
+    /// TODO: host wires onScript (see OurinApp.swift / GhostManager+System.swift:175-179)
+    var onScript: ((String) -> Void)?
+    /// プラグインが Event を返したときにホスト側へ再ディスパッチさせるためのコールバック。
+    /// 構築側が `EventBridge.notify(_:params:)` 等へ配線する。
+    /// TODO: host wires onEmitEvent (see GhostManager+System.swift:180-186)
+    var onEmitEvent: ((String, [String: String]) -> Void)?
+
     /// プラグインへワイヤテキストを送信する。XPC 分離が有効なら別プロセスのワーカーへ、
     /// それ以外は従来通りインプロセス（CFBundle ロード）で実行する。
     private func transportSend(_ req: String, to plugin: Plugin) -> String {
@@ -80,20 +89,44 @@ final class PluginEventDispatcher {
 
     // MARK: - Event helpers
     /// フレームを構築し全プラグインへ送信する
-    private func sendFrame(id: String, refs: [String], notify: Bool = false) {
+    private func sendFrame(id: String, refs: [String], notify: Bool = false, securityLevel: PluginSecurityLevel = .local) {
         for plugin in registry.plugins {
             guard let q = queues[plugin] else { continue }
             // version 交渉で得た文字コードを Charset ヘッダへ反映する
-            let req = PluginFrame(id: id, references: refs, charset: charset(for: plugin), notify: notify).build()
-            q.async { [weak self, logger, id, req, plugin] in
+            let req = PluginFrame(id: id, references: refs, charset: charset(for: plugin), notify: notify, securityLevel: securityLevel).build()
+            q.async { [weak self, logger, id, req, plugin, notify] in
                 let start = Date()
-                _ = self?.transportSend(req, to: plugin)
+                let resp = self?.transportSend(req, to: plugin) ?? ""
                 let elapsed = Date().timeIntervalSince(start)
                 logger.debug("ID \(id) to \(plugin.bundle.bundleURL.lastPathComponent) (\(elapsed)s)")
                 if elapsed > 3 {
                     logger.warning("timeout: \(id) >3s")
                 }
+                // NOTIFY フレームは応答を破棄する。GET フレームは Script/Event を実行する。
+                if !notify {
+                    self?.handleResponse(resp, from: plugin)
+                }
             }
+        }
+    }
+
+    /// プラグインからの応答を解釈し、Script/Event をホスト側へ引き渡す。
+    /// `OurinPluginEventBridge.transportAction` / `shouldHandleTarget` と同じ判定を再利用するため、
+    /// GhostManager+System.swift:173-187 と同一のルーティング規則が適用される。
+    private func handleResponse(_ resp: String, from plugin: Plugin) {
+        guard !resp.isEmpty,
+              let parsed = try? PluginProtocolParser.parseResponse(resp),
+              parsed.statusCode == 200 else { return }
+        guard let action = OurinPluginEventBridge.transportAction(from: parsed, notifyOnly: false) else { return }
+        guard OurinPluginEventBridge.shouldHandleTarget(action.target) else {
+            logger.debug("ignored target: \(action.target ?? "nil") from \(plugin.bundle.bundleURL.lastPathComponent)")
+            return
+        }
+        if let script = action.script {
+            onScript?(script)
+        }
+        if let eventName = action.eventName {
+            onEmitEvent?(eventName, action.references)
         }
     }
 
@@ -190,7 +223,8 @@ final class PluginEventDispatcher {
     }
 
     /// 選択/アンカー選択等の横流しイベント
-    func onArbitraryEvent(id: String, refs: [String], notify: Bool = false) {
-        sendFrame(id: id, refs: refs, notify: notify)
+    /// SSTP 経由など外部由来で中継する場合は `securityLevel: .external` を指定する。
+    func onArbitraryEvent(id: String, refs: [String], notify: Bool = false, securityLevel: PluginSecurityLevel = .local) {
+        sendFrame(id: id, refs: refs, notify: notify, securityLevel: securityLevel)
     }
 }

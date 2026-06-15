@@ -1,5 +1,7 @@
 import Foundation
 import AppKit
+import CoreGraphics
+import IOKit.ps
 
 public final class PropertyManager {
     private var providers: [String: PropertyProvider] = [:]
@@ -251,7 +253,7 @@ final class SystemPropertyProvider: PropertyProvider {
         case "os.name":
             let v = ProcessInfo.processInfo.operatingSystemVersion
             return "macOS \(v.majorVersion).\(v.minorVersion).\(v.patchVersion)"
-        case "os.version": return sysctlString("kern.osversion")
+        case "os.version": return sysctlString("kern.osrelease")
         case "os.parenttype": return isRunningUnderRosetta2() ? "Rosetta 2" : nil
         case "os.parentname":
             if isRunningUnderRosetta2() {
@@ -276,6 +278,24 @@ final class SystemPropertyProvider: PropertyProvider {
                 return String(Int(load))
             }
             return nil
+        case "os.build": return sysctlString("kern.osversion")
+        case "os.arch": return sysctlString("hw.machine")
+        case "os.locale": return Locale.current.identifier
+        case "os.timezone.offset": return String(TimeZone.current.secondsFromGMT() / 60)
+        case "os.uptime": return String(Int(ProcessInfo.processInfo.systemUptime))
+        case "os.unixtime": return String(Int(Date().timeIntervalSince1970))
+        case "os.idletime": return String(Int(systemIdleSeconds()))
+        case "monitor.count": return String(NSScreen.screens.count)
+        case "theme.app.mode", "theme.os.mode": return appearanceMode()
+        case "dnd.mode": return "0"   // macOS の Focus 状態は公開 API で取得不可
+        case "power.source": return powerSource()
+        case "power.battery.percent": return batteryPercent().map { String($0) }
+        case "power.battery.flag": return powerSource() == "battery" ? "1" : "0"
+        case "network.status": return primaryIPv4() != nil ? "online" : "offline"
+        case "network.ipaddress": return primaryIPv4() ?? ""
+        case "disk.count": return String(mountedVolumes().count)
+        case let k where k.hasPrefix("monitor.index("): return monitorProperty(k)
+        case let k where k.hasPrefix("disk.index("): return diskProperty(k)
         default: return nil
         }
     }
@@ -354,5 +374,101 @@ final class SystemPropertyProvider: PropertyProvider {
             return false
         }
         return flag == 1
+    }
+
+    // MARK: - 追加: monitor / disk / theme / power / network / os.*
+
+    private func appearanceMode() -> String {
+        let name = NSApp?.effectiveAppearance.name.rawValue ?? ""
+        return name.lowercased().contains("dark") ? "dark" : "light"
+    }
+
+    private func systemIdleSeconds() -> Double {
+        let anyType = CGEventType(rawValue: ~UInt32(0)) ?? .null
+        return CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: anyType)
+    }
+
+    private func monitorProperty(_ key: String) -> String? {
+        guard let lp = key.firstIndex(of: "("), let rp = key.firstIndex(of: ")"),
+              let idx = Int(key[key.index(after: lp)..<rp]),
+              NSScreen.screens.indices.contains(idx) else { return nil }
+        let screen = NSScreen.screens[idx]
+        let field = key[key.index(after: rp)...].drop(while: { $0 == "." }).lowercased()
+        let f = screen.frame, w = screen.visibleFrame
+        switch field {
+        case "rect": return "\(Int(f.minX)),\(Int(f.minY)),\(Int(f.maxX)),\(Int(f.maxY))"
+        case "work": return "\(Int(w.minX)),\(Int(w.minY)),\(Int(w.maxX)),\(Int(w.maxY))"
+        case "dpi": return String(Int(screen.backingScaleFactor * 72))
+        case "primary": return idx == 0 ? "1" : "0"
+        default: return nil
+        }
+    }
+
+    private func mountedVolumes() -> [URL] {
+        return FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys: nil,
+                                                     options: [.skipHiddenVolumes]) ?? []
+    }
+
+    private func diskProperty(_ key: String) -> String? {
+        guard let lp = key.firstIndex(of: "("), let rp = key.firstIndex(of: ")"),
+              let idx = Int(key[key.index(after: lp)..<rp]) else { return nil }
+        let vols = mountedVolumes()
+        guard vols.indices.contains(idx) else { return nil }
+        let url = vols[idx]
+        let field = key[key.index(after: rp)...].drop(while: { $0 == "." }).lowercased()
+        switch field {
+        case "mountpoint": return url.path
+        case "total", "free":
+            if let attrs = try? FileManager.default.attributesOfFileSystem(forPath: url.path),
+               let n = attrs[field == "total" ? .systemSize : .systemFreeSize] as? NSNumber {
+                return String(n.int64Value / 1024 / 1024)
+            }
+            return nil
+        default: return nil
+        }
+    }
+
+    private func powerDescription() -> [String: Any]? {
+        guard let blob = IOPSCopyPowerSourcesInfo()?.takeRetainedValue(),
+              let list = IOPSCopyPowerSourcesList(blob)?.takeRetainedValue() as? [CFTypeRef],
+              let src = list.first,
+              let desc = IOPSGetPowerSourceDescription(blob, src)?.takeUnretainedValue() as? [String: Any]
+        else { return nil }
+        return desc
+    }
+
+    private func powerSource() -> String {
+        guard let d = powerDescription(),
+              let state = d[kIOPSPowerSourceStateKey as String] as? String else { return "ac" }
+        return state == (kIOPSACPowerValue as String) ? "ac" : "battery"
+    }
+
+    private func batteryPercent() -> Int? {
+        guard let d = powerDescription(),
+              let cur = d[kIOPSCurrentCapacityKey as String] as? Int,
+              let mx = d[kIOPSMaxCapacityKey as String] as? Int, mx > 0 else { return nil }
+        return Int((Double(cur) / Double(mx)) * 100)
+    }
+
+    private func primaryIPv4() -> String? {
+        var ifaddr: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&ifaddr) == 0 else { return nil }
+        defer { freeifaddrs(ifaddr) }
+        var fallback: String?
+        var ptr = ifaddr
+        while let cur = ptr {
+            defer { ptr = cur.pointee.ifa_next }
+            guard let sa = cur.pointee.ifa_addr, sa.pointee.sa_family == UInt8(AF_INET) else { continue }
+            let flags = Int32(bitPattern: cur.pointee.ifa_flags)
+            guard (flags & IFF_LOOPBACK) == 0, (flags & IFF_UP) != 0 else { continue }
+            var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+            guard getnameinfo(sa, socklen_t(sa.pointee.sa_len), &host, socklen_t(host.count),
+                              nil, 0, NI_NUMERICHOST) == 0 else { continue }
+            let ip = String(cString: host)
+            let name = String(cString: cur.pointee.ifa_name)
+            if name == "en0" { return ip }   // 物理/Wi-Fi を優先
+            if fallback == nil { fallback = ip }
+        }
+        return fallback
     }
 }

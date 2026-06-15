@@ -1052,6 +1052,18 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 quickMode.toggle()
             case "__q":
                 handleQueuedChoiceCommand(args: args)
+            case "__t":
+                // \__t メタタグ: 教えてダイアログを開く（\![open,teachbox] と同等）
+                playbackQueue.append(.deferredCommand {
+                    DispatchQueue.main.async { self.showTeachBoxDialog() }
+                })
+            case "_n":
+                // \_n: 自動改行（ワードラップ）抑制メタタグ。現行レンダラはワードラップ非依存の
+                // ため認識のみ（誤った改行挿入はしない）。
+                NSLog("[GhostManager] \\_n (no-wrap) recognized")
+            case "__v":
+                // \__v: 代替読み/音声制御メタタグ。発話表示には影響しないため認識して無視。
+                NSLog("[GhostManager] \\__v recognized (no-op)")
             case "!":
                 NSLog("[GhostManager] ! command with args: \(args)")
                 if let first = args.first?.lowercased() {

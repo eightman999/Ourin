@@ -108,6 +108,108 @@ std::string convertHanToZen(const std::string& s) {
     return out;
 }
 
+// UTF-8 文字数（コードポイント数）を返す。
+size_t utf8Length(const std::string& s) {
+    return decodeUtf8(s).size();
+}
+
+// コードポイント列を [start, start+count) で切り出して UTF-8 文字列に再構築する。
+// start/count は文字（コードポイント）単位。範囲はクランプする。
+std::string utf8Slice(const std::vector<uint32_t>& cps, size_t start, size_t count) {
+    std::string out;
+    size_t n = cps.size();
+    if (start > n) start = n;
+    size_t end = start + count;
+    if (end > n || count > n) end = n; // オーバーフロー対策込み
+    for (size_t i = start; i < end; i++) appendUtf8(out, cps[i]);
+    return out;
+}
+
+// printf 風の書式整形。サポートする変換: d i u s f g e x X o c %。
+// フラグ/幅/精度（例: %05d, %-10s, %.2f, %+d）を許容し、各指定子に対して
+// 次の引数を消費する。整数系は asInt、f/g/e は asReal、s は asString で型変換する。
+std::string formatPrintf(const std::string& format, const std::vector<Value>& args, size_t argStart) {
+    std::string result;
+    size_t argIndex = argStart;
+    size_t i = 0;
+    const size_t n = format.size();
+    while (i < n) {
+        char c = format[i];
+        if (c != '%') { result += c; i++; continue; }
+        // '%' の解析開始
+        size_t specStart = i;
+        i++; // skip '%'
+        if (i < n && format[i] == '%') { result += '%'; i++; continue; }
+        // フラグ・幅・精度・変換文字を含む書式指定子を抽出する
+        std::string spec = "%";
+        // フラグ
+        while (i < n && (format[i] == '-' || format[i] == '+' || format[i] == ' ' ||
+                         format[i] == '#' || format[i] == '0')) {
+            spec += format[i]; i++;
+        }
+        // 幅
+        while (i < n && std::isdigit(static_cast<unsigned char>(format[i]))) { spec += format[i]; i++; }
+        // 精度
+        if (i < n && format[i] == '.') {
+            spec += format[i]; i++;
+            while (i < n && std::isdigit(static_cast<unsigned char>(format[i]))) { spec += format[i]; i++; }
+        }
+        if (i >= n) { result += format.substr(specStart); break; } // 不完全 -> そのまま出力
+        char conv = format[i];
+        i++;
+        const Value* arg = (argIndex < args.size()) ? &args[argIndex] : nullptr;
+        char buf[256];
+        switch (conv) {
+            case 'd': case 'i': {
+                spec += "lld";
+                long long v = arg ? static_cast<long long>(arg->asInt()) : 0;
+                std::snprintf(buf, sizeof(buf), spec.c_str(), v);
+                result += buf; argIndex++;
+                break;
+            }
+            case 'u': case 'x': case 'X': case 'o': {
+                spec += "ll"; spec += conv;
+                unsigned long long v = arg ? static_cast<unsigned long long>(static_cast<long long>(arg->asInt())) : 0;
+                std::snprintf(buf, sizeof(buf), spec.c_str(), v);
+                result += buf; argIndex++;
+                break;
+            }
+            case 'f': case 'g': case 'e': case 'E': case 'G': case 'F': {
+                spec += conv;
+                double v = arg ? arg->asReal() : 0.0;
+                std::snprintf(buf, sizeof(buf), spec.c_str(), v);
+                result += buf; argIndex++;
+                break;
+            }
+            case 'c': {
+                spec += 'c';
+                int v = arg ? arg->asInt() : 0;
+                std::snprintf(buf, sizeof(buf), spec.c_str(), v);
+                result += buf; argIndex++;
+                break;
+            }
+            case 's': {
+                spec += 's';
+                std::string sv = arg ? arg->asString() : std::string();
+                int needed = std::snprintf(nullptr, 0, spec.c_str(), sv.c_str());
+                if (needed < 0) { result += sv; }
+                else {
+                    std::vector<char> dyn(static_cast<size_t>(needed) + 1);
+                    std::snprintf(dyn.data(), dyn.size(), spec.c_str(), sv.c_str());
+                    result += dyn.data();
+                }
+                argIndex++;
+                break;
+            }
+            default:
+                // 未知の変換 -> 指定子をそのまま出力する
+                result += format.substr(specStart, i - specStart);
+                break;
+        }
+    }
+    return result;
+}
+
 } // namespace
 
 VM::VM() {
@@ -725,23 +827,22 @@ void VM::registerBuiltins() {
         return Value(dis(gen));
     };
     
-    // STRLEN(str) - Returns the length of a string
+    // STRLEN(str) - 文字列の長さ（UTF-8 コードポイント数）を返す
     builtins_["STRLEN"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
-        return Value(static_cast<int>(args[0].asString().length()));
+        return Value(static_cast<int>(utf8Length(args[0].asString())));
     };
     
-    // STRFORM(format, ...) - Simple string formatting (simplified)
+    // STRFORM(format, ...) - printf 風の書式整形
+    // 指定子 %d %i %u %s %f %g %e %x %X %o %c %% をサポートし、フラグ/幅/精度を許容する。
     builtins_["STRFORM"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
         std::string format = args[0].asString();
-        // Very simple implementation - just concatenate arguments for now
-        std::string result = format;
-        for (size_t i = 1; i < args.size(); i++) {
-            result += args[i].asString();
-        }
-        return Value(result);
+        return Value(formatPrintf(format, args, 1));
     };
+
+    // SPRINTF(format, ...) - STRFORM と同一動作のエイリアス
+    builtins_["SPRINTF"] = builtins_["STRFORM"];
     
     // GETTIME[index] - Get current time component
     builtins_["GETTIME"] = [](const std::vector<Value>& args) -> Value {
@@ -951,17 +1052,19 @@ void VM::registerBuiltins() {
         return Value(result);
     };
     
-    // SUBSTR(str, pos, len) - Extract substring
+    // SUBSTR(str, pos, len) - 部分文字列を抽出（pos/len は UTF-8 文字単位、0 始まり）
     builtins_["SUBSTR"] = [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value("");
         std::string str = args[0].asString();
+        std::vector<uint32_t> cps = decodeUtf8(str);
+        int clen = static_cast<int>(cps.size());
         int pos = args[1].asInt();
-        if (pos < 0 || pos >= static_cast<int>(str.length())) return Value("");
-        
-        int len = (args.size() >= 3) ? args[2].asInt() : static_cast<int>(str.length() - pos);
+        if (pos < 0 || pos >= clen) return Value("");
+
+        int len = (args.size() >= 3) ? args[2].asInt() : (clen - pos);
         if (len < 0) return Value("");
-        
-        return Value(str.substr(pos, len));
+
+        return Value(utf8Slice(cps, static_cast<size_t>(pos), static_cast<size_t>(len)));
     };
     
     // REPLACE(str, old, new) - Replace all occurrences
@@ -981,32 +1084,41 @@ void VM::registerBuiltins() {
         return Value(str);
     };
     
-    // ERASE(str, pos, len) - Remove substring
+    // ERASE(str, pos, len) - 部分文字列を削除（pos/len は UTF-8 文字単位、0 始まり）
     builtins_["ERASE"] = [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value("");
         std::string str = args[0].asString();
+        std::vector<uint32_t> cps = decodeUtf8(str);
+        int clen = static_cast<int>(cps.size());
         int pos = args[1].asInt();
-        if (pos < 0 || pos >= static_cast<int>(str.length())) return Value(str);
-        
-        int len = (args.size() >= 3) ? args[2].asInt() : static_cast<int>(str.length() - pos);
+        if (pos < 0 || pos >= clen) return Value(str);
+
+        int len = (args.size() >= 3) ? args[2].asInt() : (clen - pos);
         if (len < 0) len = 0;
-        
-        str.erase(pos, len);
-        return Value(str);
+
+        // [0, pos) と [pos+len, end) を連結する
+        std::string out = utf8Slice(cps, 0, static_cast<size_t>(pos));
+        out += utf8Slice(cps, static_cast<size_t>(pos) + static_cast<size_t>(len),
+                         cps.size());
+        return Value(out);
     };
     
-    // INSERT(str, pos, insertion) - Insert string at position
+    // INSERT(str, pos, insertion) - 指定位置に文字列を挿入（pos は UTF-8 文字単位、0 始まり）
     builtins_["INSERT"] = [](const std::vector<Value>& args) -> Value {
         if (args.size() < 3) return Value("");
         std::string str = args[0].asString();
+        std::vector<uint32_t> cps = decodeUtf8(str);
+        int clen = static_cast<int>(cps.size());
         int pos = args[1].asInt();
         std::string insertion = args[2].asString();
-        
+
         if (pos < 0) pos = 0;
-        if (pos > static_cast<int>(str.length())) pos = str.length();
-        
-        str.insert(pos, insertion);
-        return Value(str);
+        if (pos > clen) pos = clen;
+
+        std::string out = utf8Slice(cps, 0, static_cast<size_t>(pos));
+        out += insertion;
+        out += utf8Slice(cps, static_cast<size_t>(pos), cps.size());
+        return Value(out);
     };
     
     // CUTSPACE(str) - Trim whitespace
@@ -2578,13 +2690,34 @@ std::string VM::interpolateString(const std::string& str) {
             // Leave SSP variables for baseware to expand
             result += "%(" + expr + ")";
         } else {
-            // Try to evaluate as YAYA variable
-            Value val = getVariable(expr);
-            if (!val.isVoid()) {
-                result += val.asString();
-            } else {
-                // Variable not found - leave as is for baseware expansion
-                result += "%(" + expr + ")";
+            // 任意の式として評価する。inner text を Lexer/Parser に通し、
+            // 得られた式ノードを executeNode で評価して asString() を埋め込む。
+            bool evaluated = false;
+            try {
+                // public な parse() は関数定義を要求するため、合成関数で包んで本体を実行する
+                Lexer lexer("__interp__{\n" + expr + "\n}");
+                Parser parser(lexer.tokenize());
+                auto funcs = parser.parse();
+                if (!funcs.empty() && funcs[0]) {
+                    Value val;
+                    for (const auto& stmt : funcs[0]->body) {
+                        val = executeNode(stmt);
+                    }
+                    result += val.asString();
+                    evaluated = true;
+                }
+            } catch (...) {
+                // パース/評価失敗時は下位のフォールバックへ
+            }
+            if (!evaluated) {
+                // フォールバック: 単純な変数参照として評価する
+                Value val = getVariable(expr);
+                if (!val.isVoid()) {
+                    result += val.asString();
+                } else {
+                    // 変数も見つからない場合は空文字（旧挙動は baseware 展開のため残置だったが
+                    // 任意式評価の失敗時は空とする）
+                }
             }
         }
 

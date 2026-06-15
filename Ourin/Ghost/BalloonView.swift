@@ -10,24 +10,45 @@ struct BalloonView: View {
     var config: BalloonConfig?
     var imageLoader: BalloonImageLoader?
 
-    // Fixed balloon size based on emily4/balloon typical size
-    private let balloonWidth: CGFloat = 400
-    private let balloonHeight: CGFloat = 150
+    // バルーンの既定サイズ（画像も maxwidth/maxheight も無い場合のフォールバック）
+    private let fallbackBalloonSize = CGSize(width: 400, height: 150)
+
+    /// バルーン枠サイズ = サーフェス画像の実寸（無ければ descript の maxwidth/maxheight、最後に既定値）。
+    private func balloonSize(for image: NSImage?) -> CGSize {
+        if let img = image, img.size.width > 1, img.size.height > 1 {
+            return img.size
+        }
+        if let c = config, c.maxWidth > 0, c.maxHeight > 0 {
+            return CGSize(width: CGFloat(c.maxWidth), height: CGFloat(c.maxHeight))
+        }
+        return fallbackBalloonSize
+    }
+
+    /// テキスト領域幅 = validrect（負値は右端からのオフセット）から算出。無ければ origin マージンを控除。
+    private func textWidth(for size: CGSize) -> CGFloat {
+        if let c = config, c.validRectRight != 0 || c.validRectLeft != 0 {
+            let rightEdge = c.validRectRight > 0 ? c.validRectRight : Int(size.width) + c.validRectRight
+            let w = rightEdge - c.validRectLeft
+            if w > 0 { return CGFloat(w) }
+        }
+        return size.width - CGFloat((config?.originX ?? 20) * 2)
+    }
 
     var body: some View {
         if !viewModel.text.isEmpty {
+            let bImage = imageLoader?.loadSurface(index: viewModel.balloonID, type: "s")
+            let size = balloonSize(for: bImage)
             ZStack(alignment: .topLeading) {
                 // Background balloon image - use current balloon ID
-                if let imageLoader = imageLoader,
-                   let balloonImage = imageLoader.loadSurface(index: viewModel.balloonID, type: "s") {
-                    Image(nsImage: balloonImage)
+                if let bImage = bImage {
+                    Image(nsImage: bImage)
                         .resizable()
-                        .frame(width: balloonWidth, height: balloonHeight)
+                        .frame(width: size.width, height: size.height)
                 } else {
                     // Fallback to simple background
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(NSColor.textBackgroundColor))
-                        .frame(width: balloonWidth, height: balloonHeight)
+                        .frame(width: size.width, height: size.height)
                         .shadow(radius:3)
                 }
 
@@ -46,7 +67,7 @@ struct BalloonView: View {
                     .lineLimit(nil)
                     .multilineTextAlignment(textAlignment(for: viewModel.textAlign))
                     .frame(
-                        width: balloonWidth - CGFloat((config?.originX ?? 20) * 2),
+                        width: textWidth(for: size),
                         height: nil,
                         alignment: textFrameAlignment(for: viewModel.textVAlign)
                     )
@@ -59,7 +80,7 @@ struct BalloonView: View {
                         )
                     )
             }
-            .frame(width: balloonWidth, height: balloonHeight)
+            .frame(width: size.width, height: size.height)
             .contentShape(Rectangle())
             .onTapGesture { onClick?() }
         } else {

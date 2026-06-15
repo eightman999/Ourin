@@ -64,6 +64,13 @@ struct BalloonConfig {
     let validRectRight: Int
     let validRectBottom: Int
 
+    // Max size / margins / right word-wrap (UKADOC balloon descript)
+    let maxWidth: Int
+    let maxHeight: Int
+    let marginX: Int
+    let marginY: Int
+    let wordwrapPointRight: Int
+
     // Communication box (input area)
     let communicateBoxX: Int
     let communicateBoxY: Int
@@ -162,6 +169,11 @@ struct BalloonConfig {
             validRectTop: getInt("validrect.top", default: 0),
             validRectRight: getInt("validrect.right", default: 0),
             validRectBottom: getInt("validrect.bottom", default: -10),
+            maxWidth: getInt("maxwidth", default: 0),
+            maxHeight: getInt("maxheight", default: 0),
+            marginX: getInt("marginx", default: 0),
+            marginY: getInt("marginy", default: 0),
+            wordwrapPointRight: getInt("wordwrappointright", default: 0),
             communicateBoxX: getInt("communicatebox.x", default: 25),
             communicateBoxY: getInt("communicatebox.y", default: 25),
             communicateBoxWidth: getInt("communicatebox.width", default: 360),
