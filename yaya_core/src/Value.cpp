@@ -9,9 +9,28 @@ Value::Value(const std::string& str) : type_(Type::String), strValue_(str), intV
 
 Value::Value(int num) : type_(Type::Integer), intValue_(num) {}
 
+Value::Value(double num) : type_(Type::Real), intValue_(0), real_(num) {}
+
 Value::Value(const std::vector<Value>& arr) : type_(Type::Array), arrayValue_(arr), intValue_(0) {}
 
 Value::Value(const std::map<std::string, Value>& dict) : type_(Type::Dictionary), dictValue_(dict), intValue_(0) {}
+
+namespace {
+// Format a double trimming trailing zeros: 1.5 -> "1.5", 2.0 -> "2", 3.14 -> "3.14".
+std::string formatReal(double v) {
+    std::ostringstream oss;
+    oss << v;
+    std::string s = oss.str();
+    // If there's a decimal point, strip trailing zeros (and a trailing '.').
+    if (s.find('.') != std::string::npos && s.find('e') == std::string::npos &&
+        s.find('E') == std::string::npos) {
+        size_t last = s.find_last_not_of('0');
+        if (s[last] == '.') last--; // drop the dangling dot too
+        s.erase(last + 1);
+    }
+    return s;
+}
+} // namespace
 
 std::string Value::asString() const {
     switch (type_) {
@@ -19,6 +38,8 @@ std::string Value::asString() const {
             return strValue_;
         case Type::Integer:
             return std::to_string(intValue_);
+        case Type::Real:
+            return formatReal(real_);
         case Type::Void:
             return "";
         case Type::Array:
@@ -41,6 +62,8 @@ int Value::asInt() const {
     switch (type_) {
         case Type::Integer:
             return intValue_;
+        case Type::Real:
+            return static_cast<int>(real_); // truncate toward zero
         case Type::String:
             try {
                 return std::stoi(strValue_);
@@ -49,6 +72,23 @@ int Value::asInt() const {
             }
         default:
             return 0;
+    }
+}
+
+double Value::asReal() const {
+    switch (type_) {
+        case Type::Real:
+            return real_;
+        case Type::Integer:
+            return static_cast<double>(intValue_);
+        case Type::String:
+            try {
+                return std::stod(strValue_);
+            } catch (...) {
+                return 0.0;
+            }
+        default:
+            return 0.0;
     }
 }
 
@@ -79,6 +119,8 @@ bool Value::toBool() const {
             return false;
         case Type::Integer:
             return intValue_ != 0;
+        case Type::Real:
+            return real_ != 0.0;
         case Type::String:
             return !strValue_.empty();
         case Type::Array:
@@ -95,6 +137,10 @@ Value Value::operator+(const Value& other) const {
     if (type_ == Type::String || other.type_ == Type::String) {
         return Value(asString() + other.asString());
     }
+    // Numeric promotion: if either operand is Real, result is Real
+    if (type_ == Type::Real || other.type_ == Type::Real) {
+        return Value(asReal() + other.asReal());
+    }
     // Integer addition
     if (type_ == Type::Integer && other.type_ == Type::Integer) {
         return Value(intValue_ + other.intValue_);
@@ -103,14 +149,26 @@ Value Value::operator+(const Value& other) const {
 }
 
 Value Value::operator-(const Value& other) const {
+    if (type_ == Type::Real || other.type_ == Type::Real) {
+        return Value(asReal() - other.asReal());
+    }
     return Value(asInt() - other.asInt());
 }
 
 Value Value::operator*(const Value& other) const {
+    if (type_ == Type::Real || other.type_ == Type::Real) {
+        return Value(asReal() * other.asReal());
+    }
     return Value(asInt() * other.asInt());
 }
 
 Value Value::operator/(const Value& other) const {
+    // Real division if either operand is Real
+    if (type_ == Type::Real || other.type_ == Type::Real) {
+        double divisor = other.asReal();
+        if (divisor == 0.0) return Value(0.0);
+        return Value(asReal() / divisor);
+    }
     int divisor = other.asInt();
     if (divisor == 0) return Value(0);
     return Value(asInt() / divisor);
@@ -123,6 +181,15 @@ Value Value::operator%(const Value& other) const {
 }
 
 bool Value::operator==(const Value& other) const {
+    // Numeric comparison across Int/Real
+    bool thisNum = (type_ == Type::Integer || type_ == Type::Real);
+    bool otherNum = (other.type_ == Type::Integer || other.type_ == Type::Real);
+    if (thisNum && otherNum) {
+        if (type_ == Type::Real || other.type_ == Type::Real) {
+            return asReal() == other.asReal();
+        }
+        return intValue_ == other.intValue_;
+    }
     if (type_ != other.type_) {
         // Allow comparison between string and int
         return asString() == other.asString();
@@ -144,7 +211,13 @@ bool Value::operator!=(const Value& other) const {
 }
 
 bool Value::operator<(const Value& other) const {
-    if (type_ == Type::Integer && other.type_ == Type::Integer) {
+    // Numeric comparison across Int/Real
+    bool thisNum = (type_ == Type::Integer || type_ == Type::Real);
+    bool otherNum = (other.type_ == Type::Integer || other.type_ == Type::Real);
+    if (thisNum && otherNum) {
+        if (type_ == Type::Real || other.type_ == Type::Real) {
+            return asReal() < other.asReal();
+        }
         return intValue_ < other.intValue_;
     }
     return asString() < other.asString();

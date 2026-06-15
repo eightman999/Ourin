@@ -230,8 +230,8 @@ final class InputMonitor {
         }
         if clickStreak >= 3 {
             var multi = params
-            // OnMouseMultipleClick: 連続クリック回数（補助ヘッダ。位置引数には含めない）
-            multi["count"] = String(clickStreak)
+            // OnMouseMultipleClick: Reference7 = 連続クリック回数（UKADOC 準拠の位置引数）
+            multi["Reference7"] = String(clickStreak)
             if isExButton {
                 handler?(ShioriEvent(id: .OnMouseMultipleClickEx, params: multi))
             } else {

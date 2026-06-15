@@ -268,8 +268,8 @@ extension YayaBackend {
         var statusText = "OK"
         switch status {
         case 204: statusText = "No Content"
-        case 311: statusText = "Insecure"
-        case 312: statusText = "No Content (Not Trusted)"
+        case 311: statusText = "OnTeach (need more)"
+        case 312: statusText = "OnTeach (invalid)"
         case 400: statusText = "Bad Request"
         case 500: statusText = "Internal Server Error"
         default: break
@@ -307,7 +307,8 @@ final class XpcBackend: ShioriBackend {
     }
 
     func request(_ text: String) -> String? {
-        let requestData = Data(text.utf8)
+        let reqCharset = EncodingAdapter.detectCharset(in: Data(text.utf8))
+        let requestData = EncodingAdapter.encode(text, charset: reqCharset)
         let sem = DispatchSemaphore(value: 0)
         var responseData: Data?
         var responseError: String?
@@ -343,7 +344,9 @@ final class XpcBackend: ShioriBackend {
         guard let responseData else {
             return nil
         }
-        return String(data: responseData, encoding: .utf8)
+        let respCharset = EncodingAdapter.detectCharset(in: responseData)
+        return EncodingAdapter.decode(responseData, charset: respCharset)
+            ?? String(data: responseData, encoding: .utf8)
     }
 
     func unload() {
@@ -413,22 +416,26 @@ final class BundleBackend: ShioriBackend {
             return nil
         }
         
-        let bytes = Array(text.utf8)
+        // 要求は Charset ヘッダ（既定 UTF-8）に従ってエンコードする
+        let reqCharset = EncodingAdapter.detectCharset(in: Data(text.utf8))
+        let bytes = Array(EncodingAdapter.encode(text, charset: reqCharset))
         var outPtr: UnsafeMutablePointer<UInt8>? = nil
         var outLen: Int = 0
-        
+
         let ok = bytes.withUnsafeBytes {
             req($0.baseAddress?.assumingMemoryBound(to: UInt8.self), bytes.count, &outPtr, &outLen)
         }
-        
+
         guard ok, let p = outPtr else {
             NSLog("[BundleBackend] shiori_request failed")
             return nil
         }
-        
+
         let data = Data(bytes: p, count: outLen)
         freeFn?(p)
-        return String(data: data, encoding: .utf8)
+        // 応答は応答ヘッダの Charset に従ってデコードする（既定 UTF-8）
+        let respCharset = EncodingAdapter.detectCharset(in: data)
+        return EncodingAdapter.decode(data, charset: respCharset) ?? String(data: data, encoding: .utf8)
     }
     
     func unload() {
@@ -498,7 +505,8 @@ final class DylibBackend: ShioriBackend {
 
     func request(_ text: String) -> String? {
         guard let req = requestFn else { return nil }
-        let bytes = Array(text.utf8)
+        let reqCharset = EncodingAdapter.detectCharset(in: Data(text.utf8))
+        let bytes = Array(EncodingAdapter.encode(text, charset: reqCharset))
         var outPtr: UnsafeMutablePointer<UInt8>? = nil
         var outLen: Int = 0
         let ok = bytes.withUnsafeBytes {
@@ -507,7 +515,8 @@ final class DylibBackend: ShioriBackend {
         guard ok, let p = outPtr else { return nil }
         let data = Data(bytes: p, count: outLen)
         freeFn?(p)
-        return String(data: data, encoding: .utf8)
+        let respCharset = EncodingAdapter.detectCharset(in: data)
+        return EncodingAdapter.decode(data, charset: respCharset) ?? String(data: data, encoding: .utf8)
     }
 
     func unload() {

@@ -684,47 +684,49 @@ std::shared_ptr<AST::Node> Parser::parseWhile() {
 std::shared_ptr<AST::Node> Parser::parseFor() {
     consume(TokenType::For, "Expected 'for'");
 
-    // for initializer: best-effort consume until ';'
-    // Support simple assignment initializer, otherwise skip tokens to ';'
-    if (check(TokenType::Identifier) && (peek().type == TokenType::Assign ||
-        peek().type == TokenType::PlusAssign || peek().type == TokenType::MinusAssign ||
-        peek().type == TokenType::StarAssign || peek().type == TokenType::SlashAssign ||
-        peek().type == TokenType::PercentAssign)) {
-        parseAssignment();
+    // for INIT ; COND ; INCR { BODY }
+    // Each of INIT/COND/INCR is optional. Parse them into real AST nodes.
+
+    // --- Initializer (until first ';') ---
+    std::shared_ptr<AST::Node> init;
+    if (!check(TokenType::Semicolon)) {
+        if (check(TokenType::Identifier) && (peek().type == TokenType::Assign ||
+            peek().type == TokenType::PlusAssign || peek().type == TokenType::MinusAssign ||
+            peek().type == TokenType::StarAssign || peek().type == TokenType::SlashAssign ||
+            peek().type == TokenType::PercentAssign || peek().type == TokenType::CommaAssign)) {
+            init = parseAssignment();
+        } else {
+            try { init = parseExpression(); } catch (...) { init = nullptr; }
+        }
     }
-    // Consume until ';'
+    // Consume any leftover tokens until ';'
     while (!check(TokenType::Semicolon) && !check(TokenType::EndOfFile) && !check(TokenType::LeftBrace)) {
         advance();
     }
-    if (match(TokenType::Semicolon)) {
-        // proceed
-    }
+    match(TokenType::Semicolon);
 
-    // condition: parse an expression best-effort until ';'
+    // --- Condition (until second ';') ---
+    std::shared_ptr<AST::Node> cond;
     if (!check(TokenType::Semicolon)) {
-        try { (void)parseExpression(); } catch (...) {}
+        try { cond = parseExpression(); } catch (...) { cond = nullptr; }
     }
     while (!check(TokenType::Semicolon) && !check(TokenType::EndOfFile) && !check(TokenType::LeftBrace)) {
         advance();
     }
     match(TokenType::Semicolon);
 
-    // increment: allow i++/i-- or assignment; otherwise fast-forward to '{'
-    if (check(TokenType::Identifier)) {
-        // i++ / i-- pattern
-        if (peek().type == TokenType::PlusPlus || peek().type == TokenType::MinusMinus) {
-            advance(); // ident
-            advance(); // ++ / --
-        } else if (peek().type == TokenType::Assign || peek().type == TokenType::PlusAssign ||
-                   peek().type == TokenType::MinusAssign || peek().type == TokenType::StarAssign ||
-                   peek().type == TokenType::SlashAssign || peek().type == TokenType::PercentAssign) {
-            parseAssignment();
+    // --- Increment (until '{') ---
+    std::shared_ptr<AST::Node> incr;
+    if (!check(TokenType::LeftBrace) && !check(TokenType::Newline)) {
+        if (check(TokenType::Identifier) && (peek().type == TokenType::Assign ||
+            peek().type == TokenType::PlusAssign || peek().type == TokenType::MinusAssign ||
+            peek().type == TokenType::StarAssign || peek().type == TokenType::SlashAssign ||
+            peek().type == TokenType::PercentAssign || peek().type == TokenType::CommaAssign)) {
+            incr = parseAssignment();
         } else {
-            // best-effort expression
-            try { (void)parseExpression(); } catch (...) {}
+            try { incr = parseExpression(); } catch (...) { incr = nullptr; }
         }
     }
-    
     // Consume any remaining tokens before the '{'
     while (!check(TokenType::LeftBrace) && !check(TokenType::EndOfFile) && !check(TokenType::Newline)) {
         advance();
@@ -742,10 +744,7 @@ std::shared_ptr<AST::Node> Parser::parseFor() {
     }
     consume(TokenType::RightBrace, "Expected '}' after for body");
 
-    // Represent 'for' as a while node for now (condition not preserved)
-    // Use 'true' literal as condition to keep AST simple
-    auto cond = std::make_shared<AST::LiteralNode>("1", false);
-    return std::make_shared<AST::WhileNode>(cond, body);
+    return std::make_shared<AST::ForNode>(init, cond, incr, body);
 }
 
 std::shared_ptr<AST::Node> Parser::parseForeach() {
@@ -794,10 +793,8 @@ std::shared_ptr<AST::Node> Parser::parseForeach() {
         skipNewlines();
     }
     consume(TokenType::RightBrace, "Expected '}' after foreach body");
-    
-    // Represent 'foreach' as a while node for now (simplified)
-    auto cond = std::make_shared<AST::LiteralNode>("1", false);
-    return std::make_shared<AST::WhileNode>(cond, body);
+
+    return std::make_shared<AST::ForeachNode>(arrayExpr, varName, body);
 }
 
 std::shared_ptr<AST::Node> Parser::parseBlock() {
@@ -1039,13 +1036,26 @@ std::shared_ptr<AST::Node> Parser::parseLogicalOr() {
 }
 
 std::shared_ptr<AST::Node> Parser::parseLogicalAnd() {
-    auto left = parseEquality();
-    
+    auto left = parseBitwiseAnd();
+
     while (match(TokenType::And)) {
-        auto right = parseEquality();
+        auto right = parseBitwiseAnd();
         left = std::make_shared<AST::BinaryOpNode>("&&", left, right);
     }
-    
+
+    return left;
+}
+
+std::shared_ptr<AST::Node> Parser::parseBitwiseAnd() {
+    auto left = parseEquality();
+
+    // '&' is a binary bitwise-AND operator (per YAYA / Ourin spec).
+    // '&&' is tokenized separately by the lexer, so this never matches it.
+    while (match(TokenType::Ampersand)) {
+        auto right = parseEquality();
+        left = std::make_shared<AST::BinaryOpNode>("&", left, right);
+    }
+
     return left;
 }
 
@@ -1154,12 +1164,7 @@ std::shared_ptr<AST::Node> Parser::parseUnary() {
     if (match(TokenType::Plus)) {
         return parseUnary();
     }
-    // Address-of or byref indicator '&'
-    if (match(TokenType::Ampersand)) {
-        auto operand = parseUnary();
-        return std::make_shared<AST::UnaryOpNode>("&", operand);
-    }
-    
+
     return parsePrimary();
 }
 

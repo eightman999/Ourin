@@ -67,6 +67,7 @@ public final class SakuraScriptEngine {
         case text(String)
         case scope(Int)
         case surface(Int)
+        case surfaceNamed(String) // \s[alias] 文字列サーフェス別名（非数値）
         case animation(Int, wait: Bool)
         case newline
         case newlineVariation(String) // \n[half] or \n[percent]
@@ -229,16 +230,23 @@ public final class SakuraScriptEngine {
                     i = j
                 case "s":
                     var j = i + 2
-                    var num = ""
+                    var raw = ""
                     if j < chars.count && chars[j] == "[" {
                         if let (content, end) = readBracket(start: j + 1) {
-                            num = content
+                            raw = content
                             j = end
                         }
                     } else {
-                        while j < chars.count, chars[j].isNumber { num.append(chars[j]); j += 1 }
+                        while j < chars.count, chars[j].isNumber { raw.append(chars[j]); j += 1 }
                     }
-                    tokens.append(.surface(Int(num) ?? 0))
+                    if let n = Int(raw) {
+                        tokens.append(.surface(n))
+                    } else if raw.isEmpty {
+                        tokens.append(.surface(0))
+                    } else {
+                        // \s[alias] 非数値サーフェス別名は文字列のまま保持し、実行時に解決する
+                        tokens.append(.surfaceNamed(raw))
+                    }
                     i = j
                 case "i":
                     var j = i + 2

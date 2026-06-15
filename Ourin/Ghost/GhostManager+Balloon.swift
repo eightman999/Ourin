@@ -674,21 +674,29 @@ extension GhostManager {
             return
         }
         
-        for arg in args {
-            if arg.hasPrefix("char") {
+        // 位置引数形式（UKADOC 準拠）: \c[char,N] / \c[line,N] / \c[char,N,start] / \c[all]。
+        // 旧 `char=N` / `line=N` 形式も後方互換で受理する。
+        switch args.first {
+        case "all":
+            vm.text = ""
+            Log.debug("[GhostManager] Cleared all text")
+            return
+        case "char":
+            if args.count >= 2, let count = Int(args[1]) { charsToClear = count }
+        case "line":
+            if args.count >= 2, let count = Int(args[1]) { linesToClear = count }
+        default:
+            for arg in args {
+                if arg == "all" {
+                    vm.text = ""
+                    Log.debug("[GhostManager] Cleared all text")
+                    return
+                }
                 let parts = arg.split(separator: "=")
                 if parts.count >= 2, let count = Int(parts[1]) {
-                    charsToClear = count
+                    if arg.hasPrefix("char") { charsToClear = count }
+                    else if arg.hasPrefix("line") { linesToClear = count }
                 }
-            } else if arg.hasPrefix("line") {
-                let parts = arg.split(separator: "=")
-                if parts.count >= 2, let count = Int(parts[1]) {
-                    linesToClear = count
-                }
-            } else if arg == "all" {
-                vm.text = ""
-                Log.debug("[GhostManager] Cleared all text")
-                return
             }
         }
         

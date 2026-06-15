@@ -79,12 +79,29 @@ public final class PropertyManager {
         return expand(text, resolvingKeys: [], depth: 0)
     }
 
+    /// 登録済みプロバイダのうち、key のドット接頭辞として最長一致するものを解決する。
+    /// 例: `currentghost.balloon.scope(0).num` は `currentghost`(短) より
+    /// `currentghost.balloon`(長) を優先し、残り `scope(0).num` をプロバイダへ渡す。
+    /// （旧実装は最初のドットだけで分割していたため `currentghost.balloon` 登録が
+    ///  到達不能な dead code になっていた。）
+    private func resolveProvider(_ lowerKey: String) -> (prefix: String, provider: PropertyProvider, rest: String)? {
+        let parts = lowerKey.split(separator: ".", omittingEmptySubsequences: false).map(String.init)
+        guard parts.count >= 2 else { return nil }
+        var idx = parts.count - 1
+        while idx >= 1 {
+            let prefix = parts[0..<idx].joined(separator: ".")
+            if let provider = providers[prefix] {
+                let rest = parts[idx...].joined(separator: ".")
+                return (prefix, provider, rest)
+            }
+            idx -= 1
+        }
+        return nil
+    }
+
     public func set(_ key: String, value: String) -> Bool {
         let lower = key.lowercased()
-        guard let dot = lower.firstIndex(of: ".") else { return false }
-        let prefix = String(lower[..<dot])
-        let rest = String(lower[lower.index(after: dot)...])
-        guard let provider = providers[prefix] else { return false }
+        guard let (_, provider, rest) = resolveProvider(lower) else { return false }
         let didSet = provider.set(key: rest, value: value)
         if didSet {
             invalidateCache()
@@ -98,9 +115,8 @@ public final class PropertyManager {
 
     public func get(_ key: String) -> String? {
         let lower = key.lowercased()
-        guard let dot = lower.firstIndex(of: ".") else { return nil }
-        let prefix = String(lower[..<dot])
-        let cacheable = !Self.uncachedPrefixes.contains(prefix)
+        let firstSegment = lower.split(separator: ".", maxSplits: 1).first.map(String.init) ?? lower
+        let cacheable = !Self.uncachedPrefixes.contains(firstSegment)
 
         if cacheable {
             if let cached = valueCache[lower] {
@@ -110,8 +126,10 @@ public final class PropertyManager {
                 return nil
             }
         }
-        let rest = String(lower[lower.index(after: dot)...])
-        guard let provider = providers[prefix] else { return nil }
+        guard let (_, provider, rest) = resolveProvider(lower) else {
+            if cacheable { missingValueCache.insert(lower) }
+            return nil
+        }
         let value = provider.get(key: rest)
         if cacheable {
             if let value {

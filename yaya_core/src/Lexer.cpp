@@ -189,10 +189,21 @@ Token Lexer::readNumber() {
         return Token(TokenType::Integer, value, startLine, startCol);
     }
 
-    // Decimal integer
+    // Decimal integer (or real if a single '.' followed by a digit is present)
     while (std::isdigit(static_cast<unsigned char>(current()))) {
         value += current();
         advance();
+    }
+
+    // Real number: a '.' followed by at least one digit (e.g. 1.5, 3.14).
+    // We require a trailing digit so that "1." (member access etc.) is not consumed.
+    if (current() == '.' && std::isdigit(static_cast<unsigned char>(peek()))) {
+        value += current(); // '.'
+        advance();
+        while (std::isdigit(static_cast<unsigned char>(current()))) {
+            value += current();
+            advance();
+        }
     }
 
     return Token(TokenType::Integer, value, startLine, startCol);

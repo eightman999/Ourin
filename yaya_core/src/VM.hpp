@@ -85,6 +85,10 @@ private:
         explicit ReturnException(const Value& v) : value(v) {}
     };
 
+    // Loop control-flow exceptions (caught by While/For/Foreach loops)
+    struct BreakException {};
+    struct ContinueException {};
+
     // Execution helpers
     Value executeNode(std::shared_ptr<AST::Node> node);
     Value executeBlock(const std::vector<std::shared_ptr<AST::Node>>& statements);

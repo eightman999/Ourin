@@ -13,6 +13,8 @@ enum class NodeType {
     Assignment,
     If,
     While,
+    For,
+    Foreach,
     Switch,
     Break,
     Continue,
@@ -140,9 +142,34 @@ struct WhileNode : Node {
     }
 };
 
+struct ForNode : Node {
+    std::shared_ptr<Node> init;   // optional (may be null)
+    std::shared_ptr<Node> cond;   // optional (null == always true)
+    std::shared_ptr<Node> incr;   // optional (may be null)
+    std::vector<std::shared_ptr<Node>> body;
+
+    ForNode(std::shared_ptr<Node> i, std::shared_ptr<Node> c, std::shared_ptr<Node> inc,
+            const std::vector<std::shared_ptr<Node>>& b)
+        : init(i), cond(c), incr(inc), body(b) {
+        type = NodeType::For;
+    }
+};
+
+struct ForeachNode : Node {
+    std::shared_ptr<Node> arrayExpr; // expression yielding the array to iterate
+    std::string varName;             // loop variable name
+    std::vector<std::shared_ptr<Node>> body;
+
+    ForeachNode(std::shared_ptr<Node> arr, const std::string& var,
+                const std::vector<std::shared_ptr<Node>>& b)
+        : arrayExpr(arr), varName(var), body(b) {
+        type = NodeType::Foreach;
+    }
+};
+
 struct BlockNode : Node {
     std::vector<std::shared_ptr<Node>> statements;
-    
+
     explicit BlockNode(const std::vector<std::shared_ptr<Node>>& stmts)
         : statements(stmts) {
         type = NodeType::Block;

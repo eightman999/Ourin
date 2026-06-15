@@ -268,6 +268,10 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                         int v = std::stoi(s.substr(2), nullptr, 16);
                         return Value(v);
                     }
+                    // Real literal: contains a decimal point
+                    if (s.find('.') != std::string::npos) {
+                        return Value(std::stod(s));
+                    }
                     // Decimal fallback
                     return Value(std::stoi(s, nullptr, 10));
                 } catch (...) {
@@ -337,7 +341,54 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             auto* whileNode = dynamic_cast<AST::WhileNode*>(node.get());
             Value result;
             while (executeNode(whileNode->condition).toBool()) {
-                result = executeBlock(whileNode->body);
+                try {
+                    result = executeBlock(whileNode->body);
+                } catch (const ContinueException&) {
+                    continue;
+                } catch (const BreakException&) {
+                    break;
+                }
+            }
+            return result;
+        }
+
+        case AST::NodeType::For: {
+            auto* forNode = dynamic_cast<AST::ForNode*>(node.get());
+            Value result;
+            // Run the initializer once.
+            if (forNode->init) executeNode(forNode->init);
+            // Missing condition is treated as always true.
+            while (!forNode->cond || executeNode(forNode->cond).toBool()) {
+                try {
+                    result = executeBlock(forNode->body);
+                } catch (const ContinueException&) {
+                    // fall through to increment
+                } catch (const BreakException&) {
+                    break;
+                }
+                if (forNode->incr) executeNode(forNode->incr);
+            }
+            return result;
+        }
+
+        case AST::NodeType::Foreach: {
+            auto* feNode = dynamic_cast<AST::ForeachNode*>(node.get());
+            Value result;
+            Value arrayVal = executeNode(feNode->arrayExpr);
+            if (arrayVal.getType() == Value::Type::Array) {
+                const auto& arr = arrayVal.asArray();
+                // Snapshot elements so mutation of the source array mid-loop is safe.
+                std::vector<Value> elems(arr.begin(), arr.end());
+                for (const auto& elem : elems) {
+                    setVariable(feNode->varName, elem);
+                    try {
+                        result = executeBlock(feNode->body);
+                    } catch (const ContinueException&) {
+                        continue;
+                    } catch (const BreakException&) {
+                        break;
+                    }
+                }
             }
             return result;
         }
@@ -430,6 +481,27 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 return Value();
             }
             
+            // Increment / decrement: __postinc__, __postdec__, __preinc__, __predec__
+            // Mutate the operand variable and return the appropriate value.
+            static const std::set<std::string> incdecOps = {
+                "__postinc__", "__postdec__", "__preinc__", "__predec__"
+            };
+            if (incdecOps.count(call->functionName) && call->arguments.size() == 1) {
+                // Operand must be a plain variable to mutate; otherwise safe no-op.
+                auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get());
+                if (!var) {
+                    return executeNode(call->arguments[0]);
+                }
+                Value preVal = getVariable(var->name);
+                int delta = (call->functionName == "__postinc__" ||
+                             call->functionName == "__preinc__") ? 1 : -1;
+                Value newVal = evaluateBinaryOp("+", preVal, Value(delta));
+                setVariable(var->name, newVal);
+                bool isPost = (call->functionName == "__postinc__" ||
+                               call->functionName == "__postdec__");
+                return isPost ? preVal : newVal;
+            }
+
             // Assignment operators: __assign__, __plus_assign__, etc.
             static const std::set<std::string> assignOps = {
                 "__assign__", "__plus_assign__", "__minus_assign__",
@@ -546,14 +618,19 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             throw ReturnException(returnValue);
         }
         
-        case AST::NodeType::Break: {
-            // For now, break is a no-op (proper implementation would need loop context)
-            return Value();
+        case AST::NodeType::Block: {
+            auto* block = dynamic_cast<AST::BlockNode*>(node.get());
+            return executeBlock(block->statements);
         }
-        
+
+        case AST::NodeType::Break: {
+            // Unwind to the nearest enclosing loop (caught in While/For/Foreach).
+            throw BreakException();
+        }
+
         case AST::NodeType::Continue: {
-            // For now, continue is a no-op (proper implementation would need loop context)
-            return Value();
+            // Skip to the next iteration of the nearest enclosing loop.
+            throw ContinueException();
         }
         
         default:
@@ -583,6 +660,8 @@ Value VM::evaluateBinaryOp(const std::string& op, const Value& left, const Value
     if (op == ">=") return Value(left >= right ? 1 : 0);
     if (op == "&&") return Value(left.toBool() && right.toBool() ? 1 : 0);
     if (op == "||") return Value(left.toBool() || right.toBool() ? 1 : 0);
+    // '&' is integer bitwise-AND (per Ourin/YAYA spec: BitwiseAnd)
+    if (op == "&") return Value(left.asInt() & right.asInt());
     if (op == "_in_") {
         // String contains check: "substring" _in_ "full string"
         // or array contains check: "value" _in_ array
@@ -607,7 +686,10 @@ Value VM::evaluateBinaryOp(const std::string& op, const Value& left, const Value
 
 Value VM::evaluateUnaryOp(const std::string& op, const Value& operand) {
     if (op == "!") return Value(!operand.toBool() ? 1 : 0);
-    if (op == "-") return Value(-operand.asInt());
+    if (op == "-") {
+        if (operand.isReal()) return Value(-operand.asReal());
+        return Value(-operand.asInt());
+    }
     return Value();
 }
 
@@ -788,10 +870,10 @@ void VM::registerBuiltins() {
         return Value(args[0].asString());
     };
     
-    // TOREAL(value) - Convert to real (for now, same as TOINT since we don't have float support)
+    // TOREAL(value) - Convert to real (floating-point)
     builtins_["TOREAL"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        return Value(args[0].asInt());
+        if (args.empty()) return Value(0.0);
+        return Value(args[0].asReal());
     };
     
     // GETTYPE(value) - Get type of value (0=void, 1=int, 2=str, 3=array)
@@ -964,116 +1046,110 @@ void VM::registerBuiltins() {
     
     // ===== Math Operations =====
     
-    // FLOOR(value) - Round down
+    // FLOOR(value) - Round down (returns Real holding an integral value)
     builtins_["FLOOR"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        return Value(args[0].asInt()); // Integer division already floors
+        if (args.empty()) return Value(0.0);
+        return Value(std::floor(args[0].asReal()));
     };
-    
+
     // CEIL(value) - Round up
     builtins_["CEIL"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        return Value(args[0].asInt()); // For integers, same as floor
+        if (args.empty()) return Value(0.0);
+        return Value(std::ceil(args[0].asReal()));
     };
-    
+
     // ROUND(value) - Round to nearest
     builtins_["ROUND"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        return Value(args[0].asInt());
+        if (args.empty()) return Value(0.0);
+        return Value(std::round(args[0].asReal()));
     };
-    
+
     // SQRT(value) - Square root
     builtins_["SQRT"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        return Value(static_cast<int>(std::sqrt(val)));
+        if (args.empty()) return Value(0.0);
+        return Value(std::sqrt(args[0].asReal()));
     };
-    
+
     // POW(base, exp) - Power
     builtins_["POW"] = [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value(0);
-        double base = static_cast<double>(args[0].asInt());
-        double exp = static_cast<double>(args[1].asInt());
-        return Value(static_cast<int>(std::pow(base, exp)));
+        if (args.size() < 2) return Value(0.0);
+        return Value(std::pow(args[0].asReal(), args[1].asReal()));
     };
-    
+
     // LOG(value) - Natural logarithm
     builtins_["LOG"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        if (val <= 0) return Value(0);
-        return Value(static_cast<int>(std::log(val)));
+        if (args.empty()) return Value(0.0);
+        double val = args[0].asReal();
+        if (val <= 0) return Value(0.0);
+        return Value(std::log(val));
     };
-    
+
     // LOG10(value) - Base-10 logarithm
     builtins_["LOG10"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        if (val <= 0) return Value(0);
-        return Value(static_cast<int>(std::log10(val)));
+        if (args.empty()) return Value(0.0);
+        double val = args[0].asReal();
+        if (val <= 0) return Value(0.0);
+        return Value(std::log10(val));
     };
-    
+
+    // EXP(value) - e raised to value
+    builtins_["EXP"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0.0);
+        return Value(std::exp(args[0].asReal()));
+    };
+
     // SIN(value) - Sine
     builtins_["SIN"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        return Value(static_cast<int>(std::sin(val)));
+        if (args.empty()) return Value(0.0);
+        return Value(std::sin(args[0].asReal()));
     };
-    
+
     // COS(value) - Cosine
     builtins_["COS"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        return Value(static_cast<int>(std::cos(val)));
+        if (args.empty()) return Value(0.0);
+        return Value(std::cos(args[0].asReal()));
     };
-    
+
     // TAN(value) - Tangent
     builtins_["TAN"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        return Value(static_cast<int>(std::tan(val)));
+        if (args.empty()) return Value(0.0);
+        return Value(std::tan(args[0].asReal()));
     };
-    
+
     // ASIN(value) - Arc sine
     builtins_["ASIN"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        return Value(static_cast<int>(std::asin(val)));
+        if (args.empty()) return Value(0.0);
+        return Value(std::asin(args[0].asReal()));
     };
-    
+
     // ACOS(value) - Arc cosine
     builtins_["ACOS"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        return Value(static_cast<int>(std::acos(val)));
+        if (args.empty()) return Value(0.0);
+        return Value(std::acos(args[0].asReal()));
     };
-    
+
     // ATAN(value) - Arc tangent
     builtins_["ATAN"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        return Value(static_cast<int>(std::atan(val)));
+        if (args.empty()) return Value(0.0);
+        return Value(std::atan(args[0].asReal()));
     };
-    
+
     // SINH(value) - Hyperbolic sine
     builtins_["SINH"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        return Value(static_cast<int>(std::sinh(val)));
+        if (args.empty()) return Value(0.0);
+        return Value(std::sinh(args[0].asReal()));
     };
-    
+
     // COSH(value) - Hyperbolic cosine
     builtins_["COSH"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        return Value(static_cast<int>(std::cosh(val)));
+        if (args.empty()) return Value(0.0);
+        return Value(std::cosh(args[0].asReal()));
     };
-    
+
     // TANH(value) - Hyperbolic tangent
     builtins_["TANH"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        double val = static_cast<double>(args[0].asInt());
-        return Value(static_cast<int>(std::tanh(val)));
+        if (args.empty()) return Value(0.0);
+        return Value(std::tanh(args[0].asReal()));
     };
     
     // SRAND(seed) - Seed random number generator
