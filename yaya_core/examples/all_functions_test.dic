@@ -8,7 +8,7 @@ TestTypeConversion
     _str = TOSTR(_num)          // Convert to string
     _back = TOINT(_str)          // Convert to int
     _real = TOREAL(_num)         // Convert to real
-    _type = GETTYPE(_str)        // Get type (2 = string)
+    _type = GETTYPE(_str)        // Get type (YAYA: 3 = string)
     _typeEx = GETTYPEEX(_str)    // Get extended type
     
     // CV* aliases

@@ -977,15 +977,16 @@ void VM::registerBuiltins() {
         return Value(args[0].asReal());
     };
     
-    // GETTYPE(value) - Get type of value (0=void, 1=int, 2=str, 3=array)
+    // GETTYPE(value) - YAYA 標準の型コードを返す（0=void,1=int,2=real,3=string,4=array,5=dict）
     builtins_["GETTYPE"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         switch (args[0].getType()) {
             case Value::Type::Void: return Value(0);
             case Value::Type::Integer: return Value(1);
-            case Value::Type::String: return Value(2);
-            case Value::Type::Array: return Value(3);
-            case Value::Type::Dictionary: return Value(4);
+            case Value::Type::Real: return Value(2);
+            case Value::Type::String: return Value(3);
+            case Value::Type::Array: return Value(4);
+            case Value::Type::Dictionary: return Value(5);
             default: return Value(0);
         }
     };
@@ -1748,8 +1749,9 @@ void VM::registerBuiltins() {
         if (args.size() < 2) return Value(out);
         std::string dir = args[0].asString();
         std::string pat = args[1].asString();
-        // Security: only relative paths without parent traversal
-        if (dir.empty() || dir[0] == '/' || dir.find("..") != std::string::npos) return Value(out);
+        // YAYA ゴーストは自分の絶対パス配下を列挙するため絶対パスを許可する
+        // （macOS コンテナのサンドボックスが実境界）。親階層への .. 抜けのみ禁止。
+        if (dir.empty() || dir.find("..") != std::string::npos) return Value(out);
         try {
             std::string needle;
             for (char c : pat) if (c != '*') needle += c;
@@ -2623,6 +2625,7 @@ void VM::registerBuiltins() {
         switch (args[0].getType()) {
             case Value::Type::Void: return Value("void");
             case Value::Type::Integer: return Value("int");
+            case Value::Type::Real: return Value("real");
             case Value::Type::String: return Value("str");
             case Value::Type::Array: return Value("array");
             case Value::Type::Dictionary: return Value("dict");
