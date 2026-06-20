@@ -111,9 +111,18 @@ extension GhostManager {
             }
             pendingClick = nil
             if !noclear {
-                getBalloonVM(for: fromScope).text = ""
-                EventBridge.shared.notify(.OnBalloonBreak, params: ["Reference0": String(fromScope)])
-                EventBridge.shared.notify(.OnBalloonClose, params: ["Reference0": String(fromScope)])
+                // UKADOC: OnBalloonBreak R0=中断時に表示中のスクリプト, R1=スコープ(本体0/相方1), R2=中断位置(文字数)
+                //         OnBalloonClose R0=閉じる際に表示されていたスクリプト
+                // 元の SakuraScript は保持していないため、表示中テキストを最良近似として用いる。
+                let vm = getBalloonVM(for: fromScope)
+                let displayedScript = vm.text
+                vm.text = ""
+                EventBridge.shared.notify(.OnBalloonBreak, params: [
+                    "Reference0": displayedScript,
+                    "Reference1": String(fromScope),
+                    "Reference2": String(displayedScript.count)
+                ])
+                EventBridge.shared.notify(.OnBalloonClose, params: ["Reference0": displayedScript])
             }
             processNextUnit()
             return
@@ -158,9 +167,12 @@ extension GhostManager {
         guard let vm = balloonViewModels[scope], vm.balloonTimeout > 0 else { return }
         let timer = Timer.scheduledTimer(withTimeInterval: vm.balloonTimeout, repeats: false) { [weak self] _ in
             guard let self else { return }
-            self.getBalloonVM(for: scope).text = ""
+            let balloonVM = self.getBalloonVM(for: scope)
+            let displayedScript = balloonVM.text
+            balloonVM.text = ""
             EventBridge.shared.notify(.OnBalloonTimeout, params: ["Reference0": String(scope)])
-            EventBridge.shared.notify(.OnBalloonClose, params: ["Reference0": String(scope)])
+            // UKADOC: OnBalloonClose R0=閉じる際に表示されていたスクリプト（表示中テキストで近似）
+            EventBridge.shared.notify(.OnBalloonClose, params: ["Reference0": displayedScript])
             self.localEventTimers.removeValue(forKey: key)
         }
         localEventTimers[key] = timer

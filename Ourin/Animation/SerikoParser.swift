@@ -5,6 +5,8 @@ public enum SerikoInterval: Hashable {
     case sometimes
     case rarely
     case random(Int?)
+    /// periodic,N — N 秒ごとに必ず発火する定間隔モード（UKADOC）
+    case periodic(Int?)
     case runonce
     case yenE
     case talk
@@ -20,6 +22,13 @@ public enum SerikoInterval: Hashable {
                 return .random(n)
             }
             return .random(nil)
+        }
+        if value.hasPrefix("periodic") {
+            let parts = value.split(separator: ",", maxSplits: 1).map(String.init)
+            if parts.count == 2, let n = Int(parts[1]) {
+                return .periodic(n)
+            }
+            return .periodic(nil)
         }
         switch value {
         case "always": return .always

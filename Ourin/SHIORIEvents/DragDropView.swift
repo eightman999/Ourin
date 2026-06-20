@@ -76,24 +76,48 @@ final class DragDropReceiverView: NSView {
 
             // For non-.nar files, process as SHIORI events
             if !urls.isEmpty {
-                let params = Dictionary(uniqueKeysWithValues: urls.enumerated().map { ("Reference\($0.offset)", $0.element) })
-                // 旧仕様の互換イベント（複数ファイルを Reference0.. に列挙）
-                onEvent?(ShioriEvent(id: .OnDragDrop, params: params))
-                onEvent?(ShioriEvent(id: .OnFileDropped, params: params))
-                onEvent?(ShioriEvent(id: .OnFileDrop, params: params))
-                // 現行標準: ファイル/ディレクトリごとに送出
-                //   OnFileDrop2  Reference0=ファイル名, Reference1=フルパス
-                //   OnDirectoryDrop Reference0=ディレクトリパス
+                // ファイルとディレクトリのフルパスを分類する
+                var filePaths: [String] = []
+                var dirPaths: [String] = []
                 for u in urls {
                     guard let url = URL(string: u) else { continue }
                     let path = url.path
                     var isDir: ObjCBool = false
                     let exists = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
                     if exists && isDir.boolValue {
-                        onEvent?(ShioriEvent(id: .OnDirectoryDrop, params: ["Reference0": path]))
+                        dirPaths.append(path)
                     } else {
-                        onEvent?(ShioriEvent(id: .OnFileDrop2, params: ["Reference0": url.lastPathComponent, "Reference1": path]))
+                        filePaths.append(path)
                     }
+                }
+
+                // 旧仕様の互換イベント（複数ファイルを Reference0.. に列挙）
+                let legacyParams = Dictionary(uniqueKeysWithValues: urls.enumerated().map { ("Reference\($0.offset)", $0.element) })
+                onEvent?(ShioriEvent(id: .OnDragDrop, params: legacyParams))
+                onEvent?(ShioriEvent(id: .OnFileDropped, params: legacyParams))
+
+                // ドロップ座標（スクリーン上、左上原点）を算出する
+                let screenPoint = self.window?.convertPoint(toScreen: sender.draggingLocation) ?? sender.draggingLocation
+                let screenHeight = NSScreen.main?.frame.height ?? 0
+                let dropX = Int(screenPoint.x)
+                let dropY = Int(screenHeight - screenPoint.y)
+
+                // 現行標準（UKADOC）: 複数パスはバイト値1（0x01）区切りで Reference0 にまとめる
+                let delimiter = "\u{01}"
+                if !filePaths.isEmpty {
+                    let joined = filePaths.joined(separator: delimiter)
+                    // OnFileDrop: Reference0=ファイルパス（0x01区切り）
+                    onEvent?(ShioriEvent(id: .OnFileDrop, params: ["Reference0": joined]))
+                    // OnFileDrop2: Reference0=ファイルパス（0x01区切り）, Reference1=X, Reference2=Y
+                    onEvent?(ShioriEvent(id: .OnFileDrop2, params: [
+                        "Reference0": joined,
+                        "Reference1": String(dropX),
+                        "Reference2": String(dropY)
+                    ]))
+                }
+                if !dirPaths.isEmpty {
+                    // OnDirectoryDrop: Reference0=ディレクトリパス（0x01区切り）
+                    onEvent?(ShioriEvent(id: .OnDirectoryDrop, params: ["Reference0": dirPaths.joined(separator: delimiter)]))
                 }
                 return true
             }

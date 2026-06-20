@@ -380,7 +380,26 @@ extension GhostManager {
 
     func showChoiceDialog() {
         guard !pendingChoices.isEmpty else { return }
-        EventBridge.shared.notify(.OnChoiceEnter, params: ["Reference0": String(pendingChoices.count)])
+        // OnChoiceEnter は本来「選択肢にカーソルが入った」hover イベントだが、モーダル NSAlert では
+        // 個別 hover を追跡できない。提示された各選択肢を UKADOC の Reference 構成（R0=ラベル, R1=ID,
+        // R2..=拡張情報）で NOTIFY 通知する（NOTIFY 経路はバルーン再生を伴わないため副作用なし）。
+        for choice in pendingChoices {
+            let choiceID: String
+            let extendedRefs: [String]
+            switch choice.action {
+            case .event(let id, let references):
+                choiceID = id
+                extendedRefs = references
+            case .script:
+                choiceID = ""
+                extendedRefs = []
+            }
+            var enterParams: [String: String] = ["Reference0": choice.title, "Reference1": choiceID]
+            for (i, ref) in extendedRefs.enumerated() {
+                enterParams["Reference\(i + 2)"] = ref
+            }
+            EventBridge.shared.notify(.OnChoiceEnter, params: enterParams)
+        }
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -428,24 +447,41 @@ extension GhostManager {
             let buttonIndex = response.rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
 
             if didTimeout {
-                _ = self.requestDialogEvent(eventID: "OnChoiceTimeout", references: [String(self.pendingChoices.count)])
+                // OnChoiceTimeout: Reference0 = タイムアウトしたスクリプト（UKADOC）。
+                // 表示中スクリプトを保持していないため空で送る（誤った件数値は送らない）。
+                _ = self.requestDialogEvent(eventID: "OnChoiceTimeout", references: [])
             } else if buttonIndex >= 0 && buttonIndex < self.pendingChoices.count {
                 // User selected a choice
                 let choice = self.pendingChoices[buttonIndex]
 
-                // Trigger OnChoiceSelect event
-                let params: [String: String] = [
-                    "Reference0": choice.title,
-                    "Reference\(buttonIndex + 1)": choice.title
-                ]
-                EventBridge.shared.notifyCustom("OnChoiceSelect", params: params)
-                EventBridge.shared.notifyCustom("OnChoiceSelectEx", params: params)
-                // プラグインへも横流し（Reference0 に選択タイトル）
-                self.forwardEventToPlugins(id: "OnChoiceSelect", references: [choice.title])
-                self.forwardEventToPlugins(id: "OnChoiceSelectEx", references: [choice.title])
+                // \q[title,ID,ref2,ref3,...] の ID と拡張引数を取り出す（UKADOC 準拠の Reference 構成用）
+                let choiceID: String
+                let extendedRefs: [String]
+                switch choice.action {
+                case .event(let id, let references):
+                    choiceID = id
+                    extendedRefs = references
+                case .script:
+                    choiceID = ""
+                    extendedRefs = []
+                }
 
-                // Trigger OnChoiceHover event when choice is made
-                EventBridge.shared.notifyCustom("OnChoiceHover", params: params)
+                // OnChoiceSelect: Reference0 = 選択された選択肢の ID（UKADOC）
+                EventBridge.shared.notifyCustom("OnChoiceSelect", params: ["Reference0": choiceID])
+
+                // OnChoiceSelectEx: Reference0 = ラベル, Reference1 = ID, Reference2.. = 拡張情報（\q の3番目以降）
+                var selectExParams: [String: String] = [
+                    "Reference0": choice.title,
+                    "Reference1": choiceID
+                ]
+                for (i, ref) in extendedRefs.enumerated() {
+                    selectExParams["Reference\(i + 2)"] = ref
+                }
+                EventBridge.shared.notifyCustom("OnChoiceSelectEx", params: selectExParams)
+
+                // プラグインへも横流し（Select=ID, SelectEx=ラベル/ID/拡張）
+                self.forwardEventToPlugins(id: "OnChoiceSelect", references: [choiceID])
+                self.forwardEventToPlugins(id: "OnChoiceSelectEx", references: [choice.title, choiceID] + extendedRefs)
 
                 switch choice.action {
                 case .event(let id, let references):
@@ -1464,11 +1500,11 @@ extension GhostManager {
         do {
             let installed = try NarInstaller().install(fromNar: narURL)
             let name = installed.lastPathComponent
-            // UKADOC: Reference0=識別子, Reference1=名前, Reference2=副名（Ourin はパスも付与）
+            // UKADOC: Reference0=識別子, Reference1=名前（install.txt name）, Reference2=副名（ghost with balloon 等の2番目）。
+            // 単体インストールでは副名が無く、パスは Reference2 の定義（副名）に反するため付与しない。
             EventBridge.shared.notifyCustom("OnInstallComplete", params: [
                 "Reference0": name,
-                "Reference1": name,
-                "Reference2": installed.path
+                "Reference1": name
             ])
         } catch {
             EventBridge.shared.notifyCustom("OnInstallFailure", params: ["Reference0": error.localizedDescription])
@@ -1576,14 +1612,19 @@ extension GhostManager {
 
         let previous = ghostConfig?.name ?? ""
         let previousPath = ghostURL.path
+        // 切替先ゴーストのインストールパスを名前から解決する（見つからなければ Reference3 を省略）
+        let targetPath = NarRegistry.shared.installedItems(ofType: "ghost").first {
+            $0.name.lowercased() == normalized.lowercased()
+        }?.path.path
         if raiseEvent {
-            // UKADOC: Reference0=新ゴースト名, Reference1=manual/automatic, Reference2=新ゴースト名, Reference3=新パス
-            EventBridge.shared.notify(.OnGhostChanging, params: [
+            // UKADOC: Reference0=切替先の本体側名前, Reference1=manual/automatic, Reference2=切替先ゴースト名[SSP], Reference3=切替先パス[SSP]
+            var changingParams: [String: String] = [
                 "Reference0": normalized,
                 "Reference1": "manual",
-                "Reference2": normalized,
-                "Reference3": previous
-            ])
+                "Reference2": normalized
+            ]
+            if let targetPath { changingParams["Reference3"] = targetPath }
+            EventBridge.shared.notify(.OnGhostChanging, params: changingParams)
         }
 
         switch normalized.lowercased() {
@@ -1596,11 +1637,12 @@ extension GhostManager {
             bootOtherGhost(name: normalized)
         }
 
-        // UKADOC: Reference0=旧ゴースト\0名, Reference2=旧ゴースト名, Reference3=旧ゴーストパス
-        // （Reference1 は OnGhostChanging スクリプト枠。互換のため新ゴースト名も残す）
+        // UKADOC: Reference0=直前ゴーストの本体側名前, Reference1=直前ゴーストの切替時スクリプト,
+        //         Reference2=直前ゴースト名[SSP], Reference3=直前ゴーストパス[SSP]
+        // 直前の切替スクリプトは保持していないため Reference1 は空で送る（旧実装は誤って新名を入れていた）。
         EventBridge.shared.notify(.OnGhostChanged, params: [
             "Reference0": previous,
-            "Reference1": normalized,
+            "Reference1": "",
             "Reference2": previous,
             "Reference3": previousPath
         ])

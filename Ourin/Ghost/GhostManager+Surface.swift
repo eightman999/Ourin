@@ -62,11 +62,14 @@ extension GhostManager {
         }
         
         // Schedule OnSurfaceRestore after a delay
+        // UKADOC: Reference0 = 本体側(scope0)の現在サーフェス, Reference1 = 相方側(scope1)の現在サーフェス
         DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) { [weak self] in
-            guard self != nil else { return }
+            guard let self = self else { return }
+            let sakuraSurface = self.characterViewModels[0]?.currentSurfaceID ?? 0
+            let keroSurface = self.characterViewModels[1]?.currentSurfaceID ?? 0
             let params: [String: String] = [
-                "Reference0": oldSurfaceID >= 0 ? String(oldSurfaceID) : "0",
-                "Reference1": String(id)
+                "Reference0": String(sakuraSurface),
+                "Reference1": String(keroSurface)
             ]
             EventBridge.shared.notify(.OnSurfaceRestore, params: params)
             Log.debug("[GhostManager] OnSurfaceRestore dispatched")

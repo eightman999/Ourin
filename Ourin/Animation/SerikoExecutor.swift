@@ -15,6 +15,8 @@ public final class SerikoExecutor {
     public private(set) var activeAnimations: [Int: AnimationState] = [:]
     private var definitions: [Int: SerikoParser.AnimationDefinition] = [:]
     private var triggeredRunonce: Set<Int> = []
+    /// periodic,N の前回発火時刻（animationID 毎）。実時間で N 秒間隔を判定するため保持する。
+    private var lastPeriodicStart: [Int: Date] = [:]
     private var pendingIntervalEvents: Set<SerikoInterval> = []
 
     private let nowProvider: () -> Date
@@ -301,6 +303,21 @@ public final class SerikoExecutor {
         case .random(let threshold):
             let t = threshold ?? 10
             return Int(randomProvider() * Double(max(t, 1))) == 0
+        case .periodic(let seconds):
+            // periodic,N — 前回発火から N 秒経過するたびに必ず発火する（UKADOC）。
+            // startLoop が高頻度（20Hz）で回るため、呼び出し回数ではなく実時間で判定する。
+            let interval = Double(max(seconds ?? 1, 1))
+            let now = nowProvider()
+            if let last = lastPeriodicStart[animationID] {
+                if now.timeIntervalSince(last) >= interval {
+                    lastPeriodicStart[animationID] = now
+                    return true
+                }
+                return false
+            }
+            // 初回評価時は基準時刻のみ記録し、最初の発火は N 秒後とする
+            lastPeriodicStart[animationID] = now
+            return false
         case .runonce:
             if triggeredRunonce.contains(animationID) { return false }
             triggeredRunonce.insert(animationID)
