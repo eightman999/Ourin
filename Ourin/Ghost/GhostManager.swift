@@ -1227,6 +1227,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let propertyKey = args[2]
                         let propertyValue = args.count >= 4 ? args[3] : ""
                         let success = sakuraEngine.propertyManager.set(propertyKey, value: propertyValue)
+                        // scope(N).surface.num / animation.num への SET は実サーフェス/アニメへ反映する（UKADOC: WRITE 可）
+                        applyScopePropertySideEffect(key: propertyKey, value: propertyValue)
                         Log.debug("[GhostManager] Property set: \(propertyKey) = \(propertyValue), success: \(success)")
                     } else if first == "quicksection", args.count >= 2 {
                         let v = args[1].lowercased()

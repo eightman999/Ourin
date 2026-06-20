@@ -136,7 +136,13 @@ public final class SerikoExecutor {
             executeStart(animationID: animationID, pattern: pattern)
         case .alternativeStart:
             executeAlternativeStart(animationID: animationID, pattern: pattern)
-        case .stop:
+        case .insert:
+            // 別アニメ列の割り込み再生は start に準じて対象アニメを起動する
+            executeStart(animationID: animationID, pattern: pattern)
+        case .interpolate:
+            // フレーム補間は未対応のため overlay 合成にフォールバック（対象フレームを表示）
+            executeOverlay(animationID: animationID, pattern: pattern)
+        case .stop, .alternativeStop:
             stopAnimation(id: animationID)
         case .asis, .unknown:
             onMethodInvoked?(animationID, pattern.method, pattern.surfaceID, pattern.x, pattern.y)

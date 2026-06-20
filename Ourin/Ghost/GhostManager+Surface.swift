@@ -8,6 +8,41 @@ import UserNotifications
 // MARK: - Surface Loading and Compositing
 
 extension GhostManager {
+    /// `\![set,property,currentghost.scope(N).surface.num,ID]` 等の SET を実サーフェス/アニメへ反映する。
+    /// UKADOC では surface.num / animation.num / seriko.defaultsurface は WRITE 可。プロパティの
+    /// 読み戻し配線（live scopeData）とは独立に、ここでは SET の副作用（表示変更）のみを適用する。
+    func applyScopePropertySideEffect(key: String, value: String) {
+        var k = key
+        if k.hasPrefix("currentghost.") { k = String(k.dropFirst("currentghost.".count)) }
+        guard k.hasPrefix("scope(") else { return }
+        let afterParen = k.dropFirst("scope(".count)
+        guard let close = afterParen.firstIndex(of: ")") else { return }
+        guard let scopeID = Int(afterParen[..<close]) else { return }
+        var rest = String(afterParen[afterParen.index(after: close)...])
+        guard rest.first == "." else { return }
+        rest.removeFirst()
+
+        // 対象スコープを一時的に currentScope にして既存 API を再利用する（\4/\5 と同じ手法）。
+        // updateSurface / playAnimation は currentScope を同期的に読むため、直後の復元で問題ない。
+        func withScope(_ body: () -> Void) {
+            let previousScope = currentScope
+            currentScope = scopeID
+            body()
+            currentScope = previousScope
+        }
+
+        switch rest {
+        case "surface.num", "seriko.defaultsurface":
+            guard let sid = Int(value) else { return }
+            withScope { updateSurface(id: sid) }
+        case "animation.num":
+            guard let aid = Int(value) else { return }
+            withScope { playAnimation(id: aid, wait: false) }
+        default:
+            break
+        }
+    }
+
     func updateSurface(id rawID: Int) {
         let id = surfaceAliases[rawID] ?? rawID
         let scope = currentScope

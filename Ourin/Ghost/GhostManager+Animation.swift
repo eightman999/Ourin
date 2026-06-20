@@ -374,9 +374,13 @@ extension GhostManager {
         case .alternativeStart:
             _ = serikoExecutor.executeAnimation(id: surfaceID)
             startSerikoLoopIfNeeded()
-        case .stop:
+        case .stop, .alternativeStop:
             serikoExecutor.stopAnimation(id: animationID)
-        case .asis, .unknown:
+        case .insert:
+            // insert は executor 側で start に変換されるためここには到達しないが、網羅性のため処理する
+            _ = serikoExecutor.executeAnimation(id: surfaceID)
+            startSerikoLoopIfNeeded()
+        case .interpolate, .asis, .unknown:
             break
         }
     }

@@ -54,6 +54,11 @@ public enum SerikoMethod: Equatable {
     case start
     case alternativeStart
     case stop
+    case alternativeStop
+    /// 別アニメ列を割り込み再生する（start に準じて処理）
+    case insert
+    /// フレーム補間（overlay 合成にフォールバック）
+    case interpolate
     case asis
     case unknown(String)
 
@@ -69,6 +74,9 @@ public enum SerikoMethod: Equatable {
         case "start": return .start
         case "alternativestart", "alternatestart": return .alternativeStart
         case "stop": return .stop
+        case "alternativestop", "alternatestop": return .alternativeStop
+        case "insert": return .insert
+        case "interpolate": return .interpolate
         case "asis": return .asis
         default: return .unknown(raw)
         }
