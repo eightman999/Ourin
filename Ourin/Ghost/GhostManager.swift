@@ -236,6 +236,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var localEventTimers: [String: Timer] = [:]
     var remoteEventTimers: [String: Timer] = [:]
     var pluginEventTimers: [String: Timer] = [:]
+    /// \![execute,websocket,URL] で開いた WebSocket 接続（URL 文字列でキー）
+    var webSocketTasks: [String: URLSessionWebSocketTask] = [:]
     var selectModeActive: Bool = false
     var quickSessionEnabled: Bool = false
     var collisionModeActive: Bool = false
@@ -1587,8 +1589,24 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             emitSystemDialogCancel(type: "dialog", eventID: id)
                         case "teachbox":
                             _ = requestDialogEvent(eventID: "OnTeachInputCancel", references: [])
+                        case "websocket":
+                            closeWebSocket(params: Array(args.dropFirst(2)))
                         default:
                             break
+                        }
+                    } else if first == "send", args.count >= 2 {
+                        // \![send,websocket,URL,data] / \![send,websocket-binary,URL,base64]
+                        let sendType = args[1].lowercased()
+                        if sendType == "websocket" {
+                            sendWebSocket(params: Array(args.dropFirst(2)), binary: false)
+                        } else if sendType == "websocket-binary" {
+                            sendWebSocket(params: Array(args.dropFirst(2)), binary: true)
+                        }
+                    } else if first == "cancel", args.count >= 2 {
+                        // \![cancel,websocket,URL]（http のキャンセルは未対応）
+                        let cancelType = args[1].lowercased()
+                        if cancelType == "websocket" {
+                            cancelWebSocket(params: Array(args.dropFirst(2)))
                         }
                     } else if first == "enter", args.count >= 2 {
                         let enterType = args[1].lowercased()
@@ -1933,6 +1951,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             executePing(params: Array(args.dropFirst(2)))
                         } else if subcmd == "nslookup" {
                             executeNslookup(params: Array(args.dropFirst(2)))
+                        } else if subcmd == "websocket" {
+                            executeWebSocket(params: Array(args.dropFirst(2)))
                         }
                     } else if first == "create", args.count >= 2 {
                         let createType = args[1].lowercased()
