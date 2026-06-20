@@ -57,6 +57,9 @@ private:
     // Local variable scope stack (for variables starting with '_')
     std::vector<std::map<std::string, Value>> localScopes_;
 
+    // SETDELIM/GETDELIM で設定する配列⇔文字列の既定区切り文字（SPLIT の区切り省略時に使用）
+    std::string arrayDelimiter_ = ",";
+
     // SHIORI reference values
     std::vector<Value> references_;
 

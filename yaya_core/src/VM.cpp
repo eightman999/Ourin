@@ -1275,10 +1275,11 @@ void VM::registerBuiltins() {
     // ===== Array Operations =====
     
     // SPLIT(str, delim) - Split string into array
-    builtins_["SPLIT"] = [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value(std::vector<Value>());
+    builtins_["SPLIT"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(std::vector<Value>());
         std::string str = args[0].asString();
-        std::string delim = args[1].asString();
+        // 区切りが省略された場合は SETDELIM で設定したカレント区切りを使う（YAYA 準拠）
+        std::string delim = (args.size() >= 2) ? args[1].asString() : arrayDelimiter_;
 
         // Optional third parameter: max number of splits (0 = unlimited)
         int maxSplits = (args.size() >= 3) ? args[2].asInt() : 0;
@@ -2271,14 +2272,79 @@ void VM::registerBuiltins() {
     
     // ===== Additional Variable/Function Management =====
     
-    // SAVEVAR(filename) - Save variables to file (stub)
-    builtins_["SAVEVAR"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
+    // SAVEVAR(filename) - グローバル変数を JSON で指定ファイルへ保存する。
+    // 型情報（s=文字列, i=整数, r=実数, a=配列, v=void）を保持し RESTOREVAR で復元可能にする。
+    builtins_["SAVEVAR"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        std::string filename = args[0].asString();
+        // FOPEN と同じサンドボックス（相対パスのみ、.. と絶対パス禁止）
+        if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
+            return Value(0);
+        }
+        std::function<nlohmann::json(const Value&)> toJson = [&toJson](const Value& v) -> nlohmann::json {
+            nlohmann::json j;
+            switch (v.getType()) {
+                case Value::Type::String: j["t"] = "s"; j["v"] = v.asString(); break;
+                case Value::Type::Integer: j["t"] = "i"; j["v"] = v.asInt(); break;
+                case Value::Type::Real: j["t"] = "r"; j["v"] = v.asReal(); break;
+                case Value::Type::Array: {
+                    j["t"] = "a";
+                    nlohmann::json a = nlohmann::json::array();
+                    for (const auto& e : v.asArray()) a.push_back(toJson(e));
+                    j["v"] = a;
+                    break;
+                }
+                default: j["t"] = "v"; break;
+            }
+            return j;
+        };
+        nlohmann::json root = nlohmann::json::object();
+        for (const auto& kv : variables_) {
+            root[kv.first] = toJson(kv.second);
+        }
+        try {
+            std::ofstream ofs(filename, std::ios::binary | std::ios::trunc);
+            if (!ofs.is_open()) return Value(0);
+            ofs << root.dump();
+            return Value(ofs.good() ? 1 : 0);
+        } catch (...) {
+            return Value(0);
+        }
     };
-    
-    // RESTOREVAR(filename) - Restore variables from file (stub)
-    builtins_["RESTOREVAR"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
+
+    // RESTOREVAR(filename) - SAVEVAR で保存した JSON からグローバル変数を復元する。
+    builtins_["RESTOREVAR"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        std::string filename = args[0].asString();
+        if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
+            return Value(0);
+        }
+        std::function<Value(const nlohmann::json&)> fromJson = [&fromJson](const nlohmann::json& j) -> Value {
+            std::string t = j.value("t", std::string("v"));
+            if (t == "s") return Value(j.value("v", std::string()));
+            if (t == "i") return Value(j.value("v", 0));
+            if (t == "r") return Value(j.value("v", 0.0));
+            if (t == "a") {
+                std::vector<Value> arr;
+                if (j.contains("v") && j["v"].is_array()) {
+                    for (const auto& e : j["v"]) arr.push_back(fromJson(e));
+                }
+                return Value(arr);
+            }
+            return Value();
+        };
+        try {
+            std::ifstream ifs(filename, std::ios::binary);
+            if (!ifs.is_open()) return Value(0);
+            nlohmann::json root = nlohmann::json::parse(ifs);
+            if (!root.is_object()) return Value(0);
+            for (auto it = root.begin(); it != root.end(); ++it) {
+                variables_[it.key()] = fromJson(it.value());
+            }
+            return Value(1);
+        } catch (...) {
+            return Value(0);
+        }
     };
     
     // DUMPVAR() - Dump all variables (for debugging)
@@ -2450,14 +2516,16 @@ void VM::registerBuiltins() {
         return Value(-1);
     };
     
-    // GETDELIM() - Get delimiter (stub)
-    builtins_["GETDELIM"] = [](const std::vector<Value>& args) -> Value {
+    // GETDELIM() - 現在の配列区切り文字を返す
+    builtins_["GETDELIM"] = [this](const std::vector<Value>& args) -> Value {
         (void)args;
-        return Value(",");
+        return Value(arrayDelimiter_);
     };
-    
-    // SETDELIM(delim) - Set delimiter (stub)
-    builtins_["SETDELIM"] = [](const std::vector<Value>& args) -> Value {
+
+    // SETDELIM(delim) - 配列区切り文字を設定する（SPLIT の区切り省略時に使用）
+    builtins_["SETDELIM"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        arrayDelimiter_ = args[0].asString();
         return Value(1);
     };
     
