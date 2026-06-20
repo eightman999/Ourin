@@ -7,6 +7,18 @@
 
 > **前提**: 本計画は `AUDIT_CLAUDE.md`（2026-06-14）の P0–P3 指摘が commit `8b0acef` / `b80afac` で実装済みであることを確認した**うえで**、なお残るギャップを再調査したもの。動的なゴースト実機検証は当環境では未実施のため、各 `file:行番号` は静的解析時点の位置であり、着手時に再確認すること。
 
+## 実装進捗（2026-06-20）
+
+- ✅ **P0 全項目（スプリント1）完了** — SHIORI 選択肢/Balloon/Ghost切替/Install/Surface/FileDrop2 の Reference 修正、SERIKO `periodic` 間隔、SSTP body 配線。
+- ✅ **P1 全項目（スプリント2）完了**
+  - YAYA `SAVEVAR`/`RESTOREVAR`・`SETDELIM`/`GETDELIM`（**Linux で yaya_core をビルドし IPC 経由で動作検証済み**: 変数の保存復元・配列往復・SPLIT 区切り）
+  - プロパティ `scope(N).surface.num`/`animation.num` SET の副作用反映
+  - SakuraScript WebSocket 一式
+  - SERIKO `interpolate`/`insert`/`alternativestop` メソッド
+- ⏳ **P2/P3 未着手** — 以下に記載。Swift 側は当環境でコンパイル検証不可のため、Xcode が使える環境での着手・検証を推奨。
+
+> 注: Swift 変更（P0 の一部・P1-2/P1-4/P1-5）は当 Linux 環境では `xcodebuild` 不可のため静的レビューのみ。C++（yaya_core）変更は実ビルド＋実行で検証済み。
+
 ---
 
 ## 0. サマリー（残ギャップの分布）
