@@ -1,6 +1,8 @@
 #include "Parser.hpp"
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
+#include <cctype>
 
 Parser::Parser(const std::vector<Token>& tokens) : tokens_(tokens), pos_(0) {}
 
@@ -99,10 +101,12 @@ std::shared_ptr<AST::FunctionNode> Parser::parseFunction() {
 
     skipNewlines();
 
-    // Optional type annotation
+    // Optional type annotation (YAYA: FuncName : void / array / sequential / nonoverload / when)
+    std::string funcType;
     if (match(TokenType::Colon)) {
         skipNewlines();
         if (check(TokenType::Identifier)) {
+            funcType = current().value;
             advance();
         }
         skipNewlines();
@@ -156,7 +160,11 @@ std::shared_ptr<AST::FunctionNode> Parser::parseFunction() {
                   << "' ended at EOF instead of '}'" << std::endl;
     }
 
-    return std::make_shared<AST::FunctionNode>(name, body);
+    auto fn = std::make_shared<AST::FunctionNode>(name, body);
+    // 型修飾子は小文字化して保持する
+    std::transform(funcType.begin(), funcType.end(), funcType.begin(), ::tolower);
+    fn->functionType = funcType;
+    return fn;
 }
 
 std::shared_ptr<AST::Node> Parser::parseStatement() {

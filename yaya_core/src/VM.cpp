@@ -280,12 +280,42 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     setVariable("_argv", Value(argArray));
     setVariable("_argc", Value(static_cast<int>(args.size())));
 
-    // Execute the function body, catching early returns
+    // Execute the function body, catching early returns.
+    // 関数型修飾子（YAYA）を適用する。未指定/その他は従来どおり最終値を返す（既存挙動を維持）。
+    const std::string& ftype = it->second->functionType;
     Value result;
-    try {
-        result = executeBlock(it->second->body);
-    } catch (const ReturnException& ret) {
-        result = ret.value;
+    if (ftype == "array" || ftype == "sequential") {
+        // トップレベルの出力文（代入以外・非void）を収集して配列化/連結する
+        std::vector<Value> collected;
+        try {
+            for (const auto& stmt : it->second->body) {
+                Value v = executeNode(stmt);
+                if (stmt && stmt->type != AST::NodeType::Assignment && !v.isVoid()) {
+                    collected.push_back(v);
+                }
+            }
+        } catch (const ReturnException& ret) {
+            // 明示的 return は収集結果より優先する
+            collected.clear();
+            collected.push_back(ret.value);
+        }
+        if (ftype == "array") {
+            result = Value(collected);
+        } else { // sequential: 連結
+            std::string s;
+            for (const auto& v : collected) s += v.asString();
+            result = Value(s);
+        }
+    } else {
+        try {
+            result = executeBlock(it->second->body);
+        } catch (const ReturnException& ret) {
+            result = ret.value;
+        }
+        // void 関数は本文を実行しつつ戻り値を破棄する
+        if (ftype == "void") {
+            result = Value();
+        }
     }
 
     // Pop local variable scope

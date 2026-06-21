@@ -179,7 +179,9 @@ struct BlockNode : Node {
 struct FunctionNode : Node {
     std::string name;
     std::vector<std::shared_ptr<Node>> body;
-    
+    // 関数の型修飾子（YAYA: void / array / sequential / nonoverload / when 等）。未指定は空。
+    std::string functionType;
+
     FunctionNode(const std::string& n, const std::vector<std::shared_ptr<Node>>& b)
         : name(n), body(b) {
         type = NodeType::Function;
