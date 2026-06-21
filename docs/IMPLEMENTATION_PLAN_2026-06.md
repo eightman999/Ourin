@@ -15,7 +15,12 @@
   - プロパティ `scope(N).surface.num`/`animation.num` SET の副作用反映
   - SakuraScript WebSocket 一式
   - SERIKO `interpolate`/`insert`/`alternativestop` メソッド
-- ⏳ **P2/P3 未着手** — 以下に記載。Swift 側は当環境でコンパイル検証不可のため、Xcode が使える環境での着手・検証を推奨。
+- ✅ **P2-4（YAYA VM）完了** — **Linux ビルド＋実行検証済み**
+  - `GETTYPE` を YAYA 標準コード化（`real=2,str=3,arr=4`）＋ `GETTYPEEX` real
+  - `FENUM` 絶対パス許可
+  - 関数型修飾子 `void`/`array`/`sequential`（型なし関数は従来挙動で無回帰）
+  - 残: `FUNCTIONEX`（動的呼び出し）・匿名関数は未着手
+- ⏳ **P2（Swift 中心）/P3 未着手** — 以下に記載。Swift 側は当環境でコンパイル検証不可のため、Xcode が使える環境での着手・検証を推奨。
 
 > 注: Swift 変更（P0 の一部・P1-2/P1-4/P1-5）は当 Linux 環境では `xcodebuild` 不可のため静的レビューのみ。C++（yaya_core）変更は実ビルド＋実行で検証済み。
 
