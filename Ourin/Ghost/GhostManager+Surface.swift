@@ -146,6 +146,10 @@ extension GhostManager {
                     Log.debug("[GhostManager] Image loaded with PNA mask: \(name)")
                     return masked
                 }
+                if let keyed = applyGreenChromakey(to: img) {
+                    Log.debug("[GhostManager] Image loaded with green chromakey: \(name)")
+                    return keyed
+                }
                 Log.debug("[GhostManager] Image loaded: \(name)")
                 return img
             }
@@ -173,6 +177,62 @@ extension GhostManager {
         return nsimg
     }
 
+    /// PNA/alpha を持たない古いシェル素材向けに、純緑 (0,255,0) 背景を透明化する。
+    func applyGreenChromakey(to image: NSImage) -> NSImage? {
+        guard let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        let width = cg.width
+        let height = cg.height
+        guard width > 0, height > 0 else { return nil }
+
+        let bytesPerPixel = 4
+        let bytesPerRow = width * bytesPerPixel
+        var pixels = [UInt8](repeating: 0, count: height * bytesPerRow)
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
+        guard let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: bitmapInfo
+        ) else {
+            return nil
+        }
+
+        context.draw(cg, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        var changed = false
+        for offset in stride(from: 0, to: pixels.count, by: bytesPerPixel) {
+            let red = pixels[offset]
+            let green = pixels[offset + 1]
+            let blue = pixels[offset + 2]
+            if red <= 8 && green >= 248 && blue <= 8 {
+                pixels[offset] = 0
+                pixels[offset + 1] = 0
+                pixels[offset + 2] = 0
+                pixels[offset + 3] = 0
+                changed = true
+            }
+        }
+        guard changed else { return nil }
+
+        guard let outputContext = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: bitmapInfo
+        ), let outputCG = outputContext.makeImage() else {
+            return nil
+        }
+
+        return NSImage(cgImage: outputCG, size: image.size)
+    }
+
     /// 任意ファイルのサーフェス画像を読み込む（Retina + 同名 PNA マスク対応）。element 合成で使用。
     func loadSurfaceFile(url: URL) -> NSImage? {
         guard FileManager.default.fileExists(atPath: url.path),
@@ -181,6 +241,9 @@ extension GhostManager {
         if FileManager.default.fileExists(atPath: pnaURL.path),
            let masked = applyPNAMask(baseURL: url, maskURL: pnaURL) {
             return masked
+        }
+        if let keyed = applyGreenChromakey(to: img) {
+            return keyed
         }
         return img
     }

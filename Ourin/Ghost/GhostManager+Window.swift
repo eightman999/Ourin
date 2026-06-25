@@ -11,6 +11,8 @@ extension GhostManager {
     private struct WindowCommandStorage {
         static var stickyIgnoreScopes: [ObjectIdentifier: Set<Int>] = [:]
         static var asyncMoveWorkItems: [ObjectIdentifier: [Int: DispatchWorkItem]] = [:]
+        static var lastOwnerDrawMenuPoint: NSPoint?
+        static var lastOwnerDrawMenuTime: TimeInterval?
     }
 
     private var stickyIgnoreScopes: Set<Int> {
@@ -80,7 +82,8 @@ extension GhostManager {
         characterViewModels[scope] = vm
 
         let characterView = CharacterView(viewModel: vm, onDragDropEvent: dragDropHandler)
-        let hostingController = NSHostingController(rootView: characterView)
+        let hostingController = NSViewController()
+        hostingController.view = CharacterHitTestingHostingView(rootView: characterView, viewModel: vm)
 
         let window = NSWindow(contentViewController: hostingController)
         window.isOpaque = false
@@ -93,8 +96,8 @@ extension GhostManager {
         window.hidesOnDeactivate = false
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
 
-        // Enable dragging the window by its content
-        window.isMovableByWindowBackground = true
+        // CharacterHitTestingHostingView limits window dragging to visible surface pixels.
+        window.isMovableByWindowBackground = false
         window.isMovable = true
 
         // Position character windows
@@ -168,6 +171,16 @@ extension GhostManager {
     }
 
     func showOwnerDrawMenu(at screenPoint: NSPoint) {
+        let now = ProcessInfo.processInfo.systemUptime
+        if let lastTime = WindowCommandStorage.lastOwnerDrawMenuTime,
+           let lastPoint = WindowCommandStorage.lastOwnerDrawMenuPoint,
+           now - lastTime < 0.35,
+           hypot(screenPoint.x - lastPoint.x, screenPoint.y - lastPoint.y) < 24 {
+            return
+        }
+        WindowCommandStorage.lastOwnerDrawMenuTime = now
+        WindowCommandStorage.lastOwnerDrawMenuPoint = screenPoint
+
         let bridge = ResourceBridge.shared
         let shellBase = ghostURL.appendingPathComponent("shell/\(activeShellName)", isDirectory: true)
         let config = bridge.ownerDrawMenuConfig(base: shellBase)

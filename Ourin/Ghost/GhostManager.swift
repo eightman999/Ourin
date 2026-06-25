@@ -574,18 +574,20 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
             // yaya.txt から辞書リストを読み込む（順序が重要）
             // includeディレクティブも再帰的に処理する
-            var dics: [String] = []
-            var dicCharset: String? = nil
+            var dicCollector = DicCollector()
             let yayaTxtPath = ghostRoot.appendingPathComponent("yaya.txt")
             if let yayaContent = (try? String(contentsOf: yayaTxtPath, encoding: .utf8)) ??
                                  (try? String(contentsOf: yayaTxtPath, encoding: .shiftJIS)) {
                 Log.debug("[GhostManager] Found yaya.txt, parsing dictionary list with includes...")
-                parseYayaConfigFile(content: yayaContent, baseURL: ghostRoot, dicFiles: &dics, charset: &dicCharset, visited: [])
-                Log.debug("[GhostManager] Found \(dics.count) dictionaries (including from includes, charset: \(dicCharset ?? "auto")): \(dics.prefix(5))...")
+                collectDicEntries(content: yayaContent, baseURL: ghostRoot, sourceName: "yaya.txt",
+                                  collector: &dicCollector, visited: [])
+                Log.debug("[GhostManager] Found \(dicCollector.entries.count) dictionaries (including from includes, charset: \(dicCollector.globalCharset ?? "auto")): \(dicCollector.entries.prefix(5).map { $0.path })...")
             } else {
                 // yaya.txt がない場合は全ファイルをロード
-                dics = contents.filter { $0.pathExtension.lowercased() == "dic" }.map { $0.lastPathComponent }
-                Log.debug("[GhostManager] yaya.txt not found, loading all \(dics.count) .dic files")
+                dicCollector.entries = contents.filter { $0.pathExtension.lowercased() == "dic" }.map {
+                    DicEntry(path: $0.lastPathComponent, encoding: nil, sourceConfig: "(fallback)", sourceLine: 0)
+                }
+                Log.debug("[GhostManager] yaya.txt not found, loading all \(dicCollector.entries.count) .dic files")
             }
 
             guard let adapter = YayaAdapter() else {
@@ -606,7 +608,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             // 全辞書をロード（yaya_coreが並列化やキャッシュで最適化すべき）
             Log.debug("[GhostManager] Starting dictionary load...")
             let loadStart = Date()
-            guard adapter.load(ghostRoot: ghostRoot, dics: dics, encoding: dicCharset ?? "auto") else {
+            guard adapter.load(ghostRoot: ghostRoot, dicEntries: dicCollector.entries, encoding: dicCollector.globalCharset ?? "auto") else {
                 Log.info("[GhostManager] Failed to load ghost with Yaya.")
                 return
             }
@@ -1533,7 +1535,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async { self.openInstalledTypeDirectory(type: "plugin", name: name) }
                             })
-                        case "rateofusegraph", "rateofusegraphballoon", "rateofusegraphtotal", "calendar", "messenger":
+                        case "calendar":
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async { self.openInstalledTypeDirectory(type: "calendar") }
+                            })
+                        case "rateofusegraph", "rateofusegraphballoon", "rateofusegraphtotal", "messenger":
                             if let homeurl = self.ghostConfig?.homeurl, !homeurl.isEmpty {
                                 playbackQueue.append(.deferredCommand {
                                     DispatchQueue.main.async { self.openURL(homeurl) }

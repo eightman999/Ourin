@@ -10,8 +10,10 @@ struct GeneralPane: View {
     var body: some View {
         Form {
             HStack {
+                // 基準フォルダ（~/Documents/Ourin）は固定。表示のみ・編集不可。
                 TextField("データフォルダ", text: $dataPath)
-                Button("参照…") { browse() }
+                    .disabled(true)
+                Button("Finderで開く") { reveal() }
             }
             .onAppear(perform: load)
         }
@@ -24,16 +26,13 @@ struct GeneralPane: View {
         }
     }
 
-    private func browse() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.begin { resp in
-            if resp == .OK, let url = panel.url {
-                dataPath = url.path
-                logger.info("data folder set: \(url.path)")
-            }
+    private func reveal() {
+        guard let url = try? OurinPaths.baseDirectory() else {
+            logger.warning("Failed to resolve Ourin base directory for Finder open")
+            return
         }
+        NSWorkspace.shared.activateFileViewerSelecting([url])
+        logger.info("Opened data folder in Finder: \(url.path)")
     }
 }
 

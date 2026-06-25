@@ -311,12 +311,8 @@ extension GhostManager {
     /// Open a file path relative to current ghost root (or absolute path).
     func openFilePath(_ path: String) {
         guard !path.isEmpty else { return }
-        let resolvedURL: URL
-        if path.hasPrefix("/") {
-            resolvedURL = URL(fileURLWithPath: path)
-        } else {
-            resolvedURL = ghostURL.appendingPathComponent(path)
-        }
+        let resolvedURL = SSPCompat.resolvePath(path, relativeTo: ghostURL)
+        if handleSSPCompatExecutableOpen(resolvedURL, rawPath: path) { return }
         DispatchQueue.main.async {
             NSWorkspace.shared.open(resolvedURL)
             Log.debug("[GhostManager] Opened file path: \(resolvedURL.path)")
@@ -324,19 +320,16 @@ extension GhostManager {
     }
 
     /// Open a file path with option parsing used by \![open,file,*].
-    /// By default, absolute paths outside ghost root are denied for safety.
+    /// By default, paths outside ghost root and the public Ourin base folder are denied for safety.
     func openFilePath(path: String, line: Int?, appName: String?, allowExternal: Bool) {
         guard !path.isEmpty else { return }
-        let resolvedURL: URL
-        if path.hasPrefix("/") {
-            resolvedURL = URL(fileURLWithPath: path)
-        } else {
-            resolvedURL = ghostURL.appendingPathComponent(path)
-        }
+        let resolvedURL = SSPCompat.resolvePath(path, relativeTo: ghostURL)
 
         let standardized = resolvedURL.standardizedFileURL.path
         let ghostRoot = ghostURL.standardizedFileURL.path
-        if !allowExternal && !standardized.hasPrefix(ghostRoot) {
+        let publicRoot = (try? OurinPaths.baseDirectory().standardizedFileURL.path) ?? ""
+        let isAllowedPublicResource = !publicRoot.isEmpty && standardized.hasPrefix(publicRoot)
+        if !allowExternal && !standardized.hasPrefix(ghostRoot) && !isAllowedPublicResource {
             Log.info("[GhostManager] Refused to open external file path: \(standardized)")
             EventBridge.shared.notifyCustom("OnSecurityWarning", params: [
                 "Reference0": "open_file_denied",
@@ -344,6 +337,7 @@ extension GhostManager {
             ])
             return
         }
+        if handleSSPCompatExecutableOpen(resolvedURL, rawPath: path) { return }
 
         DispatchQueue.main.async {
             if let appName, !appName.isEmpty {
@@ -364,12 +358,7 @@ extension GhostManager {
     /// Reveal a file or folder in Finder.
     func revealInExplorer(_ path: String) {
         guard !path.isEmpty else { return }
-        let resolvedURL: URL
-        if path.hasPrefix("/") {
-            resolvedURL = URL(fileURLWithPath: path)
-        } else {
-            resolvedURL = ghostURL.appendingPathComponent(path)
-        }
+        let resolvedURL = SSPCompat.resolvePath(path, relativeTo: ghostURL)
         DispatchQueue.main.async {
             if FileManager.default.fileExists(atPath: resolvedURL.path) {
                 NSWorkspace.shared.activateFileViewerSelecting([resolvedURL])
@@ -378,6 +367,19 @@ extension GhostManager {
             }
             Log.debug("[GhostManager] Revealed in explorer: \(resolvedURL.path)")
         }
+    }
+
+    private func handleSSPCompatExecutableOpen(_ url: URL, rawPath: String) -> Bool {
+        guard let kind = SSPCompat.executableKind(for: url) else { return false }
+        let dataPath = SSPCompat.dataDirectory()?.path ?? ""
+        Log.info("[GhostManager] SSP executable compatibility handled: \(kind.rawValue) raw=\(rawPath)")
+        EventBridge.shared.notifyCustom("OnSSPCompatExecutable", params: [
+            "Reference0": kind.rawValue,
+            "Reference1": rawPath,
+            "Reference2": url.path,
+            "Reference3": dataPath
+        ])
+        return true
     }
 
     func openInstalledTypeDirectory(type: String, name: String? = nil) {

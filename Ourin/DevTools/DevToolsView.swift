@@ -10,6 +10,7 @@ struct DevToolsView: View {
         case general = "基本設定"
         case shioriResource = "SHIORIリソース"
         case narList = "NAR一覧"
+        case migrator = "Migrator"
         var id: String { rawValue }
     }
 
@@ -67,6 +68,8 @@ struct DevToolsView: View {
             ResourcePane()
         case .narList:
             NarListPane()
+        case .migrator:
+            OurinMigratorView()
         case .none:
             Text("セクションを選択")
         }
