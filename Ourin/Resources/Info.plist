@@ -66,6 +66,8 @@
 			<string>Ourin.icns</string>
 		</dict>
 	</array>
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>Ourin はゴースト・バルーン・プラグインなどのデータを「書類」フォルダ内の Ourin フォルダに保存・読み込みします。</string>
     <key>NSHumanReadableCopyright</key>
     <string>© 2025 Furin Lab and contributors</string>
     <key>AppReleaseDate</key>

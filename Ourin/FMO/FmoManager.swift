@@ -54,6 +54,33 @@ final class FmoManager {
         }
     }
 
+    /// クラッシュや強制終了で残った FMO リソースを削除する。
+    @discardableResult
+    static func reclaimStaleResources(
+        mutexName: String = defaultMutexName,
+        sharedName: String = defaultSharedName
+    ) -> Bool {
+        let shmResult = fmo_shm_unlink(sharedName)
+        let shmErrno = errno
+        let semResult = fmo_sem_unlink(mutexName)
+        let semErrno = errno
+
+        let shmOK = shmResult == 0 || shmErrno == ENOENT
+        let semOK = semResult == 0 || semErrno == ENOENT
+
+        if !shmOK {
+            NSLog("Failed to reclaim stale FMO shared memory '%@': %@", sharedName, String(cString: strerror(shmErrno)))
+        }
+        if !semOK {
+            NSLog("Failed to reclaim stale FMO semaphore '%@': %@", mutexName, String(cString: strerror(semErrno)))
+        }
+        if shmOK || semOK {
+            NSLog("Reclaimed stale FMO resources: mutex=%@ shared=%@", mutexName, sharedName)
+        }
+
+        return shmOK && semOK
+    }
+
     /// 共有メモリとセマフォを初期化する
     init(mutexName: String = defaultMutexName, sharedName: String = defaultSharedName) throws {
         NSLog("FMO initializing: mutex=%@ shared=%@", mutexName, sharedName)

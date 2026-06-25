@@ -73,4 +73,16 @@ enum ProcessKiller {
             NSLog("[ProcessKiller] No other Ourin/yaya_core processes found to kill")
         }
     }
+
+    static func hasOtherOurinInstance() -> Bool {
+        let selfPid = getpid()
+        for pid in listAllPIDs() {
+            if pid == selfPid { continue }
+            guard let path = pathFor(pid: pid) else { continue }
+            if path.contains("Ourin.app") {
+                return true
+            }
+        }
+        return false
+    }
 }
