@@ -79,8 +79,9 @@ public final class SaoriRegistry {
 
     private static func defaultSearchPaths() -> [URL] {
         var paths: [URL] = []
-        if let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            paths.append(appSupport.appendingPathComponent("Ourin/saori", isDirectory: true))
+        // baseware 既定の SAORI フォールバックは公開リソースの saori/ を見る。
+        if let saoriDir = try? OurinPaths.subdirectory("saori") {
+            paths.append(saoriDir)
         }
         if let appURL = Bundle.main.bundleURL as URL? {
             paths.append(appURL.appendingPathComponent("Contents/Resources/saori", isDirectory: true))

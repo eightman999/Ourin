@@ -3,9 +3,18 @@ import AppKit
 class OwnerDrawMenuPanel: NSPanel {
     private weak var menuView: OwnerDrawMenuView?
     private var onAction: ((String) -> Void)?
+    private var isClosing = false
     
     // 非アクティブ化時に自動的に閉じる
     var closesOnDeactivate: Bool = true
+
+    override var canBecomeKey: Bool {
+        true
+    }
+
+    override var canBecomeMain: Bool {
+        false
+    }
     
     init(contentRect: NSRect, config: OwnerDrawMenuConfig, items: [OwnerDrawMenuItem], onAction: @escaping (String) -> Void) {
         self.onAction = onAction
@@ -74,16 +83,23 @@ class OwnerDrawMenuPanel: NSPanel {
         onAction?(action)
     }
     
-    override func resignFirstResponder() -> Bool {
+    override func resignKey() {
+        super.resignKey()
         if closesOnDeactivate {
             close()
         }
-        return super.resignFirstResponder()
     }
     
     override func close() {
+        guard !isClosing else { return }
+        isClosing = true
+
         // フェードアウトアニメーションを実行
-        menuView?.startFadeOut { [weak self] in
+        guard let menuView = menuView else {
+            performClose()
+            return
+        }
+        menuView.startFadeOut { [weak self] in
             self?.performClose()
         }
     }

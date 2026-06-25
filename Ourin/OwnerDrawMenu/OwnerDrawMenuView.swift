@@ -361,6 +361,7 @@ class OwnerDrawMenuView: NSView {
     // MARK: - Animation
     
     func startFadeIn() {
+        animationTimer?.invalidate()
         isFadingIn = true
         animationProgress = 0.0
         animationTimer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { [weak self] _ in
@@ -369,6 +370,7 @@ class OwnerDrawMenuView: NSView {
     }
     
     func startFadeOut(completion: @escaping () -> Void) {
+        animationTimer?.invalidate()
         isFadingIn = false
         animationTimer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { [weak self] timer in
             guard let self = self else {

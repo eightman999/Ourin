@@ -67,7 +67,9 @@ public final class SstpHttpServer {
                 self.sendErrorResponse(conn, status: 405)
                 return true
             }
-            guard request.path == "/api/sstp/v1" else {
+            let isSSTPRequest = request.path == "/api/sstp/v1"
+            let isMCPCompatRequest = request.path == "/api/mcp/v1"
+            guard isSSTPRequest || isMCPCompatRequest else {
                 self.sendErrorResponse(conn, status: 404)
                 return true
             }
@@ -97,6 +99,11 @@ public final class SstpHttpServer {
             // 本文がまだ全部届いていなければ追加読込を待つ。
             guard buffer.count - bodyStart >= contentLength else { return false }
             let body = buffer.subdata(in: bodyStart..<bodyStart+contentLength)
+            if isMCPCompatRequest {
+                self.sendMCPCompatResponse(conn: conn, body: body)
+                ServerMetrics.shared.record(duration: 0, error: false)
+                return true
+            }
             guard let sstp = Self.decode(body) else { return false }
             let start = Date()
             let routedSstp = Self.injectSecurityHeaders(into: sstp, origin: originHeader)
@@ -126,6 +133,43 @@ public final class SstpHttpServer {
         }
         if tryProcess() { return }
         readMore()
+    }
+
+    private func sendMCPCompatResponse(conn: NWConnection, body: Data) {
+        let id = Self.jsonRPCID(from: body)
+        let payload: [String: Any] = [
+            "jsonrpc": "2.0",
+            "id": id,
+            "error": [
+                "code": -32601,
+                "message": "Ourin MCP compatibility endpoint is available, but native MCP methods are not implemented."
+            ]
+        ]
+        let data = (try? JSONSerialization.data(withJSONObject: payload)) ?? Data()
+        let lines = [
+            "HTTP/1.1 200 OK\r",
+            "Content-Type: application/json; charset=UTF-8\r",
+            "Content-Length: \(data.count)\r",
+            "\r"
+        ]
+        var http = Data(lines.joined().utf8)
+        http.append(data)
+        logger.info("mcp compat size=\(body.count)")
+        conn.send(content: http, completion: .contentProcessed { _ in conn.cancel() })
+    }
+
+    private static func jsonRPCID(from body: Data) -> Any {
+        guard
+            let object = try? JSONSerialization.jsonObject(with: body),
+            let dict = object as? [String: Any],
+            let id = dict["id"]
+        else {
+            return NSNull()
+        }
+        if id is String || id is NSNumber || id is NSNull {
+            return id
+        }
+        return NSNull()
     }
 
     private static func decode(_ data: Data) -> String? {

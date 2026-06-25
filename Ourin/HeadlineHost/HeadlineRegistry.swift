@@ -49,8 +49,9 @@ public final class HeadlineRegistry {
         if let builtIn = Bundle.main.builtInPlugInsURL?.appendingPathComponent("Headline", isDirectory: true) {
             urls.append(builtIn)
         }
-        if let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            urls.append(appSupport.appendingPathComponent("Ourin/Headline", isDirectory: true))
+        // 公開リソースの headline/（SSP 標準・小文字）を NAR 設置先と一致させて探索する。
+        if let headlineDir = try? OurinPaths.subdirectory("headline") {
+            urls.append(headlineDir)
         }
         return urls
     }

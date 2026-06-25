@@ -118,24 +118,29 @@ struct ContentView: View {
         logger.info("export diagnostics")
 
         if #available(macOS 11.0, *) {
-            let logStore = LogStore()
             let since = Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
-            let entries = logStore.fetchLogEntries(subsystem: "jp.ourin.devtools", category: "", level: .undefined, since: since)
+            // OSLogStore 取得はメインをブロックするためバックグラウンドで実行する。
+            DispatchQueue.global(qos: .userInitiated).async {
+                let logStore = LogStore()
+                let entries = logStore.fetchLogEntries(subsystem: "jp.ourin.devtools", category: "", level: .undefined, since: since)
 
-            var logText = "Ourin Diagnostics Log - Exported at \(Date())\n\n"
-            logText += "Found \(entries.count) entries in the last 24 hours for subsystem 'jp.ourin.devtools'.\n\n"
+                var logText = "Ourin Diagnostics Log - Exported at \(Date())\n\n"
+                logText += "Found \(entries.count) entries in the last 24 hours for subsystem 'jp.ourin.devtools'.\n\n"
 
-            for entry in entries {
-                logText += "[\(entry.timestamp)] [\(entry.level.uppercased())] [\(entry.category)] \(entry.message)\n"
-            }
+                for entry in entries {
+                    logText += "[\(entry.timestamp)] [\(entry.level.uppercased())] [\(entry.category)] \(entry.message)\n"
+                }
 
-            let url = FileManager.default.temporaryDirectory.appendingPathComponent("OurinDiagnostics.txt")
-            do {
-                try logText.write(to: url, atomically: true, encoding: .utf8)
-                NSWorkspace.shared.activateFileViewerSelecting([url])
-                logger.info("Diagnostics exported to \(url.path)")
-            } catch {
-                logger.error("Failed to write diagnostics file: \(error.localizedDescription)")
+                let url = FileManager.default.temporaryDirectory.appendingPathComponent("OurinDiagnostics.txt")
+                do {
+                    try logText.write(to: url, atomically: true, encoding: .utf8)
+                    DispatchQueue.main.async {
+                        NSWorkspace.shared.activateFileViewerSelecting([url])
+                        self.logger.info("Diagnostics exported to \(url.path)")
+                    }
+                } catch {
+                    self.logger.error("Failed to write diagnostics file: \(error.localizedDescription)")
+                }
             }
         } else {
             // Fallback for older macOS versions
@@ -546,11 +551,10 @@ fileprivate struct GeneralSettingsView: View {
                     HStack(alignment: .top) {
                         Text("データフォルダ:")
                             .frame(minWidth: 100, alignment: .trailing)
+                        // 基準フォルダ（~/Documents/Ourin）は固定。表示のみ・編集不可。
                         TextField("パス", text: $dataFolderPath)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
-                        Button("参照...") {
-                            selectDataFolder()
-                        }
+                            .disabled(true)
                         Button("Finderで開く") {
                             openDataFolderInFinder()
                         }
@@ -667,22 +671,6 @@ fileprivate struct GeneralSettingsView: View {
         logger.info("General settings loaded")
     }
     
-    private func selectDataFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-        panel.canCreateDirectories = true
-        panel.title = "データフォルダを選択"
-
-        panel.begin { response in
-            if response == .OK, let url = panel.url {
-                dataFolderPath = url.path
-                logger.info("Data folder selected: \(url.path)")
-            }
-        }
-    }
-
     private func openDataFolderInFinder() {
         let rawPath = dataFolderPath.trimmingCharacters(in: .whitespacesAndNewlines)
         let targetURL: URL
@@ -734,9 +722,8 @@ fileprivate struct GeneralSettingsView: View {
     }
     
     private func saveSettings() {
-        // 設定の保存処理（実際の実装では UserDefaults や設定ファイルに保存）
+        // 設定の保存処理（データフォルダは固定パスのため保存対象から除外）
         let settings = [
-            "dataFolderPath": dataFolderPath,
             "defaultEncoding": defaultEncoding,
             "acceptCP932": acceptCP932,
             "autoStart": autoStart,
@@ -758,7 +745,7 @@ fileprivate struct GeneralSettingsView: View {
     }
     
     private func resetToDefaults() {
-        dataFolderPath = NSHomeDirectory() + "/Library/Application Support/Ourin"
+        dataFolderPath = (try? OurinPaths.baseDirectory())?.path ?? ""
         defaultEncoding = "UTF-8"
         acceptCP932 = true
         autoStart = false
@@ -1027,6 +1014,7 @@ fileprivate struct PluginEventView: View {
     // Data model for a plugin
     fileprivate struct PluginInfo: Identifiable {
         let id: String
+        let pluginID: String
         let name: String
         let version: String
         let path: String
@@ -1046,8 +1034,9 @@ fileprivate struct PluginEventView: View {
     @State private var refs: [String] = Array(repeating: "", count: 5)
 
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "plugin")
-    private let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher
-    private let registry = (NSApp.delegate as? AppDelegate)?.pluginRegistry
+    private var appDelegate: AppDelegate? { NSApp.delegate as? AppDelegate }
+    private var dispatcher: PluginEventDispatcher? { appDelegate?.pluginDispatcher }
+    private var registry: PluginRegistry? { appDelegate?.pluginRegistry }
 
     private let eventDefs: [EventDefinition] = [
         .init(id: "OnGhostBoot", refs: ["WindowIDs", "GhostName", "ShellName", "GhostID", "Path"], notify: false),
@@ -1078,7 +1067,7 @@ fileprivate struct PluginEventView: View {
                         Toggle("", isOn: binding(for: item.id)).labelsHidden()
                     }.width(40)
                     TableColumn("Name", value: \.name)
-                    TableColumn("ID", value: \.id)
+                    TableColumn("ID", value: \.pluginID)
                     TableColumn("Version", value: \.version)
                     TableColumn("Path", value: \.path)
                 }
@@ -1088,7 +1077,7 @@ fileprivate struct PluginEventView: View {
                         Toggle("", isOn: binding(for: item.id)).labelsHidden()
                         Text(item.name)
                         Spacer()
-                        Text(item.id).font(.caption).foregroundColor(.secondary)
+                        Text(item.pluginID).font(.caption).foregroundColor(.secondary)
                     }
                 }
             }
@@ -1137,15 +1126,16 @@ fileprivate struct PluginEventView: View {
 
     private func loadPlugins() {
         guard let registry = registry else {
-            logger.warning("PluginRegistry not found")
+            logger.info("PluginRegistry is not ready")
             return
         }
-        self.plugins = registry.metas.map { (plugin, meta) in
+        self.plugins = registry.allMetas.map { meta in
             PluginInfo(
-                id: meta.id,
+                id: "\(meta.id)|\(meta.path)",
+                pluginID: meta.id,
                 name: meta.name,
-                version: plugin.bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "N/A",
-                path: plugin.bundle.bundleURL.lastPathComponent
+                version: meta.installDirectory ?? (meta.isNative ? "Native" : "Legacy"),
+                path: URL(fileURLWithPath: meta.path).lastPathComponent
             )
         }.sorted { $0.name < $1.name }
         logger.info("Loaded \(self.plugins.count) plugins for display")
@@ -1374,6 +1364,7 @@ fileprivate struct LoggingDiagnosticsView: View {
     @State private var signpostData: [SignpostEntry] = []
     @State private var showSignpostTimeline = false
     @State private var selection: Set<LogEntry.ID> = []
+    @State private var isLoading = false
 
     @State private var logStore = LogStore()
 
@@ -1478,9 +1469,18 @@ fileprivate struct LoggingDiagnosticsView: View {
             
             // ログテーブル
             VStack(alignment: .leading) {
-                Text("Log Entries (\(logEntries.count) entries)")
-                    .font(.headline)
-                    .padding(.horizontal)
+                HStack(spacing: 8) {
+                    Text("Log Entries (\(logEntries.count) entries)")
+                        .font(.headline)
+                    if isLoading {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("読み込み中…")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(.horizontal)
                 
                 if #available(macOS 12.0, *) {
                     Table(logEntries, selection: $selection) {
@@ -1628,28 +1628,7 @@ fileprivate struct LoggingDiagnosticsView: View {
     }
 
     private func loadLogs() {
-        if #available(macOS 11.0, *) {
-            let sinceDate: Date
-            switch sincePeriod {
-            case "1h": sinceDate = Calendar.current.date(byAdding: .hour, value: -1, to: Date())!
-            case "6h": sinceDate = Calendar.current.date(byAdding: .hour, value: -6, to: Date())!
-            case "1d": sinceDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
-            case "3d": sinceDate = Calendar.current.date(byAdding: .day, value: -3, to: Date())!
-            case "1w": sinceDate = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date())!
-            default: sinceDate = Date().addingTimeInterval(-3600)
-            }
-
-            let level = OSLogEntryLog.Level.fromString(selectedLevel)
-
-            logEntries = logStore.fetchLogEntries(
-                subsystem: selectedSubsystem,
-                category: selectedCategory,
-                level: level,
-                since: sinceDate
-            ).sorted(by: { $0.timestamp > $1.timestamp })
-        }
-        
-        // Signpost データの模擬実装はそのまま
+        // Signpost データの模擬実装はそのまま（即時・メインで設定）
         signpostData = [
             SignpostEntry(name: "ourin.resource.apply", type: .interval, duration: 0.12),
             SignpostEntry(name: "ourin.plugin.inject", type: .interval, duration: 0.05),
@@ -1657,6 +1636,40 @@ fileprivate struct LoggingDiagnosticsView: View {
             SignpostEntry(name: "ourin.ghost.boot", type: .interval, duration: 0.25),
             SignpostEntry(name: "ourin.script.parse", type: .interval, duration: 0.08)
         ]
+
+        guard #available(macOS 11.0, *) else { return }
+        // 二重実行防止（onAppear と「更新」ボタンが重なってもよいように）
+        guard !isLoading else { return }
+
+        let sinceDate: Date
+        switch sincePeriod {
+        case "1h": sinceDate = Calendar.current.date(byAdding: .hour, value: -1, to: Date())!
+        case "6h": sinceDate = Calendar.current.date(byAdding: .hour, value: -6, to: Date())!
+        case "1d": sinceDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+        case "3d": sinceDate = Calendar.current.date(byAdding: .day, value: -3, to: Date())!
+        case "1w": sinceDate = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date())!
+        default: sinceDate = Date().addingTimeInterval(-3600)
+        }
+
+        let level = OSLogEntryLog.Level.fromString(selectedLevel)
+        let subsystem = selectedSubsystem
+        let category = selectedCategory
+        let store = logStore
+
+        // OSLogStore.getEntries は重く、メインで呼ぶと UI がハングするためバックグラウンドで取得する。
+        isLoading = true
+        DispatchQueue.global(qos: .userInitiated).async {
+            let fetched = store.fetchLogEntries(
+                subsystem: subsystem,
+                category: category,
+                level: level,
+                since: sinceDate
+            ).sorted(by: { $0.timestamp > $1.timestamp })
+            DispatchQueue.main.async {
+                self.logEntries = fetched
+                self.isLoading = false
+            }
+        }
     }
 }
 
