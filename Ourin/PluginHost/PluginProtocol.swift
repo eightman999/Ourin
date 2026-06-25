@@ -49,6 +49,7 @@ public struct PluginResponse {
     public let value: String?
     public let script: String?
     public let scriptOption: String?
+    public let eventOption: String?
     public let target: String?
     public let otherHeaders: [String: String]
 
@@ -60,6 +61,7 @@ public struct PluginResponse {
         value: String? = nil,
         script: String? = nil,
         scriptOption: String? = nil,
+        eventOption: String? = nil,
         target: String? = nil,
         otherHeaders: [String: String] = [:]
     ) {
@@ -70,6 +72,7 @@ public struct PluginResponse {
         self.value = value
         self.script = script
         self.scriptOption = scriptOption
+        self.eventOption = eventOption
         self.target = target
         self.otherHeaders = otherHeaders
     }
@@ -113,7 +116,7 @@ public struct PluginProtocolParser {
             let value = String(trimmed[trimmed.index(after: colonIndex)...]).trimmingCharacters(in: .whitespaces)
 
             // Check if it's a Reference header
-            if key.starts(with: "Reference") {
+            if key.lowercased().starts(with: "reference") {
                 references[key] = value
             } else {
                 headers[key] = value
@@ -121,17 +124,17 @@ public struct PluginProtocolParser {
         }
 
         // Extract required headers
-        guard let id = headers["ID"] else {
+        guard let id = headerValue("ID", in: headers) else {
             throw PluginProtocolError.missingRequiredHeader("ID")
         }
 
-        let charset = headers["Charset"] ?? "UTF-8"
-        let sender = headers["Sender"]
-        let target = headers["Target"]
+        let charset = headerValue("Charset", in: headers) ?? "UTF-8"
+        let sender = headerValue("Sender", in: headers)
+        let target = headerValue("Target", in: headers)
 
         // Collect other headers (excluding known ones)
-        let knownKeys = Set(["ID", "Charset", "Sender", "Target"])
-        let otherHeaders = headers.filter { !knownKeys.contains($0.key) }
+        let knownKeys = Set(["id", "charset", "sender", "target"])
+        let otherHeaders = headers.filter { !knownKeys.contains($0.key.lowercased()) }
 
         return PluginRequest(
             method: method,
@@ -173,15 +176,16 @@ public struct PluginProtocolParser {
             headers[key] = value
         }
 
-        let charset = headers["Charset"] ?? "UTF-8"
-        let value = headers["Value"]
-        let script = headers["Script"]
-        let scriptOption = headers["ScriptOption"]
-        let target = headers["Target"]
+        let charset = headerValue("Charset", in: headers) ?? "UTF-8"
+        let value = headerValue("Value", in: headers)
+        let script = headerValue("Script", in: headers)
+        let scriptOption = headerValue("ScriptOption", in: headers)
+        let eventOption = headerValue("EventOption", in: headers)
+        let target = headerValue("Target", in: headers)
 
         // Collect other headers
-        let knownKeys = Set(["Charset", "Value", "Script", "ScriptOption", "Target"])
-        let otherHeaders = headers.filter { !knownKeys.contains($0.key) }
+        let knownKeys = Set(["charset", "value", "script", "scriptoption", "eventoption", "target"])
+        let otherHeaders = headers.filter { !knownKeys.contains($0.key.lowercased()) }
 
         return PluginResponse(
             version: version,
@@ -191,9 +195,14 @@ public struct PluginProtocolParser {
             value: value,
             script: script,
             scriptOption: scriptOption,
+            eventOption: eventOption,
             target: target,
             otherHeaders: otherHeaders
         )
+    }
+
+    private static func headerValue(_ name: String, in headers: [String: String]) -> String? {
+        headers.first { $0.key.caseInsensitiveCompare(name) == .orderedSame }?.value
     }
 }
 
@@ -261,6 +270,9 @@ public struct PluginProtocolBuilder {
         }
         if let scriptOption = response.scriptOption {
             lines.append("ScriptOption: \(scriptOption)")
+        }
+        if let eventOption = response.eventOption {
+            lines.append("EventOption: \(eventOption)")
         }
         if let target = response.target {
             lines.append("Target: \(target)")
