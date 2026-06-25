@@ -5,12 +5,24 @@ struct YayaRequest: Codable {
     let cmd: String
     let ghost_root: String?
     let dic: [String]?
+    /// Structured dic entries with per-file encoding: [["path":..,"encoding":..], ...].
+    /// Takes precedence over `dic` when present (transition compatibility).
+    let dic_entries: [[String: String]]?
     let encoding: String?
     let env: [String:String]?
     let method: String?
     let id: String?
     let headers: [String:String]?
     let ref: [String]?
+
+    // Convenience initializer that keeps existing call sites simple.
+    init(cmd: String, ghost_root: String? = nil, dic: [String]? = nil, dic_entries: [[String: String]]? = nil,
+         encoding: String? = nil, env: [String:String]? = nil, method: String? = nil,
+         id: String? = nil, headers: [String:String]? = nil, ref: [String]? = nil) {
+        self.cmd = cmd; self.ghost_root = ghost_root; self.dic = dic; self.dic_entries = dic_entries
+        self.encoding = encoding; self.env = env; self.method = method; self.id = id
+        self.headers = headers; self.ref = ref
+    }
 }
 
 /// Codable response returned from yaya_core helper.
@@ -165,8 +177,9 @@ final class YayaAdapter {
 
     /// Load dictionaries for a ghost and perform capability handshake.
     /// - Parameter encoding: yaya.txt の charset 指定（"Shift_JIS" 等）。"auto" は自動判定（UTF-8妥当→UTF-8、それ以外はCP932変換）。
-    func load(ghostRoot: URL, dics: [String], encoding: String = "auto") -> Bool {
-        Log.debug("[YayaAdapter] load() called with ghostRoot: \(ghostRoot.path), dics: \(dics.count) files")
+    @discardableResult
+    func load(ghostRoot: URL, dicEntries: [DicEntry], encoding: String = "auto") -> Bool {
+        Log.debug("[YayaAdapter] load() called with ghostRoot: \(ghostRoot.path), dics: \(dicEntries.count) files")
 
         // First, try to load messagetxt file if available
         let messagetxtDir = ghostRoot.appendingPathComponent("messagetxt")
@@ -199,37 +212,62 @@ final class YayaAdapter {
             }
         }
 
-        // Then load dictionary files
-        let req = YayaRequest(cmd: "load", ghost_root: ghostRoot.path, dic: dics, encoding: encoding, env: ["LANG":"ja_JP.UTF-8"], method: nil, id: nil, headers: ["Charset":"UTF-8"], ref: nil)
+        // Then load dictionary files. Prefer structured entries (per-dic encoding) over flat list.
+        let structured: [[String: String]] = dicEntries.map { e in
+            var dict: [String: String] = ["path": e.path]
+            if let enc = e.encoding { dict["encoding"] = enc }
+            return dict
+        }
+        let req = YayaRequest(cmd: "load", ghost_root: ghostRoot.path, dic: dicEntries.map { $0.path },
+                              dic_entries: structured, encoding: encoding,
+                              env: ["LANG":"ja_JP.UTF-8"], method: nil, id: nil,
+                              headers: ["Charset":"UTF-8"], ref: nil)
 
-        do {
-            let response = try exchange(req)
-            Log.debug("[YayaAdapter] load() response: ok=\(response?.ok ?? false), status=\(response?.status ?? -1), error=\(response?.error ?? "nil")")
-            guard response?.ok == true else {
-                NSLog("[YayaAdapter] load() failed: response.ok is false or nil")
-                return false
-            }
+        // 辞書ロードはタイムアウト付きで実行する。
+        // ヘルパー側のパース不具合（無限ループ等）でロードが返らなくても、
+        // GhostManager の起動バックグラウンドスレッドを永久にブロックさせない。
+        // 正常時でも多数辞書のパースに時間がかかるため、余裕のある上限にする。
+        let response = exchange(req, timeout: 60.0)
+        guard let response = response else {
+            NSLog("[YayaAdapter] load() timed out or returned no response; tearing down helper")
+            forceTerminate()
+            return false
+        }
+        Log.debug("[YayaAdapter] load() response: ok=\(response.ok), status=\(response.status), error=\(response.error ?? "nil")")
+        guard response.ok else {
+            NSLog("[YayaAdapter] load() failed: response.ok is false")
+            return false
+        }
 
-            // Log loaded dictionary files if available
-            if let loadedDics = response?.loaded_dics, !loadedDics.isEmpty {
-                Log.debug("[YayaAdapter] Successfully loaded \(loadedDics.count) dictionary files:")
-                for (index, dicPath) in loadedDics.enumerated() {
-                    // Extract just the filename from the full path for cleaner output
-                    if let filename = dicPath.components(separatedBy: "/").last {
-                        Log.debug("[YayaAdapter]   [\(index + 1)] \(filename)")
-                    } else {
-                        Log.debug("[YayaAdapter]   [\(index + 1)] \(dicPath)")
-                    }
+        // Log loaded dictionary files if available
+        if let loadedDics = response.loaded_dics, !loadedDics.isEmpty {
+            Log.debug("[YayaAdapter] Successfully loaded \(loadedDics.count) dictionary files:")
+            for (index, dicPath) in loadedDics.enumerated() {
+                // Extract just the filename from the full path for cleaner output
+                if let filename = dicPath.components(separatedBy: "/").last {
+                    Log.debug("[YayaAdapter]   [\(index + 1)] \(filename)")
+                } else {
+                    Log.debug("[YayaAdapter]   [\(index + 1)] \(dicPath)")
                 }
             }
-        } catch {
-            NSLog("[YayaAdapter] load() exchange threw error: \(error)")
-            return false
         }
 
         _ = capability()
         NSLog("[YayaAdapter] load() succeeded")
         return true
+    }
+
+    /// ヘルパープロセスを即座に停止する（タイムアウト時の後始末用）。
+    /// unload() と異なり "unload" コマンドを送らない（ハング中のヘルパーには届かないため）。
+    private func forceTerminate() {
+        guard proc.isRunning else { return }
+        proc.terminate()
+        usleep(200_000) // 0.2s
+        if proc.isRunning {
+            #if os(macOS)
+            kill(pid_t(proc.processIdentifier), SIGKILL)
+            #endif
+        }
     }
 
     /// Send SHIORI request with timeout (default 10 seconds).
@@ -333,7 +371,18 @@ final class YayaAdapter {
             guard let response = handleSaoriRequest(module: module, request: requestText, charset: charset) else {
                 return ["ok": false, "error": "saori request failed"]
             }
-            return ["ok": true, "response": response]
+            // Parse the SAORI response so the helper can use Result/Value0.. directly
+            // even when it does not parse raw text itself.
+            var parsed: [String: Any] = ["ok": true, "response": response]
+            if let saoriResp = try? SaoriProtocol.parseResponse(response) {
+                parsed["status"] = saoriResp.statusCode
+                if let result = saoriResp.headers["Result"] { parsed["result"] = result }
+                var values: [String] = []
+                var idx = 0
+                while let v = saoriResp.headers["Value\(idx)"] { values.append(v); idx += 1 }
+                if !values.isEmpty { parsed["values"] = values }
+            }
+            return parsed
 
         case "saori_execute":
             guard let module = params["module"] as? String, !module.isEmpty else {

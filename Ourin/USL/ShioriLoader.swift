@@ -55,23 +55,24 @@ final class YayaBackend: ShioriBackend {
         }
 
         // Recursively parse config files to collect all dic entries (+ charset 指定)
-        var dicFiles: [String] = []
-        var charset: String? = nil
-        parseYayaConfigFile(content: yayaTxtContents, baseURL: ghostMasterURL, dicFiles: &dicFiles, charset: &charset, visited: [])
+        var collector = DicCollector()
+        collectDicEntries(content: yayaTxtContents, baseURL: ghostMasterURL, sourceName: "yaya.txt",
+                          collector: &collector, visited: [])
 
-        NSLog("[YayaBackend] Collected \(dicFiles.count) dic file entries from yaya.txt and includes (charset: \(charset ?? "auto"))")
+        NSLog("[YayaBackend] Collected \(collector.entries.count) dic entries from yaya.txt and includes (charset: \(collector.globalCharset ?? "auto"))")
 
-        if dicFiles.isEmpty {
+        if collector.entries.isEmpty {
             //NSLog("[Ourin.YayaBackend] No dic files found in yaya.txt")
             return nil
         }
 
         guard let adapter = YayaAdapter() else {
-            NSLog("[Ourin.YayaBackend] Failed to initialize YayaAdapter (is yaya_core missing?)")
+            NSLog("[YayaBackend] Failed to initialize YayaAdapter (is yaya_core missing?)")
             return nil
         }
 
-        let ok = adapter.load(ghostRoot: ghostMasterURL, dics: dicFiles, encoding: charset ?? "auto")
+        let ok = adapter.load(ghostRoot: ghostMasterURL, dicEntries: collector.entries,
+                              encoding: collector.globalCharset ?? "auto")
         if !ok {
             //NSLog("[Ourin.YayaBackend] YayaAdapter.load failed")
             return nil
@@ -103,79 +104,280 @@ final class YayaBackend: ShioriBackend {
 }
 
 // MARK: - YAYA Config Parsing Helpers
+
+/// Structured dictionary load entry produced by the YAYA config parser.
+/// Carries enough metadata to honor per-dic encoding and to report provenance.
+struct DicEntry: Equatable {
+    /// Path relative to ghost/master (as written in the config file).
+    let path: String
+    /// Per-dic encoding hint (e.g. "UTF-8", "Shift_JIS"). nil = inherit global charset.
+    var encoding: String?
+    /// Config file this entry originated from (for diagnostics).
+    let sourceConfig: String
+    /// 1-based line number within sourceConfig.
+    let sourceLine: Int
+
+    /// Identity for duplicate suppression (first-occurrence wins).
+    static func == (lhs: DicEntry, rhs: DicEntry) -> Bool {
+        // Compare normalized relative path only; same file from two configs is a duplicate.
+        lhs.path.caseInsensitiveCompare(rhs.path) == .orderedSame
+    }
+    func hash(into hasher: inout Hasher) { hasher.combine(path.lowercased()) }
+}
+
+/// Mutable collector state shared across recursive config parsing.
+final class DicCollector {
+    var entries: [DicEntry] = []
+    var globalCharset: String? = nil
+    /// Already-visited absolute config paths (include cycle prevention).
+    private var visited: Set<String> = []
+
+    func wasVisited(_ absolutePath: String) -> Bool { visited.contains(absolutePath) }
+    func markVisited(_ absolutePath: String) { visited.insert(absolutePath) }
+
+    /// Add an entry unless an identical relative path was already added (first-occurrence wins).
+    @discardableResult
+    func addEntry(path: String, encoding: String?, source: String, line: Int) -> Bool {
+        let trimmed = path.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return false }
+        let candidate = DicEntry(path: trimmed, encoding: encoding, sourceConfig: source, sourceLine: line)
+        if entries.contains(where: { $0 == candidate }) {
+            NSLog("[YayaBackend] Skipping duplicate dic entry: \(trimmed)")
+            return false
+        }
+        entries.append(candidate)
+        return true
+    }
+}
+
+/// Resolve a YAYA config file encoding token (e.g. "UTF-8", "Shift_JIS", "sjis") to a
+/// canonical name understood by yaya_core. Returns nil for empty/auto.
+private func canonicalCharset(_ raw: String) -> String? {
+    let t = raw.trimmingCharacters(in: .whitespaces)
+    guard !t.isEmpty else { return nil }
+    let lower = t.lowercased().replacingOccurrences(of: "-", with: "").replacingOccurrences(of: "_", with: "").replacingOccurrences(of: " ", with: "")
+    switch lower {
+    case "utf8": return "UTF-8"
+    case "shiftjis", "sjis", "cp932", "windows31j", "ms932", "ms_kanji": return "CP932"
+    case "auto", "default": return nil
+    default: return t
+    }
+}
+
 /// Recursively parse YAYA config files (yaya.txt, system_config.txt, etc.) to collect dic entries
 /// @param content The content of the config file
 /// @param baseURL The base directory (ghost/master)
 /// @param dicFiles In-out array to collect dic file paths
 /// @param visited Set of already-visited file paths to prevent infinite recursion
 func parseYayaConfigFile(content: String, baseURL: URL, dicFiles: inout [String], visited: Set<String>) {
-    var ignoredCharset: String? = nil
-    parseYayaConfigFile(content: content, baseURL: baseURL, dicFiles: &dicFiles, charset: &ignoredCharset, visited: visited)
+    var collector = DicCollector()
+    collectDicEntries(content: content, baseURL: baseURL, sourceName: "yaya.txt", collector: &collector, visited: visited)
+    dicFiles.append(contentsOf: collector.entries.map { $0.path })
 }
 
 /// charset 指定（"charset,Shift_JIS" 等）も収集するバージョン。
 /// 収集した charset は yaya_core の辞書デコードのヒントとして渡す。
 func parseYayaConfigFile(content: String, baseURL: URL, dicFiles: inout [String], charset: inout String?, visited: Set<String>) {
-        var newVisited = visited
-        let lines = content.components(separatedBy: .newlines)
+    var collector = DicCollector()
+    collectDicEntries(content: content, baseURL: baseURL, sourceName: "yaya.txt", collector: &collector, visited: visited)
+    dicFiles.append(contentsOf: collector.entries.map { $0.path })
+    if charset == nil { charset = collector.globalCharset }
+}
 
-        for line in lines {
-            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+/// Primary structured parser. Produces `DicEntry` list and a global dic charset.
+/// Supports: `charset`/`charset.*` directives, `dic, path[, enc]`, `dicdir, dir`, `include, file`,
+/// `_loading_order.txt`, duplicate suppression (first-occurrence), and include cycle prevention.
+func collectDicEntries(content: String, baseURL: URL, sourceName: String,
+                       collector: inout DicCollector, visited: Set<String>) {
+    let lines = content.components(separatedBy: .newlines)
 
-            // Skip comments and empty lines
-            if trimmedLine.isEmpty || trimmedLine.starts(with: "//") {
+    for (idx, rawLine) in lines.enumerated() {
+        let lineNumber = idx + 1
+        let trimmedLine = rawLine.trimmingCharacters(in: .whitespaces)
+
+        // Skip comments and empty lines
+        if trimmedLine.isEmpty || trimmedLine.hasPrefix("//") {
+            continue
+        }
+
+        // Remove inline comments
+        let lineWithoutComment: String
+        if let commentIndex = trimmedLine.range(of: "//") {
+            lineWithoutComment = String(trimmedLine[..<commentIndex.lowerBound]).trimmingCharacters(in: .whitespaces)
+        } else {
+            lineWithoutComment = trimmedLine
+        }
+        guard !lineWithoutComment.isEmpty else { continue }
+
+        let lower = lineWithoutComment.lowercased()
+
+        // Parse charset directives: "charset, X" and "charset.<scope>, X"
+        // Relevant scope for dictionaries is "dic" (e.g. charset.dic, UTF-8).
+        if lower.hasPrefix("charset") {
+            // Split off the value after the first comma
+            guard let commaRange = lineWithoutComment.range(of: ",") else { continue }
+            let keyPart = String(lineWithoutComment[..<commaRange.lowerBound]).trimmingCharacters(in: .whitespaces).lowercased()
+            let value = String(lineWithoutComment[commaRange.upperBound...]).trimmingCharacters(in: .whitespaces)
+            // keyPart is "charset" or "charset.dic" / "charset.output" / ...
+            if keyPart == "charset" || keyPart == "charset.dic" {
+                if collector.globalCharset == nil, let canon = canonicalCharset(value) {
+                    collector.globalCharset = canon
+                }
+            }
+            // Other charset scopes (output/file/save/extension) are noted but not needed for loading.
+            continue
+        }
+
+        // Parse "dic, filename" or "dic, path/filename, encoding"
+        if lower.hasPrefix("dic,") {
+            let remainder = String(lineWithoutComment.dropFirst(4)).trimmingCharacters(in: .whitespaces)
+            let parts = remainder.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            guard let dicPath = parts.first, !dicPath.isEmpty else { continue }
+            // parts[1], if present, is the per-dic encoding
+            var perDicEnc: String? = nil
+            if parts.count >= 2 {
+                perDicEnc = canonicalCharset(parts[1])
+            }
+            NSLog("[YayaBackend] Adding dic file: \(dicPath)\(perDicEnc.map { " (\($0))" } ?? "")")
+            collector.addEntry(path: dicPath, encoding: perDicEnc, source: sourceName, line: lineNumber)
+            continue
+        }
+
+        // Parse "dicdir, path" — load a directory of .dic files in declared order.
+        if lower.hasPrefix("dicdir,") {
+            let dirRel = String(lineWithoutComment.dropFirst("dicdir,".count)).trimmingCharacters(in: .whitespaces)
+            let dirURL = baseURL.appendingPathComponent(dirRel)
+            NSLog("[YayaBackend] Processing dicdir: \(dirRel)")
+            let dirEntries = expandDicDir(dirURL: dirURL, baseURL: baseURL, globalCharset: collector.globalCharset,
+                                          source: sourceName, line: lineNumber)
+            for e in dirEntries {
+                collector.addEntry(path: e.path, encoding: e.encoding, source: sourceName, line: lineNumber)
+            }
+            continue
+        }
+
+        // Parse "include, filename"
+        if lower.hasPrefix("include,") {
+            let includePath = String(lineWithoutComment.dropFirst(8)).trimmingCharacters(in: .whitespaces)
+            let includeURL = baseURL.appendingPathComponent(includePath)
+            let absolutePath = includeURL.path
+
+            NSLog("[YayaBackend] Processing include: \(includePath)")
+
+            // Prevent infinite recursion
+            if collector.wasVisited(absolutePath) || visited.contains(absolutePath) {
+                NSLog("[YayaBackend] Skipping already visited: \(includePath)")
+                continue
+            }
+            collector.markVisited(absolutePath)
+
+            // Try to read the included file (try UTF-8 first, then Shift-JIS)
+            if let includeContent = (try? String(contentsOf: includeURL, encoding: .utf8)) ?? (try? String(contentsOf: includeURL, encoding: .shiftJIS)) {
+                NSLog("[YayaBackend] Successfully read include file: \(includePath)")
+                var nested = visited
+                nested.insert(absolutePath)
+                collectDicEntries(content: includeContent, baseURL: baseURL, sourceName: includePath,
+                                  collector: &collector, visited: nested)
+            } else {
+                NSLog("[YayaBackend] Failed to read include file: \(includePath)")
+            }
+            continue
+        }
+
+        // Unknown directives (ignoreiolog, log, etc.) are intentionally skipped.
+    }
+}
+
+/// Expand a `dicdir` directory into ordered dic entries.
+/// If `_loading_order.txt` exists, honor its enable/disable + ordering; otherwise load `.dic`
+/// files in deterministic lexical order. Paths are returned relative to baseURL (ghost/master).
+private func expandDicDir(dirURL: URL, baseURL: URL, globalCharset: String?, source: String, line: Int) -> [DicEntry] {
+    let fm = FileManager.default
+    guard fm.fileExists(atPath: dirURL.path) else {
+        NSLog("[YayaBackend] dicdir not found: \(dirURL.path)")
+        return []
+    }
+
+    let loadingOrderURL = dirURL.appendingPathComponent("_loading_order.txt")
+
+    // Helper: build a DicEntry relative to baseURL from a filename inside dirURL.
+    func entry(forFile filename: String, encoding: String?) -> DicEntry {
+        // Path relative to baseURL (ghost/master). dicdir entries are typically subpaths.
+        let fileRelToBase: String
+        if dirURL.path == baseURL.path {
+            fileRelToBase = filename
+        } else {
+            // Compute relative path dirRel/filename
+            let baseStd = baseURL.standardizedFileURL.path
+            let dirStd = dirURL.standardizedFileURL.path
+            if dirStd.hasPrefix(baseStd) {
+                let rel = String(dirStd.dropFirst(baseStd.count))
+                let cleaned = rel.hasPrefix("/") ? String(rel.dropFirst()) : rel
+                fileRelToBase = cleaned.isEmpty ? filename : "\(cleaned)/\(filename)"
+            } else {
+                fileRelToBase = filename
+            }
+        }
+        return DicEntry(path: fileRelToBase, encoding: encoding ?? globalCharset, sourceConfig: source, sourceLine: line)
+    }
+
+    // 1) Honor _loading_order.txt if present.
+    //    The real yaya-dic format uses the SAME directives as yaya.txt:
+    //      dic, filename, encoding     -> load (error if missing)
+    //      dicif, filename, encoding   -> load if exists (skip silently if missing)
+    //    Bare filenames are also tolerated as a convenience.
+    if let orderContent = (try? String(contentsOf: loadingOrderURL, encoding: .utf8)) ?? (try? String(contentsOf: loadingOrderURL, encoding: .shiftJIS)) {
+        NSLog("[YayaBackend] dicdir: using _loading_order.txt in \(dirURL.lastPathComponent)")
+        var result: [DicEntry] = []
+        for rawLine in orderContent.components(separatedBy: .newlines) {
+            let trimmed = rawLine.trimmingCharacters(in: .whitespaces)
+            if trimmed.isEmpty || trimmed.hasPrefix("//") { continue }
+            // Strip inline comments
+            var entryToken = trimmed
+            if let c = trimmed.range(of: "//") { entryToken = String(trimmed[..<c.lowerBound]).trimmingCharacters(in: .whitespaces) }
+            guard !entryToken.isEmpty else { continue }
+
+            let lower = entryToken.lowercased()
+            // Parse "dic, filename[, encoding]" and "dicif, filename[, encoding]"
+            if lower.hasPrefix("dic,") || lower.hasPrefix("dicif,") {
+                let isDicif = lower.hasPrefix("dicif,")
+                let prefixLen = isDicif ? "dicif,".count : "dic,".count
+                let remainder = String(entryToken.dropFirst(prefixLen)).trimmingCharacters(in: .whitespaces)
+                let parts = remainder.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+                guard let filename = parts.first, !filename.isEmpty else { continue }
+                let enc: String? = (parts.count >= 2) ? canonicalCharset(parts[1]) : nil
+                // dicif: skip silently if the file does not exist
+                if isDicif {
+                    let fileURL = dirURL.appendingPathComponent(filename)
+                    if !fm.fileExists(atPath: fileURL.path) {
+                        NSLog("[YayaBackend] dicif: skipping missing \(filename) in \(dirURL.lastPathComponent)")
+                        continue
+                    }
+                }
+                result.append(entry(forFile: filename, encoding: enc))
                 continue
             }
 
-            // Remove inline comments
-            let lineWithoutComment: String
-            if let commentIndex = trimmedLine.range(of: "//") {
-                lineWithoutComment = String(trimmedLine[..<commentIndex.lowerBound]).trimmingCharacters(in: .whitespaces)
+            // Tolerate legacy "flag,filepath" / bare "filepath" forms.
+            let parts = entryToken.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            guard let first = parts.first, !first.isEmpty else { continue }
+            if parts.count >= 2, let flag = Int(first) {
+                // 0,filepath (disabled) -> skip; 1,filepath (enabled) -> load
+                if flag == 0 { continue }
+                result.append(entry(forFile: parts[1], encoding: nil))
             } else {
-                lineWithoutComment = trimmedLine
-            }
-
-            // Parse "charset, Shift_JIS" (辞書の文字コード指定)
-            if lineWithoutComment.lowercased().starts(with: "charset,") {
-                let value = String(lineWithoutComment.dropFirst("charset,".count)).trimmingCharacters(in: .whitespaces)
-                if !value.isEmpty && charset == nil {
-                    charset = value
-                }
-            }
-            // Parse "dic, filename" or "dic, path/filename, encoding"
-            else if lineWithoutComment.lowercased().starts(with: "dic,") {
-                let remainder = String(lineWithoutComment.dropFirst(4)).trimmingCharacters(in: .whitespaces)
-                // Split by comma to handle encoding parameter
-                let parts = remainder.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-                if let dicPath = parts.first, !dicPath.isEmpty {
-                    NSLog("[YayaBackend] Adding dic file: \(dicPath)")
-                    dicFiles.append(dicPath)
-                }
-            }
-            // Parse "include, filename"
-            else if lineWithoutComment.lowercased().starts(with: "include,") {
-                let includePath = String(lineWithoutComment.dropFirst(8)).trimmingCharacters(in: .whitespaces)
-                let includeURL = baseURL.appendingPathComponent(includePath)
-                let absolutePath = includeURL.path
-
-                NSLog("[YayaBackend] Processing include: \(includePath)")
-
-                // Prevent infinite recursion
-                if newVisited.contains(absolutePath) {
-                    NSLog("[YayaBackend] Skipping already visited: \(includePath)")
-                    continue
-                }
-                newVisited.insert(absolutePath)
-
-                // Try to read the included file (try UTF-8 first, then Shift-JIS)
-                if let includeContent = (try? String(contentsOf: includeURL, encoding: .utf8)) ?? (try? String(contentsOf: includeURL, encoding: .shiftJIS)) {
-                    NSLog("[YayaBackend] Successfully read include file: \(includePath)")
-                    parseYayaConfigFile(content: includeContent, baseURL: baseURL, dicFiles: &dicFiles, charset: &charset, visited: newVisited)
-                } else {
-                    NSLog("[YayaBackend] Failed to read include file: \(includePath)")
-                }
+                result.append(entry(forFile: first, encoding: nil))
             }
         }
+        if !result.isEmpty { return result }
+        // Fall through to lexical enumeration if order file was empty.
+    }
+
+    // 2) Lexical fallback: enumerate .dic files in the directory (shallow).
+    NSLog("[YayaBackend] dicdir: no usable _loading_order.txt, loading .dic files lexically from \(dirURL.lastPathComponent)")
+    guard let contents = try? fm.contentsOfDirectory(atPath: dirURL.path) else { return [] }
+    let dicFiles = contents.filter { $0.lowercased().hasSuffix(".dic") }.sorted()
+    return dicFiles.map { entry(forFile: $0, encoding: nil) }
 }
 
 // MARK: - YayaBackend Helpers
@@ -261,18 +463,26 @@ extension YayaBackend {
 
     static func buildResponse(from yayaResponse: YayaResponse, requestVersion: String, requestMethod: String) -> String {
         var status = yayaResponse.status
+        // SHIORI/2.x TEACH legacy mapping: a "no content" (204) response to a TEACH
+        // request is reported as 312 (input not trusted). Its reason phrase must be
+        // "No Content (Not Trusted)", distinct from a genuine 311/312 OnTeach value.
+        var teachMappedTo312 = false
         if requestVersion.hasPrefix("SHIORI/2."), requestMethod == "TEACH", status == 204 {
-            // SHIORI/2.x TEACH legacy mapping.
             status = 312
+            teachMappedTo312 = true
         }
         var statusText = "OK"
-        switch status {
-        case 204: statusText = "No Content"
-        case 311: statusText = "OnTeach (need more)"
-        case 312: statusText = "OnTeach (invalid)"
-        case 400: statusText = "Bad Request"
-        case 500: statusText = "Internal Server Error"
-        default: break
+        if teachMappedTo312 {
+            statusText = "No Content (Not Trusted)"
+        } else {
+            switch status {
+            case 204: statusText = "No Content"
+            case 311: statusText = "Not Enough"
+            case 312: statusText = "Not Trusted"
+            case 400: statusText = "Bad Request"
+            case 500: statusText = "Internal Server Error"
+            default: break
+            }
         }
         var responseString = "\(requestVersion) \(status) \(statusText)\r\n"
         if let headers = yayaResponse.headers {

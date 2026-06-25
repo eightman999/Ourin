@@ -6,6 +6,11 @@ import AppKit
 ///
 /// SHIORI Resources are simple key-value pairs (not SakuraScript) that control
 /// ghost behavior and store user preferences.
+///
+/// TODO(profile): SSP 互換の永続化先は `data/profile/<ghost>/`（公開フォルダ）。
+/// 現状はゴースト非分離のグローバル状態を UserDefaults に保存している。将来は
+/// `OurinPaths.profileDirectory(for:)` 配下のファイルへゴースト別に移行する想定
+/// （ゴースト別キー namespace ＋ファイル形式 ＋既存値の backfill が必要）。
 public final class ResourceManager {
     private let defaults: UserDefaults
     private let prefix = "OurinResource."

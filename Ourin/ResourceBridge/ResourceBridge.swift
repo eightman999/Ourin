@@ -196,6 +196,32 @@ public final class ResourceBridge {
         )
     }
 
+    private func ownerDrawMenuImage(for key: String, base: URL?, shellMenuName: String, sspPictureName: String) -> NSImage? {
+        var candidates: [URL] = []
+        if let explicit = urlValue(for: key, relativeTo: base) {
+            candidates.append(explicit)
+        }
+        if let base = base {
+            candidates.append(
+                base.appendingPathComponent("menu", isDirectory: true)
+                    .appendingPathComponent(shellMenuName)
+            )
+        }
+        if let dataDir = try? OurinPaths.subdirectory("data") {
+            candidates.append(
+                dataDir.appendingPathComponent("ssp-pictures", isDirectory: true)
+                    .appendingPathComponent(sspPictureName)
+            )
+        }
+
+        for candidate in candidates {
+            if let image = NSImage(contentsOf: candidate) {
+                return image
+            }
+        }
+        return nil
+    }
+
     public func ownerDrawMenuColorMap() -> [String: NSColor] {
         var result: [String: NSColor] = [:]
         for prefix in Self.ownerDrawMenuColorPrefixes {
@@ -359,20 +385,32 @@ extension ResourceBridge {
         var config = OwnerDrawMenuConfig()
         
         // 背景画像
-        if let bgPath = urlValue(for: "menu.background.bitmap.filename", relativeTo: base),
-           let bgImage = NSImage(contentsOf: bgPath) {
+        if let bgImage = ownerDrawMenuImage(
+            for: "menu.background.bitmap.filename",
+            base: base,
+            shellMenuName: "background.png",
+            sspPictureName: "menu_background.png"
+        ) {
             config.backgroundImage = bgImage
         }
         
         // 前景画像
-        if let fgPath = urlValue(for: "menu.foreground.bitmap.filename", relativeTo: base),
-           let fgImage = NSImage(contentsOf: fgPath) {
+        if let fgImage = ownerDrawMenuImage(
+            for: "menu.foreground.bitmap.filename",
+            base: base,
+            shellMenuName: "foreground.png",
+            sspPictureName: "menu_foreground.png"
+        ) {
             config.foregroundImage = fgImage
         }
         
         // サイドバー画像
-        if let sbPath = urlValue(for: "menu.sidebar.bitmap.filename", relativeTo: base),
-           let sbImage = NSImage(contentsOf: sbPath) {
+        if let sbImage = ownerDrawMenuImage(
+            for: "menu.sidebar.bitmap.filename",
+            base: base,
+            shellMenuName: "sidebar.png",
+            sspPictureName: "menu_sidebar.png"
+        ) {
             config.sidebarImage = sbImage
             config.sidebarWidth = sbImage.size.width
         }
@@ -416,14 +454,15 @@ extension ResourceBridge {
     
     /// メニュー項目一覧を取得
     public func menuItems() -> [OwnerDrawMenuItem] {
-        var items: [OwnerDrawMenuItem] = []
+        var topItems: [OwnerDrawMenuItem] = []
+        var bottomItems: [OwnerDrawMenuItem] = []
         
         // ゴースト情報
         if let item = menuItem(caption: "inforootbutton") {
             var menuItem = OwnerDrawMenuItem(type: .button(action: "menu_ghost_info"), caption: item.title)
             menuItem.shortcut = item.shortcut
             menuItem.visible = item.visible
-            items.append(menuItem)
+            topItems.append(menuItem)
         }
         
         // ゴースト切替
@@ -434,7 +473,7 @@ extension ResourceBridge {
             )
             menuItem.shortcut = item.shortcut
             menuItem.visible = item.visible
-            items.append(menuItem)
+            topItems.append(menuItem)
         }
         
         // シェル切替
@@ -445,7 +484,7 @@ extension ResourceBridge {
             )
             menuItem.shortcut = item.shortcut
             menuItem.visible = item.visible
-            items.append(menuItem)
+            topItems.append(menuItem)
         }
         
         // バルーン切替
@@ -456,18 +495,15 @@ extension ResourceBridge {
             )
             menuItem.shortcut = item.shortcut
             menuItem.visible = item.visible
-            items.append(menuItem)
+            topItems.append(menuItem)
         }
-        
-        // 区切り
-        items.append(OwnerDrawMenuItem(type: .separator, caption: ""))
         
         // 設定
         if let item = menuItem(caption: "configurationbutton") {
             var menuItem = OwnerDrawMenuItem(type: .button(action: "menu_settings"), caption: item.title)
             menuItem.shortcut = item.shortcut
             menuItem.visible = item.visible
-            items.append(menuItem)
+            bottomItems.append(menuItem)
         }
         
         // 終了
@@ -475,9 +511,14 @@ extension ResourceBridge {
             var menuItem = OwnerDrawMenuItem(type: .button(action: "menu_quit"), caption: item.title)
             menuItem.shortcut = item.shortcut
             menuItem.visible = item.visible
-            items.append(menuItem)
+            bottomItems.append(menuItem)
         }
-        
+
+        var items = topItems
+        if !topItems.isEmpty && !bottomItems.isEmpty {
+            items.append(OwnerDrawMenuItem(type: .separator, caption: ""))
+        }
+        items.append(contentsOf: bottomItems)
         return items
     }
     

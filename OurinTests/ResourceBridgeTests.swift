@@ -187,4 +187,84 @@ struct ResourceBridgeTests {
             Issue.record("Balloon submenu should exist")
         }
     }
+
+    @Test
+    func menuItemsAreEmptyWhenNoCaptionsExist() async throws {
+        BridgeToSHIORI.reset()
+        defer { BridgeToSHIORI.reset() }
+
+        let bridge = ResourceBridge.shared
+        bridge.invalidateAll()
+
+        #expect(bridge.menuItems().isEmpty)
+    }
+
+    @Test
+    func ownerDrawMenuConfigUsesShellMenuImagesWhenResourceMissing() async throws {
+        BridgeToSHIORI.reset()
+        let bridge = ResourceBridge.shared
+        bridge.invalidateAll()
+
+        let base = FileManager.default.temporaryDirectory
+            .appendingPathComponent("OurinResourceBridge-\(UUID().uuidString)", isDirectory: true)
+        OurinPaths.testBaseOverride = base
+        defer {
+            BridgeToSHIORI.reset()
+            bridge.invalidateAll()
+            OurinPaths.testBaseOverride = nil
+            try? FileManager.default.removeItem(at: base)
+        }
+
+        let shellBase = base.appendingPathComponent("ghost/emily4/shell/master", isDirectory: true)
+        let menuDir = shellBase.appendingPathComponent("menu", isDirectory: true)
+        try FileManager.default.createDirectory(at: menuDir, withIntermediateDirectories: true)
+        try writeTinyPNG(to: menuDir.appendingPathComponent("background.png"))
+        try writeTinyPNG(to: menuDir.appendingPathComponent("foreground.png"))
+        try writeTinyPNG(to: menuDir.appendingPathComponent("sidebar.png"))
+
+        let config = bridge.ownerDrawMenuConfig(base: shellBase)
+
+        #expect(config.backgroundImage != nil)
+        #expect(config.foregroundImage != nil)
+        #expect(config.sidebarImage != nil)
+        #expect(config.sidebarWidth > 0)
+    }
+
+    @Test
+    func ownerDrawMenuConfigUsesSSPPictureFallbacks() async throws {
+        BridgeToSHIORI.reset()
+        let bridge = ResourceBridge.shared
+        bridge.invalidateAll()
+
+        let base = FileManager.default.temporaryDirectory
+            .appendingPathComponent("OurinResourceBridge-\(UUID().uuidString)", isDirectory: true)
+        OurinPaths.testBaseOverride = base
+        defer {
+            BridgeToSHIORI.reset()
+            bridge.invalidateAll()
+            OurinPaths.testBaseOverride = nil
+            try? FileManager.default.removeItem(at: base)
+        }
+
+        let pictureDir = try OurinPaths.subdirectory("data")
+            .appendingPathComponent("ssp-pictures", isDirectory: true)
+        try FileManager.default.createDirectory(at: pictureDir, withIntermediateDirectories: true)
+        try writeTinyPNG(to: pictureDir.appendingPathComponent("menu_background.png"))
+        try writeTinyPNG(to: pictureDir.appendingPathComponent("menu_foreground.png"))
+        try writeTinyPNG(to: pictureDir.appendingPathComponent("menu_sidebar.png"))
+
+        let missingShellBase = base.appendingPathComponent("ghost/emily4/shell/master", isDirectory: true)
+        let config = bridge.ownerDrawMenuConfig(base: missingShellBase)
+
+        #expect(config.backgroundImage != nil)
+        #expect(config.foregroundImage != nil)
+        #expect(config.sidebarImage != nil)
+        #expect(config.sidebarWidth > 0)
+    }
+}
+
+private func writeTinyPNG(to url: URL) throws {
+    let base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    let data = Data(base64Encoded: base64)!
+    try data.write(to: url)
 }
