@@ -16,6 +16,8 @@ enum class NodeType {
     For,
     Foreach,
     Switch,
+    Case,
+    WhenClause,
     Break,
     Continue,
     BinaryOp,
@@ -195,6 +197,33 @@ struct SwitchNode : Node {
     SwitchNode(std::shared_ptr<Node> expr, const std::vector<std::shared_ptr<Node>>& c)
         : expression(expr), cases(c) {
         type = NodeType::Switch;
+    }
+};
+
+// A single 'when v1, v2, ... { body }' clause inside a case expression.
+struct WhenClauseNode : Node {
+    std::vector<std::shared_ptr<Node>> matchValues;  // comma-separated match expressions
+    std::vector<std::shared_ptr<Node>> body;         // block body to run when any value matches
+
+    WhenClauseNode(const std::vector<std::shared_ptr<Node>>& vals,
+                   const std::vector<std::shared_ptr<Node>>& b)
+        : matchValues(vals), body(b) {
+        type = NodeType::WhenClause;
+    }
+};
+
+// 'case expr { when ... { } ... others { } }' — evaluates expr once and runs the
+// first matching when clause (or the others/default fallback).
+struct CaseNode : Node {
+    std::shared_ptr<Node> expression;                       // evaluated exactly once
+    std::vector<std::shared_ptr<WhenClauseNode>> whenClauses;
+    std::vector<std::shared_ptr<Node>> othersBody;          // optional others/default body
+
+    CaseNode(std::shared_ptr<Node> expr,
+             const std::vector<std::shared_ptr<WhenClauseNode>>& clauses,
+             const std::vector<std::shared_ptr<Node>>& others)
+        : expression(expr), whenClauses(clauses), othersBody(others) {
+        type = NodeType::Case;
     }
 };
 

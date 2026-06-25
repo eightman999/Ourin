@@ -85,6 +85,24 @@ std::vector<std::shared_ptr<AST::FunctionNode>> Parser::parse() {
     return functions;
 }
 
+bool Parser::parseExpressionOnly(std::string& errorMsg) {
+    try {
+        skipNewlines();
+        // parseExpression is the top-level entry; unlike parseStatement it does
+        // NOT swallow errors, so a malformed expression (e.g. "1 +") propagates.
+        (void)parseExpression();
+        skipNewlines();
+        if (!check(TokenType::EndOfFile)) {
+            errorMsg = "trailing tokens at line " + std::to_string(current().line);
+            return false;
+        }
+        return true;
+    } catch (const std::exception& e) {
+        errorMsg = e.what();
+        return false;
+    }
+}
+
 std::shared_ptr<AST::FunctionNode> Parser::parseFunction() {
     if (!check(TokenType::Identifier)) {
         return nullptr;
@@ -102,14 +120,16 @@ std::shared_ptr<AST::FunctionNode> Parser::parseFunction() {
     skipNewlines();
 
     // Optional type annotation (YAYA: FuncName : void / array / sequential / nonoverload / when)
+    // Multiple space-separated modifiers are allowed (e.g. "nonoverload array").
     std::string funcType;
     if (match(TokenType::Colon)) {
         skipNewlines();
-        if (check(TokenType::Identifier)) {
-            funcType = current().value;
+        while (check(TokenType::Identifier)) {
+            if (!funcType.empty()) funcType += " ";
+            funcType += current().value;
             advance();
+            skipNewlines();
         }
-        skipNewlines();
     }
 
     consume(TokenType::LeftBrace, "Expected '{' after function name");
@@ -431,7 +451,14 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
         return parseExpression();
     } catch (const std::exception& e) {
         std::cerr << "[Parser] Error parsing expression: " << e.what() << std::endl;
-        // エラーでも nullptr を返して続行
+        // ★ 進行保証: 未処理トークンで例外が出た場合（parsePrimary の
+        //   "Unexpected token" 等）、現在位置に留まったままだと呼び出し元の文ループ
+        //   （parseBlock/parseWhile/parseFor/parseForeach）が同じトークンで永久に
+        //   parseStatement を呼び続け、100% CPU で無限ループする。
+        //   最低 1 トークン進めて必ず前進させる（ブロック終端 '}' は食べない）。
+        if (!check(TokenType::EndOfFile) && !check(TokenType::RightBrace)) {
+            advance();
+        }
         return nullptr;
     }
 }
@@ -677,13 +704,15 @@ std::shared_ptr<AST::Node> Parser::parseWhile() {
     
     std::vector<std::shared_ptr<AST::Node>> body;
     while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+        size_t before = pos_;
         auto stmt = parseStatement();
         if (stmt) {
             body.push_back(stmt);
         }
         skipNewlines();
+        if (pos_ == before) advance();  // 進行保証（無限ループ防止）
     }
-    
+
     consume(TokenType::RightBrace, "Expected '}' after while body");
     
     return std::make_shared<AST::WhileNode>(condition, body);
@@ -746,9 +775,11 @@ std::shared_ptr<AST::Node> Parser::parseFor() {
 
     std::vector<std::shared_ptr<AST::Node>> body;
     while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+        size_t before = pos_;
         auto stmt = parseStatement();
         if (stmt) body.push_back(stmt);
         skipNewlines();
+        if (pos_ == before) advance();  // 進行保証（無限ループ防止）
     }
     consume(TokenType::RightBrace, "Expected '}' after for body");
 
@@ -796,9 +827,11 @@ std::shared_ptr<AST::Node> Parser::parseForeach() {
     
     std::vector<std::shared_ptr<AST::Node>> body;
     while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+        size_t before = pos_;
         auto stmt = parseStatement();
         if (stmt) body.push_back(stmt);
         skipNewlines();
+        if (pos_ == before) advance();  // 進行保証（無限ループ防止）
     }
     consume(TokenType::RightBrace, "Expected '}' after foreach body");
 
@@ -812,9 +845,11 @@ std::shared_ptr<AST::Node> Parser::parseBlock() {
     skipNewlines();
     std::vector<std::shared_ptr<AST::Node>> stmts;
     while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+        size_t before = pos_;
         auto s = parseStatement();
         if (s) stmts.push_back(s);
         skipNewlines();
+        if (pos_ == before) advance();  // 進行保証（無限ループ防止）
     }
     consume(TokenType::RightBrace, "Expected '}' to close block");
     
@@ -830,27 +865,58 @@ std::shared_ptr<AST::Node> Parser::parseSwitch() {
     consume(TokenType::Switch, "Expected 'switch'");
     skipNewlines();
     
-    // Parse the switch expression
+    // Parse the switch expression (selector). Its integer value selects a case.
     auto expr = parseExpression();
     skipNewlines();
     
     consume(TokenType::LeftBrace, "Expected '{' after switch expression");
     skipNewlines();
     
-    // Parse case values (in YAYA, these are just expressions, one per line)
-    // The switch returns the expression at index equal to the switch value
+    // Collect case expressions. YAYA switch bodies use one of two idioms:
+    //   (1) one value per line            switch n { 'a' 'b' 'c' }
+    //   (2) '--'-separated block literal  switch n { 'a' -- 'b' -- 'c' }
+    //     and also a nested braced form   switch n { { 'a' -- 'b' -- 'c' } }
+    // '--' tokens are treated purely as separators here (never decrement operators),
+    // so case expressions are parsed in block-literal mode to suppress postfix --.
     std::vector<std::shared_ptr<AST::Node>> cases;
+    bool prevMode = blockLiteralMode_;
+    blockLiteralMode_ = true;
     while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
-        // Each line in the switch block is a potential return value
+        // Separator: consume stray '--' between cases.
+        if (check(TokenType::MinusMinus)) {
+            advance();
+            skipNewlines();
+            continue;
+        }
+        // A nested braced block literal: unwrap it so its '--'-separated elements
+        // become individual cases.
+        if (check(TokenType::LeftBrace)) {
+            consume(TokenType::LeftBrace, "Expected '{'");
+            skipNewlines();
+            while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+                if (check(TokenType::MinusMinus)) { advance(); skipNewlines(); continue; }
+                auto caseExpr = parseExpression();
+                if (caseExpr) cases.push_back(caseExpr);
+                skipNewlines();
+                // tolerate trailing separators
+                if (check(TokenType::MinusMinus)) { advance(); skipNewlines(); }
+            }
+            consume(TokenType::RightBrace, "Expected '}' after switch block literal");
+            skipNewlines();
+            continue;
+        }
         auto caseExpr = parseExpression();
         if (caseExpr) {
             cases.push_back(caseExpr);
         }
         skipNewlines();
+        // tolerate '--' separator after a one-per-line value too
+        if (check(TokenType::MinusMinus)) { advance(); skipNewlines(); }
     }
-    
+    blockLiteralMode_ = prevMode;
+
     consume(TokenType::RightBrace, "Expected '}' after switch cases");
-    
+
     return std::make_shared<AST::SwitchNode>(expr, cases);
 }
 
@@ -858,17 +924,17 @@ std::shared_ptr<AST::Node> Parser::parseCase() {
     consume(TokenType::Case, "Expected 'case'");
     skipNewlines();
     
-    // Parse the case expression (value to match against)
+    // Parse the case expression (value to match against). Evaluated exactly once at runtime.
     auto expr = parseExpression();
     skipNewlines();
     
     consume(TokenType::LeftBrace, "Expected '{' after case expression");
     skipNewlines();
     
-    // Parse when clauses
-    // Syntax: when val1, val2, val3 { block }
-    // We'll implement this as a series of if-else checks
-    std::vector<std::shared_ptr<AST::Node>> whenClauses;
+    // Parse when clauses and an optional others/default fallback.
+    std::vector<std::shared_ptr<AST::WhenClauseNode>> whenClauses;
+    std::vector<std::shared_ptr<AST::Node>> othersBody;
+    bool seenOthers = false;
     
     while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
         if (check(TokenType::When)) {
@@ -878,95 +944,82 @@ std::shared_ptr<AST::Node> Parser::parseCase() {
             // Parse comma-separated match values
             std::vector<std::shared_ptr<AST::Node>> matchValues;
             matchValues.push_back(parseExpression());
-            
             while (match(TokenType::Comma)) {
                 skipNewlines();
                 matchValues.push_back(parseExpression());
             }
-            
             skipNewlines();
             
-            // Parse the when body: allow either a braced block or a single statement
-            std::shared_ptr<AST::Node> block;
+            // Parse the when body: braced block or single statement
+            std::vector<std::shared_ptr<AST::Node>> body;
             if (check(TokenType::LeftBrace)) {
-                block = parseBlock();
+                // Use a dedicated block parse so the closing brace belongs to this clause.
+                consume(TokenType::LeftBrace, "Expected '{' to start when body");
+                skipNewlines();
+                while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+                    size_t before = pos_;
+                    auto s = parseStatement();
+                    if (s) body.push_back(s);
+                    skipNewlines();
+                    if (pos_ == before) advance(); // 進行保証
+                }
+                consume(TokenType::RightBrace, "Expected '}' to close when body");
             } else {
                 auto stmt = parseStatement();
-                if (stmt) {
-                    block = std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{stmt});
-                } else {
-                    block = std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{});
-                }
+                if (stmt) body.push_back(stmt);
             }
             
-            // Create an if-else chain: if (expr == val1 || expr == val2 ...) { block }
-            // We need to clone the expr node for each comparison
-            // For simplicity, we'll use a variable node if expr is an identifier
-            std::shared_ptr<AST::Node> condition = nullptr;
-            for (size_t i = 0; i < matchValues.size(); i++) {
-                // Create a new comparison for each value
-                // Note: This assumes expr is side-effect free (typically a variable)
-                auto comparison = std::make_shared<AST::BinaryOpNode>("==", expr, matchValues[i]);
-                if (condition == nullptr) {
-                    condition = comparison;
-                } else {
-                    condition = std::make_shared<AST::BinaryOpNode>("||", condition, comparison);
-                }
-            }
-            
-            std::vector<std::shared_ptr<AST::Node>> blockBody = { block };
-            whenClauses.push_back(std::make_shared<AST::IfNode>(condition, blockBody, std::vector<std::shared_ptr<AST::Node>>()));
-            
+            whenClauses.push_back(std::make_shared<AST::WhenClauseNode>(matchValues, body));
             skipNewlines();
-        } else if (check(TokenType::Default)) {
-            // default { ... } もしくは default <single-statement>
-            advance(); // consume 'default'
+        } else if (check(TokenType::Default) || (check(TokenType::Identifier) && current().value == "others")) {
+            // 'default' / 'others' fallback clause
+            advance(); // consume keyword
             skipNewlines();
+            seenOthers = true;
             if (check(TokenType::LeftBrace)) {
-                auto block = parseBlock();
-                whenClauses.push_back(block);
-            } else {
-                // Single statement/default line without braces
-                auto stmt = parseStatement();
-                if (stmt) {
-                    whenClauses.push_back(std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{stmt}));
-                } else {
-                    whenClauses.push_back(std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{}));
+                consume(TokenType::LeftBrace, "Expected '{' to start others body");
+                skipNewlines();
+                while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+                    size_t before = pos_;
+                    auto s = parseStatement();
+                    if (s) othersBody.push_back(s);
+                    skipNewlines();
+                    if (pos_ == before) advance();
                 }
-            }
-            skipNewlines();
-        } else if (check(TokenType::Identifier) && current().value == "others") {
-            // 'others' は 'default' のエイリアス。{ } 省略も許容
-            advance(); // consume 'others'
-            skipNewlines();
-            if (check(TokenType::LeftBrace)) {
-                auto block = parseBlock();
-                whenClauses.push_back(block);
+                consume(TokenType::RightBrace, "Expected '}' to close others body");
             } else {
                 auto stmt = parseStatement();
-                if (stmt) {
-                    whenClauses.push_back(std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{stmt}));
-                } else {
-                    whenClauses.push_back(std::make_shared<AST::BlockNode>(std::vector<std::shared_ptr<AST::Node>>{}));
-                }
+                if (stmt) othersBody.push_back(stmt);
             }
             skipNewlines();
         } else {
-            // Skip unexpected tokens
-            advance();
+            // Tolerate stray tokens inside a case body (e.g. comments already stripped).
+            // Don't infinite-loop: advance if no progress.
+            size_t before = pos_;
+            // Try to parse as a statement first (some dic files place expressions directly).
+            try {
+                auto stmt = parseStatement();
+                if (stmt) {
+                    // Bare statement with no preceding 'when' → treat as a single-value when-less
+                    // clause is not valid YAYA; record as others fallback content instead.
+                    if (!seenOthers) othersBody.push_back(stmt);
+                }
+            } catch (...) {}
+            if (pos_ == before) advance();
+            skipNewlines();
         }
     }
     
     consume(TokenType::RightBrace, "Expected '}' after case body");
     
-    // Return a block containing all the when clauses
-    return std::make_shared<AST::BlockNode>(whenClauses);
+    return std::make_shared<AST::CaseNode>(expr, whenClauses, othersBody);
 }
 
 std::shared_ptr<AST::Node> Parser::parseStandaloneWhen() {
     // Standalone when statement: when val1, val2 { block }
-    // This is like a case clause without an explicit test expression
-    // We'll treat it as if it's checking against some implicit state variable
+    // Common inside labeled blocks ({{START_CHANGE ... }}). Outside a case context there is
+    // no implicit switch value, so the body is represented as a WhenClauseNode whose body
+    // runs when reached (the VM treats bare WhenClause nodes as passthrough).
     
     advance(); // consume 'when'
     skipNewlines();
@@ -982,14 +1035,25 @@ std::shared_ptr<AST::Node> Parser::parseStandaloneWhen() {
     
     skipNewlines();
     
-    // Parse the when block
-    auto block = parseBlock();
+    // Parse the when body: braced block or single statement
+    std::vector<std::shared_ptr<AST::Node>> body;
+    if (check(TokenType::LeftBrace)) {
+        consume(TokenType::LeftBrace, "Expected '{' to start when body");
+        skipNewlines();
+        while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+            size_t before = pos_;
+            auto s = parseStatement();
+            if (s) body.push_back(s);
+            skipNewlines();
+            if (pos_ == before) advance();
+        }
+        consume(TokenType::RightBrace, "Expected '}' to close when body");
+    } else {
+        auto stmt = parseStatement();
+        if (stmt) body.push_back(stmt);
+    }
     
-    // For standalone when, we can't build a proper condition without knowing
-    // what to compare against. We'll just return the block for now.
-    // In actual YAYA, these are typically handled by runtime context.
-    // For parsing purposes, we'll wrap it in a labeled block.
-    return block;
+    return std::make_shared<AST::WhenClauseNode>(matchValues, body);
 }
 
 std::shared_ptr<AST::Node> Parser::parseExpression() {
@@ -1173,6 +1237,20 @@ std::shared_ptr<AST::Node> Parser::parseUnary() {
         return parseUnary();
     }
 
+    // Prefix '&' : YAYA の参照（アドレス）演算子。関数引数を参照渡しする際に使う
+    //   例) E.Swap(&_array[_left], &_array[_temp])
+    // 字句解析器は二項ビット AND も Ampersand として返すが、二項 '&' は
+    // parseBitwiseAnd が「左辺を読み終えた後」に消費する。したがって parseUnary
+    // 到達時点（オペランドの先頭）で '&' を見たら、それは前置の参照演算子で確定。
+    // ここで消費しないと parsePrimary が "Unexpected token '&'" を投げ、かつ
+    // トークンを進めないため、文ループが 100% CPU で無限ループする（実害の原因）。
+    // 現状は VM 側で恒等（値渡し）として扱う。真の参照渡し（Swap/Qsort の in-place）
+    // は将来 CallNode 引数評価で UnaryOpNode("&") を検出して実装する余地を残す。
+    if (match(TokenType::Ampersand)) {
+        auto operand = parseUnary();
+        return std::make_shared<AST::UnaryOpNode>("&", operand);
+    }
+
     return parsePrimary();
 }
 
@@ -1242,11 +1320,18 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
         // Start with a simple variable node
         std::shared_ptr<AST::Node> node = std::make_shared<AST::VariableNode>(name);
 
-        // Postfix increment/decrement apply only to identifiers
-        if (match(TokenType::PlusPlus) || match(TokenType::MinusMinus)) {
-            TokenType last = tokens_[pos_-1].type;
-            std::string kind = (last == TokenType::PlusPlus) ? "__postinc__" : "__postdec__";
-            return std::make_shared<AST::CallNode>(kind, std::vector<std::shared_ptr<AST::Node>>{ std::make_shared<AST::VariableNode>(name)});
+        // Postfix increment/decrement apply only to identifiers.
+        // Note: inside a block-literal / switch-case context, '--' is a separator,
+        // so postfix decrement is suppressed there to avoid mutating variable
+        // elements like `{ _x -- _y }`. '++' is never a separator, so it always
+        // binds as postfix increment.
+        if (match(TokenType::PlusPlus)) {
+            return std::make_shared<AST::CallNode>("__postinc__",
+                std::vector<std::shared_ptr<AST::Node>>{ std::make_shared<AST::VariableNode>(name)});
+        }
+        if (!blockLiteralMode_ && match(TokenType::MinusMinus)) {
+            return std::make_shared<AST::CallNode>("__postdec__",
+                std::vector<std::shared_ptr<AST::Node>>{ std::make_shared<AST::VariableNode>(name)});
         }
 
         // Optional function call immediately after identifier
@@ -1308,27 +1393,31 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
     if (match(TokenType::LeftBrace)) {
         std::vector<std::shared_ptr<AST::Node>> elements;
         skipNewlines();
-        
+
         while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
-            // Parse an expression
+            // Parse an expression in block-literal mode so that '--' after a
+            // variable element is treated as a separator, not postfix decrement.
+            bool prevMode = blockLiteralMode_;
+            blockLiteralMode_ = true;
             auto expr = parseExpression();
+            blockLiteralMode_ = prevMode;
             elements.push_back(expr);
             skipNewlines();
-            
+
             // Check for -- separator (treated as MinusMinus token in this context)
             if (check(TokenType::MinusMinus)) {
                 advance(); // consume --
                 skipNewlines();
             }
-            
+
             // If we hit a closing brace or another expression separator, continue
             if (check(TokenType::RightBrace)) {
                 break;
             }
         }
-        
+
         consume(TokenType::RightBrace, "Expected '}' after block literal");
-        
+
         // Create an array literal from the block
         return std::make_shared<AST::CallNode>("__array_literal__", elements);
     }

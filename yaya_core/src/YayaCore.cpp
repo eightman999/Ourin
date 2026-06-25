@@ -2,6 +2,9 @@
 #include <iostream>
 #include <chrono>
 #include <unordered_set>
+#include <set>
+#include <algorithm>
+#include <cctype>
 
 using json = nlohmann::json;
 
@@ -103,6 +106,14 @@ json YayaCore::handlePluginOperation(const std::string& op, const json& params) 
     }
 }
 
+bool YayaCore::dicLoad(const std::string& relativePath, const std::string& encoding) {
+    return dictManager.dicLoad(relativePath, encoding);
+}
+
+bool YayaCore::dicUnload(const std::string& relativePath) {
+    return dictManager.dicUnload(relativePath);
+}
+
 std::string YayaCore::processCommand(const std::string &line) {
     json response;
     try {
@@ -125,17 +136,42 @@ std::string YayaCore::processCommand(const std::string &line) {
             }
         } else if (cmd == "load") {
             std::string ghostRoot = req.value("ghost_root", "");
-            std::vector<std::string> dicNames = req.value("dic", std::vector<std::string>{});
             std::string encoding = req.value("encoding", "auto");
-            
-            // Build full paths from ghost_root and dic names
-            std::vector<std::string> dicPaths;
-            for (const auto& name : dicNames) {
-                std::string fullPath = ghostRoot + "/" + name;
-                dicPaths.push_back(fullPath);
+
+            // Anchor relative paths (DICLOAD / SAVEVAR / DICUNLOAD) under the ghost root.
+            dictManager.setGhostRoot(ghostRoot);
+
+            // Build structured entries. Prefer "dic_entries" (per-dic encoding) over flat "dic".
+            std::vector<DictionaryManager::DicEntry> dicEntries;
+            bool usedStructured = false;
+            if (req.contains("dic_entries") && req["dic_entries"].is_array()) {
+                usedStructured = true;
+                for (const auto& item : req["dic_entries"]) {
+                    // Null-safe string access: a missing OR null field yields the default.
+                    auto strOr = [&](const char* key, const char* def) -> std::string {
+                        if (!item.contains(key) || item[key].is_null()) return def;
+                        return item[key].is_string() ? item[key].get<std::string>() : def;
+                    };
+                    DictionaryManager::DicEntry e;
+                    e.path = strOr("path", "");
+                    e.encoding = strOr("encoding", "");
+                    if (!e.path.empty()) {
+                        std::string fullPath = ghostRoot + "/" + e.path;
+                        dicEntries.push_back({fullPath, e.encoding});
+                    }
+                }
             }
-            
-            bool ok = dictManager.load(dicPaths, encoding);
+            if (!usedStructured) {
+                std::vector<std::string> dicNames = req.value("dic", std::vector<std::string>{});
+                for (const auto& name : dicNames) {
+                    std::string fullPath = ghostRoot + "/" + name;
+                    dicEntries.push_back({fullPath, ""});
+                }
+            }
+
+            bool ok = dicEntries.empty()
+                ? dictManager.load(std::vector<std::string>{}, encoding)
+                : dictManager.load(dicEntries, encoding);
             response["ok"] = ok;
             response["status"] = ok ? 200 : 500;
 
@@ -165,18 +201,50 @@ std::string YayaCore::processCommand(const std::string &line) {
 
             // Build raw SHIORI protocol request to pass through YAYA framework's `request` function.
             // The framework parses this text to set SHIORI3FW.* variables and dispatch to SHIORI3EV.* handlers.
+            // Phase 9: include UKADOC headers. Deduplication is case-insensitive and the
+            // `ref` array is overlaid on top of any Reference* present in `headers`.
             std::string shioriReq = method + " SHIORI/3.0\r\n";
-            shioriReq += "Charset: UTF-8\r\n";
-            shioriReq += "Sender: Ourin\r\n";
-            shioriReq += "SecurityLevel: local\r\n";
-            shioriReq += "ID: " + id + "\r\n";
-            for (auto& kv : headers) {
-                if (kv.first != "Charset" && kv.first != "ID") {
-                    shioriReq += kv.first + ": " + kv.second + "\r\n";
+            auto lower = [](std::string s) {
+                std::transform(s.begin(), s.end(), s.begin(),
+                               [](unsigned char c) { return std::tolower(c); });
+                return s;
+            };
+            // Case-insensitive lookup of a header value in the caller map.
+            auto findCI = [&](const std::string& key) -> const std::string* {
+                for (const auto& kv : headers) {
+                    if (lower(kv.first) == lower(key)) return &kv.second;
                 }
+                return nullptr;
+            };
+            auto emitCI = [&](const std::string& key, const std::string& val) {
+                shioriReq += key + ": " + val + "\r\n";
+            };
+            auto emitDefault = [&](const std::string& key, const std::string& val) {
+                if (!findCI(key)) emitCI(key, val);
+            };
+            emitDefault("Charset", "UTF-8");
+            emitDefault("Sender", "Ourin");
+            emitDefault("SenderType", "Plugin");
+            emitDefault("SecurityLevel", "local");
+            // ID: prefer caller-supplied value, else the `id` argument.
+            if (const std::string* idHdr = findCI("ID")) emitCI("ID", *idHdr);
+            else emitCI("ID", id);
+
+            // Emit every caller header once (except ID, already emitted above),
+            // case-insensitively deduplicated. This includes Status, BaseID,
+            // SecurityOrigin, X-SSTP-PassThru-*, and Reference* from headers.
+            std::set<std::string> emittedLower;
+            emittedLower.insert("id");
+            for (const auto& kv : headers) {
+                std::string kl = lower(kv.first);
+                if (emittedLower.count(kl)) continue;
+                emittedLower.insert(kl);
+                emitCI(kv.first, kv.second);
             }
+            // Overlay the `ref` array: it overrides Reference* from headers and
+            // extends to higher indices.
             for (size_t i = 0; i < refs.size(); i++) {
-                shioriReq += "Reference" + std::to_string(i) + ": " + refs[i] + "\r\n";
+                emitCI("Reference" + std::to_string(i), refs[i]);
             }
             shioriReq += "\r\n";
 
@@ -233,6 +301,23 @@ std::string YayaCore::processCommand(const std::string &line) {
                 }
                 std::cerr << "[YayaCore] Used YAYA framework request() dispatcher (status="
                           << shioriStatus << ", headers=" << shioriHeaders.size() << ")" << std::endl;
+
+                // Some framework scripts can currently evaluate to a malformed empty
+                // response while the actual event function exists. Recover the script
+                // for GET events instead of making the host fall back to a built-in
+                // greeting.
+                if ((method == "GET" || method == "get") &&
+                    shioriStatus == 0 &&
+                    value.empty() &&
+                    dictManager.hasFunction(id)) {
+                    std::cerr << "[YayaCore] Framework returned an empty malformed GET response; "
+                              << "falling back to direct event call: " << id << std::endl;
+                    value = dictManager.execute(id, refs);
+                    if (!value.empty()) {
+                        shioriStatus = 200;
+                        shioriHeaders["Value"] = value;
+                    }
+                }
             } else {
                 // Fallback: call function directly (for simple ghosts without YAYA framework)
                 value = dictManager.execute(id, refs);

@@ -281,13 +281,17 @@ std::vector<Token> Lexer::tokenize() {
             skipComment();
             continue;
         }
-        // Special handling for '--': only treat as comment at start of statement
-        // If last token was an identifier or ), then -- is an operator
+        // Special handling for '--': only treat as comment at start of statement.
+        // '--' is an operator (decrement / block-literal separator) when it follows a
+        // value-producing token: identifier, literal (string/integer), or a closing bracket.
+        // Otherwise (start of line, after operators/newlines/braces) it is a line comment.
         if (current() == '-' && peek() == '-') {
             bool isComment = true;
             if (!tokens.empty()) {
                 TokenType lastType = tokens.back().type;
-                if (lastType == TokenType::Identifier || 
+                if (lastType == TokenType::Identifier ||
+                    lastType == TokenType::String ||
+                    lastType == TokenType::Integer ||
                     lastType == TokenType::RightParen ||
                     lastType == TokenType::RightBracket) {
                     isComment = false;

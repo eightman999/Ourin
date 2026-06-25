@@ -216,8 +216,102 @@ VM::VM() {
     registerBuiltins();
 }
 
+int VM::beginSource(const std::string& sourceName) {
+    currentSourceId_ = nextSourceId_++;
+    if (!sourceName.empty()) {
+        sourceNames_[currentSourceId_] = sourceName;
+    }
+    return currentSourceId_;
+}
+
 void VM::registerFunction(const std::string& name, std::shared_ptr<AST::FunctionNode> func) {
-    functions_[name] = func;
+    FunctionDecl decl;
+    decl.node = func;
+    decl.sourceId = currentSourceId_;
+    decl.declarationOrder = nextDeclarationOrder_++;
+    // functionType modifiers are encoded in node->functionType; pull attributes out.
+    const std::string& ft = func ? func->functionType : "";
+    decl.nonoverload = (ft.find("nonoverload") != std::string::npos);
+    decl.isWhen = (ft.find("when") != std::string::npos);
+    // nonoverload semantics: a name declared nonoverload (now or previously) does
+    // NOT accumulate — redefinition replaces. We keep all declarations in the
+    // vector (so dicUnload can still retract by source), and the dispatcher picks
+    // the last registered enabled declaration. Here we only need to drop earlier
+    // declarations of the same name once the name has entered nonoverload mode.
+    auto& vec = functions_[name];
+    bool nameIsNonoverload = decl.nonoverload;
+    for (const auto& d : vec) if (d.nonoverload) { nameIsNonoverload = true; break; }
+    if (nameIsNonoverload) {
+        vec.clear();
+    }
+    vec.push_back(std::move(decl));
+}
+
+void VM::unloadSource(int sourceId) {
+    if (sourceId <= 0) return;
+    for (auto& kv : functions_) {
+        auto& vec = kv.second;
+        vec.erase(std::remove_if(vec.begin(), vec.end(),
+                                 [sourceId](const FunctionDecl& d) { return d.sourceId == sourceId; }),
+                  vec.end());
+    }
+    // Drop empty entries so hasFunction/ISFUNC behave correctly.
+    for (auto it = functions_.begin(); it != functions_.end(); ) {
+        if (it->second.empty()) it = functions_.erase(it);
+        else ++it;
+    }
+    sourceNames_.erase(sourceId);
+}
+
+int VM::findSource(const std::string& sourceName) const {
+    if (sourceName.empty()) return -1;
+    // Compare by basename so callers can pass "foo.dic" without a full path.
+    auto basename = [](const std::string& p) -> std::string {
+        auto pos = p.find_last_of("/\\");
+        return (pos == std::string::npos) ? p : p.substr(pos + 1);
+    };
+    std::string want = basename(sourceName);
+    for (const auto& kv : sourceNames_) {
+        if (basename(kv.second) == want) return kv.first;
+    }
+    return -1;
+}
+
+bool VM::undefFunction(const std::string& name) {
+    auto it = functions_.find(name);
+    if (it == functions_.end()) return false;
+    bool any = false;
+    for (auto& d : it->second) {
+        if (d.enabled) { d.enabled = false; any = true; }
+    }
+    return any;
+}
+
+bool VM::funcDeclRead(const std::string& name, std::string& out) const {
+    auto it = functions_.find(name);
+    if (it == functions_.end() || it->second.empty()) return false;
+    const auto& decl = it->second.front();
+    out = decl.node ? decl.node->functionType : "";
+    return true;
+}
+
+bool VM::funcDeclWrite(const std::string& name, const std::string& decl) {
+    auto it = functions_.find(name);
+    if (it == functions_.end() || it->second.empty()) return false;
+    if (it->second.front().node) {
+        it->second.front().node->functionType = decl;
+    }
+    // re-derive attribute flags
+    it->second.front().nonoverload = (decl.find("nonoverload") != std::string::npos);
+    it->second.front().isWhen = (decl.find("when") != std::string::npos);
+    return true;
+}
+
+bool VM::funcDeclErase(const std::string& name) {
+    auto it = functions_.find(name);
+    if (it == functions_.end()) return false;
+    functions_.erase(it);
+    return true;
 }
 
 Value VM::execute(const std::string& functionName, const std::vector<Value>& args) {
@@ -255,13 +349,25 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
 
     // Check if it's a user-defined function
     auto it = functions_.find(functionName);
-    if (it == functions_.end()) {
+    if (it == functions_.end() || it->second.empty()) {
         std::cerr << "[VM::execute] WARNING: Function not found: \"" << functionName << "\", returning void" << std::endl;
         recursion_depth_--;
         return Value();
     }
 
-    std::cerr << "[VM::execute] Found user function: " << functionName << ", executing..." << std::endl;
+    // Gather enabled declarations in declaration order.
+    std::vector<const FunctionDecl*> active;
+    for (const auto& d : it->second) {
+        if (d.enabled) active.push_back(&d);
+    }
+    if (active.empty()) {
+        std::cerr << "[VM::execute] WARNING: Function disabled: \"" << functionName << "\", returning void" << std::endl;
+        recursion_depth_--;
+        return Value();
+    }
+
+    std::cerr << "[VM::execute] Found user function: " << functionName
+              << " (" << active.size() << " decl(s)), executing..." << std::endl;
     auto exec_start = std::chrono::steady_clock::now();
 
     // トップレベル関数の場合、実行開始時刻を記録
@@ -280,41 +386,39 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     setVariable("_argv", Value(argArray));
     setVariable("_argc", Value(static_cast<int>(args.size())));
 
-    // Execute the function body, catching early returns.
-    // 関数型修飾子（YAYA）を適用する。未指定/その他は従来どおり最終値を返す（既存挙動を維持）。
-    const std::string& ftype = it->second->functionType;
+    // Dispatch: nonoverload (or single declaration) runs only the first enabled
+    // declaration. Otherwise (YAYA overload default) every declaration runs in
+    // declaration order and their return values concatenate.
     Value result;
-    if (ftype == "array" || ftype == "sequential") {
-        // トップレベルの出力文（代入以外・非void）を収集して配列化/連結する
+    bool anyNonoverload = false;
+    for (const auto* d : active) { if (d->nonoverload) { anyNonoverload = true; break; } }
+
+    if (active.size() == 1 || anyNonoverload) {
+        result = executeFunctionDecl(*active.front());
+    } else {
+        // Overload concatenation: gather each declaration's result.
         std::vector<Value> collected;
-        try {
-            for (const auto& stmt : it->second->body) {
-                Value v = executeNode(stmt);
-                if (stmt && stmt->type != AST::NodeType::Assignment && !v.isVoid()) {
-                    collected.push_back(v);
+        for (const auto* d : active) {
+            Value v = executeFunctionDecl(*d);
+            if (!v.isVoid()) collected.push_back(v);
+        }
+        // Determine target type from the first declaration.
+        const std::string& ftype0 = active.front()->node ? active.front()->node->functionType : "";
+        if (ftype0.find("array") != std::string::npos) {
+            // Flatten: if each overload returns an array, concat their elements.
+            std::vector<Value> flat;
+            for (const auto& v : collected) {
+                if (v.getType() == Value::Type::Array) {
+                    for (const auto& e : v.asArray()) flat.push_back(e);
+                } else {
+                    flat.push_back(v);
                 }
             }
-        } catch (const ReturnException& ret) {
-            // 明示的 return は収集結果より優先する
-            collected.clear();
-            collected.push_back(ret.value);
-        }
-        if (ftype == "array") {
-            result = Value(collected);
-        } else { // sequential: 連結
+            result = Value(flat);
+        } else {
             std::string s;
             for (const auto& v : collected) s += v.asString();
             result = Value(s);
-        }
-    } else {
-        try {
-            result = executeBlock(it->second->body);
-        } catch (const ReturnException& ret) {
-            result = ret.value;
-        }
-        // void 関数は本文を実行しつつ戻り値を破棄する
-        if (ftype == "void") {
-            result = Value();
         }
     }
 
@@ -332,6 +436,50 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     std::cerr << std::endl;
 
     recursion_depth_--;
+    return result;
+}
+
+// Execute one function declaration body honoring its type modifier
+// (array/sequential/void). Used both for direct and overload calls.
+Value VM::executeFunctionDecl(const FunctionDecl& decl) {
+    if (!decl.node) return Value();
+    const auto& body = decl.node->body;
+    const std::string& ftype = decl.node->functionType;
+
+    bool isArray = (ftype.find("array") != std::string::npos);
+    bool isSequential = (ftype.find("sequential") != std::string::npos);
+
+    if (isArray || isSequential) {
+        std::vector<Value> collected;
+        try {
+            for (const auto& stmt : body) {
+                Value v = executeNode(stmt);
+                if (stmt && stmt->type != AST::NodeType::Assignment && !v.isVoid()) {
+                    collected.push_back(v);
+                }
+            }
+        } catch (const ReturnException& ret) {
+            collected.clear();
+            collected.push_back(ret.value);
+        }
+        if (isArray) {
+            return Value(collected);
+        } else {
+            std::string s;
+            for (const auto& v : collected) s += v.asString();
+            return Value(s);
+        }
+    }
+
+    Value result;
+    try {
+        result = executeBlock(body);
+    } catch (const ReturnException& ret) {
+        result = ret.value;
+    }
+    if (ftype.find("void") != std::string::npos) {
+        result = Value();
+    }
     return result;
 }
 
@@ -367,7 +515,13 @@ void VM::setReferences(const std::vector<std::string>& refs) {
 }
 
 bool VM::hasFunction(const std::string& name) const {
-    return functions_.find(name) != functions_.end();
+    auto it = functions_.find(name);
+    if (it == functions_.end()) return false;
+    // Must have at least one enabled declaration.
+    for (const auto& d : it->second) {
+        if (d.enabled) return true;
+    }
+    return false;
 }
 
 Value VM::executeNode(std::shared_ptr<AST::Node> node) {
@@ -743,6 +897,41 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             
             return Value();
         }
+
+        case AST::NodeType::Case: {
+            // YAYA case/when: evaluate the case expression EXACTLY ONCE, then run the
+            // first 'when' clause whose match values contain an equal value. If none match,
+            // run the 'others'/'default' fallback. Non-selected bodies must not execute.
+            auto* caseNode = dynamic_cast<AST::CaseNode*>(node.get());
+            Value testValue = executeNode(caseNode->expression);
+
+            for (const auto& clause : caseNode->whenClauses) {
+                bool matched = false;
+                for (const auto& mv : clause->matchValues) {
+                    Value mvValue = executeNode(mv);
+                    if (testValue == mvValue) {
+                        matched = true;
+                        break;
+                    }
+                }
+                if (matched) {
+                    return executeBlock(clause->body);
+                }
+            }
+
+            // Fallback: others/default
+            if (!caseNode->othersBody.empty()) {
+                return executeBlock(caseNode->othersBody);
+            }
+            return Value();
+        }
+
+        case AST::NodeType::WhenClause: {
+            // A standalone when clause reached outside a case context: just run its body.
+            // (Standalone 'when' inside labeled blocks is handled as a passthrough here.)
+            auto* wc = dynamic_cast<AST::WhenClauseNode*>(node.get());
+            return executeBlock(wc->body);
+        }
         
         case AST::NodeType::Return: {
             auto* returnNode = dynamic_cast<AST::ReturnNode*>(node.get());
@@ -822,6 +1011,9 @@ Value VM::evaluateUnaryOp(const std::string& op, const Value& operand) {
         if (operand.isReal()) return Value(-operand.asReal());
         return Value(-operand.asInt());
     }
+    // 前置 '&'（YAYA 参照演算子）: 現状は恒等（値渡し）として評価する。
+    // これにより E.Swap(&a, &b) 等が構文・実行できる（in-place 交換にはならない）。
+    if (op == "&") return operand;
     return Value();
 }
 
@@ -902,8 +1094,7 @@ void VM::registerBuiltins() {
     // ISFUNC(funcname) - Check if function exists
     builtins_["ISFUNC"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
-        std::string funcName = args[0].asString();
-        return Value(functions_.find(funcName) != functions_.end() ? 1 : 0);
+        return Value(hasFunction(args[0].asString()) ? 1 : 0);
     };
     
     // EVAL(funcname) - Execute a function by name
@@ -928,7 +1119,7 @@ void VM::registerBuiltins() {
 
         // Single argument: Try as function call first, then as expression
         // Check if it's a known function name
-        if (functions_.find(firstArg) != functions_.end() ||
+        if (hasFunction(firstArg) ||
             builtins_.find(firstArg) != builtins_.end()) {
             return execute(firstArg, {});
         }
@@ -944,6 +1135,13 @@ void VM::registerBuiltins() {
         }
 
         if (looksLikeIdentifier) {
+            Value variableValue = getVariable(firstArg);
+            if (!variableValue.isVoid()) {
+                return variableValue;
+            }
+        }
+
+        if (looksLikeIdentifier) {
             // Try to execute as function name, even if not found
             // This handles cases where functions are called before being fully registered
             try {
@@ -953,16 +1151,25 @@ void VM::registerBuiltins() {
             }
         }
 
-        // Not a function name, parse and evaluate as expression
+        // Not a function name, parse and evaluate as an expression/statement body.
+        // Parser::parse() expects top-level dictionary functions, so wrap the
+        // snippet in a temporary function and execute its body in the current VM
+        // context. This keeps YAYA idioms like EVAL('"text %(var)"') working.
         try {
-            Lexer lexer(firstArg);
+            Lexer lexer("__eval_expr__ {\n" + firstArg + "\n}");
             Parser parser(lexer.tokenize());
-            auto nodes = parser.parse();
+            auto functions = parser.parse();
 
-            // Evaluate all nodes and return the last result
             Value result;
-            for (const auto& node : nodes) {
-                result = executeNode(node);
+            for (const auto& fn : functions) {
+                if (fn && fn->name == "__eval_expr__") {
+                    try {
+                        result = executeBlock(fn->body);
+                    } catch (const ReturnException& ret) {
+                        result = ret.value;
+                    }
+                    break;
+                }
             }
             return result;
         } catch (const std::exception& e) {
@@ -970,6 +1177,57 @@ void VM::registerBuiltins() {
             std::cerr << "[EVAL] Failed to evaluate: \"" << firstArg << "\" - " << e.what() << std::endl;
             return Value();
         }
+    };
+
+    // E.EvalEmbedValue(str) - Emily/AYA helper: expand %(expr) fragments in SakuraScript.
+    builtins_["E.EvalEmbedValue"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(std::string(""));
+        const std::string input = args[0].asString();
+        std::string output;
+        size_t pos = 0;
+
+        auto findExpressionEnd = [](const std::string& s, size_t start) -> size_t {
+            int depth = 1;
+            char quote = '\0';
+            for (size_t i = start; i < s.size(); i++) {
+                char c = s[i];
+                if (quote != '\0') {
+                    if (c == quote) quote = '\0';
+                    continue;
+                }
+                if (c == '\'' || c == '"') {
+                    quote = c;
+                } else if (c == '(') {
+                    depth++;
+                } else if (c == ')') {
+                    depth--;
+                    if (depth == 0) return i;
+                }
+            }
+            return std::string::npos;
+        };
+
+        while (pos < input.size()) {
+            size_t marker = input.find("%(", pos);
+            if (marker == std::string::npos) {
+                output += input.substr(pos);
+                break;
+            }
+
+            output += input.substr(pos, marker - pos);
+            size_t exprStart = marker + 2;
+            size_t exprEnd = findExpressionEnd(input, exprStart);
+            if (exprEnd == std::string::npos) {
+                output += input.substr(marker);
+                break;
+            }
+
+            std::string expr = input.substr(exprStart, exprEnd - exprStart);
+            output += callBuiltin("EVAL", {Value(expr)}).asString();
+            pos = exprEnd + 1;
+        }
+
+        return Value(output);
     };
     
     // ARRAYSIZE(arr) - Get array size
@@ -1585,6 +1843,10 @@ void VM::registerBuiltins() {
         }
         std::vector<Value> result;
         for (const auto& pair : functions_) {
+            // Only list names that have at least one enabled declaration.
+            bool enabled = false;
+            for (const auto& d : pair.second) if (d.enabled) { enabled = true; break; }
+            if (!enabled) continue;
             if (prefix.empty() || pair.first.compare(0, prefix.size(), prefix) == 0) {
                 result.push_back(Value(pair.first));
             }
@@ -2163,14 +2425,37 @@ void VM::registerBuiltins() {
         return Value(out);
     };
     
-    // RE_ASEARCH(array, pattern) - Array regex search (stub)
-    builtins_["RE_ASEARCH"] = [](const std::vector<Value>& args) -> Value {
+    // RE_ASEARCH(array, pattern) - Return index of first array element matching regex.
+    builtins_["RE_ASEARCH"] = [this, makeRegex](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value(-1);
+        if (args[0].getType() != Value::Type::Array) return Value(-1);
+        std::regex re;
+        try { re = makeRegex(args[1].asString()); }
+        catch (...) { return Value(-1); }
+        const auto& arr = args[0].asArray();
+        for (size_t i = 0; i < arr.size(); ++i) {
+            try {
+                if (std::regex_search(arr[i].asString(), re)) return Value(static_cast<int>(i));
+            } catch (...) {}
+        }
         return Value(-1);
     };
-    
-    // RE_ASEARCHEX(array, pattern) - Array regex search extended (stub)
-    builtins_["RE_ASEARCHEX"] = [](const std::vector<Value>& args) -> Value {
-        return Value(std::vector<Value>());
+
+    // RE_ASEARCHEX(array, pattern) - Return array of all matching element indices.
+    builtins_["RE_ASEARCHEX"] = [this, makeRegex](const std::vector<Value>& args) -> Value {
+        std::vector<Value> out;
+        if (args.size() < 2) return Value(out);
+        if (args[0].getType() != Value::Type::Array) return Value(out);
+        std::regex re;
+        try { re = makeRegex(args[1].asString()); }
+        catch (...) { return Value(out); }
+        const auto& arr = args[0].asArray();
+        for (size_t i = 0; i < arr.size(); ++i) {
+            try {
+                if (std::regex_search(arr[i].asString(), re)) out.push_back(Value(static_cast<int>(i)));
+            } catch (...) {}
+        }
+        return Value(out);
     };
     
     // ===== Encoding/Decoding Functions =====
@@ -2270,24 +2555,32 @@ void VM::registerBuiltins() {
         return Value("");
     };
     
-    // CHARSETLIB(encoding) - Set charset for library operations (stub)
-    builtins_["CHARSETLIB"] = [](const std::vector<Value>& args) -> Value {
-        return Value(1);
-    };
-    
-    // CHARSETLIBEX(encoding) - Set charset extended (stub)
-    builtins_["CHARSETLIBEX"] = [](const std::vector<Value>& args) -> Value {
-        return Value(1);
-    };
-    
-    // CHARSETTEXTTOID(text) - Convert charset name to ID (stub)
+    // CHARSETLIB/CHARSETLIBEX are registered later (Phase 8) with real state.
+
+    // CHARSETTEXTTOID(text) - Convert charset name to numeric ID (Phase 10).
     builtins_["CHARSETTEXTTOID"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        std::string n = args[0].asString();
+        std::transform(n.begin(), n.end(), n.begin(), [](unsigned char c){ return std::tolower(c); });
+        if (n == "utf-8" || n == "utf8") return Value(65001);
+        if (n == "shift_jis" || n == "shift-jis" || n == "sjis" || n == "cp932" || n == "windows-31j") return Value(932);
+        if (n == "euc-jp" || n == "eucjp") return Value(20932);
+        if (n == "iso-2022-jp" || n == "jis") return Value(50220);
+        if (n == "us-ascii" || n == "ascii") return Value(20127);
         return Value(0);
     };
-    
-    // CHARSETIDTOTEXT(id) - Convert charset ID to name (stub)
+
+    // CHARSETIDTOTEXT(id) - Convert numeric charset ID to name (Phase 10).
     builtins_["CHARSETIDTOTEXT"] = [](const std::vector<Value>& args) -> Value {
-        return Value("UTF-8");
+        if (args.empty()) return Value("UTF-8");
+        switch (args[0].asInt()) {
+            case 65001: return Value("UTF-8");
+            case 932: return Value("Shift_JIS");
+            case 20932: return Value("EUC-JP");
+            case 50220: return Value("ISO-2022-JP");
+            case 20127: return Value("US-ASCII");
+            default: return Value("UTF-8");
+        }
     };
     
     // ZEN2HAN(str) - Convert full-width ASCII/space to half-width
@@ -2306,12 +2599,20 @@ void VM::registerBuiltins() {
     
     // SAVEVAR(filename) - グローバル変数を JSON で指定ファイルへ保存する。
     // 型情報（s=文字列, i=整数, r=実数, a=配列, v=void）を保持し RESTOREVAR で復元可能にする。
+    // Phase 7: relative paths anchor under the ghost root; temp vars are excluded.
     builtins_["SAVEVAR"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         std::string filename = args[0].asString();
-        // FOPEN と同じサンドボックス（相対パスのみ、.. と絶対パス禁止）
+        // Sandbox: relative paths only, no parent traversal.
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
             return Value(0);
+        }
+        // Anchor under ghost root when available.
+        std::string full = filename;
+        if (!ghostRootPath_.empty()) {
+            std::string base = ghostRootPath_;
+            if (!base.empty() && base.back() != '/') base += '/';
+            full = base + filename;
         }
         std::function<nlohmann::json(const Value&)> toJson = [&toJson](const Value& v) -> nlohmann::json {
             nlohmann::json j;
@@ -2331,11 +2632,14 @@ void VM::registerBuiltins() {
             return j;
         };
         nlohmann::json root = nlohmann::json::object();
+        // Build a set of temp-var names to exclude from persistence.
+        std::set<std::string> excluded(tempVarNames_.begin(), tempVarNames_.end());
         for (const auto& kv : variables_) {
+            if (excluded.count(kv.first)) continue;  // registered temp vars are not persisted
             root[kv.first] = toJson(kv.second);
         }
         try {
-            std::ofstream ofs(filename, std::ios::binary | std::ios::trunc);
+            std::ofstream ofs(full, std::ios::binary | std::ios::trunc);
             if (!ofs.is_open()) return Value(0);
             ofs << root.dump();
             return Value(ofs.good() ? 1 : 0);
@@ -2350,6 +2654,12 @@ void VM::registerBuiltins() {
         std::string filename = args[0].asString();
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
             return Value(0);
+        }
+        std::string full = filename;
+        if (!ghostRootPath_.empty()) {
+            std::string base = ghostRootPath_;
+            if (!base.empty() && base.back() != '/') base += '/';
+            full = base + filename;
         }
         std::function<Value(const nlohmann::json&)> fromJson = [&fromJson](const nlohmann::json& j) -> Value {
             std::string t = j.value("t", std::string("v"));
@@ -2366,7 +2676,7 @@ void VM::registerBuiltins() {
             return Value();
         };
         try {
-            std::ifstream ifs(filename, std::ios::binary);
+            std::ifstream ifs(full, std::ios::binary);
             if (!ifs.is_open()) return Value(0);
             nlohmann::json root = nlohmann::json::parse(ifs);
             if (!root.is_object()) return Value(0);
@@ -2388,7 +2698,29 @@ void VM::registerBuiltins() {
         }
         return Value(result);
     };
-    
+
+    // REGISTERTEMPVAR(name) - Register a variable name as temporary so that
+    // SAVEVAR excludes it (mirrors yaya-dic SHIORI3FW.RegisterTempVar at the
+    // builtin level so it works even when the framework is absent).
+    builtins_["REGISTERTEMPVAR"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        std::string name = args[0].asString();
+        if (name.empty()) return Value(0);
+        if (std::find(tempVarNames_.begin(), tempVarNames_.end(), name) == tempVarNames_.end()) {
+            tempVarNames_.push_back(name);
+        }
+        return Value(1);
+    };
+    // UNREGISTERTEMPVAR(name) - Remove a name from the temp-var set.
+    builtins_["UNREGISTERTEMPVAR"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        std::string name = args[0].asString();
+        auto it = std::find(tempVarNames_.begin(), tempVarNames_.end(), name);
+        if (it == tempVarNames_.end()) return Value(0);
+        tempVarNames_.erase(it);
+        return Value(1);
+    };
+
     // LOGGING(message) - Log message (stub - just returns success)
     builtins_["LOGGING"] = [](const std::vector<Value>& args) -> Value {
         return Value(1);
@@ -2420,25 +2752,51 @@ void VM::registerBuiltins() {
         return Value(0);
     };
     
-    // ISEVALUABLE(str) - Check if string is evaluable (stub)
-    builtins_["ISEVALUABLE"] = [](const std::vector<Value>& args) -> Value {
+    // ISEVALUABLE(str) - Check if string is evaluable (Phase 10).
+    // Returns 1 only if the string parses as a complete expression with no
+    // trailing tokens. A bare function name or variable is also evaluable.
+    builtins_["ISEVALUABLE"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
-        return Value(1);
+        std::string s = args[0].asString();
+        if (s.empty()) return Value(0);
+        // A bare function name or variable is evaluable.
+        if (hasFunction(s) || builtins_.find(s) != builtins_.end()) return Value(1);
+        // Parse as a single expression; require full consumption.
+        try {
+            Lexer lexer(s);
+            Parser parser(lexer.tokenize());
+            std::string err;
+            return Value(parser.parseExpressionOnly(err) ? 1 : 0);
+        } catch (...) {
+            return Value(0);
+        }
     };
     
-    // DICLOAD(filename) - Load dictionary file (stub)
-    builtins_["DICLOAD"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
+    // DICLOAD(filename) - Load dictionary file at runtime (Phase 6).
+    // Resolves under ghost/master through the DictionaryManager callback.
+    builtins_["DICLOAD"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 1; return Value(0); }
+        if (!callback_) { lastError_ = 1; return Value(0); }
+        std::string path = args[0].asString();
+        std::string encoding = (args.size() >= 2) ? args[1].asString() : "";
+        bool ok = callback_->dicLoad(path, encoding);
+        if (!ok) lastError_ = 1;
+        return Value(ok ? 1 : 0);
+    };
+
+    // DICUNLOAD(filename) - Unload dictionary file at runtime (Phase 6).
+    builtins_["DICUNLOAD"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 1; return Value(0); }
+        if (!callback_) { lastError_ = 1; return Value(0); }
+        bool ok = callback_->dicUnload(args[0].asString());
+        if (!ok) lastError_ = 1;
+        return Value(ok ? 1 : 0);
     };
     
-    // DICUNLOAD(filename) - Unload dictionary file (stub)
-    builtins_["DICUNLOAD"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
-    };
-    
-    // UNDEFFUNC(funcname) - Undefine function (stub)
-    builtins_["UNDEFFUNC"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
+    // UNDEFFUNC(funcname) - Disable all declarations of a function (Phase 5/6).
+    builtins_["UNDEFFUNC"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        return Value(undefFunction(args[0].asString()) ? 1 : 0);
     };
     
     // ===== Additional System/Utility Functions =====
@@ -2561,48 +2919,73 @@ void VM::registerBuiltins() {
         return Value(1);
     };
     
-    // GETSETTING(key) - Get setting (stub)
-    builtins_["GETSETTING"] = [](const std::vector<Value>& args) -> Value {
-        return Value("");
+    // GETSETTING(key) - Get setting value (Phase 7).
+    builtins_["GETSETTING"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        auto it = settings_.find(args[0].asString());
+        return (it != settings_.end()) ? it->second : Value("");
     };
-    
-    // SETSETTING(key, value) - Set setting (stub)
-    builtins_["SETSETTING"] = [](const std::vector<Value>& args) -> Value {
+
+    // SETSETTING(key, value) - Set setting value (Phase 7).
+    builtins_["SETSETTING"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value(0);
+        settings_[args[0].asString()] = args[1];
         return Value(1);
     };
-    
-    // GETLASTERROR() - Get last error code
-    builtins_["GETLASTERROR"] = [](const std::vector<Value>& args) -> Value {
+
+    // GETLASTERROR() - Get last error code (Phase 7).
+    builtins_["GETLASTERROR"] = [this](const std::vector<Value>& args) -> Value {
         (void)args;
-        return Value(0);
+        return Value(lastError_);
     };
-    
-    // SETLASTERROR(code) - Set last error code
-    builtins_["SETLASTERROR"] = [](const std::vector<Value>& args) -> Value {
+
+    // SETLASTERROR(code) - Set last error code (Phase 7).
+    builtins_["SETLASTERROR"] = [this](const std::vector<Value>& args) -> Value {
+        lastError_ = args.empty() ? 0 : args[0].asInt();
+        if (args.size() >= 2) lastErrorDesc_ = args[1].asString();
         return Value(1);
     };
-    
-    // GETERRORLOG() - Get error log (stub)
-    builtins_["GETERRORLOG"] = [](const std::vector<Value>& args) -> Value {
+
+    // GETERRORLOG() - Get accumulated error log (Phase 7/10).
+    builtins_["GETERRORLOG"] = [this](const std::vector<Value>& args) -> Value {
         (void)args;
-        return Value("");
+        std::string s;
+        for (size_t i = 0; i < errorLog_.size(); ++i) {
+            if (i) s += "\n";
+            s += errorLog_[i];
+        }
+        return Value(s);
     };
-    
+
     // CLEARERRORLOG() - Clear error log
-    builtins_["CLEARERRORLOG"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["CLEARERRORLOG"] = [this](const std::vector<Value>& args) -> Value {
         (void)args;
+        errorLog_.clear();
+        lastError_ = 0;
+        lastErrorDesc_.clear();
         return Value(1);
     };
-    
-    // GETCALLSTACK() - Get call stack (stub)
-    builtins_["GETCALLSTACK"] = [](const std::vector<Value>& args) -> Value {
+
+    // GETCALLSTACK() - Get call stack (Phase 10). Returns array of active frames
+    // (best-effort: reports current recursion depth).
+    builtins_["GETCALLSTACK"] = [this](const std::vector<Value>& args) -> Value {
         (void)args;
-        return Value(std::vector<Value>());
+        return Value(std::vector<Value>{Value(recursion_depth_)});
     };
     
-    // GETFUNCINFO(funcname) - Get function information (stub)
-    builtins_["GETFUNCINFO"] = [](const std::vector<Value>& args) -> Value {
-        return Value("");
+    // GETFUNCINFO(funcname) - Get function information (Phase 5).
+    // Returns: array [type, overload_count, source_id] or empty if not found.
+    builtins_["GETFUNCINFO"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(std::vector<Value>{});
+        auto it = functions_.find(args[0].asString());
+        if (it == functions_.end() || it->second.empty()) return Value(std::vector<Value>{});
+        std::vector<Value> info;
+        info.push_back(Value(it->second.front().node ? it->second.front().node->functionType : ""));
+        int enabled = 0;
+        for (const auto& d : it->second) if (d.enabled) enabled++;
+        info.push_back(Value(enabled));
+        info.push_back(Value(it->second.front().sourceId));
+        return Value(info);
     };
     
     // LOADLIB(filename) - Load SAORI library
@@ -2629,25 +3012,134 @@ void VM::registerBuiltins() {
         return Value(ok ? 1 : 0);
     };
     
-    // REQUESTLIB(filename, request_text) - Request from SAORI library
+    // REQUESTLIB(filename, request_text[, charset]) - Request from SAORI library.
+    // Phase 8: parses the SAORI HTTP-like response, sets Result as the return value,
+    // and stores extra Value0/Value1... in valueex (accessible via valueex builtin).
     builtins_["REQUESTLIB"] = [this](const std::vector<Value>& args) -> Value {
+        saoriValueex_.clear();
         if (args.size() < 2) return Value("");
         if (!callback_) return Value("");
+
+        std::string charset = !saoriCharset_.empty() ? saoriCharset_
+                            : ((args.size() >= 3) ? args[2].asString() : std::string("UTF-8"));
 
         nlohmann::json params;
         params["module"] = args[0].asString();
         params["request"] = args[1].asString();
-        params["charset"] = (args.size() >= 3) ? args[2].asString() : "UTF-8";
+        params["charset"] = charset;
 
         auto result = callback_->pluginOperation("saori_request", params);
         bool ok = result.value("ok", false);
-        if (!ok) return Value("");
-
-        if (result.contains("response") && result["response"].is_string()) {
-            return Value(result["response"].get<std::string>());
+        if (!ok) {
+            lastError_ = result.value("status", 1);
+            return Value("");
         }
-        return Value("");
+
+        std::string responseText;
+        if (result.contains("response") && result["response"].is_string()) {
+            responseText = result["response"].get<std::string>();
+        } else if (result.contains("result") && result["result"].is_string()) {
+            responseText = result["result"].get<std::string>();
+        }
+
+        // The host may return a pre-parsed Result directly; prefer it when present.
+        if (result.contains("result") && result["result"].is_string()) {
+            std::string res = result["result"].get<std::string>();
+            // Still collect extras if the host provided them.
+            if (result.contains("values") && result["values"].is_array()) {
+                for (const auto& v : result["values"]) {
+                    saoriValueex_.push_back(Value(v.is_string() ? v.get<std::string>()
+                                                                : v.dump()));
+                }
+            }
+            return Value(res);
+        }
+
+        // Parse the raw SAORI response: "SAORI/1.0 200 OK\r\nResult: ...\r\nValue0: ...\r\n\r\n"
+        std::string resultValue;
+        std::map<std::string, std::string> headers;
+        {
+            // Normalize CRLF parsing
+            size_t lineStart = 0;
+            bool firstLine = true;
+            while (lineStart <= responseText.size()) {
+                size_t lineEnd = responseText.find("\r\n", lineStart);
+                std::string line;
+                if (lineEnd == std::string::npos) {
+                    line = responseText.substr(lineStart);
+                    lineStart = responseText.size() + 1;
+                } else {
+                    line = responseText.substr(lineStart, lineEnd - lineStart);
+                    lineStart = lineEnd + 2;
+                }
+                if (line.empty()) break;
+                if (firstLine) { firstLine = false; continue; }
+                auto colon = line.find(':');
+                if (colon == std::string::npos) continue;
+                std::string key = line.substr(0, colon);
+                std::string val = line.substr(colon + 1);
+                if (!val.empty() && val.front() == ' ') val.erase(0, 1);
+                headers[key] = val;
+            }
+        }
+
+        auto itResult = headers.find("Result");
+        if (itResult != headers.end()) {
+            resultValue = itResult->second;
+        }
+        // Collect Value0, Value1, ... in numeric order.
+        for (int i = 0; ; ++i) {
+            auto it = headers.find("Value" + std::to_string(i));
+            if (it == headers.end()) break;
+            saoriValueex_.push_back(Value(it->second));
+        }
+        return Value(resultValue);
     };
+
+    // CHARSETLIB(charset) - Set the default charset used for subsequent SAORI requests.
+    builtins_["CHARSETLIB"] = [this](const std::vector<Value>& args) -> Value {
+        if (!args.empty()) saoriCharset_ = args[0].asString();
+        return Value(1);
+    };
+
+    // CHARSETLIBEX(charset) - Extended charset selection (Phase 8).
+    builtins_["CHARSETLIBEX"] = [this](const std::vector<Value>& args) -> Value {
+        if (!args.empty()) saoriCharset_ = args[0].asString();
+        return Value(1);
+    };
+
+    // valueex() - Array of extra SAORI return values from the last REQUESTLIB.
+    builtins_["valueex"] = [this](const std::vector<Value>& args) -> Value {
+        (void)args;
+        return Value(saoriValueex_);
+    };
+
+    // valueexN accessors (valueex0, valueex1, ...)
+    auto makeValueexN = [this](int n) -> std::function<Value(const std::vector<Value>&)> {
+        return [this, n](const std::vector<Value>&) -> Value {
+            if (n < static_cast<int>(saoriValueex_.size())) return saoriValueex_[n];
+            return Value("");
+        };
+    };
+    for (int i = 0; i < 16; ++i) {
+        builtins_["valueex" + std::to_string(i)] = makeValueexN(i);
+    }
+
+    // FUNCTIONLOAD(path) / FUNCTIONEX(path, args...) / SAORI(path, args...) - yaya-dic SAORI wrappers.
+    // These mirror the standard yaya_base helpers so ghosts that call them directly still work.
+    builtins_["FUNCTIONLOAD"] = builtins_["LOADLIB"];
+    builtins_["FUNCTIONEX"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        // Build a SAORI/1.0 request from the argument list.
+        std::string req = "EXECUTE SAORI/1.0\r\nCharset: UTF-8\r\n";
+        for (size_t i = 1; i < args.size(); ++i) {
+            req += "Argument" + std::to_string(i - 1) + ": " + args[i].asString() + "\r\n";
+        }
+        req += "\r\n";
+        std::vector<Value> libArgs = { args[0], Value(req) };
+        return builtins_["REQUESTLIB"](libArgs);
+    };
+    builtins_["SAORI"] = builtins_["FUNCTIONEX"];
     
     // GETTYPEEX(value) - Get extended type information
     builtins_["GETTYPEEX"] = [](const std::vector<Value>& args) -> Value {
@@ -2681,45 +3173,84 @@ void VM::registerBuiltins() {
     
     // ===== Advanced/Undocumented Functions =====
     
-    // ISGLOBALDEFINE(name) - Check if global define exists (stub)
-    builtins_["ISGLOBALDEFINE"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
+    // ISGLOBALDEFINE(name) - Check if a runtime global define exists (Phase 10).
+    builtins_["ISGLOBALDEFINE"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        return Value(globalDefines_.find(args[0].asString()) != globalDefines_.end() ? 1 : 0);
     };
-    
-    // SETGLOBALDEFINE(name, value) - Set global define (stub)
-    builtins_["SETGLOBALDEFINE"] = [](const std::vector<Value>& args) -> Value {
+
+    // SETGLOBALDEFINE(name, value) - Register a runtime global define (Phase 10).
+    builtins_["SETGLOBALDEFINE"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value(0);
+        globalDefines_[args[0].asString()] = args[1].asString();
         return Value(1);
     };
-    
-    // UNDEFGLOBALDEFINE(name) - Undefine global define (stub)
-    builtins_["UNDEFGLOBALDEFINE"] = [](const std::vector<Value>& args) -> Value {
-        return Value(1);
+
+    // UNDEFGLOBALDEFINE(name) - Remove a runtime global define (Phase 10).
+    builtins_["UNDEFGLOBALDEFINE"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        return Value(globalDefines_.erase(args[0].asString()) > 0 ? 1 : 0);
     };
-    
-    // PROCESSGLOBALDEFINE(str) - Process global defines (stub)
-    builtins_["PROCESSGLOBALDEFINE"] = [](const std::vector<Value>& args) -> Value {
+
+    // PROCESSGLOBALDEFINE(str) - Apply runtime global defines to a string (Phase 10).
+    builtins_["PROCESSGLOBALDEFINE"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
-        return args[0];
+        std::string s = args[0].asString();
+        if (globalDefines_.empty()) return Value(s);
+        // Replace whole-word occurrences of each define name.
+        for (const auto& kv : globalDefines_) {
+            std::string out;
+            size_t pos = 0;
+            while (pos < s.size()) {
+                size_t found = s.find(kv.first, pos);
+                if (found == std::string::npos) { out += s.substr(pos); break; }
+                out += s.substr(pos, found - pos);
+                out += kv.second;
+                pos = found + kv.first.size();
+            }
+            s = out;
+        }
+        return Value(s);
     };
     
-    // APPEND_RUNTIME_DIC(code) - Append runtime dictionary (stub)
-    builtins_["APPEND_RUNTIME_DIC"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
+    // APPEND_RUNTIME_DIC(code) - Append runtime dictionary (Phase 6).
+    // Parse code as a synthetic dictionary and register its functions.
+    builtins_["APPEND_RUNTIME_DIC"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 1; return Value(0); }
+        try {
+            Lexer lexer(args[0].asString());
+            Parser parser(lexer.tokenize());
+            auto functions = parser.parse();
+            beginSource("__runtime__");
+            for (const auto& func : functions) {
+                registerFunction(func->name, func);
+            }
+            return Value(1);
+        } catch (const std::exception& e) {
+            lastError_ = 1;
+            lastErrorDesc_ = e.what();
+            errorLog_.push_back("APPEND_RUNTIME_DIC: " + std::string(e.what()));
+            return Value(0);
+        }
     };
-    
-    // FUNCDECL_READ(funcname) - Read function declaration (stub)
-    builtins_["FUNCDECL_READ"] = [](const std::vector<Value>& args) -> Value {
-        return Value("");
+
+    // FUNCDECL_READ(funcname) - Read function declaration metadata (Phase 5).
+    builtins_["FUNCDECL_READ"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        std::string decl;
+        return Value(funcDeclRead(args[0].asString(), decl) ? decl : "");
     };
-    
-    // FUNCDECL_WRITE(funcname, decl) - Write function declaration (stub)
-    builtins_["FUNCDECL_WRITE"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
+
+    // FUNCDECL_WRITE(funcname, decl) - Write function declaration metadata (Phase 5).
+    builtins_["FUNCDECL_WRITE"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value(0);
+        return Value(funcDeclWrite(args[0].asString(), args[1].asString()) ? 1 : 0);
     };
-    
-    // FUNCDECL_ERASE(funcname) - Erase function declaration (stub)
-    builtins_["FUNCDECL_ERASE"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
+
+    // FUNCDECL_ERASE(funcname) - Erase function declaration (Phase 5).
+    builtins_["FUNCDECL_ERASE"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(0);
+        return Value(funcDeclErase(args[0].asString()) ? 1 : 0);
     };
     
     // OUTPUTNUM(format, number) - Format number output (stub)

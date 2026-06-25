@@ -21,6 +21,10 @@ public:
     
     // Plugin/SAORI operations
     virtual nlohmann::json pluginOperation(const std::string& op, const nlohmann::json& params) = 0;
+
+    // Dynamic dictionary operations (Phase 6). Returns success flag.
+    virtual bool dicLoad(const std::string& relativePath, const std::string& encoding) { (void)relativePath; (void)encoding; return false; }
+    virtual bool dicUnload(const std::string& relativePath) { (void)relativePath; return false; }
 };
 
 class VM {
@@ -29,10 +33,33 @@ public:
     
     // Set callback for host operations
     void setCallback(VMCallback* callback) { callback_ = callback; }
-    
-    // Register a function
+
+    /// One function declaration within the (possibly overloaded) registry.
+    struct FunctionDecl {
+        std::shared_ptr<AST::FunctionNode> node;
+        int sourceId = 0;           // owning dictionary source id (0 = builtin/core)
+        int declarationOrder = 0;   // global load order (stable iteration)
+        bool enabled = true;        // toggled by UNDEFFUNC
+        bool nonoverload = false;   // YAYA `nonoverload` attribute
+        bool isWhen = false;        // YAYA `when` attribute
+    };
+
+    // Begin a new parse/load scope; functions registered afterwards belong to `sourceId`.
+    // Returns the new source id. If sourceName is non-empty it is recorded for DICUNLOAD.
+    int beginSource(const std::string& sourceName = "");
+    // Register a function (attaches to the current source scope).
     void registerFunction(const std::string& name, std::shared_ptr<AST::FunctionNode> func);
-    
+    // Unregister every declaration owned by `sourceId` (DICUNLOAD).
+    void unloadSource(int sourceId);
+    // Find the source id whose name matches (DICUNLOAD by filename). Returns -1 if not found.
+    int findSource(const std::string& sourceName) const;
+    // Disable all enabled declarations of a function name (UNDEFFUNC).
+    bool undefFunction(const std::string& name);
+    // Read/modify declaration metadata (FUNCDECL_*).
+    bool funcDeclRead(const std::string& name, std::string& out) const;
+    bool funcDeclWrite(const std::string& name, const std::string& decl);
+    bool funcDeclErase(const std::string& name);
+
     // Execute a function by name
     Value execute(const std::string& functionName, const std::vector<Value>& args);
     
@@ -45,11 +72,20 @@ public:
 
     // Check if a function is registered
     bool hasFunction(const std::string& name) const;
+
+    // Set the ghost root path used to anchor relative persistence/DICLOAD paths.
+    void setGhostRootPath(const std::string& path) { ghostRootPath_ = path; }
+    std::string getGhostRootPath() const { return ghostRootPath_; }
     
 private:
     VMCallback* callback_ = nullptr;
-    // Function registry
-    std::map<std::string, std::shared_ptr<AST::FunctionNode>> functions_;
+    // Function registry: supports multiple declarations per name (YAYA overload).
+    std::map<std::string, std::vector<FunctionDecl>> functions_;
+    // Source-id management for dictionary ownership (DICLOAD/DICUNLOAD).
+    int nextSourceId_ = 1;
+    int currentSourceId_ = 0;
+    std::map<int, std::string> sourceNames_;
+    int nextDeclarationOrder_ = 0;
 
     // Variable storage (global variables)
     std::map<std::string, Value> variables_;
@@ -62,6 +98,21 @@ private:
 
     // SHIORI reference values
     std::vector<Value> references_;
+
+    // Persistence/settings (Phase 7)
+    std::string ghostRootPath_;                          // base dir for SAVEVAR/RESTOREVAR/DICLOAD
+    std::map<std::string, Value> settings_;              // GETSETTING/SETSETTING store
+    std::vector<std::string> tempVarNames_;              // SHIORI3FW.RegisterTempVar (not persisted)
+    int lastError_ = 0;                                   // GETLASTERROR/SETLASTERROR
+    std::string lastErrorDesc_;                           // optional last error description
+    std::vector<std::string> errorLog_;                   // GETERRORLOG/CLEARERRORLOG
+
+    // SAORI multi-value response storage (Phase 8): last REQUESTLIB extras.
+    std::vector<Value> saoriValueex_;                     // valueex0, valueex1, ...
+    std::string saoriCharset_;                            // CHARSETLIB default charset
+
+    // Runtime global defines (Phase 10): name → replacement text.
+    std::map<std::string, std::string> globalDefines_;
 
     // Built-in functions
     std::map<std::string, std::function<Value(const std::vector<Value>&)>> builtins_;
@@ -95,6 +146,9 @@ private:
     // Execution helpers
     Value executeNode(std::shared_ptr<AST::Node> node);
     Value executeBlock(const std::vector<std::shared_ptr<AST::Node>>& statements);
+    // Execute a single function declaration body honoring its type modifier (array/sequential/void).
+    // Used both for direct calls and overload concatenation.
+    Value executeFunctionDecl(const FunctionDecl& decl);
     Value evaluateBinaryOp(const std::string& op, const Value& left, const Value& right);
     Value evaluateUnaryOp(const std::string& op, const Value& operand);
     Value callBuiltin(const std::string& name, const std::vector<Value>& args);
