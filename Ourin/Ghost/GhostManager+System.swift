@@ -172,17 +172,23 @@ extension GhostManager {
         }
         let bridge = OurinPluginEventBridge(
             registry: registry,
-            runScript: { [weak self] script in
+            runScript: { [weak self] action in
+                guard let script = action.script else { return }
                 DispatchQueue.main.async {
-                    self?.sakuraEngine.run(script: script)
+                    if action.scriptOptions.contains("nobreak") {
+                        self?.runNotifyScript(script)
+                    } else {
+                        self?.runScript(script)
+                    }
                 }
             },
-            emitEvent: { eventName, refs in
-                if let eventID = EventID(rawValue: eventName) {
-                    EventBridge.shared.notify(eventID, params: refs)
-                } else {
-                    EventBridge.shared.notifyCustom(eventName, params: refs)
-                }
+            emitEvent: { action in
+                guard let eventName = action.eventName else { return false }
+                return EventBridge.shared.dispatchPluginResponseEvent(
+                    eventName,
+                    params: action.references,
+                    notifyOnly: action.sendsEventAsNotify
+                )
             }
         )
         bridge.dispatch(pluginSpec: pluginSpec, event: event, references: references, notifyOnly: notifyOnly)
@@ -1471,16 +1477,16 @@ extension GhostManager {
         guard lowered == "shiori" || lowered == "makoto" else { return }
         guard yayaAdapter == nil else { return }
         let ghostRoot = ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
-        let dics = (try? FileManager.default.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil))?
+        let dicEntries = (try? FileManager.default.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil))?
             .filter { $0.pathExtension.lowercased() == "dic" }
-            .map(\.lastPathComponent) ?? []
+            .map { DicEntry(path: $0.lastPathComponent, encoding: nil, sourceConfig: "(reload)", sourceLine: 0) } ?? []
         guard let adapter = YayaAdapter() else {
             EventBridge.shared.notifyCustom("OnShioriLoadFailure", params: ["Reference0": lowered])
             return
         }
-        if adapter.load(ghostRoot: ghostRoot, dics: dics) {
+        if adapter.load(ghostRoot: ghostRoot, dicEntries: dicEntries) {
             yayaAdapter = adapter
-            EventBridge.shared.notifyCustom("OnShioriLoaded", params: ["Reference0": lowered, "Reference1": String(dics.count)])
+            EventBridge.shared.notifyCustom("OnShioriLoaded", params: ["Reference0": lowered, "Reference1": String(dicEntries.count)])
         } else {
             EventBridge.shared.notifyCustom("OnShioriLoadFailure", params: ["Reference0": lowered])
         }

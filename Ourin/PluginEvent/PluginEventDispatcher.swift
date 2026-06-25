@@ -21,11 +21,11 @@ final class PluginEventDispatcher {
     /// プラグインが Script を返したときにホスト側で実行させるためのコールバック。
     /// 構築側（AppDelegate 等）が `sakuraEngine.run(script:)` 等へ配線する。
     /// TODO: host wires onScript (see OurinApp.swift / GhostManager+System.swift:175-179)
-    var onScript: ((String) -> Void)?
+    var onScript: ((String, Set<String>) -> Void)?
     /// プラグインが Event を返したときにホスト側へ再ディスパッチさせるためのコールバック。
     /// 構築側が `EventBridge.notify(_:params:)` 等へ配線する。
     /// TODO: host wires onEmitEvent (see GhostManager+System.swift:180-186)
-    var onEmitEvent: ((String, [String: String]) -> Void)?
+    var onEmitEvent: ((String, [String: String], Set<String>) -> Bool)?
 
     /// プラグインへワイヤテキストを送信する。XPC 分離が有効なら別プロセスのワーカーへ、
     /// それ以外は従来通りインプロセス（CFBundle ロード）で実行する。
@@ -122,12 +122,17 @@ final class PluginEventDispatcher {
             logger.debug("ignored target: \(action.target ?? "nil") from \(plugin.bundle.bundleURL.lastPathComponent)")
             return
         }
-        if let script = action.script {
-            onScript?(script)
-        }
-        if let eventName = action.eventName {
-            onEmitEvent?(eventName, action.references)
-        }
+        OurinPluginEventBridge.deliver(
+            action,
+            runScript: { action in
+                guard let script = action.script else { return }
+                onScript?(script, action.scriptOptions)
+            },
+            emitEvent: { action in
+                guard let eventName = action.eventName else { return false }
+                return onEmitEvent?(eventName, action.references, action.eventOptions) ?? false
+            }
+        )
     }
 
     /// version イベントを全プラグインへ送信し応答を受け取る
@@ -151,7 +156,7 @@ final class PluginEventDispatcher {
     // MARK: - Catalog events
     /// インストール済みプラグイン一覧を通知
     func notifyInstalledPlugin() {
-        let list = registry.metas.values.map { "\($0.name),\($0.id)" }
+        let list = registry.allMetas.map { "\($0.name),\($0.id)" }
         sendFrame(id: "installedplugin", refs: [ListDelimiter.join(list)], notify: true)
     }
 
@@ -165,6 +170,8 @@ final class PluginEventDispatcher {
     func notifyGhostPathList(paths: [String]) { notifyPathList(id: "ghostpathlist", paths: paths) }
     func notifyBalloonPathList(paths: [String]) { notifyPathList(id: "balloonpathlist", paths: paths) }
     func notifyHeadlinePathList(paths: [String]) { notifyPathList(id: "headlinepathlist", paths: paths) }
+    func notifyCalendarSkinPathList(paths: [String]) { notifyPathList(id: "calendarskinpathlist", paths: paths) }
+    func notifyCalendarPluginPathList(paths: [String]) { notifyPathList(id: "calendarpluginpathlist", paths: paths) }
 
     func notifyInstalledGhostName(names0: [String], names1: [String], names2: [String]) {
         let r0 = ListDelimiter.join(names0)

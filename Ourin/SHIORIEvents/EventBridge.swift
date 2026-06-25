@@ -245,6 +245,17 @@ final class EventBridge {
         broadcastNotifyCustom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
     }
 
+    /// PLUGIN/2.0 `Event` 応答をゴーストへ橋渡しする。
+    /// `EventOption: notify` の場合は NOTIFY、未指定なら GET として送り、ゴーストが返したスクリプトを再生する。
+    @discardableResult
+    func dispatchPluginResponseEvent(_ eventName: String, params: [String:String] = [:], notifyOnly: Bool = false, security: ShioriSecurityContext = .local) -> Bool {
+        if notifyOnly {
+            broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: true, security: security)
+            return !sessions.isEmpty
+        }
+        return broadcastGetCustomImmediate(eventName: eventName, params: params, security: security)
+    }
+
     // Broadcast a NOTIFY to all registered sessions
     // If auto events are disabled, queue the event for later delivery
     private func broadcastNotify(id: EventID, params: [String:String], security: ShioriSecurityContext = .local) {
@@ -271,6 +282,12 @@ final class EventBridge {
 
     // 時刻系イベント: Reference3（トーク再生可否）に応じて GET / NOTIFY を切り替える（UKADOC）
     private static let timeSignalEvents: Set<EventID> = [.OnSecondChange, .OnMinuteChange, .OnHourTimeSignal]
+
+    // ユーザー操作で会話を返しうるイベントは GET で問い合わせる。
+    private static let mouseTalkEvents: Set<EventID> = [
+        .OnMouseClick, .OnMouseClickEx, .OnMouseDoubleClick, .OnMouseDoubleClickEx,
+        .OnMouseMultipleClick, .OnMouseMultipleClickEx
+    ]
 
     // \t タイムクリティカルセクション中に通知を抑止するマウス系イベント（UKADOC: \t）
     private static let mouseEvents: Set<EventID> = [
@@ -324,6 +341,15 @@ final class EventBridge {
             if Self.mouseEvents.contains(id), s.ghostManager?.timeCriticalActive == true {
                 continue
             }
+            if Self.mouseTalkEvents.contains(id) {
+                let script = s.dispatcher.sendGet(id: id, params: params, security: security)
+                let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    let gm = s.ghostManager
+                    DispatchQueue.main.async { gm?.runScript(trimmed) }
+                }
+                continue
+            }
             s.dispatcher.sendNotify(id: id, params: params, security: security)
         }
     }
@@ -333,6 +359,22 @@ final class EventBridge {
         for (_, s) in sessions {
             s.dispatcher.sendNotifyCustom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
         }
+    }
+
+    // Immediately broadcast a custom GET and play any returned script.
+    @discardableResult
+    private func broadcastGetCustomImmediate(eventName: String, params: [String:String], security: ShioriSecurityContext = .local) -> Bool {
+        var producedScript = false
+        for (_, s) in sessions {
+            let script = s.dispatcher.sendGetCustom(eventName: eventName, params: params, security: security)
+            let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty {
+                producedScript = true
+                let gm = s.ghostManager
+                DispatchQueue.main.async { gm?.runScript(trimmed) }
+            }
+        }
+        return producedScript
     }
 }
 
@@ -458,6 +500,23 @@ final class ShioriDispatcher {
         if !trimmed.isEmpty {
             DispatchQueue.main.async { self.ghostManager?.runNotifyScript(trimmed) }
         }
+    }
+
+    /// BridgeToSHIORI 経由でカスタム名の GET を送出し応答を返す（PLUGIN/2.0 Event 応答用）
+    func sendGetCustom(eventName: String, params: [String:String], security: ShioriSecurityContext = .local) -> String {
+        let req = buildRequest(method: "GET", id: eventName, params: params)
+        let refs = orderedRefs(from: params)
+        let hdrs = security.shioriHeaders()
+        var res = ""
+        if let ya = yayaAdapter {
+            if let r = ya.request(method: "GET", id: eventName, headers: hdrs, refs: refs, timeout: 3.0), r.ok, let val = r.value {
+                res = val
+            }
+        } else {
+            res = BridgeToSHIORI.handle(event: eventName, references: refs, headers: hdrs)
+        }
+        Log.debug("[Ourin] Custom GET built:\n\(req)")
+        return res
     }
 
     /// BridgeToSHIORI 経由で SHIORI モジュールへ GET を送出し応答を返す

@@ -3,19 +3,25 @@ import Foundation
 struct PluginTransportAction {
     let target: String?
     let script: String?
+    let scriptOptions: Set<String>
     let eventName: String?
+    let eventOptions: Set<String>
     let references: [String: String]
+
+    var sendsEventAsNotify: Bool {
+        eventOptions.contains("notify")
+    }
 }
 
 final class OurinPluginEventBridge {
     private let registry: PluginRegistry
-    private let runScript: (String) -> Void
-    private let emitEvent: (String, [String: String]) -> Void
+    private let runScript: (PluginTransportAction) -> Void
+    private let emitEvent: (PluginTransportAction) -> Bool
 
     init(
         registry: PluginRegistry,
-        runScript: @escaping (String) -> Void,
-        emitEvent: @escaping (String, [String: String]) -> Void
+        runScript: @escaping (PluginTransportAction) -> Void,
+        emitEvent: @escaping (PluginTransportAction) -> Bool
     ) {
         self.registry = registry
         self.runScript = runScript
@@ -64,12 +70,7 @@ final class OurinPluginEventBridge {
                     Log.debug("[PluginEventBridge] ignored target: \(action.target ?? "nil")")
                     continue
                 }
-                if let script = action.script {
-                    runScript(script)
-                }
-                if let eventName = action.eventName {
-                    emitEvent(eventName, action.references)
-                }
+                Self.deliver(action, runScript: runScript, emitEvent: emitEvent)
             } catch {
                 Log.info("[PluginEventBridge] dispatch failed (\(event)): \(error)")
             }
@@ -80,7 +81,17 @@ final class OurinPluginEventBridge {
         guard let target else { return true }
         let normalized = target.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if normalized.isEmpty { return true }
-        return ["self", "ghost", "baseware", "ourin"].contains(normalized)
+        return [
+            "self",
+            "ghost",
+            "baseware",
+            "ourin",
+            "__system_all_ghost__",
+            "system_all_ghost",
+            "systemany",
+            "any",
+            "all"
+        ].contains(normalized)
     }
 
     static func transportAction(from response: PluginResponse, notifyOnly: Bool) -> PluginTransportAction? {
@@ -88,7 +99,7 @@ final class OurinPluginEventBridge {
         let scriptSource = response.script ?? response.value ?? ""
         let script = scriptSource.trimmingCharacters(in: .whitespacesAndNewlines)
         let refs = references(from: response.otherHeaders)
-        let eventName = response.otherHeaders.first(where: { $0.key.caseInsensitiveCompare("Event") == .orderedSame })?.value
+        let eventName = headerValue("Event", in: response.otherHeaders)?
             .trimmingCharacters(in: .whitespacesAndNewlines)
         if script.isEmpty && (eventName == nil || eventName?.isEmpty == true) {
             return nil
@@ -96,15 +107,54 @@ final class OurinPluginEventBridge {
         return PluginTransportAction(
             target: response.target,
             script: script.isEmpty ? nil : script,
+            scriptOptions: optionSet(response.scriptOption),
             eventName: eventName?.isEmpty == true ? nil : eventName,
+            eventOptions: optionSet(response.eventOption),
             references: refs
         )
     }
 
     static func references(from headers: [String: String]) -> [String: String] {
         headers.reduce(into: [String: String]()) { acc, pair in
-            guard pair.key.lowercased().starts(with: "reference") else { return }
-            acc[pair.key] = pair.value
+            guard let index = referenceIndex(of: pair.key) else { return }
+            acc["Reference\(index)"] = pair.value
         }
+    }
+
+    @discardableResult
+    static func deliver(
+        _ action: PluginTransportAction,
+        runScript: (PluginTransportAction) -> Void,
+        emitEvent: (PluginTransportAction) -> Bool
+    ) -> Bool {
+        var eventProducedScript = false
+        if action.eventName != nil {
+            eventProducedScript = emitEvent(action)
+        }
+        if let script = action.script, !script.isEmpty, !eventProducedScript, !action.sendsEventAsNotify {
+            runScript(action)
+            return true
+        }
+        return eventProducedScript || action.eventName != nil
+    }
+
+    private static func headerValue(_ name: String, in headers: [String: String]) -> String? {
+        headers.first { $0.key.caseInsensitiveCompare(name) == .orderedSame }?.value
+    }
+
+    private static func referenceIndex(of key: String) -> Int? {
+        let lower = key.lowercased()
+        guard lower.starts(with: "reference") else { return nil }
+        return Int(lower.dropFirst("reference".count))
+    }
+
+    private static func optionSet(_ value: String?) -> Set<String> {
+        guard let value else { return [] }
+        let separators = CharacterSet(charactersIn: ", \t\r\n")
+        return Set(
+            value.components(separatedBy: separators)
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+                .filter { !$0.isEmpty }
+        )
     }
 }

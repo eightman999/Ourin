@@ -119,9 +119,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
         // 共有メモリの存在で他のベースウェアが起動しているか判定
         if FmoManager.isAnotherInstanceRunning() {
-            NSLog("Another baseware instance is already running. Terminating.")
-            NSApplication.shared.terminate(nil)
-            return
+            if ProcessKiller.hasOtherOurinInstance() {
+                NSLog("Another baseware instance is already running. Terminating.")
+                NSApplication.shared.terminate(nil)
+                return
+            }
+            NSLog("FMO exists but no other Ourin process was found. Reclaiming stale FMO resources.")
+            FmoManager.reclaimStaleResources()
         }
 
         // FMO を初期化（クラッシュ後の残留セマフォ/共有メモリは自動的に上書き再作成される）
@@ -131,6 +135,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             NSLog("FMO init failed: \(error)")
             NSLog("Continuing without FMO (single instance enforcement disabled)")
         }
+
+        // 旧データ（Application Support / 旧サンドボックスコンテナ）を ~/Documents/Ourin へ一度だけ移行する。
+        // plugin/headline 探索や startup ghost より前に行い、各 Registry が移行後の公開フォルダを参照できるようにする。
+        OurinPaths.migrateLegacyDataIfNeeded()
 
         // Hide the default Settings window on startup
         DispatchQueue.main.async {
@@ -167,12 +175,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // プラグイン読み込み後にディスパッチャを開始
         pluginDispatcher = PluginEventDispatcher(registry: registry)
         // プラグインが返した Script:/Event: をホスト（アクティブゴースト）へ配線する
-        pluginDispatcher?.onScript = { [weak self] script in
-            DispatchQueue.main.async { self?.ghostManager?.runScript(script) }
+        pluginDispatcher?.onScript = { [weak self] script, options in
+            DispatchQueue.main.async {
+                if options.contains("nobreak") {
+                    self?.ghostManager?.runNotifyScript(script)
+                } else {
+                    self?.ghostManager?.runScript(script)
+                }
+            }
         }
-        pluginDispatcher?.onEmitEvent = { event, refs in
-            DispatchQueue.main.async { EventBridge.shared.notifyCustom(event, params: refs) }
+        pluginDispatcher?.onEmitEvent = { event, refs, options in
+            let notifyOnly = options.contains("notify")
+            if Thread.isMainThread {
+                return EventBridge.shared.dispatchPluginResponseEvent(event, params: refs, notifyOnly: notifyOnly)
+            }
+            return DispatchQueue.main.sync {
+                EventBridge.shared.dispatchPluginResponseEvent(event, params: refs, notifyOnly: notifyOnly)
+            }
         }
+        pluginDispatcher?.notifyInstalledPlugin()
+        pluginDispatcher?.notifyPluginPathList(paths: registry.allMetas.map { $0.packagePath ?? $0.executablePath })
+        pluginDispatcher?.notifyCalendarSkinPathList(paths: CalendarRegistry.shared.installedSkins().map { $0.path.path })
+        pluginDispatcher?.notifyCalendarPluginPathList(paths: CalendarRegistry.shared.installedPlugins().map { $0.path.path })
 
         // HEADLINE モジュールも探索してロード
         let hRegistry = HeadlineRegistry()
@@ -291,16 +315,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
     /// Install bundled emily4.nar and run it if present
     func installDefaultGhost() {
+        // 既に emily4 が導入済み（移行で取り込まれた場合を含む）なら再インストールせず起動する。
+        // これをしないと、移行で配置済みの ghost/emily4 へバンドル nar を重ねて書き込もうとし、衝突する。
+        if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == "emily4" }) {
+            NSLog("[installDefaultGhost] emily4 already installed at \(ghost.path.path); running it")
+            runGhost(at: ghost.path)
+            return
+        }
+
         if let url = Bundle.main.url(forResource: "emily4", withExtension: "nar") {
             NSLog("[installDefaultGhost] Found emily4.nar at: \(url.path)")
             installNar(at: url)
         } else {
-            NSLog("[installDefaultGhost] Bundled emily4.nar not found")
-            // If emily4.nar is not bundled, try to run emily4 if it's already installed
-            if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == "emily4" }) {
-                NSLog("[installDefaultGhost] emily4 already installed, running it")
-                runGhost(at: ghost.path)
-            }
+            NSLog("[installDefaultGhost] Bundled emily4.nar not found and emily4 not installed")
         }
     }
 
