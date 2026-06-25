@@ -21,6 +21,8 @@ public final class PropertyManager {
         let balloons = discoverDefaultBalloons()
         let headlines = discoverDefaultHeadlines()
         let plugins = discoverDefaultPlugins()
+        let calendarSkins = CalendarRegistry.shared.installedSkins()
+        let calendarPlugins = CalendarRegistry.shared.installedPlugins()
         register("ghostlist", provider: GhostPropertyProvider(mode: .ghostlist, ghosts: ghosts, activeIndices: active))
         register("activeghostlist", provider: GhostPropertyProvider(mode: .activeghostlist, ghosts: ghosts, activeIndices: active))
         register("currentghost", provider: GhostPropertyProvider(mode: .currentghost, ghosts: ghosts, activeIndices: active))
@@ -28,6 +30,8 @@ public final class PropertyManager {
         register("currentghost.balloon", provider: BalloonPropertyProvider(mode: .currentBalloon))
         register("headlinelist", provider: HeadlinePropertyProvider(headlines: headlines))
         register("pluginlist", provider: PluginPropertyProvider(plugins: plugins))
+        register("calendarskinlist", provider: CalendarSkinPropertyProvider(skins: calendarSkins))
+        register("calendarpluginlist", provider: CalendarPluginPropertyProvider(plugins: calendarPlugins))
         register("history", provider: HistoryPropertyProvider())
         register("rateofuselist", provider: RateOfUsePropertyProvider())
     }
@@ -67,8 +71,19 @@ public final class PropertyManager {
 
     private func discoverDefaultPlugins() -> [PropertyPlugin] {
         if let app = NSApp.delegate as? AppDelegate, let registry = app.pluginRegistry {
-            let values = registry.metas.values.map {
-                PropertyPlugin(name: $0.name, path: $0.filename, id: $0.id)
+            let values = registry.allMetas.map {
+                PropertyPlugin(
+                    name: $0.name,
+                    path: $0.compatibilityPath,
+                    id: $0.id,
+                    craftmanw: $0.craftman ?? "",
+                    craftmanurl: $0.craftmanURL ?? "",
+                    filename: $0.filename,
+                    native: $0.isNative,
+                    localizedMessages: $0.localizedMessages,
+                    executablePath: $0.executablePath,
+                    packagePath: $0.packagePath
+                )
             }
             if !values.isEmpty {
                 return values
