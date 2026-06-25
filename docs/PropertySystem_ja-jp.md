@@ -94,8 +94,9 @@
 #### PluginPropertyProvider
 `pluginlist.*` プロパティを提供します:
 - `pluginlist.count`
-- `pluginlist.index(n).{name|path|id|craftmanw|craftmanurl}`
+- `pluginlist.index(n).{name|path|id|craftmanw|craftmanurl|filename|native}`
 - `pluginlist({name|path|id}).{property}`
+- `pluginlist({name|path|id}).message.<key>` - plugin パッケージの `message.*.txt` から読み取った言語別文字列（例: `message.menu.title`）
 
 ## 使い方
 

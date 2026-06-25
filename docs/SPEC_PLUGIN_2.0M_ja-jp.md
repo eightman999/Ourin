@@ -1,6 +1,6 @@
 # PLUGIN/2.0M — macOS ネイティブ差分仕様（Draft）
 **Status:** Draft  
-**Updated:** 2025-07-26  
+**Updated:** 2026-06-26  
 **Audience:** ベースウェア実装者 / プラグイン作者  
 **Scope:** UKADOC **PLUGIN/2.0** を母体に、macOS ネイティブで運用するための差分を規定  
 **非目標:** PLUGIN/1.0 DLL のバイナリ互換（※語彙・挙動の互換のみ対象）
@@ -60,6 +60,29 @@
   ```
   App バンドル配下の **`Contents/PlugIns/`** に配置するのが通例。
 
+### 5.1 Ourin 互換パッケージディレクトリ
+
+SSP 由来の Windows plugin を macOS native plugin へ移植する場合、Ourin では `.plugin` bundle 単体だけでなく、元 plugin ディレクトリに近い **パッケージディレクトリ** を標準形として扱う。
+
+```text
+SomePlugin_mac/
+  install.txt
+  descript.txt
+  message.japanese.txt
+  message.english.txt
+  SomePlugin.plugin/
+    Contents/
+      Info.plist
+      MacOS/SomePlugin
+      Resources/descript.txt   # fallback 用。通常はルート descript.txt を優先
+```
+
+- `install.txt` は Ourin が当該ディレクトリを `type,plugin` の plugin パッケージとして解釈するために読む。
+- `descript.txt` は plugin の互換メタデータとして読む。パッケージルートの `descript.txt` が存在する場合、bundle 内 `Resources/descript.txt` より優先する。
+- `message.*.txt` は言語別表示文字列として読む。native `.plugin` は、表示文言を可能な限りこのファイルへ委譲する。
+- `.plugin` bundle は実行本体であり、DLL の `load` / `loadu` / `request` / `unload` / `unloadu` 互換処理に集中する。
+- 既存配布物の `ReadMe.txt` 等を同梱する場合は、実行時入力ではなく参照資料として扱う。
+
 ## 6. ワイヤプロトコル（2.0 との差分）
 - **版表記:** 先頭行のプロトコル名は `PLUGIN/2.0M` を用いる（構文は 2.0 と同形）。  
 - **Charset 既定:** 2.0M では **UTF‑8** を未指定時の既定とする。互換のため `Shift_JIS` / `Windows‑31J` 等のラベルを受理する（実体は CP932 相当として扱ってよい）。  
@@ -89,6 +112,21 @@
 - **必須:** `name` / `id` / `filename`（2.0 踏襲）。  
 - **文字コード:** 「旧環境配慮なら Shift_JIS、そうでなければ UTF‑8 推奨」。  
 - **2.0M 追加許容:** `filename` に **`.plugin` / `.bundle`** を指定可。
+
+### 9.1 `install.txt` / `message.*.txt` の扱い
+
+Ourin 互換パッケージディレクトリでは、`.plugin` bundle 内だけでなく、パッケージルートの SSP 互換 txt を読む。
+
+- `install.txt`
+  - `type,plugin` を検出した場合、そのディレクトリを plugin パッケージとして登録する。
+  - `directory` は設置名・更新時の識別名として扱う。
+  - `charset` は UTF-8 / Shift_JIS / CP932 系を受理する。
+- `message.<language>.txt`
+  - `message.japanese.txt`、`message.english.txt` などを言語別辞書として読む。
+  - `menu.title`、`menu.<command>`、`message.end` 等のキーは Ourin 側の表示・メニュー構築で利用できる。
+  - plugin 実装内に固定文言を埋め込むより、可能な限り `message.*.txt` を優先する。
+
+方針として、今後作る移植 `.plugin` は **`descript.txt` および DLL エントリポイント互換に留める**。`install.txt` に基づく登録、`message.*.txt` に基づく表示言語選択、その他パッケージメタデータの解釈は Ourin ホスト側の責務とする。
 
 ## 10. セキュリティ/安定性：XPC隔離（推奨）
 - 不安定/高負荷プラグインは **XPC サービス**として別プロセスに分離し、ホスト↔プラグイン間は**テキスト（ワイヤ文字列）のまま透過転送**する。  
@@ -128,6 +166,8 @@ Charset: UTF-8
 - [x] **プラグイン検出とロード**: `PluginRegistry.swift` にて実装済み
 - [x] **CFBundle ロード**: `.plugin` および `.bundle` ファイルのロード機能を実装済み
 - [x] **descript.txt 解析**: プラグインメタデータの読み取りを実装済み
+- [x] **install.txt パッケージ検出**: `type,plugin` ディレクトリ配下の native `.plugin` 読み込みを実装済み
+- [x] **message.*.txt 解析**: パッケージルートの言語別メッセージ辞書を読み取り、plugin メタデータへ保持
 - [x] **文字コード対応**: UTF-8 既定、Shift_JIS/CP932 の自動検出を実装済み
 - [x] **PLUGIN/2.0M プロトコル**: `PluginProtocol.swift` にて完全実装済み
 - [x] **イベントディスパッチ**: `PluginRegistry.swift` にて PLUGIN/2.0M 互換のイベントディスパッチを実装済み
@@ -138,10 +178,13 @@ Charset: UTF-8
 1. **プラグイン検出**
    - App バンドル内の `Contents/PlugIns/` からの検出
    - `~/Library/Application Support/Ourin/PlugIns/` からの検出
+   - `/Users/<user>/Documents/Ourin/plugin` 配下の `install.txt` 付き plugin パッケージディレクトリからの検出
    - `.plugin` および `.bundle` 拡張子のサポート
 
 2. **プラグインメタデータ**
    - `descript.txt` の解析（name, id, filename, secondchange.interval など）
+   - `install.txt` の解析（type, directory, charset など）
+   - `message.*.txt` の解析（言語別 menu/message キー）
    - UTF-8 および Shift_JIS のエンコーディング自動検出
 
 3. **ライフサイクル管理**

@@ -1,276 +1,142 @@
 # YAYA Core Implementation Status
 
+## Status Legend
+
+- **implemented** — works and matches YAYA reference behavior for common cases
+- **partial** — parses/executes but with known correctness gaps or restrictions
+- **stub** — present for compatibility but returns a safe default (no real behavior)
+- **unsupported** — intentionally not available on macOS / not yet implemented
+
 ## Overview
-YAYA Core is now **FULLY IMPLEMENTED** with comprehensive functionality to execute YAYA ghost dictionaries on macOS, matching the yaya-shiori-500 reference implementation.
 
-## What's Working ✅
+`yaya_core` is a C++ helper process that parses and executes YAYA ghost
+dictionaries on macOS, communicating with the Swift host (`YayaAdapter`) via
+JSON-line IPC. It is **not** a 100% faithful reimplementation of the Windows
+`yaya-shiori` reference; this document records what actually works versus what
+is a compatibility shim.
 
-### Core Features
-- **Lexer**: Tokenizes YAYA dictionary files
-  - Double and single-quoted strings (`"text"` and `'text'`)
-  - Integer literals
-  - Operators: arithmetic, comparison, logical
-  - Comments (line `//` and block `/* */`)
-  - Member access with dot notation (e.g., `SHIORI3FW.Status`)
-  
-- **Parser**: Builds AST from tokens
-  - Function definitions
-  - Variable assignments
-  - Control flow (if/else, while)
-  - Binary and unary expressions
-  - Ternary operator (`condition ? true : false`)
-  - Function calls (with and without parentheses)
-  - Array indexing (e.g., `reference[0]`)
+Previous versions of this document claimed "100% function coverage" and "Emily4
+fully supported". That overstated reality: many listed functions were stubs, and
+several parsed constructs lacked faithful runtime semantics. This revision
+corrects the record.
 
-- **VM**: Executes parsed functions
-  - Variable storage and retrieval
-  - Expression evaluation
-  - Control flow execution
-  - Function calls
+## Loading & Configuration
 
-- **Built-in Functions** (160 functions total - 100% coverage of yaya-shiori-500)
-  
-  **Type Conversion (10 functions)**:
-  - `TOINT`, `TOSTR`, `TOREAL`, `TOAUTO`, `TOAUTOEX`
-  - `CVINT`, `CVSTR`, `CVREAL`, `CVAUTO`, `CVAUTOEX`
-  - `GETTYPE`, `GETTYPEEX`
-  
-  **String Operations (13 functions)**:
-  - `STRLEN`, `STRSTR`, `SUBSTR`, `REPLACE`, `ERASE`, `INSERT`
-  - `TOUPPER`, `TOLOWER`, `CUTSPACE`
-  - `CHR`, `CHRCODE`
-  - `GETSTRBYTES`
-  - `STRFORM`
-  
-  **Math Operations (20 functions)**:
-  - `RAND`, `SRAND`
-  - `FLOOR`, `CEIL`, `ROUND`, `SQRT`, `POW`
-  - `LOG`, `LOG10`
-  - `SIN`, `COS`, `TAN`
-  - `ASIN`, `ACOS`, `ATAN`
-  - `SINH`, `COSH`, `TANH`
-  
-  **Array Operations (10 functions)**:
-  - `IARRAY`, `ARRAYSIZE`, `ARRAYDEDUP`
-  - `SPLIT`, `ASEARCH`, `ASEARCHEX`, `ASORT`
-  - `ANY`
-  - `SPLITPATH`
-  
-  **Bitwise Operations (5 functions)**:
-  - `BITWISE_AND`, `BITWISE_OR`, `BITWISE_XOR`, `BITWISE_NOT`, `BITWISE_SHIFT`
-  
-  **Hex/Binary Conversions (4 functions)**:
-  - `TOHEXSTR`, `HEXSTRTOI`, `TOBINSTR`, `BINSTRTOI`
-  
-  **Type Checking (2 functions)**:
-  - `ISINTSTR`, `ISREALSTR`
-  
-  **Variable/Function Management (13 functions)**:
-  - `ISVAR`, `ISFUNC`, `ISEVALUABLE`
-  - `ERASEVAR`, `LETTONAME`
-  - `GETFUNCLIST`, `GETVARLIST`, `GETSYSTEMFUNCLIST`
-  - `EVAL`, `DUMPVAR`
-  - `DICLOAD`, `DICUNLOAD`, `UNDEFFUNC`
-  
-  **File Operations (20 functions - IMPLEMENTED with safety restrictions)**:
-  - `FOPEN`, `FCLOSE`, `FREAD`, `FWRITE`, `FWRITE2` - Full file I/O support
-  - `FREADBIN`, `FWRITEBIN` - Binary file operations
-  - `FSIZE`, `FSEEK`, `FTELL` - File positioning and size
-  - `FCOPY`, `FMOVE`, `FDEL`, `FRENAME` - File management
-  - `FCHARSET`, `FATTRIB` - File metadata
-  - `FREADENCODE`, `FWRITEDECODE`, `FDIGEST` - Advanced operations
-  - `FENUM` - Directory enumeration (stub)
-  - `MKDIR`, `RMDIR` - Directory operations (stubs, need filesystem library)
-  
-  Note: File operations are restricted to relative paths only (no absolute paths or .. for security)
-  
-  **Regular Expressions (11 functions - stubs)**:
-  - `RE_SEARCH`, `RE_MATCH`, `RE_GREP`, `RE_REPLACE`, `RE_REPLACEEX`, `RE_SPLIT`
-  - `RE_OPTION`, `RE_GETSTR`, `RE_GETPOS`, `RE_GETLEN`
-  - `RE_ASEARCH`, `RE_ASEARCHEX`
-  
-  **Encoding/Decoding (10 functions)**:
-  - `STRENCODE`, `STRDECODE`, `STRDIGEST`
-  - `GETSTRURLENCODE`, `GETSTRURLDECODE`
-  - `CHARSETLIB`, `CHARSETLIBEX`, `CHARSETTEXTTOID`, `CHARSETIDTOTEXT`
-  - `ZEN2HAN`, `HAN2ZEN`
-  
-  **System Operations (9 functions - IMPLEMENTED for macOS/Linux)**:
-  - `GETTIME`, `GETTICKCOUNT`, `GETSECCOUNT`
-  - `GETENV`, `GETMEMINFO`
-  - `EXECUTE`, `EXECUTE_WAIT` - System command execution (WORKING)
-  - `SLEEP` - Delay execution (WORKING)
-  - `READFMO`, `SETTAMAHWND`
-  - `EXECUTE`, `EXECUTE_WAIT`, `SLEEP`
-  - `READFMO`, `SETTAMAHWND`
-  
-  **Other Utilities (18 functions)**:
-  - `SAVEVAR`, `RESTOREVAR`, `LOGGING`
-  - `LSO`, `LICENSE`, `TRANSLATE`
-  - `GETDELIM`, `SETDELIM`
-  - `GETSETTING`, `SETSETTING`
-  - `GETLASTERROR`, `SETLASTERROR`
-  - `GETERRORLOG`, `CLEARERRORLOG`
-  - `GETCALLSTACK`, `GETFUNCINFO`
-  - `LOADLIB`, `UNLOADLIB`, `REQUESTLIB`
-  - Plus advanced dictionary/function declaration functions
+| Capability | Status | Notes |
+| --- | --- | --- |
+| `dic, file.dic` | implemented | |
+| `dic, file.dic, encoding` (per-dic encoding) | implemented | Phase 1: per-dic encoding honored end-to-end |
+| `include, file` | implemented | recursive, with cycle prevention |
+| `charset, X` / `charset.*` directives | implemented | `charset.dic` selects the dictionary encoding |
+| `dicdir, path` | implemented | Phase 1: expands directory, honors `_loading_order.txt` |
+| `_loading_order.txt` (order + encoding) | implemented | real yaya-dic format: `dic, filename, encoding` and `dicif, filename, encoding` (load-if-exists); legacy `flag,filepath` / bare `filepath` also tolerated |
+| Duplicate dic suppression | implemented | first-occurrence wins |
+| `yaya.txt` absent → load all `.dic` | implemented | lexical fallback |
 
-- **Dictionary Manager**: Loads and parses dictionary files
-- **IPC**: JSON-based stdin/stdout communication with Swift
+## Encoding Model
 
-### Test Cases Passing
-- ✅ Basic OnBoot/OnClose functions
-- ✅ String concatenation
-- ✅ Variable assignment and retrieval
-- ✅ Conditional logic (if/else)
-- ✅ Function calls
-- ✅ SHIORI reference access
-- ✅ Built-in function calls (160 functions total)
-- ✅ Type conversion operations
-- ✅ String manipulation functions
-- ✅ Mathematical operations
-- ✅ Array operations
-- ✅ Bitwise operations
-- ✅ All yaya-shiori-500 reference functions
+| Capability | Status | Notes |
+| --- | --- | --- |
+| UTF-8 (with/without BOM) | implemented | BOM stripped |
+| CP932 / Shift_JIS via iconv | implemented | auto-fallback when declared but content is valid UTF-8 |
+| Auto detection | implemented | UTF-8 validity check, else CP932 conversion |
+| Per-dic encoding override | implemented | Phase 1/2 |
 
-## Known Limitations ⚠️
+## Parser / AST
 
-### Implemented with Restrictions
-For practical use while maintaining security:
+| Construct | Status | Notes |
+| --- | --- | --- |
+| Function definitions (`name { }`) | implemented | dotted names, `: type` annotations recorded |
+| `if` / `elseif` / `else` | implemented | |
+| `while` | implemented | |
+| `for` (C-style) | implemented | |
+| `foreach` | implemented | |
+| `switch expr { ... }` | implemented | index-based selection; supports `--`-separated block literals and one-per-line forms |
+| `case expr { when .. { } others { } }` | implemented | Phase 3/4: dedicated AST, expr evaluated once, first-match semantics |
+| Standalone `when` (labeled blocks) | partial | parses as passthrough; no implicit switch dispatch |
+| Block literal `{ a -- b -- c }` | implemented | `--` lexed as operator after values; switch + block supported |
+| Labeled blocks `{{LABEL .. }}LABEL` | partial | tolerated via brace/label recovery; not a first-class node |
+| Array literals `(a, b, c)` | implemented | |
+| Dotted identifiers (`SHIORI3FW.Status`) | implemented | |
+| `reference[i]`, `_argv` | implemented | |
+| `_in_` / `!_in_` | implemented | |
+| UTF-8 / Japanese identifiers | implemented | |
+| Compound assignments (`+=` etc., `,=`) | implemented | |
+| Array element assignment (`a[i] = ..`) | partial | stored against the array variable (compound form is approximate) |
+| Prefix `&` (reference operator) | partial | parsed; treated as identity (no true by-reference) |
 
-- **File Operations**: FULLY IMPLEMENTED with security restrictions
-  - All file I/O operations work (FOPEN, FREAD, FWRITE, FCOPY, FMOVE, FDEL, etc.)
-  - Restricted to relative paths only (no absolute paths or .. traversal)
-  - Designed for safe use within ghost directories
-  
-- **System Commands**: FULLY IMPLEMENTED for macOS/Linux
-  - `EXECUTE` - Non-blocking command execution
-  - `EXECUTE_WAIT` - Blocking command execution with return code
-  - `SLEEP` - Thread sleep functionality
-  
-- **SAORI/Plugin Functions**: Partially implemented
-  - `LOADLIB`, `UNLOADLIB`, `REQUESTLIB` return compatibility values (stubs)
-  - **NOT INTEGRATED with Swift SaoriManager**
-  - Integration requires:
-    - VM.cpp to emit JSON "host_op" for plugin operations
-    - YayaCore.cpp to handle "host_op" and route to Swift
-    - YayaAdapter.handlePluginOperation() to delegate to SaoriManager
-  - See BLOCKER_TRACKER.md ID-001, ID-002
-  - See INTEGRATION_ROADMAP.md Phase 1 for integration steps
+### Parser Reliability Note
 
-### Limited Implementations
-- **Regular Expressions**: RE_* functions are stubs (would require regex library integration)
-- **Directory Operations**: MKDIR, RMDIR need filesystem library (C++17)
-- **Encoding/Decoding**: Character set conversion functions are simplified
-- **ZEN2HAN/HAN2ZEN**: Full-width/half-width conversion not implemented
+The parser uses "progress guarantee" recovery (forced token advance on
+no-progress) plus safety counters to avoid infinite loops. This means essentially
+every dictionary file *loads* without timeout, but tolerant skipping can produce
+incomplete ASTs for advanced edge cases. Emily4 currently loads 33/33 configured
+dictionaries without parse failure (regression baseline after Phases 1/3/4).
 
-### What Works Perfectly ✅
-All core YAYA functionality is fully operational:
-- Type conversions, string operations, math operations
-- Array operations, bitwise operations
-- Variable and function management
-- System time/environment access
-- **File I/O operations (with security restrictions)**
-- **System command execution (EXECUTE/EXECUTE_WAIT/SLEEP)**
-- All functions needed for typical YAYA ghost operation
+## Runtime / VM
 
-## Integration Status
+| Capability | Status | Notes |
+| --- | --- | --- |
+| Variable storage / scopes | implemented | |
+| Expression evaluation | implemented | |
+| Function calls (user + built-in) | implemented | |
+| `return` / `break` / `continue` | implemented | |
+| `case/when` first-match + `others` | implemented | Phase 4: non-selected bodies do not run |
+| Overload function dispatch | implemented | Phase 5: default = all same-name declarations concatenate in declaration order; `nonoverload` disables accumulation — the latest declaration replaces earlier ones (last definition wins) |
+| `array` / `sequential` / `void` type modifiers | implemented | Phase 5: multi-word modifiers (e.g. `nonoverload array`) supported |
+| Function declaration metadata | implemented | Phase 5: `FUNCDECL_READ/WRITE/ERASE`, `GETFUNCINFO`, `UNDEFFUNC` |
+| Dynamic dictionaries (`DICLOAD`/`DICUNLOAD`/`APPEND_RUNTIME_DIC`) | implemented | Phase 6: per-source ownership, load/unload at runtime |
+| Persistence (`SAVEVAR`/`RESTOREVAR`) | implemented | Phase 7: anchored under ghost root; temp vars registered via `REGISTERTEMPVAR` are excluded |
+| Settings (`GETSETTING`/`SETSETTING`/`GETDELIM`/`SETDELIM`/`DUMPVAR`) | implemented | Phase 7 |
+| SHIORI `request`/`load`/`unload` framework dispatch | implemented | full SHIORI response header parsing |
 
-### Built Successfully
-- yaya_core binary compiles on Linux and macOS
-- Universal Binary support configured in CMake (arm64 + x86_64)
-- **ALL 160 functions from yaya-shiori-500 are implemented**
+## Built-in Functions — Audit Summary
 
-### Compatibility
-- ✅ **100% function coverage** - All functions from yaya-shiori-500 reference
-- ✅ **Emily4 compatible** - Can run Emily4 and other complex ghosts
-- ✅ **Production ready** - Suitable for real YAYA ghost execution
+> Detailed per-function status lives in `FUNCTION_REFERENCE.md`.
 
-### Xcode Integration Required
-The following manual steps are needed on macOS with Xcode:
+- **Type conversion / string / math / array / bitwise / hex-binary**: implemented
+- **Type checking** (`ISINTSTR`, `ISREALSTR`): implemented
+- **File I/O** (`FOPEN`…`FDEL`, `FCOPY`…): implemented **with security restriction** (relative paths only; no absolute / no `..`)
+- **System** (`GETTIME`, `EXECUTE`, `EXECUTE_WAIT`, `SLEEP`, `GETENV`): implemented
+- **Variable/function mgmt** (`ISVAR`, `ISFUNC`, `EVAL`, `GETFUNCLIST`, …): implemented
+- **Regular expressions** (`RE_*`): implemented (std::regex; Phase 10 completed `RE_ASEARCH`/`RE_ASEARCHEX`)
+- **Dynamic dictionaries** (`DICLOAD`, `DICUNLOAD`, `UNDEFFUNC`, `APPEND_RUNTIME_DIC`): implemented (Phase 5/6)
+- **Persistence** (`SAVEVAR`, `RESTOREVAR`): implemented (Phase 7, anchored under ghost root)
+- **SAORI/Plugin** (`LOADLIB`, `UNLOADLIB`, `REQUESTLIB`): implemented (Phase 8: Result + valueex parsing, `CHARSETLIB`, `FUNCTIONLOAD/EX/SAORI` wrappers)
+- **Settings** (`GETSETTING`, `SETSETTING`, `GETDELIM`, `SETDELIM`, `DUMPVAR`): implemented (Phase 7)
+- **Diagnostics** (`GETERRORLOG`, `GETCALLSTACK`, `GETFUNCINFO`, `GETLASTERROR`/`SETLASTERROR`): implemented (Phase 5/7/10)
+- **Encoding utils** (`CHARSETTEXTTOID`, `CHARSETIDTOTEXT`, `CHARSETLIB/EX`, `ZEN2HAN`, `HAN2ZEN`): implemented
+- **Global defines** (`IS/SET/UNDEF/PROCESSGLOBALDEFINE`): implemented (Phase 10)
+- **Directory ops** (`MKDIR`, `RMDIR`, `FENUM`): **stub**
 
-1. Build yaya_core: `cd yaya_core && ./build.sh`
-2. Add to Ourin target's "Copy Files" build phase:
-   - Destination: "Executables"
-   - File: `yaya_core/build/yaya_core`
-3. (Optional) Add "Run Script" phase to auto-build yaya_core
+## SHIORI / UKADOC Header Compatibility
 
-### Testing Recommendations
+| Area | Status | Notes |
+| --- | --- | --- |
+| Request headers (Sender, SenderType, SecurityLevel, SecurityOrigin, ID, Status, BaseID, Reference*) | implemented | Phase 9: caller headers pass through without duplication |
+| `X-SSTP-PassThru-*` headers | implemented | Phase 9: forwarded both directions |
+| Response headers (Value, ValueNotify, Reference*, Marker, MarkerSend, SecurityLevel, ErrorLevel, BalloonOffset, Age) | implemented | parsed generically; returned to Swift |
+| GET vs NOTIFY semantics | implemented | NOTIFY-only events ignore Value; ValueNotify still forwarded |
 
-**Minimal Test Ghost** (create in app's ghost directory):
+## Known Limitations
 
-```yaya
-// test_ghost.dic
-OnBoot
-{
-    "\0\s[0]Hello! I'm a test ghost.\w9\e"
-}
+- **By-reference semantics**: `&` is parsed but treated as pass-by-value (`E.Swap`/`E.Qsort` in-place effects are not honored).
+- **Standalone `when` dispatch**: inside labeled blocks, `when` runs unconditionally (no implicit state switch). The `when` function attribute is recorded but does not add implicit dispatch.
+- **Directory ops**: `MKDIR`/`RMDIR`/`FENUM` remain stubs (use host file ops via FOPEN-style relative sandbox if needed).
+- **SAORI valueex as variables**: extras are exposed via `valueex`/`valueex0..15` builtins rather than implicit variables (framework scripts manage their own copy).
 
-OnClose
-{
-    "\0\s[0]Goodbye!\e"
-}
+## Integration
 
-OnMouseClick
-{
-    if reference[3] == "0" {
-        "\0\s[1]You clicked my head!\e"
-    }
-    else {
-        "\0\s[0]You clicked somewhere else.\e"
-    }
-}
-```
+- `yaya_core` builds via CMake (`./build.sh`); universal binary (arm64 + x86_64).
+- Integrated into the app bundle as an auxiliary executable.
+- IPC: JSON lines on stdin/stdout; `host_op` requests (file, execute, plugin/SAORI) handled by `YayaAdapter`.
+- SAORI load/unload/request routed through `SaoriManager`; multi-value response mapping is partial.
 
-## Next Steps for Full Emily4 Support
+## Success Criteria — Honest Assessment
 
-To support Emily4 fully, implement in Phase 2:
-
-1. **Array Literals**: Parse `(value1, value2)` syntax
-2. **Embedded Expressions**: Handle `%(func())` in strings
-3. **Array Operations**: ARRAYSIZE, array indexing, array assignment
-4. **String Interpolation**: Proper variable embedding in strings
-5. **More Built-ins**: Additional YAYA standard library functions
-
-## Performance Notes
-
-- Current implementation prioritizes correctness over optimization
-- Dictionary parsing is fast enough for typical ghost files
-- VM execution is interpreted (not JIT compiled)
-- Memory usage is reasonable for typical ghosts
-
-## Files Modified/Created
-
-### New Files
-- `yaya_core/src/Value.hpp/cpp` - Value type implementation
-- `yaya_core/src/Lexer.hpp/cpp` - Tokenizer
-- `yaya_core/src/Parser.hpp/cpp` - Parser
-- `yaya_core/src/AST.hpp` - AST node definitions
-- `yaya_core/src/VM.hpp/cpp` - Virtual machine
-- `yaya_core/build.sh` - Build script
-- `yaya_core/.gitignore` - Ignore build artifacts
-
-### Modified Files
-- `yaya_core/src/DictionaryManager.hpp/cpp` - Now uses Lexer/Parser/VM
-- `yaya_core/src/YayaCore.cpp` - Fixed JSON protocol handling
-- `yaya_core/CMakeLists.txt` - Added new source files
-- `yaya_core/README.md` - Added integration instructions
-
-## Build Requirements
-
-- macOS 13.0+ (for final app)
-- CMake 3.20+
-- C++17 compiler
-- nlohmann-json library (available via apt/brew)
-
-## Success Criteria - ALL MET ✅
-
-- ✅ yaya_core compiles successfully
-- ✅ Basic YAYA dictionaries parse and execute
-- ✅ IPC communication works with Swift YayaAdapter
-- ✅ Can load and execute simple ghost functions
-- ✅ **ALL 160 yaya-shiori-500 functions implemented**
-- ✅ **100% function coverage achieved**
-- ✅ Emily4 and complex ghosts fully supported
-
-**Status**: COMPLETE - All goals achieved and exceeded expectations.
+- yaya_core compiles: yes
+- Simple YAYA dictionaries parse and execute: yes
+- IPC with Swift YayaAdapter works: yes
+- All `yaya-shiori-500` functions *present*: yes (but many are stubs — see above)
+- Emily4 loads all configured dictionaries: yes (33/33 without parse failure)
+- Emily4 event responses are correct for common events: **partial** (advanced constructs and stubbed helpers still limit full fidelity)

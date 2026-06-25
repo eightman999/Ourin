@@ -1,0 +1,29 @@
+Ghidra — Apache License 2.0
+
+EN:
+The Ourin Migrator (DevTools) uses Ghidra (https://ghidra-sre.org/) as an
+external binary-analysis tool for converting/inspecting SSP-compatible
+Windows DLLs and EXEs. Ghidra is developed by the National Security Agency
+(NSA) and is licensed under the Apache License, Version 2.0.
+
+Ghidra is NOT bundled with Ourin. The user supplies their own Ghidra
+installation, and Ourin invokes "analyzeHeadless" as a separate process.
+
+The bundled "DecompileAll.java" post-script uses the Ghidra scripting API.
+
+JA:
+Ourin Migrator（DevTools）は、SSP 互換の Windows DLL/EXE の解析・変換に
+あたり、Ghidra（https://ghidra-sre.org/）を外部バイナリ解析ツールとして
+利用します。Ghidra は米国国家安全保障局（NSA）により開発され、
+Apache License, Version 2.0 のもとで配布されています。
+
+Ghidra は Ourin に同梱されていません。ユーザーが用意した Ghidra を
+"analyzeHeadless" として外部プロセス経由で呼び出します。
+
+同梱の "DecompileAll.java" ポストスクリプトは Ghidra のスクリプト API を
+使用します。
+
+Links / リンク:
+- Ghidra: https://ghidra-sre.org/
+- Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0
+- Ghidra GitHub: https://github.com/NationalSecurityAgency/ghidra

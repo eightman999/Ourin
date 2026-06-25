@@ -92,8 +92,9 @@ Provides `headlinelist.*` properties:
 #### PluginPropertyProvider
 Provides `pluginlist.*` properties:
 - `pluginlist.count`
-- `pluginlist.index(n).{name|path|id|craftmanw|craftmanurl}`
+- `pluginlist.index(n).{name|path|id|craftmanw|craftmanurl|filename|native}`
 - `pluginlist({name|path|id}).{property}`
+- `pluginlist({name|path|id}).message.<key>` - localized text loaded from a plugin package `message.*.txt` file, for example `message.menu.title`
 
 ## Usage
 

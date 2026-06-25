@@ -62,6 +62,8 @@ please contact one of the copyright holders below.
   同梱 YAYA Core: CC BY-NC-SA 4.0
 - Default ghost (Emily/Phase4.5): CC BY-NC 4.0  
   既定ゴースト（Emily/Phase4.5）: CC BY-NC 4.0
+- Migrator (DevTools): uses **Ghidra** (Apache 2.0) as an external tool — not bundled  
+  Migrator（DevTools）: **Ghidra**（Apache 2.0）を外部ツールとして利用（同梱なし）
 
 For the full texts, open the app and navigate to About → "ライセンスを表示…".
 各文面はアプリ内の About → 「ライセンスを表示…」から参照できます。
@@ -154,6 +156,20 @@ YAYA Core is implemented in C++ and has the following dependencies:
 
 詳細については [`docs/DEPENDENCIES.ja.md`](docs/DEPENDENCIES.ja.md) を参照してください。
 For details, see [`docs/DEPENDENCIES.ja.md`](docs/DEPENDENCIES.ja.md).
+
+### Migrator (DevTools) / Ghidra
+
+Ourin Migrator は SSP 互換 Windows DLL/EXE の解析に **Ghidra** を使用します。
+Ghidra は同梱されず、ユーザーが別途インストールした `analyzeHeadless` を外部プロセスとして呼び出します。
+
+The Ourin Migrator uses **Ghidra** to analyze SSP-compatible Windows DLLs/EXEs.
+Ghidra is not bundled; Ourin invokes the user-installed `analyzeHeadless` as a separate process.
+
+- **Ghidra**: Apache License 2.0（NSA） / Apache License 2.0 (NSA)
+- 公式サイト / Official: https://ghidra-sre.org/
+
+通常起動時は Ghidra や Java に依存しません（DevTools の Migrator 機能を使用する場合のみ）。
+Normal operation does not depend on Ghidra or Java (only when using the DevTools Migrator feature).
 
 ---
 

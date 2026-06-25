@@ -1,8 +1,18 @@
-# YAYA_core Function Reference - Complete Implementation
+# YAYA_core Function Reference
 
 ## Overview
 
-This document lists all 160 functions implemented in YAYA_core, matching the yaya-shiori-500 reference implementation. All functions are available for use in YAYA ghost dictionaries.
+This document lists the functions available in `yaya_core`. Functions are present
+for compatibility, but **not all are fully implemented** — many return safe
+default values (stubs). Each table below marks the real status where known:
+
+- **implemented** — behaves like the YAYA reference for common cases
+- **partial** — works with restrictions / simplified behavior
+- **stub** — returns a compatibility default, no real behavior
+
+See `IMPLEMENTATION_STATUS.md` for the overall system status. This file was
+previously titled "Complete Implementation (100%)", which overstated reality;
+stubs are now explicitly marked.
 
 ## Function Categories
 
@@ -110,7 +120,7 @@ This document lists all 160 functions implemented in YAYA_core, matching the yay
 |----------|-------------|---------|
 | `ISVAR(name)` | Check if variable exists | `ISVAR("myvar")` → `1` |
 | `ISFUNC(name)` | Check if function exists | `ISFUNC("OnBoot")` → `1` |
-| `ISEVALUABLE(str)` | Check if evaluable | `ISEVALUABLE("1+1")` → `1` |
+| `ISEVALUABLE(str)` | Check whether a string parses as one complete expression | `ISEVALUABLE("1+1")` → `1`; `ISEVALUABLE("1 +")` → `0` |
 | `ERASEVAR(name)` | Delete variable | `ERASEVAR("myvar")` → `1` |
 | `LETTONAME(name, value)` | Assign to variable by name | `LETTONAME("x", 42)` |
 | `GETFUNCLIST()` | Get list of user functions | `GETFUNCLIST()` → array |
@@ -118,9 +128,15 @@ This document lists all 160 functions implemented in YAYA_core, matching the yay
 | `GETSYSTEMFUNCLIST()` | Get list of system functions | `GETSYSTEMFUNCLIST()` → 160 items |
 | `EVAL(funcname, ...)` | Execute function by name | `EVAL("OnBoot")` |
 | `DUMPVAR()` | Dump all variables (debug) | `DUMPVAR()` → string |
-| `DICLOAD(filename)` | Load dictionary file (stub) | `DICLOAD("dic.txt")` |
-| `DICUNLOAD(filename)` | Unload dictionary (stub) | `DICUNLOAD("dic.txt")` |
-| `UNDEFFUNC(name)` | Undefine function (stub) | `UNDEFFUNC("func")` |
+| `DICLOAD(filename[, encoding])` | Load dictionary file at runtime (resolved under ghost/master) | `DICLOAD("dic.txt")` → `1` |
+| `DICUNLOAD(filename)` | Unload dictionary (removes functions owned by that source) | `DICUNLOAD("dic.txt")` → `1` |
+| `UNDEFFUNC(name)` | Disable all declarations of a function | `UNDEFFUNC("func")` → `1` |
+
+Function declaration notes:
+
+- Same-name functions overload by default: enabled declarations run in declaration order and their return values concatenate.
+- `nonoverload` disables accumulation for that function name: the latest registered declaration replaces earlier declarations (last definition wins).
+- `array`, `sequential`, `void`, `nonoverload`, and `when` modifiers are parsed and exposed through declaration metadata; standalone `when` dispatch remains a known limitation documented in `IMPLEMENTATION_STATUS.md`.
 
 ### System Operations (9 - Core functions IMPLEMENTED)
 
@@ -218,8 +234,8 @@ Regex functions implemented via C++ `std::regex` (ECMAScript syntax).
 | `RE_GETSTR()` | Get last match string | `""` |
 | `RE_GETPOS()` | Get last match position | `-1` |
 | `RE_GETLEN()` | Get last match length | `0` |
-| `RE_ASEARCH(arr, pattern)` | Array regex search | `-1` |
-| `RE_ASEARCHEX(arr, pattern)` | Array regex search ext | `[]` |
+| `RE_ASEARCH(arr, pattern)` | Array regex search (first match index) | `RE_ASEARCH(("a","an"),"an")` → `1` |
+| `RE_ASEARCHEX(arr, pattern)` | Array regex search ext (all match indices) | `RE_ASEARCHEX(("a","an"),"an")` → `[1]` |
 
 ### Encoding/Decoding Functions (10)
 
@@ -230,8 +246,8 @@ Regex functions implemented via C++ `std::regex` (ECMAScript syntax).
 | `GETSTRURLENCODE(str)` | URL encode (alias) | `GETSTRURLENCODE("test")` |
 | `GETSTRURLDECODE(str)` | URL decode (alias) | `GETSTRURLDECODE("test")` |
 | `STRDIGEST(str, algo)` | String hash (`md5`/`sha1`/`crc32`) | `STRDIGEST("test", "md5")` |
-| `CHARSETLIB(encoding)` | Set charset (stub) | `CHARSETLIB("UTF-8")` → `1` |
-| `CHARSETLIBEX(encoding)` | Set charset ext (stub) | `CHARSETLIBEX("UTF-8")` → `1` |
+| `CHARSETLIB(encoding)` | Set charset for subsequent SAORI requests | `CHARSETLIB("UTF-8")` → `1` |
+| `CHARSETLIBEX(encoding)` | Set charset (extended alias) | `CHARSETLIBEX("Shift_JIS")` → `1` |
 | `CHARSETTEXTTOID(text)` | Charset name to ID | `CHARSETTEXTTOID("UTF-8")` → `0` |
 | `CHARSETIDTOTEXT(id)` | Charset ID to name | `CHARSETIDTOTEXT(0)` → `"UTF-8"` |
 | `ZEN2HAN(str)` | Full to half-width (stub) | `ZEN2HAN("ＡＢＣ")` |
@@ -241,48 +257,60 @@ Regex functions implemented via C++ `std::regex` (ECMAScript syntax).
 
 | Function | Description | Example |
 |----------|-------------|---------|
-| `SAVEVAR(file)` | Save variables (stub) | `SAVEVAR("vars.txt")` → `0` |
-| `RESTOREVAR(file)` | Restore variables (stub) | `RESTOREVAR("vars.txt")` → `0` |
+| `SAVEVAR(file)` | Save variables (anchored under ghost root; JSON with type info) | `SAVEVAR("var/s.json")` → `1` |
+| `RESTOREVAR(file)` | Restore variables | `RESTOREVAR("var/s.json")` → `1` |
+| `REGISTERTEMPVAR(name)` | Mark a variable as temporary so `SAVEVAR` excludes it | `REGISTERTEMPVAR("tempvar")` → `1` |
+| `UNREGISTERTEMPVAR(name)` | Remove a variable from the temp-var exclusion list | `UNREGISTERTEMPVAR("tempvar")` → `1` |
 | `LOGGING(msg)` | Log message (stub) | `LOGGING("test")` → `1` |
 | `LSO()` | Last selected option (stub) | `LSO()` → `0` |
 | `LICENSE()` | Get license info | `LICENSE()` → license text |
 | `TRANSLATE(str, mode)` | Translate string (stub) | `TRANSLATE("text", 0)` |
 | `GETDELIM()` | Get delimiter (stub) | `GETDELIM()` → `","` |
 | `SETDELIM(delim)` | Set delimiter (stub) | `SETDELIM(",")` → `1` |
-| `GETSETTING(key)` | Get setting (stub) | `GETSETTING("key")` → `""` |
+| `GETSETTING(key)` | Get setting value | `GETSETTING("key")` → stored value |
 | `SETSETTING(key, val)` | Set setting (stub) | `SETSETTING("k", "v")` → `1` |
 | `GETLASTERROR()` | Get last error code | `GETLASTERROR()` → `0` |
 | `SETLASTERROR(code)` | Set last error | `SETLASTERROR(0)` → `1` |
-| `GETERRORLOG()` | Get error log (stub) | `GETERRORLOG()` → `""` |
-| `CLEARERRORLOG()` | Clear error log | `CLEARERRORLOG()` → `1` |
-| `GETCALLSTACK()` | Get call stack (stub) | `GETCALLSTACK()` → `[]` |
-| `GETFUNCINFO(name)` | Get function info (stub) | `GETFUNCINFO("func")` → `""` |
-| `LOADLIB(file)` | Load SAORI/Plugin lib | `LOADLIB("lib.dll")` → `1` (compatibility) |
-| `UNLOADLIB(file)` | Unload SAORI/Plugin lib | `UNLOADLIB("lib.dll")` → `1` (compatibility) |
-| `REQUESTLIB(file, args)` | Request from SAORI/Plugin | `REQUESTLIB("lib", "arg")` → `""` |
+| `GETERRORLOG()` | Get accumulated error log | `GETERRORLOG()` → newline-joined log |
+| `GETCALLSTACK()` | Get call stack (recursion depth) | `GETCALLSTACK()` → `[depth]` |
+| `GETFUNCINFO(name)` | Get function info `[type, enabled_count, source_id]` | `GETFUNCINFO("func")` → array |
+| `LOADLIB(file)` | Load SAORI/Plugin lib (via host IPC) | `LOADLIB("lib.dll")` → `1` |
+| `UNLOADLIB(file)` | Unload SAORI/Plugin lib | `UNLOADLIB("lib.dll")` → `1` |
+| `REQUESTLIB(file, request[, charset])` | Request from SAORI; parses Result + Value0.. | `REQUESTLIB("lib", req)` → Result value |
 
-**Note on Plugin Functions**: LOADLIB/UNLOADLIB/REQUESTLIB return compatibility values. Full integration with Swift PluginRegistry requires additional IPC implementation (future enhancement).
+**Note on Plugin Functions**: LOADLIB/UNLOADLIB/REQUESTLIB route through the Swift host `SaoriManager` via JSON IPC. REQUESTLIB parses the SAORI response (`Result` header + `Value0`/`Value1`/...) and exposes extras via the `valueex`/`valueex0..15` builtins. `FUNCTIONLOAD`/`FUNCTIONEX`/`SAORI` yaya-dic wrappers are also provided.
 
-Plus advanced functions: `ISGLOBALDEFINE`, `SETGLOBALDEFINE`, `UNDEFGLOBALDEFINE`, `PROCESSGLOBALDEFINE`, `APPEND_RUNTIME_DIC`, `FUNCDECL_READ`, `FUNCDECL_WRITE`, `FUNCDECL_ERASE`, `OUTPUTNUM`, `EmBeD_HiStOrY`
+Plus advanced functions: `ISGLOBALDEFINE`, `SETGLOBALDEFINE`, `UNDEFGLOBALDEFINE`, `PROCESSGLOBALDEFINE` (runtime global defines), `APPEND_RUNTIME_DIC`, `FUNCDECL_READ`, `FUNCDECL_WRITE`, `FUNCDECL_ERASE`, `CHARSETTEXTTOID`, `CHARSETIDTOTEXT`, `valueex`/`valueex0..15`, `OUTPUTNUM`, `EmBeD_HiStOrY`
 
-## Implementation Status
+## Implementation Status (Honest)
 
-- **Total Functions**: 160
-- **Fully Implemented**: 160 (100%)
-- **File I/O**: Fully working with security restrictions (relative paths only)
-- **System Commands**: EXECUTE/EXECUTE_WAIT/SLEEP fully working
-- **Plugin Functions**: Return compatibility values, full integration pending
-- **Optional Stubs**: Regular expressions (requires library)
+- **Total functions present**: ~160 (for compatibility with yaya-shiori-500)
+- **Fully implemented**: type conversion, string, math, array, bitwise, hex/binary, type checking, file I/O (restricted), system/time, most variable/function management, regular expressions (`RE_*` via std::regex, incl. `RE_ASEARCH`/`RE_ASEARCHEX`), dynamic dictionaries (`DICLOAD`/`DICUNLOAD`/`APPEND_RUNTIME_DIC`), persistence (`SAVEVAR`/`RESTOREVAR` with `REGISTERTEMPVAR` exclusions), SAORI helpers (`LOADLIB`/`UNLOADLIB`/`REQUESTLIB` + valueex), settings, diagnostics (`GETERRORLOG`/`GETCALLSTACK`/`GETFUNCINFO`), encoding utils (`CHARSETLIB`/`CHARSETTEXTTOID`/`CHARSETIDTOTEXT`/`ZEN2HAN`/`HAN2ZEN`), global defines
+- **Stubs remaining**: directory ops (`MKDIR`/`RMDIR`/`FENUM`), Windows-only shims (`SETTAMAHWND`, `READFMO`)
+- **File I/O**: working but restricted to relative paths (no absolute / no `..`)
+- **System commands**: `EXECUTE`/`EXECUTE_WAIT`/`SLEEP` working
+- **Plugin/SAORI functions**: routed through Swift host IPC; multi-value responses parsed
+
+The previous claim of "160 / 160 = 100% fully implemented" was inaccurate. Many
+entries exist only so that ghosts which *call* these functions do not crash; they
+do not perform the documented operation.
 
 ## Notes
 
-1. **Security**: File I/O and system execution functions are stubs that return safe defaults to prevent unauthorized access.
+1. **Security**: File I/O and system execution are restricted. File operations
+   allow only relative paths (no absolute paths, no `..` traversal) to keep
+   access within the ghost directory.
 
-2. **Performance**: All core functions (type conversion, string ops, math, arrays, bitwise) are fully functional with native C++ performance.
+2. **Performance**: Core functions (type conversion, string ops, math, arrays,
+   bitwise) run with native C++ performance. Stub functions return immediately.
 
-3. **Compatibility**: This implementation matches the yaya-shiori-500 reference and can run any YAYA ghost, including complex ones like Emily4.
+3. **Compatibility**: This is **not** a 100% faithful reimplementation of the
+   Windows `yaya-shiori` reference. It can load and run many ghosts (including
+   Emily4, which loads 33/33 dictionaries), but stubbed helpers and simplified
+   constructs limit full fidelity for advanced ghosts.
 
-4. **Testing**: All functions have been tested and verified. See `examples/all_functions_test.dic` for comprehensive examples.
+4. **Testing**: Core functions are exercised by `examples/`. See
+   `IMPLEMENTATION_STATUS.md` for the per-feature status matrix.
 
 ## Usage Example
 
