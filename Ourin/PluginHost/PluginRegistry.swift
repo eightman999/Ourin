@@ -48,6 +48,61 @@ public struct PluginMeta {
     }
 }
 
+/// macOS ホスト上で plugin metadata を SSP 互換名と実行実体の両面から見るためのビュー。
+///
+/// `path` / `compatibilityPath` は descript.txt の `filename` から得られる互換パスを指す。
+/// Windows DLL 資産はこのビューには現れるが、`canDispatchRequests == false` の metadata-only として扱う。
+public struct PluginCompatibilityEntry: Equatable {
+    public enum ExecutionState: String {
+        case native
+        case metadataOnly
+    }
+
+    public let name: String
+    public let id: String
+    public let filename: String
+    public let charset: String
+    public let craftman: String?
+    public let craftmanURL: String?
+    public let native: Bool
+    public let executionState: ExecutionState
+    public let canDispatchRequests: Bool
+    public let compatibilityPath: String
+    public let executablePath: String
+    public let packagePath: String?
+    public let installType: String?
+    public let installDirectory: String?
+    public let localizedMessages: [String: [String: String]]
+    public let localizedMessageLanguages: [String]
+
+    public var path: String {
+        compatibilityPath
+    }
+}
+
+public extension PluginMeta {
+    var compatibilityEntry: PluginCompatibilityEntry {
+        PluginCompatibilityEntry(
+            name: name,
+            id: id,
+            filename: filename,
+            charset: charset ?? "UTF-8",
+            craftman: craftman,
+            craftmanURL: craftmanURL,
+            native: isNative,
+            executionState: isNative ? .native : .metadataOnly,
+            canDispatchRequests: isNative,
+            compatibilityPath: compatibilityPath,
+            executablePath: executablePath,
+            packagePath: packagePath,
+            installType: installType,
+            installDirectory: installDirectory,
+            localizedMessages: localizedMessages,
+            localizedMessageLanguages: localizedMessages.keys.sorted()
+        )
+    }
+}
+
 public enum PluginOtherGhostTalkTiming: String {
     case before
     case after
@@ -74,6 +129,22 @@ public final class PluginRegistry {
 
     public var allMetas: [PluginMeta] {
         metas.values.map { $0 } + legacyMetas.map { $0.meta }
+    }
+
+    /// UI・property・診断向けの互換ビュー。
+    ///
+    /// Native `.plugin` / `.bundle` は `canDispatchRequests == true`、Windows DLL 由来の legacy plugin は
+    /// metadata-only として列挙だけ行い、PLUGIN request の送信対象にはしない。
+    public var compatibilityEntries: [PluginCompatibilityEntry] {
+        allMetas
+            .map(\.compatibilityEntry)
+            .sorted {
+                let lhsName = $0.name.localizedStandardCompare($1.name)
+                if lhsName != .orderedSame { return lhsName == .orderedAscending }
+                let lhsID = $0.id.localizedStandardCompare($1.id)
+                if lhsID != .orderedSame { return lhsID == .orderedAscending }
+                return $0.compatibilityPath.localizedStandardCompare($1.compatibilityPath) == .orderedAscending
+            }
     }
 
     /// 現在ロード済みの plugin ID の集合（重複抑止用）。

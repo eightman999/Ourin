@@ -82,6 +82,10 @@ ourin/macos/<name>_mac/
 
 ## 修正 3: `PluginMeta.path` の意味を分離する
 
+**現状:** 2026-06-27 実装済み。`PluginMeta.compatibilityPath` / `executablePath` / `packagePath` と
+`PluginCompatibilityEntry` を追加し、`pluginlist.index(n).executablepath` /
+`pluginlist.index(n).packagepath` / `executionstate` / `candispatchrequests` で参照できる。
+
 **問題**
 
 package root の `descript.txt` が元 DLL の `filename,SAKNIFE.dll` を保持する場合、`PluginMeta.path` は DLL パスになる。一方、実際にロードされた native bundle は `SAKNIFE.plugin` であり、`pluginpathlist` の意味が曖昧になる。

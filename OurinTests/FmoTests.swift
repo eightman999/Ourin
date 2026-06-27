@@ -84,6 +84,43 @@ struct FmoTests {
         #expect(snapshot.contains("1.sakura.surface\u{01}2\r\n"))
     }
 
+    @Test func compatibilityViewParsesSnapshot() throws {
+        var record = FmoGhostRecord(name: "Ghost", keroname: "Kero", path: "/ghost", shell: "master", balloon: "default", sakuraSurface: 5, keroSurface: 15)
+        record.hwnd = 1001
+        record.kerohwnd = 1002
+        record.hwndList = "1001,1002"
+
+        let view = FmoManager.buildCompatibilityView(records: [record])
+
+        let entry = try #require(view.entry(id: 0))
+        #expect(entry["name"] == "Ghost")
+        #expect(entry["keroname"] == "Kero")
+        #expect(entry["path"] == "/ghost")
+        #expect(entry["sakura.surface"] == "5")
+        #expect(entry["kero.surface"] == "15")
+        #expect(entry["hwnd"] == "1001")
+        #expect(view.value(id: 0, key: "hwndlist") == "1001,1002")
+    }
+
+    @Test func compatibilityViewIgnoresMalformedLinesAndSortsByID() throws {
+        let snapshot = [
+            "2.name\u{01}Third",
+            "not-an-id.name\u{01}Broken",
+            "1.name\u{01}Second",
+            "0.\u{01}NoField",
+            "missing-separator",
+            "0.name\u{01}First"
+        ].joined(separator: "\r\n") + "\r\n"
+
+        let view = FmoCompatibilityView.parse(snapshot)
+
+        #expect(view.entries.map(\.id) == [0, 1, 2])
+        #expect(view.value(id: 0, key: "name") == "First")
+        #expect(view.value(id: 1, key: "name") == "Second")
+        #expect(view.value(id: 2, key: "name") == "Third")
+        #expect(view.value(id: 0, key: "") == nil)
+    }
+
     @Test func buildSnapshotEmptyRecordsReturnsEmptyString() {
         let snapshot = FmoManager.buildSnapshot(records: [])
         #expect(snapshot.isEmpty)

@@ -94,9 +94,13 @@
 #### PluginPropertyProvider
 `pluginlist.*` プロパティを提供します:
 - `pluginlist.count`
-- `pluginlist.index(n).{name|path|id|craftmanw|craftmanurl|filename|native}`
-- `pluginlist({name|path|id}).{property}`
-- `pluginlist({name|path|id}).message.<key>` - plugin パッケージの `message.*.txt` から読み取った言語別文字列（例: `message.menu.title`）
+- `pluginlist.index(n).{name|path|id|craftmanw|craftmanurl|filename|native|executablepath|packagepath|executionstate|candispatchrequests}`
+- `pluginlist({name|path|id|executablepath|packagepath}).{property}`
+- `pluginlist({name|path|id|executablepath|packagepath}).message.<key>` - plugin パッケージの `message.*.txt` から読み取った言語別文字列（例: `message.menu.title`）
+
+`path` は SSP 互換の元モジュール位置、`executablepath` は macOS native `.plugin` / `.bundle` 実体、
+`packagepath` は `install.txt` 付き package directory です。Windows DLL 由来 plugin は
+`executionstate=metadataOnly`、`candispatchrequests=0` として列挙のみ行います。
 
 ## 使い方
 

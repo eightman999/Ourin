@@ -120,36 +120,12 @@ extension GhostManager {
     func loadAnimationsForCurrentSurface() {
         guard let shellPath = loadShellPath() else { return }
 
-        let surfacesPath = shellPath.appendingPathComponent("surfaces.txt")
-        guard FileManager.default.fileExists(atPath: surfacesPath.path) else {
-            Log.info("[GhostManager] surfaces.txt not found at: \(surfacesPath.path)")
+        guard let definitionBundle = SurfaceDefinitionLoader.load(from: shellPath) else {
+            Log.info("[GhostManager] No readable surfaces*.txt, alias.txt, or surfacetable.txt in: \(shellPath.path)")
             return
         }
-
-        // Try to load with different encodings
-        var content: String?
-        if let utf8Content = try? String(contentsOf: surfacesPath, encoding: .utf8) {
-            content = utf8Content
-        } else if let shiftJISContent = try? String(contentsOf: surfacesPath, encoding: .shiftJIS) {
-            content = shiftJISContent
-        }
-
-        guard let surfacesContent = content else {
-            Log.info("[GhostManager] Failed to read surfaces.txt")
-            return
-        }
-
-        // alias.txt / surfacetable.txt（あれば）も結合し、別名・element 定義を補完する
-        var combined = surfacesContent
-        for extra in ["alias.txt", "surfacetable.txt"] {
-            let url = shellPath.appendingPathComponent(extra)
-            guard FileManager.default.fileExists(atPath: url.path) else { continue }
-            if let c = (try? String(contentsOf: url, encoding: .utf8))
-                ?? (try? String(contentsOf: url, encoding: .shiftJIS)) {
-                combined += "\n" + c
-                Log.debug("[GhostManager] Merged \(extra) into surface definitions")
-            }
-        }
+        let combined = definitionBundle.content
+        Log.debug("[GhostManager] Loaded surface definition files: \(definitionBundle.sourceFileNames.joined(separator: ", "))")
 
         if surfaceAliases.isEmpty {
             surfaceAliases = SerikoParser.parseSurfaceAliases(combined)
@@ -181,7 +157,7 @@ extension GhostManager {
         shutdownSerikoLoop()
         loadAnimationsForCurrentSurface()
         EventBridge.shared.notifyCustom("OnSurfacesReloaded", params: ["Reference0": activeShellName])
-        Log.debug("[GhostManager] Reloaded surfaces.txt definitions")
+        Log.debug("[GhostManager] Reloaded surfaces*.txt definitions")
     }
 
     func triggerSerikoTalkAnimationIfEnabled() {

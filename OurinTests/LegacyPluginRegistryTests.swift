@@ -51,6 +51,16 @@ struct LegacyPluginRegistryTests {
         #expect(meta.message(for: "menu.title", language: "ja") == "共有値")
         #expect(meta.message(for: "menu.title", language: "en") == "Shared Value")
 
+        let entry = try #require(registry.compatibilityEntries.first)
+        #expect(entry.name == "Shared Value")
+        #expect(entry.executionState == .metadataOnly)
+        #expect(entry.canDispatchRequests == false)
+        #expect(entry.native == false)
+        #expect(entry.path == entry.compatibilityPath)
+        #expect(standardized(entry.compatibilityPath) == standardized(pluginDir.appendingPathComponent("shared_value.dll").path))
+        #expect(standardized(entry.executablePath) == standardized(entry.compatibilityPath))
+        #expect(entry.localizedMessageLanguages == ["english", "japanese"])
+
         let provider = PluginPropertyProvider(plugins: registry.allMetas.map {
             PropertyPlugin(
                 name: $0.name,
@@ -69,6 +79,9 @@ struct LegacyPluginRegistryTests {
         #expect(provider.get(key: "index(0).charset") == "UTF-8")
         #expect(provider.get(key: "index(0).message.menu.title") == "共有値" || provider.get(key: "index(0).message.menu.title") == "Shared Value")
         #expect(provider.get(key: "index(0).native") == "0")
+        #expect(provider.get(key: "index(0).executionstate") == "metadataOnly")
+        #expect(provider.get(key: "index(0).candispatchrequests") == "0")
+        #expect(standardized(provider.get(key: "(\(entry.executablePath)).path")) == standardized(entry.compatibilityPath))
     }
 
     @Test
@@ -134,6 +147,13 @@ struct LegacyPluginRegistryTests {
         #expect(meta.executablePath == meta.compatibilityPath)
         // legacy ディレクトリには install.txt が無いため packagePath は nil
         #expect(meta.packagePath == nil)
+
+        let entry = try #require(registry.compatibilityEntries.first)
+        #expect(entry.executionState == .metadataOnly)
+        #expect(entry.canDispatchRequests == false)
+        #expect(entry.path == meta.path)
+        #expect(entry.executablePath == meta.executablePath)
+        #expect(entry.packagePath == nil)
     }
 
     @Test
@@ -145,12 +165,18 @@ struct LegacyPluginRegistryTests {
             filename: "test.dll",
             native: false,
             executablePath: "/plugin/test/test.plugin",
-            packagePath: "/plugin/test_mac"
+            packagePath: "/plugin/test_mac",
+            executionState: "metadataOnly",
+            canDispatchRequests: false
         )
         let provider = PluginPropertyProvider(plugins: [plugin])
         #expect(provider.get(key: "index(0).path") == "/plugin/test/test.dll")
         #expect(provider.get(key: "index(0).executablepath") == "/plugin/test/test.plugin")
         #expect(provider.get(key: "index(0).packagepath") == "/plugin/test_mac")
+        #expect(provider.get(key: "index(0).executionstate") == "metadataOnly")
+        #expect(provider.get(key: "index(0).candispatchrequests") == "0")
+        #expect(provider.get(key: "(/plugin/test/test.plugin).id") == "prop-test")
+        #expect(provider.get(key: "(/plugin/test_mac).id") == "prop-test")
     }
 }
 

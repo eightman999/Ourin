@@ -4,7 +4,7 @@ This document explains the FMO (Forged Memory Object) implementation in Ourin.
 
 ## Overview
 
-Ourin's FMO is **not** a full Windows FileMapping API compatibility layer. Instead, it provides **semantic compatibility** using POSIX shared memory. The goal is to let external tools query the list of running ghosts along with their names, paths, shells, balloons, and surfaces.
+Ourin's FMO is **not** a full Windows FileMapping API compatibility layer. Instead, it provides **semantic compatibility** using POSIX shared memory. The goal is to let external tools query the list of running ghosts along with their names, paths, and surfaces. Binary/OS API compatibility with Windows tools that read FMO through Win32 APIs is out of scope. The compatibility boundary Ourin guarantees is `EXECUTE GetFMO` and the `id.key\x01value\r\n` text view.
 
 ## Shared Memory Names
 
@@ -18,7 +18,7 @@ Ourin's FMO is **not** a full Windows FileMapping API compatibility layer. Inste
 An SSP-compatible format is used:
 
 ```
-(id).(key)\x01(value)\r\n
+id.key\x01value\r\n
 ```
 
 - `\x01` is ASCII SOH (Start of Heading, U+0001)
@@ -31,30 +31,45 @@ An SSP-compatible format is used:
 |---|---|---|
 | `name` | Ghost's sakura name | `Emily4` |
 | `keroname` | Kero's name | `Teddy` |
+| `fullname` | Full ghost name from descript metadata | `Emily/Phase4` |
+| `ghostname` | Ghost name from descript/directory metadata | `emily4` |
 | `path` | Ghost directory path | `/Users/.../ghost/emily4` |
-| `shell` | Current shell name | `master` |
-| `balloon` | Current balloon name | `default` |
+| `ghostpath` | Ghost installation path | `/Users/.../ghost/emily4` |
 | `sakura.surface` | Current sakura surface ID | `0` |
 | `kero.surface` | Current kero surface ID | `10` |
-| `hwnd` | Window handle (dummy value) | `0` |
+| `hwnd` | Ourin window identifier for sakura | `1001` |
+| `kerohwnd` | Ourin window identifier for kero | `1002` |
+| `hwndlist` | Comma-separated window identifiers for this ghost | `1001,1002` |
+| `module.state` | Ghost module state | `running` |
+| `shell` | Current shell name (Ourin extension) | `master` |
+| `balloon` | Current balloon name (Ourin extension) | `default` |
 
 ### Example Output
 
 ```
 0.name\x01Emily4\r\n
 0.keroname\x01Teddy\r\n
+0.fullname\x01Emily/Phase4\r\n
+0.ghostname\x01emily4\r\n
 0.path\x01/Users/user/Library/.../ghost/emily4\r\n
-0.shell\x01master\r\n
-0.balloon\x01default\r\n
+0.ghostpath\x01/Users/user/Library/.../ghost/emily4\r\n
 0.sakura.surface\x010\r\n
 0.kero.surface\x0110\r\n
-0.hwnd\x010\r\n
+0.hwnd\x011001\r\n
+0.kerohwnd\x011002\r\n
+0.hwndlist\x011001,1002\r\n
+0.module.state\x01running\r\n
+0.shell\x01master\r\n
+0.balloon\x01default\r\n
 ```
 
-## Differences from Windows
+## macOS-Specific Constraints and Differences from Windows
 
-### hwnd is a Dummy Value
-`hwnd` corresponds to a Windows window handle but has no meaning on macOS. It always returns `0`.
+### FileMapping Names Are Not Compatible
+Ourin does not expose the exact named FileMapping objects used by Windows/SSP. On macOS it uses POSIX shared memory `/ourin_fmo` and semaphore `/ourin_fmo_mutex`. Windows external tools cannot read this FMO directly through Win32 APIs.
+
+### hwnd is Not a Win32 HWND
+`hwnd`, `kerohwnd`, and `hwndlist` are not Windows window handles. Ourin prefers `NSWindow.windowNumber`; when that is unavailable, it generates a stable non-zero hash from the ghost/scope. These values are for identification and SSTP target resolution inside the running Ourin process and cannot be dereferenced as Win32 HWND values.
 
 ### Path Format
 Paths use the native macOS format (POSIX paths), not Windows backslash separators or drive letter notation.
@@ -63,6 +78,17 @@ Paths use the native macOS format (POSIX paths), not Windows backslash separator
 - Windows: Named FileMapping is automatically deleted when all handles are closed.
 - Ourin: POSIX shared memory retains its name while the process is alive. On normal shutdown, `shm_unlink` / `sem_unlink` are called to remove it.
 - Shared memory left behind after a crash is safely overwritten on the next launch.
+
+## Compatibility Views
+
+### FMO Text View
+`FmoManager.buildSnapshot(records:)` generates SSP-style `id.key\x01value\r\n` text. SSTP `EXECUTE GetFMO` and the POSIX shared memory payload both use this same text view.
+
+### Structured View
+`FmoCompatibilityView.parse(_:)` and `FmoManager.buildCompatibilityView(records:)` expose the same text as field dictionaries grouped by `id`. Tests, diagnostic UI, and macOS bridge code should use this view rather than depending on POSIX shared memory details or Windows APIs.
+
+### POSIX Shared Memory View
+In shared memory, the first 4 bytes contain a `uint32_t` UTF-8 payload length, followed by the FMO text and a trailing NUL byte. This is an Ourin macOS implementation detail, not the Windows FMO memory object format itself.
 
 ## Accessing FMO from External Apps
 
@@ -97,9 +123,14 @@ The FMO is updated at the following events:
 ### `FmoManager`
 - Overall FMO management class
 - `buildSnapshot(records:)`: Generates SSP-style record format string (static)
+- `buildCompatibilityView(records:)`: Generates a structured compatibility view from the same records (static)
 - `writeSnapshot(records:)`: Writes snapshot to shared memory
 - `isAnotherInstanceRunning()`: Checks for another instance via shared memory existence
 - `cleanup()`: Releases shared memory and semaphore on normal shutdown
+
+### `FmoCompatibilityView`
+- Parses `id.key\x01value\r\n` FMO text into `fields` grouped by `id`
+- Ignores malformed lines and returns entries sorted by `id`
 
 ### `FmoSharedMemory`
 - POSIX shared memory wrapper

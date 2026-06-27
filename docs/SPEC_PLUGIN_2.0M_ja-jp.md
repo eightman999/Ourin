@@ -83,6 +83,28 @@ SomePlugin_mac/
 - `.plugin` bundle は実行本体であり、DLL の `load` / `loadu` / `request` / `unload` / `unloadu` 互換処理に集中する。
 - 既存配布物の `ReadMe.txt` 等を同梱する場合は、実行時入力ではなく参照資料として扱う。
 
+### 5.2 macOS 独自制約と互換ビュー
+
+Ourin は Windows DLL/PE plugin のバイナリ実行互換を提供しない。既存の `*.dll` / `*.exe` 資産は
+`descript.txt`、`install.txt`、`message.*.txt` 等のメタデータを読む対象であり、Mach-O の
+`.plugin` / `.bundle` へ移植されていない限り `request` の送信対象にはしない。
+
+この差異を UI・プロパティ・テストで一貫して扱うため、ホストは `PluginCompatibilityEntry` を互換ビューとして公開する。
+
+| フィールド | 意味 |
+|---|---|
+| `path` / `compatibilityPath` | `descript.txt` の `filename` から得る互換パス。`pluginlist.index(n).path` はこれを返す。legacy DLL では元 DLL パスになる。 |
+| `executablePath` | 実際にロード可能な macOS `.plugin` / `.bundle` のパス。legacy metadata-only では `compatibilityPath` と同じ値を返す。 |
+| `packagePath` | `install.txt` 付き plugin パッケージディレクトリ。存在しない場合は空または nil。 |
+| `native` | macOS native bundle としてロード可能なら `1`、metadata-only なら `0`。 |
+| `executionState` | `native` または `metadataOnly`。 |
+| `canDispatchRequests` | PLUGIN `GET` / `NOTIFY` を送れる場合のみ true。Windows DLL metadata-only は false。 |
+| `filename` / `charset` / `message.*` | SSP 由来の表示・互換メタデータ。実行可否とは独立して保持する。 |
+
+PLUGIN request の `Target` 解決では、native としてロード済みの plugin に限り、`id` / `name` /
+`compatibilityPath` / `executablePath` / `packagePath` を照合対象にできる。metadata-only plugin は
+`pluginlist.*` や開発ツールの一覧には現れるが、イベントディスパッチ対象にはならない。
+
 ## 6. ワイヤプロトコル（2.0 との差分）
 - **版表記:** 先頭行のプロトコル名は `PLUGIN/2.0M` を用いる（構文は 2.0 と同形）。  
 - **Charset 既定:** 2.0M では **UTF‑8** を未指定時の既定とする。互換のため `Shift_JIS` / `Windows‑31J` 等のラベルを受理する（実体は CP932 相当として扱ってよい）。  
@@ -168,6 +190,8 @@ Charset: UTF-8
 - [x] **descript.txt 解析**: プラグインメタデータの読み取りを実装済み
 - [x] **install.txt パッケージ検出**: `type,plugin` ディレクトリ配下の native `.plugin` 読み込みを実装済み
 - [x] **message.*.txt 解析**: パッケージルートの言語別メッセージ辞書を読み取り、plugin メタデータへ保持
+- [x] **互換ビュー**: `PluginCompatibilityEntry` で `path` / `executablePath` / `packagePath` / 実行可否を明示
+- [x] **legacy DLL metadata-only**: Windows DLL 資産をロードせず、一覧・プロパティ互換情報として登録
 - [x] **文字コード対応**: UTF-8 既定、Shift_JIS/CP932 の自動検出を実装済み
 - [x] **PLUGIN/2.0M プロトコル**: `PluginProtocol.swift` にて完全実装済み
 - [x] **イベントディスパッチ**: `PluginRegistry.swift` にて PLUGIN/2.0M 互換のイベントディスパッチを実装済み
@@ -243,6 +267,10 @@ Charset: UTF-8
 
 ## 14. 既知の差分（Windows 前提語彙）
 - `HWND` 相当のフィールドは macOS では **未使用/0** とする（必要なら将来の UI 連携拡張で定義）。
+- Windows DLL/PE plugin は直接ロードしない。Ourin 上では metadata-only の互換ビューに登録し、実行には
+  Mach-O `.plugin` / `.bundle` への移植が必要。
+- パスは POSIX パスで公開する。`path` は SSP 互換上の元モジュール位置、`executablePath` は macOS native 実体、
+  `packagePath` は package directory を指す。
 
 ## 15. 付録A：DLL → .plugin ポーティング手順（最短）
 1) **ターゲットを Bundle（Mach‑O: bundle）** に切替（Xcode）。**Universal 2** を有効化。  

@@ -3,6 +3,21 @@ import Testing
 @testable import Ourin
 
 struct SerikoParserTests {
+    private func makeTemporaryShellDirectory() throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("OurinSerikoParserTests-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+
+    private func write(_ text: String, named fileName: String, to directory: URL) throws {
+        try text.write(
+            to: directory.appendingPathComponent(fileName),
+            atomically: true,
+            encoding: .utf8
+        )
+    }
+
     @Test
     func parseSurfaceScopeAndAnimationEntries() async throws {
         let text = """
@@ -104,5 +119,71 @@ struct SerikoParserTests {
         #expect(pattern?.duration == 150)
         #expect(pattern?.x == 8)
         #expect(pattern?.y == 9)
+    }
+
+    @Test
+    func loadSurfacesWildcardFilesInFilenameOrder() async throws {
+        let shell = try makeTemporaryShellDirectory()
+        defer { try? FileManager.default.removeItem(at: shell) }
+
+        try write("""
+        surface0
+        {
+          animation0.interval,always
+        }
+        """, named: "surfaces2.txt", to: shell)
+
+        try write("""
+        surface0
+        {
+          animation0.interval,rarely
+        }
+        """, named: "surfaces10.txt", to: shell)
+
+        try write("""
+        surface0
+        {
+          animation0.interval,never
+        }
+        """, named: "surfaces.txt", to: shell)
+
+        try write("""
+        surface0
+        {
+          animation1.interval,runonce
+        }
+        """, named: "surfacetable.txt", to: shell)
+
+        let bundle = try #require(SurfaceDefinitionLoader.load(from: shell))
+        #expect(bundle.sourceFileNames == ["surfaces.txt", "surfaces10.txt", "surfaces2.txt", "surfacetable.txt"])
+
+        let parsed = SerikoParser.parseSurfaces(bundle.content)
+        #expect(parsed[0]?.animations[0]?.interval == .always)
+        #expect(parsed[0]?.animations[1]?.interval == .runonce)
+    }
+
+    @Test
+    func loadSurfacesWildcardWithoutBaseSurfacesTxt() async throws {
+        let shell = try makeTemporaryShellDirectory()
+        defer { try? FileManager.default.removeItem(at: shell) }
+
+        try write("""
+        surface7
+        {
+          animation3.interval,talk
+        }
+        """, named: "surfaces-extra.txt", to: shell)
+
+        try FileManager.default.createDirectory(
+            at: shell.appendingPathComponent("surfaces-dir.txt"),
+            withIntermediateDirectories: true
+        )
+        try write("ignored", named: "notsurfaces.txt", to: shell)
+
+        let bundle = try #require(SurfaceDefinitionLoader.load(from: shell))
+        #expect(bundle.sourceFileNames == ["surfaces-extra.txt"])
+
+        let parsed = SerikoParser.parseSurfaces(bundle.content)
+        #expect(parsed[7]?.animations[3]?.interval == .talk)
     }
 }

@@ -30,6 +30,62 @@ struct FmoGhostRecord {
     var moduleState: String = "running"
 }
 
+/// SSP 互換 FMO テキストを構造化して読むためのビュー。
+///
+/// Ourin の POSIX 共有メモリ実体は Windows の FileMapping 互換ではないため、
+/// 外部連携やテストでは `FmoManager.buildSnapshot(records:)` が返す
+/// `id.key SOH value CRLF` の互換ビューを基準に扱う。
+struct FmoCompatibilityEntry: Equatable {
+    let id: Int
+    let fields: [String: String]
+
+    subscript(key: String) -> String? {
+        fields[key]
+    }
+}
+
+struct FmoCompatibilityView: Equatable {
+    let entries: [FmoCompatibilityEntry]
+
+    var isEmpty: Bool {
+        entries.isEmpty
+    }
+
+    func entry(id: Int) -> FmoCompatibilityEntry? {
+        entries.first { $0.id == id }
+    }
+
+    func value(id: Int, key: String) -> String? {
+        entry(id: id)?[key]
+    }
+
+    static func parse(_ snapshot: String) -> FmoCompatibilityView {
+        var fieldsByID: [Int: [String: String]] = [:]
+
+        for line in snapshot.components(separatedBy: "\r\n") where !line.isEmpty {
+            let pair = line.split(separator: "\u{01}", maxSplits: 1, omittingEmptySubsequences: false)
+            guard pair.count == 2 else { continue }
+
+            let keyPart = String(pair[0])
+            guard let dot = keyPart.firstIndex(of: "."),
+                  let id = Int(keyPart[..<dot]) else {
+                continue
+            }
+
+            let fieldStart = keyPart.index(after: dot)
+            guard fieldStart < keyPart.endIndex else { continue }
+            let fieldName = String(keyPart[fieldStart...])
+            fieldsByID[id, default: [:]][fieldName] = String(pair[1])
+        }
+
+        return FmoCompatibilityView(
+            entries: fieldsByID.keys.sorted().map { id in
+                FmoCompatibilityEntry(id: id, fields: fieldsByID[id] ?? [:])
+            }
+        )
+    }
+}
+
 /// FMO の初期化・スナップショット生成・後始末を司る管理クラス
 final class FmoManager {
     static let defaultSharedName = "/ourin_fmo"
@@ -94,8 +150,8 @@ final class FmoManager {
     /// POSIX共有メモリへの書き込みと SSTP EXECUTE GetFMO の応答は
     /// ともにこの関数の出力を使う。
     ///
-    /// 形式: `(id).(key)\x01(value)\r\n`（SOH 区切り、CRLF 終端、UTF-8）。
-    /// レコード ID（先頭の `(id).`）は配列インデックスだが、hwnd の値は
+    /// 形式: `id.key\x01value\r\n`（SOH 区切り、CRLF 終端、UTF-8）。
+    /// レコード ID（先頭の `id.`）は配列インデックスだが、hwnd の値は
     /// レコード固有の安定・一意・非ゼロな識別子を出力する。
     static func buildSnapshot(records: [FmoGhostRecord]) -> String {
         var lines: [String] = []
@@ -119,6 +175,14 @@ final class FmoManager {
             lines.append("\(id).balloon\u{01}\(record.balloon)\r\n")
         }
         return lines.joined()
+    }
+
+    /// 互換テキストを構造化ビューとして返す。
+    ///
+    /// `writeSnapshot(records:)` と `EXECUTE GetFMO` は従来どおり文字列を返す。
+    /// この API はテスト、診断 UI、macOS 側ブリッジで同じ内容を安全に再利用するための補助ビュー。
+    static func buildCompatibilityView(records: [FmoGhostRecord]) -> FmoCompatibilityView {
+        FmoCompatibilityView.parse(buildSnapshot(records: records))
     }
 
     /// 共有メモリにスナップショットを書き込む

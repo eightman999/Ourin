@@ -15,6 +15,10 @@ public struct PropertyPlugin {
     public let executablePath: String
     /// install.txt 付き package directory のパス（無い場合は nil）。
     public let packagePath: String?
+    /// `native` または `metadataOnly`。互換ビュー上の実行状態。
+    public let executionState: String
+    /// PLUGIN request を dispatch できる場合のみ true。
+    public let canDispatchRequests: Bool
 
     public init(name: String,
                 path: String,
@@ -26,7 +30,9 @@ public struct PropertyPlugin {
                 native: Bool = true,
                 localizedMessages: [String: [String: String]] = [:],
                 executablePath: String? = nil,
-                packagePath: String? = nil) {
+                packagePath: String? = nil,
+                executionState: String? = nil,
+                canDispatchRequests: Bool? = nil) {
         self.name = name
         self.path = path
         self.id = id
@@ -39,6 +45,8 @@ public struct PropertyPlugin {
         // executablePath が省略された場合は path（互換パス）と同じにする。
         self.executablePath = executablePath ?? path
         self.packagePath = packagePath
+        self.executionState = executionState ?? (native ? "native" : "metadataOnly")
+        self.canDispatchRequests = canDispatchRequests ?? native
     }
 
     public func message(for key: String, language: String? = nil) -> String? {
@@ -147,6 +155,10 @@ final class PluginPropertyProvider: PropertyProvider {
             return plugin.craftmanurl
         case "native":
             return plugin.native ? "1" : "0"
+        case "executionstate":
+            return plugin.executionState
+        case "candispatchrequests":
+            return plugin.canDispatchRequests ? "1" : "0"
         case "index":
             return index.map(String.init)
         default:
@@ -171,7 +183,11 @@ final class PluginPropertyProvider: PropertyProvider {
 
     private func findPlugin(by identifier: String) -> PropertyPlugin? {
         return plugins.first { p in
-            p.name == identifier || p.path == identifier || p.id == identifier
+            p.name == identifier
+                || p.path == identifier
+                || p.id == identifier
+                || p.executablePath == identifier
+                || p.packagePath == identifier
         }
     }
 

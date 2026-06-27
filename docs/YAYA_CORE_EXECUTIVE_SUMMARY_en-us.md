@@ -4,11 +4,20 @@
 **Project**: Ourin (桜鈴) - macOS Native Ukagaka Baseware  
 **Issue**: Investigation of yaya_core module status and implementation planning
 
+> **2026-06-27 status correction:** this is a historical executive summary.
+> The current `yaya_core` is no longer IPC-only: it includes a parser, VM,
+> dictionary loader, encoding handling, and broad built-in coverage. It remains
+> partially compatible rather than complete. See
+> [`../yaya_core/IMPLEMENTATION_STATUS.md`](../yaya_core/IMPLEMENTATION_STATUS.md)
+> and [`AUDIT_CODEX_2026-06-27.md`](AUDIT_CODEX_2026-06-27.md).
+
 ---
 
 ## TL;DR
 
-**The yaya_core module EXISTS** but only has the IPC framework implemented. The actual YAYA language interpreter (parser, VM, built-in functions) is **NOT YET IMPLEMENTED** (stub only).
+**Historical note:** at the time of this investigation, `yaya_core` only had the
+IPC framework implemented. That statement is now obsolete; current status is
+partial compatibility with a working parser/VM and known remaining gaps.
 
 **Recommended approach**: Continue with **C++ implementation** (Phase 1-2), optional migration to Swift in Phase 3+.
 
@@ -26,7 +35,9 @@ yaya_core/
 ├── src/
 │   ├── main.cpp                ✅ JSON line-based IPC (stdin/stdout)
 │   ├── YayaCore.cpp            ✅ Command dispatcher (load/request/unload)
-│   └── DictionaryManager.cpp   ❌ STUB ONLY (no actual implementation)
+│   ├── DictionaryManager.cpp   🟡 Implemented, with compatibility limits
+│   ├── Parser.cpp / Lexer.cpp  🟡 Implemented, with advanced syntax limits
+│   └── VM.cpp                  🟡 Implemented, with remaining stub built-ins
 
 Ourin/Yaya/
 └── YayaAdapter.swift           ✅ Swift IPC client (complete)
@@ -35,15 +46,15 @@ docs/
 └── OURIN_YAYA_ADAPTER_SPEC_1.0M.md  ✅ IPC protocol specification
 ```
 
-### What's Missing ❌
+### Remaining Compatibility Gaps
 
 | Component | Priority | Effort |
 |-----------|----------|--------|
-| Dictionary Parser (Lexer + Parser) | Critical | 1 week |
-| YAYA Virtual Machine (VM) | Critical | 1.5 weeks |
-| Built-in Functions | High | 1 week |
-| SHIORI Protocol Adapter | High | 0.5 weeks |
-| UTF-8/CP932 Encoding Support | Medium | 0.5 weeks |
+| By-reference semantics (`&`) | High | TBD |
+| Standalone `when` / labeled block dispatch | High | TBD |
+| Remaining stub built-ins (`MKDIR`, `RMDIR`, `FENUM`, Windows shims) | Medium | TBD |
+| Real ghost output regression matrix | High | TBD |
+| Full SSP/YAYA reference behavior parity | Long-term | TBD |
 
 ---
 

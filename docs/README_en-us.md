@@ -10,6 +10,7 @@ This directory contains all specifications and documentation for Ourin.
 ## 🎯 Getting Started
 
 - [ONBOARDING.md](ONBOARDING_en-us.md) - Ourin overview and getting started guide
+- [Codex Compatibility Audit 2026-06-27](AUDIT_CODEX_2026-06-27.md) - Current UKADOC/SSP-oriented audit and fix priorities
 
 ## 📚 Core Specifications (macOS Version)
 
@@ -21,9 +22,10 @@ These specifications include current implementation status.
   - C ABI Bundle/Plugin loading not yet implemented
 
 ### SSTP Protocol
-- [SSTP/1.xM Specification](SSTP_1.xM_SPEC_en-us.md) 🟢 **Implemented** - macOS version of SSTP protocol
+- [SSTP/1.xM Specification](SSTP_1.xM_SPEC_en-us.md) 🟡 **Partial Compatibility** - macOS version of SSTP protocol
   - TCP/HTTP/XPC server implemented
   - Basic SEND/NOTIFY/COMMUNICATE/EXECUTE methods supported
+  - Remaining gaps: TCP bind scope, raw TCP body forwarding, SHIORI `ReferenceN` response mapping
 
 ### Plugin System
 - [PLUGIN/2.0M Specification](SPEC_PLUGIN_2.0M_en-us.md) 🟡 **Partial** - macOS version of plugin system
@@ -31,22 +33,25 @@ These specifications include current implementation status.
   - Full PLUGIN/2.0M protocol not yet implemented
 
 ### NAR Installation
-- [NAR INSTALL/1.0M Specification](NAR_INSTALL_1.0M_SPEC_en-us.md) 🟢 **Implemented** - NAR package installation specification
+- [NAR INSTALL/1.0M Specification](NAR_INSTALL_1.0M_SPEC_en-us.md) 🟡 **Partial Compatibility** - NAR package installation specification
   - Double-click/Drag-and-drop installation supported
   - Basic extraction and error handling implemented
+  - Remaining gaps: `refreshundeletemask` separator, compound installs, calendar/language package types
 
 ## ⚙️ System Implementation Specifications
 
 ### FMO (Shared Memory)
-- [About FMO](About_FMO_en-us.md) 🟢 **Complete** - Inter-process shared memory implementation
-  - Fully implemented with POSIX shared memory and semaphores
-  - Compliant with ninix specification for startup detection
+- [About FMO](About_FMO_en-us.md) 🟡 **Partial Compatibility** - Inter-process shared memory implementation
+  - Implemented with POSIX shared memory and semaphores
+  - Exposes SSP-style record text
+  - Direct Windows FMO names/HWND compatibility is not implemented and is treated as a platform difference
 
 ### YAYA System
-- [YAYA Adapter Specification 1.0M](OURIN_YAYA_ADAPTER_SPEC_1.0M_en-us.md) 🟢 **Complete** - YAYA ghost execution adapter
+- [YAYA Adapter Specification 1.0M](OURIN_YAYA_ADAPTER_SPEC_1.0M_en-us.md) 🟡 **Partial Compatibility** - YAYA ghost execution adapter
   - IPC with helper process implemented
   - `yaya.txt` and `.dic` file parsing supported
   - SHIORI/3.0M bridge implemented
+  - By-reference semantics, standalone `when`, and some built-in functions remain partial/stubbed
 
 ### USL (Loader)
 - [USL Specification 1.0M](OURIN_USL_1.0M_SPEC_en-us.md) 🟢 **Implemented** - Universal SHIORI Loader
@@ -124,6 +129,7 @@ In the specifications, implementation status uses the following symbols:
 
 ## 📝 Documentation Update History
 
+- **2026-06-27**: Added Codex compatibility audit and corrected implementation status to UKADOC/SSP compatibility framing
 - **2025-10-23**: Complete bilingual structure established, all documents translated
 - **2025-10-20**: Added implementation status sections to specifications, generated HTML versions
 - **2025-07-28**: Initial documentation created

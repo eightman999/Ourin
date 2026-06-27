@@ -84,19 +84,21 @@ public final class PropertyManager {
 
     private func discoverDefaultPlugins() -> [PropertyPlugin] {
         if let app = NSApp.delegate as? AppDelegate, let registry = app.pluginRegistry {
-            let values = registry.allMetas.map {
+            let values = registry.compatibilityEntries.map {
                 PropertyPlugin(
                     name: $0.name,
                     path: $0.compatibilityPath,
                     id: $0.id,
-                    charset: $0.charset ?? "UTF-8",
+                    charset: $0.charset,
                     craftmanw: $0.craftman ?? "",
                     craftmanurl: $0.craftmanURL ?? "",
                     filename: $0.filename,
-                    native: $0.isNative,
+                    native: $0.native,
                     localizedMessages: $0.localizedMessages,
                     executablePath: $0.executablePath,
-                    packagePath: $0.packagePath
+                    packagePath: $0.packagePath,
+                    executionState: $0.executionState.rawValue,
+                    canDispatchRequests: $0.canDispatchRequests
                 )
             }
             if !values.isEmpty {

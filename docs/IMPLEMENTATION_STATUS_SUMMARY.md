@@ -1,8 +1,12 @@
 # Implementation Status Summary / 実装状況サマリー
 
-**Last Updated**: 2026-03-15  
-**Status**: Active Integration Phase  
+**Last Updated**: 2026-06-27
+**Status**: Active Compatibility Hardening Phase
 **目的**: Single source of truth for current implementation status / 現在の実装状況の単一の情報源
+
+> 2026-06-27 の互換性監査で、従来の「Complete / 100%」表記は SSP/UKADOC 互換性の意味では過大であることを確認した。
+> 機能実装の有無と、既存ゴースト資産に対する仕様互換性は分けて扱う。
+> 詳細は [AUDIT_CODEX_2026-06-27.md](AUDIT_CODEX_2026-06-27.md) を参照。
 
 ---
 
@@ -10,13 +14,15 @@
 
 | Component / コンポーネント | Files / ファイル | Implemented / 実装済み | Integrated / 統合済み | Tested / テスト済み | Blockers / ブロッカー | Progress / 進捗 |
 |---------------------------|------------------|------------------------|----------------------|-------------------|---------------------|------------------|
-| **SAORI** | 4 files | ✅ Complete / 完全 | ✅ Integrated / 統合済み | ✅ Smoke Tested / スモークテスト済み | None / なし | 95% |
-| **SSTP** | 2 files | ✅ Complete / 完全 | ✅ Integrated / 統合済み | ✅ Targeted E2E Tested / 対象E2Eテスト済み | None / なし | 92% |
-| **SERIKO** | 2 files | ✅ Complete / 完全 | ✅ Integrated / 統合済み | ✅ Targeted Tests / 対象テスト済み | None / なし | 95% |
-| **SakuraScript** | 1 file | ✅ Complete / 完全 | ✅ Animation + Formatting Integrated / アニメ＋書式統合済み | ✅ Targeted Tests / 対象テスト済み | None / なし | 90% |
-| **YAYA Core** | 12 files | ✅ Complete / 完全 | ✅ Complete / 完全 | ✅ Tested / テスト済み | None / なし | 100% |
+| **SAORI** | 4 files | 🟡 Mostly implemented / 概ね実装 | ✅ Integrated / 統合済み | 🟡 Smoke tested / スモーク中心 | Real ghost matrix pending / 実ゴースト網羅未完 | 80% |
+| **SSTP** | multiple files | 🟡 Partial compatible / 部分互換 | ✅ Integrated / 統合済み | 🟡 Targeted tests / 対象テスト | TCP bind/body, ReferenceN response | 60% |
+| **SERIKO** | multiple files | 🟡 Partial compatible / 部分互換 | 🟡 Integrated / 統合中 | 🟡 Targeted tests / 対象テスト | Rendering fidelity and remaining SERIKO edge cases | 68% |
+| **SakuraScript** | multiple files | 🟡 Broad partial / 広範な部分実装 | ✅ Runtime connected / 実行系接続済み | 🟡 Targeted tests / 対象テスト | Full UKADOC diff pending / 全差分未完 | 60% |
+| **YAYA Core** | yaya_core | 🟡 Partial compatible / 部分互換 | ✅ Integrated / 統合済み | 🟡 Baseline tests / 基準テスト | by-ref, standalone when, stubs | 60% |
+| **FMO** | FMO/ | 🟡 Semantic compatible / 意味互換 | ✅ Integrated / 統合済み | ✅ Targeted tests / 対象テスト済み | Windows FileMapping/HWND direct compatibility is platform-different / 直接互換はプラットフォーム差異 | 65% |
+| **Plugin** | PluginHost/ | 🟡 Partial compatible / 部分互換 | ✅ Integrated / 統合済み | ✅ Targeted tests / 対象テスト済み | Windows DLL binary execution requires porting / DLL実行は移植が必要 | 60% |
 
-**Overall Progress**: 95% / 全体進捗: 95%
+**Overall Compatibility Progress**: 60% / 全体互換進捗: 60%
 
 ---
 
@@ -70,7 +76,13 @@ End-to-End Ghost Testing / エンドツーエンドゴーストテスト
 
 ## Active Blockers / アクティブなブロッカー
 
-- None / なし
+- SHIORI bridge method propagation: `BridgeToSHIORI` still emits `GET SHIORI/3.0` for all native-host requests.
+- SSTP response mapping: SHIORI `Reference1+` headers are not preserved in SSTP responses.
+- SSTP listener binding/body handling: TCP/HTTP `host` is not used for bind, and raw TCP passes only header text.
+- SakuraScript/SERIKO fidelity: some scope/display semantics and rendering edge cases still differ from SSP.
+- YAYA fidelity: by-reference semantics, standalone `when`, and several builtins remain partial/stub.
+- NAR install: `refreshundeletemask` separator and compound install types are not fully UKADOC-compatible.
+- Property aliases: `sakura.*`, `kero.*`, `ghost.*`, and `shell.*` compatibility namespaces are incomplete.
 
 ## Resolved Blockers / 解決されたブロッカー
 
@@ -81,6 +93,8 @@ End-to-End Ghost Testing / エンドツーエンドゴーストテスト
 - ✅ ID-005 (SERIKO Dressup Build Failures)
 - ✅ ID-006 (SakuraScript Animation Commands Stubbed)
 - ✅ ID-007 (SakuraScript Text Formatting Not Executed)
+- ✅ FMO macOS compatibility boundary documented and structured view added
+- ✅ Plugin Windows DLL metadata-only constraint documented and compatibility view added
 
 ---
 
@@ -123,14 +137,16 @@ End-to-End Ghost Testing / エンドツーエンドゴーストテスト
 - ✅ External router tests validated with serial execution mode
 
 ### Required Integration Work / 必要な統合作業
-1. Implement real BridgeToSHIORI.handle() to call ShioriHost
-2. Connect SSTPDispatcher to actual SHIORI event system
-3. Test external app sending SSTP request → SHIORI processing → response
+1. Pass the actual SHIORI method (`GET` vs `NOTIFY`) through `BridgeToSHIORI` / `ShioriHost`.
+2. Preserve SHIORI response `Reference1+` headers when mapping back to SSTP.
+3. Bind TCP/HTTP listeners according to configured host and forward raw TCP body data where applicable.
+4. Expand compatibility tests with external SSTP clients and SSP-like response expectations.
 
 ### Test Coverage / テストカバレッジ
 - 📄 Test files exist (SSTPDispatcherTests.swift, SSTPResponseTests.swift)
 - ✅ Route/method tests expanded and passing
 - ✅ ExternalServerTests passed for SSTP router flows (including EXECUTE/GIVE/INSTALL)
+- ⚠️ Full SSP/client interoperability matrix is still pending
 
 ---
 
@@ -213,13 +229,14 @@ A component is considered "Integrated" when:
 - [x] Integration smoke tests pass
 - [x] No SAORI blockers remain
 
-### SSTP Integration Complete
+### SSTP Integration Functional
 - [x] External app can send SSTP request
 - [x] Request reaches SHIORI system
 - [x] SHIORI processes request and generates response
 - [x] Response returned to external app
 - [x] Integration tests pass (targeted e2e/route coverage)
-- [x] No SSTP blockers remain
+- [x] No wiring blockers remain
+- [ ] Compatibility blockers from the 2026-06-27 audit are resolved
 
 ### SERIKO Integration Complete
 - [x] SakuraScript animation commands execute animations
@@ -242,6 +259,7 @@ A component is considered "Integrated" when:
 
 - **INTEGRATION_ROADMAP.md**: Detailed integration plan with prerequisites
 - **BLOCKER_TRACKER.md**: Detailed blocker information with workarounds
+- **AUDIT_CODEX_2026-06-27.md**: Current SSP/UKADOC compatibility audit
 - **COPILOT_AUTO_PROMPT.md**: Task structure for integration work
 - **Component Implementation Docs**: SAORI_IMPLEMENTATION.md, SERIKO_IMPLEMENTATION.md, SSTP_DISPATCHER_GUIDE.md
 - **yaya_core/IMPLEMENTATION_STATUS.md**: YAYA Core specific status
@@ -256,6 +274,13 @@ A component is considered "Integrated" when:
 - Added weekly tracking structure / 週次トラッキング構造追加
 - Mapped integration dependencies / 統合依存関係マッピング
 - Added blocker references / ブロッカー参照追加
+
+## 2026-06-27
+- Reclassified status from implementation-complete to compatibility-hardening.
+- Added Codex compatibility audit reference and active blockers from UKADOC/SSP-oriented review.
+- Downgraded YAYA Core from "100%" to partial compatibility to match `yaya_core/IMPLEMENTATION_STATUS.md`.
+- Marked `surfaces*.txt` all-file loading as resolved after adding SSP filename-order loading.
+- Documented FMO/Plugin macOS-only constraints and added structured compatibility views for FMO snapshots and plugin metadata.
 
 ---
 

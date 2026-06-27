@@ -234,8 +234,9 @@
 ### 実装済み（要修正）
 - **【重大】作成直後に `shm_unlink` する「エフェメラル」運用**: `FmoSharedMemory.swift:36-37`。名前を消すため**他プロセスは二度とアタッチできず**、FMOの存在意義（プロセス間でのゴースト一覧共有・多重起動検出）が成立しない。
 - **多重起動検出の名前不整合**: 検出は `/ninix` を見る（`FmoManager.swift:17`）が、自身は `/ssp_fmo`+`/ssp_mutex` を作成して即unlink（`FmoManager.swift:37-41`）。Ourin同士でも検出不能、ninix/SSP両規約のちゃんぽん状態。
-- **FMO内容フォーマットが非互換**: SSPのFMOは `(id).(key)\x01(value)\r\n` 形式のレコード集合（hwnd/name/keroname/sakura.surface/path等）。Ourinが `GetFMO` で返すのは `key=value;...` 独自形式（`SSTPDispatcher.swift:492-520`）。FMOパースを行う既存ツールと非互換。
-  - 修正案: 少なくとも `GetFMO` 応答は SSP互換のレコード形式（改行区切り・空行終端、hwndはダミー値）で返す。spec_sstp の GetFMO 説明（リモート時はパス除去・hwndダミー化）も併せて実装。
+- **FMO内容フォーマットが非互換**: SSPのFMOは `id.key\x01value\r\n` 形式のレコード集合（hwnd/name/keroname/sakura.surface/path等）。Ourinが `GetFMO` で返すのは `key=value;...` 独自形式（`SSTPDispatcher.swift:492-520`）。FMOパースを行う既存ツールと非互換。
+  - 修正案: 少なくとも `GetFMO` 応答は SSP互換のレコード形式（改行区切り・空行終端）で返す。hwnd は Win32 HWND ではなく、macOS 上の安定した Ourin ウィンドウ識別子として扱う。
+  - 現状: 2026-06-27時点で `FmoManager.buildSnapshot()` / `FmoCompatibilityView` により解消済み。Windows FileMapping/HWND の直接互換はプラットフォーム差異。
 
 ---
 

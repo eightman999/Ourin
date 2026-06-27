@@ -1163,18 +1163,18 @@ fileprivate struct PluginEventView: View {
             logger.info("PluginRegistry is not ready")
             return
         }
-        self.plugins = registry.allMetas.map { meta in
+        self.plugins = registry.compatibilityEntries.map { entry in
             PluginInfo(
-                id: "\(meta.id)|\(meta.path)",
-                pluginID: meta.id,
-                name: meta.name,
-                status: meta.isNative ? "Native" : "Legacy metadata",
-                charset: meta.charset ?? "UTF-8",
-                packagePath: meta.packagePath.map { URL(fileURLWithPath: $0).lastPathComponent } ?? "",
-                executablePath: URL(fileURLWithPath: meta.executablePath).lastPathComponent,
-                compatibilityPath: meta.compatibilityPath
+                id: "\(entry.id)|\(entry.path)",
+                pluginID: entry.id,
+                name: entry.name,
+                status: entry.executionState == .native ? "Native" : "Legacy metadata",
+                charset: entry.charset,
+                packagePath: entry.packagePath.map { URL(fileURLWithPath: $0).lastPathComponent } ?? "",
+                executablePath: URL(fileURLWithPath: entry.executablePath).lastPathComponent,
+                compatibilityPath: entry.compatibilityPath
             )
-        }.sorted { $0.name < $1.name }
+        }
         logger.info("Loaded \(self.plugins.count) plugins for display")
     }
 

@@ -540,6 +540,89 @@ public enum SerikoParser {
         if let idx = line.firstIndex(of: "#") {
             return String(line[..<idx])
         }
+        if let range = line.range(of: "//") {
+            return String(line[..<range.lowerBound])
+        }
         return line
+    }
+}
+
+public enum SurfaceDefinitionLoader {
+    public struct Bundle: Equatable {
+        public let content: String
+        public let sourceFileNames: [String]
+    }
+
+    /// Load shell surface definition text in SSP-compatible order.
+    ///
+    /// UKADOC/SSP treats every `surfaces***.txt` file in a shell directory as a
+    /// surfaces definition file and reads them in filename order. `alias.txt`
+    /// and `surfacetable.txt` are legacy companion files, so Ourin appends them
+    /// after the SSP `surfaces*.txt` set to preserve existing compatibility.
+    public static func load(from shellURL: URL, fileManager: FileManager = .default) -> Bundle? {
+        var chunks: [String] = []
+        var sourceFileNames: [String] = []
+
+        for url in surfaceDefinitionFiles(in: shellURL, fileManager: fileManager) {
+            guard let text = readTextFile(url) else { continue }
+            chunks.append(text)
+            sourceFileNames.append(url.lastPathComponent)
+        }
+
+        for companion in ["alias.txt", "surfacetable.txt"] {
+            let url = shellURL.appendingPathComponent(companion)
+            guard isRegularFile(url, fileManager: fileManager),
+                  let text = readTextFile(url)
+            else { continue }
+            chunks.append(text)
+            sourceFileNames.append(companion)
+        }
+
+        guard !chunks.isEmpty else { return nil }
+        return Bundle(content: chunks.joined(separator: "\n"), sourceFileNames: sourceFileNames)
+    }
+
+    public static func surfaceDefinitionFiles(in shellURL: URL, fileManager: FileManager = .default) -> [URL] {
+        let urls = (try? fileManager.contentsOfDirectory(
+            at: shellURL,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles]
+        )) ?? []
+
+        return urls
+            .filter { isSurfaceDefinitionFile($0, fileManager: fileManager) }
+            .sorted { isFilenameOrderedBefore($0.lastPathComponent, $1.lastPathComponent) }
+    }
+
+    private static func isSurfaceDefinitionFile(_ url: URL, fileManager: FileManager) -> Bool {
+        let lowerName = url.lastPathComponent.lowercased()
+        guard lowerName.hasPrefix("surfaces"), lowerName.hasSuffix(".txt") else {
+            return false
+        }
+        return isRegularFile(url, fileManager: fileManager)
+    }
+
+    private static func isRegularFile(_ url: URL, fileManager: FileManager) -> Bool {
+        var isDirectory = ObjCBool(false)
+        guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory),
+              !isDirectory.boolValue
+        else { return false }
+        return true
+    }
+
+    private static func isFilenameOrderedBefore(_ lhs: String, _ rhs: String) -> Bool {
+        let left = lhs.lowercased()
+        let right = rhs.lowercased()
+        if left == right {
+            return lhs < rhs
+        }
+        return left < right
+    }
+
+    private static func readTextFile(_ url: URL) -> String? {
+        if let utf8 = try? String(contentsOf: url, encoding: .utf8) {
+            return utf8
+        }
+        return try? String(contentsOf: url, encoding: .shiftJIS)
     }
 }

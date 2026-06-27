@@ -1,7 +1,14 @@
 # YAYA Core Documentation Index
 
-**Last Updated**: 2025-10-16  
-**Status**: Investigation Complete, Ready for Implementation
+**Last Updated**: 2026-06-27
+**Status**: Historical investigation document; superseded by current implementation status
+
+> **Status correction:** this document records the 2025 pre-implementation
+> investigation state. The current `yaya_core` contains a C++ parser/VM,
+> dictionary loading, CP932/UTF-8 handling, SHIORI IPC, and broad built-in
+> function coverage. It is still partial rather than 100% faithful. Use
+> [`../yaya_core/IMPLEMENTATION_STATUS.md`](../yaya_core/IMPLEMENTATION_STATUS.md)
+> and [`AUDIT_CODEX_2026-06-27.md`](AUDIT_CODEX_2026-06-27.md) for current status.
 
 ---
 
@@ -70,7 +77,11 @@
 
 ### What We Found
 
-**The yaya_core module EXISTS in the repository**, but only the IPC communication layer is implemented. The actual YAYA language interpreter (parser, VM, built-in functions) is **NOT implemented** (stub only).
+**Historical note:** at the time of this 2025 investigation, the yaya_core module
+only had the IPC communication layer implemented. That is no longer accurate:
+the repository now contains a parser, VM, dictionary loader, encoding support,
+and broad built-in function coverage. Remaining limitations are tracked in
+`yaya_core/IMPLEMENTATION_STATUS.md`.
 
 ### Current Status Matrix
 
@@ -80,10 +91,10 @@
 | Command Dispatch | ✅ Complete | load/request/unload |
 | Swift Integration | ✅ Complete | YayaAdapter.swift |
 | Build System | ✅ Complete | CMake, Universal Binary |
-| Dictionary Parser | ❌ Stub | Needs implementation |
-| YAYA VM | ❌ Stub | Needs implementation |
-| Built-in Functions | ❌ Stub | Needs implementation |
-| SHIORI Adapter | ❌ Stub | Needs implementation |
+| Dictionary Parser | 🟡 Partial | Implemented with known compatibility limits |
+| YAYA VM | 🟡 Partial | Implemented; by-reference and standalone `when` remain partial |
+| Built-in Functions | 🟡 Partial | Broad coverage; some functions remain stubs |
+| SHIORI Adapter | ✅ Implemented | Integrated through Swift host/JSON-line IPC |
 
 ---
 

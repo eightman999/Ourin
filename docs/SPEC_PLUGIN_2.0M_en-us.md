@@ -18,6 +18,8 @@ The Japanese version contains the authoritative specification. This English vers
 - All code examples unchanged
 - Proper translation of comments and narrative sections
 
+The Japanese original now explicitly defines macOS-only constraints for Windows DLL/PE plugin assets and the `PluginCompatibilityEntry` view (`path` / `compatibilityPath`, `executablePath`, `packagePath`, `native`, `executionState`, and `canDispatchRequests`).
+
 ---
 
 ## Contents
@@ -29,4 +31,4 @@ The Japanese version contains the authoritative specification. This English vers
 **Translation Status:** ⏳ Pending  
 **Translator:** TBD  
 **Review:** TBD  
-**Last Updated:** 2025-10-23
+**Last Updated:** 2026-06-27

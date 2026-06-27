@@ -92,9 +92,13 @@ Provides `headlinelist.*` properties:
 #### PluginPropertyProvider
 Provides `pluginlist.*` properties:
 - `pluginlist.count`
-- `pluginlist.index(n).{name|path|id|craftmanw|craftmanurl|filename|native}`
-- `pluginlist({name|path|id}).{property}`
-- `pluginlist({name|path|id}).message.<key>` - localized text loaded from a plugin package `message.*.txt` file, for example `message.menu.title`
+- `pluginlist.index(n).{name|path|id|craftmanw|craftmanurl|filename|native|executablepath|packagepath|executionstate|candispatchrequests}`
+- `pluginlist({name|path|id|executablepath|packagepath}).{property}`
+- `pluginlist({name|path|id|executablepath|packagepath}).message.<key>` - localized text loaded from a plugin package `message.*.txt` file, for example `message.menu.title`
+
+`path` is the SSP-compatible original module path, `executablepath` is the macOS native `.plugin` / `.bundle` body,
+and `packagepath` is the package directory containing `install.txt`. Windows DLL-derived plugins are listed as
+`executionstate=metadataOnly` and `candispatchrequests=0`.
 
 ## Usage
 

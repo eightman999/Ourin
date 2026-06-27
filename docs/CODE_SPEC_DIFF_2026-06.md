@@ -65,8 +65,8 @@ SHIORI / SSTP / さくらスクリプト・SERIKO / プロパティ / FMO他 / P
 - **SHIORI**: 4関数 C ABI(load/unload/request/free)、UTF-8既定+SJIS受理、YAYAバックエンド、XpcBackend。
 - **さくらスクリプト/SERIKO**: scope/surface/anim制御/balloon/sound/wait/cursor/環境変数/`\f[...]`装飾、SERIKO executor統合。
 - **Property**: system.* 各種、os識別(Rosetta2検出含む)、ghost/balloon/headline/plugin各list、history、rateofuselist。
-- **FMO/NAR/USL/SAORI/Web**: FMO共有メモリ名・SSP風レコード・hwnd=0、NAR(ZIP検証/ZipSlip防止/install.txt UTF-8&CP932/型別振分/refresh)、YAYAアダプタJSON行IPC、SAORI(dlopen/dlsym統合)、Web(`x-ukagaka-link`→`OnXUkagakaLinkOpen` external/https強制)。
-- **Plugin**: PLUGIN/2.0M Request/Responseパーサ・ビルダ、load/loadu/unload、文字コード正規化、macOS差分(CGWindowID/POSIXパス/0x01区切り)。
+- **FMO/NAR/USL/SAORI/Web**: FMO共有メモリ名・SSP風 `id.key\x01value\r\n` レコード・Ourinウィンドウ識別子・構造化互換ビュー、NAR(ZIP検証/ZipSlip防止/install.txt UTF-8&CP932/型別振分/refresh)、YAYAアダプタJSON行IPC、SAORI(dlopen/dlsym統合)、Web(`x-ukagaka-link`→`OnXUkagakaLinkOpen` external/https強制)。
+- **Plugin**: PLUGIN/2.0M Request/Responseパーサ・ビルダ、load/loadu/unload、文字コード正規化、macOS差分(POSIXパス/0x01区切り)、Windows DLL metadata-only と native `.plugin` / `.bundle` の互換ビュー。
 
 ---
 
