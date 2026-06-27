@@ -128,8 +128,10 @@ extension GhostManager {
             return
         }
 
-        guard let action = pendingAnchorAction else { return }
+        guard let pendingAnchor = pendingAnchorAction else { return }
         pendingAnchorAction = nil
+        let action = pendingAnchor.action
+        let pluginOrigin = pendingAnchor.pluginOrigin
 
         let vm = getBalloonVM(for: fromScope)
         vm.anchorActive = false
@@ -143,15 +145,18 @@ extension GhostManager {
 
             if id.hasPrefix("On") {
                 EventBridge.shared.notifyCustom(id, params: params)
-                forwardEventToPlugins(id: id, references: references)
+                if pluginOrigin {
+                    forwardEventToPlugins(id: id, references: references)
+                }
             } else {
                 var exParams = params
                 exParams["Reference1"] = id
                 EventBridge.shared.notifyCustom("OnAnchorSelectEx", params: exParams)
                 EventBridge.shared.notifyCustom("OnAnchorSelect", params: ["Reference0": id])
-                // プラグインへも横流し（OnAnchorSelect: Reference0=アンカーID）
-                forwardEventToPlugins(id: "OnAnchorSelect", references: [id])
-                forwardEventToPlugins(id: "OnAnchorSelectEx", references: references + [id])
+                if pluginOrigin {
+                    forwardEventToPlugins(id: "OnAnchorSelect", references: [id])
+                    forwardEventToPlugins(id: "OnAnchorSelectEx", references: references + [id])
+                }
             }
         case .script(let script):
             sakuraEngine.run(script: script)

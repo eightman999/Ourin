@@ -177,31 +177,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // プラグインが返した Script:/Event: をホスト（アクティブゴースト）へ配線する
         pluginDispatcher?.onScript = { [weak self] script, options in
             DispatchQueue.main.async {
-                if options.contains("nobreak") {
-                    self?.ghostManager?.runNotifyScript(script)
-                } else {
-                    self?.ghostManager?.runScript(script)
-                }
+                self?.ghostManager?.runPluginScript(script, options: options.union(["plugin-script"]))
             }
         }
         pluginDispatcher?.onEmitEvent = { event, refs, options in
             let notifyOnly = options.contains("notify")
             if Thread.isMainThread {
-                return EventBridge.shared.dispatchPluginResponseEvent(event, params: refs, notifyOnly: notifyOnly)
+                return EventBridge.shared.dispatchPluginResponseEvent(event, params: refs, notifyOnly: notifyOnly, scriptOptions: options)
             }
             return DispatchQueue.main.sync {
-                EventBridge.shared.dispatchPluginResponseEvent(event, params: refs, notifyOnly: notifyOnly)
+                EventBridge.shared.dispatchPluginResponseEvent(event, params: refs, notifyOnly: notifyOnly, scriptOptions: options)
             }
         }
-        pluginDispatcher?.notifyInstalledPlugin()
-        pluginDispatcher?.notifyPluginPathList(paths: registry.allMetas.map { $0.packagePath ?? $0.executablePath })
-        pluginDispatcher?.notifyCalendarSkinPathList(paths: CalendarRegistry.shared.installedSkins().map { $0.path.path })
-        pluginDispatcher?.notifyCalendarPluginPathList(paths: CalendarRegistry.shared.installedPlugins().map { $0.path.path })
-
         // HEADLINE モジュールも探索してロード
         let hRegistry = HeadlineRegistry()
         hRegistry.discoverAndLoad()
         headlineRegistry = hRegistry
+        notifyPluginCatalogs()
 
         // 外部 SSTP サーバを起動
         let ext = OurinExternalServer()
@@ -352,6 +344,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 let target = try self.narInstaller.install(fromNar: url)
                 NSLog("[installNar] Installed to: \(target.path)")
                 DispatchQueue.main.async {
+                    self.notifyInstallComplete(at: target)
+                    self.notifyPluginCatalogs()
                     let title = NSLocalizedString("Installed", comment: "Alert title when installation succeeded")
                     let fmt = NSLocalizedString("Installed: %@", comment: "Alert body for installed file")
                     let text = String(format: fmt, url.lastPathComponent)
@@ -382,6 +376,45 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 }
             }
         }
+    }
+
+    private func notifyPluginCatalogs() {
+        guard let dispatcher = pluginDispatcher else { return }
+        dispatcher.notifyInstalledPlugin()
+        dispatcher.notifyPluginPathList(paths: pluginRegistry?.allMetas.map { $0.packagePath ?? $0.executablePath } ?? [])
+        dispatcher.notifyCalendarSkinPathList(paths: CalendarRegistry.shared.installedSkins().map { $0.path.path })
+        dispatcher.notifyCalendarPluginPathList(paths: CalendarRegistry.shared.installedPlugins().map { $0.path.path })
+
+        let ghosts = NarRegistry.shared.installedItems(ofType: "ghost")
+        var ghostNames: [String] = []
+        var sakuraNames: [String] = []
+        var keroNames: [String] = []
+        for ghost in ghosts {
+            ghostNames.append(ghost.name)
+            let root = ghost.path.appendingPathComponent("ghost/master", isDirectory: true)
+            if let config = GhostConfiguration.load(from: root) {
+                sakuraNames.append(config.sakuraName)
+                keroNames.append(config.keroName ?? "")
+            } else {
+                sakuraNames.append("")
+                keroNames.append("")
+            }
+        }
+        dispatcher.notifyInstalledGhostName(names0: ghostNames, names1: sakuraNames, names2: keroNames)
+        dispatcher.notifyGhostPathList(paths: ghosts.map { $0.path.path })
+
+        let balloons = NarRegistry.shared.installedItems(ofType: "balloon")
+        dispatcher.notifyInstalledBalloonName(names: balloons.map { $0.name })
+        dispatcher.notifyBalloonPathList(paths: balloons.map { $0.path.path })
+
+        let headlinePaths = headlineRegistry?.modules.map { $0.bundle.bundleURL.path } ?? []
+        dispatcher.notifyHeadlinePathList(paths: headlinePaths)
+    }
+
+    private func notifyInstallComplete(at target: URL) {
+        let type = target.deletingLastPathComponent().lastPathComponent
+        let name = target.lastPathComponent
+        pluginDispatcher?.onInstallComplete(type: type, name: name, path: target.path)
     }
 
     /// 起動中の全ゴースト（プライマリ＋追加）から FmoGhostRecord を収集する。

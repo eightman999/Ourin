@@ -31,23 +31,35 @@ public enum EncodingAdapter {
     /// メッセージ先頭（最初の空行まで）のヘッダ部から `Charset:` を推定する。
     /// ヘッダ名・値は ASCII 前提なので、本体が Shift_JIS でも安全に読み取れる。
     public static func detectCharset(in data: Data, default def: String = "UTF-8") -> String {
-        let headerData: Data
-        if let r = data.range(of: Data([13, 10, 13, 10])) {
-            headerData = Data(data.prefix(upTo: r.lowerBound))
-        } else if let r = data.range(of: Data([10, 10])) {
-            headerData = Data(data.prefix(upTo: r.lowerBound))
-        } else {
-            headerData = data
-        }
-        guard let header = String(data: headerData, encoding: .ascii)
-            ?? String(data: headerData, encoding: .isoLatin1) else { return def }
-        for line in header.split(whereSeparator: { $0 == "\r" || $0 == "\n" }) {
-            let l = line.trimmingCharacters(in: .whitespaces)
-            if l.lowercased().hasPrefix("charset:") {
-                let value = l.dropFirst("charset:".count).trimmingCharacters(in: .whitespaces)
-                if !value.isEmpty { return value }
+        var lineBytes: [UInt8] = []
+        for byte in data {
+            if byte == 10 || byte == 13 {
+                if lineBytes.isEmpty {
+                    continue
+                }
+                if let found = charsetValue(inLineBytes: lineBytes) {
+                    return found
+                }
+                lineBytes.removeAll(keepingCapacity: true)
+                continue
             }
+            lineBytes.append(byte)
+        }
+        if let found = charsetValue(inLineBytes: lineBytes) {
+            return found
         }
         return def
+    }
+
+    private static func charsetValue(inLineBytes bytes: [UInt8]) -> String? {
+        guard !bytes.isEmpty,
+              let line = String(data: Data(bytes), encoding: .ascii)
+                ?? String(data: Data(bytes), encoding: .isoLatin1) else { return nil }
+        let l = line.trimmingCharacters(in: .whitespaces)
+        if l.lowercased().hasPrefix("charset:") {
+            let value = l.dropFirst("charset:".count).trimmingCharacters(in: .whitespaces)
+            if !value.isEmpty { return String(value) }
+        }
+        return nil
     }
 }

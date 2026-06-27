@@ -5,6 +5,7 @@ public struct PropertyPlugin {
     public let name: String
     public let path: String
     public let id: String
+    public let charset: String
     public let craftmanw: String
     public let craftmanurl: String
     public let filename: String
@@ -18,6 +19,7 @@ public struct PropertyPlugin {
     public init(name: String,
                 path: String,
                 id: String,
+                charset: String = "UTF-8",
                 craftmanw: String = "",
                 craftmanurl: String = "",
                 filename: String = "",
@@ -28,6 +30,7 @@ public struct PropertyPlugin {
         self.name = name
         self.path = path
         self.id = id
+        self.charset = charset
         self.craftmanw = craftmanw
         self.craftmanurl = craftmanurl
         self.filename = filename
@@ -73,9 +76,17 @@ public struct PropertyPlugin {
 /// Provides plugin-related properties for `pluginlist.*`.
 final class PluginPropertyProvider: PropertyProvider {
     private let plugins: [PropertyPlugin]
+    private let extGet: ((PropertyPlugin, String) -> String?)?
+    private let extSet: ((PropertyPlugin, String, String) -> Bool)?
 
-    init(plugins: [PropertyPlugin] = []) {
+    init(
+        plugins: [PropertyPlugin] = [],
+        extGet: ((PropertyPlugin, String) -> String?)? = nil,
+        extSet: ((PropertyPlugin, String, String) -> Bool)? = nil
+    ) {
         self.plugins = plugins
+        self.extGet = extGet
+        self.extSet = extSet
     }
 
     func get(key: String) -> String? {
@@ -100,6 +111,18 @@ final class PluginPropertyProvider: PropertyProvider {
         return nil
     }
 
+    func set(key: String, value: String) -> Bool {
+        if let (identifier, prop) = parseNamedAccess(key: key),
+           let plugin = findPlugin(by: identifier) {
+            return setPluginProperty(plugin, prop: prop, value: value)
+        }
+        if let (index, prop) = parseIndex(key: key) {
+            guard plugins.indices.contains(index) else { return false }
+            return setPluginProperty(plugins[index], prop: prop, value: value)
+        }
+        return false
+    }
+
     // MARK: - Helpers
 
     private func getPluginProperty(_ plugin: PropertyPlugin, prop: String, index: Int? = nil) -> String? {
@@ -116,6 +139,8 @@ final class PluginPropertyProvider: PropertyProvider {
             return plugin.filename
         case "id":
             return plugin.id
+        case "charset":
+            return plugin.charset
         case "craftmanw":
             return plugin.craftmanw
         case "craftmanurl":
@@ -125,11 +150,23 @@ final class PluginPropertyProvider: PropertyProvider {
         case "index":
             return index.map(String.init)
         default:
+            if prop.hasPrefix("ext.") {
+                let extKey = String(prop.dropFirst("ext.".count))
+                guard !extKey.isEmpty else { return nil }
+                return extGet?(plugin, extKey)
+            }
             if prop.hasPrefix("message.") {
                 return plugin.message(for: String(prop.dropFirst("message.".count)))
             }
             return nil
         }
+    }
+
+    private func setPluginProperty(_ plugin: PropertyPlugin, prop: String, value: String) -> Bool {
+        guard prop.hasPrefix("ext.") else { return false }
+        let extKey = String(prop.dropFirst("ext.".count))
+        guard !extKey.isEmpty else { return false }
+        return extSet?(plugin, extKey, value) ?? false
     }
 
     private func findPlugin(by identifier: String) -> PropertyPlugin? {

@@ -248,12 +248,129 @@ final class EventBridge {
     /// PLUGIN/2.0 `Event` 応答をゴーストへ橋渡しする。
     /// `EventOption: notify` の場合は NOTIFY、未指定なら GET として送り、ゴーストが返したスクリプトを再生する。
     @discardableResult
-    func dispatchPluginResponseEvent(_ eventName: String, params: [String:String] = [:], notifyOnly: Bool = false, security: ShioriSecurityContext = .local) -> Bool {
-        if notifyOnly {
-            broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: true, security: security)
-            return !sessions.isEmpty
+    func dispatchPluginResponseEvent(
+        _ eventName: String,
+        params: [String:String] = [:],
+        notifyOnly: Bool = false,
+        target: String? = nil,
+        caller: GhostManager? = nil,
+        scriptOptions: Set<String> = [],
+        security: ShioriSecurityContext = .local
+    ) -> Bool {
+        let resolved = resolvePluginTarget(target, caller: caller)
+        switch resolved {
+        case .unresolved:
+            return false
+        case .baseware:
+            return true
+        case .ghosts(let targetSessions):
+            var eventParams = params
+            if scriptOptions.contains("notranslate") {
+                eventParams["NoTranslate"] = "1"
+            }
+            if notifyOnly {
+                for session in targetSessions {
+                    session.dispatcher.sendNotifyCustom(
+                        eventName: eventName,
+                        params: eventParams,
+                        ignoreResponseScript: true,
+                        security: security
+                    )
+                }
+                return !targetSessions.isEmpty
+            }
+            var producedScript = false
+            for session in targetSessions {
+                let script = session.dispatcher.sendGetCustom(eventName: eventName, params: eventParams, security: security)
+                let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    producedScript = true
+                    let gm = session.ghostManager
+                    DispatchQueue.main.async {
+                        gm?.runPluginScript(trimmed, options: scriptOptions.union(["plugin-event"]))
+                    }
+                }
+            }
+            return producedScript
         }
-        return broadcastGetCustomImmediate(eventName: eventName, params: params, security: security)
+    }
+
+    @discardableResult
+    func runPluginResponseScript(_ action: PluginTransportAction, caller: GhostManager? = nil) -> Bool {
+        guard let script = action.script?.trimmingCharacters(in: .whitespacesAndNewlines), !script.isEmpty else {
+            return false
+        }
+        switch resolvePluginTarget(action.target, caller: caller) {
+        case .unresolved:
+            return false
+        case .baseware:
+            return true
+        case .ghosts(let targetSessions):
+            guard !targetSessions.isEmpty else { return false }
+            DispatchQueue.main.async {
+                for session in targetSessions {
+                    session.ghostManager?.runPluginScript(script, options: action.scriptOptions.union(["plugin-script"]))
+                }
+            }
+            return true
+        }
+    }
+
+    func canResolvePluginTarget(_ target: String?, caller: GhostManager? = nil) -> Bool {
+        switch resolvePluginTarget(target, caller: caller) {
+        case .unresolved:
+            return false
+        case .baseware:
+            return true
+        case .ghosts(let targetSessions):
+            return !targetSessions.isEmpty
+        }
+    }
+
+    private enum PluginResolvedTarget {
+        case ghosts([Session])
+        case baseware
+        case unresolved
+    }
+
+    private func resolvePluginTarget(_ target: String?, caller: GhostManager?) -> PluginResolvedTarget {
+        let token = target?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let normalized = token.lowercased()
+        if normalized == "baseware" || normalized == "ourin" {
+            return .baseware
+        }
+        if normalized == "__system_all_ghost__" || normalized == "system_all_ghost" || normalized == "all" {
+            return .ghosts(Array(sessions.values))
+        }
+        if normalized.isEmpty || normalized == "self" || normalized == "ghost" || normalized == "any" || normalized == "systemany" {
+            if let caller, let session = session(for: caller) {
+                return .ghosts([session])
+            }
+            if let active = activeGhostManager(), let session = session(for: active) {
+                return .ghosts([session])
+            }
+            if let first = sessions.values.first {
+                return .ghosts([first])
+            }
+            return .unresolved
+        }
+
+        let matches = sessions.values.filter { session in
+            guard let gm = session.ghostManager else { return false }
+            return gm.matchesPluginTarget(token)
+        }
+        return matches.isEmpty ? .unresolved : .ghosts(matches)
+    }
+
+    private func activeGhostManager() -> GhostManager? {
+        if let app = NSApp.delegate as? AppDelegate, let gm = app.ghostManager {
+            return gm
+        }
+        return sessions.values.first?.ghostManager
+    }
+
+    private func session(for ghostManager: GhostManager) -> Session? {
+        sessions.values.first { $0.ghostManager === ghostManager }
     }
 
     // Broadcast a NOTIFY to all registered sessions

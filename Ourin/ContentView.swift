@@ -1016,8 +1016,11 @@ fileprivate struct PluginEventView: View {
         let id: String
         let pluginID: String
         let name: String
-        let version: String
-        let path: String
+        let status: String
+        let charset: String
+        let packagePath: String
+        let executablePath: String
+        let compatibilityPath: String
         var isEnabled: Bool = true
     }
 
@@ -1032,6 +1035,11 @@ fileprivate struct PluginEventView: View {
     @State private var selection: PluginInfo.ID?
     @State private var selectedEventId: String = "OnGhostBoot"
     @State private var refs: [String] = Array(repeating: "", count: 5)
+    @State private var manualEventId: String = "version"
+    @State private var manualNotify: Bool = false
+    @State private var propertyKey: String = ""
+    @State private var propertyValue: String = ""
+    @State private var consoleResult: String = ""
 
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "plugin")
     private var appDelegate: AppDelegate? { NSApp.delegate as? AppDelegate }
@@ -1068,8 +1076,10 @@ fileprivate struct PluginEventView: View {
                     }.width(40)
                     TableColumn("Name", value: \.name)
                     TableColumn("ID", value: \.pluginID)
-                    TableColumn("Version", value: \.version)
-                    TableColumn("Path", value: \.path)
+                    TableColumn("State", value: \.status)
+                    TableColumn("Charset", value: \.charset)
+                    TableColumn("Package", value: \.packagePath)
+                    TableColumn("Executable", value: \.executablePath)
                 }
             } else {
                 List(plugins) { item in
@@ -1078,6 +1088,7 @@ fileprivate struct PluginEventView: View {
                         Text(item.name)
                         Spacer()
                         Text(item.pluginID).font(.caption).foregroundColor(.secondary)
+                        Text(item.charset).font(.caption2).foregroundColor(.secondary)
                     }
                 }
             }
@@ -1112,6 +1123,29 @@ fileprivate struct PluginEventView: View {
                     Label("Dispatch", systemImage: "paperplane.fill")
                 }
             }
+            Divider()
+            Text("Selected Plugin Console").font(.headline)
+            HStack {
+                TextField("Event", text: $manualEventId)
+                Toggle("NOTIFY", isOn: $manualNotify)
+                Button(action: dispatchSelectedEvent) {
+                    Label("Send", systemImage: "paperplane")
+                }
+            }
+            HStack {
+                TextField("Property", text: $propertyKey)
+                TextField("Value", text: $propertyValue)
+                Button(action: getSelectedProperty) {
+                    Label("Get", systemImage: "doc.text.magnifyingglass")
+                }
+                Button(action: setSelectedProperty) {
+                    Label("Set", systemImage: "square.and.pencil")
+                }
+            }
+            if !consoleResult.isEmpty {
+                Text(consoleResult)
+                    .font(.system(.caption, design: .monospaced))
+            }
             Spacer()
         }
         .padding()
@@ -1134,8 +1168,11 @@ fileprivate struct PluginEventView: View {
                 id: "\(meta.id)|\(meta.path)",
                 pluginID: meta.id,
                 name: meta.name,
-                version: meta.installDirectory ?? (meta.isNative ? "Native" : "Legacy"),
-                path: URL(fileURLWithPath: meta.path).lastPathComponent
+                status: meta.isNative ? "Native" : "Legacy metadata",
+                charset: meta.charset ?? "UTF-8",
+                packagePath: meta.packagePath.map { URL(fileURLWithPath: $0).lastPathComponent } ?? "",
+                executablePath: URL(fileURLWithPath: meta.executablePath).lastPathComponent,
+                compatibilityPath: meta.compatibilityPath
             )
         }.sorted { $0.name < $1.name }
         logger.info("Loaded \(self.plugins.count) plugins for display")
@@ -1149,6 +1186,39 @@ fileprivate struct PluginEventView: View {
         let finalRefs = Array(refs.prefix(def.refs.count))
         logger.info("Dispatching \(def.id) with refs: \(finalRefs.joined(separator: ", "))")
         dispatcher.onArbitraryEvent(id: def.id, refs: finalRefs, notify: def.notify)
+    }
+
+    private func selectedPlugin() -> PluginInfo? {
+        guard let selection else { return nil }
+        return plugins.first { $0.id == selection }
+    }
+
+    private func dispatchSelectedEvent() {
+        guard let dispatcher, let plugin = selectedPlugin() else {
+            consoleResult = "Select a loaded native plugin."
+            return
+        }
+        let finalRefs = refs.filter { !$0.isEmpty }
+        dispatcher.dispatch(pluginSpec: plugin.pluginID, event: manualEventId, references: finalRefs, notifyOnly: manualNotify)
+        consoleResult = "\(manualNotify ? "NOTIFY" : "GET") \(manualEventId) -> \(plugin.name)"
+    }
+
+    private func getSelectedProperty() {
+        guard let dispatcher, let plugin = selectedPlugin() else {
+            consoleResult = "Select a loaded native plugin."
+            return
+        }
+        let value = dispatcher.propertyGet(pluginID: plugin.pluginID, name: plugin.name, path: plugin.compatibilityPath, key: propertyKey)
+        consoleResult = value ?? "(nil)"
+    }
+
+    private func setSelectedProperty() {
+        guard let dispatcher, let plugin = selectedPlugin() else {
+            consoleResult = "Select a loaded native plugin."
+            return
+        }
+        let ok = dispatcher.propertySet(pluginID: plugin.pluginID, name: plugin.name, path: plugin.compatibilityPath, key: propertyKey, value: propertyValue)
+        consoleResult = ok ? "OK" : "Failed"
     }
 }
 

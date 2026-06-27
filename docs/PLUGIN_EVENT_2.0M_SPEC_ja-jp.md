@@ -224,8 +224,8 @@ Value: OK
 - [x] `OnGhostInfoUpdate` [NOTIFY]: 実装済み（`onGhostInfoUpdate`）
 - [x] `OnMenuExec`: 実装済み（`onMenuExec`）
 - [x] `OnInstallComplete`: 実装済み（`onInstallComplete`）
-- [~] `OnChoiceSelect(Ex)`: 送信経路は汎用 `onArbitraryEvent` で対応可能だが**呼び出し元が未配線**（要接続）
-- [~] `OnAnchorSelect(Ex)`: 同上（`onArbitraryEvent` 経由・呼び出し元未配線）
+- [x] `OnChoiceSelect(Ex)`: 実装済み（plugin response 由来 choice の one-shot hook で横流し）
+- [x] `OnAnchorSelect(Ex)`: 実装済み（plugin response 由来 anchor の one-shot hook で横流し）
 - [x] `![raiseplugin]`/`![notifyplugin]`: 実装済み（`OurinPluginEventBridge.swift` 経由で transport 処理）
 
 ### 実装ファイル

@@ -66,7 +66,7 @@ final class OurinPluginEventBridge {
                 guard let action = Self.transportAction(from: response, notifyOnly: false) else {
                     continue
                 }
-                guard Self.shouldHandleTarget(action.target) else {
+                guard EventBridge.shared.canResolvePluginTarget(action.target) else {
                     Log.debug("[PluginEventBridge] ignored target: \(action.target ?? "nil")")
                     continue
                 }

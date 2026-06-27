@@ -13,7 +13,19 @@ enum OurinPaths {
 
     /// テスト専用の base override。テストコードから直接注入する場合に使う。
     /// 本番では常に nil。
-    static var testBaseOverride: URL?
+    private static let testBaseOverrideKey = "OurinPaths.testBaseOverride"
+    static var testBaseOverride: URL? {
+        get {
+            Thread.current.threadDictionary[testBaseOverrideKey] as? URL
+        }
+        set {
+            if let newValue {
+                Thread.current.threadDictionary[testBaseOverrideKey] = newValue
+            } else {
+                Thread.current.threadDictionary.removeObject(forKey: testBaseOverrideKey)
+            }
+        }
+    }
 
     /// テスト/明示注入時の base を解決する。本番（override 無し・非XCTest）では nil。
     private static func resolveTestBase() -> URL? {

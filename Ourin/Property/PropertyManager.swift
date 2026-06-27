@@ -20,7 +20,6 @@ public final class PropertyManager {
         let active = ghosts.isEmpty ? [] : [0]
         let balloons = discoverDefaultBalloons()
         let headlines = discoverDefaultHeadlines()
-        let plugins = discoverDefaultPlugins()
         let calendarSkins = CalendarRegistry.shared.installedSkins()
         let calendarPlugins = CalendarRegistry.shared.installedPlugins()
         register("ghostlist", provider: GhostPropertyProvider(mode: .ghostlist, ghosts: ghosts, activeIndices: active))
@@ -29,7 +28,7 @@ public final class PropertyManager {
         register("balloonlist", provider: BalloonPropertyProvider(mode: .balloonlist, balloons: balloons))
         register("currentghost.balloon", provider: BalloonPropertyProvider(mode: .currentBalloon))
         register("headlinelist", provider: HeadlinePropertyProvider(headlines: headlines))
-        register("pluginlist", provider: PluginPropertyProvider(plugins: plugins))
+        register("pluginlist", provider: discoverDefaultPluginProvider())
         register("calendarskinlist", provider: CalendarSkinPropertyProvider(skins: calendarSkins))
         register("calendarpluginlist", provider: CalendarPluginPropertyProvider(plugins: calendarPlugins))
         register("history", provider: HistoryPropertyProvider())
@@ -69,6 +68,20 @@ public final class PropertyManager {
         return []
     }
 
+    private func discoverDefaultPluginProvider() -> PluginPropertyProvider {
+        let plugins = discoverDefaultPlugins()
+        let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher
+        return PluginPropertyProvider(
+            plugins: plugins,
+            extGet: { plugin, key in
+                dispatcher?.propertyGet(pluginID: plugin.id, name: plugin.name, path: plugin.path, key: key)
+            },
+            extSet: { plugin, key, value in
+                dispatcher?.propertySet(pluginID: plugin.id, name: plugin.name, path: plugin.path, key: key, value: value) ?? false
+            }
+        )
+    }
+
     private func discoverDefaultPlugins() -> [PropertyPlugin] {
         if let app = NSApp.delegate as? AppDelegate, let registry = app.pluginRegistry {
             let values = registry.allMetas.map {
@@ -76,6 +89,7 @@ public final class PropertyManager {
                     name: $0.name,
                     path: $0.compatibilityPath,
                     id: $0.id,
+                    charset: $0.charset ?? "UTF-8",
                     craftmanw: $0.craftman ?? "",
                     craftmanurl: $0.craftmanURL ?? "",
                     filename: $0.filename,
@@ -128,7 +142,7 @@ public final class PropertyManager {
 
     /// 動的に値が変わる名前空間はキャッシュしない（system.second / system.cursor.pos 等が
     /// 初回取得値で固定されるのを防ぐ）。
-    private static let uncachedPrefixes: Set<String> = ["system"]
+    private static let uncachedPrefixes: Set<String> = ["system", "pluginlist"]
 
     public func get(_ key: String) -> String? {
         let lower = key.lowercased()

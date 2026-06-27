@@ -207,7 +207,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     private var syncEnabled: Bool = false
     private var syncScopes: Set<Int> = []
     var pendingClick: Bool? = nil
-    var pendingAnchorAction: ChoiceAction? = nil
+    var pendingAnchorAction: (action: ChoiceAction, pluginOrigin: Bool)? = nil
     
     // Append mode flag - when true, balloon text is not cleared on script start
     private var appendModeEnabled: Bool = false
@@ -228,7 +228,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var stickyWindowRelationships: [Int: Set<Int>] = [:] // Master scope -> follower scopes
 
     // Choice dialog state (used by System extension)
-    var pendingChoices: [(title: String, action: ChoiceAction)] = []
+    var pendingChoices: [(title: String, action: ChoiceAction, pluginOrigin: Bool)] = []
     var choiceHasCancelOption: Bool = false
     var choiceTimeout: TimeInterval? = nil
     /// \* 指定（このスクリプトの選択肢をタイムアウトさせない）
@@ -246,6 +246,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var noUserBreakModeActive: Bool = false
     /// \t タイムクリティカルセクション中（スクリプトブレークまたは \e まで、マウス系イベント通知を抑止）
     var timeCriticalActive: Bool = false
+
+    struct PluginTalkNotificationContext {
+        let script: String
+        let reasons: Set<String>
+        let eventID: String
+        let references: [String]
+    }
+    var pendingPluginTalkAfter: PluginTalkNotificationContext?
+    var isEmittingPluginTalk = false
+    var currentScriptIsPluginOrigin = false
 
     // 終了シーケンス管理（OnClose 応答再生 → \- → 終了確定）
     var isShuttingDown: Bool = false
@@ -673,6 +683,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func shutdown() {
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         NotificationCenter.default.removeObserver(self)
+        if let config = ghostConfig,
+           let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher {
+            dispatcher.onGhostExit(
+                windows: characterWindows.sorted(by: { $0.key < $1.key }).map { $0.value },
+                ghostName: config.name,
+                shellName: activeShellName,
+                ghostID: config.id ?? ghostURL.lastPathComponent,
+                path: ghostURL.path
+            )
+        }
         for timer in localEventTimers.values {
             timer.invalidate()
         }
@@ -832,6 +852,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         // Avoid clearing the balloon when script is effectively empty (whitespace only)
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        beginPluginTalkNotification(script: trimmed, reasons: ["owned"])
 
         // Reset playback state and balloon text for new script
         playbackQueue.removeAll()
@@ -846,7 +867,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             vm.anchorActive = false
         }
         typingInterval = defaultTypingInterval
+        let previousPluginOrigin = currentScriptIsPluginOrigin
+        currentScriptIsPluginOrigin = false
         sakuraEngine.run(script: trimmed)
+        currentScriptIsPluginOrigin = previousPluginOrigin
         startPlaybackIfNeeded()
     }
 
@@ -858,6 +882,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
         let hasText = sakuraEngine.containsText(in: trimmed)
         if hasText {
+            beginPluginTalkNotification(script: trimmed, reasons: ["owned"])
             // New visible text: cancel pending playback and clear balloon
             playbackQueue.removeAll()
             isPlaying = false
@@ -871,8 +896,94 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             }
             typingInterval = defaultTypingInterval
         }
+        let previousPluginOrigin = currentScriptIsPluginOrigin
+        currentScriptIsPluginOrigin = false
         sakuraEngine.run(script: trimmed)
+        currentScriptIsPluginOrigin = previousPluginOrigin
         startPlaybackIfNeeded()
+    }
+
+    func runPluginScript(_ script: String, options: Set<String>) {
+        let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        var reasons = options.intersection(["plugin-script", "plugin-event", "notranslate"])
+        if reasons.isEmpty {
+            reasons.insert("plugin-script")
+        }
+        if options.contains("nobreak") {
+            beginPluginTalkNotification(script: trimmed, reasons: reasons)
+            let previousPluginOrigin = currentScriptIsPluginOrigin
+            currentScriptIsPluginOrigin = true
+            sakuraEngine.run(script: trimmed)
+            currentScriptIsPluginOrigin = previousPluginOrigin
+            startPlaybackIfNeeded()
+        } else {
+            beginPluginTalkNotification(script: trimmed, reasons: reasons)
+            playbackQueue.removeAll()
+            isPlaying = false
+            quickMode = false
+            preciseBase = Date()
+            timeCriticalActive = false
+            choiceTimeoutDisabled = false
+            for vm in balloonViewModels.values {
+                vm.text = ""
+                vm.anchorActive = false
+            }
+            typingInterval = defaultTypingInterval
+            let previousPluginOrigin = currentScriptIsPluginOrigin
+            currentScriptIsPluginOrigin = true
+            sakuraEngine.run(script: trimmed)
+            currentScriptIsPluginOrigin = previousPluginOrigin
+            startPlaybackIfNeeded()
+        }
+    }
+
+    func matchesPluginTarget(_ token: String) -> Bool {
+        let normalized = token.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !normalized.isEmpty else { return false }
+        var candidates = [
+            ghostURL.path,
+            ghostURL.standardizedFileURL.path,
+            ghostURL.lastPathComponent,
+            ghostConfig?.name,
+            ghostConfig?.id,
+            ghostConfig?.title,
+            ghostConfig?.sakuraName,
+            ghostConfig?.keroName
+        ].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+        candidates.append(contentsOf: characterWindows.values.map { String($0.windowNumber).lowercased() })
+        return candidates.contains(normalized)
+    }
+
+    private func beginPluginTalkNotification(script: String, reasons: Set<String>, eventID: String = "", references: [String] = []) {
+        guard sakuraEngine.containsText(in: script) else { return }
+        let context = PluginTalkNotificationContext(script: script, reasons: reasons, eventID: eventID, references: references)
+        pendingPluginTalkAfter = context
+        emitPluginTalkNotification(context, phase: .before)
+    }
+
+    private func emitPluginTalkAfterIfNeeded() {
+        guard let context = pendingPluginTalkAfter else { return }
+        pendingPluginTalkAfter = nil
+        emitPluginTalkNotification(context, phase: .after)
+    }
+
+    private func emitPluginTalkNotification(_ context: PluginTalkNotificationContext, phase: PluginOtherGhostTalkTiming) {
+        guard !isEmittingPluginTalk,
+              let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher else { return }
+        isEmittingPluginTalk = true
+        defer { isEmittingPluginTalk = false }
+        let ghostName = ghostConfig?.name ?? ghostURL.lastPathComponent
+        let baseName = ghostConfig?.sakuraName ?? ghostName
+        dispatcher.onOtherGhostTalk(
+            ghostName: ghostName,
+            baseName: baseName,
+            reasons: context.reasons.sorted().joined(separator: ","),
+            eventID: context.eventID,
+            script: context.script,
+            refs: context.references,
+            phase: phase
+        )
     }
 
     // MARK: - SakuraScriptEngineDelegate
@@ -2200,7 +2311,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     let eventID = args[0]
                     let references = Array(args.dropFirst())
                     Log.debug("[GhostManager] Anchor event: \(eventID) with refs: \(references)")
-                    pendingAnchorAction = .event(id: eventID, references: references)
+                    pendingAnchorAction = (action: .event(id: eventID, references: references), pluginOrigin: currentScriptIsPluginOrigin)
                     EventBridge.shared.notifyCustom("OnAnchorEnter", params: ["Reference0": eventID])
                     EventBridge.shared.notifyCustom("OnAnchorHover", params: ["Reference0": eventID])
                     if let vm = balloonViewModels[currentScope] {
@@ -2449,6 +2560,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         while true {
             guard !playbackQueue.isEmpty else {
                 isPlaying = false
+                emitPluginTalkAfterIfNeeded()
                 // OnClose 応答スクリプトの再生完了後に終了する（スクリプトが \- を含まない場合の保険）
                 if terminateAfterPlayback {
                     finalizeTermination()
@@ -2684,6 +2796,23 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             "Reference0": balloonName,
             "Reference1": balloonPath
         ])
+        if let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher {
+            let windows = characterWindows.sorted(by: { $0.key < $1.key }).map { $0.value }
+            dispatcher.onGhostBoot(
+                windows: windows,
+                ghostName: config.name,
+                shellName: shellName,
+                ghostID: config.id ?? ghostURL.lastPathComponent,
+                path: ghostURL.path
+            )
+            dispatcher.onGhostInfoUpdate(
+                windows: windows,
+                ghostName: config.name,
+                shellName: shellName,
+                ghostID: config.id ?? ghostURL.lastPathComponent,
+                path: ghostURL.path
+            )
+        }
 
         // OnNotifyUserInfo: ref0=userName
         let userName = NSFullUserName()
@@ -2714,6 +2843,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 extension GhostManager {
     /// メニューアクションを処理
     func handleMenuAction(_ action: String) {
+        if let config = ghostConfig,
+           let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher {
+            dispatcher.onMenuExec(
+                windows: characterWindows.sorted(by: { $0.key < $1.key }).map { $0.value },
+                ghostName: config.name,
+                shellName: activeShellName,
+                ghostID: config.id ?? ghostURL.lastPathComponent,
+                path: ghostURL.path
+            )
+        }
         switch action {
         case "menu_ghost_info":
             showGhostInfo()

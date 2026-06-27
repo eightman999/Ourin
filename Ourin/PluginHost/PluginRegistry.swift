@@ -5,8 +5,10 @@ public struct PluginMeta {
     public let name: String
     public let id: String
     public let filename: String
+    public let charset: String?
     public let secondChangeInterval: Int?
     public let otherGhostTalk: Bool?
+    public let otherGhostTalkTiming: PluginOtherGhostTalkTiming?
     public let craftman: String?
     public let craftmanURL: String?
     public let isNative: Bool
@@ -44,6 +46,11 @@ public struct PluginMeta {
             ?? localizedMessages["english"]?[key]
             ?? localizedMessages.values.lazy.compactMap { $0[key] }.first
     }
+}
+
+public enum PluginOtherGhostTalkTiming: String {
+    case before
+    case after
 }
 
 public struct LegacyPluginRecord {
@@ -418,12 +425,15 @@ public final class PluginRegistry {
         let filename = dict["filename"] ?? dict["dllname"] ?? ""
         guard !name.isEmpty, !id.isEmpty, !filename.isEmpty else { return nil }
         let moduleURL = directoryURL.appendingPathComponent(filename)
+        let otherGhostTalk = parseOtherGhostTalk(dict["otherghosttalk"])
         return PluginMeta(
             name: name,
             id: id,
             filename: filename,
+            charset: dict["charset"],
             secondChangeInterval: dict["secondchangeinterval"].flatMap(Int.init),
-            otherGhostTalk: dict["otherghosttalk"].map { $0 == "true" || $0 == "1" },
+            otherGhostTalk: otherGhostTalk.enabled,
+            otherGhostTalkTiming: otherGhostTalk.timing,
             craftman: dict["craftman"] ?? dict["craftmanw"],
             craftmanURL: dict["craftmanurl"] ?? dict["homeurl"],
             isNative: isNative,
@@ -434,6 +444,21 @@ public final class PluginRegistry {
             executablePath: (executableURL ?? moduleURL).path,
             packagePath: packageURL?.path
         )
+    }
+
+    private static func parseOtherGhostTalk(_ raw: String?) -> (enabled: Bool?, timing: PluginOtherGhostTalkTiming?) {
+        guard let raw else { return (nil, nil) }
+        let normalized = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        switch normalized {
+        case "0", "false", "no", "off":
+            return (false, nil)
+        case "before":
+            return (true, .before)
+        case "after", "1", "true", "yes", "on":
+            return (true, .after)
+        default:
+            return (true, .after)
+        }
     }
 
     private static func readInstallManifest(from directoryURL: URL) -> InstallManifest? {

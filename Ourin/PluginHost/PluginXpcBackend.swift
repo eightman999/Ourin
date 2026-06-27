@@ -29,9 +29,16 @@ public final class PluginXpcClient {
     /// ワイヤテキストをワーカーへ送り、応答テキストを返す（失敗時 nil）。
     /// - Parameters:
     ///   - text: PLUGIN/2.0M リクエスト本文
+    ///   - charset: リクエストの wire charset
     ///   - bundlePath: ロード対象プラグインの bundle パス
-    public func send(_ text: String, bundlePath: String) -> String? {
-        let requestData = Data(text.utf8)
+    public func send(_ text: String, charset: String = "UTF-8", bundlePath: String) -> String? {
+        let requestData = PluginWireCodec.encodeRequest(text, charset: charset)
+        guard let responseData = send(requestData, bundlePath: bundlePath) else { return nil }
+        return PluginWireCodec.decodeResponse(responseData, requestCharset: charset)
+    }
+
+    /// ワイヤ bytes をワーカーへ送り、応答 bytes を返す（失敗時 nil）。
+    public func send(_ requestData: Data, bundlePath: String) -> Data? {
         let sem = DispatchSemaphore(value: 0)
         var responseData: Data?
         var connectionError: Error?
@@ -57,8 +64,7 @@ public final class PluginXpcClient {
             logger.fault("plugin XPC error: \(connectionError.localizedDescription)")
             return nil
         }
-        guard let responseData else { return nil }
-        return String(data: responseData, encoding: .utf8)
+        return responseData
     }
 }
 

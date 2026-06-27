@@ -33,24 +33,31 @@ public struct Plugin: Hashable {
         self.unload = sym("unloadu") ?? sym("unload")
     }
 
-    /// Send raw wire text to plugin and return response string (UTF-8)
-    public func send(_ text: String) -> String {
+    /// Send raw wire text to plugin and return response string decoded by PLUGIN Charset semantics.
+    public func send(_ text: String, charset: String = "UTF-8") -> String {
+        let requestData = PluginWireCodec.encodeRequest(text, charset: charset)
+        guard let responseData = send(requestData) else { return "" }
+        return PluginWireCodec.decodeResponse(responseData, requestCharset: charset) ?? ""
+    }
+
+    /// Send raw wire bytes to plugin and return raw response bytes.
+    public func send(_ data: Data) -> Data? {
         var outLen: Int = 0
-        var bytes = Array(text.utf8)
-        let byteCount = bytes.count // ← ここで事前に退避するのがポイント
+        var bytes = Array(data)
+        let byteCount = bytes.count
 
         let respPtr = bytes.withUnsafeMutableBytes { raw -> UnsafePointer<UInt8>? in
             return request(raw.bindMemory(to: UInt8.self).baseAddress!, byteCount, &outLen)
         }
-        guard let p = respPtr else { return "" }
+        guard let p = respPtr else { return nil }
         let buf = UnsafeBufferPointer(start: p, count: outLen)
-        return String(decoding: buf, as: UTF8.self)
+        return Data(buffer: buf)
     }
 
     /// Send structured PLUGIN/2.0M request to plugin and parse response
     public func sendRequest(_ request: PluginRequest) throws -> PluginResponse {
         let wireText = PluginProtocolBuilder.buildRequest(request)
-        let responseText = send(wireText)
+        let responseText = send(wireText, charset: request.charset)
         return try PluginProtocolParser.parseResponse(responseText)
     }
 

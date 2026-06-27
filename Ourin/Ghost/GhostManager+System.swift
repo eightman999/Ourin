@@ -166,6 +166,11 @@ extension GhostManager {
     }
 
     func dispatchPluginEvent(pluginSpec: String, event: String, references: [String], notifyOnly: Bool) {
+        if let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher {
+            dispatcher.dispatch(pluginSpec: pluginSpec, event: event, references: references, notifyOnly: notifyOnly, callerGhost: self)
+            return
+        }
+
         guard let registry = currentPluginRegistry() else {
             Log.info("[GhostManager] Plugin registry unavailable")
             return
@@ -175,11 +180,7 @@ extension GhostManager {
             runScript: { [weak self] action in
                 guard let script = action.script else { return }
                 DispatchQueue.main.async {
-                    if action.scriptOptions.contains("nobreak") {
-                        self?.runNotifyScript(script)
-                    } else {
-                        self?.runScript(script)
-                    }
+                    self?.runPluginScript(script, options: action.scriptOptions.union(["plugin-script"]))
                 }
             },
             emitEvent: { action in
@@ -187,7 +188,10 @@ extension GhostManager {
                 return EventBridge.shared.dispatchPluginResponseEvent(
                     eventName,
                     params: action.references,
-                    notifyOnly: action.sendsEventAsNotify
+                    notifyOnly: action.sendsEventAsNotify,
+                    target: action.target,
+                    caller: self,
+                    scriptOptions: action.scriptOptions
                 )
             }
         )
@@ -296,13 +300,13 @@ extension GhostManager {
         if idOrScript.hasPrefix("script:") {
             let script = String(idOrScript.dropFirst(7)) // Remove "script:" prefix
             Log.debug("[GhostManager] Choice '\(title)' will execute script: \(script)")
-            pendingChoices.append((title: title, action: .script(script)))
+            pendingChoices.append((title: title, action: .script(script), pluginOrigin: currentScriptIsPluginOrigin))
         } else {
             // Event ID format
             let eventID = idOrScript
             let references = Array(args.dropFirst(2))
             Log.debug("[GhostManager] Choice '\(title)' will trigger event: \(eventID) with refs: \(references)")
-            pendingChoices.append((title: title, action: .event(id: eventID, references: references)))
+            pendingChoices.append((title: title, action: .event(id: eventID, references: references), pluginOrigin: currentScriptIsPluginOrigin))
         }
     }
 
@@ -314,7 +318,7 @@ extension GhostManager {
         }
 
         for id in args where !id.isEmpty {
-            pendingChoices.append((title: id, action: .event(id: id, references: [])))
+            pendingChoices.append((title: id, action: .event(id: id, references: []), pluginOrigin: currentScriptIsPluginOrigin))
         }
     }
 
@@ -486,8 +490,10 @@ extension GhostManager {
                 EventBridge.shared.notifyCustom("OnChoiceSelectEx", params: selectExParams)
 
                 // プラグインへも横流し（Select=ID, SelectEx=ラベル/ID/拡張）
-                self.forwardEventToPlugins(id: "OnChoiceSelect", references: [choiceID])
-                self.forwardEventToPlugins(id: "OnChoiceSelectEx", references: [choice.title, choiceID] + extendedRefs)
+                if choice.pluginOrigin {
+                    self.forwardEventToPlugins(id: "OnChoiceSelect", references: [choiceID])
+                    self.forwardEventToPlugins(id: "OnChoiceSelectEx", references: [choice.title, choiceID] + extendedRefs)
+                }
 
                 switch choice.action {
                 case .event(let id, let references):

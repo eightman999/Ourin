@@ -26,6 +26,12 @@ struct LegacyPluginRegistryTests {
         id,plugin-id
         homeurl,http://example.com/plugin/
         """.write(to: pluginDir.appendingPathComponent("descript.txt"), atomically: true, encoding: .utf8)
+        try """
+        menu.title,共有値
+        """.write(to: pluginDir.appendingPathComponent("message.japanese.txt"), atomically: true, encoding: .utf8)
+        try """
+        menu.title,Shared Value
+        """.write(to: pluginDir.appendingPathComponent("message.english.txt"), atomically: true, encoding: .utf8)
 
         let registry = PluginRegistry()
         registry.discoverAndLoad()
@@ -35,26 +41,33 @@ struct LegacyPluginRegistryTests {
         let meta = try #require(registry.legacyMetas.first?.meta)
         #expect(meta.name == "Shared Value")
         #expect(meta.filename == "shared_value.dll")
+        #expect(meta.charset == "UTF-8")
         #expect(standardized(meta.path) == standardized(pluginDir.appendingPathComponent("shared_value.dll").path))
         #expect(meta.secondChangeInterval == 10)
         #expect(meta.otherGhostTalk == false)
         #expect(meta.craftman == "SSP BUGTRAQ")
         #expect(meta.craftmanURL == "http://example.com/plugin/")
         #expect(meta.isNative == false)
+        #expect(meta.message(for: "menu.title", language: "ja") == "共有値")
+        #expect(meta.message(for: "menu.title", language: "en") == "Shared Value")
 
         let provider = PluginPropertyProvider(plugins: registry.allMetas.map {
             PropertyPlugin(
                 name: $0.name,
                 path: $0.path,
                 id: $0.id,
+                charset: $0.charset ?? "UTF-8",
                 craftmanw: $0.craftman ?? "",
                 craftmanurl: $0.craftmanURL ?? "",
                 filename: $0.filename,
-                native: $0.isNative
+                native: $0.isNative,
+                localizedMessages: $0.localizedMessages
             )
         })
         #expect(provider.get(key: "count") == "1")
         #expect(standardized(provider.get(key: "index(0).path")) == standardized(pluginDir.appendingPathComponent("shared_value.dll").path))
+        #expect(provider.get(key: "index(0).charset") == "UTF-8")
+        #expect(provider.get(key: "index(0).message.menu.title") == "共有値" || provider.get(key: "index(0).message.menu.title") == "Shared Value")
         #expect(provider.get(key: "index(0).native") == "0")
     }
 

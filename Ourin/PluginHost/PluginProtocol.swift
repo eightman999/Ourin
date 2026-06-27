@@ -86,6 +86,25 @@ public enum PluginProtocolError: Error {
     case unsupportedMethod(String)
 }
 
+// MARK: - Wire Codec
+
+enum PluginWireCodec {
+    static func encodeRequest(_ text: String, charset: String) -> Data {
+        EncodingAdapter.encode(text, charset: charset)
+    }
+
+    static func decodeResponse(_ data: Data, requestCharset: String) -> String? {
+        let responseCharset = EncodingAdapter.detectCharset(in: data, default: requestCharset)
+        return EncodingAdapter.decode(data, charset: responseCharset)
+            ?? EncodingAdapter.decode(data, charset: requestCharset)
+            ?? String(data: data, encoding: .utf8)
+    }
+
+    static func responseCharset(in data: Data, default requestCharset: String) -> String {
+        EncodingAdapter.detectCharset(in: data, default: requestCharset)
+    }
+}
+
 public struct PluginProtocolParser {
 
     /// Parse PLUGIN/2.0M request from wire text (CRLF-delimited)

@@ -6,8 +6,8 @@ import OSLog
 final class PluginEventDispatcher {
     /// 登録済みプラグイン一覧
     private let registry: PluginRegistry
-    /// OnSecondChange 用タイマー
-    private var timer: DispatchSourceTimer?
+    /// OnSecondChange 用タイマー（PLUGIN descript の secondchangeinterval は plugin ごとに尊重する）
+    private var timers: [Plugin: DispatchSourceTimer] = [:]
     /// プラグインごとの直列キュー
     private var queues: [Plugin: DispatchQueue] = [:]
     /// ロガー
@@ -29,15 +29,15 @@ final class PluginEventDispatcher {
 
     /// プラグインへワイヤテキストを送信する。XPC 分離が有効なら別プロセスのワーカーへ、
     /// それ以外は従来通りインプロセス（CFBundle ロード）で実行する。
-    private func transportSend(_ req: String, to plugin: Plugin) -> String {
+    private func transportSend(_ req: String, to plugin: Plugin, charset: String) -> String {
         if let xpc = xpcClient {
-            if let resp = xpc.send(req, bundlePath: plugin.bundle.bundleURL.path) {
+            if let resp = xpc.send(req, charset: charset, bundlePath: plugin.bundle.bundleURL.path) {
                 return resp
             }
             logger.warning("plugin XPC send failed; bundle=\(plugin.bundle.bundleURL.lastPathComponent)")
             return ""
         }
-        return plugin.send(req)
+        return plugin.send(req, charset: charset)
     }
 
     /// プラグインに適用する送信文字コードを取得（既定 UTF-8）
@@ -73,39 +73,55 @@ final class PluginEventDispatcher {
     // MARK: - Timer
     /// `secondchangeinterval` に従い DispatchSourceTimer を生成
     private func setupTimer() {
-        let interval = registry.metas.values.compactMap { $0.secondChangeInterval }.min() ?? 0
-        guard interval > 0 else { return }
-        let t = DispatchSource.makeTimerSource()
-        t.schedule(deadline: .now() + .seconds(interval), repeating: .seconds(interval))
-        t.setEventHandler { [weak self] in
-            self?.onSecondChange()
+        for plugin in registry.plugins {
+            guard let interval = registry.metas[plugin]?.secondChangeInterval, interval > 0 else { continue }
+            let timer = DispatchSource.makeTimerSource()
+            timer.schedule(deadline: .now() + .seconds(interval), repeating: .seconds(interval))
+            timer.setEventHandler { [weak self, plugin] in
+                self?.sendFrame(id: "OnSecondChange", refs: [], to: plugin)
+            }
+            timer.resume()
+            timers[plugin] = timer
         }
-        t.resume()
-        timer = t
     }
 
     /// ディスパッチャを停止
-    func stop() { timer?.cancel() }
+    func stop() {
+        for timer in timers.values {
+            timer.cancel()
+        }
+        timers.removeAll()
+    }
 
     // MARK: - Event helpers
     /// フレームを構築し全プラグインへ送信する
     private func sendFrame(id: String, refs: [String], notify: Bool = false, securityLevel: PluginSecurityLevel = .local) {
         for plugin in registry.plugins {
-            guard let q = queues[plugin] else { continue }
-            // version 交渉で得た文字コードを Charset ヘッダへ反映する
-            let req = PluginFrame(id: id, references: refs, charset: charset(for: plugin), notify: notify, securityLevel: securityLevel).build()
-            q.async { [weak self, logger, id, req, plugin, notify] in
-                let start = Date()
-                let resp = self?.transportSend(req, to: plugin) ?? ""
-                let elapsed = Date().timeIntervalSince(start)
-                logger.debug("ID \(id) to \(plugin.bundle.bundleURL.lastPathComponent) (\(elapsed)s)")
-                if elapsed > 3 {
-                    logger.warning("timeout: \(id) >3s")
-                }
-                // NOTIFY フレームは応答を破棄する。GET フレームは Script/Event を実行する。
-                if !notify {
-                    self?.handleResponse(resp, from: plugin)
-                }
+            sendFrame(id: id, refs: refs, notify: notify, securityLevel: securityLevel, to: plugin)
+        }
+    }
+
+    private func sendFrame(
+        id: String,
+        refs: [String],
+        notify: Bool = false,
+        securityLevel: PluginSecurityLevel = .local,
+        to plugin: Plugin,
+        callerGhost: GhostManager? = nil
+    ) {
+        guard let q = queues[plugin] else { return }
+        let charset = charset(for: plugin)
+        let req = PluginFrame(id: id, references: refs, charset: charset, notify: notify, securityLevel: securityLevel).build()
+        q.async { [weak self, logger, id, req, plugin, notify, charset, weak callerGhost] in
+            let start = Date()
+            let resp = self?.transportSend(req, to: plugin, charset: charset) ?? ""
+            let elapsed = Date().timeIntervalSince(start)
+            logger.debug("ID \(id) to \(plugin.bundle.bundleURL.lastPathComponent) (\(elapsed)s)")
+            if elapsed > 3 {
+                logger.warning("timeout: \(id) >3s")
+            }
+            if !notify {
+                self?.handleResponse(resp, from: plugin, callerGhost: callerGhost)
             }
         }
     }
@@ -113,23 +129,37 @@ final class PluginEventDispatcher {
     /// プラグインからの応答を解釈し、Script/Event をホスト側へ引き渡す。
     /// `OurinPluginEventBridge.transportAction` / `shouldHandleTarget` と同じ判定を再利用するため、
     /// GhostManager+System.swift:173-187 と同一のルーティング規則が適用される。
-    private func handleResponse(_ resp: String, from plugin: Plugin) {
+    private func handleResponse(_ resp: String, from plugin: Plugin, callerGhost: GhostManager? = nil) {
         guard !resp.isEmpty,
               let parsed = try? PluginProtocolParser.parseResponse(resp),
               parsed.statusCode == 200 else { return }
         guard let action = OurinPluginEventBridge.transportAction(from: parsed, notifyOnly: false) else { return }
-        guard OurinPluginEventBridge.shouldHandleTarget(action.target) else {
+        guard EventBridge.shared.canResolvePluginTarget(action.target, caller: callerGhost) else {
             logger.debug("ignored target: \(action.target ?? "nil") from \(plugin.bundle.bundleURL.lastPathComponent)")
             return
         }
         OurinPluginEventBridge.deliver(
             action,
             runScript: { action in
-                guard let script = action.script else { return }
-                onScript?(script, action.scriptOptions)
+                if !EventBridge.shared.runPluginResponseScript(action, caller: callerGhost),
+                   let script = action.script {
+                    onScript?(script, action.scriptOptions)
+                }
             },
             emitEvent: { action in
                 guard let eventName = action.eventName else { return false }
+                let notifyOnly = action.sendsEventAsNotify
+                let handled = EventBridge.shared.dispatchPluginResponseEvent(
+                    eventName,
+                    params: action.references,
+                    notifyOnly: notifyOnly,
+                    target: action.target,
+                    caller: callerGhost,
+                    scriptOptions: action.scriptOptions
+                )
+                if handled {
+                    return true
+                }
                 return onEmitEvent?(eventName, action.references, action.eventOptions) ?? false
             }
         )
@@ -140,7 +170,7 @@ final class PluginEventDispatcher {
         for plugin in registry.plugins {
             let req = PluginFrame(id: "version").build()
             queues[plugin]?.async { [weak self, logger, req, plugin] in
-                let resp = self?.transportSend(req, to: plugin) ?? ""
+                let resp = self?.transportSend(req, to: plugin, charset: "UTF-8") ?? ""
                 let name = plugin.bundle.bundleURL.lastPathComponent
                 // 応答の Charset ヘッダを以降の通信へ適用する(PLUGIN_EVENT/2.0M §4.1)
                 if let parsed = try? PluginProtocolParser.parseResponse(resp) {
@@ -223,15 +253,90 @@ final class PluginEventDispatcher {
     }
 
     /// その他ゴーストのトークイベント
-    func onOtherGhostTalk(ghostName: String, baseName: String, reasons: String, eventID: String, script: String, refs: [String]) {
+    func onOtherGhostTalk(
+        ghostName: String,
+        baseName: String,
+        reasons: String,
+        eventID: String,
+        script: String,
+        refs: [String],
+        phase: PluginOtherGhostTalkTiming = .after
+    ) {
         // 仕様(PLUGIN_EVENT/2.0M): Reference5 は 0x01 区切りで束ねた単一の Reference
         let arr = [ghostName, baseName, reasons, eventID, script, ListDelimiter.join(refs)]
-        sendFrame(id: "OnOtherGhostTalk", refs: arr)
+        for plugin in registry.plugins {
+            guard let meta = registry.metas[plugin],
+                  meta.otherGhostTalk == true,
+                  (meta.otherGhostTalkTiming ?? .after) == phase else { continue }
+            sendFrame(id: "OnOtherGhostTalk", refs: arr, to: plugin)
+        }
     }
 
     /// 選択/アンカー選択等の横流しイベント
     /// SSTP 経由など外部由来で中継する場合は `securityLevel: .external` を指定する。
     func onArbitraryEvent(id: String, refs: [String], notify: Bool = false, securityLevel: PluginSecurityLevel = .local) {
         sendFrame(id: id, refs: refs, notify: notify, securityLevel: securityLevel)
+    }
+
+    func dispatch(pluginSpec: String, event: String, references: [String], notifyOnly: Bool, callerGhost: GhostManager? = nil) {
+        let targets = resolvePluginTargets(spec: pluginSpec)
+        guard !targets.isEmpty else {
+            logger.info("no plugin target matched: \(pluginSpec)")
+            return
+        }
+        for plugin in targets {
+            sendFrame(id: event, refs: references, notify: notifyOnly, to: plugin, callerGhost: callerGhost)
+        }
+    }
+
+    func propertyGet(pluginID: String, name: String, path: String, key: String) -> String? {
+        guard let plugin = resolveLoadedPlugin(id: pluginID, name: name, path: path) else { return nil }
+        let charset = charset(for: plugin)
+        let req = PluginFrame(id: "property.get", references: [key], charset: charset).build()
+        let resp = transportSend(req, to: plugin, charset: charset)
+        guard let parsed = try? PluginProtocolParser.parseResponse(resp), parsed.statusCode == 200 else {
+            return nil
+        }
+        return parsed.value
+    }
+
+    func propertySet(pluginID: String, name: String, path: String, key: String, value: String) -> Bool {
+        guard let plugin = resolveLoadedPlugin(id: pluginID, name: name, path: path) else { return false }
+        let charset = charset(for: plugin)
+        let req = PluginFrame(id: "property.set", references: [key, value], charset: charset).build()
+        let resp = transportSend(req, to: plugin, charset: charset)
+        guard let parsed = try? PluginProtocolParser.parseResponse(resp) else { return false }
+        return parsed.statusCode == 200 || parsed.statusCode == 204
+    }
+
+    private func resolveLoadedPlugin(id: String, name: String, path: String) -> Plugin? {
+        registry.plugins.first { plugin in
+            guard let meta = registry.metas[plugin] else { return false }
+            return (!id.isEmpty && meta.id.caseInsensitiveCompare(id) == .orderedSame)
+                || (!name.isEmpty && meta.name.caseInsensitiveCompare(name) == .orderedSame)
+                || (!path.isEmpty && (meta.compatibilityPath == path || meta.executablePath == path || meta.packagePath == path))
+        }
+    }
+
+    private func resolvePluginTargets(spec: String) -> [Plugin] {
+        let token = spec.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !token.isEmpty else { return [] }
+        if token.caseInsensitiveCompare("random") == .orderedSame {
+            return registry.plugins.randomElement().map { [$0] } ?? []
+        }
+        if token.caseInsensitiveCompare("lastinstalled") == .orderedSame {
+            return registry.plugins.last.map { [$0] } ?? []
+        }
+        return registry.plugins.filter { plugin in
+            if let meta = registry.metas[plugin] {
+                return meta.id.caseInsensitiveCompare(token) == .orderedSame
+                    || meta.name.caseInsensitiveCompare(token) == .orderedSame
+                    || meta.filename.caseInsensitiveCompare(token) == .orderedSame
+                    || meta.compatibilityPath == token
+                    || meta.executablePath == token
+                    || meta.packagePath == token
+            }
+            return plugin.bundle.bundleURL.deletingPathExtension().lastPathComponent.caseInsensitiveCompare(token) == .orderedSame
+        }
     }
 }
