@@ -147,19 +147,12 @@ struct SerikoParserTests {
         }
         """, named: "surfaces.txt", to: shell)
 
-        try write("""
-        surface0
-        {
-          animation1.interval,runonce
-        }
-        """, named: "surfacetable.txt", to: shell)
-
+        // surfacetable.txt は surfaces*.txt バンドルから分離されている（書式非互換のため）。
         let bundle = try #require(SurfaceDefinitionLoader.load(from: shell))
-        #expect(bundle.sourceFileNames == ["surfaces.txt", "surfaces10.txt", "surfaces2.txt", "surfacetable.txt"])
+        #expect(bundle.sourceFileNames == ["surfaces.txt", "surfaces10.txt", "surfaces2.txt"])
 
         let parsed = SerikoParser.parseSurfaces(bundle.content)
         #expect(parsed[0]?.animations[0]?.interval == .always)
-        #expect(parsed[0]?.animations[1]?.interval == .runonce)
     }
 
     @Test

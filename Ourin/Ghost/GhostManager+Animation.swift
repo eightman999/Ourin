@@ -121,11 +121,19 @@ extension GhostManager {
         guard let shellPath = loadShellPath() else { return }
 
         guard let definitionBundle = SurfaceDefinitionLoader.load(from: shellPath) else {
-            Log.info("[GhostManager] No readable surfaces*.txt, alias.txt, or surfacetable.txt in: \(shellPath.path)")
+            Log.info("[GhostManager] No readable surfaces*.txt or alias.txt in: \(shellPath.path)")
             return
         }
         let combined = definitionBundle.content
         Log.debug("[GhostManager] Loaded surface definition files: \(definitionBundle.sourceFileNames.joined(separator: ", "))")
+
+        // surfacetable.txt は surfaces.txt と書式が非互換のため別途ロード。
+        if let table = SurfaceDefinitionLoader.loadSurfaceTable(from: shellPath) {
+            surfaceTable = table
+            Log.debug("[GhostManager] Loaded surfacetable.txt: \(table.groups.count) groups, disableNoDefineSurfaces=\(table.disableNoDefineSurfaces)")
+        } else {
+            surfaceTable = nil
+        }
 
         if surfaceAliases.isEmpty {
             surfaceAliases = SerikoParser.parseSurfaceAliases(combined)

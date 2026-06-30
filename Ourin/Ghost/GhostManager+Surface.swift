@@ -116,6 +116,14 @@ extension GhostManager {
             Log.info("[GhostManager] Cannot load surface: shell path unavailable")
             return nil
         }
+        // surfacetable.txt の option,DisableNoDefineSurfaces:
+        // surfaces.txt にも surfacetable.txt にも定義がないサーフェスIDは描画しない（UKADOC）。
+        if let table = surfaceTable, table.disableNoDefineSurfaces,
+           parsedSurfaceDefs[surfaceId] == nil,
+           !table.definedSurfaceIDs.contains(surfaceId) {
+            Log.debug("[GhostManager] Surface \(surfaceId) suppressed by DisableNoDefineSurfaces")
+            return nil
+        }
         // SERIKO/2.0: element 合成で定義されるサーフェスは複数画像を重ねて生成する
         if let elements = parsedSurfaceDefs[surfaceId]?.elements, !elements.isEmpty,
            let composed = compositeSurfaceElements(elements, shellURL: shellURL) {

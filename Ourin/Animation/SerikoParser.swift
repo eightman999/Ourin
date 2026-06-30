@@ -557,8 +557,12 @@ public enum SurfaceDefinitionLoader {
     ///
     /// UKADOC/SSP treats every `surfaces***.txt` file in a shell directory as a
     /// surfaces definition file and reads them in filename order. `alias.txt`
-    /// and `surfacetable.txt` are legacy companion files, so Ourin appends them
-    /// after the SSP `surfaces*.txt` set to preserve existing compatibility.
+    /// is a legacy companion file, so Ourin appends it after the SSP
+    /// `surfaces*.txt` set to preserve existing compatibility.
+    ///
+    /// `surfacetable.txt` is a separate metadata file (サーフィステスト用グループ定義)
+    /// whose syntax is incompatible with `surfaces.txt`. It is NOT included in
+    /// this bundle; use `loadSurfaceTable(from:)` to parse it independently.
     public static func load(from shellURL: URL, fileManager: FileManager = .default) -> Bundle? {
         var chunks: [String] = []
         var sourceFileNames: [String] = []
@@ -569,7 +573,7 @@ public enum SurfaceDefinitionLoader {
             sourceFileNames.append(url.lastPathComponent)
         }
 
-        for companion in ["alias.txt", "surfacetable.txt"] {
+        for companion in ["alias.txt"] {
             let url = shellURL.appendingPathComponent(companion)
             guard isRegularFile(url, fileManager: fileManager),
                   let text = readTextFile(url)
@@ -580,6 +584,16 @@ public enum SurfaceDefinitionLoader {
 
         guard !chunks.isEmpty else { return nil }
         return Bundle(content: chunks.joined(separator: "\n"), sourceFileNames: sourceFileNames)
+    }
+
+    /// `surfacetable.txt` を読み込んで `SurfaceTable` にパースする。
+    /// ファイルが存在しない場合は nil を返す。
+    public static func loadSurfaceTable(from shellURL: URL, fileManager: FileManager = .default) -> SurfaceTable? {
+        let url = shellURL.appendingPathComponent("surfacetable.txt")
+        guard isRegularFile(url, fileManager: fileManager),
+              let text = readTextFile(url)
+        else { return nil }
+        return SurfaceTableParser.parse(text)
     }
 
     public static func surfaceDefinitionFiles(in shellURL: URL, fileManager: FileManager = .default) -> [URL] {
