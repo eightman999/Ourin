@@ -8,7 +8,7 @@
 > dictionary loading, CP932/UTF-8 handling, SHIORI IPC, and broad built-in
 > function coverage. It is still partial rather than 100% faithful. Use
 > [`../yaya_core/IMPLEMENTATION_STATUS.md`](../yaya_core/IMPLEMENTATION_STATUS.md)
-> and [`AUDIT_CODEX_2026-06-27.md`](AUDIT_CODEX_2026-06-27.md) for current status.
+> and [`AUDITS_COMPLETED.md`](AUDITS_COMPLETED.md) / [`AUDITS_TODO.md`](AUDITS_TODO.md) for current status.
 
 ---
 

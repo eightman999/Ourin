@@ -56,9 +56,48 @@
 - `install.txt` は **UTF‑8 を優先**して読む。失敗時は **CP932** で再試行し、内部は UTF‑8 正規化。BOM・CRLF も受理。
 
 ## 6. install.txt の語彙（受理する要点）
-- **必須**：`type,(ghost|balloon|shell|plugin|package)`／`directory,<設置名>`  
-- **任意**：`accept,<識別名>`、`*.directory,<同梱名>`（例：`balloon.directory,MyBalloon`）、`*.source.directory` など。  
+- **必須**：`type,<種別>`／`directory,<設置名>`（`supplement`・`package` は `directory` 省略可）
+- **任意**：`accept,<識別名>`、`*.directory,<同梱名>`（例：`balloon.directory,MyBalloon`）、`*.source.directory` など。
 - **推奨**：`charset,UTF-8` を**先頭**に明記。
+
+### 6.1 type の受理値と設置先
+
+| type 値 | 受理される表記バリアント | 設置先（`<base>` = `~/Documents/Ourin`） |
+|---------|------------------------|------------------------------------------|
+| `ghost` | — | `<base>/ghost/<directory>` |
+| `balloon` | — | `<base>/balloon/<directory>` |
+| `shell` | — | `<base>/ghost/<accept>/shell/<directory>` |
+| `plugin` | — | `<base>/plugin/<directory>` |
+| `headline` | — | `<base>/headline/<directory>` |
+| `package` | — | `<base>/package/<directory>` |
+| `supplement` | — | `<base>/ghost/<accept>/` （directory は任意） |
+| `calendar/skin` | `calendar skin`、`calendarskin` | `<base>/calendar/skin/<directory>` |
+| `calendar/plugin` | `calendar plugin`、`calendarplugin` | `<base>/calendar/plugin/<directory>` |
+| `calendar` | — （skin/plugin 区別が無い旧形式） | `<base>/calendar/<directory>` |
+| `language` | — | `<base>/language/<directory>` |
+
+`calendar/skin`・`calendar/plugin` はいずれも大文字小文字・スペース・スラッシュの有無を問わず受理される（`InstallTxtParser.swift` → `OurinPaths.installTarget()`）。旧形式 `calendar`（区別なし）は後方互換のため維持。`language` は UKADOC install.txt の language 種別に対応。
+
+`shell` および `supplement` は `accept` フィールドで対象ゴーストのディレクトリ名を指定する必要がある。未指定時は `installTxtMissingKey("accept")` エラー。
+
+### 6.2 refreshundeletemask フィールド
+
+```
+refreshundeletemask,ファイル名パターン1:ファイル名パターン2:...
+```
+
+- UKADOC 準拠の区切り文字は **コロン（`:`）**。
+- 既存データとの互換性のため **カンマ（`,`）** も許容する（`InstallTxtParser.swift:106`）。
+- 値は正規表現パターンの集合として `refreshUndeleteMask: [String]` に格納される。
+- `refresh,1` と組み合わせて使用する。`refresh,1` が指定されたとき、マスクに一致するパスはインストール前削除から除外される。
+
+例：
+```
+refresh,1
+refreshundeletemask,savedata:*.sav:userconfig.txt
+```
+
+上記ではコロン区切り 3 要素（`savedata`、`*.sav`、`userconfig.txt`）として解析される。
 
 ## 7. 展開ポリシー（安全な unzip と配置）
 - 一時ディレクトリに**安全に解凍**→ `install.txt` を解釈 → **設置先**にコピー。  
@@ -157,7 +196,7 @@ OURIN_NAR_INSTALL_1_0M/
 - [x] **install.txt 解析**: `InstallTxtParser.swift` にて実装済み
 - [x] **文字コード自動検出**: UTF-8 および CP932 の自動検出を実装済み
 - [x] **Zip Slip 防止**: `ZipUtil.secureCopyTree()` にて実装済み
-- [x] **型別インストール**: `OurinPaths.installTarget()` にて ghost/balloon/shell/plugin の配置先解決を実装済み
+- [x] **型別インストール**: `OurinPaths.installTarget()` にて ghost/balloon/shell/supplement/plugin/headline/package/calendar/calendar/skin/calendar/plugin/language の配置先解決を実装済み
 - [x] **基本的なエラー処理**: インストールエラーの検出と報告を実装済み
 - [ ] **競合時の UI**: accept/delete/homeurl の完全な UI 実装は未完了
 - [ ] **更新機能**: updates2.dau の処理は未実装
@@ -176,14 +215,14 @@ OURIN_NAR_INSTALL_1_0M/
    - install.txt の存在確認
 
 3. **install.txt 解析**
-   - `type` フィールドの解析（ghost, balloon, shell, plugin, package）
+   - `type` フィールドの解析（ghost, balloon, shell, supplement, plugin, headline, package, calendar/skin, calendar/plugin, calendar, language）
    - `directory` および `*.directory` の解析
    - UTF-8/CP932 の自動判定とデコード
 
 4. **安全な配置**
    - Zip Slip 攻撃の防止（親ディレクトリへの脱出防止）
    - `~/Library/Application Support/Ourin/` 配下への配置
-   - 型別のディレクトリ振り分け（ghost, balloon, shell, plugin）
+   - 型別のディレクトリ振り分け（ghost, balloon, shell, supplement, plugin, headline, package, calendar/skin, calendar/plugin, calendar, language）
 
 5. **エラーハンドリング**
    - NAR 形式エラー（NotZip）
@@ -224,5 +263,6 @@ OURIN_NAR_INSTALL_1_0M/
 ---
 
 ## 変更履歴
+- 2026-06-28: §6.1 type 受理値テーブルを追加（calendar/skin、calendar/plugin、calendar、language を追記）。§6.2 refreshundeletemask フィールドの区切り文字仕様（コロン主・カンマ互換）を追記。実装状況の type 一覧を更新。
 - 2025-10-20: 実装状況セクションを追加
 - 2025-07-28 20:07 UTC+09:00: 初版（NAR-INSTALL/1.0M）。

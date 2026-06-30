@@ -89,6 +89,23 @@ Provides `headlinelist.*` properties:
 - `headlinelist.index(n).{name|path|craftmanw|craftmanurl}`
 - `headlinelist({name|path}).{property}`
 
+#### AliasPropertyProvider
+Registered four times under the standard SSP-compatible shorthand namespaces
+(`registerDefaultProviders` in `PropertyManager.swift`):
+
+| Registered prefix | Delegation target prefix |
+|---|---|
+| `sakura` | `currentghost.scope(0)` |
+| `kero` | `currentghost.scope(1)` |
+| `ghost` | `currentghost` |
+| `shell` | `currentghost.shelllist.current` |
+
+When `get(key:)` or `set(key:value:)` is called, the provider prepends the delegation target prefix
+to the sub-key and re-dispatches to `PropertyManager.shared.get/set`. For example,
+`sakura.surface.num` becomes `currentghost.scope(0).surface.num` before lookup.
+Both GET and SET delegate to the existing providers; alias registration does not add any
+independently stored state.
+
 #### PluginPropertyProvider
 Provides `pluginlist.*` properties:
 - `pluginlist.count`
@@ -170,6 +187,12 @@ let expanded = manager.expand(text: text)
 Currently, the following properties support write operations:
 
 1. `currentghost.shelllist({name}).menu` - Set to "hidden" to hide shell from menu
+
+The alias namespaces `sakura.*`, `kero.*`, `ghost.*`, and `shell.*` can also be used on
+the left-hand side of a SET command. They expand to the same delegation target as for GET;
+the SET succeeds or fails according to whether the resolved full key is writable.
+`AliasPropertyProvider.writableProperties()` returns `[]`, so aliases do not appear in
+the writable key enumeration.
 
 ## Integration Points
 

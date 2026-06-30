@@ -17,6 +17,7 @@
   - [4.2 baseware.*](#42-baseware)
   - [4.3 ghostlist/activeghostlist/currentghost.*](#43-ghostlistactiveghostlistcurrentghost)
   - [4.4 balloonlist/headlinelist/pluginlist/history/rateofuselist](#44-balloonlistheadlinelistpluginlisthistoryrateofuselist)
+  - [4.5 標準名前空間エイリアス（sakura/kero/ghost/shell）](#45-標準名前空間エイリアスsakurakeroghostshell)
 - [5. 書込可能フラグ（SET 有効）一覧](#5-書込可能フラグset-有効一覧)
 - [6. セキュリティとサンドボックス](#6-セキュリティとサンドボックス)
 - [7. 互換性と差分](#7-互換性と差分)
@@ -97,6 +98,35 @@ func compatibleCursorPositionString() -> String {
 
 ### 4.4 `balloonlist/headlinelist/pluginlist/history/rateofuselist`
 - 語彙・取得挙動は同名互換。`index(ID)` / `count` 等も踏襲。
+
+### 4.5 標準名前空間エイリアス（sakura/kero/ghost/shell）
+
+SSP 互換の省略名前空間として、以下の 4 つのエイリアスが `PropertyManager` 初期化時に
+`AliasPropertyProvider` として登録される（`PropertyManager.swift` の `registerDefaultProviders`）。
+
+| エイリアス名前空間 | 委譲先（展開後のプレフィックス） |
+|---|---|
+| `sakura.*` | `currentghost.scope(0).*` |
+| `kero.*` | `currentghost.scope(1).*` |
+| `ghost.*` | `currentghost.*` |
+| `shell.*` | `currentghost.shelllist.current.*` |
+
+**動作の詳細:**
+
+- GET (`%property[sakura.surface.num]` 等）: エイリアスプロバイダがキーを展開し、
+  `PropertyManager.shared.get("currentghost.scope(0).surface.num")` へ委譲する。
+  委譲先の挙動は直接アクセスと同一。
+- SET (`\![set,property,kero.surface.num,10]` 等）: 同様にキー展開後、
+  `PropertyManager.shared.set("currentghost.scope(1).surface.num", value: "10")` へ委譲する。
+  委譲先が SET を受け入れる場合のみ成功する。
+- キーが空文字の場合（例: `ghost` のみ）、委譲先プレフィックス自体（`currentghost`）を
+  キーとして使用する。
+- `AliasPropertyProvider.writableProperties()` は `[]` を返す（書き込み可能キー一覧の列挙は
+  エイリアス経由では公開されない）。エイリアス名前空間を通じた SET の可否は、
+  実際の委譲先プロバイダの実装に依存する。
+- キャッシュ動作：`sakura` / `kero` / `ghost` / `shell` は `uncachedPrefixes` の対象外のため、
+  解決済み値はキャッシュされる。キャッシュの無効化は `PropertyManager.invalidateCache()` が
+  呼ばれた時点で行われる。
 
 ---
 

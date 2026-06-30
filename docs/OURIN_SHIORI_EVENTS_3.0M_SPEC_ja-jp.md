@@ -332,6 +332,54 @@ ShioriLoader 経由で YAYA Backend へ送信
 
 ---
 
+---
+
+## 自動システムイベントの有効化タイミング
+
+### 概要
+
+標準の自動システムイベント（タイマー/入力/スリープ/ディスプレイ/電源/ロケール/外観/セッション/ネットワーク/ゲームパッド/デバイス/音声認識）は、**実ゴーストのロード完了**を唯一の集約点として有効化されます。
+
+実装ファイル：
+- `Ourin/Ghost/GhostManager.swift` — `startEventBridgeIfNeeded(enableAutoEvents:)`
+- `Ourin/SHIORIEvents/EventBridge.swift` — `start(enableAutoEvents:)` および内部キュー機能
+
+### 有効化の流れ
+
+```
+GhostManager.start()
+  ↓ YAYA 辞書ロード完了
+  ↓ OnBoot GET 発行前
+startEventBridgeIfNeeded(enableAutoEvents: !GhostManager.isRunningUnderTests)
+  → EventBridge.shared.start(enableAutoEvents: true)   // テスト時は false
+     → TimerEmitter / InputMonitor / SleepObserver /
+        DisplayObserver / SpaceObserver / PowerObserver /
+        LocaleObserver / AppearanceObserver / SessionObserver /
+        NetworkObserver / GamepadObserver / DeviceObserver /
+        SpeechObserver をすべて開始
+     → pendingNotifies をフラッシュ（キュー済み NOTIFY を即時配送）
+```
+
+### 有効化以前の NOTIFY キュー動作
+
+`autoEventsEnabled = false` の状態で `broadcastNotify` または `broadcastNotifyCustom` が呼ばれた場合、イベントは **内部キュー**（`pendingNotifies`）に積まれます。自動イベントが有効化されると同時にキューが**フラッシュ**され、ゴーストへ順次配送されます。
+
+| 状態 | NOTIFY の扱い |
+|---|---|
+| `autoEventsEnabled = false`（有効化前） | `pendingNotifies` キューに追加（即時配送しない） |
+| `autoEventsEnabled = true`（有効化後） | 即時配送。キューがあればフラッシュしてから通常配送へ移行 |
+
+### ユニットテストでの抑制
+
+`GhostManager.isRunningUnderTests` は環境変数 `XCTestConfigurationFilePath` または `XCTestBundlePath` の存在でテスト実行を検出します。テスト時は `enableAutoEvents = false` で `EventBridge.start()` を呼び出すため、タイマー・入力監視などのシステムオブザーバは起動されません。
+
+### 旧動作との差分
+
+以前のデフォルトは `enableAutoEvents = false` であり、名前入力ダイアログ経路（`GhostManager+Display`）を通過しない限り自動イベントが NOTIFY キューのみに留まる経路がありました。現在は**実ゴーストロード完了が唯一の有効化ポイント**となり、ダイアログ経路の有無に関わらず自動イベントが確実に有効化されます。
+
+---
+
 ## 変更履歴
+- 2026-06-28: 自動システムイベント有効化タイミングのセクションを追加（GhostManager.startEventBridgeIfNeeded / EventBridge.start 実装に対応）
 - 2025-10-20: 実装状況セクションを追加
 - 2025-07-28 (JST): 初版（3.0M for macOS）。

@@ -4,9 +4,15 @@ This document tracks the translation status of all Ourin documentation.
 
 ## Status Overview
 
-- **Complete Pairs**: 5 documents with both EN and JA versions
-- **Need Translation**: 32 documents missing one language version
-- **Total Unique Documents**: 37
+✅ **100% bilingual coverage reached (2026-06-28).** Every documentation file under
+`docs/` now exists in both `*_ja-jp.md` and `*_en-us.md` (or the `*.ja.md` / `*.en.md`
+pair for `DEPENDENCIES`). The per-document lists below are retained for historical
+reference; the "Needing Translation" entries have all since been completed.
+
+- **Complete `_ja-jp` / `_en-us` pairs**: 61
+- **Need Translation**: 0
+- **Notes**: Original unsuffixed working docs (audit reports, plans, summaries) are kept
+  in place; their translated counterparts were added alongside rather than renaming them.
 
 ## Complete Pairs (Both EN and JA exist)
 

@@ -9,7 +9,7 @@
 > dictionary loader, encoding handling, and broad built-in coverage. It remains
 > partially compatible rather than complete. See
 > [`../yaya_core/IMPLEMENTATION_STATUS.md`](../yaya_core/IMPLEMENTATION_STATUS.md)
-> and [`AUDIT_CODEX_2026-06-27.md`](AUDIT_CODEX_2026-06-27.md).
+> and [`AUDITS_COMPLETED.md`](AUDITS_COMPLETED.md) / [`AUDITS_TODO.md`](AUDITS_TODO.md).
 
 ---
 

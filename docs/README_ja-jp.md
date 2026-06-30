@@ -10,7 +10,7 @@
 ## 🎯 入門・概要
 
 - [ONBOARDING.md](ONBOARDING.md) - Ourin の概要と始め方
-- [Codex 互換性監査 2026-06-27](AUDIT_CODEX_2026-06-27.md) - UKADOC/SSP基準の現状監査と修正優先順位
+- [監査項目 完了済み](AUDITS_COMPLETED.md) / [監査項目 未完](AUDITS_TODO.md) - UKADOC/SSP基準の監査結果（完了・未完）
 
 ## 📚 コア仕様書（macOS 差分版）
 

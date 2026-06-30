@@ -96,5 +96,32 @@ Event: OnRequestValues
 - [ ] ローカルバインド・ポート占有時の自動再試行  
 - [ ] 大きな本文・複数 `ReferenceN`・未知イベント名の透過
 
-## 8. 変更履歴
+## 8. BridgeToSHIORI — SSTP から SHIORI への橋渡し挙動
+
+本節は `BridgeToSHIORI.swift` / `EventBridge.swift` の実装に基づく。
+
+### 8.1 メソッドの保持
+
+- SSTP からの NOTIFY フレーム（`NOTIFY SSTP/1.x`）は、SHIORI へ転送する際も `NOTIFY SHIORI/3.0` として送出する。GET フレームは `GET SHIORI/3.0` として送出する。
+- NOTIFY が GET に変換されることはない（`EventBridge.sendNotify` は常に `method: "NOTIFY"` を渡す）。
+
+### 8.2 handle と handleResponse
+
+SSTP ディスパッチャ（`SSTPDispatcher`）は `BridgeToSHIORI.handleResponse` を使用し、完全な SHIORI/3.0 ワイヤ応答文字列を受け取る。これにより `ReferenceN` / `Value` / `ValueNotify` / `Status` 等の全ヘッダが保持される。  
+`GhostManager` / `ResourceBridge` / `WebHandler` など他の内部呼び出し元は `BridgeToSHIORI.handle` を使用し、`Value`（スクリプト文字列）のみを受け取る。
+
+### 8.3 ReceiverGhostName による宛先ルーティング
+
+SSTP フレームに `ReceiverGhostName` ヘッダが含まれる場合、ブリッジは対象ゴーストのセッションへのみリクエストを送る。ヘッダが省略された場合はプライマリ（最初の登録）ゴーストへ送る。
+
+### 8.4 Resource イベントの扱い
+
+SSTP 経由で `Resource` イベントが送られた場合、`references[0]` をリソース名として `ID: Resource` / `Reference0: <name>` の SHIORI GET として転送する。返値は短いテキスト値として扱う（UKADOC SHIORI/2.5 由来の Resource に対応する 3.0 写像）。
+
+### 8.5 稼働中ゴーストへの橋渡し
+
+ネイティブ SHIORI バンドルが未設定の場合、ブリッジは `liveGhostResolver` クロージャを通じて実際にロードされた YAYA ゴースト等へリクエストを転送する。宛先ゴーストが存在しない場合は空応答を返す。
+
+## 9. 変更履歴
+- 2026-06-28: §8「BridgeToSHIORI — SSTP から SHIORI への橋渡し挙動」を追加（実装に合わせた動作記述）。
 - 2025-07-27: 初版（3.0M‑Mac）。

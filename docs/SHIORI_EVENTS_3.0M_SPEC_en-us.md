@@ -8,25 +8,29 @@
 
 ## Translation Note
 
-This document is a placeholder for the English translation of the Japanese original.
-
-The Japanese version contains the authoritative specification. This English version should be translated while maintaining:
-
-- Technical accuracy
-- Consistent terminology with other English documentation
-- Original structure and formatting
-- All code examples unchanged
-- Proper translation of comments and narrative sections
+This document is a partial translation of the Japanese original. Sections are added here as they are implemented. For the full specification see [SHIORI_EVENTS_3.0M_SPEC_ja-jp.md](./SHIORI_EVENTS_3.0M_SPEC_ja-jp.md).
 
 ---
 
-## Contents
+## Appendix C: Automatic System-Event Enablement
 
-*(To be translated from Japanese original)*
+### Behavior summary
+
+Automatic system events — timer (`OnSecondChange`/`OnMinuteChange`/`OnHourTimeSignal`), input/mouse, sleep/wake, display change, power status, locale, appearance (theme), session, network, gamepad, device, and speech — are enabled inside `EventBridge` at **real ghost-load completion** as the single centralized activation point.
+
+Relevant source files:
+- `Ourin/Ghost/GhostManager.swift` — `startEventBridgeIfNeeded(enableAutoEvents:)` and `isRunningUnderTests`
+- `Ourin/SHIORIEvents/EventBridge.swift` — `start(enableAutoEvents:)` / `broadcastNotify` / `flushPendingNotifies`
+
+### NOTIFY queue before enablement
+
+While `autoEventsEnabled = false`, events passed to `broadcastNotify` / `broadcastNotifyCustom` are appended to the internal `pendingNotifies` queue and not delivered immediately. When enablement occurs, the queue is flushed and events are delivered to registered ghost sessions in order.
+
+### Suppression under tests
+
+When `GhostManager.isRunningUnderTests` is `true` (detected by the presence of the environment variables `XCTestConfigurationFilePath` or `XCTestBundlePath`), `EventBridge.start(enableAutoEvents: false)` is called and system observers — including the timer and input monitor — are not started.
 
 ---
 
-**Translation Status:** ⏳ Pending  
-**Translator:** TBD  
-**Review:** TBD  
-**Last Updated:** 2025-10-23
+**Translation Status:** ⏳ Partial (Appendix C added 2026-06-28)  
+**Last Updated:** 2026-06-28

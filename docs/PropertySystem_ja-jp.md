@@ -91,6 +91,22 @@
 - `headlinelist.index(n).{name|path|craftmanw|craftmanurl}`
 - `headlinelist({name|path}).{property}`
 
+#### AliasPropertyProvider
+SSP 互換の省略名前空間として、`PropertyManager.swift` の `registerDefaultProviders` 内で
+4 回登録される:
+
+| 登録プレフィックス | 委譲先プレフィックス |
+|---|---|
+| `sakura` | `currentghost.scope(0)` |
+| `kero` | `currentghost.scope(1)` |
+| `ghost` | `currentghost` |
+| `shell` | `currentghost.shelllist.current` |
+
+`get(key:)` / `set(key:value:)` が呼ばれると、委譲先プレフィックスをサブキーの前に付加して
+`PropertyManager.shared.get/set` に再ディスパッチする。例えば `sakura.surface.num` は
+検索前に `currentghost.scope(0).surface.num` へ展開される。GET / SET ともに既存プロバイダへ
+委譲し、エイリアス登録自体は独自の状態を持たない。
+
 #### PluginPropertyProvider
 `pluginlist.*` プロパティを提供します:
 - `pluginlist.count`
@@ -172,6 +188,11 @@ let expanded = manager.expand(text: text)
 現在、以下のプロパティが書き込み操作をサポートしています:
 
 1. `currentghost.shelllist({name}).menu` - "hidden" を設定するとメニューからシェルを非表示にする
+
+エイリアス名前空間 `sakura.*` / `kero.*` / `ghost.*` / `shell.*` は SET コマンドの左辺にも
+使用できる。GET と同様に委譲先フルキーへ展開され、そのキーが書き込み可能か否かで成否が決まる。
+`AliasPropertyProvider.writableProperties()` は `[]` を返すため、エイリアスは
+書き込み可能キー列挙には現れない。
 
 ## 統合ポイント
 

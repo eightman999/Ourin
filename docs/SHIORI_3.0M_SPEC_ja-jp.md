@@ -162,6 +162,53 @@ void shiori_free(unsigned char* p){ free(p); }
 - **XPC 分離**する場合は、`request(Data)->Data` の固定 IF で橋渡し。  
 - **macOS 10.15+ / 64bit 専用**、**Universal 2** 配布を基本とする。
 
+## 10.1 BridgeToSHIORI — イベントパイプライン実装
+
+`BridgeToSHIORI.swift` はホスト内部のイベントを SHIORI/3.0 ワイヤへ変換し、ネイティブ SHIORI バンドルまたは稼働中ゴースト（YAYA 等）へ橋渡しするブリッジ層である。
+
+### メソッドの選択
+
+| 呼び出し元 | メソッド | ワイヤ先頭行 |
+|---|---|---|
+| `sendGet` / `sendGetCustom` | `GET` | `GET SHIORI/3.0` |
+| `sendNotify` / `sendNotifyCustom` | `NOTIFY` | `NOTIFY SHIORI/3.0` |
+
+- NOTIFY は GET に強制変換されない。`EventBridge.sendNotify` は必ず `method: "NOTIFY"` を渡し、`BridgeToSHIORI.handle` もその値をそのまま `ShioriHost.request` へ転送する（`BridgeToSHIORI.swift:250` の `let verb = method.uppercased() == "NOTIFY" ? "NOTIFY" : "GET"` 参照）。
+- 時刻系イベント（`OnSecondChange` 等）は `cantalk` フラグに応じて GET/NOTIFY を動的に切り替える（`EventBridge.swift:443–451`）。
+
+### handle と handleResponse の使い分け
+
+`BridgeToSHIORI` は 2 つの公開メソッドを持つ。
+
+- **`handle(event:references:headers:method:) -> String`**  
+  応答の `Value`（スクリプト文字列）のみを返す。`GhostManager` / `ResourceBridge` / `WebHandler` のように、結果を直接スクリプト値として扱う呼び出し向け。
+
+- **`handleResponse(event:references:headers:method:) -> String`**  
+  完全な SHIORI/3.0 ワイヤ応答文字列を返す（`SHIORI/3.0 200 OK\r\n...`）。  
+  `SSTPDispatcher.mapShioriResponse` が `ReferenceN` / `Value` / `ValueNotify` / `Status` 等の全ヘッダを解釈できるよう、SSTP ディスパッチャ経路でのみ使用する。
+
+### 稼働中ゴーストへの橋渡し（liveGhostResolver）
+
+ネイティブ SHIORI バンドル（`SHIORI_BUNDLE_PATH` 環境変数）が未設定の場合、`handle` / `handleResponse` は `liveGhostResolver` クロージャを呼び出す。  
+このクロージャは AppDelegate が起動時に設定し、実際にロードされた YAYA ゴースト等へリクエストを転送する。  
+宛先ゴーストが存在しない、または応答できない場合は `nil` を返す（`handle` は空文字列を返す）。
+
+優先順位: **登録済み Resource 値（テスト用）→ ネイティブ SHIORI バンドル → liveGhostResolver（稼働中ゴースト）**
+
+### Resource イベントの正規化
+
+イベント名が `Resource` のとき、`references[0]` をリソース名として扱う。  
+内部では通常の SHIORI `GET` として送出され（`ID: Resource` / `Reference0: <name>`）、返値は短いテキスト値として扱う（UKADOC SHIORI/2.5 由来の Resource に相当する 3.0 写像）。
+
+### ReceiverGhostName による宛先ルーティング
+
+SSTP フレームに `ReceiverGhostName` ヘッダが含まれる場合、`liveGhostResolver` はそのゴースト名に一致するセッションへのみリクエストを送る。ヘッダがない場合はプライマリゴーストへ送る。
+
+### ワイヤ直列化における改行サニタイズ
+
+稼働中ゴーストからの構造化応答を `handleResponse` がワイヤ文字列へ直列化する際、各ヘッダ値・Value から CR/LF を除去する。  
+SakuraScript の改行は `\n` トークンで表現するため、生の改行を除去しても表示上の影響はない。
+
 ## 11. 実装状況（Implementation Status）
 
 **更新日:** 2025-10-20

@@ -9,7 +9,7 @@
 > CP932/UTF-8変換、SHIORI IPC、多数の組み込み関数を含みます。
 > ただし 100% 互換ではなく部分互換です。現状は
 > [`../yaya_core/IMPLEMENTATION_STATUS.md`](../yaya_core/IMPLEMENTATION_STATUS.md)
-> と [`AUDIT_CODEX_2026-06-27.md`](AUDIT_CODEX_2026-06-27.md) を参照してください。
+> と [`AUDITS_COMPLETED.md`](AUDITS_COMPLETED.md) / [`AUDITS_TODO.md`](AUDITS_TODO.md) を参照してください。
 
 ---
 

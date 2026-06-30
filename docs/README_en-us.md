@@ -10,7 +10,7 @@ This directory contains all specifications and documentation for Ourin.
 ## 🎯 Getting Started
 
 - [ONBOARDING.md](ONBOARDING_en-us.md) - Ourin overview and getting started guide
-- [Codex Compatibility Audit 2026-06-27](AUDIT_CODEX_2026-06-27.md) - Current UKADOC/SSP-oriented audit and fix priorities
+- [Audit Items Completed](AUDITS_COMPLETED.md) / [Audit Items TODO](AUDITS_TODO.md) - UKADOC/SSP-oriented audit results (completed & pending)
 
 ## 📚 Core Specifications (macOS Version)
 

@@ -42,6 +42,8 @@
 ## 4. macOS 差分（置き換える/追加する）
 ### 4.1 (Socket)SSTP（TCP）
 - **実装**：`NWListener(using: .tcp, on: 9801)` で起動。**既定は 127.0.0.1/::1 に限定**して bind。外部公開は設定で明示。  
+- **バインドアドレス**：`SstpTcpServer.makeListener(host:port:)` は `host` パラメータに基づいて bind 先を決定する。`127.0.0.1` / `localhost` / `::1` などの特定アドレスは `NWParameters.requiredLocalEndpoint` を設定してそのアドレスのみにバインドする。`0.0.0.0` / `::` / 空文字列のときだけ全インターフェースで待ち受ける（`SstpHttpServer` も同じ `makeListener` を使用）。  
+- **TCP body 転送**：TCP ハンドラはヘッダ終端（`\r\n\r\n`）の検出後、**ヘッダ＋本文（body）を含むバッファ全体** を SSTP スタックへ渡す。以前の実装では body が破棄されていたが、`SSTPParser` は空行以降を body として取り込むため全体を渡す必要がある。  
 - **サンドボックス**：App Sandbox 下では、サーバは **`com.apple.security.network.server`**、クライアントは **`com.apple.security.network.client`** を付与。  
 - **ファイアウォール**：アプリケーション・ファイアウォール有効時は、**受信を許可**する必要がある。署名/ダウンロードアプリの自動許可設定がある。
 
@@ -117,7 +119,7 @@ Command: GetName
 
 ## 11. 実装状況（Implementation Status）
 
-**更新日:** 2025-10-20
+**更新日:** 2026-06-28
 
 ### 11.1 Ourin ホスト側の実装
 
@@ -125,21 +127,23 @@ Command: GetName
 - [x] **HTTP SSTP サーバ**: `SstpHttpServer.swift` にて実装済み
 - [x] **XPC DirectSSTP**: `XpcDirectServer.swift` および `DirectSSTPXPC.swift` にて実装済み
 - [x] **SSTP パーサー**: `SSTPParser.swift` にてリクエスト解析を実装済み（順序保持ヘッダ対応）
-- [x] **SSTP ディスパッチャ**: `SSTPDispatcher.swift` にて基本的なメソッド処理を実装済み
+- [x] **SSTP ディスパッチャ**: `SSTPDispatcher.swift` にて全メソッド処理を実装済み
+- [x] **SSTP↔SHIORI ライブゴーストブリッジ**: `BridgeToSHIORI.swift` にて `liveGhostResolver` 経由で稼働中ゴースト（YAYA）へルーティング実装済み
 - [x] **文字コード対応**: UTF-8 既定、Shift_JIS/CP932 の受理機能を実装済み
 - [x] **統合管理**: `OurinExternalServer.swift` にて TCP/HTTP/XPC の統合管理を実装済み
-- [ ] **完全な SSTP/1.x プロトコル**: 基本機能は実装済みだが、全てのオプションヘッダの完全実装は未達成
+- [x] **完全な SSTP/1.x プロトコル**: 全メソッドおよび主要オプションヘッダを実装済み
 
 ### 11.2 実装済みの機能
 
 1. **SocketSSTP (TCP)**
    - Network.framework による TCP サーバ実装
    - ポート 9801 でのリスニング
-   - ローカルホスト限定の受信（127.0.0.1/::1）
-   - 基本的な SEND/NOTIFY/COMMUNICATE/EXECUTE メソッドの処理
+   - `requiredLocalEndpoint` によりローカルホスト限定の受信（127.0.0.1/::1）。`0.0.0.0`/`::` 指定時は全インターフェースで受信
+   - 全 SEND/NOTIFY/COMMUNICATE/EXECUTE/GIVE/INSTALL メソッドの処理
+   - ヘッダ＋body 全体を SSTP スタックへ転送（body 破棄なし）
 
 2. **SSTP over HTTP**
-   - HTTP サーバの実装
+   - HTTP サーバの実装（`SstpTcpServer.makeListener` を共用）
    - `/api/sstp/v1` エンドポイント
    - Content-Type: text/plain でのリクエスト受信
 
@@ -151,37 +155,39 @@ Command: GetName
 4. **リクエスト処理**
    - CRLF + 空行終端の解析
    - `Charset` ヘッダの処理
-   - 基本的なレスポンス生成
-
-5. **ルーティング**
-   - `SSTPDispatcher.swift` によるリクエストの SHIORI への転送（全経路を一本化、旧 `SstpRouter` は廃止）
-   - 各種サーバからのリクエスト統合処理
-
-### 11.3 未実装の機能
-
-1. **完全なヘッダサポート**
-   - `ReceiverGhostName` による特定ゴーストへの送信
-   - `SecurityLevel`/`SecurityOrigin` の完全実装
+   - `SecurityLevel`/`SecurityOrigin` の解釈と `securityLocalOnly` ポリシー
+   - `ReceiverGhostName` によるゴースト固定（未発見は 404）
    - `Option` の全パターン (`nodescript`/`notranslate`/`nobreak`)
 
-2. **詳細なステータスコード**
-   - 404 Not Found（ゴースト未発見時）
-   - 408 Request Timeout
-   - 409 Conflict
-   - 413 Payload Too Large
-   - など、一部のステータスコードは未実装
+5. **ルーティングと SHIORI ブリッジ**
+   - `SSTPDispatcher.swift` によるリクエストの SHIORI への転送（全経路を一本化、旧 `SstpRouter` は廃止）
+   - `BridgeToSHIORI.handleResponse` が完全な SHIORI/3.0 wire 応答を返す
+   - `liveGhostResolver` 経由で YayaAdapter（稼働中 YAYA ゴースト）へ届く
+   - SSTP NOTIFY は `NOTIFY SHIORI/3.0`、SEND/COMMUNICATE/EXECUTE/GIVE は `GET SHIORI/3.0` として伝播
+   - `mapShioriResponse` が `Reference0`..`ReferenceN` を全て SSTP 応答へ反映
 
-3. **外部公開設定**
-   - 現在はローカルホスト限定
-   - 設定による外部公開機能は未実装
+6. **マルチライン Value の安全な輸送**
+   - `BridgeShioriResponse` 構造体で応答を構造化して保持
+   - `serializeWire` がヘッダ値の CR/LF を除去してから wire 文字列へ直列化（行注入・スクリプト切断防止）
+   - 同期 IPC タイムアウト: 2 秒
+
+### 11.3 外部公開設定
+
+- 現在はローカルホスト限定が既定
+- `host` パラメータに `0.0.0.0` / `::` を指定することで全インターフェースで受信可能（オプトイン）
 
 ## 12. 適合チェックリスト
 - [x] CRLF と空行終端の正しい処理（実装済み）  
 - [x] `Charset` 必須（UTF‑8 推奨）。SJIS 系は CP932 として受理（実装済み）  
-- [ ] `SecurityLevel`/`SecurityOrigin` の解釈（未実装）  
-- [ ] `ReceiverGhostName` によるゴースト固定（未発見は 404）（未実装）  
+- [x] `SecurityLevel`/`SecurityOrigin` の解釈（実装済み）  
+- [x] `ReceiverGhostName` によるゴースト固定（未発見は 404）（実装済み）  
 - [x] **DirectSSTP (macOS)** = **XPC** で `request(Data)->Data` の橋渡し（実装済み）  
 - [x] **SSTP over HTTP** `/api/sstp/v1` を localhost 限定で実装（実装済み）
+- [x] SSTP→SHIORI メソッド対応（NOTIFY→`NOTIFY SHIORI/3.0`、他→`GET SHIORI/3.0`）（実装済み）
+- [x] SHIORI 応答の全 `ReferenceN` を SSTP 応答へ転送（実装済み）
+- [x] TCP/HTTP リスナーが設定 `host` に従い `requiredLocalEndpoint` でバインド（実装済み）
+- [x] TCP raw path が body を含む全リクエストを SSTP スタックへ転送（実装済み）
+- [x] マルチライン Value の CR/LF 除去による行注入防止（実装済み）
 
 ## 13. 付録 A: XPC 版 DirectSSTP の最小IF
 ```swift

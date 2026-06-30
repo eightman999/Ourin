@@ -156,3 +156,23 @@ Value: \0\s[0]URLを受け取りました：%reference[0]\e
 - [ ] Sleep/Wake・AC/バッテリー切替・サーマル状態  
 - [ ] ロケール変更・テーマ切替  
 - [ ] セキュリティ（Sandbox の security‑scoped URL、外部入力の検証）
+
+---
+
+## 付録C: 自動システムイベントの有効化タイミング
+
+### 動作概要
+
+タイマー（`OnSecondChange`/`OnMinuteChange`/`OnHourTimeSignal`）・入力/マウス・スリープ/復帰・ディスプレイ変更・電源状態・ロケール・外観（テーマ）・セッション・ネットワーク・ゲームパッド・デバイス・音声認識の各自動システムイベントは、**実ゴーストのロード完了**時点を唯一の集約点として `EventBridge` 内で有効化されます。
+
+実装ファイル：
+- `Ourin/Ghost/GhostManager.swift` — `startEventBridgeIfNeeded(enableAutoEvents:)` および `isRunningUnderTests`
+- `Ourin/SHIORIEvents/EventBridge.swift` — `start(enableAutoEvents:)` / `broadcastNotify` / `flushPendingNotifies`
+
+### 有効化以前の NOTIFY キュー
+
+`autoEventsEnabled = false` の状態では、`broadcastNotify` / `broadcastNotifyCustom` に渡されたイベントは内部キュー (`pendingNotifies`) に積まれ、即時配送されません。有効化されると同時にキューがフラッシュされ、順次ゴーストへ配送されます。
+
+### テスト時の抑制
+
+`GhostManager.isRunningUnderTests` が `true`（環境変数 `XCTestConfigurationFilePath` または `XCTestBundlePath` の存在で判定）の場合、`EventBridge.start(enableAutoEvents: false)` が呼ばれ、タイマーや入力監視を含むシステムオブザーバは起動されません。

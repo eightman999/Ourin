@@ -4,10 +4,12 @@ This document describes the workflow and guidelines for translating documentatio
 
 ## Current Status
 
-✅ **All 36 documents now have both EN and JA files**
+✅ **100% bilingual coverage (2026-06-28): all 61 documentation pairs have both EN and JA files**
 
-- All documents have been translated
-- Translations follow consistent terminology and formatting
+- Every spec, guide, plan, summary, and audit report under `docs/` exists in both
+  `*_ja-jp.md` and `*_en-us.md` (with `DEPENDENCIES` using the `*.ja.md` / `*.en.md` pair).
+- Original unsuffixed working docs are left in place; translated counterparts were added beside them.
+- Translations follow consistent terminology and formatting (see guidelines below).
 
 ## File Naming Convention
 
