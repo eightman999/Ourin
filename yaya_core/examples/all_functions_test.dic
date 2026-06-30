@@ -82,6 +82,7 @@ TestArrayOperations
     _random = ANY(_arr)                  // Random element
     _pos = ASEARCH(_arr, "banana")       // Search (returns 1)
     _posEx = ASEARCHEX(_arr, "cherry", 0) // Search from position
+    _posFrom = ASEARCHPOS(_arr, "cherry", 0) // Search from position (returns 2)
     
     // String split
     _parts = SPLIT("a,b,c,d", ",")       // Split to array

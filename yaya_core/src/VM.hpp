@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <optional>
 #include <nlohmann/json.hpp>
 
 // Callback interface for VM to request operations from host
@@ -21,6 +22,13 @@ public:
     
     // Plugin/SAORI operations
     virtual nlohmann::json pluginOperation(const std::string& op, const nlohmann::json& params) = 0;
+
+    // FMO (Forged Memory Object) 読み取り。op="read" でスナップショット文字列
+    // （`id.key\x01value\r\n` 形式）を返す。デフォルトは未対応（空）。
+    virtual nlohmann::json fmoOperation(const std::string& op, const nlohmann::json& params) {
+        (void)op; (void)params;
+        return nlohmann::json{{"ok", false}, {"error", "fmoOperation not implemented"}};
+    }
 
     // Dynamic dictionary operations (Phase 6). Returns success flag.
     virtual bool dicLoad(const std::string& relativePath, const std::string& encoding) { (void)relativePath; (void)encoding; return false; }
@@ -153,6 +161,18 @@ private:
     Value evaluateUnaryOp(const std::string& op, const Value& operand);
     Value callBuiltin(const std::string& name, const std::vector<Value>& args);
     std::string interpolateString(const std::string& str);
+
+    // YAYA 前置 '&'（参照渡し）の解決用ヘルパ。
+    // ノードが UnaryOpNode("&", operand) で、operand が変数または配列要素参照なら
+    // その格納位置を表す RefTarget を返す（配列添字はこの時点で評価する）。
+    struct RefTarget {
+        std::string varName;
+        bool hasIndex = false;
+        int arrayIdx = 0;
+    };
+    std::optional<RefTarget> tryResolveReference(std::shared_ptr<AST::Node> node);
+    Value readReference(const RefTarget& target);
+    void writeReference(const RefTarget& target, const Value& value);
     
     // Register built-in functions
     void registerBuiltins();

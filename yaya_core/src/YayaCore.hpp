@@ -15,6 +15,7 @@ public:
     nlohmann::json fileOperation(const std::string& op, const nlohmann::json& params) override;
     nlohmann::json executeCommand(const std::string& command, bool wait) override;
     nlohmann::json pluginOperation(const std::string& op, const nlohmann::json& params) override;
+    nlohmann::json fmoOperation(const std::string& op, const nlohmann::json& params) override;
 
     // Dynamic dictionary operations (Phase 6)
     bool dicLoad(const std::string& relativePath, const std::string& encoding) override;

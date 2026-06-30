@@ -106,6 +106,18 @@ json YayaCore::handlePluginOperation(const std::string& op, const json& params) 
     }
 }
 
+json YayaCore::fmoOperation(const std::string& op, const nlohmann::json& params) {
+    json req;
+    req["operation"] = op;
+    req["params"] = params;
+    std::string response = requestHostOperation("fmo", req);
+    try {
+        return json::parse(response);
+    } catch (...) {
+        return json{{"ok", false}, {"error", "failed to parse fmo response"}};
+    }
+}
+
 bool YayaCore::dicLoad(const std::string& relativePath, const std::string& encoding) {
     return dictManager.dicLoad(relativePath, encoding);
 }

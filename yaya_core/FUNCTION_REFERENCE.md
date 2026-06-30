@@ -83,6 +83,7 @@ stubs are now explicitly marked.
 | `SPLIT(str, delim)` | Split string to array | `SPLIT("a,b", ",")` → `["a","b"]` |
 | `ASEARCH(arr, value)` | Search array, return index | `ASEARCH(arr, "b")` → `1` |
 | `ASEARCHEX(arr, value, start)` | Search from position | `ASEARCHEX(arr, "b", 0)` → `1` |
+| `ASEARCHPOS(arr, value, start)` | Search from position (default 0) | `ASEARCHPOS(arr, "b", 2)` → `3` |
 | `ASORT(arr)` | Sort array | `ASORT(["c","a","b"])` → `["a","b","c"]` |
 | `ARRAYDEDUP(arr)` | Remove duplicates | `ARRAYDEDUP(["a","a"])` → `["a"]` |
 | `ANY(arr)` | Return random element | `ANY(["a","b"])` → `"a"` or `"b"` |

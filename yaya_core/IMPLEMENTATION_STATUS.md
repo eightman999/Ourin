@@ -107,7 +107,7 @@ dictionaries without parse failure (regression baseline after Phases 1/3/4).
 - **Diagnostics** (`GETERRORLOG`, `GETCALLSTACK`, `GETFUNCINFO`, `GETLASTERROR`/`SETLASTERROR`): implemented (Phase 5/7/10)
 - **Encoding utils** (`CHARSETTEXTTOID`, `CHARSETIDTOTEXT`, `CHARSETLIB/EX`, `ZEN2HAN`, `HAN2ZEN`): implemented
 - **Global defines** (`IS/SET/UNDEF/PROCESSGLOBALDEFINE`): implemented (Phase 10)
-- **Directory ops** (`MKDIR`, `RMDIR`, `FENUM`): **stub**
+- **Directory ops** (`MKDIR`, `RMDIR`, `FENUM`): implemented via `std::filesystem` (relative-path sandbox; `..` traversal rejected)
 
 ## SHIORI / UKADOC Header Compatibility
 
@@ -122,7 +122,7 @@ dictionaries without parse failure (regression baseline after Phases 1/3/4).
 
 - **By-reference semantics**: `&` is parsed but treated as pass-by-value (`E.Swap`/`E.Qsort` in-place effects are not honored).
 - **Standalone `when` dispatch**: inside labeled blocks, `when` runs unconditionally (no implicit state switch). The `when` function attribute is recorded but does not add implicit dispatch.
-- **Directory ops**: `MKDIR`/`RMDIR`/`FENUM` remain stubs (use host file ops via FOPEN-style relative sandbox if needed).
+- **Directory ops**: `MKDIR`/`RMDIR`/`FENUM` are implemented via `std::filesystem` (relative-path sandbox; `..` traversal rejected). FENUM additionally accepts absolute paths under the macOS container sandbox.
 - **SAORI valueex as variables**: extras are exposed via `valueex`/`valueex0..15` builtins rather than implicit variables (framework scripts manage their own copy).
 
 ## Integration

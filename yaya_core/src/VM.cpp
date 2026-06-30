@@ -855,6 +855,20 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 return Value();
             }
 
+            // E.Swap(&a, &b): YAYA の参照渡し（&）で2つの変数/配列要素を in-place 交換する。
+            // 両引数が前置 '&' の参照であれば元の格納場所へ書き戻す。E.Swap は void。
+            if (call->functionName == "E.Swap" && call->arguments.size() == 2) {
+                auto refA = tryResolveReference(call->arguments[0]);
+                auto refB = tryResolveReference(call->arguments[1]);
+                if (refA && refB) {
+                    Value va = readReference(*refA);
+                    Value vb = readReference(*refB);
+                    writeReference(*refA, vb);
+                    writeReference(*refB, va);
+                }
+                return Value();
+            }
+
             // Regular function call
             std::vector<Value> args;
             for (const auto& argNode : call->arguments) {
@@ -927,10 +941,15 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
         }
 
         case AST::NodeType::WhenClause: {
-            // A standalone when clause reached outside a case context: just run its body.
-            // (Standalone 'when' inside labeled blocks is handled as a passthrough here.)
-            auto* wc = dynamic_cast<AST::WhenClauseNode*>(node.get());
-            return executeBlock(wc->body);
+            // case 式の外に現れた standalone `when` 句。
+            // YAYA では `when` は常に case のディスパッチ対象であり、単独で現れることは
+            // 仕様上ない。case コンテキストを欠く WhenClause は対応する switch 値が存在しない
+            // ためマッチ判定できない。したがって本体を無条件に実行するのは誤り（重複発話や
+            // 副作用の誘発になる）であり、ここでは何も実行しない。
+            // ※ case 内の when は CaseNode ハンドラが処理するため、ここへは到達しない。
+            // ※ {{LABEL}} ブロック内で漏れ出た when も同様に安全のためスキップする。
+            (void)node;
+            return Value();
         }
         
         case AST::NodeType::Return: {
@@ -1011,10 +1030,44 @@ Value VM::evaluateUnaryOp(const std::string& op, const Value& operand) {
         if (operand.isReal()) return Value(-operand.asReal());
         return Value(-operand.asInt());
     }
-    // 前置 '&'（YAYA 参照演算子）: 現状は恒等（値渡し）として評価する。
-    // これにより E.Swap(&a, &b) 等が構文・実行できる（in-place 交換にはならない）。
+    // 前置 '&'（YAYA 参照演算子）: 汎用フォールバック。
+    // 真の参照渡しは Call サイトで tryResolveReference 経由で解決し、参照を取る
+    // ビルトイン（E.Swap 等）が in-place で格納場所へ書き戻す。ここに到達するのは
+    // 「参照を受け取らない関数へ &x を渡した」等のケースで、値渡し（恒等）が正しい挙動。
     if (op == "&") return operand;
     return Value();
+}
+
+std::optional<VM::RefTarget> VM::tryResolveReference(std::shared_ptr<AST::Node> node) {
+    auto* unary = dynamic_cast<AST::UnaryOpNode*>(node.get());
+    if (!unary || unary->op != "&") return std::nullopt;
+    const auto& operand = unary->operand;
+    if (auto* var = dynamic_cast<AST::VariableNode*>(operand.get())) {
+        return RefTarget{ var->name, false, 0 };
+    }
+    if (auto* acc = dynamic_cast<AST::ArrayAccessNode*>(operand.get())) {
+        int idx = executeNode(acc->index).asInt();
+        return RefTarget{ acc->arrayName, true, idx };
+    }
+    return std::nullopt;
+}
+
+Value VM::readReference(const RefTarget& target) {
+    Value v = getVariable(target.varName);
+    if (target.hasIndex) {
+        return v.arrayGet(target.arrayIdx);
+    }
+    return v;
+}
+
+void VM::writeReference(const RefTarget& target, const Value& value) {
+    if (target.hasIndex) {
+        Value arr = getVariable(target.varName);
+        arr.arraySet(target.arrayIdx, value);
+        setVariable(target.varName, arr);
+    } else {
+        setVariable(target.varName, value);
+    }
 }
 
 Value VM::callBuiltin(const std::string& name, const std::vector<Value>& args) {
@@ -2837,8 +2890,19 @@ void VM::registerBuiltins() {
         return Value(std::vector<Value>());
     };
     
-    // READFMO(name) - Read from FMO (Forged Memory Object) (stub)
-    builtins_["READFMO"] = [](const std::vector<Value>& args) -> Value {
+    // READFMO(name) - FMO（Forged Memory Object）のスナップショットを読み込む。
+    // 戻り値は SSP 互換の `id.key\x01value\r\n` 形式の文字列（buildSnapshot と同一）。
+    // name は FMO 名（慣例 "Sakura"）。Ourin は単一 FMO のみ保持するため name は参照のみ。
+    // ホスト（Swift）へ同期 IPC で問い合わせ、現在の FMO 内容を取得する。
+    builtins_["READFMO"] = [this](const std::vector<Value>& args) -> Value {
+        if (!callback_) return Value("");
+        std::string name = args.empty() ? std::string("Sakura") : args[0].asString();
+        try {
+            nlohmann::json resp = callback_->fmoOperation("read", nlohmann::json{{"name", name}});
+            if (resp.value("ok", false)) {
+                return Value(resp.value("snapshot", std::string()));
+            }
+        } catch (...) {}
         return Value("");
     };
     
@@ -2899,6 +2963,26 @@ void VM::registerBuiltins() {
         if (start < 0) start = 0;
         
         for (size_t i = start; i < arr.size(); i++) {
+            if (arr[i] == searchVal) {
+                return Value(static_cast<int>(i));
+            }
+        }
+        return Value(-1);
+    };
+
+    // ASEARCHPOS(array, value, start) - 配列内を start 位置から検索し最初に見つかった
+    // 要素のインデックスを返す。見つからなければ -1。start 省略時は 0（ASEARCH と同等）。
+    builtins_["ASEARCHPOS"] = [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value(-1);
+        if (args[0].getType() != Value::Type::Array) return Value(-1);
+
+        const auto& arr = args[0].asArray();
+        const Value& searchVal = args[1];
+        int start = (args.size() >= 3) ? args[2].asInt() : 0;
+
+        if (start < 0) start = 0;
+
+        for (size_t i = static_cast<size_t>(start); i < arr.size(); i++) {
             if (arr[i] == searchVal) {
                 return Value(static_cast<int>(i));
             }
