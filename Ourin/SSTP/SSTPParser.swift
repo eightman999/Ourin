@@ -4,7 +4,11 @@ import Foundation
 public enum SSTPParser {
     /// 生のリクエスト文字列と任意のボディを解析する
     public static func parseRequest(text: String, body: Data = Data()) -> SSTPRequest {
-        let lines = text.split(separator: "\r\n", omittingEmptySubsequences: false).map(String.init)
+        // SSTP/1.xM は CRLF を規定するが、一部デファクトツールは LF のみ送信する。
+        // ヘッダ終端（空行）を検出できず 408 タイムアウトになるのを防ぐため、
+        // 先頭に CR の無い LF を CRLF に正規化してから分割する（寛容な受信）。
+        let normalized = text.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n", with: "\r\n")
+        let lines = normalized.split(separator: "\r\n", omittingEmptySubsequences: false).map(String.init)
         guard let first = lines.first else { return SSTPRequest(body: body) }
         let comps = first.split(separator: " ")
         var req = SSTPRequest(body: body)

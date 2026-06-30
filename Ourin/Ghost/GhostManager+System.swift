@@ -310,18 +310,6 @@ extension GhostManager {
         }
     }
 
-    /// Handle queued choice command - \__q[id0,id1,...]
-    func handleQueuedChoiceCommand(args: [String]) {
-        guard !args.isEmpty else {
-            Log.info("[GhostManager] Invalid __q command: no arguments")
-            return
-        }
-
-        for id in args where !id.isEmpty {
-            pendingChoices.append((title: id, action: .event(id: id, references: []), pluginOrigin: currentScriptIsPluginOrigin))
-        }
-    }
-
     /// Execute an embedded event and inline its script result.
     /// ukadoc: \![embed,event,ref0,ref1,...]
     func executeEmbeddedEvent(event: String, references: [String]) {
@@ -768,8 +756,8 @@ extension GhostManager {
     /// Execute HTTP commands for `\![execute,http-*]`.
     func executeHTTP(subcommand: String, params: [String]) {
         guard let rawURL = params.first, let url = URL(string: rawURL) else {
-            EventBridge.shared.notifyCustom("OnExecuteHTTPFailure", params: ["Reference0": "invalid_url"])
-            EventBridge.shared.notifyCustom("OnExecuteHTTPProgress", params: ["Reference0": "failed", "Reference1": "0"])
+            EventBridge.shared.notify(.OnExecuteHTTPFailure, params: ["Reference0": "invalid_url"])
+            EventBridge.shared.notify(.OnExecuteHTTPProgress, params: ["Reference0": "failed", "Reference1": "0"])
             return
         }
         let methodSuffix = String(subcommand.dropFirst("http-".count)).uppercased()
@@ -787,12 +775,12 @@ extension GhostManager {
         applyRequestOptions(parsed, to: &request)
 
         if url.scheme?.lowercased() == "https" {
-            EventBridge.shared.notifyCustom("OnExecuteHTTPSSLInfo", params: [
+            EventBridge.shared.notify(.OnExecuteHTTPSSLInfo, params: [
                 "Reference0": url.host ?? "",
                 "Reference1": url.absoluteString
             ])
         }
-        EventBridge.shared.notifyCustom("OnExecuteHTTPProgress", params: [
+        EventBridge.shared.notify(.OnExecuteHTTPProgress, params: [
             "Reference0": "running",
             "Reference1": "0",
             "Reference2": method,
@@ -801,12 +789,12 @@ extension GhostManager {
 
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error {
-                EventBridge.shared.notifyCustom("OnExecuteHTTPFailure", params: [
+                EventBridge.shared.notify(.OnExecuteHTTPFailure, params: [
                     "Reference0": error.localizedDescription,
                     "Reference1": url.absoluteString,
                     "Reference2": method
                 ])
-                EventBridge.shared.notifyCustom("OnExecuteHTTPProgress", params: [
+                EventBridge.shared.notify(.OnExecuteHTTPProgress, params: [
                     "Reference0": "failed",
                     "Reference1": "100",
                     "Reference2": method,
@@ -817,19 +805,72 @@ extension GhostManager {
 
             let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
             let body = data.flatMap { String(data: $0, encoding: .utf8) ?? String(data: $0, encoding: .shiftJIS) } ?? ""
-            EventBridge.shared.notifyCustom("OnExecuteHTTPComplete", params: [
+            EventBridge.shared.notify(.OnExecuteHTTPComplete, params: [
                 "Reference0": String(statusCode),
                 "Reference1": body,
                 "Reference2": url.absoluteString,
                 "Reference3": method
             ])
-            EventBridge.shared.notifyCustom("OnExecuteHTTPProgress", params: [
+            EventBridge.shared.notify(.OnExecuteHTTPProgress, params: [
                 "Reference0": "completed",
                 "Reference1": "100",
                 "Reference2": method,
                 "Reference3": url.absoluteString
             ])
         }.resume()
+    }
+
+    /// Execute streaming HTTP for `\![execute,http-stream,*]`.
+    /// UKADOC では受信チャンクごとに OnExecuteHTTPStreaming を通知する。
+    func executeHTTPStreaming(subcommand: String, params: [String]) {
+        guard let rawURL = params.first, let url = URL(string: rawURL) else {
+            EventBridge.shared.notify(.OnExecuteHTTPFailure, params: ["Reference0": "invalid_url"])
+            return
+        }
+        let methodSuffix = String(subcommand.dropFirst("http-stream-".count)).uppercased()
+        let supported = Set(["GET", "POST"])
+        let method = supported.contains(methodSuffix) ? methodSuffix : "GET"
+
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        let parsed = parseCommandArguments(Array(params.dropFirst()))
+        if method == "POST" {
+            let body = parsed.options["body"] ?? parsed.positionals.first ?? ""
+            if !body.isEmpty {
+                request.httpBody = body.data(using: .utf8)
+                request.setValue("text/plain; charset=utf-8", forHTTPHeaderField: "Content-Type")
+            }
+        }
+        applyRequestOptions(parsed, to: &request)
+
+        EventBridge.shared.notify(.OnExecuteHTTPProgress, params: [
+            "Reference0": "running",
+            "Reference1": "0",
+            "Reference2": method,
+            "Reference3": url.absoluteString
+        ])
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error {
+                EventBridge.shared.notify(.OnExecuteHTTPFailure, params: [
+                    "Reference0": error.localizedDescription,
+                    "Reference1": url.absoluteString,
+                    "Reference2": method
+                ])
+                return
+            }
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+            let body = data.flatMap { String(data: $0, encoding: .utf8) ?? String(data: $0, encoding: .shiftJIS) } ?? ""
+            // 受信データ全体を 1 チャンクとして OnExecuteHTTPStreaming を通知。
+            // Reference0=受信データ, Reference1=URL, Reference2=HTTPステータス, Reference3=method
+            EventBridge.shared.notify(.OnExecuteHTTPStreaming, params: [
+                "Reference0": body,
+                "Reference1": url.absoluteString,
+                "Reference2": String(statusCode),
+                "Reference3": method
+            ])
+        }
+        task.resume()
     }
 
     /// Execute RSS commands for `\![execute,rss-*]`.
@@ -1209,7 +1250,7 @@ extension GhostManager {
     func executeExtractArchive(params: [String]) {
         guard params.count >= 2 else {
             EventBridge.shared.notifyCustom("OnArchiveFailure", params: ["Reference0": "extract", "Reference1": "missing_args"])
-            EventBridge.shared.notifyCustom("OnExtractArchiveFailure", params: ["Reference0": "missing_args"])
+            EventBridge.shared.notify(.OnExtractArchiveFailure, params: ["Reference0": "missing_args"])
             return
         }
         let archive = resolvedPath(params[0])
@@ -1226,14 +1267,14 @@ extension GhostManager {
                 "Reference3": output
             ]
             EventBridge.shared.notifyCustom(ok ? "OnArchiveComplete" : "OnArchiveFailure", params: payload)
-            EventBridge.shared.notifyCustom(ok ? "OnExtractArchiveComplete" : "OnExtractArchiveFailure", params: payload)
+            EventBridge.shared.notify(ok ? .OnExtractArchiveComplete : .OnExtractArchiveFailure, params: payload)
         }
     }
 
     func executeCompressArchive(params: [String]) {
         guard params.count >= 2 else {
             EventBridge.shared.notifyCustom("OnArchiveFailure", params: ["Reference0": "compress", "Reference1": "missing_args"])
-            EventBridge.shared.notifyCustom("OnCompressArchiveFailure", params: ["Reference0": "missing_args"])
+            EventBridge.shared.notify(.OnCompressArchiveFailure, params: ["Reference0": "missing_args"])
             return
         }
         let source = resolvedPath(params[0])
@@ -1250,7 +1291,7 @@ extension GhostManager {
                 "Reference3": result
             ]
             EventBridge.shared.notifyCustom(ok ? "OnArchiveComplete" : "OnArchiveFailure", params: payload)
-            EventBridge.shared.notifyCustom(ok ? "OnCompressArchiveComplete" : "OnCompressArchiveFailure", params: payload)
+            EventBridge.shared.notify(ok ? .OnCompressArchiveComplete : .OnCompressArchiveFailure, params: payload)
         }
     }
 
@@ -1512,6 +1553,9 @@ extension GhostManager {
         do {
             let installed = try NarInstaller().install(fromNar: narURL)
             let name = installed.lastPathComponent
+            // `%lastghostname` / `%lastobjectname`（OnInstall 系イベントで参照される）
+            EnvironmentExpander.lastInstalledGhostName = name
+            EnvironmentExpander.lastInstalledObjectName = name
             // UKADOC: Reference0=識別子, Reference1=名前（install.txt name）, Reference2=副名（ghost with balloon 等の2番目）。
             // 単体インストールでは副名が無く、パスは Reference2 の定義（副名）に反するため付与しない。
             EventBridge.shared.notifyCustom("OnInstallComplete", params: [

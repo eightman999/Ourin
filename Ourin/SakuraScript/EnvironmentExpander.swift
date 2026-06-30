@@ -20,6 +20,11 @@ public final class EnvironmentExpander {
     /// Lexicon for word-classes (ms, mz, ml, mc, mh, mt, me, mp, m?, dms)
     public var lexicon: [String: [String]] = [:]
 
+    /// 直前にインストールしたゴースト／オブジェクト名（OnInstall 系イベントの `%lastghostname`/`%lastobjectname` 用）。
+    /// インストールは app-global な操作のため static で保持し、全ゴーストの expander から参照する。
+    public static var lastInstalledGhostName: String?
+    public static var lastInstalledObjectName: String?
+
     public init(propertyManager: PropertyManager) {
         self.propertyManager = propertyManager
     }
@@ -83,7 +88,11 @@ public final class EnvironmentExpander {
                 result.replaceSubrange(full, with: replacement)
             }
             Foundation.NSLog("[EnvironmentExpander] Final result: \(result)")
-            return result
+            // マッチが無い場合は括弧無しの `%key`（Pattern 3）へフォールスルーする。
+            // 無条件 return すると bare 変数（%lastghostname 等）が展開されずに残る。
+            if !matches.isEmpty {
+                return result
+            }
         }
         
         // Match %key - e.g., %charname
@@ -128,6 +137,8 @@ public final class EnvironmentExpander {
         case "selfname":  return selfname ?? ""
         case "selfname2": return selfname2 ?? ""
         case "keroname":  return keroname ?? ""
+        case "lastghostname": return Self.lastInstalledGhostName ?? ""
+        case "lastobjectname": return Self.lastInstalledObjectName ?? ""
         case "charname":
             Foundation.NSLog("[EnvironmentExpander] charname: arg=\(arg ?? "nil"), selfname=\(selfname ?? "nil"), keroname=\(keroname ?? "nil")")
             // %(charname[scope]) - Get character name for scope

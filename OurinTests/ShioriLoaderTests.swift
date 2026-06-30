@@ -496,6 +496,125 @@ struct ShioriLoaderTests {
         #expect(Self.runYayaCore(exe: exe, requests: [loadReq, req("SideEffectFirstMatch", "a")]) == "A")
     }
 
+    /// `&` 参照渡しによる E.Swap の in-place 交換を検証する（ローカル変数・配列要素・グローバル）。
+    @Test
+    func yayaCoreESwapByReference() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        SwapLocal {
+            _a = '1'
+            _b = '2'
+            E.Swap(&_a, &_b)
+            _a + ',' + _b
+        }
+        SwapArrayElem {
+            _arr = IARRAY
+            _arr ,= 'x'
+            _arr ,= 'y'
+            _arr ,= 'z'
+            E.Swap(&_arr[0], &_arr[2])
+            _arr[0] + _arr[1] + _arr[2]
+        }
+        SwapGlobal {
+            gv = 'A'
+            gw = 'B'
+            E.Swap(&gv, &gw)
+            gv + gw
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        func req(_ id: String) -> [String: Any] {
+            return ["cmd": "request", "method": "GET", "id": id, "ref": [], "headers": ["Charset": "UTF-8"]]
+        }
+
+        // E.Swap must actually mutate the referenced storage in-place.
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, req("SwapLocal")]) == "2,1")
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, req("SwapArrayElem")]) == "zyx")
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, req("SwapGlobal")]) == "BA")
+    }
+
+    /// `READFMO(name)` が host_op:"fmo" 経由で現在の FMO スナップショットを同期的に取得できるか。
+    /// yaya_core と行ベースで双方向 IPC し、READFMO 呼び出し時に発行される host_op へ応答する。
+    @Test
+    func yayaCoreReadFmoViaHostOp() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        ReadFmoTest {
+            READFMO('Sakura')
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let snapshot = "0.name\u{01}TestGhost\r\n0.path\u{01}/tmp/ghost\r\n0.hwnd\u{01}42\r\n"
+
+        let proc = Process()
+        proc.executableURL = exe
+        let inPipe = Pipe()
+        let outPipe = Pipe()
+        proc.standardInput = inPipe
+        proc.standardOutput = outPipe
+        proc.standardError = Pipe()
+        try proc.run()
+
+        func send(_ obj: [String: Any]) {
+            let data = (try? JSONSerialization.data(withJSONObject: obj)) ?? Data()
+            inPipe.fileHandleForWriting.write(data)
+            inPipe.fileHandleForWriting.write(Data([0x0A]))
+        }
+        func readLine() -> [String: Any]? {
+            var buf = Data()
+            let h = outPipe.fileHandleForReading
+            while true {
+                let d = h.readData(ofLength: 1)
+                if d.isEmpty { return buf.isEmpty ? nil : nil }
+                if d == Data([0x0A]) { break }
+                buf.append(d)
+            }
+            return (try? JSONSerialization.jsonObject(with: buf)) as? [String: Any]
+        }
+        // host_op と最終応答を区別しながら応答する
+        func exchange(_ req: [String: Any]) -> [String: Any]? {
+            send(req)
+            while true {
+                guard let obj = readLine() else { return nil }
+                if obj["host_op"] != nil {
+                    // READFMO の host_op:"fmo" にスナップショットで応答
+                    send(["ok": true, "snapshot": snapshot])
+                    continue
+                }
+                return obj
+            }
+        }
+
+        exchange(["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                  "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]])
+        let resp = exchange(["cmd": "request", "method": "GET", "id": "ReadFmoTest",
+                             "ref": [], "headers": ["Charset": "UTF-8"]])
+        inPipe.fileHandleForWriting.closeFile()
+        proc.waitUntilExit()
+
+        // READFMO は FMO スナップショット文字列（id.key SOH value CRLF 形式）をそのまま返す
+        #expect(resp?["value"] as? String == snapshot)
+    }
+
     /// Run yaya_core with a sequence of JSON-line requests; return the `value` of the
     /// last response (or nil). Each invocation is a fresh process: load + one request.
     private static func runYayaCore(exe: URL, requests: [[String: Any]]) -> String? {

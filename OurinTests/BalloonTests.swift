@@ -9,6 +9,21 @@ struct BalloonTests {
         #expect(desc["foo"] == "baz")
     }
 
+    @Test func descriptorCharsetTwoPassShiftJIS() async throws {
+        // charset,Shift_JIS 宣言付きの descript.txt を Shift_JIS で書き出し、
+        // 宣言エンコーディングで正しく再デコードされることを検証する（二段読み）。
+        let dir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let body = "charset,Shift_JIS\nname,テストバルーン\n"
+        let sjisEncoding = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(
+            CFStringEncoding(CFStringEncodings.shiftJIS.rawValue)))
+        let sjisData = body.data(using: sjisEncoding) ?? Data()
+        try sjisData.write(to: dir.appendingPathComponent("descript.txt"))
+        let desc = try DescriptorLoader.load(from: dir)
+        #expect(desc["name"] == "テストバルーン")
+    }
+
     @Test func icoDecode() async throws {
         // 1x1px の最小 ICO ファイルをバイト列として埋め込む
         let bytes: [UInt8] = [

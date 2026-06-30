@@ -9,7 +9,7 @@ struct InstallManifest {
     var charset: String?
     /// refresh,1 でインストール前に既存インストール先を削除する（更新インストール）
     var refresh: Bool = false
-    /// refresh 時に残すパスを表す正規表現の集合（UKADOC: カンマ区切り）
+    /// refresh 時に残すパスを表す正規表現の集合（UKADOC: コロン区切り。互換のためカンマも許容）
     var refreshUndeleteMask: [String] = []
     /// type=ghost に同梱されたバルーンのインストール先ディレクトリ名
     var balloonDirectory: String?
@@ -100,8 +100,10 @@ struct InstallTxtParser {
             case "refresh":
                 manifest.refresh = (value == "1" || value.lowercased() == "true")
             case "refreshundeletemask":
+                // UKADOC では `refreshundeletemask,ファイル名1:ファイル名2...` のコロン区切り。
+                // 既存データ互換のためカンマ区切りも寛容に受ける。
                 manifest.refreshUndeleteMask = value
-                    .split(separator: ",")
+                    .split(whereSeparator: { $0 == ":" || $0 == "," })
                     .map { $0.trimmingCharacters(in: .whitespaces) }
                     .filter { !$0.isEmpty }
             case "balloon.directory":

@@ -217,8 +217,10 @@ final class EventBridge {
     /// ゴースト毎に異なるスクリプトを再生する（SSTP の IfGhost 振り分け用）。
     /// resolve はセッションのゴースト名（descript.txt の name、不明時 nil）を受け取り
     /// 再生するスクリプトを返す。nil または空を返したセッションでは再生しない。
+    /// - Parameter notify: true の場合は `runScript` ではなく `runNotifyScript` を使う。
+    ///   NOTIFY 由来のスクリプト（ValueNotify）は可視テキストを含まないとき現バルーンを保持する。
     @discardableResult
-    func playScriptOnGhostsResolving(ghostName: String? = nil, resolve: (String?) -> String?) -> Bool {
+    func playScriptOnGhostsResolving(ghostName: String? = nil, notify: Bool = false, resolve: (String?) -> String?) -> Bool {
         var targets = sessions.values.compactMap { $0.ghostManager }
         if let name = ghostName?.lowercased(), !name.isEmpty {
             targets = targets.filter {
@@ -234,7 +236,9 @@ final class EventBridge {
         }
         guard !jobs.isEmpty else { return false }
         DispatchQueue.main.async {
-            for (gm, script) in jobs { gm.runScript(script) }
+            for (gm, script) in jobs {
+                if notify { gm.runNotifyScript(script) } else { gm.runScript(script) }
+            }
         }
         return true
     }

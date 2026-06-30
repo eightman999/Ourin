@@ -157,6 +157,15 @@ extension GhostManager {
             self.namedSounds[filename, default: []].append(sound)
             sound.play()
             Log.debug("[GhostManager] Playing sound: \(filename) loop=\(loop)")
+
+            // SHIORI 再生イベント通知。Ourin は音楽/効果音を区別しないため、
+            // 再生開始時に OnMusicPlay / OnMusicPlayEx を通知する。
+            let refs = ["Reference0": filename]
+            EventBridge.shared.notify(.OnMusicPlay, params: refs)
+            EventBridge.shared.notify(.OnMusicPlayEx, params: refs)
+            if loop {
+                EventBridge.shared.notify(.OnSoundLoop, params: refs)
+            }
         }
     }
 
@@ -246,6 +255,21 @@ extension GhostManager {
         namedSounds[filename] = nil
         preloadedSounds[filename] = nil
         Log.debug("[GhostManager] Stopped sound: \(filename)")
+        EventBridge.shared.notify(.OnSoundStop, params: ["Reference0": filename])
+    }
+
+    // MARK: - Video Playback
+
+    /// Play a video file from the ghost's sound directory.
+    /// 完全な動画レンダラは未実装だが、SHIORI の OnVideoPlayEx イベントは通知する。
+    func playVideo(filename: String, loop: Bool = false) {
+        guard !filename.isEmpty else { return }
+        let refs: [String: String] = [
+            "Reference0": filename,
+            "Reference1": loop ? "loop" : "once"
+        ]
+        EventBridge.shared.notify(.OnVideoPlayEx, params: refs)
+        Log.debug("[GhostManager] Video play requested: \(filename) loop=\(loop) (renderer pending)")
     }
     
     /// Stop all currently playing sounds

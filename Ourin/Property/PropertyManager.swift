@@ -33,6 +33,14 @@ public final class PropertyManager {
         register("calendarpluginlist", provider: CalendarPluginPropertyProvider(plugins: calendarPlugins))
         register("history", provider: HistoryPropertyProvider())
         register("rateofuselist", provider: RateOfUsePropertyProvider())
+
+        // SSP 互換の標準名前空間エイリアス（UKADOC プロパティシステム）。
+        // sakura.* / kero.* は scope(0) / scope(1) のショートカット、
+        // ghost.* は currentghost.*、shell.* は現在シェルのショートカット。
+        register("sakura", provider: AliasPropertyProvider(targetPrefix: "currentghost.scope(0)"))
+        register("kero", provider: AliasPropertyProvider(targetPrefix: "currentghost.scope(1)"))
+        register("ghost", provider: AliasPropertyProvider(targetPrefix: "currentghost"))
+        register("shell", provider: AliasPropertyProvider(targetPrefix: "currentghost.shelllist.current"))
     }
 
     private func discoverDefaultGhosts() -> [Ghost] {
@@ -132,8 +140,29 @@ public final class PropertyManager {
         return nil
     }
 
+    /// プロパティキーの構造部分（プロバイダ接頭辞・プロパティ名）は小文字化し、
+    /// 括弧内の名前パラメータ（`shelllist(MyShell)` / `textlist(Hoge)` 等）は原文のまま保持する。
+    /// プロバイダは構造部で大小区別なく一致させ、名前は case-sensitive で照合する必要があるため
+    /// （`GhostPropertyProvider` の `shells.firstIndex { $0.name == shellName }` 等）。
+    /// ネストした括弧（`seriko.tooltip.scope(0).textlist(name).text`）にも対応する。
+    private static func lowercasePreservingParams(_ key: String) -> String {
+        var result = ""
+        result.reserveCapacity(key.count)
+        var depth = 0
+        for ch in key {
+            if ch == "(" { depth += 1; result.append(ch); continue }
+            if ch == ")" { if depth > 0 { depth -= 1 }; result.append(ch); continue }
+            if depth > 0 {
+                result.append(ch)
+            } else {
+                result.append(Character(ch.lowercased()))
+            }
+        }
+        return result
+    }
+
     public func set(_ key: String, value: String) -> Bool {
-        let lower = key.lowercased()
+        let lower = Self.lowercasePreservingParams(key)
         guard let (_, provider, rest) = resolveProvider(lower) else { return false }
         let didSet = provider.set(key: rest, value: value)
         if didSet {
@@ -147,7 +176,7 @@ public final class PropertyManager {
     private static let uncachedPrefixes: Set<String> = ["system", "pluginlist"]
 
     public func get(_ key: String) -> String? {
-        let lower = key.lowercased()
+        let lower = Self.lowercasePreservingParams(key)
         let firstSegment = lower.split(separator: ".", maxSplits: 1).first.map(String.init) ?? lower
         let cacheable = !Self.uncachedPrefixes.contains(firstSegment)
 
@@ -263,6 +292,31 @@ public final class PropertyManager {
         }
         return result
     }
+}
+
+/// 標準名前空間のエイリアスプロバイダ。
+/// `sakura.surface.num` のような互換キーを `currentghost.scope(0).surface.num` へ書き換えて
+/// 既存プロバイダへ委譲する。GET/SET ともに委譲先の挙動に従う（UKADOC プロパティシステム）。
+final class AliasPropertyProvider: PropertyProvider {
+    private let targetPrefix: String
+
+    init(targetPrefix: String) {
+        self.targetPrefix = targetPrefix
+    }
+
+    private func fullKey(_ key: String) -> String {
+        key.isEmpty ? targetPrefix : "\(targetPrefix).\(key)"
+    }
+
+    func get(key: String) -> String? {
+        PropertyManager.shared.get(fullKey(key))
+    }
+
+    func set(key: String, value: String) -> Bool {
+        PropertyManager.shared.set(fullKey(key), value: value)
+    }
+
+    func writableProperties() -> [String] { [] }
 }
 
 final class SystemPropertyProvider: PropertyProvider {

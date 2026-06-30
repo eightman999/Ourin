@@ -27,8 +27,7 @@ public final class SstpTcpServer {
     }
 
     public func start(host: String = "127.0.0.1", port: UInt16 = 9801) throws {
-        let params = NWParameters.tcp
-        listener = try NWListener(using: params, on: NWEndpoint.Port(rawValue: port)!)
+        listener = try Self.makeListener(host: host, port: port)
         listener?.newConnectionHandler = { [weak self] conn in
             guard let self else { return }
             conn.start(queue: .global())
@@ -36,6 +35,21 @@ public final class SstpTcpServer {
         }
         listener?.start(queue: .main)
         logger.info("listen \(host):\(port)")
+    }
+
+    /// host を尊重して `NWListener` を生成する。
+    /// `127.0.0.1` / `localhost` / `::1` 等の特定アドレス指定時は `requiredLocalEndpoint` で
+    /// そのアドレスにのみバインドする（既定は localhost のみ）。`0.0.0.0` / `::` / 空 のときだけ全 IF で待ち受ける。
+    static func makeListener(host: String, port: UInt16) throws -> NWListener {
+        let nwPort = NWEndpoint.Port(rawValue: port)!
+        let trimmed = host.trimmingCharacters(in: .whitespaces)
+        let bindsAllInterfaces = trimmed.isEmpty || trimmed == "0.0.0.0" || trimmed == "::" || trimmed == "*"
+        let params = NWParameters.tcp
+        if bindsAllInterfaces {
+            return try NWListener(using: params, on: nwPort)
+        }
+        params.requiredLocalEndpoint = NWEndpoint.hostPort(host: NWEndpoint.Host(trimmed), port: nwPort)
+        return try NWListener(using: params)
     }
 
     public func stop() { listener?.cancel(); listener = nil }
@@ -51,9 +65,11 @@ public final class SstpTcpServer {
         // バッファに完全なリクエスト（CRLF+空行終端）が揃っていれば処理して true を返す。
         func tryProcess() -> Bool {
             if buffer.count > self.config.maxSize { self.sendErrorResponse(conn, status: 413); return true }
-            if let range = buffer.range(of: Data([13,10,13,10])) {
-                let header = buffer.subdata(in: 0..<range.lowerBound)
-                if let text = Self.decode(header) {
+            if buffer.range(of: Data([13,10,13,10])) != nil {
+                // ヘッダ終端（空行）が揃ったら処理する。空行以降の本文（SSTP body）も含めて
+                // バッファ全体を SSTP スタックへ渡す。ヘッダだけ渡すと body が破棄される
+                // （SSTPParser は空行以降を body として取り込む）。
+                if let text = Self.decode(buffer) {
                     let start = Date()
                     let resp = self.onRequest?(text) ?? "SSTP/1.1 204 No Content\r\n\r\n"
                     let duration = Date().timeIntervalSince(start)

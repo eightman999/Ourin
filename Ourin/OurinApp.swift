@@ -100,6 +100,33 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     var allGhostManagers: [GhostManager] {
         ([ghostManager].compactMap { $0 }) + additionalGhosts
     }
+
+    /// SHIORI 要求（SSTP/Web/Resource ブリッジ）の宛先ゴーストを解決する。
+    /// ヘッダに ReceiverGhostName 指定があれば該当ゴースト、無ければプライマリゴーストの
+    /// YayaAdapter を返す。宛先が見つからなければ nil。
+    /// `ghostManager` / `additionalGhosts` はメインスレッドで更新されるため、参照解決は
+    /// 常にメインスレッドで行う（バックグラウンドの SSTP キューからの並行読みによる data race を防ぐ）。
+    func yayaAdapterForShioriRequest(headers: [String: String]) -> YayaAdapter? {
+        if Thread.isMainThread {
+            return resolveYayaAdapter(headers: headers)
+        }
+        return DispatchQueue.main.sync { self.resolveYayaAdapter(headers: headers) }
+    }
+
+    private func resolveYayaAdapter(headers: [String: String]) -> YayaAdapter? {
+        if let receiver = headers["ReceiverGhostName"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !receiver.isEmpty {
+            // SSTPDispatcher のレジストリ照合に合わせて percent デコードしてから比較する。
+            let target = (receiver.removingPercentEncoding ?? receiver).lowercased()
+            if let gm = allGhostManagers.first(where: {
+                ($0.ghostConfig?.name.lowercased() == target) ||
+                ($0.ghostURL.lastPathComponent.lowercased() == target)
+            }) {
+                return gm.yayaAdapter
+            }
+        }
+        return ghostManager?.yayaAdapter
+    }
     /// DevTools window for legacy macOS
     private var devToolsWindow: NSWindow?
     /// About window
@@ -134,6 +161,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         } catch {
             NSLog("FMO init failed: \(error)")
             NSLog("Continuing without FMO (single instance enforcement disabled)")
+        }
+
+        // READFMO（YAYA builtin）から現在の FMO スナップショットを同期的に取得できるようにする。
+        // yaya_core からの host_op:"fmo" 問い合わせに対し、起動中ゴーストのレコードから
+        // SSP 互換 `id.key\x01value\r\n` 文字列を構築して返す。
+        YayaAdapter.fmoSnapshotProvider = { [weak self] () -> String in
+            guard let self else { return "" }
+            return FmoManager.buildSnapshot(records: self.collectFmoRecords())
         }
 
         // 旧データ（Application Support / 旧サンドボックスコンテナ）を ~/Documents/Ourin へ一度だけ移行する。
@@ -194,6 +229,27 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         hRegistry.discoverAndLoad()
         headlineRegistry = hRegistry
         notifyPluginCatalogs()
+
+        // SSTP / Web / Resource からの SHIORI 要求を、稼働中のゴースト（YAYA）へ橋渡しする。
+        // ネイティブ SHIORI バンドルが無い通常構成では BridgeToSHIORI のホストが nil のため、
+        // このリゾルバが実ゴーストへ要求を送り、ReferenceN/Value/Status を保持した応答を返す。
+        // クロージャは SSTP サーバのバックグラウンドキューから呼ばれ、宛先は呼び出し時に解決する。
+        BridgeToSHIORI.liveGhostResolver = { [weak self] method, event, references, headers in
+            guard let self else { return nil }
+            // 宛先 YayaAdapter はメインスレッドで解決する（ghostManager / additionalGhosts はメインで更新される）。
+            guard let adapter = self.yayaAdapterForShioriRequest(headers: headers) else { return nil }
+            // IPC 自体は呼び出し元キュー（SSTP バックグラウンド等）で同期実行する。
+            // 直列リスナーキューを長時間塞がないよう短めのタイムアウトにする。
+            let res: YayaResponse?
+            if event == "Resource", let key = references.first {
+                // Resource 疑似イベント（ResourceBridge 由来）は SHIORI Resource GET（ID=リソース名）へ正規化する。
+                res = adapter.request(method: "GET", id: key, headers: headers, refs: [], timeout: 2.0)
+            } else {
+                res = adapter.request(method: method, id: event, headers: headers, refs: references, timeout: 2.0)
+            }
+            guard let res, res.ok else { return nil }
+            return BridgeToSHIORI.BridgeShioriResponse(status: res.status, headers: res.headers ?? [:], value: res.value)
+        }
 
         // 外部 SSTP サーバを起動
         let ext = OurinExternalServer()

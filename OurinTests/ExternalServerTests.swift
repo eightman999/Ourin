@@ -41,6 +41,18 @@ struct ExternalServerTests {
     }
 
     @Test
+    func parserToleratesBareLFLineEndings() throws {
+        // 一部デファクトツールは CRLF でなく LF のみ送信する。
+        // ヘッダ終端（空行）が検出できず Timeout にならないよう、LF のみも受理する。
+        let raw = "SEND SSTP/1.4\nSender: Test\nEvent: Foo\nCharset: UTF-8\n\n"
+        let req = SSTPParser.parseRequest(text: raw)
+        #expect(req.method == "SEND")
+        #expect(req.version == "SSTP/1.4")
+        #expect(req.headerValue("Event") == "Foo")
+        #expect(req.headerValue("Sender") == "Test")
+    }
+
+    @Test
     func parserPreservesDuplicateHeadersInOrder() throws {
         let raw = """
         SEND SSTP/1.4\r

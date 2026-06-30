@@ -8,6 +8,8 @@ import Foundation
 //   OnExecuteWebSocketReceive  Reference0=本文（テキスト、またはバイナリ時は Base64）, Reference1=URL, Reference2="binary"（バイナリ時）
 //   OnExecuteWebSocketClose    Reference0=URL
 //   OnExecuteWebSocketError    Reference0=理由, Reference1=URL
+//   OnExecuteWebSocketSend     Reference0=送信内容, Reference1=URL, Reference2="binary"（バイナリ時）
+//   OnExecuteWebSocketState    Reference0=状態(open/closing/closed/error), Reference1=URL
 //
 // 既存の OnExecuteHTTP* と同じ命名規約（OnExecute<種別><段階>）に揃えている。
 extension GhostManager {
@@ -19,7 +21,7 @@ extension GhostManager {
               let scheme = url.scheme?.lowercased(),
               scheme == "ws" || scheme == "wss" else {
             let bad = params.first ?? ""
-            EventBridge.shared.notifyCustom("OnExecuteWebSocketError", params: [
+            EventBridge.shared.notify(.OnExecuteWebSocketError, params: [
                 "Reference0": "invalid_url",
                 "Reference1": bad
             ])
@@ -38,7 +40,11 @@ extension GhostManager {
             self.webSocketTasks[key] = task
             task.resume()
             // delegate を持たない簡易実装のため、resume 直後に楽観的に Open を通知する。
-            EventBridge.shared.notifyCustom("OnExecuteWebSocketOpen", params: ["Reference0": key])
+            EventBridge.shared.notify(.OnExecuteWebSocketOpen, params: ["Reference0": key])
+            EventBridge.shared.notify(.OnExecuteWebSocketState, params: [
+                "Reference0": "open",
+                "Reference1": key
+            ])
             self.receiveNextWebSocketMessage(task, key: key)
         }
     }
@@ -60,10 +66,19 @@ extension GhostManager {
             }
             task.send(message) { error in
                 if let error {
-                    EventBridge.shared.notifyCustom("OnExecuteWebSocketError", params: [
+                    EventBridge.shared.notify(.OnExecuteWebSocketError, params: [
                         "Reference0": error.localizedDescription,
                         "Reference1": key
                     ])
+                } else {
+                    var sendParams: [String: String] = [
+                        "Reference0": payload,
+                        "Reference1": key
+                    ]
+                    if binary {
+                        sendParams["Reference2"] = "binary"
+                    }
+                    EventBridge.shared.notify(.OnExecuteWebSocketSend, params: sendParams)
                 }
             }
         }
@@ -90,7 +105,11 @@ extension GhostManager {
             } else {
                 task.cancel()
             }
-            EventBridge.shared.notifyCustom("OnExecuteWebSocketClose", params: ["Reference0": key])
+            EventBridge.shared.notify(.OnExecuteWebSocketState, params: [
+                "Reference0": normal ? "closed" : "closing",
+                "Reference1": key
+            ])
+            EventBridge.shared.notify(.OnExecuteWebSocketClose, params: ["Reference0": key])
         }
     }
 
@@ -103,20 +122,24 @@ extension GhostManager {
                 guard self.webSocketTasks[key] === task else { return }
                 switch result {
                 case .failure(let error):
-                    EventBridge.shared.notifyCustom("OnExecuteWebSocketError", params: [
+                    EventBridge.shared.notify(.OnExecuteWebSocketError, params: [
                         "Reference0": error.localizedDescription,
+                        "Reference1": key
+                    ])
+                    EventBridge.shared.notify(.OnExecuteWebSocketState, params: [
+                        "Reference0": "error",
                         "Reference1": key
                     ])
                     self.webSocketTasks.removeValue(forKey: key)
                 case .success(let message):
                     switch message {
                     case .string(let text):
-                        EventBridge.shared.notifyCustom("OnExecuteWebSocketReceive", params: [
+                        EventBridge.shared.notify(.OnExecuteWebSocketReceive, params: [
                             "Reference0": text,
                             "Reference1": key
                         ])
                     case .data(let data):
-                        EventBridge.shared.notifyCustom("OnExecuteWebSocketReceive", params: [
+                        EventBridge.shared.notify(.OnExecuteWebSocketReceive, params: [
                             "Reference0": data.base64EncodedString(),
                             "Reference1": key,
                             "Reference2": "binary"

@@ -636,10 +636,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 defaults.set(bootCount + 1, forKey: "OurinBootCount")
             }
 
-            // Start EventBridge immediately after OnBoot load (dictionary loading completed)
-            Log.info("[GhostManager] Starting EventBridge immediately after OnBoot load")
+            // Start EventBridge immediately after OnBoot load (dictionary loading completed).
+            // 実ゴーストのロード完了をシステムイベント有効化の唯一の集約点とし、標準の自動イベント
+            // （タイマー/入力/スリープ/ディスプレイ等）をここで有効にする。以前は既定 false のため、
+            // 名前入力ダイアログ経路（GhostManager+Display）を通らないと自動イベントが queue のみに
+            // 留まる経路があった。テスト時のみ副作用を避けるため明示的に無効化する。
+            let enableAutoEvents = !GhostManager.isRunningUnderTests
+            Log.info("[GhostManager] Starting EventBridge after OnBoot load (autoEvents=\(enableAutoEvents))")
             DispatchQueue.main.async {
-                self.startEventBridgeIfNeeded()
+                self.startEventBridgeIfNeeded(enableAutoEvents: enableAutoEvents)
             }
 
             // Request boot script with a timeout; keep placeholder visible meanwhile.
@@ -2061,6 +2066,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         } else if subcmd.hasPrefix("http-") {
                             let params = Array(args.dropFirst(2))
                             executeHTTP(subcommand: subcmd, params: params)
+                        } else if subcmd.hasPrefix("http-stream-") || subcmd == "http-stream" {
+                            // \![execute,http-stream-get,URL,...] / \![execute,http-stream,URL,...]
+                            let params = Array(args.dropFirst(2))
+                            executeHTTPStreaming(subcommand: subcmd, params: params)
                         } else if subcmd.hasPrefix("rss-") {
                             let params = Array(args.dropFirst(2))
                             executeRSS(subcommand: subcmd, params: params)
@@ -2588,18 +2597,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             let unit = playbackQueue.removeFirst()
             switch unit {
             case .scope(let id):
-                // Clear other scopes' balloons to ensure sequential dialogue (no parallel display)
-                for (scopeId, vm) in balloonViewModels {
-                    if scopeId != id {
-                        vm.text = ""
-                    }
-                }
-                
-                // Clear current scope balloon text unless append mode is enabled
-                if !appendModeEnabled {
-                    balloonViewModels[id]?.text = ""
-                }
-                
+                // SSP は複数スコープ（\0=sakura / \1=kero / \p[n]）のバルーンを同時表示できる。
+                // スコープ切替では他スコープも切替先スコープ自身のバルーンも消さず、各スコープの
+                // 表示寿命を独立させる。クリアはスクリプト開始時の一括クリア（runScript）と
+                // 明示コマンド（\c / \e[clear] / \x 等）のみが行う。
+                // （旧実装は切替のたびに他スコープを全消去し、同一スコープ再訪時も本文を消していたため
+                //  複数キャラ同時発話や同一スコープへの追記が SSP と食い違っていた。）
                 currentScope = id
                 Log.debug("[GhostManager] Switched to scope \(id)")
 
@@ -2723,6 +2726,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let builtin = "\\h\\s0こんにちは、起動しました。\\n\\e"
         NSLog("[GhostManager] Using built-in greeting fallback")
         return builtin
+    }
+
+    /// 単体テスト実行中かどうか。テスト時は自動システムイベント（タイマー/入力監視等）を抑止する。
+    static var isRunningUnderTests: Bool {
+        let env = ProcessInfo.processInfo.environment
+        return env["XCTestConfigurationFilePath"] != nil || env["XCTestBundlePath"] != nil
     }
 
     func startEventBridgeIfNeeded(enableAutoEvents: Bool = false) {

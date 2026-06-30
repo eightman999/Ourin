@@ -228,8 +228,17 @@ public enum SSTPDispatcher {
             request: request,
             shioriScript: scriptForSstp
         )
-        if method != .notify, !suppressBalloon {
-            playScriptOnGhosts(request: request, shioriScript: scriptForSstp)
+        if !suppressBalloon {
+            if method == .notify {
+                // NOTIFY 由来の ValueNotify スクリプトは通知系再生（runNotifyScript）でバルーンに適用する。
+                // 可視テキストを含まない場合は現バルーンを保持してコマンドのみ適用（UKADOC ValueNotify サブセット）。
+                if let script = scriptForSstp,
+                   !script.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    playScriptOnGhosts(request: request, shioriScript: script, notify: true)
+                }
+            } else {
+                playScriptOnGhosts(request: request, shioriScript: scriptForSstp, notify: false)
+            }
         }
 
         let data = mapped.data
@@ -835,9 +844,10 @@ public enum SSTPDispatcher {
     }
 
     /// 確定したスクリプトをバルーンで再生する。IfGhost がある場合はゴースト毎に振り分ける。
+    /// - Parameter notify: true の場合は通知系再生（runNotifyScript）を行う。
     @discardableResult
-    private static func playScriptOnGhosts(request: SSTPRequest, shioriScript: String?) -> Bool {
-        EventBridge.shared.playScriptOnGhostsResolving(ghostName: request.receiverGhostName) { sessionGhostName in
+    private static func playScriptOnGhosts(request: SSTPRequest, shioriScript: String?, notify: Bool = false) -> Bool {
+        EventBridge.shared.playScriptOnGhostsResolving(ghostName: request.receiverGhostName, notify: notify) { sessionGhostName in
             resolveScript(
                 forGhost: sessionGhostName ?? request.receiverGhostName,
                 request: request,

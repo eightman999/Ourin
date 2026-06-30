@@ -47,6 +47,10 @@ final class YayaAdapter {
     public var resourceManager: ResourceManager?
     private let saoriManager = SaoriManager()
 
+    /// FMO スナップショット供給クロージャ（READFMO 用）。
+    /// AppDelegate が起動時に設定する。`id.key\x01value\r\n` 形式の文字列を返すこと。
+    public static var fmoSnapshotProvider: (() -> String)?
+
     /// Create adapter. The helper executable is searched in the app bundle by default.
     init?() {
         guard let url = Bundle.main.url(forAuxiliaryExecutable: "yaya_core") else {
@@ -154,6 +158,17 @@ final class YayaAdapter {
             let params = req["params"] as? [String: Any] ?? [:]
             let response = handlePluginOperation(operation, params: params)
             try sendJSONObject(response)
+        case "fmo":
+            // READFMO からの同期問い合わせ。現在の FMO スナップショットを返す。
+            let req = payload["params"] as? [String: Any] ?? [:]
+            let operation = req["operation"] as? String ?? ""
+            switch operation {
+            case "read":
+                let snapshot = Self.fmoSnapshotProvider?() ?? ""
+                try sendJSONObject(["ok": true, "snapshot": snapshot])
+            default:
+                try sendJSONObject(["ok": false, "error": "unsupported fmo operation: \(operation)"])
+            }
         default:
             try sendJSONObject(["ok": false, "error": "unsupported host_op: \(hostOp)"])
         }

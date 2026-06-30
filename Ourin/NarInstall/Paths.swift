@@ -216,6 +216,24 @@ enum OurinPaths {
         case "package":
             return base.appendingPathComponent("package", isDirectory: true)
                        .appendingPathComponent(directory, isDirectory: true)
+        case "calendar/skin", "calendar skin", "calendarskin":
+            // SSP 互換: カレンダースキンは calendar/skin/<directory> 配下。CalendarRegistry がここを走査する。
+            return base.appendingPathComponent("calendar", isDirectory: true)
+                       .appendingPathComponent("skin", isDirectory: true)
+                       .appendingPathComponent(directory, isDirectory: true)
+        case "calendar/plugin", "calendar plugin", "calendarplugin":
+            // SSP 互換: カレンダープラグインは calendar/plugin/<directory> 配下。
+            return base.appendingPathComponent("calendar", isDirectory: true)
+                       .appendingPathComponent("plugin", isDirectory: true)
+                       .appendingPathComponent(directory, isDirectory: true)
+        case "calendar":
+            // 旧互換: 種別 calendar（skin/plugin 区別が無い旧形式）は calendar/<directory> へ設置する。
+            return base.appendingPathComponent("calendar", isDirectory: true)
+                       .appendingPathComponent(directory, isDirectory: true)
+        case "language":
+            // 言語パック: language/<directory> へ設置する（UKADOC install.txt の language 種別）。
+            return base.appendingPathComponent("language", isDirectory: true)
+                       .appendingPathComponent(directory, isDirectory: true)
         case "shell":
             // 対象ゴースト配下の shell/<directory> へネストして設置する。
             guard let accept = trimmedAccept, !accept.isEmpty else {

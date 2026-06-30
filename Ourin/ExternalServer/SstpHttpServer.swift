@@ -110,10 +110,10 @@ public final class SstpHttpServer {
             let respSstp = self.onRequest?(routedSstp) ?? "SSTP/1.1 204 No Content\r\n\r\n"
             let duration = Date().timeIntervalSince(start)
             let lines = [
-                "HTTP/1.1 200 OK\r",
-                "Content-Type: text/plain; charset=UTF-8\r",
-                "Content-Length: \(respSstp.utf8.count)\r",
-                "\r",
+                "HTTP/1.1 200 OK\r\n",
+                "Content-Type: text/plain; charset=UTF-8\r\n",
+                "Content-Length: \(respSstp.utf8.count)\r\n",
+                "\r\n",
                 respSstp
             ]
             let http = lines.joined()
@@ -147,10 +147,10 @@ public final class SstpHttpServer {
         ]
         let data = (try? JSONSerialization.data(withJSONObject: payload)) ?? Data()
         let lines = [
-            "HTTP/1.1 200 OK\r",
-            "Content-Type: application/json; charset=UTF-8\r",
-            "Content-Length: \(data.count)\r",
-            "\r"
+            "HTTP/1.1 200 OK\r\n",
+            "Content-Type: application/json; charset=UTF-8\r\n",
+            "Content-Length: \(data.count)\r\n",
+            "\r\n"
         ]
         var http = Data(lines.joined().utf8)
         http.append(data)
