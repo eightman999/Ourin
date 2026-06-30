@@ -1119,6 +1119,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             // \8[filename] - Play sound file
             playSound(filename: filename)
         
+        case .choiceQueue(let title, let id, let references):
+            // \__q メタタグ（選択肢キュー）。title は範囲ベース構文の表示テキスト。
+            // ID の取扱いは \q と同じ（script: プレフィックス / On* イベント）。
+            if id.hasPrefix("script:") {
+                let script = String(id.dropFirst(7))
+                pendingChoices.append((title: title, action: .script(script), pluginOrigin: currentScriptIsPluginOrigin))
+            } else {
+                pendingChoices.append((title: title, action: .event(id: id, references: references), pluginOrigin: currentScriptIsPluginOrigin))
+            }
+        
         case .command(let name, let args):
             // SakuraScript タグは大文字小文字を区別する（\_V=再生完了待ち と \_v=再生 は別タグ）。
             // 下の switch は小文字化して照合するため、大文字を含むタグはここで先に分岐する。
@@ -1166,12 +1176,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 playbackQueue.append(.clickWait(noclear: noclear))
             case "_q":
                 quickMode.toggle()
-            case "__q":
-                handleQueuedChoiceCommand(args: args)
             case "__t":
                 // \__t メタタグ: 教えてダイアログを開く（\![open,teachbox] と同等）
                 playbackQueue.append(.deferredCommand {
                     DispatchQueue.main.async { self.showTeachBoxDialog() }
+                })
+            case "__c":
+                // \__c メタタグ: CommunicateBox を開く（\![open,communicatebox] と同等）
+                playbackQueue.append(.deferredCommand {
+                    DispatchQueue.main.async { self.showCommunicateBoxDialog(timeoutMs: nil, initialText: "") }
                 })
             case "_n":
                 // \_n: 自動改行（ワードラップ）抑制メタタグ。現行レンダラはワードラップ非依存の

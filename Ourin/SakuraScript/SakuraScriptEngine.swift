@@ -89,6 +89,12 @@ public final class SakuraScriptEngine {
         case openEmail         // \7 - open email
         case playSound(String) // \8[filename] - play sound
         case command(name: String, args: [String])
+        /// \__q メタタグ（選択肢キュー / choice queue）。
+        /// 単一形式 `\__q[ID,r0,...]` は title=""。
+        /// 範囲形式 `\__q[ID,r0,...]表示テキスト\__q` は title=範囲内の表示テキスト。
+        /// ID 仕様は \q と同一（"script:" プレフィックスや On* イベント）。
+        /// references は ID に続く引数（\q の R0,R1,... に相当）。
+        case choiceQueue(title: String, id: String, references: [String])
 
         /// Returns true if this token represents displayable text or speech.
         var isTextLike: Bool {
@@ -540,10 +546,63 @@ public final class SakuraScriptEngine {
             }
         }
         flush()
-        return tokens
+        return Self.mergeChoiceQueueRanges(tokens)
     }
 
     // Note: Do not attempt to auto-normalize scripts; adhere to UKADOC.
+
+    /// `\__q` の範囲ベース構文（`\__q[ID,...]text\__q`）を1トークンにマージする。
+    ///
+    /// UKADOC (SAKURASCRIPT_FULL §\__q): `\__q` がくるまでの範囲を選択肢の表示テキストとする。
+    /// 開始タグ `.command("__q", non-empty args)` と閉じタグ `.command("__q", [])` に挟まれた
+    /// テキスト系トークンを結合して title とし、`.choiceQueue` に変換する。
+    /// 単一形式（閉じタグなし）も title="" の `.choiceQueue` に変換する。
+    /// ID の取扱いは `\q` と同じ: args[0]=ID, args[1...]=references。
+    private static func mergeChoiceQueueRanges(_ tokens: [Token]) -> [Token] {
+        var result: [Token] = []
+        result.reserveCapacity(tokens.count)
+        var i = 0
+        while i < tokens.count {
+            let token = tokens[i]
+            if case .command(let name, let args) = token, name == "__q" {
+                if args.isEmpty {
+                    // 単独の閉じタグ（開始タグなし）は無視して捨てる
+                    i += 1
+                    continue
+                }
+                // 後続トークンから閉じタグ .command("__q", []) を探す
+                var j = i + 1
+                var titleParts: [String] = []
+                var closingIndex: Int? = nil
+                while j < tokens.count {
+                    let t = tokens[j]
+                    if case .command(let n, let a) = t, n == "__q", a.isEmpty {
+                        closingIndex = j
+                        break
+                    }
+                    switch t {
+                    case .text(let s):
+                        titleParts.append(s)
+                    case .newline, .newlineVariation:
+                        titleParts.append("\n")
+                    default:
+                        // \s, \i, \_l 等の制御/リッチ要素は title から除外（プレーンテキスト化）
+                        break
+                    }
+                    j += 1
+                }
+                let id = args[0]
+                let references = Array(args.dropFirst())
+                let title = closingIndex != nil ? titleParts.joined() : ""
+                result.append(.choiceQueue(title: title, id: id, references: references))
+                i = (closingIndex ?? i) + 1
+                continue
+            }
+            result.append(token)
+            i += 1
+        }
+        return result
+    }
 
     /// Split a comma separated argument string with quoting rules.
     /// - Arguments separated by commas

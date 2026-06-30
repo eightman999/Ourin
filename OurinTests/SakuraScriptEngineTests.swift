@@ -1412,12 +1412,107 @@ struct SakuraScriptEngineTests {
 
     @Test
     func choiceQueueCommand() async throws {
+        // 単一形式 \__q[ID,r0,r1,...]（閉じタグなし）。
+        // ID の取扱いは \q と同じ: args[0]=ID, args[1...]=references。
         let engine = SakuraScriptEngine()
         let tokens = engine.parse(script: "\\__q[OnTest,OnTest2]")
         #expect(tokens.count == 1)
+        if case .choiceQueue(let title, let id, let references) = tokens[0] {
+            #expect(title == "")
+            #expect(id == "OnTest")
+            #expect(references == ["OnTest2"])
+        } else {
+            Issue.record("expected .choiceQueue token")
+        }
+    }
+
+    @Test
+    func choiceQueueRangeSyntaxBindsDisplayText() async throws {
+        // 範囲形式 \__q[ID,r0,...]表示テキスト\__q
+        // UKADOC: \__q がくるまでの範囲を選択肢の表示テキストとする。
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\__q[OnTest,testreference]間にテキスト\\__q")
+        #expect(tokens.count == 1)
+        if case .choiceQueue(let title, let id, let references) = tokens[0] {
+            #expect(title == "間にテキスト")
+            #expect(id == "OnTest")
+            #expect(references == ["testreference"])
+        } else {
+            Issue.record("expected .choiceQueue token")
+        }
+    }
+
+    @Test
+    func choiceQueueRangeTextNotShownInBalloon() async throws {
+        // 範囲内テキストはバルーン本文に現れず、選択肢 title に束縛される。
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "前文\\__q[OnTest]選択肢A\\__q後文")
+        // 期待: .text("前文"), .choiceQueue(title:"選択肢A",...), .text("後文")
+        #expect(tokens.count == 3)
+        if case .choiceQueue(let title, let id, _) = tokens[1] {
+            #expect(title == "選択肢A")
+            #expect(id == "OnTest")
+        } else {
+            Issue.record("expected .choiceQueue at index 1")
+        }
+    }
+
+    @Test
+    func choiceQueueScriptFormKeepsTitle() async throws {
+        // script: プレフィックス形式でも範囲テキストを title に保持する。
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\__q[script:foo\\e]実行\\__q")
+        #expect(tokens.count == 1)
+        if case .choiceQueue(let title, let id, let references) = tokens[0] {
+            #expect(title == "実行")
+            #expect(id == "script:foo\\e")
+            #expect(references == [])
+        } else {
+            Issue.record("expected .choiceQueue token")
+        }
+    }
+
+    @Test
+    func choiceQueueMultipleRangesProduceMultipleChoices() async throws {
+        // 複数の \__q 範囲で複数選択肢を生成する。
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\__q[OnA]Aです\\__q\\__q[OnB]Bです\\__q")
+        #expect(tokens.count == 2)
+        if case .choiceQueue(let titleA, let idA, _) = tokens[0] {
+            #expect(titleA == "Aです")
+            #expect(idA == "OnA")
+        } else {
+            Issue.record("expected .choiceQueue at index 0")
+        }
+        if case .choiceQueue(let titleB, let idB, _) = tokens[1] {
+            #expect(titleB == "Bです")
+            #expect(idB == "OnB")
+        } else {
+            Issue.record("expected .choiceQueue at index 1")
+        }
+    }
+
+    @Test
+    func metaTagCommunicateBox() async throws {
+        // \__c メタタグ（旧仕様 CommunicateBox）
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\__c")
+        #expect(tokens.count == 1)
         if case .command(let name, let args) = tokens[0] {
-            #expect(name == "__q")
-            #expect(args == ["OnTest", "OnTest2"])
+            #expect(name == "__c")
+            #expect(args == [])
+        }
+    }
+
+    @Test
+    func metaTagTeachBox() async throws {
+        // \__t メタタグ（旧仕様 TeachBox）
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\__t")
+        #expect(tokens.count == 1)
+        if case .command(let name, let args) = tokens[0] {
+            #expect(name == "__t")
+            #expect(args == [])
         }
     }
 
