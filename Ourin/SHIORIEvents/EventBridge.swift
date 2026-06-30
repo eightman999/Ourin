@@ -506,19 +506,8 @@ struct ShioriEvent {
 final class ShioriDispatcher {
     // NOTIFY-only events whose return value (script) must be ignored per UKADOC
     // https://ssp.shillest.net/ukadoc/manual/list_shiori_event.html (Notifyイベント)
-    private static let notifyReturnIgnored: Set<String> = [
-        "basewareversion","hwnd","uniqueid","capability",
-        "ownerghostname","otherghostname",
-        "installedsakuraname","installedkeroname","installedghostname",
-        "installedshellname","installedballoonname","installedheadlinename",
-        "installedplugin","configuredbiffname",
-        "ghostpathlist","balloonpathlist","headlinepathlist","pluginpathlist",
-        "calendarskinpathlist","calendarpluginpathlist",
-        "rateofusegraph","enable_log","enable_debug",
-        "OnNotifySelfInfo","OnNotifyBalloonInfo","OnNotifyShellInfo",
-        "OnNotifyDressupInfo","OnNotifyUserInfo","OnNotifyOSInfo",
-        "OnNotifyFontInfo","OnNotifyInternationalInfo"
-    ]
+    // 仕様定義は EventReferenceTable（SHIORIEvents/EventReferenceSpec.swift）に一元化。
+    private static let notifyReturnIgnored: Set<String> = EventReferenceTable.notifyReturnIgnoredIDs
     private var yayaAdapter: YayaAdapter?
     weak var ghostManager: GhostManager?
     func useYaya(_ adapter: YayaAdapter?) { self.yayaAdapter = adapter }
