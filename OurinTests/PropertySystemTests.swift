@@ -84,6 +84,34 @@ struct PropertySystemTests {
         }
     }
 
+    @Test("System properties - deep leaf items (os.dst/locale, power.battery.lifetime, monitor.bpp, disk.type, network.type/cost)")
+    func testSystemDeepLeafProperties() {
+        let provider = SystemPropertyProvider()
+
+        // os.dst must be a boolean flag
+        #expect(provider.get(key: "os.dst") == "0" || provider.get(key: "os.dst") == "1")
+
+        // os.locale.language/country should mirror the current Locale (test env has a locale)
+        #expect(provider.get(key: "os.locale.language") != nil)
+
+        // power.battery.lifetime is undefined (nil) when not on battery/unknown, otherwise a
+        // non-negative integer of seconds. Either is acceptable; only type-check when present.
+        if let lifetime = provider.get(key: "power.battery.lifetime") {
+            #expect(Int(lifetime) != nil)
+        }
+
+        // monitor.index(0).bpp should be a small positive bit depth (e.g. 24/32) when a screen exists.
+        if let bpp = provider.get(key: "monitor.index(0).bpp"), let bppInt = Int(bpp) {
+            #expect(bppInt > 0 && bppInt <= 64)
+        }
+
+        // network.type/cost should resolve to a known classification (may be "none" in sandboxed CI).
+        if let type = provider.get(key: "network.type") {
+            #expect(["wifi", "wired", "cellular", "none", "unknown"].contains(type))
+        }
+        #expect(provider.get(key: "network.cost") == "0" || provider.get(key: "network.cost") == "1")
+    }
+
     @Test("Baseware properties")
     func testBasewareProperties() {
         let provider = BasewarePropertyProvider()

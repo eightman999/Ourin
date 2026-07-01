@@ -303,6 +303,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         self.ghostURL = ghostURL
         super.init()
         self.sakuraEngine.delegate = self
+        // `\![set,property,...]` は sakuraEngine.propertyManager 経由で書き込まれる。
+        // デフォルトの SakuraScriptEngine() は独立した PropertyManager インスタンスを持つため、
+        // ここで PropertyManager.shared に差し替えないと、SSTPDispatcher/ResourceBridge 等
+        // 他の全読み取り経路（.shared 参照）から SET した値が一切見えなくなる。
+        self.sakuraEngine.propertyManager = PropertyManager.shared
 
         // Load saved username into environment expander
         if let username = resourceManager.username {

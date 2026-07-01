@@ -1,4 +1,5 @@
 #include "Value.hpp"
+#include "RandomEngine.hpp"
 #include <sstream>
 #include <stdexcept>
 #include <random>
@@ -46,10 +47,8 @@ std::string Value::asString() const {
             // For arrays, randomly select one element
             // This matches YAYA/SHIORI behavior where arrays are script candidates
             if (!arrayValue_.empty()) {
-                static std::random_device rd;
-                static std::mt19937 gen(rd());
-                std::uniform_int_distribution<> dis(0, arrayValue_.size() - 1);
-                int randomIndex = dis(gen);
+                std::uniform_int_distribution<size_t> dis(0, arrayValue_.size() - 1);
+                size_t randomIndex = dis(yaya_rng::engine());
                 return arrayValue_[randomIndex].asString();
             }
             return "";

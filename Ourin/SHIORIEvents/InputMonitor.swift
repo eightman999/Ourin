@@ -145,6 +145,8 @@ final class InputMonitor {
         hoverTimer?.invalidate()
         hoverTimer = nil
         isPointerInsideGhostArea = false
+        SerikoCursorController.shared.reset()
+        SerikoTooltipController.shared.hide()
     }
 
     /// NSEvent を SHIORI イベントへ変換してハンドラに渡す
@@ -178,6 +180,8 @@ final class InputMonitor {
                 params["Reference2"] = String(Int(ev.scrollingDeltaY))
             }
         }
+        updateSerikoCursor(for: ev, params: params)
+
         // 構築したイベントをハンドラに通知
         handler?(ShioriEvent(id: id, params: params))
 
@@ -192,6 +196,7 @@ final class InputMonitor {
         } else if ev.type == .leftMouseDown || ev.type == .rightMouseDown || ev.type == .otherMouseDown {
             hoverTimer?.invalidate()
             hoverTimer = nil
+            SerikoTooltipController.shared.hide()
         }
     }
 
@@ -278,6 +283,8 @@ final class InputMonitor {
             let params = mouseParams(for: ev, includeButton: false)
             handler?(ShioriEvent(id: .OnMouseLeave, params: params))
             handler?(ShioriEvent(id: .OnMouseLeaveAll, params: params))
+            SerikoCursorController.shared.reset()
+            SerikoTooltipController.shared.hide()
         }
     }
 
@@ -305,10 +312,16 @@ final class InputMonitor {
     private func scheduleHover(with params: [String: String]) {
         guard isPointerInsideGhostArea else { return }
         hoverParams = params
+        SerikoTooltipController.shared.hide()
         hoverTimer?.invalidate()
         hoverTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { [weak self] _ in
             guard let self, self.isPointerInsideGhostArea else { return }
             self.handler?(ShioriEvent(id: .OnMouseHover, params: self.hoverParams))
+            if let scopeStr = self.hoverParams["Reference3"], let scope = Int(scopeStr),
+               let region = self.hoverParams["Reference4"], !region.isEmpty {
+                SerikoCursorController.shared.update(scope: scope, region: region, kind: .hover)
+                SerikoTooltipController.shared.show(scope: scope, region: region, at: NSEvent.mouseLocation)
+            }
         }
     }
 
@@ -411,6 +424,29 @@ final class InputMonitor {
             params["Reference5"] = buttonReference(for: mouseButtonName(for: ev))
         }
         return params
+    }
+
+    /// `Reference3`(scope)/`Reference4`(当たり判定領域) を元に SERIKO カーソルを更新する。
+    /// 領域が未解決（キャラクターウィンドウ外、または当たり判定なし）の場合は標準カーソルへ戻す。
+    private func updateSerikoCursor(for ev: NSEvent, params: [String: String]) {
+        guard let scopeStr = params["Reference3"], let scope = Int(scopeStr),
+              let region = params["Reference4"], !region.isEmpty else {
+            SerikoCursorController.shared.reset()
+            return
+        }
+        let kind: SerikoCursorController.Kind
+        switch ev.type {
+        case .leftMouseDown, .rightMouseDown, .otherMouseDown,
+             .leftMouseDragged, .rightMouseDragged, .otherMouseDragged:
+            kind = .down
+        case .leftMouseUp, .rightMouseUp, .otherMouseUp:
+            kind = .up
+        case .scrollWheel:
+            kind = .wheel
+        default:
+            kind = .up
+        }
+        SerikoCursorController.shared.update(scope: scope, region: region, kind: kind)
     }
 
     private func isGhostOrBalloonWindow(_ window: NSWindow?) -> Bool {

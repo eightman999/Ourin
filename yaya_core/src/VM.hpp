@@ -8,6 +8,8 @@
 #include <functional>
 #include <optional>
 #include <nlohmann/json.hpp>
+#include <random>
+#include "RandomEngine.hpp"
 
 // Callback interface for VM to request operations from host
 class VMCallback {

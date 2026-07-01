@@ -2,6 +2,7 @@ import Foundation
 import AppKit
 import CoreGraphics
 import IOKit.ps
+import Network
 
 public final class PropertyManager {
     private var providers: [String: PropertyProvider] = [:]
@@ -370,14 +371,22 @@ final class SystemPropertyProvider: PropertyProvider {
         case "os.uptime": return String(Int(ProcessInfo.processInfo.systemUptime))
         case "os.unixtime": return String(Int(Date().timeIntervalSince1970))
         case "os.idletime": return String(Int(systemIdleSeconds()))
+        case "os.dst": return TimeZone.current.isDaylightSavingTime() ? "1" : "0"
+        case "os.locale.language": return Locale.current.languageCode
+        case "os.locale.country": return Locale.current.regionCode
         case "monitor.count": return String(NSScreen.screens.count)
         case "theme.app.mode", "theme.os.mode": return appearanceMode()
         case "dnd.mode": return "0"   // macOS の Focus 状態は公開 API で取得不可
         case "power.source": return powerSource()
         case "power.battery.percent": return batteryPercent().map { String($0) }
         case "power.battery.flag": return powerSource() == "battery" ? "1" : "0"
+        case "power.battery.lifetime": return batteryLifetimeSeconds().map { String($0) }
         case "network.status": return primaryIPv4() != nil ? "online" : "offline"
         case "network.ipaddress": return primaryIPv4() ?? ""
+        case "network.type": return networkPathSnapshot().type
+        case "network.cost": return networkPathSnapshot().isExpensive ? "1" : "0"
+        // downlink/downlink.estimate: macOS has no public API for link bandwidth; left undefined
+        // rather than fabricating a number (matches SHIORI's "unknown property" convention).
         case "disk.count": return String(mountedVolumes().count)
         case let k where k.hasPrefix("monitor.index("): return monitorProperty(k)
         case let k where k.hasPrefix("disk.index("): return diskProperty(k)
@@ -485,6 +494,7 @@ final class SystemPropertyProvider: PropertyProvider {
         case "work": return "\(Int(w.minX)),\(Int(w.minY)),\(Int(w.maxX)),\(Int(w.maxY))"
         case "dpi": return String(Int(screen.backingScaleFactor * 72))
         case "primary": return idx == 0 ? "1" : "0"
+        case "bpp": return String(screen.depth.bitsPerPixel)
         default: return nil
         }
     }
@@ -509,8 +519,59 @@ final class SystemPropertyProvider: PropertyProvider {
                 return String(n.int64Value / 1024 / 1024)
             }
             return nil
+        case "type": return volumeType(url)
         default: return nil
         }
+    }
+
+    private func volumeType(_ url: URL) -> String {
+        let keys: Set<URLResourceKey> = [.volumeIsRemovableKey, .volumeIsEjectableKey,
+                                          .volumeIsLocalKey, .volumeIsInternalKey]
+        guard let values = try? url.resourceValues(forKeys: keys) else { return "unknown" }
+        if values.volumeIsLocal == false { return "network" }
+        if values.volumeIsRemovable == true || values.volumeIsEjectable == true { return "removable" }
+        if values.volumeIsInternal == true { return "fixed" }
+        return "unknown"
+    }
+
+    /// バッテリ残り時間（秒）。IOKit は分単位・不明時は -1 を返すため、その場合は undefined として nil を返す。
+    private func batteryLifetimeSeconds() -> Int? {
+        guard let d = powerDescription(),
+              let minutes = d[kIOPSTimeToEmptyKey as String] as? Int, minutes >= 0 else { return nil }
+        return minutes * 60
+    }
+
+    private struct NetworkPathSnapshot {
+        let type: String?
+        let isExpensive: Bool
+    }
+
+    /// `NWPathMonitor` の現在状態を同期的に1回だけ取得する（プロパティ取得はポーリング的に稀にしか
+    /// 呼ばれないため、都度モニタを起動してすぐキャンセルする単発スナップショット方式で十分）。
+    private func networkPathSnapshot() -> NetworkPathSnapshot {
+        let monitor = NWPathMonitor()
+        let semaphore = DispatchSemaphore(value: 0)
+        var result = NetworkPathSnapshot(type: nil, isExpensive: false)
+        monitor.pathUpdateHandler = { path in
+            let type: String?
+            if path.status != .satisfied {
+                type = "none"
+            } else if path.usesInterfaceType(.wifi) {
+                type = "wifi"
+            } else if path.usesInterfaceType(.wiredEthernet) {
+                type = "wired"
+            } else if path.usesInterfaceType(.cellular) {
+                type = "cellular"
+            } else {
+                type = "unknown"
+            }
+            result = NetworkPathSnapshot(type: type, isExpensive: path.isExpensive)
+            semaphore.signal()
+        }
+        monitor.start(queue: DispatchQueue.global(qos: .utility))
+        _ = semaphore.wait(timeout: .now() + 1.0)
+        monitor.cancel()
+        return result
     }
 
     private func powerDescription() -> [String: Any]? {

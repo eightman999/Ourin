@@ -215,9 +215,6 @@ final class PluginEventDispatcher {
         sendFrame(id: "installedballoonname", refs: [r0], notify: true)
     }
 
-    /// 秒周期イベント
-    func onSecondChange() { sendFrame(id: "OnSecondChange", refs: []) }
-
     /// ゴースト起動時イベント
     func onGhostBoot(windows: [NSWindow], ghostName: String, shellName: String, ghostID: String, path: String) {
         let ref0 = WindowIDMapper.ids(for: windows)

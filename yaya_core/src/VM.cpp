@@ -1087,19 +1087,15 @@ void VM::registerBuiltins() {
         if (args[0].getType() == Value::Type::Array) {
             size_t size = args[0].arraySize();
             if (size == 0) return Value();
-            static std::random_device rd;
-            static std::mt19937 gen(rd());
-            std::uniform_int_distribution<> dis(0, size - 1);
-            return args[0].arrayGet(dis(gen));
+            std::uniform_int_distribution<> dis(0, static_cast<int>(size) - 1);
+            return args[0].arrayGet(dis(yaya_rng::engine()));
         }
 
         // Otherwise, treat as integer max value
         int max = args[0].asInt();
         if (max <= 0) return Value(0);
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(0, max - 1);
-        return Value(dis(gen));
+        return Value(dis(yaya_rng::engine()));
     };
     
     // STRLEN(str) - 文字列の長さ（UTF-8 コードポイント数）を返す
@@ -1607,10 +1603,12 @@ void VM::registerBuiltins() {
     };
     
     // SRAND(seed) - Seed random number generator
+    // RAND/ANY と Value::asString() の array→文字列（雑談配列のランダム選択）が共有する
+    // yaya_rng::engine() を再シードする。これにより SRAND 呼び出し以降のランダム選択列が
+    // 決定的に再現可能になる。
     builtins_["SRAND"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
-        // Note: In a real implementation, this would seed the RNG
-        // For now, we just return success
+        yaya_rng::engine().seed(static_cast<std::mt19937::result_type>(args[0].asInt()));
         return Value(1);
     };
     
@@ -1729,15 +1727,13 @@ void VM::registerBuiltins() {
     builtins_["ANY"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value();
         if (args[0].getType() != Value::Type::Array) return args[0];
-        
+
         const auto& arr = args[0].asArray();
         if (arr.empty()) return Value();
-        
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, arr.size() - 1);
-        
-        return arr[dis(gen)];
+
+        std::uniform_int_distribution<size_t> dis(0, arr.size() - 1);
+
+        return arr[dis(yaya_rng::engine())];
     };
     
     // ===== Type Checking =====

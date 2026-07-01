@@ -42,13 +42,13 @@
 
 | 優先度 | 項目 | 現状・修正案 |
 |---|---|---|
-| P3 | 深い階層プロパティの未実装 | `currentghost.seriko.cursor.*` / `currentghost.seriko.tooltip.*` / `currentghost.balloon.scope(ID).validwidth` 等。UKADOC 147項目中、主要約75項目カバーと推定。 |
+| — | （深い階層プロパティは完了 → `AUDITS_COMPLETED.md` 参照） | `seriko.cursor.*`/`tooltip.*`/`balloon.scope(ID).*` はパース済みだったが、`sakuraEngine.propertyManager` が `.shared` と別インスタンスだったためSETが反映されない配線切れが真因。修正済み。カーソル切り替え/ツールチップ表示UIも新規実装。 |
 
 ### F. YAYA言語VM
 
 | 優先度 | 項目 | 現状・修正案 |
 |---|---|---|
-| P2 | 実在YAYAゴーストの回帰テストセット不足 | Emily4はロード基準があるが、発話結果の完全一致までは未保証。 |
+| — | （実在YAYAゴーストの回帰テストは完了 → `AUDITS_COMPLETED.md` 参照） | `OurinTests/YayaEmily4RegressionTests.swift` 新設。SRANDスタブ修正・Emily4実辞書のゴールデン/決定性テスト追加。 |
 | — | （`ASEARCHPOS` は完了 → `AUDITS_COMPLETED.md` 参照） | `VM.cpp` に実装済み。 |
 
 ### G. プラグインシステム
@@ -56,7 +56,7 @@
 | 優先度 | 項目 | 現状・修正案 |
 |---|---|---|
 | — | SSPプラグインのバイナリ互換 | macOSではWin32 DLLを直接ロード不可。プラットフォーム差異として文書化済み（減点対象外）。対応`.plugin`/`.bundle`への移植が必要。 |
-| P3 | PLUGIN/2.0 ホスト→プラグイン通知イベントの網羅性未深掘り | `PluginEventDispatcher` の存在は確認済みだが、全イベントの網羅検証が必要。 |
+| — | （PLUGIN/2.0 通知網羅性監査は完了 → `AUDITS_COMPLETED.md` 参照） | 全17種の通知イベントに送信コード・呼び出し元とも揃っていることを確認。未使用の`onSecondChange()`公開メソッドは削除済み。 |
 
 ### H. NARパッケージ
 
@@ -118,13 +118,13 @@ The following items were raised in prior audit reports and remain **unresolved**
 
 | Priority | Item | Current State / Fix |
 |---|---|---|
-| P3 | Deep hierarchy properties unimplemented | `currentghost.seriko.cursor.*` / `currentghost.seriko.tooltip.*` / `currentghost.balloon.scope(ID).validwidth` etc. Estimated ~75 of 147 UKADOC items covered. |
+| — | (Deep hierarchy properties completed → see `AUDITS_COMPLETED.md`) | `seriko.cursor.*`/`tooltip.*`/`balloon.scope(ID).*` parsing was already implemented; the real root cause was `sakuraEngine.propertyManager` being a separate instance from `.shared`, so SET never propagated. Fixed. New cursor-switching/tooltip UI also implemented. |
 
 ### F. YAYA Language VM
 
 | Priority | Item | Current State / Fix |
 |---|---|---|
-| P2 | Real YAYA ghost regression test suite insufficient | Emily4 has load baseline, but complete speech result match not guaranteed. |
+| — | (Real YAYA ghost regression test completed → see `AUDITS_COMPLETED.md`) | New `OurinTests/YayaEmily4RegressionTests.swift`. Fixed the SRAND stub; added golden/determinism tests against real Emily4 dictionaries. |
 | — | (`ASEARCHPOS` completed → see `AUDITS_COMPLETED.md`) | Implemented in `VM.cpp`. |
 
 ### G. Plugin System
@@ -132,7 +132,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 | Priority | Item | Current State / Fix |
 |---|---|---|
 | — | SSP plugin binary compatibility | macOS cannot load Win32 DLLs. Documented as platform difference (not penalized). Porting to corresponding `.plugin`/`.bundle` required. |
-| P3 | PLUGIN/2.0 host→plugin notification event completeness not deep-audited | `PluginEventDispatcher` existence confirmed, but full event coverage verification needed. |
+| — | (PLUGIN/2.0 notification coverage audit completed → see `AUDITS_COMPLETED.md`) | Verified all 17 notification events have both send code and a call site. Removed the unused `onSecondChange()` public method. |
 
 ### H. NAR Packages
 
@@ -162,9 +162,9 @@ The following items were raised in prior audit reports and remain **unresolved**
 
 | 優先度 / Priority | 項目 / Item |
 |---|---|
-| **P2** | SakuraScript 差分テスト / SERIKO 描画差分テスト / NAR 複合install種別 / YAYA 回帰テスト / SHIORI 2.x 判断 |
+| **P2** | SakuraScript 差分テスト / SERIKO 描画差分テスト / NAR 複合install種別 / SHIORI 2.x 判断 |
 | **P2 (基盤完了)** | イベントReference表駆動化 — `EventReferenceTable` 新設・`notifyReturnIgnored` 単一ソース化済み。全発火箇所（216箇所）の表駆動移行は漸次対応。 |
-| **P3** | SHIORI 2.x 互換の正実装or削除 / lexicon内蔵 / 深い階層プロパティ / レガシー透過処理 / SecurityLevel伝播 / 210 Breakキューイング / MAYUNA網羅 / PLUGIN/2.0通知網羅 |
+| **P3** | SHIORI 2.x 互換の正実装or削除 / lexicon内蔵 / レガシー透過処理 / SecurityLevel伝播 / 210 Breakキューイング / MAYUNA網羅 |
 
 ---
 
