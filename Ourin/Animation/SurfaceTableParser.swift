@@ -92,8 +92,12 @@ public enum SurfaceTableParser {
             currentEntries = []
         }
 
-        for raw in text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init) {
-            let line = raw.trimmingCharacters(in: .whitespaces)
+        // `.split(separator: "\n")` は CRLF ("\r\n") を単一の Character として扱うため、
+        // CRLF 改行のファイル（emily4 サンプル等）では一切分割されず全体が1行になってしまう。
+        // `components(separatedBy: .newlines)` は CR/LF/CRLF いずれも正しく認識して分割する
+        // （SerikoParser.parseSurfaces 等、他のパーサーと同じ手法）。
+        for raw in text.components(separatedBy: .newlines) {
+            let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
             if line.isEmpty { continue }
             if line.hasPrefix("//") { continue }
 
