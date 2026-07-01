@@ -21,7 +21,7 @@ final class DeviceObserver {
         ) { [weak self] notification in
             guard let self else { return }
             let path = (notification.userInfo?[NSWorkspace.volumeURLUserInfoKey] as? URL)?.path ?? ""
-            self.handler?(ShioriEvent(id: .OnDeviceArrival, params: ["Reference0": path]))
+            self.handler?(ShioriEvent(id: .OnDeviceArrival, refs: ["path": path]))
         }
 
         unmountedObserver = center.addObserver(
@@ -31,7 +31,7 @@ final class DeviceObserver {
         ) { [weak self] notification in
             guard let self else { return }
             let path = (notification.userInfo?[NSWorkspace.volumeURLUserInfoKey] as? URL)?.path ?? ""
-            self.handler?(ShioriEvent(id: .OnDeviceRemove, params: ["Reference0": path]))
+            self.handler?(ShioriEvent(id: .OnDeviceRemove, refs: ["path": path]))
         }
     }
 

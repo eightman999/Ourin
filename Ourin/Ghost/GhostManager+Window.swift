@@ -268,13 +268,13 @@ extension GhostManager {
     @objc func characterWindowDidMiniaturize(_ notification: Notification) {
         guard let window = notification.object as? NSWindow,
               let id = window.identifier?.rawValue else { return }
-        EventBridge.shared.notify(.OnWindowStateMinimize, params: ["Reference0": id])
+        EventBridge.shared.notify(.OnWindowStateMinimize, refs: ["windowID": id])
     }
 
     @objc func characterWindowDidDeminiaturize(_ notification: Notification) {
         guard let window = notification.object as? NSWindow,
               let id = window.identifier?.rawValue else { return }
-        EventBridge.shared.notify(.OnWindowStateRestore, params: ["Reference0": id])
+        EventBridge.shared.notify(.OnWindowStateRestore, refs: ["windowID": id])
     }
     
     /// Move window to front (above other windows)

@@ -99,3 +99,53 @@ func eventReferenceTableNotifySelfInfoReferences() {
     #expect(selfInfo?.references.first == "ghostName")
     #expect(selfInfo?.references.last == "balloonPath")
 }
+
+// MARK: - 表駆動発火 API（意味ラベル方式）の不変条件
+
+/// すべての spec の references ラベルがイベント内で一意であること。
+/// これが破れると `params(forEvent:refs:)` の ラベル→ReferenceN 逆写像が一意に定まらず、
+/// 発火コードのバイト等価性が保証できなくなる。
+@Test
+func eventReferenceTableHasNoDuplicateLabelsPerEvent() {
+    #expect(EventReferenceTable.duplicateLabelEvents.isEmpty,
+            "events with duplicate reference labels: \(EventReferenceTable.duplicateLabelEvents)")
+}
+
+/// `params(forEvent:refs:)` が index→label の完全な逆写像であること。
+/// 全 spec の全ラベルについて、ラベル単体を渡すと `Reference<その添字>` が得られることを検証する。
+/// これにより「`["ReferenceN": v]` を `[label: v]` に置換する移行」がバイト等価であることが保証される。
+@Test
+func eventReferenceTableParamsIsExactInverseOfIndex() {
+    for spec in EventReferenceTable.allSpecs {
+        for (idx, label) in spec.references.enumerated() {
+            let out = EventReferenceTable.params(forEvent: spec.id, refs: [label: "VALUE"])
+            #expect(out == ["Reference\(idx)": "VALUE"],
+                    "\(spec.id) label '\(label)' (index \(idx)) -> \(out)")
+        }
+    }
+}
+
+/// 複数ラベルをまとめて渡しても正しい ReferenceN 辞書になること（マウスイベントで代表検証）。
+@Test
+func eventReferenceTableParamsMapsMultipleLabels() {
+    let out = EventReferenceTable.params(forEvent: "OnMouseClick",
+                                         refs: ["x": "10", "y": "20", "button": "0"])
+    #expect(out == ["Reference0": "10", "Reference1": "20", "Reference5": "0"])
+}
+
+/// `"ReferenceN"` 形式のキーは透過する（可変長参照などの後方互換）。
+@Test
+func eventReferenceTableParamsPassesThroughReferenceKeys() {
+    let out = EventReferenceTable.params(forEvent: "OnFileDrop", refs: ["Reference0": "a", "Reference1": "b"])
+    #expect(out == ["Reference0": "a", "Reference1": "b"])
+}
+
+/// 移行で表に追加した代表イベントのラベル定義（UKADOC + 実コード値で検証済み）。
+@Test
+func eventReferenceTableMigrationAddedEvents() {
+    #expect(EventReferenceTable.specs["OnExecuteHTTPStreaming"]?.references == ["body", "url", "statusCode", "method"])
+    #expect(EventReferenceTable.specs["OnPingProgress"]?.references == ["host", "progress", "result"])
+    #expect(EventReferenceTable.specs["OnSurfaceChange"]?.references == ["sakuraSurface", "keroSurface", "changedScope"])
+    #expect(EventReferenceTable.specs["OnGamepadAxisMove"]?.references == ["axis", "x", "y", "deviceName"])
+    #expect(EventReferenceTable.specs["OnUpdateComplete"]?.references.count == 4)
+}

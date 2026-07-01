@@ -96,11 +96,11 @@ extension GhostManager {
 
                     // Trigger OnDressupChanged event
                     let params: [String: String] = [
-                        "Reference0": category,
-                        "Reference1": part,
-                        "Reference2": value
+                        "category": category,
+                        "part": part,
+                        "value": value
                     ]
-                    EventBridge.shared.notifyCustom("OnDressupChanged", params: params)
+                    EventBridge.shared.notifyCustom("OnDressupChanged", refs: params)
                 }
             }
         }

@@ -194,12 +194,12 @@ extension GhostManager {
 
         let previousBalloon = balloonConfig?.name ?? ""
         if raiseEvent {
-            EventBridge.shared.notify(.OnBalloonChange, params: ["Reference0": previousBalloon, "Reference1": trimmed, "Reference2": "changing"])
+            EventBridge.shared.notify(.OnBalloonChange, refs: ["prevBalloonName": previousBalloon, "newBalloonName": trimmed, "phase": "changing"])
         }
 
         if let id = Int(trimmed) {
             switchBalloon(to: id, scope: scope)
-            EventBridge.shared.notify(.OnBalloonChange, params: ["Reference0": previousBalloon, "Reference1": trimmed, "Reference2": "changed"])
+            EventBridge.shared.notify(.OnBalloonChange, refs: ["prevBalloonName": previousBalloon, "newBalloonName": trimmed, "phase": "changed"])
             return true
         }
 
@@ -216,7 +216,7 @@ extension GhostManager {
             balloonConfig = config
             balloonImageLoader = BalloonImageLoader(balloonPath: dirPath)
             Log.info("[GhostManager] Switched balloon config to \(config.name)")
-            EventBridge.shared.notify(.OnBalloonChange, params: ["Reference0": previousBalloon, "Reference1": config.name, "Reference2": "changed"])
+            EventBridge.shared.notify(.OnBalloonChange, refs: ["prevBalloonName": previousBalloon, "newBalloonName": config.name, "phase": "changed"])
             NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
             return true
         }

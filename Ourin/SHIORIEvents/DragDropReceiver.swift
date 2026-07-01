@@ -74,14 +74,14 @@ final class DragDropReceiver: NSView {
             // URL 文字列
             for it in items {
                 if let u = it.string(forType: .URL) {
-                    onEvent?(ShioriEvent(id: .OnURLDrop, params: ["Reference0": u]))
+                    onEvent?(ShioriEvent(id: .OnURLDrop, refs: ["url": u]))
                     return true
                 }
             }
             // プレーンテキスト
             for it in items {
                 if let s = it.string(forType: .string) {
-                    onEvent?(ShioriEvent(id: .OnTextDrop, params: ["Reference0": s]))
+                    onEvent?(ShioriEvent(id: .OnTextDrop, refs: ["text": s]))
                     return true
                 }
             }

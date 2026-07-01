@@ -24,7 +24,7 @@ final class GamepadObserver {
             self.attachHandlers(to: controller)
             self.handler?(ShioriEvent(
                 id: .OnGamepadConnected,
-                params: ["Reference0": controller.vendorName ?? "Unknown"]
+                refs: ["deviceName": controller.vendorName ?? "Unknown"]
             ))
         })
 
@@ -37,7 +37,7 @@ final class GamepadObserver {
             guard let controller = notification.object as? GCController else { return }
             self.handler?(ShioriEvent(
                 id: .OnGamepadDisconnected,
-                params: ["Reference0": controller.vendorName ?? "Unknown"]
+                refs: ["deviceName": controller.vendorName ?? "Unknown"]
             ))
         })
 
@@ -101,9 +101,9 @@ final class GamepadObserver {
     private func emitButton(controller: GCController, button: String, pressed: Bool) {
         handler?(ShioriEvent(
             id: pressed ? .OnGamepadButtonDown : .OnGamepadButtonUp,
-            params: [
-                "Reference0": button,
-                "Reference1": controller.vendorName ?? "Unknown"
+            refs: [
+                "button": button,
+                "deviceName": controller.vendorName ?? "Unknown"
             ]
         ))
     }
@@ -111,11 +111,11 @@ final class GamepadObserver {
     private func emitAxis(controller: GCController, axis: String, x: Float, y: Float) {
         handler?(ShioriEvent(
             id: .OnGamepadAxisMove,
-            params: [
-                "Reference0": axis,
-                "Reference1": String(x),
-                "Reference2": String(y),
-                "Reference3": controller.vendorName ?? "Unknown"
+            refs: [
+                "axis": axis,
+                "x": String(x),
+                "y": String(y),
+                "deviceName": controller.vendorName ?? "Unknown"
             ]
         ))
     }

@@ -255,10 +255,10 @@ final class InputMonitor {
         } else {
             direction = dy >= 0 ? "up" : "down"
         }
-        handler?(ShioriEvent(id: .OnMouseGesture, params: [
-            "Reference0": direction,
-            "Reference1": "\(Int(start.x)),\(Int(start.y))",
-            "Reference2": "\(Int(end.x)),\(Int(end.y))"
+        handler?(ShioriEvent(id: .OnMouseGesture, refs: [
+            "direction": direction,
+            "startPosition": "\(Int(start.x)),\(Int(start.y))",
+            "endPosition": "\(Int(end.x)),\(Int(end.y))"
         ]))
     }
 

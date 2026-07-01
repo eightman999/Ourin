@@ -50,7 +50,7 @@ public final class WebHandler: NSObject {
             if !ghost.isEmpty {
                 headers["ReceiverGhostName"] = ghost
             }
-            EventBridge.shared.notify(.OnXUkagakaLinkOpen, params: ["Reference0": info])
+            EventBridge.shared.notify(.OnXUkagakaLinkOpen, refs: ["info": info])
             _ = BridgeToSHIORI.handle(event: "OnXUkagakaLinkOpen", references: [info], headers: headers)
             NotificationCenter.default.post(
                 name: .ourinWebEventReceived,
@@ -83,7 +83,7 @@ public final class WebHandler: NSObject {
             if !ghost.isEmpty {
                 headers["ReceiverGhostName"] = ghost
             }
-            EventBridge.shared.notify(.OnURLQuery, params: ["Reference0": query])
+            EventBridge.shared.notify(.OnURLQuery, refs: ["url": query])
             _ = BridgeToSHIORI.handle(event: "OnURLQuery", references: [query], headers: headers)
             NotificationCenter.default.post(
                 name: .ourinWebEventReceived,

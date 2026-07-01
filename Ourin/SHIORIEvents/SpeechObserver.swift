@@ -33,14 +33,14 @@ final class SpeechObserver {
             lastSpeaking = speaking
             handler?(ShioriEvent(
                 id: .OnSpeechSynthesisStatus,
-                params: ["Reference0": speaking ? "speaking" : "idle"]
+                refs: ["status": speaking ? "speaking" : "idle"]
             ))
         }
         if !emittedVoiceStatus {
             emittedVoiceStatus = true
             handler?(ShioriEvent(
                 id: .OnVoiceRecognitionStatus,
-                params: ["Reference0": "unavailable"]
+                refs: ["status": "unavailable"]
             ))
         }
     }

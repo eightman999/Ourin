@@ -41,18 +41,18 @@ public enum WebNarInstaller {
         let allowHttp = allowInsecureHTTPInstall()
         if !(scheme == "https" || (scheme == "http" && allowHttp)) {
             NSLog("[WebNarInstaller] insecure http blocked: \(urlString)")
-            EventBridge.shared.notifyCustom("OnSecurityWarning", params: [
-                "Reference0": "nar_install_blocked",
-                "Reference1": "http_scheme",
-                "Reference2": urlString
+            EventBridge.shared.notifyCustom("OnSecurityWarning", refs: [
+                "source": "nar_install_blocked",
+                "detail": "http_scheme",
+                "url": urlString
             ])
             return
         }
         if scheme == "http" && allowHttp {
-            EventBridge.shared.notifyCustom("OnSecurityWarning", params: [
-                "Reference0": "nar_install_insecure_allowed",
-                "Reference1": "http_scheme",
-                "Reference2": urlString
+            EventBridge.shared.notifyCustom("OnSecurityWarning", refs: [
+                "source": "nar_install_insecure_allowed",
+                "detail": "http_scheme",
+                "url": urlString
             ])
         }
 
@@ -60,19 +60,19 @@ public enum WebNarInstaller {
         let task = URLSession.shared.downloadTask(with: url) { local, response, error in
             if let error = error {
                 NSLog("[WebNarInstaller] download error: \(error)")
-                EventBridge.shared.notify(.OnURLDropFailure, params: ["Reference0": error.localizedDescription])
+                EventBridge.shared.notify(.OnURLDropFailure, refs: ["filePath": error.localizedDescription])
                 return
             }
             guard let local = local else { return }
             log.info("downloaded: \(local.path)")
-            EventBridge.shared.notify(.OnNarCreating, params: ["Reference0": local.path])
+            EventBridge.shared.notify(.OnNarCreating, refs: ["name": local.path])
             do {
                 try installLocalNar(local)
                 log.info("install finished")
-                EventBridge.shared.notify(.OnNarCreated, params: ["Reference0": local.path])
+                EventBridge.shared.notify(.OnNarCreated, refs: ["filePath": local.path])
             } catch {
                 log.fault("install failed: \(String(describing: error))")
-                EventBridge.shared.notify(.OnURLDropFailure, params: ["Reference0": String(describing: error)])
+                EventBridge.shared.notify(.OnURLDropFailure, refs: ["filePath": String(describing: error)])
             }
 
             NSLog("[WebNarInstaller] downloaded: \(local.path)")

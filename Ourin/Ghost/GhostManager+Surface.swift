@@ -86,11 +86,11 @@ extension GhostManager {
                 let sakuraSurface = self.characterViewModels[0]?.currentSurfaceID ?? (scope == 0 ? id : 0)
                 let keroSurface = self.characterViewModels[1]?.currentSurfaceID ?? (scope == 1 ? id : 0)
                 let params: [String: String] = [
-                    "Reference0": String(sakuraSurface),
-                    "Reference1": String(keroSurface),
-                    "Reference2": "\(scope),\(id)"
+                    "sakuraSurface": String(sakuraSurface),
+                    "keroSurface": String(keroSurface),
+                    "changedScope": "\(scope),\(id)"
                 ]
-                EventBridge.shared.notify(.OnSurfaceChange, params: params)
+                EventBridge.shared.notify(.OnSurfaceChange, refs: params)
                 NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
                 Log.debug("[GhostManager] OnSurfaceChange dispatched: sakura=\(sakuraSurface) kero=\(keroSurface) (changed scope\(scope) \(oldSurfaceID)->\(id))")
             }
@@ -103,10 +103,10 @@ extension GhostManager {
             let sakuraSurface = self.characterViewModels[0]?.currentSurfaceID ?? 0
             let keroSurface = self.characterViewModels[1]?.currentSurfaceID ?? 0
             let params: [String: String] = [
-                "Reference0": String(sakuraSurface),
-                "Reference1": String(keroSurface)
+                "sakuraSurface": String(sakuraSurface),
+                "keroSurface": String(keroSurface)
             ]
-            EventBridge.shared.notify(.OnSurfaceRestore, params: params)
+            EventBridge.shared.notify(.OnSurfaceRestore, refs: params)
             Log.debug("[GhostManager] OnSurfaceRestore dispatched")
         }
     }
@@ -397,7 +397,7 @@ extension GhostManager {
 
         let previousShell = activeShellName
         if raiseEvent {
-            EventBridge.shared.notify(.OnShellChanging, params: ["Reference0": previousShell, "Reference1": trimmed])
+            EventBridge.shared.notify(.OnShellChanging, refs: ["prevShellName": previousShell, "newShellName": trimmed])
         }
         activeShellName = trimmed
         loadDressupConfiguration()
@@ -411,7 +411,7 @@ extension GhostManager {
         currentScope = 1
         updateSurface(id: keroSurface)
         currentScope = previousScope
-        EventBridge.shared.notify(.OnShellChanged, params: ["Reference0": previousShell, "Reference1": trimmed])
+        EventBridge.shared.notify(.OnShellChanged, refs: ["prevShellName": previousShell, "newShellName": trimmed])
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         return true
     }

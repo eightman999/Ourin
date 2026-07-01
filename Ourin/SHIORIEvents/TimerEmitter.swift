@@ -56,7 +56,7 @@ final class TimerEmitter {
 
         if !isTesting {
             handler?(ShioriEvent(id: .OnIdle, params: [:]))
-            handler?(ShioriEvent(id: .OnSecondChange, params: params))
+            handler?(ShioriEvent(id: .OnSecondChange, refs: params))
         }
 
         let now = Date()
@@ -64,26 +64,26 @@ final class TimerEmitter {
         let minute = cal.component(.minute, from: now)
         if minute != lastMinute {
             lastMinute = minute
-            handler?(ShioriEvent(id: .OnMinuteChange, params: params))
+            handler?(ShioriEvent(id: .OnMinuteChange, refs: params))
         }
         let hour = cal.component(.hour, from: now)
         if hour != lastHour {
             lastHour = hour
-            handler?(ShioriEvent(id: .OnHourTimeSignal, params: params))
+            handler?(ShioriEvent(id: .OnHourTimeSignal, refs: params))
         }
     }
 
-    /// 時刻系イベント共通の Reference を組み立てる
-    /// Reference1（見切れ）/ Reference2（重なり）は EventBridge がセッション毎に上書きする。
+    /// 時刻系イベント共通の Reference を意味ラベルで組み立てる（表駆動: ShioriEvent(id:refs:) で ReferenceN に変換）。
+    /// mikire（見切れ）/ kasanari（重なり）/ canTalk（Reference3）は EventBridge がセッション毎に上書きする。
     /// ここでは安全な既定値（空文字列 = 該当なし）を入れておく。
     static func timeEventReferences() -> [String: String] {
         let uptimeHours = Int(ProcessInfo.processInfo.systemUptime / 3600)
         return [
-            "Reference0": String(uptimeHours),
-            "Reference1": "",
-            "Reference2": "",
-            // Reference3 (トーク再生可否) は EventBridge が各ゴーストの状態から設定する
-            "Reference4": String(Self.systemIdleSeconds())
+            "uptimeHours": String(uptimeHours),
+            "mikire": "",
+            "kasanari": "",
+            // canTalk (Reference3) は EventBridge が各ゴーストの状態から設定する
+            "idleSecondsSSP": String(Self.systemIdleSeconds())
         ]
     }
 

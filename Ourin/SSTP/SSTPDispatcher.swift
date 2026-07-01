@@ -35,9 +35,9 @@ public enum SSTPDispatcher {
         let localOnly = securityLocalOnly
             ?? (ProcessInfo.processInfo.environment["OURIN_SSTP_LOCAL_ONLY"] == "1")
         if localOnly, resolveSecurityLevel(from: request.headers) == "external" {
-            EventBridge.shared.notify(.OnSSTPBlacklisting, params: [
-                "Reference0": request.headerValue("Sender") ?? "ExternalSSTP",
-                "Reference1": request.headerValue("SecurityOrigin") ?? "security_local_only"
+            EventBridge.shared.notify(.OnSSTPBlacklisting, refs: [
+                "ipAddress": request.headerValue("Sender") ?? "ExternalSSTP",
+                "securityOrigin": request.headerValue("SecurityOrigin") ?? "security_local_only"
             ])
             return buildResponse(
                 version: version,
@@ -115,9 +115,9 @@ public enum SSTPDispatcher {
         if options.contains(.nobreak), method == .send || method == .notify {
             let shioriStatus = ShioriStatusStore.shared.currentStatus.lowercased()
             if shioriStatus == "busy" {
-                EventBridge.shared.notify(.OnSSTPBreak, params: [
-                    "Reference0": request.headerValue("Sender") ?? "ExternalSSTP",
-                    "Reference1": "busy"
+                EventBridge.shared.notify(.OnSSTPBreak, refs: [
+                    "script": request.headerValue("Sender") ?? "ExternalSSTP",
+                    "scope": "busy"
                 ])
                 return buildResponse(
                     version: version,
@@ -128,9 +128,9 @@ public enum SSTPDispatcher {
                     responseHeaders: collectPassThruHeaders(from: request.headers)
                 )
             }
-            EventBridge.shared.notify(.OnSSTPBreak, params: [
-                "Reference0": request.headerValue("Sender") ?? "ExternalSSTP",
-                "Reference1": "nobreak"
+            EventBridge.shared.notify(.OnSSTPBreak, refs: [
+                "script": request.headerValue("Sender") ?? "ExternalSSTP",
+                "scope": "nobreak"
             ])
             return buildResponse(
                 version: version,

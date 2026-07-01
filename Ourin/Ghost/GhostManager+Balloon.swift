@@ -117,12 +117,12 @@ extension GhostManager {
                 let vm = getBalloonVM(for: fromScope)
                 let displayedScript = vm.text
                 vm.text = ""
-                EventBridge.shared.notify(.OnBalloonBreak, params: [
-                    "Reference0": displayedScript,
-                    "Reference1": String(fromScope),
-                    "Reference2": String(displayedScript.count)
+                EventBridge.shared.notify(.OnBalloonBreak, refs: [
+                    "displayedScript": displayedScript,
+                    "scope": String(fromScope),
+                    "breakPosition": String(displayedScript.count)
                 ])
-                EventBridge.shared.notify(.OnBalloonClose, params: ["Reference0": displayedScript])
+                EventBridge.shared.notify(.OnBalloonClose, refs: ["displayedScript": displayedScript])
             }
             processNextUnit()
             return
@@ -152,7 +152,7 @@ extension GhostManager {
                 var exParams = params
                 exParams["Reference1"] = id
                 EventBridge.shared.notifyCustom("OnAnchorSelectEx", params: exParams)
-                EventBridge.shared.notifyCustom("OnAnchorSelect", params: ["Reference0": id])
+                EventBridge.shared.notifyCustom("OnAnchorSelect", refs: ["anchorID": id])
                 if pluginOrigin {
                     forwardEventToPlugins(id: "OnAnchorSelect", references: [id])
                     forwardEventToPlugins(id: "OnAnchorSelectEx", references: references + [id])
@@ -175,9 +175,9 @@ extension GhostManager {
             let balloonVM = self.getBalloonVM(for: scope)
             let displayedScript = balloonVM.text
             balloonVM.text = ""
-            EventBridge.shared.notify(.OnBalloonTimeout, params: ["Reference0": String(scope)])
+            EventBridge.shared.notify(.OnBalloonTimeout, refs: ["scope": String(scope)])
             // UKADOC: OnBalloonClose R0=閉じる際に表示されていたスクリプト（表示中テキストで近似）
-            EventBridge.shared.notify(.OnBalloonClose, params: ["Reference0": displayedScript])
+            EventBridge.shared.notify(.OnBalloonClose, refs: ["displayedScript": displayedScript])
             self.localEventTimers.removeValue(forKey: key)
         }
         localEventTimers[key] = timer

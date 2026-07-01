@@ -319,10 +319,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         defer { completionHandler() }
         let info = response.notification.request.content.userInfo
         guard (info["ourinTrayBalloon"] as? String) == "1" else { return }
-        EventBridge.shared.notify(.OnTrayBalloonClick, params: [
-            "Reference0": response.notification.request.identifier,
-            "Reference1": (info["title"] as? String) ?? "",
-            "Reference2": (info["message"] as? String) ?? ""
+        EventBridge.shared.notify(.OnTrayBalloonClick, refs: [
+            "identifier": response.notification.request.identifier,
+            "title": (info["title"] as? String) ?? "",
+            "message": (info["message"] as? String) ?? ""
         ])
     }
 

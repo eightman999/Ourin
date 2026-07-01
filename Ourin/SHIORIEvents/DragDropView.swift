@@ -107,17 +107,17 @@ final class DragDropReceiverView: NSView {
                 if !filePaths.isEmpty {
                     let joined = filePaths.joined(separator: delimiter)
                     // OnFileDrop: Reference0=ファイルパス（0x01区切り）
-                    onEvent?(ShioriEvent(id: .OnFileDrop, params: ["Reference0": joined]))
+                    onEvent?(ShioriEvent(id: .OnFileDrop, refs: ["filePath": joined]))
                     // OnFileDrop2: Reference0=ファイルパス（0x01区切り）, Reference1=X, Reference2=Y
-                    onEvent?(ShioriEvent(id: .OnFileDrop2, params: [
-                        "Reference0": joined,
-                        "Reference1": String(dropX),
-                        "Reference2": String(dropY)
+                    onEvent?(ShioriEvent(id: .OnFileDrop2, refs: [
+                        "filePath": joined,
+                        "x": String(dropX),
+                        "y": String(dropY)
                     ]))
                 }
                 if !dirPaths.isEmpty {
                     // OnDirectoryDrop: Reference0=ディレクトリパス（0x01区切り）
-                    onEvent?(ShioriEvent(id: .OnDirectoryDrop, params: ["Reference0": dirPaths.joined(separator: delimiter)]))
+                    onEvent?(ShioriEvent(id: .OnDirectoryDrop, refs: ["dirPath": dirPaths.joined(separator: delimiter)]))
                 }
                 return true
             }
@@ -125,9 +125,9 @@ final class DragDropReceiverView: NSView {
             // URL strings
             for it in items {
                 if let u = it.string(forType: .URL) {
-                    onEvent?(ShioriEvent(id: .OnURLDropping, params: ["Reference0": u]))
-                    onEvent?(ShioriEvent(id: .OnURLDropped, params: ["Reference0": u]))
-                    onEvent?(ShioriEvent(id: .OnURLDrop, params: ["Reference0": u]))
+                    onEvent?(ShioriEvent(id: .OnURLDropping, refs: ["url": u]))
+                    onEvent?(ShioriEvent(id: .OnURLDropped, refs: ["url": u]))
+                    onEvent?(ShioriEvent(id: .OnURLDrop, refs: ["url": u]))
                     return true
                 }
             }
@@ -135,12 +135,12 @@ final class DragDropReceiverView: NSView {
             // Plain text
             for it in items {
                 if let s = it.string(forType: .string) {
-                    onEvent?(ShioriEvent(id: .OnTextDrop, params: ["Reference0": s]))
+                    onEvent?(ShioriEvent(id: .OnTextDrop, refs: ["text": s]))
                     return true
                 }
             }
         }
-        onEvent?(ShioriEvent(id: .OnURLDropFailure, params: ["Reference0": "unsupported_payload"]))
+        onEvent?(ShioriEvent(id: .OnURLDropFailure, refs: ["filePath": "unsupported_payload"]))
         return false
     }
 
@@ -152,7 +152,7 @@ final class DragDropReceiverView: NSView {
                 fileURLs.append(fileURL)
             }
             if let urlString = item.string(forType: .URL) {
-                onEvent?(ShioriEvent(id: .OnURLDragDropping, params: ["Reference0": urlString]))
+                onEvent?(ShioriEvent(id: .OnURLDragDropping, refs: ["url": urlString]))
             }
         }
         if !fileURLs.isEmpty {

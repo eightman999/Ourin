@@ -30,12 +30,12 @@ extension GhostManager {
         DispatchQueue.main.async {
             if let appDelegate = NSApp.delegate as? AppDelegate,
                appDelegate.launchAdditionalGhost(named: ghostName) != nil {
-                EventBridge.shared.notify(.OnOtherGhostBooted, params: ["Reference0": ghostName])
+                EventBridge.shared.notify(.OnOtherGhostBooted, refs: ["ghostName": ghostName])
                 return
             }
             // フォールバック: 外部インスタンス向け SSTP 通知
             self.sendSSTPNotify(event: "OnBoot", references: ["Reference0": ghostName])
-            EventBridge.shared.notify(.OnOtherGhostBooted, params: ["Reference0": ghostName])
+            EventBridge.shared.notify(.OnOtherGhostBooted, refs: ["ghostName": ghostName])
         }
     }
     
@@ -51,7 +51,7 @@ extension GhostManager {
         }
         for target in targets {
             sendSSTPNotify(event: "OnBoot", references: ["Reference0": target], receiverGhostName: target)
-            EventBridge.shared.notify(.OnOtherGhostBooted, params: ["Reference0": target])
+            EventBridge.shared.notify(.OnOtherGhostBooted, refs: ["ghostName": target])
         }
     }
     
@@ -465,7 +465,7 @@ extension GhostManager {
                 }
 
                 // OnChoiceSelect: Reference0 = 選択された選択肢の ID（UKADOC）
-                EventBridge.shared.notifyCustom("OnChoiceSelect", params: ["Reference0": choiceID])
+                EventBridge.shared.notifyCustom("OnChoiceSelect", refs: ["choiceID": choiceID])
 
                 // OnChoiceSelectEx: Reference0 = ラベル, Reference1 = ID, Reference2.. = 拡張情報（\q の3番目以降）
                 var selectExParams: [String: String] = [
@@ -605,9 +605,9 @@ extension GhostManager {
 
             if timeoutSeconds > 0 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + timeoutSeconds) {
-                    EventBridge.shared.notify(.OnTrayBalloonTimeout, params: [
-                        "Reference0": identifier,
-                        "Reference1": title
+                    EventBridge.shared.notify(.OnTrayBalloonTimeout, refs: [
+                        "identifier": identifier,
+                        "title": title
                     ])
                 }
             }
@@ -644,14 +644,14 @@ extension GhostManager {
         let task = URLSession.shared.dataTask(with: url) { data, _, error in
             if let error = error {
                 Log.info("[GhostManager] SNTP fallback request failed: \(error)")
-                EventBridge.shared.notifyCustom("OnSNTPFailure", params: ["Reference0": error.localizedDescription])
+                EventBridge.shared.notifyCustom("OnSNTPFailure", refs: ["reason": error.localizedDescription])
                 return
             }
 
             guard let data = data,
                   let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
                 Log.info("[GhostManager] SNTP fallback returned invalid payload")
-                EventBridge.shared.notifyCustom("OnSNTPFailure", params: ["Reference0": "invalid_payload"])
+                EventBridge.shared.notifyCustom("OnSNTPFailure", refs: ["reason": "invalid_payload"])
                 return
             }
 
@@ -662,13 +662,13 @@ extension GhostManager {
             self.lastSntpServerDateTime = dateTime
             self.lastSntpTimezone = timezone
             Log.debug("[GhostManager] SNTP fallback succeeded: \(dateTime) \(timezone)")
-            EventBridge.shared.notifyCustom("OnSNTPCompare", params: [
-                "Reference0": dateTime,
-                "Reference1": timezone
+            EventBridge.shared.notifyCustom("OnSNTPCompare", refs: [
+                "dateTime": dateTime,
+                "timezone": timezone
             ])
-            EventBridge.shared.notifyCustom("OnSNTP", params: [
-                "Reference0": dateTime,
-                "Reference1": timezone
+            EventBridge.shared.notifyCustom("OnSNTP", refs: [
+                "dateTime": dateTime,
+                "timezone": timezone
             ])
         }
         task.resume()
@@ -687,10 +687,10 @@ extension GhostManager {
         let localDate = Date()
         let deltaSec = serverDate.timeIntervalSince(localDate)
         let deltaMs = Int(deltaSec * 1000.0)
-        EventBridge.shared.notifyCustom("OnSNTPAdjust", params: [
-            "Reference0": String(deltaMs),
-            "Reference1": lastSntpServerDateTime ?? "",
-            "Reference2": lastSntpTimezone ?? ""
+        EventBridge.shared.notifyCustom("OnSNTPAdjust", refs: [
+            "deltaMs": String(deltaMs),
+            "dateTime": lastSntpServerDateTime ?? "",
+            "timezone": lastSntpTimezone ?? ""
         ])
         Log.info("[GhostManager] SNTP apply simulated (deltaMs=\(deltaMs)); system clock is not modified by baseware")
     }
@@ -705,34 +705,34 @@ extension GhostManager {
             feedURLString = base
         } else {
             Log.info("[GhostManager] No headline URL available")
-            EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", params: ["Reference0": "missing_url"])
+            EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", refs: ["reason": "missing_url"])
             return
         }
 
         guard let url = URL(string: feedURLString) else {
             Log.info("[GhostManager] Invalid headline URL: \(feedURLString)")
-            EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", params: ["Reference0": "invalid_url"])
+            EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", refs: ["reason": "invalid_url"])
             return
         }
 
         let task = URLSession.shared.dataTask(with: url) { data, _, error in
             if let error = error {
                 Log.info("[GhostManager] Headline fetch failed: \(error)")
-                EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", params: ["Reference0": error.localizedDescription])
+                EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", refs: ["reason": error.localizedDescription])
                 return
             }
 
             guard let data = data, let content = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .shiftJIS) else {
                 Log.info("[GhostManager] Headline fetch returned unreadable content")
-                EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", params: ["Reference0": "unreadable_content"])
+                EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", refs: ["reason": "unreadable_content"])
                 return
             }
 
             let titles = content.matches(for: "<title>(.*?)</title>").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
             let firstHeadline = titles.dropFirst().first ?? titles.first ?? ""
-            EventBridge.shared.notifyCustom("OnHeadlineCheck", params: [
-                "Reference0": firstHeadline,
-                "Reference1": url.absoluteString
+            EventBridge.shared.notifyCustom("OnHeadlineCheck", refs: [
+                "headline": firstHeadline,
+                "url": url.absoluteString
             ])
             Log.debug("[GhostManager] Headline check completed: \(firstHeadline)")
         }
@@ -747,8 +747,8 @@ extension GhostManager {
         }
 
         let state = mailRunning ? "running" : "not_running"
-        EventBridge.shared.notifyCustom("OnBIFF", params: [
-            "Reference0": state
+        EventBridge.shared.notifyCustom("OnBIFF", refs: [
+            "state": state
         ])
         Log.debug("[GhostManager] BIFF check completed: \(state)")
     }
@@ -756,8 +756,8 @@ extension GhostManager {
     /// Execute HTTP commands for `\![execute,http-*]`.
     func executeHTTP(subcommand: String, params: [String]) {
         guard let rawURL = params.first, let url = URL(string: rawURL) else {
-            EventBridge.shared.notify(.OnExecuteHTTPFailure, params: ["Reference0": "invalid_url"])
-            EventBridge.shared.notify(.OnExecuteHTTPProgress, params: ["Reference0": "failed", "Reference1": "0"])
+            EventBridge.shared.notify(.OnExecuteHTTPFailure, refs: ["reason": "invalid_url"])
+            EventBridge.shared.notify(.OnExecuteHTTPProgress, refs: ["phase": "failed", "progress": "0"])
             return
         }
         let methodSuffix = String(subcommand.dropFirst("http-".count)).uppercased()
@@ -775,47 +775,47 @@ extension GhostManager {
         applyRequestOptions(parsed, to: &request)
 
         if url.scheme?.lowercased() == "https" {
-            EventBridge.shared.notify(.OnExecuteHTTPSSLInfo, params: [
-                "Reference0": url.host ?? "",
-                "Reference1": url.absoluteString
+            EventBridge.shared.notify(.OnExecuteHTTPSSLInfo, refs: [
+                "host": url.host ?? "",
+                "url": url.absoluteString
             ])
         }
-        EventBridge.shared.notify(.OnExecuteHTTPProgress, params: [
-            "Reference0": "running",
-            "Reference1": "0",
-            "Reference2": method,
-            "Reference3": url.absoluteString
+        EventBridge.shared.notify(.OnExecuteHTTPProgress, refs: [
+            "phase": "running",
+            "progress": "0",
+            "method": method,
+            "url": url.absoluteString
         ])
 
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error {
-                EventBridge.shared.notify(.OnExecuteHTTPFailure, params: [
-                    "Reference0": error.localizedDescription,
-                    "Reference1": url.absoluteString,
-                    "Reference2": method
+                EventBridge.shared.notify(.OnExecuteHTTPFailure, refs: [
+                    "reason": error.localizedDescription,
+                    "url": url.absoluteString,
+                    "method": method
                 ])
-                EventBridge.shared.notify(.OnExecuteHTTPProgress, params: [
-                    "Reference0": "failed",
-                    "Reference1": "100",
-                    "Reference2": method,
-                    "Reference3": url.absoluteString
+                EventBridge.shared.notify(.OnExecuteHTTPProgress, refs: [
+                    "phase": "failed",
+                    "progress": "100",
+                    "method": method,
+                    "url": url.absoluteString
                 ])
                 return
             }
 
             let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
             let body = data.flatMap { String(data: $0, encoding: .utf8) ?? String(data: $0, encoding: .shiftJIS) } ?? ""
-            EventBridge.shared.notify(.OnExecuteHTTPComplete, params: [
-                "Reference0": String(statusCode),
-                "Reference1": body,
-                "Reference2": url.absoluteString,
-                "Reference3": method
+            EventBridge.shared.notify(.OnExecuteHTTPComplete, refs: [
+                "statusCode": String(statusCode),
+                "body": body,
+                "url": url.absoluteString,
+                "method": method
             ])
-            EventBridge.shared.notify(.OnExecuteHTTPProgress, params: [
-                "Reference0": "completed",
-                "Reference1": "100",
-                "Reference2": method,
-                "Reference3": url.absoluteString
+            EventBridge.shared.notify(.OnExecuteHTTPProgress, refs: [
+                "phase": "completed",
+                "progress": "100",
+                "method": method,
+                "url": url.absoluteString
             ])
         }.resume()
     }
@@ -824,7 +824,7 @@ extension GhostManager {
     /// UKADOC では受信チャンクごとに OnExecuteHTTPStreaming を通知する。
     func executeHTTPStreaming(subcommand: String, params: [String]) {
         guard let rawURL = params.first, let url = URL(string: rawURL) else {
-            EventBridge.shared.notify(.OnExecuteHTTPFailure, params: ["Reference0": "invalid_url"])
+            EventBridge.shared.notify(.OnExecuteHTTPFailure, refs: ["reason": "invalid_url"])
             return
         }
         let methodSuffix = String(subcommand.dropFirst("http-stream-".count)).uppercased()
@@ -843,19 +843,19 @@ extension GhostManager {
         }
         applyRequestOptions(parsed, to: &request)
 
-        EventBridge.shared.notify(.OnExecuteHTTPProgress, params: [
-            "Reference0": "running",
-            "Reference1": "0",
-            "Reference2": method,
-            "Reference3": url.absoluteString
+        EventBridge.shared.notify(.OnExecuteHTTPProgress, refs: [
+            "phase": "running",
+            "progress": "0",
+            "method": method,
+            "url": url.absoluteString
         ])
 
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error {
-                EventBridge.shared.notify(.OnExecuteHTTPFailure, params: [
-                    "Reference0": error.localizedDescription,
-                    "Reference1": url.absoluteString,
-                    "Reference2": method
+                EventBridge.shared.notify(.OnExecuteHTTPFailure, refs: [
+                    "reason": error.localizedDescription,
+                    "url": url.absoluteString,
+                    "method": method
                 ])
                 return
             }
@@ -863,11 +863,11 @@ extension GhostManager {
             let body = data.flatMap { String(data: $0, encoding: .utf8) ?? String(data: $0, encoding: .shiftJIS) } ?? ""
             // 受信データ全体を 1 チャンクとして OnExecuteHTTPStreaming を通知。
             // Reference0=受信データ, Reference1=URL, Reference2=HTTPステータス, Reference3=method
-            EventBridge.shared.notify(.OnExecuteHTTPStreaming, params: [
-                "Reference0": body,
-                "Reference1": url.absoluteString,
-                "Reference2": String(statusCode),
-                "Reference3": method
+            EventBridge.shared.notify(.OnExecuteHTTPStreaming, refs: [
+                "body": body,
+                "url": url.absoluteString,
+                "statusCode": String(statusCode),
+                "method": method
             ])
         }
         task.resume()
@@ -876,7 +876,7 @@ extension GhostManager {
     /// Execute RSS commands for `\![execute,rss-*]`.
     func executeRSS(subcommand: String, params: [String]) {
         guard let rawURL = params.first, let url = URL(string: rawURL) else {
-            EventBridge.shared.notifyCustom("OnExecuteRSSFailure", params: ["Reference0": "invalid_url"])
+            EventBridge.shared.notifyCustom("OnExecuteRSSFailure", refs: ["reason": "invalid_url"])
             return
         }
         let methodSuffix = String(subcommand.dropFirst("rss-".count)).uppercased()
@@ -894,27 +894,27 @@ extension GhostManager {
         applyRequestOptions(parsed, to: &request)
 
         if url.scheme?.lowercased() == "https" {
-            EventBridge.shared.notifyCustom("OnExecuteRSS_SSLInfo", params: [
-                "Reference0": url.host ?? "",
-                "Reference1": url.absoluteString
+            EventBridge.shared.notifyCustom("OnExecuteRSS_SSLInfo", refs: [
+                "host": url.host ?? "",
+                "url": url.absoluteString
             ])
         }
 
         URLSession.shared.dataTask(with: request) { data, _, error in
             if let error {
-                EventBridge.shared.notifyCustom("OnExecuteRSSFailure", params: [
-                    "Reference0": error.localizedDescription,
-                    "Reference1": url.absoluteString,
-                    "Reference2": method
+                EventBridge.shared.notifyCustom("OnExecuteRSSFailure", refs: [
+                    "reason": error.localizedDescription,
+                    "url": url.absoluteString,
+                    "method": method
                 ])
                 return
             }
 
             guard let data = data,
                   let xml = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .shiftJIS) else {
-                EventBridge.shared.notifyCustom("OnExecuteRSSFailure", params: [
-                    "Reference0": "unreadable_content",
-                    "Reference1": url.absoluteString
+                EventBridge.shared.notifyCustom("OnExecuteRSSFailure", refs: [
+                    "reason": "unreadable_content",
+                    "url": url.absoluteString
                 ])
                 return
             }
@@ -922,10 +922,10 @@ extension GhostManager {
             let title = xml.matches(for: "<title>(.*?)</title>")
                 .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                 .first(where: { !$0.isEmpty }) ?? ""
-            EventBridge.shared.notifyCustom("OnExecuteRSSComplete", params: [
-                "Reference0": title,
-                "Reference1": url.absoluteString,
-                "Reference2": method
+            EventBridge.shared.notifyCustom("OnExecuteRSSComplete", refs: [
+                "title": title,
+                "url": url.absoluteString,
+                "method": method
             ])
         }.resume()
     }
@@ -961,10 +961,10 @@ extension GhostManager {
         ])
         guard let updateURL = ghostConfig?.homeurl else {
             Log.info("[GhostManager] No update URL configured for ghost")
-            EventBridge.shared.notify(.OnUpdateFailure, params: [
-                "Reference0": "paramerror",
-                "Reference1": "",
-                "Reference3": "ghost"
+            EventBridge.shared.notify(.OnUpdateFailure, refs: [
+                "reason": "paramerror",
+                "fileList": "",
+                "type": "ghost"
             ])
             emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareFailure", params: ["Reference0": "missing_url"])
             emitUpdateResultEvents(
@@ -973,7 +973,7 @@ extension GhostManager {
                 fileList: "",
                 explorerPath: ghostURL.path
             )
-            EventBridge.shared.notifyCustom("OnUpdateCheckFailure", params: ["Reference0": "missing_url"])
+            EventBridge.shared.notifyCustom("OnUpdateCheckFailure", refs: ["reason": "missing_url"])
             return
         }
 
@@ -991,24 +991,24 @@ extension GhostManager {
                     "Reference0": updateURL,
                     "Reference1": String(entries.count)
                 ])
-                EventBridge.shared.notify(.OnUpdateReady, params: [
-                    "Reference0": fileList,
-                    "Reference3": "ghost"
+                EventBridge.shared.notify(.OnUpdateReady, refs: [
+                    "fileIndex": fileList,
+                    "type": "ghost"
                 ])
                 let first = entries.first?.absoluteString ?? ""
-                EventBridge.shared.notifyCustom("OnUpdateCheckComplete", params: [
-                    "Reference0": "ghost",
-                    "Reference1": first,
-                    "Reference2": String(entries.count),
-                    "Reference3": options.joined(separator: ",")
+                EventBridge.shared.notifyCustom("OnUpdateCheckComplete", refs: [
+                    "reason": "ghost",
+                    "fileList": first,
+                    "count": String(entries.count),
+                    "type": options.joined(separator: ",")
                 ])
 
                 // 変更が無ければ即完了。あればダウンロード→適用してから完了イベントを出す。
                 guard !entries.isEmpty else {
-                    EventBridge.shared.notify(.OnUpdateComplete, params: [
-                        "Reference0": "none",
-                        "Reference1": "",
-                        "Reference3": "ghost"
+                    EventBridge.shared.notify(.OnUpdateComplete, refs: [
+                        "reason": "none",
+                        "fileList": "",
+                        "type": "ghost"
                     ])
                     self.emitUpdateResultEvents(target: "ghost", reason: "none", fileList: "", explorerPath: self.ghostURL.path)
                     Log.debug("[GhostManager] Ghost update: no changes")
@@ -1025,10 +1025,10 @@ extension GhostManager {
                         "Reference0": updateURL,
                         "Reference1": String(applied.count)
                     ])
-                    EventBridge.shared.notify(.OnUpdateComplete, params: [
-                        "Reference0": reason,
-                        "Reference1": appliedList.isEmpty ? fileList : appliedList,
-                        "Reference3": "ghost"
+                    EventBridge.shared.notify(.OnUpdateComplete, refs: [
+                        "reason": reason,
+                        "fileList": appliedList.isEmpty ? fileList : appliedList,
+                        "type": "ghost"
                     ])
                     self.emitUpdateResultEvents(
                         target: "ghost",
@@ -1045,10 +1045,10 @@ extension GhostManager {
                     "Reference0": updateURL,
                     "Reference1": reason
                 ])
-                EventBridge.shared.notify(.OnUpdateFailure, params: [
-                    "Reference0": reason,
-                    "Reference1": "",
-                    "Reference3": "ghost"
+                EventBridge.shared.notify(.OnUpdateFailure, refs: [
+                    "reason": reason,
+                    "fileList": "",
+                    "type": "ghost"
                 ])
                 self.emitUpdateResultEvents(
                     target: "ghost",
@@ -1056,7 +1056,7 @@ extension GhostManager {
                     fileList: "",
                     explorerPath: self.ghostURL.path
                 )
-                EventBridge.shared.notifyCustom("OnUpdateCheckFailure", params: ["Reference0": reason])
+                EventBridge.shared.notifyCustom("OnUpdateCheckFailure", refs: ["reason": reason])
             }
         }
     }
@@ -1065,7 +1065,7 @@ extension GhostManager {
     func checkPlatformUpdate(options: [String]) {
         Log.info("[GhostManager] Checking for Ourin platform updates")
         let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
-        EventBridge.shared.notify(.OnBasewareUpdating, params: ["Reference0": currentVersion])
+        EventBridge.shared.notify(.OnBasewareUpdating, refs: ["version": currentVersion])
         emitUpdateBegin(targetType: "baseware")
         emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadBegin", params: [
             "Reference0": "baseware",
@@ -1079,20 +1079,20 @@ extension GhostManager {
             "Reference0": "baseware",
             "Reference1": currentVersion
         ])
-        EventBridge.shared.notify(.OnUpdateReady, params: [
-            "Reference0": "",
-            "Reference3": "baseware"
+        EventBridge.shared.notify(.OnUpdateReady, refs: [
+            "fileIndex": "",
+            "type": "baseware"
         ])
-        EventBridge.shared.notify(.OnUpdateComplete, params: [
-            "Reference0": "none",
-            "Reference1": "",
-            "Reference3": "baseware"
+        EventBridge.shared.notify(.OnUpdateComplete, refs: [
+            "reason": "none",
+            "fileList": "",
+            "type": "baseware"
         ])
-        EventBridge.shared.notify(.OnBasewareUpdated, params: ["Reference0": currentVersion])
-        EventBridge.shared.notifyCustom("OnUpdateCheckComplete", params: [
-            "Reference0": "platform",
-            "Reference1": currentVersion,
-            "Reference2": options.joined(separator: ",")
+        EventBridge.shared.notify(.OnBasewareUpdated, refs: ["version": currentVersion])
+        EventBridge.shared.notifyCustom("OnUpdateCheckComplete", refs: [
+            "reason": "platform",
+            "fileList": currentVersion,
+            "count": options.joined(separator: ",")
         ])
         emitUpdateResultEvents(
             target: "baseware",
@@ -1106,10 +1106,10 @@ extension GhostManager {
     func checkAllGhostsUpdate(options: [String]) {
         Log.info("[GhostManager] Checking for updates to all installed ghosts")
         emitUpdateBegin(targetType: "ghost")
-        EventBridge.shared.notify(.OnUpdateOtherBegin, params: [
-            "Reference0": "",
-            "Reference1": "",
-            "Reference3": "ghost"
+        EventBridge.shared.notify(.OnUpdateOtherBegin, refs: [
+            "ghostName": "",
+            "path": "",
+            "type": "ghost"
         ])
         emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnDownloadBegin", params: [
             "Reference0": "all",
@@ -1119,34 +1119,34 @@ extension GhostManager {
             "Reference0": "all",
             "Reference1": "ghost"
         ])
-        EventBridge.shared.notify(.OnUpdateReady, params: [
-            "Reference0": "",
-            "Reference3": "ghost"
+        EventBridge.shared.notify(.OnUpdateReady, refs: [
+            "fileIndex": "",
+            "type": "ghost"
         ])
-        EventBridge.shared.notify(.OnUpdateOtherReady, params: [
-            "Reference0": "",
-            "Reference1": "",
-            "Reference3": "ghost"
+        EventBridge.shared.notify(.OnUpdateOtherReady, refs: [
+            "fileIndex": "",
+            "fileList": "",
+            "type": "ghost"
         ])
-        EventBridge.shared.notify(.OnUpdateComplete, params: [
-            "Reference0": "none",
-            "Reference1": "",
-            "Reference3": "ghost"
+        EventBridge.shared.notify(.OnUpdateComplete, refs: [
+            "reason": "none",
+            "fileList": "",
+            "type": "ghost"
         ])
-        EventBridge.shared.notify(.OnUpdateOtherComplete, params: [
-            "Reference0": "none",
-            "Reference1": "",
-            "Reference3": "ghost"
+        EventBridge.shared.notify(.OnUpdateOtherComplete, refs: [
+            "reason": "none",
+            "fileList": "",
+            "type": "ghost"
         ])
         emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnMD5CompareComplete", params: [
             "Reference0": "all",
             "Reference1": "ghost"
         ])
         let ghosts = NarRegistry.shared.installedGhosts()
-        EventBridge.shared.notifyCustom("OnUpdateCheckComplete", params: [
-            "Reference0": "all",
-            "Reference1": String(ghosts.count),
-            "Reference2": options.joined(separator: ",")
+        EventBridge.shared.notifyCustom("OnUpdateCheckComplete", refs: [
+            "reason": "all",
+            "fileList": String(ghosts.count),
+            "count": options.joined(separator: ",")
         ])
         emitUpdateResultEvents(
             target: "other",
@@ -1157,10 +1157,10 @@ extension GhostManager {
     }
 
     private func emitUpdateBegin(targetType: String) {
-        EventBridge.shared.notify(.OnUpdateBegin, params: [
-            "Reference0": ghostConfig?.name ?? ghostURL.lastPathComponent,
-            "Reference1": ghostURL.path,
-            "Reference3": targetType
+        EventBridge.shared.notify(.OnUpdateBegin, refs: [
+            "ghostName": ghostConfig?.name ?? ghostURL.lastPathComponent,
+            "path": ghostURL.path,
+            "type": targetType
         ])
     }
 
@@ -1169,20 +1169,20 @@ extension GhostManager {
     }
 
     private func emitUpdateResultEvents(target: String, reason: String, fileList: String, explorerPath: String) {
-        EventBridge.shared.notify(.OnUpdateResult, params: [
-            "Reference0": reason,
-            "Reference1": fileList,
-            "Reference2": target
+        EventBridge.shared.notify(.OnUpdateResult, refs: [
+            "reason": reason,
+            "fileList": fileList,
+            "target": target
         ])
-        EventBridge.shared.notify(.OnUpdateResultEx, params: [
-            "Reference0": reason,
-            "Reference1": fileList,
-            "Reference2": target,
-            "Reference3": explorerPath
+        EventBridge.shared.notify(.OnUpdateResultEx, refs: [
+            "reason": reason,
+            "fileList": fileList,
+            "target": target,
+            "explorerPath": explorerPath
         ])
-        EventBridge.shared.notify(.OnUpdateResultExplorer, params: [
-            "Reference0": explorerPath,
-            "Reference1": target
+        EventBridge.shared.notify(.OnUpdateResultExplorer, refs: [
+            "explorerPath": explorerPath,
+            "target": target
         ])
     }
 
@@ -1226,8 +1226,8 @@ extension GhostManager {
             if let yaya = self.yayaAdapter {
                 _ = yaya.request(method: "GET", id: "OnVanished")
             }
-            EventBridge.shared.notify(.OnOtherGhostClosed, params: ["Reference0": currentName])
-            EventBridge.shared.notify(.OnOtherGhostVanished, params: ["Reference0": currentName])
+            EventBridge.shared.notify(.OnOtherGhostClosed, refs: ["ghostName": currentName])
+            EventBridge.shared.notify(.OnOtherGhostVanished, refs: ["ghostName": currentName])
             
             // Close all windows
             for window in self.characterWindows.values {
@@ -1249,15 +1249,15 @@ extension GhostManager {
 
     func executeExtractArchive(params: [String]) {
         guard params.count >= 2 else {
-            EventBridge.shared.notifyCustom("OnArchiveFailure", params: ["Reference0": "extract", "Reference1": "missing_args"])
-            EventBridge.shared.notify(.OnExtractArchiveFailure, params: ["Reference0": "missing_args"])
+            EventBridge.shared.notifyCustom("OnArchiveFailure", refs: ["operation": "extract", "reason": "missing_args"])
+            EventBridge.shared.notify(.OnExtractArchiveFailure, refs: ["eventID": "missing_args"])
             return
         }
         let archive = resolvedPath(params[0])
         let destination = resolvedPath(params[1])
-        EventBridge.shared.notifyCustom("OnExtractArchiveBegin", params: [
-            "Reference0": archive.path,
-            "Reference1": destination.path
+        EventBridge.shared.notifyCustom("OnExtractArchiveBegin", refs: [
+            "archivePath": archive.path,
+            "destPath": destination.path
         ])
         runProcess(path: "/usr/bin/ditto", arguments: ["-x", "-k", archive.path, destination.path]) { output, ok in
             let payload: [String: String] = [
@@ -1273,15 +1273,15 @@ extension GhostManager {
 
     func executeCompressArchive(params: [String]) {
         guard params.count >= 2 else {
-            EventBridge.shared.notifyCustom("OnArchiveFailure", params: ["Reference0": "compress", "Reference1": "missing_args"])
-            EventBridge.shared.notify(.OnCompressArchiveFailure, params: ["Reference0": "missing_args"])
+            EventBridge.shared.notifyCustom("OnArchiveFailure", refs: ["operation": "compress", "reason": "missing_args"])
+            EventBridge.shared.notify(.OnCompressArchiveFailure, refs: ["eventID": "missing_args"])
             return
         }
         let source = resolvedPath(params[0])
         let output = resolvedPath(params[1])
-        EventBridge.shared.notifyCustom("OnCompressArchiveBegin", params: [
-            "Reference0": source.path,
-            "Reference1": output.path
+        EventBridge.shared.notifyCustom("OnCompressArchiveBegin", refs: [
+            "source": source.path,
+            "outputPath": output.path
         ])
         runProcess(path: "/usr/bin/ditto", arguments: ["-c", "-k", "--sequesterRsrc", "--keepParent", source.path, output.path]) { result, ok in
             let payload: [String: String] = [
@@ -1297,41 +1297,41 @@ extension GhostManager {
 
     func executeDumpSurface(params: [String]) {
         guard let image = characterViewModels[currentScope]?.image else {
-            EventBridge.shared.notifyCustom("OnDumpSurfaceFailure", params: ["Reference0": "missing_surface"])
+            EventBridge.shared.notifyCustom("OnDumpSurfaceFailure", refs: ["reason": "missing_surface"])
             return
         }
         let output = params.first.map(resolvedPath) ?? URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("ourin_surface_\(currentScope).png")
         guard let tiff = image.tiffRepresentation,
               let rep = NSBitmapImageRep(data: tiff),
               let png = rep.representation(using: .png, properties: [:]) else {
-            EventBridge.shared.notifyCustom("OnDumpSurfaceFailure", params: ["Reference0": "encode_failed"])
+            EventBridge.shared.notifyCustom("OnDumpSurfaceFailure", refs: ["reason": "encode_failed"])
             return
         }
         do {
             try png.write(to: output)
-            EventBridge.shared.notifyCustom("OnDumpSurfaceComplete", params: ["Reference0": output.path])
+            EventBridge.shared.notifyCustom("OnDumpSurfaceComplete", refs: ["outputPath": output.path])
         } catch {
-            EventBridge.shared.notifyCustom("OnDumpSurfaceFailure", params: ["Reference0": error.localizedDescription])
+            EventBridge.shared.notifyCustom("OnDumpSurfaceFailure", refs: ["reason": error.localizedDescription])
         }
     }
 
     func executeInstall(params: [String]) {
         guard let first = params.first else {
-            EventBridge.shared.notifyCustom("OnInstallFailure", params: ["Reference0": "missing_target"])
+            EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "missing_target"])
             return
         }
         if first.lowercased() == "url", params.count >= 2 {
             guard let url = URL(string: params[1]) else {
-                EventBridge.shared.notifyCustom("OnInstallFailure", params: ["Reference0": "invalid_url"])
+                EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "invalid_url"])
                 return
             }
             URLSession.shared.downloadTask(with: url) { localURL, _, error in
                 if let error {
-                    EventBridge.shared.notifyCustom("OnInstallFailure", params: ["Reference0": error.localizedDescription])
+                    EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": error.localizedDescription])
                     return
                 }
                 guard let localURL else {
-                    EventBridge.shared.notifyCustom("OnInstallFailure", params: ["Reference0": "download_failed"])
+                    EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "download_failed"])
                     return
                 }
                 self.installNarFile(localURL)
@@ -1345,7 +1345,7 @@ extension GhostManager {
 
     func executeCreateNar() {
         let output = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("\(ghostURL.lastPathComponent).nar")
-        EventBridge.shared.notify(.OnNarCreating, params: ["Reference0": output.path])
+        EventBridge.shared.notify(.OnNarCreating, refs: ["name": output.path])
         runProcess(path: "/usr/bin/ditto", arguments: ["-c", "-k", "--sequesterRsrc", "--keepParent", ghostURL.path, output.path]) { result, ok in
             let payload: [String: String] = [
                 "Reference0": output.path,
@@ -1360,7 +1360,7 @@ extension GhostManager {
 
     func executeCreateUpdateData() {
         let updatePath = ghostURL.appendingPathComponent("updates2.dau")
-        EventBridge.shared.notify(.OnUpdatedataCreating, params: ["Reference0": updatePath.path])
+        EventBridge.shared.notify(.OnUpdatedataCreating, refs: ["filePath": updatePath.path])
         let lines = [
             "; generated by Ourin",
             "version=\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")",
@@ -1368,10 +1368,10 @@ extension GhostManager {
         ].joined(separator: "\n")
         do {
             try lines.data(using: .utf8)?.write(to: updatePath)
-            EventBridge.shared.notifyCustom("OnCreateUpdateDataComplete", params: ["Reference0": updatePath.path])
-            EventBridge.shared.notify(.OnUpdatedataCreated, params: ["Reference0": updatePath.path])
+            EventBridge.shared.notifyCustom("OnCreateUpdateDataComplete", refs: ["filePath": updatePath.path])
+            EventBridge.shared.notify(.OnUpdatedataCreated, refs: ["path": updatePath.path])
         } catch {
-            EventBridge.shared.notifyCustom("OnCreateUpdateDataFailure", params: ["Reference0": error.localizedDescription])
+            EventBridge.shared.notifyCustom("OnCreateUpdateDataFailure", refs: ["reason": error.localizedDescription])
         }
     }
 
@@ -1382,34 +1382,34 @@ extension GhostManager {
             for item in items {
                 try? FileManager.default.removeItem(at: item)
             }
-            EventBridge.shared.notifyCustom("OnEmptyRecycleBinComplete", params: ["Reference0": String(items.count)])
+            EventBridge.shared.notifyCustom("OnEmptyRecycleBinComplete", refs: ["count": String(items.count)])
         } catch {
-            EventBridge.shared.notifyCustom("OnEmptyRecycleBinFailure", params: ["Reference0": error.localizedDescription])
+            EventBridge.shared.notifyCustom("OnEmptyRecycleBinFailure", refs: ["reason": error.localizedDescription])
         }
     }
 
     func executePing(params: [String]) {
         let host = params.first ?? "localhost"
-        EventBridge.shared.notify(.OnPingProgress, params: [
-            "Reference0": host,
-            "Reference1": "0"
+        EventBridge.shared.notify(.OnPingProgress, refs: [
+            "host": host,
+            "progress": "0"
         ])
         runProcess(path: "/sbin/ping", arguments: ["-c", "1", host]) { output, ok in
             if ok {
-                EventBridge.shared.notify(.OnPingComplete, params: [
-                    "Reference0": host,
-                    "Reference1": output
+                EventBridge.shared.notify(.OnPingComplete, refs: [
+                    "host": host,
+                    "output": output
                 ])
             } else {
-                EventBridge.shared.notifyCustom("OnPingFailure", params: [
-                    "Reference0": host,
-                    "Reference1": output
+                EventBridge.shared.notifyCustom("OnPingFailure", refs: [
+                    "host": host,
+                    "output": output
                 ])
             }
-            EventBridge.shared.notify(.OnPingProgress, params: [
-                "Reference0": host,
-                "Reference1": "100",
-                "Reference2": ok ? "ok" : "failed"
+            EventBridge.shared.notify(.OnPingProgress, refs: [
+                "host": host,
+                "progress": "100",
+                "result": ok ? "ok" : "failed"
             ])
         }
     }
@@ -1417,9 +1417,9 @@ extension GhostManager {
     func executeNslookup(params: [String]) {
         let host = params.first ?? "localhost"
         runProcess(path: "/usr/bin/nslookup", arguments: [host]) { output, ok in
-            EventBridge.shared.notify(ok ? .OnNSLookupComplete : .OnNSLookupFailure, params: [
-                "Reference0": host,
-                "Reference1": output
+            EventBridge.shared.notify(ok ? .OnNSLookupComplete : .OnNSLookupFailure, refs: [
+                "host": host,
+                "output": output
             ])
         }
     }
@@ -1452,7 +1452,7 @@ extension GhostManager {
 
     func executeCreateShortcut(params: [String]) {
         guard params.count >= 2 else {
-            EventBridge.shared.notifyCustom("OnCreateShortcutFailure", params: ["Reference0": "missing_args"])
+            EventBridge.shared.notifyCustom("OnCreateShortcutFailure", refs: ["reason": "missing_args"])
             return
         }
         let target = resolvedPath(params[0])
@@ -1460,16 +1460,16 @@ extension GhostManager {
         do {
             try? FileManager.default.removeItem(at: link)
             try FileManager.default.createSymbolicLink(at: link, withDestinationURL: target)
-            EventBridge.shared.notifyCustom("OnCreateShortcutComplete", params: ["Reference0": link.path])
+            EventBridge.shared.notifyCustom("OnCreateShortcutComplete", refs: ["linkPath": link.path])
         } catch {
-            EventBridge.shared.notifyCustom("OnCreateShortcutFailure", params: ["Reference0": error.localizedDescription])
+            EventBridge.shared.notifyCustom("OnCreateShortcutFailure", refs: ["reason": error.localizedDescription])
         }
     }
 
     func executeReloadSurface() {
         let current = characterViewModels[currentScope]?.currentSurfaceID ?? 0
         updateSurface(id: current)
-        EventBridge.shared.notifyCustom("OnSurfaceReloaded", params: ["Reference0": String(current)])
+        EventBridge.shared.notifyCustom("OnSurfaceReloaded", refs: ["surfaceID": String(current)])
     }
 
     func executeReload(target: String, params: [String]) {
@@ -1500,7 +1500,7 @@ extension GhostManager {
                     balloonImageLoader = BalloonImageLoader(balloonPath: balloonDir.path)
                 }
             }
-            EventBridge.shared.notifyCustom("OnDescriptReloaded", params: ["Reference0": descriptorTarget, "Reference1": params.joined(separator: ",")])
+            EventBridge.shared.notifyCustom("OnDescriptReloaded", refs: ["target": descriptorTarget, "params": params.joined(separator: ",")])
         case "shell", "balloon", "ghost", "aigraph":
             executeReloadSurface()
         case "shiori", "makoto":
@@ -1515,7 +1515,7 @@ extension GhostManager {
         if lowered == "shiori" || lowered == "makoto" {
             yayaAdapter?.unload()
             yayaAdapter = nil
-            EventBridge.shared.notifyCustom("OnShioriUnloaded", params: ["Reference0": lowered])
+            EventBridge.shared.notifyCustom("OnShioriUnloaded", refs: ["name": lowered])
         }
     }
 
@@ -1528,14 +1528,14 @@ extension GhostManager {
             .filter { $0.pathExtension.lowercased() == "dic" }
             .map { DicEntry(path: $0.lastPathComponent, encoding: nil, sourceConfig: "(reload)", sourceLine: 0) } ?? []
         guard let adapter = YayaAdapter() else {
-            EventBridge.shared.notifyCustom("OnShioriLoadFailure", params: ["Reference0": lowered])
+            EventBridge.shared.notifyCustom("OnShioriLoadFailure", refs: ["reason": lowered])
             return
         }
         if adapter.load(ghostRoot: ghostRoot, dicEntries: dicEntries) {
             yayaAdapter = adapter
-            EventBridge.shared.notifyCustom("OnShioriLoaded", params: ["Reference0": lowered, "Reference1": String(dicEntries.count)])
+            EventBridge.shared.notifyCustom("OnShioriLoaded", refs: ["name": lowered, "entryCount": String(dicEntries.count)])
         } else {
-            EventBridge.shared.notifyCustom("OnShioriLoadFailure", params: ["Reference0": lowered])
+            EventBridge.shared.notifyCustom("OnShioriLoadFailure", refs: ["reason": lowered])
         }
     }
 
@@ -1558,12 +1558,12 @@ extension GhostManager {
             EnvironmentExpander.lastInstalledObjectName = name
             // UKADOC: Reference0=識別子, Reference1=名前（install.txt name）, Reference2=副名（ghost with balloon 等の2番目）。
             // 単体インストールでは副名が無く、パスは Reference2 の定義（副名）に反するため付与しない。
-            EventBridge.shared.notifyCustom("OnInstallComplete", params: [
-                "Reference0": name,
-                "Reference1": name
+            EventBridge.shared.notifyCustom("OnInstallComplete", refs: [
+                "type": name,
+                "name": name
             ])
         } catch {
-            EventBridge.shared.notifyCustom("OnInstallFailure", params: ["Reference0": error.localizedDescription])
+            EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": error.localizedDescription])
         }
     }
 
@@ -1609,10 +1609,10 @@ extension GhostManager {
                 Log.info("[GhostManager] Failed to post system message: \(error.localizedDescription)")
             }
         }
-        EventBridge.shared.notifyCustom("OnSystemMessage", params: [
-            "Reference0": finalTitle,
-            "Reference1": body,
-            "Reference2": level
+        EventBridge.shared.notifyCustom("OnSystemMessage", refs: [
+            "title": finalTitle,
+            "body": body,
+            "level": level
         ])
     }
 
@@ -1620,7 +1620,7 @@ extension GhostManager {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
-        EventBridge.shared.notifyCustom("OnClipboardWrite", params: ["Reference0": text])
+        EventBridge.shared.notifyCustom("OnClipboardWrite", refs: ["text": text])
     }
 
     func getClipboardText() -> String {
@@ -1675,12 +1675,12 @@ extension GhostManager {
         if raiseEvent {
             // UKADOC: Reference0=切替先の本体側名前, Reference1=manual/automatic, Reference2=切替先ゴースト名[SSP], Reference3=切替先パス[SSP]
             var changingParams: [String: String] = [
-                "Reference0": normalized,
-                "Reference1": "manual",
-                "Reference2": normalized
+                "nextGhostName": normalized,
+                "changeMode": "manual",
+                "nextGhostNameSSP": normalized
             ]
-            if let targetPath { changingParams["Reference3"] = targetPath }
-            EventBridge.shared.notify(.OnGhostChanging, params: changingParams)
+            if let targetPath { changingParams["nextGhostPath"] = targetPath }
+            EventBridge.shared.notify(.OnGhostChanging, refs: changingParams)
         }
 
         switch normalized.lowercased() {
@@ -1696,15 +1696,15 @@ extension GhostManager {
         // UKADOC: Reference0=直前ゴーストの本体側名前, Reference1=直前ゴーストの切替時スクリプト,
         //         Reference2=直前ゴースト名[SSP], Reference3=直前ゴーストパス[SSP]
         // 直前の切替スクリプトは保持していないため Reference1 は空で送る（旧実装は誤って新名を入れていた）。
-        EventBridge.shared.notify(.OnGhostChanged, params: [
-            "Reference0": previous,
-            "Reference1": "",
-            "Reference2": previous,
-            "Reference3": previousPath
+        EventBridge.shared.notify(.OnGhostChanged, refs: [
+            "prevGhostName": previous,
+            "changeScript": "",
+            "prevGhostNameSSP": previous,
+            "prevGhostPath": previousPath
         ])
-        EventBridge.shared.notify(.OnOtherGhostChanged, params: [
-            "Reference0": previous,
-            "Reference1": normalized
+        EventBridge.shared.notify(.OnOtherGhostChanged, refs: [
+            "prevGhostName": previous,
+            "nextGhostName": normalized
         ])
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -1719,7 +1719,7 @@ extension GhostManager {
         let raiseEvent = parsed.options["option"]?.lowercased() == "raise-event" || parsed.flags.contains("option=raise-event")
 
         if raiseEvent {
-            EventBridge.shared.notify(.OnGhostCalling, params: ["Reference0": normalized])
+            EventBridge.shared.notify(.OnGhostCalling, refs: ["ghostName": normalized])
         }
 
         switch normalized.lowercased() {
@@ -1729,8 +1729,8 @@ extension GhostManager {
             bootOtherGhost(name: normalized)
         }
 
-        EventBridge.shared.notify(.OnGhostCalled, params: ["Reference0": normalized])
-        EventBridge.shared.notify(.OnGhostCallComplete, params: ["Reference0": normalized])
+        EventBridge.shared.notify(.OnGhostCalled, refs: ["ghostName": normalized])
+        EventBridge.shared.notify(.OnGhostCallComplete, refs: ["ghostName": normalized])
     }
 
     // MARK: - Dialog Commands
@@ -1744,10 +1744,10 @@ extension GhostManager {
         alert.addButton(withTitle: NSLocalizedString("拒否", comment: "decline terms"))
         let response = alert.runModal()
         if response == .alertFirstButtonReturn {
-            EventBridge.shared.notify(.OnGhostTermsAccept, params: ["Reference0": ghostName])
+            EventBridge.shared.notify(.OnGhostTermsAccept, refs: ["ghostName": ghostName])
             openFilePath("terms.txt")
         } else {
-            EventBridge.shared.notify(.OnGhostTermsDecline, params: ["Reference0": ghostName])
+            EventBridge.shared.notify(.OnGhostTermsDecline, refs: ["ghostName": ghostName])
         }
     }
 
@@ -2165,7 +2165,7 @@ extension GhostManager {
     func setSerikoTalk(mode: String) {
         let enabled = mode.lowercased() == "1" || mode.lowercased() == "true" || mode.lowercased() == "on"
         UserDefaults.standard.set(enabled, forKey: "OurinSerikoTalkEnabled")
-        EventBridge.shared.notifyCustom("OnSerikoTalkChanged", params: ["Reference0": enabled ? "1" : "0"])
+        EventBridge.shared.notifyCustom("OnSerikoTalkChanged", refs: ["enabled": enabled ? "1" : "0"])
     }
 
     func openDeveloperTool(_ tool: String) {

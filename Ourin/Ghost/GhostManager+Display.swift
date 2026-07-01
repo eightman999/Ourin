@@ -118,7 +118,7 @@ extension GhostManager {
                 Log.info("[GhostManager] User name set to: \(userName)")
 
                 // Notify YAYA of the name change via NOTIFY OnNameChanged
-                EventBridge.shared.notify(.OnNameChanged, params: ["Reference0": userName])
+                EventBridge.shared.notify(.OnNameChanged, refs: ["userName": userName])
 
                 // After OnNameChanged is sent, start timer events (OnIdle, SecondChange)
                 startEventBridgeIfNeeded(enableAutoEvents: true)
@@ -160,11 +160,11 @@ extension GhostManager {
 
             // SHIORI 再生イベント通知。Ourin は音楽/効果音を区別しないため、
             // 再生開始時に OnMusicPlay / OnMusicPlayEx を通知する。
-            let refs = ["Reference0": filename]
-            EventBridge.shared.notify(.OnMusicPlay, params: refs)
-            EventBridge.shared.notify(.OnMusicPlayEx, params: refs)
+            let refs = ["filename": filename]
+            EventBridge.shared.notify(.OnMusicPlay, refs: refs)
+            EventBridge.shared.notify(.OnMusicPlayEx, refs: refs)
             if loop {
-                EventBridge.shared.notify(.OnSoundLoop, params: refs)
+                EventBridge.shared.notify(.OnSoundLoop, refs: refs)
             }
         }
     }
@@ -255,7 +255,7 @@ extension GhostManager {
         namedSounds[filename] = nil
         preloadedSounds[filename] = nil
         Log.debug("[GhostManager] Stopped sound: \(filename)")
-        EventBridge.shared.notify(.OnSoundStop, params: ["Reference0": filename])
+        EventBridge.shared.notify(.OnSoundStop, refs: ["filename": filename])
     }
 
     // MARK: - Video Playback
@@ -265,10 +265,10 @@ extension GhostManager {
     func playVideo(filename: String, loop: Bool = false) {
         guard !filename.isEmpty else { return }
         let refs: [String: String] = [
-            "Reference0": filename,
-            "Reference1": loop ? "loop" : "once"
+            "filename": filename,
+            "loopMode": loop ? "loop" : "once"
         ]
-        EventBridge.shared.notify(.OnVideoPlayEx, params: refs)
+        EventBridge.shared.notify(.OnVideoPlayEx, refs: refs)
         Log.debug("[GhostManager] Video play requested: \(filename) loop=\(loop) (renderer pending)")
     }
     
@@ -355,9 +355,9 @@ extension GhostManager {
         let isAllowedPublicResource = !publicRoot.isEmpty && standardized.hasPrefix(publicRoot)
         if !allowExternal && !standardized.hasPrefix(ghostRoot) && !isAllowedPublicResource {
             Log.info("[GhostManager] Refused to open external file path: \(standardized)")
-            EventBridge.shared.notifyCustom("OnSecurityWarning", params: [
-                "Reference0": "open_file_denied",
-                "Reference1": standardized
+            EventBridge.shared.notifyCustom("OnSecurityWarning", refs: [
+                "source": "open_file_denied",
+                "detail": standardized
             ])
             return
         }
@@ -397,11 +397,11 @@ extension GhostManager {
         guard let kind = SSPCompat.executableKind(for: url) else { return false }
         let dataPath = SSPCompat.dataDirectory()?.path ?? ""
         Log.info("[GhostManager] SSP executable compatibility handled: \(kind.rawValue) raw=\(rawPath)")
-        EventBridge.shared.notifyCustom("OnSSPCompatExecutable", params: [
-            "Reference0": kind.rawValue,
-            "Reference1": rawPath,
-            "Reference2": url.path,
-            "Reference3": dataPath
+        EventBridge.shared.notifyCustom("OnSSPCompatExecutable", refs: [
+            "kind": kind.rawValue,
+            "rawPath": rawPath,
+            "path": url.path,
+            "dataPath": dataPath
         ])
         return true
     }

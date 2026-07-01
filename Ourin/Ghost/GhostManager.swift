@@ -1971,7 +1971,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             if args.count >= 3 {
                                 let enabled = args[2].lowercased() == "1" || args[2].lowercased() == "true" || args[2].lowercased() == "on"
                                 UserDefaults.standard.set(enabled, forKey: "OurinShioriDebugMode")
-                                EventBridge.shared.notifyCustom("OnShioriDebugModeChanged", params: ["Reference0": enabled ? "1" : "0"])
+                                EventBridge.shared.notifyCustom("OnShioriDebugModeChanged", refs: ["enabled": enabled ? "1" : "0"])
                             }
                         case "serikotalk":
                             if args.count >= 3 {
@@ -2110,7 +2110,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 let eventID = args[2]
                                 _ = requestDialogEvent(eventID: eventID, references: [text])
                             } else {
-                                EventBridge.shared.notifyCustom("OnClipboardRead", params: ["Reference0": text])
+                                EventBridge.shared.notifyCustom("OnClipboardRead", refs: ["text": text])
                             }
                         } else if subcmd == "clear" {
                             clearClipboard()
@@ -2335,8 +2335,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     let references = Array(args.dropFirst())
                     Log.debug("[GhostManager] Anchor event: \(eventID) with refs: \(references)")
                     pendingAnchorAction = (action: .event(id: eventID, references: references), pluginOrigin: currentScriptIsPluginOrigin)
-                    EventBridge.shared.notifyCustom("OnAnchorEnter", params: ["Reference0": eventID])
-                    EventBridge.shared.notifyCustom("OnAnchorHover", params: ["Reference0": eventID])
+                    EventBridge.shared.notifyCustom("OnAnchorEnter", refs: ["anchorID": eventID])
+                    EventBridge.shared.notifyCustom("OnAnchorHover", refs: ["text": eventID])
                     if let vm = balloonViewModels[currentScope] {
                         vm.anchorActive = true
                     }
@@ -2975,7 +2975,7 @@ extension GhostManager {
     private func reloadGhost() {
         let name = ghostConfig?.name ?? ""
         Log.info("[GhostManager] Reloading ghost: \(name)")
-        EventBridge.shared.notify(.OnClose, params: ["Reference0": "reload"])
+        EventBridge.shared.notify(.OnClose, refs: ["closeReason": "reload"])
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             if let appDelegate = NSApp.delegate as? AppDelegate {
                 appDelegate.runGhost(at: self.ghostURL)
@@ -2996,12 +2996,12 @@ extension GhostManager {
         guard response == .alertFirstButtonReturn else { return }
 
         EventBridge.shared.notify(.OnVanishSelecting, params: [:])
-        EventBridge.shared.notify(.OnVanishSelected, params: ["Reference0": name])
+        EventBridge.shared.notify(.OnVanishSelected, refs: ["ghostName": name])
     }
 
     /// ネットワーク更新を確認
     private func checkNetworkUpdate() {
-        EventBridge.shared.notify(.OnUpdateBegin, params: ["Reference0": "manual"])
+        EventBridge.shared.notify(.OnUpdateBegin, refs: ["ghostName": "manual"])
     }
 
     /// ゴーストを切り替え

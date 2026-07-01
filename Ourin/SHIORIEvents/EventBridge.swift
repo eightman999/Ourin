@@ -202,6 +202,13 @@ final class EventBridge {
         broadcastNotify(id: id, params: params, security: security)
     }
 
+    /// 表駆動発火（推奨）: 意味ラベル辞書でイベントを送出する。
+    /// 例: `notify(.OnMouseClick, refs: ["x": px, "y": py, "button": btn])`。
+    /// ラベル → `ReferenceN` 変換は `EventReferenceTable`（SHIORIEvents/EventReferenceSpec.swift）が担う。
+    func notify(_ id: EventID, refs: [String:String], security: ShioriSecurityContext = .local) {
+        broadcastNotify(id: id, params: EventReferenceTable.params(forEvent: id.rawValue, refs: refs), security: security)
+    }
+
     /// 外部SSTP（SEND の Script ヘッダ等）から、登録済みゴーストのバルーンでスクリプトを再生する。
     /// - Parameters:
     ///   - script: 再生する SakuraScript
@@ -247,6 +254,12 @@ final class EventBridge {
     /// - Parameter security: 発生源のセキュリティ文脈（既定: 内部 = local）
     func notifyCustom(_ eventName: String, params: [String:String] = [:], ignoreResponseScript: Bool = false, security: ShioriSecurityContext = .local) {
         broadcastNotifyCustom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
+    }
+
+    /// 表駆動発火（推奨）: 意味ラベル辞書でカスタム名イベント（EventID 列挙に無いもの）を送出する。
+    /// 例: `notifyCustom("OnExecuteRSSFailure", refs: ["reason": msg, "url": u, "method": m])`。
+    func notifyCustom(_ eventName: String, refs: [String:String], ignoreResponseScript: Bool = false, security: ShioriSecurityContext = .local) {
+        broadcastNotifyCustom(eventName: eventName, params: EventReferenceTable.params(forEvent: eventName, refs: refs), ignoreResponseScript: ignoreResponseScript, security: security)
     }
 
     /// PLUGIN/2.0 `Event` 応答をゴーストへ橋渡しする。
@@ -505,6 +518,15 @@ struct ShioriEvent {
     let id: EventID
     /// パラメータ辞書（ReferenceN に相当）
     let params: [String:String]
+}
+
+extension ShioriEvent {
+    /// 表駆動コンストラクタ（推奨）: 意味ラベル辞書から `params` を生成する。
+    /// 例: `ShioriEvent(id: .OnMouseClick, refs: ["x": px, "y": py])`。
+    /// ラベル → `ReferenceN` 変換は `EventReferenceTable` が担う。
+    init(id: EventID, refs: [String:String]) {
+        self.init(id: id, params: EventReferenceTable.params(forEvent: id.rawValue, refs: refs))
+    }
 }
 
 final class ShioriDispatcher {

@@ -164,7 +164,7 @@ extension GhostManager {
         animationEngine.stopAllAnimations()
         shutdownSerikoLoop()
         loadAnimationsForCurrentSurface()
-        EventBridge.shared.notifyCustom("OnSurfacesReloaded", params: ["Reference0": activeShellName])
+        EventBridge.shared.notifyCustom("OnSurfacesReloaded", refs: ["shellName": activeShellName])
         Log.debug("[GhostManager] Reloaded surfaces*.txt definitions")
     }
 
@@ -389,7 +389,7 @@ extension GhostManager {
             }
         }
         stopSerikoLoopIfIdle()
-        EventBridge.shared.notifyCustom("OnAnimationFinished", params: ["Reference0": String(animationID)], ignoreResponseScript: true)
+        EventBridge.shared.notifyCustom("OnAnimationFinished", refs: ["animationID": String(animationID)], ignoreResponseScript: true)
     }
 
     private func handleSurfaceReduce(surfaceID: Int) {
