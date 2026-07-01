@@ -57,6 +57,10 @@ jobs:
           brew update >/dev/null
           brew install xcbeautify
 
+      - name: Install yaya_core dependencies
+        run: |
+          brew install nlohmann-json
+
       - name: Show repo tree (depth 2)
         run: |
           pwd
