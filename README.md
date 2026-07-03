@@ -154,8 +154,8 @@ YAYA Core is implemented in C++ and has the following dependencies:
 - **nlohmann/json** (3.12.0+): JSONパーサー（IPC通信用） / JSON parser (for IPC communication)
 - **バンドル済みコード / Bundled code**: MD5、SHA-1、CRC32実装（YAYA互換性のため） / MD5, SHA-1, CRC32 implementations (for YAYA compatibility)
 
-詳細については [`docs/DEPENDENCIES.ja.md`](docs/DEPENDENCIES.ja.md) を参照してください。
-For details, see [`docs/DEPENDENCIES.ja.md`](docs/DEPENDENCIES.ja.md).
+詳細については [`docs/DEPENDENCIES_ja-jp.md`](docs/DEPENDENCIES_ja-jp.md) を参照してください。
+For details, see [`docs/DEPENDENCIES_en-us.md`](docs/DEPENDENCIES_en-us.md).
 
 ### Migrator (DevTools) / Ghidra
 

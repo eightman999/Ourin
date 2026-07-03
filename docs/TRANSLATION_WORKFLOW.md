@@ -4,10 +4,16 @@ This document describes the workflow and guidelines for translating documentatio
 
 ## Current Status
 
-✅ **100% bilingual coverage (2026-06-28): all 61 documentation pairs have both EN and JA files**
+⚠️ **Re-audited 2026-07-02: 37 of 57 documentation pairs are complete (65%); 20 pairs still
+have a "Translation Pending" placeholder stub on one side.** The previous "100% coverage /
+61 pairs" claim was stale — it counted a file existing on both sides as "done" without
+checking whether the content was a real translation or a placeholder. See
+[TRANSLATION_MANIFEST.md](./TRANSLATION_MANIFEST.md) for the verified per-file breakdown.
 
 - Every spec, guide, plan, summary, and audit report under `docs/` exists in both
-  `*_ja-jp.md` and `*_en-us.md` (with `DEPENDENCIES` using the `*.ja.md` / `*.en.md` pair).
+  `*_ja-jp.md` and `*_en-us.md` (56 pairs), plus `DEPENDENCIES_ja-jp.md` / `DEPENDENCIES_en-us.md`
+  (1 pair) — 57 pairs total, all using the same naming scheme as of 2026-07-02 (the former
+  `DEPENDENCIES.ja.md` / `DEPENDENCIES.en.md` legacy pair was renamed to match).
 - Original unsuffixed working docs are left in place; translated counterparts were added beside them.
 - Translations follow consistent terminology and formatting (see guidelines below).
 

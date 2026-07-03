@@ -4,74 +4,94 @@ This document tracks the translation status of all Ourin documentation.
 
 ## Status Overview
 
-✅ **100% bilingual coverage reached (2026-06-28).** Every documentation file under
-`docs/` now exists in both `*_ja-jp.md` and `*_en-us.md` (or the `*.ja.md` / `*.en.md`
-pair for `DEPENDENCIES`). The per-document lists below are retained for historical
-reference; the "Needing Translation" entries have all since been completed.
+⚠️ **Re-audited 2026-07-02.** The previous "100% complete / 61 pairs / 0 remaining" summary
+was stale and did not match the files on disk. A fresh count of `docs/*_ja-jp.md` /
+`docs/*_en-us.md` plus the legacy `DEPENDENCIES` pair found that **20 pairs still contain a
+"Translation Pending" placeholder stub** on one side. This manifest now reflects the actual
+per-file state, verified by reading each flagged file's content (not just checking that both
+files exist).
 
-- **Complete `_ja-jp` / `_en-us` pairs**: 61
-- **Need Translation**: 0
+- **Total tracked pairs**: 57 (56 `_ja-jp` / `_en-us` pairs + 1 `DEPENDENCIES` pair)
+- **Complete pairs**: 37
+- **Need Translation**: 20 (16 need EN, 4 need JA)
+- **Completion**: 37/57 (65%)
 - **Notes**: Original unsuffixed working docs (audit reports, plans, summaries) are kept
   in place; their translated counterparts were added alongside rather than renaming them.
+  The legacy `DEPENDENCIES.ja.md` / `DEPENDENCIES.en.md` pair was migrated to the standard
+  `DEPENDENCIES_ja-jp.md` / `DEPENDENCIES_en-us.md` naming on 2026-07-02 (see
+  [TRANSLATION_WORKFLOW.md](TRANSLATION_WORKFLOW.md)); all pairs now use one naming scheme.
 
-## Complete Pairs (Both EN and JA exist)
+## Complete Pairs (37)
 
-1. ✅ About_FMO (`About_FMO_en-us.md` / `About_FMO_ja-jp.md`)
-2. ✅ BALLOON_1.0M_SPEC (`BALLOON_1.0M_SPEC_en-us.md` / `BALLOON_1.0M_SPEC_ja-jp.md`)
-3. ✅ DevToolsUIMockup (`DevToolsUIMockup_en-us.md` / `DevToolsUIMockup_ja-jp.md`)
-4. ✅ connect_swift (`connect_swift_en-us.md` / `connect_swift_ja-jp.md`)
-5. ✅ GhostConfigurationImplementation (`GhostConfigurationImplementation_en-us.md` / `GhostConfigurationImplementation_ja-jp.md`)
+1. ✅ About_FMO
+2. ✅ AUDIT_PROMPT
+3. ✅ BALLOON_1.0M_SPEC
+4. ✅ BLOCKER_TRACKER
+5. ✅ CODE_SPEC_DIFF_2026-06
+6. ✅ COMPAT_FIXES_2026-06
+7. ✅ connect_swift
+8. ✅ DEPENDENCIES (`DEPENDENCIES_en-us.md` / `DEPENDENCIES_ja-jp.md`)
+9. ✅ DevToolsUIMockup
+10. ✅ DOCUMENTATION_UPDATE_SUMMARY
+11. ✅ GhostConfigurationImplementation
+12. ✅ IMPLEMENTATION_PLAN_2026-06
+13. ✅ IMPLEMENTATION_STATUS_SUMMARY
+14. ✅ INTEGRATION_ROADMAP
+15. ✅ NAR_INSTALL_1.0M_SPEC
+16. ✅ OURIN_EXTENSIONS
+17. ✅ OURIN_MIGRATOR_PLAN
+18. ✅ PLUGIN_BRIDGE_COMPLETION_PLAN
+19. ✅ PLUGIN_COMPAT_FIX_PROPOSAL
+20. ✅ PROJECT_SUMMARY
+21. ✅ PROPERTY_1.0M_SPEC
+22. ✅ PropertySystem
+23. ✅ README
+24. ✅ RightClickMenuMockup
+25. ✅ SAKURASCRIPT_COMMANDS_SUPPORTED
+26. ✅ SAORI_IMPLEMENTATION
+27. ✅ SERIKO_IMPLEMENTATION
+28. ✅ SERIKO_IMPLEMENTATION_PROGRESS_REPORT
+29. ✅ SERIKO_OVERLAY_DRESSUP_RENDERING_SPEC
+30. ✅ SHIORI_3.0M_SPEC
+31. ✅ SHIORI_EVENTS_FULL_1.0M_PATCHED
+32. ✅ SHIORI_EXTERNAL_3.0M_SPEC
+33. ✅ SHIORI_RESOURCE_3.0M_SPEC
+34. ✅ SSTP_1.xM_SPEC
+35. ✅ SSTP_DISPATCHER_GUIDE
+36. ✅ SUPPORTED_SAKURA_SCRIPT
+37. ✅ YAYA_DIC_COMPAT_IMPLEMENTATION_PLAN
 
-## Documents Needing Translation
+## Documents Needing Translation (20)
 
-### Priority 1: Core Specifications (Need EN translation)
+Each entry below was verified by opening the file: the listed side still contains the
+`**Status:** Translation Pending` (or `**ステータス:** 翻訳待ち`) placeholder stub, not a
+real translation.
 
-1. ⏳ SHIORI_3.0M_SPEC (JA → **need EN**)
-2. ⏳ SSTP_1.xM_SPEC (JA → **need EN**)
-3. ⏳ SPEC_PLUGIN_2.0M (JA → **need EN**)
-4. ⏳ OURIN_YAYA_ADAPTER_SPEC_1.0M (JA → **need EN**)
-5. ⏳ OURIN_USL_1.0M_SPEC (JA → **need EN**)
-6. ⏳ NAR_INSTALL_1.0M_SPEC (JA → **need EN**)
+### Need EN translation (16)
 
-### Priority 2: Events & Properties (Need EN translation)
+1. ⏳ SPEC_PLUGIN_2.0M (JA → **need EN**)
+2. ⏳ OURIN_YAYA_ADAPTER_SPEC_1.0M (JA → **need EN**)
+3. ⏳ OURIN_USL_1.0M_SPEC (JA → **need EN**)
+4. ⏳ OURIN_SHIORI_EVENTS_3.0M_SPEC (JA → **need EN**)
+5. ⏳ SHIORI_EVENTS_3.0M_SPEC (JA → **need EN**)
+6. ⏳ PLUGIN_EVENT_2.0M_SPEC (JA → **need EN**)
+7. ⏳ PLUGIN_EVENT_2.0M_SPEC_FULL (JA → **need EN**)
+8. ⏳ PROPERTY_1.0M_SPEC_FULL (JA → **need EN**)
+9. ⏳ PROPERTY_Resource_3.0M_SPEC (JA → **need EN**)
+10. ⏳ SAKURASCRIPT_FULL_1.0M_PATCHED (JA → **need EN**)
+11. ⏳ HEADLINE_2.0M_SPEC (JA → **need EN**)
+12. ⏳ WEB_1.0M_SPEC (JA → **need EN**)
+13. ⏳ SSTP_Host_Modules_JA (JA → **need EN**)
+14. ⏳ ONBOARDING (JA → **need EN**)
+15. ⏳ YAYA_CORE_IMPLEMENTATION_PLAN (JA → **need EN**)
+16. ⏳ YAYA_CORE_INVESTIGATION_REPORT (JA → **need EN**)
 
-7. ⏳ OURIN_SHIORI_EVENTS_3.0M_SPEC (JA → **need EN**)
-8. ⏳ SHIORI_EVENTS_3.0M_SPEC (JA → **need EN**)
-9. ⏳ PLUGIN_EVENT_2.0M_SPEC (JA → **need EN**)
-10. ⏳ PLUGIN_EVENT_2.0M_SPEC_FULL (JA → **need EN**)
-11. ⏳ PROPERTY_1.0M_SPEC (JA → **need EN**)
-12. ⏳ PROPERTY_1.0M_SPEC_FULL (JA → **need EN**)
-13. ⏳ PROPERTY_Resource_3.0M_SPEC (JA → **need EN**)
+### Need JA translation (4)
 
-### Priority 3: SakuraScript & Resources (Mixed priority)
-
-14. ⏳ SAKURASCRIPT_FULL_1.0M_PATCHED (JA → **need EN**)
-15. ⏳ SHIORI_EXTERNAL_3.0M_SPEC (JA → **need EN**)
-16. ⏳ SHIORI_EVENTS_FULL_1.0M_PATCHED (EN → **need JA**)
-17. ⏳ SHIORI_RESOURCE_3.0M_SPEC (EN → **need JA**)
-18. ⏳ SAKURASCRIPT_COMMANDS_SUPPORTED (EN → **need JA**)
-
-### Priority 4: Supporting Documents
-
-19. ⏳ HEADLINE_2.0M_SPEC (JA → **need EN**)
-20. ⏳ WEB_1.0M_SPEC (JA → **need EN**)
-21. ⏳ SSTP_Host_Modules_JA (JA → **need EN**)
-22. ⏳ ONBOARDING (JA → **need EN**)
-23. ⏳ README (JA → **need EN**)
-
-### Priority 5: YAYA Core Documentation
-
-24. ⏳ YAYA_CORE_ARCHITECTURE (EN → **need JA**)
-25. ⏳ YAYA_CORE_EXECUTIVE_SUMMARY (EN → **need JA**)
-26. ⏳ YAYA_CORE_INDEX (EN → **need JA**)
-27. ⏳ YAYA_CORE_TECHNICAL_SPEC (EN → **need JA**)
-28. ⏳ YAYA_CORE_IMPLEMENTATION_PLAN (JA → **need EN**)
-29. ⏳ YAYA_CORE_INVESTIGATION_REPORT (JA → **need EN**)
-
-### Priority 6: UI & Design
-
-30. ⏳ PropertySystem (EN → **need JA**)
-31. ⏳ RightClickMenuMockup (EN → **need JA**)
+17. ⏳ YAYA_CORE_ARCHITECTURE (EN → **need JA**)
+18. ⏳ YAYA_CORE_EXECUTIVE_SUMMARY (EN → **need JA**)
+19. ⏳ YAYA_CORE_INDEX (EN → **need JA**)
+20. ⏳ YAYA_CORE_TECHNICAL_SPEC (EN → **need JA**)
 
 ## Translation Guidelines
 
@@ -91,7 +111,10 @@ reference; the "Needing Translation" entries have all since been completed.
 
 ## Notes
 
-- All files have been renamed to include language suffix (`_ja-jp.md` or `_en-us.md`)
-- Files marked with ✅ are complete with both languages
-- Files marked with ⏳ need translation as indicated
-- Priority order reflects importance for end users and developers
+- All files use the language suffix naming (`_ja-jp.md` or `_en-us.md`); the former
+  `DEPENDENCIES.ja.md` / `DEPENDENCIES.en.md` exception was migrated on 2026-07-02.
+- Files marked with ✅ are complete with both languages (verified by content, not just
+  file existence — a file can exist and still be an unfilled placeholder stub).
+- Files marked with ⏳ need translation as indicated; the placeholder side still reads
+  "Translation Pending" / "翻訳待ち".
+- Priority order in this list reflects importance for end users and developers.

@@ -250,7 +250,7 @@ let response = adapter.request(method: "GET", id: "OnBoot", refs: [])
   - YAYA言語仕様との互換性のためのみ使用
   - Ourinの新しいコードではセキュリティ目的で使用しないこと
 
-詳細については親ディレクトリの [`docs/DEPENDENCIES.ja.md`](../docs/DEPENDENCIES.ja.md) を参照してください。
+詳細については親ディレクトリの [`docs/DEPENDENCIES_ja-jp.md`](../docs/DEPENDENCIES_ja-jp.md) を参照してください。
 
 ---
 
