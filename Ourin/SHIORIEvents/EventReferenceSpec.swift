@@ -56,6 +56,7 @@ public enum EventReferenceTable {
         .init(id: "OnFirstBoot", references: ["vanishCount"], category: "lifecycle"),
         .init(id: "OnBoot", references: ["shellName"], category: "lifecycle"),
         .init(id: "OnInitialize", references: [], category: "lifecycle"),
+        .init(id: "OnDestroy", references: ["destroyReason"], category: "lifecycle"),
         .init(id: "OnClose", references: ["closeReason"], category: "lifecycle"),
         .init(id: "OnVanishing", references: [], category: "lifecycle"),
         .init(id: "OnVanished", references: [], category: "lifecycle"),
@@ -68,6 +69,12 @@ public enum EventReferenceTable {
         .init(id: "OnOtherGhostBooted", references: ["ghostName", "sakuraName", "keroName", "shellName", "ghostPath"], category: "ghost"),
         .init(id: "OnOtherGhostChanged", references: ["prevGhostName", "nextGhostName"], category: "ghost"),
         .init(id: "OnOtherGhostClosed", references: ["ghostName"], category: "ghost"),
+
+        // MARK: - 見切れ / 重なり（UKADOC: Reference0=現在状態, Reference1=直前状態, 区切りはバイト値1）
+        .init(id: "OnOffscreen", references: ["current", "previous"], category: "shell"),
+        .init(id: "OnOverlap", references: ["current", "previous"], category: "shell"),
+        .init(id: "OnOtherOffscreen", references: ["current", "previous"], category: "shell"),
+        .init(id: "OnOtherOverlap", references: ["current", "previous"], category: "shell"),
 
         // MARK: - 時刻系
         .init(id: "OnSecondChange", references: ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"], category: "time"),

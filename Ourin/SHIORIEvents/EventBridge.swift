@@ -433,6 +433,11 @@ final class EventBridge {
         .OnMouseDragStart, .OnMouseDragEnd, .OnMouseGesture
     ]
 
+    // OnOtherOffscreen / OnOtherOverlap の遷移検出用の直前状態（全ゴースト横断、UKADOC Reference1）。
+    // nil = 未サンプル（初回 tick はベースライン確立のみでイベント発火しない）
+    private var lastOtherOffscreenRef0: String?
+    private var lastOtherOverlapRef0: String?
+
     // Immediately broadcast a NOTIFY to all registered sessions (bypassing queue)
     private func broadcastNotifyImmediate(id: EventID, params: [String:String], security: ShioriSecurityContext = .local) {
         // Save character names on OnNotifySelfInfo
@@ -467,6 +472,11 @@ final class EventBridge {
                     s.dispatcher.sendNotify(id: id, params: p, ignoreResponseScript: true, security: security)
                 }
             }
+            // 見切れ / 重なりの状態遷移検出（毎秒 1 回 = OnSecondChange のみ。
+            // OnMinuteChange 等と同時発火する分秒境界での二重チェックを避ける）
+            if id == .OnSecondChange {
+                dispatchOverlapTransitions(security: security)
+            }
             return
         }
 
@@ -485,6 +495,68 @@ final class EventBridge {
                 continue
             }
             s.dispatcher.sendNotify(id: id, params: params, security: security)
+        }
+    }
+
+    /// OnOffscreen / OnOverlap（自ゴースト）と OnOtherOffscreen / OnOtherOverlap（全ゴースト横断）の
+    /// 状態遷移を検出して GET で通知し、応答スクリプトを再生する（UKADOC: 4イベントとも GET、
+    /// Reference0=現在状態 / Reference1=直前状態、区切りはバイト値1）。
+    private func dispatchOverlapTransitions(security: ShioriSecurityContext) {
+        // 自ゴースト分: セッション毎に遷移検出（計算は既存の見切れ/重なり判定基盤を流用）
+        for (_, s) in sessions {
+            guard let gm = s.ghostManager else { continue }
+            for ev in gm.overlapTransitionEvents() {
+                let script = s.dispatcher.sendGet(id: ev.id, params: ev.params, security: security)
+                let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    DispatchQueue.main.async { gm.runScript(trimmed) }
+                }
+            }
+        }
+
+        // 全ゴースト横断分（"Sakura名/ID" 表記、自分自身の情報も含む）
+        var labeled: [(label: String, frame: CGRect, screenVisible: CGRect)] = []
+        for (_, s) in sessions {
+            guard let gm = s.ghostManager else { continue }
+            let name = gm.ghostConfig?.name ?? gm.ghostURL.lastPathComponent
+            for f in gm.characterFrameList() {
+                labeled.append(("\(name)/\(f.scope)", f.frame, f.screenVisible))
+            }
+        }
+        let otherOffscreen = labeled.filter { !$0.screenVisible.contains($0.frame) }
+            .map { $0.label }
+            .sorted()
+            .joined(separator: "\u{01}")
+        var otherPairs: [String] = []
+        for i in 0..<labeled.count {
+            for j in (i + 1)..<labeled.count where labeled[i].frame.intersects(labeled[j].frame) {
+                let a = min(labeled[i].label, labeled[j].label)
+                let b = max(labeled[i].label, labeled[j].label)
+                otherPairs.append("\(a)-\(b)")
+            }
+        }
+        let otherOverlap = otherPairs.sorted().joined(separator: "\u{01}")
+
+        var otherEvents: [(id: EventID, params: [String: String])] = []
+        if let prev = lastOtherOffscreenRef0, prev != otherOffscreen {
+            otherEvents.append((.OnOtherOffscreen, ["Reference0": otherOffscreen, "Reference1": prev]))
+        }
+        lastOtherOffscreenRef0 = otherOffscreen
+        if let prev = lastOtherOverlapRef0, prev != otherOverlap {
+            otherEvents.append((.OnOtherOverlap, ["Reference0": otherOverlap, "Reference1": prev]))
+        }
+        lastOtherOverlapRef0 = otherOverlap
+
+        guard !otherEvents.isEmpty else { return }
+        for (_, s) in sessions {
+            guard let gm = s.ghostManager else { continue }
+            for ev in otherEvents {
+                let script = s.dispatcher.sendGet(id: ev.id, params: ev.params, security: security)
+                let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    DispatchQueue.main.async { gm.runScript(trimmed) }
+                }
+            }
         }
     }
 

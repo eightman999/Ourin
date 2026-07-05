@@ -249,16 +249,18 @@ public enum SSTPDispatcher {
             responseHeaders["X-UKATEC-Spec"] = "1"
         }
         // Apply SSP-compatible side effects from SHIORI headers (Surface/Balloon)
+        // 宛先は ReceiverGhostName で解決する（マルチゴースト対応、未指定はプライマリ）
+        let requestHeaders = request.headers
         if let surfaceStr = mapped.responseHeaders["Surface"], let surface = Int(surfaceStr) {
             DispatchQueue.main.async {
                 let appDelegate = NSApp.delegate as? AppDelegate
-                appDelegate?.ghostManager?.updateSurface(id: surface)
+                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.updateSurface(id: surface)
             }
         }
         if let balloonName = mapped.responseHeaders["Balloon"], !balloonName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             DispatchQueue.main.async {
                 let appDelegate = NSApp.delegate as? AppDelegate
-                if let gm = appDelegate?.ghostManager {
+                if let gm = appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders) {
                     _ = gm.switchBalloon(named: balloonName, scope: gm.currentScope, raiseEvent: true)
                 }
             }
@@ -271,7 +273,7 @@ public enum SSTPDispatcher {
                 let y = String(comps[1])
                 DispatchQueue.main.async {
                     let appDelegate = NSApp.delegate as? AppDelegate
-                    appDelegate?.ghostManager?.handleBalloonOffset(x: x, y: y, isRelative: false)
+                    appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.handleBalloonOffset(x: x, y: y, isRelative: false)
                 }
             }
         }
@@ -283,7 +285,7 @@ public enum SSTPDispatcher {
             let text = parts.count > 1 ? String(parts[1]) : ""
             DispatchQueue.main.async {
                 let appDelegate = NSApp.delegate as? AppDelegate
-                appDelegate?.ghostManager?.setTaskTrayIcon(filename: filename, text: text)
+                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.setTaskTrayIcon(filename: filename, text: text)
             }
         }
 
@@ -497,7 +499,7 @@ public enum SSTPDispatcher {
         case "dumpsurface":
             let params = commandArgs
             DispatchQueue.main.async {
-                appDelegate?.ghostManager?.executeDumpSurface(params: params)
+                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.executeDumpSurface(params: params)
             }
             return success(nil)
         case "moveasync":
@@ -511,19 +513,19 @@ public enum SSTPDispatcher {
             let method = commandArgs[4]
             let ignoreSticky = commandArgs.count > 5 ? commandArgs[5].lowercased() == "true" || commandArgs[5] == "1" : false
             DispatchQueue.main.async {
-                appDelegate?.ghostManager?.moveWindowAsync(scope: scope, x: x, y: y, time: time, method: method, ignoreStickyWindow: ignoreSticky)
+                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.moveWindowAsync(scope: scope, x: x, y: y, time: time, method: method, ignoreStickyWindow: ignoreSticky)
             }
             return success(nil)
         case "settrayicon", "settasktrayicon":
             guard let filename = commandArgs.first, !filename.isEmpty else { return badRequest() }
             let text = commandArgs.count > 1 ? commandArgs[1] : ""
             DispatchQueue.main.async {
-                appDelegate?.ghostManager?.setTaskTrayIcon(filename: filename, text: text)
+                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.setTaskTrayIcon(filename: filename, text: text)
             }
             return success(nil)
         case "settrayballoon":
             DispatchQueue.main.async {
-                appDelegate?.ghostManager?.setTrayBalloon(options: commandArgs)
+                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.setTrayBalloon(options: commandArgs)
             }
             return success(nil)
         default:

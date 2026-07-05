@@ -1126,4 +1126,62 @@ extension GhostManager {
         }
         return result
     }
+
+    // MARK: - OnOffscreen / OnOverlap（UKADOC: 状態遷移時に逐次通知、Reference0=現在 / Reference1=直前）
+
+    /// OnOtherOffscreen / OnOtherOverlap 用に自ゴーストのキャラ矩形スナップショットを公開する。
+    func characterFrameList() -> [(scope: Int, frame: CGRect, screenVisible: CGRect)] {
+        collectVisibleCharacterFrames()
+    }
+
+    /// OnOffscreen Reference0: 見切れ中スコープ ID を \x01 区切りで昇順に並べる（該当なし → 空文字列）。
+    static func offscreenRef0(frames: [(scope: Int, frame: CGRect, screenVisible: CGRect)]) -> String {
+        frames.filter { !$0.screenVisible.contains($0.frame) }
+            .map { $0.scope }
+            .sorted()
+            .map(String.init)
+            .joined(separator: "\u{01}")
+    }
+
+    /// OnOverlap Reference0: 重なっているスコープ ID ペア（"小-大"）を \x01 区切りで並べる（該当なし → 空文字列）。
+    static func overlapRef0(frames: [(scope: Int, frame: CGRect, screenVisible: CGRect)]) -> String {
+        var pairs: [(Int, Int)] = []
+        for i in 0..<frames.count {
+            for j in (i + 1)..<frames.count {
+                if frames[i].frame.intersects(frames[j].frame) {
+                    let a = min(frames[i].scope, frames[j].scope)
+                    let b = max(frames[i].scope, frames[j].scope)
+                    pairs.append((a, b))
+                }
+            }
+        }
+        return pairs.sorted { $0.0 != $1.0 ? $0.0 < $1.0 : $0.1 < $1.1 }
+            .map { "\($0.0)-\($0.1)" }
+            .joined(separator: "\u{01}")
+    }
+
+    /// 見切れ／重なり状態の遷移を検出し、発火すべきイベントを返す（毎秒 tick から呼ばれる）。
+    /// 初回はベースラインのみ確立してイベントを返さない。
+    func overlapTransitionEvents() -> [(id: EventID, params: [String: String])] {
+        let frames = collectVisibleCharacterFrames()
+        let offscreen = Self.offscreenRef0(frames: frames)
+        let overlap = Self.overlapRef0(frames: frames)
+        var events: [(id: EventID, params: [String: String])] = []
+
+        if let prev = lastOffscreenRef0 {
+            if prev != offscreen {
+                events.append((.OnOffscreen, ["Reference0": offscreen, "Reference1": prev]))
+            }
+        }
+        lastOffscreenRef0 = offscreen
+
+        if let prev = lastOverlapRef0 {
+            if prev != overlap {
+                events.append((.OnOverlap, ["Reference0": overlap, "Reference1": prev]))
+            }
+        }
+        lastOverlapRef0 = overlap
+
+        return events
+    }
 }

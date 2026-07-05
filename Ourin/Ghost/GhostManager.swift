@@ -157,7 +157,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var yayaAdapter: YayaAdapter?
     let sakuraEngine = SakuraScriptEngine()
     private var eventToken: UUID?
-    let resourceManager = ResourceManager()
+    // SHIORI Resource はゴースト別名前空間で保持する（複数ゴースト同時起動時の汚染防止）。
+    // lazy: ghostURL 確定後（init 完了後）の初回アクセスで生成する。
+    lazy var resourceManager = ResourceManager(ghostKey: ghostURL.lastPathComponent)
     var ghostConfig: GhostConfiguration?
     var activeShellName: String = "master"
     var lastSntpServerDate: Date?
@@ -263,6 +265,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var awaitingTerminateReply: Bool = false
     var didFinalizeTermination: Bool = false
     var terminateAfterPlayback: Bool = false
+    /// OnDestroy の Reference0（UKADOC: リロード時のみ "reload"、通常終了は Reference なし）
+    private var pendingDestroyReason: String?
+
+    // OnOffscreen / OnOverlap の遷移検出用の直前状態（UKADOC Reference1 に渡す）。
+    // nil = 未サンプル（初回 tick でベースラインを確立し、イベントは発火しない）
+    var lastOffscreenRef0: String?
+    var lastOverlapRef0: String?
 
     // Dressup configuration
     var dressupConfigurations: [DressupConfig] = []
@@ -720,6 +729,17 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         for w in balloonWindows.values { w.orderOut(nil) }
         characterWindows.removeAll()
         balloonWindows.removeAll()
+        // OnDestroy（NOTIFY、UKADOC）: SHIORI unload の直前に対象ゴーストへのみ直接送信する。
+        // EventBridge.notify は autoEventsEnabled=false 時にキュー滞留し、全セッションへ
+        // ブロードキャストされるためここでは使わない（OnClose と同じ直接送信の流儀）。
+        let destroyRefs = pendingDestroyReason.map { [$0] } ?? []
+        if let yaya = yayaAdapter {
+            let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
+            _ = yaya.request(method: "NOTIFY", id: "OnDestroy", headers: hdrs, refs: destroyRefs, timeout: 1.0)
+        } else {
+            _ = BridgeToSHIORI.handle(event: "OnDestroy", references: destroyRefs)
+        }
+        pendingDestroyReason = nil
         yayaAdapter?.unload()
         yayaAdapter = nil
         if let token = eventToken { EventBridge.shared.unregister(token); eventToken = nil }
@@ -2539,12 +2559,23 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     case "disable":
                         // \f[disable] - set all to disabled style
                         self.setFontDisabled(vm: vm)
-                    case "anchor.font.color":
-                        // \f[anchor.font.color,r,g,b] or \f[anchor.font.color,#RRGGBB] or \f[anchor.font.color,name]
+                    case "anchor.font.color", "anchorfontcolor", "anchornotselectfontcolor":
+                        // \f[anchorfontcolor,...]（選択時文字色）/ \f[anchornotselectfontcolor,...]（非選択時文字色）。
+                        // Ourin のレンダラはアンカーのホバー状態で描き分けないため、いずれも
+                        // 単一のアンカー文字色へ反映する（スクリプト順で後勝ち）。色指定は r,g,b / #RRGGBB / 色名。
                         if args.count >= 2 {
                             vm.anchorFontColor = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.anchorFontColor)
-                            Log.debug("[GhostManager] Anchor font color set")
+                            Log.debug("[GhostManager] Anchor font color set via \(subcmd)")
                         }
+                    case "anchorstyle", "anchorcolor", "anchorbrushcolor", "anchorpencolor", "anchormethod",
+                         "anchornotselectstyle", "anchornotselectcolor", "anchornotselectbrushcolor",
+                         "anchornotselectpencolor", "anchornotselectmethod",
+                         "anchorvisitedstyle", "anchorvisitedcolor", "anchorvisitedbrushcolor",
+                         "anchorvisitedpencolor", "anchorvisitedfontcolor", "anchorvisitedmethod":
+                        // UKADOC のアンカー装飾サブコマンド群（形状/塗り/枠色/描画メソッド/訪問済み状態）。
+                        // 現行レンダラは下線＋文字色の単一表現のため描き分け不可。受理してログに残し、
+                        // 未知タグ扱いの "Unknown font command" にはしない（サイレント無視の解消）。
+                        Log.debug("[GhostManager] Anchor decoration '\(subcmd)' accepted (rendering not supported yet)")
                     case "outline":
                         // \f[outline,width]
                         if args.count >= 2 {
@@ -2980,6 +3011,7 @@ extension GhostManager {
     private func reloadGhost() {
         let name = ghostConfig?.name ?? ""
         Log.info("[GhostManager] Reloading ghost: \(name)")
+        pendingDestroyReason = "reload" // shutdown() 時の OnDestroy Reference0 に反映
         EventBridge.shared.notify(.OnClose, refs: ["closeReason": "reload"])
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             if let appDelegate = NSApp.delegate as? AppDelegate {

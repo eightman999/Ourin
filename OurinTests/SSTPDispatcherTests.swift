@@ -653,4 +653,21 @@ struct SSTPDispatcherTests {
         let resp = SSTPDispatcher.dispatch(request: req)
         #expect(resp.contains("SSTP/1.4 420 Refuse"))
     }
+
+    /// マルチゴースト SSTP ルーティングの照合キー生成（`AppDelegate.receiverTargetKey`）。
+    /// SSTP 応答ヘッダ副作用（Surface/Balloon/Icon 等）の宛先解決に使われる。
+    @Test
+    func receiverGhostNameTargetKeyResolution() async throws {
+        // 未指定・空白のみ → nil（プライマリゴーストへフォールバック）
+        #expect(AppDelegate.receiverTargetKey(headers: [:]) == nil)
+        #expect(AppDelegate.receiverTargetKey(headers: ["ReceiverGhostName": "   "]) == nil)
+        // 名前一致（小文字化して照合）
+        #expect(AppDelegate.receiverTargetKey(headers: ["ReceiverGhostName": "Emily/Phase4.5"]) == "emily/phase4.5")
+        // フォルダ名照合にも同じキーを使う（大小文字の揺れ吸収）
+        #expect(AppDelegate.receiverTargetKey(headers: ["ReceiverGhostName": "EMILY4"]) == "emily4")
+        // percent エンコードされた日本語名のデコード
+        #expect(AppDelegate.receiverTargetKey(headers: ["ReceiverGhostName": "%E3%81%95%E3%81%8F%E3%82%89"]) == "さくら")
+        // 前後空白はトリムされる
+        #expect(AppDelegate.receiverTargetKey(headers: ["ReceiverGhostName": " emily4 "]) == "emily4")
+    }
 }

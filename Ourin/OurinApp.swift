@@ -113,19 +113,38 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         return DispatchQueue.main.sync { self.resolveYayaAdapter(headers: headers) }
     }
 
+    /// SSTP 応答ヘッダ副作用（Surface/Balloon/Icon 等）の宛先 GhostManager を解決する。
+    /// 照合規則は `yayaAdapterForShioriRequest` と同一（ReceiverGhostName → プライマリへフォールバック）。
+    func ghostManagerForShioriRequest(headers: [String: String]) -> GhostManager? {
+        if Thread.isMainThread {
+            return resolveGhostManager(headers: headers)
+        }
+        return DispatchQueue.main.sync { self.resolveGhostManager(headers: headers) }
+    }
+
     private func resolveYayaAdapter(headers: [String: String]) -> YayaAdapter? {
-        if let receiver = headers["ReceiverGhostName"]?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !receiver.isEmpty {
-            // SSTPDispatcher のレジストリ照合に合わせて percent デコードしてから比較する。
-            let target = (receiver.removingPercentEncoding ?? receiver).lowercased()
+        resolveGhostManager(headers: headers)?.yayaAdapter
+    }
+
+    /// ReceiverGhostName ヘッダから照合キーを作る純関数部（テスト用に static 公開）。
+    /// SSTPDispatcher のレジストリ照合に合わせて percent デコード＋小文字化する。
+    /// 未指定・空白のみの場合は nil（＝プライマリゴーストへフォールバック）。
+    static func receiverTargetKey(headers: [String: String]) -> String? {
+        guard let receiver = headers["ReceiverGhostName"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !receiver.isEmpty else { return nil }
+        return (receiver.removingPercentEncoding ?? receiver).lowercased()
+    }
+
+    private func resolveGhostManager(headers: [String: String]) -> GhostManager? {
+        if let target = Self.receiverTargetKey(headers: headers) {
             if let gm = allGhostManagers.first(where: {
                 ($0.ghostConfig?.name.lowercased() == target) ||
                 ($0.ghostURL.lastPathComponent.lowercased() == target)
             }) {
-                return gm.yayaAdapter
+                return gm
             }
         }
-        return ghostManager?.yayaAdapter
+        return ghostManager
     }
     /// DevTools window for legacy macOS
     private var devToolsWindow: NSWindow?
