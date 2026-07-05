@@ -26,7 +26,8 @@ enum class NodeType {
     Call,
     Variable,
     Literal,
-    ArrayAccess
+    ArrayAccess,
+    Parallel
 };
 
 struct Node {
@@ -224,6 +225,17 @@ struct CaseNode : Node {
              const std::vector<std::shared_ptr<Node>>& others)
         : expression(expr), whenClauses(clauses), othersBody(others) {
         type = NodeType::Case;
+    }
+};
+
+// 'parallel expr' — 式が返す配列を個々の出力候補として展開する（YAYA の parallel 修飾子）。
+// array/sequential 関数の候補収集では各要素を個別に積み、それ以外の文脈では1要素を
+// ランダムに選択して返す。
+struct ParallelNode : Node {
+    std::shared_ptr<Node> expr;
+
+    explicit ParallelNode(std::shared_ptr<Node> e) : expr(e) {
+        type = NodeType::Parallel;
     }
 };
 

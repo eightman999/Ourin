@@ -32,6 +32,7 @@ corrects the record.
 | `_loading_order.txt` (order + encoding) | implemented | real yaya-dic format: `dic, filename, encoding` and `dicif, filename, encoding` (load-if-exists); legacy `flag,filepath` / bare `filepath` also tolerated |
 | Duplicate dic suppression | implemented | first-occurrence wins |
 | `yaya.txt` absent → load all `.dic` | implemented | lexical fallback |
+| `#define` / `#globaldefine` preprocessor | implemented | 2026-07-05: line-head directives, raw text replacement in registration order; #define is file-scoped, #globaldefine applies to all subsequent files; runtime map shared with ISGLOBALDEFINE/PROCESSGLOBALDEFINE |
 
 ## Encoding Model
 
@@ -64,6 +65,7 @@ corrects the record.
 | Compound assignments (`+=` etc., `,=`) | implemented | |
 | Array element assignment (`a[i] = ..`) | partial | stored against the array variable (compound form is approximate) |
 | Prefix `&` (reference operator) | partial | parsed; treated as identity (no true by-reference) |
+| `parallel expr` modifier | implemented | 2026-07-05: contextual detection (not keyword-ized); array/sequential collection flattens the returned array into individual candidates; non-array contexts pick one element uniformly (same RNG as SRAND) |
 
 ### Parser Reliability Note
 
@@ -95,6 +97,7 @@ dictionaries without parse failure (regression baseline after Phases 1/3/4).
 > Detailed per-function status lives in `FUNCTION_REFERENCE.md`.
 
 - **Type conversion / string / math / array / bitwise / hex-binary**: implemented
+- **LOGGING / TRANSLATE**: implemented (2026-07-05; LOGGING writes to stderr with `[YAYA][LOGGING]` prefix, TRANSLATE is the upstream tr-style character-set mapping with `-` ranges and `\` escapes)
 - **Type checking** (`ISINTSTR`, `ISREALSTR`): implemented
 - **File I/O** (`FOPEN`…`FDEL`, `FCOPY`…): implemented **with security restriction** (relative paths only; no absolute / no `..`)
 - **System** (`GETTIME`, `EXECUTE`, `EXECUTE_WAIT`, `SLEEP`, `GETENV`): implemented

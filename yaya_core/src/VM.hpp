@@ -86,7 +86,13 @@ public:
     // Set the ghost root path used to anchor relative persistence/DICLOAD paths.
     void setGhostRootPath(const std::string& path) { ghostRootPath_ = path; }
     std::string getGhostRootPath() const { return ghostRootPath_; }
-    
+
+    // 辞書ロード時プリプロセッサ (#globaldefine) からの登録口。
+    // ISGLOBALDEFINE / SETGLOBALDEFINE / PROCESSGLOBALDEFINE と同じマップを共有する。
+    void registerGlobalDefine(const std::string& name, const std::string& value) {
+        globalDefines_[name] = value;
+    }
+
 private:
     VMCallback* callback_ = nullptr;
     // Function registry: supports multiple declarations per name (YAYA overload).

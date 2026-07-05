@@ -171,13 +171,86 @@ std::string DictionaryManager::decodeContent(const std::string& raw,
     return raw;
 }
 
+// 行頭 #define / #globaldefine ディレクティブを解釈し、宣言行より後ろの行へ
+// 登録順の単純テキスト置換を適用する（本家 YAYA プリプロセッサ互換の生置換）。
+// - #define は当該ファイル内のみ有効
+// - #globaldefine は以降にロードされる全ファイルにも有効（メンバに蓄積）
+// - 適用順は「global（登録順）→ ファイル内 define（登録順）」
+// - ディレクティブ行自体は残置する（Lexer の '#' 行コメント読み飛ばしが安全網）
+std::string DictionaryManager::preprocessDirectives(const std::string& content) {
+    std::vector<std::pair<std::string, std::string>> fileDefines;
+
+    // "#keyword NAME value..." を分解。NAME は最初の空白まで、value は行末まで（前方空白除去）。
+    auto parseDirective = [](const std::string& line, const char* keyword,
+                             std::string& name, std::string& value) -> bool {
+        size_t klen = std::char_traits<char>::length(keyword);
+        if (line.compare(0, klen, keyword) != 0) return false;
+        size_t p = klen;
+        if (p >= line.size() || (line[p] != ' ' && line[p] != '\t')) return false;
+        while (p < line.size() && (line[p] == ' ' || line[p] == '\t')) p++;
+        size_t nameEnd = p;
+        while (nameEnd < line.size() && line[nameEnd] != ' ' && line[nameEnd] != '\t') nameEnd++;
+        if (nameEnd == p) return false;
+        name = line.substr(p, nameEnd - p);
+        size_t valStart = nameEnd;
+        while (valStart < line.size() && (line[valStart] == ' ' || line[valStart] == '\t')) valStart++;
+        value = line.substr(valStart);
+        while (!value.empty() && value.back() == '\r') value.pop_back();
+        while (!name.empty() && name.back() == '\r') name.pop_back();
+        return true;
+    };
+
+    auto replaceAll = [](std::string& s, const std::string& from, const std::string& to) {
+        if (from.empty()) return;
+        size_t pos = 0;
+        while ((pos = s.find(from, pos)) != std::string::npos) {
+            s.replace(pos, from.size(), to);
+            pos += to.size();
+        }
+    };
+
+    std::string out;
+    out.reserve(content.size());
+    size_t lineStart = 0;
+    while (lineStart <= content.size()) {
+        size_t lineEnd = content.find('\n', lineStart);
+        std::string line = (lineEnd == std::string::npos)
+            ? content.substr(lineStart)
+            : content.substr(lineStart, lineEnd - lineStart);
+
+        std::string name, value;
+        if (parseDirective(line, "#globaldefine", name, value)) {
+            preprocessorGlobalDefines_.emplace_back(name, value);
+            if (vm_) vm_->registerGlobalDefine(name, value);
+        } else if (parseDirective(line, "#define", name, value)) {
+            fileDefines.emplace_back(name, value);
+        } else if (!preprocessorGlobalDefines_.empty() || !fileDefines.empty()) {
+            for (const auto& def : preprocessorGlobalDefines_) {
+                replaceAll(line, def.first, def.second);
+            }
+            for (const auto& def : fileDefines) {
+                replaceAll(line, def.first, def.second);
+            }
+        }
+
+        out += line;
+        if (lineEnd == std::string::npos) break;
+        out += '\n';
+        lineStart = lineEnd + 1;
+    }
+    return out;
+}
+
 bool DictionaryManager::parseDictionary(const std::string& content, const std::string& sourceName) {
     try {
         // std::cerr << "[DictionaryManager] Tokenizing..." << std::endl;
         auto start_time = std::chrono::steady_clock::now();
 
+        // 行頭 #define / #globaldefine を解釈・置換してから字句解析へ
+        std::string preprocessed = preprocessDirectives(content);
+
         // Tokenize
-        Lexer lexer(content);
+        Lexer lexer(preprocessed);
         auto tokens = lexer.tokenize();
 
         auto tokenize_time = std::chrono::steady_clock::now();
@@ -237,6 +310,7 @@ bool DictionaryManager::load(const std::vector<DicEntry>& dicEntries,
     if (storedCallback_) vm_->setCallback(storedCallback_);  // preserve callback through reset
     if (!ghostRoot_.empty()) vm_->setGhostRootPath(ghostRoot_);
     loadedDicFiles_.clear();
+    preprocessorGlobalDefines_.clear();
 
     int success_count = 0;
     int fail_count = 0;

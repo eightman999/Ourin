@@ -217,4 +217,101 @@ struct YayaEmily4RegressionTests {
         #expect(first == second, "Same SRAND seed must reproduce the same random talk selection")
         #expect(first != third, "Different SRAND seeds are expected to (very likely) select a different talk")
     }
+
+    /// `EMRandomTalkSubArray : array` が `parallel` 修飾子によって正しくフラット化されることを検証する。
+    /// `parallel` 未実装時代は各 `parallel F(...)` 行が「未定義変数参照＋別文」に化けて
+    /// 候補配列が入れ子（要素に配列が混入）のまま返っており、雑談トークがサイレントに壊れていた。
+    @Test
+    func emily4RandomTalkSubArrayIsFlattenedByParallel() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping Emily4 regression test")
+            return
+        }
+        guard let master = try Self.copyEmily4Master() else {
+            print("[skip] emily4/ghost/master fixture not found; skipping")
+            return
+        }
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        // 候補配列のサイズと「要素自体が配列(GETTYPE==4)である個数」を数えるプローブ
+        let wrapperDic = """
+        EMArrayProbe {
+        \t_a = EMRandomTalkSubArray
+        \t_n = ARRAYSIZE(_a)
+        \t_nested = 0
+        \tfor _i = 0; _i < _n; _i++ {
+        \t\tif GETTYPE(_a[_i]) == 4 {
+        \t\t\t_nested += 1
+        \t\t}
+        \t}
+        \t"size=%(_n) nested=%(_nested)"
+        }
+        """
+        try wrapperDic.write(to: master.appendingPathComponent("_regression_parallel_probe.dic"),
+                              atomically: true, encoding: .utf8)
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master,
+                             extraEntries: [["path": "_regression_parallel_probe.dic", "encoding": "UTF-8"]])
+
+        let resp = session.exchange([
+            "cmd": "request", "method": "GET", "id": "EMArrayProbe",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ])
+        #expect(resp?["ok"] as? Bool == true)
+        let value = resp?["value"] as? String ?? ""
+
+        // "size=NNN nested=M" を分解
+        var size = -1
+        var nested = -1
+        for part in value.split(separator: " ") {
+            if part.hasPrefix("size=") { size = Int(part.dropFirst(5)) ?? -1 }
+            if part.hasPrefix("nested=") { nested = Int(part.dropFirst(7)) ?? -1 }
+        }
+        // RandomTalkNormal だけで100件超あるため、フラット化されていれば十分大きくなる。
+        // 壊れている場合は入れ子配列が数個入るだけでサイズが極端に小さい。
+        #expect(size >= 50, "Expected flattened candidate pool (>=50 talks), got size=\(size) from '\(value.prefix(80))'")
+        #expect(nested == 0, "Candidate pool must not contain nested arrays, got nested=\(nested)")
+    }
+
+    /// `EMRandomTalkSub : nonoverlap { parallel EMRandomTalkSubArray }`（非 array 文脈の parallel =
+    /// 候補から1つ選択）が SRAND 固定シードで決定的に動作することを検証する。
+    /// 既存の SeededRandomTalkNormal テストが意図的に回避していた `parallel` 経路のカバレッジ。
+    @Test
+    func emily4SeededEMRandomTalkSubIsReproducible() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping Emily4 regression test")
+            return
+        }
+        guard let master = try Self.copyEmily4Master() else {
+            print("[skip] emily4/ghost/master fixture not found; skipping")
+            return
+        }
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let wrapperDic = "SeededEMTalk {\n\tSRAND(_argv[0])\n\tEMRandomTalkSub\n}\n"
+        try wrapperDic.write(to: master.appendingPathComponent("_regression_parallel_seed.dic"),
+                              atomically: true, encoding: .utf8)
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master,
+                             extraEntries: [["path": "_regression_parallel_seed.dic", "encoding": "UTF-8"]])
+
+        func talk(seed: String) -> String? {
+            session.exchange([
+                "cmd": "request", "method": "GET", "id": "SeededEMTalk",
+                "ref": [seed], "headers": ["Charset": "UTF-8"]
+            ])?["value"] as? String
+        }
+
+        let first = talk(seed: "42")
+        let second = talk(seed: "42")
+        let third = talk(seed: "7")
+
+        #expect(first != nil && !(first?.isEmpty ?? true), "parallel in non-array context must select one candidate")
+        #expect(first == second, "Same SRAND seed must reproduce the same parallel selection")
+        #expect(first != third, "Different SRAND seeds are expected to (very likely) select a different talk")
+    }
 }

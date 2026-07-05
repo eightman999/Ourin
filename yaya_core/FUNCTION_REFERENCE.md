@@ -262,10 +262,10 @@ Regex functions implemented via C++ `std::regex` (ECMAScript syntax).
 | `RESTOREVAR(file)` | Restore variables | `RESTOREVAR("var/s.json")` → `1` |
 | `REGISTERTEMPVAR(name)` | Mark a variable as temporary so `SAVEVAR` excludes it | `REGISTERTEMPVAR("tempvar")` → `1` |
 | `UNREGISTERTEMPVAR(name)` | Remove a variable from the temp-var exclusion list | `UNREGISTERTEMPVAR("tempvar")` → `1` |
-| `LOGGING(msg)` | Log message (stub) | `LOGGING("test")` → `1` |
+| `LOGGING(msg...)` | Write message(s) to stderr with `[YAYA][LOGGING]` prefix (real since 2026-07-05) | `LOGGING("test")` → `1` |
 | `LSO()` | Last selected option (stub) | `LSO()` → `0` |
 | `LICENSE()` | Get license info | `LICENSE()` → license text |
-| `TRANSLATE(str, mode)` | Translate string (stub) | `TRANSLATE("text", 0)` |
+| `TRANSLATE(str, from, to)` | tr-style character-set mapping (upstream-compatible: `-` ranges, `\` escapes, delete mode when `to` empty; real since 2026-07-05) | `TRANSLATE("abc","ab","xy")` → `"xyc"` |
 | `GETDELIM()` | Get delimiter (stub) | `GETDELIM()` → `","` |
 | `SETDELIM(delim)` | Set delimiter (stub) | `SETDELIM(",")` → `1` |
 | `GETSETTING(key)` | Get setting value | `GETSETTING("key")` → stored value |

@@ -453,6 +453,19 @@ Value VM::executeFunctionDecl(const FunctionDecl& decl) {
         std::vector<Value> collected;
         try {
             for (const auto& stmt : body) {
+                // parallel 文: 式の返す配列を個々の候補として展開（1段フラット化）
+                if (stmt && stmt->type == AST::NodeType::Parallel) {
+                    auto* par = dynamic_cast<AST::ParallelNode*>(stmt.get());
+                    Value pv = executeNode(par->expr);
+                    if (pv.getType() == Value::Type::Array) {
+                        for (const auto& elem : pv.asArray()) {
+                            collected.push_back(elem);
+                        }
+                    } else if (!pv.isVoid()) {
+                        collected.push_back(pv);
+                    }
+                    continue;
+                }
                 Value v = executeNode(stmt);
                 if (stmt && stmt->type != AST::NodeType::Assignment && !v.isVoid()) {
                     collected.push_back(v);
@@ -621,6 +634,20 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             } else {
                 return executeBlock(ifNode->elseBody);
             }
+        }
+
+        case AST::NodeType::Parallel: {
+            // 非 array 文脈の parallel: 配列から1要素を等確率で選択して返す
+            // （array/sequential 関数の候補収集は executeFunctionDecl 側で展開する）
+            auto* par = dynamic_cast<AST::ParallelNode*>(node.get());
+            Value v = executeNode(par->expr);
+            if (v.getType() == Value::Type::Array) {
+                const auto& arr = v.asArray();
+                if (arr.empty()) return Value();
+                std::uniform_int_distribution<size_t> dis(0, arr.size() - 1);
+                return arr[dis(yaya_rng::engine())];
+            }
+            return v;
         }
         
         case AST::NodeType::While: {
@@ -981,7 +1008,12 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
 Value VM::executeBlock(const std::vector<std::shared_ptr<AST::Node>>& statements) {
     Value lastValue;
     for (const auto& stmt : statements) {
-        lastValue = executeNode(stmt);
+        Value v = executeNode(stmt);
+        // 代入文は出力候補にならない（本家YAYA準拠）。副作用のみ実行し、
+        // ブロックの値には反映しない（if の分岐値として配列代入が漏れるのを防ぐ）
+        if (stmt && stmt->type != AST::NodeType::Assignment) {
+            lastValue = v;
+        }
     }
     return lastValue;
 }
@@ -2770,8 +2802,15 @@ void VM::registerBuiltins() {
         return Value(1);
     };
 
-    // LOGGING(message) - Log message (stub - just returns success)
+    // LOGGING(message...) - 引数をログへ出力する（本家仕様: logger へ書き込み＋改行）。
+    // Ourin では yaya_core の stderr が Swift 側/テストの Pipe に回収されるため stderr へ出す。
     builtins_["LOGGING"] = [](const std::vector<Value>& args) -> Value {
+        std::string line;
+        for (size_t i = 0; i < args.size(); i++) {
+            if (i > 0) line += ", ";
+            line += args[i].asString();
+        }
+        std::cerr << "[YAYA][LOGGING] " << line << std::endl;
         return Value(1);
     };
     
@@ -2907,10 +2946,85 @@ void VM::registerBuiltins() {
         return Value(0);
     };
     
-    // TRANSLATE(str, mode) - Translate string (stub)
+    // TRANSLATE(str, from, to) - 文字集合の対応変換（本家 yaya-shiori sysfunc.cpp 準拠）。
+    // from/to は '-' 範囲展開（例 "a-z"、範囲上限256文字）と '\' エスケープに対応。
+    // to が from より短い場合は to の末尾文字で充填、to が空の場合は該当文字を削除する。
     builtins_["TRANSLATE"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value("");
-        return args[0];
+        if (args.size() < 3) return Value(-1);
+
+        // '-' 範囲と '\' エスケープを展開してコードポイント列にする
+        auto processSyntax = [](const std::string& spec) -> std::vector<uint32_t> {
+            std::vector<uint32_t> cps = decodeUtf8(spec);
+            std::vector<uint32_t> out;
+            size_t n = cps.size();
+            for (size_t i = 0; i < n; i++) {
+                if (cps[i] == '-') {
+                    if (i >= n - 1 || out.empty()) {
+                        // '-' が閉じていない/開いていない: リテラル扱い（本家は警告のみ）
+                        out.push_back('-');
+                        continue;
+                    }
+                    i++;
+                    uint32_t start = out.back();
+                    out.pop_back();
+                    uint32_t end = cps[i];
+                    if (start > end) {
+                        // ゼロ要素として続行（本家同様）
+                    } else if (start == end) {
+                        out.push_back(start);
+                    } else {
+                        if (end - start >= 256) end = start + 255; // 範囲上限（本家同様）
+                        for (uint32_t c = start; c <= end; c++) out.push_back(c);
+                    }
+                } else if (cps[i] == '\\') {
+                    if (i >= n - 1) {
+                        out.push_back('-');
+                        continue;
+                    }
+                    i++;
+                    switch (cps[i]) {
+                        case 'a': out.push_back('\a'); break;
+                        case 'b': out.push_back('\b'); break;
+                        case 'e': out.push_back(0x1b); break;
+                        case 'f': out.push_back('\f'); break;
+                        case 'n': out.push_back('\n'); break;
+                        case 'r': out.push_back('\r'); break;
+                        case 't': out.push_back('\t'); break;
+                        case 'v': out.push_back('\v'); break;
+                        case '0': out.push_back(0); break;
+                        default:  out.push_back(cps[i]); break; // '\\' '\-' 等はその文字
+                    }
+                } else {
+                    out.push_back(cps[i]);
+                }
+            }
+            return out;
+        };
+
+        std::vector<uint32_t> str = decodeUtf8(args[0].asString());
+        std::vector<uint32_t> repFrom = processSyntax(args[1].asString());
+        std::vector<uint32_t> repTo = processSyntax(args[2].asString());
+
+        if (repFrom.size() > repTo.size() && !repTo.empty()) {
+            uint32_t pad = repTo.back();
+            while (repFrom.size() > repTo.size()) repTo.push_back(pad);
+        }
+        bool isDelete = repTo.empty();
+
+        std::string result;
+        result.reserve(args[0].asString().size());
+        for (uint32_t cp : str) {
+            bool matched = false;
+            for (size_t r = 0; r < repFrom.size(); r++) {
+                if (cp == repFrom[r]) {
+                    matched = true;
+                    if (!isDelete) appendUtf8(result, repTo[r]);
+                    break;
+                }
+            }
+            if (!matched) appendUtf8(result, cp);
+        }
+        return Value(result);
     };
     
     // LICENSE() - Get license information

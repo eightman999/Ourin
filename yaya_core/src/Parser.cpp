@@ -240,6 +240,23 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
         return parseWhile();
     }
 
+    // 'parallel expr' 修飾子（キーワード化せず文脈判定: 'others' と同じ流儀）。
+    // 直後が式開始トークンの場合のみ成立させ、`parallel = 1` / `parallel[i] = ..` /
+    // `parallel.foo = ..` / `parallel LABEL {` / 裸の `parallel` は従来解釈のまま残す。
+    if (check(TokenType::Identifier) && current().value == "parallel") {
+        TokenType nt = peek().type;
+        bool exprStart = (nt == TokenType::Identifier || nt == TokenType::String ||
+                          nt == TokenType::Integer || nt == TokenType::LeftParen ||
+                          nt == TokenType::Minus || nt == TokenType::Not ||
+                          nt == TokenType::Ampersand);
+        bool labelForm = (nt == TokenType::Identifier && peek(2).type == TokenType::LeftBrace);
+        if (exprStart && !labelForm) {
+            advance(); // consume 'parallel'
+            auto expr = parseExpression();
+            return std::make_shared<AST::ParallelNode>(expr);
+        }
+    }
+
     // Label-like block forms: IDENT '{' or IDENT IDENT '{' (e.g., START_CHANGE { ... } / when X { ... })
     if (check(TokenType::Identifier)) {
         if (peek().type == TokenType::LeftBrace) {

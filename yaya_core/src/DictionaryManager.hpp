@@ -50,9 +50,14 @@ private:
     VMCallback* storedCallback_ = nullptr;  // preserved across VM resets
     std::vector<std::string> loadedDicFiles_;  // Paths of successfully loaded dic files
     std::string ghostRoot_;
+    // #globaldefine で登録された置換（登録順を保持）。load() 開始時にクリアされ、
+    // 登録以降にロードされる全ファイルへ適用される。
+    std::vector<std::pair<std::string, std::string>> preprocessorGlobalDefines_;
     std::string loadFile(const std::string& path);
     std::string decodeContent(const std::string& raw,
                               const std::string& encoding,
                               const std::string& filename);
+    // 行頭 #define / #globaldefine ディレクティブの解釈とテキスト置換（本家YAYA互換）
+    std::string preprocessDirectives(const std::string& content);
     bool parseDictionary(const std::string& content, const std::string& sourceName);
 };
