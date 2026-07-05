@@ -7,16 +7,43 @@ import AppKit
 /// SHIORI Resources are simple key-value pairs (not SakuraScript) that control
 /// ghost behavior and store user preferences.
 ///
+/// ゴースト別分離: `ghostKey`（通常はゴーストフォルダ名）を渡すと
+/// `OurinResource.<ghostKey>.<key>` の名前空間に保存し、複数ゴースト同時起動時の
+/// 値の相互汚染を防ぐ。旧グローバルキー（`OurinResource.<key>`）は、最初に
+/// ghostKey 付きで初期化されたゴーストが一度だけ引き継ぐ（backfill。
+/// `OurinResource.__claimedBy` マーカーで多重移行を防止）。
+/// ghostKey 省略時は従来どおりグローバル名前空間を読み書きする（互換維持）。
+///
 /// TODO(profile): SSP 互換の永続化先は `data/profile/<ghost>/`（公開フォルダ）。
-/// 現状はゴースト非分離のグローバル状態を UserDefaults に保存している。将来は
-/// `OurinPaths.profileDirectory(for:)` 配下のファイルへゴースト別に移行する想定
-/// （ゴースト別キー namespace ＋ファイル形式 ＋既存値の backfill が必要）。
+/// 将来は `OurinPaths.profileDirectory(for:)` 配下のファイルへ移行する想定。
 public final class ResourceManager {
     private let defaults: UserDefaults
-    private let prefix = "OurinResource."
+    private let prefix: String
+    private static let legacyPrefix = "OurinResource."
+    private static let claimMarkerKey = "OurinResource.__claimedBy"
 
-    public init(defaults: UserDefaults = .standard) {
+    public init(defaults: UserDefaults = .standard, ghostKey: String? = nil) {
         self.defaults = defaults
+        let trimmed = ghostKey?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if trimmed.isEmpty {
+            self.prefix = Self.legacyPrefix
+        } else {
+            self.prefix = Self.legacyPrefix + trimmed + "."
+            backfillLegacyValuesIfFirstClaim(ghostKey: trimmed)
+        }
+    }
+
+    /// 旧グローバルキーの値を、最初に起動した ghostKey 付きゴーストの名前空間へ一度だけコピーする。
+    /// 旧キー自体は削除しない（旧ビルドとの互換のため残置）。
+    private func backfillLegacyValuesIfFirstClaim(ghostKey: String) {
+        guard defaults.string(forKey: Self.claimMarkerKey) == nil else { return }
+        defaults.set(ghostKey, forKey: Self.claimMarkerKey)
+        for (key, value) in defaults.dictionaryRepresentation() {
+            guard key.hasPrefix(Self.legacyPrefix), key != Self.claimMarkerKey else { continue }
+            guard let str = value as? String else { continue }
+            let sub = String(key.dropFirst(Self.legacyPrefix.count))
+            defaults.set(str, forKey: prefix + sub)
+        }
     }
 
     // MARK: - Generic Accessors

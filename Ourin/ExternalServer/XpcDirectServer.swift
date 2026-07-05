@@ -48,7 +48,9 @@ public final class XpcDirectServer: NSObject, NSXPCListenerDelegate, OurinSSTPXP
             reply(Data("SSTP/1.1 400 Bad Request\r\n\r\n".utf8))
             return
         }
-        let str = String(data: request, encoding: .utf8) ?? String(data: request, encoding: .shiftJIS) ?? ""
+        let str = String(data: request, encoding: .utf8)
+            ?? (EncodingNormalizer.acceptsCP932 ? String(data: request, encoding: .shiftJIS) : nil)
+            ?? ""
         let start = Date()
         let resp = onRequest?(str) ?? "SSTP/1.1 204 No Content\r\n\r\n"
         let duration = Date().timeIntervalSince(start)

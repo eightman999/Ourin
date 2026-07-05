@@ -8,6 +8,8 @@
 import SwiftUI
 import AppKit
 import OSLog
+import ServiceManagement
+import Network
 
 struct ContentView: View {
     enum Section: String, CaseIterable, Identifiable {
@@ -320,7 +322,11 @@ fileprivate struct ShioriResourceView: View {
 
             Button(action: loadResources) { Label("Reload", systemImage: "arrow.clockwise") }
             Button(action: applyOverlay) { Label("Apply", systemImage: "checkmark.circle") }
+                .help("Preview only: この画面の Effective 列にのみ反映され、実行中ゴーストへは適用されません")
             Button(action: clearOverlay) { Label("Clear", systemImage: "xmark.circle") }
+            Text("Overlay: Preview only（実行系へは未反映）")
+                .font(.caption2)
+                .foregroundColor(.secondary)
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
@@ -542,6 +548,14 @@ fileprivate struct GeneralSettingsView: View {
     private let startupGhostKey = "OurinStartupGhost"
     private let logOutputPathKey = "OurinLogOutputPath"
     private let enableFileLoggingKey = "OurinEnableFileLogging"
+    private let acceptCP932Key = "OurinAcceptCP932"
+    private let defaultEncodingKey = "OurinDefaultEncoding"
+
+    /// macOS 13未満ではSMAppServiceが使えないため自動起動トグルを無効化する
+    private var autoStartAvailable: Bool {
+        if #available(macOS 13.0, *) { return true }
+        return false
+    }
     
     var body: some View {
         ScrollView {
@@ -586,7 +600,19 @@ fileprivate struct GeneralSettingsView: View {
                 Group {
                     Text("システム設定").font(.headline)
                     Toggle("自動起動", isOn: $autoStart)
+                        .disabled(!autoStartAvailable)
+                        .help(autoStartAvailable ? "" : "macOS 13以降で利用可能です")
+                    if !autoStartAvailable {
+                        Text("自動起動はmacOS 13以降で利用可能です")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.leading, 100)
+                    }
                     Toggle("自動アップデート確認", isOn: $autoUpdate)
+                    Text("（現在この設定は未使用）")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.leading, 100)
                     HStack(alignment: .top) {
                         Text("起動ゴースト:")
                             .frame(minWidth: 100, alignment: .trailing)
@@ -651,6 +677,27 @@ fileprivate struct GeneralSettingsView: View {
 
         // Rosetta状態を確認
         checkRosettaStatus()
+
+        // "OurinGeneralSettings" 辞書から一般設定を読み戻す
+        if let settings = UserDefaults.standard.dictionary(forKey: "OurinGeneralSettings") {
+            if let saved = settings["defaultEncoding"] as? String {
+                defaultEncoding = saved
+            }
+            if let saved = settings["acceptCP932"] as? Bool {
+                acceptCP932 = saved
+            }
+            if let saved = settings["autoStart"] as? Bool {
+                autoStart = saved
+            }
+            if let saved = settings["autoUpdate"] as? Bool {
+                autoUpdate = saved
+            }
+        }
+
+        // 自動起動はSMAppServiceの実状態を優先して表示する（macOS 13以降）
+        if #available(macOS 13.0, *) {
+            autoStart = SMAppService.mainApp.status == .enabled
+        }
 
         // Load ghosts
         availableGhosts = NarRegistry.shared.installedGhosts()
@@ -731,10 +778,30 @@ fileprivate struct GeneralSettingsView: View {
         ] as [String : Any]
 
         UserDefaults.standard.set(settings, forKey: "OurinGeneralSettings")
+        // 消費側（EncodingNormalizer/Logなど）が読みやすいよう個別キーでも併記保存する
+        UserDefaults.standard.set(acceptCP932, forKey: acceptCP932Key)
+        UserDefaults.standard.set(defaultEncoding, forKey: defaultEncodingKey)
         UserDefaults.standard.set(startupGhost, forKey: startupGhostKey)
         UserDefaults.standard.set(enableFileLogging, forKey: enableFileLoggingKey)
         UserDefaults.standard.set(logOutputPath, forKey: logOutputPathKey)
         logger.info("Settings saved: \(settings)")
+
+        // 自動起動トグルに応じてログイン項目を登録/解除する（macOS 13以降のみ）
+        if #available(macOS 13.0, *) {
+            do {
+                if autoStart {
+                    if SMAppService.mainApp.status != .enabled {
+                        try SMAppService.mainApp.register()
+                    }
+                } else {
+                    if SMAppService.mainApp.status == .enabled {
+                        try SMAppService.mainApp.unregister()
+                    }
+                }
+            } catch {
+                Log.error("SMAppService toggle failed: \(error.localizedDescription)")
+            }
+        }
 
         // 設定適用の通知
         let alert = NSAlert()
@@ -758,6 +825,8 @@ fileprivate struct GeneralSettingsView: View {
         UserDefaults.standard.removeObject(forKey: startupGhostKey)
         UserDefaults.standard.removeObject(forKey: enableFileLoggingKey)
         UserDefaults.standard.removeObject(forKey: logOutputPathKey)
+        UserDefaults.standard.removeObject(forKey: acceptCP932Key)
+        UserDefaults.standard.removeObject(forKey: defaultEncodingKey)
 
         logger.info("Settings reset to defaults")
     }
@@ -892,7 +961,10 @@ fileprivate struct HeadlineBalloonView: View {
                     Text("バルーンプレビュー")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
-                    
+                    Text("（Preview only: 実バルーン画像は描画されません）")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+
                     ZStack {
                         RoundedRectangle(cornerRadius: 10)
                             .fill(Color.blue.opacity(0.1))
@@ -994,7 +1066,7 @@ fileprivate struct HeadlineBalloonView: View {
     }
     
     private func executeScript() {
-        // さくらスクリプト実行のテスト
+        // さくらスクリプト実行のテスト（Preview only: 実パースは行わず固定のサンプル結果を表示する）
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("Script Result", comment: "Script execution result title")
         let execLabel = NSLocalizedString("Executed Script:", comment: "executed script label")
@@ -1002,7 +1074,8 @@ fileprivate struct HeadlineBalloonView: View {
         let surfaceLabel = NSLocalizedString("- Surface:", comment: "surface label")
         let textLabel = NSLocalizedString("- Text:", comment: "text label")
         let endDetected = NSLocalizedString("- End tag detected", comment: "end tag detected")
-        alert.informativeText = "\(execLabel)\n\(testScript)\n\n\(parseLabel)\n\(surfaceLabel) 0\n\(textLabel) \"こんにちは！これはテストメッセージです。\"\n\(endDetected)"
+        let previewNote = "（Preview only: 固定のサンプル結果です。実際のスクリプト実行はゴースト本体で行われます）"
+        alert.informativeText = "\(previewNote)\n\n\(execLabel)\n\(testScript)\n\n\(parseLabel)\n\(surfaceLabel) 0\n\(textLabel) \"こんにちは！これはテストメッセージです。\"\n\(endDetected)"
         alert.alertStyle = .informational
         alert.runModal()
     }
@@ -1069,10 +1142,15 @@ fileprivate struct PluginEventView: View {
     private var pluginList: some View {
         VStack(alignment: .leading) {
             Text("Loaded Plugins").font(.headline).padding([.top, .leading])
+            Text("Enabled 列は Preview only（イベント配送の停止には未接続）")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .padding(.leading)
             if #available(macOS 12.0, *) {
                 Table(plugins, selection: $selection) {
                     TableColumn("Enabled") { item in
                         Toggle("", isOn: binding(for: item.id)).labelsHidden()
+                            .help("Preview only: この列の変更はイベント配送へ反映されません")
                     }.width(40)
                     TableColumn("Name", value: \.name)
                     TableColumn("ID", value: \.pluginID)
@@ -1228,18 +1306,17 @@ fileprivate struct ExternalEventsView: View {
     @State private var tcpStatus = "Stopped"
     @State private var httpStatus = "Stopped"
     @State private var xpcStatus = "Stopped"
-    @State private var tcpConnections = 0
-    @State private var httpRequests = 0
-    @State private var xpcClients = 0
+    @State private var totalRequests = 0
     @State private var sampleRequest = "NOTIFY SSTP/1.1\r\nSender: ExternalTester\r\nEvent: OnSecondChange\r\n\r\n"
-    
+    @State private var lastResponse = ""
+
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "external")
     private let externalServer = (NSApp.delegate as? AppDelegate)?.externalServer
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("External Events Harness").font(.largeTitle).padding(.bottom)
-            
+
             serversStatus
             Divider()
             utilityTools
@@ -1248,71 +1325,70 @@ fileprivate struct ExternalEventsView: View {
         .padding()
         .onAppear(perform: loadStatus)
     }
-    
+
     private var serversStatus: some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("Server Status").font(.headline)
-            
+            HStack {
+                Text("Server Status").font(.headline)
+                Spacer()
+                Button("更新") { loadStatus() }
+                // 生SSTP/HTTP は 9801 単一リスナーで多重化されているため個別制御は不可。
+                // 全サーバ（unified + XPC + Distributed IPC）をまとめて再起動する。
+                Button("全サーバ再起動") { restartAllServers() }
+            }
+
             // TCP SSTP Server
             HStack {
                 VStack(alignment: .leading) {
                     Text("SSTP (TCP/9801)").font(.subheadline)
                     Text("Status: \(tcpStatus)").foregroundColor(tcpStatus == "Running" ? .green : .red)
-                    Text("Connections: \(tcpConnections)")
                 }
                 Spacer()
-                Button(tcpStatus == "Running" ? "Stop" : "Start") {
-                    toggleTcpServer()
-                }
             }
             .padding()
             .background(Color.gray.opacity(0.1))
             .cornerRadius(8)
-            
+
             // HTTP Server
             HStack {
                 VStack(alignment: .leading) {
                     Text("HTTP (/api/sstp/v1)").font(.subheadline)
                     Text("Status: \(httpStatus)").foregroundColor(httpStatus == "Running" ? .green : .red)
-                    Text("Requests: \(httpRequests)")
                 }
                 Spacer()
-                Button(httpStatus == "Running" ? "Stop" : "Start") {
-                    toggleHttpServer()
-                }
             }
             .padding()
             .background(Color.gray.opacity(0.1))
             .cornerRadius(8)
-            
+
             // XPC Server
             HStack {
                 VStack(alignment: .leading) {
                     Text("XPC (jp.ourin.sstp)").font(.subheadline)
                     Text("Status: \(xpcStatus)").foregroundColor(xpcStatus == "Running" ? .green : .red)
-                    Text("Clients: \(xpcClients)")
                 }
                 Spacer()
-                Button("Start") {
-                    startXpcServer()
-                }.disabled(xpcStatus == "Running")
             }
             .padding()
             .background(Color.gray.opacity(0.1))
             .cornerRadius(8)
+
+            Text("累計リクエスト（全トランスポート合算）: \(totalRequests)")
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
     }
     
     private var utilityTools: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Utility Tools").font(.headline)
-            
+
             VStack(alignment: .leading, spacing: 10) {
                 Text("Sample SSTP Request").font(.subheadline)
                 TextEditor(text: $sampleRequest)
                     .frame(height: 100)
                     .border(Color.gray, width: 1)
-                
+
                 HStack {
                     Button("Send to TCP") {
                         sendSampleRequest(via: .tcp)
@@ -1327,70 +1403,99 @@ fileprivate struct ExternalEventsView: View {
                         copyXpcSnippet()
                     }
                 }
+
+                if !lastResponse.isEmpty {
+                    Text("Response").font(.subheadline)
+                    ScrollView {
+                        Text(lastResponse)
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(height: 100)
+                    .border(Color.gray.opacity(0.5), width: 1)
+                }
             }
         }
     }
-    
+
     private enum RequestMethod {
         case tcp, http, xpc
     }
-    
+
     private func loadStatus() {
-        // Mock status for now - in real implementation, query actual server status
-        tcpStatus = "Stopped"
-        httpStatus = "Stopped"
-        xpcStatus = "Running"
-        tcpConnections = 0
-        httpRequests = 42
-        xpcClients = 1
+        // 実サーバ状態を反映する（旧実装は固定値のモックだった）
+        tcpStatus = (externalServer?.tcpRunning ?? false) ? "Running" : "Stopped"
+        httpStatus = (externalServer?.httpRunning ?? false) ? "Running" : "Stopped"
+        xpcStatus = (externalServer?.xpc.isRunning ?? false) ? "Running" : "Stopped"
+        totalRequests = ServerMetrics.shared.requestCount
     }
-    
-    private func toggleTcpServer() {
+
+    private func restartAllServers() {
         guard let server = externalServer else { return }
-        
-        if tcpStatus == "Running" {
-            server.stop()
-            tcpStatus = "Stopped"
-            logger.info("TCP server stopped")
-        } else {
-            server.start()
-            tcpStatus = "Running"
-            logger.info("TCP server started")
-        }
-    }
-    
-    private func toggleHttpServer() {
-        guard let server = externalServer else { return }
-        
-        if httpStatus == "Running" {
-            server.stop()
-            httpStatus = "Stopped"
-            logger.info("HTTP server stopped")
-        } else {
-            server.start()
-            httpStatus = "Running"
-            logger.info("HTTP server started")
-        }
-    }
-    
-    private func startXpcServer() {
-        guard let server = externalServer else { return }
+        server.stop()
         server.start()
-        xpcStatus = "Running"
-        logger.info("XPC server started")
+        logger.info("All external servers restarted")
+        loadStatus()
     }
-    
+
     private func sendSampleRequest(via method: RequestMethod) {
+        let payload = sampleRequest
         switch method {
         case .tcp:
-            logger.info("Sending sample request via TCP: \(sampleRequest)")
-            // Send to localhost:9801
+            // 127.0.0.1:9801 へ生 SSTP を実送信し、応答を表示する
+            logger.info("Sending sample request via TCP (127.0.0.1:9801)")
+            let conn = NWConnection(host: "127.0.0.1", port: 9801, using: .tcp)
+            conn.stateUpdateHandler = { state in
+                if case .failed(let err) = state {
+                    DispatchQueue.main.async { self.lastResponse = "TCP connection failed: \(err)" }
+                    conn.cancel()
+                }
+            }
+            conn.start(queue: .global(qos: .userInitiated))
+            conn.send(content: Data(payload.utf8), completion: .contentProcessed { err in
+                if let err = err {
+                    DispatchQueue.main.async { self.lastResponse = "TCP send failed: \(err)" }
+                    conn.cancel()
+                    return
+                }
+                conn.receive(minimumIncompleteLength: 1, maximumLength: 64 * 1024) { data, _, _, recvErr in
+                    DispatchQueue.main.async {
+                        if let data = data, !data.isEmpty {
+                            self.lastResponse = String(data: data, encoding: .utf8) ?? "(non-UTF8 response, \(data.count) bytes)"
+                        } else if let recvErr = recvErr {
+                            self.lastResponse = "TCP receive failed: \(recvErr)"
+                        } else {
+                            self.lastResponse = "(empty response)"
+                        }
+                        self.loadStatus()
+                    }
+                    conn.cancel()
+                }
+            })
         case .http:
-            logger.info("Sending sample request via HTTP")
-            // POST to localhost:9801/api/sstp/v1
+            // http://127.0.0.1:9801/api/sstp/v1 へ POST し、応答ボディを表示する
+            logger.info("Sending sample request via HTTP (/api/sstp/v1)")
+            guard let url = URL(string: "http://127.0.0.1:9801/api/sstp/v1") else { return }
+            var req = URLRequest(url: url, timeoutInterval: 10)
+            req.httpMethod = "POST"
+            req.setValue("text/plain", forHTTPHeaderField: "Content-Type")
+            req.setValue("null", forHTTPHeaderField: "Origin")
+            req.httpBody = Data(payload.utf8)
+            URLSession.shared.dataTask(with: req) { data, response, error in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        self.lastResponse = "HTTP request failed: \(error.localizedDescription)"
+                    } else {
+                        let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+                        let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+                        self.lastResponse = "HTTP \(code)\n\(body)"
+                    }
+                    self.loadStatus()
+                }
+            }.resume()
         case .xpc:
-            logger.info("Sending sample request via XPC")
-            // Send via XPC connection
+            logger.info("XPC direct send is not wired in this harness; use the copied snippet")
+            lastResponse = "XPC送信はこのハーネスからは未対応です（Copy XPC Snippet を利用してください）"
         }
     }
     
@@ -1510,7 +1615,8 @@ fileprivate struct LoggingDiagnosticsView: View {
                 }
                 .disabled(selection.isEmpty)
 
-                Toggle("Signpost Timeline", isOn: $showSignpostTimeline)
+                Toggle("Signpost Timeline (Preview only)", isOn: $showSignpostTimeline)
+                    .help("Preview only: 固定のサンプルデータを表示します。実際の os_signpost 集計は未実装です")
             }
             .padding()
             .background(Color.gray.opacity(0.1))

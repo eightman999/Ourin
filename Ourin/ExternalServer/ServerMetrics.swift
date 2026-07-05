@@ -23,6 +23,11 @@ public final class ServerMetrics {
         queue.sync { count > 0 ? totalTime / Double(count) : 0 }
     }
 
+    /// 累計リクエスト数（DevTools のステータス表示用）
+    public var requestCount: Int {
+        queue.sync { count }
+    }
+
     public var errorRate: Double {
         queue.sync { count > 0 ? Double(error) / Double(count) : 0 }
     }

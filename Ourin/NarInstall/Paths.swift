@@ -234,6 +234,19 @@ enum OurinPaths {
             // 言語パック: language/<directory> へ設置する（UKADOC install.txt の language 種別）。
             return base.appendingPathComponent("language", isDirectory: true)
                        .appendingPathComponent(directory, isDirectory: true)
+        case "saori":
+            // SAORI モジュール（UKADOC 未規定・SSP 実装依存の拡張。Ourin 独自解釈を docs に明記）:
+            // accept 指定あり → 対象ゴーストの ghost/master/<directory>（辞書からの相対ロードと一致）
+            // accept 指定なし → 共有 saori/<directory>（SaoriRegistry の走査パスと一致）
+            if let accept = trimmedAccept, !accept.isEmpty {
+                return base.appendingPathComponent("ghost", isDirectory: true)
+                           .appendingPathComponent(accept, isDirectory: true)
+                           .appendingPathComponent("ghost", isDirectory: true)
+                           .appendingPathComponent("master", isDirectory: true)
+                           .appendingPathComponent(directory, isDirectory: true)
+            }
+            return base.appendingPathComponent("saori", isDirectory: true)
+                       .appendingPathComponent(directory, isDirectory: true)
         case "shell":
             // 対象ゴースト配下の shell/<directory> へネストして設置する。
             guard let accept = trimmedAccept, !accept.isEmpty else {

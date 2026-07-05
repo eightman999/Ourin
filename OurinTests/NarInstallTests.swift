@@ -11,6 +11,17 @@ struct NarInstallTests {
         #expect(manifest.directory == "foo")
     }
 
+    /// `type,saori` の設置先解決（UKADOC 未規定のため Ourin 定義:
+    /// accept あり → 対象ゴーストの ghost/master/<dir>、なし → 共有 saori/<dir>）
+    @Test
+    func saoriInstallTargetResolution() throws {
+        let shared = try OurinPaths.installTarget(forType: "saori", directory: "mciaudior")
+        #expect(shared.path.hasSuffix("/saori/mciaudior"))
+
+        let ghostLocal = try OurinPaths.installTarget(forType: "saori", directory: "mciaudior", accept: "emily4")
+        #expect(ghostLocal.path.hasSuffix("/ghost/emily4/ghost/master/mciaudior"))
+    }
+
     @Test
     func installUtf8Nar() throws {
         let nar = try makeSampleNar(encoding: .utf8, dirName: "sample1_\(UUID().uuidString)")

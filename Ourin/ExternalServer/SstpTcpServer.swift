@@ -97,10 +97,11 @@ public final class SstpTcpServer {
 
     private static func decode(_ data: Data) -> String? {
         // 宣言された Charset を尊重しつつ、未指定時は UTF-8→Shift_JIS の順でフォールバック
+        // （CP932受理設定がfalseの場合はShift_JISフォールバックをスキップする）
         let charset = EncodingAdapter.detectCharset(in: data)
         return EncodingAdapter.decode(data, charset: charset)
             ?? String(data: data, encoding: .utf8)
-            ?? String(data: data, encoding: .shiftJIS)
+            ?? (EncodingNormalizer.acceptsCP932 ? String(data: data, encoding: .shiftJIS) : nil)
     }
 
     private func sendErrorResponse(_ conn: NWConnection, status: Int) {
