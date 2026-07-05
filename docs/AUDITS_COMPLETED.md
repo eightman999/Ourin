@@ -1,6 +1,6 @@
 # Ourin 監査項目 — 完了済み / Audit Items — Completed
 
-**最終更新 / Last Updated**: 2026-06-30
+**最終更新 / Last Updated**: 2026-07-05
 **集約元 / Consolidated from**: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY（各 ja-jp / en-us）
 **検証方法 / Verification**: 全項目を現状ソースコード（file:line）と照合して完了判定。
 
@@ -151,6 +151,26 @@
 | surfaces*.txt 全読み込み（2026-06-27修正） | `Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift` |
 | **`surfacetable.txt` の体系的処理**（2026-06-30） | `Animation/SurfaceTableParser.swift` 新設（`SurfaceTable`/`SurfaceGroup`/`SurfaceEntry` データモデル + `SurfaceTableParser.parse`）。`group,NAME { scope,N .. id,NAME }` 構文・`__disabled`/`__parts` マーカー・`option,DisableNoDefineSurfaces` を解釈。`Animation/SerikoParser.swift`（`SurfaceDefinitionLoader.loadSurfaceTable` 追加、surfacetable.txt を surfaces*.txt バンドルから分離）。`Ghost/GhostManager.swift:225`（`surfaceTable` プロパティ）、`Ghost/GhostManager+Surface.swift`（`loadImage` で未定義サーフェス描画スキップ）。テスト `SurfaceTableParserTests.swift`。※サーフィステストダイアログ UI（`\![open,surfacetest]`）は別課題 |
 
+### K. 2026-07-05 互換性向上ラウンド
+
+Sonnet 調査エージェント3体による全域再監査（既存監査に無い新規ギャップの発見を含む）と、その修正ラウンドで解消した項目。
+
+| 項目 | 根拠（file:line） |
+|---|---|
+| **yaya_core: `parallel` 修飾子を実装**（Emily4 で41箇所使用。未実装のため雑談候補配列が入れ子化しサイレント破壊されていた） | `yaya_core/src/AST.hpp`（`ParallelNode`）、`Parser.cpp`（文脈判定・キーワード化せず後方互換維持）、`VM.cpp`（array/sequential 収集での1段フラット化＋非 array 文脈での1要素ランダム選択、SRAND と同一 RNG）。実 Emily4 で候補プール 278件・入れ子0件を確認。テスト `OurinTests/YayaEmily4RegressionTests.swift`（フラット化検証・SRAND 再現） |
+| **yaya_core: `executeBlock` が代入文の値をブロック値にしない**（`if { _tmp = 配列 }` 経由の入れ子配列リーク解消、本家「代入文は出力候補にならない」準拠） | `yaya_core/src/VM.cpp`（`executeBlock`） |
+| **yaya_core: `#globaldefine` / `#define` プリプロセッサ実装**（Emily4 `aya_ghostchange_core.dic` で8箇所使用。従来は `#` 行が無条件コメント扱いで case 構文マクロが消失していた） | `yaya_core/src/DictionaryManager.cpp`（`preprocessDirectives`: 登録順の生置換、#define=ファイルスコープ / #globaldefine=以降の全ファイル）、`VM.hpp`（`registerGlobalDefine` で ISGLOBALDEFINE/PROCESSGLOBALDEFINE と整合） |
+| **yaya_core: `LOGGING` / `TRANSLATE` の実処理化**（LOGGING=stderr 出力。TRANSLATE=本家 yaya-shiori sysfunc.cpp 準拠の文字集合対応変換、`-` 範囲展開・`\` エスケープ・変換先空での削除・不足分の末尾文字充填） | `yaya_core/src/VM.cpp` |
+| **`OnDestroy` イベント発火**（NOTIFY、SHIORI unload 直前に対象ゴーストへ直接送信。リロード時は Reference0=`reload`、通常終了は Reference なし。UKADOC 準拠） | `Ourin/Ghost/GhostManager.swift`（`shutdown()` / `pendingDestroyReason`）、`SHIORIEvents/EventReferenceSpec.swift` |
+| **マルチゴースト時の SSTP 応答副作用ルーティング**（Surface/Balloon/BalloonOffset/Icon/EXECUTE 系を ReceiverGhostName で対象ゴーストへ解決。未指定はプライマリ＝単一ゴースト構成の挙動不変） | `Ourin/OurinApp.swift`（`ghostManagerForShioriRequest` / `receiverTargetKey`）、`SSTP/SSTPDispatcher.swift`。テスト `SSTPDispatcherTests.swift`（照合キー生成） |
+| **`OnOffscreen` / `OnOverlap` / `OnOtherOffscreen` / `OnOtherOverlap` 実装**（GET、Reference0=現在 / Reference1=直前、区切りはバイト値1。毎秒 tick で遷移検出、既存 `mikireScopes`/`kasanariScopes` 基盤を流用。OnOther 系は全ゴースト横断 `Sakura名/ID` 表記） | `Ourin/Ghost/GhostManager+Window.swift`（純関数 `offscreenRef0`/`overlapRef0` ＋ `overlapTransitionEvents`）、`SHIORIEvents/EventBridge.swift`（`dispatchOverlapTransitions`）。テスト `OverlapTransitionTests.swift` |
+| **設定画面の保存値を実配線**（保存辞書の読み戻しバグ修正・SMAppService 自動起動（macOS 13+）・外部 SSTP の CP932 受理ゲート・ファイルログ sink。自動アップデート確認は「未使用」注記のみ） | `Ourin/ContentView.swift`、`ExternalServer/EncodingNormalizer.swift`（`acceptsCP932`、既定 true=現行挙動不変）、`Utils/Log.swift`（`LogFileSink`）。テスト `EncodingNormalizerCP932GateTests.swift` / `LogFileSinkTests.swift` |
+| **NAR `type,saori` 対応**（accept あり → 対象ゴーストの `ghost/master/<dir>`、なし → 共有 `saori/<dir>`。UKADOC 未規定のため Ourin 定義として明記） | `Ourin/NarInstall/Paths.swift`（`installTarget`）。テスト `NarInstallTests.swift` |
+| **SHIORI Resource のゴースト別分離**（`OurinResource.<ghostKey>.<key>` 名前空間化＋旧グローバル値は最初に起動したゴーストが一度だけ backfill。複数ゴースト同時起動時の値汚染を解消） | `Ourin/Property/ResourceManager.swift`、`Ghost/GhostManager.swift`（`lazy var resourceManager`）。テスト `ResourceManagerSeparationTests.swift` |
+| **`\f[anchor*]` 装飾サブコマンド群の受理**（`anchorfontcolor`/`anchornotselectfontcolor` は文字色へ反映。style/brush/pen/method/visited 系14種は受理＋debug ログでサイレント無視を解消） | `Ourin/Ghost/GhostManager.swift`（`\f` switch） |
+| **DevTools モック UI の裁定**（External Events Harness を実配線: 実サーバステータス・実 TCP/HTTP 送信・応答表示・全サーバ再起動。Headline/Balloon プレビュー・Signpost・Resource Overlay・Plugin Enabled トグルは「Preview only」注記） | `Ourin/ContentView.swift`、`ExternalServer/ServerMetrics.swift`（`requestCount` 公開） |
+| **NAR 複合 install 種別の記載訂正**（AUDITS_TODO の「不足」記載は誤りで、実装済みだったことを確認） | `Ourin/NarInstall/Paths.swift:219-236`（calendar/skin・calendar/plugin・calendar 旧互換・language） |
+
 ---
 
 ## English
@@ -297,6 +317,26 @@ The following items were raised in prior audit reports (GLM / CODEX / CLAUDE / A
 | SERIKO interval/pattern parsing & execution | `Animation/SerikoParser.swift`, `SerikoExecutor`, `AnimationEngine` |
 | surfaces*.txt full read (fixed 2026-06-27) | `Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift` |
 | **`surfacetable.txt` systematic processing** (2026-06-30) | New `Animation/SurfaceTableParser.swift` (`SurfaceTable`/`SurfaceGroup`/`SurfaceEntry` data model + `SurfaceTableParser.parse`). Parses `group,NAME { scope,N .. id,NAME }` syntax, `__disabled`/`__parts` markers, and `option,DisableNoDefineSurfaces`. `Animation/SerikoParser.swift` (added `SurfaceDefinitionLoader.loadSurfaceTable`, separating surfacetable.txt from the surfaces*.txt bundle). `Ghost/GhostManager.swift:225` (`surfaceTable` property), `Ghost/GhostManager+Surface.swift` (`loadImage` skips undefined surfaces). Test `SurfaceTableParserTests.swift`. ※Surface-test dialog UI (`\![open,surfacetest]`) is a separate task |
+
+### K. 2026-07-05 Compatibility Improvement Round
+
+Items resolved in the fix round following a full re-audit by three Sonnet investigation agents (including new gaps absent from prior audits).
+
+| Item | Evidence (file:line) |
+|---|---|
+| **yaya_core: implemented the `parallel` modifier** (used in 41 places in Emily4; its absence silently corrupted random-talk candidate arrays via nesting) | `yaya_core/src/AST.hpp` (`ParallelNode`), `Parser.cpp` (contextual detection, not keyword-ized for backward compat), `VM.cpp` (one-level flattening in array/sequential collection + uniform random pick in non-array contexts, same RNG as SRAND). Verified against real Emily4: candidate pool 278 entries / 0 nested. Tests in `OurinTests/YayaEmily4RegressionTests.swift` (flattening + SRAND reproducibility) |
+| **yaya_core: `executeBlock` no longer uses assignment values as block values** (fixes nested-array leak via `if { _tmp = array }`; matches upstream "assignments are not output candidates") | `yaya_core/src/VM.cpp` (`executeBlock`) |
+| **yaya_core: `#globaldefine` / `#define` preprocessor** (used 8 times in Emily4 `aya_ghostchange_core.dic`; previously `#` lines were unconditionally treated as comments, losing case-syntax macros) | `yaya_core/src/DictionaryManager.cpp` (`preprocessDirectives`: raw replacement in registration order; #define=file scope / #globaldefine=all subsequent files), `VM.hpp` (`registerGlobalDefine` aligned with ISGLOBALDEFINE/PROCESSGLOBALDEFINE) |
+| **yaya_core: real `LOGGING` / `TRANSLATE`** (LOGGING=stderr output; TRANSLATE per upstream yaya-shiori sysfunc.cpp: per-character set mapping with `-` range expansion, `\` escapes, delete mode when target set empty, last-char padding) | `yaya_core/src/VM.cpp` |
+| **`OnDestroy` event now fired** (NOTIFY, sent directly to the target ghost just before SHIORI unload; Reference0=`reload` on reload, no Reference otherwise; per UKADOC) | `Ourin/Ghost/GhostManager.swift` (`shutdown()` / `pendingDestroyReason`), `SHIORIEvents/EventReferenceSpec.swift` |
+| **Multi-ghost SSTP response side-effect routing** (Surface/Balloon/BalloonOffset/Icon/EXECUTE resolved to the target ghost via ReceiverGhostName; unspecified falls back to primary = unchanged single-ghost behavior) | `Ourin/OurinApp.swift` (`ghostManagerForShioriRequest` / `receiverTargetKey`), `SSTP/SSTPDispatcher.swift`. Test in `SSTPDispatcherTests.swift` |
+| **`OnOffscreen` / `OnOverlap` / `OnOtherOffscreen` / `OnOtherOverlap` implemented** (GET; Reference0=current / Reference1=previous, byte-1 separators; transition detection on the per-second tick reusing `mikireScopes`/`kasanariScopes`; OnOther* span all ghosts with `SakuraName/ID` labels) | `Ourin/Ghost/GhostManager+Window.swift` (pure functions `offscreenRef0`/`overlapRef0` + `overlapTransitionEvents`), `SHIORIEvents/EventBridge.swift` (`dispatchOverlapTransitions`). Tests in `OverlapTransitionTests.swift` |
+| **Settings values actually wired** (fixed read-back bug; SMAppService login item (macOS 13+); CP932 acceptance gate for external SSTP; file log sink; auto-update check marked "unused" in UI) | `Ourin/ContentView.swift`, `ExternalServer/EncodingNormalizer.swift` (`acceptsCP932`, default true = unchanged behavior), `Utils/Log.swift` (`LogFileSink`). Tests `EncodingNormalizerCP932GateTests.swift` / `LogFileSinkTests.swift` |
+| **NAR `type,saori` support** (with accept → target ghost's `ghost/master/<dir>`; without → shared `saori/<dir>`; documented as an Ourin-defined extension since UKADOC does not specify it) | `Ourin/NarInstall/Paths.swift` (`installTarget`). Test in `NarInstallTests.swift` |
+| **Per-ghost SHIORI Resource separation** (`OurinResource.<ghostKey>.<key>` namespace + one-time backfill of legacy global values by the first ghost launched; fixes cross-contamination with concurrent ghosts) | `Ourin/Property/ResourceManager.swift`, `Ghost/GhostManager.swift` (`lazy var resourceManager`). Tests in `ResourceManagerSeparationTests.swift` |
+| **`\f[anchor*]` decoration subcommands accepted** (`anchorfontcolor`/`anchornotselectfontcolor` reflected into text color; the other 14 style/brush/pen/method/visited variants accepted + debug-logged, ending silent ignoring) | `Ourin/Ghost/GhostManager.swift` (`\f` switch) |
+| **DevTools mock UI adjudication** (External Events Harness wired to real APIs: live server status, real TCP/HTTP sends with response display, restart-all-servers; Headline/Balloon preview, Signpost, Resource Overlay, and Plugin Enabled toggle marked "Preview only") | `Ourin/ContentView.swift`, `ExternalServer/ServerMetrics.swift` (public `requestCount`) |
+| **Corrected NAR composite-install documentation** (the "missing" claim in AUDITS_TODO was wrong; already implemented) | `Ourin/NarInstall/Paths.swift:219-236` (calendar/skin, calendar/plugin, legacy calendar, language) |
 
 ---
 

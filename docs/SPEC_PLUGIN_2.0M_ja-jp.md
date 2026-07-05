@@ -240,10 +240,10 @@ Charset: UTF-8
      - `dispatchOnSecondChange()`: 秒変更イベント (NOTIFY 強制)
      - `dispatchOnMinuteChange()`: 分変更イベント (NOTIFY 強制)
      - `dispatchOnOtherGhostTalk()`: 他ゴースト発話イベント (NOTIFY)
-     - `dispatchOnGhostChanging()`: ゴースト変更前イベント (GET)
-     - `dispatchOnGhostChanged()`: ゴースト変更後イベント (NOTIFY)
-     - `dispatchOnShellChanging()`: シェル変更前イベント (GET)
-     - `dispatchOnShellChanged()`: シェル変更後イベント (NOTIFY)
+     - `dispatchOnGhostChanging()` / `dispatchOnGhostChanged()` / `dispatchOnShellChanging()` / `dispatchOnShellChanged()`:
+       **定義のみ・未配線**（2026-07-05 監査で確認: `PluginRegistry.swift` にメソッドは存在するが呼び出し元が無い。
+       これらは PLUGIN/2.0M の17種の標準通知イベントには含まれない予備実装であり、
+       ゴースト/シェル切替の SHIORI 通知は `EventBridge` 経由で別途行われる）
 
 ### 12.3 未実装の機能
 

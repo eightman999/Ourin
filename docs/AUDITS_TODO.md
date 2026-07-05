@@ -1,6 +1,6 @@
 # Ourin 監査項目 — 未完 / Audit Items — TODO
 
-**最終更新 / Last Updated**: 2026-06-30
+**最終更新 / Last Updated**: 2026-07-05
 **集約元 / Consolidated from**: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY（各 ja-jp / en-us）
 **検証方法 / Verification**: 全項目を現状ソースコード（file:line）と照合して未完判定。完了済み項目は `AUDITS_COMPLETED.md` 参照。
 
@@ -62,7 +62,7 @@
 
 | 優先度 | 項目 | 現状・修正案 |
 |---|---|---|
-| P2 | 複合install種別（`language`, `calendar skin`, `calendar plugin`, `calendar` 旧互換）が不足 | `NarInstall/InstallTxtParser.swift`。 |
+| — | （複合install種別は**実装済みだったことを確認** → `AUDITS_COMPLETED.md` 参照） | 2026-07-05 監査で `NarInstall/Paths.swift:219-236` に `calendar/skin`・`calendar/plugin`・`calendar` 旧互換・`language` の設置先解決が実装済みと確認（本ファイルの旧記載が誤り）。`type,saori` も同ラウンドで追加実装。 |
 | P2 | 同時インストールの `*.directory`, `*.source.directory`, `*.refresh`, `*.refreshundeletemask` の完全処理 | 複合NAR・更新NARでの追加バルーン/カレンダー/言語パック挙動がSSPとずれる可能性。 |
 
 ### I. FMO
@@ -138,7 +138,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 
 | Priority | Item | Current State / Fix |
 |---|---|---|
-| P2 | Missing composite install types (`language`, `calendar skin`, `calendar plugin`, `calendar` legacy compat) | `NarInstall/InstallTxtParser.swift`. |
+| — | (Composite install types **confirmed already implemented** → see `AUDITS_COMPLETED.md`) | 2026-07-05 audit confirmed `NarInstall/Paths.swift:219-236` resolves `calendar/skin`, `calendar/plugin`, legacy `calendar`, and `language` (the previous claim in this file was wrong). `type,saori` was also added in the same round. |
 | P2 | Incomplete concurrent-install processing (`*.directory`, `*.source.directory`, `*.refresh`, `*.refreshundeletemask`) | Composite/update NAR behavior for bundled balloon/calendar/language pack may diverge from SSP. |
 
 ### I. FMO
@@ -162,7 +162,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 
 | 優先度 / Priority | 項目 / Item |
 |---|---|
-| **P2** | SakuraScript 差分テスト / SERIKO 描画差分テスト / NAR 複合install種別 / SHIORI 2.x 判断 |
+| **P2** | SakuraScript 差分テスト / SERIKO 描画差分テスト / NAR 同時インストール完全処理 / SHIORI 2.x 判断 |
 | **P2 (基盤完了)** | イベントReference表駆動化 — `EventReferenceTable` 新設・`notifyReturnIgnored` 単一ソース化済み。全発火箇所（216箇所）の表駆動移行は漸次対応。 |
 | **P3** | SHIORI 2.x 互換の正実装or削除 / lexicon内蔵 / レガシー透過処理 / SecurityLevel伝播 / 210 Breakキューイング / MAYUNA網羅 |
 
