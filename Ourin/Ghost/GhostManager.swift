@@ -140,6 +140,7 @@ class BalloonViewModel: ObservableObject {
         let useSelfAlpha: Bool
         let clipping: CGRect?
         let isForeground: Bool
+        let isFixed: Bool
         let image: NSImage?
     }
     @Published var balloonImages: [BalloonImage] = []
@@ -218,6 +219,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var currentSounds: [NSSound] = []
     var namedSounds: [String: [NSSound]] = [:]
     var preloadedSounds: [String: NSSound] = [:]
+    var videoPlayers: [String: VideoPlayerWindow] = [:]
     
     // Animation engine
     var animationEngine: AnimationEngine = AnimationEngine()
@@ -725,10 +727,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             timer.invalidate()
         }
         pluginEventTimers.removeAll()
+        shutdownSerikoLoop()
         for w in characterWindows.values { w.orderOut(nil) }
         for w in balloonWindows.values { w.orderOut(nil) }
         characterWindows.removeAll()
         balloonWindows.removeAll()
+        stopAllVideos()
         // OnDestroy（NOTIFY、UKADOC）: SHIORI unload の直前に対象ゴーストへのみ直接送信する。
         // EventBridge.notify は autoEventsEnabled=false 時にキュー滞留し、全セッションへ
         // ブロードキャストされるためここでは使わない（OnClose と同じ直接送信の流儀）。
@@ -834,7 +838,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         return named[id.lowercased()]
     }
 
-    /// \j[ID] - ジャンプタグ。URL/ファイルはオープン、それ以外はイベント起動（raise 相当）として扱う。
+    /// \j[ID] - ジャンプタグ。スクリプト内ラベルは SakuraScriptEngine 側で解決済み。
+    /// URL/ファイルはオープン、On* はイベント起動（raise 相当）として扱う。
     func handleJumpCommand(args: [String]) {
         guard let target = args.first?.trimmingCharacters(in: .whitespaces), !target.isEmpty else {
             Log.info("[GhostManager] \\j with no target (ignored)")
@@ -872,7 +877,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 }
             })
         } else {
-            // TODO: スクリプト内ラベルへのジャンプ等は未対応
+            // docs で確認できるラベルへ解決できなかった非 On* ターゲットはここに残る。
             Log.info("[GhostManager] \\j[\(target)] - unsupported jump target (ignored)")
         }
     }
@@ -1810,30 +1815,67 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         switch subcmd {
                         case "play":
                             if args.count >= 3 {
-                                playSound(filename: args[2], loop: false)
+                                let filename = args[2]
+                                let options = Array(args.dropFirst(3))
+                                if GhostManager.isVideoFile(filename) {
+                                    playVideo(filename: filename, loop: false, options: options)
+                                } else {
+                                    playSound(filename: filename, loop: false, options: options)
+                                }
                             }
                         case "load":
                             if args.count >= 3 {
-                                loadSound(filename: args[2])
+                                let filename = args[2]
+                                let options = Array(args.dropFirst(3))
+                                if GhostManager.isVideoFile(filename) {
+                                    Log.info("[GhostManager] Video load is not preloaded; use sound,play for: \(filename)")
+                                } else {
+                                    loadSound(filename: filename, options: options)
+                                }
                             }
                         case "loop":
                             if args.count >= 3 {
-                                playSound(filename: args[2], loop: true)
+                                let filename = args[2]
+                                let options = Array(args.dropFirst(3))
+                                if GhostManager.isVideoFile(filename) {
+                                    playVideo(filename: filename, loop: true, options: options)
+                                } else {
+                                    playSound(filename: filename, loop: true, options: options)
+                                }
                             }
                         case "wait":
-                            let duration = estimatedSoundWaitDuration()
+                            let duration = max(estimatedSoundWaitDuration(), estimatedVideoWaitDuration())
                             if duration > 0 {
                                 playbackQueue.append(.wait(duration))
                             }
                         case "pause":
                             let filename = args.count >= 3 ? args[2] : nil
-                            pauseSound(filename: filename)
+                            if let filename, GhostManager.isVideoFile(filename) {
+                                pauseVideo(filename: filename)
+                            } else {
+                                pauseSound(filename: filename)
+                                if filename == nil {
+                                    pauseVideo(filename: nil)
+                                }
+                            }
                         case "resume":
                             let filename = args.count >= 3 ? args[2] : nil
-                            resumeSound(filename: filename)
+                            if let filename, GhostManager.isVideoFile(filename) {
+                                resumeVideo(filename: filename)
+                            } else {
+                                resumeSound(filename: filename)
+                                if filename == nil {
+                                    resumeVideo(filename: nil)
+                                }
+                            }
                         case "stop":
                             if args.count >= 3 {
-                                stopSound(filename: args[2])
+                                let filename = args[2]
+                                if GhostManager.isVideoFile(filename) {
+                                    stopVideo(filename: filename)
+                                } else {
+                                    stopSound(filename: filename)
+                                }
                             } else {
                                 stopAllSounds()
                             }
@@ -2902,15 +2944,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 extension GhostManager {
     /// メニューアクションを処理
     func handleMenuAction(_ action: String) {
-        if let config = ghostConfig,
-           let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher {
-            dispatcher.onMenuExec(
-                windows: characterWindows.sorted(by: { $0.key < $1.key }).map { $0.value },
-                ghostName: config.name,
-                shellName: activeShellName,
-                ghostID: config.id ?? ghostURL.lastPathComponent,
-                path: ghostURL.path
-            )
+        if action.hasPrefix(PluginMenuEntry.actionPrefix) {
+            executePluginMenuAction(action)
+            return
         }
         switch action {
         case "menu_ghost_info":
@@ -2947,6 +2983,37 @@ extension GhostManager {
         default:
             Log.info("[GhostManager] Unknown menu action: \(action)")
         }
+    }
+
+    private func executePluginMenuAction(_ action: String) {
+        guard let appDelegate = NSApp.delegate as? AppDelegate,
+              let registry = appDelegate.pluginRegistry,
+              let entry = registry.pluginMenuEntry(forActionIdentifier: action) else {
+            Log.info("[GhostManager] Unknown plugin menu action: \(action)")
+            return
+        }
+
+        guard entry.canDispatchRequests else {
+            Log.info("[GhostManager] Plugin menu item is metadata-only: \(entry.pluginName) / \(entry.itemID)")
+            return
+        }
+
+        guard let config = ghostConfig,
+              let dispatcher = appDelegate.pluginDispatcher else {
+            Log.info("[GhostManager] Plugin dispatcher unavailable for menu action: \(entry.pluginID)")
+            return
+        }
+
+        dispatcher.onMenuExec(
+            menuItemID: entry.itemID,
+            targetPluginID: entry.pluginID,
+            windows: characterWindows.sorted(by: { $0.key < $1.key }).map { $0.value },
+            ghostName: config.name,
+            shellName: activeShellName,
+            ghostID: config.id ?? ghostURL.lastPathComponent,
+            path: ghostURL.path,
+            callerGhost: self
+        )
     }
     
     /// ゴースト情報を表示

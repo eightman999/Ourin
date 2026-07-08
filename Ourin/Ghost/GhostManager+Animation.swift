@@ -3,36 +3,61 @@ import AppKit
 import CoreImage
 import Combine
 import UserNotifications
+import ObjectiveC
 
 // MARK: - Animation Engine Integration
 
 extension GhostManager {
     // MARK: - Animation Engine Integration
 
-    private struct SerikoStorage {
-        static var executors: [ObjectIdentifier: SerikoExecutor] = [:]
-        static var timers: [ObjectIdentifier: Timer] = [:]
+    // objc runtimeの関連オブジェクトを使う。GhostManager(NSObject)のdealloc時に
+    // ランタイムが自動的に関連オブジェクトを解放するため、静的Dictionary+ObjectIdentifierキー方式で
+    // 起きていた「エントリが解放されずリークし続ける」「解放後に同じアドレスへ新インスタンスが
+    // 割り当たるとキー衝突して別インスタンスの古いexecutorを返す」の両方を回避できる。
+    private final class SerikoAnimationState {
+        let lock = NSLock()
+        var executor: SerikoExecutor?
+        var loopTimer: Timer?
+    }
+
+    private static var serikoStateKey: UInt8 = 0
+    private static let serikoStateLock = NSLock()
+
+    private var serikoState: SerikoAnimationState {
+        GhostManager.serikoStateLock.lock()
+        defer { GhostManager.serikoStateLock.unlock() }
+        if let state = objc_getAssociatedObject(self, &GhostManager.serikoStateKey) as? SerikoAnimationState {
+            return state
+        }
+        let state = SerikoAnimationState()
+        objc_setAssociatedObject(self, &GhostManager.serikoStateKey, state, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        return state
     }
 
     var serikoExecutor: SerikoExecutor {
-        let key = ObjectIdentifier(self)
-        if let existing = SerikoStorage.executors[key] {
+        let state = serikoState
+        state.lock.lock()
+        defer { state.lock.unlock() }
+        if let existing = state.executor {
             return existing
         }
         let created = SerikoExecutor()
-        SerikoStorage.executors[key] = created
+        state.executor = created
         return created
     }
 
     private var serikoLoopTimer: Timer? {
-        get { SerikoStorage.timers[ObjectIdentifier(self)] }
+        get {
+            let state = serikoState
+            state.lock.lock()
+            defer { state.lock.unlock() }
+            return state.loopTimer
+        }
         set {
-            let key = ObjectIdentifier(self)
-            if let timer = newValue {
-                SerikoStorage.timers[key] = timer
-            } else {
-                SerikoStorage.timers.removeValue(forKey: key)
-            }
+            let state = serikoState
+            state.lock.lock()
+            defer { state.lock.unlock() }
+            state.loopTimer = newValue
         }
     }
 

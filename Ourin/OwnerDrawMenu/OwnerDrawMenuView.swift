@@ -332,6 +332,7 @@ class OwnerDrawMenuView: NSView {
     }
     
     private func handleItemClick(_ item: OwnerDrawMenuItem, at index: Int) {
+        guard item.enabled else { return }
         switch item.type {
         case .button(let action):
             onAction(action)

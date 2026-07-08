@@ -19,12 +19,10 @@ final class PluginEventDispatcher {
     private let xpcClient: PluginXpcClient?
 
     /// プラグインが Script を返したときにホスト側で実行させるためのコールバック。
-    /// 構築側（AppDelegate 等）が `sakuraEngine.run(script:)` 等へ配線する。
-    /// TODO: host wires onScript (see OurinApp.swift / GhostManager+System.swift:175-179)
+    /// 構築側（AppDelegate 等）が `sakuraEngine.run(script:)` 等へ配線する（OurinApp.swift:232）。
     var onScript: ((String, Set<String>) -> Void)?
     /// プラグインが Event を返したときにホスト側へ再ディスパッチさせるためのコールバック。
-    /// 構築側が `EventBridge.notify(_:params:)` 等へ配線する。
-    /// TODO: host wires onEmitEvent (see GhostManager+System.swift:180-186)
+    /// 構築側が `EventBridge.notify(_:params:)` 等へ配線する（OurinApp.swift:237）。
     var onEmitEvent: ((String, [String: String], Set<String>) -> Bool)?
 
     /// プラグインへワイヤテキストを送信する。XPC 分離が有効なら別プロセスのワーカーへ、
@@ -229,10 +227,68 @@ final class PluginEventDispatcher {
         sendFrame(id: "OnMenuExec", refs: [ref0, ghostName, shellName, ghostID, pathPosix])
     }
 
-    /// インストール完了イベント
+    static func menuExecReferences(
+        menuItemID: String,
+        windows: [NSWindow],
+        ghostName: String,
+        shellName: String,
+        ghostID: String,
+        path: String
+    ) -> [String] {
+        [
+            WindowIDMapper.ids(for: windows),
+            ghostName,
+            shellName,
+            ghostID,
+            PathNormalizer.posix(path),
+            menuItemID
+        ]
+    }
+
+    /// ホストの plugin menu から選択された項目を、該当 plugin だけへ GET で送る。
+    ///
+    /// Ref0..4 は PLUGIN_EVENT/2.0M §4.14 の既存構成を維持し、Ref5 に選択項目 ID を追加する。
+    func onMenuExec(
+        menuItemID: String,
+        targetPluginID: String,
+        windows: [NSWindow],
+        ghostName: String,
+        shellName: String,
+        ghostID: String,
+        path: String,
+        callerGhost: GhostManager? = nil
+    ) {
+        guard let plugin = resolveLoadedPlugin(id: targetPluginID, name: "", path: "") else {
+            logger.info("no plugin target matched for menu: \(targetPluginID)")
+            return
+        }
+        let refs = Self.menuExecReferences(
+            menuItemID: menuItemID,
+            windows: windows,
+            ghostName: ghostName,
+            shellName: shellName,
+            ghostID: ghostID,
+            path: path
+        )
+        sendFrame(id: "OnMenuExec", refs: refs, to: plugin, callerGhost: callerGhost)
+    }
+
+    /// インストール完了イベント（単一値）
+    /// 後方互換のため維持。複数インストールを一度に通知する場合は
+    /// `onInstallComplete(types:names:paths:)` を使用すること。
     func onInstallComplete(type: String, name: String, path: String) {
         let pathPosix = PathNormalizer.posix(path)
         sendFrame(id: "OnInstallComplete", refs: [type, name, pathPosix])
+    }
+
+    /// インストール完了イベント（複数値対応）
+    /// 仕様 PLUGIN_EVENT/2.0M §4.15: Ref0/Ref1/Ref2 はそれぞれ 0x01 区切りを許容する。
+    /// 各配列の要素を ListDelimiter(0x01) で結合して単一 Reference に格納する。
+    func onInstallComplete(types: [String], names: [String], paths: [String]) {
+        let r0 = ListDelimiter.join(types)
+        let r1 = ListDelimiter.join(names)
+        let r2 = ListDelimiter.join(paths.map { PathNormalizer.posix($0) })
+        sendFrame(id: "OnInstallComplete", refs: [r0, r1, r2])
     }
 
     /// ゴースト終了通知（NOTIFY）
@@ -261,6 +317,20 @@ final class PluginEventDispatcher {
     ) {
         // 仕様(PLUGIN_EVENT/2.0M): Reference5 は 0x01 区切りで束ねた単一の Reference
         let arr = [ghostName, baseName, reasons, eventID, script, ListDelimiter.join(refs)]
+        // 仕様 §4.10: Ref2 原因列挙は固定語彙(break/communicate/sstp-send/owned/remote/
+        // notranslate/plugin-script/plugin-event)のカンマ区切り。DEBUG ビルドでは未知トークンを警告。
+        #if DEBUG
+        let allowedReasonTokens: Set<String> = [
+            "break", "communicate", "sstp-send", "owned",
+            "remote", "notranslate", "plugin-script", "plugin-event"
+        ]
+        let reasonTokens = reasons.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        let unknownTokens = reasonTokens.filter { !$0.isEmpty && !allowedReasonTokens.contains($0) }
+        if !unknownTokens.isEmpty {
+            let joined = unknownTokens.joined(separator: ",")
+            logger.warning("OnOtherGhostTalk reasons contain non-spec tokens: \(joined)")
+        }
+        #endif
         for plugin in registry.plugins {
             guard let meta = registry.metas[plugin],
                   meta.otherGhostTalk == true,
@@ -283,6 +353,20 @@ final class PluginEventDispatcher {
         }
         for plugin in targets {
             sendFrame(id: event, refs: references, notify: notifyOnly, to: plugin, callerGhost: callerGhost)
+        }
+    }
+
+    /// notifyplugin 経路のディスパッチ（常に [NOTIFY] を強制）。
+    /// 仕様 PLUGIN_EVENT/2.0M §4.17: notifyplugin は [NOTIFY] 固定。
+    /// 呼び出し元のフラグに依らず NOTIFY として送信する専用エントリポイント。
+    func dispatchNotifyPlugin(pluginSpec: String, event: String, references: [String], callerGhost: GhostManager? = nil) {
+        let targets = resolvePluginTargets(spec: pluginSpec)
+        guard !targets.isEmpty else {
+            logger.info("no plugin target matched (notifyplugin): \(pluginSpec)")
+            return
+        }
+        for plugin in targets {
+            sendFrame(id: event, refs: references, notify: true, to: plugin, callerGhost: callerGhost)
         }
     }
 

@@ -15,7 +15,33 @@ struct InstallManifest {
     var balloonDirectory: String?
     /// 同梱バルーンの NAR 内ソースディレクトリ名（既定は balloonDirectory）
     var balloonSourceDirectory: String?
+    /// type=ghost / type=shell に同梱された付属コンポーネント（*.directory 系）の構造化リスト。
+    /// UKADOC install.txt: balloon/headline/plugin/calendar.skin/calendar.plugin を同時インストール可能。
+    /// 後方互換のため balloonDirectory / balloonSourceDirectory とも同期する。
+    var attachedComponents: [AttachedComponent] = []
     var extras: [String: String] = [:] // shell.directory, *.source.directory etc.
+}
+
+/// install.txt の `*.directory` 系フィールドで表現される「同時インストールされる付属コンポーネント」。
+/// UKADOC（https://ssp.shillest.net/ukadoc/manual/descript_install.html）準拠。
+///
+/// `*.directory` は type=ghost / type=shell の場合のみ設定可能。
+/// `*` 部分は `balloon`, `headline`, `plugin`, `calendar.skin`, `calendar.plugin` のいずれかで、
+/// 同種を複数同梱する場合は `balloon0`, `balloon1` ... のように末尾に数字をつける。
+struct AttachedComponent {
+    /// install.txt の `*.directory` の `*` 部分（末尾の数字込みの生トークン。"balloon0" 等）。
+    let kindToken: String
+    /// kindToken から末尾の数字を除去して小文字化した正規 type。
+    /// 例: "balloon0" → "balloon", "calendar.skin1" → "calendar.skin"
+    let type: String
+    /// インストール後のディレクトリ名（`*.directory` の値）。
+    var directory: String
+    /// アーカイブ内でのソースディレクトリ名（`*.source.directory` の値。未指定なら nil = directory と同義）。
+    var sourceDirectory: String?
+    /// `*.refresh,1` の値。
+    var refresh: Bool
+    /// `*.refreshundeletemask` の値（コロン/カンマ区切りで分割済み）。
+    var refreshUndeleteMask: [String]
 }
 
 enum TextEncodingDetector {
@@ -84,6 +110,27 @@ struct InstallTxtParser {
 
     static func parse(_ text: String) throws -> InstallManifest {
         var manifest = InstallManifest()
+        // kindToken → attachedComponents のインデックス。
+        // *.directory / *.source.directory / *.refresh / *.refreshundeletemask を同じ要素へマージするため。
+        var attachedIndex: [String: Int] = [:]
+
+        /// 指定した kindToken の AttachedComponent を（無ければ生成して）インデックスを返す。
+        func ensureAttached(_ kindToken: String) -> Int {
+            if let idx = attachedIndex[kindToken] { return idx }
+            let type = Self.attachedType(fromKindToken: kindToken)
+            manifest.attachedComponents.append(AttachedComponent(
+                kindToken: kindToken,
+                type: type,
+                directory: "",
+                sourceDirectory: nil,
+                refresh: false,
+                refreshUndeleteMask: []
+            ))
+            let idx = manifest.attachedComponents.count - 1
+            attachedIndex[kindToken] = idx
+            return idx
+        }
+
         let lines = text.replacingOccurrences(of: "\r\n", with: "\n").split(separator: "\n", omittingEmptySubsequences: false)
         for raw in lines {
             let line = raw.trimmingCharacters(in: .whitespaces)
@@ -107,13 +154,45 @@ struct InstallTxtParser {
                     .map { $0.trimmingCharacters(in: .whitespaces) }
                     .filter { !$0.isEmpty }
             case "balloon.directory":
+                // 後方互換: 既存の balloonDirectory プロパティを維持しつつ、構造化リストにも反映。
                 manifest.balloonDirectory = value
                 manifest.extras[key] = value
+                let idx = ensureAttached("balloon")
+                manifest.attachedComponents[idx].directory = value
             case "balloon.source.directory":
                 manifest.balloonSourceDirectory = value
                 manifest.extras[key] = value
+                let idx = ensureAttached("balloon")
+                manifest.attachedComponents[idx].sourceDirectory = value
             default:
-                manifest.extras[key] = value
+                // UKADOC 汎用付属コンポーネントフィールド（*.directory / *.source.directory / *.refresh / *.refreshundeletemask）。
+                // type=ghost / type=shell の同梱 balloon / headline / plugin / calendar.skin / calendar.plugin 等。
+                if key.hasSuffix(".source.directory") {
+                    let token = String(key.dropLast(".source.directory".count))
+                    let idx = ensureAttached(token)
+                    manifest.attachedComponents[idx].sourceDirectory = value
+                    manifest.extras[key] = value
+                } else if key.hasSuffix(".refreshundeletemask") {
+                    let token = String(key.dropLast(".refreshundeletemask".count))
+                    let idx = ensureAttached(token)
+                    manifest.attachedComponents[idx].refreshUndeleteMask = value
+                        .split(whereSeparator: { $0 == ":" || $0 == "," })
+                        .map { $0.trimmingCharacters(in: .whitespaces) }
+                        .filter { !$0.isEmpty }
+                    manifest.extras[key] = value
+                } else if key.hasSuffix(".refresh") {
+                    let token = String(key.dropLast(".refresh".count))
+                    let idx = ensureAttached(token)
+                    manifest.attachedComponents[idx].refresh = (value == "1" || value.lowercased() == "true")
+                    manifest.extras[key] = value
+                } else if key.hasSuffix(".directory") {
+                    let token = String(key.dropLast(".directory".count))
+                    let idx = ensureAttached(token)
+                    manifest.attachedComponents[idx].directory = value
+                    manifest.extras[key] = value
+                } else {
+                    manifest.extras[key] = value
+                }
             }
         }
         guard !manifest.type.isEmpty else { throw NarInstaller.Error.installTxtMissingKey("type") }
@@ -124,6 +203,17 @@ struct InstallTxtParser {
             guard !manifest.directory.isEmpty else { throw NarInstaller.Error.installTxtMissingKey("directory") }
         }
         return manifest
+    }
+
+    /// kindToken（`*.directory` の `*` 部分）から正規 type を抽出する。
+    /// 末尾の数字（同種複数指定用インデックス）を除去して小文字化する。
+    /// 例: "balloon0" → "balloon", "calendar.skin1" → "calendar.skin", "headline" → "headline"
+    static func attachedType(fromKindToken token: String) -> String {
+        var t = token
+        while let last = t.last, last.isNumber {
+            t.removeLast()
+        }
+        return t.lowercased()
     }
 }
 

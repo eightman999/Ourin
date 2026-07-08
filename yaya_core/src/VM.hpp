@@ -130,6 +130,13 @@ private:
     // Runtime global defines (Phase 10): name → replacement text.
     std::map<std::string, std::string> globalDefines_;
 
+    // LSO() 用: 直近に評価された parallel（本家の {a,b,c} ランダム選択相当）で
+    // 選ばれた候補のインデックス。未選択時は -1。
+    int lastSelectedIndex_ = -1;
+
+    // OUTPUTNUM() 用: 直近に execute() した array/sequential 関数が収集した候補数。
+    int lastOutputNum_ = 0;
+
     // Built-in functions
     std::map<std::string, std::function<Value(const std::vector<Value>&)>> builtins_;
 

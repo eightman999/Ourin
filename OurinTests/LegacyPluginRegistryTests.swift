@@ -50,6 +50,9 @@ struct LegacyPluginRegistryTests {
         #expect(meta.isNative == false)
         #expect(meta.message(for: "menu.title", language: "ja") == "共有値")
         #expect(meta.message(for: "menu.title", language: "en") == "Shared Value")
+        #expect(meta.menuDefinitions == [
+            PluginMenuDefinition(itemID: "plugin-id", messageKey: "menu.plugin-id")
+        ])
 
         let entry = try #require(registry.compatibilityEntries.first)
         #expect(entry.name == "Shared Value")
@@ -82,6 +85,73 @@ struct LegacyPluginRegistryTests {
         #expect(provider.get(key: "index(0).executionstate") == "metadataOnly")
         #expect(provider.get(key: "index(0).candispatchrequests") == "0")
         #expect(standardized(provider.get(key: "(\(entry.executablePath)).path")) == standardized(entry.compatibilityPath))
+
+        let menuJA = try #require(registry.pluginMenuEntries(language: "ja").first)
+        #expect(menuJA.pluginID == "plugin-id")
+        #expect(menuJA.itemID == "plugin-id")
+        #expect(menuJA.title == "共有値")
+        #expect(menuJA.canDispatchRequests == false)
+        #expect(registry.pluginMenuEntry(forActionIdentifier: menuJA.actionIdentifier, language: "ja") == menuJA)
+
+        let menuEN = try #require(registry.pluginMenuEntries(language: "en").first)
+        #expect(menuEN.title == "Shared Value")
+    }
+
+    @Test
+    func pluginMenuEntriesUseCommandMessagesAndBuildOnMenuExecReferences() throws {
+        let base = FileManager.default.temporaryDirectory
+            .appendingPathComponent("OurinPluginMenu-\(UUID().uuidString)", isDirectory: true)
+        OurinPaths.testBaseOverride = base
+        defer {
+            OurinPaths.testBaseOverride = nil
+            try? FileManager.default.removeItem(at: base)
+        }
+
+        let pluginDir = base.appendingPathComponent("plugin/menu_fixture", isDirectory: true)
+        try FileManager.default.createDirectory(at: pluginDir, withIntermediateDirectories: true)
+        try """
+        Charset,UTF-8
+        name,Menu Fixture
+        filename,menu_fixture.dll
+        id,menu-fixture
+        menu,open_settings
+        """.write(to: pluginDir.appendingPathComponent("descript.txt"), atomically: true, encoding: .utf8)
+        try """
+        menu.title,メニューfixture
+        menu.open_settings,設定を開く
+        """.write(to: pluginDir.appendingPathComponent("message.japanese.txt"), atomically: true, encoding: .utf8)
+        try """
+        menu.title,Menu Fixture
+        menu.open_settings,Open Settings
+        """.write(to: pluginDir.appendingPathComponent("message.english.txt"), atomically: true, encoding: .utf8)
+
+        let registry = PluginRegistry()
+        registry.discoverAndLoad()
+
+        let entryJA = try #require(registry.pluginMenuEntries(language: "ja").first)
+        #expect(entryJA.pluginID == "menu-fixture")
+        #expect(entryJA.itemID == "open_settings")
+        #expect(entryJA.title == "設定を開く")
+        #expect(entryJA.canDispatchRequests == false)
+
+        let entryEN = try #require(registry.pluginMenuEntries(language: "en").first)
+        #expect(entryEN.title == "Open Settings")
+
+        let refs = PluginEventDispatcher.menuExecReferences(
+            menuItemID: entryJA.itemID,
+            windows: [],
+            ghostName: "さくら",
+            shellName: "default.shell",
+            ghostID: "ghost-id",
+            path: "/Users/t/Ghosts/Sakura"
+        )
+        #expect(refs == ["", "さくら", "default.shell", "ghost-id", "/Users/t/Ghosts/Sakura", "open_settings"])
+
+        let wire = PluginFrame(id: "OnMenuExec", references: refs).build()
+        #expect(wire.hasPrefix("GET PLUGIN/2.0M"))
+        #expect(wire.contains("Reference0: \r\n"))
+        #expect(wire.contains("Reference4: /Users/t/Ghosts/Sakura"))
+        #expect(wire.contains("Reference5: open_settings"))
     }
 
     @Test

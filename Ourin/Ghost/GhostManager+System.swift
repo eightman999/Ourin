@@ -167,6 +167,10 @@ extension GhostManager {
 
     func dispatchPluginEvent(pluginSpec: String, event: String, references: [String], notifyOnly: Bool) {
         if let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher {
+            if notifyOnly {
+                dispatcher.dispatchNotifyPlugin(pluginSpec: pluginSpec, event: event, references: references, callerGhost: self)
+                return
+            }
             dispatcher.dispatch(pluginSpec: pluginSpec, event: event, references: references, notifyOnly: notifyOnly, callerGhost: self)
             return
         }
@@ -195,6 +199,10 @@ extension GhostManager {
                 )
             }
         )
+        if notifyOnly {
+            bridge.dispatchNotify(pluginSpec: pluginSpec, event: event, references: references)
+            return
+        }
         bridge.dispatch(pluginSpec: pluginSpec, event: event, references: references, notifyOnly: notifyOnly)
     }
 

@@ -189,10 +189,24 @@ extension GhostManager {
         if items.isEmpty {
             items = defaultMenuItems()
         }
+        appendPluginMenu(to: &items)
 
         OwnerDrawMenuCoordinator.shared.showMenu(at: screenPoint, config: config, items: items) { [weak self] action in
             self?.handleMenuAction(action)
         }
+    }
+
+    private func appendPluginMenu(to items: inout [OwnerDrawMenuItem]) {
+        guard let registry = (NSApp.delegate as? AppDelegate)?.pluginRegistry else { return }
+        let entries = registry.pluginMenuEntries()
+        guard !entries.isEmpty else { return }
+
+        let pluginItems = entries.map { entry in
+            var item = OwnerDrawMenuItem(type: .button(action: entry.actionIdentifier), caption: entry.title)
+            item.enabled = entry.canDispatchRequests
+            return item
+        }
+        items.append(OwnerDrawMenuItem(type: .submenu(items: pluginItems, action: nil), caption: "プラグイン(P)"))
     }
 
     private func defaultMenuItems() -> [OwnerDrawMenuItem] {

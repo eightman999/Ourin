@@ -12,8 +12,26 @@ struct ResourceManagerSeparationTests {
         return (d, suite)
     }
 
+    /// ghostKey 付き ResourceManager はファイルストア（data/profile/<ghost>/）も使うため、
+    /// 共有の OurinTestBase を汚さない・拾わないよう、テストごとに一時 base を注入する。
+    /// （ResourceManagerFileMigrationTests と同じ隔離パターン）
+    private func makeTempBase() -> () -> Void {
+        let fm = FileManager.default
+        let url = fm.temporaryDirectory
+            .appendingPathComponent("OurinRMSepTests.\(UUID().uuidString)", isDirectory: true)
+        try? fm.createDirectory(at: url, withIntermediateDirectories: true)
+        let previous = OurinPaths.testBaseOverride
+        OurinPaths.testBaseOverride = url
+        return {
+            OurinPaths.testBaseOverride = previous
+            try? fm.removeItem(at: url)
+        }
+    }
+
     @Test
     func ghostsDoNotShareResourceValues() {
+        let cleanup = makeTempBase()
+        defer { cleanup() }
         let (defaults, suite) = makeDefaults()
         defer { UserDefaults().removePersistentDomain(forName: suite) }
 
@@ -33,6 +51,8 @@ struct ResourceManagerSeparationTests {
 
     @Test
     func firstGhostBackfillsLegacyGlobalValues() {
+        let cleanup = makeTempBase()
+        defer { cleanup() }
         let (defaults, suite) = makeDefaults()
         defer { UserDefaults().removePersistentDomain(forName: suite) }
 

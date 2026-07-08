@@ -14,53 +14,119 @@ import AppKit
 /// `OurinResource.__claimedBy` マーカーで多重移行を防止）。
 /// ghostKey 省略時は従来どおりグローバル名前空間を読み書きする（互換維持）。
 ///
-/// TODO(profile): SSP 互換の永続化先は `data/profile/<ghost>/`（公開フォルダ）。
-/// 将来は `OurinPaths.profileDirectory(for:)` 配下のファイルへ移行する想定。
+/// 永続化先（ghostKey 付きモード）: SSP 互換の公開フォルダ
+/// `data/profile/<ghostKey>/shiori_resources.txt`（`OurinPaths.profileDirectory(for:)` 配下）。
+/// 初回起動時、ファイルが存在しなければ UserDefaults からファイルへ一度だけ移行（冪等）。
+/// **UserDefaults の既存データは移行後も削除しない**（データ消失防止・旧ビルド互換）。
+/// ファイル形式: UTF-8 / LF、1 行 1 エントリの `key,value` プレーンテキスト。
+///   - 保存形式の根拠: UKADOC「SHIORI Resource リスト」/本リポジトリ docs/
+///     `PROPERTY_Resource_3.0M_SPEC_*` はキー一覧と返答コード規約のみを規定し、
+///     ファイルフォーマットは未規定。SHIORI Resource は「短いテキスト（bool値含む）」
+///     が前提のため、改行を含まない 1 行 1 エントリ形式が安全かつ相互運用可能。
+///   - 読み込みは最初の `,` で key/value を分割（値にカンマが含まれても可）。
 public final class ResourceManager {
     private let defaults: UserDefaults
     private let prefix: String
     private static let legacyPrefix = "OurinResource."
     private static let claimMarkerKey = "OurinResource.__claimedBy"
 
-    public init(defaults: UserDefaults = .standard, ghostKey: String? = nil) {
-        self.defaults = defaults
-        let trimmed = ghostKey?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        if trimmed.isEmpty {
-            self.prefix = Self.legacyPrefix
-        } else {
-            self.prefix = Self.legacyPrefix + trimmed + "."
-            backfillLegacyValuesIfFirstClaim(ghostKey: trimmed)
-        }
+    /// ファイル永続化ストア（ghostKey 付きモードのみ使用）。nil なら UserDefaults のみ。
+    private let fileStore: ResourceFileStore?
+    /// ファイルから読み込んだ値のメモリキャッシュ（fileStore != nil のとき正）。
+    private var cache: [String: String] = [:]
+
+    public convenience init(defaults: UserDefaults = .standard, ghostKey: String? = nil) {
+        self.init(defaults: defaults, ghostKey: ghostKey, fileStore: nil)
     }
 
-    /// 旧グローバルキーの値を、最初に起動した ghostKey 付きゴーストの名前空間へ一度だけコピーする。
-    /// 旧キー自体は削除しない（旧ビルドとの互換のため残置）。
-    private func backfillLegacyValuesIfFirstClaim(ghostKey: String) {
-        guard defaults.string(forKey: Self.claimMarkerKey) == nil else { return }
-        defaults.set(ghostKey, forKey: Self.claimMarkerKey)
-        for (key, value) in defaults.dictionaryRepresentation() {
-            guard key.hasPrefix(Self.legacyPrefix), key != Self.claimMarkerKey else { continue }
-            guard let str = value as? String else { continue }
-            let sub = String(key.dropFirst(Self.legacyPrefix.count))
-            defaults.set(str, forKey: prefix + sub)
+    /// ファイルストアを明示的に注入するイニシャライザ（テスト用。internal）。
+    /// `fileStore` が nil の場合は ghostKey 付きモードで `ProfileResourceFileStore` を既定使用。
+    init(defaults: UserDefaults = .standard, ghostKey: String? = nil, fileStore: ResourceFileStore?) {
+        self.defaults = defaults
+        let trimmed = ghostKey?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        // 先に全 stored property を設定（designated init の制約）。
+        if trimmed.isEmpty {
+            // 旧グローバルモード: UserDefaults のみ（互換維持・ファイルは使わない）
+            self.prefix = Self.legacyPrefix
+            self.fileStore = nil
+        } else {
+            self.prefix = Self.legacyPrefix + trimmed + "."
+            // backfill（旧グローバル UserDefaults 値 → このゴーストのプレフィックスへ1回限りコピー）。
+            // self.cache に依存しないのでインライン実行し、順序（旧グローバル → プレフィックス → ファイル）を保証。
+            if defaults.string(forKey: Self.claimMarkerKey) == nil {
+                defaults.set(trimmed, forKey: Self.claimMarkerKey)
+                for (key, value) in defaults.dictionaryRepresentation() {
+                    guard key.hasPrefix(Self.legacyPrefix), key != Self.claimMarkerKey else { continue }
+                    guard let str = value as? String else { continue }
+                    let sub = String(key.dropFirst(Self.legacyPrefix.count))
+                    defaults.set(str, forKey: prefix + sub)
+                }
+            }
+            // テストから明示的注入が無ければ SSP 公開フォルダへ。
+            self.fileStore = fileStore ?? ProfileResourceFileStore(ghostKey: trimmed)
         }
+        self.cache = [:]
+        // 全プロパティ設定後、ファイルモードのマイグレーションを実行。
+        migrateUserDefaultsToFileIfNeeded()
+    }
+
+    /// 初回起動時に UserDefaults のゴースト別プレフィックス値をファイルへ移行する（冪等）。
+    /// - ファイル既存 → ファイル優先（キャッシュへ読み込み、UserDefaults は触らない）。
+    /// - ファイル無し → UserDefaults の該当プレフィックス値を全てファイルへ書き出す。
+    ///   UserDefaults のエントリは削除しない（データ消失防止）。
+    private func migrateUserDefaultsToFileIfNeeded() {
+        guard let store = fileStore else { return }
+        if let existing = store.load() {
+            // ファイル既存 → ファイル優先
+            self.cache = existing
+            return
+        }
+        // ファイル無し → UserDefaults から移行（初回のみ・claimMarker は対象外）
+        var entries: [String: String] = [:]
+        for (key, value) in defaults.dictionaryRepresentation() {
+            guard key.hasPrefix(prefix) else { continue }
+            guard let str = value as? String else { continue }
+            let sub = String(key.dropFirst(prefix.count))
+            entries[sub] = str
+        }
+        self.cache = entries
+        try? store.write(entries)
+    }
+
+    /// キャッシュをファイルへ永続化する（fileStore があるときのみ）。
+    private func persistCacheToFile() {
+        guard let store = fileStore else { return }
+        try? store.write(cache)
     }
 
     // MARK: - Generic Accessors
 
     /// Get a SHIORI resource value.
     public func get(_ key: String) -> String? {
+        if fileStore != nil {
+            return cache[key]
+        }
         return defaults.string(forKey: prefix + key)
     }
 
     /// Set a SHIORI resource value.
     public func set(_ key: String, value: String) {
-        defaults.set(value, forKey: prefix + key)
+        if fileStore != nil {
+            cache[key] = value
+            persistCacheToFile()
+        } else {
+            defaults.set(value, forKey: prefix + key)
+        }
     }
 
     /// Remove a SHIORI resource value.
     public func remove(_ key: String) {
-        defaults.removeObject(forKey: prefix + key)
+        if fileStore != nil {
+            cache.removeValue(forKey: key)
+            persistCacheToFile()
+        } else {
+            defaults.removeObject(forKey: prefix + key)
+        }
     }
 
     // MARK: - Commonly Used Resources
@@ -219,9 +285,80 @@ public final class ResourceManager {
 
     /// Clear all stored resources (for debugging/reset)
     public func clearAll() {
+        if fileStore != nil {
+            // ファイルモード: キャッシュとファイルを空にする。
+            // UserDefaults の旧エントリは移行ポリシー（削除しない）に従い触らない。
+            cache.removeAll()
+            persistCacheToFile()
+            return
+        }
         let allKeys = defaults.dictionaryRepresentation().keys.filter { $0.hasPrefix(prefix) }
         for key in allKeys {
             defaults.removeObject(forKey: key)
         }
+    }
+}
+
+// MARK: - File Persistence
+
+/// SHIORI Resource のファイル永続化インターフェース。
+/// テストからモックを注入可能にするためプロトコル化。
+protocol ResourceFileStore {
+    /// ファイルが存在する場合は全エントリを返す。存在しない/読めない場合は nil。
+    func load() -> [String: String]?
+    /// 全エントリをファイルへ書き出す（上書き・アトミック）。
+    func write(_ entries: [String: String]) throws
+}
+
+/// SSP 互換の公開フォルダ `data/profile/<ghost>/shiori_resources.txt` を使う実装。
+/// 形式: UTF-8 / LF、1 行 1 エントリの `key,value`。
+///   - 値の改行は半角空白へ正規化（SHIORI Resource は短いテキスト前提）。
+///   - 読み込みは最初の `,` で key/value を分割（値にカンマが含まれていても可）。
+struct ProfileResourceFileStore: ResourceFileStore {
+    static let fileName = "shiori_resources.txt"
+    let ghostKey: String
+
+    init(ghostKey: String) {
+        self.ghostKey = ghostKey
+    }
+
+    private func fileURL() throws -> URL {
+        try OurinPaths.profileDirectory(for: ghostKey)
+            .appendingPathComponent(Self.fileName)
+    }
+
+    func load() -> [String: String]? {
+        guard let url = try? fileURL(),
+              let data = try? Data(contentsOf: url),
+              let text = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+        var dict: [String: String] = [:]
+        for raw in text.split(separator: "\n", omittingEmptySubsequences: true) {
+            // 最初の `,` で分割。値側にカンマが含まれていても保持。
+            let parts = raw.split(separator: ",", maxSplits: 1, omittingEmptySubsequences: false)
+            guard parts.count == 2 else { continue }
+            let key = String(parts[0])
+            let value = String(parts[1])
+            dict[key] = value
+        }
+        return dict
+    }
+
+    func write(_ entries: [String: String]) throws {
+        let url = try fileURL()
+        var lines: [String] = []
+        lines.reserveCapacity(entries.count)
+        // ソート順を固定し、再書き込み時の diff を最小化。
+        for key in entries.keys.sorted() {
+            // 改行混入を防ぐため LF/CR を空白化（1 行 1 エントリの不変量）。
+            let value = entries[key]?
+                .replacingOccurrences(of: "\r\n", with: " ")
+                .replacingOccurrences(of: "\n", with: " ")
+                .replacingOccurrences(of: "\r", with: " ") ?? ""
+            lines.append("\(key),\(value)")
+        }
+        let text = lines.joined(separator: "\n") + "\n"
+        try text.write(to: url, atomically: true, encoding: .utf8)
     }
 }

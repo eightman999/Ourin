@@ -1,5 +1,51 @@
 import Foundation
 
+public struct PluginMenuDefinition: Equatable {
+    public let itemID: String
+    public let messageKey: String
+    public let fallbackTitle: String?
+
+    public init(itemID: String, messageKey: String, fallbackTitle: String? = nil) {
+        self.itemID = itemID
+        self.messageKey = messageKey
+        self.fallbackTitle = fallbackTitle
+    }
+}
+
+public struct PluginMenuEntry: Equatable {
+    public static let actionPrefix = "plugin_menu:"
+
+    public let pluginID: String
+    public let pluginName: String
+    public let compatibilityPath: String
+    public let executablePath: String
+    public let packagePath: String?
+    public let itemID: String
+    public let title: String
+    public let canDispatchRequests: Bool
+
+    public var actionIdentifier: String {
+        "\(Self.actionPrefix)\(Self.encodeActionComponent(pluginID)):\(Self.encodeActionComponent(itemID))"
+    }
+
+    public static func parseActionIdentifier(_ action: String) -> (pluginID: String, itemID: String)? {
+        guard action.hasPrefix(actionPrefix) else { return nil }
+        let raw = String(action.dropFirst(actionPrefix.count))
+        let parts = raw.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+        guard parts.count == 2,
+              let pluginID = String(parts[0]).removingPercentEncoding,
+              let itemID = String(parts[1]).removingPercentEncoding,
+              !pluginID.isEmpty,
+              !itemID.isEmpty else { return nil }
+        return (pluginID, itemID)
+    }
+
+    private static func encodeActionComponent(_ value: String) -> String {
+        let allowed = CharacterSet.alphanumerics.union(.init(charactersIn: "-._~"))
+        return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
+    }
+}
+
 /// Parsed metadata from descript.txt
 public struct PluginMeta {
     public let name: String
@@ -15,6 +61,7 @@ public struct PluginMeta {
     public let installType: String?
     public let installDirectory: String?
     public let localizedMessages: [String: [String: String]]
+    public let menuDefinitions: [PluginMenuDefinition]
 
     /// descript.txt の `filename` 由来の互換パス（元 DLL パス）。
     /// `pluginlist.index(n).path` はこれを返す（従来互換）。
@@ -45,6 +92,13 @@ public struct PluginMeta {
         return localizedMessages["japanese"]?[key]
             ?? localizedMessages["english"]?[key]
             ?? localizedMessages.values.lazy.compactMap { $0[key] }.first
+    }
+
+    public func menuTitle(for definition: PluginMenuDefinition, language: String? = nil) -> String {
+        message(for: definition.messageKey, language: language)
+            ?? definition.fallbackTitle
+            ?? message(for: "menu.title", language: language)
+            ?? name
     }
 }
 
@@ -145,6 +199,37 @@ public final class PluginRegistry {
                 if lhsID != .orderedSame { return lhsID == .orderedAscending }
                 return $0.compatibilityPath.localizedStandardCompare($1.compatibilityPath) == .orderedAscending
             }
+    }
+
+    public func pluginMenuEntries(language: String? = nil) -> [PluginMenuEntry] {
+        allMetas.flatMap { meta in
+            meta.menuDefinitions.map { definition in
+                PluginMenuEntry(
+                    pluginID: meta.id,
+                    pluginName: meta.name,
+                    compatibilityPath: meta.compatibilityPath,
+                    executablePath: meta.executablePath,
+                    packagePath: meta.packagePath,
+                    itemID: definition.itemID,
+                    title: meta.menuTitle(for: definition, language: language),
+                    canDispatchRequests: meta.isNative
+                )
+            }
+        }
+        .sorted {
+            let lhsTitle = $0.title.localizedStandardCompare($1.title)
+            if lhsTitle != .orderedSame { return lhsTitle == .orderedAscending }
+            let lhsPlugin = $0.pluginName.localizedStandardCompare($1.pluginName)
+            if lhsPlugin != .orderedSame { return lhsPlugin == .orderedAscending }
+            return $0.itemID.localizedStandardCompare($1.itemID) == .orderedAscending
+        }
+    }
+
+    public func pluginMenuEntry(forActionIdentifier action: String, language: String? = nil) -> PluginMenuEntry? {
+        guard let parsed = PluginMenuEntry.parseActionIdentifier(action) else { return nil }
+        return pluginMenuEntries(language: language).first {
+            $0.pluginID == parsed.pluginID && $0.itemID == parsed.itemID
+        }
     }
 
     /// 現在ロード済みの plugin ID の集合（重複抑止用）。
@@ -497,6 +582,7 @@ public final class PluginRegistry {
         guard !name.isEmpty, !id.isEmpty, !filename.isEmpty else { return nil }
         let moduleURL = directoryURL.appendingPathComponent(filename)
         let otherGhostTalk = parseOtherGhostTalk(dict["otherghosttalk"])
+        let messages = localizedMessages ?? [:]
         return PluginMeta(
             name: name,
             id: id,
@@ -510,7 +596,8 @@ public final class PluginRegistry {
             isNative: isNative,
             installType: installManifest?.type,
             installDirectory: installManifest?.directory,
-            localizedMessages: localizedMessages ?? [:],
+            localizedMessages: messages,
+            menuDefinitions: parseMenuDefinitions(from: dict, localizedMessages: messages, defaultItemID: id),
             compatibilityPath: moduleURL.path,
             executablePath: (executableURL ?? moduleURL).path,
             packagePath: packageURL?.path
@@ -581,5 +668,58 @@ public final class PluginRegistry {
             return "english"
         }
         return lower
+    }
+
+    private static func parseMenuDefinitions(
+        from dict: [String: String],
+        localizedMessages: [String: [String: String]],
+        defaultItemID: String
+    ) -> [PluginMenuDefinition] {
+        var definitions: [PluginMenuDefinition] = []
+        var seen: Set<String> = []
+
+        func append(_ itemID: String, fallbackTitle: String? = nil) {
+            let normalizedID = itemID.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !normalizedID.isEmpty, seen.insert(normalizedID).inserted else { return }
+            definitions.append(
+                PluginMenuDefinition(
+                    itemID: normalizedID,
+                    messageKey: "menu.\(normalizedID)",
+                    fallbackTitle: fallbackTitle
+                )
+            )
+        }
+
+        if let rawMenu = dict["menu"] {
+            splitMenuList(rawMenu).forEach { append($0) }
+        }
+
+        let descriptorMenuKeys = dict.keys
+            .filter { $0.hasPrefix("menu.") && $0 != "menu.title" }
+            .sorted()
+        for key in descriptorMenuKeys {
+            append(String(key.dropFirst("menu.".count)), fallbackTitle: dict[key])
+        }
+
+        let messageMenuKeys = Set(localizedMessages.values.flatMap { Array($0.keys) })
+            .filter { $0.hasPrefix("menu.") && $0 != "menu.title" }
+            .sorted()
+        for key in messageMenuKeys {
+            append(String(key.dropFirst("menu.".count)))
+        }
+
+        if definitions.isEmpty,
+           dict["menu.title"] != nil || localizedMessages.values.contains(where: { $0["menu.title"] != nil }) {
+            append(defaultItemID, fallbackTitle: dict["menu.title"])
+        }
+
+        return definitions
+    }
+
+    private static func splitMenuList(_ raw: String) -> [String] {
+        raw
+            .split(whereSeparator: { $0 == "," || $0 == "\u{1}" })
+            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
     }
 }

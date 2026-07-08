@@ -1,0 +1,8 @@
+Charset,UTF-8
+name,Fixture Legacy Metadata
+craftman,Ourin Test
+filename,legacy_fixture.dll
+secondchangeinterval,5
+otherghosttalk,after
+id,fixture-legacy-metadata-only
+homeurl,https://example.invalid/ourin-fixture

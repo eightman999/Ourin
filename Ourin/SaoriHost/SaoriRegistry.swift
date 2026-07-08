@@ -103,7 +103,8 @@ public final class SaoriRegistry {
             "lib\(stem).dylib",
             "\(stem).so",
             "lib\(stem).so",
-            "\(stem).bundle"
+            "\(stem).bundle",
+            "\(stem).plugin"
         ]
         return Array(NSOrderedSet(array: variants)) as? [String] ?? variants
     }

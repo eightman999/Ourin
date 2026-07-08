@@ -146,6 +146,56 @@ struct ExternalServerTests {
     }
 
     @Test
+    func externalServerSendReachesShioriAsExternalEvenFromLocalhostOrigin() throws {
+        var captured: [String: String] = [:]
+        BridgeToSHIORI.liveGhostResolver = { _, _, _, headers in
+            captured = headers
+            return BridgeToSHIORI.BridgeShioriResponse(
+                status: 200,
+                headers: [:],
+                value: "\\h\\s0External"
+            )
+        }
+
+        let raw = """
+        SEND SSTP/1.1\r
+        Sender: Test\r
+        Event: OnExternalCapture\r
+        SecurityOrigin: http://localhost:3000\r
+        SecurityLevel: local\r
+        Charset: UTF-8\r
+        \r
+        """
+        let resp = makeServer().handleRaw(raw)
+        #expect(resp.contains("200"))
+        #expect(captured["SecurityLevel"] == "external")
+        #expect(captured["SecurityOrigin"] == "http://localhost:3000")
+        #expect(captured["SenderType"] == "external,sstp")
+    }
+
+    @Test
+    func raiseotherStyleNotifyReachesShioriAsExternal() throws {
+        var captured: [String: String] = [:]
+        BridgeToSHIORI.liveGhostResolver = { _, _, _, headers in
+            captured = headers
+            return BridgeToSHIORI.BridgeShioriResponse(status: 204, headers: [:], value: nil)
+        }
+
+        let raw = """
+        NOTIFY SSTP/1.1\r
+        Sender: Ourin\r
+        Event: OnOtherGhostEvent\r
+        Reference0: payload\r
+        Charset: UTF-8\r
+        \r
+        """
+        let resp = makeServer().handleRaw(raw)
+        #expect(resp.contains("204"))
+        #expect(captured["SecurityLevel"] == "external")
+        #expect(captured["Sender"] == "Ourin")
+    }
+
+    @Test
     func serverExecuteWithoutCommand() throws {
         let raw = "EXECUTE SSTP/1.1\r\nSender: Test\r\nCharset: UTF-8\r\n\r\n"
         let resp = makeServer().handleRaw(raw)

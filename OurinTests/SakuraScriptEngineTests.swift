@@ -1390,6 +1390,41 @@ struct SakuraScriptEngineTests {
     }
 
     @Test
+    func jumpToScriptLabelUsesAnchorID() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "Start\\j[Target]Skip\\_a[Target]Hit\\_a\\e")
+        #expect(tokens == [
+            .text("Start"),
+            .command(name: "_a", args: ["Target"]),
+            .text("Hit"),
+            .command(name: "_a", args: []),
+            .end
+        ])
+    }
+
+    @Test
+    func jumpToOnIDRemainsEventCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\j[OnTarget]\\_a[OnTarget]Hit\\_a")
+        #expect(tokens == [
+            .command(name: "j", args: ["OnTarget"]),
+            .command(name: "_a", args: ["OnTarget"]),
+            .text("Hit"),
+            .command(name: "_a", args: [])
+        ])
+    }
+
+    @Test
+    func jumpToUnknownLabelRemainsCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\j[Missing]Text")
+        #expect(tokens == [
+            .command(name: "j", args: ["Missing"]),
+            .text("Text")
+        ])
+    }
+
+    @Test
     func quickSectionMarker() async throws {
         let engine = SakuraScriptEngine()
         let tokens = engine.parse(script: "\\_qQuick section")

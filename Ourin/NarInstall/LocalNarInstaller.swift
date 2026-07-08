@@ -101,7 +101,12 @@ final class NarInstaller {
             )
         }
 
-        // 9) 後始末
+        // 9) type=ghost / type=shell に同梱された付属コンポーネント（*.directory 系）を汎用展開
+        //    UKADOC install.txt: balloon/headline/plugin/calendar.skin/calendar.plugin を同時インストール可能。
+        //    step 8 で処理済みの type=ghost + balloon（単一）は重複回避のためスキップ。
+        try installAttachedComponents(fromExtract: tmpExtract, manifest: manifest)
+
+        // 10) 後始末
         try? FileManager.default.removeItem(at: tmpRoot)
         log.info("install finished")
         return target
@@ -225,6 +230,75 @@ final class NarInstaller {
     private func isDirectory(_ url: URL) -> Bool {
         var isDir: ObjCBool = false
         return FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir) && isDir.boolValue
+    }
+
+    /// type=ghost / type=shell に同梱された付属コンポーネント（*.directory 系）を汎用的に展開する。
+    /// UKADOC install.txt 仕様（https://ssp.shillest.net/ukadoc/manual/descript_install.html）:
+    /// `*.directory` は type=ghost / type=shell の場合のみ設定可能で、
+    /// balloon / headline / plugin / calendar.skin / calendar.plugin を同時インストールする。
+    /// step 8（installBundledBalloon）で処理済みの type=ghost + balloon（単一・先頭）はスキップする。
+    private func installAttachedComponents(fromExtract extractRoot: URL, manifest: InstallManifest) throws {
+        let typeLower = manifest.type.lowercased()
+        // UKADOC: *.directory は type=ghost / type=shell の場合のみ有効。
+        guard typeLower == "ghost" || typeLower == "shell" else { return }
+        guard !manifest.attachedComponents.isEmpty else { return }
+
+        let ghostBalloonDir = manifest.balloonDirectory?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+        for component in manifest.attachedComponents {
+            // step 8 で installBundledBalloon が処理した対象と同一ならスキップ（二重展開回避）。
+            // 対象: type=ghost + (数字なし) balloon + directory が balloonDirectory と一致。
+            if typeLower == "ghost",
+               component.type == "balloon",
+               component.kindToken.lowercased() == "balloon",
+               !ghostBalloonDir.isEmpty,
+               component.directory == ghostBalloonDir {
+                continue
+            }
+            try installAttachedComponent(fromExtract: extractRoot, component: component)
+        }
+    }
+
+    /// 付属コンポーネント単体を展開する。
+    /// ソースディレクトリ解決（UKADOC manual_install.html の構成例に基づく）:
+    ///   1. `<root>/<source.directory>` （未指定なら `<directory>`）
+    ///   2. `<root>/<type-prefix>/<source.directory>` （installBundledBalloon 互換フォールバック）
+    private func installAttachedComponent(fromExtract extractRoot: URL, component: AttachedComponent) throws {
+        let fm = FileManager.default
+        let trimmedSource = component.sourceDirectory?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let sourceName = trimmedSource.isEmpty ? component.directory : trimmedSource
+
+        // OurinPaths.installTarget が受理する type へ正規化。
+        // UKADOC の *.directory の * 部分は calendar.skin（ドット区切り）だが、
+        // OurinPaths.installTarget は calendar/skin（スラッシュ）を受理するためドット→スラッシュへ変換。
+        let targetType = component.type.replacingOccurrences(of: ".", with: "/")
+
+        // ソース候補:
+        //   UKADOC manual_install.html では同梱物はアーカイブルート直下に置かれるのが標準。
+        //   一部慣行（installBundledBalloon 互換）で <root>/<type-prefix>/<source> もフォールバック候補に入れる。
+        let typePrefix = component.type.split(separator: ".").first.map(String.init)?.lowercased()
+            ?? component.type.lowercased()
+        let candidates: [URL] = [
+            extractRoot.appendingPathComponent(sourceName, isDirectory: true),
+            extractRoot.appendingPathComponent(typePrefix, isDirectory: true)
+                       .appendingPathComponent(sourceName, isDirectory: true)
+        ]
+        guard let srcDir = candidates.first(where: { isDirectory($0) }) else {
+            log.warning("attached \(component.type,).directory=\(component.directory,) : ソースディレクトリが見つかりません")
+            return
+        }
+
+        let target = try OurinPaths.installTarget(forType: targetType, directory: component.directory)
+
+        // *.refresh,1 なら設置先をクリア（refreshundeletemask 適用）
+        if component.refresh, FileManager.default.fileExists(atPath: target.path) {
+            try refreshTarget(at: target, keepingMasks: component.refreshUndeleteMask)
+        }
+
+        try fm.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try ZipUtil.secureCopyTree(from: srcDir, to: target)
+        log.info("attached component installed: \(component.type,) -> \(target.path,)")
     }
 
     /// updates2.dau / updates.txt / update.txt を順に解決して更新候補 URL を返す

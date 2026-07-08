@@ -30,9 +30,8 @@ public enum HTTPBridge {
         var req = SSTPParser.parseRequest(text: body)
         if let originHeader, !originHeader.isEmpty {
             req.setHeader("SecurityOrigin", originHeader)
-            req.setHeader("SecurityLevel", isLocalOrigin(originHeader) ? "local" : "external")
         }
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatchExternal(request: req, origin: originHeader)
         // 互換のため常に HTTP 200 を返す
         let http = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: \(resp.utf8.count)\r\n\r\n\(resp)"
         return Data(http.utf8)

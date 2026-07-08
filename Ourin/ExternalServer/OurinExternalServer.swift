@@ -58,7 +58,11 @@ public final class OurinExternalServer {
             ServerMetrics.shared.record(duration: 0, error: true)
             return SSTPResponse(version: "SSTP/1.4", statusCode: 400).toWireFormat()
         }
-        let response = SSTPDispatcher.dispatch(request: request, securityLocalOnly: config.securityLocalOnly)
+        let response = SSTPDispatcher.dispatchExternal(
+            request: request,
+            securityLocalOnly: config.securityLocalOnly,
+            origin: request.headerValue("SecurityOrigin")
+        )
         let duration = Date().timeIntervalSince(start)
         ServerMetrics.shared.record(duration: duration, error: isErrorResponse(response))
         return response

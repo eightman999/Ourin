@@ -18,7 +18,240 @@ private final class FakeShioriRequester: ShioriRequesting {
     func unload() {}
 }
 
+private final class MockShiori2Backend: ShioriBackend {
+    var requests: [String] = []
+    var encodedRequests: [Data] = []
+    var handler: (String) -> String?
+
+    init(handler: @escaping (String) -> String?) {
+        self.handler = handler
+    }
+
+    func request(_ text: String) -> String? {
+        requests.append(text)
+        let charset = EncodingAdapter.detectCharset(in: Data(text.utf8), default: "UTF-8")
+        encodedRequests.append(EncodingAdapter.encode(text, charset: charset))
+        return handler(text)
+    }
+
+    func unload() {}
+}
+
+private extension Data {
+    func containsBytes(_ needle: [UInt8]) -> Bool {
+        guard !needle.isEmpty, count >= needle.count else { return false }
+        let bytes = Array(self)
+        for start in 0...(bytes.count - needle.count) {
+            if Array(bytes[start..<(start + needle.count)]) == needle {
+                return true
+            }
+        }
+        return false
+    }
+}
+
 struct ShioriLoaderTests {
+    @Test
+    func shiori2DetectionUsesGetVersionThenConvertsEventRequest() throws {
+        let backend = MockShiori2Backend { request in
+            if request.hasPrefix("GET Version SHIORI/2.0\r\n") {
+                return "SHIORI/2.6 200 OK\r\nCharset: Shift_JIS\r\n\r\n"
+            }
+            return "SHIORI/2.2 204 No Content\r\n\r\n"
+        }
+        let adapter = Shiori2CompatBackend(wrapping: backend)
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OnBoot\r
+        Reference0: master\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        let response = adapter.request(request)
+
+        #expect(response == "SHIORI/3.0 204 No Content\r\nCharset: UTF-8\r\n\r\n")
+        #expect(backend.requests.count == 2)
+        #expect(backend.requests[0].hasPrefix("GET Version SHIORI/2.0\r\n"))
+        #expect(backend.requests[1].hasPrefix("GET Sentence SHIORI/2.2\r\n"))
+    }
+
+    @Test
+    func shiori2EventRequestUsesSentence22ReferencesSecurityAndCRLFTerminator() throws {
+        let backend = MockShiori2Backend { _ in
+            "SHIORI/2.2 204 No Content\r\n\r\n"
+        }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OnBoot\r
+        Reference0: r0\r
+        Reference1: r1\r
+        Reference2: r2\r
+        Reference3: r3\r
+        Reference4: r4\r
+        Reference5: r5\r
+        Reference6: r6\r
+        Reference7: r7\r
+        Reference8: r8-drop\r
+        SecurityLevel: external\r
+        \r
+        """
+
+        _ = adapter.request(request)
+
+        let sent = try #require(backend.requests.first)
+        let expected = """
+        GET Sentence SHIORI/2.2\r
+        Sender: Ourin\r
+        Event: OnBoot\r
+        Reference0: r0\r
+        Reference1: r1\r
+        Reference2: r2\r
+        Reference3: r3\r
+        Reference4: r4\r
+        Reference5: r5\r
+        Reference6: r6\r
+        Reference7: r7\r
+        SecurityLevel: external\r
+        Charset: Shift_JIS\r
+        \r\n
+        """
+        #expect(sent == expected)
+        #expect(!sent.contains("Reference8"))
+        #expect(sent.hasSuffix("\r\n\r\n"))
+    }
+
+    @Test
+    func shiori2SentenceResponseBecomesShiori3ValueResponse() throws {
+        let backend = MockShiori2Backend { _ in
+            """
+            SHIORI/2.2 200 OK\r
+            Charset: Shift_JIS\r
+            Sentence: \\h\\s0こんにちは\\e\r
+            BalloonOffset: 12,34\r
+            \r
+            """
+        }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OnBoot\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        let response = try #require(adapter.request(request))
+
+        #expect(response.hasPrefix("SHIORI/3.0 200 OK\r\n"))
+        #expect(response.contains("Charset: UTF-8\r\n"))
+        #expect(response.contains("Value: \\h\\s0こんにちは\\e\r\n"))
+        #expect(response.contains("BalloonOffset: 12,34\r\n"))
+    }
+
+    @Test
+    func shiori2NoContentResponseMapsToShiori3NoContent() throws {
+        let backend = MockShiori2Backend { _ in
+            "SHIORI/2.2 204 No Content\r\n\r\n"
+        }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OnClose\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        let response = try #require(adapter.request(request))
+
+        #expect(response == "SHIORI/3.0 204 No Content\r\nCharset: UTF-8\r\n\r\n")
+    }
+
+    @Test
+    func shiori2UnknownEventIsNotSentToBackend() throws {
+        let backend = MockShiori2Backend { _ in
+            "SHIORI/2.2 200 OK\r\nSentence: should-not-be-used\r\n\r\n"
+        }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OnMouseGesture\r
+        Reference0: left\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        let response = try #require(adapter.request(request))
+
+        #expect(response == "SHIORI/3.0 204 No Content\r\nCharset: UTF-8\r\n\r\n")
+        #expect(backend.requests.isEmpty)
+    }
+
+    @Test
+    func shiori2TeachMapsToTeach24AndPreserves311And312() throws {
+        var responseIndex = 0
+        let backend = MockShiori2Backend { _ in
+            responseIndex += 1
+            if responseIndex == 1 {
+                return "SHIORI/2.4 311 Not Enough\r\nSentence: \\h\\s0もっと教えてください\\e\r\n\r\n"
+            }
+            return "SHIORI/2.4 312 Advice\r\nSentence: \\h\\s0解釈できません\\e\r\n\r\n"
+        }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        TEACH SHIORI/3.0\r
+        Charset: UTF-8\r
+        Word: ガッツ石松\r
+        Reference0: boxer\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        let first = try #require(adapter.request(request))
+        let second = try #require(adapter.request(request))
+
+        #expect(backend.requests[0].hasPrefix("TEACH SHIORI/2.4\r\n"))
+        #expect(backend.requests[0].contains("Word: ガッツ石松\r\n"))
+        #expect(backend.requests[0].contains("Reference0: boxer\r\n"))
+        #expect(first.hasPrefix("SHIORI/3.0 311 Not Enough\r\n"))
+        #expect(first.contains("Value: \\h\\s0もっと教えてください\\e\r\n"))
+        #expect(second.hasPrefix("SHIORI/3.0 312 Advice\r\n"))
+        #expect(second.contains("Value: \\h\\s0解釈できません\\e\r\n"))
+    }
+
+    @Test
+    func shiori2RequestIsEncodedAsShiftJISBytes() throws {
+        let backend = MockShiori2Backend { _ in
+            "SHIORI/2.2 204 No Content\r\n\r\n"
+        }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OnBoot\r
+        Reference0: おはよう\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        _ = adapter.request(request)
+
+        let encoded = try #require(backend.encodedRequests.first)
+        #expect(encoded.containsBytes([0x82, 0xA8, 0x82, 0xCD, 0x82, 0xE6, 0x82, 0xA4]))
+        #expect(!encoded.containsBytes(Array("おはよう".utf8)))
+    }
+
     @Test
     func yayaParseRequestSupportsShiori2TeachAndSentence() throws {
         let request = """

@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import Testing
 @testable import Ourin
@@ -41,5 +42,37 @@ struct BalloonTests {
         let img = try ImageLoader.load(url: tmp)
         #expect(img.width == 1)
         #expect(img.height == 1)
+    }
+
+    // MARK: - \_b --option=fixed
+
+    @MainActor
+    @Test func balloonImageOptionFixedSetsIsFixedFlag() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-fixed"))
+        // handleBalloonImage requires balloonViewModels[currentScope] to already exist.
+        let vm = gm.getBalloonVM(for: gm.currentScope)
+        gm.handleBalloonImage(args: ["nonexistent.png", "0", "0", "--option=fixed"])
+
+        // handleBalloonImage appends to balloonImages inside DispatchQueue.main.async; wait for it.
+        await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+            DispatchQueue.main.async { c.resume() }
+        }
+
+        #expect(vm.balloonImages.count == 1)
+        #expect(vm.balloonImages.first?.isFixed == true)
+    }
+
+    @MainActor
+    @Test func balloonImageWithoutFixedOptionDefaultsToScrolling() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-scroll"))
+        let vm = gm.getBalloonVM(for: gm.currentScope)
+        gm.handleBalloonImage(args: ["nonexistent.png", "0", "0"])
+
+        await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+            DispatchQueue.main.async { c.resume() }
+        }
+
+        #expect(vm.balloonImages.count == 1)
+        #expect(vm.balloonImages.first?.isFixed == false)
     }
 }

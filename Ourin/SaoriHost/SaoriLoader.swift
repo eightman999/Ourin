@@ -41,7 +41,20 @@ public final class SaoriLoader {
 
     public init(url: URL) throws {
         self.moduleURL = url
-        guard let h = dlopen(url.path, RTLD_NOW) else {
+        // ディレクトリ型バンドル（.plugin/.bundle）は dlopen に渡せないため、
+        // Bundle(url:) の executableURL で中の実行体（Contents/MacOS/<name>）を解決する。
+        // 通常の dylib/so パスはそのまま扱う（ShioriLoader.BundleBackend と同じ方針）。
+        let resolvedURL: URL
+        let ext = url.pathExtension.lowercased()
+        if ext == "bundle" || ext == "plugin" {
+            guard let execURL = Bundle(url: url)?.executableURL else {
+                throw SaoriLoaderError.openFailed("bundle executable not found: \(url.path)")
+            }
+            resolvedURL = execURL
+        } else {
+            resolvedURL = url
+        }
+        guard let h = dlopen(resolvedURL.path, RTLD_NOW) else {
             let err = dlerror().map { String(cString: $0) } ?? "unknown"
             throw SaoriLoaderError.openFailed(err)
         }

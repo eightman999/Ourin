@@ -3,6 +3,9 @@ import Testing
 @testable import Ourin
 
 /// "OurinEnableFileLogging" / "OurinLogOutputPath" に基づくファイルログ出力を検証する。
+/// LogFileSink.shared（プロセス共有シングルトン）と UserDefaults.standard の同一キーを
+/// 全テストが共有するため、並列実行すると enable/disable 状態が交差してフレークする。直列化必須。
+@Suite(.serialized)
 struct LogFileSinkTests {
     private let enableKey = "OurinEnableFileLogging"
     private let pathKey = "OurinLogOutputPath"

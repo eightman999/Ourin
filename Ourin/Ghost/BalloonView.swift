@@ -53,12 +53,16 @@ struct BalloonView: View {
                 }
 
                 // Balloon images (both positioned and inline)
+                // --option=fixed が指定されていない画像は、テキスト送り（\_l によるカーソル移動）に追従してスクロールする。
+                // fixed指定時は背景として固定位置に留まる（UKADOC \_b 仕様）。
                 ForEach(viewModel.balloonImages) { balloonImage in
                     if let nsImage = balloonImage.image {
+                        let scrollX = balloonImage.isFixed ? 0 : viewModel.cursorX
+                        let scrollY = balloonImage.isFixed ? 0 : viewModel.cursorY
                         Image(nsImage: nsImage)
                             .resizable()
                             .frame(width: CGFloat(nsImage.size.width), height: CGFloat(nsImage.size.height))
-                            .offset(x: balloonImage.x, y: balloonImage.y)
+                            .offset(x: balloonImage.x + scrollX, y: balloonImage.y + scrollY)
                     }
                 }
 

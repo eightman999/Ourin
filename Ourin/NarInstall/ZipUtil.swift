@@ -104,9 +104,17 @@ enum ZipUtil {
         try fm.createDirectory(at: dst, withIntermediateDirectories: true)
         guard let enumerator = fm.enumerator(at: src, includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles], errorHandler: nil) else { return }
 
+        // enumerator の返す URL は /var → /private/var のように実体パスへ解決されることがあり、
+        // 文字列置換による相対パス計算が壊れる（結果が <dst>/private/... へずれる）。
+        // 基準側・列挙側の双方を resolvingSymlinksInPath で正規化してから比較する。
+        let srcBase = src.resolvingSymlinksInPath().path
+        let dstBase = dst.resolvingSymlinksInPath().path
+
         for case let fileURL as URL in enumerator {
             let fileName = fileURL.lastPathComponent
-            let relativePath = fileURL.path.replacingOccurrences(of: src.path, with: "")
+            let resolvedFilePath = fileURL.resolvingSymlinksInPath().path
+            guard resolvedFilePath.hasPrefix(srcBase) else { continue }
+            let relative = String(resolvedFilePath.dropFirst(srcBase.count)).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
 
             // Skip ignored files
             if shouldIgnore(fileName: fileName) {
@@ -114,7 +122,7 @@ enum ZipUtil {
             }
 
             // Skip ignored directories and paths containing them
-            if shouldIgnore(directoryName: fileName) || pathContainsIgnoredDirectory(relativePath) {
+            if shouldIgnore(directoryName: fileName) || pathContainsIgnoredDirectory(relative) {
                 continue
             }
 
@@ -122,10 +130,9 @@ enum ZipUtil {
             let vals = try fileURL.resourceValues(forKeys: [.isSymbolicLinkKey, .isDirectoryKey])
             if vals.isSymbolicLink == true { continue }
 
-            let relative = fileURL.path.replacingOccurrences(of: src.path, with: "").trimmingCharacters(in: CharacterSet(charactersIn: "/"))
             let target = dst.appendingPathComponent(relative, isDirectory: vals.isDirectory == true)
             let resolved = target.resolvingSymlinksInPath()
-            guard resolved.path.hasPrefix(dst.path) else {
+            guard resolved.path.hasPrefix(dstBase) else {
                 throw NarInstaller.Error.zipSlipDetected(target.path)
             }
             if vals.isDirectory == true {

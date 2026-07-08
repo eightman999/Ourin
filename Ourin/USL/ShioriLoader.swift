@@ -554,8 +554,9 @@ final class XpcBackend: ShioriBackend {
         guard let responseData else {
             return nil
         }
-        let respCharset = EncodingAdapter.detectCharset(in: responseData)
+        let respCharset = EncodingAdapter.detectCharset(in: responseData, default: reqCharset)
         return EncodingAdapter.decode(responseData, charset: respCharset)
+            ?? EncodingAdapter.decode(responseData, charset: reqCharset)
             ?? String(data: responseData, encoding: .utf8)
     }
 
@@ -643,8 +644,8 @@ final class BundleBackend: ShioriBackend {
 
         let data = Data(bytes: p, count: outLen)
         freeFn?(p)
-        // 応答は応答ヘッダの Charset に従ってデコードする（既定 UTF-8）
-        let respCharset = EncodingAdapter.detectCharset(in: data)
+        // 応答は応答ヘッダの Charset に従ってデコードする（未指定時は要求 Charset）
+        let respCharset = EncodingAdapter.detectCharset(in: data, default: reqCharset)
         return EncodingAdapter.decode(data, charset: respCharset) ?? String(data: data, encoding: .utf8)
     }
     
@@ -725,7 +726,7 @@ final class DylibBackend: ShioriBackend {
         guard ok, let p = outPtr else { return nil }
         let data = Data(bytes: p, count: outLen)
         freeFn?(p)
-        let respCharset = EncodingAdapter.detectCharset(in: data)
+        let respCharset = EncodingAdapter.detectCharset(in: data, default: reqCharset)
         return EncodingAdapter.decode(data, charset: respCharset) ?? String(data: data, encoding: .utf8)
     }
 
@@ -842,16 +843,16 @@ extension ShioriLoader {
         if let xpcServiceName {
             do {
                 NSLog("[ShioriLoader] Trying XPC backend (\(xpcServiceName)) for \(moduleURL.lastPathComponent)")
-                return try XpcBackend(serviceName: xpcServiceName, moduleURL: moduleURL)
+                return Shiori2CompatBackend(wrapping: try XpcBackend(serviceName: xpcServiceName, moduleURL: moduleURL))
             } catch {
                 NSLog("[ShioriLoader] XPC backend unavailable, falling back to native loader: \(error)")
             }
         }
         let ext = moduleURL.pathExtension.lowercased()
         if ext == "bundle" || ext == "plugin" {
-            return try BundleBackend(url: moduleURL)
+            return Shiori2CompatBackend(wrapping: try BundleBackend(url: moduleURL))
         }
-        return try DylibBackend(url: moduleURL)
+        return Shiori2CompatBackend(wrapping: try DylibBackend(url: moduleURL))
     }
 
     /// Default search paths defined by USL spec
@@ -945,7 +946,8 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
     }
 
     public func execute(_ request: Data, bundlePath: String, withReply reply: @escaping (Data?, String?) -> Void) {
-        guard let requestText = String(data: request, encoding: .utf8), !requestText.isEmpty else {
+        let requestCharset = EncodingAdapter.detectCharset(in: request, default: "UTF-8")
+        guard let requestText = EncodingAdapter.decode(request, charset: requestCharset), !requestText.isEmpty else {
             reply(nil, "Invalid SHIORI request payload")
             return
         }
@@ -971,7 +973,8 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
             reply(nil, "SHIORI request failed.")
             return
         }
-        reply(Data(response.utf8), nil)
+        let responseCharset = EncodingAdapter.detectCharset(in: Data(response.utf8), default: requestCharset)
+        reply(EncodingAdapter.encode(response, charset: responseCharset), nil)
     }
 
     private func resolveLoader(moduleURL: URL) -> ShioriRequesting? {

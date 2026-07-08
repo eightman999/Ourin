@@ -25,6 +25,9 @@ struct RightClickMenu: View {
             // 着せ替え
             dressupSubmenu
 
+            // プラグイン
+            pluginSubmenu
+
             Divider()
 
             // 情報
@@ -150,6 +153,23 @@ struct RightClickMenu: View {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    // MARK: - Plugin Submenu
+
+    @ViewBuilder
+    private var pluginSubmenu: some View {
+        let entries = (NSApp.delegate as? AppDelegate)?.pluginRegistry?.pluginMenuEntries() ?? []
+        if !entries.isEmpty {
+            Menu("プラグイン(P)") {
+                ForEach(entries, id: \.actionIdentifier) { entry in
+                    Button(entry.title) {
+                        ghostManager?.handleMenuAction(entry.actionIdentifier)
+                    }
+                    .disabled(!entry.canDispatchRequests)
                 }
             }
         }

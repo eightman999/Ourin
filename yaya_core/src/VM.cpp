@@ -19,10 +19,56 @@
 #include <sys/wait.h>
 #include <regex>
 #include <unordered_set>
+#include <iconv.h>
+#include <cerrno>
+#include <cstring>
 #include "Digest.hpp"
 #include "Base64.hpp"
 
 namespace {
+
+// yaya.txt の charset 表記ゆれを吸収する。戻り値: "UTF-8" / "CP932" / "AUTO"
+// (DictionaryManager.cpp の normalizeEncodingName と同等のロジック)
+std::string normalizeEncodingNameVM(std::string enc) {
+    std::transform(enc.begin(), enc.end(), enc.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    enc.erase(std::remove_if(enc.begin(), enc.end(),
+                             [](char c) { return c == '-' || c == '_' || c == ' '; }),
+              enc.end());
+    if (enc == "utf8") return "UTF-8";
+    if (enc == "shiftjis" || enc == "sjis" || enc == "cp932" ||
+        enc == "windows31j" || enc == "ms932" || enc == "ms_kanji") return "CP932";
+    if (enc.empty() || enc == "auto" || enc == "default") return "AUTO";
+    return "AUTO";
+}
+
+// iconv による汎用エンコーディング変換 (from -> to)。失敗時は false。
+bool convertEncodingVM(const std::string& input, const char* fromCode, const char* toCode, std::string& output) {
+    iconv_t cd = iconv_open(toCode, fromCode);
+    if (cd == (iconv_t)-1) {
+        return false;
+    }
+    std::string result;
+    result.reserve(input.size() * 2 + 16);
+    std::vector<char> buf(65536);
+    char* inPtr = const_cast<char*>(input.data());
+    size_t inLeft = input.size();
+    bool ok = true;
+    while (inLeft > 0) {
+        char* outPtr = buf.data();
+        size_t outLeft = buf.size();
+        size_t rc = iconv(cd, &inPtr, &inLeft, &outPtr, &outLeft);
+        result.append(buf.data(), buf.size() - outLeft);
+        if (rc == (size_t)-1) {
+            if (errno == E2BIG) continue; // 出力バッファ満杯 → 続行
+            ok = false;
+            break;
+        }
+    }
+    iconv_close(cd);
+    if (ok) output = std::move(result);
+    return ok;
+}
 
 // UTF-8 バイト列をコードポイント配列にデコードする。
 // 不正なバイトは置換せず、そのまま 1 バイト = 1 コードポイントとして扱い、
@@ -475,6 +521,8 @@ Value VM::executeFunctionDecl(const FunctionDecl& decl) {
             collected.clear();
             collected.push_back(ret.value);
         }
+        // OUTPUTNUM() 用: この array/sequential 関数が収集した候補数を記録する。
+        lastOutputNum_ = static_cast<int>(collected.size());
         if (isArray) {
             return Value(collected);
         } else {
@@ -493,6 +541,8 @@ Value VM::executeFunctionDecl(const FunctionDecl& decl) {
     if (ftype.find("void") != std::string::npos) {
         result = Value();
     }
+    // OUTPUTNUM() 用: array/sequential でない通常関数は候補数1として扱う。
+    lastOutputNum_ = 1;
     return result;
 }
 
@@ -639,13 +689,17 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
         case AST::NodeType::Parallel: {
             // 非 array 文脈の parallel: 配列から1要素を等確率で選択して返す
             // （array/sequential 関数の候補収集は executeFunctionDecl 側で展開する）
+            // 本家 YAYA の {a,b,c} ランダム選択構文に相当するため、選ばれたインデックスを
+            // LSO() 用に記録する。
             auto* par = dynamic_cast<AST::ParallelNode*>(node.get());
             Value v = executeNode(par->expr);
             if (v.getType() == Value::Type::Array) {
                 const auto& arr = v.asArray();
                 if (arr.empty()) return Value();
                 std::uniform_int_distribution<size_t> dis(0, arr.size() - 1);
-                return arr[dis(yaya_rng::engine())];
+                size_t idx = dis(yaya_rng::engine());
+                lastSelectedIndex_ = static_cast<int>(idx);
+                return arr[idx];
             }
             return v;
         }
@@ -2332,14 +2386,59 @@ void VM::registerBuiltins() {
         return Value(static_cast<int>(data.length()));
     };
     
-    // FREADENCODE(handle, encoding) - Read with encoding
+    // FREADENCODE(handle, encoding) - 指定エンコーディングでファイル残り全体を読み込み、
+    // UTF-8 に変換して返す。ハンドル不正/未オープン時は空文字列。
     builtins_["FREADENCODE"] = [](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        int handle = args[0].asInt();
+        std::string encoding = args.size() >= 2 ? args[1].asString() : std::string("UTF-8");
+
+        auto it = fileHandles.find(handle);
+        if (it == fileHandles.end() || !it->second->is_open()) {
+            return Value("");
+        }
+
+        std::ostringstream buffer;
+        buffer << it->second->rdbuf();
+        std::string raw = buffer.str();
+
+        std::string norm = normalizeEncodingNameVM(encoding);
+        if (norm == "UTF-8" || norm == "AUTO") {
+            return Value(raw);
+        }
+        std::string converted;
+        if (convertEncodingVM(raw, "CP932", "UTF-8", converted)) {
+            return Value(converted);
+        }
         return Value("");
     };
-    
-    // FWRITEDECODE(handle, data, encoding) - Write with encoding (stub)
+
+    // FWRITEDECODE(handle, data, encoding) - UTF-8 の data を指定エンコーディングへ変換し
+    // ファイルへ書き込む。書き込みバイト数を返す（失敗時は0）。
     builtins_["FWRITEDECODE"] = [](const std::vector<Value>& args) -> Value {
-        return Value(0);
+        if (args.size() < 2) return Value(0);
+        int handle = args[0].asInt();
+        std::string data = args[1].asString();
+        std::string encoding = args.size() >= 3 ? args[2].asString() : std::string("UTF-8");
+
+        auto it = fileHandles.find(handle);
+        if (it == fileHandles.end() || !it->second->is_open()) {
+            return Value(0);
+        }
+
+        std::string norm = normalizeEncodingNameVM(encoding);
+        std::string toWrite = data;
+        if (norm == "CP932") {
+            std::string converted;
+            if (!convertEncodingVM(data, "UTF-8", "CP932", converted)) {
+                return Value(0);
+            }
+            toWrite = converted;
+        }
+        // UTF-8 / AUTO はそのまま書き込む
+
+        it->second->write(toWrite.c_str(), toWrite.length());
+        return Value(static_cast<int>(toWrite.length()));
     };
     
     // FDIGEST(filename, algorithm) - File hash/digest (md5/sha1/crc32)
@@ -2834,10 +2933,11 @@ void VM::registerBuiltins() {
         return Value(1);
     };
     
-    // LSO() - Get last selected option (stub)
-    builtins_["LSO"] = [](const std::vector<Value>& args) -> Value {
+    // LSO() - 直近の parallel（本家 {a,b,c} ランダム選択構文相当）で選ばれた候補の
+    // インデックスを返す。未選択（一度も評価されていない）場合は -1。
+    builtins_["LSO"] = [this](const std::vector<Value>& args) -> Value {
         (void)args;
-        return Value(0);
+        return Value(lastSelectedIndex_);
     };
     
     // ISEVALUABLE(str) - Check if string is evaluable (Phase 10).
@@ -3447,10 +3547,15 @@ void VM::registerBuiltins() {
         return Value(funcDeclErase(args[0].asString()) ? 1 : 0);
     };
     
-    // OUTPUTNUM(format, number) - Format number output (stub)
-    builtins_["OUTPUTNUM"] = [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value("");
-        return Value(args[1].asString());
+    // OUTPUTNUM(funcname) - 本家 YAYA 仕様: 指定した関数名を実行し、
+    // その関数が array/sequential 型として収集した候補要素数を返す。
+    // （数値のフォーマット関数ではない。関数が見つからない/引数不正時は -1）
+    builtins_["OUTPUTNUM"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(-1);
+        std::string funcName = args[0].asString();
+        if (funcName.empty() || !hasFunction(funcName)) return Value(-1);
+        execute(funcName, {});
+        return Value(lastOutputNum_);
     };
     
     // EmBeD_HiStOrY - Embedded history function (stub)

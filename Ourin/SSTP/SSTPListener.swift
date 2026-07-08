@@ -53,7 +53,7 @@ public final class SSTPListener {
                     let resp = "SSTP/1.4 400 Bad Request\r\nCharset: UTF-8\r\n\r\n"
                     self?.send(conn, text: resp)
                 } else {
-                    let resp = SSTPDispatcher.dispatch(request: req)
+                    let resp = SSTPDispatcher.dispatchExternal(request: req)
                     self?.send(conn, text: resp)
                 }
             } else if isComplete {

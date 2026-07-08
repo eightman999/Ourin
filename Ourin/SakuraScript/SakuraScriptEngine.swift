@@ -546,7 +546,8 @@ public final class SakuraScriptEngine {
             }
         }
         flush()
-        return Self.mergeChoiceQueueRanges(tokens)
+        let merged = Self.mergeChoiceQueueRanges(tokens)
+        return Self.resolveScriptLabelJumps(merged)
     }
 
     // Note: Do not attempt to auto-normalize scripts; adhere to UKADOC.
@@ -602,6 +603,79 @@ public final class SakuraScriptEngine {
             i += 1
         }
         return result
+    }
+
+    /// `\j[ID]` のうち、URL/file/mailto でも On* イベントでもないものを、
+    /// 同一スクリプト内で確認できる ID 付きアンカー位置へ解決する。
+    ///
+    /// UKADOC の `\j` 節は「IDにジャンプする」とだけ規定し、ラベル専用タグ名は
+    /// 明示していない。ここでは docs で ID 付き範囲として確認できる `\_a[ID]...\_a`
+    /// だけをジャンプ先として扱い、未知のラベル定義構文は追加しない。
+    private static func resolveScriptLabelJumps(_ tokens: [Token]) -> [Token] {
+        let labels = scriptLabelIndexes(in: tokens)
+        guard !labels.isEmpty else { return tokens }
+
+        var result: [Token] = []
+        result.reserveCapacity(tokens.count)
+        var i = 0
+        var visitedJumpIndexes: Set<Int> = []
+
+        while i < tokens.count {
+            if case .command(let name, let args) = tokens[i],
+               name.lowercased() == "j",
+               let target = normalizedJumpTarget(args),
+               isLocalScriptJumpTarget(target),
+               let destination = labels[target] {
+                if visitedJumpIndexes.contains(i) {
+                    // 後方ジャンプ等で同じ \j に戻った場合は無限再生を避けるため当該ジャンプだけ捨てる。
+                    i += 1
+                } else {
+                    visitedJumpIndexes.insert(i)
+                    i = destination
+                }
+                continue
+            }
+            result.append(tokens[i])
+            i += 1
+        }
+        return result
+    }
+
+    private static func scriptLabelIndexes(in tokens: [Token]) -> [String: Int] {
+        var labels: [String: Int] = [:]
+        for (index, token) in tokens.enumerated() {
+            guard case .command(let name, let args) = token,
+                  name.lowercased() == "_a",
+                  let target = normalizedJumpTarget(args),
+                  isLocalScriptJumpTarget(target),
+                  labels[target] == nil else { continue }
+            labels[target] = index
+        }
+        return labels
+    }
+
+    private static func normalizedJumpTarget(_ args: [String]) -> String? {
+        guard let first = args.first?.trimmingCharacters(in: .whitespaces), !first.isEmpty else {
+            return nil
+        }
+        return first
+    }
+
+    private static func isLocalScriptJumpTarget(_ target: String) -> Bool {
+        return !isExternalOpenTarget(target) && !isEventJumpTarget(target)
+    }
+
+    private static func isExternalOpenTarget(_ target: String) -> Bool {
+        let lowered = target.lowercased()
+        return lowered.hasPrefix("http://")
+            || lowered.hasPrefix("https://")
+            || lowered.hasPrefix("file://")
+            || lowered.hasPrefix("mailto:")
+    }
+
+    private static func isEventJumpTarget(_ target: String) -> Bool {
+        let lowered = target.lowercased()
+        return !target.hasPrefix("\\") && lowered.hasPrefix("on")
     }
 
     /// Split a comma separated argument string with quoting rules.

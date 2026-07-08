@@ -236,6 +236,8 @@ struct SSTPDispatcherTests {
         #expect(nodescriptResp.contains("SSTP/1.4 200 OK"))
         #expect(nodescriptResp.contains("Script: \\h\\s0BalloonSuppressed"))
 
+        // nobreak は「現在実行中のスクリプトを中断せず、終わるまで待つ」オプション（UKADOC spec_sstp）。
+        // busy でなければキューイング待機は発生せず、通常経路（200 OK）で処理される。
         let nobreakReq = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
@@ -246,7 +248,8 @@ struct SSTPDispatcherTests {
             ]
         )
         let nobreakResp = SSTPDispatcher.dispatch(request: nobreakReq)
-        #expect(nobreakResp.contains("SSTP/1.4 210 Break"))
+        #expect(nobreakResp.contains("SSTP/1.4 200 OK"))
+        #expect(nobreakResp.contains("Script: \\h\\s0BalloonSuppressed"))
     }
 
     @Test
@@ -605,9 +608,25 @@ struct SSTPDispatcherTests {
     }
 
     @Test
-    func nobreakReturns409WhenShioriStatusBusy() async throws {
+    func nobreakReturns409WhenShioriStatusStaysBusyUntilTimeout() async throws {
+        // busy が待機タイムアウトまで解消しない場合は、キューイングを諦めて 409 を返す。
+        let originalTimeout = SSTPBreakQueue.defaultTimeout
+        SSTPBreakQueue.defaultTimeout = 0.1
+        defer {
+            SSTPBreakQueue.defaultTimeout = originalTimeout
+            ShioriStatusStore.shared.update(status: "talking")
+        }
         ShioriStatusStore.shared.update(status: "busy")
-        defer { ShioriStatusStore.shared.update(status: "talking") }
+        // ShioriStatusStore.shared はプロセス共有のため、並列実行中の他テストが
+        // status を上書きすると busy が解消されて 200 になってしまう。
+        // 待機ウィンドウの間 busy を再アサートし続けて競合に耐える。
+        let keepBusy = Task {
+            while !Task.isCancelled {
+                ShioriStatusStore.shared.update(status: "busy")
+                try? await Task.sleep(nanoseconds: 5_000_000)
+            }
+        }
+        defer { keepBusy.cancel() }
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
@@ -615,6 +634,39 @@ struct SSTPDispatcherTests {
         )
         let resp = SSTPDispatcher.dispatch(request: req)
         #expect(resp.contains("SSTP/1.4 409 Conflict"))
+    }
+
+    @Test
+    func nobreakQueuesAndProceedsOnceBusyClears() async throws {
+        // UKADOC spec_sstp: nobreak は実行中のスクリプトを中断せず、終わるまで待ってから実行する。
+        // busy が待機中に解消されれば、通常のディスパッチ経路（200 OK）まで進む。
+        let key = "opt-nobreak-queue-\(UUID().uuidString)"
+        BridgeToSHIORI.setResource(key, value: "\\h\\s0QueuedAfterBusy")
+        let originalTimeout = SSTPBreakQueue.defaultTimeout
+        SSTPBreakQueue.defaultTimeout = 2.0
+        defer {
+            SSTPBreakQueue.defaultTimeout = originalTimeout
+            ShioriStatusStore.shared.update(status: "talking")
+        }
+        ShioriStatusStore.shared.update(status: "busy")
+
+        let clearBusyAfterDelay = DispatchWorkItem {
+            ShioriStatusStore.shared.update(status: "talking")
+        }
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.2, execute: clearBusyAfterDelay)
+
+        let req = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: [
+                "Event": "Resource",
+                "Reference0": key,
+                "Option": "nobreak"
+            ]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req)
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(resp.contains("Script: \\h\\s0QueuedAfterBusy"))
     }
 
     @Test

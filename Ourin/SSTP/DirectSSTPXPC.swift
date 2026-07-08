@@ -34,7 +34,10 @@ public final class DirectSSTPXPC: NSObject, NSXPCListenerDelegate, OurinSSTPXPC 
     public func executeSSTP(_ request: Data, withReply reply: @escaping (Data) -> Void) {
         guard let text = String(data: request, encoding: .utf8) else { return reply(Data()) }
         let req = SSTPParser.parseRequest(text: text)
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatchExternal(
+            request: req,
+            origin: req.headerValue("SecurityOrigin")
+        )
         reply(resp.data(using: .utf8) ?? Data())
     }
 }

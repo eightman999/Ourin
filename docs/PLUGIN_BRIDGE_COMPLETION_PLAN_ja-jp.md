@@ -450,3 +450,14 @@ xcodebuild -project Ourin.xcodeproj -scheme Ourin -only-testing:OurinTests/Legac
 - [x] PLUGIN/1.0 metadata-only compatibility
 - [x] DevTools request console
 - [x] fixture/plugin bridge regression suite
+
+## 監査記録（2026-07-08）
+
+実装コードとの突合監査の結果、上記チェックリストの一部が**実装より先に✅化されていた**（過大申告）ことが判明した。以下は当時の実態と、その後の対応。
+
+- **Phase 8 fixture 6種・`PluginBridgeIntegrationTests`**: 監査時点でファイル自体が存在しなかった（`- [x] fixture/plugin bridge regression suite` は当時誤り）。→ 2026-07-08 に実装完了: `OurinTests/Fixtures/plugin/`（C実装fixture 5種＋legacy metadata-only、テスト時にclangでビルド）＋ `OurinTests/PluginBridgeIntegrationTests.swift`。
+- **Phase 9 `PluginEventDispatchMatrixTests`**: 監査時点で不存在。→ 2026-07-08 に実装完了（仕様全17項目、21テストケース）。同時に発見された仕様ギャップ4件（OnInstallComplete複数値、notifyplugin NOTIFY強制、balloonpathlist Ref数、reasons語彙）も解消済み。
+- **Phase 7 plugin menu統合**: 「DevTools request console」自体は実在したが、plugin menu項目のホストメニュー列挙と `message.*.txt` 文言切替は未実装だった。→ 2026-07-08 に実装完了（`PluginRegistry` のmenuモデル＋右クリック/OwnerDrawメニューへのサブメニュー追加＋対象plugin限定 `OnMenuExec`）。
+- **仕様の明確化**: `OnMenuExec` のReference構成は仕様（Ref0=CGWindowID列、Ref1..4=ghost情報）を維持し、選択されたplugin menu項目のIDは **Ref5** に格納する（Ourin拡張）。
+
+教訓: チェックリストの✅は、対象ファイルの実在とテスト実行結果を確認してから付けること。

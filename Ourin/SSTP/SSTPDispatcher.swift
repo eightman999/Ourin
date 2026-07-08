@@ -10,6 +10,24 @@ public enum SSTPDispatcher {
     /// securityLocalOnly: 外部サーバ経路のローカル限定ポリシー。nil の場合は環境変数
     /// OURIN_SSTP_LOCAL_ONLY に従う（既定: 制限なし）。
     public static func dispatch(request: SSTPRequest, securityLocalOnly: Bool? = nil) -> String {
+        dispatch(request: request, securityLocalOnly: securityLocalOnly, shioriSecurityContext: nil)
+    }
+
+    /// 外部SSTP受信口からのリクエストを処理する。
+    /// localhost 由来でも外部アプリ/他ゴースト経由なので、SHIORI へは external として渡す。
+    static func dispatchExternal(request: SSTPRequest, securityLocalOnly: Bool? = nil, origin: String? = nil) -> String {
+        dispatch(
+            request: request,
+            securityLocalOnly: securityLocalOnly,
+            shioriSecurityContext: ShioriSecurityContext.external(origin: origin)
+        )
+    }
+
+    private static func dispatch(
+        request: SSTPRequest,
+        securityLocalOnly: Bool?,
+        shioriSecurityContext: ShioriSecurityContext?
+    ) -> String {
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         let charset = request.headerValue("Charset") ?? "UTF-8"
         guard isSupportedVersion(version) else {
@@ -53,17 +71,17 @@ public enum SSTPDispatcher {
         let methodName = effectiveNotify ? "NOTIFY" : request.method.uppercased()
         switch methodName {
         case "SEND":
-            return routeToShiori(request: request, method: .send)
+            return routeToShiori(request: request, method: .send, securityContext: shioriSecurityContext)
         case "NOTIFY":
-            return handleNotify(request)
+            return handleNotify(request, securityContext: shioriSecurityContext)
         case "COMMUNICATE":
-            return handleCommunicate(request)
+            return handleCommunicate(request, securityContext: shioriSecurityContext)
         case "EXECUTE":
-            return handleExecute(request)
+            return handleExecute(request, securityContext: shioriSecurityContext)
         case "GIVE":
-            return handleGive(request)
+            return handleGive(request, securityContext: shioriSecurityContext)
         case "INSTALL":
-            return handleInstall(request)
+            return handleInstall(request, securityContext: shioriSecurityContext)
         default:
             return buildResponse(
                 version: version,
@@ -85,7 +103,11 @@ public enum SSTPDispatcher {
         case install
     }
 
-    private static func routeToShiori(request: SSTPRequest, method: DispatchMethod) -> String {
+    private static func routeToShiori(
+        request: SSTPRequest,
+        method: DispatchMethod,
+        securityContext: ShioriSecurityContext?
+    ) -> String {
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         let charset = request.headerValue("Charset") ?? "UTF-8"
         let options = request.options
@@ -112,9 +134,22 @@ public enum SSTPDispatcher {
                 responseHeaders: collectPassThruHeaders(from: request.headers)
             )
         }
-        if options.contains(.nobreak), method == .send || method == .notify {
-            let shioriStatus = ShioriStatusStore.shared.currentStatus.lowercased()
-            if shioriStatus == "busy" {
+        if options.contains(.nobreak), method == .send || method == .notify,
+           ShioriStatusStore.shared.currentStatus.lowercased() == "busy" {
+            // UKADOC SSTP/1.x: nobreak = 「現在実行中のスクリプトを中断せず、終わるまで待つ」。
+            // 実行中スクリプトを打ち切って即時応答するのではなく、busy が解消するまで
+            // このリクエストをキューイング（ブロッキング待機）し、解消後に通常経路へ進める。
+            // dispatch() は SSTPListener/HTTPBridge/DirectSSTPXPC/OurinExternalServer から
+            // バックグラウンドスレッドで呼ばれるため、ここでブロックしてもメインスレッドは止めない。
+            EventBridge.shared.notify(.OnSSTPBreak, refs: [
+                "script": request.headerValue("Sender") ?? "ExternalSSTP",
+                "scope": "queued"
+            ])
+            let didClear = SSTPBreakQueue.waitWhileBusy()
+            if !didClear {
+                // タイムアウトまで busy が解消しなかった場合のみ、待ちきれずに諦めたことを
+                // 409 Conflict で通知する（210 Break は「nobreak指定にも関わらず実行中スクリプトが
+                // 中断された」極めて限定的なケース向けのため、ここでは用いない）。
                 EventBridge.shared.notify(.OnSSTPBreak, refs: [
                     "script": request.headerValue("Sender") ?? "ExternalSSTP",
                     "scope": "busy"
@@ -128,18 +163,7 @@ public enum SSTPDispatcher {
                     responseHeaders: collectPassThruHeaders(from: request.headers)
                 )
             }
-            EventBridge.shared.notify(.OnSSTPBreak, refs: [
-                "script": request.headerValue("Sender") ?? "ExternalSSTP",
-                "scope": "nobreak"
-            ])
-            return buildResponse(
-                version: version,
-                status: 210,
-                charset: charset,
-                script: nil,
-                data: nil,
-                responseHeaders: collectPassThruHeaders(from: request.headers)
-            )
+            // busy が解消したので、キューイングしていたリクエストを通常経路で実行する。
         }
         // Event 無しの SEND は SHIORI を介さず Script ヘッダを直接バルーン再生する（SSTP の基本動作）。
         // IfGhost がある場合は UKADOC の振り分けルールに従う。
@@ -168,7 +192,12 @@ public enum SSTPDispatcher {
 
         let refs = extractReferences(from: request)
         let event = resolveEvent(request: request, method: method)
-        let shioriHeaders = buildShioriHeaders(from: request, charset: charset, options: options)
+        let shioriHeaders = buildShioriHeaders(
+            from: request,
+            charset: charset,
+            options: options,
+            securityContext: securityContext
+        )
         if let status = shioriHeaders["Status"] {
             ShioriStatusStore.shared.update(status: status)
         }
@@ -302,15 +331,15 @@ public enum SSTPDispatcher {
         )
     }
 
-    private static func handleNotify(_ request: SSTPRequest) -> String {
-        routeToShiori(request: request, method: .notify)
+    private static func handleNotify(_ request: SSTPRequest, securityContext: ShioriSecurityContext?) -> String {
+        routeToShiori(request: request, method: .notify, securityContext: securityContext)
     }
 
-    private static func handleCommunicate(_ request: SSTPRequest) -> String {
-        routeToShiori(request: request, method: .communicate)
+    private static func handleCommunicate(_ request: SSTPRequest, securityContext: ShioriSecurityContext?) -> String {
+        routeToShiori(request: request, method: .communicate, securityContext: securityContext)
     }
 
-    private static func handleExecute(_ request: SSTPRequest) -> String {
+    private static func handleExecute(_ request: SSTPRequest, securityContext: ShioriSecurityContext?) -> String {
         let charset = request.headerValue("Charset") ?? "UTF-8"
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         guard let command = request.headerValue("Command"), !command.isEmpty else {
@@ -386,7 +415,7 @@ public enum SSTPDispatcher {
                 responseHeaders: responseHeaders
             )
         }
-        return routeToShiori(request: request, method: .execute)
+        return routeToShiori(request: request, method: .execute, securityContext: securityContext)
     }
 
     private static func handleExtendedExecuteCommand(
@@ -567,12 +596,12 @@ public enum SSTPDispatcher {
         return values.joined(separator: ",")
     }
 
-    private static func handleGive(_ request: SSTPRequest) -> String {
-        routeToShiori(request: request, method: .give)
+    private static func handleGive(_ request: SSTPRequest, securityContext: ShioriSecurityContext?) -> String {
+        routeToShiori(request: request, method: .give, securityContext: securityContext)
     }
 
-    private static func handleInstall(_ request: SSTPRequest) -> String {
-        routeToShiori(request: request, method: .install)
+    private static func handleInstall(_ request: SSTPRequest, securityContext: ShioriSecurityContext?) -> String {
+        routeToShiori(request: request, method: .install, securityContext: securityContext)
     }
 
     private static func resolveEvent(request: SSTPRequest, method: DispatchMethod) -> String {
@@ -622,29 +651,33 @@ public enum SSTPDispatcher {
         return refs
     }
 
-    private static func buildShioriHeaders(from request: SSTPRequest, charset: String, options: Set<SSTPRequest.Option>) -> [String: String] {
+    private static func buildShioriHeaders(
+        from request: SSTPRequest,
+        charset: String,
+        options: Set<SSTPRequest.Option>,
+        securityContext: ShioriSecurityContext?
+    ) -> [String: String] {
         let sender = request.headerValue("Sender") ?? "Ourin"
-        let securityLevel: String = {
-            if let origin = request.headerValue("SecurityOrigin"),
-               !origin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                return isLocalOrigin(origin) ? "local" : "external"
-            }
-            return ((request.headerValue("SecurityLevel") ?? "local").lowercased() == "external") ? "external" : "local"
-        }()
+        let security = securityContext ?? securityContextFromRequest(request)
         let senderType = request.headerValue("SenderType") ?? "external,sstp"
 
         var headers: [String: String] = [
             "Charset": charset,
             "Sender": sender,
             "SenderType": senderType,
-            "SecurityLevel": securityLevel
+            "SecurityLevel": security.level
         ]
+        if let origin = security.origin, !origin.isEmpty {
+            headers["SecurityOrigin"] = origin
+        }
         if let status = request.headerValue("Status"), !status.isEmpty {
             headers["Status"] = status
         } else {
             headers["Status"] = ShioriStatusStore.shared.currentStatus
         }
-        if let securityOrigin = request.headerValue("SecurityOrigin"), !securityOrigin.isEmpty {
+        if headers["SecurityOrigin"] == nil,
+           let securityOrigin = request.headerValue("SecurityOrigin"),
+           !securityOrigin.isEmpty {
             headers["SecurityOrigin"] = securityOrigin
         }
         copyIfPresent("BaseID", from: request, to: &headers)
@@ -667,6 +700,15 @@ public enum SSTPDispatcher {
         }
         headers.merge(collectPassThruHeaders(from: request.headers)) { lhs, _ in lhs }
         return headers
+    }
+
+    private static func securityContextFromRequest(_ request: SSTPRequest) -> ShioriSecurityContext {
+        if let origin = request.headerValue("SecurityOrigin"),
+           !origin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return isLocalOrigin(origin) ? .local : ShioriSecurityContext.external(origin: origin)
+        }
+        let raw = request.headerValue("SecurityLevel")?.lowercased() ?? "local"
+        return raw == "external" ? ShioriSecurityContext.external(origin: nil) : .local
     }
 
     private struct ShioriMappedResponse {

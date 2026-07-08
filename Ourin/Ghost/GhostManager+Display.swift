@@ -131,10 +131,48 @@ extension GhostManager {
     private func resolveSoundPath(filename: String) -> URL {
         ghostURL.appendingPathComponent("sound").appendingPathComponent(filename)
     }
+
+    enum VideoFileSupport: Equatable {
+        case renderable
+        case unsupported
+        case notVideo
+    }
+
+    static func isVideoFile(_ filename: String) -> Bool {
+        videoFileSupport(for: filename) != .notVideo
+    }
+
+    static func videoFileSupport(for filename: String) -> VideoFileSupport {
+        let ext = URL(fileURLWithPath: filename).pathExtension.lowercased()
+        guard !ext.isEmpty else { return .notVideo }
+        if ["mp4", "m4v", "mov", "qt"].contains(ext) {
+            return .renderable
+        }
+        if ["avi", "wmv", "mpg", "mpeg", "mpe", "mpv", "mkv", "webm", "flv"].contains(ext) {
+            return .unsupported
+        }
+        return .notVideo
+    }
+
+    func resolveVideoPath(filename: String) -> URL {
+        let normalized = filename
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\\", with: "/")
+        if normalized.hasPrefix("file://"), let url = URL(string: normalized) {
+            return url
+        }
+        if normalized.hasPrefix("/") || normalized.hasPrefix("~") {
+            return URL(fileURLWithPath: NSString(string: normalized).expandingTildeInPath)
+        }
+        return ghostURL
+            .appendingPathComponent("ghost/master", isDirectory: true)
+            .appendingPathComponent(normalized)
+    }
     
     /// Play a sound file from the ghost's sound directory
-    func playSound(filename: String, loop: Bool = false) {
+    func playSound(filename: String, loop: Bool = false, options: [String] = []) {
         guard !filename.isEmpty else { return }
+        let playbackOptions = SoundPlaybackOptions.parse(options)
         
         // Resolve sound file path relative to ghost directory
         let soundPath = resolveSoundPath(filename: filename)
@@ -153,6 +191,10 @@ extension GhostManager {
                 return
             }
             sound.loops = loop
+            if let volume = playbackOptions.volume {
+                sound.volume = volume
+            }
+            self.logUnsupportedSoundOptions(playbackOptions, filename: filename)
             self.currentSounds.append(sound)
             self.namedSounds[filename, default: []].append(sound)
             sound.play()
@@ -170,8 +212,9 @@ extension GhostManager {
     }
 
     /// Preload sound data for faster playback.
-    func loadSound(filename: String) {
+    func loadSound(filename: String, options: [String] = []) {
         guard !filename.isEmpty else { return }
+        let playbackOptions = SoundPlaybackOptions.parse(options)
         let soundPath = resolveSoundPath(filename: filename)
         guard FileManager.default.fileExists(atPath: soundPath.path) else {
             Log.info("[GhostManager] Sound file not found: \(soundPath.path)")
@@ -182,6 +225,10 @@ extension GhostManager {
                 Log.info("[GhostManager] Failed to preload sound: \(filename)")
                 return
             }
+            if let volume = playbackOptions.volume {
+                sound.volume = volume
+            }
+            self.logUnsupportedSoundOptions(playbackOptions, filename: filename)
             self.preloadedSounds[filename] = sound
             Log.debug("[GhostManager] Preloaded sound: \(filename)")
         }
@@ -205,24 +252,20 @@ extension GhostManager {
 
     func applySoundOptions(filename: String, options: [String]) {
         guard !filename.isEmpty else { return }
-        var volume: Float?
-        for option in options {
-            guard option.hasPrefix("--") else { continue }
-            let body = String(option.dropFirst(2))
-            guard let eq = body.firstIndex(of: "=") else { continue }
-            let key = String(body[..<eq]).lowercased()
-            let value = String(body[body.index(after: eq)...])
-            if key == "volume", let parsed = Float(value) {
-                volume = max(0, min(100, parsed)) / 100.0
+        let playbackOptions = SoundPlaybackOptions.parse(options)
+        if GhostManager.isVideoFile(filename) {
+            applyVideoOptions(filename: filename, options: playbackOptions)
+            return
+        }
+        if let volume = playbackOptions.volume {
+            let targets = activeSounds(filename: filename)
+            for sound in targets {
+                sound.volume = volume
             }
+            preloadedSounds[filename]?.volume = volume
+            Log.debug("[GhostManager] Updated sound option volume for \(filename): \(volume)")
         }
-        guard let volume else { return }
-        let targets = activeSounds(filename: filename)
-        for sound in targets {
-            sound.volume = volume
-        }
-        preloadedSounds[filename]?.volume = volume
-        Log.debug("[GhostManager] Updated sound option volume for \(filename): \(volume)")
+        logUnsupportedSoundOptions(playbackOptions, filename: filename)
     }
 
     func estimatedSoundWaitDuration() -> TimeInterval {
@@ -260,16 +303,99 @@ extension GhostManager {
 
     // MARK: - Video Playback
 
-    /// Play a video file from the ghost's sound directory.
-    /// 完全な動画レンダラは未実装だが、SHIORI の OnVideoPlayEx イベントは通知する。
-    func playVideo(filename: String, loop: Bool = false) {
+    /// Play a video file from the ghost's ghost/master directory.
+    func playVideo(filename: String, loop: Bool = false, options: [String] = []) {
         guard !filename.isEmpty else { return }
-        let refs: [String: String] = [
-            "filename": filename,
-            "loopMode": loop ? "loop" : "once"
-        ]
-        EventBridge.shared.notify(.OnVideoPlayEx, refs: refs)
-        Log.debug("[GhostManager] Video play requested: \(filename) loop=\(loop) (renderer pending)")
+        let support = GhostManager.videoFileSupport(for: filename)
+        guard support != .notVideo else {
+            Log.info("[GhostManager] Not a video file: \(filename)")
+            return
+        }
+
+        let videoPath = resolveVideoPath(filename: filename)
+        if support == .unsupported {
+            notifyVideoPlayRequested(filename: filename, loop: loop)
+            Log.info("[GhostManager] Unsupported video format for AVPlayer renderer: \(filename)")
+            return
+        }
+        guard FileManager.default.fileExists(atPath: videoPath.path) else {
+            Log.info("[GhostManager] Video file not found: \(videoPath.path)")
+            return
+        }
+
+        let playbackOptions = SoundPlaybackOptions.parse(options)
+        let volume = playbackOptions.volume ?? 1.0
+        let rate = playbackOptions.rate ?? 1.0
+        let soundOnly = playbackOptions.soundOnly ?? false
+        let showWindow = playbackOptions.showWindow ?? true
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if let existing = self.videoPlayers[filename] {
+                existing.stop()
+            }
+            let controller = VideoPlayerWindow { [weak self] in
+                self?.videoPlayers[filename] = nil
+            }
+            self.videoPlayers[filename] = controller
+            controller.play(
+                url: videoPath,
+                loop: loop,
+                soundOnly: soundOnly,
+                showWindow: showWindow,
+                volume: volume,
+                rate: rate,
+                balance: playbackOptions.balance
+            )
+            self.notifyVideoPlayRequested(filename: filename, loop: loop)
+            Log.debug("[GhostManager] Playing video: \(filename) loop=\(loop) soundOnly=\(soundOnly) showWindow=\(showWindow)")
+        }
+    }
+
+    func pauseVideo(filename: String?) {
+        let targets = activeVideoPlayers(filename: filename)
+        for player in targets {
+            player.pause()
+        }
+        Log.debug("[GhostManager] Paused videos count: \(targets.count)")
+    }
+
+    func resumeVideo(filename: String?) {
+        let targets = activeVideoPlayers(filename: filename)
+        for player in targets {
+            player.resume()
+        }
+        Log.debug("[GhostManager] Resumed videos count: \(targets.count)")
+    }
+
+    func stopVideo(filename: String?) {
+        if let filename, !filename.isEmpty {
+            guard let player = videoPlayers.removeValue(forKey: filename) else {
+                Log.info("[GhostManager] No active video for filename: \(filename)")
+                return
+            }
+            player.stop()
+            Log.debug("[GhostManager] Stopped video: \(filename)")
+            return
+        }
+        stopAllVideos()
+    }
+
+    func stopAllVideos() {
+        let players = Array(videoPlayers.values)
+        videoPlayers.removeAll()
+        for player in players {
+            player.stop()
+        }
+        Log.debug("[GhostManager] Stopped all videos")
+    }
+
+    func estimatedVideoWaitDuration() -> TimeInterval {
+        var maxRemaining: TimeInterval = 0
+        for player in videoPlayers.values {
+            maxRemaining = max(maxRemaining, player.estimatedRemainingDuration())
+        }
+        return maxRemaining
     }
     
     /// Stop all currently playing sounds
@@ -282,7 +408,46 @@ extension GhostManager {
         currentSounds.removeAll()
         namedSounds.removeAll()
         preloadedSounds.removeAll()
+        stopAllVideos()
         Log.debug("[GhostManager] Stopped all sounds")
+    }
+
+    private func activeVideoPlayers(filename: String?) -> [VideoPlayerWindow] {
+        if let filename, !filename.isEmpty {
+            return videoPlayers[filename].map { [$0] } ?? []
+        }
+        return Array(videoPlayers.values)
+    }
+
+    private func applyVideoOptions(filename: String, options: SoundPlaybackOptions) {
+        guard let player = videoPlayers[filename] else {
+            Log.info("[GhostManager] No active video for filename: \(filename)")
+            return
+        }
+        player.apply(options: options)
+        Log.debug("[GhostManager] Updated video options for \(filename)")
+    }
+
+    private func notifyVideoPlayRequested(filename: String, loop: Bool) {
+        EventBridge.shared.notify(.OnVideoPlayEx, refs: [
+            "filename": filename,
+            "loopMode": loop ? "loop" : "once"
+        ])
+    }
+
+    private func logUnsupportedSoundOptions(_ options: SoundPlaybackOptions, filename: String) {
+        if options.rate != nil {
+            Log.info("[GhostManager] --rate is not supported for NSSound playback: \(filename)")
+        }
+        if options.balance != nil {
+            Log.info("[GhostManager] --balance is not supported for NSSound playback: \(filename)")
+        }
+        if options.showWindow != nil {
+            Log.info("[GhostManager] --window is ignored for NSSound playback: \(filename)")
+        }
+        if options.soundOnly != nil {
+            Log.info("[GhostManager] --sound-only is ignored for NSSound playback: \(filename)")
+        }
     }
     
     // MARK: - URL and Email Handling

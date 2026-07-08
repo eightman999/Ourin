@@ -77,6 +77,25 @@ final class OurinPluginEventBridge {
         }
     }
 
+    /// notifyplugin 経路のディスパッチ（常に [NOTIFY] を強制）。
+    /// 仕様 PLUGIN_EVENT/2.0M §4.17: notifyplugin は [NOTIFY] 固定。
+    /// 呼び出し元のフラグに依らず NOTIFY として送信する専用エントリポイント。
+    func dispatchNotify(pluginSpec: String, event: String, references: [String]) {
+        let targets = resolveTargets(spec: pluginSpec)
+        guard !targets.isEmpty else {
+            Log.info("[PluginEventBridge] No plugin target matched (notifyplugin): \(pluginSpec)")
+            return
+        }
+        let refMap = Dictionary(uniqueKeysWithValues: references.enumerated().map { ("Reference\($0.offset)", $0.element) })
+        for plugin in targets {
+            do {
+                _ = try plugin.notify(id: event, references: refMap)
+            } catch {
+                Log.info("[PluginEventBridge] dispatchNotify failed (\(event)): \(error)")
+            }
+        }
+    }
+
     static func shouldHandleTarget(_ target: String?) -> Bool {
         guard let target else { return true }
         let normalized = target.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()

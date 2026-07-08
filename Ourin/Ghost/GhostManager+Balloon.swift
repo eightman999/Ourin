@@ -274,14 +274,15 @@ extension GhostManager {
         var useSelfAlpha = false
         var clipping: CGRect? = nil
         var isForeground = false
-        
+        var isFixed = false
+
         // Check for inline mode
         if args.count >= 2 && args[1].lowercased() == "inline" {
             isInline = true
             // Parse options after "inline"
             let options = Array(args.dropFirst(2))
             for option in options {
-                parseBalloonImageOption(option, &isOpaque, &useSelfAlpha, &clipping, &isForeground)
+                parseBalloonImageOption(option, &isOpaque, &useSelfAlpha, &clipping, &isForeground, &isFixed)
             }
         } else if args.count >= 3 {
             // Positioned mode: filepath,x,y[,options...]
@@ -291,20 +292,20 @@ extension GhostManager {
                 // Parse options after x,y
                 let options = Array(args.dropFirst(3))
                 for option in options {
-                    parseBalloonImageOption(option, &isOpaque, &useSelfAlpha, &clipping, &isForeground)
+                    parseBalloonImageOption(option, &isOpaque, &useSelfAlpha, &clipping, &isForeground, &isFixed)
                 }
             } else {
                 Log.info("[GhostManager] Invalid balloon image coordinates: \(args[1]), \(args[2])")
                 return
             }
         }
-        
+
         // Load image
         let image = loadBalloonImage(filepath: filepath, isOpaque: isOpaque, useSelfAlpha: useSelfAlpha)
-        
+
         DispatchQueue.main.async {
             guard let vm = self.balloonViewModels[self.currentScope] else { return }
-            
+
             let balloonImage = BalloonViewModel.BalloonImage(
                 filepath: filepath,
                 x: x,
@@ -314,6 +315,7 @@ extension GhostManager {
                 useSelfAlpha: useSelfAlpha,
                 clipping: clipping,
                 isForeground: isForeground,
+                isFixed: isFixed,
                 image: image
             )
             
@@ -329,7 +331,7 @@ extension GhostManager {
     }
     
     /// Parse balloon image option
-    private func parseBalloonImageOption(_ option: String, _ isOpaque: inout Bool, _ useSelfAlpha: inout Bool, _ clipping: inout CGRect?, _ isForeground: inout Bool) {
+    private func parseBalloonImageOption(_ option: String, _ isOpaque: inout Bool, _ useSelfAlpha: inout Bool, _ clipping: inout CGRect?, _ isForeground: inout Bool, _ isFixed: inout Bool) {
         let opt = option.lowercased()
         if opt == "opaque" {
             isOpaque = true
@@ -343,7 +345,9 @@ extension GhostManager {
                 clipping = CGRect(x: left, y: top, width: right - left, height: bottom - top)
             }
         } else if opt == "--option=fixed" {
-            // Fixed mode - doesn't scroll with text (not implemented yet)
+            // スクロール時に画像を動かさない（UKADOC \_b 仕様）。
+            // 非指定時は既定でテキスト送り（\_l によるカーソル移動）に追従してスクロールする。
+            isFixed = true
         } else if opt == "--option=background" {
             isForeground = false
         } else if opt == "--option=foreground" {
@@ -375,17 +379,79 @@ extension GhostManager {
             if useSelfAlpha {
                 // The image already has alpha, so just use it as-is
             } else {
-                // Default behavior: use top-left pixel as transparent color
+                // Default behavior (SSP互換): アルファチャンネルを持たない画像は
+                // 左上(0,0)ピクセルの色を透過色として扱う（レガシー画像仕様）。
                 if let rep = image.representations.first as? NSBitmapImageRep,
-                   rep.pixelsWide > 0 && rep.pixelsHigh > 0 {
-                    let _ = rep.colorAt(x: 0, y: 0)
-                    // Create image with transparency (simplified)
-                    // Full implementation would require pixel-by-pixel processing
+                   rep.pixelsWide > 0 && rep.pixelsHigh > 0,
+                   !rep.hasAlpha,
+                   let keyed = applyTopLeftPixelChromakey(to: image) {
+                    return keyed
                 }
             }
         }
-        
+
         return image
+    }
+
+    /// アルファチャンネルを持たない古いバルーン画像向けに、左上(0,0)ピクセルの色を透明化する（SSP互換のレガシー透過仕様）。
+    private func applyTopLeftPixelChromakey(to image: NSImage) -> NSImage? {
+        guard let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        let width = cg.width
+        let height = cg.height
+        guard width > 0, height > 0 else { return nil }
+
+        let bytesPerPixel = 4
+        let bytesPerRow = width * bytesPerPixel
+        var pixels = [UInt8](repeating: 0, count: height * bytesPerRow)
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
+        guard let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: bitmapInfo
+        ) else {
+            return nil
+        }
+
+        context.draw(cg, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        // 左上(0,0)ピクセルの色を透過色として取得
+        let keyRed = pixels[0]
+        let keyGreen = pixels[1]
+        let keyBlue = pixels[2]
+
+        var changed = false
+        for offset in stride(from: 0, to: pixels.count, by: bytesPerPixel) {
+            let red = pixels[offset]
+            let green = pixels[offset + 1]
+            let blue = pixels[offset + 2]
+            if red == keyRed && green == keyGreen && blue == keyBlue {
+                pixels[offset] = 0
+                pixels[offset + 1] = 0
+                pixels[offset + 2] = 0
+                pixels[offset + 3] = 0
+                changed = true
+            }
+        }
+        guard changed else { return nil }
+
+        guard let outputContext = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: bitmapInfo
+        ), let outputCG = outputContext.makeImage() else {
+            return nil
+        }
+
+        return NSImage(cgImage: outputCG, size: image.size)
     }
 
     /// Handle cursor position move - \_l[x,y]

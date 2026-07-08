@@ -27,6 +27,7 @@ public final class EnvironmentExpander {
 
     public init(propertyManager: PropertyManager) {
         self.propertyManager = propertyManager
+        self.lexicon = SakuraScriptLexiconLoader.loadDefaultLexicon()
     }
 
     /// Expand percent variables in given text.
@@ -196,5 +197,49 @@ public final class EnvironmentExpander {
             // However, our caller replaces based on matched range; to preserve, return placeholder
             if let arg = arg { return "%\(key)[\(arg)]" } else { return "%\(key)" }
         }
+    }
+}
+
+private enum SakuraScriptLexiconLoader {
+    private static let resourceName = "SakuraScriptLexicon"
+    private static let supportedKeys: Set<String> = [
+        "ms", "mz", "ml", "mc", "mh", "mt", "me", "mp", "m?", "dms",
+    ]
+
+    static func loadDefaultLexicon(bundle: Bundle = .main) -> [String: [String]] {
+        guard let url = resourceURL(in: bundle) else {
+            Foundation.NSLog("[EnvironmentExpander] Default lexicon resource not found: \(resourceName).json")
+            return [:]
+        }
+
+        do {
+            let data = try Data(contentsOf: url)
+            let decoded = try JSONDecoder().decode([String: [String]].self, from: data)
+            return sanitize(decoded)
+        } catch {
+            Foundation.NSLog("[EnvironmentExpander] Failed to load default lexicon: \(error)")
+            return [:]
+        }
+    }
+
+    private static func resourceURL(in bundle: Bundle) -> URL? {
+        bundle.url(forResource: resourceName, withExtension: "json")
+            ?? bundle.url(forResource: resourceName, withExtension: "json", subdirectory: "Resources")
+    }
+
+    private static func sanitize(_ lexicon: [String: [String]]) -> [String: [String]] {
+        var result: [String: [String]] = [:]
+        for (key, words) in lexicon where supportedKeys.contains(key) {
+            let cleaned = words.reduce(into: [String]()) { acc, word in
+                let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty, !acc.contains(trimmed) {
+                    acc.append(trimmed)
+                }
+            }
+            if !cleaned.isEmpty {
+                result[key] = cleaned
+            }
+        }
+        return result
     }
 }

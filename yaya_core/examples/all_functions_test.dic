@@ -251,8 +251,17 @@ TestUtilityFunctions
     _lso = LSO()                     // Last selected option
     _license = LICENSE()             // License info
     _translate = TRANSLATE("text", 0)
-    
+    _outputNum = OUTPUTNUM("TestAllCandidates")   // Candidate count of TestAllCandidates function
+
     "Utilities OK"
+}
+
+// array 型関数: OUTPUTNUM の動作確認用（候補を3件収集する）
+TestAllCandidates : array
+{
+    "candidate1"
+    "candidate2"
+    "candidate3"
 }
 
 TestFileOperations
