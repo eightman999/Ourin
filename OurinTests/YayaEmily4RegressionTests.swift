@@ -55,17 +55,45 @@ struct YayaEmily4RegressionTests {
 
     /// yaya_core をサブプロセスとして起動し、host_op 行には汎用 ack を返しつつ、
     /// 通常のレスポンス行だけを蓄積して返す。
+    ///
+    /// stderr は常時バックグラウンドでドレインする（本番の `YayaAdapter` と同じパターン）。
+    /// yaya_core の VM は関数呼び出しごとに大量の `std::cerr` トレースを出力するため、
+    /// stderr パイプを読み捨てないままだと OS のパイプバッファ（macOS では 64KB）が
+    /// 満杯になり、子プロセス側の `cerr` 書き込みが永久にブロックしてデッドロックする。
+    /// `EMRandomTalkSub`（`parallel` 経由で深くネストした埋め込み値評価を大量に行う）は
+    /// この閾値を容易に超えるため、ドレインなしでは決定論的にハングしていた。
     private final class YayaCoreSession {
         private let proc = Process()
         private let inPipe = Pipe()
         private let outPipe = Pipe()
+        private let errPipe = Pipe()
+        private var lastStderrTail = Data()
+        private let stderrLock = NSLock()
 
         init(exe: URL) throws {
             proc.executableURL = exe
             proc.standardInput = inPipe
             proc.standardOutput = outPipe
-            proc.standardError = Pipe()
+            proc.standardError = errPipe
+            errPipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
+                guard let self else { return }
+                let data = handle.availableData
+                guard !data.isEmpty else { return }
+                self.stderrLock.lock()
+                self.lastStderrTail.append(data)
+                if self.lastStderrTail.count > 8192 {
+                    self.lastStderrTail.removeFirst(self.lastStderrTail.count - 8192)
+                }
+                self.stderrLock.unlock()
+            }
             try proc.run()
+        }
+
+        /// 直近の stderr 出力（診断用、末尾最大 8KB）。
+        var stderrTail: String {
+            stderrLock.lock()
+            defer { stderrLock.unlock() }
+            return String(data: lastStderrTail, encoding: .utf8) ?? ""
         }
 
         private func send(_ obj: [String: Any]) {
@@ -74,19 +102,31 @@ struct YayaEmily4RegressionTests {
             inPipe.fileHandleForWriting.write(Data([0x0A]))
         }
 
-        private func readLine() -> [String: Any]? {
-            var buf = Data()
+        /// 1 行読み取る。`timeoutSeconds` 以内に応答が無ければ `nil` を返す
+        /// （yaya_core がハング/クラッシュした場合にテストを無限待機させないため）。
+        private func readLine(timeoutSeconds: Double = 20) -> [String: Any]? {
             let h = outPipe.fileHandleForReading
-            while true {
-                let d = h.readData(ofLength: 1)
-                if d.isEmpty { return nil }
-                if d == Data([0x0A]) { break }
-                buf.append(d)
+            let sem = DispatchSemaphore(value: 0)
+            var buf = Data()
+            var eof = false
+            DispatchQueue.global(qos: .userInitiated).async {
+                while true {
+                    let d = h.readData(ofLength: 1)
+                    if d.isEmpty { eof = true; break }
+                    if d == Data([0x0A]) { break }
+                    buf.append(d)
+                }
+                sem.signal()
             }
+            if sem.wait(timeout: .now() + timeoutSeconds) == .timedOut {
+                return nil
+            }
+            if eof { return nil }
             return (try? JSONSerialization.jsonObject(with: buf)) as? [String: Any]
         }
 
         /// リクエストを送り、host_op には汎用 ack で応答しつつ、最終レスポンスを返す。
+        /// タイムアウトまたは EOF の場合は `nil`（呼び出し側は `stderrTail` で診断可能）。
         func exchange(_ req: [String: Any]) -> [String: Any]? {
             send(req)
             while true {
@@ -101,7 +141,15 @@ struct YayaEmily4RegressionTests {
 
         func finish() {
             inPipe.fileHandleForWriting.closeFile()
-            proc.waitUntilExit()
+            let sem = DispatchSemaphore(value: 0)
+            DispatchQueue.global(qos: .userInitiated).async { [proc] in
+                proc.waitUntilExit()
+                sem.signal()
+            }
+            if sem.wait(timeout: .now() + 10) == .timedOut {
+                proc.terminate()
+            }
+            errPipe.fileHandleForReading.readabilityHandler = nil
         }
     }
 
