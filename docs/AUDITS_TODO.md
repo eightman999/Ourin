@@ -1,6 +1,6 @@
 # Ourin 監査項目 — 未完 / Audit Items — TODO
 
-**最終更新 / Last Updated**: 2026-07-08
+**最終更新 / Last Updated**: 2026-07-09
 **集約元 / Consolidated from**: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY（各 ja-jp / en-us）
 **検証方法 / Verification**: 全項目を現状ソースコード（file:line）と照合して未完判定。完了済み項目は `AUDITS_COMPLETED.md` 参照。
 
@@ -14,7 +14,9 @@
 
 | 優先度 | 項目 | 現状・修正案 |
 |---|---|---|
-| P2 | **SHIORI 2.x ABI 互換レイヤーが実質不存在** | フォールバックは `GET SHIORI/2.6` 1行目＋3.0形式ヘッダを送るのみ。真の2.x（`GET Sentence`/`GET Word`/`Event:` ヘッダ）と通信できない。→ 2.x対応を正式実装するか、「3.0専用」と明記してフォールバックを削除。 |
+| — | （SHIORI 2.x ABI 互換レイヤーはコア部分が完了 2026-07-09） | `Ourin/USL/Shiori2CompatAdapter.swift`（455行、2026-07-08新規）が `Shiori2CompatBackend` として実装され、`ShioriLoader.swift:846,853,855` でXPC/Bundle/Dylibの全バックエンド生成経路にラップ配線済み。`GET Version` によるバックエンド版数検出／3.0イベント→`GET Sentence SHIORI/2.2`+`Event:`+`Reference0-7`変換／2.xレスポンス（Sentence/BalloonOffset等）→3.0 `Value:`変換／`TEACH`→2.4/311/312往復／Shift_JISエンコードは実装済みで`OurinTests/ShioriLoaderTests.swift:54-253`のテストが通る。 |
+| — | （Word/String/Status/OwnerGhostName/OtherGhostName/Communicate変換とOnTalk不一致は完了 2026-07-09） | `Shiori2CompatAdapter.swift:339-422` の6builderに `OurinTests/ShioriLoaderTests.swift` で単体テストを追加（`shiori2WordRequestUsesReference0AsTypeWhenTypeHeaderMissing`等6件）。`buildUserSentenceRequest` の判定を `ID: OnTalk`（存在しないID）から実在する `EventID.OnTalkRequest`（`EventID.swift:361`）に合わせて `lowerID == "ontalkrequest"` へ修正し到達可能化。回帰テスト `shiori2TalkRequestMapsToUserSentenceGet` 追加。 |
+| — | （SHIORI 2.x 二重実装は誤りだったことを確認 2026-07-09） | `ShioriLoader.swift:842-853`（`makeBackend`）を実測: `Shiori2CompatBackend` は **XPC/Bundle/Dylib 経由で読み込む外部 SHIORI モジュール**のみをラップする（`ShioriLoader.swift:783-811` の `init?(module:base:)` で `yaya.dll` の場合は `YayaBackend` を直接使用、`Shiori2CompatBackend`でラップしない）。一方 `YayaBackend.parseRequest/buildResponse`（`:413-498`）は Ourin 内蔵 YAYA エンジン専用のワイヤ解析で、3.0形式に加え legacy TEACH SHIORI/2.x 形式も許容する内部実装。両者は disjoint な対象（外部2.xモジュール vs 内蔵YAYA）に別々の配線点から使われており、二重実装ではない。統合不要と判定し完了扱い。 |
 | — | （SecurityLevel external 伝播は完了 2026-07-08） | 外部SSTP入口を `SSTPDispatcher.dispatchExternal` に集約し `ShioriSecurityContext.external(origin:)` を実使用。TCP/HTTP/XPC全経路でSHIORIへ `SecurityLevel: external` が届く。localOnlyポリシーの420拒否は維持。テスト追加済み。 |
 
 ### B. SSTP プロトコル
@@ -28,6 +30,7 @@
 | 優先度 | 項目 | 現状・修正案 |
 |---|---|---|
 | P2 | UKADOC SakuraScript 全コマンドとの機械的差分テスト未生成 | パーサ・実行とも広いが、細部互換の完全性は未検証。 |
+| — | （`\![cancel,http,...]` は完了 2026-07-09） | `GhostManager.swift:245`に`httpStreamingTasks`を新設し`executeHTTPStreaming`（`GhostManager+System.swift`）がURLキーでタスク追跡。`cancelHTTPStreaming(params:)`を追加し`\![cancel,http,URL]`分岐（`GhostManager.swift`の`cancel`ハンドラ）から配線。キャンセル時は`NSURLErrorCancelled`を検知して`OnExecuteHTTPFailure`を送らず静かに中断。テスト`HTTPStreamingCancelTests.swift`追加。 |
 | — | （`\__q` 範囲ベース表示テキスト結合は完了 → `AUDITS_COMPLETED.md` 参照） | パーサで `\__q[ID,...]text\__q` を `.choiceQueue(title:id:references:)` にマージ。単一形式・範囲形式・script: 形式に対応。 |
 | P2 | SERIKO 描画メソッド・collisionex・レンダリング完全一致が未検証 | `Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift`。実シェルでの描画差分テストが必要。 |
 | — | （lexicon 内蔵辞書は完了 2026-07-08） | `Ourin/Resources/SakuraScriptLexicon.json` を新設し `EnvironmentExpander` 初期化時に10キー（%ms/%mz/%ml/%mc/%mh/%mt/%me/%mp/%m?/%dms）を注入。回帰テスト追加。実ゴースト表示確認は未実施。 |
@@ -79,6 +82,7 @@
 | — | （`surfacetable.txt` の体系的処理は完了 → `AUDITS_COMPLETED.md` 参照） | `SurfaceTableParser.swift` 新設。`group,NAME { scope,N .. id,NAME }` 構文・`__disabled`/`__parts` マーカー・`option,DisableNoDefineSurfaces` を解釈。`loadImage` で未定義サーフェス描画スキップを適用。※サーフィステストダイアログ UI（`\![open,surfacetest]`）は別課題。 |
 | — | （レガシー画像透過処理は完了 2026-07-08） | サーフェス側クロマキーは実装済みだったことを実測確認。未実装だったバルーン側の左上ピクセル透過スタブを `applyTopLeftPixelChromakey` として本実装（アルファ無し画像のみ対象）。実表示の目視確認は未実施。 |
 | P3 | MAYUNA（着せ替え）の網羅性 | `\![bind,...]` 連携は `GhostManager+Dressup.swift` に存在するが、完全性は未検証。 |
+| — | （動画レンダラの非対応コーデックサイレント失敗は完了 2026-07-09） | `EventID.swift`/`EventReferenceSpec.swift` に `OnVideoPlayFailure`（Reference0=filename, Reference1=reason）を新設。`playVideo`（`GhostManager+Display.swift`）は `.unsupported` 判定時に旧来の `OnVideoPlayEx`（成功通知）ではなく `OnVideoPlayFailure`（reason=`unsupported_codec`）を発火し`Log.error`に変更。ファイル未検出時も同様に`reason=file_not_found`で失敗通知。テスト`EventIDAuditTests`/`VideoRendererTests`に追加。 |
 
 ---
 
@@ -90,7 +94,9 @@ The following items were raised in prior audit reports and remain **unresolved**
 
 | Priority | Item | Current State / Fix |
 |---|---|---|
-| P2 | **SHIORI 2.x ABI compatibility layer effectively absent** | Fallback only sends `GET SHIORI/2.6` line 1 + 3.0-format header. Cannot communicate with true 2.x (`GET Sentence`/`GET Word`/`Event:` headers). → Either implement real 2.x support or explicitly mark "3.0-only" and remove fallback. |
+| — | (SHIORI 2.x ABI compatibility layer core completed 2026-07-09) | `Ourin/USL/Shiori2CompatAdapter.swift` (455 lines, added 2026-07-08) implements `Shiori2CompatBackend`, wired into all XPC/Bundle/Dylib backend construction paths at `ShioriLoader.swift:846,853,855`. `GET Version` backend-version detection, 3.0-event → `GET Sentence SHIORI/2.2` + `Event:` + `Reference0-7` conversion, 2.x response (Sentence/BalloonOffset etc.) → 3.0 `Value:` conversion, `TEACH` → 2.4/311/312 round-trip, and Shift_JIS encoding are all implemented and covered by `OurinTests/ShioriLoaderTests.swift:54-253`. |
+| — | (Word/String/Status/OwnerGhostName/OtherGhostName/Communicate conversion and the OnTalk mismatch completed 2026-07-09) | Added unit tests for all 6 builders in `Shiori2CompatAdapter.swift:339-422` (`OurinTests/ShioriLoaderTests.swift`, e.g. `shiori2WordRequestUsesReference0AsTypeWhenTypeHeaderMissing` and 5 others). Fixed `buildUserSentenceRequest`'s branch from the nonexistent `ID: OnTalk` to the real `EventID.OnTalkRequest` (`EventID.swift:361`) — now `lowerID == "ontalkrequest"`, making the path reachable. Regression test `shiori2TalkRequestMapsToUserSentenceGet` added. |
+| — | (SHIORI 2.x "duplicate implementation" concern confirmed to be a false alarm 2026-07-09) | Traced `ShioriLoader.swift:842-853` (`makeBackend`): `Shiori2CompatBackend` only wraps **externally loaded SHIORI modules via XPC/Bundle/Dylib**. `init?(module:base:)` (`ShioriLoader.swift:783-811`) instantiates `YayaBackend` directly for `yaya.dll` without wrapping it in `Shiori2CompatBackend`. Meanwhile `YayaBackend.parseRequest/buildResponse` (`:413-498`) is wire parsing internal to Ourin's own bundled YAYA engine, tolerant of both 3.0-format and legacy TEACH SHIORI/2.x-format text. The two operate on disjoint backend types wired from separate call sites — not a duplicate implementation. No consolidation needed; marked resolved. |
 | — | (SecurityLevel external propagation completed 2026-07-08) | External SSTP entry points consolidated into `SSTPDispatcher.dispatchExternal` using `ShioriSecurityContext.external(origin:)`; TCP/HTTP/XPC all deliver `SecurityLevel: external` to SHIORI. localOnly 420 policy preserved. Tests added. |
 
 ### B. SSTP Protocol
@@ -104,6 +110,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 | Priority | Item | Current State / Fix |
 |---|---|---|
 | P2 | No machine-generated diff test vs. full UKADOC SakuraScript list | Parser/execution are broad, but fine compatibility unverified. |
+| — | (`\![cancel,http,...]` completed 2026-07-09) | Added `httpStreamingTasks` (`GhostManager.swift:245`), tracked by URL key in `executeHTTPStreaming` (`GhostManager+System.swift`). New `cancelHTTPStreaming(params:)` wired from the `\![cancel,http,URL]` branch of the `cancel` command handler in `GhostManager.swift`. Detects `NSURLErrorCancelled` on cancellation to suppress the `OnExecuteHTTPFailure` notification for intentional aborts. Test `HTTPStreamingCancelTests.swift` added. |
 | — | (`\__q` range-based display-text binding completed → see `AUDITS_COMPLETED.md`) | Parser merges `\__q[ID,...]text\__q` into a single `.choiceQueue(title:id:references:)` token. Supports single-form, range-form, and `script:` form. |
 | P2 | SERIKO render methods, collisionex, rendering perfect match unverified | `Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift`. Needs rendering diff tests with real shells. |
 | — | (Built-in lexicon completed 2026-07-08) | New `Ourin/Resources/SakuraScriptLexicon.json` injected at `EnvironmentExpander` init for 10 keys (%ms/%mz/%ml/%mc/%mh/%mt/%me/%mp/%m?/%dms). Regression tests added. In-ghost visual check pending. |
@@ -155,6 +162,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 | — | (`surfacetable.txt` systematic processing completed → see `AUDITS_COMPLETED.md`) | New `SurfaceTableParser.swift`. Parses `group,NAME { scope,N .. id,NAME }` syntax, `__disabled`/`__parts` markers, and `option,DisableNoDefineSurfaces`. `loadImage` now skips undefined surfaces. ※Surface-test dialog UI (`\![open,surfacetest]`) remains a separate task. |
 | — | (Legacy image transparency completed 2026-07-08) | Surface-side chroma-key was confirmed already implemented; the missing balloon-side top-left-pixel stub is now implemented as `applyTopLeftPixelChromakey` (alpha-less images only). Visual on-screen check pending. |
 | P3 | MAYUNA (dressup) thoroughness | `\![bind,...]` integration exists in `GhostManager+Dressup.swift` but completeness unverified. |
+| — | (Video renderer silent failure on unsupported codecs completed 2026-07-09) | Added `OnVideoPlayFailure` (Reference0=filename, Reference1=reason) to `EventID.swift`/`EventReferenceSpec.swift`. `playVideo` (`GhostManager+Display.swift`) now fires `OnVideoPlayFailure` (reason=`unsupported_codec`) instead of the success event `OnVideoPlayEx` when format is `.unsupported`, and logs via `Log.error`. Missing files now also fire `OnVideoPlayFailure` (reason=`file_not_found`). Tests added to `EventIDAuditTests`/`VideoRendererTests`. |
 
 ---
 
@@ -166,7 +174,11 @@ The following items were raised in prior audit reports and remain **unresolved**
 | **P2 (基盤完了)** | イベントReference表駆動化 — `EventReferenceTable` 新設・`notifyReturnIgnored` 単一ソース化済み。全発火箇所（216箇所）の表駆動移行は漸次対応。 |
 | **P3** | MAYUNA網羅 |
 
-2026-07-08 完了分（詳細は `docs/STUB_COMPLETION_PLAN_ja-jp.md`）: NAR同時インストール完全処理 / lexicon内蔵 / レガシー透過処理（バルーン左上ピクセル） / SecurityLevel伝播 / 210 Breakキューイング / SAORI `.plugin` 対応 / Plugin bridge Phase 7-9（menu統合・fixture・行列テスト） / 動画レンダラ / `\j[label]` / SHIORI ResourceのSSP互換永続化 / yaya_core 4関数（FREADENCODE/FWRITEDECODE/LSO/OUTPUTNUM）。SHIORI 2.x のみ方針未決（要ユーザー判断）。
+2026-07-08 完了分（詳細は `docs/STUB_COMPLETION_PLAN_ja-jp.md`）: NAR同時インストール完全処理 / lexicon内蔵 / レガシー透過処理（バルーン左上ピクセル） / SecurityLevel伝播 / 210 Breakキューイング / SAORI `.plugin` 対応 / Plugin bridge Phase 7-9（menu統合・fixture・行列テスト） / 動画レンダラ / `\j[label]` / SHIORI ResourceのSSP互換永続化 / yaya_core 4関数（FREADENCODE/FWRITEDECODE/LSO/OUTPUTNUM）。
+
+2026-07-09 追記: 同日夜（fd0fdd8）に `Shiori2CompatAdapter.swift` が実装・配線されSHIORI 2.xのコア変換（GET Version検出／イベント／TEACH／レスポンス正規化）はテスト付きで完了していたことをukadoc突合＋実装棚卸しで確認（旧記載「方針未決」は実態と不一致だったため訂正）。ただしWord/String/Status/GhostName/Communicate変換とユーザー入力経路(`OnTalk`/`OnTalkRequest`不一致)は未検証のまま残置。同時に、動画レンダラの非対応コーデック時サイレント失敗、`\![cancel,http,...]`未実装を新規に検出しTODO化した。
+
+2026-07-09 続報: 同日中に本ラウンドで新規TODO化した5項目すべてを実装・解消。(1) 動画レンダラの非対応コーデック/ファイル未検出時に`OnVideoPlayFailure`イベントを新設し発火（旧`OnVideoPlayEx`誤発火を修正）。(2) `\![cancel,http,URL]`を`httpStreamingTasks`追跡+`cancelHTTPStreaming`で実装。(3) Word/String/Status/OwnerGhostName/OtherGhostName/Communicate各builderに単体テスト追加。(4) `buildUserSentenceRequest`の`ID: OnTalk`判定を実在する`EventID.OnTalkRequest`に合わせ`ontalkrequest`へ修正。(5) 旧`YayaBackend`と`Shiori2CompatAdapter`の「二重実装」懸念は実測の結果、外部2.xモジュール(XPC/Bundle/Dylib)専用ラッパーと内蔵YAYAエンジン専用パーサーという disjoint な役割分担であることを確認し誤解と判明、統合不要と結論。全項目にビルド成功+テストパスを確認済み。残る未完了項目はSakuraScript全コマンド差分テスト・SERIKO描画完全一致検証・MAYUNA網羅性検証で、いずれも実シェル/実ゴーストでの目視検証が必要なため引き続き未完了。
 
 ---
 

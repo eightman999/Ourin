@@ -858,11 +858,17 @@ extension GhostManager {
             "url": url.absoluteString
         ])
 
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        let key = url.absoluteString
+        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            self?.httpStreamingTasks.removeValue(forKey: key)
             if let error {
+                if (error as NSError).code == NSURLErrorCancelled {
+                    // \![cancel,http,URL] による意図的な中断。失敗イベントは送らない。
+                    return
+                }
                 EventBridge.shared.notify(.OnExecuteHTTPFailure, refs: [
                     "reason": error.localizedDescription,
-                    "url": url.absoluteString,
+                    "url": key,
                     "method": method
                 ])
                 return
@@ -873,12 +879,21 @@ extension GhostManager {
             // Reference0=受信データ, Reference1=URL, Reference2=HTTPステータス, Reference3=method
             EventBridge.shared.notify(.OnExecuteHTTPStreaming, refs: [
                 "body": body,
-                "url": url.absoluteString,
+                "url": key,
                 "statusCode": String(statusCode),
                 "method": method
             ])
         }
+        httpStreamingTasks[key] = task
         task.resume()
+    }
+
+    /// \![cancel,http,URL] — 実行中の HTTP ストリーミング要求を即時中断する。
+    func cancelHTTPStreaming(params: [String]) {
+        guard let rawURL = params.first, let url = URL(string: rawURL) else { return }
+        let key = url.absoluteString
+        guard let task = httpStreamingTasks.removeValue(forKey: key) else { return }
+        task.cancel()
     }
 
     /// Execute RSS commands for `\![execute,rss-*]`.

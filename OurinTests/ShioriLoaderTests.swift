@@ -252,6 +252,219 @@ struct ShioriLoaderTests {
         #expect(!encoded.containsBytes(Array("おはよう".utf8)))
     }
 
+    // MARK: - AUDITS_TODO P2: OnTalkRequest → GET Sentence/2.0 (ユーザー入力) 変換テスト
+    // buildRequest は EventID.OnTalkRequest（"OnTalkRequest"）と照合する。存在しない "OnTalk" 判定は誤りだった。
+
+    @Test
+    func shiori2TalkRequestMapsToUserSentenceGet() throws {
+        let backend = MockShiori2Backend { _ in
+            "SHIORI/2.0 200 OK\r\nSender: First\r\nSentence: \\0\\s0おはよー。\\e\r\n\r\n"
+        }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OnTalkRequest\r
+        Sentence: おはよー。\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        let response = try #require(adapter.request(request))
+
+        let sent = try #require(backend.requests.first)
+        let expected = """
+        GET Sentence SHIORI/2.0\r
+        Sender: User\r
+        Sentence: おはよー。\r
+        SecurityLevel: local\r
+        Charset: Shift_JIS\r
+        \r\n
+        """
+        #expect(sent == expected)
+        #expect(response.hasPrefix("SHIORI/3.0 200 OK\r\n"))
+        #expect(response.contains("Value: \\0\\s0おはよー。\\e\r\n"))
+    }
+
+    // MARK: - AUDITS_TODO P2: Word/String/Status/OwnerGhostName/OtherGhostName/Communicate builder テスト
+
+    @Test
+    func shiori2WordRequestUsesReference0AsTypeWhenTypeHeaderMissing() throws {
+        let backend = MockShiori2Backend { _ in "SHIORI/2.0 200 OK\r\nWord: dummy\r\n\r\n" }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: Word\r
+        Reference0: A\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        _ = adapter.request(request)
+
+        let sent = try #require(backend.requests.first)
+        let expected = """
+        GET Word SHIORI/2.0\r
+        Sender: Ourin\r
+        Type: A\r
+        SecurityLevel: local\r
+        Charset: Shift_JIS\r
+        \r\n
+        """
+        #expect(sent == expected)
+    }
+
+    @Test
+    func shiori2StatusRequestHasNoBody() throws {
+        let backend = MockShiori2Backend { _ in "SHIORI/2.0 200 OK\r\n\r\n" }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: Status\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        _ = adapter.request(request)
+
+        let sent = try #require(backend.requests.first)
+        let expected = """
+        GET Status SHIORI/2.0\r
+        Sender: Ourin\r
+        SecurityLevel: local\r
+        Charset: Shift_JIS\r
+        \r\n
+        """
+        #expect(sent == expected)
+    }
+
+    @Test
+    func shiori2StringRequestUsesReference0AsIDAndOmitsSender() throws {
+        let backend = MockShiori2Backend { _ in "SHIORI/2.5 200 OK\r\nString: dummy\r\n\r\n" }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: Resource\r
+        Reference0: name\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        _ = adapter.request(request)
+
+        let sent = try #require(backend.requests.first)
+        let expected = """
+        GET String SHIORI/2.5\r
+        ID: name\r
+        SecurityLevel: local\r
+        Charset: Shift_JIS\r
+        \r\n
+        """
+        #expect(sent == expected)
+    }
+
+    @Test
+    func shiori2OwnerGhostNameRequestMapsReference0ToGhostHeader() throws {
+        let backend = MockShiori2Backend { _ in "SHIORI/2.3 204 No Content\r\n\r\n" }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OwnerGhostName\r
+        Reference0: Emily\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        _ = adapter.request(request)
+
+        let sent = try #require(backend.requests.first)
+        let expected = """
+        NOTIFY OwnerGhostName SHIORI/2.3\r
+        Sender: Ourin\r
+        Ghost: Emily\r
+        SecurityLevel: local\r
+        Charset: Shift_JIS\r
+        \r\n
+        """
+        #expect(sent == expected)
+    }
+
+    @Test
+    func shiori2OtherGhostNameRequestMapsReferencesToRepeatedGhostExHeaders() throws {
+        let backend = MockShiori2Backend { _ in "SHIORI/2.3 204 No Content\r\n\r\n" }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OtherGhostName\r
+        Reference0: GhostA\r
+        Reference1: GhostB\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        _ = adapter.request(request)
+
+        let sent = try #require(backend.requests.first)
+        let expected = """
+        NOTIFY OtherGhostName SHIORI/2.3\r
+        Sender: Ourin\r
+        GhostEx: GhostA\r
+        GhostEx: GhostB\r
+        SecurityLevel: local\r
+        Charset: Shift_JIS\r
+        \r\n
+        """
+        #expect(sent == expected)
+    }
+
+    @Test
+    func shiori2CommunicateRequestMapsFirstTwoReferencesToSenderAndSentence() throws {
+        let backend = MockShiori2Backend { _ in "SHIORI/2.3 204 No Content\r\n\r\n" }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OnCommunicate\r
+        Reference0: OtherGhost\r
+        Reference1: hello\r
+        Reference2: extra1\r
+        Reference3: extra2\r
+        Age: 5\r
+        Surface: 0\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        _ = adapter.request(request)
+
+        let sent = try #require(backend.requests.first)
+        let expected = """
+        GET Sentence SHIORI/2.3\r
+        Sender: OtherGhost\r
+        Sentence: hello\r
+        Age: 5\r
+        Surface: 0\r
+        Reference0: extra1\r
+        Reference1: extra2\r
+        SecurityLevel: local\r
+        Charset: Shift_JIS\r
+        \r\n
+        """
+        #expect(sent == expected)
+    }
+
     @Test
     func yayaParseRequestSupportsShiori2TeachAndSentence() throws {
         let request = """

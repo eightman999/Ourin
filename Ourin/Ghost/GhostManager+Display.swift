@@ -314,12 +314,13 @@ extension GhostManager {
 
         let videoPath = resolveVideoPath(filename: filename)
         if support == .unsupported {
-            notifyVideoPlayRequested(filename: filename, loop: loop)
-            Log.info("[GhostManager] Unsupported video format for AVPlayer renderer: \(filename)")
+            notifyVideoPlayFailure(filename: filename, reason: "unsupported_codec")
+            Log.error("[GhostManager] Unsupported video format for AVPlayer renderer: \(filename)")
             return
         }
         guard FileManager.default.fileExists(atPath: videoPath.path) else {
-            Log.info("[GhostManager] Video file not found: \(videoPath.path)")
+            notifyVideoPlayFailure(filename: filename, reason: "file_not_found")
+            Log.error("[GhostManager] Video file not found: \(videoPath.path)")
             return
         }
 
@@ -432,6 +433,13 @@ extension GhostManager {
         EventBridge.shared.notify(.OnVideoPlayEx, refs: [
             "filename": filename,
             "loopMode": loop ? "loop" : "once"
+        ])
+    }
+
+    private func notifyVideoPlayFailure(filename: String, reason: String) {
+        EventBridge.shared.notify(.OnVideoPlayFailure, refs: [
+            "filename": filename,
+            "reason": reason
         ])
     }
 

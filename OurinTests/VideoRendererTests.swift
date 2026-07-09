@@ -63,4 +63,24 @@ struct VideoRendererTests {
 
         #expect(resolved.path == "/tmp/source/test.mov")
     }
+
+    @Test
+    func playVideoOnUnsupportedCodecDoesNotCrashAndSkipsPlayback() async throws {
+        let root = URL(fileURLWithPath: "/tmp/ourin-video-ghost-unsupported", isDirectory: true)
+        let manager = GhostManager(ghostURL: root)
+
+        // 非対応コーデック(.wmv)はAVPlayer側の再生を試みず、失敗通知のみで即返る。
+        manager.playVideo(filename: "legacy.wmv")
+
+        #expect(GhostManager.videoFileSupport(for: "legacy.wmv") == .unsupported)
+    }
+
+    @Test
+    func playVideoOnMissingFileDoesNotCrash() async throws {
+        let root = URL(fileURLWithPath: "/tmp/ourin-video-ghost-missing", isDirectory: true)
+        let manager = GhostManager(ghostURL: root)
+
+        // 対応拡張子だがファイルが存在しないケース。
+        manager.playVideo(filename: "does-not-exist.mp4")
+    }
 }

@@ -151,6 +151,7 @@ public enum EventReferenceTable {
         .init(id: "OnSoundLoop", references: ["filename"], category: "media"),
         .init(id: "OnSoundStop", references: ["filename"], category: "media"),
         .init(id: "OnVideoPlayEx", references: ["filename", "loopMode"], category: "media"),
+        .init(id: "OnVideoPlayFailure", references: ["filename", "reason"], category: "media"),
 
         // MARK: - アップデート / NAR
         .init(id: "OnUpdateResult", references: ["reason", "fileList", "target"], category: "update"),

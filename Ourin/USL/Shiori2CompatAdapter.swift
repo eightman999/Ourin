@@ -246,7 +246,7 @@ enum Shiori2CompatAdapter {
         if lowerID == "oncommunicate" {
             return buildCommunicateRequest(from: request)
         }
-        if lowerID == "ontalk" {
+        if lowerID == "ontalkrequest" {
             return buildUserSentenceRequest(from: request)
         }
         if lowerID == "word" || lowerID == "getword" {

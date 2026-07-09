@@ -31,6 +31,17 @@ struct EventIDAuditTests {
     }
 
     @Test
+    func videoPlayFailureEventExistsAndMapsReferences() {
+        #expect(EventID.OnVideoPlayFailure.rawValue == "OnVideoPlayFailure")
+        let params = EventReferenceTable.params(forEvent: "OnVideoPlayFailure", refs: [
+            "filename": "legacy.wmv",
+            "reason": "unsupported_codec"
+        ])
+        #expect(params["Reference0"] == "legacy.wmv")
+        #expect(params["Reference1"] == "unsupported_codec")
+    }
+
+    @Test
     func allFourteenEventsResolvableByRawValue() {
         let names = [
             "OnExecuteWebSocketOpen", "OnExecuteWebSocketReceive", "OnExecuteWebSocketClose",

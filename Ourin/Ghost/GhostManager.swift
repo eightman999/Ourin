@@ -243,6 +243,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var pluginEventTimers: [String: Timer] = [:]
     /// \![execute,websocket,URL] で開いた WebSocket 接続（URL 文字列でキー）
     var webSocketTasks: [String: URLSessionWebSocketTask] = [:]
+    /// \![execute,http-stream*,URL] で開始した HTTP ストリーミング要求（URL 文字列でキー）。\![cancel,http,URL] で中断する。
+    var httpStreamingTasks: [String: URLSessionDataTask] = [:]
     var selectModeActive: Bool = false
     var quickSessionEnabled: Bool = false
     var collisionModeActive: Bool = false
@@ -1769,10 +1771,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             sendWebSocket(params: Array(args.dropFirst(2)), binary: true)
                         }
                     } else if first == "cancel", args.count >= 2 {
-                        // \![cancel,websocket,URL]（http のキャンセルは未対応）
+                        // \![cancel,websocket,URL] / \![cancel,http,URL]
                         let cancelType = args[1].lowercased()
                         if cancelType == "websocket" {
                             cancelWebSocket(params: Array(args.dropFirst(2)))
+                        } else if cancelType == "http" {
+                            cancelHTTPStreaming(params: Array(args.dropFirst(2)))
                         }
                     } else if first == "enter", args.count >= 2 {
                         let enterType = args[1].lowercased()
