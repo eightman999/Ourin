@@ -401,6 +401,7 @@ extension GhostManager {
         }
         activeShellName = trimmed
         loadDressupConfiguration()
+        reloadMakotoTranslators()
 
         let sakuraSurface = ghostConfig?.sakuraDefaultSurface ?? 0
         let keroSurface = ghostConfig?.keroDefaultSurface ?? 10

@@ -53,3 +53,11 @@ target_compile_options(satori_core PRIVATE
     -Werror=return-type
 )
 target_link_libraries(satori_core PRIVATE nlohmann_json::nlohmann_json iconv)
+
+# P2 external-SAORI integration fixture. It implements the POSIX Sakura DLL ABI
+# expected by the vendored SATORI runtime and is never shipped in the app bundle.
+add_library(satori_external_saori_fixture SHARED tests/fixtures/external_saori.cpp)
+set_target_properties(satori_external_saori_fixture PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME "external_saori"
+)

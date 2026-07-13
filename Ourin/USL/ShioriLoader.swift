@@ -10,6 +10,11 @@ import Darwin
     func load(_ bundlePath: String, withReply reply: @escaping (Bool, String?) -> Void)
     func execute(_ request: Data, withReply reply: @escaping (Data?, String?) -> Void)
     func unload(withReply reply: @escaping () -> Void)
+    /// 接続元が選択したモジュールと互換モードだけを操作するスコープ付きAPI。
+    /// MAKOTOはSHIORI/2.x互換変換を通せないため、同じXPCサービス内でraw backendを分離する。
+    func load(_ bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping (Bool, String?) -> Void)
+    func execute(_ request: Data, bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping (Data?, String?) -> Void)
+    func unload(_ bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping () -> Void)
     /// 旧テストおよび外部サービスとの移行互換。新規clientは接続単位loadを使う。
     func execute(_ request: Data, bundlePath: String, withReply reply: @escaping (Data?, String?) -> Void)
 }
@@ -510,9 +515,11 @@ final class XpcBackend: ShioriBackend {
     private let moduleURL: URL
     private let timeout: TimeInterval
     private let communication: ShioriCommunicationOptions
+    private let shiori2Compatibility: Bool
 
     init(serviceName: String, moduleURL: URL, timeout: TimeInterval = 5.0,
-         communication: ShioriCommunicationOptions = .init()) throws {
+         communication: ShioriCommunicationOptions = .init(),
+         shiori2Compatibility: Bool = true) throws {
         guard !serviceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw ShioriLoaderError.xpcUnavailable("Empty service name")
         }
@@ -522,6 +529,7 @@ final class XpcBackend: ShioriBackend {
         self.moduleURL = moduleURL
         self.timeout = timeout
         self.communication = communication
+        self.shiori2Compatibility = shiori2Compatibility
         try pingAndLoad()
     }
 
@@ -546,7 +554,7 @@ final class XpcBackend: ShioriBackend {
             connection.invalidate()
             throw ShioriLoaderError.xpcUnavailable("Remote proxy unavailable after handshake")
         }
-        loadProxy.load(moduleURL.path) { ok, error in
+        loadProxy.load(moduleURL.path, shiori2Compatibility: shiori2Compatibility) { ok, error in
             loadOK = ok
             loadError = error
             loaded.signal()
@@ -574,7 +582,7 @@ final class XpcBackend: ShioriBackend {
             return nil
         }
 
-        proxy.execute(requestData) { data, errorText in
+        proxy.execute(requestData, bundlePath: moduleURL.path, shiori2Compatibility: shiori2Compatibility) { data, errorText in
             responseData = data
             responseError = errorText
             sem.signal()
@@ -608,7 +616,7 @@ final class XpcBackend: ShioriBackend {
     func unload() {
         let semaphore = DispatchSemaphore(value: 0)
         if let proxy = connection.remoteObjectProxyWithErrorHandler({ _ in semaphore.signal() }) as? OurinShioriXPC {
-            proxy.unload { semaphore.signal() }
+            proxy.unload(moduleURL.path, shiori2Compatibility: shiori2Compatibility) { semaphore.signal() }
             _ = semaphore.wait(timeout: .now() + min(timeout, 2.0))
         }
         connection.invalidate()
@@ -828,9 +836,15 @@ public final class ShioriLoader {
 
     /// Initialize SHIORI backend from an explicit module path.
     public convenience init?(moduleURL: URL, xpcServiceName: String? = ShioriLoader.resolvedXpcServiceName(),
-                             communication: ShioriCommunicationOptions = .init()) {
+                             communication: ShioriCommunicationOptions = .init(),
+                             shiori2Compatibility: Bool = true) {
         do {
-            let backend = try ShioriLoader.makeBackend(moduleURL: moduleURL, xpcServiceName: xpcServiceName, communication: communication)
+            let backend = try ShioriLoader.makeBackend(
+                moduleURL: moduleURL,
+                xpcServiceName: xpcServiceName,
+                communication: communication,
+                shiori2Compatibility: shiori2Compatibility
+            )
             self.init(backend: backend)
         } catch {
             NSLog("[ShioriLoader] Failed to initialize backend for \(moduleURL.lastPathComponent): \(error)")
@@ -839,7 +853,8 @@ public final class ShioriLoader {
     }
 
     /// Attempt to load module by name searching typical USL paths
-    public convenience init?(module name: String, base: URL, communication: ShioriCommunicationOptions = .init()) {
+    public convenience init?(module name: String, base: URL, communication: ShioriCommunicationOptions = .init(),
+                             shiori2Compatibility: Bool = true) {
         let shioriName = (name as NSString).lastPathComponent.lowercased()
         let backend: ShioriBackend
         
@@ -859,7 +874,12 @@ public final class ShioriLoader {
                 return nil
             }
             do {
-                backend = try ShioriLoader.makeBackend(moduleURL: url, xpcServiceName: ShioriLoader.resolvedXpcServiceName(), communication: communication)
+                backend = try ShioriLoader.makeBackend(
+                    moduleURL: url,
+                    xpcServiceName: ShioriLoader.resolvedXpcServiceName(),
+                    communication: communication,
+                    shiori2Compatibility: shiori2Compatibility
+                )
             } catch {
                 NSLog("[ShioriLoader] Failed to create backend for \(url.lastPathComponent): \(error)")
                 return nil
@@ -896,19 +916,31 @@ extension ShioriLoader {
     }
 
     private static func makeBackend(moduleURL: URL, xpcServiceName: String?,
-                                    communication: ShioriCommunicationOptions = .init()) throws -> ShioriBackend {
+                                    communication: ShioriCommunicationOptions = .init(),
+                                    shiori2Compatibility: Bool = true) throws -> ShioriBackend {
         if let xpcServiceName {
             NSLog("[ShioriLoader] Trying XPC backend (\(xpcServiceName)) for \(moduleURL.lastPathComponent)")
-            return Shiori2CompatBackend(
-                wrapping: try XpcBackend(serviceName: xpcServiceName, moduleURL: moduleURL, communication: communication),
-                detectedVersion: communication.version
+            let backend = try XpcBackend(
+                serviceName: xpcServiceName,
+                moduleURL: moduleURL,
+                communication: communication,
+                shiori2Compatibility: shiori2Compatibility
             )
+            return shiori2Compatibility
+                ? Shiori2CompatBackend(wrapping: backend, detectedVersion: communication.version)
+                : backend
         }
         let ext = moduleURL.pathExtension.lowercased()
         if ext == "bundle" || ext == "plugin" {
-            return Shiori2CompatBackend(wrapping: try BundleBackend(url: moduleURL, communication: communication), detectedVersion: communication.version)
+            let backend = try BundleBackend(url: moduleURL, communication: communication)
+            return shiori2Compatibility
+                ? Shiori2CompatBackend(wrapping: backend, detectedVersion: communication.version)
+                : backend
         }
-        return Shiori2CompatBackend(wrapping: try DylibBackend(url: moduleURL, communication: communication), detectedVersion: communication.version)
+        let backend = try DylibBackend(url: moduleURL, communication: communication)
+        return shiori2Compatibility
+            ? Shiori2CompatBackend(wrapping: backend, detectedVersion: communication.version)
+            : backend
     }
 
     /// Default search paths defined by USL spec
@@ -972,6 +1004,7 @@ extension ShioriLoader: ShioriRequesting {}
 public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinShioriXPC {
     private let listener: NSXPCListener
     private let loaderFactory: (URL) -> ShioriRequesting?
+    private let rawLoaderFactory: (URL) -> ShioriRequesting?
     private let lock = NSLock()
     private var loaders: [String: ShioriRequesting] = [:]
 
@@ -979,10 +1012,14 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
         listener: NSXPCListener = .service(),
         loaderFactory: @escaping (URL) -> ShioriRequesting? = { url in
             ShioriLoader(moduleURL: url, xpcServiceName: nil)
+        },
+        rawLoaderFactory: @escaping (URL) -> ShioriRequesting? = { url in
+            ShioriLoader(moduleURL: url, xpcServiceName: nil, shiori2Compatibility: false)
         }
     ) {
         self.listener = listener
         self.loaderFactory = loaderFactory
+        self.rawLoaderFactory = rawLoaderFactory
         super.init()
         self.listener.delegate = self
     }
@@ -996,6 +1033,10 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
     }
 
     public func load(_ bundlePath: String, withReply reply: @escaping (Bool, String?) -> Void) {
+        load(bundlePath, shiori2Compatibility: true, withReply: reply)
+    }
+
+    public func load(_ bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping (Bool, String?) -> Void) {
         let path = bundlePath.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !path.isEmpty else { reply(false, "Empty SHIORI module path"); return }
         let url = URL(fileURLWithPath: path)
@@ -1003,7 +1044,7 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
             reply(false, "SHIORI module not found: \(url.path)")
             return
         }
-        guard resolveLoader(moduleURL: url) != nil else {
+        guard resolveLoader(moduleURL: url, shiori2Compatibility: shiori2Compatibility) != nil else {
             reply(false, "Failed to load SHIORI module: \(url.lastPathComponent)")
             return
         }
@@ -1019,6 +1060,15 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
 
     public func unload(withReply reply: @escaping () -> Void) {
         invalidateAllLoaders()
+        reply()
+    }
+
+    public func unload(_ bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping () -> Void) {
+        let key = loaderKey(moduleURL: URL(fileURLWithPath: bundlePath), shiori2Compatibility: shiori2Compatibility)
+        lock.lock()
+        let loader = loaders.removeValue(forKey: key)
+        lock.unlock()
+        loader?.unload()
         reply()
     }
 
@@ -1038,6 +1088,10 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
     }
 
     public func execute(_ request: Data, bundlePath: String, withReply reply: @escaping (Data?, String?) -> Void) {
+        execute(request, bundlePath: bundlePath, shiori2Compatibility: true, withReply: reply)
+    }
+
+    public func execute(_ request: Data, bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping (Data?, String?) -> Void) {
         let requestCharset = EncodingAdapter.detectCharset(in: request, default: "UTF-8")
         guard let requestText = EncodingAdapter.decode(request, charset: requestCharset), !requestText.isEmpty else {
             reply(nil, "Invalid SHIORI request payload")
@@ -1056,7 +1110,7 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
             return
         }
 
-        guard let loader = resolveLoader(moduleURL: moduleURL) else {
+        guard let loader = resolveLoader(moduleURL: moduleURL, shiori2Compatibility: shiori2Compatibility) else {
             reply(nil, "Failed to load SHIORI module: \(moduleURL.lastPathComponent)")
             return
         }
@@ -1082,8 +1136,12 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
         reply(EncodingAdapter.encode(response, charset: responseCharset), nil)
     }
 
-    private func resolveLoader(moduleURL: URL) -> ShioriRequesting? {
-        let key = moduleURL.standardizedFileURL.path
+    private func loaderKey(moduleURL: URL, shiori2Compatibility: Bool) -> String {
+        "\(shiori2Compatibility ? "compat" : "raw"):\(moduleURL.standardizedFileURL.path)"
+    }
+
+    private func resolveLoader(moduleURL: URL, shiori2Compatibility: Bool = true) -> ShioriRequesting? {
+        let key = loaderKey(moduleURL: moduleURL, shiori2Compatibility: shiori2Compatibility)
 
         lock.lock()
         if let cached = loaders[key] {
@@ -1092,7 +1150,8 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
         }
         lock.unlock()
 
-        guard let created = loaderFactory(moduleURL) else {
+        let factory = shiori2Compatibility ? loaderFactory : rawLoaderFactory
+        guard let created = factory(moduleURL) else {
             return nil
         }
 

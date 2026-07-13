@@ -220,10 +220,14 @@ final class EventBridge {
     ///   - ghostName: ReceiverGhostName 指定。nil なら全セッションへ送る
     /// - Returns: 再生先セッションが1つでもあれば true
     @discardableResult
-    func playScriptOnGhosts(_ script: String, ghostName: String? = nil) -> Bool {
+    func playScriptOnGhosts(
+        _ script: String,
+        ghostName: String? = nil,
+        translationContext: ScriptTranslationContext = .baseware
+    ) -> Bool {
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return false }
-        return playScriptOnGhostsResolving(ghostName: ghostName) { _ in trimmed }
+        return playScriptOnGhostsResolving(ghostName: ghostName, translationContext: translationContext) { _ in trimmed }
     }
 
     /// ゴースト毎に異なるスクリプトを再生する（SSTP の IfGhost 振り分け用）。
@@ -232,7 +236,12 @@ final class EventBridge {
     /// - Parameter notify: true の場合は `runScript` ではなく `runNotifyScript` を使う。
     ///   NOTIFY 由来のスクリプト（ValueNotify）は可視テキストを含まないとき現バルーンを保持する。
     @discardableResult
-    func playScriptOnGhostsResolving(ghostName: String? = nil, notify: Bool = false, resolve: (String?) -> String?) -> Bool {
+    func playScriptOnGhostsResolving(
+        ghostName: String? = nil,
+        notify: Bool = false,
+        translationContext: ScriptTranslationContext = .baseware,
+        resolve: (String?) -> String?
+    ) -> Bool {
         var targets = sessions.values.compactMap { $0.ghostManager }
         if let name = ghostName?.lowercased(), !name.isEmpty {
             targets = targets.filter {
@@ -249,7 +258,11 @@ final class EventBridge {
         guard !jobs.isEmpty else { return false }
         DispatchQueue.main.async {
             for (gm, script) in jobs {
-                if notify { gm.runNotifyScript(script) } else { gm.runScript(script) }
+                if notify {
+                    gm.runNotifyScript(script, translationContext: translationContext)
+                } else {
+                    gm.runScript(script, translationContext: translationContext)
+                }
             }
         }
         return true
@@ -286,10 +299,7 @@ final class EventBridge {
         case .baseware:
             return true
         case .ghosts(let targetSessions):
-            var eventParams = params
-            if scriptOptions.contains("notranslate") {
-                eventParams["NoTranslate"] = "1"
-            }
+            let eventParams = params
             if notifyOnly {
                 for session in targetSessions {
                     session.dispatcher.sendNotifyCustom(
@@ -428,6 +438,19 @@ final class EventBridge {
         .OnMouseMultipleClick, .OnMouseMultipleClickEx
     ]
 
+    private static func translationContext(eventID: String, params: [String: String]) -> ScriptTranslationContext {
+        var indexed: [Int: String] = [:]
+        var maxIndex = -1
+        for (key, value) in params where key.hasPrefix("Reference") {
+            if let index = Int(key.dropFirst("Reference".count)), index >= 0 {
+                indexed[index] = value
+                maxIndex = max(maxIndex, index)
+            }
+        }
+        let refs = maxIndex < 0 ? [] : (0...maxIndex).map { indexed[$0] ?? "" }
+        return ScriptTranslationContext(eventID: eventID, references: refs)
+    }
+
     // \t タイムクリティカルセクション中に通知を抑止するマウス系イベント（UKADOC: \t）
     private static let mouseEvents: Set<EventID> = [
         .OnMouseClick, .OnMouseClickEx, .OnMouseDoubleClick, .OnMouseDoubleClickEx,
@@ -470,7 +493,8 @@ final class EventBridge {
                     let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
                     if !trimmed.isEmpty {
                         let gm = s.ghostManager
-                        DispatchQueue.main.async { gm?.runScript(trimmed) }
+                        let context = Self.translationContext(eventID: id.rawValue, params: p)
+                        DispatchQueue.main.async { gm?.runScript(trimmed, translationContext: context) }
                     }
                 } else {
                     // 再生不能: NOTIFY で送り、返値は無視する
@@ -495,7 +519,8 @@ final class EventBridge {
                 let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !trimmed.isEmpty {
                     let gm = s.ghostManager
-                    DispatchQueue.main.async { gm?.runScript(trimmed) }
+                    let context = Self.translationContext(eventID: id.rawValue, params: params)
+                    DispatchQueue.main.async { gm?.runScript(trimmed, translationContext: context) }
                 }
                 continue
             }
@@ -514,7 +539,8 @@ final class EventBridge {
                 let script = s.dispatcher.sendGet(id: ev.id, params: ev.params, security: security)
                 let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !trimmed.isEmpty {
-                    DispatchQueue.main.async { gm.runScript(trimmed) }
+                    let context = Self.translationContext(eventID: ev.id.rawValue, params: ev.params)
+                    DispatchQueue.main.async { gm.runScript(trimmed, translationContext: context) }
                 }
             }
         }
@@ -559,7 +585,8 @@ final class EventBridge {
                 let script = s.dispatcher.sendGet(id: ev.id, params: ev.params, security: security)
                 let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !trimmed.isEmpty {
-                    DispatchQueue.main.async { gm.runScript(trimmed) }
+                    let context = Self.translationContext(eventID: ev.id.rawValue, params: ev.params)
+                    DispatchQueue.main.async { gm.runScript(trimmed, translationContext: context) }
                 }
             }
         }
@@ -582,7 +609,8 @@ final class EventBridge {
             if !trimmed.isEmpty {
                 producedScript = true
                 let gm = s.ghostManager
-                DispatchQueue.main.async { gm?.runScript(trimmed) }
+                let context = Self.translationContext(eventID: eventName, params: params)
+                DispatchQueue.main.async { gm?.runScript(trimmed, translationContext: context) }
             }
         }
         return producedScript
@@ -686,7 +714,10 @@ final class ShioriDispatcher {
         if ignoreResponseScript { return }
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty && !ShioriDispatcher.notifyReturnIgnored.contains(id.rawValue) {
-            DispatchQueue.main.async { self.ghostManager?.runNotifyScript(trimmed) }
+            let context = ScriptTranslationContext(eventID: id.rawValue, references: refs)
+            DispatchQueue.main.async {
+                self.ghostManager?.runNotifyScript(trimmed, translationContext: context)
+            }
         }
     }
 
@@ -710,7 +741,10 @@ final class ShioriDispatcher {
         }
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty {
-            DispatchQueue.main.async { self.ghostManager?.runNotifyScript(trimmed) }
+            let context = ScriptTranslationContext(eventID: eventName, references: refs)
+            DispatchQueue.main.async {
+                self.ghostManager?.runNotifyScript(trimmed, translationContext: context)
+            }
         }
     }
 

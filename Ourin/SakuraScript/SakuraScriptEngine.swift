@@ -60,6 +60,25 @@ public final class SakuraScriptEngine {
         }
     }
 
+    /// UKADOCの表示前変換順序（環境変数→OnTranslate→MAKOTO）の先頭段を明示する。
+    /// 変換後スクリプトは `runPreprocessed` へ渡し、OnTranslate/MAKOTOの返値を再展開しない。
+    public func expandEnvironment(in script: String) -> String {
+        envExpander.expand(text: script)
+    }
+
+    public func containsTextInPreprocessedScript(_ script: String) -> Bool {
+        parse(script: script, expandEnvironment: false).contains { token in
+            if case .text(let text) = token { return !text.isEmpty }
+            return false
+        }
+    }
+
+    public func runPreprocessed(script: String) {
+        for token in parse(script: script, expandEnvironment: false) {
+            delegate?.sakuraEngine(self, didEmit: token)
+        }
+    }
+
     // MARK: - Parsing
 
     /// Individual SakuraScript token.
@@ -108,7 +127,7 @@ public final class SakuraScriptEngine {
     }
 
     /// Parse a SakuraScript string into tokens.
-    func parse(script: String) -> [Token] {
+    func parse(script: String, expandEnvironment: Bool = true) -> [Token] {
         var tokens: [Token] = []
         var buffer = ""
         let chars = Array(script)
@@ -116,7 +135,7 @@ public final class SakuraScriptEngine {
 
         func flush() {
             guard !buffer.isEmpty else { return }
-            tokens.append(.text(envExpander.expand(text: buffer)))
+            tokens.append(.text(expandEnvironment ? envExpander.expand(text: buffer) : buffer))
             buffer.removeAll()
         }
 

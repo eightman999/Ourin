@@ -96,6 +96,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     var ghostManager: GhostManager?
     /// 同時起動している追加ゴースト（プライマリ以外）。複数ゴースト同時実行用。
     var additionalGhosts: [GhostManager] = []
+    let shioriRuntimeCache = ShioriRuntimeCache(capacity: 2)
     /// 起動中の全ゴースト（プライマリ＋追加）。FMO 集約・一括終了に使う。
     var allGhostManagers: [GhostManager] {
         ([ghostManager].compactMap { $0 }) + additionalGhosts
@@ -338,6 +339,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // ゴーストをシャットダウン（追加ゴースト→プライマリ）
         terminateAllAdditionalGhosts()
         ghostManager?.shutdown()
+        shioriRuntimeCache.removeAll()
         // 念のため残留プロセスを掃除
         ProcessKiller.killOtherOurinAndYaya()
     }
@@ -565,7 +567,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // If a ghost is already running, shut it down first.
         if let existingManager = self.ghostManager {
             NSLog("[runGhost] Shutting down existing ghost")
-            existingManager.shutdown()
+            if let cached = existingManager.shutdown(preserveRuntimeForCache: true) {
+                shioriRuntimeCache.store(runtime: cached.runtime, context: cached.context)
+            }
             self.ghostManager = nil
         }
 

@@ -177,21 +177,18 @@ shiori.version,SHIORI/3.0
 
 Potential additions identified in the specification:
 
-1. **MAKOTO Support:**
-   - `makoto` DLL specification
-
-2. **Advanced Position Control:**
+1. **Advanced Position Control:**
    - Shell-specific position overrides
    - Runtime position persistence
 
-3. **Cursor Management:**
+2. **Cursor Management:**
    - Loading and applying custom cursor files
    - Scope-specific cursor settings
 
-4. **Tooltip Configuration:**
+3. **Tooltip Configuration:**
    - `currentghost.seriko.tooltip.*` properties
 
-5. **History Tracking:**
+4. **History Tracking:**
    - Most recently used ghosts/balloons/shells
    - Usage statistics
 

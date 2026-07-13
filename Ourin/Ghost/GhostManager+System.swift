@@ -1526,8 +1526,10 @@ extension GhostManager {
             EventBridge.shared.notifyCustom("OnDescriptReloaded", refs: ["target": descriptorTarget, "params": params.joined(separator: ",")])
         case "shell", "balloon", "ghost", "aigraph":
             executeReloadSurface()
-        case "shiori", "makoto":
+        case "shiori":
             executeLoad(target: target)
+        case "makoto":
+            reloadMakotoTranslators()
         default:
             break
         }
@@ -1535,7 +1537,9 @@ extension GhostManager {
 
     func executeUnload(target: String) {
         let lowered = target.lowercased()
-        if lowered == "shiori" || lowered == "makoto" {
+        if lowered == "makoto" {
+            unloadMakotoTranslators()
+        } else if lowered == "shiori" {
             shioriRuntime?.unload()
             shioriRuntime = nil
             yayaAdapter = nil
@@ -1549,7 +1553,11 @@ extension GhostManager {
 
     func executeLoad(target: String) {
         let lowered = target.lowercased()
-        guard lowered == "shiori" || lowered == "makoto" else { return }
+        if lowered == "makoto" {
+            reloadMakotoTranslators()
+            return
+        }
+        guard lowered == "shiori" else { return }
         guard shioriRuntime == nil else { return }
         let ghostRoot = ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
         let moduleName = ShioriRuntimeFactory.moduleName(for: ghostConfig)

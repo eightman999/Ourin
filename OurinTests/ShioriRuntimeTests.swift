@@ -52,6 +52,106 @@ struct ShioriRuntimeTests {
         }
     }
 
+    private final class FakeRuntime: GhostShioriRuntime {
+        let kind: ShioriRuntimeKind = .native
+        var isLoaded = true
+        var resourceManager: ResourceManager?
+        var requestedIDs: [String] = []
+        var unloadCount = 0
+
+        func load(context: ShioriRuntimeLoadContext) -> Bool { true }
+        func request(
+            method: String,
+            id: String,
+            headers: [String : String],
+            refs: [String],
+            timeout: TimeInterval
+        ) -> ShioriRuntimeResponse? {
+            requestedIDs.append(id)
+            return ShioriRuntimeResponse(ok: true, status: 204)
+        }
+        func unload() {
+            unloadCount += 1
+            isLoaded = false
+        }
+    }
+
+    @Test
+    func makotoWireUsesTranslatorProtocolAndStringHeader() throws {
+        let request = MakotoWireCodec.makeRequest("\\0こんにちは\\e")
+        #expect(request.hasPrefix("TRANSLATE Sentence MAKOTO/2.0\r\n"))
+        #expect(request.contains("Charset: UTF-8\r\n"))
+        #expect(request.contains("Sender: Ourin\r\n"))
+        #expect(request.contains("String: \\0こんにちは\\e\r\n"))
+        #expect(request.hasSuffix("\r\n\r\n"))
+
+        #expect(MakotoWireCodec.parseResponse(
+            "MAKOTO/2.0 200 OK\r\nCharset: UTF-8\r\nString: \\0翻訳済み\\e\r\n\r\n"
+        ) == "\\0翻訳済み\\e")
+        #expect(MakotoWireCodec.parseResponse(
+            "MAKOTO/2.0 200 OK\r\nString:   padded  \r\n\r\n"
+        ) == "  padded  ")
+        #expect(MakotoWireCodec.parseResponse("MAKOTO/2.0 204 No Content\r\n\r\n") == nil)
+    }
+
+    @Test
+    func makotoTranslatorFailsOpenAtPipelineBoundary() throws {
+        let fake = FakeLoader(response: "MAKOTO/2.0 200 OK\r\nString: translated\r\n\r\n")
+        let translator = MakotoTranslator(loader: fake)
+        #expect(translator.translate("original") == "translated")
+        let request = try #require(fake.requests.first)
+        #expect(request.contains("String: original\r\n"))
+        translator.unload()
+        #expect(fake.unloadCount == 1)
+    }
+
+    @Test
+    func shioriRuntimeCacheReusesMatchingContextAndEvictsWithDestroy() throws {
+        let base = URL(fileURLWithPath: "/tmp/cache-fixture")
+        let contextA = ShioriRuntimeLoadContext(
+            ghostURL: base.appendingPathComponent("a"),
+            ghostRoot: base.appendingPathComponent("a/ghost/master"),
+            moduleName: "a.dylib",
+            communication: .init(cache: true)
+        )
+        let contextB = ShioriRuntimeLoadContext(
+            ghostURL: base.appendingPathComponent("b"),
+            ghostRoot: base.appendingPathComponent("b/ghost/master"),
+            moduleName: "b.dylib",
+            communication: .init(cache: true)
+        )
+        let first = FakeRuntime()
+        let second = FakeRuntime()
+        let cache = ShioriRuntimeCache(capacity: 1)
+
+        cache.store(runtime: first, context: contextA)
+        #expect(cache.count == 1)
+        cache.store(runtime: second, context: contextB)
+        #expect(first.requestedIDs == ["OnDestroy"])
+        #expect(first.unloadCount == 1)
+        #expect(cache.take(context: contextA) == nil)
+        #expect(cache.take(context: contextB) === second)
+        #expect(second.unloadCount == 0)
+    }
+
+    @Test
+    func shioriRuntimeCacheRemoveAllDestroysEveryRuntime() {
+        let base = URL(fileURLWithPath: "/tmp/cache-remove-all")
+        let context = ShioriRuntimeLoadContext(
+            ghostURL: base,
+            ghostRoot: base.appendingPathComponent("ghost/master"),
+            moduleName: "shiori.dylib",
+            communication: .init(cache: true)
+        )
+        let runtime = FakeRuntime()
+        let cache = ShioriRuntimeCache()
+        cache.store(runtime: runtime, context: context)
+        cache.removeAll()
+        #expect(runtime.requestedIDs == ["OnDestroy"])
+        #expect(runtime.unloadCount == 1)
+        #expect(cache.count == 0)
+    }
+
     @Test
     func runtimeFactoryRecognizesProcessNames() {
         #expect(ShioriRuntimeFactory.kind(for: "yaya.dll") == .yaya)
@@ -66,6 +166,18 @@ struct ShioriRuntimeTests {
         let config = GhostConfiguration(name: "fixture", shiori: "custom_shiori.bundle")
         #expect(ShioriRuntimeFactory.moduleName(for: config) == "custom_shiori.bundle")
         #expect(ShioriRuntimeFactory.moduleName(for: nil) == "yaya.dll")
+    }
+
+    @Test
+    func translationContextUsesSpecifiedReasonAndReferenceDelimiters() {
+        let context = ScriptTranslationContext(
+            reasons: ["owned", "sstp-send"],
+            eventID: "OnBoot",
+            references: ["alpha", "beta"]
+        )
+        #expect(context.reasonHeader == "owned,sstp-send")
+        #expect(context.sourceReferencesHeader == "alpha\u{1}beta")
+        #expect(ScriptTranslationContext.baseware.reasonHeader == nil)
     }
 
     @Test
@@ -278,5 +390,48 @@ struct ShioriRuntimeTests {
         #expect(FileManager.default.fileExists(
             atPath: workingFixture.appendingPathComponent("satori_savedata.txt").path
         ))
+    }
+
+    @Test
+    func vendoredSatoriLoadsExternalSaoriFromGhostSearchPath() throws {
+        let repositoryRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let executable = repositoryRoot.appendingPathComponent("satori_core/build/satori_core")
+        let fixtureLibrary = repositoryRoot.appendingPathComponent("satori_core/build/external_saori.dylib")
+        let sourceFixture = repositoryRoot.appendingPathComponent("satori_core/tests/fixtures/external", isDirectory: true)
+        let workingFixture = FileManager.default.temporaryDirectory
+            .appendingPathComponent("Ourin-SatoriExternalSaori-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.copyItem(at: sourceFixture, to: workingFixture)
+        defer { try? FileManager.default.removeItem(at: workingFixture) }
+        let saoriDirectory = workingFixture.appendingPathComponent("saori", isDirectory: true)
+        try FileManager.default.createDirectory(at: saoriDirectory, withIntermediateDirectories: true)
+        // 配布ゴーストではWindows版DLLが存在し、それをmacOS版へフォールバックする。
+        // テストでも同じ探索条件を再現する。
+        try Data([0x4d, 0x5a]).write(
+            to: saoriDirectory.appendingPathComponent("external_saori.dll")
+        )
+        try FileManager.default.copyItem(
+            at: fixtureLibrary,
+            to: saoriDirectory.appendingPathComponent("external_saori.dylib")
+        )
+
+        let runtime = try #require(SatoriAdapter(executableURL: executable))
+        defer { if runtime.isLoaded { runtime.unload() } }
+        let context = ShioriRuntimeLoadContext(
+            ghostURL: workingFixture,
+            ghostRoot: workingFixture,
+            moduleName: "satori_core"
+        )
+        #expect(runtime.load(context: context))
+        let response = try #require(runtime.request(
+            method: "GET",
+            id: "OnBoot",
+            headers: ["SecurityLevel": "local"],
+            refs: [],
+            timeout: 3
+        ))
+        #expect(response.status == 200)
+        #expect(response.value?.contains("external-saori-ok") == true)
     }
 }

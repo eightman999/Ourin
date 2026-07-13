@@ -12,11 +12,13 @@ private struct SatoriRequest: Codable {
     let ref: [String]?
     let protocol_version: String?
     let escape_unknown: Bool?
+    let saori_paths: [String]?
 
     init(cmd: String, ghostRoot: String? = nil, dic: [String]? = nil,
          method: String? = nil, id: String? = nil,
          headers: [String: String]? = nil, refs: [String]? = nil,
-         protocolVersion: String? = nil, escapeUnknown: Bool? = nil) {
+         protocolVersion: String? = nil, escapeUnknown: Bool? = nil,
+         saoriPaths: [String]? = nil) {
         self.cmd = cmd
         self.ghost_root = ghostRoot
         self.dic = dic
@@ -26,6 +28,7 @@ private struct SatoriRequest: Codable {
         self.ref = refs
         self.protocol_version = protocolVersion
         self.escape_unknown = escapeUnknown
+        self.saori_paths = saoriPaths
     }
 }
 
@@ -90,7 +93,12 @@ final class SatoriAdapter: GhostShioriRuntime {
     }
 
     @discardableResult
-    func load(ghostRoot: URL, dicEntries: [String], communication: ShioriCommunicationOptions = .init()) -> Bool {
+    func load(
+        ghostRoot: URL,
+        dicEntries: [String],
+        communication: ShioriCommunicationOptions = .init(),
+        saoriPaths: [URL] = []
+    ) -> Bool {
         isLoaded = false
         guard process.isRunning else { return false }
         let request = SatoriRequest(
@@ -98,7 +106,8 @@ final class SatoriAdapter: GhostShioriRuntime {
             ghostRoot: ghostRoot.path,
             dic: dicEntries,
             protocolVersion: communication.version ?? "SHIORI/3.0",
-            escapeUnknown: communication.escapeUnknown
+            escapeUnknown: communication.escapeUnknown,
+            saoriPaths: saoriPaths.map(\.path)
         )
         isLoaded = exchange(request, timeout: 10)?.ok == true
         if isLoaded {
@@ -109,10 +118,18 @@ final class SatoriAdapter: GhostShioriRuntime {
 
     @discardableResult
     func load(context: ShioriRuntimeLoadContext) -> Bool {
+        let registry = SaoriRegistry()
+        registry.discoverSaoriDirectory(under: context.ghostURL)
+        registry.addSearchPath(context.ghostRoot.appendingPathComponent(".saori", isDirectory: true))
+        registry.addSearchPath(context.ghostRoot.appendingPathComponent("saori", isDirectory: true))
+        let existingPaths = registry.searchPaths.filter {
+            FileManager.default.fileExists(atPath: $0.path)
+        }
         let loaded = load(
             ghostRoot: context.ghostRoot,
             dicEntries: context.dictionaryEntries.map { $0.path },
-            communication: context.communication
+            communication: context.communication,
+            saoriPaths: existingPaths
         )
         if loaded {
             lastLoadContext = context

@@ -1,0 +1,2 @@
+＠SAORI
+external,saori/external_saori.dll

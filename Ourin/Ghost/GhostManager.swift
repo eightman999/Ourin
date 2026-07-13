@@ -152,14 +152,22 @@ class BalloonViewModel: ObservableObject {
 /// Manages the lifecycle and display of a single ghost.
 class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
+    struct CachedRuntime {
+        let runtime: GhostShioriRuntime
+        let context: ShioriRuntimeLoadContext
+    }
+
     // MARK: - Properties
 
     let ghostURL: URL
     /// 現在ロード中のSHIORIランタイム。YAYAは後方互換用の yayaAdapter からも参照できる。
     var shioriRuntime: GhostShioriRuntime?
     var yayaAdapter: YayaAdapter?
+    var ghostMakotoTranslator: MakotoTranslator?
+    var shellMakotoTranslator: MakotoTranslator?
     let sakuraEngine = SakuraScriptEngine()
     var eventToken: UUID?
+    private var didShutdown = false
     // SHIORI Resource はゴースト別名前空間で保持する（複数ゴースト同時起動時の汚染防止）。
     // lazy: ghostURL 確定後（init 完了後）の初回アクセスで生成する。
     lazy var resourceManager = ResourceManager(ghostKey: ghostURL.lastPathComponent)
@@ -632,6 +640,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             if let config = GhostConfiguration.load(from: ghostRoot) {
                 self.ghostConfig = config
                 self.activeShellName = config.defaultShellDirectory.isEmpty ? "master" : config.defaultShellDirectory
+                self.reloadMakotoTranslators()
                 self.loadDressupConfiguration()
                 Log.info("[GhostManager] Loaded ghost configuration: \(config.name)")
                 Log.debug("[GhostManager]   - Sakura: \(config.sakuraName), Kero: \(config.keroName ?? "none")")
@@ -665,8 +674,28 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             let moduleName = ShioriRuntimeFactory.moduleName(for: self.ghostConfig)
             Log.info("[GhostManager] Loading configured SHIORI: \(moduleName)")
             let loadStart = Date()
-            guard let runtime = self.createLoadedShioriRuntime(moduleName: moduleName, ghostRoot: ghostRoot) else {
-                return
+            let context = self.makeShioriLoadContext(moduleName: moduleName, ghostRoot: ghostRoot)
+            let appDelegate: AppDelegate? = Thread.isMainThread
+                ? NSApp.delegate as? AppDelegate
+                : DispatchQueue.main.sync { NSApp.delegate as? AppDelegate }
+            let cachedRuntime = appDelegate?.shioriRuntimeCache.take(context: context)
+            let runtime: GhostShioriRuntime
+            if let cachedRuntime {
+                runtime = cachedRuntime
+                runtime.resourceManager = self.resourceManager
+                _ = runtime.request(
+                    method: "NOTIFY",
+                    id: "OnCacheRestore",
+                    headers: ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"],
+                    refs: [],
+                    timeout: 1.0
+                )
+                Log.info("[GhostManager] Restored cached SHIORI runtime: \(moduleName)")
+            } else {
+                guard let loaded = self.createLoadedShioriRuntime(moduleName: moduleName, ghostRoot: ghostRoot) else {
+                    return
+                }
+                runtime = loaded
             }
             let loadTime = Date().timeIntervalSince(loadStart)
             Log.debug("[GhostManager] SHIORI load complete (kind=\(runtime.kind.rawValue)) in \(String(format: "%.2f", loadTime))s")
@@ -738,7 +767,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
 
-    func shutdown() {
+    @discardableResult
+    func shutdown(preserveRuntimeForCache: Bool = false) -> CachedRuntime? {
+        guard !didShutdown else { return nil }
+        didShutdown = true
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         NotificationCenter.default.removeObserver(self)
         if let config = ghostConfig,
@@ -772,18 +804,42 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         // OnDestroy（NOTIFY、UKADOC）: SHIORI unload の直前に対象ゴーストへのみ直接送信する。
         // EventBridge.notify は autoEventsEnabled=false 時にキュー滞留し、全セッションへ
         // ブロードキャストされるためここでは使わない（OnClose と同じ直接送信の流儀）。
-        let destroyRefs = pendingDestroyReason.map { [$0] } ?? []
-        if let runtime = shioriRuntime {
-            let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
-            _ = runtime.request(method: "NOTIFY", id: "OnDestroy", headers: hdrs, refs: destroyRefs, timeout: 1.0)
+        let runtimeToCache = preserveRuntimeForCache && ghostConfig?.shioriCache == true ? shioriRuntime : nil
+        let cached: CachedRuntime?
+        if let runtime = runtimeToCache {
+            _ = runtime.request(
+                method: "NOTIFY",
+                id: "OnCacheSuspend",
+                headers: ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"],
+                refs: [],
+                timeout: 1.0
+            )
+            let ghostRoot = ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
+            let moduleName = ShioriRuntimeFactory.moduleName(for: ghostConfig)
+            cached = CachedRuntime(
+                runtime: runtime,
+                context: makeShioriLoadContext(moduleName: moduleName, ghostRoot: ghostRoot)
+            )
+            runtime.resourceManager = nil
         } else {
-            _ = BridgeToSHIORI.handle(event: "OnDestroy", references: destroyRefs)
+            let destroyRefs = pendingDestroyReason.map { [$0] } ?? []
+            if let runtime = shioriRuntime {
+                let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
+                _ = runtime.request(method: "NOTIFY", id: "OnDestroy", headers: hdrs, refs: destroyRefs, timeout: 1.0)
+            } else {
+                _ = BridgeToSHIORI.handle(event: "OnDestroy", references: destroyRefs)
+            }
+            cached = nil
         }
         pendingDestroyReason = nil
-        shioriRuntime?.unload()
+        unloadMakotoTranslators()
+        if runtimeToCache == nil {
+            shioriRuntime?.unload()
+        }
         shioriRuntime = nil
         yayaAdapter = nil
         if let token = eventToken { EventBridge.shared.unregister(token); eventToken = nil }
+        return cached
     }
 
     // MARK: - Scripting
@@ -919,11 +975,87 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
 
-    func runScript(_ script: String) {
+    func reloadMakotoTranslators() {
+        unloadMakotoTranslators()
+        let ghostRoot = ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
+        let ghostModuleName = ghostConfig?.makoto?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "makoto.dll"
+        if !ghostModuleName.isEmpty {
+            let moduleName = ghostModuleName
+            ghostMakotoTranslator = MakotoTranslator(moduleName: moduleName, base: ghostRoot)
+            if ghostMakotoTranslator == nil, ghostConfig?.makoto != nil {
+                Log.info("[GhostManager] MAKOTO module could not be loaded: \(moduleName)")
+            }
+        }
+        if let shellRoot = loadShellPath() {
+            let descriptor = YayaBackend.parseDescript(url: shellRoot.appendingPathComponent("descript.txt"))
+            let shellModuleName = descriptor["makoto"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "makoto.dll"
+            if !shellModuleName.isEmpty {
+                let moduleName = shellModuleName
+                shellMakotoTranslator = MakotoTranslator(moduleName: moduleName, base: shellRoot)
+                if shellMakotoTranslator == nil, descriptor["makoto"] != nil {
+                    Log.info("[GhostManager] Shell MAKOTO module could not be loaded: \(moduleName)")
+                }
+            }
+        }
+    }
+
+    func unloadMakotoTranslators() {
+        ghostMakotoTranslator?.unload()
+        shellMakotoTranslator?.unload()
+        ghostMakotoTranslator = nil
+        shellMakotoTranslator = nil
+    }
+
+    /// UKADOC順序: 環境変数展開 → OnTranslate → ghost MAKOTO → shell MAKOTO。
+    func translateForDisplay(_ script: String, context: ScriptTranslationContext) -> String {
+        var translated = sakuraEngine.expandEnvironment(in: script)
+        let bypassRequested = context.reasons.contains("notranslate")
+        let forcedForSSTP = context.isSSTP && ghostConfig?.sstpAlwaysTranslate == true
+        guard !bypassRequested || forcedForSSTP else { return translated }
+
+        if let runtime = shioriRuntime {
+            var headers = [
+                "Charset": "UTF-8",
+                "SecurityLevel": context.securityLevel,
+                "Sender": context.sender
+            ]
+            if let origin = context.securityOrigin, !origin.isEmpty {
+                headers["SecurityOrigin"] = origin
+            }
+            if let reasons = context.reasonHeader {
+                headers["Reference1"] = reasons
+            }
+            if let eventID = context.eventID, !eventID.isEmpty {
+                headers["Reference2"] = eventID
+            }
+            if let references = context.sourceReferencesHeader {
+                headers["Reference3"] = references
+            }
+            if let response = runtime.request(
+                method: "GET",
+                id: "OnTranslate",
+                headers: headers,
+                refs: [translated],
+                timeout: 2.0
+            ), response.ok, response.status == 200, let value = response.value {
+                translated = value
+            }
+        }
+        if let value = ghostMakotoTranslator?.translate(translated) {
+            translated = value
+        }
+        if let value = shellMakotoTranslator?.translate(translated) {
+            translated = value
+        }
+        return translated
+    }
+
+    func runScript(_ script: String, translationContext: ScriptTranslationContext = .baseware) {
         let preview = script.prefix(200)
         Log.debug("[GhostManager] runScript called with: \(preview)")
         // Avoid clearing the balloon when script is effectively empty (whitespace only)
-        let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = translateForDisplay(script, context: translationContext)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         beginPluginTalkNotification(script: trimmed, reasons: ["owned"])
 
@@ -942,18 +1074,19 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         typingInterval = defaultTypingInterval
         let previousPluginOrigin = currentScriptIsPluginOrigin
         currentScriptIsPluginOrigin = false
-        sakuraEngine.run(script: trimmed)
+        sakuraEngine.runPreprocessed(script: trimmed)
         currentScriptIsPluginOrigin = previousPluginOrigin
         startPlaybackIfNeeded()
     }
 
     /// Run a script originating from NOTIFY. If the script contains no visible text
     /// tokens, keep the current balloon text and apply only commands (surface/scope/etc.).
-    func runNotifyScript(_ script: String) {
-        let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+    func runNotifyScript(_ script: String, translationContext: ScriptTranslationContext = .baseware) {
+        let trimmed = translateForDisplay(script, context: translationContext)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        let hasText = sakuraEngine.containsText(in: trimmed)
+        let hasText = sakuraEngine.containsTextInPreprocessedScript(trimmed)
         if hasText {
             beginPluginTalkNotification(script: trimmed, reasons: ["owned"])
             // New visible text: cancel pending playback and clear balloon
@@ -971,23 +1104,24 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
         let previousPluginOrigin = currentScriptIsPluginOrigin
         currentScriptIsPluginOrigin = false
-        sakuraEngine.run(script: trimmed)
+        sakuraEngine.runPreprocessed(script: trimmed)
         currentScriptIsPluginOrigin = previousPluginOrigin
         startPlaybackIfNeeded()
     }
 
     func runPluginScript(_ script: String, options: Set<String>) {
-        let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
         var reasons = options.intersection(["plugin-script", "plugin-event", "notranslate"])
         if reasons.isEmpty {
             reasons.insert("plugin-script")
         }
+        let trimmed = translateForDisplay(script, context: .init(reasons: reasons))
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
         if options.contains("nobreak") {
             beginPluginTalkNotification(script: trimmed, reasons: reasons)
             let previousPluginOrigin = currentScriptIsPluginOrigin
             currentScriptIsPluginOrigin = true
-            sakuraEngine.run(script: trimmed)
+            sakuraEngine.runPreprocessed(script: trimmed)
             currentScriptIsPluginOrigin = previousPluginOrigin
             startPlaybackIfNeeded()
         } else {
@@ -1005,7 +1139,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             typingInterval = defaultTypingInterval
             let previousPluginOrigin = currentScriptIsPluginOrigin
             currentScriptIsPluginOrigin = true
-            sakuraEngine.run(script: trimmed)
+            sakuraEngine.runPreprocessed(script: trimmed)
             currentScriptIsPluginOrigin = previousPluginOrigin
             startPlaybackIfNeeded()
         }

@@ -1,0 +1,2 @@
+＊OnBoot
+\0（external）\e

@@ -4,6 +4,7 @@ import Foundation
 
 private final class FakeShioriRequester: ShioriRequesting {
     var requestCount = 0
+    var unloadCount = 0
     var response: String?
 
     init(response: String?) {
@@ -15,7 +16,7 @@ private final class FakeShioriRequester: ShioriRequesting {
         return response
     }
 
-    func unload() {}
+    func unload() { unloadCount += 1 }
 }
 
 private final class MockShiori2Backend: ShioriBackend {
@@ -699,6 +700,35 @@ struct ShioriLoaderTests {
 
         #expect(factoryCalls == 1)
         #expect(requester.requestCount == 2)
+    }
+
+    @Test
+    func shioriXpcServiceScopesRawAndCompatibleModulesIndependently() throws {
+        let tempFile = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("fake-makoto-\(UUID().uuidString).dylib")
+        FileManager.default.createFile(atPath: tempFile.path, contents: Data(), attributes: nil)
+        defer { try? FileManager.default.removeItem(at: tempFile) }
+
+        let compatible = FakeShioriRequester(response: "SHIORI/3.0 204 No Content\r\n\r\n")
+        let raw = FakeShioriRequester(response: "MAKOTO/2.0 200 OK\r\nString: translated\r\n\r\n")
+        let service = ShioriXPCServiceHost(
+            listener: .anonymous(),
+            loaderFactory: { _ in compatible },
+            rawLoaderFactory: { _ in raw }
+        )
+        let request = Data("TRANSLATE Sentence MAKOTO/2.0\r\nString: source\r\n\r\n".utf8)
+
+        service.execute(request, bundlePath: tempFile.path, shiori2Compatibility: false) { data, error in
+            #expect(error == nil)
+            #expect(data.flatMap { String(data: $0, encoding: .utf8) }?.contains("translated") == true)
+        }
+        service.execute(request, bundlePath: tempFile.path, shiori2Compatibility: true) { _, _ in }
+        #expect(raw.requestCount == 1)
+        #expect(compatible.requestCount == 1)
+
+        service.unload(tempFile.path, shiori2Compatibility: false) {}
+        #expect(raw.unloadCount == 1)
+        #expect(compatible.unloadCount == 0)
     }
 
     // MARK: - YAYA config parsing (dicdir / _loading_order.txt / dicif / encoding)

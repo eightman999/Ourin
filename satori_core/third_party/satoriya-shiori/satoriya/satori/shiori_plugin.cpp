@@ -64,13 +64,27 @@ static string posix_search_fallback_dll(const string& dllfile) {
 	dllfile.begin() + (pos_slash == string::npos ? 0 : pos_slash),
 	dllfile.end());
 
+    string basename = fname;
+    if (!basename.empty() && basename[0] == '/') basename.erase(0, 1);
+    string stem = basename;
+    string::size_type pos_dot = stem.rfind('.');
+    if (pos_dot != string::npos) stem.erase(pos_dot);
+    std::vector<string> candidates;
+    candidates.push_back(stem + ".dylib");
+    candidates.push_back("lib" + stem + ".dylib");
+    candidates.push_back(stem + ".so");
+    candidates.push_back("lib" + stem + ".so");
+
     for (std::vector<string>::const_iterator ite = posix_dll_search_path.begin();
 	 ite != posix_dll_search_path.end(); ite++ ) {
-	string fpath = *ite + '/' + fname;
-	struct stat sb;
-	if (stat(fpath.c_str(), &sb) == 0) {
-	    // 代替ライブラリが存在するようだ。これ以上のチェックは省略。
-	    return fpath;
+	for (std::vector<string>::const_iterator candidate = candidates.begin();
+	     candidate != candidates.end(); candidate++) {
+	    string fpath = *ite + '/' + *candidate;
+	    struct stat sb;
+	    if (stat(fpath.c_str(), &sb) == 0) {
+		// 代替ライブラリが存在するようだ。これ以上のチェックは省略。
+		return fpath;
+	    }
 	}
     }
     return string();

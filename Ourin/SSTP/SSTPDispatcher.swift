@@ -263,10 +263,20 @@ public enum SSTPDispatcher {
                 // 可視テキストを含まない場合は現バルーンを保持してコマンドのみ適用（UKADOC ValueNotify サブセット）。
                 if let script = scriptForSstp,
                    !script.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    playScriptOnGhosts(request: request, shioriScript: script, notify: true)
+                    playScriptOnGhosts(
+                        request: request,
+                        shioriScript: script,
+                        notify: true,
+                        scriptOptions: scriptOptionTokens
+                    )
                 }
             } else {
-                playScriptOnGhosts(request: request, shioriScript: scriptForSstp, notify: false)
+                playScriptOnGhosts(
+                    request: request,
+                    shioriScript: scriptForSstp,
+                    notify: false,
+                    scriptOptions: scriptOptionTokens
+                )
             }
         }
 
@@ -695,9 +705,6 @@ public enum SSTPDispatcher {
         } else if let hWnd = request.hWnd {
             headers["HWnd"] = String(hWnd)
         }
-        if options.contains(.notranslate) {
-            headers["NoTranslate"] = "1"
-        }
         headers.merge(collectPassThruHeaders(from: request.headers)) { lhs, _ in lhs }
         return headers
     }
@@ -891,8 +898,42 @@ public enum SSTPDispatcher {
     /// 確定したスクリプトをバルーンで再生する。IfGhost がある場合はゴースト毎に振り分ける。
     /// - Parameter notify: true の場合は通知系再生（runNotifyScript）を行う。
     @discardableResult
-    private static func playScriptOnGhosts(request: SSTPRequest, shioriScript: String?, notify: Bool = false) -> Bool {
-        EventBridge.shared.playScriptOnGhostsResolving(ghostName: request.receiverGhostName, notify: notify) { sessionGhostName in
+    private static func playScriptOnGhosts(
+        request: SSTPRequest,
+        shioriScript: String?,
+        notify: Bool = false,
+        scriptOptions: Set<String> = []
+    ) -> Bool {
+        var reasons: Set<String> = []
+        switch request.method.uppercased() {
+        case "SEND": reasons.insert("sstp-send")
+        case "COMMUNICATE": reasons.insert("communicate")
+        default: break
+        }
+        let security = securityContextFromRequest(request)
+        if security.level == "external" {
+            reasons.insert("remote")
+        }
+        if let id = request.headerValue("ID"), !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            reasons.insert("owned")
+        }
+        if request.options.contains(.notranslate) || scriptOptions.contains("notranslate") {
+            reasons.insert("notranslate")
+        }
+        let context = ScriptTranslationContext(
+            reasons: reasons,
+            eventID: request.headerValue("Event"),
+            references: extractReferences(from: request),
+            isSSTP: true,
+            sender: request.headerValue("Sender") ?? "Ourin",
+            securityLevel: security.level,
+            securityOrigin: security.origin
+        )
+        return EventBridge.shared.playScriptOnGhostsResolving(
+            ghostName: request.receiverGhostName,
+            notify: notify,
+            translationContext: context
+        ) { sessionGhostName in
             resolveScript(
                 forGhost: sessionGhostName ?? request.receiverGhostName,
                 request: request,

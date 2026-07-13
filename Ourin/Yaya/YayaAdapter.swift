@@ -295,6 +295,9 @@ final class YayaAdapter: GhostShioriRuntime {
 
     @discardableResult
     func load(context: ShioriRuntimeLoadContext) -> Bool {
+        saoriManager.discover(under: context.ghostURL)
+        saoriManager.addSearchPath(context.ghostRoot.appendingPathComponent(".saori", isDirectory: true))
+        saoriManager.addSearchPath(context.ghostRoot.appendingPathComponent("saori", isDirectory: true))
         let loaded = load(
             ghostRoot: context.ghostRoot,
             dicEntries: context.dictionaryEntries,

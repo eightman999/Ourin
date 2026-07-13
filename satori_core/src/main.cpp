@@ -23,6 +23,32 @@ int runtimeId = 0;
 std::string runtimeProtocolVersion = "SHIORI/3.0";
 bool escapeUnknown = false;
 
+void configureSaoriSearchPath(const json& request) {
+    if (!request.contains("saori_paths") || !request["saori_paths"].is_array()) {
+        unsetenv("SAORI_FALLBACK_PATH");
+        unsetenv("SAORI_FALLBACK_ALWAYS");
+        return;
+    }
+    std::ostringstream joined;
+    bool first = true;
+    for (const auto& path : request["saori_paths"]) {
+        if (!path.is_string() || path.get<std::string>().empty()) {
+            continue;
+        }
+        if (!first) joined << ':';
+        joined << path.get<std::string>();
+        first = false;
+    }
+    const std::string value = joined.str();
+    if (value.empty()) {
+        unsetenv("SAORI_FALLBACK_PATH");
+        unsetenv("SAORI_FALLBACK_ALWAYS");
+    } else {
+        setenv("SAORI_FALLBACK_PATH", value.c_str(), 1);
+        setenv("SAORI_FALLBACK_ALWAYS", "1", 1);
+    }
+}
+
 std::string ensureTrailingSlash(std::string path) {
     if (!path.empty() && path.back() != '/') {
         path.push_back('/');
@@ -40,7 +66,7 @@ std::string buildWire(const json& request) {
 
     if (request.contains("headers") && request["headers"].is_object()) {
         for (const auto& [name, value] : request["headers"].items()) {
-            if (name == "Charset" || name == "Sender" || name == "ID" || name.rfind("Reference", 0) == 0) {
+            if (name == "Charset" || name == "Sender" || name == "ID") {
                 continue;
             }
             wire << name << ": " << value.get<std::string>() << "\r\n";
@@ -152,6 +178,7 @@ json loadRuntime(const json& request) {
         runtimeProtocolVersion = "SHIORI/3.0";
     }
     escapeUnknown = request.value("escape_unknown", false);
+    configureSaoriSearchPath(request);
     runtimeId = satori_load(input, static_cast<long>(root.size()));
     if (runtimeId <= 0) {
         runtimeId = 0;
