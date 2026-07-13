@@ -4,6 +4,26 @@
 
 Macネイティブの伺かベースウェア
 
+## 全体構造
+
+Ourinは、伺かのベースウェアとして次の層を分離して実装しています。
+
+```text
+Ghost / Shell / Balloon
+          │
+GhostManager ── GhostShioriRuntime ──┬─ YayaAdapter ── yaya_core
+          │                           ├─ SatoriAdapter ── satori_core
+          │                           └─ Native SHIORI ── ShioriLoader
+          │
+     SHIORI 3.0 / SSTP / Web / XPC
+          │
+       SAORI / PLUGIN（SaoriHost）
+```
+
+SHIORIの要求・応答は`GhostShioriRuntime`に集約し、ベースウェアのイベント配送とSSTPブリッジは実装言語に依存しません。YAYAは既存の`yaya_core`を継続利用し、里々は`SatoriAdapter`経由で独立した`satori_core`へ接続します。SAORIはukatech/csaoriの境界（入力の文字コード、戻り値、モジュールのロード・アンロード）に合わせて`SaoriHost`へ整理します。
+
+仕様上の基準は[UKADOC SHIORI/3.0](https://ssp.shillest.net/ukadoc/manual/spec_shiori3.html)、[SSTP](https://ssp.shillest.net/)、[AYAYA](https://emily.shillest.net/ayaya/)です。
+
 ---
 
 ## 📄 License / ライセンス
@@ -58,8 +78,12 @@ please contact one of the copyright holders below.
 
 - Ourin baseware: CC BY-NC-SA 4.0  
   Ourin ベースウェア: CC BY-NC-SA 4.0
-- Integrated YAYA Core: CC BY-NC-SA 4.0  
-  同梱 YAYA Core: CC BY-NC-SA 4.0
+- Integrated YAYA Core: BSD-3-Clause ([YAYA-shiori/yaya-shiori](https://github.com/YAYA-shiori/yaya-shiori) に準拠)
+  同梱 YAYA Core: BSD-3-Clause（上流ライセンスと改変部分の表示を維持）
+- Satori runtime: BSD-2-Clause ([ukatech/satoriya-shiori](https://github.com/ukatech/satoriya-shiori) を参照）
+  里々ランタイムは固定版SATORIを`satori_core` helperとして同梱します。
+- SAORI host boundary: modified BSD + ukagaka exception ([ukatech/csaori](https://github.com/ukatech/csaori) に準拠)
+  SAORIホストの実装・互換性監査ではcsaoriの入力/出力構造と文字コード規則を基準にします。
 - Default ghost (Emily/Phase4.5): CC BY-NC 4.0  
   既定ゴースト（Emily/Phase4.5）: CC BY-NC 4.0
 - Migrator (DevTools): uses **Ghidra** (Apache 2.0) as an external tool — not bundled  
@@ -122,6 +146,10 @@ cd yaya_core
 詳細については `yaya_core/README.md` を参照してください。
 For details, see `yaya_core/README.md`.
 
+#### 里々 Core / Satori Core
+
+`satori_core`は固定版SATORIをUniversal 2でビルドし、`SatoriAdapter`とUTF-8 JSON Linesで通信します。手動ビルドは`cd satori_core && ./build.sh`です。上流のtag/commit、ライセンス、ローカルpatchは`satori_core/UPSTREAM.md`と`PATCHES.md`に記録しています。
+
 ### テストの実行 / Running Tests
 
 ```bash
@@ -156,6 +184,10 @@ YAYA Core is implemented in C++ and has the following dependencies:
 
 詳細については [`docs/DEPENDENCIES_ja-jp.md`](docs/DEPENDENCIES_ja-jp.md) を参照してください。
 For details, see [`docs/DEPENDENCIES_en-us.md`](docs/DEPENDENCIES_en-us.md).
+
+### Satori / SAORI
+
+里々の仕様・実装参照は[ukatech/satoriya-shiori](https://github.com/ukatech/satoriya-shiori)を、SAORI/PLUGINのホスト境界は[ukatech/csaori](https://github.com/ukatech/csaori)を一次参照とします。上流コードを取り込む場合は、リビジョンとライセンスファイルを同時に固定します。
 
 ### Migrator (DevTools) / Ghidra
 

@@ -14,34 +14,33 @@ struct YayaRequest: Codable {
     let id: String?
     let headers: [String:String]?
     let ref: [String]?
+    let message_path: String?
 
     // Convenience initializer that keeps existing call sites simple.
     init(cmd: String, ghost_root: String? = nil, dic: [String]? = nil, dic_entries: [[String: String]]? = nil,
          encoding: String? = nil, env: [String:String]? = nil, method: String? = nil,
-         id: String? = nil, headers: [String:String]? = nil, ref: [String]? = nil) {
+         id: String? = nil, headers: [String:String]? = nil, ref: [String]? = nil,
+         messagePath: String? = nil) {
         self.cmd = cmd; self.ghost_root = ghost_root; self.dic = dic; self.dic_entries = dic_entries
         self.encoding = encoding; self.env = env; self.method = method; self.id = id
         self.headers = headers; self.ref = ref
+        self.message_path = messagePath
     }
 }
 
-/// Codable response returned from yaya_core helper.
-struct YayaResponse: Codable {
-    let ok: Bool
-    let status: Int
-    let headers: [String:String]?
-    let value: String?
-    let error: String?
-    let loaded_dics: [String]?  // List of successfully loaded dictionary files
-}
-
 /// Adapter that communicates with YAYA core via JSON line IPC.
-final class YayaAdapter {
+final class YayaAdapter: GhostShioriRuntime {
     private var proc = Process()
     private var inPipe = Pipe()
     private var outPipe = Pipe()
     private var errPipe = Pipe()
     private let ioQueue = DispatchQueue(label: "yaya.adapter.io")
+    private let recoveryLock = NSLock()
+    private let executableURL: URL
+    private var lastLoadContext: ShioriRuntimeLoadContext?
+
+    let kind: ShioriRuntimeKind = .yaya
+    private(set) var isLoaded = false
 
     /// Resource manager for handling SHIORI resource GET requests
     public var resourceManager: ResourceManager?
@@ -52,11 +51,27 @@ final class YayaAdapter {
     public static var fmoSnapshotProvider: (() -> String)?
 
     /// Create adapter. The helper executable is searched in the app bundle by default.
-    init?() {
+    convenience init?() {
         guard let url = Bundle.main.url(forAuxiliaryExecutable: "yaya_core") else {
             NSLog("[YayaAdapter] Could not locate yaya_core executable in bundle")
             return nil
         }
+        self.init(executableURL: url)
+    }
+
+    /// テストおよび再起動可能なtransport用の明示実行ファイルinitializer。
+    init?(executableURL: URL) {
+        self.executableURL = executableURL
+        guard launchHelper() else { return nil }
+    }
+
+    @discardableResult
+    private func launchHelper() -> Bool {
+        proc = Process()
+        inPipe = Pipe()
+        outPipe = Pipe()
+        errPipe = Pipe()
+        let url = executableURL
         proc.executableURL = url
         proc.standardInput = inPipe
         proc.standardOutput = outPipe
@@ -86,9 +101,10 @@ final class YayaAdapter {
         do {
             try proc.run()
             NSLog("[YayaAdapter] Launched yaya_core at \(url.path)")
+            return true
         } catch {
             NSLog("[YayaAdapter] Failed to launch yaya_core at \(url.path): \(error)")
-            return nil
+            return false
         }
     }
 
@@ -185,7 +201,13 @@ final class YayaAdapter {
         }
         if group.wait(timeout: .now() + timeout) == .timedOut {
             NSLog("[YayaAdapter] exchange timed out for cmd=\(req.cmd)")
+            // 読み取りタスクを残すと直列ioQueueが永久に詰まり、遅延応答を次要求へ
+            // 誤配送する。プロセス終了でpipeをEOFにして、当該世代を必ず破棄する。
+            forceTerminate()
             return nil
+        }
+        if result == nil {
+            forceTerminate()
         }
         return result
     }
@@ -194,6 +216,11 @@ final class YayaAdapter {
     /// - Parameter encoding: yaya.txt の charset 指定（"Shift_JIS" 等）。"auto" は自動判定（UTF-8妥当→UTF-8、それ以外はCP932変換）。
     @discardableResult
     func load(ghostRoot: URL, dicEntries: [DicEntry], encoding: String = "auto") -> Bool {
+        isLoaded = false
+        guard proc.isRunning else {
+            NSLog("[YayaAdapter] load() rejected because yaya_core is not running")
+            return false
+        }
         Log.debug("[YayaAdapter] load() called with ghostRoot: \(ghostRoot.path), dics: \(dicEntries.count) files")
 
         // First, try to load messagetxt file if available
@@ -205,22 +232,11 @@ final class YayaAdapter {
                 let messagePath = messagetxtDir.appendingPathComponent(fileName)
                 if FileManager.default.fileExists(atPath: messagePath.path) {
                     Log.debug("[YayaAdapter] Loading message file: \(fileName)")
-                    // Create a manual JSON request since YayaRequest doesn't have message_path
-                    do {
-                        let msgDict: [String: Any] = ["cmd": "load_messages", "message_path": messagePath.path]
-                        try sendJSONObject(msgDict)
-
-                        // Read response
-                        if let line = try readLine() {
-                            let response = try JSONDecoder().decode(YayaResponse.self, from: line)
-                            if response.ok {
-                                Log.debug("[YayaAdapter] Successfully loaded message file: \(fileName)")
-                            } else {
-                                NSLog("[YayaAdapter] Failed to load message file: \(response.error ?? "unknown error")")
-                            }
-                        }
-                    } catch {
-                        NSLog("[YayaAdapter] Error loading message file: \(error)")
+                    let messageRequest = YayaRequest(cmd: "load_messages", messagePath: messagePath.path)
+                    if let response = exchange(messageRequest, timeout: 10.0), response.ok {
+                        Log.debug("[YayaAdapter] Successfully loaded message file: \(fileName)")
+                    } else {
+                        NSLog("[YayaAdapter] Failed to load message file: \(fileName)")
                     }
                     break // Only load first available message file
                 }
@@ -267,14 +283,33 @@ final class YayaAdapter {
             }
         }
 
-        _ = capability()
+        isLoaded = true
+        guard capability() != nil else {
+            NSLog("[YayaAdapter] capability handshake failed; tearing down helper")
+            forceTerminate()
+            return false
+        }
         NSLog("[YayaAdapter] load() succeeded")
         return true
+    }
+
+    @discardableResult
+    func load(context: ShioriRuntimeLoadContext) -> Bool {
+        let loaded = load(
+            ghostRoot: context.ghostRoot,
+            dicEntries: context.dictionaryEntries,
+            encoding: context.dictionaryEncoding
+        )
+        if loaded {
+            lastLoadContext = context
+        }
+        return loaded
     }
 
     /// ヘルパープロセスを即座に停止する（タイムアウト時の後始末用）。
     /// unload() と異なり "unload" コマンドを送らない（ハング中のヘルパーには届かないため）。
     private func forceTerminate() {
+        isLoaded = false
         guard proc.isRunning else { return }
         proc.terminate()
         usleep(200_000) // 0.2s
@@ -285,9 +320,40 @@ final class YayaAdapter {
         }
     }
 
+    private func waitForIOQueueToDrain(timeout: TimeInterval = 2.0) -> Bool {
+        let group = DispatchGroup()
+        group.enter()
+        ioQueue.async { group.leave() }
+        return group.wait(timeout: .now() + timeout) == .success
+    }
+
+    /// timeout/EOFで破棄したhelperを新しいProcess/Pipe世代で再生成し、直前の辞書を復元する。
+    private func recoverIfNeeded() -> Bool {
+        if isLoaded, proc.isRunning { return true }
+        recoveryLock.lock()
+        defer { recoveryLock.unlock() }
+        if isLoaded, proc.isRunning { return true }
+        guard let context = lastLoadContext else { return false }
+        guard waitForIOQueueToDrain() else {
+            NSLog("[YayaAdapter] Timed-out I/O generation did not drain; recovery aborted")
+            return false
+        }
+        guard launchHelper() else { return false }
+        let restored = load(
+            ghostRoot: context.ghostRoot,
+            dicEntries: context.dictionaryEntries,
+            encoding: context.dictionaryEncoding
+        )
+        if !restored {
+            forceTerminate()
+        }
+        return restored
+    }
+
     /// Send SHIORI request with timeout (default 10 seconds).
     /// Handles SHIORI Resource GET requests by querying ResourceManager first.
     func request(method: String, id: String, headers: [String:String] = [:], refs: [String] = [], timeout: TimeInterval = 10.0) -> YayaResponse? {
+        guard recoverIfNeeded() else { return nil }
         // Handle SHIORI Resource GET requests
         if method.uppercased() == "GET", let rm = resourceManager {
             let resourceId = id.lowercased()
@@ -328,6 +394,12 @@ final class YayaAdapter {
 
     /// Unload current dictionaries and terminate helper.
     func unload() {
+        lastLoadContext = nil
+        isLoaded = false
+        guard proc.isRunning else {
+            saoriManager.unloadAll()
+            return
+        }
         let req = YayaRequest(cmd: "unload", ghost_root: nil, dic: nil, encoding: nil, env: nil, method: nil, id: nil, headers: nil, ref: nil)
         // Try graceful unload with a short timeout.
         _ = exchange(req, timeout: 1.0)
@@ -344,6 +416,11 @@ final class YayaAdapter {
             #endif
         }
         saoriManager.unloadAll()
+    }
+
+    deinit {
+        unload()
+        errPipe.fileHandleForReading.readabilityHandler = nil
     }
 
     /// Bridge helper for yaya_core SAORI request operations.

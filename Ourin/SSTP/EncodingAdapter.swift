@@ -24,8 +24,32 @@ public enum EncodingAdapter {
     }
 
     /// Charset ラベルに従って文字列を Data へエンコードする（失敗時は UTF-8）。
-    public static func encode(_ text: String, charset: String) -> Data {
-        return text.data(using: encoding(for: charset)) ?? Data(text.utf8)
+    public static func encode(_ text: String, charset: String, escapeUnknown: Bool = false) -> Data {
+        let target = encoding(for: charset)
+        if let encoded = text.data(using: target) { return encoded }
+        guard escapeUnknown, target != .utf8 else { return Data(text.utf8) }
+        let escaped = text.unicodeScalars.map { scalar -> String in
+            let value = String(scalar)
+            if value.data(using: target) != nil { return value }
+            return String(format: "?escape!unicode[0x%X]", scalar.value)
+        }.joined()
+        return escaped.data(using: target) ?? Data(escaped.utf8)
+    }
+
+    /// `shiori.escape_unknown`で往路に退避されたUnicode scalarを復元する。
+    public static func restoreEscapedUnicode(in text: String) -> String {
+        guard let regex = try? NSRegularExpression(pattern: #"\?escape!unicode\[0x([0-9A-Fa-f]{1,8})\]"#) else {
+            return text
+        }
+        let source = text as NSString
+        let matches = regex.matches(in: text, range: NSRange(location: 0, length: source.length)).reversed()
+        let result = NSMutableString(string: text)
+        for match in matches where match.numberOfRanges == 2 {
+            let hex = source.substring(with: match.range(at: 1))
+            guard let value = UInt32(hex, radix: 16), let scalar = UnicodeScalar(value) else { continue }
+            result.replaceCharacters(in: match.range(at: 0), with: String(scalar))
+        }
+        return result as String
     }
 
     /// メッセージ先頭（最初の空行まで）のヘッダ部から `Charset:` を推定する。

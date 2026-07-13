@@ -1,0 +1,8 @@
+＊OnBoot
+\0里々統合テスト成功\e
+
+＊OnClose
+\0終了します\e
+
+＊OnEchoReference
+（Ｒ０）

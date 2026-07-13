@@ -184,11 +184,16 @@ final class EventBridge {
     }
 
     /// Register a ghost session to receive NOTIFY broadcasts.
-    func register(adapter: YayaAdapter?, ghostManager: GhostManager) -> UUID {
-        let d = ShioriDispatcher(); d.useYaya(adapter); d.ghostManager = ghostManager
+    func register(runtime: GhostShioriRuntime?, ghostManager: GhostManager) -> UUID {
+        let d = ShioriDispatcher(); d.useRuntime(runtime); d.ghostManager = ghostManager
         let key = UUID()
         sessions[key] = Session(dispatcher: d, ghostManager: ghostManager)
         return key
+    }
+
+    /// 既存呼び出し元との互換用。新規コードは register(runtime:ghostManager:) を使う。
+    func register(adapter: YayaAdapter?, ghostManager: GhostManager) -> UUID {
+        register(runtime: adapter, ghostManager: ghostManager)
     }
 
     /// Unregister a previously registered session.
@@ -606,9 +611,12 @@ final class ShioriDispatcher {
     // https://ssp.shillest.net/ukadoc/manual/list_shiori_event.html (Notifyイベント)
     // 仕様定義は EventReferenceTable（SHIORIEvents/EventReferenceSpec.swift）に一元化。
     private static let notifyReturnIgnored: Set<String> = EventReferenceTable.notifyReturnIgnoredIDs
-    private var yayaAdapter: YayaAdapter?
+    private var shioriRuntime: GhostShioriRuntime?
     weak var ghostManager: GhostManager?
-    func useYaya(_ adapter: YayaAdapter?) { self.yayaAdapter = adapter }
+    func useRuntime(_ runtime: GhostShioriRuntime?) { self.shioriRuntime = runtime }
+
+    /// 既存コードとの互換用。新規コードは useRuntime(_:) を使う。
+    func useYaya(_ adapter: YayaAdapter?) { self.shioriRuntime = adapter }
     /// イベント ID とパラメータからリクエスト文字列を組み立てる
     private func buildRequest(method: String, id: String, params: [String:String]) -> String {
         var lines = [
@@ -667,8 +675,8 @@ final class ShioriDispatcher {
         var script: String = ""
 
         let hdrs = security.shioriHeaders()
-        if let ya = yayaAdapter {
-            if let res = ya.request(method: "NOTIFY", id: id.rawValue, headers: hdrs, refs: refs, timeout: 2.0), res.ok, let val = res.value {
+        if let runtime = shioriRuntime {
+            if let res = runtime.request(method: "NOTIFY", id: id.rawValue, headers: hdrs, refs: refs, timeout: 2.0), res.ok, let val = res.value {
                 script = val
             }
         } else {
@@ -689,8 +697,8 @@ final class ShioriDispatcher {
         var script: String = ""
 
         let hdrs = security.shioriHeaders()
-        if let ya = yayaAdapter {
-            if let res = ya.request(method: "NOTIFY", id: eventName, headers: hdrs, refs: refs, timeout: 2.0), res.ok, let val = res.value {
+        if let runtime = shioriRuntime {
+            if let res = runtime.request(method: "NOTIFY", id: eventName, headers: hdrs, refs: refs, timeout: 2.0), res.ok, let val = res.value {
                 script = val
             }
         } else {
@@ -712,8 +720,8 @@ final class ShioriDispatcher {
         let refs = orderedRefs(from: params)
         let hdrs = security.shioriHeaders()
         var res = ""
-        if let ya = yayaAdapter {
-            if let r = ya.request(method: "GET", id: eventName, headers: hdrs, refs: refs, timeout: 3.0), r.ok, let val = r.value {
+        if let runtime = shioriRuntime {
+            if let r = runtime.request(method: "GET", id: eventName, headers: hdrs, refs: refs, timeout: 3.0), r.ok, let val = r.value {
                 res = val
             }
         } else {
@@ -729,8 +737,8 @@ final class ShioriDispatcher {
         let refs = orderedRefs(from: params)
         let hdrs = security.shioriHeaders()
         var res = ""
-        if let ya = yayaAdapter {
-            if let r = ya.request(method: "GET", id: id.rawValue, headers: hdrs, refs: refs, timeout: 3.0), r.ok, let val = r.value {
+        if let runtime = shioriRuntime {
+            if let r = runtime.request(method: "GET", id: id.rawValue, headers: hdrs, refs: refs, timeout: 3.0), r.ok, let val = r.value {
                 res = val
             }
         } else {

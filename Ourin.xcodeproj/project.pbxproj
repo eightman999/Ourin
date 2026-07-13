@@ -7,12 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A10000000000000000000001 /* OurinShioriXPCService.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = A10000000000000000000004 /* OurinShioriXPCService.xpc */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */ = {isa = PBXBuildFile; fileRef = 8684A3B06E824388A6939F39 /* emily4.nar */; };
 		A0F475111AF14D23831E8DFA /* yaya_core in Copy yaya_core */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A20000000000000000000001 /* satori_core in Copy helper cores */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* satori_core */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		DFC17CB12EA33CC600D2F390 /* yaya_core in Resources */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		A10000000000000000000002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DF88A7E82E35199C00644F8A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000000000000000000008;
+			remoteInfo = OurinShioriXPCService;
+		};
 		DF88A7FF2E35199D00644F8A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DF88A7E82E35199C00644F8A /* Project object */;
@@ -30,6 +39,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		A10000000000000000000003 /* Embed XPC Services */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
+			dstSubfolderSpec = 16;
+			files = (
+				A10000000000000000000001 /* OurinShioriXPCService.xpc in Embed XPC Services */,
+			);
+			name = "Embed XPC Services";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		77944998B8914360ADE8454F /* Copy yaya_core */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -37,14 +57,17 @@
 			dstSubfolderSpec = 6;
 			files = (
 				A0F475111AF14D23831E8DFA /* yaya_core in Copy yaya_core */,
+				A20000000000000000000001 /* satori_core in Copy helper cores */,
 			);
-			name = "Copy yaya_core";
+			name = "Copy helper cores";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A10000000000000000000004 /* OurinShioriXPCService.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = OurinShioriXPCService.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 		4461E2FD564847458C545C0E /* yaya_core */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = yaya_core; path = yaya_core/build/yaya_core; sourceTree = "<group>"; };
+		A20000000000000000000002 /* satori_core */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = satori_core; path = satori_core/build/satori_core; sourceTree = "<group>"; };
 		8684A3B06E824388A6939F39 /* emily4.nar */ = {isa = PBXFileReference; lastKnownFileType = archive; path = emily4.nar; sourceTree = "<group>"; };
 		DF88A7F02E35199C00644F8A /* Ourin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ourin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF88A7FE2E35199D00644F8A /* OurinTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -52,6 +75,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A10000000000000000000005 /* Exceptions for "OurinShioriXPCService" folder */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				OurinShioriXPCService.entitlements,
+			);
+			target = A10000000000000000000008 /* OurinShioriXPCService */;
+		};
 		DF3D9C692EA4E6BB00EAF8C2 /* Exceptions for "Ourin" folder in "Ourin" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -63,6 +94,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		A10000000000000000000006 /* OurinShioriXPCService */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A10000000000000000000005 /* Exceptions for "OurinShioriXPCService" folder */,
+			);
+			path = OurinShioriXPCService;
+			sourceTree = "<group>";
+		};
 		DF88A7F22E35199C00644F8A /* Ourin */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -84,6 +123,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A10000000000000000000007 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DF88A7ED2E35199C00644F8A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -112,6 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				DF88A7F22E35199C00644F8A /* Ourin */,
+				A10000000000000000000006 /* OurinShioriXPCService */,
 				DF88A8012E35199D00644F8A /* OurinTests */,
 				DF88A80B2E35199D00644F8A /* OurinUITests */,
 				DF88A7F12E35199C00644F8A /* Products */,
@@ -123,6 +170,7 @@
 			isa = PBXGroup;
 			children = (
 				DF88A7F02E35199C00644F8A /* Ourin.app */,
+				A10000000000000000000004 /* OurinShioriXPCService.xpc */,
 				DF88A7FE2E35199D00644F8A /* OurinTests.xctest */,
 				DF88A8082E35199D00644F8A /* OurinUITests.xctest */,
 			);
@@ -134,6 +182,7 @@
 			children = (
 				8684A3B06E824388A6939F39 /* emily4.nar */,
 				4461E2FD564847458C545C0E /* yaya_core */,
+				A20000000000000000000002 /* satori_core */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -141,19 +190,44 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		A10000000000000000000008 /* OurinShioriXPCService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1000000000000000000000E /* Build configuration list for PBXNativeTarget "OurinShioriXPCService" */;
+			buildPhases = (
+				A1000000000000000000000A /* Sources */,
+				A10000000000000000000007 /* Frameworks */,
+				A10000000000000000000009 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A10000000000000000000006 /* OurinShioriXPCService */,
+			);
+			name = OurinShioriXPCService;
+			packageProductDependencies = (
+			);
+			productName = OurinShioriXPCService;
+			productReference = A10000000000000000000004 /* OurinShioriXPCService.xpc */;
+			productType = "com.apple.product-type.xpc-service";
+		};
 		DF88A7EF2E35199C00644F8A /* Ourin */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DF88A8122E35199D00644F8A /* Build configuration list for PBXNativeTarget "Ourin" */;
 			buildPhases = (
 				FB9B89652D3B4A46A677B797 /* Build yaya_core */,
+				A20000000000000000000003 /* Build satori_core */,
 				DF88A7EC2E35199C00644F8A /* Sources */,
 				DF88A7ED2E35199C00644F8A /* Frameworks */,
 				DF88A7EE2E35199C00644F8A /* Resources */,
 				77944998B8914360ADE8454F /* Copy yaya_core */,
+				A10000000000000000000003 /* Embed XPC Services */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A1000000000000000000000B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DF88A7F22E35199C00644F8A /* Ourin */,
@@ -221,6 +295,9 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					A10000000000000000000008 = {
+						CreatedOnToolsVersion = 16.4;
+					};
 					DF88A7EF2E35199C00644F8A = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -250,6 +327,7 @@
 			projectRoot = "";
 			targets = (
 				DF88A7EF2E35199C00644F8A /* Ourin */,
+				A10000000000000000000008 /* OurinShioriXPCService */,
 				DF88A7FD2E35199D00644F8A /* OurinTests */,
 				DF88A8072E35199D00644F8A /* OurinUITests */,
 			);
@@ -257,6 +335,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		A10000000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DF88A7EE2E35199C00644F8A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -283,6 +368,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		A20000000000000000000003 /* Build satori_core */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build satori_core";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/satori_core/build/satori_core",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd \"${SRCROOT}/satori_core\"\n./build.sh\n";
+		};
 		FB9B89652D3B4A46A677B797 /* Build yaya_core */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -305,6 +409,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		A1000000000000000000000A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DF88A7EC2E35199C00644F8A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -329,6 +440,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		A1000000000000000000000B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000000000000000000008 /* OurinShioriXPCService */;
+			targetProxy = A10000000000000000000002 /* PBXContainerItemProxy */;
+		};
 		DF88A8002E35199D00644F8A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DF88A7EF2E35199C00644F8A /* Ourin */;
@@ -342,6 +458,48 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		A1000000000000000000000C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = OurinShioriXPCService/OurinShioriXPCService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XBT5U5CHS8;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OurinShioriXPCService/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.ourin.shiori;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A1000000000000000000000D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = OurinShioriXPCService/OurinShioriXPCService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XBT5U5CHS8;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OurinShioriXPCService/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.ourin.shiori;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		DF88A8102E35199D00644F8A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -675,6 +833,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A1000000000000000000000E /* Build configuration list for PBXNativeTarget "OurinShioriXPCService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1000000000000000000000C /* Debug */,
+				A1000000000000000000000D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		DF88A7EB2E35199C00644F8A /* Build configuration list for PBXProject "Ourin" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

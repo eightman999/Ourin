@@ -136,6 +136,7 @@ struct SSTPDispatcherTests {
             ErrorDescription: sample\r
             BalloonOffset: 12,34\r
             Reference0: ref-zero\r
+            Reference1: ref-one\r
             Age: 3\r
             MarkerSend: marker-send\r
             X-SSTP-PassThru-Reply: token-reply\r
@@ -162,6 +163,7 @@ struct SSTPDispatcherTests {
         #expect(resp.contains("ErrorDescription: sample"))
         #expect(resp.contains("BalloonOffset: 12,34"))
         #expect(resp.contains("Reference0: ref-zero"))
+        #expect(resp.contains("Reference1: ref-one"))
         #expect(resp.contains("Age: 3"))
         #expect(resp.contains("MarkerSend: marker-send"))
         #expect(resp.contains("X-SSTP-PassThru-Client: token-client"))

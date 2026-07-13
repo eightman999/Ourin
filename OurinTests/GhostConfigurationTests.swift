@@ -180,6 +180,26 @@ struct GhostConfigurationTests {
         #expect(config.balloonSyncScale == true)
     }
 
+    @Test("Parse extended ghost and scope balloon configuration")
+    func testExtendedGhostConfiguration() throws {
+        let config = try #require(GhostConfiguration.parse(from: [
+            "name": "Extended",
+            "sakura.name2": "さくら愛称",
+            "makoto": "makoto.dll",
+            "balloon.defaultsurface": "1",
+            "sakura.balloon.defaultsurface": "2",
+            "kero.balloon.defaultsurface": "3",
+            "char2.balloon.defaultsurface": "4"
+        ]))
+
+        #expect(config.sakuraName2 == "さくら愛称")
+        #expect(config.makoto == "makoto.dll")
+        #expect(config.balloonDefaultSurface == 1)
+        #expect(config.sakuraBalloonDefaultSurface == 2)
+        #expect(config.keroBalloonDefaultSurface == 3)
+        #expect(config.charBalloonDefaultSurfaces[2] == 4)
+    }
+
     // MARK: - UI Configuration Tests
 
     @Test("Parse UI configuration")

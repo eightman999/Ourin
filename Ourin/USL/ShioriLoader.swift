@@ -6,6 +6,11 @@ import Darwin
 #endif
 
 @objc public protocol OurinShioriXPC {
+    func ping(withReply reply: @escaping () -> Void)
+    func load(_ bundlePath: String, withReply reply: @escaping (Bool, String?) -> Void)
+    func execute(_ request: Data, withReply reply: @escaping (Data?, String?) -> Void)
+    func unload(withReply reply: @escaping () -> Void)
+    /// 旧テストおよび外部サービスとの移行互換。新規clientは接続単位loadを使う。
     func execute(_ request: Data, bundlePath: String, withReply reply: @escaping (Data?, String?) -> Void)
 }
 
@@ -504,21 +509,58 @@ final class XpcBackend: ShioriBackend {
     private let connection: NSXPCConnection
     private let moduleURL: URL
     private let timeout: TimeInterval
+    private let communication: ShioriCommunicationOptions
 
-    init(serviceName: String, moduleURL: URL, timeout: TimeInterval = 5.0) throws {
+    init(serviceName: String, moduleURL: URL, timeout: TimeInterval = 5.0,
+         communication: ShioriCommunicationOptions = .init()) throws {
         guard !serviceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw ShioriLoaderError.xpcUnavailable("Empty service name")
         }
-        self.connection = NSXPCConnection(machServiceName: serviceName, options: [])
+        self.connection = NSXPCConnection(serviceName: serviceName)
         self.connection.remoteObjectInterface = NSXPCInterface(with: OurinShioriXPC.self)
         self.connection.resume()
         self.moduleURL = moduleURL
         self.timeout = timeout
+        self.communication = communication
+        try pingAndLoad()
+    }
+
+    private func pingAndLoad() throws {
+        let ping = DispatchSemaphore(value: 0)
+        guard let pingProxy = connection.remoteObjectProxyWithErrorHandler({ _ in ping.signal() }) as? OurinShioriXPC else {
+            throw ShioriLoaderError.xpcUnavailable("Remote proxy unavailable")
+        }
+        pingProxy.ping { ping.signal() }
+        guard ping.wait(timeout: .now() + 2.0) == .success else {
+            connection.invalidate()
+            throw ShioriLoaderError.xpcUnavailable("Service handshake timed out")
+        }
+
+        let loaded = DispatchSemaphore(value: 0)
+        var loadOK = false
+        var loadError: String?
+        guard let loadProxy = connection.remoteObjectProxyWithErrorHandler({ error in
+            loadError = error.localizedDescription
+            loaded.signal()
+        }) as? OurinShioriXPC else {
+            connection.invalidate()
+            throw ShioriLoaderError.xpcUnavailable("Remote proxy unavailable after handshake")
+        }
+        loadProxy.load(moduleURL.path) { ok, error in
+            loadOK = ok
+            loadError = error
+            loaded.signal()
+        }
+        guard loaded.wait(timeout: .now() + timeout) == .success, loadOK else {
+            connection.invalidate()
+            throw ShioriLoaderError.xpcUnavailable(loadError ?? "Module load timed out")
+        }
     }
 
     func request(_ text: String) -> String? {
-        let reqCharset = EncodingAdapter.detectCharset(in: Data(text.utf8))
-        let requestData = EncodingAdapter.encode(text, charset: reqCharset)
+        let reqCharset = communication.forceEncoding ?? communication.encoding
+            ?? EncodingAdapter.detectCharset(in: Data(text.utf8))
+        let requestData = EncodingAdapter.encode(text, charset: reqCharset, escapeUnknown: communication.escapeUnknown)
         let sem = DispatchSemaphore(value: 0)
         var responseData: Data?
         var responseError: String?
@@ -532,7 +574,7 @@ final class XpcBackend: ShioriBackend {
             return nil
         }
 
-        proxy.execute(requestData, bundlePath: moduleURL.path) { data, errorText in
+        proxy.execute(requestData) { data, errorText in
             responseData = data
             responseError = errorText
             sem.signal()
@@ -540,6 +582,7 @@ final class XpcBackend: ShioriBackend {
 
         if sem.wait(timeout: .now() + timeout) == .timedOut {
             NSLog("[XpcBackend] Request timeout")
+            connection.invalidate()
             return nil
         }
 
@@ -554,13 +597,20 @@ final class XpcBackend: ShioriBackend {
         guard let responseData else {
             return nil
         }
-        let respCharset = EncodingAdapter.detectCharset(in: responseData, default: reqCharset)
-        return EncodingAdapter.decode(responseData, charset: respCharset)
+        let respCharset = communication.forceEncoding
+            ?? EncodingAdapter.detectCharset(in: responseData, default: reqCharset)
+        let decoded = EncodingAdapter.decode(responseData, charset: respCharset)
             ?? EncodingAdapter.decode(responseData, charset: reqCharset)
             ?? String(data: responseData, encoding: .utf8)
+        return decoded.map { communication.escapeUnknown ? EncodingAdapter.restoreEscapedUnicode(in: $0) : $0 }
     }
 
     func unload() {
+        let semaphore = DispatchSemaphore(value: 0)
+        if let proxy = connection.remoteObjectProxyWithErrorHandler({ _ in semaphore.signal() }) as? OurinShioriXPC {
+            proxy.unload { semaphore.signal() }
+            _ = semaphore.wait(timeout: .now() + min(timeout, 2.0))
+        }
         connection.invalidate()
     }
 }
@@ -573,11 +623,12 @@ final class BundleBackend: ShioriBackend {
     private var requestFn: ShioriRequest?
     private var unloadFn: ShioriUnload?
     private var freeFn: ShioriFree?
+    private let communication: ShioriCommunicationOptions
     
     /// Path of loaded module
     public let moduleURL: URL
     
-    init(url: URL) throws {
+    init(url: URL, communication: ShioriCommunicationOptions = .init()) throws {
         guard let b = CFBundleCreate(kCFAllocatorDefault, url as CFURL) else {
             throw NSError(domain: "USL.BundleBackend", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to create CFBundle from \(url.path)"])
         }
@@ -587,6 +638,7 @@ final class BundleBackend: ShioriBackend {
         }
         
         self.bundle = b
+        self.communication = communication
         self.moduleURL = url
         
         func loadSymbol<T>(_ name: String, as type: T.Type) -> T? {
@@ -628,8 +680,9 @@ final class BundleBackend: ShioriBackend {
         }
         
         // 要求は Charset ヘッダ（既定 UTF-8）に従ってエンコードする
-        let reqCharset = EncodingAdapter.detectCharset(in: Data(text.utf8))
-        let bytes = Array(EncodingAdapter.encode(text, charset: reqCharset))
+        let reqCharset = communication.forceEncoding ?? communication.encoding
+            ?? EncodingAdapter.detectCharset(in: Data(text.utf8))
+        let bytes = Array(EncodingAdapter.encode(text, charset: reqCharset, escapeUnknown: communication.escapeUnknown))
         var outPtr: UnsafeMutablePointer<UInt8>? = nil
         var outLen: Int = 0
 
@@ -645,8 +698,9 @@ final class BundleBackend: ShioriBackend {
         let data = Data(bytes: p, count: outLen)
         freeFn?(p)
         // 応答は応答ヘッダの Charset に従ってデコードする（未指定時は要求 Charset）
-        let respCharset = EncodingAdapter.detectCharset(in: data, default: reqCharset)
-        return EncodingAdapter.decode(data, charset: respCharset) ?? String(data: data, encoding: .utf8)
+        let respCharset = communication.forceEncoding ?? EncodingAdapter.detectCharset(in: data, default: reqCharset)
+        let decoded = EncodingAdapter.decode(data, charset: respCharset) ?? String(data: data, encoding: .utf8)
+        return decoded.map { communication.escapeUnknown ? EncodingAdapter.restoreEscapedUnicode(in: $0) : $0 }
     }
     
     func unload() {
@@ -669,16 +723,18 @@ final class DylibBackend: ShioriBackend {
     private var requestFn: ShioriRequest?
     private var unloadFn: ShioriUnload?
     private var freeFn: ShioriFree?
+    private let communication: ShioriCommunicationOptions
 
     /// Path of loaded module
     public let moduleURL: URL
 
-    init(url: URL) throws {
+    init(url: URL, communication: ShioriCommunicationOptions = .init()) throws {
         guard let h = dlopen(url.path, RTLD_NOW) else {
             let detail = dlerror().map { String(cString: $0) } ?? "unknown"
             throw ShioriLoaderError.openFailed(detail)
         }
         handle = h
+        self.communication = communication
         func loadSymbol<T>(_ names: [String], as type: T.Type) -> T? {
             for name in names {
                 if let sym = dlsym(h, name) {
@@ -716,8 +772,9 @@ final class DylibBackend: ShioriBackend {
 
     func request(_ text: String) -> String? {
         guard let req = requestFn else { return nil }
-        let reqCharset = EncodingAdapter.detectCharset(in: Data(text.utf8))
-        let bytes = Array(EncodingAdapter.encode(text, charset: reqCharset))
+        let reqCharset = communication.forceEncoding ?? communication.encoding
+            ?? EncodingAdapter.detectCharset(in: Data(text.utf8))
+        let bytes = Array(EncodingAdapter.encode(text, charset: reqCharset, escapeUnknown: communication.escapeUnknown))
         var outPtr: UnsafeMutablePointer<UInt8>? = nil
         var outLen: Int = 0
         let ok = bytes.withUnsafeBytes {
@@ -726,8 +783,9 @@ final class DylibBackend: ShioriBackend {
         guard ok, let p = outPtr else { return nil }
         let data = Data(bytes: p, count: outLen)
         freeFn?(p)
-        let respCharset = EncodingAdapter.detectCharset(in: data, default: reqCharset)
-        return EncodingAdapter.decode(data, charset: respCharset) ?? String(data: data, encoding: .utf8)
+        let respCharset = communication.forceEncoding ?? EncodingAdapter.detectCharset(in: data, default: reqCharset)
+        let decoded = EncodingAdapter.decode(data, charset: respCharset) ?? String(data: data, encoding: .utf8)
+        return decoded.map { communication.escapeUnknown ? EncodingAdapter.restoreEscapedUnicode(in: $0) : $0 }
     }
 
     func unload() {
@@ -769,9 +827,10 @@ public final class ShioriLoader {
     deinit { unload() }
 
     /// Initialize SHIORI backend from an explicit module path.
-    public convenience init?(moduleURL: URL, xpcServiceName: String? = ShioriLoader.resolvedXpcServiceName()) {
+    public convenience init?(moduleURL: URL, xpcServiceName: String? = ShioriLoader.resolvedXpcServiceName(),
+                             communication: ShioriCommunicationOptions = .init()) {
         do {
-            let backend = try ShioriLoader.makeBackend(moduleURL: moduleURL, xpcServiceName: xpcServiceName)
+            let backend = try ShioriLoader.makeBackend(moduleURL: moduleURL, xpcServiceName: xpcServiceName, communication: communication)
             self.init(backend: backend)
         } catch {
             NSLog("[ShioriLoader] Failed to initialize backend for \(moduleURL.lastPathComponent): \(error)")
@@ -780,7 +839,7 @@ public final class ShioriLoader {
     }
 
     /// Attempt to load module by name searching typical USL paths
-    public convenience init?(module name: String, base: URL) {
+    public convenience init?(module name: String, base: URL, communication: ShioriCommunicationOptions = .init()) {
         let shioriName = (name as NSString).lastPathComponent.lowercased()
         let backend: ShioriBackend
         
@@ -800,7 +859,7 @@ public final class ShioriLoader {
                 return nil
             }
             do {
-                backend = try ShioriLoader.makeBackend(moduleURL: url, xpcServiceName: ShioriLoader.resolvedXpcServiceName())
+                backend = try ShioriLoader.makeBackend(moduleURL: url, xpcServiceName: ShioriLoader.resolvedXpcServiceName(), communication: communication)
             } catch {
                 NSLog("[ShioriLoader] Failed to create backend for \(url.lastPathComponent): \(error)")
                 return nil
@@ -833,26 +892,23 @@ extension ShioriLoader {
             return explicit
         }
         let mode = environment["OURIN_SHIORI_ISOLATION_MODE"]?.lowercased()
-        if mode == "xpc" {
-            return "jp.ourin.shiori"
-        }
-        return nil
+        return mode == "inprocess" ? nil : "jp.ourin.shiori"
     }
 
-    private static func makeBackend(moduleURL: URL, xpcServiceName: String?) throws -> ShioriBackend {
+    private static func makeBackend(moduleURL: URL, xpcServiceName: String?,
+                                    communication: ShioriCommunicationOptions = .init()) throws -> ShioriBackend {
         if let xpcServiceName {
-            do {
-                NSLog("[ShioriLoader] Trying XPC backend (\(xpcServiceName)) for \(moduleURL.lastPathComponent)")
-                return Shiori2CompatBackend(wrapping: try XpcBackend(serviceName: xpcServiceName, moduleURL: moduleURL))
-            } catch {
-                NSLog("[ShioriLoader] XPC backend unavailable, falling back to native loader: \(error)")
-            }
+            NSLog("[ShioriLoader] Trying XPC backend (\(xpcServiceName)) for \(moduleURL.lastPathComponent)")
+            return Shiori2CompatBackend(
+                wrapping: try XpcBackend(serviceName: xpcServiceName, moduleURL: moduleURL, communication: communication),
+                detectedVersion: communication.version
+            )
         }
         let ext = moduleURL.pathExtension.lowercased()
         if ext == "bundle" || ext == "plugin" {
-            return Shiori2CompatBackend(wrapping: try BundleBackend(url: moduleURL))
+            return Shiori2CompatBackend(wrapping: try BundleBackend(url: moduleURL, communication: communication), detectedVersion: communication.version)
         }
-        return Shiori2CompatBackend(wrapping: try DylibBackend(url: moduleURL))
+        return Shiori2CompatBackend(wrapping: try DylibBackend(url: moduleURL, communication: communication), detectedVersion: communication.version)
     }
 
     /// Default search paths defined by USL spec
@@ -872,6 +928,11 @@ extension ShioriLoader {
         let fm = FileManager.default
         for dir in paths {
             for v in variants {
+                #if os(macOS)
+                // Windows DLLが同梱されていても、隣接するmacOS用bundle/dylibを探索し続ける。
+                // `.dll`を先に返すとdlopen失敗後に代替候補へ到達できない。
+                if URL(fileURLWithPath: v).pathExtension.lowercased() == "dll" { continue }
+                #endif
                 let url = dir.appendingPathComponent(v)
                 if fm.fileExists(atPath: url.path) { return url }
             }
@@ -930,6 +991,37 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
         listener.resume()
     }
 
+    public func ping(withReply reply: @escaping () -> Void) {
+        reply()
+    }
+
+    public func load(_ bundlePath: String, withReply reply: @escaping (Bool, String?) -> Void) {
+        let path = bundlePath.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !path.isEmpty else { reply(false, "Empty SHIORI module path"); return }
+        let url = URL(fileURLWithPath: path)
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            reply(false, "SHIORI module not found: \(url.path)")
+            return
+        }
+        guard resolveLoader(moduleURL: url) != nil else {
+            reply(false, "Failed to load SHIORI module: \(url.lastPathComponent)")
+            return
+        }
+        reply(true, nil)
+    }
+
+    public func execute(_ request: Data, withReply reply: @escaping (Data?, String?) -> Void) {
+        lock.lock()
+        let loader = loaders.values.first
+        lock.unlock()
+        execute(request, loader: loader, reply: reply)
+    }
+
+    public func unload(withReply reply: @escaping () -> Void) {
+        invalidateAllLoaders()
+        reply()
+    }
+
     public func invalidateAllLoaders() {
         lock.lock()
         let current = loaders.values
@@ -969,6 +1061,19 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
             return
         }
 
+        execute(request, loader: loader, reply: reply)
+    }
+
+    private func execute(_ request: Data, loader: ShioriRequesting?, reply: @escaping (Data?, String?) -> Void) {
+        let requestCharset = EncodingAdapter.detectCharset(in: request, default: "UTF-8")
+        guard let requestText = EncodingAdapter.decode(request, charset: requestCharset), !requestText.isEmpty else {
+            reply(nil, "Invalid SHIORI request payload")
+            return
+        }
+        guard let loader else {
+            reply(nil, "SHIORI module is not loaded")
+            return
+        }
         guard let response = loader.request(requestText) else {
             reply(nil, "SHIORI request failed.")
             return

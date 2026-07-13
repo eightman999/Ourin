@@ -571,6 +571,26 @@ struct ShioriLoaderTests {
         #expect(res?.contains("200 OK") == true)
         loader.unload()
     }
+
+    @Test
+    func xpcFailureDoesNotFallbackToInProcess() throws {
+        let fixtureBase = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent()
+            .appendingPathComponent("Fixtures/ghost/master/test_shiori.so.b64")
+        let tempDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let dylib = tempDir.appendingPathComponent("test_shiori.so")
+        let encoded = try String(contentsOf: fixtureBase, encoding: .utf8)
+        let binary = try #require(Data(base64Encoded: encoded, options: .ignoreUnknownCharacters))
+        try binary.write(to: dylib)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: dylib.path)
+
+        let missingService = "jp.ourin.shiori.missing.\(UUID().uuidString)"
+        let loader = ShioriLoader(moduleURL: dylib, xpcServiceName: missingService)
+        #expect(loader == nil, "XPC failure must not silently load native SHIORI in the app process")
+    }
     
     @Test
     func bundleBackendLoadFailsForInvalidBundle() throws {
@@ -635,8 +655,9 @@ struct ShioriLoaderTests {
     }
 
     @Test
-    func resolvedXpcServiceNameReturnsNilByDefault() throws {
-        #expect(ShioriLoader.resolvedXpcServiceName(environment: [:]) == nil)
+    func resolvedXpcServiceNameUsesEmbeddedServiceByDefault() throws {
+        #expect(ShioriLoader.resolvedXpcServiceName(environment: [:]) == "jp.ourin.shiori")
+        #expect(ShioriLoader.resolvedXpcServiceName(environment: ["OURIN_SHIORI_ISOLATION_MODE": "inprocess"]) == nil)
     }
 
     @Test

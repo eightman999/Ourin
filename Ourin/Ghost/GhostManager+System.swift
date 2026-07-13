@@ -321,7 +321,7 @@ extension GhostManager {
     /// Execute an embedded event and inline its script result.
     /// ukadoc: \![embed,event,ref0,ref1,...]
     func executeEmbeddedEvent(event: String, references: [String]) {
-        guard let response = yayaAdapter?.request(method: "GET", id: event, refs: references, timeout: 4.0),
+        guard let response = shioriRuntime?.request(method: "GET", id: event, refs: references, timeout: 4.0),
               response.ok,
               let script = response.value,
               !script.isEmpty else {
@@ -494,7 +494,7 @@ extension GhostManager {
                 switch choice.action {
                 case .event(let id, let references):
                     // Trigger event
-                    if let response = self.yayaAdapter?.request(method: "GET", id: id, refs: references, timeout: 4.0), response.ok {
+                    if let response = self.shioriRuntime?.request(method: "GET", id: id, refs: references, timeout: 4.0), response.ok {
                         if let script = response.value {
                             self.sakuraEngine.run(script: script)
                         }
@@ -506,7 +506,7 @@ extension GhostManager {
                 }
             } else {
                 // Cancel was selected
-                if let response = self.yayaAdapter?.request(method: "GET", id: "OnChoiceCancel", timeout: 4.0), response.ok {
+                if let response = self.shioriRuntime?.request(method: "GET", id: "OnChoiceCancel", timeout: 4.0), response.ok {
                     if let script = response.value {
                         self.sakuraEngine.run(script: script)
                     }
@@ -1246,8 +1246,8 @@ extension GhostManager {
         
         DispatchQueue.main.async {
             // Trigger OnVanished event first
-            if let yaya = self.yayaAdapter {
-                _ = yaya.request(method: "GET", id: "OnVanished")
+            if let runtime = self.shioriRuntime {
+                _ = runtime.request(method: "GET", id: "OnVanished", timeout: 4.0)
             }
             EventBridge.shared.notify(.OnOtherGhostClosed, refs: ["ghostName": currentName])
             EventBridge.shared.notify(.OnOtherGhostVanished, refs: ["ghostName": currentName])
@@ -1536,8 +1536,13 @@ extension GhostManager {
     func executeUnload(target: String) {
         let lowered = target.lowercased()
         if lowered == "shiori" || lowered == "makoto" {
-            yayaAdapter?.unload()
+            shioriRuntime?.unload()
+            shioriRuntime = nil
             yayaAdapter = nil
+            if let token = eventToken {
+                EventBridge.shared.unregister(token)
+                eventToken = nil
+            }
             EventBridge.shared.notifyCustom("OnShioriUnloaded", refs: ["name": lowered])
         }
     }
@@ -1545,21 +1550,23 @@ extension GhostManager {
     func executeLoad(target: String) {
         let lowered = target.lowercased()
         guard lowered == "shiori" || lowered == "makoto" else { return }
-        guard yayaAdapter == nil else { return }
+        guard shioriRuntime == nil else { return }
         let ghostRoot = ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
-        let dicEntries = (try? FileManager.default.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil))?
-            .filter { $0.pathExtension.lowercased() == "dic" }
-            .map { DicEntry(path: $0.lastPathComponent, encoding: nil, sourceConfig: "(reload)", sourceLine: 0) } ?? []
-        guard let adapter = YayaAdapter() else {
+        let moduleName = ShioriRuntimeFactory.moduleName(for: ghostConfig)
+        guard let runtime = createLoadedShioriRuntime(moduleName: moduleName, ghostRoot: ghostRoot) else {
             EventBridge.shared.notifyCustom("OnShioriLoadFailure", refs: ["reason": lowered])
             return
         }
-        if adapter.load(ghostRoot: ghostRoot, dicEntries: dicEntries) {
-            yayaAdapter = adapter
-            EventBridge.shared.notifyCustom("OnShioriLoaded", refs: ["name": lowered, "entryCount": String(dicEntries.count)])
-        } else {
-            EventBridge.shared.notifyCustom("OnShioriLoadFailure", refs: ["reason": lowered])
+        shioriRuntime = runtime
+        yayaAdapter = runtime as? YayaAdapter
+        if let oldToken = eventToken {
+            EventBridge.shared.unregister(oldToken)
         }
+        eventToken = EventBridge.shared.register(runtime: runtime, ghostManager: self)
+        EventBridge.shared.notifyCustom(
+            "OnShioriLoaded",
+            refs: ["name": moduleName, "kind": runtime.kind.rawValue]
+        )
     }
 
     func decodeScalarLiteral(_ raw: String?) -> UnicodeScalar? {
@@ -2201,7 +2208,7 @@ extension GhostManager {
     @discardableResult
     func requestDialogEvent(eventID: String, references: [String]) -> Bool {
         guard !eventID.isEmpty else { return false }
-        if let response = yayaAdapter?.request(method: "GET", id: eventID, refs: references, timeout: 4.0),
+        if let response = shioriRuntime?.request(method: "GET", id: eventID, refs: references, timeout: 4.0),
            response.ok,
            let script = response.value,
            !script.isEmpty {

@@ -1,6 +1,6 @@
 # Ourin 監査項目 — 未完 / Audit Items — TODO
 
-**最終更新 / Last Updated**: 2026-07-09
+**最終更新 / Last Updated**: 2026-07-13
 **集約元 / Consolidated from**: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY（各 ja-jp / en-us）
 **検証方法 / Verification**: 全項目を現状ソースコード（file:line）と照合して未完判定。完了済み項目は `AUDITS_COMPLETED.md` 参照。
 

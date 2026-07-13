@@ -781,14 +781,15 @@ public enum SSTPDispatcher {
                 responseHeaders["ErrorDescription"] = val
             case "balloonoffset":
                 responseHeaders["BalloonOffset"] = val
-            case "reference0":
-                responseHeaders["Reference0"] = val
             case "age":
                 responseHeaders["Age"] = val
             case "markersend":
                 responseHeaders["MarkerSend"] = val
             default:
-                if key == "x-sstp-passthru" || key.hasPrefix(passThruPrefix) {
+                if key.hasPrefix("reference"),
+                   let index = Int(key.dropFirst("reference".count)), index >= 0 {
+                    responseHeaders["Reference\(index)"] = val
+                } else if key == "x-sstp-passthru" || key.hasPrefix(passThruPrefix) {
                     responseHeaders[originalKey] = val
                 }
                 continue

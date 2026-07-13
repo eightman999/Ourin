@@ -155,9 +155,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // MARK: - Properties
 
     let ghostURL: URL
+    /// 現在ロード中のSHIORIランタイム。YAYAは後方互換用の yayaAdapter からも参照できる。
+    var shioriRuntime: GhostShioriRuntime?
     var yayaAdapter: YayaAdapter?
     let sakuraEngine = SakuraScriptEngine()
-    private var eventToken: UUID?
+    var eventToken: UUID?
     // SHIORI Resource はゴースト別名前空間で保持する（複数ゴースト同時起動時の汚染防止）。
     // lazy: ghostURL 確定後（init 完了後）の初回アクセスで生成する。
     lazy var resourceManager = ResourceManager(ghostKey: ghostURL.lastPathComponent)
@@ -546,6 +548,72 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     // MARK: - Public API
 
+    /// descript.txtのSHIORI指定から、実装言語に依存しないロード入力を作る。
+    /// YAYAの場合だけyaya.txtを解釈し、他ランタイムへYAYA辞書規則を持ち込まない。
+    func makeShioriLoadContext(moduleName: String, ghostRoot: URL) -> ShioriRuntimeLoadContext {
+        let communication = ShioriCommunicationOptions(
+            version: ghostConfig?.shioriVersion,
+            encoding: ghostConfig?.shioriEncoding,
+            forceEncoding: ghostConfig?.shioriForceEncoding,
+            escapeUnknown: ghostConfig?.shioriEscapeUnknown ?? false,
+            cache: ghostConfig?.shioriCache ?? false
+        )
+        guard ShioriRuntimeFactory.kind(for: moduleName) == .yaya else {
+            return ShioriRuntimeLoadContext(
+                ghostURL: ghostURL,
+                ghostRoot: ghostRoot,
+                moduleName: moduleName,
+                communication: communication
+            )
+        }
+
+        let fm = FileManager.default
+        var collector = DicCollector()
+        let yayaTxtPath = ghostRoot.appendingPathComponent("yaya.txt")
+        if let yayaContent = (try? String(contentsOf: yayaTxtPath, encoding: .utf8)) ??
+                             (try? String(contentsOf: yayaTxtPath, encoding: .shiftJIS)) {
+            Log.debug("[GhostManager] Found yaya.txt, parsing dictionary list with includes...")
+            collectDicEntries(
+                content: yayaContent,
+                baseURL: ghostRoot,
+                sourceName: "yaya.txt",
+                collector: &collector,
+                visited: []
+            )
+        } else {
+            let contents = (try? fm.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil)) ?? []
+            collector.entries = contents
+                .filter { $0.pathExtension.lowercased() == "dic" }
+                .map { DicEntry(path: $0.lastPathComponent, encoding: nil, sourceConfig: "(fallback)", sourceLine: 0) }
+            Log.debug("[GhostManager] yaya.txt not found, loading all \(collector.entries.count) .dic files")
+        }
+
+        return ShioriRuntimeLoadContext(
+            ghostURL: ghostURL,
+            ghostRoot: ghostRoot,
+            moduleName: moduleName,
+            dictionaryEntries: collector.entries,
+            dictionaryEncoding: collector.globalCharset ?? "auto",
+            communication: communication
+        )
+    }
+
+    /// 共通Factoryとload(context:)を通じてSHIORIを生成・ロードする。
+    func createLoadedShioriRuntime(moduleName: String, ghostRoot: URL) -> GhostShioriRuntime? {
+        guard let runtime = ShioriRuntimeFactory.makeRuntime(for: moduleName) else {
+            Log.info("[GhostManager] Failed to create SHIORI runtime for \(moduleName)")
+            return nil
+        }
+        runtime.resourceManager = resourceManager
+        let context = makeShioriLoadContext(moduleName: moduleName, ghostRoot: ghostRoot)
+        guard runtime.load(context: context) else {
+            Log.info("[GhostManager] Failed to load SHIORI runtime: \(moduleName)")
+            runtime.unload()
+            return nil
+        }
+        return runtime
+    }
+
     func start() {
         Log.info("[GhostManager] start() called for ghost at: \(ghostURL.path)")
         setupWindows()
@@ -560,8 +628,6 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         DispatchQueue.global(qos: .userInitiated).async {
             let ghostRoot = self.ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
             Log.debug("[GhostManager] Ghost root: \(ghostRoot.path)")
-            let fm = FileManager.default
-
             // Load ghost configuration from descript.txt
             if let config = GhostConfiguration.load(from: ghostRoot) {
                 self.ghostConfig = config
@@ -596,53 +662,21 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 Log.info("[GhostManager] Failed to load balloon configuration from \(balloonDescriptPath)")
             }
 
-            guard let contents = try? fm.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil) else {
-                NSLog("[GhostManager] Failed to read contents of \(ghostRoot.path)")
-                return
-            }
-
-            // yaya.txt から辞書リストを読み込む（順序が重要）
-            // includeディレクティブも再帰的に処理する
-            var dicCollector = DicCollector()
-            let yayaTxtPath = ghostRoot.appendingPathComponent("yaya.txt")
-            if let yayaContent = (try? String(contentsOf: yayaTxtPath, encoding: .utf8)) ??
-                                 (try? String(contentsOf: yayaTxtPath, encoding: .shiftJIS)) {
-                Log.debug("[GhostManager] Found yaya.txt, parsing dictionary list with includes...")
-                collectDicEntries(content: yayaContent, baseURL: ghostRoot, sourceName: "yaya.txt",
-                                  collector: &dicCollector, visited: [])
-                Log.debug("[GhostManager] Found \(dicCollector.entries.count) dictionaries (including from includes, charset: \(dicCollector.globalCharset ?? "auto")): \(dicCollector.entries.prefix(5).map { $0.path })...")
-            } else {
-                // yaya.txt がない場合は全ファイルをロード
-                dicCollector.entries = contents.filter { $0.pathExtension.lowercased() == "dic" }.map {
-                    DicEntry(path: $0.lastPathComponent, encoding: nil, sourceConfig: "(fallback)", sourceLine: 0)
-                }
-                Log.debug("[GhostManager] yaya.txt not found, loading all \(dicCollector.entries.count) .dic files")
-            }
-
-            guard let adapter = YayaAdapter() else {
-                Log.info("[GhostManager] Failed to initialize YayaAdapter.")
-                return
-            }
-            Log.debug("[GhostManager] YayaAdapter initialized successfully")
-
-            // Connect ResourceManager to YayaAdapter for SHIORI resource handling
-            adapter.resourceManager = self.resourceManager
-
-            self.yayaAdapter = adapter
-            // Register this ghost to receive NOTIFY broadcasts
-            DispatchQueue.main.async {
-                self.eventToken = EventBridge.shared.register(adapter: adapter, ghostManager: self)
-            }
-
-            // 全辞書をロード（yaya_coreが並列化やキャッシュで最適化すべき）
-            Log.debug("[GhostManager] Starting dictionary load...")
+            let moduleName = ShioriRuntimeFactory.moduleName(for: self.ghostConfig)
+            Log.info("[GhostManager] Loading configured SHIORI: \(moduleName)")
             let loadStart = Date()
-            guard adapter.load(ghostRoot: ghostRoot, dicEntries: dicCollector.entries, encoding: dicCollector.globalCharset ?? "auto") else {
-                Log.info("[GhostManager] Failed to load ghost with Yaya.")
+            guard let runtime = self.createLoadedShioriRuntime(moduleName: moduleName, ghostRoot: ghostRoot) else {
                 return
             }
             let loadTime = Date().timeIntervalSince(loadStart)
-            Log.debug("[GhostManager] Dictionary load complete in \(String(format: "%.2f", loadTime))s")
+            Log.debug("[GhostManager] SHIORI load complete (kind=\(runtime.kind.rawValue)) in \(String(format: "%.2f", loadTime))s")
+
+            // load成功後にだけ保持・イベント登録する。失敗したruntimeを配送先に残さない。
+            DispatchQueue.main.sync {
+                self.shioriRuntime = runtime
+                self.yayaAdapter = runtime as? YayaAdapter
+                self.eventToken = EventBridge.shared.register(runtime: runtime, ghostManager: self)
+            }
 
             let defaults = UserDefaults.standard
             let bootCount = defaults.integer(forKey: "OurinBootCount")
@@ -670,7 +704,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             let sem = DispatchSemaphore(value: 0)
 
             DispatchQueue.global(qos: .userInitiated).async {
-                let script = self.obtainBootScript(using: adapter, bootCount: bootCount)
+                let script = self.obtainBootScript(using: runtime, bootCount: bootCount)
                 if let script = script {
                     let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
                     if !trimmed.isEmpty {
@@ -739,14 +773,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         // EventBridge.notify は autoEventsEnabled=false 時にキュー滞留し、全セッションへ
         // ブロードキャストされるためここでは使わない（OnClose と同じ直接送信の流儀）。
         let destroyRefs = pendingDestroyReason.map { [$0] } ?? []
-        if let yaya = yayaAdapter {
+        if let runtime = shioriRuntime {
             let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
-            _ = yaya.request(method: "NOTIFY", id: "OnDestroy", headers: hdrs, refs: destroyRefs, timeout: 1.0)
+            _ = runtime.request(method: "NOTIFY", id: "OnDestroy", headers: hdrs, refs: destroyRefs, timeout: 1.0)
         } else {
             _ = BridgeToSHIORI.handle(event: "OnDestroy", references: destroyRefs)
         }
         pendingDestroyReason = nil
-        yayaAdapter?.unload()
+        shioriRuntime?.unload()
+        shioriRuntime = nil
         yayaAdapter = nil
         if let token = eventToken { EventBridge.shared.unregister(token); eventToken = nil }
     }
@@ -776,9 +811,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
         DispatchQueue.global(qos: .userInitiated).async {
             var script = ""
-            if let yaya = self.yayaAdapter {
+            if let runtime = self.shioriRuntime {
                 let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
-                if let r = yaya.request(method: "GET", id: "OnClose", headers: hdrs, refs: [reason], timeout: 4.0),
+                if let r = runtime.request(method: "GET", id: "OnClose", headers: hdrs, refs: [reason], timeout: 4.0),
                    r.ok, let v = r.value {
                     script = v.trimmingCharacters(in: .whitespacesAndNewlines)
                 }
@@ -869,8 +904,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             playbackQueue.append(.deferredCommand { [weak self] in
                 guard let self else { return }
                 DispatchQueue.global(qos: .userInitiated).async {
-                    guard let yaya = self.yayaAdapter,
-                          let r = yaya.request(method: "GET", id: target, headers: ["Charset": "UTF-8"], refs: references, timeout: 3.0),
+                    guard let runtime = self.shioriRuntime,
+                          let r = runtime.request(method: "GET", id: target, headers: ["Charset": "UTF-8"], refs: references, timeout: 3.0),
                           r.ok, let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines), !v.isEmpty else {
                         Log.info("[GhostManager] \\j[\(target)] event jump returned no script")
                         return
@@ -1104,8 +1139,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             playbackQueue.append(.deferredCommand { [weak self] in
                 guard let self else { return }
                 DispatchQueue.global(qos: .userInitiated).async {
-                    guard let yaya = self.yayaAdapter,
-                          let r = yaya.request(method: "GET", id: "OnAITalk", timeout: 3.0), r.ok,
+                    guard let runtime = self.shioriRuntime,
+                          let r = runtime.request(method: "GET", id: "OnAITalk", timeout: 3.0), r.ok,
                           let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines), !v.isEmpty else { return }
                     DispatchQueue.main.async { self.runScript(v) }
                 }
@@ -2770,12 +2805,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// 2) GET OnBoot（Reference0 = シェル名。2回目以降の起動もすべて OnBoot。UKADOC に OnSecondBoot は存在しない）
     /// 3) BridgeToSHIORI for OnBoot
     /// 4) Built-in minimal greeting
-    private func obtainBootScript(using adapter: YayaAdapter, bootCount: Int) -> String? {
+    private func obtainBootScript(using runtime: GhostShioriRuntime, bootCount: Int) -> String? {
         let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
         if bootCount == 0 {
             // UKADOC: OnFirstBoot Reference0 = vanish された回数（通常 0）
             let vanishCount = UserDefaults.standard.integer(forKey: "OurinVanishCount")
-            if let r = adapter.request(method: "GET", id: "OnFirstBoot", headers: hdrs, refs: [String(vanishCount)], timeout: 4.0), r.ok {
+            if let r = runtime.request(method: "GET", id: "OnFirstBoot", headers: hdrs, refs: [String(vanishCount)], timeout: 4.0), r.ok {
                 let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                 let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
                 NSLog("[GhostManager] OnFirstBoot response: ok=true, len=\(v.count), preview=\(pv)")
@@ -2787,7 +2822,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
         // 2) OnBoot（UKADOC: Reference0 = 起動したシェル名）
         let shellName = activeShellName
-        if let r = adapter.request(method: "GET", id: "OnBoot", headers: hdrs, refs: [shellName], timeout: 4.0), r.ok {
+        if let r = runtime.request(method: "GET", id: "OnBoot", headers: hdrs, refs: [shellName], timeout: 4.0), r.ok {
             let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
             NSLog("[GhostManager] OnBoot response: ok=true, len=\(v.count), preview=\(pv)")

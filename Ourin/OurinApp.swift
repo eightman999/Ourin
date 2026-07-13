@@ -113,6 +113,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         return DispatchQueue.main.sync { self.resolveYayaAdapter(headers: headers) }
     }
 
+    /// SHIORI要求の宛先ランタイムを解決する。YAYA・里々・ネイティブSHIORIを同じ境界で扱う。
+    func shioriRuntimeForShioriRequest(headers: [String: String]) -> GhostShioriRuntime? {
+        if Thread.isMainThread {
+            return resolveGhostManager(headers: headers)?.shioriRuntime
+        }
+        return DispatchQueue.main.sync { self.resolveGhostManager(headers: headers)?.shioriRuntime }
+    }
+
     /// SSTP 応答ヘッダ副作用（Surface/Balloon/Icon 等）の宛先 GhostManager を解決する。
     /// 照合規則は `yayaAdapterForShioriRequest` と同一（ReceiverGhostName → プライマリへフォールバック）。
     func ghostManagerForShioriRequest(headers: [String: String]) -> GhostManager? {
@@ -255,16 +263,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // クロージャは SSTP サーバのバックグラウンドキューから呼ばれ、宛先は呼び出し時に解決する。
         BridgeToSHIORI.liveGhostResolver = { [weak self] method, event, references, headers in
             guard let self else { return nil }
-            // 宛先 YayaAdapter はメインスレッドで解決する（ghostManager / additionalGhosts はメインで更新される）。
-            guard let adapter = self.yayaAdapterForShioriRequest(headers: headers) else { return nil }
+            // 宛先ランタイムはメインスレッドで解決する（ghostManager / additionalGhosts はメインで更新される）。
+            guard let runtime = self.shioriRuntimeForShioriRequest(headers: headers) else { return nil }
             // IPC 自体は呼び出し元キュー（SSTP バックグラウンド等）で同期実行する。
             // 直列リスナーキューを長時間塞がないよう短めのタイムアウトにする。
-            let res: YayaResponse?
+            let res: ShioriRuntimeResponse?
             if event == "Resource", let key = references.first {
                 // Resource 疑似イベント（ResourceBridge 由来）は SHIORI Resource GET（ID=リソース名）へ正規化する。
-                res = adapter.request(method: "GET", id: key, headers: headers, refs: [], timeout: 2.0)
+                res = runtime.request(method: "GET", id: key, headers: headers, refs: [], timeout: 2.0)
             } else {
-                res = adapter.request(method: method, id: event, headers: headers, refs: references, timeout: 2.0)
+                res = runtime.request(method: method, id: event, headers: headers, refs: references, timeout: 2.0)
             }
             guard let res, res.ok else { return nil }
             return BridgeToSHIORI.BridgeShioriResponse(status: res.status, headers: res.headers ?? [:], value: res.value)

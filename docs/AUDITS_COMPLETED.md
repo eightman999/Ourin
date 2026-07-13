@@ -1,6 +1,6 @@
 # Ourin 監査項目 — 完了済み / Audit Items — Completed
 
-**最終更新 / Last Updated**: 2026-07-05
+**最終更新 / Last Updated**: 2026-07-13
 **集約元 / Consolidated from**: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY（各 ja-jp / en-us）
 **検証方法 / Verification**: 全項目を現状ソースコード（file:line）と照合して完了判定。
 
@@ -20,6 +20,8 @@
 | SSTP応答で Reference1+ が反映（Reference0のみでない） | `SSTP/SSTPDispatcher.swift:747-755`, `677-681`（`responseReferenceIndex` で全Nを処理） |
 | COMMUNICATE の Reference マッピング仕様準拠（R0=送信元名, R1=Sentence, R2=SSTP R0） | `SSTP/SSTPDispatcher.swift:601-610` |
 | TEACH メソッドの互換マッピング | `USL/ShioriLoader.swift:247` |
+| **Native SHIORIのXPCプロセス隔離** | `OurinShioriXPCService/`を同梱し、`ShioriLoader.XpcBackend`が既定でload/request/unloadを接続。Service側5秒watchdogでハング時にプロセス終了。`ShioriLoaderTests/loadRequestUnload`で実Service往復を確認。 |
+| **YAYA/里々helperのtimeout復旧** | `Yaya/YayaAdapter.swift`、`USL/SatoriAdapter.swift`がhelper終了後に保存済みload contextを再適用。`ShioriRuntimeTests`の両runtime timeout回帰試験で確認。 |
 
 ### B. SSTP プロトコル
 

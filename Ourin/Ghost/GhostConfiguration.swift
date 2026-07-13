@@ -18,6 +18,9 @@ public struct GhostConfiguration {
     /// Main character name (sakura.name)
     public var sakuraName: String
 
+    /// Main character nickname (sakura.name2)
+    public var sakuraName2: String?
+
     /// Partner character name (kero.name)
     public var keroName: String?
 
@@ -49,6 +52,9 @@ public struct GhostConfiguration {
     /// SHIORI DLL filename (shiori)
     public var shiori: String
 
+    /// MAKOTO translator filename (makoto)
+    public var makoto: String?
+
     /// SHIORI protocol version (shiori.version)
     public var shioriVersion: String?
 
@@ -77,6 +83,11 @@ public struct GhostConfiguration {
 
     /// Default balloon surface (balloon.defaultsurface)
     public var balloonDefaultSurface: Int?
+
+    /// Scope-specific balloon default surfaces.
+    public var sakuraBalloonDefaultSurface: Int?
+    public var keroBalloonDefaultSurface: Int?
+    public var charBalloonDefaultSurfaces: [Int: Int] = [:]
 
     // MARK: - Position Configuration
 
@@ -288,6 +299,7 @@ public struct GhostConfiguration {
         config.charset = dict["charset"]
         config.type = dict["type"]
         config.sakuraName = dict["sakura.name"] ?? name
+        config.sakuraName2 = dict["sakura.name2"]
         config.keroName = dict["kero.name"]
         config.id = dict["id"]
         config.title = dict["title"]
@@ -302,6 +314,7 @@ public struct GhostConfiguration {
         if let shiori = dict["shiori"] {
             config.shiori = shiori
         }
+        config.makoto = dict["makoto"]
         config.shioriVersion = dict["shiori.version"]
         config.shioriCache = dict["shiori.cache"].flatMap { $0 == "1" }
         config.shioriEncoding = dict["shiori.encoding"]
@@ -318,6 +331,8 @@ public struct GhostConfiguration {
         if let surface = dict["balloon.defaultsurface"].flatMap(Int.init) {
             config.balloonDefaultSurface = surface
         }
+        config.sakuraBalloonDefaultSurface = dict["sakura.balloon.defaultsurface"].flatMap(Int.init)
+        config.keroBalloonDefaultSurface = dict["kero.balloon.defaultsurface"].flatMap(Int.init)
 
         // Position configuration
         config.alignmentToDesktop = dict["seriko.alignmenttodesktop"].flatMap(AlignmentToDesktop.init)
@@ -422,6 +437,10 @@ public struct GhostConfiguration {
             case "seriko.defaultsurface":
                 if let surface = Int(value) {
                     config.charDefaultSurfaces[charNum] = surface
+                }
+            case "balloon.defaultsurface":
+                if let surface = Int(value) {
+                    config.charBalloonDefaultSurfaces[charNum] = surface
                 }
             case "seriko.alignmenttodesktop":
                 if let alignment = AlignmentToDesktop(rawValue: value) {

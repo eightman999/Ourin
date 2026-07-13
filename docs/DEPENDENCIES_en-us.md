@@ -1,7 +1,7 @@
 # Ourin Dependencies Documentation
 
-**Last Updated**: June 26, 2026  
-**Version**: 1.1.0
+**Last Updated**: July 13, 2026
+**Version**: 1.2.0
 
 ---
 
@@ -85,6 +85,17 @@ cmake --build build --config Release
 - Xcode Command Line Tools
 - CMake 3.20+
 - C++17 compatible compiler
+
+### satori_core (C++ SATORI runtime)
+
+| Library | Version | Purpose | License |
+|---|---:|---|---|
+| **satoriya-shiori** | Mc172-3 / `a5746694...` | SATORI dictionary engine | BSD 2-Clause |
+| **nlohmann/json** | 3.11.0+ | JSON Lines IPC with Swift | MIT |
+| **libiconv** | System | CP932/UTF-8 conversion | System library |
+| **CMake** | 3.20+ | Universal 2 build | BSD 3-Clause |
+
+The fixed upstream snapshot is vendored under `satori_core/third_party/satoriya-shiori/`. The signed helper is embedded in the app, so runtime execution requires no external packages. See `satori_core/UPSTREAM.md` and `satori_core/PATCHES.md` for provenance and local changes.
 
 ---
 
@@ -214,6 +225,12 @@ This software includes components licensed under the following licenses:
 3. Swift Runtime
    Copyright (c) 2014-2023 Apple Inc.
    License: Apache License 2.0
+
+4. SATORI (satoriya-shiori)
+   Copyright (c) 2001-2005, Kusigahama Yagi.
+   Copyright (c) 2006-, SEIBIHAN.
+   https://github.com/ukatech/satoriya-shiori
+   License: BSD 2-Clause
 ```
 
 ---
