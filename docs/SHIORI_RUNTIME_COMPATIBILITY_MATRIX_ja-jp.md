@@ -1,6 +1,6 @@
 # SHIORIランタイム互換性マトリクス
 
-**更新日:** 2026-07-14
+**更新日:** 2026-07-15
 **位置付け:** SHIORIランタイム選択・ロード・障害隔離の正本。仕様語彙はUKADOC SHIORI/3.0およびghost `descript.txt`に従う。
 
 ## 状態定義
@@ -17,8 +17,8 @@
 | YAYA | `yaya.dll`, `libyaya.*`, `yaya_core` | 済 | 済 | Emily4回帰あり | 済 | helper障害時は終了し、次要求前にロード文脈を復元 |
 | 里々 | `satori.dll`, `satoriya.dll`, `satori_core` | 済 | 実辞書＋外部SAORI fixture | `9-1`で済 | 済 | 固定版SATORIをUniversal 2 helperとして同梱 |
 | Native Bundle | その他の`*.bundle/*.plugin` | 済 | Fake loader | 未 | 既定で済 | XPC Service内でC ABIをロード。明示的inprocess設定時のみ直接ロード |
-| Native Dylib | その他の`*.dll/*.dylib/*.so` | 済 | Loader単体 | 未 | 既定で済 | macOSではWindows DLLを除外し、XPC Service内で代替moduleをロード |
-| Native XPC | 既定。`OURIN_SHIORI_ISOLATION_MODE=inprocess`でのみ無効 | 済 | 実Service往復 | 未 | 済 | 接続単位session、load/request/unload、5秒watchdog |
+| Native Dylib | その他の`*.dll/*.dylib/*.so` | 済 | Loader単体＋embedded XPC | 未 | 既定で済 | macOSではWindows DLLを除外し、XPC Service内で代替moduleをロード |
+| Native XPC | 既定。`OURIN_SHIORI_ISOLATION_MODE=inprocess`でのみ無効 | 済 | 実fixtureの別PID往復 | 未 | 済 | 接続単位session、load/request/unload、5秒watchdog |
 | SHIORI 2.x | Native backendを互換ラッパーで変換 | 済 | 済 | 未 | backend依存 | `Shiori2CompatBackend`を使用 |
 
 ## P0受け入れ条件
@@ -74,10 +74,14 @@ P2は2026-07-14に完了。第三者配布ゴースト`9-1`の複製上で、OnB
 - [x] SSTPのNOTIFY種別とSHIORI応答ヘッダを完全応答ブリッジで保持する
 - [x] 翻訳後の実再生スクリプトとSSTP応答`Script`を一致させ、マルチゴースト時の応答対象を固定する
 - [x] Native SHIORI dylibの実fixtureでload/request/unloadを継続試験する
-- [ ] 同じNative fixtureを埋め込みXPCの別PIDで実行する（protocol不一致修正済み、最終再試験待ち）
+- [x] 同じNative fixtureを埋め込みXPCの別PIDで実行する（`nativeDylibFixtureRunsThroughEmbeddedXpcService`）
 - [x] SHIORI 2.x実fixtureで3.0写像と応答ヘッダ保持を継続試験する
 
-P3は2026-07-14に着手。FMO／Owned SSTP境界、疎なReference伝播、翻訳応答整合、Native／SHIORI 2.x実fixtureまで完了。埋め込みXPCの実fixtureは、クライアントとサービスの公開protocol不一致を修正し、最終再試験を残す。
+P3は2026-07-15に完了。FMO／Owned SSTP境界、疎なReference伝播、翻訳応答整合、Native／SHIORI 2.x実fixture、およびembedded XPCの別PID実fixture往復まで確認した。XPCサービス側の公開protocol不一致は修正済み。
+
+### P3最終検証記録
+
+`xcodebuild -project Ourin.xcodeproj -scheme Ourin -derivedDataPath /private/tmp/Ourin-P3-DerivedData CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO -only-testing:OurinTests/ShioriLoaderTests test` を実行し、`** TEST SUCCEEDED **`。`nativeDylibFixtureRunsThroughEmbeddedXpcService()`、Native dylibのload/request/unload、SHIORI 2.x写像テストを確認した。
 
 ## ワイヤ応答
 

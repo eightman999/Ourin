@@ -1,6 +1,6 @@
 # Ourin 監査項目 — 未完 / Audit Items — TODO
 
-**最終更新 / Last Updated**: 2026-07-13
+**最終更新 / Last Updated**: 2026-07-15
 **集約元 / Consolidated from**: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY（各 ja-jp / en-us）
 **検証方法 / Verification**: 全項目を現状ソースコード（file:line）と照合して未完判定。完了済み項目は `AUDITS_COMPLETED.md` 参照。
 
@@ -173,6 +173,8 @@ The following items were raised in prior audit reports and remain **unresolved**
 | **P2** | SakuraScript 差分テスト / SERIKO 描画差分テスト / SHIORI 2.x 判断 |
 | **P2 (基盤完了)** | イベントReference表駆動化 — `EventReferenceTable` 新設・`notifyReturnIgnored` 単一ソース化済み。全発火箇所（216箇所）の表駆動移行は漸次対応。 |
 | **P3** | MAYUNA網羅 |
+
+2026-07-15 追記: P3のNative SHIORI embedded XPC実fixtureを別PIDで再試験し、`nativeDylibFixtureRunsThroughEmbeddedXpcService`を含む`ShioriLoaderTests`が成功。P3受け入れ条件は `docs/SHIORI_RUNTIME_COMPATIBILITY_MATRIX_ja-jp.md` に反映済み。
 
 2026-07-08 完了分（詳細は `docs/STUB_COMPLETION_PLAN_ja-jp.md`）: NAR同時インストール完全処理 / lexicon内蔵 / レガシー透過処理（バルーン左上ピクセル） / SecurityLevel伝播 / 210 Breakキューイング / SAORI `.plugin` 対応 / Plugin bridge Phase 7-9（menu統合・fixture・行列テスト） / 動画レンダラ / `\j[label]` / SHIORI ResourceのSSP互換永続化 / yaya_core 4関数（FREADENCODE/FWRITEDECODE/LSO/OUTPUTNUM）。
 
