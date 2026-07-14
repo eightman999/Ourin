@@ -6,6 +6,9 @@ import Darwin
     func load(_ bundlePath: String, withReply reply: @escaping (Bool, String?) -> Void)
     func execute(_ request: Data, withReply reply: @escaping (Data?, String?) -> Void)
     func unload(withReply reply: @escaping () -> Void)
+    func load(_ bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping (Bool, String?) -> Void)
+    func execute(_ request: Data, bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping (Data?, String?) -> Void)
+    func unload(_ bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping () -> Void)
     func execute(_ request: Data, bundlePath: String, withReply reply: @escaping (Data?, String?) -> Void)
 }
 
@@ -152,6 +155,11 @@ private final class ShioriSession: NSObject, OurinShioriXPC {
         }
     }
 
+    func load(_ bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping (Bool, String?) -> Void) {
+        // SHIORI/2.x変換はクライアント側adapterが担当する。サービスは接続単位のraw moduleを保持する。
+        load(bundlePath, withReply: reply)
+    }
+
     func execute(_ request: Data, withReply reply: @escaping (Data?, String?) -> Void) {
         runWithWatchdog {
             guard let module = self.module else { reply(nil, "SHIORI module is not loaded"); return }
@@ -166,6 +174,15 @@ private final class ShioriSession: NSObject, OurinShioriXPC {
             self.module = nil
             reply()
         }
+    }
+
+    func execute(_ request: Data, bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping (Data?, String?) -> Void) {
+        // XpcBackendは接続確立時に同じbundlePathをload済み。
+        execute(request, withReply: reply)
+    }
+
+    func unload(_ bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping () -> Void) {
+        unload(withReply: reply)
     }
 
     func execute(_ request: Data, bundlePath: String, withReply reply: @escaping (Data?, String?) -> Void) {

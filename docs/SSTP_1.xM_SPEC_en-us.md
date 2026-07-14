@@ -84,6 +84,12 @@
 - **Not applicable**: `HWnd` (DirectSSTP-specific) → macOS uses XPC, so it is **ignored**. `ReceiverGhostHWnd` likewise.
 - **SEND-specific**: `Option: notify` is implemented (equivalent to SSP 2.6.76 behavior).
 
+### 6.1 Owned SSTP
+- An `ID` is valid only when it exactly matches the SHIORI `uniqueid` notified to the target ghost or that ghost's FMO record ID.
+- With `ReceiverGhostName`, only IDs belonging to that ghost are matched. Without it, only the primary ghost is matched.
+- A valid Owned request reaches SHIORI as `SecurityLevel: local`. Unknown or target-mismatched IDs keep their original security context.
+- Requests from an external HTTP Origin are not promoted to Owned even when the ID matches.
+
 ## 7. Status Codes
 - **200 OK** (with return value) / **204 No Content** (no return value) / **210 Break** (executed but break) / **400** / **404** / **408** / **409** / **413** / **420** / **500** / **501** / **503** / **505** / **512** are all maintained.
 

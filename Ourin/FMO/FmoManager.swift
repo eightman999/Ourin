@@ -4,6 +4,8 @@ import Foundation
 
 /// FMO に書き込む1ゴースト分のレコード情報
 struct FmoGhostRecord {
+    /// FMOレコードの32文字一意ID。空の場合だけ旧呼び出し互換で配列indexを使用する。
+    var id: String = ""
     var name: String = ""
     var keroname: String = ""
     var path: String = ""
@@ -26,8 +28,31 @@ struct FmoGhostRecord {
     var ghostname: String = ""
     /// ゴーストのインストールパス
     var ghostpath: String = ""
-    /// モジュール状態（例: "running"）
-    var moduleState: String = "running"
+    /// UKADOC `modulestate` の値。
+    /// 例: `shiori:running,makoto-ghost:running,makoto-shell:running`
+    var moduleState: String = ""
+}
+
+/// UKADOC FMO `modulestate` を安定した順序で構築する。
+struct FmoModuleState: Equatable {
+    enum Health: String, Equatable {
+        case running
+        case critical
+    }
+
+    var shiori: Health?
+    var ghostMakoto: Health?
+    var shellMakoto: Health?
+    var compatible: Health?
+
+    var value: String {
+        [
+            shiori.map { "shiori:\($0.rawValue)" },
+            ghostMakoto.map { "makoto-ghost:\($0.rawValue)" },
+            shellMakoto.map { "makoto-shell:\($0.rawValue)" },
+            compatible.map { "compatible:\($0.rawValue)" }
+        ].compactMap { $0 }.joined(separator: ",")
+    }
 }
 
 /// SSP 互換 FMO テキストを構造化して読むためのビュー。
@@ -36,7 +61,7 @@ struct FmoGhostRecord {
 /// 外部連携やテストでは `FmoManager.buildSnapshot(records:)` が返す
 /// `id.key SOH value CRLF` の互換ビューを基準に扱う。
 struct FmoCompatibilityEntry: Equatable {
-    let id: Int
+    let id: String
     let fields: [String: String]
 
     subscript(key: String) -> String? {
@@ -51,26 +76,31 @@ struct FmoCompatibilityView: Equatable {
         entries.isEmpty
     }
 
-    func entry(id: Int) -> FmoCompatibilityEntry? {
+    func entry(id: String) -> FmoCompatibilityEntry? {
         entries.first { $0.id == id }
     }
 
-    func value(id: Int, key: String) -> String? {
+    func value(id: String, key: String) -> String? {
         entry(id: id)?[key]
     }
 
+    /// 旧テスト・呼び出しの段階移行用。
+    func entry(id: Int) -> FmoCompatibilityEntry? { entry(id: String(id)) }
+    func value(id: Int, key: String) -> String? { value(id: String(id), key: key) }
+
     static func parse(_ snapshot: String) -> FmoCompatibilityView {
-        var fieldsByID: [Int: [String: String]] = [:]
+        var fieldsByID: [String: [String: String]] = [:]
 
         for line in snapshot.components(separatedBy: "\r\n") where !line.isEmpty {
             let pair = line.split(separator: "\u{01}", maxSplits: 1, omittingEmptySubsequences: false)
             guard pair.count == 2 else { continue }
 
             let keyPart = String(pair[0])
-            guard let dot = keyPart.firstIndex(of: "."),
-                  let id = Int(keyPart[..<dot]) else {
+            guard let dot = keyPart.firstIndex(of: ".") else {
                 continue
             }
+            let id = String(keyPart[..<dot])
+            guard !id.isEmpty else { continue }
 
             let fieldStart = keyPart.index(after: dot)
             guard fieldStart < keyPart.endIndex else { continue }
@@ -156,7 +186,7 @@ final class FmoManager {
     static func buildSnapshot(records: [FmoGhostRecord]) -> String {
         var lines: [String] = []
         for (index, record) in records.enumerated() {
-            let id = String(index)
+            let id = validRecordID(record.id) ?? String(index)
             // 標準 SSP/UKADOC FMO キー
             lines.append("\(id).name\u{01}\(record.name)\r\n")
             lines.append("\(id).keroname\u{01}\(record.keroname)\r\n")
@@ -169,12 +199,22 @@ final class FmoManager {
             lines.append("\(id).hwnd\u{01}\(record.hwnd)\r\n")
             lines.append("\(id).kerohwnd\u{01}\(record.kerohwnd)\r\n")
             lines.append("\(id).hwndlist\u{01}\(record.hwndList)\r\n")
-            lines.append("\(id).module.state\u{01}\(record.moduleState)\r\n")
+            lines.append("\(id).modulestate\u{01}\(record.moduleState)\r\n")
             // Ourin 独自拡張キー（標準 SSP FMO には無い）
             lines.append("\(id).shell\u{01}\(record.shell)\r\n")
             lines.append("\(id).balloon\u{01}\(record.balloon)\r\n")
         }
         return lines.joined()
+    }
+
+    private static func validRecordID(_ value: String) -> String? {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty,
+              !trimmed.contains("."),
+              !trimmed.contains("\u{01}"),
+              !trimmed.contains("\r"),
+              !trimmed.contains("\n") else { return nil }
+        return trimmed
     }
 
     /// 互換テキストを構造化ビューとして返す。

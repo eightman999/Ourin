@@ -240,7 +240,7 @@ final class EventBridge {
         ghostName: String? = nil,
         notify: Bool = false,
         translationContext: ScriptTranslationContext = .baseware,
-        resolve: (String?) -> String?
+        resolve: @escaping (String?) -> String?
     ) -> Bool {
         var targets = sessions.values.compactMap { $0.ghostManager }
         if let name = ghostName?.lowercased(), !name.isEmpty {
@@ -266,6 +266,57 @@ final class EventBridge {
             }
         }
         return true
+    }
+
+    /// SSTP用: ゴーストごとに一度だけ翻訳し、その結果を再生と応答で共有する。
+    /// Receiver未指定時はAppDelegateの起動順に並べ、先頭（プライマリ）の翻訳結果を応答値とする。
+    func playTranslatedScriptOnGhostsResolving(
+        ghostName: String? = nil,
+        notify: Bool = false,
+        translationContext: ScriptTranslationContext = .baseware,
+        resolve: @escaping (String?) -> String?
+    ) -> String? {
+        let prepareAndPlay: () -> String? = {
+            var targets = self.sessions.values.compactMap { $0.ghostManager }
+            if let appDelegate = NSApp.delegate as? AppDelegate {
+                let order = Dictionary(uniqueKeysWithValues: appDelegate.allGhostManagers.enumerated().map {
+                    (ObjectIdentifier($0.element), $0.offset)
+                })
+                targets.sort {
+                    (order[ObjectIdentifier($0)] ?? Int.max) < (order[ObjectIdentifier($1)] ?? Int.max)
+                }
+            }
+            if let name = ghostName?.lowercased(), !name.isEmpty {
+                targets = targets.filter {
+                    ($0.ghostConfig?.name.lowercased() == name)
+                        || ($0.ghostConfig?.sakuraName.lowercased() == name)
+                        || ($0.ghostURL.lastPathComponent.lowercased() == name)
+                }
+            }
+
+            var jobs: [(GhostManager, String)] = []
+            for gm in targets {
+                guard let source = resolve(gm.ghostConfig?.name)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !source.isEmpty else { continue }
+                let translated = gm.translateForDisplay(source, context: translationContext)
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !translated.isEmpty else { continue }
+                jobs.append((gm, translated))
+            }
+            for (gm, translated) in jobs {
+                if notify {
+                    gm.runTranslatedNotifyScript(translated)
+                } else {
+                    gm.runTranslatedScript(translated)
+                }
+            }
+            return jobs.first?.1
+        }
+
+        if Thread.isMainThread {
+            return prepareAndPlay()
+        }
+        return DispatchQueue.main.sync(execute: prepareAndPlay)
     }
 
     /// Public helper to send a NOTIFY event by custom name (for \![raise,...])

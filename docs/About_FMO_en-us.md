@@ -23,7 +23,7 @@ id.key\x01value\r\n
 
 - `\x01` is ASCII SOH (Start of Heading, U+0001)
 - Line endings are CRLF (`\r\n`)
-- `id` is a zero-based ghost index
+- `id` is a unique 32-character identifier generated when the ghost starts (also accepted for Owned SSTP matching)
 
 ### Fields
 
@@ -40,27 +40,27 @@ id.key\x01value\r\n
 | `hwnd` | Ourin window identifier for sakura | `1001` |
 | `kerohwnd` | Ourin window identifier for kero | `1002` |
 | `hwndlist` | Comma-separated window identifiers for this ghost | `1001,1002` |
-| `module.state` | Ghost module state | `running` |
+| `modulestate` | Comma-separated module names and health states | `shiori:running,makoto-ghost:running` |
 | `shell` | Current shell name (Ourin extension) | `master` |
 | `balloon` | Current balloon name (Ourin extension) | `default` |
 
 ### Example Output
 
 ```
-0.name\x01Emily4\r\n
-0.keroname\x01Teddy\r\n
-0.fullname\x01Emily/Phase4\r\n
-0.ghostname\x01emily4\r\n
-0.path\x01/Users/user/Library/.../ghost/emily4\r\n
-0.ghostpath\x01/Users/user/Library/.../ghost/emily4\r\n
-0.sakura.surface\x010\r\n
-0.kero.surface\x0110\r\n
-0.hwnd\x011001\r\n
-0.kerohwnd\x011002\r\n
-0.hwndlist\x011001,1002\r\n
-0.module.state\x01running\r\n
-0.shell\x01master\r\n
-0.balloon\x01default\r\n
+0123456789abcdef0123456789abcdef.name\x01Emily4\r\n
+0123456789abcdef0123456789abcdef.keroname\x01Teddy\r\n
+0123456789abcdef0123456789abcdef.fullname\x01Emily/Phase4\r\n
+0123456789abcdef0123456789abcdef.ghostname\x01emily4\r\n
+0123456789abcdef0123456789abcdef.path\x01/Users/user/Library/.../ghost/emily4\r\n
+0123456789abcdef0123456789abcdef.ghostpath\x01/Users/user/Library/.../ghost/emily4\r\n
+0123456789abcdef0123456789abcdef.sakura.surface\x010\r\n
+0123456789abcdef0123456789abcdef.kero.surface\x0110\r\n
+0123456789abcdef0123456789abcdef.hwnd\x011001\r\n
+0123456789abcdef0123456789abcdef.kerohwnd\x011002\r\n
+0123456789abcdef0123456789abcdef.hwndlist\x011001,1002\r\n
+0123456789abcdef0123456789abcdef.modulestate\x01shiori:running,makoto-ghost:running\r\n
+0123456789abcdef0123456789abcdef.shell\x01master\r\n
+0123456789abcdef0123456789abcdef.balloon\x01default\r\n
 ```
 
 ## macOS-Specific Constraints and Differences from Windows
@@ -117,6 +117,7 @@ The FMO is updated at the following events:
 - Shell change (OnShellChanged)
 - Balloon change (OnBalloonChange)
 - Surface change (OnSurfaceChange)
+- Explicit SHIORI / MAKOTO load, unload, and reload
 
 ## Main Classes
 

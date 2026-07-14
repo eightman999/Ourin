@@ -10,23 +10,34 @@ public enum SSTPDispatcher {
     /// securityLocalOnly: 外部サーバ経路のローカル限定ポリシー。nil の場合は環境変数
     /// OURIN_SSTP_LOCAL_ONLY に従う（既定: 制限なし）。
     public static func dispatch(request: SSTPRequest, securityLocalOnly: Bool? = nil) -> String {
-        dispatch(request: request, securityLocalOnly: securityLocalOnly, shioriSecurityContext: nil)
+        dispatch(
+            request: request,
+            securityLocalOnly: securityLocalOnly,
+            shioriSecurityContext: nil,
+            transportAllowsOwned: true
+        )
     }
 
     /// 外部SSTP受信口からのリクエストを処理する。
     /// localhost 由来でも外部アプリ/他ゴースト経由なので、SHIORI へは external として渡す。
     static func dispatchExternal(request: SSTPRequest, securityLocalOnly: Bool? = nil, origin: String? = nil) -> String {
-        dispatch(
+        // loopback TCP/XPC（Originなし）とlocalhost OriginだけOwnedを許可する。
+        // 外部HTTP OriginはIDが一致してもSecurityLevelをlocalへ昇格させない。
+        let transportAllowsOwned = origin.map(isLocalOrigin)
+            ?? true
+        return dispatch(
             request: request,
             securityLocalOnly: securityLocalOnly,
-            shioriSecurityContext: ShioriSecurityContext.external(origin: origin)
+            shioriSecurityContext: ShioriSecurityContext.external(origin: origin),
+            transportAllowsOwned: transportAllowsOwned
         )
     }
 
     private static func dispatch(
         request: SSTPRequest,
         securityLocalOnly: Bool?,
-        shioriSecurityContext: ShioriSecurityContext?
+        shioriSecurityContext: ShioriSecurityContext?,
+        transportAllowsOwned: Bool
     ) -> String {
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         let charset = request.headerValue("Charset") ?? "UTF-8"
@@ -50,9 +61,19 @@ public enum SSTPDispatcher {
                 responseHeaders: collectPassThruHeaders(from: request.headers)
             )
         }
+        let isOwned = transportAllowsOwned && SSTPOwnershipRegistry.shared.matches(
+            id: request.headerValue("ID"),
+            receiverGhostName: request.receiverGhostName
+        )
+        let effectiveSecurityContext: ShioriSecurityContext = isOwned
+            ? .local
+            : (shioriSecurityContext ?? securityContextFromRequest(request))
         let localOnly = securityLocalOnly
             ?? (ProcessInfo.processInfo.environment["OURIN_SSTP_LOCAL_ONLY"] == "1")
-        if localOnly, resolveSecurityLevel(from: request.headers) == "external" {
+        // local-onlyはクライアントがexternalと申告した要求を拒否するポリシー。
+        // 外部受信口がSHIORIへ安全側のexternal文脈を付けること自体は拒否しない。
+        // 正当に照合できたOwned要求だけは仕様どおりlocalへ昇格して通す。
+        if localOnly, !isOwned, resolveSecurityLevel(from: request.headers) == "external" {
             EventBridge.shared.notify(.OnSSTPBlacklisting, refs: [
                 "ipAddress": request.headerValue("Sender") ?? "ExternalSSTP",
                 "securityOrigin": request.headerValue("SecurityOrigin") ?? "security_local_only"
@@ -71,17 +92,17 @@ public enum SSTPDispatcher {
         let methodName = effectiveNotify ? "NOTIFY" : request.method.uppercased()
         switch methodName {
         case "SEND":
-            return routeToShiori(request: request, method: .send, securityContext: shioriSecurityContext)
+            return routeToShiori(request: request, method: .send, securityContext: effectiveSecurityContext, isOwned: isOwned)
         case "NOTIFY":
-            return handleNotify(request, securityContext: shioriSecurityContext)
+            return handleNotify(request, securityContext: effectiveSecurityContext, isOwned: isOwned)
         case "COMMUNICATE":
-            return handleCommunicate(request, securityContext: shioriSecurityContext)
+            return handleCommunicate(request, securityContext: effectiveSecurityContext, isOwned: isOwned)
         case "EXECUTE":
-            return handleExecute(request, securityContext: shioriSecurityContext)
+            return handleExecute(request, securityContext: effectiveSecurityContext, isOwned: isOwned)
         case "GIVE":
-            return handleGive(request, securityContext: shioriSecurityContext)
+            return handleGive(request, securityContext: effectiveSecurityContext, isOwned: isOwned)
         case "INSTALL":
-            return handleInstall(request, securityContext: shioriSecurityContext)
+            return handleInstall(request, securityContext: effectiveSecurityContext, isOwned: isOwned)
         default:
             return buildResponse(
                 version: version,
@@ -106,7 +127,8 @@ public enum SSTPDispatcher {
     private static func routeToShiori(
         request: SSTPRequest,
         method: DispatchMethod,
-        securityContext: ShioriSecurityContext?
+        securityContext: ShioriSecurityContext,
+        isOwned: Bool
     ) -> String {
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         let charset = request.headerValue("Charset") ?? "UTF-8"
@@ -168,14 +190,20 @@ public enum SSTPDispatcher {
         // Event 無しの SEND は SHIORI を介さず Script ヘッダを直接バルーン再生する（SSTP の基本動作）。
         // IfGhost がある場合は UKADOC の振り分けルールに従う。
         if method == .send, (request.headerValue("Event") ?? "").isEmpty {
-            if !options.contains(.nodescript) {
-                _ = playScriptOnGhosts(request: request, shioriScript: nil)
-            }
             let script = resolveScript(
                 forGhost: request.receiverGhostName ?? currentGhostName(),
                 request: request,
                 shioriScript: nil
             )
+            var responseScript = script
+            if !options.contains(.nodescript) {
+                responseScript = playScriptOnGhosts(
+                    request: request,
+                    shioriScript: nil,
+                    securityContext: securityContext,
+                    isOwned: isOwned
+                ) ?? script
+            }
             var responseHeaders = collectPassThruHeaders(from: request.headers)
             if let entryHeader = SstpSessionStore.shared.allEntriesHeaderValue() {
                 responseHeaders["Entry"] = entryHeader
@@ -184,7 +212,7 @@ public enum SSTPDispatcher {
                 version: version,
                 status: 200,
                 charset: charset,
-                script: script,
+                script: responseScript,
                 data: nil,
                 responseHeaders: responseHeaders
             )
@@ -202,7 +230,13 @@ public enum SSTPDispatcher {
             ShioriStatusStore.shared.update(status: status)
         }
 
-        let raw = BridgeToSHIORI.handle(event: event, references: refs, headers: shioriHeaders)
+        let shioriMethod = method == .notify ? "NOTIFY" : "GET"
+        let raw = BridgeToSHIORI.handleResponse(
+            event: event,
+            references: refs,
+            headers: shioriHeaders,
+            method: shioriMethod
+        )
         if raw.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, method != .notify {
             return buildResponse(
                 version: version,
@@ -257,26 +291,31 @@ public enum SSTPDispatcher {
             request: request,
             shioriScript: scriptForSstp
         )
+        var responseScript = finalScript
         if !suppressBalloon {
             if method == .notify {
                 // NOTIFY 由来の ValueNotify スクリプトは通知系再生（runNotifyScript）でバルーンに適用する。
                 // 可視テキストを含まない場合は現バルーンを保持してコマンドのみ適用（UKADOC ValueNotify サブセット）。
                 if let script = scriptForSstp,
                    !script.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    playScriptOnGhosts(
+                    responseScript = playScriptOnGhosts(
                         request: request,
                         shioriScript: script,
                         notify: true,
-                        scriptOptions: scriptOptionTokens
-                    )
+                        scriptOptions: scriptOptionTokens,
+                        securityContext: securityContext,
+                        isOwned: isOwned
+                    ) ?? finalScript
                 }
             } else {
-                playScriptOnGhosts(
+                responseScript = playScriptOnGhosts(
                     request: request,
                     shioriScript: scriptForSstp,
                     notify: false,
-                    scriptOptions: scriptOptionTokens
-                )
+                    scriptOptions: scriptOptionTokens,
+                    securityContext: securityContext,
+                    isOwned: isOwned
+                ) ?? finalScript
             }
         }
 
@@ -335,21 +374,21 @@ public enum SSTPDispatcher {
             version: version,
             status: status,
             charset: charset,
-            script: finalScript,
+            script: responseScript,
             data: data,
             responseHeaders: responseHeaders
         )
     }
 
-    private static func handleNotify(_ request: SSTPRequest, securityContext: ShioriSecurityContext?) -> String {
-        routeToShiori(request: request, method: .notify, securityContext: securityContext)
+    private static func handleNotify(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool) -> String {
+        routeToShiori(request: request, method: .notify, securityContext: securityContext, isOwned: isOwned)
     }
 
-    private static func handleCommunicate(_ request: SSTPRequest, securityContext: ShioriSecurityContext?) -> String {
-        routeToShiori(request: request, method: .communicate, securityContext: securityContext)
+    private static func handleCommunicate(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool) -> String {
+        routeToShiori(request: request, method: .communicate, securityContext: securityContext, isOwned: isOwned)
     }
 
-    private static func handleExecute(_ request: SSTPRequest, securityContext: ShioriSecurityContext?) -> String {
+    private static func handleExecute(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool) -> String {
         let charset = request.headerValue("Charset") ?? "UTF-8"
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         guard let command = request.headerValue("Command"), !command.isEmpty else {
@@ -425,7 +464,7 @@ public enum SSTPDispatcher {
                 responseHeaders: responseHeaders
             )
         }
-        return routeToShiori(request: request, method: .execute, securityContext: securityContext)
+        return routeToShiori(request: request, method: .execute, securityContext: securityContext, isOwned: isOwned)
     }
 
     private static func handleExtendedExecuteCommand(
@@ -606,12 +645,12 @@ public enum SSTPDispatcher {
         return values.joined(separator: ",")
     }
 
-    private static func handleGive(_ request: SSTPRequest, securityContext: ShioriSecurityContext?) -> String {
-        routeToShiori(request: request, method: .give, securityContext: securityContext)
+    private static func handleGive(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool) -> String {
+        routeToShiori(request: request, method: .give, securityContext: securityContext, isOwned: isOwned)
     }
 
-    private static func handleInstall(_ request: SSTPRequest, securityContext: ShioriSecurityContext?) -> String {
-        routeToShiori(request: request, method: .install, securityContext: securityContext)
+    private static func handleInstall(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool) -> String {
+        routeToShiori(request: request, method: .install, securityContext: securityContext, isOwned: isOwned)
     }
 
     private static func resolveEvent(request: SSTPRequest, method: DispatchMethod) -> String {
@@ -634,13 +673,11 @@ public enum SSTPDispatcher {
         }
     }
 
-    private static func extractReferences(from request: SSTPRequest) -> [String] {
-        var refs: [String] = []
+    private static func referenceMap(from request: SSTPRequest) -> [Int: String] {
+        var source: [Int: String] = [:]
         for i in 0..<32 {
             if let ref = request.headerValue("Reference\(i)") {
-                refs.append(ref)
-            } else {
-                break
+                source[i] = ref
             }
         }
         if request.method.uppercased() == "COMMUNICATE" {
@@ -648,17 +685,52 @@ public enum SSTPDispatcher {
             //   Reference0 = 送信元ゴースト名 (Sender ヘッダ)
             //   Reference1 = 発言内容 (Sentence ヘッダ)
             //   Reference2+ = SSTP の ReferenceN（Reference0,1,... を 2 つシフト）
-            let sentence = request.headerValue("Sentence") ?? ""
-            let senderName = request.headerValue("Sender") ?? ""
-            refs.insert(sentence, at: 0)
-            refs.insert(senderName, at: 0)
+            var shifted: [Int: String] = [
+                0: request.headerValue("Sender") ?? "",
+                1: request.headerValue("Sentence") ?? ""
+            ]
+            for (index, value) in source {
+                shifted[index + 2] = value
+            }
+            return shifted
         }
         if request.method.uppercased() == "EXECUTE",
            let command = request.headerValue("Command"),
            !command.isEmpty {
-            refs.insert(command, at: 0)
+            var shifted: [Int: String] = [0: command]
+            for (index, value) in source {
+                shifted[index + 1] = value
+            }
+            return shifted
+        }
+        return source
+    }
+
+    /// 既存runtime配列APIへ渡せる連続prefixだけを返す。
+    /// 欠番以降は`buildShioriHeaders`の疎Referenceとして保持する。
+    private static func extractReferences(from request: SSTPRequest) -> [String] {
+        let map = referenceMap(from: request)
+        var refs: [String] = []
+        while let value = map[refs.count] {
+            refs.append(value)
         }
         return refs
+    }
+
+    /// OnTranslate Reference3用。欠番は空要素として位置を保持する。
+    private static func referencesPreservingGaps(from request: SSTPRequest) -> [String] {
+        let map = referenceMap(from: request)
+        guard let highest = map.keys.max() else { return [] }
+        return (0...highest).map { map[$0] ?? "" }
+    }
+
+    private static func addSparseReferenceHeaders(from request: SSTPRequest, to headers: inout [String: String]) {
+        let map = referenceMap(from: request)
+        var prefixCount = 0
+        while map[prefixCount] != nil { prefixCount += 1 }
+        for index in map.keys.sorted() where index >= prefixCount {
+            headers["Reference\(index)"] = map[index]
+        }
     }
 
     private static func buildShioriHeaders(
@@ -706,6 +778,7 @@ public enum SSTPDispatcher {
             headers["HWnd"] = String(hWnd)
         }
         headers.merge(collectPassThruHeaders(from: request.headers)) { lhs, _ in lhs }
+        addSparseReferenceHeaders(from: request, to: &headers)
         return headers
     }
 
@@ -902,19 +975,20 @@ public enum SSTPDispatcher {
         request: SSTPRequest,
         shioriScript: String?,
         notify: Bool = false,
-        scriptOptions: Set<String> = []
-    ) -> Bool {
+        scriptOptions: Set<String> = [],
+        securityContext: ShioriSecurityContext,
+        isOwned: Bool
+    ) -> String? {
         var reasons: Set<String> = []
         switch request.method.uppercased() {
         case "SEND": reasons.insert("sstp-send")
         case "COMMUNICATE": reasons.insert("communicate")
         default: break
         }
-        let security = securityContextFromRequest(request)
-        if security.level == "external" {
+        if securityContext.level == "external" {
             reasons.insert("remote")
         }
-        if let id = request.headerValue("ID"), !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if isOwned {
             reasons.insert("owned")
         }
         if request.options.contains(.notranslate) || scriptOptions.contains("notranslate") {
@@ -923,13 +997,13 @@ public enum SSTPDispatcher {
         let context = ScriptTranslationContext(
             reasons: reasons,
             eventID: request.headerValue("Event"),
-            references: extractReferences(from: request),
+            references: referencesPreservingGaps(from: request),
             isSSTP: true,
             sender: request.headerValue("Sender") ?? "Ourin",
-            securityLevel: security.level,
-            securityOrigin: security.origin
+            securityLevel: securityContext.level,
+            securityOrigin: securityContext.origin
         )
-        return EventBridge.shared.playScriptOnGhostsResolving(
+        return EventBridge.shared.playTranslatedScriptOnGhostsResolving(
             ghostName: request.receiverGhostName,
             notify: notify,
             translationContext: context

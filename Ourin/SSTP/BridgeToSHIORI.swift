@@ -135,6 +135,11 @@ public enum BridgeToSHIORI {
     /// 保持できるよう、値だけでなく応答ヘッダを含む応答全体を返す。
     public static func handleResponse(event: String, references: [String], headers: [String: String] = [:], method: String = "GET") -> String {
         if let registered = registeredResourceValue(event: event, references: references) {
+            // テスト／明示登録値が既に完全なSHIORI応答なら二重包装しない。
+            // `Value: SHIORI/3.0 ...` にするとStatusやReferenceN等の応答ヘッダを失う。
+            if registered.uppercased().hasPrefix("SHIORI/") {
+                return registered
+            }
             return synthesizeWire(value: registered)
         }
         if let nativeWire = host?.request(event: event, references: references, headers: headers, method: method) {

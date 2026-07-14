@@ -105,7 +105,7 @@ struct FmoTests {
     @Test func compatibilityViewIgnoresMalformedLinesAndSortsByID() throws {
         let snapshot = [
             "2.name\u{01}Third",
-            "not-an-id.name\u{01}Broken",
+            ".name\u{01}Broken",
             "1.name\u{01}Second",
             "0.\u{01}NoField",
             "missing-separator",
@@ -114,7 +114,7 @@ struct FmoTests {
 
         let view = FmoCompatibilityView.parse(snapshot)
 
-        #expect(view.entries.map(\.id) == [0, 1, 2])
+        #expect(view.entries.map(\.id) == ["0", "1", "2"])
         #expect(view.value(id: 0, key: "name") == "First")
         #expect(view.value(id: 1, key: "name") == "Second")
         #expect(view.value(id: 2, key: "name") == "Third")
@@ -136,7 +136,8 @@ struct FmoTests {
         #expect(snapshot.contains("0.hwnd\u{01}42\r\n"))
         #expect(snapshot.contains("0.kerohwnd\u{01}43\r\n"))
         #expect(snapshot.contains("0.hwndlist\u{01}42,43\r\n"))
-        #expect(snapshot.contains("0.module.state\u{01}running\r\n"))
+        #expect(snapshot.contains("0.modulestate\u{01}\r\n"))
+        #expect(!snapshot.contains("module.state"))
     }
 
     @Test func recordFieldOrder() {
@@ -156,8 +157,38 @@ struct FmoTests {
         #expect(lines[8].hasPrefix("0.hwnd\u{01}"))
         #expect(lines[9].hasPrefix("0.kerohwnd\u{01}"))
         #expect(lines[10].hasPrefix("0.hwndlist\u{01}"))
-        #expect(lines[11].hasPrefix("0.module.state\u{01}"))
+        #expect(lines[11].hasPrefix("0.modulestate\u{01}"))
         #expect(lines[12].hasPrefix("0.shell\u{01}"))
         #expect(lines[13].hasPrefix("0.balloon\u{01}"))
+    }
+
+    @Test func uniqueRecordIDPrefixesEveryLine() throws {
+        let id = "0123456789abcdef0123456789abcdef"
+        var record = FmoGhostRecord(name: "Owned", keroname: "", path: "/owned")
+        record.id = id
+        record.moduleState = FmoModuleState(
+            shiori: .running,
+            ghostMakoto: .running,
+            shellMakoto: nil,
+            compatible: nil
+        ).value
+
+        let snapshot = FmoManager.buildSnapshot(records: [record])
+        let lines = snapshot.components(separatedBy: "\r\n").filter { !$0.isEmpty }
+        #expect(lines.allSatisfy { $0.hasPrefix("\(id).") })
+        #expect(snapshot.contains("\(id).modulestate\u{01}shiori:running,makoto-ghost:running\r\n"))
+
+        let entry = try #require(FmoCompatibilityView.parse(snapshot).entry(id: id))
+        #expect(entry["modulestate"] == "shiori:running,makoto-ghost:running")
+    }
+
+    @Test func moduleStateUsesUkadocNamesAndHealthValues() {
+        let state = FmoModuleState(
+            shiori: .critical,
+            ghostMakoto: .running,
+            shellMakoto: .critical,
+            compatible: nil
+        )
+        #expect(state.value == "shiori:critical,makoto-ghost:running,makoto-shell:critical")
     }
 }

@@ -1539,6 +1539,7 @@ extension GhostManager {
         let lowered = target.lowercased()
         if lowered == "makoto" {
             unloadMakotoTranslators()
+            NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         } else if lowered == "shiori" {
             shioriRuntime?.unload()
             shioriRuntime = nil
@@ -1548,6 +1549,7 @@ extension GhostManager {
                 eventToken = nil
             }
             EventBridge.shared.notifyCustom("OnShioriUnloaded", refs: ["name": lowered])
+            NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         }
     }
 
@@ -1575,6 +1577,7 @@ extension GhostManager {
             "OnShioriLoaded",
             refs: ["name": moduleName, "kind": runtime.kind.rawValue]
         )
+        NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
     }
 
     func decodeScalarLiteral(_ raw: String?) -> UnicodeScalar? {

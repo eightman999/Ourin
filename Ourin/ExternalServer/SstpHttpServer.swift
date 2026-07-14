@@ -29,7 +29,7 @@ public final class SstpHttpServer {
     // 仕様(SSTP/1.xM)では HTTP も SSTP と同じ 9801 を多重化して使う。
     // 単体起動時の既定も 9801 に揃える（通常は UnifiedSstpListener 経由で adopt される）。
     public func start(host: String = "127.0.0.1", port: UInt16 = 9801) throws {
-        listener = try NWListener(using: .tcp, on: NWEndpoint.Port(rawValue: port)!)
+        listener = try SstpTcpServer.makeListener(host: host, port: port)
         listener?.newConnectionHandler = { [weak self] conn in
             guard let self else { return }
             conn.start(queue: .global())

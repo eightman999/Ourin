@@ -574,6 +574,108 @@ struct ShioriLoaderTests {
     }
 
     @Test
+    func nativeDylibFixturePerformsRealLoadRequestUnload() throws {
+        let source = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent()
+            .appendingPathComponent("Fixtures/shiori/native_fixture.c")
+        let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("ourin-native-shiori-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+        let dylib = tempDir.appendingPathComponent("native_fixture.dylib")
+
+        let compiler = Process()
+        compiler.executableURL = URL(fileURLWithPath: "/usr/bin/clang")
+        compiler.arguments = ["-dynamiclib", source.path, "-o", dylib.path]
+        try compiler.run()
+        compiler.waitUntilExit()
+        #expect(compiler.terminationStatus == 0)
+
+        let loader = try #require(ShioriLoader(
+            moduleURL: dylib,
+            xpcServiceName: nil,
+            shiori2Compatibility: false
+        ))
+        let response = try #require(loader.request(
+            "GET SHIORI/3.0\r\nCharset: UTF-8\r\nSender: Test\r\nID: Ping\r\n\r\n"
+        ))
+        #expect(response.contains("200 OK"))
+        #expect(response.contains("Reference2: native-fixture"))
+        #expect(response.contains("Value: \\h\\s0native-fixture\\e"))
+
+        loader.unload()
+        #expect(FileManager.default.fileExists(atPath: tempDir.appendingPathComponent("native_unloaded.marker").path))
+    }
+
+    @Test
+    func nativeDylibFixtureRunsThroughEmbeddedXpcService() throws {
+        let source = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent()
+            .appendingPathComponent("Fixtures/shiori/native_fixture.c")
+        let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("ourin-native-shiori-xpc-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+        let dylib = tempDir.appendingPathComponent("native_fixture.dylib")
+
+        let compiler = Process()
+        compiler.executableURL = URL(fileURLWithPath: "/usr/bin/clang")
+        compiler.arguments = ["-dynamiclib", source.path, "-o", dylib.path]
+        try compiler.run()
+        compiler.waitUntilExit()
+        #expect(compiler.terminationStatus == 0)
+
+        let loader = try #require(ShioriLoader(
+            moduleURL: dylib,
+            xpcServiceName: "jp.ourin.shiori",
+            shiori2Compatibility: false
+        ))
+        let response = try #require(loader.request(
+            "GET SHIORI/3.0\r\nCharset: UTF-8\r\nSender: Test\r\nID: Ping\r\n\r\n"
+        ))
+        #expect(response.contains("Reference2: native-fixture"))
+
+        let pidMarker = tempDir.appendingPathComponent("native_loaded_pid.marker")
+        let pidText = try String(contentsOf: pidMarker, encoding: .utf8)
+        let servicePID = try #require(Int(pidText))
+        #expect(servicePID != ProcessInfo.processInfo.processIdentifier)
+
+        loader.unload()
+        #expect(FileManager.default.fileExists(atPath: tempDir.appendingPathComponent("native_unloaded.marker").path))
+    }
+
+    @Test
+    func nativeShiori2FixtureMapsLegacySentenceToShiori3Value() throws {
+        let source = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent()
+            .appendingPathComponent("Fixtures/shiori/native_fixture.c")
+        let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("ourin-shiori2-fixture-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+        let dylib = tempDir.appendingPathComponent("legacy_fixture.dylib")
+
+        let compiler = Process()
+        compiler.executableURL = URL(fileURLWithPath: "/usr/bin/clang")
+        compiler.arguments = ["-dynamiclib", source.path, "-o", dylib.path]
+        try compiler.run()
+        compiler.waitUntilExit()
+        #expect(compiler.terminationStatus == 0)
+
+        let loader = try #require(ShioriLoader(
+            moduleURL: dylib,
+            xpcServiceName: nil,
+            shiori2Compatibility: true
+        ))
+        let response = try #require(loader.request(
+            "GET SHIORI/3.0\r\nCharset: UTF-8\r\nSender: Test\r\nID: OnBoot\r\nReference0: boot\r\n\r\n"
+        ))
+        #expect(response.hasPrefix("SHIORI/3.0 200 OK\r\n"))
+        #expect(response.contains("Value: \\h\\s0legacy-fixture\\e"))
+        loader.unload()
+    }
+
+    @Test
     func xpcFailureDoesNotFallbackToInProcess() throws {
         let fixtureBase = URL(fileURLWithPath: #file)
             .deletingLastPathComponent()

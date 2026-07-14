@@ -14,9 +14,7 @@ public final class SSTPListener {
 
     /// localhost で待ち受けを開始
     public func start() throws {
-        let params = NWParameters.tcp
-        params.allowLocalEndpointReuse = true
-        listener = try NWListener(using: params, on: port)
+        listener = try SstpTcpServer.makeListener(host: "127.0.0.1", port: port.rawValue)
         listener?.newConnectionHandler = { [weak self] conn in
             self?.handle(conn)
         }

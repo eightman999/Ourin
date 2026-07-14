@@ -26,7 +26,7 @@ id.key\x01value\r\n
 
 - `\x01` は ASCII SOH（Start of Heading, U+0001）
 - 改行は CRLF（`\r\n`）
-- `id` は 0 から始まるゴーストのインデックス番号
+- `id` はゴースト起動時に生成する32文字の一意ID（Owned SSTPでも照合可能）
 
 ### フィールド一覧
 
@@ -43,27 +43,27 @@ id.key\x01value\r\n
 | `hwnd` | sakura 側の Ourin ウィンドウ識別子 | `1001` |
 | `kerohwnd` | kero 側の Ourin ウィンドウ識別子 | `1002` |
 | `hwndlist` | このゴーストに属するウィンドウ識別子の一覧 | `1001,1002` |
-| `module.state` | ゴーストモジュール状態 | `running` |
+| `modulestate` | モジュール名と状態の一覧 | `shiori:running,makoto-ghost:running` |
 | `shell` | 現在のシェル名（Ourin 拡張） | `master` |
 | `balloon` | 現在のバルーン名（Ourin 拡張） | `default` |
 
 ### 出力例
 
 ```
-0.name\x01Emily4\r\n
-0.keroname\x01Teddy\r\n
-0.fullname\x01Emily/Phase4\r\n
-0.ghostname\x01emily4\r\n
-0.path\x01/Users/user/Library/.../ghost/emily4\r\n
-0.ghostpath\x01/Users/user/Library/.../ghost/emily4\r\n
-0.sakura.surface\x010\r\n
-0.kero.surface\x0110\r\n
-0.hwnd\x011001\r\n
-0.kerohwnd\x011002\r\n
-0.hwndlist\x011001,1002\r\n
-0.module.state\x01running\r\n
-0.shell\x01master\r\n
-0.balloon\x01default\r\n
+0123456789abcdef0123456789abcdef.name\x01Emily4\r\n
+0123456789abcdef0123456789abcdef.keroname\x01Teddy\r\n
+0123456789abcdef0123456789abcdef.fullname\x01Emily/Phase4\r\n
+0123456789abcdef0123456789abcdef.ghostname\x01emily4\r\n
+0123456789abcdef0123456789abcdef.path\x01/Users/user/Library/.../ghost/emily4\r\n
+0123456789abcdef0123456789abcdef.ghostpath\x01/Users/user/Library/.../ghost/emily4\r\n
+0123456789abcdef0123456789abcdef.sakura.surface\x010\r\n
+0123456789abcdef0123456789abcdef.kero.surface\x0110\r\n
+0123456789abcdef0123456789abcdef.hwnd\x011001\r\n
+0123456789abcdef0123456789abcdef.kerohwnd\x011002\r\n
+0123456789abcdef0123456789abcdef.hwndlist\x011001,1002\r\n
+0123456789abcdef0123456789abcdef.modulestate\x01shiori:running,makoto-ghost:running\r\n
+0123456789abcdef0123456789abcdef.shell\x01master\r\n
+0123456789abcdef0123456789abcdef.balloon\x01default\r\n
 ```
 
 ## macOS 独自制約と Windows との差異
@@ -129,6 +129,7 @@ FMO は以下のタイミングで更新されます:
 - シェル変更時（OnShellChanged）
 - バルーン変更時（OnBalloonChange）
 - サーフェス変更時（OnSurfaceChange）
+- SHIORI / MAKOTO の明示 load・unload・reload 時
 
 ## 主要クラス
 

@@ -22,10 +22,9 @@
 - [x] **1-2. `\j[label]` スクリプト内ラベルジャンプ** — 2026-07-08 実装済み（codex）
   - `SakuraScriptEngine.swift` のparse後にラベル解決を追加。`\j[ID]` のうちURL/file/mailto・`On...`イベント以外を `\_a[ID]...\_a` 位置へ解決（仕様: SAKURASCRIPT_FULL 1980-1984, 1153-1165行）。テスト3件追加、SakuraScriptEngineTestsスイート全パス確認済み。
   - 未対応: `\_a[ID]` 以外のラベル定義構文はdocsに存在せず対象外。
-- [ ] **1-3. SHIORI 2.x互換の正式実装** — 難易度: 大 — **2026-07-08 ユーザー決定: 互換性あり（正式実装する）**
-  - 現状: `Ourin/USL/ShioriLoader.swift:457,466-470` はバージョン文字列付替とTEACH→312のみ。`GET Sentence`/`GET Word` 解析は存在しない。
-  - 手順: (1) 2.xワイヤ仕様書を一次情報から起こして docs/ に保存 → (2) 3.0イベント→2.xリクエスト変換と2.xレスポンス解析を ShioriLoader に実装 → (3) モック2.xバックエンドでのユニットテスト。
-  - 完了条件: 2.x応答（`SHIORI/2.x 200 OK` + `Sentence:` 等）が3.0相当に変換されてゴースト応答として機能するテストが通ること。
+- [x] **1-3. SHIORI 2.x互換の正式実装** — 難易度: 大 — **2026-07-08 ユーザー決定: 互換性あり（正式実装する）→ 同日中にコア部分実装完了、2026-07-09 監査でスコープ再確認**
+  - 実装済み: `Ourin/USL/Shiori2CompatAdapter.swift`（455行、新規）が `Shiori2CompatBackend` として `GET Version` バックエンド版数検出／3.0イベント→`GET Sentence SHIORI/2.2`+`Event:`+`Reference0-7`変換／2.xレスポンス（Sentence/BalloonOffset等）→3.0 `Value:`変換／`TEACH`→2.4/311/312往復／Shift_JISエンコードを実装。`ShioriLoader.swift:846,853,855` でXPC/Bundle/Dylib全バックエンド生成経路にラップ配線済み。`OurinTests/ShioriLoaderTests.swift:54-253`（7テスト）で完了条件（2.x応答→3.0相当変換がゴースト応答として機能）を満たすことを確認。
+  - **未対応（新規TODO、`docs/AUDITS_TODO.md` A節に追記）**: `buildWordRequest`/`buildStringRequest`/`buildStatusRequest`/`buildOwnerGhostNameRequest`/`buildOtherGhostNameRequest`/`buildCommunicateRequest`（`Shiori2CompatAdapter.swift:339-422`）は単体テスト無し・呼び出し元未確認。`buildUserSentenceRequest`（`:339-348`）は `ID: OnTalk` 判定だが実イベントIDは `OnTalkRequest`（`EventID.swift:361`）のみで到達不能（`docs/SHIORI_2X_COMPAT_SPEC_ja-jp.md`も「要検証事項4」と明記）。旧 `ShioriLoader.swift:433-498`（`YayaBackend.parseRequest/buildResponse`）は別方向（Ourin自身が2.xサーバとして受ける側）の実装で新アダプタと未統合のまま並存（二重実装リスク）。
 
 ## Phase 2: 表示・UX系の機能欠落（P1）
 
@@ -41,6 +40,7 @@
 - [x] **2-4. 動画レンダラ（`playVideo`）** — 2026-07-08 実装済み（deep-reasoner設計→codex実装、設計書: docs/VIDEO_RENDERER_DESIGN_ja-jp.md）
   - `VideoPlayerWindow.swift` 新規（AVPlayerView別窓方式）、`\![sound,play,<動画>]` ディスパッチ配線、stop/pause/resume/wait対応、ゴースト終了時クリーンアップ、テスト5件（直列化済み）。
   - 未対応: `--balance` の実適用（パースのみ）、`sound,load` プリロード（ログのみ）。**実機での動画再生・目視確認は未実施（検証待ち）。**
+  - **新規TODO（2026-07-09監査で判明、`docs/AUDITS_TODO.md` J節に追記）**: `videoFileSupport`（`GhostManager+Display.swift:145-155`）が `.unsupported` 判定する `avi/wmv/mpg/mpeg/mpe/mpv/mkv/webm/flv` は、`playVideo`（同ファイル307-320行）が `OnVideoPlayEx` を発火してログ出力するだけで実際の再生もエラー通知も行わないサイレント失敗。意図的非対応か未着手か要確認。
 
 ## Phase 3: プラグイン・周辺システム（P1〜P2）
 

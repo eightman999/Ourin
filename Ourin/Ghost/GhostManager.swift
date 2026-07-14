@@ -160,6 +160,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // MARK: - Properties
 
     let ghostURL: URL
+    /// SHIORIへ`uniqueid`として通知し、Owned SSTPの照合に使うセッション固有ID。
+    let sstpUniqueID = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
+    /// FMO全行の接頭辞に使う、ゴースト単位のセッション固有ID。
+    let fmoID = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
     /// 現在ロード中のSHIORIランタイム。YAYAは後方互換用の yayaAdapter からも参照できる。
     var shioriRuntime: GhostShioriRuntime?
     var yayaAdapter: YayaAdapter?
@@ -997,6 +1001,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 }
             }
         }
+        NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
     }
 
     func unloadMakotoTranslators() {
@@ -1053,9 +1058,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func runScript(_ script: String, translationContext: ScriptTranslationContext = .baseware) {
         let preview = script.prefix(200)
         Log.debug("[GhostManager] runScript called with: \(preview)")
-        // Avoid clearing the balloon when script is effectively empty (whitespace only)
-        let trimmed = translateForDisplay(script, context: translationContext)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let translated = translateForDisplay(script, context: translationContext)
+        runTranslatedScript(translated)
+    }
+
+    /// 既にOnTranslate/MAKOTOを通過したスクリプトを再生する。
+    /// SSTP応答と実再生で同じ翻訳結果を共有し、二重翻訳を避けるための内部境界。
+    func runTranslatedScript(_ script: String) {
+        let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         beginPluginTalkNotification(script: trimmed, reasons: ["owned"])
 
@@ -1082,8 +1092,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// Run a script originating from NOTIFY. If the script contains no visible text
     /// tokens, keep the current balloon text and apply only commands (surface/scope/etc.).
     func runNotifyScript(_ script: String, translationContext: ScriptTranslationContext = .baseware) {
-        let trimmed = translateForDisplay(script, context: translationContext)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let translated = translateForDisplay(script, context: translationContext)
+        runTranslatedNotifyScript(translated)
+    }
+
+    /// 既に翻訳済みのNOTIFY由来スクリプトを、再翻訳せず適用する。
+    func runTranslatedNotifyScript(_ script: String) {
+        let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
         let hasText = sakuraEngine.containsTextInPreprocessedScript(trimmed)
@@ -3022,10 +3037,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             "Reference1": hwndRef1
         ], ignoreResponseScript: true)
 
-        // uniqueid
-        let uniqueID = ghostURL.lastPathComponent
+        // uniqueid: Owned SSTPの照合に使用するため、推測可能なフォルダ名ではなく
+        // 起動セッション固有のIDを通知する。
         bridge.notifyCustom("uniqueid", params: [
-            "Reference0": uniqueID
+            "Reference0": sstpUniqueID
         ], ignoreResponseScript: true)
 
         // basewareversion

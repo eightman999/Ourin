@@ -42,7 +42,7 @@ public final class UnifiedSstpListener {
         tcp.onRequest = forward
         http.onRequest = forward
 
-        listener = try NWListener(using: .tcp, on: NWEndpoint.Port(rawValue: port)!)
+        listener = try SstpTcpServer.makeListener(host: host, port: port)
         listener?.newConnectionHandler = { [weak self] conn in
             guard let self else { return }
             conn.start(queue: .global())

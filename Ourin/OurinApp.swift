@@ -340,6 +340,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         terminateAllAdditionalGhosts()
         ghostManager?.shutdown()
         shioriRuntimeCache.removeAll()
+        SSTPOwnershipRegistry.shared.removeAll()
         // 念のため残留プロセスを掃除
         ProcessKiller.killOtherOurinAndYaya()
     }
@@ -503,11 +504,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     /// 起動中の全ゴースト（プライマリ＋追加）から FmoGhostRecord を収集する。
-    /// 複数ゴースト同時実行時は各ゴーストが 1 レコードを占める（FMO ID は出力側で連番付与）。
+    /// 複数ゴースト同時実行時は各ゴーストが固有FMO IDを持つ1レコードを占める。
     func collectFmoRecords() -> [FmoGhostRecord] {
-        allGhostManagers.compactMap { gm in
-            guard let config = gm.ghostConfig else { return nil }
+        var records: [FmoGhostRecord] = []
+        var ownershipEntries: [SSTPOwnershipRegistry.Entry] = []
+        for gm in allGhostManagers {
+            guard let config = gm.ghostConfig else { continue }
             var record = FmoGhostRecord()
+            record.id = gm.fmoID
             record.name = config.sakuraName
             record.keroname = config.keroName ?? ""
             record.path = gm.ghostURL.path
@@ -520,7 +524,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             record.fullname = config.name
             record.ghostname = config.name
             record.ghostpath = gm.ghostURL.path
-            record.moduleState = "running"
+            var moduleState = FmoModuleState()
+            moduleState.shiori = gm.shioriRuntime?.isLoaded == true ? .running : .critical
+            if gm.ghostMakotoTranslator != nil {
+                moduleState.ghostMakoto = .running
+            }
+            if gm.shellMakotoTranslator != nil {
+                moduleState.shellMakoto = .running
+            }
+            record.moduleState = moduleState.value
 
             // ウィンドウ識別子: 実ウィンドウ番号（NSWindow.windowNumber, 安定・一意・非ゼロ）を優先。
             // ウィンドウが未生成・未表示で番号が取れない場合はゴーストパス由来の安定ハッシュで代替する。
@@ -551,8 +563,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 record.hwndList = "\(record.hwnd),\(record.kerohwnd)"
             }
 
-            return record
+            records.append(record)
+            ownershipEntries.append(.init(
+                targetKeys: [config.name, config.sakuraName, gm.ghostURL.lastPathComponent],
+                ids: [gm.sstpUniqueID, gm.fmoID]
+            ))
         }
+        SSTPOwnershipRegistry.shared.replaceEntries(ownershipEntries)
+        return records
     }
 
     /// FMO 共有メモリを現在のゴースト状態で更新する

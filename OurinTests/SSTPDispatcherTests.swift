@@ -1,15 +1,269 @@
 import Foundation
+import AppKit
 import Testing
 @testable import Ourin
+
+private final class SSTPTranslationRuntime: GhostShioriRuntime {
+    let kind: ShioriRuntimeKind = .native
+    var isLoaded = true
+    var resourceManager: ResourceManager?
+    var translateRequestCount = 0
+    private let suffix: String
+
+    init(suffix: String = "-translated") {
+        self.suffix = suffix
+    }
+
+    func load(context: ShioriRuntimeLoadContext) -> Bool { true }
+
+    func request(
+        method: String,
+        id: String,
+        headers: [String: String],
+        refs: [String],
+        timeout: TimeInterval
+    ) -> ShioriRuntimeResponse? {
+        guard id == "OnTranslate" else {
+            return .init(ok: true, status: 204)
+        }
+        translateRequestCount += 1
+        return .init(ok: true, status: 200, value: (refs.first ?? "") + suffix)
+    }
+
+    func unload() { isLoaded = false }
+}
+
+private struct SSTPMultiGhostTestState {
+    let application: NSApplication
+    let previousDelegate: NSApplicationDelegate?
+    let appDelegate: AppDelegate
+    let previousPrimary: GhostManager?
+    let previousAdditional: [GhostManager]
+    let primaryToken: UUID
+    let secondaryToken: UUID
+}
 
 @Suite(.serialized)
 struct SSTPDispatcherTests {
     init() {
         BridgeToSHIORI.reset()
         GhostRegistry.shared.clear()
+        SSTPOwnershipRegistry.shared.removeAll()
         SstpSessionStore.shared.reset()
         ShioriStatusStore.shared.reset(to: "online")
         unsetenv("OURIN_SSTP_LOCAL_ONLY")
+    }
+
+    @Test
+    func ownedIDMatchesOnlyTheIntendedGhost() async throws {
+        SSTPOwnershipRegistry.shared.replaceEntries([
+            .init(targetKeys: ["Ghost A", "ghost-a"], ids: ["unique-a", "fmo-a"]),
+            .init(targetKeys: ["Ghost B", "ghost-b"], ids: ["unique-b", "fmo-b"])
+        ])
+
+        // ReceiverGhostName省略時はプライマリ（先頭）だけを照合する。
+        #expect(SSTPOwnershipRegistry.shared.matches(id: "unique-a", receiverGhostName: nil))
+        #expect(!SSTPOwnershipRegistry.shared.matches(id: "unique-b", receiverGhostName: nil))
+        #expect(SSTPOwnershipRegistry.shared.matches(id: "fmo-b", receiverGhostName: "Ghost B"))
+        #expect(!SSTPOwnershipRegistry.shared.matches(id: "unique-a", receiverGhostName: "ghost-b"))
+        #expect(!SSTPOwnershipRegistry.shared.matches(id: "unknown", receiverGhostName: "Ghost A"))
+    }
+
+    @Test
+    func validOwnedIDPromotesExternalRequestToLocalSecurity() async throws {
+        SSTPOwnershipRegistry.shared.replaceEntries([
+            .init(targetKeys: ["Ghost A"], ids: ["owned-a"])
+        ])
+        var receivedSecurityLevels: [String] = []
+        BridgeToSHIORI.liveGhostResolver = { _, _, _, headers in
+            receivedSecurityLevels.append(headers["SecurityLevel"] ?? "")
+            return .init(status: 204, headers: [:], value: nil)
+        }
+
+        let invalid = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: [
+                "Event": "OnOwnedTest",
+                "ID": "unknown",
+                "SecurityLevel": "external",
+                "Option": "nodescript"
+            ]
+        )
+        _ = SSTPDispatcher.dispatch(request: invalid)
+
+        let valid = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: [
+                "Event": "OnOwnedTest",
+                "ID": "owned-a",
+                "SecurityLevel": "external",
+                "Option": "nodescript"
+            ]
+        )
+        _ = SSTPDispatcher.dispatch(request: valid)
+
+        #expect(receivedSecurityLevels == ["external", "local"])
+    }
+
+    @Test
+    func externalOriginCannotUseOwnedIDToEscalateSecurity() async throws {
+        SSTPOwnershipRegistry.shared.replaceEntries([
+            .init(targetKeys: ["Ghost A"], ids: ["owned-a"])
+        ])
+        var receivedSecurityLevels: [String] = []
+        BridgeToSHIORI.liveGhostResolver = { _, _, _, headers in
+            receivedSecurityLevels.append(headers["SecurityLevel"] ?? "")
+            return .init(status: 204, headers: [:], value: nil)
+        }
+        let req = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: ["Event": "OnOwnedTest", "ID": "owned-a", "Option": "nodescript"]
+        )
+
+        _ = SSTPDispatcher.dispatchExternal(request: req, origin: nil)
+        _ = SSTPDispatcher.dispatchExternal(request: req, origin: "https://example.com")
+
+        #expect(receivedSecurityLevels == ["local", "external"])
+    }
+
+    @Test
+    func sparseReferencesReachShioriWithoutCollapsingIndexes() async throws {
+        var receivedReferences: [String] = []
+        var receivedHeaders: [String: String] = [:]
+        BridgeToSHIORI.liveGhostResolver = { _, _, references, headers in
+            receivedReferences = references
+            receivedHeaders = headers
+            return .init(status: 204, headers: [:], value: nil)
+        }
+        let req = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: [
+                "Event": "OnSparseReferenceTest",
+                "Reference2": "two",
+                "Reference7": "",
+                "Option": "nodescript"
+            ]
+        )
+
+        _ = SSTPDispatcher.dispatch(request: req)
+
+        #expect(receivedReferences.isEmpty)
+        #expect(receivedHeaders["Reference2"] == "two")
+        #expect(receivedHeaders["Reference7"] == "")
+        #expect(receivedHeaders["Reference0"] == nil)
+    }
+
+    @Test
+    func notifyPreservesMethodAndStructuredShioriHeaders() async throws {
+        var receivedMethod = ""
+        BridgeToSHIORI.liveGhostResolver = { method, _, _, _ in
+            receivedMethod = method
+            return .init(
+                status: 200,
+                headers: ["ValueNotify": "\\h\\s0Notify", "Reference3": "three"],
+                value: nil
+            )
+        }
+        let req = SSTPRequest(
+            method: "NOTIFY",
+            version: "SSTP/1.4",
+            headers: ["Event": "OnNotifyHeadersTest", "Option": "nodescript"]
+        )
+
+        let response = SSTPDispatcher.dispatch(request: req)
+
+        #expect(receivedMethod == "NOTIFY")
+        #expect(response.contains("SSTP/1.4 200 OK"))
+        #expect(response.contains("ValueNotify: \\h\\s0Notify"))
+        #expect(response.contains("Reference3: three"))
+    }
+
+    @Test @MainActor
+    func sstpResponseUsesTheSameSingleTranslationAsPlayback() throws {
+        let runtime = SSTPTranslationRuntime()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sstp-translation"))
+        manager.ghostConfig = GhostConfiguration(name: "Translation Ghost", shiori: "fixture.bundle")
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            manager.shioriRuntime = nil
+        }
+        BridgeToSHIORI.liveGhostResolver = { _, _, _, _ in
+            .init(status: 200, headers: [:], value: "\\h\\s0source")
+        }
+        let request = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: ["Event": "OnTranslationTest", "SecurityLevel": "local"]
+        )
+
+        let response = SSTPDispatcher.dispatch(request: request)
+
+        #expect(response.contains("Script: \\h\\s0source-translated"))
+        #expect(runtime.translateRequestCount == 1)
+    }
+
+    @Test @MainActor
+    func sstpResponseUsesPrimaryGhostTranslationRegardlessOfRegistrationOrder() throws {
+        let primaryRuntime = SSTPTranslationRuntime(suffix: "-primary")
+        let secondaryRuntime = SSTPTranslationRuntime(suffix: "-secondary")
+        let primary = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sstp-primary"))
+        primary.ghostConfig = GhostConfiguration(name: "Primary Ghost", shiori: "fixture.bundle")
+        primary.shioriRuntime = primaryRuntime
+        let secondary = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sstp-secondary"))
+        secondary.ghostConfig = GhostConfiguration(name: "Secondary Ghost", shiori: "fixture.bundle")
+        secondary.shioriRuntime = secondaryRuntime
+
+        let state: SSTPMultiGhostTestState = {
+            let application = NSApplication.shared
+            let previousDelegate = application.delegate
+            let appDelegate = (previousDelegate as? AppDelegate) ?? AppDelegate()
+            application.delegate = appDelegate
+            let previousPrimary = appDelegate.ghostManager
+            let previousAdditional = appDelegate.additionalGhosts
+            appDelegate.ghostManager = primary
+            appDelegate.additionalGhosts = [secondary]
+            // 登録順を逆にし、応答順がsessions辞書の順序へ依存しないことを確認する。
+            let secondaryToken = EventBridge.shared.register(runtime: secondaryRuntime, ghostManager: secondary)
+            let primaryToken = EventBridge.shared.register(runtime: primaryRuntime, ghostManager: primary)
+            return SSTPMultiGhostTestState(
+                application: application,
+                previousDelegate: previousDelegate,
+                appDelegate: appDelegate,
+                previousPrimary: previousPrimary,
+                previousAdditional: previousAdditional,
+                primaryToken: primaryToken,
+                secondaryToken: secondaryToken
+            )
+        }()
+        defer {
+            EventBridge.shared.unregister(state.primaryToken)
+            EventBridge.shared.unregister(state.secondaryToken)
+            state.appDelegate.ghostManager = state.previousPrimary
+            state.appDelegate.additionalGhosts = state.previousAdditional
+            state.application.delegate = state.previousDelegate
+            primary.shioriRuntime = nil
+            secondary.shioriRuntime = nil
+        }
+        BridgeToSHIORI.liveGhostResolver = { _, _, _, _ in
+            .init(status: 200, headers: [:], value: "\\h\\s0source")
+        }
+
+        let response = SSTPDispatcher.dispatch(request: SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: ["Event": "OnMultiGhostTranslationTest", "SecurityLevel": "local"]
+        ))
+
+        #expect(response.contains("Script: \\h\\s0source-primary"))
+        #expect(!response.contains("source-secondary"))
+        #expect(primaryRuntime.translateRequestCount == 1)
+        #expect(secondaryRuntime.translateRequestCount == 1)
     }
 
     @Test

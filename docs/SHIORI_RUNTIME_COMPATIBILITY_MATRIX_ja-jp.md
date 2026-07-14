@@ -65,6 +65,20 @@ P1は2026-07-13に完了。
 
 P2は2026-07-14に完了。第三者配布ゴースト`9-1`の複製上で、OnBoot、ダブルクリック会話、SAORIメニュー、Windows SAORI呼び出し時の安全な継続、OnClose、unload、savedata生成を確認した。
 
+## P3受け入れ条件
+
+- [x] FMOレコードをゴースト固有の32文字IDで公開し、`modulestate`をUKADOCのモジュール名＋状態形式で出力する
+- [x] Owned SSTPのIDを通知済み`uniqueid`またはFMO IDと照合し、対象ゴースト一致時だけlocalへ昇格する
+- [x] 外部OriginからのOwned昇格を拒否し、TCP待受を設定したloopbackアドレスへ実際にbindする
+- [x] 欠番を含むSSTP `ReferenceN`を添字を崩さずSHIORIへ渡す
+- [x] SSTPのNOTIFY種別とSHIORI応答ヘッダを完全応答ブリッジで保持する
+- [x] 翻訳後の実再生スクリプトとSSTP応答`Script`を一致させ、マルチゴースト時の応答対象を固定する
+- [x] Native SHIORI dylibの実fixtureでload/request/unloadを継続試験する
+- [ ] 同じNative fixtureを埋め込みXPCの別PIDで実行する（protocol不一致修正済み、最終再試験待ち）
+- [x] SHIORI 2.x実fixtureで3.0写像と応答ヘッダ保持を継続試験する
+
+P3は2026-07-14に着手。FMO／Owned SSTP境界、疎なReference伝播、翻訳応答整合、Native／SHIORI 2.x実fixtureまで完了。埋め込みXPCの実fixtureは、クライアントとサービスの公開protocol不一致を修正し、最終再試験を残す。
+
 ## ワイヤ応答
 
 | 項目 | 状態 | テスト/実装 |
