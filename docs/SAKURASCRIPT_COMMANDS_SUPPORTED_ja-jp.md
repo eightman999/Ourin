@@ -603,10 +603,14 @@ H\f[sub,1]2\f[sub,0]O + O\f[sub,1]2\f[sub,0] → H\f[sub,1]2\f[sub,0]O\f[sub,1]2
 
 ## テスト
 
-すべてのコマンドは `OurinTests/SakuraScriptEngineTests.swift` で包括的なテストカバレッジを持っています。次のコマンドでテストを実行します。
+対応表のインライン例は `OurinTests/SakuraScriptDocumentationCoverageTests.swift` が自動抽出し、80件以上をパーサーの制御トークンへ変換できることを検証します。個別の境界条件・実行レベル挙動は `OurinTests/SakuraScriptEngineTests.swift` およびGhostManager側のテストで確認します。
 
 ```bash
-xcodebuild -project Ourin.xcodeproj -scheme Ourin -only-testing:OurinTests/SakuraScriptEngineTests test
+xcodebuild -project Ourin.xcodeproj -scheme Ourin \\
+  -derivedDataPath /private/tmp/Ourin-P4-DerivedData \\
+  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \\
+  -only-testing:OurinTests/SakuraScriptDocumentationCoverageTests \\
+  -only-testing:OurinTests/SakuraScriptEngineTests test
 ```
 
 ## 参考資料

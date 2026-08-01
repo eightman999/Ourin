@@ -29,7 +29,7 @@
 
 | 優先度 | 項目 | 現状・修正案 |
 |---|---|---|
-| P2 | UKADOC SakuraScript 全コマンドとの機械的差分テスト未生成 | パーサ・実行とも広いが、細部互換の完全性は未検証。 |
+| P2 | UKADOC SakuraScript 全コマンドとの機械的差分テスト | `SakuraScriptDocumentationCoverageTests` が対応表のインライン例（80件以上）を自動抽出し、パーサーの制御トークン到達を検証済み。UKADOC全コマンドの実行結果差分・完全性は未検証。 |
 | — | （`\![cancel,http,...]` は完了 2026-07-09） | `GhostManager.swift:245`に`httpStreamingTasks`を新設し`executeHTTPStreaming`（`GhostManager+System.swift`）がURLキーでタスク追跡。`cancelHTTPStreaming(params:)`を追加し`\![cancel,http,URL]`分岐（`GhostManager.swift`の`cancel`ハンドラ）から配線。キャンセル時は`NSURLErrorCancelled`を検知して`OnExecuteHTTPFailure`を送らず静かに中断。テスト`HTTPStreamingCancelTests.swift`追加。 |
 | — | （`\__q` 範囲ベース表示テキスト結合は完了 → `AUDITS_COMPLETED.md` 参照） | パーサで `\__q[ID,...]text\__q` を `.choiceQueue(title:id:references:)` にマージ。単一形式・範囲形式・script: 形式に対応。 |
 | P2 | SERIKO 描画メソッド・collisionex・レンダリング完全一致が未検証 | `Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift`。実シェルでの描画差分テストが必要。 |
