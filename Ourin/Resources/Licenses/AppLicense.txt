@@ -1,21 +1,26 @@
-Ourin — CC BY-NC-SA 4.0 / 表示-非営利-継承 4.0
+Ourin — License Summary / ライセンス概要
 
-EN: This software (Ourin) is licensed under the Creative Commons
-Attribution-NonCommercial-ShareAlike 4.0 International License
-(CC BY-NC-SA 4.0).
+Copyright 2025-2026 eightman (Furin Lab)
 
-JA: 本ソフトウェア（Ourin）は、クリエイティブ・コモンズ
-表示-非営利-継承 4.0 国際ライセンス（CC BY-NC-SA 4.0）のもとで
-提供されています。
+Original source code / 独自ソースコード:
+- Apache License 2.0
+- https://www.apache.org/licenses/LICENSE-2.0
 
-Links / リンク:
-- EN: https://creativecommons.org/licenses/by-nc-sa/4.0/
-- JA: https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja
+Original project documentation / 独自ドキュメント:
+- Creative Commons Attribution-ShareAlike 4.0 International
+- CC BY-SA 4.0
+- https://creativecommons.org/licenses/by-sa/4.0/
 
-Commercial use / 商用利用:
-Please contact the copyright holders for commercial use.
-商用利用をご希望の場合は、著作権者までご連絡ください。
+Third-party components and bundled content retain their original licenses.
+第三者コンポーネントおよび同梱コンテンツは、元のライセンスを維持します。
 
-Contacts / 連絡先:
-- eightman: eight@eightman999.com
-- 風鈴ラボ / Furin Lab: contact@furinlab.com
+Key exceptions / 主な例外:
+- Integrated YAYA Core: BSD-3-Clause
+- Satori runtime: BSD-2-Clause
+- SAORI compatibility material derived from csaori:
+  modified BSD with the upstream Ukagaka exception
+- Default ghost Emily/Phase4.5: CC BY-NC 4.0
+- Ghidra: Apache-2.0; external tool, not bundled
+
+A component-local LICENSE, NOTICE, or copyright statement takes precedence.
+コンポーネント固有のLICENSE、NOTICE、著作権表示が優先します。

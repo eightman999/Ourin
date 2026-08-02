@@ -6,6 +6,10 @@ import OSLog
 
 /// 外部からの SSTP イベントを受信する TCP/HTTP/XPC サーバ群を管理するクラス。
 /// 受信した生 SSTP は SSTPParser で解析し SSTPDispatcher へ一本化して処理する（P2-10）。
+///
+/// SHIORI ブリッジは注入可能（既定 `ShioriBridgeContext.shared`）。 unified TCP / HTTP / XPC /
+/// distributed IPC の全経路は `handleRaw` を経由して同じ bridge インスタンスへ合流するため、
+/// テストは isolated な `ShioriBridgeContext` を渡して global 状態へ触れずに並列実行できる。
 public final class OurinExternalServer {
     /// TCP/HTTP を 9801 単一ポートで多重化するリスナー（生 SSTP と HTTP を先頭行で振り分け）
     public let unified = UnifiedSstpListener()
@@ -15,6 +19,8 @@ public final class OurinExternalServer {
     public let xpc = XpcDirectServer()
     /// OSLog 用ロガー
     private let logger = CompatLogger(subsystem: "Ourin", category: "ExternalServer")
+    /// SHIORI 応答を得るためのブリッジ。全 handleRaw 経路がこのインスタンスへ合流する。
+    private let bridge: ShioriBridge
 
     /// TCP(生 SSTP) が有効かつリスナー稼働中か（UI 表示・互換用）
     public var tcpRunning: Bool { unified.isRunning && config.enableTCP }
@@ -34,8 +40,15 @@ public final class OurinExternalServer {
     private var config = Config()
     private var distributedObserver: NSObjectProtocol?
 
-    /// サーバ群の初期設定を行う
-    public init() {
+    /// サーバ群の初期設定を行う。実運用ではプロセス共有の `ShioriBridgeContext.shared` を使う。
+    public convenience init() {
+        self.init(bridge: ShioriBridgeContext.shared)
+    }
+
+    /// テスト/内部利用向け: SHIORI ブリッジを明示的に注入して構築する。
+    /// 受信経路（TCP/HTTP/XPC/distributed IPC）はすべてこの bridge へ合流する。
+    init(bridge: ShioriBridge) {
+        self.bridge = bridge
         unified.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
         unifiedCompat.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
         xpc.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
@@ -50,6 +63,7 @@ public final class OurinExternalServer {
     }
 
     /// 生の SSTP テキストを解析して SSTP ディスパッチャへ渡し、応答を返す。
+    /// unified TCP / HTTP / XPC / distributed IPC の全コールバックがこの経路へ合流する。
     func handleRaw(_ raw: String) -> String {
         let start = Date()
         let request = SSTPParser.parseRequest(text: raw)
@@ -61,7 +75,8 @@ public final class OurinExternalServer {
         let response = SSTPDispatcher.dispatchExternal(
             request: request,
             securityLocalOnly: config.securityLocalOnly,
-            origin: request.headerValue("SecurityOrigin")
+            origin: request.headerValue("SecurityOrigin"),
+            bridge: bridge
         )
         let duration = Date().timeIntervalSince(start)
         ServerMetrics.shared.record(duration: duration, error: isErrorResponse(response))

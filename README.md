@@ -28,56 +28,19 @@ SHIORIの要求・応答は`GhostShioriRuntime`に集約し、ベースウェア
 
 ## 📄 License / ライセンス
 
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Source code: Apache-2.0](https://img.shields.io/badge/source-Apache--2.0-blue.svg)](LICENSES/Apache-2.0.txt)
+[![Documentation: CC BY-SA 4.0](https://img.shields.io/badge/docs-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
 
-This project is licensed under the
-[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+- Original Ourin source code: [Apache License 2.0](LICENSES/Apache-2.0.txt)
+- Original project documentation: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- Ourin独自ソースコード: [Apache License 2.0](LICENSES/Apache-2.0.txt)
+- Ourin独自ドキュメント: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.ja)
 
-このプロジェクトは
-[クリエイティブ・コモンズ 表示-非営利-継承 4.0 国際ライセンス（CC BY-NC-SA 4.0）](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja)
-のもとで提供されています。
-
----
-
-### ✅ You are free to / 許可されていること
-
-- **Share / 共有**: 複製・再配布できます  
-- **Adapt / 改変**: リミックス・改変・派生利用ができます
-
-As long as you follow these terms:  
-以下の条件を守る限りにおいて：
-
-- **Attribution / 表示**: 適切なクレジットの表示が必要です  
-- **NonCommercial / 非営利**: 営利目的での利用は禁止されています  
-- **ShareAlike / 継承**: 改変後も同一ライセンスでの公開が必要です
-
----
-
-### 💼 Commercial Use / 商用利用について
-
-If you wish to use this work for **commercial purposes**,  
-please contact one of the copyright holders below.
-
-この作品を**商用利用したい場合**は、以下の著作権者にご連絡ください。
-
-#### 📧 Contact / 連絡先
-
-- **eightman**： [eight@eightman999.com](mailto:eight@eightman999.com)  
-- **風鈴ラボ / Furin Lab**： [contact@furinlab.com](mailto:contact@furinlab.com)
-
----
-
-## 🔗 License Link / ライセンスリンク
-
-- [Full License Text (EN)](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)  
-- [ライセンス全文（日本語訳）](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja)
-
----
+Third-party components and bundled content retain their original licenses.
+第三者コンポーネントおよび同梱コンテンツは、元のライセンスを維持します。
 
 ### 📦 Components and Exceptions / コンポーネント別ライセンス
 
-- Ourin baseware: CC BY-NC-SA 4.0  
-  Ourin ベースウェア: CC BY-NC-SA 4.0
 - Integrated YAYA Core: BSD-3-Clause ([YAYA-shiori/yaya-shiori](https://github.com/YAYA-shiori/yaya-shiori) に準拠)
   同梱 YAYA Core: BSD-3-Clause（上流ライセンスと改変部分の表示を維持）
 - Satori runtime: BSD-2-Clause ([ukatech/satoriya-shiori](https://github.com/ukatech/satoriya-shiori) を参照）
@@ -91,6 +54,9 @@ please contact one of the copyright holders below.
 
 For the full texts, open the app and navigate to About → "ライセンスを表示…".
 各文面はアプリ内の About → 「ライセンスを表示…」から参照できます。
+
+The detailed scope and precedence rules are documented in [LICENSE](LICENSE).
+適用範囲と優先順位の詳細は [LICENSE](LICENSE) を参照してください。
 
 ---
 

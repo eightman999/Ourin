@@ -300,7 +300,7 @@ A: Phase 1 MVP should be complete in 3 weeks, providing basic functionality.
 
 ## 📄 License
 
-All documentation: CC BY-NC-SA 4.0  
+All documentation: CC BY-SA 4.0
 Code (yaya_core): BSD-3-Clause (YAYA compatible)
 
 ---

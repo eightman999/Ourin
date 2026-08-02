@@ -322,7 +322,7 @@ The MVP does not aim for automatic conversion. Analysis, classification, and Our
 - **Ghidra**: This feature invokes Ghidra (developed by National Security Agency, Apache License 2.0) as an external tool. Ghidra is not bundled with Ourin.
   - https://ghidra-sre.org/
   - https://www.apache.org/licenses/LICENSE-2.0
-- **DecompileAll.java**: Ourin code (CC BY-NC-SA 4.0) using Ghidra Script API. Instantiated at runtime from `GhidraScriptSource.swift`.
+- **DecompileAll.java**: Ourin code (Apache-2.0) using Ghidra Script API. Instantiated at runtime from `GhidraScriptSource.swift`.
 - **Analysis target DLL/EXE**: SSP-compatible assets follow their respective licenses. The Migrator assists with read-only analysis and conversion and does not imply permission to redistribute original assets.
 
 Ghidra license text can be referenced from the app's About → "Show Licenses..." menu.

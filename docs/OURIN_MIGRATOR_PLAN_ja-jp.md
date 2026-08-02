@@ -323,7 +323,7 @@ MVP では自動変換を目標にしない。解析、分類、Ourin 用マニ�
   ツールとして呼び出す。Ghidra は Ourin に同梱しない。
   - https://ghidra-sre.org/
   - https://www.apache.org/licenses/LICENSE-2.0
-- **DecompileAll.java**: Ghidra スクリプト API を使用する Ourin のコード（CC BY-NC-SA 4.0）。
+- **DecompileAll.java**: Ghidra スクリプト API を使用する Ourin のコード（Apache-2.0）。
   実行時に `GhidraScriptSource.swift` から実体化される。
 - **解析対象 DLL/EXE**: SSP 互換資産は各々のライセンスに従う。Migrator は読み取り専用で
   解析・変換を補助するものであり、元資産の再配布許可を意味しない。

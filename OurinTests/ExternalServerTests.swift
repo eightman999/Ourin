@@ -5,12 +5,17 @@ import Testing
 /// 外部 SSTP サーバ経路（生テキスト → SSTPParser → SSTPDispatcher）のテスト。
 /// P2-10 の一本化により SstpRouter / SstpMessage は廃止された。
 ///
-/// `ShioriStatusStore` / `SstpSessionStore` / `GhostRegistry` / `BridgeToSHIORI` の共有シングルトンを
-/// 変更するため、並列ワーカー実行下でのレースを避けるべく `.serialized` とし、各テスト前に状態を初期化する。
+/// `ShioriStatusStore` / `SstpSessionStore` / `GhostRegistry` の共有シングルトンを変更するため、
+/// 並列ワーカー実行下でのレースを避けるべく `.serialized` とし、各テスト前に状態を初期化する。
+/// SHIORI ブリッジ（`ShioriBridgeContext`）はインスタンス毎に独立しており、
+/// global な `BridgeToSHIORI`（`.shared`）へは一切触れない。
 @Suite(.serialized)
 struct ExternalServerTests {
+    /// 各テストインスタンス固有の独立した SHIORI ブリッジ。
+    let bridge = ShioriBridgeContext()
+
     init() {
-        BridgeToSHIORI.reset()
+        bridge.reset()
         GhostRegistry.shared.clear()
         SstpSessionStore.shared.reset()
         ShioriStatusStore.shared.reset(to: "online")
@@ -18,7 +23,7 @@ struct ExternalServerTests {
     }
 
     private func makeServer(securityLocalOnly: Bool = true) -> OurinExternalServer {
-        let server = OurinExternalServer()
+        let server = OurinExternalServer(bridge: bridge)
         server.updateConfig(.init(
             securityLocalOnly: securityLocalOnly,
             maxPayloadSize: 1024 * 1024,
@@ -104,7 +109,7 @@ struct ExternalServerTests {
     @Test
     func serverSendWithEventRoutesToShiori() throws {
         let key = "send-server-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0FromServer")
+        bridge.setResource(key, value: "\\h\\s0FromServer")
         let raw = """
         SEND SSTP/1.1\r
         Sender: Test\r
@@ -129,7 +134,7 @@ struct ExternalServerTests {
     @Test
     func serverNodescriptStillDispatchesEvent() throws {
         let key = "nodescript-server-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0Dispatched")
+        bridge.setResource(key, value: "\\h\\s0Dispatched")
         let raw = """
         SEND SSTP/1.1\r
         Sender: Test\r
@@ -148,7 +153,7 @@ struct ExternalServerTests {
     @Test
     func externalServerSendReachesShioriAsExternalEvenFromLocalhostOrigin() throws {
         var captured: [String: String] = [:]
-        BridgeToSHIORI.liveGhostResolver = { _, _, _, headers in
+        bridge.liveGhostResolver = { _, _, _, headers in
             captured = headers
             return BridgeToSHIORI.BridgeShioriResponse(
                 status: 200,
@@ -176,7 +181,7 @@ struct ExternalServerTests {
     @Test
     func raiseotherStyleNotifyReachesShioriAsExternal() throws {
         var captured: [String: String] = [:]
-        BridgeToSHIORI.liveGhostResolver = { _, _, _, headers in
+        bridge.liveGhostResolver = { _, _, _, headers in
             captured = headers
             return BridgeToSHIORI.BridgeShioriResponse(status: 204, headers: [:], value: nil)
         }
@@ -205,7 +210,7 @@ struct ExternalServerTests {
     @Test
     func serverInstallRoutesToBridge() throws {
         let key = "install-server-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0Installed")
+        bridge.setResource(key, value: "\\h\\s0Installed")
         let raw = """
         INSTALL SSTP/1.1\r
         Sender: Test\r
@@ -236,7 +241,7 @@ struct ExternalServerTests {
     @Test
     func serverCanAllowExternalSecurityLevelWhenConfigured() throws {
         let key = "external-server-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0ExternalAllowed")
+        bridge.setResource(key, value: "\\h\\s0ExternalAllowed")
         let raw = """
         SEND SSTP/1.1\r
         Sender: Test\r

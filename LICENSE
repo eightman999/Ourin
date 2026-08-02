@@ -1,28 +1,40 @@
-Ourin Project — CC BY-NC-SA 4.0
-Ourinプロジェクト — 表示-非営利-継承 4.0
+Ourin License Scope / ライセンス適用範囲
 
-EN:
-This work (including the Ourin baseware and the integrated YAYA Core,
-unless otherwise noted) is licensed under the Creative Commons
-Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
-See the links below for the full legal text.
+Copyright 2025-2026 eightman (Furin Lab)
 
-JA:
-本作品（特記なき限り、Ourinベースウェアおよび統合版YAYA Coreを含む）は、
-クリエイティブ・コモンズ 表示-非営利-継承 4.0 国際ライセンス（CC BY-NC-SA 4.0）
-のもとで提供されます。全文は以下のリンクをご参照ください。
+1. Original source code / 独自ソースコード
 
-Links / リンク:
-- EN (legalcode): https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
-- JA (日本語訳): https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja
+Unless a file or component states otherwise, source code originally authored for
+the Ourin project is licensed under the Apache License, Version 2.0.
+The full text is provided in LICENSES/Apache-2.0.txt.
 
-Component notes / コンポーネントに関する注記:
-- Emily/Phase4.5 (emily4) ghost: CC BY-NC 4.0 (non-commercial).
-  デフォルトゴースト「emily4」は CC BY-NC 4.0。
-Please see About → Licenses in-app for details and individual texts.
-詳しくはアプリ内の「About → ライセンスを表示…」で各文面をご確認ください。
+特記のあるファイルまたはコンポーネントを除き、Ourinプロジェクトのために
+独自に作成されたソースコードはApache License 2.0で提供されます。
+全文は LICENSES/Apache-2.0.txt を参照してください。
 
-Commercial use / 商用利用:
-For commercial use, please contact:
-- eightman: eight@eightman999.com
-- 風鈴ラボ / Furin Lab: contact@furinlab.com
+2. Project documentation / 独自ドキュメント
+
+Documentation originally authored for Ourin is licensed under the Creative
+Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).
+
+Ourinのために独自に作成されたドキュメントは、Creative Commons
+Attribution-ShareAlike 4.0 International（CC BY-SA 4.0）で提供されます。
+
+https://creativecommons.org/licenses/by-sa/4.0/
+
+3. Third-party components and bundled content / 第三者コンポーネント・同梱コンテンツ
+
+Third-party code, compatible runtimes, samples, ghosts, assets, and other
+bundled content retain their original licenses. In particular:
+
+- Integrated YAYA Core: BSD-3-Clause
+- Satori runtime (satoriya-shiori): BSD-2-Clause
+- SAORI host compatibility material derived from csaori:
+  modified BSD with the upstream Ukagaka exception
+- Default ghost Emily/Phase4.5: CC BY-NC 4.0
+- Ghidra: Apache-2.0; invoked as an external tool and not bundled
+- Other dependencies: the license included with each dependency
+
+このファイルは第三者のコード、ランタイム、サンプル、ゴースト、画像その他の
+同梱物を再許諾するものではありません。各ファイルまたはコンポーネント固有の
+LICENSE、NOTICE、著作権表示が本ファイルより優先します。

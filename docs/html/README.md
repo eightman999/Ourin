@@ -56,8 +56,8 @@ Designed with emphasis on Japanese font rendering and code block readability.
 
 ## ライセンス / License
 
-Ourin プロジェクトのライセンスに従います（CC BY-NC-SA 4.0）。  
-Follows Ourin project license (CC BY-NC-SA 4.0).
+Ourin独自ドキュメントはCC BY-SA 4.0です。第三者資料は元のライセンスを維持します。
+Original Ourin documentation is CC BY-SA 4.0. Third-party material retains its original license.
 
 ## 更新日 / Last Updated
 2025-10-23

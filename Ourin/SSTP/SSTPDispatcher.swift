@@ -1,4 +1,3 @@
-import AppKit
 import Foundation
 
 /// SSTP メソッドを受け取り SHIORI ブリッジへ振り分けるディスパッチャ
@@ -13,14 +12,64 @@ public enum SSTPDispatcher {
         dispatch(
             request: request,
             securityLocalOnly: securityLocalOnly,
-            shioriSecurityContext: nil,
-            transportAllowsOwned: true
+            host: LiveSstpDispatcherHost.live,
+            bridge: ShioriBridgeContext.shared
         )
     }
 
     /// 外部SSTP受信口からのリクエストを処理する。
     /// localhost 由来でも外部アプリ/他ゴースト経由なので、SHIORI へは external として渡す。
     static func dispatchExternal(request: SSTPRequest, securityLocalOnly: Bool? = nil, origin: String? = nil) -> String {
+        dispatchExternal(
+            request: request,
+            securityLocalOnly: securityLocalOnly,
+            origin: origin,
+            host: LiveSstpDispatcherHost.live,
+            bridge: ShioriBridgeContext.shared
+        )
+    }
+
+    /// テスト用: SHIORI ブリッジを明示的に注入する内部入口。host は実運用(.live)を使う。
+    /// 各テストは fresh な ShioriBridgeContext を渡し、global な .shared へ触れない。
+    static func dispatch(request: SSTPRequest, securityLocalOnly: Bool? = nil, bridge: ShioriBridge, routingRegistry: SstpRoutingRegistry = LiveSstpRoutingRegistry.live, breakPolicy: SstpBreakPolicy = LiveSstpBreakPolicy.live) -> String {
+        dispatch(
+            request: request,
+            securityLocalOnly: securityLocalOnly,
+            host: LiveSstpDispatcherHost.live,
+            bridge: bridge,
+            routingRegistry: routingRegistry,
+            breakPolicy: breakPolicy
+        )
+    }
+
+    /// テスト用: origin と bridge を明示的に注入する外部受信口エントリ。
+    static func dispatchExternal(request: SSTPRequest, securityLocalOnly: Bool? = nil, origin: String? = nil, bridge: ShioriBridge, routingRegistry: SstpRoutingRegistry = LiveSstpRoutingRegistry.live, breakPolicy: SstpBreakPolicy = LiveSstpBreakPolicy.live) -> String {
+        dispatchExternal(
+            request: request,
+            securityLocalOnly: securityLocalOnly,
+            origin: origin,
+            host: LiveSstpDispatcherHost.live,
+            bridge: bridge,
+            routingRegistry: routingRegistry,
+            breakPolicy: breakPolicy
+        )
+    }
+
+    /// テスト用: host と bridge を両方明示的に注入する内部入口。
+    static func dispatch(request: SSTPRequest, securityLocalOnly: Bool? = nil, host: SstpDispatcherHost, bridge: ShioriBridge, routingRegistry: SstpRoutingRegistry = LiveSstpRoutingRegistry.live, breakPolicy: SstpBreakPolicy = LiveSstpBreakPolicy.live) -> String {
+        dispatch(
+            request: request,
+            securityLocalOnly: securityLocalOnly,
+            shioriSecurityContext: nil,
+            transportAllowsOwned: true,
+            host: host,
+            bridge: bridge,
+            routingRegistry: routingRegistry,
+            breakPolicy: breakPolicy
+        )
+    }
+
+    static func dispatchExternal(request: SSTPRequest, securityLocalOnly: Bool? = nil, origin: String? = nil, host: SstpDispatcherHost, bridge: ShioriBridge, routingRegistry: SstpRoutingRegistry = LiveSstpRoutingRegistry.live, breakPolicy: SstpBreakPolicy = LiveSstpBreakPolicy.live) -> String {
         // loopback TCP/XPC（Originなし）とlocalhost OriginだけOwnedを許可する。
         // 外部HTTP OriginはIDが一致してもSecurityLevelをlocalへ昇格させない。
         let transportAllowsOwned = origin.map(isLocalOrigin)
@@ -29,7 +78,11 @@ public enum SSTPDispatcher {
             request: request,
             securityLocalOnly: securityLocalOnly,
             shioriSecurityContext: ShioriSecurityContext.external(origin: origin),
-            transportAllowsOwned: transportAllowsOwned
+            transportAllowsOwned: transportAllowsOwned,
+            host: host,
+            bridge: bridge,
+            routingRegistry: routingRegistry,
+            breakPolicy: breakPolicy
         )
     }
 
@@ -37,7 +90,11 @@ public enum SSTPDispatcher {
         request: SSTPRequest,
         securityLocalOnly: Bool?,
         shioriSecurityContext: ShioriSecurityContext?,
-        transportAllowsOwned: Bool
+        transportAllowsOwned: Bool,
+        host: SstpDispatcherHost,
+        bridge: ShioriBridge,
+        routingRegistry: SstpRoutingRegistry,
+        breakPolicy: SstpBreakPolicy = LiveSstpBreakPolicy.live
     ) -> String {
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         let charset = request.headerValue("Charset") ?? "UTF-8"
@@ -61,7 +118,7 @@ public enum SSTPDispatcher {
                 responseHeaders: collectPassThruHeaders(from: request.headers)
             )
         }
-        let isOwned = transportAllowsOwned && SSTPOwnershipRegistry.shared.matches(
+        let isOwned = transportAllowsOwned && routingRegistry.matches(
             id: request.headerValue("ID"),
             receiverGhostName: request.receiverGhostName
         )
@@ -92,17 +149,17 @@ public enum SSTPDispatcher {
         let methodName = effectiveNotify ? "NOTIFY" : request.method.uppercased()
         switch methodName {
         case "SEND":
-            return routeToShiori(request: request, method: .send, securityContext: effectiveSecurityContext, isOwned: isOwned)
+            return routeToShiori(request: request, method: .send, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry, breakPolicy: breakPolicy)
         case "NOTIFY":
-            return handleNotify(request, securityContext: effectiveSecurityContext, isOwned: isOwned)
+            return handleNotify(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry, breakPolicy: breakPolicy)
         case "COMMUNICATE":
-            return handleCommunicate(request, securityContext: effectiveSecurityContext, isOwned: isOwned)
+            return handleCommunicate(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
         case "EXECUTE":
-            return handleExecute(request, securityContext: effectiveSecurityContext, isOwned: isOwned)
+            return handleExecute(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
         case "GIVE":
-            return handleGive(request, securityContext: effectiveSecurityContext, isOwned: isOwned)
+            return handleGive(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
         case "INSTALL":
-            return handleInstall(request, securityContext: effectiveSecurityContext, isOwned: isOwned)
+            return handleInstall(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
         default:
             return buildResponse(
                 version: version,
@@ -128,13 +185,17 @@ public enum SSTPDispatcher {
         request: SSTPRequest,
         method: DispatchMethod,
         securityContext: ShioriSecurityContext,
-        isOwned: Bool
+        isOwned: Bool,
+        host: SstpDispatcherHost,
+        bridge: ShioriBridge,
+        routingRegistry: SstpRoutingRegistry,
+        breakPolicy: SstpBreakPolicy = LiveSstpBreakPolicy.live
     ) -> String {
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         let charset = request.headerValue("Charset") ?? "UTF-8"
         let options = request.options
         if request.receiverGhostName != nil,
-           !GhostRegistry.shared.hasEntries() {
+           !routingRegistry.hasGhosts() {
             return buildResponse(
                 version: version,
                 status: 512,
@@ -145,8 +206,8 @@ public enum SSTPDispatcher {
             )
         }
         if let receiver = request.receiverGhostName,
-           GhostRegistry.shared.hasEntries(),
-           !GhostRegistry.shared.contains(name: normalizeGhostNameForCompatibility(receiver)) {
+           routingRegistry.hasGhosts(),
+           !routingRegistry.contains(ghostName: normalizeGhostNameForCompatibility(receiver)) {
             return buildResponse(
                 version: version,
                 status: 404,
@@ -157,21 +218,17 @@ public enum SSTPDispatcher {
             )
         }
         if options.contains(.nobreak), method == .send || method == .notify,
-           ShioriStatusStore.shared.currentStatus.lowercased() == "busy" {
+           breakPolicy.isBusy() {
             // UKADOC SSTP/1.x: nobreak = 「現在実行中のスクリプトを中断せず、終わるまで待つ」。
-            // 実行中スクリプトを打ち切って即時応答するのではなく、busy が解消するまで
-            // このリクエストをキューイング（ブロッキング待機）し、解消後に通常経路へ進める。
-            // dispatch() は SSTPListener/HTTPBridge/DirectSSTPXPC/OurinExternalServer から
-            // バックグラウンドスレッドで呼ばれるため、ここでブロックしてもメインスレッドは止めない。
+            // 実行中スクリプトを打ち切らず、busy が解消するまでこの要求を待機させる。
             EventBridge.shared.notify(.OnSSTPBreak, refs: [
                 "script": request.headerValue("Sender") ?? "ExternalSSTP",
                 "scope": "queued"
             ])
-            let didClear = SSTPBreakQueue.waitWhileBusy()
+            let didClear = breakPolicy.waitWhileBusy()
             if !didClear {
-                // タイムアウトまで busy が解消しなかった場合のみ、待ちきれずに諦めたことを
-                // 409 Conflict で通知する（210 Break は「nobreak指定にも関わらず実行中スクリプトが
-                // 中断された」極めて限定的なケース向けのため、ここでは用いない）。
+                // タイムアウト時だけ409を返す。210 Breakは実行中スクリプトを
+                // 実際に中断した場合の応答なので、ここでは使用しない。
                 EventBridge.shared.notify(.OnSSTPBreak, refs: [
                     "script": request.headerValue("Sender") ?? "ExternalSSTP",
                     "scope": "busy"
@@ -185,13 +242,13 @@ public enum SSTPDispatcher {
                     responseHeaders: collectPassThruHeaders(from: request.headers)
                 )
             }
-            // busy が解消したので、キューイングしていたリクエストを通常経路で実行する。
+            // busy が解消した場合は、待機していた要求を通常経路で実行する。
         }
         // Event 無しの SEND は SHIORI を介さず Script ヘッダを直接バルーン再生する（SSTP の基本動作）。
         // IfGhost がある場合は UKADOC の振り分けルールに従う。
         if method == .send, (request.headerValue("Event") ?? "").isEmpty {
             let script = resolveScript(
-                forGhost: request.receiverGhostName ?? currentGhostName(),
+                forGhost: request.receiverGhostName ?? currentGhostName(routingRegistry: routingRegistry),
                 request: request,
                 shioriScript: nil
             )
@@ -231,7 +288,7 @@ public enum SSTPDispatcher {
         }
 
         let shioriMethod = method == .notify ? "NOTIFY" : "GET"
-        let raw = BridgeToSHIORI.handleResponse(
+        let raw = bridge.handleResponse(
             event: event,
             references: refs,
             headers: shioriHeaders,
@@ -287,7 +344,7 @@ public enum SSTPDispatcher {
         // イベント処理（SHIORI送出）には影響しない（UKADOC spec_sstp）
         let suppressBalloon = options.contains(.nodescript) || scriptOptionTokens.contains("nodescript")
         let finalScript = resolveScript(
-            forGhost: request.receiverGhostName ?? currentGhostName(),
+            forGhost: request.receiverGhostName ?? currentGhostName(routingRegistry: routingRegistry),
             request: request,
             shioriScript: scriptForSstp
         )
@@ -326,22 +383,16 @@ public enum SSTPDispatcher {
         if responseHeaders["X-UKATEC-Spec"] == nil {
             responseHeaders["X-UKATEC-Spec"] = "1"
         }
-        // Apply SSP-compatible side effects from SHIORI headers (Surface/Balloon)
-        // 宛先は ReceiverGhostName で解決する（マルチゴースト対応、未指定はプライマリ）
+        // Apply SSP-compatible side effects from SHIORI headers (Surface/Balloon/BalloonOffset/Icon)
+        // 宛先は ReceiverGhostName で解決する（マルチゴースト対応、未指定はプライマリ）。
+        // 具体的な UI 操作は SstpDispatcherHost へ型付き効果として委譲し、ここでは解析・検証と
+        // 効果生成のみを行う（NSApp/AppDelegate/GhostManager の直接参照を排除）。
         let requestHeaders = request.headers
         if let surfaceStr = mapped.responseHeaders["Surface"], let surface = Int(surfaceStr) {
-            DispatchQueue.main.async {
-                let appDelegate = NSApp.delegate as? AppDelegate
-                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.updateSurface(id: surface)
-            }
+            host.apply(SstpUIEffect(.updateSurface(id: surface), requestHeaders: requestHeaders))
         }
         if let balloonName = mapped.responseHeaders["Balloon"], !balloonName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            DispatchQueue.main.async {
-                let appDelegate = NSApp.delegate as? AppDelegate
-                if let gm = appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders) {
-                    _ = gm.switchBalloon(named: balloonName, scope: gm.currentScope, raiseEvent: true)
-                }
-            }
+            host.apply(SstpUIEffect(.switchBalloon(name: balloonName), requestHeaders: requestHeaders))
         }
         // Apply BalloonOffset if present: format "x,y"
         if let offsetStr = mapped.responseHeaders["BalloonOffset"], !offsetStr.isEmpty {
@@ -349,10 +400,7 @@ public enum SSTPDispatcher {
             if comps.count >= 2 {
                 let x = String(comps[0])
                 let y = String(comps[1])
-                DispatchQueue.main.async {
-                    let appDelegate = NSApp.delegate as? AppDelegate
-                    appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.handleBalloonOffset(x: x, y: y, isRelative: false)
-                }
+                host.apply(SstpUIEffect(.balloonOffset(x: x, y: y, isRelative: false), requestHeaders: requestHeaders))
             }
         }
 
@@ -361,10 +409,7 @@ public enum SSTPDispatcher {
             let parts = iconSpec.split(separator: ",", maxSplits: 1, omittingEmptySubsequences: false)
             let filename = parts.first.map(String.init) ?? iconSpec
             let text = parts.count > 1 ? String(parts[1]) : ""
-            DispatchQueue.main.async {
-                let appDelegate = NSApp.delegate as? AppDelegate
-                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.setTaskTrayIcon(filename: filename, text: text)
-            }
+            host.apply(SstpUIEffect(.setTaskTrayIcon(filename: filename, text: text), requestHeaders: requestHeaders))
         }
 
         if let entryHeader = SstpSessionStore.shared.allEntriesHeaderValue() {
@@ -380,15 +425,15 @@ public enum SSTPDispatcher {
         )
     }
 
-    private static func handleNotify(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool) -> String {
-        routeToShiori(request: request, method: .notify, securityContext: securityContext, isOwned: isOwned)
+    private static func handleNotify(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool, host: SstpDispatcherHost, bridge: ShioriBridge, routingRegistry: SstpRoutingRegistry, breakPolicy: SstpBreakPolicy = LiveSstpBreakPolicy.live) -> String {
+        routeToShiori(request: request, method: .notify, securityContext: securityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry, breakPolicy: breakPolicy)
     }
 
-    private static func handleCommunicate(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool) -> String {
-        routeToShiori(request: request, method: .communicate, securityContext: securityContext, isOwned: isOwned)
+    private static func handleCommunicate(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool, host: SstpDispatcherHost, bridge: ShioriBridge, routingRegistry: SstpRoutingRegistry) -> String {
+        routeToShiori(request: request, method: .communicate, securityContext: securityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
     }
 
-    private static func handleExecute(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool) -> String {
+    private static func handleExecute(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool, host: SstpDispatcherHost, bridge: ShioriBridge, routingRegistry: SstpRoutingRegistry) -> String {
         let charset = request.headerValue("Charset") ?? "UTF-8"
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         guard let command = request.headerValue("Command"), !command.isEmpty else {
@@ -412,7 +457,9 @@ public enum SSTPDispatcher {
             sender: sender,
             version: version,
             charset: charset,
-            requestHeaders: request.headers
+            requestHeaders: request.headers,
+            host: host,
+            routingRegistry: routingRegistry
         ) {
             return commandResponse
         }
@@ -464,7 +511,7 @@ public enum SSTPDispatcher {
                 responseHeaders: responseHeaders
             )
         }
-        return routeToShiori(request: request, method: .execute, securityContext: securityContext, isOwned: isOwned)
+        return routeToShiori(request: request, method: .execute, securityContext: securityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
     }
 
     private static func handleExtendedExecuteCommand(
@@ -473,10 +520,11 @@ public enum SSTPDispatcher {
         sender: String,
         version: String,
         charset: String,
-        requestHeaders: [String: String]
+        requestHeaders: [String: String],
+        host: SstpDispatcherHost,
+        routingRegistry: SstpRoutingRegistry
     ) -> String? {
         let property = PropertyManager.shared
-        let appDelegate = NSApp.delegate as? AppDelegate
         var responseHeaders = collectPassThruHeaders(from: requestHeaders)
         let success: (String?) -> String = { data in
             if let data {
@@ -505,11 +553,11 @@ public enum SSTPDispatcher {
         switch commandKey {
         case "getname", "getghostname":
             let value = property.get("currentghost.name")
-                ?? GhostRegistry.shared.allNames().first
+                ?? routingRegistry.allGhostNames().first
                 ?? "Ourin"
             return success(value)
         case "getnames", "getnamelist":
-            return success(GhostRegistry.shared.allNames().joined(separator: ","))
+            return success(routingRegistry.allGhostNames().joined(separator: ","))
         case "getfmo":
             let securityLevel = resolveSecurityLevel(from: requestHeaders)
             guard securityLevel == "local" else {
@@ -522,7 +570,7 @@ public enum SSTPDispatcher {
                     responseHeaders: responseHeaders
                 )
             }
-            let payload = buildGetFmoPayload(appDelegate: appDelegate)
+            let payload = buildGetFmoPayload(host: host)
             return success(payload)
         case "getshellname":
             return success(
@@ -533,7 +581,7 @@ public enum SSTPDispatcher {
         case "getballoonname":
             return success(property.get("balloonlist.index(0).name") ?? "")
         case "getghostnamelist":
-            return success(GhostRegistry.shared.allNames().joined(separator: ","))
+            return success(routingRegistry.allGhostNames().joined(separator: ","))
         case "getshellnamelist":
             return success(listPropertyValues(prefix: "currentghost.shelllist.index", key: "name", countKey: "currentghost.shelllist.count"))
         case "getballoonnamelist":
@@ -575,10 +623,7 @@ public enum SSTPDispatcher {
             let value = SstpSessionStore.shared.getCookie(sender: sender, name: name) ?? ""
             return success(value)
         case "dumpsurface":
-            let params = commandArgs
-            DispatchQueue.main.async {
-                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.executeDumpSurface(params: params)
-            }
+            host.apply(SstpUIEffect(.dumpSurface(params: commandArgs), requestHeaders: requestHeaders))
             return success(nil)
         case "moveasync":
             guard commandArgs.count >= 5,
@@ -590,29 +635,23 @@ public enum SSTPDispatcher {
             }
             let method = commandArgs[4]
             let ignoreSticky = commandArgs.count > 5 ? commandArgs[5].lowercased() == "true" || commandArgs[5] == "1" : false
-            DispatchQueue.main.async {
-                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.moveWindowAsync(scope: scope, x: x, y: y, time: time, method: method, ignoreStickyWindow: ignoreSticky)
-            }
+            host.apply(SstpUIEffect(.moveWindowAsync(scope: scope, x: x, y: y, time: time, method: method, ignoreSticky: ignoreSticky), requestHeaders: requestHeaders))
             return success(nil)
         case "settrayicon", "settasktrayicon":
             guard let filename = commandArgs.first, !filename.isEmpty else { return badRequest() }
             let text = commandArgs.count > 1 ? commandArgs[1] : ""
-            DispatchQueue.main.async {
-                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.setTaskTrayIcon(filename: filename, text: text)
-            }
+            host.apply(SstpUIEffect(.setTaskTrayIcon(filename: filename, text: text), requestHeaders: requestHeaders))
             return success(nil)
         case "settrayballoon":
-            DispatchQueue.main.async {
-                appDelegate?.ghostManagerForShioriRequest(headers: requestHeaders)?.setTrayBalloon(options: commandArgs)
-            }
+            host.apply(SstpUIEffect(.setTrayBalloon(options: commandArgs), requestHeaders: requestHeaders))
             return success(nil)
         default:
             return nil
         }
     }
 
-    private static func buildGetFmoPayload(appDelegate: AppDelegate?) -> String {
-        let records = appDelegate?.collectFmoRecords() ?? []
+    private static func buildGetFmoPayload(host: SstpDispatcherHost) -> String {
+        let records = host.collectFmoRecords()
         return FmoManager.buildSnapshot(records: records)
     }
 
@@ -645,12 +684,12 @@ public enum SSTPDispatcher {
         return values.joined(separator: ",")
     }
 
-    private static func handleGive(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool) -> String {
-        routeToShiori(request: request, method: .give, securityContext: securityContext, isOwned: isOwned)
+    private static func handleGive(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool, host: SstpDispatcherHost, bridge: ShioriBridge, routingRegistry: SstpRoutingRegistry) -> String {
+        routeToShiori(request: request, method: .give, securityContext: securityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
     }
 
-    private static func handleInstall(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool) -> String {
-        routeToShiori(request: request, method: .install, securityContext: securityContext, isOwned: isOwned)
+    private static func handleInstall(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool, host: SstpDispatcherHost, bridge: ShioriBridge, routingRegistry: SstpRoutingRegistry) -> String {
+        routeToShiori(request: request, method: .install, securityContext: securityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
     }
 
     private static func resolveEvent(request: SSTPRequest, method: DispatchMethod) -> String {
@@ -964,8 +1003,8 @@ public enum SSTPDispatcher {
         ifGhost.split(separator: ",").first.map { String($0).trimmingCharacters(in: .whitespaces) } ?? ifGhost
     }
 
-    private static func currentGhostName() -> String? {
-        PropertyManager.shared.get("currentghost.name") ?? GhostRegistry.shared.allNames().first
+    private static func currentGhostName(routingRegistry: SstpRoutingRegistry) -> String? {
+        PropertyManager.shared.get("currentghost.name") ?? routingRegistry.allGhostNames().first
     }
 
     /// 確定したスクリプトをバルーンで再生する。IfGhost がある場合はゴースト毎に振り分ける。

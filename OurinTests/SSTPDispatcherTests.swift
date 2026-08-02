@@ -43,10 +43,57 @@ private struct SSTPMultiGhostTestState {
     let secondaryToken: UUID
 }
 
+final class FakeSstpRoutingRegistry: SstpRoutingRegistry, @unchecked Sendable {
+    private let lock = NSLock()
+    private var storedMatchHandler: @Sendable (String?, String?) -> Bool = { _, _ in false }
+    private var storedGhostNames: [String] = []
+
+    var matchHandler: @Sendable (String?, String?) -> Bool {
+        get { lock.withLock { storedMatchHandler } }
+        set { lock.withLock { storedMatchHandler = newValue } }
+    }
+
+    var ghostNames: [String] {
+        get { lock.withLock { storedGhostNames } }
+        set { lock.withLock { storedGhostNames = newValue } }
+    }
+
+    func matches(id: String?, receiverGhostName: String?) -> Bool {
+        let handler = lock.withLock { storedMatchHandler }
+        return handler(id, receiverGhostName)
+    }
+
+    func hasGhosts() -> Bool {
+        lock.withLock { !storedGhostNames.isEmpty }
+    }
+
+    func contains(ghostName: String) -> Bool {
+        lock.withLock {
+            storedGhostNames.contains { $0.caseInsensitiveCompare(ghostName) == .orderedSame }
+        }
+    }
+
+    func allGhostNames() -> [String] {
+        lock.withLock { storedGhostNames.sorted() }
+    }
+}
+
+struct FakeSstpBreakPolicy: SstpBreakPolicy {
+    let busy: Bool
+    let shouldSucceed: Bool
+    func isBusy() -> Bool { busy }
+    func waitWhileBusy() -> Bool { shouldSucceed }
+}
+
 @Suite(.serialized)
 struct SSTPDispatcherTests {
+    /// 各テストインスタンス固有の独立した SHIORI ブリッジ。
+    /// 従来の `BridgeToSHIORI`（`.shared`）の global 静的状態へ一切触れず、
+    /// 他スイート（`ExternalServerTests` 等の `.serialized` スイート）と並列実行しても競合しない。
+    /// Swift Testing はテスト毎に新しいインスタンスを生成するため、各テストは fresh な bridge を持つ。
+    let bridge = ShioriBridgeContext()
+
     init() {
-        BridgeToSHIORI.reset()
         GhostRegistry.shared.clear()
         SSTPOwnershipRegistry.shared.removeAll()
         SstpSessionStore.shared.reset()
@@ -71,11 +118,10 @@ struct SSTPDispatcherTests {
 
     @Test
     func validOwnedIDPromotesExternalRequestToLocalSecurity() async throws {
-        SSTPOwnershipRegistry.shared.replaceEntries([
-            .init(targetKeys: ["Ghost A"], ids: ["owned-a"])
-        ])
+        let fake = FakeSstpRoutingRegistry()
+        fake.matchHandler = { id, _ in id == "owned-a" }
         var receivedSecurityLevels: [String] = []
-        BridgeToSHIORI.liveGhostResolver = { _, _, _, headers in
+        bridge.liveGhostResolver = { _, _, _, headers in
             receivedSecurityLevels.append(headers["SecurityLevel"] ?? "")
             return .init(status: 204, headers: [:], value: nil)
         }
@@ -90,7 +136,7 @@ struct SSTPDispatcherTests {
                 "Option": "nodescript"
             ]
         )
-        _ = SSTPDispatcher.dispatch(request: invalid)
+        _ = SSTPDispatcher.dispatch(request: invalid, bridge: bridge, routingRegistry: fake)
 
         let valid = SSTPRequest(
             method: "SEND",
@@ -102,18 +148,17 @@ struct SSTPDispatcherTests {
                 "Option": "nodescript"
             ]
         )
-        _ = SSTPDispatcher.dispatch(request: valid)
+        _ = SSTPDispatcher.dispatch(request: valid, bridge: bridge, routingRegistry: fake)
 
         #expect(receivedSecurityLevels == ["external", "local"])
     }
 
     @Test
     func externalOriginCannotUseOwnedIDToEscalateSecurity() async throws {
-        SSTPOwnershipRegistry.shared.replaceEntries([
-            .init(targetKeys: ["Ghost A"], ids: ["owned-a"])
-        ])
+        let fake = FakeSstpRoutingRegistry()
+        fake.matchHandler = { id, _ in id == "owned-a" }
         var receivedSecurityLevels: [String] = []
-        BridgeToSHIORI.liveGhostResolver = { _, _, _, headers in
+        bridge.liveGhostResolver = { _, _, _, headers in
             receivedSecurityLevels.append(headers["SecurityLevel"] ?? "")
             return .init(status: 204, headers: [:], value: nil)
         }
@@ -123,8 +168,8 @@ struct SSTPDispatcherTests {
             headers: ["Event": "OnOwnedTest", "ID": "owned-a", "Option": "nodescript"]
         )
 
-        _ = SSTPDispatcher.dispatchExternal(request: req, origin: nil)
-        _ = SSTPDispatcher.dispatchExternal(request: req, origin: "https://example.com")
+        _ = SSTPDispatcher.dispatchExternal(request: req, origin: nil, bridge: bridge, routingRegistry: fake)
+        _ = SSTPDispatcher.dispatchExternal(request: req, origin: "https://example.com", bridge: bridge, routingRegistry: fake)
 
         #expect(receivedSecurityLevels == ["local", "external"])
     }
@@ -133,7 +178,7 @@ struct SSTPDispatcherTests {
     func sparseReferencesReachShioriWithoutCollapsingIndexes() async throws {
         var receivedReferences: [String] = []
         var receivedHeaders: [String: String] = [:]
-        BridgeToSHIORI.liveGhostResolver = { _, _, references, headers in
+        bridge.liveGhostResolver = { _, _, references, headers in
             receivedReferences = references
             receivedHeaders = headers
             return .init(status: 204, headers: [:], value: nil)
@@ -149,7 +194,7 @@ struct SSTPDispatcherTests {
             ]
         )
 
-        _ = SSTPDispatcher.dispatch(request: req)
+        _ = SSTPDispatcher.dispatch(request: req, bridge: bridge)
 
         #expect(receivedReferences.isEmpty)
         #expect(receivedHeaders["Reference2"] == "two")
@@ -160,7 +205,7 @@ struct SSTPDispatcherTests {
     @Test
     func notifyPreservesMethodAndStructuredShioriHeaders() async throws {
         var receivedMethod = ""
-        BridgeToSHIORI.liveGhostResolver = { method, _, _, _ in
+        bridge.liveGhostResolver = { method, _, _, _ in
             receivedMethod = method
             return .init(
                 status: 200,
@@ -174,7 +219,7 @@ struct SSTPDispatcherTests {
             headers: ["Event": "OnNotifyHeadersTest", "Option": "nodescript"]
         )
 
-        let response = SSTPDispatcher.dispatch(request: req)
+        let response = SSTPDispatcher.dispatch(request: req, bridge: bridge)
 
         #expect(receivedMethod == "NOTIFY")
         #expect(response.contains("SSTP/1.4 200 OK"))
@@ -193,7 +238,7 @@ struct SSTPDispatcherTests {
             EventBridge.shared.unregister(token)
             manager.shioriRuntime = nil
         }
-        BridgeToSHIORI.liveGhostResolver = { _, _, _, _ in
+        bridge.liveGhostResolver = { _, _, _, _ in
             .init(status: 200, headers: [:], value: "\\h\\s0source")
         }
         let request = SSTPRequest(
@@ -202,7 +247,7 @@ struct SSTPDispatcherTests {
             headers: ["Event": "OnTranslationTest", "SecurityLevel": "local"]
         )
 
-        let response = SSTPDispatcher.dispatch(request: request)
+        let response = SSTPDispatcher.dispatch(request: request, bridge: bridge)
 
         #expect(response.contains("Script: \\h\\s0source-translated"))
         #expect(runtime.translateRequestCount == 1)
@@ -250,7 +295,7 @@ struct SSTPDispatcherTests {
             primary.shioriRuntime = nil
             secondary.shioriRuntime = nil
         }
-        BridgeToSHIORI.liveGhostResolver = { _, _, _, _ in
+        bridge.liveGhostResolver = { _, _, _, _ in
             .init(status: 200, headers: [:], value: "\\h\\s0source")
         }
 
@@ -258,7 +303,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: ["Event": "OnMultiGhostTranslationTest", "SecurityLevel": "local"]
-        ))
+        ), bridge: bridge)
 
         #expect(response.contains("Script: \\h\\s0source-primary"))
         #expect(!response.contains("source-secondary"))
@@ -282,7 +327,7 @@ struct SSTPDispatcherTests {
     @Test
     func lowercaseHeadersAreHandledCaseInsensitively() async throws {
         let key = "lower-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0Lowercase")
+        bridge.setResource(key, value: "\\h\\s0Lowercase")
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
@@ -293,7 +338,7 @@ struct SSTPDispatcherTests {
                 "option": "nodescript"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         // 小文字ヘッダでも event/option が解釈される。nodescript はバルーン再生のみ
         // 抑止し、応答の Script ヘッダは維持される（UKADOC spec_sstp）
         #expect(resp.contains("SSTP/1.4 200 OK"))
@@ -310,7 +355,7 @@ struct SSTPDispatcherTests {
                 "Script": "\\h\\s0DirectScript\\e"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         // Event 無し SEND は SHIORI を介さず Script ヘッダを直接扱う（503 にならない）
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0DirectScript\\e"))
@@ -319,7 +364,7 @@ struct SSTPDispatcherTests {
     @Test
     func sendResourceMapsToScript() async throws {
         let key = "test-key-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0FromResource")
+        bridge.setResource(key, value: "\\h\\s0FromResource")
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
@@ -329,7 +374,7 @@ struct SSTPDispatcherTests {
                 "Charset": "UTF-8"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0FromResource"))
     }
@@ -341,7 +386,7 @@ struct SSTPDispatcherTests {
             version: "SSTP/1.4",
             headers: ["Event": "OnNotifyTest", "Charset": "UTF-8"]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 204 No Content"))
         #expect(!resp.contains("Script:"))
     }
@@ -349,14 +394,14 @@ struct SSTPDispatcherTests {
     @Test
     func executeWithoutCommandReturnsBadRequest() async throws {
         let req = SSTPRequest(method: "EXECUTE", version: "SSTP/1.4", headers: [:])
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 400 Bad Request"))
     }
 
     @Test
     func shioriWireResponseMapsStatusAndData() async throws {
         let key = "wire-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(
+        bridge.setResource(
             key,
             value: "SHIORI/3.0 204 No Content\r\nData: sample-data\r\n\r\n"
         )
@@ -369,7 +414,7 @@ struct SSTPDispatcherTests {
                 "X-SSTP-PassThru": "abc"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 204 No Content"))
         #expect(resp.contains("Data: sample-data"))
         #expect(resp.contains("X-SSTP-PassThru: abc"))
@@ -378,7 +423,7 @@ struct SSTPDispatcherTests {
     @Test
     func extendedShioriHeadersMapToSstpAndStatusProperty() async throws {
         let key = "headers-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(
+        bridge.setResource(
             key,
             value: """
             SHIORI/3.0 200 OK\r
@@ -407,7 +452,7 @@ struct SSTPDispatcherTests {
                 "X-SSTP-PassThru-Client": "token-client"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0FromHeaders"))
         #expect(resp.contains("Status: choosing"))
@@ -427,7 +472,7 @@ struct SSTPDispatcherTests {
     @Test
     func notifyValueNotifyReturnsScript() async throws {
         let key = "notify-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(
+        bridge.setResource(
             key,
             value: """
             SHIORI/3.0 200 OK\r
@@ -443,7 +488,7 @@ struct SSTPDispatcherTests {
                 "Reference0": key
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0NotifyScript"))
         #expect(resp.contains("ValueNotify: \\h\\s0NotifyScript"))
@@ -452,7 +497,7 @@ struct SSTPDispatcherTests {
     @Test
     func sendWithNotifyOptionBehavesAsNotify() async throws {
         let key = "opt-notify-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(
+        bridge.setResource(
             key,
             value: """
             SHIORI/3.0 200 OK\r
@@ -469,7 +514,7 @@ struct SSTPDispatcherTests {
                 "Option": "notify"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0NotifyViaOption"))
     }
@@ -477,7 +522,7 @@ struct SSTPDispatcherTests {
     @Test
     func nodescriptAndNobreakOptionsAreHandled() async throws {
         let key = "opt-nodescript-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0BalloonSuppressed")
+        bridge.setResource(key, value: "\\h\\s0BalloonSuppressed")
         let nodescriptReq = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
@@ -487,7 +532,7 @@ struct SSTPDispatcherTests {
                 "Option": "nodescript"
             ]
         )
-        let nodescriptResp = SSTPDispatcher.dispatch(request: nodescriptReq)
+        let nodescriptResp = SSTPDispatcher.dispatch(request: nodescriptReq, bridge: bridge)
         // nodescript はバルーン再生のみ抑止（応答 Script は維持: UKADOC spec_sstp）
         #expect(nodescriptResp.contains("SSTP/1.4 200 OK"))
         #expect(nodescriptResp.contains("Script: \\h\\s0BalloonSuppressed"))
@@ -503,7 +548,7 @@ struct SSTPDispatcherTests {
                 "Option": "nobreak"
             ]
         )
-        let nobreakResp = SSTPDispatcher.dispatch(request: nobreakReq)
+        let nobreakResp = SSTPDispatcher.dispatch(request: nobreakReq, bridge: bridge)
         #expect(nobreakResp.contains("SSTP/1.4 200 OK"))
         #expect(nobreakResp.contains("Script: \\h\\s0BalloonSuppressed"))
     }
@@ -524,11 +569,10 @@ struct SSTPDispatcherTests {
 
     @Test
     func ifGhostOverridesScriptForMatchedReceiver() async throws {
-        GhostRegistry.shared.clear()
-        GhostRegistry.shared.register(name: "Emily", path: "/tmp/emily")
-        defer { GhostRegistry.shared.clear() }
+        let fake = FakeSstpRoutingRegistry()
+        fake.ghostNames = ["Emily"]
         let key = "ifghost-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0Base")
+        bridge.setResource(key, value: "\\h\\s0Base")
         // UKADOC: IfGhost は直後の Script ヘッダと出現順で対応付けられる
         let req = SSTPRequest(
             method: "SEND",
@@ -543,16 +587,15 @@ struct SSTPDispatcherTests {
                 ("Script", "\\h\\s0ForSomeoneElse")
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
         #expect(resp.contains("Script: \\h\\s0FromIfGhost"))
         #expect(!resp.contains("ForSomeoneElse"))
     }
 
     @Test
     func ifGhostUnmatchedUsesDefaultScriptBeforeFirstIfGhost() async throws {
-        GhostRegistry.shared.clear()
-        GhostRegistry.shared.register(name: "Mary", path: "/tmp/mary")
-        defer { GhostRegistry.shared.clear() }
+        let fake = FakeSstpRoutingRegistry()
+        fake.ghostNames = ["Mary"]
         // Event 無し SEND: IfGhost 不一致時は最初の IfGhost より前の Script がデフォルト
         let req = SSTPRequest(
             method: "SEND",
@@ -565,16 +608,15 @@ struct SSTPDispatcherTests {
                 ("Script", "\\h\\s0EmilyOnly")
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0DefaultScript"))
     }
 
     @Test
     func ifGhostDefaultGhostAliasActsAsDefaultScript() async throws {
-        GhostRegistry.shared.clear()
-        GhostRegistry.shared.register(name: "Mary", path: "/tmp/mary")
-        defer { GhostRegistry.shared.clear() }
+        let fake = FakeSstpRoutingRegistry()
+        fake.ghostNames = ["Mary"]
         // 「さくら」「エミリ」「えみりぃ」はデフォルトゴースト扱いで、
         // その Script はデフォルトスクリプトとしても機能する（UKADOC spec_sstp）
         let req = SSTPRequest(
@@ -587,16 +629,15 @@ struct SSTPDispatcherTests {
                 ("Script", "\\h\\s0AliasDefault")
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0AliasDefault"))
     }
 
     @Test
     func ifGhostSakuraKeroPairMatchesBySakuraName() async throws {
-        GhostRegistry.shared.clear()
-        GhostRegistry.shared.register(name: "Emily", path: "/tmp/emily")
-        defer { GhostRegistry.shared.clear() }
+        let fake = FakeSstpRoutingRegistry()
+        fake.ghostNames = ["Emily"]
         // 「\0側名,\1側名」書式は \0 側名で照合する
         let req = SSTPRequest(
             method: "SEND",
@@ -608,18 +649,17 @@ struct SSTPDispatcherTests {
                 ("Script", "\\h\\s0PairMatched")
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0PairMatched"))
     }
 
     @Test
     func receiverGhostNameRejectsUnknownRegisteredGhost() async throws {
-        GhostRegistry.shared.clear()
-        GhostRegistry.shared.register(name: "Emily", path: "/tmp/emily")
-        defer { GhostRegistry.shared.clear() }
+        let fake = FakeSstpRoutingRegistry()
+        fake.ghostNames = ["Emily"]
         let key = "receiver-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0Base")
+        bridge.setResource(key, value: "\\h\\s0Base")
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
@@ -629,7 +669,7 @@ struct SSTPDispatcherTests {
                 "ReceiverGhostName": "UnknownGhost"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
         #expect(resp.contains("SSTP/1.4 404 Not Found"))
     }
 
@@ -638,7 +678,7 @@ struct SSTPDispatcherTests {
         GhostRegistry.shared.clear()
         defer { GhostRegistry.shared.clear() }
         let key = "origin-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(
+        bridge.setResource(
             key,
             value: """
             SHIORI/3.0 200 OK\r
@@ -655,7 +695,7 @@ struct SSTPDispatcherTests {
                 "SecurityOrigin": "https://example.com"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0OriginAware"))
     }
@@ -663,7 +703,7 @@ struct SSTPDispatcherTests {
     @Test
     func entryIsStoredAndReturned() async throws {
         let key = "entry-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0Entry")
+        bridge.setResource(key, value: "\\h\\s0Entry")
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
@@ -673,7 +713,7 @@ struct SSTPDispatcherTests {
                 "Entry": "temporary=\\h\\s0Temp"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("Entry:"))
         #expect(resp.contains("temporary=\\h\\s0Temp"))
     }
@@ -690,7 +730,7 @@ struct SSTPDispatcherTests {
                 "Reference1": "abc123"
             ]
         )
-        let setResp = SSTPDispatcher.dispatch(request: setReq)
+        let setResp = SSTPDispatcher.dispatch(request: setReq, bridge: bridge)
         #expect(setResp.contains("SSTP/1.4 200 OK"))
 
         let getReq = SSTPRequest(
@@ -702,7 +742,7 @@ struct SSTPDispatcherTests {
                 "Reference0": "session"
             ]
         )
-        let getResp = SSTPDispatcher.dispatch(request: getReq)
+        let getResp = SSTPDispatcher.dispatch(request: getReq, bridge: bridge)
         #expect(getResp.contains("SSTP/1.4 200 OK"))
         #expect(getResp.contains("Reference0: abc123"))
         #expect(getResp.contains("Data: abc123"))
@@ -715,7 +755,7 @@ struct SSTPDispatcherTests {
             version: "SSTP/1.4",
             headers: ["Command": "GetVersion"]
         )
-        let getVersionResp = SSTPDispatcher.dispatch(request: getVersionReq)
+        let getVersionResp = SSTPDispatcher.dispatch(request: getVersionReq, bridge: bridge)
         #expect(getVersionResp.contains("SSTP/1.4 200 OK"))
         #expect(getVersionResp.contains("Reference0:"))
 
@@ -724,7 +764,7 @@ struct SSTPDispatcherTests {
             version: "SSTP/1.4",
             headers: ["Command": "GetShortVersion"]
         )
-        let getShortResp = SSTPDispatcher.dispatch(request: getShortReq)
+        let getShortResp = SSTPDispatcher.dispatch(request: getShortReq, bridge: bridge)
         #expect(getShortResp.contains("SSTP/1.4 200 OK"))
         #expect(getShortResp.contains("Reference0:"))
     }
@@ -739,7 +779,7 @@ struct SSTPDispatcherTests {
                 "SecurityLevel": "local"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         // FMO now uses SSP-style record format, not the old key=value; format
         #expect(!resp.contains("baseware.name="))
@@ -755,7 +795,7 @@ struct SSTPDispatcherTests {
                 "SecurityLevel": "external"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 420 Refuse"))
     }
 
@@ -770,7 +810,7 @@ struct SSTPDispatcherTests {
                 "Reference1": "arrow"
             ]
         )
-        let setResp = SSTPDispatcher.dispatch(request: setReq)
+        let setResp = SSTPDispatcher.dispatch(request: setReq, bridge: bridge)
         #expect(setResp.contains("SSTP/1.4 200 OK"))
 
         let getReq = SSTPRequest(
@@ -781,7 +821,7 @@ struct SSTPDispatcherTests {
                 "Reference0": "currentghost.mousecursor.text"
             ]
         )
-        let getResp = SSTPDispatcher.dispatch(request: getReq)
+        let getResp = SSTPDispatcher.dispatch(request: getReq, bridge: bridge)
         #expect(getResp.contains("SSTP/1.4 200 OK"))
         #expect(getResp.contains("Reference0: arrow"))
     }
@@ -789,7 +829,7 @@ struct SSTPDispatcherTests {
     @Test
     func communicateRoutesToShioriWithSenderAsReference0() async throws {
         let key = "comm-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0FromCommunicate")
+        bridge.setResource(key, value: "\\h\\s0FromCommunicate")
         // UKADOC OnCommunicate: Reference0=送信元ゴースト名(Sender), Reference1=発言内容(Sentence),
         // Reference2+ = SSTP の ReferenceN。テスト用 Resource イベントは references.first を
         // キーに引くため、Sender に key を入れることで Reference0 へのシフトを検証する。
@@ -802,7 +842,7 @@ struct SSTPDispatcherTests {
                 "Sentence": "おはよう"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0FromCommunicate"))
     }
@@ -810,7 +850,7 @@ struct SSTPDispatcherTests {
     @Test
     func giveRoutesToShiori() async throws {
         let key = "give-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0FromGive")
+        bridge.setResource(key, value: "\\h\\s0FromGive")
         let req = SSTPRequest(
             method: "GIVE",
             version: "SSTP/1.4",
@@ -819,7 +859,7 @@ struct SSTPDispatcherTests {
                 "Reference0": key
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0FromGive"))
     }
@@ -827,7 +867,7 @@ struct SSTPDispatcherTests {
     @Test
     func installRoutesToShiori() async throws {
         let key = "install-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0FromInstall")
+        bridge.setResource(key, value: "\\h\\s0FromInstall")
         let req = SSTPRequest(
             method: "INSTALL",
             version: "SSTP/1.4",
@@ -836,7 +876,7 @@ struct SSTPDispatcherTests {
                 "Reference0": key
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0FromInstall"))
     }
@@ -844,14 +884,14 @@ struct SSTPDispatcherTests {
     @Test
     func unsupportedMethodReturns501() async throws {
         let req = SSTPRequest(method: "PUSH", version: "SSTP/1.4", headers: [:])
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 501 Not Implemented"))
     }
 
     @Test
     func unsupportedVersionReturns505() async throws {
         let req = SSTPRequest(method: "SEND", version: "SSTP/2.0", headers: [:])
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/2.0 505 HTTP Version Not Supported"))
     }
 
@@ -859,58 +899,27 @@ struct SSTPDispatcherTests {
     func oversizedPayloadReturns413() async throws {
         let body = Data(repeating: 0x41, count: 1024 * 1024 + 1)
         let req = SSTPRequest(method: "SEND", version: "SSTP/1.4", headers: [:], body: body)
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 413 Payload Too Large"))
     }
 
     @Test
-    func nobreakReturns409WhenShioriStatusStaysBusyUntilTimeout() async throws {
-        // busy が待機タイムアウトまで解消しない場合は、キューイングを諦めて 409 を返す。
-        let originalTimeout = SSTPBreakQueue.defaultTimeout
-        SSTPBreakQueue.defaultTimeout = 0.1
-        defer {
-            SSTPBreakQueue.defaultTimeout = originalTimeout
-            ShioriStatusStore.shared.update(status: "talking")
-        }
-        ShioriStatusStore.shared.update(status: "busy")
-        // ShioriStatusStore.shared はプロセス共有のため、並列実行中の他テストが
-        // status を上書きすると busy が解消されて 200 になってしまう。
-        // 待機ウィンドウの間 busy を再アサートし続けて競合に耐える。
-        let keepBusy = Task {
-            while !Task.isCancelled {
-                ShioriStatusStore.shared.update(status: "busy")
-                try? await Task.sleep(nanoseconds: 5_000_000)
-            }
-        }
-        defer { keepBusy.cancel() }
+    func nobreakReturns409WhenPolicyTimesOut() async throws {
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
             headers: ["Option": "nobreak"]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let fakePolicy = FakeSstpBreakPolicy(busy: true, shouldSucceed: false)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, breakPolicy: fakePolicy)
         #expect(resp.contains("SSTP/1.4 409 Conflict"))
     }
 
     @Test
-    func nobreakQueuesAndProceedsOnceBusyClears() async throws {
-        // UKADOC spec_sstp: nobreak は実行中のスクリプトを中断せず、終わるまで待ってから実行する。
-        // busy が待機中に解消されれば、通常のディスパッチ経路（200 OK）まで進む。
-        let key = "opt-nobreak-queue-\(UUID().uuidString)"
-        BridgeToSHIORI.setResource(key, value: "\\h\\s0QueuedAfterBusy")
-        let originalTimeout = SSTPBreakQueue.defaultTimeout
-        SSTPBreakQueue.defaultTimeout = 2.0
-        defer {
-            SSTPBreakQueue.defaultTimeout = originalTimeout
-            ShioriStatusStore.shared.update(status: "talking")
-        }
-        ShioriStatusStore.shared.update(status: "busy")
-
-        let clearBusyAfterDelay = DispatchWorkItem {
-            ShioriStatusStore.shared.update(status: "talking")
-        }
-        DispatchQueue.global().asyncAfter(deadline: .now() + 0.2, execute: clearBusyAfterDelay)
-
+    func nobreakProceedsWhenPolicySucceeds() async throws {
+        let key = "opt-nobreak-policy-\(UUID().uuidString)"
+        bridge.setResource(key, value: "\\h\\s0QueuedAfterBusy")
+        let fakePolicy = FakeSstpBreakPolicy(busy: true, shouldSucceed: true)
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
@@ -920,32 +929,74 @@ struct SSTPDispatcherTests {
                 "Option": "nobreak"
             ]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, breakPolicy: fakePolicy)
         #expect(resp.contains("SSTP/1.4 200 OK"))
         #expect(resp.contains("Script: \\h\\s0QueuedAfterBusy"))
     }
 
     @Test
+    func nobreakDoesNotWaitWhenPolicyIsNotBusy() async throws {
+        let fakePolicy = FakeSstpBreakPolicy(busy: false, shouldSucceed: false)
+        let req = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: ["Option": "nobreak"]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, breakPolicy: fakePolicy)
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+    }
+
+    @Test
+    func notifyNobreakUsesInjectedPolicy() async throws {
+        let fakePolicy = FakeSstpBreakPolicy(busy: true, shouldSucceed: false)
+        let req = SSTPRequest(
+            method: "NOTIFY",
+            version: "SSTP/1.4",
+            headers: ["Option": "nobreak"]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, breakPolicy: fakePolicy)
+        #expect(resp.contains("SSTP/1.4 409 Conflict"))
+    }
+
+    @Test
+    func liveBreakPolicyReturnsImmediatelyWhenNotBusy() async throws {
+        ShioriStatusStore.shared.update(status: "talking")
+        let policy = LiveSstpBreakPolicy(timeout: 0.1, pollInterval: 0.01)
+        #expect(!policy.isBusy())
+        #expect(policy.waitWhileBusy())
+    }
+
+    @Test
+    func liveBreakPolicyTimesOutWhenStaysBusy() async throws {
+        ShioriStatusStore.shared.update(status: "busy")
+        defer { ShioriStatusStore.shared.update(status: "talking") }
+        let policy = LiveSstpBreakPolicy(timeout: 0.05, pollInterval: 0.01)
+        #expect(policy.isBusy())
+        #expect(!policy.waitWhileBusy())
+    }
+
+    @Test
     func receiverGhostNameReturns512WhenNoRegistryEntries() async throws {
-        GhostRegistry.shared.clear()
+        let fake = FakeSstpRoutingRegistry()
+        fake.ghostNames = []
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
             headers: ["ReceiverGhostName": "Emily"]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
         #expect(resp.contains("SSTP/1.4 512 Invisible"))
     }
 
     @Test
     func sendReturns503WhenShioriUnavailable() async throws {
-        BridgeToSHIORI.reset()
+        // bridge は fresh（何も登録されていない）ため、Resource 解決に失敗し 503 になる。
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
             headers: ["Event": "Resource", "Reference0": "missing-resource-key"]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 503 Service Unavailable"))
     }
 
@@ -958,8 +1009,50 @@ struct SSTPDispatcherTests {
             version: "SSTP/1.4",
             headers: ["SecurityLevel": "external"]
         )
-        let resp = SSTPDispatcher.dispatch(request: req)
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 420 Refuse"))
+    }
+
+    @Test
+    func executeGetNamesReturnsAllGhostNamesFromRegistry() async throws {
+        let fake = FakeSstpRoutingRegistry()
+        fake.ghostNames = ["Emily", "Sakura"]
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: ["Command": "GetNames"]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(resp.contains("Reference0: Emily,Sakura"))
+    }
+
+    @Test
+    func executeGetNameListCommaSeparated() async throws {
+        let fake = FakeSstpRoutingRegistry()
+        fake.ghostNames = ["Sakura", "Emily", "Mary"]
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: ["Command": "GetNameList"]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(resp.contains("Reference0: Emily,Mary,Sakura"))
+    }
+
+    @Test
+    func executeGetGhostNameListReturnsAllGhostNames() async throws {
+        let fake = FakeSstpRoutingRegistry()
+        fake.ghostNames = ["Ghost1", "Ghost2"]
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: ["Command": "GetGhostNameList"]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(resp.contains("Reference0: Ghost1,Ghost2"))
     }
 
     /// マルチゴースト SSTP ルーティングの照合キー生成（`AppDelegate.receiverTargetKey`）。

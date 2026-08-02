@@ -142,4 +142,4 @@ In the specifications, implementation status uses the following symbols:
 
 ## 📄 License
 
-Documentation follows the Ourin project license (CC BY-NC-SA 4.0).
+Original Ourin documentation is licensed under CC BY-SA 4.0. Third-party material retains its original license.

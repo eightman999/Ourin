@@ -175,7 +175,9 @@ Ourin (Main App)
 ## License Compliance
 
 ### Ourin License
-- **CC BY-NC-SA 4.0** (Creative Commons Attribution-NonCommercial-ShareAlike 4.0)
+- **Source code**: Apache License 2.0
+- **Project documentation**: CC BY-SA 4.0
+- **Third-party components and bundled content**: their original licenses
 - Repository: https://github.com/furin-lab/ourin
 
 ### Bundled Licenses
