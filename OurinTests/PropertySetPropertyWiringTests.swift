@@ -59,4 +59,31 @@ struct PropertySetPropertyWiringTests {
         #expect(PropertyManager.shared.get("currentghost.scope(0).scaling") == "50.0,75.0")
         #expect(PropertyManager.shared.get("currentghost.balloon.scope(0).scaling") == "50.0,75.0")
     }
+
+    @Test
+    func liveScopeSurfaceAndAnimationPropertiesUseRuntimeState() throws {
+        let gm = makeGhostManager()
+        _ = gm.ensureCharacterWindow(for: 0)
+        gm.characterViewModels[0]?.currentSurfaceID = 17
+
+        #expect(PropertyManager.shared.get("currentghost.scope(0).surface.num") == "17")
+
+        let pattern = SerikoPattern(
+            index: 0,
+            method: .overlay,
+            surfaceID: 0,
+            duration: 10_000,
+            x: 0,
+            y: 0,
+            rawArguments: []
+        )
+        gm.serikoExecutor.register(animations: [
+            41: SerikoParser.AnimationDefinition(id: 41, interval: .never, options: [], patterns: [pattern]),
+            42: SerikoParser.AnimationDefinition(id: 42, interval: .never, options: [], patterns: [pattern])
+        ])
+
+        #expect(PropertyManager.shared.set("currentghost.scope(0).surface.num", value: "18"))
+        #expect(PropertyManager.shared.set("currentghost.scope(0).animation.num", value: "41, 42"))
+        #expect(PropertyManager.shared.get("currentghost.scope(0).animation.num") == "41,42")
+    }
 }

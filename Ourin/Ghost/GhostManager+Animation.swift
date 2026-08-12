@@ -66,6 +66,7 @@ extension GhostManager {
         serikoLoopTimer?.invalidate()
         serikoLoopTimer = nil
         serikoExecutor.stopAllAnimations()
+        activeAnimationIDsByScope.removeAll()
         serikoScaleFactorsByScope[scope] = nil
         applyEffectiveSerikoScale(scope: scope)
     }
@@ -179,6 +180,7 @@ extension GhostManager {
         animationEngine.onAnimationComplete = { [weak self] animID in
             guard let self = self else { return }
             self.clearAnimationOverlays(animationID: animID)
+            self.removeActiveAnimationID(animID)
 
             // If we were waiting for this animation, resume playback
             if self.waitingForAnimation == animID {
@@ -233,16 +235,21 @@ extension GhostManager {
         loadAnimationsForCurrentSurface()
 
         if serikoExecutor.executeAnimation(id: id) {
+            activeAnimationIDsByScope[currentScope, default: []].insert(id)
             startSerikoLoopIfNeeded()
             return
         }
         animationEngine.playAnimation(id: id, wait: wait)
+        if animationEngine.activeAnimationIDs.contains(id) {
+            activeAnimationIDsByScope[currentScope, default: []].insert(id)
+        }
     }
 
     /// Play an animation and wait for completion
     func playAnimationAndWait(id: Int) {
         waitingForAnimation = id
         if serikoExecutor.activeAnimations[id] != nil {
+            activeAnimationIDsByScope[currentScope, default: []].insert(id)
             return
         }
         playAnimation(id: id, wait: true)
@@ -252,8 +259,10 @@ extension GhostManager {
     func waitForAnimation(id: Int) {
         waitingForAnimation = id
         if serikoExecutor.activeAnimations[id] == nil {
-            _ = serikoExecutor.executeAnimation(id: id)
-            startSerikoLoopIfNeeded()
+            if serikoExecutor.executeAnimation(id: id) {
+                activeAnimationIDsByScope[currentScope, default: []].insert(id)
+                startSerikoLoopIfNeeded()
+            }
         }
     }
 
@@ -521,6 +530,7 @@ extension GhostManager {
         serikoExecutor.stopAllAnimations()
         stopSerikoLoopIfIdle()
         animationEngine.stopAllAnimations()
+        activeAnimationIDsByScope.removeAll()
         stopImportedSurfaceAnimations(scope: currentScope)
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -639,22 +649,30 @@ extension GhostManager {
                 initialOffset: CGPoint(x: CGFloat(x), y: CGFloat(y))
             )
         case .start:
-            _ = serikoExecutor.executeAnimation(id: surfaceID)
-            startSerikoLoopIfNeeded()
+            if serikoExecutor.executeAnimation(id: surfaceID) {
+                activeAnimationIDsByScope[currentScope, default: []].insert(surfaceID)
+                startSerikoLoopIfNeeded()
+            }
         case .alternativeStart:
-            _ = serikoExecutor.executeAnimation(id: surfaceID)
-            startSerikoLoopIfNeeded()
+            if serikoExecutor.executeAnimation(id: surfaceID) {
+                activeAnimationIDsByScope[currentScope, default: []].insert(surfaceID)
+                startSerikoLoopIfNeeded()
+            }
         case .stop:
             serikoExecutor.stopAnimation(id: animationID)
+            removeActiveAnimationID(animationID)
         case .alternativeStop:
             serikoExecutor.stopAnimation(id: surfaceID)
+            removeActiveAnimationID(surfaceID)
         case .parallelStart, .parallelStop:
             // 並列開始/停止は executor が全対象IDへ直接適用する。
             break
         case .insert:
             // insert は executor 側で start に変換されるためここには到達しないが、網羅性のため処理する
-            _ = serikoExecutor.executeAnimation(id: surfaceID)
-            startSerikoLoopIfNeeded()
+            if serikoExecutor.executeAnimation(id: surfaceID) {
+                activeAnimationIDsByScope[currentScope, default: []].insert(surfaceID)
+                startSerikoLoopIfNeeded()
+            }
         case .import:
             // 実フレームの読み込みは executor の onImportInvoked で行う。
             break
@@ -677,6 +695,7 @@ extension GhostManager {
     private func handleAnimationFinished(animationID: Int) {
         clearAnimationOverlays(animationID: animationID)
         clearSerikoScaling(animationID: animationID, scope: currentScope)
+        removeActiveAnimationID(animationID)
         if waitingForAnimation == animationID {
             waitingForAnimation = nil
             if isPlaying {
@@ -685,6 +704,15 @@ extension GhostManager {
         }
         stopSerikoLoopIfIdle()
         EventBridge.shared.notifyCustom("OnAnimationFinished", refs: ["animationID": String(animationID)], ignoreResponseScript: true)
+    }
+
+    private func removeActiveAnimationID(_ animationID: Int) {
+        for scope in Array(activeAnimationIDsByScope.keys) {
+            activeAnimationIDsByScope[scope]?.remove(animationID)
+            if activeAnimationIDsByScope[scope]?.isEmpty == true {
+                activeAnimationIDsByScope[scope] = nil
+            }
+        }
     }
 
     private func startSerikoLoopIfNeeded() {

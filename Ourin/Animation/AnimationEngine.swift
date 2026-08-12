@@ -195,6 +195,11 @@ class AnimationEngine {
     // Animation state
     private var animations: [Int: AnimationDefinition] = [:]
     private var activeAnimations: [Int: ActiveAnimation] = [:]
+
+    /// PROPERTY `currentghost.scope(ID).animation.num` 用の実行中ID一覧。
+    var activeAnimationIDs: [Int] {
+        activeAnimations.keys.sorted()
+    }
     private var displayLink: CVDisplayLink?
     private var isRunning: Bool = false
     

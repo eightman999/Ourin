@@ -619,6 +619,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var windowZOrderScopes: [Int]? = nil // Persisted z-order group for windows created later
     var pendingWindowStateReasons: [Int: String] = [:] // Scope -> reason for the next minimize/restore notification
     var serikoScaleFactorsByScope: [Int: [Int: CGPoint]] = [:] // scope -> animationID -> x/y multiplier
+    /// PROPERTY の animation.num 用。実行開始時の scope とIDを保持する。
+    var activeAnimationIDsByScope: [Int: Set<Int>] = [:]
     /// 画面引き継ぎイベントの直前モニター状態（scopeごと）。
     /// displayIDをwire値と分離して保持し、同一形状のモニター間でも移動を検出する。
     var displayHandoverStates: [Int: DisplaySnapshot] = [:]
@@ -761,6 +763,38 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func propertyScopeScaling(for scope: Int) -> String? {
         guard let viewModel = characterViewModels[scope] else { return nil }
         return Self.propertyScalingValue(x: viewModel.scaleX, y: viewModel.scaleY)
+    }
+
+    /// `currentghost.scope(ID).*` のうち、実行中状態を持つプロパティを返す。
+    /// 静的な PropertyProvider のスナップショットでは、サーフェス切替やアニメーション開始後の
+    /// 値を返せないため、ここから CharacterViewModel / 実行中アニメーションを直接参照する。
+    func propertyScopeValue(for scope: Int, property: String) -> String? {
+        switch property {
+        case "surface.num":
+            guard let viewModel = characterViewModels[scope] else { return nil }
+            return String(viewModel.currentSurfaceID)
+        case "animation.num":
+            var activeIDs = activeAnimationIDsByScope[scope] ?? []
+            // 自動発火や旧AnimationEngineの完了通知前でも、現在の実状態を反映する。
+            if scope == currentScope {
+                activeIDs.formUnion(serikoExecutor.activeAnimations.keys)
+                activeIDs.formUnion(animationEngine.activeAnimationIDs)
+            }
+            return activeIDs.sorted().map(String.init).joined(separator: ",")
+        case "scaling":
+            return propertyScopeScaling(for: scope)
+        default:
+            return nil
+        }
+    }
+
+    /// `currentghost.scope(ID).surface.num` / `animation.num` のSETを実ランタイムへ反映する。
+    @discardableResult
+    func setPropertyScopeValue(for scope: Int, property: String, value: String) -> Bool {
+        applyScopePropertySideEffect(
+            key: "currentghost.scope(\(scope)).\(property)",
+            value: value
+        )
     }
 
     /// `currentghost.balloon.scope(ID).scaling` が返す実効倍率を、表示中バルーンから読む。
@@ -2090,8 +2124,6 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let propertyKey = args[2]
                         let propertyValue = args.count >= 4 ? args[3] : ""
                         let success = sakuraEngine.propertyManager.set(propertyKey, value: propertyValue)
-                        // scope(N).surface.num / animation.num への SET は実サーフェス/アニメへ反映する（UKADOC: WRITE 可）
-                        applyScopePropertySideEffect(key: propertyKey, value: propertyValue)
                         Log.debug("[GhostManager] Property set: \(propertyKey) = \(propertyValue), success: \(success)")
                     } else if first == "save", args.count >= 2, args[1].lowercased() == "wallpaper" {
                         // \![save,wallpaper] - save the current desktop wallpaper URLs

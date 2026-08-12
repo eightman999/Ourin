@@ -219,9 +219,14 @@ public final class PropertyManager {
     /// アニメーションで変化するため、常にキャッシュ対象外として扱う。
     func bindCurrentGhostRuntime(_ manager: GhostManager) {
         if let ghostProvider = providers["currentghost"] as? GhostPropertyProvider {
-            ghostProvider.setScopeScalingProvider { [weak manager] scope in
-                manager?.propertyScopeScaling(for: scope)
-            }
+            ghostProvider.setScopePropertyProvider(
+                get: { [weak manager] scope, property in
+                    manager?.propertyScopeValue(for: scope, property: property)
+                },
+                set: { [weak manager] scope, property, value in
+                    manager?.setPropertyScopeValue(for: scope, property: property, value: value) ?? false
+                }
+            )
         }
         if let balloonProvider = providers["currentghost.balloon"] as? BalloonPropertyProvider {
             balloonProvider.setScopeScalingProvider { [weak manager] scope in

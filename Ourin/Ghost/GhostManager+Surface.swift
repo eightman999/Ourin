@@ -11,15 +11,16 @@ extension GhostManager {
     /// `\![set,property,currentghost.scope(N).surface.num,ID]` 等の SET を実サーフェス/アニメへ反映する。
     /// UKADOC では surface.num / animation.num / seriko.defaultsurface は WRITE 可。プロパティの
     /// 読み戻し配線（live scopeData）とは独立に、ここでは SET の副作用（表示変更）のみを適用する。
-    func applyScopePropertySideEffect(key: String, value: String) {
+    @discardableResult
+    func applyScopePropertySideEffect(key: String, value: String) -> Bool {
         var k = key
         if k.hasPrefix("currentghost.") { k = String(k.dropFirst("currentghost.".count)) }
-        guard k.hasPrefix("scope(") else { return }
+        guard k.hasPrefix("scope(") else { return false }
         let afterParen = k.dropFirst("scope(".count)
-        guard let close = afterParen.firstIndex(of: ")") else { return }
-        guard let scopeID = Int(afterParen[..<close]) else { return }
+        guard let close = afterParen.firstIndex(of: ")") else { return false }
+        guard let scopeID = Int(afterParen[..<close]) else { return false }
         var rest = String(afterParen[afterParen.index(after: close)...])
-        guard rest.first == "." else { return }
+        guard rest.first == "." else { return false }
         rest.removeFirst()
 
         // 対象スコープを一時的に currentScope にして既存 API を再利用する（\4/\5 と同じ手法）。
@@ -33,13 +34,21 @@ extension GhostManager {
 
         switch rest {
         case "surface.num", "seriko.defaultsurface":
-            guard let sid = Int(value) else { return }
+            guard let sid = Int(value.trimmingCharacters(in: .whitespacesAndNewlines)) else { return false }
             withScope { updateSurface(id: sid) }
+            return true
         case "animation.num":
-            guard let aid = Int(value) else { return }
-            withScope { playAnimation(id: aid, wait: false) }
+            let rawIDs = value.split(separator: ",", omittingEmptySubsequences: false)
+            let animationIDs = rawIDs.compactMap { Int($0.trimmingCharacters(in: .whitespacesAndNewlines)) }
+            guard !rawIDs.isEmpty, animationIDs.count == rawIDs.count else { return false }
+            withScope {
+                for animationID in animationIDs {
+                    playAnimation(id: animationID, wait: false)
+                }
+            }
+            return true
         default:
-            break
+            return false
         }
     }
 
