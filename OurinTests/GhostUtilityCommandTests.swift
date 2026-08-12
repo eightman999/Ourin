@@ -156,4 +156,35 @@ struct GhostUtilityCommandTests {
         #expect(close?.refs == ["timed out"])
         #expect(balloon.text.isEmpty)
     }
+
+    @Test @MainActor
+    func scalingCommandRaisesShellScalingWithBeforeAndAfterPercentages() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-shell-scaling-event-test"))
+        _ = manager.ensureCharacterWindow(for: 0)
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        let otherManager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-shell-scaling-event-other-test"))
+        let otherRuntime = CapturingUtilityRuntime()
+        let otherToken = EventBridge.shared.register(runtime: otherRuntime, ghostManager: otherManager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.unregister(otherToken)
+            EventBridge.shared.stop()
+        }
+
+        manager.executeSetScalingCommand(args: ["set", "scaling", "50", "75"])
+
+        for _ in 0..<20 where runtime.requests.first(where: { $0.id == EventID.OnShellScaling.rawValue }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let event = runtime.requests.first { $0.id == EventID.OnShellScaling.rawValue }
+        #expect(event?.method == "GET")
+        #expect(event?.refs == ["50.0", "100.0", "75.0", "100.0"])
+        #expect(manager.characterViewModels[0]?.userScaleX == 0.5)
+        #expect(manager.characterViewModels[0]?.userScaleY == 0.75)
+        #expect(otherRuntime.requests.isEmpty)
+    }
 }

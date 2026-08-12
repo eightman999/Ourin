@@ -81,9 +81,24 @@ extension GhostManager {
 
     func setUserScaling(scope: Int, x: Double, y: Double) {
         guard let vm = characterViewModels[scope] else { return }
+        let previousXPercent = vm.userScaleX * 100.0
+        let previousYPercent = vm.userScaleY * 100.0
+        let changed = vm.userScaleX != x || vm.userScaleY != y
         vm.userScaleX = x
         vm.userScaleY = y
         applyEffectiveSerikoScale(scope: scope)
+
+        guard changed else { return }
+        _ = EventBridge.shared.request(
+            .OnShellScaling,
+            refs: [
+                "afterX": String(x * 100.0),
+                "beforeX": String(previousXPercent),
+                "afterY": String(y * 100.0),
+                "beforeY": String(previousYPercent)
+            ],
+            to: self
+        )
     }
 
     private func setSerikoScaling(animationID: Int, x: Double, y: Double, scope: Int) {

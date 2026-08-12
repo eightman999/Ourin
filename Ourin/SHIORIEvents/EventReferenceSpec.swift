@@ -128,6 +128,7 @@ public enum EventReferenceTable {
         .init(id: "OnSurfaceChange", references: ["sakuraSurface", "keroSurface", "changedScope"], category: "shell"),
         .init(id: "OnSurfaceRestore", references: ["sakuraSurface", "keroSurface"], category: "shell"),
         .init(id: "OnSurfacesReloaded", references: ["shellName"], category: "shell"),
+        .init(id: "OnShellScaling", references: ["afterX", "beforeX", "afterY", "beforeY"], category: "shell"),
         // UKADOC: character ID, part, enabled(1/0), category, source(script/user).
         .init(id: "OnDressupChanged", references: ["characterID", "part", "value", "category", "source"], category: "shell"),
         .init(id: "OnAnimationFinished", references: ["animationID"], category: "shell"),

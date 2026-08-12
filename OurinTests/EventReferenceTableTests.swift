@@ -63,6 +63,13 @@ func eventReferenceTableBalloonTimeoutReferencesMatchUkadoc() {
 }
 
 @Test
+func eventReferenceTableShellScalingReferencesMatchUkadoc() {
+    #expect(EventReferenceTable.specs["OnShellScaling"]?.references == [
+        "afterX", "beforeX", "afterY", "beforeY"
+    ])
+}
+
+@Test
 func eventReferenceTableMouseEventReferencesMatchUkadoc() {
     // UKADOC: OnMouseClick R0=x R1=y R2=ホイール回転量 R3=キャラクターID
     //         R4=当たり判定識別子 R5=ボタン R6=デバイス種別
