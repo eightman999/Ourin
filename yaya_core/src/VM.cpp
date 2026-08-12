@@ -441,9 +441,28 @@ static bool isOutputSuppressedNode(const std::shared_ptr<AST::Node>& node) {
         "__array_concat_assign__",
         "__assign__", "__plus_assign__", "__minus_assign__",
         "__star_assign__", "__slash_assign__", "__percent_assign__",
-        "__concat_assign__", "__range_assign__", "__range_concat_assign__"
+        "__concat_assign__", "__range_assign__", "__range_concat_assign__",
+        "__postinc__", "__postdec__", "__preinc__", "__predec__"
     };
-    return assignmentCalls.count(call->functionName) != 0;
+    if (assignmentCalls.count(call->functionName) != 0) return true;
+
+    // Built-ins that perform an operation as a statement must not leak their
+    // status/handle value into the function's talk candidates.  The value is
+    // still available when the call is nested or assigned to a variable.
+    static const std::set<std::string> statementOnlyBuiltins = {
+        "APPEND_RUNTIME_DIC", "CHARSETLIB", "CHARSETLIBEX",
+        "CLEARERRORLOG", "DICLOAD", "DICUNLOAD",
+        "ERASEVAR", "EXECUTE", "EXECUTE_WAIT",
+        "FCLOSE", "FCOPY", "FDEL", "FOPEN", "FRENAME",
+        "FSEEK", "FWRITE", "FWRITE2", "FWRITEBIN", "FWRITEDECODE",
+        "FUNCDECL_ERASE", "FUNCDECL_WRITE",
+        "LETTONAME", "LOADLIB", "LOGGING", "MKDIR", "RMDIR",
+        "REGISTERTEMPVAR", "RESTOREVAR", "SAVEVAR", "SETDELIM",
+        "SETGLOBALDEFINE", "SETLASTERROR", "SETSETTING", "SETTAMAHWND",
+        "SLEEP", "SRAND", "UNDEFFUNC", "UNDEFGLOBALDEFINE",
+        "UNLOADLIB", "UNREGISTERTEMPVAR"
+    };
+    return statementOnlyBuiltins.count(call->functionName) != 0;
 }
 
 } // namespace
