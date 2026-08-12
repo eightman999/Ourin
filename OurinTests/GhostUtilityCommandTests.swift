@@ -39,6 +39,24 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func multiDigitWaitDoesNotBecomeSpokenText() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-multi-digit-wait-test"))
+
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .command(name: "w", args: ["10"]))
+
+        #expect(manager.playbackQueue.count == 1)
+        guard let unit = manager.playbackQueue.first else {
+            Issue.record("Expected a wait unit for \\w10")
+            return
+        }
+        if case .wait(let seconds) = unit {
+            #expect(abs(seconds - 0.5) < 0.0001)
+        } else {
+            Issue.record("\\w10 must enqueue a wait, not a text unit")
+        }
+    }
+
+    @Test @MainActor
     func backlogKeepsVisibleTextAndCapsHistory() {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-backlog-test"))
 

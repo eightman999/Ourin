@@ -1931,12 +1931,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             switch name.lowercased() {
             case "w":
                 if let first = args.first, let n = Int(first) {
-                    if (1...9).contains(n) {
+                    if n >= 0 {
+                        // Sakura Script の \w[N] は N×50ms。多桁値の末尾を本文へ
+                        // 流すと、\w10 が「待機後に 0 を発話」するため禁止する。
                         playbackQueue.append(.wait(Double(n) * 0.05))
-                    } else if n >= 10 {
-                        // \w10 => 50ms then output "0"
-                        playbackQueue.append(.wait(0.05))
-                        playbackQueue.append(.text("0"))
                     }
                 } else {
                     // No arg: default pause

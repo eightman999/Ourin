@@ -18,6 +18,17 @@ struct SakuraScriptEngineTests {
     }
 
     @Test
+    func parsesMultiDigitWaitAsOneCommandArgument() {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: #"\w10\w[25]"#)
+
+        #expect(tokens == [
+            .command(name: "w", args: ["10"]),
+            .command(name: "w", args: ["25"])
+        ])
+    }
+
+    @Test
     func propertyExpand() async throws {
         let engine = SakuraScriptEngine()
         let tokens = engine.parse(script: "Name %property[baseware.name]")

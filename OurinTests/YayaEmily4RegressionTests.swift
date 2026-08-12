@@ -204,6 +204,39 @@ struct YayaEmily4RegressionTests {
         #expect(value?.contains("\\") == true)
     }
 
+    /// 実再生前の `GhostManager.translateForDisplay` が利用する `OnTranslate` は、
+    /// 入力 Sakura Script をそのまま返す必要がある。ここが数値の `0` を返すと、
+    /// 表示前にスクリプト全体が `0` へ置換され、バルーンが「0」だけになる。
+    @Test
+    func emily4OnTranslatePreservesSakuraScript() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping Emily4 regression test")
+            return
+        }
+        guard let master = try Self.copyEmily4Master() else {
+            print("[skip] emily4/ghost/master fixture not found; skipping")
+            return
+        }
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master)
+
+        let script = #"\0\s[0]こんにちは\e"#
+        let response = session.exchange([
+            "cmd": "request", "method": "GET", "id": "OnTranslate",
+            "ref": [script], "headers": ["Charset": "UTF-8"]
+        ])
+
+        #expect(response?["ok"] as? Bool == true)
+        #expect(response?["status"] as? Int == 200)
+        let value = response?["value"] as? String ?? ""
+        #expect(value != "0")
+        #expect(value.contains("\\s[0]"))
+        #expect(value.contains("こんにちは"))
+    }
+
     /// 全33辞書が構文エラー無しでロードできることを回帰確認する
     /// （`docs/AUDITS_TODO.md`/`IMPLEMENTATION_STATUS.md` の「33/33ロード成功」主張の裏付け）。
     @Test
