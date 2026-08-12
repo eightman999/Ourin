@@ -92,7 +92,10 @@ final class SpeechObserver {
             lastSpeaking = speaking
             handler?(ShioriEvent(
                 id: .OnSpeechSynthesisStatus,
-                refs: ["status": speaking ? "speaking" : "idle"]
+                refs: [
+                    "enabled": speaking ? "1" : "0",
+                    "status": speaking ? "speaking" : "idle"
+                ]
             ))
         }
 
@@ -102,11 +105,16 @@ final class SpeechObserver {
             authorization: authorization,
             recognizerAvailable: recognizerAvailable
         )
-        if lastVoiceRecognitionStatus != voiceStatus {
-            lastVoiceRecognitionStatus = voiceStatus
+        let recognitionEnabled = authorization == .authorized && recognizerAvailable
+        let voiceStateKey = "\(recognitionEnabled ? "1" : "0"):\(voiceStatus)"
+        if lastVoiceRecognitionStatus != voiceStateKey {
+            lastVoiceRecognitionStatus = voiceStateKey
             handler?(ShioriEvent(
                 id: .OnVoiceRecognitionStatus,
-                refs: ["status": voiceStatus]
+                refs: [
+                    "enabled": recognitionEnabled ? "1" : "0",
+                    "status": voiceStatus
+                ]
             ))
         }
 
@@ -200,7 +208,7 @@ final class SpeechObserver {
         guard let text else { return }
         handler?(ShioriEvent(
             id: .OnVoiceRecognitionWord,
-            refs: ["word": text]
+            refs: ["scopeID": "0", "word": text]
         ))
     }
 

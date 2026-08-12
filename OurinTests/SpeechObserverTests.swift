@@ -91,4 +91,35 @@ struct SpeechObserverTests {
             ) == "こんばんは"
         )
     }
+
+    @Test
+    func speechEventsUseUkadocReferenceOrder() {
+        #expect(
+            EventReferenceTable.params(forEvent: "OnSpeechSynthesisStatus", refs: [
+                "enabled": "1",
+                "status": "speaking"
+            ]) == [
+                "Reference0": "1",
+                "Reference1": "speaking"
+            ]
+        )
+        #expect(
+            EventReferenceTable.params(forEvent: "OnVoiceRecognitionStatus", refs: [
+                "enabled": "0",
+                "status": "denied"
+            ]) == [
+                "Reference0": "0",
+                "Reference1": "denied"
+            ]
+        )
+        #expect(
+            EventReferenceTable.params(forEvent: "OnVoiceRecognitionWord", refs: [
+                "scopeID": "0",
+                "word": "こんにちは"
+            ]) == [
+                "Reference0": "0",
+                "Reference1": "こんにちは"
+            ]
+        )
+    }
 }

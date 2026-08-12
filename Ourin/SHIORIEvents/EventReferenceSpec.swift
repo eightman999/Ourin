@@ -436,9 +436,11 @@ public enum EventReferenceTable {
         .init(id: "OnGamepadButtonDown", references: ["button", "deviceName"], category: "input"),
         .init(id: "OnGamepadButtonUp", references: ["button", "deviceName"], category: "input"),
         .init(id: "OnGamepadAxisMove", references: ["axis", "x", "y", "deviceName"], category: "input"),
-        .init(id: "OnSpeechSynthesisStatus", references: ["status"], category: "system"),
-        .init(id: "OnVoiceRecognitionStatus", references: ["status"], category: "system"),
-        .init(id: "OnVoiceRecognitionWord", references: ["word"], category: "system"),
+        // UKADOC: Reference0 は機能の有効状態 (0/1)。詳細な状態名は Ourin 拡張の Reference1。
+        .init(id: "OnSpeechSynthesisStatus", references: ["enabled", "status"], category: "system"),
+        .init(id: "OnVoiceRecognitionStatus", references: ["enabled", "status"], category: "system"),
+        // UKADOC: Reference0=スコープ番号、Reference1=認識語。
+        .init(id: "OnVoiceRecognitionWord", references: ["scopeID", "word"], category: "system"),
     ]
 
     // MARK: - 表駆動発火 API の中核（ラベル ⇄ ReferenceN 変換）
