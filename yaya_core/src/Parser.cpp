@@ -296,6 +296,13 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
         advance();
         return std::make_shared<AST::ContinueNode>();
     }
+
+    // YAYA の出力候補エリア区切り。ブロックリテラル内の `--` は
+    // parsePrimary() が専用に処理するため、ここでは通常の文脈だけを扱う。
+    if (check(TokenType::MinusMinus)) {
+        advance();
+        return std::make_shared<AST::CombineNode>();
+    }
     
     // Return statement
     if (check(TokenType::Return)) {
@@ -310,6 +317,14 @@ std::shared_ptr<AST::Node> Parser::parseStatement() {
         }
         auto expr = parseExpression();
         return std::make_shared<AST::ReturnNode>(expr);
+    }
+
+    // `void expression` は式を実行するが、その戻り値を出力候補にしない。
+    // void は関数型修飾子にも使われるため、ここでは文頭の式修飾子だけを認識する。
+    if (check(TokenType::Identifier) && current().value == "void" &&
+        (peek().type == TokenType::Identifier || peek().type == TokenType::Dot)) {
+        advance();
+        return std::make_shared<AST::VoidNode>(parseExpression());
     }
     
     // Assignment (simple, array, compound)
@@ -1392,20 +1407,32 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
             // Check for array range syntax: [start, end]
             if (match(TokenType::Comma)) {
                 auto endExpr = parseExpression();
+                std::shared_ptr<AST::Node> delimiterExpr;
+                if (match(TokenType::Comma)) {
+                    // YAYA also accepts [start, end, delimiter] for a delimiter-based
+                    // pseudo-array range. The two-index [index, delimiter] form is kept
+                    // distinct at runtime by the delimiter expression's string type.
+                    delimiterExpr = parseExpression();
+                }
+
+                std::vector<std::shared_ptr<AST::Node>> rangeArguments{
+                    indexExpr,
+                    endExpr
+                };
+                if (delimiterExpr) rangeArguments.push_back(delimiterExpr);
                 // Create a special range access using __range__ call
                 if (auto* var = dynamic_cast<AST::VariableNode*>(node.get())) {
+                    rangeArguments.insert(rangeArguments.begin(),
+                                          std::make_shared<AST::VariableNode>(var->name));
                     node = std::make_shared<AST::CallNode>(
                         "__range__",
-                        std::vector<std::shared_ptr<AST::Node>>{ 
-                            std::make_shared<AST::VariableNode>(var->name), 
-                            indexExpr, 
-                            endExpr 
-                        }
+                        rangeArguments
                     );
                 } else {
+                    rangeArguments.insert(rangeArguments.begin(), node);
                     node = std::make_shared<AST::CallNode>(
                         "__range__",
-                        std::vector<std::shared_ptr<AST::Node>>{ node, indexExpr, endExpr }
+                        rangeArguments
                     );
                 }
             } else {

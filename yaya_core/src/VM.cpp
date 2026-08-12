@@ -396,6 +396,56 @@ std::string formatPrintf(const std::string& format, const std::vector<Value>& ar
     return result;
 }
 
+// YAYA の文字列疑似配列（text[index, delimiter]）を分解する。
+// 区切り文字は正規表現ではなくリテラル文字列で、空要素も保持する。
+// 空文字列の delimiter は SETDELIM() の既定区切りへ解決してから呼び出す。
+static std::vector<std::string> splitPseudoArray(const std::string& text,
+                                                  const std::string& delimiter) {
+    if (text.empty()) return {};
+
+    std::vector<std::string> parts;
+    if (delimiter.empty()) {
+        // 念のため無限ループを避ける。通常は呼び出し側で既定区切りへ解決する。
+        for (unsigned char c : text) parts.emplace_back(1, static_cast<char>(c));
+        return parts;
+    }
+
+    size_t start = 0;
+    while (true) {
+        const size_t separator = text.find(delimiter, start);
+        if (separator == std::string::npos) {
+            parts.push_back(text.substr(start));
+            break;
+        }
+        parts.push_back(text.substr(start, separator - start));
+        start = separator + delimiter.size();
+    }
+    return parts;
+}
+
+// These AST calls mutate a variable and are statement-like in YAYA. Their
+// return value is useful when nested inside an expression, but must not become
+// an output candidate when the call is a standalone statement.
+static bool isOutputSuppressedNode(const std::shared_ptr<AST::Node>& node) {
+    if (!node) return true;
+    if (node->type == AST::NodeType::Assignment ||
+        node->type == AST::NodeType::Void ||
+        node->type == AST::NodeType::Combine) {
+        return true;
+    }
+
+    auto* call = dynamic_cast<AST::CallNode*>(node.get());
+    if (!call) return false;
+
+    static const std::set<std::string> assignmentCalls = {
+        "__array_concat_assign__",
+        "__assign__", "__plus_assign__", "__minus_assign__",
+        "__star_assign__", "__slash_assign__", "__percent_assign__",
+        "__concat_assign__", "__range_assign__", "__range_concat_assign__"
+    };
+    return assignmentCalls.count(call->functionName) != 0;
+}
+
 } // namespace
 
 VM::VM() {
@@ -653,7 +703,7 @@ Value VM::executeFunctionDecl(const FunctionDecl& decl) {
                     continue;
                 }
                 Value v = executeNode(stmt);
-                if (stmt && stmt->type != AST::NodeType::Assignment && !v.isVoid()) {
+                if (!isOutputSuppressedNode(stmt) && !v.isVoid()) {
                     collected.push_back(v);
                 }
             }
@@ -935,17 +985,61 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 return Value();
             }
 
-            // Range/slice: __range__(base, start, end)
-            // YAYA syntax: str[start, end] or array[start, end]. The two-number bracket is an
-            // INCLUSIVE interval [start, end] (NOT start+length). Bounds are clamped for safety;
-            // a negative start is treated as 0 and an end past the size is treated as the last index.
+            // Range/slice and string pseudo-array access: __range__(base, start, end[, delimiter])
+            // YAYA syntax supports both:
+            //   str[start, end]              -> inclusive code-point/array range
+            //   str[index, "delimiter"]      -> delimiter-split pseudo-array element
+            //   str[start, end, "delimiter"] -> delimiter-split range joined by delimiter
+            // Bounds are clamped for safety; a negative start is treated as 0 and an end past
+            // the size is treated as the last index.
             if (call->functionName == "__range__") {
-                if (call->arguments.size() == 3) {
+                if (call->arguments.size() == 3 || call->arguments.size() == 4) {
                     Value base = executeNode(call->arguments[0]);
                     int start = executeNode(call->arguments[1]).asInt();
-                    int end   = executeNode(call->arguments[2]).asInt();
+                    Value endValue = executeNode(call->arguments[2]);
+
+                    // In YAYA, a string in the second bracket position is a delimiter,
+                    // not a numeric range endpoint. This is used by the SHIORI framework
+                    // itself (`_line[0, " SHIORI"]`) to split request lines.
+                    if (base.getType() == Value::Type::String &&
+                        endValue.getType() == Value::Type::String) {
+                        std::string delimiter = endValue.asString();
+                        if (call->arguments.size() == 4) {
+                            // The explicit third argument is the delimiter for a range.
+                            delimiter = executeNode(call->arguments[3]).asString();
+                        }
+                        if (delimiter.empty()) delimiter = arrayDelimiter_;
+
+                        const auto parts = splitPseudoArray(base.asString(), delimiter);
+                        if (call->arguments.size() == 3) {
+                            return (start >= 0 && start < static_cast<int>(parts.size()))
+                                ? Value(parts[static_cast<size_t>(start)])
+                                : Value(std::string());
+                        }
+                    }
+
+                    int end = endValue.asInt();
 
                     if (base.getType() == Value::Type::String) {
+                        if (call->arguments.size() == 4) {
+                            const Value delimiterValue = executeNode(call->arguments[3]);
+                            std::string delimiter = delimiterValue.asString();
+                            if (delimiter.empty()) delimiter = arrayDelimiter_;
+                            const auto parts = splitPseudoArray(base.asString(), delimiter);
+                            if (start < 0) start = 0;
+                            if (end < 0) return Value(std::string());
+                            if (end < start) std::swap(start, end);
+                            if (end >= static_cast<int>(parts.size())) {
+                                end = static_cast<int>(parts.size()) - 1;
+                            }
+                            if (end < start) return Value(std::string());
+                            std::string joined;
+                            for (int i = start; i <= end; ++i) {
+                                if (!joined.empty()) joined += delimiter;
+                                joined += parts[static_cast<size_t>(i)];
+                            }
+                            return Value(joined);
+                        }
                         // UTF-8-safe: slice by code points so CJK ranges are not cut mid-byte.
                         std::vector<uint32_t> cps = decodeUtf8(base.asString());
                         if (start < 0) start = 0;
@@ -1228,6 +1322,20 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             // Skip to the next iteration of the nearest enclosing loop.
             throw ContinueException();
         }
+
+        case AST::NodeType::Combine:
+            // The separator is consumed by executeBlock(), where output areas
+            // are selected. It is a no-op in contexts that collect candidates
+            // directly (array/sequential functions).
+            return Value();
+
+        case AST::NodeType::Void: {
+            auto* voidNode = dynamic_cast<AST::VoidNode*>(node.get());
+            if (voidNode && voidNode->expression) {
+                (void)executeNode(voidNode->expression);
+            }
+            return Value();
+        }
         
         default:
             return Value();
@@ -1235,16 +1343,51 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
 }
 
 Value VM::executeBlock(const std::vector<std::shared_ptr<AST::Node>>& statements) {
-    Value lastValue;
+    std::vector<Value> areaCandidates;
+    Value assembled;
+    bool hasAssembled = false;
+
+    auto selectArea = [&]() {
+        if (areaCandidates.empty()) return;
+
+        std::uniform_int_distribution<size_t> distribution(0, areaCandidates.size() - 1);
+        Value selected = areaCandidates[distribution(yaya_rng::engine())];
+        if (!hasAssembled) {
+            assembled = selected;
+            hasAssembled = true;
+        } else {
+            assembled = Value(assembled.asString() + selected.asString());
+        }
+        areaCandidates.clear();
+    };
+
     for (const auto& stmt : statements) {
+        if (stmt && stmt->type == AST::NodeType::Combine) {
+            selectArea();
+            continue;
+        }
+
+        // A bare return returns the output accumulated in the current function
+        // area, matching YAYA's `0; return` / `1; return` idiom.
+        if (stmt && stmt->type == AST::NodeType::Return) {
+            auto* returnNode = dynamic_cast<AST::ReturnNode*>(stmt.get());
+            if (returnNode && returnNode->value) {
+                Value explicitValue = executeNode(returnNode->value);
+                if (!explicitValue.isVoid()) areaCandidates.push_back(explicitValue);
+            }
+            selectArea();
+            throw ReturnException(hasAssembled ? assembled : Value());
+        }
+
         Value v = executeNode(stmt);
-        // 代入文は出力候補にならない（本家YAYA準拠）。副作用のみ実行し、
-        // ブロックの値には反映しない（if の分岐値として配列代入が漏れるのを防ぐ）
-        if (stmt && stmt->type != AST::NodeType::Assignment) {
-            lastValue = v;
+        // 代入文と void 式は出力候補にならない（本家YAYA準拠）。
+        if (!isOutputSuppressedNode(stmt) && !v.isVoid()) {
+            areaCandidates.push_back(v);
         }
     }
-    return lastValue;
+
+    selectArea();
+    return hasAssembled ? assembled : Value();
 }
 
 Value VM::evaluateBinaryOp(const std::string& op, const Value& left, const Value& right) {

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <utility>
 
 namespace AST {
 
@@ -20,6 +21,8 @@ enum class NodeType {
     WhenClause,
     Break,
     Continue,
+    Combine,
+    Void,
     BinaryOp,
     UnaryOp,
     Ternary,
@@ -119,6 +122,22 @@ struct ReturnNode : Node {
     
     explicit ReturnNode(std::shared_ptr<Node> val) : value(val) {
         type = NodeType::Return;
+    }
+};
+
+// YAYA の `--`。出力候補エリアを次へ切り替える。
+struct CombineNode : Node {
+    CombineNode() {
+        type = NodeType::Combine;
+    }
+};
+
+// `void expression`。式の副作用だけを実行し、結果を出力候補から除外する。
+struct VoidNode : Node {
+    std::shared_ptr<Node> expression;
+
+    explicit VoidNode(std::shared_ptr<Node> expr) : expression(std::move(expr)) {
+        type = NodeType::Void;
     }
 };
 

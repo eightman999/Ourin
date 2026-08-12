@@ -51,7 +51,7 @@
 
 | 優先度 | 項目 | 現状・修正案 |
 |---|---|---|
-| — | （実在YAYAゴーストの回帰テストは完了 → `AUDITS_COMPLETED.md` 参照） | `OurinTests/YayaEmily4RegressionTests.swift` 新設。SRANDスタブ修正・Emily4実辞書のゴールデン/決定性テスト追加。 |
+| — | （実在YAYAゴーストの回帰テストは完了 → `AUDITS_COMPLETED.md` 参照） | `OurinTests/YayaEmily4RegressionTests.swift` 新設。SRANDスタブ修正・Emily4実辞書のフレームワーク応答・決定性・YAYA出力意味論の回帰テストを追加。 |
 | — | （`ASEARCHPOS` は完了 → `AUDITS_COMPLETED.md` 参照） | `VM.cpp` に実装済み。 |
 
 ### G. プラグインシステム
@@ -143,7 +143,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 
 | Priority | Item | Current State / Fix |
 |---|---|---|
-| — | (Real YAYA ghost regression test completed → see `AUDITS_COMPLETED.md`) | New `OurinTests/YayaEmily4RegressionTests.swift`. Fixed the SRAND stub; added golden/determinism tests against real Emily4 dictionaries. |
+| — | (Real YAYA ghost regression test completed → see `AUDITS_COMPLETED.md`) | New `OurinTests/YayaEmily4RegressionTests.swift`. Fixed the SRAND stub; added framework-response, determinism, and YAYA output-semantics regression tests against real Emily4 dictionaries. |
 | — | (`ASEARCHPOS` completed → see `AUDITS_COMPLETED.md`) | Implemented in `VM.cpp`. |
 
 ### G. Plugin System

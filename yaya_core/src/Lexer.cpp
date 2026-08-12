@@ -80,6 +80,17 @@ Token Lexer::readString() {
     advance(); // Skip opening quote
     
     while (current() != '\0' && current() != quote) {
+        // YAYA permits long string literals to continue on the next source
+        // line with a trailing `/`. The slash, newline, and indentation are
+        // syntax only; they must not become part of the returned string.
+        if (current() == '/' && (peek() == '\n' || peek() == '\r')) {
+            advance();
+            if (current() == '\r') advance();
+            if (current() == '\n') advance();
+            while (current() == ' ' || current() == '\t') advance();
+            continue;
+        }
+
         if (current() == '\\') {
             // Look ahead to see what follows the backslash
             char next = peek();
@@ -286,6 +297,38 @@ std::vector<Token> Lexer::tokenize() {
         // value-producing token: identifier, literal (string/integer), or a closing bracket.
         // Otherwise (start of line, after operators/newlines/braces) it is a line comment.
         if (current() == '-' && peek() == '-') {
+            size_t afterOperator = pos_ + 2;
+            while (afterOperator < source_.size() &&
+                   (source_[afterOperator] == ' ' || source_[afterOperator] == '\t' ||
+                    source_[afterOperator] == '\r')) {
+                afterOperator++;
+            }
+
+            bool valueBeforeOnSameLine = false;
+            if (!tokens.empty() && tokens.back().line == startLine) {
+                switch (tokens.back().type) {
+                    case TokenType::Identifier:
+                    case TokenType::String:
+                    case TokenType::Integer:
+                    case TokenType::RightParen:
+                    case TokenType::RightBracket:
+                        valueBeforeOnSameLine = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // A line containing only `--` is YAYA's output-area separator. Keep
+            // postfix decrement intact for `value --` on the same line.
+            if (!valueBeforeOnSameLine &&
+                (afterOperator >= source_.size() || source_[afterOperator] == '\n')) {
+                tokens.push_back(Token(TokenType::MinusMinus, "--", startLine, startCol));
+                advance();
+                advance();
+                continue;
+            }
+
             bool isComment = true;
             if (!tokens.empty()) {
                 TokenType lastType = tokens.back().type;
