@@ -721,6 +721,11 @@ extension GhostManager: NSWindowDelegate {
             return
         }
 
+        guard !Self.shouldIgnoreNumericEventResponse(script, eventID: event) else {
+            Log.info("[GhostManager] Ignoring numeric embedded event response: event=\(event) value=\(script.trimmingCharacters(in: .whitespacesAndNewlines))")
+            return
+        }
+
         let embeddedTokens = sakuraEngine.parse(script: script)
         for token in embeddedTokens {
             sakuraEngine(sakuraEngine, didEmit: token)
@@ -748,7 +753,10 @@ extension GhostManager: NSWindowDelegate {
                   response.ok,
                   let script = response.value?.trimmingCharacters(in: .whitespacesAndNewlines),
                   !script.isEmpty else { return }
-            runScript(script)
+            runScript(
+                script,
+                translationContext: .init(eventID: event, references: references)
+            )
             return
         }
 
@@ -1004,7 +1012,10 @@ extension GhostManager: NSWindowDelegate {
                     // Trigger event
                     if let response = self.shioriRuntime?.request(method: "GET", id: id, refs: references, timeout: 4.0), response.ok {
                         if let script = response.value {
-                            self.sakuraEngine.run(script: script)
+                            self.runScript(
+                                script,
+                                translationContext: .init(eventID: id, references: references)
+                            )
                         }
                     }
 
@@ -1016,7 +1027,10 @@ extension GhostManager: NSWindowDelegate {
                 // Cancel was selected
                 if let response = self.shioriRuntime?.request(method: "GET", id: "OnChoiceCancel", timeout: 4.0), response.ok {
                     if let script = response.value {
-                        self.sakuraEngine.run(script: script)
+                        self.runScript(
+                            script,
+                            translationContext: .init(eventID: "OnChoiceCancel")
+                        )
                     }
                 }
             }
@@ -5520,7 +5534,10 @@ extension GhostManager: NSWindowDelegate {
            response.ok,
            let script = response.value,
            !script.isEmpty {
-            runNotifyScript(script)
+            runNotifyScript(
+                script,
+                translationContext: .init(eventID: eventID, references: references)
+            )
             return true
         } else {
             var params: [String: String] = [:]

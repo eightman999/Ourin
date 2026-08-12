@@ -55,4 +55,15 @@ struct NumericEventResponseTests {
         let source = "\\0こんにちは\\e"
         #expect(manager.translateForDisplay(source, context: .init(eventID: "OnBoot")) == source)
     }
+
+    @Test
+    func numericNotifyEventResponseIsIgnoredBeforePlayback() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-numeric-notify"))
+        defer { manager.shutdown() }
+
+        manager.runNotifyScript("0", translationContext: .init(eventID: "OnChoiceSelect"))
+
+        #expect(manager.backlogEntries.isEmpty)
+        #expect(!manager.isPlaying)
+    }
 }

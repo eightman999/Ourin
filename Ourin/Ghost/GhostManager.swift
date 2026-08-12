@@ -1527,7 +1527,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     // OnClose は \- が含まれていなくても再生完了後に終了する。
                     // OnCloseAll は AppDelegate の完了集約を使うため、同フラグを立てない。
                     self.terminateAfterPlayback = replyToTermination && completion == nil
-                    self.runScript(script)
+                    self.runScript(
+                        script,
+                        translationContext: .init(eventID: eventID, references: [reason])
+                    )
                 }
             }
         }
@@ -1641,7 +1644,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         Log.info("[GhostManager] \\j[\(target)] event jump returned no script")
                         return
                     }
-                    DispatchQueue.main.async { self.runScript(v) }
+                    DispatchQueue.main.async {
+                        self.runScript(
+                            v,
+                            translationContext: .init(eventID: target, references: references)
+                        )
+                    }
                 }
             })
         }
@@ -1792,6 +1800,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// Run a script originating from NOTIFY. If the script contains no visible text
     /// tokens, keep the current balloon text and apply only commands (surface/scope/etc.).
     func runNotifyScript(_ script: String, translationContext: ScriptTranslationContext = .baseware) {
+        guard !Self.shouldIgnoreNumericEventResponse(script, eventID: translationContext.eventID) else {
+            Log.info("[GhostManager] Ignoring numeric SHIORI notify response: event=\(translationContext.eventID ?? "unknown") value=\(script.trimmingCharacters(in: .whitespacesAndNewlines))")
+            return
+        }
         let translated = translateForDisplay(script, context: translationContext)
         runTranslatedNotifyScript(translated)
     }
@@ -2007,7 +2019,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     guard let runtime = self.shioriRuntime,
                           let r = runtime.request(method: "GET", id: "OnAITalk", timeout: 3.0), r.ok,
                           let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines), !v.isEmpty else { return }
-                    DispatchQueue.main.async { self.runScript(v) }
+                    DispatchQueue.main.async {
+                        self.runScript(
+                            v,
+                            translationContext: .init(eventID: "OnAITalk")
+                        )
+                    }
                 }
             })
 
