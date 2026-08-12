@@ -77,6 +77,44 @@ extension GhostManager {
         let factorY = factors.reduce(1.0) { $0 * Double($1.y) }
         vm.scaleX = vm.userScaleX * factorX
         vm.scaleY = vm.userScaleY * factorY
+        if ghostConfig?.balloonSyncScale == true {
+            applySynchronizedBalloonScale(scope: scope, x: vm.scaleX, y: vm.scaleY)
+        }
+    }
+
+    /// `balloon.syncscale,true` によるバルーン倍率の実反映とイベント送出。
+    /// バルーンはシェルとは別ウィンドウなので、ViewModel の倍率とウィンドウの
+    /// fittingSize の両方を更新し、変更時だけ OnBalloonScaling を発火する。
+    private func applySynchronizedBalloonScale(scope: Int, x: Double, y: Double) {
+        guard let balloonVM = balloonViewModels[scope] else { return }
+        let previousX = balloonVM.scaleX
+        let previousY = balloonVM.scaleY
+        guard previousX != x || previousY != y else { return }
+
+        balloonVM.scaleX = x
+        balloonVM.scaleY = y
+        _ = EventBridge.shared.request(
+            .OnBalloonScaling,
+            refs: [
+                "afterX": String(x * 100.0),
+                "beforeX": String(previousX * 100.0),
+                "afterY": String(y * 100.0),
+                "beforeY": String(previousY * 100.0)
+            ],
+            to: self
+        )
+    }
+
+    /// ゴースト設定の再読込時にも、既存のバルーンへ同期倍率を反映する。
+    func refreshBalloonScalingSynchronization() {
+        for scope in Set(characterViewModels.keys).union(balloonViewModels.keys) {
+            guard balloonViewModels[scope] != nil else { continue }
+            if ghostConfig?.balloonSyncScale == true, let characterVM = characterViewModels[scope] {
+                applySynchronizedBalloonScale(scope: scope, x: characterVM.scaleX, y: characterVM.scaleY)
+            } else {
+                applySynchronizedBalloonScale(scope: scope, x: 1.0, y: 1.0)
+            }
+        }
     }
 
     func setUserScaling(scope: Int, x: Double, y: Double) {

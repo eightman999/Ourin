@@ -70,6 +70,11 @@ class BalloonViewModel: ObservableObject {
     @Published var text: String = ""
     @Published var balloonID: Int = 0  // Current balloon style ID (0, 2, 4, etc.)
 
+    /// バルーンの実効表示倍率。`balloon.syncscale,true` の場合はシェル倍率と同期する。
+    /// 符号は反転表示を保持し、描画領域の計算では絶対値を使用する。
+    @Published var scaleX: Double = 1.0
+    @Published var scaleY: Double = 1.0
+
     // Cursor position for \_l[x,y] command
     @Published var cursorX: CGFloat = 0
     @Published var cursorY: CGFloat = 0

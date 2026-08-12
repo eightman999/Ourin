@@ -121,6 +121,30 @@ struct BalloonNewlineSpacingTests {
     }
 }
 
+struct BalloonScalingLayoutTests {
+    @Test func scaledSizeUsesAbsoluteDimensionsForFlippedBalloons() {
+        let size = BalloonView.scaledSize(
+            for: CGSize(width: 400, height: 150),
+            scaleX: -0.5,
+            scaleY: 2.0
+        )
+
+        #expect(size.width == 200)
+        #expect(size.height == 300)
+    }
+
+    @Test func scaledSizeFallsBackForNonFiniteScale() {
+        let size = BalloonView.scaledSize(
+            for: CGSize(width: 400, height: 150),
+            scaleX: .nan,
+            scaleY: .infinity
+        )
+
+        #expect(size.width == 400)
+        #expect(size.height == 150)
+    }
+}
+
 struct SakuraScriptSystemCommandTests {
     @MainActor
     @Test func syncObjectSetAndResetCommands() {

@@ -36,6 +36,10 @@ extension GhostManager {
         // Initialize balloon ID from character view model
         if let charVM = characterViewModels[scope] {
             vm.balloonID = charVM.currentBalloonID
+            if ghostConfig?.balloonSyncScale == true {
+                vm.scaleX = charVM.scaleX
+                vm.scaleY = charVM.scaleY
+            }
         }
         balloonViewModels[scope] = vm
 
@@ -106,8 +110,12 @@ extension GhostManager {
 
                     // Resize window to fit content
                     let fittingSize = hc.view.fittingSize
-                    let newSize = CGSize(width: max(250, min(fittingSize.width, 400)),
-                                       height: max(50, min(fittingSize.height, 600)))
+                    // 通常倍率では従来の上限を維持する。同期倍率が 100% を超える場合は
+                    // 変換後のコンテンツをクリップしないよう、拡大後のサイズをそのまま採用する。
+                    let scaledBeyondDefault = abs(vm.scaleX) > 1.0 || abs(vm.scaleY) > 1.0
+                    let width = scaledBeyondDefault ? fittingSize.width : min(fittingSize.width, 400)
+                    let height = scaledBeyondDefault ? fittingSize.height : min(fittingSize.height, 600)
+                    let newSize = CGSize(width: max(250, width), height: max(50, height))
 
                     // Only update if size changed significantly (avoid micro-adjustments)
                     let currentSize = win.frame.size

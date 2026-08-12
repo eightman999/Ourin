@@ -81,6 +81,12 @@ extension GhostManager {
         // - UI settings (cursors, icons) are applied when creating UI elements
         // - Balloon settings are used by balloon system
 
+        // `applyGhostConfiguration` はロード用バックグラウンドキューから呼ばれるため、
+        // 既存 ViewModel の更新はメインキューへ戻す。
+        DispatchQueue.main.async { [weak self] in
+            self?.refreshBalloonScalingSynchronization()
+        }
+
         Log.debug("[GhostManager] Ghost configuration applied successfully")
     }
 

@@ -16,6 +16,13 @@ struct BalloonView: View {
     // バルーンの既定サイズ（画像も maxwidth/maxheight も無い場合のフォールバック）
     private let fallbackBalloonSize = CGSize(width: 400, height: 150)
 
+    /// 変換後の実表示サイズ。負の倍率は反転表示なので、レイアウト領域は絶対値で求める。
+    static func scaledSize(for baseSize: CGSize, scaleX: Double, scaleY: Double) -> CGSize {
+        let x = scaleX.isFinite ? abs(CGFloat(scaleX)) : 1
+        let y = scaleY.isFinite ? abs(CGFloat(scaleY)) : 1
+        return CGSize(width: baseSize.width * x, height: baseSize.height * y)
+    }
+
     /// バルーン枠サイズ = サーフェス画像の実寸（無ければ descript の maxwidth/maxheight、最後に既定値）。
     private func balloonSize(for image: NSImage?) -> CGSize {
         if let img = image, img.size.width > 1, img.size.height > 1 {
@@ -52,6 +59,11 @@ struct BalloonView: View {
         if !viewModel.text.isEmpty || hasAuxiliaryText || onlineMarkerImage != nil {
             let bImage = imageLoader?.loadSurface(index: viewModel.balloonID, type: "s")
             let size = balloonSize(for: bImage)
+            let scaledSize = Self.scaledSize(
+                for: size,
+                scaleX: viewModel.scaleX,
+                scaleY: viewModel.scaleY
+            )
             ZStack(alignment: .topLeading) {
                 // Background balloon image - use current balloon ID
                 if let bImage = bImage {
@@ -135,6 +147,12 @@ struct BalloonView: View {
                 .frame(width: size.width - 12, height: size.height - 12, alignment: .bottomTrailing)
             }
             .frame(width: size.width, height: size.height)
+            .scaleEffect(
+                x: viewModel.scaleX.isFinite ? viewModel.scaleX : 1,
+                y: viewModel.scaleY.isFinite ? viewModel.scaleY : 1,
+                anchor: .center
+            )
+            .frame(width: scaledSize.width, height: scaledSize.height, alignment: .center)
             .coordinateSpace(name: "balloon")
             .contentShape(Rectangle())
             .onTapGesture { onClick?() }
