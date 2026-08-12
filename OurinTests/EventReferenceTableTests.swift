@@ -236,6 +236,28 @@ func eventReferenceTableMigrationAddedEvents() {
     #expect(EventReferenceTable.specs["OnUpdateComplete"]?.references == [
         "reason", "fileList", "unused2", "targetType", "executionReason"
     ])
+    #expect(EventReferenceTable.specs["OnUpdate.OnDownloadBegin"]?.references == [
+        "filename", "fileIndex", "fileCountMinusOne", "targetType", "executionReason"
+    ])
+    #expect(EventReferenceTable.specs["OnUpdate.OnMD5CompareComplete"]?.references == [
+        "filename", "correctMD5", "downloadedMD5", "targetType", "executionReason"
+    ])
+    #expect(EventReferenceTable.specs["OnUpdateOther.OnMD5CompareFailure"]?.references == [
+        "unused0", "correctMD5", "downloadedMD5", "targetType", "executionReason"
+    ])
+    #expect(EventReferenceTable.params(forEvent: "OnUpdate.OnDownloadBegin", refs: [
+        "filename": "ghost/master/dic.dic",
+        "fileIndex": "0",
+        "fileCountMinusOne": "2",
+        "targetType": "ghost",
+        "executionReason": "manual"
+    ]) == [
+        "Reference0": "ghost/master/dic.dic",
+        "Reference1": "0",
+        "Reference2": "2",
+        "Reference3": "ghost",
+        "Reference4": "manual"
+    ])
     #expect(EventReferenceTable.specs["OnInstallComplete"]?.references == [
         "identifier", "name", "name2"
     ])

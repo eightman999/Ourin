@@ -2190,10 +2190,6 @@ extension GhostManager: NSWindowDelegate {
     func checkGhostUpdate(options: [String]) {
         let commandOptions = UpdateCommandOptions(options)
         emitUpdateBegin(targetType: "ghost", executionReason: commandOptions.reason)
-        self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadBegin", params: [
-            "Reference0": ghostConfig?.homeurl ?? "",
-            "Reference1": ghostURL.path
-        ])
         guard let updateURL = ghostConfig?.homeurl else {
             Log.info("[GhostManager] No update URL configured for ghost")
                 EventBridge.shared.notify(.OnUpdateFailure, refs: [
@@ -2265,10 +2261,12 @@ extension GhostManager: NSWindowDelegate {
                     Log.debug("[GhostManager] Ghost update: no changes")
                     return
                 }
-                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadBegin", params: [
-                    "Reference0": updateURL,
-                    "Reference1": String(entries.count)
-                ])
+                self.emitUpdateDownloadBeginEvents(
+                    base: "OnUpdate",
+                    entries: entries,
+                    targetType: "ghost",
+                    executionReason: commandOptions.reason
+                )
                 installer.downloadAndApply(entries: entries, homeURLString: updateURL, targetRoot: self.ghostURL) { result in
                     switch result {
                     case .success(let applied):
@@ -2363,10 +2361,6 @@ extension GhostManager: NSWindowDelegate {
             return
         }
 
-        self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadBegin", params: [
-            "Reference0": updateURL,
-            "Reference1": "baseware"
-        ])
         NarInstaller().checkUpdates(homeURLString: updateURL) { result in
             switch result {
             case .success(let entries):
@@ -2630,11 +2624,6 @@ extension GhostManager: NSWindowDelegate {
                 "targetType": "ghost",
                 "executionReason": commandOptions.reason
             ])
-            self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnDownloadBegin", params: [
-                "Reference0": name,
-                "Reference1": path
-            ])
-
             guard let config = GhostConfiguration.load(from: ghostRoot),
                   let updateURL = config.homeurl?.trimmingCharacters(in: .whitespacesAndNewlines),
                   !updateURL.isEmpty,
@@ -2693,10 +2682,12 @@ extension GhostManager: NSWindowDelegate {
                         return
                     }
 
-                    self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnDownloadBegin", params: [
-                        "Reference0": name,
-                        "Reference1": String(entries.count)
-                    ])
+                    self.emitUpdateDownloadBeginEvents(
+                        base: "OnUpdateOther",
+                        entries: entries,
+                        targetType: "ghost",
+                        executionReason: commandOptions.reason
+                    )
                     installer.downloadAndApply(entries: entries, homeURLString: updateURL, targetRoot: item.path) { applyResult in
                         switch applyResult {
                         case .success(let applied):
@@ -2763,8 +2754,57 @@ extension GhostManager: NSWindowDelegate {
         ])
     }
 
+    /// ネットワーク更新イベントの正式なネストIDを解決する。
+    ///
+    /// `OnDownloadComplete` / `OnDownloadFailure` は Ourin の互換拡張として残し、
+    /// UKADOC が定義する4つのネストイベントだけを正式IDへ接続する。
+    static func updatePipelineEventName(base: String, stage: String) -> String {
+        switch (base, stage) {
+        case ("OnUpdate", "OnDownloadBegin"):
+            return EventID.OnUpdateOnDownloadBegin.rawValue
+        case ("OnUpdate", "OnMD5CompareBegin"):
+            return EventID.OnUpdateOnMD5CompareBegin.rawValue
+        case ("OnUpdate", "OnMD5CompareComplete"):
+            return EventID.OnUpdateOnMD5CompareComplete.rawValue
+        case ("OnUpdate", "OnMD5CompareFailure"):
+            return EventID.OnUpdateOnMD5CompareFailure.rawValue
+        case ("OnUpdateOther", "OnDownloadBegin"):
+            return EventID.OnUpdateOtherOnDownloadBegin.rawValue
+        case ("OnUpdateOther", "OnMD5CompareBegin"):
+            return EventID.OnUpdateOtherOnMD5CompareBegin.rawValue
+        case ("OnUpdateOther", "OnMD5CompareComplete"):
+            return EventID.OnUpdateOtherOnMD5CompareComplete.rawValue
+        case ("OnUpdateOther", "OnMD5CompareFailure"):
+            return EventID.OnUpdateOtherOnMD5CompareFailure.rawValue
+        default:
+            return "\(base).\(stage)"
+        }
+    }
+
     private func emitUpdatePipelineEvent(base: String, stage: String, params: [String: String]) {
-        EventBridge.shared.notifyCustom("\(base).\(stage)", params: params)
+        EventBridge.shared.notifyCustom(
+            Self.updatePipelineEventName(base: base, stage: stage),
+            params: params
+        )
+    }
+
+    /// 実際にダウンロードを開始するファイルごとに OnDownloadBegin を通知する。
+    private func emitUpdateDownloadBeginEvents(
+        base: String,
+        entries: [URL],
+        targetType: String,
+        executionReason: String
+    ) {
+        let lastIndex = String(max(0, entries.count - 1))
+        for (index, entry) in entries.enumerated() {
+            emitUpdatePipelineEvent(base: base, stage: "OnDownloadBegin", params: [
+                "Reference0": entry.lastPathComponent,
+                "Reference1": String(index),
+                "Reference2": lastIndex,
+                "Reference3": targetType,
+                "Reference4": executionReason
+            ])
+        }
     }
 
     private func emitUpdateResultEvents(

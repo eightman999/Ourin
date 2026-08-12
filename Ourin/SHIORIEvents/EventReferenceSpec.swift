@@ -201,6 +201,18 @@ public enum EventReferenceTable {
         .init(id: "OnInstallRefuse", references: ["accept", "identifier", "name"], category: "update"),
         .init(id: "OnInstallReroute", references: ["accept", "identifier", "name"], category: "update"),
 
+        // UKADOC のネストされたネットワーク更新イベント。
+        // OnUpdateOther の Complete/Failure は Reference0 を定義していないため、
+        // 表駆動 API で Reference1 以降へ写像できるよう unused0 を明示する。
+        .init(id: "OnUpdate.OnDownloadBegin", references: ["filename", "fileIndex", "fileCountMinusOne", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdate.OnMD5CompareBegin", references: ["filename", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdate.OnMD5CompareComplete", references: ["filename", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdate.OnMD5CompareFailure", references: ["filename", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOther.OnDownloadBegin", references: ["filename", "fileIndex", "fileCountMinusOne", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOther.OnMD5CompareBegin", references: ["filename", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOther.OnMD5CompareComplete", references: ["unused0", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOther.OnMD5CompareFailure", references: ["unused0", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
+
         // MARK: - 通信 / SNTP / BIFF / Headline
         .init(id: "OnSNTPBegin", references: ["server"], category: "network"),
         .init(id: "OnSNTPCompareEx", references: ["server", "serverTime", "localTime", "deltaSeconds", "deltaMilliseconds"], category: "network"),

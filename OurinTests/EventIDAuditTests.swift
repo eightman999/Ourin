@@ -78,4 +78,28 @@ struct EventIDAuditTests {
             #expect(EventID(rawValue: name) != nil, "Missing EventID for \(name)")
         }
     }
+
+    @Test
+    func nestedUpdateEventsUseUkadocIDs() {
+        let names = [
+            "OnUpdate.OnDownloadBegin",
+            "OnUpdate.OnMD5CompareBegin",
+            "OnUpdate.OnMD5CompareComplete",
+            "OnUpdate.OnMD5CompareFailure",
+            "OnUpdateOther.OnDownloadBegin",
+            "OnUpdateOther.OnMD5CompareBegin",
+            "OnUpdateOther.OnMD5CompareComplete",
+            "OnUpdateOther.OnMD5CompareFailure",
+        ]
+        for name in names {
+            #expect(EventID(rawValue: name) != nil, "Missing nested update EventID for \(name)")
+        }
+    }
+
+    @Test
+    func updatePipelineResolvesOnlyOfficialNestedStages() {
+        #expect(GhostManager.updatePipelineEventName(base: "OnUpdate", stage: "OnDownloadBegin") == "OnUpdate.OnDownloadBegin")
+        #expect(GhostManager.updatePipelineEventName(base: "OnUpdateOther", stage: "OnMD5CompareFailure") == "OnUpdateOther.OnMD5CompareFailure")
+        #expect(GhostManager.updatePipelineEventName(base: "OnUpdate", stage: "OnDownloadFailure") == "OnUpdate.OnDownloadFailure")
+    }
 }
