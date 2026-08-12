@@ -223,31 +223,125 @@ struct InstallTxtParser {
 
 struct UpdateDescriptorParser {
     static func parse(_ text: String, baseURL: URL) -> [URL] {
+        parseEntries(text, baseURL: baseURL).map(\.url)
+    }
+
+    static func parseEntries(_ text: String, baseURL: URL, requireMD5: Bool = false) -> [UpdateDescriptorEntry] {
         let normalized = text.replacingOccurrences(of: "\r\n", with: "\n")
-        var results: [URL] = []
+        var results: [URL: UpdateDescriptorEntry] = [:]
 
         for raw in normalized.split(separator: "\n", omittingEmptySubsequences: false) {
             let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !line.isEmpty, !line.hasPrefix(";"), !line.hasPrefix("#"), !line.hasPrefix("//") else { continue }
 
-            let components = line
-                .replacingOccurrences(of: "\u{0001}", with: ",")
-                .split(separator: ",")
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-
-            guard let rawTarget = components.first(where: { !$0.isEmpty }) else { continue }
-            let candidate = rawTarget.replacingOccurrences(of: "\\", with: "/")
-
-            if let absolute = URL(string: candidate), let scheme = absolute.scheme?.lowercased(),
-               scheme == "https" || scheme == "http" {
-                results.append(absolute)
+            guard let parsed = parseLine(line, baseURL: baseURL),
+                  !requireMD5 || parsed.expectedMD5 != nil else { continue }
+            // 同一URLが複数回現れた場合は、MD5を持つエントリを優先する。
+            if let existing = results[parsed.url], existing.expectedMD5 != nil, parsed.expectedMD5 == nil {
                 continue
             }
-            if let relative = URL(string: candidate, relativeTo: baseURL)?.absoluteURL {
-                results.append(relative)
+            results[parsed.url] = parsed
+        }
+
+        return results.values.sorted { $0.url.absoluteString < $1.url.absoluteString }
+    }
+
+    static func isValidDescriptor(_ text: String, baseURL: URL, requireMD5: Bool = false) -> Bool {
+        var sawContent = false
+        let normalized = text.replacingOccurrences(of: "\r\n", with: "\n")
+        for raw in normalized.split(separator: "\n", omittingEmptySubsequences: false) {
+            let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !line.isEmpty, !line.hasPrefix(";"), !line.hasPrefix("#"), !line.hasPrefix("//") else {
+                continue
+            }
+            let directive = line.split(separator: ",", maxSplits: 1, omittingEmptySubsequences: false)
+                .first?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .lowercased()
+            if directive == "charset" || directive == "encoding" || directive == "version" {
+                continue
+            }
+            sawContent = true
+            if let parsed = parseLine(line, baseURL: baseURL),
+               !requireMD5 || parsed.expectedMD5 != nil { return true }
+        }
+        return !sawContent
+    }
+
+    private static func parseLine(_ line: String, baseURL: URL) -> UpdateDescriptorEntry? {
+        let fields = line.components(separatedBy: "\u{0001}")
+        let declaration = fields[0].trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !declaration.isEmpty else { return nil }
+
+        let commaParts = declaration.split(separator: ",", maxSplits: 1, omittingEmptySubsequences: false)
+        let directive = commaParts.first?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+        let rawTarget: String
+        var metadata: [String] = Array(fields.dropFirst())
+
+        switch directive {
+        case "charset", "encoding", "version":
+            return nil
+        case "file", "entry":
+            if commaParts.count > 1 {
+                rawTarget = String(commaParts[1])
+            } else if fields.count > 1 {
+                rawTarget = fields[1]
+                metadata = Array(fields.dropFirst(2))
+            } else {
+                return nil
+            }
+        default:
+            rawTarget = String(commaParts[0])
+            if commaParts.count > 1 {
+                metadata.insert(String(commaParts[1]), at: 0)
             }
         }
 
-        return Array(Set(results)).sorted { $0.absoluteString < $1.absoluteString }
+        let candidate = rawTarget
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\\", with: "/")
+        let decodedCandidate = candidate.removingPercentEncoding ?? candidate
+        guard !candidate.isEmpty,
+              !candidate.contains("<"),
+              !candidate.contains(">"),
+              !decodedCandidate.hasSuffix("/"),
+              !decodedCandidate.contains("../") else { return nil }
+
+        let url: URL
+        let displayPath: String
+        if let absolute = URL(string: candidate), let scheme = absolute.scheme?.lowercased(),
+           scheme == "https" || scheme == "http" {
+            url = absolute
+            displayPath = absolute.lastPathComponent
+        } else if let relative = URL(string: candidate, relativeTo: baseURL)?.absoluteURL,
+                  relative.scheme?.lowercased() == baseURL.scheme?.lowercased() {
+            url = relative
+            displayPath = candidate.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        } else {
+            return nil
+        }
+
+        let expectedMD5 = metadata.lazy
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .compactMap(normalizedMD5)
+            .first
+        return UpdateDescriptorEntry(url: url, relativePath: displayPath, expectedMD5: expectedMD5)
+    }
+
+    private static func normalizedMD5(_ value: String) -> String? {
+        let lower = value.lowercased()
+        let candidate: String
+        if let separator = lower.firstIndex(of: "=") {
+            let key = lower[..<separator].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard key == "md5" || key == "hash" else { return nil }
+            candidate = String(lower[lower.index(after: separator)...])
+        } else {
+            candidate = lower
+        }
+        guard candidate.count == 32,
+              candidate.unicodeScalars.allSatisfy({
+                  (48...57).contains(Int($0.value)) || (97...102).contains(Int($0.value))
+              }) else { return nil }
+        return candidate
     }
 }

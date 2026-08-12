@@ -2192,13 +2192,12 @@ extension GhostManager: NSWindowDelegate {
         emitUpdateBegin(targetType: "ghost", executionReason: commandOptions.reason)
         guard let updateURL = ghostConfig?.homeurl else {
             Log.info("[GhostManager] No update URL configured for ghost")
-                EventBridge.shared.notify(.OnUpdateFailure, refs: [
+            EventBridge.shared.notify(.OnUpdateFailure, refs: [
                     "reason": "paramerror",
                     "fileList": "",
                     "targetType": "ghost",
                     "executionReason": commandOptions.reason
             ])
-            self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareFailure", params: ["Reference0": "missing_url"])
             self.emitUpdateResultEvents(
                 target: "ghost",
                 reason: "paramerror",
@@ -2211,18 +2210,10 @@ extension GhostManager: NSWindowDelegate {
 
         Log.info("[GhostManager] Checking for ghost updates at homeurl: \(updateURL)")
         let installer = NarInstaller()
-        installer.checkUpdates(homeURLString: updateURL) { result in
+        installer.checkUpdateEntries(homeURLString: updateURL) { result in
             switch result {
             case .success(let entries):
-                let fileList = entries.map(\.lastPathComponent).joined(separator: ",")
-                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareBegin", params: [
-                    "Reference0": updateURL,
-                    "Reference1": String(entries.count)
-                ])
-                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareComplete", params: [
-                    "Reference0": updateURL,
-                    "Reference1": String(entries.count)
-                ])
+                let fileList = entries.map(\.filename).joined(separator: ",")
                 let reason = entries.isEmpty ? "none" : "changed"
                 EventBridge.shared.notify(.OnUpdateReady, refs: [
                     "fileIndex": String(max(0, entries.count - 1)),
@@ -2267,7 +2258,22 @@ extension GhostManager: NSWindowDelegate {
                     targetType: "ghost",
                     executionReason: commandOptions.reason
                 )
-                installer.downloadAndApply(entries: entries, homeURLString: updateURL, targetRoot: self.ghostURL) { result in
+                installer.downloadAndApply(entries: entries, homeURLString: updateURL, targetRoot: self.ghostURL,
+                                           onMD5Compare: { comparison in
+                    let params = [
+                        "Reference0": comparison.filename,
+                        "Reference1": comparison.correctMD5,
+                        "Reference2": comparison.downloadedMD5,
+                        "Reference3": "ghost",
+                        "Reference4": commandOptions.reason
+                    ]
+                    self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareBegin", params: params)
+                    self.emitUpdatePipelineEvent(
+                        base: "OnUpdate",
+                        stage: comparison.matches ? "OnMD5CompareComplete" : "OnMD5CompareFailure",
+                        params: params
+                    )
+                }) { result in
                     switch result {
                     case .success(let applied):
                     let appliedList = applied.joined(separator: ",")
@@ -2312,10 +2318,6 @@ extension GhostManager: NSWindowDelegate {
             case .failure(let error):
                 Log.info("[GhostManager] Ghost update check failed: \(error)")
                 let reason = self.normalizeUpdateFailureReason(error)
-                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareFailure", params: [
-                    "Reference0": updateURL,
-                    "Reference1": reason
-                ])
                 EventBridge.shared.notify(.OnUpdateFailure, refs: [
                     "reason": reason,
                     "fileList": "",
@@ -2341,10 +2343,6 @@ extension GhostManager: NSWindowDelegate {
 
         guard let updateURL = configuredBasewareUpdateURL(explicit: commandOptions.explicitURL) else {
             Log.info("[GhostManager] No baseware update descriptor URL is configured")
-            self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareFailure", params: [
-                "Reference0": "missing_url",
-                "Reference1": "baseware"
-            ])
             EventBridge.shared.notify(.OnUpdateFailure, refs: [
                 "reason": "paramerror",
                 "fileList": "",
@@ -2361,18 +2359,10 @@ extension GhostManager: NSWindowDelegate {
             return
         }
 
-        NarInstaller().checkUpdates(homeURLString: updateURL) { result in
+        NarInstaller().checkUpdateEntries(homeURLString: updateURL) { result in
             switch result {
             case .success(let entries):
-                let fileList = entries.map(\.lastPathComponent).joined(separator: ",")
-                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareBegin", params: [
-                    "Reference0": updateURL,
-                    "Reference1": String(entries.count)
-                ])
-                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareComplete", params: [
-                    "Reference0": updateURL,
-                    "Reference1": String(entries.count)
-                ])
+                let fileList = entries.map(\.filename).joined(separator: ",")
                 let reason = entries.isEmpty ? "none" : "changed"
                 if !entries.isEmpty {
                     EventBridge.shared.notify(.OnUpdateReady, refs: [
@@ -2437,10 +2427,6 @@ extension GhostManager: NSWindowDelegate {
 
             case .failure(let error):
                 let reason = self.normalizeUpdateFailureReason(error)
-                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareFailure", params: [
-                    "Reference0": updateURL,
-                    "Reference1": reason
-                ])
                 EventBridge.shared.notify(.OnUpdateFailure, refs: [
                     "reason": reason,
                     "fileList": "",
@@ -2644,18 +2630,10 @@ extension GhostManager: NSWindowDelegate {
             }
 
             let installer = NarInstaller()
-            installer.checkUpdates(homeURLString: updateURL) { result in
+            installer.checkUpdateEntries(homeURLString: updateURL) { result in
                 switch result {
                 case .success(let entries):
-                    let fileList = entries.map(\.lastPathComponent).joined(separator: ",")
-                    self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnMD5CompareBegin", params: [
-                        "Reference0": name,
-                        "Reference1": String(entries.count)
-                    ])
-                    self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnMD5CompareComplete", params: [
-                        "Reference0": name,
-                        "Reference1": String(entries.count)
-                    ])
+                    let fileList = entries.map(\.filename).joined(separator: ",")
                     let reason = entries.isEmpty ? "none" : "changed"
                     if !entries.isEmpty {
                         EventBridge.shared.notify(.OnUpdateOtherReady, params: [
@@ -2688,7 +2666,32 @@ extension GhostManager: NSWindowDelegate {
                         targetType: "ghost",
                         executionReason: commandOptions.reason
                     )
-                    installer.downloadAndApply(entries: entries, homeURLString: updateURL, targetRoot: item.path) { applyResult in
+                    installer.downloadAndApply(entries: entries, homeURLString: updateURL, targetRoot: item.path,
+                                               onMD5Compare: { comparison in
+                        let beginParams = [
+                            "Reference0": comparison.filename,
+                            "Reference1": comparison.correctMD5,
+                            "Reference2": comparison.downloadedMD5,
+                            "Reference3": "ghost",
+                            "Reference4": commandOptions.reason
+                        ]
+                        self.emitUpdatePipelineEvent(
+                            base: "OnUpdateOther",
+                            stage: "OnMD5CompareBegin",
+                            params: beginParams
+                        )
+                        let resultParams = [
+                            "Reference1": comparison.correctMD5,
+                            "Reference2": comparison.downloadedMD5,
+                            "Reference3": "ghost",
+                            "Reference4": commandOptions.reason
+                        ]
+                        self.emitUpdatePipelineEvent(
+                            base: "OnUpdateOther",
+                            stage: comparison.matches ? "OnMD5CompareComplete" : "OnMD5CompareFailure",
+                            params: resultParams
+                        )
+                    }) { applyResult in
                         switch applyResult {
                         case .success(let applied):
                             let appliedList = applied.joined(separator: ",")
@@ -2723,10 +2726,6 @@ extension GhostManager: NSWindowDelegate {
 
                 case .failure(let error):
                     let failureReason = self.normalizeUpdateFailureReason(error)
-                    self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnMD5CompareFailure", params: [
-                        "Reference0": name,
-                        "Reference1": failureReason
-                    ])
                     EventBridge.shared.notify(.OnUpdateOtherFailure, params: [
                         "Reference0": failureReason,
                         "Reference1": "",
@@ -2791,14 +2790,14 @@ extension GhostManager: NSWindowDelegate {
     /// 実際にダウンロードを開始するファイルごとに OnDownloadBegin を通知する。
     private func emitUpdateDownloadBeginEvents(
         base: String,
-        entries: [URL],
+        entries: [UpdateDescriptorEntry],
         targetType: String,
         executionReason: String
     ) {
         let lastIndex = String(max(0, entries.count - 1))
         for (index, entry) in entries.enumerated() {
             emitUpdatePipelineEvent(base: base, stage: "OnDownloadBegin", params: [
-                "Reference0": entry.lastPathComponent,
+                "Reference0": entry.filename,
                 "Reference1": String(index),
                 "Reference2": lastIndex,
                 "Reference3": targetType,
@@ -2851,6 +2850,16 @@ extension GhostManager: NSWindowDelegate {
     }
 
     private func normalizeUpdateFailureReason(_ error: Error) -> String {
+        if let narError = error as? NarInstaller.Error {
+            switch narError {
+            case .updateMD5Mismatch:
+                return "md5 miss"
+            case .updateDescriptorInvalid:
+                return "paramerror"
+            default:
+                break
+            }
+        }
         if let urlError = error as? URLError {
             switch urlError.code {
             case .timedOut:
@@ -3983,7 +3992,8 @@ extension GhostManager: NSWindowDelegate {
             return "invalid type"
         case .directoryConflict:
             return "unsupported"
-        case .updateDescriptorNotFound, .updateDescriptorDecodeFailed, .updateDownloadFailed:
+        case .updateDescriptorNotFound, .updateDescriptorDecodeFailed, .updateDescriptorInvalid,
+             .updateDownloadFailed, .updateMD5Mismatch:
             return "unsupported"
         }
     }

@@ -1,6 +1,7 @@
 // Ourin/NarInstall/LocalNarInstaller.swift
 import Foundation
 import os.log
+import CommonCrypto
 
 /// NAR インストール後に SHIORI イベントへ渡す、実際に設置された対象。
 struct NarInstalledObject: Equatable {
@@ -13,6 +14,59 @@ struct NarInstallResult {
     let target: URL
     let manifest: InstallManifest
     let objects: [NarInstalledObject]
+}
+
+/// 更新記述子の1行に対応するダウンロード対象。
+struct UpdateDescriptorEntry: Equatable, Hashable {
+    let url: URL
+    let relativePath: String
+    let expectedMD5: String?
+
+    init(url: URL, relativePath: String? = nil, expectedMD5: String? = nil) {
+        self.url = url
+        self.relativePath = relativePath ?? url.lastPathComponent
+        self.expectedMD5 = expectedMD5?.lowercased()
+    }
+
+    var filename: String {
+        relativePath.isEmpty ? url.lastPathComponent : relativePath
+    }
+}
+
+/// 更新ファイルの実MD5比較結果。MD5が記述子にないファイルには生成しない。
+struct UpdateMD5Comparison: Equatable {
+    let filename: String
+    let correctMD5: String
+    let downloadedMD5: String
+
+    var matches: Bool { correctMD5.caseInsensitiveCompare(downloadedMD5) == .orderedSame }
+}
+
+enum UpdateMD5 {
+    static func hexDigest(of data: Data) -> String {
+        var digest = [UInt8](repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
+        data.withUnsafeBytes { buffer in
+            _ = CC_MD5(buffer.baseAddress, CC_LONG(buffer.count), &digest)
+        }
+        return digest.map { String(format: "%02x", $0) }.joined()
+    }
+
+    static func hexDigest(ofFile url: URL) throws -> String {
+        var context = CC_MD5_CTX()
+        _ = CC_MD5_Init(&context)
+        let handle = try FileHandle(forReadingFrom: url)
+        defer { try? handle.close() }
+
+        while let chunk = try handle.read(upToCount: 1024 * 1024), !chunk.isEmpty {
+            chunk.withUnsafeBytes { buffer in
+                _ = CC_MD5_Update(&context, buffer.baseAddress, CC_LONG(buffer.count))
+            }
+        }
+
+        var digest = [UInt8](repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
+        _ = CC_MD5_Final(&digest, &context)
+        return digest.map { String(format: "%02x", $0) }.joined()
+    }
 }
 
 final class NarInstaller {
@@ -28,7 +82,9 @@ final class NarInstaller {
         case invalidDeletePath(String)
         case updateDescriptorNotFound
         case updateDescriptorDecodeFailed
+        case updateDescriptorInvalid
         case updateDownloadFailed(String)
+        case updateMD5Mismatch(String)
         case attachedComponentSourceNotFound(String)
 
         var description: String {
@@ -44,7 +100,9 @@ final class NarInstaller {
             case .invalidDeletePath(let p): return "delete.txt の危険なパス: \(p)"
             case .updateDescriptorNotFound: return "updates2.dau / updates.txt / update.txt が見つかりません"
             case .updateDescriptorDecodeFailed: return "更新定義ファイルをデコードできません"
+            case .updateDescriptorInvalid: return "更新定義ファイルの形式が不正です"
             case .updateDownloadFailed(let path): return "更新ファイルを適用できません: \(path)"
+            case .updateMD5Mismatch(let path): return "更新ファイルのMD5が一致しません: \(path)"
             case .attachedComponentSourceNotFound(let type): return "付属コンポーネントのソースが見つかりません: \(type)"
             }
         }
@@ -385,8 +443,17 @@ final class NarInstaller {
         log.info("attached component installed: \(component.type,) -> \(target.path,)")
     }
 
-    /// updates2.dau / updates.txt / update.txt を順に解決して更新候補 URL を返す
+    /// updates2.dau / updates.txt / update.txt を順に解決して更新候補 URL を返す。
+    /// 既存呼び出しとの互換性のために残し、MD5などの詳細情報は捨てる。
     func checkUpdates(homeURLString: String, completion: @escaping (Result<[URL], Swift.Error>) -> Void) {
+        checkUpdateEntries(homeURLString: homeURLString) { result in
+            completion(result.map { $0.map(\.url) })
+        }
+    }
+
+    /// 更新記述子を解析し、URLと期待MD5を保持したまま返す。
+    func checkUpdateEntries(homeURLString: String,
+                            completion: @escaping (Result<[UpdateDescriptorEntry], Swift.Error>) -> Void) {
         let base: URL
         if let parsed = URL(string: homeURLString) {
             base = parsed
@@ -410,35 +477,81 @@ final class NarInstaller {
     ///   - completion: 適用できたファイル名（lastPathComponent）の配列を返す
     func downloadAndApply(entries: [URL], homeURLString: String, targetRoot: URL,
                           completion: @escaping (Result<[String], Swift.Error>) -> Void) {
+        let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
+        let detailedEntries = entries.map { entry in
+            let relativePath: String?
+            if entry.absoluteString.hasPrefix(baseWithSlash) {
+                relativePath = String(entry.absoluteString.dropFirst(baseWithSlash.count))
+            } else {
+                relativePath = nil
+            }
+            return UpdateDescriptorEntry(url: entry, relativePath: relativePath)
+        }
+        downloadAndApply(entries: detailedEntries, homeURLString: homeURLString, targetRoot: targetRoot,
+                         onMD5Compare: nil, completion: completion)
+    }
+
+    /// 更新記述子で列挙されたファイルをMD5検証後に実ダウンロードし、設置先へ適用する。
+    func downloadAndApply(entries: [UpdateDescriptorEntry], homeURLString: String, targetRoot: URL,
+                          onMD5Compare: ((UpdateMD5Comparison) -> Void)?,
+                          completion: @escaping (Result<[String], Swift.Error>) -> Void) {
         guard !entries.isEmpty else { completion(.success([])); return }
         let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
         let group = DispatchGroup()
         let lock = NSLock()
         var applied: [String] = []
         var failures: [String] = []
+        var firstFailure: Swift.Error?
+
+        func recordFailure(_ filename: String, error: Swift.Error) {
+            lock.lock()
+            failures.append(filename)
+            if firstFailure == nil { firstFailure = error }
+            lock.unlock()
+        }
 
         for entry in entries {
             group.enter()
-            URLSession.shared.downloadTask(with: entry) { [weak self] local, response, error in
+            URLSession.shared.downloadTask(with: entry.url) { [weak self] local, response, error in
                 defer { group.leave() }
                 guard let self else { return }
                 if let error {
-                    self.log.warning("update download failed: \(String(describing: error),) url=\(entry.absoluteString,)")
-                    lock.lock(); failures.append(entry.lastPathComponent); lock.unlock()
+                    self.log.warning("update download failed: \(String(describing: error),) url=\(entry.url.absoluteString,)")
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
                     return
                 }
                 guard let local else {
-                    self.log.warning("update download returned no file url=\(entry.absoluteString,)")
-                    lock.lock(); failures.append(entry.lastPathComponent); lock.unlock()
+                    self.log.warning("update download returned no file url=\(entry.url.absoluteString,)")
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
                     return
                 }
                 let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 200
                 guard (200..<300).contains(statusCode) else {
-                    self.log.warning("update download failed status=\(statusCode,) url=\(entry.absoluteString,)")
-                    lock.lock(); failures.append(entry.lastPathComponent); lock.unlock()
+                    self.log.warning("update download failed status=\(statusCode,) url=\(entry.url.absoluteString,)")
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
                     return
                 }
-                let ext = entry.pathExtension.lowercased()
+                if let expectedMD5 = entry.expectedMD5 {
+                    do {
+                        let downloadedMD5 = try UpdateMD5.hexDigest(ofFile: local)
+                        let comparison = UpdateMD5Comparison(
+                            filename: entry.filename,
+                            correctMD5: expectedMD5,
+                            downloadedMD5: downloadedMD5
+                        )
+                        onMD5Compare?(comparison)
+                        guard comparison.matches else {
+                            self.log.warning("update MD5 mismatch expected=\(expectedMD5,) actual=\(downloadedMD5,) file=\(entry.filename,)")
+                            recordFailure(entry.filename, error: Error.updateMD5Mismatch(entry.filename))
+                            return
+                        }
+                    } catch {
+                        self.log.warning("update MD5 calculation failed: \(String(describing: error),) file=\(entry.filename,)")
+                        recordFailure(entry.filename, error: Error.updateMD5Mismatch(entry.filename))
+                        return
+                    }
+                }
+                let ext = entry.url.pathExtension.lowercased()
                 do {
                     if ext == "nar" || ext == "zip" {
                         // パッケージ更新: 一時ファイルへ拡張子付きでコピーしてから install
@@ -453,10 +566,11 @@ final class NarInstaller {
                         try self.applyIncrementalFile(downloaded: local, entry: entry,
                                                       baseWithSlash: baseWithSlash, targetRoot: targetRoot)
                     }
-                    lock.lock(); applied.append(entry.lastPathComponent); lock.unlock()
+                    lock.lock(); applied.append(entry.filename); lock.unlock()
                 } catch {
-                    self.log.warning("update apply failed: \(String(describing: error),) url=\(entry.absoluteString,)")
-                    lock.lock(); failures.append(entry.lastPathComponent); lock.unlock()
+                    self.log.warning("update apply failed: \(String(describing: error),) url=\(entry.url.absoluteString,)")
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
+                    return
                 }
             }.resume()
         }
@@ -464,8 +578,11 @@ final class NarInstaller {
             lock.lock()
             let appliedResult = applied
             let failedResult = failures
+            let errorResult = firstFailure
             lock.unlock()
-            if let firstFailure = failedResult.first {
+            if let errorResult {
+                completion(.failure(errorResult))
+            } else if let firstFailure = failedResult.first {
                 completion(.failure(Error.updateDownloadFailed(firstFailure)))
             } else {
                 completion(.success(appliedResult))
@@ -474,12 +591,17 @@ final class NarInstaller {
     }
 
     /// 増分更新ファイルを homeurl 基準の相対パスで targetRoot 配下へ保存する（パストラバーサル防止つき）。
-    private func applyIncrementalFile(downloaded: URL, entry: URL, baseWithSlash: String, targetRoot: URL) throws {
-        var relative = entry.absoluteString
-        if relative.hasPrefix(baseWithSlash) {
+    private func applyIncrementalFile(downloaded: URL, entry: UpdateDescriptorEntry,
+                                      baseWithSlash: String, targetRoot: URL) throws {
+        var relative = entry.relativePath
+        if relative.isEmpty || relative == entry.url.lastPathComponent {
+            if entry.url.absoluteString.hasPrefix(baseWithSlash) {
+                relative = String(entry.url.absoluteString.dropFirst(baseWithSlash.count))
+            }
+        } else if relative.hasPrefix(baseWithSlash) {
             relative = String(relative.dropFirst(baseWithSlash.count))
         } else {
-            relative = entry.lastPathComponent
+            relative = entry.relativePath
         }
         relative = (relative.removingPercentEncoding ?? relative)
             .replacingOccurrences(of: "\\", with: "/")
@@ -500,7 +622,8 @@ final class NarInstaller {
         try FileManager.default.moveItem(at: downloaded, to: dest)
     }
 
-    private func fetchUpdateDescriptor(from candidates: [URL], baseURL: URL, completion: @escaping (Result<[URL], Swift.Error>) -> Void) {
+    private func fetchUpdateDescriptor(from candidates: [URL], baseURL: URL,
+                                       completion: @escaping (Result<[UpdateDescriptorEntry], Swift.Error>) -> Void) {
         guard let current = candidates.first else {
             completion(.failure(Error.updateDescriptorNotFound))
             return
@@ -512,7 +635,11 @@ final class NarInstaller {
                     completion(.failure(Error.updateDescriptorDecodeFailed))
                     return
                 }
-                let entries = UpdateDescriptorParser.parse(text, baseURL: baseURL)
+                guard UpdateDescriptorParser.isValidDescriptor(text, baseURL: baseURL, requireMD5: true) else {
+                    completion(.failure(Error.updateDescriptorInvalid))
+                    return
+                }
+                let entries = UpdateDescriptorParser.parseEntries(text, baseURL: baseURL, requireMD5: true)
                 completion(.success(entries))
                 return
             }

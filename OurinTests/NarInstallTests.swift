@@ -55,6 +55,59 @@ struct NarInstallTests {
     }
 
     @Test
+    func updateDescriptorKeepsStandardMD5Metadata() throws {
+        let text = """
+        charset,UTF-8
+        file,ghost/master/dic.dic\u{0001}900150983cd24fb0d6963f7d28e17f72\u{0001}size=3\u{0001}date=2026-08-13T00:00:00\u{0001}
+        """
+        let base = URL(string: "https://example.com/ghost/")!
+        let entries = UpdateDescriptorParser.parseEntries(text, baseURL: base)
+        #expect(entries.count == 1)
+        #expect(entries.first?.url == URL(string: "https://example.com/ghost/ghost/master/dic.dic")!)
+        #expect(entries.first?.relativePath == "ghost/master/dic.dic")
+        #expect(entries.first?.expectedMD5 == "900150983cd24fb0d6963f7d28e17f72")
+        #expect(UpdateDescriptorParser.isValidDescriptor(text, baseURL: base))
+    }
+
+    @Test
+    func updateDescriptorRejectsHTMLInsteadOfTreatingItAsNoUpdates() throws {
+        let text = "<html><body>404 Not Found</body></html>"
+        let base = URL(string: "https://example.com/ghost/")!
+        #expect(UpdateDescriptorParser.parseEntries(text, baseURL: base).isEmpty)
+        #expect(!UpdateDescriptorParser.isValidDescriptor(text, baseURL: base))
+    }
+
+    @Test
+    func updateDescriptorRequiresMD5ForNetworkUpdates() throws {
+        let text = "file,ghost/master/dic.dic\u{0001}size=3\u{0001}"
+        let base = URL(string: "https://example.com/ghost/")!
+        #expect(!UpdateDescriptorParser.isValidDescriptor(text, baseURL: base, requireMD5: true))
+        #expect(UpdateDescriptorParser.parseEntries(text, baseURL: base, requireMD5: true).isEmpty)
+    }
+
+    @Test
+    func md5DigestMatchesKnownVector() throws {
+        #expect(UpdateMD5.hexDigest(of: Data("abc".utf8)) == "900150983cd24fb0d6963f7d28e17f72")
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("ourin-md5-\(UUID().uuidString)")
+        try? Data("abc".utf8).write(to: file)
+        defer { try? FileManager.default.removeItem(at: file) }
+        let fileDigest = try UpdateMD5.hexDigest(ofFile: file)
+        #expect(fileDigest == "900150983cd24fb0d6963f7d28e17f72")
+        let matching = UpdateMD5Comparison(
+            filename: "dic.dic",
+            correctMD5: "900150983cd24fb0d6963f7d28e17f72",
+            downloadedMD5: "900150983cd24fb0d6963f7d28e17f72"
+        )
+        let mismatching = UpdateMD5Comparison(
+            filename: "dic.dic",
+            correctMD5: "00000000000000000000000000000000",
+            downloadedMD5: "900150983cd24fb0d6963f7d28e17f72"
+        )
+        #expect(matching.matches)
+        #expect(!mismatching.matches)
+    }
+
+    @Test
     func deleteTxtRemovesLegacyFiles() throws {
         let nar = try makeSampleNar(encoding: .utf8, dirName: "sample_delete_\(UUID().uuidString)", withDeleteInstruction: true)
         defer { try? FileManager.default.removeItem(at: nar.deletingLastPathComponent()) }
