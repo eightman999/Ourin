@@ -157,6 +157,36 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func existingGhostLifecycleRequestCompletesWithoutNewBootNotification() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-existing-ghost-lifecycle-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnGhostCalled.rawValue] = #"\0called\e"#
+        manager.shioriRuntime = runtime
+        var completionResult: GhostBootResult?
+        manager.requestLifecycleEvent(
+            GhostBootRequest(
+                eventID: .OnGhostCalled,
+                references: ["Caller", "", "CallerSSP", "/tmp/caller", "", "", "", ""]
+            )
+        ) { _, result in
+            completionResult = result
+        }
+        defer {
+            _ = manager.shutdown()
+        }
+
+        for _ in 0..<300 where completionResult == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let called = runtime.requests.first { $0.id == EventID.OnGhostCalled.rawValue }
+        #expect(called?.method == "GET")
+        #expect(called?.refs == ["Caller", "", "CallerSSP", "/tmp/caller", "", "", "", "master"])
+        #expect(completionResult?.succeeded == true)
+        #expect(completionResult?.isNewBoot == false)
+    }
+
+    @Test @MainActor
     func otherGhostLifecycleGETExcludesSourceAndTarget() {
         EventBridge.shared.stop()
 

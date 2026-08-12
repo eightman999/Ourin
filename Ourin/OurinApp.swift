@@ -680,6 +680,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     ) -> GhostManager {
         if let existing = allGhostManagers.first(where: { $0.ghostURL.standardizedFileURL == root.standardizedFileURL }) {
             NSLog("[launchAdditionalGhost] already running: \(root.lastPathComponent)")
+            if let bootRequest, let completion {
+                existing.requestLifecycleEvent(bootRequest, completion: completion)
+            }
             return existing
         }
         NSLog("[launchAdditionalGhost] launching: \(root.path)")
@@ -703,6 +706,36 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             return nil
         }
         return launchAdditionalGhost(at: item.path, bootRequest: bootRequest, completion: completion)
+    }
+
+    /// ゴースト切替完了後に、切替先をプライマリへ昇格し、切替元を終了する。
+    /// 追加ゴーストの単なる起動と異なり、主ゴーストの所有権をここで一度だけ入れ替える。
+    @discardableResult
+    func completeGhostSwitch(from source: GhostManager, to target: GhostManager) -> Bool {
+        guard source !== target, allGhostManagers.contains(where: { $0 === target }) else { return false }
+
+        let sourceWasPrimary = ghostManager === source
+        let sourceIndex = additionalGhosts.firstIndex(where: { $0 === source })
+        guard sourceWasPrimary || sourceIndex != nil else { return false }
+
+        if let targetIndex = additionalGhosts.firstIndex(where: { $0 === target }) {
+            additionalGhosts.remove(at: targetIndex)
+        }
+
+        if sourceWasPrimary {
+            ghostManager = target
+        } else {
+            // targetIndex の削除で source の添字がずれる可能性があるため、参照で再取得する。
+            if let sourceIndex = additionalGhosts.firstIndex(where: { $0 === source }) {
+                additionalGhosts.remove(at: sourceIndex)
+            } else {
+                return false
+            }
+        }
+
+        source.shutdown()
+        NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
+        return true
     }
 
     /// 追加ゴーストを終了する（プライマリは対象外）。

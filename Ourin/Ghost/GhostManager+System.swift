@@ -415,7 +415,7 @@ extension GhostManager: NSWindowDelegate {
                        // A call starts a target and is paired with OnGhostCallComplete;
                        // an ordinary \+ boot has no caller.  A switch is a change event,
                        // not an additional boot notification.
-                       if bootRequest?.eventID != .OnGhostChanged {
+                       if result.isNewBoot && bootRequest?.eventID != .OnGhostChanged {
                            self?.notifyOtherGhostBooted(target: target, result: result, excluding: self ?? target)
                        }
                        completion?(target, result)
@@ -4202,6 +4202,11 @@ extension GhostManager: NSWindowDelegate {
 
         let eventTargetName = resolvedName ?? normalized
         let sourceInfo = currentGhostEventInfo
+        guard eventTargetName.caseInsensitiveCompare(sourceInfo.ghostName) != .orderedSame,
+              eventTargetName.caseInsensitiveCompare(sourceInfo.mainName) != .orderedSame else {
+            Log.debug("[GhostManager] Ghost switch ignored: target is already active")
+            return
+        }
         let targetInfo = ghostEventInfo(named: eventTargetName)
         let changingParams: [String: String] = [
             "nextGhostName": targetInfo.mainName,
@@ -4249,8 +4254,10 @@ extension GhostManager: NSWindowDelegate {
                 params: otherParams,
                 excluding: [self, target]
             )
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                self.executeVanish(uninstall: false)
+            guard let appDelegate = NSApp.delegate as? AppDelegate,
+                  appDelegate.completeGhostSwitch(from: self, to: target) else {
+                self.shutdown()
+                return
             }
         }
     }

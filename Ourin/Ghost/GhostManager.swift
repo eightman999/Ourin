@@ -483,6 +483,21 @@ struct GhostBootResult {
     let script: String
     let shellName: String
     let succeeded: Bool
+    let isNewBoot: Bool
+
+    init(
+        eventID: String,
+        script: String,
+        shellName: String,
+        succeeded: Bool,
+        isNewBoot: Bool = true
+    ) {
+        self.eventID = eventID
+        self.script = script
+        self.shellName = shellName
+        self.succeeded = succeeded
+        self.isNewBoot = isNewBoot
+    }
 }
 
 /// Manages the lifecycle and display of a single ghost.
@@ -1297,6 +1312,61 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     self.sendInitializationNotifies(config: config)
                     NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
                 }
+            }
+        }
+    }
+
+    /// 起動済みゴーストへ、呼出し／切替の初期ライフサイクル GET を送る。
+    ///
+    /// 追加起動と同じ `OnGhostCalled` / `OnGhostChanged` → `OnBoot` のフォールバックを
+    /// 使うが、既存ゴーストは「新規起動」として扱わない。返答スクリプトの再生完了後に
+    /// completion を呼ぶため、`OnGhostCallComplete` 等の後続イベントを順序保証できる。
+    func requestLifecycleEvent(
+        _ request: GhostBootRequest,
+        completion: @escaping (GhostManager, GhostBootResult) -> Void
+    ) {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in
+                self?.requestLifecycleEvent(request, completion: completion)
+            }
+            return
+        }
+
+        bootCompletion = completion
+        pendingBootResult = nil
+        guard let runtime = shioriRuntime else {
+            finishBootIfNeeded(with: GhostBootResult(
+                eventID: request.eventID.rawValue,
+                script: "",
+                shellName: activeShellName,
+                succeeded: false,
+                isNewBoot: false
+            ))
+            return
+        }
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
+            let result = self.obtainBootScript(
+                using: runtime,
+                bootCount: 1,
+                initialRequest: request
+            )
+            DispatchQueue.main.async {
+                let existingResult = GhostBootResult(
+                    eventID: result?.eventID ?? request.eventID.rawValue,
+                    script: result?.script ?? "",
+                    shellName: result?.shellName ?? self.activeShellName,
+                    succeeded: true,
+                    isNewBoot: false
+                )
+                let trimmed = existingResult.script.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else {
+                    self.finishBootIfNeeded(with: existingResult)
+                    return
+                }
+                self.pendingBootResult = existingResult
+                self.runScript(trimmed)
             }
         }
     }
