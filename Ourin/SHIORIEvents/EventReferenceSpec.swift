@@ -438,6 +438,7 @@ public enum EventReferenceTable {
         .init(id: "OnGamepadAxisMove", references: ["axis", "x", "y", "deviceName"], category: "input"),
         .init(id: "OnSpeechSynthesisStatus", references: ["status"], category: "system"),
         .init(id: "OnVoiceRecognitionStatus", references: ["status"], category: "system"),
+        .init(id: "OnVoiceRecognitionWord", references: ["word"], category: "system"),
     ]
 
     // MARK: - 表駆動発火 API の中核（ラベル ⇄ ReferenceN 変換）

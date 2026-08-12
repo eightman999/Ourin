@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import Speech
 
 final class SpeechObserver {
     static let shared = SpeechObserver()
@@ -8,7 +9,7 @@ final class SpeechObserver {
     private var handler: ((ShioriEvent) -> Void)?
     private var timer: Timer?
     private var lastSpeaking: Bool?
-    private var emittedVoiceStatus = false
+    private var lastVoiceRecognitionStatus: String?
 
     func start(_ handler: @escaping (ShioriEvent) -> Void) {
         stop()
@@ -24,7 +25,27 @@ final class SpeechObserver {
         timer?.invalidate()
         timer = nil
         lastSpeaking = nil
-        emittedVoiceStatus = false
+        lastVoiceRecognitionStatus = nil
+    }
+
+    /// 音声認識の権限と認識サービスの可用性を、SHIORIへ渡す状態名へ変換する。
+    /// 権限要求はここでは行わない（自動イベント開始時にOSダイアログを出さない）。
+    static func voiceRecognitionStatus(
+        authorization: SFSpeechRecognizerAuthorizationStatus,
+        recognizerAvailable: Bool
+    ) -> String {
+        switch authorization {
+        case .authorized:
+            return recognizerAvailable ? "available" : "unavailable"
+        case .denied:
+            return "denied"
+        case .restricted:
+            return "restricted"
+        case .notDetermined:
+            return "not_determined"
+        @unknown default:
+            return "unavailable"
+        }
     }
 
     private func poll() {
@@ -36,11 +57,18 @@ final class SpeechObserver {
                 refs: ["status": speaking ? "speaking" : "idle"]
             ))
         }
-        if !emittedVoiceStatus {
-            emittedVoiceStatus = true
+
+        let authorization = SFSpeechRecognizer.authorizationStatus()
+        let recognizerAvailable = SFSpeechRecognizer(locale: Locale.current)?.isAvailable ?? false
+        let voiceStatus = Self.voiceRecognitionStatus(
+            authorization: authorization,
+            recognizerAvailable: recognizerAvailable
+        )
+        if lastVoiceRecognitionStatus != voiceStatus {
+            lastVoiceRecognitionStatus = voiceStatus
             handler?(ShioriEvent(
                 id: .OnVoiceRecognitionStatus,
-                refs: ["status": "unavailable"]
+                refs: ["status": voiceStatus]
             ))
         }
     }
