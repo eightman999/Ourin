@@ -514,50 +514,71 @@ std::shared_ptr<AST::Node> Parser::parseAssignment() {
         throw std::runtime_error("Expected variable name in assignment at line " + std::to_string(current().line));
     }
     
-    // Array access assignment: var[index] = value or var[index] op= value
+    // Array access assignment: var[index] = value, var[index] op= value, or var[index] ,= value.
     if (match(TokenType::LeftBracket)) {
-        // Support single index or comma-separated indices (slice-like)
-        // Parse at least one expression
         auto firstIndex = parseExpression();
         std::vector<std::shared_ptr<AST::Node>> indices;
         indices.push_back(firstIndex);
         while (match(TokenType::Comma)) {
-            // Allow additional indices
             indices.push_back(parseExpression());
         }
         consume(TokenType::RightBracket, "Expected ']' after array index");
-        
-        // Check for compound assignment operators
-        if (match(TokenType::PlusAssign) || match(TokenType::MinusAssign) ||
-            match(TokenType::StarAssign) || match(TokenType::SlashAssign) ||
-            match(TokenType::PercentAssign)) {
-            TokenType lastOpType = tokens_[pos_-1].type;
-            std::string op;
-            switch (lastOpType) {
-                case TokenType::PlusAssign: op = "+"; break;
-                case TokenType::MinusAssign: op = "-"; break;
-                case TokenType::StarAssign: op = "*"; break;
-                case TokenType::SlashAssign: op = "/"; break;
-                case TokenType::PercentAssign: op = "%"; break;
-                default: op = "+"; break;
+
+        // Range/slice lvalue (arr[start, end] op= rhs). YAYA's two-number bracket is an
+        // inclusive [start, end] interval. We support the safe operators `=` (splice/replace;
+        // an empty RHS array removes the interval) and `,=` (concatenate into the interval).
+        // Compound arithmetic on a range lvalue cannot be applied safely to a whole interval,
+        // so it is rejected explicitly instead of silently touching only the first index.
+        if (indices.size() > 1) {
+            if (match(TokenType::Assign)) {
+                auto rhs = parseExpression();
+                return std::make_shared<AST::CallNode>("__range_assign__",
+                    std::vector<std::shared_ptr<AST::Node>>{
+                        std::make_shared<AST::VariableNode>(varName), indices[0], indices[1], rhs });
             }
-            auto rhs = parseExpression();
-            // Create array access node for left side (use first index)
-            auto leftAccess = std::make_shared<AST::ArrayAccessNode>(varName, firstIndex);
-            auto bin = std::make_shared<AST::BinaryOpNode>(op, leftAccess, rhs);
-            // Store the result back to the array element - create a special assignment
-            // For now, we'll treat array element compound assignment as a regular compound assignment
-            return std::make_shared<AST::AssignmentNode>(varName, bin);
+            if (match(TokenType::CommaAssign)) {
+                auto rhs = parseExpression();
+                return std::make_shared<AST::CallNode>("__range_concat_assign__",
+                    std::vector<std::shared_ptr<AST::Node>>{
+                        std::make_shared<AST::VariableNode>(varName), indices[0], indices[1], rhs });
+            }
+            if (match(TokenType::PlusAssign) || match(TokenType::MinusAssign) ||
+                match(TokenType::StarAssign) || match(TokenType::SlashAssign) ||
+                match(TokenType::PercentAssign)) {
+                throw std::runtime_error("Compound assignment on a range/slice lvalue is not supported (it would affect multiple elements) at line " + std::to_string(current().line));
+            }
+            throw std::runtime_error("Internal error: range array access without assignment at line " + std::to_string(current().line));
+        }
+
+        // Single-index lvalue: exactly one element is written back through the VM's
+        // assignment-operator CallNode path (__assign__ / __plus_assign__ / ... / __concat_assign__)
+        // whose first argument is an AST::ArrayAccessNode, so only that element is replaced.
+        // Determine which assignment operator follows the indexed lvalue.
+        std::string assignFunc;
+        if (match(TokenType::PlusAssign)) {
+            assignFunc = "__plus_assign__";
+        } else if (match(TokenType::MinusAssign)) {
+            assignFunc = "__minus_assign__";
+        } else if (match(TokenType::StarAssign)) {
+            assignFunc = "__star_assign__";
+        } else if (match(TokenType::SlashAssign)) {
+            assignFunc = "__slash_assign__";
+        } else if (match(TokenType::PercentAssign)) {
+            assignFunc = "__percent_assign__";
+        } else if (match(TokenType::CommaAssign)) {
+            assignFunc = "__concat_assign__";
         } else if (match(TokenType::Assign)) {
-            // Simple assignment
-            auto value = parseExpression();
-            // For now, treat this as a simple assignment (array handling is Phase 2)
-            return std::make_shared<AST::AssignmentNode>(varName, value);
+            assignFunc = "__assign__";
         } else {
-            // No assignment operator - this is an array access expression, not assignment
-            // We should not have gotten here - this should be handled as an expression
+            // No assignment operator - this is an array access expression, not assignment.
+            // We should not have gotten here - this should be handled as an expression.
             throw std::runtime_error("Internal error: array access without assignment at line " + std::to_string(current().line));
         }
+
+        auto rhs = parseExpression();
+        auto leftAccess = std::make_shared<AST::ArrayAccessNode>(varName, firstIndex);
+        return std::make_shared<AST::CallNode>(assignFunc,
+            std::vector<std::shared_ptr<AST::Node>>{ leftAccess, rhs });
     }
     
     // Compound assignment: var op= value

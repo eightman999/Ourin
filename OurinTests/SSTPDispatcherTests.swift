@@ -975,6 +975,95 @@ struct SSTPDispatcherTests {
         #expect(!policy.waitWhileBusy())
     }
 
+    @Test @MainActor
+    func liveBreakPolicyTreatsPlayingGhostAsBusyAndIdleAsFree() throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-live-ghost-busy"))
+        manager.shioriRuntime = nil
+        ShioriStatusStore.shared.update(status: "talking")
+        let token = EventBridge.shared.register(runtime: nil, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            manager.isPlaying = false
+        }
+        let policy = LiveSstpBreakPolicy(timeout: 0.05, pollInterval: 0.01)
+
+        manager.isPlaying = true
+        #expect(policy.isBusy())
+
+        manager.isPlaying = false
+        #expect(!policy.isBusy())
+    }
+
+    @Test @MainActor
+    func nobreakWaitsForPlayingGhostAndThenProceeds() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-nobreak-playing-ghost"))
+        manager.shioriRuntime = nil
+        ShioriStatusStore.shared.update(status: "talking")
+        let token = EventBridge.shared.register(runtime: nil, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            manager.isPlaying = false
+        }
+        manager.isPlaying = true
+
+        // Event 無し SEND は SHIORI ブリッジ（テスト時スレッドローカルな Resource マップ）を
+        // 介さず、Script ヘッダを直接バルーン再生する。バックグラウンド実行でも確実に解決でき、
+        // 待機成功後の応答検証に使える。
+        let req = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: [
+                "Sender": "UnitTest",
+                "Script": "\\h\\s0ResumedAfterPlayback",
+                "Option": "nobreak"
+            ]
+        )
+
+        // waitWhileBusy は同期ポーリングのため、バックグラウンドでディスパッチして
+        // メインスレッド上で再生完了（isPlaying = false）をシミュレートできるようにする。
+        let response = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<String, Error>) in
+            DispatchQueue.global(qos: .userInitiated).async {
+                let resp = SSTPDispatcher.dispatch(
+                    request: req,
+                    bridge: bridge,
+                    breakPolicy: LiveSstpBreakPolicy(timeout: 3.0, pollInterval: 0.01)
+                )
+                DispatchQueue.main.async { continuation.resume(returning: resp) }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                manager.isPlaying = false
+            }
+        }
+
+        #expect(response.contains("SSTP/1.4 200 OK"))
+        #expect(response.contains("Script: \\h\\s0ResumedAfterPlayback"))
+    }
+
+    @Test @MainActor
+    func nobreakWithPlayingGhostTimesOutAndReturns409() throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-nobreak-timeout-ghost"))
+        manager.shioriRuntime = nil
+        ShioriStatusStore.shared.update(status: "talking")
+        let token = EventBridge.shared.register(runtime: nil, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            manager.isPlaying = false
+        }
+        manager.isPlaying = true
+
+        let request = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: ["Option": "nobreak"]
+        )
+        let response = SSTPDispatcher.dispatch(
+            request: request,
+            bridge: bridge,
+            breakPolicy: LiveSstpBreakPolicy(timeout: 0.05, pollInterval: 0.01)
+        )
+        #expect(response.contains("SSTP/1.4 409 Conflict"))
+    }
+
     @Test
     func receiverGhostNameReturns512WhenNoRegistryEntries() async throws {
         let fake = FakeSstpRoutingRegistry()

@@ -105,6 +105,30 @@ struct SerikoParserTests {
     }
 
     @Test
+    func parseControlPatternsKeepsCandidateListsTogether() async throws {
+        let text = """
+        surface0
+        {
+          animation10.interval,always
+          animation10.pattern0,alternativestart,(11,12.13)
+          animation10.pattern1,alternativestop,[14,15]
+          animation10.pattern2,parallelstart,(16,17)
+          animation10.pattern3,parallelstop,[18.19]
+        }
+        """
+
+        let patterns = try #require(SerikoParser.parseSurfaces(text)[0]?.animations[10]?.patterns)
+        #expect(patterns[0].method == .alternativeStart)
+        #expect(patterns[0].referencedAnimationIDs == [11, 12, 13])
+        #expect(patterns[1].method == .alternativeStop)
+        #expect(patterns[1].referencedAnimationIDs == [14, 15])
+        #expect(patterns[2].method == .parallelStart)
+        #expect(patterns[2].referencedAnimationIDs == [16, 17])
+        #expect(patterns[3].method == .parallelStop)
+        #expect(patterns[3].referencedAnimationIDs == [18, 19])
+    }
+
+    @Test
     func parseAnimationOverlayExtensionLine() async throws {
         let text = """
         surface5
@@ -119,6 +143,37 @@ struct SerikoParserTests {
         #expect(pattern?.duration == 150)
         #expect(pattern?.x == 8)
         #expect(pattern?.y == 9)
+    }
+
+    @Test
+    func parseScalingPatternPreservesFractionalFactors() async throws {
+        let text = """
+        surface0
+        {
+          animation7.interval,never
+          animation7.pattern0,scaling,0,100,92.5,87.25
+        }
+        """
+
+        let pattern = try #require(SerikoParser.parseSurfaces(text)[0]?.animations[7]?.patterns.first)
+        #expect(pattern.method == .scaling)
+        #expect(pattern.xValue == 92.5)
+        #expect(pattern.yValue == 87.25)
+    }
+
+    @Test
+    func parseImportPatternKeepsFilenameAndTimingArguments() async throws {
+        let text = """
+        surface0
+        {
+          animation8.interval,never
+          animation8.pattern0,import,media/anim.gif,250,3,4
+        }
+        """
+
+        let pattern = try #require(SerikoParser.parseSurfaces(text)[0]?.animations[8]?.patterns.first)
+        #expect(pattern.method == .import)
+        #expect(pattern.rawArguments == ["import", "media/anim.gif", "250", "3", "4"])
     }
 
     @Test

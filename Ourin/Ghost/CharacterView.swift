@@ -47,18 +47,50 @@ struct CharacterView: View {
     var onDragDropEvent: ((ShioriEvent) -> Void)?
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            // Base surface
-            if let baseImage = viewModel.image {
-                Image(nsImage: baseImage)
-                    .resizable()
-                    .frame(width: baseImage.size.width, height: baseImage.size.height)
+        let sourceOverlays = SurfaceOverlay.sortedForDisplay(viewModel.overlays)
+        let targetedEffects = viewModel.activeEffects.filter { $0.surfaceID != nil }
+        let baseEffects = viewModel.activeEffects.filter { $0.surfaceID == nil }
+        let processedBase = viewModel.image.flatMap {
+            baseEffects.isEmpty ? $0 : SurfaceVisualEffectRenderer.applying(image: $0, effects: baseEffects, filters: [])
+        }
+        let overlays = sourceOverlays.map { overlay in
+            let effects = targetedEffects.filter { $0.surfaceID == overlay.surfaceID }
+            guard !effects.isEmpty,
+                  let image = SurfaceVisualEffectRenderer.applying(image: overlay.image, effects: effects, filters: []) else {
+                return overlay
             }
+            var transformed = overlay
+            transformed.image = image
+            return transformed
+        }
+        let filteredSurface: NSImage? = {
+            guard !viewModel.activeFilters.isEmpty else { return nil }
+            guard let composited = SurfaceBlendRenderer.composite(base: processedBase, overlays: overlays) else { return nil }
+            return SurfaceVisualEffectRenderer.applying(image: composited, effects: [], filters: viewModel.activeFilters)
+        }()
+        let needsBitmapComposition = overlays.contains { $0.blendMode != .normal }
+            || !baseEffects.isEmpty
+            || !targetedEffects.isEmpty
+            || !viewModel.activeFilters.isEmpty
+        ZStack(alignment: .topLeading) {
+            if needsBitmapComposition,
+               let rendered = filteredSurface ?? SurfaceBlendRenderer.composite(base: processedBase, overlays: overlays) {
+                Image(nsImage: rendered)
+                    .resizable()
+                    .frame(width: rendered.size.width, height: rendered.size.height)
+            } else {
+                // Base surface
+                if let baseImage = processedBase {
+                    Image(nsImage: baseImage)
+                        .resizable()
+                        .frame(width: baseImage.size.width, height: baseImage.size.height)
+                }
 
-            // Overlay layers sorted by z-order then insertion for deterministic stacking.
-            ForEach(SurfaceOverlay.sortedForDisplay(viewModel.overlays)) { overlay in
-                OverlayView(overlay: overlay)
-                    .offset(x: overlay.offset.x, y: overlay.offset.y)
+                // Overlay layers sorted by z-order then insertion for deterministic stacking.
+                ForEach(overlays) { overlay in
+                    OverlayView(overlay: overlay)
+                        .offset(x: overlay.offset.x, y: overlay.offset.y)
+                }
             }
 
             // Dressup parts (sorted by Z-order)
@@ -85,24 +117,9 @@ struct CharacterView: View {
             }
         }
         .scaleEffect(x: viewModel.scaleX, y: viewModel.scaleY)
-        .blur(radius: filterBlurRadius())
-        .brightness(effectBrightness())
         .opacity(viewModel.alpha)
         .allowsHitTesting(!viewModel.repaintLocked)
         .contentShape(Rectangle())
-    }
-
-    private func filterBlurRadius() -> CGFloat {
-        guard let filter = viewModel.activeFilters.last else { return 0 }
-        if let first = filter.params.first, let v = Double(first) {
-            return max(0, min(20, CGFloat(v)))
-        }
-        return 2
-    }
-
-    private func effectBrightness() -> Double {
-        guard !viewModel.activeEffects.isEmpty else { return 0 }
-        return min(0.3, Double(viewModel.activeEffects.count) * 0.05)
     }
 }
 

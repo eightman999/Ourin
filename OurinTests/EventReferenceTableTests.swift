@@ -87,7 +87,7 @@ func eventReferenceTableGhostChangedReferences() {
 @Test
 func eventReferenceTableHttpCompleteReferences() {
     let complete = EventReferenceTable.specs["OnExecuteHTTPComplete"]
-    #expect(complete?.references == ["statusCode", "body", "url", "method"])
+    #expect(complete?.references == ["method", "asyncID", "url", "data", "result", "cookie", "responseHeaders"])
 }
 
 @Test
@@ -98,6 +98,20 @@ func eventReferenceTableNotifySelfInfoReferences() {
     #expect(selfInfo?.references.count == 7)
     #expect(selfInfo?.references.first == "ghostName")
     #expect(selfInfo?.references.last == "balloonPath")
+}
+
+@Test
+func eventReferenceTableSystemNotifyReferencesMatchUkadoc() {
+    #expect(EventReferenceTable.specs["OnNotifyUserInfo"]?.references == [
+        "addressName", "fullName", "birthday", "gender"
+    ])
+    #expect(EventReferenceTable.specs["OnNotifyOSInfo"]?.references == [
+        "osInfo", "cpuInfo", "memoryInfo", "uptimeMinutes"
+    ])
+    #expect(EventReferenceTable.specs["OnNotifyFontInfo"]?.references == ["fontName"])
+    #expect(EventReferenceTable.specs["OnNotifyInternationalInfo"]?.references == [
+        "utcOffsetMinutes", "daylightSavingTime", "countryCode", "languageCode"
+    ])
 }
 
 // MARK: - 表駆動発火 API（意味ラベル方式）の不変条件
@@ -143,9 +157,17 @@ func eventReferenceTableParamsPassesThroughReferenceKeys() {
 /// 移行で表に追加した代表イベントのラベル定義（UKADOC + 実コード値で検証済み）。
 @Test
 func eventReferenceTableMigrationAddedEvents() {
-    #expect(EventReferenceTable.specs["OnExecuteHTTPStreaming"]?.references == ["body", "url", "statusCode", "method"])
+    #expect(EventReferenceTable.specs["OnExecuteHTTPStreaming"]?.references == ["method", "asyncID", "url", "data", "body", "cookie", "responseHeaders"])
     #expect(EventReferenceTable.specs["OnPingProgress"]?.references == ["host", "progress", "result"])
     #expect(EventReferenceTable.specs["OnSurfaceChange"]?.references == ["sakuraSurface", "keroSurface", "changedScope"])
     #expect(EventReferenceTable.specs["OnGamepadAxisMove"]?.references == ["axis", "x", "y", "deviceName"])
-    #expect(EventReferenceTable.specs["OnUpdateComplete"]?.references.count == 4)
+    #expect(EventReferenceTable.specs["OnUpdateComplete"]?.references == [
+        "reason", "fileList", "unused2", "targetType", "executionReason"
+    ])
+    #expect(EventReferenceTable.specs["OnInstallComplete"]?.references == [
+        "identifier", "name", "name2"
+    ])
+    #expect(EventReferenceTable.specs["OnInstallCompleteEx"]?.references == [
+        "identifiers", "names", "paths"
+    ])
 }

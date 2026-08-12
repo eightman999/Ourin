@@ -28,6 +28,14 @@ final class InputMonitor {
     private var isPointerInsideGhostArea = false
     private var hoverTimer: Timer?
     private var hoverParams: [String: String] = [:]
+    private var keyPressCounts: [UInt16: Int] = [:]
+
+    // \\![enter,selectrect] / \\![enter,selectmode,rect] state.
+    private(set) var selectionModeActive = false
+    private var selectionModeScope = 0
+    private var selectionModeName = "rect"
+    private var selectionStart: NSPoint?
+    private var currentSelectionRect: CGRect?
 
     /// 監視を開始し、イベント発生時にハンドラへ通知する
     func start(handler: @escaping (ShioriEvent)->Void) {
@@ -35,6 +43,13 @@ final class InputMonitor {
         local = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged, .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp, .mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged, .scrollWheel]) { [weak self] ev in
             guard let self = self else { return ev }
             self.updatePointerRegion(for: ev)
+
+            // Selection mode owns mouse gestures while it is active. The event is
+            // still returned to AppKit so normal window tracking remains intact,
+            // but ordinary click/drag SHIORI events are not synthesized twice.
+            if self.selectionModeActive, self.handleSelectionModeEvent(ev) {
+                return ev
+            }
 
             // マウスダウン・アップイベントの場合、ゴースト/バルーンウィンドウかどうかを判定する
             if ev.type == .leftMouseDown || ev.type == .rightMouseDown || ev.type == .otherMouseDown ||
@@ -147,6 +162,27 @@ final class InputMonitor {
         isPointerInsideGhostArea = false
         SerikoCursorController.shared.reset()
         SerikoTooltipController.shared.hide()
+        keyPressCounts.removeAll()
+        selectionModeActive = false
+        selectionStart = nil
+        currentSelectionRect = nil
+    }
+
+    func beginSelectionMode(scope: Int, mode: String = "rect") {
+        selectionModeActive = true
+        selectionModeScope = scope
+        selectionModeName = mode.isEmpty ? "rect" : mode
+        selectionStart = nil
+        currentSelectionRect = nil
+    }
+
+    @discardableResult
+    func endSelectionMode() -> CGRect? {
+        let result = currentSelectionRect
+        selectionModeActive = false
+        selectionStart = nil
+        currentSelectionRect = nil
+        return result
     }
 
     /// NSEvent を SHIORI イベントへ変換してハンドラに渡す
@@ -184,6 +220,25 @@ final class InputMonitor {
 
         // 構築したイベントをハンドラに通知
         handler?(ShioriEvent(id: id, params: params))
+
+        if ev.type == .keyDown {
+            let count: Int
+            if ev.isARepeat {
+                count = (keyPressCounts[ev.keyCode] ?? 0) + 1
+            } else {
+                count = 1
+            }
+            keyPressCounts[ev.keyCode] = count
+
+            var pressParams = params
+            pressParams["Reference0"] = ev.charactersIgnoringModifiers ?? ev.characters ?? ""
+            pressParams["Reference2"] = String(count)
+            pressParams["Reference3"] = ev.window.map { String($0.windowNumber) } ?? ""
+            pressParams["Reference4"] = modifierString(for: ev)
+            handler?(ShioriEvent(id: .OnKeyPress, params: pressParams))
+        } else if ev.type == .keyUp {
+            keyPressCounts.removeValue(forKey: ev.keyCode)
+        }
 
         if ev.type == .otherMouseDown {
             handler?(ShioriEvent(id: .OnMouseDownEx, params: params))
@@ -331,6 +386,43 @@ final class InputMonitor {
             return w.convertToScreen(NSRect(origin: loc, size: .zero)).origin
         }
         return loc
+    }
+
+    private func handleSelectionModeEvent(_ ev: NSEvent) -> Bool {
+        let isDown = ev.type == .leftMouseDown
+        let isUp = ev.type == .leftMouseUp
+        let isDrag = ev.type == .leftMouseDragged
+        guard isDown || isUp || isDrag else { return false }
+
+        let point = mouseScreenLocation(for: ev)
+        let params = [
+            "Reference0": String(selectionModeScope),
+            "Reference1": selectionModeName,
+            "Reference2": "\(Int(point.x)),\(Int(point.y))"
+        ]
+
+        if isDown {
+            selectionStart = point
+            currentSelectionRect = .zero
+            handler?(ShioriEvent(id: .OnSelectModeMouseDown, params: params))
+        } else if isDrag, let start = selectionStart {
+            currentSelectionRect = selectionRect(from: start, to: point)
+        } else if isUp {
+            if let start = selectionStart {
+                currentSelectionRect = selectionRect(from: start, to: point)
+            }
+            handler?(ShioriEvent(id: .OnSelectModeMouseUp, params: params))
+        }
+        return true
+    }
+
+    private func selectionRect(from start: NSPoint, to end: NSPoint) -> CGRect {
+        CGRect(
+            x: min(start.x, end.x),
+            y: min(start.y, end.y),
+            width: abs(end.x - start.x),
+            height: abs(end.y - start.y)
+        )
     }
 
     private func mouseButtonName(for ev: NSEvent) -> String {

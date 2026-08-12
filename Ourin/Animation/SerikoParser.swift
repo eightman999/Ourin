@@ -44,21 +44,118 @@ public enum SerikoInterval: Hashable {
     }
 }
 
+public enum SerikoBlendMode: String, CaseIterable, Equatable {
+    case multiply
+    case screen
+    case overlay
+    case add
+    case addGlow
+    case softLight
+    case hardLight
+    case colorDodge
+    case colorDodgeGlow
+    case color
+    case luminosity
+    case hue
+    case saturation
+    case vividLight
+    case linearLight
+    case pinLight
+    case hardMix
+    case darken
+    case lighten
+    case darkerColor
+    case lighterColor
+    case colorBurn
+    case linearBurn
+    case difference
+    case exclusion
+    case subtract
+    case divide
+    case dither
+
+    /// `blend-*` と SSP 旧称（`overlaymultiply` 等）を同一の描画モードへ解決する。
+    static func parse(_ raw: String) -> (mode: Self, fast: Bool)? {
+        let value = raw
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .replacingOccurrences(of: "_", with: "-")
+        let normalized: String
+        let fast: Bool
+        if value.hasPrefix("blend-") {
+            let suffix = String(value.dropFirst("blend-".count))
+            fast = suffix.hasSuffix("-fast")
+            normalized = fast ? String(suffix.dropLast("-fast".count)) : suffix
+        } else if value.hasPrefix("overlay") {
+            let suffix = String(value.dropFirst("overlay".count))
+            fast = true
+            normalized = suffix.hasSuffix("-fast") ? String(suffix.dropLast("-fast".count)) : suffix
+        } else {
+            return nil
+        }
+
+        let mode: Self?
+        switch normalized {
+        case "multiply": mode = .multiply
+        case "screen": mode = .screen
+        case "overlay": mode = .overlay
+        case "add": mode = .add
+        case "add-glow": mode = .addGlow
+        case "soft-light": mode = .softLight
+        case "hard-light": mode = .hardLight
+        case "color-dodge": mode = .colorDodge
+        case "color-dodge-glow": mode = .colorDodgeGlow
+        case "color": mode = .color
+        case "luminosity": mode = .luminosity
+        case "hue": mode = .hue
+        case "saturation": mode = .saturation
+        case "vivid-light": mode = .vividLight
+        case "linear-light": mode = .linearLight
+        case "pin-light": mode = .pinLight
+        case "hard-mix": mode = .hardMix
+        case "darken": mode = .darken
+        case "lighten": mode = .lighten
+        case "darker-color": mode = .darkerColor
+        case "lighter-color": mode = .lighterColor
+        case "color-burn": mode = .colorBurn
+        case "linear-burn": mode = .linearBurn
+        case "difference": mode = .difference
+        case "exclusion": mode = .exclusion
+        case "subtract": mode = .subtract
+        case "divide": mode = .divide
+        case "dither": mode = .dither
+        default: mode = nil
+        }
+        guard let mode else { return nil }
+        return (mode, fast)
+    }
+}
+
 public enum SerikoMethod: Equatable {
     case overlay
     case overlayFast
     case base
     case move
+    case scaling
+    case add
+    case bind
+    case auto
     case reduce
     case replace
+    case `import`
     case start
     case alternativeStart
     case stop
     case alternativeStop
     /// 別アニメ列を割り込み再生する（start に準じて処理）
     case insert
-    /// フレーム補間（overlay 合成にフォールバック）
+    /// 宛先アルファに応じたフレーム補間
     case interpolate
+    /// Photoshop系のレイヤー合成。fast=true は宛先アルファにも依存する。
+    case blend(SerikoBlendMode, fast: Bool)
+    /// 指定した候補のうち1つをランダムに開始・停止する。
+    case parallelStart
+    case parallelStop
     case asis
     case unknown(String)
 
@@ -66,19 +163,30 @@ public enum SerikoMethod: Equatable {
         let value = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         switch value {
         case "overlay": return .overlay
-        case "overlayfast": return .overlayFast
+        case "overlayfast", "overlay-fast": return .overlayFast
         case "base": return .base
         case "move": return .move
+        case "scaling": return .scaling
+        case "add": return .add
+        case "bind": return .bind
+        case "auto": return .auto
         case "reduce": return .reduce
         case "replace": return .replace
+        case "import": return .import
         case "start": return .start
         case "alternativestart", "alternatestart": return .alternativeStart
         case "stop": return .stop
         case "alternativestop", "alternatestop": return .alternativeStop
+        case "parallelstart", "parallel-start": return .parallelStart
+        case "parallelstop", "parallel-stop": return .parallelStop
         case "insert": return .insert
         case "interpolate": return .interpolate
         case "asis": return .asis
-        default: return .unknown(raw)
+        default:
+            if let blend = SerikoBlendMode.parse(value) {
+                return .blend(blend.mode, fast: blend.fast)
+            }
+            return .unknown(raw)
         }
     }
 }
@@ -90,7 +198,49 @@ public struct SerikoPattern: Equatable {
     public let duration: Int
     public let x: Int
     public let y: Int
+    /// scaling は小数点以下の倍率指定を許すため、従来の整数座標とは別に保持する。
+    public let xValue: Double
+    public let yValue: Double
     public let rawArguments: [String]
+
+    public init(
+        index: Int,
+        method: SerikoMethod,
+        surfaceID: Int,
+        duration: Int,
+        x: Int,
+        y: Int,
+        rawArguments: [String],
+        xValue: Double? = nil,
+        yValue: Double? = nil
+    ) {
+        self.index = index
+        self.method = method
+        self.surfaceID = surfaceID
+        self.duration = duration
+        self.x = x
+        self.y = y
+        self.xValue = xValue ?? Double(x)
+        self.yValue = yValue ?? Double(y)
+        self.rawArguments = rawArguments
+    }
+
+    /// `alternativestart` / `alternativestop` / `parallel*` の括弧付きID列。
+    /// 通常の画像パターンでは空配列になる。
+    public var referencedAnimationIDs: [Int] {
+        guard method == .alternativeStart || method == .alternativeStop ||
+                method == .parallelStart || method == .parallelStop else {
+            return []
+        }
+        return rawArguments
+            .dropFirst()
+            .joined(separator: ",")
+            .split { $0 == "," || $0 == "." }
+            .compactMap { token in
+                let value = token.trimmingCharacters(in: CharacterSet(charactersIn: "()[]{} \t\r\n"))
+                return Int(value)
+            }
+    }
 }
 
 /// SERIKO/2.0 の element 定義（基底サーフェスを複数画像で合成する）。
@@ -346,7 +496,7 @@ public enum SerikoParser {
         let idPart = String(line[line.index(line.startIndex, offsetBy: prefix.count)..<markerRange.lowerBound])
         guard let id = Int(idPart) else { return nil }
         let argsPart = String(line[markerRange.upperBound...])
-        let rawArgs = argsPart.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        let rawArgs = splitArguments(argsPart)
         return (id, rawArgs)
     }
 
@@ -364,7 +514,7 @@ public enum SerikoParser {
         guard let patternIndex = Int(patternIndexPart) else { return nil }
 
         let argsPart = String(afterPattern[afterPattern.index(after: commaIndex)...])
-        let rawArgs = argsPart.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        let rawArgs = splitArguments(argsPart)
         guard !rawArgs.isEmpty else { return nil }
 
         let method: SerikoMethod
@@ -381,6 +531,8 @@ public enum SerikoParser {
         let duration = intAt(rawArgs, index: methodOffset + 1) ?? 0
         let x = intAt(rawArgs, index: methodOffset + 2) ?? 0
         let y = intAt(rawArgs, index: methodOffset + 3) ?? 0
+        let xValue = doubleAt(rawArgs, index: methodOffset + 2)
+        let yValue = doubleAt(rawArgs, index: methodOffset + 3)
 
         let pattern = SerikoPattern(
             index: patternIndex,
@@ -389,7 +541,9 @@ public enum SerikoParser {
             duration: duration,
             x: x,
             y: y,
-            rawArguments: rawArgs
+            rawArguments: rawArgs,
+            xValue: xValue,
+            yValue: yValue
         )
         return (animID, pattern)
     }
@@ -397,6 +551,38 @@ public enum SerikoParser {
     private static func intAt(_ parts: [String], index: Int) -> Int? {
         guard index >= 0, index < parts.count else { return nil }
         return Int(parts[index])
+    }
+
+    private static func doubleAt(_ parts: [String], index: Int) -> Double? {
+        guard index >= 0, index < parts.count else { return nil }
+        return Double(parts[index])
+    }
+
+    /// Split a pattern argument list without splitting commas inside the
+    /// parenthesized ID list used by alternativestart/parallelstart.
+    private static func splitArguments(_ raw: String) -> [String] {
+        var result: [String] = []
+        var current = ""
+        var depth = 0
+        for character in raw {
+            switch character {
+            case "(", "[", "{":
+                depth += 1
+                current.append(character)
+            case ")", "]", "}":
+                depth = max(0, depth - 1)
+                current.append(character)
+            case "," where depth == 0:
+                result.append(current.trimmingCharacters(in: .whitespacesAndNewlines))
+                current.removeAll(keepingCapacity: true)
+            default:
+                current.append(character)
+            }
+        }
+        if !current.isEmpty || !result.isEmpty {
+            result.append(current.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
+        return result
     }
 
     private static func parseSurfaceID(from line: String) -> Int? {

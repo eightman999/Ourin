@@ -35,11 +35,16 @@ struct TextAnimationConfig {
 /// Surface overlay data for character rendering
 struct SurfaceOverlay: Identifiable {
     let id: String
-    let image: NSImage
+    var image: NSImage
     var offset: CGPoint = .zero
     var alpha: Double = 1.0
     var zOrder: Int = 0
     var insertionOrder: Int = 0
+    /// SERIKO の合成モード。通常の overlay 以外は CharacterView で
+    /// 宛先アルファを含むビットマップ合成へ回す。
+    var blendMode: SurfaceBlendMode = .normal
+    /// このオーバーレイを作成したサーフェス ID（`effect2` の対象解決用）。
+    var surfaceID: Int? = nil
     /// SERIKO アニメーションが所有する一時オーバーレイの場合のみ設定する。
     /// surface ID はフレームごとに変わるため、ID文字列の接頭辞ではなく所有アニメーションで追跡する。
     var animationID: Int? = nil

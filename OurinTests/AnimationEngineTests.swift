@@ -30,6 +30,30 @@ struct AnimationEngineTests {
         #expect(collisions[1].name == "another_region")
         #expect(collisions[1].rect == CGRect(x: 50, y: 50, width: 100, height: 100))
     }
+
+    @Test
+    func parseAndHitTestExtendedCollisionShapes() throws {
+        let surfacesContent = """
+        surface0
+        {
+            collisionex,circle,50,50,10,circle_region
+            collisionex,polygon,0,0,100,0,0,100,triangle_region
+        }
+        """
+
+        let engine = AnimationEngine()
+        engine.loadAnimations(surfaceID: 0, content: surfacesContent)
+
+        let collisions = engine.getCollisions(for: 0)
+        #expect(collisions.count == 2)
+        #expect(collisions[0].name == "circle_region")
+        #expect(collisions[0].rect == CGRect(x: 40, y: 40, width: 20, height: 20))
+        #expect(collisions[0].contains(CGPoint(x: 50, y: 50)))
+        #expect(!collisions[0].contains(CGPoint(x: 40, y: 40)))
+        #expect(collisions[1].name == "triangle_region")
+        #expect(collisions[1].contains(CGPoint(x: 10, y: 10)))
+        #expect(!collisions[1].contains(CGPoint(x: 80, y: 80)))
+    }
     
     @Test
     func parsePointDefinitions() throws {

@@ -17,6 +17,11 @@ class CharacterViewModel: ObservableObject {
     @Published var scaleY: Double = 1.0
     @Published var alpha: Double = 1.0  // 0.0 to 1.0
 
+    /// SakuraScript の scaling はユーザー倍率とは別に SERIKO 倍率を持つ。
+    /// GhostManager が積算結果を scaleX/scaleY へ反映する。
+    var userScaleX: Double = 1.0
+    var userScaleY: Double = 1.0
+
     // Position and alignment state
     @Published var position: CGPoint?  // nil = free movement, set = locked position
     @Published var alignment: DesktopAlignment = .free
@@ -60,6 +65,8 @@ class CharacterViewModel: ObservableObject {
 
 /// ViewModel for the balloon view.
 class BalloonViewModel: ObservableObject {
+    static let defaultBalloonTimeout: TimeInterval = 60
+
     @Published var text: String = ""
     @Published var balloonID: Int = 0  // Current balloon style ID (0, 2, 4, etc.)
 
@@ -86,7 +93,41 @@ class BalloonViewModel: ObservableObject {
     @Published var fontSuperscript: Bool = false
     @Published var fontColor: NSColor = .textColor
     @Published var anchorFontColor: NSColor = .linkColor
+    @Published var anchorNotSelectFontColor: NSColor = .linkColor
+    @Published var anchorVisitedFontColor: NSColor = .linkColor
     @Published var anchorActive: Bool = false
+
+    // アンカー装飾（UKADOC \f[anchorstyle / anchorbrushcolor / anchorpencolor] 系）。
+    // 選択中（ホバー）・非選択・訪問済みの3状態を個別に持つ。
+    @Published var anchorStyle: AnchorDecorationStyle = .underline
+    @Published var anchorBrushColor: NSColor = .clear
+    @Published var anchorPenColor: NSColor = .linkColor
+    @Published var anchorMethod: AnchorRasterOperation = .none
+    @Published var anchornotselectStyle: AnchorDecorationStyle = .underline
+    @Published var anchornotselectBrushColor: NSColor = .clear
+    @Published var anchornotselectPenColor: NSColor = .linkColor
+    @Published var anchornotselectMethod: AnchorRasterOperation = .none
+    @Published var anchorvisitedStyle: AnchorDecorationStyle = .underline
+    @Published var anchorvisitedBrushColor: NSColor = .clear
+    @Published var anchorvisitedPenColor: NSColor = .linkColor
+    @Published var anchorvisitedMethod: AnchorRasterOperation = .none
+    // 選択肢マーカー（\f[cursor*]）の装飾。選択ダイアログの実ボタンへ反映する。
+    @Published var cursorStyle: AnchorDecorationStyle = .square
+    @Published var cursorBrushColor: NSColor = .clear
+    @Published var cursorPenColor: NSColor = .linkColor
+    @Published var cursorFontColor: NSColor = .textColor
+    @Published var cursorMethod: AnchorRasterOperation = .none
+    @Published var cursorNotSelectStyle: AnchorDecorationStyle = .none
+    @Published var cursorNotSelectBrushColor: NSColor = .clear
+    @Published var cursorNotSelectPenColor: NSColor = .linkColor
+    @Published var cursorNotSelectFontColor: NSColor = .textColor
+    @Published var cursorNotSelectMethod: AnchorRasterOperation = .none
+    /// `default` に戻すためのバルーン設定値。現在値とは分離して保持する。
+    var defaultAnchorMethod: AnchorRasterOperation = .none
+    var defaultAnchornotselectMethod: AnchorRasterOperation = .none
+    var defaultAnchorvisitedMethod: AnchorRasterOperation = .none
+    /// ホバー中（選択中）のアンカーの `anchors` index。nil = 選択中なし。
+    @Published var activeAnchorIndex: Int?
     @Published var shadowColor: NSColor = .clear
     @Published var shadowStyle: BalloonShadowStyle = .none
     @Published var outlineWidth: CGFloat = 0
@@ -95,13 +136,23 @@ class BalloonViewModel: ObservableObject {
 
     // Balloon control settings
     @Published var autoscrollEnabled: Bool = true
-    @Published var balloonTimeout: TimeInterval = 60
+    @Published var balloonTimeout: TimeInterval = BalloonViewModel.defaultBalloonTimeout
     @Published var balloonWaitEnabled: Bool = true
     @Published var balloonWaitMultiplier: Double = 1.0
     @Published var balloonMarkerText: String = ""
+    /// `\\![set,balloonnum,file,current,max]` の受信進捗表示。
+    /// 引数を空にした場合は全項目を消去する。
+    @Published var balloonNumberFileName: String = ""
+    @Published var balloonNumberCurrent: String = ""
+    @Published var balloonNumberMaximum: String = ""
     @Published var balloonNumberVisible: Bool = false
     @Published var repaintLocked: Bool = false
+    @Published var manualRepaintLock: Bool = false
     @Published var balloonMoveLocked: Bool = false
+    /// `\![enter,onlinemode]` / `\![leave,onlinemode]` の強制表示状態。
+    @Published var onlineModeActive: Bool = false
+    /// オンラインマーカー画像の現在フレーム番号。
+    @Published var onlineMarkerIndex: Int = 0
 
     enum BalloonAlignment {
         case none
@@ -145,6 +196,269 @@ class BalloonViewModel: ObservableObject {
         let image: NSImage?
     }
     @Published var balloonImages: [BalloonImage] = []
+
+    /// `\n` 可変改行の垂直送り（通常行高に対する倍率）。
+    /// `lineAdvances[i]` は i 番目の `\n` 文字に付随する送り。`\n`=1.0, `\n[half]`=0.5, `\n[150]`=1.5, `\n[-250]`=-2.5。
+    @Published var lineAdvances: [CGFloat] = []
+
+    /// `\_a[ID,...]...\_a` の範囲アンカー。表示テキスト・文字範囲・クリック時のアクションを保持する。
+    @Published var anchors: [BalloonAnchorRange] = []
+
+    /// 新規スクリプト開始時などにバルーン本文を初期化する（改行送り・アンカー範囲も同時にリセット）。
+    func resetBalloonContent() {
+        text = ""
+        lineAdvances.removeAll()
+        anchors.removeAll()
+        anchorActive = false
+        activeAnchorIndex = nil
+    }
+
+    /// 指定 index のアンカーを訪問済みとして記録する（`\_a` クリック時の `anchorvisited*` 描画用）。
+    func markAnchorVisited(at index: Int) {
+        guard anchors.indices.contains(index) else { return }
+        anchors[index].visited = true
+    }
+
+    /// 指定範囲（id + 文字範囲）のアンカーを訪問済みとして記録する。
+    func markAnchorVisited(id: String, range: NSRange) {
+        guard let index = anchors.firstIndex(where: { $0.id == id && $0.range == range }) else { return }
+        anchors[index].visited = true
+    }
+
+    /// アンカー1状態の装飾定義を組み立てる（選択中 / 訪問済み / 非選択の優先順）。index が無効なら非選択装飾。
+    func decoration(forAnchorAt index: Int?) -> AnchorDecoration {
+        guard let index = index else {
+            return AnchorDecoration(style: anchornotselectStyle, fontColor: anchorNotSelectFontColor, brushColor: anchornotselectBrushColor, penColor: anchornotselectPenColor, rasterOperation: anchornotselectMethod)
+        }
+        if activeAnchorIndex == index {
+            return AnchorDecoration(style: anchorStyle, fontColor: anchorFontColor, brushColor: anchorBrushColor, penColor: anchorPenColor, rasterOperation: anchorMethod)
+        }
+        guard anchors.indices.contains(index) else {
+            return AnchorDecoration(style: anchornotselectStyle, fontColor: anchorNotSelectFontColor, brushColor: anchornotselectBrushColor, penColor: anchornotselectPenColor, rasterOperation: anchornotselectMethod)
+        }
+        if anchors[index].visited {
+            return AnchorDecoration(style: anchorvisitedStyle, fontColor: anchorVisitedFontColor, brushColor: anchorvisitedBrushColor, penColor: anchorvisitedPenColor, rasterOperation: anchorvisitedMethod)
+        }
+        return AnchorDecoration(style: anchornotselectStyle, fontColor: anchorNotSelectFontColor, brushColor: anchornotselectBrushColor, penColor: anchornotselectPenColor, rasterOperation: anchornotselectMethod)
+    }
+
+    /// バルーン設定（descript.txt）由来のアンカー装飾を既定として反映する。
+    func applyBalloonConfigAnchorDefaults(config: BalloonConfig?) {
+        guard let config else { return }
+        anchorFontColor = config.anchorFontColor
+        anchorPenColor = config.anchorPenColor
+        anchorStyle = config.anchorStyle
+        anchorBrushColor = config.anchorBrushColor
+        defaultAnchorMethod = config.anchorBlendMethod
+        anchorMethod = defaultAnchorMethod
+        anchornotselectStyle = config.anchorNotSelectStyle
+        anchorNotSelectFontColor = config.anchorNotSelectFontColor
+        anchornotselectPenColor = config.anchorNotSelectPenColor
+        anchornotselectBrushColor = config.anchorNotSelectBrushColor
+        defaultAnchornotselectMethod = config.anchorNotSelectBlendMethod
+        anchornotselectMethod = defaultAnchornotselectMethod
+        anchorvisitedStyle = config.anchorVisitedStyle
+        anchorVisitedFontColor = config.anchorVisitedFontColor
+        anchorvisitedPenColor = config.anchorVisitedPenColor
+        anchorvisitedBrushColor = config.anchorVisitedBrushColor
+        defaultAnchorvisitedMethod = config.anchorVisitedBlendMethod
+        anchorvisitedMethod = defaultAnchorvisitedMethod
+        cursorStyle = AnchorDecorationStyle(shape: config.cursorStyle) ?? .square
+        cursorBrushColor = config.cursorBrushColor
+        cursorPenColor = config.cursorPenColor
+        cursorFontColor = config.cursorFontColor
+        cursorMethod = AnchorRasterOperation(name: config.cursorBlendMethod) ?? .none
+    }
+
+    /// `\n[half]` / `\n[パーセント]` / 通常 `\n` の改行を1つ追加し、垂直送り倍率を記録する。
+    func appendNewline(advance: CGFloat) {
+        text += "\n"
+        lineAdvances.append(advance)
+    }
+
+    /// `\n` 系タグの指定文字列（"half" / "150" / "-250" / "150%" 等）から送り倍率を求める。
+    /// UKADOC: `\n[half]` は通常の半分、`\n[パーセント]` は行高に対するパーセント（負値は戻る）。
+    static func newlineAdvance(for type: String) -> CGFloat {
+        let trimmed = type.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed == "half" { return 0.5 }
+        let percent = trimmed.hasSuffix("%") ? String(trimmed.dropLast()) : trimmed
+        if let value = Double(percent) {
+            return CGFloat(value / 100.0)
+        }
+        return 1.0
+    }
+
+    /// 末尾の指定文字数だけ削除し、改行送り・アンカー範囲を整合させる（`\c[char,N]` 相当）。
+    func truncateSuffixCharacters(_ count: Int) {
+        guard count > 0, !text.isEmpty else { return }
+        let removed = min(count, text.count)
+        let oldText = text
+        text = String(oldText.dropLast(removed))
+        let removedNewlines = min(oldText.suffix(removed).filter { $0 == "\n" }.count, lineAdvances.count)
+        if removedNewlines > 0 { lineAdvances.removeLast(removedNewlines) }
+        clampAnchors(toUTF16Length: (text as NSString).length)
+    }
+
+    /// 末尾の指定行数だけ削除し、改行送り・アンカー範囲を整合させる（`\c[line,N]` 相当）。
+    func truncateSuffixLines(_ count: Int) {
+        guard count > 0, !text.isEmpty else { return }
+        let lines = text.components(separatedBy: "\n")
+        let toRemove = min(count, lines.count)
+        text = Array(lines.dropLast(toRemove)).joined(separator: "\n")
+        lineAdvances.removeLast(min(toRemove, lineAdvances.count))
+        clampAnchors(toUTF16Length: (text as NSString).length)
+    }
+
+    /// 行 index（0始まり）の直前に適用する垂直送り倍率。先頭行は 1.0。
+    func leadingAdvance(forLineIndex index: Int) -> CGFloat {
+        guard index > 0 else { return 1.0 }
+        let advanceIndex = index - 1
+        guard advanceIndex < lineAdvances.count else { return 1.0 }
+        return lineAdvances[advanceIndex]
+    }
+
+    /// 行 index のテキストを、アンカー範囲 / 非アンカーに分割したセグメントを返す。
+    /// アンカーセグメントには所属する `anchors` の index（重複時は最後に追加された方）を添える。
+    func anchorSegments(lineIndex: Int) -> [BalloonTextSegment] {
+        let lines = text.components(separatedBy: "\n")
+        guard lineIndex >= 0, lineIndex < lines.count else { return [] }
+        guard !anchors.isEmpty else { return [BalloonTextSegment(text: lines[lineIndex], isAnchor: false, anchorIndex: nil)] }
+
+        let nsLines = lines.map { ($0 as NSString).length }
+        var start = 0
+        for i in 0..<lineIndex { start += nsLines[i] + 1 }
+        let lineLength = nsLines[lineIndex]
+        guard lineLength > 0 else { return [] }
+
+        // この行と交差するアンカー範囲（重複時は後のアンカーを優先）をマージした区間境界を構築する。
+        var boundaries: [(offset: Int, isAnchorStart: Bool, anchorIndex: Int)] = []
+        for (index, anchor) in anchors.enumerated() {
+            let aStart = max(anchor.range.location, start)
+            let aEnd = min(anchor.range.location + anchor.range.length, start + lineLength)
+            guard aEnd > aStart else { continue }
+            boundaries.append((aStart - start, true, index))
+            boundaries.append((aEnd - start, false, index))
+        }
+        boundaries.sort { $0.offset < $1.offset }
+        guard !boundaries.isEmpty else { return [BalloonTextSegment(text: lines[lineIndex], isAnchor: false, anchorIndex: nil)] }
+
+        // 区間ごとに属するアンカーを決定（深度管理で入れ子対応、同深度競合は後勝ち）。
+        var spans: [(start: Int, end: Int, anchorIndex: Int)] = []
+        var candidates: [Int] = []
+        var cursor = 0
+        var idx = 0
+        while idx < boundaries.count {
+            let offset = boundaries[idx].offset
+            if offset > cursor {
+                let active = candidates.last ?? -1
+                spans.append((cursor, offset, active))
+            }
+            while idx < boundaries.count && boundaries[idx].offset == offset {
+                let boundary = boundaries[idx]
+                if boundary.isAnchorStart {
+                    candidates.append(boundary.anchorIndex)
+                } else if let found = candidates.lastIndex(of: boundary.anchorIndex) {
+                    candidates.remove(at: found)
+                }
+                idx += 1
+            }
+            cursor = offset
+        }
+        if cursor < lineLength {
+            let active = candidates.last ?? -1
+            spans.append((cursor, lineLength, active))
+        }
+
+        var segments: [BalloonTextSegment] = []
+        for span in spans where span.end > span.start {
+            let nsText = (lines[lineIndex] as NSString).substring(with: NSRange(location: span.start, length: span.end - span.start))
+            if span.anchorIndex >= 0 {
+                segments.append(BalloonTextSegment(text: nsText, isAnchor: true, anchorIndex: span.anchorIndex))
+            } else {
+                segments.append(BalloonTextSegment(text: nsText, isAnchor: false, anchorIndex: nil))
+            }
+        }
+        return segments.filter { !$0.text.isEmpty }
+    }
+
+    /// `\_a` 開始位置（UTF-16）以降のアンカー文字範囲。
+    func anchorRange(from textStart: Int) -> NSRange {
+        let length = max(0, (text as NSString).length - textStart)
+        return NSRange(location: textStart, length: length)
+    }
+
+    /// `\_a` 開始位置以降のアンカー表示テキスト。
+    func anchorText(in textStart: Int) -> String {
+        (text as NSString).substring(from: min(max(0, textStart), (text as NSString).length))
+    }
+
+    /// テキスト短縮後に範囲外へ出たアンカーを切り詰め/除去する。
+    private func clampAnchors(toUTF16Length length: Int) {
+        anchors = anchors.compactMap { anchor in
+            guard anchor.range.location < length else { return nil }
+            let end = min(anchor.range.location + anchor.range.length, length)
+            let clampedRange = NSRange(location: anchor.range.location, length: max(0, end - anchor.range.location))
+            return BalloonAnchorRange(id: anchor.id, references: anchor.references, text: anchor.text, range: clampedRange, pluginOrigin: anchor.pluginOrigin, visited: anchor.visited)
+        }
+    }
+}
+
+/// `\_a[...]...\_a` の範囲分割でバルーン本文の1セグメントを表す（アンカー/非アンカー）。
+struct BalloonTextSegment: Equatable {
+    let text: String
+    let isAnchor: Bool
+    /// 所属する `BalloonViewModel.anchors` の index（非アンカーは nil）。
+    let anchorIndex: Int?
+}
+
+/// `\f[anchorstyle]` 等で指定するアンカー装飾の形状（UKADOC 形状指定: square / underline / square+underline / none）。
+enum AnchorDecorationStyle: Equatable, Sendable {
+    case none
+    case underline
+    case square
+    case squareUnderline
+
+    /// 形状指定文字列（大文字小文字・前後空白を許容）を解析する。
+    /// `none` / `underline` / `square` / `square+underline` を返し、`default` や未知値は nil。
+    init?(shape: String) {
+        switch shape.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) {
+        case "none": self = .none
+        case "underline": self = .underline
+        case "square": self = .square
+        case "square+underline": self = .squareUnderline
+        default: return nil
+        }
+    }
+}
+
+/// アンカー1状態の装飾定義（形状・塗り色・枠線/下線色）。UKADOC の brush（矩形内塗り）と pen（枠・下線）に対応。
+struct AnchorDecoration: Equatable {
+    var style: AnchorDecorationStyle
+    var fontColor: NSColor
+    var brushColor: NSColor
+    var penColor: NSColor
+    var rasterOperation: AnchorRasterOperation = .none
+}
+
+/// `\_a[ID,...]...\_a` の1範囲のアンカー表現。
+/// 表示テキストと文字範囲を保持し、クリック時にどのアンカーのアクションを実行するかを決定できる。
+struct BalloonAnchorRange: Equatable {
+    let id: String
+    let references: [String]
+    let text: String
+    let range: NSRange
+    let pluginOrigin: Bool
+    /// クリック済み（訪問済み）かどうか。true のとき `anchorvisited*` 装飾で描画する。
+    var visited: Bool
+
+    init(id: String, references: [String], text: String, range: NSRange, pluginOrigin: Bool = false, visited: Bool = false) {
+        self.id = id
+        self.references = references
+        self.text = text
+        self.range = range
+        self.pluginOrigin = pluginOrigin
+        self.visited = visited
+    }
 }
 
 
@@ -181,10 +495,39 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var lastSntpServerDate: Date?
     var lastSntpServerDateTime: String?
     var lastSntpTimezone: String?
+    var lastBiffUnreadCounts: [String: Int] = [:]
 
     // Window management
     var characterWindows: [Int: NSWindow] = [:] // Support multiple scopes (0=master, 1=partner)
     var balloonWindows: [Int: NSWindow] = [:]
+    /// `resetballoonpos` のプログラム移動をユーザー移動として保存しない。
+    var isResettingBalloonPositions = false
+    /// `save,wallpaper` と `restore,wallpaper` の同一セッション内バックアップ。
+    var savedWallpaperURLs: [String: URL] = [:]
+    var surfaceTestWindow: NSWindow?
+    /// SakuraScript が開く補助ウィンドウ（ログ／アドレスバー／ビューア等）。
+    /// ゴーストごとに保持し、再度開いたときは既存ウィンドウを再利用する。
+    var utilityWindows: [String: NSWindow] = [:]
+    /// `set,tasktrayicon` が所有するゴースト単位のメニューバーアイコン。
+    /// Dock のアプリアイコンを書き換えるのではなく、macOS の通知領域相当へ表示する。
+    var taskTrayStatusItem: NSStatusItem?
+    var taskTrayAnimationTimer: Timer?
+    /// TeachBox はスクリプトから閉じられる必要があるため、NSAlert の
+    /// ブロッキングモーダルではなく専用ウィンドウとして保持する。
+    var teachBoxTextField: NSTextField?
+    var teachBoxProgrammaticClose = false
+    /// 現在表示中のInputBox/CommunicateBoxをスクリプトから閉じるためのモーダル参照。
+    var activeInputAlert: NSAlert?
+    var activeInputDialogID: String?
+    var inputDialogCloseRequested = false
+    var activeCommunicateAlert: NSAlert?
+    var communicateDialogCloseRequested = false
+
+    /// `open,backlogviewer` 用の発言履歴。ゴースト単位で上限付き保持する。
+    var backlogEntries: [GhostBacklogEntry] = []
+
+    /// 使用率ストアのセッションが開始済みか。テストやロード前の表示は統計へ混入させない。
+    var usageSessionStarted = false
 
     // ViewModels
     var characterViewModels: [Int: CharacterViewModel] = [:] // One per scope
@@ -207,11 +550,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case textChunk(String)
         case speak(String)
         case newline
+        case newlineVariation(String)
         case scope(Int)
         case surface(Int)
         case wait(TimeInterval)
         case waitUntil(TimeInterval) // seconds from precise base
         case waitForAudio
+        case waitForHTTP(UUID)
+        case waitForSyncObject(name: String, timeout: TimeInterval, generation: UInt64)
         case waitAnimation(Int) // wait until SERIKO animation ID completes
         case resetPrecise
         case clickWait(noclear: Bool)
@@ -220,23 +566,32 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     }
     var playbackQueue: [PlaybackUnit] = []
     var isPlaying: Bool = false
+    /// 非同期待機コールバックが古いスクリプトのキューを再開しないための世代番号。
+    private var playbackGeneration: UInt64 = 0
     private var quickMode: Bool = false
     private var preciseBase: Date = Date()
     private let defaultTypingInterval: TimeInterval = 0.1
     private var typingInterval: TimeInterval = 0.1
+    /// `\![set,serikotalk,...]` は永続設定ではなく現在スクリプトだけの上書き。
+    var serikoTalkEnabledForScript: Bool?
     private var syncEnabled: Bool = false
     private var syncScopes: Set<Int> = []
     var pendingClick: Bool? = nil
-    var pendingAnchorAction: (action: ChoiceAction, pluginOrigin: Bool)? = nil
+    /// `\_a[ID,...]` 開始から `\_a` 閉じまでの範囲アンカー構築中の状態。
+    /// textStart は開始時点のバルーン本文の UTF-16 文字数（閉じタグ時点との差分がアンカー範囲になる）。
+    private var pendingAnchorOpen: (id: String, references: [String], pluginOrigin: Bool, textStart: Int)? = nil
     
     // Append mode flag - when true, balloon text is not cleared on script start
     private var appendModeEnabled: Bool = false
     
     // Sound playback tracking
-    var currentSounds: [NSSound] = []
-    var namedSounds: [String: [NSSound]] = [:]
-    var preloadedSounds: [String: NSSound] = [:]
+    var currentSounds: [SoundPlayer] = []
+    var namedSounds: [String: [SoundPlayer]] = [:]
+    var preloadedSounds: [String: [SoundPlayer]] = [:]
     var videoPlayers: [String: VideoPlayerWindow] = [:]
+    var preloadedVideos: [String: [VideoPreloadPlayer]] = [:]
+    var importedSurfaceTimers: [String: Timer] = [:]
+    var importedSurfaceTokensByOwner: [String: String] = [:]
 
     // Sakura Script \__v 音声合成制御。自動読み上げは既定で無効にし、明示指定時だけ使う。
     // `voiceAlternateText` は次のテキストトークン1つにだけ適用し、\__v 終了タグで解除する。
@@ -255,6 +610,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     // Window management (used by Window extension)
     var stickyWindowRelationships: [Int: Set<Int>] = [:] // Master scope -> follower scopes
+    var stickyWindowOffsets: [Int: [Int: CGPoint]] = [:] // Master scope -> follower scope -> initial relative origin
+    var windowZOrderScopes: [Int]? = nil // Persisted z-order group for windows created later
+    var pendingWindowStateReasons: [Int: String] = [:] // Scope -> reason for the next minimize/restore notification
+    var serikoScaleFactorsByScope: [Int: [Int: CGPoint]] = [:] // scope -> animationID -> x/y multiplier
+    /// 画面引き継ぎイベントの直前モニター状態（scopeごと）。
+    /// displayIDをwire値と分離して保持し、同一形状のモニター間でも移動を検出する。
+    var displayHandoverStates: [Int: DisplaySnapshot] = [:]
+    /// 起動時のOnDisplayHandover(init)を同一scopeへ二重送信しないための集合。
+    var sentInitialDisplayHandoverScopes: Set<Int> = []
 
     // Choice dialog state (used by System extension)
     var pendingChoices: [(title: String, action: ChoiceAction, pluginOrigin: Bool)] = []
@@ -265,11 +629,25 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var localEventTimers: [String: Timer] = [:]
     var remoteEventTimers: [String: Timer] = [:]
     var pluginEventTimers: [String: Timer] = [:]
+    /// オンラインマーカーのスコープ別アニメーションタイマー。
+    var onlineMarkerTimers: [Int: Timer] = [:]
     /// \![execute,websocket,URL] で開いた WebSocket 接続（URL 文字列でキー）
     var webSocketTasks: [String: URLSessionWebSocketTask] = [:]
     /// \![execute,http-stream*,URL] で開始した HTTP ストリーミング要求（URL 文字列でキー）。\![cancel,http,URL] で中断する。
     var httpStreamingTasks: [String: URLSessionDataTask] = [:]
+    /// URLSession delegate を保持するための HTTP ストリーミング実行器。
+    var httpStreamingRunners: [String: HTTPDataTaskRunner] = [:]
+    /// ストリーミングで `--sync` を指定した場合の待機ID。
+    var httpStreamingWaitIDs: [String: UUID] = [:]
+    /// チャンク境界で分割された UTF-8/Shift_JIS 文字を次のチャンクへ持ち越す。
+    var httpStreamingPendingData: [String: Data] = [:]
+    /// 通常の HTTP 要求も progress 通知中は delegate の寿命を保持する。
+    var httpRequestRunners: [UUID: HTTPDataTaskRunner] = [:]
+    /// `--sync` HTTP/RSS 要求が完了するまで SakuraScript を停止するための待機集合。
+    var pendingHTTPWaits: Set<UUID> = []
     var selectModeActive: Bool = false
+    var selectModeScope: Int = 0
+    var selectModeName: String = "rect"
     var quickSessionEnabled: Bool = false
     var collisionModeActive: Bool = false
     var passiveModeActive: Bool = false
@@ -293,6 +671,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var awaitingTerminateReply: Bool = false
     var didFinalizeTermination: Bool = false
     var terminateAfterPlayback: Bool = false
+    /// OnCloseAll を複数ゴーストへ送るアプリ終了シーケンスの完了通知。
+    /// `\-` を含む応答でも NSApplication を先に終了させず、AppDelegate が全ゴーストの
+    /// 応答再生完了を集約してから終了を確定する。
+    var closeSequenceCompletion: (() -> Void)?
     /// OnDestroy の Reference0（UKADOC: リロード時のみ "reload"、通常終了は Reference なし）
     private var pendingDestroyReason: String?
 
@@ -654,6 +1036,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             if let config = GhostConfiguration.load(from: ghostRoot) {
                 self.ghostConfig = config
                 self.activeShellName = config.defaultShellDirectory.isEmpty ? "master" : config.defaultShellDirectory
+                RateOfUseStore.shared.beginSession(
+                    identifier: self.ghostURL.standardizedFileURL.path,
+                    name: config.name,
+                    sakuraname: config.sakuraName,
+                    keroname: config.keroName ?? ""
+                )
+                self.usageSessionStarted = true
                 self.reloadMakotoTranslators()
                 self.loadDressupConfiguration()
                 Log.info("[GhostManager] Loaded ghost configuration: \(config.name)")
@@ -719,6 +1108,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 self.shioriRuntime = runtime
                 self.yayaAdapter = runtime as? YayaAdapter
                 self.eventToken = EventBridge.shared.register(runtime: runtime, ghostManager: self)
+                self.emitInitialDisplayHandoverEvents()
             }
 
             let defaults = UserDefaults.standard
@@ -785,6 +1175,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func shutdown(preserveRuntimeForCache: Bool = false) -> CachedRuntime? {
         guard !didShutdown else { return nil }
         didShutdown = true
+        if usageSessionStarted {
+            RateOfUseStore.shared.endSession(identifier: ghostURL.standardizedFileURL.path)
+            usageSessionStarted = false
+        }
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         NotificationCenter.default.removeObserver(self)
         if let config = ghostConfig,
@@ -809,9 +1203,34 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             timer.invalidate()
         }
         pluginEventTimers.removeAll()
+        for timer in onlineMarkerTimers.values {
+            timer.invalidate()
+        }
+        onlineMarkerTimers.removeAll()
+        taskTrayAnimationTimer?.invalidate()
+        taskTrayAnimationTimer = nil
+        if let taskTrayStatusItem {
+            NSStatusBar.system.removeStatusItem(taskTrayStatusItem)
+            self.taskTrayStatusItem = nil
+        }
+        for viewModel in balloonViewModels.values {
+            viewModel.onlineModeActive = false
+            viewModel.onlineMarkerIndex = 0
+        }
         shutdownSerikoLoop()
+        stopAllImportedSurfaceAnimations()
         for w in characterWindows.values { w.orderOut(nil) }
         for w in balloonWindows.values { w.orderOut(nil) }
+        surfaceTestWindow?.orderOut(nil)
+        surfaceTestWindow = nil
+        teachBoxProgrammaticClose = true
+        for w in utilityWindows.values {
+            w.orderOut(nil)
+            w.close()
+        }
+        utilityWindows.removeAll()
+        teachBoxTextField = nil
+        teachBoxProgrammaticClose = false
         characterWindows.removeAll()
         balloonWindows.removeAll()
         stopAllVideos()
@@ -867,42 +1286,61 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     // MARK: - Termination sequence
 
-    /// 終了シーケンスを開始する。OnClose を GET で送り、応答スクリプト（お別れトーク、通常は末尾 \-）を
-    /// 再生してから終了する（UKADOC）。
+    /// 終了シーケンスを開始する。指定した終了イベントを GET で送り、応答スクリプト
+    /// （お別れトーク、通常は末尾 \-）を再生してから終了する（UKADOC）。
     /// - Parameters:
-    ///   - reason: OnClose の Reference0（user / system 等）
+    ///   - eventID: 終了イベント（通常は OnClose、アプリ全体終了時は OnCloseAll）
+    ///   - reason: 終了イベントの Reference0（user / system 等）
     ///   - replyToTermination: applicationShouldTerminate から呼ばれた場合 true（reply で完了を通知する）
+    ///   - completion: OnCloseAll 等でアプリ側が全ゴーストの完了を集約する場合のコールバック
     /// - Returns: シーケンスを開始した場合 true（既に終了処理中なら false）
     @discardableResult
-    func beginCloseSequence(reason: String = "user", replyToTermination: Bool = false) -> Bool {
+    func beginCloseSequence(
+        eventID: String = EventID.OnClose.rawValue,
+        reason: String = "user",
+        replyToTermination: Bool = false,
+        completion: (() -> Void)? = nil
+    ) -> Bool {
         guard !isShuttingDown else { return false }
         isShuttingDown = true
         awaitingTerminateReply = replyToTermination
+        closeSequenceCompletion = completion
         Log.info("[GhostManager] Close sequence started (reason: \(reason))")
 
         DispatchQueue.global(qos: .userInitiated).async {
             var script = ""
             if let runtime = self.shioriRuntime {
                 let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
-                if let r = runtime.request(method: "GET", id: "OnClose", headers: hdrs, refs: [reason], timeout: 4.0),
+                if let r = runtime.request(method: "GET", id: eventID, headers: hdrs, refs: [reason], timeout: 4.0),
                    r.ok, let v = r.value {
                     script = v.trimmingCharacters(in: .whitespacesAndNewlines)
                 }
             } else {
-                script = BridgeToSHIORI.handle(event: "OnClose", references: [reason])
+                script = BridgeToSHIORI.handle(event: eventID, references: [reason])
                     .trimmingCharacters(in: .whitespacesAndNewlines)
             }
             DispatchQueue.main.async {
                 if script.isEmpty {
-                    self.finalizeTermination()
+                    self.finishCloseSequence()
                 } else {
-                    // \- が含まれていなくても再生完了後に終了できるようフラグを立てる
-                    self.terminateAfterPlayback = true
+                    // OnClose は \- が含まれていなくても再生完了後に終了する。
+                    // OnCloseAll は AppDelegate の完了集約を使うため、同フラグを立てない。
+                    self.terminateAfterPlayback = replyToTermination && completion == nil
                     self.runScript(script)
                 }
             }
         }
         return true
+    }
+
+    /// 終了イベントの応答が空、または再生完了した時点の共通出口。
+    func finishCloseSequence() {
+        if let completion = closeSequenceCompletion {
+            closeSequenceCompletion = nil
+            completion()
+            return
+        }
+        finalizeTermination()
     }
 
     /// ゴースト終了を確定する（\- ハンドラ／OnClose 応答再生完了から呼ばれる）。
@@ -947,7 +1385,27 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     }
 
     /// \j[ID] - ジャンプタグ。スクリプト内ラベルは SakuraScriptEngine 側で解決済み。
-    /// URL/ファイルはオープン、On* はイベント起動（raise 相当）として扱う。
+    /// URL/ファイルはオープン、それ以外は指定 ID の SHIORI GET として扱う。
+    private func resolveJumpFileURL(_ target: String) -> URL? {
+        guard let url = URL(string: target), url.isFileURL else { return nil }
+
+        // UKADOC の `file:///name` は ghost/master からの相対指定としても使われる。
+        // まず実在する絶対パスを尊重し、存在しない単一スラッシュのパスだけを
+        // ghost/master 相対へ解決する。これにより file:///Users/... の絶対指定も失わない。
+        let absoluteURL = URL(fileURLWithPath: url.path).standardizedFileURL
+        if FileManager.default.fileExists(atPath: absoluteURL.path) {
+            return absoluteURL
+        }
+
+        let relativePath = url.path.hasPrefix("/") ? String(url.path.dropFirst()) : url.path
+        guard !relativePath.isEmpty,
+              !relativePath.hasPrefix("../"),
+              relativePath != ".." else { return absoluteURL }
+        return ghostURL
+            .appendingPathComponent("ghost/master", isDirectory: true)
+            .appendingPathComponent(relativePath)
+    }
+
     func handleJumpCommand(args: [String]) {
         guard let target = args.first?.trimmingCharacters(in: .whitespaces), !target.isEmpty else {
             Log.info("[GhostManager] \\j with no target (ignored)")
@@ -964,13 +1422,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             })
         } else if lowered.hasPrefix("file://") {
             playbackQueue.append(.deferredCommand {
-                if let url = URL(string: target) {
+                if let url = self.resolveJumpFileURL(target) {
                     Log.info("[GhostManager] \\j opening file: \(target)")
                     NSWorkspace.shared.open(url)
                 }
             })
-        } else if target.hasPrefix("On") || target.hasPrefix("\\") == false && lowered.hasPrefix("on") {
-            // イベントジャンプ: SHIORI へ GET し、返値スクリプトを再生する
+        } else {
+            // IDジャンプ: On* に限定せず、指定された任意の SHIORI ID へ GET する。
+            // 旧実装は On* 以外を無視しており、ゴースト固有イベントを壊していた。
             let references = Array(args.dropFirst())
             playbackQueue.append(.deferredCommand { [weak self] in
                 guard let self else { return }
@@ -984,9 +1443,6 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     DispatchQueue.main.async { self.runScript(v) }
                 }
             })
-        } else {
-            // docs で確認できるラベルへ解決できなかった非 On* ターゲットはここに残る。
-            Log.info("[GhostManager] \\j[\(target)] - unsupported jump target (ignored)")
         }
     }
 
@@ -1078,9 +1534,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func runTranslatedScript(_ script: String) {
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        recordBacklog(from: trimmed)
         beginPluginTalkNotification(script: trimmed, reasons: ["owned"])
 
         // Reset playback state and balloon text for new script
+        playbackGeneration &+= 1
         playbackQueue.removeAll()
         isPlaying = false
         quickMode = false
@@ -1089,11 +1547,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         // 新しいスクリプト開始 = スクリプトブレーク扱い: タイムクリティカル区間と \* 指定を解除
         timeCriticalActive = false
         choiceTimeoutDisabled = false
+        pendingAnchorOpen = nil
         for vm in balloonViewModels.values {
-            vm.text = ""
-            vm.anchorActive = false
+            vm.resetBalloonContent()
         }
-        typingInterval = defaultTypingInterval
+        resetScriptScopedBalloonSettings()
         let previousPluginOrigin = currentScriptIsPluginOrigin
         currentScriptIsPluginOrigin = false
         sakuraEngine.runPreprocessed(script: trimmed)
@@ -1115,20 +1573,26 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
         let hasText = sakuraEngine.containsTextInPreprocessedScript(trimmed)
         if hasText {
+            recordBacklog(from: trimmed)
             beginPluginTalkNotification(script: trimmed, reasons: ["owned"])
             // New visible text: cancel pending playback and clear balloon
+            playbackGeneration &+= 1
             playbackQueue.removeAll()
             isPlaying = false
             quickMode = false
             preciseBase = Date()
             timeCriticalActive = false
             choiceTimeoutDisabled = false
+            pendingAnchorOpen = nil
             for vm in balloonViewModels.values {
-                vm.text = ""
-                vm.anchorActive = false
+                vm.resetBalloonContent()
             }
-            typingInterval = defaultTypingInterval
+            resetScriptScopedBalloonSettings()
             resetVoiceSynthesisState()
+        } else {
+            // NOTIFY に本文がない場合も、設定コマンドだけをこのスクリプトの
+            // 有効範囲として扱い、前のスクリプトの一時設定を持ち越さない。
+            resetScriptScopedBalloonSettings()
         }
         let previousPluginOrigin = currentScriptIsPluginOrigin
         currentScriptIsPluginOrigin = false
@@ -1145,6 +1609,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let trimmed = translateForDisplay(script, context: .init(reasons: reasons))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        recordBacklog(from: trimmed)
         if options.contains("nobreak") {
             beginPluginTalkNotification(script: trimmed, reasons: reasons)
             let previousPluginOrigin = currentScriptIsPluginOrigin
@@ -1154,17 +1619,18 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             startPlaybackIfNeeded()
         } else {
             beginPluginTalkNotification(script: trimmed, reasons: reasons)
+            playbackGeneration &+= 1
             playbackQueue.removeAll()
             isPlaying = false
             quickMode = false
             preciseBase = Date()
             timeCriticalActive = false
             choiceTimeoutDisabled = false
+            pendingAnchorOpen = nil
             for vm in balloonViewModels.values {
-                vm.text = ""
-                vm.anchorActive = false
+                vm.resetBalloonContent()
             }
-            typingInterval = defaultTypingInterval
+            resetScriptScopedBalloonSettings()
             resetVoiceSynthesisState()
             let previousPluginOrigin = currentScriptIsPluginOrigin
             currentScriptIsPluginOrigin = true
@@ -1245,15 +1711,20 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             enqueueSpeech(for: text)
         case .newline:
             playbackQueue.append(.newline)
-         case .newlineVariation(let type):
-              // \n[half] or \n[percent] - custom newline height
-              handleNewline(type: type)
-              scheduleNext(after: typingInterval)
-              return
+        case .newlineVariation(let type):
+            // 可変改行も通常の改行と同じ再生キューに積む。
+            // runPreprocessed はトークン列を同期的に列挙するため、ここで直接 ViewModel を
+            // 更新すると、先行する文字より先に改行を適用したり、VM 未生成時に改行を落としたりする。
+            playbackQueue.append(.newlineVariation(type))
         case .balloon(let id):
             // \bN or \b[ID] - change balloon ID
             Log.debug("[GhostManager] Switching to balloon ID: \(id)")
             switchBalloon(to: id, scope: currentScope)
+        case .balloonWithFallback(let primary, let fallbacks):
+            // \b[ID1,--fallback=ID2,...] - use the first installed balloon surface.
+            let candidates = [primary] + fallbacks
+            Log.debug("[GhostManager] Switching to balloon ID with fallbacks: \(candidates)")
+            switchBalloon(to: candidates, scope: currentScope)
             
         case .appendMode:
             // \C - append to previous balloon
@@ -1314,8 +1785,22 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             // \- - 当該ゴーストの終了（UKADOC）。先行テキストの表示後に終了処理を行う。
             Log.info("[GhostManager] \\- - ghost termination requested by script")
             playbackQueue.append(.deferredCommand { [weak self] in
-                self?.finalizeTermination()
+                guard let self else { return }
+                if self.closeSequenceCompletion != nil {
+                    self.finishCloseSequence()
+                } else {
+                    self.finalizeTermination()
+                }
             })
+
+        case .choiceLegacy(let title, let id, let numbered):
+            // 旧式 q[ID][title] / q*[ID][title]。* は表示上の通し番号。
+            let displayTitle = numbered ? "\(pendingChoices.count + 1). \(title)" : title
+            pendingChoices.append((
+                title: displayTitle,
+                action: .event(id: id, references: []),
+                pluginOrigin: currentScriptIsPluginOrigin
+            ))
 
         case .moveAway:
             // \4 - 相方キャラクターから離れる方向へ移動（UKADOC）
@@ -1332,9 +1817,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             bootOtherGhost()
         
         case .bootAllGhosts:
-            // \_+ - Boot all ghosts via SSTP broadcast
-            Log.debug("[GhostManager] Boot all ghosts command")
-            bootAllGhosts()
+            // \_+ - sequential ghost switch (UKADOC). This is separate from
+            // bootAllGhosts(), which remains an internal broadcast helper.
+            Log.debug("[GhostManager] Sequential ghost switch command")
+            switchGhost(named: "sequential", options: [])
         
         case .openPreferences:
             // \v - このスクリプト以降、最前面表示（stay-on-top）にする（UKADOC）。
@@ -1433,22 +1919,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     NSLog("[GhostManager] ! command first arg: \(first)")
                     if first == "raise" {
                         // \![raise,イベント名,Reference0,Reference1,...]
-                        // Explicitly trigger a SHIORI event from script
+                        // raise は GET の返答スクリプトを現在のゴーストへ反映する。
                         if args.count >= 2 {
                             let eventName = args[1]
-                            var params: [String: String] = [:]
-                            // Collect Reference parameters (Reference0, Reference1, etc.)
-                            for i in 2..<args.count {
-                                params["Reference\(i-2)"] = args[i]
-                            }
-                            // Convert event name to EventID if possible, or use custom event
-                            if let eventID = EventID(rawValue: eventName) {
-                                EventBridge.shared.notify(eventID, params: params)
-                            } else {
-                                // Custom event name - still broadcast it
-                                Log.debug("[GhostManager] Raising custom event: \(eventName) with params: \(params)")
-                                EventBridge.shared.notifyCustom(eventName, params: params)
-                            }
+                            let refs = Array(args.dropFirst(2))
+                            dispatchLocalEvent(event: eventName, references: refs, notifyOnly: false)
                         }
                     } else if first == "notify", args.count >= 2 {
                         // \![notify,event,ref0,ref1,...]
@@ -1558,18 +2033,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     } else if first == "get", args.count >= 2 {
                         let getType = args[1].lowercased()
                         if getType == "property", args.count >= 4 {
-                            // \![get,property,イベント名,プロパティ名]
-                            // Get property value and raise SHIORI event with value in Reference0
+                            // \![get,property,イベント名,プロパティ名,...]
+                            // UKADOC: 指定イベントをGETで発生させ、各プロパティ値を
+                            // Reference0以降へ1つずつ渡す。
                             let eventName = args[2]
-                            let propertyKey = args[3]
-                            let propertyValue = sakuraEngine.propertyManager.get(propertyKey) ?? ""
-                            var params: [String: String] = ["Reference0": propertyValue]
-                            // Additional references if provided
-                            for i in 4..<args.count {
-                                params["Reference\(i-3)"] = args[i]
-                            }
-                            Log.debug("[GhostManager] Property get: \(propertyKey) = \(propertyValue), raising event: \(eventName)")
-                            EventBridge.shared.notifyCustom(eventName, params: params)
+                            let propertyKeys = Array(args.dropFirst(3))
+                            let references = propertyKeys.map { sakuraEngine.propertyManager.get($0) ?? "" }
+                            Log.debug("[GhostManager] Property get: \(propertyKeys.count) values, raising GET event: \(eventName)")
+                            _ = requestDialogEvent(eventID: eventName, references: references)
                         } else {
                             let eventByGetType: [String: String] = [
                                 "word": "OnGetWord",
@@ -1593,6 +2064,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // scope(N).surface.num / animation.num への SET は実サーフェス/アニメへ反映する（UKADOC: WRITE 可）
                         applyScopePropertySideEffect(key: propertyKey, value: propertyValue)
                         Log.debug("[GhostManager] Property set: \(propertyKey) = \(propertyValue), success: \(success)")
+                    } else if first == "save", args.count >= 2, args[1].lowercased() == "wallpaper" {
+                        // \![save,wallpaper] - save the current desktop wallpaper URLs
+                        saveWallpaper()
+                    } else if first == "restore", args.count >= 2, args[1].lowercased() == "wallpaper" {
+                        // \![restore,wallpaper] - restore the saved desktop wallpaper URLs
+                        restoreWallpaper()
                     } else if first == "quicksection", args.count >= 2 {
                         let v = args[1].lowercased()
                         quickMode = (v == "1" || v == "true")
@@ -1600,8 +2077,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let name = args.count >= 3 ? args[2] : ""
                         let timeout = args.count >= 4 ? (Double(args[3]) ?? 0) : 0
                         let delay = timeout <= 0 ? TimeInterval.infinity : timeout/1000.0
-                        let result = SyncCenter.shared.wait(name: name, timeout: delay)
-                        playbackQueue.append(.wait(result))
+                        playbackQueue.append(.waitForSyncObject(
+                            name: name,
+                            timeout: delay,
+                            generation: playbackGeneration
+                        ))
                     } else if first == "wait", args.count >= 2, args[1].lowercased() == "timer" {
                         // \![wait,timer,ms]
                         if args.count >= 3, let ms = Double(args[2]) {
@@ -1613,7 +2093,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     } else if first == "input", args.count >= 2 {
                         // Compatibility aliases: \![input,*]
                         let inputType = args[1].lowercased()
-                        let parsed = parseCommandArguments(Array(args.dropFirst(2)))
+                        let rawInputArguments = Array(args.dropFirst(2))
+                        let parsed = parseCommandArguments(rawInputArguments)
+                        let inputOptions = inputDialogOptions(from: rawInputArguments)
                         let id = parsed.positionals.first ?? parsed.options["id"] ?? "input"
                         let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
                             ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
@@ -1623,7 +2105,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText)
+                                    self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                                 }
                             })
                         } else if inputType == "pass" || inputType == "password" {
@@ -1631,7 +2113,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showPasswordInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText)
+                                    self.showPasswordInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                                 }
                             })
                         } else if inputType == "date" {
@@ -1641,7 +2123,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let day = csv.count >= 3 ? Int(csv[2]) : (parsed.positionals.count >= 5 ? Int(parsed.positionals[4]) : nil)
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showDateInputDialog(id: id, timeoutMs: timeoutMs, year: year, month: month, day: day)
+                                    self.showDateInputDialog(id: id, timeoutMs: timeoutMs, year: year, month: month, day: day, options: inputOptions)
                                 }
                             })
                         } else if inputType == "choice" {
@@ -1650,7 +2132,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 : parsed.options["choices"]?.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespaces) } ?? []
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showChoiceInputDialog(id: id, timeoutMs: timeoutMs, choices: choices)
+                                    self.showChoiceInputDialog(id: id, timeoutMs: timeoutMs, choices: choices, options: inputOptions)
                                 }
                             })
                         } else if inputType == "capture" {
@@ -1659,7 +2141,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText)
+                                    self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                                 }
                             })
                         }
@@ -1693,6 +2175,19 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         setWindowState(state: "minimize")
                     } else if first == "maximize" {
                         maximizeCurrentWindow()
+                    } else if ["*", "#", "x", "<", ">"].contains(first) {
+                        // \![*] は choice marker ではなく、バルーンに設定された
+                        // SSTP/通信マーカーを表示するコマンド（%* も同じ経路）。
+                        let marker: String
+                        switch first {
+                        case "*": marker = "*"
+                        case "#": marker = "#"
+                        case "x": marker = "X"
+                        case "<": marker = "<"
+                        case ">": marker = ">"
+                        default: marker = first
+                        }
+                        setBalloonMarker(marker)
                     } else if first == "open", args.count >= 2 {
                         let openType = args[1].lowercased()
                         switch openType {
@@ -1708,7 +2203,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 })
                             }
                         case "inputbox":
-                            let parsed = parseCommandArguments(Array(args.dropFirst(2)))
+                            let rawInputArguments = Array(args.dropFirst(2))
+                            let parsed = parseCommandArguments(rawInputArguments)
+                            let inputOptions = inputDialogOptions(from: rawInputArguments)
                             let id = parsed.positionals.first ?? parsed.options["id"] ?? "inputbox"
                             let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
                                 ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
@@ -1716,11 +2213,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText)
+                                    self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                                 }
                             })
                         case "passwordinput":
-                            let parsed = parseCommandArguments(Array(args.dropFirst(2)))
+                            let rawInputArguments = Array(args.dropFirst(2))
+                            let parsed = parseCommandArguments(rawInputArguments)
+                            let inputOptions = inputDialogOptions(from: rawInputArguments)
                             let id = parsed.positionals.first ?? parsed.options["id"] ?? "passwordinput"
                             let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
                                 ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
@@ -1728,11 +2227,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showPasswordInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText)
+                                    self.showPasswordInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                                 }
                             })
                         case "dateinput":
-                            let parsed = parseCommandArguments(Array(args.dropFirst(2)))
+                            let rawInputArguments = Array(args.dropFirst(2))
+                            let parsed = parseCommandArguments(rawInputArguments)
+                            let inputOptions = inputDialogOptions(from: rawInputArguments)
                             let id = parsed.positionals.first ?? parsed.options["id"] ?? "dateinput"
                             let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
                                 ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
@@ -1742,11 +2243,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let day = csv.count >= 3 ? Int(csv[2]) : (parsed.positionals.count >= 5 ? Int(parsed.positionals[4]) : nil)
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showDateInputDialog(id: id, timeoutMs: timeoutMs, year: year, month: month, day: day)
+                                    self.showDateInputDialog(id: id, timeoutMs: timeoutMs, year: year, month: month, day: day, options: inputOptions)
                                 }
                             })
                         case "sliderinput":
-                            let parsed = parseCommandArguments(Array(args.dropFirst(2)))
+                            let rawInputArguments = Array(args.dropFirst(2))
+                            let parsed = parseCommandArguments(rawInputArguments)
+                            let inputOptions = inputDialogOptions(from: rawInputArguments)
                             let id = parsed.positionals.first ?? parsed.options["id"] ?? "sliderinput"
                             let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
                                 ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
@@ -1756,11 +2259,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let max = csv.count >= 3 ? Double(csv[2]) : (parsed.positionals.count >= 5 ? Double(parsed.positionals[4]) : nil)
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showSliderInputDialog(id: id, timeoutMs: timeoutMs, initial: initial, min: min, max: max)
+                                    self.showSliderInputDialog(id: id, timeoutMs: timeoutMs, initial: initial, min: min, max: max, options: inputOptions)
                                 }
                             })
                         case "timeinput":
-                            let parsed = parseCommandArguments(Array(args.dropFirst(2)))
+                            let rawInputArguments = Array(args.dropFirst(2))
+                            let parsed = parseCommandArguments(rawInputArguments)
+                            let inputOptions = inputDialogOptions(from: rawInputArguments)
                             let id = parsed.positionals.first ?? parsed.options["id"] ?? "timeinput"
                             let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
                                 ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
@@ -1770,11 +2275,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let second = csv.count >= 3 ? Int(csv[2]) : (parsed.positionals.count >= 5 ? Int(parsed.positionals[4]) : nil)
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showTimeInputDialog(id: id, timeoutMs: timeoutMs, hour: hour, minute: minute, second: second)
+                                    self.showTimeInputDialog(id: id, timeoutMs: timeoutMs, hour: hour, minute: minute, second: second, options: inputOptions)
                                 }
                             })
                         case "ipinput":
-                            let parsed = parseCommandArguments(Array(args.dropFirst(2)))
+                            let rawInputArguments = Array(args.dropFirst(2))
+                            let parsed = parseCommandArguments(rawInputArguments)
+                            let inputOptions = inputDialogOptions(from: rawInputArguments)
                             let id = parsed.positionals.first ?? parsed.options["id"] ?? "ipinput"
                             let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
                                 ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
@@ -1789,7 +2296,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             }()
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showIPInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText)
+                                    self.showIPInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                                 }
                             })
                         case "dialog":
@@ -1810,10 +2317,37 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 }
                             })
                         case "communicatebox":
+                            let rawCommunicateArguments = Array(args.dropFirst(2))
+                            let parsed = parseCommandArguments(rawCommunicateArguments)
+                            let initialText = parsed.options["text"] ?? parsed.positionals.first ?? ""
+                            let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
+                                ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async {
-                                    self.showCommunicateBoxDialog(timeoutMs: nil, initialText: "")
+                                    self.showCommunicateBoxDialog(timeoutMs: timeoutMs, initialText: initialText)
                                 }
+                            })
+                        case "addressbar":
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async { self.openAddressBar() }
+                            })
+                        case "errorlog":
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async { self.openErrorLogViewer() }
+                            })
+                        case "pictureviewer":
+                            let path = args.count >= 3 ? args[2] : nil
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async { self.openPictureViewer(path: path) }
+                            })
+                        case "archiveviewer":
+                            let path = args.count >= 3 ? args[2] : nil
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async { self.openArchiveViewer(path: path) }
+                            })
+                        case "backlogviewer":
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async { self.openBacklogViewer() }
                             })
                         case "browser":
                             if args.count >= 3 {
@@ -1898,62 +2432,63 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async { self.openInstalledTypeDirectory(type: "calendar") }
                             })
-                        case "rateofusegraph", "rateofusegraphballoon", "rateofusegraphtotal", "messenger":
-                            if let homeurl = self.ghostConfig?.homeurl, !homeurl.isEmpty {
-                                playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async { self.openURL(homeurl) }
-                                })
-                            } else {
-                                playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async { self.openFilePath("readme.txt") }
-                                })
-                            }
-                        case "readme":
+                        case "rateofusegraph", "rateofusegraphballoon", "rateofusegraphtotal":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openFilePath("readme.txt") }
+                                DispatchQueue.main.async { self.openRateOfUseGraph(kind: openType) }
+                            })
+                        case "messenger":
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async { self.showCommunicateBox() }
+                            })
+                        case "readme":
+                            let readmeType = args.count >= 3 ? args[2] : nil
+                            let readmeName = args.count >= 4 ? args[3] : nil
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async {
+                                    self.openGhostReadme(type: readmeType, name: readmeName)
+                                }
                             })
                         case "terms":
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async { self.handleGhostTermsConsent() }
                             })
                         case "help":
-                            if let homeurl = self.ghostConfig?.homeurl, !homeurl.isEmpty {
-                                playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async { self.openURL(homeurl) }
-                                })
-                            } else {
-                                playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async { self.openFilePath("readme.txt") }
-                                })
-                            }
+                            let helpID = args.count >= 3 ? args[2] : nil
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async { self.openHelp(dialogID: helpID) }
+                            })
                         case "developer", "shiorirequest", "dressupexplorer":
                             playbackQueue.append(.deferredCommand {
                                 DispatchQueue.main.async { self.openDeveloperTool(openType) }
                             })
                         case "surfacetest":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openFilePath("surfaces.txt") }
+                                DispatchQueue.main.async { self.openSurfaceTestWindow() }
                             })
                         case "aigraph":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openFilePath("aigraph.txt") }
+                                DispatchQueue.main.async { self.openAIGraph() }
                             })
                         default:
-                            break
+                            // \![open,URL] は未知のサブコマンドとして捨てず、URLとして委譲する。
+                            playbackQueue.append(.deferredCommand {
+                                DispatchQueue.main.async { self.openURL(args[1]) }
+                            })
                         }
                     } else if first == "close", args.count >= 2 {
                         let closeType = args[1].lowercased()
                         switch closeType {
                         case "inputbox":
                             let id = args.count >= 3 ? args[2] : "inputbox"
-                            emitUserInputCancel(id: id, timedOut: false)
+                            _ = closeInputDialog(id: id)
                         case "communicatebox":
-                            emitCommunicateInputCancel(timedOut: false)
+                            closeCommunicateBoxDialog()
                         case "dialog":
                             let id = args.count >= 3 ? args[2] : ""
                             emitSystemDialogCancel(type: "dialog", eventID: id)
                         case "teachbox":
-                            _ = requestDialogEvent(eventID: "OnTeachInputCancel", references: [])
+                            // スクリプトから閉じた場合は OnTeachInputCancel を発生させない。
+                            closeTeachBoxDialog()
                         case "websocket":
                             closeWebSocket(params: Array(args.dropFirst(2)))
                         default:
@@ -1981,6 +2516,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         case "selectmode":
                             let params = Array(args.dropFirst(2))
                             enterSelectMode(params: params)
+                        case "selectrect":
+                            let params = Array(args.dropFirst(2))
+                            enterSelectMode(params: ["rect"] + params)
                         case "collisionmode":
                             enterCollisionMode()
                         case "passivemode":
@@ -1990,6 +2528,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             enterInductionMode(params: params)
                         case "nouserbreakmode":
                             enterNoUserBreakMode()
+                        case "onlinemode":
+                            enterOnlineMode(scope: currentScope)
                         default:
                             break
                         }
@@ -2007,6 +2547,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             leaveInductionMode()
                         case "nouserbreakmode":
                             leaveNoUserBreakMode()
+                        case "onlinemode":
+                            leaveOnlineMode(scope: currentScope)
                         default:
                             break
                         }
@@ -2029,7 +2571,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 let filename = args[2]
                                 let options = Array(args.dropFirst(3))
                                 if GhostManager.isVideoFile(filename) {
-                                    Log.info("[GhostManager] Video load is not preloaded; use sound,play for: \(filename)")
+                                    loadVideo(filename: filename, options: options)
                                 } else {
                                     loadSound(filename: filename, options: options)
                                 }
@@ -2045,10 +2587,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 }
                             }
                         case "wait":
-                            let duration = max(estimatedSoundWaitDuration(), estimatedVideoWaitDuration())
-                            if duration > 0 {
-                                playbackQueue.append(.wait(duration))
-                            }
+                            // UKADOC: sound,wait is equivalent to _V.  It must be
+                            // evaluated during playback, after preceding play/load
+                            // commands have taken effect, not while the whole script
+                            // is still being tokenized.
+                            playbackQueue.append(.waitForAudio)
+                        case "cdplay":
+                            let track = args.count >= 3 ? args[2] : ""
+                            let filename = track.isEmpty ? "audio-cd" : "audio-cd-track-\(track)"
+                            Log.info("[GhostManager] sound,cdplay is unavailable on macOS: track=\(track)")
+                            notifySoundError(command: "cdplay", filename: filename, code: -2, message: "audio_cd_unsupported")
                         case "pause":
                             let filename = args.count >= 3 ? args[2] : nil
                             if let filename, GhostManager.isVideoFile(filename) {
@@ -2095,6 +2643,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         switch subcmd {
                         case "scaling":
                             executeSetScalingCommand(args: args)
+                        case "syncobject":
+                            if args.count >= 3 {
+                                SyncCenter.shared.set(name: args[2])
+                            }
                         case "alpha":
                             executeSetAlphaCommand(args: args)
                         case "alignmentondesktop", "alignmenttodesktop":
@@ -2134,14 +2686,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             }
                         case "balloonoffset":
                             // \![set,balloonoffset,x,y]
-                            if args.count >= 4, args[1].lowercased() == "x" {
-                                // \![set,balloonoffset,x,y]
+                            if args.count >= 4 {
                                 let xValue = args[2]
                                 let yValue = args[3]
-                                handleBalloonOffset(x: xValue, y: yValue)
-                            } else if args.count >= 3 {
-                                // \![set,balloonoffset,@x,@y]
-                                handleBalloonOffset(x: args[1], y: args[2], isRelative: true)
+                                let isRelative = xValue.hasPrefix("@") || yValue.hasPrefix("@")
+                                handleBalloonOffset(x: xValue, y: yValue, isRelative: isRelative)
                             }
                         case "balloonalign":
                             // \![set,balloonalign,direction]
@@ -2155,19 +2704,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 let value = args[2].lowercased()
                                 DispatchQueue.main.async {
                                     guard let vm = self.balloonViewModels[self.currentScope] else { return }
-                                    vm.autoscrollEnabled = (value == "1" || value == "true")
+                                    vm.autoscrollEnabled = !["0", "false", "disable", "disabled", "off"].contains(value)
                                     Log.debug("[GhostManager] Autoscroll set to: \(vm.autoscrollEnabled)")
                                 }
                             }
                         case "balloontimeout":
-                            // \![set,balloontimeout,time]
-                            if args.count >= 3, let timeout = Double(args[2]) {
-                                DispatchQueue.main.async {
-                                    guard let vm = self.balloonViewModels[self.currentScope] else { return }
-                                    vm.balloonTimeout = timeout / 1000.0
-                                    Log.debug("[GhostManager] Balloon timeout set to: \(vm.balloonTimeout)s")
-                                }
-                            }
+                            // \![set,balloontimeout,time]。省略時は既定値へ戻す。
+                            let value = args.count >= 3 ? args[2] : nil
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.applyBalloonTimeout(value)
+                            })
                         case "choicetimeout":
                             // \![set,choicetimeout,time]
                             if args.count >= 3, let timeoutMs = Double(args[2]) {
@@ -2178,42 +2724,33 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 Log.debug("[GhostManager] Choice timeout set to: \(choiceTimeout ?? -1)s")
                             }
                         case "balloonwait":
-                            // \![set,balloonwait,0/1/true/false or multiplier]
-                            if args.count >= 3 {
-                                let value = args[2].lowercased()
-                                DispatchQueue.main.async {
-                                    guard let vm = self.balloonViewModels[self.currentScope] else { return }
-                                    if let multiplier = Double(value) {
-                                        vm.balloonWaitMultiplier = max(0, multiplier)
-                                        vm.balloonWaitEnabled = multiplier != 0
-                                    } else {
-                                        vm.balloonWaitEnabled = (value == "1" || value == "true")
-                                        vm.balloonWaitMultiplier = vm.balloonWaitEnabled ? 1.0 : 0.0
-                                    }
-                                    Log.debug("[GhostManager] Balloon wait set to: \(vm.balloonWaitEnabled)")
-                                }
-                            }
+                            // \![set,balloonwait,倍率]。数値/%/msを文字送りへ反映する。
+                            let value = args.count >= 3 ? args[2] : nil
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.applyBalloonWait(value)
+                            })
                         case "balloonmarker":
                             if args.count >= 3 {
                                 setBalloonMarker(args[2])
                             }
                         case "balloonnum":
-                            if args.count >= 3 {
-                                setBalloonNumberDisplay(enabled: args[2].lowercased() == "1" || args[2].lowercased() == "true")
-                            }
+                            // \![set,balloonnum,file,current,max]。各引数は省略可。
+                            setBalloonNumber(
+                                fileName: args.count >= 3 ? args[2] : "",
+                                current: args.count >= 4 ? args[3] : "",
+                                maximum: args.count >= 5 ? args[4] : ""
+                            )
                         case "wallpaper":
                             // \![set,wallpaper,filename,options]
-                            if args.count >= 3 {
-                                let filename = args[2]
-                                let options = args.count >= 4 ? args[3] : ""
-                                setWallpaper(filename: filename, options: options)
-                            }
+                            let filename = args.count >= 3 ? args[2] : ""
+                            let options = args.count >= 4 ? Array(args.dropFirst(3)) : []
+                            setWallpaper(filename: filename, options: options)
                         case "tasktrayicon", "trayicon":
-                            // \![set,tasktrayicon,filename,text] (trayicon is SSP alias)
+                            // \![set,tasktrayicon,filename,text,--duration=ms,--runcount=n]
                             if args.count >= 3 {
                                 let filename = args[2]
                                 let text = args.count >= 4 ? args[3] : ""
-                                setTaskTrayIcon(filename: filename, text: text)
+                                setTaskTrayIcon(filename: filename, text: text, options: Array(args.dropFirst(4)))
                             }
                         case "trayballoon":
                             // \![set,trayballoon,options...]
@@ -2243,28 +2780,40 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             }
                         case "serikotalk":
                             if args.count >= 3 {
-                                setSerikoTalk(mode: args[2])
+                                let mode = args[2]
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.setSerikoTalk(mode: mode)
+                                })
                             }
                         default:
                             break
                         }
-                    } else if first == "reset", args.count >= 2 {
-                        // Handle \![reset,*] commands
-                        let subcmd = args[1].lowercased()
-                        switch subcmd {
-                        case "position":
-                            // \![reset,position] - unlock position
-                            resetWindowPosition()
-                        case "zorder":
-                            // \![reset,zorder] - reset to default z-order
+                    } else if first == "reset" {
+                        // \![reset,*] と \![reset]（z-order/sticky の両方を解除）
+                        if args.count >= 2 {
+                            let subcmd = args[1].lowercased()
+                            switch subcmd {
+                            case "syncobject":
+                                if args.count >= 3 {
+                                    SyncCenter.shared.reset(name: args[2])
+                                }
+                            case "position":
+                                // \![reset,position] - unlock position
+                                resetWindowPosition()
+                            case "zorder":
+                                // \![reset,zorder] - reset to default z-order
+                                resetWindowZOrder()
+                            case "sticky-window":
+                                // \![reset,sticky-window] - unlink windows
+                                resetStickyWindow()
+                            default:
+                                break
+                            }
+                        } else {
                             resetWindowZOrder()
-                        case "sticky-window":
-                            // \![reset,sticky-window] - unlink windows
                             resetStickyWindow()
-                        default:
-                            break
                         }
-                    } else if first == "bind", args.count >= 2 {
+                    } else if first == "bind" || first == "bind-noevent", args.count >= 2 {
                         executeBindCommand(args: args)
                     } else if first == "reload", args.count >= 2 {
                         let target = args[1].lowercased()
@@ -2290,6 +2839,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             DispatchQueue.main.async {
                                 guard let vm = self.balloonViewModels[self.currentScope] else { return }
                                 vm.repaintLocked = true
+                                vm.manualRepaintLock = manual
                                 Log.debug("[GhostManager] Balloon repaint locked: \(manual)")
                             }
                         } else if subcmd == "balloonmove" {
@@ -2312,6 +2862,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             DispatchQueue.main.async {
                                 guard let vm = self.balloonViewModels[self.currentScope] else { return }
                                 vm.repaintLocked = false
+                                vm.manualRepaintLock = false
                                 Log.debug("[GhostManager] Balloon repaint unlocked")
                             }
                         } else if subcmd == "balloonmove" {
@@ -2327,17 +2878,20 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         if subcmd == "resetwindowpos" {
                             // \![execute,resetwindowpos] - reset all windows to initial positions
                             executeResetWindowPos()
+                        } else if subcmd == "resetballoonpos" {
+                            // \![execute,resetballoonpos] - reset all balloon positions
+                            resetBalloonPositions()
                         } else if subcmd == "headline" {
                             // \![execute,headline,headlineName]
                             let headlineName = args.count >= 3 ? args[2] : ""
                             executeHeadline(name: headlineName)
-                        } else if subcmd.hasPrefix("http-") {
-                            let params = Array(args.dropFirst(2))
-                            executeHTTP(subcommand: subcmd, params: params)
                         } else if subcmd.hasPrefix("http-stream-") || subcmd == "http-stream" {
                             // \![execute,http-stream-get,URL,...] / \![execute,http-stream,URL,...]
                             let params = Array(args.dropFirst(2))
                             executeHTTPStreaming(subcommand: subcmd, params: params)
+                        } else if subcmd.hasPrefix("http-") {
+                            let params = Array(args.dropFirst(2))
+                            executeHTTP(subcommand: subcmd, params: params)
                         } else if subcmd.hasPrefix("rss-") {
                             let params = Array(args.dropFirst(2))
                             executeRSS(subcommand: subcmd, params: params)
@@ -2398,11 +2952,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // \![executesntp] - execute SNTP time synchronization
                         executeSNTP()
                     } else if first == "biff" {
-                        // \![biff] - check for new mail
-                        executeBiff()
+                        // \![biff(,account)] - check for new mail
+                        executeBiff(account: args.count >= 2 ? args[1] : nil)
                     } else if first == "updatebymyself" {
-                        // \![updatebymyself] - check for updates to this ghost
-                        executeUpdate(target: "self", options: [])
+                        // \![updatebymyself(,options...)] - options must not be discarded.
+                        executeUpdate(target: "self", options: Array(args.dropFirst()))
                     } else if first == "update" {
                         // \![update,http,url] or \![update,target,options...]
                         if args.count >= 3, args[1].lowercased() == "http" {
@@ -2414,13 +2968,19 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             executeUpdate(target: target, options: options)
                         }
                     } else if first == "updateother" {
-                        // \![updateother] - check for updates to all other ghosts
-                        executeUpdate(target: "other", options: [])
+                        // \![updateother,target/options...] - preserve check/test/reason options.
+                        executeUpdate(target: "other", options: Array(args.dropFirst()))
                     } else if first == "vanishbymyself" {
-                        // \![vanishbymyself] - terminate this ghost
-                        EventBridge.shared.notify(.OnVanishSelecting, params: [:])
-                        EventBridge.shared.notify(.OnVanishSelected, params: [:])
-                        executeVanish()
+                        // \![vanishbymyself[,ghostName]][,--option=query]
+                        let rawOptions = Array(args.dropFirst())
+                        let parsed = parseCommandArguments(rawOptions)
+                        let query = parsed.flags.contains("query") ||
+                            parsed.options["option"]?.lowercased() == "query"
+                        executeVanish(
+                            uninstall: true,
+                            nextGhostName: parsed.positionals.first,
+                            query: query
+                        )
                     } else if first == "reloadsurface" {
                         executeReloadSurface()
                     } else if first == "reload", args.count >= 2 {
@@ -2449,8 +3009,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 handleAnimResume(id: animID)
                             }
                         case "stop":
-                            // \![anim,stop] - stop all animations and clear all overlays
-                            handleAnimStop()
+                            // \![anim,stop] / \![anim,stop,ID]
+                            if args.count >= 3, let animID = Int(args[2]) {
+                                handleAnimClear(id: animID)
+                            } else {
+                                handleAnimStop()
+                            }
                         case "offset":
                             // \![anim,offset,ID,x,y] - offset an animation/overlay
                             if args.count >= 5,
@@ -2505,9 +3069,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 }
                             }
                         default:
-                            break
+                            // 旧仕様の \![anim,pauseID] / \![anim,stopID]。
+                            if subcmd.hasPrefix("pause"),
+                               let animID = Int(subcmd.dropFirst("pause".count)) {
+                                handleAnimPause(id: animID)
+                            } else if subcmd.hasPrefix("stop"),
+                                      let animID = Int(subcmd.dropFirst("stop".count)) {
+                                handleAnimClear(id: animID)
+                            }
                         }
-                    } else if first == "bind", args.count >= 2 {
+                    } else if first == "bind" || first == "bind-noevent", args.count >= 2 {
                         executeBindCommand(args: args)
                     } else if first == "effect", args.count >= 2 {
                         // \![effect,plugin,speed,params] - apply effect plugin
@@ -2567,6 +3138,19 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         } else if target == "mailer" && args.count >= 3 {
                             let email = args[2]
                             openEmail(email)
+                        } else if target == "addressbar" {
+                            openAddressBar()
+                        } else if target == "errorlog" {
+                            openErrorLogViewer()
+                        } else if target == "pictureviewer" {
+                            openPictureViewer(path: args.count >= 3 ? args[2] : nil)
+                        } else if target == "archiveviewer" {
+                            openArchiveViewer(path: args.count >= 3 ? args[2] : nil)
+                        } else if target == "backlogviewer" {
+                            openBacklogViewer()
+                        } else {
+                            // UKADOC: \![open,URL] は指定URLを既定アプリへ委譲する。
+                            openURL(args[1])
                         }
                     } else if ["*", "#", "x", "<", ">"].contains(first) {
                         // Choice marker shorthand: \![*], \![#], \![X], \![<], \![>]
@@ -2581,6 +3165,20 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         }
                         setBalloonMarker(marker)
                     }
+                }
+            case "b":
+                // フォールバック付き \b はパーサーが保持した候補を選択する。
+                let candidates = args.compactMap { value -> Int? in
+                    if let id = Int(value) { return id }
+                    let prefix = "--fallback="
+                    guard value.lowercased().hasPrefix(prefix) else { return nil }
+                    return Int(value.dropFirst(prefix.count).trimmingCharacters(in: .whitespaces))
+                }
+                if !candidates.isEmpty {
+                    switchBalloon(to: candidates, scope: currentScope)
+                    Log.debug("[GhostManager] Switching to balloon ID with command candidates: \(candidates)")
+                } else {
+                    Log.info("[GhostManager] Invalid balloon fallback command: \(args)")
                 }
             case "_s":
                 if args.isEmpty {
@@ -2597,17 +3195,21 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 handleChoiceCommand(args: args)
             
             case "_a":
-                // \_a[ID] or \_a[OnID,r0,r1,...] - anchor/clickable text
-                if !args.isEmpty {
+                // \_a[ID,...] 開始 / \_a 閉じ。\_a[ID,r0,r1,...]...\_a の範囲をアンカーとして
+                // 構築し、各範囲のテキスト・文字範囲・クリック時のアクションを保持する。
+                // 範囲テキストの表示位置と整合させるため、再生キュー上のここで開始/確定する。
+                if args.isEmpty {
+                    playbackQueue.append(.deferredCommand { [weak self] in
+                        self?.closeAnchorRange()
+                    })
+                } else {
                     let eventID = args[0]
                     let references = Array(args.dropFirst())
-                    Log.debug("[GhostManager] Anchor event: \(eventID) with refs: \(references)")
-                    pendingAnchorAction = (action: .event(id: eventID, references: references), pluginOrigin: currentScriptIsPluginOrigin)
-                    EventBridge.shared.notifyCustom("OnAnchorEnter", refs: ["anchorID": eventID])
-                    EventBridge.shared.notifyCustom("OnAnchorHover", refs: ["text": eventID])
-                    if let vm = balloonViewModels[currentScope] {
-                        vm.anchorActive = true
-                    }
+                    Log.debug("[GhostManager] Anchor open: \(eventID) with refs: \(references)")
+                    let pluginOrigin = currentScriptIsPluginOrigin
+                    playbackQueue.append(.deferredCommand { [weak self] in
+                        self?.openAnchorRange(id: eventID, references: references, pluginOrigin: pluginOrigin)
+                    })
                 }
             
             case "_b":
@@ -2635,11 +3237,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 }
 
             case "_m":
-                // \_m[0xNN] - append single-byte scalar text
-                if let scalar = decodeScalarLiteral(args.first) {
+                // \_m[0xNN] - append an ASCII byte. Values outside ASCII are invalid.
+                if let value = Self.parseScalarLiteral(args.first), value <= 0x7f,
+                   let scalar = UnicodeScalar(value) {
                     let text = String(scalar)
                     playbackQueue.append(.textChunk(text))
                     enqueueSpeech(for: text)
+                } else {
+                    Log.info("[GhostManager] Ignoring non-ASCII \\_m value: \(args.first ?? "")")
                 }
 
             case "&":
@@ -2807,23 +3412,203 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     case "disable":
                         // \f[disable] - set all to disabled style
                         self.setFontDisabled(vm: vm)
-                    case "anchor.font.color", "anchorfontcolor", "anchornotselectfontcolor":
-                        // \f[anchorfontcolor,...]（選択時文字色）/ \f[anchornotselectfontcolor,...]（非選択時文字色）。
-                        // Ourin のレンダラはアンカーのホバー状態で描き分けないため、いずれも
-                        // 単一のアンカー文字色へ反映する（スクリプト順で後勝ち）。色指定は r,g,b / #RRGGBB / 色名。
+                    case "anchor.font.color", "anchorfontcolor":
+                        // \f[anchorfontcolor,...]（選択時文字色）/ \f[anchornotselectfontcolor,...]（非選択時文字色）
+                        // 色指定は r,g,b / #RRGGBB / 色名。
                         if args.count >= 2 {
                             vm.anchorFontColor = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.anchorFontColor)
                             Log.debug("[GhostManager] Anchor font color set via \(subcmd)")
                         }
-                    case "anchorstyle", "anchorcolor", "anchorbrushcolor", "anchorpencolor", "anchormethod",
-                         "anchornotselectstyle", "anchornotselectcolor", "anchornotselectbrushcolor",
-                         "anchornotselectpencolor", "anchornotselectmethod",
-                         "anchorvisitedstyle", "anchorvisitedcolor", "anchorvisitedbrushcolor",
-                         "anchorvisitedpencolor", "anchorvisitedfontcolor", "anchorvisitedmethod":
-                        // UKADOC のアンカー装飾サブコマンド群（形状/塗り/枠色/描画メソッド/訪問済み状態）。
-                        // 現行レンダラは下線＋文字色の単一表現のため描き分け不可。受理してログに残し、
-                        // 未知タグ扱いの "Unknown font command" にはしない（サイレント無視の解消）。
-                        Log.debug("[GhostManager] Anchor decoration '\(subcmd)' accepted (rendering not supported yet)")
+                    case "anchornotselectfontcolor":
+                        if args.count >= 2 {
+                            vm.anchorNotSelectFontColor = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.anchorNotSelectFontColor)
+                            Log.debug("[GhostManager] Anchornotselect font color set via \(subcmd)")
+                        }
+                    case "anchorvisitedfontcolor":
+                        if args.count >= 2 {
+                            vm.anchorVisitedFontColor = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.anchorVisitedFontColor)
+                            Log.debug("[GhostManager] Anchorvisited font color set via \(subcmd)")
+                        }
+                    case "anchorstyle":
+                        // \f[anchorstyle,形状] - 選択中（ホバー中）アンカーの形状。
+                        if args.count >= 2 {
+                            if let style = AnchorDecorationStyle(shape: args[1]) {
+                                vm.anchorStyle = style
+                            } else if args[1].lowercased() == "default" {
+                                vm.anchorStyle = .underline
+                            }
+                            Log.debug("[GhostManager] anchorstyle set via \(subcmd)")
+                        }
+                    case "anchorbrushcolor", "anchorcolor":
+                        // \f[anchorbrushcolor,色] もしくは \f[anchorcolor,色] - 選択中アンカーの矩形内の色。
+                        if args.count >= 2 {
+                            vm.anchorBrushColor = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.anchorBrushColor)
+                            Log.debug("[GhostManager] Anchor brush color set via \(subcmd)")
+                        }
+                    case "anchorpencolor":
+                        // \f[anchorpencolor,色] - 選択中アンカーの矩形枠および下線の色。
+                        if args.count >= 2 {
+                            vm.anchorPenColor = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.anchorPenColor)
+                            Log.debug("[GhostManager] Anchor pen color set via \(subcmd)")
+                        }
+                    case "anchornotselectstyle":
+                        // \f[anchornotselectstyle,形状] - 非選択中アンカーの形状。
+                        if args.count >= 2 {
+                            if let style = AnchorDecorationStyle(shape: args[1]) {
+                                vm.anchornotselectStyle = style
+                            } else if args[1].lowercased() == "default" {
+                                vm.anchornotselectStyle = .underline
+                            }
+                            Log.debug("[GhostManager] anchornotselectstyle set via \(subcmd)")
+                        }
+                    case "anchornotselectbrushcolor", "anchornotselectcolor":
+                        // \f[anchornotselectbrushcolor,色] もしくは \f[anchornotselectcolor,色] - 非選択中アンカーの矩形内の色。
+                        if args.count >= 2 {
+                            vm.anchornotselectBrushColor = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.anchornotselectBrushColor)
+                            Log.debug("[GhostManager] Anchornotselect brush color set via \(subcmd)")
+                        }
+                    case "anchornotselectpencolor":
+                        // \f[anchornotselectpencolor,色] - 非選択中アンカーの矩形枠および下線の色。
+                        if args.count >= 2 {
+                            vm.anchornotselectPenColor = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.anchornotselectPenColor)
+                            Log.debug("[GhostManager] Anchornotselect pen color set via \(subcmd)")
+                        }
+                    case "anchorvisitedstyle":
+                        // \f[anchorvisitedstyle,形状] - 訪問済みアンカーの形状。
+                        if args.count >= 2 {
+                            if let style = AnchorDecorationStyle(shape: args[1]) {
+                                vm.anchorvisitedStyle = style
+                            } else if args[1].lowercased() == "default" {
+                                vm.anchorvisitedStyle = .underline
+                            }
+                            Log.debug("[GhostManager] anchorvisitedstyle set via \(subcmd)")
+                        }
+                    case "anchorvisitedbrushcolor", "anchorvisitedcolor":
+                        // \f[anchorvisitedbrushcolor,色] もしくは \f[anchorvisitedcolor,色] - 訪問済みアンカーの矩形内の色。
+                        if args.count >= 2 {
+                            vm.anchorvisitedBrushColor = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.anchorvisitedBrushColor)
+                            Log.debug("[GhostManager] Anchorvisited brush color set via \(subcmd)")
+                        }
+                    case "anchorvisitedpencolor":
+                        // \f[anchorvisitedpencolor,色] - 訪問済みアンカーの矩形枠および下線の色。
+                        if args.count >= 2 {
+                            vm.anchorvisitedPenColor = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.anchorvisitedPenColor)
+                            Log.debug("[GhostManager] Anchorvisited pen color set via \(subcmd)")
+                        }
+                    case "anchormethod", "anchornotselectmethod", "anchorvisitedmethod":
+                        // \f[anchor*method,描画方法]。`default` は descript.txt の値へ戻す。
+                        guard args.count >= 2 else {
+                            Log.info("[GhostManager] Missing raster operation for \\(subcmd)")
+                            break
+                        }
+                        let requested = args[1].trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                        let operation: AnchorRasterOperation?
+                        switch subcmd {
+                        case "anchormethod":
+                            if requested == "default" {
+                                operation = vm.defaultAnchorMethod
+                            } else {
+                                operation = AnchorRasterOperation(name: requested)
+                            }
+                        case "anchornotselectmethod":
+                            if requested == "default" {
+                                operation = vm.defaultAnchornotselectMethod
+                            } else {
+                                operation = AnchorRasterOperation(name: requested)
+                            }
+                        default:
+                            if requested == "default" {
+                                operation = vm.defaultAnchorvisitedMethod
+                            } else {
+                                operation = AnchorRasterOperation(name: requested)
+                            }
+                        }
+                        guard let operation else {
+                            Log.info("[GhostManager] Unknown anchor raster operation for \(subcmd): \(args[1])")
+                            break
+                        }
+                        switch subcmd {
+                        case "anchormethod": vm.anchorMethod = operation
+                        case "anchornotselectmethod": vm.anchornotselectMethod = operation
+                        default: vm.anchorvisitedMethod = operation
+                        }
+                        Log.debug("[GhostManager] Anchor raster operation '\(requested)' applied to \(subcmd)")
+                    case "cursorstyle", "cursornotselectstyle":
+                        guard args.count >= 2 else { break }
+                        let requested = args[1].trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                        let style: AnchorDecorationStyle?
+                        if requested == "default" {
+                            if subcmd == "cursorstyle", let configured = self.balloonConfig?.cursorStyle {
+                                style = AnchorDecorationStyle(shape: configured) ?? .square
+                            } else {
+                                style = AnchorDecorationStyle.none
+                            }
+                        } else {
+                            style = AnchorDecorationStyle(shape: requested)
+                        }
+                        guard let style else {
+                            Log.info("[GhostManager] Unknown cursor style: \(args[1])")
+                            break
+                        }
+                        if subcmd == "cursorstyle" {
+                            vm.cursorStyle = style
+                        } else {
+                            vm.cursorNotSelectStyle = style
+                        }
+                    case "cursorbrushcolor", "cursorcolor", "cursornotselectbrushcolor", "cursornotselectcolor":
+                        guard args.count >= 2 else { break }
+                        let isNotSelected = subcmd.hasPrefix("cursornotselect")
+                        let fallback = isNotSelected ? vm.cursorNotSelectBrushColor : vm.cursorBrushColor
+                        let color = self.parseColor(from: Array(args.dropFirst()), defaultValue: fallback)
+                        if isNotSelected {
+                            vm.cursorNotSelectBrushColor = color
+                        } else {
+                            vm.cursorBrushColor = color
+                        }
+                    case "cursorpencolor", "cursornotselectpencolor":
+                        guard args.count >= 2 else { break }
+                        let isNotSelected = subcmd.hasPrefix("cursornotselect")
+                        let fallback = isNotSelected ? vm.cursorNotSelectPenColor : vm.cursorPenColor
+                        let color = self.parseColor(from: Array(args.dropFirst()), defaultValue: fallback)
+                        if isNotSelected {
+                            vm.cursorNotSelectPenColor = color
+                        } else {
+                            vm.cursorPenColor = color
+                        }
+                    case "cursorfontcolor", "cursornotselectfontcolor":
+                        guard args.count >= 2 else { break }
+                        let isNotSelected = subcmd.hasPrefix("cursornotselect")
+                        let fallback = isNotSelected ? vm.cursorNotSelectFontColor : vm.cursorFontColor
+                        let color = self.parseColor(from: Array(args.dropFirst()), defaultValue: fallback)
+                        if isNotSelected {
+                            vm.cursorNotSelectFontColor = color
+                        } else {
+                            vm.cursorFontColor = color
+                        }
+                    case "cursormethod", "cursornotselectmethod":
+                        guard args.count >= 2 else {
+                            Log.info("[GhostManager] Missing raster operation for \\(subcmd)")
+                            break
+                        }
+                        let requested = args[1].trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                        let isNotSelected = subcmd.hasPrefix("cursornotselect")
+                        let operation: AnchorRasterOperation?
+                        if requested == "default" {
+                            operation = isNotSelected ? AnchorRasterOperation.none :
+                                (AnchorRasterOperation(name: self.balloonConfig?.cursorBlendMethod ?? "none") ?? AnchorRasterOperation.none)
+                        } else {
+                            operation = AnchorRasterOperation(name: requested)
+                        }
+                        guard let operation else {
+                            Log.info("[GhostManager] Unknown cursor raster operation: \(args[1])")
+                            break
+                        }
+                        if isNotSelected {
+                            vm.cursorNotSelectMethod = operation
+                        } else {
+                            vm.cursorMethod = operation
+                        }
+                        Log.debug("[GhostManager] Cursor raster operation '\(requested)' applied to \(subcmd)")
                     case "outline":
                         // \f[outline,width]
                         if args.count >= 2 {
@@ -2857,6 +3642,73 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     /// \__v の状態をスクリプト単位の初期値へ戻す。
     /// 前のスクリプトの無効化指定や読み替えを次の会話へ漏らさない。
+    /// スクリプト中だけ有効なバルーン設定を初期値へ戻す。
+    /// `balloonmarker` / `balloonnum` / `onlinemode` のようにゴースト寿命へ
+    /// またがる状態はここでは変更しない。
+    private func resetScriptScopedBalloonSettings() {
+        typingInterval = defaultTypingInterval
+        serikoTalkEnabledForScript = nil
+        for vm in balloonViewModels.values {
+            vm.balloonTimeout = BalloonViewModel.defaultBalloonTimeout
+            vm.balloonWaitEnabled = true
+            vm.balloonWaitMultiplier = 1.0
+            if !vm.manualRepaintLock {
+                vm.repaintLocked = false
+            }
+        }
+        for vm in characterViewModels.values where !vm.manualRepaintLock {
+            vm.repaintLocked = false
+        }
+    }
+
+    /// `\![set,balloonwait,...]` の仕様値を文字送り間隔へ変換する。
+    private func balloonWaitSettings(_ rawValue: String?) -> (interval: TimeInterval, multiplier: Double) {
+        guard let rawValue else { return (defaultTypingInterval, 1.0) }
+        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if value.isEmpty || value == "default" || value == "true" {
+            return (defaultTypingInterval, 1.0)
+        }
+        if value == "false" { return (0, 0) }
+
+        if value.hasSuffix("ms") {
+            let number = Double(value.dropLast(2)) ?? 100
+            let milliseconds = min(max(number, 0), 10_000)
+            let interval = milliseconds / 1000.0
+            return (interval, interval / defaultTypingInterval)
+        }
+        if value.hasSuffix("%") {
+            let number = Double(value.dropLast()) ?? 100
+            let percent = min(max(number, 0), 10_000)
+            let multiplier = percent / 100.0
+            return (defaultTypingInterval * multiplier, multiplier)
+        }
+
+        let multiplier = min(max(Double(value) ?? 1.0, 0), 100)
+        return (defaultTypingInterval * multiplier, multiplier)
+    }
+
+    private func applyBalloonWait(_ rawValue: String?) {
+        let settings = balloonWaitSettings(rawValue)
+        typingInterval = settings.interval
+        let vm = getBalloonVM(for: currentScope)
+        vm.balloonWaitEnabled = settings.interval > 0
+        vm.balloonWaitMultiplier = settings.multiplier
+        Log.debug("[GhostManager] Balloon wait interval set to: \(settings.interval)s")
+    }
+
+    private func applyBalloonTimeout(_ rawValue: String?) {
+        let timeout: TimeInterval
+        if let rawValue,
+           let milliseconds = Double(rawValue.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            timeout = milliseconds / 1000.0
+        } else {
+            timeout = BalloonViewModel.defaultBalloonTimeout
+        }
+        let vm = getBalloonVM(for: currentScope)
+        vm.balloonTimeout = timeout
+        Log.debug("[GhostManager] Balloon timeout set to: \(timeout)s")
+    }
+
     private func resetVoiceSynthesisState() {
         stopSpeechSynthesis()
         voiceSynthesisEnabled = false
@@ -2929,15 +3781,56 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
 
+    // MARK: - \_a 範囲アンカー構築
+
+    /// `\_a[ID,...]` 開始: 現在位置を開始文字位置としてアンカー構築を開始する。
+    func openAnchorRange(id: String, references: [String], pluginOrigin: Bool? = nil) {
+        let vm = getBalloonVM(for: currentScope)
+        pendingAnchorOpen = (
+            id: id,
+            references: references,
+            pluginOrigin: pluginOrigin ?? currentScriptIsPluginOrigin,
+            textStart: (vm.text as NSString).length
+        )
+        vm.anchorActive = true
+        EventBridge.shared.notifyCustom("OnAnchorEnter", refs: ["anchorID": id])
+        EventBridge.shared.notifyCustom("OnAnchorHover", refs: ["text": id])
+    }
+
+    /// `\_a` 閉じ: 開始タグからの範囲を1つのアンカーとして確定する。
+    func closeAnchorRange() {
+        finalizePendingAnchorIfNeeded()
+    }
+
+    /// 未閉じのアンカー範囲があれば現在位置で確定する（`\_a` 閉じタグ／スクリプト終端時）。
+    func finalizePendingAnchorIfNeeded() {
+        guard let open = pendingAnchorOpen else { return }
+        pendingAnchorOpen = nil
+        guard let vm = balloonViewModels[currentScope] else { return }
+        vm.anchors.append(BalloonAnchorRange(
+            id: open.id,
+            references: open.references,
+            text: vm.anchorText(in: open.textStart),
+            range: vm.anchorRange(from: open.textStart),
+            pluginOrigin: open.pluginOrigin
+        ))
+        vm.anchorActive = !vm.anchors.isEmpty
+    }
+
     func processNextUnit() {
         // Process immediate units (scope/surface/end) without delay; delay only text/newline
         while true {
             guard !playbackQueue.isEmpty else {
                 isPlaying = false
+                resetScriptScopedBalloonSettings()
+                // \e を含まないスクリプトの終端でもアンカー範囲を確定する。
+                finalizePendingAnchorIfNeeded()
                 emitPluginTalkAfterIfNeeded()
                 // OnClose 応答スクリプトの再生完了後に終了する（スクリプトが \- を含まない場合の保険）
                 if terminateAfterPlayback {
                     finalizeTermination()
+                } else if closeSequenceCompletion != nil {
+                    finishCloseSequence()
                 } else if !pendingChoices.isEmpty {
                     // \q / \__q で蓄積された選択肢を再生完了後に提示する。
                     // 選択時に OnChoiceSelect(Ex) が発火し、プラグインへも横流しされる（showChoiceDialog 内）。
@@ -2977,6 +3870,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 quickMode = false
                 syncEnabled = false
                 appendModeEnabled = false
+                resetScriptScopedBalloonSettings()
+                // 未閉じのアンカー範囲（\_a 閉じタグなし）は現在位置で確定する。
+                finalizePendingAnchorIfNeeded()
                 // \e でタイムクリティカルセクション終了（UKADOC: \t はスクリプトブレークか \e まで）
                 timeCriticalActive = false
                 continue
@@ -2998,6 +3894,26 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     return
                 }
                 continue
+            case .waitForHTTP(let taskID):
+                if pendingHTTPWaits.contains(taskID) {
+                    scheduleNext(after: 0.05)
+                    return
+                }
+                continue
+            case .waitForSyncObject(let name, let timeout, let generation):
+                guard generation == playbackGeneration else { continue }
+                // syncobject の待機はスクリプト解析・UI処理を止めない。
+                // シグナルまたはタイムアウト後に、同じスクリプト世代だけを再開する。
+                DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                    _ = SyncCenter.shared.wait(name: name, timeout: timeout)
+                    DispatchQueue.main.async {
+                        guard let self,
+                              self.isPlaying,
+                              self.playbackGeneration == generation else { return }
+                        self.processNextUnit()
+                    }
+                }
+                return
             case .wait(let sec):
                 scheduleNext(after: max(0.0, sec))
                 return
@@ -3028,7 +3944,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 continue
             case .newline:
                 // Display newline with delay
-                appendText("\n")
+                appendNewline(advance: 1.0)
+                scheduleNext(after: typingInterval)
+                return
+            case .newlineVariation(let type):
+                appendNewline(advance: BalloonViewModel.newlineAdvance(for: type))
                 scheduleNext(after: typingInterval)
                 return
             case .deferredCommand(let command):
@@ -3050,7 +3970,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// 1) 初回起動のみ GET OnFirstBoot（Reference0 = vanish回数）
     /// 2) GET OnBoot（Reference0 = シェル名。2回目以降の起動もすべて OnBoot。UKADOC に OnSecondBoot は存在しない）
     /// 3) BridgeToSHIORI for OnBoot
-    /// 4) Built-in minimal greeting
+    /// 4) SHIORI が応答しない場合は空応答（合成文は生成しない）
     private func obtainBootScript(using runtime: GhostShioriRuntime, bootCount: Int) -> String? {
         let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
         if bootCount == 0 {
@@ -3177,6 +4097,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             "Reference1": shellPath
         ])
 
+        // OnNotifyDressupInfo は起動時だけ NOTIFY で完全な着せ替え定義を送る。
+        // デフォルト着せ替えの反映は loadGhost() 内で先に完了させ、ここで状態を確定する。
+        notifyDressupInfo(scope: currentScope, requestResponse: false)
+
         // OnNotifyBalloonInfo: ref0=balloonName, ref1=balloonPath
         bridge.notify(.OnNotifyBalloonInfo, params: [
             "Reference0": balloonName,
@@ -3200,20 +4124,18 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             )
         }
 
-        // OnNotifyUserInfo: ref0=userName
-        let userName = NSFullUserName()
-        bridge.notify(.OnNotifyUserInfo, params: [
-            "Reference0": userName,
-            "Reference1": userName,
-            "Reference2": "",
-            "Reference3": ""
-        ])
+        sendUserInfoNotify()
 
-        // OnNotifyOSInfo
-        let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
-        bridge.notify(.OnNotifyOSInfo, params: [
-            "Reference0": "macOS \(osVersion)"
-        ])
+        // OnNotifyOSInfo: macOS/CPU/memory/uptime を実環境から通知する。
+        bridge.notify(.OnNotifyOSInfo, params: SystemNotificationData.currentOSInfo().parameters)
+
+        // OnNotifyFontInfo: Reference* にインストール済みフォントを1件ずつ並べる。
+        bridge.notify(.OnNotifyFontInfo,
+                      params: SystemNotificationData.fontParameters(SystemNotificationData.currentFontNames()))
+
+        // OnNotifyInternationalInfo: タイムゾーン・DST・国・言語を通知する。
+        bridge.notify(.OnNotifyInternationalInfo,
+                      params: SystemNotificationData.currentInternationalInfo().parameters)
 
         // ownerghostname: list of all running ghosts
         let ghostName = config.sakuraName
@@ -3222,6 +4144,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         ], ignoreResponseScript: true)
 
         Log.info("[GhostManager] Sent initialization NOTIFY events (hwnd, uniqueid, capability, OnNotifySelfInfo, etc.)")
+    }
+
+    /// OnNotifyUserInfo を現在のユーザー設定で送信する。
+    /// 起動時だけでなく、設定ダイアログで呼び方が変更された時にも使用する。
+    func sendUserInfoNotify() {
+        let info = SystemNotificationData.currentUserInfo(addressName: resourceManager.username)
+        EventBridge.shared.notify(.OnNotifyUserInfo, params: info.parameters)
     }
 }
 
@@ -3374,23 +4303,13 @@ extension GhostManager {
 
     /// ゴーストを消滅させる
     private func vanishCurrentGhost() {
-        let name = ghostConfig?.name ?? "Unknown"
-        let alert = NSAlert()
-        alert.messageText = "ゴーストの消滅"
-        alert.informativeText = "「\(name)」を消滅させますか？\nこの操作は取り消せません。"
-        alert.alertStyle = .critical
-        alert.addButton(withTitle: "消滅")
-        alert.addButton(withTitle: "キャンセル")
-        let response = alert.runModal()
-        guard response == .alertFirstButtonReturn else { return }
-
-        EventBridge.shared.notify(.OnVanishSelecting, params: [:])
-        EventBridge.shared.notify(.OnVanishSelected, refs: ["ghostName": name])
+        executeVanish(uninstall: true, query: true)
     }
 
     /// ネットワーク更新を確認
     private func checkNetworkUpdate() {
-        EventBridge.shared.notify(.OnUpdateBegin, refs: ["ghostName": "manual"])
+        // メニュー操作でも更新検査本体を通し、候補検出・適用・失敗理由まで同じイベント列を発火する。
+        checkGhostUpdate(options: ["--reason=manual"])
     }
 
     /// ゴーストを切り替え

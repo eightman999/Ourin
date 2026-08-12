@@ -428,7 +428,7 @@ Ourin における **OS 依存イベント**のマッピング／制約を明文
 | イベント例 | Ourin(mac) 発火源/メモ |
 |---|---|
 | `OnSysSuspend` / `OnSysResume` | **NSWorkspace.willSleepNotification / didWakeNotification** をブリッジ。 |
-| `OnScreenSaverStart` / `OnScreenSaverEnd` | 画面スリープ/復帰は **screensDidSleepNotification / screensDidWakeNotification** を準用。 |
+| `OnScreenSaverStart` / `OnScreenSaverEnd` | Observe `com.apple.screensaver.didstart/didstop` via `DistributedNotificationCenter`; map screen sleep/wake separately to `OnDisplayPowerStatus`. |
 | `OnDisplay*` | 画面構成変化は NSWorkspace 通知や CGDisplay 変更の観測で補完（必要最小限）。 |
 
 ## バッテリー/電源

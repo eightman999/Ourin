@@ -96,6 +96,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     var ghostManager: GhostManager?
     /// 同時起動している追加ゴースト（プライマリ以外）。複数ゴースト同時実行用。
     var additionalGhosts: [GhostManager] = []
+    /// アプリ全体終了時の OnCloseAll 集約状態。
+    private var closeAllSequenceActive = false
+    private var pendingCloseAllManagers: Set<ObjectIdentifier> = []
     let shioriRuntimeCache = ShioriRuntimeCache(capacity: 2)
     /// 起動中の全ゴースト（プライマリ＋追加）。FMO 集約・一括終了に使う。
     var allGhostManagers: [GhostManager] {
@@ -314,12 +317,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        // OnClose を GET で送り、応答スクリプト（お別れトーク、末尾 \-）を再生してから終了する（UKADOC）
+        // アプリ全体終了では、起動中の全ゴーストへ OnCloseAll を送り、各応答スクリプト
+        // （お別れトーク、末尾 \- を含む）を再生してから終了する（UKADOC）。
         if isRunningUnderTests { return .terminateNow }
-        guard let gm = ghostManager, !gm.isShuttingDown else {
+        if closeAllSequenceActive {
+            return .terminateLater
+        }
+        guard !allGhostManagers.isEmpty else {
             return .terminateNow
         }
-        if gm.beginCloseSequence(reason: "user", replyToTermination: true) {
+        if beginCloseAllSequence(reason: "user") {
             return .terminateLater
         }
         return .terminateNow
@@ -357,18 +364,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     func application(_ app: NSApplication, openFiles filenames: [String]) {
-        for path in filenames {
-            if URL(fileURLWithPath: path).pathExtension.lowercased() == "nar" {
-                installNar(at: URL(fileURLWithPath: path))
-            }
-        }
+        let urls = filenames
+            .map(URL.init(fileURLWithPath:))
+            .filter { ["nar", "zip"].contains($0.pathExtension.lowercased()) }
+        installNars(at: urls)
         app.reply(toOpenOrPrint: NSApplication.DelegateReply.success)
     }
 
     func application(_ app: NSApplication, open urls: [URL]) {
-        for url in urls where ["nar", "zip"].contains(url.pathExtension.lowercased()) {
-            installNar(at: url)
-        }
+        installNars(at: urls.filter { ["nar", "zip"].contains($0.pathExtension.lowercased()) })
     }
 
     @objc private func handleFmoRefresh(_ notification: Notification) {
@@ -424,41 +428,104 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     private func installNar(at url: URL) {
-        NSLog("[installNar] Installing NAR from: \(url.path)")
+        installNars(at: [url])
+    }
+
+    /// 複数 NAR の D&D/関連付けを順番に処理し、全件成功時だけ OnInstallCompleteAll を最後に送る。
+    private func installNars(at urls: [URL]) {
+        guard !urls.isEmpty else { return }
+        NSLog("[installNar] Installing NAR files: \(urls.map(\.path))")
+        // 起動中ゴーストがある場合は、SHIORI 経由のインストールと同じ
+        // accept／reroute／failure／completion イベント経路を使う。
+        let eventManager = ghostManager ?? additionalGhosts.first
         DispatchQueue.global(qos: .userInitiated).async {
-            do {
-                let target = try self.narInstaller.install(fromNar: url)
-                NSLog("[installNar] Installed to: \(target.path)")
-                DispatchQueue.main.async {
-                    self.notifyInstallComplete(at: target)
-                    self.notifyPluginCatalogs()
-                    let title = NSLocalizedString("Installed", comment: "Alert title when installation succeeded")
-                    let fmt = NSLocalizedString("Installed: %@", comment: "Alert body for installed file")
-                    let text = String(format: fmt, url.lastPathComponent)
-                    NSApp.presentAlert(style: .informational, title: title, text: text)
-                    NSLog("[installNar] Running ghost at: \(target.path)")
-                    self.runGhost(at: target)
-                }
-            } catch NarInstaller.Error.directoryConflict(let ghostName) {
-                NSLog("[installNar] Ghost \(ghostName) already installed, running it instead")
-                // Find the already-installed ghost and run it
-                DispatchQueue.main.async {
-                    if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == ghostName }) {
-                        NSLog("[installNar] Found already-installed ghost at: \(ghost.path.path)")
-                        self.runGhost(at: ghost.path)
-                    } else {
-                        NSLog("[installNar] Could not find already-installed ghost: \(ghostName)")
-                        let title = NSLocalizedString("Ghost conflict", comment: "Alert title for ghost conflict")
-                        let fmt = NSLocalizedString("Ghost '%@' is already installed but could not be loaded.", comment: "Alert body for ghost conflict")
-                        let text = String(format: fmt, ghostName)
-                        NSApp.presentAlert(style: .warning, title: title, text: text)
+            var installed: [(url: URL, result: NarInstallResult)] = []
+            var failures: [(url: URL, error: Error, eventAlreadySent: Bool)] = []
+            var refusals: [URL] = []
+            for url in urls {
+                if let eventManager {
+                    switch eventManager.installNarFile(url) {
+                    case .installed(let result):
+                        installed.append((url, result))
+                        NSLog("[installNar] Installed to: \(result.target.path)")
+                    case .refused:
+                        refusals.append(url)
+                        NSLog("[installNar] Install refused for \(url.path)")
+                    case .failed(let error):
+                        failures.append((url, error, true))
+                        NSLog("[installNar] Install failed for \(url.path): \(error)")
+                    }
+                } else {
+                    // 起動中の SHIORI がまだない初期インストールでは、イベントの
+                    // 宛先がないため従来の直接インストールを使う。
+                    EventBridge.shared.notifyCustom("OnInstallBegin", params: [:])
+                    do {
+                        let result = try self.narInstaller.installWithResult(fromNar: url)
+                        installed.append((url, result))
+                        NSLog("[installNar] Installed to: \(result.target.path)")
+                    } catch {
+                        failures.append((url, error, false))
+                        NSLog("[installNar] Install failed for \(url.path): \(error)")
                     }
                 }
-            } catch {
-                NSLog("[installNar] Install failed: \(error)")
-                DispatchQueue.main.async {
+            }
+
+            DispatchQueue.main.async {
+                if eventManager == nil {
+                    for item in installed {
+                        EventBridge.shared.notifyCustom("OnInstallComplete", refs: [
+                            "identifier": item.result.objects.first?.identifier ?? "",
+                            "name": item.result.objects.first?.name ?? ""
+                        ])
+                    }
+                }
+
+                // UKADOC: 複数 NAR がすべて成功した場合のみ、各 Complete/Ex の後に一度発火する。
+                // 既存のゴーストを runGhost で置き換える前に、元の受信先へ送る。
+                if urls.count > 1, failures.isEmpty, refusals.isEmpty, !installed.isEmpty {
+                    let separator = String(UnicodeScalar(1))
+                    let objects = installed.flatMap { $0.result.objects }
+                    let refs = [
+                        "identifiers": objects.map(\.identifier).joined(separator: separator),
+                        "names": objects.map(\.name).joined(separator: separator),
+                        "paths": objects.map(\.path).joined(separator: separator)
+                    ]
+                    if let eventManager {
+                        _ = EventBridge.shared.notifyCustom("OnInstallCompleteAll", refs: refs, to: eventManager)
+                    } else {
+                        EventBridge.shared.notifyCustom("OnInstallCompleteAll", refs: refs)
+                    }
+                }
+
+                for item in installed {
+                    self.notifyInstallComplete(at: item.result.target)
+                    NSLog("[installNar] Running ghost at: \(item.result.target.path)")
+                    self.runGhost(at: item.result.target)
+                }
+
+                self.notifyPluginCatalogs()
+                for item in failures {
+                    let reason = (eventManager?.installFailureReason(item.error)) ?? "unsupported"
+                    if !item.eventAlreadySent {
+                        if let eventManager {
+                            _ = EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": reason], to: eventManager)
+                        } else {
+                            EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": reason])
+                        }
+                    }
                     let title = NSLocalizedString("Install failed", comment: "Alert title for install failure")
-                    NSApp.presentAlert(style: .critical, title: title, text: String(describing: error))
+                    NSApp.presentAlert(style: .critical, title: title, text: String(describing: item.error))
+                }
+                if !refusals.isEmpty {
+                    let title = NSLocalizedString("Install refused", comment: "Install refusal alert title")
+                    let names = refusals.map(\.lastPathComponent).joined(separator: ", ")
+                    NSApp.presentAlert(style: .informational, title: title, text: names)
+                }
+                for item in installed {
+                    let title = NSLocalizedString("Installed", comment: "Alert title for installed file")
+                    let fmt = NSLocalizedString("Installed: %@", comment: "Alert body for installed file")
+                    let text = String(format: fmt, item.url.lastPathComponent)
+                    NSApp.presentAlert(style: .informational, title: title, text: text)
                 }
             }
         }
@@ -644,6 +711,54 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         additionalGhosts.removeAll()
         for m in managers { m.shutdown() }
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
+    }
+
+    /// アプリケーション終了時に全ゴーストの OnCloseAll 応答を集約する。
+    /// 各 GhostManager は応答の再生完了後に1回だけ完了コールバックを呼ぶため、
+    /// 1体の応答が空でも、別ゴーストの再生中にアプリを終了しない。
+    @discardableResult
+    private func beginCloseAllSequence(reason: String) -> Bool {
+        guard !closeAllSequenceActive else { return false }
+        let managers = allGhostManagers
+        guard !managers.isEmpty else { return false }
+
+        closeAllSequenceActive = true
+        pendingCloseAllManagers = Set(managers.map(ObjectIdentifier.init))
+        for manager in managers {
+            let started = manager.beginCloseSequence(
+                eventID: EventID.OnCloseAll.rawValue,
+                reason: reason,
+                completion: { [weak self, weak manager] in
+                    self?.closeAllManagerDidFinish(manager)
+                }
+            )
+            if !started {
+                pendingCloseAllManagers.remove(ObjectIdentifier(manager))
+            }
+        }
+        if pendingCloseAllManagers.isEmpty {
+            finishCloseAllSequence()
+        }
+        return true
+    }
+
+    private func closeAllManagerDidFinish(_ manager: GhostManager?) {
+        guard closeAllSequenceActive, let manager else { return }
+        pendingCloseAllManagers.remove(ObjectIdentifier(manager))
+        if pendingCloseAllManagers.isEmpty {
+            finishCloseAllSequence()
+        }
+    }
+
+    private func finishCloseAllSequence() {
+        guard closeAllSequenceActive else { return }
+        pendingCloseAllManagers.removeAll()
+        // 応答スクリプトをすべて再生し終えた後でだけ、ランタイムを破棄する。
+        let primary = ghostManager
+        terminateAllAdditionalGhosts()
+        primary?.shutdown()
+        closeAllSequenceActive = false
+        NSApp.reply(toApplicationShouldTerminate: true)
     }
 
     /// Show DevTools window on macOS < 13

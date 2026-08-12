@@ -1,0 +1,697 @@
+import AppKit
+import Foundation
+import SwiftUI
+import Testing
+@testable import Ourin
+
+// MARK: - \n[half] / \n[パーセント] の可変改行送り状態
+
+struct BalloonNewlineSpacingTests {
+    @Test func newlineAdvanceMapping() {
+        #expect(BalloonViewModel.newlineAdvance(for: "half") == 0.5)
+        #expect(BalloonViewModel.newlineAdvance(for: "HALF") == 0.5)
+        #expect(BalloonViewModel.newlineAdvance(for: "150") == 1.5)
+        #expect(BalloonViewModel.newlineAdvance(for: "-250") == -2.5)
+        #expect(BalloonViewModel.newlineAdvance(for: "150%") == 1.5)
+        #expect(BalloonViewModel.newlineAdvance(for: "75%") == 0.75)
+        #expect(BalloonViewModel.newlineAdvance(for: "") == 1.0)
+        #expect(BalloonViewModel.newlineAdvance(for: "abc") == 1.0)
+    }
+
+    @MainActor
+    @Test func appendNewlineRecordsTextAndAdvances() {
+        let vm = BalloonViewModel()
+        vm.text = "line1"
+        vm.appendNewline(advance: 0.5)
+        vm.text += "line2"
+        vm.appendNewline(advance: 1.5)
+        vm.text += "line3"
+
+        #expect(vm.text == "line1\nline2\nline3")
+        #expect(vm.lineAdvances == [0.5, 1.5])
+    }
+
+    @MainActor
+    @Test func leadingAdvancePerLineIndex() {
+        let vm = BalloonViewModel()
+        vm.text = "a\nb\nc"
+        vm.appendNewline(advance: 1.0)
+        vm.appendNewline(advance: 2.0)
+
+        #expect(vm.leadingAdvance(forLineIndex: 0) == 1.0)
+        #expect(vm.leadingAdvance(forLineIndex: 1) == 1.0)
+        #expect(vm.leadingAdvance(forLineIndex: 2) == 2.0)
+        #expect(vm.leadingAdvance(forLineIndex: 99) == 1.0)
+    }
+
+    @MainActor
+    @Test func variableNewlineIsQueuedUntilPlayback() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-newline-queue"))
+        let vm = gm.getBalloonVM(for: gm.currentScope)
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .newlineVariation("half"))
+
+        #expect(vm.text.isEmpty)
+        #expect(gm.playbackQueue.count == 1)
+        if case .newlineVariation(let type) = gm.playbackQueue[0] {
+            #expect(type == "half")
+        } else {
+            Issue.record("可変改行が再生キュー上の newlineVariation になっていない")
+        }
+    }
+
+    @MainActor
+    @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
+        let vm = gm.getBalloonVM(for: gm.currentScope)
+        vm.balloonOffsetX = 10
+        vm.balloonOffsetY = 20
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "set", "balloonoffset", "100", "-50"
+        ]))
+        try await Task.sleep(nanoseconds: 50_000_000)
+        #expect(vm.balloonOffsetX == 100)
+        #expect(vm.balloonOffsetY == -50)
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "set", "balloonoffset", "@10", "@-5"
+        ]))
+        try await Task.sleep(nanoseconds: 50_000_000)
+        #expect(vm.balloonOffsetX == 110)
+        #expect(vm.balloonOffsetY == -55)
+    }
+
+    @MainActor
+    @Test func autoscrollCommandAcceptsEnableAndDisableWords() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-autoscroll-command"))
+        let vm = gm.getBalloonVM(for: gm.currentScope)
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "set", "autoscroll", "enable"
+        ]))
+        try await Task.sleep(nanoseconds: 50_000_000)
+        #expect(vm.autoscrollEnabled)
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "set", "autoscroll", "disable"
+        ]))
+        try await Task.sleep(nanoseconds: 50_000_000)
+        #expect(!vm.autoscrollEnabled)
+    }
+
+    @MainActor
+    @Test func onlineModeCommandTogglesForcedMarkerState() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-online-mode"))
+        let vm = gm.getBalloonVM(for: gm.currentScope)
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "enter", "onlinemode"
+        ]))
+        try await Task.sleep(nanoseconds: 50_000_000)
+        #expect(vm.onlineModeActive)
+        #expect(vm.onlineMarkerIndex == 0)
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "leave", "onlinemode"
+        ]))
+        try await Task.sleep(nanoseconds: 50_000_000)
+        #expect(!vm.onlineModeActive)
+        #expect(vm.onlineMarkerIndex == 0)
+    }
+}
+
+struct SakuraScriptSystemCommandTests {
+    @MainActor
+    @Test func syncObjectSetAndResetCommands() {
+        let name = "ourin-sync-\(UUID().uuidString)"
+        SyncCenter.shared.reset(name: name)
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-sync-command"))
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "set", "syncobject", name
+        ]))
+        let signaledDelay = SyncCenter.shared.wait(name: name, timeout: 0.1)
+        #expect(signaledDelay < 0.05)
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "reset", "syncobject", name
+        ]))
+        let resetStart = Date()
+        _ = SyncCenter.shared.wait(name: name, timeout: 0.02)
+        #expect(Date().timeIntervalSince(resetStart) >= 0.01)
+        SyncCenter.shared.reset(name: name)
+    }
+
+    @MainActor
+    @Test func syncObjectWaitDoesNotBlockScriptParsing() async throws {
+        let name = "ourin-sync-wait-\(UUID().uuidString)"
+        SyncCenter.shared.reset(name: name)
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-sync-wait"))
+
+        let start = Date()
+        gm.runScript("\\![wait,syncobject,\(name),200]")
+        #expect(Date().timeIntervalSince(start) < 0.1)
+
+        try await Task.sleep(nanoseconds: 300_000_000)
+        #expect(!gm.isPlaying)
+        SyncCenter.shared.reset(name: name)
+    }
+
+    @MainActor
+    @Test func resetBalloonPositionCommandClearsPersistedScopes() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-reset-balloon-position"))
+        gm.resourceManager.setBalloonLeft(scope: 0, value: 123)
+        gm.resourceManager.setBalloonTop(scope: 0, value: 456)
+        gm.resourceManager.setBalloonLeft(scope: 3, value: 789)
+        gm.resourceManager.setBalloonTop(scope: 3, value: 987)
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "execute", "resetballoonpos"
+        ]))
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(gm.resourceManager.getBalloonLeft(scope: 0) == nil)
+        #expect(gm.resourceManager.getBalloonTop(scope: 0) == nil)
+        #expect(gm.resourceManager.getBalloonLeft(scope: 3) == nil)
+        #expect(gm.resourceManager.getBalloonTop(scope: 3) == nil)
+    }
+}
+
+struct BasewareCommandSemanticsTests {
+    @Test
+    func sequentialGhostOrderIsStableAndWraps() {
+        let items = [
+            NarPackageItem(type: "ghost", name: "Zeta", path: URL(fileURLWithPath: "/tmp/Zeta")),
+            NarPackageItem(type: "ghost", name: "alpha", path: URL(fileURLWithPath: "/tmp/alpha")),
+            NarPackageItem(type: "ghost", name: "Beta", path: URL(fileURLWithPath: "/tmp/Beta"))
+        ]
+
+        #expect(NarRegistry.sequentialGhostName(items: items, currentName: "alpha") == "Beta")
+        #expect(NarRegistry.sequentialGhostName(items: items, currentName: "Zeta") == "alpha")
+        #expect(NarRegistry.sequentialGhostName(items: items, currentName: nil) == "alpha")
+        #expect(NarRegistry.sequentialGhostName(items: [items[0]], currentName: "Zeta") == nil)
+    }
+
+    @MainActor
+    @Test
+    func inputDialogOptionsReachUserInputReferences() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-input-options"))
+        let runtime = InputOptionsRuntime()
+        manager.shioriRuntime = runtime
+        let options = manager.inputDialogOptions(from: [
+            "InputID", "--limit=4", "--option=noclose", "--option=noclear",
+            "--reference=first", "--reference=second"
+        ])
+
+        manager.emitUserInput(id: "InputID", value: "abcdef", options: options)
+        #expect(runtime.lastRequest?.method == "GET")
+        #expect(runtime.lastRequest?.id == "OnUserInput")
+        #expect(runtime.lastRequest?.refs == ["InputID", "abcd", "", "first", "second"])
+    }
+}
+
+private final class InputOptionsRuntime: GhostShioriRuntime {
+    let kind: ShioriRuntimeKind = .native
+    var isLoaded = true
+    var resourceManager: ResourceManager?
+    var lastRequest: (method: String, id: String, refs: [String])?
+
+    func load(context: ShioriRuntimeLoadContext) -> Bool { true }
+
+    func request(
+        method: String,
+        id: String,
+        headers: [String: String],
+        refs: [String],
+        timeout: TimeInterval
+    ) -> ShioriRuntimeResponse? {
+        lastRequest = (method, id, refs)
+        return .init(ok: true, status: 204)
+    }
+
+    func unload() { isLoaded = false }
+}
+
+// MARK: - \_a[...]...\_a の範囲アンカーとクリック時ルーティング
+
+struct BalloonAnchorRangeTests {
+    @MainActor
+    @Test func anchorSegmentsSplitSingleLineRanges() {
+        let vm = BalloonViewModel()
+        vm.text = "Click here and there now."
+        // "here"(index 6, len 4) と "there"(index 15, len 5)
+        vm.anchors = [
+            BalloonAnchorRange(id: "one", references: ["r0"], text: "here", range: NSRange(location: 6, length: 4)),
+            BalloonAnchorRange(id: "two", references: ["r0"], text: "there", range: NSRange(location: 15, length: 5))
+        ]
+
+        let segments = vm.anchorSegments(lineIndex: 0)
+        #expect(segments == [
+            BalloonTextSegment(text: "Click ", isAnchor: false, anchorIndex: nil),
+            BalloonTextSegment(text: "here", isAnchor: true, anchorIndex: 0),
+            BalloonTextSegment(text: " and ", isAnchor: false, anchorIndex: nil),
+            BalloonTextSegment(text: "there", isAnchor: true, anchorIndex: 1),
+            BalloonTextSegment(text: " now.", isAnchor: false, anchorIndex: nil)
+        ])
+    }
+
+    @MainActor
+    @Test func anchorSegmentsSpanMultipleLines() {
+        let vm = BalloonViewModel()
+        vm.text = "a\nb\nc"
+        vm.anchors = [
+            BalloonAnchorRange(id: "mid", references: [], text: "b", range: NSRange(location: 2, length: 1))
+        ]
+
+        #expect(vm.anchorSegments(lineIndex: 0) == [BalloonTextSegment(text: "a", isAnchor: false, anchorIndex: nil)])
+        #expect(vm.anchorSegments(lineIndex: 1) == [BalloonTextSegment(text: "b", isAnchor: true, anchorIndex: 0)])
+        #expect(vm.anchorSegments(lineIndex: 2) == [BalloonTextSegment(text: "c", isAnchor: false, anchorIndex: nil)])
+    }
+
+    @MainActor
+    @Test func nestedAnchorsUseLaterAddedIndex() {
+        let vm = BalloonViewModel()
+        vm.text = "abcdef"
+        vm.anchors = [
+            BalloonAnchorRange(id: "outer", references: [], text: "abcdef", range: NSRange(location: 0, length: 6)),
+            BalloonAnchorRange(id: "inner", references: [], text: "bcde", range: NSRange(location: 1, length: 4))
+        ]
+
+        let segments = vm.anchorSegments(lineIndex: 0)
+        #expect(segments == [
+            BalloonTextSegment(text: "a", isAnchor: true, anchorIndex: 0),
+            BalloonTextSegment(text: "bcde", isAnchor: true, anchorIndex: 1),
+            BalloonTextSegment(text: "f", isAnchor: true, anchorIndex: 0)
+        ])
+    }
+
+    @MainActor
+    @Test func openAndCloseAnchorBuildsRangeWithActionData() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-anchor-range"))
+        let vm = gm.getBalloonVM(for: gm.currentScope)
+        vm.text = "Hello "
+
+        gm.openAnchorRange(id: "gorilla", references: ["r2", "r3"])
+        vm.text += "target"
+        gm.closeAnchorRange()
+
+        #expect(vm.anchors.count == 1)
+        let anchor = vm.anchors[0]
+        #expect(anchor.id == "gorilla")
+        #expect(anchor.references == ["r2", "r3"])
+        #expect(anchor.text == "target")
+        #expect(anchor.range.location == 6)
+        #expect(anchor.range.length == 6)
+        #expect(anchor.pluginOrigin == false)
+        #expect(vm.anchorActive == true)
+    }
+
+    @MainActor
+    @Test func anchorPreservesPluginOriginForDeferredOpen() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-anchor-plugin-origin"))
+        let vm = gm.getBalloonVM(for: gm.currentScope)
+
+        gm.openAnchorRange(id: "plugin-link", references: [], pluginOrigin: true)
+        vm.text = "plugin target"
+        gm.closeAnchorRange()
+
+        #expect(vm.anchors.count == 1)
+        #expect(vm.anchors[0].pluginOrigin == true)
+    }
+
+    @MainActor
+    @Test func unclosedAnchorFinalizedAtScriptEnd() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-anchor-finalize"))
+        let vm = gm.getBalloonVM(for: gm.currentScope)
+        vm.text = "xx"
+
+        gm.openAnchorRange(id: "OnBottomClick", references: ["A"])
+        vm.text += "yy"
+        gm.finalizePendingAnchorIfNeeded()
+
+        #expect(vm.anchors.count == 1)
+        let anchor = vm.anchors[0]
+        #expect(anchor.id == "OnBottomClick")
+        #expect(anchor.references == ["A"])
+        #expect(anchor.text == "yy")
+        #expect(anchor.range == NSRange(location: 2, length: 2))
+
+        // 確定済みのアンカーが再確定されないこと。
+        gm.finalizePendingAnchorIfNeeded()
+        #expect(vm.anchors.count == 1)
+    }
+
+    @Test func routeAnchorClickMapsOnPrefixToDirectEvent() {
+        let anchor = BalloonAnchorRange(id: "OnClickMe", references: ["r0", "r1"], text: "here", range: NSRange(location: 0, length: 4))
+        #expect(routeAnchorClick(anchor) == .directEvent(id: "OnClickMe", references: ["r0", "r1"]))
+    }
+
+    @Test func routeAnchorClickMapsPlainIdToAnchorSelect() {
+        let anchor = BalloonAnchorRange(id: "link", references: ["r2", "r3"], text: "here", range: NSRange(location: 0, length: 4))
+        #expect(routeAnchorClick(anchor) == .anchorSelect(id: "link", clickedText: "here", selectedReferences: ["r2", "r3"]))
+    }
+}
+
+// MARK: - \c[…] クリア／短縮時の状態同期
+
+struct BalloonClearTruncationTests {
+    @MainActor
+    @Test func truncateCharactersClampsAdvancesAndAnchors() {
+        let vm = BalloonViewModel()
+        vm.text = "ab"
+        vm.appendNewline(advance: 0.5)
+        vm.text += "cd"
+        vm.anchors = [BalloonAnchorRange(id: "a1", references: [], text: "ab\ncd", range: NSRange(location: 0, length: 5))]
+
+        vm.truncateSuffixCharacters(2)
+        #expect(vm.text == "ab\n")
+        #expect(vm.lineAdvances == [0.5])
+        #expect(vm.anchors.count == 1)
+        #expect(vm.anchors[0].range == NSRange(location: 0, length: 3))
+    }
+
+    @MainActor
+    @Test func truncateCharactersRemovingNewlineRemovesAdvance() {
+        let vm = BalloonViewModel()
+        vm.text = "a"
+        vm.appendNewline(advance: 1.0)
+        vm.text += "b"
+
+        vm.truncateSuffixCharacters(2)
+        #expect(vm.text == "a")
+        #expect(vm.lineAdvances.isEmpty)
+    }
+
+    @MainActor
+    @Test func truncateLinesRemovesAdvancesAndAnchors() {
+        let vm = BalloonViewModel()
+        vm.text = "a"
+        vm.appendNewline(advance: 0.5)
+        vm.text += "b"
+        vm.appendNewline(advance: 2.0)
+        vm.text += "c"
+        vm.anchors = [BalloonAnchorRange(id: "a1", references: [], text: "c", range: NSRange(location: 4, length: 1))]
+
+        vm.truncateSuffixLines(2)
+        #expect(vm.text == "a")
+        #expect(vm.lineAdvances.isEmpty)
+        #expect(vm.anchors.isEmpty)
+    }
+
+    @MainActor
+    @Test func truncateBeyondTextDoesNotCrash() {
+        let vm = BalloonViewModel()
+        vm.text = "x"
+        vm.truncateSuffixCharacters(10)
+        #expect(vm.text.isEmpty)
+        #expect(vm.lineAdvances.isEmpty)
+
+        let vm2 = BalloonViewModel()
+        vm2.text = "x"
+        vm2.truncateSuffixLines(10)
+        #expect(vm2.text.isEmpty)
+    }
+
+    @MainActor
+    @Test func resetBalloonContentClearsAllState() {
+        let vm = BalloonViewModel()
+        vm.text = "abc\nxyz"
+        vm.appendNewline(advance: 0.5)
+        vm.anchors = [BalloonAnchorRange(id: "a1", references: [], text: "xyz", range: NSRange(location: 4, length: 3))]
+        vm.anchorActive = true
+
+        vm.resetBalloonContent()
+        #expect(vm.text.isEmpty)
+        #expect(vm.lineAdvances.isEmpty)
+        #expect(vm.anchors.isEmpty)
+        #expect(vm.anchorActive == false)
+    }
+}
+
+// MARK: - アンカー装飾（anchorstyle / anchorvisitedstyle / anchornotselectstyle）の状態と描画解決
+
+struct BalloonAnchorDecorationTests {
+    @Test func anchorStyleParsing() {
+        // 型を明示（`.none` は Optional.none と曖昧になるため）
+        #expect(AnchorDecorationStyle(shape: "none") == AnchorDecorationStyle.none)
+        #expect(AnchorDecorationStyle(shape: "underline") == AnchorDecorationStyle.underline)
+        #expect(AnchorDecorationStyle(shape: "square") == AnchorDecorationStyle.square)
+        #expect(AnchorDecorationStyle(shape: "square+underline") == AnchorDecorationStyle.squareUnderline)
+        // 大文字小文字・前後空白は無視する
+        #expect(AnchorDecorationStyle(shape: "SQUARE+UNDERLINE") == AnchorDecorationStyle.squareUnderline)
+        #expect(AnchorDecorationStyle(shape: "  Square  ") == AnchorDecorationStyle.square)
+        // default / 未知値は nil（現状維持）
+        #expect(AnchorDecorationStyle(shape: "default") == nil)
+        #expect(AnchorDecorationStyle(shape: "strike") == nil)
+        #expect(AnchorDecorationStyle(shape: "") == nil)
+    }
+
+    @MainActor
+    @Test func decorationDefaultsToNotSelectStyle() {
+        let vm = BalloonViewModel()
+        vm.anchors = [BalloonAnchorRange(id: "a", references: [], text: "x", range: NSRange(location: 0, length: 1))]
+        vm.anchornotselectStyle = .square
+        vm.anchorvisitedStyle = .squareUnderline
+
+        // 訪問済みでなければ非選択装飾が適用される
+        let decoration = vm.decoration(forAnchorAt: 0)
+        #expect(decoration.style == .square)
+    }
+
+    @MainActor
+    @Test func decorationUsesVisitedStyleAfterVisited() {
+        let vm = BalloonViewModel()
+        vm.anchors = [BalloonAnchorRange(id: "a", references: [], text: "x", range: NSRange(location: 0, length: 1))]
+        vm.anchornotselectStyle = .square
+        vm.anchorvisitedStyle = .squareUnderline
+
+        vm.markAnchorVisited(at: 0)
+        #expect(vm.anchors[0].visited == true)
+        let decoration = vm.decoration(forAnchorAt: 0)
+        #expect(decoration.style == .squareUnderline)
+    }
+
+    @MainActor
+    @Test func decorationPrefersActiveAnchorStyle() {
+        let vm = BalloonViewModel()
+        vm.anchors = [BalloonAnchorRange(id: "a", references: [], text: "x", range: NSRange(location: 0, length: 1))]
+        vm.anchornotselectStyle = .square
+        vm.anchorvisitedStyle = .squareUnderline
+        vm.anchorStyle = .none
+
+        vm.markAnchorVisited(at: 0)
+        vm.activeAnchorIndex = 0
+        // ホバー中のアンカーは訪問済みより選択中装飾が優先される
+        #expect(vm.decoration(forAnchorAt: 0).style == .none)
+        vm.activeAnchorIndex = nil
+        #expect(vm.decoration(forAnchorAt: 0).style == .squareUnderline)
+    }
+
+    @MainActor
+    @Test func decorationUsesFontColorForEachAnchorState() {
+        let vm = BalloonViewModel()
+        let active = NSColor.systemRed
+        let notSelect = NSColor.systemGreen
+        let visited = NSColor.systemBlue
+        vm.anchorFontColor = active
+        vm.anchorNotSelectFontColor = notSelect
+        vm.anchorVisitedFontColor = visited
+        vm.anchors = [
+            BalloonAnchorRange(id: "plain", references: [], text: "x", range: NSRange(location: 0, length: 1)),
+            BalloonAnchorRange(id: "visited", references: [], text: "y", range: NSRange(location: 1, length: 1), visited: true)
+        ]
+
+        #expect(vm.decoration(forAnchorAt: 0).fontColor == notSelect)
+        #expect(vm.decoration(forAnchorAt: 1).fontColor == visited)
+        vm.activeAnchorIndex = 0
+        #expect(vm.decoration(forAnchorAt: 0).fontColor == active)
+    }
+
+    @MainActor
+    @Test func markAnchorVisitedMatchesByIdAndRange() {
+        let vm = BalloonViewModel()
+        vm.anchors = [
+            BalloonAnchorRange(id: "one", references: [], text: "abc", range: NSRange(location: 0, length: 3)),
+            BalloonAnchorRange(id: "two", references: [], text: "def", range: NSRange(location: 4, length: 3))
+        ]
+        vm.markAnchorVisited(id: "two", range: NSRange(location: 4, length: 3))
+        #expect(vm.anchors[0].visited == false)
+        #expect(vm.anchors[1].visited == true)
+    }
+
+    @MainActor
+    @Test func clampAnchorsPreservesVisitedState() {
+        let vm = BalloonViewModel()
+        vm.text = "abcdef"
+        vm.anchors = [BalloonAnchorRange(id: "a", references: [], text: "abc", range: NSRange(location: 0, length: 3), visited: true)]
+        vm.truncateSuffixCharacters(2)
+        #expect(vm.anchors.count == 1)
+        #expect(vm.anchors[0].visited == true)
+    }
+
+    @MainActor
+    @Test func configDefaultsApplyAnchorPenColors() {
+        let vm = BalloonViewModel()
+        let pen = NSColor(red: 0.1, green: 0.2, blue: 0.3, alpha: 1)
+        let font = NSColor(red: 0.0, green: 0.0, blue: 1.0, alpha: 1)
+        let notSelectFont = NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 1)
+        let notSelectPen = NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 1)
+        let visitedFont = NSColor(red: 1.0, green: 0.0, blue: 1.0, alpha: 1)
+        let visitedPen = NSColor(red: 0.0, green: 1.0, blue: 1.0, alpha: 1)
+        let config = BalloonConfig(
+            name: "test", charset: "UTF-8", craftman: "", craftmanUrl: "",
+            originX: 0, originY: 0, wordwrapPointX: 0, wordwrapPointY: 0,
+            fontHeight: 12, fontColor: .black,
+            anchorFontColor: font, anchorPenColor: pen,
+            anchorStyle: .underline, anchorBrushColor: .clear,
+            anchorNotSelectStyle: .square, anchorNotSelectFontColor: notSelectFont,
+            anchorNotSelectPenColor: notSelectPen, anchorNotSelectBrushColor: .clear,
+            anchorVisitedStyle: .squareUnderline, anchorVisitedFontColor: visitedFont,
+            anchorVisitedPenColor: visitedPen, anchorVisitedBrushColor: .clear,
+            anchorBlendMethod: .xorPen,
+            anchorNotSelectBlendMethod: .xorPen,
+            anchorVisitedBlendMethod: .xorPen,
+            cursorBlendMethod: "", cursorStyle: "", cursorBrushColor: .clear, cursorPenColor: .clear, cursorFontColor: .clear,
+            numberFontHeight: 10, numberFontColor: .black, numberXR: 0, numberY: 0,
+            onlineMarkerX: 0, onlineMarkerY: 0, sstpMarkerX: 0, sstpMarkerY: 0,
+            sstpMessageX: 0, sstpMessageY: 0, sstpMessageFontHeight: 10, sstpMessageFontColor: .black,
+            arrow0X: 0, arrow0Y: 0, arrow1X: 0, arrow1Y: 0,
+            validRectLeft: 0, validRectTop: 0, validRectRight: 0, validRectBottom: 0,
+            maxWidth: 0, maxHeight: 0, marginX: 0, marginY: 0, wordwrapPointRight: 0,
+            communicateBoxX: 0, communicateBoxY: 0, communicateBoxWidth: 0, communicateBoxHeight: 0
+        )
+        vm.applyBalloonConfigAnchorDefaults(config: config)
+        #expect(vm.anchorPenColor == pen)
+        #expect(vm.anchorStyle == .underline)
+        #expect(vm.anchornotselectStyle == .square)
+        #expect(vm.anchornotselectPenColor == notSelectPen)
+        #expect(vm.anchorNotSelectFontColor == notSelectFont)
+        #expect(vm.anchorvisitedStyle == .squareUnderline)
+        #expect(vm.anchorvisitedPenColor == visitedPen)
+        #expect(vm.anchorVisitedFontColor == visitedFont)
+        #expect(vm.anchorFontColor == font)
+        #expect(vm.anchorMethod == .xorPen)
+        #expect(vm.anchornotselectMethod == .xorPen)
+        #expect(vm.anchorvisitedMethod == .xorPen)
+    }
+
+    @Test func anchorRangeEquatableIncludesVisited() {
+        let base = BalloonAnchorRange(id: "a", references: [], text: "x", range: NSRange(location: 0, length: 1))
+        let visited = BalloonAnchorRange(id: "a", references: [], text: "x", range: NSRange(location: 0, length: 1), visited: true)
+        #expect(base != visited)
+    }
+}
+
+struct AnchorRasterOperationTests {
+    @Test func parsesAllSetROP2Names() {
+        let names = AnchorRasterOperation.allCases.map(\.rawValue)
+        #expect(names.count == 17) // 16 SetROP2 operators + `none`.
+        for name in names {
+            #expect(AnchorRasterOperation(name: name) != nil)
+            #expect(AnchorRasterOperation(name: "R2_\(name)") != nil)
+        }
+        #expect(AnchorRasterOperation(name: "default") == nil)
+        #expect(AnchorRasterOperation(name: "unknown") == nil)
+    }
+
+    @Test func appliesSetROP2TruthTablePerChannel() {
+        let source: UInt8 = 0x3c
+        let destination: UInt8 = 0xa5
+        let expected: [AnchorRasterOperation: UInt8] = [
+            .none: 0xa5,
+            .black: 0x00,
+            .notMergePen: 0x42,
+            .maskNotPen: 0x81,
+            .notCopyPen: 0xc3,
+            .maskPenNot: 0x18,
+            .not: 0x5a,
+            .xorPen: 0x99,
+            .notMaskPen: 0xdb,
+            .maskPen: 0x24,
+            .notXorPen: 0x66,
+            .nop: 0xa5,
+            .mergeNotPen: 0xe7,
+            .copyPen: 0x3c,
+            .mergePenNot: 0x7e,
+            .mergePen: 0xbd,
+            .white: 0xff
+        ]
+
+        for operation in AnchorRasterOperation.allCases {
+            #expect(operation.apply(source: source, destination: destination) == expected[operation])
+        }
+    }
+
+    @MainActor
+    @Test func rendererAppliesOperationToBalloonPixels() {
+        var bytes = [UInt8](repeating: 0, count: 4 * 4 * 4)
+        for index in stride(from: 0, to: bytes.count, by: 4) {
+            bytes[index] = 0x10
+            bytes[index + 1] = 0x20
+            bytes[index + 2] = 0x30
+            bytes[index + 3] = 0xff
+        }
+        let patch = AnchorRasterImageRenderer.renderPatch(
+            surfacePixels: bytes,
+            surfaceSize: CGSize(width: 4, height: 4),
+            rect: CGRect(x: 1, y: 1, width: 2, height: 2),
+            operation: .xorPen,
+            brushColor: NSColor(red: 0xa0 / 255.0, green: 0xb0 / 255.0, blue: 0xc0 / 255.0, alpha: 1)
+        )
+        #expect(patch != nil)
+        #expect(patch?.size == CGSize(width: 2, height: 2))
+
+        guard let patch,
+              let tiff = patch.tiffRepresentation,
+              let representation = NSBitmapImageRep(data: tiff) else {
+            Issue.record("ROP2 patch could not be read back as a bitmap")
+            return
+        }
+        var pixel = [Int](repeating: 0, count: 4)
+        representation.getPixel(&pixel, atX: 0, y: 0)
+        #expect(pixel[0] == 0xb0)
+        #expect(pixel[1] == 0x90)
+        #expect(pixel[2] == 0xf0)
+        #expect(pixel[3] == 255)
+    }
+
+    @MainActor
+    @Test func balloonViewLaysOutRasterAnchorDecoration() {
+        let vm = BalloonViewModel()
+        vm.text = "anchor"
+        vm.fontSize = 16
+        vm.anchorStyle = .square
+        vm.anchorMethod = .xorPen
+        vm.anchorBrushColor = NSColor(red: 0.2, green: 0.4, blue: 0.6, alpha: 1)
+        vm.anchorPenColor = .white
+        vm.anchors = [BalloonAnchorRange(
+            id: "anchor",
+            references: [],
+            text: "anchor",
+            range: NSRange(location: 0, length: 6)
+        )]
+
+        let host = NSHostingView(rootView: BalloonView(viewModel: vm))
+        host.frame = NSRect(x: 0, y: 0, width: 400, height: 150)
+        let window = NSWindow(
+            contentRect: host.frame,
+            styleMask: .borderless,
+            backing: .buffered,
+            defer: false
+        )
+        window.contentView = host
+        window.displayIfNeeded()
+        host.layoutSubtreeIfNeeded()
+
+        guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else {
+            Issue.record("BalloonView did not produce a display bitmap")
+            window.orderOut(nil)
+            return
+        }
+        host.cacheDisplay(in: host.bounds, to: bitmap)
+        #expect(bitmap.pixelsWide > 0)
+        #expect(bitmap.pixelsHigh > 0)
+        window.orderOut(nil)
+    }
+}

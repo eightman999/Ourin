@@ -33,7 +33,7 @@ final class SystemLoadObserver {
             if high != cpuHigh {
                 cpuHigh = high
                 let id: EventID = high ? .OnCPULoadHigh : .OnCPULoadLow
-                handler?(ShioriEvent(id: id, params: ["Load": String(Int(load))]))
+                handler?(ShioriEvent(id: id, refs: ["load": String(Int(load))]))
             }
         }
         if let memStr = provider.get(key: "memory.load"), let load = Double(memStr) {
@@ -41,7 +41,7 @@ final class SystemLoadObserver {
             if high != memHigh {
                 memHigh = high
                 let id: EventID = high ? .OnMemoryLoadHigh : .OnMemoryLoadLow
-                handler?(ShioriEvent(id: id, params: ["Load": String(Int(load))]))
+                handler?(ShioriEvent(id: id, refs: ["load": String(Int(load))]))
             }
         }
     }

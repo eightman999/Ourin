@@ -16,7 +16,10 @@ final class DragDropReceiver: NSView {
         super.init(frame: frameRect)
         registerForDraggedTypes([.fileURL, .URL, .string])
     }
-    required init?(coder: NSCoder) { fatalError() }
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        registerForDraggedTypes([.fileURL, .URL, .string])
+    }
 
     /// ドロップ受付を有効化し、最前面ビューへ自身を追加する
     /// WARNING: This method is deprecated and should not be used with NSHostingController

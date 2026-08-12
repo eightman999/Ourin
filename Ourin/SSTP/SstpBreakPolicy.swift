@@ -12,7 +12,12 @@ struct LiveSstpBreakPolicy: SstpBreakPolicy {
     static let live = LiveSstpBreakPolicy(timeout: 5.0, pollInterval: 0.02)
 
     func isBusy() -> Bool {
-        ShioriStatusStore.shared.currentStatus.lowercased() == "busy"
+        if ShioriStatusStore.shared.currentStatus.lowercased() == "busy" {
+            return true
+        }
+        // 登録済みゴーストがスクリプト再生中の場合も busy 扱いにして、
+        // nobreak 要求を再生完了まで待機させる。
+        return EventBridge.shared.isAnyGhostPlaying()
     }
 
     /// 同期ポーリングで待機するため、SSTPのバックグラウンド受信経路からだけ呼ぶ。

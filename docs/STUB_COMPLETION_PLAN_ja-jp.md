@@ -36,11 +36,19 @@
   - `BalloonRichTextViewModel.handleValignCommand` は**呼び出し元ゼロの未使用クラス内のスタブ**（クラスごとデッドコードの可能性が高い）。削除するかはユーザー判断待ち。実装は行わない。
 - [x] **2-3. SSTP 210 Break の `nobreak` キューイング** — 2026-07-08 実装済み（Sonnet）
   - UKADOC仕様確認の上、busy時ブロッキング待機（`SSTPBreakQueue`新規、既定5秒タイムアウト→409）→解消後に通常経路へ進む実装。テスト3件（キューイング後200／タイムアウト409／busy解消で続行）、ビルド＋SSTP系テスト全パス。
-  - 残課題: busy判定は `ShioriStatusStore.currentStatus` 基準。真の「スクリプト実行完了待ち」には `GhostManager.isPlaying` への接続が必要（スコープ外・要検討）。
+  - `EventBridge.isAnyGhostPlaying()` を接続し、`GhostManager.isPlaying` が true の間も busy として扱うよう修正（2026-08-12）。`SSTPDispatcherTests` で再生完了後の継続・タイムアウトを確認済み。
 - [x] **2-4. 動画レンダラ（`playVideo`）** — 2026-07-08 実装済み（deep-reasoner設計→codex実装、設計書: docs/VIDEO_RENDERER_DESIGN_ja-jp.md）
-  - `VideoPlayerWindow.swift` 新規（AVPlayerView別窓方式）、`\![sound,play,<動画>]` ディスパッチ配線、stop/pause/resume/wait対応、ゴースト終了時クリーンアップ、テスト5件（直列化済み）。
-  - 未対応: `--balance` の実適用（パースのみ）、`sound,load` プリロード（ログのみ）。**実機での動画再生・目視確認は未実施（検証待ち）。**
-  - **新規TODO（2026-07-09監査で判明、`docs/AUDITS_TODO.md` J節に追記）**: `videoFileSupport`（`GhostManager+Display.swift:145-155`）が `.unsupported` 判定する `avi/wmv/mpg/mpeg/mpe/mpv/mkv/webm/flv` は、`playVideo`（同ファイル307-320行）が `OnVideoPlayEx` を発火してログ出力するだけで実際の再生もエラー通知も行わないサイレント失敗。意図的非対応か未着手か要確認。
+  - `VideoPlayerWindow.swift` 新規（AVPlayerView別窓方式）、`\![sound,play,<動画>]` ディスパッチ配線、stop/pause/resume/wait対応、ゴースト終了時クリーンアップ、`VideoRendererTests` 8件（直列化済み）。
+  - `--balance` は `MTAudioProcessingTap` で2chのFloat32/Int16 PCMへ左右ゲインを適用する実装を追加。`sound,load` の動画プリロードは実装済み（`VideoPreloadPlayer` が `AVURLAsset`/`AVPlayerItem`/`AVPlayer` を保持し、play時に load/play オプションをマージして1つ消費・stop/cleanup で破棄）。**実機での動画再生・映像表示・実音声の左右バランスは未確認（検証待ち）。**
+  - 非対応形式・ファイル未検出は `OnVideoPlayFailure`（`unsupported_codec` / `file_not_found`）を発火し、成功イベントを誤発火しない。
+- [x] **2-5. 音声再生バックエンド（`play/load/loop/wait/pause/resume/stop/option`）** — 2026-08-12 実装済み
+  - `SoundPlayer.swift` を `AVAudioPlayer` ベースへ移行し、`--volume`/`--balance`/`--rate`/`--seektime`、プリロード、多重再生、メインキュー順序、自然終了・ループ境界・エラーイベントを実装。音声パスは仕様どおり `ghost/master` を優先し、旧 `ghost/sound` を後方互換フォールバックとする。
+  - `\![sound,wait]` はトークン化時に待ち時間を計算せず、実行時の `waitForAudio` として `\_V` と同じ経路で処理。`SoundPlayerTests` 27件、ビルド＋直列実行を確認。
+  - 音声経路の未完了項目はない。動画側では `sound,load` プリロードは実装済み。実機での動画目視・実音声確認、未対応コーデックの対応範囲確定が残る。
+- [x] **2-6. SakuraScriptの可変改行・個別アンカー範囲・アンカー装飾** — 2026-08-12 実装済み（DeepSeek実装→Codex受け入れ修正）
+  - `\\n[half]` / 数値・割合改行を `PlaybackUnit.newlineVariation` と `BalloonViewModel.lineAdvances` に接続し、行単位の表示へ反映。再生キュー順序、`\\c[char,N]` / `\\c[line,N]` による同期短縮も実装。
+  - `\\_a[ID,...]...\\_a` を `BalloonAnchorRange` として個別保持し、範囲ごとの文字色・クリックを実装。`On*` は指定イベント、それ以外は `OnAnchorSelectEx`（R0=クリック文字列、R1=ID、R2+=引数）→`OnAnchorSelect`。プラグイン起源も保持。
+  - `anchorstyle` / `anchorvisited*` / `anchornotselect*` の下線・矩形・背景・ペン色・3状態別文字色を `BalloonView` に実描画し、`descript.txt` の状態別設定も適用。`anchormethod` / `anchornotselectmethod` / `anchorvisitedmethod` は全SetROP2演算子を背景画像の実ピクセルへ合成する描画器へ接続。**実ゴースト目視、実メディア環境、負値改行の厳密な実測は未完了。**
 
 ## Phase 3: プラグイン・周辺システム（P1〜P2）
 
@@ -78,7 +86,7 @@
 - `EventReferenceSpec.swift` の DEBUG時 `assertionFailure`（開発時検証用として正常）
 - `GhostManager.swift:551,664,690` の起動時プレースホルダサーフェス（正常フロー）
 - PluginScaffolder の旧生成物（旧形式のダミー実行体は生成停止済み。既存の `.scaffold` は PluginRegistry が実行対象外として扱う）
-- `SstpHttpServer.swift:145` MCPネイティブメソッド（-32601応答は意図的）
+- MCP（Model Context Protocol）はOurinのベースウェア機能・移行互換対象外。SSPの`mcp.exe`相当の固定HTTPスタブ（`-32601`応答）は2026-08-12に削除し、`/api/mcp/v1`は公開しない（未知パスとして404）。
 
 ## 委譲方針
 

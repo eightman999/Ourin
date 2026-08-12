@@ -3,6 +3,7 @@ import Testing
 @testable import Ourin
 
 @Suite(.serialized)
+@MainActor
 struct PluginBridgeIntegrationTests {
     @Test
     func utf8EchoFixtureRoundTripsThroughNativePlugin() throws {

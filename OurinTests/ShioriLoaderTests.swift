@@ -1143,6 +1143,237 @@ struct ShioriLoaderTests {
         #expect(Self.runYayaCore(exe: exe, requests: [loadReq, req("SwapGlobal")]) == "BA")
     }
 
+    /// 配列要素代入 `arr[i] = value` が、配列全体ではなく正確にその要素だけを
+    /// 書き換え、隣接要素には影響しないことを検証する。
+    @Test
+    func yayaCoreArrayElementAssignmentWritesOnlyIndexedElement() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        ArrElemAssign {
+            _arr = { 'a' -- 'b' -- 'c' }
+            _arr[1] = 'X'
+            _arr[0] + _arr[1] + _arr[2]
+        }
+        ArrElemNeighborsUnchanged {
+            _arr = { 'a' -- 'b' -- 'c' }
+            _arr[1] = 'X'
+            _arr[0] + ',' + _arr[2]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        func req(_ id: String) -> [String: Any] {
+            return ["cmd": "request", "method": "GET", "id": id, "ref": [], "headers": ["Charset": "UTF-8"]]
+        }
+
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, req("ArrElemAssign")]) == "aXc")
+        // 要素1だけを書き換え、要素0と要素2は元のまま残る。
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, req("ArrElemNeighborsUnchanged")]) == "a,c")
+    }
+
+    /// 配列要素の複合代入 `arr[i] += / -= / *= / /= / %= value` が、対象要素のみに
+    /// 反映され、他の要素を巻き込まないことを検証する。
+    @Test
+    func yayaCoreArrayElementCompoundAssignmentAppliesToElementOnly() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        ArrElemCompound {
+            _arr = { 1 -- 2 -- 3 -- 4 -- 5 -- 6 }
+            _arr[0] += 5
+            _arr[1] -= 5
+            _arr[2] *= 2
+            _arr[3] /= 4
+            _arr[4] %= 7
+            _arr[0] + ',' + _arr[1] + ',' + _arr[2] + ',' + _arr[3] + ',' + _arr[4] + ',' + _arr[5]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "ArrElemCompound",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        // [1,2,3,4,5,6] → [6,-3,6,1,5,6]（末尾要素6は不変）
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "6,-3,6,1,5,6")
+    }
+
+    /// 配列要素の連結代入 `arr[i] ,= value`（文字列要素は文字列連結）が、
+    /// 対象要素のみに反映されることを検証する。
+    @Test
+    func yayaCoreArrayElementConcatAssignmentAppliesToElementOnly() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        ArrElemConcat {
+            _arr = { 'a' -- 'b' -- 'c' }
+            _arr[1] ,= 'X'
+            _arr[0] + _arr[1] + _arr[2]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "ArrElemConcat",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "abXc")
+    }
+
+    /// 範囲/スライス左辺値 `arr[a, b] = IARRAY` が、両端を含む閉区間を削除することを
+    /// 検証する。`{1--2--3--4--5}` の `[2, 4]`（= 要素 3,4,5）を空配列で置換すると
+    /// 先頭の `1,2` だけが残る。
+    @Test
+    func yayaCoreRangeLvalueEmptyArrayRemovesInterval() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        RangeLvalueClear {
+            _a = { 1 -- 2 -- 3 -- 4 -- 5 }
+            _a[2, 4] = IARRAY
+            _a[0] + ',' + _a[1]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "RangeLvalueClear",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        // [1,2,3,4,5] → [1,2]（閉区間 [2,4] の要素 3,4,5 が削除される）
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "1,2")
+    }
+
+    /// 範囲/スライス左辺値 `arr[a, b] = { ... }` が、閉区間を配列で置換（スプライス）
+    /// することを検証する。`{1--2--3--4}` の `[1, 2]` を `{8--9}` で置き換えると
+    /// `1,8,9,4` になる。
+    @Test
+    func yayaCoreRangeLvalueSplicesArrayIntoInterval() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        RangeLvalueSplice {
+            _a = { 1 -- 2 -- 3 -- 4 }
+            _a[1, 2] = { 8 -- 9 }
+            _a[0] + ',' + _a[1] + ',' + _a[2] + ',' + _a[3]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "RangeLvalueSplice",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        // [1,2,3,4] → [1,8,9,4]（閉区間 [1,2] の要素 2,3 が {8,9} に置き換わる）
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "1,8,9,4")
+    }
+
+    /// 範囲読み `arr[start, end]` が、長さではなく両端を含む閉区間を返すことを検証する。
+    /// `{1--2--3--4--5}` の `[1, 2]` は長さ2で要素1,2（= 2,3）を返す。もし length 解釈なら
+    /// 要素 1,2,3（= 2,3,4）になってしまうため、この違いで閉区間セマンティクスを確定する。
+    @Test
+    func yayaCoreRangeReadIsInclusive() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        RangeReadInclusive {
+            _a = { 1 -- 2 -- 3 -- 4 -- 5 }
+            _sub = _a[1, 2]
+            ARRAYSIZE(_sub) + ':' + _sub[0] + ',' + _sub[1]
+        }
+        RangeReadReversed {
+            _a = { 1 -- 2 -- 3 -- 4 -- 5 }
+            _sub = _a[2, 1]
+            ARRAYSIZE(_sub) + ':' + _sub[0] + ',' + _sub[1]
+        }
+        RangeWriteReversed {
+            _a = { 1 -- 2 -- 3 -- 4 -- 5 }
+            _a[4, 2] = IARRAY
+            _a[0] + ',' + _a[1]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "RangeReadInclusive",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+    // 要素1,2 のみ（= [2,3]）。length 解釈だと [2,3,4] になる。
+    #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "2:2,3")
+
+    let reversedRead: [String: Any] = [
+        "cmd": "request", "method": "GET", "id": "RangeReadReversed",
+        "ref": [], "headers": ["Charset": "UTF-8"]
+    ]
+    let reversedWrite: [String: Any] = [
+        "cmd": "request", "method": "GET", "id": "RangeWriteReversed",
+        "ref": [], "headers": ["Charset": "UTF-8"]
+    ]
+    // 公式YAYAと同じく、終端が逆でも範囲端を交換して [1,2] として扱う。
+    #expect(Self.runYayaCore(exe: exe, requests: [loadReq, reversedRead]) == "2:2,3")
+    #expect(Self.runYayaCore(exe: exe, requests: [loadReq, reversedWrite]) == "1,2")
+}
+
     /// `READFMO(name)` が host_op:"fmo" 経由で現在の FMO スナップショットを同期的に取得できるか。
     /// yaya_core と行ベースで双方向 IPC し、READFMO 呼び出し時に発行される host_op へ応答する。
     @Test

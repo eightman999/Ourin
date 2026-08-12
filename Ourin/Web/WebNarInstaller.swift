@@ -1,7 +1,8 @@
 import Foundation
+import AppKit
 import os.log
 
-/// `.nar` アーカイブをダウンロードして展開する簡易インストーラ。
+/// `.nar` アーカイブをダウンロードして通常の NAR インストール経路へ渡す。
 /// 挙動の詳細仕様は docs/NAR_INSTALL_1.0M_SPEC.md を参照。
 
 public enum WebNarInstaller {
@@ -60,19 +61,43 @@ public enum WebNarInstaller {
         let task = URLSession.shared.downloadTask(with: url) { local, response, error in
             if let error = error {
                 NSLog("[WebNarInstaller] download error: \(error)")
-                EventBridge.shared.notify(.OnURLDropFailure, refs: ["filePath": error.localizedDescription])
+                EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "network"])
                 return
             }
             guard let local = local else { return }
-            log.info("downloaded: \(local.path)")
-            EventBridge.shared.notify(.OnNarCreating, refs: ["name": local.path])
+            let archiveURL: URL
             do {
-                try installLocalNar(local)
-                log.info("install finished")
-                EventBridge.shared.notify(.OnNarCreated, refs: ["filePath": local.path])
+                archiveURL = try normalizedArchiveURL(
+                    localURL: local,
+                    response: response,
+                    sourceURL: url
+                )
+                defer { try? FileManager.default.removeItem(at: archiveURL) }
+
+                log.info("downloaded: \(archiveURL.path)")
+                if let appDelegate = NSApp.delegate as? AppDelegate,
+                   let ghostManager = appDelegate.ghostManager {
+                    switch ghostManager.installNarFile(archiveURL) {
+                    case .installed:
+                        log.info("install finished")
+                    case .refused:
+                        log.info("install refused")
+                    case .failed(let error):
+                        log.error("install failed: \(error.localizedDescription)")
+                    }
+                } else {
+                    EventBridge.shared.notifyCustom("OnInstallBegin", params: [:])
+                    let result = try installLocalNar(archiveURL)
+                    if let object = result.objects.first {
+                        EventBridge.shared.notifyCustom("OnInstallComplete", refs: [
+                            "identifier": object.identifier,
+                            "name": object.name
+                        ])
+                    }
+                }
             } catch {
-                log.fault("install failed: \(String(describing: error))")
-                EventBridge.shared.notify(.OnURLDropFailure, refs: ["filePath": String(describing: error)])
+                log.error("install failed: \(String(describing: error))")
+                EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "unsupported"])
             }
 
             NSLog("[WebNarInstaller] downloaded: \(local.path)")
@@ -90,43 +115,33 @@ public enum WebNarInstaller {
         return UserDefaults.standard.bool(forKey: "OurinAllowInsecureNarInstall")
     }
 
-    private static func installLocalNar(_ narURL: URL) throws {
-        // 1) validate zip header
-        let ext = narURL.pathExtension.lowercased()
-        guard ext == "nar" || ext == "zip" else { throw Error.notZip }
-        let data = try Data(contentsOf: narURL, options: .mappedIfSafe)
-        guard data.starts(with: [0x50, 0x4b]) else { throw Error.notZip }
+    private static func installLocalNar(_ narURL: URL) throws -> NarInstallResult {
+        try NarInstaller().installWithResult(fromNar: narURL)
+    }
 
-        // 2) temporary extraction
-        let tmpRoot = FileManager.default.temporaryDirectory
-            .appendingPathComponent("OurinNarInstall_\(UUID().uuidString)", isDirectory: true)
-        let tmpExtract = tmpRoot.appendingPathComponent("extract", isDirectory: true)
-        try FileManager.default.createDirectory(at: tmpExtract, withIntermediateDirectories: true)
+    private static func normalizedArchiveURL(
+        localURL: URL,
+        response: URLResponse?,
+        sourceURL: URL
+    ) throws -> URL {
+        let existingExtension = localURL.pathExtension.lowercased()
+        guard existingExtension != "nar" && existingExtension != "zip" else {
+            return localURL
+        }
 
-        log.info("extracting to tmp: \(tmpExtract.path)")
-        try ZipUtil.extractZip(narURL, to: tmpExtract)
-
-        // 3) read install.txt
-        let installTxt = tmpExtract.appendingPathComponent("install.txt")
-        guard FileManager.default.fileExists(atPath: installTxt.path) else { throw Error.installTxtNotFound }
-        let itData = try Data(contentsOf: installTxt)
-        guard let itStr = TextEncodingDetector.decode(itData) else { throw Error.installTxtDecodeFailed }
-        let manifest = try InstallTxtParser.parse(itStr)
-
-        // 4) resolve target
-        let target = try OurinPaths.installTarget(forType: manifest.type, directory: manifest.directory)
-        log.info("resolved target: \(target.path)")
-
-        // 5) 上書きポリシー: accept は UKADOC では type=shell の親ゴースト名検証用であり、
-        //    上書き判定とは独立。既存先がある場合は更新インストールとして許容する。
-        //    （旧実装は accept 未設定で常に conflict 扱いで失敗していた）
-
-        // 6) secure copy
-        let parent = target.deletingLastPathComponent()
-        try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
-        try ZipUtil.secureCopyTree(from: tmpExtract, to: target)
-
-        // 7) cleanup
-        try? FileManager.default.removeItem(at: tmpRoot)
+        let responseExtension = response?.suggestedFilename?.split(separator: ".").last.map(String.init)?.lowercased()
+        let sourceExtension = sourceURL.pathExtension.lowercased()
+        let extensionName: String
+        if let responseExtension, responseExtension == "nar" || responseExtension == "zip" {
+            extensionName = responseExtension
+        } else if sourceExtension == "nar" || sourceExtension == "zip" {
+            extensionName = sourceExtension
+        } else {
+            extensionName = "nar"
+        }
+        let destination = localURL.deletingLastPathComponent()
+            .appendingPathComponent(localURL.lastPathComponent + ".\(extensionName)")
+        try FileManager.default.moveItem(at: localURL, to: destination)
+        return destination
     }
 }

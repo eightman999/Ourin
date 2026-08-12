@@ -2,6 +2,7 @@ import Foundation
 import Testing
 @testable import Ourin
 
+@MainActor
 struct PluginTargetRoutingTests {
     @Test
     func ghostManagerMatchesNameIDPathAndWindowTarget() {

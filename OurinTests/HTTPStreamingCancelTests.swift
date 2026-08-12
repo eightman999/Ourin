@@ -5,6 +5,7 @@ import Testing
 /// AUDITS_TODO「\![cancel,http,...] 未実装」の回帰テスト。
 /// \![cancel,websocket,URL] と対称の HTTP ストリーミング中断経路を検証する。
 @Suite(.serialized)
+@MainActor
 struct HTTPStreamingCancelTests {
     @Test
     func cancelHTTPStreamingRemovesAndCancelsTrackedTask() async throws {

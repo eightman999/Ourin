@@ -208,7 +208,7 @@ shared_value.dll -> builtin:shared_value
 SAKNIFE.DLL      -> builtin:saknife または scaffold
 SCHEDULE.dll     -> builtin:calendar_schedule または scaffold
 SSPH.exe         -> builtin:ssph_compat
-mcp.exe          -> unsupported（MCP互換HTTP入口は未実装を明示）
+mcp.exe          -> unsupported（OurinはMCP互換HTTP入口を公開せず、要求は404）
 ```
 
 既知 DLL は疑似 C から Swift へ機械変換するのではなく、Ourin 側で同等機能をネイティブ実装し、`ourin.json` で紐づける。

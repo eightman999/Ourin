@@ -48,6 +48,12 @@ The YAYA_core parser has been significantly enhanced to support the majority of 
 3. ✅ Expression statements as implicit return values
 4. ✅ Ternary operator (`? :`)
 
+### Range assignment verification (2026-08-12)
+
+- ✅ Inclusive range reads (`array[start,end]`) with reversed endpoint normalization.
+- ✅ Inclusive range replacement/removal (`array[start,end] = rhs`) and range concatenation (` ,=`).
+- ✅ Emily4 range lvalues load successfully; the full regression run completed 713 tests in 59 suites.
+
 ### Identifiers
 1. ✅ ASCII alphanumeric + underscore
 2. ✅ UTF-8 multi-byte characters (Japanese, etc.)

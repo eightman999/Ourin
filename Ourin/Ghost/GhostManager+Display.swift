@@ -119,6 +119,8 @@ extension GhostManager {
 
                 // Notify YAYA of the name change via NOTIFY OnNameChanged
                 EventBridge.shared.notify(.OnNameChanged, refs: ["userName": userName])
+                // SHIORI の標準ユーザー情報も更新する。
+                sendUserInfoNotify()
 
                 // After OnNameChanged is sent, start timer events (OnIdle, SecondChange)
                 startEventBridgeIfNeeded(enableAutoEvents: true)
@@ -129,7 +131,128 @@ extension GhostManager {
     // MARK: - Sound Playback
 
     private func resolveSoundPath(filename: String) -> URL {
-        ghostURL.appendingPathComponent("sound").appendingPathComponent(filename)
+        let normalized = filename
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\\", with: "/")
+        if normalized.hasPrefix("file://"), let url = URL(string: normalized) {
+            return url
+        }
+        if normalized.hasPrefix("/") || normalized.hasPrefix("~") {
+            return URL(fileURLWithPath: NSString(string: normalized).expandingTildeInPath)
+        }
+
+        // UKADOC specifies ghost/master as the base for \\8, \\_v and sound commands.
+        // Keep the former ghost/sound lookup as a compatibility fallback for existing
+        // Ourin fixtures and older packages.
+        let masterPath = ghostURL
+            .appendingPathComponent("ghost/master", isDirectory: true)
+            .appendingPathComponent(normalized)
+        let legacyPath = ghostURL
+            .appendingPathComponent("sound", isDirectory: true)
+            .appendingPathComponent(normalized)
+        if FileManager.default.fileExists(atPath: masterPath.path) {
+            return masterPath
+        }
+        if FileManager.default.fileExists(atPath: legacyPath.path) {
+            return legacyPath
+        }
+        return masterPath
+    }
+
+    /// 音声状態は AVAudioPlayer と GhostManager の配列を同一メインキューで管理する。
+    /// スクリプトのトークン化中に play/load/stop が連続しても、操作順序を失わない。
+    private func performOnMainSync(_ work: @escaping () -> Void) {
+        if Thread.isMainThread {
+            work()
+        } else {
+            DispatchQueue.main.sync(execute: work)
+        }
+    }
+
+    private func configureSoundPlayer(_ player: SoundPlayer) {
+        player.onFinish = { [weak self] player, successfully in
+            self?.handleSoundFinished(player, successfully: successfully)
+        }
+        player.onLoop = { [weak self] player in
+            self?.handleSoundLoop(player)
+        }
+        player.onError = { [weak self] player, code, message in
+            self?.handleSoundError(player, code: code, message: message)
+        }
+    }
+
+    private func removeSoundPlayer(_ player: SoundPlayer) {
+        currentSounds.removeAll { $0 === player }
+        if var sounds = namedSounds[player.filename] {
+            sounds.removeAll { $0 === player }
+            if sounds.isEmpty {
+                namedSounds[player.filename] = nil
+            } else {
+                namedSounds[player.filename] = sounds
+            }
+        }
+    }
+
+    private func handleSoundFinished(_ player: SoundPlayer, successfully: Bool) {
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in
+                self?.handleSoundFinished(player, successfully: successfully)
+            }
+            return
+        }
+        guard currentSounds.contains(where: { $0 === player })
+                || namedSounds[player.filename]?.contains(where: { $0 === player }) == true else {
+            return
+        }
+        if !successfully {
+            handleSoundError(player, code: -1, message: "playback_failed")
+            return
+        }
+        removeSoundPlayer(player)
+        EventBridge.shared.notify(.OnSoundStop, refs: [
+            "filename": player.filename,
+            "reason": "end"
+        ])
+    }
+
+    private func handleSoundLoop(_ player: SoundPlayer) {
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in
+                self?.handleSoundLoop(player)
+            }
+            return
+        }
+        guard currentSounds.contains(where: { $0 === player }) else { return }
+        EventBridge.shared.notify(.OnSoundLoop, refs: ["filename": player.filename])
+    }
+
+    private func handleSoundError(_ player: SoundPlayer, code: Int, message: String) {
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in
+                self?.handleSoundError(player, code: code, message: message)
+            }
+            return
+        }
+        guard currentSounds.contains(where: { $0 === player })
+                || namedSounds[player.filename]?.contains(where: { $0 === player }) == true else {
+            return
+        }
+        removeSoundPlayer(player)
+        EventBridge.shared.notify(.OnSoundError, refs: [
+            "command": "play",
+            "errorCode": String(code),
+            "filename": player.filename,
+            "message": message
+        ])
+    }
+
+    func notifySoundError(command: String, filename: String, code: Int, message: String) {
+        EventBridge.shared.notify(.OnSoundError, refs: [
+            "command": command,
+            "errorCode": String(code),
+            "filename": filename,
+            "message": message
+        ])
     }
 
     enum VideoFileSupport: Equatable {
@@ -169,7 +292,7 @@ extension GhostManager {
             .appendingPathComponent(normalized)
     }
     
-    /// Play a sound file from the ghost's sound directory
+    /// Play a sound file relative to ghost/master (with the legacy ghost/sound fallback).
     func playSound(filename: String, loop: Bool = false, options: [String] = []) {
         guard !filename.isEmpty else { return }
         let playbackOptions = SoundPlaybackOptions.parse(options)
@@ -180,24 +303,41 @@ extension GhostManager {
         // Check if file exists
         guard FileManager.default.fileExists(atPath: soundPath.path) else {
             Log.info("[GhostManager] Sound file not found: \(soundPath.path)")
+            notifySoundError(command: "play", filename: filename, code: -1, message: "file_not_found")
             return
         }
-        
-        DispatchQueue.main.async { [weak self] in
+
+        performOnMainSync { [weak self] in
             guard let self else { return }
-            let sound = self.preloadedSounds[filename] ?? NSSound(contentsOf: soundPath, byReference: false)
-            guard let sound else {
+            // プリロード済みインスタンスを1つ消費し、なければ新規生成する。
+            // 同一ファイル名でも再生ごとに独立インスタンスを確保して多重再生を保証する。
+            let player: SoundPlayer
+            let wasPreloaded: Bool
+            if let preloaded = self.preloadedSounds[filename]?.popLast() {
+                player = preloaded
+                wasPreloaded = true
+                if self.preloadedSounds[filename]?.isEmpty == true {
+                    self.preloadedSounds[filename] = nil
+                }
+            } else if let created = SoundPlayer(filename: filename, url: soundPath, options: playbackOptions) {
+                player = created
+                wasPreloaded = false
+            } else {
                 Log.info("[GhostManager] Failed to load sound: \(filename)")
+                self.notifySoundError(command: "play", filename: filename, code: -1, message: "audio_load_failed")
                 return
             }
-            sound.loops = loop
-            if let volume = playbackOptions.volume {
-                sound.volume = volume
+            self.configureSoundPlayer(player)
+            player.setLoop(loop)
+            // load 時に適用済みの相対 seek を play 時に二重適用しない。
+            // play 側で明示オプションがある場合だけ上書きする。
+            if wasPreloaded && !playbackOptions.isEmpty {
+                player.apply(options: playbackOptions)
             }
-            self.logUnsupportedSoundOptions(playbackOptions, filename: filename)
-            self.currentSounds.append(sound)
-            self.namedSounds[filename, default: []].append(sound)
-            sound.play()
+            self.logIgnoredAudioOptions(playbackOptions, filename: filename)
+            self.currentSounds.append(player)
+            self.namedSounds[filename, default: []].append(player)
+            player.play()
             Log.debug("[GhostManager] Playing sound: \(filename) loop=\(loop)")
 
             // SHIORI 再生イベント通知。Ourin は音楽/効果音を区別しないため、
@@ -205,9 +345,6 @@ extension GhostManager {
             let refs = ["filename": filename]
             EventBridge.shared.notify(.OnMusicPlay, refs: refs)
             EventBridge.shared.notify(.OnMusicPlayEx, refs: refs)
-            if loop {
-                EventBridge.shared.notify(.OnSoundLoop, refs: refs)
-            }
         }
     }
 
@@ -218,67 +355,86 @@ extension GhostManager {
         let soundPath = resolveSoundPath(filename: filename)
         guard FileManager.default.fileExists(atPath: soundPath.path) else {
             Log.info("[GhostManager] Sound file not found: \(soundPath.path)")
+            notifySoundError(command: "load", filename: filename, code: -1, message: "file_not_found")
             return
         }
-        DispatchQueue.main.async {
-            guard let sound = NSSound(contentsOf: soundPath, byReference: false) else {
+        performOnMainSync { [weak self] in
+            guard let self else { return }
+            guard let player = SoundPlayer(filename: filename, url: soundPath, options: playbackOptions) else {
                 Log.info("[GhostManager] Failed to preload sound: \(filename)")
+                self.notifySoundError(command: "load", filename: filename, code: -1, message: "audio_load_failed")
                 return
             }
-            if let volume = playbackOptions.volume {
-                sound.volume = volume
-            }
-            self.logUnsupportedSoundOptions(playbackOptions, filename: filename)
-            self.preloadedSounds[filename] = sound
+            self.configureSoundPlayer(player)
+            self.logIgnoredAudioOptions(playbackOptions, filename: filename)
+            self.preloadedSounds[filename, default: []].append(player)
             Log.debug("[GhostManager] Preloaded sound: \(filename)")
         }
     }
 
     func pauseSound(filename: String?) {
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in self?.pauseSound(filename: filename) }
+            return
+        }
         let targets = activeSounds(filename: filename)
-        for sound in targets where sound.isPlaying {
-            _ = sound.pause()
+        for player in targets where player.isPlaying {
+            player.pause()
         }
         Log.debug("[GhostManager] Paused sounds count: \(targets.count)")
     }
 
     func resumeSound(filename: String?) {
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in self?.resumeSound(filename: filename) }
+            return
+        }
         let targets = activeSounds(filename: filename)
-        for sound in targets where !sound.isPlaying {
-            sound.play()
+        for player in targets where player.isPaused {
+            player.resume()
         }
         Log.debug("[GhostManager] Resumed sounds count: \(targets.count)")
     }
 
     func applySoundOptions(filename: String, options: [String]) {
         guard !filename.isEmpty else { return }
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in self?.applySoundOptions(filename: filename, options: options) }
+            return
+        }
         let playbackOptions = SoundPlaybackOptions.parse(options)
         if GhostManager.isVideoFile(filename) {
             applyVideoOptions(filename: filename, options: playbackOptions)
             return
         }
-        if let volume = playbackOptions.volume {
-            let targets = activeSounds(filename: filename)
-            for sound in targets {
-                sound.volume = volume
-            }
-            preloadedSounds[filename]?.volume = volume
-            Log.debug("[GhostManager] Updated sound option volume for \(filename): \(volume)")
+        let targets = activeSounds(filename: filename)
+        for player in targets {
+            player.apply(options: playbackOptions)
         }
-        logUnsupportedSoundOptions(playbackOptions, filename: filename)
+        for player in preloadedSounds[filename] ?? [] {
+            player.apply(options: playbackOptions)
+        }
+        logIgnoredAudioOptions(playbackOptions, filename: filename)
+        Log.debug("[GhostManager] Updated sound options for \(filename)")
     }
 
     func estimatedSoundWaitDuration() -> TimeInterval {
-        currentSounds.removeAll { !$0.isPlaying }
+        guard Thread.isMainThread else {
+            var result = 0.0
+            performOnMainSync { [weak self] in
+                result = self?.estimatedSoundWaitDuration() ?? 0
+            }
+            return result
+        }
         var maxRemaining: TimeInterval = 0
-        for sound in currentSounds where !sound.loops {
-            let remaining = max(0, sound.duration - sound.currentTime)
+        for player in currentSounds where !player.loops && player.isPlaying {
+            let remaining = max(0, player.duration - player.currentTime)
             maxRemaining = max(maxRemaining, remaining)
         }
         return maxRemaining
     }
 
-    private func activeSounds(filename: String?) -> [NSSound] {
+    private func activeSounds(filename: String?) -> [SoundPlayer] {
         if let filename, !filename.isEmpty {
             return namedSounds[filename] ?? []
         }
@@ -287,18 +443,29 @@ extension GhostManager {
 
     /// Stop sounds by filename
     func stopSound(filename: String) {
-        guard let sounds = namedSounds[filename], !sounds.isEmpty else {
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in self?.stopSound(filename: filename) }
+            return
+        }
+        let sounds = namedSounds[filename] ?? []
+        let hasPreloaded = !(preloadedSounds[filename] ?? []).isEmpty
+        guard !sounds.isEmpty || hasPreloaded else {
             Log.info("[GhostManager] No active sound for filename: \(filename)")
             return
         }
-        for sound in sounds where sound.isPlaying {
-            sound.stop()
+        for player in sounds {
+            player.stop()
         }
-        currentSounds.removeAll { sounds.contains($0) }
+        currentSounds.removeAll { sound in sounds.contains(where: { $0 === sound }) }
         namedSounds[filename] = nil
         preloadedSounds[filename] = nil
-        Log.debug("[GhostManager] Stopped sound: \(filename)")
-        EventBridge.shared.notify(.OnSoundStop, refs: ["filename": filename])
+        if !sounds.isEmpty {
+            Log.debug("[GhostManager] Stopped sound: \(filename)")
+            EventBridge.shared.notify(.OnSoundStop, refs: [
+                "filename": filename,
+                "reason": "end"
+            ])
+        }
     }
 
     // MARK: - Video Playback
@@ -325,12 +492,8 @@ extension GhostManager {
         }
 
         let playbackOptions = SoundPlaybackOptions.parse(options)
-        let volume = playbackOptions.volume ?? 1.0
-        let rate = playbackOptions.rate ?? 1.0
-        let soundOnly = playbackOptions.soundOnly ?? false
-        let showWindow = playbackOptions.showWindow ?? true
 
-        DispatchQueue.main.async { [weak self] in
+        performOnMainSync { [weak self] in
             guard let self else { return }
             if let existing = self.videoPlayers[filename] {
                 existing.stop()
@@ -339,21 +502,57 @@ extension GhostManager {
                 self?.videoPlayers[filename] = nil
             }
             self.videoPlayers[filename] = controller
-            controller.play(
-                url: videoPath,
-                loop: loop,
-                soundOnly: soundOnly,
-                showWindow: showWindow,
-                volume: volume,
-                rate: rate,
-                balance: playbackOptions.balance
-            )
+            // プリロード済みインスタンスを1つ消費し、なければ従来どおり URL から新規再生する。
+            // プリロード時はオプションが load/play でマージされ、play 時指定が優先される。
+            if let preloaded = self.preloadedVideos[filename]?.popLast() {
+                if self.preloadedVideos[filename]?.isEmpty == true {
+                    self.preloadedVideos[filename] = nil
+                }
+                controller.play(preloaded: preloaded, loop: loop, options: playbackOptions)
+                Log.debug("[GhostManager] Playing video from preload: \(filename) loop=\(loop)")
+            } else {
+                controller.play(url: videoPath, loop: loop, options: playbackOptions)
+                Log.debug("[GhostManager] Playing video: \(filename) loop=\(loop) soundOnly=\(playbackOptions.soundOnly ?? false) showWindow=\(playbackOptions.showWindow ?? true)")
+            }
             self.notifyVideoPlayRequested(filename: filename, loop: loop)
-            Log.debug("[GhostManager] Playing video: \(filename) loop=\(loop) soundOnly=\(soundOnly) showWindow=\(showWindow)")
+        }
+    }
+
+    /// Preload a video by creating an AVURLAsset/AVPlayerItem/AVPlayer ahead of time.
+    /// \![sound,load] の動画分岐。UKADOC には load 成功イベントが存在しないため通知せず、
+    /// 失敗時は既存方針どおり OnVideoPlayFailure（file_not_found / unsupported_codec）を通知する。
+    func loadVideo(filename: String, options: [String] = []) {
+        guard !filename.isEmpty else { return }
+        let support = GhostManager.videoFileSupport(for: filename)
+        guard support != .notVideo else {
+            Log.info("[GhostManager] Not a video file: \(filename)")
+            return
+        }
+        let videoPath = resolveVideoPath(filename: filename)
+        if support == .unsupported {
+            notifyVideoPlayFailure(filename: filename, reason: "unsupported_codec")
+            Log.error("[GhostManager] Unsupported video format for AVPlayer renderer: \(filename)")
+            return
+        }
+        guard FileManager.default.fileExists(atPath: videoPath.path) else {
+            notifyVideoPlayFailure(filename: filename, reason: "file_not_found")
+            Log.error("[GhostManager] Video file not found: \(videoPath.path)")
+            return
+        }
+        let playbackOptions = SoundPlaybackOptions.parse(options)
+        performOnMainSync { [weak self] in
+            guard let self else { return }
+            let preloaded = VideoPreloadPlayer(filename: filename, url: videoPath, options: playbackOptions)
+            self.preloadedVideos[filename, default: []].append(preloaded)
+            Log.debug("[GhostManager] Preloaded video: \(filename)")
         }
     }
 
     func pauseVideo(filename: String?) {
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in self?.pauseVideo(filename: filename) }
+            return
+        }
         let targets = activeVideoPlayers(filename: filename)
         for player in targets {
             player.pause()
@@ -362,6 +561,10 @@ extension GhostManager {
     }
 
     func resumeVideo(filename: String?) {
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in self?.resumeVideo(filename: filename) }
+            return
+        }
         let targets = activeVideoPlayers(filename: filename)
         for player in targets {
             player.resume()
@@ -370,7 +573,12 @@ extension GhostManager {
     }
 
     func stopVideo(filename: String?) {
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in self?.stopVideo(filename: filename) }
+            return
+        }
         if let filename, !filename.isEmpty {
+            discardPreloadedVideos(filename: filename)
             guard let player = videoPlayers.removeValue(forKey: filename) else {
                 Log.info("[GhostManager] No active video for filename: \(filename)")
                 return
@@ -383,6 +591,11 @@ extension GhostManager {
     }
 
     func stopAllVideos() {
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in self?.stopAllVideos() }
+            return
+        }
+        discardAllPreloadedVideos()
         let players = Array(videoPlayers.values)
         videoPlayers.removeAll()
         for player in players {
@@ -391,7 +604,29 @@ extension GhostManager {
         Log.debug("[GhostManager] Stopped all videos")
     }
 
+    private func discardPreloadedVideos(filename: String) {
+        let preloaded = preloadedVideos.removeValue(forKey: filename) ?? []
+        for player in preloaded {
+            player.discard()
+        }
+    }
+
+    private func discardAllPreloadedVideos() {
+        let preloaded = preloadedVideos.values.flatMap { $0 }
+        preloadedVideos.removeAll()
+        for player in preloaded {
+            player.discard()
+        }
+    }
+
     func estimatedVideoWaitDuration() -> TimeInterval {
+        guard Thread.isMainThread else {
+            var result = 0.0
+            performOnMainSync { [weak self] in
+                result = self?.estimatedVideoWaitDuration() ?? 0
+            }
+            return result
+        }
         var maxRemaining: TimeInterval = 0
         for player in videoPlayers.values {
             maxRemaining = max(maxRemaining, player.estimatedRemainingDuration())
@@ -401,14 +636,23 @@ extension GhostManager {
     
     /// Stop all currently playing sounds
     func stopAllSounds() {
-        for sound in currentSounds {
-            if sound.isPlaying {
-                sound.stop()
-            }
+        guard Thread.isMainThread else {
+            performOnMainSync { [weak self] in self?.stopAllSounds() }
+            return
+        }
+        let stoppedFilenames = Set(namedSounds.keys).sorted()
+        for player in currentSounds {
+            player.stop()
         }
         currentSounds.removeAll()
         namedSounds.removeAll()
         preloadedSounds.removeAll()
+        for filename in stoppedFilenames {
+            EventBridge.shared.notify(.OnSoundStop, refs: [
+                "filename": filename,
+                "reason": "end"
+            ])
+        }
         stopAllVideos()
         Log.debug("[GhostManager] Stopped all sounds")
     }
@@ -443,18 +687,12 @@ extension GhostManager {
         ])
     }
 
-    private func logUnsupportedSoundOptions(_ options: SoundPlaybackOptions, filename: String) {
-        if options.rate != nil {
-            Log.info("[GhostManager] --rate is not supported for NSSound playback: \(filename)")
-        }
-        if options.balance != nil {
-            Log.info("[GhostManager] --balance is not supported for NSSound playback: \(filename)")
-        }
+    private func logIgnoredAudioOptions(_ options: SoundPlaybackOptions, filename: String) {
         if options.showWindow != nil {
-            Log.info("[GhostManager] --window is ignored for NSSound playback: \(filename)")
+            Log.info("[GhostManager] --window is ignored for audio playback: \(filename)")
         }
         if options.soundOnly != nil {
-            Log.info("[GhostManager] --sound-only is ignored for NSSound playback: \(filename)")
+            Log.info("[GhostManager] --sound-only is ignored for audio playback: \(filename)")
         }
     }
     
@@ -462,15 +700,21 @@ extension GhostManager {
     
     /// Open a URL in the default browser
     func openURL(_ urlString: String) {
-        guard !urlString.isEmpty else {
+        let trimmed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
             Log.info("[GhostManager] Empty URL string")
             return
         }
-        
-        // Ensure URL has a scheme
-        var finalURL = urlString
-        if !urlString.hasPrefix("http://") && !urlString.hasPrefix("https://") {
-            finalURL = "https://" + urlString
+
+        // Preserve an explicitly supplied scheme (mailto:, ftp:, custom schemes, ...).
+        // Bare host names are interpreted as HTTPS URLs.
+        let finalURL: String
+        if let schemeEnd = trimmed.firstIndex(of: ":"),
+           schemeEnd > trimmed.startIndex,
+           trimmed[..<schemeEnd].allSatisfy({ $0.isLetter || $0.isNumber || $0 == "+" || $0 == "-" || $0 == "." }) {
+            finalURL = trimmed
+        } else {
+            finalURL = "https://" + trimmed
         }
         
         guard let url = URL(string: finalURL) else {
@@ -481,6 +725,121 @@ extension GhostManager {
         DispatchQueue.main.async {
             NSWorkspace.shared.open(url)
             Log.debug("[GhostManager] Opened URL: \(finalURL)")
+        }
+    }
+
+    // MARK: - Help and Readme
+
+    /// Execute \![open,help,*] using the SSP-compatible help/event route.
+    func openHelp(dialogID: String?) {
+        let normalizedID = dialogID?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let helpURL = "https://ssp.shillest.net/ukadoc/ssphelp/"
+
+        if normalizedID == "talk" {
+            openURL(helpURL)
+            return
+        }
+
+        if let dialogID,
+           !dialogID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+           requestDialogEvent(eventID: "OnConfigurationDialogHelp", references: [dialogID]) {
+            return
+        }
+
+        // With no dialog-specific response, the standard behavior is the help index.
+        openURL(helpURL)
+    }
+
+    /// Open the readme specified by a ghost/shell/balloon/headline/plugin descriptor.
+    ///
+    /// The descriptor is read from the component root, so `readme,foo.txt` is not
+    /// accidentally resolved relative to the package root.
+    func openGhostReadme(type: String? = nil, name: String? = nil) {
+        guard let root = readmeRoot(type: type, name: name) else {
+            let componentType = type ?? "ghost"
+            let componentName = name ?? ""
+            Log.info("[GhostManager] Readme component was not found: type=\(componentType) name=\(componentName)")
+            return
+        }
+
+        let descriptorURL = root.appendingPathComponent("descript.txt")
+        let descriptor = LegacyDescriptor.readDictionary(from: descriptorURL) ?? [:]
+        let readmeName: String = {
+            guard let configured = descriptor["readme"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !configured.isEmpty else {
+                return "readme.txt"
+            }
+            return configured
+        }()
+        let readmeURL: URL
+        if readmeName.hasPrefix("/") {
+            readmeURL = URL(fileURLWithPath: readmeName).standardizedFileURL
+        } else {
+            readmeURL = root.appendingPathComponent(readmeName).standardizedFileURL
+        }
+
+        guard FileManager.default.fileExists(atPath: readmeURL.path) else {
+            Log.info("[GhostManager] Readme file was not found: \(readmeURL.path)")
+            EventBridge.shared.notifyCustom("OnReadmeOpenFailure", refs: [
+                "type": type ?? "ghost",
+                "name": name ?? "",
+                "path": readmeURL.path
+            ])
+            return
+        }
+
+        DispatchQueue.main.async {
+            NSWorkspace.shared.open(readmeURL)
+            Log.debug("[GhostManager] Opened readme: \(readmeURL.path)")
+        }
+    }
+
+    private func readmeRoot(type: String?, name: String?) -> URL? {
+        let normalizedType = type?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let normalizedName = name?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let currentGhostRoot = ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
+
+        guard let normalizedType, !normalizedType.isEmpty else {
+            return currentGhostRoot
+        }
+
+        switch normalizedType {
+        case "ghost":
+            if normalizedName == nil || normalizedName?.caseInsensitiveCompare(ghostConfig?.name ?? "") == .orderedSame {
+                return currentGhostRoot
+            }
+            return NarRegistry.shared.installedItems(ofType: "ghost")
+                .first { $0.name.caseInsensitiveCompare(normalizedName ?? "") == .orderedSame }?
+                .path.appendingPathComponent("ghost/master", isDirectory: true)
+        case "shell":
+            if let normalizedName {
+                let embedded = ghostURL.appendingPathComponent("shell", isDirectory: true)
+                    .appendingPathComponent(normalizedName, isDirectory: true)
+                if FileManager.default.fileExists(atPath: embedded.path) {
+                    return embedded
+                }
+                return NarRegistry.shared.installedItems(ofType: "shell")
+                    .first { $0.name.caseInsensitiveCompare(normalizedName) == .orderedSame }?.path
+            }
+            return loadShellPath()
+        case "balloon":
+            if let normalizedName {
+                let embedded = ghostURL.appendingPathComponent("balloon", isDirectory: true)
+                    .appendingPathComponent(normalizedName, isDirectory: true)
+                if FileManager.default.fileExists(atPath: embedded.path) {
+                    return embedded
+                }
+                return NarRegistry.shared.installedItems(ofType: "balloon")
+                    .first { $0.name.caseInsensitiveCompare(normalizedName) == .orderedSame }?.path
+            }
+            let current = ghostURL.appendingPathComponent("balloon", isDirectory: true)
+            return FileManager.default.fileExists(atPath: current.path) ? current : nil
+        case "headline", "plugin":
+            return NarRegistry.shared.installedItems(ofType: normalizedType)
+                .first { $0.name.caseInsensitiveCompare(normalizedName ?? "") == .orderedSame }?.path
+        default:
+            Log.info("[GhostManager] Unsupported readme component type: \(normalizedType)")
+            return nil
         }
     }
     

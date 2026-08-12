@@ -234,20 +234,18 @@ xcodebuild test -project Ourin.xcodeproj -scheme Ourin
    - `history.ghost.*`, `history.balloon.*` など
    - 最近使用した項目のトラッキング
 
-2. **使用率** (`rateofuselist.*`)
-   - ゴーストの使用統計
-   - 起動時間のトラッキング
-   - 使用率の計算
-
-3. **追加の書き込み可能プロパティ**
+2. **追加の書き込み可能プロパティ**
    - マウスカーソルのカスタマイズ (`currentghost.mousecursor.*`)
    - ツールチップのカスタマイズ (`currentghost.seriko.tooltip.*`)
    - サーフェスリストのプロパティ (`currentghost.seriko.surfacelist.*`)
 
-4. **動的データ連携**
+3. **動的データ連携**
    - 実際の実行時ゴースト/シェル/バルーンデータへの接続
    - リアルタイムなスコープ位置のトラッキング
    - ライブなバルーンメトリクス
+
+`rateofuselist.*` は実装済みです。ゴーストの起動回数・実使用時間・発言数・文字数を
+`UserDefaults` に永続化し、`rateofuselist.*` と `open,rateofusegraph*` で同じ実データを参照します。
 
 ## 参考資料
 

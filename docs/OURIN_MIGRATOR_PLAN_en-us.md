@@ -208,7 +208,7 @@ shared_value.dll -> builtin:shared_value
 SAKNIFE.DLL      -> builtin:saknife or scaffold
 SCHEDULE.dll     -> builtin:calendar_schedule or scaffold
 SSPH.exe         -> builtin:ssph_compat
-mcp.exe          -> unsupported (MCP compatibility endpoint explicitly reports unavailable)
+mcp.exe          -> unsupported (Ourin does not expose an MCP compatibility endpoint; requests receive 404)
 ```
 
 Known DLLs should not be machine-converted from pseudo C to Swift; instead, implement equivalent functionality natively on the Ourin side and link it via `ourin.json`.

@@ -65,9 +65,9 @@ SSP の「[SHIORI Event リスト]」を正とし、Ourin（macOS）で**語彙�
 
 ## 1. M‑Diff（macOS差分）一覧
 - **座標**：グローバル座標（メイン画面左上）。Window/Surface 座標は Ourin が変換。  
-- **ディスプレイ変更**：`CGDisplayRegisterReconfigurationCallback` で捕捉。  
+- **ディスプレイ変更**：`NSApplication.didChangeScreenParametersNotification` で捕捉し、主画面の bpp/解像度とマルチモニタ情報を生成。
 - **スリープ/スリープ解除/画面消灯**：`NSWorkspace` の `willSleep/didWake/screensDidSleep/screensDidWake` を採用。  
-- **スクリーンセーバ検知**：`ScreenSaverEngine` の前面化検知＋スクリーン消灯検知の組合せ（ベストエフォート）。  
+- **スクリーンセーバ検知**：`DistributedNotificationCenter` の `com.apple.screensaver.didstart/didstop` を使用。画面消灯は `OnDisplayPowerStatus` として分離。
 - **ファイル/URLドロップ**：`NSDraggingDestination` / `NSPasteboard.PasteboardType.fileURL` / UTI で受理。  
 - **ウィンドウ最小化/復元**：AppKit ウィンドウ状態から合成、バルーン可視状態は Ourin が保持。  
 - **バッテリー/電源**：Energy APIs からポーリングまたは通知。
@@ -98,7 +98,12 @@ SSP の「[SHIORI Event リスト]」を正とし、Ourin（macOS）で**語彙�
 | OnVirtualDesktopChanged | NOTIFY | デスクトップ切替 | idx | — | Mission Control 検出はベストエフォート |
 | OnCacheSuspend/Restore | NOTIFY | メモリ圧迫/復帰 | — | — | 圧縮メモリ検知で代替 |
 | OnInitialize/OnDestroy | NOTIFY | Ourin の SHIORI初期化/破棄 | — | — | — |
-| OnSysSuspend/OnSysResume | NOTIFY | システムスリープ/復帰 | — | — | NSWorkspace willSleep/didWake |
+| OnSysSuspend/OnSysResume | GET | システムスリープ/復帰 | — | 応答スクリプト | NSWorkspace willSleep/didWake |
+| OnDisplayChange | 起動時NOTIFY/更新GET | 主画面の解像度・色深度変更 | R0=bpp, R1=width, R2=height | 起動時は無視、更新時は再生 | NSApplication.didChangeScreenParametersNotification |
+| OnDisplayChangeEx | 起動時NOTIFY/更新GET | マルチモニタ構成変更 | R0=init/update, R1以降=モニタ情報 | 起動時は無視、更新時は再生 | NSScreen + CoreGraphics |
+| OnDisplayPowerStatus | GET | 画面電源ON/OFF | R0=1/0 | 応答スクリプト | NSWorkspace screensDidSleep/Wake |
+| OnBatteryNotify / OnBattery* | 起動時NOTIFY/更新GET | 残量・電源・充電状態変更 | R0=％, R1=残り分, R2=online/offline/backup, R3=状態 | 起動時は無視、更新時は再生 | IOKit IOPowerSources |
+| OnSessionDisconnect / OnSessionReconnect | GET | macOSユーザーセッション切断/再接続 | — | 応答スクリプト | NSWorkspace session notifications |
 
 …（以降の各カテゴリも同様の表を完備。全イベント名は UKADOC の分類順で列挙。）
 
@@ -217,8 +222,10 @@ basewareversion / hwnd / uniqueid / capability / ownerghostname / otherghostname
 ---
 
 ## 付録A. イベント→Ourin内部APIマップ（抜粋）
-- **表示/ディスプレイ**：CoreGraphics（Display Reconfig Callback）  
+- **表示/ディスプレイ**：AppKit `NSApplication.didChangeScreenParametersNotification` と CoreGraphics のディスプレイ情報
+- **表示イベントの Reference**：`DisplayObserver.swift` が `OnDisplayChange` の bpp/width/height と `OnDisplayChangeEx` のモニタ列を生成。
 - **スリープ/復帰**：NSWorkspace Notifications  
+- **電源/バッテリー**：IOKit `IOPowerSources` の残量・残時間・充電状態・電源種別を `OnBattery*` へ変換。
 - **ドラッグ&ドロップ**：NSDraggingDestination / NSPasteboard（fileURL/UTType）  
 - **ネットワーク**：Network.framework（SSTP/HTTP）  
 - **入力**：NSEvent（修飾キー/座標）
@@ -227,7 +234,7 @@ basewareversion / hwnd / uniqueid / capability / ownerghostname / otherghostname
 
 ## 実装状況（Implementation Status）
 
-**更新日:** 2025-10-20
+**更新日:** 2026-08-12
 
 ### Ourin におけるイベントシステム実装
 
@@ -244,8 +251,15 @@ basewareversion / hwnd / uniqueid / capability / ownerghostname / otherghostname
 2. **OS 状態イベント**
    - [x] `OnSleep`, `OnResume`: `SleepObserver.swift` にて実装済み
    - [x] `OnDisplayChange`: `DisplayObserver.swift` にて実装済み
+   - [x] `OnDisplayChangeEx`: マルチモニタの実データ付きで実装済み
+   - [x] `OnDisplayPowerStatus`: 画面スリープ/復帰を `SleepObserver.swift` から実装済み
+   - [x] `OnBatteryNotify/Low/Critical/ChargingStart/Stop`: `PowerObserver.swift` の IOKit 実データ変換で実装済み
    - [x] `OnSessionLock`, `OnSessionUnlock`: `SessionObserver.swift` にて実装済み
+   - [x] `OnSessionDisconnect`, `OnSessionReconnect`: `NSWorkspace` セッション通知で実装済み
    - [x] システム負荷監視: `SystemLoadObserver.swift` にて実装済み
+   - [x] `OnOSUpdateInfo`: `/usr/sbin/softwareupdate --list/--history` の実履歴を起動時 `NOTIFY`・履歴更新時 `GET` で通知
+   - [x] `OnCloseAll`: 全起動ゴーストの応答再生完了を集約してからアプリを終了
+   - [x] 初期 Notify 系: `OnNotifyUserInfo` / `OnNotifyOSInfo` / `OnNotifyFontInfo` / `OnNotifyInternationalInfo` をmacOS実データで生成し、ユーザー名・ロケール変更時に再通知
 
 3. **ネットワークイベント**
    - [x] `OnNetworkConnect`, `OnNetworkDisconnect`: `NetworkObserver.swift` にて実装済み

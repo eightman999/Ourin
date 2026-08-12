@@ -73,6 +73,22 @@ public final class SakuraScriptEngine {
         }
     }
 
+    /// SakuraScript から、実際にバルーンへ表示されるプレーンテキストを抽出する。
+    /// 制御タグをそのまま履歴へ保存すると `backlogviewer` が読めないため、
+    /// テキストと改行だけを残す。
+    public func displayText(from script: String) -> String {
+        parse(script: script).reduce(into: "") { result, token in
+            switch token {
+            case .text(let text):
+                result.append(text)
+            case .newline, .newlineVariation:
+                result.append("\n")
+            default:
+                break
+            }
+        }
+    }
+
     public func runPreprocessed(script: String) {
         for token in parse(script: script, expandEnvironment: false) {
             delegate?.sakuraEngine(self, didEmit: token)
@@ -100,13 +116,14 @@ public final class SakuraScriptEngine {
         case choiceCancel      // \z - choice cancellation
         case choiceMarker      // \* - choice marker
         case anchor            // \a - anchor marker (for choices)
-        case choiceLineBr      // \- - line break in choice
+        case choiceLineBr      // \- - terminate the current script
         case bootGhost         // \+ - boot/call other ghost
         case bootAllGhosts     // \_+ - boot all ghosts
-        case openPreferences   // \v - open preferences/settings
-        case openURL           // \6 - open URL
-        case openEmail         // \7 - open email
+        case openPreferences   // \v - enable stay-on-top
+        case openURL           // \6 - SNTP correction action
+        case openEmail         // \7 - SNTP sequence start
         case playSound(String) // \8[filename] - play sound
+        case choiceLegacy(title: String, id: String, numbered: Bool)
         case command(name: String, args: [String])
         /// \__q メタタグ（選択肢キュー / choice queue）。
         /// 単一形式 `\__q[ID,r0,...]` は title=""。
@@ -114,6 +131,8 @@ public final class SakuraScriptEngine {
         /// ID 仕様は \q と同一（"script:" プレフィックスや On* イベント）。
         /// references は ID に続く引数（\q の R0,R1,... に相当）。
         case choiceQueue(title: String, id: String, references: [String])
+        /// \\b[ID1,--fallback=ID2,...] のバルーン選択。
+        case balloonWithFallback(primary: Int, fallbacks: [Int])
 
         /// Returns true if this token represents displayable text or speech.
         var isTextLike: Bool {
@@ -349,12 +368,18 @@ public final class SakuraScriptEngine {
                     // Balloon ID: \bN or \b[ID] or \b[ID1,--fallback=ID2,...]
                     var j = i + 2
                     var balloonID = ""
+                    var fallbackIDs: [Int] = []
                     if j < chars.count && chars[j] == "[" {
                         // \b[...] format
                         if let (content, end) = readBracket(start: j + 1) {
-                            // For now, just take the first ID (ignore fallbacks)
-                            let parts = content.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-                            balloonID = String(parts.first ?? "0")
+                            let parts = parseArguments(content)
+                            balloonID = parts.first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "0"
+                            fallbackIDs = parts.dropFirst().compactMap { part in
+                                let argument = part.trimmingCharacters(in: .whitespacesAndNewlines)
+                                let prefix = "--fallback="
+                                guard argument.lowercased().hasPrefix(prefix) else { return nil }
+                                return Int(argument.dropFirst(prefix.count).trimmingCharacters(in: .whitespacesAndNewlines))
+                            }
                             j = end
                         }
                     } else if j < chars.count, chars[j].isNumber || chars[j] == "-" {
@@ -365,7 +390,11 @@ public final class SakuraScriptEngine {
                         }
                     }
                     if let id = Int(balloonID) {
-                        tokens.append(.balloon(id))
+                        if !fallbackIDs.isEmpty {
+                            tokens.append(.balloonWithFallback(primary: id, fallbacks: fallbackIDs))
+                        } else {
+                            tokens.append(.balloon(id))
+                        }
                     } else {
                         tokens.append(.command(name: "b", args: balloonID.isEmpty ? [] : [balloonID]))
                     }
@@ -429,7 +458,7 @@ public final class SakuraScriptEngine {
                         i += 2
                     }
                 case "-":
-                    // Line break in choice
+                    // \\- terminates the current script (UKADOC)
                     tokens.append(.choiceLineBr)
                     i += 2
                 case "+":
@@ -437,15 +466,15 @@ public final class SakuraScriptEngine {
                     tokens.append(.bootGhost)
                     i += 2
                 case "v":
-                    // Open preferences/settings
+                    // \v: enable stay-on-top
                     tokens.append(.openPreferences)
                     i += 2
                 case "6":
-                    // Open URL
+                    // \\6: SNTP correction action
                     tokens.append(.openURL)
                     i += 2
                 case "7":
-                    // Open email
+                    // \\7: SNTP sequence start
                     tokens.append(.openEmail)
                     i += 2
                 case "8":
@@ -461,8 +490,15 @@ public final class SakuraScriptEngine {
                     tokens.append(.playSound(filename))
                     i = j
                 case "q":
+                    var numbered = false
+                    var choicePrefixOffset = 0
+                    if i + 2 < chars.count, chars[i + 2] == "*" {
+                        // 旧仕様の q*[ID][title]。* は表示上の通し番号。
+                        numbered = true
+                        choicePrefixOffset = 1
+                    }
                     // Choice commands: \q[title,ID] or various other forms
-                    var j = i + 2
+                    var j = i + 2 + choicePrefixOffset
                     var args: [String] = []
                     if j < chars.count && chars[j] == "[" {
                         if let (content, end) = readBracket(start: j + 1) {
@@ -474,8 +510,14 @@ public final class SakuraScriptEngine {
                     if j < chars.count && chars[j] == "[" {
                         if let (content, end) = readBracket(start: j + 1) {
                             // This is the title for \q[ID][title] format
-                            args.append(content)
+                            if let id = args.first {
+                                tokens.append(.choiceLegacy(title: content, id: id, numbered: numbered))
+                            } else {
+                                tokens.append(.command(name: "q", args: []))
+                            }
                             j = end
+                            i = j
+                            continue
                         }
                     }
                     tokens.append(.command(name: "q", args: args))

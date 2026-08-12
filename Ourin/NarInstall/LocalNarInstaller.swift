@@ -2,6 +2,18 @@
 import Foundation
 import os.log
 
+/// NAR インストール後に SHIORI イベントへ渡す、実際に設置された対象。
+struct NarInstalledObject: Equatable {
+    let identifier: String
+    let name: String
+    let path: String
+}
+
+struct NarInstallResult {
+    let target: URL
+    let manifest: InstallManifest
+    let objects: [NarInstalledObject]
+}
 
 final class NarInstaller {
     enum Error: Swift.Error, CustomStringConvertible {
@@ -16,6 +28,8 @@ final class NarInstaller {
         case invalidDeletePath(String)
         case updateDescriptorNotFound
         case updateDescriptorDecodeFailed
+        case updateDownloadFailed(String)
+        case attachedComponentSourceNotFound(String)
 
         var description: String {
             switch self {
@@ -30,6 +44,8 @@ final class NarInstaller {
             case .invalidDeletePath(let p): return "delete.txt の危険なパス: \(p)"
             case .updateDescriptorNotFound: return "updates2.dau / updates.txt / update.txt が見つかりません"
             case .updateDescriptorDecodeFailed: return "更新定義ファイルをデコードできません"
+            case .updateDownloadFailed(let path): return "更新ファイルを適用できません: \(path)"
+            case .attachedComponentSourceNotFound(let type): return "付属コンポーネントのソースが見つかりません: \(type)"
             }
         }
     }
@@ -37,6 +53,38 @@ final class NarInstaller {
     private let log = CompatLogger(subsystem: "jp.ourin.installer", category: "nar")
 
     func install(fromNar narURL: URL) throws -> URL {
+        try installWithResult(fromNar: narURL).target
+    }
+
+    /// インストール前に install.txt だけを検査する。
+    /// accept による対象ゴーストの振り分けを、ファイルを設置せずに判定するために使う。
+    func inspectManifest(fromNar narURL: URL) throws -> InstallManifest {
+        let allowedExtensions = ["nar", "zip"]
+        guard allowedExtensions.contains(narURL.pathExtension.lowercased()) else { throw Error.notZip }
+        let data = try Data(contentsOf: narURL, options: .mappedIfSafe)
+        guard data.starts(with: [0x50, 0x4b]) else { throw Error.notZip }
+
+        let tmpRoot = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent("OurinNarInspect_\(UUID().uuidString)", isDirectory: true)
+        let tmpExtract = tmpRoot.appendingPathComponent("extract", isDirectory: true)
+        try FileManager.default.createDirectory(at: tmpExtract, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmpRoot) }
+        try ZipUtil.extractZip(narURL, to: tmpExtract)
+
+        let installTxt = tmpExtract.appendingPathComponent("install.txt")
+        guard FileManager.default.fileExists(atPath: installTxt.path) else { throw Error.installTxtNotFound }
+        do {
+            return try InstallTxtParser.parse(data: Data(contentsOf: installTxt))
+        } catch let error as Error {
+            throw error
+        } catch {
+            throw Error.installTxtDecodeFailed
+        }
+    }
+
+    /// NAR をインストールし、メイン対象と付属コンポーネントの実設置結果を返す。
+    /// `install(fromNar:)` は既存 API 互換のため設置先 URL のみ返すラッパーとして残す。
+    func installWithResult(fromNar narURL: URL) throws -> NarInstallResult {
         // 1) 形式検証（拡張子 + 軽いヘッダチェック）
         let allowedExtensions = ["nar", "zip"]
         guard allowedExtensions.contains(narURL.pathExtension.lowercased()) else { throw Error.notZip }
@@ -48,6 +96,7 @@ final class NarInstaller {
             .appendingPathComponent("OurinNarInstall_\(UUID().uuidString)", isDirectory: true)
         let tmpExtract = tmpRoot.appendingPathComponent("extract", isDirectory: true)
         try FileManager.default.createDirectory(at: tmpExtract, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmpRoot) }
 
         log.info("extracting to tmp: \(tmpExtract.path,)")
         try ZipUtil.extractZip(narURL, to: tmpExtract)
@@ -106,10 +155,47 @@ final class NarInstaller {
         //    step 8 で処理済みの type=ghost + balloon（単一）は重複回避のためスキップ。
         try installAttachedComponents(fromExtract: tmpExtract, manifest: manifest)
 
-        // 10) 後始末
-        try? FileManager.default.removeItem(at: tmpRoot)
+        if manifest.type.lowercased() == "headline" {
+            UserDefaults.standard.set(manifest.directory, forKey: "OurinLastInstalledHeadlineName")
+        }
+        for component in manifest.attachedComponents where component.type == "headline" {
+            UserDefaults.standard.set(component.directory, forKey: "OurinLastInstalledHeadlineName")
+        }
+
+        // 10) 実際に設置された対象を組み立てる。付属コンポーネントは
+        // installAttachedComponents の成功後だけ結果へ含める。
+        var objects: [NarInstalledObject] = []
+        let mainIdentifier = Self.installIdentifier(type: manifest.type, hasBundledBalloon: false)
+        objects.append(NarInstalledObject(
+            identifier: mainIdentifier,
+            name: manifest.name?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+                ? manifest.name!.trimmingCharacters(in: .whitespacesAndNewlines)
+                : manifest.directory,
+            path: target.path
+        ))
+        for component in manifest.attachedComponents where !component.directory.isEmpty {
+            let targetType = component.type.replacingOccurrences(of: ".", with: "/")
+            let componentTarget = try OurinPaths.installTarget(forType: targetType, directory: component.directory)
+            let identifier = Self.installIdentifier(type: component.type, hasBundledBalloon: false)
+            objects.append(NarInstalledObject(identifier: identifier,
+                                              name: component.directory,
+                                              path: componentTarget.path))
+        }
+
         log.info("install finished")
-        return target
+        return NarInstallResult(target: target, manifest: manifest, objects: objects)
+    }
+
+    /// install.txt の種別を SHIORI のインストール識別子へ正規化する。
+    static func installIdentifier(type: String, hasBundledBalloon: Bool) -> String {
+        let normalized = type.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if normalized == "ghost" && hasBundledBalloon { return "ghost with balloon" }
+        if normalized == "shell" && hasBundledBalloon { return "shell with balloon" }
+        switch normalized {
+        case "calendar.skin", "calendar/skin": return "calendar skin"
+        case "calendar.plugin", "calendar/plugin": return "calendar plugin"
+        default: return normalized
+        }
     }
 
     /// type=shell / supplement の accept で指定された親ゴーストがインストール済みか確認する。
@@ -218,8 +304,7 @@ final class NarInstaller {
             extractRoot.appendingPathComponent(sourceName, isDirectory: true)
         ]
         guard let srcDir = candidates.first(where: { isDirectory($0) }) else {
-            log.warning("balloon.directory=\(balloonDirectory,) : ソースディレクトリが見つかりません")
-            return
+            throw Error.attachedComponentSourceNotFound("balloon")
         }
         let balloonTarget = try OurinPaths.installTarget(forType: "balloon", directory: balloonDirectory)
         try fm.createDirectory(at: balloonTarget.deletingLastPathComponent(), withIntermediateDirectories: true)
@@ -285,8 +370,7 @@ final class NarInstaller {
                        .appendingPathComponent(sourceName, isDirectory: true)
         ]
         guard let srcDir = candidates.first(where: { isDirectory($0) }) else {
-            log.warning("attached \(component.type,).directory=\(component.directory,) : ソースディレクトリが見つかりません")
-            return
+            throw Error.attachedComponentSourceNotFound(component.type)
         }
 
         let target = try OurinPaths.installTarget(forType: targetType, directory: component.directory)
@@ -325,21 +409,33 @@ final class NarInstaller {
     ///   - targetRoot: 増分ファイルの設置先ルート（通常はゴーストのルート URL）
     ///   - completion: 適用できたファイル名（lastPathComponent）の配列を返す
     func downloadAndApply(entries: [URL], homeURLString: String, targetRoot: URL,
-                          completion: @escaping ([String]) -> Void) {
-        guard !entries.isEmpty else { completion([]); return }
+                          completion: @escaping (Result<[String], Swift.Error>) -> Void) {
+        guard !entries.isEmpty else { completion(.success([])); return }
         let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
         let group = DispatchGroup()
         let lock = NSLock()
         var applied: [String] = []
+        var failures: [String] = []
 
         for entry in entries {
             group.enter()
             URLSession.shared.downloadTask(with: entry) { [weak self] local, response, error in
                 defer { group.leave() }
-                guard let self, let local else { return }
+                guard let self else { return }
+                if let error {
+                    self.log.warning("update download failed: \(String(describing: error),) url=\(entry.absoluteString,)")
+                    lock.lock(); failures.append(entry.lastPathComponent); lock.unlock()
+                    return
+                }
+                guard let local else {
+                    self.log.warning("update download returned no file url=\(entry.absoluteString,)")
+                    lock.lock(); failures.append(entry.lastPathComponent); lock.unlock()
+                    return
+                }
                 let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 200
                 guard (200..<300).contains(statusCode) else {
                     self.log.warning("update download failed status=\(statusCode,) url=\(entry.absoluteString,)")
+                    lock.lock(); failures.append(entry.lastPathComponent); lock.unlock()
                     return
                 }
                 let ext = entry.pathExtension.lowercased()
@@ -360,10 +456,21 @@ final class NarInstaller {
                     lock.lock(); applied.append(entry.lastPathComponent); lock.unlock()
                 } catch {
                     self.log.warning("update apply failed: \(String(describing: error),) url=\(entry.absoluteString,)")
+                    lock.lock(); failures.append(entry.lastPathComponent); lock.unlock()
                 }
             }.resume()
         }
-        group.notify(queue: .global()) { completion(applied) }
+        group.notify(queue: .global()) {
+            lock.lock()
+            let appliedResult = applied
+            let failedResult = failures
+            lock.unlock()
+            if let firstFailure = failedResult.first {
+                completion(.failure(Error.updateDownloadFailed(firstFailure)))
+            } else {
+                completion(.success(appliedResult))
+            }
+        }
     }
 
     /// 増分更新ファイルを homeurl 基準の相対パスで targetRoot 配下へ保存する（パストラバーサル防止つき）。
@@ -434,4 +541,3 @@ final class NarInstaller {
         }
     }
 }
-

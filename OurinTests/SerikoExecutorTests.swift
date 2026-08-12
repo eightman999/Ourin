@@ -72,6 +72,125 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func scalingInvokesMethodAndPreservesFractionalCallbackValues() async throws {
+        let executor = SerikoExecutor()
+        let pattern = SerikoPattern(
+            index: 0,
+            method: .scaling,
+            surfaceID: 0,
+            duration: 10,
+            x: 92,
+            y: 87,
+            rawArguments: ["scaling", "0", "10", "92.5", "87.25"],
+            xValue: 92.5,
+            yValue: 87.25
+        )
+        var invoked: SerikoMethod?
+        var scalingValues: (Double, Double)?
+        executor.onMethodInvoked = { _, method, _, _, _ in invoked = method }
+        executor.onScalingInvoked = { _, x, y in scalingValues = (x, y) }
+
+        executor.executePattern(animationID: 7, pattern: pattern)
+
+        #expect(invoked == .scaling)
+        #expect(scalingValues?.0 == 92.5)
+        #expect(scalingValues?.1 == 87.25)
+    }
+
+    @Test
+    func importInvokesFilenameTimingAndOffsetCallback() async throws {
+        let executor = SerikoExecutor()
+        let pattern = SerikoPattern(
+            index: 0,
+            method: .import,
+            surfaceID: -1,
+            duration: 250,
+            x: 3,
+            y: 4,
+            rawArguments: ["import", "media/anim.gif", "250", "3", "4"]
+        )
+        var callback: (String, Int, Int, Int)?
+        executor.onImportInvoked = { _, filename, wait, x, y in
+            callback = (filename, wait, x, y)
+        }
+
+        executor.executePattern(animationID: 8, pattern: pattern)
+
+        #expect(callback?.0 == "media/anim.gif")
+        #expect(callback?.1 == 250)
+        #expect(callback?.2 == 3)
+        #expect(callback?.3 == 4)
+    }
+
+    @Test
+    func alternativeMethodsSelectCandidateAnimationID() async throws {
+        let executor = SerikoExecutor(randomProvider: { 0.51 })
+        let start = SerikoPattern(
+            index: 0,
+            method: .alternativeStart,
+            surfaceID: -1,
+            duration: 0,
+            x: 0,
+            y: 0,
+            rawArguments: ["alternativestart", "(2,4,6)"]
+        )
+        let stop = SerikoPattern(
+            index: 1,
+            method: .alternativeStop,
+            surfaceID: -1,
+            duration: 0,
+            x: 0,
+            y: 0,
+            rawArguments: ["alternativestop", "[2,4,6]"]
+        )
+
+        var calls: [(SerikoMethod, Int)] = []
+        executor.onMethodInvoked = { _, method, surfaceID, _, _ in
+            calls.append((method, surfaceID))
+        }
+
+        executor.executePattern(animationID: 90, pattern: start)
+        executor.executePattern(animationID: 90, pattern: stop)
+
+        #expect(calls.map(\.0) == [.alternativeStart, .alternativeStop])
+        #expect(calls.map(\.1) == [4, 4])
+    }
+
+    @Test
+    func parallelMethodsStartAndStopEveryReferencedAnimation() async throws {
+        let executor = SerikoExecutor()
+        let first = makeDefinition(id: 101, interval: .never, methods: [.overlay])
+        let second = makeDefinition(id: 102, interval: .never, methods: [.overlay])
+        executor.register(animations: [101: first, 102: second])
+
+        let start = SerikoPattern(
+            index: 0,
+            method: .parallelStart,
+            surfaceID: -1,
+            duration: 0,
+            x: 0,
+            y: 0,
+            rawArguments: ["parallelstart", "(101,102)"]
+        )
+        executor.executePattern(animationID: 90, pattern: start)
+        #expect(executor.activeAnimations[101] != nil)
+        #expect(executor.activeAnimations[102] != nil)
+
+        let stop = SerikoPattern(
+            index: 1,
+            method: .parallelStop,
+            surfaceID: -1,
+            duration: 0,
+            x: 0,
+            y: 0,
+            rawArguments: ["parallelstop", "[101.102]"]
+        )
+        executor.executePattern(animationID: 90, pattern: stop)
+        #expect(executor.activeAnimations[101] == nil)
+        #expect(executor.activeAnimations[102] == nil)
+    }
+
+    @Test
     func replaceDefinitionsDropsPreviousSurfaceAnimations() async throws {
         let executor = SerikoExecutor()
         let previous = makeDefinition(id: 40, interval: .never, methods: [.overlay])

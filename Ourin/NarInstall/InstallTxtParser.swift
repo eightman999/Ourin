@@ -2,6 +2,9 @@
 import Foundation
 
 struct InstallManifest {
+    /// install.txt の name（SHIORI OnInstall 系イベントで通知する表示名）。
+    /// 既存の最小テスト／旧パッケージには省略例があるため、パーサーでは任意として保持する。
+    var name: String?
     var type: String = ""
     var directory: String = ""
     var accept: String?
@@ -141,6 +144,7 @@ struct InstallTxtParser {
             let value = parts[1]
             switch key {
             case "charset": manifest.charset = value
+            case "name": manifest.name = value
             case "type": manifest.type = value
             case "directory": manifest.directory = value
             case "accept": manifest.accept = value

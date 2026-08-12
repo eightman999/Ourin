@@ -251,6 +251,30 @@ public final class ResourceManager {
         if let v = value { set(key, value: String(v)) } else { remove(key) }
     }
 
+    /// Clear all persisted balloon positions for this ghost.
+    ///
+    /// The scope set is open-ended (`balloonN`), so clearing only currently
+    /// materialized windows would leave a lazy-created scope at its old
+    /// position after `resetballoonpos`.
+    public func resetBalloonPositions() {
+        func isBalloonPositionKey(_ key: String) -> Bool {
+            let parts = key.split(separator: ".", omittingEmptySubsequences: false)
+            guard parts.count == 2,
+                  parts[0].hasPrefix("balloon"),
+                  Int(parts[0].dropFirst("balloon".count)) != nil else { return false }
+            return parts[1] == "defaultleft" || parts[1] == "defaulttop"
+        }
+
+        if fileStore != nil {
+            cache.keys.filter(isBalloonPositionKey).forEach { cache.removeValue(forKey: $0) }
+            persistCacheToFile()
+        } else {
+            defaults.dictionaryRepresentation().keys
+                .filter { $0.hasPrefix(prefix) && isBalloonPositionKey(String($0.dropFirst(prefix.count))) }
+                .forEach { defaults.removeObject(forKey: $0) }
+        }
+    }
+
     // MARK: - Update Configuration
 
     /// Whether to use 1-based file numbering for updates (useorigin1 resource)

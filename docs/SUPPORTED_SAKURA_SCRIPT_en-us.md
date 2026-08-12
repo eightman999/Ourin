@@ -32,11 +32,11 @@ Scope switches themselves (`\0` / `\1` / `\p[n]`) never clear balloons (see `pro
 - ✅ `\s[n]`
 - ✅ `\i[n]`, `\i[n,wait]`
 - ✅ `\![anim,clear,ID]`
-- ✅ `\![anim,pause,ID]`
+- ✅ `\![anim,pause,ID]` / `\![anim,pauseID]`
 - ✅ `\![anim,resume,ID]`
 - ✅ `\![anim,offset,ID,x,y]`
 - ⚠️ `\![anim,add,...]` (`overlay`, `base`, `bind`, `text` implemented; other variants are limited)
-- ✅ `\![anim,stop]`
+- ✅ `\![anim,stop]` / `\![anim,stop,ID]`
 - ✅ `\![bind,category,part,value]`
 
 ## Balloon / text commands
@@ -48,6 +48,7 @@ Scope switches themselves (`\0` / `\1` / `\p[n]`) never clear balloons (see `pro
 - ⚠️ `\f[...]` (major style controls implemented; unsupported subcommands are ignored)
 - ✅ `\_l[x,y]`
 - ✅ `\_v` / `\_V`
+- ✅ `\![execute,resetballoonpos]`
 
 ## Character change commands
 
@@ -55,12 +56,14 @@ Scope switches themselves (`\0` / `\1` / `\p[n]`) never clear balloons (see `pro
 - ✅ `\![change,ghost,...]`
 - ✅ `\![change,shell,...]`
 - ✅ `\![change,balloon,...]`
+- ✅ `\![save,wallpaper]` / `\![restore,wallpaper]`
 
 ## Wait commands
 
 - ✅ `\w[n]`
 - ✅ `\_w[ms]`
 - ✅ `\__w[...]` (`clear`, numeric timing, and `animation,ID` wait implemented)
+- ✅ `\![wait,syncobject,name,timeout]` / `\![set,syncobject,name]` / `\![reset,syncobject,name]`
 - ✅ `\t`
 - ✅ `\x`, `\x[noclear]`
 

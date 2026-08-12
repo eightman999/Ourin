@@ -73,8 +73,73 @@ struct AnimationDefinition {
 
 /// Collision region for mouse event handling
 struct CollisionRegion {
+    enum Shape {
+        case rectangle
+        case circle(center: CGPoint, radius: CGFloat)
+        case polygon(points: [CGPoint])
+    }
+
     let name: String
     let rect: CGRect
+    let shape: Shape
+
+    init(name: String, rect: CGRect) {
+        self.name = name
+        self.rect = rect
+        self.shape = .rectangle
+    }
+
+    init(name: String, circleCenter: CGPoint, radius: CGFloat) {
+        self.name = name
+        self.rect = CGRect(
+            x: circleCenter.x - radius,
+            y: circleCenter.y - radius,
+            width: radius * 2,
+            height: radius * 2
+        )
+        self.shape = .circle(center: circleCenter, radius: radius)
+    }
+
+    init(name: String, polygonPoints points: [CGPoint]) {
+        self.name = name
+        let xs = points.map(\.x)
+        let ys = points.map(\.y)
+        let minX = xs.min() ?? 0
+        let maxX = xs.max() ?? 0
+        let minY = ys.min() ?? 0
+        let maxY = ys.max() ?? 0
+        self.rect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
+        self.shape = .polygon(points: points)
+    }
+
+    func contains(_ point: CGPoint) -> Bool {
+        guard rect.contains(point) else { return false }
+
+        switch shape {
+        case .rectangle:
+            return true
+        case .circle(let center, let radius):
+            let dx = point.x - center.x
+            let dy = point.y - center.y
+            return dx * dx + dy * dy <= radius * radius
+        case .polygon(let points):
+            guard points.count >= 3 else { return false }
+            var inside = false
+            var previous = points[points.count - 1]
+            for current in points {
+                let crossesY = (current.y > point.y) != (previous.y > point.y)
+                if crossesY {
+                    let xAtPointY = (previous.x - current.x) * (point.y - current.y)
+                        / (previous.y - current.y) + current.x
+                    if point.x < xAtPointY {
+                        inside.toggle()
+                    }
+                }
+                previous = current
+            }
+            return inside
+        }
+    }
 }
 
 /// Active animation instance
@@ -240,9 +305,9 @@ class AnimationEngine {
                 let parts = trimmed.components(separatedBy: ",")
                 // collisionex,rect,x1,y1,x2,y2,name
                 if trimmed.hasPrefix("collisionex,") {
-                    if parts.count >= 7 {
+                    if parts.count >= 6 {
                         let shape = parts[1].lowercased()
-                        if shape == "rect" || shape == "rectangle" {
+                        if (shape == "rect" || shape == "rectangle"), parts.count >= 7 {
                             let x1 = Int(parts[2]) ?? 0
                             let y1 = Int(parts[3]) ?? 0
                             let x2 = Int(parts[4]) ?? 0
@@ -258,35 +323,36 @@ class AnimationEngine {
                                 collisions[surfaceID]?.append(region)
                         } else if shape == "circle" {
                             // collisionex,circle,cx,cy,r,name
-                            if parts.count >= 7 {
-                                let cx = Int(parts[2]) ?? 0
-                                let cy = Int(parts[3]) ?? 0
-                                let r = Int(parts[4]) ?? 0
-                                let name = parts[5]
-                                    let rect = CGRect(x: CGFloat(cx - r), y: CGFloat(cy - r), width: CGFloat(r * 2), height: CGFloat(r * 2))
-                                    let region = CollisionRegion(name: name, rect: rect)
-                                    collisions[surfaceID]?.append(region)
+                            if parts.count >= 6,
+                               let cx = Int(parts[2].trimmingCharacters(in: .whitespaces)),
+                               let cy = Int(parts[3].trimmingCharacters(in: .whitespaces)),
+                               let radius = Int(parts[4].trimmingCharacters(in: .whitespaces)),
+                               radius >= 0 {
+                                let name = parts[5].trimmingCharacters(in: .whitespaces)
+                                let region = CollisionRegion(
+                                    name: name,
+                                    circleCenter: CGPoint(x: CGFloat(cx), y: CGFloat(cy)),
+                                    radius: CGFloat(radius)
+                                )
+                                collisions[surfaceID]?.append(region)
                             }
                         } else if shape == "polygon" || shape == "poly" {
                             // collisionex,polygon,x1,y1,x2,y2,...,name
-                            // Build bounding box for now
-                            if parts.count >= 7 {
+                            if parts.count >= 9 {
                                 var xs: [Int] = []
                                 var ys: [Int] = []
                                 // Last token is name; points span from index 2 to count-2
                                 for i in stride(from: 2, to: parts.count - 1, by: 2) {
-                                    let x = Int(parts[i])
-                                    let y = (i + 1) < parts.count ? Int(parts[i + 1]) : nil
+                                    let x = Int(parts[i].trimmingCharacters(in: .whitespaces))
+                                    let y = (i + 1) < parts.count - 1
+                                        ? Int(parts[i + 1].trimmingCharacters(in: .whitespaces))
+                                        : nil
                                     if let x, let y { xs.append(x); ys.append(y) }
                                 }
-                                let name = parts.last ?? "polygon"
-                                if !xs.isEmpty, !ys.isEmpty {
-                                    let minX = xs.min() ?? 0
-                                    let maxX = xs.max() ?? 0
-                                    let minY = ys.min() ?? 0
-                                    let maxY = ys.max() ?? 0
-                                    let rect = CGRect(x: CGFloat(minX), y: CGFloat(minY), width: CGFloat(maxX - minX), height: CGFloat(maxY - minY))
-                                    let region = CollisionRegion(name: name, rect: rect)
+                                let name = (parts.last ?? "polygon").trimmingCharacters(in: .whitespaces)
+                                let points = zip(xs, ys).map { CGPoint(x: CGFloat($0.0), y: CGFloat($0.1)) }
+                                if points.count >= 3 {
+                                    let region = CollisionRegion(name: name, polygonPoints: points)
                                     collisions[surfaceID]?.append(region)
                                 }
                             }

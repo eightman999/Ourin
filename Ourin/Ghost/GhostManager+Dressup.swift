@@ -1,9 +1,68 @@
 import Foundation
 import AppKit
 
+// MARK: - Dressup Binding Plan (UKADOC \![bind,...] / \![bind-noevent,...])
+
+/// `\![bind,...]` / `\![bind-noevent,...]` の単一着せ替え操作計画。
+/// 純粋な値オブジェクトで、コマンド解析・イベント可否・カテゴリ単位/トグル判定をテスト可能にする。
+struct DressupBindPlan: Equatable {
+    var category: String
+    var part: String
+    /// nil または空文字 = 現在の状態のトグル（ON/OFF 繰り返し）
+    var value: String?
+    /// false は `\![bind-noevent,...]`（イベントを発生させない）
+    var emitsEvents: Bool
+
+    var isCategoryWide: Bool { part.isEmpty }
+    var isToggle: Bool { (value ?? "").isEmpty }
+}
+
 // MARK: - Dressup System
 
 extension GhostManager {
+    /// `\![bind,...]` / `\![bind-noevent,...]` の引数配列を bind 操作計画へ変換する。
+    ///
+    /// UKADOC 仕様（https://ssp.shillest.net/ukadoc/manual/list_sakura_script.html）:
+    /// - `value` の 1 = 着衣（有効化）、0 = 脱衣（無効化）
+    /// - パーツ名を空欄にするとカテゴリ単位の操作になる
+    /// - 数値欄を空欄または省略すると ON/OFF の繰り返し（トグル）になる
+    /// - `bind-noevent` は同操作だが OnDressupChanged/OnNotifyDressupInfo を発生させない
+    ///
+    /// args は `SakuraScriptEngine.parseArguments` が出力した形（先頭要素が "bind" または "bind-noevent"）。
+    /// 複数タプル `\![bind,cat,part,val,cat2,part2,val2,...]` にも対応し、
+    /// 末尾が「カテゴリ,パーツ」で終わる場合は値省略 = トグルとして扱う。
+    static func parseDressupBindPlans(args: [String]) -> [DressupBindPlan] {
+        guard let first = args.first?.lowercased() else { return [] }
+        let emitsEvents: Bool
+        switch first {
+        case "bind":
+            emitsEvents = true
+        case "bind-noevent":
+            emitsEvents = false
+        default:
+            return []
+        }
+        guard args.count >= 2 else { return [] }
+
+        // 繰り返しタプル: \![bind,cat,part,val,cat2,part2,val2,...]
+        let params = Array(args.dropFirst())
+        var plans: [DressupBindPlan] = []
+        var idx = 0
+        while idx < params.count {
+            guard idx + 1 < params.count else { break }
+            let category = params[idx]
+            let part = params[idx + 1]
+            let hasValue = idx + 2 < params.count
+            plans.append(DressupBindPlan(
+                category: category,
+                part: part,
+                value: hasValue ? params[idx + 2] : nil,
+                emitsEvents: emitsEvents
+            ))
+            idx += hasValue ? 3 : 2
+        }
+        return plans
+    }
     func dressupOverlayPrefix(category: String, part: String) -> String {
         let normalizedCategory = category.replacingOccurrences(of: " ", with: "_")
         let normalizedPart = part.replacingOccurrences(of: " ", with: "_")
@@ -93,38 +152,135 @@ extension GhostManager {
                     vm.overlays.append(overlay)
 
                     Log.debug("[GhostManager] Applied dressup: \(category)/\(part) with surface \(binding.surfaceID)")
-
-                    // Trigger OnDressupChanged event
-                    let params: [String: String] = [
-                        "category": category,
-                        "part": part,
-                        "value": value
-                    ]
-                    EventBridge.shared.notifyCustom("OnDressupChanged", refs: params)
                 }
             }
         }
     }
 
-    /// Notify current dressup configuration
-    func notifyDressupInfo() {
+    /// bind 操作成功時の SHIORI イベント送出。UKADOC 規定の順序で
+    /// OnDressupChanged を通知し、その後に OnNotifyDressupInfo を通知する。
+    /// `\![bind-noevent,...]` では呼び出さない（イベント抑止）。
+    func emitDressupEvents(
+        category: String,
+        part: String,
+        value: String,
+        scope: Int,
+        source: String,
+        changedUsesGET: Bool = true,
+        infoUsesGET: Bool = false
+    ) {
+        notifyDressupChanged(
+            category: category,
+            part: part,
+            value: value,
+            scope: scope,
+            source: source,
+            requestResponse: changedUsesGET
+        )
+        notifyDressupInfo(scope: scope, requestResponse: infoUsesGET)
+    }
+
+    /// OnDressupChanged イベント送出。
+    ///
+    /// UKADOC: Reference0=character ID / Reference1=part / Reference2=enabled
+    /// / Reference3=category / Reference4=source (script or user).
+    /// @objc: 拡張メソッドでもテストスイートからオーバーライド可能にするため（イベント順序・抑止の検証用）。
+    @objc func notifyDressupChanged(
+        category: String,
+        part: String,
+        value: String,
+        scope: Int,
+        source: String,
+        requestResponse: Bool = false
+    ) {
+        let params = EventReferenceTable.params(forEvent: "OnDressupChanged", refs: [
+            "characterID": String(scope),
+            "part": part,
+            "value": value,
+            "category": category,
+            "source": source
+        ])
+        if requestResponse {
+            EventBridge.shared.requestCustom("OnDressupChanged", params: params)
+        } else {
+            // OnDressupChanged の中間差分は NOTIFY。応答スクリプトは無視する。
+            EventBridge.shared.notifyCustom("OnDressupChanged", params: params, ignoreResponseScript: true)
+        }
+    }
+
+    /// Notify the current dressup configuration for all loaded character scopes.
+    ///
+    /// Each ReferenceN is a byte-value-1-delimited record:
+    /// character ID, category, part, options, enabled flag, thumbnail path.
+    /// `scope` identifies the changed scope for callers/tests; the payload itself
+    /// includes all scopes so SHIORI can reconstruct the complete configuration.
+    @objc func notifyDressupInfo(scope: Int, requestResponse: Bool = false) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            guard let vm = self.characterViewModels[self.currentScope] else { return }
 
+            let separator = "\u{1}"
             var params: [String: String] = [:]
             var index = 0
+            let scopes = Set(self.characterViewModels.keys)
+                .union(self.dressupBindGroupsByScope.keys)
+                .sorted()
 
-            for overlay in vm.overlays {
-                if overlay.id.hasPrefix("dressup_") {
-                    params["Reference\(index)"] = overlay.id
+            for characterID in scopes {
+                let vm = self.characterViewModels[characterID]
+                var definitions: [(category: String, part: String, thumbnail: String?)] = []
+                var seen: Set<String> = []
+
+                for config in self.dressupConfigurations {
+                    for binding in config.parts {
+                        let key = "\(config.category)\u{1}\(binding.partName)"
+                        guard seen.insert(key).inserted else { continue }
+                        let thumbnail = self.dressupBindGroupsByScope[characterID]?.values
+                            .first(where: { $0.category == config.category && $0.part == binding.partName })?.thumbnail
+                        definitions.append((config.category, binding.partName, thumbnail))
+                    }
+                }
+
+                // A bind group may exist even when the shell's dressup line is
+                // absent. Include it so the notification still describes the
+                // definition exposed by the shell menu.
+                if let metas = self.dressupBindGroupsByScope[characterID]?.values {
+                    for meta in metas {
+                        let key = "\(meta.category)\u{1}\(meta.part)"
+                        guard seen.insert(key).inserted else { continue }
+                        definitions.append((meta.category, meta.part, meta.thumbnail))
+                    }
+                }
+
+                for definition in definitions.sorted(by: {
+                    $0.category == $1.category ? $0.part < $1.part : $0.category < $1.category
+                }) {
+                    let enabledValue = vm?.dressupBindings[definition.category]?[definition.part]
+                    let enabled = enabledValue != nil && enabledValue?.lowercased() != "0"
+                    let record = [
+                        String(characterID),
+                        definition.category,
+                        definition.part,
+                        "", // options; MAYUNA extensions may append comma-separated values
+                        enabled ? "1" : "0",
+                        definition.thumbnail ?? ""
+                    ].joined(separator: separator)
+                    params["Reference\(index)"] = record
                     index += 1
                 }
             }
 
-            EventBridge.shared.notifyCustom("OnNotifyDressupInfo", params: params)
-            Log.debug("[GhostManager] Notified dressup info: \(params)")
+            if requestResponse {
+                EventBridge.shared.requestCustom("OnNotifyDressupInfo", params: params)
+            } else {
+                EventBridge.shared.notifyCustom("OnNotifyDressupInfo", params: params, ignoreResponseScript: true)
+            }
+            Log.debug("[GhostManager] Notified dressup info for scope \(scope): \(params)")
         }
+    }
+
+    /// Compatibility convenience for callers that do not have an explicit scope.
+    @objc func notifyDressupInfo() {
+        notifyDressupInfo(scope: currentScope)
     }
 
     /// Clear all dressup overlays
@@ -174,13 +330,30 @@ extension GhostManager {
     func toggleDressupBindGroup(scope: Int, bindGroupID: Int) {
         guard let meta = dressupBindGroupsByScope[scope]?[bindGroupID] else { return }
         let currentlyEnabled = isDressupBindGroupEnabled(scope: scope, bindGroupID: bindGroupID)
-        handleBindDressup(category: meta.category, part: meta.part, value: currentlyEnabled ? "false" : "true", scope: scope)
+        handleBindDressup(
+            category: meta.category,
+            part: meta.part,
+            value: currentlyEnabled ? "false" : "true",
+            scope: scope,
+            source: "user",
+            requestChangedResponse: true,
+            requestInfoResponse: true
+        )
     }
 
     func applyDefaultDressupBindings(for scope: Int) {
         let defaults = dressupMenuEntries(for: scope).filter(\.isDefault)
         for item in defaults {
-            handleBindDressup(category: item.category, part: item.part, value: "true", scope: scope)
+            // 初期状態の反映では差分イベントを発火せず、起動後の
+            // sendInitializationNotifies() から OnNotifyDressupInfo を1回送る。
+            handleBindDressup(
+                category: item.category,
+                part: item.part,
+                value: "true",
+                scope: scope,
+                emitEvents: false,
+                emitInfo: false
+            )
         }
     }
 

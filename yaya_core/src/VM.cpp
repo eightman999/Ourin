@@ -244,6 +244,73 @@ std::string utf8Slice(const std::vector<uint32_t>& cps, size_t start, size_t cou
     return out;
 }
 
+// YAYA 範囲左辺値代入の配列実装。arr[start, end] は両端を含む閉区間。
+//  - RHS が配列: 閉区間 [start, end] を RHS の要素で置換する（splice）。空配列なら区間を削除する。
+//  - RHS がスカラー: 区間の先頭要素がその値になり、残りの区間要素は削除される。
+// start が配列サイズを超える場合は必要に応じてパディング/追記する（arraySet と同じ伸長挙動）。
+static void rangeAssignArray(Value& arr, int start, int end, const Value& rhs) {
+    std::vector<Value>& a = arr.asArrayMutable();
+    if (start < 0) start = 0;
+    if (end < 0) return;
+    if (end < start) std::swap(start, end);
+    const int n = static_cast<int>(a.size());
+
+    if (rhs.getType() == Value::Type::Array) {
+        const auto& rep = rhs.asArray();
+        if (start >= n) {
+            a.resize(static_cast<size_t>(start));
+            a.insert(a.end(), rep.begin(), rep.end());
+        } else if (end >= n) {
+            a.erase(a.begin() + start, a.end());
+            a.insert(a.end(), rep.begin(), rep.end());
+        } else {
+            a.erase(a.begin() + start, a.begin() + end + 1);
+            a.insert(a.begin() + start, rep.begin(), rep.end());
+        }
+    } else {
+        if (start >= n) {
+            a.resize(static_cast<size_t>(start + 1));
+            a[start] = rhs;
+        } else if (end >= n) {
+            a.erase(a.begin() + start, a.end());
+            a.push_back(rhs);
+        } else {
+            a.erase(a.begin() + start + 1, a.begin() + end + 1);
+            a[start] = rhs;
+        }
+    }
+}
+
+// YAYA 範囲 `,=` の配列実装。閉区間 [start, end] の現在要素に RHS を連結し、
+// その結果を区間に書き戻す（単一要素 `,=` が「現在値 + RHS」を代入するのと同様の拡張）。
+static void rangeConcatAssignArray(Value& arr, int start, int end, const Value& rhs) {
+    std::vector<Value>& a = arr.asArrayMutable();
+    if (start < 0) start = 0;
+    if (end < 0) return;
+    if (end < start) std::swap(start, end);
+    const int n = static_cast<int>(a.size());
+
+    std::vector<Value> sub;
+    for (int i = start; i <= end && i < n; i++) sub.push_back(a[i]);
+    if (rhs.getType() == Value::Type::Array) {
+        const auto& r = rhs.asArray();
+        sub.insert(sub.end(), r.begin(), r.end());
+    } else {
+        sub.push_back(rhs);
+    }
+
+    if (start >= n) {
+        a.resize(static_cast<size_t>(start));
+        a.insert(a.end(), sub.begin(), sub.end());
+    } else if (end >= n) {
+        a.erase(a.begin() + start, a.end());
+        a.insert(a.end(), sub.begin(), sub.end());
+    } else {
+        a.erase(a.begin() + start, a.begin() + end + 1);
+        a.insert(a.begin() + start, sub.begin(), sub.end());
+    }
+}
+
 // printf 風の書式整形。サポートする変換: d i u s f g e x X o c %。
 // フラグ/幅/精度（例: %05d, %-10s, %.2f, %+d）を許容し、各指定子に対して
 // 次の引数を消費する。整数系は asInt、f/g/e は asReal、s は asString で型変換する。
@@ -868,27 +935,35 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 return Value();
             }
 
-            // Range/slice: __range__(base, start, length)
-            // YAYA syntax: str[start, length] or array[start, count]
+            // Range/slice: __range__(base, start, end)
+            // YAYA syntax: str[start, end] or array[start, end]. The two-number bracket is an
+            // INCLUSIVE interval [start, end] (NOT start+length). Bounds are clamped for safety;
+            // a negative start is treated as 0 and an end past the size is treated as the last index.
             if (call->functionName == "__range__") {
                 if (call->arguments.size() == 3) {
                     Value base = executeNode(call->arguments[0]);
                     int start = executeNode(call->arguments[1]).asInt();
-                    int len   = executeNode(call->arguments[2]).asInt();
+                    int end   = executeNode(call->arguments[2]).asInt();
 
                     if (base.getType() == Value::Type::String) {
-                        std::string s = base.asString();
+                        // UTF-8-safe: slice by code points so CJK ranges are not cut mid-byte.
+                        std::vector<uint32_t> cps = decodeUtf8(base.asString());
                         if (start < 0) start = 0;
-                        if (start >= static_cast<int>(s.size())) return Value(std::string(""));
-                        if (len < 0) len = 0;
-                        return Value(s.substr(start, len));
+                        if (end < 0) return Value(std::string(""));
+                        if (end < start) std::swap(start, end);
+                        if (end >= static_cast<int>(cps.size())) end = static_cast<int>(cps.size()) - 1;
+                        if (end < start) return Value(std::string(""));
+                        return Value(utf8Slice(cps, static_cast<size_t>(start),
+                                               static_cast<size_t>(end - start + 1)));
                     }
                     if (base.getType() == Value::Type::Array) {
                         const auto& arr = base.asArray();
+                        if (start < 0) start = 0;
+                        if (end < 0) return Value(std::vector<Value>());
+                        if (end < start) std::swap(start, end);
+                        if (end >= static_cast<int>(arr.size())) end = static_cast<int>(arr.size()) - 1;
                         std::vector<Value> sub;
-                        for (int i = start; i < start + len && i < static_cast<int>(arr.size()); i++) {
-                            if (i >= 0) sub.push_back(arr[i]);
-                        }
+                        for (int i = start; i <= end; i++) sub.push_back(arr[i]);
                         return Value(sub);
                     }
                 }
@@ -940,6 +1015,33 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 bool isPost = (call->functionName == "__postinc__" ||
                                call->functionName == "__postdec__");
                 return isPost ? preVal : newVal;
+            }
+
+            // Range/slice lvalue assignment: arr[start, end] = rhs / arr[start, end] ,= rhs.
+            // The inclusive interval [start, end] is spliced (array RHS) or replaced (scalar RHS
+            // keeps the first element and drops the rest); an empty array RHS removes the interval.
+            // A non-array target is left untouched (safe no-op, mirroring Value::arraySet).
+            if ((call->functionName == "__range_assign__" ||
+                 call->functionName == "__range_concat_assign__") &&
+                call->arguments.size() == 4) {
+                auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get());
+                if (var) {
+                    int start = executeNode(call->arguments[1]).asInt();
+                    int end   = executeNode(call->arguments[2]).asInt();
+                    Value rhs = executeNode(call->arguments[3]);
+                    Value arr = getVariable(var->name);
+                    if (arr.getType() != Value::Type::Array) {
+                        return Value();
+                    }
+                    if (call->functionName == "__range_assign__") {
+                        rangeAssignArray(arr, start, end, rhs);
+                    } else {
+                        rangeConcatAssignArray(arr, start, end, rhs);
+                    }
+                    setVariable(var->name, arr);
+                    return arr;
+                }
+                return Value();
             }
 
             // Assignment operators: __assign__, __plus_assign__, etc.
@@ -1845,16 +1947,88 @@ void VM::registerBuiltins() {
         return Value(-1);
     };
     
-    // ASORT(array) - Sort array (simplified - sorts as strings)
+    // ASORT(option, values...) - YAYA のソート。
+    // 本家の呼び出し（ASORT('string,ascending', array)）と、旧 Ourin 実装の
+    // 配列単独呼び出し（ASORT(array)）の両方を受け付ける。配列を第2引数へ
+    // 渡す場合は、その配列の要素をソート対象へ展開する。
     builtins_["ASORT"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(std::vector<Value>());
-        if (args[0].getType() != Value::Type::Array) return args[0];
-        
-        std::vector<Value> result = args[0].asArray();
-        std::sort(result.begin(), result.end(), [](const Value& a, const Value& b) {
-            return a.asString() < b.asString();
+        std::vector<Value> values;
+        std::string option = "string,ascending";
+
+        if (args.empty()) return Value(values);
+
+        if (args[0].getType() == Value::Type::Array) {
+            values = args[0].asArray();
+            if (args.size() >= 2 && args[1].getType() == Value::Type::String) {
+                option = args[1].asString();
+            }
+        } else {
+            // 公式形: 第1引数はオプション。空文字列／未知の文字列は
+            // 本家と同じく string,ascending として扱う。
+            if (args[0].getType() == Value::Type::String && !args[0].asString().empty()) {
+                option = args[0].asString();
+            }
+            if (args.size() >= 2 && args[1].getType() == Value::Type::Array) {
+                values = args[1].asArray();
+                // 配列展開後の追加スカラーも失わない。
+                for (size_t i = 2; i < args.size(); ++i) values.push_back(args[i]);
+            } else {
+                for (size_t i = 1; i < args.size(); ++i) values.push_back(args[i]);
+            }
+        }
+
+        if (values.empty()) return Value(std::vector<Value>());
+
+        std::string normalizedOption = option;
+        std::transform(normalizedOption.begin(), normalizedOption.end(), normalizedOption.begin(),
+                       [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        const bool descending = normalizedOption.find("des") != std::string::npos;
+        const bool indexMode = normalizedOption.find("index") != std::string::npos;
+        const bool integerMode = normalizedOption.find("int") != std::string::npos;
+        const bool realMode = normalizedOption.find("double") != std::string::npos;
+        const bool lengthMode = normalizedOption.find("len") != std::string::npos;
+        const bool caseSensitive = normalizedOption.find("case") != std::string::npos;
+
+        auto foldASCII = [](std::string value) {
+            std::transform(value.begin(), value.end(), value.begin(),
+                           [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+            return value;
+        };
+
+        std::vector<size_t> order(values.size());
+        for (size_t i = 0; i < order.size(); ++i) order[i] = i;
+        std::stable_sort(order.begin(), order.end(), [&](size_t left, size_t right) {
+            const Value& lhs = values[left];
+            const Value& rhs = values[right];
+            bool less = false;
+            bool greater = false;
+
+            if (integerMode) {
+                less = lhs.asInt64() < rhs.asInt64();
+                greater = lhs.asInt64() > rhs.asInt64();
+            } else if (realMode) {
+                less = lhs.asReal() < rhs.asReal();
+                greater = lhs.asReal() > rhs.asReal();
+            } else if (lengthMode) {
+                const auto lhsLength = utf8Length(lhs.asString());
+                const auto rhsLength = utf8Length(rhs.asString());
+                less = lhsLength < rhsLength;
+                greater = lhsLength > rhsLength;
+            } else {
+                const std::string lhsText = caseSensitive ? lhs.asString() : foldASCII(lhs.asString());
+                const std::string rhsText = caseSensitive ? rhs.asString() : foldASCII(rhs.asString());
+                less = lhsText < rhsText;
+                greater = lhsText > rhsText;
+            }
+
+            return descending ? greater : less;
         });
-        
+
+        std::vector<Value> result;
+        result.reserve(order.size());
+        for (size_t index : order) {
+            result.emplace_back(indexMode ? Value(static_cast<std::int64_t>(index)) : values[index]);
+        }
         return Value(result);
     };
     
@@ -2084,12 +2258,14 @@ void VM::registerBuiltins() {
     
     // ===== System Operations =====
     
-    // GETTICKCOUNT() - Get milliseconds since epoch (simplified)
+    // GETTICKCOUNT() - Get milliseconds since the Unix epoch.
+    // YAYA の POSIX 実装は epoch milliseconds を返すため、int へ縮小しない。
     builtins_["GETTICKCOUNT"] = [](const std::vector<Value>& args) -> Value {
-        (void)args;
+        // 互換用の引数。非ゼロ指定時は本家と同じく 0 を返す。
+        if (!args.empty() && args[0].asInt() != 0) return Value(0);
         auto now = std::chrono::system_clock::now();
         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-        return Value(static_cast<int>(ms.count()));
+        return Value(static_cast<std::int64_t>(ms.count()));
     };
     
     // GETSECCOUNT() - Get seconds since epoch
@@ -2113,8 +2289,6 @@ void VM::registerBuiltins() {
     // File handle management (shared between file operation functions)
     static std::map<int, std::unique_ptr<std::fstream>> fileHandles;
     static int nextHandle = 1;
-    static std::string ghostBasePath; // Will be set when ghost loads
-    
     // Helper to validate path is within ghost directory
     auto isPathSafe = [](const std::string& path) -> bool {
         // For now, allow relative paths only (no absolute paths, no .. )
@@ -2123,9 +2297,18 @@ void VM::registerBuiltins() {
         if (path.find("..") != std::string::npos) return false; // No parent directory access
         return true;
     };
+
+    // YAYA の相対ファイル名は辞書を実行しているゴーストのルートへ解決する。
+    // セキュリティ判定は元の文字列に対して先に行い、絶対パスは既存の FENUM 互換のため保持する。
+    auto resolveGhostPath = [this](const std::string& path) -> std::string {
+        namespace fs = std::filesystem;
+        const fs::path candidate(path);
+        if (candidate.is_absolute() || ghostRootPath_.empty()) return candidate.string();
+        return (fs::path(ghostRootPath_) / candidate).lexically_normal().string();
+    };
     
     // FOPEN(filename, mode) - Open file
-    builtins_["FOPEN"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FOPEN"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(-1);
         std::string filename = args[0].asString();
         std::string mode = args[1].asString();
@@ -2134,6 +2317,7 @@ void VM::registerBuiltins() {
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
             return Value(-1);
         }
+        filename = resolveGhostPath(filename);
         
         // Determine open mode
         std::ios_base::openmode openMode = std::ios_base::binary;
@@ -2215,7 +2399,7 @@ void VM::registerBuiltins() {
     };
     
     // FWRITE2(filename, data) - Write to file directly
-    builtins_["FWRITE2"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FWRITE2"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string filename = args[0].asString();
         std::string data = args[1].asString();
@@ -2224,6 +2408,7 @@ void VM::registerBuiltins() {
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
             return Value(0);
         }
+        filename = resolveGhostPath(filename);
         
         try {
             std::ofstream file(filename, std::ios_base::out | std::ios_base::trunc);
@@ -2237,7 +2422,7 @@ void VM::registerBuiltins() {
     };
     
     // FSIZE(filename) - Get file size
-    builtins_["FSIZE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FSIZE"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(-1);
         std::string filename = args[0].asString();
         
@@ -2245,6 +2430,7 @@ void VM::registerBuiltins() {
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
             return Value(-1);
         }
+        filename = resolveGhostPath(filename);
         
         try {
             std::ifstream file(filename, std::ios_base::ate | std::ios_base::binary);
@@ -2256,7 +2442,7 @@ void VM::registerBuiltins() {
     };
     
     // FENUM(path, pattern) - Enumerate files (simple substring match)
-    builtins_["FENUM"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FENUM"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         std::vector<Value> out;
         if (args.size() < 2) return Value(out);
         std::string dir = args[0].asString();
@@ -2264,6 +2450,7 @@ void VM::registerBuiltins() {
         // YAYA ゴーストは自分の絶対パス配下を列挙するため絶対パスを許可する
         // （macOS コンテナのサンドボックスが実境界）。親階層への .. 抜けのみ禁止。
         if (dir.empty() || dir.find("..") != std::string::npos) return Value(out);
+        dir = resolveGhostPath(dir);
         try {
             std::string needle;
             for (char c : pat) if (c != '*') needle += c;
@@ -2280,7 +2467,7 @@ void VM::registerBuiltins() {
     };
     
     // FCOPY(src, dst) - Copy file
-    builtins_["FCOPY"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FCOPY"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string src = args[0].asString();
         std::string dst = args[1].asString();
@@ -2290,6 +2477,8 @@ void VM::registerBuiltins() {
             src.find("..") != std::string::npos || dst.find("..") != std::string::npos) {
             return Value(0);
         }
+        src = resolveGhostPath(src);
+        dst = resolveGhostPath(dst);
         
         try {
             std::ifstream srcFile(src, std::ios_base::binary);
@@ -2306,7 +2495,7 @@ void VM::registerBuiltins() {
     };
     
     // FMOVE(src, dst) - Move file
-    builtins_["FMOVE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FMOVE"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string src = args[0].asString();
         std::string dst = args[1].asString();
@@ -2316,6 +2505,8 @@ void VM::registerBuiltins() {
             src.find("..") != std::string::npos || dst.find("..") != std::string::npos) {
             return Value(0);
         }
+        src = resolveGhostPath(src);
+        dst = resolveGhostPath(dst);
         
         try {
             if (std::rename(src.c_str(), dst.c_str()) == 0) {
@@ -2328,7 +2519,7 @@ void VM::registerBuiltins() {
     };
     
     // FDEL(filename) - Delete file
-    builtins_["FDEL"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FDEL"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         std::string filename = args[0].asString();
         
@@ -2336,6 +2527,7 @@ void VM::registerBuiltins() {
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
             return Value(0);
         }
+        filename = resolveGhostPath(filename);
         
         try {
             if (std::remove(filename.c_str()) == 0) {
@@ -2348,7 +2540,7 @@ void VM::registerBuiltins() {
     };
     
     // FRENAME(old, new) - Rename file
-    builtins_["FRENAME"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FRENAME"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string oldName = args[0].asString();
         std::string newName = args[1].asString();
@@ -2358,6 +2550,8 @@ void VM::registerBuiltins() {
             oldName.find("..") != std::string::npos || newName.find("..") != std::string::npos) {
             return Value(0);
         }
+        oldName = resolveGhostPath(oldName);
+        newName = resolveGhostPath(newName);
         
         try {
             if (std::rename(oldName.c_str(), newName.c_str()) == 0) {
@@ -2370,11 +2564,12 @@ void VM::registerBuiltins() {
     };
     
     // MKDIR(path) - Create directory
-    builtins_["MKDIR"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["MKDIR"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         std::string path = args[0].asString();
         // Security: only relative paths without parent traversal
         if (path.empty() || path[0] == '/' || path.find("..") != std::string::npos) return Value(0);
+        path = resolveGhostPath(path);
         try {
             namespace fs = std::filesystem;
             fs::create_directories(path);
@@ -2385,10 +2580,11 @@ void VM::registerBuiltins() {
     };
     
     // RMDIR(path) - Remove directory (only if empty)
-    builtins_["RMDIR"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["RMDIR"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         std::string path = args[0].asString();
         if (path.empty() || path[0] == '/' || path.find("..") != std::string::npos) return Value(0);
+        path = resolveGhostPath(path);
         try {
             namespace fs = std::filesystem;
             bool removed = fs::remove(path);
@@ -2456,12 +2652,12 @@ void VM::registerBuiltins() {
     // POSIX has no direct equivalent for most Windows flags; those positions
     // remain zero while directory/regular/hidden/read-only and timestamps are
     // populated from stat(2).
-    builtins_["FATTRIB"] = [isPathSafe](const std::vector<Value>& args) -> Value {
+    builtins_["FATTRIB"] = [isPathSafe, resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.empty() || !isPathSafe(args[0].asString())) {
             return Value(-1);
         }
 
-        const std::string path = args[0].asString();
+        const std::string path = resolveGhostPath(args[0].asString());
         struct stat info{};
         if (::stat(path.c_str(), &info) != 0) {
             return Value(-1);
@@ -2576,12 +2772,13 @@ void VM::registerBuiltins() {
     };
     
     // FDIGEST(filename, algorithm) - File hash/digest (md5/sha1/crc32)
-    builtins_["FDIGEST"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FDIGEST"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value("");
         std::string filename = args[0].asString();
         std::string algo = args[1].asString();
         for (auto& ch : algo) ch = static_cast<char>(std::tolower(ch));
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) return Value("");
+        filename = resolveGhostPath(filename);
         std::ifstream f(filename, std::ios::binary);
         if (!f.is_open()) return Value("");
         std::ostringstream buffer;
@@ -3595,19 +3792,84 @@ void VM::registerBuiltins() {
         }
     };
     
-    // TOAUTO(value) - Auto-convert type (tries to detect best type)
-    builtins_["TOAUTO"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value();
-        return args[0]; // Just return as-is
+    // TOAUTO/CVAUTO の文字列自動変換。
+    // YAYA は整数文字列（符号付き十進）を Integer、ドットを1つだけ含む
+    // 数値文字列を Real、それ以外を String として返す。
+    auto isIntegerText = [](const std::string& text) -> bool {
+        if (text.empty()) return false;
+        const size_t start = (text.front() == '-' || text.front() == '+') ? 1 : 0;
+        if (start == text.size() || text.size() - start > 19) return false;
+        for (size_t i = start; i < text.size(); ++i) {
+            if (text[i] < '0' || text[i] > '9') return false;
+        }
+        try {
+            size_t consumed = 0;
+            (void)std::stoll(text, &consumed, 10);
+            return consumed == text.size();
+        } catch (...) {
+            return false;
+        }
     };
-    
-    // TOAUTOEX(value) - Auto-convert extended
-    builtins_["TOAUTOEX"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value();
-        return args[0];
+
+    auto isRealText = [isIntegerText](const std::string& text) -> bool {
+        if (text.empty() || isIntegerText(text)) return false;
+        const size_t start = (text.front() == '-' || text.front() == '+') ? 1 : 0;
+        if (start == text.size()) return false;
+        size_t dotCount = 0;
+        size_t digitCount = 0;
+        for (size_t i = start; i < text.size(); ++i) {
+            if (text[i] == '.') {
+                ++dotCount;
+            } else if (text[i] >= '0' && text[i] <= '9') {
+                ++digitCount;
+            } else {
+                return false;
+            }
+        }
+        if (dotCount != 1 || digitCount == 0) return false;
+        try {
+            size_t consumed = 0;
+            (void)std::stod(text, &consumed);
+            return consumed == text.size();
+        } catch (...) {
+            return false;
+        }
     };
-    
-    // CVAUTO, CVAUTOEX - Aliases for TOAUTO, TOAUTOEX
+
+    auto autoConvert = [isIntegerText, isRealText](const Value& value, bool preserveFormatting) -> Value {
+        if (value.getType() != Value::Type::String) return value;
+        const std::string text = value.asString();
+        try {
+            if (isIntegerText(text)) {
+                Value converted(static_cast<std::int64_t>(std::stoll(text, nullptr, 10)));
+                if (!preserveFormatting || converted.asString() == text) return converted;
+                return value;
+            }
+            if (isRealText(text)) {
+                Value converted(std::stod(text));
+                if (!preserveFormatting || converted.asString() == text) return converted;
+                return value;
+            }
+        } catch (...) {
+            // 変換不能な値は元の文字列を保持する（YAYA の TOAUTO と同じ）。
+        }
+        return value;
+    };
+
+    builtins_["TOAUTO"] = [autoConvert](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value();
+        return autoConvert(args[0], false);
+    };
+
+    // TOAUTOEX は数値化後の文字列表現が入力と完全一致する場合だけ変換する。
+    // 例: "123" は Integer、"001" は String のまま。
+    builtins_["TOAUTOEX"] = [autoConvert](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value();
+        return autoConvert(args[0], true);
+    };
+
+    // CVAUTO, CVAUTOEX は VM の値渡し API では代入先参照を受け取れないため、
+    // 変換結果を返す関数として実装する（通常の `x = CVAUTO(v)` と互換）。
     builtins_["CVAUTO"] = builtins_["TOAUTO"];
     builtins_["CVAUTOEX"] = builtins_["TOAUTOEX"];
     

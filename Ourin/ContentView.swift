@@ -1451,6 +1451,9 @@ fileprivate struct ExternalEventsView: View {
                     Button("Send via HTTP") {
                         sendSampleRequest(via: .http)
                     }
+                    Button("Send via XPC") {
+                        sendSampleRequest(via: .xpc)
+                    }
                     Button("Copy curl Command") {
                         copyCurlCommand()
                     }
@@ -1549,8 +1552,44 @@ fileprivate struct ExternalEventsView: View {
                 }
             }.resume()
         case .xpc:
-            logger.info("XPC direct send is not wired in this harness; use the copied snippet")
-            lastResponse = "XPC送信はこのハーネスからは未対応です（Copy XPC Snippet を利用してください）"
+            // 稼働中の OurinExternalServer が登録した mach service へ実送信する。
+            logger.info("Sending sample request via XPC (jp.ourin.sstp)")
+            let connection = NSXPCConnection(machServiceName: "jp.ourin.sstp")
+            connection.remoteObjectInterface = NSXPCInterface(with: OurinSSTPXPC.self)
+            connection.interruptionHandler = {
+                DispatchQueue.main.async {
+                    self.lastResponse = "XPC connection interrupted"
+                    self.loadStatus()
+                }
+            }
+            connection.invalidationHandler = {
+                DispatchQueue.main.async {
+                    self.loadStatus()
+                }
+            }
+            connection.resume()
+
+            let errorHandler: (Error) -> Void = { error in
+                DispatchQueue.main.async {
+                    self.lastResponse = "XPC request failed: \(error.localizedDescription)"
+                    self.loadStatus()
+                }
+                connection.invalidate()
+            }
+            guard let service = connection.remoteObjectProxyWithErrorHandler(errorHandler) as? OurinSSTPXPC else {
+                lastResponse = "XPC service proxy could not be created"
+                connection.invalidate()
+                return
+            }
+            service.executeSSTP(Data(payload.utf8)) { response in
+                let text = String(data: response, encoding: .utf8)
+                    ?? "(non-UTF8 response, \(response.count) bytes)"
+                DispatchQueue.main.async {
+                    self.lastResponse = text
+                    self.loadStatus()
+                }
+                connection.invalidate()
+            }
         }
     }
     

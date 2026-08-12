@@ -3,17 +3,244 @@ import AppKit
 import CoreImage
 import Combine
 import UserNotifications
+import Network
+import Security
 
+enum NarInstallDispatchOutcome {
+    case installed(NarInstallResult)
+    case refused
+    case failed(Swift.Error)
+}
 
 // MARK: - System Commands and Ghost Booting
 
-extension GhostManager {
+extension GhostManager: NSWindowDelegate {
     // Note: This extension uses the following properties declared in the main GhostManager class:
     // - pendingChoices, choiceHasCancelOption, choiceTimeout
 
+    private struct UpdateCommandOptions {
+        struct Selector {
+            let type: String
+            let name: String
+        }
+
+        let checkOnly: Bool
+        let testOnly: Bool
+        let reason: String
+        let explicitURL: String?
+        let selectors: [Selector]
+        let unsupportedSelectors: [Selector]
+
+        init(_ raw: [String]) {
+            let normalized = raw.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            checkOnly = normalized.contains { $0 == "checkonly" || $0 == "--checkonly" }
+            testOnly = normalized.contains { $0 == "testonly" || $0 == "--testonly" }
+            reason = normalized.first(where: { $0.hasPrefix("--reason=") })
+                .map { String($0.dropFirst("--reason=".count)) } ?? "script"
+            explicitURL = raw.first(where: {
+                let lower = $0.lowercased()
+                return lower.hasPrefix("--url=") || lower.hasPrefix("url=")
+            }).map {
+                if $0.lowercased().hasPrefix("--url=") {
+                    return String($0.dropFirst("--url=".count))
+                }
+                return String($0.dropFirst("url=".count))
+            }
+
+            var parsedSelectors: [Selector] = []
+            var unsupported: [Selector] = []
+            let supportedTypes: Set<String> = ["ghost"]
+            let selectorTypes: Set<String> = ["ghost", "balloon", "shell", "plugin", "headline", "language"]
+            for rawValue in raw {
+                let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                let body = value.hasPrefix("--") ? String(value.dropFirst(2)) : value
+                guard let separator = body.firstIndex(of: "=") else {
+                    let lower = body.lowercased()
+                    if !["checkonly", "testonly", "recovery"].contains(lower),
+                       !lower.hasPrefix("reason"), !lower.hasPrefix("url") {
+                        parsedSelectors.append(Selector(type: "ghost", name: value))
+                    }
+                    continue
+                }
+                let type = String(body[..<separator]).lowercased()
+                let name = String(body[body.index(after: separator)...])
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                guard selectorTypes.contains(type), !name.isEmpty else { continue }
+                let selector = Selector(type: type, name: name)
+                parsedSelectors.append(selector)
+                if !supportedTypes.contains(type) {
+                    unsupported.append(selector)
+                }
+            }
+            selectors = parsedSelectors
+            unsupportedSelectors = unsupported
+        }
+    }
+
+    /// HTTP/RSS コマンドのオプション。`parseCommandArguments` は一般コマンド用に
+    /// 単一値へ正規化するため、HTTP の複数 `--param` / `--header` はここで保持する。
+    struct HTTPCommandOptions {
+        let positionals: [String]
+        let asyncID: String
+        let customEventID: String?
+        let waitForCompletion: Bool
+        let noFile: Bool
+        let noFileEncoding: String.Encoding
+        let fileName: String?
+        let cookie: String
+        let headers: [(String, String)]
+        let parameters: [String]
+        let parameterInputData: Data?
+        let parameterInputFileError: String?
+        let parameterEncoding: String.Encoding
+        let body: String?
+        let contentType: String?
+        let timeout: TimeInterval?
+        let progressNotify: Bool
+        let noCache: Bool
+        let streaming: Bool
+
+        init(arguments: [String], parameterRoot: URL? = nil) {
+            var positionals: [String] = []
+            var asyncID = ""
+            var customEventID: String?
+            var waitForCompletion = false
+            var noFile = false
+            var noFileEncoding: String.Encoding = .utf8
+            var fileName: String?
+            var cookie = ""
+            var headers: [(String, String)] = []
+            var parameters: [String] = []
+            var parameterInputData: Data?
+            var parameterInputFileError: String?
+            var parameterEncoding: String.Encoding = .utf8
+            var body: String?
+            var contentType: String?
+            var timeout: TimeInterval?
+            var progressNotify = false
+            var noCache = false
+            var streaming = false
+
+            for argument in arguments {
+                let trimmed = argument.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard trimmed.hasPrefix("--") else {
+                    if !trimmed.isEmpty { positionals.append(trimmed) }
+                    continue
+                }
+
+                let option = String(trimmed.dropFirst(2))
+                let separator = option.firstIndex(of: "=")
+                let key = String(option[..<(separator ?? option.endIndex)]).lowercased()
+                let value = separator.map { String(option[option.index(after: $0)...]) }
+
+                switch key {
+                case "async", "sync":
+                    asyncID = value ?? ""
+                    waitForCompletion = key == "sync"
+                    if let value, value.hasPrefix("On"), !value.isEmpty {
+                        customEventID = value
+                    }
+                case "nofile":
+                    noFile = true
+                    if let value, !value.isEmpty { noFileEncoding = Self.encoding(for: value) }
+                case "file":
+                    fileName = value
+                case "cookie":
+                    cookie = value ?? ""
+                case "header":
+                    if let pair = value, let header = Self.header(from: pair) { headers.append(header) }
+                case "authorization", "accept", "accept-language", "user-agent":
+                    if let value { headers.append((key, value)) }
+                case "param":
+                    if let value { parameters.append(value) }
+                case "param-input-file":
+                    guard let value, !value.isEmpty else {
+                        parameterInputFileError = "missing_path"
+                        break
+                    }
+                    let rawURL = URL(fileURLWithPath: value)
+                    let candidate = value.hasPrefix("/")
+                        ? rawURL
+                        : parameterRoot?.appendingPathComponent(value)
+                    guard let candidate else {
+                        parameterInputFileError = "missing_parameter_root"
+                        break
+                    }
+                    let normalized = candidate.standardizedFileURL
+                    if let parameterRoot {
+                        let root = parameterRoot.standardizedFileURL
+                        let rootPrefix = root.path.hasSuffix("/") ? root.path : root.path + "/"
+                        guard normalized.path == root.path || normalized.path.hasPrefix(rootPrefix) else {
+                            parameterInputFileError = "path_outside_ghost"
+                            break
+                        }
+                    }
+                    do {
+                        parameterInputData = try Data(contentsOf: normalized)
+                    } catch {
+                        parameterInputFileError = "file_not_found"
+                    }
+                case "param-charset":
+                    if let value { parameterEncoding = Self.encoding(for: value) }
+                case "body":
+                    body = value
+                case "content-type":
+                    contentType = value
+                case "timeout":
+                    timeout = value.flatMap(TimeInterval.init).map { min(max($0, 0), 300) }
+                case "progress-notify":
+                    progressNotify = true
+                case "no-cache":
+                    noCache = true
+                case "streaming":
+                    streaming = true
+                default:
+                    break
+                }
+            }
+
+            self.positionals = positionals
+            self.asyncID = asyncID
+            self.customEventID = customEventID
+            self.waitForCompletion = waitForCompletion
+            self.noFile = noFile
+            self.noFileEncoding = noFileEncoding
+            self.fileName = fileName
+            self.cookie = cookie
+            self.headers = headers
+            self.parameters = parameters
+            self.parameterInputData = parameterInputData
+            self.parameterInputFileError = parameterInputFileError
+            self.parameterEncoding = parameterEncoding
+            self.body = body
+            self.contentType = contentType
+            self.timeout = timeout
+            self.progressNotify = progressNotify
+            self.noCache = noCache
+            self.streaming = streaming
+        }
+
+        private static func header(from raw: String) -> (String, String)? {
+            guard let separator = raw.firstIndex(of: ":") else { return nil }
+            let key = String(raw[..<separator]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let value = String(raw[raw.index(after: separator)...]).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !key.isEmpty else { return nil }
+            return (key, value)
+        }
+
+        private static func encoding(for raw: String) -> String.Encoding {
+            switch raw.lowercased().replacingOccurrences(of: "-", with: "_") {
+            case "shift_jis", "sjis", "cp932", "windows_31j", "ms932": return .shiftJIS
+            case "euc_jp", "eucjp": return .japaneseEUC
+            case "utf8", "utf_8": return .utf8
+            default: return .utf8
+            }
+        }
+    }
+
 
     // MARK: - Ghost Booting via SSTP
-    
+
     /// Boot another ghost (\+). 複数ゴースト同時実行に対応: 対象ゴーストを別 GhostManager として
     /// 同時起動する。起動できない場合は従来の SSTP NOTIFY 通知にフォールバックする。
     func bootOtherGhost(name: String? = nil) {
@@ -38,7 +265,7 @@ extension GhostManager {
             EventBridge.shared.notify(.OnOtherGhostBooted, refs: ["ghostName": ghostName])
         }
     }
-    
+
     /// Boot all ghosts by broadcasting SSTP
     func bootAllGhosts() {
         let installedGhosts = NarRegistry.shared.installedGhosts()
@@ -54,7 +281,7 @@ extension GhostManager {
             EventBridge.shared.notify(.OnOtherGhostBooted, refs: ["ghostName": target])
         }
     }
-    
+
     /// Send an SSTP NOTIFY request
     func sendSSTPNotify(event: String, references: [String: String], receiverGhostName: String? = nil) {
         DispatchQueue.global(qos: .utility).async {
@@ -233,7 +460,7 @@ extension GhostManager {
     func sendSSTPToLocalhost(request: String) {
         let host = "127.0.0.1"
         let port = 9801
-        
+
         var sock: Int32 = -1
         var hints = addrinfo()
         var result: UnsafeMutablePointer<addrinfo>?
@@ -336,15 +563,41 @@ extension GhostManager {
     }
 
     func dispatchLocalEvent(event: String, references: [String], notifyOnly: Bool) {
+        guard !event.isEmpty else { return }
+
+        // スクリプト由来のイベントは実行元ゴーストだけへ送る。EventBridge は
+        // システムイベントの全ゴースト配信路なので、ここへ流すと別ゴーストまで
+        // raise/notify を受け取ってしまう。
+        if let runtime = shioriRuntime {
+            let method = notifyOnly ? "NOTIFY" : "GET"
+            let headers = ["Charset": "UTF-8", "Sender": "Ourin", "SecurityLevel": "local"]
+            let response = runtime.request(
+                method: method,
+                id: event,
+                headers: headers,
+                refs: references,
+                timeout: notifyOnly ? 2.0 : 4.0
+            )
+            guard !notifyOnly,
+                  let response,
+                  response.ok,
+                  let script = response.value?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !script.isEmpty else { return }
+            runScript(script)
+            return
+        }
+
         let params = Dictionary(uniqueKeysWithValues: references.enumerated().map { ("Reference\($0.offset)", $0.element) })
         if notifyOnly {
-            EventBridge.shared.notifyCustom(event, params: params, ignoreResponseScript: true)
+            EventBridge.shared.notifyCustom(event, params: params, to: self, ignoreResponseScript: true)
             return
         }
         if let eventID = EventID(rawValue: event) {
-            EventBridge.shared.notify(eventID, params: params)
+            // `raise` は GET。SHIORI の返答スクリプトを再生する。
+            _ = EventBridge.shared.request(eventID, params: params, to: self)
         } else {
-            EventBridge.shared.notifyCustom(event, params: params)
+            // EventID にないカスタム名も raise では GET として実行する。
+            _ = EventBridge.shared.requestCustom(event, params: params, to: self)
         }
     }
 
@@ -384,29 +637,58 @@ extension GhostManager {
         dispatcher.onArbitraryEvent(id: id, refs: references, notify: notify)
     }
 
+    /// `\f[cursor*]` の指定を NSAlert の実ボタンへ反映する。
+    /// macOS の標準 hover/highlight は NSAlert 側に任せ、文字色・下線・枠・塗りを
+    /// ゴースト指定から設定することで、指定を無視せず選択 UI に伝える。
+    private func applyChoiceButtonAppearance(_ buttons: [NSButton], viewModel vm: BalloonViewModel) {
+        for button in buttons {
+            var attributes: [NSAttributedString.Key: Any] = [
+                .foregroundColor: vm.cursorFontColor
+            ]
+            if vm.cursorStyle == .underline || vm.cursorStyle == .squareUnderline {
+                attributes[.underlineStyle] = NSUnderlineStyle.single.rawValue
+                attributes[.underlineColor] = vm.cursorPenColor
+            }
+            button.attributedTitle = NSAttributedString(string: button.title, attributes: attributes)
+            button.contentTintColor = vm.cursorFontColor
+            button.wantsLayer = true
+            switch vm.cursorStyle {
+            case .square, .squareUnderline:
+                button.bezelStyle = .rounded
+                button.layer?.borderWidth = 1
+                button.layer?.borderColor = vm.cursorPenColor.cgColor
+                button.layer?.backgroundColor = vm.cursorBrushColor.cgColor
+            case .underline:
+                button.bezelStyle = .regularSquare
+                button.layer?.borderWidth = 0
+                button.layer?.backgroundColor = NSColor.clear.cgColor
+            case .none:
+                button.bezelStyle = .regularSquare
+                button.layer?.borderWidth = 0
+                button.layer?.backgroundColor = NSColor.clear.cgColor
+            }
+        }
+    }
+
+    private func choiceEventReferences(for choice: (title: String, action: ChoiceAction, pluginOrigin: Bool)) -> [String] {
+        switch choice.action {
+        case .event(let id, let references):
+            return [choice.title, id] + references
+        case .script:
+            return [choice.title, ""]
+        }
+    }
+
+    private func choiceButtonIndex(atWindowPoint point: NSPoint, alert: NSAlert) -> Int? {
+        alert.buttons.firstIndex { button in
+            let pointInButton = button.convert(point, from: nil)
+            return button.bounds.contains(pointInButton)
+        }
+    }
+
     func showChoiceDialog() {
         guard !pendingChoices.isEmpty else { return }
-        // OnChoiceEnter は本来「選択肢にカーソルが入った」hover イベントだが、モーダル NSAlert では
-        // 個別 hover を追跡できない。提示された各選択肢を UKADOC の Reference 構成（R0=ラベル, R1=ID,
-        // R2..=拡張情報）で NOTIFY 通知する（NOTIFY 経路はバルーン再生を伴わないため副作用なし）。
-        for choice in pendingChoices {
-            let choiceID: String
-            let extendedRefs: [String]
-            switch choice.action {
-            case .event(let id, let references):
-                choiceID = id
-                extendedRefs = references
-            case .script:
-                choiceID = ""
-                extendedRefs = []
-            }
-            var enterParams: [String: String] = ["Reference0": choice.title, "Reference1": choiceID]
-            for (i, ref) in extendedRefs.enumerated() {
-                enterParams["Reference\(i + 2)"] = ref
-            }
-            EventBridge.shared.notify(.OnChoiceEnter, params: enterParams)
-        }
-        
+
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
@@ -423,7 +705,59 @@ extension GhostManager {
             if self.choiceHasCancelOption {
                 alert.addButton(withTitle: NSLocalizedString("キャンセル", comment: "Cancel"))
             }
-            
+            let choiceViewModel = self.balloonViewModels[self.currentScope] ?? self.getBalloonVM(for: self.currentScope)
+            self.applyChoiceButtonAppearance(alert.buttons, viewModel: choiceViewModel)
+
+            // NSAlert は NSButton の subclass 差し替えを公開していないため、ローカルな
+            // mouseMoved monitor で実ボタンの境界を判定する。これにより選択肢の入場・退場
+            // と静止（500ms）を、表示時の一括通知ではなく実際のポインタ状態から発火する。
+            var hoveredChoiceIndex: Int?
+            var hoverTimer: Timer?
+            var initialHoverTimer: Timer?
+            var eventMonitor: Any?
+
+            let updateHover: (Int?) -> Void = { [weak self] nextIndex in
+                guard let self else { return }
+                guard nextIndex != hoveredChoiceIndex else { return }
+
+                hoverTimer?.invalidate()
+                hoverTimer = nil
+
+                if hoveredChoiceIndex != nil {
+                    // UKADOC: 選択肢から外れた OnChoiceEnter は Reference なし。
+                    _ = self.requestDialogEvent(eventID: "OnChoiceEnter", references: [])
+                }
+
+                hoveredChoiceIndex = nextIndex
+                guard let nextIndex,
+                      nextIndex >= 0,
+                      nextIndex < self.pendingChoices.count else { return }
+
+                let choice = self.pendingChoices[nextIndex]
+                _ = self.requestDialogEvent(
+                    eventID: "OnChoiceEnter",
+                    references: self.choiceEventReferences(for: choice)
+                )
+
+                hoverTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+                    guard let self,
+                          hoveredChoiceIndex == nextIndex,
+                          nextIndex < self.pendingChoices.count else { return }
+                    _ = self.requestDialogEvent(
+                        eventID: "OnChoiceHover",
+                        references: self.choiceEventReferences(for: self.pendingChoices[nextIndex])
+                    )
+                }
+            }
+
+            eventMonitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved]) { [weak self, weak alert] event in
+                guard let self,
+                      let alert,
+                      alert.window.isVisible else { return event }
+                updateHover(self.choiceButtonIndex(atWindowPoint: event.locationInWindow, alert: alert))
+                return event
+            }
+
             // Handle timeout if specified
             var timeoutTimer: Timer? = nil
             var didTimeout = false
@@ -444,10 +778,28 @@ extension GhostManager {
                     }
                 }
             }
+
+            // The pointer may already be over a button when the modal window opens, so do one
+            // initial hit test after the nested modal run loop has become active.
+            initialHoverTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { [weak self, weak alert] _ in
+                guard let self,
+                      let alert else { return }
+                updateHover(self.choiceButtonIndex(atWindowPoint: alert.window.mouseLocationOutsideOfEventStream, alert: alert))
+            }
             
             // Show dialog
             let response = alert.runModal()
             timeoutTimer?.invalidate()
+            initialHoverTimer?.invalidate()
+            hoverTimer?.invalidate()
+            if let eventMonitor {
+                NSEvent.removeMonitor(eventMonitor)
+            }
+            if hoveredChoiceIndex != nil {
+                // Modal window close is also a pointer exit from the active choice.
+                _ = self.requestDialogEvent(eventID: "OnChoiceEnter", references: [])
+                hoveredChoiceIndex = nil
+            }
 
             // Process response
             let buttonIndex = response.rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
@@ -520,40 +872,198 @@ extension GhostManager {
     }
     
     // MARK: - System Commands Implementation
-    
-    /// Set desktop wallpaper
-    func setWallpaper(filename: String, options: String) {
-        let wallpaperURL = ghostURL.appendingPathComponent(filename)
-        
-        guard FileManager.default.fileExists(atPath: wallpaperURL.path) else {
-            Log.info("[GhostManager] Wallpaper file not found: \(filename)")
-            return
+
+    private func wallpaperScreenKey(_ screen: NSScreen) -> String {
+        if let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber {
+            return "display:\(number.uint32Value)"
         }
-        
+        return "screen:\(screen.localizedName):\(screen.frame.origin.x):\(screen.frame.origin.y)"
+    }
+
+    /// Save the current desktop wallpaper for every connected screen.
+    func saveWallpaper() {
         DispatchQueue.main.async {
-            do {
-                let workspace = NSWorkspace.shared
-                if let screen = NSScreen.main {
-                    try workspace.setDesktopImageURL(wallpaperURL, for: screen, options: [:])
-                    Log.debug("[GhostManager] Set wallpaper: \(filename)")
-                }
-            } catch {
-                Log.info("[GhostManager] Failed to set wallpaper: \(error)")
+            let workspace = NSWorkspace.shared
+            self.savedWallpaperURLs = Dictionary(uniqueKeysWithValues: NSScreen.screens.compactMap { screen in
+                guard let url = workspace.desktopImageURL(for: screen) else { return nil }
+                return (self.wallpaperScreenKey(screen), url)
+            })
+            Log.debug("[GhostManager] Saved wallpapers for \(self.savedWallpaperURLs.count) screen(s)")
+        }
+    }
+
+    /// Restore the wallpaper URLs saved by `save,wallpaper`.
+    func restoreWallpaper() {
+        DispatchQueue.main.async {
+            guard !self.savedWallpaperURLs.isEmpty else {
+                Log.info("[GhostManager] No saved wallpaper to restore")
+                return
             }
+            let workspace = NSWorkspace.shared
+            for screen in NSScreen.screens {
+                guard let url = self.savedWallpaperURLs[self.wallpaperScreenKey(screen)] else { continue }
+                do {
+                    try workspace.setDesktopImageURL(url, for: screen, options: [:])
+                } catch {
+                    Log.info("[GhostManager] Failed to restore wallpaper on \(screen.localizedName): \(error)")
+                }
+            }
+            Log.debug("[GhostManager] Restored saved wallpapers")
         }
     }
     
-    /// Set task tray (dock) icon
-    func setTaskTrayIcon(filename: String, text: String) {
-        let iconURL = ghostURL.appendingPathComponent(filename)
-        
+    /// ゴースト相対のファイル指定を解決する。SSP互換として ghost 本体直下と
+    /// ghost/master の両方を許容し、絶対パスはそのまま扱う。
+    private func resolveGhostAssetPath(_ filename: String) -> URL {
+        let trimmed = filename.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.hasPrefix("/") {
+            return URL(fileURLWithPath: trimmed)
+        }
+        let candidates = [
+            ghostURL.appendingPathComponent(trimmed),
+            ghostURL.appendingPathComponent("ghost/master", isDirectory: true).appendingPathComponent(trimmed)
+        ]
+        return candidates.first(where: { FileManager.default.fileExists(atPath: $0.path) }) ?? candidates[0]
+    }
+
+    /// `set,wallpaper` のオプションを NSWorkspace の実際のデスクトップ画像設定へ変換する。
+    private func wallpaperOptions(_ rawOptions: [String]) -> [NSWorkspace.DesktopImageOptionKey: Any] {
+        let options = rawOptions
+            .flatMap { $0.split(separator: ",").map(String.init) }
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            .filter { !$0.isEmpty }
+        let mode = options.first ?? "center"
+        let scaling: NSImageScaling
+        let allowClipping: Bool
+        switch mode {
+        case "tile":
+            scaling = .scaleNone
+            allowClipping = false
+        case "stretch":
+            scaling = .scaleAxesIndependently
+            allowClipping = false
+        case "stretch-x", "stretch-y":
+            // NSWorkspace は片軸指定を持たないため、縦横比維持＋画面内収容へ寄せる。
+            scaling = .scaleProportionallyUpOrDown
+            allowClipping = false
+        case "span":
+            // マルチモニタ全体への一枚画像指定は macOS API に相当 API がないため、
+            // 呼び出し側で各画面へ同じ画像を設定し、比例拡大＋クリップで意味を保つ。
+            scaling = .scaleProportionallyUpOrDown
+            allowClipping = true
+        default:
+            scaling = .scaleProportionallyUpOrDown
+            allowClipping = false
+        }
+        return [
+            .imageScaling: NSNumber(value: scaling.rawValue),
+            .allowClipping: NSNumber(value: allowClipping)
+        ]
+    }
+
+    /// Set desktop wallpaper. Empty filename restores the snapshot captured by `save,wallpaper`.
+    func setWallpaper(filename: String, options rawOptions: [String] = []) {
+        let trimmed = filename.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            restoreWallpaper()
+            return
+        }
+        let wallpaperURL = resolveGhostAssetPath(trimmed)
+        guard FileManager.default.fileExists(atPath: wallpaperURL.path) else {
+            Log.info("[GhostManager] Wallpaper file not found: \(filename)")
+            EventBridge.shared.notifyCustom("OnWallpaperFailure", refs: ["filename": filename, "reason": "file_not_found"])
+            return
+        }
+
         DispatchQueue.main.async {
-            if let image = NSImage(contentsOf: iconURL) {
-                NSApp.applicationIconImage = image
-                Log.debug("[GhostManager] Set dock icon: \(filename)")
-            } else {
-                Log.info("[GhostManager] Failed to load icon: \(filename)")
+            let workspace = NSWorkspace.shared
+            let options = self.wallpaperOptions(rawOptions)
+            let targets = NSScreen.screens.isEmpty ? [NSScreen.main].compactMap { $0 } : NSScreen.screens
+            var failed = false
+            for screen in targets {
+                do {
+                    try workspace.setDesktopImageURL(wallpaperURL, for: screen, options: options)
+                } catch {
+                    failed = true
+                    Log.info("[GhostManager] Failed to set wallpaper on \(screen.localizedName): \(error)")
+                }
             }
+            if failed {
+                EventBridge.shared.notifyCustom("OnWallpaperFailure", refs: ["filename": filename, "reason": "set_failed"])
+            } else {
+                EventBridge.shared.notifyCustom("OnWallpaperChanged", refs: ["filename": filename])
+                Log.debug("[GhostManager] Set wallpaper: \(filename) (options=\(rawOptions))")
+            }
+        }
+    }
+
+    private func taskTrayAnimationURLs(baseURL: URL) -> [URL] {
+        guard !baseURL.pathExtension.isEmpty else { return [baseURL] }
+        var frames: [URL] = []
+        let stem = baseURL.deletingPathExtension().path
+        let ext = baseURL.pathExtension
+        for index in 0..<1000 {
+            let candidate = URL(fileURLWithPath: "\(stem)\(String(format: "%02d", index)).\(ext)")
+            guard FileManager.default.fileExists(atPath: candidate.path) else { break }
+            frames.append(candidate)
+        }
+        return frames.isEmpty ? [baseURL] : frames
+    }
+
+    /// Set task-tray/menu-bar icon. This is deliberately separate from the Dock app icon.
+    func setTaskTrayIcon(filename: String, text: String, options rawOptions: [String] = []) {
+        let iconURL = resolveGhostAssetPath(filename)
+        let parsed = parseCommandArguments(rawOptions)
+        let durationMs = parsed.options["duration"].flatMap(Int.init).map { max(1, $0) }
+        let runCount = parsed.options["runcount"].flatMap(Int.init).map { max(0, $0) }
+        let frames = durationMs == nil ? [iconURL] : taskTrayAnimationURLs(baseURL: iconURL)
+        let tooltip = text.isEmpty
+            ? "Ourin/\(ghostConfig?.name ?? ghostURL.lastPathComponent)"
+            : text
+
+        DispatchQueue.main.async {
+            guard let firstImage = NSImage(contentsOf: frames[0]) else {
+                Log.info("[GhostManager] Failed to load task-tray icon: \(filename)")
+                return
+            }
+            let statusItem = self.taskTrayStatusItem ?? NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+            self.taskTrayStatusItem = statusItem
+            statusItem.button?.image = firstImage
+            statusItem.button?.image?.size = NSSize(width: 18, height: 18)
+            statusItem.button?.toolTip = tooltip
+            statusItem.button?.setAccessibilityLabel(tooltip)
+
+            self.taskTrayAnimationTimer?.invalidate()
+            self.taskTrayAnimationTimer = nil
+            guard let durationMs, frames.count > 1 else {
+                Log.debug("[GhostManager] Set task-tray icon: \(filename)")
+                return
+            }
+
+            var frameIndex = 0
+            var completedLoops = 0
+            let timer = Timer.scheduledTimer(withTimeInterval: TimeInterval(durationMs) / 1000.0, repeats: true) { [weak self, weak statusItem] timer in
+                guard let self, let button = statusItem?.button else {
+                    timer.invalidate()
+                    return
+                }
+                frameIndex += 1
+                if frameIndex >= frames.count {
+                    frameIndex = 0
+                    completedLoops += 1
+                    if let runCount, runCount > 0, completedLoops >= runCount {
+                        timer.invalidate()
+                        self.taskTrayAnimationTimer = nil
+                        return
+                    }
+                }
+                if let image = NSImage(contentsOf: frames[frameIndex]) {
+                    button.image = image
+                    button.image?.size = NSSize(width: 18, height: 18)
+                }
+            }
+            self.taskTrayAnimationTimer = timer
+            RunLoop.main.add(timer, forMode: .common)
         }
     }
     
@@ -640,51 +1150,67 @@ extension GhostManager {
         Log.debug("[GhostManager] Set other surface change observation: \(enabled)")
     }
     
-    /// Execute SNTP time synchronization
+    /// Execute an actual SNTP time query (`\7` / `\![executesntp]`).
     func executeSNTP() {
-        Log.debug("[GhostManager] Executing SNTP time synchronization")
-        EventBridge.shared.notifyCustom("OnSNTPBegin", params: [:])
-        guard let url = URL(string: "https://worldtimeapi.org/api/ip") else {
-            Log.info("[GhostManager] Failed to build SNTP fallback URL")
-            return
-        }
+        let configuredServer = UserDefaults.standard.string(forKey: "OurinSNTPServer")
+        let server = configuredServer?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+            ? configuredServer!.trimmingCharacters(in: .whitespacesAndNewlines)
+            : "pool.ntp.org"
 
-        let task = URLSession.shared.dataTask(with: url) { data, _, error in
-            if let error = error {
-                Log.info("[GhostManager] SNTP fallback request failed: \(error)")
-                EventBridge.shared.notifyCustom("OnSNTPFailure", refs: ["reason": error.localizedDescription])
-                return
+        Log.debug("[GhostManager] Executing SNTP time synchronization: \(server)")
+        lastSntpServerDate = nil
+        lastSntpServerDateTime = nil
+        lastSntpTimezone = nil
+        EventBridge.shared.notify(.OnSNTPBegin, refs: ["server": server])
+
+        SNTPClient().query(server: server) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let measurement):
+                let serverTimeEx = self.sntpDateString(measurement.serverDate, includeMilliseconds: true)
+                let localTimeEx = self.sntpDateString(measurement.localDate, includeMilliseconds: true)
+                let serverTime = self.sntpDateString(measurement.serverDate, includeMilliseconds: false)
+                let localTime = self.sntpDateString(measurement.localDate, includeMilliseconds: false)
+                let signedSeconds = String(format: "%.3f", measurement.offset)
+                let absoluteSeconds = String(format: "%.0f", abs(measurement.offset))
+                let signedMilliseconds = String(measurement.offsetMilliseconds)
+                let absoluteMilliseconds = String(abs(measurement.offsetMilliseconds))
+
+                self.lastSntpServerDate = measurement.serverDate
+                self.lastSntpServerDateTime = serverTimeEx
+                self.lastSntpTimezone = TimeZone.current.identifier
+                let compareRefs = [
+                    "server": server,
+                    "serverTime": serverTime,
+                    "localTime": localTime,
+                    "deltaSeconds": absoluteSeconds,
+                    "deltaMilliseconds": absoluteMilliseconds
+                ]
+                let compareExRefs = [
+                    "server": server,
+                    "serverTime": serverTimeEx,
+                    "localTime": localTimeEx,
+                    "deltaSeconds": signedSeconds,
+                    "deltaMilliseconds": signedMilliseconds
+                ]
+                EventBridge.shared.notify(.OnSNTPCompareEx, refs: compareExRefs)
+                EventBridge.shared.notify(.OnSNTPCompare, refs: compareRefs)
+                Log.debug("[GhostManager] SNTP query succeeded: offset=\(signedMilliseconds)ms")
+
+            case .failure(let error):
+                self.lastSntpServerDate = nil
+                self.lastSntpServerDateTime = nil
+                self.lastSntpTimezone = nil
+                Log.info("[GhostManager] SNTP query failed: \(error)")
+                Log.info("[GhostManager] SNTP failure reason: \(self.normalizeSNTPFailureReason(error))")
+                EventBridge.shared.notify(.OnSNTPFailure, refs: ["server": server])
             }
-
-            guard let data = data,
-                  let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                Log.info("[GhostManager] SNTP fallback returned invalid payload")
-                EventBridge.shared.notifyCustom("OnSNTPFailure", refs: ["reason": "invalid_payload"])
-                return
-            }
-
-            let dateTime = object["datetime"] as? String ?? ""
-            let timezone = object["timezone"] as? String ?? ""
-            let parsedDate = ISO8601DateFormatter().date(from: dateTime)
-            self.lastSntpServerDate = parsedDate
-            self.lastSntpServerDateTime = dateTime
-            self.lastSntpTimezone = timezone
-            Log.debug("[GhostManager] SNTP fallback succeeded: \(dateTime) \(timezone)")
-            EventBridge.shared.notifyCustom("OnSNTPCompare", refs: [
-                "dateTime": dateTime,
-                "timezone": timezone
-            ])
-            EventBridge.shared.notifyCustom("OnSNTP", refs: [
-                "dateTime": dateTime,
-                "timezone": timezone
-            ])
         }
-        task.resume()
     }
 
     /// Execute SNTP correction action for `\6`.
-    /// On macOS app sandbox, system clock modification requires privileged operations,
-    /// so we emit adjustment info and keep behavior explicit.
+    /// macOS のシステム時計変更は root/Authorization が必要で、通常の baseware が
+    ///勝手に変更できないため、変更を成功扱いにはせず標準の失敗イベントを返す。
     func executeSNTPApply() {
         guard let serverDate = lastSntpServerDate else {
             Log.info("[GhostManager] SNTP apply requested without cached server time; starting sync first")
@@ -694,269 +1220,810 @@ extension GhostManager {
 
         let localDate = Date()
         let deltaSec = serverDate.timeIntervalSince(localDate)
-        let deltaMs = Int(deltaSec * 1000.0)
-        EventBridge.shared.notifyCustom("OnSNTPAdjust", refs: [
-            "deltaMs": String(deltaMs),
-            "dateTime": lastSntpServerDateTime ?? "",
-            "timezone": lastSntpTimezone ?? ""
-        ])
-        Log.info("[GhostManager] SNTP apply simulated (deltaMs=\(deltaMs)); system clock is not modified by baseware")
+        let server = UserDefaults.standard.string(forKey: "OurinSNTPServer") ?? "pool.ntp.org"
+        let deltaMs = Int((deltaSec * 1_000).rounded())
+        Log.info("[GhostManager] SNTP correction requires privileged clock access (deltaMs=\(deltaMs))")
+        EventBridge.shared.notify(.OnSNTPFailure, refs: ["server": server])
+    }
+
+    private func sntpDateString(_ date: Date, includeMilliseconds: Bool) -> String {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .current
+        let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second, .nanosecond], from: date)
+        let base = "\(components.year ?? 0),\(components.month ?? 0),\(components.day ?? 0),\(components.hour ?? 0),\(components.minute ?? 0),\(components.second ?? 0)"
+        guard includeMilliseconds else { return base }
+        let milliseconds = (components.nanosecond ?? 0) / 1_000_000
+        return "\(base),\(milliseconds)"
+    }
+
+    private func normalizeSNTPFailureReason(_ error: Error) -> String {
+        if let clientError = error as? SNTPClientError {
+            switch clientError {
+            case .timeout: return "timeout"
+            case .invalidPacket, .invalidServerResponse: return "invalid_response"
+            case .connection(let message): return message
+            }
+        }
+        return error.localizedDescription.isEmpty ? "connection_failed" : error.localizedDescription
     }
     
-    /// Execute headline (RSS feed check)
+    /// Execute a HEADLINE/2.0 module (`\![execute,headline,name]`).
+    ///
+    /// Headline modules are loaded by `HeadlineRegistry` at application startup. The
+    /// previous implementation fetched `homeurl` directly and emitted a private
+    /// `OnHeadlineCheck` event, which bypassed the HEADLINE protocol and could never
+    /// execute an installed module. This path now selects the requested module,
+    /// sends a real HEADLINE request, filters already reported entries, and emits the
+    /// standard Headlinesense events.
     func executeHeadline(name: String) {
-        Log.debug("[GhostManager] Executing headline check: \(name)")
-        let feedURLString: String
-        if name.hasPrefix("http://") || name.hasPrefix("https://") {
-            feedURLString = name
-        } else if let base = ghostConfig?.homeurl, !base.isEmpty {
-            feedURLString = base
-        } else {
-            Log.info("[GhostManager] No headline URL available")
-            EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", refs: ["reason": "missing_url"])
+        let requestedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let target = resolveHeadlineTarget(name: requestedName) else {
+            Log.info("[GhostManager] Headline module not found: \(requestedName)")
+            notifyHeadlineFailure(reason: "can't_analyze")
+            return
+        }
+        let path = target.meta.url.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !path.isEmpty else {
+            Log.info("[GhostManager] Headline module has no URL: \(target.meta.name)")
+            notifyHeadlineFailure(reason: "can't_download")
             return
         }
 
-        guard let url = URL(string: feedURLString) else {
-            Log.info("[GhostManager] Invalid headline URL: \(feedURLString)")
-            EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", refs: ["reason": "invalid_url"])
-            return
-        }
-
-        let task = URLSession.shared.dataTask(with: url) { data, _, error in
-            if let error = error {
-                Log.info("[GhostManager] Headline fetch failed: \(error)")
-                EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", refs: ["reason": error.localizedDescription])
-                return
-            }
-
-            guard let data = data, let content = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .shiftJIS) else {
-                Log.info("[GhostManager] Headline fetch returned unreadable content")
-                EventBridge.shared.notifyCustom("OnHeadlineCheckFailure", refs: ["reason": "unreadable_content"])
-                return
-            }
-
-            let titles = content.matches(for: "<title>(.*?)</title>").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-            let firstHeadline = titles.dropFirst().first ?? titles.first ?? ""
-            EventBridge.shared.notifyCustom("OnHeadlineCheck", refs: [
-                "headline": firstHeadline,
-                "url": url.absoluteString
-            ])
-            Log.debug("[GhostManager] Headline check completed: \(firstHeadline)")
-        }
-        task.resume()
-    }
-    
-    /// Execute mail check (biff)
-    func executeBiff() {
-        Log.debug("[GhostManager] Executing mail check (biff)")
-        let mailRunning = NSWorkspace.shared.runningApplications.contains { app in
-            app.bundleIdentifier == "com.apple.mail"
-        }
-
-        let state = mailRunning ? "running" : "not_running"
-        EventBridge.shared.notifyCustom("OnBIFF", refs: [
-            "state": state
+        let siteName = target.meta.name
+        EventBridge.shared.notify(.OnHeadlinesenseBegin, refs: [
+            "siteName": siteName,
+            "url": path
         ])
-        Log.debug("[GhostManager] BIFF check completed: \(state)")
+
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            let request = HeadlineWireEngine.buildHeadlineRequest(
+                path: path,
+                version: .v2_0M,
+                charset: target.meta.charset
+            )
+            let response = target.module.send(request)
+            guard !response.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                self?.notifyHeadlineFailure(reason: "can't_download")
+                return
+            }
+            let entries = HeadlineWireEngine.parseLines(response)
+            guard !entries.isEmpty else {
+                self?.notifyHeadlineComplete(reason: "no update")
+                return
+            }
+
+            let historyKey = self?.headlineHistoryKey(for: target) ?? "OurinHeadlineHistory.\(siteName)"
+            let oldHistory = Set(UserDefaults.standard.stringArray(forKey: historyKey) ?? [])
+            let candidates = entries.map { (text: $0.0, url: $0.1 ?? "") }
+            let fresh = candidates.filter { entry in
+                let identity = self?.headlineIdentity(text: entry.text, url: entry.url)
+                    ?? "\(entry.url)\u{1}\(entry.text)"
+                return !oldHistory.contains(identity)
+            }
+            let allIdentities = candidates.map {
+                self?.headlineIdentity(text: $0.text, url: $0.url) ?? "\($0.url)\u{1}\($0.text)"
+            }
+            UserDefaults.standard.set(Array(oldHistory.union(allIdentities)).sorted(), forKey: historyKey)
+
+            guard !fresh.isEmpty else {
+                self?.notifyHeadlineComplete(reason: "no update")
+                return
+            }
+
+            for (index, entry) in fresh.enumerated() {
+                let phase: String
+                if fresh.count == 1 {
+                    phase = "First and Last"
+                } else if index == 0 {
+                    phase = "First"
+                } else if index == fresh.count - 1 {
+                    phase = "Last"
+                } else {
+                    phase = "Next"
+                }
+                EventBridge.shared.notifyCustom("OnHeadlinesense.OnFind", refs: [
+                    "siteName": siteName,
+                    "url": path,
+                    "phase": phase,
+                    "content": self?.sanitizeHeadlineContent(entry.text) ?? entry.text
+                ])
+            }
+            Log.debug("[GhostManager] Headlinesense completed: module=\(siteName), new=\(fresh.count)")
+        }
+    }
+
+    private func resolveHeadlineTarget(name: String) -> (module: HeadlineModule, meta: HeadlineMeta)? {
+        guard let registry = (NSApp.delegate as? AppDelegate)?.headlineRegistry else { return nil }
+        let targets = registry.modules.compactMap { module -> (HeadlineModule, HeadlineMeta)? in
+            guard let meta = registry.metas[module] else { return nil }
+            return (module, meta)
+        }
+        guard !targets.isEmpty else { return nil }
+
+        let normalized = name.lowercased()
+        if normalized.isEmpty || normalized == "random" {
+            return targets.randomElement()
+        }
+        if normalized == "lastinstalled" {
+            let lastName = UserDefaults.standard.string(forKey: "OurinLastInstalledHeadlineName")?.lowercased() ?? ""
+            return targets.first(where: { $0.1.name.lowercased() == lastName || $0.1.filename.lowercased() == lastName })
+                ?? targets.last
+        }
+        return targets.first {
+            $0.1.name.lowercased() == normalized
+                || $0.1.filename.lowercased() == normalized
+                || $0.0.bundle.bundleURL.deletingPathExtension().lastPathComponent.lowercased() == normalized
+        }
+    }
+
+    private func headlineHistoryKey(for target: (module: HeadlineModule, meta: HeadlineMeta)) -> String {
+        let stableName = target.meta.name.isEmpty ? target.module.bundle.bundleURL.path : target.meta.name
+        let encoded = Data(stableName.utf8).base64EncodedString()
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "=", with: "")
+        return "OurinHeadlineHistory.\(encoded)"
+    }
+
+    private func headlineIdentity(text: String, url: String) -> String {
+        "\(url)\u{1}\(text)"
+    }
+
+    private func sanitizeHeadlineContent(_ raw: String) -> String {
+        raw.replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "%", with: "\\%")
+            .replacingOccurrences(of: "\r", with: " ")
+            .replacingOccurrences(of: "\n", with: " ")
+    }
+
+    private func notifyHeadlineComplete(reason: String) {
+        EventBridge.shared.notify(.OnHeadlinesenseComplete, refs: ["reason": reason])
+    }
+
+    private func notifyHeadlineFailure(reason: String) {
+        EventBridge.shared.notify(.OnHeadlinesenseFailure, refs: ["reason": reason])
+    }
+
+    /// Execute mail check (BIFF). `account` is the configured Mail account name.
+    func executeBiff(account: String? = nil) {
+        let accountName = account?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        Log.debug("[GhostManager] Executing mail check (biff): \(accountName)")
+        EventBridge.shared.notify(.OnBIFFBegin, params: [
+            "Reference2": accountName
+        ])
+
+        MailBiffClient().query(account: accountName.isEmpty ? nil : accountName) { [weak self] result in
+            guard let self else { return }
+            let key = accountName
+            switch result {
+            case .success(let biff):
+                let previous = self.lastBiffUnreadCounts[key]
+                self.lastBiffUnreadCounts[key] = biff.unreadCount
+                let delta = biff.unreadCount - (previous ?? biff.unreadCount)
+                let params = [
+                    "Reference0": String(biff.unreadCount),
+                    "Reference1": String(biff.unreadBytes),
+                    "Reference2": accountName,
+                    "Reference3": String(delta),
+                    "Reference4": "",
+                    "Reference5": "",
+                    "Reference6": "",
+                    "Reference7": biff.senderAndSubject
+                ]
+                EventBridge.shared.notify(.OnBIFFComplete, params: params)
+                if let previous, biff.unreadCount > previous {
+                    EventBridge.shared.notify(.OnBIFF2Complete, params: [
+                        "Reference0": String(biff.unreadCount),
+                        "Reference1": String(biff.unreadBytes),
+                        "Reference2": accountName,
+                        "Reference3": ""
+                    ])
+                }
+                Log.debug("[GhostManager] BIFF completed: unread=\(biff.unreadCount)")
+
+            case .failure(let error):
+                self.lastBiffUnreadCounts.removeValue(forKey: key)
+                EventBridge.shared.notify(.OnBIFFFailure, params: [
+                    "Reference0": error.localizedDescription,
+                    "Reference2": accountName
+                ])
+                Log.info("[GhostManager] BIFF failed: \(error)")
+            }
+        }
     }
 
     /// Execute HTTP commands for `\![execute,http-*]`.
     func executeHTTP(subcommand: String, params: [String]) {
-        guard let rawURL = params.first, let url = URL(string: rawURL) else {
-            EventBridge.shared.notify(.OnExecuteHTTPFailure, refs: ["reason": "invalid_url"])
-            EventBridge.shared.notify(.OnExecuteHTTPProgress, refs: ["phase": "failed", "progress": "0"])
+        let options = HTTPCommandOptions(arguments: Array(params.dropFirst()), parameterRoot: httpParameterRoot())
+        if options.streaming {
+            let suffix = String(subcommand.dropFirst("http-".count))
+            executeHTTPStreaming(subcommand: "http-stream-\(suffix)", params: params, options: options)
             return
         }
-        let methodSuffix = String(subcommand.dropFirst("http-".count)).uppercased()
-        let supported = Set(["GET", "POST", "HEAD", "PUT", "DELETE", "PATCH", "OPTIONS"])
-        let method = supported.contains(methodSuffix) ? methodSuffix : "GET"
-
-        var request = URLRequest(url: url)
-        request.httpMethod = method
-        let parsed = parseCommandArguments(Array(params.dropFirst()))
-        let body = parsed.options["body"] ?? parsed.positionals.first ?? ""
-        if !body.isEmpty, method != "GET", method != "HEAD" {
-            request.httpBody = body.data(using: .utf8)
-            request.setValue("text/plain; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        let method = httpMethod(for: subcommand, prefix: "http-")
+        let rawURL = params.first ?? ""
+        if let inputError = options.parameterInputFileError {
+            notifyHTTPEvent(.OnExecuteHTTPFailure, method: method, options: options,
+                            url: rawURL, data: "", result: "param_input_\(inputError)", cookie: "", responseHeaders: "")
+            return
         }
-        applyRequestOptions(parsed, to: &request)
-
-        if url.scheme?.lowercased() == "https" {
-            EventBridge.shared.notify(.OnExecuteHTTPSSLInfo, refs: [
-                "host": url.host ?? "",
-                "url": url.absoluteString
-            ])
+        guard let url = URL(string: rawURL), !rawURL.isEmpty else {
+            notifyHTTPEvent(.OnExecuteHTTPFailure, method: method, options: options,
+                            url: rawURL, data: "", result: "invalid_url", cookie: "", responseHeaders: "")
+            return
         }
-        EventBridge.shared.notify(.OnExecuteHTTPProgress, refs: [
-            "phase": "running",
-            "progress": "0",
-            "method": method,
-            "url": url.absoluteString
-        ])
 
-        URLSession.shared.dataTask(with: request) { data, response, error in
+        var request = makeHTTPRequest(url: url, method: method, options: options)
+        request.httpShouldHandleCookies = false
+        let outputURL = options.noFile ? nil : httpOutputURL(fileName: options.fileName, sourceURL: url)
+        let taskID = UUID()
+        let runner = HTTPDataTaskRunner(request: request, onData: { [weak self] _, accumulated, response in
+            guard let self, options.progressNotify else { return }
+            let output = self.httpEventData(options: options, data: accumulated, outputURL: outputURL)
+            self.notifyHTTPEvent(.OnExecuteHTTPProgress, method: method, options: options,
+                                 url: url.absoluteString, data: output,
+                                 result: response.map { String($0.statusCode) } ?? "0",
+                                 cookie: self.httpResponseCookie(response, url: url),
+                                 responseHeaders: self.httpResponseHeaders(response))
+        }, onComplete: { [weak self] data, response, metrics, error in
+            guard let self else { return }
+            self.completeHTTPWait(taskID)
+            self.httpRequestRunners.removeValue(forKey: taskID)
+
+            let responseHeaders = self.httpResponseHeaders(response)
+            let responseCookie = self.httpResponseCookie(response, url: url)
+            if url.scheme?.lowercased() == "https", self.hasTLSConnection(response: response, metrics: metrics) {
+                self.notifyHTTPSSLInfo(asyncID: options.asyncID, url: url.absoluteString,
+                                       statusCode: response.map { String($0.statusCode) } ?? "0",
+                                       metrics: metrics)
+            }
+
             if let error {
-                EventBridge.shared.notify(.OnExecuteHTTPFailure, refs: [
-                    "reason": error.localizedDescription,
-                    "url": url.absoluteString,
-                    "method": method
-                ])
-                EventBridge.shared.notify(.OnExecuteHTTPProgress, refs: [
-                    "phase": "failed",
-                    "progress": "100",
-                    "method": method,
-                    "url": url.absoluteString
-                ])
+                let result = self.httpFailureResult(error)
+                self.notifyHTTPEvent(.OnExecuteHTTPFailure, method: method, options: options,
+                                     url: url.absoluteString,
+                                     data: outputURL?.path ?? "", result: result,
+                                     cookie: responseCookie, responseHeaders: responseHeaders)
+                return
+            }
+            guard let response else {
+                self.notifyHTTPEvent(.OnExecuteHTTPFailure, method: method, options: options,
+                                     url: url.absoluteString,
+                                     data: outputURL?.path ?? "", result: "invalid_response",
+                                     cookie: responseCookie, responseHeaders: responseHeaders)
                 return
             }
 
-            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
-            let body = data.flatMap { String(data: $0, encoding: .utf8) ?? String(data: $0, encoding: .shiftJIS) } ?? ""
-            EventBridge.shared.notify(.OnExecuteHTTPComplete, refs: [
-                "statusCode": String(statusCode),
-                "body": body,
-                "url": url.absoluteString,
-                "method": method
-            ])
-            EventBridge.shared.notify(.OnExecuteHTTPProgress, refs: [
-                "phase": "completed",
-                "progress": "100",
-                "method": method,
-                "url": url.absoluteString
-            ])
-        }.resume()
+            let result = String(response.statusCode)
+            let dataValue: String
+            do {
+                if let outputURL {
+                    try FileManager.default.createDirectory(
+                        at: outputURL.deletingLastPathComponent(),
+                        withIntermediateDirectories: true
+                    )
+                    try data.write(to: outputURL, options: [.atomic])
+                    dataValue = outputURL.path
+                } else {
+                    dataValue = self.httpEventData(options: options, data: data, outputURL: nil)
+                }
+            } catch {
+                self.notifyHTTPEvent(.OnExecuteHTTPFailure, method: method, options: options,
+                                     url: url.absoluteString,
+                                     data: outputURL?.path ?? "", result: "fileio",
+                                     cookie: responseCookie, responseHeaders: responseHeaders)
+                return
+            }
+
+            self.notifyHTTPEvent(.OnExecuteHTTPComplete, method: method, options: options,
+                                 url: url.absoluteString, data: dataValue, result: result,
+                                 cookie: responseCookie, responseHeaders: responseHeaders)
+            if options.progressNotify {
+                self.notifyHTTPEvent(.OnExecuteHTTPProgress, method: method, options: options,
+                                     url: url.absoluteString, data: dataValue, result: result,
+                                     cookie: responseCookie, responseHeaders: responseHeaders)
+            }
+        })
+        httpRequestRunners[taskID] = runner
+        if options.waitForCompletion {
+            pendingHTTPWaits.insert(taskID)
+            playbackQueue.append(.waitForHTTP(taskID))
+        }
+        runner.start()
     }
 
     /// Execute streaming HTTP for `\![execute,http-stream,*]`.
     /// UKADOC では受信チャンクごとに OnExecuteHTTPStreaming を通知する。
-    func executeHTTPStreaming(subcommand: String, params: [String]) {
-        guard let rawURL = params.first, let url = URL(string: rawURL) else {
-            EventBridge.shared.notify(.OnExecuteHTTPFailure, refs: ["reason": "invalid_url"])
+    func executeHTTPStreaming(subcommand: String, params: [String], options suppliedOptions: HTTPCommandOptions? = nil) {
+        let options = suppliedOptions ?? HTTPCommandOptions(arguments: Array(params.dropFirst()), parameterRoot: httpParameterRoot())
+        let method = httpMethod(for: subcommand, prefix: "http-stream-")
+        let rawURL = params.first ?? ""
+        if let inputError = options.parameterInputFileError {
+            notifyHTTPEvent(.OnExecuteHTTPFailure, method: method, options: options,
+                            url: rawURL, data: "", result: "param_input_\(inputError)", cookie: "", responseHeaders: "")
             return
         }
-        let methodSuffix = String(subcommand.dropFirst("http-stream-".count)).uppercased()
-        let supported = Set(["GET", "POST"])
-        let method = supported.contains(methodSuffix) ? methodSuffix : "GET"
-
-        var request = URLRequest(url: url)
-        request.httpMethod = method
-        let parsed = parseCommandArguments(Array(params.dropFirst()))
-        if method == "POST" {
-            let body = parsed.options["body"] ?? parsed.positionals.first ?? ""
-            if !body.isEmpty {
-                request.httpBody = body.data(using: .utf8)
-                request.setValue("text/plain; charset=utf-8", forHTTPHeaderField: "Content-Type")
-            }
+        guard let url = URL(string: rawURL), !rawURL.isEmpty else {
+            notifyHTTPEvent(.OnExecuteHTTPFailure, method: method, options: options,
+                            url: rawURL, data: "", result: "invalid_url", cookie: "", responseHeaders: "")
+            return
         }
-        applyRequestOptions(parsed, to: &request)
 
-        EventBridge.shared.notify(.OnExecuteHTTPProgress, refs: [
-            "phase": "running",
-            "progress": "0",
-            "method": method,
-            "url": url.absoluteString
-        ])
-
+        let request = makeHTTPRequest(url: url, method: method, options: options)
         let key = url.absoluteString
-        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            self?.httpStreamingTasks.removeValue(forKey: key)
+        httpStreamingRunners[key]?.cancel()
+        httpStreamingRunners.removeValue(forKey: key)
+        httpStreamingTasks.removeValue(forKey: key)
+        httpStreamingPendingData.removeValue(forKey: key)
+
+        let waitID = options.waitForCompletion ? UUID() : nil
+        let runner = HTTPDataTaskRunner(request: request, onData: { [weak self] chunk, _, response in
+            guard let self, !chunk.isEmpty else { return }
+            let body = self.httpStreamingText(chunk, key: key, encoding: options.noFileEncoding)
+            guard !body.isEmpty else { return }
+            self.notifyHTTPEvent(.OnExecuteHTTPStreaming, method: method, options: options,
+                                 url: key, data: "", result: body,
+                                 cookie: self.httpResponseCookie(response, url: url),
+                                 responseHeaders: self.httpResponseHeaders(response))
+        }, onComplete: { [weak self] _, response, metrics, error in
+            guard let self else { return }
+            if let waitID {
+                self.completeHTTPWait(waitID)
+                self.httpStreamingWaitIDs.removeValue(forKey: key)
+            }
+            self.httpStreamingRunners.removeValue(forKey: key)
+            self.httpStreamingTasks.removeValue(forKey: key)
+            self.httpStreamingPendingData.removeValue(forKey: key)
             if let error {
                 if (error as NSError).code == NSURLErrorCancelled {
                     // \![cancel,http,URL] による意図的な中断。失敗イベントは送らない。
                     return
                 }
-                EventBridge.shared.notify(.OnExecuteHTTPFailure, refs: [
-                    "reason": error.localizedDescription,
-                    "url": key,
-                    "method": method
-                ])
+                self.notifyHTTPEvent(.OnExecuteHTTPFailure, method: method, options: options,
+                                     url: key, data: "", result: self.httpFailureResult(error),
+                                     cookie: self.httpResponseCookie(response, url: url),
+                                     responseHeaders: self.httpResponseHeaders(response))
                 return
             }
-            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
-            let body = data.flatMap { String(data: $0, encoding: .utf8) ?? String(data: $0, encoding: .shiftJIS) } ?? ""
-            // 受信データ全体を 1 チャンクとして OnExecuteHTTPStreaming を通知。
-            // Reference0=受信データ, Reference1=URL, Reference2=HTTPステータス, Reference3=method
-            EventBridge.shared.notify(.OnExecuteHTTPStreaming, refs: [
-                "body": body,
-                "url": key,
-                "statusCode": String(statusCode),
-                "method": method
-            ])
+            guard let response else {
+                self.notifyHTTPEvent(.OnExecuteHTTPFailure, method: method, options: options,
+                                     url: key, data: "", result: "invalid_response",
+                                     cookie: "", responseHeaders: "")
+                return
+            }
+            if url.scheme?.lowercased() == "https", self.hasTLSConnection(response: response, metrics: metrics) {
+                self.notifyHTTPSSLInfo(asyncID: options.asyncID, url: key,
+                                       statusCode: String(response.statusCode), metrics: metrics)
+            }
+        })
+        httpStreamingRunners[key] = runner
+        if let waitID {
+            pendingHTTPWaits.insert(waitID)
+            httpStreamingWaitIDs[key] = waitID
+            playbackQueue.append(.waitForHTTP(waitID))
         }
-        httpStreamingTasks[key] = task
-        task.resume()
+        runner.start()
+        httpStreamingTasks[key] = runner.task
     }
 
     /// \![cancel,http,URL] — 実行中の HTTP ストリーミング要求を即時中断する。
     func cancelHTTPStreaming(params: [String]) {
         guard let rawURL = params.first, let url = URL(string: rawURL) else { return }
         let key = url.absoluteString
-        guard let task = httpStreamingTasks.removeValue(forKey: key) else { return }
-        task.cancel()
+        let runner = httpStreamingRunners.removeValue(forKey: key)
+        let task = httpStreamingTasks.removeValue(forKey: key)
+        httpStreamingPendingData.removeValue(forKey: key)
+        if let waitID = httpStreamingWaitIDs.removeValue(forKey: key) {
+            completeHTTPWait(waitID)
+        }
+        runner?.cancel()
+        task?.cancel()
+    }
+
+    private func httpMethod(for subcommand: String, prefix: String) -> String {
+        let suffix = String(subcommand.dropFirst(prefix.count)).uppercased()
+        let supported = Set(["GET", "POST", "HEAD", "PUT", "DELETE", "PATCH", "OPTIONS"])
+        return supported.contains(suffix) ? suffix : "GET"
+    }
+
+    private func httpParameterRoot() -> URL {
+        ghostURL
+            .appendingPathComponent("ghost", isDirectory: true)
+            .appendingPathComponent("master", isDirectory: true)
+            .standardizedFileURL
+    }
+
+    /// URLSession の完了通知は delegate queue 上で届くため、再生キューと同じ
+    /// メインスレッド上で待機集合を解放する。
+    private func completeHTTPWait(_ taskID: UUID) {
+        let complete = { [weak self] in
+            _ = self?.pendingHTTPWaits.remove(taskID)
+        }
+        if Thread.isMainThread {
+            complete()
+        } else {
+            DispatchQueue.main.async(execute: complete)
+        }
+    }
+
+    private func makeHTTPRequest(url: URL, method: String, options: HTTPCommandOptions) -> URLRequest {
+        let parameters = options.parameters + options.positionals
+        var requestURL = url
+        if ["GET", "HEAD", "DELETE", "OPTIONS"].contains(method) {
+            if let parameterInputData = options.parameterInputData,
+               let rawQuery = String(data: parameterInputData, encoding: options.parameterEncoding),
+               !rawQuery.isEmpty {
+                requestURL = appendHTTPRawQuery(rawQuery, to: url)
+            } else if !parameters.isEmpty {
+                requestURL = appendHTTPQuery(parameters, to: url)
+            }
+        }
+
+        var request = URLRequest(url: requestURL)
+        request.httpMethod = method
+        if let timeout = options.timeout, timeout > 0 {
+            request.timeoutInterval = timeout
+        }
+        if options.noCache {
+            request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
+        }
+        if !options.cookie.isEmpty {
+            request.setValue(options.cookie, forHTTPHeaderField: "Cookie")
+        }
+
+        if !["GET", "HEAD", "DELETE", "OPTIONS"].contains(method) {
+            if let parameterInputData = options.parameterInputData {
+                request.httpBody = parameterInputData
+            } else if let body = options.body {
+                request.httpBody = body.data(using: options.parameterEncoding)
+            } else if !parameters.isEmpty {
+                let contentType = options.contentType?.lowercased() ?? "application/x-www-form-urlencoded"
+                let body = contentType.contains("application/x-www-form-urlencoded")
+                    ? parameters.map(formEncode).joined(separator: "&")
+                    : parameters.joined(separator: "\r\n")
+                request.httpBody = body.data(using: options.parameterEncoding)
+            }
+            if let contentType = options.contentType, !contentType.isEmpty {
+                request.setValue(contentType, forHTTPHeaderField: "Content-Type")
+            } else if request.httpBody != nil {
+                request.setValue("application/x-www-form-urlencoded; charset=utf-8", forHTTPHeaderField: "Content-Type")
+            }
+        }
+        for (key, value) in options.headers {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        return request
+    }
+
+    private func appendHTTPQuery(_ parameters: [String], to url: URL) -> URL {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return url }
+        let encoded = parameters.map(formEncode).joined(separator: "&")
+        if encoded.isEmpty { return url }
+        if let existing = components.percentEncodedQuery, !existing.isEmpty {
+            components.percentEncodedQuery = existing + "&" + encoded
+        } else {
+            components.percentEncodedQuery = encoded
+        }
+        return components.url ?? url
+    }
+
+    /// `--param-input-file` は既に送信用に組み立てられたデータを受け取るため、
+    /// `--param` と異なり再エンコードせずクエリへ連結する。
+    private func appendHTTPRawQuery(_ rawQuery: String, to url: URL) -> URL {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return url }
+        let query = rawQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return url }
+        if let existing = components.percentEncodedQuery, !existing.isEmpty {
+            components.percentEncodedQuery = existing + "&" + query
+        } else {
+            components.percentEncodedQuery = query
+        }
+        return components.url ?? url
+    }
+
+    private func formEncode(_ raw: String) -> String {
+        guard let separator = raw.firstIndex(of: "=") else {
+            return percentEncode(raw)
+        }
+        let key = String(raw[..<separator])
+        let value = String(raw[raw.index(after: separator)...])
+        return "\(percentEncode(key))=\(percentEncode(value))"
+    }
+
+    private func percentEncode(_ raw: String) -> String {
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-._~"))
+        return raw.addingPercentEncoding(withAllowedCharacters: allowed) ?? raw
+    }
+
+    private func httpOutputURL(fileName: String?, sourceURL: URL) -> URL {
+        let root = ghostURL
+            .appendingPathComponent("ghost", isDirectory: true)
+            .appendingPathComponent("master", isDirectory: true)
+            .appendingPathComponent("var", isDirectory: true)
+            .standardizedFileURL
+        let fallback = sourceURL.lastPathComponent.isEmpty ? "index.html" : sourceURL.lastPathComponent
+        let rawName = fileName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = (rawName?.isEmpty == false ? rawName! : fallback)
+        let candidate: URL
+        if name.hasPrefix("/") {
+            candidate = root.appendingPathComponent(URL(fileURLWithPath: name).lastPathComponent)
+        } else {
+            candidate = root.appendingPathComponent(name).standardizedFileURL
+        }
+        let rootPrefix = root.path.hasSuffix("/") ? root.path : root.path + "/"
+        guard candidate.path.hasPrefix(rootPrefix) else {
+            return root.appendingPathComponent(URL(fileURLWithPath: name).lastPathComponent)
+        }
+        return candidate
+    }
+
+    private func httpEventData(options: HTTPCommandOptions, data: Data, outputURL: URL?) -> String {
+        guard options.noFile else { return outputURL?.path ?? "" }
+        let decoded = String(data: data, encoding: options.noFileEncoding)
+            ?? String(data: data, encoding: .utf8)
+            ?? String(decoding: data, as: UTF8.self)
+        return httpWireText(decoded)
+    }
+
+    private func httpStreamingText(_ data: Data, key: String, encoding: String.Encoding) -> String {
+        var combined = httpStreamingPendingData[key, default: Data()]
+        combined.append(data)
+        if let decoded = String(data: combined, encoding: encoding) {
+            httpStreamingPendingData.removeValue(forKey: key)
+            return httpWireText(decoded)
+        }
+
+        // String(data:encoding:) rejects an incomplete multibyte suffix. Keep the
+        // shortest suffix that cannot yet be decoded and emit the valid prefix.
+        if combined.count > 1 {
+            for prefixLength in stride(from: combined.count - 1, through: 1, by: -1) {
+                let prefix = Data(combined.prefix(prefixLength))
+                guard let decoded = String(data: prefix, encoding: encoding) else { continue }
+                httpStreamingPendingData[key] = Data(combined.dropFirst(prefixLength))
+                return httpWireText(decoded)
+            }
+        }
+
+        // Invalid data is not allowed to block the stream forever. Preserve the
+        // existing replacement-character behavior after dropping the bad prefix.
+        httpStreamingPendingData.removeValue(forKey: key)
+        let decoded = String(data: data, encoding: encoding)
+            ?? String(decoding: data, as: UTF8.self)
+        return httpWireText(decoded)
+    }
+
+    private func httpWireText(_ raw: String) -> String {
+        raw.replacingOccurrences(of: "\r\n", with: "\u{1}")
+            .replacingOccurrences(of: "\r", with: "\u{1}")
+            .replacingOccurrences(of: "\n", with: "\u{1}")
+    }
+
+    private func notifyHTTPEvent(_ id: EventID,
+                                 method: String,
+                                 options: HTTPCommandOptions,
+                                 url: String,
+                                 data: String,
+                                 result: String,
+                                 cookie: String,
+                                 responseHeaders: String) {
+        var refs = [
+            "method": method,
+            "asyncID": options.asyncID,
+            "url": url,
+            "data": data,
+            "cookie": cookie,
+            "responseHeaders": responseHeaders
+        ]
+        if id == .OnExecuteHTTPStreaming {
+            refs["body"] = result
+        } else {
+            refs["result"] = result
+        }
+        let params = EventReferenceTable.params(forEvent: id.rawValue, refs: refs)
+        if let customEventID = options.customEventID {
+            EventBridge.shared.notifyCustom(httpEventName(for: id, customEventID: customEventID), params: params)
+        } else {
+            EventBridge.shared.notify(id, params: params)
+        }
+    }
+
+    private func httpEventName(for id: EventID, customEventID: String) -> String {
+        switch id {
+        case .OnExecuteHTTPComplete, .OnExecuteRSSComplete:
+            return customEventID
+        case .OnExecuteHTTPProgress:
+            return customEventID + "Progress"
+        case .OnExecuteHTTPFailure, .OnExecuteRSSFailure:
+            return customEventID + "Failure"
+        case .OnExecuteHTTPStreaming:
+            return customEventID + "Streaming"
+        default:
+            return id.rawValue
+        }
+    }
+
+    private func httpResponseHeaders(_ response: HTTPURLResponse?) -> String {
+        guard let response else { return "" }
+        return response.allHeaderFields
+            .map { "\($0.key): \($0.value)" }
+            .sorted()
+            .joined(separator: "\u{1}")
+    }
+
+    private func httpResponseCookie(_ response: HTTPURLResponse?, url: URL) -> String {
+        guard let response else { return "" }
+        let rawHeaders = response.allHeaderFields.reduce(into: [String: String]()) { result, pair in
+            result[String(describing: pair.key)] = String(describing: pair.value)
+        }
+        guard let setCookie = rawHeaders.first(where: { $0.key.caseInsensitiveCompare("Set-Cookie") == .orderedSame })?.value else {
+            return ""
+        }
+        let cookies = HTTPCookie.cookies(withResponseHeaderFields: ["Set-Cookie": setCookie], for: url)
+        return cookies.map { "\($0.name)=\($0.value)" }.joined(separator: "; ")
+    }
+
+    private func httpFailureResult(_ error: Error) -> String {
+        if let urlError = error as? URLError, urlError.code == .timedOut {
+            return "timeout"
+        }
+        let nsError = error as NSError
+        if nsError.domain == NSURLErrorDomain, nsError.code == NSURLErrorCancelled {
+            return "cancelled"
+        }
+        return error.localizedDescription.isEmpty ? "connection_failed" : error.localizedDescription
+    }
+
+    private func notifyHTTPSSLInfo(eventID: EventID = .OnExecuteHTTPSSLInfo,
+                                   asyncID: String,
+                                   url: String,
+                                   statusCode: String,
+                                   metrics: URLSessionTaskMetrics?) {
+        let tlsVersion = metrics?.transactionMetrics.reversed()
+            .compactMap { $0.negotiatedTLSProtocolVersion }
+            .first
+            .map(tlsVersionName) ?? ""
+        EventBridge.shared.notify(eventID, params: [
+            "Reference0": asyncID,
+            "Reference1": url,
+            "Reference2": statusCode,
+            "Reference3": tlsVersion
+        ])
+    }
+
+    private func hasTLSConnection(response: HTTPURLResponse?, metrics: URLSessionTaskMetrics?) -> Bool {
+        if response != nil { return true }
+        return metrics?.transactionMetrics.contains {
+            $0.negotiatedTLSProtocolVersion != nil
+        } == true
+    }
+
+    private func tlsVersionName(_ value: tls_protocol_version_t) -> String {
+        switch value {
+        case .TLSv10: return "TLSv1"
+        case .TLSv11: return "TLSv1.1"
+        case .TLSv12: return "TLSv1.2"
+        case .TLSv13: return "TLSv1.3"
+        default: return ""
+        }
     }
 
     /// Execute RSS commands for `\![execute,rss-*]`.
     func executeRSS(subcommand: String, params: [String]) {
-        guard let rawURL = params.first, let url = URL(string: rawURL) else {
-            EventBridge.shared.notifyCustom("OnExecuteRSSFailure", refs: ["reason": "invalid_url"])
-            return
-        }
+        let options = HTTPCommandOptions(arguments: Array(params.dropFirst()), parameterRoot: httpParameterRoot())
+        let rawURL = params.first ?? ""
         let methodSuffix = String(subcommand.dropFirst("rss-".count)).uppercased()
         let method = Set(["GET", "POST"]).contains(methodSuffix) ? methodSuffix : "GET"
-        var request = URLRequest(url: url)
-        request.httpMethod = method
-        let parsed = parseCommandArguments(Array(params.dropFirst()))
-        if method == "POST" {
-            let body = parsed.options["body"] ?? parsed.positionals.first ?? ""
-            if !body.isEmpty {
-                request.httpBody = body.data(using: .utf8)
-                request.setValue("application/x-www-form-urlencoded; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        if let inputError = options.parameterInputFileError {
+            notifyExecuteRSSFailure(method: method, options: options, url: rawURL,
+                                     reason: "param_input_\(inputError)", data: "", cookie: "", responseHeaders: "")
+            return
+        }
+        guard let url = URL(string: rawURL), !rawURL.isEmpty else {
+            notifyExecuteRSSFailure(method: method, options: options, url: rawURL, reason: "invalid_url",
+                                    data: "", cookie: "", responseHeaders: "")
+            return
+        }
+        let request = makeHTTPRequest(url: url, method: method, options: options)
+        let taskID = UUID()
+        let waitID = options.waitForCompletion ? UUID() : nil
+        let runner = HTTPDataTaskRunner(request: request, onData: { _, _, _ in
+            // RSS はレスポンス全体を XML として解析するため、途中イベントは発火しない。
+        }, onComplete: { [weak self] data, response, metrics, error in
+            guard let self else { return }
+            if let waitID { self.completeHTTPWait(waitID) }
+            self.httpRequestRunners.removeValue(forKey: taskID)
+            let responseHeaders = self.httpResponseHeaders(response)
+            let responseCookie = self.httpResponseCookie(response, url: url)
+            if url.scheme?.lowercased() == "https", self.hasTLSConnection(response: response, metrics: metrics) {
+                self.notifyHTTPSSLInfo(eventID: .OnExecuteRSS_SSLInfo, asyncID: options.asyncID, url: url.absoluteString,
+                                       statusCode: response.map { String($0.statusCode) } ?? "0",
+                                       metrics: metrics)
             }
-        }
-        applyRequestOptions(parsed, to: &request)
-
-        if url.scheme?.lowercased() == "https" {
-            EventBridge.shared.notifyCustom("OnExecuteRSS_SSLInfo", refs: [
-                "host": url.host ?? "",
-                "url": url.absoluteString
-            ])
-        }
-
-        URLSession.shared.dataTask(with: request) { data, _, error in
             if let error {
-                EventBridge.shared.notifyCustom("OnExecuteRSSFailure", refs: [
-                    "reason": error.localizedDescription,
-                    "url": url.absoluteString,
-                    "method": method
-                ])
+                self.notifyExecuteRSSFailure(method: method, options: options, url: url.absoluteString,
+                                             reason: self.httpFailureResult(error), data: "",
+                                             cookie: responseCookie, responseHeaders: responseHeaders)
                 return
             }
 
-            guard let data = data,
-                  let xml = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .shiftJIS) else {
-                EventBridge.shared.notifyCustom("OnExecuteRSSFailure", refs: [
-                    "reason": "unreadable_content",
-                    "url": url.absoluteString
-                ])
+            guard let response else {
+                self.notifyExecuteRSSFailure(method: method, options: options, url: url.absoluteString,
+                                             reason: "invalid_response", data: "",
+                                             cookie: responseCookie, responseHeaders: responseHeaders)
+                return
+            }
+            let statusCode = response.statusCode
+            guard (200..<300).contains(statusCode) else {
+                self.notifyExecuteRSSFailure(method: method, options: options, url: url.absoluteString,
+                                             reason: String(statusCode), data: "",
+                                             cookie: responseCookie, responseHeaders: responseHeaders)
                 return
             }
 
-            let title = xml.matches(for: "<title>(.*?)</title>")
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                .first(where: { !$0.isEmpty }) ?? ""
-            EventBridge.shared.notifyCustom("OnExecuteRSSComplete", refs: [
-                "title": title,
-                "url": url.absoluteString,
-                "method": method
-            ])
-        }.resume()
+            do {
+                let items = try RSSFeedParser().parse(data)
+                let eventParams: [String: String]
+                if items.isEmpty {
+                    eventParams = ["Reference0": "no update"]
+                } else {
+                    eventParams = Dictionary(uniqueKeysWithValues: items.enumerated().map { index, item in
+                        ("Reference\(index)", self.sanitizeRSSWireValue(item.wireValue))
+                    })
+                }
+                if let customEventID = options.customEventID {
+                    EventBridge.shared.notifyCustom(customEventID, params: eventParams)
+                } else {
+                    EventBridge.shared.notify(.OnExecuteRSSComplete, params: eventParams)
+                }
+            } catch {
+                self.notifyExecuteRSSFailure(method: method, options: options, url: url.absoluteString,
+                                             reason: "parse", data: "",
+                                             cookie: responseCookie, responseHeaders: responseHeaders)
+            }
+        })
+        httpRequestRunners[taskID] = runner
+        if let waitID {
+            pendingHTTPWaits.insert(waitID)
+            playbackQueue.append(.waitForHTTP(waitID))
+        }
+        runner.start()
     }
-    
+
+    private func sanitizeRSSWireValue(_ raw: String) -> String {
+        raw.replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "%", with: "\\%")
+            .replacingOccurrences(of: "\r", with: " ")
+            .replacingOccurrences(of: "\n", with: " ")
+    }
+
+    private func notifyExecuteRSSFailure(method: String,
+                                         options: HTTPCommandOptions,
+                                         url: String,
+                                         reason: String,
+                                         data: String,
+                                         cookie: String,
+                                         responseHeaders: String) {
+        let refs = [
+            "method": method,
+            "asyncID": options.asyncID,
+            "url": url,
+            "data": data,
+            "result": reason,
+            "cookie": cookie,
+            "responseHeaders": responseHeaders
+        ]
+        let params = EventReferenceTable.params(forEvent: EventID.OnExecuteRSSFailure.rawValue, refs: refs)
+        if let customEventID = options.customEventID {
+            EventBridge.shared.notifyCustom(customEventID + "Failure", params: params)
+        } else {
+            EventBridge.shared.notify(.OnExecuteRSSFailure, params: params)
+        }
+    }
+
     /// Execute update check
     func executeUpdate(target: String, options: [String]) {
         Log.debug("[GhostManager] Executing update check for: \(target)")
-        
+
         DispatchQueue.global(qos: .utility).async {
             // Determine what to update
             switch target.lowercased() {
@@ -974,23 +2041,25 @@ extension GhostManager {
             }
         }
     }
-    
+
     /// Check for ghost updates
     func checkGhostUpdate(options: [String]) {
-        emitUpdateBegin(targetType: "ghost")
-        emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadBegin", params: [
+        let commandOptions = UpdateCommandOptions(options)
+        emitUpdateBegin(targetType: "ghost", executionReason: commandOptions.reason)
+        self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadBegin", params: [
             "Reference0": ghostConfig?.homeurl ?? "",
             "Reference1": ghostURL.path
         ])
         guard let updateURL = ghostConfig?.homeurl else {
             Log.info("[GhostManager] No update URL configured for ghost")
-            EventBridge.shared.notify(.OnUpdateFailure, refs: [
-                "reason": "paramerror",
-                "fileList": "",
-                "type": "ghost"
+                EventBridge.shared.notify(.OnUpdateFailure, refs: [
+                    "reason": "paramerror",
+                    "fileList": "",
+                    "targetType": "ghost",
+                    "executionReason": commandOptions.reason
             ])
-            emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareFailure", params: ["Reference0": "missing_url"])
-            emitUpdateResultEvents(
+            self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareFailure", params: ["Reference0": "missing_url"])
+            self.emitUpdateResultEvents(
                 target: "ghost",
                 reason: "paramerror",
                 fileList: "",
@@ -1014,24 +2083,39 @@ extension GhostManager {
                     "Reference0": updateURL,
                     "Reference1": String(entries.count)
                 ])
+                let reason = entries.isEmpty ? "none" : "changed"
                 EventBridge.shared.notify(.OnUpdateReady, refs: [
-                    "fileIndex": fileList,
-                    "type": "ghost"
+                    "fileIndex": String(max(0, entries.count - 1)),
+                    "fileList": fileList,
+                    "targetType": "ghost",
+                    "executionReason": commandOptions.reason
                 ])
-                let first = entries.first?.absoluteString ?? ""
-                EventBridge.shared.notifyCustom("OnUpdateCheckComplete", refs: [
-                    "reason": "ghost",
-                    "fileList": first,
-                    "count": String(entries.count),
-                    "type": options.joined(separator: ",")
+                EventBridge.shared.notify(.OnUpdateCheckComplete, refs: [
+                    "reason": reason,
+                    "fileList": fileList,
+                    "targetType": "ghost",
+                    "executionReason": commandOptions.reason
                 ])
+
+                if commandOptions.checkOnly || commandOptions.testOnly {
+                    self.emitUpdateResultEvents(
+                        target: "ghost",
+                        targetName: self.ghostConfig?.name ?? self.ghostURL.lastPathComponent,
+                        reason: reason,
+                        fileList: fileList,
+                        explorerPath: self.ghostURL.path,
+                        checkOnly: true
+                    )
+                    return
+                }
 
                 // 変更が無ければ即完了。あればダウンロード→適用してから完了イベントを出す。
                 guard !entries.isEmpty else {
                     EventBridge.shared.notify(.OnUpdateComplete, refs: [
                         "reason": "none",
                         "fileList": "",
-                        "type": "ghost"
+                        "targetType": "ghost",
+                        "executionReason": commandOptions.reason
                     ])
                     self.emitUpdateResultEvents(target: "ghost", reason: "none", fileList: "", explorerPath: self.ghostURL.path)
                     Log.debug("[GhostManager] Ghost update: no changes")
@@ -1041,25 +2125,47 @@ extension GhostManager {
                     "Reference0": updateURL,
                     "Reference1": String(entries.count)
                 ])
-                installer.downloadAndApply(entries: entries, homeURLString: updateURL, targetRoot: self.ghostURL) { applied in
+                installer.downloadAndApply(entries: entries, homeURLString: updateURL, targetRoot: self.ghostURL) { result in
+                    switch result {
+                    case .success(let applied):
                     let appliedList = applied.joined(separator: ",")
-                    let reason = applied.isEmpty ? "none" : "changed"
+                    let appliedReason = applied.isEmpty ? "none" : "changed"
                     self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadComplete", params: [
                         "Reference0": updateURL,
                         "Reference1": String(applied.count)
                     ])
                     EventBridge.shared.notify(.OnUpdateComplete, refs: [
-                        "reason": reason,
+                        "reason": appliedReason,
                         "fileList": appliedList.isEmpty ? fileList : appliedList,
-                        "type": "ghost"
+                        "targetType": "ghost",
+                        "executionReason": commandOptions.reason
                     ])
                     self.emitUpdateResultEvents(
                         target: "ghost",
-                        reason: reason,
+                        reason: appliedReason,
                         fileList: appliedList.isEmpty ? fileList : appliedList,
                         explorerPath: self.ghostURL.path
                     )
                     Log.debug("[GhostManager] Ghost update applied=\(applied.count)/\(entries.count)")
+                    case .failure(let error):
+                        let failureReason = self.normalizeUpdateFailureReason(error)
+                        self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadFailure", params: [
+                            "Reference0": updateURL,
+                            "Reference1": failureReason
+                        ])
+                        EventBridge.shared.notify(.OnUpdateFailure, refs: [
+                            "reason": failureReason,
+                            "fileList": fileList,
+                            "targetType": "ghost",
+                            "executionReason": commandOptions.reason
+                        ])
+                        self.emitUpdateResultEvents(
+                            target: "ghost",
+                            reason: failureReason,
+                            fileList: fileList,
+                            explorerPath: self.ghostURL.path
+                        )
+                    }
                 }
             case .failure(let error):
                 Log.info("[GhostManager] Ghost update check failed: \(error)")
@@ -1071,7 +2177,8 @@ extension GhostManager {
                 EventBridge.shared.notify(.OnUpdateFailure, refs: [
                     "reason": reason,
                     "fileList": "",
-                    "type": "ghost"
+                    "targetType": "ghost",
+                    "executionReason": commandOptions.reason
                 ])
                 self.emitUpdateResultEvents(
                     target: "ghost",
@@ -1086,104 +2193,429 @@ extension GhostManager {
     
     /// Check for platform (Ourin) updates
     func checkPlatformUpdate(options: [String]) {
+        let commandOptions = UpdateCommandOptions(options)
         Log.info("[GhostManager] Checking for Ourin platform updates")
-        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
-        EventBridge.shared.notify(.OnBasewareUpdating, refs: ["version": currentVersion])
-        emitUpdateBegin(targetType: "baseware")
-        emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadBegin", params: [
-            "Reference0": "baseware",
-            "Reference1": currentVersion
+        emitUpdateBegin(targetType: "baseware", executionReason: commandOptions.reason)
+
+        guard let updateURL = configuredBasewareUpdateURL(explicit: commandOptions.explicitURL) else {
+            Log.info("[GhostManager] No baseware update descriptor URL is configured")
+            self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareFailure", params: [
+                "Reference0": "missing_url",
+                "Reference1": "baseware"
+            ])
+            EventBridge.shared.notify(.OnUpdateFailure, refs: [
+                "reason": "paramerror",
+                "fileList": "",
+                "targetType": "baseware",
+                "executionReason": commandOptions.reason
+            ])
+            EventBridge.shared.notify(.OnUpdateCheckFailure, refs: ["reason": "missing_url"])
+            self.emitUpdateResultEvents(
+                target: "baseware",
+                reason: "paramerror",
+                fileList: "",
+                explorerPath: Bundle.main.bundlePath
+            )
+            return
+        }
+
+        self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadBegin", params: [
+            "Reference0": updateURL,
+            "Reference1": "baseware"
         ])
-        emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareBegin", params: [
-            "Reference0": "baseware",
-            "Reference1": currentVersion
-        ])
-        emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareComplete", params: [
-            "Reference0": "baseware",
-            "Reference1": currentVersion
-        ])
-        EventBridge.shared.notify(.OnUpdateReady, refs: [
-            "fileIndex": "",
-            "type": "baseware"
-        ])
-        EventBridge.shared.notify(.OnUpdateComplete, refs: [
-            "reason": "none",
-            "fileList": "",
-            "type": "baseware"
-        ])
-        EventBridge.shared.notify(.OnBasewareUpdated, refs: ["version": currentVersion])
-        EventBridge.shared.notifyCustom("OnUpdateCheckComplete", refs: [
-            "reason": "platform",
-            "fileList": currentVersion,
-            "count": options.joined(separator: ",")
-        ])
-        emitUpdateResultEvents(
-            target: "baseware",
-            reason: "none",
-            fileList: "",
-            explorerPath: Bundle.main.bundlePath
-        )
+        NarInstaller().checkUpdates(homeURLString: updateURL) { result in
+            switch result {
+            case .success(let entries):
+                let fileList = entries.map(\.lastPathComponent).joined(separator: ",")
+                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareBegin", params: [
+                    "Reference0": updateURL,
+                    "Reference1": String(entries.count)
+                ])
+                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareComplete", params: [
+                    "Reference0": updateURL,
+                    "Reference1": String(entries.count)
+                ])
+                let reason = entries.isEmpty ? "none" : "changed"
+                if !entries.isEmpty {
+                    EventBridge.shared.notify(.OnUpdateReady, refs: [
+                        "fileIndex": String(max(0, entries.count - 1)),
+                        "fileList": fileList,
+                        "targetType": "baseware",
+                        "executionReason": commandOptions.reason
+                    ])
+                }
+                EventBridge.shared.notify(.OnUpdateCheckComplete, refs: [
+                    "reason": reason,
+                    "fileList": fileList,
+                    "targetType": "baseware",
+                    "executionReason": commandOptions.reason
+                ])
+                if commandOptions.checkOnly || commandOptions.testOnly {
+                    self.emitUpdateResultEvents(
+                        target: "baseware",
+                        targetName: Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "Ourin",
+                        reason: reason,
+                        fileList: fileList,
+                        explorerPath: Bundle.main.bundlePath,
+                        checkOnly: true
+                    )
+                    return
+                }
+                guard !entries.isEmpty else {
+                    EventBridge.shared.notify(.OnUpdateComplete, refs: [
+                        "reason": "none",
+                        "fileList": "",
+                        "targetType": "baseware",
+                        "executionReason": commandOptions.reason
+                    ])
+                    self.emitUpdateResultEvents(
+                        target: "baseware",
+                        reason: "none",
+                        fileList: "",
+                        explorerPath: Bundle.main.bundlePath
+                    )
+                    return
+                }
+                // 実行中の .app を自身で上書きすると破損するため、専用 updater がない状態で
+                // OnBasewareUpdated/OnUpdateComplete を発火しない。更新候補の検出までは成功し、
+                // 適用段階だけを正確な失敗として通知する。
+                let failureReason = "baseware_updater_unavailable"
+                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadFailure", params: [
+                    "Reference0": updateURL,
+                    "Reference1": failureReason
+                ])
+                EventBridge.shared.notify(.OnUpdateFailure, refs: [
+                    "reason": failureReason,
+                    "fileList": fileList,
+                    "targetType": "baseware",
+                    "executionReason": commandOptions.reason
+                ])
+                self.emitUpdateResultEvents(
+                    target: "baseware",
+                    reason: failureReason,
+                    fileList: fileList,
+                    explorerPath: Bundle.main.bundlePath
+                )
+
+            case .failure(let error):
+                let reason = self.normalizeUpdateFailureReason(error)
+                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareFailure", params: [
+                    "Reference0": updateURL,
+                    "Reference1": reason
+                ])
+                EventBridge.shared.notify(.OnUpdateFailure, refs: [
+                    "reason": reason,
+                    "fileList": "",
+                    "targetType": "baseware",
+                    "executionReason": commandOptions.reason
+                ])
+                EventBridge.shared.notify(.OnUpdateCheckFailure, refs: ["reason": reason])
+                self.emitUpdateResultEvents(
+                    target: "baseware",
+                    reason: reason,
+                    fileList: "",
+                    explorerPath: Bundle.main.bundlePath
+                )
+            }
+        }
+    }
+
+    private func configuredBasewareUpdateURL(explicit: String?) -> String? {
+        let candidates = [
+            explicit,
+            UserDefaults.standard.string(forKey: "OurinBasewareUpdateURL"),
+            Bundle.main.infoDictionary?["OurinBasewareUpdateURL"] as? String,
+            ResourceBridge.shared.get("update.url")
+        ]
+        return candidates.compactMap { value in
+            guard let value else { return nil }
+            let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty, URL(string: trimmed) != nil else { return nil }
+            return trimmed
+        }.first
     }
     
     /// Check for updates to all ghosts
     func checkAllGhostsUpdate(options: [String]) {
-        Log.info("[GhostManager] Checking for updates to all installed ghosts")
-        emitUpdateBegin(targetType: "ghost")
-        EventBridge.shared.notify(.OnUpdateOtherBegin, refs: [
-            "ghostName": "",
-            "path": "",
-            "type": "ghost"
-        ])
-        emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnDownloadBegin", params: [
-            "Reference0": "all",
-            "Reference1": "ghost"
-        ])
-        emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnMD5CompareBegin", params: [
-            "Reference0": "all",
-            "Reference1": "ghost"
-        ])
-        EventBridge.shared.notify(.OnUpdateReady, refs: [
-            "fileIndex": "",
-            "type": "ghost"
-        ])
-        EventBridge.shared.notify(.OnUpdateOtherReady, refs: [
-            "fileIndex": "",
-            "fileList": "",
-            "type": "ghost"
-        ])
-        EventBridge.shared.notify(.OnUpdateComplete, refs: [
-            "reason": "none",
-            "fileList": "",
-            "type": "ghost"
-        ])
-        EventBridge.shared.notify(.OnUpdateOtherComplete, refs: [
-            "reason": "none",
-            "fileList": "",
-            "type": "ghost"
-        ])
-        emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnMD5CompareComplete", params: [
-            "Reference0": "all",
-            "Reference1": "ghost"
-        ])
-        let ghosts = NarRegistry.shared.installedGhosts()
-        EventBridge.shared.notifyCustom("OnUpdateCheckComplete", refs: [
-            "reason": "all",
-            "fileList": String(ghosts.count),
-            "count": options.joined(separator: ",")
-        ])
-        emitUpdateResultEvents(
-            target: "other",
-            reason: "none",
-            fileList: ghosts.joined(separator: ","),
-            explorerPath: ((try? OurinPaths.baseDirectory().appendingPathComponent("ghost", isDirectory: true).path) ?? ghostURL.path)
-        )
+        let commandOptions = UpdateCommandOptions(options)
+        let checkOnly = commandOptions.checkOnly || commandOptions.testOnly
+        let allItems = NarRegistry.shared.installedItems(ofType: "ghost")
+
+        func emitSelectionFailure(reason: String, fileList: String) {
+            EventBridge.shared.notify(.OnUpdateOtherFailure, refs: [
+                "reason": reason,
+                "fileList": fileList,
+                "targetType": "ghost",
+                "executionReason": commandOptions.reason
+            ])
+            EventBridge.shared.notify(.OnUpdateCheckFailure, refs: [
+                "reason": reason,
+                "executionReason": commandOptions.reason
+            ])
+            EventBridge.shared.notify(.OnUpdateCheckComplete, refs: [
+                "reason": reason,
+                "fileList": fileList,
+                "targetType": "ghost",
+                "executionReason": commandOptions.reason
+            ])
+            self.emitUpdateResultEvents(
+                target: "ghost",
+                reason: reason,
+                fileList: fileList,
+                explorerPath: self.ghostURL.path,
+                checkOnly: checkOnly
+            )
+        }
+
+        guard commandOptions.unsupportedSelectors.isEmpty else {
+            let requested = commandOptions.unsupportedSelectors
+                .map { "\($0.type)=\($0.name)" }
+                .joined(separator: ",")
+            Log.info("[GhostManager] Unsupported updateother target: \(requested)")
+            emitSelectionFailure(reason: "unsupported_target", fileList: requested)
+            return
+        }
+
+        let requestedNames = commandOptions.selectors
+            .filter { $0.type == "ghost" }
+            .map(\.name)
+        let items: [NarPackageItem]
+        if requestedNames.isEmpty {
+            items = allItems
+        } else {
+            items = allItems.filter { item in
+                requestedNames.contains {
+                    item.name.caseInsensitiveCompare($0) == .orderedSame
+                }
+            }
+            guard !items.isEmpty else {
+                let requested = requestedNames.joined(separator: ",")
+                Log.info("[GhostManager] updateother target not found: \(requested)")
+                emitSelectionFailure(reason: "target_not_found", fileList: requested)
+                return
+            }
+        }
+
+        Log.info("[GhostManager] Checking for updates to \(items.count) selected ghost(s)")
+        guard !items.isEmpty else {
+            EventBridge.shared.notify(.OnUpdateCheckComplete, refs: [
+                "reason": "none",
+                "fileList": "",
+                "targetType": "ghost",
+                "executionReason": commandOptions.reason
+            ])
+            self.emitUpdateResultEvents(
+                target: "ghost",
+                reason: "none",
+                fileList: "",
+                explorerPath: ghostURL.path,
+                checkOnly: checkOnly
+            )
+            return
+        }
+
+        struct BatchResult {
+            let name: String
+            let reason: String
+            let fileList: String
+            let path: String
+            let failedFile: String?
+        }
+
+        func emitBatchResultEvents(_ results: [BatchResult]) {
+            guard !results.isEmpty else { return }
+            let separator = String(UnicodeScalar(1))
+            var basicRefs: [String: String] = [:]
+            var extendedRefs: [String: String] = [:]
+            for (index, result) in results.enumerated() {
+                let success = result.reason == "none" || result.reason == "changed"
+                let value: String
+                if success {
+                    let count = result.fileList.isEmpty ? 0 : result.fileList.split(separator: ",").count
+                    value = String(count)
+                } else {
+                    value = result.reason
+                }
+                var basic = ["ghost", success ? "OK" : "NG", value]
+                var extended = [result.name, "ghost", success ? "OK" : "NG", value]
+                if let failedFile = result.failedFile, !failedFile.isEmpty {
+                    basic.append(failedFile)
+                    extended.append(failedFile)
+                }
+                basicRefs["Reference\(index)"] = basic.joined(separator: separator)
+                extendedRefs["Reference\(index)"] = extended.joined(separator: separator)
+            }
+            let basicEvent: EventID = (commandOptions.checkOnly || commandOptions.testOnly)
+                ? .OnUpdateCheckResult
+                : .OnUpdateResult
+            let extendedEvent: EventID = (commandOptions.checkOnly || commandOptions.testOnly)
+                ? .OnUpdateCheckResultEx
+                : .OnUpdateResultEx
+            EventBridge.shared.notify(basicEvent, params: basicRefs)
+            EventBridge.shared.notify(extendedEvent, params: extendedRefs)
+            EventBridge.shared.notify(.OnUpdateResultExplorer, params: basicRefs)
+        }
+
+        func process(index: Int, results: [BatchResult]) {
+            guard index < items.count else {
+                let changed = results.filter { $0.reason == "changed" }
+                let failed = results.filter { $0.reason != "changed" && $0.reason != "none" }
+                let aggregateReason = failed.isEmpty ? (changed.isEmpty ? "none" : "changed") : failed[0].reason
+                let aggregateFiles = results.map(\.name).joined(separator: ",")
+                EventBridge.shared.notify(.OnUpdateCheckComplete, refs: [
+                    "reason": aggregateReason,
+                    "fileList": aggregateFiles,
+                    "targetType": "ghost",
+                    "executionReason": commandOptions.reason
+                ])
+                emitBatchResultEvents(results)
+                return
+            }
+
+            let item = items[index]
+            let name = item.name
+            let path = item.path.path
+            let ghostRoot = item.path.appendingPathComponent("ghost/master", isDirectory: true)
+            let next: (BatchResult) -> Void = { result in
+                process(index: index + 1, results: results + [result])
+            }
+
+            EventBridge.shared.notify(.OnUpdateOtherBegin, refs: [
+                "ghostName": name,
+                "path": path,
+                "targetType": "ghost",
+                "executionReason": commandOptions.reason
+            ])
+            self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnDownloadBegin", params: [
+                "Reference0": name,
+                "Reference1": path
+            ])
+
+            guard let config = GhostConfiguration.load(from: ghostRoot),
+                  let updateURL = config.homeurl?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !updateURL.isEmpty,
+                  URL(string: updateURL) != nil else {
+                let reason = "missing_url"
+                EventBridge.shared.notify(.OnUpdateOtherFailure, params: [
+                    "Reference0": reason,
+                    "Reference1": "",
+                    "Reference3": "ghost",
+                    "Reference4": commandOptions.reason
+                ])
+                EventBridge.shared.notify(.OnUpdateCheckFailure, refs: [
+                    "reason": reason,
+                    "executionReason": commandOptions.reason
+                ])
+                next(BatchResult(name: name, reason: reason, fileList: "", path: path, failedFile: nil))
+                return
+            }
+
+            let installer = NarInstaller()
+            installer.checkUpdates(homeURLString: updateURL) { result in
+                switch result {
+                case .success(let entries):
+                    let fileList = entries.map(\.lastPathComponent).joined(separator: ",")
+                    self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnMD5CompareBegin", params: [
+                        "Reference0": name,
+                        "Reference1": String(entries.count)
+                    ])
+                    self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnMD5CompareComplete", params: [
+                        "Reference0": name,
+                        "Reference1": String(entries.count)
+                    ])
+                    let reason = entries.isEmpty ? "none" : "changed"
+                    if !entries.isEmpty {
+                        EventBridge.shared.notify(.OnUpdateOtherReady, params: [
+                            "Reference0": String(max(0, entries.count - 1)),
+                            "Reference1": fileList,
+                            "Reference3": "ghost",
+                            "Reference4": commandOptions.reason
+                        ])
+                    }
+                    EventBridge.shared.notify(.OnUpdateCheckComplete, refs: [
+                        "reason": reason,
+                        "fileList": fileList,
+                        "targetType": "ghost",
+                        "executionReason": commandOptions.reason
+                    ])
+                    if entries.isEmpty || commandOptions.checkOnly || commandOptions.testOnly {
+                        EventBridge.shared.notify(.OnUpdateOtherComplete, params: [
+                            "Reference0": reason,
+                            "Reference1": fileList,
+                            "Reference3": "ghost",
+                            "Reference4": commandOptions.reason
+                        ])
+                        next(BatchResult(name: name, reason: reason, fileList: fileList, path: path, failedFile: nil))
+                        return
+                    }
+
+                    self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnDownloadBegin", params: [
+                        "Reference0": name,
+                        "Reference1": String(entries.count)
+                    ])
+                    installer.downloadAndApply(entries: entries, homeURLString: updateURL, targetRoot: item.path) { applyResult in
+                        switch applyResult {
+                        case .success(let applied):
+                            let appliedList = applied.joined(separator: ",")
+                            EventBridge.shared.notify(.OnUpdateOtherComplete, params: [
+                                "Reference0": applied.isEmpty ? "none" : "changed",
+                                "Reference1": appliedList.isEmpty ? fileList : appliedList,
+                                "Reference3": "ghost",
+                                "Reference4": commandOptions.reason
+                            ])
+                            next(BatchResult(
+                                name: name,
+                                reason: applied.isEmpty ? "none" : "changed",
+                                fileList: appliedList.isEmpty ? fileList : appliedList,
+                                path: path,
+                                failedFile: nil
+                            ))
+                        case .failure(let error):
+                            let failureReason = self.normalizeUpdateFailureReason(error)
+                            self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnDownloadFailure", params: [
+                                "Reference0": name,
+                                "Reference1": failureReason
+                            ])
+                            EventBridge.shared.notify(.OnUpdateOtherFailure, params: [
+                                "Reference0": failureReason,
+                                "Reference1": fileList,
+                                "Reference3": "ghost",
+                                "Reference4": commandOptions.reason
+                            ])
+                            next(BatchResult(name: name, reason: failureReason, fileList: fileList, path: path, failedFile: nil))
+                        }
+                    }
+
+                case .failure(let error):
+                    let failureReason = self.normalizeUpdateFailureReason(error)
+                    self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnMD5CompareFailure", params: [
+                        "Reference0": name,
+                        "Reference1": failureReason
+                    ])
+                    EventBridge.shared.notify(.OnUpdateOtherFailure, params: [
+                        "Reference0": failureReason,
+                        "Reference1": "",
+                        "Reference3": "ghost",
+                        "Reference4": commandOptions.reason
+                    ])
+                    EventBridge.shared.notify(.OnUpdateCheckFailure, refs: [
+                        "reason": failureReason,
+                        "executionReason": commandOptions.reason
+                    ])
+                    next(BatchResult(name: name, reason: failureReason, fileList: "", path: path, failedFile: nil))
+                }
+            }
+        }
+
+        process(index: 0, results: [])
     }
 
-    private func emitUpdateBegin(targetType: String) {
+    private func emitUpdateBegin(targetType: String, executionReason: String) {
         EventBridge.shared.notify(.OnUpdateBegin, refs: [
             "ghostName": ghostConfig?.name ?? ghostURL.lastPathComponent,
             "path": ghostURL.path,
-            "type": targetType
+            "targetType": targetType,
+            "executionReason": executionReason
         ])
     }
 
@@ -1191,22 +2623,47 @@ extension GhostManager {
         EventBridge.shared.notifyCustom("\(base).\(stage)", params: params)
     }
 
-    private func emitUpdateResultEvents(target: String, reason: String, fileList: String, explorerPath: String) {
-        EventBridge.shared.notify(.OnUpdateResult, refs: [
-            "reason": reason,
-            "fileList": fileList,
-            "target": target
-        ])
-        EventBridge.shared.notify(.OnUpdateResultEx, refs: [
-            "reason": reason,
-            "fileList": fileList,
-            "target": target,
-            "explorerPath": explorerPath
-        ])
-        EventBridge.shared.notify(.OnUpdateResultExplorer, refs: [
-            "explorerPath": explorerPath,
-            "target": target
-        ])
+    private func emitUpdateResultEvents(
+        target: String,
+        targetName: String? = nil,
+        reason: String,
+        fileList: String,
+        explorerPath: String,
+        checkOnly: Bool = false,
+        failedFile: String? = nil
+    ) {
+        let success = reason == "none" || reason == "changed"
+        let resultValue: String
+        if success {
+            let count = fileList.isEmpty ? 0 : fileList.split(separator: ",").count
+            resultValue = count == 0 ? "0" : String(count)
+        } else {
+            resultValue = reason
+        }
+        let separator = String(UnicodeScalar(1))
+        var result = [target, success ? "OK" : "NG", resultValue]
+        if let failedFile, !failedFile.isEmpty { result.append(failedFile) }
+        let resultValueBasic = result.joined(separator: separator)
+
+        let defaultTargetName: String
+        if target == "ghost" {
+            defaultTargetName = ghostConfig?.name ?? ghostURL.lastPathComponent
+        } else if target == "baseware" {
+            defaultTargetName = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "Ourin"
+        } else {
+            defaultTargetName = target
+        }
+        var resultEx = [targetName ?? defaultTargetName, target, success ? "OK" : "NG", resultValue]
+        if let failedFile, !failedFile.isEmpty { resultEx.append(failedFile) }
+        let resultValueEx = resultEx.joined(separator: separator)
+
+        let basicEvent: EventID = checkOnly ? .OnUpdateCheckResult : .OnUpdateResult
+        let extendedEvent: EventID = checkOnly ? .OnUpdateCheckResultEx : .OnUpdateResultEx
+        EventBridge.shared.notify(basicEvent, params: ["Reference0": resultValueBasic])
+        EventBridge.shared.notify(extendedEvent, params: ["Reference0": resultValueEx])
+        // Explorer execution has no separate Ex event in the current EventID set;
+        // its basic record remains the same three/four-field OnUpdateResult record.
+        EventBridge.shared.notify(.OnUpdateResultExplorer, params: ["Reference0": resultValueBasic])
     }
 
     private func normalizeUpdateFailureReason(_ error: Error) -> String {
@@ -1215,7 +2672,9 @@ extension GhostManager {
             case .timedOut:
                 return "timeout"
             case .cannotFindHost, .cannotConnectToHost, .networkConnectionLost, .notConnectedToInternet:
-                return "404"
+                // 404 は HTTP 応答コードであり、DNS/接続失敗を表さない。
+                // ネットワーク層で応答を受け取れていない場合は、その事実を保つ。
+                return "network"
             default:
                 break
             }
@@ -1234,40 +2693,129 @@ extension GhostManager {
         return error.localizedDescription
     }
     
-    /// Terminate this ghost (vanish)
-    func executeVanish() {
-        Log.info("[GhostManager] Ghost terminating (vanish)")
-        let currentName = ghostConfig?.name ?? ghostURL.lastPathComponent
-        // OnFirstBoot の Reference0（vanish された回数）用に記録する
-        let defaults = UserDefaults.standard
-        defaults.set(defaults.integer(forKey: "OurinVanishCount") + 1, forKey: "OurinVanishCount")
-        // 次回起動を初回扱い（OnFirstBoot）にする
-        defaults.set(0, forKey: "OurinBootCount")
-        
-        DispatchQueue.main.async {
-            // Trigger OnVanished event first
+    /// ゴーストを終了する。通常のゴースト切替ではウィンドウだけを閉じ、
+    /// `vanishbymyself` ではインストール済みゴーストをゴミ箱へ移動してから
+    /// ランタイムも確実に解放する。
+    func executeVanish(uninstall: Bool = false, nextGhostName: String? = nil, query: Bool = false) {
+        let operation = {
+            let currentName = self.ghostConfig?.name ?? self.ghostURL.lastPathComponent
+
+            if query {
+                EventBridge.shared.notify(.OnVanishSelecting, params: [:])
+                let alert = NSAlert()
+                alert.messageText = "ゴーストの消滅"
+                alert.informativeText = "「\(currentName)」を消滅させますか？\nこの操作は取り消せません。"
+                alert.alertStyle = .critical
+                alert.addButton(withTitle: "消滅")
+                alert.addButton(withTitle: "キャンセル")
+                guard alert.runModal() == .alertFirstButtonReturn else {
+                    EventBridge.shared.notify(.OnVanishCancel, params: [:])
+                    return
+                }
+            } else {
+                // 互換性のため、確認なしの vanish でも選択イベントを発火する。
+                EventBridge.shared.notify(.OnVanishSelecting, params: [:])
+            }
+
+            guard uninstall else {
+                self.closeVanishWindowsOnly(currentName: currentName)
+                return
+            }
+
+            let targetItem = self.vanishTargetItem(preferredName: nextGhostName)
+            do {
+                guard FileManager.default.fileExists(atPath: self.ghostURL.path) else {
+                    throw NSError(domain: "OurinVanish", code: 1, userInfo: [
+                        NSLocalizedDescriptionKey: "ghost directory does not exist"
+                    ])
+                }
+                try FileManager.default.trashItem(at: self.ghostURL, resultingItemURL: nil)
+            } catch {
+                Log.info("[GhostManager] Failed to vanish ghost \(currentName): \(error)")
+                EventBridge.shared.notifyCustom("OnVanishFailure", refs: [
+                    "ghostName": currentName,
+                    "reason": error.localizedDescription
+                ])
+                return
+            }
+
+            EventBridge.shared.notify(.OnVanishSelected, refs: ["ghostName": currentName])
+            EventBridge.shared.notify(.OnVanishing, params: [:])
+
+            // OnFirstBoot の Reference0（vanish された回数）用に記録する。
+            let defaults = UserDefaults.standard
+            defaults.set(defaults.integer(forKey: "OurinVanishCount") + 1, forKey: "OurinVanishCount")
+            // 次に起動するゴーストを初回扱い（OnFirstBoot）にする。
+            defaults.set(0, forKey: "OurinBootCount")
+
             if let runtime = self.shioriRuntime {
                 _ = runtime.request(method: "GET", id: "OnVanished", timeout: 4.0)
             }
             EventBridge.shared.notify(.OnOtherGhostClosed, refs: ["ghostName": currentName])
             EventBridge.shared.notify(.OnOtherGhostVanished, refs: ["ghostName": currentName])
-            
-            // Close all windows
-            for window in self.characterWindows.values {
-                window.close()
+
+            let appDelegate = NSApp.delegate as? AppDelegate
+            let isPrimary = appDelegate?.ghostManager === self
+            if isPrimary {
+                appDelegate?.ghostManager = nil
             }
-            for window in self.balloonWindows.values {
-                window.close()
+
+            if let appDelegate {
+                if isPrimary {
+                    _ = self.shutdown()
+                    if let targetItem {
+                        appDelegate.runGhost(at: targetItem.path)
+                    }
+                } else {
+                    appDelegate.terminateAdditionalGhost(self)
+                }
+            } else {
+                _ = self.shutdown()
             }
-            
-            // Clean up resources
-            self.characterWindows.removeAll()
-            self.balloonWindows.removeAll()
-            self.playbackQueue.removeAll()
-            self.isPlaying = false
-            
-            Log.debug("[GhostManager] Ghost vanished successfully")
+            Log.debug("[GhostManager] Ghost vanished successfully: \(currentName)")
         }
+
+        if Thread.isMainThread {
+            operation()
+        } else {
+            DispatchQueue.main.async(execute: operation)
+        }
+    }
+
+    /// 通常のゴースト切替で使う終了処理。ランタイムやインストールデータは保持する。
+    private func closeVanishWindowsOnly(currentName: String) {
+        Log.info("[GhostManager] Closing ghost windows for switch: \(currentName)")
+        for window in characterWindows.values { window.close() }
+        for window in balloonWindows.values { window.close() }
+        characterWindows.removeAll()
+        balloonWindows.removeAll()
+        playbackQueue.removeAll()
+        isPlaying = false
+    }
+
+    /// 消滅後の切替先を、明示指定→現在位置からの順序選択→先頭の順に解決する。
+    private func vanishTargetItem(preferredName: String?) -> NarPackageItem? {
+        let currentName = ghostConfig?.name ?? ghostURL.lastPathComponent
+        let items = NarRegistry.shared.installedItems(ofType: "ghost").filter {
+            $0.path.standardizedFileURL != ghostURL.standardizedFileURL &&
+                $0.name.caseInsensitiveCompare(currentName) != .orderedSame
+        }
+
+        if let preferredName,
+           let preferred = items.first(where: {
+               $0.name.caseInsensitiveCompare(preferredName.trimmingCharacters(in: .whitespacesAndNewlines)) == .orderedSame
+           }) {
+            return preferred
+        }
+
+        let allItems = NarRegistry.shared.installedItems(ofType: "ghost")
+        if let sequentialName = NarRegistry.sequentialGhostName(items: allItems, currentName: currentName),
+           let sequential = items.first(where: { $0.name.caseInsensitiveCompare(sequentialName) == .orderedSame }) {
+            return sequential
+        }
+        return items.sorted {
+            $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }.first
     }
 
     func executeExtractArchive(params: [String]) {
@@ -1318,23 +2866,211 @@ extension GhostManager {
         }
     }
 
+    /// 現在表示中のサーフェスを、ベース・SERIKOオーバーレイ・着せ替えパーツまで
+    /// 含めて1枚へ合成する。zeroOrigin=true の場合は負座標を切り捨て、false では
+    /// 負座標ぶんキャンバスを左上へ拡張する。
+    private func dumpSurfaceImage(scope: Int, surfaceID: Int, zeroOrigin: Bool) -> NSImage? {
+        guard let vm = characterViewModels[scope],
+              vm.currentSurfaceID == surfaceID,
+              let baseImage = vm.image else {
+            return loadImage(surfaceId: surfaceID, scope: scope)
+        }
+
+        let baseEffects = vm.activeEffects.filter { $0.surfaceID == nil }
+        let effectiveBase = baseEffects.isEmpty
+            ? baseImage
+            : (SurfaceVisualEffectRenderer.applying(image: baseImage, effects: baseEffects, filters: []) ?? baseImage)
+        var layers: [SurfaceOverlay] = [SurfaceOverlay(
+            id: "dump-base-\(scope)-\(surfaceID)",
+            image: effectiveBase,
+            offset: .zero,
+            alpha: 1,
+            zOrder: -10_000,
+            insertionOrder: -10_000,
+            blendMode: .normal,
+            surfaceID: surfaceID,
+            animationID: nil
+        )]
+
+        let targetedEffects = vm.activeEffects.filter { $0.surfaceID != nil }
+        for overlay in SurfaceOverlay.sortedForDisplay(vm.overlays) {
+            var copy = overlay
+            let effects = targetedEffects.filter { $0.surfaceID == overlay.surfaceID }
+            if !effects.isEmpty,
+               let processed = SurfaceVisualEffectRenderer.applying(image: overlay.image, effects: effects, filters: []) {
+                copy.image = processed
+            }
+            layers.append(copy)
+        }
+        for (index, part) in vm.dressupParts.enumerated() where part.isEnabled {
+            layers.append(SurfaceOverlay(
+                id: "dump-dressup-\(index)-\(part.category)-\(part.partName)",
+                image: part.image,
+                offset: part.frame.origin,
+                alpha: 1,
+                zOrder: 1_000 + part.zOrder,
+                insertionOrder: index,
+                blendMode: .normal,
+                surfaceID: nil,
+                animationID: nil
+            ))
+        }
+
+        let minX = layers.map(\.offset.x).min() ?? 0
+        let minY = layers.map(\.offset.y).min() ?? 0
+        let shift = zeroOrigin
+            ? CGPoint.zero
+            : CGPoint(x: max(0, -minX), y: max(0, -minY))
+        let shifted = layers.map { layer -> SurfaceOverlay in
+            var copy = layer
+            copy.offset = CGPoint(x: layer.offset.x + shift.x, y: layer.offset.y + shift.y)
+            return copy
+        }
+        guard let composited = SurfaceBlendRenderer.composite(base: nil, overlays: shifted) else { return nil }
+        guard !vm.activeFilters.isEmpty else { return composited }
+        return SurfaceVisualEffectRenderer.applying(image: composited, effects: [], filters: vm.activeFilters) ?? composited
+    }
+
     func executeDumpSurface(params: [String]) {
-        guard let image = characterViewModels[currentScope]?.image else {
-            EventBridge.shared.notifyCustom("OnDumpSurfaceFailure", refs: ["reason": "missing_surface"])
+        guard !params.isEmpty else {
+            let output = URL(fileURLWithPath: NSTemporaryDirectory())
+                .appendingPathComponent("ourin_surface_\(currentScope).png")
+            writeDumpSurfaceImage(
+                dumpSurfaceImage(
+                    scope: currentScope,
+                    surfaceID: characterViewModels[currentScope]?.currentSurfaceID ?? 0,
+                    zeroOrigin: false
+                ),
+                to: output,
+                eventID: nil,
+                zeroOrigin: false
+            )
             return
         }
-        let output = params.first.map(resolvedPath) ?? URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("ourin_surface_\(currentScope).png")
-        guard let tiff = image.tiffRepresentation,
+
+        // 旧形式 \\![execute,dumpsurface,file.png] は単一ファイル出力として維持する。
+        let firstPath = resolvedPath(params[0])
+        if params.count == 1, firstPath.pathExtension.lowercased() == "png" {
+            writeDumpSurfaceImage(
+                dumpSurfaceImage(
+                    scope: currentScope,
+                    surfaceID: characterViewModels[currentScope]?.currentSurfaceID ?? 0,
+                    zeroOrigin: false
+                ),
+                to: firstPath,
+                eventID: nil,
+                zeroOrigin: false
+            )
+            return
+        }
+
+        // SSP形式: directory, scope, surface-list, prefix, eventID, zero-origin。
+        let outputDirectory = firstPath
+        let scope = Int(params.count > 1 ? params[1] : "") ?? currentScope
+        let surfaceSpec = params.count > 2 ? params[2] : "__system_surface_all__"
+        let prefixValue = params.count > 3 ? params[3] : ""
+        let prefix = prefixValue.isEmpty ? "surface" : prefixValue
+        let eventID = params.count > 4 ? params[4].trimmingCharacters(in: .whitespacesAndNewlines) : nil
+        let zeroOriginValue = params.count > 5 ? params[5].lowercased() : ""
+        let zeroOrigin = zeroOriginValue == "1" || zeroOriginValue == "true"
+        let surfaceIDs = dumpSurfaceIDs(for: surfaceSpec, scope: scope)
+
+        guard !surfaceIDs.isEmpty else {
+            emitDumpSurfaceFailure(eventID: eventID, reason: "surface_not_found")
+            return
+        }
+
+        do {
+            try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
+        } catch {
+            emitDumpSurfaceFailure(eventID: eventID, reason: error.localizedDescription)
+            return
+        }
+
+        var written = 0
+        for surfaceID in surfaceIDs {
+            let image = dumpSurfaceImage(scope: scope, surfaceID: surfaceID, zeroOrigin: zeroOrigin)
+            let output = outputDirectory.appendingPathComponent("\(prefix)\(surfaceID).png")
+            if writeDumpSurfaceImage(image, to: output, eventID: nil, zeroOrigin: zeroOrigin) {
+                written += 1
+            }
+        }
+
+        if written == surfaceIDs.count {
+            if let eventID, !eventID.isEmpty {
+                _ = EventBridge.shared.requestCustom(eventID, params: ["Reference0": String(written)])
+            }
+        } else {
+            emitDumpSurfaceFailure(eventID: eventID, reason: "encode_failed")
+        }
+    }
+
+    private func dumpSurfaceIDs(for specification: String, scope: Int) -> [Int] {
+        let normalized = specification.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if normalized == "__system_surface_all__" || normalized == "__system_surface_defined__" {
+            var ids = Set(parsedSurfaceDefs.keys)
+            if let table = surfaceTable {
+                ids.formUnion(table.definedSurfaceIDs)
+            }
+            if normalized == "__system_surface_all__", let shellURL = loadShellPath(),
+               let entries = try? FileManager.default.contentsOfDirectory(at: shellURL, includingPropertiesForKeys: nil) {
+                let regex = try? NSRegularExpression(pattern: #"^surface(?:1)?(\d+)(?:@\d+x)?\.png$"#, options: .caseInsensitive)
+                for entry in entries {
+                    let name = entry.lastPathComponent
+                    guard let regex,
+                          let match = regex.firstMatch(in: name, range: NSRange(name.startIndex..., in: name)),
+                          let range = Range(match.range(at: 1), in: name),
+                          let id = Int(name[range]) else { continue }
+                    ids.insert(id)
+                }
+            }
+            return ids.sorted()
+        }
+
+        var ids = Set<Int>()
+        for token in specification.split(separator: ",") {
+            let value = String(token).trimmingCharacters(in: .whitespacesAndNewlines)
+            if let rangeSeparator = value.firstIndex(of: "-"),
+               let start = Int(value[..<rangeSeparator]),
+               let end = Int(value[value.index(after: rangeSeparator)...]),
+               start <= end {
+                ids.formUnion(start...end)
+            } else if let id = Int(value) {
+                ids.insert(id)
+            } else if let alias = surfaceNameAliases[value.lowercased()] {
+                ids.insert(alias)
+            }
+        }
+        return ids.sorted()
+    }
+
+    @discardableResult
+    private func writeDumpSurfaceImage(_ image: NSImage?, to output: URL, eventID: String?, zeroOrigin: Bool) -> Bool {
+        guard let image,
+              let tiff = image.tiffRepresentation,
               let rep = NSBitmapImageRep(data: tiff),
               let png = rep.representation(using: .png, properties: [:]) else {
-            EventBridge.shared.notifyCustom("OnDumpSurfaceFailure", refs: ["reason": "encode_failed"])
-            return
+            emitDumpSurfaceFailure(eventID: eventID, reason: "missing_surface_or_encode_failed")
+            return false
         }
         do {
+            try FileManager.default.createDirectory(at: output.deletingLastPathComponent(), withIntermediateDirectories: true)
             try png.write(to: output)
-            EventBridge.shared.notifyCustom("OnDumpSurfaceComplete", refs: ["outputPath": output.path])
+            return true
         } catch {
-            EventBridge.shared.notifyCustom("OnDumpSurfaceFailure", refs: ["reason": error.localizedDescription])
+            emitDumpSurfaceFailure(eventID: eventID, reason: error.localizedDescription)
+            return false
+        }
+    }
+
+    private func emitDumpSurfaceFailure(eventID: String?, reason: String) {
+        if let eventID, !eventID.isEmpty {
+            _ = EventBridge.shared.requestCustom(eventID, params: [
+                "Reference0": "0",
+                "Reference1": reason
+            ])
+        } else {
+            EventBridge.shared.notifyCustom("OnDumpSurfaceFailure", refs: ["reason": reason])
         }
     }
 
@@ -1348,7 +3084,7 @@ extension GhostManager {
                 EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "invalid_url"])
                 return
             }
-            URLSession.shared.downloadTask(with: url) { localURL, _, error in
+            URLSession.shared.downloadTask(with: url) { localURL, response, error in
                 if let error {
                     EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": error.localizedDescription])
                     return
@@ -1357,7 +3093,17 @@ extension GhostManager {
                     EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "download_failed"])
                     return
                 }
-                self.installNarFile(localURL)
+                do {
+                    let archiveURL = try self.normalizedDownloadedArchiveURL(
+                        localURL: localURL,
+                        response: response,
+                        sourceURL: url
+                    )
+                    defer { try? FileManager.default.removeItem(at: archiveURL) }
+                    _ = self.installNarFile(archiveURL)
+                } catch {
+                    EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "download_failed"])
+                }
             }.resume()
             return
         }
@@ -1400,51 +3146,195 @@ extension GhostManager {
 
     func executeEmptyRecycleBin() {
         let trash = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(".Trash", isDirectory: true)
+        let before = recycleBinStats(at: trash)
+        var success = true
         do {
             let items = try FileManager.default.contentsOfDirectory(at: trash, includingPropertiesForKeys: nil)
             for item in items {
-                try? FileManager.default.removeItem(at: item)
+                do {
+                    try FileManager.default.removeItem(at: item)
+                } catch {
+                    success = false
+                    Log.info("[GhostManager] Failed to remove recycle-bin item \(item.path): \(error.localizedDescription)")
+                }
             }
-            EventBridge.shared.notifyCustom("OnEmptyRecycleBinComplete", refs: ["count": String(items.count)])
+            let after = recycleBinStats(at: trash)
+            let currentName = ghostConfig?.sakuraName ?? ghostConfig?.name ?? ghostURL.lastPathComponent
+            let refs = [
+                "count": String(after.count),
+                "size": String(after.size),
+                "countDelta": String(after.count - before.count),
+                "sizeDelta": String(after.size - before.size),
+                "success": success && after.count == 0 ? "1" : "0",
+                "ghostName": currentName
+            ]
+            let params = EventReferenceTable.params(forEvent: EventID.OnRecycleBinEmpty.rawValue, refs: refs)
+            EventBridge.shared.notifyCustom(EventID.OnRecycleBinEmpty.rawValue, params: params, to: self)
+            EventBridge.shared.notifyCustom(
+                EventID.OnRecycleBinEmptyFromOther.rawValue,
+                params: EventReferenceTable.params(forEvent: EventID.OnRecycleBinEmptyFromOther.rawValue, refs: refs),
+                excluding: self,
+                ignoreResponseScript: false
+            )
+            RecycleBinObserver.shared.refreshNow()
         } catch {
-            EventBridge.shared.notifyCustom("OnEmptyRecycleBinFailure", refs: ["reason": error.localizedDescription])
+            let currentName = ghostConfig?.sakuraName ?? ghostConfig?.name ?? ghostURL.lastPathComponent
+            let refs = [
+                "count": String(before.count),
+                "size": String(before.size),
+                "countDelta": "0",
+                "sizeDelta": "0",
+                "success": "0",
+                "ghostName": currentName
+            ]
+            EventBridge.shared.notifyCustom(
+                EventID.OnRecycleBinEmpty.rawValue,
+                params: EventReferenceTable.params(forEvent: EventID.OnRecycleBinEmpty.rawValue, refs: refs),
+                to: self
+            )
+            RecycleBinObserver.shared.refreshNow()
+            Log.info("[GhostManager] Failed to enumerate recycle bin: \(error.localizedDescription)")
         }
     }
 
+    private func recycleBinStats(at directory: URL) -> (count: Int, size: Int64) {
+        let snapshot = RecycleBinObserver.snapshot(at: [directory])
+        return (snapshot.count, snapshot.size)
+    }
+
     func executePing(params: [String]) {
-        let host = params.first ?? "localhost"
-        EventBridge.shared.notify(.OnPingProgress, refs: [
-            "host": host,
-            "progress": "0"
-        ])
-        runProcess(path: "/sbin/ping", arguments: ["-c", "1", host]) { output, ok in
-            if ok {
-                EventBridge.shared.notify(.OnPingComplete, refs: [
-                    "host": host,
-                    "output": output
-                ])
-            } else {
-                EventBridge.shared.notifyCustom("OnPingFailure", refs: [
-                    "host": host,
-                    "output": output
-                ])
-            }
-            EventBridge.shared.notify(.OnPingProgress, refs: [
-                "host": host,
-                "progress": "100",
-                "result": ok ? "ok" : "failed"
-            ])
+        let parsed = parseCommandArguments(params)
+        let host = parsed.options["host"] ?? parsed.positionals.first ?? "localhost"
+        let eventID = parsed.options["event"] ?? ""
+        let count = max(1, Int(parsed.options["count"] ?? "3") ?? 3)
+
+        var arguments = ["-c", String(count)]
+        if let ttl = parsed.options["ttl"], Int(ttl) != nil { arguments += ["-m", ttl] }
+        if let size = parsed.options["size"], Int(size) != nil { arguments += ["-s", size] }
+        if let timeout = parsed.options["timeout"], Int(timeout) != nil { arguments += ["-W", timeout] }
+        if parsed.options["df"]?.lowercased() == "true" || parsed.options["df"] == "1" {
+            arguments.append("-D")
+        }
+        if let data = parsed.options["data"], !data.isEmpty {
+            let pattern = data.utf8.map { String(format: "%02x", $0) }.joined()
+            if !pattern.isEmpty { arguments += ["-p", pattern] }
+        }
+        arguments.append(host)
+
+        emitPingEvent(eventID: eventID, eventName: "OnPingProgress", host: host, count: count, success: 0, failure: 0, output: "")
+        runProcess(path: "/sbin/ping", arguments: arguments) { [weak self] output, ok in
+            guard let self else { return }
+            let successCount = self.pingSuccessCount(output: output, requested: count, processSucceeded: ok)
+            let failureCount = max(0, count - successCount)
+            self.emitPingEvent(
+                eventID: eventID,
+                eventName: ok ? "OnPingComplete" : "OnPingFailure",
+                host: host,
+                count: count,
+                success: successCount,
+                failure: failureCount,
+                output: output
+            )
+            self.emitPingEvent(
+                eventID: eventID,
+                eventName: "OnPingProgress",
+                host: host,
+                count: count,
+                success: successCount,
+                failure: failureCount,
+                output: output
+            )
         }
     }
 
     func executeNslookup(params: [String]) {
-        let host = params.first ?? "localhost"
-        runProcess(path: "/usr/bin/nslookup", arguments: [host]) { output, ok in
-            EventBridge.shared.notify(ok ? .OnNSLookupComplete : .OnNSLookupFailure, refs: [
-                "host": host,
-                "output": output
-            ])
+        let parsed = parseCommandArguments(params)
+        let host = parsed.options["host"] ?? parsed.positionals.first ?? "localhost"
+        let eventID = parsed.options["event"] ?? ""
+        let lookupType = isIPAddress(host) ? "reverse" : "lookup"
+        runProcess(path: "/usr/bin/nslookup", arguments: [host]) { [weak self] output, ok in
+            guard let self else { return }
+            let result = self.nslookupResult(output: output, reverse: lookupType == "reverse")
+            self.emitNslookupEvent(
+                eventID: eventID,
+                eventName: ok ? "OnNSLookupComplete" : "OnNSLookupFailure",
+                host: host,
+                lookupType: lookupType,
+                result: result,
+                output: output
+            )
         }
+    }
+
+    private func emitPingEvent(
+        eventID: String,
+        eventName: String,
+        host: String,
+        count: Int,
+        success: Int,
+        failure: Int,
+        output: String
+    ) {
+        let refs: [String: String] = [
+            "Reference0": eventID,
+            "Reference1": "\(host)\u{01}\(count)\u{01}\(success)\u{01}\(failure)",
+            "Reference2": "\(output.isEmpty ? "" : (success > 0 ? "OK" : output))\u{01}\(host)"
+        ]
+        _ = EventBridge.shared.requestCustom(
+            eventID.lowercased().hasPrefix("on") ? eventID : eventName,
+            params: refs,
+            to: self
+        )
+    }
+
+    private func emitNslookupEvent(
+        eventID: String,
+        eventName: String,
+        host: String,
+        lookupType: String,
+        result: String,
+        output: String
+    ) {
+        let refs: [String: String] = [
+            "Reference0": eventID,
+            "Reference1": host,
+            "Reference2": lookupType,
+            "Reference3": result.isEmpty ? output : result
+        ]
+        _ = EventBridge.shared.requestCustom(
+            eventID.lowercased().hasPrefix("on") ? eventID : eventName,
+            params: refs,
+            to: self
+        )
+    }
+
+    private func pingSuccessCount(output: String, requested: Int, processSucceeded: Bool) -> Int {
+        guard processSucceeded else { return 0 }
+        let pattern = #"(\d+(?:\.\d+)?)% packet loss"#
+        if let regex = try? NSRegularExpression(pattern: pattern),
+           let match = regex.firstMatch(in: output, range: NSRange(output.startIndex..., in: output)),
+           let lossRange = Range(match.range(at: 1), in: output),
+           let loss = Double(output[lossRange]) {
+            return max(0, min(requested, Int((Double(requested) * (100.0 - loss) / 100.0).rounded())))
+        }
+        return requested
+    }
+
+    private func isIPAddress(_ host: String) -> Bool {
+        IPv4Address(host) != nil || IPv6Address(host) != nil
+    }
+
+    private func nslookupResult(output: String, reverse: Bool) -> String {
+        let lines = output.split(whereSeparator: { $0.isNewline }).map(String.init)
+        if reverse {
+            return lines.first(where: { $0.trimmingCharacters(in: .whitespaces).hasPrefix("name =") })?
+                .split(separator: "=", maxSplits: 1).last.map { String($0).trimmingCharacters(in: .whitespaces) } ?? ""
+        }
+        return lines.compactMap { line -> String? in
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard trimmed.hasPrefix("Address:") else { return nil }
+            return trimmed.split(separator: ":", maxSplits: 1).last.map { String($0).trimmingCharacters(in: .whitespaces) }
+        }.joined(separator: "\u{01}")
     }
 
     private func applyRequestOptions(_ parsed: (positionals: [String], options: [String: String], flags: Set<String>), to request: inout URLRequest) {
@@ -1580,31 +3470,181 @@ extension GhostManager {
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
     }
 
-    func decodeScalarLiteral(_ raw: String?) -> UnicodeScalar? {
+    static func parseScalarLiteral(_ raw: String?) -> UInt32? {
         guard var token = raw?.trimmingCharacters(in: .whitespacesAndNewlines), !token.isEmpty else { return nil }
+        let radix: Int
         if token.hasPrefix("0x") || token.hasPrefix("0X") {
             token = String(token.dropFirst(2))
+            radix = 16
+        } else {
+            // UKADOC: 0x-prefixed values are hexadecimal; otherwise values are decimal.
+            radix = 10
         }
-        guard let value = UInt32(token, radix: 16) else { return nil }
+        return UInt32(token, radix: radix)
+    }
+
+    func decodeScalarLiteral(_ raw: String?) -> UnicodeScalar? {
+        guard let value = Self.parseScalarLiteral(raw) else { return nil }
         return UnicodeScalar(value)
     }
 
-    private func installNarFile(_ narURL: URL) {
+    private func normalizedDownloadedArchiveURL(
+        localURL: URL,
+        response: URLResponse?,
+        sourceURL: URL
+    ) throws -> URL {
+        let existingExtension = localURL.pathExtension.lowercased()
+        guard existingExtension != "nar" && existingExtension != "zip" else {
+            return localURL
+        }
+        let responseExtension = response?.suggestedFilename?.split(separator: ".").last.map(String.init)?.lowercased()
+        let sourceExtension = sourceURL.pathExtension.lowercased()
+        let extensionName: String
+        if let responseExtension, responseExtension == "nar" || responseExtension == "zip" {
+            extensionName = responseExtension
+        } else if sourceExtension == "nar" || sourceExtension == "zip" {
+            extensionName = sourceExtension
+        } else {
+            extensionName = "nar"
+        }
+        let destination = localURL.deletingLastPathComponent()
+            .appendingPathComponent(localURL.lastPathComponent + ".\(extensionName)")
+        try FileManager.default.moveItem(at: localURL, to: destination)
+        return destination
+    }
+
+    /// NAR を実インストールし、インストールイベントを同じ経路で発火する。
+    /// D&D／ファイル関連付けと `\![open,install,...]` の挙動を一致させるため、
+    /// 呼び出し側は直接 NarInstaller を呼ばず、このメソッドを通す。
+    @discardableResult
+    func installNarFile(_ narURL: URL) -> NarInstallDispatchOutcome {
         EventBridge.shared.notifyCustom("OnInstallBegin", params: [:])
+        var eventTarget: GhostManager?
         do {
-            let installed = try NarInstaller().install(fromNar: narURL)
-            let name = installed.lastPathComponent
-            // `%lastghostname` / `%lastobjectname`（OnInstall 系イベントで参照される）
-            EnvironmentExpander.lastInstalledGhostName = name
-            EnvironmentExpander.lastInstalledObjectName = name
-            // UKADOC: Reference0=識別子, Reference1=名前（install.txt name）, Reference2=副名（ghost with balloon 等の2番目）。
-            // 単体インストールでは副名が無く、パスは Reference2 の定義（副名）に反するため付与しない。
-            EventBridge.shared.notifyCustom("OnInstallComplete", refs: [
-                "type": name,
-                "name": name
-            ])
+            let installer = NarInstaller()
+            let manifest = try installer.inspectManifest(fromNar: narURL)
+            let installPreview = installPreview(for: manifest)
+
+            // shell/supplement の accept は「現在のゴーストに渡してよいか」の判定値。
+            // 別の起動中ゴーストが対象なら、以降のイベントをそのゴーストだけへ reroute する。
+            if let accept = manifest.accept?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !accept.isEmpty,
+               ["shell", "supplement"].contains(manifest.type.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()),
+               !acceptsInstall(accept) {
+                if let runningTarget = EventBridge.shared.runningGhost(named: accept, excluding: self) {
+                    eventTarget = runningTarget
+                    _ = EventBridge.shared.notifyCustom("OnInstallReroute", refs: [
+                        "accept": accept,
+                        "identifier": installPreview.identifier,
+                        "name": installPreview.name
+                    ], to: runningTarget)
+                } else {
+                    _ = EventBridge.shared.notifyCustom("OnInstallRefuse", refs: [
+                        "accept": accept,
+                        "identifier": installPreview.identifier,
+                        "name": installPreview.name
+                    ], to: self)
+                    return .refused
+                }
+            }
+
+            let result = try installer.installWithResult(fromNar: narURL)
+            emitInstallCompletionEvents(result, recipient: eventTarget)
+            return .installed(result)
         } catch {
-            EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": error.localizedDescription])
+            let refs = ["reason": installFailureReason(error)]
+            if let eventTarget {
+                _ = EventBridge.shared.notifyCustom("OnInstallFailure", refs: refs, to: eventTarget)
+            } else {
+                EventBridge.shared.notifyCustom("OnInstallFailure", refs: refs)
+            }
+            return .failed(error)
+        }
+    }
+
+    private func acceptsInstall(_ acceptedName: String) -> Bool {
+        let normalized = acceptedName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !normalized.isEmpty else { return true }
+        var names = [ghostConfig?.name ?? "", ghostURL.lastPathComponent]
+        names.append(contentsOf: ghostConfig?.installAccept ?? [])
+        return names.contains {
+            $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == normalized
+        }
+    }
+
+    private func installPreview(for manifest: InstallManifest) -> (identifier: String, name: String) {
+        let type = manifest.type.trimmingCharacters(in: .whitespacesAndNewlines)
+        let hasBundledBalloon = ["ghost", "shell"].contains(type.lowercased())
+            && manifest.balloonDirectory?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+        let identifier = NarInstaller.installIdentifier(type: type, hasBundledBalloon: hasBundledBalloon)
+        let name = manifest.name?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (identifier, name?.isEmpty == false ? name! : manifest.directory)
+    }
+
+    /// NAR の実設置結果を UKADOC の OnInstall 系 Reference へ変換する。
+    /// 単一対象は後方互換の OnInstallComplete、複数対象は Ex を使う。
+    func emitInstallCompletionEvents(_ result: NarInstallResult, recipient: GhostManager? = nil) {
+        guard let main = result.objects.first else { return }
+
+        func notify(_ eventName: String, refs: [String: String]) {
+            if let recipient {
+                _ = EventBridge.shared.notifyCustom(eventName, refs: refs, to: recipient)
+            } else {
+                EventBridge.shared.notifyCustom(eventName, refs: refs)
+            }
+        }
+
+        // `%lastghostname` / `%lastobjectname` は install.txt の name を基準に更新する。
+        if main.identifier == "ghost" {
+            EnvironmentExpander.lastInstalledGhostName = main.name
+        }
+        EnvironmentExpander.lastInstalledObjectName = main.name
+
+        let attachedBalloon = result.objects.count == 2
+            && (main.identifier == "ghost" || main.identifier == "shell")
+            && result.objects[1].identifier == "balloon"
+
+        if result.objects.count == 1 {
+            notify("OnInstallComplete", refs: [
+                "identifier": main.identifier,
+                "name": main.name
+            ])
+            return
+        }
+
+        if attachedBalloon {
+            let combinedIdentifier = "\(main.identifier) with balloon"
+            notify("OnInstallComplete", refs: [
+                "identifier": combinedIdentifier,
+                "name": main.name,
+                "name2": result.objects[1].name
+            ])
+            return
+        }
+
+        let separator = String(UnicodeScalar(1))
+        notify("OnInstallCompleteEx", refs: [
+            "identifiers": result.objects.map(\.identifier).joined(separator: separator),
+            "names": result.objects.map(\.name).joined(separator: separator),
+            "paths": result.objects.map(\.path).joined(separator: separator)
+        ])
+    }
+
+    func installFailureReason(_ error: Error) -> String {
+        guard let narError = error as? NarInstaller.Error else { return "unsupported" }
+        switch narError {
+        case .notZip, .unsupportedType:
+            return "unsupported"
+        case .unzipFailed:
+            return "extraction"
+        case .installTxtNotFound, .installTxtDecodeFailed, .installTxtMissingKey:
+            return "invalid type"
+        case .zipSlipDetected, .invalidDeletePath, .attachedComponentSourceNotFound:
+            return "invalid type"
+        case .directoryConflict:
+            return "unsupported"
+        case .updateDescriptorNotFound, .updateDescriptorDecodeFailed, .updateDownloadFailed:
+            return "unsupported"
         }
     }
 
@@ -1707,18 +3747,37 @@ extension GhostManager {
         let parsed = parseCommandArguments(options)
         let raiseEvent = parsed.options["option"]?.lowercased() == "raise-event" || parsed.flags.contains("option=raise-event")
 
+        let resolvedName: String?
+        switch normalized.lowercased() {
+        case "sequential":
+            resolvedName = NarRegistry.sequentialGhostName(
+                items: NarRegistry.shared.installedItems(ofType: "ghost"),
+                currentName: ghostConfig?.name ?? ghostURL.lastPathComponent
+            )
+            guard resolvedName != nil else {
+                Log.debug("[GhostManager] Sequential ghost switch ignored: no next ghost")
+                return
+            }
+        case "random":
+            resolvedName = nil
+        default:
+            resolvedName = normalized
+        }
+
+        let eventTargetName = resolvedName ?? normalized
+
         let previous = ghostConfig?.name ?? ""
         let previousPath = ghostURL.path
         // 切替先ゴーストのインストールパスを名前から解決する（見つからなければ Reference3 を省略）
         let targetPath = NarRegistry.shared.installedItems(ofType: "ghost").first {
-            $0.name.lowercased() == normalized.lowercased()
+            $0.name.lowercased() == eventTargetName.lowercased()
         }?.path.path
         if raiseEvent {
             // UKADOC: Reference0=切替先の本体側名前, Reference1=manual/automatic, Reference2=切替先ゴースト名[SSP], Reference3=切替先パス[SSP]
             var changingParams: [String: String] = [
-                "nextGhostName": normalized,
+                "nextGhostName": eventTargetName,
                 "changeMode": "manual",
-                "nextGhostNameSSP": normalized
+                "nextGhostNameSSP": eventTargetName
             ]
             if let targetPath { changingParams["nextGhostPath"] = targetPath }
             EventBridge.shared.notify(.OnGhostChanging, refs: changingParams)
@@ -1728,8 +3787,7 @@ extension GhostManager {
         case "random":
             bootOtherGhost(name: nil)
         case "sequential":
-            // Sequential order is baseware-managed; fallback to standard boot trigger.
-            bootOtherGhost(name: nil)
+            bootOtherGhost(name: resolvedName)
         default:
             bootOtherGhost(name: normalized)
         }
@@ -1745,11 +3803,11 @@ extension GhostManager {
         ])
         EventBridge.shared.notify(.OnOtherGhostChanged, refs: [
             "prevGhostName": previous,
-            "nextGhostName": normalized
+            "nextGhostName": eventTargetName
         ])
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            self.executeVanish()
+            self.executeVanish(uninstall: false)
         }
     }
 
@@ -1776,6 +3834,97 @@ extension GhostManager {
 
     // MARK: - Dialog Commands
 
+    struct InputDialogOptions {
+        let noClose: Bool
+        let noClear: Bool
+        let limit: Int?
+        let balloonID: String?
+        let references: [String]
+
+        init(rawArguments: [String]) {
+            var optionValues: [String: [String]] = [:]
+            for raw in rawArguments {
+                guard raw.hasPrefix("--") else { continue }
+                let body = String(raw.dropFirst(2))
+                let separator = body.firstIndex(of: "=")
+                let key = String(body[..<(separator ?? body.endIndex)]).lowercased()
+                let value = separator.map { String(body[body.index(after: $0)...]) } ?? ""
+                optionValues[key, default: []].append(value)
+            }
+
+            let modes = optionValues["option", default: []]
+                .flatMap { $0.split(separator: ",").map {
+                    $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                        .trimmingCharacters(in: CharacterSet(charactersIn: "="))
+                        .lowercased()
+                } }
+            noClose = modes.contains("noclose")
+            noClear = modes.contains("noclear")
+            limit = optionValues["limit"]?.last.flatMap(Int.init).map { max(0, $0) }
+            balloonID = optionValues["balloon"]?.last.flatMap { $0.isEmpty ? nil : $0 }
+            references = optionValues["reference", default: []]
+        }
+
+        static let none = InputDialogOptions(rawArguments: [])
+
+        func limited(_ value: String) -> String {
+            guard let limit else { return value }
+            return String(value.prefix(limit))
+        }
+    }
+
+    func inputDialogOptions(from rawArguments: [String]) -> InputDialogOptions {
+        InputDialogOptions(rawArguments: rawArguments)
+    }
+
+    private func beginInputDialog(_ alert: NSAlert, id: String) {
+        activeInputAlert = alert
+        activeInputDialogID = id
+        inputDialogCloseRequested = false
+    }
+
+    private func endInputDialog() {
+        activeInputAlert = nil
+        activeInputDialogID = nil
+        inputDialogCloseRequested = false
+    }
+
+    @discardableResult
+    func closeInputDialog(id: String) -> Bool {
+        guard let alert = activeInputAlert,
+              let activeID = activeInputDialogID,
+              id == "__SYSTEM_ALL_INPUT__" || activeID.caseInsensitiveCompare(id) == .orderedSame else {
+            return false
+        }
+        inputDialogCloseRequested = true
+        alert.window.close()
+        NSApp.abortModal()
+        return true
+    }
+
+    private func consumeInputDialogCloseRequest() -> Bool {
+        let requested = inputDialogCloseRequested
+        inputDialogCloseRequested = false
+        return requested
+    }
+
+    private func beginCommunicateDialog(_ alert: NSAlert) {
+        activeCommunicateAlert = alert
+        communicateDialogCloseRequested = false
+    }
+
+    private func endCommunicateDialog() {
+        activeCommunicateAlert = nil
+        communicateDialogCloseRequested = false
+    }
+
+    func closeCommunicateBoxDialog() {
+        guard let alert = activeCommunicateAlert else { return }
+        communicateDialogCloseRequested = true
+        alert.window.close()
+        NSApp.abortModal()
+    }
+
     func handleGhostTermsConsent() {
         let ghostName = ghostConfig?.name ?? ghostURL.lastPathComponent
         let alert = NSAlert()
@@ -1792,7 +3941,7 @@ extension GhostManager {
         }
     }
 
-    func showInputBoxDialog(id: String, timeoutMs: Int?, initialText: String) {
+    func showInputBoxDialog(id: String, timeoutMs: Int?, initialText: String, options: InputDialogOptions = .none) {
         _ = requestDialogEvent(eventID: "OnInputbox.autocomplete", references: [id, initialText])
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("Input", comment: "input dialog title")
@@ -1801,24 +3950,56 @@ extension GhostManager {
 
         let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 320, height: 24))
         textField.stringValue = initialText
+        if let balloonID = options.balloonID, let index = Int(balloonID),
+           let image = balloonImageLoader?.loadSurface(index: index, type: "c") {
+            alert.icon = image
+        }
         alert.accessoryView = textField
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
+        beginInputDialog(alert, id: id)
+        defer { endInputDialog() }
 
-        var timedOut = false
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if response == .alertFirstButtonReturn {
-            let value = textField.stringValue
-            emitUserInput(id: id, value: value)
+        let limitObserver: NSObjectProtocol?
+        if options.limit != nil {
+            limitObserver = NotificationCenter.default.addObserver(
+                forName: NSControl.textDidChangeNotification,
+                object: textField,
+                queue: .main
+            ) { [weak textField] _ in
+                guard let textField, let limit = options.limit else { return }
+                if textField.stringValue.count > limit {
+                    textField.stringValue = String(textField.stringValue.prefix(limit))
+                }
+            }
         } else {
-            emitUserInputCancel(id: id, timedOut: timedOut)
+            limitObserver = nil
+        }
+        defer {
+            if let limitObserver { NotificationCenter.default.removeObserver(limitObserver) }
+        }
+
+        while true {
+            var timedOut = false
+            let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
+            let response = alert.runModal()
+            timer?.invalidate()
+
+            if consumeInputDialogCloseRequest() { break }
+
+            if response == .alertFirstButtonReturn {
+                let value = options.limited(textField.stringValue)
+                emitUserInput(id: id, value: value, options: options)
+                guard options.noClose else { break }
+                if !options.noClear { textField.stringValue = "" }
+            } else {
+                emitUserInputCancel(id: id, timedOut: timedOut, options: options)
+                break
+            }
         }
     }
 
-    func showPasswordInputDialog(id: String, timeoutMs: Int?, initialText: String) {
+    func showPasswordInputDialog(id: String, timeoutMs: Int?, initialText: String, options: InputDialogOptions = .none) {
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("Password Input", comment: "password input title")
         alert.informativeText = NSLocalizedString("Please enter password.", comment: "password input message")
@@ -1829,20 +4010,24 @@ extension GhostManager {
         alert.accessoryView = textField
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
+        beginInputDialog(alert, id: id)
+        defer { endInputDialog() }
 
         var timedOut = false
         let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
         let response = alert.runModal()
         timer?.invalidate()
 
+        if consumeInputDialogCloseRequest() { return }
+
         if response == .alertFirstButtonReturn {
-            emitUserInput(id: id, value: textField.stringValue)
+            emitUserInput(id: id, value: options.limited(textField.stringValue), options: options)
         } else {
-            emitUserInputCancel(id: id, timedOut: timedOut)
+            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
         }
     }
 
-    func showDateInputDialog(id: String, timeoutMs: Int?, year: Int?, month: Int?, day: Int?) {
+    func showDateInputDialog(id: String, timeoutMs: Int?, year: Int?, month: Int?, day: Int?, options: InputDialogOptions = .none) {
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("Date Input", comment: "date input title")
         alert.alertStyle = .informational
@@ -1861,22 +4046,26 @@ extension GhostManager {
         alert.accessoryView = datePicker
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
+        beginInputDialog(alert, id: id)
+        defer { endInputDialog() }
 
         var timedOut = false
         let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
         let response = alert.runModal()
         timer?.invalidate()
 
+        if consumeInputDialogCloseRequest() { return }
+
         if response == .alertFirstButtonReturn {
             let selectedComps = Calendar.current.dateComponents([.year, .month, .day], from: datePicker.dateValue)
             let value = "\(selectedComps.year ?? 0),\(selectedComps.month ?? 0),\(selectedComps.day ?? 0)"
-            emitUserInput(id: id, value: value)
+            emitUserInput(id: id, value: value, options: options)
         } else {
-            emitUserInputCancel(id: id, timedOut: timedOut)
+            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
         }
     }
 
-    func showSliderInputDialog(id: String, timeoutMs: Int?, initial: Double?, min: Double?, max: Double?) {
+    func showSliderInputDialog(id: String, timeoutMs: Int?, initial: Double?, min: Double?, max: Double?, options: InputDialogOptions = .none) {
         let minValue = min ?? 0
         let maxValue = max ?? 100
         let startValue = initial ?? minValue
@@ -1898,20 +4087,34 @@ extension GhostManager {
 
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
+        beginInputDialog(alert, id: id)
+        defer { endInputDialog() }
 
         var timedOut = false
         let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
         let response = alert.runModal()
         timer?.invalidate()
 
+        if consumeInputDialogCloseRequest() { return }
+
         if response == .alertFirstButtonReturn {
-            emitUserInput(id: id, value: String(slider.doubleValue))
+            emitUserInput(
+                id: id,
+                value: String(slider.doubleValue),
+                supplemental: "\(minValue),\(maxValue)",
+                options: options
+            )
         } else {
-            emitUserInputCancel(id: id, timedOut: timedOut)
+            emitUserInputCancel(
+                id: id,
+                timedOut: timedOut,
+                supplemental: "\(minValue),\(maxValue)",
+                options: options
+            )
         }
     }
 
-    func showTimeInputDialog(id: String, timeoutMs: Int?, hour: Int?, minute: Int?, second: Int?) {
+    func showTimeInputDialog(id: String, timeoutMs: Int?, hour: Int?, minute: Int?, second: Int?, options: InputDialogOptions = .none) {
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("Time Input", comment: "time input title")
         alert.alertStyle = .informational
@@ -1930,22 +4133,26 @@ extension GhostManager {
         alert.accessoryView = timePicker
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
+        beginInputDialog(alert, id: id)
+        defer { endInputDialog() }
 
         var timedOut = false
         let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
         let response = alert.runModal()
         timer?.invalidate()
 
+        if consumeInputDialogCloseRequest() { return }
+
         if response == .alertFirstButtonReturn {
             let selectedComps = Calendar.current.dateComponents([.hour, .minute, .second], from: timePicker.dateValue)
             let value = "\(selectedComps.hour ?? 0),\(selectedComps.minute ?? 0),\(selectedComps.second ?? 0)"
-            emitUserInput(id: id, value: value)
+            emitUserInput(id: id, value: value, options: options)
         } else {
-            emitUserInputCancel(id: id, timedOut: timedOut)
+            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
         }
     }
 
-    func showIPInputDialog(id: String, timeoutMs: Int?, initialText: String) {
+    func showIPInputDialog(id: String, timeoutMs: Int?, initialText: String, options: InputDialogOptions = .none) {
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("IP Input", comment: "ip input title")
         alert.informativeText = NSLocalizedString("Please enter IP address.", comment: "ip input message")
@@ -1956,23 +4163,27 @@ extension GhostManager {
         alert.accessoryView = textField
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
+        beginInputDialog(alert, id: id)
+        defer { endInputDialog() }
 
         var timedOut = false
         let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
         let response = alert.runModal()
         timer?.invalidate()
 
+        if consumeInputDialogCloseRequest() { return }
+
         if response == .alertFirstButtonReturn {
-            emitUserInput(id: id, value: textField.stringValue)
+            emitUserInput(id: id, value: options.limited(textField.stringValue), options: options)
         } else {
-            emitUserInputCancel(id: id, timedOut: timedOut)
+            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
         }
     }
 
-    func showChoiceInputDialog(id: String, timeoutMs: Int?, choices: [String]) {
+    func showChoiceInputDialog(id: String, timeoutMs: Int?, choices: [String], options: InputDialogOptions = .none) {
         let sanitized = choices.filter { !$0.isEmpty }
         guard !sanitized.isEmpty else {
-            emitUserInputCancel(id: id, timedOut: false)
+            emitUserInputCancel(id: id, timedOut: false, options: options)
             return
         }
 
@@ -1985,15 +4196,19 @@ extension GhostManager {
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
 
         var timedOut = false
+        beginInputDialog(alert, id: id)
+        defer { endInputDialog() }
         let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
         let response = alert.runModal()
         timer?.invalidate()
 
+        if consumeInputDialogCloseRequest() { return }
+
         let buttonIndex = response.rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
         if buttonIndex >= 0 && buttonIndex < sanitized.count {
-            emitUserInput(id: id, value: sanitized[buttonIndex])
+            emitUserInput(id: id, value: sanitized[buttonIndex], options: options)
         } else {
-            emitUserInputCancel(id: id, timedOut: timedOut)
+            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
         }
     }
 
@@ -2042,23 +4257,120 @@ extension GhostManager {
     }
 
     func showTeachBoxDialog() {
-        let alert = NSAlert()
-        alert.messageText = NSLocalizedString("Teach", comment: "teachbox title")
-        alert.informativeText = NSLocalizedString("Enter text to teach.", comment: "teachbox message")
-        alert.alertStyle = .informational
-
-        let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 320, height: 24))
-        alert.accessoryView = textField
-        alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
-        alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-
-        let response = alert.runModal()
-        if response == .alertFirstButtonReturn {
-            let value = textField.stringValue
-            requestDialogEvent(eventID: "OnTeach", references: [value])
-        } else {
-            requestDialogEvent(eventID: "OnTeachInputCancel", references: [])
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in self?.showTeachBoxDialog() }
+            return
         }
+        if let existing = utilityWindows["teachbox"] {
+            existing.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 420, height: 170),
+            styleMask: [.titled, .closable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = NSLocalizedString("Teach", comment: "teachbox title")
+        window.isReleasedWhenClosed = false
+        window.delegate = self
+
+        let message = NSTextField(
+            labelWithString: NSLocalizedString("Enter text to teach.", comment: "teachbox message")
+        )
+        let textField = NSTextField(string: "")
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.placeholderString = NSLocalizedString("Text", comment: "teachbox input placeholder")
+
+        let okButton = NSButton(
+            title: NSLocalizedString("OK", comment: "OK"),
+            target: self,
+            action: #selector(acceptTeachBox(_:))
+        )
+        okButton.keyEquivalent = "\r"
+        let cancelButton = NSButton(
+            title: NSLocalizedString("Cancel", comment: "Cancel"),
+            target: self,
+            action: #selector(cancelTeachBox(_:))
+        )
+        cancelButton.keyEquivalent = "\u{1b}"
+
+        let buttons = NSStackView(views: [okButton, cancelButton])
+        buttons.orientation = .horizontal
+        buttons.spacing = 8
+        buttons.alignment = .centerY
+
+        let stack = NSStackView(views: [message, textField, buttons])
+        stack.orientation = .vertical
+        stack.alignment = .leading
+        stack.spacing = 12
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        window.contentView = NSView()
+        window.contentView?.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: window.contentView!.leadingAnchor, constant: 20),
+            stack.trailingAnchor.constraint(equalTo: window.contentView!.trailingAnchor, constant: -20),
+            stack.topAnchor.constraint(equalTo: window.contentView!.topAnchor, constant: 20),
+            stack.bottomAnchor.constraint(equalTo: window.contentView!.bottomAnchor, constant: -20),
+            textField.widthAnchor.constraint(equalToConstant: 380),
+            textField.heightAnchor.constraint(equalToConstant: 24)
+        ])
+
+        teachBoxTextField = textField
+        utilityWindows["teachbox"] = window
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+
+        // UKADOC: opening TeachBox raises OnTeachStart immediately.
+        _ = requestDialogEvent(eventID: "OnTeachStart", references: [])
+    }
+
+    func closeTeachBoxDialog() {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in self?.closeTeachBoxDialog() }
+            return
+        }
+        guard let window = utilityWindows["teachbox"] else { return }
+        teachBoxProgrammaticClose = true
+        utilityWindows.removeValue(forKey: "teachbox")
+        teachBoxTextField = nil
+        window.close()
+        teachBoxProgrammaticClose = false
+    }
+
+    @objc func acceptTeachBox(_ sender: Any?) {
+        guard let window = utilityWindows["teachbox"] else { return }
+        let value = teachBoxTextField?.stringValue ?? ""
+        teachBoxProgrammaticClose = true
+        utilityWindows.removeValue(forKey: "teachbox")
+        teachBoxTextField = nil
+        window.close()
+        teachBoxProgrammaticClose = false
+        _ = requestDialogEvent(eventID: "OnTeach", references: [value])
+    }
+
+    @objc func cancelTeachBox(_ sender: Any?) {
+        guard let window = utilityWindows["teachbox"] else { return }
+        teachBoxProgrammaticClose = true
+        utilityWindows.removeValue(forKey: "teachbox")
+        teachBoxTextField = nil
+        window.close()
+        teachBoxProgrammaticClose = false
+        _ = requestDialogEvent(eventID: "OnTeachInputCancel", references: ["", "cancel"])
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow,
+              utilityWindows["teachbox"] === window else { return }
+        utilityWindows.removeValue(forKey: "teachbox")
+        teachBoxTextField = nil
+        guard !teachBoxProgrammaticClose else { return }
+        // User closed the title-bar window: report cancel, but never for a
+        // script-issued close, which UKADOC explicitly excludes.
+        _ = requestDialogEvent(eventID: "OnTeachInputCancel", references: ["", "cancel"])
     }
 
     func showCommunicateBoxDialog(timeoutMs: Int?, initialText: String) {
@@ -2073,30 +4385,51 @@ extension GhostManager {
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
 
+        beginCommunicateDialog(alert)
+        defer { endCommunicateDialog() }
         var timedOut = false
         let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
         let response = alert.runModal()
         timer?.invalidate()
 
+        if communicateDialogCloseRequested { return }
+
         if response == .alertFirstButtonReturn {
-            _ = requestDialogEvent(eventID: "OnCommunicate", references: [textField.stringValue])
+            _ = requestDialogEvent(eventID: "OnCommunicate", references: ["user", textField.stringValue])
         } else {
             emitCommunicateInputCancel(timedOut: timedOut)
         }
     }
 
-    func emitUserInput(id: String, value: String) {
+    func emitUserInput(
+        id: String,
+        value: String,
+        supplemental: String = "",
+        options: InputDialogOptions = .none
+    ) {
+        let normalizedValue = options.limited(value)
         if id.lowercased().hasPrefix("on") {
-            _ = requestDialogEvent(eventID: id, references: [value])
+            _ = requestDialogEvent(eventID: id, references: [normalizedValue, supplemental] + options.references)
         } else {
-            _ = requestDialogEvent(eventID: "OnUserInput", references: [id, value])
+            _ = requestDialogEvent(
+                eventID: "OnUserInput",
+                references: [id, normalizedValue, supplemental] + options.references
+            )
         }
     }
 
-    func emitUserInputCancel(id: String, timedOut: Bool) {
-        let handled = requestDialogEvent(eventID: "OnUserInputCancel", references: [id])
+    func emitUserInputCancel(
+        id: String,
+        timedOut: Bool,
+        supplemental: String = "",
+        options: InputDialogOptions = .none
+    ) {
+        let handled = requestDialogEvent(
+            eventID: "OnUserInputCancel",
+            references: [id, timedOut ? "timeout" : "close", supplemental] + options.references
+        )
         if timedOut && !handled {
-            _ = requestDialogEvent(eventID: "OnUserInput", references: [id, "timeout"])
+            _ = requestDialogEvent(eventID: "OnUserInput", references: [id, "timeout", supplemental] + options.references)
         }
     }
 
@@ -2119,7 +4452,10 @@ extension GhostManager {
     }
 
     func emitCommunicateInputCancel(timedOut: Bool) {
-        let handled = requestDialogEvent(eventID: "OnCommunicateInputCancel", references: [])
+        let handled = requestDialogEvent(
+            eventID: "OnCommunicateInputCancel",
+            references: ["", timedOut ? "timeout" : "cancel"]
+        )
         if timedOut && !handled {
             _ = requestDialogEvent(eventID: "OnCommunicate", references: ["timeout"])
         }
@@ -2127,24 +4463,41 @@ extension GhostManager {
 
     func enterSelectMode(params: [String]) {
         selectModeActive = true
-        var payload: [String: String] = [:]
-        for (index, value) in params.enumerated() {
-            payload["Reference\(index)"] = value
-        }
-        EventBridge.shared.notify(.OnSelectModeBegin, params: payload)
+        selectModeScope = currentScope
+        let requestedMode = params.first?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        selectModeName = requestedMode?.isEmpty == false ? requestedMode! : "rect"
+        InputMonitor.shared.beginSelectionMode(scope: selectModeScope, mode: selectModeName)
+        EventBridge.shared.notify(.OnSelectModeBegin, refs: [
+            "scopeID": String(selectModeScope),
+            "mode": selectModeName
+        ])
     }
 
-    func leaveSelectMode(params: [String]) {
+    func leaveSelectMode(params _: [String]) {
         guard selectModeActive else {
-            EventBridge.shared.notify(.OnSelectModeCancel, params: [:])
+            EventBridge.shared.notify(.OnSelectModeCancel, refs: [
+                "scopeID": String(currentScope),
+                "mode": "rect"
+            ])
             return
         }
         selectModeActive = false
-        var payload: [String: String] = ["Reference0": "0,0,0,0"]
-        for (index, value) in params.enumerated() {
-            payload["Reference\(index + 1)"] = value
+        let scope = selectModeScope
+        let mode = selectModeName
+        let rect = InputMonitor.shared.endSelectionMode()
+        guard let rect, rect.width > 0, rect.height > 0 else {
+            EventBridge.shared.notify(.OnSelectModeCancel, refs: [
+                "scopeID": String(scope),
+                "mode": mode
+            ])
+            return
         }
-        EventBridge.shared.notify(.OnSelectModeComplete, params: payload)
+        let selection = "\(Int(rect.minX)),\(Int(rect.minY)),\(Int(rect.maxX)),\(Int(rect.maxY))"
+        EventBridge.shared.notify(.OnSelectModeComplete, refs: [
+            "scopeID": String(scope),
+            "mode": mode,
+            "selectionRect": selection
+        ])
     }
 
     func enterCollisionMode() {
@@ -2189,6 +4542,59 @@ extension GhostManager {
         EventBridge.shared.notifyCustom("OnNoUserBreakModeEnd", params: [:])
     }
 
+    /// Force the balloon for one scope to display its online marker.
+    /// The state intentionally persists until the matching leave command or
+    /// ghost shutdown, as required by the Sakura Script specification.
+    func enterOnlineMode(scope: Int) {
+        DispatchQueue.main.async {
+            let vm = self.getBalloonVM(for: scope)
+            vm.onlineModeActive = true
+            vm.onlineMarkerIndex = 0
+            self.startOnlineMarkerAnimation(for: scope)
+        }
+    }
+
+    /// Stop the forced online marker for one scope.
+    func leaveOnlineMode(scope: Int) {
+        DispatchQueue.main.async {
+            self.onlineMarkerTimers[scope]?.invalidate()
+            self.onlineMarkerTimers.removeValue(forKey: scope)
+            let vm = self.getBalloonVM(for: scope)
+            vm.onlineModeActive = false
+            vm.onlineMarkerIndex = 0
+        }
+    }
+
+    private func startOnlineMarkerAnimation(for scope: Int) {
+        onlineMarkerTimers[scope]?.invalidate()
+        onlineMarkerTimers.removeValue(forKey: scope)
+
+        guard balloonViewModels[scope] != nil,
+              let loader = balloonImageLoader,
+              let config = balloonConfig,
+              loader.loadOnlineMarker(index: 0, filenamePrefix: config.onlineMarkerFilename) != nil else {
+            return
+        }
+
+        let interval = max(0.05, config.onlineMarkerInterval)
+        let timer = Timer(timeInterval: interval, repeats: true) { [weak self] _ in
+            guard let self,
+                  let vm = self.balloonViewModels[scope],
+                  vm.onlineModeActive,
+                  let loader = self.balloonImageLoader,
+                  let config = self.balloonConfig else { return }
+
+            let next = vm.onlineMarkerIndex + 1
+            if loader.loadOnlineMarker(index: next, filenamePrefix: config.onlineMarkerFilename) != nil {
+                vm.onlineMarkerIndex = next
+            } else {
+                vm.onlineMarkerIndex = 0
+            }
+        }
+        onlineMarkerTimers[scope] = timer
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
     func setBalloonMarker(_ marker: String) {
         DispatchQueue.main.async {
             guard let vm = self.balloonViewModels[self.currentScope] else { return }
@@ -2196,16 +4602,19 @@ extension GhostManager {
         }
     }
 
-    func setBalloonNumberDisplay(enabled: Bool) {
+    func setBalloonNumber(fileName: String = "", current: String = "", maximum: String = "") {
         DispatchQueue.main.async {
             guard let vm = self.balloonViewModels[self.currentScope] else { return }
-            vm.balloonNumberVisible = enabled
+            vm.balloonNumberFileName = fileName
+            vm.balloonNumberCurrent = current
+            vm.balloonNumberMaximum = maximum
+            vm.balloonNumberVisible = !fileName.isEmpty || !current.isEmpty || !maximum.isEmpty
         }
     }
 
     func setSerikoTalk(mode: String) {
         let enabled = mode.lowercased() == "1" || mode.lowercased() == "true" || mode.lowercased() == "on"
-        UserDefaults.standard.set(enabled, forKey: "OurinSerikoTalkEnabled")
+        serikoTalkEnabledForScript = enabled
         EventBridge.shared.notifyCustom("OnSerikoTalkChanged", refs: ["enabled": enabled ? "1" : "0"])
     }
 
@@ -2230,7 +4639,10 @@ extension GhostManager {
             for (index, value) in references.enumerated() {
                 params["Reference\(index)"] = value
             }
-            EventBridge.shared.notifyCustom(eventID, params: params)
+            // Dialog events are generated by this ghost's UI. Do not broadcast a
+            // fallback response to every running ghost when the local runtime is
+            // unavailable or does not implement the event.
+            EventBridge.shared.notifyCustom(eventID, params: params, to: self, ignoreResponseScript: true)
             return false
         }
     }

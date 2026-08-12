@@ -405,6 +405,7 @@ public enum EventID: String, CaseIterable {
     case OnVanishCancel = "OnVanishCancel"
     case OnVanishSelected = "OnVanishSelected"
     case OnVanishSelecting = "OnVanishSelecting"
+    case OnVanishing = "OnVanishing"
     case OnVanished = "OnVanished"
     case OnVideoPlayEx = "OnVideoPlayEx"
     case OnVideoPlayFailure = "OnVideoPlayFailure"

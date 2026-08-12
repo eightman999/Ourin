@@ -33,7 +33,9 @@ public final class PropertyManager {
         register("calendarskinlist", provider: CalendarSkinPropertyProvider(skins: calendarSkins))
         register("calendarpluginlist", provider: CalendarPluginPropertyProvider(plugins: calendarPlugins))
         register("history", provider: HistoryPropertyProvider())
-        register("rateofuselist", provider: RateOfUsePropertyProvider())
+        register("rateofuselist", provider: RateOfUsePropertyProvider(entriesProvider: {
+            RateOfUseStore.shared.entries()
+        }))
 
         // SSP 互換の標準名前空間エイリアス（UKADOC プロパティシステム）。
         // sakura.* / kero.* は scope(0) / scope(1) のショートカット、
@@ -174,7 +176,7 @@ public final class PropertyManager {
 
     /// 動的に値が変わる名前空間はキャッシュしない（system.second / system.cursor.pos 等が
     /// 初回取得値で固定されるのを防ぐ）。
-    private static let uncachedPrefixes: Set<String> = ["system", "pluginlist"]
+    private static let uncachedPrefixes: Set<String> = ["system", "pluginlist", "rateofuselist"]
 
     public func get(_ key: String) -> String? {
         let lower = Self.lowercasePreservingParams(key)

@@ -51,6 +51,26 @@ class NarRegistry {
         return installedItems(ofType: "ghost").map { $0.name }
     }
 
+    /// Returns the next installed ghost in the stable, user-visible order.
+    /// `\_+` and `change,ghost,sequential` use this rule rather than the random
+    /// boot path.  Keeping the rule pure makes the ordering independently testable.
+    static func sequentialGhostName(items: [NarPackageItem], currentName: String?) -> String? {
+        let sorted = items.sorted {
+            $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
+        guard !sorted.isEmpty else { return nil }
+
+        guard let currentName,
+              let currentIndex = sorted.firstIndex(where: {
+                  $0.name.caseInsensitiveCompare(currentName) == .orderedSame
+              }) else {
+            return sorted.first?.name
+        }
+
+        guard sorted.count > 1 else { return nil }
+        return sorted[(currentIndex + 1) % sorted.count].name
+    }
+
     /// A convenience method to get the names of all installed shells for a given ghost.
     /// - Parameter ghostName: The name of the ghost to look for shells in.
     /// - Returns: An array of strings containing the names of the shells.

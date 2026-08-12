@@ -52,6 +52,7 @@ extension GhostManager {
         // 旧アニメーションを走らせたままにすると、次の表情へ目元パッチが残る。
         animationEngine.stopAllAnimations()
         shutdownSerikoLoop()
+        stopImportedSurfaceAnimations(scope: scope)
         
         // Clear overlays when surface changes (per UKADOC spec)
         DispatchQueue.main.async { [weak self] in
@@ -248,9 +249,12 @@ extension GhostManager {
     }
 
     /// 任意ファイルのサーフェス画像を読み込む（Retina + 同名 PNA マスク対応）。element 合成で使用。
-    func loadSurfaceFile(url: URL) -> NSImage? {
+    /// `applyTransparency` を false にすると、asis 用に透過色・PNA・画像アルファを
+    /// 変更せず、元画像を返す。asis の合成時にソースアルファは別途無視される。
+    func loadSurfaceFile(url: URL, applyTransparency: Bool = true) -> NSImage? {
         guard FileManager.default.fileExists(atPath: url.path),
               let img = RetinaImageLoader.image(contentsOf: url) else { return nil }
+        guard applyTransparency else { return img }
         let pnaURL = url.deletingPathExtension().appendingPathExtension("pna")
         if FileManager.default.fileExists(atPath: pnaURL.path),
            let masked = applyPNAMask(baseURL: url, maskURL: pnaURL) {
@@ -265,37 +269,43 @@ extension GhostManager {
     /// SERIKO/2.0 element 定義を index 順に重ねて1枚の基底サーフェス画像を合成する。
     func compositeSurfaceElements(_ elements: [SerikoElement], shellURL: URL) -> NSImage? {
         guard !elements.isEmpty else { return nil }
-        struct Loaded { let img: NSImage; let x: Int; let y: Int; let method: SerikoMethod }
+        struct Loaded { let img: NSImage; let x: Int; let y: Int; let blendMode: SurfaceBlendMode }
         var loaded: [Loaded] = []
         for el in elements.sorted(by: { $0.index < $1.index }) {
             let url = shellURL.appendingPathComponent(el.filename)
-            guard let img = loadSurfaceFile(url: url) else {
+            let blendMode: SurfaceBlendMode
+            switch el.method {
+            case .overlay: blendMode = .normal
+            case .overlayFast: blendMode = .overlayFast
+            case .interpolate: blendMode = .interpolate
+            case .asis: blendMode = .asis
+            case .replace: blendMode = .replace
+            case .reduce: blendMode = .reduce
+            case .blend(let operation, let fast):
+                blendMode = .blend(operation, destinationAlphaAware: fast)
+            default: blendMode = .normal
+            }
+            guard let img = loadSurfaceFile(url: url, applyTransparency: blendMode != .asis) else {
                 Log.info("[GhostManager] element image not found: \(el.filename)")
                 continue
             }
-            loaded.append(Loaded(img: img, x: el.x, y: el.y, method: el.method))
+            loaded.append(Loaded(img: img, x: el.x, y: el.y, blendMode: blendMode))
         }
         guard !loaded.isEmpty else { return nil }
-        // キャンバスサイズ = 全 element の包含矩形（原点(0,0)基準）
-        var maxW = 0, maxH = 0
-        for l in loaded {
-            maxW = max(maxW, l.x + Int(l.img.size.width.rounded()))
-            maxH = max(maxH, l.y + Int(l.img.size.height.rounded()))
+        let overlays = loaded.enumerated().map { index, item in
+            SurfaceOverlay(
+                id: "element_\(index)_\(item.x)_\(item.y)",
+                image: item.img,
+                offset: CGPoint(x: item.x, y: item.y),
+                alpha: 1,
+                zOrder: index,
+                insertionOrder: index,
+                blendMode: item.blendMode,
+                surfaceID: nil,
+                animationID: nil
+            )
         }
-        guard maxW > 0, maxH > 0 else { return nil }
-        let canvasSize = NSSize(width: maxW, height: maxH)
-        let canvas = NSImage(size: canvasSize)
-        canvas.lockFocus()
-        for l in loaded {
-            // SERIKO は左上原点・y 下方向。NSImage は左下原点なので変換する。
-            let drawPoint = NSPoint(x: CGFloat(l.x),
-                                    y: canvasSize.height - CGFloat(l.y) - l.img.size.height)
-            // reduce はアルファ間引き(destinationIn)、その他は通常の上書き合成(sourceOver)で近似
-            let op: NSCompositingOperation = (l.method == .reduce) ? .destinationIn : .sourceOver
-            l.img.draw(at: drawPoint, from: .zero, operation: op, fraction: 1.0)
-        }
-        canvas.unlockFocus()
-        return canvas
+        return SurfaceBlendRenderer.composite(base: nil, overlays: overlays)
     }
 
     // MARK: - Surface Compositing
@@ -305,7 +315,13 @@ extension GhostManager {
     ///   - surfaceID: The surface ID to overlay
     ///   - type: The animation pattern type (overlay/base/replace/bind)
     ///   - animationID: Optional owner animation ID for deterministic overlay tracking
-    func handleSurfaceOverlay(surfaceID: Int, type: AnimationPatternType = .overlay, animationID: Int? = nil, initialOffset: CGPoint? = nil) {
+    func handleSurfaceOverlay(
+        surfaceID: Int,
+        type: AnimationPatternType = .overlay,
+        animationID: Int? = nil,
+        initialOffset: CGPoint? = nil,
+        blendMode: SurfaceBlendMode = .normal
+    ) {
         Log.debug("[GhostManager] Adding surface overlay: \(surfaceID), type: \(type)")
 
         guard surfaceID >= 0 else {
@@ -321,9 +337,9 @@ extension GhostManager {
             return
             
         case .replace:
-            // Replace current surface with this one
-            updateSurface(id: surfaceID)
-            return
+            // SERIKO replace replaces only the source rectangle. Keep the
+            // current base surface and composite the new image below.
+            break
             
         case .bind:
             // Bind dressup part as a persistent overlay that can coexist with base surface.
@@ -360,7 +376,8 @@ extension GhostManager {
 
         // 通常サーフェスと同じ Retina/PNA/純緑クロマキー処理を必ず通す。
         // 目元など旧シェルの RGB+純緑画像を生読みすると、背景まで矩形で表示される。
-        guard let image = loadSurfaceFile(url: surfacePath) else {
+        let effectiveBlendMode: SurfaceBlendMode = type == .replace ? .replace : blendMode
+        guard let image = loadSurfaceFile(url: surfacePath, applyTransparency: effectiveBlendMode != .asis) else {
             Log.info("[GhostManager] Failed to load surface image: \(surfacePath.lastPathComponent)")
             return
         }
@@ -379,9 +396,9 @@ extension GhostManager {
             let insertionOrder = (vm.overlays.map(\.insertionOrder).max() ?? -1) + 1
             let zOrder: Int
             switch type {
-            case .base, .replace:
+            case .base:
                 zOrder = 0
-            case .overlay:
+            case .overlay, .replace:
                 zOrder = 100
             case .bind:
                 zOrder = 200
@@ -396,6 +413,8 @@ extension GhostManager {
             alpha: 1.0,
             zOrder: zOrder,
             insertionOrder: insertionOrder,
+            blendMode: effectiveBlendMode,
+            surfaceID: surfaceID,
             animationID: animationID
         )
             
@@ -492,7 +511,7 @@ extension GhostManager {
         let surfaceID = vm.currentSurfaceID
         let regions = animationEngine.getCollisions(for: surfaceID)
         for region in regions {
-            if region.rect.contains(pointInWindow) {
+            if region.contains(pointInWindow) {
                 return region.name
             }
         }

@@ -27,7 +27,25 @@ struct EventIDAuditTests {
         #expect(EventID.OnExecuteHTTPStreaming.rawValue == "OnExecuteHTTPStreaming")
         #expect(EventID.OnMusicPlayEx.rawValue == "OnMusicPlayEx")
         #expect(EventID.OnSoundLoop.rawValue == "OnSoundLoop")
+        #expect(EventID.OnSoundError.rawValue == "OnSoundError")
+        #expect(EventID.OnSoundStop.rawValue == "OnSoundStop")
         #expect(EventID.OnVideoPlayEx.rawValue == "OnVideoPlayEx")
+    }
+
+    @Test
+    func soundErrorReferencesFollowUkadocOrder() {
+        let params = EventReferenceTable.params(forEvent: "OnSoundError", refs: [
+            "command": "play",
+            "errorCode": "-1",
+            "filename": "missing.wav",
+            "message": "file_not_found"
+        ])
+        #expect(params == [
+            "Reference0": "play",
+            "Reference1": "-1",
+            "Reference2": "missing.wav",
+            "Reference3": "file_not_found"
+        ])
     }
 
     @Test

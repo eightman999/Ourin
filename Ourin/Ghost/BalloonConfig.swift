@@ -24,6 +24,19 @@ struct BalloonConfig {
     // Anchor (link) font settings
     let anchorFontColor: NSColor
     let anchorPenColor: NSColor
+    let anchorStyle: AnchorDecorationStyle
+    let anchorBrushColor: NSColor
+    let anchorNotSelectStyle: AnchorDecorationStyle
+    let anchorNotSelectFontColor: NSColor
+    let anchorNotSelectPenColor: NSColor
+    let anchorNotSelectBrushColor: NSColor
+    let anchorVisitedStyle: AnchorDecorationStyle
+    let anchorVisitedFontColor: NSColor
+    let anchorVisitedPenColor: NSColor
+    let anchorVisitedBrushColor: NSColor
+    let anchorBlendMethod: AnchorRasterOperation
+    let anchorNotSelectBlendMethod: AnchorRasterOperation
+    let anchorVisitedBlendMethod: AnchorRasterOperation
 
     // Cursor settings
     let cursorBlendMethod: String
@@ -77,6 +90,10 @@ struct BalloonConfig {
     let communicateBoxWidth: Int
     let communicateBoxHeight: Int
 
+    // Online marker animation (balloon-specific settings may override the prefix)
+    var onlineMarkerFilename: String = "online"
+    var onlineMarkerInterval: TimeInterval = 0.5
+
     static func load(from path: String) -> BalloonConfig? {
         // Try multiple encodings
         var content: String?
@@ -124,14 +141,28 @@ struct BalloonConfig {
             return config[key] ?? defaultValue
         }
 
-        func getColor(r: String, g: String, b: String) -> NSColor {
-            let red = CGFloat(getInt(r)) / 255.0
-            let green = CGFloat(getInt(g)) / 255.0
-            let blue = CGFloat(getInt(b)) / 255.0
+        func getColor(r: String, g: String, b: String, default defaultColor: NSColor = .black) -> NSColor {
+            let rgb = defaultColor.usingColorSpace(.deviceRGB) ?? NSColor.black
+            let red = CGFloat(getInt(r, default: Int((rgb.redComponent * 255).rounded()))) / 255.0
+            let green = CGFloat(getInt(g, default: Int((rgb.greenComponent * 255).rounded()))) / 255.0
+            let blue = CGFloat(getInt(b, default: Int((rgb.blueComponent * 255).rounded()))) / 255.0
             return NSColor(red: red, green: green, blue: blue, alpha: 1.0)
         }
 
-        return BalloonConfig(
+        let fontColor = getColor(r: "font.color.r", g: "font.color.g", b: "font.color.b")
+        let anchorFontColor = getColor(r: "anchor.font.color.r", g: "anchor.font.color.g", b: "anchor.font.color.b", default: fontColor)
+        let anchorPenColor = getColor(r: "anchor.pen.color.r", g: "anchor.pen.color.g", b: "anchor.pen.color.b", default: anchorFontColor)
+        let anchorNotSelectFontColor = getColor(r: "anchor.notselect.font.color.r", g: "anchor.notselect.font.color.g", b: "anchor.notselect.font.color.b", default: anchorFontColor)
+        let anchorNotSelectPenColor = getColor(r: "anchor.notselect.pen.color.r", g: "anchor.notselect.pen.color.g", b: "anchor.notselect.pen.color.b", default: anchorNotSelectFontColor)
+        let anchorVisitedFontColor = getColor(r: "anchor.visited.font.color.r", g: "anchor.visited.font.color.g", b: "anchor.visited.font.color.b", default: anchorFontColor)
+        let anchorVisitedPenColor = getColor(r: "anchor.visited.pen.color.r", g: "anchor.visited.pen.color.g", b: "anchor.visited.pen.color.b", default: anchorVisitedFontColor)
+        let anchorBlendMethod = AnchorRasterOperation(name: getString("anchor.blendmethod", default: "none")) ?? .none
+        // UKADOC exposes `anchor.blendmethod` as the balloon default; the
+        // not-select and visited command states restore this same default.
+        let anchorNotSelectBlendMethod = anchorBlendMethod
+        let anchorVisitedBlendMethod = anchorBlendMethod
+
+        var balloonConfig = BalloonConfig(
             name: getString("name"),
             charset: getString("charset", default: "Shift_JIS"),
             craftman: getString("craftman"),
@@ -141,9 +172,22 @@ struct BalloonConfig {
             wordwrapPointX: getInt("wordwrappoint.x", default: -34),
             wordwrapPointY: getInt("wordwrappoint.y", default: 0),
             fontHeight: getInt("font.height", default: 12),
-            fontColor: getColor(r: "font.color.r", g: "font.color.g", b: "font.color.b"),
-            anchorFontColor: getColor(r: "anchor.font.color.r", g: "anchor.font.color.g", b: "anchor.font.color.b"),
-            anchorPenColor: getColor(r: "anchor.pen.color.r", g: "anchor.pen.color.g", b: "anchor.pen.color.b"),
+            fontColor: fontColor,
+            anchorFontColor: anchorFontColor,
+            anchorPenColor: anchorPenColor,
+            anchorStyle: AnchorDecorationStyle(shape: getString("anchor.style")) ?? .underline,
+            anchorBrushColor: getColor(r: "anchor.brush.color.r", g: "anchor.brush.color.g", b: "anchor.brush.color.b"),
+            anchorNotSelectStyle: AnchorDecorationStyle(shape: getString("anchor.notselect.style")) ?? .none,
+            anchorNotSelectFontColor: anchorNotSelectFontColor,
+            anchorNotSelectPenColor: anchorNotSelectPenColor,
+            anchorNotSelectBrushColor: getColor(r: "anchor.notselect.brush.color.r", g: "anchor.notselect.brush.color.g", b: "anchor.notselect.brush.color.b"),
+            anchorVisitedStyle: AnchorDecorationStyle(shape: getString("anchor.visited.style")) ?? .none,
+            anchorVisitedFontColor: anchorVisitedFontColor,
+            anchorVisitedPenColor: anchorVisitedPenColor,
+            anchorVisitedBrushColor: getColor(r: "anchor.visited.brush.color.r", g: "anchor.visited.brush.color.g", b: "anchor.visited.brush.color.b"),
+            anchorBlendMethod: anchorBlendMethod,
+            anchorNotSelectBlendMethod: anchorNotSelectBlendMethod,
+            anchorVisitedBlendMethod: anchorVisitedBlendMethod,
             cursorBlendMethod: getString("cursor.blendmethod", default: "none"),
             cursorStyle: getString("cursor.style", default: "square"),
             cursorBrushColor: getColor(r: "cursor.brush.color.r", g: "cursor.brush.color.g", b: "cursor.brush.color.b"),
@@ -179,6 +223,9 @@ struct BalloonConfig {
             communicateBoxWidth: getInt("communicatebox.width", default: 360),
             communicateBoxHeight: getInt("communicatebox.height", default: 25)
         )
+        balloonConfig.onlineMarkerFilename = getString("onlinemarker.filename", default: "online")
+        balloonConfig.onlineMarkerInterval = max(0.05, Double(getInt("onlinemarker.interval", default: 500)) / 1000.0)
+        return balloonConfig
     }
 }
 
@@ -189,6 +236,15 @@ class BalloonImageLoader {
 
     init(balloonPath: String) {
         self.balloonPath = balloonPath
+    }
+
+    /// Return whether the base image for a balloon surface exists without decoding or caching it.
+    /// This is used while resolving `\\b[...,--fallback=...]` candidates, where probing must not
+    /// populate the image cache for surfaces that are never selected.
+    func surfaceExists(index: Int, type: String = "s") -> Bool {
+        let filename = "balloon\(type)\(index).png"
+        let imagePath = (balloonPath as NSString).appendingPathComponent(filename)
+        return FileManager.default.fileExists(atPath: imagePath)
     }
 
     /// Load a balloon surface image with PNA transparency support
@@ -289,9 +345,23 @@ class BalloonImageLoader {
         return image
     }
 
-    /// Load online marker image
-    func loadOnlineMarker(index: Int) -> NSImage? {
-        let filename = "online\(index).png"
+    /// Load an online marker animation frame.
+    /// UKADOC defines the configured prefix without an extension (for example
+    /// `online` -> `online0.png`, `online1.png`, ...). An explicit extension
+    /// is accepted as a compatibility convenience and has the index inserted
+    /// before that extension.
+    func loadOnlineMarker(index: Int, filenamePrefix: String = "online") -> NSImage? {
+        let prefix = filenamePrefix.trimmingCharacters(in: .whitespacesAndNewlines)
+        let filename: String
+        if prefix.isEmpty {
+            filename = "online\(index).png"
+        } else if let dot = prefix.lastIndex(of: ".") {
+            let stem = String(prefix[..<dot])
+            let ext = String(prefix[prefix.index(after: dot)...])
+            filename = "\(stem)\(index).\(ext)"
+        } else {
+            filename = "\(prefix)\(index).png"
+        }
 
         if let cached = imageCache[filename] {
             return cached

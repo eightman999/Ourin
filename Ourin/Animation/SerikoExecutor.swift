@@ -25,6 +25,8 @@ public final class SerikoExecutor {
     public var onPatternExecuted: ((Int, SerikoPattern) -> Void)?
     public var onAnimationFinished: ((Int) -> Void)?
     public var onMethodInvoked: ((Int, SerikoMethod, Int, Int, Int) -> Void)?
+    public var onScalingInvoked: ((Int, Double, Double) -> Void)?
+    public var onImportInvoked: ((Int, String, Int, Int, Int) -> Void)?
 
     public init(
         nowProvider: @escaping () -> Date = Date.init,
@@ -135,6 +137,11 @@ public final class SerikoExecutor {
             executeBase(animationID: animationID, pattern: pattern)
         case .move:
             executeMove(animationID: animationID, pattern: pattern)
+        case .scaling:
+            onScalingInvoked?(animationID, pattern.xValue, pattern.yValue)
+            onMethodInvoked?(animationID, pattern.method, pattern.surfaceID, pattern.x, pattern.y)
+        case .add, .bind, .auto:
+            onMethodInvoked?(animationID, pattern.method, pattern.surfaceID, pattern.x, pattern.y)
         case .reduce:
             executeReduce(animationID: animationID, pattern: pattern)
         case .replace:
@@ -147,10 +154,28 @@ public final class SerikoExecutor {
             // 別アニメ列の割り込み再生は start に準じて対象アニメを起動する
             executeStart(animationID: animationID, pattern: pattern)
         case .interpolate:
-            // フレーム補間は未対応のため overlay 合成にフォールバック（対象フレームを表示）
-            executeOverlay(animationID: animationID, pattern: pattern)
-        case .stop, .alternativeStop:
+            onMethodInvoked?(animationID, .interpolate, pattern.surfaceID, pattern.x, pattern.y)
+        case .blend:
+            onMethodInvoked?(animationID, pattern.method, pattern.surfaceID, pattern.x, pattern.y)
+        case .parallelStart:
+            for nestedID in pattern.referencedAnimationIDs {
+                _ = executeAnimation(id: nestedID)
+            }
+        case .parallelStop:
+            for nestedID in pattern.referencedAnimationIDs {
+                stopAnimation(id: nestedID)
+            }
+        case .stop:
             stopAnimation(id: animationID)
+        case .alternativeStop:
+            executeAlternativeStop(animationID: animationID, pattern: pattern)
+        case .import:
+            guard pattern.rawArguments.count >= 2 else { break }
+            let filename = pattern.rawArguments[1]
+            let initialDelay = pattern.rawArguments.count > 2 ? Int(pattern.rawArguments[2]) ?? 0 : 0
+            let x = pattern.rawArguments.count > 3 ? Int(pattern.rawArguments[3]) ?? 0 : 0
+            let y = pattern.rawArguments.count > 4 ? Int(pattern.rawArguments[4]) ?? 0 : 0
+            onImportInvoked?(animationID, filename, initialDelay, x, y)
         case .asis, .unknown:
             onMethodInvoked?(animationID, pattern.method, pattern.surfaceID, pattern.x, pattern.y)
         }
@@ -191,7 +216,23 @@ public final class SerikoExecutor {
     }
 
     public func executeAlternativeStart(animationID: Int, pattern: SerikoPattern) {
-        onMethodInvoked?(animationID, .alternativeStart, pattern.surfaceID, pattern.x, pattern.y)
+        let selected = selectReferencedAnimationID(for: pattern)
+        guard selected >= 0 else { return }
+        onMethodInvoked?(animationID, .alternativeStart, selected, pattern.x, pattern.y)
+    }
+
+    public func executeAlternativeStop(animationID: Int, pattern: SerikoPattern) {
+        let selected = selectReferencedAnimationID(for: pattern)
+        guard selected >= 0 else { return }
+        onMethodInvoked?(animationID, .alternativeStop, selected, pattern.x, pattern.y)
+    }
+
+    private func selectReferencedAnimationID(for pattern: SerikoPattern) -> Int {
+        let candidates = pattern.referencedAnimationIDs
+        guard !candidates.isEmpty else { return pattern.surfaceID }
+        let randomValue = max(0, min(1, randomProvider()))
+        let index = min(candidates.count - 1, Int(randomValue * Double(candidates.count)))
+        return candidates[index]
     }
 
     public func stopAnimation(id: Int) {

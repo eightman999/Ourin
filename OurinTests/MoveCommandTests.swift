@@ -43,4 +43,19 @@ struct MoveCommandTests {
         #expect(Int(f.origin.x) == 50)
         #expect(Int(f.origin.y) == 20)
     }
+
+    @Test
+    func stickyWindowUsesCapturedRelativeOriginInBothAxes() {
+        let masterOrigin = CGPoint(x: 400, y: 220)
+        let followerOrigin = CGPoint(x: 735, y: 518)
+        let offset = GhostManager.stickyOffset(masterOrigin: masterOrigin, followerOrigin: followerOrigin)
+
+        #expect(offset.x == 335)
+        #expect(offset.y == 298)
+
+        let movedMaster = CGPoint(x: 1000, y: 900)
+        let movedFollower = GhostManager.stickyFollowerOrigin(masterOrigin: movedMaster, offset: offset)
+        #expect(movedFollower.x == 1335)
+        #expect(movedFollower.y == 1198)
+    }
 }

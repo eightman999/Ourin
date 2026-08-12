@@ -47,6 +47,8 @@ extension GhostManager {
 
     // Note: This extension uses the following properties declared in the main GhostManager class:
     // - stickyWindowRelationships
+    // - stickyWindowOffsets
+    // - windowZOrderScopes
 
 
     // MARK: - Window Setup
@@ -153,12 +155,84 @@ extension GhostManager {
         window.isReleasedWhenClosed = false
 
         characterWindows[scope] = window
+        if let snapshot = DisplayObserver.snapshot(for: window) {
+            displayHandoverStates[scope] = snapshot
+        }
+
+        // Reapply a previously requested z-order when a lazily-created scope appears.
+        if let scopes = windowZOrderScopes {
+            applyWindowZOrder(scopes: scopes)
+        }
 
         // Track window movement/resize
         NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidChangeFrame(_:)), name: NSWindow.didMoveNotification, object: window)
         NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidChangeFrame(_:)), name: NSWindow.didResizeNotification, object: window)
         NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidMiniaturize(_:)), name: NSWindow.didMiniaturizeNotification, object: window)
         NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidDeminiaturize(_:)), name: NSWindow.didDeminiaturizeNotification, object: window)
+
+        // Additional scopes can be created lazily after the SHIORI runtime is
+        // already registered.  Their initial monitor state must still be
+        // observable as OnDisplayHandover(init).
+        if eventToken != nil {
+            emitInitialDisplayHandover(for: scope)
+        }
+    }
+
+    /// Emit the startup form of OnDisplayHandover once for each character
+    /// window.  The event is targeted to this ghost because Reference1 is the
+    /// scope number within the ghost, not a global window identifier.
+    func emitInitialDisplayHandoverEvents() {
+        for scope in characterWindows.keys.sorted() {
+            emitInitialDisplayHandover(for: scope)
+        }
+    }
+
+    private func emitInitialDisplayHandover(for scope: Int) {
+        guard eventToken != nil,
+              !sentInitialDisplayHandoverScopes.contains(scope),
+              let window = characterWindows[scope],
+              let snapshot = DisplayObserver.snapshot(for: window) else {
+            return
+        }
+        displayHandoverStates[scope] = snapshot
+        let sent = EventBridge.shared.notify(
+            .OnDisplayHandover,
+            refs: [
+                "state": "init",
+                "scopeID": String(scope),
+                "previousDisplay": "",
+                "currentDisplay": snapshot.wireValue
+            ],
+            to: self,
+            ignoreResponseScript: true
+        )
+        if sent {
+            sentInitialDisplayHandoverScopes.insert(scope)
+        }
+    }
+
+    /// Detect a real monitor transition for a character window.  Resize and
+    /// desktop-coordinate changes on the same monitor do not count as a
+    /// handover; the display ID is the authoritative transition key.
+    func updateDisplayHandover(for window: NSWindow, scope: Int) {
+        guard let current = DisplayObserver.snapshot(for: window) else { return }
+        let previous = displayHandoverStates[scope]
+        displayHandoverStates[scope] = current
+        guard let previous,
+              previous.displayID != current.displayID,
+              eventToken != nil else {
+            return
+        }
+        _ = EventBridge.shared.request(
+            .OnDisplayHandover,
+            refs: [
+                "state": "update",
+                "scopeID": String(scope),
+                "previousDisplay": previous.wireValue,
+                "currentDisplay": current.wireValue
+            ],
+            to: self
+        )
     }
 
     // MARK: - Right-Click Menu
@@ -284,13 +358,17 @@ extension GhostManager {
     @objc func characterWindowDidMiniaturize(_ notification: Notification) {
         guard let window = notification.object as? NSWindow,
               let id = window.identifier?.rawValue else { return }
-        EventBridge.shared.notify(.OnWindowStateMinimize, refs: ["windowID": id])
+        let scope = characterWindows.first(where: { $0.value === window })?.key
+        let reason = scope.flatMap { pendingWindowStateReasons.removeValue(forKey: $0) } ?? "system"
+        EventBridge.shared.notify(.OnWindowStateMinimize, refs: ["reason": reason, "windowID": id])
     }
 
     @objc func characterWindowDidDeminiaturize(_ notification: Notification) {
         guard let window = notification.object as? NSWindow,
               let id = window.identifier?.rawValue else { return }
-        EventBridge.shared.notify(.OnWindowStateRestore, refs: ["windowID": id])
+        let scope = characterWindows.first(where: { $0.value === window })?.key
+        let reason = scope.flatMap { pendingWindowStateReasons.removeValue(forKey: $0) } ?? "system"
+        EventBridge.shared.notify(.OnWindowStateRestore, refs: ["reason": reason, "windowID": id])
     }
     
     /// Move window to front (above other windows)
@@ -687,17 +765,15 @@ extension GhostManager {
         let targetScaleY = (yPercent ?? xPercent) / 100.0
 
         DispatchQueue.main.async {
-            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            let scope = self.currentScope
             if timeMs > 0 {
                 NSAnimationContext.runAnimationGroup({ context in
                     context.duration = timeMs / 1000.0
                     context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-                    vm.scaleX = targetScaleX
-                    vm.scaleY = targetScaleY
+                    self.setUserScaling(scope: scope, x: targetScaleX, y: targetScaleY)
                 })
             } else {
-                vm.scaleX = targetScaleX
-                vm.scaleY = targetScaleY
+                self.setUserScaling(scope: scope, x: targetScaleX, y: targetScaleY)
             }
         }
 
@@ -858,21 +934,21 @@ extension GhostManager {
     func setWindowZOrder(scopes: [Int]) {
         Log.debug("[GhostManager] Setting Z-order: \(scopes)")
         DispatchQueue.main.async {
-            // Order windows from back to front based on scopes array
-            for (index, scope) in scopes.enumerated() {
-                if let window = self.characterWindows[scope] {
-                    if index == scopes.count - 1 {
-                        // Last window (topmost)
-                        window.orderFront(nil)
-                    } else {
-                        // Order behind the next window
-                        if let nextWindow = self.characterWindows[scopes[index + 1]] {
-                            window.order(.below, relativeTo: nextWindow.windowNumber)
-                        }
-                    }
-                }
-            }
+            self.windowZOrderScopes = scopes
+            self.applyWindowZOrder(scopes: scopes)
             Log.info("[GhostManager] Z-order set successfully")
+        }
+    }
+
+    private func applyWindowZOrder(scopes: [Int]) {
+        // Order windows from back to front based on scopes array.
+        for (index, scope) in scopes.enumerated() {
+            guard let window = characterWindows[scope] else { continue }
+            if index == scopes.count - 1 {
+                window.orderFront(nil)
+            } else if let nextWindow = characterWindows[scopes[index + 1]] {
+                window.order(.below, relativeTo: nextWindow.windowNumber)
+            }
         }
     }
     
@@ -880,6 +956,7 @@ extension GhostManager {
     func resetWindowZOrder() {
         Log.debug("[GhostManager] Resetting Z-order to default")
         DispatchQueue.main.async {
+            self.windowZOrderScopes = nil
             // Restore default floating window level for all
             for (scope, window) in self.characterWindows {
                 window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
@@ -895,6 +972,7 @@ extension GhostManager {
         DispatchQueue.main.async {
             // Store relationships
             self.stickyWindowRelationships[masterScope] = Set(followerScopes)
+            self.captureStickyWindowOffsets(masterScope: masterScope)
             
             // Add observer for master window movement
             if let masterWindow = self.characterWindows[masterScope] {
@@ -922,19 +1000,40 @@ extension GhostManager {
         
         let masterFrame = masterWindow.frame
         
-        // Move all follower windows relative to master
+        // Move all follower windows using the relative positions captured when the
+        // sticky relationship was established. A missing offset means that the
+        // follower did not have a window yet; do not invent a position for it.
         for followerScope in followers {
-            if let followerWindow = characterWindows[followerScope] {
-                let offset: CGFloat = CGFloat((followerScope - masterScope) * 100) // Simple offset logic
-                let newFrame = NSRect(
-                    x: masterFrame.origin.x + offset,
-                    y: masterFrame.origin.y,
-                    width: followerWindow.frame.width,
-                    height: followerWindow.frame.height
-                )
-                followerWindow.setFrame(newFrame, display: true)
-            }
+            guard let followerWindow = characterWindows[followerScope],
+                  let offset = stickyWindowOffsets[masterScope]?[followerScope] else { continue }
+            let origin = Self.stickyFollowerOrigin(masterOrigin: masterFrame.origin, offset: offset)
+            var newFrame = followerWindow.frame
+            newFrame.origin = origin
+            followerWindow.setFrame(newFrame, display: true)
         }
+    }
+
+    private func captureStickyWindowOffsets(masterScope: Int) {
+        guard let masterWindow = characterWindows[masterScope] else {
+            stickyWindowOffsets[masterScope] = [:]
+            return
+        }
+
+        let masterOrigin = masterWindow.frame.origin
+        stickyWindowOffsets[masterScope] = Dictionary(
+            uniqueKeysWithValues: (stickyWindowRelationships[masterScope] ?? []).compactMap { followerScope in
+                guard let followerWindow = characterWindows[followerScope] else { return nil }
+                return (followerScope, Self.stickyOffset(masterOrigin: masterOrigin, followerOrigin: followerWindow.frame.origin))
+            }
+        )
+    }
+
+    static func stickyOffset(masterOrigin: CGPoint, followerOrigin: CGPoint) -> CGPoint {
+        CGPoint(x: followerOrigin.x - masterOrigin.x, y: followerOrigin.y - masterOrigin.y)
+    }
+
+    static func stickyFollowerOrigin(masterOrigin: CGPoint, offset: CGPoint) -> CGPoint {
+        CGPoint(x: masterOrigin.x + offset.x, y: masterOrigin.y + offset.y)
     }
     
     /// Reset sticky window relationships
@@ -952,6 +1051,7 @@ extension GhostManager {
             
             // Clear relationships
             self.stickyWindowRelationships.removeAll()
+            self.stickyWindowOffsets.removeAll()
             
             Log.info("[GhostManager] All sticky window relationships removed")
         }
@@ -1032,7 +1132,12 @@ extension GhostManager {
                 window.level = .normal
                 Log.info("[GhostManager] Window stay on top disabled")
             } else if stateLC == "minimize" {
-                window.miniaturize(nil)
+                if !window.isMiniaturized {
+                    if let scope = self.characterWindows.first(where: { $0.value === window })?.key {
+                        self.pendingWindowStateReasons[scope] = "script"
+                    }
+                    window.miniaturize(nil)
+                }
                 Log.info("[GhostManager] Window minimized")
             } else if stateLC == "maximize" {
                 if !window.isZoomed {
@@ -1042,6 +1147,9 @@ extension GhostManager {
                 Log.info("[GhostManager] Window maximized")
             } else if stateLC == "restore" {
                 if window.isMiniaturized {
+                    if let scope = self.characterWindows.first(where: { $0.value === window })?.key {
+                        self.pendingWindowStateReasons[scope] = "script"
+                    }
                     window.deminiaturize(nil)
                 }
                 if window.isZoomed {

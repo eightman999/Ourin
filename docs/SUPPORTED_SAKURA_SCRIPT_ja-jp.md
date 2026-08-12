@@ -32,11 +32,11 @@ SSP 互換の実装として、スコープ切替（`\0` / `\1` / `\p[n]`）は�
 - ✅ `\s[n]`
 - ✅ `\i[n]`, `\i[n,wait]`
 - ✅ `\![anim,clear,ID]`
-- ✅ `\![anim,pause,ID]`
+- ✅ `\![anim,pause,ID]` / `\![anim,pauseID]`
 - ✅ `\![anim,resume,ID]`
 - ✅ `\![anim,offset,ID,x,y]`
 - ⚠️ `\![anim,add,...]` (`overlay`, `base`, `bind`, `text` は実装済み。その他は限定的)
-- ✅ `\![anim,stop]`
+- ✅ `\![anim,stop]` / `\![anim,stop,ID]`
 - ✅ `\![bind,category,part,value]`
 
 ## バルーン / テキストコマンド
@@ -48,6 +48,7 @@ SSP 互換の実装として、スコープ切替（`\0` / `\1` / `\p[n]`）は�
 - ⚠️ `\f[...]` (主要なスタイル制御は実装済み。未対応のサブコマンドは無視)
 - ✅ `\_l[x,y]`
 - ✅ `\_v` / `\_V`
+- ✅ `\![execute,resetballoonpos]`
 
 ## キャラクター変更コマンド
 
@@ -55,12 +56,14 @@ SSP 互換の実装として、スコープ切替（`\0` / `\1` / `\p[n]`）は�
 - ✅ `\![change,ghost,...]`
 - ✅ `\![change,shell,...]`
 - ✅ `\![change,balloon,...]`
+- ✅ `\![save,wallpaper]` / `\![restore,wallpaper]`
 
 ## 待機コマンド
 
 - ✅ `\w[n]`
 - ✅ `\_w[ms]`
 - ✅ `\__w[...]` (`clear`, 数値タイミング、および `animation,ID` 待機は実装済み)
+- ✅ `\![wait,syncobject,name,timeout]` / `\![set,syncobject,name]` / `\![reset,syncobject,name]`
 - ✅ `\t`
 - ✅ `\x`, `\x[noclear]`
 
