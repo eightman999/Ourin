@@ -334,6 +334,7 @@ public enum EventReferenceTable {
         .init(id: "OnTrayBalloonTimeout", references: ["identifier", "title"], category: "ui"),
         .init(id: "OnURLDropFailure", references: ["filePath"], category: "dragdrop"),
         .init(id: "OnURLQuery", references: ["url"], category: "dragdrop"),
+        .init(id: "OnWallpaperChange", references: ["filePath"], category: "dragdrop"),
         // UKADOC: R2 は予約／空欄、R3=対象種別、R4=更新理由。
         .init(id: "OnUpdateBegin", references: ["ghostName", "path", "unused2", "targetType", "executionReason"], category: "update"),
         .init(id: "OnUpdateCheckComplete", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),

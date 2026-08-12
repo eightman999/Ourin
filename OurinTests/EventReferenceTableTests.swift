@@ -117,9 +117,9 @@ func eventReferenceTableCoversEmittedFailureAndWallpaperEvents() {
     ]) == [
         "Reference0": "Emily", "Reference1": "permission_denied"
     ])
-    #expect(EventReferenceTable.params(forEvent: "OnWallpaperChanged", refs: [
-        "filename": "wallpaper.png"
-    ]) == ["Reference0": "wallpaper.png"])
+    #expect(EventReferenceTable.params(forEvent: "OnWallpaperChange", refs: [
+        "filePath": "/tmp/wallpaper.png"
+    ]) == ["Reference0": "/tmp/wallpaper.png"])
     #expect(EventReferenceTable.params(forEvent: "OnWallpaperFailure", refs: [
         "filename": "wallpaper.png", "reason": "file_not_found"
     ]) == [

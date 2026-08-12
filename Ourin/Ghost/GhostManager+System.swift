@@ -982,7 +982,8 @@ extension GhostManager: NSWindowDelegate {
             if failed {
                 EventBridge.shared.notifyCustom("OnWallpaperFailure", refs: ["filename": filename, "reason": "set_failed"])
             } else {
-                EventBridge.shared.notifyCustom("OnWallpaperChanged", refs: ["filename": filename])
+                // UKADOC: 標準イベント名は OnWallpaperChange、Reference0 は変更後のファイルパス。
+                EventBridge.shared.notify(.OnWallpaperChange, refs: ["filePath": wallpaperURL.path])
                 Log.debug("[GhostManager] Set wallpaper: \(filename) (options=\(rawOptions))")
             }
         }
