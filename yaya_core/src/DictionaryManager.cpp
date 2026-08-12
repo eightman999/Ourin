@@ -375,11 +375,11 @@ void DictionaryManager::unload() {
     loadedDicFiles_.clear();
 }
 
-std::string DictionaryManager::execute(const std::string& functionName,
-                                       const std::vector<std::string>& args) {
+Value DictionaryManager::executeValue(const std::string& functionName,
+                                      const std::vector<std::string>& args) {
     if (!vm_) {
         std::cerr << "[DictionaryManager::execute] ERROR: VM is null!" << std::endl;
-        return "";
+        return Value();
     }
 
     std::cerr << "[DictionaryManager::execute] Function: " << functionName << ", args: " << args.size() << std::endl;
@@ -396,12 +396,15 @@ std::string DictionaryManager::execute(const std::string& functionName,
     // Execute the function
     std::cerr << "[DictionaryManager::execute] Calling vm_->execute()..." << std::endl;
     Value result = vm_->execute(functionName, valueArgs);
-    std::cerr << "[DictionaryManager::execute] VM execution complete, converting result..." << std::endl;
+    std::cerr << "[DictionaryManager::execute] VM execution complete" << std::endl;
+    return result;
+}
 
-    // Return the result as a string
+std::string DictionaryManager::execute(const std::string& functionName,
+                                       const std::vector<std::string>& args) {
+    Value result = executeValue(functionName, args);
     std::string resultStr = result.asString();
     std::cerr << "[DictionaryManager::execute] Result length: " << resultStr.length() << std::endl;
-
     return resultStr;
 }
 

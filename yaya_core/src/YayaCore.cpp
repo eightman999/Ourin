@@ -324,7 +324,21 @@ std::string YayaCore::processCommand(const std::string &line) {
                     dictManager.hasFunction(id)) {
                     std::cerr << "[YayaCore] Framework returned an empty malformed GET response; "
                               << "falling back to direct event call: " << id << std::endl;
-                    value = dictManager.execute(id, refs);
+                    Value directResult = dictManager.executeValue(id, refs);
+                    const bool isEventID = id.size() >= 2 && id[0] == 'O' && id[1] == 'n';
+                    const bool isScriptValue = directResult.getType() == Value::Type::String ||
+                                               directResult.getType() == Value::Type::Array;
+                    // A YAYA event can return a numeric control value (for example,
+                    // Emily4's OnMouseMove returns integer 0 when no hit occurred).
+                    // That value is not a SHIORI Value script and must not reach the
+                    // host as speech. Preserve strings/arrays, including the literal
+                    // string "0" returned by OnTranslate.
+                    if (isEventID && !isScriptValue) {
+                        std::cerr << "[YayaCore] Ignoring non-script direct event result: id="
+                                  << id << ", type=" << static_cast<int>(directResult.getType()) << std::endl;
+                    } else {
+                        value = directResult.asString();
+                    }
                     if (!value.empty()) {
                         shioriStatus = 200;
                         shioriHeaders["Value"] = value;
@@ -332,7 +346,16 @@ std::string YayaCore::processCommand(const std::string &line) {
                 }
             } else {
                 // Fallback: call function directly (for simple ghosts without YAYA framework)
-                value = dictManager.execute(id, refs);
+                Value directResult = dictManager.executeValue(id, refs);
+                const bool isEventID = id.size() >= 2 && id[0] == 'O' && id[1] == 'n';
+                const bool isScriptValue = directResult.getType() == Value::Type::String ||
+                                           directResult.getType() == Value::Type::Array;
+                if (isEventID && !isScriptValue) {
+                    std::cerr << "[YayaCore] Ignoring non-script direct event result: id="
+                              << id << ", type=" << static_cast<int>(directResult.getType()) << std::endl;
+                } else {
+                    value = directResult.asString();
+                }
                 std::cerr << "[YayaCore] Direct function call (no YAYA framework)" << std::endl;
             }
 

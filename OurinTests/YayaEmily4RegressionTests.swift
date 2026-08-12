@@ -226,6 +226,35 @@ struct YayaEmily4RegressionTests {
         try Self.loadEmily4(session: session, master: master)
     }
 
+    /// Mouse hover events may return an integer control value when no surface
+    /// hit occurred. That value must not be exposed as a spoken Sakura Script.
+    @Test
+    func emily4NoOpMouseMoveDoesNotBecomeTalk() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping Emily4 regression test")
+            return
+        }
+        guard let master = try Self.copyEmily4Master() else {
+            print("[skip] emily4/ghost/master fixture not found; skipping")
+            return
+        }
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master)
+
+        let response = session.exchange([
+            "cmd": "request", "method": "GET", "id": "OnMouseMove",
+            "ref": ["442", "234", "0", "0", "", "", "mouse"],
+            "headers": ["Charset": "UTF-8", "SecurityLevel": "local"]
+        ])
+
+        #expect(response?["ok"] as? Bool == true)
+        let value = response?["value"] as? String ?? ""
+        #expect(value.isEmpty)
+    }
+
     /// Emily4 実データの雑談配列（`RandomTalkNormal`）に対し、SRAND(seed) で固定シードした場合に
     /// 選択結果が再現可能であることを検証する（`yaya_core` の SRAND スタブ修正の回帰テスト）。
     /// 実行毎に変わってよい内容なので、golden 文字列ではなく「同一シード→同一出力」を確認する。
