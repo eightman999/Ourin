@@ -201,11 +201,11 @@ extension GhostManager {
         let ctx = CIContext(options: nil)
         guard let cg = ctx.createCGImage(output, from: baseCI.extent) else { return nil }
         let size = NSSize(width: cg.width, height: cg.height)
-        let nsimg = NSImage(size: size)
-        nsimg.lockFocus()
-        NSGraphicsContext.current?.cgContext.draw(cg, in: CGRect(origin: .zero, size: size))
-        nsimg.unlockFocus()
-        return nsimg
+        // lockFocus creates an AppKit bitmap representation whose flipped
+        // coordinate metadata is not stable when the image is later rendered
+        // by SwiftUI. Keep the Image I/O/CIImage orientation by constructing
+        // the NSImage directly from the resulting CGImage.
+        return NSImage(cgImage: cg, size: size)
     }
 
     /// PNA/alpha を持たない古いシェル素材向けに、純緑 (0,255,0) 背景を透明化する。

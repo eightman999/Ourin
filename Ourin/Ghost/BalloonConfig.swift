@@ -303,12 +303,9 @@ class BalloonImageLoader {
         guard let cg = ctx.createCGImage(output, from: baseCI.extent) else { return nil }
 
         let size = NSSize(width: cg.width, height: cg.height)
-        let nsimg = NSImage(size: size)
-        nsimg.lockFocus()
-        NSGraphicsContext.current?.cgContext.draw(cg, in: CGRect(origin: .zero, size: size))
-        nsimg.unlockFocus()
-
-        return nsimg
+        // Preserve the source CGImage orientation. An NSImage built through
+        // lockFocus may carry a flipped AppKit representation into SwiftUI.
+        return NSImage(cgImage: cg, size: size)
     }
 
     /// Load arrow image
