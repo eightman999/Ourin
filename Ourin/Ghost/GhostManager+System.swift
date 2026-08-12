@@ -4136,7 +4136,11 @@ extension GhostManager: NSWindowDelegate {
                 "nextGhostNameSSP": eventTargetName
             ]
             if let targetPath { changingParams["nextGhostPath"] = targetPath }
-            EventBridge.shared.notify(.OnGhostChanging, refs: changingParams)
+            // OnGhostChanging は返答スクリプトを切替前に再生する GET イベント。
+            EventBridge.shared.request(
+                .OnGhostChanging,
+                params: EventReferenceTable.params(forEvent: EventID.OnGhostChanging.rawValue, refs: changingParams)
+            )
         }
 
         switch normalized.lowercased() {
@@ -4151,12 +4155,19 @@ extension GhostManager: NSWindowDelegate {
         // UKADOC: Reference0=直前ゴーストの本体側名前, Reference1=直前ゴーストの切替時スクリプト,
         //         Reference2=直前ゴースト名[SSP], Reference3=直前ゴーストパス[SSP]
         // 直前の切替スクリプトは保持していないため Reference1 は空で送る（旧実装は誤って新名を入れていた）。
-        EventBridge.shared.notify(.OnGhostChanged, refs: [
-            "prevGhostName": previous,
-            "changeScript": "",
-            "prevGhostNameSSP": previous,
-            "prevGhostPath": previousPath
-        ])
+        // OnGhostChanged も切替後の返答スクリプトを再生する GET イベント。
+        EventBridge.shared.request(
+            .OnGhostChanged,
+            params: EventReferenceTable.params(
+                forEvent: EventID.OnGhostChanged.rawValue,
+                refs: [
+                    "prevGhostName": previous,
+                    "changeScript": "",
+                    "prevGhostNameSSP": previous,
+                    "prevGhostPath": previousPath
+                ]
+            )
+        )
         EventBridge.shared.notify(.OnOtherGhostChanged, refs: [
             "prevGhostName": previous,
             "nextGhostName": eventTargetName
@@ -4174,7 +4185,13 @@ extension GhostManager: NSWindowDelegate {
         let raiseEvent = parsed.options["option"]?.lowercased() == "raise-event" || parsed.flags.contains("option=raise-event")
 
         if raiseEvent {
-            EventBridge.shared.notify(.OnGhostCalling, refs: ["ghostName": normalized])
+            EventBridge.shared.request(
+                .OnGhostCalling,
+                params: EventReferenceTable.params(
+                    forEvent: EventID.OnGhostCalling.rawValue,
+                    refs: ["ghostName": normalized]
+                )
+            )
         }
 
         switch normalized.lowercased() {
@@ -4184,8 +4201,20 @@ extension GhostManager: NSWindowDelegate {
             bootOtherGhost(name: normalized)
         }
 
-        EventBridge.shared.notify(.OnGhostCalled, refs: ["ghostName": normalized])
-        EventBridge.shared.notify(.OnGhostCallComplete, refs: ["ghostName": normalized])
+        EventBridge.shared.request(
+            .OnGhostCalled,
+            params: EventReferenceTable.params(
+                forEvent: EventID.OnGhostCalled.rawValue,
+                refs: ["ghostName": normalized]
+            )
+        )
+        EventBridge.shared.request(
+            .OnGhostCallComplete,
+            params: EventReferenceTable.params(
+                forEvent: EventID.OnGhostCallComplete.rawValue,
+                refs: ["ghostName": normalized]
+            )
+        )
     }
 
     // MARK: - Dialog Commands

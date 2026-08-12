@@ -109,6 +109,35 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func ghostLifecycleCommandsUseGetDelivery() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-ghost-lifecycle-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.callGhost(named: "missing-ghost", options: ["--option=raise-event"])
+
+        let lifecycleIDs = ["OnGhostCalling", "OnGhostCalled", "OnGhostCallComplete"]
+        for id in lifecycleIDs {
+            let request = runtime.requests.first { $0.id == id }
+            #expect(request?.method == "GET", "\(id) must be delivered as GET")
+        }
+
+        runtime.requests.removeAll()
+        manager.switchGhost(named: "missing-ghost", options: ["--option=raise-event"])
+
+        for id in ["OnGhostChanging", "OnGhostChanged"] {
+            let request = runtime.requests.first { $0.id == id }
+            #expect(request?.method == "GET", "\(id) must be delivered as GET")
+        }
+    }
+
+    @Test @MainActor
     func resetWindowPositionRaisesEventBeforeDefaultReset() {
         EventBridge.shared.stop()
 
