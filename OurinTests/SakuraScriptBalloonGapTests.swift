@@ -240,6 +240,8 @@ private final class InputOptionsRuntime: GhostShioriRuntime {
     var isLoaded = true
     var resourceManager: ResourceManager?
     var lastRequest: (method: String, id: String, refs: [String])?
+    var requests: [(method: String, id: String, refs: [String])] = []
+    var responses: [String: String] = [:]
 
     func load(context: ShioriRuntimeLoadContext) -> Bool { true }
 
@@ -251,6 +253,10 @@ private final class InputOptionsRuntime: GhostShioriRuntime {
         timeout: TimeInterval
     ) -> ShioriRuntimeResponse? {
         lastRequest = (method, id, refs)
+        requests.append((method, id, refs))
+        if let response = responses[id] {
+            return .init(ok: true, status: 200, value: response)
+        }
         return .init(ok: true, status: 204)
     }
 
@@ -374,6 +380,69 @@ struct BalloonAnchorRangeTests {
     @Test func routeAnchorClickMapsPlainIdToAnchorSelect() {
         let anchor = BalloonAnchorRange(id: "link", references: ["r2", "r3"], text: "here", range: NSRange(location: 0, length: 4))
         #expect(routeAnchorClick(anchor) == .anchorSelect(id: "link", clickedText: "here", selectedReferences: ["r2", "r3"]))
+    }
+
+    @Test func anchorEventParametersUseLabelIDAndExtendedReferences() {
+        let anchor = BalloonAnchorRange(
+            id: "link",
+            references: ["r2", "r3"],
+            text: "表示",
+            range: NSRange(location: 0, length: 2)
+        )
+        #expect(anchorEventParameters(for: anchor) == [
+            "Reference0": "表示",
+            "Reference1": "link",
+            "Reference2": "r2",
+            "Reference3": "r3"
+        ])
+    }
+
+    @MainActor
+    @Test func renderedAnchorHoverUsesGETAndSelectionFallsBackFromEx() async throws {
+        EventBridge.shared.stop()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-anchor-events"))
+        let runtime = InputOptionsRuntime()
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        let anchor = BalloonAnchorRange(
+            id: "link",
+            references: ["r2"],
+            text: "表示",
+            range: NSRange(location: 0, length: 2)
+        )
+        manager.onBalloonAnchorHover(anchor, fromScope: 0, hovering: true)
+        #expect(runtime.lastRequest?.method == "GET")
+        #expect(runtime.lastRequest?.id == "OnAnchorEnter")
+        #expect(runtime.lastRequest?.refs == ["表示", "link", "r2"])
+
+        try await Task.sleep(nanoseconds: 600_000_000)
+        #expect(runtime.lastRequest?.id == "OnAnchorHover")
+        #expect(runtime.lastRequest?.refs == ["表示", "link", "r2"])
+
+        manager.onBalloonAnchorHover(anchor, fromScope: 0, hovering: false)
+        #expect(runtime.lastRequest?.id == "OnAnchorEnter")
+        #expect(runtime.lastRequest?.refs == [])
+
+        runtime.responses["OnAnchorSelectEx"] = #"\0handled\e"#
+        manager.onBalloonAnchorClicked(anchor, fromScope: 0)
+        let firstSelectionIDs = runtime.requests
+            .filter { $0.id == "OnAnchorSelectEx" || $0.id == "OnAnchorSelect" }
+            .map(\.id)
+        #expect(firstSelectionIDs.last == "OnAnchorSelectEx")
+        #expect(firstSelectionIDs.contains("OnAnchorSelect") == false)
+
+        runtime.responses.removeValue(forKey: "OnAnchorSelectEx")
+        manager.onBalloonAnchorClicked(anchor, fromScope: 0)
+        let lastIDs = runtime.requests
+            .filter { $0.id == "OnAnchorSelectEx" || $0.id == "OnAnchorSelect" }
+            .map(\.id)
+            .suffix(2)
+        #expect(lastIDs == ["OnAnchorSelectEx", "OnAnchorSelect"])
     }
 }
 

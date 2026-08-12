@@ -824,18 +824,9 @@ extension GhostManager: NSWindowDelegate {
                     extendedRefs = []
                 }
 
-                // OnChoiceSelect: Reference0 = 選択された選択肢の ID（UKADOC）
-                EventBridge.shared.notifyCustom("OnChoiceSelect", refs: ["choiceID": choiceID])
-
-                // OnChoiceSelectEx: Reference0 = ラベル, Reference1 = ID, Reference2.. = 拡張情報（\q の3番目以降）
-                var selectExParams: [String: String] = [
-                    "Reference0": choice.title,
-                    "Reference1": choiceID
-                ]
-                for (i, ref) in extendedRefs.enumerated() {
-                    selectExParams["Reference\(i + 2)"] = ref
-                }
-                EventBridge.shared.notifyCustom("OnChoiceSelectEx", params: selectExParams)
+                // UKADOC: OnChoiceSelectEx は OnChoiceSelect より先に GET で発火する。
+                _ = self.requestDialogEvent(eventID: "OnChoiceSelectEx", references: [choice.title, choiceID] + extendedRefs)
+                _ = self.requestDialogEvent(eventID: "OnChoiceSelect", references: [choiceID])
 
                 // プラグインへも横流し（Select=ID, SelectEx=ラベル/ID/拡張）
                 if choice.pluginOrigin {

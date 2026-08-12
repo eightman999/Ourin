@@ -118,9 +118,10 @@ public enum EventReferenceTable {
         .init(id: "OnChoiceEnter", references: ["label", "choiceID", "extInfo"], category: "ui"),
         .init(id: "OnChoiceHover", references: ["label", "choiceID", "extInfo"], category: "ui"),
         .init(id: "OnChoiceSelect", references: ["choiceID"], category: "ui"),
-        .init(id: "OnChoiceSelectEx", references: ["choiceID", "extInfo"], category: "ui"),
+        .init(id: "OnChoiceSelectEx", references: ["label", "choiceID", "extInfo"], category: "ui"),
         .init(id: "OnAnchorSelect", references: ["anchorID"], category: "ui"),
-        .init(id: "OnAnchorEnter", references: ["anchorID"], category: "ui"),
+        .init(id: "OnAnchorSelectEx", references: ["label", "anchorID", "extInfo"], category: "ui"),
+        .init(id: "OnAnchorEnter", references: ["label", "anchorID", "extInfo"], category: "ui"),
 
         // MARK: - シェル / サーフェス
         .init(id: "OnShellChanging", references: ["prevShellName", "newShellName"], category: "shell"),
@@ -276,8 +277,7 @@ public enum EventReferenceTable {
         // 全 ~216 発火箇所の table 駆動化に伴い、発火されている全イベントを網羅。
         // ラベルは UKADOC list_shiori_event(_ex)/list_plugin_event の Reference 意味 +
         // 実コードが各 ReferenceN に格納する値で検証済み（移行は ReferenceN とバイト等価）。
-        .init(id: "OnAnchorHover", references: ["text"], category: "ui"),
-        .init(id: "OnAnchorSelectEx", references: [], category: "ui"),
+        .init(id: "OnAnchorHover", references: ["label", "anchorID", "extInfo"], category: "ui"),
         .init(id: "OnArchiveFailure", references: ["operation", "reason"], category: "update"),
         .init(id: "OnBasewareUpdated", references: ["version"], category: "update"),
         .init(id: "OnBasewareUpdating", references: ["version"], category: "update"),

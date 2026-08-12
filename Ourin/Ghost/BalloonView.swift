@@ -8,6 +8,8 @@ struct BalloonView: View {
     var onClick: (() -> Void)? = nil
     /// `\_a` 範囲アンカーがクリックされたときに、クリックされたアンカーを通知する。
     var onAnchorClick: ((BalloonAnchorRange) -> Void)? = nil
+    /// `\_a` 範囲アンカーの実ポインタ入退場を通知する（true=入場、false=退場）。
+    var onAnchorHover: ((BalloonAnchorRange, Bool) -> Void)? = nil
 
     // Balloon configuration and image loader
     var config: BalloonConfig?
@@ -233,6 +235,9 @@ struct BalloonView: View {
                         vm.activeAnchorIndex = anchorIndex
                     } else if vm.activeAnchorIndex == anchorIndex {
                         vm.activeAnchorIndex = nil
+                    }
+                    if vm.anchors.indices.contains(anchorIndex) {
+                        onAnchorHover?(vm.anchors[anchorIndex], hovering)
                     }
                 }
                 .onTapGesture {

@@ -90,6 +90,22 @@ func eventReferenceTableMouseEventReferencesMatchUkadoc() {
 }
 
 @Test
+func eventReferenceTableChoiceAndAnchorReferencesMatchUkadoc() {
+    #expect(EventReferenceTable.specs["OnChoiceSelectEx"]?.references == [
+        "label", "choiceID", "extInfo"
+    ])
+    #expect(EventReferenceTable.specs["OnAnchorEnter"]?.references == [
+        "label", "anchorID", "extInfo"
+    ])
+    #expect(EventReferenceTable.specs["OnAnchorHover"]?.references == [
+        "label", "anchorID", "extInfo"
+    ])
+    #expect(EventReferenceTable.specs["OnAnchorSelectEx"]?.references == [
+        "label", "anchorID", "extInfo"
+    ])
+}
+
+@Test
 func eventReferenceTableTimeEventReferences() {
     // OnSecondChange/OnMinuteChange/OnHourTimeSignal は共通 R0..R4
     let refs = ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"]

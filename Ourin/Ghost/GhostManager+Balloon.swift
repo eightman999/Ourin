@@ -23,6 +23,19 @@ func routeAnchorClick(_ anchor: BalloonAnchorRange) -> AnchorClickRouting {
     return .anchorSelect(id: anchor.id, clickedText: anchor.text, selectedReferences: anchor.references)
 }
 
+/// UKADOC の OnAnchorSelectEx / OnAnchorEnter / OnAnchorHover 共通の参照列を作る。
+/// Reference0=表示ラベル、Reference1=ID、Reference2以降=アンカー引数。
+func anchorEventParameters(for anchor: BalloonAnchorRange) -> [String: String] {
+    var params: [String: String] = [
+        "Reference0": anchor.text,
+        "Reference1": anchor.id
+    ]
+    for (index, reference) in anchor.references.enumerated() {
+        params["Reference\(index + 2)"] = reference
+    }
+    return params
+}
+
 
 // MARK: - Balloon Management and Positioning
 
@@ -47,6 +60,9 @@ extension GhostManager {
             viewModel: vm,
             onClick: { [weak self] in self?.onBalloonClicked(fromScope: scope) },
             onAnchorClick: { [weak self] anchor in self?.onBalloonAnchorClicked(anchor, fromScope: scope) },
+            onAnchorHover: { [weak self] anchor, hovering in
+                self?.onBalloonAnchorHover(anchor, fromScope: scope, hovering: hovering)
+            },
             config: balloonConfig,
             imageLoader: balloonImageLoader
         )
@@ -208,22 +224,82 @@ extension GhostManager {
             for (index, ref) in references.enumerated() {
                 params["Reference\(index)"] = ref
             }
-            EventBridge.shared.notifyCustom(id, params: params)
+            _ = EventBridge.shared.requestCustom(id, params: params, to: self)
             if pluginOrigin {
                 forwardEventToPlugins(id: id, references: references)
             }
         case .anchorSelect(let id, let clickedText, let selectedReferences):
             // UKADOC: OnAnchorSelectEx は Reference0=クリックされたテキスト, Reference1=ID, Reference2+=引数。
-            var exParams: [String: String] = ["Reference0": clickedText, "Reference1": id]
-            for (index, ref) in selectedReferences.enumerated() {
-                exParams["Reference\(index + 2)"] = ref
+            let selected = BalloonAnchorRange(
+                id: id,
+                references: selectedReferences,
+                text: clickedText,
+                range: anchor.range,
+                pluginOrigin: anchor.pluginOrigin,
+                visited: anchor.visited
+            )
+            let handledByEx = EventBridge.shared.requestCustom(
+                "OnAnchorSelectEx",
+                params: anchorEventParameters(for: selected),
+                to: self
+            )
+            // UKADOC: OnAnchorSelect は Ex が空応答のときだけ発火する。
+            if !handledByEx {
+                _ = EventBridge.shared.requestCustom(
+                    "OnAnchorSelect",
+                    params: EventReferenceTable.params(forEvent: "OnAnchorSelect", refs: ["anchorID": id]),
+                    to: self
+                )
             }
-            EventBridge.shared.notifyCustom("OnAnchorSelectEx", params: exParams)
-            EventBridge.shared.notifyCustom("OnAnchorSelect", refs: ["anchorID": id])
             if pluginOrigin {
                 forwardEventToPlugins(id: "OnAnchorSelect", references: [id])
-                forwardEventToPlugins(id: "OnAnchorSelectEx", references: selectedReferences + [id])
+                forwardEventToPlugins(id: "OnAnchorSelectEx", references: [clickedText, id] + selectedReferences)
             }
+        }
+    }
+
+    /// 実際のアンカー文字列へポインタが入った／外れたときのイベントを発火する。
+    /// スクリプトの `\_a` 開始時はまだ表示テキストが確定していないため、ここでは発火しない。
+    func onBalloonAnchorHover(_ anchor: BalloonAnchorRange, fromScope scope: Int, hovering: Bool) {
+        let timerKey = "anchor-hover-\(scope)"
+        let key = "\(anchor.id)|\(anchor.range.location)|\(anchor.range.length)"
+
+        if hovering {
+            if hoveredAnchorKeysByScope[scope] == key {
+                return
+            }
+
+            localEventTimers[timerKey]?.invalidate()
+            localEventTimers.removeValue(forKey: timerKey)
+            if hoveredAnchorKeysByScope[scope] != nil {
+                // SwiftUI の再構成で入退場順が入れ替わっても、前のアンカーを閉じる。
+                _ = EventBridge.shared.requestCustom("OnAnchorEnter", params: [:], to: self)
+            }
+            hoveredAnchorKeysByScope[scope] = key
+
+            _ = EventBridge.shared.requestCustom(
+                "OnAnchorEnter",
+                params: anchorEventParameters(for: anchor),
+                to: self
+            )
+
+            let timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+                guard let self, self.hoveredAnchorKeysByScope[scope] == key else { return }
+                _ = EventBridge.shared.requestCustom(
+                    "OnAnchorHover",
+                    params: anchorEventParameters(for: anchor),
+                    to: self
+                )
+                self.localEventTimers.removeValue(forKey: timerKey)
+            }
+            localEventTimers[timerKey] = timer
+        } else {
+            guard hoveredAnchorKeysByScope[scope] == key else { return }
+            localEventTimers[timerKey]?.invalidate()
+            localEventTimers.removeValue(forKey: timerKey)
+            hoveredAnchorKeysByScope.removeValue(forKey: scope)
+            // UKADOC: アンカーから外れた OnAnchorEnter は Reference なし。
+            _ = EventBridge.shared.requestCustom("OnAnchorEnter", params: [:], to: self)
         }
     }
 

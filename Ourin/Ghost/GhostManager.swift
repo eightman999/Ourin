@@ -634,6 +634,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// \* 指定（このスクリプトの選択肢をタイムアウトさせない）
     var choiceTimeoutDisabled: Bool = false
     var localEventTimers: [String: Timer] = [:]
+    /// 実ポインタが入っているアンカー（scopeごとの一意キー）。
+    var hoveredAnchorKeysByScope: [Int: String] = [:]
     var remoteEventTimers: [String: Timer] = [:]
     var pluginEventTimers: [String: Timer] = [:]
     /// オンラインマーカーのスコープ別アニメーションタイマー。
@@ -1258,6 +1260,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             timer.invalidate()
         }
         localEventTimers.removeAll()
+        hoveredAnchorKeysByScope.removeAll()
         for timer in remoteEventTimers.values {
             timer.invalidate()
         }
@@ -3854,8 +3857,6 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             textStart: (vm.text as NSString).length
         )
         vm.anchorActive = true
-        EventBridge.shared.notifyCustom("OnAnchorEnter", refs: ["anchorID": id])
-        EventBridge.shared.notifyCustom("OnAnchorHover", refs: ["text": id])
     }
 
     /// `\_a` 閉じ: 開始タグからの範囲を1つのアンカーとして確定する。
