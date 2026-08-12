@@ -258,4 +258,133 @@ struct GhostUtilityCommandTests {
         #expect(sourceRuntime.requests.isEmpty)
         #expect(disabledRuntime.requests.isEmpty)
     }
+
+    @Test @MainActor
+    func archiveCommandsDispatchStandardReferencesAndCustomEvent() async throws {
+        EventBridge.shared.stop()
+
+        let fileManager = FileManager.default
+        let root = fileManager.temporaryDirectory
+            .appendingPathComponent("ourin-archive-command-\(UUID().uuidString)", isDirectory: true)
+        let source = root.appendingPathComponent("source", isDirectory: true)
+        let sourceFile = source.appendingPathComponent("payload.txt")
+        let archive = root.appendingPathComponent("payload.zip")
+        let extracted = root.appendingPathComponent("extracted", isDirectory: true)
+        try fileManager.createDirectory(at: source, withIntermediateDirectories: true)
+        let payload = Data("archive payload".utf8)
+        try payload.write(to: sourceFile)
+        defer { try? fileManager.removeItem(at: root) }
+
+        let manager = GhostManager(ghostURL: root)
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.executeCompressArchive(params: [
+            source.path,
+            archive.path,
+            "--event=OnArchiveCompressTest"
+        ])
+        for _ in 0..<100 where runtime.requests.first(where: { $0.id == "OnArchiveCompressTest" }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let compress = runtime.requests.first { $0.id == "OnArchiveCompressTest" }
+        #expect(compress?.method == "GET")
+        let compressRefs = compress?.refs ?? []
+        #expect(compressRefs.count == 4)
+        if compressRefs.count == 4 {
+            #expect(compressRefs[0] == "OnArchiveCompressTest")
+            #expect(compressRefs[1] == "1")
+            #expect((Int64(compressRefs[2]) ?? 0) > 0)
+            #expect(compressRefs[3] == String(payload.count))
+        }
+        #expect(fileManager.fileExists(atPath: archive.path))
+
+        manager.executeExtractArchive(params: [
+            archive.path,
+            extracted.path,
+            "--event=OnArchiveExtractTest"
+        ])
+        for _ in 0..<100 where runtime.requests.first(where: { $0.id == "OnArchiveExtractTest" }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let extract = runtime.requests.first { $0.id == "OnArchiveExtractTest" }
+        #expect(extract?.method == "GET")
+        let extractRefs = extract?.refs ?? []
+        #expect(extractRefs.count == 4)
+        if extractRefs.count == 4 {
+            #expect(extractRefs[0] == "OnArchiveExtractTest")
+            #expect(extractRefs[1] == "1")
+            #expect(extractRefs[2] == String(ArchiveTestSupport.fileSize(at: archive)))
+            #expect(extractRefs[3] == String(payload.count))
+        }
+        #expect(try Data(contentsOf: extracted.appendingPathComponent("source/payload.txt")) == payload)
+
+        let passwordArchive = root.appendingPathComponent("password.zip")
+        let passwordExtracted = root.appendingPathComponent("password-extracted", isDirectory: true)
+        manager.executeCompressArchive(params: [
+            source.path,
+            passwordArchive.path,
+            "--password=secret",
+            "--event=OnArchivePasswordCompressTest"
+        ])
+        for _ in 0..<100 where runtime.requests.first(where: { $0.id == "OnArchivePasswordCompressTest" }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(runtime.requests.first(where: { $0.id == "OnArchivePasswordCompressTest" })?.method == "GET")
+
+        manager.executeExtractArchive(params: [
+            passwordArchive.path,
+            passwordExtracted.path,
+            "--password=secret",
+            "--event=OnArchivePasswordExtractTest"
+        ])
+        for _ in 0..<100 where runtime.requests.first(where: { $0.id == "OnArchivePasswordExtractTest" }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(runtime.requests.first(where: { $0.id == "OnArchivePasswordExtractTest" })?.method == "GET")
+        #expect(try Data(contentsOf: passwordExtracted.appendingPathComponent("source/payload.txt")) == payload)
+    }
+
+    @Test @MainActor
+    func archiveFailureUsesDefaultGetEventAndErrorReference() async throws {
+        EventBridge.shared.stop()
+
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ourin-archive-failure-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let manager = GhostManager(ghostURL: root)
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.executeExtractArchive(params: [
+            root.appendingPathComponent("missing.zip").path,
+            root.appendingPathComponent("destination", isDirectory: true).path
+        ])
+        for _ in 0..<100 where runtime.requests.first(where: { $0.id == EventID.OnExtractArchiveFailure.rawValue }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let event = runtime.requests.first { $0.id == EventID.OnExtractArchiveFailure.rawValue }
+        #expect(event?.method == "GET")
+        #expect(event?.refs == ["", "file not found"])
+    }
+}
+
+private enum ArchiveTestSupport {
+    static func fileSize(at url: URL) -> Int64 {
+        guard let values = try? url.resourceValues(forKeys: [.fileSizeKey]) else { return 0 }
+        return Int64(values.fileSize ?? 0)
+    }
 }

@@ -106,6 +106,18 @@ func eventReferenceTableChoiceAndAnchorReferencesMatchUkadoc() {
 }
 
 @Test
+func eventReferenceTableArchiveReferencesMatchUkadoc() {
+    let complete = ["eventID", "fileCount", "compressedSize", "uncompressedSize"]
+    let failure = ["eventID", "error"]
+    for id in ["OnExtractArchiveComplete", "OnCompressArchiveComplete"] {
+        #expect(EventReferenceTable.specs[id]?.references == complete, "mismatch for \(id)")
+    }
+    for id in ["OnExtractArchiveFailure", "OnCompressArchiveFailure"] {
+        #expect(EventReferenceTable.specs[id]?.references == failure, "mismatch for \(id)")
+    }
+}
+
+@Test
 func eventReferenceTableCoversEmittedFailureAndWallpaperEvents() {
     #expect(EventReferenceTable.params(forEvent: "OnReadmeOpenFailure", refs: [
         "type": "ghost", "name": "readme.txt", "path": "/tmp/readme.txt"

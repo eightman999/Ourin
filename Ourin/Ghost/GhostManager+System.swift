@@ -12,6 +12,87 @@ enum NarInstallDispatchOutcome {
     case failed(Swift.Error)
 }
 
+private struct ArchiveCommandOptions {
+    let eventID: String?
+    let password: String?
+
+    init(_ raw: [String]) {
+        var parsedEventID: String?
+        var parsedPassword: String?
+        var index = 0
+
+        while index < raw.count {
+            let option = raw[index].trimmingCharacters(in: .whitespacesAndNewlines)
+            if let value = option.splitOnce(after: "--event=") {
+                parsedEventID = value.isEmpty ? nil : value
+            } else if let value = option.splitOnce(after: "--password=") {
+                parsedPassword = value
+            } else if option == "--event", index + 1 < raw.count {
+                index += 1
+                let value = raw[index].trimmingCharacters(in: .whitespacesAndNewlines)
+                parsedEventID = value.isEmpty ? nil : value
+            } else if option == "--password", index + 1 < raw.count {
+                index += 1
+                parsedPassword = raw[index]
+            }
+            index += 1
+        }
+
+        eventID = parsedEventID
+        password = parsedPassword
+    }
+}
+
+private struct ArchiveStatistics {
+    let fileCount: Int
+    let byteCount: Int64
+
+    static func fileTree(at root: URL) -> ArchiveStatistics {
+        let fileManager = FileManager.default
+        var count = 0
+        var bytes: Int64 = 0
+
+        func addFile(_ url: URL) {
+            guard let values = try? url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]),
+                  values.isRegularFile == true else { return }
+            count += 1
+            bytes += Int64(values.fileSize ?? 0)
+        }
+
+        guard let rootValues = try? root.resourceValues(forKeys: [.isDirectoryKey]) else {
+            return ArchiveStatistics(fileCount: 0, byteCount: 0)
+        }
+        if rootValues.isDirectory == true {
+            guard let enumerator = fileManager.enumerator(
+                at: root,
+                includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+                options: []
+            ) else {
+                return ArchiveStatistics(fileCount: 0, byteCount: 0)
+            }
+            for case let url as URL in enumerator {
+                addFile(url)
+            }
+        } else {
+            addFile(root)
+        }
+
+        return ArchiveStatistics(fileCount: count, byteCount: bytes)
+    }
+
+    static func fileSize(at url: URL) -> Int64 {
+        guard let values = try? url.resourceValues(forKeys: [.fileSizeKey]) else { return 0 }
+        return Int64(values.fileSize ?? 0)
+    }
+}
+
+private extension String {
+    func splitOnce(after prefix: String) -> String? {
+        guard hasPrefix(prefix) else { return nil }
+        return String(dropFirst(prefix.count))
+    }
+}
+
 // MARK: - System Commands and Ghost Booting
 
 extension GhostManager: NSWindowDelegate {
@@ -2812,51 +2893,207 @@ extension GhostManager: NSWindowDelegate {
     }
 
     func executeExtractArchive(params: [String]) {
+        let options = ArchiveCommandOptions(params)
         guard params.count >= 2 else {
-            EventBridge.shared.notifyCustom("OnArchiveFailure", refs: ["operation": "extract", "reason": "missing_args"])
-            EventBridge.shared.notify(.OnExtractArchiveFailure, refs: ["eventID": "missing_args"])
+            dispatchArchiveCompatibilityEvent(operation: "extract", success: false, error: "invalid parameter")
+            dispatchArchiveEvent(
+                defaultEvent: .OnExtractArchiveComplete,
+                defaultFailureEvent: .OnExtractArchiveFailure,
+                requestedEventID: options.eventID,
+                success: false,
+                refs: ["eventID": options.eventID ?? "", "error": "invalid parameter"]
+            )
             return
         }
+
         let archive = resolvedPath(params[0])
         let destination = resolvedPath(params[1])
+        let compressedSize = ArchiveStatistics.fileSize(at: archive)
         EventBridge.shared.notifyCustom("OnExtractArchiveBegin", refs: [
             "archivePath": archive.path,
             "destPath": destination.path
-        ])
-        runProcess(path: "/usr/bin/ditto", arguments: ["-x", "-k", archive.path, destination.path]) { output, ok in
-            let payload: [String: String] = [
-                "Reference0": "extract",
-                "Reference1": archive.path,
-                "Reference2": destination.path,
-                "Reference3": output
-            ]
-            EventBridge.shared.notifyCustom(ok ? "OnArchiveComplete" : "OnArchiveFailure", params: payload)
-            EventBridge.shared.notify(ok ? .OnExtractArchiveComplete : .OnExtractArchiveFailure, params: payload)
+        ], to: self, ignoreResponseScript: true)
+
+        let processPath: String
+        let processArguments: [String]
+        if let password = options.password {
+            processPath = "/usr/bin/unzip"
+            processArguments = ["-q", "-o", "-P", password, archive.path, "-d", destination.path]
+        } else {
+            processPath = "/usr/bin/ditto"
+            processArguments = ["-x", "-k", archive.path, destination.path]
+        }
+
+        runProcess(path: processPath, arguments: processArguments) { [weak self] output, ok in
+            guard let self else { return }
+            if ok {
+                let stats = ArchiveStatistics.fileTree(at: destination)
+                let refs = [
+                    "eventID": options.eventID ?? "",
+                    "fileCount": String(stats.fileCount),
+                    "compressedSize": String(compressedSize),
+                    "uncompressedSize": String(stats.byteCount)
+                ]
+                self.dispatchArchiveCompatibilityEvent(operation: "extract", success: true, error: nil, refs: refs)
+                self.dispatchArchiveEvent(
+                    defaultEvent: .OnExtractArchiveComplete,
+                    defaultFailureEvent: .OnExtractArchiveFailure,
+                    requestedEventID: options.eventID,
+                    success: true,
+                    refs: refs
+                )
+            } else {
+                let error = self.archiveFailureCode(output: output, source: archive, destination: destination)
+                self.dispatchArchiveCompatibilityEvent(operation: "extract", success: false, error: error)
+                self.dispatchArchiveEvent(
+                    defaultEvent: .OnExtractArchiveComplete,
+                    defaultFailureEvent: .OnExtractArchiveFailure,
+                    requestedEventID: options.eventID,
+                    success: false,
+                    refs: ["eventID": options.eventID ?? "", "error": error]
+                )
+            }
         }
     }
 
     func executeCompressArchive(params: [String]) {
+        let options = ArchiveCommandOptions(params)
         guard params.count >= 2 else {
-            EventBridge.shared.notifyCustom("OnArchiveFailure", refs: ["operation": "compress", "reason": "missing_args"])
-            EventBridge.shared.notify(.OnCompressArchiveFailure, refs: ["eventID": "missing_args"])
+            dispatchArchiveCompatibilityEvent(operation: "compress", success: false, error: "invalid parameter")
+            dispatchArchiveEvent(
+                defaultEvent: .OnCompressArchiveComplete,
+                defaultFailureEvent: .OnCompressArchiveFailure,
+                requestedEventID: options.eventID,
+                success: false,
+                refs: ["eventID": options.eventID ?? "", "error": "invalid parameter"]
+            )
             return
         }
+
         let source = resolvedPath(params[0])
         let output = resolvedPath(params[1])
+        let sourceStats = ArchiveStatistics.fileTree(at: source)
         EventBridge.shared.notifyCustom("OnCompressArchiveBegin", refs: [
             "source": source.path,
             "outputPath": output.path
-        ])
-        runProcess(path: "/usr/bin/ditto", arguments: ["-c", "-k", "--sequesterRsrc", "--keepParent", source.path, output.path]) { result, ok in
-            let payload: [String: String] = [
-                "Reference0": "compress",
-                "Reference1": source.path,
-                "Reference2": output.path,
-                "Reference3": result
-            ]
-            EventBridge.shared.notifyCustom(ok ? "OnArchiveComplete" : "OnArchiveFailure", params: payload)
-            EventBridge.shared.notify(ok ? .OnCompressArchiveComplete : .OnCompressArchiveFailure, params: payload)
+        ], to: self, ignoreResponseScript: true)
+
+        let processPath: String
+        let processArguments: [String]
+        let currentDirectoryURL: URL?
+        if let password = options.password {
+            processPath = "/usr/bin/zip"
+            processArguments = ["-q", "-r", "-P", password, output.path, source.lastPathComponent]
+            currentDirectoryURL = source.deletingLastPathComponent()
+        } else {
+            processPath = "/usr/bin/ditto"
+            processArguments = ["-c", "-k", "--sequesterRsrc", "--keepParent", source.path, output.path]
+            currentDirectoryURL = nil
         }
+
+        runProcess(
+            path: processPath,
+            arguments: processArguments,
+            currentDirectoryURL: currentDirectoryURL
+        ) { [weak self] result, ok in
+            guard let self else { return }
+            if ok {
+                let refs = [
+                    "eventID": options.eventID ?? "",
+                    "fileCount": String(sourceStats.fileCount),
+                    "compressedSize": String(ArchiveStatistics.fileSize(at: output)),
+                    "uncompressedSize": String(sourceStats.byteCount)
+                ]
+                self.dispatchArchiveCompatibilityEvent(operation: "compress", success: true, error: nil, refs: refs)
+                self.dispatchArchiveEvent(
+                    defaultEvent: .OnCompressArchiveComplete,
+                    defaultFailureEvent: .OnCompressArchiveFailure,
+                    requestedEventID: options.eventID,
+                    success: true,
+                    refs: refs
+                )
+            } else {
+                let error = self.archiveFailureCode(output: result, source: source, destination: output)
+                self.dispatchArchiveCompatibilityEvent(operation: "compress", success: false, error: error)
+                self.dispatchArchiveEvent(
+                    defaultEvent: .OnCompressArchiveComplete,
+                    defaultFailureEvent: .OnCompressArchiveFailure,
+                    requestedEventID: options.eventID,
+                    success: false,
+                    refs: ["eventID": options.eventID ?? "", "error": error]
+                )
+            }
+        }
+    }
+
+    private func dispatchArchiveCompatibilityEvent(
+        operation: String,
+        success: Bool,
+        error: String?,
+        refs: [String: String] = [:]
+    ) {
+        if success {
+            let params = EventReferenceTable.params(forEvent: "OnCompressArchiveComplete", refs: refs)
+            EventBridge.shared.notifyCustom(
+                "OnArchiveComplete",
+                params: params,
+                to: self,
+                ignoreResponseScript: true
+            )
+        } else {
+            EventBridge.shared.notifyCustom(
+                "OnArchiveFailure",
+                refs: ["operation": operation, "reason": error ?? "open failed"],
+                to: self,
+                ignoreResponseScript: true
+            )
+        }
+    }
+
+    private func dispatchArchiveEvent(
+        defaultEvent: EventID,
+        defaultFailureEvent: EventID,
+        requestedEventID: String?,
+        success: Bool,
+        refs: [String: String]
+    ) {
+        let params = EventReferenceTable.params(
+            forEvent: (success ? defaultEvent : defaultFailureEvent).rawValue,
+            refs: refs
+        )
+        if let requestedEventID, requestedEventID.hasPrefix("On") {
+            let eventName = success ? requestedEventID : "\(requestedEventID)Failure"
+            _ = EventBridge.shared.requestCustom(eventName, params: params, to: self)
+        } else {
+            let eventID = success ? defaultEvent : defaultFailureEvent
+            _ = EventBridge.shared.request(eventID, params: params, to: self)
+        }
+    }
+
+    private func archiveFailureCode(output: String, source: URL, destination: URL) -> String {
+        let fileManager = FileManager.default
+        let output = output.lowercased()
+        if !fileManager.fileExists(atPath: source.path) {
+            return "file not found"
+        }
+        let destinationParent = destination.deletingLastPathComponent()
+        var isDirectory: ObjCBool = false
+        if !fileManager.fileExists(atPath: destinationParent.path, isDirectory: &isDirectory) || !isDirectory.boolValue {
+            return "directory not found"
+        }
+        if output.contains("password") {
+            return "password required"
+        }
+        if output.contains("crc") {
+            return "crc"
+        }
+        if output.contains("corrupt") {
+            return "corrupted"
+        }
+        if output.contains("permission") {
+            return "open failed"
+        }
+        return "open failed"
     }
 
     /// 現在表示中のサーフェスを、ベース・SERIKOオーバーレイ・着せ替えパーツまで
@@ -3641,11 +3878,17 @@ extension GhostManager: NSWindowDelegate {
         }
     }
 
-    private func runProcess(path: String, arguments: [String], completion: @escaping (String, Bool) -> Void) {
+    private func runProcess(
+        path: String,
+        arguments: [String],
+        currentDirectoryURL: URL? = nil,
+        completion: @escaping (String, Bool) -> Void
+    ) {
         DispatchQueue.global(qos: .utility).async {
             let process = Process()
             process.executableURL = URL(fileURLWithPath: path)
             process.arguments = arguments
+            process.currentDirectoryURL = currentDirectoryURL
             let output = Pipe()
             process.standardOutput = output
             process.standardError = output
