@@ -43,6 +43,8 @@ struct DressupPartView: View {
 struct CharacterView: View {
     /// The ViewModel that provides the character image.
     @ObservedObject var viewModel: CharacterViewModel
+    /// Scope ID used by drag-and-drop SHIORI references.
+    var scopeID: Int = 0
     /// Optional callback for handling drag and drop events
     var onDragDropEvent: ((ShioriEvent) -> Void)?
 
@@ -113,7 +115,7 @@ struct CharacterView: View {
 
             // Drag and drop overlay
             if let onEvent = onDragDropEvent {
-                DragDropView(onEvent: onEvent)
+                DragDropView(scopeID: scopeID, onEvent: onEvent)
             }
         }
         .scaleEffect(x: viewModel.scaleX, y: viewModel.scaleY)

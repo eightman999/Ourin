@@ -241,6 +241,13 @@ final class EventBridge {
         broadcastNotifyImmediate(id: id, params: EventReferenceTable.params(forEvent: id.rawValue, refs: refs), security: security)
     }
 
+    /// Observer/UI由来のイベントを、イベント自身が指定した配送方式で送る。
+    /// D&Dのように EventBridge 外で生成されるイベントも、GET/NOTIFY の仕様を失わないよう
+    /// この入口を使う。
+    func dispatch(_ event: ShioriEvent) {
+        broadcast(event: event)
+    }
+
     /// スクリプトの `\\![raise,...]` 用に、標準イベント名を GET で実行する。
     /// `notify` はシステム由来の NOTIFY を表すため、raise をそこへ流すと
     /// SHIORI の返答スクリプトが再生されない。raise はイベントの結果を会話へ

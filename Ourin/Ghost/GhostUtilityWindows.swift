@@ -369,8 +369,8 @@ private struct AddressBarView: View {
             }
             .frame(height: 54)
             .background(
-                DragDropView { event in
-                    EventBridge.shared.notify(event.id, params: event.params)
+                DragDropView(scopeID: 0) { event in
+                    EventBridge.shared.dispatch(event)
                     guard event.id == .OnURLDropped || event.id == .OnURLDrop,
                           let value = event.params["Reference0"] ?? event.params["url"] else { return }
                     address = value

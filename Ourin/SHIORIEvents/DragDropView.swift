@@ -2,25 +2,32 @@
 // SwiftUI wrapper for DragDropReceiver
 import SwiftUI
 import AppKit
+import UniformTypeIdentifiers
 
 /// SwiftUI-compatible wrapper for the DragDropReceiver NSView
 struct DragDropView: NSViewRepresentable {
+    let scopeID: Int
     let onEvent: (ShioriEvent) -> Void
 
     func makeNSView(context: Context) -> DragDropReceiverView {
         let view = DragDropReceiverView()
+        view.scopeID = scopeID
         view.onEvent = onEvent
         return view
     }
 
     func updateNSView(_ nsView: DragDropReceiverView, context: Context) {
+        nsView.scopeID = scopeID
         nsView.onEvent = onEvent
     }
 }
 
 /// Internal NSView that handles drag and drop operations
 final class DragDropReceiverView: NSView {
+    var scopeID: Int = 0
     var onEvent: ((ShioriEvent) -> Void)?
+
+    private static let multiValueSeparator = "\u{01}"
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -30,6 +37,23 @@ final class DragDropReceiverView: NSView {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         registerForDraggedTypes([.fileURL, .URL, .string])
+    }
+
+    /// 標準D&Dイベントの Reference 値を作る（パス・スコープ・MIMEの順）。
+    static func fileDropReferences(for urls: [URL], scopeID: Int) -> [String: String] {
+        [
+            "filePath": urls.map(\.path).joined(separator: multiValueSeparator),
+            "scopeID": String(scopeID),
+            "mimeType": urls.map(mimeType(for:)).joined(separator: multiValueSeparator)
+        ]
+    }
+
+    private static func mimeType(for url: URL) -> String {
+        var isDirectory: ObjCBool = false
+        if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue {
+            return "inode/directory"
+        }
+        return UTType(filenameExtension: url.pathExtension)?.preferredMIMEType ?? "application/octet-stream"
     }
 
     /// Drag entered - always allow copy operation
@@ -54,10 +78,12 @@ final class DragDropReceiverView: NSView {
         if let items = pb.pasteboardItems {
             // Extract file URLs
             var urls: [String] = []
+            var fileURLs: [URL] = []
             var narFiles: [URL] = []
             for it in items {
                 if let u = it.string(forType: .fileURL), let url = URL(string: u) {
                     urls.append(u)
+                    fileURLs.append(url)
                     // Check for .nar files
                     if url.pathExtension.lowercased() == "nar" {
                         narFiles.append(url)
@@ -78,17 +104,16 @@ final class DragDropReceiverView: NSView {
             // For non-.nar files, process as SHIORI events
             if !urls.isEmpty {
                 // ファイルとディレクトリのフルパスを分類する
-                var filePaths: [String] = []
+                var fileURLsForDrop: [URL] = []
                 var dirPaths: [String] = []
-                for u in urls {
-                    guard let url = URL(string: u) else { continue }
+                for url in fileURLs {
                     let path = url.path
                     var isDir: ObjCBool = false
                     let exists = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
                     if exists && isDir.boolValue {
                         dirPaths.append(path)
                     } else {
-                        filePaths.append(path)
+                        fileURLsForDrop.append(url)
                     }
                 }
 
@@ -97,28 +122,19 @@ final class DragDropReceiverView: NSView {
                 onEvent?(ShioriEvent(id: .OnDragDrop, params: legacyParams))
                 onEvent?(ShioriEvent(id: .OnFileDropped, params: legacyParams))
 
-                // ドロップ座標（スクリーン上、左上原点）を算出する
-                let screenPoint = self.window?.convertPoint(toScreen: sender.draggingLocation) ?? sender.draggingLocation
-                let screenHeight = NSScreen.main?.frame.height ?? 0
-                let dropX = Int(screenPoint.x)
-                let dropY = Int(screenHeight - screenPoint.y)
-
-                // 現行標準（UKADOC）: 複数パスはバイト値1（0x01）区切りで Reference0 にまとめる
-                let delimiter = "\u{01}"
-                if !filePaths.isEmpty {
-                    let joined = filePaths.joined(separator: delimiter)
-                    // OnFileDrop: Reference0=ファイルパス（0x01区切り）
-                    onEvent?(ShioriEvent(id: .OnFileDrop, refs: ["filePath": joined]))
-                    // OnFileDrop2: Reference0=ファイルパス（0x01区切り）, Reference1=X, Reference2=Y
-                    onEvent?(ShioriEvent(id: .OnFileDrop2, refs: [
-                        "filePath": joined,
-                        "x": String(dropX),
-                        "y": String(dropY)
-                    ]))
+                // 標準D&Dイベント: 複数パス／MIMEはバイト値1区切り、Reference1はスコープ番号。
+                if !fileURLsForDrop.isEmpty {
+                    let standardRefs = Self.fileDropReferences(for: fileURLsForDrop, scopeID: scopeID)
+                    onEvent?(ShioriEvent(id: .OnFileDrop, refs: standardRefs))
+                    onEvent?(ShioriEvent(id: .OnFileDropEx, refs: standardRefs))
+                    onEvent?(ShioriEvent(id: .OnFileDrop2, refs: standardRefs))
                 }
                 if !dirPaths.isEmpty {
-                    // OnDirectoryDrop: Reference0=ディレクトリパス（0x01区切り）
-                    onEvent?(ShioriEvent(id: .OnDirectoryDrop, refs: ["dirPath": dirPaths.joined(separator: delimiter)]))
+                    // OnDirectoryDrop: Reference0=ディレクトリパス、Reference1=スコープ番号
+                    onEvent?(ShioriEvent(id: .OnDirectoryDrop, refs: [
+                        "dirPath": dirPaths.joined(separator: Self.multiValueSeparator),
+                        "scopeID": String(scopeID)
+                    ]))
                 }
                 return true
             }

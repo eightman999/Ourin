@@ -76,14 +76,14 @@ extension GhostManager {
 
     func setupCharacterWindow(for scope: Int) {
         let dragDropHandler: (ShioriEvent) -> Void = { event in
-            // Forward drag-drop events to EventBridge for broadcasting
-            EventBridge.shared.notify(event.id, params: event.params)
+            // D&Dイベント自身のGET/NOTIFY指定を維持して全ゴーストへ配送する。
+            EventBridge.shared.dispatch(event)
         }
 
         let vm = CharacterViewModel()
         characterViewModels[scope] = vm
 
-        let characterView = CharacterView(viewModel: vm, onDragDropEvent: dragDropHandler)
+        let characterView = CharacterView(viewModel: vm, scopeID: scope, onDragDropEvent: dragDropHandler)
         let hostingController = NSViewController()
         hostingController.view = CharacterHitTestingHostingView(rootView: characterView, viewModel: vm)
 

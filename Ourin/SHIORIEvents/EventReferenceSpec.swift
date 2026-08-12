@@ -133,9 +133,10 @@ public enum EventReferenceTable {
         .init(id: "OnAnimationFinished", references: ["animationID"], category: "shell"),
 
         // MARK: - D&D
-        .init(id: "OnFileDrop", references: ["filePath"], category: "dragdrop"),
-        .init(id: "OnFileDrop2", references: ["filePath", "x", "y"], category: "dragdrop"),
-        .init(id: "OnDirectoryDrop", references: ["dirPath"], category: "dragdrop"),
+        .init(id: "OnFileDrop", references: ["filePath", "scopeID", "mimeType"], category: "dragdrop"),
+        .init(id: "OnFileDropEx", references: ["filePath", "scopeID", "mimeType"], category: "dragdrop"),
+        .init(id: "OnFileDrop2", references: ["filePath", "scopeID", "mimeType"], category: "dragdrop"),
+        .init(id: "OnDirectoryDrop", references: ["dirPath", "scopeID"], category: "dragdrop"),
         .init(id: "OnURLDrop", references: ["url"], category: "dragdrop"),
         .init(id: "OnURLDropping", references: ["url"], category: "dragdrop"),
         .init(id: "OnURLDropped", references: ["url"], category: "dragdrop"),
