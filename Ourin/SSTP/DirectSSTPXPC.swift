@@ -32,12 +32,23 @@ public final class DirectSSTPXPC: NSObject, NSXPCListenerDelegate, OurinSSTPXPC 
     // MARK: - OurinSSTPXPC
     /// SSTP リクエストを解析し応答を返す
     public func executeSSTP(_ request: Data, withReply reply: @escaping (Data) -> Void) {
-        guard let text = String(data: request, encoding: .utf8) else { return reply(Data()) }
+        guard let text = Self.decodeRequest(request) else {
+            reply(Data("SSTP/1.1 400 Bad Request\r\n\r\n".utf8))
+            return
+        }
         let req = SSTPParser.parseRequest(text: text)
         let resp = SSTPDispatcher.dispatchExternal(
             request: req,
             origin: req.headerValue("SecurityOrigin")
         )
         reply(resp.data(using: .utf8) ?? Data())
+    }
+
+    /// DirectSSTP の入力を、宣言された Charset を優先して UTF-8 の文字列へ変換する。
+    /// Charset 未指定時は UTF-8、設定で許可されている場合のみ CP932 を試行する。
+    static func decodeRequest(_ data: Data) -> String? {
+        let charset = EncodingAdapter.detectCharset(in: data)
+        return EncodingAdapter.decode(data, charset: charset)
+            ?? (EncodingNormalizer.acceptsCP932 ? String(data: data, encoding: .shiftJIS) : nil)
     }
 }
