@@ -99,6 +99,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     /// アプリ全体終了時の OnCloseAll 集約状態。
     private var closeAllSequenceActive = false
     private var pendingCloseAllManagers: Set<ObjectIdentifier> = []
+    /// ベースウェア更新後の再起動で OnBasewareUpdated を一度だけ発火するための状態。
+    private var pendingBasewareUpdateVersion: String?
+    private var pendingBasewareUpdateMarkerURL: URL?
+    /// update,platform からの終了では OnClose を使う（通常終了は OnCloseAll）。
+    private var basewareUpdateTerminationRequested = false
     let shioriRuntimeCache = ShioriRuntimeCache(capacity: 2)
     /// 起動中の全ゴースト（プライマリ＋追加）。FMO 集約・一括終了に使う。
     var allGhostManagers: [GhostManager] {
@@ -167,6 +172,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if BasewareUpdateHelper.runIfRequested() {
+            return
+        }
         if isRunningUnderTests {
             NSLog("[AppDelegate] Detected XCTest environment; skipping full app bootstrap")
             return
@@ -205,6 +213,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // 旧データ（Application Support / 旧サンドボックスコンテナ）を ~/Documents/Ourin へ一度だけ移行する。
         // plugin/headline 探索や startup ghost より前に行い、各 Registry が移行後の公開フォルダを参照できるようにする。
         OurinPaths.migrateLegacyDataIfNeeded()
+        if let markerURL = try? BasewareUpdateMarker.defaultURL(),
+           let version = BasewareUpdateMarker.appliedVersion(at: markerURL) {
+            pendingBasewareUpdateVersion = version
+            pendingBasewareUpdateMarkerURL = markerURL
+        }
 
         // Hide the default Settings window on startup
         DispatchQueue.main.async {
@@ -326,10 +339,32 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         guard !allGhostManagers.isEmpty else {
             return .terminateNow
         }
-        if beginCloseAllSequence(reason: "user") {
+        let reason = basewareUpdateTerminationRequested ? "update" : "user"
+        let eventID = basewareUpdateTerminationRequested ? EventID.OnClose.rawValue : EventID.OnCloseAll.rawValue
+        if beginCloseAllSequence(reason: reason, eventID: eventID) {
             return .terminateLater
         }
         return .terminateNow
+    }
+
+    /// ステージ済みベースウェア更新の helper を起動した後、通常の終了シーケンスへ移る。
+    /// helper は親プロセスの終了を待つため、ここで直接アプリバンドルを変更しない。
+    func beginBasewareUpdateShutdown(version: String) {
+        let begin = {
+            guard !self.basewareUpdateTerminationRequested else { return }
+            self.basewareUpdateTerminationRequested = true
+            EventBridge.shared.request(
+                .OnBasewareUpdating,
+                params: EventReferenceTable.params(forEvent: EventID.OnBasewareUpdating.rawValue,
+                                                   refs: ["version": version])
+            )
+            NSApplication.shared.terminate(nil)
+        }
+        if Thread.isMainThread {
+            begin()
+        } else {
+            DispatchQueue.main.async(execute: begin)
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -663,7 +698,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let newManager = GhostManager(ghostURL: root)
         self.ghostManager = newManager
         NSLog("[runGhost] Starting GhostManager")
-        newManager.start()
+        newManager.start { [weak self] _, result in
+            guard result.succeeded,
+                  let self,
+                  let version = self.pendingBasewareUpdateVersion else { return }
+            EventBridge.shared.request(
+                .OnBasewareUpdated,
+                params: EventReferenceTable.params(forEvent: EventID.OnBasewareUpdated.rawValue,
+                                                   refs: ["version": version])
+            )
+            if let markerURL = self.pendingBasewareUpdateMarkerURL {
+                BasewareUpdateMarker.remove(at: markerURL)
+            }
+            self.pendingBasewareUpdateVersion = nil
+            self.pendingBasewareUpdateMarkerURL = nil
+        }
     }
 
     // MARK: - Multiple concurrent ghosts
@@ -758,7 +807,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     /// 各 GhostManager は応答の再生完了後に1回だけ完了コールバックを呼ぶため、
     /// 1体の応答が空でも、別ゴーストの再生中にアプリを終了しない。
     @discardableResult
-    private func beginCloseAllSequence(reason: String) -> Bool {
+    private func beginCloseAllSequence(reason: String, eventID: String = EventID.OnCloseAll.rawValue) -> Bool {
         guard !closeAllSequenceActive else { return false }
         let managers = allGhostManagers
         guard !managers.isEmpty else { return false }
@@ -767,7 +816,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         pendingCloseAllManagers = Set(managers.map(ObjectIdentifier.init))
         for manager in managers {
             let started = manager.beginCloseSequence(
-                eventID: EventID.OnCloseAll.rawValue,
+                eventID: eventID,
                 reason: reason,
                 completion: { [weak self, weak manager] in
                     self?.closeAllManagerDidFinish(manager)

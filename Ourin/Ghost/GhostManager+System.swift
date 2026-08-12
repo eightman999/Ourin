@@ -2484,26 +2484,115 @@ extension GhostManager: NSWindowDelegate {
                     )
                     return
                 }
-                // 実行中の .app を自身で上書きすると破損するため、専用 updater がない状態で
-                // OnBasewareUpdated/OnUpdateComplete を発火しない。更新候補の検出までは成功し、
-                // 適用段階だけを正確な失敗として通知する。
-                let failureReason = "baseware_updater_unavailable"
-                self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadFailure", params: [
-                    "Reference0": updateURL,
-                    "Reference1": failureReason
-                ])
-                EventBridge.shared.notify(.OnUpdateFailure, refs: [
-                    "reason": failureReason,
-                    "fileList": fileList,
-                    "targetType": "baseware",
-                    "executionReason": commandOptions.reason
-                ])
-                self.emitUpdateResultEvents(
-                    target: "baseware",
-                    reason: failureReason,
-                    fileList: fileList,
-                    explorerPath: Bundle.main.bundlePath
+                self.emitUpdateDownloadBeginEvents(
+                    base: "OnUpdate",
+                    entries: entries,
+                    targetType: "baseware",
+                    executionReason: commandOptions.reason
                 )
+                let coordinator = BasewareUpdateCoordinator()
+                coordinator.prepare(entries: entries, homeURLString: updateURL, onMD5Compare: { comparison in
+                    let params = [
+                        "Reference0": comparison.filename,
+                        "Reference1": comparison.correctMD5,
+                        "Reference2": comparison.downloadedMD5,
+                        "Reference3": "baseware",
+                        "Reference4": commandOptions.reason
+                    ]
+                    self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnMD5CompareBegin", params: params)
+                    self.emitUpdatePipelineEvent(
+                        base: "OnUpdate",
+                        stage: comparison.matches ? "OnMD5CompareComplete" : "OnMD5CompareFailure",
+                        params: params
+                    )
+                }) { result in
+                    switch result {
+                    case .success(let request):
+                        let appDelegate: AppDelegate? = Thread.isMainThread
+                            ? NSApp.delegate as? AppDelegate
+                            : DispatchQueue.main.sync { NSApp.delegate as? AppDelegate }
+                        guard let appDelegate else {
+                            BasewareUpdateCoordinator.discard(request)
+                            let failureReason = "baseware_shutdown_unavailable"
+                            self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadFailure", params: [
+                                "Reference0": updateURL,
+                                "Reference1": failureReason
+                            ])
+                            EventBridge.shared.notify(.OnUpdateFailure, refs: [
+                                "reason": failureReason,
+                                "fileList": fileList,
+                                "targetType": "baseware",
+                                "executionReason": commandOptions.reason
+                            ])
+                            self.emitUpdateResultEvents(
+                                target: "baseware",
+                                reason: failureReason,
+                                fileList: fileList,
+                                explorerPath: Bundle.main.bundlePath
+                            )
+                            return
+                        }
+                        do {
+                            try BasewareUpdateHelper.launch(request)
+                        } catch {
+                            BasewareUpdateCoordinator.discard(request)
+                            let failureReason = self.normalizeUpdateFailureReason(error)
+                            self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadFailure", params: [
+                                "Reference0": updateURL,
+                                "Reference1": failureReason
+                            ])
+                            EventBridge.shared.notify(.OnUpdateFailure, refs: [
+                                "reason": failureReason,
+                                "fileList": fileList,
+                                "targetType": "baseware",
+                                "executionReason": commandOptions.reason
+                            ])
+                            self.emitUpdateResultEvents(
+                                target: "baseware",
+                                reason: failureReason,
+                                fileList: fileList,
+                                explorerPath: Bundle.main.bundlePath
+                            )
+                            return
+                        }
+                        self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadComplete", params: [
+                            "Reference0": updateURL,
+                            "Reference1": String(entries.count)
+                        ])
+                        EventBridge.shared.notify(.OnUpdateComplete, refs: [
+                            "reason": "changed",
+                            "fileList": fileList,
+                            "targetType": "baseware",
+                            "executionReason": commandOptions.reason
+                        ])
+                        self.emitUpdateResultEvents(
+                            target: "baseware",
+                            reason: "changed",
+                            fileList: fileList,
+                            explorerPath: Bundle.main.bundlePath
+                        )
+                        appDelegate.beginBasewareUpdateShutdown(version: request.version)
+
+                    case .failure(let error):
+                        let failureReason = self.normalizeUpdateFailureReason(error)
+                        self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadFailure", params: [
+                            "Reference0": updateURL,
+                            "Reference1": failureReason
+                        ])
+                        EventBridge.shared.notify(.OnUpdateFailure, refs: [
+                            "reason": failureReason,
+                            "fileList": fileList,
+                            "targetType": "baseware",
+                            "executionReason": commandOptions.reason
+                        ])
+                        self.emitUpdateResultEvents(
+                            target: "baseware",
+                            reason: failureReason,
+                            fileList: fileList,
+                            explorerPath: Bundle.main.bundlePath
+                        )
+                    }
+                }
 
             case .failure(let error):
                 let reason = self.normalizeUpdateFailureReason(error)
@@ -2934,10 +3023,32 @@ extension GhostManager: NSWindowDelegate {
             switch narError {
             case .updateMD5Mismatch:
                 return "md5 miss"
+            case .basewareArchiveUnsupported:
+                return "baseware_archive_unsupported"
             case .updateDescriptorInvalid:
                 return "paramerror"
             default:
                 break
+            }
+        }
+        if let coordinatorError = error as? BasewareUpdateCoordinator.Error {
+            switch coordinatorError {
+            case .invalidTarget:
+                return "baseware_target_invalid"
+            case .archiveEntry:
+                return "baseware_archive_unsupported"
+            case .stagingDirectoryCreationFailed, .appCopyFailed, .markerFailed:
+                return "baseware_staging_failed"
+            }
+        }
+        if let helperError = error as? BasewareUpdateHelper.Error {
+            switch helperError {
+            case .invalidRequest, .helperLaunchFailed:
+                return "baseware_helper_unavailable"
+            case .parentDidNotExit:
+                return "baseware_shutdown_timeout"
+            case .replacementFailed, .relaunchFailed:
+                return "baseware_replace_failed"
             }
         }
         if let urlError = error as? URLError {
@@ -4073,7 +4184,7 @@ extension GhostManager: NSWindowDelegate {
         case .directoryConflict:
             return "unsupported"
         case .updateDescriptorNotFound, .updateDescriptorDecodeFailed, .updateDescriptorInvalid,
-             .updateDownloadFailed, .updateMD5Mismatch:
+             .updateDownloadFailed, .updateMD5Mismatch, .basewareArchiveUnsupported:
             return "unsupported"
         }
     }

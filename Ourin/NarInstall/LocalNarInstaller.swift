@@ -85,6 +85,7 @@ final class NarInstaller {
         case updateDescriptorInvalid
         case updateDownloadFailed(String)
         case updateMD5Mismatch(String)
+        case basewareArchiveUnsupported(String)
         case attachedComponentSourceNotFound(String)
 
         var description: String {
@@ -103,6 +104,7 @@ final class NarInstaller {
             case .updateDescriptorInvalid: return "更新定義ファイルの形式が不正です"
             case .updateDownloadFailed(let path): return "更新ファイルを適用できません: \(path)"
             case .updateMD5Mismatch(let path): return "更新ファイルのMD5が一致しません: \(path)"
+            case .basewareArchiveUnsupported(let path): return "ベースウェア更新にアーカイブは使えません: \(path)"
             case .attachedComponentSourceNotFound(let type): return "付属コンポーネントのソースが見つかりません: \(type)"
             }
         }
@@ -590,9 +592,103 @@ final class NarInstaller {
         }
     }
 
+    /// ベースウェア更新用に、ダウンロードした増分ファイルを実行中の .app ではなく
+    /// 完全コピー済みのステージング .app へ適用する。NAR/ZIP はゴースト用の
+    /// install.txt を伴うパッケージなので、ベースウェア更新では受け付けない。
+    func downloadAndStage(entries: [UpdateDescriptorEntry], homeURLString: String, targetRoot: URL,
+                          onMD5Compare: ((UpdateMD5Comparison) -> Void)? = nil,
+                          completion: @escaping (Result<[String], Swift.Error>) -> Void) {
+        guard !entries.isEmpty else { completion(.success([])); return }
+        let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
+        let group = DispatchGroup()
+        let lock = NSLock()
+        var applied: [String] = []
+        var failures: [String] = []
+        var firstFailure: Swift.Error?
+
+        func recordFailure(_ filename: String, error: Swift.Error) {
+            lock.lock()
+            failures.append(filename)
+            if firstFailure == nil { firstFailure = error }
+            lock.unlock()
+        }
+
+        for entry in entries {
+            group.enter()
+            URLSession.shared.downloadTask(with: entry.url) { [weak self] local, response, error in
+                defer { group.leave() }
+                guard let self else {
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
+                    return
+                }
+                if let error {
+                    self.log.warning("baseware update download failed: \(String(describing: error),) url=\(entry.url.absoluteString,)")
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
+                    return
+                }
+                guard let local else {
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
+                    return
+                }
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 200
+                guard (200..<300).contains(statusCode) else {
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
+                    return
+                }
+                if let expectedMD5 = entry.expectedMD5 {
+                    do {
+                        let downloadedMD5 = try UpdateMD5.hexDigest(ofFile: local)
+                        let comparison = UpdateMD5Comparison(
+                            filename: entry.filename,
+                            correctMD5: expectedMD5,
+                            downloadedMD5: downloadedMD5
+                        )
+                        onMD5Compare?(comparison)
+                        guard comparison.matches else {
+                            recordFailure(entry.filename, error: Error.updateMD5Mismatch(entry.filename))
+                            return
+                        }
+                    } catch {
+                        recordFailure(entry.filename, error: Error.updateMD5Mismatch(entry.filename))
+                        return
+                    }
+                }
+                guard entry.url.pathExtension.lowercased() != "nar",
+                      entry.url.pathExtension.lowercased() != "zip" else {
+                    recordFailure(entry.filename, error: Error.basewareArchiveUnsupported(entry.filename))
+                    return
+                }
+                do {
+                    try self.applyIncrementalFile(downloaded: local, entry: entry,
+                                                  baseWithSlash: baseWithSlash, targetRoot: targetRoot,
+                                                  preserveExistingPermissions: true)
+                    lock.lock(); applied.append(entry.filename); lock.unlock()
+                } catch {
+                    self.log.warning("baseware update staging failed: \(String(describing: error),) file=\(entry.filename,)")
+                    recordFailure(entry.filename, error: error)
+                }
+            }.resume()
+        }
+        group.notify(queue: .global()) {
+            lock.lock()
+            let appliedResult = applied
+            let failedResult = failures
+            let errorResult = firstFailure
+            lock.unlock()
+            if let errorResult {
+                completion(.failure(errorResult))
+            } else if let firstFailure = failedResult.first {
+                completion(.failure(Error.updateDownloadFailed(firstFailure)))
+            } else {
+                completion(.success(appliedResult))
+            }
+        }
+    }
+
     /// 増分更新ファイルを homeurl 基準の相対パスで targetRoot 配下へ保存する（パストラバーサル防止つき）。
     private func applyIncrementalFile(downloaded: URL, entry: UpdateDescriptorEntry,
-                                      baseWithSlash: String, targetRoot: URL) throws {
+                                      baseWithSlash: String, targetRoot: URL,
+                                      preserveExistingPermissions: Bool = false) throws {
         var relative = entry.relativePath
         if relative.isEmpty || relative == entry.url.lastPathComponent {
             if entry.url.absoluteString.hasPrefix(baseWithSlash) {
@@ -614,6 +710,18 @@ final class NarInstaller {
         let rootResolved = targetRoot.resolvingSymlinksInPath()
         guard resolved.path.hasPrefix(rootResolved.path) || dest.path.hasPrefix(targetRoot.path) else {
             throw Error.zipSlipDetected(dest.path)
+        }
+        if preserveExistingPermissions {
+            let permissions: NSNumber
+            if let attributes = try? FileManager.default.attributesOfItem(atPath: dest.path),
+               let existing = attributes[.posixPermissions] as? NSNumber {
+                permissions = existing
+            } else {
+                let isExecutable = dest.path.contains("/Contents/MacOS/") ||
+                    dest.path.contains("/Contents/XPCServices/")
+                permissions = NSNumber(value: isExecutable ? 0o755 : 0o644)
+            }
+            try FileManager.default.setAttributes([.posixPermissions: permissions], ofItemAtPath: downloaded.path)
         }
         try FileManager.default.createDirectory(at: dest.deletingLastPathComponent(), withIntermediateDirectories: true)
         if FileManager.default.fileExists(atPath: dest.path) {
