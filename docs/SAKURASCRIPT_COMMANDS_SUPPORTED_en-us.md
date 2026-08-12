@@ -539,7 +539,7 @@ The old “parsed only / placeholder” list in this section no longer matches t
 - ✅ Online markers, wallpaper, task-tray icons, dumpsurface, ping/nslookup, and vanish perform real work and emit failure events.
 - ✅ `\f[cursor*]` is applied to the actual choice-dialog buttons.
 - ✅ A local mouse monitor tracks the actual modal choice button, emitting `OnChoiceEnter` on enter/exit and `OnChoiceHover` after 500 ms of stillness.
-- ⚠️ `updateother` rejects balloon/shell/plugin/headline/language selectors with `unsupported_target` rather than incorrectly updating ghosts. Component-specific update support remains separate work.
+- ✅ `updateother` resolves installed balloon/shell/plugin/headline/language targets by descriptor name/id and applies updates to each target's own root. `testonly` downloads and verifies MD5 without changing existing files. Real-network and installed-ghost UI/update verification remains pending.
 - ⚠️ Animated scaling with a duration and platform-specific window behavior require real UI verification beyond the unit suite.
 
 ## Testing

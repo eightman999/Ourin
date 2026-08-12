@@ -92,7 +92,7 @@
 | — | アンカー装飾（`anchorstyle` / `anchorvisited*`） | `BalloonView` に下線・矩形・背景・ペン色を描画し、ホバー/非選択/訪問済みを個別状態として反映。`descript.txt` の3状態設定と `anchor*fontcolor` も分離して適用済み。ROP2 の全SetROP2演算子は `AnchorRasterImageRenderer` でバルーン背景ピクセルへ合成する。残りは実ゴースト目視と実メディア環境での表示確認。 |
 | — | `\\n[half]` / `%` 改行間隔 | `BalloonViewModel.lineAdvances` と再生キューに接続し、`BalloonView` の行単位レイアウトへ反映済み。明示4スイート26件で倍率・順序・クリア整合性を確認。負値はオフセットによる近似で、実ゴースト目視は未実施。 |
 | — | `vanishbymyself` の消滅経路 | 確認問い合わせ、キャンセル／選択／消滅イベント、ゴミ箱移動、ランタイム解放、指定または自動の次ゴースト起動を実装済み。実ゴーストでのゴミ箱権限・復帰先選択は未実機確認。 |
-| — | `updateother` の対象誤配線 | ゴースト名指定を対象集合へ絞り込み、未対応の balloon/shell/plugin/headline/language はゴースト更新へフォールバックせず `unsupported_target` を通知するよう修正済み。各コンポーネント更新は別実装が必要。 |
+| — | `updateother` の対象誤配線 | ゴースト名指定の絞り込みに加え、balloon/shell/plugin/headline/language をインストール済み descriptor の name／id から解決し、各対象ルートへ更新を適用する実装を完了。`testonly` のダウンロード・MD5検証・非置換も回帰テスト済み。実ネットワーク・実ゴーストでの更新確認は未実施。 |
 | — | `\\f[cursor*]` と選択肢 hover | カーソル装飾値を実ボタンへ反映し、モーダル中の実ポインタ位置を監視して `OnChoiceEnter` の入退場と 500ms 静止後の `OnChoiceHover` を発火する。 |
 | P3 | `BalloonRichTextViewModel` | 現在のプロジェクトターゲットに含まれず呼び出し元もない。削除はせず、`BalloonView` へ接続するか、現行SwiftUIレンダラの仕様確定後に整理する。 |
 
@@ -184,7 +184,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 | — | Anchor decoration (`anchorstyle` / `anchorvisited*`) | `BalloonView` now renders underline/rectangle/background/pen colors and tracks hover, non-selected, and visited states independently. The three-state `descript.txt` settings and `anchor*fontcolor` commands are separated. All SetROP2 `anchormethod` variants are composited against balloon pixels by `AnchorRasterImageRenderer`; in-ghost visual and real-media verification remain pending. |
 | — | `\\n[half]` / percentage newline spacing | Connected to `BalloonViewModel.lineAdvances` and the playback queue, then applied by the line-based `BalloonView` layout. The explicit four-suite run passed 26 tests covering mapping, ordering, and clear/truncation consistency. Negative values use an offset approximation; an in-ghost visual check is still pending. |
 | — | `vanishbymyself` removal path | Confirmation, cancel/select/vanish events, recoverable Trash move, runtime release, and explicit/automatic next-ghost launch are implemented. Trash permissions and next-ghost choice remain unverified with a real installed ghost. |
-| — | `updateother` target routing | Ghost-name selectors are now filtered; unsupported balloon/shell/plugin/headline/language selectors no longer fall through to updating every ghost and emit `unsupported_target`. Component-specific update support remains separate work. |
+| — | `updateother` target routing | In addition to filtering ghost-name selectors, balloon/shell/plugin/headline/language targets are resolved from installed descriptor name/id values and updates are applied to each target's own root. `testonly` download, MD5 verification, and non-replacement behavior are covered by regression tests. Real-network and installed-ghost verification remain pending. |
 | — | `\\f[cursor*]` and choice hover | Cursor decoration values are applied to the real choice buttons. A local mouse monitor tracks the actual button under the pointer, emitting `OnChoiceEnter` on enter/exit and `OnChoiceHover` after 500 ms of stillness. |
 | P3 | `BalloonRichTextViewModel` | It is not part of the current project target and has no call sites. Do not delete it implicitly; either connect it to `BalloonView` or reconcile it after the current SwiftUI renderer is specified. |
 

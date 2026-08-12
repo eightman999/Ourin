@@ -541,7 +541,7 @@ H\f[sub,1]2\f[sub,0]O + O\f[sub,1]2\f[sub,0] → H\f[sub,1]2\f[sub,0]O\f[sub,1]2
 - ✅ オンラインマーカー、壁紙、タスクトレイ、dumpsurface、ping／nslookup、vanish は実処理と失敗イベントを持つ。
 - ✅ `\f[cursor*]` は選択ダイアログの実ボタン装飾へ反映する。
 - ✅ 選択肢の hover はモーダル中の実ボタン位置を監視し、入退場で `OnChoiceEnter`、500ms 静止で `OnChoiceHover` を発火する。
-- ⚠️ `updateother` の balloon／shell／plugin／headline／language 対象は、誤ってゴーストを更新せず `unsupported_target` を通知する。各種リソース更新の実装は別タスク。
+- ✅ `updateother` の balloon／shell／plugin／headline／language 対象は、インストール済み対象を descriptor の name／id で解決し、それぞれのルートへ更新を適用する。`testonly` はダウンロードとMD5検証のみを行い、既存ファイルを変更しない。実ネットワークと実ゴーストでの表示・更新確認は未実施。
 - ⚠️ `\![set,scaling,x,y,time]` の時間補間と、プラットフォーム固有のウィンドウ挙動は自動テストだけでは実機確認できない。
 
 ## テスト
