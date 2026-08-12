@@ -107,6 +107,13 @@ extension GhostManager {
                     "changedScope": "\(scope),\(id)"
                 ]
                 EventBridge.shared.notify(.OnSurfaceChange, refs: params)
+                EventBridge.shared.notifyOtherSurfaceChange(
+                    from: self,
+                    scope: scope,
+                    newSurfaceID: id,
+                    oldSurfaceID: oldSurfaceID,
+                    newSurfaceSize: image.size
+                )
                 NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
                 Log.debug("[GhostManager] OnSurfaceChange dispatched: sakura=\(sakuraSurface) kero=\(keroSurface) (changed scope\(scope) \(oldSurfaceID)->\(id))")
             }

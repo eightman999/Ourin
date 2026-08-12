@@ -241,6 +241,65 @@ final class EventBridge {
         broadcastNotifyImmediate(id: id, params: EventReferenceTable.params(forEvent: id.rawValue, refs: refs), security: security)
     }
 
+    /// 他ゴーストのサーフェス変更を、監視を有効にしたセッションだけへ GET で送る。
+    ///
+    /// `OnOtherSurfaceChange` は全体ブロードキャストではなく、変更元を除外して
+    /// 受信側の `\![set,othersurfacechange,true]` の状態を判定する必要があるため、
+    /// 通常の `notify` とは別に送信元付きの経路を持つ。
+    func notifyOtherSurfaceChange(
+        from source: GhostManager,
+        scope: Int,
+        newSurfaceID: Int,
+        oldSurfaceID: Int,
+        newSurfaceSize: CGSize,
+        security: ShioriSecurityContext = .local
+    ) {
+        let send = {
+            let sourceGhostName = source.ghostConfig?.name ?? source.ghostURL.lastPathComponent
+            let sourceSakuraName = source.ghostConfig?.sakuraName ?? sourceGhostName
+            let width = max(0, Int(newSurfaceSize.width.rounded()))
+            let height = max(0, Int(newSurfaceSize.height.rounded()))
+            let params = EventReferenceTable.params(
+                forEvent: EventID.OnOtherSurfaceChange.rawValue,
+                refs: [
+                    "ghostName": sourceGhostName,
+                    "sakuraName": sourceSakuraName,
+                    "scopeID": String(scope),
+                    "newSurfaceID": String(newSurfaceID),
+                    "oldSurfaceID": String(oldSurfaceID),
+                    "newSurfaceSize": "0,0,\(width),\(height)"
+                ]
+            )
+
+            for session in self.sessions.values {
+                guard let target = session.ghostManager,
+                      target !== source,
+                      target.observesOtherSurfaceChange else { continue }
+
+                let script = session.dispatcher.sendGet(
+                    id: .OnOtherSurfaceChange,
+                    params: params,
+                    security: security
+                )
+                let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { continue }
+                let context = Self.translationContext(
+                    eventID: EventID.OnOtherSurfaceChange.rawValue,
+                    params: params
+                )
+                DispatchQueue.main.async {
+                    target.runScript(trimmed, translationContext: context)
+                }
+            }
+        }
+
+        if Thread.isMainThread {
+            send()
+        } else {
+            DispatchQueue.main.sync(execute: send)
+        }
+    }
+
     /// Observer/UI由来のイベントを、イベント自身が指定した配送方式で送る。
     /// D&Dのように EventBridge 外で生成されるイベントも、GET/NOTIFY の仕様を失わないよう
     /// この入口を使う。

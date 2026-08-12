@@ -664,6 +664,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var noUserBreakModeActive: Bool = false
     /// \t タイムクリティカルセクション中（スクリプトブレークまたは \e まで、マウス系イベント通知を抑止）
     var timeCriticalActive: Bool = false
+    /// 他ゴーストのサーフェス変更を OnOtherSurfaceChange で受け取るか。
+    /// `\![set,othersurfacechange,...]` の有効期間はゴーストのセッション中のみ。
+    var observesOtherSurfaceChange: Bool = false
 
     struct PluginTalkNotificationContext {
         let script: String

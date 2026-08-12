@@ -217,4 +217,45 @@ struct GhostUtilityCommandTests {
         #expect(balloon.scaleX == 0.5)
         #expect(balloon.scaleY == 0.75)
     }
+
+    @Test @MainActor
+    func otherSurfaceChangeIsSentOnlyToOptedInOtherGhosts() {
+        EventBridge.shared.stop()
+
+        let source = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-surface-source"))
+        var sourceConfig = GhostConfiguration(name: "SourceGhost")
+        sourceConfig.sakuraName = "Source Sakura"
+        source.ghostConfig = sourceConfig
+        let sourceRuntime = CapturingUtilityRuntime()
+        let sourceToken = EventBridge.shared.register(runtime: sourceRuntime, ghostManager: source)
+
+        let observer = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-surface-observer"))
+        let observerRuntime = CapturingUtilityRuntime()
+        let observerToken = EventBridge.shared.register(runtime: observerRuntime, ghostManager: observer)
+        observer.setOtherSurfaceChange(enabled: true)
+
+        let disabled = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-surface-disabled"))
+        let disabledRuntime = CapturingUtilityRuntime()
+        let disabledToken = EventBridge.shared.register(runtime: disabledRuntime, ghostManager: disabled)
+        defer {
+            EventBridge.shared.unregister(sourceToken)
+            EventBridge.shared.unregister(observerToken)
+            EventBridge.shared.unregister(disabledToken)
+            EventBridge.shared.stop()
+        }
+
+        EventBridge.shared.notifyOtherSurfaceChange(
+            from: source,
+            scope: 0,
+            newSurfaceID: 17,
+            oldSurfaceID: 3,
+            newSurfaceSize: CGSize(width: 100, height: 200)
+        )
+
+        let event = observerRuntime.requests.first { $0.id == EventID.OnOtherSurfaceChange.rawValue }
+        #expect(event?.method == "GET")
+        #expect(event?.refs == ["SourceGhost", "Source Sakura", "0", "17", "3", "0,0,100,200"])
+        #expect(sourceRuntime.requests.isEmpty)
+        #expect(disabledRuntime.requests.isEmpty)
+    }
 }

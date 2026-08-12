@@ -127,6 +127,9 @@ public enum EventReferenceTable {
         .init(id: "OnShellChanging", references: ["prevShellName", "newShellName"], category: "shell"),
         .init(id: "OnShellChanged", references: ["prevShellName", "newShellName"], category: "shell"),
         .init(id: "OnSurfaceChange", references: ["sakuraSurface", "keroSurface", "changedScope"], category: "shell"),
+        // UKADOC: R0=ghost name, R1=sakura name, R2=changed scope/window,
+        // R3=new surface ID, R4=old surface ID, R5=new surface rectangle.
+        .init(id: "OnOtherSurfaceChange", references: ["ghostName", "sakuraName", "scopeID", "newSurfaceID", "oldSurfaceID", "newSurfaceSize"], category: "shell"),
         .init(id: "OnSurfaceRestore", references: ["sakuraSurface", "keroSurface"], category: "shell"),
         .init(id: "OnSurfacesReloaded", references: ["shellName"], category: "shell"),
         .init(id: "OnShellScaling", references: ["afterX", "beforeX", "afterY", "beforeY"], category: "shell"),

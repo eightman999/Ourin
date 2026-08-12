@@ -219,6 +219,7 @@ func eventReferenceTableMigrationAddedEvents() {
     #expect(EventReferenceTable.specs["OnExecuteHTTPStreaming"]?.references == ["method", "asyncID", "url", "data", "body", "cookie", "responseHeaders"])
     #expect(EventReferenceTable.specs["OnPingProgress"]?.references == ["host", "progress", "result"])
     #expect(EventReferenceTable.specs["OnSurfaceChange"]?.references == ["sakuraSurface", "keroSurface", "changedScope"])
+    #expect(EventReferenceTable.specs["OnOtherSurfaceChange"]?.references == ["ghostName", "sakuraName", "scopeID", "newSurfaceID", "oldSurfaceID", "newSurfaceSize"])
     #expect(EventReferenceTable.specs["OnGamepadAxisMove"]?.references == ["axis", "x", "y", "deviceName"])
     #expect(EventReferenceTable.specs["OnUpdateComplete"]?.references == [
         "reason", "fileList", "unused2", "targetType", "executionReason"

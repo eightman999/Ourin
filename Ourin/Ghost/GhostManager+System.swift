@@ -1138,6 +1138,7 @@ extension GhostManager: NSWindowDelegate {
     
     /// Set whether to observe other ghosts' surface changes
     func setOtherSurfaceChange(enabled: Bool) {
+        observesOtherSurfaceChange = enabled
         UserDefaults.standard.set(enabled, forKey: "OurinObserveOtherSurfaceChange")
         Log.debug("[GhostManager] Set other surface change observation: \(enabled)")
     }
