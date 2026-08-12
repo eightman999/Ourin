@@ -338,12 +338,34 @@ extension GhostManager: NSWindowDelegate {
         DispatchQueue.main.async {
             if let appDelegate = NSApp.delegate as? AppDelegate,
                appDelegate.launchAdditionalGhost(named: ghostName) != nil {
-                EventBridge.shared.notify(.OnOtherGhostBooted, refs: ["ghostName": ghostName])
+                EventBridge.shared.request(
+                    .OnOtherGhostBooted,
+                    params: EventReferenceTable.params(
+                        forEvent: EventID.OnOtherGhostBooted.rawValue,
+                        refs: [
+                            "ghostName": ghostName,
+                            "bootScript": "",
+                            "ghostNameSSP": ghostName,
+                            "shellName": ""
+                        ]
+                    )
+                )
                 return
             }
             // フォールバック: 外部インスタンス向け SSTP 通知
             self.sendSSTPNotify(event: "OnBoot", references: ["Reference0": ghostName])
-            EventBridge.shared.notify(.OnOtherGhostBooted, refs: ["ghostName": ghostName])
+            EventBridge.shared.request(
+                .OnOtherGhostBooted,
+                params: EventReferenceTable.params(
+                    forEvent: EventID.OnOtherGhostBooted.rawValue,
+                    refs: [
+                        "ghostName": ghostName,
+                        "bootScript": "",
+                        "ghostNameSSP": ghostName,
+                        "shellName": ""
+                    ]
+                )
+            )
         }
     }
 
@@ -359,7 +381,18 @@ extension GhostManager: NSWindowDelegate {
         }
         for target in targets {
             sendSSTPNotify(event: "OnBoot", references: ["Reference0": target], receiverGhostName: target)
-            EventBridge.shared.notify(.OnOtherGhostBooted, refs: ["ghostName": target])
+            EventBridge.shared.request(
+                .OnOtherGhostBooted,
+                params: EventReferenceTable.params(
+                    forEvent: EventID.OnOtherGhostBooted.rawValue,
+                    refs: [
+                        "ghostName": target,
+                        "bootScript": "",
+                        "ghostNameSSP": target,
+                        "shellName": ""
+                    ]
+                )
+            )
         }
     }
 
@@ -4168,10 +4201,20 @@ extension GhostManager: NSWindowDelegate {
                 ]
             )
         )
-        EventBridge.shared.notify(.OnOtherGhostChanged, refs: [
-            "prevGhostName": previous,
-            "nextGhostName": eventTargetName
-        ])
+        EventBridge.shared.request(
+            .OnOtherGhostChanged,
+            params: EventReferenceTable.params(
+                forEvent: EventID.OnOtherGhostChanged.rawValue,
+                refs: [
+                    "prevGhostName": previous,
+                    "nextGhostName": eventTargetName,
+                    "prevChangeScript": "",
+                    "nextChangeScript": "",
+                    "prevGhostNameSSP": previous,
+                    "nextGhostNameSSP": eventTargetName
+                ]
+            )
+        )
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             self.executeVanish(uninstall: false)
@@ -4189,7 +4232,11 @@ extension GhostManager: NSWindowDelegate {
                 .OnGhostCalling,
                 params: EventReferenceTable.params(
                     forEvent: EventID.OnGhostCalling.rawValue,
-                    refs: ["ghostName": normalized]
+                    refs: [
+                        "nextGhostName": normalized,
+                        "changeMode": "manual",
+                        "nextGhostNameSSP": normalized
+                    ]
                 )
             )
         }
@@ -4205,14 +4252,25 @@ extension GhostManager: NSWindowDelegate {
             .OnGhostCalled,
             params: EventReferenceTable.params(
                 forEvent: EventID.OnGhostCalled.rawValue,
-                refs: ["ghostName": normalized]
+                refs: [
+                    "callingGhostName": ghostConfig?.name ?? ghostURL.lastPathComponent,
+                    "callScript": "",
+                    "callingGhostNameSSP": ghostConfig?.sakuraName ?? "",
+                    "callingGhostPath": ghostURL.path,
+                    "calledShellName": ""
+                ]
             )
         )
         EventBridge.shared.request(
             .OnGhostCallComplete,
             params: EventReferenceTable.params(
                 forEvent: EventID.OnGhostCallComplete.rawValue,
-                refs: ["ghostName": normalized]
+                refs: [
+                    "callingGhostName": ghostConfig?.name ?? ghostURL.lastPathComponent,
+                    "calledBootScript": "",
+                    "callingGhostNameSSP": ghostConfig?.sakuraName ?? "",
+                    "calledShellName": ""
+                ]
             )
         )
     }

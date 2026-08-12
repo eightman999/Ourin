@@ -156,6 +156,49 @@ func eventReferenceTableGhostChangedReferences() {
 }
 
 @Test
+func eventReferenceTableGhostLifecycleReferencesMatchUkadoc() {
+    #expect(EventReferenceTable.specs["OnGhostChanging"]?.references == [
+        "nextGhostName", "changeMode", "nextGhostNameSSP", "nextGhostPath"
+    ])
+    #expect(EventReferenceTable.specs["OnGhostCalling"]?.references == [
+        "nextGhostName", "changeMode", "nextGhostNameSSP", "nextGhostPath"
+    ])
+    #expect(EventReferenceTable.specs["OnGhostCalled"]?.references == [
+        "callingGhostName", "callScript", "callingGhostNameSSP", "callingGhostPath",
+        "unused4", "unused5", "unused6", "calledShellName"
+    ])
+    #expect(EventReferenceTable.specs["OnGhostCallComplete"]?.references == [
+        "callingGhostName", "calledBootScript", "callingGhostNameSSP",
+        "unused3", "unused4", "unused5", "unused6", "calledShellName"
+    ])
+    #expect(EventReferenceTable.specs["OnOtherGhostBooted"]?.references == [
+        "ghostName", "bootScript", "ghostNameSSP", "unused3", "unused4", "unused5", "unused6", "shellName"
+    ])
+    #expect(EventReferenceTable.specs["OnOtherGhostChanged"]?.references == [
+        "prevGhostName", "nextGhostName", "prevChangeScript", "nextChangeScript",
+        "prevGhostNameSSP", "nextGhostNameSSP"
+    ])
+}
+
+@Test
+func eventReferenceTablePreservesSparseGhostReferenceSeven() {
+    #expect(EventReferenceTable.params(forEvent: "OnOtherGhostBooted", refs: [
+        "ghostName": "target",
+        "shellName": "master"
+    ]) == [
+        "Reference0": "target",
+        "Reference7": "master"
+    ])
+    #expect(EventReferenceTable.params(forEvent: "OnGhostCalled", refs: [
+        "callingGhostName": "caller",
+        "calledShellName": "master"
+    ]) == [
+        "Reference0": "caller",
+        "Reference7": "master"
+    ])
+}
+
+@Test
 func eventReferenceTableHttpCompleteReferences() {
     let complete = EventReferenceTable.specs["OnExecuteHTTPComplete"]
     #expect(complete?.references == ["method", "asyncID", "url", "data", "result", "cookie", "responseHeaders"])

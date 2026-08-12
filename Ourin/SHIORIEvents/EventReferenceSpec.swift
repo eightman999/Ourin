@@ -67,8 +67,12 @@ public enum EventReferenceTable {
         // MARK: - ゴースト切替
         .init(id: "OnGhostChanging", references: ["nextGhostName", "changeMode", "nextGhostNameSSP", "nextGhostPath"], category: "ghost"),
         .init(id: "OnGhostChanged", references: ["prevGhostName", "changeScript", "prevGhostNameSSP", "prevGhostPath"], category: "ghost"),
-        .init(id: "OnOtherGhostBooted", references: ["ghostName", "sakuraName", "keroName", "shellName", "ghostPath"], category: "ghost"),
-        .init(id: "OnOtherGhostChanged", references: ["prevGhostName", "nextGhostName"], category: "ghost"),
+        // UKADOC: R0=起動したゴースト本体名, R1=起動スクリプト,
+        // R2=起動したゴーストのSSP名, R7=シェル名。R3..R6 は予約領域。
+        .init(id: "OnOtherGhostBooted", references: ["ghostName", "bootScript", "ghostNameSSP", "unused3", "unused4", "unused5", "unused6", "shellName"], category: "ghost"),
+        // UKADOC: R0/R1=旧/新ゴースト本体名, R2/R3=旧/新切替スクリプト,
+        // R4/R5=旧/新ゴーストのSSP名。
+        .init(id: "OnOtherGhostChanged", references: ["prevGhostName", "nextGhostName", "prevChangeScript", "nextChangeScript", "prevGhostNameSSP", "nextGhostNameSSP"], category: "ghost"),
         .init(id: "OnOtherGhostClosed", references: ["ghostName"], category: "ghost"),
 
         // MARK: - 見切れ / 重なり（UKADOC: Reference0=現在状態, Reference1=直前状態, 区切りはバイト値1）
@@ -320,9 +324,15 @@ public enum EventReferenceTable {
         .init(id: "OnExtractArchiveBegin", references: ["archivePath", "destPath"], category: "update"),
         .init(id: "OnExtractArchiveComplete", references: ["eventID", "fileCount", "compressedSize", "uncompressedSize"], category: "update"),
         .init(id: "OnExtractArchiveFailure", references: ["eventID", "error"], category: "update"),
-        .init(id: "OnGhostCallComplete", references: ["ghostName"], category: "ghost"),
-        .init(id: "OnGhostCalled", references: ["ghostName"], category: "ghost"),
-        .init(id: "OnGhostCalling", references: ["ghostName"], category: "ghost"),
+        // UKADOC: OnGhostCalling は切替前と同じく R0=対象本体名,
+        // R1=manual/automatic, R2=対象SSP名, R3=対象パス。
+        .init(id: "OnGhostCalling", references: ["nextGhostName", "changeMode", "nextGhostNameSSP", "nextGhostPath"], category: "ghost"),
+        // UKADOC: R0=呼出元本体名, R1=呼出スクリプト, R2=呼出元SSP名,
+        // R3=呼出元パス, R7=呼出先シェル名。
+        .init(id: "OnGhostCalled", references: ["callingGhostName", "callScript", "callingGhostNameSSP", "callingGhostPath", "unused4", "unused5", "unused6", "calledShellName"], category: "ghost"),
+        // UKADOC: R0=呼出元本体名, R1=呼出先の起動スクリプト,
+        // R2=呼出元SSP名, R7=呼出先シェル名。
+        .init(id: "OnGhostCallComplete", references: ["callingGhostName", "calledBootScript", "callingGhostNameSSP", "unused3", "unused4", "unused5", "unused6", "calledShellName"], category: "ghost"),
         .init(id: "OnGhostTermsAccept", references: ["ghostName"], category: "ghost"),
         .init(id: "OnGhostTermsDecline", references: ["ghostName"], category: "ghost"),
         .init(id: "OnHeadlineCheckFailure", references: ["reason"], category: "network"),
