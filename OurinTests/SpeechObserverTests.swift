@@ -48,4 +48,47 @@ struct SpeechObserverTests {
             ) == "not_determined"
         )
     }
+
+    @Test
+    func incrementalRecognitionReportsOnlyNewSuffix() {
+        #expect(
+            SpeechObserver.incrementalRecognitionText(
+                previous: "こんにちは",
+                current: "こんにちは世界",
+                isFinal: false
+            ) == "世界"
+        )
+        #expect(
+            SpeechObserver.incrementalRecognitionText(
+                previous: "こんにちは世界",
+                current: "こんにちは世界",
+                isFinal: true
+            ) == nil
+        )
+    }
+
+    @Test
+    func correctedPartialRecognitionWaitsForFinalResult() {
+        #expect(
+            SpeechObserver.incrementalRecognitionText(
+                previous: "おはよう",
+                current: "おはようございます",
+                isFinal: false
+            ) == "ございます"
+        )
+        #expect(
+            SpeechObserver.incrementalRecognitionText(
+                previous: "こんにちは",
+                current: "こんばんは",
+                isFinal: false
+            ) == nil
+        )
+        #expect(
+            SpeechObserver.incrementalRecognitionText(
+                previous: "こんにちは",
+                current: "こんばんは",
+                isFinal: true
+            ) == "こんばんは"
+        )
+    }
 }
