@@ -1251,18 +1251,19 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             auto indexVal = executeNode(access->index);
             int index = indexVal.asInt();
             
-            // Special case for "reference" array (SHIORI references)
-            if (access->arrayName == "reference") {
-                if (index >= 0 && index < static_cast<int>(references_.size())) {
-                    return references_[index];
-                }
-                return Value();
-            }
-            
-            // For other arrays, get from variables
+            // The framework stores parsed Reference* headers in the global
+            // `reference` array. Prefer that variable; `references_` is only
+            // the direct-call fallback used by simple dictionaries without a
+            // framework. This also prevents reference[0] from exposing the
+            // raw request string and recursively feeding dynamic EVAL calls.
             Value arrayVar = getVariable(access->arrayName);
             if (arrayVar.getType() == Value::Type::Array) {
                 return arrayVar.arrayGet(index);
+            }
+
+            if (access->arrayName == "reference" &&
+                index >= 0 && index < static_cast<int>(references_.size())) {
+                return references_[index];
             }
             
             return Value();

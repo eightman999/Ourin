@@ -255,6 +255,40 @@ struct YayaEmily4RegressionTests {
         #expect(value.isEmpty)
     }
 
+    /// Framework が組み立てた `reference` 配列を動的 EVAL から参照できることを確認する。
+    ///
+    /// `reference[0]` が SHIORI の parsed Reference0 ではなく、request() に渡した生の
+    /// リクエスト文字列へ解決されると、Emily4 の `OnChoiceSelect` が
+    /// `OnChoiceSelect_GET SHIORI/3.0...` を再帰的に EVAL してスタックオーバーフローする。
+    @Test
+    func emily4ChoiceSelectUsesParsedReferenceWithoutRecursion() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping Emily4 regression test")
+            return
+        }
+        guard let master = try Self.copyEmily4Master() else {
+            print("[skip] emily4/ghost/master fixture not found; skipping")
+            return
+        }
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master)
+
+        let response = session.exchange([
+            "cmd": "request", "method": "GET", "id": "OnChoiceSelect",
+            "ref": ["CANCEL"],
+            "headers": ["Charset": "UTF-8", "SecurityLevel": "local"]
+        ])
+
+        #expect(response?["ok"] as? Bool == true)
+        #expect(response?["status"] as? Int == 200)
+        let value = response?["value"] as? String ?? ""
+        #expect(value.contains("\\e"))
+        #expect(!value.contains("OnChoiceSelect_GET"))
+    }
+
     /// YAYA フレームワークの request() が保持する REQ.COMMAND、出力候補エリア、
     /// `void`、裸の `return` を、実在ゴースト辞書上で検証する。
     @Test
