@@ -1333,23 +1333,23 @@ extension GhostManager: NSWindowDelegate {
         let requestedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let target = resolveHeadlineTarget(name: requestedName) else {
             Log.info("[GhostManager] Headline module not found: \(requestedName)")
-            notifyHeadlineFailure(reason: "can't_analyze")
+            _ = dispatchRSSFailure(reason: "can't analyze")
             return
         }
         let path = target.meta.url.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !path.isEmpty else {
             Log.info("[GhostManager] Headline module has no URL: \(target.meta.name)")
-            notifyHeadlineFailure(reason: "can't_download")
+            _ = dispatchRSSFailure(reason: "can't download")
             return
         }
 
         let siteName = target.meta.name
-        EventBridge.shared.notify(.OnHeadlinesenseBegin, refs: [
-            "siteName": siteName,
-            "url": path
-        ])
+        if dispatchRSSBegin(siteName: siteName, url: path) {
+            return
+        }
 
         DispatchQueue.global(qos: .utility).async { [weak self] in
+            guard let self else { return }
             let request = HeadlineWireEngine.buildHeadlineRequest(
                 path: path,
                 version: .v2_0M,
@@ -1357,53 +1357,131 @@ extension GhostManager: NSWindowDelegate {
             )
             let response = target.module.send(request)
             guard !response.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                self?.notifyHeadlineFailure(reason: "can't_download")
+                _ = self.dispatchRSSFailure(reason: "can't download")
                 return
             }
             let entries = HeadlineWireEngine.parseLines(response)
             guard !entries.isEmpty else {
-                self?.notifyHeadlineComplete(reason: "no update")
+                _ = self.dispatchRSSComplete(siteName: siteName, url: path, items: [])
                 return
             }
 
-            let historyKey = self?.headlineHistoryKey(for: target) ?? "OurinHeadlineHistory.\(siteName)"
+            let historyKey = self.headlineHistoryKey(for: target)
             let oldHistory = Set(UserDefaults.standard.stringArray(forKey: historyKey) ?? [])
-            let candidates = entries.map { (text: $0.0, url: $0.1 ?? "") }
+            let candidates = entries.map {
+                RSSFeedItem(
+                    title: $0.0,
+                    url: $0.1 ?? "",
+                    publishedAt: nil,
+                    author: "",
+                    summary: $0.0
+                )
+            }
             let fresh = candidates.filter { entry in
-                let identity = self?.headlineIdentity(text: entry.text, url: entry.url)
-                    ?? "\(entry.url)\u{1}\(entry.text)"
+                let identity = self.headlineIdentity(text: entry.title, url: entry.url)
                 return !oldHistory.contains(identity)
             }
             let allIdentities = candidates.map {
-                self?.headlineIdentity(text: $0.text, url: $0.url) ?? "\($0.url)\u{1}\($0.text)"
+                self.headlineIdentity(text: $0.title, url: $0.url)
             }
             UserDefaults.standard.set(Array(oldHistory.union(allIdentities)).sorted(), forKey: historyKey)
 
             guard !fresh.isEmpty else {
-                self?.notifyHeadlineComplete(reason: "no update")
+                _ = self.dispatchRSSComplete(siteName: siteName, url: path, items: [])
                 return
             }
 
-            for (index, entry) in fresh.enumerated() {
-                let phase: String
-                if fresh.count == 1 {
-                    phase = "First and Last"
-                } else if index == 0 {
-                    phase = "First"
-                } else if index == fresh.count - 1 {
-                    phase = "Last"
-                } else {
-                    phase = "Next"
-                }
-                EventBridge.shared.notifyCustom("OnHeadlinesense.OnFind", refs: [
-                    "siteName": siteName,
-                    "url": path,
-                    "phase": phase,
-                    "content": self?.sanitizeHeadlineContent(entry.text) ?? entry.text
-                ])
-            }
+            _ = self.dispatchRSSComplete(siteName: siteName, url: path, items: fresh)
             Log.debug("[GhostManager] Headlinesense completed: module=\(siteName), new=\(fresh.count)")
         }
+    }
+
+    /// RSSイベントを対象ゴーストへGETで送り、未応答時はHEADLINE開始へフォールバックする。
+    @discardableResult
+    func dispatchRSSBegin(siteName: String, url: String) -> Bool {
+        let refs = ["siteName": siteName, "url": url]
+        let handled = EventBridge.shared.request(.OnRSSBegin, refs: refs, to: self)
+        if !handled {
+            _ = EventBridge.shared.request(.OnHeadlinesenseBegin, refs: refs, to: self)
+        }
+        return handled
+    }
+
+    /// RSS完了を対象ゴーストへGETで送り、未応答時はHEADLINE通知へフォールバックする。
+    ///
+    /// 更新がある場合、OnRSSComplete の Reference2 以降に RSS wire value を並べる。
+    /// RSSイベントが未処理の場合だけ、HEADLINEの OnFind を各項目へ送る。
+    @discardableResult
+    func dispatchRSSComplete(siteName: String, url: String, items: [RSSFeedItem]) -> Bool {
+        let params: [String: String]
+        if items.isEmpty {
+            params = ["Reference0": "no update"]
+        } else {
+            var values = [
+                "Reference0": siteName,
+                "Reference1": url
+            ]
+            for (index, item) in items.enumerated() {
+                values["Reference\(index + 2)"] = sanitizeRSSWireValue(item.wireValue)
+            }
+            params = values
+        }
+
+        if EventBridge.shared.request(.OnRSSComplete, params: params, to: self) {
+            return true
+        }
+
+        guard !items.isEmpty else {
+            _ = EventBridge.shared.request(
+                .OnHeadlinesenseComplete,
+                refs: ["reason": "no update"],
+                to: self
+            )
+            return false
+        }
+
+        for (index, item) in items.enumerated() {
+            let phase: String
+            if items.count == 1 {
+                phase = "First and Last"
+            } else if index == 0 {
+                phase = "First"
+            } else if index == items.count - 1 {
+                phase = "Last"
+            } else {
+                phase = "Next"
+            }
+            let findParams = EventReferenceTable.params(forEvent: "OnHeadlinesense.OnFind", refs: [
+                    "siteName": siteName,
+                    "url": url,
+                    "phase": phase,
+                    "content": sanitizeHeadlineContent(item.summary)
+                ])
+            _ = EventBridge.shared.requestCustom(
+                "OnHeadlinesense.OnFind",
+                params: findParams,
+                to: self
+            )
+        }
+        return false
+    }
+
+    /// RSS失敗を対象ゴーストへGETで送り、未応答時はHEADLINE失敗へフォールバックする。
+    @discardableResult
+    func dispatchRSSFailure(reason: String) -> Bool {
+        let handled = EventBridge.shared.request(
+            .OnRSSFailure,
+            refs: ["reason": reason],
+            to: self
+        )
+        if !handled {
+            _ = EventBridge.shared.request(
+                .OnHeadlinesenseFailure,
+                refs: ["reason": reason],
+                to: self
+            )
+        }
+        return handled
     }
 
     private func resolveHeadlineTarget(name: String) -> (module: HeadlineModule, meta: HeadlineMeta)? {
@@ -1448,14 +1526,6 @@ extension GhostManager: NSWindowDelegate {
             .replacingOccurrences(of: "%", with: "\\%")
             .replacingOccurrences(of: "\r", with: " ")
             .replacingOccurrences(of: "\n", with: " ")
-    }
-
-    private func notifyHeadlineComplete(reason: String) {
-        EventBridge.shared.notify(.OnHeadlinesenseComplete, refs: ["reason": reason])
-    }
-
-    private func notifyHeadlineFailure(reason: String) {
-        EventBridge.shared.notify(.OnHeadlinesenseFailure, refs: ["reason": reason])
     }
 
     /// Execute mail check (BIFF). `account` is the configured Mail account name.

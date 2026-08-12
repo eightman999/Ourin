@@ -215,7 +215,8 @@ public enum EventReferenceTable {
         .init(id: "OnHeadlinesenseComplete", references: ["reason"], category: "network"),
         .init(id: "OnHeadlinesenseFailure", references: ["reason"], category: "network"),
         .init(id: "OnRSSBegin", references: ["siteName", "url"], category: "network"),
-        .init(id: "OnRSSComplete", references: ["item"], category: "network"),
+        // R0=no update、更新時は R0=siteName、R1=url、R2以降=item wire value。
+        .init(id: "OnRSSComplete", references: ["siteName", "url", "item"], category: "network"),
         .init(id: "OnRSSFailure", references: ["reason"], category: "network"),
         .init(id: "OnHeadlineCheck", references: ["headline", "url"], category: "network"),
 

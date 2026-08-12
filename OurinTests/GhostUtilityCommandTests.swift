@@ -260,6 +260,65 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func headlineRSSDispatchUsesStandardEventsAndFallback() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-headline-rss-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        #expect(!manager.dispatchRSSBegin(siteName: "Feed", url: "https://example.test/feed"))
+        #expect(runtime.requests.map(\.id) == ["OnRSSBegin", "OnHeadlinesenseBegin"])
+        #expect(runtime.requests.allSatisfy { $0.method == "GET" })
+        #expect(runtime.requests.allSatisfy { $0.refs == ["Feed", "https://example.test/feed"] })
+
+        runtime.requests.removeAll()
+        runtime.responses["OnRSSBegin"] = #"\0RSS begin handled\e"#
+        #expect(manager.dispatchRSSBegin(siteName: "Feed", url: "https://example.test/feed"))
+        #expect(runtime.requests.map(\.id) == ["OnRSSBegin"])
+        runtime.responses.removeValue(forKey: "OnRSSBegin")
+
+        let item = RSSFeedItem(
+            title: "Title",
+            url: "https://example.test/item",
+            publishedAt: nil,
+            author: "Author",
+            summary: "Summary"
+        )
+        runtime.requests.removeAll()
+        #expect(!manager.dispatchRSSComplete(siteName: "Feed", url: "https://example.test/feed", items: [item]))
+        let complete = runtime.requests.first { $0.id == "OnRSSComplete" }
+        #expect(complete?.method == "GET")
+        #expect(complete?.refs == ["Feed", "https://example.test/feed", item.wireValue])
+        let find = runtime.requests.first { $0.id == "OnHeadlinesense.OnFind" }
+        #expect(find?.method == "GET")
+        #expect(find?.refs == ["Feed", "https://example.test/feed", "First and Last", "Summary"])
+        #expect(runtime.requests.contains { $0.id == "OnHeadlinesenseComplete" } == false)
+
+        runtime.requests.removeAll()
+        #expect(!manager.dispatchRSSComplete(siteName: "Feed", url: "https://example.test/feed", items: []))
+        let noUpdateRSS = runtime.requests.first { $0.id == "OnRSSComplete" }
+        #expect(noUpdateRSS?.method == "GET")
+        #expect(noUpdateRSS?.refs == ["no update"])
+        let noUpdateHeadline = runtime.requests.first { $0.id == "OnHeadlinesenseComplete" }
+        #expect(noUpdateHeadline?.method == "GET")
+        #expect(noUpdateHeadline?.refs == ["no update"])
+
+        runtime.requests.removeAll()
+        #expect(!manager.dispatchRSSFailure(reason: "can't analyze"))
+        let rssFailure = runtime.requests.first { $0.id == "OnRSSFailure" }
+        #expect(rssFailure?.method == "GET")
+        #expect(rssFailure?.refs == ["can't analyze"])
+        let headlineFailure = runtime.requests.first { $0.id == "OnHeadlinesenseFailure" }
+        #expect(headlineFailure?.method == "GET")
+        #expect(headlineFailure?.refs == ["can't analyze"])
+    }
+
+    @Test @MainActor
     func archiveCommandsDispatchStandardReferencesAndCustomEvent() async throws {
         EventBridge.shared.stop()
 
