@@ -111,6 +111,11 @@ final class NarInstaller {
     }
 
     private let log = CompatLogger(subsystem: "jp.ourin.installer", category: "nar")
+    private let session: URLSession
+
+    init(session: URLSession = .shared) {
+        self.session = session
+    }
 
     func install(fromNar narURL: URL) throws -> URL {
         try installWithResult(fromNar: narURL).target
@@ -476,8 +481,10 @@ final class NarInstaller {
     ///   - entries: ダウンロード対象 URL（checkUpdates の結果）
     ///   - homeURLString: 相対パス算出の基準（ゴーストの homeurl）
     ///   - targetRoot: 増分ファイルの設置先ルート（通常はゴーストのルート URL）
+    ///   - apply: false の場合はダウンロードと検証だけを行い、設置先を変更しない
     ///   - completion: 適用できたファイル名（lastPathComponent）の配列を返す
     func downloadAndApply(entries: [URL], homeURLString: String, targetRoot: URL,
+                          apply: Bool = true,
                           completion: @escaping (Result<[String], Swift.Error>) -> Void) {
         let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
         let detailedEntries = entries.map { entry in
@@ -490,12 +497,13 @@ final class NarInstaller {
             return UpdateDescriptorEntry(url: entry, relativePath: relativePath)
         }
         downloadAndApply(entries: detailedEntries, homeURLString: homeURLString, targetRoot: targetRoot,
-                         onMD5Compare: nil, completion: completion)
+                         onMD5Compare: nil, apply: apply, completion: completion)
     }
 
     /// 更新記述子で列挙されたファイルをMD5検証後に実ダウンロードし、設置先へ適用する。
     func downloadAndApply(entries: [UpdateDescriptorEntry], homeURLString: String, targetRoot: URL,
                           onMD5Compare: ((UpdateMD5Comparison) -> Void)?,
+                          apply: Bool = true,
                           completion: @escaping (Result<[String], Swift.Error>) -> Void) {
         guard !entries.isEmpty else { completion(.success([])); return }
         let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
@@ -514,9 +522,8 @@ final class NarInstaller {
 
         for entry in entries {
             group.enter()
-            URLSession.shared.downloadTask(with: entry.url) { [weak self] local, response, error in
+            session.downloadTask(with: entry.url) { [self] local, response, error in
                 defer { group.leave() }
-                guard let self else { return }
                 if let error {
                     self.log.warning("update download failed: \(String(describing: error),) url=\(entry.url.absoluteString,)")
                     recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
@@ -552,6 +559,12 @@ final class NarInstaller {
                         recordFailure(entry.filename, error: Error.updateMD5Mismatch(entry.filename))
                         return
                     }
+                }
+                if !apply {
+                    // testonly: 実体はダウンロード・検証するが、設置先は変更しない。
+                    try? FileManager.default.removeItem(at: local)
+                    lock.lock(); applied.append(entry.filename); lock.unlock()
+                    return
                 }
                 let ext = entry.url.pathExtension.lowercased()
                 do {
@@ -615,12 +628,8 @@ final class NarInstaller {
 
         for entry in entries {
             group.enter()
-            URLSession.shared.downloadTask(with: entry.url) { [weak self] local, response, error in
+            session.downloadTask(with: entry.url) { [self] local, response, error in
                 defer { group.leave() }
-                guard let self else {
-                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
-                    return
-                }
                 if let error {
                     self.log.warning("baseware update download failed: \(String(describing: error),) url=\(entry.url.absoluteString,)")
                     recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
@@ -736,7 +745,7 @@ final class NarInstaller {
             completion(.failure(Error.updateDescriptorNotFound))
             return
         }
-        URLSession.shared.dataTask(with: current) { data, response, error in
+        session.dataTask(with: current) { data, response, error in
             let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
             if let data, error == nil, (200..<300).contains(statusCode) {
                 guard let text = TextEncodingDetector.decode(data) else {

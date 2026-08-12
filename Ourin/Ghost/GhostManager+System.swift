@@ -112,6 +112,10 @@ extension GhostManager: NSWindowDelegate {
         let selectors: [Selector]
         let unsupportedSelectors: [Selector]
 
+        var componentSelectors: [Selector] {
+            selectors.filter { ComponentUpdateTargetDiscovery.supportedTypes.contains($0.type) }
+        }
+
         init(_ raw: [String]) {
             let normalized = raw.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
             checkOnly = normalized.contains { $0 == "checkonly" || $0 == "--checkonly" }
@@ -2258,8 +2262,26 @@ extension GhostManager: NSWindowDelegate {
                 // Check for updates to Ourin itself
                 self.checkPlatformUpdate(options: options)
             case "other", "all":
-                // Check for updates to all installed ghosts
-                self.checkAllGhostsUpdate(options: options)
+                // `updateother` can target both ghosts and installed components.
+                // Keep the legacy no-selector behavior (all ghosts), while routing
+                // explicit balloon/shell/plugin/headline/language selectors to
+                // their own installed target instead of silently updating ghosts.
+                let parsed = UpdateCommandOptions(options)
+                if !parsed.componentSelectors.isEmpty {
+                    self.checkComponentUpdates(options: options, selectors: parsed.componentSelectors)
+                    let hasGhostSelector = parsed.selectors.contains { $0.type == "ghost" }
+                    if hasGhostSelector {
+                        let ghostOptions = options.filter { rawValue in
+                            let body = rawValue.hasPrefix("--") ? String(rawValue.dropFirst(2)) : rawValue
+                            guard let separator = body.firstIndex(of: "=") else { return true }
+                            let type = String(body[..<separator]).lowercased()
+                            return !ComponentUpdateTargetDiscovery.supportedTypes.contains(type)
+                        }
+                        self.checkAllGhostsUpdate(options: ghostOptions)
+                    }
+                } else {
+                    self.checkAllGhostsUpdate(options: options)
+                }
             default:
                 Log.info("[GhostManager] Unknown update target: \(target)")
             }
@@ -2628,6 +2650,247 @@ extension GhostManager: NSWindowDelegate {
         }.first
     }
     
+    /// `updateother` で指定された balloon/shell/plugin/headline/language を更新する。
+    ///
+    /// 対象ごとに更新記述子を確認し、同じ対象のルートへ増分ファイルを適用する。
+    /// ゴースト全体更新の経路とは分離し、誤って全ゴーストへフォールバックしない。
+    private func checkComponentUpdates(options: [String], selectors: [UpdateCommandOptions.Selector]) {
+        let commandOptions = UpdateCommandOptions(options)
+        let checkOnly = commandOptions.checkOnly
+        let requested = selectors.map { "\($0.type)=\($0.name)" }.joined(separator: ",")
+
+        func emitSelectionFailure(reason: String) {
+            EventBridge.shared.notify(.OnUpdateOtherFailure, refs: [
+                "reason": reason,
+                "fileList": requested,
+                "targetType": "component",
+                "executionReason": commandOptions.reason
+            ])
+            EventBridge.shared.notify(.OnUpdateCheckFailure, refs: [
+                "reason": reason,
+                "executionReason": commandOptions.reason
+            ])
+            EventBridge.shared.notify(.OnUpdateCheckComplete, refs: [
+                "reason": reason,
+                "fileList": requested,
+                "targetType": "component",
+                "executionReason": commandOptions.reason
+            ])
+            self.emitUpdateResultEvents(
+                target: "component",
+                reason: reason,
+                fileList: requested,
+                explorerPath: self.ghostURL.path,
+                checkOnly: checkOnly
+            )
+        }
+
+        let types = Set(selectors.map(\.type))
+        let discovered = ComponentUpdateTargetDiscovery.discover(types: types)
+        let targets = discovered.filter { target in
+            selectors.contains { selector in
+                selector.type == target.type && target.matches(name: selector.name)
+            }
+        }
+        guard !targets.isEmpty else {
+            Log.info("[GhostManager] updateother component target not found: \(requested)")
+            emitSelectionFailure(reason: "target_not_found")
+            return
+        }
+
+        struct BatchResult {
+            let target: ComponentUpdateTarget
+            let reason: String
+            let fileList: String
+            let failedFile: String?
+        }
+
+        func emitBatchResultEvents(_ results: [BatchResult]) {
+            guard !results.isEmpty else { return }
+            let separator = String(UnicodeScalar(1))
+            var basicRefs: [String: String] = [:]
+            var extendedRefs: [String: String] = [:]
+            for (index, result) in results.enumerated() {
+                let success = result.reason == "none" || result.reason == "changed"
+                let value: String
+                if success {
+                    value = String(result.fileList.isEmpty ? 0 : result.fileList.split(separator: ",").count)
+                } else {
+                    value = result.reason
+                }
+                var basic = [result.target.type, success ? "OK" : "NG", value]
+                var extended = [result.target.name, result.target.type, success ? "OK" : "NG", value]
+                if let failedFile = result.failedFile, !failedFile.isEmpty {
+                    basic.append(failedFile)
+                    extended.append(failedFile)
+                }
+                basicRefs["Reference\(index)"] = basic.joined(separator: separator)
+                extendedRefs["Reference\(index)"] = extended.joined(separator: separator)
+            }
+            let basicEvent: EventID = checkOnly ? .OnUpdateCheckResult : .OnUpdateResult
+            let extendedEvent: EventID = checkOnly ? .OnUpdateCheckResultEx : .OnUpdateResultEx
+            EventBridge.shared.notify(basicEvent, params: basicRefs)
+            EventBridge.shared.notify(extendedEvent, params: extendedRefs)
+            EventBridge.shared.notify(.OnUpdateResultExplorer, params: basicRefs)
+        }
+
+        func process(index: Int, results: [BatchResult]) {
+            guard index < targets.count else {
+                let failed = results.filter { $0.reason != "none" && $0.reason != "changed" }
+                let changed = results.contains { $0.reason == "changed" }
+                let aggregateReason = failed.first?.reason ?? (changed ? "changed" : "none")
+                let aggregateFiles = results.map { $0.target.name }.joined(separator: ",")
+                EventBridge.shared.notify(.OnUpdateCheckComplete, refs: [
+                    "reason": aggregateReason,
+                    "fileList": aggregateFiles,
+                    "targetType": "component",
+                    "executionReason": commandOptions.reason
+                ])
+                emitBatchResultEvents(results)
+                return
+            }
+
+            let target = targets[index]
+            let next: (BatchResult) -> Void = { result in
+                process(index: index + 1, results: results + [result])
+            }
+
+            EventBridge.shared.notify(.OnUpdateOtherBegin, refs: [
+                "ghostName": target.name,
+                "path": target.path.path,
+                "targetType": target.type,
+                "executionReason": commandOptions.reason
+            ])
+
+            guard let updateURL = commandOptions.explicitURL ?? target.homeURL,
+                  let parsedURL = URL(string: updateURL),
+                  parsedURL.scheme != nil else {
+                let reason = "missing_url"
+                EventBridge.shared.notify(.OnUpdateOtherFailure, refs: [
+                    "reason": reason,
+                    "fileList": "",
+                    "targetType": target.type,
+                    "executionReason": commandOptions.reason
+                ])
+                EventBridge.shared.notify(.OnUpdateCheckFailure, refs: [
+                    "reason": reason,
+                    "executionReason": commandOptions.reason
+                ])
+                next(BatchResult(target: target, reason: reason, fileList: "", failedFile: nil))
+                return
+            }
+
+            NarInstaller().checkUpdateEntries(homeURLString: updateURL) { result in
+                switch result {
+                case .success(let entries):
+                    let fileList = entries.map(\.filename).joined(separator: ",")
+                    let reason = entries.isEmpty ? "none" : "changed"
+                    if !entries.isEmpty {
+                        EventBridge.shared.notify(.OnUpdateOtherReady, refs: [
+                            "fileIndex": String(max(0, entries.count - 1)),
+                            "fileList": fileList,
+                            "targetType": target.type,
+                            "executionReason": commandOptions.reason
+                        ])
+                    }
+                    EventBridge.shared.notify(.OnUpdateCheckComplete, refs: [
+                        "reason": reason,
+                        "fileList": fileList,
+                        "targetType": target.type,
+                        "executionReason": commandOptions.reason
+                    ])
+                    if entries.isEmpty || checkOnly {
+                        EventBridge.shared.notify(.OnUpdateOtherComplete, refs: [
+                            "reason": reason,
+                            "fileList": fileList,
+                            "targetType": target.type,
+                            "executionReason": commandOptions.reason
+                        ])
+                        next(BatchResult(target: target, reason: reason, fileList: fileList, failedFile: nil))
+                        return
+                    }
+
+                    self.emitUpdateDownloadBeginEvents(
+                        base: "OnUpdateOther",
+                        entries: entries,
+                        targetType: target.type,
+                        executionReason: commandOptions.reason
+                    )
+                    NarInstaller().downloadAndApply(
+                        entries: entries,
+                        homeURLString: updateURL,
+                        targetRoot: target.path,
+                        onMD5Compare: { comparison in
+                            let params = [
+                                "Reference0": comparison.filename,
+                                "Reference1": comparison.correctMD5,
+                                "Reference2": comparison.downloadedMD5,
+                                "Reference3": target.type,
+                                "Reference4": commandOptions.reason
+                            ]
+                            self.emitUpdatePipelineEvent(base: "OnUpdateOther", stage: "OnMD5CompareBegin", params: params)
+                            self.emitUpdatePipelineEvent(
+                                base: "OnUpdateOther",
+                                stage: comparison.matches ? "OnMD5CompareComplete" : "OnMD5CompareFailure",
+                                params: params
+                            )
+                        },
+                        apply: !commandOptions.testOnly,
+                        completion: { applyResult in
+                            switch applyResult {
+                            case .success(let applied):
+                                let appliedList = applied.joined(separator: ",")
+                                let appliedReason = applied.isEmpty ? "none" : "changed"
+                                EventBridge.shared.notify(.OnUpdateOtherComplete, refs: [
+                                    "reason": appliedReason,
+                                    "fileList": appliedList.isEmpty ? fileList : appliedList,
+                                    "targetType": target.type,
+                                    "executionReason": commandOptions.reason
+                                ])
+                                next(BatchResult(
+                                    target: target,
+                                    reason: appliedReason,
+                                    fileList: appliedList.isEmpty ? fileList : appliedList,
+                                    failedFile: nil
+                                ))
+                            case .failure(let error):
+                                let failureReason = self.normalizeUpdateFailureReason(error)
+                                EventBridge.shared.notify(.OnUpdateOtherFailure, refs: [
+                                    "reason": failureReason,
+                                    "fileList": fileList,
+                                    "targetType": target.type,
+                                    "executionReason": commandOptions.reason
+                                ])
+                                next(BatchResult(
+                                    target: target,
+                                    reason: failureReason,
+                                    fileList: fileList,
+                                    failedFile: nil
+                                ))
+                            }
+                        }
+                    )
+
+                case .failure(let error):
+                    let failureReason = self.normalizeUpdateFailureReason(error)
+                    EventBridge.shared.notify(.OnUpdateOtherFailure, refs: [
+                        "reason": failureReason,
+                        "fileList": "",
+                        "targetType": target.type,
+                        "executionReason": commandOptions.reason
+                    ])
+                    EventBridge.shared.notify(.OnUpdateCheckFailure, refs: [
+                        "reason": failureReason,
+                        "executionReason": commandOptions.reason
+                    ])
+                    next(BatchResult(target: target, reason: failureReason, fileList: "", failedFile: nil))
+                }
+            }
+        }
+
+        process(index: 0, results: [])
+    }
+
     /// Check for updates to all ghosts
     func checkAllGhostsUpdate(options: [String]) {
         let commandOptions = UpdateCommandOptions(options)

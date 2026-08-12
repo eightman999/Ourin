@@ -2,6 +2,37 @@ import Testing
 import Foundation
 @testable import Ourin
 
+private final class UpdateDownloadURLProtocol: URLProtocol {
+    static var payload = Data()
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        request.url?.host == "ourin-update.test"
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        guard let url = request.url,
+              let response = HTTPURLResponse(
+                  url: url,
+                  statusCode: 200,
+                  httpVersion: "HTTP/1.1",
+                  headerFields: ["Content-Length": String(Self.payload.count)]
+              ) else {
+            client?.urlProtocol(self, didFailWithError: URLError(.badServerResponse))
+            return
+        }
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: Self.payload)
+        client?.urlProtocolDidFinishLoading(self)
+    }
+
+    override func stopLoading() {}
+}
+
+@Suite(.serialized)
 struct NarInstallTests {
     @Test
     func parseInstallTxt() throws {
@@ -105,6 +136,47 @@ struct NarInstallTests {
         )
         #expect(matching.matches)
         #expect(!mismatching.matches)
+    }
+
+    @Test
+    func testOnlyDownloadsAndVerifiesWithoutReplacingTarget() async throws {
+        let payload = Data("new content".utf8)
+        UpdateDownloadURLProtocol.payload = payload
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [UpdateDownloadURLProtocol.self]
+        let session = URLSession(configuration: configuration)
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ourin-testonly-\(UUID().uuidString)", isDirectory: true)
+        let target = root.appendingPathComponent("dic.dic")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        try Data("old content".utf8).write(to: target)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let entry = UpdateDescriptorEntry(
+            url: URL(string: "https://ourin-update.test/dic.dic")!,
+            relativePath: "dic.dic",
+            expectedMD5: UpdateMD5.hexDigest(of: payload)
+        )
+        let result = await withCheckedContinuation { continuation in
+            NarInstaller(session: session).downloadAndApply(
+                entries: [entry],
+                homeURLString: "https://ourin-update.test/",
+                targetRoot: root,
+                onMD5Compare: nil,
+                apply: false,
+                completion: { continuation.resume(returning: $0) }
+            )
+        }
+
+        let filenames: [String]
+        switch result {
+        case .success(let value):
+            filenames = value
+        case .failure(let error):
+            throw error
+        }
+        #expect(filenames == ["dic.dic"])
+        #expect(try String(contentsOf: target, encoding: .utf8) == "old content")
     }
 
     @Test
