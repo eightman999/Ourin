@@ -732,6 +732,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         // ここで PropertyManager.shared に差し替えないと、SSTPDispatcher/ResourceBridge 等
         // 他の全読み取り経路（.shared 参照）から SET した値が一切見えなくなる。
         self.sakuraEngine.propertyManager = PropertyManager.shared
+        PropertyManager.shared.bindCurrentGhostRuntime(self)
 
         // Load saved username into environment expander
         if let username = resourceManager.username {
@@ -753,6 +754,29 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     deinit {
         shutdown()
+    }
+
+    /// `currentghost.scope(ID).scaling` が返す実効倍率を、SET/SERIKO 後の ViewModel から組み立てる。
+    /// 単一倍率時は百分率を返し、非等方倍率時は横・縦をカンマ区切りで保持する。
+    func propertyScopeScaling(for scope: Int) -> String? {
+        guard let viewModel = characterViewModels[scope] else { return nil }
+        return Self.propertyScalingValue(x: viewModel.scaleX, y: viewModel.scaleY)
+    }
+
+    /// `currentghost.balloon.scope(ID).scaling` が返す実効倍率を、表示中バルーンから読む。
+    func propertyBalloonScopeScaling(for scope: Int) -> String? {
+        guard let viewModel = balloonViewModels[scope] else { return nil }
+        return Self.propertyScalingValue(x: viewModel.scaleX, y: viewModel.scaleY)
+    }
+
+    private static func propertyScalingValue(x: Double, y: Double) -> String? {
+        guard x.isFinite, y.isFinite else { return nil }
+        let xPercent = x * 100.0
+        let yPercent = y * 100.0
+        if x == y {
+            return String(xPercent)
+        }
+        return "\(xPercent),\(yPercent)"
     }
     
     // MARK: - Character Name Persistence

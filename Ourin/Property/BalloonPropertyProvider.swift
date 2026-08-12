@@ -28,10 +28,12 @@ public struct BalloonScopeData {
     public let basePosX: Int
     public let basePosY: Int
     public let charWidth: Int
+    public let scaling: String?
 
     public init(count: Int = 0, num: Int = 0, validWidth: Int = 0, validWidthInitial: Int = 0,
                 validHeight: Int = 0, validHeightInitial: Int = 0, lines: Int = 0, linesInitial: Int = 0,
-                basePosX: Int = 0, basePosY: Int = 0, charWidth: Int = 0) {
+                basePosX: Int = 0, basePosY: Int = 0, charWidth: Int = 0,
+                scaling: String? = nil) {
         self.count = count
         self.num = num
         self.validWidth = validWidth
@@ -43,6 +45,7 @@ public struct BalloonScopeData {
         self.basePosX = basePosX
         self.basePosY = basePosY
         self.charWidth = charWidth
+        self.scaling = scaling
     }
 }
 
@@ -57,13 +60,22 @@ final class BalloonPropertyProvider: PropertyProvider {
     private let balloons: [Balloon]
     private var currentBalloonIndex: Int
     private var scopeData: [Int: BalloonScopeData]
+    /// 実行中 GhostManager の実効倍率。nil の場合は scopeData の静的値へフォールバックする。
+    private var liveScopeScalingProvider: ((Int) -> String?)?
 
     init(mode: Mode, balloons: [Balloon] = [], currentBalloonIndex: Int = 0,
-         scopeData: [Int: BalloonScopeData] = [:]) {
+         scopeData: [Int: BalloonScopeData] = [:],
+         scopeScalingProvider: ((Int) -> String?)? = nil) {
         self.mode = mode
         self.balloons = balloons
         self.currentBalloonIndex = currentBalloonIndex
         self.scopeData = scopeData
+        self.liveScopeScalingProvider = scopeScalingProvider
+    }
+
+    /// 実行中の GhostManager と倍率プロパティを接続する。
+    func setScopeScalingProvider(_ provider: @escaping (Int) -> String?) {
+        liveScopeScalingProvider = provider
     }
 
     func get(key: String) -> String? {
@@ -103,6 +115,9 @@ final class BalloonPropertyProvider: PropertyProvider {
         // balloon.scope(n).property
         if key.hasPrefix("scope(") {
             if let (scopeId, prop) = parseScopeAccess(key: key) {
+                if prop == "scaling", let liveScopeScalingProvider {
+                    return liveScopeScalingProvider(scopeId)
+                }
                 guard let data = scopeData[scopeId] else { return nil }
                 return getScopeProperty(data, prop: prop)
             }
@@ -154,6 +169,8 @@ final class BalloonPropertyProvider: PropertyProvider {
             return String(scope.basePosY)
         case "char_width":
             return String(scope.charWidth)
+        case "scaling":
+            return scope.scaling
         default:
             return nil
         }

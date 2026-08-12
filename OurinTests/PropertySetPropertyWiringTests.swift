@@ -37,4 +37,26 @@ struct PropertySetPropertyWiringTests {
 
         #expect(PropertyManager.shared.get(key) == "テスト用ツールチップ")
     }
+
+    @Test
+    func liveScalingPropertiesFollowGhostAndBalloonViewModels() async throws {
+        let gm = makeGhostManager()
+        _ = gm.ensureCharacterWindow(for: 0)
+        var config = GhostConfiguration(name: "PropertyScalingTest")
+        config.balloonSyncScale = true
+        gm.ghostConfig = config
+        _ = gm.getBalloonVM(for: 0)
+
+        gm.executeSetScalingCommand(args: ["set", "scaling", "50", "75"])
+        for _ in 0..<20 {
+            if gm.characterViewModels[0]?.scaleX == 0.5,
+               gm.characterViewModels[0]?.scaleY == 0.75 {
+                break
+            }
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        #expect(PropertyManager.shared.get("currentghost.scope(0).scaling") == "50.0,75.0")
+        #expect(PropertyManager.shared.get("currentghost.balloon.scope(0).scaling") == "50.0,75.0")
+    }
 }

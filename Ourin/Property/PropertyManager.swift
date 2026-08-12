@@ -176,7 +176,9 @@ public final class PropertyManager {
 
     /// 動的に値が変わる名前空間はキャッシュしない（system.second / system.cursor.pos 等が
     /// 初回取得値で固定されるのを防ぐ）。
-    private static let uncachedPrefixes: Set<String> = ["system", "pluginlist", "rateofuselist"]
+    private static let uncachedPrefixes: Set<String> = [
+        "system", "pluginlist", "rateofuselist", "currentghost"
+    ]
 
     public func get(_ key: String) -> String? {
         let lower = Self.lowercasePreservingParams(key)
@@ -208,6 +210,24 @@ public final class PropertyManager {
 
     public func register(_ prefix: String, provider: PropertyProvider) {
         providers[prefix.lowercased()] = provider
+        invalidateCache()
+    }
+
+    /// 実行中 GhostManager の状態を currentghost 系プロパティへ接続する。
+    /// プロバイダ自体は再生成せず、SET 済みのカーソル・ツールチップ等を保持したまま
+    /// 変化する倍率だけを live getter で読む。currentghost はウィンドウ生成や
+    /// アニメーションで変化するため、常にキャッシュ対象外として扱う。
+    func bindCurrentGhostRuntime(_ manager: GhostManager) {
+        if let ghostProvider = providers["currentghost"] as? GhostPropertyProvider {
+            ghostProvider.setScopeScalingProvider { [weak manager] scope in
+                manager?.propertyScopeScaling(for: scope)
+            }
+        }
+        if let balloonProvider = providers["currentghost.balloon"] as? BalloonPropertyProvider {
+            balloonProvider.setScopeScalingProvider { [weak manager] scope in
+                manager?.propertyBalloonScopeScaling(for: scope)
+            }
+        }
         invalidateCache()
     }
 

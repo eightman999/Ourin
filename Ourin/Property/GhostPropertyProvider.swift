@@ -90,6 +90,8 @@ final class GhostPropertyProvider: PropertyProvider {
 
     // Scope-related runtime data (for currentghost mode)
     private var scopeData: [Int: ScopeData]
+    /// 実行中 GhostManager の実効倍率。nil の場合は scopeData の静的値へフォールバックする。
+    private var liveScopeScalingProvider: ((Int) -> String?)?
     private var mouseCursor: [String: String]
     private var balloonMouseCursor: [String: String]
     // SERIKO カーソルは scope → リスト種別(mouseup/down/hover/wheel) → 名前 → パス
@@ -112,11 +114,13 @@ final class GhostPropertyProvider: PropertyProvider {
         var rect: String  // "left,top,right,bottom"
         var name: String
         var defaultSurface: Int
+        var scaling: String? = nil
     }
 
     init(mode: Mode, ghosts: [Ghost], activeIndices: [Int],
          shells: [Shell] = [], currentShellIndex: Int = 0,
          scopeData: [Int: ScopeData] = [:],
+         scopeScalingProvider: ((Int) -> String?)? = nil,
          mouseCursor: [String: String] = [:],
          balloonMouseCursor: [String: String] = [:],
          serikoCursor: [Int: [String: [String: String]]] = [:],
@@ -129,12 +133,20 @@ final class GhostPropertyProvider: PropertyProvider {
         self.shells = shells
         self.currentShellIndex = currentShellIndex
         self.scopeData = scopeData
+        self.liveScopeScalingProvider = scopeScalingProvider
         self.mouseCursor = mouseCursor
         self.balloonMouseCursor = balloonMouseCursor
         self.serikoCursor = serikoCursor
         self.serikoTooltips = serikoTooltips
         self.serikoSurfaceListAll = serikoSurfaceListAll
         self.serikoSurfaceListDefined = serikoSurfaceListDefined
+    }
+
+    /// 実行中の GhostManager と倍率プロパティを接続する。
+    /// 既存のカーソル・ツールチップ等の runtime 状態を保持したまま更新するため、
+    /// PropertyManager がプロバイダを再生成する必要はない。
+    func setScopeScalingProvider(_ provider: @escaping (Int) -> String?) {
+        liveScopeScalingProvider = provider
     }
 
     func get(key: String) -> String? {
@@ -366,6 +378,9 @@ final class GhostPropertyProvider: PropertyProvider {
         // scope(n).property
         if key.hasPrefix("scope(") {
             if let (scopeId, prop) = parseScopeAccess(key: key) {
+                if prop == "scaling", let liveScopeScalingProvider {
+                    return liveScopeScalingProvider(scopeId)
+                }
                 guard let data = scopeData[scopeId] else { return nil }
                 return getScopeProperty(data, prop: prop)
             }
@@ -452,6 +467,8 @@ final class GhostPropertyProvider: PropertyProvider {
             return scope.rect
         case "name":
             return scope.name
+        case "scaling":
+            return scope.scaling
         default:
             return nil
         }
