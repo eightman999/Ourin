@@ -9,7 +9,7 @@ import SwiftUI
 ///   [Ghidra Path: ...]
 ///   [Analyze Selected]
 ///   [Generate ourin.json]
-///   [Create Plugin Scaffold]
+///   [Create Migration Record]
 /// Name | Kind | Binary | Status | Action
 /// ```
 ///
@@ -70,8 +70,8 @@ struct OurinMigratorView: View {
             )
         case .scaffold(let asset):
             return Alert(
-                title: Text(".plugin 雛形を上書き"),
-                message: Text("既存の雛形が上書きされます。続行しますか？"),
+                title: Text("移行記録を上書き"),
+                message: Text("既存の移行記録が上書きされます。実行体は生成されません。続行しますか？"),
                 primaryButton: .destructive(Text("上書き")) {
                     performScaffold(for: asset, force: true)
                 },
@@ -111,7 +111,7 @@ struct OurinMigratorView: View {
             .disabled(selectedAsset == nil || isAnalyzing)
 
             Button(action: createScaffold) {
-                Label("Create Plugin Scaffold", systemImage: "hammer")
+                Label("Create Migration Record", systemImage: "doc.badge.gearshape")
             }
             .disabled(selectedAsset == nil || isAnalyzing)
 
@@ -507,11 +507,11 @@ struct OurinMigratorView: View {
     private func performScaffold(for asset: LegacyAssetScanner.Asset, force: Bool = false) {
         if let result = PluginScaffolder.scaffold(for: asset, force: force) {
             scanLog = result.overwritten
-                ? "雛形を上書きしました: \(result.packageURL.lastPathComponent)"
-                : "雛形を生成しました: \(result.packageURL.lastPathComponent)"
+                ? "移行記録を上書きしました: \(result.packageURL.lastPathComponent)"
+                : "移行記録を生成しました（実行体なし）: \(result.packageURL.lastPathComponent)"
             refreshStatus(of: asset)
         } else {
-            scanLog = "雛形生成をスキップしました（既存）"
+            scanLog = "移行記録の生成をスキップしました（既存）"
         }
     }
 

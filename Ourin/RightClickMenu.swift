@@ -1,8 +1,7 @@
 import SwiftUI
 import AppKit
 
-// SSP の右クリックメニューを模倣した UI。
-// メニュー構成例は docs/RightClickMenuMockup.md を参照。
+// メニューバーからもゴースト操作を行える補助メニュー。
 
 /// 右クリックメニュー UI の SwiftUI 実装（メニューバーエクストラ用）
 @available(macOS 11.0, *)

@@ -612,7 +612,8 @@ std::shared_ptr<AST::Node> Parser::parseIf() {
         while (!check(TokenType::LeftBrace) && !check(TokenType::EndOfFile)) {
             advance();
         }
-        // Use dummy condition
+        // Keep malformed legacy dictionaries loadable; a missing condition is
+        // treated as true after the parse error has already been reported.
         condition = std::make_shared<AST::LiteralNode>("1", false);
     }
     // Then body: either a braced block or a single statement

@@ -40,6 +40,9 @@ struct SurfaceOverlay: Identifiable {
     var alpha: Double = 1.0
     var zOrder: Int = 0
     var insertionOrder: Int = 0
+    /// SERIKO アニメーションが所有する一時オーバーレイの場合のみ設定する。
+    /// surface ID はフレームごとに変わるため、ID文字列の接頭辞ではなく所有アニメーションで追跡する。
+    var animationID: Int? = nil
 
     static func sortedForDisplay(_ overlays: [SurfaceOverlay]) -> [SurfaceOverlay] {
         overlays.sorted {

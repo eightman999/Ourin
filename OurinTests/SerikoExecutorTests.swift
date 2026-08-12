@@ -72,6 +72,19 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func replaceDefinitionsDropsPreviousSurfaceAnimations() async throws {
+        let executor = SerikoExecutor()
+        let previous = makeDefinition(id: 40, interval: .never, methods: [.overlay])
+        let current = makeDefinition(id: 41, interval: .never, methods: [.overlay])
+
+        executor.register(animations: [previous.id: previous])
+        executor.replace(animations: [current.id: current])
+
+        #expect(executor.definition(for: previous.id) == nil)
+        #expect(executor.definition(for: current.id) == current)
+    }
+
+    @Test
     func intervalTriggersForTalkBindYenE() async throws {
         let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 1.0 })
         let talk = makeDefinition(id: 20, interval: .talk, methods: [.overlay])

@@ -6,6 +6,13 @@ public enum MenuAlignment: String {
     case leftBottom = "leftbottom"
     case rightTop = "righttop"
     case rightBottom = "rightbottom"
+    case centerTop = "centertop"
+    case centerBottom = "centerbottom"
+    case top = "top"
+    case bottom = "bottom"
+    case left = "left"
+    case center = "center"
+    case right = "right"
 }
 
 /// メニュー項目タイプ

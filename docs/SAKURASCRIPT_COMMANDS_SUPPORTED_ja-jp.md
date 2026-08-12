@@ -237,10 +237,15 @@ ukadoc（`/manual/list_sakura_script.html`）と `GhostManager` の現行ラン�
 
 ### 音声合成制御
 
+Ourin は通常の表示テキストを自動的には読み上げません。音声合成を使う場合は、スクリプト内で明示的に有効化します。音声アセットの再生（`\_v`）は音声合成の設定とは独立しています。
+
 | コマンド | 説明 | 例 |
 |---------|-------------|---------|
-| `\__v[disable]...\__v` | テキストの音声合成を無効化 | `\__v[disable]Silent\__v` |
-| `\__v[alternate,text]...\__v` | 読み上げを上書き | `\__v[alternate,ひらがな]漢字\__v` |
+| `\__v[enable]...\__v` | 指定範囲の音声合成を明示的に有効化（既定は無効） | `\__v[enable]Hello\__v` |
+| `\__v[disable]...\__v` | 指定範囲の音声合成を無効化 | `\__v[disable]Silent\__v` |
+| `\__v[alternate,text]...\__v` | 次のテキストトークンの読み上げ文字列を上書き | `\__v[alternate,ひらがな]漢字\__v` |
+| `\_v[ファイル名]` | `ghost/sound` の音声アセットを再生（TTSとは独立） | `\_v[voice.wav]` |
+| `\_V` | 再生中の音声・効果音・動画の完了を待つ | `\_V` |
 
 ## フォント＆テキストスタイルコマンド
 
@@ -506,6 +511,11 @@ H\f[sub,1]2\f[sub,0]O + O\f[sub,1]2\f[sub,0] → H\f[sub,1]2\f[sub,0]O\f[sub,1]2
 
 #### レンダリングレベル（GhostManager.swift + CharacterViewModel/CharacterView）
 
+**音声 - 実装済み:**
+- ✅ `\__v[enable|disable|alternate,...]...\__v` - 音声合成制御（通常文の自動読み上げは既定で無効）
+- ✅ `\_v[ファイル名]` - `ghost/sound` の音声アセット再生
+- ✅ `\_V` - 音声・効果音・動画の再生完了待ち
+
 **ビジュアルエフェクト - 実装済み:**
 - ✅ `\![set,scaling,ratio]` - 等倍スケーリング
 - ✅ `\![set,scaling,x,y]` - 非等倍スケーリング
@@ -544,7 +554,6 @@ H\f[sub,1]2\f[sub,0]O + O\f[sub,1]2\f[sub,0] → H\f[sub,1]2\f[sub,0]O\f[sub,1]2
 - ❌ `\c` / `\c[char/line,...]` - テキストクリア
 - ❌ `\_n` - 自動折り返し無効モード
 - ❌ `\_!...\_!` / `\_?...\_?` - タグのパススルー（正しくパース済み）
-- ❌ `\__v[...]` - 音声合成制御
 - ❌ `\![set,autoscroll,...]` - オートスクロール制御
 - ❌ `\![set,balloonoffset,...]` - バルーンオフセット
 - ❌ `\![set,balloonalign,...]` - バルーン配置

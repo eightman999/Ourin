@@ -126,7 +126,7 @@ Ourin Migrator
   [Ghidra Path: ...]
   [Analyze Selected]
   [Generate ourin.json]
-  [Create Plugin Scaffold]
+  [Create Migration Record]
 
 Name | Kind | Binary | Status | Action
 ```
@@ -195,7 +195,7 @@ Main `mode` options:
 metadata-only       Do not execute DLL/EXE, use only SSP metadata
 native-replacement  Replace with Ourin builtin implementation
 native-plugin       Use macOS .plugin/.bundle
-scaffold            Scaffold generated, awaiting implementation
+scaffold            Legacy scaffold mode (no longer generated)
 unsupported         Currently not supported
 ```
 
@@ -208,60 +208,33 @@ shared_value.dll -> builtin:shared_value
 SAKNIFE.DLL      -> builtin:saknife or scaffold
 SCHEDULE.dll     -> builtin:calendar_schedule or scaffold
 SSPH.exe         -> builtin:ssph_compat
-mcp.exe          -> builtin:mcp_compat
+mcp.exe          -> unsupported (MCP compatibility endpoint explicitly reports unavailable)
 ```
 
 Known DLLs should not be machine-converted from pseudo C to Swift; instead, implement equivalent functionality natively on the Ourin side and link it via `ourin.json`.
 
-## .plugin Scaffold Generation
+## Migration Record Generation
 
-For unknown DLLs, generate a macOS plugin scaffold rather than full conversion:
+For unknown DLLs, generate a migration record without an executable rather than full conversion:
 
 ```text
 ourin/macos/<name>_mac/
-  install.txt
   descript.txt
   message.japanese.txt
   message.english.txt
-  <name>.plugin/
-    Contents/
-      Info.plist
-      MacOS/<name>
-      Resources/
-        descript.txt
-        ourin.json
-  Sources/
-    <name>Plugin.c
+  ourin.json
   OriginalDocs/
     ReadMe.txt
+  README.md
 ```
 
-Internal structure of `<name>.plugin`:
+The migration record contains no executable `.plugin`, shell, or fixed `PLUGIN/2.0M 200 OK` response.
+Its `ourin.json` mode is `unsupported`, with relative references to analysis results and
+per-asset porting requirements.
 
-```text
-<name>.plugin/
-  Contents/
-    Info.plist
-    MacOS/<name>
-    Resources/
-      descript.txt
-      ourin.json
-```
-
-Scaffold provides minimal PLUGIN/DLL compatibility entry points:
-
-```text
-load
-loadu
-request
-unload
-unloadu
-plugin_free (if needed)
-```
-
-Behavior for each event ID branches within `request`. However, menu display names and message text are made readable to the Ourin host from `message.*.txt`, avoiding hardcoding into the `.plugin` side.
-
-At the same time, `ourin/analysis/report.md` outputs implementation TODOs inferred from exports/imports/strings.
+After a native implementation is completed, create the actual `.plugin` separately and update
+`ourin.json` to `native-plugin` or `native-replacement`. At the same time,
+`ourin/analysis/report.md` records implementation requirements inferred from exports/imports/strings.
 
 ## Implementation Phases
 
@@ -291,11 +264,11 @@ At the same time, `ourin/analysis/report.md` outputs implementation TODOs inferr
 - Auto-suggest builtin implementation names for known DLLs
 - Confirm overwrite if existing `ourin.json` exists
 
-### Phase 5: .plugin Scaffold Generation
+### Phase 5: Migration Record Generation
 
-- Generate `.plugin` scaffold for unknown DLLs
-- Create `Info.plist`, executable file placeholder, and `Resources/ourin.json`
-- Append generated items and TODOs to `report.md`
+- Generate a migration record without an executable for unknown DLLs
+- Preserve source metadata, OriginalDocs, analysis references, and README
+- Keep `unsupported` and legacy `scaffold` manifests out of PluginRegistry execution
 
 ## MVP
 

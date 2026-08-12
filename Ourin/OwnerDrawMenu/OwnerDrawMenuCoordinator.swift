@@ -6,10 +6,12 @@ class OwnerDrawMenuCoordinator {
     
     private var activeMenu: OwnerDrawMenuPanel?
     private var submenuStack: [OwnerDrawMenuPanel] = []
+    private var rootAction: ((String) -> Void)?
     
     func showMenu(at point: NSPoint, config: OwnerDrawMenuConfig, items: [OwnerDrawMenuItem], onAction: @escaping (String) -> Void) {
         // 既存のメニューを閉じる
         closeAllMenus()
+        rootAction = onAction
         
         // メニューのサイズを計算
         let menuHeight = calculateMenuHeight(items: items, config: config)
@@ -17,10 +19,12 @@ class OwnerDrawMenuCoordinator {
         
         let menuRect = NSRect(x: point.x, y: point.y - menuHeight, width: menuWidth, height: menuHeight)
         
-        let panel = OwnerDrawMenuPanel(contentRect: menuRect, config: config, items: items, onAction: onAction)
+        let panel = OwnerDrawMenuPanel(contentRect: menuRect, config: config, items: items) { [weak self] action in
+            self?.handleRootAction(action)
+        }
         activeMenu = panel
         
-        if let screen = NSScreen.main {
+        if let screen = screen(containing: point) {
             panel.show(at: point, relativeTo: screen)
         }
     }
@@ -37,31 +41,29 @@ class OwnerDrawMenuCoordinator {
         let menuHeight = calculateMenuHeight(items: items, config: config)
         let menuWidth = calculateMenuWidth(items: items, config: config)
         
-        // サブメニューの位置を計算
-        var submenuPoint = CGPoint(x: parentWindowRect.maxX, y: parentWindowRect.maxY - itemRect.minY)
-        
+        // サブメニューの左上を親項目の左上に合わせる。
+        let itemTopInScreen = parentWindowRect.minY + itemRect.maxY
+        var submenuPoint = CGPoint(x: parentWindowRect.maxX, y: itemTopInScreen)
+
+        closeSubmenus(after: parentPanel)
+        parentPanel?.closesOnDeactivate = false
+
         // 画面の右端に近い場合は左側に表示
-        if let screen = NSScreen.main, submenuPoint.x + menuWidth > screen.visibleFrame.maxX {
+        if let screen = screen(containing: submenuPoint), submenuPoint.x + menuWidth > screen.visibleFrame.maxX {
             submenuPoint.x = parentWindowRect.minX - menuWidth
-        }
-        
-        // 下端を超える場合は上側に表示
-        if let screen = NSScreen.main, submenuPoint.y - menuHeight < screen.visibleFrame.minY {
-            submenuPoint.y = parentWindowRect.maxY - itemRect.maxY
         }
         
         let panel = OwnerDrawMenuPanel(
             contentRect: NSRect(x: submenuPoint.x, y: submenuPoint.y - menuHeight, width: menuWidth, height: menuHeight),
             config: config,
-            items: items,
-            onAction: { [weak self] action in
-                self?.handleSubmenuAction(action)
-            }
-        )
+            items: items
+        ) { [weak self] action in
+            self?.handleRootAction(action)
+        }
         
         submenuStack.append(panel)
         
-        if let screen = NSScreen.main {
+        if let screen = screen(containing: submenuPoint) {
             panel.show(at: submenuPoint, relativeTo: screen)
         }
     }
@@ -74,12 +76,32 @@ class OwnerDrawMenuCoordinator {
             menu.close()
         }
         submenuStack.removeAll()
+        rootAction = nil
+    }
+
+    private func closeSubmenus(after parentPanel: OwnerDrawMenuPanel?) {
+        let keepCount: Int
+        if let parentPanel,
+           let parentIndex = submenuStack.firstIndex(where: { $0 === parentPanel }) {
+            keepCount = parentIndex + 1
+        } else {
+            keepCount = 0
+        }
+
+        for menu in submenuStack.dropFirst(keepCount) {
+            menu.close()
+        }
+        submenuStack.removeSubrange(keepCount..<submenuStack.count)
+    }
+
+    private func handleRootAction(_ action: String) {
+        let handler = rootAction
+        closeAllMenus()
+        handler?(action)
     }
     
-    private func handleSubmenuAction(_ action: String) {
-        // サブメニューのアクションを親に伝播
-        // 必要に応じて処理
-        NSLog("[OwnerDrawMenuCoordinator] Submenu action: \(action)")
+    private func screen(containing point: NSPoint) -> NSScreen? {
+        NSScreen.screens.first { $0.frame.contains(point) } ?? NSScreen.main
     }
     
     private func calculateMenuHeight(items: [OwnerDrawMenuItem], config: OwnerDrawMenuConfig) -> CGFloat {

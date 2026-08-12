@@ -152,7 +152,7 @@ TestVariableFunctionManagement
     LETTONAME("_dynamic", "value")   // Assign by name
     _eraseResult = ERASEVAR("_tempVar")  // Erase variable
     
-    // Dictionary operations (stubs)
+    // Dictionary operations
     _dicLoad = DICLOAD("test.dic")
     _dicUnload = DICUNLOAD("test.dic")
     _undeffunc = UNDEFFUNC("TestFunc")
@@ -177,14 +177,14 @@ TestSystemOperations
     _secCount = GETSECCOUNT()        // Seconds since epoch
     
     _env = GETENV("PATH")            // Environment variable
-    _memInfo = GETMEMINFO()          // Memory info (stub)
+    _memInfo = GETMEMINFO()          // Host memory info
     
-    // Security stubs
+    // Host operations (subject to host security policy)
     _exec = EXECUTE("echo test")     // Disabled for security
     _execWait = EXECUTE_WAIT("cmd")  // Disabled for security
-    _sleep = SLEEP(100)              // Stub
-    _fmo = READFMO("test")           // FMO read (stub)
-    _tama = SETTAMAHWND(0)           // TAMA window (stub)
+    _sleep = SLEEP(100)
+    _fmo = READFMO("test")           // Empty when no host FMO callback is attached
+    _tama = SETTAMAHWND(0)           // macOS logical TAMA window setting
     
     "System OK\nYear: %(_year), Month: %(_month), Day: %(_day)"
 }
@@ -194,19 +194,19 @@ TestEncodingFunctions
     // Encoding/Decoding (10 functions)
     _encoded = STRENCODE("test", "url")
     _decoded = STRDECODE("test", "url")
-    _digest = STRDIGEST("test", "md5")  // Stub
+    _digest = STRDIGEST("test", "md5")
     
     // URL encoding aliases
     _urlEnc = GETSTRURLENCODE("test")
     _urlDec = GETSTRURLDECODE("test")
     
-    // Charset functions (stubs)
+    // Charset functions
     _charset = CHARSETLIB("UTF-8")
     _charsetEx = CHARSETLIBEX("UTF-8")
     _textToId = CHARSETTEXTTOID("UTF-8")
     _idToText = CHARSETIDTOTEXT(0)
     
-    // Japanese conversion (stubs)
+    // Japanese width conversion
     _zen2han = ZEN2HAN("ＡＢＣ")
     _han2zen = HAN2ZEN("ABC")
     
@@ -235,16 +235,16 @@ TestUtilityFunctions
     _stack = GETCALLSTACK()
     _funcInfo = GETFUNCINFO("TestAll")
     
-    // SAORI (stubs)
+    // SAORI (requires a host module)
     _loadLib = LOADLIB("test.dll")
     _unloadLib = UNLOADLIB("test.dll")
     _requestLib = REQUESTLIB("test.dll", "arg")
     
-    // Variable persistence (stubs)
+    // Variable persistence
     _save = SAVEVAR("vars.txt")
     _restore = RESTOREVAR("vars.txt")
     
-    // Logging (stub)
+    // Logging
     _log = LOGGING("Test message")
     
     // Misc
@@ -266,8 +266,7 @@ TestAllCandidates : array
 
 TestFileOperations
 {
-    // File operations (20 functions - all stubs for security)
-    // These return safe defaults to prevent unauthorized file access
+    // File operations (security-restricted to relative paths)
     
     _fh = FOPEN("test.txt", "r")     // Returns -1 (error)
     _close = FCLOSE(_fh)
@@ -278,7 +277,7 @@ TestFileOperations
     _size = FSIZE("test.txt")
     _seek = FSEEK(_fh, 0)
     _tell = FTELL(_fh)
-    _charset = FCHARSET("test.txt")
+    _charset = FCHARSET(1)
     _attrib = FATTRIB("test.txt")
     
     _readBin = FREADBIN(_fh)
@@ -296,7 +295,7 @@ TestFileOperations
     _mkdir = MKDIR("testdir")
     _rmdir = RMDIR("testdir")
     
-    "File Ops OK (stubs for security)"
+    "File Ops OK (security restrictions active)"
 }
 
 TestRegexFunctions
@@ -318,13 +317,13 @@ TestRegexFunctions
     _asearch = RE_ASEARCH(IARRAY(), "pattern")
     _asearchEx = RE_ASEARCHEX(IARRAY(), "pattern")
     
-    "Regex OK (stubs)"
+    "Regex OK"
 }
 
 OnBoot
 {
     "\0\s[0]YAYA_core Complete Test\w9\n\n"
-    "All 160 functions implemented!\n\n"
+    "All supported functions are executable!\n\n"
     "Categories tested:\n"
     "- Type Conversion (10)\n"
     "- String Ops (13)\n"
@@ -337,7 +336,7 @@ OnBoot
     "- System Ops (9)\n"
     "- Encoding (10)\n"
     "- Utilities (18+)\n"
-    "- File Ops (20 stubs)\n"
-    "- Regex (11 stubs)\n\n"
-    "Total: 160/160 ✓\e"
+    "- File Ops (security-restricted)\n"
+    "- Regex (std::regex)\n\n"
+    "Total: supported set verified ✓\e"
 }

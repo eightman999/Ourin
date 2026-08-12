@@ -165,15 +165,13 @@ yaya_core/
 ├── src/
 │   ├── main.cpp            # Entry point
 │   ├── YayaCore.{cpp,hpp}  # Core controller
-│   ├── DictionaryManager.{cpp,hpp}  # Dictionary management (stub)
-│   ├── Lexer.{cpp,hpp}     # (TODO) Tokenizer
-│   ├── Parser.{cpp,hpp}    # (TODO) Parser
-│   ├── AST.{cpp,hpp}       # (TODO) Abstract Syntax Tree
-│   ├── VM.{cpp,hpp}        # (TODO) Virtual Machine
-│   ├── Value.{cpp,hpp}     # (TODO) Value type
-│   ├── BuiltinFunctions.{cpp,hpp}  # (TODO) Built-in functions
-│   └── ShioriAdapter.{cpp,hpp}     # (TODO) SHIORI adapter
-├── tests/                  # (TODO) Unit tests
+│   ├── DictionaryManager.{cpp,hpp}  # Dictionary loading and ownership
+│   ├── Lexer.{cpp,hpp}     # Tokenizer
+│   ├── Parser.{cpp,hpp}    # Parser
+│   ├── AST.hpp             # Abstract syntax tree
+│   ├── VM.{cpp,hpp}        # Virtual machine and built-ins
+│   ├── Value.{cpp,hpp}     # Runtime value type
+│   └── YayaCore.{cpp,hpp}  # SHIORI/IPC adapter
 │   ├── lexer_test.cpp
 │   ├── parser_test.cpp
 │   └── vm_test.cpp
@@ -307,4 +305,3 @@ fi
 ```
 
 This automatically rebuilds yaya_core when source files change.
-

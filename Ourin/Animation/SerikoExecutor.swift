@@ -38,6 +38,13 @@ public final class SerikoExecutor {
         definitions.merge(animations) { _, new in new }
     }
 
+    /// 現在のサーフェスに属する定義へ置き換える。
+    /// サーフェス切替後に前サーフェスの animation50 などを残すと、
+    /// 旧サーフェス用の目元パッチが別表情の上で再生される。
+    public func replace(animations: [Int: SerikoParser.AnimationDefinition]) {
+        definitions = animations
+    }
+
     /// Return registered definition for an animation id
     public func definition(for id: Int) -> SerikoParser.AnimationDefinition? {
         definitions[id]

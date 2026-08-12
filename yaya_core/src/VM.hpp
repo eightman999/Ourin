@@ -29,7 +29,7 @@ public:
     // （`id.key\x01value\r\n` 形式）を返す。デフォルトは未対応（空）。
     virtual nlohmann::json fmoOperation(const std::string& op, const nlohmann::json& params) {
         (void)op; (void)params;
-        return nlohmann::json{{"ok", false}, {"error", "fmoOperation not implemented"}};
+        return nlohmann::json{{"ok", false}, {"error", "FMO host callback unavailable"}};
     }
 
     // Dynamic dictionary operations (Phase 6). Returns success flag.
@@ -112,6 +112,10 @@ private:
     // SETDELIM/GETDELIM で設定する配列⇔文字列の既定区切り文字（SPLIT の区切り省略時に使用）
     std::string arrayDelimiter_ = ",";
 
+    // FCHARSET で設定するテキストファイルの既定文字コード。
+    // 0=Shift_JIS/CP932、1=UTF-8、127=OS既定（macOSではUTF-8として扱う）。
+    int fileCharset_ = 1;
+
     // SHIORI reference values
     std::vector<Value> references_;
 
@@ -136,6 +140,9 @@ private:
 
     // OUTPUTNUM() 用: 直近に execute() した array/sequential 関数が収集した候補数。
     int lastOutputNum_ = 0;
+
+    // 文字列中の `%[n]` が参照する、同一文字列内の直前の埋め込み値。
+    std::vector<std::string> embeddedHistory_;
 
     // Built-in functions
     std::map<std::string, std::function<Value(const std::vector<Value>&)>> builtins_;

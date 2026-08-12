@@ -221,7 +221,8 @@ fileprivate struct ShioriResourceView: View {
     @State private var items: [ResourceItem] = []
     @State private var filter: ResourceFilter = .all
     @State private var selection: ResourceItem.ID?
-    @State private var overlayStore: [String: String] = [:] // Mock persistence
+    @State private var overlayStore: [String: String] = [:]
+    @State private var didRestoreOverlays = false
     @State private var searchText: String = ""
     @State private var sortField: SortField = .key
     @State private var sortAscending: Bool = true
@@ -322,9 +323,9 @@ fileprivate struct ShioriResourceView: View {
 
             Button(action: loadResources) { Label("Reload", systemImage: "arrow.clockwise") }
             Button(action: applyOverlay) { Label("Apply", systemImage: "checkmark.circle") }
-                .help("Preview only: この画面の Effective 列にのみ反映され、実行中ゴーストへは適用されません")
+                .help("実行中ゴーストの ResourceBridge に反映し、次回起動にも引き継ぎます")
             Button(action: clearOverlay) { Label("Clear", systemImage: "xmark.circle") }
-            Text("Overlay: Preview only（実行系へは未反映）")
+            Text("Overlay: 実行中ゴーストへ適用")
                 .font(.caption2)
                 .foregroundColor(.secondary)
         }
@@ -489,6 +490,7 @@ fileprivate struct ShioriResourceView: View {
             "menu.foreground.color.r", "menu.foreground.color.g", "menu.foreground.color.b",
             "menu.item1.caption", "menu.item1.visible", "update.url", "ghostpath", "shellpath", "homeurl"
         ]
+        restoreOverlaysIfNeeded()
         ResourceBridge.shared.invalidate(keys: keys)
         let now = Date()
         self.items = keys.map { key in
@@ -500,17 +502,44 @@ fileprivate struct ShioriResourceView: View {
         for item in items {
             if !item.overlay.isEmpty {
                 overlayStore[item.key] = item.overlay
+                ResourceBridge.shared.set(item.key, value: item.overlay)
             } else {
                 overlayStore.removeValue(forKey: item.key)
+                ResourceBridge.shared.clearOverride(item.key)
             }
         }
+        persistOverlays()
+        ResourceBridge.shared.invalidateAll()
     }
     
     private func clearOverlay() {
         for index in items.indices {
             items[index].overlay = ""
+            ResourceBridge.shared.clearOverride(items[index].key)
         }
         overlayStore.removeAll()
+        persistOverlays()
+        ResourceBridge.shared.invalidateAll()
+    }
+
+    private func restoreOverlaysIfNeeded() {
+        guard !didRestoreOverlays else { return }
+        didRestoreOverlays = true
+        guard let saved = UserDefaults.standard.dictionary(forKey: "OurinDevToolsResourceOverlays") as? [String: String] else {
+            return
+        }
+        overlayStore = saved
+        for (key, value) in saved {
+            ResourceBridge.shared.set(key, value: value)
+        }
+    }
+
+    private func persistOverlays() {
+        if overlayStore.isEmpty {
+            UserDefaults.standard.removeObject(forKey: "OurinDevToolsResourceOverlays")
+        } else {
+            UserDefaults.standard.set(overlayStore, forKey: "OurinDevToolsResourceOverlays")
+        }
     }
 }
 
@@ -844,6 +873,9 @@ fileprivate struct HeadlineBalloonView: View {
     @State private var balloonPreviewScale = 1.0
     @State private var showDPI = false
     @State private var testScript = "\\h\\s[0]こんにちは！\\nこれはテストメッセージです。\\e"
+    @StateObject private var previewBalloonViewModel = BalloonViewModel()
+    @State private var previewBalloonConfig: BalloonConfig?
+    @State private var previewBalloonLoader: BalloonImageLoader?
     
     @State private var ghosts: [String] = []
     @State private var shells: [String] = []
@@ -961,29 +993,29 @@ fileprivate struct HeadlineBalloonView: View {
                     Text("バルーンプレビュー")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
-                    Text("（Preview only: 実バルーン画像は描画されません）")
+                    Text("（インストール済みバルーンの実画像）")
                         .font(.caption2)
                         .foregroundColor(.secondary)
 
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.blue.opacity(0.1))
-                            .frame(width: 200 * balloonPreviewScale, height: 100 * balloonPreviewScale)
-                        
-                        VStack {
-                            Text("💬")
-                                .font(.system(size: 30 * balloonPreviewScale))
-                            Text("\(selectedShell)/\(selectedBalloon)")
-                                .font(.caption)
-                                .scaleEffect(balloonPreviewScale)
-                            
-                            if showDPI {
-                                Text("72 DPI • 32bit • 透過")
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
-                                    .scaleEffect(balloonPreviewScale)
-                            }
-                        }
+                    if let loader = previewBalloonLoader {
+                        BalloonView(
+                            viewModel: previewBalloonViewModel,
+                            config: previewBalloonConfig,
+                            imageLoader: loader
+                        )
+                        .scaleEffect(balloonPreviewScale, anchor: .topLeading)
+                        .frame(maxWidth: .infinity, minHeight: 180, alignment: .topLeading)
+                        .clipped()
+                    } else {
+                        Text("インストール済みバルーンがありません")
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, minHeight: 180, alignment: .topLeading)
+                    }
+
+                    if showDPI, let image = previewBalloonLoader?.loadSurface(index: 0) {
+                        Text("実画像: \(Int(image.size.width))×\(Int(image.size.height)) pt")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
                     }
                 }
                 
@@ -993,6 +1025,9 @@ fileprivate struct HeadlineBalloonView: View {
             .frame(minWidth: 350)
         }
         .onAppear(perform: loadData)
+        .onChange(of: selectedBalloon) { _ in
+            loadPreviewBalloon()
+        }
     }
 
     private func loadData() {
@@ -1009,6 +1044,23 @@ fileprivate struct HeadlineBalloonView: View {
         if selectedBalloon.isEmpty, let firstBalloon = balloons.first {
             selectedBalloon = firstBalloon
         }
+        loadPreviewBalloon()
+    }
+
+    private func loadPreviewBalloon() {
+        guard let item = NarRegistry.shared.installedItems(ofType: "balloon")
+            .first(where: { $0.name == selectedBalloon }) else {
+            previewBalloonConfig = nil
+            previewBalloonLoader = nil
+            previewBalloonViewModel.text = ""
+            return
+        }
+
+        let root = item.path
+        previewBalloonConfig = BalloonConfig.load(from: root.appendingPathComponent("descript.txt").path)
+        previewBalloonLoader = BalloonImageLoader(balloonPath: root.path)
+        previewBalloonViewModel.balloonID = 0
+        previewBalloonViewModel.text = "こんにちは！\nこれは実バルーン画像の確認です。"
     }
     
     private func testHeadlineUpdate() {
@@ -1051,7 +1103,6 @@ fileprivate struct HeadlineBalloonView: View {
     }
     
     private func previewBalloon() {
-        // バルーンプレビューの更新
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("Balloon Preview", comment: "Balloon preview title")
         let shellLabel = NSLocalizedString("Shell:", comment: "shell label")
@@ -1060,22 +1111,43 @@ fileprivate struct HeadlineBalloonView: View {
         let dpiLabel = NSLocalizedString("DPI:", comment: "dpi label")
         let enabled = NSLocalizedString("Enabled", comment: "enabled state")
         let disabled = NSLocalizedString("Disabled", comment: "disabled state")
-        alert.informativeText = "\(shellLabel) \(selectedShell)\n\(balloonLabel) \(selectedBalloon)\n\(scaleLabel) \(String(format: "%.1f", balloonPreviewScale))x\n\(dpiLabel) \(showDPI ? enabled : disabled)"
+        let imageInfo: String
+        if let image = previewBalloonLoader?.loadSurface(index: 0) {
+            imageInfo = "実画像: \(Int(image.size.width))×\(Int(image.size.height)) pt"
+        } else {
+            imageInfo = "実画像: 読み込み不可"
+        }
+        alert.informativeText = "\(shellLabel) \(selectedShell)\n\(balloonLabel) \(selectedBalloon)\n\(scaleLabel) \(String(format: "%.1f", balloonPreviewScale))x\n\(dpiLabel) \(showDPI ? enabled : disabled)\n\(imageInfo)"
         alert.alertStyle = .informational
         alert.runModal()
     }
     
     private func executeScript() {
-        // さくらスクリプト実行のテスト（Preview only: 実パースは行わず固定のサンプル結果を表示する）
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: testScript)
+        let parsedText = tokens.compactMap { token -> String? in
+            guard case .text(let text) = token else { return nil }
+            return text
+        }.joined()
+        let tokenSummary = tokens.enumerated()
+            .map { "\($0.offset): \(String(describing: $0.element))" }
+            .joined(separator: "\n")
+
+        // DevTools からの実行は、稼働中のゴーストへ実際に渡す。
+        // ゴースト未起動時も、固定結果を返さず実パーサーの結果を表示する。
+        let executionState: String
+        if let ghostManager = (NSApp.delegate as? AppDelegate)?.ghostManager {
+            ghostManager.runScript(testScript)
+            executionState = "実行対象: \(ghostManager.ghostConfig?.name ?? "稼働中ゴースト")"
+        } else {
+            executionState = "実行対象: なし（ゴースト未起動。解析のみ）"
+        }
+
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("Script Result", comment: "Script execution result title")
         let execLabel = NSLocalizedString("Executed Script:", comment: "executed script label")
         let parseLabel = NSLocalizedString("Parse Result:", comment: "parse result label")
-        let surfaceLabel = NSLocalizedString("- Surface:", comment: "surface label")
-        let textLabel = NSLocalizedString("- Text:", comment: "text label")
-        let endDetected = NSLocalizedString("- End tag detected", comment: "end tag detected")
-        let previewNote = "（Preview only: 固定のサンプル結果です。実際のスクリプト実行はゴースト本体で行われます）"
-        alert.informativeText = "\(previewNote)\n\n\(execLabel)\n\(testScript)\n\n\(parseLabel)\n\(surfaceLabel) 0\n\(textLabel) \"こんにちは！これはテストメッセージです。\"\n\(endDetected)"
+        alert.informativeText = "\(executionState)\n\n\(execLabel)\n\(testScript)\n\n\(parseLabel)\n表示テキスト: \(parsedText.isEmpty ? "（なし）" : parsedText)\n\nトークン:\n\(tokenSummary.isEmpty ? "（なし）" : tokenSummary)"
         alert.alertStyle = .informational
         alert.runModal()
     }
@@ -1094,7 +1166,6 @@ fileprivate struct PluginEventView: View {
         let packagePath: String
         let executablePath: String
         let compatibilityPath: String
-        var isEnabled: Bool = true
     }
 
     // Event definition
@@ -1142,16 +1213,8 @@ fileprivate struct PluginEventView: View {
     private var pluginList: some View {
         VStack(alignment: .leading) {
             Text("Loaded Plugins").font(.headline).padding([.top, .leading])
-            Text("Enabled 列は Preview only（イベント配送の停止には未接続）")
-                .font(.caption2)
-                .foregroundColor(.secondary)
-                .padding(.leading)
             if #available(macOS 12.0, *) {
                 Table(plugins, selection: $selection) {
-                    TableColumn("Enabled") { item in
-                        Toggle("", isOn: binding(for: item.id)).labelsHidden()
-                            .help("Preview only: この列の変更はイベント配送へ反映されません")
-                    }.width(40)
                     TableColumn("Name", value: \.name)
                     TableColumn("ID", value: \.pluginID)
                     TableColumn("State", value: \.status)
@@ -1162,7 +1225,6 @@ fileprivate struct PluginEventView: View {
             } else {
                 List(plugins) { item in
                     HStack {
-                        Toggle("", isOn: binding(for: item.id)).labelsHidden()
                         Text(item.name)
                         Spacer()
                         Text(item.pluginID).font(.caption).foregroundColor(.secondary)
@@ -1227,13 +1289,6 @@ fileprivate struct PluginEventView: View {
             Spacer()
         }
         .padding()
-    }
-
-    private func binding(for id: String) -> Binding<Bool> {
-        guard let index = plugins.firstIndex(where: { $0.id == id }) else {
-            fatalError("Plugin not found")
-        }
-        return $plugins[index].isEnabled
     }
 
     private func loadPlugins() {
@@ -1536,8 +1591,6 @@ fileprivate struct LoggingDiagnosticsView: View {
     @State private var selectedLevel = "all"
     @State private var sincePeriod = "1h"
     @State private var logEntries: [LogEntry] = []
-    @State private var signpostData: [SignpostEntry] = []
-    @State private var showSignpostTimeline = false
     @State private var selection: Set<LogEntry.ID> = []
     @State private var isLoading = false
 
@@ -1614,34 +1667,9 @@ fileprivate struct LoggingDiagnosticsView: View {
                     copySelectedLogs()
                 }
                 .disabled(selection.isEmpty)
-
-                Toggle("Signpost Timeline (Preview only)", isOn: $showSignpostTimeline)
-                    .help("Preview only: 固定のサンプルデータを表示します。実際の os_signpost 集計は未実装です")
             }
             .padding()
             .background(Color.gray.opacity(0.1))
-            
-            if showSignpostTimeline {
-                // Signpost Timeline
-                VStack(alignment: .leading) {
-                    Text("Signpost Timeline")
-                        .font(.headline)
-                        .padding(.horizontal)
-                    
-                    ScrollView(.horizontal) {
-                        HStack(spacing: 10) {
-                            ForEach(signpostData) { entry in
-                                signpostView(for: entry)
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                    .frame(height: 120)
-                    .background(Color.black.opacity(0.05))
-                }
-                
-                Divider()
-            }
             
             // ログテーブル
             VStack(alignment: .leading) {
@@ -1722,23 +1750,6 @@ fileprivate struct LoggingDiagnosticsView: View {
         .onAppear(perform: loadLogs)
     }
     
-    @ViewBuilder
-    private func signpostView(for entry: SignpostEntry) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(entry.name)
-                .font(.caption)
-                .fontWeight(.medium)
-            
-            RoundedRectangle(cornerRadius: 3)
-                .fill(entry.type == .interval ? Color.blue : Color.green)
-                .frame(width: max(20, entry.duration * 100), height: 20)
-            
-            Text("\(String(format: "%.2f", entry.duration))s")
-                .font(.caption2)
-                .foregroundColor(.secondary)
-        }
-    }
-    
     private func colorForLevel(_ level: String) -> Color {
         switch level.lowercased() {
         case "debug": return .gray
@@ -1804,15 +1815,6 @@ fileprivate struct LoggingDiagnosticsView: View {
     }
 
     private func loadLogs() {
-        // Signpost データの模擬実装はそのまま（即時・メインで設定）
-        signpostData = [
-            SignpostEntry(name: "ourin.resource.apply", type: .interval, duration: 0.12),
-            SignpostEntry(name: "ourin.plugin.inject", type: .interval, duration: 0.05),
-            SignpostEntry(name: "ourin.net.sstp", type: .instant, duration: 0.01),
-            SignpostEntry(name: "ourin.ghost.boot", type: .interval, duration: 0.25),
-            SignpostEntry(name: "ourin.script.parse", type: .interval, duration: 0.08)
-        ]
-
         guard #available(macOS 11.0, *) else { return }
         // 二重実行防止（onAppear と「更新」ボタンが重なってもよいように）
         guard !isLoading else { return }

@@ -118,7 +118,9 @@ extension GhostManager {
             if let screen = NSScreen.main {
                 let screenFrame = screen.visibleFrame
                 let margin: CGFloat = 10 // Small margin between characters
-                let baseY = screenFrame.minY + 5
+                // visibleFrame.minY は下側 Dock を除いた可視領域の下端、すなわち Dock の上端。
+                // ウィンドウの origin.y は下辺なので、ここに合わせると起動時に Dock の直上へ置ける。
+                let baseY = screenFrame.minY
 
                 // Calculate positions: all characters line up from right side
                 // Scope 0 (sakura/master) is rightmost

@@ -410,12 +410,20 @@ public final class PluginRegistry {
     /// 1 項目を走査し、候補リストへ追加する。
     private func collectCandidates(at item: URL, into candidates: inout [String: [PluginCandidate]]) {
         if item.pathExtension == "plugin" || item.pathExtension == "bundle" {
+            if PluginRegistry.isNonExecutableMigrationBundle(at: item) {
+                NSLog("Plugin skipped (migration record has no executable): \(item.path)")
+                return
+            }
             let id = PluginRegistry.peekID(at: item.deletingLastPathComponent()) ?? ""
             candidates[id, default: []].append(.nativeDirect(bundleURL: item))
             return
         }
 
         if isDirectory(item) {
+            if PluginRegistry.isNonExecutableMigrationDirectory(at: item) {
+                NSLog("Plugin metadata skipped (migration record): \(item.path)")
+                return
+            }
             // package directory (install.txt 付き)
             if let installManifest = PluginRegistry.readInstallManifest(from: item),
                installManifest.type.lowercased() == "plugin" {
@@ -427,6 +435,12 @@ public final class PluginRegistry {
                             .nativePackage(bundleURL: bundleURL, packageURL: item, installManifest: installManifest)
                         )
                     }
+                    return
+                }
+                if PluginRegistry.allNativePluginBundles(in: item).contains(where: {
+                    PluginRegistry.isNonExecutableMigrationBundle(at: $0)
+                }) {
+                    NSLog("Plugin package skipped (migration record has no executable): \(item.path)")
                     return
                 }
                 // legacy package
@@ -626,6 +640,12 @@ public final class PluginRegistry {
     }
 
     private static func nativePluginBundles(in directoryURL: URL) -> [URL] {
+        allNativePluginBundles(in: directoryURL).filter {
+            !isNonExecutableMigrationBundle(at: $0)
+        }
+    }
+
+    private static func allNativePluginBundles(in directoryURL: URL) -> [URL] {
         guard let items = try? FileManager.default.contentsOfDirectory(
             at: directoryURL,
             includingPropertiesForKeys: [.isDirectoryKey],
@@ -635,6 +655,36 @@ public final class PluginRegistry {
         return items
             .filter { $0.pathExtension == "plugin" || $0.pathExtension == "bundle" }
             .sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
+    }
+
+    /// 移行記録や旧雛形に残る非実行 manifest を検出する。
+    /// `.scaffold` は旧形式を読み込むために残しているが、実行対象にはしない。
+    private static func isNonExecutableMigrationDirectory(at directoryURL: URL) -> Bool {
+        let manifestURL = directoryURL.appendingPathComponent("ourin.json")
+        guard let manifest = OurinManifest.read(from: manifestURL) else { return false }
+        switch manifest.mode {
+        case .unsupported, .scaffold:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private static func isNonExecutableMigrationBundle(at bundleURL: URL) -> Bool {
+        let candidates = [
+            bundleURL.appendingPathComponent("Contents/Resources/ourin.json"),
+            bundleURL.appendingPathComponent("ourin.json")
+        ]
+        for url in candidates {
+            guard let manifest = OurinManifest.read(from: url) else { continue }
+            switch manifest.mode {
+            case .unsupported, .scaffold:
+                return true
+            default:
+                continue
+            }
+        }
+        return false
     }
 
     private static func readMessages(from directoryURL: URL?) -> [String: [String: String]]? {

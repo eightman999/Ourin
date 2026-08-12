@@ -55,9 +55,28 @@ class NarRegistry {
     /// - Parameter ghostName: The name of the ghost to look for shells in.
     /// - Returns: An array of strings containing the names of the shells.
     func installedShells(for ghostName: String) -> [String] {
-        // Assuming shells are installed within a ghost's directory structure, which might be incorrect.
-        // For now, let's assume a global shell directory.
-        return installedItems(ofType: "shell").map { $0.name }
+        if let ghost = installedItems(ofType: "ghost").first(where: { $0.name == ghostName }) {
+            let shellRoot = ghost.path.appendingPathComponent("shell", isDirectory: true)
+            if let entries = try? fileManager.contentsOfDirectory(
+                at: shellRoot,
+                includingPropertiesForKeys: [.isDirectoryKey],
+                options: [.skipsHiddenFiles]
+            ) {
+                let names = entries.compactMap { url -> String? in
+                    guard let values = try? url.resourceValues(forKeys: [.isDirectoryKey]),
+                          values.isDirectory == true else { return nil }
+                    return url.lastPathComponent
+                }
+                if !names.isEmpty {
+                    return names.sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+                }
+            }
+        }
+
+        // 外部インストールされたグローバル shell は従来どおり利用する。
+        return installedItems(ofType: "shell")
+            .map { $0.name }
+            .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
     }
 
     /// A convenience method to get the names of all installed balloons.

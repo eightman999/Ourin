@@ -2,17 +2,17 @@
 
 ## Overview
 
-This document lists the functions available in `yaya_core`. Functions are present
-for compatibility, but **not all are fully implemented** — many return safe
-default values (stubs). Each table below marks the real status where known:
+This document lists the functions available in `yaya_core`. The supported
+built-ins have executable behavior; platform restrictions and known semantic
+limits are called out explicitly below.
 
 - **implemented** — behaves like the YAYA reference for common cases
 - **partial** — works with restrictions / simplified behavior
-- **stub** — returns a compatibility default, no real behavior
+- **stub** — reserved for an intentionally fixed compatibility default; no
+  supported built-in currently has this status
 
-See `IMPLEMENTATION_STATUS.md` for the overall system status. This file was
-previously titled "Complete Implementation (100%)", which overstated reality;
-stubs are now explicitly marked.
+See `IMPLEMENTATION_STATUS.md` for the overall system status and partial
+compatibility limits.
 
 ## Function Categories
 
@@ -147,12 +147,12 @@ Function declaration notes:
 | `GETTICKCOUNT()` | Get milliseconds since epoch | `GETTICKCOUNT()` | ✅ Working |
 | `GETSECCOUNT()` | Get seconds since epoch | `GETSECCOUNT()` | ✅ Working |
 | `GETENV(name)` | Get environment variable | `GETENV("PATH")` | ✅ Working |
-| `GETMEMINFO()` | Get memory info | `GETMEMINFO()` | Stub |
+| `GETMEMINFO()` | Get host memory info `[load,totalPhys,availPhys,totalVirtual,availVirtual]` | `GETMEMINFO()` | ✅ Working |
 | `EXECUTE(cmd)` | Execute system command (non-blocking) | `EXECUTE("echo test")` → `1` | ✅ Working |
 | `EXECUTE_WAIT(cmd)` | Execute and wait for completion | `EXECUTE_WAIT("ls")` → exit code | ✅ Working |
 | `SLEEP(ms)` | Sleep for milliseconds | `SLEEP(1000)` | ✅ Working |
-| `READFMO(name)` | Read Forged Memory Object | `READFMO("name")` | Stub |
-| `SETTAMAHWND(hwnd)` | Set TAMA window handle | `SETTAMAHWND(0)` | Stub |
+| `READFMO(name)` | Read Forged Memory Object through host IPC | `READFMO("name")` | ✅ Working |
+| `SETTAMAHWND(hwnd)` | Store the logical TAMA window identifier (`tama.hwnd`) | `SETTAMAHWND(0)` | ✅ macOS-compatible |
 
 **Example Usage**:
 ```yaya
@@ -183,14 +183,14 @@ SLEEP(1000)  // Wait 1 second
 | `FSIZE(file)` | Get file size | Size in bytes or -1 on error | ✅ Working |
 | `FSEEK(handle, pos)` | Seek in file | 0 on success, -1 on error | ✅ Working |
 | `FTELL(handle)` | Get file position | Current position or -1 | ✅ Working |
-| `FCHARSET(file)` | Detect charset | `"UTF-8"` (default) | Stub |
-| `FATTRIB(file)` | Get file attributes | `0` | Stub |
+| `FCHARSET(charset)` | Set text-file charset (`0`=CP932, `1`=UTF-8, `127`=OS default) | void | ✅ Working |
+| `FATTRIB(file)` | Get 11-element POSIX/Windows-compatible attribute array | `[archive,...,ctime,mtime]` or `-1` | ✅ Working |
 | `FREADBIN(handle)` | Read binary data | Binary string | ✅ Working |
 | `FWRITEBIN(handle, data)` | Write binary data | Bytes written | ✅ Working |
-| `FREADENCODE(handle, enc)` | Read with encoding | `""` | Stub |
-| `FWRITEDECODE(handle, data, enc)` | Write with encoding | `0` | Stub |
+| `FREADENCODE(handle, enc)` | Read with encoding | UTF-8 string | ✅ Working |
+| `FWRITEDECODE(handle, data, enc)` | Write with encoding | Bytes written | ✅ Working |
 | `FDIGEST(file, algo)` | File hash/digest (`md5`/`sha1`/`crc32`) | hex string | ✅ Working |
-| `FENUM(path, pattern)` | Enumerate files | `[]` | Stub |
+| `FENUM(path, pattern)` | Enumerate files | Matching filename array | ✅ Working |
 | `FCOPY(src, dst)` | Copy file | 1 on success, 0 on failure | ✅ Working |
 | `FMOVE(src, dst)` | Move/rename file | 1 on success, 0 on failure | ✅ Working |
 | `FDEL(file)` | Delete file | 1 on success, 0 on failure | ✅ Working |
@@ -219,22 +219,22 @@ FCOPY("data.txt", "backup.txt")
 FDEL("old_file.txt")
 ```
 
-### Regular Expression Functions (11 - Stubs)
+### Regular Expression Functions (11 - IMPLEMENTED)
 
 Regex functions implemented via C++ `std::regex` (ECMAScript syntax). 
 
 | Function | Description | Returns |
 |----------|-------------|---------|
-| `RE_SEARCH(pattern, str)` | Search for pattern | `-1` |
-| `RE_MATCH(pattern, str)` | Match pattern | `0` |
-| `RE_GREP(pattern, str)` | Grep for pattern | `[]` |
-| `RE_REPLACE(pattern, str, new)` | Replace with regex | original string |
-| `RE_REPLACEEX(pattern, str, new)` | Replace extended | original string |
-| `RE_SPLIT(pattern, str)` | Split by regex | `[]` |
+| `RE_SEARCH(str, pattern)` | Search for pattern; stores match details | `1`/`0` |
+| `RE_MATCH(str, pattern)` | Match the complete string; stores match details | `1`/`0` |
+| `RE_GREP(str, pattern)` | Count matches and store them | count |
+| `RE_REPLACE(str, pattern, new)` | Replace with regex | replaced string |
+| `RE_REPLACEEX(str, pattern, new)` | Replace with regex backreferences | replaced string |
+| `RE_SPLIT(str, pattern)` | Split by regex | string array |
 | `RE_OPTION(options)` | Set regex options | `0` |
-| `RE_GETSTR()` | Get last match string | `""` |
-| `RE_GETPOS()` | Get last match position | `-1` |
-| `RE_GETLEN()` | Get last match length | `0` |
+| `RE_GETSTR()` | Get last match strings, including groups | string array |
+| `RE_GETPOS()` | Get last match positions | integer array |
+| `RE_GETLEN()` | Get last match lengths | integer array |
 | `RE_ASEARCH(arr, pattern)` | Array regex search (first match index) | `RE_ASEARCH(("a","an"),"an")` → `1` |
 | `RE_ASEARCHEX(arr, pattern)` | Array regex search ext (all match indices) | `RE_ASEARCHEX(("a","an"),"an")` → `[1]` |
 
@@ -251,8 +251,8 @@ Regex functions implemented via C++ `std::regex` (ECMAScript syntax).
 | `CHARSETLIBEX(encoding)` | Set charset (extended alias) | `CHARSETLIBEX("Shift_JIS")` → `1` |
 | `CHARSETTEXTTOID(text)` | Charset name to ID | `CHARSETTEXTTOID("UTF-8")` → `0` |
 | `CHARSETIDTOTEXT(id)` | Charset ID to name | `CHARSETIDTOTEXT(0)` → `"UTF-8"` |
-| `ZEN2HAN(str)` | Full to half-width (stub) | `ZEN2HAN("ＡＢＣ")` |
-| `HAN2ZEN(str)` | Half to full-width (stub) | `HAN2ZEN("ABC")` |
+| `ZEN2HAN(str)` | Full to half-width ASCII/space conversion | `ZEN2HAN("ＡＢＣ")` |
+| `HAN2ZEN(str)` | Half to full-width ASCII/space conversion | `HAN2ZEN("ABC")` |
 
 ### Other Utility Functions (18+)
 
@@ -263,13 +263,13 @@ Regex functions implemented via C++ `std::regex` (ECMAScript syntax).
 | `REGISTERTEMPVAR(name)` | Mark a variable as temporary so `SAVEVAR` excludes it | `REGISTERTEMPVAR("tempvar")` → `1` |
 | `UNREGISTERTEMPVAR(name)` | Remove a variable from the temp-var exclusion list | `UNREGISTERTEMPVAR("tempvar")` → `1` |
 | `LOGGING(msg...)` | Write message(s) to stderr with `[YAYA][LOGGING]` prefix (real since 2026-07-05) | `LOGGING("test")` → `1` |
-| `LSO()` | Last selected option (stub) | `LSO()` → `0` |
+| `LSO()` | Last selected parallel option index | `LSO()` → index or `-1` |
 | `LICENSE()` | Get license info | `LICENSE()` → license text |
 | `TRANSLATE(str, from, to)` | tr-style character-set mapping (upstream-compatible: `-` ranges, `\` escapes, delete mode when `to` empty; real since 2026-07-05) | `TRANSLATE("abc","ab","xy")` → `"xyc"` |
-| `GETDELIM()` | Get delimiter (stub) | `GETDELIM()` → `","` |
-| `SETDELIM(delim)` | Set delimiter (stub) | `SETDELIM(",")` → `1` |
+| `GETDELIM()` | Get the default array delimiter | `GETDELIM()` → `","` |
+| `SETDELIM(delim)` | Set the default array delimiter | `SETDELIM(",")` → `1` |
 | `GETSETTING(key)` | Get setting value | `GETSETTING("key")` → stored value |
-| `SETSETTING(key, val)` | Set setting (stub) | `SETSETTING("k", "v")` → `1` |
+| `SETSETTING(key, val)` | Set setting | `SETSETTING("k", "v")` → `1` |
 | `GETLASTERROR()` | Get last error code | `GETLASTERROR()` → `0` |
 | `SETLASTERROR(code)` | Set last error | `SETLASTERROR(0)` → `1` |
 | `GETERRORLOG()` | Get accumulated error log | `GETERRORLOG()` → newline-joined log |
@@ -287,7 +287,7 @@ Plus advanced functions: `ISGLOBALDEFINE`, `SETGLOBALDEFINE`, `UNDEFGLOBALDEFINE
 
 - **Total functions present**: ~160 (for compatibility with yaya-shiori-500)
 - **Fully implemented**: type conversion, string, math, array, bitwise, hex/binary, type checking, file I/O (restricted), system/time, most variable/function management, regular expressions (`RE_*` via std::regex, incl. `RE_ASEARCH`/`RE_ASEARCHEX`), dynamic dictionaries (`DICLOAD`/`DICUNLOAD`/`APPEND_RUNTIME_DIC`), persistence (`SAVEVAR`/`RESTOREVAR` with `REGISTERTEMPVAR` exclusions), SAORI helpers (`LOADLIB`/`UNLOADLIB`/`REQUESTLIB` + valueex), settings, diagnostics (`GETERRORLOG`/`GETCALLSTACK`/`GETFUNCINFO`), encoding utils (`CHARSETLIB`/`CHARSETTEXTTOID`/`CHARSETIDTOTEXT`/`ZEN2HAN`/`HAN2ZEN`), global defines
-- **Stubs remaining**: directory ops (`MKDIR`/`RMDIR`/`FENUM`), Windows-only shims (`SETTAMAHWND`, `READFMO`)
+- **Core runtime stubs remaining**: none in the supported YAYA built-in set. Windows HWND routing is represented by the macOS logical `tama.hwnd` setting; FMO uses the host IPC bridge.
 - **File I/O**: working but restricted to relative paths (no absolute / no `..`)
 - **System commands**: `EXECUTE`/`EXECUTE_WAIT`/`SLEEP` working
 - **Plugin/SAORI functions**: routed through Swift host IPC; multi-value responses parsed
@@ -303,12 +303,13 @@ do not perform the documented operation.
    access within the ghost directory.
 
 2. **Performance**: Core functions (type conversion, string ops, math, arrays,
-   bitwise) run with native C++ performance. Stub functions return immediately.
+   bitwise) run with native C++ performance. Host-bound operations fail closed
+   when the host does not provide a corresponding capability.
 
 3. **Compatibility**: This is **not** a 100% faithful reimplementation of the
    Windows `yaya-shiori` reference. It can load and run many ghosts (including
-   Emily4, which loads 33/33 dictionaries), but stubbed helpers and simplified
-   constructs limit full fidelity for advanced ghosts.
+   Emily4, which loads 33/33 dictionaries), but platform restrictions and
+   simplified constructs limit full fidelity for advanced ghosts.
 
 4. **Testing**: Core functions are exercised by `examples/`. See
    `IMPLEMENTATION_STATUS.md` for the per-feature status matrix.

@@ -43,7 +43,7 @@ struct OurinManifest: Codable, Equatable, Hashable {
             case .nativePlugin:
                 return "macOS .plugin/.bundle を利用する"
             case .scaffold:
-                return "雛形生成済み、実装待ち"
+                return "旧形式の雛形（実行対象外）、個別実装待ち"
             case .unsupported:
                 return "現時点では未対応"
             }
@@ -119,8 +119,7 @@ struct OurinManifest: Codable, Equatable, Hashable {
         "shared_value.dll": "builtin:shared_value",
         "saknife.dll": "builtin:saknife",
         "schedule.dll": "builtin:calendar_schedule",
-        "ssph.exe": "builtin:ssph_compat",
-        "mcp.exe": "builtin:mcp_compat"
+        "ssph.exe": "builtin:ssph_compat"
     ]
 
     /// 既知 DLL なら builtin 実装名を返す。
@@ -134,16 +133,18 @@ struct OurinManifest: Codable, Equatable, Hashable {
     }
 
     /// 既知 DLL の場合は native-replacement + builtin 実装名を、
-    /// 未知の場合は scaffold を提案する。
+    /// 未知の場合は unsupported を提案する。
+    ///
+    /// 未知 DLL を自動変換したり、動作を偽装する実装は生成しない。
     static func recommendedMode(for filename: String) -> (Mode, String?) {
         if let impl = builtinImplementation(for: filename) {
             return (.nativeReplacement, impl)
         }
-        return (.scaffold, nil)
+        return (.unsupported, nil)
     }
 
     /// Asset から ourin.json を新規生成する。
-    /// 既知 DLL は builtin を自動提案し、未知は scaffold とする。
+    /// 既知 DLL は builtin を自動提案し、未知は unsupported とする。
     static func makeDefault(for asset: LegacyAssetScanner.Asset) -> OurinManifest {
         let kind = sourceKindString(binaryKind: asset.binaryKind, filename: asset.filename)
         let source = Source(

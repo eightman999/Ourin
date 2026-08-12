@@ -71,11 +71,13 @@
 
 ## 対応しない（意図的スタブとして維持）
 
-- `GETMEMINFO` / `SETTAMAHWND`（Windows固有API、macOSでは無意味）
-- `EmBeD_HiStOrY`（非標準・稀有）
+- `GETMEMINFO` / `SETTAMAHWND` / `EmBeD_HiStOrY` は 2026-08-12 に実装済み。
+  - `GETMEMINFO`: macOS の Mach / sysctl 統計を5要素配列で返す。
+  - `SETTAMAHWND`: HWNDを直接扱えないmacOS向けに `GETSETTING("tama.hwnd")` で読み戻せる論理識別子として保持する。
+  - `EmBeD_HiStOrY`: 文字列内の `%[n]` を同一文字列の直前埋め込み値へ解決する。
 - `EventReferenceSpec.swift` の DEBUG時 `assertionFailure`（開発時検証用として正常）
 - `GhostManager.swift:551,664,690` の起動時プレースホルダサーフェス（正常フロー）
-- PluginScaffolder生成物のダミー実行体（移植ツールの仕様として明示済み。生成物の完成は資産ごとの個別移植タスク）
+- PluginScaffolder の旧生成物（旧形式のダミー実行体は生成停止済み。既存の `.scaffold` は PluginRegistry が実行対象外として扱う）
 - `SstpHttpServer.swift:145` MCPネイティブメソッド（-32601応答は意図的）
 
 ## 委譲方針

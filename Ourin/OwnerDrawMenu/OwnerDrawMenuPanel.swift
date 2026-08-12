@@ -18,26 +18,28 @@ class OwnerDrawMenuPanel: NSPanel {
     
     init(contentRect: NSRect, config: OwnerDrawMenuConfig, items: [OwnerDrawMenuItem], onAction: @escaping (String) -> Void) {
         self.onAction = onAction
-        
+
         super.init(contentRect: contentRect,
                   styleMask: [.borderless, .nonactivatingPanel],
                   backing: .buffered,
                   defer: false)
-        
+
         isFloatingPanel = true
         level = .popUpMenu
         backgroundColor = .clear
         isOpaque = false
-        
-        setupView(config: config, items: items)
+        isMovable = false
+
+        setupView(contentSize: contentRect.size, config: config, items: items)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupView(config: OwnerDrawMenuConfig, items: [OwnerDrawMenuItem]) {
-        let contentView = OwnerDrawMenuView(frame: NSRect(x: 0, y: 0, width: 0, height: 0), config: config, items: items) { [weak self] action in
+    private func setupView(contentSize: NSSize, config: OwnerDrawMenuConfig, items: [OwnerDrawMenuItem]) {
+        // コンテンツビューはパネルのコンテンツサイズで初期化する
+        let contentView = OwnerDrawMenuView(frame: NSRect(origin: .zero, size: contentSize), config: config, items: items) { [weak self] action in
             self?.handleAction(action)
         }
         
@@ -49,9 +51,12 @@ class OwnerDrawMenuPanel: NSPanel {
     }
     
     func show(at point: NSPoint, relativeTo screen: NSScreen) {
-        // 画面の境界を考慮して位置を調整
+        // point はメニューの左上。NSPanel の frame origin は左下なので高さ分だけ下げる。
         let adjustedRect = calculatePosition(for: frame, at: point, on: screen)
         setFrame(adjustedRect, display: false)
+
+        // リサイズ後のビュー全体をトラッキングエリアが覆うようにする
+        menuView?.updateTrackingAreas()
         
         makeKeyAndOrderFront(nil)
         
@@ -61,7 +66,7 @@ class OwnerDrawMenuPanel: NSPanel {
     
     private func calculatePosition(for frame: NSRect, at point: NSPoint, on screen: NSScreen) -> NSRect {
         var rect = frame
-        rect.origin = point
+        rect.origin = NSPoint(x: point.x, y: point.y - rect.height)
         
         let visibleFrame = screen.visibleFrame
         
@@ -69,12 +74,21 @@ class OwnerDrawMenuPanel: NSPanel {
         if rect.maxX > visibleFrame.maxX {
             rect.origin.x = visibleFrame.maxX - rect.width
         }
+        // 左端を超える場合は右側に表示
+        if rect.minX < visibleFrame.minX {
+            rect.origin.x = visibleFrame.minX
+        }
+
+        // 上端を超える場合は下側に表示
+        if rect.maxY > visibleFrame.maxY {
+            rect.origin.y = visibleFrame.maxY - rect.height
+        }
         
         // 下端を超える場合は上側に表示
         if rect.minY < visibleFrame.minY {
             rect.origin.y = visibleFrame.minY
         }
-        
+
         return rect
     }
     

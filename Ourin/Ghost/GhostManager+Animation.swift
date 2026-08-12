@@ -70,21 +70,30 @@ extension GhostManager {
     /// Setup animation engine callbacks
     func setupAnimationCallbacks() {
         animationEngine.onAnimationUpdate = { [weak self] animID, pattern in
-            guard let self = self, let pattern = pattern else { return }
+            guard let self = self else { return }
+
+            guard let pattern = pattern else {
+                self.clearAnimationOverlays(animationID: animID)
+                return
+            }
 
             // Update surface overlay based on animation pattern and type
             if pattern.surfaceID >= 0 {
-                self.handleSurfaceOverlay(surfaceID: pattern.surfaceID, type: pattern.type, animationID: animID)
-
-                // Apply offset if specified
-                if pattern.x != 0 || pattern.y != 0 {
-                    self.offsetOverlay(id: "surface_\(pattern.surfaceID)_", x: Double(pattern.x), y: Double(pattern.y))
-                }
+                self.handleSurfaceOverlay(
+                    surfaceID: pattern.surfaceID,
+                    type: pattern.type,
+                    animationID: animID,
+                    initialOffset: CGPoint(x: CGFloat(pattern.x), y: CGFloat(pattern.y))
+                )
+            } else {
+                // -1 はフレーム終了/待機。前フレームを残さない。
+                self.clearAnimationOverlays(animationID: animID)
             }
         }
 
         animationEngine.onAnimationComplete = { [weak self] animID in
             guard let self = self else { return }
+            self.clearAnimationOverlays(animationID: animID)
 
             // If we were waiting for this animation, resume playback
             if self.waitingForAnimation == animID {
@@ -142,7 +151,7 @@ extension GhostManager {
     }
 
     /// Load animations from surfaces.txt for current surface
-    func loadAnimationsForCurrentSurface() {
+    func loadAnimationsForCurrentSurface(surfaceID requestedSurfaceID: Int? = nil, scope requestedScope: Int? = nil) {
         guard let shellPath = loadShellPath() else { return }
 
         guard let definitionBundle = SurfaceDefinitionLoader.load(from: shellPath) else {
@@ -175,12 +184,15 @@ extension GhostManager {
         // 全サーフェス定義（element 合成・surface.append マージ込み）をキャッシュ
         parsedSurfaceDefs = SerikoParser.parseSurfaces(combined)
 
-        guard let vm = characterViewModels[currentScope] else { return }
-        let surfaceID = vm.currentSurfaceID
+        let scope = requestedScope ?? currentScope
+        guard let vm = characterViewModels[scope] else { return }
+        let surfaceID = requestedSurfaceID ?? vm.currentSurfaceID
 
         animationEngine.loadAnimations(surfaceID: surfaceID, content: combined)
         if let surface = parsedSurfaceDefs[surfaceID] {
-            serikoExecutor.register(animations: surface.animations)
+            serikoExecutor.replace(animations: surface.animations)
+        } else {
+            serikoExecutor.replace(animations: [:])
         }
         Log.debug("[GhostManager] Loaded animations for surface \(surfaceID)")
     }
@@ -202,17 +214,26 @@ extension GhostManager {
 
     // MARK: - Animation Control Handlers
 
+    /// 指定アニメーションが生成した一時オーバーレイだけを、対象スコープから除去する。
+    /// surface ID はフレームごとに変化するため、surface ID ではなく所有 animationID で追跡する。
+    private func clearAnimationOverlays(animationID: Int, scope: Int? = nil) {
+        let targetScope = scope ?? currentScope
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self,
+                  let vm = self.characterViewModels[targetScope] else { return }
+            let before = vm.overlays.count
+            vm.overlays.removeAll { $0.animationID == animationID }
+            if vm.overlays.count != before {
+                Log.debug("[GhostManager] Cleared animation overlays for anim=\(animationID), scope=\(targetScope)")
+            }
+        }
+    }
+
     /// Handle \![anim,clear,ID] command
     func handleAnimClear(id: Int) {
         serikoExecutor.stopAnimation(id: id)
         animationEngine.clearAnimation(id: id)
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            guard let vm = self.characterViewModels[self.currentScope] else { return }
-
-            vm.overlays.removeAll { $0.id.hasPrefix("surface_\(id)_") }
-            Log.debug("[GhostManager] Cleared animation overlays for \(id)")
-        }
+        clearAnimationOverlays(animationID: id)
     }
 
     /// Handle \![anim,pause,ID] command
@@ -233,12 +254,16 @@ extension GhostManager {
     /// Handle \![anim,offset,ID,x,y] command
     func handleAnimOffset(id: Int, x: Int, y: Int) {
         serikoExecutor.offsetAnimation(id: id, x: x, y: y)
+        let scope = currentScope
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            guard let vm = self.characterViewModels[scope] else { return }
 
-            if let index = vm.overlays.firstIndex(where: { $0.id.hasPrefix("surface_\(id)_") }) {
-                vm.overlays[index].offset = CGPoint(x: CGFloat(x), y: CGFloat(y))
+            let indices = vm.overlays.indices.filter { vm.overlays[$0].animationID == id }
+            if !indices.isEmpty {
+                for index in indices {
+                    vm.overlays[index].offset = CGPoint(x: CGFloat(x), y: CGFloat(y))
+                }
                 Log.debug("[GhostManager] Set offset for animation \(id) to (\(x), \(y))")
             }
         }
@@ -305,7 +330,7 @@ extension GhostManager {
     private func handleSerikoMethod(animationID: Int, method: SerikoMethod, surfaceID: Int, x: Int, y: Int) {
         switch method {
         case .overlay:
-            var offset: CGPoint? = nil
+            var offset: CGPoint? = CGPoint(x: CGFloat(x), y: CGFloat(y))
             if let def = serikoExecutor.definition(for: animationID),
                (def.alignX != nil || def.alignY != nil),
                let vm = characterViewModels[currentScope], let base = vm.image {
@@ -338,7 +363,7 @@ extension GhostManager {
             handleSurfaceOverlay(surfaceID: surfaceID, type: .overlay, animationID: animationID, initialOffset: offset)
         case .overlayFast:
             // Treat as overlay; could skip certain redraw costs in future.
-            var offset: CGPoint? = nil
+            var offset: CGPoint? = CGPoint(x: CGFloat(x), y: CGFloat(y))
             if let def = serikoExecutor.definition(for: animationID),
                (def.alignX != nil || def.alignY != nil),
                let vm = characterViewModels[currentScope], let base = vm.image {
@@ -395,18 +420,15 @@ extension GhostManager {
     }
 
     private func handleSerikoPattern(animationID: Int, pattern: SerikoPattern) {
-        // Keep overlay motion in sync with latest pattern offset.
-        if pattern.x != 0 || pattern.y != 0 {
-            offsetOverlay(
-                id: "surface_\(pattern.surfaceID)_",
-                x: Double(pattern.x),
-                y: Double(pattern.y)
-            )
+        if pattern.surfaceID < 0 {
+            // SERIKO の終了フレームは画像を追加しないため、前フレームを明示的に消す。
+            clearAnimationOverlays(animationID: animationID)
         }
         Log.debug("[GhostManager] SERIKO pattern executed: anim=\(animationID), method=\(pattern.method), surface=\(pattern.surfaceID)")
     }
 
     private func handleAnimationFinished(animationID: Int) {
+        clearAnimationOverlays(animationID: animationID)
         if waitingForAnimation == animationID {
             waitingForAnimation = nil
             if isPlaying {

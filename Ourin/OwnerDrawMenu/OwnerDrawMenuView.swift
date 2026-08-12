@@ -6,9 +6,7 @@ class OwnerDrawMenuView: NSView {
     var onAction: (String) -> Void
     
     private var hoveredIndex: Int? = nil
-    private var selectedIndex: Int? = nil
     private var keyboardIndex: Int? = nil
-    private var visibleSubmenuIndex: Int? = nil
     private var animationProgress: CGFloat = 0.0
     private var isFadingIn: Bool = true
     
@@ -25,29 +23,40 @@ class OwnerDrawMenuView: NSView {
         self.onAction = onAction
         
         super.init(frame: frameRect)
-        
-        setupTracking()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    private func setupTracking() {
-        trackingArea = NSTrackingArea(
+
+    override func updateTrackingAreas() {
+        if let trackingArea = trackingArea {
+            removeTrackingArea(trackingArea)
+        }
+        super.updateTrackingAreas()
+        let newArea = NSTrackingArea(
             rect: bounds,
-            options: [.activeAlways, .mouseMoved, .mouseEnteredAndExited],
+            options: [.activeAlways, .mouseMoved, .mouseEnteredAndExited, .inVisibleRect],
             owner: self,
             userInfo: nil
         )
-        addTrackingArea(trackingArea!)
+        addTrackingArea(newArea)
+        trackingArea = newArea
+    }
+
+    override var mouseDownCanMoveWindow: Bool {
+        false
+    }
+
+    override var acceptsFirstResponder: Bool {
+        true
     }
     
     // MARK: - Draw
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
-        
+
         // アルファを適用（フェードイン/アウト）
         NSGraphicsContext.saveGraphicsState()
         guard let context = NSGraphicsContext.current else {
@@ -58,9 +67,9 @@ class OwnerDrawMenuView: NSView {
         context.saveGraphicsState()
         context.cgContext.setAlpha(animationProgress)
         
-        // 1. 背景画像を描画（タイル状に拡張）
+        // 1. 背景画像を描画（アンカー位置に配置して bounds でクリップ）
         if let bgImage = config.backgroundImage {
-            drawTiledImage(bgImage, in: bounds, alignment: config.backgroundAlignment)
+            drawImage(bgImage, in: bounds, clippedTo: bounds, alignment: config.backgroundAlignment)
         } else {
             // デフォルト背景
             NSColor.controlBackgroundColor.setFill()
@@ -70,7 +79,7 @@ class OwnerDrawMenuView: NSView {
         // 2. サイドバー画像を左側に描画
         if let sidebarImage = config.sidebarImage {
             let sidebarRect = NSRect(x: 0, y: 0, width: config.sidebarWidth, height: bounds.height)
-            drawTiledImage(sidebarImage, in: sidebarRect, alignment: config.sidebarAlignment)
+            drawImage(sidebarImage, in: sidebarRect, clippedTo: sidebarRect, alignment: config.sidebarAlignment)
         }
         
         // 3. メニュー項目を描画
@@ -85,67 +94,78 @@ class OwnerDrawMenuView: NSView {
     
     // MARK: - Image Drawing
     
-    private func drawTiledImage(_ image: NSImage, in rect: NSRect, alignment: MenuAlignment) {
-        // 画像のサイズが rect より小さい場合、端の色で塗り潰す
-        if image.size.width < rect.width || image.size.height < rect.height {
+    private func drawImage(_ image: NSImage, in anchorRect: NSRect, clippedTo clipRect: NSRect, alignment: MenuAlignment) {
+        // 画像の配置は anchorRect、表示範囲だけを clipRect とする。
+        // これにより、全体画像の前景を各メニュー行のスライスとして描画できる。
+        guard let graphicsContext = NSGraphicsContext.current else { return }
+        let cgContext = graphicsContext.cgContext
+        cgContext.saveGState()
+        defer { cgContext.restoreGState() }
+        cgContext.clip(to: clipRect)
+
+        // 画像のサイズが anchorRect より小さい場合、端の色で塗り潰す
+        if image.size.width < anchorRect.width || image.size.height < anchorRect.height {
             let edgeColor = image.getEdgeColor(at: alignment)
             edgeColor.setFill()
-            NSBezierPath(rect: rect).fill()
+            NSBezierPath(rect: anchorRect).fill()
         }
         
-        // 配置に基づいて画像を描画
-        var imageRect = NSRect(origin: .zero, size: image.size)
+        // 配置に基づいて画像を描画（unflipped AppKit座標: top = rect.maxY - height, bottom = rect.minY）
+        var imageRect = NSRect(origin: anchorRect.origin, size: image.size)
         switch alignment {
-        case .leftTop:
-            imageRect.origin = .zero
-        case .leftBottom:
-            imageRect.origin.y = rect.maxY - image.size.height
+        case .leftTop, .top:
+            imageRect.origin = CGPoint(x: anchorRect.minX, y: anchorRect.maxY - image.size.height)
+        case .leftBottom, .bottom:
+            imageRect.origin = CGPoint(x: anchorRect.minX, y: anchorRect.minY)
         case .rightTop:
-            imageRect.origin.x = rect.maxX - image.size.width
+            imageRect.origin = CGPoint(x: anchorRect.maxX - image.size.width, y: anchorRect.maxY - image.size.height)
         case .rightBottom:
-            imageRect.origin = CGPoint(x: rect.maxX - image.size.width, y: rect.maxY - image.size.height)
+            imageRect.origin = CGPoint(x: anchorRect.maxX - image.size.width, y: anchorRect.minY)
+        case .centerTop:
+            imageRect.origin = CGPoint(x: anchorRect.midX - image.size.width / 2, y: anchorRect.maxY - image.size.height)
+        case .centerBottom:
+            imageRect.origin = CGPoint(x: anchorRect.midX - image.size.width / 2, y: anchorRect.minY)
+        case .left:
+            imageRect.origin = CGPoint(x: anchorRect.minX, y: anchorRect.midY - image.size.height / 2)
+        case .center:
+            imageRect.origin = CGPoint(x: anchorRect.midX - image.size.width / 2, y: anchorRect.midY - image.size.height / 2)
+        case .right:
+            imageRect.origin = CGPoint(x: anchorRect.maxX - image.size.width, y: anchorRect.midY - image.size.height / 2)
         }
-        
+
         image.draw(in: imageRect)
     }
     
     // MARK: - Menu Items
     
     private func drawMenuItems() {
-        var y = bounds.height - config.itemHeight
-        
-        for (index, item) in items.enumerated() {
-            guard item.visible else { continue }
+        for (row, index) in visibleRowIndices().enumerated() {
+            let item = items[index]
+            let itemRect = rowRect(forRow: row)
             
-            let itemRect = NSRect(x: 0, y: y, width: bounds.width, height: config.itemHeight)
-            
-            // ホバーまたはキーボード選択中の場合、前景画像をオーバーレイ
-            if (hoveredIndex == index || keyboardIndex == index) && item.enabled,
-               let fgImage = config.foregroundImage {
-                drawTiledImage(fgImage, in: itemRect, alignment: config.foregroundAlignment)
+            // その項目がホバーまたはキーボード選択中の場合のみ前景画像をオーバーレイ
+            let isHighlighted = (hoveredIndex == index || keyboardIndex == index) && item.enabled
+            if isHighlighted, let fgImage = config.foregroundImage {
+                drawImage(fgImage, in: bounds, clippedTo: itemRect, alignment: config.foregroundAlignment)
             }
-            
+
             // テキストを描画
-            drawItemText(item, in: itemRect)
+            drawItemText(item, in: itemRect, isHighlighted: isHighlighted)
             
             // ショートカットキーを描画
             if let shortcut = item.shortcut {
-                drawShortcut(shortcut, in: itemRect)
+                drawShortcut(shortcut, in: itemRect, isHighlighted: isHighlighted)
             }
             
             // サブメニューインジケーターを描画
             if case .submenu = item.type {
-                drawSubmenuIndicator(in: itemRect)
+                drawSubmenuIndicator(in: itemRect, isHighlighted: isHighlighted)
             }
-            
-            y -= config.itemHeight
         }
     }
     
-    private func drawItemText(_ item: OwnerDrawMenuItem, in rect: NSRect) {
-        let textColor: NSColor = item.enabled ? 
-            (hoveredIndex != nil || keyboardIndex != nil ? config.foregroundColor : config.backgroundColor) : 
-            config.disabledColor
+    private func drawItemText(_ item: OwnerDrawMenuItem, in rect: NSRect, isHighlighted: Bool) {
+        let textColor: NSColor = item.enabled ? (isHighlighted ? config.foregroundColor : config.backgroundColor) : config.disabledColor
         
         let textRect = NSRect(
             x: config.sidebarWidth + config.textMarginLeft + CGFloat(item.indentation * 20),
@@ -167,7 +187,7 @@ class OwnerDrawMenuView: NSView {
         item.caption.draw(in: textRect, withAttributes: attributes)
     }
     
-    private func drawShortcut(_ shortcut: Character, in rect: NSRect) {
+    private func drawShortcut(_ shortcut: Character, in rect: NSRect, isHighlighted: Bool) {
         let text = String(shortcut).uppercased()
         let textRect = NSRect(
             x: rect.maxX - config.textMarginRight - config.textMarginLeft,
@@ -181,14 +201,14 @@ class OwnerDrawMenuView: NSView {
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: config.font,
-            .foregroundColor: config.foregroundColor,
+            .foregroundColor: isHighlighted ? config.foregroundColor : config.backgroundColor,
             .paragraphStyle: paragraphStyle
         ]
         
         text.draw(in: textRect, withAttributes: attributes)
     }
     
-    private func drawSubmenuIndicator(in rect: NSRect) {
+    private func drawSubmenuIndicator(in rect: NSRect, isHighlighted: Bool) {
         let indicatorRect = NSRect(
             x: rect.maxX - 20,
             y: rect.minY + (rect.height - 10) / 2,
@@ -202,22 +222,20 @@ class OwnerDrawMenuView: NSView {
         path.line(to: CGPoint(x: indicatorRect.minX, y: indicatorRect.maxY))
         path.close()
         
-        config.foregroundColor.setFill()
+        (isHighlighted ? config.foregroundColor : config.backgroundColor).setFill()
         path.fill()
     }
     
     // MARK: - Separators
     
     private func drawSeparators() {
-        var y = bounds.height - config.itemHeight
-        
-        for item in items {
-            guard item.visible else { continue }
+        for (row, index) in visibleRowIndices().enumerated() {
+            let item = items[index]
             
             if case .separator = item.type {
                 let sepRect = NSRect(
                     x: config.sidebarWidth,
-                    y: y - config.separatorHeight,
+                    y: rowRect(forRow: row).minY - config.separatorHeight,
                     width: bounds.width - config.sidebarWidth,
                     height: config.separatorHeight
                 )
@@ -225,8 +243,6 @@ class OwnerDrawMenuView: NSView {
                 config.separatorColor.setFill()
                 NSBezierPath(rect: sepRect).fill()
             }
-            
-            y -= config.itemHeight
         }
     }
     
@@ -276,10 +292,9 @@ class OwnerDrawMenuView: NSView {
             // Handle tab navigation
             super.keyDown(with: event)
         default:
-            if let char = event.characters?.first, items.contains(where: { $0.shortcut == char }) {
-                if let index = items.firstIndex(where: { $0.shortcut == char }) {
-                    handleItemClick(items[index], at: index)
-                }
+            if let char = event.characters?.first,
+               let index = items.firstIndex(where: { $0.visible && $0.enabled && $0.shortcut == char }) {
+                handleItemClick(items[index], at: index)
             } else {
                 super.keyDown(with: event)
             }
@@ -287,8 +302,6 @@ class OwnerDrawMenuView: NSView {
     }
     
     private func navigateMenu(direction: Int) {
-        var newIndex = (keyboardIndex ?? hoveredIndex ?? -1) + direction
-        let visibleItems = items.filter { $0.visible }
         let enabledIndices = items.enumerated().compactMap { index, item in
             item.visible && item.enabled ? index : nil
         }
@@ -297,38 +310,39 @@ class OwnerDrawMenuView: NSView {
         if enabledIndices.isEmpty {
             return
         }
-        
-        if newIndex < enabledIndices[0] {
-            newIndex = enabledIndices.last!
-        } else if newIndex > enabledIndices.last! {
-            newIndex = enabledIndices[0]
+
+        if let currentIndex = keyboardIndex ?? hoveredIndex,
+           let currentPosition = enabledIndices.firstIndex(of: currentIndex) {
+            let nextPosition = (currentPosition + direction + enabledIndices.count) % enabledIndices.count
+            keyboardIndex = enabledIndices[nextPosition]
+        } else {
+            keyboardIndex = direction > 0 ? enabledIndices[0] : enabledIndices[enabledIndices.count - 1]
         }
-        
-        // 無効な項目をスキップ
-        while !enabledIndices.contains(newIndex) {
-            newIndex += direction
-            if newIndex < enabledIndices[0] || newIndex > enabledIndices.last! {
-                return
-            }
-        }
-        
-        keyboardIndex = newIndex
+
         hoveredIndex = nil
         needsDisplay = true
     }
     
     // MARK: - Helper Methods
     
+    /// 描画・ヒットテスト・itemRect で共通の可視行マッピング
+    private func visibleRowIndices() -> [Int] {
+        items.indices.filter { items[$0].visible }
+    }
+
+    private func rowRect(forRow row: Int) -> NSRect {
+        NSRect(x: 0, y: bounds.height - config.itemHeight * CGFloat(row + 1), width: bounds.width, height: config.itemHeight)
+    }
+
+    private func visibleIndex(forRow row: Int) -> Int? {
+        let rows = visibleRowIndices()
+        guard row >= 0, row < rows.count else { return nil }
+        return rows[row]
+    }
+
     private func itemIndex(at location: CGPoint) -> Int? {
-        let y = bounds.height - location.y
-        let index = Int(y / config.itemHeight)
-        
-        if index >= 0 && index < items.count {
-            if items[index].visible {
-                return index
-            }
-        }
-        return nil
+        let row = Int((bounds.height - location.y) / config.itemHeight)
+        return visibleIndex(forRow: row)
     }
     
     private func handleItemClick(_ item: OwnerDrawMenuItem, at index: Int) {
@@ -345,14 +359,10 @@ class OwnerDrawMenuView: NSView {
     }
     
     func itemRect(for index: Int) -> NSRect {
-        var y = bounds.height - config.itemHeight
-        for i in 0..<index {
-            if items[i].visible {
-                y -= config.itemHeight
-            }
+        guard let row = visibleRowIndices().firstIndex(of: index) else {
+            return NSRect(x: 0, y: 0, width: bounds.width, height: config.itemHeight)
         }
-        
-        return NSRect(x: 0, y: y, width: bounds.width, height: config.itemHeight)
+        return rowRect(forRow: row)
     }
     
     func closeMenu() {
@@ -412,25 +422,45 @@ extension NSImage {
             return NSColor.black
         }
         
-        var x: Int = 0
-        var y: Int = 0
+        let width = Int(size.width)
+        let height = Int(size.height)
+        guard width > 0, height > 0 else { return NSColor.black }
+
+        // アンカーとは反対側のエッジ色をサンプリング（塗り潰し領域と隣接する側）
+        var x: Int = width / 2
+        var y: Int = height / 2
         
         switch alignment {
-        case .leftTop:
-            x = Int(size.width) - 1
-            y = Int(size.height) - 1
-        case .leftBottom:
-            x = Int(size.width) - 1
+        case .leftTop, .top:
+            x = width / 2
             y = 0
+        case .leftBottom, .bottom:
+            x = width / 2
+            y = height - 1
         case .rightTop:
             x = 0
-            y = Int(size.height) - 1
+            y = 0
         case .rightBottom:
             x = 0
+            y = height - 1
+        case .centerTop:
+            x = width / 2
             y = 0
+        case .centerBottom:
+            x = width / 2
+            y = height - 1
+        case .left:
+            x = width - 1
+            y = height / 2
+        case .center:
+            x = width / 2
+            y = height / 2
+        case .right:
+            x = 0
+            y = height / 2
         }
         
-        guard let color = bitmap.colorAt(x: x, y: y) else {
+        guard let color = bitmap.colorAt(x: min(x, width - 1), y: min(y, height - 1)) else {
             return NSColor.black
         }
         return color

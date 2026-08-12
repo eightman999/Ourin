@@ -187,6 +187,44 @@ struct LegacyPluginRegistryTests {
     }
 
     @Test
+    func excludesLegacyScaffoldBundleFromExecution() throws {
+        let base = FileManager.default.temporaryDirectory
+            .appendingPathComponent("OurinPluginScaffold-(UUID().uuidString)", isDirectory: true)
+        OurinPaths.testBaseOverride = base
+        defer {
+            OurinPaths.testBaseOverride = nil
+            try? FileManager.default.removeItem(at: base)
+        }
+
+        let package = base.appendingPathComponent("plugin/legacy_scaffold", isDirectory: true)
+        let bundle = package.appendingPathComponent("legacy.plugin", isDirectory: true)
+        let resources = bundle.appendingPathComponent("Contents/Resources", isDirectory: true)
+        try FileManager.default.createDirectory(at: resources, withIntermediateDirectories: true)
+        try """
+        Charset,UTF-8
+        name,Legacy Scaffold
+        filename,legacy.dll
+        id,legacy-scaffold-id
+        """.write(to: package.appendingPathComponent("descript.txt"), atomically: true, encoding: .utf8)
+        try """
+        type,plugin
+        directory,legacy_scaffold
+        """.write(to: package.appendingPathComponent("install.txt"), atomically: true, encoding: .utf8)
+
+        let manifest = OurinManifest(
+            source: OurinManifest.Source(filename: "legacy.dll", kind: "pe32-dll", sspPluginId: nil),
+            mode: .scaffold
+        )
+        try manifest.write(to: resources.appendingPathComponent("ourin.json"))
+
+        let registry = PluginRegistry()
+        registry.discoverAndLoad()
+
+        #expect(registry.plugins.isEmpty)
+        #expect(registry.legacyMetas.isEmpty)
+    }
+
+    @Test
     func separatesCompatibilityAndExecutablePath() throws {
         let base = FileManager.default.temporaryDirectory
             .appendingPathComponent("OurinPluginPath-\(UUID().uuidString)", isDirectory: true)

@@ -47,6 +47,11 @@ extension GhostManager {
         let id = surfaceAliases[rawID] ?? rawID
         let scope = currentScope
         let oldSurfaceID = characterViewModels[scope]?.currentSurfaceID ?? 0
+
+        // サーフェスに紐づく SERIKO 定義と一時オーバーレイを切り替える。
+        // 旧アニメーションを走らせたままにすると、次の表情へ目元パッチが残る。
+        animationEngine.stopAllAnimations()
+        shutdownSerikoLoop()
         
         // Clear overlays when surface changes (per UKADOC spec)
         DispatchQueue.main.async { [weak self] in
@@ -73,6 +78,7 @@ extension GhostManager {
                     vm.image = image
                     vm.currentSurfaceID = id
                 }
+                self.loadAnimationsForCurrentSurface(surfaceID: id, scope: scope)
                 if let win = self.characterWindows[scope] {
                     // Resize window to fit to new surface
                     win.setContentSize(image.size)
@@ -301,6 +307,11 @@ extension GhostManager {
     ///   - animationID: Optional owner animation ID for deterministic overlay tracking
     func handleSurfaceOverlay(surfaceID: Int, type: AnimationPatternType = .overlay, animationID: Int? = nil, initialOffset: CGPoint? = nil) {
         Log.debug("[GhostManager] Adding surface overlay: \(surfaceID), type: \(type)")
+
+        guard surfaceID >= 0 else {
+            // SERIKO の -1 は待機/消去フレームであり、画像ファイルではない。
+            return
+        }
         
         // Process based on pattern type
         switch type {
@@ -329,24 +340,42 @@ extension GhostManager {
             return
         }
         
-        // Surface files are named surface<ID>.png
-        let surfaceFileName = "surface\(surfaceID).png"
-        let surfacePath = shellPath.appendingPathComponent(surfaceFileName)
-        
-        guard FileManager.default.fileExists(atPath: surfacePath.path) else {
-            Log.info("[GhostManager] Surface file not found: \(surfacePath.path)")
+        // surface1<ID>.png / surface<ID>.png の両方をシェルの命名規則として扱う。
+        func padded(_ id: Int) -> String { String(format: "%04d", id) }
+        var candidates: [String] = []
+        let scope = currentScope
+        if scope == 1 {
+            candidates.append("surface1\(surfaceID).png")
+            candidates.append("surface1\(padded(surfaceID)).png")
+        }
+        candidates.append("surface\(surfaceID).png")
+        candidates.append("surface\(padded(surfaceID)).png")
+
+        guard let surfacePath = candidates
+            .map({ shellPath.appendingPathComponent($0) })
+            .first(where: { FileManager.default.fileExists(atPath: $0.path) }) else {
+            Log.info("[GhostManager] Surface file not found for overlay id=\(surfaceID), scope=\(scope)")
             return
         }
-        
-        guard let image = NSImage(contentsOf: surfacePath) else {
-            Log.info("[GhostManager] Failed to load surface image: \(surfaceFileName)")
+
+        // 通常サーフェスと同じ Retina/PNA/純緑クロマキー処理を必ず通す。
+        // 目元など旧シェルの RGB+純緑画像を生読みすると、背景まで矩形で表示される。
+        guard let image = loadSurfaceFile(url: surfacePath) else {
+            Log.info("[GhostManager] Failed to load surface image: \(surfacePath.lastPathComponent)")
             return
         }
         
         // Add overlay to current scope's character view model
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            guard let vm = self.characterViewModels[self.currentScope] else { return }
+            guard let vm = self.characterViewModels[scope] else { return }
+
+            // 同じアニメーションの次フレームは前フレームを置き換える。
+            // 旧実装は surface ID が変わるたびに append していたため、目元が残留した。
+            if let animationID {
+                vm.overlays.removeAll { $0.animationID == animationID }
+            }
+
             let insertionOrder = (vm.overlays.map(\.insertionOrder).max() ?? -1) + 1
             let zOrder: Int
             switch type {
@@ -366,11 +395,12 @@ extension GhostManager {
             offset: initialOffset ?? CGPoint.zero,
             alpha: 1.0,
             zOrder: zOrder,
-            insertionOrder: insertionOrder
+            insertionOrder: insertionOrder,
+            animationID: animationID
         )
             
             vm.overlays.append(overlay)
-            Log.debug("[GhostManager] Added surface overlay \(surfaceID) to scope \(self.currentScope)")
+            Log.debug("[GhostManager] Added surface overlay \(surfaceID) to scope \(scope)")
         }
     }
     

@@ -126,7 +126,7 @@ Ourin Migrator
   [Ghidra Path: ...]
   [Analyze Selected]
   [Generate ourin.json]
-  [Create Plugin Scaffold]
+  [Create Migration Record]
 
 Name | Kind | Binary | Status | Action
 ```
@@ -195,7 +195,7 @@ Ghidra 解析は時間がかかるため、DevTools 上で進捗表示とキャ�
 metadata-only       DLL/EXE は実行せず、SSPメタデータだけ利用する
 native-replacement  Ourin builtin 実装へ差し替える
 native-plugin       macOS .plugin/.bundle を利用する
-scaffold            雛形生成済み、実装待ち
+scaffold            旧形式の雛形（新規生成しない）
 unsupported         現時点では未対応
 ```
 
@@ -208,33 +208,28 @@ shared_value.dll -> builtin:shared_value
 SAKNIFE.DLL      -> builtin:saknife または scaffold
 SCHEDULE.dll     -> builtin:calendar_schedule または scaffold
 SSPH.exe         -> builtin:ssph_compat
-mcp.exe          -> builtin:mcp_compat
+mcp.exe          -> unsupported（MCP互換HTTP入口は未実装を明示）
 ```
 
 既知 DLL は疑似 C から Swift へ機械変換するのではなく、Ourin 側で同等機能をネイティブ実装し、`ourin.json` で紐づける。
 
-## .plugin 雛形生成
+## 移行記録生成
 
-未知 DLL の場合は完全変換せず、macOS plugin の雛形を生成する。
+未知 DLL の場合は完全変換せず、実行体を含まない移行記録を生成する。
 
 ```text
 ourin/macos/<name>_mac/
-  install.txt
   descript.txt
   message.japanese.txt
   message.english.txt
-  <name>.plugin/
-    Contents/
-      Info.plist
-      MacOS/<name>
-      Resources/
-        descript.txt
-        ourin.json
-  Sources/
-    <name>Plugin.c
+  ourin.json
   OriginalDocs/
     ReadMe.txt
+  README.md
 ```
+
+移行記録には実行可能な `.plugin`、shell、固定 `PLUGIN/2.0M 200 OK` 応答を含めない。
+`ourin.json` の mode は `unsupported` とし、解析結果への相対参照と個別移植要件を保存する。
 
 `<name>.plugin` の内部構造:
 
@@ -291,11 +286,11 @@ plugin_free（必要な場合のみ）
 - 既知 DLL について builtin 実装名を自動提案する
 - 既存 `ourin.json` がある場合は上書き確認を行う
 
-### Phase 5: .plugin 雛形生成
+### Phase 5: 移行記録生成
 
-- 未知 DLL 用に `.plugin` 雛形を生成する
-- `Info.plist`、実行ファイル placeholder、`Resources/ourin.json` を作る
-- 生成物と TODO を `report.md` に追記する
+- 未知 DLL 用に実行体なしの移行記録を生成する
+- 元資産のメタデータ、OriginalDocs、解析結果への参照、README を保存する
+- `PluginRegistry` は `unsupported` / 旧 `scaffold` manifest を実行対象にしない
 
 ## MVP
 

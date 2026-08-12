@@ -1214,14 +1214,169 @@ struct ShioriLoaderTests {
         #expect(resp?["value"] as? String == snapshot)
     }
 
+    /// GETMEMINFO が空配列や32bit整数に丸められず、OSの実メモリ値を返すことを検証する。
+    @Test
+    func yayaCoreGetMemInfoReturnsHostMemoryArray() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ memory integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        GetMemoryInfo {
+            _info = GETMEMINFO()
+            _count = ARRAYSIZE(_info)
+            "count=%(_count), load=%(_info[0]), total=%(_info[1]), available=%(_info[2])"
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+            "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "GetMemoryInfo",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+        let value = Self.runYayaCore(exe: exe, requests: [loadReq, request]) ?? ""
+
+        #expect(value.contains("count=5"))
+        let fields = Dictionary(uniqueKeysWithValues: value.split(separator: ",").compactMap { field -> (String, String)? in
+            let parts = field.split(separator: "=", maxSplits: 1).map(String.init)
+            guard parts.count == 2 else { return nil }
+            return (parts[0].trimmingCharacters(in: .whitespaces), parts[1])
+        })
+        let load = Int(fields["load"] ?? "-1")
+        let total = Int64(fields["total"] ?? "0") ?? 0
+        let available = Int64(fields["available"] ?? "-1") ?? -1
+        #expect((0...100).contains(load ?? -1))
+        #expect(total > 0)
+        #expect(available >= 0 && available <= total)
+    }
+
+    /// YAYA の文字列埋め込み履歴参照を検証する。
+    @Test
+    func yayaCoreEmbeddedHistoryReferencesPreviousValues() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping embedded history integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        EmbeddedHistory {
+            "prefix %(1) %[0] middle %(2) %[0] %[1]"
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+            "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "EmbeddedHistory",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) ==
+                "prefix 1 1 middle 2 2 1")
+    }
+
+    /// macOS では HWND を直接送信できないため、SETTAMAHWND の指定値を
+    /// 論理設定として保持し、GETSETTING で読み戻せることを検証する。
+    @Test
+    func yayaCoreTamaWindowHandleIsStoredAsLogicalSetting() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping TAMA window integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        TamaWindow {
+            SETTAMAHWND(123456789012)
+            GETSETTING("tama.hwnd")
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+            "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "TamaWindow",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "123456789012")
+    }
+
+    /// FCHARSET の CP932 テキスト入出力と、FATTRIB の POSIX 属性変換を検証する。
+    @Test
+    func yayaCoreFileCharsetAndAttributesAreImplemented() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping file function integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        FileFunctions {
+            FCHARSET(0)
+            _h = FOPEN("cp932.txt", "w")
+            FWRITE(_h, "日本語")
+            FCLOSE(_h)
+            _h = FOPEN("cp932.txt", "r")
+            _text = FREAD(_h)
+            FCLOSE(_h)
+            _a = FATTRIB("cp932.txt")
+            "text=%(_text),count=%(_a[0] + 11),directory=%(_a[2]),normal=%(_a[4]),created=%(_a[9]),modified=%(_a[10])"
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+            "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "FileFunctions",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        let value = Self.runYayaCore(exe: exe, requests: [loadReq, request], currentDirectory: ghost) ?? ""
+        #expect(value.contains("text=日本語"))
+        #expect(value.contains("count=11"))
+        #expect(value.contains("directory=0"))
+        #expect(value.contains("normal=1"))
+        #expect(value.contains("created="))
+        #expect(value.contains("modified="))
+
+        let bytes = try Data(contentsOf: ghost.appendingPathComponent("cp932.txt"))
+        #expect(bytes == Data([0x93, 0xFA, 0x96, 0x7B, 0x8C, 0xEA]))
+    }
+
     /// Run yaya_core with a sequence of JSON-line requests; return the `value` of the
     /// last response (or nil). Each invocation is a fresh process: load + one request.
-    private static func runYayaCore(exe: URL, requests: [[String: Any]]) -> String? {
+    private static func runYayaCore(exe: URL, requests: [[String: Any]], currentDirectory: URL? = nil) -> String? {
         let stdin = requests.map { (try? JSONSerialization.data(withJSONObject: $0)) ?? Data() }
             .map { String(data: $0, encoding: .utf8) ?? "" }
             .joined(separator: "\n") + "\n"
         let proc = Process()
         proc.executableURL = exe
+        proc.currentDirectoryURL = currentDirectory
         let inPipe = Pipe()
         let outPipe = Pipe()
         proc.standardInput = inPipe

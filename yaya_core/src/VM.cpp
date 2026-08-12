@@ -22,8 +22,15 @@
 #include <iconv.h>
 #include <cerrno>
 #include <cstring>
+#include <sys/stat.h>
 #include "Digest.hpp"
 #include "Base64.hpp"
+#include <unistd.h>
+#if defined(__APPLE__)
+#include <mach/mach.h>
+#include <mach/mach_host.h>
+#include <sys/sysctl.h>
+#endif
 
 namespace {
 
@@ -68,6 +75,72 @@ bool convertEncodingVM(const std::string& input, const char* fromCode, const cha
     iconv_close(cd);
     if (ok) output = std::move(result);
     return ok;
+}
+
+// GETMEMINFO と同じ5要素を、ホストOSの実メモリ統計から作る。
+// Windows の MEMORYSTATUSEX に対応する値: load, totalPhys, availPhys,
+// totalVirtual, availVirtual（バイト単位、loadのみ百分率）。
+std::vector<std::int64_t> currentMemoryInfo() {
+    std::uint64_t totalPhys = 0;
+    std::uint64_t availPhys = 0;
+    std::uint64_t totalSwap = 0;
+    std::uint64_t availSwap = 0;
+
+#if defined(__APPLE__)
+    std::uint64_t hardwareMemory = 0;
+    size_t hardwareMemorySize = sizeof(hardwareMemory);
+    if (sysctlbyname("hw.memsize", &hardwareMemory, &hardwareMemorySize, nullptr, 0) == 0) {
+        totalPhys = hardwareMemory;
+    }
+
+    vm_size_t pageSize = 0;
+    vm_statistics64_data_t vmStats{};
+    mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
+    if (host_page_size(mach_host_self(), &pageSize) == KERN_SUCCESS &&
+        host_statistics64(mach_host_self(), HOST_VM_INFO64,
+                          reinterpret_cast<host_info64_t>(&vmStats), &count) == KERN_SUCCESS) {
+        const std::uint64_t availablePages =
+            static_cast<std::uint64_t>(vmStats.free_count) +
+            static_cast<std::uint64_t>(vmStats.inactive_count) +
+            static_cast<std::uint64_t>(vmStats.speculative_count);
+        availPhys = availablePages * static_cast<std::uint64_t>(pageSize);
+    }
+
+    struct xsw_usage swapUsage{};
+    size_t swapUsageSize = sizeof(swapUsage);
+    if (sysctlbyname("vm.swapusage", &swapUsage, &swapUsageSize, nullptr, 0) == 0) {
+        totalSwap = static_cast<std::uint64_t>(swapUsage.xsu_total);
+        availSwap = static_cast<std::uint64_t>(swapUsage.xsu_avail);
+    }
+#else
+    const long pageSize = sysconf(_SC_PAGESIZE);
+    const long totalPages = sysconf(_SC_PHYS_PAGES);
+    const long availablePages = sysconf(_SC_AVPHYS_PAGES);
+    if (pageSize > 0 && totalPages > 0) {
+        totalPhys = static_cast<std::uint64_t>(pageSize) * static_cast<std::uint64_t>(totalPages);
+    }
+    if (pageSize > 0 && availablePages > 0) {
+        availPhys = static_cast<std::uint64_t>(pageSize) * static_cast<std::uint64_t>(availablePages);
+    }
+#endif
+
+    // 実行環境や権限で統計の一部が取れない場合も、totalから導ける範囲は返す。
+    if (totalPhys == 0) {
+        totalPhys = availPhys;
+    }
+    availPhys = std::min(availPhys, totalPhys);
+    const std::uint64_t usedPhys = totalPhys > availPhys ? totalPhys - availPhys : 0;
+    const std::uint64_t load = totalPhys == 0 ? 0 : (usedPhys * 100) / totalPhys;
+    const std::uint64_t totalVirtual = totalPhys + totalSwap;
+    const std::uint64_t availVirtual = availPhys + availSwap;
+
+    return {
+        static_cast<std::int64_t>(std::min<std::uint64_t>(load, 100)),
+        static_cast<std::int64_t>(totalPhys),
+        static_cast<std::int64_t>(availPhys),
+        static_cast<std::int64_t>(totalVirtual),
+        static_cast<std::int64_t>(std::min(availVirtual, totalVirtual))
+    };
 }
 
 // UTF-8 バイト列をコードポイント配列にデコードする。
@@ -622,7 +695,7 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                         return Value(std::stod(s));
                     }
                     // Decimal fallback
-                    return Value(std::stoi(s, nullptr, 10));
+                    return Value(static_cast<std::int64_t>(std::stoll(s, nullptr, 10)));
                 } catch (...) {
                     return Value(0);
                 }
@@ -2098,7 +2171,7 @@ void VM::registerBuiltins() {
     };
     
     // FREAD(handle) - Read from file
-    builtins_["FREAD"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FREAD"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
         int handle = args[0].asInt();
         
@@ -2109,13 +2182,19 @@ void VM::registerBuiltins() {
         
         std::string line;
         if (std::getline(*it->second, line)) {
+            if (fileCharset_ == 0) {
+                std::string converted;
+                if (convertEncodingVM(line, "CP932", "UTF-8", converted)) {
+                    return Value(converted);
+                }
+            }
             return Value(line);
         }
         return Value("");
     };
     
     // FWRITE(handle, data) - Write to file
-    builtins_["FWRITE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FWRITE"] = [this](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         int handle = args[0].asInt();
         std::string data = args[1].asString();
@@ -2125,8 +2204,14 @@ void VM::registerBuiltins() {
             return Value(0);
         }
         
-        *it->second << data;
-        return Value(static_cast<int>(data.length()));
+        std::string encoded = data;
+        if (fileCharset_ == 0) {
+            if (!convertEncodingVM(data, "UTF-8", "CP932", encoded)) {
+                return Value(0);
+            }
+        }
+        *it->second << encoded;
+        return Value(static_cast<int>(encoded.length()));
     };
     
     // FWRITE2(filename, data) - Write to file directly
@@ -2341,16 +2426,63 @@ void VM::registerBuiltins() {
         return Value(static_cast<int>(it->second->tellg()));
     };
     
-    // FCHARSET(filename) - Detect file charset
-    builtins_["FCHARSET"] = [](const std::vector<Value>& args) -> Value {
-        // Charset detection is complex - default to UTF-8
-        return Value("UTF-8");
+    // FCHARSET(charset) - Set the default text-file charset.
+    // Upstream values: 0=Shift_JIS, 1=UTF-8, 127=OS default.
+    builtins_["FCHARSET"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) {
+            lastError_ = 8;
+            return Value();
+        }
+
+        int charset = -1;
+        if (args[0].getType() == Value::Type::Integer || args[0].getType() == Value::Type::Real) {
+            charset = args[0].asInt();
+        } else {
+            const std::string name = normalizeEncodingNameVM(args[0].asString());
+            if (name == "CP932") charset = 0;
+            else if (name == "UTF-8") charset = 1;
+            else if (name == "AUTO") charset = 127;
+        }
+
+        if (charset != 0 && charset != 1 && charset != 127) {
+            lastError_ = 12;
+            return Value();
+        }
+        fileCharset_ = charset;
+        return Value();
     };
     
-    // FATTRIB(filename) - Get file attributes
-    builtins_["FATTRIB"] = [](const std::vector<Value>& args) -> Value {
-        // Would need platform-specific code
-        return Value(0);
+    // FATTRIB(filename) - Return the 11-element YAYA file-attribute array.
+    // POSIX has no direct equivalent for most Windows flags; those positions
+    // remain zero while directory/regular/hidden/read-only and timestamps are
+    // populated from stat(2).
+    builtins_["FATTRIB"] = [isPathSafe](const std::vector<Value>& args) -> Value {
+        if (args.empty() || !isPathSafe(args[0].asString())) {
+            return Value(-1);
+        }
+
+        const std::string path = args[0].asString();
+        struct stat info{};
+        if (::stat(path.c_str(), &info) != 0) {
+            return Value(-1);
+        }
+
+        const std::string name = std::filesystem::path(path).filename().string();
+        const bool hidden = !name.empty() && name.front() == '.' && name != "." && name != "..";
+        const bool readOnly = ::access(path.c_str(), W_OK) != 0;
+        std::vector<Value> attributes;
+        attributes.emplace_back(0); // archive
+        attributes.emplace_back(0); // compressed
+        attributes.emplace_back(S_ISDIR(info.st_mode) ? 1 : 0);
+        attributes.emplace_back(hidden ? 1 : 0);
+        attributes.emplace_back(S_ISREG(info.st_mode) ? 1 : 0);
+        attributes.emplace_back(0); // offline
+        attributes.emplace_back(readOnly ? 1 : 0);
+        attributes.emplace_back(0); // system
+        attributes.emplace_back(0); // temporary
+        attributes.emplace_back(static_cast<std::int64_t>(info.st_ctime));
+        attributes.emplace_back(static_cast<std::int64_t>(info.st_mtime));
+        return Value(attributes);
     };
     
     // FREADBIN(handle) - Read binary from file
@@ -2388,10 +2520,11 @@ void VM::registerBuiltins() {
     
     // FREADENCODE(handle, encoding) - 指定エンコーディングでファイル残り全体を読み込み、
     // UTF-8 に変換して返す。ハンドル不正/未オープン時は空文字列。
-    builtins_["FREADENCODE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FREADENCODE"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
         int handle = args[0].asInt();
-        std::string encoding = args.size() >= 2 ? args[1].asString() : std::string("UTF-8");
+        std::string encoding = args.size() >= 2 ? args[1].asString()
+                                                : (fileCharset_ == 0 ? "CP932" : "UTF-8");
 
         auto it = fileHandles.find(handle);
         if (it == fileHandles.end() || !it->second->is_open()) {
@@ -2415,11 +2548,12 @@ void VM::registerBuiltins() {
 
     // FWRITEDECODE(handle, data, encoding) - UTF-8 の data を指定エンコーディングへ変換し
     // ファイルへ書き込む。書き込みバイト数を返す（失敗時は0）。
-    builtins_["FWRITEDECODE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FWRITEDECODE"] = [this](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         int handle = args[0].asInt();
         std::string data = args[1].asString();
-        std::string encoding = args.size() >= 3 ? args[2].asString() : std::string("UTF-8");
+        std::string encoding = args.size() >= 3 ? args[2].asString()
+                                                : (fileCharset_ == 0 ? "CP932" : "UTF-8");
 
         auto it = fileHandles.find(handle);
         if (it == fileHandles.end() || !it->second->is_open()) {
@@ -2798,7 +2932,7 @@ void VM::registerBuiltins() {
             nlohmann::json j;
             switch (v.getType()) {
                 case Value::Type::String: j["t"] = "s"; j["v"] = v.asString(); break;
-                case Value::Type::Integer: j["t"] = "i"; j["v"] = v.asInt(); break;
+                case Value::Type::Integer: j["t"] = "i"; j["v"] = v.asInt64(); break;
                 case Value::Type::Real: j["t"] = "r"; j["v"] = v.asReal(); break;
                 case Value::Type::Array: {
                     j["t"] = "a";
@@ -2844,7 +2978,7 @@ void VM::registerBuiltins() {
         std::function<Value(const nlohmann::json&)> fromJson = [&fromJson](const nlohmann::json& j) -> Value {
             std::string t = j.value("t", std::string("v"));
             if (t == "s") return Value(j.value("v", std::string()));
-            if (t == "i") return Value(j.value("v", 0));
+            if (t == "i") return Value(j.value("v", static_cast<std::int64_t>(0)));
             if (t == "r") return Value(j.value("v", 0.0));
             if (t == "a") {
                 std::vector<Value> arr;
@@ -3020,9 +3154,14 @@ void VM::registerBuiltins() {
         return Value(1);
     };
     
-    // GETMEMINFO() - Get memory information (stub)
+    // GETMEMINFO() - memoryload,totalphys,availphys,totalvirtual,availvirtual
     builtins_["GETMEMINFO"] = [](const std::vector<Value>& args) -> Value {
-        return Value(std::vector<Value>());
+        (void)args;
+        std::vector<Value> result;
+        for (const auto value : currentMemoryInfo()) {
+            result.emplace_back(Value(value));
+        }
+        return Value(result);
     };
     
     // READFMO(name) - FMO（Forged Memory Object）のスナップショットを読み込む。
@@ -3041,8 +3180,15 @@ void VM::registerBuiltins() {
         return Value("");
     };
     
-    // SETTAMAHWND(hwnd) - Set TAMA window handle (stub - Windows-specific)
-    builtins_["SETTAMAHWND"] = [](const std::vector<Value>& args) -> Value {
+    // SETTAMAHWND(hwnd) - Windows のログ受信先指定を macOS の論理設定として保持する。
+    // Ourin では HWND を直接参照できないため、GETSETTING("tama.hwnd") から読み戻せる
+    // 数値状態として扱う。Windows 実装のウィンドウ送信そのものはホスト側の責務。
+    builtins_["SETTAMAHWND"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) {
+            lastError_ = 8;
+            return Value(0);
+        }
+        settings_["tama.hwnd"] = Value(args[0].asInt64());
         return Value(0);
     };
     
@@ -3558,39 +3704,129 @@ void VM::registerBuiltins() {
         return Value(lastOutputNum_);
     };
     
-    // EmBeD_HiStOrY - Embedded history function (stub)
-    builtins_["EmBeD_HiStOrY"] = [](const std::vector<Value>& args) -> Value {
-        (void)args;
-        return Value("");
+    // EmBeD_HiStOrY - `%[n]` の実行時参照。n=0 は直前の埋め込み値。
+    builtins_["EmBeD_HiStOrY"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        const auto offset = args[0].asInt64();
+        if (offset < 0 || static_cast<std::uint64_t>(offset) >= embeddedHistory_.size()) {
+            return Value("");
+        }
+        const auto index = embeddedHistory_.size() - 1 - static_cast<size_t>(offset);
+        return Value(embeddedHistory_[index]);
     };
 }
 
-// Interpolate embedded expressions in strings like %(_varname) or %(funcname())
-// IMPORTANT: SSP/baseware percent variables like %(charname(0)) should NOT be interpolated by YAYA
+// Interpolate embedded expressions in strings like %(_varname) or %(funcname()).
+// %[n] refers to the n-th preceding embedded value in this same string.
+// IMPORTANT: SSP/baseware percent variables like %(charname(0)) should NOT be interpolated by YAYA.
 std::string VM::interpolateString(const std::string& str) {
     std::string result;
     size_t pos = 0;
 
-    // List of SSP/baseware variables that should NOT be interpolated by YAYA
+    // Nested interpolation can occur while evaluating an embedded expression.
+    // Preserve the caller's history while the nested expression is evaluated.
+    const auto previousHistory = embeddedHistory_;
+    embeddedHistory_.clear();
+
+    // List of SSP/baseware variables that should NOT be interpolated by YAYA.
     static const std::unordered_set<std::string> ssp_vars = {
         "charname", "username", "selfname", "selfname2", "keroname",
         "month", "day", "hour", "minute", "second",
         "screenwidth", "screenheight", "property"
     };
 
+    auto trim = [](std::string value) {
+        const auto first = value.find_first_not_of(" \t\r\n");
+        if (first == std::string::npos) return std::string();
+        const auto last = value.find_last_not_of(" \t\r\n");
+        return value.substr(first, last - first + 1);
+    };
+
+    auto evaluateEmbeddedExpression = [this](const std::string& expression) -> std::optional<Value> {
+        try {
+            // public な parse() は関数定義を要求するため、合成関数で包んで本体を実行する。
+            Lexer lexer("__interp__{\n" + expression + "\n}");
+            Parser parser(lexer.tokenize());
+            auto funcs = parser.parse();
+            if (funcs.empty() || !funcs[0]) return std::nullopt;
+
+            Value value;
+            for (const auto& stmt : funcs[0]->body) {
+                value = executeNode(stmt);
+            }
+            return value;
+        } catch (...) {
+            return std::nullopt;
+        }
+    };
+
     while (pos < str.length()) {
-        // Look for %(
-        size_t start = str.find("%(", pos);
+        const size_t expressionStart = str.find("%(", pos);
+        const size_t historyStart = str.find("%[", pos);
+        size_t start = std::string::npos;
+        bool isHistoryReference = false;
+        if (expressionStart == std::string::npos) {
+            start = historyStart;
+            isHistoryReference = true;
+        } else if (historyStart == std::string::npos || expressionStart < historyStart) {
+            start = expressionStart;
+        } else {
+            start = historyStart;
+            isHistoryReference = true;
+        }
+
         if (start == std::string::npos) {
-            // No more embedded expressions
             result += str.substr(pos);
             break;
         }
 
-        // Add text before %(
         result += str.substr(pos, start - pos);
 
-        // Find matching ) - need to handle nested parentheses for function calls
+        if (isHistoryReference) {
+            // Find matching ] while allowing nested brackets and quoted strings.
+            int depth = 1;
+            char quote = '\0';
+            size_t end = start + 2;
+            for (; end < str.length(); ++end) {
+                const char c = str[end];
+                if (quote != '\0') {
+                    if (c == quote) quote = '\0';
+                    continue;
+                }
+                if (c == '\'' || c == '"') {
+                    quote = c;
+                } else if (c == '[') {
+                    depth++;
+                } else if (c == ']') {
+                    depth--;
+                    if (depth == 0) break;
+                }
+            }
+            if (depth != 0) {
+                result += str.substr(start);
+                break;
+            }
+
+            const std::string expression = trim(str.substr(start + 2, end - start - 2));
+            const std::string original = str.substr(start, end - start + 1);
+            bool substituted = false;
+            if (!expression.empty()) {
+                if (const auto offsetValue = evaluateEmbeddedExpression(expression)) {
+                    const auto offset = offsetValue->asInt64();
+                    if (offset >= 0 &&
+                        static_cast<std::uint64_t>(offset) < embeddedHistory_.size()) {
+                        const auto index = embeddedHistory_.size() - 1 - static_cast<size_t>(offset);
+                        result += embeddedHistory_[index];
+                        substituted = true;
+                    }
+                }
+            }
+            if (!substituted) result += original;
+            pos = end + 1;
+            continue;
+        }
+
+        // Find matching ) - need to handle nested parentheses for function calls.
         int depth = 1;
         size_t end = start + 2;
         while (end < str.length() && depth > 0) {
@@ -3600,60 +3836,36 @@ std::string VM::interpolateString(const std::string& str) {
         }
 
         if (depth != 0) {
-            // Malformed - just add the rest
             result += str.substr(start);
             break;
         }
 
-        // Extract the embedded expression
-        std::string expr = str.substr(start + 2, end - start - 2);
+        const std::string expr = str.substr(start + 2, end - start - 2);
 
-        // Check if this looks like an SSP/baseware variable (e.g., charname(...))
         bool is_ssp_var = false;
         for (const auto& ssp_var : ssp_vars) {
-            if (expr == ssp_var || expr.rfind(ssp_var + "(", 0) == 0 || expr.rfind(ssp_var + "[", 0) == 0) {
+            if (expr == ssp_var || expr.rfind(ssp_var + "(", 0) == 0 ||
+                expr.rfind(ssp_var + "[", 0) == 0) {
                 is_ssp_var = true;
                 break;
             }
         }
 
+        std::string expansion;
         if (is_ssp_var) {
-            // Leave SSP variables for baseware to expand
-            result += "%(" + expr + ")";
+            expansion = "%(" + expr + ")";
+        } else if (const auto value = evaluateEmbeddedExpression(expr)) {
+            expansion = value->asString();
         } else {
-            // 任意の式として評価する。inner text を Lexer/Parser に通し、
-            // 得られた式ノードを executeNode で評価して asString() を埋め込む。
-            bool evaluated = false;
-            try {
-                // public な parse() は関数定義を要求するため、合成関数で包んで本体を実行する
-                Lexer lexer("__interp__{\n" + expr + "\n}");
-                Parser parser(lexer.tokenize());
-                auto funcs = parser.parse();
-                if (!funcs.empty() && funcs[0]) {
-                    Value val;
-                    for (const auto& stmt : funcs[0]->body) {
-                        val = executeNode(stmt);
-                    }
-                    result += val.asString();
-                    evaluated = true;
-                }
-            } catch (...) {
-                // パース/評価失敗時は下位のフォールバックへ
-            }
-            if (!evaluated) {
-                // フォールバック: 単純な変数参照として評価する
-                Value val = getVariable(expr);
-                if (!val.isVoid()) {
-                    result += val.asString();
-                } else {
-                    // 変数も見つからない場合は空文字（旧挙動は baseware 展開のため残置だったが
-                    // 任意式評価の失敗時は空とする）
-                }
-            }
+            const Value variableValue = getVariable(expr);
+            if (!variableValue.isVoid()) expansion = variableValue.asString();
         }
 
+        result += expansion;
+        embeddedHistory_.push_back(expansion);
         pos = end + 1;
     }
 
+    embeddedHistory_ = previousHistory;
     return result;
 }

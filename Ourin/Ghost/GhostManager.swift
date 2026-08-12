@@ -3,6 +3,7 @@ import AppKit
 import CoreImage
 import Combine
 import UserNotifications
+import AVFoundation
 
 // MARK: - ViewModels
 
@@ -204,11 +205,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     enum PlaybackUnit {
         case text(Character)
         case textChunk(String)
+        case speak(String)
         case newline
         case scope(Int)
         case surface(Int)
         case wait(TimeInterval)
         case waitUntil(TimeInterval) // seconds from precise base
+        case waitForAudio
         case waitAnimation(Int) // wait until SERIKO animation ID completes
         case resetPrecise
         case clickWait(noclear: Bool)
@@ -234,6 +237,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var namedSounds: [String: [NSSound]] = [:]
     var preloadedSounds: [String: NSSound] = [:]
     var videoPlayers: [String: VideoPlayerWindow] = [:]
+
+    // Sakura Script \__v 音声合成制御。自動読み上げは既定で無効にし、明示指定時だけ使う。
+    // `voiceAlternateText` は次のテキストトークン1つにだけ適用し、\__v 終了タグで解除する。
+    private let speechSynthesizer = AVSpeechSynthesizer()
+    private var voiceSynthesisEnabled = false
+    private var voiceAlternateText: String?
+    private var voiceAlternateConsumed = false
     
     // Animation engine
     var animationEngine: AnimationEngine = AnimationEngine()
@@ -632,7 +642,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         setupRightClickMenu()
         Log.debug("[GhostManager] Windows setup complete")
 
-        // Show a placeholder surface immediately so the user sees the ghost
+        // Load the initial real surface immediately when the shell asset is available.
         DispatchQueue.main.async {
             self.updateSurface(id: 0)
         }
@@ -732,7 +742,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 self.startEventBridgeIfNeeded(enableAutoEvents: enableAutoEvents)
             }
 
-            // Request boot script with a timeout; keep placeholder visible meanwhile.
+            // Request the boot script with a timeout; keep the already loaded surface visible meanwhile.
             Log.info("[GhostManager] Requesting boot script (OnFirstBoot/OnBoot)...")
             let sem = DispatchSemaphore(value: 0)
 
@@ -758,7 +768,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             // If OnBoot takes too long, just wait - EventBridge is already started
             let timeout: DispatchTime = .now() + .seconds(5)
             if sem.wait(timeout: timeout) == .timedOut {
-                Log.info("[GhostManager] OnBoot timed out (5s). EventBridge already running, keeping placeholder.")
+                Log.info("[GhostManager] OnBoot timed out (5s). EventBridge already running; keeping the current surface.")
             }
 
             // Send initialization NOTIFYs after boot (windows and EventBridge exist)
@@ -805,6 +815,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         characterWindows.removeAll()
         balloonWindows.removeAll()
         stopAllVideos()
+        stopSpeechSynthesis()
         // OnDestroy（NOTIFY、UKADOC）: SHIORI unload の直前に対象ゴーストへのみ直接送信する。
         // EventBridge.notify は autoEventsEnabled=false 時にキュー滞留し、全セッションへ
         // ブロードキャストされるためここでは使わない（OnClose と同じ直接送信の流儀）。
@@ -1074,6 +1085,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         isPlaying = false
         quickMode = false
         preciseBase = Date()
+        resetVoiceSynthesisState()
         // 新しいスクリプト開始 = スクリプトブレーク扱い: タイムクリティカル区間と \* 指定を解除
         timeCriticalActive = false
         choiceTimeoutDisabled = false
@@ -1116,6 +1128,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 vm.anchorActive = false
             }
             typingInterval = defaultTypingInterval
+            resetVoiceSynthesisState()
         }
         let previousPluginOrigin = currentScriptIsPluginOrigin
         currentScriptIsPluginOrigin = false
@@ -1152,6 +1165,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 vm.anchorActive = false
             }
             typingInterval = defaultTypingInterval
+            resetVoiceSynthesisState()
             let previousPluginOrigin = currentScriptIsPluginOrigin
             currentScriptIsPluginOrigin = true
             sakuraEngine.runPreprocessed(script: trimmed)
@@ -1228,6 +1242,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case .text(let text):
             // Display text character by character with typing effect
             for ch in text { playbackQueue.append(.text(ch)) }
+            enqueueSpeech(for: text)
         case .newline:
             playbackQueue.append(.newline)
          case .newlineVariation(let type):
@@ -1354,11 +1369,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             // SakuraScript タグは大文字小文字を区別する（\_V=再生完了待ち と \_v=再生 は別タグ）。
             // 下の switch は小文字化して照合するため、大文字を含むタグはここで先に分岐する。
             if name == "_V" {
-                // \_V - wait for currently playing voice/sound to complete
-                let duration = estimatedSoundWaitDuration()
-                if duration > 0 {
-                    playbackQueue.append(.wait(duration))
-                }
+                // \_V - 現在の音声・効果音・動画が完了するまで待つ。
+                playbackQueue.append(.waitForAudio)
                 break
             }
             switch name.lowercased() {
@@ -1412,8 +1424,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 // ため認識のみ（誤った改行挿入はしない）。
                 NSLog("[GhostManager] \\_n (no-wrap) recognized")
             case "__v":
-                // \__v: 代替読み/音声制御メタタグ。発話表示には影響しないため認識して無視。
-                NSLog("[GhostManager] \\__v recognized (no-op)")
+                // \__v[disable]...\__v / \__v[alternate,よみ]...\__v
+                // パースだけで捨てず、後続テキストの音声合成状態へ反映する。
+                applyVoiceSynthesisCommand(args)
             case "!":
                 NSLog("[GhostManager] ! command with args: \(args)")
                 if let first = args.first?.lowercased() {
@@ -2616,13 +2629,17 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             case "_u":
                 // \_u[0xXXXX] - append Unicode scalar text
                 if let scalar = decodeScalarLiteral(args.first) {
-                    playbackQueue.append(.textChunk(String(scalar)))
+                    let text = String(scalar)
+                    playbackQueue.append(.textChunk(text))
+                    enqueueSpeech(for: text)
                 }
 
             case "_m":
                 // \_m[0xNN] - append single-byte scalar text
                 if let scalar = decodeScalarLiteral(args.first) {
-                    playbackQueue.append(.textChunk(String(scalar)))
+                    let text = String(scalar)
+                    playbackQueue.append(.textChunk(text))
+                    enqueueSpeech(for: text)
                 }
 
             case "&":
@@ -2630,6 +2647,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 if let entityID = args.first, !entityID.isEmpty {
                     if let text = Self.resolveEntityReference(entityID) {
                         playbackQueue.append(.textChunk(text))
+                        enqueueSpeech(for: text)
                     } else {
                         Log.info("[GhostManager] \\&[\(entityID)] - unknown entity reference (ignored)")
                     }
@@ -2837,6 +2855,73 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     // MARK: - Helper Methods
 
+    /// \__v の状態をスクリプト単位の初期値へ戻す。
+    /// 前のスクリプトの無効化指定や読み替えを次の会話へ漏らさない。
+    private func resetVoiceSynthesisState() {
+        stopSpeechSynthesis()
+        voiceSynthesisEnabled = false
+        voiceAlternateText = nil
+        voiceAlternateConsumed = false
+    }
+
+    /// \__v タグを実行時状態へ反映する。
+    private func applyVoiceSynthesisCommand(_ args: [String]) {
+        guard let option = args.first?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+              !option.isEmpty else {
+            // 引数なしは範囲終了タグ。既定の自動読み上げ無効へ戻す。
+            voiceSynthesisEnabled = false
+            voiceAlternateText = nil
+            voiceAlternateConsumed = false
+            return
+        }
+
+        switch option {
+        case "disable":
+            voiceSynthesisEnabled = false
+            voiceAlternateText = nil
+            voiceAlternateConsumed = false
+        case "enable":
+            voiceSynthesisEnabled = true
+            voiceAlternateText = nil
+            voiceAlternateConsumed = false
+        case "alternate":
+            voiceSynthesisEnabled = true
+            let alternate = args.dropFirst().joined(separator: ",")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            voiceAlternateText = alternate.isEmpty ? nil : alternate
+            voiceAlternateConsumed = false
+        default:
+            Log.info("[GhostManager] Unknown \\__v option: \(option)")
+        }
+    }
+
+    /// 表示テキストに対応する音声単位をキューへ追加する。
+    /// `alternate` は指定範囲内の最初のテキストトークンへ一度だけ適用する。
+    private func enqueueSpeech(for text: String) {
+        guard voiceSynthesisEnabled, !text.isEmpty else { return }
+        if let alternate = voiceAlternateText, !voiceAlternateConsumed {
+            voiceAlternateConsumed = true
+            playbackQueue.append(.speak(alternate))
+        } else {
+            playbackQueue.append(.speak(text))
+        }
+    }
+
+    private func speakText(_ text: String) {
+        let normalized = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalized.isEmpty else { return }
+        let utterance = AVSpeechUtterance(string: normalized)
+        // 日本語ゴーストを優先しつつ、システムに音声が無ければ既定音声へフォールバックする。
+        utterance.voice = AVSpeechSynthesisVoice(language: "ja-JP")
+        speechSynthesizer.speak(utterance)
+    }
+
+    private func stopSpeechSynthesis() {
+        if speechSynthesizer.isSpeaking {
+            speechSynthesizer.stopSpeaking(at: .immediate)
+        }
+    }
+
     private func startPlaybackIfNeeded() {
         if !isPlaying {
             isPlaying = true
@@ -2904,6 +2989,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 let delay = max(0.0, target.timeIntervalSince(now))
                 scheduleNext(after: delay)
                 return
+            case .waitForAudio:
+                let hasSound = estimatedSoundWaitDuration() > 0
+                let hasSpeech = speechSynthesizer.isSpeaking
+                let hasVideo = estimatedVideoWaitDuration() > 0
+                if hasSound || hasSpeech || hasVideo {
+                    scheduleNext(after: 0.05)
+                    return
+                }
+                continue
             case .wait(let sec):
                 scheduleNext(after: max(0.0, sec))
                 return
@@ -2928,6 +3022,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             case .textChunk(let s):
                 // Chunk mode (for quickMode) - display immediately
                 appendText(s)
+                continue
+            case .speak(let s):
+                speakText(s)
                 continue
             case .newline:
                 // Display newline with delay
@@ -2988,10 +3085,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             return bridge
         }
 
-        // 4) Built-in minimal greeting (SakuraScript)
-        let builtin = "\\h\\s0こんにちは、起動しました。\\n\\e"
-        NSLog("[GhostManager] Using built-in greeting fallback")
-        return builtin
+        // 4) No synthetic greeting: an unavailable SHIORI must remain observable as
+        // an empty boot response instead of masking a broken ghost with mock content.
+        NSLog("[GhostManager] No SHIORI boot script was returned")
+        return nil
     }
 
     /// 単体テスト実行中かどうか。テスト時は自動システムイベント（タイマー/入力監視等）を抑止する。

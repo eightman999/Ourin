@@ -235,10 +235,15 @@ Compared against ukadoc (`/manual/list_sakura_script.html`) and current runtime 
 
 ### Voice Synthesis Control
 
+Ourin does not automatically synthesize speech for ordinary displayed text. Speech synthesis must be explicitly enabled in the script. Voice asset playback (`\_v`) is independent of speech synthesis.
+
 | Command | Description | Example |
 |---------|-------------|---------|
-| `\__v[disable]...\__v` | Disable voice synthesis for text | `\__v[disable]Silent\__v` |
-| `\__v[alternate,text]...\__v` | Override pronunciation | `\__v[alternate,ひらがな]漢字\__v` |
+| `\__v[enable]...\__v` | Explicitly enable speech synthesis for the range (disabled by default) | `\__v[enable]Hello\__v` |
+| `\__v[disable]...\__v` | Disable speech synthesis for the range | `\__v[disable]Silent\__v` |
+| `\__v[alternate,text]...\__v` | Override the spoken text for the next text token | `\__v[alternate,ひらがな]漢字\__v` |
+| `\_v[filename]` | Play a voice asset from `ghost/sound` (independent of TTS) | `\_v[voice.wav]` |
+| `\_V` | Wait for active voice, sound, and video playback to finish | `\_V` |
 
 ## Font & Text Styling Commands
 
@@ -504,6 +509,11 @@ All commands listed above are **parsed correctly**. The parser converts Sakura S
 
 #### Rendering Level (GhostManager.swift + CharacterViewModel/CharacterView)
 
+**Voice - IMPLEMENTED:**
+- ✅ `\__v[enable|disable|alternate,...]...\__v` - Voice synthesis control (automatic speech for ordinary text is disabled by default)
+- ✅ `\_v[filename]` - Voice asset playback from `ghost/sound`
+- ✅ `\_V` - Wait for voice, sound, and video playback completion
+
 **Visual Effects - IMPLEMENTED:**
 - ✅ `\![set,scaling,ratio]` - Uniform scaling
 - ✅ `\![set,scaling,x,y]` - Non-uniform scaling
@@ -542,7 +552,6 @@ All balloon and text commands are fully parsed, but execution is not yet impleme
 - ❌ `\c` / `\c[char/line,...]` - Text clearing
 - ❌ `\_n` - No auto-wrap mode
 - ❌ `\_!...\_!` / `\_?...\_?` - Tag passthrough (parsed correctly)
-- ❌ `\__v[...]` - Voice synthesis control
 - ❌ `\![set,autoscroll,...]` - Auto-scroll control
 - ❌ `\![set,balloonoffset,...]` - Balloon offset
 - ❌ `\![set,balloonalign,...]` - Balloon alignment

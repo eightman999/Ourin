@@ -88,6 +88,7 @@ struct OurinMigratorTests {
         #expect(OurinManifest.builtinImplementation(for: "SHARED_VALUE.DLL") == "builtin:shared_value")
         #expect(OurinManifest.isKnownBuiltin("SAKNIFE.DLL"))
         #expect(OurinManifest.builtinImplementation(for: "SSPH.exe") == "builtin:ssph_compat")
+        #expect(!OurinManifest.isKnownBuiltin("mcp.exe"))
     }
 
     @Test
@@ -98,9 +99,9 @@ struct OurinMigratorTests {
     }
 
     @Test
-    func recommendedModeSuggestsScaffoldForUnknownDLL() {
+    func recommendedModeMarksUnknownDLLUnsupported() {
         let (mode, impl) = OurinManifest.recommendedMode(for: "mystery.dll")
-        #expect(mode == .scaffold)
+        #expect(mode == .unsupported)
         #expect(impl == nil)
     }
 
@@ -143,7 +144,7 @@ struct OurinMigratorTests {
     // MARK: - PluginScaffolder
 
     @Test
-    func scaffoldGeneratesPluginBundleStructure() throws {
+    func migrationRecordDoesNotGenerateExecutableStub() throws {
         let dir = FileManager.default.temporaryDirectory
             .appendingPathComponent("OurinMigratorScaffold-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
@@ -177,19 +178,16 @@ struct OurinMigratorTests {
         let pkg = result.packageURL
         #expect(pkg.lastPathComponent.hasSuffix("_mac"))
         #expect(FileManager.default.fileExists(atPath: pkg.appendingPathComponent("descript.txt").path))
-        #expect(FileManager.default.fileExists(atPath: pkg.appendingPathComponent("install.txt").path))
         #expect(FileManager.default.fileExists(atPath: pkg.appendingPathComponent("README.md").path))
-        // .plugin bundle
-        #expect(FileManager.default.fileExists(atPath: result.pluginURL.appendingPathComponent("Contents/Info.plist").path))
-        #expect(FileManager.default.fileExists(atPath: result.pluginURL.appendingPathComponent("Contents/Resources/ourin.json").path))
-        #expect(FileManager.default.fileExists(atPath: result.pluginURL.appendingPathComponent("Contents/Resources/descript.txt").path))
-        // Sources/
-        #expect(FileManager.default.fileExists(atPath: pkg.appendingPathComponent("Sources").path))
+        #expect(FileManager.default.fileExists(atPath: pkg.appendingPathComponent("ourin.json").path))
+        // 実行可能な .plugin / 固定応答のソースは生成しない。
+        #expect(!FileManager.default.fileExists(atPath: pkg.appendingPathComponent("Test_Plugin.plugin").path))
+        #expect(!FileManager.default.fileExists(atPath: pkg.appendingPathComponent("Sources").path))
         // OriginalDocs/ に ReadMe.txt がコピーされている
         #expect(FileManager.default.fileExists(atPath: pkg.appendingPathComponent("OriginalDocs/ReadMe.txt").path))
 
         let manifest = try #require(OurinManifest.read(from: result.manifestURL))
-        #expect(manifest.mode == .scaffold)
+        #expect(manifest.mode == .unsupported)
 
         // 既存がある場合は force なしで nil を返す
         #expect(PluginScaffolder.scaffold(for: asset, force: false) == nil)

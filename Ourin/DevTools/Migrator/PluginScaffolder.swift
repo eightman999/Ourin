@@ -1,45 +1,37 @@
 import Foundation
 
-/// Phase 5: 未知 DLL 向けに macOS plugin 雛形パッケージを生成する。
+/// Phase 5: 未知 DLL 向けに macOS 移行記録パッケージを生成する。
 ///
 /// 標準形（PLUGIN_COMPAT_FIX_PROPOSAL.md 修正 1 / SPEC_PLUGIN_2.0M_ja-jp.md）:
 /// ```text
 /// ourin/macos/<name>_mac/
-///   install.txt
 ///   descript.txt
 ///   message.japanese.txt
 ///   message.english.txt
-///   <name>.plugin/
-///     Contents/
-///       Info.plist
-///       MacOS/<name>
-///       Resources/
-///         descript.txt
-///         ourin.json
-///   Sources/
-///     <name>Plugin.c
+///   ourin.json
 ///   OriginalDocs/
 ///     ReadMe.txt
+///   README.md
 /// ```
 ///
-/// 責務分離: Ourin ホスト側が install.txt/descript.txt/message.*.txt を解釈し、
-/// `.plugin` bundle は DLL の load/loadu/request/unload 互換に集中する。
+/// 未知 DLL は自動変換できないため、実行可能な偽プラグインや固定応答を生成しない。
+/// このパッケージは元資産と解析成果物を保持し、ネイティブ実装へ移行するための
+/// 記録としてのみ機能する。これにより、生成物が誤って実行可能なプラグインとして
+/// 発見されることを防ぐ。
 ///
 /// 計画「注意点」に従い、元ファイルは破壊せず `ourin/` 配下にのみ生成物を置く。
 enum PluginScaffolder {
 
-    /// 雛形生成の結果。
+    /// 移行記録パッケージ生成の結果。
     struct ScaffoldResult {
         /// `<name>_mac/` パッケージディレクトリ。
         let packageURL: URL
-        /// `<name>.plugin` バンドルの URL。
-        let pluginURL: URL
-        /// `.plugin/Contents/Resources/ourin.json` の URL。
+        /// パッケージ直下の `ourin.json` の URL。
         let manifestURL: URL
         let overwritten: Bool
     }
 
-    /// 指定 asset に対して `*_mac/` パッケージ雛形を生成する。
+    /// 指定 asset に対して実行体を含まない `*_mac/` 移行記録を生成する。
     /// - Parameters:
     ///   - asset: 対象資産。
     ///   - force: 既存パッケージがあっても上書きするか。
@@ -64,10 +56,8 @@ enum PluginScaffolder {
             return nil
         }
 
-        let pluginURL = packageURL.appendingPathComponent("\(pluginName).plugin", isDirectory: true)
-        let manifestURL = pluginURL.appendingPathComponent("Contents/Resources/ourin.json")
+        let manifestURL = packageURL.appendingPathComponent("ourin.json")
         return ScaffoldResult(packageURL: packageURL,
-                              pluginURL: pluginURL,
                               manifestURL: manifestURL,
                               overwritten: exists)
     }
@@ -81,29 +71,28 @@ enum PluginScaffolder {
         // 1. パッケージルートのメタデータファイル
         try writePackageMetadata(at: packageURL, asset: asset)
 
-        // 2. .plugin バンドル
-        let pluginURL = packageURL.appendingPathComponent("\(pluginName).plugin", isDirectory: true)
-        try writePluginBundle(at: pluginURL, pluginName: pluginName, asset: asset)
+        // 2. 実行体を生成せず、移行状態をパッケージ直下に記録する。
+        var manifest = OurinManifest.makeDefault(for: asset)
+        manifest.mode = .unsupported
+        manifest.implementation = nil
+        manifest.analysis = OurinManifest.AnalysisRef(
+            decompiled: "../../analysis/decompiled.c",
+            report: "../../analysis/report.md"
+        )
+        try manifest.write(to: packageURL.appendingPathComponent("ourin.json"))
 
-        // 3. Sources/ プレースホルダ
-        let sourcesDir = packageURL.appendingPathComponent("Sources", isDirectory: true)
-        try fm.createDirectory(at: sourcesDir, withIntermediateDirectories: true)
-        try sourcePlaceholder(pluginName: pluginName, asset: asset)
-            .data(using: .utf8)?
-            .write(to: sourcesDir.appendingPathComponent("\(pluginName)Plugin.c"))
-
-        // 4. OriginalDocs/ 既存ドキュメントのコピー
+        // 3. OriginalDocs/ 既存ドキュメントのコピー
         let docsDir = packageURL.appendingPathComponent("OriginalDocs", isDirectory: true)
         try fm.createDirectory(at: docsDir, withIntermediateDirectories: true)
         copyOriginalDocs(into: docsDir, from: asset.directoryURL)
 
-        // 5. README.md（実装 TODO）
+        // 4. README.md（実装要件）
         try readme(pluginName: pluginName, asset: asset)
             .data(using: .utf8)?
             .write(to: packageURL.appendingPathComponent("README.md"))
     }
 
-    /// パッケージルートの descript.txt / install.txt / message.*.txt を配置する。
+    /// パッケージルートの descript.txt / message.*.txt を配置する。
     private static func writePackageMetadata(at packageURL: URL, asset: LegacyAssetScanner.Asset) throws {
         let fm = FileManager.default
         let srcDir = asset.directoryURL
@@ -118,14 +107,13 @@ enum PluginScaffolder {
                 .write(to: packageURL.appendingPathComponent("descript.txt"))
         }
 
-        // install.txt: 元をコピー、無ければ生成
+        // install.txt は生成しない。実行体のない移行記録を SSP が
+        // インストール可能なプラグインとして扱うことを防ぐ。
         let srcInstall = srcDir.appendingPathComponent("install.txt")
         if fm.fileExists(atPath: srcInstall.path) {
-            try? fm.copyItem(at: srcInstall, to: packageURL.appendingPathComponent("install.txt"))
-        } else {
-            try "type,plugin\ndirectory,\(pluginBundleName(for: asset))\n"
-                .data(using: .utf8)?
-                .write(to: packageURL.appendingPathComponent("install.txt"))
+            let docsDir = packageURL.appendingPathComponent("OriginalDocs", isDirectory: true)
+            try fm.createDirectory(at: docsDir, withIntermediateDirectories: true)
+            try? fm.copyItem(at: srcInstall, to: docsDir.appendingPathComponent("install.txt"))
         }
 
         // message.*.txt: 元ディレクトリにあればコピー
@@ -136,48 +124,6 @@ enum PluginScaffolder {
         }
     }
 
-    /// `.plugin` バンドルの中身を書き出す。
-    private static func writePluginBundle(at pluginURL: URL, pluginName: String, asset: LegacyAssetScanner.Asset) throws {
-        let fm = FileManager.default
-        let contents = pluginURL.appendingPathComponent("Contents", isDirectory: true)
-        let macosDir = contents.appendingPathComponent("MacOS", isDirectory: true)
-        let resourcesDir = contents.appendingPathComponent("Resources", isDirectory: true)
-        try fm.createDirectory(at: macosDir, withIntermediateDirectories: true)
-        try fm.createDirectory(at: resourcesDir, withIntermediateDirectories: true)
-
-        // Info.plist
-        try infoPlist(pluginName: pluginName, asset: asset)
-            .data(using: .utf8)?
-            .write(to: contents.appendingPathComponent("Info.plist"))
-
-        // 実行ファイル placeholder
-        let execURL = macosDir.appendingPathComponent(pluginName)
-        let placeholder = "#!/bin/sh\n# Ourin plugin scaffold placeholder. Replace with native implementation.\nexit 0\n"
-        try placeholder.data(using: .utf8)?.write(to: execURL)
-        try? fm.setAttributes([.posixPermissions: 0o755], ofItemAtPath: execURL.path)
-
-        // Resources/descript.txt
-        let srcDescript = asset.directoryURL.appendingPathComponent("descript.txt")
-        if fm.fileExists(atPath: srcDescript.path) {
-            try? fm.copyItem(at: srcDescript, to: resourcesDir.appendingPathComponent("descript.txt"))
-        } else {
-            try generatedDescript(pluginName: pluginName, asset: asset)
-                .data(using: .utf8)?
-                .write(to: resourcesDir.appendingPathComponent("descript.txt"))
-        }
-
-        // Resources/ourin.json
-        let manifest = OurinManifest.makeDefault(for: asset)
-        var manifestCopy = manifest
-        manifestCopy.mode = .scaffold
-        manifestCopy.implementation = "plugin:\(pluginName)"
-        manifestCopy.analysis = OurinManifest.AnalysisRef(
-            decompiled: "ourin/analysis/decompiled.c",
-            report: "ourin/analysis/report.md"
-        )
-        try manifestCopy.write(to: resourcesDir.appendingPathComponent("ourin.json"))
-    }
-
     // MARK: - Generated content
 
     /// descript.txt が元資産に無い場合の最小生成物。
@@ -185,7 +131,8 @@ enum PluginScaffolder {
         var lines: [String] = []
         lines.append("Charset,UTF-8")
         lines.append("name,\(asset.displayName.isEmpty ? pluginName : asset.displayName)")
-        lines.append("filename,\(pluginName).plugin")
+        let sourceFilename = asset.filename.isEmpty ? pluginName : asset.filename
+        lines.append("filename,\(sourceFilename)")
         if !asset.sspID.isEmpty {
             lines.append("id,\(asset.sspID)")
         } else {
@@ -194,110 +141,26 @@ enum PluginScaffolder {
         return lines.joined(separator: "\n") + "\n"
     }
 
-    /// Info.plist の中身（XML 形式）。
-    private static func infoPlist(pluginName: String, asset: LegacyAssetScanner.Asset) -> String {
-        let bundleID = "jp.ourin.plugin.\(sanitizedIdentifier(pluginName))"
-        let displayName = asset.displayName.isEmpty ? pluginName : asset.displayName
-        let sspID = asset.sspID
-        var plist = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>CFBundleDevelopmentRegion</key>
-            <string>en</string>
-            <key>CFBundleExecutable</key>
-            <string>\(pluginName)</string>
-            <key>CFBundleIdentifier</key>
-            <string>\(bundleID)</string>
-            <key>CFBundleInfoDictionaryVersion</key>
-            <string>6.0</string>
-            <key>CFBundleName</key>
-            <string>\(escapeXML(displayName))</string>
-            <key>CFBundleDisplayName</key>
-            <string>\(escapeXML(displayName))</string>
-            <key>CFBundlePackageType</key>
-            <string>BNDL</string>
-            <key>CFBundleShortVersionString</key>
-            <string>0.1.0</string>
-            <key>CFBundleVersion</key>
-            <string>1</string>
-            <key>NSPrincipalClass</key>
-            <string></string>
-            <key>OurinPluginKind</key>
-            <string>\(asset.kind.rawValue)</string>
-        """
-        if !sspID.isEmpty {
-            plist += """
-                <key>SSPPluginID</key>
-                <string>\(escapeXML(sspID))</string>
-            """
-        }
-        plist += """
-        </dict>
-        </plist>
-        """
-        return plist
-    }
-
-    /// Sources/<name>Plugin.c プレースホルダ。
-    /// PLUGIN/2.0M の load/loadu/request/unload/unloadu エントリを模擬。
-    private static func sourcePlaceholder(pluginName: String, asset: LegacyAssetScanner.Asset) -> String {
-        let sspID = asset.sspID.isEmpty ? "TODO" : asset.sspID
-        return """
-        // \(pluginName)Plugin.c — Ourin Migrator 生成プレースホルダ
-        // PLUGIN/2.0M 互換エントリポイントを実装してください。
-        // 疑似 C は ourin/analysis/decompiled.c を参照。
-
-        #include <stdint.h>
-        #include <string.h>
-
-        // SSP plugin ID: \(sspID)
-
-        // int32_t load(const char* path) / loadu(const char* path)
-        int32_t loadu(const char* path) {
-            // TODO: 初期化処理
-            (void)path;
-            return 1;
-        }
-
-        // const uint8_t* request(const uint8_t* in, int64_t in_len, int64_t* out_len)
-        const uint8_t* request(const uint8_t* in, int64_t in_len, int64_t* out_len) {
-            // TODO: PLUGIN/2.0M リクエスト処理
-            static const char resp[] = "PLUGIN/2.0M 200 OK\\r\\n\\r\\n";
-            (void)in; (void)in_len;
-            *out_len = (int64_t)strlen(resp);
-            return (const uint8_t*)resp;
-        }
-
-        // void unload() / unloadu()
-        void unloadu(void) {
-            // TODO: 終了処理
-        }
-        """;
-    }
-
-    /// パッケージルートの README.md（実装 TODO）。
+    /// パッケージルートの README.md（ネイティブ移行要件）。
     private static func readme(pluginName: String, asset: LegacyAssetScanner.Asset) -> String {
         var lines: [String] = []
-        lines.append("# \(pluginName)_mac — Implementation TODO")
+        lines.append("# \(pluginName)_mac — Native migration record")
         lines.append("")
-        lines.append("このパッケージは Ourin Migrator が生成した雛形です。")
-        lines.append("責務分離: Ourin ホスト側が descript.txt / message.*.txt を解釈し、")
-        lines.append("`.plugin` バンドルは load/request/unload 互換に集中します。")
+        lines.append("このパッケージは Ourin Migrator が生成した移行記録です。")
+        lines.append("未知の DLL を自動実行する実装や、固定応答のプラグインは生成していません。")
+        lines.append("元の資産は変更せず、OriginalDocs/ と解析成果物への参照だけを保存します。")
         lines.append("")
-        lines.append("## 必須イベント入口（PLUGIN/2.0M 相当）")
+        lines.append("## 実装が必要な内容")
         lines.append("")
-        for ev in ["OnBoot", "OnSecondChange", "OnMinuteChange", "OnGhostChanged"] {
-            lines.append("- [ ] \(ev)")
-        }
-        lines.append("- [ ] GET / NOTIFY placeholder")
+        lines.append("- macOS のネイティブ実装を作成し、実際の PLUGIN/2.0M 契約を実装する")
+        lines.append("- 必要なイベント入口と GET / NOTIFY の仕様を解析結果から確定する")
+        lines.append("- 実装後に `ourin.json` の mode を `native-plugin` または `native-replacement` に更新する")
         lines.append("")
-        lines.append("## 実装手順")
+        lines.append("## 参照資料")
         lines.append("")
-        lines.append("1. `Sources/\(pluginName)Plugin.c` を本体実装へ置き換える")
-        lines.append("2. `descript.txt` の `filename` を実バンドル名に合わせる")
-        lines.append("3. `message.*.txt` でメニュー文言を調整する")
+        lines.append("- `OriginalDocs/` に元資産のドキュメントを保存")
+        lines.append("- `../../analysis/report.md` に解析レポートを保存")
+        lines.append("- `../../analysis/decompiled.c` は解析結果であり、実装そのものではない")
         lines.append("")
         lines.append("## 元資産")
         lines.append("")
@@ -305,7 +168,7 @@ enum PluginScaffolder {
         lines.append("- binary: \(asset.binaryKind.displayName)")
         lines.append("- OriginalDocs/ に元ドキュメントをコピー済み")
         lines.append("")
-        lines.append("解析詳細は `ourin/analysis/report.md` を参照してください。")
+        lines.append("解析詳細は `../../analysis/report.md` を参照してください。")
         lines.append("")
         return lines.joined(separator: "\n")
     }
@@ -355,9 +218,4 @@ enum PluginScaffolder {
         return result.lowercased()
     }
 
-    private static func escapeXML(_ s: String) -> String {
-        s.replacingOccurrences(of: "&", with: "&amp;")
-         .replacingOccurrences(of: "<", with: "&lt;")
-         .replacingOccurrences(of: ">", with: "&gt;")
-    }
 }

@@ -21,41 +21,31 @@ SomePlugin_mac/
 - `.plugin` bundle は DLL の `load` / `loadu` / `request` / `unload` / `unloadu` 互換に集中する。
 - 表示文字列・言語選択は原則として `message.*.txt` に寄せる。
 - Windows DLL は macOS 上で直接ロードしない。
+- 未知 DLL の移行記録は実行体を含めず、実装済みのネイティブ plugin だけをロード対象にする。
 
-## 修正 1: PluginScaffolder の生成形式を `*_mac/` へ更新
+## 修正 1: 未知 DLL の偽実行体を生成しない（対応済み）
 
-**問題**
+旧実装は `exit 0` の shell と固定 `PLUGIN/2.0M 200 OK` を含む `.plugin` 雛形を生成していた。
+これは未実装の動作を実装済みと誤認させ、PluginRegistry のロード失敗やログノイズを生む。
 
-`docs/SPEC_PLUGIN_2.0M_ja-jp.md` と `docs/OURIN_MIGRATOR_PLAN.md` では `SomePlugin_mac/` 形式を標準形にしたが、現在の `PluginScaffolder` は旧形式の `ourin/macos/<name>.plugin/` を生成する。
-
-**修正案**
-
-`PluginScaffolder.scaffold` の出力を以下に変更する。
+`PluginScaffolder` は現在、以下の実行体なし移行記録だけを生成する。
 
 ```text
 ourin/macos/<name>_mac/
-  install.txt
   descript.txt
   message.japanese.txt
   message.english.txt
-  <name>.plugin/
-    Contents/
-      Info.plist
-      MacOS/<name>
-      Resources/
-        descript.txt
-        ourin.json
-  Sources/
-    <name>Plugin.c
+  ourin.json (mode: unsupported)
   OriginalDocs/
     ReadMe.txt
+  README.md
 ```
 
-**受け入れ条件**
+`PluginRegistry` は `unsupported` と旧 `scaffold` manifest を実行対象から除外する。
+元資産は削除せず、元の `install.txt` は `OriginalDocs/` にのみ保存する。
 
-- `OurinMigratorTests.scaffoldGeneratesPluginBundleStructure` を新構造に更新し、成功する。
-- 既存 `descript.txt` / `install.txt` / `message.*.txt` がある場合は root と `OriginalDocs/` にコピーされる。
-- `IMPLEMENTATION_TODO.md` は bundle 内ではなく `<name>_mac/README.md` か `Sources/` 側へ置く。
+実装完了後の個別ネイティブ plugin は、`ourin.json` を `native-plugin` または
+`native-replacement` に更新してからロード対象とする。
 
 ## 修正 2: 同一 plugin ID の二重ロードを防ぐ
 

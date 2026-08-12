@@ -163,6 +163,9 @@ class AnimationEngine {
     
     /// Load animations from surfaces.txt content
     func loadAnimations(surfaceID: Int, content: String) {
+        // アニメーション定義は現在のサーフェスに限定する。前回のサーフェスの定義を
+        // 残すと、旧サーフェス用のオーバーレイが新しい表情へ混入する。
+        animations.removeAll()
         let lines = content.components(separatedBy: .newlines)
         var currentSurfaceIDs: Set<Int> = []
         var currentAnimationID: Int? = nil

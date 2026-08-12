@@ -54,7 +54,7 @@ protocol ShioriBackend {
 final class YayaBackend: ShioriBackend {
     private let yayaAdapter: YayaAdapter
 
-    init?(ghostURL: URL, descript: [String:String]) {
+    init?(ghostURL: URL) {
         let ghostMasterURL = ghostURL.appendingPathComponent("ghost/master")
         let yayaTxtURL = ghostMasterURL.appendingPathComponent("yaya.txt")
 
@@ -860,9 +860,7 @@ public final class ShioriLoader {
         
         if shioriName == "yaya.dll" {
             // It's YAYA. Instantiate YayaBackend.
-            // The descript dictionary will be loaded inside YayaBackend's initializer.
-            // For now, we pass an empty dictionary as a placeholder.
-            guard let yaya = YayaBackend(ghostURL: base, descript: [:]) else {
+            guard let yaya = YayaBackend(ghostURL: base) else {
                 return nil
             }
             backend = yaya

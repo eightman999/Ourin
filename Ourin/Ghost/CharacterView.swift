@@ -90,19 +90,6 @@ struct CharacterView: View {
         .opacity(viewModel.alpha)
         .allowsHitTesting(!viewModel.repaintLocked)
         .contentShape(Rectangle())
-        .gesture(
-            DragGesture(minimumDistance: 0)
-                .onEnded { value in
-                    handleTap(at: value.location)
-                }
-        )
-    }
-
-    /// Handle tap/click on the character
-    private func handleTap(at location: CGPoint) {
-        NSLog("[CharacterView] Ghost tapped at location: (\(location.x), \(location.y))")
-        // The InputMonitor will dispatch this to SHIORI as OnMouseClick event
-        // with the proper coordinates and parameters
     }
 
     private func filterBlurRadius() -> CGFloat {
@@ -183,7 +170,7 @@ final class CharacterHitTestingHostingView: NSHostingView<CharacterView> {
     }
 
     override func menu(for event: NSEvent) -> NSMenu? {
-        showRightClickMenu(for: event)
+        // コンテキストメニューは返さない（rightMouseUp 側で1回だけトリガーする）
         return nil
     }
 
