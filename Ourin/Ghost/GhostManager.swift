@@ -1279,7 +1279,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 shellName: result.shellName,
                                 succeeded: true
                             )
-                            self.runScript(trimmed)
+                            self.runScript(trimmed, translationContext: .init(eventID: result.eventID))
                         }
                     } else {
                         NSLog("[GhostManager] Boot script is whitespace-only after trim; skipping display")
@@ -1366,7 +1366,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     return
                 }
                 self.pendingBootResult = existingResult
-                self.runScript(trimmed)
+                self.runScript(trimmed, translationContext: .init(eventID: existingResult.eventID))
             }
         }
     }
@@ -1711,7 +1711,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 refs: [translated],
                 timeout: 2.0
             ), response.ok, response.status == 200, let value = response.value {
-                translated = value
+                if Self.shouldAcceptTranslationResponse(original: translated, candidate: value) {
+                    translated = value
+                } else {
+                    Log.info("[GhostManager] Ignoring numeric OnTranslate response for non-numeric script")
+                }
             }
         }
         if let value = ghostMakotoTranslator?.translate(translated) {
@@ -1726,8 +1730,33 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func runScript(_ script: String, translationContext: ScriptTranslationContext = .baseware) {
         let preview = script.prefix(200)
         Log.debug("[GhostManager] runScript called with: \(preview)")
+        guard !Self.shouldIgnoreNumericEventResponse(script, eventID: translationContext.eventID) else {
+            Log.info("[GhostManager] Ignoring numeric SHIORI event response: event=\(translationContext.eventID ?? "unknown") value=\(script.trimmingCharacters(in: .whitespacesAndNewlines))")
+            return
+        }
         let translated = translateForDisplay(script, context: translationContext)
         runTranslatedScript(translated)
+    }
+
+    /// SHIORIのイベント応答はSakura Scriptであり、裸の数値は会話本文ではなく
+    /// YAYA等が返す制御値として扱う。通常の本文「0」は保持しつつ、On*イベントの
+    /// 数値応答だけを再生境界で止める。
+    static func shouldIgnoreNumericEventResponse(_ value: String, eventID: String?) -> Bool {
+        guard let eventID,
+              eventID.lowercased().hasPrefix("on") else { return false }
+        return isNumericOnlyScript(value)
+    }
+
+    /// OnTranslate の異常な裸数値で、元の Sakura Script 全体を置換しない。
+    /// 元の本文自体が数値だけの場合は、正当な翻訳結果として受け入れる。
+    static func shouldAcceptTranslationResponse(original: String, candidate: String) -> Bool {
+        !isNumericOnlyScript(candidate) || isNumericOnlyScript(original)
+    }
+
+    private static func isNumericOnlyScript(_ value: String) -> Bool {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, Double(trimmed) != nil else { return false }
+        return trimmed.contains(where: \.isNumber)
     }
 
     /// 既にOnTranslate/MAKOTOを通過したスクリプトを再生する。
