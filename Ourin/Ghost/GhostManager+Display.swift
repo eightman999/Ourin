@@ -346,11 +346,8 @@ extension GhostManager {
             player.play()
             Log.debug("[GhostManager] Playing sound: \(filename) loop=\(loop)")
 
-            // SHIORI 再生イベント通知。Ourin は音楽/効果音を区別しないため、
-            // 再生開始時に OnMusicPlay / OnMusicPlayEx を通知する。
-            let refs = ["filename": filename]
-            EventBridge.shared.notify(.OnMusicPlay, refs: refs)
-            EventBridge.shared.notify(.OnMusicPlayEx, refs: refs)
+            // OnMusicPlay / OnMusicPlayEx は外部メディアプレイヤーの曲情報イベント。
+            // この経路は \\![sound] のローカル効果音なので、OnSound 系だけを発火する。
         }
     }
 
@@ -469,7 +466,7 @@ extension GhostManager {
             Log.debug("[GhostManager] Stopped sound: \(filename)")
             EventBridge.shared.notify(.OnSoundStop, refs: [
                 "filename": filename,
-                "reason": "end"
+                "reason": "close"
             ])
         }
     }
@@ -656,7 +653,7 @@ extension GhostManager {
         for filename in stoppedFilenames {
             EventBridge.shared.notify(.OnSoundStop, refs: [
                 "filename": filename,
-                "reason": "end"
+                "reason": "close"
             ])
         }
         stopAllVideos()

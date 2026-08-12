@@ -49,6 +49,12 @@ struct EventIDAuditTests {
     }
 
     @Test
+    func musicEventsUseExternalPlayerMetadataReferences() {
+        #expect(EventReferenceTable.specs["OnMusicPlay"]?.references == ["title", "artist"])
+        #expect(EventReferenceTable.specs["OnMusicPlayEx"]?.references == ["title", "artist"])
+    }
+
+    @Test
     func videoPlayFailureEventExistsAndMapsReferences() {
         #expect(EventID.OnVideoPlayFailure.rawValue == "OnVideoPlayFailure")
         let params = EventReferenceTable.params(forEvent: "OnVideoPlayFailure", refs: [

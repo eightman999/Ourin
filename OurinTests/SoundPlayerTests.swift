@@ -2,6 +2,28 @@ import Foundation
 import Testing
 @testable import Ourin
 
+private final class SoundEventCapturingRuntime: GhostShioriRuntime {
+    let kind: ShioriRuntimeKind = .native
+    var isLoaded = true
+    var resourceManager: ResourceManager?
+    var requests: [(method: String, id: String, refs: [String])] = []
+
+    func load(context: ShioriRuntimeLoadContext) -> Bool { true }
+
+    func request(
+        method: String,
+        id: String,
+        headers: [String: String],
+        refs: [String],
+        timeout: TimeInterval
+    ) -> ShioriRuntimeResponse? {
+        requests.append((method, id, refs))
+        return .init(ok: true, status: 204)
+    }
+
+    func unload() { isLoaded = false }
+}
+
 // GhostManager の init は共有状態（PropertyManager.shared / ResourceManager / 通知センター）に触れるため、
 // 並列実行するとフレークする。直列化して実行する。
 @Suite(.serialized)
@@ -443,6 +465,65 @@ struct SoundPlayerTests {
         try await Task.sleep(nanoseconds: 650_000_000)
         #expect(manager.currentSounds.isEmpty)
         #expect(manager.namedSounds["short.wav"] == nil)
+    }
+
+    @Test @MainActor
+    func localSoundUsesSoundEventsAndCloseReason() async throws {
+        EventBridge.shared.stop()
+        let ghostURL = try makeTempGhostURL()
+        defer { try? FileManager.default.removeItem(at: ghostURL) }
+        let wav = ghostURL.appendingPathComponent("sound").appendingPathComponent("tone.wav")
+        try makeWav(at: wav, seconds: 3)
+
+        let manager = GhostManager(ghostURL: ghostURL)
+        let runtime = SoundEventCapturingRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            manager.stopAllSounds()
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.playSound(filename: "tone.wav")
+        try await Task.sleep(nanoseconds: 150_000_000)
+        #expect(runtime.requests.contains { $0.id == "OnMusicPlay" } == false)
+        #expect(runtime.requests.contains { $0.id == "OnMusicPlayEx" } == false)
+
+        manager.stopSound(filename: "tone.wav")
+        let closeEvent = try #require(runtime.requests.last { $0.id == "OnSoundStop" })
+        #expect(closeEvent.method == "NOTIFY")
+        #expect(closeEvent.refs == ["tone.wav", "close"])
+
+        runtime.requests.removeAll()
+        manager.playSound(filename: "tone.wav")
+        try await Task.sleep(nanoseconds: 150_000_000)
+        manager.stopAllSounds()
+        let allCloseEvent = try #require(runtime.requests.last { $0.id == "OnSoundStop" })
+        #expect(allCloseEvent.refs == ["tone.wav", "close"])
+    }
+
+    @Test @MainActor
+    func naturalSoundCompletionUsesEndReason() async throws {
+        EventBridge.shared.stop()
+        let ghostURL = try makeTempGhostURL()
+        defer { try? FileManager.default.removeItem(at: ghostURL) }
+        let wav = ghostURL.appendingPathComponent("sound").appendingPathComponent("short.wav")
+        try makeWav(at: wav, seconds: 0.18)
+
+        let manager = GhostManager(ghostURL: ghostURL)
+        let runtime = SoundEventCapturingRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            manager.stopAllSounds()
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.playSound(filename: "short.wav")
+        try await Task.sleep(nanoseconds: 700_000_000)
+        let endEvent = try #require(runtime.requests.last { $0.id == "OnSoundStop" })
+        #expect(endEvent.refs == ["short.wav", "end"])
+        #expect(manager.currentSounds.isEmpty)
     }
 
     @Test @MainActor

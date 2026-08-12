@@ -171,8 +171,10 @@ public enum EventReferenceTable {
         .init(id: "OnExecuteWebSocketClose", references: ["url"], category: "network"),
 
         // MARK: - メディア
-        .init(id: "OnMusicPlay", references: ["filename"], category: "media"),
-        .init(id: "OnMusicPlayEx", references: ["filename"], category: "media"),
+        // OnMusicPlay 系はローカルの \\![sound] ではなく外部メディアプレイヤーの曲情報。
+        // OnMusicPlayEx は Reference2 以降に拡張情報が続くため、発火側で raw ReferenceN を追加する。
+        .init(id: "OnMusicPlay", references: ["title", "artist"], category: "media"),
+        .init(id: "OnMusicPlayEx", references: ["title", "artist"], category: "media"),
         .init(id: "OnMusicStop", references: ["filename"], category: "media"),
         .init(id: "OnSoundLoop", references: ["filename"], category: "media"),
         .init(id: "OnSoundStop", references: ["filename", "reason"], category: "media"),
