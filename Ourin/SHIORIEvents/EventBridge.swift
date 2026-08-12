@@ -339,18 +339,29 @@ final class EventBridge {
                  params: [String:String] = [:],
                  to target: GhostManager,
                  security: ShioriSecurityContext = .local) -> Bool {
-        let send = {
-            guard let session = self.session(for: target) else { return false }
+        requestScript(id, params: params, to: target, security: security) != nil
+    }
+
+    /// 指定ゴーストへの GET の応答スクリプトを返しつつ再生する。
+    /// 切替イベントの Reference1 のように、後続イベントへ応答本文を引き渡す必要がある
+    /// ライフサイクル処理で使用する。
+    @discardableResult
+    func requestScript(_ id: EventID,
+                       params: [String:String] = [:],
+                       to target: GhostManager,
+                       security: ShioriSecurityContext = .local) -> String? {
+        let send: () -> String? = {
+            guard let session = self.session(for: target) else { return nil }
             let script = session.dispatcher.sendGet(id: id, params: params, security: security)
             let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmed.isEmpty else { return false }
+            guard !trimmed.isEmpty else { return nil }
             target.runScript(trimmed, translationContext: Self.translationContext(eventID: id.rawValue, params: params))
-            return true
+            return trimmed
         }
         if Thread.isMainThread {
             return send()
         }
-        return DispatchQueue.main.sync(execute: send)
+        return DispatchQueue.main.sync { send() }
     }
 
     /// 表駆動発火の指定ゴースト向けGET。
@@ -363,6 +374,42 @@ final class EventBridge {
                 params: EventReferenceTable.params(forEvent: id.rawValue, refs: refs),
                 to: target,
                 security: security)
+    }
+
+    /// 指定したゴーストを除外して GET をブロードキャストする。
+    ///
+    /// `OnOtherGhostBooted` / `OnOtherGhostChanged` のように、発生源と対象自身には
+    /// 送らず、無関係な起動中ゴーストだけへ通知するイベントで使用する。
+    @discardableResult
+    func request(_ id: EventID,
+                 params: [String:String] = [:],
+                 excluding excludedGhosts: [GhostManager],
+                 security: ShioriSecurityContext = .local) -> Bool {
+        let excludedIDs = Set(excludedGhosts.map(ObjectIdentifier.init))
+        let send = {
+            var producedScript = false
+            for (_, session) in self.sessions {
+                guard let manager = session.ghostManager,
+                      !excludedIDs.contains(ObjectIdentifier(manager)) else { continue }
+                let script = session.dispatcher.sendGet(id: id, params: params, security: security)
+                let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { continue }
+                producedScript = true
+                let context = Self.translationContext(eventID: id.rawValue, params: params)
+                if Thread.isMainThread {
+                    manager.runScript(trimmed, translationContext: context)
+                } else {
+                    DispatchQueue.main.sync {
+                        manager.runScript(trimmed, translationContext: context)
+                    }
+                }
+            }
+            return producedScript
+        }
+        if Thread.isMainThread {
+            return send()
+        }
+        return DispatchQueue.main.sync(execute: send)
     }
 
     func notify(_ id: EventID,

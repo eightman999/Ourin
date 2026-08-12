@@ -673,7 +673,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     /// SSTP は ReceiverGhostName で対象を絞り込める。
     /// - Returns: 起動した GhostManager（既に同一パスが起動中なら既存を返す）
     @discardableResult
-    func launchAdditionalGhost(at root: URL) -> GhostManager {
+    func launchAdditionalGhost(
+        at root: URL,
+        bootRequest: GhostBootRequest? = nil,
+        completion: ((GhostManager, GhostBootResult) -> Void)? = nil
+    ) -> GhostManager {
         if let existing = allGhostManagers.first(where: { $0.ghostURL.standardizedFileURL == root.standardizedFileURL }) {
             NSLog("[launchAdditionalGhost] already running: \(root.lastPathComponent)")
             return existing
@@ -681,20 +685,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         NSLog("[launchAdditionalGhost] launching: \(root.path)")
         let manager = GhostManager(ghostURL: root)
         additionalGhosts.append(manager)
-        manager.start()
+        manager.start(bootRequest: bootRequest, completion: completion)
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         return manager
     }
 
     /// インストール済みゴースト名から追加ゴーストを起動する。
     @discardableResult
-    func launchAdditionalGhost(named name: String) -> GhostManager? {
+    func launchAdditionalGhost(
+        named name: String,
+        bootRequest: GhostBootRequest? = nil,
+        completion: ((GhostManager, GhostBootResult) -> Void)? = nil
+    ) -> GhostManager? {
         guard let item = NarRegistry.shared.installedItems(ofType: "ghost")
             .first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) else {
             NSLog("[launchAdditionalGhost] not found: \(name)")
             return nil
         }
-        return launchAdditionalGhost(at: item.path)
+        return launchAdditionalGhost(at: item.path, bootRequest: bootRequest, completion: completion)
     }
 
     /// 追加ゴーストを終了する（プライマリは対象外）。

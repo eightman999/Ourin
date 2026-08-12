@@ -469,6 +469,22 @@ struct BalloonAnchorRange: Equatable {
 
 // MARK: - GhostManager
 
+/// 追加ゴーストの起動時に、OnBoot の前に発火するライフサイクル GET。
+///
+/// `OnGhostCalled` / `OnGhostChanged` は呼出し先・切替先ゴースト自身へ送るイベントのため、
+/// EventBridge の全体ブロードキャストではなく、対象 GhostManager のロード処理へ渡す。
+struct GhostBootRequest {
+    let eventID: EventID
+    let references: [String]
+}
+
+struct GhostBootResult {
+    let eventID: String
+    let script: String
+    let shellName: String
+    let succeeded: Bool
+}
+
 /// Manages the lifecycle and display of a single ghost.
 class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
@@ -501,6 +517,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var lastSntpServerDateTime: String?
     var lastSntpTimezone: String?
     var lastBiffUnreadCounts: [String: Int] = [:]
+
+    /// 追加ゴーストの起動スクリプト再生完了時に呼び出すコールバック。
+    private var bootCompletion: ((GhostManager, GhostBootResult) -> Void)?
+    private var pendingBootResult: GhostBootResult?
 
     // Window management
     var characterWindows: [Int: NSWindow] = [:] // Support multiple scopes (0=master, 1=partner)
@@ -760,7 +780,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     }
 
     deinit {
-        shutdown()
+        // Swift Testing/Task の所有権解放はバックグラウンドスレッドで起こり得る。
+        // deinit から AppKit の停止処理を呼ぶと、stopAllVideos() などがメインキューへ
+        // self の weak capture を登録する途中で objc_initWeak が abort するため、
+        // UI を含む終了処理は明示的な shutdown() に限定する。
+        // メインスレッドでの解放時だけは、従来どおり最後の保険として実行する。
+        if Thread.isMainThread {
+            shutdown()
+        }
     }
 
     /// `currentghost.scope(ID).scaling` が返す実効倍率を、SET/SERIKO 後の ViewModel から組み立てる。
@@ -1086,8 +1113,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         return runtime
     }
 
-    func start() {
+    func start(
+        bootRequest: GhostBootRequest? = nil,
+        completion: ((GhostManager, GhostBootResult) -> Void)? = nil
+    ) {
         Log.info("[GhostManager] start() called for ghost at: \(ghostURL.path)")
+        bootCompletion = completion
+        pendingBootResult = nil
         setupWindows()
         setupRightClickMenu()
         Log.debug("[GhostManager] Windows setup complete")
@@ -1164,6 +1196,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 Log.info("[GhostManager] Restored cached SHIORI runtime: \(moduleName)")
             } else {
                 guard let loaded = self.createLoadedShioriRuntime(moduleName: moduleName, ghostRoot: ghostRoot) else {
+                    DispatchQueue.main.async {
+                        self.finishBootIfNeeded(with: GhostBootResult(
+                            eventID: bootRequest?.eventID.rawValue ?? "",
+                            script: "",
+                            shellName: self.activeShellName,
+                            succeeded: false
+                        ))
+                    }
                     return
                 }
                 runtime = loaded
@@ -1201,23 +1241,45 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             }
 
             // Request the boot script with a timeout; keep the already loaded surface visible meanwhile.
-            Log.info("[GhostManager] Requesting boot script (OnFirstBoot/OnBoot)...")
+            Log.info("[GhostManager] Requesting boot script (initial lifecycle event/OnFirstBoot/OnBoot)...")
             let sem = DispatchSemaphore(value: 0)
 
             DispatchQueue.global(qos: .userInitiated).async {
-                let script = self.obtainBootScript(using: runtime, bootCount: bootCount)
-                if let script = script {
-                    let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                let result = self.obtainBootScript(
+                    using: runtime,
+                    bootCount: bootCount,
+                    initialRequest: bootRequest
+                )
+                if let result {
+                    let trimmed = result.script.trimmingCharacters(in: .whitespacesAndNewlines)
                     if !trimmed.isEmpty {
                         Log.debug("[GhostManager] Boot script resolved (len=\(trimmed.count))")
                         // Print a safe preview via NSLog so it always appears in logs
                         let preview = trimmed.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
                         NSLog("[GhostManager] Boot script preview: \(preview)")
                         DispatchQueue.main.async {
+                            self.pendingBootResult = GhostBootResult(
+                                eventID: result.eventID,
+                                script: trimmed,
+                                shellName: result.shellName,
+                                succeeded: true
+                            )
                             self.runScript(trimmed)
                         }
                     } else {
                         NSLog("[GhostManager] Boot script is whitespace-only after trim; skipping display")
+                        DispatchQueue.main.async {
+                            self.finishBootIfNeeded(with: result)
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        self.finishBootIfNeeded(with: GhostBootResult(
+                            eventID: bootRequest?.eventID.rawValue ?? "",
+                            script: "",
+                            shellName: self.activeShellName,
+                            succeeded: true
+                        ))
                     }
                 }
                 sem.signal()
@@ -3889,6 +3951,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 // \e を含まないスクリプトの終端でもアンカー範囲を確定する。
                 finalizePendingAnchorIfNeeded()
                 emitPluginTalkAfterIfNeeded()
+                finishBootIfNeeded()
                 // OnClose 応答スクリプトの再生完了後に終了する（スクリプトが \- を含まない場合の保険）
                 if terminateAfterPlayback {
                     finalizeTermination()
@@ -4029,13 +4092,62 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
 
+    /// 起動時イベントの応答スクリプト再生が完了したことを、呼出し元へ一度だけ通知する。
+    private func finishBootIfNeeded(with result: GhostBootResult? = nil) {
+        if let result {
+            pendingBootResult = result
+        }
+        guard let completion = bootCompletion,
+              let result = pendingBootResult else {
+            return
+        }
+        bootCompletion = nil
+        pendingBootResult = nil
+        completion(self, result)
+    }
+
     /// Try to obtain a boot script in order:
-    /// 1) 初回起動のみ GET OnFirstBoot（Reference0 = vanish回数）
-    /// 2) GET OnBoot（Reference0 = シェル名。2回目以降の起動もすべて OnBoot。UKADOC に OnSecondBoot は存在しない）
-    /// 3) BridgeToSHIORI for OnBoot
-    /// 4) SHIORI が応答しない場合は空応答（合成文は生成しない）
-    private func obtainBootScript(using runtime: GhostShioriRuntime, bootCount: Int) -> String? {
+    /// 1) 呼出し/切替で指定された GET（OnGhostCalled / OnGhostChanged）
+    /// 2) 初回起動のみ GET OnFirstBoot（Reference0 = vanish回数）
+    /// 3) GET OnBoot（Reference0 = シェル名。2回目以降の起動もすべて OnBoot）
+    /// 4) BridgeToSHIORI for OnBoot
+    /// 5) SHIORI が応答しない場合は空応答（合成文は生成しない）
+    private func obtainBootScript(
+        using runtime: GhostShioriRuntime,
+        bootCount: Int,
+        initialRequest: GhostBootRequest?
+    ) -> GhostBootResult? {
         let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
+        let shellName = activeShellName
+
+        if let initialRequest {
+            var refs = initialRequest.references
+            while refs.count < 8 { refs.append("") }
+            // OnGhostCalled / OnGhostChanged の Reference7 は、切替先・呼出先のシェル名。
+            refs[7] = shellName
+            if let r = runtime.request(
+                method: "GET",
+                id: initialRequest.eventID.rawValue,
+                headers: hdrs,
+                refs: refs,
+                timeout: 4.0
+            ), r.ok {
+                let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
+                NSLog("[GhostManager] \(initialRequest.eventID.rawValue) response: ok=true, len=\(v.count), preview=\(pv)")
+                if !v.isEmpty {
+                    return GhostBootResult(
+                        eventID: initialRequest.eventID.rawValue,
+                        script: v,
+                        shellName: shellName,
+                        succeeded: true
+                    )
+                }
+            } else {
+                NSLog("[GhostManager] \(initialRequest.eventID.rawValue) request failed or no response")
+            }
+        }
+
         if bootCount == 0 {
             // UKADOC: OnFirstBoot Reference0 = vanish された回数（通常 0）
             let vanishCount = UserDefaults.standard.integer(forKey: "OurinVanishCount")
@@ -4043,19 +4155,32 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                 let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
                 NSLog("[GhostManager] OnFirstBoot response: ok=true, len=\(v.count), preview=\(pv)")
-                if !v.isEmpty { return v }
+                if !v.isEmpty {
+                    return GhostBootResult(
+                        eventID: "OnFirstBoot",
+                        script: v,
+                        shellName: shellName,
+                        succeeded: true
+                    )
+                }
             } else {
                 NSLog("[GhostManager] OnFirstBoot request failed or no response")
             }
         }
 
         // 2) OnBoot（UKADOC: Reference0 = 起動したシェル名）
-        let shellName = activeShellName
         if let r = runtime.request(method: "GET", id: "OnBoot", headers: hdrs, refs: [shellName], timeout: 4.0), r.ok {
             let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
             NSLog("[GhostManager] OnBoot response: ok=true, len=\(v.count), preview=\(pv)")
-            if !v.isEmpty { return v }
+            if !v.isEmpty {
+                return GhostBootResult(
+                    eventID: "OnBoot",
+                    script: v,
+                    shellName: shellName,
+                    succeeded: true
+                )
+            }
         } else {
             NSLog("[GhostManager] OnBoot request failed or no response")
         }
@@ -4065,7 +4190,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let bv = bridge.trimmingCharacters(in: .whitespacesAndNewlines)
         if !bv.isEmpty {
             NSLog("[GhostManager] BridgeToSHIORI fallback used (len=\(bv.count))")
-            return bridge
+            return GhostBootResult(
+                eventID: "OnBoot",
+                script: bridge,
+                shellName: shellName,
+                succeeded: true
+            )
         }
 
         // 4) No synthetic greeting: an unavailable SHIORI must remain observable as

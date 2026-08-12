@@ -150,9 +150,13 @@ func eventReferenceTableTimeEventReferences() {
 
 @Test
 func eventReferenceTableGhostChangedReferences() {
-    // UKADOC: OnGhostChanged R0=直前ゴースト名 R1=切替時スクリプト R2/R3=SSP拡張
+    // UKADOC: OnGhostChanged R0=直前ゴースト名 R1=切替時スクリプト,
+    // R2/R3=SSP拡張, R7=切替先シェル名。
     let changed = EventReferenceTable.specs["OnGhostChanged"]
-    #expect(changed?.references == ["prevGhostName", "changeScript", "prevGhostNameSSP", "prevGhostPath"])
+    #expect(changed?.references == [
+        "prevGhostName", "changeScript", "prevGhostNameSSP", "prevGhostPath",
+        "unused4", "unused5", "unused6", "shellName"
+    ])
 }
 
 @Test
@@ -168,7 +172,7 @@ func eventReferenceTableGhostLifecycleReferencesMatchUkadoc() {
         "unused4", "unused5", "unused6", "calledShellName"
     ])
     #expect(EventReferenceTable.specs["OnGhostCallComplete"]?.references == [
-        "callingGhostName", "calledBootScript", "callingGhostNameSSP",
+        "calledGhostMainName", "calledBootScript", "calledGhostNameSSP",
         "unused3", "unused4", "unused5", "unused6", "calledShellName"
     ])
     #expect(EventReferenceTable.specs["OnOtherGhostBooted"]?.references == [

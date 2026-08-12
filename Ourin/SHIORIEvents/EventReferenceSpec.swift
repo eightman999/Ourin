@@ -66,7 +66,7 @@ public enum EventReferenceTable {
 
         // MARK: - ゴースト切替
         .init(id: "OnGhostChanging", references: ["nextGhostName", "changeMode", "nextGhostNameSSP", "nextGhostPath"], category: "ghost"),
-        .init(id: "OnGhostChanged", references: ["prevGhostName", "changeScript", "prevGhostNameSSP", "prevGhostPath"], category: "ghost"),
+        .init(id: "OnGhostChanged", references: ["prevGhostName", "changeScript", "prevGhostNameSSP", "prevGhostPath", "unused4", "unused5", "unused6", "shellName"], category: "ghost"),
         // UKADOC: R0=起動したゴースト本体名, R1=起動スクリプト,
         // R2=起動したゴーストのSSP名, R7=シェル名。R3..R6 は予約領域。
         .init(id: "OnOtherGhostBooted", references: ["ghostName", "bootScript", "ghostNameSSP", "unused3", "unused4", "unused5", "unused6", "shellName"], category: "ghost"),
@@ -332,7 +332,7 @@ public enum EventReferenceTable {
         .init(id: "OnGhostCalled", references: ["callingGhostName", "callScript", "callingGhostNameSSP", "callingGhostPath", "unused4", "unused5", "unused6", "calledShellName"], category: "ghost"),
         // UKADOC: R0=呼出元本体名, R1=呼出先の起動スクリプト,
         // R2=呼出元SSP名, R7=呼出先シェル名。
-        .init(id: "OnGhostCallComplete", references: ["callingGhostName", "calledBootScript", "callingGhostNameSSP", "unused3", "unused4", "unused5", "unused6", "calledShellName"], category: "ghost"),
+        .init(id: "OnGhostCallComplete", references: ["calledGhostMainName", "calledBootScript", "calledGhostNameSSP", "unused3", "unused4", "unused5", "unused6", "calledShellName"], category: "ghost"),
         .init(id: "OnGhostTermsAccept", references: ["ghostName"], category: "ghost"),
         .init(id: "OnGhostTermsDecline", references: ["ghostName"], category: "ghost"),
         .init(id: "OnHeadlineCheckFailure", references: ["reason"], category: "network"),

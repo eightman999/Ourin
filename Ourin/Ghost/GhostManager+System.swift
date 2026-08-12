@@ -322,9 +322,79 @@ extension GhostManager: NSWindowDelegate {
 
     // MARK: - Ghost Booting via SSTP
 
+    private struct GhostEventInfo {
+        let mainName: String
+        let ghostName: String
+        let path: String
+        let shellName: String
+    }
+
+    private var currentGhostEventInfo: GhostEventInfo {
+        let ghostName = ghostConfig?.name ?? ghostURL.lastPathComponent
+        return GhostEventInfo(
+            mainName: ghostConfig?.sakuraName ?? ghostName,
+            ghostName: ghostName,
+            path: ghostURL.path,
+            shellName: activeShellName
+        )
+    }
+
+    private func ghostEventInfo(named name: String) -> GhostEventInfo {
+        let item = NarRegistry.shared.installedItems(ofType: "ghost").first {
+            $0.name.caseInsensitiveCompare(name) == .orderedSame
+        }
+        let fallbackName = item?.name ?? name
+        guard let path = item?.path else {
+            return GhostEventInfo(
+                mainName: fallbackName,
+                ghostName: fallbackName,
+                path: "",
+                shellName: "master"
+            )
+        }
+
+        let root = path.appendingPathComponent("ghost/master", isDirectory: true)
+        let config = GhostConfiguration.load(from: root)
+        let ghostName = config?.name ?? fallbackName
+        return GhostEventInfo(
+            mainName: config?.sakuraName ?? ghostName,
+            ghostName: ghostName,
+            path: path.path,
+            shellName: config?.defaultShellDirectory.isEmpty == false
+                ? config?.defaultShellDirectory ?? "master"
+                : "master"
+        )
+    }
+
+    private func notifyOtherGhostBooted(
+        target: GhostManager,
+        result: GhostBootResult,
+        excluding source: GhostManager
+    ) {
+        let info = target.currentGhostEventInfo
+        let params = EventReferenceTable.params(
+            forEvent: EventID.OnOtherGhostBooted.rawValue,
+            refs: [
+                "ghostName": info.mainName,
+                "bootScript": result.script,
+                "ghostNameSSP": info.ghostName,
+                "shellName": result.shellName
+            ]
+        )
+        EventBridge.shared.request(
+            .OnOtherGhostBooted,
+            params: params,
+            excluding: [source, target]
+        )
+    }
+
     /// Boot another ghost (\+). 複数ゴースト同時実行に対応: 対象ゴーストを別 GhostManager として
     /// 同時起動する。起動できない場合は従来の SSTP NOTIFY 通知にフォールバックする。
-    func bootOtherGhost(name: String? = nil) {
+    func bootOtherGhost(
+        name: String? = nil,
+        bootRequest: GhostBootRequest? = nil,
+        completion: ((GhostManager, GhostBootResult) -> Void)? = nil
+    ) {
         let installedGhosts = NarRegistry.shared.installedGhosts()
         let currentGhostName = ghostConfig?.name
         let candidates = installedGhosts.filter { $0 != currentGhostName }
@@ -337,35 +407,24 @@ extension GhostManager: NSWindowDelegate {
         // 追加ゴーストとして in-process で同時起動する（プライマリは置き換えない）。
         DispatchQueue.main.async {
             if let appDelegate = NSApp.delegate as? AppDelegate,
-               appDelegate.launchAdditionalGhost(named: ghostName) != nil {
-                EventBridge.shared.request(
-                    .OnOtherGhostBooted,
-                    params: EventReferenceTable.params(
-                        forEvent: EventID.OnOtherGhostBooted.rawValue,
-                        refs: [
-                            "ghostName": ghostName,
-                            "bootScript": "",
-                            "ghostNameSSP": ghostName,
-                            "shellName": ""
-                        ]
-                    )
-                )
+               appDelegate.launchAdditionalGhost(
+                   named: ghostName,
+                   bootRequest: bootRequest,
+                   completion: { [weak self] target, result in
+                       guard result.succeeded else { return }
+                       // A call starts a target and is paired with OnGhostCallComplete;
+                       // an ordinary \+ boot has no caller.  A switch is a change event,
+                       // not an additional boot notification.
+                       if bootRequest?.eventID != .OnGhostChanged {
+                           self?.notifyOtherGhostBooted(target: target, result: result, excluding: self ?? target)
+                       }
+                       completion?(target, result)
+                   }
+               ) != nil {
                 return
             }
             // フォールバック: 外部インスタンス向け SSTP 通知
             self.sendSSTPNotify(event: "OnBoot", references: ["Reference0": ghostName])
-            EventBridge.shared.request(
-                .OnOtherGhostBooted,
-                params: EventReferenceTable.params(
-                    forEvent: EventID.OnOtherGhostBooted.rawValue,
-                    refs: [
-                        "ghostName": ghostName,
-                        "bootScript": "",
-                        "ghostNameSSP": ghostName,
-                        "shellName": ""
-                    ]
-                )
-            )
         }
     }
 
@@ -381,18 +440,6 @@ extension GhostManager: NSWindowDelegate {
         }
         for target in targets {
             sendSSTPNotify(event: "OnBoot", references: ["Reference0": target], receiverGhostName: target)
-            EventBridge.shared.request(
-                .OnOtherGhostBooted,
-                params: EventReferenceTable.params(
-                    forEvent: EventID.OnOtherGhostBooted.rawValue,
-                    refs: [
-                        "ghostName": target,
-                        "bootScript": "",
-                        "ghostNameSSP": target,
-                        "shellName": ""
-                    ]
-                )
-            )
         }
     }
 
@@ -4154,70 +4201,57 @@ extension GhostManager: NSWindowDelegate {
         }
 
         let eventTargetName = resolvedName ?? normalized
-
-        let previous = ghostConfig?.name ?? ""
-        let previousPath = ghostURL.path
-        // 切替先ゴーストのインストールパスを名前から解決する（見つからなければ Reference3 を省略）
-        let targetPath = NarRegistry.shared.installedItems(ofType: "ghost").first {
-            $0.name.lowercased() == eventTargetName.lowercased()
-        }?.path.path
+        let sourceInfo = currentGhostEventInfo
+        let targetInfo = ghostEventInfo(named: eventTargetName)
+        let changingParams: [String: String] = [
+            "nextGhostName": targetInfo.mainName,
+            "changeMode": "manual",
+            "nextGhostNameSSP": targetInfo.ghostName,
+            "nextGhostPath": targetInfo.path
+        ]
+        let changeRequest = GhostBootRequest(
+            eventID: .OnGhostChanged,
+            references: [
+                sourceInfo.mainName,
+                "",
+                sourceInfo.ghostName,
+                sourceInfo.path,
+                "", "", "", ""
+            ]
+        )
+        var changeScript = ""
         if raiseEvent {
             // UKADOC: Reference0=切替先の本体側名前, Reference1=manual/automatic, Reference2=切替先ゴースト名[SSP], Reference3=切替先パス[SSP]
-            var changingParams: [String: String] = [
-                "nextGhostName": eventTargetName,
-                "changeMode": "manual",
-                "nextGhostNameSSP": eventTargetName
-            ]
-            if let targetPath { changingParams["nextGhostPath"] = targetPath }
             // OnGhostChanging は返答スクリプトを切替前に再生する GET イベント。
-            EventBridge.shared.request(
+            changeScript = EventBridge.shared.requestScript(
                 .OnGhostChanging,
-                params: EventReferenceTable.params(forEvent: EventID.OnGhostChanging.rawValue, refs: changingParams)
-            )
+                params: EventReferenceTable.params(forEvent: EventID.OnGhostChanging.rawValue, refs: changingParams),
+                to: self
+            ) ?? ""
         }
 
-        switch normalized.lowercased() {
-        case "random":
-            bootOtherGhost(name: nil)
-        case "sequential":
-            bootOtherGhost(name: resolvedName)
-        default:
-            bootOtherGhost(name: normalized)
-        }
-
-        // UKADOC: Reference0=直前ゴーストの本体側名前, Reference1=直前ゴーストの切替時スクリプト,
-        //         Reference2=直前ゴースト名[SSP], Reference3=直前ゴーストパス[SSP]
-        // 直前の切替スクリプトは保持していないため Reference1 は空で送る（旧実装は誤って新名を入れていた）。
-        // OnGhostChanged も切替後の返答スクリプトを再生する GET イベント。
-        EventBridge.shared.request(
-            .OnGhostChanged,
-            params: EventReferenceTable.params(
-                forEvent: EventID.OnGhostChanged.rawValue,
-                refs: [
-                    "prevGhostName": previous,
-                    "changeScript": "",
-                    "prevGhostNameSSP": previous,
-                    "prevGhostPath": previousPath
-                ]
-            )
-        )
-        EventBridge.shared.request(
-            .OnOtherGhostChanged,
-            params: EventReferenceTable.params(
+        bootOtherGhost(name: eventTargetName, bootRequest: changeRequest) { [weak self] target, result in
+            guard let self, result.succeeded else { return }
+            let nextInfo = target.currentGhostEventInfo
+            let otherParams = EventReferenceTable.params(
                 forEvent: EventID.OnOtherGhostChanged.rawValue,
                 refs: [
-                    "prevGhostName": previous,
-                    "nextGhostName": eventTargetName,
-                    "prevChangeScript": "",
-                    "nextChangeScript": "",
-                    "prevGhostNameSSP": previous,
-                    "nextGhostNameSSP": eventTargetName
+                    "prevGhostName": sourceInfo.mainName,
+                    "nextGhostName": nextInfo.mainName,
+                    "prevChangeScript": changeScript,
+                    "nextChangeScript": result.script,
+                    "prevGhostNameSSP": sourceInfo.ghostName,
+                    "nextGhostNameSSP": nextInfo.ghostName
                 ]
             )
-        )
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            self.executeVanish(uninstall: false)
+            EventBridge.shared.request(
+                .OnOtherGhostChanged,
+                params: otherParams,
+                excluding: [self, target]
+            )
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.executeVanish(uninstall: false)
+            }
         }
     }
 
@@ -4227,52 +4261,62 @@ extension GhostManager: NSWindowDelegate {
         let parsed = parseCommandArguments(options)
         let raiseEvent = parsed.options["option"]?.lowercased() == "raise-event" || parsed.flags.contains("option=raise-event")
 
+        let sourceInfo = currentGhostEventInfo
+        let targetName: String
+        switch normalized.lowercased() {
+        case "random":
+            let candidates = NarRegistry.shared.installedGhosts().filter { $0 != sourceInfo.ghostName }
+            guard let randomName = candidates.randomElement() else { return }
+            targetName = randomName
+        default:
+            targetName = normalized
+        }
+        let targetInfo = ghostEventInfo(named: targetName)
+
         if raiseEvent {
             EventBridge.shared.request(
                 .OnGhostCalling,
                 params: EventReferenceTable.params(
                     forEvent: EventID.OnGhostCalling.rawValue,
                     refs: [
-                        "nextGhostName": normalized,
+                        "nextGhostName": targetInfo.mainName,
                         "changeMode": "manual",
-                        "nextGhostNameSSP": normalized
+                        "nextGhostNameSSP": targetInfo.ghostName,
+                        "nextGhostPath": targetInfo.path
                     ]
-                )
+                ),
+                to: self
             )
         }
 
-        switch normalized.lowercased() {
-        case "random":
-            bootOtherGhost(name: nil)
-        default:
-            bootOtherGhost(name: normalized)
-        }
-
-        EventBridge.shared.request(
-            .OnGhostCalled,
-            params: EventReferenceTable.params(
-                forEvent: EventID.OnGhostCalled.rawValue,
-                refs: [
-                    "callingGhostName": ghostConfig?.name ?? ghostURL.lastPathComponent,
-                    "callScript": "",
-                    "callingGhostNameSSP": ghostConfig?.sakuraName ?? "",
-                    "callingGhostPath": ghostURL.path,
-                    "calledShellName": ""
-                ]
-            )
+        let callRequest = GhostBootRequest(
+            eventID: .OnGhostCalled,
+            references: [
+                sourceInfo.mainName,
+                "",
+                sourceInfo.ghostName,
+                sourceInfo.path,
+                "", "", "", ""
+            ]
         )
-        EventBridge.shared.request(
-            .OnGhostCallComplete,
-            params: EventReferenceTable.params(
+        bootOtherGhost(name: targetName, bootRequest: callRequest) { [weak self] target, result in
+            guard let self, result.succeeded else { return }
+            let calledInfo = target.currentGhostEventInfo
+            let completeParams = EventReferenceTable.params(
                 forEvent: EventID.OnGhostCallComplete.rawValue,
                 refs: [
-                    "callingGhostName": ghostConfig?.name ?? ghostURL.lastPathComponent,
-                    "calledBootScript": "",
-                    "callingGhostNameSSP": ghostConfig?.sakuraName ?? "",
-                    "calledShellName": ""
+                    "calledGhostMainName": calledInfo.mainName,
+                    "calledBootScript": result.script,
+                    "calledGhostNameSSP": calledInfo.ghostName,
+                    "calledShellName": calledInfo.shellName
                 ]
             )
-        )
+            _ = EventBridge.shared.request(
+                .OnGhostCallComplete,
+                params: completeParams,
+                to: self
+            )
+        }
     }
 
     // MARK: - Dialog Commands

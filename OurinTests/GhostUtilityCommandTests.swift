@@ -41,6 +41,7 @@ struct GhostUtilityCommandTests {
     @Test @MainActor
     func multiDigitWaitDoesNotBecomeSpokenText() {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-multi-digit-wait-test"))
+        defer { _ = manager.shutdown() }
 
         manager.sakuraEngine(manager.sakuraEngine, didEmit: .command(name: "w", args: ["10"]))
 
@@ -127,7 +128,7 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
-    func ghostLifecycleCommandsUseGetDelivery() {
+    func ghostLifecycleCommandsSkipSuccessEventsWhenTargetUnavailable() {
         EventBridge.shared.stop()
 
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-ghost-lifecycle-event-test"))
@@ -140,19 +141,63 @@ struct GhostUtilityCommandTests {
 
         manager.callGhost(named: "missing-ghost", options: ["--option=raise-event"])
 
-        let lifecycleIDs = ["OnGhostCalling", "OnGhostCalled", "OnGhostCallComplete"]
-        for id in lifecycleIDs {
-            let request = runtime.requests.first { $0.id == id }
-            #expect(request?.method == "GET", "\(id) must be delivered as GET")
-        }
+        let calling = runtime.requests.first { $0.id == "OnGhostCalling" }
+        #expect(calling?.method == "GET")
+        #expect(calling?.refs == ["missing-ghost", "manual", "missing-ghost", ""])
+        #expect(runtime.requests.contains { $0.id == "OnGhostCalled" } == false)
+        #expect(runtime.requests.contains { $0.id == "OnGhostCallComplete" } == false)
 
         runtime.requests.removeAll()
         manager.switchGhost(named: "missing-ghost", options: ["--option=raise-event"])
 
-        for id in ["OnGhostChanging", "OnGhostChanged"] {
-            let request = runtime.requests.first { $0.id == id }
-            #expect(request?.method == "GET", "\(id) must be delivered as GET")
+        let changing = runtime.requests.first { $0.id == "OnGhostChanging" }
+        #expect(changing?.method == "GET")
+        #expect(changing?.refs == ["missing-ghost", "manual", "missing-ghost", ""])
+        #expect(runtime.requests.contains { $0.id == "OnGhostChanged" } == false)
+    }
+
+    @Test @MainActor
+    func otherGhostLifecycleGETExcludesSourceAndTarget() {
+        EventBridge.shared.stop()
+
+        var source: GhostManager? = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-ghost-source"))
+        var target: GhostManager? = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-ghost-target"))
+        var unrelated: GhostManager? = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-ghost-unrelated"))
+        let sourceRuntime = CapturingUtilityRuntime()
+        let targetRuntime = CapturingUtilityRuntime()
+        let unrelatedRuntime = CapturingUtilityRuntime()
+        let sourceToken = EventBridge.shared.register(runtime: sourceRuntime, ghostManager: source!)
+        let targetToken = EventBridge.shared.register(runtime: targetRuntime, ghostManager: target!)
+        let unrelatedToken = EventBridge.shared.register(runtime: unrelatedRuntime, ghostManager: unrelated!)
+        defer {
+            EventBridge.shared.unregister(sourceToken)
+            EventBridge.shared.unregister(targetToken)
+            EventBridge.shared.unregister(unrelatedToken)
+            EventBridge.shared.stop()
+            _ = source?.shutdown()
+            _ = target?.shutdown()
+            _ = unrelated?.shutdown()
+            source = nil
+            target = nil
+            unrelated = nil
         }
+
+        let params = EventReferenceTable.params(
+            forEvent: EventID.OnOtherGhostBooted.rawValue,
+            refs: ["ghostName": "Target", "bootScript": "\\0boot\\e", "ghostNameSSP": "Target", "shellName": "master"]
+        )
+        _ = EventBridge.shared.request(
+            .OnOtherGhostBooted,
+            params: params,
+            excluding: [source!, target!]
+        )
+
+        #expect(sourceRuntime.requests.isEmpty)
+        #expect(targetRuntime.requests.isEmpty)
+        #expect(unrelatedRuntime.requests.count == 1)
+        #expect(unrelatedRuntime.requests[0].method == "GET")
+        #expect(unrelatedRuntime.requests[0].id == "OnOtherGhostBooted")
+        #expect(unrelatedRuntime.requests[0].refs == ["Target", "\\0boot\\e", "Target", "", "", "", "", "master"])
     }
 
     @Test @MainActor
