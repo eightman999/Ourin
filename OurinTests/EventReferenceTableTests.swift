@@ -106,6 +106,28 @@ func eventReferenceTableChoiceAndAnchorReferencesMatchUkadoc() {
 }
 
 @Test
+func eventReferenceTableCoversEmittedFailureAndWallpaperEvents() {
+    #expect(EventReferenceTable.params(forEvent: "OnReadmeOpenFailure", refs: [
+        "type": "ghost", "name": "readme.txt", "path": "/tmp/readme.txt"
+    ]) == [
+        "Reference0": "ghost", "Reference1": "readme.txt", "Reference2": "/tmp/readme.txt"
+    ])
+    #expect(EventReferenceTable.params(forEvent: "OnVanishFailure", refs: [
+        "ghostName": "Emily", "reason": "permission_denied"
+    ]) == [
+        "Reference0": "Emily", "Reference1": "permission_denied"
+    ])
+    #expect(EventReferenceTable.params(forEvent: "OnWallpaperChanged", refs: [
+        "filename": "wallpaper.png"
+    ]) == ["Reference0": "wallpaper.png"])
+    #expect(EventReferenceTable.params(forEvent: "OnWallpaperFailure", refs: [
+        "filename": "wallpaper.png", "reason": "file_not_found"
+    ]) == [
+        "Reference0": "wallpaper.png", "Reference1": "file_not_found"
+    ])
+}
+
+@Test
 func eventReferenceTableTimeEventReferences() {
     // OnSecondChange/OnMinuteChange/OnHourTimeSignal は共通 R0..R4
     let refs = ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"]

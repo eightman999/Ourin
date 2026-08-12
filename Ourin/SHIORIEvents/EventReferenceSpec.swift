@@ -314,6 +314,7 @@ public enum EventReferenceTable {
         .init(id: "OnNoUserBreakModeBegin", references: [], category: "ui"),
         .init(id: "OnNoUserBreakModeEnd", references: [], category: "ui"),
         .init(id: "OnOtherGhostVanished", references: ["ghostName"], category: "ghost"),
+        .init(id: "OnReadmeOpenFailure", references: ["type", "name", "path"], category: "system"),
         .init(id: "OnRecycleBinEmpty", references: ["count", "size", "countDelta", "sizeDelta", "success", "ghostName"], category: "system"),
         .init(id: "OnRecycleBinEmptyFromOther", references: ["count", "size", "countDelta", "sizeDelta", "success", "ghostName"], category: "system"),
         .init(id: "OnRecycleBinStatusUpdate", references: ["count", "size", "countDelta", "sizeDelta", "success", "ghostName"], category: "system"),
@@ -348,6 +349,9 @@ public enum EventReferenceTable {
         .init(id: "OnUpdatedataCreating", references: ["filePath"], category: "update"),
         .init(id: "OnVanishButtonHold", references: [], category: "lifecycle"),
         .init(id: "OnVanishCancel", references: [], category: "lifecycle"),
+        .init(id: "OnVanishFailure", references: ["ghostName", "reason"], category: "ghost"),
+        .init(id: "OnWallpaperChanged", references: ["filename"], category: "system"),
+        .init(id: "OnWallpaperFailure", references: ["filename", "reason"], category: "system"),
         .init(id: "OnXUkagakaLinkOpen", references: ["info"], category: "general"),
 
         // MARK: - オブザーバ発火イベント（ShioriEvent 経由）
