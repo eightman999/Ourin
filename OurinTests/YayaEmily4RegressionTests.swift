@@ -293,6 +293,9 @@ struct YayaEmily4RegressionTests {
             return
             "unreachable"
         }
+        On_ProbeNumericControlValue {
+            0
+        }
         """
         try wrapperDic.write(to: master.appendingPathComponent("_regression_request_probe.dic"),
                             atomically: true, encoding: .utf8)
@@ -314,6 +317,7 @@ struct YayaEmily4RegressionTests {
         #expect(request("On_ProbeOutputAreas") == "prefixsuffix")
         #expect(request("On_ProbeVoidPreservesValue") == "value")
         #expect(request("On_ProbeBareReturnPreservesValue") == "value")
+        #expect(request("On_ProbeNumericControlValue").isEmpty)
     }
 
     /// Emily4 実データの雑談配列（`RandomTalkNormal`）に対し、SRAND(seed) で固定シードした場合に

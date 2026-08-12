@@ -5,8 +5,37 @@
 #include <set>
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
+#include <cstdlib>
 
 using json = nlohmann::json;
+
+namespace {
+
+/// YAYA イベントの制御値だけを SHIORI の発話値から除外する。
+///
+/// イベント関数が整数/実数を返すこと自体は YAYA では正当だが、SHIORI の
+/// `Value` は Sakura Script であり、数値だけをそのまま返すとベースウェアが
+/// それを会話として表示してしまう。`OnTranslate` は文字列 "0" も翻訳結果に
+/// なり得るため例外とする。
+bool isNumericEventControlValue(const std::string& eventID, const std::string& value) {
+    if (eventID.size() < 2 || eventID[0] != 'O' || eventID[1] != 'n' || eventID == "OnTranslate") {
+        return false;
+    }
+
+    const auto first = value.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) return false;
+    const auto last = value.find_last_not_of(" \t\r\n");
+    const std::string numeric = value.substr(first, last - first + 1);
+
+    char* end = nullptr;
+    errno = 0;
+    std::strtod(numeric.c_str(), &end);
+    return errno != ERANGE && end == numeric.c_str() + numeric.size() &&
+           numeric.find_first_of("0123456789") != std::string::npos;
+}
+
+}
 
 YayaCore::YayaCore() {
     // Set this instance as the callback for VM operations
@@ -357,6 +386,13 @@ std::string YayaCore::processCommand(const std::string &line) {
                     value = directResult.asString();
                 }
                 std::cerr << "[YayaCore] Direct function call (no YAYA framework)" << std::endl;
+            }
+
+            if (isNumericEventControlValue(id, value)) {
+                std::cerr << "[YayaCore] Ignoring numeric event control value: id="
+                          << id << ", value=" << value << std::endl;
+                value.clear();
+                shioriHeaders.erase("Value");
             }
 
             auto exec_end = std::chrono::steady_clock::now();
