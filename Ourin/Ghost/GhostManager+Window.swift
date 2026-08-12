@@ -1060,6 +1060,13 @@ extension GhostManager {
     /// Reset all window positions to default
     func executeResetWindowPos() {
         Log.debug("[GhostManager] Executing window position reset")
+
+        // SSP互換: 位置初期化メニュー相当の操作では先にイベントをGETで発火し、
+        // 応答スクリプトが返らない場合だけ標準の位置リセットを実行する。
+        // EventBridge.request は未登録ゴースト／204応答を false として返すため、
+        // イベント処理が利用できない場合も従来どおり既定処理へフォールバックする。
+        guard !EventBridge.shared.request(.OnResetWindowPos) else { return }
+
         DispatchQueue.main.async {
             // Reset each window to its default/saved position
             for (scope, window) in self.characterWindows {

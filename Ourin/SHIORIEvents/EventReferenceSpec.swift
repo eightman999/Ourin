@@ -221,6 +221,7 @@ public enum EventReferenceTable {
         .init(id: "OnSelectModeMouseDown", references: ["scopeID", "mode", "position"], category: "ui"),
         .init(id: "OnSelectModeMouseUp", references: ["scopeID", "mode", "position"], category: "ui"),
         .init(id: "OnTrayBalloonClick", references: ["identifier", "title", "message"], category: "ui"),
+        .init(id: "OnResetWindowPos", references: [], category: "ui"),
         .init(id: "OnSecurityWarning", references: ["source", "detail", "url"], category: "system"),
 
         // MARK: - SSTP
