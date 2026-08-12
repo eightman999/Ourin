@@ -113,7 +113,7 @@ public enum EventReferenceTable {
         // MARK: - バルーン / 選択肢
         .init(id: "OnBalloonBreak", references: ["displayedScript", "scope", "breakPosition"], category: "ui"),
         .init(id: "OnBalloonClose", references: ["displayedScript"], category: "ui"),
-        .init(id: "OnBalloonTimeout", references: ["scope"], category: "ui"),
+        .init(id: "OnBalloonTimeout", references: ["displayedScript", "remainingTime"], category: "ui"),
         .init(id: "OnBalloonChange", references: ["prevBalloonName", "newBalloonName", "phase"], category: "ui"),
         .init(id: "OnChoiceEnter", references: ["label", "choiceID", "extInfo"], category: "ui"),
         .init(id: "OnChoiceHover", references: ["label", "choiceID", "extInfo"], category: "ui"),

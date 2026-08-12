@@ -231,7 +231,12 @@ extension GhostManager {
             let balloonVM = self.getBalloonVM(for: scope)
             let displayedScript = balloonVM.text
             balloonVM.resetBalloonContent()
-            EventBridge.shared.notify(.OnBalloonTimeout, refs: ["scope": String(scope)])
+            // UKADOC: OnBalloonTimeout R0=タイムアウト時に表示されていたスクリプト、R1=残り時間。
+            // タイマーの発火時点では残り時間は 0 とする。
+            EventBridge.shared.notify(.OnBalloonTimeout, refs: [
+                "displayedScript": displayedScript,
+                "remainingTime": "0"
+            ])
             // UKADOC: OnBalloonClose R0=閉じる際に表示されていたスクリプト（表示中テキストで近似）
             EventBridge.shared.notify(.OnBalloonClose, refs: ["displayedScript": displayedScript])
             self.localEventTimers.removeValue(forKey: key)

@@ -126,4 +126,34 @@ struct GhostUtilityCommandTests {
         #expect(resetEvent?.method == "GET")
         #expect(resetEvent?.refs.isEmpty == true)
     }
+
+    @Test @MainActor
+    func balloonTimeoutNotifiesDisplayedScriptAndZeroRemainingTime() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-balloon-timeout-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        let balloon = manager.getBalloonVM(for: manager.currentScope)
+        balloon.balloonTimeout = 0.01
+        manager.appendText("timed out")
+
+        for _ in 0..<20 where runtime.requests.first(where: { $0.id == EventID.OnBalloonTimeout.rawValue }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let timeout = runtime.requests.first { $0.id == EventID.OnBalloonTimeout.rawValue }
+        #expect(timeout?.method == "NOTIFY")
+        #expect(timeout?.refs == ["timed out", "0"])
+
+        let close = runtime.requests.first { $0.id == EventID.OnBalloonClose.rawValue }
+        #expect(close?.method == "NOTIFY")
+        #expect(close?.refs == ["timed out"])
+        #expect(balloon.text.isEmpty)
+    }
 }
