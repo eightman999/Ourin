@@ -2330,7 +2330,7 @@ extension GhostManager: NSWindowDelegate {
                     "executionReason": commandOptions.reason
                 ])
 
-                if commandOptions.checkOnly || commandOptions.testOnly {
+                if commandOptions.checkOnly {
                     self.emitUpdateResultEvents(
                         target: "ghost",
                         targetName: self.ghostConfig?.name ?? self.ghostURL.lastPathComponent,
@@ -2375,7 +2375,7 @@ extension GhostManager: NSWindowDelegate {
                         stage: comparison.matches ? "OnMD5CompareComplete" : "OnMD5CompareFailure",
                         params: params
                     )
-                }) { result in
+                }, apply: !commandOptions.testOnly) { result in
                     switch result {
                     case .success(let applied):
                     let appliedList = applied.joined(separator: ",")
@@ -2480,7 +2480,7 @@ extension GhostManager: NSWindowDelegate {
                     "targetType": "baseware",
                     "executionReason": commandOptions.reason
                 ])
-                if commandOptions.checkOnly || commandOptions.testOnly {
+                if commandOptions.checkOnly {
                     self.emitUpdateResultEvents(
                         target: "baseware",
                         targetName: Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "Ourin",
@@ -2530,6 +2530,26 @@ extension GhostManager: NSWindowDelegate {
                 }) { result in
                     switch result {
                     case .success(let request):
+                        if commandOptions.testOnly {
+                            BasewareUpdateCoordinator.discard(request)
+                            self.emitUpdatePipelineEvent(base: "OnUpdate", stage: "OnDownloadComplete", params: [
+                                "Reference0": updateURL,
+                                "Reference1": String(entries.count)
+                            ])
+                            EventBridge.shared.notify(.OnUpdateComplete, refs: [
+                                "reason": "changed",
+                                "fileList": fileList,
+                                "targetType": "baseware",
+                                "executionReason": commandOptions.reason
+                            ])
+                            self.emitUpdateResultEvents(
+                                target: "baseware",
+                                reason: "changed",
+                                fileList: fileList,
+                                explorerPath: Bundle.main.bundlePath
+                            )
+                            return
+                        }
                         let appDelegate: AppDelegate? = Thread.isMainThread
                             ? NSApp.delegate as? AppDelegate
                             : DispatchQueue.main.sync { NSApp.delegate as? AppDelegate }
@@ -2894,7 +2914,7 @@ extension GhostManager: NSWindowDelegate {
     /// Check for updates to all ghosts
     func checkAllGhostsUpdate(options: [String]) {
         let commandOptions = UpdateCommandOptions(options)
-        let checkOnly = commandOptions.checkOnly || commandOptions.testOnly
+        let checkOnly = commandOptions.checkOnly
         let allItems = NarRegistry.shared.installedItems(ofType: "ghost")
 
         func emitSelectionFailure(reason: String, fileList: String) {
@@ -3001,10 +3021,10 @@ extension GhostManager: NSWindowDelegate {
                 basicRefs["Reference\(index)"] = basic.joined(separator: separator)
                 extendedRefs["Reference\(index)"] = extended.joined(separator: separator)
             }
-            let basicEvent: EventID = (commandOptions.checkOnly || commandOptions.testOnly)
+            let basicEvent: EventID = commandOptions.checkOnly
                 ? .OnUpdateCheckResult
                 : .OnUpdateResult
-            let extendedEvent: EventID = (commandOptions.checkOnly || commandOptions.testOnly)
+            let extendedEvent: EventID = commandOptions.checkOnly
                 ? .OnUpdateCheckResultEx
                 : .OnUpdateResultEx
             EventBridge.shared.notify(basicEvent, params: basicRefs)
@@ -3081,7 +3101,7 @@ extension GhostManager: NSWindowDelegate {
                         "targetType": "ghost",
                         "executionReason": commandOptions.reason
                     ])
-                    if entries.isEmpty || commandOptions.checkOnly || commandOptions.testOnly {
+                    if entries.isEmpty || commandOptions.checkOnly {
                         EventBridge.shared.notify(.OnUpdateOtherComplete, params: [
                             "Reference0": reason,
                             "Reference1": fileList,
@@ -3123,7 +3143,7 @@ extension GhostManager: NSWindowDelegate {
                             stage: comparison.matches ? "OnMD5CompareComplete" : "OnMD5CompareFailure",
                             params: resultParams
                         )
-                    }) { applyResult in
+                    }, apply: !commandOptions.testOnly) { applyResult in
                         switch applyResult {
                         case .success(let applied):
                             let appliedList = applied.joined(separator: ",")
