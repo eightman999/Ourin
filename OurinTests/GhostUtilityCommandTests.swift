@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import Testing
 @testable import Ourin
 
@@ -112,14 +113,23 @@ struct GhostUtilityCommandTests {
             return
         }
         let start = window.frame.origin
+        let visibleFrame = window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
+        let upperBound = visibleFrame.map { $0.maxY - window.frame.height - 1 } ?? (start.y + 40)
+        let lowerBound = visibleFrame?.minY ?? (start.y - 40)
+        let targetY: CGFloat
+        if start.y + 40 <= upperBound {
+            targetY = start.y + 40
+        } else {
+            targetY = max(lowerBound + 1, start.y - 40)
+        }
         manager.executeMoveCommand(
-            args: ["fix", "\(Int(start.y) + 40)"],
+            args: ["fix", "\(Int(targetY))"],
             async: false
         )
         try await Task.sleep(nanoseconds: 50_000_000)
 
         #expect(window.frame.origin.x == start.x)
-        #expect(abs(window.frame.origin.y - (start.y + 40)) < 0.5)
+        #expect(abs(window.frame.origin.y - targetY) < 0.5)
     }
 
     @Test @MainActor
