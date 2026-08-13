@@ -7,6 +7,7 @@ private final class CloseAllRuntime: GhostShioriRuntime {
     var isLoaded = true
     var resourceManager: ResourceManager?
     var requests: [(method: String, id: String, refs: [String])] = []
+    var response: ShioriRuntimeResponse = .init(ok: true, status: 204)
 
     func load(context: ShioriRuntimeLoadContext) -> Bool { true }
 
@@ -18,7 +19,7 @@ private final class CloseAllRuntime: GhostShioriRuntime {
         timeout: TimeInterval
     ) -> ShioriRuntimeResponse? {
         requests.append((method, id, refs))
-        return .init(ok: true, status: 204)
+        return response
     }
 
     func unload() { isLoaded = false }
@@ -61,5 +62,24 @@ struct CloseAllSequenceTests {
         #expect(params["Reference0"] == "user")
         #expect(params["Reference1"] == "0")
         #expect(params["Reference2"] == "1")
+    }
+
+    @Test @MainActor
+    func reloadUsesGetOnCloseBeforeReplacingGhost() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-reload-sequence"))
+        let runtime = CloseAllRuntime()
+        runtime.response = .init(ok: true, status: 200, value: "\\0reload\\e")
+        manager.shioriRuntime = runtime
+
+        manager.handleMenuAction("menu_reload")
+
+        for _ in 0..<20 where runtime.requests.isEmpty {
+            try await Task.sleep(nanoseconds: 25_000_000)
+        }
+
+        #expect(runtime.requests.first?.method == "GET")
+        #expect(runtime.requests.first?.id == EventID.OnClose.rawValue)
+        #expect(runtime.requests.first?.refs == ["reload"])
+        _ = manager.shutdown()
     }
 }

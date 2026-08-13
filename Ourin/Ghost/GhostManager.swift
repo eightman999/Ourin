@@ -5419,12 +5419,18 @@ extension GhostManager {
     private func reloadGhost() {
         let name = ghostConfig?.name ?? ""
         Log.info("[GhostManager] Reloading ghost: \(name)")
+        guard !isShuttingDown else { return }
         pendingDestroyReason = "reload" // shutdown() 時の OnDestroy Reference0 に反映
-        EventBridge.shared.notify(.OnClose, refs: ["closeReason": "reload"])
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if let appDelegate = NSApp.delegate as? AppDelegate {
+        guard beginCloseSequence(
+            reason: "reload",
+            completion: { [weak self] in
+                guard let self,
+                      let appDelegate = NSApp.delegate as? AppDelegate else { return }
                 appDelegate.runGhost(at: self.ghostURL)
             }
+        ) else {
+            pendingDestroyReason = nil
+            return
         }
     }
 
