@@ -4908,7 +4908,7 @@ extension GhostManager: NSWindowDelegate {
             return "extraction"
         case .installTxtNotFound, .installTxtDecodeFailed, .installTxtMissingKey:
             return "invalid type"
-        case .zipSlipDetected, .invalidDeletePath, .attachedComponentSourceNotFound:
+        case .zipSlipDetected, .invalidDeletePath, .deleteInstructionDecodeFailed, .attachedComponentSourceNotFound:
             return "invalid type"
         case .directoryConflict:
             return "unsupported"

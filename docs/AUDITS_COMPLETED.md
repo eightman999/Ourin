@@ -190,6 +190,7 @@ Sonnet 調査エージェント3体による全域再監査（既存監査に無
 | **`\f[anchor*]` 装飾サブコマンド群の実装**（選択中・非選択・訪問済みのstyle/brush/pen/fontcolorを個別状態へ反映。ROP2の全SetROP2演算子を受理し、背景画像の実ピクセルへ合成） | `Ourin/Ghost/GhostManager.swift`（`\f` switch）、`Ghost/BalloonView.swift`、`Ghost/BalloonConfig.swift`、`Ghost/AnchorRasterOperation.swift`、`Ghost/AnchorRasterImageRenderer.swift` |
 | **DevTools モック UI の裁定**（External Events Harness を実配線: 実サーバステータス・実 TCP/HTTP 送信・応答表示・全サーバ再起動。Headline/Balloon プレビュー・Signpost・Resource Overlay・Plugin Enabled トグルは「Preview only」注記） | `Ourin/ContentView.swift`、`ExternalServer/ServerMetrics.swift`（`requestCount` 公開） |
 | **NAR 複合 install 種別の記載訂正**（AUDITS_TODO の「不足」記載は誤りで、実装済みだったことを確認） | `Ourin/NarInstall/Paths.swift:219-236`（calendar/skin・calendar/plugin・calendar 旧互換・language） |
+| **NAR ネットワーク更新の delete.txt 対応とパス安全性**（2026-08-14） | `NarInstall/LocalNarInstaller.swift` が更新成功後（削除だけの更新を含む）に任意のサーバー `delete.txt` を取得し、`charset` 行を受理したうえで、対象ルート内の検証済みパスだけを削除。`testonly` は非破壊のまま。`InstallTxtParser.swift` は更新記述子のドットセグメント・絶対パス・ドライブパスを拒否し、`ZipUtil.swift` はコンポーネント単位のルート境界検証を使用。`NarInstallTests.swift` で MD5 検証付き更新、Windows形式 `delete.txt` パス、トラバーサル拒否、delete.txt 404（削除なし）を検証。 |
 
 ---
 
@@ -373,6 +374,7 @@ Items resolved in the fix round following a full re-audit by three Sonnet invest
 | **`\f[anchor*]` decoration subcommands implemented** (selected/non-selected/visited style, brush, pen, and font colors are applied as independent states; all SetROP2 method variants are parsed and composited against balloon pixels) | `Ourin/Ghost/GhostManager.swift` (`\f` switch), `Ghost/BalloonView.swift`, `Ghost/BalloonConfig.swift`, `Ghost/AnchorRasterOperation.swift`, `Ghost/AnchorRasterImageRenderer.swift` |
 | **DevTools mock UI adjudication** (External Events Harness wired to real APIs: live server status, real TCP/HTTP sends with response display, restart-all-servers; Headline/Balloon preview, Signpost, Resource Overlay, and Plugin Enabled toggle marked "Preview only") | `Ourin/ContentView.swift`, `ExternalServer/ServerMetrics.swift` (public `requestCount`) |
 | **Corrected NAR composite-install documentation** (the "missing" claim in AUDITS_TODO was wrong; already implemented) | `Ourin/NarInstall/Paths.swift:219-236` (calendar/skin, calendar/plugin, legacy calendar, language) |
+| **NAR network update deletion and path safety** (2026-08-14) | `NarInstall/LocalNarInstaller.swift` retrieves the optional server-side `delete.txt` after a successful update (including deletion-only updates), accepts its `charset` line, removes only validated paths under the target root, and keeps `testonly` non-mutating. `InstallTxtParser.swift` rejects dot-segment / absolute / drive paths in update descriptors; `ZipUtil.swift` uses component-aware root checks. `NarInstallTests.swift` covers MD5-verified update + Windows-style `delete.txt` paths, traversal rejection, and no-delete 404 behavior. |
 
 ---
 

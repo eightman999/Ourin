@@ -304,8 +304,7 @@ struct UpdateDescriptorParser {
         guard !candidate.isEmpty,
               !candidate.contains("<"),
               !candidate.contains(">"),
-              !decodedCandidate.hasSuffix("/"),
-              !decodedCandidate.contains("../") else { return nil }
+              !decodedCandidate.hasSuffix("/") else { return nil }
 
         let url: URL
         let displayPath: String
@@ -314,7 +313,8 @@ struct UpdateDescriptorParser {
             url = absolute
             displayPath = absolute.lastPathComponent
         } else if let relative = URL(string: candidate, relativeTo: baseURL)?.absoluteURL,
-                  relative.scheme?.lowercased() == baseURL.scheme?.lowercased() {
+                  relative.scheme?.lowercased() == baseURL.scheme?.lowercased(),
+                  isSafeRelativePath(decodedCandidate) {
             url = relative
             displayPath = candidate.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         } else {
@@ -326,6 +326,19 @@ struct UpdateDescriptorParser {
             .compactMap(normalizedMD5)
             .first
         return UpdateDescriptorEntry(url: url, relativePath: displayPath, expectedMD5: expectedMD5)
+    }
+
+    private static func isSafeRelativePath(_ path: String) -> Bool {
+        let normalized = path.replacingOccurrences(of: "\\", with: "/")
+        guard !normalized.isEmpty,
+              !normalized.hasPrefix("/"),
+              !normalized.hasPrefix("\\"),
+              !normalized.contains("\0") else { return false }
+        let components = normalized.split(separator: "/", omittingEmptySubsequences: true)
+        guard !components.isEmpty else { return false }
+        return !components.contains { component in
+            component == "." || component == ".." || component.contains(":")
+        }
     }
 
     private static func normalizedMD5(_ value: String) -> String? {

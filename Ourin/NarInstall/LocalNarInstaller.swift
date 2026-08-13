@@ -80,6 +80,7 @@ final class NarInstaller {
         case zipSlipDetected(String)
         case directoryConflict(String)
         case invalidDeletePath(String)
+        case deleteInstructionDecodeFailed
         case updateDescriptorNotFound
         case updateDescriptorDecodeFailed
         case updateDescriptorInvalid
@@ -99,6 +100,7 @@ final class NarInstaller {
             case .zipSlipDetected(let p): return "危険なパスが検出されました: \(p)"
             case .directoryConflict(let d): return "設置先が衝突: \(d)"
             case .invalidDeletePath(let p): return "delete.txt の危険なパス: \(p)"
+            case .deleteInstructionDecodeFailed: return "delete.txt をデコードできません"
             case .updateDescriptorNotFound: return "updates2.dau / updates.txt / update.txt が見つかりません"
             case .updateDescriptorDecodeFailed: return "更新定義ファイルをデコードできません"
             case .updateDescriptorInvalid: return "更新定義ファイルの形式が不正です"
@@ -505,7 +507,11 @@ final class NarInstaller {
                           onMD5Compare: ((UpdateMD5Comparison) -> Void)?,
                           apply: Bool = true,
                           completion: @escaping (Result<[String], Swift.Error>) -> Void) {
-        guard !entries.isEmpty else { completion(.success([])); return }
+        guard !entries.isEmpty else {
+            applyRemoteDeleteInstructions(homeURLString: homeURLString, targetRoot: targetRoot, apply: apply,
+                                          completion: completion)
+            return
+        }
         let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
         let group = DispatchGroup()
         let lock = NSLock()
@@ -597,10 +603,19 @@ final class NarInstaller {
             lock.unlock()
             if let errorResult {
                 completion(.failure(errorResult))
-            } else if let firstFailure = failedResult.first {
+                return
+            }
+            if let firstFailure = failedResult.first {
                 completion(.failure(Error.updateDownloadFailed(firstFailure)))
-            } else {
-                completion(.success(appliedResult))
+                return
+            }
+            self.applyRemoteDeleteInstructions(homeURLString: homeURLString, targetRoot: targetRoot, apply: apply) { result in
+                switch result {
+                case .success(let deleted):
+                    completion(.success(appliedResult + deleted))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
             }
         }
     }
@@ -711,13 +726,18 @@ final class NarInstaller {
         relative = (relative.removingPercentEncoding ?? relative)
             .replacingOccurrences(of: "\\", with: "/")
             .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        guard !relative.isEmpty, !relative.contains("..") else {
+        guard isSafeRelativePath(relative) else {
             throw Error.invalidDeletePath(relative)
         }
-        let dest = targetRoot.appendingPathComponent(relative)
-        let resolved = dest.resolvingSymlinksInPath()
-        let rootResolved = targetRoot.resolvingSymlinksInPath()
-        guard resolved.path.hasPrefix(rootResolved.path) || dest.path.hasPrefix(targetRoot.path) else {
+        let lexicalDest = targetRoot.appendingPathComponent(relative)
+        let parent = lexicalDest.deletingLastPathComponent().resolvingSymlinksInPath().standardizedFileURL
+        let rootResolved = targetRoot.resolvingSymlinksInPath().standardizedFileURL
+        guard isWithinRoot(parent, root: rootResolved) else {
+            throw Error.zipSlipDetected(lexicalDest.path)
+        }
+        let dest = parent.appendingPathComponent(lexicalDest.lastPathComponent)
+        let resolved = dest.resolvingSymlinksInPath().standardizedFileURL
+        guard isWithinRoot(resolved, root: rootResolved) else {
             throw Error.zipSlipDetected(dest.path)
         }
         if preserveExistingPermissions {
@@ -737,6 +757,39 @@ final class NarInstaller {
             try FileManager.default.removeItem(at: dest)
         }
         try FileManager.default.moveItem(at: downloaded, to: dest)
+    }
+
+    /// ネットワーク更新先にある delete.txt を取得し、targetRoot からの相対パスを削除する。
+    /// delete.txt が無いサーバーは正常系（更新対象が無い）として扱う。
+    func applyRemoteDeleteInstructions(homeURLString: String, targetRoot: URL, apply: Bool = true,
+                                       completion: @escaping (Result<[String], Swift.Error>) -> Void) {
+        let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
+        guard let baseURL = URL(string: baseWithSlash), baseURL.scheme != nil,
+              let deleteURL = URL(string: "delete.txt", relativeTo: baseURL)?.absoluteURL else {
+            completion(.failure(Error.updateDownloadFailed("delete.txt")))
+            return
+        }
+        session.dataTask(with: deleteURL) { [self] data, response, error in
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+            if statusCode == 404 || statusCode == 410 {
+                completion(.success([]))
+                return
+            }
+            guard let data, error == nil, (200..<300).contains(statusCode) else {
+                completion(.failure(Error.updateDownloadFailed("delete.txt")))
+                return
+            }
+            do {
+                let paths = try parseDeleteInstructions(data: data)
+                guard apply else {
+                    completion(.success(paths))
+                    return
+                }
+                completion(.success(try removeRelativePaths(paths, from: targetRoot)))
+            } catch {
+                completion(.failure(error))
+            }
+        }.resume()
     }
 
     private func fetchUpdateDescriptor(from candidates: [URL], baseURL: URL,
@@ -768,20 +821,71 @@ final class NarInstaller {
         let deleteTxt = extractedRoot.appendingPathComponent("delete.txt")
         guard FileManager.default.fileExists(atPath: deleteTxt.path) else { return }
 
-        let data = try Data(contentsOf: deleteTxt)
-        guard let text = TextEncodingDetector.decode(data) else { throw Error.installTxtDecodeFailed }
-        let lines = text.replacingOccurrences(of: "\r\n", with: "\n").split(separator: "\n", omittingEmptySubsequences: false)
+        let paths = try parseDeleteInstructions(data: Data(contentsOf: deleteTxt))
+        _ = try removeRelativePaths(paths, from: installTarget)
+    }
+
+    private func parseDeleteInstructions(data: Data) throws -> [String] {
+        guard let text = TextEncodingDetector.decode(data) else {
+            throw Error.deleteInstructionDecodeFailed
+        }
+        var paths: [String] = []
+        let lines = text.replacingOccurrences(of: "\r\n", with: "\n")
+            .split(separator: "\n", omittingEmptySubsequences: false)
         for raw in lines {
-            let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            var line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            if line.first == "\u{FEFF}" { line.removeFirst() }
             guard !line.isEmpty, !line.hasPrefix(";"), !line.hasPrefix("#") else { continue }
-            let normalized = line.replacingOccurrences(of: "\\", with: "/").trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-            guard !normalized.contains("..") else { throw Error.invalidDeletePath(normalized) }
-            let target = installTarget.appendingPathComponent(normalized)
-            let resolved = target.resolvingSymlinksInPath()
-            guard resolved.path.hasPrefix(installTarget.path) else { throw Error.invalidDeletePath(normalized) }
-            if FileManager.default.fileExists(atPath: resolved.path) {
-                try FileManager.default.removeItem(at: resolved)
+            let lower = line.lowercased()
+            if lower.hasPrefix("charset,") || lower.hasPrefix("charset:") { continue }
+            let normalized = line.replacingOccurrences(of: "\\", with: "/")
+            guard isSafeRelativePath(normalized) else {
+                throw Error.invalidDeletePath(line)
+            }
+            paths.append(normalized.split(separator: "/").joined(separator: "/"))
+        }
+        return paths
+    }
+
+    private func removeRelativePaths(_ paths: [String], from root: URL) throws -> [String] {
+        let rootResolved = root.resolvingSymlinksInPath().standardizedFileURL
+        var removed: [String] = []
+        let fm = FileManager.default
+        for path in paths {
+            let lexical = root.appendingPathComponent(path)
+            let parent = lexical.deletingLastPathComponent().resolvingSymlinksInPath().standardizedFileURL
+            guard isWithinRoot(parent, root: rootResolved) else {
+                throw Error.invalidDeletePath(path)
+            }
+            let target = parent.appendingPathComponent(lexical.lastPathComponent)
+            let resolved = target.resolvingSymlinksInPath().standardizedFileURL
+            guard isWithinRoot(resolved, root: rootResolved) else {
+                throw Error.invalidDeletePath(path)
+            }
+            if fm.fileExists(atPath: target.path) {
+                try fm.removeItem(at: target)
+                removed.append(path)
             }
         }
+        return removed
+    }
+
+    private func isSafeRelativePath(_ path: String) -> Bool {
+        let normalized = path.replacingOccurrences(of: "\\", with: "/")
+        guard !normalized.isEmpty,
+              !normalized.hasPrefix("/"),
+              !normalized.hasPrefix("\\"),
+              !normalized.contains("\0") else { return false }
+        let components = normalized.split(separator: "/", omittingEmptySubsequences: true)
+        guard !components.isEmpty else { return false }
+        return !components.contains { component in
+            component == "." || component == ".." || component.contains(":")
+        }
+    }
+
+    private func isWithinRoot(_ candidate: URL, root: URL) -> Bool {
+        let candidatePath = candidate.path
+        let rootPath = root.path.hasSuffix("/") ? String(root.path.dropLast()) : root.path
+        return candidatePath == rootPath || candidatePath.hasPrefix(rootPath + "/")
     }
 }

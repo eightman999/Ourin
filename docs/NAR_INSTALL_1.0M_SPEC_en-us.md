@@ -202,8 +202,8 @@ OURIN_NAR_INSTALL_1_0M/
 - [x] **Type-based install**: `OurinPaths.installTarget()` resolves install destinations for ghost/balloon/shell/supplement/plugin/headline/package/calendar/calendar/skin/calendar/plugin/language
 - [x] **Basic error handling**: Install error detection and reporting implemented
 - [ ] **Conflict UI**: Full UI for accept/delete/homeurl is not yet complete
-- [ ] **Update feature**: updates2.dau processing is not yet implemented
-- [ ] **Deletion feature**: delete.txt processing is not yet implemented
+- [x] **Update feature**: `updates2.dau` / `updates.txt` / `update.txt` retrieval, Version 2/3 parsing, MD5 verification, and incremental-file / NAR application are implemented. Baseware updates are applied to a staged `.app`.
+- [x] **Deletion feature**: `delete.txt` is fetched and applied safely during network updates (and supported for package cleanup).
 
 ### Implemented Features
 
@@ -242,15 +242,10 @@ OURIN_NAR_INSTALL_1_0M/
    - Overwrite confirmation dialog via the `accept` field
    - Rename/overwrite choices presented to the user
 
-2. **Network Updates**
-   - `updates2.dau` processing
-   - Automatic update check
+2. **Deletion UI**
+   - File removal UI for an uninstall workflow
 
-3. **Deletion**
-   - `delete.txt` processing
-   - File removal on uninstall
-
-4. **Advanced Features**
+3. **Advanced Features**
    - README/terms of use display
    - Automatic switch after install
    - `homeurl` processing
@@ -267,6 +262,7 @@ OURIN_NAR_INSTALL_1_0M/
 ---
 
 ## Changelog
+- 2026-08-14: Implemented MD5-verified incremental updates for `updates2.dau` / `updates.txt` and safe `delete.txt` retrieval/removal, with traversal checks and regression tests.
 - 2026-06-28: Added §6.1 type accepted-values table (calendar/skin, calendar/plugin, calendar, language). Added §6.2 refreshundeletemask field delimiter specification (colon primary, comma compatible). Updated implementation status type list. Expanded from placeholder to full specification.
 - 2025-10-20: Implementation status section added (Japanese original).
 - 2025-07-28: Initial revision (NAR-INSTALL/1.0M).

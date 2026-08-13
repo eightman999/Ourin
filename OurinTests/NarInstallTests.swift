@@ -4,6 +4,7 @@ import Foundation
 
 private final class UpdateDownloadURLProtocol: URLProtocol {
     static var payload = Data()
+    static var deletePayload: Data?
 
     override class func canInit(with request: URLRequest) -> Bool {
         request.url?.host == "ourin-update.test"
@@ -14,18 +15,23 @@ private final class UpdateDownloadURLProtocol: URLProtocol {
     }
 
     override func startLoading() {
+        let isDelete = request.url?.path.hasSuffix("/delete.txt") == true
+        let responseStatus = isDelete && Self.deletePayload == nil ? 404 : 200
+        let responsePayload = isDelete ? (Self.deletePayload ?? Data()) : Self.payload
         guard let url = request.url,
               let response = HTTPURLResponse(
                   url: url,
-                  statusCode: 200,
+                  statusCode: responseStatus,
                   httpVersion: "HTTP/1.1",
-                  headerFields: ["Content-Length": String(Self.payload.count)]
+                  headerFields: ["Content-Length": String(responsePayload.count)]
               ) else {
             client?.urlProtocol(self, didFailWithError: URLError(.badServerResponse))
             return
         }
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-        client?.urlProtocol(self, didLoad: Self.payload)
+        if responseStatus == 200 {
+            client?.urlProtocol(self, didLoad: responsePayload)
+        }
         client?.urlProtocolDidFinishLoading(self)
     }
 
@@ -117,6 +123,13 @@ struct NarInstallTests {
     }
 
     @Test
+    func updateDescriptorRejectsDotSegmentsAndWindowsDrivePaths() throws {
+        let base = URL(string: "https://example.com/ghost/")!
+        let text = "../outside.txt\u{0001}900150983cd24fb0d6963f7d28e17f72\nfoo/../bar.txt\u{0001}900150983cd24fb0d6963f7d28e17f72\nC:\\outside.txt\u{0001}900150983cd24fb0d6963f7d28e17f72"
+        #expect(UpdateDescriptorParser.parseEntries(text, baseURL: base, requireMD5: true).isEmpty)
+    }
+
+    @Test
     func md5DigestMatchesKnownVector() throws {
         #expect(UpdateMD5.hexDigest(of: Data("abc".utf8)) == "900150983cd24fb0d6963f7d28e17f72")
         let file = FileManager.default.temporaryDirectory.appendingPathComponent("ourin-md5-\(UUID().uuidString)")
@@ -177,6 +190,52 @@ struct NarInstallTests {
         }
         #expect(filenames == ["dic.dic"])
         #expect(try String(contentsOf: target, encoding: .utf8) == "old content")
+    }
+
+    @Test
+    func remoteDeleteTxtRemovesFilesAfterUpdate() async throws {
+        let payload = Data("new content".utf8)
+        UpdateDownloadURLProtocol.payload = payload
+        UpdateDownloadURLProtocol.deletePayload = Data("charset,UTF-8\nlegacy.txt\nlegacy-dir\\old.txt\\\n".utf8)
+        defer { UpdateDownloadURLProtocol.deletePayload = nil }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [UpdateDownloadURLProtocol.self]
+        let session = URLSession(configuration: configuration)
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ourin-delete-update-\(UUID().uuidString)", isDirectory: true)
+        let legacyDir = root.appendingPathComponent("legacy-dir", isDirectory: true)
+        try FileManager.default.createDirectory(at: legacyDir, withIntermediateDirectories: true)
+        try Data("old".utf8).write(to: root.appendingPathComponent("legacy.txt"))
+        try Data("old nested".utf8).write(to: legacyDir.appendingPathComponent("old.txt"))
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let entry = UpdateDescriptorEntry(
+            url: URL(string: "https://ourin-update.test/new.txt")!,
+            relativePath: "new.txt",
+            expectedMD5: UpdateMD5.hexDigest(of: payload)
+        )
+        let result = await withCheckedContinuation { continuation in
+            NarInstaller(session: session).downloadAndApply(
+                entries: [entry],
+                homeURLString: "https://ourin-update.test/",
+                targetRoot: root,
+                onMD5Compare: nil,
+                completion: { continuation.resume(returning: $0) }
+            )
+        }
+
+        switch result {
+        case .success(let applied):
+            #expect(applied.contains("new.txt"))
+            #expect(applied.contains("legacy.txt"))
+            #expect(applied.contains("legacy-dir/old.txt"))
+        case .failure(let error):
+            throw error
+        }
+        #expect(!FileManager.default.fileExists(atPath: root.appendingPathComponent("legacy.txt").path))
+        #expect(!FileManager.default.fileExists(atPath: legacyDir.appendingPathComponent("old.txt").path))
+        #expect(try String(contentsOf: root.appendingPathComponent("new.txt"), encoding: .utf8) == "new content")
     }
 
     @Test
