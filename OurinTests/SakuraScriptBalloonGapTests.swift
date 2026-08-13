@@ -387,6 +387,40 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func windowAndOpenCommandsAreQueuedAfterPrecedingText() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-window-command-order"))
+        defer { _ = gm.shutdown() }
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("before"))
+        for args in [
+            ["hide"], ["show"], ["focus"], ["b"], ["minimize"], ["maximize"], ["*"],
+            ["open", "http", "https://example.com"],
+            ["open", "send", "https://example.com", "body"]
+        ] {
+            gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: args))
+        }
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("after"))
+
+        let order = gm.playbackQueue.compactMap { unit -> String? in
+            switch unit {
+            case .textToken(let text):
+                return "text:" + text
+            case .speakTextToken(let text):
+                return "speak:" + text
+            case .deferredCommand:
+                return "command"
+            default:
+                return nil
+            }
+        }
+
+        #expect(order == [
+            "text:before", "speak:before", "command", "command", "command", "command",
+            "command", "command", "command", "command", "command", "text:after", "speak:after"
+        ])
+    }
+
+    @MainActor
     @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
         let vm = gm.getBalloonVM(for: gm.currentScope)

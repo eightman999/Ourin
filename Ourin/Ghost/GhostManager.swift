@@ -2776,18 +2776,30 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             })
                         }
                     } else if first == "hide" {
-                        setCurrentWindowHidden(true)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.setCurrentWindowHidden(true)
+                        })
                     } else if first == "show" {
-                        setCurrentWindowHidden(false)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.setCurrentWindowHidden(false)
+                        })
                     } else if first == "focus" {
-                        focusCurrentWindow()
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.focusCurrentWindow()
+                        })
                     } else if first == "b" {
                         // \![b] compatibility: bring/focus current window.
-                        focusCurrentWindow()
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.focusCurrentWindow()
+                        })
                     } else if first == "minimize" {
-                        setWindowState(state: "minimize")
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.setWindowState(state: "minimize")
+                        })
                     } else if first == "maximize" {
-                        maximizeCurrentWindow()
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.maximizeCurrentWindow()
+                        })
                     } else if ["*", "#", "x", "<", ">"].contains(first) {
                         // \![*] は choice marker ではなく、バルーンに設定された
                         // SSTP/通信マーカーを表示するコマンド（%* も同じ経路）。
@@ -2800,7 +2812,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         case ">": marker = ">"
                         default: marker = first
                         }
-                        setBalloonMarker(marker)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.setBalloonMarker(marker)
+                        })
                     } else if first == "open", args.count >= 2 {
                         let openType = args[1].lowercased()
                         switch openType {
@@ -2972,13 +2986,17 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         case "http":
                             if args.count >= 3 {
                                 let params = Array(args.dropFirst(2))
-                                executeHTTP(subcommand: "http-get", params: params)
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.executeHTTP(subcommand: "http-get", params: params)
+                                })
                             }
                         case "send":
                             if args.count >= 3 {
                                 let target = args[2]
                                 let body = args.count >= 4 ? args[3] : ""
-                                executeHTTP(subcommand: "http-post", params: [target, body])
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.executeHTTP(subcommand: "http-post", params: [target, body])
+                                })
                             }
                         case "mailer":
                             if args.count >= 3 {
