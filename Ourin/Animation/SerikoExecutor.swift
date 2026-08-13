@@ -1,5 +1,10 @@
 import Foundation
 
+public enum SerikoAnimationFinishReason: Equatable {
+    case completed
+    case stopped
+}
+
 public final class SerikoExecutor {
     public struct AnimationState: Equatable {
         public let animationID: Int
@@ -26,7 +31,7 @@ public final class SerikoExecutor {
     private let randomProvider: () -> Double
 
     public var onPatternExecuted: ((Int, SerikoPattern) -> Void)?
-    public var onAnimationFinished: ((Int) -> Void)?
+    public var onAnimationFinished: ((Int, SerikoAnimationFinishReason) -> Void)?
     public var onMethodInvoked: ((Int, SerikoMethod, Int, Int, Int) -> Void)?
     public var onScalingInvoked: ((Int, Double, Double) -> Void)?
     public var onImportInvoked: ((Int, String, Int, Int, Int) -> Void)?
@@ -112,10 +117,9 @@ public final class SerikoExecutor {
 
             let count = state.definition.patterns.count
             if state.currentPatternIndex >= count || state.currentPatternIndex < 0 {
-                if case .runonce = state.definition.interval {
+                if state.definition.interval.components.contains(.runonce) {
                     // runonce: finish immediately
-                    activeAnimations.removeValue(forKey: id)
-                    onAnimationFinished?(id)
+                    finishAnimation(id: id, reason: .completed)
                     continue
                 }
                 if state.definition.pingPong && count > 1 {
@@ -324,14 +328,13 @@ public final class SerikoExecutor {
 
     public func stopAnimation(id: Int) {
         activeAnimations.removeValue(forKey: id)
-        onAnimationFinished?(id)
+        onAnimationFinished?(id, .stopped)
     }
 
     public func stopAllAnimations() {
         let ids = Array(activeAnimations.keys)
-        activeAnimations.removeAll()
         for id in ids {
-            onAnimationFinished?(id)
+            stopAnimation(id: id)
         }
     }
 
@@ -436,6 +439,11 @@ public final class SerikoExecutor {
     private func isBackgroundAnimation(_ animationID: Int) -> Bool {
         guard let state = activeAnimations[animationID] else { return false }
         return hasOption("background", in: state.definition)
+    }
+
+    private func finishAnimation(id: Int, reason: SerikoAnimationFinishReason) {
+        activeAnimations.removeValue(forKey: id)
+        onAnimationFinished?(id, reason)
     }
 
     private func shouldStart(

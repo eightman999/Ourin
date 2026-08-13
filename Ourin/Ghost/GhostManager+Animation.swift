@@ -84,6 +84,7 @@ extension GhostManager {
         serikoLoopTimer = nil
         serikoExecutor.stopAllAnimations()
         activeAnimationIDsByScope.removeAll()
+        persistentSerikoAnimationIDsByScope.removeAll()
         serikoScaleFactorsByScope[scope] = nil
         applyEffectiveSerikoScale(scope: scope)
     }
@@ -274,9 +275,9 @@ extension GhostManager {
             self.handleSerikoPattern(animationID: animID, pattern: pattern)
         }
 
-        serikoExecutor.onAnimationFinished = { [weak self] animID in
+        serikoExecutor.onAnimationFinished = { [weak self] animID, reason in
             guard let self = self else { return }
-            self.handleAnimationFinished(animationID: animID)
+            self.handleAnimationFinished(animationID: animID, reason: reason)
         }
     }
 
@@ -923,9 +924,56 @@ extension GhostManager {
         Log.debug("[GhostManager] SERIKO pattern executed: anim=\(animationID), method=\(pattern.method), surface=\(pattern.surfaceID)")
     }
 
-    private func handleAnimationFinished(animationID: Int) {
-        clearAnimationOverlays(animationID: animationID)
-        clearSerikoScaling(animationID: animationID, scope: currentScope)
+    func clearPersistentSerikoOverlays(scope: Int) {
+        let animationIDs = persistentSerikoAnimationIDsByScope.removeValue(forKey: scope) ?? []
+        guard !animationIDs.isEmpty else { return }
+        DispatchQueue.main.async { [weak self] in
+            guard let self,
+                  let vm = self.characterViewModels[scope] else { return }
+            vm.overlays.removeAll { overlay in
+                guard let animationID = overlay.animationID else { return false }
+                return animationIDs.contains(animationID)
+            }
+            Log.debug("[GhostManager] Cleared persistent SERIKO overlays for scope=\(scope), animations=\(animationIDs.sorted())")
+        }
+    }
+
+    private func animationScopes(for animationID: Int) -> Set<Int> {
+        var scopes = Set(activeAnimationIDsByScope.compactMap { scope, animationIDs in
+            animationIDs.contains(animationID) ? scope : nil
+        })
+        for (scope, animationIDs) in persistentSerikoAnimationIDsByScope where animationIDs.contains(animationID) {
+            scopes.insert(scope)
+        }
+        if scopes.isEmpty {
+            scopes.insert(currentScope)
+        }
+        return scopes
+    }
+
+    private func handleAnimationFinished(
+        animationID: Int,
+        reason: SerikoAnimationFinishReason
+    ) {
+        let scopes = animationScopes(for: animationID)
+        let intervalComponents = serikoExecutor.definition(for: animationID)?.interval.components ?? []
+        let keepsFinalPattern = reason == .completed
+            && intervalComponents.contains(.bind)
+            && intervalComponents.contains(.runonce)
+
+        if keepsFinalPattern {
+            for scope in scopes {
+                persistentSerikoAnimationIDsByScope[scope, default: []].insert(animationID)
+            }
+        } else {
+            for scope in scopes {
+                persistentSerikoAnimationIDsByScope[scope]?.remove(animationID)
+                clearAnimationOverlays(animationID: animationID, scope: scope)
+            }
+        }
+        for scope in scopes {
+            clearSerikoScaling(animationID: animationID, scope: scope)
+        }
         removeActiveAnimationID(animationID)
         if waitingForAnimation == animationID {
             waitingForAnimation = nil

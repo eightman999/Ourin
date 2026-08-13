@@ -132,6 +132,9 @@ extension GhostManager {
             guard let self = self else { return }
             guard let vm = self.characterViewModels[targetScope] else { return }
 
+            // UKADOC: bind+runonce の最終フレームは dressup 変更で無効になる。
+            self.clearPersistentSerikoOverlays(scope: targetScope)
+
             // Load dressup part image
             if let shellPath = self.loadShellPath() {
                 let imagePath = shellPath.appendingPathComponent("surface\(binding.surfaceID).png")
@@ -289,6 +292,9 @@ extension GhostManager {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             guard let vm = self.characterViewModels[self.currentScope] else { return }
+
+            // UKADOC: bind+runonce の最終フレームは dressup 解除で無効になる。
+            self.clearPersistentSerikoOverlays(scope: self.currentScope)
 
             vm.overlays.removeAll { $0.id.hasPrefix("dressup_") }
             Log.debug("[GhostManager] Cleared all dressup")

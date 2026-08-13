@@ -986,6 +986,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var serikoScaleFactorsByScope: [Int: [Int: CGPoint]] = [:] // scope -> animationID -> x/y multiplier
     /// PROPERTY の animation.num 用。実行開始時の scope とIDを保持する。
     var activeAnimationIDsByScope: [Int: Set<Int>] = [:]
+    /// `bind+runonce` が完了した最終フレームを保持している animation ID。
+    /// サーフェスまたは dressup が変わるまで表示を残すために使う。
+    var persistentSerikoAnimationIDsByScope: [Int: Set<Int>] = [:]
     /// 画面引き継ぎイベントの直前モニター状態（scopeごと）。
     /// displayIDをwire値と分離して保持し、同一形状のモニター間でも移動を検出する。
     var displayHandoverStates: [Int: DisplaySnapshot] = [:]

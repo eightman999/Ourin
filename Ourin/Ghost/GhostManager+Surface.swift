@@ -77,6 +77,7 @@ extension GhostManager {
         shutdownSerikoLoop()
         stopImportedSurfaceAnimations(scope: scope)
         stopAllAnimAddSurfaceAnimations(scope: scope)
+        persistentSerikoAnimationIDsByScope[scope] = nil
         
         // Clear overlays when surface changes (per UKADOC spec)
         DispatchQueue.main.async { [weak self] in
@@ -595,6 +596,7 @@ extension GhostManager {
     
     /// Clear all overlays for the current scope
     func clearSurfaceOverlays() {
+        persistentSerikoAnimationIDsByScope[currentScope] = nil
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             guard let vm = self.characterViewModels[self.currentScope] else { return }

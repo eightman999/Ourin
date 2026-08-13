@@ -305,6 +305,41 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func combinedRunonceCompletesAfterPatternsAndKeepsCompletionReason() async throws {
+        var now = Date(timeIntervalSince1970: 0)
+        let executor = SerikoExecutor(nowProvider: { now }, randomProvider: { 0.0 })
+        let definition = SerikoParser.AnimationDefinition(
+            id: 26,
+            interval: .combined([.bind, .runonce]),
+            options: [],
+            patterns: [
+                SerikoPattern(index: 0, method: .overlay, surfaceID: 10, duration: 10, x: 0, y: 0, rawArguments: []),
+                SerikoPattern(index: 1, method: .bind, surfaceID: 11, duration: 10, x: 0, y: 0, rawArguments: [])
+            ]
+        )
+        executor.register(animations: [26: definition])
+
+        var finishReason: SerikoAnimationFinishReason?
+        executor.onAnimationFinished = { id, reason in
+            guard id == 26 else { return }
+            finishReason = reason
+        }
+
+        executor.triggerBind()
+        executor.startLoop()
+        #expect(executor.activeAnimations[26] != nil)
+
+        now = now.addingTimeInterval(0.02)
+        executor.startLoop()
+        #expect(executor.activeAnimations[26] != nil)
+
+        now = now.addingTimeInterval(0.02)
+        executor.startLoop()
+        #expect(executor.activeAnimations[26] == nil)
+        #expect(finishReason == .completed)
+    }
+
+    @Test
     func replacingDefinitionsResetsRunonceLifecycle() async throws {
         var now = Date(timeIntervalSince1970: 0)
         let executor = SerikoExecutor(nowProvider: { now }, randomProvider: { 0.0 })
