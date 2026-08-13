@@ -738,7 +738,7 @@ extension GhostManager {
         return fallback == "wait" || fallback == "--wait" || fallback == "true"
     }
 
-    func executeSetScalingCommand(args: [String]) {
+    func executeSetScalingCommand(args: [String], enqueueWaitAtFront: Bool = false) {
         guard args.count >= 3 else { return }
         let params = Array(args.dropFirst(2))
         let parsed = parseLongOptions(params)
@@ -766,21 +766,35 @@ extension GhostManager {
         let scope = currentScope
         let animationKey = "scaling:\(scope)"
 
-        DispatchQueue.main.async {
-            self.animateUserScaling(
+        if Thread.isMainThread {
+            animateUserScaling(
                 scope: scope,
                 targetX: targetScaleX,
                 targetY: targetScaleY,
                 duration: timeMs / 1000.0
             )
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.animateUserScaling(
+                    scope: scope,
+                    targetX: targetScaleX,
+                    targetY: targetScaleY,
+                    duration: timeMs / 1000.0
+                )
+            }
         }
 
         if wait && timeMs > 0 {
-            playbackQueue.append(.waitForVisualEffect(animationKey))
+            let waitUnit: GhostManager.PlaybackUnit = .waitForVisualEffect(animationKey)
+            if enqueueWaitAtFront {
+                playbackQueue.insert(waitUnit, at: 0)
+            } else {
+                playbackQueue.append(waitUnit)
+            }
         }
     }
 
-    func executeSetAlphaCommand(args: [String]) {
+    func executeSetAlphaCommand(args: [String], enqueueWaitAtFront: Bool = false) {
         guard args.count >= 3 else { return }
         let params = Array(args.dropFirst(2))
         let parsed = parseLongOptions(params)
@@ -804,16 +818,29 @@ extension GhostManager {
         let scope = currentScope
         let animationKey = "alpha:\(scope)"
 
-        DispatchQueue.main.async {
-            self.animateCharacterAlpha(
+        if Thread.isMainThread {
+            animateCharacterAlpha(
                 scope: scope,
                 target: targetAlpha,
                 duration: timeMs / 1000.0
             )
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.animateCharacterAlpha(
+                    scope: scope,
+                    target: targetAlpha,
+                    duration: timeMs / 1000.0
+                )
+            }
         }
 
         if wait && timeMs > 0 {
-            playbackQueue.append(.waitForVisualEffect(animationKey))
+            let waitUnit: GhostManager.PlaybackUnit = .waitForVisualEffect(animationKey)
+            if enqueueWaitAtFront {
+                playbackQueue.insert(waitUnit, at: 0)
+            } else {
+                playbackQueue.append(waitUnit)
+            }
         }
     }
 

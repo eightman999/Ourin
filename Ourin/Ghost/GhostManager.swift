@@ -712,6 +712,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case speak(String)
         case speakTextToken(String)
         case startAnimation(id: Int, wait: Bool)
+        case setScaling([String])
+        case setAlpha([String])
         case newline
         case newlineVariation(String)
         case scope(Int)
@@ -3004,81 +3006,97 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         }
                     } else if first == "close", args.count >= 2 {
                         let closeType = args[1].lowercased()
-                        switch closeType {
-                        case "inputbox":
-                            let id = args.count >= 3 ? args[2] : "inputbox"
-                            _ = closeInputDialog(id: id)
-                        case "communicatebox":
-                            closeCommunicateBoxDialog()
-                        case "dialog":
-                            let id = args.count >= 3 ? args[2] : ""
-                            emitSystemDialogCancel(type: "dialog", eventID: id)
-                        case "teachbox":
-                            // スクリプトから閉じた場合は OnTeachInputCancel を発生させない。
-                            closeTeachBoxDialog()
-                        case "websocket":
-                            closeWebSocket(params: Array(args.dropFirst(2)))
-                        default:
-                            break
-                        }
+                        let params = Array(args.dropFirst(2))
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            switch closeType {
+                            case "inputbox":
+                                let id = params.first ?? "inputbox"
+                                _ = self.closeInputDialog(id: id)
+                            case "communicatebox":
+                                self.closeCommunicateBoxDialog()
+                            case "dialog":
+                                let id = params.first ?? ""
+                                self.emitSystemDialogCancel(type: "dialog", eventID: id)
+                            case "teachbox":
+                                // スクリプトから閉じた場合は OnTeachInputCancel を発生させない。
+                                self.closeTeachBoxDialog()
+                            case "websocket":
+                                self.closeWebSocket(params: params)
+                            default:
+                                break
+                            }
+                        })
                     } else if first == "send", args.count >= 2 {
                         // \![send,websocket,URL,data] / \![send,websocket-binary,URL,base64]
                         let sendType = args[1].lowercased()
-                        if sendType == "websocket" {
-                            sendWebSocket(params: Array(args.dropFirst(2)), binary: false)
-                        } else if sendType == "websocket-binary" {
-                            sendWebSocket(params: Array(args.dropFirst(2)), binary: true)
-                        }
+                        let params = Array(args.dropFirst(2))
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            if sendType == "websocket" {
+                                self.sendWebSocket(params: params, binary: false)
+                            } else if sendType == "websocket-binary" {
+                                self.sendWebSocket(params: params, binary: true)
+                            }
+                        })
                     } else if first == "cancel", args.count >= 2 {
                         // \![cancel,websocket,URL] / \![cancel,http,URL]
                         let cancelType = args[1].lowercased()
-                        if cancelType == "websocket" {
-                            cancelWebSocket(params: Array(args.dropFirst(2)))
-                        } else if cancelType == "http" {
-                            cancelHTTPStreaming(params: Array(args.dropFirst(2)))
-                        }
+                        let params = Array(args.dropFirst(2))
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            if cancelType == "websocket" {
+                                self.cancelWebSocket(params: params)
+                            } else if cancelType == "http" {
+                                self.cancelHTTPStreaming(params: params)
+                            }
+                        })
                     } else if first == "enter", args.count >= 2 {
                         let enterType = args[1].lowercased()
-                        switch enterType {
-                        case "selectmode":
-                            let params = Array(args.dropFirst(2))
-                            enterSelectMode(params: params)
-                        case "selectrect":
-                            let params = Array(args.dropFirst(2))
-                            enterSelectMode(params: ["rect"] + params)
-                        case "collisionmode":
-                            enterCollisionMode()
-                        case "passivemode":
-                            enterPassiveMode()
-                        case "inductionmode":
-                            let params = Array(args.dropFirst(2))
-                            enterInductionMode(params: params)
-                        case "nouserbreakmode":
-                            enterNoUserBreakMode()
-                        case "onlinemode":
-                            enterOnlineMode(scope: currentScope)
-                        default:
-                            break
-                        }
+                        let params = Array(args.dropFirst(2))
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            switch enterType {
+                            case "selectmode":
+                                self.enterSelectMode(params: params)
+                            case "selectrect":
+                                self.enterSelectMode(params: ["rect"] + params)
+                            case "collisionmode":
+                                self.enterCollisionMode()
+                            case "passivemode":
+                                self.enterPassiveMode()
+                            case "inductionmode":
+                                self.enterInductionMode(params: params)
+                            case "nouserbreakmode":
+                                self.enterNoUserBreakMode()
+                            case "onlinemode":
+                                self.enterOnlineMode(scope: self.currentScope)
+                            default:
+                                break
+                            }
+                        })
                     } else if first == "leave", args.count >= 2 {
                         let leaveType = args[1].lowercased()
-                        switch leaveType {
-                        case "selectmode":
-                            let params = Array(args.dropFirst(2))
-                            leaveSelectMode(params: params)
-                        case "collisionmode":
-                            leaveCollisionMode()
-                        case "passivemode":
-                            leavePassiveMode()
-                        case "inductionmode":
-                            leaveInductionMode()
-                        case "nouserbreakmode":
-                            leaveNoUserBreakMode()
-                        case "onlinemode":
-                            leaveOnlineMode(scope: currentScope)
-                        default:
-                            break
-                        }
+                        let params = Array(args.dropFirst(2))
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            switch leaveType {
+                            case "selectmode":
+                                self.leaveSelectMode(params: params)
+                            case "collisionmode":
+                                self.leaveCollisionMode()
+                            case "passivemode":
+                                self.leavePassiveMode()
+                            case "inductionmode":
+                                self.leaveInductionMode()
+                            case "nouserbreakmode":
+                                self.leaveNoUserBreakMode()
+                            case "onlinemode":
+                                self.leaveOnlineMode(scope: self.currentScope)
+                            default:
+                                break
+                            }
+                        })
                     } else if first == "sound", args.count >= 2 {
                         // \![sound,*]
                         let subcmd = args[1].lowercased()
@@ -3098,19 +3116,23 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let subcmd = args[1].lowercased()
                         switch subcmd {
                         case "scaling":
-                            executeSetScalingCommand(args: args)
+                            playbackQueue.append(.setScaling(args))
                         case "syncobject":
                             if args.count >= 3 {
-                                SyncCenter.shared.set(name: args[2])
+                                let name = args[2]
+                                playbackQueue.append(.deferredCommand {
+                                    SyncCenter.shared.set(name: name)
+                                })
                             }
                         case "alpha":
-                            executeSetAlphaCommand(args: args)
+                            playbackQueue.append(.setAlpha(args))
                         case "alignmentondesktop", "alignmenttodesktop":
                             // \![set,alignmenttodesktop,direction]
                             if args.count >= 3 {
                                 let direction = args[2].lowercased()
-                                DispatchQueue.main.async {
-                                    guard let vm = self.characterViewModels[self.currentScope],
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    guard let self,
+                                          let vm = self.characterViewModels[self.currentScope],
                                           self.characterWindows[self.currentScope] != nil else { return }
 
                                     switch direction {
@@ -3118,27 +3140,33 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     case "bottom": vm.alignment = .bottom
                                     case "left": vm.alignment = .left
                                     case "right": vm.alignment = .right
-                                    case "free": vm.alignment = .free
-                                    case "default": vm.alignment = .free
+                                    case "free", "default": vm.alignment = .free
                                     default: break
                                     }
-                                    
-                                    // Apply desktop alignment constraint
+
                                     self.enforceDesktopAlignment(for: self.currentScope)
-                                }
+                                })
                             }
                         case "position":
                             // \![set,position,x,y,scopeID]
                             if args.count >= 5, let x = Int(args[2]), let y = Int(args[3]), let scopeID = Int(args[4]) {
-                                setWindowPosition(x: x, y: y, scopeID: scopeID)
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.setWindowPosition(x: x, y: y, scopeID: scopeID)
+                                })
                             }
                         case "zorder":
-                            executeSetZOrderCommand(args: args)
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.executeSetZOrderCommand(args: args)
+                            })
                         case "sticky-window":
-                            executeSetStickyWindowCommand(args: args)
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.executeSetStickyWindowCommand(args: args)
+                            })
                         case "timerinterval":
                             if args.count >= 3, let ms = Double(args[2]) {
-                                typingInterval = max(0, ms / 1000.0)
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.typingInterval = max(0, ms / 1000.0)
+                                })
                             }
                         case "balloonoffset":
                             // \![set,balloonoffset,x,y]
@@ -3146,23 +3174,28 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 let xValue = args[2]
                                 let yValue = args[3]
                                 let isRelative = xValue.hasPrefix("@") || yValue.hasPrefix("@")
-                                handleBalloonOffset(x: xValue, y: yValue, isRelative: isRelative)
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.handleBalloonOffset(x: xValue, y: yValue, isRelative: isRelative)
+                                })
                             }
                         case "balloonalign":
                             // \![set,balloonalign,direction]
                             if args.count >= 3 {
                                 let direction = args[2].lowercased()
-                                handleBalloonAlignment(direction: direction)
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.handleBalloonAlignment(direction: direction)
+                                })
                             }
                         case "autoscroll":
                             // \![set,autoscroll,0/1/true/false]
                             if args.count >= 3 {
                                 let value = args[2].lowercased()
-                                DispatchQueue.main.async {
-                                    guard let vm = self.balloonViewModels[self.currentScope] else { return }
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    guard let self,
+                                          let vm = self.balloonViewModels[self.currentScope] else { return }
                                     vm.autoscrollEnabled = !["0", "false", "disable", "disabled", "off"].contains(value)
                                     Log.debug("[GhostManager] Autoscroll set to: \(vm.autoscrollEnabled)")
-                                }
+                                })
                             }
                         case "balloontimeout":
                             // \![set,balloontimeout,time]。省略時は既定値へ戻す。
@@ -3173,11 +3206,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         case "choicetimeout":
                             // \![set,choicetimeout,time]
                             if args.count >= 3, let timeoutMs = Double(args[2]) {
-                                // \* で「このスクリプトの選択肢をタイムアウトさせない」指定中は上書きしない
-                                if !choiceTimeoutDisabled {
-                                    choiceTimeout = timeoutMs > 0 ? timeoutMs / 1000.0 : nil
-                                }
-                                Log.debug("[GhostManager] Choice timeout set to: \(choiceTimeout ?? -1)s")
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    guard let self else { return }
+                                    // \* で「このスクリプトの選択肢をタイムアウトさせない」指定中は上書きしない
+                                    if !self.choiceTimeoutDisabled {
+                                        self.choiceTimeout = timeoutMs > 0 ? timeoutMs / 1000.0 : nil
+                                    }
+                                    Log.debug("[GhostManager] Choice timeout set to: \(self.choiceTimeout ?? -1)s")
+                                })
                             }
                         case "balloonwait":
                             // \![set,balloonwait,倍率]。数値/%/msを文字送りへ反映する。
@@ -3187,52 +3223,74 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             })
                         case "balloonmarker":
                             if args.count >= 3 {
-                                setBalloonMarker(args[2])
+                                let marker = args[2]
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.setBalloonMarker(marker)
+                                })
                             }
                         case "balloonnum":
                             // \![set,balloonnum,file,current,max]。各引数は省略可。
-                            setBalloonNumber(
-                                fileName: args.count >= 3 ? args[2] : "",
-                                current: args.count >= 4 ? args[3] : "",
-                                maximum: args.count >= 5 ? args[4] : ""
-                            )
+                            let fileName = args.count >= 3 ? args[2] : ""
+                            let current = args.count >= 4 ? args[3] : ""
+                            let maximum = args.count >= 5 ? args[4] : ""
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.setBalloonNumber(fileName: fileName, current: current, maximum: maximum)
+                            })
                         case "wallpaper":
                             // \![set,wallpaper,filename,options]
                             let filename = args.count >= 3 ? args[2] : ""
                             let options = args.count >= 4 ? Array(args.dropFirst(3)) : []
-                            setWallpaper(filename: filename, options: options)
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.setWallpaper(filename: filename, options: options)
+                            })
                         case "tasktrayicon", "trayicon":
                             // \![set,tasktrayicon,filename,text,--duration=ms,--runcount=n]
                             if args.count >= 3 {
                                 let filename = args[2]
                                 let text = args.count >= 4 ? args[3] : ""
-                                setTaskTrayIcon(filename: filename, text: text, options: Array(args.dropFirst(4)))
+                                let options = Array(args.dropFirst(4))
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.setTaskTrayIcon(filename: filename, text: text, options: options)
+                                })
                             }
                         case "trayballoon":
                             // \![set,trayballoon,options...]
                             let options = Array(args.dropFirst(2))
-                            setTrayBalloon(options: options)
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.setTrayBalloon(options: options)
+                            })
                         case "otherghosttalk":
                             // \![set,otherghosttalk,true/false/before/after]
                             if args.count >= 3 {
-                                setOtherGhostTalk(mode: args[2])
+                                let mode = args[2]
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.setOtherGhostTalk(mode: mode)
+                                })
                             }
                         case "othersurfacechange":
                             // \![set,othersurfacechange,true/false]
                             if args.count >= 3 {
                                 let value = args[2].lowercased()
-                                setOtherSurfaceChange(enabled: value == "true" || value == "1" || value == "on")
+                                let enabled = value == "true" || value == "1" || value == "on"
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.setOtherSurfaceChange(enabled: enabled)
+                                })
                             }
                         case "windowstate":
                             // \![set,windowstate,stayontop/!stayontop/minimize]
                             if args.count >= 3 {
-                                setWindowState(state: args[2])
+                                let state = args[2]
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    self?.setWindowState(state: state)
+                                })
                             }
                         case "shioridebugmode":
                             if args.count >= 3 {
                                 let enabled = args[2].lowercased() == "1" || args[2].lowercased() == "true" || args[2].lowercased() == "on"
-                                UserDefaults.standard.set(enabled, forKey: "OurinShioriDebugMode")
-                                EventBridge.shared.notifyCustom("OnShioriDebugModeChanged", refs: ["enabled": enabled ? "1" : "0"])
+                                playbackQueue.append(.deferredCommand {
+                                    UserDefaults.standard.set(enabled, forKey: "OurinShioriDebugMode")
+                                    EventBridge.shared.notifyCustom("OnShioriDebugModeChanged", refs: ["enabled": enabled ? "1" : "0"])
+                                })
                             }
                         case "serikotalk":
                             if args.count >= 3 {
@@ -3246,29 +3304,32 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         }
                     } else if first == "reset" {
                         // \![reset,*] と \![reset]（z-order/sticky の両方を解除）
-                        if args.count >= 2 {
-                            let subcmd = args[1].lowercased()
-                            switch subcmd {
-                            case "syncobject":
-                                if args.count >= 3 {
-                                    SyncCenter.shared.reset(name: args[2])
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            if args.count >= 2 {
+                                let subcmd = args[1].lowercased()
+                                switch subcmd {
+                                case "syncobject":
+                                    if args.count >= 3 {
+                                        SyncCenter.shared.reset(name: args[2])
+                                    }
+                                case "position":
+                                    // \![reset,position] - unlock position
+                                    self.resetWindowPosition()
+                                case "zorder":
+                                    // \![reset,zorder] - reset to default z-order
+                                    self.resetWindowZOrder()
+                                case "sticky-window":
+                                    // \![reset,sticky-window] - unlink windows
+                                    self.resetStickyWindow()
+                                default:
+                                    break
                                 }
-                            case "position":
-                                // \![reset,position] - unlock position
-                                resetWindowPosition()
-                            case "zorder":
-                                // \![reset,zorder] - reset to default z-order
-                                resetWindowZOrder()
-                            case "sticky-window":
-                                // \![reset,sticky-window] - unlink windows
-                                resetStickyWindow()
-                            default:
-                                break
+                            } else {
+                                self.resetWindowZOrder()
+                                self.resetStickyWindow()
                             }
-                        } else {
-                            resetWindowZOrder()
-                            resetStickyWindow()
-                        }
+                        })
                     } else if first == "bind" || first == "bind-noevent", args.count >= 2 {
                         executeBindCommand(args: args)
                     } else if first == "reload", args.count >= 2 {
@@ -4346,6 +4407,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 if wait {
                     playbackQueue.insert(.waitAnimation(id), at: 0)
                 }
+                continue
+            case .setScaling(let args):
+                executeSetScalingCommand(args: args, enqueueWaitAtFront: true)
+                continue
+            case .setAlpha(let args):
+                executeSetAlphaCommand(args: args, enqueueWaitAtFront: true)
                 continue
             case .scope(let id):
                 // SSP は複数スコープ（\0=sakura / \1=kero / \p[n]）のバルーンを同時表示できる。

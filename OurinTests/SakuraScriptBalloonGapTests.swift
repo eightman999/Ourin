@@ -293,6 +293,52 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func settingsCommandsAreQueuedAfterPrecedingText() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-settings-command-order"))
+        defer { _ = gm.shutdown() }
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("before"))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "set", "scaling", "80", "90", "100"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "set", "alpha", "75", "100"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "set", "timerinterval", "50"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "enter", "onlinemode"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "leave", "onlinemode"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("after"))
+
+        let order = gm.playbackQueue.compactMap { unit -> String? in
+            switch unit {
+            case .textToken(let text):
+                return "text:" + text
+            case .speakTextToken(let text):
+                return "speak:" + text
+            case .setScaling:
+                return "scaling"
+            case .setAlpha:
+                return "alpha"
+            case .deferredCommand:
+                return "command"
+            default:
+                return nil
+            }
+        }
+
+        #expect(order == [
+            "text:before", "speak:before", "scaling", "alpha", "command", "command",
+            "command", "text:after", "speak:after"
+        ])
+    }
+
+    @MainActor
     @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
         let vm = gm.getBalloonVM(for: gm.currentScope)
@@ -302,6 +348,7 @@ struct BalloonNewlineSpacingTests {
         gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
             "set", "balloonoffset", "100", "-50"
         ]))
+        gm.processNextUnit()
         try await Task.sleep(nanoseconds: 50_000_000)
         #expect(vm.balloonOffsetX == 100)
         #expect(vm.balloonOffsetY == -50)
@@ -309,6 +356,7 @@ struct BalloonNewlineSpacingTests {
         gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
             "set", "balloonoffset", "@10", "@-5"
         ]))
+        gm.processNextUnit()
         try await Task.sleep(nanoseconds: 50_000_000)
         #expect(vm.balloonOffsetX == 110)
         #expect(vm.balloonOffsetY == -55)
@@ -322,12 +370,14 @@ struct BalloonNewlineSpacingTests {
         gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
             "set", "autoscroll", "enable"
         ]))
+        gm.processNextUnit()
         try await Task.sleep(nanoseconds: 50_000_000)
         #expect(vm.autoscrollEnabled)
 
         gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
             "set", "autoscroll", "disable"
         ]))
+        gm.processNextUnit()
         try await Task.sleep(nanoseconds: 50_000_000)
         #expect(!vm.autoscrollEnabled)
     }
@@ -340,6 +390,7 @@ struct BalloonNewlineSpacingTests {
         gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
             "enter", "onlinemode"
         ]))
+        gm.processNextUnit()
         try await Task.sleep(nanoseconds: 50_000_000)
         #expect(vm.onlineModeActive)
         #expect(vm.onlineMarkerIndex == 0)
@@ -347,6 +398,7 @@ struct BalloonNewlineSpacingTests {
         gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
             "leave", "onlinemode"
         ]))
+        gm.processNextUnit()
         try await Task.sleep(nanoseconds: 50_000_000)
         #expect(!vm.onlineModeActive)
         #expect(vm.onlineMarkerIndex == 0)
@@ -449,12 +501,14 @@ struct SakuraScriptSystemCommandTests {
         gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
             "set", "syncobject", name
         ]))
+        gm.processNextUnit()
         let signaledDelay = SyncCenter.shared.wait(name: name, timeout: 0.1)
         #expect(signaledDelay < 0.05)
 
         gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
             "reset", "syncobject", name
         ]))
+        gm.processNextUnit()
         let resetStart = Date()
         _ = SyncCenter.shared.wait(name: name, timeout: 0.02)
         #expect(Date().timeIntervalSince(resetStart) >= 0.01)
@@ -487,6 +541,7 @@ struct SakuraScriptSystemCommandTests {
         gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
             "execute", "resetballoonpos"
         ]))
+        gm.processNextUnit()
         try await Task.sleep(nanoseconds: 50_000_000)
 
         #expect(gm.resourceManager.getBalloonLeft(scope: 0) == nil)
