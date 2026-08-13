@@ -2,7 +2,7 @@ import Foundation
 
 public final class SaoriRegistry {
     public private(set) var searchPaths: [URL]
-    private var cache: [String: SaoriLoader] = [:]
+    private var cache: [URL: SaoriLoader] = [:]
     private let fm: FileManager
 
     public init(searchPaths: [URL] = [], fileManager: FileManager = .default) {
@@ -44,10 +44,6 @@ public final class SaoriRegistry {
     }
 
     public func loadModule(named name: String) throws -> SaoriLoader {
-        let key = cacheKey(for: name)
-        if let cached = cache[key] {
-            return cached
-        }
         guard let url = resolveModuleURL(named: name) else {
             throw NSError(
                 domain: "SaoriRegistry",
@@ -55,13 +51,18 @@ public final class SaoriRegistry {
                 userInfo: [NSLocalizedDescriptionKey: "SAORI module not found: \(name)"]
             )
         }
+        let key = cacheKey(for: url)
+        if let cached = cache[key] {
+            return cached
+        }
         let loader = try SaoriLoader(url: url)
         cache[key] = loader
         return loader
     }
 
     public func unloadModule(named name: String) {
-        let key = cacheKey(for: name)
+        guard let url = resolveModuleURL(named: name) else { return }
+        let key = cacheKey(for: url)
         guard let loader = cache.removeValue(forKey: key) else { return }
         loader.unload()
     }
@@ -73,8 +74,8 @@ public final class SaoriRegistry {
         cache.removeAll()
     }
 
-    private func cacheKey(for name: String) -> String {
-        URL(fileURLWithPath: name).lastPathComponent.lowercased()
+    private func cacheKey(for url: URL) -> URL {
+        url.standardizedFileURL.resolvingSymlinksInPath()
     }
 
     private static func defaultSearchPaths() -> [URL] {
