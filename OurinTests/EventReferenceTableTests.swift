@@ -213,7 +213,24 @@ func eventReferenceTableGhostLifecycleReferencesMatchUkadoc() {
     ])
     #expect(EventReferenceTable.specs["OnOtherGhostChanged"]?.references == [
         "prevGhostName", "nextGhostName", "prevChangeScript", "nextChangeScript",
-        "prevGhostNameSSP", "nextGhostNameSSP"
+        "prevGhostNameSSP", "nextGhostNameSSP",
+        "unused6", "unused7", "unused8", "unused9", "unused10", "unused11", "unused12", "unused13",
+        "prevShellName", "nextShellName"
+    ])
+}
+
+@Test
+func eventReferenceTablePreservesOtherGhostChangedShellReferences() {
+    #expect(EventReferenceTable.params(forEvent: "OnOtherGhostChanged", refs: [
+        "prevGhostName": "old",
+        "nextGhostName": "new",
+        "prevShellName": "old-shell",
+        "nextShellName": "new-shell"
+    ]) == [
+        "Reference0": "old",
+        "Reference1": "new",
+        "Reference14": "old-shell",
+        "Reference15": "new-shell"
     ])
 }
 

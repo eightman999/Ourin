@@ -71,8 +71,13 @@ public enum EventReferenceTable {
         // R2=起動したゴーストのSSP名, R7=シェル名。R3..R6 は予約領域。
         .init(id: "OnOtherGhostBooted", references: ["ghostName", "bootScript", "ghostNameSSP", "unused3", "unused4", "unused5", "unused6", "shellName"], category: "ghost"),
         // UKADOC: R0/R1=旧/新ゴースト本体名, R2/R3=旧/新切替スクリプト,
-        // R4/R5=旧/新ゴーストのSSP名。
-        .init(id: "OnOtherGhostChanged", references: ["prevGhostName", "nextGhostName", "prevChangeScript", "nextChangeScript", "prevGhostNameSSP", "nextGhostNameSSP"], category: "ghost"),
+        // R4/R5=旧/新ゴーストのSSP名, R14/R15=旧/新シェル名。R6..R13 は予約領域。
+        .init(id: "OnOtherGhostChanged", references: [
+            "prevGhostName", "nextGhostName", "prevChangeScript", "nextChangeScript",
+            "prevGhostNameSSP", "nextGhostNameSSP",
+            "unused6", "unused7", "unused8", "unused9", "unused10", "unused11", "unused12", "unused13",
+            "prevShellName", "nextShellName"
+        ], category: "ghost"),
         .init(id: "OnOtherGhostClosed", references: ["ghostName"], category: "ghost"),
 
         // MARK: - 見切れ / 重なり（UKADOC: Reference0=現在状態, Reference1=直前状態, 区切りはバイト値1）

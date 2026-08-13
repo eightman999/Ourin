@@ -5128,7 +5128,9 @@ extension GhostManager: NSWindowDelegate {
                     "prevChangeScript": changeScript,
                     "nextChangeScript": result.script,
                     "prevGhostNameSSP": sourceInfo.ghostName,
-                    "nextGhostNameSSP": nextInfo.ghostName
+                    "nextGhostNameSSP": nextInfo.ghostName,
+                    "prevShellName": sourceInfo.shellName,
+                    "nextShellName": nextInfo.shellName
                 ]
             )
             EventBridge.shared.request(
