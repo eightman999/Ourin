@@ -651,6 +651,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var lastSntpServerDate: Date?
     var lastSntpServerDateTime: String?
     var lastSntpTimezone: String?
+    var lastSntpMeasurement: SNTPMeasurement?
+    var lastSntpServer: String?
+    var pendingSntpCorrection = false
     var lastBiffUnreadCounts: [String: Int] = [:]
 
     /// 追加ゴーストの起動スクリプト再生完了時に呼び出すコールバック。

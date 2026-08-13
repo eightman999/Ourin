@@ -1,5 +1,6 @@
 import Foundation
 import Network
+import Darwin
 
 /// SNTP 応答から得たサーバ時刻とローカル時刻の差。
 struct SNTPMeasurement: Equatable {
@@ -10,6 +11,66 @@ struct SNTPMeasurement: Equatable {
 
     var offsetMilliseconds: Int {
         Int((offset * 1_000).rounded())
+    }
+}
+
+/// システム時計補正が拒否または失敗した理由。
+enum SNTPClockAdjustmentError: Error, Equatable, CustomStringConvertible {
+    case permissionDenied
+    case systemFailure(Int32)
+
+    var description: String {
+        switch self {
+        case .permissionDenied:
+            return "システム時計を変更する権限がありません"
+        case .systemFailure(let code):
+            return "システム時計の変更に失敗しました (errno=\(code))"
+        }
+    }
+}
+
+/// SNTP で得た時刻を macOS のシステム時計へ反映する境界。
+///
+/// `settimeofday` はプロセスが持つ権限の範囲でのみ成功する。sudo 等の
+/// 外部プロセスを起動して権限を迂回することはせず、OS の拒否をそのまま
+/// 呼び出し元へ返して `OnSNTPFailure` へつなげる。
+enum SNTPClockAdjuster {
+    typealias Setter = (Date) -> Result<Void, SNTPClockAdjustmentError>
+
+    static func adjust(to date: Date) -> Result<Void, SNTPClockAdjustmentError> {
+        var value = timeValue(for: date)
+        let returnCode = settimeofday(&value, nil)
+        return result(for: returnCode, errorCode: returnCode == -1 ? Darwin.errno : 0)
+    }
+
+    /// `Date` を `settimeofday` 用の秒・マイクロ秒へ変換する。
+    static func timeValue(for date: Date) -> timeval {
+        var seconds = date.timeIntervalSince1970.rounded(.down)
+        var microseconds = ((date.timeIntervalSince1970 - seconds) * 1_000_000).rounded()
+
+        if microseconds >= 1_000_000 {
+            seconds += 1
+            microseconds -= 1_000_000
+        } else if microseconds < 0 {
+            seconds -= 1
+            microseconds += 1_000_000
+        }
+
+        return timeval(tv_sec: Int(seconds), tv_usec: Int32(microseconds))
+    }
+
+    /// システムコール結果の分類を純粋関数として公開し、失敗経路をテスト可能にする。
+    static func result(
+        for returnCode: Int32,
+        errorCode: Int32
+    ) -> Result<Void, SNTPClockAdjustmentError> {
+        guard returnCode == 0 else {
+            if errorCode == EPERM || errorCode == EACCES {
+                return .failure(.permissionDenied)
+            }
+            return .failure(.systemFailure(errorCode))
+        }
+        return .success(())
     }
 }
 

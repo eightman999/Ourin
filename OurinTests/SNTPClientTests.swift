@@ -2,6 +2,28 @@ import Foundation
 import Testing
 @testable import Ourin
 
+private final class SNTPCapturingRuntime: GhostShioriRuntime {
+    let kind: ShioriRuntimeKind = .native
+    var isLoaded = true
+    var resourceManager: ResourceManager?
+    var requests: [(method: String, id: String, refs: [String])] = []
+
+    func load(context: ShioriRuntimeLoadContext) -> Bool { true }
+
+    func request(
+        method: String,
+        id: String,
+        headers: [String: String],
+        refs: [String],
+        timeout: TimeInterval
+    ) -> ShioriRuntimeResponse? {
+        requests.append((method, id, refs))
+        return .init(ok: true, status: 204)
+    }
+
+    func unload() { isLoaded = false }
+}
+
 struct SNTPClientTests {
     @Test
     func requestUsesNTPv4ClientHeaderAndTimestamp() {
@@ -63,6 +85,136 @@ struct SNTPClientTests {
                 receivedAt: received
             )
         }
+    }
+
+    @Test
+    func clockAdjusterConvertsDateToNormalizedTimeval() {
+        let value = SNTPClockAdjuster.timeValue(
+            for: Date(timeIntervalSince1970: 1_700_000_000.123456)
+        )
+
+        #expect(value.tv_sec == 1_700_000_000)
+        #expect(value.tv_usec == 123_456)
+    }
+
+    @Test
+    func clockAdjusterClassifiesPermissionAndSystemFailures() {
+        if case .failure(.permissionDenied) = SNTPClockAdjuster.result(for: -1, errorCode: EPERM) {
+            // expected
+        } else {
+            Issue.record("EPERM が permissionDenied に分類されていない")
+        }
+        if case .failure(.systemFailure(5)) = SNTPClockAdjuster.result(for: -1, errorCode: 5) {
+            // expected
+        } else {
+            Issue.record("一般エラーが systemFailure に分類されていない")
+        }
+        if case .success = SNTPClockAdjuster.result(for: 0, errorCode: 0) {
+            // expected
+        } else {
+            Issue.record("成功コードが success に分類されていない")
+        }
+    }
+
+    @MainActor
+    @Test
+    func successfulCorrectionEmitsExtendedAndStandardEvents() {
+        EventBridge.shared.stop()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sntp-correction-test"))
+        let runtime = SNTPCapturingRuntime()
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        let localDate = Date()
+        let serverDate = localDate.addingTimeInterval(1.5)
+        manager.lastSntpMeasurement = SNTPMeasurement(
+            server: "time.example.test",
+            serverDate: serverDate,
+            localDate: localDate,
+            offset: 1.5
+        )
+        manager.lastSntpServerDate = serverDate
+        manager.lastSntpServer = "time.example.test"
+        var adjustedDate: Date?
+
+        let corrected = manager.executeSNTPApply { date in
+            adjustedDate = date
+            return .success(())
+        }
+
+        #expect(corrected)
+        #expect(adjustedDate != nil)
+        #expect(runtime.requests.map(\.id) == ["OnSNTPCorrectEx", "OnSNTPCorrect"])
+        #expect(runtime.requests.allSatisfy { $0.method == "NOTIFY" })
+        #expect(runtime.requests.allSatisfy { $0.refs.count == 5 })
+        #expect(runtime.requests[0].refs[0] == "time.example.test")
+        #expect(Double(runtime.requests[0].refs[3]) ?? 0 > 1.0)
+    }
+
+    @MainActor
+    @Test
+    func failedCorrectionEmitsFailureOnly() {
+        EventBridge.shared.stop()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sntp-correction-failure-test"))
+        let runtime = SNTPCapturingRuntime()
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        let serverDate = Date().addingTimeInterval(1)
+        manager.lastSntpServerDate = serverDate
+        manager.lastSntpServer = "time.example.test"
+
+        let corrected = manager.executeSNTPApply { _ in
+            .failure(.permissionDenied)
+        }
+
+        #expect(!corrected)
+        #expect(runtime.requests.map(\.id) == ["OnSNTPFailure"])
+        #expect(runtime.requests[0].refs == ["time.example.test"])
+    }
+
+    @MainActor
+    @Test
+    func pendingCorrectionAfterQueryEmitsCorrectionEvents() {
+        EventBridge.shared.stop()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sntp-pending-correction-test"))
+        let runtime = SNTPCapturingRuntime()
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.pendingSntpCorrection = true
+        let localDate = Date()
+        let measurement = SNTPMeasurement(
+            server: "time.example.test",
+            serverDate: localDate.addingTimeInterval(0.75),
+            localDate: localDate,
+            offset: 0.75
+        )
+
+        let corrected = manager.processSNTPMeasurement(measurement) { _ in
+            .success(())
+        }
+
+        #expect(corrected)
+        #expect(!manager.pendingSntpCorrection)
+        #expect(runtime.requests.map(\.id) == [
+            "OnSNTPCompareEx", "OnSNTPCompare", "OnSNTPCorrectEx", "OnSNTPCorrect"
+        ])
     }
 
     private func writeTimestamp(_ date: Date, into bytes: inout [UInt8], at offset: Int) {

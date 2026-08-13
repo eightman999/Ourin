@@ -1343,55 +1343,37 @@ extension GhostManager: NSWindowDelegate {
     
     /// Execute an actual SNTP time query (`\7` / `\![executesntp]`).
     func executeSNTP() {
+        executeSNTP(requestCorrection: false)
+    }
+
+    private func executeSNTP(requestCorrection: Bool) {
         let configuredServer = UserDefaults.standard.string(forKey: "OurinSNTPServer")
         let server = configuredServer?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
             ? configuredServer!.trimmingCharacters(in: .whitespacesAndNewlines)
             : "pool.ntp.org"
 
         Log.debug("[GhostManager] Executing SNTP time synchronization: \(server)")
+        pendingSntpCorrection = requestCorrection
         lastSntpServerDate = nil
         lastSntpServerDateTime = nil
         lastSntpTimezone = nil
+        lastSntpMeasurement = nil
+        lastSntpServer = nil
         EventBridge.shared.notify(.OnSNTPBegin, refs: ["server": server])
 
         SNTPClient().query(server: server) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let measurement):
-                let serverTimeEx = self.sntpDateString(measurement.serverDate, includeMilliseconds: true)
-                let localTimeEx = self.sntpDateString(measurement.localDate, includeMilliseconds: true)
-                let serverTime = self.sntpDateString(measurement.serverDate, includeMilliseconds: false)
-                let localTime = self.sntpDateString(measurement.localDate, includeMilliseconds: false)
-                let signedSeconds = String(format: "%.3f", measurement.offset)
-                let absoluteSeconds = String(format: "%.0f", abs(measurement.offset))
-                let signedMilliseconds = String(measurement.offsetMilliseconds)
-                let absoluteMilliseconds = String(abs(measurement.offsetMilliseconds))
-
-                self.lastSntpServerDate = measurement.serverDate
-                self.lastSntpServerDateTime = serverTimeEx
-                self.lastSntpTimezone = TimeZone.current.identifier
-                let compareRefs = [
-                    "server": server,
-                    "serverTime": serverTime,
-                    "localTime": localTime,
-                    "deltaSeconds": absoluteSeconds,
-                    "deltaMilliseconds": absoluteMilliseconds
-                ]
-                let compareExRefs = [
-                    "server": server,
-                    "serverTime": serverTimeEx,
-                    "localTime": localTimeEx,
-                    "deltaSeconds": signedSeconds,
-                    "deltaMilliseconds": signedMilliseconds
-                ]
-                EventBridge.shared.notify(.OnSNTPCompareEx, refs: compareExRefs)
-                EventBridge.shared.notify(.OnSNTPCompare, refs: compareRefs)
-                Log.debug("[GhostManager] SNTP query succeeded: offset=\(signedMilliseconds)ms")
+                _ = self.processSNTPMeasurement(measurement)
 
             case .failure(let error):
                 self.lastSntpServerDate = nil
                 self.lastSntpServerDateTime = nil
                 self.lastSntpTimezone = nil
+                self.lastSntpMeasurement = nil
+                self.lastSntpServer = nil
+                self.pendingSntpCorrection = false
                 Log.info("[GhostManager] SNTP query failed: \(error)")
                 Log.info("[GhostManager] SNTP failure reason: \(self.normalizeSNTPFailureReason(error))")
                 EventBridge.shared.notify(.OnSNTPFailure, refs: ["server": server])
@@ -1399,22 +1381,127 @@ extension GhostManager: NSWindowDelegate {
         }
     }
 
+    /// SNTP 応答を保存し、比較イベントと必要な補正イベントを発火する。
+    @discardableResult
+    func processSNTPMeasurement(
+        _ measurement: SNTPMeasurement,
+        clockAdjuster: @escaping SNTPClockAdjuster.Setter = SNTPClockAdjuster.adjust(to:)
+    ) -> Bool {
+        let server = measurement.server
+        let serverTimeEx = sntpDateString(measurement.serverDate, includeMilliseconds: true)
+        let localTimeEx = sntpDateString(measurement.localDate, includeMilliseconds: true)
+        let serverTime = sntpDateString(measurement.serverDate, includeMilliseconds: false)
+        let localTime = sntpDateString(measurement.localDate, includeMilliseconds: false)
+        let signedSeconds = String(format: "%.3f", measurement.offset)
+        let absoluteSeconds = String(format: "%.0f", abs(measurement.offset))
+        let signedMilliseconds = String(measurement.offsetMilliseconds)
+        let absoluteMilliseconds = String(abs(measurement.offsetMilliseconds))
+
+        lastSntpServerDate = measurement.serverDate
+        lastSntpServerDateTime = serverTimeEx
+        lastSntpTimezone = TimeZone.current.identifier
+        lastSntpMeasurement = measurement
+        lastSntpServer = server
+        let compareRefs = [
+            "server": server,
+            "serverTime": serverTime,
+            "localTime": localTime,
+            "deltaSeconds": absoluteSeconds,
+            "deltaMilliseconds": absoluteMilliseconds
+        ]
+        let compareExRefs = [
+            "server": server,
+            "serverTime": serverTimeEx,
+            "localTime": localTimeEx,
+            "deltaSeconds": signedSeconds,
+            "deltaMilliseconds": signedMilliseconds
+        ]
+        EventBridge.shared.notify(.OnSNTPCompareEx, refs: compareExRefs)
+        EventBridge.shared.notify(.OnSNTPCompare, refs: compareRefs)
+        Log.debug("[GhostManager] SNTP query succeeded: offset=\(signedMilliseconds)ms")
+
+        guard pendingSntpCorrection else { return false }
+        pendingSntpCorrection = false
+
+        let localDate = Date()
+        let elapsed = max(0, localDate.timeIntervalSince(measurement.localDate))
+        let targetDate = measurement.serverDate.addingTimeInterval(elapsed)
+        return applySNTPCorrection(
+            server: server,
+            serverDate: targetDate,
+            localDate: localDate,
+            clockAdjuster: clockAdjuster
+        )
+    }
+
     /// Execute SNTP correction action for `\6`.
-    /// macOS のシステム時計変更は root/Authorization が必要で、通常の baseware が
-    ///勝手に変更できないため、変更を成功扱いにはせず標準の失敗イベントを返す。
-    func executeSNTPApply() {
+    @discardableResult
+    func executeSNTPApply(
+        clockAdjuster: @escaping SNTPClockAdjuster.Setter = SNTPClockAdjuster.adjust(to:)
+    ) -> Bool {
         guard let serverDate = lastSntpServerDate else {
             Log.info("[GhostManager] SNTP apply requested without cached server time; starting sync first")
-            executeSNTP()
-            return
+            executeSNTP(requestCorrection: true)
+            return false
         }
 
         let localDate = Date()
-        let deltaSec = serverDate.timeIntervalSince(localDate)
-        let server = UserDefaults.standard.string(forKey: "OurinSNTPServer") ?? "pool.ntp.org"
-        let deltaMs = Int((deltaSec * 1_000).rounded())
-        Log.info("[GhostManager] SNTP correction requires privileged clock access (deltaMs=\(deltaMs))")
-        EventBridge.shared.notify(.OnSNTPFailure, refs: ["server": server])
+        let measurement = lastSntpMeasurement
+        let elapsed = measurement.map { max(0, localDate.timeIntervalSince($0.localDate)) } ?? 0
+        let targetDate = measurement.map {
+            $0.serverDate.addingTimeInterval(elapsed)
+        } ?? serverDate
+        let server = lastSntpServer ?? configuredSNTPServer()
+        pendingSntpCorrection = false
+        return applySNTPCorrection(
+            server: server,
+            serverDate: targetDate,
+            localDate: localDate,
+            clockAdjuster: clockAdjuster
+        )
+    }
+
+    @discardableResult
+    private func applySNTPCorrection(
+        server: String,
+        serverDate: Date,
+        localDate: Date,
+        clockAdjuster: @escaping SNTPClockAdjuster.Setter
+    ) -> Bool {
+        let delta = serverDate.timeIntervalSince(localDate)
+        let correctionRefs = [
+            "server": server,
+            "serverTime": sntpDateString(serverDate, includeMilliseconds: false),
+            "localTime": sntpDateString(localDate, includeMilliseconds: false),
+            "deltaSeconds": String(format: "%.0f", abs(delta)),
+            "deltaMilliseconds": String(abs(Int((delta * 1_000).rounded())))
+        ]
+        let correctionExRefs = [
+            "server": server,
+            "serverTime": sntpDateString(serverDate, includeMilliseconds: true),
+            "localTime": sntpDateString(localDate, includeMilliseconds: true),
+            "deltaSeconds": String(format: "%.3f", delta),
+            "deltaMilliseconds": String(Int((delta * 1_000).rounded()))
+        ]
+
+        switch clockAdjuster(serverDate) {
+        case .success:
+            EventBridge.shared.notify(.OnSNTPCorrectEx, refs: correctionExRefs)
+            EventBridge.shared.notify(.OnSNTPCorrect, refs: correctionRefs)
+            Log.info("[GhostManager] SNTP correction succeeded: deltaMs=\(correctionExRefs["deltaMilliseconds"] ?? "0")")
+            return true
+        case .failure(let error):
+            Log.info("[GhostManager] SNTP correction failed: \(error)")
+            EventBridge.shared.notify(.OnSNTPFailure, refs: ["server": server])
+            return false
+        }
+    }
+
+    private func configuredSNTPServer() -> String {
+        let configuredServer = UserDefaults.standard.string(forKey: "OurinSNTPServer")
+        return configuredServer?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+            ? configuredServer!.trimmingCharacters(in: .whitespacesAndNewlines)
+            : "pool.ntp.org"
     }
 
     private func sntpDateString(_ date: Date, includeMilliseconds: Bool) -> String {
