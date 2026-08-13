@@ -35,7 +35,10 @@ Scope switches themselves (`\0` / `\1` / `\p[n]`) never clear balloons (see `pro
 - ✅ `\![anim,pause,ID]` / `\![anim,pauseID]`
 - ✅ `\![anim,resume,ID]`
 - ✅ `\![anim,offset,ID,x,y]`
-- ⚠️ `\![anim,add,...]` (`overlay`, `base`, `bind`, `text` implemented; other variants are limited)
+- ✅ `\![anim,add,overlay|overlayfast,ID[,x,y]]`
+- ✅ `\![anim,add,overlay,ID,x,y,duration,...[,runonce|always]]`
+- ✅ `\![anim,add,base,ID]` / `\![anim,add,move,x,y]` / `\![anim,add,bind,ID]`
+- ✅ `\![anim,add,text,x,y,width,height,text,...]` (text is required)
 - ✅ `\![anim,stop]` / `\![anim,stop,ID]`
 - ✅ `\![bind,category,part,value]`
 

@@ -775,6 +775,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var preloadedVideos: [String: [VideoPreloadPlayer]] = [:]
     var importedSurfaceTimers: [String: Timer] = [:]
     var importedSurfaceTokensByOwner: [String: String] = [:]
+    var animAddSurfaceTimers: [String: Timer] = [:]
+    var animAddSurfaceTokensByScope: [Int: Set<String>] = [:]
+    var nextAnimAddSurfaceToken: UInt64 = 0
 
     // Sakura Script \__v 音声合成制御。自動読み上げは既定で無効にし、明示指定時だけ使う。
     // `voiceAlternateText` は次のテキストトークン1つにだけ適用し、\__v 終了タグで解除する。
@@ -1627,6 +1630,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
         shutdownSerikoLoop()
         stopAllImportedSurfaceAnimations()
+        stopAllAnimAddSurfaceAnimations()
         for w in characterWindows.values { w.orderOut(nil) }
         for w in balloonWindows.values { w.orderOut(nil) }
         surfaceTestWindow?.orderOut(nil)
@@ -2262,11 +2266,31 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             let addType = args[2].lowercased()
             if addType == "overlay" {
                 if let surfaceID = Int(args[3]) {
-                    handleAnimAddOverlay(id: surfaceID)
+                    if let sequence = parseAnimAddOverlaySequence(args: Array(args.dropFirst(3))) {
+                        handleAnimAddOverlaySequence(
+                            frames: sequence.frames,
+                            timing: sequence.timing,
+                            blendMode: .normal
+                        )
+                    } else {
+                        let x = args.count >= 6 ? Int(args[4]) : nil
+                        let y = args.count >= 6 ? Int(args[5]) : nil
+                        handleAnimAddOverlay(id: surfaceID, x: x, y: y)
+                    }
                 }
             } else if addType == "overlayfast" {
                 if let surfaceID = Int(args[3]) {
-                    handleAnimAddOverlayFast(id: surfaceID)
+                    if let sequence = parseAnimAddOverlaySequence(args: Array(args.dropFirst(3))) {
+                        handleAnimAddOverlaySequence(
+                            frames: sequence.frames,
+                            timing: sequence.timing,
+                            blendMode: .overlayFast
+                        )
+                    } else {
+                        let x = args.count >= 6 ? Int(args[4]) : nil
+                        let y = args.count >= 6 ? Int(args[5]) : nil
+                        handleAnimAddOverlayFast(id: surfaceID, x: x, y: y)
+                    }
                 }
             } else if addType == "base" {
                 if let surfaceID = Int(args[3]) {
@@ -2282,7 +2306,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 if let surfaceID = Int(args[3]) {
                     handleSurfaceOverlay(surfaceID: surfaceID, type: .bind)
                 }
-            } else if addType == "text", args.count >= 13 {
+            } else if addType == "text", args.count >= 8 {
                 let x = Int(args[3]) ?? 0
                 let y = Int(args[4]) ?? 0
                 let width = Int(args[5]) ?? 100

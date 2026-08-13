@@ -35,7 +35,10 @@ SSP 互換の実装として、スコープ切替（`\0` / `\1` / `\p[n]`）は�
 - ✅ `\![anim,pause,ID]` / `\![anim,pauseID]`
 - ✅ `\![anim,resume,ID]`
 - ✅ `\![anim,offset,ID,x,y]`
-- ⚠️ `\![anim,add,...]` (`overlay`, `base`, `bind`, `text` は実装済み。その他は限定的)
+- ✅ `\![anim,add,overlay|overlayfast,ID[,x,y]]`
+- ✅ `\![anim,add,overlay,ID,x,y,表示時間,...[,runonce|always]]`
+- ✅ `\![anim,add,base,ID]` / `\![anim,add,move,x,y]` / `\![anim,add,bind,ID]`
+- ✅ `\![anim,add,text,x,y,横幅,縦幅,文字列,...]`（文字列まで必須）
 - ✅ `\![anim,stop]` / `\![anim,stop,ID]`
 - ✅ `\![bind,category,part,value]`
 

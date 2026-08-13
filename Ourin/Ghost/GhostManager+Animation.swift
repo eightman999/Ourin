@@ -8,6 +8,23 @@ import ObjectiveC
 // MARK: - Animation Engine Integration
 
 extension GhostManager {
+    struct AnimAddSurfaceFrame {
+        let surfaceID: Int
+        let x: Int
+        let y: Int
+        let durationMilliseconds: Int
+    }
+
+    enum AnimAddSurfaceTiming: Equatable {
+        case runonce
+        case always
+    }
+
+    typealias AnimAddSurfaceSequence = (
+        frames: [AnimAddSurfaceFrame],
+        timing: AnimAddSurfaceTiming
+    )
+
     // MARK: - Animation Engine Integration
 
     // objc runtimeの関連オブジェクトを使う。GhostManager(NSObject)のdealloc時に
@@ -578,6 +595,7 @@ extension GhostManager {
         animationEngine.stopAllAnimations()
         activeAnimationIDsByScope.removeAll()
         stopImportedSurfaceAnimations(scope: currentScope)
+        stopAllAnimAddSurfaceAnimations(scope: currentScope)
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             guard let vm = self.characterViewModels[self.currentScope] else { return }
@@ -587,16 +605,174 @@ extension GhostManager {
         }
     }
 
-    /// Handle \![anim,add,overlay,ID] command
-    func handleAnimAddOverlay(id: Int) {
-        handleSurfaceOverlay(surfaceID: id)
+    /// Handle `\![anim,add,overlay,ID]` and its coordinate form.
+    func handleAnimAddOverlay(id: Int, x: Int? = nil, y: Int? = nil) {
+        let offset: CGPoint?
+        if let x, let y {
+            offset = CGPoint(x: CGFloat(x), y: CGFloat(y))
+        } else {
+            offset = nil
+        }
+        handleSurfaceOverlay(surfaceID: id, initialOffset: offset)
         Log.debug("[GhostManager] Added overlay \(id)")
     }
 
-    /// Handle \![anim,add,overlayfast,ID] command
-    func handleAnimAddOverlayFast(id: Int) {
-        handleSurfaceOverlay(surfaceID: id, blendMode: .overlayFast)
+    /// Handle `\![anim,add,overlayfast,ID]` and its coordinate form.
+    func handleAnimAddOverlayFast(id: Int, x: Int? = nil, y: Int? = nil) {
+        let offset: CGPoint?
+        if let x, let y {
+            offset = CGPoint(x: CGFloat(x), y: CGFloat(y))
+        } else {
+            offset = nil
+        }
+        handleSurfaceOverlay(surfaceID: id, initialOffset: offset, blendMode: .overlayFast)
         Log.debug("[GhostManager] Added fast overlay \(id)")
+    }
+
+    /// Parse `ID,x,y,time,...[,runonce|always]` without accepting a partial frame.
+    func parseAnimAddOverlaySequence(args: [String]) -> AnimAddSurfaceSequence? {
+        guard args.count >= 4 else { return nil }
+
+        var numericArgs = args
+        let timing: AnimAddSurfaceTiming
+        if let last = numericArgs.last?.lowercased() {
+            switch last {
+            case "always":
+                timing = .always
+                numericArgs.removeLast()
+            case "runonce":
+                timing = .runonce
+                numericArgs.removeLast()
+            default:
+                timing = .runonce
+            }
+        } else {
+            timing = .runonce
+        }
+
+        guard numericArgs.count >= 4, numericArgs.count.isMultiple(of: 4) else { return nil }
+        var frames: [AnimAddSurfaceFrame] = []
+        frames.reserveCapacity(numericArgs.count / 4)
+        for index in stride(from: 0, to: numericArgs.count, by: 4) {
+            guard let surfaceID = Int(numericArgs[index]),
+                  let x = Int(numericArgs[index + 1]),
+                  let y = Int(numericArgs[index + 2]),
+                  let durationMilliseconds = Int(numericArgs[index + 3]) else {
+                return nil
+            }
+            frames.append(AnimAddSurfaceFrame(
+                surfaceID: surfaceID,
+                x: x,
+                y: y,
+                durationMilliseconds: max(0, durationMilliseconds)
+            ))
+        }
+        return frames.isEmpty ? nil : (frames, timing)
+    }
+
+    /// Play a command-defined overlay frame sequence independently of SERIKO.
+    func handleAnimAddOverlaySequence(
+        frames: [AnimAddSurfaceFrame],
+        timing: AnimAddSurfaceTiming,
+        blendMode: SurfaceBlendMode
+    ) {
+        guard !frames.isEmpty else { return }
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in
+                self?.handleAnimAddOverlaySequence(frames: frames, timing: timing, blendMode: blendMode)
+            }
+            return
+        }
+
+        nextAnimAddSurfaceToken &+= 1
+        let scope = currentScope
+        let token = "anim_add_\(scope)_\(nextAnimAddSurfaceToken)"
+        animAddSurfaceTokensByScope[scope, default: []].insert(token)
+
+        func render(_ frame: AnimAddSurfaceFrame) {
+            guard animAddSurfaceTokensByScope[scope]?.contains(token) == true else { return }
+            let resolvedSurfaceID = surfaceAliases[frame.surfaceID] ?? frame.surfaceID
+            guard let image = loadImage(surfaceId: resolvedSurfaceID, scope: scope) else {
+                Log.info("[GhostManager] Surface image not found for anim/add overlay id=\(frame.surfaceID), resolved=\(resolvedSurfaceID), scope=\(scope)")
+                return
+            }
+            guard let vm = characterViewModels[scope] else { return }
+            vm.overlays.removeAll { $0.id == token }
+            let insertionOrder = (vm.overlays.map(\.insertionOrder).max() ?? -1) + 1
+            vm.overlays.append(SurfaceOverlay(
+                id: token,
+                image: image,
+                offset: CGPoint(x: CGFloat(frame.x), y: CGFloat(frame.y)),
+                alpha: 1.0,
+                zOrder: 100,
+                insertionOrder: insertionOrder,
+                blendMode: blendMode,
+                surfaceID: resolvedSurfaceID,
+                animationID: nil
+            ))
+        }
+
+        func stop() {
+            animAddSurfaceTimers[token]?.invalidate()
+            animAddSurfaceTimers[token] = nil
+            animAddSurfaceTokensByScope[scope]?.remove(token)
+            if animAddSurfaceTokensByScope[scope]?.isEmpty == true {
+                animAddSurfaceTokensByScope[scope] = nil
+            }
+            characterViewModels[scope]?.overlays.removeAll { $0.id == token }
+        }
+
+        func schedule(_ index: Int) {
+            guard animAddSurfaceTokensByScope[scope]?.contains(token) == true else { return }
+            if index >= frames.count {
+                if timing == .always {
+                    schedule(0)
+                } else {
+                    stop()
+                }
+                return
+            }
+
+            let frame = frames[index]
+            render(frame)
+            let delay = max(0.01, Double(frame.durationMilliseconds) / 1000.0)
+            let timer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
+                guard let self else { return }
+                self.animAddSurfaceTimers[token] = nil
+                schedule(index + 1)
+            }
+            animAddSurfaceTimers[token] = timer
+        }
+
+        schedule(0)
+    }
+
+    /// Stop one command-defined overlay sequence.
+    private func stopAnimAddSurfaceAnimation(token: String) {
+        animAddSurfaceTimers[token]?.invalidate()
+        animAddSurfaceTimers[token] = nil
+        for scope in Array(animAddSurfaceTokensByScope.keys) {
+            animAddSurfaceTokensByScope[scope]?.remove(token)
+            if animAddSurfaceTokensByScope[scope]?.isEmpty == true {
+                animAddSurfaceTokensByScope[scope] = nil
+            }
+        }
+        for vm in characterViewModels.values {
+            vm.overlays.removeAll { $0.id == token }
+        }
+    }
+
+    /// Stop command-defined overlay sequences for a scope, or all scopes.
+    func stopAllAnimAddSurfaceAnimations(scope: Int? = nil) {
+        let tokens: Set<String>
+        if let scope {
+            tokens = animAddSurfaceTokensByScope[scope] ?? []
+        } else {
+            tokens = Set(animAddSurfaceTimers.keys).union(animAddSurfaceTokensByScope.values.flatMap { $0 })
+        }
+        for token in tokens {
+            stopAnimAddSurfaceAnimation(token: token)
+        }
     }
 
     /// Handle \![anim,add,base,ID] command

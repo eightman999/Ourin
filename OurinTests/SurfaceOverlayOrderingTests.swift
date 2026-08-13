@@ -174,6 +174,50 @@ struct SurfaceOverlayOrderingTests {
         #expect(overlay.image.size.width > 0 && overlay.image.size.height > 0)
     }
 
+    @MainActor
+    @Test
+    func animAddOverlaySupportsCoordinatesAndTimedFrames() async throws {
+        let repositoryRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let manager = GhostManager(ghostURL: repositoryRoot.appendingPathComponent("emily4"))
+        defer { manager.shutdown() }
+
+        manager.characterViewModels[0] = CharacterViewModel()
+        manager.loadAnimationsForCurrentSurface(surfaceID: 0, scope: 0)
+
+        manager.handleAnimAddOverlay(id: 35, x: 12, y: 34)
+        try await Task.sleep(nanoseconds: 50_000_000)
+        let positioned = try #require(manager.characterViewModels[0]?.overlays.last)
+        #expect(positioned.offset == CGPoint(x: 12, y: 34))
+
+        let sequence = try #require(manager.parseAnimAddOverlaySequence(args: [
+            "35", "10", "20", "50",
+            "40", "14", "24", "50",
+            "runonce"
+        ]))
+        #expect(sequence.frames.map(\.surfaceID) == [35, 40])
+        #expect(sequence.frames.map(\.durationMilliseconds) == [50, 50])
+        #expect(sequence.timing == .runonce)
+
+        manager.handleAnimAddOverlaySequence(
+            frames: sequence.frames,
+            timing: sequence.timing,
+            blendMode: .normal
+        )
+        try await Task.sleep(nanoseconds: 20_000_000)
+        let firstFrame = try #require(manager.characterViewModels[0]?.overlays.last)
+        #expect(firstFrame.offset == CGPoint(x: 10, y: 20))
+
+        try await Task.sleep(nanoseconds: 70_000_000)
+        let secondFrame = try #require(manager.characterViewModels[0]?.overlays.last)
+        #expect(secondFrame.offset == CGPoint(x: 14, y: 24))
+
+        try await Task.sleep(nanoseconds: 70_000_000)
+        #expect(manager.characterViewModels[0]?.overlays.last?.id != secondFrame.id)
+        #expect(manager.animAddSurfaceTimers.isEmpty)
+    }
+
     private static func writePNG(at url: URL, hasAlpha: Bool) throws {
         let samplesPerPixel = hasAlpha ? 4 : 3
         let bitmap = try #require(NSBitmapImageRep(

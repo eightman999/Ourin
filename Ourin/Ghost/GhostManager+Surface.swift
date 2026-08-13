@@ -76,6 +76,7 @@ extension GhostManager {
         animationEngine.stopAllAnimations()
         shutdownSerikoLoop()
         stopImportedSurfaceAnimations(scope: scope)
+        stopAllAnimAddSurfaceAnimations(scope: scope)
         
         // Clear overlays when surface changes (per UKADOC spec)
         DispatchQueue.main.async { [weak self] in
@@ -517,7 +518,6 @@ extension GhostManager {
             if let animationID {
                 vm.overlays.removeAll { $0.animationID == animationID }
             }
-
             let insertionOrder = (vm.overlays.map(\.insertionOrder).max() ?? -1) + 1
             let zOrder: Int
             switch type {
@@ -531,8 +531,8 @@ extension GhostManager {
             let idPrefix = type == .bind ? "dressup_bind_\(resolvedSurfaceID)_" : "surface_\(resolvedSurfaceID)_"
             let animationMarker = animationID.map { "anim_\($0)_" } ?? ""
             
-        let overlay = SurfaceOverlay(
-            id: "\(idPrefix)\(animationMarker)\(UUID().uuidString)",
+            let overlay = SurfaceOverlay(
+                id: "\(idPrefix)\(animationMarker)\(UUID().uuidString)",
             image: image,
             offset: initialOffset ?? CGPoint.zero,
             alpha: 1.0,
