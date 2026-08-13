@@ -137,6 +137,12 @@ final class EventBridge {
         calendarScheduleEmitter.stop()
         started = false
         autoEventsEnabled = false
+        // 停止はイベントライフサイクルの境界。停止前に observer が積んだ通知を
+        // 次の起動へ持ち越すと、旧セッションの状態を新しい起動へ誤配送する。
+        pendingNotifies.removeAll()
+        // 他ゴーストの状態も次の起動で現在値から再確立する。
+        lastOtherOffscreenRef0 = nil
+        lastOtherOverlapRef0 = nil
         // OnClose は GhostManager.beginCloseSequence が GET で送出し応答スクリプトを再生する
         // （ここで送ると二重送信になるため送らない）
     }
