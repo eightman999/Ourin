@@ -816,8 +816,26 @@ extension GhostManager {
         }
 
         guard let alphaPercent else { return }
-        let targetAlpha = min(max(alphaPercent / 100.0, 0.0), 1.0)
         let scope = currentScope
+
+        // UKADOC: negative values leave the current alpha unchanged and only
+        // request a redraw.  Do not clamp them to zero (which would make the
+        // character disappear).
+        if alphaPercent < 0 {
+            let redraw = { [weak self] in
+                guard let self, let viewModel = self.characterViewModels[scope] else { return }
+                viewModel.objectWillChange.send()
+                Log.debug("[GhostManager] Redrew scope (scope) without changing alpha")
+            }
+            if Thread.isMainThread {
+                redraw()
+            } else {
+                DispatchQueue.main.async(execute: redraw)
+            }
+            return
+        }
+
+        let targetAlpha = min(max(alphaPercent / 100.0, 0.0), 1.0)
         let animationKey = "alpha:\(scope)"
 
         if Thread.isMainThread {

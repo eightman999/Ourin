@@ -90,6 +90,19 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func negativeAlphaOnlyRedrawsWithoutChangingValue() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-negative-alpha-test"))
+        defer { _ = manager.shutdown() }
+
+        _ = manager.ensureCharacterWindow(for: 0)
+        manager.characterViewModels[0]?.alpha = 0.42
+
+        manager.executeSetAlphaCommand(args: ["set", "alpha", "-1"])
+
+        #expect(manager.characterViewModels[0]?.alpha == 0.42)
+    }
+
+    @Test @MainActor
     func backlogKeepsVisibleTextAndCapsHistory() {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-backlog-test"))
 
