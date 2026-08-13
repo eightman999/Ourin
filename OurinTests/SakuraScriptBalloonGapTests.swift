@@ -1370,3 +1370,78 @@ struct AnchorRasterOperationTests {
         window.orderOut(nil)
     }
 }
+
+@MainActor
+struct FontCommandExecutionTests {
+    private func apply(_ manager: GhostManager, _ args: [String]) {
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .command(name: "f", args: args))
+        manager.processNextUnit()
+    }
+
+    @Test func individualDefaultValuesRestoreBalloonStyles() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-font-defaults"))
+        defer { _ = manager.shutdown() }
+        let vm = manager.getBalloonVM(for: 0)
+
+        apply(manager, ["name", "Helvetica"])
+        apply(manager, ["name", "default"])
+        #expect(vm.fontName.isEmpty)
+
+        apply(manager, ["height", "20"])
+        apply(manager, ["height", "default"])
+        #expect(vm.fontSize == 12)
+
+        apply(manager, ["color", "red"])
+        apply(manager, ["color", "default"])
+        #expect(vm.fontColor == .textColor)
+
+        apply(manager, ["bold", "1"])
+        apply(manager, ["bold", "default"])
+        #expect(vm.fontWeight == .regular)
+
+        apply(manager, ["italic", "1"])
+        apply(manager, ["italic", "default"])
+        #expect(!vm.fontItalic)
+
+        apply(manager, ["strike", "1"])
+        apply(manager, ["strike", "default"])
+        #expect(!vm.fontStrike)
+
+        apply(manager, ["underline", "1"])
+        apply(manager, ["underline", "default"])
+        #expect(!vm.fontUnderline)
+
+        apply(manager, ["sub", "1"])
+        apply(manager, ["sub", "default"])
+        #expect(!vm.fontSubscript)
+
+        apply(manager, ["sup", "1"])
+        apply(manager, ["sup", "default"])
+        #expect(!vm.fontSuperscript)
+
+        apply(manager, ["shadowcolor", "#ff0000"])
+        apply(manager, ["shadowcolor", "default"])
+        #expect(vm.shadowColor == .clear)
+
+        apply(manager, ["outline", "2"])
+        #expect(vm.outlineWidth == 2)
+        apply(manager, ["shadowstyle", "default"])
+        #expect(vm.shadowStyle == .none)
+        #expect(vm.outlineWidth == 0)
+    }
+
+    @Test func disabledTriStateUsesDisabledAppearance() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-font-disable"))
+        defer { _ = manager.shutdown() }
+        let vm = manager.getBalloonVM(for: 0)
+
+        apply(manager, ["bold", "disable"])
+        apply(manager, ["italic", "disable"])
+        apply(manager, ["strike", "disable"])
+        apply(manager, ["underline", "disable"])
+        #expect(vm.fontWeight == .regular)
+        #expect(!vm.fontItalic)
+        #expect(vm.fontStrike)
+        #expect(!vm.fontUnderline)
+    }
+}

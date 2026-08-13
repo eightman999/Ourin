@@ -876,16 +876,32 @@ extension GhostManager {
         return parseColor(from: normalized.joined(separator: ","), defaultValue: defaultValue)
     }
 
-    /// Parse tri-state value (0/1/true/false/default/disable)
-    func parseTriState(_ value: String, currentValue: String) -> Bool {
-        let v = value.lowercased()
-        if v == "1" || v == "true" {
+    /// Parse tri-state value (0/1/true/false/default/disable).
+    ///
+    /// `default` and `disable` are semantic values, not unknown values: they
+    /// must restore the corresponding balloon style instead of retaining the
+    /// current style. The caller can provide a different disabled value for
+    /// properties such as strike-through, which is part of the disabled text
+    /// appearance.
+    func parseTriState(
+        _ value: String,
+        currentValue: String,
+        defaultValue: Bool = false,
+        disabledValue: Bool = false
+    ) -> Bool {
+        let v = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        switch v {
+        case "1", "true":
             return true
-        } else if v == "0" || v == "false" {
+        case "0", "false":
             return false
+        case "default":
+            return defaultValue
+        case "disable":
+            return disabledValue
+        default:
+            return currentValue == "1"
         }
-        // default/disable - return current value
-        return currentValue == "1"
     }
 
     /// Reset font to default values

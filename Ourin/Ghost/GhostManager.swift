@@ -4027,8 +4027,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // \f[name,fontname,...]
                         if args.count >= 2 {
                             let fontNames = Array(args.dropFirst()).joined(separator: ",")
-                            vm.fontName = fontNames
-                            Log.debug("[GhostManager] Font name set to: \(fontNames)")
+                            let normalized = fontNames.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                            vm.fontName = (normalized == "default" || normalized == "disable") ? "" : fontNames
+                            Log.debug("[GhostManager] Font name set to: \(vm.fontName)")
                         }
                     case "height":
                         // \f[height,size]
@@ -4041,14 +4042,17 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     case "color":
                         // \f[color,r,g,b] or \f[color,#RRGGBB] or \f[color,name]
                         if args.count >= 2 {
-                            let color = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.fontColor)
+                            let color = self.parseColor(
+                                from: Array(args.dropFirst()),
+                                defaultValue: self.balloonConfig?.fontColor ?? .textColor
+                            )
                             vm.fontColor = color
                             Log.debug("[GhostManager] Font color set to: \(color)")
                         }
                     case "shadowcolor":
                         // \f[shadowcolor,r,g,b] or \f[shadowcolor,#RRGGBB] or \f[shadowcolor,name]
                         if args.count >= 2 {
-                            let color = self.parseColor(from: Array(args.dropFirst()), defaultValue: vm.shadowColor)
+                            let color = self.parseColor(from: Array(args.dropFirst()), defaultValue: .clear)
                             vm.shadowColor = color
                             Log.debug("[GhostManager] Shadow color set to: \(color)")
                         }
@@ -4063,6 +4067,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 vm.shadowStyle = .outline
                             case "none":
                                 vm.shadowStyle = .none
+                            case "default":
+                                vm.shadowStyle = .none
+                                vm.outlineWidth = 0
                             default:
                                 Log.info("[GhostManager] Unknown shadow style: \(style)")
                             }
@@ -4072,7 +4079,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // \f[bold,0/1/true/false/default/disable]
                         if args.count >= 2 {
                             let value = args[1].lowercased()
-                            let isBold = self.parseTriState(value, currentValue: vm.fontWeight == .bold ? "1" : "0")
+                            let isBold = self.parseTriState(
+                                value,
+                                currentValue: vm.fontWeight == .bold ? "1" : "0"
+                            )
                             vm.fontWeight = isBold ? .bold : .regular
                             Log.debug("[GhostManager] Font bold set to: \(isBold)")
                         }
@@ -4080,28 +4090,41 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // \f[italic,0/1/true/false/default/disable]
                         if args.count >= 2 {
                             let value = args[1].lowercased()
-                            vm.fontItalic = self.parseTriState(value, currentValue: vm.fontItalic ? "1" : "0")
+                            vm.fontItalic = self.parseTriState(
+                                value,
+                                currentValue: vm.fontItalic ? "1" : "0"
+                            )
                             Log.debug("[GhostManager] Font italic set to: \(vm.fontItalic)")
                         }
                     case "strike":
                         // \f[strike,0/1/true/false/default/disable]
                         if args.count >= 2 {
                             let value = args[1].lowercased()
-                            vm.fontStrike = self.parseTriState(value, currentValue: vm.fontStrike ? "1" : "0")
+                            vm.fontStrike = self.parseTriState(
+                                value,
+                                currentValue: vm.fontStrike ? "1" : "0",
+                                disabledValue: true
+                            )
                             Log.debug("[GhostManager] Font strike set to: \(vm.fontStrike)")
                         }
                     case "underline":
                         // \f[underline,0/1/true/false/default/disable]
                         if args.count >= 2 {
                             let value = args[1].lowercased()
-                            vm.fontUnderline = self.parseTriState(value, currentValue: vm.fontUnderline ? "1" : "0")
+                            vm.fontUnderline = self.parseTriState(
+                                value,
+                                currentValue: vm.fontUnderline ? "1" : "0"
+                            )
                             Log.debug("[GhostManager] Font underline set to: \(vm.fontUnderline)")
                         }
                     case "sub":
                         // \f[sub,0/1/true/false/default/disable]
                         if args.count >= 2 {
                             let value = args[1].lowercased()
-                            vm.fontSubscript = self.parseTriState(value, currentValue: vm.fontSubscript ? "1" : "0")
+                            vm.fontSubscript = self.parseTriState(
+                                value,
+                                currentValue: vm.fontSubscript ? "1" : "0"
+                            )
                             if vm.fontSubscript { vm.fontSuperscript = false }
                             Log.debug("[GhostManager] Font subscript set to: \(vm.fontSubscript)")
                         }
@@ -4109,7 +4132,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // \f[sup,0/1/true/false/default/disable]
                         if args.count >= 2 {
                             let value = args[1].lowercased()
-                            vm.fontSuperscript = self.parseTriState(value, currentValue: vm.fontSuperscript ? "1" : "0")
+                            vm.fontSuperscript = self.parseTriState(
+                                value,
+                                currentValue: vm.fontSuperscript ? "1" : "0"
+                            )
                             if vm.fontSuperscript { vm.fontSubscript = false }
                             Log.debug("[GhostManager] Font superscript set to: \(vm.fontSuperscript)")
                         }
@@ -4322,7 +4348,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let value = args[1].lowercased()
                             if value == "default" || value == "disable" || value == "0" || value == "false" {
                                 vm.outlineWidth = 0
-                                if vm.shadowStyle == .outline {
+                                if value == "default" || vm.shadowStyle == .outline {
                                     vm.shadowStyle = .none
                                 }
                             } else if let width = Double(value) {
