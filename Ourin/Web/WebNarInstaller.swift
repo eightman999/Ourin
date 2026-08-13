@@ -78,7 +78,11 @@ public enum WebNarInstaller {
                 if let appDelegate = NSApp.delegate as? AppDelegate,
                    let ghostManager = appDelegate.ghostManager {
                     switch ghostManager.installNarFile(archiveURL) {
-                    case .installed:
+                    case .installed(let result):
+                        // Web 経路は AppDelegate.installNars を経由しないため、
+                        // SHIORI 側で完了イベントを発火しても PLUGIN には届かない。
+                        // D&D／関連付けと同じ実設置対象一覧を通知する。
+                        appDelegate.pluginDispatcher?.onInstallComplete(objects: result.objects)
                         log.info("install finished")
                     case .refused:
                         log.info("install refused")
@@ -94,6 +98,7 @@ public enum WebNarInstaller {
                             "name": object.name
                         ])
                     }
+                    (NSApp.delegate as? AppDelegate)?.pluginDispatcher?.onInstallComplete(objects: result.objects)
                 }
             } catch {
                 log.error("install failed: \(String(describing: error))")
