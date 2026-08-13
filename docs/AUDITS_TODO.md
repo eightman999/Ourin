@@ -39,7 +39,7 @@
 
 | 優先度 | 項目 | 現状・修正案 |
 |---|---|---|
-| — | （`EventReferenceTable` の `On*` イベント型定義と静的発火側照合は完了 2026-08-14） | 表に実発火仕様がある全 `On*` ID を `EventID` に追加し、`EventIDAuditTests.everyOnEventInReferenceTableHasATypedEventID` で型定義漏れを検出する。さらに `staticallyEmittedEventsHaveTypedReferenceSpecs` がプロダクションコードの `ShioriEvent`／`notify`／`request`／`sendGet`／`sendNotify` に現れる176個の型付きIDを抽出し、`EventID` と `EventReferenceTable` の双方への存在を検証する。動的ID、OS実機発火、Reference値の実ゴースト検証は未完。既存の各テストで確認する。 |
+| — | （`EventReferenceTable` の `On*` イベント型定義と発火側照合は完了 2026-08-14） | 表に実発火仕様がある全 `On*` ID を `EventID` に追加し、`EventIDAuditTests.everyOnEventInReferenceTableHasATypedEventID` で型定義漏れを検出する。`staticallyEmittedEventsHaveTypedReferenceSpecs` はプロダクションコードの `ShioriEvent`／`notify`／`request`／`sendGet`／`sendNotify` に現れる型付きIDを抽出し、`literalCustomEventEmissionsHaveTypedReferenceSpecs` は `notifyCustom`／`requestCustom` の文字列イベントと `eventName`／`forEvent` リテラルも抽出する。今回、実際に発火していた互換イベント `OnArchiveComplete` を `EventID`／`EventReferenceTable` に追加して型付き配送へ移行した。静的抽出で型付きID・Reference定義の欠落は0件。動的ID、OS実機発火、Reference値の実ゴースト検証は未完。既存の各テストで確認する。 |
 | — | （WebSocket/アーカイブ系14イベントは完了 → `AUDITS_COMPLETED.md` 参照） | OnExecuteWebSocket×6, OnCompress/ExtractArchiveComplete/Failure, OnExecuteHTTPStreaming, OnMusicPlayEx, OnVideoPlayEx, OnSoundLoop を実装済み。 |
 
 ### E. プロパティシステム
@@ -133,7 +133,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 
 | Priority | Item | Current State / Fix |
 |---|---|---|
-| — | (`On*` EventReferenceTable type coverage and static emission-side audit completed 2026-08-14) | Added typed `EventID` cases for every `On*` event represented in `EventReferenceTable`. `EventIDAuditTests.everyOnEventInReferenceTableHasATypedEventID` detects definition omissions, while `staticallyEmittedEventsHaveTypedReferenceSpecs` extracts 176 typed IDs from production `ShioriEvent`/`notify`/`request`/`sendGet`/`sendNotify` call sites and verifies both `EventID` and `EventReferenceTable` coverage. Dynamic IDs, OS-device firing, and real-ghost Reference-value verification remain pending. Existing runtime tests cover the implemented paths. |
+| — | (`On*` EventReferenceTable type coverage and emission-side audit completed 2026-08-14) | Added typed `EventID` cases for every `On*` event represented in `EventReferenceTable`. `EventIDAuditTests.everyOnEventInReferenceTableHasATypedEventID` detects definition omissions, `staticallyEmittedEventsHaveTypedReferenceSpecs` covers typed `ShioriEvent`/`notify`/`request`/`sendGet`/`sendNotify` call sites, and `literalCustomEventEmissionsHaveTypedReferenceSpecs` also scans literal `notifyCustom`/`requestCustom` events plus `eventName`/`forEvent` values. The actually emitted compatibility event `OnArchiveComplete` was added to `EventID`/`EventReferenceTable` and moved to typed delivery. Static extraction now reports zero missing typed IDs or Reference specs. Dynamic IDs, OS-device firing, and real-ghost Reference-value verification remain pending. Existing runtime tests cover the implemented paths. |
 | — | (WebSocket/archive 14 events completed → see `AUDITS_COMPLETED.md`) | OnExecuteWebSocket×6, OnCompress/ExtractArchiveComplete/Failure, OnExecuteHTTPStreaming, OnMusicPlayEx, OnVideoPlayEx, OnSoundLoop implemented. |
 
 ### E. Property System

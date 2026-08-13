@@ -433,6 +433,7 @@ public enum EventID: String, CaseIterable {
     // EventReferenceTable に定義済みの Ourin 拡張／補助イベント。
     // 文字列直書きの notifyCustom 経路も型付き EventID で解決できるようにする。
     case OnAnimationFinished = "OnAnimationFinished"
+    case OnArchiveComplete = "OnArchiveComplete"
     case OnArchiveFailure = "OnArchiveFailure"
     case OnClipboardClear = "OnClipboardClear"
     case OnClipboardRead = "OnClipboardRead"

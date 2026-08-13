@@ -313,6 +313,7 @@ public enum EventReferenceTable {
         // ラベルは UKADOC list_shiori_event(_ex)/list_plugin_event の Reference 意味 +
         // 実コードが各 ReferenceN に格納する値で検証済み（移行は ReferenceN とバイト等価）。
         .init(id: "OnAnchorHover", references: ["label", "anchorID", "extInfo"], category: "ui"),
+        .init(id: "OnArchiveComplete", references: ["eventID", "fileCount", "compressedSize", "uncompressedSize"], category: "update"),
         .init(id: "OnArchiveFailure", references: ["operation", "reason"], category: "update"),
         .init(id: "OnBasewareUpdated", references: ["version"], category: "update"),
         .init(id: "OnBasewareUpdating", references: ["version"], category: "update"),

@@ -17,6 +17,8 @@ struct EventIDAuditTests {
 
     @Test
     func archiveEventsExist() {
+        #expect(EventID.OnArchiveComplete.rawValue == "OnArchiveComplete")
+        #expect(EventID.OnArchiveFailure.rawValue == "OnArchiveFailure")
         #expect(EventID.OnCompressArchiveComplete.rawValue == "OnCompressArchiveComplete")
         #expect(EventID.OnCompressArchiveFailure.rawValue == "OnCompressArchiveFailure")
         #expect(EventID.OnExtractArchiveComplete.rawValue == "OnExtractArchiveComplete")
@@ -136,6 +138,30 @@ struct EventIDAuditTests {
         let missingSpecs = emitted.filter { EventReferenceTable.specs[$0] == nil }.sorted()
         #expect(missingTypedIDs.isEmpty, "Statically emitted events without EventID: \(missingTypedIDs.joined(separator: ", "))")
         #expect(missingSpecs.isEmpty, "Statically emitted events without EventReferenceSpec: \(missingSpecs.joined(separator: ", "))")
+    }
+
+    @Test
+    func literalCustomEventEmissionsHaveTypedReferenceSpecs() throws {
+        let sourceRoot = Self.projectRoot.appendingPathComponent("Ourin", isDirectory: true)
+        let sourceURLs = try Self.swiftSourceURLs(in: sourceRoot)
+        let patterns = [
+            #"\b(?:notifyCustom|requestCustom)\s*\(\s*\"(On[A-Za-z0-9_.]+)\""#,
+            #"\b(?:eventName|forEvent)\s*:\s*\"(On[A-Za-z0-9_.]+)\""#
+        ]
+
+        var emitted = Set<String>()
+        for sourceURL in sourceURLs {
+            let source = try String(contentsOf: sourceURL, encoding: .utf8)
+            for pattern in patterns {
+                emitted.formUnion(Self.captureEventNames(pattern: pattern, in: source))
+            }
+        }
+
+        #expect(emitted.count >= 40, "Custom event scan unexpectedly found too few IDs: \(emitted.count)")
+        let missingTypedIDs = emitted.filter { EventID(rawValue: $0) == nil }.sorted()
+        let missingSpecs = emitted.filter { EventReferenceTable.specs[$0] == nil }.sorted()
+        #expect(missingTypedIDs.isEmpty, "Literal custom events without EventID: \(missingTypedIDs.joined(separator: ", "))")
+        #expect(missingSpecs.isEmpty, "Literal custom events without EventReferenceSpec: \(missingSpecs.joined(separator: ", "))")
     }
 
     private static var projectRoot: URL {

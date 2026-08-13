@@ -4072,16 +4072,15 @@ extension GhostManager: NSWindowDelegate {
         refs: [String: String] = [:]
     ) {
         if success {
-            let params = EventReferenceTable.params(forEvent: "OnCompressArchiveComplete", refs: refs)
-            EventBridge.shared.notifyCustom(
-                "OnArchiveComplete",
-                params: params,
+            EventBridge.shared.notify(
+                .OnArchiveComplete,
+                refs: refs,
                 to: self,
                 ignoreResponseScript: true
             )
         } else {
-            EventBridge.shared.notifyCustom(
-                "OnArchiveFailure",
+            EventBridge.shared.notify(
+                .OnArchiveFailure,
                 refs: ["operation": operation, "reason": error ?? "open failed"],
                 to: self,
                 ignoreResponseScript: true
