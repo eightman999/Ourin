@@ -3440,7 +3440,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             })
                         case "calendar":
                             playbackQueue.append(.deferredCommand {
-                                self.openInstalledTypeDirectory(type: "calendar")
+                                CalendarWindowController.shared.show()
                             })
                         case "rateofusegraph", "rateofusegraphballoon", "rateofusegraphtotal":
                             playbackQueue.append(.deferredCommand {
