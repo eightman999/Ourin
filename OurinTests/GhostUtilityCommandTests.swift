@@ -165,6 +165,80 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func otherGhostFailureEventsUseGetAndAggregateTargetReferences() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-failure-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.dispatchOtherGhostEventFailure(
+            notifyOnly: false,
+            failures: [
+                OtherGhostFailure(reason: "notfound", ghostName: "missing-a"),
+                OtherGhostFailure(reason: "204", ghostName: "missing-b")
+            ],
+            event: "OnOtherRaiseTest",
+            references: ["alpha", "beta"]
+        )
+        manager.dispatchOtherGhostEventFailure(
+            notifyOnly: true,
+            failures: [OtherGhostFailure(reason: "minimized", ghostName: "hidden")],
+            event: "OnOtherNotifyTest",
+            references: ["gamma"]
+        )
+
+        #expect(runtime.requests.map(\.method) == ["GET", "GET"])
+        #expect(runtime.requests.map(\.id) == ["OnRaiseOtherFailure", "OnNotifyOtherFailure"])
+        #expect(runtime.requests[0].refs == [
+            "notfound\u{1}204", "missing-a\u{1}missing-b", "OnOtherRaiseTest", "alpha", "beta"
+        ])
+        #expect(runtime.requests[1].refs == ["minimized", "hidden", "OnOtherNotifyTest", "gamma"])
+    }
+
+    @Test
+    func otherGhostSSTPRequestsUseMethodAndNumericReferenceOrder() {
+        let request = GhostManager.makeSSTPEventRequest(
+            method: "send",
+            event: "OnOtherTest",
+            references: [
+                "Reference10": "ten",
+                "Reference2": "two",
+                "Reference0": "zero"
+            ],
+            receiverGhostName: "Target"
+        )
+
+        #expect(request.hasPrefix("SEND SSTP/1.1\r\n"))
+        #expect(request.contains("ReceiverGhostName: Target\r\n"))
+        #expect(request.range(of: "Reference0: zero")!.lowerBound < request.range(of: "Reference2: two")!.lowerBound)
+        #expect(request.range(of: "Reference2: two")!.lowerBound < request.range(of: "Reference10: ten")!.lowerBound)
+
+        let notify = GhostManager.makeSSTPEventRequest(
+            method: "NOTIFY",
+            event: "OnOtherNotifyTest",
+            references: [:]
+        )
+        #expect(notify.hasPrefix("NOTIFY SSTP/1.1\r\n"))
+    }
+
+    @Test
+    func parsesSSTPResponseStatusForFailureClassification() {
+        #expect(GhostManager.parseSSTPStatusCode(from: Data("SSTP/1.1 204 No Content\r\n\r\n".utf8)) == 204)
+        #expect(GhostManager.parseSSTPStatusCode(from: Data("SSTP/1.4 512 Invisible\n\n".utf8)) == 512)
+        #expect(GhostManager.parseSSTPResponse(from: Data("SSTP/1.1 204 No Content\r\nStatus: passive\r\n\r\n".utf8)) == ParsedSSTPResponse(statusCode: 204, status: "passive"))
+        #expect(GhostManager.parseSSTPStatusCode(from: Data("invalid response\r\n".utf8)) == nil)
+        #expect(GhostManager.otherGhostFailureReason(for: .response(statusCode: 200, status: nil)) == nil)
+        #expect(GhostManager.otherGhostFailureReason(for: .response(statusCode: 404, status: nil)) == "notfound")
+        #expect(GhostManager.otherGhostFailureReason(for: .response(statusCode: 204, status: nil)) == "204")
+        #expect(GhostManager.otherGhostFailureReason(for: .response(statusCode: 204, status: "talking, passive")) == "passivemode")
+    }
+
+    @Test @MainActor
     func ghostLifecycleCommandsSkipSuccessEventsWhenTargetUnavailable() {
         EventBridge.shared.stop()
 

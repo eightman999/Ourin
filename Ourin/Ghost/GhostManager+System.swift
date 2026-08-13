@@ -86,6 +86,22 @@ private struct ArchiveStatistics {
     }
 }
 
+enum SSTPEventDeliveryResult: Equatable {
+    case sent
+    case response(statusCode: Int, status: String?)
+    case failure(reason: String)
+}
+
+struct ParsedSSTPResponse: Equatable {
+    let statusCode: Int
+    let status: String?
+}
+
+struct OtherGhostFailure: Equatable {
+    let reason: String
+    let ghostName: String
+}
+
 private extension String {
     func splitOnce(after prefix: String) -> String? {
         guard hasPrefix(prefix) else { return nil }
@@ -447,47 +463,182 @@ extension GhostManager: NSWindowDelegate {
         }
     }
 
-    /// Send an SSTP NOTIFY request
+    /// Send an SSTP NOTIFY request used by baseware lifecycle notifications.
     func sendSSTPNotify(event: String, references: [String: String], receiverGhostName: String? = nil) {
+        sendSSTPEvent(
+            method: "NOTIFY",
+            event: event,
+            references: references,
+            receiverGhostName: receiverGhostName
+        )
+    }
+
+    private func sendSSTPEvent(
+        method: String,
+        event: String,
+        references: [String: String],
+        receiverGhostName: String? = nil,
+        completion: ((SSTPEventDeliveryResult) -> Void)? = nil
+    ) {
         DispatchQueue.global(qos: .utility).async {
-            // Construct SSTP NOTIFY request
-            var request = "NOTIFY SSTP/1.1\r\n"
-            request += "Sender: Ourin\r\n"
-            request += "Event: \(event)\r\n"
-            request += "Charset: UTF-8\r\n"
-            if let receiverGhostName, !receiverGhostName.isEmpty {
-                request += "ReceiverGhostName: \(receiverGhostName)\r\n"
-            }
-            
-            // Add references
-            for (key, value) in references.sorted(by: { $0.key < $1.key }) {
-                request += "\(key): \(value)\r\n"
-            }
-            request += "\r\n"
-            
-            // Try to send to localhost:9801 (default SSTP port)
-            self.sendSSTPToLocalhost(request: request)
+            let request = Self.makeSSTPEventRequest(
+                method: method,
+                event: event,
+                references: references,
+                receiverGhostName: receiverGhostName
+            )
+            let result = self.sendSSTPToLocalhost(
+                request: request,
+                waitForResponse: completion != nil
+            )
+            completion?(result)
         }
+    }
+
+    static func makeSSTPEventRequest(
+        method: String,
+        event: String,
+        references: [String: String],
+        receiverGhostName: String? = nil
+    ) -> String {
+        var request = "\(method.uppercased()) SSTP/1.1\r\n"
+        request += "Sender: Ourin\r\n"
+        request += "Event: \(event)\r\n"
+        request += "Charset: UTF-8\r\n"
+        if let receiverGhostName, !receiverGhostName.isEmpty {
+            request += "ReceiverGhostName: \(receiverGhostName)\r\n"
+        }
+
+        for (key, value) in references.sorted(by: referenceHeaderSort) {
+            request += "\(key): \(value)\r\n"
+        }
+        request += "\r\n"
+        return request
+    }
+
+    private static func referenceHeaderSort(
+        _ lhs: (key: String, value: String),
+        _ rhs: (key: String, value: String)
+    ) -> Bool {
+        let lhsIndex = Int(lhs.key.dropFirst("Reference".count))
+        let rhsIndex = Int(rhs.key.dropFirst("Reference".count))
+        if let lhsIndex, let rhsIndex, lhs.key.hasPrefix("Reference"), rhs.key.hasPrefix("Reference") {
+            return lhsIndex == rhsIndex ? lhs.key < rhs.key : lhsIndex < rhsIndex
+        }
+        return lhs.key < rhs.key
     }
 
     func raiseOtherGhostEvent(ghostSpec: String, event: String, references: [String], notifyOnly: Bool) {
         let targets = parseGhostTargets(ghostSpec)
         guard !targets.isEmpty else {
-            Log.info("[GhostManager] raiseother/notifyother ignored: empty ghost target")
+            Log.info("[GhostManager] raiseother/notifyother failed: empty ghost target")
+            dispatchOtherGhostEventFailure(
+                notifyOnly: notifyOnly,
+                failures: [OtherGhostFailure(reason: "notfound", ghostName: ghostSpec)],
+                event: event,
+                references: references
+            )
             return
         }
 
         let referenceMap = Dictionary(uniqueKeysWithValues: references.enumerated().map { ("Reference\($0.offset)", $0.element) })
-        for target in targets {
-            if target == "__SYSTEM_ALL_GHOST__" {
-                sendSSTPNotify(event: event, references: referenceMap)
-            } else {
-                sendSSTPNotify(event: event, references: referenceMap, receiverGhostName: target)
+        let dispatchGroup = DispatchGroup()
+        let lock = NSLock()
+        var failures: [(index: Int, failure: OtherGhostFailure)] = []
+        let method = notifyOnly ? "NOTIFY" : "SEND"
+
+        for (index, target) in targets.enumerated() {
+            dispatchGroup.enter()
+            let receiver = target == "__SYSTEM_ALL_GHOST__" ? nil : target
+            sendSSTPEvent(
+                method: method,
+                event: event,
+                references: referenceMap,
+                receiverGhostName: receiver
+            ) { result in
+                defer { dispatchGroup.leave() }
+                guard let reason = Self.otherGhostFailureReason(for: result) else { return }
+                lock.lock()
+                failures.append((index: index, failure: OtherGhostFailure(reason: reason, ghostName: target)))
+                lock.unlock()
             }
         }
 
+        dispatchGroup.notify(queue: .global(qos: .utility)) { [weak self] in
+            lock.lock()
+            let orderedFailures = failures
+                .sorted { $0.index < $1.index }
+                .map(\.failure)
+            lock.unlock()
+            guard !orderedFailures.isEmpty else { return }
+            self?.dispatchOtherGhostEventFailure(
+                notifyOnly: notifyOnly,
+                failures: orderedFailures,
+                event: event,
+                references: references
+            )
+        }
+
         let mode = notifyOnly ? "notifyother" : "raiseother"
-        Log.debug("[GhostManager] \(mode) dispatched: event=\(event), targets=\(targets)")
+        Log.debug("[GhostManager] \(mode) dispatched via \(method): event=\(event), targets=\(targets)")
+    }
+
+    static func otherGhostFailureReason(for result: SSTPEventDeliveryResult) -> String? {
+        switch result {
+        case .sent:
+            return nil
+        case .failure(let reason):
+            return reason.isEmpty ? "error" : reason
+        case .response(let statusCode, let status):
+            if let status {
+                let normalizedStatus = status.lowercased()
+                let statusTokens = normalizedStatus.split(whereSeparator: { $0 == "," || $0.isWhitespace })
+                if statusTokens.contains("timecritical") {
+                    return "timecritical"
+                }
+                if statusTokens.contains("passive") {
+                    return "passivemode"
+                }
+                if statusTokens.contains("induction") {
+                    return "inductionmode"
+                }
+                if statusTokens.contains("minimizing") {
+                    return "minimized"
+                }
+            }
+            switch statusCode {
+            case 200:
+                return nil
+            case 404:
+                return "notfound"
+            case 512:
+                return "minimized"
+            default:
+                return String(statusCode)
+            }
+        }
+    }
+
+    /// `raiseother` / `notifyother` の配送失敗を、発生元ゴーストへGETで通知する。
+    /// 複数対象の失敗は仕様どおりバイト値1区切りでReference0/1へ集約する。
+    func dispatchOtherGhostEventFailure(
+        notifyOnly: Bool,
+        failures: [OtherGhostFailure],
+        event: String,
+        references: [String]
+    ) {
+        guard !failures.isEmpty else { return }
+        let failureEvent: EventID = notifyOnly ? .OnNotifyOtherFailure : .OnRaiseOtherFailure
+        let separator = "\u{1}"
+        let refs: [String: String] = [
+            "reason": failures.map(\.reason).joined(separator: separator),
+            "ghostName": failures.map(\.ghostName).joined(separator: separator),
+            "event": event
+        ].merging(
+            Dictionary(uniqueKeysWithValues: references.enumerated().map { ("Reference\($0.offset + 3)", $0.element) })
+        ) { _, value in value }
+        let params = EventReferenceTable.params(forEvent: failureEvent.rawValue, refs: refs)
+        _ = EventBridge.shared.request(failureEvent, params: params, to: self)
     }
 
     func scheduleTimerRaiseOther(intervalMs: Int, repeatSpec: String, ghostSpec: String, event: String, references: [String], notifyOnly: Bool) {
@@ -677,8 +828,9 @@ extension GhostManager: NSWindowDelegate {
         }
     }
     
-    /// Send SSTP request to localhost
-    func sendSSTPToLocalhost(request: String) {
+    /// Send SSTP request to localhost. 失敗通知が必要な呼び出しだけ応答を待つ。
+    @discardableResult
+    func sendSSTPToLocalhost(request: String, waitForResponse: Bool = false) -> SSTPEventDeliveryResult {
         let host = "127.0.0.1"
         let port = 9801
 
@@ -692,7 +844,7 @@ extension GhostManager: NSWindowDelegate {
         let portString = String(port)
         guard getaddrinfo(host, portString, &hints, &result) == 0 else {
             Log.info("[GhostManager] Failed to resolve SSTP host: \(host):\(port)")
-            return
+            return .failure(reason: "error")
         }
         
         defer {
@@ -706,13 +858,13 @@ extension GhostManager: NSWindowDelegate {
         
         guard let addr = result else {
             Log.info("[GhostManager] No address info for SSTP")
-            return
+            return .failure(reason: "error")
         }
         
         sock = socket(addr.pointee.ai_family, addr.pointee.ai_socktype, addr.pointee.ai_protocol)
         guard sock >= 0 else {
             Log.info("[GhostManager] Failed to create socket for SSTP")
-            return
+            return .failure(reason: "error")
         }
         
         // Set timeout
@@ -722,20 +874,86 @@ extension GhostManager: NSWindowDelegate {
         
         guard connect(sock, addr.pointee.ai_addr, addr.pointee.ai_addrlen) >= 0 else {
             Log.debug("[GhostManager] No SSTP server at \(host):\(port) - this is normal if no other ghosts are running")
-            return
+            return .failure(reason: "notfound")
         }
         
         // Send request
         let data = request.data(using: .utf8) ?? Data()
-        let sent = data.withUnsafeBytes { ptr in
-            send(sock, ptr.baseAddress, data.count, 0)
+        guard !data.isEmpty else {
+            Log.info("[GhostManager] Failed to encode SSTP request")
+            return .failure(reason: "error")
         }
-        
-        if sent > 0 {
-            Log.debug("[GhostManager] Sent SSTP request to \(host):\(port)")
-        } else {
+        let sent = data.withUnsafeBytes { ptr -> Int in
+            guard let baseAddress = ptr.baseAddress else { return -1 }
+            var total = 0
+            while total < data.count {
+                let count = send(sock, baseAddress.advanced(by: total), data.count - total, 0)
+                guard count > 0 else { return -1 }
+                total += count
+            }
+            return total
+        }
+        guard sent == data.count else {
             Log.info("[GhostManager] Failed to send SSTP request")
+            return .failure(reason: "error")
         }
+        Log.debug("[GhostManager] Sent SSTP request to \(host):\(port)")
+        guard waitForResponse else { return .sent }
+
+        var response = Data()
+        var buffer = [UInt8](repeating: 0, count: 4096)
+        while response.count <= 64 * 1024 {
+            let received = buffer.withUnsafeMutableBytes { ptr -> Int in
+                guard let baseAddress = ptr.baseAddress else { return -1 }
+                return recv(sock, baseAddress, ptr.count, 0)
+            }
+            if received > 0 {
+                response.append(contentsOf: buffer.prefix(received))
+                if response.range(of: Data([13, 10, 13, 10])) != nil
+                    || response.range(of: Data([10, 10])) != nil {
+                    break
+                }
+                continue
+            }
+            if received == 0 { break }
+            Log.info("[GhostManager] Failed to receive SSTP response")
+            return .failure(reason: "error")
+        }
+
+        guard let parsedResponse = Self.parseSSTPResponse(from: response) else {
+            Log.info("[GhostManager] Invalid SSTP response")
+            return .failure(reason: "error")
+        }
+        return .response(statusCode: parsedResponse.statusCode, status: parsedResponse.status)
+    }
+
+    static func parseSSTPStatusCode(from data: Data) -> Int? {
+        parseSSTPResponse(from: data)?.statusCode
+    }
+
+    static func parseSSTPResponse(from data: Data) -> ParsedSSTPResponse? {
+        let text = String(decoding: data, as: UTF8.self)
+        // `String` treats CRLF as one extended grapheme cluster, so comparing
+        // characters with `"\r"`/`"\n"` misses standard SSTP line endings.
+        let lines = text.split(whereSeparator: { $0.isNewline })
+        guard let firstLine = lines.first else {
+            return nil
+        }
+        let parts = firstLine.split(whereSeparator: { $0 == " " || $0 == "\t" })
+        guard parts.count >= 2,
+              parts[0].uppercased().hasPrefix("SSTP/"),
+              let statusCode = Int(parts[1]) else {
+            return nil
+        }
+        let status = lines.dropFirst().compactMap { line -> String? in
+            guard let separator = line.firstIndex(of: ":"),
+                  String(line[..<separator]).trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "status" else {
+                return nil
+            }
+            return String(line[line.index(after: separator)...])
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }.first
+        return ParsedSSTPResponse(statusCode: statusCode, status: status)
     }
     
     // MARK: - Choice Command Support
