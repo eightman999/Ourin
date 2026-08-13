@@ -7,6 +7,7 @@ private final class SNTPCapturingRuntime: GhostShioriRuntime {
     var isLoaded = true
     var resourceManager: ResourceManager?
     var requests: [(method: String, id: String, refs: [String])] = []
+    var responses: [String: String] = [:]
 
     func load(context: ShioriRuntimeLoadContext) -> Bool { true }
 
@@ -18,6 +19,9 @@ private final class SNTPCapturingRuntime: GhostShioriRuntime {
         timeout: TimeInterval
     ) -> ShioriRuntimeResponse? {
         requests.append((method, id, refs))
+        if let value = responses[id] {
+            return .init(ok: true, status: 200, value: value)
+        }
         return .init(ok: true, status: 204)
     }
 
@@ -150,7 +154,7 @@ struct SNTPClientTests {
         #expect(corrected)
         #expect(adjustedDate != nil)
         #expect(runtime.requests.map(\.id) == ["OnSNTPCorrectEx", "OnSNTPCorrect"])
-        #expect(runtime.requests.allSatisfy { $0.method == "NOTIFY" })
+        #expect(runtime.requests.map(\.method) == ["GET", "GET"])
         #expect(runtime.requests.allSatisfy { $0.refs.count == 5 })
         #expect(runtime.requests[0].refs[0] == "time.example.test")
         #expect(Double(runtime.requests[0].refs[3]) ?? 0 > 1.0)
@@ -180,7 +184,65 @@ struct SNTPClientTests {
 
         #expect(!corrected)
         #expect(runtime.requests.map(\.id) == ["OnSNTPFailure"])
+        #expect(runtime.requests[0].method == "GET")
         #expect(runtime.requests[0].refs == ["time.example.test"])
+    }
+
+    @MainActor
+    @Test
+    func extendedCorrectionResponseSuppressesLegacyFallback() {
+        EventBridge.shared.stop()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sntp-extended-correction-test"))
+        let runtime = SNTPCapturingRuntime()
+        runtime.responses["OnSNTPCorrectEx"] = #"\e"#
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        let localDate = Date()
+        manager.lastSntpMeasurement = SNTPMeasurement(
+            server: "time.example.test",
+            serverDate: localDate.addingTimeInterval(1),
+            localDate: localDate,
+            offset: 1
+        )
+        manager.lastSntpServerDate = localDate.addingTimeInterval(1)
+        manager.lastSntpServer = "time.example.test"
+
+        #expect(manager.executeSNTPApply { _ in .success(()) })
+        #expect(runtime.requests.filter { $0.id.hasPrefix("OnSNTP") }.map(\.id) == ["OnSNTPCorrectEx"])
+    }
+
+    @MainActor
+    @Test
+    func extendedCompareResponseSuppressesLegacyFallback() {
+        EventBridge.shared.stop()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sntp-extended-compare-test"))
+        let runtime = SNTPCapturingRuntime()
+        runtime.responses["OnSNTPCompareEx"] = #"\e"#
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        let localDate = Date()
+        let measurement = SNTPMeasurement(
+            server: "time.example.test",
+            serverDate: localDate.addingTimeInterval(0.75),
+            localDate: localDate,
+            offset: 0.75
+        )
+
+        #expect(!manager.processSNTPMeasurement(measurement))
+        #expect(runtime.requests.filter { $0.id.hasPrefix("OnSNTP") }.map(\.id) == ["OnSNTPCompareEx"])
+        #expect(runtime.requests[0].refs[3].contains("0.750"))
     }
 
     @MainActor
@@ -215,6 +277,7 @@ struct SNTPClientTests {
         #expect(runtime.requests.map(\.id) == [
             "OnSNTPCompareEx", "OnSNTPCompare", "OnSNTPCorrectEx", "OnSNTPCorrect"
         ])
+        #expect(runtime.requests.allSatisfy { $0.method == "GET" })
     }
 
     private func writeTimestamp(_ date: Date, into bytes: inout [UInt8], at offset: Int) {

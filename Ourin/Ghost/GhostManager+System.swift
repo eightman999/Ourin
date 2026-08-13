@@ -1679,7 +1679,7 @@ extension GhostManager: NSWindowDelegate {
         lastSntpTimezone = nil
         lastSntpMeasurement = nil
         lastSntpServer = nil
-        EventBridge.shared.notify(.OnSNTPBegin, refs: ["server": server])
+        _ = EventBridge.shared.request(.OnSNTPBegin, refs: ["server": server], to: self)
 
         SNTPClient().query(server: server) { [weak self] result in
             guard let self else { return }
@@ -1696,7 +1696,7 @@ extension GhostManager: NSWindowDelegate {
                 self.pendingSntpCorrection = false
                 Log.info("[GhostManager] SNTP query failed: \(error)")
                 Log.info("[GhostManager] SNTP failure reason: \(self.normalizeSNTPFailureReason(error))")
-                EventBridge.shared.notify(.OnSNTPFailure, refs: ["server": server])
+                _ = EventBridge.shared.request(.OnSNTPFailure, refs: ["server": server], to: self)
             }
         }
     }
@@ -1736,8 +1736,12 @@ extension GhostManager: NSWindowDelegate {
             "deltaSeconds": signedSeconds,
             "deltaMilliseconds": signedMilliseconds
         ]
-        EventBridge.shared.notify(.OnSNTPCompareEx, refs: compareExRefs)
-        EventBridge.shared.notify(.OnSNTPCompare, refs: compareRefs)
+        _ = requestSNTPEventWithLegacyFallback(
+            extended: .OnSNTPCompareEx,
+            legacy: .OnSNTPCompare,
+            extendedRefs: compareExRefs,
+            legacyRefs: compareRefs
+        )
         Log.debug("[GhostManager] SNTP query succeeded: offset=\(signedMilliseconds)ms")
 
         guard pendingSntpCorrection else { return false }
@@ -1806,15 +1810,35 @@ extension GhostManager: NSWindowDelegate {
 
         switch clockAdjuster(serverDate) {
         case .success:
-            EventBridge.shared.notify(.OnSNTPCorrectEx, refs: correctionExRefs)
-            EventBridge.shared.notify(.OnSNTPCorrect, refs: correctionRefs)
+            _ = requestSNTPEventWithLegacyFallback(
+                extended: .OnSNTPCorrectEx,
+                legacy: .OnSNTPCorrect,
+                extendedRefs: correctionExRefs,
+                legacyRefs: correctionRefs
+            )
             Log.info("[GhostManager] SNTP correction succeeded: deltaMs=\(correctionExRefs["deltaMilliseconds"] ?? "0")")
             return true
         case .failure(let error):
             Log.info("[GhostManager] SNTP correction failed: \(error)")
-            EventBridge.shared.notify(.OnSNTPFailure, refs: ["server": server])
+            _ = EventBridge.shared.request(.OnSNTPFailure, refs: ["server": server], to: self)
             return false
         }
+    }
+
+    /// SSPの拡張イベントを優先し、応答が無い場合だけ旧イベントへフォールバックする。
+    /// Ex/無印を両方実行すると、無印だけを実装するゴーストと拡張対応ゴーストの双方で
+    /// 応答スクリプトが二重に再生されるため、GETの応答有無で分岐する。
+    @discardableResult
+    private func requestSNTPEventWithLegacyFallback(
+        extended: EventID,
+        legacy: EventID,
+        extendedRefs: [String: String],
+        legacyRefs: [String: String]
+    ) -> Bool {
+        if EventBridge.shared.request(extended, refs: extendedRefs, to: self) {
+            return true
+        }
+        return EventBridge.shared.request(legacy, refs: legacyRefs, to: self)
     }
 
     private func configuredSNTPServer() -> String {
