@@ -598,6 +598,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case waitForAudio
         case waitForHTTP(UUID)
         case waitForSyncObject(name: String, timeout: TimeInterval, generation: UInt64)
+        case waitForVisualEffect(String)
         case waitAnimation(Int) // wait until SERIKO animation ID completes
         case resetPrecise
         case clickWait(noclear: Bool)
@@ -4146,6 +4147,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             case .waitForHTTP(let taskID):
                 if pendingHTTPWaits.contains(taskID) {
                     scheduleNext(after: 0.05)
+                    return
+                }
+                continue
+            case .waitForVisualEffect(let key):
+                // 時間付き set,scaling / set,alpha は固定秒数ではなく、
+                // 実際のフレームタイマーが完了したことを待つ。
+                if visualEffectAnimationTimers[key] != nil {
+                    scheduleNext(after: 1.0 / 60.0)
                     return
                 }
                 continue

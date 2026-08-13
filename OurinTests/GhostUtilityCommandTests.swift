@@ -407,6 +407,40 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func timedVisualEffectWaitUsesCompletionUnitAndAcceptsMixedOptions() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-timed-visual-effect-wait-test"))
+        _ = manager.ensureCharacterWindow(for: 0)
+        defer {
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.executeSetScalingCommand(args: ["set", "scaling", "50", "75", "180", "--wait=true"])
+
+        let scalingWait = manager.playbackQueue.contains { unit in
+            if case .waitForVisualEffect("scaling:0") = unit { return true }
+            return false
+        }
+        #expect(scalingWait)
+        #expect(manager.playbackQueue.contains { unit in
+            if case .wait = unit { return true }
+            return false
+        } == false)
+
+        manager.playbackQueue.removeAll()
+        manager.executeSetAlphaCommand(args: ["set", "alpha", "25", "180", "--wait=true"])
+
+        let alphaWait = manager.playbackQueue.contains { unit in
+            if case .waitForVisualEffect("alpha:0") = unit { return true }
+            return false
+        }
+        #expect(alphaWait)
+        #expect(manager.characterViewModels[0]?.alpha ?? 1.0 > 0.25)
+    }
+
+    @Test @MainActor
     func otherSurfaceChangeIsSentOnlyToOptedInOtherGhosts() {
         EventBridge.shared.stop()
 

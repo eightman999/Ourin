@@ -749,10 +749,10 @@ extension GhostManager {
         let wait: Bool
 
         if !parsed.named.isEmpty {
-            xPercent = Double(parsed.named["x"] ?? parsed.named["scaling"] ?? "")
-            yPercent = Double(parsed.named["y"] ?? "")
-            timeMs = Double(parsed.named["time"] ?? "0") ?? 0
-            wait = parseWaitFlag(parsed.named, fallback: parsed.positional.first)
+            xPercent = Double(parsed.named["x"] ?? parsed.named["scaling"] ?? parsed.positional.first ?? "")
+            yPercent = Double(parsed.named["y"] ?? parsed.positional.dropFirst().first ?? "")
+            timeMs = Double(parsed.named["time"] ?? parsed.positional.dropFirst(2).first ?? "0") ?? 0
+            wait = parseWaitFlag(parsed.named, fallback: parsed.positional.dropFirst(3).first)
         } else {
             xPercent = Double(params[0])
             yPercent = params.count >= 2 ? Double(params[1]) : nil
@@ -764,6 +764,7 @@ extension GhostManager {
         let targetScaleX = xPercent / 100.0
         let targetScaleY = (yPercent ?? xPercent) / 100.0
         let scope = currentScope
+        let animationKey = "scaling:\(scope)"
 
         DispatchQueue.main.async {
             self.animateUserScaling(
@@ -775,7 +776,7 @@ extension GhostManager {
         }
 
         if wait && timeMs > 0 {
-            playbackQueue.append(.wait(timeMs / 1000.0))
+            playbackQueue.append(.waitForVisualEffect(animationKey))
         }
     }
 
@@ -789,9 +790,9 @@ extension GhostManager {
         let wait: Bool
 
         if !parsed.named.isEmpty {
-            alphaPercent = Double(parsed.named["value"] ?? parsed.named["alpha"] ?? "")
-            timeMs = Double(parsed.named["time"] ?? "0") ?? 0
-            wait = parseWaitFlag(parsed.named, fallback: parsed.positional.first)
+            alphaPercent = Double(parsed.named["value"] ?? parsed.named["alpha"] ?? parsed.positional.first ?? "")
+            timeMs = Double(parsed.named["time"] ?? parsed.positional.dropFirst().first ?? "0") ?? 0
+            wait = parseWaitFlag(parsed.named, fallback: parsed.positional.dropFirst(2).first)
         } else {
             alphaPercent = Double(params[0])
             timeMs = params.count >= 2 ? (Double(params[1]) ?? 0) : 0
@@ -801,6 +802,7 @@ extension GhostManager {
         guard let alphaPercent else { return }
         let targetAlpha = min(max(alphaPercent / 100.0, 0.0), 1.0)
         let scope = currentScope
+        let animationKey = "alpha:\(scope)"
 
         DispatchQueue.main.async {
             self.animateCharacterAlpha(
@@ -811,7 +813,7 @@ extension GhostManager {
         }
 
         if wait && timeMs > 0 {
-            playbackQueue.append(.wait(timeMs / 1000.0))
+            playbackQueue.append(.waitForVisualEffect(animationKey))
         }
     }
 
