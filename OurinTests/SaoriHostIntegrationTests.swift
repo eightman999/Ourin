@@ -14,7 +14,7 @@ struct SaoriHostIntegrationTests {
         try #require(FileManager.default.fileExists(atPath: fixtureLibrary.path))
 
         let fixtureRoot = FileManager.default.temporaryDirectory
-            .appendingPathComponent("Ourin-SaoriHost-(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("Ourin-SaoriHost-\(UUID().uuidString)", isDirectory: true)
         let saoriDirectory = fixtureRoot.appendingPathComponent("saori", isDirectory: true)
         try FileManager.default.createDirectory(at: saoriDirectory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: fixtureRoot) }
