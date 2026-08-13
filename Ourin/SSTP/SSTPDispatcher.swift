@@ -805,6 +805,10 @@ public enum SSTPDispatcher {
         copyIfPresent("Marker", from: request, to: &headers)
         copyIfPresent("ErrorLevel", from: request, to: &headers)
         copyIfPresent("ErrorDescription", from: request, to: &headers)
+        // COMMUNICATE は送信元が現在の Surface を付加できる。受信側の SHIORI
+        // はこのヘッダを OnCommunicate の文脈として参照するため、応答側の
+        // Surface 処理だけでなく入力経路にも保持して渡す。
+        copyIfPresent("Surface", from: request, to: &headers)
         copyIfPresent("BalloonOffset", from: request, to: &headers)
         copyIfPresent("Age", from: request, to: &headers)
         copyIfPresent("MarkerSend", from: request, to: &headers)

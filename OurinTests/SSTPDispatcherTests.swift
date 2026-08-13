@@ -203,6 +203,29 @@ struct SSTPDispatcherTests {
     }
 
     @Test
+    func communicateSurfaceHeaderReachesShiori() async throws {
+        var receivedHeaders: [String: String] = [:]
+        bridge.liveGhostResolver = { _, _, _, headers in
+            receivedHeaders = headers
+            return .init(status: 204, headers: [:], value: nil)
+        }
+        let req = SSTPRequest(
+            method: "COMMUNICATE",
+            version: "SSTP/1.4",
+            headers: [
+                "Sender": "OtherGhost",
+                "Sentence": "hello",
+                "Surface": "12",
+                "Option": "nodescript"
+            ]
+        )
+
+        _ = SSTPDispatcher.dispatch(request: req, bridge: bridge)
+
+        #expect(receivedHeaders["Surface"] == "12")
+    }
+
+    @Test
     func notifyPreservesMethodAndStructuredShioriHeaders() async throws {
         var receivedMethod = ""
         bridge.liveGhostResolver = { method, _, _, _ in
