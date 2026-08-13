@@ -1,6 +1,7 @@
 import Testing
 @testable import Ourin
 import Foundation
+import AppKit
 import CoreGraphics
 
 struct AnimationEngineTests {
@@ -105,6 +106,61 @@ struct AnimationEngineTests {
     }
 
     @Test
+    func collisionExRegionLoadsTargetColorAndInversionFromShellDirectory() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ourin-collision-region-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let bitmap = try #require(NSBitmapImageRep(
+            bitmapDataPlanes: nil,
+            pixelsWide: 3,
+            pixelsHigh: 2,
+            bitsPerSample: 8,
+            samplesPerPixel: 3,
+            hasAlpha: false,
+            isPlanar: false,
+            colorSpaceName: .deviceRGB,
+            bitmapFormat: [],
+            bytesPerRow: 0,
+            bitsPerPixel: 0
+        ))
+        Self.setPixel([255, 0, 255], atX: 1, y: 1, in: bitmap)
+        let imageData = try #require(bitmap.representation(using: .png, properties: [:]))
+        try imageData.write(to: root.appendingPathComponent("atari.png"))
+
+        let surfacesContent = """
+        surface0
+        {
+            collisionex0,Base,region,atari.png,255,0,255
+            animation4.interval,always
+            animation4.pattern0,10,100,0,0
+            animation4.collisionex0,Hit,region,atari.png,255,0,255
+            animation4.collisionex1,Miss,region,atari.png,255,0,255,true
+        }
+        """
+
+        let engine = AnimationEngine()
+        engine.loadAnimations(
+            surfaceID: 0,
+            content: surfacesContent,
+            resourceDirectory: root
+        )
+
+        let inactive = engine.getCollisions(for: 0)
+        #expect(inactive.count == 1)
+        #expect(inactive[0].name == "Base")
+        #expect(inactive[0].contains(CGPoint(x: 1, y: 1)))
+        #expect(!inactive[0].contains(CGPoint(x: 0, y: 0)))
+
+        let active = engine.getCollisions(for: 0, activeAnimationIDs: [4])
+        #expect(active.map(\.name) == ["Hit", "Miss", "Base"])
+        #expect(active[0].contains(CGPoint(x: 1, y: 1)))
+        #expect(!active[1].contains(CGPoint(x: 1, y: 1)))
+        #expect(active[1].contains(CGPoint(x: 0, y: 0)))
+    }
+
+    @Test
     func reloadingSurfaceCollisionDefinitionsDoesNotDuplicateRegions() throws {
         let surfacesContent = """
         surface0
@@ -123,6 +179,18 @@ struct AnimationEngineTests {
             "animated_region",
             "base_region"
         ])
+    }
+
+    private static func setPixel(
+        _ values: [Int],
+        atX x: Int,
+        y: Int,
+        in bitmap: NSBitmapImageRep
+    ) {
+        var values = values
+        values.withUnsafeMutableBufferPointer { buffer in
+            bitmap.setPixel(buffer.baseAddress!, atX: x, y: y)
+        }
     }
     
     @Test

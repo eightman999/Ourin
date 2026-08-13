@@ -370,7 +370,11 @@ extension GhostManager {
         guard let vm = characterViewModels[scope] else { return }
         let surfaceID = requestedSurfaceID ?? vm.currentSurfaceID
 
-        animationEngine.loadAnimations(surfaceID: surfaceID, content: combined)
+        animationEngine.loadAnimations(
+            surfaceID: surfaceID,
+            content: combined,
+            resourceDirectory: shellPath
+        )
         if let surface = parsedSurfaceDefs[surfaceID] {
             serikoExecutor.replace(animations: surface.animations)
         } else {

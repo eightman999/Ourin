@@ -78,6 +78,13 @@ struct CollisionRegion {
         case ellipse(rect: CGRect)
         case circle(center: CGPoint, radius: CGFloat)
         case polygon(points: [CGPoint])
+        case imageRegion(
+            bitmap: NSBitmapImageRep,
+            red: CGFloat,
+            green: CGFloat,
+            blue: CGFloat,
+            inverted: Bool
+        )
     }
 
     let name: String
@@ -119,6 +126,30 @@ struct CollisionRegion {
         self.shape = .polygon(points: points)
     }
 
+    init(
+        name: String,
+        bitmap: NSBitmapImageRep,
+        red: CGFloat,
+        green: CGFloat,
+        blue: CGFloat,
+        inverted: Bool
+    ) {
+        self.name = name
+        self.rect = CGRect(
+            x: 0,
+            y: 0,
+            width: CGFloat(bitmap.pixelsWide),
+            height: CGFloat(bitmap.pixelsHigh)
+        )
+        self.shape = .imageRegion(
+            bitmap: bitmap,
+            red: red,
+            green: green,
+            blue: blue,
+            inverted: inverted
+        )
+    }
+
     func contains(_ point: CGPoint) -> Bool {
         guard rect.contains(point) else { return false }
 
@@ -153,6 +184,17 @@ struct CollisionRegion {
                 previous = current
             }
             return inside
+        case .imageRegion(let bitmap, let red, let green, let blue, let inverted):
+            let x = Int(floor(point.x))
+            let y = Int(floor(point.y))
+            guard x >= 0, x < bitmap.pixelsWide, y >= 0, y < bitmap.pixelsHigh,
+                  let pixel = bitmap.colorAt(x: x, y: y) else {
+                return false
+            }
+            let matches = abs(pixel.redComponent - red) <= (0.5 / 255.0)
+                && abs(pixel.greenComponent - green) <= (0.5 / 255.0)
+                && abs(pixel.blueComponent - blue) <= (0.5 / 255.0)
+            return inverted ? !matches : matches
         }
     }
 }
@@ -300,7 +342,10 @@ class AnimationEngine {
 
     /// Parses the standard `collisionexN,ID,type,...` form and the historical
     /// Ourin test form `collisionex,type,...,ID`.
-    private func parseExtendedCollisionRegion(_ values: [String]) -> CollisionRegion? {
+    private func parseExtendedCollisionRegion(
+        _ values: [String],
+        resourceDirectory: URL?
+    ) -> CollisionRegion? {
         guard values.count >= 2 else { return nil }
 
         let shape: String
@@ -346,21 +391,47 @@ class AnimationEngine {
             }
             return CollisionRegion(name: name, polygonPoints: points)
         case "region":
-            // Image-colour regions require the loaded surface bitmap and are
-            // intentionally kept out of this geometry-only parser.
-            return nil
+            guard coordinates.count >= 4,
+                  let red = integer(coordinates[1]), red >= 0, red <= 255,
+                  let green = integer(coordinates[2]), green >= 0, green <= 255,
+                  let blue = integer(coordinates[3]), blue >= 0, blue <= 255,
+                  let resourceDirectory else { return nil }
+            let fileName = trimmed(coordinates[0])
+            guard !fileName.isEmpty else { return nil }
+            let imageURL: URL
+            if fileName.hasPrefix("/") {
+                imageURL = URL(fileURLWithPath: fileName)
+            } else {
+                imageURL = resourceDirectory.appendingPathComponent(fileName)
+            }
+            guard let data = try? Data(contentsOf: imageURL),
+                  let bitmap = NSBitmapImageRep(data: data) else { return nil }
+            let inverted = coordinates.dropFirst(4).first.map {
+                ["true", "1"].contains(trimmed($0).lowercased())
+            } ?? false
+            return CollisionRegion(
+                name: name,
+                bitmap: bitmap,
+                red: CGFloat(red) / 255.0,
+                green: CGFloat(green) / 255.0,
+                blue: CGFloat(blue) / 255.0,
+                inverted: inverted
+            )
         default:
             return nil
         }
     }
 
-    private func parseCollisionLine(_ line: String) -> CollisionRegion? {
+    private func parseCollisionLine(
+        _ line: String,
+        resourceDirectory: URL?
+    ) -> CollisionRegion? {
         let parts = line.components(separatedBy: ",")
         guard let header = parts.first,
               let isExtended = collisionHeaderKind(header) else { return nil }
         let values = Array(parts.dropFirst())
         if isExtended {
-            return parseExtendedCollisionRegion(values)
+            return parseExtendedCollisionRegion(values, resourceDirectory: resourceDirectory)
         }
 
         // collisionN,x1,y1,x2,y2,name
@@ -372,7 +443,8 @@ class AnimationEngine {
     }
 
     private func parseAnimationCollisionLine(
-        _ line: String
+        _ line: String,
+        resourceDirectory: URL?
     ) -> (animationID: Int, region: CollisionRegion)? {
         let parts = line.components(separatedBy: ",")
         guard let header = parts.first,
@@ -386,14 +458,21 @@ class AnimationEngine {
         let normalizedLine = (
             [String(header[header.index(after: dot)...])] + Array(parts.dropFirst())
         ).joined(separator: ",")
-        guard let region = parseCollisionLine(normalizedLine) else { return nil }
+        guard let region = parseCollisionLine(
+            normalizedLine,
+            resourceDirectory: resourceDirectory
+        ) else { return nil }
         return (animationID, region)
     }
     
     // MARK: - Animation Management
     
     /// Load animations from surfaces.txt content
-    func loadAnimations(surfaceID: Int, content: String) {
+    func loadAnimations(
+        surfaceID: Int,
+        content: String,
+        resourceDirectory: URL? = nil
+    ) {
         // アニメーション定義は現在のサーフェスに限定する。前回のサーフェスの定義を
         // 残すと、旧サーフェス用のオーバーレイが新しい表情へ混入する。
         animations.removeAll()
@@ -456,12 +535,18 @@ class AnimationEngine {
             // Parse animation-only collision regions before regular collision
             // regions. UKADOC defines these as active only while animationID is
             // running; they must not leak into the base surface hit-test.
-            if let animationCollision = parseAnimationCollisionLine(trimmed) {
+            if let animationCollision = parseAnimationCollisionLine(
+                trimmed,
+                resourceDirectory: resourceDirectory
+            ) {
                 animationCollisions[surfaceID, default: [:]][animationCollision.animationID, default: []]
                     .append(animationCollision.region)
                 continue
             }
-            if let region = parseCollisionLine(trimmed) {
+            if let region = parseCollisionLine(
+                trimmed,
+                resourceDirectory: resourceDirectory
+            ) {
                 collisions[surfaceID, default: []].append(region)
             }
             
