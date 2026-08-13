@@ -85,6 +85,7 @@ extension GhostManager {
         serikoExecutor.stopAllAnimations()
         activeAnimationIDsByScope.removeAll()
         persistentSerikoAnimationIDsByScope.removeAll()
+        characterViewModels[scope]?.serikoMoveOffset = .zero
         serikoScaleFactorsByScope[scope] = nil
         applyEffectiveSerikoScale(scope: scope)
     }
@@ -876,7 +877,9 @@ extension GhostManager {
         case .base:
             handleAnimAddBase(id: surfaceID)
         case .move:
-            handleAnimAddMove(x: x, y: y)
+            let scope = animationScopes(for: animationID).sorted().first ?? currentScope
+            characterViewModels[scope]?.serikoMoveOffset = CGPoint(x: CGFloat(x), y: CGFloat(y))
+            Log.debug("[GhostManager] SERIKO move animation=\(animationID) scope=\(scope) offset=(\(x), \(y))")
         case .reduce:
             handleSurfaceOverlay(
                 surfaceID: surfaceID,
@@ -971,6 +974,9 @@ extension GhostManager {
     ) {
         let scopes = animationScopes(for: animationID)
         let intervalComponents = serikoExecutor.definition(for: animationID)?.interval.components ?? []
+        let hasMovePattern = serikoExecutor.definition(for: animationID)?.patterns.contains {
+            $0.method == .move
+        } == true
         let keepsFinalPattern = reason == .completed
             && intervalComponents.contains(.bind)
             && intervalComponents.contains(.runonce)
@@ -987,6 +993,9 @@ extension GhostManager {
         }
         for scope in scopes {
             clearSerikoScaling(animationID: animationID, scope: scope)
+            if hasMovePattern {
+                characterViewModels[scope]?.serikoMoveOffset = .zero
+            }
         }
         removeActiveAnimationID(animationID)
         if waitingForAnimation == animationID {

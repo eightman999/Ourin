@@ -72,6 +72,41 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func moveOffsetsAreRelativeToOriginalPosition() async throws {
+        var now = Date(timeIntervalSince1970: 0)
+        let executor = SerikoExecutor(nowProvider: { now })
+        let first = SerikoPattern(index: 0, method: .move, surfaceID: 0, duration: 10, x: 5, y: -3, rawArguments: [])
+        let second = SerikoPattern(index: 1, method: .move, surfaceID: 0, duration: 10, x: -2, y: 4, rawArguments: [])
+        let third = SerikoPattern(index: 2, method: .overlay, surfaceID: 9, duration: 10, x: 1, y: 2, rawArguments: [])
+        executor.register(animations: [6: SerikoParser.AnimationDefinition(
+            id: 6,
+            interval: .never,
+            options: [],
+            patterns: [first, second, third]
+        )])
+
+        var overlayCoordinates: (Int, Int)?
+        executor.onMethodInvoked = { _, method, _, x, y in
+            guard method == .overlay else { return }
+            overlayCoordinates = (x, y)
+        }
+
+        #expect(executor.executeAnimation(id: 6))
+        #expect(executor.activeAnimations[6]?.offsetX == 5)
+        #expect(executor.activeAnimations[6]?.offsetY == -3)
+
+        now = now.addingTimeInterval(0.011)
+        executor.startLoop()
+        #expect(executor.activeAnimations[6]?.offsetX == -2)
+        #expect(executor.activeAnimations[6]?.offsetY == 4)
+
+        now = now.addingTimeInterval(0.011)
+        executor.startLoop()
+        #expect(overlayCoordinates?.0 == -1)
+        #expect(overlayCoordinates?.1 == 6)
+    }
+
+    @Test
     func animationOffsetIsAppliedToFollowingSurfaceCoordinates() async throws {
         let executor = SerikoExecutor()
         let pattern = SerikoPattern(

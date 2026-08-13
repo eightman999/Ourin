@@ -243,8 +243,10 @@ public final class SerikoExecutor {
 
     public func executeMove(animationID: Int, pattern: SerikoPattern) {
         if var state = activeAnimations[animationID] {
-            state.offsetX += pattern.x
-            state.offsetY += pattern.y
+            // SERIKO move の座標は前フレームからの差分ではなく、元位置からの
+            // 相対位置。連続する move パターンでは毎回絶対値として置き換える。
+            state.offsetX = pattern.x
+            state.offsetY = pattern.y
             activeAnimations[animationID] = state
         }
         emitMethod(

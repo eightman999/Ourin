@@ -35,6 +35,10 @@ class CharacterViewModel: ObservableObject {
     
     // Surface compositing - overlay surfaces
     @Published var overlays: [SurfaceOverlay] = []
+
+    /// SERIKO move が一時的に適用する、キャラクター描画全体の相対位置。
+    /// アニメーション終了またはサーフェス切替で原点へ戻る。
+    @Published var serikoMoveOffset: CGPoint = .zero
     
     // Effects and filters
     @Published var activeEffects: [EffectConfig] = []

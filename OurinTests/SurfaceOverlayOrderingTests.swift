@@ -211,6 +211,39 @@ struct SurfaceOverlayOrderingTests {
 
     @MainActor
     @Test
+    func serikoMoveShiftsCharacterSurfaceAndResetsOnStop() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ourin-seriko-move-(UUID().uuidString)", isDirectory: true)
+        let shell = root.appendingPathComponent("shell/master", isDirectory: true)
+        try FileManager.default.createDirectory(at: shell, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        try """
+        surface0
+        {
+          animation7.interval,never
+          animation7.pattern0,move,0,100,12,-8
+        }
+        """.write(
+            to: shell.appendingPathComponent("surfaces.txt"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try Self.writePNG(at: shell.appendingPathComponent("surface0.png"), hasAlpha: false)
+
+        let manager = GhostManager(ghostURL: root)
+        defer { manager.shutdown() }
+        manager.characterViewModels[0] = CharacterViewModel()
+        manager.loadAnimationsForCurrentSurface(surfaceID: 0, scope: 0)
+        manager.playAnimation(id: 7, wait: false)
+
+        #expect(manager.characterViewModels[0]?.serikoMoveOffset == CGPoint(x: 12, y: -8))
+        manager.serikoExecutor.stopAnimation(id: 7)
+        #expect(manager.characterViewModels[0]?.serikoMoveOffset == .zero)
+    }
+
+    @MainActor
+    @Test
     func animAddOverlaySupportsCoordinatesAndTimedFrames() async throws {
         let repositoryRoot = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()

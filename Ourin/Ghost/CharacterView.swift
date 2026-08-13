@@ -126,6 +126,10 @@ struct CharacterView: View {
                 DragDropView(scopeID: scopeID, onEvent: onEvent)
             }
         }
+        // SERIKO move はベースサーフェスだけでなく、その時点の描画全体を
+        // 同じキャンバス上で移動させる。scaleEffect の内側に置くことで、
+        // シェル倍率も座標へ適用する。
+        .offset(x: viewModel.serikoMoveOffset.x, y: viewModel.serikoMoveOffset.y)
         .scaleEffect(x: viewModel.scaleX, y: viewModel.scaleY)
         .opacity(viewModel.alpha)
         .allowsHitTesting(!viewModel.repaintLocked)
@@ -210,13 +214,22 @@ final class CharacterHitTestingHostingView: NSHostingView<CharacterView> {
         let scaleX = CGFloat(viewModel.scaleX)
         let scaleY = CGFloat(viewModel.scaleY)
         guard abs(scaleX) > .ulpOfOne, abs(scaleY) > .ulpOfOne else {
-            return topLeftPoint
+            return CGPoint(
+                x: topLeftPoint.x - viewModel.serikoMoveOffset.x,
+                y: topLeftPoint.y - viewModel.serikoMoveOffset.y
+            )
         }
 
+        // move は scaleEffect の内側にあるため、画面上では移動量も倍率の
+        // 影響を受ける。ピクセル判定前にその分を戻してから逆倍率を適用する。
+        let movedPoint = CGPoint(
+            x: topLeftPoint.x - viewModel.serikoMoveOffset.x * scaleX,
+            y: topLeftPoint.y - viewModel.serikoMoveOffset.y * scaleY
+        )
         let center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
         return CGPoint(
-            x: ((topLeftPoint.x - center.x) / scaleX) + center.x,
-            y: ((topLeftPoint.y - center.y) / scaleY) + center.y
+            x: ((movedPoint.x - center.x) / scaleX) + center.x,
+            y: ((movedPoint.y - center.y) / scaleY) + center.y
         )
     }
 

@@ -84,6 +84,7 @@ extension GhostManager {
             guard let self = self else { return }
             if let vm = self.characterViewModels[scope] {
                 vm.overlays.removeAll()
+                vm.serikoMoveOffset = .zero
                 Log.debug("[GhostManager] Cleared overlays for scope \(scope) due to surface change")
             }
         }
