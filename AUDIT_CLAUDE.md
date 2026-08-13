@@ -1,5 +1,12 @@
 # Ourin（桜鈴）実装監査レポート — AUDIT_CLAUDE
 
+> [!WARNING]
+> **Historical / Stale Audit Warning（歴史的監査記録）**
+>
+> 本レポートは **2026-06-14** 時点（監査ブランチ `claude/clever-franklin-u7ok7p`）の初期静的監査記録です。その後の開発で、SHIORI 2.x 互換層、PropertyManager の配線・スレッド安全性、型付きイベント監査、YAYA 実在ゴースト回帰テストなどが追加・修正されています。このため、本レポート内の指摘・スコアの多くは現行コードと一致しません。
+>
+> 現行の未完項目・検証済み事実は、必ず [`docs/AUDITS_TODO.md`](docs/AUDITS_TODO.md) と [`docs/AUDITS_COMPLETED.md`](docs/AUDITS_COMPLETED.md) を正本として確認してください。本ファイルは過去監査の根拠を保存する履歴です。
+
 - **監査対象**: Ourin（桜鈴） — macOSネイティブ伺かベースウェア（Swift/SwiftUI + C++ YAYA VM）
 - **監査日**: 2026-06-14
 - **監査ブランチ**: `claude/clever-franklin-u7ok7p`
