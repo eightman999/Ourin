@@ -79,4 +79,15 @@ struct PowerObserverTests {
         #expect(startup.delivery == .notify)
         #expect(startup.ignoreResponseScript == true)
     }
+
+    @Test
+    func systemSleepUsesNotifyForSuspendAndGetForSleep() {
+        let events = SleepObserver.willSleepEvents()
+
+        #expect(events.map(\.id) == [.OnSysSuspend, .OnSleep])
+        #expect(events[0].delivery == .notify)
+        #expect(events[0].ignoreResponseScript)
+        #expect(events[1].delivery == .get)
+        #expect(!events[1].ignoreResponseScript)
+    }
 }

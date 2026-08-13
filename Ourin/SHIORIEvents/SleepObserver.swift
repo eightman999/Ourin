@@ -10,13 +10,26 @@ final class SleepObserver {
     private var tokens: [Any] = []
     private var handler: ((ShioriEvent) -> Void)?
 
+    static func willSleepEvents() -> [ShioriEvent] {
+        [
+            ShioriEvent(
+                id: .OnSysSuspend,
+                params: [:],
+                delivery: .notify,
+                ignoreResponseScript: true
+            ),
+            ShioriEvent(id: .OnSleep, params: [:])
+        ]
+    }
+
     func start(_ handler: @escaping (ShioriEvent) -> Void) {
         stop()
         self.handler = handler
         let center = NSWorkspace.shared.notificationCenter
         tokens.append(center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.handler?(ShioriEvent(id: .OnSysSuspend, params: [:]))
-            self?.handler?(ShioriEvent(id: .OnSleep, params: [:]))
+            for event in Self.willSleepEvents() {
+                self?.handler?(event)
+            }
         })
         tokens.append(center.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
             self?.handler?(ShioriEvent(id: .OnSysResume, params: [:]))
