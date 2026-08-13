@@ -155,6 +155,24 @@ public final class SerikoExecutor {
     }
 
     public func executePattern(animationID: Int, pattern: SerikoPattern) {
+        // UKADOC: surfaceID -1 は自身のアニメーションを停止し、-2 は
+        // 現在実行中の他のアニメーションを停止する制御フレームである。
+        // 画像IDとして描画経路へ流すと、存在しない surface を読み込もうと
+        // するだけでアニメーションが止まらず、後続フレームも再生される。
+        if isSurfaceControlFrame(pattern), pattern.surfaceID == -1 {
+            finishAnimation(id: animationID, reason: .stopped)
+            onPatternExecuted?(animationID, pattern)
+            return
+        }
+        if isSurfaceControlFrame(pattern), pattern.surfaceID == -2 {
+            let otherAnimationIDs = activeAnimations.keys.filter { $0 != animationID }
+            for otherAnimationID in otherAnimationIDs {
+                stopAnimation(id: otherAnimationID)
+            }
+            onPatternExecuted?(animationID, pattern)
+            return
+        }
+
         switch pattern.method {
         case .overlay:
             executeOverlay(animationID: animationID, pattern: pattern)
@@ -220,6 +238,20 @@ public final class SerikoExecutor {
             emitMethod(animationID: animationID, method: pattern.method, surfaceID: pattern.surfaceID, x: pattern.x, y: pattern.y)
         }
         onPatternExecuted?(animationID, pattern)
+    }
+
+    /// -1/-2 は画像を参照する描画パターンだけで意味を持つ。
+    /// import や alternativestart/parallelstart などの制御パターンは、
+    /// surfaceID に -1 をプレースホルダーとして使うため対象外とする。
+    private func isSurfaceControlFrame(_ pattern: SerikoPattern) -> Bool {
+        switch pattern.method {
+        case .overlay, .overlayFast, .base, .move, .scaling, .add, .bind, .auto,
+             .reduce, .replace, .interpolate, .blend, .asis, .unknown:
+            return true
+        case .import, .start, .alternativeStart, .stop, .alternativeStop, .insert,
+             .parallelStart, .parallelStop:
+            return false
+        }
     }
 
     public func executeOverlay(animationID: Int, pattern: SerikoPattern) {

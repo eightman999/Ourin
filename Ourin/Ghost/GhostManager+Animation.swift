@@ -931,8 +931,10 @@ extension GhostManager {
     }
 
     private func handleSerikoPattern(animationID: Int, pattern: SerikoPattern) {
-        if pattern.surfaceID < 0, pattern.method != .import {
+        if pattern.surfaceID == -1, pattern.method != .import {
             // SERIKO の終了フレームは画像を追加しないため、前フレームを明示的に消す。
+            // -2 は他アニメーション停止用の制御フレームであり、現在の
+            // アニメーション自身のオーバーレイを消してはいけない。
             clearAnimationOverlays(animationID: animationID)
         }
         if pattern.method != .scaling {

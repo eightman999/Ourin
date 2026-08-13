@@ -144,6 +144,59 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func negativeSurfaceOneStopsItsAnimationWithoutRendering() async throws {
+        var now = Date(timeIntervalSince1970: 0)
+        let executor = SerikoExecutor(nowProvider: { now })
+        let definition = SerikoParser.AnimationDefinition(
+            id: 12,
+            interval: .never,
+            options: [],
+            patterns: [
+                SerikoPattern(index: 0, method: .overlay, surfaceID: 10, duration: 10, x: 0, y: 0, rawArguments: []),
+                SerikoPattern(index: 1, method: .overlay, surfaceID: -1, duration: 10, x: 0, y: 0, rawArguments: [])
+            ]
+        )
+        executor.register(animations: [12: definition])
+
+        var renderedSurfaceIDs: [Int] = []
+        var finishReasons: [SerikoAnimationFinishReason] = []
+        executor.onMethodInvoked = { _, _, surfaceID, _, _ in renderedSurfaceIDs.append(surfaceID) }
+        executor.onAnimationFinished = { _, reason in finishReasons.append(reason) }
+
+        #expect(executor.executeAnimation(id: 12))
+        now = now.addingTimeInterval(0.011)
+        executor.startLoop()
+
+        #expect(executor.activeAnimations[12] == nil)
+        #expect(renderedSurfaceIDs == [10])
+        #expect(finishReasons == [.stopped])
+    }
+
+    @Test
+    func negativeSurfaceTwoStopsOtherAnimationsOnly() async throws {
+        let executor = SerikoExecutor()
+        let controller = makeDefinition(id: 20, interval: .never, methods: [.overlay])
+        let other = makeDefinition(id: 21, interval: .never, methods: [.overlay])
+        executor.register(animations: [20: controller, 21: other])
+
+        var stoppedIDs: [Int] = []
+        executor.onAnimationFinished = { id, reason in
+            if reason == .stopped { stoppedIDs.append(id) }
+        }
+        #expect(executor.executeAnimation(id: 20))
+        #expect(executor.executeAnimation(id: 21))
+
+        executor.executePattern(
+            animationID: 20,
+            pattern: SerikoPattern(index: 1, method: .overlay, surfaceID: -2, duration: 0, x: 0, y: 0, rawArguments: [])
+        )
+
+        #expect(executor.activeAnimations[20] != nil)
+        #expect(executor.activeAnimations[21] == nil)
+        #expect(stoppedIDs == [21])
+    }
+
+    @Test
     func scalingInvokesMethodAndPreservesFractionalCallbackValues() async throws {
         let executor = SerikoExecutor()
         let pattern = SerikoPattern(
