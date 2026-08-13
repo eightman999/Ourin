@@ -3934,6 +3934,11 @@ void VM::registerBuiltins() {
         std::string resultValue;
         std::map<std::string, std::string> headers;
         {
+            auto normalizeHeaderName = [](std::string key) {
+                std::transform(key.begin(), key.end(), key.begin(),
+                               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+                return key;
+            };
             // Normalize CRLF parsing
             size_t lineStart = 0;
             bool firstLine = true;
@@ -3953,18 +3958,18 @@ void VM::registerBuiltins() {
                 if (colon == std::string::npos) continue;
                 std::string key = line.substr(0, colon);
                 std::string val = line.substr(colon + 1);
-                if (!val.empty() && val.front() == ' ') val.erase(0, 1);
-                headers[key] = val;
+                if (!val.empty() && (val.front() == ' ' || val.front() == '\t')) val.erase(0, 1);
+                headers[normalizeHeaderName(key)] = val;
             }
         }
 
-        auto itResult = headers.find("Result");
+        auto itResult = headers.find("result");
         if (itResult != headers.end()) {
             resultValue = itResult->second;
         }
         // Collect Value0, Value1, ... in numeric order.
         for (int i = 0; ; ++i) {
-            auto it = headers.find("Value" + std::to_string(i));
+            auto it = headers.find("value" + std::to_string(i));
             if (it == headers.end()) break;
             saoriValueex_.push_back(Value(it->second));
         }

@@ -25,7 +25,7 @@ struct SaoriLoaderTests {
         )
         let parsed = try SaoriProtocol.parseResponse(response)
         #expect(parsed.statusCode == 200)
-        #expect(parsed.headers["Result"] == "external-saori-ok")
-        #expect(parsed.headers["Value0"] == "fixture-value")
+        #expect(parsed.headerValue("Result") == "external-saori-ok")
+        #expect(parsed.headerValue("Value0") == "fixture-value")
     }
 }

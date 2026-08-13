@@ -31,7 +31,10 @@ public final class SaoriManager {
     }
 
     public func request(moduleName: String, requestText: String, charset: String = "UTF-8") throws -> String {
-        let loader = try registry.loadModule(named: moduleName)
+        // REQUESTLIB/execute may be used without a preceding LOADLIB. Use the
+        // public load path so the lifecycle/version handshake is guaranteed for
+        // every first request, including direct SAORI calls from SHIORI code.
+        let loader = try loadModule(named: moduleName)
         return try loader.send(requestText, charset: charset)
     }
 

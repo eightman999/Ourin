@@ -20,6 +20,12 @@ public struct SaoriResponse: Equatable {
     public let statusMessage: String
     public let headers: [String: String]
     public let body: String?
+
+    public func headerValue(_ name: String) -> String? {
+        if let direct = headers[name] { return direct }
+        let lowered = name.lowercased()
+        return headers.first(where: { $0.key.lowercased() == lowered })?.value
+    }
 }
 
 public enum SaoriProtocolError: Error, CustomStringConvertible {

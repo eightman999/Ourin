@@ -471,10 +471,17 @@ final class YayaAdapter: GhostShioriRuntime {
             var parsed: [String: Any] = ["ok": true, "response": response]
             if let saoriResp = try? SaoriProtocol.parseResponse(response) {
                 parsed["status"] = saoriResp.statusCode
-                if let result = saoriResp.headers["Result"] { parsed["result"] = result }
-                var values: [String] = []
-                var idx = 0
-                while let v = saoriResp.headers["Value\(idx)"] { values.append(v); idx += 1 }
+                if let result = saoriResp.headerValue("Result") { parsed["result"] = result }
+                let values = saoriResp.headers.compactMap { key, value -> (Int, String)? in
+                    let lowerKey = key.lowercased()
+                    guard lowerKey.hasPrefix("value"),
+                          let index = Int(lowerKey.dropFirst("value".count)) else {
+                        return nil
+                    }
+                    return (index, value)
+                }
+                .sorted { $0.0 < $1.0 }
+                .map(\.1)
                 if !values.isEmpty { parsed["values"] = values }
             }
             return parsed
