@@ -72,6 +72,43 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func animationOffsetIsAppliedToFollowingSurfaceCoordinates() async throws {
+        let executor = SerikoExecutor()
+        let pattern = SerikoPattern(
+            index: 0,
+            method: .overlay,
+            surfaceID: 7,
+            duration: 10,
+            x: 3,
+            y: 4,
+            rawArguments: []
+        )
+        let definition = SerikoParser.AnimationDefinition(
+            id: 7,
+            interval: .never,
+            options: [],
+            patterns: [pattern]
+        )
+        executor.register(animations: [7: definition])
+
+        var coordinates: [(Int, Int)] = []
+        executor.onMethodInvoked = { _, method, _, x, y in
+            guard method == .overlay else { return }
+            coordinates.append((x, y))
+        }
+
+        #expect(executor.executeAnimation(id: 7))
+        executor.offsetAnimation(id: 7, x: 40, y: 50)
+        executor.executePattern(animationID: 7, pattern: pattern)
+
+        #expect(coordinates.count == 2)
+        #expect(coordinates[0].0 == 3)
+        #expect(coordinates[0].1 == 4)
+        #expect(coordinates[1].0 == 43)
+        #expect(coordinates[1].1 == 54)
+    }
+
+    @Test
     func scalingInvokesMethodAndPreservesFractionalCallbackValues() async throws {
         let executor = SerikoExecutor()
         let pattern = SerikoPattern(

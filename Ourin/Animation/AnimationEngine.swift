@@ -471,6 +471,11 @@ class AnimationEngine {
         activeAnimations[id]?.offset = CGPoint(x: x, y: y)
         Log.debug("[AnimationEngine] Offset animation \(id) by (\(x), \(y))")
     }
+
+    /// Return the currently configured offset for an active animation.
+    func offset(for id: Int) -> CGPoint? {
+        activeAnimations[id]?.offset
+    }
     
     /// Stop all animations
     func stopAllAnimations() {

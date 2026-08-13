@@ -139,9 +139,16 @@ public final class SerikoExecutor {
             executeMove(animationID: animationID, pattern: pattern)
         case .scaling:
             onScalingInvoked?(animationID, pattern.xValue, pattern.yValue)
-            onMethodInvoked?(animationID, pattern.method, pattern.surfaceID, pattern.x, pattern.y)
+            emitMethod(
+                animationID: animationID,
+                method: pattern.method,
+                surfaceID: pattern.surfaceID,
+                x: pattern.x,
+                y: pattern.y,
+                includesAnimationOffset: false
+            )
         case .add, .bind, .auto:
-            onMethodInvoked?(animationID, pattern.method, pattern.surfaceID, pattern.x, pattern.y)
+            emitMethod(animationID: animationID, method: pattern.method, surfaceID: pattern.surfaceID, x: pattern.x, y: pattern.y)
         case .reduce:
             executeReduce(animationID: animationID, pattern: pattern)
         case .replace:
@@ -154,9 +161,9 @@ public final class SerikoExecutor {
             // 別アニメ列の割り込み再生は start に準じて対象アニメを起動する
             executeStart(animationID: animationID, pattern: pattern)
         case .interpolate:
-            onMethodInvoked?(animationID, .interpolate, pattern.surfaceID, pattern.x, pattern.y)
+            emitMethod(animationID: animationID, method: .interpolate, surfaceID: pattern.surfaceID, x: pattern.x, y: pattern.y)
         case .blend:
-            onMethodInvoked?(animationID, pattern.method, pattern.surfaceID, pattern.x, pattern.y)
+            emitMethod(animationID: animationID, method: pattern.method, surfaceID: pattern.surfaceID, x: pattern.x, y: pattern.y)
         case .parallelStart:
             for nestedID in pattern.referencedAnimationIDs {
                 _ = executeAnimation(id: nestedID)
@@ -175,23 +182,36 @@ public final class SerikoExecutor {
             let initialDelay = pattern.rawArguments.count > 2 ? Int(pattern.rawArguments[2]) ?? 0 : 0
             let x = pattern.rawArguments.count > 3 ? Int(pattern.rawArguments[3]) ?? 0 : 0
             let y = pattern.rawArguments.count > 4 ? Int(pattern.rawArguments[4]) ?? 0 : 0
-            onImportInvoked?(animationID, filename, initialDelay, x, y)
+            let adjustedCoordinates = coordinates(
+                animationID: animationID,
+                x: x,
+                y: y,
+                includesAnimationOffset: true
+            )
+            onImportInvoked?(animationID, filename, initialDelay, adjustedCoordinates.x, adjustedCoordinates.y)
         case .asis, .unknown:
-            onMethodInvoked?(animationID, pattern.method, pattern.surfaceID, pattern.x, pattern.y)
+            emitMethod(animationID: animationID, method: pattern.method, surfaceID: pattern.surfaceID, x: pattern.x, y: pattern.y)
         }
         onPatternExecuted?(animationID, pattern)
     }
 
     public func executeOverlay(animationID: Int, pattern: SerikoPattern) {
-        onMethodInvoked?(animationID, .overlay, pattern.surfaceID, pattern.x, pattern.y)
+        emitMethod(animationID: animationID, method: .overlay, surfaceID: pattern.surfaceID, x: pattern.x, y: pattern.y)
     }
 
     public func executeOverlayFast(animationID: Int, pattern: SerikoPattern) {
-        onMethodInvoked?(animationID, .overlayFast, pattern.surfaceID, pattern.x, pattern.y)
+        emitMethod(animationID: animationID, method: .overlayFast, surfaceID: pattern.surfaceID, x: pattern.x, y: pattern.y)
     }
 
     public func executeBase(animationID: Int, pattern: SerikoPattern) {
-        onMethodInvoked?(animationID, .base, pattern.surfaceID, pattern.x, pattern.y)
+        emitMethod(
+            animationID: animationID,
+            method: .base,
+            surfaceID: pattern.surfaceID,
+            x: pattern.x,
+            y: pattern.y,
+            includesAnimationOffset: false
+        )
     }
 
     public func executeMove(animationID: Int, pattern: SerikoPattern) {
@@ -200,31 +220,88 @@ public final class SerikoExecutor {
             state.offsetY += pattern.y
             activeAnimations[animationID] = state
         }
-        onMethodInvoked?(animationID, .move, pattern.surfaceID, pattern.x, pattern.y)
+        emitMethod(
+            animationID: animationID,
+            method: .move,
+            surfaceID: pattern.surfaceID,
+            x: pattern.x,
+            y: pattern.y,
+            includesAnimationOffset: false
+        )
     }
 
     public func executeReduce(animationID: Int, pattern: SerikoPattern) {
-        onMethodInvoked?(animationID, .reduce, pattern.surfaceID, pattern.x, pattern.y)
+        emitMethod(animationID: animationID, method: .reduce, surfaceID: pattern.surfaceID, x: pattern.x, y: pattern.y)
     }
 
     public func executeReplace(animationID: Int, pattern: SerikoPattern) {
-        onMethodInvoked?(animationID, .replace, pattern.surfaceID, pattern.x, pattern.y)
+        emitMethod(animationID: animationID, method: .replace, surfaceID: pattern.surfaceID, x: pattern.x, y: pattern.y)
     }
 
     public func executeStart(animationID: Int, pattern: SerikoPattern) {
-        onMethodInvoked?(animationID, .start, pattern.surfaceID, pattern.x, pattern.y)
+        emitMethod(
+            animationID: animationID,
+            method: .start,
+            surfaceID: pattern.surfaceID,
+            x: pattern.x,
+            y: pattern.y,
+            includesAnimationOffset: false
+        )
     }
 
     public func executeAlternativeStart(animationID: Int, pattern: SerikoPattern) {
         let selected = selectReferencedAnimationID(for: pattern)
         guard selected >= 0 else { return }
-        onMethodInvoked?(animationID, .alternativeStart, selected, pattern.x, pattern.y)
+        emitMethod(
+            animationID: animationID,
+            method: .alternativeStart,
+            surfaceID: selected,
+            x: pattern.x,
+            y: pattern.y,
+            includesAnimationOffset: false
+        )
     }
 
     public func executeAlternativeStop(animationID: Int, pattern: SerikoPattern) {
         let selected = selectReferencedAnimationID(for: pattern)
         guard selected >= 0 else { return }
-        onMethodInvoked?(animationID, .alternativeStop, selected, pattern.x, pattern.y)
+        emitMethod(
+            animationID: animationID,
+            method: .alternativeStop,
+            surfaceID: selected,
+            x: pattern.x,
+            y: pattern.y,
+            includesAnimationOffset: false
+        )
+    }
+
+    private func emitMethod(
+        animationID: Int,
+        method: SerikoMethod,
+        surfaceID: Int,
+        x: Int,
+        y: Int,
+        includesAnimationOffset: Bool = true
+    ) {
+        let adjusted = coordinates(
+            animationID: animationID,
+            x: x,
+            y: y,
+            includesAnimationOffset: includesAnimationOffset
+        )
+        onMethodInvoked?(animationID, method, surfaceID, adjusted.x, adjusted.y)
+    }
+
+    private func coordinates(
+        animationID: Int,
+        x: Int,
+        y: Int,
+        includesAnimationOffset: Bool
+    ) -> (x: Int, y: Int) {
+        guard includesAnimationOffset, let state = activeAnimations[animationID] else {
+            return (x, y)
+        }
+        return (x + state.offsetX, y + state.offsetY)
     }
 
     private func selectReferencedAnimationID(for pattern: SerikoPattern) -> Int {

@@ -543,7 +543,18 @@ extension GhostManager {
 
     /// Handle \![anim,offset,ID,x,y] command
     func handleAnimOffset(id: Int, x: Int, y: Int) {
+        let previousOffset: CGPoint
+        if let state = serikoExecutor.activeAnimations[id] {
+            previousOffset = CGPoint(x: state.offsetX, y: state.offsetY)
+        } else {
+            previousOffset = animationEngine.offset(for: id) ?? .zero
+        }
         serikoExecutor.offsetAnimation(id: id, x: x, y: y)
+        animationEngine.offsetAnimation(id: id, x: Double(x), y: Double(y))
+        let delta = CGPoint(
+            x: CGFloat(x) - previousOffset.x,
+            y: CGFloat(y) - previousOffset.y
+        )
         let scope = currentScope
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -552,7 +563,8 @@ extension GhostManager {
             let indices = vm.overlays.indices.filter { vm.overlays[$0].animationID == id }
             if !indices.isEmpty {
                 for index in indices {
-                    vm.overlays[index].offset = CGPoint(x: CGFloat(x), y: CGFloat(y))
+                    vm.overlays[index].offset.x += delta.x
+                    vm.overlays[index].offset.y += delta.y
                 }
                 Log.debug("[GhostManager] Set offset for animation \(id) to (\(x), \(y))")
             }
