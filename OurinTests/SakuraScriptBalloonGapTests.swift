@@ -657,6 +657,38 @@ struct BalloonClearTruncationTests {
     }
 }
 
+// MARK: - \C 追記モード
+
+struct SakuraScriptAppendModeTests {
+    @MainActor
+    @Test func leadingAppendModePreservesPreviousBalloonAndReturnsToScopeZero() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-append-mode-test"))
+        defer { _ = manager.shutdown() }
+        let vm = manager.getBalloonVM(for: 0)
+        vm.text = "previous"
+        manager.currentScope = 1
+
+        manager.runTranslatedScript("\\Cnext")
+        #expect(vm.text == "previous")
+        #expect(manager.currentScope == 0)
+
+        try await Task.sleep(nanoseconds: 400_000_000)
+        #expect(vm.text == "previousnext")
+    }
+
+    @MainActor
+    @Test func normalScriptStillClearsPreviousBalloon() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-normal-script-clear-test"))
+        defer { _ = manager.shutdown() }
+        let vm = manager.getBalloonVM(for: 0)
+        vm.text = "previous"
+
+        manager.runTranslatedScript("next")
+
+        #expect(vm.text.isEmpty)
+    }
+}
+
 // MARK: - アンカー装飾（anchorstyle / anchorvisitedstyle / anchornotselectstyle）の状態と描画解決
 
 struct BalloonAnchorDecorationTests {

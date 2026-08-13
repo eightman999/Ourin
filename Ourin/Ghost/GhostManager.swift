@@ -1904,6 +1904,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         recordBacklog(from: trimmed)
         beginPluginTalkNotification(script: trimmed, reasons: ["owned"])
 
+        // `\C` は本文の再生前に判定しないと、通常のスクリプト開始処理で
+        // 直前のバルーンを消してしまう。仕様上は先頭指定でスコープ0へ追記する。
+        let startsInAppendMode: Bool = {
+            guard let first = sakuraEngine.parse(script: trimmed, expandEnvironment: false).first else { return false }
+            if case .appendMode = first { return true }
+            return false
+        }()
+
         // Reset playback state and balloon text for new script
         playbackGeneration &+= 1
         playbackQueue.removeAll()
@@ -1915,8 +1923,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         timeCriticalActive = false
         choiceTimeoutDisabled = false
         pendingAnchorOpen = nil
-        for vm in balloonViewModels.values {
-            vm.resetBalloonContent()
+        if startsInAppendMode {
+            appendModeEnabled = true
+            currentScope = 0
+        } else {
+            for vm in balloonViewModels.values {
+                vm.resetBalloonContent()
+            }
         }
         resetScriptScopedBalloonSettings()
         let previousPluginOrigin = currentScriptIsPluginOrigin
@@ -4031,6 +4044,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     private func resetScriptScopedBalloonSettings() {
         typingInterval = defaultTypingInterval
         serikoTalkEnabledForScript = nil
+        appendModeEnabled = false
         for vm in balloonViewModels.values {
             vm.balloonTimeout = BalloonViewModel.defaultBalloonTimeout
             vm.balloonWaitEnabled = true
