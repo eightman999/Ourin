@@ -96,11 +96,13 @@ Status marks:
 - ✅ `\![get,property,key]`
 - ✅ `\![set,property,key,value]`
 
-## Related commands with known partial behavior
+## Window and visual-effect commands
 
-- ⚠️ `\![move,...]` (x/y/time/method/scope works; `--base`, `--base-offset`, `--move-offset`, and `--wait` supported; some edge-cases remain)
-- ⚠️ `\![moveasync,...]` (async move with cancel supported; some advanced options remain incomplete)
-- ⚠️ `\![set,scaling,...]` (core scaling implemented; some extended flags are incomplete)
-- ⚠️ `\![set,alpha,...]` (basic alpha set implemented; timed/wait variants are incomplete)
-- ⚠️ `\![set,zorder,...]` (core ordering implemented; complex combinations are incomplete)
-- ⚠️ `\![set,sticky-window,...]` (basic grouping implemented; complex group handling is incomplete)
+- ✅ `\![move,...]` (named and legacy positional syntax, `fix` per-axis retention, anchors, duration, method, scope, and `--wait`)
+- ✅ `\![moveasync,...]` (queued and running animations can be canceled with `\![moveasync,cancel]`; `fix` is supported in legacy syntax)
+- ✅ `\![set,scaling,...]` (uniform/non-uniform scaling, duration, named options, and `--wait`)
+- ✅ `\![set,alpha,...]` (0–100 value, negative redraw-only behavior, duration, named options, and `--wait`)
+- ⚠️ `\![set,zorder,...]` (scope ordering and reset are implemented; complex multi-window UI combinations still need real-shell verification)
+- ⚠️ `\![set,sticky-window,...]` (grouping, relative offsets, drag following, and reset are implemented; complex multi-window UI combinations still need real-shell verification)
+
+The runtime behavior above is covered by unit/regression tests. Visual equivalence against a real shell remains an integration verification item; see `docs/AUDITS_TODO.md`.

@@ -361,6 +361,8 @@ Format: `\![move,--X=x,--Y=y,--time=ms,--base=ref,--base-offset=pos,--move-offse
 - `--move-offset=pos`: Character anchor to align
 - `--option=opt`: Options (ignore-sticky-window)
 
+The legacy positional form (`x,y,time,method,scope`) is also accepted. Set either axis to `fix` to retain its current coordinate. `moveasync` can be canceled both before dispatch and while the animation is running with `\![moveasync,cancel]`. `--wait` queues a wait for a timed move to finish.
+
 **Example:**
 ```
 \![move,--X=80,--Y=-400,--time=2500,--base=screen,--base-offset=left.bottom,--move-offset=left.top]
@@ -422,6 +424,8 @@ Format: `\![move,--X=x,--Y=y,--time=ms,--base=ref,--base-offset=pos,--move-offse
 - 100 = user's configured scale (100%)
 - Negative values flip the axis (-100 = flipped)
 - Persists until ghost terminates
+- `time` or `--time` interpolates the actual value frame by frame
+- `--wait=true` queues a wait until interpolation completes
 
 ### Transparency
 
@@ -433,6 +437,9 @@ Format: `\![move,--X=x,--Y=y,--time=ms,--base=ref,--base-offset=pos,--move-offse
 - 0 = fully transparent (invisible)
 - 100 = fully opaque
 - Persists until ghost terminates
+- `time` or `--time` interpolates the alpha value
+- `--wait=true` queues a wait until interpolation completes
+- Negative values leave alpha unchanged and request a redraw only
 
 ### Effects & Filters
 
@@ -540,7 +547,7 @@ The old “parsed only / placeholder” list in this section no longer matches t
 - ✅ `\f[cursor*]` is applied to the actual choice-dialog buttons.
 - ✅ A local mouse monitor tracks the actual modal choice button, emitting `OnChoiceEnter` on enter/exit and `OnChoiceHover` after 500 ms of stillness.
 - ✅ `updateother` resolves installed balloon/shell/plugin/headline/language targets by descriptor name/id and applies updates to each target's own root. `testonly` downloads and verifies MD5 without changing existing files. Real-network and installed-ghost UI/update verification remains pending.
-- ⚠️ Animated scaling with a duration and platform-specific window behavior require real UI verification beyond the unit suite.
+- ⚠️ Timed move/scaling/alpha interpolation, `moveasync` rendering in a real window, and platform-specific window behavior require real UI verification beyond the unit suite.
 
 ## Testing
 

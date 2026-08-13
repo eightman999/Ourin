@@ -363,6 +363,8 @@ H\f[sub,1]2\f[sub,0]O + O\f[sub,1]2\f[sub,0] → H\f[sub,1]2\f[sub,0]O\f[sub,1]2
 - `--move-offset=pos`: 揃えるキャラクターのアンカー
 - `--option=opt`: オプション（ignore-sticky-window）
 
+旧式の位置指定（`x,y,time,method,scope`）も受け付け、`x` または `y` に `fix` を指定した軸は現在位置を維持します。`moveasync` はキュー投入前と移動中のどちらも `\![moveasync,cancel]` で停止できます。`--wait` は時間付き移動の完了待ちを再生キューへ追加します。
+
 **例:**
 ```
 \![move,--X=80,--Y=-400,--time=2500,--base=screen,--base-offset=left.bottom,--move-offset=left.top]
@@ -424,6 +426,8 @@ H\f[sub,1]2\f[sub,0]O + O\f[sub,1]2\f[sub,0] → H\f[sub,1]2\f[sub,0]O\f[sub,1]2
 - 100 = ユーザーが設定したスケール（100%）
 - 負の値は軸を反転（-100 = 反転）
 - ゴーストが終了するまで持続します
+- `time` または `--time` を指定すると実値をフレーム単位で補間します
+- `--wait=true` を指定すると補間完了まで再生キューが待機します
 
 ### 透明度
 
@@ -435,6 +439,9 @@ H\f[sub,1]2\f[sub,0]O + O\f[sub,1]2\f[sub,0] → H\f[sub,1]2\f[sub,0]O\f[sub,1]2
 - 0 = 完全に透明（不可視）
 - 100 = 完全に不透明
 - ゴーストが終了するまで持続します
+- `time` または `--time` を指定すると透明度を補間します
+- `--wait=true` を指定すると補間完了まで再生キューが待機します
+- 負値は透明度を変更せず、再描画だけを要求します
 
 ### エフェクト＆フィルタ
 
@@ -542,7 +549,7 @@ H\f[sub,1]2\f[sub,0]O + O\f[sub,1]2\f[sub,0] → H\f[sub,1]2\f[sub,0]O\f[sub,1]2
 - ✅ `\f[cursor*]` は選択ダイアログの実ボタン装飾へ反映する。
 - ✅ 選択肢の hover はモーダル中の実ボタン位置を監視し、入退場で `OnChoiceEnter`、500ms 静止で `OnChoiceHover` を発火する。
 - ✅ `updateother` の balloon／shell／plugin／headline／language 対象は、インストール済み対象を descriptor の name／id で解決し、それぞれのルートへ更新を適用する。`testonly` はダウンロードとMD5検証のみを行い、既存ファイルを変更しない。実ネットワークと実ゴーストでの表示・更新確認は未実施。
-- ⚠️ `\![set,scaling,x,y,time]` の時間補間と、プラットフォーム固有のウィンドウ挙動は自動テストだけでは実機確認できない。
+- ⚠️ 時間付き移動・スケーリング・透明度の補間、`moveasync` の実ウィンドウ描画、およびプラットフォーム固有のウィンドウ挙動は自動テストだけでは実機確認できない。
 
 ## テスト
 
