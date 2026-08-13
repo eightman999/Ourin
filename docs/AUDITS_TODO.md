@@ -29,7 +29,7 @@
 
 | 優先度 | 項目 | 現状・修正案 |
 |---|---|---|
-| P2 | UKADOC SakuraScript 全コマンドとの機械的差分テスト | `SakuraScriptDocumentationCoverageTests` が対応表のインライン例（80件以上）を自動抽出し、パーサーの制御トークン到達を検証済み。UKADOC全コマンドの実行結果差分・完全性は未検証。 |
+| P2 | UKADOC SakuraScript 全コマンドとの機械的差分テスト | `SakuraScriptDocumentationCoverageTests` が対応表のインライン例（80件以上）に加え、`SAKURASCRIPT_FULL_1.0M_PATCHED_ja-jp.md` の一意な `\\![...]` タグ326件を自動抽出し、全タグのパースと `GhostManager` 第一引数ディスパッチとの差分（2026-08-14追加）を検証済み。UKADOC全コマンドの実行結果差分・実ゴースト画面差分は未検証。 |
 | — | （`\![cancel,http,...]` は完了 2026-07-09） | `GhostManager.swift:245`に`httpStreamingTasks`を新設し`executeHTTPStreaming`（`GhostManager+System.swift`）がURLキーでタスク追跡。`cancelHTTPStreaming(params:)`を追加し`\![cancel,http,URL]`分岐（`GhostManager.swift`の`cancel`ハンドラ）から配線。キャンセル時は`NSURLErrorCancelled`を検知して`OnExecuteHTTPFailure`を送らず静かに中断。テスト`HTTPStreamingCancelTests.swift`追加。 |
 | — | （`\__q` 範囲ベース表示テキスト結合は完了 → `AUDITS_COMPLETED.md` 参照） | パーサで `\__q[ID,...]text\__q` を `.choiceQueue(title:id:references:)` にマージ。単一形式・範囲形式・script: 形式に対応。 |
 | P2 | SERIKO 描画メソッド・レンダリング完全一致が未検証 | SERIKO の `surfaceID=-1/-2` 制御フレーム（自身／他アニメーション停止）、SSPのウェイト範囲（`最小-最大`）、`animation*.option,shared-index`（サーフェス切替時のpattern継続）は `SerikoExecutor` に実装し、回帰テストで確認済み。`collisionex` の rectangle/ellipse/circle/polygon/region の形状保持・当たり判定、および `animation*.collision*` の実行中限定を2026-08-14に実装・単体検証済み。残るのは `Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift` の実シェル描画差分テスト。 |
@@ -122,7 +122,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 
 | Priority | Item | Current State / Fix |
 |---|---|---|
-| P2 | No machine-generated diff test vs. full UKADOC SakuraScript list | Parser/execution are broad, but fine compatibility unverified. |
+| P2 | No machine-generated diff test vs. full UKADOC SakuraScript list | `SakuraScriptDocumentationCoverageTests` now extracts 326 unique `\\![...]` tags from `SAKURASCRIPT_FULL_1.0M_PATCHED_ja-jp.md`, verifies that every tag parses, and compares its first argument with `GhostManager` dispatch (added 2026-08-14). Full runtime-result and real-ghost rendering diffs remain unverified. |
 | — | (`moveasync` cancellation, legacy `fix` axes, timed `scaling`/`alpha` reconciled 2026-08-14) | `GhostManager+Window.swift` now stops both queued and active async move animations, preserves a `fix` axis, and implements timed/wait visual effects. Regression coverage is in `GhostUtilityCommandTests.swift`; real-shell rendering and a full machine-generated UKADOC diff remain pending. |
 | — | (`\![cancel,http,...]` completed 2026-07-09) | Added `httpStreamingTasks` (`GhostManager.swift:245`), tracked by URL key in `executeHTTPStreaming` (`GhostManager+System.swift`). New `cancelHTTPStreaming(params:)` wired from the `\![cancel,http,URL]` branch of the `cancel` command handler in `GhostManager.swift`. Detects `NSURLErrorCancelled` on cancellation to suppress the `OnExecuteHTTPFailure` notification for intentional aborts. Test `HTTPStreamingCancelTests.swift` added. |
 | — | (`\__q` range-based display-text binding completed → see `AUDITS_COMPLETED.md`) | Parser merges `\__q[ID,...]text\__q` into a single `.choiceQueue(title:id:references:)` token. Supports single-form, range-form, and `script:` form. |
