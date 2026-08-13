@@ -268,28 +268,30 @@ extension GhostManager {
             Log.info("[GhostManager] Cannot switch balloon: no viewmodel for scope \(scope)")
             return
         }
-        
+
+        let apply = { [weak self] in
+            guard let self else { return }
+            vm.currentBalloonID = balloonID
+            if let balloonVM = self.balloonViewModels[scope] {
+                balloonVM.balloonID = balloonID
+            }
+            Log.info("[GhostManager] Switched to balloon ID \(balloonID) for scope \(scope)")
+        }
+
         // Hide balloon if ID is -1
         if balloonID == -1 {
-            DispatchQueue.main.async {
+            let hide = { [weak self] in
+                guard let self else { return }
                 if let balloonWindow = self.balloonWindows[scope] {
                     balloonWindow.orderOut(nil)
                     Log.info("[GhostManager] Hiding balloon for scope \(scope)")
                 }
             }
+            if Thread.isMainThread { hide() } else { DispatchQueue.main.async(execute: hide) }
             return
         }
-        
-        DispatchQueue.main.async {
-            vm.currentBalloonID = balloonID
-            
-            // Also update the BalloonViewModel's balloonID
-            if let balloonVM = self.balloonViewModels[scope] {
-                balloonVM.balloonID = balloonID
-            }
-            
-            Log.info("[GhostManager] Switched to balloon ID \(balloonID) for scope \(scope)")
-        }
+
+        if Thread.isMainThread { apply() } else { DispatchQueue.main.async(execute: apply) }
     }
 
     /// 指定順で存在するバルーン画像を選び、最初の候補へ切り替える。

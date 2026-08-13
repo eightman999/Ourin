@@ -2103,12 +2103,18 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case .balloon(let id):
             // \bN or \b[ID] - change balloon ID
             Log.debug("[GhostManager] Switching to balloon ID: \(id)")
-            switchBalloon(to: id, scope: currentScope)
+            playbackQueue.append(.deferredCommand { [weak self] in
+                guard let self else { return }
+                self.switchBalloon(to: id, scope: self.currentScope)
+            })
         case .balloonWithFallback(let primary, let fallbacks):
             // \b[ID1,--fallback=ID2,...] - use the first installed balloon surface.
             let candidates = [primary] + fallbacks
             Log.debug("[GhostManager] Switching to balloon ID with fallbacks: \(candidates)")
-            switchBalloon(to: candidates, scope: currentScope)
+            playbackQueue.append(.deferredCommand { [weak self] in
+                guard let self else { return }
+                self.switchBalloon(to: candidates, scope: self.currentScope)
+            })
             
         case .appendMode:
             // \C - append to previous balloon

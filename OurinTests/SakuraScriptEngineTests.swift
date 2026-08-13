@@ -599,9 +599,9 @@ struct SakuraScriptEngineTests {
         manager.balloonImageLoader = BalloonImageLoader(balloonPath: balloonRoot.path)
 
         manager.sakuraEngine.run(script: "\\b[999,--fallback=0]")
-        // Playback dispatches the token processing onto the main queue. A single
-        // scheduler yield does not guarantee that DispatchQueue.main.async has run.
-        try await Task.sleep(nanoseconds: 100_000_000)
+        // `sakuraEngine.run` はトークンを再生キューへ登録するだけなので、
+        // 実際のバルーン切替まで再生キューを進める。
+        manager.processNextUnit()
 
         #expect(manager.characterViewModels[0]?.currentBalloonID == 0)
     }

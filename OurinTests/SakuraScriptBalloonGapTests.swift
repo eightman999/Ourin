@@ -689,6 +689,34 @@ struct SakuraScriptAppendModeTests {
     }
 }
 
+// MARK: - \b 再生順序
+
+struct SakuraScriptBalloonSwitchOrderTests {
+    @MainActor
+    @Test func balloonSwitchWaitsForPreviousTextAndUsesPlaybackScope() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-balloon-switch-order-test"))
+        defer { _ = manager.shutdown() }
+        manager.setupWindows()
+        let vm = manager.getBalloonVM(for: manager.currentScope)
+        guard let characterVM = manager.characterViewModels[manager.currentScope] else {
+            Issue.record("character view model was not created")
+            return
+        }
+        let originalID = characterVM.currentBalloonID
+
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .text("before"))
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .balloon(2))
+
+        #expect(characterVM.currentBalloonID == originalID)
+        manager.processNextUnit()
+        try await Task.sleep(nanoseconds: 700_000_000)
+
+        #expect(vm.text == "before")
+        #expect(characterVM.currentBalloonID == 2)
+        #expect(vm.balloonID == 2)
+    }
+}
+
 // MARK: - アンカー装飾（anchorstyle / anchorvisitedstyle / anchornotselectstyle）の状態と描画解決
 
 struct BalloonAnchorDecorationTests {
