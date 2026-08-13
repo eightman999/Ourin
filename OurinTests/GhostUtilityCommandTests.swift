@@ -538,13 +538,67 @@ struct GhostUtilityCommandTests {
         }
 
         let timeout = runtime.requests.first { $0.id == EventID.OnBalloonTimeout.rawValue }
-        #expect(timeout?.method == "NOTIFY")
+        #expect(timeout?.method == "GET")
         #expect(timeout?.refs == ["timed out", "0"])
 
         let close = runtime.requests.first { $0.id == EventID.OnBalloonClose.rawValue }
-        #expect(close?.method == "NOTIFY")
-        #expect(close?.refs == ["timed out"])
+        #expect(close == nil)
         #expect(balloon.text.isEmpty)
+    }
+
+    @Test @MainActor
+    func balloonClickClosesWaitingBalloonWithGetOnly() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-balloon-close-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.pendingClick = false
+        let balloon = manager.getBalloonVM(for: 0)
+        balloon.text = "waiting"
+        manager.onBalloonClicked(fromScope: 0)
+
+        let close = runtime.requests.first { $0.id == EventID.OnBalloonClose.rawValue }
+        #expect(close?.method == "GET")
+        #expect(close?.refs == ["waiting"])
+        #expect(runtime.requests.filter { $0.id.hasPrefix("OnBalloon") }.count == 1)
+        #expect(balloon.text.isEmpty)
+    }
+
+    @Test @MainActor
+    func balloonClickBreaksPlayingBalloonAndDeliversResponse() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-balloon-break-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnBalloonBreak.rawValue] = #"\0ok\e"#
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            _ = manager.shutdown()
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.isPlaying = true
+        let balloon = manager.getBalloonVM(for: 0)
+        balloon.text = "speaking"
+        manager.onBalloonClicked(fromScope: 0)
+
+        let breakEvent = runtime.requests.first { $0.id == EventID.OnBalloonBreak.rawValue }
+        #expect(breakEvent?.method == "GET")
+        #expect(breakEvent?.refs == ["speaking", "0", "8"])
+        #expect(runtime.requests.filter { $0.id.hasPrefix("OnBalloon") }.count == 1)
+
+        for _ in 0..<100 where balloon.text != "ok" || manager.isPlaying {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(balloon.text == "ok")
+        #expect(!manager.isPlaying)
     }
 
     @Test @MainActor

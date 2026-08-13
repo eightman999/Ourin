@@ -185,30 +185,52 @@ extension GhostManager {
     }
 
     func onBalloonClicked(fromScope: Int) {
+        guard !noUserBreakModeActive else {
+            Log.debug("[GhostManager] Balloon click ignored: nouserbreakmode active")
+            return
+        }
+
         if let noclear = pendingClick {
-            if noUserBreakModeActive {
-                Log.debug("[GhostManager] Balloon click ignored: nouserbreakmode active")
-                return
-            }
             pendingClick = nil
             if !noclear {
-                // UKADOC: OnBalloonBreak R0=中断時に表示中のスクリプト, R1=スコープ(本体0/相方1), R2=中断位置(文字数)
-                //         OnBalloonClose R0=閉じる際に表示されていたスクリプト
-                // 元の SakuraScript は保持していないため、表示中テキストを最良近似として用いる。
+                // 通常の \x 待機は再生の正常終了。OnBalloonClose のみをGET配送する。
                 let vm = getBalloonVM(for: fromScope)
                 let displayedScript = vm.text
+                cancelBalloonTimeout(for: fromScope)
                 vm.resetBalloonContent()
-                EventBridge.shared.notify(.OnBalloonBreak, refs: [
-                    "displayedScript": displayedScript,
-                    "scope": String(fromScope),
-                    "breakPosition": String(displayedScript.count)
-                ])
-                EventBridge.shared.notify(.OnBalloonClose, refs: ["displayedScript": displayedScript])
+                _ = EventBridge.shared.request(
+                    .OnBalloonClose,
+                    refs: ["displayedScript": displayedScript],
+                    to: self
+                )
             }
             processNextUnit()
             return
         }
-        // アンカー範囲外のバルーンクリックは無視する（アンカーは onBalloonAnchorClicked で処理）。
+
+        // 再生中のクリックはユーザー中断。このケースでも「\x待機」と同じく
+        // 現在の表示を閉じて、OnBalloonBreak の応答スクリプトを再生できるようにする。
+        guard isPlaying else { return }
+        let vm = getBalloonVM(for: fromScope)
+        let displayedScript = vm.text
+        cancelBalloonTimeout(for: fromScope)
+        cancelPlaybackForBalloonBreak()
+        pendingChoices.removeAll()
+        choiceHasCancelOption = false
+        choiceTimeout = nil
+        choiceTimeoutDisabled = false
+        timeCriticalActive = false
+        pendingClick = nil
+        vm.resetBalloonContent()
+        _ = EventBridge.shared.request(
+            .OnBalloonBreak,
+            refs: [
+                "displayedScript": displayedScript,
+                "scope": String(fromScope),
+                "breakPosition": String(displayedScript.count)
+            ],
+            to: self
+        )
     }
 
     /// `\_a` 範囲アンカーがクリックされたときの処理。
@@ -311,10 +333,7 @@ extension GhostManager {
 
     private func scheduleBalloonTimeout(for scope: Int) {
         let key = "balloon-timeout-\(scope)"
-        if let timer = localEventTimers[key] {
-            timer.invalidate()
-            localEventTimers.removeValue(forKey: key)
-        }
+        cancelBalloonTimeout(for: scope)
         guard let vm = balloonViewModels[scope], vm.balloonTimeout > 0 else { return }
         let timer = Timer.scheduledTimer(withTimeInterval: vm.balloonTimeout, repeats: false) { [weak self] _ in
             guard let self else { return }
@@ -323,15 +342,25 @@ extension GhostManager {
             balloonVM.resetBalloonContent()
             // UKADOC: OnBalloonTimeout R0=タイムアウト時に表示されていたスクリプト、R1=残り時間。
             // タイマーの発火時点では残り時間は 0 とする。
-            EventBridge.shared.notify(.OnBalloonTimeout, refs: [
-                "displayedScript": displayedScript,
-                "remainingTime": "0"
-            ])
-            // UKADOC: OnBalloonClose R0=閉じる際に表示されていたスクリプト（表示中テキストで近似）
-            EventBridge.shared.notify(.OnBalloonClose, refs: ["displayedScript": displayedScript])
+            // OnBalloonTimeout はタイムアウトの応答だけを返すGETイベント。
+            // タイムアウトはユーザーの「閉じる」操作ではないため、OnBalloonClose は発火しない。
+            _ = EventBridge.shared.request(
+                .OnBalloonTimeout,
+                refs: [
+                    "displayedScript": displayedScript,
+                    "remainingTime": "0"
+                ],
+                to: self
+            )
             self.localEventTimers.removeValue(forKey: key)
         }
         localEventTimers[key] = timer
+    }
+
+    private func cancelBalloonTimeout(for scope: Int) {
+        let key = "balloon-timeout-\(scope)"
+        localEventTimers[key]?.invalidate()
+        localEventTimers.removeValue(forKey: key)
     }
     // MARK: - Balloon Positioning
 

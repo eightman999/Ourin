@@ -4738,6 +4738,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
 
+    /// バルーンのユーザー中断で、古い非同期再生コールバックも無効化する。
+    func cancelPlaybackForBalloonBreak() {
+        playbackGeneration &+= 1
+        playbackQueue.removeAll()
+        isPlaying = false
+        resetVoiceSynthesisState()
+    }
+
     private func startPlaybackIfNeeded() {
         if !isPlaying {
             isPlaying = true
