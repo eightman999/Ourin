@@ -515,8 +515,9 @@ final class EventBridge {
     }
 
     /// ゴースト毎に異なるスクリプトを再生する（SSTP の IfGhost 振り分け用）。
-    /// resolve はセッションのゴースト名（descript.txt の name、不明時 nil）を受け取り
-    /// 再生するスクリプトを返す。nil または空を返したセッションでは再生しない。
+    /// resolve は対象セッションの GhostManager を受け取り、再生するスクリプトを返す。
+    /// nil または空を返したセッションでは再生しない。GhostManager を渡すことで、
+    /// descript.txt の name だけでなく sakura.name / kero.name も判定に利用できる。
     /// - Parameter notify: true の場合は `runScript` ではなく `runNotifyScript` を使う。
     ///   NOTIFY 由来のスクリプト（ValueNotify）は可視テキストを含まないとき現バルーンを保持する。
     @discardableResult
@@ -524,17 +525,19 @@ final class EventBridge {
         ghostName: String? = nil,
         notify: Bool = false,
         translationContext: ScriptTranslationContext = .baseware,
-        resolve: @escaping (String?) -> String?
+        resolve: @escaping (GhostManager) -> String?
     ) -> Bool {
         var targets = sessions.values.compactMap { $0.ghostManager }
         if let name = ghostName?.lowercased(), !name.isEmpty {
             targets = targets.filter {
-                ($0.ghostConfig?.name.lowercased() == name) || ($0.ghostURL.lastPathComponent.lowercased() == name)
+                ($0.ghostConfig?.name.lowercased() == name)
+                    || ($0.ghostConfig?.sakuraName.lowercased() == name)
+                    || ($0.ghostURL.lastPathComponent.lowercased() == name)
             }
         }
         var jobs: [(GhostManager, String)] = []
         for gm in targets {
-            let resolved = resolve(gm.ghostConfig?.name)?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let resolved = resolve(gm)?.trimmingCharacters(in: .whitespacesAndNewlines)
             if let script = resolved, !script.isEmpty {
                 jobs.append((gm, script))
             }
@@ -558,7 +561,7 @@ final class EventBridge {
         ghostName: String? = nil,
         notify: Bool = false,
         translationContext: ScriptTranslationContext = .baseware,
-        resolve: @escaping (String?) -> String?
+        resolve: @escaping (GhostManager) -> String?
     ) -> String? {
         let prepareAndPlay: () -> String? = {
             var targets = self.sessions.values.compactMap { $0.ghostManager }
@@ -580,7 +583,7 @@ final class EventBridge {
 
             var jobs: [(GhostManager, String)] = []
             for gm in targets {
-                guard let source = resolve(gm.ghostConfig?.name)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                guard let source = resolve(gm)?.trimmingCharacters(in: .whitespacesAndNewlines),
                       !source.isEmpty else { continue }
                 let translated = gm.translateForDisplay(source, context: translationContext)
                     .trimmingCharacters(in: .whitespacesAndNewlines)

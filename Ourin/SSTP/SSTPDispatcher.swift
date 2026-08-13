@@ -247,8 +247,10 @@ public enum SSTPDispatcher {
         // Event 無しの SEND は SHIORI を介さず Script ヘッダを直接バルーン再生する（SSTP の基本動作）。
         // IfGhost がある場合は UKADOC の振り分けルールに従う。
         if method == .send, (request.headerValue("Event") ?? "").isEmpty {
+            let identity = currentGhostIdentity(routingRegistry: routingRegistry)
             let script = resolveScript(
-                forGhost: request.receiverGhostName ?? currentGhostName(routingRegistry: routingRegistry),
+                forGhost: request.receiverGhostName ?? identity.sakura,
+                keroName: identity.kero,
                 request: request,
                 shioriScript: nil
             )
@@ -343,8 +345,10 @@ public enum SSTPDispatcher {
         // nodescript はバルーン再生のみ抑止する。応答の Script ヘッダや
         // イベント処理（SHIORI送出）には影響しない（UKADOC spec_sstp）
         let suppressBalloon = options.contains(.nodescript) || scriptOptionTokens.contains("nodescript")
+        let identity = currentGhostIdentity(routingRegistry: routingRegistry)
         let finalScript = resolveScript(
-            forGhost: request.receiverGhostName ?? currentGhostName(routingRegistry: routingRegistry),
+            forGhost: request.receiverGhostName ?? identity.sakura,
+            keroName: identity.kero,
             request: request,
             shioriScript: scriptForSstp
         )
@@ -977,6 +981,7 @@ public enum SSTPDispatcher {
     /// IfGhost 一致 > SHIORI 応答スクリプト > デフォルトスクリプト（Script ヘッダ）の順で採用する。
     private static func resolveScript(
         forGhost ghostName: String?,
+        keroName: String? = nil,
         request: SSTPRequest,
         shioriScript: String?
     ) -> String? {
@@ -984,7 +989,7 @@ public enum SSTPDispatcher {
         let shiori = (shioriScript?.isEmpty == false) ? shioriScript : nil
         let defaultScript = bindings.first { binding in
             guard let ifGhost = binding.ifGhost else { return true }
-            return defaultGhostAliases.contains(sakuraName(of: ifGhost))
+            return defaultGhostAliases.contains(sakuraName(of: ifGhost).lowercased())
         }?.script
         guard bindings.contains(where: { $0.ifGhost != nil }) else {
             // IfGhost 無し: SHIORI 応答を優先し、無ければ Script ヘッダを保険として使う
@@ -994,7 +999,7 @@ public enum SSTPDispatcher {
            !target.isEmpty,
            let matched = bindings.first(where: { binding in
                guard let ifGhost = binding.ifGhost else { return false }
-               return sakuraName(of: ifGhost).caseInsensitiveCompare(target) == .orderedSame
+               return ifGhostMatches(ifGhost, sakuraName: target, keroName: keroName)
            }),
            !matched.script.isEmpty {
             return matched.script
@@ -1002,13 +1007,38 @@ public enum SSTPDispatcher {
         return shiori ?? defaultScript
     }
 
-    /// IfGhost ヘッダ「\0側名,\1側名」書式から \0 側名を取り出す
+    /// IfGhost の名前が対象ゴーストのキャラクター名と一致するか判定する。
+    /// UKADOC: `\0側名,\1側名` のペア指定では両方の名前が一致する必要がある。
+    private static func ifGhostMatches(_ ifGhost: String, sakuraName: String, keroName: String?) -> Bool {
+        let names = ifGhost.split(separator: ",", omittingEmptySubsequences: false)
+            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+        guard let expectedSakura = names.first,
+              expectedSakura.caseInsensitiveCompare(sakuraName) == .orderedSame else {
+            return false
+        }
+        guard names.count > 1 else { return true }
+        guard let expectedKero = names.dropFirst().first,
+              !expectedKero.isEmpty,
+              let keroName,
+              expectedKero.caseInsensitiveCompare(keroName) == .orderedSame else {
+            return false
+        }
+        return true
+    }
+
+    /// IfGhost ヘッダから \0 側名を取り出す（デフォルトゴースト判定用）。
     private static func sakuraName(of ifGhost: String) -> String {
         ifGhost.split(separator: ",").first.map { String($0).trimmingCharacters(in: .whitespaces) } ?? ifGhost
     }
 
-    private static func currentGhostName(routingRegistry: SstpRoutingRegistry) -> String? {
-        PropertyManager.shared.get("currentghost.name") ?? routingRegistry.allGhostNames().first
+    private static func currentGhostIdentity(routingRegistry: SstpRoutingRegistry) -> (sakura: String?, kero: String?) {
+        let sakura = PropertyManager.shared.get("currentghost.scope(0).name")
+            ?? PropertyManager.shared.get("currentghost.sakuraname")
+            ?? PropertyManager.shared.get("currentghost.name")
+            ?? routingRegistry.allGhostNames().first
+        let kero = PropertyManager.shared.get("currentghost.scope(1).name")
+            ?? PropertyManager.shared.get("currentghost.keroname")
+        return (sakura, kero)
     }
 
     /// 確定したスクリプトをバルーンで再生する。IfGhost がある場合はゴースト毎に振り分ける。
@@ -1050,9 +1080,11 @@ public enum SSTPDispatcher {
             ghostName: request.receiverGhostName,
             notify: notify,
             translationContext: context
-        ) { sessionGhostName in
-            resolveScript(
-                forGhost: sessionGhostName ?? request.receiverGhostName,
+        ) { manager in
+            let sakuraName = manager.ghostConfig?.sakuraName ?? manager.ghostConfig?.name
+            return resolveScript(
+                forGhost: sakuraName ?? request.receiverGhostName,
+                keroName: manager.ghostConfig?.keroName,
                 request: request,
                 shioriScript: shioriScript
             )

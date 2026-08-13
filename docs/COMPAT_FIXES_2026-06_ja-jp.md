@@ -115,7 +115,7 @@
   - **IfGhost の順序保持パーサ**: `SSTPRequest` を順序保持の `headerEntries` ベースに変更し、
     UKADOC「IfGhostによるスクリプト振り分け」を実装。IfGhost は直後の Script と出現順で対応付け、
     最初の IfGhost より前の Script はデフォルトスクリプト。「さくら」「エミリ」「えみりぃ」は
-    デフォルトゴースト扱い。「\0側名,\1側名」書式は \0 側名で照合（\1 側名の照合は未対応）。
+    デフォルトゴースト扱い。「\0側名,\1側名」書式は両方のキャラクター名で照合。
     旧実装の `IfGhost: 名前=スクリプト` 独自書式は廃止。重複 Option ヘッダもマージされる。
 - セキュリティポリシー: 旧 SstpRouter の `securityLocalOnly`（既定 true）は
   `SSTPDispatcher.dispatch(request:securityLocalOnly:)` の引数として外部サーバ経路から伝搬。
@@ -176,8 +176,8 @@
 ### ~~SSTPスタックの二重実装（P2-10）~~
 **解消済み**（上記「SSTPスタックの一本化」参照）。`OurinExternalServer` → `SSTPDispatcher` に
 一本化し、SstpRouter / 旧 SstpParser を削除。チェックリスト4項目（応答行形式 / バルーン再生配線 /
-nodescript / IfGhost 順序保持）はすべて SSTPDispatcher 側で対応済み。
-残差異: IfGhost「\0側名,\1側名」書式の \1 側名照合は未対応（\0 側名のみで照合）。
+nodescript / IfGhost 順序保持）はすべて SSTPDispatcher 側で対応済み。IfGhost の
+「\0側名,\1側名」書式も両方のキャラクター名で照合する。
 
 ### その他の未修正
 - ~~見切れ/重なりの実判定~~: **修正済み**（上記参照）。

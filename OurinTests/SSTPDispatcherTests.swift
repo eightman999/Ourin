@@ -658,10 +658,10 @@ struct SSTPDispatcherTests {
     }
 
     @Test
-    func ifGhostSakuraKeroPairMatchesBySakuraName() async throws {
+    func ifGhostSakuraKeroPairDoesNotMatchWithoutKeroName() async throws {
         let fake = FakeSstpRoutingRegistry()
         fake.ghostNames = ["Emily"]
-        // 「\0側名,\1側名」書式は \0 側名で照合する
+        // UKADOC: 「\0側名,\1側名」書式は両方の名前が一致しなければ選択しない。
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
@@ -674,7 +674,50 @@ struct SSTPDispatcherTests {
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
         #expect(resp.contains("SSTP/1.4 200 OK"))
-        #expect(resp.contains("Script: \\h\\s0PairMatched"))
+        #expect(!resp.contains("PairMatched"))
+    }
+
+    @Test @MainActor
+    func ifGhostSakuraKeroPairRequiresBothCharacterNames() throws {
+        let fake = FakeSstpRoutingRegistry()
+        fake.ghostNames = ["Emily"]
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sstp-ifghost-pair"))
+        manager.ghostConfig = GhostConfiguration(
+            name: "Emily4",
+            sakuraName: "Emily",
+            keroName: "Teddy"
+        )
+        let token = EventBridge.shared.register(runtime: nil, ghostManager: manager)
+        defer { EventBridge.shared.unregister(token) }
+
+        let baseHeaders = [
+            ("Sender", "UnitTest"),
+            ("ReceiverGhostName", "Emily"),
+            ("Script", "\\h\\s0DefaultScript")
+        ]
+        let mismatch = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headerEntries: baseHeaders + [
+                ("IfGhost", "Emily,NotTeddy"),
+                ("Script", "\\h\\s0PairMustNotMatch")
+            ]
+        )
+        let mismatchResponse = SSTPDispatcher.dispatch(request: mismatch, bridge: bridge, routingRegistry: fake)
+        #expect(mismatchResponse.contains("Script: \\h\\s0DefaultScript"))
+        #expect(!mismatchResponse.contains("PairMustNotMatch"))
+
+        let match = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headerEntries: baseHeaders + [
+                ("IfGhost", "Emily,Teddy"),
+                ("Script", "\\h\\s0PairMatches")
+            ]
+        )
+        let matchResponse = SSTPDispatcher.dispatch(request: match, bridge: bridge, routingRegistry: fake)
+        #expect(matchResponse.contains("Script: \\h\\s0PairMatches"))
+        #expect(!matchResponse.contains("DefaultScript"))
     }
 
     @Test
