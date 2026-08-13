@@ -102,6 +102,12 @@ struct OtherGhostFailure: Equatable {
     let ghostName: String
 }
 
+struct OtherGhostDispatchTarget: Equatable {
+    let order: Int
+    let ghostName: String
+    let receiverGhostName: String?
+}
+
 private extension String {
     func splitOnce(after prefix: String) -> String? {
         guard hasPrefix(prefix) else { return nil }
@@ -528,9 +534,48 @@ extension GhostManager: NSWindowDelegate {
         return lhs.key < rhs.key
     }
 
+    /// `__SYSTEM_ALL_GHOST__` を実際の SSTP ReceiverGhostName へ展開する。
+    ///
+    /// SSTP は特殊トークン自体を受信先として解決しないため、nil のまま送ると
+    /// プライマリゴーストへフォールバックしてしまう。起動中ゴーストが存在しない
+    /// 場合は receiver を nil にせず、呼び出し側で notfound として扱える計画を返す。
+    static func planOtherGhostTargets(
+        _ requestedTargets: [String],
+        allGhostNames: [String]
+    ) -> [OtherGhostDispatchTarget] {
+        var uniqueAllNames: [String] = []
+        var seenAllNames = Set<String>()
+        for rawName in allGhostNames {
+            let name = rawName.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !name.isEmpty else { continue }
+            guard seenAllNames.insert(name.lowercased()).inserted else { continue }
+            uniqueAllNames.append(name)
+        }
+
+        var result: [OtherGhostDispatchTarget] = []
+        var order = 0
+        for requested in requestedTargets {
+            if requested.caseInsensitiveCompare("__SYSTEM_ALL_GHOST__") == .orderedSame {
+                if uniqueAllNames.isEmpty {
+                    result.append(.init(order: order, ghostName: requested, receiverGhostName: nil))
+                    order += 1
+                } else {
+                    for name in uniqueAllNames {
+                        result.append(.init(order: order, ghostName: name, receiverGhostName: name))
+                        order += 1
+                    }
+                }
+            } else {
+                result.append(.init(order: order, ghostName: requested, receiverGhostName: requested))
+                order += 1
+            }
+        }
+        return result
+    }
+
     func raiseOtherGhostEvent(ghostSpec: String, event: String, references: [String], notifyOnly: Bool) {
-        let targets = parseGhostTargets(ghostSpec)
-        guard !targets.isEmpty else {
+        let requestedTargets = parseGhostTargets(ghostSpec)
+        guard !requestedTargets.isEmpty else {
             Log.info("[GhostManager] raiseother/notifyother failed: empty ghost target")
             dispatchOtherGhostEventFailure(
                 notifyOnly: notifyOnly,
@@ -541,15 +586,22 @@ extension GhostManager: NSWindowDelegate {
             return
         }
 
+        let targets = Self.planOtherGhostTargets(
+            requestedTargets,
+            allGhostNames: EventBridge.shared.runningGhostNames()
+        )
         let referenceMap = Dictionary(uniqueKeysWithValues: references.enumerated().map { ("Reference\($0.offset)", $0.element) })
         let dispatchGroup = DispatchGroup()
         let lock = NSLock()
-        var failures: [(index: Int, failure: OtherGhostFailure)] = []
+        var failures: [(index: Int, failure: OtherGhostFailure)] = targets.compactMap { target in
+            guard target.receiverGhostName == nil else { return nil }
+            return (index: target.order, failure: OtherGhostFailure(reason: "notfound", ghostName: target.ghostName))
+        }
         let method = notifyOnly ? "NOTIFY" : "SEND"
 
-        for (index, target) in targets.enumerated() {
+        for target in targets {
+            guard let receiver = target.receiverGhostName else { continue }
             dispatchGroup.enter()
-            let receiver = target == "__SYSTEM_ALL_GHOST__" ? nil : target
             sendSSTPEvent(
                 method: method,
                 event: event,
@@ -559,7 +611,7 @@ extension GhostManager: NSWindowDelegate {
                 defer { dispatchGroup.leave() }
                 guard let reason = Self.otherGhostFailureReason(for: result) else { return }
                 lock.lock()
-                failures.append((index: index, failure: OtherGhostFailure(reason: reason, ghostName: target)))
+                failures.append((index: target.order, failure: OtherGhostFailure(reason: reason, ghostName: target.ghostName)))
                 lock.unlock()
             }
         }
@@ -580,7 +632,7 @@ extension GhostManager: NSWindowDelegate {
         }
 
         let mode = notifyOnly ? "notifyother" : "raiseother"
-        Log.debug("[GhostManager] \(mode) dispatched via \(method): event=\(event), targets=\(targets)")
+        Log.debug("[GhostManager] \(mode) dispatched via \(method): event=\(event), targets=\(targets.map(\.ghostName))")
     }
 
     static func otherGhostFailureReason(for result: SSTPEventDeliveryResult) -> String? {

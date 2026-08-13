@@ -657,6 +657,38 @@ final class EventBridge {
         return DispatchQueue.main.sync(execute: find)
     }
 
+    /// 現在 SSTP 経由で配送可能なゴースト名を返す。
+    ///
+    /// `__SYSTEM_ALL_GHOST__` は SSTP の ReceiverGhostName にそのまま渡せないため、
+    /// 送信前に個別の受信先へ展開する必要がある。実際に登録済みのセッションだけを
+    /// 対象にし、descript.txt の name（未設定時はゴーストディレクトリ名）を返す。
+    func runningGhostNames() -> [String] {
+        let collect = {
+            var names: [String] = []
+            var seen = Set<String>()
+            for ghostManager in self.sessions.values.compactMap(\.ghostManager) {
+                let configuredName = ghostManager.ghostConfig?.name
+                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                let fallbackName = ghostManager.ghostURL.lastPathComponent
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                let name = configuredName.isEmpty ? fallbackName : configuredName
+                guard !name.isEmpty else { continue }
+                let key = name.lowercased()
+                guard seen.insert(key).inserted else { continue }
+                names.append(name)
+            }
+            return names.sorted { lhs, rhs in
+                let left = lhs.lowercased()
+                let right = rhs.lowercased()
+                return left == right ? lhs < rhs : left < right
+            }
+        }
+        if Thread.isMainThread {
+            return collect()
+        }
+        return DispatchQueue.main.sync(execute: collect)
+    }
+
     /// カスタム名イベントを GET として全セッションへ送出し、応答スクリプトを再生する。
     ///
     /// GET はシステム自動イベントの有効/無効にかかわらず即時配送する。

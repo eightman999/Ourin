@@ -226,6 +226,45 @@ struct GhostUtilityCommandTests {
         #expect(notify.hasPrefix("NOTIFY SSTP/1.1\r\n"))
     }
 
+    @Test @MainActor
+    func allGhostTargetExpandsToEachRegisteredGhostReceiver() {
+        EventBridge.shared.stop()
+
+        let first = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-all-ghost-alpha"))
+        first.ghostConfig = GhostConfiguration(name: "Alpha Ghost")
+        let second = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-all-ghost-beta"))
+        second.ghostConfig = GhostConfiguration(name: "Beta Ghost")
+        let firstToken = EventBridge.shared.register(runtime: CapturingUtilityRuntime(), ghostManager: first)
+        let secondToken = EventBridge.shared.register(runtime: CapturingUtilityRuntime(), ghostManager: second)
+        defer {
+            EventBridge.shared.unregister(firstToken)
+            EventBridge.shared.unregister(secondToken)
+            EventBridge.shared.stop()
+            _ = first.shutdown()
+            _ = second.shutdown()
+        }
+
+        #expect(EventBridge.shared.runningGhostNames() == ["Alpha Ghost", "Beta Ghost"])
+
+        let plan = GhostManager.planOtherGhostTargets(
+            ["__SYSTEM_ALL_GHOST__", "Missing Ghost"],
+            allGhostNames: EventBridge.shared.runningGhostNames()
+        )
+        #expect(plan == [
+            OtherGhostDispatchTarget(order: 0, ghostName: "Alpha Ghost", receiverGhostName: "Alpha Ghost"),
+            OtherGhostDispatchTarget(order: 1, ghostName: "Beta Ghost", receiverGhostName: "Beta Ghost"),
+            OtherGhostDispatchTarget(order: 2, ghostName: "Missing Ghost", receiverGhostName: "Missing Ghost")
+        ])
+
+        let emptyPlan = GhostManager.planOtherGhostTargets(
+            ["__SYSTEM_ALL_GHOST__"],
+            allGhostNames: []
+        )
+        #expect(emptyPlan == [
+            OtherGhostDispatchTarget(order: 0, ghostName: "__SYSTEM_ALL_GHOST__", receiverGhostName: nil)
+        ])
+    }
+
     @Test
     func parsesSSTPResponseStatusForFailureClassification() {
         #expect(GhostManager.parseSSTPStatusCode(from: Data("SSTP/1.1 204 No Content\r\n\r\n".utf8)) == 204)
