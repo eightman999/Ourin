@@ -138,6 +138,7 @@ class BalloonViewModel: ObservableObject {
     @Published var shadowColor: NSColor = .clear
     @Published var shadowStyle: BalloonShadowStyle = .none
     @Published var outlineWidth: CGFloat = 0
+    /// 現在行へ適用する水平寄せ。行ごとの履歴は `lineAlignments` に保持する。
     @Published var textAlign: BalloonTextAlign = .left
     @Published var textVAlign: BalloonTextVAlign = .top
 
@@ -178,7 +179,7 @@ class BalloonViewModel: ObservableObject {
         case outline
     }
 
-    enum BalloonTextAlign {
+    enum BalloonTextAlign: Equatable {
         case left
         case center
         case right
@@ -223,6 +224,10 @@ class BalloonViewModel: ObservableObject {
     /// `\_a[ID,...]...\_a` の範囲アンカー。表示テキスト・文字範囲・クリック時のアクションを保持する。
     @Published var anchors: [BalloonAnchorRange] = []
 
+    /// `\f[align]` の行ごとの水平寄せ。改行と `\_l` は次の行を左寄せへ戻す。
+    /// `text` が直接更新された場合にも表示を破綻させないよう、未登録行は左寄せとして扱う。
+    @Published var lineAlignments: [BalloonTextAlign] = [.left]
+
     /// 新規スクリプト開始時などにバルーン本文を初期化する（改行送り・アンカー範囲も同時にリセット）。
     func resetBalloonContent() {
         text = ""
@@ -231,8 +236,49 @@ class BalloonViewModel: ObservableObject {
         balloonImages.removeAll()
         lineAdvances.removeAll()
         anchors.removeAll()
+        lineAlignments = [textAlign]
         anchorActive = false
         activeAnchorIndex = nil
+    }
+
+    /// 現在行の水平寄せを変更し、すでに表示済みの同じ行にも反映する。
+    func setTextAlignment(_ alignment: BalloonTextAlign) {
+        synchronizeLineAlignments()
+        let currentLine = max(0, text.components(separatedBy: "\n").count - 1)
+        if lineAlignments.indices.contains(currentLine) {
+            lineAlignments[currentLine] = alignment
+        }
+        textAlign = alignment
+    }
+
+    /// 行送りを伴わない `\_l` の実行時に、現在行の水平寄せを左へ戻す。
+    func resetCurrentLineAlignment() {
+        setTextAlignment(.left)
+    }
+
+    /// 描画・編集時に、本文の行数と寄せ履歴の長さを同期させる。
+    private func synchronizeLineAlignments() {
+        let lineCount = max(1, text.components(separatedBy: "\n").count)
+        if lineAlignments.count < lineCount {
+            let missingCount = lineCount - lineAlignments.count
+            let firstMissing = lineAlignments.count
+            lineAlignments.append(contentsOf: (0..<missingCount).map { offset in
+                let lineIndex = firstMissing + offset
+                return lineIndex == lineCount - 1 ? textAlign : .left
+            })
+        } else if lineAlignments.count > lineCount {
+            lineAlignments.removeLast(lineAlignments.count - lineCount)
+        }
+    }
+
+    /// 指定行の水平寄せを返す。本文を直接差し替えた直後の未登録行は安全側で左寄せにする。
+    func lineAlignment(forLineIndex index: Int) -> BalloonTextAlign {
+        guard index >= 0 else { return .left }
+        if lineAlignments.indices.contains(index) {
+            return lineAlignments[index]
+        }
+        let lastLine = max(0, text.components(separatedBy: "\n").count - 1)
+        return index == lastLine ? textAlign : .left
     }
 
     /// 指定 index のアンカーを訪問済みとして記録する（`\_a` クリック時の `anchorvisited*` 描画用）。
@@ -294,8 +340,11 @@ class BalloonViewModel: ObservableObject {
 
     /// `\n[half]` / `\n[パーセント]` / 通常 `\n` の改行を1つ追加し、垂直送り倍率を記録する。
     func appendNewline(advance: CGFloat) {
+        synchronizeLineAlignments()
         text += "\n"
         lineAdvances.append(advance)
+        lineAlignments.append(.left)
+        textAlign = .left
     }
 
     /// `\n` 系タグの指定文字列（"half" / "150" / "-250" / "150%" 等）から送り倍率を求める。
@@ -465,6 +514,7 @@ class BalloonViewModel: ObservableObject {
         let deletionEnd = NSMaxRange(safeRange)
         let oldNewlineCount = (oldText as NSString).components(separatedBy: "\n").count - 1
         let oldAdvances = lineAdvances
+        let oldAlignments = normalizedLineAlignments(for: oldText, fallback: textAlign)
         let oldNewlineOffsets: [Int] = {
             var offsets: [Int] = []
             var search = 0
@@ -490,6 +540,13 @@ class BalloonViewModel: ObservableObject {
         } else {
             lineAdvances.removeAll()
         }
+        lineAlignments = remappedLineAlignments(
+            oldText: oldText,
+            oldAlignments: oldAlignments,
+            deletion: safeRange,
+            newText: text
+        )
+        textAlign = lineAlignments.last ?? .left
 
         let deletedLength = safeRange.length
         balloonImages = balloonImages.compactMap { image in
@@ -525,6 +582,61 @@ class BalloonViewModel: ObservableObject {
         if offset <= deletion.location { return offset }
         if offset >= NSMaxRange(deletion) { return offset - deletion.length }
         return deletion.location
+    }
+
+    /// 本文の行数に合わせて既存の寄せ履歴を補完する。
+    private func normalizedLineAlignments(for source: String, fallback: BalloonTextAlign) -> [BalloonTextAlign] {
+        let lineCount = max(1, source.components(separatedBy: "\n").count)
+        return (0..<lineCount).map { index in
+            if lineAlignments.indices.contains(index) {
+                return lineAlignments[index]
+            }
+            return index == lineCount - 1 ? fallback : .left
+        }
+    }
+
+    /// 削除後の各行が、削除前のどの行から続いたかを使って寄せ履歴を再構成する。
+    private func remappedLineAlignments(
+        oldText: String,
+        oldAlignments: [BalloonTextAlign],
+        deletion: NSRange,
+        newText: String
+    ) -> [BalloonTextAlign] {
+        let oldNSString = oldText as NSString
+        let newLineStarts = lineStartOffsets(in: newText)
+        return newLineStarts.map { newStart in
+            let oldOffset = min(
+                oldNSString.length,
+                newStart < deletion.location ? newStart : newStart + deletion.length
+            )
+            let oldLineIndex = lineIndex(in: oldNSString, at: oldOffset)
+            return oldAlignments.indices.contains(oldLineIndex) ? oldAlignments[oldLineIndex] : .left
+        }
+    }
+
+    private func lineStartOffsets(in source: String) -> [Int] {
+        var offset = 0
+        return source.components(separatedBy: "\n").map { line in
+            defer { offset += (line as NSString).length + 1 }
+            return offset
+        }
+    }
+
+    private func lineIndex(in source: NSString, at offset: Int) -> Int {
+        let clampedOffset = min(max(0, offset), source.length)
+        var lineIndex = 0
+        var searchStart = 0
+        while searchStart < clampedOffset {
+            let newline = source.range(
+                of: "\n",
+                options: [],
+                range: NSRange(location: searchStart, length: clampedOffset - searchStart)
+            )
+            guard newline.location != NSNotFound else { break }
+            lineIndex += 1
+            searchStart = newline.location + 1
+        }
+        return lineIndex
     }
 }
 
@@ -3998,11 +4110,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let align = args[1].lowercased()
                             switch align {
                             case "left":
-                                vm.textAlign = .left
+                                vm.setTextAlignment(.left)
                             case "center":
-                                vm.textAlign = .center
+                                vm.setTextAlignment(.center)
                             case "right":
-                                vm.textAlign = .right
+                                vm.setTextAlignment(.right)
                             default:
                                 Log.info("[GhostManager] Unknown text align: \(align)")
                             }

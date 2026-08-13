@@ -22,13 +22,49 @@ struct BalloonNewlineSpacingTests {
     @Test func appendNewlineRecordsTextAndAdvances() {
         let vm = BalloonViewModel()
         vm.text = "line1"
+        vm.setTextAlignment(.right)
         vm.appendNewline(advance: 0.5)
         vm.text += "line2"
+        vm.setTextAlignment(.center)
         vm.appendNewline(advance: 1.5)
         vm.text += "line3"
 
         #expect(vm.text == "line1\nline2\nline3")
         #expect(vm.lineAdvances == [0.5, 1.5])
+        #expect(vm.lineAlignment(forLineIndex: 0) == .right)
+        #expect(vm.lineAlignment(forLineIndex: 1) == .center)
+        #expect(vm.lineAlignment(forLineIndex: 2) == .left)
+    }
+
+    @MainActor
+    @Test func alignmentCommandUpdatesOnlyCurrentLine() {
+        let vm = BalloonViewModel()
+        vm.text = "first"
+        vm.setTextAlignment(.right)
+        vm.appendNewline(advance: 1.0)
+        vm.text += "second"
+        vm.setTextAlignment(.center)
+
+        #expect(vm.lineAlignment(forLineIndex: 0) == .right)
+        #expect(vm.lineAlignment(forLineIndex: 1) == .center)
+
+        vm.resetCurrentLineAlignment()
+        #expect(vm.lineAlignment(forLineIndex: 0) == .right)
+        #expect(vm.lineAlignment(forLineIndex: 1) == .left)
+    }
+
+    @MainActor
+    @Test func alignCommandUpdatesCurrentLineThroughPlayback() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-line-align-command"))
+        defer { _ = gm.shutdown() }
+        let vm = gm.getBalloonVM(for: 0)
+        vm.text = "already shown"
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "f", args: ["align", "right"]))
+        gm.processNextUnit()
+
+        #expect(vm.lineAlignment(forLineIndex: 0) == .right)
+        #expect(vm.textAlign == .right)
     }
 
     @MainActor
@@ -949,11 +985,27 @@ struct BalloonClearTruncationTests {
         let vm = BalloonViewModel()
         vm.text = "line0\nline1\nline2"
         vm.lineAdvances = [0.5, 1.5]
+        vm.lineAlignments = [.left, .center, .right]
 
         vm.clearLines(1, start: 1)
 
         #expect(vm.text == "line0\nline2")
         #expect(vm.lineAdvances == [0.5])
+        #expect(vm.lineAlignment(forLineIndex: 0) == .left)
+        #expect(vm.lineAlignment(forLineIndex: 1) == .right)
+    }
+
+    @MainActor
+    @Test func cursorMoveResetsCurrentLineAlignment() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-cursor-alignment"))
+        defer { _ = gm.shutdown() }
+        let vm = gm.getBalloonVM(for: 0)
+        vm.text = "line"
+        vm.setTextAlignment(.right)
+
+        gm.handleCursorMove(x: "10", y: "20")
+
+        #expect(vm.lineAlignment(forLineIndex: 0) == .left)
     }
 
     @MainActor

@@ -249,7 +249,6 @@ struct BalloonView: View {
                     if viewModel.wordWrapEnabled {
                         decoratedText(for: viewModel, surfaceImage: bImage, surfaceSize: size)
                             .lineLimit(nil)
-                            .multilineTextAlignment(textAlignment(for: viewModel.textAlign))
                             .frame(
                                 width: textLayout.width,
                                 height: textLayout.height,
@@ -267,7 +266,6 @@ struct BalloonView: View {
                         decoratedText(for: viewModel, surfaceImage: bImage, surfaceSize: size)
                             .lineLimit(1)
                             .fixedSize(horizontal: true, vertical: false)
-                            .multilineTextAlignment(textAlignment(for: viewModel.textAlign))
                             .frame(
                                 width: textLayout.width,
                                 height: textLayout.height,
@@ -361,8 +359,8 @@ struct BalloonView: View {
         return file.isEmpty ? body : file
     }
 
-    /// Convert BalloonTextAlign to TextAlignment
-    private func textAlignment(for align: BalloonViewModel.BalloonTextAlign) -> TextAlignment {
+    /// Convert BalloonTextAlign to a line container alignment.
+    private func lineFrameAlignment(for align: BalloonViewModel.BalloonTextAlign) -> Alignment {
         switch align {
         case .left:
             return .leading
@@ -529,6 +527,10 @@ struct BalloonView: View {
                         }
                     }
                 }
+                .frame(
+                    maxWidth: .infinity,
+                    alignment: lineFrameAlignment(for: vm.lineAlignment(forLineIndex: lineIndex))
+                )
                 .padding(.top, spacing.topPadding)
                 .offset(y: spacing.yOffset)
             }

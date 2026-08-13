@@ -635,15 +635,22 @@ extension GhostManager {
 
     /// Handle cursor position move - \_l[x,y]
     func handleCursorMove(x: String, y: String) {
-        let baseX = getBalloonVM(for: currentScope).cursorX
-        let baseY = getBalloonVM(for: currentScope).cursorY
+        let scope = currentScope
+        let vm = getBalloonVM(for: scope)
+        let baseX = vm.cursorX
+        let baseY = vm.cursorY
         let newX = parseCursorCoordinate(value: x, base: baseX)
         let newY = parseCursorCoordinate(value: y, base: baseY)
+
+        // UKADOC: \_l is an intentional line break context for \f[align].
+        // Reset before dispatching the coordinate update so following text in
+        // the same playback queue starts with the new line's default alignment.
+        vm.resetCurrentLineAlignment()
         
         DispatchQueue.main.async {
-            guard let vm = self.balloonViewModels[self.currentScope] else { return }
-            vm.cursorX = newX
-            vm.cursorY = newY
+            guard let target = self.balloonViewModels[scope] else { return }
+            target.cursorX = newX
+            target.cursorY = newY
             Log.debug("[GhostManager] Cursor moved to: (\(newX), \(newY))")
         }
     }
