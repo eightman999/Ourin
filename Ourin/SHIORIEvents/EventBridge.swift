@@ -30,7 +30,22 @@ struct ShioriSecurityContext: Equatable {
 
 final class EventBridge {
     static let shared = EventBridge()
-    private init() {}
+    private let calendarScheduleEmitter: CalendarScheduleEmitter
+
+    private init() {
+        let emitter = CalendarScheduleEmitter()
+        calendarScheduleEmitter = emitter
+        emitter.setHandler { [weak self] event in
+            guard let self else { return }
+            if Thread.isMainThread {
+                self.broadcast(event: event)
+            } else {
+                DispatchQueue.main.async { [weak self] in
+                    self?.broadcast(event: event)
+                }
+            }
+        }
+    }
 
     private var started = false
     private var autoEventsEnabled = false
@@ -93,6 +108,7 @@ final class EventBridge {
             SpeechObserver.shared.start(forward)
             OSUpdateObserver.shared.start(forward)
             RecycleBinObserver.shared.start(forward)
+            calendarScheduleEmitter.start()
 
             // Flush any queued NOTIFY events that occurred while auto events were disabled
             flushPendingNotifies()
@@ -118,6 +134,7 @@ final class EventBridge {
         SpeechObserver.shared.stop()
         OSUpdateObserver.shared.stop()
         RecycleBinObserver.shared.stop()
+        calendarScheduleEmitter.stop()
         started = false
         autoEventsEnabled = false
         // OnClose は GhostManager.beginCloseSequence が GET で送出し応答スクリプトを再生する
@@ -151,6 +168,7 @@ final class EventBridge {
             SpeechObserver.shared.start(forward)
             OSUpdateObserver.shared.start(forward)
             RecycleBinObserver.shared.start(forward)
+            calendarScheduleEmitter.start()
 
             // Flush any queued NOTIFY events
             flushPendingNotifies()
@@ -172,7 +190,34 @@ final class EventBridge {
             SpeechObserver.shared.stop()
             OSUpdateObserver.shared.stop()
             RecycleBinObserver.shared.stop()
+            calendarScheduleEmitter.stop()
         }
+    }
+
+    /// カレンダーの保存済み予定を再読込し、センスイベントを発火する。
+    @discardableResult
+    func refreshCalendarSchedules(sensorName: String = CalendarScheduleEmitter.builtinSensorName) -> CalendarScheduleRefreshResult {
+        calendarScheduleEmitter.refresh(sensorName: sensorName)
+    }
+
+    /// SCHEDULE/1.0 のセンサー応答を保存してカレンダーへ反映する。
+    @discardableResult
+    func importCalendarScheduleData(_ data: Data, sensorName: String) -> CalendarScheduleRefreshResult {
+        calendarScheduleEmitter.importSensorData(data, sensorName: sensorName)
+    }
+
+    /// 指定予定を読み上げ、OnScheduleRead を全ゴーストへ送る。
+    @discardableResult
+    func readCalendarSchedule(id: UUID) -> Bool {
+        calendarScheduleEmitter.read(id: id)
+    }
+
+    func beginCalendarSchedulePost(sensorName: String) {
+        calendarScheduleEmitter.beginPost(sensorName: sensorName)
+    }
+
+    func completeCalendarSchedulePost(sensorName: String) {
+        calendarScheduleEmitter.completePost(sensorName: sensorName)
     }
 
     /// Flush all pending NOTIFY events that were queued while auto events were disabled

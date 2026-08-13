@@ -69,4 +69,38 @@ struct CalendarScheduleTests {
         #expect(EventReferenceTable.specs["OnSchedulesenseComplete"]?.references == ["sensorName", "scheduleCount"])
         #expect(EventReferenceTable.specs["OnSchedulepostComplete"]?.category == "calendar")
     }
+
+    @Test
+    func emitsFiveMinuteReminderOnceAndReadsStoredSchedule() {
+        let file = FileManager.default.temporaryDirectory
+            .appendingPathComponent("OurinCalendarEmitter-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: file) }
+
+        let store = CalendarScheduleStore(fileURL: file)
+        let calendar = Calendar(identifier: .gregorian)
+        let schedule = CalendarSchedule(
+            year: 2026,
+            month: 8,
+            day: 14,
+            startHour: 12,
+            startMinute: 0,
+            caption: "meeting"
+        )
+        try? store.replace([schedule])
+
+        let emitter = CalendarScheduleEmitter(store: store)
+        var events: [ShioriEvent] = []
+        emitter.setHandler { events.append($0) }
+        _ = emitter.refresh(emitEvents: false)
+
+        let start = schedule.startDate(calendar: calendar)!
+        emitter.emitDueEvents(now: start.addingTimeInterval(-4 * 60), calendar: calendar)
+        emitter.emitDueEvents(now: start.addingTimeInterval(-3 * 60), calendar: calendar)
+        #expect(events.map(\.id) == [.OnSchedule5MinutesToGo])
+        #expect(events.first?.params["Reference1"] == "meeting")
+
+        #expect(emitter.read(id: schedule.id))
+        #expect(events.map(\.id) == [.OnSchedule5MinutesToGo, .OnScheduleRead])
+        #expect(events.last?.params["Reference1"] == "meeting")
+    }
 }
