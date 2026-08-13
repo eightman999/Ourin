@@ -675,6 +675,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var pluginEventTimers: [String: Timer] = [:]
     /// オンラインマーカーのスコープ別アニメーションタイマー。
     var onlineMarkerTimers: [Int: Timer] = [:]
+    /// `set,scaling` / `set,alpha` の時間変化をスコープ単位で管理する。
+    /// 新しい指定が来たときは、古い補間を中断して最新の目標値へ切り替える。
+    var visualEffectAnimationTimers: [String: Timer] = [:]
     /// \![execute,websocket,URL] で開いた WebSocket 接続（URL 文字列でキー）
     var webSocketTasks: [String: URLSessionWebSocketTask] = [:]
     /// \![execute,http-stream*,URL] で開始した HTTP ストリーミング要求（URL 文字列でキー）。\![cancel,http,URL] で中断する。
@@ -1408,6 +1411,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             timer.invalidate()
         }
         onlineMarkerTimers.removeAll()
+        for timer in visualEffectAnimationTimers.values {
+            timer.invalidate()
+        }
+        visualEffectAnimationTimers.removeAll()
         taskTrayAnimationTimer?.invalidate()
         taskTrayAnimationTimer = nil
         if let taskTrayStatusItem {

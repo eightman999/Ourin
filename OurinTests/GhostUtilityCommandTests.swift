@@ -341,6 +341,72 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func timedScalingInterpolatesAndEmitsOnlyTheCompletedTransition() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-timed-scaling-test"))
+        _ = manager.ensureCharacterWindow(for: 0)
+        var config = GhostConfiguration(name: "TimedScalingTest")
+        config.balloonSyncScale = true
+        manager.ghostConfig = config
+        let balloon = manager.getBalloonVM(for: 0)
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.executeSetScalingCommand(args: ["set", "scaling", "50", "75", "180"])
+        try await Task.sleep(nanoseconds: 80_000_000)
+
+        let intermediateX = manager.characterViewModels[0]?.userScaleX ?? 1.0
+        let intermediateY = manager.characterViewModels[0]?.userScaleY ?? 1.0
+        #expect(intermediateX < 1.0 && intermediateX > 0.5)
+        #expect(intermediateY < 1.0 && intermediateY > 0.75)
+        #expect(runtime.requests.filter { $0.id == EventID.OnShellScaling.rawValue }.isEmpty)
+
+        for _ in 0..<40 where manager.characterViewModels[0]?.userScaleX != 0.5 {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        #expect(manager.characterViewModels[0]?.userScaleX == 0.5)
+        #expect(manager.characterViewModels[0]?.userScaleY == 0.75)
+        let events = runtime.requests.filter { $0.id == EventID.OnShellScaling.rawValue }
+        #expect(events.count == 1)
+        #expect(events.first?.refs == ["50.0", "100.0", "75.0", "100.0"])
+        let balloonEvents = runtime.requests.filter { $0.id == EventID.OnBalloonScaling.rawValue }
+        #expect(balloonEvents.count == 1)
+        #expect(balloonEvents.first?.refs == ["50.0", "100.0", "75.0", "100.0"])
+        #expect(balloon.scaleX == 0.5)
+        #expect(balloon.scaleY == 0.75)
+    }
+
+    @Test @MainActor
+    func timedAlphaInterpolatesAndReachesExactTarget() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-timed-alpha-test"))
+        _ = manager.ensureCharacterWindow(for: 0)
+        defer {
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.executeSetAlphaCommand(args: ["set", "alpha", "0", "180"])
+        try await Task.sleep(nanoseconds: 80_000_000)
+
+        let intermediate = manager.characterViewModels[0]?.alpha ?? 0
+        #expect(intermediate > 0.0 && intermediate < 1.0)
+
+        for _ in 0..<40 where manager.characterViewModels[0]?.alpha != 0.0 {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(manager.characterViewModels[0]?.alpha == 0.0)
+    }
+
+    @Test @MainActor
     func otherSurfaceChangeIsSentOnlyToOptedInOtherGhosts() {
         EventBridge.shared.stop()
 

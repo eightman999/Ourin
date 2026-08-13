@@ -763,18 +763,15 @@ extension GhostManager {
         guard let xPercent else { return }
         let targetScaleX = xPercent / 100.0
         let targetScaleY = (yPercent ?? xPercent) / 100.0
+        let scope = currentScope
 
         DispatchQueue.main.async {
-            let scope = self.currentScope
-            if timeMs > 0 {
-                NSAnimationContext.runAnimationGroup({ context in
-                    context.duration = timeMs / 1000.0
-                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-                    self.setUserScaling(scope: scope, x: targetScaleX, y: targetScaleY)
-                })
-            } else {
-                self.setUserScaling(scope: scope, x: targetScaleX, y: targetScaleY)
-            }
+            self.animateUserScaling(
+                scope: scope,
+                targetX: targetScaleX,
+                targetY: targetScaleY,
+                duration: timeMs / 1000.0
+            )
         }
 
         if wait && timeMs > 0 {
@@ -803,23 +800,105 @@ extension GhostManager {
 
         guard let alphaPercent else { return }
         let targetAlpha = min(max(alphaPercent / 100.0, 0.0), 1.0)
+        let scope = currentScope
 
         DispatchQueue.main.async {
-            guard let vm = self.characterViewModels[self.currentScope] else { return }
-            if timeMs > 0 {
-                NSAnimationContext.runAnimationGroup({ context in
-                    context.duration = timeMs / 1000.0
-                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-                    vm.alpha = targetAlpha
-                })
-            } else {
-                vm.alpha = targetAlpha
-            }
+            self.animateCharacterAlpha(
+                scope: scope,
+                target: targetAlpha,
+                duration: timeMs / 1000.0
+            )
         }
 
         if wait && timeMs > 0 {
             playbackQueue.append(.wait(timeMs / 1000.0))
         }
+    }
+
+    /// `set,scaling` の変化時間を SwiftUI の View 更新へ実際に反映する。
+    /// `NSAnimationContext` は `@Published` の Double 代入を補間しないため、
+    /// メイン RunLoop 上で値そのものを更新する。イベントは最終値に到達した時だけ発火する。
+    private func animateUserScaling(scope: Int, targetX: Double, targetY: Double, duration: TimeInterval) {
+        let key = "scaling:\(scope)"
+        cancelVisualEffectAnimation(key: key)
+        guard let viewModel = characterViewModels[scope] else { return }
+        guard duration > 0 else {
+            setUserScaling(scope: scope, x: targetX, y: targetY)
+            return
+        }
+
+        let startX = viewModel.userScaleX
+        let startY = viewModel.userScaleY
+        let startBalloonX = balloonViewModels[scope]?.scaleX
+        let startBalloonY = balloonViewModels[scope]?.scaleY
+        let startDate = Date()
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] timer in
+            guard let self, self.characterViewModels[scope] != nil else {
+                timer.invalidate()
+                return
+            }
+            let progress = min(1.0, max(0.0, Date().timeIntervalSince(startDate) / duration))
+            let eased = Self.easeInOut(progress)
+            let x = startX + (targetX - startX) * eased
+            let y = startY + (targetY - startY) * eased
+            let finished = progress >= 1.0
+            self.setUserScaling(
+                scope: scope,
+                x: finished ? targetX : x,
+                y: finished ? targetY : y,
+                emitEvent: finished,
+                eventBeforeXPercent: finished ? startX * 100.0 : nil,
+                eventBeforeYPercent: finished ? startY * 100.0 : nil,
+                eventBeforeBalloonX: finished ? startBalloonX : nil,
+                eventBeforeBalloonY: finished ? startBalloonY : nil
+            )
+            if finished {
+                timer.invalidate()
+                self.visualEffectAnimationTimers.removeValue(forKey: key)
+            }
+        }
+        visualEffectAnimationTimers[key] = timer
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
+    /// `set,alpha` の時間変化を実値へ反映する。透明度はSHIORIイベントを持たないため、
+    /// タイマー各フレームで ViewModel を更新し、最後のフレームで目標値を厳密に設定する。
+    private func animateCharacterAlpha(scope: Int, target: Double, duration: TimeInterval) {
+        let key = "alpha:\(scope)"
+        cancelVisualEffectAnimation(key: key)
+        guard let viewModel = characterViewModels[scope] else { return }
+        guard duration > 0 else {
+            viewModel.alpha = target
+            return
+        }
+
+        let start = viewModel.alpha
+        let startDate = Date()
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] timer in
+            guard let self, let viewModel = self.characterViewModels[scope] else {
+                timer.invalidate()
+                return
+            }
+            let progress = min(1.0, max(0.0, Date().timeIntervalSince(startDate) / duration))
+            let eased = Self.easeInOut(progress)
+            viewModel.alpha = progress >= 1.0 ? target : start + (target - start) * eased
+            if progress >= 1.0 {
+                timer.invalidate()
+                self.visualEffectAnimationTimers.removeValue(forKey: key)
+            }
+        }
+        visualEffectAnimationTimers[key] = timer
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
+    private func cancelVisualEffectAnimation(key: String) {
+        visualEffectAnimationTimers[key]?.invalidate()
+        visualEffectAnimationTimers.removeValue(forKey: key)
+    }
+
+    private static func easeInOut(_ progress: Double) -> Double {
+        let clamped = min(1.0, max(0.0, progress))
+        return clamped * clamped * (3.0 - 2.0 * clamped)
     }
 
     private func parseScopeTokenList(_ tokens: [String]) -> [Int] {

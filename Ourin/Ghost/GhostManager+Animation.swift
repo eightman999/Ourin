@@ -71,7 +71,12 @@ extension GhostManager {
         applyEffectiveSerikoScale(scope: scope)
     }
 
-    private func applyEffectiveSerikoScale(scope: Int) {
+    private func applyEffectiveSerikoScale(
+        scope: Int,
+        emitEvents: Bool = true,
+        balloonEventBeforeX: Double? = nil,
+        balloonEventBeforeY: Double? = nil
+    ) {
         guard let vm = characterViewModels[scope] else { return }
         let factors = Array(serikoScaleFactorsByScope[scope]?.values ?? Dictionary<Int, CGPoint>().values)
         let factorX = factors.reduce(1.0) { $0 * Double($1.x) }
@@ -79,14 +84,28 @@ extension GhostManager {
         vm.scaleX = vm.userScaleX * factorX
         vm.scaleY = vm.userScaleY * factorY
         if ghostConfig?.balloonSyncScale == true {
-            applySynchronizedBalloonScale(scope: scope, x: vm.scaleX, y: vm.scaleY)
+            applySynchronizedBalloonScale(
+                scope: scope,
+                x: vm.scaleX,
+                y: vm.scaleY,
+                emitEvent: emitEvents,
+                eventBeforeX: balloonEventBeforeX,
+                eventBeforeY: balloonEventBeforeY
+            )
         }
     }
 
     /// `balloon.syncscale,true` によるバルーン倍率の実反映とイベント送出。
     /// バルーンはシェルとは別ウィンドウなので、ViewModel の倍率とウィンドウの
     /// fittingSize の両方を更新し、変更時だけ OnBalloonScaling を発火する。
-    private func applySynchronizedBalloonScale(scope: Int, x: Double, y: Double) {
+    private func applySynchronizedBalloonScale(
+        scope: Int,
+        x: Double,
+        y: Double,
+        emitEvent: Bool = true,
+        eventBeforeX: Double? = nil,
+        eventBeforeY: Double? = nil
+    ) {
         guard let balloonVM = balloonViewModels[scope] else { return }
         let previousX = balloonVM.scaleX
         let previousY = balloonVM.scaleY
@@ -94,13 +113,14 @@ extension GhostManager {
 
         balloonVM.scaleX = x
         balloonVM.scaleY = y
+        guard emitEvent else { return }
         _ = EventBridge.shared.request(
             .OnBalloonScaling,
             refs: [
                 "afterX": String(x * 100.0),
-                "beforeX": String(previousX * 100.0),
+                "beforeX": String((eventBeforeX ?? previousX) * 100.0),
                 "afterY": String(y * 100.0),
-                "beforeY": String(previousY * 100.0)
+                "beforeY": String((eventBeforeY ?? previousY) * 100.0)
             ],
             to: self
         )
@@ -118,23 +138,37 @@ extension GhostManager {
         }
     }
 
-    func setUserScaling(scope: Int, x: Double, y: Double) {
+    func setUserScaling(
+        scope: Int,
+        x: Double,
+        y: Double,
+        emitEvent: Bool = true,
+        eventBeforeXPercent: Double? = nil,
+        eventBeforeYPercent: Double? = nil,
+        eventBeforeBalloonX: Double? = nil,
+        eventBeforeBalloonY: Double? = nil
+    ) {
         guard let vm = characterViewModels[scope] else { return }
         let previousXPercent = vm.userScaleX * 100.0
         let previousYPercent = vm.userScaleY * 100.0
         let changed = vm.userScaleX != x || vm.userScaleY != y
         vm.userScaleX = x
         vm.userScaleY = y
-        applyEffectiveSerikoScale(scope: scope)
+        applyEffectiveSerikoScale(
+            scope: scope,
+            emitEvents: emitEvent,
+            balloonEventBeforeX: eventBeforeBalloonX,
+            balloonEventBeforeY: eventBeforeBalloonY
+        )
 
-        guard changed else { return }
+        guard emitEvent, changed else { return }
         _ = EventBridge.shared.request(
             .OnShellScaling,
             refs: [
                 "afterX": String(x * 100.0),
-                "beforeX": String(previousXPercent),
+                "beforeX": String(eventBeforeXPercent ?? previousXPercent),
                 "afterY": String(y * 100.0),
-                "beforeY": String(previousYPercent)
+                "beforeY": String(eventBeforeYPercent ?? previousYPercent)
             ],
             to: self
         )
