@@ -191,7 +191,22 @@ private:
         std::string varName;
         bool hasIndex = false;
         int arrayIdx = 0;
+        // `_` 変数は呼び出し元のローカルスコープを保持する必要がある。
+        // ネストした関数の実行中に現在の最上位スコープへ書くと、呼び出し元ではなく
+        // 呼び出し先の同名ローカル変数を更新してしまうため、解決時の深さを記録する。
+        bool isLocal = false;
+        size_t localScopeIndex = 0;
     };
+
+    struct ReferenceArgument {
+        size_t argumentIndex = 0;
+        RefTarget target;
+    };
+
+    // 通常のユーザー関数呼び出しへ渡す参照引数。execute() の入口で1フレーム消費し、
+    // 関数終了時に更新済みの `_argv[index]` を呼び出し元の格納場所へ書き戻す。
+    std::vector<std::vector<ReferenceArgument>> pendingReferenceArguments_;
+
     std::optional<RefTarget> tryResolveReference(std::shared_ptr<AST::Node> node);
     Value readReference(const RefTarget& target);
     void writeReference(const RefTarget& target, const Value& value);

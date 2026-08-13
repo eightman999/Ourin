@@ -64,7 +64,7 @@ limits instead of counting fixed-value compatibility stubs as implementation.
 | UTF-8 / Japanese identifiers | implemented | |
 | Compound assignments (`+=` etc., `,=`) | implemented | |
 | Array element/range assignment (`a[i] = ..`, `a[start,end] = ..`) | implemented | single-index `=`, arithmetic compound operators, and `,=` write back only the selected element; inclusive range replacement/removal and range `,=` splice are implemented. Arithmetic compound assignment on a range is rejected explicitly. |
-| Prefix `&` (reference operator) | partial | parsed; treated as identity (no true by-reference) |
+| Prefix `&` (reference operator) | implemented | user-function arguments and `E.Swap` write back to local/global/array-element storage; nested computed l-values remain unsupported |
 | `parallel expr` modifier | implemented | 2026-07-05: contextual detection (not keyword-ized); array/sequential collection flattens the returned array into individual candidates; non-array contexts pick one element uniformly (same RNG as SRAND) |
 
 ### Parser Reliability Note
@@ -123,7 +123,7 @@ dictionaries without parse failure (regression baseline after Phases 1/3/4).
 
 ## Known Limitations
 
-- **By-reference semantics**: supported for the reference forms exercised by the runtime (`E.Swap` local/global/array-element paths); uncommon nested l-value forms still require compatibility coverage.
+- **By-reference semantics**: user-function arguments and `E.Swap` support local/global/array-element storage. Nested computed l-values such as `&array[i][j]` still require compatibility coverage.
 - **Standalone `when` dispatch**: inside labeled blocks, `when` runs unconditionally (no implicit state switch). The `when` function attribute is recorded but does not add implicit dispatch.
 - **Directory ops**: `MKDIR`/`RMDIR`/`FENUM` are implemented via `std::filesystem` (relative-path sandbox; `..` traversal rejected). FENUM additionally accepts absolute paths under the macOS container sandbox.
 - **SAORI valueex as variables**: extras are exposed via `valueex`/`valueex0..15` builtins rather than implicit variables (framework scripts manage their own copy).

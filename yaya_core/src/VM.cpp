@@ -595,6 +595,14 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         std::cerr << "[VM::execute] [depth=" << recursion_depth_ << "] Looking for function: " << functionName << std::endl;
     }
 
+    // Call site が解決した参照引数を、この呼び出しフレームへ移す。組み込み関数や
+    // 未定義関数では書き戻し先がないため、後段で自然に破棄される。
+    std::vector<ReferenceArgument> referenceArguments;
+    if (!pendingReferenceArguments_.empty()) {
+        referenceArguments = std::move(pendingReferenceArguments_.back());
+        pendingReferenceArguments_.pop_back();
+    }
+
     // Check if it's a built-in function
     if (builtins_.find(functionName) != builtins_.end()) {
         Value result = callBuiltin(functionName, args);
@@ -674,6 +682,20 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
             std::string s;
             for (const auto& v : collected) s += v.asString();
             result = Value(s);
+        }
+    }
+
+    // 関数内で `_argv[index] = ...` された値を、参照引数の元の格納場所へ戻す。
+    // 書き戻しはローカルスコープをまだ保持している間に行う必要がある。
+    if (!referenceArguments.empty()) {
+        const Value calleeArguments = getVariable("_argv");
+        for (const auto& reference : referenceArguments) {
+            if (calleeArguments.getType() != Value::Type::Array ||
+                reference.argumentIndex >= calleeArguments.asArray().size()) {
+                continue;
+            }
+            writeReference(reference.target, calleeArguments.arrayGet(
+                static_cast<int>(reference.argumentIndex)));
         }
     }
 
@@ -1238,10 +1260,21 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 return Value();
             }
 
-            // Regular function call
+            // 通常の関数呼び出し。前置 '&' の引数は値を渡した後、呼び出し先の
+            // `_argv[index]` を呼び出し元の格納場所へ書き戻す参照フレームを作る。
             std::vector<Value> args;
-            for (const auto& argNode : call->arguments) {
-                args.push_back(executeNode(argNode));
+            std::vector<ReferenceArgument> referenceArguments;
+            for (size_t index = 0; index < call->arguments.size(); ++index) {
+                const auto& argNode = call->arguments[index];
+                if (auto reference = tryResolveReference(argNode)) {
+                    args.push_back(readReference(*reference));
+                    referenceArguments.push_back(ReferenceArgument{index, *reference});
+                } else {
+                    args.push_back(executeNode(argNode));
+                }
+            }
+            if (!referenceArguments.empty()) {
+                pendingReferenceArguments_.push_back(std::move(referenceArguments));
             }
             return execute(call->functionName, args);
         }
@@ -1467,17 +1500,41 @@ std::optional<VM::RefTarget> VM::tryResolveReference(std::shared_ptr<AST::Node> 
     if (!unary || unary->op != "&") return std::nullopt;
     const auto& operand = unary->operand;
     if (auto* var = dynamic_cast<AST::VariableNode*>(operand.get())) {
-        return RefTarget{ var->name, false, 0 };
+        const bool isLocal = !var->name.empty() && var->name[0] == '_' && !localScopes_.empty();
+        return RefTarget{
+            var->name,
+            false,
+            0,
+            isLocal,
+            isLocal ? localScopes_.size() - 1 : 0
+        };
     }
     if (auto* acc = dynamic_cast<AST::ArrayAccessNode*>(operand.get())) {
         int idx = executeNode(acc->index).asInt();
-        return RefTarget{ acc->arrayName, true, idx };
+        const bool isLocal = !acc->arrayName.empty() && acc->arrayName[0] == '_' && !localScopes_.empty();
+        return RefTarget{
+            acc->arrayName,
+            true,
+            idx,
+            isLocal,
+            isLocal ? localScopes_.size() - 1 : 0
+        };
     }
     return std::nullopt;
 }
 
 Value VM::readReference(const RefTarget& target) {
-    Value v = getVariable(target.varName);
+    Value v;
+    if (target.isLocal) {
+        if (target.localScopeIndex >= localScopes_.size()) return Value();
+        auto it = localScopes_[target.localScopeIndex].find(target.varName);
+        if (it == localScopes_[target.localScopeIndex].end()) return Value();
+        v = it->second;
+    } else {
+        auto it = variables_.find(target.varName);
+        if (it == variables_.end()) return Value();
+        v = it->second;
+    }
     if (target.hasIndex) {
         return v.arrayGet(target.arrayIdx);
     }
@@ -1486,11 +1543,29 @@ Value VM::readReference(const RefTarget& target) {
 
 void VM::writeReference(const RefTarget& target, const Value& value) {
     if (target.hasIndex) {
-        Value arr = getVariable(target.varName);
+        Value arr = readReference(RefTarget{
+            target.varName,
+            false,
+            0,
+            target.isLocal,
+            target.localScopeIndex
+        });
         arr.arraySet(target.arrayIdx, value);
-        setVariable(target.varName, arr);
+        if (target.isLocal) {
+            if (target.localScopeIndex < localScopes_.size()) {
+                localScopes_[target.localScopeIndex][target.varName] = arr;
+            }
+        } else {
+            variables_[target.varName] = arr;
+        }
     } else {
-        setVariable(target.varName, value);
+        if (target.isLocal) {
+            if (target.localScopeIndex < localScopes_.size()) {
+                localScopes_[target.localScopeIndex][target.varName] = value;
+            }
+        } else {
+            variables_[target.varName] = value;
+        }
     }
 }
 

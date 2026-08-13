@@ -1298,8 +1298,8 @@ std::shared_ptr<AST::Node> Parser::parseUnary() {
     // 到達時点（オペランドの先頭）で '&' を見たら、それは前置の参照演算子で確定。
     // ここで消費しないと parsePrimary が "Unexpected token '&'" を投げ、かつ
     // トークンを進めないため、文ループが 100% CPU で無限ループする（実害の原因）。
-    // 現状は VM 側で恒等（値渡し）として扱う。真の参照渡し（Swap/Qsort の in-place）
-    // は将来 CallNode 引数評価で UnaryOpNode("&") を検出して実装する余地を残す。
+    // VM 側の CallNode 引数評価で参照先を解決し、関数内の `_argv` 更新を呼び出し元へ
+    // 書き戻す。参照先として解決できない式は従来どおり値として評価する。
     if (match(TokenType::Ampersand)) {
         auto operand = parseUnary();
         return std::make_shared<AST::UnaryOpNode>("&", operand);
