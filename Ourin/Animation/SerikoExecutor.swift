@@ -8,7 +8,7 @@ public enum SerikoAnimationFinishReason: Equatable {
 public final class SerikoExecutor {
     public struct AnimationState: Equatable {
         public let animationID: Int
-        public let definition: SerikoParser.AnimationDefinition
+        public var definition: SerikoParser.AnimationDefinition
         public var currentPatternIndex: Int
         public var isPaused: Bool
         public var offsetX: Int
@@ -59,7 +59,33 @@ public final class SerikoExecutor {
     /// サーフェス切替後に前サーフェスの animation50 などを残すと、
     /// 旧サーフェス用の目元パッチが別表情の上で再生される。
     public func replace(animations: [Int: SerikoParser.AnimationDefinition]) {
+        let previousDefinitions = definitions
+        let now = nowProvider()
+        var preserved: [Int: AnimationState] = [:]
+        var stoppedIDs: [Int] = []
+
+        // SSP's shared-index is the one exception to the normal surface
+        // transition reset: both the source and destination definitions must
+        // opt in, and the current pattern index must exist in the destination.
+        for (animationID, var state) in activeAnimations {
+            guard let previous = previousDefinitions[animationID],
+                  let replacement = animations[animationID],
+                  hasOption("shared-index", in: previous),
+                  hasOption("shared-index", in: replacement),
+                  state.currentPatternIndex >= 0,
+                  state.currentPatternIndex < replacement.patterns.count else {
+                stoppedIDs.append(animationID)
+                continue
+            }
+
+            state.definition = replacement
+            state.lastTickAt = now
+            state.currentDuration = duration(for: replacement.patterns[state.currentPatternIndex])
+            preserved[animationID] = state
+        }
+
         definitions = animations
+        activeAnimations = preserved
         // runonce / periodic / talk,N はサーフェス単位の状態であり、定義の
         // 置換（通常はサーフェス切替・再読込）をまたいで持ち越してはいけない。
         triggeredRunonce.removeAll()
@@ -69,6 +95,16 @@ public final class SerikoExecutor {
         lastTalkTriggerCount.removeAll()
         startedTalkAnimations.removeAll()
         hasStartedTalk = false
+
+        for animationID in stoppedIDs {
+            onAnimationFinished?(animationID, .stopped)
+        }
+        // Re-emit the current frame against the new base surface. The host
+        // clears old overlays during a surface change, so this is required for
+        // a shared-index animation to remain visible after the switch.
+        for animationID in preserved.keys.sorted() {
+            executeCurrentPattern(for: animationID)
+        }
     }
 
     /// Return registered definition for an animation id
@@ -79,7 +115,8 @@ public final class SerikoExecutor {
     @discardableResult
     public func executeAnimation(id: Int) -> Bool {
         guard let definition = definitions[id], !definition.patterns.isEmpty else { return false }
-        if hasOption("shared", in: definition), activeAnimations[id] != nil {
+        if (hasOption("shared", in: definition) || hasOption("shared-index", in: definition)),
+           activeAnimations[id] != nil {
             return true
         }
         if let series = definition.seriesOption {

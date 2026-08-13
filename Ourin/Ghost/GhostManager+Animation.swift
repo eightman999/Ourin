@@ -90,6 +90,19 @@ extension GhostManager {
         applyEffectiveSerikoScale(scope: scope)
     }
 
+    /// Stop legacy and command-defined animation sources before a surface
+    /// transition, while leaving SERIKO state available for `shared-index`
+    /// migration. `SerikoExecutor.replace(animations:)` decides which IDs can
+    /// continue once both source and destination definitions are known.
+    func prepareSerikoForSurfaceTransition(scope: Int) {
+        serikoLoopTimer?.invalidate()
+        serikoLoopTimer = nil
+        animationEngine.stopAllAnimations()
+        stopImportedSurfaceAnimations(scope: scope)
+        stopAllAnimAddSurfaceAnimations(scope: scope)
+        persistentSerikoAnimationIDsByScope[scope] = nil
+    }
+
     private func applyEffectiveSerikoScale(
         scope: Int,
         emitEvents: Bool = true,
@@ -362,6 +375,9 @@ extension GhostManager {
             serikoExecutor.replace(animations: surface.animations)
         } else {
             serikoExecutor.replace(animations: [:])
+        }
+        if !serikoExecutor.activeAnimations.isEmpty {
+            startSerikoLoopIfNeeded()
         }
         Log.debug("[GhostManager] Loaded animations for surface \(surfaceID)")
     }

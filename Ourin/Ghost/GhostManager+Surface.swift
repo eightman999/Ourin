@@ -72,12 +72,8 @@ extension GhostManager {
         let oldSurfaceID = characterViewModels[scope]?.currentSurfaceID ?? 0
 
         // サーフェスに紐づく SERIKO 定義と一時オーバーレイを切り替える。
-        // 旧アニメーションを走らせたままにすると、次の表情へ目元パッチが残る。
-        animationEngine.stopAllAnimations()
-        shutdownSerikoLoop()
-        stopImportedSurfaceAnimations(scope: scope)
-        stopAllAnimAddSurfaceAnimations(scope: scope)
-        persistentSerikoAnimationIDsByScope[scope] = nil
+        // shared-index の対象だけは、次の定義を読み込むまで executor 内に保持する。
+        prepareSerikoForSurfaceTransition(scope: scope)
         
         // Clear overlays when surface changes (per UKADOC spec)
         DispatchQueue.main.async { [weak self] in
@@ -95,6 +91,7 @@ extension GhostManager {
                 // If requested surface doesn't exist, keep current surface
                 guard let image = image else {
                     Log.info("[GhostManager] Surface \(id) not found for scope \(scope), keeping current surface")
+                    self.startSerikoLoopIfNeeded()
                     return
                 }
 

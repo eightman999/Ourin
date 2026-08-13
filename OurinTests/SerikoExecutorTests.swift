@@ -359,6 +359,75 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func sharedIndexCarriesActivePatternIntoReplacementDefinition() async throws {
+        var now = Date(timeIntervalSince1970: 0)
+        let executor = SerikoExecutor(nowProvider: { now }, randomProvider: { 0.0 })
+        let oldDefinition = SerikoParser.AnimationDefinition(
+            id: 60,
+            interval: .never,
+            options: ["shared-index"],
+            patterns: [
+                SerikoPattern(index: 0, method: .overlay, surfaceID: 10, duration: 10, x: 0, y: 0, rawArguments: []),
+                SerikoPattern(index: 1, method: .overlay, surfaceID: 11, duration: 10, x: 0, y: 0, rawArguments: [])
+            ]
+        )
+        let replacement = SerikoParser.AnimationDefinition(
+            id: 60,
+            interval: .never,
+            options: ["shared-index"],
+            patterns: [
+                SerikoPattern(index: 0, method: .overlay, surfaceID: 20, duration: 10, x: 0, y: 0, rawArguments: []),
+                SerikoPattern(index: 1, method: .overlay, surfaceID: 21, duration: 25, x: 3, y: 4, rawArguments: [])
+            ]
+        )
+        executor.register(animations: [60: oldDefinition])
+        var rendered: [Int] = []
+        executor.onMethodInvoked = { _, method, surfaceID, _, _ in
+            if method == .overlay { rendered.append(surfaceID) }
+        }
+
+        #expect(executor.executeAnimation(id: 60))
+        now = now.addingTimeInterval(0.011)
+        executor.startLoop()
+        #expect(executor.activeAnimations[60]?.currentPatternIndex == 1)
+
+        executor.replace(animations: [60: replacement])
+
+        #expect(executor.activeAnimations[60]?.definition == replacement)
+        #expect(executor.activeAnimations[60]?.currentPatternIndex == 1)
+        #expect(executor.activeAnimations[60]?.currentDuration == 25)
+        #expect(rendered.last == 21)
+    }
+
+    @Test
+    func sharedIndexStopsWhenDestinationDoesNotOptIn() async throws {
+        let executor = SerikoExecutor()
+        let source = SerikoParser.AnimationDefinition(
+            id: 61,
+            interval: .never,
+            options: ["shared-index"],
+            patterns: [SerikoPattern(index: 0, method: .overlay, surfaceID: 10, duration: 10, x: 0, y: 0, rawArguments: [])]
+        )
+        let destination = SerikoParser.AnimationDefinition(
+            id: 61,
+            interval: .never,
+            options: [],
+            patterns: [SerikoPattern(index: 0, method: .overlay, surfaceID: 20, duration: 10, x: 0, y: 0, rawArguments: [])]
+        )
+        var stopped = 0
+        executor.onAnimationFinished = { _, reason in
+            if reason == .stopped { stopped += 1 }
+        }
+        executor.register(animations: [61: source])
+        #expect(executor.executeAnimation(id: 61))
+
+        executor.replace(animations: [61: destination])
+
+        #expect(executor.activeAnimations[61] == nil)
+        #expect(stopped == 1)
+    }
+
+    @Test
     func intervalTriggersForTalkBindYenE() async throws {
         let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 1.0 })
         let talk = makeDefinition(id: 20, interval: .talk, methods: [.overlay])
