@@ -46,7 +46,7 @@ chmod +x build_simple_saori.sh
 SAORI/1.0 200 OK
 Charset: UTF-8
 Result: 1
-Value: Hello from ... SAORI
+Value0: Hello from ... SAORI
 ```
 
 `Argument0:` が含まれる場合は `Value` へ echo します。

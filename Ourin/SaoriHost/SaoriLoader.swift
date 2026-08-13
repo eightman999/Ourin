@@ -29,9 +29,13 @@ public enum SaoriLoaderError: Error, CustomStringConvertible {
 }
 
 public final class SaoriLoader {
-    public typealias SaoriLoadFn = @convention(c) (UnsafePointer<CChar>?) -> Int32
-    public typealias SaoriUnloadFn = @convention(c) () -> Void
-    public typealias SaoriRequestFn = @convention(c) (UnsafePointer<UInt8>?, Int, UnsafeMutablePointer<Int>?) -> UnsafePointer<UInt8>?
+    // The SAORI/DLL common ABI uses HGLOBAL + long on Windows. On macOS the
+    // POSIX-compatible modules use the equivalent malloc-owned pointer + long
+    // layout (long is Int64 on macOS). The module owns and frees the input
+    // buffer, and the host owns and frees the returned buffer after copying it.
+    public typealias SaoriLoadFn = @convention(c) (UnsafeMutableRawPointer?, Int64) -> Int32
+    public typealias SaoriUnloadFn = @convention(c) () -> Int32
+    public typealias SaoriRequestFn = @convention(c) (UnsafeMutableRawPointer?, UnsafeMutablePointer<Int64>?) -> UnsafeMutableRawPointer?
 
     public let moduleURL: URL
     private var handle: UnsafeMutableRawPointer?
@@ -82,9 +86,21 @@ public final class SaoriLoader {
 
         if let loadFn {
             let directory = url.deletingLastPathComponent().path
-            let result = directory.withCString { cPath in
-                loadFn(cPath)
+            let directoryData = Data(directory.utf8)
+            // SAORI modules receive ownership of this buffer. Keep a trailing
+            // NUL for modules that treat the path as a C string; the explicit
+            // length remains the authoritative size per the common ABI.
+            guard let directoryBuffer = malloc(max(directoryData.count + 1, 1)) else {
+                closeHandle()
+                throw SaoriLoaderError.openFailed("could not allocate module directory buffer")
             }
+            directoryBuffer.initializeMemory(as: UInt8.self, repeating: 0, count: max(directoryData.count + 1, 1))
+            if !directoryData.isEmpty {
+                directoryData.withUnsafeBytes { raw in
+                    directoryBuffer.copyMemory(from: raw.baseAddress!, byteCount: directoryData.count)
+                }
+            }
+            let result = loadFn(directoryBuffer, Int64(directoryData.count))
             guard result != 0 else {
                 closeHandle()
                 throw SaoriLoaderError.moduleLoadFailed(directory)
@@ -101,15 +117,28 @@ public final class SaoriLoader {
             throw SaoriLoaderError.requestFailed
         }
         let encoded = try SaoriProtocol.encode(requestText, charset: charset)
-        var outLen: Int = 0
-        let resultPtr = encoded.withUnsafeBytes { raw -> UnsafePointer<UInt8>? in
-            requestFn(raw.bindMemory(to: UInt8.self).baseAddress, encoded.count, &outLen)
+        guard let requestBuffer = malloc(max(encoded.count, 1)) else {
+            throw SaoriLoaderError.requestFailed
         }
+        if !encoded.isEmpty {
+            encoded.withUnsafeBytes { raw in
+                requestBuffer.copyMemory(from: raw.baseAddress!, byteCount: encoded.count)
+            }
+        }
+
+        var outLen: Int64 = 0
+        let resultPtr = requestFn(requestBuffer, &outLen)
         guard let resultPtr else {
             throw SaoriLoaderError.requestFailed
         }
+        defer {
+            free(resultPtr)
+        }
 
-        let data = Data(bytes: resultPtr, count: max(outLen, 0))
+        guard outLen >= 0, let resultCount = Int(exactly: outLen) else {
+            throw SaoriLoaderError.responseDecodeFailed
+        }
+        let data = Data(bytes: resultPtr, count: resultCount)
         if let decoded = try? SaoriProtocol.decode(data, charset: charset) {
             return decoded
         }
@@ -120,7 +149,7 @@ public final class SaoriLoader {
     }
 
     public func unload() {
-        unloadFn?()
+        _ = unloadFn?()
         closeHandle()
         loadFn = nil
         unloadFn = nil
