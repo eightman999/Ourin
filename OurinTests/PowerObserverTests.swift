@@ -106,4 +106,63 @@ struct PowerObserverTests {
         #expect(restored.id == .OnFullScreenAppRestore)
         #expect(restored.params == ["Reference0": "fullscreen"])
     }
+
+    @Test
+    func screenSaverEventsCarryConfiguredModuleReferences() {
+        let info = ScreenSaverInfo.current(preferences: [
+            "moduleDict": [
+                "moduleName": "Flurry",
+                "path": "/System/Library/Screen Savers/Flurry.saver"
+            ],
+            "idleTime": 600
+        ])
+
+        let start = SleepObserver.screenSaverStartEvent(info: info)
+        let end = SleepObserver.screenSaverEndEvent(info: info)
+
+        let expected = [
+            "Reference0": "Flurry",
+            "Reference1": "/System/Library/Screen Savers/Flurry.saver",
+            "Reference2": "600"
+        ]
+        #expect(start.params == expected)
+        #expect(start.delivery == .notify)
+        #expect(start.ignoreResponseScript)
+        #expect(end.params == expected)
+        #expect(end.delivery == .get)
+    }
+
+    @Test
+    func screenSaverNotificationValuesOverrideStoredSettings() {
+        let info = ScreenSaverInfo.current(
+            notificationUserInfo: [
+                "moduleName": "Aerial",
+                "modulePath": "/Library/Screen Savers/Aerial.saver",
+                "timeoutSeconds": "90"
+            ],
+            preferences: [
+                "moduleDict": [
+                    "moduleName": "Flurry",
+                    "path": "/System/Library/Screen Savers/Flurry.saver"
+                ],
+                "idleTime": 600
+            ]
+        )
+
+        #expect(info == ScreenSaverInfo(
+            name: "Aerial",
+            path: "/Library/Screen Savers/Aerial.saver",
+            timeoutSeconds: "90"
+        ))
+    }
+
+    @Test
+    func screenSaverInfoDoesNotInventUnavailableValues() {
+        let info = ScreenSaverInfo.current(preferences: [:])
+
+        #expect(info.name.isEmpty)
+        #expect(info.path.isEmpty)
+        #expect(info.timeoutSeconds.isEmpty)
+        #expect(info.isEmpty)
+    }
 }
