@@ -378,6 +378,20 @@ extension GhostManager {
             ?? (UserDefaults.standard.object(forKey: "OurinSerikoTalkEnabled") as? Bool ?? true)
         guard enabled else { return }
         serikoExecutor.triggerTalk(characterCount: characterCount)
+        // starttalk は改行や空の表示ではなく、実際の本文が表示された時だけ発火する。
+        if characterCount > 0 {
+            serikoExecutor.triggerStartTalk()
+        }
+        startSerikoLoopIfNeeded()
+    }
+
+    /// 現在スコープのトーク終了を SERIKO へ通知する。
+    /// Executor 側で starttalk の発火履歴が無い animation は無視される。
+    func triggerSerikoEndTalkAnimation() {
+        let enabled = serikoTalkEnabledForScript
+            ?? (UserDefaults.standard.object(forKey: "OurinSerikoTalkEnabled") as? Bool ?? true)
+        guard enabled else { return }
+        serikoExecutor.triggerEndTalk()
         startSerikoLoopIfNeeded()
     }
 

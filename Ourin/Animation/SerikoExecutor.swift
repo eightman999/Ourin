@@ -26,6 +26,10 @@ public final class SerikoExecutor {
     /// talk,N の判定に使う、現在サーフェスが表示されてからの文字数。
     private var talkCharacterCount = 0
     private var lastTalkTriggerCount: [Int: Int] = [:]
+    /// starttalk が発火済みの animation ID。各定義の再発火抑制に使う。
+    private var startedTalkAnimations: Set<Int> = []
+    /// 現在の会話スコープで starttalk が一度でも発火したか。
+    private var hasStartedTalk = false
 
     private let nowProvider: () -> Date
     private let randomProvider: () -> Double
@@ -60,6 +64,8 @@ public final class SerikoExecutor {
         pendingIntervalEvents.removeAll()
         talkCharacterCount = 0
         lastTalkTriggerCount.removeAll()
+        startedTalkAnimations.removeAll()
+        hasStartedTalk = false
     }
 
     /// Return registered definition for an animation id
@@ -97,6 +103,7 @@ public final class SerikoExecutor {
 
     public func startLoop() {
         let now = nowProvider()
+        let endingTalk = pendingIntervalEvents.contains(.endTalk)
         startScheduledAnimations(now: now)
 
         for id in activeAnimations.keys.sorted() {
@@ -139,6 +146,12 @@ public final class SerikoExecutor {
             executeCurrentPattern(for: id)
         }
         pendingIntervalEvents.removeAll()
+        if endingTalk {
+            // endtalk はスコープ単位の境界イベント。対応する定義が無くても
+            // 次のトークで starttalk が再び発火できるよう履歴を閉じる。
+            startedTalkAnimations.removeAll()
+            hasStartedTalk = false
+        }
     }
 
     public func executePattern(animationID: Int, pattern: SerikoPattern) {
@@ -365,6 +378,8 @@ public final class SerikoExecutor {
             talkCharacterCount += characterCount
         }
     }
+    public func triggerStartTalk() { pendingIntervalEvents.insert(.startTalk) }
+    public func triggerEndTalk() { pendingIntervalEvents.insert(.endTalk) }
     public func triggerBind() { pendingIntervalEvents.insert(.bind) }
 
     private func executeCurrentPattern(for id: Int) {
@@ -458,6 +473,8 @@ public final class SerikoExecutor {
         var hasPeriodic = false
         var periodicNeedsBaseline = false
         var hasTalkCharacters = false
+        var hasStartTalk = false
+        var hasEndTalk = false
 
         // 複合 interval は各条件を同時に満たした場合だけ発火する。
         // 状態変更は全条件が通った後に行い、random の不成立で runonce を
@@ -493,6 +510,14 @@ public final class SerikoExecutor {
                 guard pendingIntervalEvents.contains(.talk) else { return false }
                 let last = lastTalkTriggerCount[animationID] ?? 0
                 guard talkCharacterCount - last >= max(count, 1) else { return false }
+            case .startTalk:
+                hasStartTalk = true
+                guard pendingIntervalEvents.contains(.startTalk) else { return false }
+                guard !startedTalkAnimations.contains(animationID) else { return false }
+            case .endTalk:
+                hasEndTalk = true
+                guard pendingIntervalEvents.contains(.endTalk) else { return false }
+                guard hasStartedTalk else { return false }
             case .bind:
                 guard pendingIntervalEvents.contains(.bind) else { return false }
             case .never, .unknown, .combined:
@@ -514,6 +539,13 @@ public final class SerikoExecutor {
         }
         if hasTalkCharacters {
             lastTalkTriggerCount[animationID] = talkCharacterCount
+        }
+        if hasStartTalk {
+            startedTalkAnimations.insert(animationID)
+            hasStartedTalk = true
+        }
+        if hasEndTalk {
+            startedTalkAnimations.remove(animationID)
         }
         return true
     }

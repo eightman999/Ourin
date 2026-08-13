@@ -282,6 +282,36 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func startTalkFiresOnceUntilEndTalkAndEndTalkRequiresHistory() async throws {
+        let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 0.0 })
+        let start = makeDefinition(id: 27, interval: .startTalk, methods: [.overlay])
+        let end = makeDefinition(id: 28, interval: .endTalk, methods: [.overlay])
+        executor.register(animations: [27: start, 28: end])
+
+        executor.triggerEndTalk()
+        executor.startLoop()
+        #expect(executor.activeAnimations.isEmpty)
+
+        executor.triggerStartTalk()
+        executor.startLoop()
+        #expect(executor.activeAnimations[27] != nil)
+
+        executor.stopAllAnimations()
+        executor.triggerStartTalk()
+        executor.startLoop()
+        #expect(executor.activeAnimations[27] == nil)
+
+        executor.triggerEndTalk()
+        executor.startLoop()
+        #expect(executor.activeAnimations[28] != nil)
+
+        executor.stopAllAnimations()
+        executor.triggerStartTalk()
+        executor.startLoop()
+        #expect(executor.activeAnimations[27] != nil)
+    }
+
+    @Test
     func combinedIntervalRequiresEventAndRunonceGate() async throws {
         let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 0.0 })
         let definition = makeDefinition(

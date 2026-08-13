@@ -4804,6 +4804,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 // 明示コマンド（\c / \e[clear] / \x 等）のみが行う。
                 // （旧実装は切替のたびに他スコープを全消去し、同一スコープ再訪時も本文を消していたため
                 //  複数キャラ同時発話や同一スコープへの追記が SSP と食い違っていた。）
+                if id != currentScope {
+                    // UKADOC: スコープを離れる時点で endtalk を評価する。
+                    // starttalk 未発火のスコープでは Executor がイベントを抑止する。
+                    triggerSerikoEndTalkAnimation()
+                }
                 currentScope = id
                 Log.debug("[GhostManager] Switched to scope \(id)")
 

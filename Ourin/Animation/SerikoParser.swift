@@ -12,6 +12,10 @@ public indirect enum SerikoInterval: Hashable {
     case talk
     /// talk,N — N 文字ごとに発火する会話中アニメーション。
     case talkCharacters(Int)
+    /// starttalk — 対象スコープのトーク開始時に一度だけ発火する。
+    case startTalk
+    /// endtalk — starttalk 発火履歴がある対象スコープのトーク終了時に発火する。
+    case endTalk
     case bind
     case never
     /// `bind+runonce` のような SERIKO interval 複合指定。
@@ -71,6 +75,8 @@ public indirect enum SerikoInterval: Hashable {
             let parameter = String(value.dropFirst("talk,".count))
             guard let count = Int(parameter), count > 0 else { return .unknown(raw) }
             return .talkCharacters(count)
+        case "starttalk": return .startTalk
+        case "endtalk": return .endTalk
         case "bind": return .bind
         case "never": return .never
         default: return .unknown(raw)

@@ -122,6 +122,13 @@ struct SerikoParserTests {
     }
 
     @Test
+    func parseStartTalkAndEndTalkIntervals() async throws {
+        #expect(SerikoInterval.parse("starttalk") == .startTalk)
+        #expect(SerikoInterval.parse("ENDTALK") == .endTalk)
+        #expect(SerikoInterval.parse("starttalk+runonce") == .combined([.startTalk, .runonce]))
+    }
+
+    @Test
     func rejectMultipleParameterizedIntervals() async throws {
         let text = """
         surface4
