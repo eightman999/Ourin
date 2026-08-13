@@ -96,6 +96,7 @@
 | — | `updateother` の対象誤配線 | ゴースト名指定の絞り込みに加え、balloon/shell/plugin/headline/language をインストール済み descriptor の name／id から解決し、各対象ルートへ更新を適用する実装を完了。`testonly` のダウンロード・MD5検証・非置換も回帰テスト済み。実ネットワーク・実ゴーストでの更新確認は未実施。 |
 | — | `\\f[cursor*]` と選択肢 hover | カーソル装飾値を実ボタンへ反映し、モーダル中の実ポインタ位置を監視して `OnChoiceEnter` の入退場と 500ms 静止後の `OnChoiceHover` を発火する。 |
 | — | （`BalloonRichTextViewModel` のスタブ解消 2026-08-14） | `valign`、subscript、superscript を `NSAttributedString` の解決済み属性（縦寄せメタデータ、baselineOffset、縮小フォント）へ接続し、font fallback・style reset も実装。`OurinTests/BalloonRichTextViewModelTests.swift` の3件で確認。 |
+| — | （`PropertyManager` の AppKit スレッド安全性を修正 2026-08-14） | 外部イベント処理やテストからバックグラウンドで生成される `PropertyManager` が `NSApp.delegate`／プラグイン・Headline Registry を参照する箇所をメインスレッドへ限定。`PropertyTests.initializationFromBackgroundThreadKeepsAppKitAccessOnMain` と全体テストで回帰確認済み。 |
 
 ---
 
@@ -190,6 +191,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 | — | `updateother` target routing | In addition to filtering ghost-name selectors, balloon/shell/plugin/headline/language targets are resolved from installed descriptor name/id values and updates are applied to each target's own root. `testonly` download, MD5 verification, and non-replacement behavior are covered by regression tests. Real-network and installed-ghost verification remain pending. |
 | — | `\\f[cursor*]` and choice hover | Cursor decoration values are applied to the real choice buttons. A local mouse monitor tracks the actual button under the pointer, emitting `OnChoiceEnter` on enter/exit and `OnChoiceHover` after 500 ms of stillness. |
 | — | (`BalloonRichTextViewModel` stub removal completed 2026-08-14) | `valign`, subscript, and superscript now produce resolved `NSAttributedString` metadata (`OurinVerticalAlignment`, `baselineOffset`, and a scaled font); font fallback and style reset are implemented. Covered by three `BalloonRichTextViewModelTests`. |
+| — | (`PropertyManager` AppKit thread safety fixed 2026-08-14) | `PropertyManager` instances may be created on background event/test queues, so reads of `NSApp.delegate` and the plugin/Headline registries are now confined to the main thread. Covered by `PropertyTests.initializationFromBackgroundThreadKeepsAppKitAccessOnMain` and the full test suite. |
 
 ---
 
