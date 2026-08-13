@@ -141,6 +141,8 @@ class BalloonViewModel: ObservableObject {
 
     // Balloon control settings
     @Published var autoscrollEnabled: Bool = true
+    /// `\_n` が有効な間は自動折り返しを行わない。
+    @Published var wordWrapEnabled: Bool = true
     @Published var balloonTimeout: TimeInterval = BalloonViewModel.defaultBalloonTimeout
     @Published var balloonWaitEnabled: Bool = true
     @Published var balloonWaitMultiplier: Double = 1.0
@@ -2159,9 +2161,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     DispatchQueue.main.async { self.showCommunicateBoxDialog(timeoutMs: nil, initialText: "") }
                 })
             case "_n":
-                // \_n: 自動改行（ワードラップ）抑制メタタグ。現行レンダラはワードラップ非依存の
-                // ため認識のみ（誤った改行挿入はしない）。
-                NSLog("[GhostManager] \\_n (no-wrap) recognized")
+                // \_n: 次の \_n まで自動折り返しを抑止する。
+                // パース時ではなく再生キュー上で反映し、範囲内の本文だけに適用する。
+                playbackQueue.append(.deferredCommand { [weak self] in
+                    guard let self else { return }
+                    let vm = self.getBalloonVM(for: self.currentScope)
+                    vm.wordWrapEnabled.toggle()
+                    Log.debug("[GhostManager] \\_n word wrap: \(vm.wordWrapEnabled)")
+                })
             case "__v":
                 // \__v[disable]...\__v / \__v[alternate,よみ]...\__v
                 // パースだけで捨てず、後続テキストの音声合成状態へ反映する。
@@ -3903,6 +3910,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             vm.balloonTimeout = BalloonViewModel.defaultBalloonTimeout
             vm.balloonWaitEnabled = true
             vm.balloonWaitMultiplier = 1.0
+            vm.wordWrapEnabled = true
             if !vm.manualRepaintLock {
                 vm.repaintLocked = false
             }

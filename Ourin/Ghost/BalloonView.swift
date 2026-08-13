@@ -196,23 +196,45 @@ struct BalloonView: View {
                         size: size,
                         alignment: viewModel.textAlign
                     )
-                    // Text overlay with proper positioning
-                    decoratedText(for: viewModel, surfaceImage: bImage, surfaceSize: size)
-                        .lineLimit(nil)
-                        .multilineTextAlignment(textAlignment(for: viewModel.textAlign))
-                        .frame(
-                            width: textLayout.width,
-                            height: textLayout.height,
-                            alignment: textFrameAlignment(for: viewModel.textVAlign)
-                        )
-                        .padding(
-                            EdgeInsets(
-                                top: textLayout.minY + viewModel.cursorY + viewModel.balloonOffsetY,
-                                leading: textLayout.minX + viewModel.cursorX + viewModel.balloonOffsetX,
-                                bottom: 0,
-                                trailing: 0
+                    // Text overlay with proper positioning. `\_n` uses a fixed horizontal
+                    // size and clips at the text region instead of wrapping to a new line.
+                    if viewModel.wordWrapEnabled {
+                        decoratedText(for: viewModel, surfaceImage: bImage, surfaceSize: size)
+                            .lineLimit(nil)
+                            .multilineTextAlignment(textAlignment(for: viewModel.textAlign))
+                            .frame(
+                                width: textLayout.width,
+                                height: textLayout.height,
+                                alignment: textFrameAlignment(for: viewModel.textVAlign)
                             )
-                        )
+                            .padding(
+                                EdgeInsets(
+                                    top: textLayout.minY + viewModel.cursorY + viewModel.balloonOffsetY,
+                                    leading: textLayout.minX + viewModel.cursorX + viewModel.balloonOffsetX,
+                                    bottom: 0,
+                                    trailing: 0
+                                )
+                            )
+                    } else {
+                        decoratedText(for: viewModel, surfaceImage: bImage, surfaceSize: size)
+                            .lineLimit(1)
+                            .fixedSize(horizontal: true, vertical: false)
+                            .multilineTextAlignment(textAlignment(for: viewModel.textAlign))
+                            .frame(
+                                width: textLayout.width,
+                                height: textLayout.height,
+                                alignment: textFrameAlignment(for: viewModel.textVAlign)
+                            )
+                            .clipped()
+                            .padding(
+                                EdgeInsets(
+                                    top: textLayout.minY + viewModel.cursorY + viewModel.balloonOffsetY,
+                                    leading: textLayout.minX + viewModel.cursorX + viewModel.balloonOffsetX,
+                                    bottom: 0,
+                                    trailing: 0
+                                )
+                            )
+                    }
                 }
 
                 VStack(alignment: .trailing, spacing: 2) {

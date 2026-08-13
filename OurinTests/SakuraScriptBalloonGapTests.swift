@@ -61,6 +61,27 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func noWrapRangeTogglesAtPlaybackAndResetsAtScriptEnd() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-no-wrap"))
+        let vm = gm.getBalloonVM(for: gm.currentScope)
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "_n", args: []))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("No wrap"))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "_n", args: []))
+
+        #expect(vm.wordWrapEnabled)
+        gm.processNextUnit()
+        #expect(!vm.wordWrapEnabled)
+
+        gm.playbackQueue.removeAll()
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "_n", args: []))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .end)
+        gm.processNextUnit()
+        #expect(vm.wordWrapEnabled)
+        _ = gm.shutdown()
+    }
+
+    @MainActor
     @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
         let vm = gm.getBalloonVM(for: gm.currentScope)
