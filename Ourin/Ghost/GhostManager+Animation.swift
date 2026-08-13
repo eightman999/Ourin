@@ -372,11 +372,11 @@ extension GhostManager {
         Log.debug("[GhostManager] Reloaded surfaces*.txt definitions")
     }
 
-    func triggerSerikoTalkAnimationIfEnabled() {
+    func triggerSerikoTalkAnimationIfEnabled(characterCount: Int = 1) {
         let enabled = serikoTalkEnabledForScript
             ?? (UserDefaults.standard.object(forKey: "OurinSerikoTalkEnabled") as? Bool ?? true)
         guard enabled else { return }
-        serikoExecutor.triggerTalk()
+        serikoExecutor.triggerTalk(characterCount: characterCount)
         startSerikoLoopIfNeeded()
     }
 
@@ -946,7 +946,7 @@ extension GhostManager {
         }
     }
 
-    private func startSerikoLoopIfNeeded() {
+    func startSerikoLoopIfNeeded() {
         guard serikoLoopTimer == nil else { return }
         serikoLoopTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
             guard let self = self else { return }

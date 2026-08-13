@@ -105,6 +105,38 @@ struct SerikoParserTests {
     }
 
     @Test
+    func parseParameterizedAndCombinedIntervals() async throws {
+        let text = """
+        surface4
+        {
+          animation1.interval,talk,2
+          animation2.interval,bind+runonce
+          animation3.interval,bind+runonce+random,5
+        }
+        """
+
+        let animations = try #require(SerikoParser.parseSurfaces(text)[4]?.animations)
+        #expect(animations[1]?.interval == .talkCharacters(2))
+        #expect(animations[2]?.interval == .combined([.bind, .runonce]))
+        #expect(animations[3]?.interval == .combined([.bind, .runonce, .random(5)]))
+    }
+
+    @Test
+    func rejectMultipleParameterizedIntervals() async throws {
+        let text = """
+        surface4
+        {
+          animation1.interval,random,5+periodic,2
+          animation2.interval,random,5+bind
+        }
+        """
+
+        let animations = try #require(SerikoParser.parseSurfaces(text)[4]?.animations)
+        #expect(animations[1]?.interval == .unknown("random,5+periodic,2"))
+        #expect(animations[2]?.interval == .unknown("random,5+bind"))
+    }
+
+    @Test
     func parseControlPatternsKeepsCandidateListsTogether() async throws {
         let text = """
         surface0

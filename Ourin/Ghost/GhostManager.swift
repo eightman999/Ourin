@@ -4824,6 +4824,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 continue
             case .end:
                 Log.debug("[GhostManager] Script end.")
+                // SERIKO の yen-e interval はスクリプト終端（\\e）で発火する。
+                // スクリプト状態を片付ける前にイベントをキューへ積む。
+                serikoExecutor.triggerYenE()
+                startSerikoLoopIfNeeded()
                 quickMode = false
                 syncEnabled = false
                 appendModeEnabled = false

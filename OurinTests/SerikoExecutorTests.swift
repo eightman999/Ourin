@@ -267,6 +267,62 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func parameterizedTalkIntervalWaitsForCharacterCount() async throws {
+        let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 1.0 })
+        let definition = makeDefinition(id: 23, interval: .talkCharacters(2), methods: [.overlay])
+        executor.register(animations: [23: definition])
+
+        executor.triggerTalk(characterCount: 1)
+        executor.startLoop()
+        #expect(executor.activeAnimations[23] == nil)
+
+        executor.triggerTalk(characterCount: 1)
+        executor.startLoop()
+        #expect(executor.activeAnimations[23] != nil)
+    }
+
+    @Test
+    func combinedIntervalRequiresEventAndRunonceGate() async throws {
+        let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 0.0 })
+        let definition = makeDefinition(
+            id: 24,
+            interval: .combined([.bind, .runonce]),
+            methods: [.overlay]
+        )
+        executor.register(animations: [24: definition])
+
+        executor.startLoop()
+        #expect(executor.activeAnimations[24] == nil)
+
+        executor.triggerBind()
+        executor.startLoop()
+        #expect(executor.activeAnimations[24] != nil)
+
+        executor.stopAllAnimations()
+        executor.triggerBind()
+        executor.startLoop()
+        #expect(executor.activeAnimations[24] == nil)
+    }
+
+    @Test
+    func replacingDefinitionsResetsRunonceLifecycle() async throws {
+        var now = Date(timeIntervalSince1970: 0)
+        let executor = SerikoExecutor(nowProvider: { now }, randomProvider: { 0.0 })
+        let definition = makeDefinition(id: 25, interval: .runonce, methods: [.overlay])
+        executor.register(animations: [25: definition])
+
+        executor.startLoop()
+        #expect(executor.activeAnimations[25] != nil)
+        now = now.addingTimeInterval(0.02)
+        executor.startLoop()
+        #expect(executor.activeAnimations[25] == nil)
+
+        executor.replace(animations: [25: definition])
+        executor.startLoop()
+        #expect(executor.activeAnimations[25] != nil)
+    }
+
+    @Test
     func exclusiveOptionStopsOtherActiveAnimations() async throws {
         let executor = SerikoExecutor()
         let normal = SerikoParser.AnimationDefinition(

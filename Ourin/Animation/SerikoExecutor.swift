@@ -18,6 +18,9 @@ public final class SerikoExecutor {
     /// periodic,N の前回発火時刻（animationID 毎）。実時間で N 秒間隔を判定するため保持する。
     private var lastPeriodicStart: [Int: Date] = [:]
     private var pendingIntervalEvents: Set<SerikoInterval> = []
+    /// talk,N の判定に使う、現在サーフェスが表示されてからの文字数。
+    private var talkCharacterCount = 0
+    private var lastTalkTriggerCount: [Int: Int] = [:]
 
     private let nowProvider: () -> Date
     private let randomProvider: () -> Double
@@ -45,6 +48,13 @@ public final class SerikoExecutor {
     /// 旧サーフェス用の目元パッチが別表情の上で再生される。
     public func replace(animations: [Int: SerikoParser.AnimationDefinition]) {
         definitions = animations
+        // runonce / periodic / talk,N はサーフェス単位の状態であり、定義の
+        // 置換（通常はサーフェス切替・再読込）をまたいで持ち越してはいけない。
+        triggeredRunonce.removeAll()
+        lastPeriodicStart.removeAll()
+        pendingIntervalEvents.removeAll()
+        talkCharacterCount = 0
+        lastTalkTriggerCount.removeAll()
     }
 
     /// Return registered definition for an animation id
@@ -346,7 +356,12 @@ public final class SerikoExecutor {
     }
 
     public func triggerYenE() { pendingIntervalEvents.insert(.yenE) }
-    public func triggerTalk() { pendingIntervalEvents.insert(.talk) }
+    public func triggerTalk(characterCount: Int = 1) {
+        pendingIntervalEvents.insert(.talk)
+        if characterCount > 0 {
+            talkCharacterCount += characterCount
+        }
+    }
     public func triggerBind() { pendingIntervalEvents.insert(.bind) }
 
     private func executeCurrentPattern(for id: Int) {
@@ -363,7 +378,7 @@ public final class SerikoExecutor {
                hasActiveAnimation(inSeries: series, excluding: id) {
                 continue
             }
-            guard shouldStart(definition: definition, animationID: id) else { continue }
+            guard shouldStart(definition: definition, animationID: id, now: now) else { continue }
             if hasOption("exclusive", in: definition) {
                 stopAnimations(except: id)
             }
@@ -423,44 +438,75 @@ public final class SerikoExecutor {
         return hasOption("background", in: state.definition)
     }
 
-    private func shouldStart(definition: SerikoParser.AnimationDefinition, animationID: Int) -> Bool {
-        switch definition.interval {
-        case .always:
-            return true
-        case .sometimes:
-            return randomProvider() < 0.2
-        case .rarely:
-            return randomProvider() < 0.05
-        case .random(let threshold):
-            let t = threshold ?? 10
-            return Int(randomProvider() * Double(max(t, 1))) == 0
-        case .periodic(let seconds):
-            // periodic,N — 前回発火から N 秒経過するたびに必ず発火する（UKADOC）。
-            // startLoop が高頻度（20Hz）で回るため、呼び出し回数ではなく実時間で判定する。
-            let interval = Double(max(seconds ?? 1, 1))
-            let now = nowProvider()
-            if let last = lastPeriodicStart[animationID] {
-                if now.timeIntervalSince(last) >= interval {
-                    lastPeriodicStart[animationID] = now
-                    return true
+    private func shouldStart(
+        definition: SerikoParser.AnimationDefinition,
+        animationID: Int,
+        now: Date
+    ) -> Bool {
+        let components = definition.interval.components
+        guard !components.isEmpty else { return false }
+
+        var hasRunonce = false
+        var hasPeriodic = false
+        var periodicNeedsBaseline = false
+        var hasTalkCharacters = false
+
+        // 複合 interval は各条件を同時に満たした場合だけ発火する。
+        // 状態変更は全条件が通った後に行い、random の不成立で runonce を
+        // 消費するような半端な遷移を防ぐ。
+        for component in components {
+            switch component {
+            case .always:
+                continue
+            case .sometimes:
+                guard randomProvider() < 0.2 else { return false }
+            case .rarely:
+                guard randomProvider() < 0.05 else { return false }
+            case .random(let threshold):
+                let t = threshold ?? 10
+                guard Int(randomProvider() * Double(max(t, 1))) == 0 else { return false }
+            case .periodic(let seconds):
+                hasPeriodic = true
+                let interval = Double(max(seconds ?? 1, 1))
+                if let last = lastPeriodicStart[animationID] {
+                    guard now.timeIntervalSince(last) >= interval else { return false }
+                } else {
+                    periodicNeedsBaseline = true
                 }
+            case .runonce:
+                hasRunonce = true
+                guard !triggeredRunonce.contains(animationID) else { return false }
+            case .yenE:
+                guard pendingIntervalEvents.contains(.yenE) else { return false }
+            case .talk:
+                guard pendingIntervalEvents.contains(.talk) else { return false }
+            case .talkCharacters(let count):
+                hasTalkCharacters = true
+                guard pendingIntervalEvents.contains(.talk) else { return false }
+                let last = lastTalkTriggerCount[animationID] ?? 0
+                guard talkCharacterCount - last >= max(count, 1) else { return false }
+            case .bind:
+                guard pendingIntervalEvents.contains(.bind) else { return false }
+            case .never, .unknown, .combined:
+                // `components` は複合値を平坦化するため combined には到達しない。
                 return false
             }
-            // 初回評価時は基準時刻のみ記録し、最初の発火は N 秒後とする
+        }
+
+        if periodicNeedsBaseline {
+            // 初回評価は基準時刻だけ記録し、N 秒後の評価で発火する。
             lastPeriodicStart[animationID] = now
             return false
-        case .runonce:
-            if triggeredRunonce.contains(animationID) { return false }
-            triggeredRunonce.insert(animationID)
-            return true
-        case .yenE:
-            return pendingIntervalEvents.contains(.yenE)
-        case .talk:
-            return pendingIntervalEvents.contains(.talk)
-        case .bind:
-            return pendingIntervalEvents.contains(.bind)
-        case .never, .unknown:
-            return false
         }
+        if hasRunonce {
+            triggeredRunonce.insert(animationID)
+        }
+        if hasPeriodic {
+            lastPeriodicStart[animationID] = now
+        }
+        if hasTalkCharacters {
+            lastTalkTriggerCount[animationID] = talkCharacterCount
+        }
+        return true
     }
 }

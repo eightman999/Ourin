@@ -167,7 +167,10 @@ extension GhostManager {
                 if !part.isEmpty { vm.text += String(part) }
             }
             scheduleBalloonTimeout(for: currentScope)
-            triggerSerikoTalkAnimationIfEnabled()
+            let characterCount = s.reduce(into: 0) { count, character in
+                if character != "\n" { count += 1 }
+            }
+            triggerSerikoTalkAnimationIfEnabled(characterCount: characterCount)
         // }
     }
 
@@ -176,7 +179,9 @@ extension GhostManager {
         let vm = getBalloonVM(for: currentScope)
         vm.appendNewline(advance: advance)
         scheduleBalloonTimeout(for: currentScope)
-        triggerSerikoTalkAnimationIfEnabled()
+        // 改行は表示位置を進めるイベントであり、talk,N の文字数には含めない。
+        // 引数 0 でも talk（パラメータなし）のイベント通知は従来どおり維持する。
+        triggerSerikoTalkAnimationIfEnabled(characterCount: 0)
     }
 
     func onBalloonClicked(fromScope: Int) {

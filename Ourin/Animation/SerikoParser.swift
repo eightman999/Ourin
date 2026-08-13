@@ -1,6 +1,6 @@
 import Foundation
 
-public enum SerikoInterval: Hashable {
+public indirect enum SerikoInterval: Hashable {
     case always
     case sometimes
     case rarely
@@ -10,25 +10,55 @@ public enum SerikoInterval: Hashable {
     case runonce
     case yenE
     case talk
+    /// talk,N — N 文字ごとに発火する会話中アニメーション。
+    case talkCharacters(Int)
     case bind
     case never
+    /// `bind+runonce` のような SERIKO interval 複合指定。
+    case combined([SerikoInterval])
     case unknown(String)
 
     static func parse(_ raw: String) -> SerikoInterval {
         let value = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if value.hasPrefix("random") {
-            let parts = value.split(separator: ",", maxSplits: 1).map(String.init)
-            if parts.count == 2, let n = Int(parts[1]) {
-                return .random(n)
-            }
+        let components = value.split(separator: "+", omittingEmptySubsequences: false).map(String.init)
+        guard !components.isEmpty, components.allSatisfy({ !$0.isEmpty }) else {
+            return .unknown(raw)
+        }
+
+        let parsed = components.map { parseSingle($0, raw: raw) }
+        guard !parsed.contains(where: { if case .unknown = $0 { return true }; return false }) else {
+            return .unknown(raw)
+        }
+        if parsed.count == 1 {
+            return parsed[0]
+        }
+        // UKADOC は parameterized interval 同士の複合指定を許可していない。
+        // これを受理すると random/periodic/talk の判定が曖昧になるため無効化する。
+        guard parsed.filter(\.isParameterized).count <= 1 else {
+            return .unknown(raw)
+        }
+        if let parameterizedIndex = parsed.firstIndex(where: \.isParameterized),
+           parameterizedIndex != parsed.index(before: parsed.endIndex) {
+            // パラメータ付き interval は複合指定の末尾に限る。
+            return .unknown(raw)
+        }
+        return .combined(parsed)
+    }
+
+    private static func parseSingle(_ value: String, raw: String) -> SerikoInterval {
+        if value == "random" {
             return .random(nil)
         }
-        if value.hasPrefix("periodic") {
-            let parts = value.split(separator: ",", maxSplits: 1).map(String.init)
-            if parts.count == 2, let n = Int(parts[1]) {
-                return .periodic(n)
-            }
+        if value.hasPrefix("random,") {
+            let parameter = String(value.dropFirst("random,".count))
+            return Int(parameter).map { .random($0) } ?? .unknown(raw)
+        }
+        if value == "periodic" {
             return .periodic(nil)
+        }
+        if value.hasPrefix("periodic,") {
+            let parameter = String(value.dropFirst("periodic,".count))
+            return Int(parameter).map { .periodic($0) } ?? .unknown(raw)
         }
         switch value {
         case "always": return .always
@@ -37,9 +67,34 @@ public enum SerikoInterval: Hashable {
         case "runonce": return .runonce
         case "yen-e": return .yenE
         case "talk": return .talk
+        case let value where value.hasPrefix("talk,"):
+            let parameter = String(value.dropFirst("talk,".count))
+            guard let count = Int(parameter), count > 0 else { return .unknown(raw) }
+            return .talkCharacters(count)
         case "bind": return .bind
         case "never": return .never
         default: return .unknown(raw)
+        }
+    }
+
+    private var isParameterized: Bool {
+        switch self {
+        case .random, .periodic, .talkCharacters:
+            return true
+        case .combined(let values):
+            return values.contains(where: \.isParameterized)
+        default:
+            return false
+        }
+    }
+
+    /// 複合指定を平坦化した interval 列。Executor の判定を単一の実装へ集約する。
+    var components: [SerikoInterval] {
+        switch self {
+        case .combined(let values):
+            return values.flatMap(\.components)
+        default:
+            return [self]
         }
     }
 }

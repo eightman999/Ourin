@@ -219,6 +219,13 @@ extension GhostManager {
                 }
             }
 
+            // SERIKO の bind interval は、SHIORI 通知の有無とは独立した描画イベント。
+            // 現在表示中のスコープで実際に状態が変わった場合だけ発火させる。
+            if targetScope == self.currentScope, !changes.isEmpty {
+                self.serikoExecutor.triggerBind()
+                self.startSerikoLoopIfNeeded()
+            }
+
             // 通常 bind は描画（applyDressup の main キュー処理）完了後に
             // OnDressupChanged → OnNotifyDressupInfo の順で送出する。
             // 複数タプルは completion から次の操作へ進めることで、変更通知を
