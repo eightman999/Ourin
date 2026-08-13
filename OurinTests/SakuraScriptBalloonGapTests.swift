@@ -421,6 +421,45 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func systemCommandsAreQueuedAfterPrecedingText() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-system-command-order"))
+        defer { _ = gm.shutdown() }
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("before"))
+        let commands = [
+            ["lock", "repaint"], ["unlock", "repaint"],
+            ["execute", "ping", "localhost"], ["create", "shortcut", "/tmp/source", "/tmp/link"],
+            ["clipboard", "set", "hello"], ["systemmessage", "title", "body"],
+            ["quicksession", "true"], ["executesntp"], ["biff", "account"],
+            ["update", "http", "https://example.com"], ["updatebymyself", "check"],
+            ["updateother", "check"], ["vanishbymyself", "next", "--option=query"],
+            ["reloadsurface"], ["reload", "descript", "ghost"],
+            ["unload", "shiori"], ["load", "shiori"]
+        ]
+        for args in commands {
+            gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: args))
+        }
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("after"))
+
+        let order = gm.playbackQueue.compactMap { unit -> String? in
+            switch unit {
+            case .textToken(let text):
+                return "text:" + text
+            case .speakTextToken(let text):
+                return "speak:" + text
+            case .deferredCommand:
+                return "command"
+            default:
+                return nil
+            }
+        }
+
+        #expect(order == ["text:before", "speak:before"]
+            + Array(repeating: "command", count: commands.count)
+            + ["text:after", "speak:after"])
+    }
+
+    @MainActor
     @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
         let vm = gm.getBalloonVM(for: gm.currentScope)

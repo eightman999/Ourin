@@ -235,7 +235,7 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
-    func resetWindowPositionRaisesEventBeforeDefaultReset() {
+    func resetWindowPositionRaisesEventBeforeDefaultReset() async throws {
         EventBridge.shared.stop()
 
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-reset-window-event-test"))
@@ -247,6 +247,7 @@ struct GhostUtilityCommandTests {
         }
 
         manager.runScript(#"\![execute,resetwindowpos]"#)
+        try await Task.sleep(nanoseconds: 50_000_000)
 
         let resetEvent = runtime.requests.first { $0.id == EventID.OnResetWindowPos.rawValue }
         #expect(resetEvent?.method == "GET")

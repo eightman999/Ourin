@@ -2249,6 +2249,138 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
 
+    /// `\![lock,*]` の再描画・移動ロックを再生キュー上で実行する。
+    private func executeLockCommand(args: [String]) {
+        guard args.count >= 2 else { return }
+        let subcmd = args[1].lowercased()
+        switch subcmd {
+        case "repaint":
+            let manual = args.count >= 3 && args[2].lowercased() == "manual"
+            guard let vm = characterViewModels[currentScope] else { return }
+            vm.repaintLocked = true
+            vm.manualRepaintLock = manual
+        case "balloonrepaint":
+            let manual = args.count >= 3 && args[2].lowercased() == "manual"
+            guard let vm = balloonViewModels[currentScope] else { return }
+            vm.repaintLocked = true
+            vm.manualRepaintLock = manual
+            Log.debug("[GhostManager] Balloon repaint locked: \(manual)")
+        case "balloonmove":
+            guard let vm = balloonViewModels[currentScope] else { return }
+            vm.balloonMoveLocked = true
+            Log.debug("[GhostManager] Balloon move locked")
+        default:
+            break
+        }
+    }
+
+    /// `\![unlock,*]` の再描画・移動ロックを再生キュー上で解除する。
+    private func executeUnlockCommand(args: [String]) {
+        guard args.count >= 2 else { return }
+        let subcmd = args[1].lowercased()
+        switch subcmd {
+        case "repaint":
+            guard let vm = characterViewModels[currentScope] else { return }
+            vm.repaintLocked = false
+            vm.manualRepaintLock = false
+        case "balloonrepaint":
+            guard let vm = balloonViewModels[currentScope] else { return }
+            vm.repaintLocked = false
+            vm.manualRepaintLock = false
+            Log.debug("[GhostManager] Balloon repaint unlocked")
+        case "balloonmove":
+            guard let vm = balloonViewModels[currentScope] else { return }
+            vm.balloonMoveLocked = false
+            Log.debug("[GhostManager] Balloon move unlocked")
+        default:
+            break
+        }
+    }
+
+    /// `\![execute,*]` の外部連携・ファイル操作を再生キュー上で実行する。
+    private func executeSakuraScriptExecuteCommand(args: [String]) {
+        guard args.count >= 2 else { return }
+        let subcmd = args[1].lowercased()
+        if subcmd == "resetwindowpos" {
+            executeResetWindowPos()
+        } else if subcmd == "resetballoonpos" {
+            resetBalloonPositions()
+        } else if subcmd == "headline" {
+            executeHeadline(name: args.count >= 3 ? args[2] : "")
+        } else if subcmd.hasPrefix("http-stream-") || subcmd == "http-stream" {
+            executeCommandAtPlaybackPosition {
+                executeHTTPStreaming(subcommand: subcmd, params: Array(args.dropFirst(2)))
+            }
+        } else if subcmd.hasPrefix("http-") {
+            executeCommandAtPlaybackPosition {
+                executeHTTP(subcommand: subcmd, params: Array(args.dropFirst(2)))
+            }
+        } else if subcmd.hasPrefix("rss-") {
+            executeCommandAtPlaybackPosition {
+                executeRSS(subcommand: subcmd, params: Array(args.dropFirst(2)))
+            }
+        } else if subcmd == "extractarchive" {
+            executeExtractArchive(params: Array(args.dropFirst(2)))
+        } else if subcmd == "compressarchive" {
+            executeCompressArchive(params: Array(args.dropFirst(2)))
+        } else if subcmd == "dumpsurface" {
+            executeDumpSurface(params: Array(args.dropFirst(2)))
+        } else if subcmd == "install" {
+            executeInstall(params: Array(args.dropFirst(2)))
+        } else if subcmd == "createnar" {
+            executeCreateNar()
+        } else if subcmd == "createupdatedata" {
+            executeCreateUpdateData()
+        } else if subcmd == "emptyrecyclebin" {
+            executeEmptyRecycleBin()
+        } else if subcmd == "ping" {
+            executePing(params: Array(args.dropFirst(2)))
+        } else if subcmd == "nslookup" {
+            executeNslookup(params: Array(args.dropFirst(2)))
+        } else if subcmd == "websocket" {
+            executeWebSocket(params: Array(args.dropFirst(2)))
+        }
+    }
+
+    /// `\![clipboard,*]` を実行時に評価する。
+    private func executeClipboardCommand(args: [String]) {
+        guard args.count >= 2 else { return }
+        let subcmd = args[1].lowercased()
+        if subcmd == "set" || subcmd == "copy" {
+            setClipboardText(args.count >= 3 ? args[2] : "")
+        } else if subcmd == "get" || subcmd == "paste" {
+            let text = getClipboardText()
+            if args.count >= 3 {
+                _ = requestDialogEvent(eventID: args[2], references: [text])
+            } else {
+                EventBridge.shared.notifyCustom("OnClipboardRead", refs: ["text": text])
+            }
+        } else if subcmd == "clear" {
+            clearClipboard()
+        }
+    }
+
+    /// `\![systemmessage,*]` / `\![system,message,*]` を実行時に評価する。
+    private func executeSystemMessageCommand(first: String, args: [String]) {
+        let offset = first == "systemmessage" ? 1 : 2
+        let title = args.count > offset ? args[offset] : ""
+        let body = args.count > offset + 1 ? args[offset + 1] : ""
+        let level = args.count > offset + 2 ? args[offset + 2] : "info"
+        postSystemMessage(title: title, body: body, level: level)
+    }
+
+    /// 実行中に追加された待機ユニットを、後続本文より前へ戻す。
+    /// HTTP/RSS は完了待ちを関数内で再生キュー末尾へ追加するため、遅延実行時も
+    /// コマンド位置で待機しないと、後続本文がネットワーク完了を追い越してしまう。
+    private func executeCommandAtPlaybackPosition(_ command: () -> Void) {
+        let followingCount = playbackQueue.count
+        command()
+        guard playbackQueue.count > followingCount else { return }
+        let appended = Array(playbackQueue[followingCount...])
+        playbackQueue.removeSubrange(followingCount...)
+        playbackQueue.insert(contentsOf: appended, at: 0)
+    }
+
     // MARK: - SakuraScriptEngineDelegate
 
     func sakuraEngine(_ engine: SakuraScriptEngine, didEmit token: SakuraScriptEngine.Token) {
@@ -2987,7 +3119,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             if args.count >= 3 {
                                 let params = Array(args.dropFirst(2))
                                 playbackQueue.append(.deferredCommand { [weak self] in
-                                    self?.executeHTTP(subcommand: "http-get", params: params)
+                                    self?.executeCommandAtPlaybackPosition {
+                                        self?.executeHTTP(subcommand: "http-get", params: params)
+                                    }
                                 })
                             }
                         case "send":
@@ -2995,7 +3129,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 let target = args[2]
                                 let body = args.count >= 4 ? args[3] : ""
                                 playbackQueue.append(.deferredCommand { [weak self] in
-                                    self?.executeHTTP(subcommand: "http-post", params: [target, body])
+                                    self?.executeCommandAtPlaybackPosition {
+                                        self?.executeHTTP(subcommand: "http-post", params: [target, body])
+                                    }
                                 })
                             }
                         case "mailer":
@@ -3436,180 +3572,121 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         playbackQueue.append(.deferredCommand { [weak self] in
                             self?.executeBindCommand(args: args)
                         })
-                    } else if first == "reload", args.count >= 2 {
+                    } else if first == "reload", args.count >= 2, args[1].lowercased() == "surfaces.txt" {
                         let target = args[1].lowercased()
                         if target == "surfaces.txt" {
-                            playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.reloadSurfacesDefinition()
-                                }
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.reloadSurfacesDefinition()
                             })
                         }
                     } else if first == "lock", args.count >= 2 {
-                        // Handle \![lock,*] commands
-                        let subcmd = args[1].lowercased()
-                        if subcmd == "repaint" {
-                            let manual = args.count >= 3 && args[2].lowercased() == "manual"
-                            DispatchQueue.main.async {
-                                guard let vm = self.characterViewModels[self.currentScope] else { return }
-                                vm.repaintLocked = true
-                                vm.manualRepaintLock = manual
-                            }
-                        } else if subcmd == "balloonrepaint" {
-                            let manual = args.count >= 3 && args[2].lowercased() == "manual"
-                            DispatchQueue.main.async {
-                                guard let vm = self.balloonViewModels[self.currentScope] else { return }
-                                vm.repaintLocked = true
-                                vm.manualRepaintLock = manual
-                                Log.debug("[GhostManager] Balloon repaint locked: \(manual)")
-                            }
-                        } else if subcmd == "balloonmove" {
-                            DispatchQueue.main.async {
-                                guard let vm = self.balloonViewModels[self.currentScope] else { return }
-                                vm.balloonMoveLocked = true
-                                Log.debug("[GhostManager] Balloon move locked")
-                            }
-                        }
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeLockCommand(args: args)
+                        })
                     } else if first == "unlock", args.count >= 2 {
-                        // Handle \![unlock,*] commands
-                        let subcmd = args[1].lowercased()
-                        if subcmd == "repaint" {
-                            DispatchQueue.main.async {
-                                guard let vm = self.characterViewModels[self.currentScope] else { return }
-                                vm.repaintLocked = false
-                                vm.manualRepaintLock = false
-                            }
-                        } else if subcmd == "balloonrepaint" {
-                            DispatchQueue.main.async {
-                                guard let vm = self.balloonViewModels[self.currentScope] else { return }
-                                vm.repaintLocked = false
-                                vm.manualRepaintLock = false
-                                Log.debug("[GhostManager] Balloon repaint unlocked")
-                            }
-                        } else if subcmd == "balloonmove" {
-                            DispatchQueue.main.async {
-                                guard let vm = self.balloonViewModels[self.currentScope] else { return }
-                                vm.balloonMoveLocked = false
-                                Log.debug("[GhostManager] Balloon move unlocked")
-                            }
-                        }
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeUnlockCommand(args: args)
+                        })
                     } else if first == "execute", args.count >= 2 {
-                        // Handle \![execute,*] commands
-                        let subcmd = args[1].lowercased()
-                        if subcmd == "resetwindowpos" {
-                            // \![execute,resetwindowpos] - reset all windows to initial positions
-                            executeResetWindowPos()
-                        } else if subcmd == "resetballoonpos" {
-                            // \![execute,resetballoonpos] - reset all balloon positions
-                            resetBalloonPositions()
-                        } else if subcmd == "headline" {
-                            // \![execute,headline,headlineName]
-                            let headlineName = args.count >= 3 ? args[2] : ""
-                            executeHeadline(name: headlineName)
-                        } else if subcmd.hasPrefix("http-stream-") || subcmd == "http-stream" {
-                            // \![execute,http-stream-get,URL,...] / \![execute,http-stream,URL,...]
-                            let params = Array(args.dropFirst(2))
-                            executeHTTPStreaming(subcommand: subcmd, params: params)
-                        } else if subcmd.hasPrefix("http-") {
-                            let params = Array(args.dropFirst(2))
-                            executeHTTP(subcommand: subcmd, params: params)
-                        } else if subcmd.hasPrefix("rss-") {
-                            let params = Array(args.dropFirst(2))
-                            executeRSS(subcommand: subcmd, params: params)
-                        } else if subcmd == "extractarchive" {
-                            executeExtractArchive(params: Array(args.dropFirst(2)))
-                        } else if subcmd == "compressarchive" {
-                            executeCompressArchive(params: Array(args.dropFirst(2)))
-                        } else if subcmd == "dumpsurface" {
-                            executeDumpSurface(params: Array(args.dropFirst(2)))
-                        } else if subcmd == "install" {
-                            executeInstall(params: Array(args.dropFirst(2)))
-                        } else if subcmd == "createnar" {
-                            executeCreateNar()
-                        } else if subcmd == "createupdatedata" {
-                            executeCreateUpdateData()
-                        } else if subcmd == "emptyrecyclebin" {
-                            executeEmptyRecycleBin()
-                        } else if subcmd == "ping" {
-                            executePing(params: Array(args.dropFirst(2)))
-                        } else if subcmd == "nslookup" {
-                            executeNslookup(params: Array(args.dropFirst(2)))
-                        } else if subcmd == "websocket" {
-                            executeWebSocket(params: Array(args.dropFirst(2)))
-                        }
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeSakuraScriptExecuteCommand(args: args)
+                        })
                     } else if first == "create", args.count >= 2 {
                         let createType = args[1].lowercased()
                         if createType == "shortcut" {
-                            executeCreateShortcut(params: Array(args.dropFirst(2)))
+                            let params = Array(args.dropFirst(2))
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.executeCreateShortcut(params: params)
+                            })
                         }
                     } else if first == "clipboard", args.count >= 2 {
-                        let subcmd = args[1].lowercased()
-                        if subcmd == "set" || subcmd == "copy" {
-                            let text = args.count >= 3 ? args[2] : ""
-                            setClipboardText(text)
-                        } else if subcmd == "get" || subcmd == "paste" {
-                            let text = getClipboardText()
-                            if args.count >= 3 {
-                                let eventID = args[2]
-                                _ = requestDialogEvent(eventID: eventID, references: [text])
-                            } else {
-                                EventBridge.shared.notifyCustom("OnClipboardRead", refs: ["text": text])
-                            }
-                        } else if subcmd == "clear" {
-                            clearClipboard()
-                        }
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeClipboardCommand(args: args)
+                        })
                     } else if first == "systemmessage" || (first == "system" && args.count >= 2 && args[1].lowercased() == "message") {
-                        let offset = first == "systemmessage" ? 1 : 2
-                        let title = args.count > offset ? args[offset] : ""
-                        let body = args.count > offset + 1 ? args[offset + 1] : ""
-                        let level = args.count > offset + 2 ? args[offset + 2] : "info"
-                        postSystemMessage(title: title, body: body, level: level)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeSystemMessageCommand(first: first, args: args)
+                        })
                     } else if first == "quicksession" {
                         // \![quicksession,true/false] - enable/disable quick session mode
                         let enabled = args.count >= 2 && args[1].lowercased() == "true"
-                        quickSessionEnabled = enabled
-                        Log.debug("[GhostManager] Quick session mode: \(enabled)")
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.quickSessionEnabled = enabled
+                            Log.debug("[GhostManager] Quick session mode: \(enabled)")
+                        })
                     } else if first == "executesntp" {
                         // \![executesntp] - execute SNTP time synchronization
-                        executeSNTP()
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeSNTP()
+                        })
                     } else if first == "biff" {
                         // \![biff(,account)] - check for new mail
-                        executeBiff(account: args.count >= 2 ? args[1] : nil)
+                        let account = args.count >= 2 ? args[1] : nil
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeBiff(account: account)
+                        })
                     } else if first == "updatebymyself" {
                         // \![updatebymyself(,options...)] - options must not be discarded.
-                        executeUpdate(target: "self", options: Array(args.dropFirst()))
+                        let options = Array(args.dropFirst())
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeUpdate(target: "self", options: options)
+                        })
                     } else if first == "update" {
                         // \![update,http,url] or \![update,target,options...]
                         if args.count >= 3, args[1].lowercased() == "http" {
                             let params = Array(args.dropFirst(2))
-                            executeHTTP(subcommand: "http-get", params: params)
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.executeCommandAtPlaybackPosition {
+                                    self?.executeHTTP(subcommand: "http-get", params: params)
+                                }
+                            })
                         } else {
                             let target = args.count >= 2 ? args[1] : "platform"
                             let options = Array(args.dropFirst(2))
-                            executeUpdate(target: target, options: options)
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.executeUpdate(target: target, options: options)
+                            })
                         }
                     } else if first == "updateother" {
                         // \![updateother,target/options...] - preserve check/test/reason options.
-                        executeUpdate(target: "other", options: Array(args.dropFirst()))
+                        let options = Array(args.dropFirst())
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeUpdate(target: "other", options: options)
+                        })
                     } else if first == "vanishbymyself" {
                         // \![vanishbymyself[,ghostName]][,--option=query]
                         let rawOptions = Array(args.dropFirst())
                         let parsed = parseCommandArguments(rawOptions)
                         let query = parsed.flags.contains("query") ||
                             parsed.options["option"]?.lowercased() == "query"
-                        executeVanish(
-                            uninstall: true,
-                            nextGhostName: parsed.positionals.first,
-                            query: query
-                        )
+                        let nextGhostName = parsed.positionals.first
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeVanish(
+                                uninstall: true,
+                                nextGhostName: nextGhostName,
+                                query: query
+                            )
+                        })
                     } else if first == "reloadsurface" {
-                        executeReloadSurface()
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeReloadSurface()
+                        })
                     } else if first == "reload", args.count >= 2 {
-                        executeReload(target: args[1], params: Array(args.dropFirst(2)))
+                        let target = args[1]
+                        let params = Array(args.dropFirst(2))
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeReload(target: target, params: params)
+                        })
                     } else if first == "unload", args.count >= 2 {
-                        executeUnload(target: args[1])
+                        let target = args[1]
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeUnload(target: target)
+                        })
                     } else if first == "load", args.count >= 2 {
-                        executeLoad(target: args[1])
+                        let target = args[1]
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeLoad(target: target)
+                        })
                     } else if first == "anim", args.count >= 2 {
                         playbackQueue.append(.deferredCommand { [weak self] in
                             self?.executeAnimationCommand(args: args)
