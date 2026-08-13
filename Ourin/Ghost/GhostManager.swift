@@ -648,6 +648,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     lazy var resourceManager = ResourceManager(ghostKey: ghostURL.lastPathComponent)
     var ghostConfig: GhostConfiguration?
     var activeShellName: String = "master"
+    /// 現在のシェルの `seriko.use_self_alpha` 設定。
+    var surfaceTransparencyMode: SurfaceTransparencyMode = .legacy
     var lastSntpServerDate: Date?
     var lastSntpServerDateTime: String?
     var lastSntpTimezone: String?
@@ -1024,6 +1026,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         dressupConfigurations.removeAll()
         dressupBindGroupsByScope.removeAll()
         dressupMenuItemsByScope.removeAll()
+        surfaceTransparencyMode = .legacy
         // Load dressup configuration from shell descript.txt
         guard let shellPath = loadShellPath() else { return }
         let descriptPath = shellPath.appendingPathComponent("descript.txt")
@@ -1039,6 +1042,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             Log.debug("[GhostManager] Failed to load shell descript.txt")
             return
         }
+
+        let shellDescriptor = LegacyDescriptor.parseDictionary(fileContent)
+        surfaceTransparencyMode = SurfaceTransparencyMode.parse(shellDescriptor["seriko.use_self_alpha"])
 
         let parsed = Self.parseDressupMetadata(content: fileContent)
         let partsByCategory = parsed.partsByCategory

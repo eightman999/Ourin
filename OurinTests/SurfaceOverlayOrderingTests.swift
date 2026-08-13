@@ -4,6 +4,76 @@ import AppKit
 
 struct SurfaceOverlayOrderingTests {
     @Test
+    func surfaceTransparencyModeParsesUkadocValues() {
+        #expect(SurfaceTransparencyMode.parse(nil) == .legacy)
+        #expect(SurfaceTransparencyMode.parse("0") == .legacy)
+        #expect(SurfaceTransparencyMode.parse("1") == .useSelfAlpha)
+        #expect(SurfaceTransparencyMode.parse(" true ") == .useSelfAlpha)
+        #expect(SurfaceTransparencyMode.parse("FULL") == .full)
+    }
+
+    @MainActor
+    @Test
+    func shellDescriptorControlsSurfaceTransparencyMode() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ourin-surface-transparency-\(UUID().uuidString)", isDirectory: true)
+        let shell = root.appendingPathComponent("shell/master", isDirectory: true)
+        try FileManager.default.createDirectory(at: shell, withIntermediateDirectories: true)
+        try "seriko.use_self_alpha,full\n".write(
+            to: shell.appendingPathComponent("descript.txt"),
+            atomically: true,
+            encoding: .utf8
+        )
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let manager = GhostManager(ghostURL: root)
+        defer { manager.shutdown() }
+
+        #expect(manager.surfaceTransparencyMode == .full)
+    }
+
+    @MainActor
+    @Test
+    func selfAlphaUsesPngAlphaAndFullKeepsRgbImageOpaque() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ourin-surface-alpha-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let alphaURL = root.appendingPathComponent("alpha.png")
+        let rgbURL = root.appendingPathComponent("rgb.png")
+        try Self.writePNG(at: alphaURL, hasAlpha: true)
+        try Self.writePNG(at: rgbURL, hasAlpha: false)
+
+        let manager = GhostManager(ghostURL: root)
+        defer { manager.shutdown() }
+
+        let alphaImage = try #require(manager.loadSurfaceFile(
+            url: alphaURL,
+            transparencyMode: .useSelfAlpha
+        ))
+        let alphaBitmap = try Self.bitmap(for: alphaImage)
+        let alphaColor = try #require(alphaBitmap.colorAt(x: 0, y: 0))
+        #expect(alphaColor.alphaComponent < 0.01)
+
+        let keyedImage = try #require(manager.loadSurfaceFile(
+            url: rgbURL,
+            transparencyMode: .useSelfAlpha
+        ))
+        let keyedBitmap = try Self.bitmap(for: keyedImage)
+        let keyedColor = try #require(keyedBitmap.colorAt(x: 0, y: 0))
+        #expect(keyedColor.alphaComponent < 0.01)
+
+        let fullImage = try #require(manager.loadSurfaceFile(
+            url: rgbURL,
+            transparencyMode: .full
+        ))
+        let fullBitmap = try Self.bitmap(for: fullImage)
+        let fullColor = try #require(fullBitmap.colorAt(x: 0, y: 0))
+        #expect(fullColor.alphaComponent > 0.99)
+    }
+
+    @Test
     func overlaysSortByZOrderThenInsertion() async throws {
         let img = NSImage(size: NSSize(width: 1, height: 1))
         let overlays = [
@@ -103,4 +173,50 @@ struct SurfaceOverlayOrderingTests {
         #expect(overlay.surfaceID == 55)
         #expect(overlay.image.size.width > 0 && overlay.image.size.height > 0)
     }
+
+    private static func writePNG(at url: URL, hasAlpha: Bool) throws {
+        let samplesPerPixel = hasAlpha ? 4 : 3
+        let bitmap = try #require(NSBitmapImageRep(
+            bitmapDataPlanes: nil,
+            pixelsWide: 2,
+            pixelsHigh: 1,
+            bitsPerSample: 8,
+            samplesPerPixel: samplesPerPixel,
+            hasAlpha: hasAlpha,
+            isPlanar: false,
+            colorSpaceName: .deviceRGB,
+            bitmapFormat: [],
+            bytesPerRow: 0,
+            bitsPerPixel: 0
+        ))
+
+        if hasAlpha {
+            Self.setPixel([255, 0, 0, 0], atX: 0, y: 0, in: bitmap)
+            Self.setPixel([0, 0, 255, 255], atX: 1, y: 0, in: bitmap)
+        } else {
+            Self.setPixel([255, 0, 255], atX: 0, y: 0, in: bitmap)
+            Self.setPixel([0, 0, 255], atX: 1, y: 0, in: bitmap)
+        }
+
+        let png = try #require(bitmap.representation(using: .png, properties: [:]))
+        try png.write(to: url)
+    }
+
+    private static func bitmap(for image: NSImage) throws -> NSBitmapImageRep {
+        let tiff = try #require(image.tiffRepresentation)
+        return try #require(NSBitmapImageRep(data: tiff))
+    }
+
+    private static func setPixel(
+        _ values: [Int],
+        atX x: Int,
+        y: Int,
+        in bitmap: NSBitmapImageRep
+    ) {
+        var values = values
+        values.withUnsafeMutableBufferPointer { buffer in
+            bitmap.setPixel(buffer.baseAddress!, atX: x, y: y)
+        }
+    }
+
 }

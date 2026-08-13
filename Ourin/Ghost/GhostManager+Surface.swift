@@ -4,6 +4,20 @@ import CoreImage
 import Combine
 import UserNotifications
 
+/// シェルの `seriko.use_self_alpha` によるサーフェス透過モード。
+enum SurfaceTransparencyMode: Equatable {
+    case legacy
+    case useSelfAlpha
+    case full
+
+    static func parse(_ rawValue: String?) -> Self {
+        switch rawValue?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "1", "true": return .useSelfAlpha
+        case "full": return .full
+        default: return .legacy
+        }
+    }
+}
 
 // MARK: - Surface Loading and Compositing
 
@@ -134,11 +148,17 @@ extension GhostManager {
         }
     }
 
-    func loadImage(surfaceId: Int, scope: Int, applyTransparency: Bool = true) -> NSImage? {
+    func loadImage(
+        surfaceId: Int,
+        scope: Int,
+        applyTransparency: Bool = true,
+        transparencyMode: SurfaceTransparencyMode? = nil
+    ) -> NSImage? {
         guard let shellURL = loadShellPath() else {
             Log.info("[GhostManager] Cannot load surface: shell path unavailable")
             return nil
         }
+        let effectiveTransparencyMode = transparencyMode ?? surfaceTransparencyMode
         // surfacetable.txt の option,DisableNoDefineSurfaces:
         // surfaces.txt にも surfacetable.txt にも定義がないサーフェスIDは描画しない（UKADOC）。
         if let table = surfaceTable, table.disableNoDefineSurfaces,
@@ -152,7 +172,8 @@ extension GhostManager {
            let composed = compositeSurfaceElements(
                elements,
                shellURL: shellURL,
-               applyTransparency: applyTransparency
+               applyTransparency: applyTransparency,
+               transparencyMode: effectiveTransparencyMode
            ) {
             Log.debug("[GhostManager] Surface \(surfaceId) composed from \(elements.count) elements")
             return composed
@@ -178,19 +199,13 @@ extension GhostManager {
                     Log.debug("[GhostManager] Image loaded without transparency processing: \(name)")
                     return img
                 }
-                // PNA マスクがあれば適用（白=不透明、黒=透明として扱う想定）
-                let pnaURL = url.deletingPathExtension().appendingPathExtension("pna")
-                if FileManager.default.fileExists(atPath: pnaURL.path),
-                   let masked = applyPNAMask(baseURL: url, maskURL: pnaURL) {
-                    Log.debug("[GhostManager] Image loaded with PNA mask: \(name)")
-                    return masked
-                }
-                if let keyed = applyGreenChromakey(to: img) {
-                    Log.debug("[GhostManager] Image loaded with green chromakey: \(name)")
-                    return keyed
-                }
-                Log.debug("[GhostManager] Image loaded: \(name)")
-                return img
+                let processed = applySurfaceTransparency(
+                    to: img,
+                    sourceURL: url,
+                    mode: effectiveTransparencyMode
+                )
+                Log.debug("[GhostManager] Image loaded: \(name) transparency=\(effectiveTransparencyMode)")
+                return processed
             }
         }
         Log.info("[GhostManager] No surface image found for id=\(surfaceId) scope=\(scope). Tried: \(candidates)")
@@ -275,28 +290,30 @@ extension GhostManager {
     /// 任意ファイルのサーフェス画像を読み込む（Retina + 同名 PNA マスク対応）。element 合成で使用。
     /// `applyTransparency` を false にすると、asis 用に透過色・PNA・画像アルファを
     /// 変更せず、元画像を返す。asis の合成時にソースアルファは別途無視される。
-    func loadSurfaceFile(url: URL, applyTransparency: Bool = true) -> NSImage? {
+    func loadSurfaceFile(
+        url: URL,
+        applyTransparency: Bool = true,
+        transparencyMode: SurfaceTransparencyMode? = nil
+    ) -> NSImage? {
         guard FileManager.default.fileExists(atPath: url.path),
               let img = RetinaImageLoader.image(contentsOf: url) else { return nil }
         guard applyTransparency else { return img }
-        let pnaURL = url.deletingPathExtension().appendingPathExtension("pna")
-        if FileManager.default.fileExists(atPath: pnaURL.path),
-           let masked = applyPNAMask(baseURL: url, maskURL: pnaURL) {
-            return masked
-        }
-        if let keyed = applyGreenChromakey(to: img) {
-            return keyed
-        }
-        return img
+        return applySurfaceTransparency(
+            to: img,
+            sourceURL: url,
+            mode: transparencyMode ?? surfaceTransparencyMode
+        )
     }
 
     /// SERIKO/2.0 element 定義を index 順に重ねて1枚の基底サーフェス画像を合成する。
     func compositeSurfaceElements(
         _ elements: [SerikoElement],
         shellURL: URL,
-        applyTransparency: Bool = true
+        applyTransparency: Bool = true,
+        transparencyMode: SurfaceTransparencyMode? = nil
     ) -> NSImage? {
         guard !elements.isEmpty else { return nil }
+        let effectiveTransparencyMode = transparencyMode ?? surfaceTransparencyMode
         struct Loaded { let img: NSImage; let x: Int; let y: Int; let blendMode: SurfaceBlendMode }
         var loaded: [Loaded] = []
         for el in elements.sorted(by: { $0.index < $1.index }) {
@@ -315,7 +332,8 @@ extension GhostManager {
             }
             guard let img = loadSurfaceFile(
                 url: url,
-                applyTransparency: applyTransparency && blendMode != .asis
+                applyTransparency: applyTransparency && blendMode != .asis,
+                transparencyMode: effectiveTransparencyMode
             ) else {
                 Log.info("[GhostManager] element image not found: \(el.filename)")
                 continue
@@ -337,6 +355,99 @@ extension GhostManager {
             )
         }
         return SurfaceBlendRenderer.composite(base: nil, overlays: overlays)
+    }
+
+    /// シェルの透過設定を画像ロードへ適用する。
+    private func applySurfaceTransparency(
+        to image: NSImage,
+        sourceURL: URL,
+        mode: SurfaceTransparencyMode
+    ) -> NSImage {
+        let pnaURL = sourceURL.deletingPathExtension().appendingPathExtension("pna")
+        if FileManager.default.fileExists(atPath: pnaURL.path),
+           let masked = applyPNAMask(baseURL: sourceURL, maskURL: pnaURL) {
+            return masked
+        }
+
+        switch mode {
+        case .full:
+            // `full` はPNAが無い画像をキー色透過せず、そのまま不透明画像として扱う。
+            return image
+        case .useSelfAlpha:
+            if imageHasAlphaChannel(image) {
+                return image
+            }
+            // アルファもPNAも無い場合はUKADOCの従来動作（左上キー色）へ戻る。
+            return applySurfaceTopLeftPixelChromakey(to: image) ?? image
+        case .legacy:
+            // 既存のOurin互換動作（純緑キー）を維持する。
+            return applyGreenChromakey(to: image) ?? image
+        }
+    }
+
+    private func imageHasAlphaChannel(_ image: NSImage) -> Bool {
+        guard let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return false }
+        switch cg.alphaInfo {
+        case .none, .noneSkipFirst, .noneSkipLast:
+            return false
+        default:
+            return true
+        }
+    }
+
+    /// アルファチャンネルを持たない画像の左上ピクセルをキー色として透過する。
+    private func applySurfaceTopLeftPixelChromakey(to image: NSImage) -> NSImage? {
+        guard let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        let width = cg.width
+        let height = cg.height
+        guard width > 0, height > 0 else { return nil }
+
+        let bytesPerPixel = 4
+        let bytesPerRow = width * bytesPerPixel
+        var pixels = [UInt8](repeating: 0, count: height * bytesPerRow)
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
+        guard let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: bitmapInfo
+        ) else {
+            return nil
+        }
+
+        context.draw(cg, in: CGRect(x: 0, y: 0, width: width, height: height))
+        let keyRed = pixels[0]
+        let keyGreen = pixels[1]
+        let keyBlue = pixels[2]
+        var changed = false
+        for offset in stride(from: 0, to: pixels.count, by: bytesPerPixel) {
+            guard pixels[offset] == keyRed,
+                  pixels[offset + 1] == keyGreen,
+                  pixels[offset + 2] == keyBlue else { continue }
+            pixels[offset] = 0
+            pixels[offset + 1] = 0
+            pixels[offset + 2] = 0
+            pixels[offset + 3] = 0
+            changed = true
+        }
+        guard changed,
+              let outputContext = CGContext(
+                  data: &pixels,
+                  width: width,
+                  height: height,
+                  bitsPerComponent: 8,
+                  bytesPerRow: bytesPerRow,
+                  space: colorSpace,
+                  bitmapInfo: bitmapInfo
+              ),
+              let outputCG = outputContext.makeImage() else {
+            return nil
+        }
+        return NSImage(cgImage: outputCG, size: image.size)
     }
 
     // MARK: - Surface Compositing
