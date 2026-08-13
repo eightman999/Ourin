@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import Ourin
 
@@ -110,5 +111,64 @@ struct EventIDAuditTests {
             .sorted()
 
         #expect(missing.isEmpty, "Missing typed EventID cases: \(missing.joined(separator: ", "))")
+    }
+
+    @Test
+    func staticallyEmittedEventsHaveTypedReferenceSpecs() throws {
+        let sourceRoot = Self.projectRoot.appendingPathComponent("Ourin", isDirectory: true)
+        let sourceURLs = try Self.swiftSourceURLs(in: sourceRoot)
+        let patterns = [
+            #"ShioriEvent\s*\(\s*id:\s*\.(On[A-Za-z0-9_]+)"#,
+            #"\b(?:notify|request)\s*\(\s*\.(On[A-Za-z0-9_]+)"#,
+            #"\b(?:sendGet|sendNotify)\s*\(\s*id:\s*\.(On[A-Za-z0-9_]+)"#
+        ]
+
+        var emitted = Set<String>()
+        for sourceURL in sourceURLs {
+            let source = try String(contentsOf: sourceURL, encoding: .utf8)
+            for pattern in patterns {
+                emitted.formUnion(Self.captureEventNames(pattern: pattern, in: source))
+            }
+        }
+
+        #expect(emitted.count >= 100, "Event emission scan unexpectedly found too few IDs: \(emitted.count)")
+        let missingTypedIDs = emitted.filter { EventID(rawValue: $0) == nil }.sorted()
+        let missingSpecs = emitted.filter { EventReferenceTable.specs[$0] == nil }.sorted()
+        #expect(missingTypedIDs.isEmpty, "Statically emitted events without EventID: \(missingTypedIDs.joined(separator: ", "))")
+        #expect(missingSpecs.isEmpty, "Statically emitted events without EventReferenceSpec: \(missingSpecs.joined(separator: ", "))")
+    }
+
+    private static var projectRoot: URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+    }
+
+    private static func swiftSourceURLs(in root: URL) throws -> [URL] {
+        guard let enumerator = FileManager.default.enumerator(
+            at: root,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return []
+        }
+
+        return try enumerator.compactMap { element in
+            guard let url = element as? URL,
+                  url.pathExtension == "swift",
+                  try url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile == true else {
+                return nil
+            }
+            return url
+        }
+    }
+
+    private static func captureEventNames(pattern: String, in source: String) -> Set<String> {
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
+        let range = NSRange(source.startIndex..<source.endIndex, in: source)
+        return Set(regex.matches(in: source, range: range).compactMap { match in
+            guard let captureRange = Range(match.range(at: 1), in: source) else { return nil }
+            return String(source[captureRange])
+        })
     }
 }
