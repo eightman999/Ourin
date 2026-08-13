@@ -2165,6 +2165,90 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
 
+    /// `\![anim,*]` のアニメーション制御を再生キュー上で実行する。
+    private func executeAnimationCommand(args: [String]) {
+        guard args.count >= 2 else { return }
+        let subcmd = args[1].lowercased()
+        switch subcmd {
+        case "clear":
+            if args.count >= 3, let animID = Int(args[2]) {
+                handleAnimClear(id: animID)
+            }
+        case "pause":
+            if args.count >= 3, let animID = Int(args[2]) {
+                handleAnimPause(id: animID)
+            }
+        case "resume":
+            if args.count >= 3, let animID = Int(args[2]) {
+                handleAnimResume(id: animID)
+            }
+        case "stop":
+            if args.count >= 3, let animID = Int(args[2]) {
+                handleAnimClear(id: animID)
+            } else {
+                handleAnimStop()
+            }
+        case "offset":
+            if args.count >= 5,
+               let overlayID = Int(args[2]),
+               let x = Int(args[3]),
+               let y = Int(args[4]) {
+                handleAnimOffset(id: overlayID, x: x, y: y)
+            }
+        case "add":
+            guard args.count >= 4 else { return }
+            let addType = args[2].lowercased()
+            if addType == "overlay" {
+                if let surfaceID = Int(args[3]) {
+                    handleAnimAddOverlay(id: surfaceID)
+                }
+            } else if addType == "overlayfast" {
+                if let surfaceID = Int(args[3]) {
+                    handleAnimAddOverlayFast(id: surfaceID)
+                }
+            } else if addType == "base" {
+                if let surfaceID = Int(args[3]) {
+                    handleAnimAddBase(id: surfaceID)
+                }
+            } else if addType == "move" {
+                if args.count >= 5,
+                   let moveX = Int(args[3]),
+                   let moveY = Int(args[4]) {
+                    handleAnimAddMove(x: moveX, y: moveY)
+                }
+            } else if addType == "bind" {
+                if let surfaceID = Int(args[3]) {
+                    handleSurfaceOverlay(surfaceID: surfaceID, type: .bind)
+                }
+            } else if addType == "text", args.count >= 13 {
+                let x = Int(args[3]) ?? 0
+                let y = Int(args[4]) ?? 0
+                let width = Int(args[5]) ?? 100
+                let height = Int(args[6]) ?? 20
+                let text = args[7]
+                let time = Int(args[8]) ?? 1000
+                let r = Int(args[9]) ?? 0
+                let g = Int(args[10]) ?? 0
+                let b = Int(args[11]) ?? 0
+                let size = Int(args[12]) ?? 12
+                let font = args.count >= 14 ? args[13] : "sans-serif"
+                addTextAnimation(
+                    x: x, y: y, width: width, height: height, text: text,
+                    time: time, r: r, g: g, b: b, size: size, font: font
+                )
+            }
+        default:
+            // 旧仕様の \![anim,pauseID] / \![anim,stopID]。
+            if subcmd.hasPrefix("pause"),
+               let animID = Int(subcmd.dropFirst("pause".count)) {
+                handleAnimPause(id: animID)
+            } else if subcmd.hasPrefix("stop"),
+                      let animID = Int(subcmd.dropFirst("stop".count)) {
+                handleAnimClear(id: animID)
+            }
+        }
+    }
+
     // MARK: - SakuraScriptEngineDelegate
 
     func sakuraEngine(_ engine: SakuraScriptEngine, didEmit token: SakuraScriptEngine.Token) {
@@ -3331,7 +3415,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             }
                         })
                     } else if first == "bind" || first == "bind-noevent", args.count >= 2 {
-                        executeBindCommand(args: args)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeBindCommand(args: args)
+                        })
                     } else if first == "reload", args.count >= 2 {
                         let target = args[1].lowercased()
                         if target == "surfaces.txt" {
@@ -3507,109 +3593,30 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     } else if first == "load", args.count >= 2 {
                         executeLoad(target: args[1])
                     } else if first == "anim", args.count >= 2 {
-                        // Handle \![anim,*] commands - animation control
-                        let subcmd = args[1].lowercased()
-                        switch subcmd {
-                        case "clear":
-                            // \![anim,clear,ID] - clear specific animation/overlay
-                            if args.count >= 3, let animID = Int(args[2]) {
-                                handleAnimClear(id: animID)
-                            }
-                        case "pause":
-                            // \![anim,pause,ID] - pause animation
-                            if args.count >= 3, let animID = Int(args[2]) {
-                                handleAnimPause(id: animID)
-                            }
-                        case "resume":
-                            // \![anim,resume,ID] - resume animation
-                            if args.count >= 3, let animID = Int(args[2]) {
-                                handleAnimResume(id: animID)
-                            }
-                        case "stop":
-                            // \![anim,stop] / \![anim,stop,ID]
-                            if args.count >= 3, let animID = Int(args[2]) {
-                                handleAnimClear(id: animID)
-                            } else {
-                                handleAnimStop()
-                            }
-                        case "offset":
-                            // \![anim,offset,ID,x,y] - offset an animation/overlay
-                            if args.count >= 5,
-                               let overlayID = Int(args[2]),
-                               let x = Int(args[3]),
-                               let y = Int(args[4]) {
-                                handleAnimOffset(id: overlayID, x: x, y: y)
-                            }
-                        case "add":
-                            // \![anim,add,overlay,ID] or \![anim,add,base,ID] or \![anim,add,text,...]
-                            if args.count >= 4 {
-                                let addType = args[2].lowercased()
-                                if addType == "overlay" {
-                                    if let surfaceID = Int(args[3]) {
-                                        handleAnimAddOverlay(id: surfaceID)
-                                    }
-                                } else if addType == "overlayfast" {
-                                    if let surfaceID = Int(args[3]) {
-                                        handleAnimAddOverlayFast(id: surfaceID)
-                                    }
-                                } else if addType == "base" {
-                                    if let surfaceID = Int(args[3]) {
-                                        handleAnimAddBase(id: surfaceID)
-                                    }
-                                } else if addType == "move" {
-                                    if args.count >= 5,
-                                       let moveX = Int(args[3]),
-                                       let moveY = Int(args[4]) {
-                                        handleAnimAddMove(x: moveX, y: moveY)
-                                    }
-                                } else if addType == "bind" {
-                                    if let surfaceID = Int(args[3]) {
-                                        handleSurfaceOverlay(surfaceID: surfaceID, type: .bind)
-                                    }
-                                } else if addType == "text" {
-                                    // \![anim,add,text,x,y,width,height,text,time,r,g,b,size,font]
-                                    if args.count >= 13 {
-                                        let x = Int(args[3]) ?? 0
-                                        let y = Int(args[4]) ?? 0
-                                        let width = Int(args[5]) ?? 100
-                                        let height = Int(args[6]) ?? 20
-                                        let text = args[7]
-                                        let time = Int(args[8]) ?? 1000
-                                        let r = Int(args[9]) ?? 0
-                                        let g = Int(args[10]) ?? 0
-                                        let b = Int(args[11]) ?? 0
-                                        let size = Int(args[12]) ?? 12
-                                        let font = args.count >= 14 ? args[13] : "sans-serif"
-                                        addTextAnimation(x: x, y: y, width: width, height: height, text: text, 
-                                                       time: time, r: r, g: g, b: b, size: size, font: font)
-                                    }
-                                }
-                            }
-                        default:
-                            // 旧仕様の \![anim,pauseID] / \![anim,stopID]。
-                            if subcmd.hasPrefix("pause"),
-                               let animID = Int(subcmd.dropFirst("pause".count)) {
-                                handleAnimPause(id: animID)
-                            } else if subcmd.hasPrefix("stop"),
-                                      let animID = Int(subcmd.dropFirst("stop".count)) {
-                                handleAnimClear(id: animID)
-                            }
-                        }
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeAnimationCommand(args: args)
+                        })
                     } else if first == "bind" || first == "bind-noevent", args.count >= 2 {
-                        executeBindCommand(args: args)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeBindCommand(args: args)
+                        })
                     } else if first == "effect", args.count >= 2 {
                         // \![effect,plugin,speed,params] - apply effect plugin
                         let plugin = args[1]
                         let speed = args.count >= 3 ? Double(args[2]) ?? 1.0 : 1.0
                         let params = Array(args.dropFirst(3))
-                        applyEffect(plugin: plugin, speed: speed, params: params, surfaceID: nil)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.applyEffect(plugin: plugin, speed: speed, params: params, surfaceID: nil)
+                        })
                     } else if first == "effect2", args.count >= 3 {
                         // \![effect2,surfaceID,plugin,speed,params] - apply effect to specific surface
                         if let surfaceID = Int(args[1]) {
                             let plugin = args[2]
                             let speed = args.count >= 4 ? Double(args[3]) ?? 1.0 : 1.0
                             let params = Array(args.dropFirst(4))
-                            applyEffect(plugin: plugin, speed: speed, params: params, surfaceID: surfaceID)
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.applyEffect(plugin: plugin, speed: speed, params: params, surfaceID: surfaceID)
+                            })
                         }
                     } else if first == "filter" {
                         if args.count >= 2 {
@@ -3617,58 +3624,73 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let plugin = args[1]
                             let time = args.count >= 3 ? Double(args[2]) ?? 0 : 0
                             let params = Array(args.dropFirst(3))
-                            applyFilter(plugin: plugin, time: time, params: params)
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.applyFilter(plugin: plugin, time: time, params: params)
+                            })
                         } else {
                             // \![filter] - clear all filters
-                            clearFilters()
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.clearFilters()
+                            })
                         }
                     } else if first == "move" {
                         let params = Array(args.dropFirst())
-                        if params.first?.lowercased() == "window" {
-                            executeMoveCommand(args: Array(params.dropFirst()), async: false)
-                        } else {
-                            executeMoveCommand(args: params, async: false)
-                        }
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            if params.first?.lowercased() == "window" {
+                                self.executeMoveCommand(args: Array(params.dropFirst()), async: false)
+                            } else {
+                                self.executeMoveCommand(args: params, async: false)
+                            }
+                        })
                     } else if first == "moveasync" {
                         let params = Array(args.dropFirst())
-                        if params.first?.lowercased() == "cancel" {
-                            let scopeID = params.count >= 2 ? Int(params[1]) : nil
-                            cancelMoveWindowAsync(scope: scopeID)
-                        } else if params.first?.lowercased() == "window" {
-                            executeMoveCommand(args: Array(params.dropFirst()), async: true)
-                        } else {
-                            executeMoveCommand(args: params, async: true)
-                        }
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            if params.first?.lowercased() == "cancel" {
+                                let scopeID = params.count >= 2 ? Int(params[1]) : nil
+                                self.cancelMoveWindowAsync(scope: scopeID)
+                            } else if params.first?.lowercased() == "window" {
+                                self.executeMoveCommand(args: Array(params.dropFirst()), async: true)
+                            } else {
+                                self.executeMoveCommand(args: params, async: true)
+                            }
+                        })
                     } else if first == "resize" {
                         let params = Array(args.dropFirst())
-                        if params.first?.lowercased() == "window" {
-                            executeResizeCommand(args: Array(params.dropFirst()))
-                        } else {
-                            executeResizeCommand(args: params)
-                        }
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            if params.first?.lowercased() == "window" {
+                                self.executeResizeCommand(args: Array(params.dropFirst()))
+                            } else {
+                                self.executeResizeCommand(args: params)
+                            }
+                        })
                     } else if first == "open", args.count >= 2 {
                         // Handle \![open,browser,URL] and \![open,mailer,email]
                         let target = args[1].lowercased()
-                        if target == "browser" && args.count >= 3 {
-                            let url = args[2]
-                            openURL(url)
-                        } else if target == "mailer" && args.count >= 3 {
-                            let email = args[2]
-                            openEmail(email)
-                        } else if target == "addressbar" {
-                            openAddressBar()
-                        } else if target == "errorlog" {
-                            openErrorLogViewer()
-                        } else if target == "pictureviewer" {
-                            openPictureViewer(path: args.count >= 3 ? args[2] : nil)
-                        } else if target == "archiveviewer" {
-                            openArchiveViewer(path: args.count >= 3 ? args[2] : nil)
-                        } else if target == "backlogviewer" {
-                            openBacklogViewer()
-                        } else {
-                            // UKADOC: \![open,URL] は指定URLを既定アプリへ委譲する。
-                            openURL(args[1])
-                        }
+                        let targetValue = args.count >= 3 ? args[2] : nil
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            if target == "browser", let targetValue {
+                                self.openURL(targetValue)
+                            } else if target == "mailer", let targetValue {
+                                self.openEmail(targetValue)
+                            } else if target == "addressbar" {
+                                self.openAddressBar()
+                            } else if target == "errorlog" {
+                                self.openErrorLogViewer()
+                            } else if target == "pictureviewer" {
+                                self.openPictureViewer(path: targetValue)
+                            } else if target == "archiveviewer" {
+                                self.openArchiveViewer(path: targetValue)
+                            } else if target == "backlogviewer" {
+                                self.openBacklogViewer()
+                            } else {
+                                // UKADOC: \![open,URL] は指定URLを既定アプリへ委譲する。
+                                self.openURL(args[1])
+                            }
+                        })
                     } else if ["*", "#", "x", "<", ">"].contains(first) {
                         // Choice marker shorthand: \![*], \![#], \![X], \![<], \![>]
                         let marker: String
@@ -3680,7 +3702,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         case ">": marker = ">"
                         default: marker = first
                         }
-                        setBalloonMarker(marker)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.setBalloonMarker(marker)
+                        })
                     }
                 }
             case "b":

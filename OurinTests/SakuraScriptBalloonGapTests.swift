@@ -339,6 +339,54 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func visualControlCommandsAreQueuedAfterPrecedingText() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-visual-command-order"))
+        defer { _ = gm.shutdown() }
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("before"))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "anim", "stop"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "bind", "head", "ribbon", "1"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "effect", "fade", "1"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "filter", "blur", "100"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "move", "--X=10", "--Y=20"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "resize", "window", "100", "100"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "open", "https://example.com"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("after"))
+
+        let order = gm.playbackQueue.compactMap { unit -> String? in
+            switch unit {
+            case .textToken(let text):
+                return "text:" + text
+            case .speakTextToken(let text):
+                return "speak:" + text
+            case .deferredCommand:
+                return "command"
+            default:
+                return nil
+            }
+        }
+
+        #expect(order == [
+            "text:before", "speak:before", "command", "command", "command",
+            "command", "command", "command", "command", "text:after", "speak:after"
+        ])
+    }
+
+    @MainActor
     @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
         let vm = gm.getBalloonVM(for: gm.currentScope)

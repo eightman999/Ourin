@@ -406,6 +406,7 @@ struct DressupBindTests {
 
         // 実際のディスパッチ経路（bind-noevent の分岐）を経由する
         manager.sakuraEngine.run(script: "\\![bind-noevent,head,ribbon,1]\\e")
+        manager.processNextUnit()
         try await Task.sleep(nanoseconds: 100_000_000)
 
         #expect(vm.dressupBindings["head"]?["ribbon"] == "1")
@@ -419,6 +420,7 @@ struct DressupBindTests {
         manager.characterViewModels[0] = vm
 
         manager.sakuraEngine.run(script: "\\![bind,head,ribbon,1]\\e")
+        manager.processNextUnit()
         try await Task.sleep(nanoseconds: 100_000_000)
 
         #expect(vm.dressupBindings["head"]?["ribbon"] == "1")
