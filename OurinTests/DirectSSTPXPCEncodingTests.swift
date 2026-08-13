@@ -32,4 +32,38 @@ struct DirectSSTPXPCEncodingTests {
         let request = "SEND SSTP/1.1\r\nSender: テスト\r\n\r\n".data(using: .shiftJIS)!
         #expect(DirectSSTPXPC.decodeRequest(request) == nil)
     }
+
+    @Test
+    func xpcRejectsCp932WhenDisabledAndCharsetIsOmitted() throws {
+        UserDefaults.standard.set(false, forKey: key)
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+
+        let request = "SEND SSTP/1.1\r\nSender: テスト\r\n\r\n".data(using: .shiftJIS)!
+        #expect(XpcDirectServer.decodeRequest(request) == nil)
+    }
+
+    @Test
+    func xpcAcceptsDeclaredShiftJISWhenCp932FallbackIsDisabled() throws {
+        UserDefaults.standard.set(false, forKey: key)
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+
+        let request = "SEND SSTP/1.1\r\nCharset: Shift_JIS\r\nSender: テスト\r\n\r\n".data(using: .shiftJIS)!
+        #expect(XpcDirectServer.decodeRequest(request)?.contains("Sender: テスト") == true)
+    }
+
+    @Test
+    func xpcReturnsBadRequestForInvalidEncoding() throws {
+        UserDefaults.standard.set(false, forKey: key)
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+
+        let request = "SEND SSTP/1.1\r\nSender: テスト\r\n\r\n".data(using: .shiftJIS)!
+        let server = XpcDirectServer(machServiceName: "jp.ourin.tests.\(UUID().uuidString)")
+        var response = Data()
+        server.onRequest = { _ in
+            "SSTP/1.1 500 Internal Server Error\r\n\r\n"
+        }
+        server.executeSSTP(request) { response = $0 }
+
+        #expect(String(data: response, encoding: .utf8) == "SSTP/1.1 400 Bad Request\r\n\r\n")
+    }
 }

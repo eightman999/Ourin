@@ -47,8 +47,6 @@ public final class DirectSSTPXPC: NSObject, NSXPCListenerDelegate, OurinSSTPXPC 
     /// DirectSSTP の入力を、宣言された Charset を優先して UTF-8 の文字列へ変換する。
     /// Charset 未指定時は UTF-8、設定で許可されている場合のみ CP932 を試行する。
     static func decodeRequest(_ data: Data) -> String? {
-        let charset = EncodingAdapter.detectCharset(in: data)
-        return EncodingAdapter.decode(data, charset: charset)
-            ?? (EncodingNormalizer.acceptsCP932 ? String(data: data, encoding: .shiftJIS) : nil)
+        EncodingNormalizer.decode(data, charset: EncodingAdapter.declaredCharset(in: data))
     }
 }

@@ -52,9 +52,9 @@ public enum EncodingAdapter {
         return result as String
     }
 
-    /// メッセージ先頭（最初の空行まで）のヘッダ部から `Charset:` を推定する。
+    /// メッセージ先頭（最初の空行まで）のヘッダ部から宣言された `Charset:` を返す。
     /// ヘッダ名・値は ASCII 前提なので、本体が Shift_JIS でも安全に読み取れる。
-    public static func detectCharset(in data: Data, default def: String = "UTF-8") -> String {
+    public static func declaredCharset(in data: Data) -> String? {
         var lineBytes: [UInt8] = []
         for byte in data {
             if byte == 10 || byte == 13 {
@@ -72,7 +72,12 @@ public enum EncodingAdapter {
         if let found = charsetValue(inLineBytes: lineBytes) {
             return found
         }
-        return def
+        return nil
+    }
+
+    /// Charset 未指定時の既定値を含めて文字コードを返す。
+    public static func detectCharset(in data: Data, default def: String = "UTF-8") -> String {
+        declaredCharset(in: data) ?? def
     }
 
     private static func charsetValue(inLineBytes bytes: [UInt8]) -> String? {

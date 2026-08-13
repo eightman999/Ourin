@@ -131,10 +131,7 @@ public final class SstpHttpServer {
     private static func decode(_ data: Data) -> String? {
         // 宣言された Charset を尊重しつつ、未指定時は UTF-8→Shift_JIS の順でフォールバック
         // （CP932受理設定がfalseの場合はShift_JISフォールバックをスキップする）
-        let charset = EncodingAdapter.detectCharset(in: data)
-        return EncodingAdapter.decode(data, charset: charset)
-            ?? String(data: data, encoding: .utf8)
-            ?? (EncodingNormalizer.acceptsCP932 ? String(data: data, encoding: .shiftJIS) : nil)
+        EncodingNormalizer.decode(data, charset: EncodingAdapter.declaredCharset(in: data))
     }
 
     private static func injectSecurityHeaders(into sstp: String, origin: String?) -> String {

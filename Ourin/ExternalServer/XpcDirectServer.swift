@@ -48,14 +48,22 @@ public final class XpcDirectServer: NSObject, NSXPCListenerDelegate, OurinSSTPXP
             reply(Data("SSTP/1.1 400 Bad Request\r\n\r\n".utf8))
             return
         }
-        let str = String(data: request, encoding: .utf8)
-            ?? (EncodingNormalizer.acceptsCP932 ? String(data: request, encoding: .shiftJIS) : nil)
-            ?? ""
+        guard let str = Self.decodeRequest(request) else {
+            logger.fault("xpc invalid encoding")
+            ServerMetrics.shared.record(duration: 0, error: true)
+            reply(Data("SSTP/1.1 400 Bad Request\r\n\r\n".utf8))
+            return
+        }
         let start = Date()
         let resp = onRequest?(str) ?? "SSTP/1.1 204 No Content\r\n\r\n"
         let duration = Date().timeIntervalSince(start)
         logger.info("xpc size=\(request.count) duration=\(duration)")
         ServerMetrics.shared.record(duration: duration, error: false)
         reply(Data(resp.utf8))
+    }
+
+    /// XPC入力をCharset宣言とCP932受理設定に従ってUTF-8文字列へ変換する。
+    static func decodeRequest(_ data: Data) -> String? {
+        EncodingNormalizer.decode(data, charset: EncodingAdapter.declaredCharset(in: data))
     }
 }
