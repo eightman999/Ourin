@@ -732,7 +732,12 @@ extension GhostManager: NSWindowDelegate {
         }
     }
 
-    func dispatchLocalEvent(event: String, references: [String], notifyOnly: Bool) {
+    func dispatchLocalEvent(
+        event: String,
+        references: [String],
+        notifyOnly: Bool,
+        preserveFollowingPlayback: Bool = false
+    ) {
         guard !event.isEmpty else { return }
 
         // スクリプト由来のイベントは実行元ゴーストだけへ送る。EventBridge は
@@ -753,10 +758,24 @@ extension GhostManager: NSWindowDelegate {
                   response.ok,
                   let script = response.value?.trimmingCharacters(in: .whitespacesAndNewlines),
                   !script.isEmpty else { return }
-            runScript(
-                script,
-                translationContext: .init(eventID: event, references: references)
-            )
+            if preserveFollowingPlayback {
+                // SakuraScript の `raise` は再生位置で発火するが、同じスクリプトに
+                // 後続タグがある場合は、そのタグをイベント応答の初期化で捨てない。
+                // 応答スクリプトを先に再生し、保存した後続キューをその後へ戻す。
+                let followingPlayback = playbackQueue
+                playbackQueue.removeAll()
+                runScript(
+                    script,
+                    translationContext: .init(eventID: event, references: references)
+                )
+                let responsePlayback = playbackQueue
+                playbackQueue = responsePlayback + followingPlayback
+            } else {
+                runScript(
+                    script,
+                    translationContext: .init(eventID: event, references: references)
+                )
+            }
             return
         }
 

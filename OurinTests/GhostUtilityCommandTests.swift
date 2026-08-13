@@ -94,13 +94,15 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
-    func raiseUsesGetAndNotifyUsesNotify() {
+    func raiseUsesGetAndNotifyUsesNotify() async throws {
         EventBridge.shared.stop()
 
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-raise-command-test"))
         let runtime = CapturingUtilityRuntime()
-        runtime.responses["OnBoot"] = #"\0standard raise response\e"#
-        runtime.responses["OnRaiseTest"] = #"\0custom raise response\e"#
+        // 応答表示の検証は別テストで行うため、ここでは後続イベントの
+        // 再生順序を短い終了スクリプトで検証する。
+        runtime.responses["OnBoot"] = #"\e"#
+        runtime.responses["OnRaiseTest"] = #"\e"#
         manager.shioriRuntime = runtime
         let otherManager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-raise-command-other-test"))
         let otherRuntime = CapturingUtilityRuntime()
@@ -114,6 +116,7 @@ struct GhostUtilityCommandTests {
         }
 
         manager.runScript(#"\![raise,OnBoot,standard]\![raise,OnRaiseTest,custom]\![notify,OnNotifyTest,notify]"#)
+        try await Task.sleep(nanoseconds: 200_000_000)
 
         let standardRaise = runtime.requests.first { $0.id == "OnBoot" }
         let customRaise = runtime.requests.first { $0.id == "OnRaiseTest" }

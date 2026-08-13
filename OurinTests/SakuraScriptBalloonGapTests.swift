@@ -82,6 +82,27 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func eventCommandWaitsForPrecedingTextPlayback() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-event-order"))
+        defer { _ = gm.shutdown() }
+        let runtime = InputOptionsRuntime()
+        gm.shioriRuntime = runtime
+
+        gm.sakuraEngine.run(script: "before\\![notify,OnTest,ref]")
+
+        // 解析中にイベントを発火せず、本文と同じ再生キューへ登録する。
+        #expect(runtime.requests.isEmpty)
+        gm.processNextUnit()
+        try await Task.sleep(nanoseconds: 750_000_000)
+
+        #expect(runtime.requests.count == 1)
+        #expect(runtime.requests[0].method == "NOTIFY")
+        #expect(runtime.requests[0].id == "OnTest")
+        #expect(runtime.requests[0].refs == ["ref"])
+        #expect(gm.getBalloonVM(for: 0).text == "before")
+    }
+
+    @MainActor
     @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
         let vm = gm.getBalloonVM(for: gm.currentScope)

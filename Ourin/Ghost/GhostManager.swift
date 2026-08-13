@@ -2321,38 +2321,55 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         if args.count >= 2 {
                             let eventName = args[1]
                             let refs = Array(args.dropFirst(2))
-                            dispatchLocalEvent(event: eventName, references: refs, notifyOnly: false)
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.dispatchLocalEvent(
+                                    event: eventName,
+                                    references: refs,
+                                    notifyOnly: false,
+                                    preserveFollowingPlayback: true
+                                )
+                            })
                         }
                     } else if first == "notify", args.count >= 2 {
                         // \![notify,event,ref0,ref1,...]
                         let eventName = args[1]
                         let refs = Array(args.dropFirst(2))
-                        dispatchLocalEvent(event: eventName, references: refs, notifyOnly: true)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.dispatchLocalEvent(event: eventName, references: refs, notifyOnly: true)
+                        })
                     } else if first == "raiseother", args.count >= 3 {
                         // \![raiseother,ghost,event,ref0,ref1,...]
                         let ghostSpec = args[1]
                         let eventName = args[2]
                         let refs = Array(args.dropFirst(3))
-                        raiseOtherGhostEvent(ghostSpec: ghostSpec, event: eventName, references: refs, notifyOnly: false)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.raiseOtherGhostEvent(ghostSpec: ghostSpec, event: eventName, references: refs, notifyOnly: false)
+                        })
                     } else if first == "embed", args.count >= 2 {
                         // \![embed,event,ref0,ref1,...]
                         let eventName = args[1]
                         let refs = Array(args.dropFirst(2))
-                        executeEmbeddedEvent(event: eventName, references: refs)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.executeEmbeddedEvent(event: eventName, references: refs)
+                        })
                     } else if first == "timerraise", args.count >= 4 {
                         // \![timerraise,ms,repeat,event,ref0,ref1,...]
                         let intervalMs = Int(args[1]) ?? 0
                         let repeatSpec = args[2]
                         let eventName = args[3]
                         let refs = Array(args.dropFirst(4))
-                        scheduleLocalEventTimer(intervalMs: intervalMs, repeatSpec: repeatSpec, event: eventName, references: refs, notifyOnly: false)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.scheduleLocalEventTimer(intervalMs: intervalMs, repeatSpec: repeatSpec, event: eventName, references: refs, notifyOnly: false)
+                        })
                     } else if first == "timernotify", args.count >= 4 {
                         // \![timernotify,ms,repeat,event,ref0,ref1,...]
                         let intervalMs = Int(args[1]) ?? 0
                         let repeatSpec = args[2]
                         let eventName = args[3]
                         let refs = Array(args.dropFirst(4))
-                        scheduleLocalEventTimer(intervalMs: intervalMs, repeatSpec: repeatSpec, event: eventName, references: refs, notifyOnly: true)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.scheduleLocalEventTimer(intervalMs: intervalMs, repeatSpec: repeatSpec, event: eventName, references: refs, notifyOnly: true)
+                        })
                     } else if first == "timerraiseother", args.count >= 5 {
                         // \![timerraiseother,ms,repeat,ghost,event,ref0,ref1,...]
                         let intervalMs = Int(args[1]) ?? 0
@@ -2360,13 +2377,17 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let ghostSpec = args[3]
                         let eventName = args[4]
                         let refs = Array(args.dropFirst(5))
-                        scheduleTimerRaiseOther(intervalMs: intervalMs, repeatSpec: repeatSpec, ghostSpec: ghostSpec, event: eventName, references: refs, notifyOnly: false)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.scheduleTimerRaiseOther(intervalMs: intervalMs, repeatSpec: repeatSpec, ghostSpec: ghostSpec, event: eventName, references: refs, notifyOnly: false)
+                        })
                     } else if first == "raiseplugin", args.count >= 3 {
                         // \![raiseplugin,plugin,event,ref0,ref1,...]
                         let pluginSpec = args[1]
                         let eventName = args[2]
                         let refs = Array(args.dropFirst(3))
-                        dispatchPluginEvent(pluginSpec: pluginSpec, event: eventName, references: refs, notifyOnly: false)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.dispatchPluginEvent(pluginSpec: pluginSpec, event: eventName, references: refs, notifyOnly: false)
+                        })
                     } else if first == "timerraiseplugin", args.count >= 5 {
                         // \![timerraiseplugin,ms,repeat,plugin,event,ref0,ref1,...]
                         let intervalMs = Int(args[1]) ?? 0
@@ -2374,13 +2395,17 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let pluginSpec = args[3]
                         let eventName = args[4]
                         let refs = Array(args.dropFirst(5))
-                        scheduleTimerPluginEvent(intervalMs: intervalMs, repeatSpec: repeatSpec, pluginSpec: pluginSpec, event: eventName, references: refs, notifyOnly: false)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.scheduleTimerPluginEvent(intervalMs: intervalMs, repeatSpec: repeatSpec, pluginSpec: pluginSpec, event: eventName, references: refs, notifyOnly: false)
+                        })
                     } else if first == "notifyother", args.count >= 3 {
                         // \![notifyother,ghost,event,ref0,ref1,...]
                         let ghostSpec = args[1]
                         let eventName = args[2]
                         let refs = Array(args.dropFirst(3))
-                        raiseOtherGhostEvent(ghostSpec: ghostSpec, event: eventName, references: refs, notifyOnly: true)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.raiseOtherGhostEvent(ghostSpec: ghostSpec, event: eventName, references: refs, notifyOnly: true)
+                        })
                     } else if first == "timernotifyother", args.count >= 5 {
                         // \![timernotifyother,ms,repeat,ghost,event,ref0,ref1,...]
                         let intervalMs = Int(args[1]) ?? 0
@@ -2388,13 +2413,17 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let ghostSpec = args[3]
                         let eventName = args[4]
                         let refs = Array(args.dropFirst(5))
-                        scheduleTimerRaiseOther(intervalMs: intervalMs, repeatSpec: repeatSpec, ghostSpec: ghostSpec, event: eventName, references: refs, notifyOnly: true)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.scheduleTimerRaiseOther(intervalMs: intervalMs, repeatSpec: repeatSpec, ghostSpec: ghostSpec, event: eventName, references: refs, notifyOnly: true)
+                        })
                     } else if first == "notifyplugin", args.count >= 3 {
                         // \![notifyplugin,plugin,event,ref0,ref1,...]
                         let pluginSpec = args[1]
                         let eventName = args[2]
                         let refs = Array(args.dropFirst(3))
-                        dispatchPluginEvent(pluginSpec: pluginSpec, event: eventName, references: refs, notifyOnly: true)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.dispatchPluginEvent(pluginSpec: pluginSpec, event: eventName, references: refs, notifyOnly: true)
+                        })
                     } else if first == "timernotifyplugin", args.count >= 5 {
                         // \![timernotifyplugin,ms,repeat,plugin,event,ref0,ref1,...]
                         let intervalMs = Int(args[1]) ?? 0
@@ -2402,7 +2431,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         let pluginSpec = args[3]
                         let eventName = args[4]
                         let refs = Array(args.dropFirst(5))
-                        scheduleTimerPluginEvent(intervalMs: intervalMs, repeatSpec: repeatSpec, pluginSpec: pluginSpec, event: eventName, references: refs, notifyOnly: true)
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.scheduleTimerPluginEvent(intervalMs: intervalMs, repeatSpec: repeatSpec, pluginSpec: pluginSpec, event: eventName, references: refs, notifyOnly: true)
+                        })
                     } else if first == "change", args.count >= 3 {
                         // \![change,ghost|shell|balloon,target]
                         let target = args[1].lowercased()
