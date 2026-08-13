@@ -66,6 +66,8 @@ class CharacterViewModel: ObservableObject {
 /// ViewModel for the balloon view.
 class BalloonViewModel: ObservableObject {
     static let defaultBalloonTimeout: TimeInterval = 60
+    /// \_b[filepath,inline] を本文中で1文字として保持する不可視プレースホルダー。
+    static let inlineImagePlaceholder = "\u{FFFC}"
 
     @Published var text: String = ""
     @Published var balloonID: Int = 0  // Current balloon style ID (0, 2, 4, etc.)
@@ -200,9 +202,19 @@ class BalloonViewModel: ObservableObject {
         let clipping: CGRect?
         let isForeground: Bool
         let isFixed: Bool
+        /// 本文内のUTF-16位置。位置指定 \_b では nil。
+        let inlineTextOffset: Int?
         let image: NSImage?
     }
     @Published var balloonImages: [BalloonImage] = []
+
+    /// 現在の本文末尾へ inline 画像の1文字分を予約し、挿入前のUTF-16位置を返す。
+    @discardableResult
+    func appendInlineImagePlaceholder() -> Int {
+        let offset = (text as NSString).length
+        text.append(Self.inlineImagePlaceholder)
+        return offset
+    }
 
     /// `\n` 可変改行の垂直送り（通常行高に対する倍率）。
     /// `lineAdvances[i]` は i 番目の `\n` 文字に付随する送り。`\n`=1.0, `\n[half]`=0.5, `\n[150]`=1.5, `\n[-250]`=-2.5。
@@ -304,6 +316,7 @@ class BalloonViewModel: ObservableObject {
         let removed = min(count, text.count)
         let oldText = text
         text = String(oldText.dropLast(removed))
+        removeInlineImagesOutsideText()
         let removedNewlines = min(oldText.suffix(removed).filter { $0 == "\n" }.count, lineAdvances.count)
         if removedNewlines > 0 { lineAdvances.removeLast(removedNewlines) }
         clampAnchors(toUTF16Length: (text as NSString).length)
@@ -315,6 +328,7 @@ class BalloonViewModel: ObservableObject {
         let lines = text.components(separatedBy: "\n")
         let toRemove = min(count, lines.count)
         text = Array(lines.dropLast(toRemove)).joined(separator: "\n")
+        removeInlineImagesOutsideText()
         lineAdvances.removeLast(min(toRemove, lineAdvances.count))
         clampAnchors(toUTF16Length: (text as NSString).length)
     }
@@ -409,6 +423,14 @@ class BalloonViewModel: ObservableObject {
             let end = min(anchor.range.location + anchor.range.length, length)
             let clampedRange = NSRange(location: anchor.range.location, length: max(0, end - anchor.range.location))
             return BalloonAnchorRange(id: anchor.id, references: anchor.references, text: anchor.text, range: clampedRange, pluginOrigin: anchor.pluginOrigin, visited: anchor.visited)
+        }
+    }
+
+    private func removeInlineImagesOutsideText() {
+        let length = (text as NSString).length
+        balloonImages.removeAll { image in
+            guard let offset = image.inlineTextOffset else { return false }
+            return offset >= length
         }
     }
 }

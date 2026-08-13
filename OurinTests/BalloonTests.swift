@@ -11,6 +11,15 @@ struct BalloonTests {
         }
     }
 
+    private func solidImage(_ color: NSColor, size: CGSize = CGSize(width: 12, height: 12)) -> NSImage {
+        let image = NSImage(size: size)
+        image.lockFocus()
+        color.setFill()
+        NSRect(origin: .zero, size: size).fill()
+        image.unlockFocus()
+        return image
+    }
+
     @Test func descriptorOverlay() async throws {
         let dir = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Fixtures")
         let desc = try DescriptorLoader.load(from: dir)
@@ -129,6 +138,7 @@ struct BalloonTests {
             clipping: nil,
             isForeground: false,
             isFixed: false,
+            inlineTextOffset: nil,
             image: NSImage(size: CGSize(width: 4, height: 4))
         )]
 
@@ -146,6 +156,92 @@ struct BalloonTests {
 
         #expect(layout.displaySize == CGSize(width: 40, height: 30))
         #expect(layout.imageOffset == CGSize(width: -10, height: -20))
+
+        let cropped = BalloonView.clippedBalloonImage(
+            solidImage(.blue, size: CGSize(width: 100, height: 80)),
+            clipping: CGRect(x: 10, y: 20, width: 40, height: 30)
+        )
+        #expect(cropped?.size == CGSize(width: 40, height: 30))
+    }
+
+    @MainActor
+    @Test func inlineBalloonImageOccupiesOneTextCharacterAndClearsWithText() async throws {
+        let directory = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("ourin-inline-balloon-\(UUID().uuidString)")
+        let master = directory.appendingPathComponent("ghost/master", isDirectory: true)
+        try FileManager.default.createDirectory(at: master, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let imageURL = master.appendingPathComponent("inline.tiff")
+        try solidImage(.blue).tiffRepresentation?.write(to: imageURL)
+
+        let gm = GhostManager(ghostURL: directory)
+        let vm = gm.getBalloonVM(for: gm.currentScope)
+        vm.text = "A"
+        gm.handleBalloonImage(args: ["inline.tiff", "inline"])
+        await drainMainQueue()
+
+        #expect(vm.text == "A\u{FFFC}")
+        #expect(vm.balloonImages.count == 1)
+        #expect(vm.balloonImages.first?.isInline == true)
+        #expect(vm.balloonImages.first?.inlineTextOffset == 1)
+
+        vm.text += "B"
+        vm.truncateSuffixCharacters(2)
+        #expect(vm.text == "A")
+        #expect(vm.balloonImages.isEmpty)
+    }
+
+    @MainActor
+    @Test func inlineBalloonImageIsRenderedInsideText() {
+        let vm = BalloonViewModel()
+        vm.text = "A\u{FFFC}B"
+        vm.balloonImages = [BalloonViewModel.BalloonImage(
+            filepath: "inline.png",
+            x: 0,
+            y: 0,
+            isInline: true,
+            isOpaque: true,
+            useSelfAlpha: false,
+            clipping: nil,
+            isForeground: false,
+            isFixed: false,
+            inlineTextOffset: 1,
+            image: solidImage(.blue)
+        )]
+
+        let host = NSHostingView(rootView: BalloonView(viewModel: vm))
+        host.frame = NSRect(x: 0, y: 0, width: 400, height: 150)
+        let window = NSWindow(
+            contentRect: host.frame,
+            styleMask: .borderless,
+            backing: .buffered,
+            defer: false
+        )
+        window.contentView = host
+        window.displayIfNeeded()
+        host.layoutSubtreeIfNeeded()
+        defer { window.orderOut(nil) }
+
+        guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else {
+            Issue.record("BalloonView did not produce a display bitmap")
+            return
+        }
+        host.cacheDisplay(in: host.bounds, to: bitmap)
+
+        var foundBlue = false
+        for y in stride(from: 0, to: bitmap.pixelsHigh, by: 2) {
+            for x in stride(from: 0, to: bitmap.pixelsWide, by: 2) {
+                var pixel = [Int](repeating: 0, count: 4)
+                bitmap.getPixel(&pixel, atX: x, y: y)
+                if pixel[2] > 180 && pixel[2] > pixel[0] + 40 {
+                    foundBlue = true
+                    break
+                }
+            }
+            if foundBlue { break }
+        }
+        #expect(foundBlue)
     }
 
     @MainActor
@@ -165,12 +261,12 @@ struct BalloonTests {
             BalloonViewModel.BalloonImage(
                 filepath: "foreground.png", x: 10, y: 10, isInline: false,
                 isOpaque: true, useSelfAlpha: false, clipping: nil,
-                isForeground: true, isFixed: true, image: solidImage(.blue)
+                isForeground: true, isFixed: true, inlineTextOffset: nil, image: solidImage(.blue)
             ),
             BalloonViewModel.BalloonImage(
                 filepath: "background.png", x: 10, y: 10, isInline: false,
                 isOpaque: true, useSelfAlpha: false, clipping: nil,
-                isForeground: false, isFixed: true, image: solidImage(.red)
+                isForeground: false, isFixed: true, inlineTextOffset: nil, image: solidImage(.red)
             )
         ]
 

@@ -35,22 +35,48 @@ struct BalloonView: View {
     /// UKADOC の clipping は画像側の左・上・右・下座標であり、切り抜いた部分は
     /// \_b の x/y 位置を左上として表示する。
     static func balloonImageLayout(for imageSize: CGSize, clipping: CGRect?) -> BalloonImageLayout {
-        guard let clipping,
-              imageSize.width > 0,
-              imageSize.height > 0 else {
-            return BalloonImageLayout(displaySize: imageSize, imageOffset: .zero)
-        }
-
-        let imageBounds = CGRect(origin: .zero, size: imageSize)
-        let clipped = clipping.standardized.intersection(imageBounds)
-        guard !clipped.isNull, clipped.width > 0, clipped.height > 0 else {
-            // 不正な範囲は画像全体を表示する。無効な \_b が既存の会話を不可視にしないため。
+        guard let clipped = normalizedBalloonImageClipping(for: imageSize, clipping: clipping) else {
             return BalloonImageLayout(displaySize: imageSize, imageOffset: .zero)
         }
         return BalloonImageLayout(
             displaySize: clipped.size,
             imageOffset: CGSize(width: -clipped.minX, height: -clipped.minY)
         )
+    }
+
+    /// clipping の座標を画像境界内へ正規化する。不正値は nil（画像全体表示）とする。
+    static func normalizedBalloonImageClipping(for imageSize: CGSize, clipping: CGRect?) -> CGRect? {
+        guard let clipping,
+              imageSize.width > 0,
+              imageSize.height > 0 else {
+            return nil
+        }
+        let clipped = clipping.standardized.intersection(CGRect(origin: .zero, size: imageSize))
+        guard !clipped.isNull, clipped.width > 0, clipped.height > 0 else { return nil }
+        return clipped
+    }
+
+    /// inline 画像用に、clipping 範囲だけを持つ NSImage を生成する。
+    /// NSImage のCG座標（左下原点）へ変換してから切り抜く。
+    static func clippedBalloonImage(_ image: NSImage, clipping: CGRect?) -> NSImage? {
+        guard let clipping,
+              let clipped = normalizedBalloonImageClipping(for: image.size, clipping: clipping),
+              let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+            return image
+        }
+        let scaleX = CGFloat(cgImage.width) / max(image.size.width, 1)
+        let scaleY = CGFloat(cgImage.height) / max(image.size.height, 1)
+        let cropRect = CGRect(
+            x: clipped.minX * scaleX,
+            y: (image.size.height - clipped.maxY) * scaleY,
+            width: clipped.width * scaleX,
+            height: clipped.height * scaleY
+        ).intersection(CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
+        guard cropRect.width > 0, cropRect.height > 0,
+              let cropped = cgImage.cropping(to: cropRect.integral) else {
+            return image
+        }
+        return NSImage(cgImage: cropped, size: clipped.size)
     }
 
     /// バルーン枠サイズ = サーフェス画像の実寸（無ければ descript の maxwidth/maxheight、最後に既定値）。
@@ -208,7 +234,7 @@ struct BalloonView: View {
                 // 背景画像は文字の下に描画する（既定値および --option=background）。
                 // --option=fixed が指定されていない画像は、テキスト送り（\_l によるカーソル移動）に追従してスクロールする。
                 // fixed指定時は背景として固定位置に留まる（UKADOC \_b 仕様）。
-                ForEach(viewModel.balloonImages.filter { !$0.isForeground }) { balloonImage in
+                ForEach(viewModel.balloonImages.filter { !$0.isInline && !$0.isForeground }) { balloonImage in
                     balloonImageView(balloonImage)
                 }
 
@@ -260,7 +286,7 @@ struct BalloonView: View {
                 }
 
                 // 前景画像は本文とバルーン背景より前面に描画する。
-                ForEach(viewModel.balloonImages.filter { $0.isForeground }) { balloonImage in
+                ForEach(viewModel.balloonImages.filter { !$0.isInline && $0.isForeground }) { balloonImage in
                     balloonImageView(balloonImage)
                 }
 
@@ -375,10 +401,10 @@ struct BalloonView: View {
     /// アンカーセグメントはアンカー色で描画し、クリック時に所属アンカーを通知する。
     /// 装飾は `anchorstyle`（選択中）→ `anchorvisited*`（訪問済み）→ `anchornotselect*`（非選択）の順で決まる。
     @ViewBuilder
-    private func segmentText(_ segment: String, for vm: BalloonViewModel, isAnchor: Bool, anchorIndex: Int?, surfaceImage: NSImage?, surfaceSize: CGSize) -> some View {
+    private func segmentText(_ segment: String, for vm: BalloonViewModel, textRange: NSRange, isAnchor: Bool, anchorIndex: Int?, surfaceImage: NSImage?, surfaceSize: CGSize) -> some View {
         if isAnchor {
             let decoration = vm.decoration(forAnchorAt: anchorIndex)
-            decoratedAnchorText(segment, for: vm, decoration: decoration, surfaceImage: surfaceImage, surfaceSize: surfaceSize)
+            decoratedAnchorText(segment, for: vm, textRange: textRange, decoration: decoration, surfaceImage: surfaceImage, surfaceSize: surfaceSize)
                 .contentShape(Rectangle())
                 .onHover { hovering in
                     guard let anchorIndex = anchorIndex else { return }
@@ -397,7 +423,7 @@ struct BalloonView: View {
                     }
                 }
         } else {
-            styledText(segment, for: vm)
+            styledTextWithInlineImages(segment, for: vm, textRange: textRange)
                 .foregroundColor(Color(vm.fontColor))
         }
     }
@@ -406,8 +432,8 @@ struct BalloonView: View {
     /// - underline: ペン色の下線
     /// - square: ブラシ色の背景＋ペン色の矩形枠
     @ViewBuilder
-    private func decoratedAnchorText(_ segment: String, for vm: BalloonViewModel, decoration: AnchorDecoration, surfaceImage: NSImage?, surfaceSize: CGSize) -> some View {
-        let base = styledText(segment, for: vm)
+    private func decoratedAnchorText(_ segment: String, for vm: BalloonViewModel, textRange: NSRange, decoration: AnchorDecoration, surfaceImage: NSImage?, surfaceSize: CGSize) -> some View {
+        let base = styledTextWithInlineImages(segment, for: vm, textRange: textRange)
             .foregroundColor(Color(decoration.fontColor))
         switch decoration.style {
         case .none:
@@ -473,6 +499,7 @@ struct BalloonView: View {
     @ViewBuilder
     private func balloonTextContent(for vm: BalloonViewModel, surfaceImage: NSImage?, surfaceSize: CGSize) -> some View {
         let lines = vm.text.components(separatedBy: "\n")
+        let lineStarts = lineStartOffsets(for: vm.text)
         VStack(alignment: .leading, spacing: 0) {
             ForEach(Array(lines.enumerated()), id: \.offset) { lineIndex, line in
                 let spacing = lineTopOffset(for: vm, lineIndex: lineIndex)
@@ -481,14 +508,38 @@ struct BalloonView: View {
                         // 空行（末尾改行など）でも行高を確保する。
                         Text(" ").font(font(for: vm))
                     } else {
-                        ForEach(Array(vm.anchorSegments(lineIndex: lineIndex).enumerated()), id: \.offset) { _, seg in
-                            segmentText(seg.text, for: vm, isAnchor: seg.isAnchor, anchorIndex: seg.anchorIndex, surfaceImage: surfaceImage, surfaceSize: surfaceSize)
+                        let segments = vm.anchorSegments(lineIndex: lineIndex)
+                        ForEach(Array(segments.enumerated()), id: \.offset) { segmentIndex, seg in
+                            let segmentStart = lineStarts[lineIndex] + segments.prefix(segmentIndex).reduce(0) {
+                                $0 + ($1.text as NSString).length
+                            }
+                            let textRange = NSRange(
+                                location: segmentStart,
+                                length: (seg.text as NSString).length
+                            )
+                            segmentText(
+                                seg.text,
+                                for: vm,
+                                textRange: textRange,
+                                isAnchor: seg.isAnchor,
+                                anchorIndex: seg.anchorIndex,
+                                surfaceImage: surfaceImage,
+                                surfaceSize: surfaceSize
+                            )
                         }
                     }
                 }
                 .padding(.top, spacing.topPadding)
                 .offset(y: spacing.yOffset)
             }
+        }
+    }
+
+    private func lineStartOffsets(for text: String) -> [Int] {
+        var offset = 0
+        return text.components(separatedBy: "\n").map { line in
+            defer { offset += (line as NSString).length + 1 }
+            return offset
         }
     }
 
@@ -504,6 +555,75 @@ struct BalloonView: View {
         } else {
             result
         }
+    }
+
+    /// 本文セグメント中の inline 画像を Text の連結要素として組み立てる。
+    /// プレースホルダー自体は描画せず、画像は仕様上の1文字幅として本文位置を占有する。
+    private func styledTextWithInlineImages(_ text: String, for vm: BalloonViewModel, textRange: NSRange) -> Text {
+        let textLength = (text as NSString).length
+        let images = vm.balloonImages
+            .filter { image in
+                guard image.isInline,
+                      let offset = image.inlineTextOffset,
+                      image.image != nil else { return false }
+                return offset >= textRange.location && offset < textRange.location + textRange.length
+            }
+            .sorted { ($0.inlineTextOffset ?? 0) < ($1.inlineTextOffset ?? 0) }
+
+        guard !images.isEmpty else {
+            return styledTextPart(
+                text.replacingOccurrences(of: BalloonViewModel.inlineImagePlaceholder, with: ""),
+                for: vm
+            )
+        }
+
+        var result = Text(verbatim: "")
+        var cursor = 0
+        for balloonImage in images {
+            guard let offset = balloonImage.inlineTextOffset,
+                  let originalImage = balloonImage.image else { continue }
+            let nsImage = Self.clippedBalloonImage(originalImage, clipping: balloonImage.clipping) ?? originalImage
+            let localOffset = max(0, min(textLength, offset - textRange.location))
+            if localOffset > cursor {
+                let prefix = (text as NSString).substring(with: NSRange(
+                    location: cursor,
+                    length: localOffset - cursor
+                ))
+                result = result + styledTextPart(prefix, for: vm)
+            }
+
+            var imageText = Text(Image(nsImage: nsImage)).font(font(for: vm))
+            if #available(macOS 13.0, *) {
+                imageText = imageText.baselineOffset(baselineOffset(for: vm))
+            }
+            result = result + imageText
+            // U+FFFC はUTF-16で1単位なので、次の文字から再開する。
+            cursor = min(textLength, localOffset + 1)
+        }
+
+        if cursor < textLength {
+            let suffix = (text as NSString).substring(with: NSRange(
+                location: cursor,
+                length: textLength - cursor
+            ))
+            result = result + styledTextPart(
+                suffix.replacingOccurrences(of: BalloonViewModel.inlineImagePlaceholder, with: ""),
+                for: vm
+            )
+        }
+        return result
+    }
+
+    private func styledTextPart(_ text: String, for vm: BalloonViewModel) -> Text {
+        var result = Text(verbatim: text).font(font(for: vm))
+        if #available(macOS 13.0, *) {
+            result = result
+                .italic(vm.fontItalic)
+                .underline(vm.fontUnderline)
+                .strikethrough(vm.fontStrike)
+                .baselineOffset(baselineOffset(for: vm))
+        }
+        return result
     }
 
     private func textFrameAlignment(for valign: BalloonViewModel.BalloonTextVAlign) -> Alignment {

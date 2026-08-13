@@ -477,6 +477,12 @@ extension GhostManager {
             // スコープ切替直後など、バルーンウィンドウがまだ遅延生成されていない
             // 場合でも \_b の画像を捨てず、通常の表示経路と同じVMを生成する。
             let vm = self.getBalloonVM(for: self.currentScope)
+            let inlineTextOffset: Int?
+            if isInline, image != nil {
+                inlineTextOffset = vm.appendInlineImagePlaceholder()
+            } else {
+                inlineTextOffset = nil
+            }
 
             let balloonImage = BalloonViewModel.BalloonImage(
                 filepath: filepath,
@@ -488,6 +494,7 @@ extension GhostManager {
                 clipping: clipping,
                 isForeground: isForeground,
                 isFixed: isFixed,
+                inlineTextOffset: inlineTextOffset,
                 image: image
             )
             
