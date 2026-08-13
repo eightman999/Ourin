@@ -160,6 +160,41 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func visualAndMediaCommandsAreQueuedAfterPrecedingText() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-side-effect-order"))
+        defer { _ = gm.shutdown() }
+
+        gm.sakuraEngine.run(script: "before\\i[0,wait]\\4\\5\\6\\7\\8[sound.wav]after")
+
+        let order = gm.playbackQueue.compactMap { unit -> String? in
+            switch unit {
+            case .textToken(let text):
+                return "text:" + text
+            case .speakTextToken(let text):
+                return "speak:" + text
+            case .startAnimation(let id, let wait):
+                return "animation:\(id):\(wait)"
+            case .moveAway:
+                return "move-away"
+            case .moveClose:
+                return "move-close"
+            case .executeSNTPApply:
+                return "sntp-apply"
+            case .executeSNTP:
+                return "sntp"
+            case .playSound(let filename):
+                return "sound:" + filename
+            default:
+                return nil
+            }
+        }
+        #expect(order == [
+            "text:before", "speak:before", "animation:0:true", "move-away", "move-close",
+            "sntp-apply", "sntp", "sound:sound.wav", "text:after", "speak:after"
+        ])
+    }
+
+    @MainActor
     @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
         let vm = gm.getBalloonVM(for: gm.currentScope)

@@ -711,6 +711,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case textChunk(String)
         case speak(String)
         case speakTextToken(String)
+        case startAnimation(id: Int, wait: Bool)
         case newline
         case newlineVariation(String)
         case scope(Int)
@@ -729,6 +730,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case toggleQuickMode
         case setQuickMode(Bool)
         case voiceCommand([String])
+        case moveAway
+        case moveClose
+        case bootGhost
+        case bootAllGhosts
+        case executeSNTPApply
+        case executeSNTP
+        case playSound(String)
         case deferredCommand(() -> Void) // Deferred command to execute after script completes
         case embeddedEvent(event: String, references: [String])
     }
@@ -2132,14 +2140,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             playbackQueue.append(.end)
         case .animation(let id, let wait):
             // \i[ID] or \i[ID,wait] - play surface animation
-            if wait {
-                // Start animation then enqueue a wait-for-animation unit
-                playAnimation(id: id, wait: false)
-                playbackQueue.append(.waitAnimation(id))
-            } else {
-                // Play animation without waiting
-                playAnimation(id: id, wait: false)
-            }
+            // アニメーション開始自体も本文と同じ再生順序に置く。
+            playbackQueue.append(.startAnimation(id: id, wait: wait))
         // New token types - added for comprehensive Sakura Script support
         case .wait:
             // \t - タイムクリティカルセクション（UKADOC）。
@@ -2205,23 +2207,23 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
         case .moveAway:
             // \4 - 相方キャラクターから離れる方向へ移動（UKADOC）
-            moveAwayFromPartner(scope: currentScope)
+            playbackQueue.append(.moveAway)
 
         case .moveClose:
             // \5 - 相方キャラクターと接触する距離まで移動（UKADOC）
-            moveTowardPartner(scope: currentScope)
+            playbackQueue.append(.moveClose)
         
         case .bootGhost:
             // \+ - Boot/call other ghost via SSTP
             // The ghost name should be specified in a following command or in context
             Log.debug("[GhostManager] Boot ghost command - attempting to boot ghost via SSTP")
-            bootOtherGhost()
+            playbackQueue.append(.bootGhost)
         
         case .bootAllGhosts:
             // \_+ - sequential ghost switch (UKADOC). This is separate from
             // bootAllGhosts(), which remains an internal broadcast helper.
             Log.debug("[GhostManager] Sequential ghost switch command")
-            switchGhost(named: "sequential", options: [])
+            playbackQueue.append(.bootAllGhosts)
         
         case .openPreferences:
             // \v - このスクリプト以降、最前面表示（stay-on-top）にする（UKADOC）。
@@ -2232,15 +2234,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         
         case .openURL:
             // \6 - execute SNTP correction action (ukadoc semantics)
-            executeSNTPApply()
+            playbackQueue.append(.executeSNTPApply)
         
         case .openEmail:
             // \7 - begin SNTP sequence (same family as \![executesntp])
-            executeSNTP()
+            playbackQueue.append(.executeSNTP)
         
         case .playSound(let filename):
             // \8[filename] - Play sound file
-            playSound(filename: filename)
+            playbackQueue.append(.playSound(filename))
         
         case .choiceQueue(let title, let id, let references):
             // \__q メタタグ（選択肢キュー）。title は範囲ベース構文の表示テキスト。
@@ -4301,6 +4303,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 }
                 scheduleNext(after: typingInterval)
                 return
+            case .startAnimation(let id, let wait):
+                playAnimation(id: id, wait: false)
+                if wait {
+                    playbackQueue.insert(.waitAnimation(id), at: 0)
+                }
+                continue
             case .scope(let id):
                 // SSP は複数スコープ（\0=sakura / \1=kero / \p[n]）のバルーンを同時表示できる。
                 // スコープ切替では他スコープも切替先スコープ自身のバルーンも消さず、各スコープの
@@ -4348,6 +4356,27 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 continue
             case .voiceCommand(let args):
                 applyVoiceSynthesisCommand(args)
+                continue
+            case .moveAway:
+                moveAwayFromPartner(scope: currentScope)
+                continue
+            case .moveClose:
+                moveTowardPartner(scope: currentScope)
+                continue
+            case .bootGhost:
+                bootOtherGhost()
+                continue
+            case .bootAllGhosts:
+                switchGhost(named: "sequential", options: [])
+                continue
+            case .executeSNTPApply:
+                executeSNTPApply()
+                continue
+            case .executeSNTP:
+                executeSNTP()
+                continue
+            case .playSound(let filename):
+                playSound(filename: filename)
                 continue
             case .resetPrecise:
                 preciseBase = Date()
