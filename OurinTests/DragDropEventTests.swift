@@ -86,4 +86,35 @@ struct DragDropEventTests {
         #expect(runtime.requests.first?.id == "OnFileDropEx")
         #expect(runtime.requests.first?.refs == ["/tmp/example.txt", "0", "text/plain"])
     }
+
+    @Test @MainActor
+    func stoppingBridgeDropsQueuedObserverNotifications() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-event-bridge-lifecycle-test"))
+        let runtime = DragDropEventRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        EventBridge.shared.start(enableAutoEvents: false)
+        EventBridge.shared.dispatch(ShioriEvent(
+            id: .OnScreenSaverStart,
+            params: ["Reference0": "queued-before-stop"],
+            delivery: .notify,
+            ignoreResponseScript: true
+        ))
+
+        // stop() は observer の停止だけでなく、次の起動へ持ち越せない
+        // 通知キューも破棄する。
+        EventBridge.shared.stop()
+        EventBridge.shared.start(enableAutoEvents: true)
+        EventBridge.shared.stop()
+
+        #expect(runtime.requests.contains {
+            $0.id == "OnScreenSaverStart" && $0.refs == ["queued-before-stop"]
+        } == false)
+    }
 }
