@@ -15,6 +15,42 @@ public final class WebHandler: NSObject {
     /// シングルトンインスタンス。アプリ全体で1つだけ生成して使う
     public static let shared = WebHandler()
 
+    /// WebイベントをSHIORIへ配送する境界。
+    ///
+    /// 本番はEventBridgeの対象ゴースト向けGETを使い、テストでは配送回数と引数を
+    /// 観測できるようにする。WebイベントをEventBridge.notifyとBridgeToSHIORIへ
+    /// 個別に送ると、同じイベントが二重発火するため、この境界から一度だけ送る。
+    typealias ExternalEventDispatcher = (_ eventName: String, _ params: [String: String], _ ghostName: String) -> Void
+    private let externalEventDispatcher: ExternalEventDispatcher
+
+    init(externalEventDispatcher: ExternalEventDispatcher? = nil) {
+        self.externalEventDispatcher = externalEventDispatcher ?? Self.dispatchExternalEvent
+        super.init()
+    }
+
+    private static func dispatchExternalEvent(
+        eventName: String,
+        params: [String: String],
+        ghostName: String
+    ) {
+        let security = ShioriSecurityContext.external(origin: "x-ukagaka-link")
+        let targetName = ghostName.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if targetName.isEmpty {
+            // 旧来のURL形式にはghostが無いものもあるため、対象未指定時だけ全セッションへ送る。
+            _ = EventBridge.shared.requestCustom(eventName, params: params, security: security)
+        } else if let target = EventBridge.shared.runningGhost(named: targetName) {
+            _ = EventBridge.shared.requestCustom(
+                eventName,
+                params: params,
+                to: target,
+                security: security
+            )
+        } else {
+            Log.debug("[Ourin] Web event target ghost not found: \(targetName)")
+        }
+    }
+
     /// `kAEGetURL` イベントにハンドラを登録し、カスタムスキームを受理できるようにする
     public func register() {
         let manager = NSAppleEventManager.shared()
@@ -46,12 +82,7 @@ public final class WebHandler: NSObject {
             let ghost = params["ghost"] ?? ""
             let info = params["info"] ?? ""
             NSLog("[Ourin] event ghost=\(ghost) info=\(info)")
-            var headers: [String: String] = ["SecurityLevel": "external"]
-            if !ghost.isEmpty {
-                headers["ReceiverGhostName"] = ghost
-            }
-            EventBridge.shared.notify(.OnXUkagakaLinkOpen, refs: ["info": info])
-            _ = BridgeToSHIORI.handle(event: "OnXUkagakaLinkOpen", references: [info], headers: headers)
+            externalEventDispatcher("OnXUkagakaLinkOpen", ["Reference0": info], ghost)
             NotificationCenter.default.post(
                 name: .ourinWebEventReceived,
                 object: self,
@@ -79,12 +110,7 @@ public final class WebHandler: NSObject {
         case "query":
             let ghost = params["ghost"] ?? ""
             let query = params["query"] ?? ""
-            var headers: [String: String] = ["SecurityLevel": "external"]
-            if !ghost.isEmpty {
-                headers["ReceiverGhostName"] = ghost
-            }
-            EventBridge.shared.notify(.OnURLQuery, refs: ["url": query])
-            _ = BridgeToSHIORI.handle(event: "OnURLQuery", references: [query], headers: headers)
+            externalEventDispatcher("OnURLQuery", ["Reference0": query], ghost)
             NotificationCenter.default.post(
                 name: .ourinWebEventReceived,
                 object: self,

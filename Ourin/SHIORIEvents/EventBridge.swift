@@ -646,7 +646,11 @@ final class EventBridge {
         let find = {
             self.sessions.values.compactMap(\.ghostManager).first { gm in
                 guard gm !== excluding else { return false }
-                var names = [gm.ghostConfig?.name ?? "", gm.ghostURL.lastPathComponent]
+                var names = [
+                    gm.ghostConfig?.name ?? "",
+                    gm.ghostConfig?.sakuraName ?? "",
+                    gm.ghostURL.lastPathComponent
+                ]
                 names.append(contentsOf: gm.ghostConfig?.installAccept ?? [])
                 return names.contains { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == normalized }
             }
