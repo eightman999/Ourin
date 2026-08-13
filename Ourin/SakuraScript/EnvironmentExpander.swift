@@ -184,8 +184,10 @@ public final class EnvironmentExpander {
             // Random hour (0-23) as per request
             return String(Int.random(in: 0...23))
         case "*":
-            // `%*` behaves like `!\[*]`; keep empty for now
-            return ""
+            // UKADOC defines %* as the textual shorthand for \![*]. Keep it
+            // as a SakuraScript command so the later parser/executor can
+            // deliver the communication marker to the active balloon.
+            return "\\![*]"
         case "property":
             if let name = arg { return propertyManager.get(name) ?? "" }
             return ""
