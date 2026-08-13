@@ -25,6 +25,7 @@ struct PropertySetPropertyWiringTests {
 
         let key = "currentghost.seriko.cursor.scope(0).mouseuplist(RegressionTestRegion).path"
         gm.sakuraEngine.run(script: "\\![set,property,\(key),regression_cursor.cur]")
+        gm.processNextUnit()
 
         #expect(PropertyManager.shared.get(key) == "regression_cursor.cur")
     }
@@ -34,6 +35,7 @@ struct PropertySetPropertyWiringTests {
         let gm = makeGhostManager()
         let key = "currentghost.seriko.tooltip.scope(0).textlist(RegressionTestRegion).text"
         gm.sakuraEngine.run(script: "\\![set,property,\(key),テスト用ツールチップ]")
+        gm.processNextUnit()
 
         #expect(PropertyManager.shared.get(key) == "テスト用ツールチップ")
     }

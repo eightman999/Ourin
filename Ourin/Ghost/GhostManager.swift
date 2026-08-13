@@ -2444,27 +2444,29 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // \![change,ghost|shell|balloon,target]
                         let target = args[1].lowercased()
                         let value = args[2]
-                        switch target {
-                        case "ghost":
-                            let options = Array(args.dropFirst(3))
-                            switchGhost(named: value, options: options)
-                        case "shell":
-                            let options = Array(args.dropFirst(3))
-                            _ = switchShell(named: value, raiseEvent: options.contains("--option=raise-event"))
-                        case "balloon":
-                            let options = Array(args.dropFirst(3))
-                            _ = switchBalloon(named: value, scope: currentScope, raiseEvent: options.contains("--option=raise-event"))
-                        default:
-                            Log.info("[GhostManager] Unsupported change target: \(target)")
-                        }
+                        let options = Array(args.dropFirst(3))
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            switch target {
+                            case "ghost":
+                                self.switchGhost(named: value, options: options)
+                            case "shell":
+                                _ = self.switchShell(named: value, raiseEvent: options.contains("--option=raise-event"))
+                            case "balloon":
+                                _ = self.switchBalloon(named: value, scope: self.currentScope, raiseEvent: options.contains("--option=raise-event"))
+                            default:
+                                Log.info("[GhostManager] Unsupported change target: \(target)")
+                            }
+                        })
                     } else if first == "call", args.count >= 3 {
                         // \![call,ghost,target(,--option=raise-event)]
                         let target = args[1].lowercased()
                         let value = args[2]
-                        if target == "ghost" {
-                            let options = Array(args.dropFirst(3))
-                            callGhost(named: value, options: options)
-                        }
+                        let options = Array(args.dropFirst(3))
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self, target == "ghost" else { return }
+                            self.callGhost(named: value, options: options)
+                        })
                     } else if first == "get", args.count >= 2 {
                         let getType = args[1].lowercased()
                         if getType == "property", args.count >= 4 {
@@ -2473,9 +2475,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             // Reference0以降へ1つずつ渡す。
                             let eventName = args[2]
                             let propertyKeys = Array(args.dropFirst(3))
-                            let references = propertyKeys.map { sakuraEngine.propertyManager.get($0) ?? "" }
-                            Log.debug("[GhostManager] Property get: \(propertyKeys.count) values, raising GET event: \(eventName)")
-                            _ = requestDialogEvent(eventID: eventName, references: references)
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                guard let self else { return }
+                                let references = propertyKeys.map { self.sakuraEngine.propertyManager.get($0) ?? "" }
+                                Log.debug("[GhostManager] Property get: \(propertyKeys.count) values, raising GET event: \(eventName)")
+                                _ = self.requestDialogEvent(eventID: eventName, references: references)
+                            })
                         } else {
                             let eventByGetType: [String: String] = [
                                 "word": "OnGetWord",
@@ -2486,8 +2491,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             ]
                             if let eventID = eventByGetType[getType] {
                                 let references = Array(args.dropFirst(2))
-                                Log.debug("[GhostManager] Dispatching SHIORI GET event: \(eventID), refs=\(references.count)")
-                                _ = requestDialogEvent(eventID: eventID, references: references)
+                                playbackQueue.append(.deferredCommand { [weak self] in
+                                    guard let self else { return }
+                                    Log.debug("[GhostManager] Dispatching SHIORI GET event: \(eventID), refs=\(references.count)")
+                                    _ = self.requestDialogEvent(eventID: eventID, references: references)
+                                })
                             }
                         }
                     } else if first == "set", args.count >= 3, args[1].lowercased() == "property" {
@@ -2495,14 +2503,21 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // Set property value
                         let propertyKey = args[2]
                         let propertyValue = args.count >= 4 ? args[3] : ""
-                        let success = sakuraEngine.propertyManager.set(propertyKey, value: propertyValue)
-                        Log.debug("[GhostManager] Property set: \(propertyKey) = \(propertyValue), success: \(success)")
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            guard let self else { return }
+                            let success = self.sakuraEngine.propertyManager.set(propertyKey, value: propertyValue)
+                            Log.debug("[GhostManager] Property set: \(propertyKey) = \(propertyValue), success: \(success)")
+                        })
                     } else if first == "save", args.count >= 2, args[1].lowercased() == "wallpaper" {
                         // \![save,wallpaper] - save the current desktop wallpaper URLs
-                        saveWallpaper()
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.saveWallpaper()
+                        })
                     } else if first == "restore", args.count >= 2, args[1].lowercased() == "wallpaper" {
                         // \![restore,wallpaper] - restore the saved desktop wallpaper URLs
-                        restoreWallpaper()
+                        playbackQueue.append(.deferredCommand { [weak self] in
+                            self?.restoreWallpaper()
+                        })
                     } else if first == "quicksection", args.count >= 2 {
                         let v = args[1].lowercased()
                         playbackQueue.append(.setQuickMode(v == "1" || v == "true"))
@@ -2522,7 +2537,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         }
                     } else if first == "signal", args.count >= 2, args[1].lowercased() == "syncobject" {
                         let name = args.count >= 3 ? args[2] : ""
-                        SyncCenter.shared.signal(name: name)
+                        playbackQueue.append(.deferredCommand {
+                            SyncCenter.shared.signal(name: name)
+                        })
                     } else if first == "input", args.count >= 2 {
                         // Compatibility aliases: \![input,*]
                         let inputType = args[1].lowercased()

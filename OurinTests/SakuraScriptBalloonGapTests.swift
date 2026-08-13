@@ -103,6 +103,25 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func getCommandWaitsForPrecedingTextPlayback() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-get-order"))
+        defer { _ = gm.shutdown() }
+        let runtime = InputOptionsRuntime()
+        gm.shioriRuntime = runtime
+
+        gm.sakuraEngine.run(script: "before\\![get,word,lookup]")
+        #expect(runtime.requests.isEmpty)
+        gm.processNextUnit()
+        try await Task.sleep(nanoseconds: 750_000_000)
+
+        #expect(runtime.requests.count == 1)
+        #expect(runtime.requests[0].method == "GET")
+        #expect(runtime.requests[0].id == "OnGetWord")
+        #expect(runtime.requests[0].refs == ["lookup"])
+        #expect(gm.getBalloonVM(for: 0).text == "before")
+    }
+
+    @MainActor
     @Test func embedResponseIsInsertedBeforeFollowingText() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-embed-order"))
         defer { _ = gm.shutdown() }
