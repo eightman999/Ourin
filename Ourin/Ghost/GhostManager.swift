@@ -879,6 +879,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // Dressup configuration
     var dressupConfigurations: [DressupConfig] = []
     var dressupBindGroupsByScope: [Int: [Int: DressupBindGroupMeta]] = [:]
+    var dressupBindOptionsByScope: [Int: [String: DressupBindOptions]] = [:]
     var dressupMenuItemsByScope: [Int: [Int: Int]] = [:] // scope -> menuIndex -> bindgroupID
 
     enum ChoiceAction {
@@ -907,6 +908,27 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let part: String
         let thumbnail: String?
         let isDefault: Bool
+    }
+
+    /// MAYUNA の `*.bindoption*.group` に対応するカテゴリ単位の制約。
+    /// 未知のオプションも通知情報から失わないが、状態遷移に影響するのは
+    /// UKADOC で定義されている `mustselect` と `multiple` のみ。
+    struct DressupBindOptions: Equatable {
+        let options: [String]
+
+        init(options: [String]) {
+            var normalized: [String] = []
+            for option in options {
+                let value = option.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                guard !value.isEmpty, !normalized.contains(value) else { continue }
+                normalized.append(value)
+            }
+            self.options = normalized
+        }
+
+        var mustSelect: Bool { options.contains("mustselect") }
+        var allowsMultiple: Bool { options.contains("multiple") }
+        var serialized: String { options.joined(separator: ",") }
     }
 
     // MARK: - Initialization
@@ -1025,6 +1047,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func loadDressupConfiguration() {
         dressupConfigurations.removeAll()
         dressupBindGroupsByScope.removeAll()
+        dressupBindOptionsByScope.removeAll()
         dressupMenuItemsByScope.removeAll()
         surfaceTransparencyMode = .legacy
         // Load dressup configuration from shell descript.txt
@@ -1073,6 +1096,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 dressupBindGroupsByScope[scope, default: [:]][id] = meta
             }
         }
+        dressupBindOptionsByScope = parsed.bindOptionsByScope
         dressupMenuItemsByScope = parsed.menuItemsByScope
     }
 
@@ -1080,11 +1104,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         partsByCategory: [String: [DressupPartBinding]],
         bindGroupNameByScope: [Int: [Int: (category: String, part: String, thumbnail: String?)]],
         bindGroupDefaultByScope: [Int: [Int: Bool]],
+        bindOptionsByScope: [Int: [String: DressupBindOptions]],
         menuItemsByScope: [Int: [Int: Int]]
     ) {
         var partsByCategory: [String: [DressupPartBinding]] = [:]
         var bindGroupNameByScope: [Int: [Int: (category: String, part: String, thumbnail: String?)]] = [:]
         var bindGroupDefaultByScope: [Int: [Int: Bool]] = [:]
+        var bindOptionsByScope: [Int: [String: DressupBindOptions]] = [:]
         var menuItemsByScope: [Int: [Int: Int]] = [:]
 
         let lines = content.components(separatedBy: .newlines)
@@ -1137,12 +1163,24 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 continue
             }
 
+            if let parsed = parseBindOptionGroupKey(key) {
+                let fields = value.split(separator: ",", maxSplits: 1).map {
+                    String($0).trimmingCharacters(in: .whitespaces)
+                }
+                guard let category = fields.first, !category.isEmpty else { continue }
+                let optionValues = fields.dropFirst().flatMap { field in
+                    field.split(separator: "+", omittingEmptySubsequences: true).map(String.init)
+                }
+                bindOptionsByScope[parsed, default: [:]][category] = DressupBindOptions(options: optionValues)
+                continue
+            }
+
             if let parsed = parseMenuItemKey(key), let bindID = Int(value) {
                 menuItemsByScope[parsed.scope, default: [:]][parsed.menuIndex] = bindID
             }
         }
 
-        return (partsByCategory, bindGroupNameByScope, bindGroupDefaultByScope, menuItemsByScope)
+        return (partsByCategory, bindGroupNameByScope, bindGroupDefaultByScope, bindOptionsByScope, menuItemsByScope)
     }
 
     private static func parseBindGroupNameKey(_ key: String) -> (scope: Int, bindGroupID: Int)? {
@@ -1171,6 +1209,21 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             return nil
         }
         return (scopeTokenToID(String(key[scopeRange])), bindGroupID)
+    }
+
+    private static func parseBindOptionGroupKey(_ key: String) -> Int? {
+        guard let regex = try? NSRegularExpression(
+            pattern: #"^(sakura|kero|char\d+)\.bindoption\d+\.group$"#,
+            options: [.caseInsensitive]
+        ) else {
+            return nil
+        }
+        let nsKey = key as NSString
+        guard let match = regex.firstMatch(in: key, range: NSRange(location: 0, length: nsKey.length)),
+              let scopeRange = Range(match.range(at: 1), in: key) else {
+            return nil
+        }
+        return (scopeTokenToID(String(key[scopeRange])))
     }
 
     private static func parseMenuItemKey(_ key: String) -> (scope: Int, menuIndex: Int)? {

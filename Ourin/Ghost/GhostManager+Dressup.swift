@@ -256,11 +256,12 @@ extension GhostManager {
                 }) {
                     let enabledValue = vm?.dressupBindings[definition.category]?[definition.part]
                     let enabled = enabledValue != nil && enabledValue?.lowercased() != "0"
+                    let options = self.dressupBindOptionsByScope[characterID]?[definition.category]?.serialized ?? ""
                     let record = [
                         String(characterID),
                         definition.category,
                         definition.part,
-                        "", // options; MAYUNA extensions may append comma-separated values
+                        options,
                         enabled ? "1" : "0",
                         definition.thumbnail ?? ""
                     ].joined(separator: separator)

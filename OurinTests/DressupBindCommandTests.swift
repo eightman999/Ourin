@@ -262,6 +262,9 @@ struct DressupBindTests {
                 GhostManager.DressupPartBinding(partName: "hat", surfaceID: 11, x: 1, y: 2, overlay: true)
             ])
         ]
+        manager.dressupBindOptionsByScope[0] = [
+            "head": GhostManager.DressupBindOptions(options: ["multiple"])
+        ]
 
         manager.executeBindCommand(args: ["bind", "head", "", "1"])
         try await Task.sleep(nanoseconds: 100_000_000)
@@ -274,6 +277,94 @@ struct DressupBindTests {
             "info"
         ])
         #expect(manager.changedRequestResponses == [false, true])
+    }
+
+    @MainActor @Test
+    func bindCategoryWideDefaultsToOnePartWithoutMultipleOption() async throws {
+        let manager = RecordingGhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-bind-category-single"))
+        let vm = CharacterViewModel()
+        manager.characterViewModels[0] = vm
+        manager.dressupConfigurations = [
+            GhostManager.DressupConfig(category: "head", parts: [
+                GhostManager.DressupPartBinding(partName: "ribbon", surfaceID: 10, x: 0, y: 0, overlay: true),
+                GhostManager.DressupPartBinding(partName: "hat", surfaceID: 11, x: 1, y: 2, overlay: true)
+            ])
+        ]
+
+        manager.executeBindCommand(args: ["bind", "head", "", "1"])
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        #expect(vm.dressupBindings["head"] == ["ribbon": "1"])
+        #expect(manager.eventLog == ["changed:head:ribbon:1", "info"])
+    }
+
+    @MainActor @Test
+    func bindNonMultipleDisablesOtherPartsBeforeEnablingTarget() async throws {
+        let manager = RecordingGhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-bind-single"))
+        let vm = CharacterViewModel()
+        vm.dressupBindings["head"] = ["ribbon": "1"]
+        manager.characterViewModels[0] = vm
+
+        manager.executeBindCommand(args: ["bind", "head", "hat", "1"])
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        #expect(vm.dressupBindings["head"] == ["hat": "1"])
+        #expect(manager.eventLog == [
+            "changed:head:ribbon:0",
+            "changed:head:hat:1",
+            "info"
+        ])
+    }
+
+    @MainActor @Test
+    func bindMultipleKeepsOtherPartsEnabled() async throws {
+        let manager = RecordingGhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-bind-multiple"))
+        let vm = CharacterViewModel()
+        vm.dressupBindings["head"] = ["ribbon": "1"]
+        manager.characterViewModels[0] = vm
+        manager.dressupBindOptionsByScope[0] = [
+            "head": GhostManager.DressupBindOptions(options: ["multiple"])
+        ]
+
+        manager.executeBindCommand(args: ["bind", "head", "hat", "1"])
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        #expect(vm.dressupBindings["head"] == ["ribbon": "1", "hat": "1"])
+        #expect(manager.eventLog == ["changed:head:hat:1", "info"])
+    }
+
+    @MainActor @Test
+    func bindMustSelectKeepsLastPartEnabled() async throws {
+        let manager = RecordingGhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-bind-mustselect"))
+        let vm = CharacterViewModel()
+        vm.dressupBindings["head"] = ["ribbon": "1"]
+        manager.characterViewModels[0] = vm
+        manager.dressupBindOptionsByScope[0] = [
+            "head": GhostManager.DressupBindOptions(options: ["mustselect"])
+        ]
+
+        manager.executeBindCommand(args: ["bind", "head", "ribbon", "0"])
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        #expect(vm.dressupBindings["head"] == ["ribbon": "1"])
+        #expect(manager.eventLog == ["info"])
+    }
+
+    @MainActor @Test
+    func bindMustSelectCategoryDisablePreservesOnePart() async throws {
+        let manager = RecordingGhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-bind-mustselect-category"))
+        let vm = CharacterViewModel()
+        vm.dressupBindings["head"] = ["ribbon": "1", "hat": "1"]
+        manager.characterViewModels[0] = vm
+        manager.dressupBindOptionsByScope[0] = [
+            "head": GhostManager.DressupBindOptions(options: ["mustselect", "multiple"])
+        ]
+
+        manager.executeBindCommand(args: ["bind", "head", "", "0"])
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        #expect(vm.dressupBindings["head"] == ["hat": "1"])
+        #expect(manager.eventLog == ["changed:head:ribbon:0", "info"])
     }
 
     @MainActor @Test
@@ -291,6 +382,9 @@ struct DressupBindTests {
             )
         }
         manager.dressupConfigurations = [GhostManager.DressupConfig(category: "wide", parts: parts)]
+        manager.dressupBindOptionsByScope[0] = [
+            "wide": GhostManager.DressupBindOptions(options: ["multiple"])
+        ]
 
         manager.executeBindCommand(args: ["bind", "wide", "", "1"])
         try await Task.sleep(nanoseconds: 300_000_000)
@@ -396,6 +490,30 @@ struct DressupBindTests {
         #expect(second.method == "GET")
         #expect(second.id == "OnNotifyDressupInfo")
         #expect(second.refs == ["2\u{1}head\u{1}ribbon\u{1}\u{1}1\u{1}"])
+    }
+
+    @Test
+    func dressupInfoIncludesBindOptionsInFourthField() async throws {
+        let runtime = CapturingDressupRuntime()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-bind-info-options"))
+        manager.characterViewModels[0] = CharacterViewModel()
+        manager.dressupConfigurations = [
+            .init(category: "head", parts: [
+                .init(partName: "ribbon", surfaceID: 1, x: 0, y: 0, overlay: true)
+            ])
+        ]
+        manager.dressupBindOptionsByScope[0] = [
+            "head": .init(options: ["mustselect", "multiple"])
+        ]
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer { EventBridge.shared.unregister(token) }
+
+        manager.notifyDressupInfo(scope: 0, requestResponse: true)
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        let request = try #require(runtime.requests.first)
+        #expect(request.id == "OnNotifyDressupInfo")
+        #expect(request.refs == ["0\u{1}head\u{1}ribbon\u{1}mustselect,multiple\u{1}0\u{1}"])
     }
 
     @MainActor @Test

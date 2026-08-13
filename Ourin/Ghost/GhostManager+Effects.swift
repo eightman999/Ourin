@@ -116,31 +116,66 @@ extension GhostManager {
             let configuredParts = self.dressupConfigurations
                 .first(where: { $0.category == category })?.parts
                 .map(\.partName) ?? []
+            let bindOptions = self.dressupBindOptionsByScope[targetScope]?[category]
+            let requiresSelection = bindOptions?.mustSelect == true
+            let allowsMultiple = bindOptions?.allowsMultiple == true
+            let existingParts = vm.dressupBindings[category].map { Array($0.keys).sorted() } ?? []
+
+            func disablePart(_ targetPart: String, eventValue: String = "0") {
+                vm.dressupBindings[category]?[targetPart] = nil
+                if vm.dressupBindings[category]?.isEmpty == true {
+                    vm.dressupBindings[category] = nil
+                }
+                let prefix = self.dressupOverlayPrefix(category: category, part: targetPart)
+                vm.overlays.removeAll { $0.id.hasPrefix(prefix) }
+                changes.append(DressupChange(part: targetPart, value: eventValue))
+            }
+
+            func enablePart(_ targetPart: String, eventValue: String = "1") {
+                if vm.dressupBindings[category] == nil {
+                    vm.dressupBindings[category] = [:]
+                }
+                vm.dressupBindings[category]?[targetPart] = eventValue
+                if !targetPart.isEmpty {
+                    self.applyDressup(category: category, part: targetPart, value: eventValue, scope: targetScope)
+                }
+                changes.append(DressupChange(part: targetPart, value: eventValue))
+            }
 
             if shouldDisable {
                 if part.isEmpty {
-                    let existingParts = vm.dressupBindings[category].map { Array($0.keys).sorted() } ?? []
-                    vm.dressupBindings[category] = nil
-                    let categoryPrefix = "dressup_\(category.replacingOccurrences(of: " ", with: "_"))_"
-                    vm.overlays.removeAll { $0.id.hasPrefix(categoryPrefix) }
-
-                    var affectedParts = configuredParts
-                    for existingPart in existingParts where !affectedParts.contains(existingPart) {
-                        affectedParts.append(existingPart)
-                    }
-                    if affectedParts.isEmpty {
-                        changes.append(DressupChange(part: "", value: eventValue))
+                    if requiresSelection {
+                        // `mustselect` はカテゴリを空にできない。複数選択状態が
+                        // 既に存在する場合だけ、決定的に1つを残して他を外す。
+                        for existingPart in existingParts.dropFirst() {
+                            disablePart(existingPart, eventValue: eventValue)
+                        }
+                        if existingParts.count > 1 {
+                            Log.debug("[GhostManager] Preserved one dressup part due to mustselect: \(category)")
+                        }
                     } else {
-                        changes.append(contentsOf: affectedParts.map { DressupChange(part: $0, value: eventValue) })
+                        vm.dressupBindings[category] = nil
+                        let categoryPrefix = "dressup_\(category.replacingOccurrences(of: " ", with: "_"))_"
+                        vm.overlays.removeAll { $0.id.hasPrefix(categoryPrefix) }
+
+                        var affectedParts = configuredParts
+                        for existingPart in existingParts where !affectedParts.contains(existingPart) {
+                            affectedParts.append(existingPart)
+                        }
+                        if affectedParts.isEmpty {
+                            changes.append(DressupChange(part: "", value: eventValue))
+                        } else {
+                            changes.append(contentsOf: affectedParts.map { DressupChange(part: $0, value: eventValue) })
+                        }
                     }
                 } else {
-                    vm.dressupBindings[category]?[part] = nil
-                    if vm.dressupBindings[category]?.isEmpty == true {
-                        vm.dressupBindings[category] = nil
+                    let isEnabled = vm.dressupBindings[category]?[part] != nil
+                    if requiresSelection && isEnabled && existingParts.count <= 1 {
+                        // `mustselect` では最後の有効パーツを脱衣できない。
+                        Log.debug("[GhostManager] Refused to clear last mustselect dressup part: \(category)/\(part)")
+                    } else {
+                        disablePart(part, eventValue: eventValue)
                     }
-                    let prefix = self.dressupOverlayPrefix(category: category, part: part)
-                    vm.overlays.removeAll { $0.id.hasPrefix(prefix) }
-                    changes.append(DressupChange(part: part, value: eventValue))
                 }
                 Log.debug("[GhostManager] Disabled dressup: \(category)/\(part)")
             } else {
@@ -148,22 +183,39 @@ extension GhostManager {
                     vm.dressupBindings[category] = [:]
                 }
                 if part.isEmpty {
-                    // カテゴリ単位の着衣: 設定された全パーツを適用・記録する
+                    // `multiple` があるカテゴリだけ全パーツを同時に着衣する。
+                    // 指定がないカテゴリは、現在の1パーツを維持し、未選択なら
+                    // 設定順の先頭だけを選択する（UKADOCの既定値）。
                     let configParts = self.dressupConfigurations.first(where: { $0.category == category })?.parts ?? []
-                    for binding in configParts {
-                        vm.dressupBindings[category]?[binding.partName] = eventValue
-                        self.applyDressup(category: category, part: binding.partName, value: eventValue, scope: targetScope)
-                        changes.append(DressupChange(part: binding.partName, value: eventValue))
-                    }
-                    // 設定が見つからない場合もカテゴリ自体を有効として記録する（トグル判定用）
-                    if vm.dressupBindings[category]?.isEmpty == true {
-                        vm.dressupBindings[category]?[part] = eventValue
-                        changes.append(DressupChange(part: part, value: eventValue))
+                    if allowsMultiple {
+                        for binding in configParts {
+                            enablePart(binding.partName, eventValue: eventValue)
+                        }
+                        if configParts.isEmpty {
+                            // 設定なしカテゴリでも、従来どおり空パーツを状態として
+                            // 保持し、後続のトグル判定を成立させる。
+                            enablePart(part, eventValue: eventValue)
+                        }
+                    } else if let selectedPart = existingParts.first ?? configParts.first?.partName {
+                        for existingPart in existingParts where existingPart != selectedPart {
+                            disablePart(existingPart)
+                        }
+                        if vm.dressupBindings[category]?[selectedPart] == nil {
+                            enablePart(selectedPart, eventValue: eventValue)
+                        } else {
+                            changes.append(DressupChange(part: selectedPart, value: eventValue))
+                        }
+                    } else {
+                        // 設定が見つからない場合もカテゴリ自体を有効として記録する（トグル判定用）
+                        enablePart(part, eventValue: eventValue)
                     }
                 } else {
-                    vm.dressupBindings[category]?[part] = eventValue
-                    self.applyDressup(category: category, part: part, value: eventValue, scope: targetScope)
-                    changes.append(DressupChange(part: part, value: eventValue))
+                    if !allowsMultiple {
+                        for existingPart in existingParts where existingPart != part {
+                            disablePart(existingPart)
+                        }
+                    }
+                    enablePart(part, eventValue: eventValue)
                 }
             }
 
