@@ -257,6 +257,8 @@ public struct SerikoPattern: Equatable {
     public let method: SerikoMethod
     public let surfaceID: Int
     public let duration: Int
+    /// SSP拡張の `最小ウェイト-最大ウェイト`。`duration` は下限値を保持する。
+    public let durationRange: ClosedRange<Int>?
     public let x: Int
     public let y: Int
     /// scaling は小数点以下の倍率指定を許すため、従来の整数座標とは別に保持する。
@@ -273,12 +275,14 @@ public struct SerikoPattern: Equatable {
         y: Int,
         rawArguments: [String],
         xValue: Double? = nil,
-        yValue: Double? = nil
+        yValue: Double? = nil,
+        durationRange: ClosedRange<Int>? = nil
     ) {
         self.index = index
         self.method = method
         self.surfaceID = surfaceID
         self.duration = duration
+        self.durationRange = durationRange
         self.x = x
         self.y = y
         self.xValue = xValue ?? Double(x)
@@ -499,10 +503,11 @@ public enum SerikoParser {
                 index: nextIndex,
                 method: .overlay,
                 surfaceID: intAt(overlayArgs, index: 0) ?? -1,
-                duration: intAt(overlayArgs, index: 1) ?? 0,
+                duration: durationAt(overlayArgs, index: 1)?.lowerBound ?? 0,
                 x: intAt(overlayArgs, index: 2) ?? 0,
                 y: intAt(overlayArgs, index: 3) ?? 0,
-                rawArguments: overlayArgs
+                rawArguments: overlayArgs,
+                durationRange: durationAt(overlayArgs, index: 1)
             )
             definition.patterns.append(overlayPattern)
             definition.patterns.sort { $0.index < $1.index }
@@ -589,7 +594,8 @@ public enum SerikoParser {
         }
 
         let surfaceID = intAt(rawArgs, index: methodOffset) ?? -1
-        let duration = intAt(rawArgs, index: methodOffset + 1) ?? 0
+        let durationValue = durationAt(rawArgs, index: methodOffset + 1)
+        let duration = durationValue?.lowerBound ?? 0
         let x = intAt(rawArgs, index: methodOffset + 2) ?? 0
         let y = intAt(rawArgs, index: methodOffset + 3) ?? 0
         let xValue = doubleAt(rawArgs, index: methodOffset + 2)
@@ -604,7 +610,8 @@ public enum SerikoParser {
             y: y,
             rawArguments: rawArgs,
             xValue: xValue,
-            yValue: yValue
+            yValue: yValue,
+            durationRange: durationValue
         )
         return (animID, pattern)
     }
@@ -612,6 +619,25 @@ public enum SerikoParser {
     private static func intAt(_ parts: [String], index: Int) -> Int? {
         guard index >= 0, index < parts.count else { return nil }
         return Int(parts[index])
+    }
+
+    /// Parse a fixed SERIKO wait or SSP's inclusive random wait range.
+    /// Invalid ranges are rejected so malformed definitions retain the
+    /// existing zero-duration fallback instead of silently inventing a frame.
+    private static func durationAt(_ parts: [String], index: Int) -> ClosedRange<Int>? {
+        guard index >= 0, index < parts.count else { return nil }
+        let raw = parts[index].trimmingCharacters(in: .whitespacesAndNewlines)
+        if let fixed = Int(raw) {
+            return fixed...fixed
+        }
+        let bounds = raw.split(separator: "-", omittingEmptySubsequences: false)
+        guard bounds.count == 2,
+              let lower = Int(bounds[0].trimmingCharacters(in: .whitespacesAndNewlines)),
+              let upper = Int(bounds[1].trimmingCharacters(in: .whitespacesAndNewlines)),
+              lower >= 0, upper >= 0 else {
+            return nil
+        }
+        return min(lower, upper)...max(lower, upper)
     }
 
     private static func doubleAt(_ parts: [String], index: Int) -> Double? {

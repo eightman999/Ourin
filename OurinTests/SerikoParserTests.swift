@@ -185,6 +185,21 @@ struct SerikoParserTests {
     }
 
     @Test
+    func parseRandomDurationRange() async throws {
+        let text = """
+        surface5
+        {
+          animation90.interval,always
+          animation90.pattern0,overlay,4200,100-200,8,9
+        }
+        """
+
+        let pattern = try #require(SerikoParser.parseSurfaces(text)[5]?.animations[90]?.patterns.first)
+        #expect(pattern.duration == 100)
+        #expect(pattern.durationRange == 100...200)
+    }
+
+    @Test
     func parseScalingPatternPreservesFractionalFactors() async throws {
         let text = """
         surface0

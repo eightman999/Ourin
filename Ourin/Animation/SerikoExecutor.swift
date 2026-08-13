@@ -15,6 +15,9 @@ public final class SerikoExecutor {
         public var offsetY: Int
         public var lastTickAt: Date
         public var stepDirection: Int  // 1: forward, -1: backward (for ping-pong)
+        /// The wait selected for the currently displayed pattern.
+        /// Random SERIKO ranges are sampled once when a pattern starts.
+        public var currentDuration: Int
     }
 
     public private(set) var activeAnimations: [Int: AnimationState] = [:]
@@ -94,7 +97,8 @@ public final class SerikoExecutor {
             offsetX: 0,
             offsetY: 0,
             lastTickAt: now,
-            stepDirection: 1
+            stepDirection: 1,
+            currentDuration: duration(for: definition.patterns[0])
         )
         activeAnimations[id] = state
         executeCurrentPattern(for: id)
@@ -112,9 +116,8 @@ public final class SerikoExecutor {
                 stopAnimation(id: id)
                 continue
             }
-            let pattern = state.definition.patterns[state.currentPatternIndex]
             let elapsed = now.timeIntervalSince(state.lastTickAt) * 1000
-            if elapsed < Double(max(pattern.duration, 0)) {
+            if elapsed < Double(state.currentDuration) {
                 continue
             }
 
@@ -142,6 +145,7 @@ public final class SerikoExecutor {
                     state.currentPatternIndex = 0
                 }
             }
+            state.currentDuration = duration(for: state.definition.patterns[state.currentPatternIndex])
             activeAnimations[id] = state
             executeCurrentPattern(for: id)
         }
@@ -443,7 +447,8 @@ public final class SerikoExecutor {
                 offsetX: 0,
                 offsetY: 0,
                 lastTickAt: now,
-                stepDirection: 1
+                stepDirection: 1,
+                currentDuration: duration(for: definition.patterns[0])
             )
             activeAnimations[id] = state
             executeCurrentPattern(for: id)
@@ -453,6 +458,20 @@ public final class SerikoExecutor {
     private func hasOption(_ option: String, in definition: SerikoParser.AnimationDefinition) -> Bool {
         let target = option.lowercased()
         return definition.options.contains { $0.lowercased() == target }
+    }
+
+    /// Select an inclusive SSP random wait. Fixed waits do not consume the
+    /// executor's random source, which keeps interval randomness independent
+    /// from ordinary pattern timing.
+    private func duration(for pattern: SerikoPattern) -> Int {
+        guard let range = pattern.durationRange,
+              range.lowerBound < range.upperBound else {
+            return max(pattern.duration, 0)
+        }
+        let value = max(0, min(1, randomProvider()))
+        let count = range.upperBound - range.lowerBound + 1
+        let offset = min(count - 1, Int(value * Double(count)))
+        return range.lowerBound + offset
     }
 
     private func stopAnimations(except animationID: Int) {

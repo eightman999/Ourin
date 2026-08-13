@@ -38,6 +38,36 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func randomDurationIsSelectedInclusivelyWhenPatternStarts() async throws {
+        let pattern = SerikoPattern(
+            index: 0,
+            method: .overlay,
+            surfaceID: 1,
+            duration: 100,
+            x: 0,
+            y: 0,
+            rawArguments: ["overlay", "1", "100-200", "0", "0"],
+            durationRange: 100...200
+        )
+        let definition = SerikoParser.AnimationDefinition(
+            id: 2,
+            interval: .never,
+            options: [],
+            patterns: [pattern]
+        )
+
+        let lower = SerikoExecutor(randomProvider: { 0.0 })
+        lower.register(animations: [2: definition])
+        #expect(lower.executeAnimation(id: 2))
+        #expect(lower.activeAnimations[2]?.currentDuration == 100)
+
+        let upper = SerikoExecutor(randomProvider: { 0.999999 })
+        upper.register(animations: [2: definition])
+        #expect(upper.executeAnimation(id: 2))
+        #expect(upper.activeAnimations[2]?.currentDuration == 200)
+    }
+
+    @Test
     func runonceCompletesAfterPatterns() async throws {
         var now = Date(timeIntervalSince1970: 0)
         let executor = SerikoExecutor(
