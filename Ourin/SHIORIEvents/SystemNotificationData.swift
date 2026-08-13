@@ -67,6 +67,23 @@ struct SystemInternationalInfo: Equatable {
     }
 }
 
+/// OnLanguageChange の Reference0..3。
+struct SystemLanguageInfo: Equatable {
+    let languageName: String
+    let languageID: String
+    let resourcePath: String
+    let helpURL: String
+
+    var parameters: [String: String] {
+        [
+            "Reference0": languageName,
+            "Reference1": languageID,
+            "Reference2": resourcePath,
+            "Reference3": helpURL
+        ]
+    }
+}
+
 /// OS の実データから Notify イベントの Reference 値を組み立てる。
 ///
 /// 値を取得できない OS 情報は空欄のまま返す。固定値で補完して実在しない
@@ -152,6 +169,23 @@ enum SystemNotificationData {
             daylightSavingTime: timeZone.isDaylightSavingTime(),
             countryCode: country,
             languageCode: language
+        )
+    }
+
+    static func currentLanguageInfo(bundle: Bundle = .main) -> SystemLanguageInfo {
+        let languageID = (Locale.current.languageCode ?? "").lowercased()
+        let languageName = languageID.isEmpty
+            ? ""
+            : (Locale.current.localizedString(forLanguageCode: languageID) ?? languageID)
+        let resourcePath = languageID.isEmpty
+            ? ""
+            : (bundle.path(forResource: languageID, ofType: "lproj") ?? "")
+
+        return SystemLanguageInfo(
+            languageName: languageName,
+            languageID: languageID,
+            resourcePath: resourcePath,
+            helpURL: ""
         )
     }
 

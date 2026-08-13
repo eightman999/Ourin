@@ -296,6 +296,11 @@ func eventReferenceTableSystemNotifyReferencesMatchUkadoc() {
     #expect(EventReferenceTable.specs["OnNotifyInternationalInfo"]?.references == [
         "utcOffsetMinutes", "daylightSavingTime", "countryCode", "languageCode"
     ])
+
+    #expect(EventReferenceTable.specs["OnLanguageChange"]?.references == [
+        "languageName", "languageID", "resourcePath", "helpURL"
+    ])
+    #expect(EventReferenceTable.notifyReturnIgnoredIDs.contains("OnLanguageChange"))
 }
 
 // MARK: - 表駆動発火 API（意味ラベル方式）の不変条件

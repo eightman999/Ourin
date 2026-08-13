@@ -62,6 +62,31 @@ struct SystemNotificationDataTests {
     }
 
     @Test
+    func languageInfoUsesFourReferenceColumns() {
+        let info = SystemLanguageInfo(
+            languageName: "日本語",
+            languageID: "ja",
+            resourcePath: "/tmp/ja.lproj",
+            helpURL: ""
+        )
+
+        #expect(info.parameters == [
+            "Reference0": "日本語",
+            "Reference1": "ja",
+            "Reference2": "/tmp/ja.lproj",
+            "Reference3": ""
+        ])
+    }
+
+    @Test
+    func localeObserverLanguageEventCarriesCurrentLanguageReferences() {
+        let event = LocaleObserver.languageChangeEvent()
+
+        #expect(event.id == .OnLanguageChange)
+        #expect(event.params.keys.sorted() == ["Reference0", "Reference1", "Reference2", "Reference3"])
+    }
+
+    @Test
     func currentSystemNotificationDataDoesNotReturnSyntheticEmptySystemValues() {
         let os = SystemNotificationData.currentOSInfo()
         #expect(os.system == "macOS")

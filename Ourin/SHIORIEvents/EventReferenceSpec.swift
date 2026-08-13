@@ -419,7 +419,8 @@ public enum EventReferenceTable {
         .init(id: "OnDisplayPowerStatus", references: ["status"], category: "system"),
         .init(id: "OnOSUpdateInfo", references: ["checkedAt", "executedAt", "history"], category: "system"),
         .init(id: "OnLocaleChange", references: [], category: "system"),
-        .init(id: "OnLanguageChange", references: [], category: "system"),
+        // 起動時は NOTIFY で送られ、応答スクリプトを再生しない（UKADOC）。
+        .init(id: "OnLanguageChange", references: ["languageName", "languageID", "resourcePath", "helpURL"], notifyReturnIgnored: true, category: "system"),
         .init(id: "OnNetworkStatusChange", references: ["status"], category: "network"),
         .init(id: "OnNetworkOnline", references: [], category: "network"),
         .init(id: "OnNetworkOffline", references: [], category: "network"),

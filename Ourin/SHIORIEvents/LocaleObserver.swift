@@ -8,12 +8,16 @@ final class LocaleObserver {
     private var token: Any?
     private var handler: ((ShioriEvent)->Void)?
 
+    static func languageChangeEvent(bundle: Bundle = .main) -> ShioriEvent {
+        ShioriEvent(id: .OnLanguageChange, params: SystemNotificationData.currentLanguageInfo(bundle: bundle).parameters)
+    }
+
     /// 監視を開始する
     func start(_ handler: @escaping (ShioriEvent)->Void) {
         self.handler = handler
         token = NotificationCenter.default.addObserver(forName: NSLocale.currentLocaleDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
             self?.handler?(ShioriEvent(id: .OnLocaleChange, params: [:]))
-            self?.handler?(ShioriEvent(id: .OnLanguageChange, params: [:]))
+            self?.handler?(Self.languageChangeEvent())
         }
     }
 

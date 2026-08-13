@@ -5264,6 +5264,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         bridge.notify(.OnNotifyInternationalInfo,
                       params: SystemNotificationData.currentInternationalInfo().parameters)
 
+        // OnLanguageChange は起動直後も NOTIFY で通知し、言語リソースの場所を渡す。
+        bridge.notify(.OnLanguageChange,
+                      params: SystemNotificationData.currentLanguageInfo().parameters)
+
         // ownerghostname: list of all running ghosts
         let ghostName = config.sakuraName
         bridge.notifyCustom("ownerghostname", params: [
