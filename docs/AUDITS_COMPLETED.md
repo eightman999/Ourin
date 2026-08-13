@@ -82,7 +82,7 @@
 | OnFirstBoot に Reference0（vanish回数）付与 | `Ghost/GhostManager.swift:2675-2685` |
 | 存在しない `OnSecondBoot` を削除（2回目起動も OnBoot） | `Ghost/GhostManager.swift:2670`（コメントで廃止を明記） |
 | OnClose 応答スクリプトを再生してから終了 + Reference0（終了理由） | `Ghost/GhostManager.swift:738-768`（`beginCloseSequence` → `runScript` → 終了） |
-| イベントID定義の網羅性（UKADOC 252イベント中14未定義のみ） | `SHIORIEvents/EventID.swift`（404イベント定義） |
+| イベントID定義の網羅性（UKADOC 252イベント中14未定義のみ） | `SHIORIEvents/EventID.swift`（469イベント定義、`EventReferenceTable` の `On*` ID は型付き網羅テスト済み） |
 | **OnMouseClick の Reference4-6 が充足**（当たり判定名/ボタン/デバイス種別） | `SHIORIEvents/InputMonitor.swift:373-413`（R4=region, R5=button, R6="mouse"）。UKADOC list_shiori_event 準拠 |
 | **`EventBridge.start(enableAutoEvents:)` を実ゴーストロード完了時に集約有効化** | `Ghost/GhostManager.swift:643-646`（OnBoot 後、`!isRunningUnderTests` で有効化）、`2719-2737`（`startEventBridgeIfNeeded` で再起動付き有効化） |
 | **WebSocket/アーカイブ系14イベント実装** | `SHIORIEvents/EventID.swift`（14ケース追加）。ディスパッチ: `Web/GhostManager+WebSocket.swift`（OnExecuteWebSocket Open/Receive/Close/Error/Send/State）、`Ghost/GhostManager+System.swift`（OnExecuteHTTPStreaming, OnCompress/ExtractArchiveComplete/Failure）、`Ghost/GhostManager+Display.swift`（OnMusicPlay/OnMusicPlayEx/OnSoundLoop/OnSoundStop/OnVideoPlayEx）。既存の `notifyCustom` 文字列を型付き `notify(.X)` へ移行。テスト `EventIDAuditTests.swift` |
@@ -267,7 +267,7 @@ The following items were raised in prior audit reports (GLM / CODEX / CLAUDE / A
 | OnFirstBoot Reference0 (vanish count) | `Ghost/GhostManager.swift:2675-2685` |
 | Non-existent `OnSecondBoot` removed | `Ghost/GhostManager.swift:2670` |
 | OnClose response script replayed before exit + Reference0 (exit reason) | `Ghost/GhostManager.swift:738-768` |
-| Event ID coverage (only 14 undefined out of UKADOC 252) | `SHIORIEvents/EventID.swift` (404 events) |
+| Event ID coverage (only 14 undefined out of UKADOC 252) | `SHIORIEvents/EventID.swift` (469 events; all `On*` IDs in `EventReferenceTable` are covered by a typed-ID audit test) |
 | **OnMouseClick Reference4-6 fulfilled** (hit name/button/device type) | `SHIORIEvents/InputMonitor.swift:373-413` (R4=region, R5=button, R6="mouse"). UKADOC list_shiori_event compliant |
 | **`EventBridge.start(enableAutoEvents:)` consolidated on real ghost load** | `Ghost/GhostManager.swift:643-646` (after OnBoot, `!isRunningUnderTests`), `2719-2737` (`startEventBridgeIfNeeded` restart-with-auto-events) |
 | **WebSocket/archive 14 events implemented** | `SHIORIEvents/EventID.swift` (14 cases added). Dispatch: `Web/GhostManager+WebSocket.swift` (OnExecuteWebSocket Open/Receive/Close/Error/Send/State), `Ghost/GhostManager+System.swift` (OnExecuteHTTPStreaming, OnCompress/ExtractArchiveComplete/Failure), `Ghost/GhostManager+Display.swift` (OnMusicPlay/OnMusicPlayEx/OnSoundLoop/OnSoundStop/OnVideoPlayEx). Migrated existing `notifyCustom` strings to typed `notify(.X)`. Test `EventIDAuditTests.swift` |
