@@ -3625,20 +3625,26 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     return Int(value.dropFirst(prefix.count).trimmingCharacters(in: .whitespaces))
                 }
                 if !candidates.isEmpty {
-                    switchBalloon(to: candidates, scope: currentScope)
-                    Log.debug("[GhostManager] Switching to balloon ID with command candidates: \(candidates)")
+                    playbackQueue.append(.deferredCommand { [weak self] in
+                        guard let self else { return }
+                        self.switchBalloon(to: candidates, scope: self.currentScope)
+                        Log.debug("[GhostManager] Switching to balloon ID with command candidates: \(candidates)")
+                    })
                 } else {
                     Log.info("[GhostManager] Invalid balloon fallback command: \(args)")
                 }
             case "_s":
-                if args.isEmpty {
-                    syncEnabled.toggle()
-                    if syncEnabled && syncScopes.isEmpty { syncScopes = [0,1] }
-                    if !syncEnabled { syncScopes = [] }
-                } else {
-                    syncEnabled = true
-                    syncScopes = Set(args.compactMap { Int($0) })
-                }
+                playbackQueue.append(.deferredCommand { [weak self] in
+                    guard let self else { return }
+                    if args.isEmpty {
+                        self.syncEnabled.toggle()
+                        if self.syncEnabled && self.syncScopes.isEmpty { self.syncScopes = [0,1] }
+                        if !self.syncEnabled { self.syncScopes = [] }
+                    } else {
+                        self.syncEnabled = true
+                        self.syncScopes = Set(args.compactMap { Int($0) })
+                    }
+                })
             
             case "q":
                 // \q[title,ID] or various choice formats
@@ -3671,13 +3677,17 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             case "_l":
                 // \_l[x,y] - move cursor position
                 if args.count >= 2 {
-                    handleCursorMove(x: args[0], y: args[1])
+                    let x = args[0]
+                    let y = args[1]
+                    playbackQueue.append(.deferredCommand { [weak self] in
+                        self?.handleCursorMove(x: x, y: y)
+                    })
                 }
             
             case "_v":
                 // \_v[filename] - play voice file
                 if let filename = args.first {
-                    playSound(filename: filename)
+                    playbackQueue.append(.playSound(filename))
                 }
 
             case "_u":
@@ -3712,14 +3722,18 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
             case "j":
                 // \j[ID] - ジャンプ（UKADOC）。URL はブラウザで開く。イベントIDは raise 相当。
-                handleJumpCommand(args: args)
+                playbackQueue.append(.deferredCommand { [weak self] in
+                    self?.handleJumpCommand(args: args)
+                })
 
             case "m":
                 // \m[umsg,wparam,lparam] - message dispatch
                 if let umsg = args.first, !umsg.isEmpty {
                     var refs = [umsg]
                     refs.append(contentsOf: Array(args.dropFirst()))
-                    _ = requestDialogEvent(eventID: "OnMessage", references: refs)
+                    playbackQueue.append(.deferredCommand { [weak self] in
+                        _ = self?.requestDialogEvent(eventID: "OnMessage", references: refs)
+                    })
                 }
             
             case "c":
@@ -3736,7 +3750,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     break
                 }
                 let subcmd = args[0].lowercased()
-                DispatchQueue.main.async {
+                playbackQueue.append(.deferredCommand { [weak self] in
+                    guard let self else { return }
                     guard let vm = self.balloonViewModels[self.currentScope] else { return }
                     
                     switch subcmd {
@@ -4086,7 +4101,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     default:
                         Log.info("[GhostManager] Unknown font command: \(subcmd)")
                     }
-                }
+                })
             
             default:
                 break

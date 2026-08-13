@@ -214,6 +214,44 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func directCommandsAreQueuedAfterPrecedingText() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-command-order"))
+        defer { _ = gm.shutdown() }
+        let runtime = InputOptionsRuntime()
+        gm.shioriRuntime = runtime
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("before"))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "f", args: ["align", "right"]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "_s", args: []))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "_l", args: ["10", "20"]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "_v", args: ["voice.wav"]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "m", args: ["100", "2", "3"]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "j", args: ["OnJump"]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("after"))
+
+        let order = gm.playbackQueue.compactMap { unit -> String? in
+            switch unit {
+            case .textToken(let text):
+                return "text:" + text
+            case .speakTextToken(let text):
+                return "speak:" + text
+            case .deferredCommand:
+                return "command"
+            case .playSound(let filename):
+                return "sound:" + filename
+            default:
+                return nil
+            }
+        }
+
+        #expect(runtime.requests.isEmpty)
+        #expect(order == [
+            "text:before", "speak:before", "command", "command", "command",
+            "sound:voice.wav", "command", "command", "text:after", "speak:after"
+        ])
+    }
+
+    @MainActor
     @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
         let vm = gm.getBalloonVM(for: gm.currentScope)
