@@ -5,6 +5,7 @@ struct MailBiffResult: Equatable {
     let unreadCount: Int
     let unreadBytes: Int
     let senderAndSubject: String
+    let topResult: String
 }
 
 enum MailBiffClientError: Error, Equatable, CustomStringConvertible {
@@ -57,6 +58,7 @@ final class MailBiffClient {
             set unreadCount to 0
             set unreadBytes to 0
             set senderAndSubject to ""
+            set topResult to ""
             repeat with theAccount in accounts
                 if accountName is "" or (name of theAccount as text) is accountName then
                     repeat with theMailbox in (mailboxes of theAccount)
@@ -69,12 +71,15 @@ final class MailBiffClient {
                                 try
                                     set senderAndSubject to senderAndSubject & (sender of theMessage as text) & character id 1 & (subject of theMessage as text) & character id 1
                                 end try
+                                try
+                                    set topResult to topResult & (all headers of theMessage as text) & character id 2
+                                end try
                             end repeat
                         end try
                     end repeat
                 end if
             end repeat
-            return {unreadCount, unreadBytes, senderAndSubject}
+            return {unreadCount, unreadBytes, senderAndSubject, topResult}
         end tell
         """
     }
@@ -89,10 +94,12 @@ final class MailBiffClient {
         let unreadCount = max(0, Int(countDescriptor.int32Value))
         let unreadBytes = max(0, Int(bytesDescriptor.int32Value))
         let senderAndSubject = descriptor.atIndex(3)?.stringValue ?? ""
+        let topResult = descriptor.atIndex(4)?.stringValue ?? ""
         return MailBiffResult(
             unreadCount: unreadCount,
             unreadBytes: unreadBytes,
-            senderAndSubject: senderAndSubject
+            senderAndSubject: senderAndSubject,
+            topResult: topResult
         )
     }
 }

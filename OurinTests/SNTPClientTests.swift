@@ -303,7 +303,69 @@ struct MailBiffClientTests {
 
         #expect(script.contains("read status is false"))
         #expect(script.contains("set accountName to \"personal\\\"account\""))
-        #expect(script.contains("return {unreadCount, unreadBytes, senderAndSubject}"))
+        #expect(script.contains("all headers of theMessage"))
+        #expect(script.contains("return {unreadCount, unreadBytes, senderAndSubject, topResult}"))
         #expect(!script.contains("runningApplications"))
+    }
+
+    @MainActor
+    @Test
+    func biffFallsBackToBiff2OnlyWhenCompleteIsEmpty() {
+        EventBridge.shared.stop()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-biff-fallback-test"))
+        let runtime = SNTPCapturingRuntime()
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.dispatchBiffSuccess(
+            accountName: "personal",
+            result: MailBiffResult(
+                unreadCount: 3,
+                unreadBytes: 1024,
+                senderAndSubject: "sender\u{1}subject\u{1}",
+                topResult: "Header: value"
+            ),
+            previousUnreadCount: 2
+        )
+
+        let biffRequests = runtime.requests.filter { $0.id.hasPrefix("OnBIFF") }
+        #expect(biffRequests.map(\.id) == ["OnBIFFComplete", "OnBIFF2Complete"])
+        #expect(biffRequests.allSatisfy { $0.method == "GET" })
+        #expect(biffRequests[0].refs == ["3", "1024", "personal", "1", "Header: value", "", "", "sender\u{1}subject\u{1}"])
+        #expect(biffRequests[1].refs == ["3", "1024", "personal", "Header: value"])
+    }
+
+    @MainActor
+    @Test
+    func biffCompleteResponseSuppressesBiff2Fallback() {
+        EventBridge.shared.stop()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-biff-complete-test"))
+        let runtime = SNTPCapturingRuntime()
+        runtime.responses["OnBIFFComplete"] = #"\e"#
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.dispatchBiffSuccess(
+            accountName: "personal",
+            result: MailBiffResult(
+                unreadCount: 3,
+                unreadBytes: 1024,
+                senderAndSubject: "sender\u{1}subject\u{1}",
+                topResult: "Header: value"
+            ),
+            previousUnreadCount: 2
+        )
+
+        #expect(runtime.requests.filter { $0.id.hasPrefix("OnBIFF") }.map(\.id) == ["OnBIFFComplete"])
     }
 }

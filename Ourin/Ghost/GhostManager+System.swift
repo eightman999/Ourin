@@ -2080,9 +2080,7 @@ extension GhostManager: NSWindowDelegate {
     func executeBiff(account: String? = nil) {
         let accountName = account?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         Log.debug("[GhostManager] Executing mail check (biff): \(accountName)")
-        EventBridge.shared.notify(.OnBIFFBegin, params: [
-            "Reference2": accountName
-        ])
+        _ = EventBridge.shared.request(.OnBIFFBegin, refs: ["account": accountName], to: self)
 
         MailBiffClient().query(account: accountName.isEmpty ? nil : accountName) { [weak self] result in
             guard let self else { return }
@@ -2091,37 +2089,64 @@ extension GhostManager: NSWindowDelegate {
             case .success(let biff):
                 let previous = self.lastBiffUnreadCounts[key]
                 self.lastBiffUnreadCounts[key] = biff.unreadCount
-                let delta = biff.unreadCount - (previous ?? biff.unreadCount)
-                let params = [
-                    "Reference0": String(biff.unreadCount),
-                    "Reference1": String(biff.unreadBytes),
-                    "Reference2": accountName,
-                    "Reference3": String(delta),
-                    "Reference4": "",
-                    "Reference5": "",
-                    "Reference6": "",
-                    "Reference7": biff.senderAndSubject
-                ]
-                EventBridge.shared.notify(.OnBIFFComplete, params: params)
-                if let previous, biff.unreadCount > previous {
-                    EventBridge.shared.notify(.OnBIFF2Complete, params: [
-                        "Reference0": String(biff.unreadCount),
-                        "Reference1": String(biff.unreadBytes),
-                        "Reference2": accountName,
-                        "Reference3": ""
-                    ])
-                }
+                self.dispatchBiffSuccess(
+                    accountName: accountName,
+                    result: biff,
+                    previousUnreadCount: previous
+                )
                 Log.debug("[GhostManager] BIFF completed: unread=\(biff.unreadCount)")
 
             case .failure(let error):
                 self.lastBiffUnreadCounts.removeValue(forKey: key)
-                EventBridge.shared.notify(.OnBIFFFailure, params: [
-                    "Reference0": error.localizedDescription,
-                    "Reference2": accountName
-                ])
+                _ = EventBridge.shared.request(
+                    .OnBIFFFailure,
+                    refs: ["reason": error.localizedDescription, "account": accountName],
+                    to: self
+                )
                 Log.info("[GhostManager] BIFF failed: \(error)")
             }
         }
+    }
+
+    /// BIFF成功イベントを対象ゴーストへGETで送り、未応答時だけ旧形式へフォールバックする。
+    func dispatchBiffSuccess(
+        accountName: String,
+        result: MailBiffResult,
+        previousUnreadCount: Int?
+    ) {
+        let delta = result.unreadCount - (previousUnreadCount ?? result.unreadCount)
+        let completeParams = EventReferenceTable.params(
+            forEvent: EventID.OnBIFFComplete.rawValue,
+            refs: [
+                "mailCount": String(result.unreadCount),
+                "mailBytes": String(result.unreadBytes),
+                "account": accountName,
+                "newMailDelta": String(delta),
+                "topResult": result.topResult,
+                "listResult": "",
+                "uidlResult": "",
+                "senderAndSubject": result.senderAndSubject
+            ]
+        )
+        let handled = EventBridge.shared.request(
+            .OnBIFFComplete,
+            params: completeParams,
+            to: self
+        )
+        guard !handled,
+              let previousUnreadCount,
+              result.unreadCount > previousUnreadCount else { return }
+
+        _ = EventBridge.shared.request(
+            .OnBIFF2Complete,
+            refs: [
+                "mailCount": String(result.unreadCount),
+                "mailBytes": String(result.unreadBytes),
+                "account": accountName,
+                "topResult": result.topResult
+            ],
+            to: self
+        )
     }
 
     /// Execute HTTP commands for `\![execute,http-*]`.
