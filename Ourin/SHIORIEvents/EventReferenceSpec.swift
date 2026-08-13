@@ -87,6 +87,16 @@ public enum EventReferenceTable {
         .init(id: "OnHourTimeSignal", references: ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"], category: "time"),
         .init(id: "OnIdle", references: [], category: "time"),
 
+        // MARK: - カレンダー
+        // UKADOC: スケジュールイベントの Reference0..3 は type/caption/subtitle/script。
+        .init(id: "OnSchedule5MinutesToGo", references: ["type", "caption", "subtitle", "script"], category: "calendar"),
+        .init(id: "OnScheduleRead", references: ["type", "caption", "subtitle", "script"], category: "calendar"),
+        .init(id: "OnSchedulesenseBegin", references: ["sensorName"], category: "calendar"),
+        .init(id: "OnSchedulesenseComplete", references: ["sensorName", "scheduleCount"], category: "calendar"),
+        .init(id: "OnSchedulesenseFailure", references: ["reason"], category: "calendar"),
+        .init(id: "OnSchedulepostBegin", references: ["sensorName"], category: "calendar"),
+        .init(id: "OnSchedulepostComplete", references: ["sensorName"], category: "calendar"),
+
         // MARK: - マウス
         .init(id: "OnMouseClick", references: ["x", "y", "wheelDelta", "scopeID", "collisionID", "button", "deviceType"], category: "mouse"),
         .init(id: "OnMouseClickEx", references: ["x", "y", "wheelDelta", "scopeID", "collisionID", "button", "deviceType"], category: "mouse"),
