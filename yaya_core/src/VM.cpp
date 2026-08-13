@@ -1499,28 +1499,42 @@ std::optional<VM::RefTarget> VM::tryResolveReference(std::shared_ptr<AST::Node> 
     auto* unary = dynamic_cast<AST::UnaryOpNode*>(node.get());
     if (!unary || unary->op != "&") return std::nullopt;
     const auto& operand = unary->operand;
-    if (auto* var = dynamic_cast<AST::VariableNode*>(operand.get())) {
-        const bool isLocal = !var->name.empty() && var->name[0] == '_' && !localScopes_.empty();
-        return RefTarget{
-            var->name,
-            false,
-            0,
-            isLocal,
-            isLocal ? localScopes_.size() - 1 : 0
-        };
-    }
-    if (auto* acc = dynamic_cast<AST::ArrayAccessNode*>(operand.get())) {
-        int idx = executeNode(acc->index).asInt();
-        const bool isLocal = !acc->arrayName.empty() && acc->arrayName[0] == '_' && !localScopes_.empty();
-        return RefTarget{
-            acc->arrayName,
-            true,
-            idx,
-            isLocal,
-            isLocal ? localScopes_.size() - 1 : 0
-        };
-    }
-    return std::nullopt;
+
+    // ArrayAccessNode is retained for the first index of a plain variable for
+    // compatibility. Further indexes are represented by nested __index__ calls
+    // from Parser::parsePrimary(), so collect the whole l-value chain before
+    // evaluating any of its indexes.
+    std::string rootName;
+    std::vector<int> indices;
+    std::function<bool(const std::shared_ptr<AST::Node>&)> collect =
+        [&](const std::shared_ptr<AST::Node>& current) -> bool {
+        if (auto* var = dynamic_cast<AST::VariableNode*>(current.get())) {
+            rootName = var->name;
+            return true;
+        }
+        if (auto* acc = dynamic_cast<AST::ArrayAccessNode*>(current.get())) {
+            rootName = acc->arrayName;
+            indices.push_back(executeNode(acc->index).asInt());
+            return true;
+        }
+        if (auto* call = dynamic_cast<AST::CallNode*>(current.get());
+            call && call->functionName == "__index__" && call->arguments.size() == 2) {
+            if (!collect(call->arguments[0])) return false;
+            indices.push_back(executeNode(call->arguments[1]).asInt());
+            return true;
+        }
+        return false;
+    };
+
+    if (!collect(operand) || rootName.empty()) return std::nullopt;
+
+    const bool isLocal = rootName[0] == '_' && !localScopes_.empty();
+    return RefTarget{
+        rootName,
+        indices,
+        isLocal,
+        isLocal ? localScopes_.size() - 1 : 0
+    };
 }
 
 Value VM::readReference(const RefTarget& target) {
@@ -1535,30 +1549,16 @@ Value VM::readReference(const RefTarget& target) {
         if (it == variables_.end()) return Value();
         v = it->second;
     }
-    if (target.hasIndex) {
-        return v.arrayGet(target.arrayIdx);
+
+    for (int index : target.arrayIndices) {
+        if (index < 0 || v.getType() != Value::Type::Array) return Value();
+        v = v.arrayGet(static_cast<size_t>(index));
     }
     return v;
 }
 
 void VM::writeReference(const RefTarget& target, const Value& value) {
-    if (target.hasIndex) {
-        Value arr = readReference(RefTarget{
-            target.varName,
-            false,
-            0,
-            target.isLocal,
-            target.localScopeIndex
-        });
-        arr.arraySet(target.arrayIdx, value);
-        if (target.isLocal) {
-            if (target.localScopeIndex < localScopes_.size()) {
-                localScopes_[target.localScopeIndex][target.varName] = arr;
-            }
-        } else {
-            variables_[target.varName] = arr;
-        }
-    } else {
+    if (target.arrayIndices.empty()) {
         if (target.isLocal) {
             if (target.localScopeIndex < localScopes_.size()) {
                 localScopes_[target.localScopeIndex][target.varName] = value;
@@ -1566,6 +1566,49 @@ void VM::writeReference(const RefTarget& target, const Value& value) {
         } else {
             variables_[target.varName] = value;
         }
+        return;
+    }
+
+    Value root;
+    if (target.isLocal) {
+        if (target.localScopeIndex >= localScopes_.size()) return;
+        auto it = localScopes_[target.localScopeIndex].find(target.varName);
+        if (it == localScopes_[target.localScopeIndex].end()) return;
+        root = it->second;
+    } else {
+        auto it = variables_.find(target.varName);
+        if (it == variables_.end()) return;
+        root = it->second;
+    }
+
+    // Update the deepest element and copy each modified child back up to the
+    // root value. This preserves Value's copy semantics while making nested
+    // references such as &matrix[row][column] observable to the caller.
+    std::function<bool(Value&, size_t)> writeNested =
+        [&](Value& container, size_t level) -> bool {
+        if (level >= target.arrayIndices.size() || container.getType() != Value::Type::Array) {
+            return false;
+        }
+        const int index = target.arrayIndices[level];
+        if (index < 0) return false;
+        const size_t arrayIndex = static_cast<size_t>(index);
+        if (level + 1 == target.arrayIndices.size()) {
+            container.arraySet(arrayIndex, value);
+            return true;
+        }
+        Value child = container.arrayGet(arrayIndex);
+        if (!writeNested(child, level + 1)) return false;
+        container.arraySet(arrayIndex, child);
+        return true;
+    };
+
+    if (!writeNested(root, 0)) return;
+    if (target.isLocal) {
+        if (target.localScopeIndex < localScopes_.size()) {
+            localScopes_[target.localScopeIndex][target.varName] = root;
+        }
+    } else {
+        variables_[target.varName] = root;
     }
 }
 

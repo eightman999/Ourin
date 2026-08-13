@@ -187,10 +187,10 @@ private:
     // YAYA 前置 '&'（参照渡し）の解決用ヘルパ。
     // ノードが UnaryOpNode("&", operand) で、operand が変数または配列要素参照なら
     // その格納位置を表す RefTarget を返す（配列添字はこの時点で評価する）。
+    // `&array[i][j]` のような入れ子添字も、ルート変数からの添字列として保持する。
     struct RefTarget {
         std::string varName;
-        bool hasIndex = false;
-        int arrayIdx = 0;
+        std::vector<int> arrayIndices;
         // `_` 変数は呼び出し元のローカルスコープを保持する必要がある。
         // ネストした関数の実行中に現在の最上位スコープへ書くと、呼び出し元ではなく
         // 呼び出し先の同名ローカル変数を更新してしまうため、解決時の深さを記録する。

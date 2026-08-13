@@ -1170,6 +1170,42 @@ struct ShioriLoaderTests {
         #expect(Self.runYayaCore(exe: exe, requests: [loadReq, req("SwapGlobal")]) == "BA")
     }
 
+    /// 入れ子配列の要素（`&matrix[row][column]`）も E.Swap の参照先として
+    /// ルート配列へ書き戻されることを検証する。
+    @Test
+    func yayaCoreESwapByReferenceSupportsNestedArrayElements() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        SwapNestedArrayElem {
+            _rowA = { 'a' -- 'b' }
+            _rowB = { 'c' -- 'd' }
+            _matrix = { _rowA -- _rowB }
+            E.Swap(&_matrix[0][1], &_matrix[1][0])
+            _matrix[0][0] + _matrix[0][1] + _matrix[1][0] + _matrix[1][1]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path,
+            "encoding": "UTF-8", "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "SwapNestedArrayElem",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        // [a,b]/[c,d] -> [a,c]/[b,d]
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "acbd")
+    }
+
     /// `&` を受け取る通常のユーザー関数でも、関数内の `_argv` 更新を呼び出し元へ
     /// 書き戻す。Emily4 の再帰的な `E.SortArray.Qsort` がこの経路を使用する。
     @Test
