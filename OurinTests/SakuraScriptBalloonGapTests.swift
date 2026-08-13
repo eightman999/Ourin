@@ -533,6 +533,58 @@ struct BalloonAnchorRangeTests {
 
 struct BalloonClearTruncationTests {
     @MainActor
+    @Test func clearCharactersAtExplicitStartRemovesMiddleTextAndShiftsInlineImages() {
+        let vm = BalloonViewModel()
+        vm.text = "ab\(BalloonViewModel.inlineImagePlaceholder)cdef"
+        vm.balloonImages = [
+            BalloonViewModel.BalloonImage(
+                filepath: "inline.png", x: 0, y: 0, isInline: true,
+                isOpaque: true, useSelfAlpha: false, clipping: nil,
+                isForeground: false, isFixed: false, inlineTextOffset: 2,
+                image: nil
+            ),
+            BalloonViewModel.BalloonImage(
+                filepath: "inline-2.png", x: 0, y: 0, isInline: true,
+                isOpaque: true, useSelfAlpha: false, clipping: nil,
+                isForeground: false, isFixed: false, inlineTextOffset: 5,
+                image: nil
+            )
+        ]
+        vm.clearCharacters(2, start: 1)
+
+        #expect(vm.text == "acdef")
+        #expect(vm.balloonImages.count == 1)
+        #expect(vm.balloonImages.first?.inlineTextOffset == 3)
+    }
+
+    @MainActor
+    @Test func clearLinesAtExplicitStartPreservesRemainingLineSeparatorsAndAdvances() {
+        let vm = BalloonViewModel()
+        vm.text = "line0\nline1\nline2"
+        vm.lineAdvances = [0.5, 1.5]
+
+        vm.clearLines(1, start: 1)
+
+        #expect(vm.text == "line0\nline2")
+        #expect(vm.lineAdvances == [0.5])
+    }
+
+    @MainActor
+    @Test func clearCommandRunsAfterQueuedText() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-clear-order-test"))
+        defer { _ = manager.shutdown() }
+        let vm = manager.getBalloonVM(for: manager.currentScope)
+
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .text("abc"))
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .command(name: "c", args: ["char", "3"]))
+
+        #expect(vm.text.isEmpty)
+        manager.processNextUnit()
+        try await Task.sleep(nanoseconds: 400_000_000)
+        #expect(vm.text.isEmpty)
+    }
+
+    @MainActor
     @Test func truncateCharactersClampsAdvancesAndAnchors() {
         let vm = BalloonViewModel()
         vm.text = "ab"

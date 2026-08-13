@@ -203,7 +203,7 @@ class BalloonViewModel: ObservableObject {
         let isForeground: Bool
         let isFixed: Bool
         /// 本文内のUTF-16位置。位置指定 \_b では nil。
-        let inlineTextOffset: Int?
+        var inlineTextOffset: Int?
         let image: NSImage?
     }
     @Published var balloonImages: [BalloonImage] = []
@@ -313,24 +313,63 @@ class BalloonViewModel: ObservableObject {
     /// 末尾の指定文字数だけ削除し、改行送り・アンカー範囲を整合させる（`\c[char,N]` 相当）。
     func truncateSuffixCharacters(_ count: Int) {
         guard count > 0, !text.isEmpty else { return }
-        let removed = min(count, text.count)
-        let oldText = text
-        text = String(oldText.dropLast(removed))
-        removeInlineImagesOutsideText()
-        let removedNewlines = min(oldText.suffix(removed).filter { $0 == "\n" }.count, lineAdvances.count)
-        if removedNewlines > 0 { lineAdvances.removeLast(removedNewlines) }
-        clampAnchors(toUTF16Length: (text as NSString).length)
+        let start = text.index(text.endIndex, offsetBy: -min(count, text.count))
+        removeText(in: NSRange(start..<text.endIndex, in: text))
     }
 
     /// 末尾の指定行数だけ削除し、改行送り・アンカー範囲を整合させる（`\c[line,N]` 相当）。
     func truncateSuffixLines(_ count: Int) {
+        clearLines(count, start: nil)
+    }
+
+    /// 指定位置から文字を削除する。`start == nil` は現在カーソル（本文末尾）からの削除。
+    /// start は仕様どおり0オリジンの表示文字位置で、inline画像のプレースホルダーも1文字として扱う。
+    func clearCharacters(_ count: Int, start: Int?) {
         guard count > 0, !text.isEmpty else { return }
-        let lines = text.components(separatedBy: "\n")
-        let toRemove = min(count, lines.count)
-        text = Array(lines.dropLast(toRemove)).joined(separator: "\n")
-        removeInlineImagesOutsideText()
-        lineAdvances.removeLast(min(toRemove, lineAdvances.count))
-        clampAnchors(toUTF16Length: (text as NSString).length)
+        guard let start else {
+            truncateSuffixCharacters(count)
+            return
+        }
+        guard start >= 0, start < text.count else { return }
+        let lower = text.index(text.startIndex, offsetBy: start)
+        let upper = text.index(lower, offsetBy: min(count, text.distance(from: lower, to: text.endIndex)))
+        removeText(in: NSRange(lower..<upper, in: text))
+    }
+
+    /// 指定行から行を削除する。空行は仕様上の行数に含めず、残った行の区切りを保つ。
+    func clearLines(_ count: Int, start: Int?) {
+        guard count > 0, !text.isEmpty else { return }
+        let nsText = text as NSString
+        let length = nsText.length
+        var lineRanges: [NSRange] = []
+        var cursor = 0
+        while cursor < length {
+            let newline = nsText.range(of: "\n", options: [], range: NSRange(location: cursor, length: length - cursor))
+            let end = newline.location == NSNotFound ? length : newline.location
+            if end > cursor {
+                lineRanges.append(NSRange(location: cursor, length: end - cursor))
+            }
+            guard newline.location != NSNotFound else { break }
+            cursor = newline.location + 1
+        }
+        guard !lineRanges.isEmpty else { return }
+
+        let firstLine = start.map { max(0, $0) } ?? max(0, lineRanges.count - count)
+        guard firstLine < lineRanges.count else { return }
+        let lastLine = min(lineRanges.count - 1, firstLine + count - 1)
+        let firstRange = lineRanges[firstLine]
+        let lastRange = lineRanges[lastLine]
+        var deleteStart = firstRange.location
+        var deleteEnd = NSMaxRange(lastRange)
+
+        if deleteEnd < length, nsText.character(at: deleteEnd) == 0x0A {
+            // 中間の行を消す場合は後続区切りを消し、前後の行を連結する。
+            deleteEnd += 1
+        } else if deleteStart > 0, nsText.character(at: deleteStart - 1) == 0x0A {
+            // 末尾の行を消す場合は直前の区切りを消す。
+            deleteStart -= 1
+        }
+        removeText(in: NSRange(location: deleteStart, length: deleteEnd - deleteStart))
     }
 
     /// 行 index（0始まり）の直前に適用する垂直送り倍率。先頭行は 1.0。
@@ -417,21 +456,75 @@ class BalloonViewModel: ObservableObject {
     }
 
     /// テキスト短縮後に範囲外へ出たアンカーを切り詰め/除去する。
-    private func clampAnchors(toUTF16Length length: Int) {
+    private func removeText(in range: NSRange) {
+        let oldText = text
+        let oldLength = (oldText as NSString).length
+        guard let safeRange = range.intersection(NSRange(location: 0, length: oldLength)),
+              safeRange.length > 0 else { return }
+
+        let deletionEnd = NSMaxRange(safeRange)
+        let oldNewlineCount = (oldText as NSString).components(separatedBy: "\n").count - 1
+        let oldAdvances = lineAdvances
+        let oldNewlineOffsets: [Int] = {
+            var offsets: [Int] = []
+            var search = 0
+            let nsText = oldText as NSString
+            while search < oldLength {
+                let found = nsText.range(of: "\n", options: [], range: NSRange(location: search, length: oldLength - search))
+                guard found.location != NSNotFound else { break }
+                offsets.append(found.location)
+                search = found.location + 1
+            }
+            return offsets
+        }()
+
+        let mutable = NSMutableString(string: oldText)
+        mutable.deleteCharacters(in: safeRange)
+        text = mutable as String
+
+        if oldNewlineCount > 0 {
+            lineAdvances = oldNewlineOffsets.enumerated().compactMap { index, offset in
+                guard offset < safeRange.location || offset >= deletionEnd else { return nil }
+                return index < oldAdvances.count ? oldAdvances[index] : 1.0
+            }
+        } else {
+            lineAdvances.removeAll()
+        }
+
+        let deletedLength = safeRange.length
+        balloonImages = balloonImages.compactMap { image in
+            guard let offset = image.inlineTextOffset else { return image }
+            if offset >= safeRange.location && offset < deletionEnd { return nil }
+            var adjusted = image
+            if offset >= deletionEnd {
+                adjusted.inlineTextOffset = offset - deletedLength
+            }
+            return adjusted
+        }
+
         anchors = anchors.compactMap { anchor in
-            guard anchor.range.location < length else { return nil }
-            let end = min(anchor.range.location + anchor.range.length, length)
-            let clampedRange = NSRange(location: anchor.range.location, length: max(0, end - anchor.range.location))
-            return BalloonAnchorRange(id: anchor.id, references: anchor.references, text: anchor.text, range: clampedRange, pluginOrigin: anchor.pluginOrigin, visited: anchor.visited)
+            let oldStart = anchor.range.location
+            let oldEnd = NSMaxRange(anchor.range)
+            let newStart = transformedBoundary(oldStart, deletion: safeRange)
+            let newEnd = transformedBoundary(oldEnd, deletion: safeRange)
+            guard newEnd > newStart else { return nil }
+            let newRange = NSRange(location: newStart, length: newEnd - newStart)
+            let newAnchorText = (text as NSString).substring(with: newRange)
+            return BalloonAnchorRange(
+                id: anchor.id,
+                references: anchor.references,
+                text: newAnchorText,
+                range: newRange,
+                pluginOrigin: anchor.pluginOrigin,
+                visited: anchor.visited
+            )
         }
     }
 
-    private func removeInlineImagesOutsideText() {
-        let length = (text as NSString).length
-        balloonImages.removeAll { image in
-            guard let offset = image.inlineTextOffset else { return false }
-            return offset >= length
-        }
+    private func transformedBoundary(_ offset: Int, deletion: NSRange) -> Int {
+        if offset <= deletion.location { return offset }
+        if offset >= NSMaxRange(deletion) { return offset - deletion.length }
+        return deletion.location
     }
 }
 
@@ -3558,7 +3651,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             
             case "c":
                 // \c[char,line,...] - clear text
-                handleTextClear(args: args)
+                // 本文より先に即時実行すると、まだ再生されていない本文を消せない。
+                // deferredCommand で同じ再生キュー上の先行文字の後に実行する。
+                playbackQueue.append(.deferredCommand { [weak self] in
+                    self?.handleTextClear(args: args)
+                })
             
             case "f":
                 // \f[align,...], \f[name,...], \f[height,...], \f[color,...], \f[shadowcolor,...], \f[shadowstyle,...], \f[bold,...], \f[italic,...], \f[strike,...], \f[underline,...], \f[sub,...], \f[sup,...], \f[default], \f[disable], \f[anchor.font.color,...]

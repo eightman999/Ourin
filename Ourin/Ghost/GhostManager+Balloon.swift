@@ -942,52 +942,61 @@ extension GhostManager {
 
     /// Clear text - \c[char,line,...]
     func handleTextClear(args: [String]) {
-        guard let vm = balloonViewModels[currentScope] else { return }
-        
-        var charsToClear = 0
-        var linesToClear = 0
-        
-        if args.isEmpty {
-            // Clear all text
-            vm.resetBalloonContent()
-            Log.debug("[GhostManager] Cleared all text")
-            return
-        }
-        
-        // 位置引数形式（UKADOC 準拠）: \c[char,N] / \c[line,N] / \c[char,N,start] / \c[all]。
-        // 旧 `char=N` / `line=N` 形式も後方互換で受理する。
-        switch args.first {
-        case "all":
-            vm.resetBalloonContent()
-            Log.debug("[GhostManager] Cleared all text")
-            return
-        case "char":
-            if args.count >= 2, let count = Int(args[1]) { charsToClear = count }
-        case "line":
-            if args.count >= 2, let count = Int(args[1]) { linesToClear = count }
-        default:
-            for arg in args {
-                if arg == "all" {
-                    vm.resetBalloonContent()
-                    Log.debug("[GhostManager] Cleared all text")
-                    return
-                }
-                let parts = arg.split(separator: "=")
-                if parts.count >= 2, let count = Int(parts[1]) {
-                    if arg.hasPrefix("char") { charsToClear = count }
-                    else if arg.hasPrefix("line") { linesToClear = count }
+        let apply = { [weak self] in
+            guard let self else { return }
+            let vm = self.getBalloonVM(for: self.currentScope)
+            var charsToClear = 0
+            var charStart: Int?
+            var linesToClear = 0
+            var lineStart: Int?
+
+            if args.isEmpty {
+                vm.resetBalloonContent()
+                Log.debug("[GhostManager] Cleared all text")
+                return
+            }
+
+            // 位置引数形式（UKADOC 準拠）: \c[char,N] / \c[line,N] / \c[char,N,start] / \c[all]。
+            // 旧 `char=N` / `line=N` 形式も後方互換で受理する。
+            switch args.first?.lowercased() {
+            case "all":
+                vm.resetBalloonContent()
+                Log.debug("[GhostManager] Cleared all text")
+                return
+            case "char":
+                if args.count >= 2, let count = Int(args[1]) { charsToClear = count }
+                if args.count >= 3 { charStart = Int(args[2]) }
+            case "line":
+                if args.count >= 2, let count = Int(args[1]) { linesToClear = count }
+                if args.count >= 3 { lineStart = Int(args[2]) }
+            default:
+                for arg in args {
+                    if arg.lowercased() == "all" {
+                        vm.resetBalloonContent()
+                        Log.debug("[GhostManager] Cleared all text")
+                        return
+                    }
+                    let parts = arg.split(separator: "=", maxSplits: 1).map(String.init)
+                    if parts.count >= 2, let count = Int(parts[1]) {
+                        if parts[0].lowercased() == "char" { charsToClear = count }
+                        else if parts[0].lowercased() == "line" { linesToClear = count }
+                    }
                 }
             }
-        }
-        
-        DispatchQueue.main.async {
+
             if charsToClear > 0 {
-                vm.truncateSuffixCharacters(charsToClear)
-                Log.debug("[GhostManager] Cleared \(charsToClear) chars")
+                vm.clearCharacters(charsToClear, start: charStart)
+                Log.debug("[GhostManager] Cleared \(charsToClear) chars at \(charStart.map(String.init) ?? "cursor")")
             } else if linesToClear > 0 {
-                vm.truncateSuffixLines(linesToClear)
-                Log.debug("[GhostManager] Cleared \(linesToClear) lines")
+                vm.clearLines(linesToClear, start: lineStart)
+                Log.debug("[GhostManager] Cleared \(linesToClear) lines at \(lineStart.map(String.init) ?? "cursor")")
             }
+        }
+
+        if Thread.isMainThread {
+            apply()
+        } else {
+            DispatchQueue.main.async(execute: apply)
         }
     }
 
