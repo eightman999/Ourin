@@ -68,20 +68,22 @@ public final class PropertyManager {
     }
 
     private func discoverDefaultHeadlines() -> [Headline] {
-        if let app = NSApp.delegate as? AppDelegate, let registry = app.headlineRegistry {
-            let values = registry.metas.values.map {
-                Headline(name: $0.name, path: $0.filename)
+        onMainThread {
+            if let app = NSApp.delegate as? AppDelegate, let registry = app.headlineRegistry {
+                let values = registry.metas.values.map {
+                    Headline(name: $0.name, path: $0.filename)
+                }
+                if !values.isEmpty {
+                    return values
+                }
             }
-            if !values.isEmpty {
-                return values
-            }
+            return []
         }
-        return []
     }
 
     private func discoverDefaultPluginProvider() -> PluginPropertyProvider {
         let plugins = discoverDefaultPlugins()
-        let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher
+        let dispatcher = onMainThread { (NSApp.delegate as? AppDelegate)?.pluginDispatcher }
         return PluginPropertyProvider(
             plugins: plugins,
             extGet: { plugin, key in
@@ -94,29 +96,41 @@ public final class PropertyManager {
     }
 
     private func discoverDefaultPlugins() -> [PropertyPlugin] {
-        if let app = NSApp.delegate as? AppDelegate, let registry = app.pluginRegistry {
-            let values = registry.compatibilityEntries.map {
-                PropertyPlugin(
-                    name: $0.name,
-                    path: $0.compatibilityPath,
-                    id: $0.id,
-                    charset: $0.charset,
-                    craftmanw: $0.craftman ?? "",
-                    craftmanurl: $0.craftmanURL ?? "",
-                    filename: $0.filename,
-                    native: $0.native,
-                    localizedMessages: $0.localizedMessages,
-                    executablePath: $0.executablePath,
-                    packagePath: $0.packagePath,
-                    executionState: $0.executionState.rawValue,
-                    canDispatchRequests: $0.canDispatchRequests
-                )
+        return onMainThread {
+            if let app = NSApp.delegate as? AppDelegate, let registry = app.pluginRegistry {
+                let values = registry.compatibilityEntries.map {
+                    PropertyPlugin(
+                        name: $0.name,
+                        path: $0.compatibilityPath,
+                        id: $0.id,
+                        charset: $0.charset,
+                        craftmanw: $0.craftman ?? "",
+                        craftmanurl: $0.craftmanURL ?? "",
+                        filename: $0.filename,
+                        native: $0.native,
+                        localizedMessages: $0.localizedMessages,
+                        executablePath: $0.executablePath,
+                        packagePath: $0.packagePath,
+                        executionState: $0.executionState.rawValue,
+                        canDispatchRequests: $0.canDispatchRequests
+                    )
+                }
+                if !values.isEmpty {
+                    return values
+                }
             }
-            if !values.isEmpty {
-                return values
-            }
+            return []
         }
-        return []
+    }
+
+    /// AppKit の NSApplication / AppDelegate はメインスレッドからのみ参照する。
+    /// SakuraScriptEngine は外部イベント処理やテストからバックグラウンドで生成されるため、
+    /// 初期プロバイダ探索だけを同期的にメインへ戻し、値の構築後は呼び出し元へ返す。
+    private func onMainThread<T>(_ body: () -> T) -> T {
+        if Thread.isMainThread {
+            return body()
+        }
+        return DispatchQueue.main.sync(execute: body)
     }
 
     public func expand(_ text: String) -> String {
