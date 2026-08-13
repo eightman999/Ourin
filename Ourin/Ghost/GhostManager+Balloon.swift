@@ -114,6 +114,7 @@ extension GhostManager {
                         filenamePrefix: self.balloonConfig?.onlineMarkerFilename ?? "online"
                     ) != nil
                 let hasVisibleContent = !vm.text.isEmpty
+                    || !vm.balloonImages.isEmpty
                     || !vm.balloonMarkerText.isEmpty
                     || hasBalloonNumber
                     || hasOnlineMarker
@@ -473,7 +474,9 @@ extension GhostManager {
         let image = loadBalloonImage(filepath: filepath, isOpaque: isOpaque, useSelfAlpha: useSelfAlpha)
 
         DispatchQueue.main.async {
-            guard let vm = self.balloonViewModels[self.currentScope] else { return }
+            // スコープ切替直後など、バルーンウィンドウがまだ遅延生成されていない
+            // 場合でも \_b の画像を捨てず、通常の表示経路と同じVMを生成する。
+            let vm = self.getBalloonVM(for: self.currentScope)
 
             let balloonImage = BalloonViewModel.BalloonImage(
                 filepath: filepath,
@@ -489,8 +492,8 @@ extension GhostManager {
             )
             
             if isInline {
-                // For inline images, we'll insert them into the text at the current position
-                // This is handled by the text rendering system
+                // 文字内配置の本実装は後続のリッチテキスト作業で扱うが、画像自体は
+                // 現在の描画経路へ登録して寿命・clear対象を統一する。
                 Log.debug("[GhostManager] Inline image: \(filepath)")
             }
             
@@ -502,7 +505,7 @@ extension GhostManager {
     /// Parse balloon image option
     private func parseBalloonImageOption(_ option: String, _ isOpaque: inout Bool, _ useSelfAlpha: inout Bool, _ clipping: inout CGRect?, _ isForeground: inout Bool, _ isFixed: inout Bool) {
         let opt = option.lowercased()
-        if opt == "opaque" {
+        if opt == "opaque" || opt == "--option=opaque" {
             isOpaque = true
         } else if opt == "--option=use_self_alpha" {
             useSelfAlpha = true

@@ -214,6 +214,9 @@ class BalloonViewModel: ObservableObject {
     /// 新規スクリプト開始時などにバルーン本文を初期化する（改行送り・アンカー範囲も同時にリセット）。
     func resetBalloonContent() {
         text = ""
+        // \c / 新規スクリプト開始では、本文に貼り付けた画像も同時に消去する。
+        // UKADOC の \c は文字だけでなく \_b で貼り付けた画像も消去対象とする。
+        balloonImages.removeAll()
         lineAdvances.removeAll()
         anchors.removeAll()
         anchorActive = false
@@ -595,6 +598,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case newlineVariation(String)
         case scope(Int)
         case surface(Int)
+        case balloonImage([String])
         case wait(TimeInterval)
         case waitUntil(TimeInterval) // seconds from precise base
         case waitForAudio
@@ -3472,7 +3476,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             
             case "_b":
                 // \_b[filepath,...] - balloon image display
-                handleBalloonImage(args: args)
+                // スコープ切り替えや本文送りと同じ順序で実行する。解析時に直接
+                // handleBalloonImage を呼ぶと、\1\_b[...] が常に旧スコープへ登録される。
+                playbackQueue.append(.balloonImage(args))
 
             case "_l":
                 // \_l[x,y] - move cursor position
@@ -4123,6 +4129,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 // Add a small delay after surface change to respect script timing
                 scheduleNext(after: 0.05)
                 return
+            case .balloonImage(let args):
+                handleBalloonImage(args: args)
+                continue
             case .end:
                 Log.debug("[GhostManager] Script end.")
                 quickMode = false

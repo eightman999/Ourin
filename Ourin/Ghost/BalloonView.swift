@@ -25,6 +25,34 @@ struct BalloonView: View {
         return CGSize(width: baseSize.width * x, height: baseSize.height * y)
     }
 
+    /// \_b の --clipping を SwiftUI の表示矩形へ変換した結果。
+    struct BalloonImageLayout: Equatable {
+        let displaySize: CGSize
+        let imageOffset: CGSize
+    }
+
+    /// 画像の切り抜き範囲を画像境界内へ制限し、表示後のサイズと元画像のオフセットを求める。
+    /// UKADOC の clipping は画像側の左・上・右・下座標であり、切り抜いた部分は
+    /// \_b の x/y 位置を左上として表示する。
+    static func balloonImageLayout(for imageSize: CGSize, clipping: CGRect?) -> BalloonImageLayout {
+        guard let clipping,
+              imageSize.width > 0,
+              imageSize.height > 0 else {
+            return BalloonImageLayout(displaySize: imageSize, imageOffset: .zero)
+        }
+
+        let imageBounds = CGRect(origin: .zero, size: imageSize)
+        let clipped = clipping.standardized.intersection(imageBounds)
+        guard !clipped.isNull, clipped.width > 0, clipped.height > 0 else {
+            // 不正な範囲は画像全体を表示する。無効な \_b が既存の会話を不可視にしないため。
+            return BalloonImageLayout(displaySize: imageSize, imageOffset: .zero)
+        }
+        return BalloonImageLayout(
+            displaySize: clipped.size,
+            imageOffset: CGSize(width: -clipped.minX, height: -clipped.minY)
+        )
+    }
+
     /// バルーン枠サイズ = サーフェス画像の実寸（無ければ descript の maxwidth/maxheight、最後に既定値）。
     private func balloonSize(for image: NSImage?) -> CGSize {
         if let img = image, img.size.width > 1, img.size.height > 1 {
@@ -135,7 +163,8 @@ struct BalloonView: View {
             )
             : nil
         let hasAuxiliaryText = !viewModel.balloonMarkerText.isEmpty || hasBalloonNumber
-        if !viewModel.text.isEmpty || hasAuxiliaryText || onlineMarkerImage != nil {
+        let hasBalloonImages = !viewModel.balloonImages.isEmpty
+        if !viewModel.text.isEmpty || hasAuxiliaryText || onlineMarkerImage != nil || hasBalloonImages {
             let bImage = imageLoader?.loadSurface(index: viewModel.balloonID, type: "s")
             let size = balloonSize(for: bImage)
             let scaledSize = Self.scaledSize(
@@ -176,18 +205,11 @@ struct BalloonView: View {
                         )
                 }
 
-                // Balloon images (both positioned and inline)
+                // 背景画像は文字の下に描画する（既定値および --option=background）。
                 // --option=fixed が指定されていない画像は、テキスト送り（\_l によるカーソル移動）に追従してスクロールする。
                 // fixed指定時は背景として固定位置に留まる（UKADOC \_b 仕様）。
-                ForEach(viewModel.balloonImages) { balloonImage in
-                    if let nsImage = balloonImage.image {
-                        let scrollX = balloonImage.isFixed ? 0 : viewModel.cursorX
-                        let scrollY = balloonImage.isFixed ? 0 : viewModel.cursorY
-                        Image(nsImage: nsImage)
-                            .resizable()
-                            .frame(width: CGFloat(nsImage.size.width), height: CGFloat(nsImage.size.height))
-                            .offset(x: balloonImage.x + scrollX, y: balloonImage.y + scrollY)
-                    }
+                ForEach(viewModel.balloonImages.filter { !$0.isForeground }) { balloonImage in
+                    balloonImageView(balloonImage)
                 }
 
                 if !viewModel.text.isEmpty {
@@ -237,6 +259,11 @@ struct BalloonView: View {
                     }
                 }
 
+                // 前景画像は本文とバルーン背景より前面に描画する。
+                ForEach(viewModel.balloonImages.filter { $0.isForeground }) { balloonImage in
+                    balloonImageView(balloonImage)
+                }
+
                 VStack(alignment: .trailing, spacing: 2) {
                     Spacer(minLength: 0)
                     if !viewModel.balloonMarkerText.isEmpty {
@@ -263,8 +290,28 @@ struct BalloonView: View {
             .contentShape(Rectangle())
             .onTapGesture { onClick?() }
         } else {
-            // If there is no text,  view should not be visible.
+            // 画像単独の \_b も有効な表示内容なので、画像がある場合は表示する。
             EmptyView()
+        }
+    }
+
+    /// \_b 画像を、必要なら clipping 用のビューポートに入れて表示する。
+    @ViewBuilder
+    private func balloonImageView(_ balloonImage: BalloonViewModel.BalloonImage) -> some View {
+        if let nsImage = balloonImage.image {
+            let scrollX = balloonImage.isFixed ? 0 : viewModel.cursorX
+            let scrollY = balloonImage.isFixed ? 0 : viewModel.cursorY
+            let layout = Self.balloonImageLayout(for: nsImage.size, clipping: balloonImage.clipping)
+
+            ZStack(alignment: .topLeading) {
+                Image(nsImage: nsImage)
+                    .resizable()
+                    .frame(width: nsImage.size.width, height: nsImage.size.height)
+                    .offset(x: layout.imageOffset.width, y: layout.imageOffset.height)
+            }
+            .frame(width: layout.displaySize.width, height: layout.displaySize.height, alignment: .topLeading)
+            .clipped()
+            .offset(x: balloonImage.x + scrollX, y: balloonImage.y + scrollY)
         }
     }
 
