@@ -1,6 +1,6 @@
 # Ourin 監査項目 — 未完 / Audit Items — TODO
 
-**最終更新 / Last Updated**: 2026-08-12
+**最終更新 / Last Updated**: 2026-08-14
 **集約元 / Consolidated from**: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY（各 ja-jp / en-us）
 **検証方法 / Verification**: 全項目を現状ソースコード（file:line）と照合して未完判定。完了済み項目は `AUDITS_COMPLETED.md` 参照。
 
@@ -85,7 +85,7 @@
 | — | （動画レンダラの非対応コーデックサイレント失敗は完了 2026-07-09） | `EventID.swift`/`EventReferenceSpec.swift` に `OnVideoPlayFailure`（Reference0=filename, Reference1=reason）を新設。`playVideo`（`GhostManager+Display.swift`）は `.unsupported` 判定時に旧来の `OnVideoPlayEx`（成功通知）ではなく `OnVideoPlayFailure`（reason=`unsupported_codec`）を発火し`Log.error`に変更。ファイル未検出時も同様に`reason=file_not_found`で失敗通知。テスト`EventIDAuditTests`/`VideoRendererTests`に追加。 |
 | P2 | 動画の実機再生・音声バランス・`sound,load` | `VideoPlayerWindow` に `MTAudioProcessingTap` による2ch左右ゲイン適用を実装し、`AudioBalanceGains` の境界テストを追加済み。動画の `sound,load` プリロード（`VideoPreloadPlayer` が `AVURLAsset`/`AVPlayerItem`/`AVPlayer` を保持し、play時に load/play オプションをマージして1つ消費・stop/cleanup で破棄）は実装済み。実ゴーストでの映像表示・実音声・左右バランス、対応コーデック範囲の最終確認は未実施（実機検証待ち）。 |
 
-### K. 追加の静的コード監査（2026-08-12）
+### K. 追加の静的コード監査（2026-08-14）
 
 | 優先度 | 項目 | 現状・次の実装 |
 |---|---|---|
@@ -94,7 +94,7 @@
 | — | `vanishbymyself` の消滅経路 | 確認問い合わせ、キャンセル／選択／消滅イベント、ゴミ箱移動、ランタイム解放、指定または自動の次ゴースト起動を実装済み。実ゴーストでのゴミ箱権限・復帰先選択は未実機確認。 |
 | — | `updateother` の対象誤配線 | ゴースト名指定の絞り込みに加え、balloon/shell/plugin/headline/language をインストール済み descriptor の name／id から解決し、各対象ルートへ更新を適用する実装を完了。`testonly` のダウンロード・MD5検証・非置換も回帰テスト済み。実ネットワーク・実ゴーストでの更新確認は未実施。 |
 | — | `\\f[cursor*]` と選択肢 hover | カーソル装飾値を実ボタンへ反映し、モーダル中の実ポインタ位置を監視して `OnChoiceEnter` の入退場と 500ms 静止後の `OnChoiceHover` を発火する。 |
-| P3 | `BalloonRichTextViewModel` | 現在のプロジェクトターゲットに含まれず呼び出し元もない。削除はせず、`BalloonView` へ接続するか、現行SwiftUIレンダラの仕様確定後に整理する。 |
+| — | （`BalloonRichTextViewModel` のスタブ解消 2026-08-14） | `valign`、subscript、superscript を `NSAttributedString` の解決済み属性（縦寄せメタデータ、baselineOffset、縮小フォント）へ接続し、font fallback・style reset も実装。`OurinTests/BalloonRichTextViewModelTests.swift` の3件で確認。 |
 
 ---
 
@@ -177,7 +177,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 | — | (Video renderer silent failure on unsupported codecs completed 2026-07-09) | Added `OnVideoPlayFailure` (Reference0=filename, Reference1=reason) to `EventID.swift`/`EventReferenceSpec.swift`. `playVideo` (`GhostManager+Display.swift`) now fires `OnVideoPlayFailure` (reason=`unsupported_codec`) instead of the success event `OnVideoPlayEx` when format is `.unsupported`, and logs via `Log.error`. Missing files now also fire `OnVideoPlayFailure` (reason=`file_not_found`). Tests added to `EventIDAuditTests`/`VideoRendererTests`. |
 | P2 | Video real playback, audio balance, and `sound,load` | `VideoPlayerWindow` now applies two-channel left/right gains through `MTAudioProcessingTap`, with boundary tests for `AudioBalanceGains`. Video `sound,load` preloading (`VideoPreloadPlayer` holds `AVURLAsset`/`AVPlayerItem`/`AVPlayer`, consumes one instance at play with load/play options merged, and is discarded on stop/cleanup) is implemented. In-ghost visual/audio/balance verification and final codec-scope confirmation remain unverified (awaiting real-device playback). |
 
-### K. Additional static code audit (2026-08-12)
+### K. Additional static code audit (2026-08-14)
 
 | Priority | Item | Current State / Next implementation |
 |---|---|---|
@@ -186,7 +186,7 @@ The following items were raised in prior audit reports and remain **unresolved**
 | — | `vanishbymyself` removal path | Confirmation, cancel/select/vanish events, recoverable Trash move, runtime release, and explicit/automatic next-ghost launch are implemented. Trash permissions and next-ghost choice remain unverified with a real installed ghost. |
 | — | `updateother` target routing | In addition to filtering ghost-name selectors, balloon/shell/plugin/headline/language targets are resolved from installed descriptor name/id values and updates are applied to each target's own root. `testonly` download, MD5 verification, and non-replacement behavior are covered by regression tests. Real-network and installed-ghost verification remain pending. |
 | — | `\\f[cursor*]` and choice hover | Cursor decoration values are applied to the real choice buttons. A local mouse monitor tracks the actual button under the pointer, emitting `OnChoiceEnter` on enter/exit and `OnChoiceHover` after 500 ms of stillness. |
-| P3 | `BalloonRichTextViewModel` | It is not part of the current project target and has no call sites. Do not delete it implicitly; either connect it to `BalloonView` or reconcile it after the current SwiftUI renderer is specified. |
+| — | (`BalloonRichTextViewModel` stub removal completed 2026-08-14) | `valign`, subscript, and superscript now produce resolved `NSAttributedString` metadata (`OurinVerticalAlignment`, `baselineOffset`, and a scaled font); font fallback and style reset are implemented. Covered by three `BalloonRichTextViewModelTests`. |
 
 ---
 
