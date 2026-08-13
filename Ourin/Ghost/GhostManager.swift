@@ -2594,12 +2594,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             case "__t":
                 // \__t メタタグ: 教えてダイアログを開く（\![open,teachbox] と同等）
                 playbackQueue.append(.deferredCommand {
-                    DispatchQueue.main.async { self.showTeachBoxDialog() }
+                    self.showTeachBoxDialog()
                 })
             case "__c":
                 // \__c メタタグ: CommunicateBox を開く（\![open,communicatebox] と同等）
                 playbackQueue.append(.deferredCommand {
-                    DispatchQueue.main.async { self.showCommunicateBoxDialog(timeoutMs: nil, initialText: "") }
+                    self.showCommunicateBoxDialog(timeoutMs: nil, initialText: "")
                 })
             case "_n":
                 // \_n: 次の \_n まで自動折り返しを抑止する。
@@ -2849,17 +2849,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let initialText = parsed.options["text"]
                                 ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
-                                }
+                                self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                             })
                         } else if inputType == "pass" || inputType == "password" {
                             let initialText = parsed.options["text"]
                                 ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showPasswordInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
-                                }
+                                self.showPasswordInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                             })
                         } else if inputType == "date" {
                             let csv = parsed.options["text"]?.split(separator: ",").map(String.init) ?? []
@@ -2867,27 +2863,21 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let month = csv.count >= 2 ? Int(csv[1]) : (parsed.positionals.count >= 4 ? Int(parsed.positionals[3]) : nil)
                             let day = csv.count >= 3 ? Int(csv[2]) : (parsed.positionals.count >= 5 ? Int(parsed.positionals[4]) : nil)
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showDateInputDialog(id: id, timeoutMs: timeoutMs, year: year, month: month, day: day, options: inputOptions)
-                                }
+                                self.showDateInputDialog(id: id, timeoutMs: timeoutMs, year: year, month: month, day: day, options: inputOptions)
                             })
                         } else if inputType == "choice" {
                             let choices = parsed.positionals.count >= 3
                                 ? Array(parsed.positionals.dropFirst(2))
                                 : parsed.options["choices"]?.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespaces) } ?? []
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showChoiceInputDialog(id: id, timeoutMs: timeoutMs, choices: choices, options: inputOptions)
-                                }
+                                self.showChoiceInputDialog(id: id, timeoutMs: timeoutMs, choices: choices, options: inputOptions)
                             })
                         } else if inputType == "capture" {
                             // Minimal compatibility: route to text input and raise OnUserInput.
                             let initialText = parsed.options["text"]
                                 ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
-                                }
+                                self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                             })
                         }
                     } else if first == "file", args.count >= 2 {
@@ -2895,16 +2885,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         if fileAction == "open" {
                             let eventID = args.count >= 3 ? args[2] : ""
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showSystemDialog(type: "open", parameters: ["--id=\(eventID)"])
-                                }
+                                self.showSystemDialog(type: "open", parameters: ["--id=\(eventID)"])
                             })
                         } else if fileAction == "save" {
                             let eventID = args.count >= 3 ? args[2] : ""
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showSystemDialog(type: "save", parameters: ["--id=\(eventID)"])
-                                }
+                                self.showSystemDialog(type: "save", parameters: ["--id=\(eventID)"])
                             })
                         }
                     } else if first == "hide" {
@@ -2954,11 +2940,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             // \![open,configurationdialog,setup] / \![open,config,setup]
                             if args.count >= 3, args[2].lowercased() == "setup" {
                                 playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async { self.showNameInputDialog() }
+                                    self.showNameInputDialog()
                                 })
                             } else {
                                 playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async { self.showSettings() }
+                                    self.showSettings()
                                 })
                             }
                         case "inputbox":
@@ -2971,9 +2957,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let initialText = parsed.options["text"]
                                 ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
-                                }
+                                self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                             })
                         case "passwordinput":
                             let rawInputArguments = Array(args.dropFirst(2))
@@ -2985,9 +2969,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let initialText = parsed.options["text"]
                                 ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showPasswordInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
-                                }
+                                self.showPasswordInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                             })
                         case "dateinput":
                             let rawInputArguments = Array(args.dropFirst(2))
@@ -3001,9 +2983,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let month = csv.count >= 2 ? Int(csv[1]) : (parsed.positionals.count >= 4 ? Int(parsed.positionals[3]) : nil)
                             let day = csv.count >= 3 ? Int(csv[2]) : (parsed.positionals.count >= 5 ? Int(parsed.positionals[4]) : nil)
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showDateInputDialog(id: id, timeoutMs: timeoutMs, year: year, month: month, day: day, options: inputOptions)
-                                }
+                                self.showDateInputDialog(id: id, timeoutMs: timeoutMs, year: year, month: month, day: day, options: inputOptions)
                             })
                         case "sliderinput":
                             let rawInputArguments = Array(args.dropFirst(2))
@@ -3017,9 +2997,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let min = csv.count >= 2 ? Double(csv[1]) : (parsed.positionals.count >= 4 ? Double(parsed.positionals[3]) : nil)
                             let max = csv.count >= 3 ? Double(csv[2]) : (parsed.positionals.count >= 5 ? Double(parsed.positionals[4]) : nil)
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showSliderInputDialog(id: id, timeoutMs: timeoutMs, initial: initial, min: min, max: max, options: inputOptions)
-                                }
+                                self.showSliderInputDialog(id: id, timeoutMs: timeoutMs, initial: initial, min: min, max: max, options: inputOptions)
                             })
                         case "timeinput":
                             let rawInputArguments = Array(args.dropFirst(2))
@@ -3033,9 +3011,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let minute = csv.count >= 2 ? Int(csv[1]) : (parsed.positionals.count >= 4 ? Int(parsed.positionals[3]) : nil)
                             let second = csv.count >= 3 ? Int(csv[2]) : (parsed.positionals.count >= 5 ? Int(parsed.positionals[4]) : nil)
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showTimeInputDialog(id: id, timeoutMs: timeoutMs, hour: hour, minute: minute, second: second, options: inputOptions)
-                                }
+                                self.showTimeInputDialog(id: id, timeoutMs: timeoutMs, hour: hour, minute: minute, second: second, options: inputOptions)
                             })
                         case "ipinput":
                             let rawInputArguments = Array(args.dropFirst(2))
@@ -3054,26 +3030,20 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 return parsed.positionals.count >= 3 ? parsed.positionals[2] : ""
                             }()
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showIPInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
-                                }
+                                self.showIPInputDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                             })
                         case "dialog":
                             if args.count >= 3 {
                                 let dialogType = args[2].lowercased()
                                 let params = Array(args.dropFirst(3))
                                 playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async {
-                                        self.showSystemDialog(type: dialogType, parameters: params)
-                                    }
+                                    self.showSystemDialog(type: dialogType, parameters: params)
                                 })
                             }
                         case "teachbox":
                             // \![open,teachbox]
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showTeachBoxDialog()
-                                }
+                                self.showTeachBoxDialog()
                             })
                         case "communicatebox":
                             let rawCommunicateArguments = Array(args.dropFirst(2))
@@ -3082,37 +3052,35 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
                                 ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.showCommunicateBoxDialog(timeoutMs: timeoutMs, initialText: initialText)
-                                }
+                                self.showCommunicateBoxDialog(timeoutMs: timeoutMs, initialText: initialText)
                             })
                         case "addressbar":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openAddressBar() }
+                                self.openAddressBar()
                             })
                         case "errorlog":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openErrorLogViewer() }
+                                self.openErrorLogViewer()
                             })
                         case "pictureviewer":
                             let path = args.count >= 3 ? args[2] : nil
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openPictureViewer(path: path) }
+                                self.openPictureViewer(path: path)
                             })
                         case "archiveviewer":
                             let path = args.count >= 3 ? args[2] : nil
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openArchiveViewer(path: path) }
+                                self.openArchiveViewer(path: path)
                             })
                         case "backlogviewer":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openBacklogViewer() }
+                                self.openBacklogViewer()
                             })
                         case "browser":
                             if args.count >= 3 {
                                 let target = args[2]
                                 playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async { self.openURL(target) }
+                                    self.openURL(target)
                                 })
                             }
                         case "http":
@@ -3138,7 +3106,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             if args.count >= 3 {
                                 let target = args[2]
                                 playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async { self.openEmail(target) }
+                                    self.openEmail(target)
                                 })
                             }
                         case "editor", "file":
@@ -3152,9 +3120,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     || (parsed.options["allow-external"]?.lowercased() == "1")
                                     || (parsed.options["allow-external"]?.lowercased() == "true")
                                 playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async {
-                                        self.openFilePath(path: path, line: line, appName: app, allowExternal: allowExternal)
-                                    }
+                                    self.openFilePath(path: path, line: line, appName: app, allowExternal: allowExternal)
                                 })
                             }
                         case "explorer":
@@ -3162,84 +3128,82 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 let kind = args[2].lowercased()
                                 let name = args[3]
                                 playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async { self.openInstalledTypeDirectory(type: kind, name: name) }
+                                    self.openInstalledTypeDirectory(type: kind, name: name)
                                 })
                             } else if args.count >= 3 {
                                 let path = args[2]
                                 playbackQueue.append(.deferredCommand {
-                                    DispatchQueue.main.async { self.revealInExplorer(path) }
+                                    self.revealInExplorer(path)
                                 })
                             }
                         case "ghostexplorer":
                             let name = args.count >= 3 ? args[2] : nil
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openInstalledTypeDirectory(type: "ghost", name: name) }
+                                self.openInstalledTypeDirectory(type: "ghost", name: name)
                             })
                         case "shellexplorer":
                             let name = args.count >= 3 ? args[2] : nil
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openInstalledTypeDirectory(type: "shell", name: name) }
+                                self.openInstalledTypeDirectory(type: "shell", name: name)
                             })
                         case "balloonexplorer":
                             let name = args.count >= 3 ? args[2] : nil
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openInstalledTypeDirectory(type: "balloon", name: name) }
+                                self.openInstalledTypeDirectory(type: "balloon", name: name)
                             })
                         case "headlinesensorexplorer":
                             let name = args.count >= 3 ? args[2] : nil
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openInstalledTypeDirectory(type: "headline", name: name) }
+                                self.openInstalledTypeDirectory(type: "headline", name: name)
                             })
                         case "pluginexplorer":
                             let name = args.count >= 3 ? args[2] : nil
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openInstalledTypeDirectory(type: "plugin", name: name) }
+                                self.openInstalledTypeDirectory(type: "plugin", name: name)
                             })
                         case "calendar":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openInstalledTypeDirectory(type: "calendar") }
+                                self.openInstalledTypeDirectory(type: "calendar")
                             })
                         case "rateofusegraph", "rateofusegraphballoon", "rateofusegraphtotal":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openRateOfUseGraph(kind: openType) }
+                                self.openRateOfUseGraph(kind: openType)
                             })
                         case "messenger":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.showCommunicateBox() }
+                                self.showCommunicateBox()
                             })
                         case "readme":
                             let readmeType = args.count >= 3 ? args[2] : nil
                             let readmeName = args.count >= 4 ? args[3] : nil
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async {
-                                    self.openGhostReadme(type: readmeType, name: readmeName)
-                                }
+                                self.openGhostReadme(type: readmeType, name: readmeName)
                             })
                         case "terms":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.handleGhostTermsConsent() }
+                                self.handleGhostTermsConsent()
                             })
                         case "help":
                             let helpID = args.count >= 3 ? args[2] : nil
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openHelp(dialogID: helpID) }
+                                self.openHelp(dialogID: helpID)
                             })
                         case "developer", "shiorirequest", "dressupexplorer":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openDeveloperTool(openType) }
+                                self.openDeveloperTool(openType)
                             })
                         case "surfacetest":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openSurfaceTestWindow() }
+                                self.openSurfaceTestWindow()
                             })
                         case "aigraph":
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openAIGraph() }
+                                self.openAIGraph()
                             })
                         default:
                             // \![open,URL] は未知のサブコマンドとして捨てず、URLとして委譲する。
                             playbackQueue.append(.deferredCommand {
-                                DispatchQueue.main.async { self.openURL(args[1]) }
+                                self.openURL(args[1])
                             })
                         }
                     } else if first == "close", args.count >= 2 {
