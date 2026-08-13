@@ -404,7 +404,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd \"${SRCROOT}/yaya_core\"\nif [ ! -f \"build/yaya_core\" ] || [ \"src\" -nt \"build/yaya_core\" ]; then\n    ./build.sh\nfi\n";
+			shellScript = "cd \"${SRCROOT}/yaya_core\"\nneeds_build=0\nif [ ! -x \"build/yaya_core\" ] || [ \"CMakeLists.txt\" -nt \"build/yaya_core\" ] || [ \"build.sh\" -nt \"build/yaya_core\" ]; then\n    needs_build=1\nfi\nif [ \"$needs_build\" -eq 0 ] && find src third_party -type f -newer \"build/yaya_core\" -print -quit | grep -q .; then\n    needs_build=1\nfi\nif [ \"$needs_build\" -eq 1 ]; then\n    ./build.sh\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
