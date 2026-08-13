@@ -75,6 +75,7 @@ struct AnimationDefinition {
 struct CollisionRegion {
     enum Shape {
         case rectangle
+        case ellipse(rect: CGRect)
         case circle(center: CGPoint, radius: CGFloat)
         case polygon(points: [CGPoint])
     }
@@ -87,6 +88,12 @@ struct CollisionRegion {
         self.name = name
         self.rect = rect
         self.shape = .rectangle
+    }
+
+    init(name: String, ellipseRect: CGRect) {
+        self.name = name
+        self.rect = ellipseRect
+        self.shape = .ellipse(rect: ellipseRect)
     }
 
     init(name: String, circleCenter: CGPoint, radius: CGFloat) {
@@ -118,6 +125,14 @@ struct CollisionRegion {
         switch shape {
         case .rectangle:
             return true
+        case .ellipse(let ellipseRect):
+            guard ellipseRect.width > 0, ellipseRect.height > 0 else { return false }
+            let center = CGPoint(x: ellipseRect.midX, y: ellipseRect.midY)
+            let radiusX = ellipseRect.width / 2
+            let radiusY = ellipseRect.height / 2
+            let normalizedX = (point.x - center.x) / radiusX
+            let normalizedY = (point.y - center.y) / radiusY
+            return normalizedX * normalizedX + normalizedY * normalizedY <= 1
         case .circle(let center, let radius):
             let dx = point.x - center.x
             let dy = point.y - center.y
@@ -205,6 +220,9 @@ class AnimationEngine {
     
     // Collision and point data
     private var collisions: [Int: [CollisionRegion]] = [:]
+    /// surfaceID -> animationID -> regions. These regions are only returned
+    /// while the corresponding animation is active.
+    private var animationCollisions: [Int: [Int: [CollisionRegion]]] = [:]
     private var points: [Int: [String: CGPoint]] = [:]
     
     // Callbacks
@@ -228,6 +246,149 @@ class AnimationEngine {
 
         Log.info("[AnimationEngine] Metal initialized: \(device.name)")
     }
+
+    // MARK: - Collision Parsing
+
+    private func trimmed(_ value: String) -> String {
+        value.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func integer(_ value: String) -> Int? {
+        Int(trimmed(value))
+    }
+
+    /// Returns true for collisionex headers and false for regular collision
+    /// headers. Both the standard numbered form (`collisionex0`) and the
+    /// legacy dotted form (`surface0.collision`) are accepted.
+    private func collisionHeaderKind(_ header: String) -> Bool? {
+        let key = String(header.split(separator: ".").last ?? "")
+        if key == "collisionex" || key.hasPrefix("collisionex") {
+            let suffix = key.dropFirst("collisionex".count)
+            return suffix.isEmpty || suffix.allSatisfy(\.isNumber) ? true : nil
+        }
+        if key == "collision" || key.hasPrefix("collision") {
+            let suffix = key.dropFirst("collision".count)
+            return suffix.isEmpty || suffix.allSatisfy(\.isNumber) ? false : nil
+        }
+        return nil
+    }
+
+    private func collisionShape(_ value: String) -> String? {
+        switch trimmed(value).lowercased() {
+        case "rect", "rectangle": return "rect"
+        case "ellipse": return "ellipse"
+        case "circle": return "circle"
+        case "polygon", "poly": return "polygon"
+        case "region": return "region"
+        default: return nil
+        }
+    }
+
+    private func makeRect(from values: [String]) -> CGRect? {
+        guard values.count == 4,
+              let x1 = integer(values[0]),
+              let y1 = integer(values[1]),
+              let x2 = integer(values[2]),
+              let y2 = integer(values[3]) else { return nil }
+        return CGRect(
+            x: CGFloat(min(x1, x2)),
+            y: CGFloat(min(y1, y2)),
+            width: CGFloat(abs(x2 - x1)),
+            height: CGFloat(abs(y2 - y1))
+        )
+    }
+
+    /// Parses the standard `collisionexN,ID,type,...` form and the historical
+    /// Ourin test form `collisionex,type,...,ID`.
+    private func parseExtendedCollisionRegion(_ values: [String]) -> CollisionRegion? {
+        guard values.count >= 2 else { return nil }
+
+        let shape: String
+        let name: String
+        let coordinates: [String]
+        if let shapeFirst = collisionShape(values[0]) {
+            shape = shapeFirst
+            name = trimmed(values.last ?? "")
+            coordinates = Array(values.dropFirst().dropLast())
+        } else {
+            guard let standardShape = collisionShape(values[1]) else { return nil }
+            shape = standardShape
+            name = trimmed(values[0])
+            coordinates = Array(values.dropFirst(2))
+        }
+        guard !name.isEmpty else { return nil }
+
+        switch shape {
+        case "rect":
+            guard let rect = makeRect(from: coordinates) else { return nil }
+            return CollisionRegion(name: name, rect: rect)
+        case "ellipse":
+            guard let rect = makeRect(from: coordinates) else { return nil }
+            return CollisionRegion(name: name, ellipseRect: rect)
+        case "circle":
+            guard coordinates.count == 3,
+                  let cx = integer(coordinates[0]),
+                  let cy = integer(coordinates[1]),
+                  let radius = integer(coordinates[2]),
+                  radius >= 0 else { return nil }
+            return CollisionRegion(
+                name: name,
+                circleCenter: CGPoint(x: CGFloat(cx), y: CGFloat(cy)),
+                radius: CGFloat(radius)
+            )
+        case "polygon":
+            guard coordinates.count >= 6, coordinates.count.isMultiple(of: 2) else { return nil }
+            var points: [CGPoint] = []
+            for index in stride(from: 0, to: coordinates.count, by: 2) {
+                guard let x = integer(coordinates[index]),
+                      let y = integer(coordinates[index + 1]) else { return nil }
+                points.append(CGPoint(x: CGFloat(x), y: CGFloat(y)))
+            }
+            return CollisionRegion(name: name, polygonPoints: points)
+        case "region":
+            // Image-colour regions require the loaded surface bitmap and are
+            // intentionally kept out of this geometry-only parser.
+            return nil
+        default:
+            return nil
+        }
+    }
+
+    private func parseCollisionLine(_ line: String) -> CollisionRegion? {
+        let parts = line.components(separatedBy: ",")
+        guard let header = parts.first,
+              let isExtended = collisionHeaderKind(header) else { return nil }
+        let values = Array(parts.dropFirst())
+        if isExtended {
+            return parseExtendedCollisionRegion(values)
+        }
+
+        // collisionN,x1,y1,x2,y2,name
+        guard values.count >= 5,
+              let rect = makeRect(from: Array(values.prefix(4))) else { return nil }
+        let name = trimmed(values[4])
+        guard !name.isEmpty else { return nil }
+        return CollisionRegion(name: name, rect: rect)
+    }
+
+    private func parseAnimationCollisionLine(
+        _ line: String
+    ) -> (animationID: Int, region: CollisionRegion)? {
+        let parts = line.components(separatedBy: ",")
+        guard let header = parts.first,
+              let dot = header.firstIndex(of: ".") else { return nil }
+        let animationPart = String(header[..<dot])
+        guard animationPart.hasPrefix("animation"),
+              let animationID = Int(String(animationPart.dropFirst("animation".count))),
+              collisionHeaderKind(String(header[header.index(after: dot)...])) != nil else {
+            return nil
+        }
+        let normalizedLine = (
+            [String(header[header.index(after: dot)...])] + Array(parts.dropFirst())
+        ).joined(separator: ",")
+        guard let region = parseCollisionLine(normalizedLine) else { return nil }
+        return (animationID, region)
+    }
     
     // MARK: - Animation Management
     
@@ -242,11 +403,12 @@ class AnimationEngine {
         var animationPatterns: [AnimationPattern] = []
         var animationInterval: AnimationDefinition.AnimationInterval = .never
 
-        // Initialize collision and point data for this surface
-        if !collisions.keys.contains(surfaceID) {
-            collisions[surfaceID] = []
-            points[surfaceID] = [:]
-        }
+        // Reloading a surface definition must replace, rather than append to,
+        // collision and point data. Otherwise a shell reload duplicates regions
+        // and leaves stale animation-only regions behind.
+        collisions[surfaceID] = []
+        animationCollisions[surfaceID] = [:]
+        points[surfaceID] = [:]
 
         for line in lines {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
@@ -291,96 +453,16 @@ class AnimationEngine {
                 }
             }
             
-            // Parse collision region (legacy numbered: collision0, collision1, ... and collisionex)
-            let isCollisionLine: Bool = {
-                if trimmed.hasPrefix("collisionex,") { return true }
-                if trimmed.contains(".collision,") { return true }
-                if trimmed.hasPrefix("collision,") { return true }
-                // Numbered collision: collision0, collision1, ... collision99
-                if trimmed.hasPrefix("collision") {
-                    let rest = trimmed.dropFirst("collision".count)
-                    if let commaIdx = rest.firstIndex(of: ",") {
-                        let num = rest[rest.startIndex..<commaIdx]
-                        return num.allSatisfy(\.isNumber)
-                    }
-                }
-                return false
-            }()
-            if isCollisionLine {
-                let parts = trimmed.components(separatedBy: ",")
-                // collisionex,rect,x1,y1,x2,y2,name
-                if trimmed.hasPrefix("collisionex,") {
-                    if parts.count >= 6 {
-                        let shape = parts[1].lowercased()
-                        if (shape == "rect" || shape == "rectangle"), parts.count >= 7 {
-                            let x1 = Int(parts[2]) ?? 0
-                            let y1 = Int(parts[3]) ?? 0
-                            let x2 = Int(parts[4]) ?? 0
-                            let y2 = Int(parts[5]) ?? 0
-                            let name = parts[6]
-                            let region = CollisionRegion(
-                                    name: name,
-                                    rect: CGRect(x: CGFloat(min(x1, x2)),
-                                                 y: CGFloat(min(y1, y2)),
-                                                 width: CGFloat(abs(x2 - x1)),
-                                                 height: CGFloat(abs(y2 - y1)))
-                                )
-                                collisions[surfaceID]?.append(region)
-                        } else if shape == "circle" {
-                            // collisionex,circle,cx,cy,r,name
-                            if parts.count >= 6,
-                               let cx = Int(parts[2].trimmingCharacters(in: .whitespaces)),
-                               let cy = Int(parts[3].trimmingCharacters(in: .whitespaces)),
-                               let radius = Int(parts[4].trimmingCharacters(in: .whitespaces)),
-                               radius >= 0 {
-                                let name = parts[5].trimmingCharacters(in: .whitespaces)
-                                let region = CollisionRegion(
-                                    name: name,
-                                    circleCenter: CGPoint(x: CGFloat(cx), y: CGFloat(cy)),
-                                    radius: CGFloat(radius)
-                                )
-                                collisions[surfaceID]?.append(region)
-                            }
-                        } else if shape == "polygon" || shape == "poly" {
-                            // collisionex,polygon,x1,y1,x2,y2,...,name
-                            if parts.count >= 9 {
-                                var xs: [Int] = []
-                                var ys: [Int] = []
-                                // Last token is name; points span from index 2 to count-2
-                                for i in stride(from: 2, to: parts.count - 1, by: 2) {
-                                    let x = Int(parts[i].trimmingCharacters(in: .whitespaces))
-                                    let y = (i + 1) < parts.count - 1
-                                        ? Int(parts[i + 1].trimmingCharacters(in: .whitespaces))
-                                        : nil
-                                    if let x, let y { xs.append(x); ys.append(y) }
-                                }
-                                let name = (parts.last ?? "polygon").trimmingCharacters(in: .whitespaces)
-                                let points = zip(xs, ys).map { CGPoint(x: CGFloat($0.0), y: CGFloat($0.1)) }
-                                if points.count >= 3 {
-                                    let region = CollisionRegion(name: name, polygonPoints: points)
-                                    collisions[surfaceID]?.append(region)
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    // legacy: *.collision,x1,y1,x2,y2,name or collision,x1,y1,x2,y2,name
-                    if parts.count >= 6 {
-                        let x1 = Int(parts[1]) ?? 0
-                        let y1 = Int(parts[2]) ?? 0
-                        let x2 = Int(parts[3]) ?? 0
-                        let y2 = Int(parts[4]) ?? 0
-                        let name = parts[5]
-                        let region = CollisionRegion(
-                            name: name,
-                            rect: CGRect(x: CGFloat(min(x1, x2)),
-                                         y: CGFloat(min(y1, y2)),
-                                         width: CGFloat(abs(x2 - x1)),
-                                         height: CGFloat(abs(y2 - y1)))
-                        )
-                        collisions[surfaceID]?.append(region)
-                    }
-                }
+            // Parse animation-only collision regions before regular collision
+            // regions. UKADOC defines these as active only while animationID is
+            // running; they must not leak into the base surface hit-test.
+            if let animationCollision = parseAnimationCollisionLine(trimmed) {
+                animationCollisions[surfaceID, default: [:]][animationCollision.animationID, default: []]
+                    .append(animationCollision.region)
+                continue
+            }
+            if let region = parseCollisionLine(trimmed) {
+                collisions[surfaceID, default: []].append(region)
             }
             
             // Parse point definition
@@ -484,9 +566,14 @@ class AnimationEngine {
         Log.debug("[AnimationEngine] Stopped all animations")
     }
     
-    /// Get collision regions for a surface
-    func getCollisions(for surfaceID: Int) -> [CollisionRegion] {
-        return collisions[surfaceID] ?? []
+    /// Get collision regions for a surface. Animation-only regions are
+    /// prepended in animation ID order so they take precedence over the base
+    /// surface when regions overlap.
+    func getCollisions(for surfaceID: Int, activeAnimationIDs: Set<Int> = []) -> [CollisionRegion] {
+        let activeRegions = activeAnimationIDs.sorted().flatMap {
+            animationCollisions[surfaceID]?[$0] ?? []
+        }
+        return activeRegions + (collisions[surfaceID] ?? [])
     }
     
     /// Get point definition for a surface

@@ -54,6 +54,76 @@ struct AnimationEngineTests {
         #expect(collisions[1].contains(CGPoint(x: 10, y: 10)))
         #expect(!collisions[1].contains(CGPoint(x: 80, y: 80)))
     }
+
+    @Test
+    func animationCollisionRegionsAreActiveOnlyWhileAnimationRuns() throws {
+        let surfacesContent = """
+        surface0
+        {
+            animation7.interval,always
+            animation7.pattern0,10,100,0,0
+            animation7.collision0,10,10,100,100,animated_region
+            collision0,10,10,100,100,base_region
+        }
+        """
+
+        let engine = AnimationEngine()
+        engine.loadAnimations(surfaceID: 0, content: surfacesContent)
+
+        let inactive = engine.getCollisions(for: 0)
+        #expect(inactive.count == 1)
+        #expect(inactive[0].name == "base_region")
+
+        let active = engine.getCollisions(for: 0, activeAnimationIDs: [7])
+        #expect(active.count == 2)
+        #expect(active[0].name == "animated_region")
+        #expect(active[0].contains(CGPoint(x: 20, y: 20)))
+    }
+
+    @Test
+    func animationCollisionExSupportsStandardEllipseAndCircleForms() throws {
+        let surfacesContent = """
+        surface0
+        {
+            animation3.interval,always
+            animation3.pattern0,10,100,0,0
+            animation3.collisionex0,Head,ellipse,0,0,100,60
+            animation3.collisionex1,Eye,circle,50,50,10
+        }
+        """
+
+        let engine = AnimationEngine()
+        engine.loadAnimations(surfaceID: 0, content: surfacesContent)
+
+        let collisions = engine.getCollisions(for: 0, activeAnimationIDs: [3])
+        #expect(collisions.count == 2)
+        #expect(collisions[0].name == "Head")
+        #expect(collisions[0].contains(CGPoint(x: 50, y: 30)))
+        #expect(!collisions[0].contains(CGPoint(x: 0, y: 0)))
+        #expect(collisions[1].name == "Eye")
+        #expect(collisions[1].contains(CGPoint(x: 50, y: 50)))
+    }
+
+    @Test
+    func reloadingSurfaceCollisionDefinitionsDoesNotDuplicateRegions() throws {
+        let surfacesContent = """
+        surface0
+        {
+            animation7.collision0,10,10,100,100,animated_region
+            collision0,10,10,100,100,base_region
+        }
+        """
+
+        let engine = AnimationEngine()
+        engine.loadAnimations(surfaceID: 0, content: surfacesContent)
+        engine.loadAnimations(surfaceID: 0, content: surfacesContent)
+
+        #expect(engine.getCollisions(for: 0).map(\.name) == ["base_region"])
+        #expect(engine.getCollisions(for: 0, activeAnimationIDs: [7]).map(\.name) == [
+            "animated_region",
+            "base_region"
+        ])
+    }
     
     @Test
     func parsePointDefinitions() throws {

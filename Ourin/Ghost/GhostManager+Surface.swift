@@ -636,7 +636,18 @@ extension GhostManager {
     func collisionRegionName(at pointInWindow: CGPoint, scope: Int) -> String? {
         guard let vm = characterViewModels[scope] else { return nil }
         let surfaceID = vm.currentSurfaceID
-        let regions = animationEngine.getCollisions(for: surfaceID)
+        var activeAnimationIDs = activeAnimationIDsByScope[scope] ?? []
+        if scope == currentScope {
+            // Keep the hit-test in sync with the actual executors even during
+            // the short interval before their completion callbacks remove the
+            // bookkeeping entry.
+            activeAnimationIDs.formUnion(serikoExecutor.activeAnimations.keys)
+            activeAnimationIDs.formUnion(animationEngine.activeAnimationIDs)
+        }
+        let regions = animationEngine.getCollisions(
+            for: surfaceID,
+            activeAnimationIDs: activeAnimationIDs
+        )
         for region in regions {
             if region.contains(pointInWindow) {
                 return region.name
