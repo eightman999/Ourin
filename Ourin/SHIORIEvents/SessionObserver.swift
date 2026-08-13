@@ -10,6 +10,13 @@ final class SessionObserver {
     private var tokens: [NSObjectProtocol] = []
     private var handler: ((ShioriEvent) -> Void)?
 
+    static func fullScreenEvent(minimized: Bool) -> ShioriEvent {
+        ShioriEvent(
+            id: minimized ? .OnFullScreenAppMinimize : .OnFullScreenAppRestore,
+            refs: ["reason": "fullscreen"]
+        )
+    }
+
     /// Start observing session lock/unlock
     func start(_ handler: @escaping (ShioriEvent) -> Void) {
         stop()
@@ -25,10 +32,10 @@ final class SessionObserver {
             self?.handler?(ShioriEvent(id: .OnScreenUnlock, params: [:]))
         })
         tokens.append(NotificationCenter.default.addObserver(forName: NSApplication.didResignActiveNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.handler?(ShioriEvent(id: .OnFullScreenAppMinimize, params: [:]))
+            self?.handler?(Self.fullScreenEvent(minimized: true))
         })
         tokens.append(NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.handler?(ShioriEvent(id: .OnFullScreenAppRestore, params: [:]))
+            self?.handler?(Self.fullScreenEvent(minimized: false))
         })
         // macOS の fast-user-switching / login session 切断・再接続。
         // UKADOC でも他 OS では同等通知が存在しない場合があるため、macOS が

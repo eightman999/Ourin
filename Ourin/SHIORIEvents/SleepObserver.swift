@@ -22,6 +22,15 @@ final class SleepObserver {
         ]
     }
 
+    static func didWakeEvents() -> [ShioriEvent] {
+        [
+            // NSWorkspace does not expose auto/critical wake reasons; a normal wake
+            // is the only non-synthetic value available from this notification.
+            ShioriEvent(id: .OnSysResume, refs: ["reason": "normal"]),
+            ShioriEvent(id: .OnWake, params: [:])
+        ]
+    }
+
     func start(_ handler: @escaping (ShioriEvent) -> Void) {
         stop()
         self.handler = handler
@@ -32,8 +41,9 @@ final class SleepObserver {
             }
         })
         tokens.append(center.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.handler?(ShioriEvent(id: .OnSysResume, params: [:]))
-            self?.handler?(ShioriEvent(id: .OnWake, params: [:]))
+            for event in Self.didWakeEvents() {
+                self?.handler?(event)
+            }
         })
         tokens.append(center.addObserver(forName: NSWorkspace.screensDidSleepNotification, object: nil, queue: .main) { [weak self] _ in
             self?.handler?(ShioriEvent(id: .OnDisplayPowerStatus, refs: ["status": "0"]))

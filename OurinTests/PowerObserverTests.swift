@@ -90,4 +90,20 @@ struct PowerObserverTests {
         #expect(events[1].delivery == .get)
         #expect(!events[1].ignoreResponseScript)
     }
+
+    @Test
+    func systemWakeAndFullScreenEventsCarryUkadocReasons() {
+        let wakeEvents = SleepObserver.didWakeEvents()
+
+        #expect(wakeEvents[0].id == .OnSysResume)
+        #expect(wakeEvents[0].params == ["Reference0": "normal"])
+        #expect(wakeEvents[1].id == .OnWake)
+
+        let minimized = SessionObserver.fullScreenEvent(minimized: true)
+        let restored = SessionObserver.fullScreenEvent(minimized: false)
+        #expect(minimized.id == .OnFullScreenAppMinimize)
+        #expect(minimized.params == ["Reference0": "fullscreen"])
+        #expect(restored.id == .OnFullScreenAppRestore)
+        #expect(restored.params == ["Reference0": "fullscreen"])
+    }
 }
