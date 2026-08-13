@@ -1417,6 +1417,31 @@ struct SakuraScriptEngineTests {
     }
 
     @Test
+    func choiceSelectionDispatchFollowsSakuraScriptEventForms() {
+        let direct = GhostManager.choiceSelectionDispatch(
+            title: "春",
+            action: .event(id: "OnLikeSeason", references: ["花見", "桜"])
+        )
+        #expect(direct == .directEvent(id: "OnLikeSeason", references: ["花見", "桜"]))
+
+        let standard = GhostManager.choiceSelectionDispatch(
+            title: "好き",
+            action: .event(id: "Like", references: ["追加情報"])
+        )
+        #expect(standard == .choiceEvents(
+            label: "好き",
+            choiceID: "Like",
+            extendedReferences: ["追加情報"]
+        ))
+
+        let script = GhostManager.choiceSelectionDispatch(
+            title: "閉じる",
+            action: .script("\\e")
+        )
+        #expect(script == .script("\\e"))
+    }
+
+    @Test
     func choiceScriptFormat() async throws {
         let engine = SakuraScriptEngine()
         let tokens = engine.parse(script: "\\q[Execute,script:\\![raise,OnTest]]")

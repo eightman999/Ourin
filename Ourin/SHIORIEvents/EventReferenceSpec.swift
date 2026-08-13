@@ -133,6 +133,7 @@ public enum EventReferenceTable {
         .init(id: "OnChoiceHover", references: ["label", "choiceID", "extInfo"], category: "ui"),
         .init(id: "OnChoiceSelect", references: ["choiceID"], category: "ui"),
         .init(id: "OnChoiceSelectEx", references: ["label", "choiceID", "extInfo"], category: "ui"),
+        .init(id: "OnChoiceTimeout", references: ["timedOutScript"], category: "ui"),
         .init(id: "OnAnchorSelect", references: ["anchorID"], category: "ui"),
         .init(id: "OnAnchorSelectEx", references: ["label", "anchorID", "extInfo"], category: "ui"),
         .init(id: "OnAnchorEnter", references: ["label", "anchorID", "extInfo"], category: "ui"),

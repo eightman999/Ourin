@@ -1324,48 +1324,42 @@ extension GhostManager: NSWindowDelegate {
 
             if didTimeout {
                 // OnChoiceTimeout: Reference0 = タイムアウトしたスクリプト（UKADOC）。
-                // 表示中スクリプトを保持していないため空で送る（誤った件数値は送らない）。
-                _ = self.requestDialogEvent(eventID: "OnChoiceTimeout", references: [])
+                // 通常は実行元スクリプトを渡し、古い生成経路で保持できない場合は
+                // 現在表示中の本文をフォールバックにする。
+                let sourceScript = self.choiceSourceScript.isEmpty
+                    ? self.getBalloonVM(for: self.currentScope).text
+                    : self.choiceSourceScript
+                _ = self.requestDialogEvent(eventID: "OnChoiceTimeout", references: [sourceScript])
             } else if buttonIndex >= 0 && buttonIndex < self.pendingChoices.count {
                 // User selected a choice
                 let choice = self.pendingChoices[buttonIndex]
 
-                // \q[title,ID,ref2,ref3,...] の ID と拡張引数を取り出す（UKADOC 準拠の Reference 構成用）
-                let choiceID: String
-                let extendedRefs: [String]
-                switch choice.action {
-                case .event(let id, let references):
-                    choiceID = id
-                    extendedRefs = references
-                case .script:
-                    choiceID = ""
-                    extendedRefs = []
-                }
+                switch Self.choiceSelectionDispatch(title: choice.title, action: choice.action) {
+                case .directEvent(let id, let references):
+                    // \q[title,OnID,r0,...] は指定イベントだけを直接発火する。
+                    _ = self.requestDialogEvent(eventID: id, references: references)
+                    if choice.pluginOrigin {
+                        self.forwardEventToPlugins(id: id, references: references)
+                    }
 
-                // UKADOC: OnChoiceSelectEx は OnChoiceSelect より先に GET で発火する。
-                _ = self.requestDialogEvent(eventID: "OnChoiceSelectEx", references: [choice.title, choiceID] + extendedRefs)
-                _ = self.requestDialogEvent(eventID: "OnChoiceSelect", references: [choiceID])
+                case .choiceEvents(let label, let choiceID, let extendedReferences):
+                    // UKADOC: 通常の選択肢は OnChoiceSelectEx を先に発火し、続いて
+                    // OnChoiceSelect を発火する。choiceID 自体を GET する仕様ではない。
+                    let selectExReferences = [label, choiceID] + extendedReferences
+                    _ = self.requestDialogEvent(
+                        eventID: "OnChoiceSelectEx",
+                        references: selectExReferences
+                    )
+                    _ = self.requestDialogEvent(eventID: "OnChoiceSelect", references: [choiceID])
 
-                // プラグインへも横流し（Select=ID, SelectEx=ラベル/ID/拡張）
-                if choice.pluginOrigin {
-                    self.forwardEventToPlugins(id: "OnChoiceSelect", references: [choiceID])
-                    self.forwardEventToPlugins(id: "OnChoiceSelectEx", references: [choice.title, choiceID] + extendedRefs)
-                }
-
-                switch choice.action {
-                case .event(let id, let references):
-                    // Trigger event
-                    if let response = self.shioriRuntime?.request(method: "GET", id: id, refs: references, timeout: 4.0), response.ok {
-                        if let script = response.value {
-                            self.runScript(
-                                script,
-                                translationContext: .init(eventID: id, references: references)
-                            )
-                        }
+                    if choice.pluginOrigin {
+                        self.forwardEventToPlugins(id: "OnChoiceSelectEx", references: selectExReferences)
+                        self.forwardEventToPlugins(id: "OnChoiceSelect", references: [choiceID])
                     }
 
                 case .script(let script):
-                    // Execute inline script
+                    // \q[title,script:...] は SHIORI イベントを発火せず、インライン
+                    // SakuraScript だけを実行する。
                     self.sakuraEngine.run(script: script)
                 }
             } else {

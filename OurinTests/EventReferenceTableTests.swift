@@ -103,6 +103,9 @@ func eventReferenceTableChoiceAndAnchorReferencesMatchUkadoc() {
     #expect(EventReferenceTable.specs["OnAnchorSelectEx"]?.references == [
         "label", "anchorID", "extInfo"
     ])
+    #expect(EventReferenceTable.specs["OnChoiceTimeout"]?.references == [
+        "timedOutScript"
+    ])
 }
 
 @Test

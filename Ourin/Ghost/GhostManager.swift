@@ -1003,6 +1003,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var pendingChoices: [(title: String, action: ChoiceAction, pluginOrigin: Bool)] = []
     var choiceHasCancelOption: Bool = false
     var choiceTimeout: TimeInterval? = nil
+    /// 選択肢タイムアウトの Reference0 に渡す、選択肢を含む実行中スクリプト。
+    var choiceSourceScript: String = ""
     /// \* 指定（このスクリプトの選択肢をタイムアウトさせない）
     var choiceTimeoutDisabled: Bool = false
     var localEventTimers: [String: Timer] = [:]
@@ -1079,6 +1081,29 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     enum ChoiceAction {
         case event(id: String, references: [String])
         case script(String)
+    }
+
+    /// 選択肢選択時に発火するイベントの仕様上の分岐。
+    ///
+    /// `On` で始まる ID は指定イベントを直接発火し、通常の ID は
+    /// `OnChoiceSelectEx` と `OnChoiceSelect` を発火する。`script:` は
+    /// SHIORI イベントを発火せず、指定された SakuraScript を実行する。
+    enum ChoiceSelectionDispatch: Equatable {
+        case directEvent(id: String, references: [String])
+        case choiceEvents(label: String, choiceID: String, extendedReferences: [String])
+        case script(String)
+    }
+
+    static func choiceSelectionDispatch(title: String, action: ChoiceAction) -> ChoiceSelectionDispatch {
+        switch action {
+        case .event(let id, let references):
+            if id.hasPrefix("On") {
+                return .directEvent(id: id, references: references)
+            }
+            return .choiceEvents(label: title, choiceID: id, extendedReferences: references)
+        case .script(let script):
+            return .script(script)
+        }
     }
 
     // Dressup configuration types
@@ -2175,6 +2200,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func runTranslatedScript(_ script: String) {
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        choiceSourceScript = trimmed
         recordBacklog(from: trimmed)
         beginPluginTalkNotification(script: trimmed, reasons: ["owned"])
 
@@ -2228,6 +2254,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func runTranslatedNotifyScript(_ script: String) {
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        choiceSourceScript = trimmed
 
         let hasText = sakuraEngine.containsTextInPreprocessedScript(trimmed)
         if hasText {
@@ -2267,6 +2294,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let trimmed = translateForDisplay(script, context: .init(reasons: reasons))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        choiceSourceScript = trimmed
         recordBacklog(from: trimmed)
         if options.contains("nobreak") {
             beginPluginTalkNotification(script: trimmed, reasons: reasons)
