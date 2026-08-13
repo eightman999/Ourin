@@ -49,6 +49,8 @@ final class EventBridge {
 
     private var started = false
     private var autoEventsEnabled = false
+    /// Observer callback の世代。stop→start の間に main queue へ残った古いイベントを破棄する。
+    private var observerGeneration: UInt64 = 0
 
     // Queue for NOTIFY events that occur when autoEvents are disabled
     private enum QueuedNotify {
@@ -87,7 +89,11 @@ final class EventBridge {
         }
         started = true
         autoEventsEnabled = enableAutoEvents
-        let forward: (ShioriEvent) -> Void = { [weak self] ev in self?.broadcast(event: ev) }
+        observerGeneration &+= 1
+        let generation = observerGeneration
+        let forward: (ShioriEvent) -> Void = { [weak self] ev in
+            self?.dispatchObserverEvent(ev, generation: generation)
+        }
 
         // All system events are now optional - only enable if explicitly requested
         // This allows ghosts to work purely with script-triggered events (\![raise,...])
@@ -118,6 +124,7 @@ final class EventBridge {
 
     /// すべてのオブザーバを停止する
     func stop() {
+        observerGeneration &+= 1
         TimerEmitter.shared.stop()
         SleepObserver.shared.stop()
         InputMonitor.shared.stop()
@@ -154,7 +161,11 @@ final class EventBridge {
         guard enabled != autoEventsEnabled else { return }
 
         autoEventsEnabled = enabled
-        let forward: (ShioriEvent) -> Void = { [weak self] ev in self?.broadcast(event: ev) }
+        observerGeneration &+= 1
+        let generation = observerGeneration
+        let forward: (ShioriEvent) -> Void = { [weak self] ev in
+            self?.dispatchObserverEvent(ev, generation: generation)
+        }
 
         if enabled {
             // Start all system observers
@@ -282,14 +293,19 @@ final class EventBridge {
         // 明示的なAPI呼び出し（スクリプト、メディア、初期化等）は
         // 自動システムイベントの開始状態に依存させない。キューに入れるのは
         // observer の forward が呼ぶ private broadcastNotify() だけにする。
-        broadcastNotifyImmediate(id: id, params: params, security: security)
+        performOnMain {
+            self.broadcastNotifyImmediate(id: id, params: params, security: security)
+        }
     }
 
     /// 表駆動発火（推奨）: 意味ラベル辞書でイベントを送出する。
     /// 例: `notify(.OnMouseClick, refs: ["x": px, "y": py, "button": btn])`。
     /// ラベル → `ReferenceN` 変換は `EventReferenceTable`（SHIORIEvents/EventReferenceSpec.swift）が担う。
     func notify(_ id: EventID, refs: [String:String], security: ShioriSecurityContext = .local) {
-        broadcastNotifyImmediate(id: id, params: EventReferenceTable.params(forEvent: id.rawValue, refs: refs), security: security)
+        let params = EventReferenceTable.params(forEvent: id.rawValue, refs: refs)
+        performOnMain {
+            self.broadcastNotifyImmediate(id: id, params: params, security: security)
+        }
     }
 
     /// 他ゴーストのサーフェス変更を、監視を有効にしたセッションだけへ GET で送る。
@@ -355,7 +371,9 @@ final class EventBridge {
     /// D&Dのように EventBridge 外で生成されるイベントも、GET/NOTIFY の仕様を失わないよう
     /// この入口を使う。
     func dispatch(_ event: ShioriEvent) {
-        broadcast(event: event)
+        performOnMain {
+            self.broadcast(event: event)
+        }
     }
 
     /// スクリプトの `\\![raise,...]` 用に、標準イベント名を GET で実行する。
@@ -615,7 +633,9 @@ final class EventBridge {
     /// スクリプトの `\![notify,...]` など、カスタム名の NOTIFY を送る。
     /// - Parameter security: 発生源のセキュリティ文脈（既定: 内部 = local）
     func notifyCustom(_ eventName: String, params: [String:String] = [:], ignoreResponseScript: Bool = false, security: ShioriSecurityContext = .local) {
-        broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
+        performOnMain {
+            self.broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
+        }
     }
 
     func notifyCustom(_ eventName: String,
@@ -666,7 +686,10 @@ final class EventBridge {
     /// 表駆動発火（推奨）: 意味ラベル辞書でカスタム名イベント（EventID 列挙に無いもの）を送出する。
     /// 例: `notifyCustom("OnExecuteRSSFailure", refs: ["reason": msg, "url": u, "method": m])`。
     func notifyCustom(_ eventName: String, refs: [String:String], ignoreResponseScript: Bool = false, security: ShioriSecurityContext = .local) {
-        broadcastNotifyCustomImmediate(eventName: eventName, params: EventReferenceTable.params(forEvent: eventName, refs: refs), ignoreResponseScript: ignoreResponseScript, security: security)
+        let params = EventReferenceTable.params(forEvent: eventName, refs: refs)
+        performOnMain {
+            self.broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
+        }
     }
 
     /// 指定した起動中ゴーストへだけカスタム NOTIFY を送る。
@@ -909,6 +932,37 @@ final class EventBridge {
 
     private func session(for ghostManager: GhostManager) -> Session? {
         sessions.values.first { $0.ghostManager === ghostManager }
+    }
+
+    /// Observer は Network/Speech/GameController 等から任意のキューで呼ばれる。
+    /// セッション辞書、GhostManager状態、SHIORIランタイムを同時に触るため、
+    /// observer由来のイベントは main queue に直列化する。
+    ///
+    /// 世代を捕捉してから非同期配送することで、stop→start の境界をまたいだ
+    /// 古いイベントが新しいゴーストセッションへ流れ込むことも防ぐ。
+    private func dispatchObserverEvent(_ event: ShioriEvent, generation: UInt64) {
+        let deliver = { [weak self] in
+            guard let self,
+                  self.started,
+                  self.autoEventsEnabled,
+                  self.observerGeneration == generation else { return }
+            self.broadcast(event: event)
+        }
+        if Thread.isMainThread {
+            deliver()
+        } else {
+            DispatchQueue.main.async(execute: deliver)
+        }
+    }
+
+    /// EventBridge の共有状態とSHIORI実行を main queue に統一する。
+    /// 既に main queue 上なら同期呼び出しを避け、通常のイベント順序を保つ。
+    private func performOnMain(_ action: @escaping () -> Void) {
+        if Thread.isMainThread {
+            action()
+        } else {
+            DispatchQueue.main.sync(execute: action)
+        }
     }
 
     // Broadcast a NOTIFY to all registered sessions

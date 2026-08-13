@@ -88,6 +88,30 @@ struct DragDropEventTests {
     }
 
     @Test @MainActor
+    func backgroundDispatchIsSerializedOnMainQueue() async {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-background-event-bridge-test"))
+        let runtime = DragDropEventRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        await Task.detached {
+            EventBridge.shared.dispatch(ShioriEvent(
+                id: .OnFileDropEx,
+                refs: ["filePath": "/tmp/background.txt", "scopeID": "0", "mimeType": "text/plain"]
+            ))
+        }.value
+
+        #expect(runtime.requests.first?.method == "GET")
+        #expect(runtime.requests.first?.id == "OnFileDropEx")
+        #expect(runtime.requests.first?.refs == ["/tmp/background.txt", "0", "text/plain"])
+    }
+
+    @Test @MainActor
     func stoppingBridgeDropsQueuedObserverNotifications() {
         EventBridge.shared.stop()
 
