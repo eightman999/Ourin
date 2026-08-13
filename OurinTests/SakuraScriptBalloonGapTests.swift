@@ -68,6 +68,52 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func verticalAlignmentPersistsAcrossNewlinesAndUpdatesCurrentLine() {
+        let vm = BalloonViewModel()
+        vm.text = "first"
+        vm.setVerticalTextAlignment(.bottom)
+        vm.appendNewline(advance: 1.0)
+        vm.text += "second"
+
+        #expect(vm.lineVAlignment(forLineIndex: 0) == .bottom)
+        #expect(vm.lineVAlignment(forLineIndex: 1) == .bottom)
+
+        vm.setVerticalTextAlignment(.center)
+        #expect(vm.lineVAlignment(forLineIndex: 0) == .bottom)
+        #expect(vm.lineVAlignment(forLineIndex: 1) == .center)
+    }
+
+    @MainActor
+    @Test func verticalAlignCommandUpdatesCurrentLineThroughPlayback() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-line-valign-command"))
+        defer { _ = gm.shutdown() }
+        let vm = gm.getBalloonVM(for: 0)
+        vm.text = "already shown"
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "f", args: ["valign", "bottom"]))
+        gm.processNextUnit()
+
+        #expect(vm.lineVAlignment(forLineIndex: 0) == .bottom)
+        #expect(vm.textVAlign == .bottom)
+    }
+
+    @MainActor
+    @Test func fontDefaultRestoresCurrentLineAlignments() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-font-default-alignment"))
+        defer { _ = gm.shutdown() }
+        let vm = gm.getBalloonVM(for: 0)
+        vm.text = "styled"
+        vm.setTextAlignment(.right)
+        vm.setVerticalTextAlignment(.bottom)
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "f", args: ["default"]))
+        gm.processNextUnit()
+
+        #expect(vm.lineAlignment(forLineIndex: 0) == .left)
+        #expect(vm.lineVAlignment(forLineIndex: 0) == .top)
+    }
+
+    @MainActor
     @Test func leadingAdvancePerLineIndex() {
         let vm = BalloonViewModel()
         vm.text = "a\nb\nc"
@@ -986,6 +1032,7 @@ struct BalloonClearTruncationTests {
         vm.text = "line0\nline1\nline2"
         vm.lineAdvances = [0.5, 1.5]
         vm.lineAlignments = [.left, .center, .right]
+        vm.lineVAlignments = [.top, .center, .bottom]
 
         vm.clearLines(1, start: 1)
 
@@ -993,6 +1040,8 @@ struct BalloonClearTruncationTests {
         #expect(vm.lineAdvances == [0.5])
         #expect(vm.lineAlignment(forLineIndex: 0) == .left)
         #expect(vm.lineAlignment(forLineIndex: 1) == .right)
+        #expect(vm.lineVAlignment(forLineIndex: 0) == .top)
+        #expect(vm.lineVAlignment(forLineIndex: 1) == .bottom)
     }
 
     @MainActor

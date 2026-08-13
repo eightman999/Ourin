@@ -252,7 +252,7 @@ struct BalloonView: View {
                             .frame(
                                 width: textLayout.width,
                                 height: textLayout.height,
-                                alignment: textFrameAlignment(for: viewModel.textVAlign)
+                                alignment: .topLeading
                             )
                             .padding(
                                 EdgeInsets(
@@ -269,7 +269,7 @@ struct BalloonView: View {
                             .frame(
                                 width: textLayout.width,
                                 height: textLayout.height,
-                                alignment: textFrameAlignment(for: viewModel.textVAlign)
+                                alignment: .topLeading
                             )
                             .clipped()
                             .padding(
@@ -360,15 +360,29 @@ struct BalloonView: View {
     }
 
     /// Convert BalloonTextAlign to a line container alignment.
-    private func lineFrameAlignment(for align: BalloonViewModel.BalloonTextAlign) -> Alignment {
+    private func lineFrameAlignment(
+        for align: BalloonViewModel.BalloonTextAlign,
+        valign: BalloonViewModel.BalloonTextVAlign
+    ) -> Alignment {
+        let horizontal: HorizontalAlignment
         switch align {
         case .left:
-            return .leading
+            horizontal = .leading
         case .center:
-            return .center
+            horizontal = .center
         case .right:
-            return .trailing
+            horizontal = .trailing
         }
+        let vertical: VerticalAlignment
+        switch valign {
+        case .top:
+            vertical = .top
+        case .center:
+            vertical = .center
+        case .bottom:
+            vertical = .bottom
+        }
+        return Alignment(horizontal: horizontal, vertical: vertical)
     }
 
     /// Create Font from BalloonViewModel properties
@@ -529,7 +543,11 @@ struct BalloonView: View {
                 }
                 .frame(
                     maxWidth: .infinity,
-                    alignment: lineFrameAlignment(for: vm.lineAlignment(forLineIndex: lineIndex))
+                    minHeight: lineHeight(for: vm),
+                    alignment: lineFrameAlignment(
+                        for: vm.lineAlignment(forLineIndex: lineIndex),
+                        valign: vm.lineVAlignment(forLineIndex: lineIndex)
+                    )
                 )
                 .padding(.top, spacing.topPadding)
                 .offset(y: spacing.yOffset)
@@ -626,17 +644,6 @@ struct BalloonView: View {
                 .baselineOffset(baselineOffset(for: vm))
         }
         return result
-    }
-
-    private func textFrameAlignment(for valign: BalloonViewModel.BalloonTextVAlign) -> Alignment {
-        switch valign {
-        case .top:
-            return .topLeading
-        case .center:
-            return .leading
-        case .bottom:
-            return .bottomLeading
-        }
     }
 
     private func baselineOffset(for vm: BalloonViewModel) -> CGFloat {

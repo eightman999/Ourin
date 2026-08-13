@@ -228,6 +228,9 @@ class BalloonViewModel: ObservableObject {
     /// `text` が直接更新された場合にも表示を破綻させないよう、未登録行は左寄せとして扱う。
     @Published var lineAlignments: [BalloonTextAlign] = [.left]
 
+    /// `\f[valign]` の行ごとの垂直寄せ。改行と `\_l` の後も現在値を引き継ぐ。
+    @Published var lineVAlignments: [BalloonTextVAlign] = [.top]
+
     /// 新規スクリプト開始時などにバルーン本文を初期化する（改行送り・アンカー範囲も同時にリセット）。
     func resetBalloonContent() {
         text = ""
@@ -237,6 +240,7 @@ class BalloonViewModel: ObservableObject {
         lineAdvances.removeAll()
         anchors.removeAll()
         lineAlignments = [textAlign]
+        lineVAlignments = [textVAlign]
         anchorActive = false
         activeAnchorIndex = nil
     }
@@ -256,6 +260,16 @@ class BalloonViewModel: ObservableObject {
         setTextAlignment(.left)
     }
 
+    /// 現在行の垂直寄せを変更し、すでに表示済みの同じ行にも反映する。
+    func setVerticalTextAlignment(_ alignment: BalloonTextVAlign) {
+        synchronizeLineVAlignments()
+        let currentLine = max(0, text.components(separatedBy: "\n").count - 1)
+        if lineVAlignments.indices.contains(currentLine) {
+            lineVAlignments[currentLine] = alignment
+        }
+        textVAlign = alignment
+    }
+
     /// 描画・編集時に、本文の行数と寄せ履歴の長さを同期させる。
     private func synchronizeLineAlignments() {
         let lineCount = max(1, text.components(separatedBy: "\n").count)
@@ -271,6 +285,17 @@ class BalloonViewModel: ObservableObject {
         }
     }
 
+    /// 本文の行数と垂直寄せ履歴の長さを同期させる。
+    private func synchronizeLineVAlignments() {
+        let lineCount = max(1, text.components(separatedBy: "\n").count)
+        if lineVAlignments.count < lineCount {
+            let missingCount = lineCount - lineVAlignments.count
+            lineVAlignments.append(contentsOf: repeatElement(textVAlign, count: missingCount))
+        } else if lineVAlignments.count > lineCount {
+            lineVAlignments.removeLast(lineVAlignments.count - lineCount)
+        }
+    }
+
     /// 指定行の水平寄せを返す。本文を直接差し替えた直後の未登録行は安全側で左寄せにする。
     func lineAlignment(forLineIndex index: Int) -> BalloonTextAlign {
         guard index >= 0 else { return .left }
@@ -279,6 +304,15 @@ class BalloonViewModel: ObservableObject {
         }
         let lastLine = max(0, text.components(separatedBy: "\n").count - 1)
         return index == lastLine ? textAlign : .left
+    }
+
+    /// 指定行の垂直寄せを返す。本文を直接差し替えた直後の未登録行は現在値を使う。
+    func lineVAlignment(forLineIndex index: Int) -> BalloonTextVAlign {
+        guard index >= 0 else { return .top }
+        if lineVAlignments.indices.contains(index) {
+            return lineVAlignments[index]
+        }
+        return textVAlign
     }
 
     /// 指定 index のアンカーを訪問済みとして記録する（`\_a` クリック時の `anchorvisited*` 描画用）。
@@ -341,9 +375,11 @@ class BalloonViewModel: ObservableObject {
     /// `\n[half]` / `\n[パーセント]` / 通常 `\n` の改行を1つ追加し、垂直送り倍率を記録する。
     func appendNewline(advance: CGFloat) {
         synchronizeLineAlignments()
+        synchronizeLineVAlignments()
         text += "\n"
         lineAdvances.append(advance)
         lineAlignments.append(.left)
+        lineVAlignments.append(textVAlign)
         textAlign = .left
     }
 
@@ -515,6 +551,7 @@ class BalloonViewModel: ObservableObject {
         let oldNewlineCount = (oldText as NSString).components(separatedBy: "\n").count - 1
         let oldAdvances = lineAdvances
         let oldAlignments = normalizedLineAlignments(for: oldText, fallback: textAlign)
+        let oldVAlignments = normalizedLineVAlignments(for: oldText, fallback: textVAlign)
         let oldNewlineOffsets: [Int] = {
             var offsets: [Int] = []
             var search = 0
@@ -547,6 +584,13 @@ class BalloonViewModel: ObservableObject {
             newText: text
         )
         textAlign = lineAlignments.last ?? .left
+        lineVAlignments = remappedLineVAlignments(
+            oldText: oldText,
+            oldAlignments: oldVAlignments,
+            deletion: safeRange,
+            newText: text
+        )
+        textVAlign = lineVAlignments.last ?? .top
 
         let deletedLength = safeRange.length
         balloonImages = balloonImages.compactMap { image in
@@ -595,6 +639,16 @@ class BalloonViewModel: ObservableObject {
         }
     }
 
+    private func normalizedLineVAlignments(for source: String, fallback: BalloonTextVAlign) -> [BalloonTextVAlign] {
+        let lineCount = max(1, source.components(separatedBy: "\n").count)
+        return (0..<lineCount).map { index in
+            if lineVAlignments.indices.contains(index) {
+                return lineVAlignments[index]
+            }
+            return fallback
+        }
+    }
+
     /// 削除後の各行が、削除前のどの行から続いたかを使って寄せ履歴を再構成する。
     private func remappedLineAlignments(
         oldText: String,
@@ -611,6 +665,24 @@ class BalloonViewModel: ObservableObject {
             )
             let oldLineIndex = lineIndex(in: oldNSString, at: oldOffset)
             return oldAlignments.indices.contains(oldLineIndex) ? oldAlignments[oldLineIndex] : .left
+        }
+    }
+
+    private func remappedLineVAlignments(
+        oldText: String,
+        oldAlignments: [BalloonTextVAlign],
+        deletion: NSRange,
+        newText: String
+    ) -> [BalloonTextVAlign] {
+        let oldNSString = oldText as NSString
+        let newLineStarts = lineStartOffsets(in: newText)
+        return newLineStarts.map { newStart in
+            let oldOffset = min(
+                oldNSString.length,
+                newStart < deletion.location ? newStart : newStart + deletion.length
+            )
+            let oldLineIndex = lineIndex(in: oldNSString, at: oldOffset)
+            return oldAlignments.indices.contains(oldLineIndex) ? oldAlignments[oldLineIndex] : .top
         }
     }
 
@@ -4126,11 +4198,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             let valign = args[1].lowercased()
                             switch valign {
                             case "top":
-                                vm.textVAlign = .top
+                                vm.setVerticalTextAlignment(.top)
                             case "center", "middle":
-                                vm.textVAlign = .center
+                                vm.setVerticalTextAlignment(.center)
                             case "bottom":
-                                vm.textVAlign = .bottom
+                                vm.setVerticalTextAlignment(.bottom)
                             default:
                                 Log.info("[GhostManager] Unknown text valign: \(valign)")
                             }

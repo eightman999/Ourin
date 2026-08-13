@@ -923,6 +923,8 @@ extension GhostManager {
         vm.fontSubscript = false
         vm.fontSuperscript = false
         vm.fontColor = config?.fontColor ?? .textColor
+        vm.setTextAlignment(.left)
+        vm.setVerticalTextAlignment(.top)
         vm.shadowColor = .clear
         vm.shadowStyle = .none
         vm.outlineWidth = 0
