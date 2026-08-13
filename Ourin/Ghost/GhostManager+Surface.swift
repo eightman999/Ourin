@@ -134,7 +134,7 @@ extension GhostManager {
         }
     }
 
-    func loadImage(surfaceId: Int, scope: Int) -> NSImage? {
+    func loadImage(surfaceId: Int, scope: Int, applyTransparency: Bool = true) -> NSImage? {
         guard let shellURL = loadShellPath() else {
             Log.info("[GhostManager] Cannot load surface: shell path unavailable")
             return nil
@@ -149,7 +149,11 @@ extension GhostManager {
         }
         // SERIKO/2.0: element 合成で定義されるサーフェスは複数画像を重ねて生成する
         if let elements = parsedSurfaceDefs[surfaceId]?.elements, !elements.isEmpty,
-           let composed = compositeSurfaceElements(elements, shellURL: shellURL) {
+           let composed = compositeSurfaceElements(
+               elements,
+               shellURL: shellURL,
+               applyTransparency: applyTransparency
+           ) {
             Log.debug("[GhostManager] Surface \(surfaceId) composed from \(elements.count) elements")
             return composed
         }
@@ -170,6 +174,10 @@ extension GhostManager {
             let url = shellURL.appendingPathComponent(name)
             // @2x/@3x バリアントがあれば高解像度 rep を取り込む（Retina 対応）
             if FileManager.default.fileExists(atPath: url.path), let img = RetinaImageLoader.image(contentsOf: url) {
+                guard applyTransparency else {
+                    Log.debug("[GhostManager] Image loaded without transparency processing: \(name)")
+                    return img
+                }
                 // PNA マスクがあれば適用（白=不透明、黒=透明として扱う想定）
                 let pnaURL = url.deletingPathExtension().appendingPathExtension("pna")
                 if FileManager.default.fileExists(atPath: pnaURL.path),
@@ -283,7 +291,11 @@ extension GhostManager {
     }
 
     /// SERIKO/2.0 element 定義を index 順に重ねて1枚の基底サーフェス画像を合成する。
-    func compositeSurfaceElements(_ elements: [SerikoElement], shellURL: URL) -> NSImage? {
+    func compositeSurfaceElements(
+        _ elements: [SerikoElement],
+        shellURL: URL,
+        applyTransparency: Bool = true
+    ) -> NSImage? {
         guard !elements.isEmpty else { return nil }
         struct Loaded { let img: NSImage; let x: Int; let y: Int; let blendMode: SurfaceBlendMode }
         var loaded: [Loaded] = []
@@ -301,7 +313,10 @@ extension GhostManager {
                 blendMode = .blend(operation, destinationAlphaAware: fast)
             default: blendMode = .normal
             }
-            guard let img = loadSurfaceFile(url: url, applyTransparency: blendMode != .asis) else {
+            guard let img = loadSurfaceFile(
+                url: url,
+                applyTransparency: applyTransparency && blendMode != .asis
+            ) else {
                 Log.info("[GhostManager] element image not found: \(el.filename)")
                 continue
             }
@@ -366,35 +381,18 @@ extension GhostManager {
             break
         }
         
-        // Load surface image from shell directory
-        guard let shellPath = loadShellPath() else {
-            Log.info("[GhostManager] Cannot add overlay - shell path not found")
-            return
-        }
-        
-        // surface1<ID>.png / surface<ID>.png の両方をシェルの命名規則として扱う。
-        func padded(_ id: Int) -> String { String(format: "%04d", id) }
-        var candidates: [String] = []
         let scope = currentScope
-        if scope == 1 {
-            candidates.append("surface1\(surfaceID).png")
-            candidates.append("surface1\(padded(surfaceID)).png")
-        }
-        candidates.append("surface\(surfaceID).png")
-        candidates.append("surface\(padded(surfaceID)).png")
-
-        guard let surfacePath = candidates
-            .map({ shellPath.appendingPathComponent($0) })
-            .first(where: { FileManager.default.fileExists(atPath: $0.path) }) else {
-            Log.info("[GhostManager] Surface file not found for overlay id=\(surfaceID), scope=\(scope)")
-            return
-        }
-
-        // 通常サーフェスと同じ Retina/PNA/純緑クロマキー処理を必ず通す。
-        // 目元など旧シェルの RGB+純緑画像を生読みすると、背景まで矩形で表示される。
+        // 通常の \s[ID] と同じ surface resolver を使う。これにより、SERIKO の
+        // anim/add でも alias、surface element 合成、PNA/クロマキー、ゼロ埋め
+        // ファイル名、DisableNoDefineSurfaces を同じ規則で適用できる。
+        let resolvedSurfaceID = surfaceAliases[surfaceID] ?? surfaceID
         let effectiveBlendMode: SurfaceBlendMode = type == .replace ? .replace : blendMode
-        guard let image = loadSurfaceFile(url: surfacePath, applyTransparency: effectiveBlendMode != .asis) else {
-            Log.info("[GhostManager] Failed to load surface image: \(surfacePath.lastPathComponent)")
+        guard let image = loadImage(
+            surfaceId: resolvedSurfaceID,
+            scope: scope,
+            applyTransparency: effectiveBlendMode != .asis
+        ) else {
+            Log.info("[GhostManager] Surface image not found for overlay id=\(surfaceID), resolved=\(resolvedSurfaceID), scope=\(scope)")
             return
         }
         
@@ -419,7 +417,7 @@ extension GhostManager {
             case .bind:
                 zOrder = 200
             }
-            let idPrefix = type == .bind ? "dressup_bind_\(surfaceID)_" : "surface_\(surfaceID)_"
+            let idPrefix = type == .bind ? "dressup_bind_\(resolvedSurfaceID)_" : "surface_\(resolvedSurfaceID)_"
             let animationMarker = animationID.map { "anim_\($0)_" } ?? ""
             
         let overlay = SurfaceOverlay(
@@ -430,7 +428,7 @@ extension GhostManager {
             zOrder: zOrder,
             insertionOrder: insertionOrder,
             blendMode: effectiveBlendMode,
-            surfaceID: surfaceID,
+            surfaceID: resolvedSurfaceID,
             animationID: animationID
         )
             

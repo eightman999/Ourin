@@ -81,4 +81,26 @@ struct SurfaceOverlayOrderingTests {
 
         #expect(try redBounds(for: keyed) == redBounds(for: source))
     }
+
+    @MainActor
+    @Test
+    func animationOverlayUsesSurfaceAliasAndNormalSurfaceResolver() async throws {
+        let repositoryRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let manager = GhostManager(ghostURL: repositoryRoot.appendingPathComponent("emily4"))
+        defer { manager.shutdown() }
+
+        // Emily4 defines sakura surface alias 35 -> 55. There is no surface35.png,
+        // so a direct filename lookup would silently drop this overlay.
+        manager.characterViewModels[0] = CharacterViewModel()
+        manager.loadAnimationsForCurrentSurface(surfaceID: 0, scope: 0)
+        manager.handleAnimAddOverlay(id: 35)
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        let overlays = manager.characterViewModels[0]?.overlays ?? []
+        let overlay = try #require(overlays.last)
+        #expect(overlay.surfaceID == 55)
+        #expect(overlay.image.size.width > 0 && overlay.image.size.height > 0)
+    }
 }

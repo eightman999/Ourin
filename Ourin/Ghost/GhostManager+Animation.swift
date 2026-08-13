@@ -621,7 +621,8 @@ extension GhostManager {
                 // Alignment must use the same surface resolver as normal
                 // surface changes; direct surface<ID>.png lookup misses aliases,
                 // PNA/key transparency, elements, and surface-table naming.
-                if let overlayImage = loadImage(surfaceId: surfaceID, scope: currentScope) {
+                let resolvedSurfaceID = surfaceAliases[surfaceID] ?? surfaceID
+                if let overlayImage = loadImage(surfaceId: resolvedSurfaceID, scope: currentScope) {
                     let bw = base.size.width, bh = base.size.height
                     let ow = overlayImage.size.width, oh = overlayImage.size.height
                     var ox: CGFloat = 0
