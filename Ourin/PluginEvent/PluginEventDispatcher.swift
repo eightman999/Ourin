@@ -361,6 +361,17 @@ final class PluginEventDispatcher {
         sendFrame(id: "OnInstallComplete", refs: [r0, r1, r2])
     }
 
+    /// NAR の実設置結果をそのまま完了イベントへ変換する。
+    /// 付属バルーン等を主対象だけに縮退させず、設置された全対象を通知する。
+    func onInstallComplete(objects: [NarInstalledObject]) {
+        guard !objects.isEmpty else { return }
+        onInstallComplete(
+            types: objects.map(\.identifier),
+            names: objects.map(\.name),
+            paths: objects.map(\.path)
+        )
+    }
+
     /// ゴースト終了通知（NOTIFY）
     func onGhostExit(windows: [NSWindow], ghostName: String, shellName: String, ghostID: String, path: String) {
         let ref0 = WindowIDMapper.ids(for: windows)

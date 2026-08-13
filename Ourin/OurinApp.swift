@@ -542,7 +542,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 }
 
                 for item in installed {
-                    self.notifyInstallComplete(at: item.result.target)
+                    self.notifyInstallComplete(for: item.result)
                     NSLog("[installNar] Running ghost at: \(item.result.target.path)")
                     self.runGhost(at: item.result.target)
                 }
@@ -608,10 +608,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         dispatcher.notifyHeadlinePathList(paths: headlinePaths)
     }
 
-    private func notifyInstallComplete(at target: URL) {
-        let type = target.deletingLastPathComponent().lastPathComponent
-        let name = target.lastPathComponent
-        pluginDispatcher?.onInstallComplete(type: type, name: name, path: target.path)
+    private func notifyInstallComplete(for result: NarInstallResult) {
+        pluginDispatcher?.onInstallComplete(objects: result.objects)
     }
 
     /// 起動中の全ゴースト（プライマリ＋追加）から FmoGhostRecord を収集する。
