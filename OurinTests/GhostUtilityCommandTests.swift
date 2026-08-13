@@ -103,6 +103,58 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func legacyMoveFixRetainsOnlyTheRequestedAxis() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-move-fix-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 0) else {
+            Issue.record("Expected scope 0 character window")
+            return
+        }
+        let start = window.frame.origin
+        manager.executeMoveCommand(
+            args: ["fix", "\(Int(start.y) + 40)"],
+            async: false
+        )
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(window.frame.origin.x == start.x)
+        #expect(abs(window.frame.origin.y - (start.y + 40)) < 0.5)
+    }
+
+    @Test @MainActor
+    func moveAsyncCancelStopsAnAlreadyRunningAnimation() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-moveasync-cancel-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 0) else {
+            Issue.record("Expected scope 0 character window")
+            return
+        }
+        let start = window.frame.origin
+        let targetX = Int(start.x) + 300
+        manager.moveWindowAsync(
+            scope: 0,
+            x: targetX,
+            y: Int(start.y),
+            time: 1000,
+            method: "linear"
+        )
+        try await Task.sleep(nanoseconds: 220_000_000)
+
+        let midMoveX = window.frame.origin.x
+        #expect(midMoveX > start.x + 1)
+        #expect(midMoveX < CGFloat(targetX) - 1)
+
+        manager.cancelMoveWindowAsync(scope: 0)
+        let canceledX = window.frame.origin.x
+        try await Task.sleep(nanoseconds: 220_000_000)
+
+        #expect(abs(window.frame.origin.x - canceledX) < 1.0)
+        #expect(abs(window.frame.origin.x - CGFloat(targetX)) > 1.0)
+    }
+
+    @Test @MainActor
     func backlogKeepsVisibleTextAndCapsHistory() {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-backlog-test"))
 

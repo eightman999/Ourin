@@ -1772,6 +1772,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func shutdown(preserveRuntimeForCache: Bool = false) -> CachedRuntime? {
         guard !didShutdown else { return nil }
         didShutdown = true
+        cancelMoveWindowAsync(scope: nil)
         if usageSessionStarted {
             RateOfUseStore.shared.endSession(identifier: ghostURL.standardizedFileURL.path)
             usageSessionStarted = false

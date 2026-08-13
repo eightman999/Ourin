@@ -11,6 +11,7 @@ extension GhostManager {
     private struct WindowCommandStorage {
         static var stickyIgnoreScopes: [ObjectIdentifier: Set<Int>] = [:]
         static var asyncMoveWorkItems: [ObjectIdentifier: [Int: DispatchWorkItem]] = [:]
+        static var asyncMoveAnimationTimers: [ObjectIdentifier: [Int: Timer]] = [:]
         static var lastOwnerDrawMenuPoint: NSPoint?
         static var lastOwnerDrawMenuTime: TimeInterval?
     }
@@ -23,6 +24,11 @@ extension GhostManager {
     private var asyncMoveWorkItems: [Int: DispatchWorkItem] {
         get { WindowCommandStorage.asyncMoveWorkItems[ObjectIdentifier(self)] ?? [:] }
         set { WindowCommandStorage.asyncMoveWorkItems[ObjectIdentifier(self)] = newValue }
+    }
+
+    private var asyncMoveAnimationTimers: [Int: Timer] {
+        get { WindowCommandStorage.asyncMoveAnimationTimers[ObjectIdentifier(self)] ?? [:] }
+        set { WindowCommandStorage.asyncMoveAnimationTimers[ObjectIdentifier(self)] = newValue }
     }
 
     private struct MoveCommandSpec {
@@ -430,6 +436,7 @@ extension GhostManager {
     /// Synchronous window move
     func moveWindow(scope: Int, x: Int, y: Int, time: Int, method: String, ignoreStickyWindow: Bool = false) {
         Log.debug("[GhostManager] Moving scope \(scope) to (\(x), \(y)) over \(time)ms with method '\(method)'")
+        cancelMoveWindowAsync(scope: scope)
         DispatchQueue.main.async {
             guard let window = self.characterWindows[scope] else {
                 Log.info("[GhostManager] No window found for scope \(scope)")
@@ -478,9 +485,46 @@ extension GhostManager {
         Log.debug("[GhostManager] Moving scope \(scope) asynchronously to (\(x), \(y))")
         cancelMoveWindowAsync(scope: scope)
 
-        let workItem = DispatchWorkItem { [weak self] in
+        var workItem: DispatchWorkItem?
+        workItem = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
-            self.moveWindow(scope: scope, x: x, y: y, time: time, method: method, ignoreStickyWindow: ignoreStickyWindow)
+            guard workItem?.isCancelled == false else { return }
+            guard let window = self.characterWindows[scope] else {
+                Log.info("[GhostManager] No window found for async move scope \(scope)")
+                return
+            }
+
+            let targetFrame = NSRect(
+                x: CGFloat(x),
+                y: CGFloat(y),
+                width: window.frame.width,
+                height: window.frame.height
+            )
+
+            // Keep the legacy immediate path identical to synchronous move.
+            // For timed moves we use an explicit frame timer so cancellation can
+            // stop an already-running move at its current position.
+            if time <= 0 {
+                self.moveWindow(
+                    scope: scope,
+                    x: x,
+                    y: y,
+                    time: 0,
+                    method: method,
+                    ignoreStickyWindow: ignoreStickyWindow
+                )
+            } else {
+                self.startAsyncMoveAnimation(
+                    scope: scope,
+                    from: window.frame,
+                    to: targetFrame,
+                    time: time,
+                    method: method,
+                    ignoreStickyWindow: ignoreStickyWindow
+                )
+                self.resourceManager.setCharDefaultLeft(scope: scope, value: x)
+                self.resourceManager.setCharDefaultTop(scope: scope, value: y)
+            }
             var pending = self.asyncMoveWorkItems
             pending.removeValue(forKey: scope)
             self.asyncMoveWorkItems = pending
@@ -489,7 +533,75 @@ extension GhostManager {
         pending[scope] = workItem
         asyncMoveWorkItems = pending
 
+        guard let workItem else { return }
         DispatchQueue.main.async(execute: workItem)
+    }
+
+    private func startAsyncMoveAnimation(
+        scope: Int,
+        from startFrame: NSRect,
+        to targetFrame: NSRect,
+        time: Int,
+        method: String,
+        ignoreStickyWindow: Bool
+    ) {
+        guard characterWindows[scope] != nil else { return }
+
+        if ignoreStickyWindow {
+            var ignored = stickyIgnoreScopes
+            ignored.insert(scope)
+            stickyIgnoreScopes = ignored
+        }
+
+        let duration = max(0.001, TimeInterval(time) / 1000.0)
+        let startDate = Date()
+        let timerKey = scope
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] timer in
+            guard let self, let window = self.characterWindows[scope] else {
+                timer.invalidate()
+                return
+            }
+
+            let progress = min(1.0, max(0.0, Date().timeIntervalSince(startDate) / duration))
+            let easedProgress = Self.moveAnimationProgress(progress, method: method)
+            var frame = startFrame
+            frame.origin.x = startFrame.origin.x + (targetFrame.origin.x - startFrame.origin.x) * easedProgress
+            frame.origin.y = startFrame.origin.y + (targetFrame.origin.y - startFrame.origin.y) * easedProgress
+            window.setFrame(frame, display: true)
+
+            guard progress >= 1.0 else { return }
+            timer.invalidate()
+            var timers = self.asyncMoveAnimationTimers
+            timers.removeValue(forKey: timerKey)
+            self.asyncMoveAnimationTimers = timers
+            if ignoreStickyWindow {
+                var ignored = self.stickyIgnoreScopes
+                ignored.remove(scope)
+                self.stickyIgnoreScopes = ignored
+            }
+            Log.debug("[GhostManager] Async window move animation completed for scope \(scope)")
+        }
+
+        var timers = asyncMoveAnimationTimers
+        timers[timerKey] = timer
+        asyncMoveAnimationTimers = timers
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
+    private static func moveAnimationProgress(_ progress: Double, method: String) -> Double {
+        let clamped = min(1.0, max(0.0, progress))
+        switch method.lowercased() {
+        case "linear":
+            return clamped
+        case "easein", "ease-in":
+            return clamped * clamped
+        case "easeout", "ease-out":
+            return 1.0 - (1.0 - clamped) * (1.0 - clamped)
+        default:
+            // Match NSAnimationContext's ease-in/ease-out feel used by the
+            // synchronous move path.
+            return clamped * clamped * (3.0 - 2.0 * clamped)
+        }
     }
 
     func cancelMoveWindowAsync(scope: Int?) {
@@ -497,12 +609,24 @@ extension GhostManager {
         if let scope {
             pending[scope]?.cancel()
             pending.removeValue(forKey: scope)
+            asyncMoveAnimationTimers[scope]?.invalidate()
+            var timers = asyncMoveAnimationTimers
+            timers.removeValue(forKey: scope)
+            asyncMoveAnimationTimers = timers
+            var ignored = stickyIgnoreScopes
+            ignored.remove(scope)
+            stickyIgnoreScopes = ignored
             Log.debug("[GhostManager] Canceled async move for scope \(scope)")
         } else {
             for (_, workItem) in pending {
                 workItem.cancel()
             }
             pending.removeAll()
+            for timer in asyncMoveAnimationTimers.values {
+                timer.invalidate()
+            }
+            asyncMoveAnimationTimers.removeAll()
+            stickyIgnoreScopes.removeAll()
             Log.debug("[GhostManager] Canceled all async move commands")
         }
         asyncMoveWorkItems = pending
@@ -594,9 +718,15 @@ extension GhostManager {
             return spec
         }
 
-        guard args.count >= 2, let x = Int(args[0]), let y = Int(args[1]) else { return nil }
-        spec.x = x
-        spec.y = y
+        guard args.count >= 2 else { return nil }
+        // Legacy SSP syntax allows "fix" for either axis to retain its
+        // current coordinate. Keep nil here so resolveMoveTarget can use the
+        // current frame instead of rejecting the whole command.
+        spec.x = Int(args[0].lowercased() == "fix" ? "" : args[0])
+        spec.y = Int(args[1].lowercased() == "fix" ? "" : args[1])
+        guard spec.x != nil || spec.y != nil || args[0].lowercased() == "fix" || args[1].lowercased() == "fix" else {
+            return nil
+        }
         spec.time = args.count >= 3 ? (Int(args[2]) ?? 0) : 0
         spec.method = args.count >= 4 ? args[3] : ""
         spec.scopeID = args.count >= 5 ? Int(args[4]) : nil
@@ -661,8 +791,12 @@ extension GhostManager {
         let moveAnchorPoint = resolveAnchorPoint(token: spec.moveOffset, rect: currentFrame) ?? CGPoint(x: 0, y: 0)
 
         if spec.base != nil {
-            let targetX = Int(baseAnchorPoint.x + CGFloat(spec.x ?? 0) - moveAnchorPoint.x)
-            let targetY = Int(baseAnchorPoint.y + CGFloat(spec.y ?? 0) - moveAnchorPoint.y)
+            let targetX = spec.x.map {
+                Int(baseAnchorPoint.x + CGFloat($0) - moveAnchorPoint.x)
+            } ?? Int(currentFrame.origin.x)
+            let targetY = spec.y.map {
+                Int(baseAnchorPoint.y + CGFloat($0) - moveAnchorPoint.y)
+            } ?? Int(currentFrame.origin.y)
             return (targetX, targetY)
         }
 
