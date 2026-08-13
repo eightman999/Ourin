@@ -33,6 +33,28 @@ private final class SSTPTranslationRuntime: GhostShioriRuntime {
     func unload() { isLoaded = false }
 }
 
+private final class SSTPEventCapturingRuntime: GhostShioriRuntime {
+    let kind: ShioriRuntimeKind = .native
+    var isLoaded = true
+    var resourceManager: ResourceManager?
+    var requests: [(method: String, id: String, refs: [String])] = []
+
+    func load(context: ShioriRuntimeLoadContext) -> Bool { true }
+
+    func request(
+        method: String,
+        id: String,
+        headers: [String: String],
+        refs: [String],
+        timeout: TimeInterval
+    ) -> ShioriRuntimeResponse? {
+        requests.append((method, id, refs))
+        return .init(ok: true, status: 204)
+    }
+
+    func unload() { isLoaded = false }
+}
+
 private struct SSTPMultiGhostTestState {
     let application: NSApplication
     let previousDelegate: NSApplicationDelegate?
@@ -979,6 +1001,43 @@ struct SSTPDispatcherTests {
         let fakePolicy = FakeSstpBreakPolicy(busy: true, shouldSucceed: false)
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, breakPolicy: fakePolicy)
         #expect(resp.contains("SSTP/1.4 409 Conflict"))
+    }
+
+    @Test @MainActor
+    func nobreakBreakEventsPreserveScriptScopeAndPositionReferences() {
+        EventBridge.shared.stop()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sstp-break-event-test"))
+        let runtime = SSTPEventCapturingRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        let script = #"\0hello\e"#
+        let request = SSTPRequest(
+            method: "SEND",
+            version: "SSTP/1.4",
+            headers: [
+                "Sender": "UnitTest",
+                "Script": script,
+                "Scope": "1",
+                "BreakPosition": "0",
+                "Option": "nobreak"
+            ]
+        )
+        let response = SSTPDispatcher.dispatch(
+            request: request,
+            bridge: bridge,
+            breakPolicy: FakeSstpBreakPolicy(busy: true, shouldSucceed: false)
+        )
+
+        #expect(response.contains("SSTP/1.4 409 Conflict"))
+        let events = runtime.requests.filter { $0.id == EventID.OnSSTPBreak.rawValue }
+        #expect(events.count == 2)
+        #expect(events.allSatisfy { $0.method == "NOTIFY" })
+        #expect(events.map(\.refs) == [[script, "1", "0"], [script, "1", "0"]])
     }
 
     @Test

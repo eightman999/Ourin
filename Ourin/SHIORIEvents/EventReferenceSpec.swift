@@ -271,7 +271,7 @@ public enum EventReferenceTable {
 
         // MARK: - SSTP
         .init(id: "OnSSTPBlacklisting", references: ["ipAddress", "securityOrigin"], category: "sstp"),
-        .init(id: "OnSSTPBreak", references: ["script", "scope"], category: "sstp"),
+        .init(id: "OnSSTPBreak", references: ["script", "scope", "breakPosition"], category: "sstp"),
         .init(id: "OnCommunicate", references: ["sender", "sentence"], category: "sstp"),
 
         // MARK: - AI トーク

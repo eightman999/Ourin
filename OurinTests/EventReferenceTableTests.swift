@@ -235,6 +235,22 @@ func eventReferenceTablePreservesOtherGhostChangedShellReferences() {
 }
 
 @Test
+func eventReferenceTableSSTPBreakIncludesPosition() {
+    #expect(EventReferenceTable.specs["OnSSTPBreak"]?.references == [
+        "script", "scope", "breakPosition"
+    ])
+    #expect(EventReferenceTable.params(forEvent: "OnSSTPBreak", refs: [
+        "script": "\\0hello\\e",
+        "scope": "1",
+        "breakPosition": "0"
+    ]) == [
+        "Reference0": "\\0hello\\e",
+        "Reference1": "1",
+        "Reference2": "0"
+    ])
+}
+
+@Test
 func eventReferenceTablePreservesSparseGhostReferenceSeven() {
     #expect(EventReferenceTable.params(forEvent: "OnOtherGhostBooted", refs: [
         "ghostName": "target",

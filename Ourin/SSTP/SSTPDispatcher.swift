@@ -221,18 +221,13 @@ public enum SSTPDispatcher {
            breakPolicy.isBusy() {
             // UKADOC SSTP/1.x: nobreak = 「現在実行中のスクリプトを中断せず、終わるまで待つ」。
             // 実行中スクリプトを打ち切らず、busy が解消するまでこの要求を待機させる。
-            EventBridge.shared.notify(.OnSSTPBreak, refs: [
-                "script": request.headerValue("Sender") ?? "ExternalSSTP",
-                "scope": "queued"
-            ])
+            let breakReferences = sstpBreakReferences(for: request)
+            EventBridge.shared.notify(.OnSSTPBreak, refs: breakReferences)
             let didClear = breakPolicy.waitWhileBusy()
             if !didClear {
                 // タイムアウト時だけ409を返す。210 Breakは実行中スクリプトを
                 // 実際に中断した場合の応答なので、ここでは使用しない。
-                EventBridge.shared.notify(.OnSSTPBreak, refs: [
-                    "script": request.headerValue("Sender") ?? "ExternalSSTP",
-                    "scope": "busy"
-                ])
+                EventBridge.shared.notify(.OnSSTPBreak, refs: breakReferences)
                 return buildResponse(
                     version: version,
                     status: 409,
@@ -427,6 +422,17 @@ public enum SSTPDispatcher {
             data: data,
             responseHeaders: responseHeaders
         )
+    }
+
+    private static func sstpBreakReferences(for request: SSTPRequest) -> [String: String] {
+        [
+            // Script は Sender ではなく、SSTP要求が中断対象として扱う本文。
+            "script": request.headerValue("Script") ?? request.headerValue("Reference0") ?? "",
+            // SSTP標準に無い拡張ヘッダが無い場合は本体スコープを既定値にする。
+            "scope": request.headerValue("Scope") ?? request.headerValue("Reference1") ?? "0",
+            // nobreak の待機開始時点では本文はまだ再生されていないため位置は0。
+            "breakPosition": request.headerValue("BreakPosition") ?? request.headerValue("Reference2") ?? "0"
+        ]
     }
 
     private static func handleNotify(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool, host: SstpDispatcherHost, bridge: ShioriBridge, routingRegistry: SstpRoutingRegistry, breakPolicy: SstpBreakPolicy = LiveSstpBreakPolicy.live) -> String {
