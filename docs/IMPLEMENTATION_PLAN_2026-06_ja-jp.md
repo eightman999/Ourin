@@ -139,7 +139,7 @@
 ### P2-7. SERIKO `collisionex` 形状・`seriko.use_self_alpha`・balloon margin 適用
 - `collisionex` の ellipse/region 未対応、polygon/circle は bounding-box 近似。`Ourin/Animation/AnimationEngine.swift:239-289`
 - `seriko.use_self_alpha`（PNA 無しの自己アルファ PNG）未対応。参照なし。
-- balloon `marginx`/`marginy`/`wordwrappointright` がパースのみで `BalloonView` 未使用（dead）。`Ourin/Ghost/BalloonConfig.swift:174-176`
+- balloon `validrect` の上下端・`origin`・`wordwrappoint.x`・`marginx`/`marginy`/`wordwrappointright` を `BalloonView.textLayoutRect` へ接続済み（2026-08-13）。負座標と右寄せ折返しの回帰テストを追加。残りは実ゴースト／実バルーンでの目視差分検証。
 
 ---
 

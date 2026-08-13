@@ -33,7 +33,7 @@
 | YAYA VM | for/foreach・break/continue・++/--・Real type・&・SPRINTF・%()・UTF-8 strings | SAVEVAR/RESTOREVAR, SETDELIM/GETDELIM | FUNCTIONEX, GETTYPE(Real), FENUM absolute path | READFMO, TOAUTO, HMC, etc. |
 | SSTP/FMO | 9821 port, FMO standard fields | Production path body discard | Owned-SSTP bypass, COMMUNICATE Surface header | — |
 | SHIORI Events | Mouse series, time series, OnFileDrop2 firing, Update series | OnChoiceEnter/Select Ref error | Balloon series/Ghost series Ref, OnKeyPress, OnWindowState* | OnTranslate, etc. |
-| Property/SERIKO | system.monitor/disk/theme/power/network, os.*, element composition, alias/surfacetable/append | animation.num SET, surface.num SET, periodic interval | interpolate/insert/alt series, collisionex, use_self_alpha, balloon margin apply | locale subdivision, etc. |
+| Property/SERIKO | system.monitor/disk/theme/power/network, os.*, element composition, alias/surfacetable/append | animation.num SET, surface.num SET, periodic interval | interpolate/insert/alt series, collisionex, use_self_alpha | locale subdivision, etc. |
 | SakuraScript | http/rss, archive, scaling, alpha, bind, reload series | WebSocket full set | effect/filter render, zorder/sticky force, selectmode rectangle | balloonnum meaning, doc sync |
 
 **Overall policy**: "Form (vocabulary compatibility)" nearly complete. Remaining is **(a) existing implementation Reference/argument detail bugs**, **(b) lack of real ghost persistence/deferred fire/property write**, **(c) rendering system implementation (effect/SERIKO interpolation)**—3 streams. Prioritize (a)(b).
@@ -112,6 +112,8 @@ SAORI/SHIORI(DylibBackend)/Headline/Plugin each loader prefers `loadu` (UTF-8 pa
 **Status**: Partially implemented 2026-06-15.
 
 Generic `ImageLoader.load` PNA (separate alpha file) composition added (`CIBlendWithMask`). `BalloonView` outline changed from single blur to 8-direction offset shadow (true outline). Remaining: Retina(@2x) asset selection.
+
+Balloon `validrect` vertical edges, `origin`, `wordwrappoint.x`, `marginx`/`marginy`, and `wordwrappointright` are wired into `BalloonView.textLayoutRect` (2026-08-13). Regression tests cover negative coordinates and right-aligned wrapping. Remaining: visual diff verification with real ghosts and balloon sets.
 
 ### P1-7. Plugin `OnChoiceSelect(Ex)/OnAnchorSelect(Ex)` Wiring
 

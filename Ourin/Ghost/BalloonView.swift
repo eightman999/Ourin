@@ -30,20 +30,97 @@ struct BalloonView: View {
         if let img = image, img.size.width > 1, img.size.height > 1 {
             return img.size
         }
-        if let c = config, c.maxWidth > 0, c.maxHeight > 0 {
-            return CGSize(width: CGFloat(c.maxWidth), height: CGFloat(c.maxHeight))
+        if let c = config {
+            let width = c.maxWidth > 0 ? CGFloat(c.maxWidth) : fallbackBalloonSize.width
+            let height = c.maxHeight > 0 ? CGFloat(c.maxHeight) : fallbackBalloonSize.height
+            if width > 1, height > 1 {
+                return CGSize(width: width, height: height)
+            }
         }
         return fallbackBalloonSize
     }
 
-    /// テキスト領域幅 = validrect（負値は右端からのオフセット）から算出。無ければ origin マージンを控除。
-    private func textWidth(for size: CGSize) -> CGFloat {
-        if let c = config, c.validRectRight != 0 || c.validRectLeft != 0 {
-            let rightEdge = c.validRectRight > 0 ? c.validRectRight : Int(size.width) + c.validRectRight
-            let w = rightEdge - c.validRectLeft
-            if w > 0 { return CGFloat(w) }
+    /// descript.txt の座標指定を、バルーン画像左上原点の矩形へ解決する。
+    /// UKADOC では *1 付き座標の負値を画像の右端／下端からの相対値として扱う。
+    private static func relativeCoordinate(_ value: Int, extent: CGFloat) -> CGFloat {
+        let coordinate = CGFloat(value)
+        return coordinate < 0 ? extent + coordinate : coordinate
+    }
+
+    /// 描画範囲の右端／下端。`0` は既定値として画像端を意味する。
+    private static func boundaryCoordinate(_ value: Int, extent: CGFloat) -> CGFloat {
+        value == 0 ? extent : relativeCoordinate(value, extent: extent)
+    }
+
+    /// descript.txt の origin / validrect / wordwrappoint / margin を合成した文字領域。
+    /// `wordwrappointright` は右寄せ時の折返し位置として使用する SSP 拡張値。
+    static func textLayoutRect(
+        for config: BalloonConfig?,
+        size: CGSize,
+        alignment: BalloonViewModel.BalloonTextAlign = .left
+    ) -> CGRect {
+        guard let config else {
+            // 設定が無い Preview / フォールバック表示は従来の既定レイアウトを維持する。
+            let originX: CGFloat = 20
+            let originY: CGFloat = 10
+            return CGRect(
+                x: originX,
+                y: originY,
+                width: max(0, size.width - originX * 2),
+                height: max(0, size.height - originY)
+            )
         }
-        return size.width - CGFloat((config?.originX ?? 20) * 2)
+
+        let width = max(0, size.width)
+        let height = max(0, size.height)
+        let validLeft = min(
+            width,
+            max(0, relativeCoordinate(config.validRectLeft, extent: width))
+        )
+        let validTop = min(
+            height,
+            max(0, relativeCoordinate(config.validRectTop, extent: height))
+        )
+        let validRight = min(
+            width,
+            max(validLeft, boundaryCoordinate(config.validRectRight, extent: width))
+        )
+        let validBottom = min(
+            height,
+            max(validTop, boundaryCoordinate(config.validRectBottom, extent: height))
+        )
+
+        let originX = min(
+            validRight,
+            max(validLeft, relativeCoordinate(config.originX, extent: width))
+        )
+        let originY = min(
+            validBottom,
+            max(validTop, relativeCoordinate(config.originY, extent: height))
+        )
+
+        let configuredWrapPoint: Int
+        switch alignment {
+        case .right where config.wordwrapPointRight != 0:
+            configuredWrapPoint = config.wordwrapPointRight
+        default:
+            configuredWrapPoint = config.wordwrapPointX
+        }
+        let wrapX = configuredWrapPoint == 0
+            ? validRight
+            : min(
+                validRight,
+                max(validLeft, relativeCoordinate(configuredWrapPoint, extent: width))
+            )
+
+        let marginX = CGFloat(config.marginX)
+        let marginY = CGFloat(config.marginY)
+        let left = min(validRight, max(validLeft, originX + marginX))
+        let top = min(validBottom, max(validTop, originY + marginY))
+        let right = max(left, min(validRight, wrapX - marginX))
+        let bottom = max(top, min(validBottom, validBottom - marginY))
+
+        return CGRect(x: left, y: top, width: right - left, height: bottom - top)
     }
 
     var body: some View {
@@ -114,19 +191,24 @@ struct BalloonView: View {
                 }
 
                 if !viewModel.text.isEmpty {
+                    let textLayout = Self.textLayoutRect(
+                        for: config,
+                        size: size,
+                        alignment: viewModel.textAlign
+                    )
                     // Text overlay with proper positioning
                     decoratedText(for: viewModel, surfaceImage: bImage, surfaceSize: size)
                         .lineLimit(nil)
                         .multilineTextAlignment(textAlignment(for: viewModel.textAlign))
                         .frame(
-                            width: textWidth(for: size),
-                            height: nil,
+                            width: textLayout.width,
+                            height: textLayout.height,
                             alignment: textFrameAlignment(for: viewModel.textVAlign)
                         )
                         .padding(
                             EdgeInsets(
-                                top: CGFloat(config?.originY ?? 10) + viewModel.cursorY + viewModel.balloonOffsetY,
-                                leading: CGFloat(config?.originX ?? 20) + viewModel.cursorX + viewModel.balloonOffsetX,
+                                top: textLayout.minY + viewModel.cursorY + viewModel.balloonOffsetY,
+                                leading: textLayout.minX + viewModel.cursorX + viewModel.balloonOffsetX,
                                 bottom: 0,
                                 trailing: 0
                             )

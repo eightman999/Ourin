@@ -145,6 +145,68 @@ struct BalloonScalingLayoutTests {
     }
 }
 
+struct BalloonTextLayoutTests {
+    @Test func descriptorCoordinatesAndMarginsDefineTextRegion() throws {
+        let path = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("emily4/balloon/descript.txt")
+            .path
+        guard let config = BalloonConfig.load(from: path) else {
+            Issue.record("Emily balloon descript.txt could not be loaded")
+            return
+        }
+
+        let rect = BalloonView.textLayoutRect(
+            for: config,
+            size: CGSize(width: 400, height: 150)
+        )
+
+        // origin=(20,10), wordwrappoint.x=-34 => x=366, validrect.bottom=-10 => y=140.
+        #expect(rect == CGRect(x: 20, y: 10, width: 346, height: 130))
+    }
+
+    @Test func rightAlignmentUsesRightWordWrapAndMargins() throws {
+        let directory = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("ourin-balloon-layout-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let descriptor = """
+        charset,UTF-8
+        name,layout-test
+        origin.x,10
+        origin.y,8
+        validrect.left,4
+        validrect.top,6
+        validrect.right,-12
+        validrect.bottom,-14
+        wordwrappoint.x,-30
+        wordwrappointright,-20
+        marginx,5
+        marginy,3
+        """
+        try descriptor.write(
+            to: directory.appendingPathComponent("descript.txt"),
+            atomically: true,
+            encoding: .utf8
+        )
+        guard let config = BalloonConfig.load(from: directory.appendingPathComponent("descript.txt").path) else {
+            Issue.record("Temporary balloon descript.txt could not be loaded")
+            return
+        }
+
+        let rect = BalloonView.textLayoutRect(
+            for: config,
+            size: CGSize(width: 400, height: 150),
+            alignment: .right
+        )
+
+        // right wrap=-20 => x=380; origin + margin=(15,11); right margin=5.
+        #expect(rect == CGRect(x: 15, y: 11, width: 360, height: 122))
+    }
+}
+
 struct SakuraScriptSystemCommandTests {
     @MainActor
     @Test func syncObjectSetAndResetCommands() {
