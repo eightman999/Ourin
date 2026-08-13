@@ -20,6 +20,13 @@ final class SpeechObserver {
     private var recognitionStarting = false
     private var nextRecognitionAttempt = Date.distantPast
     private var lastRecognizedTranscript = ""
+    // AVAudioEngine の入力ノード取得は CoreAudio の応答待ちでブロックすることがある。
+    // EventBridge の開始やメインスレッド上のイベント配送を止めないため、認識開始だけを
+    // 専用の直列キューで実行する。
+    private let recognitionQueue = DispatchQueue(
+        label: "jp.ourin.speech-recognition",
+        qos: .utility
+    )
 
     func start(_ handler: @escaping (ShioriEvent) -> Void) {
         stop()
@@ -152,48 +159,72 @@ final class SpeechObserver {
         recognitionStarting = true
         lastRecognizedTranscript = ""
 
-        let request = SFSpeechAudioBufferRecognitionRequest()
-        request.shouldReportPartialResults = true
-        let engine = AVAudioEngine()
-        let inputNode = engine.inputNode
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        guard recordingFormat.sampleRate > 0, recordingFormat.channelCount > 0 else {
-            recognitionStarting = false
-            nextRecognitionAttempt = Date().addingTimeInterval(2)
-            return
-        }
-
-        inputNode.removeTap(onBus: 0)
-        inputNode.installTap(onBus: 0, bufferSize: 1_024, format: recordingFormat) { buffer, _ in
-            request.append(buffer)
-        }
-
         let sessionID = UUID()
         recognitionSessionID = sessionID
-        recognitionRequest = request
-        audioEngine = engine
-        recognitionTask = recognizer.recognitionTask(with: request) { [weak self] result, error in
-            DispatchQueue.main.async {
-                guard let self, self.recognitionSessionID == sessionID else { return }
-                if let result {
-                    self.consume(result)
+
+        recognitionQueue.async { [weak self] in
+            let request = SFSpeechAudioBufferRecognitionRequest()
+            request.shouldReportPartialResults = true
+            let engine = AVAudioEngine()
+            let inputNode = engine.inputNode
+            let recordingFormat = inputNode.outputFormat(forBus: 0)
+            guard recordingFormat.sampleRate > 0, recordingFormat.channelCount > 0 else {
+                DispatchQueue.main.async {
+                    guard let self, self.recognitionSessionID == sessionID else { return }
+                    self.recognitionStarting = false
+                    self.nextRecognitionAttempt = Date().addingTimeInterval(2)
                 }
-                if error != nil || result?.isFinal == true {
-                    self.stopRecognition()
-                    self.nextRecognitionAttempt = Date().addingTimeInterval(1)
+                return
+            }
+
+            inputNode.removeTap(onBus: 0)
+            inputNode.installTap(onBus: 0, bufferSize: 1_024, format: recordingFormat) { buffer, _ in
+                request.append(buffer)
+            }
+
+            let task = recognizer.recognitionTask(with: request) { [weak self] result, error in
+                DispatchQueue.main.async {
+                    guard let self, self.recognitionSessionID == sessionID else { return }
+                    if let result {
+                        self.consume(result)
+                    }
+                    if error != nil || result?.isFinal == true {
+                        self.stopRecognition()
+                        self.nextRecognitionAttempt = Date().addingTimeInterval(1)
+                    }
                 }
             }
-        }
 
-        engine.prepare()
-        do {
-            try engine.start()
-            recognitionStarting = false
-        } catch {
-            Log.info("[SpeechObserver] Failed to start microphone recognition: \(error)")
-            recognitionStarting = false
-            stopRecognition()
-            nextRecognitionAttempt = Date().addingTimeInterval(2)
+            engine.prepare()
+            do {
+                try engine.start()
+            } catch {
+                task.cancel()
+                engine.stop()
+                inputNode.removeTap(onBus: 0)
+                DispatchQueue.main.async {
+                    guard let self, self.recognitionSessionID == sessionID else { return }
+                    Log.info("[SpeechObserver] Failed to start microphone recognition: \(error)")
+                    self.recognitionStarting = false
+                    self.nextRecognitionAttempt = Date().addingTimeInterval(2)
+                }
+                return
+            }
+
+            DispatchQueue.main.async {
+                guard let self,
+                      self.handler != nil,
+                      self.recognitionSessionID == sessionID else {
+                    task.cancel()
+                    engine.stop()
+                    inputNode.removeTap(onBus: 0)
+                    return
+                }
+                self.recognitionRequest = request
+                self.audioEngine = engine
+                self.recognitionTask = task
+                self.recognitionStarting = false
+            }
         }
     }
 
