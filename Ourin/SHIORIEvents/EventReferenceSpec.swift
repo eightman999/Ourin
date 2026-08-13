@@ -378,6 +378,7 @@ public enum EventReferenceTable {
         .init(id: "OnUpdateOtherComplete", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
         .init(id: "OnUpdateOtherFailure", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
         .init(id: "OnUpdateOtherReady", references: ["fileIndex", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateProcessExec", references: ["executionReason"], category: "update"),
         .init(id: "OnUpdateReady", references: ["fileIndex", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
         .init(id: "OnUpdatedataCreated", references: ["path"], category: "update"),
         .init(id: "OnUpdatedataCreating", references: ["filePath"], category: "update"),

@@ -546,6 +546,53 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func menuUpdateLetsGhostCustomizeStandardUpdate() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-menu-update-custom-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnUpdateProcessExec.rawValue] = #"\0custom update\e"#
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.handleMenuAction("menu_update")
+
+        #expect(runtime.requests.count == 1)
+        #expect(runtime.requests[0].method == "GET")
+        #expect(runtime.requests[0].id == EventID.OnUpdateProcessExec.rawValue)
+        #expect(runtime.requests[0].refs == ["manual"])
+    }
+
+    @Test @MainActor
+    func menuUpdateFallsBackToStandardUpdateOnEmptyResponse() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-menu-update-fallback-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.handleMenuAction("menu_update")
+        for _ in 0..<100 where runtime.requests.contains(where: { $0.id == EventID.OnUpdateBegin.rawValue }) == false {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        #expect(runtime.requests.first?.id == EventID.OnUpdateProcessExec.rawValue)
+        #expect(runtime.requests.first?.method == "GET")
+        #expect(runtime.requests.first?.refs == ["manual"])
+        #expect(runtime.requests.contains { $0.id == EventID.OnUpdateBegin.rawValue })
+        #expect(runtime.requests.contains { $0.id == EventID.OnUpdateFailure.rawValue })
+    }
+
+    @Test @MainActor
     func archiveCommandsDispatchStandardReferencesAndCustomEvent() async throws {
         EventBridge.shared.stop()
 

@@ -5088,6 +5088,21 @@ extension GhostManager {
 
     /// ネットワーク更新を確認
     private func checkNetworkUpdate() {
+        // UKADOC: メニューからの更新指示は、応答スクリプトで標準更新を
+        // カスタマイズできる。204（空応答）の場合だけ標準処理へ進む。
+        let params = EventReferenceTable.params(
+            forEvent: EventID.OnUpdateProcessExec.rawValue,
+            refs: ["executionReason": "manual"]
+        )
+        if EventBridge.shared.requestScript(
+            .OnUpdateProcessExec,
+            params: params,
+            to: self
+        ) != nil {
+            Log.debug("[GhostManager] OnUpdateProcessExec returned a script; standard update is deferred to the ghost")
+            return
+        }
+
         // メニュー操作でも更新検査本体を通し、候補検出・適用・失敗理由まで同じイベント列を発火する。
         checkGhostUpdate(options: ["--reason=manual"])
     }

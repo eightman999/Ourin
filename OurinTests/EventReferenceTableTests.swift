@@ -283,6 +283,7 @@ func eventReferenceTableMigrationAddedEvents() {
     #expect(EventReferenceTable.specs["OnUpdateComplete"]?.references == [
         "reason", "fileList", "unused2", "targetType", "executionReason"
     ])
+    #expect(EventReferenceTable.specs["OnUpdateProcessExec"]?.references == ["executionReason"])
     #expect(EventReferenceTable.specs["OnUpdate.OnDownloadBegin"]?.references == [
         "filename", "fileIndex", "fileCountMinusOne", "targetType", "executionReason"
     ])
