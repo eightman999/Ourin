@@ -60,9 +60,14 @@ public enum EventReferenceTable {
         .init(id: "OnClose", references: ["closeReason"], category: "lifecycle"),
         .init(id: "OnCloseAll", references: ["closeReason", "menuScope", "windowScope"], category: "lifecycle"),
         .init(id: "OnVanishing", references: [], category: "lifecycle"),
-        .init(id: "OnVanished", references: [], category: "lifecycle"),
+        // UKADOC: R0=消滅したゴースト本体名, R1=OnVanishSelected応答,
+        // R2=消滅したゴースト名, R7=切替先シェル名。R3..R6 は予約領域。
+        .init(id: "OnVanished", references: [
+            "ghostName", "vanishSelectedScript", "vanishedGhostName",
+            "unused3", "unused4", "unused5", "unused6", "shellName"
+        ], category: "lifecycle"),
         .init(id: "OnVanishSelecting", references: [], category: "lifecycle"),
-        .init(id: "OnVanishSelected", references: ["ghostName"], category: "lifecycle"),
+        .init(id: "OnVanishSelected", references: [], category: "lifecycle"),
 
         // MARK: - ゴースト切替
         .init(id: "OnGhostChanging", references: ["nextGhostName", "changeMode", "nextGhostNameSSP", "nextGhostPath"], category: "ghost"),
@@ -78,7 +83,12 @@ public enum EventReferenceTable {
             "unused6", "unused7", "unused8", "unused9", "unused10", "unused11", "unused12", "unused13",
             "prevShellName", "nextShellName"
         ], category: "ghost"),
-        .init(id: "OnOtherGhostClosed", references: ["ghostName"], category: "ghost"),
+        // UKADOC: R0=終了したゴースト本体名, R1=最後のスクリプト,
+        // R2=終了したゴースト名, R7=終了したゴーストのシェル名。R3..R6 は予約領域。
+        .init(id: "OnOtherGhostClosed", references: [
+            "ghostName", "lastScript", "closedGhostName",
+            "unused3", "unused4", "unused5", "unused6", "shellName"
+        ], category: "ghost"),
 
         // MARK: - 見切れ / 重なり（UKADOC: Reference0=現在状態, Reference1=直前状態, 区切りはバイト値1）
         .init(id: "OnOffscreen", references: ["current", "previous"], category: "shell"),
@@ -363,7 +373,12 @@ public enum EventReferenceTable {
         .init(id: "OnNameChanged", references: ["userName"], category: "ghost"),
         .init(id: "OnNoUserBreakModeBegin", references: [], category: "ui"),
         .init(id: "OnNoUserBreakModeEnd", references: [], category: "ui"),
-        .init(id: "OnOtherGhostVanished", references: ["ghostName"], category: "ghost"),
+        // UKADOC: R0=消滅したゴースト本体名, R1=OnVanishSelected応答,
+        // R2=消滅したゴースト名, R7=切替先ゴーストのシェル名。R3..R6 は予約領域。
+        .init(id: "OnOtherGhostVanished", references: [
+            "ghostName", "vanishSelectedScript", "vanishedGhostName",
+            "unused3", "unused4", "unused5", "unused6", "shellName"
+        ], category: "ghost"),
         .init(id: "OnReadmeOpenFailure", references: ["type", "name", "path"], category: "system"),
         .init(id: "OnRecycleBinEmpty", references: ["count", "size", "countDelta", "sizeDelta", "success", "ghostName"], category: "system"),
         .init(id: "OnRecycleBinEmptyFromOther", references: ["count", "size", "countDelta", "sizeDelta", "success", "ghostName"], category: "system"),
@@ -403,7 +418,8 @@ public enum EventReferenceTable {
         .init(id: "OnUpdateReady", references: ["fileIndex", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
         .init(id: "OnUpdatedataCreated", references: ["path"], category: "update"),
         .init(id: "OnUpdatedataCreating", references: ["filePath"], category: "update"),
-        .init(id: "OnVanishButtonHold", references: [], category: "lifecycle"),
+        // UKADOC: R0=中断されたスクリプト, R1=スコープ番号, R2=中断位置。
+        .init(id: "OnVanishButtonHold", references: ["displayedScript", "scope", "breakPosition"], category: "lifecycle"),
         .init(id: "OnVanishCancel", references: [], category: "lifecycle"),
         .init(id: "OnVanishFailure", references: ["ghostName", "reason"], category: "ghost"),
         .init(id: "OnWallpaperChanged", references: ["filename"], category: "system"),

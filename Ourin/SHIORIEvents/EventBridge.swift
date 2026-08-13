@@ -413,18 +413,22 @@ final class EventBridge {
 
     /// 指定ゴーストへの GET の応答スクリプトを返しつつ再生する。
     /// 切替イベントの Reference1 のように、後続イベントへ応答本文を引き渡す必要がある
-    /// ライフサイクル処理で使用する。
+    /// ライフサイクル処理で使用する。`playResponse` を false にすると、応答本文を
+    /// 後続イベントへ渡すだけで、対象ゴーストの現在の再生を中断しない。
     @discardableResult
     func requestScript(_ id: EventID,
                        params: [String:String] = [:],
                        to target: GhostManager,
+                       playResponse: Bool = true,
                        security: ShioriSecurityContext = .local) -> String? {
         let send: () -> String? = {
             guard let session = self.session(for: target) else { return nil }
             let script = session.dispatcher.sendGet(id: id, params: params, security: security)
             let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmed.isEmpty else { return nil }
-            target.runScript(trimmed, translationContext: Self.translationContext(eventID: id.rawValue, params: params))
+            if playResponse {
+                target.runScript(trimmed, translationContext: Self.translationContext(eventID: id.rawValue, params: params))
+            }
             return trimmed
         }
         if Thread.isMainThread {

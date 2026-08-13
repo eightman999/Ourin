@@ -689,7 +689,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         fmo.writeSnapshot(records: records)
     }
 
-    func runGhost(at root: URL) {
+    func runGhost(at root: URL, bootRequest: GhostBootRequest? = nil) {
         NSLog("[runGhost] Starting ghost from: \(root.path)")
         // If a ghost is already running, shut it down first.
         if let existingManager = self.ghostManager {
@@ -705,7 +705,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let newManager = GhostManager(ghostURL: root)
         self.ghostManager = newManager
         NSLog("[runGhost] Starting GhostManager")
-        newManager.start { [weak self] _, result in
+        newManager.start(bootRequest: bootRequest) { [weak self] _, result in
             guard result.succeeded,
                   let self,
                   let version = self.pendingBasewareUpdateVersion else { return }

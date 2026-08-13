@@ -3854,10 +3854,15 @@ extension GhostManager: NSWindowDelegate {
     /// ランタイムも確実に解放する。
     func executeVanish(uninstall: Bool = false, nextGhostName: String? = nil, query: Bool = false) {
         let operation = {
-            let currentName = self.ghostConfig?.name ?? self.ghostURL.lastPathComponent
+            let currentInfo = self.currentGhostEventInfo
+            let currentName = currentInfo.ghostName
+
+            // 消滅イベントは UKADOC 上 GET。OnVanishSelecting/Cancel の返答は
+            // 現在のゴーストで再生し、OnVanishSelected の返答だけは後続の
+            // OnVanished/OnOtherGhostVanished Reference1 に引き渡す。
+            _ = EventBridge.shared.requestScript(.OnVanishSelecting, to: self)
 
             if query {
-                EventBridge.shared.notify(.OnVanishSelecting, params: [:])
                 let alert = NSAlert()
                 alert.messageText = "ゴーストの消滅"
                 alert.informativeText = "「\(currentName)」を消滅させますか？\nこの操作は取り消せません。"
@@ -3865,18 +3870,22 @@ extension GhostManager: NSWindowDelegate {
                 alert.addButton(withTitle: "消滅")
                 alert.addButton(withTitle: "キャンセル")
                 guard alert.runModal() == .alertFirstButtonReturn else {
-                    EventBridge.shared.notify(.OnVanishCancel, params: [:])
+                    _ = EventBridge.shared.requestScript(.OnVanishCancel, to: self)
                     return
                 }
-            } else {
-                // 互換性のため、確認なしの vanish でも選択イベントを発火する。
-                EventBridge.shared.notify(.OnVanishSelecting, params: [:])
             }
 
             guard uninstall else {
                 self.closeVanishWindowsOnly(currentName: currentName)
                 return
             }
+
+            let vanishSelectedScript = EventBridge.shared.requestScript(
+                .OnVanishSelected,
+                to: self,
+                playResponse: false
+            ) ?? ""
+            EventBridge.shared.notify(.OnVanishing, params: [:])
 
             let targetItem = self.vanishTargetItem(preferredName: nextGhostName)
             do {
@@ -3895,20 +3904,46 @@ extension GhostManager: NSWindowDelegate {
                 return
             }
 
-            EventBridge.shared.notify(.OnVanishSelected, refs: ["ghostName": currentName])
-            EventBridge.shared.notify(.OnVanishing, params: [:])
-
             // OnFirstBoot の Reference0（vanish された回数）用に記録する。
             let defaults = UserDefaults.standard
             defaults.set(defaults.integer(forKey: "OurinVanishCount") + 1, forKey: "OurinVanishCount")
             // 次に起動するゴーストを初回扱い（OnFirstBoot）にする。
             defaults.set(0, forKey: "OurinBootCount")
 
-            if let runtime = self.shioriRuntime {
-                _ = runtime.request(method: "GET", id: "OnVanished", timeout: 4.0)
-            }
-            EventBridge.shared.notify(.OnOtherGhostClosed, refs: ["ghostName": currentName])
-            EventBridge.shared.notify(.OnOtherGhostVanished, refs: ["ghostName": currentName])
+            // 同時起動中の他ゴーストへは、消滅元を除外した GET を送る。
+            // R1/R7 を欠落させないよう、最後のスクリプトと消滅元シェルも渡す。
+            let targetShellName = targetItem.map {
+                self.ghostEventInfo(named: $0.name).shellName
+            } ?? ""
+            let otherClosedParams = EventReferenceTable.params(
+                forEvent: EventID.OnOtherGhostClosed.rawValue,
+                refs: [
+                    "ghostName": currentInfo.mainName,
+                    "lastScript": self.choiceSourceScript,
+                    "closedGhostName": currentInfo.ghostName,
+                    "shellName": currentInfo.shellName
+                ]
+            )
+            _ = EventBridge.shared.request(
+                .OnOtherGhostClosed,
+                params: otherClosedParams,
+                excluding: [self]
+            )
+
+            let otherVanishedParams = EventReferenceTable.params(
+                forEvent: EventID.OnOtherGhostVanished.rawValue,
+                refs: [
+                    "ghostName": currentInfo.mainName,
+                    "vanishSelectedScript": vanishSelectedScript,
+                    "vanishedGhostName": currentInfo.ghostName,
+                    "shellName": targetShellName
+                ]
+            )
+            _ = EventBridge.shared.request(
+                .OnOtherGhostVanished,
+                params: otherVanishedParams,
+                excluding: [self]
+            )
 
             let appDelegate = NSApp.delegate as? AppDelegate
             let isPrimary = appDelegate?.ghostManager === self
@@ -3920,7 +3955,16 @@ extension GhostManager: NSWindowDelegate {
                 if isPrimary {
                     _ = self.shutdown()
                     if let targetItem {
-                        appDelegate.runGhost(at: targetItem.path)
+                        let vanishedBootRequest = GhostBootRequest(
+                            eventID: .OnVanished,
+                            references: [
+                                currentInfo.mainName,
+                                vanishSelectedScript,
+                                currentInfo.ghostName,
+                                "", "", "", "", ""
+                            ]
+                        )
+                        appDelegate.runGhost(at: targetItem.path, bootRequest: vanishedBootRequest)
                     }
                 } else {
                     appDelegate.terminateAdditionalGhost(self)

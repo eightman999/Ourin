@@ -56,6 +56,45 @@ func eventReferenceTableCoversMajorLifecycleEvents() {
 }
 
 @Test
+func eventReferenceTableVanishLifecycleReferencesMatchUkadoc() {
+    #expect(EventReferenceTable.specs["OnVanishSelecting"]?.references == [])
+    #expect(EventReferenceTable.specs["OnVanishSelected"]?.references == [])
+    #expect(EventReferenceTable.specs["OnVanishCancel"]?.references == [])
+    #expect(EventReferenceTable.specs["OnVanishButtonHold"]?.references == [
+        "displayedScript", "scope", "breakPosition"
+    ])
+    #expect(EventReferenceTable.specs["OnVanished"]?.references == [
+        "ghostName", "vanishSelectedScript", "vanishedGhostName",
+        "unused3", "unused4", "unused5", "unused6", "shellName"
+    ])
+    #expect(EventReferenceTable.specs["OnOtherGhostClosed"]?.references == [
+        "ghostName", "lastScript", "closedGhostName",
+        "unused3", "unused4", "unused5", "unused6", "shellName"
+    ])
+    #expect(EventReferenceTable.specs["OnOtherGhostVanished"]?.references == [
+        "ghostName", "vanishSelectedScript", "vanishedGhostName",
+        "unused3", "unused4", "unused5", "unused6", "shellName"
+    ])
+}
+
+@Test
+func eventReferenceTableVanishLifecyclePreservesSparseReferenceSeven() {
+    let params = EventReferenceTable.params(forEvent: "OnVanished", refs: [
+        "ghostName": "Sakura",
+        "vanishSelectedScript": #"\0goodbye\e"#,
+        "vanishedGhostName": "Emily",
+        "shellName": "master"
+    ])
+
+    #expect(params == [
+        "Reference0": "Sakura",
+        "Reference1": #"\0goodbye\e"#,
+        "Reference2": "Emily",
+        "Reference7": "master"
+    ])
+}
+
+@Test
 func eventReferenceTableBalloonTimeoutReferencesMatchUkadoc() {
     #expect(EventReferenceTable.specs["OnBalloonTimeout"]?.references == [
         "displayedScript", "remainingTime"

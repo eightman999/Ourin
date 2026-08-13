@@ -5082,7 +5082,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             }
         }
 
-        if bootCount == 0 {
+        // A lifecycle request (OnGhostCalled/OnGhostChanged/OnVanished) already
+        // describes why this ghost is being started.  If it returns 204, UKADOC
+        // falls back to OnBoot; OnFirstBoot is only for an ordinary first start.
+        if bootCount == 0, initialRequest == nil {
             // UKADOC: OnFirstBoot Reference0 = vanish された回数（通常 0）
             let vanishCount = UserDefaults.standard.integer(forKey: "OurinVanishCount")
             if let r = runtime.request(method: "GET", id: "OnFirstBoot", headers: hdrs, refs: [String(vanishCount)], timeout: 4.0), r.ok {

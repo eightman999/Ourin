@@ -464,6 +464,34 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func lifecycleResponseCanBeForwardedWithoutReplacingCurrentPlayback() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-vanish-response-forward-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnVanishSelected.rawValue] = #"\0selected\e"#
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        let response = EventBridge.shared.requestScript(
+            .OnVanishSelected,
+            to: manager,
+            playResponse: false
+        )
+
+        #expect(response == #"\0selected\e"#)
+        #expect(runtime.requests.last?.method == "GET")
+        #expect(runtime.requests.last?.id == EventID.OnVanishSelected.rawValue)
+        #expect(runtime.requests.last?.refs.isEmpty == true)
+        #expect(manager.isPlaying == false)
+    }
+
+    @Test @MainActor
     func otherGhostLifecycleGETExcludesSourceAndTarget() {
         EventBridge.shared.stop()
 
