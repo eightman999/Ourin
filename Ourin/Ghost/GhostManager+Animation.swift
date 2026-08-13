@@ -800,6 +800,11 @@ extension GhostManager {
     }
 
     private func handleSerikoMethod(animationID: Int, method: SerikoMethod, surfaceID: Int, x: Int, y: Int) {
+        let isBackgroundAnimation = serikoExecutor.definition(for: animationID)?.options.contains {
+            $0.caseInsensitiveCompare("background") == .orderedSame
+        } == true
+        let overlayZOrder = isBackgroundAnimation ? -100 : nil
+
         switch method {
         case .overlay, .overlayFast, .interpolate, .asis, .blend, .add, .bind, .auto:
             var offset: CGPoint? = CGPoint(x: CGFloat(x), y: CGFloat(y))
@@ -847,7 +852,8 @@ extension GhostManager {
                 type: method == .bind ? .bind : .overlay,
                 animationID: animationID,
                 initialOffset: offset,
-                blendMode: blendMode
+                blendMode: blendMode,
+                zOrder: overlayZOrder
             )
         case .scaling:
             // 小数を含む倍率は onScalingInvoked で先に適用する。
@@ -862,14 +868,16 @@ extension GhostManager {
                 type: .overlay,
                 animationID: animationID,
                 initialOffset: CGPoint(x: CGFloat(x), y: CGFloat(y)),
-                blendMode: .reduce
+                blendMode: .reduce,
+                zOrder: overlayZOrder
             )
         case .replace:
             handleSurfaceOverlay(
                 surfaceID: surfaceID,
                 type: .replace,
                 animationID: animationID,
-                initialOffset: CGPoint(x: CGFloat(x), y: CGFloat(y))
+                initialOffset: CGPoint(x: CGFloat(x), y: CGFloat(y)),
+                zOrder: overlayZOrder
             )
         case .start:
             if serikoExecutor.executeAnimation(id: surfaceID) {

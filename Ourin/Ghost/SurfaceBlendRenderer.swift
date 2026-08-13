@@ -17,13 +17,27 @@ enum SurfaceBlendMode: Equatable {
 /// unpremultiplied RGBA layout with rows ordered from the top of the image.
 enum SurfaceBlendRenderer {
     static func composite(base: NSImage?, overlays: [SurfaceOverlay]) -> NSImage? {
-        let ordered = SurfaceOverlay.sortedForDisplay(overlays)
-        let canvasSize = canvasSize(base: base, overlays: ordered)
+        // Treat the base as an ordinary layer so `background` animations can
+        // be placed before it. A synthetic insertion order keeps the base
+        // before ordinary zOrder=0 overlays while preserving all existing
+        // overlay ordering rules.
+        var layers = overlays
+        if let base {
+            layers.append(SurfaceOverlay(
+                id: "__base_surface__",
+                image: base,
+                zOrder: 0,
+                insertionOrder: Int.min,
+                blendMode: .normal
+            ))
+        }
+        let ordered = SurfaceOverlay.sortedForDisplay(layers)
+        let canvasSize = canvasSize(base: nil, overlays: ordered)
         let width = Int(canvasSize.width.rounded(.up))
         let height = Int(canvasSize.height.rounded(.up))
         guard width > 0, height > 0 else { return nil }
 
-        var destination = imagePixels(base, size: CGSize(width: width, height: height))
+        var destination = imagePixels(nil, size: CGSize(width: width, height: height))
         for overlay in ordered where overlay.image.isValid {
             let sourceSize = CGSize(
                 width: max(1, overlay.image.size.width.rounded(.up)),

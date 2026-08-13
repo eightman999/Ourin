@@ -25,6 +25,24 @@ struct SurfaceBlendTests {
         #expect(bottom.blueComponent > bottom.redComponent)
     }
 
+    @Test func backgroundOverlayRendersBehindBaseSurface() throws {
+        let base = Self.solidImage(color: .red)
+        let background = SurfaceOverlay(
+            id: "background",
+            image: Self.solidImage(color: .blue),
+            zOrder: -100,
+            insertionOrder: 0
+        )
+
+        let rendered = try #require(SurfaceBlendRenderer.composite(base: base, overlays: [background]))
+        let tiff = try #require(rendered.tiffRepresentation)
+        let bitmap = try #require(NSBitmapImageRep(data: tiff))
+        let color = try #require(bitmap.colorAt(x: 0, y: 0))
+
+        #expect(color.redComponent > 0.9)
+        #expect(color.blueComponent < 0.1)
+    }
+
     @Test func overlayFastUsesDestinationAlpha() {
         let destination = [UInt8](arrayLiteral: 20, 30, 40, 255)
         let source = [UInt8](arrayLiteral: 200, 100, 50, 255)
@@ -132,5 +150,14 @@ struct SurfaceBlendTests {
         )
 
         #expect(result == [20, 30, 40, 64])
+    }
+
+    private static func solidImage(color: NSColor) -> NSImage {
+        let image = NSImage(size: NSSize(width: 1, height: 1))
+        image.lockFocus()
+        color.setFill()
+        NSRect(x: 0, y: 0, width: 1, height: 1).fill()
+        image.unlockFocus()
+        return image
     }
 }

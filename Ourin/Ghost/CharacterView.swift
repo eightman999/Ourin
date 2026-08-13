@@ -65,6 +65,8 @@ struct CharacterView: View {
             transformed.image = image
             return transformed
         }
+        let backgroundOverlays = overlays.filter { $0.zOrder < 0 }
+        let foregroundOverlays = overlays.filter { $0.zOrder >= 0 }
         let filteredSurface: NSImage? = {
             guard !viewModel.activeFilters.isEmpty else { return nil }
             guard let composited = SurfaceBlendRenderer.composite(base: processedBase, overlays: overlays) else { return nil }
@@ -81,6 +83,12 @@ struct CharacterView: View {
                     .resizable()
                     .frame(width: rendered.size.width, height: rendered.size.height)
             } else {
+                // `background` SERIKO animations are rendered behind the base surface.
+                ForEach(backgroundOverlays) { overlay in
+                    OverlayView(overlay: overlay)
+                        .offset(x: overlay.offset.x, y: overlay.offset.y)
+                }
+
                 // Base surface
                 if let baseImage = processedBase {
                     Image(nsImage: baseImage)
@@ -88,8 +96,8 @@ struct CharacterView: View {
                         .frame(width: baseImage.size.width, height: baseImage.size.height)
                 }
 
-                // Overlay layers sorted by z-order then insertion for deterministic stacking.
-                ForEach(overlays) { overlay in
+                // Foreground overlay layers sorted by z-order then insertion for deterministic stacking.
+                ForEach(foregroundOverlays) { overlay in
                     OverlayView(overlay: overlay)
                         .offset(x: overlay.offset.x, y: overlay.offset.y)
                 }

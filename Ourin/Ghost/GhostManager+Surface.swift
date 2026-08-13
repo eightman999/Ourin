@@ -463,7 +463,8 @@ extension GhostManager {
         type: AnimationPatternType = .overlay,
         animationID: Int? = nil,
         initialOffset: CGPoint? = nil,
-        blendMode: SurfaceBlendMode = .normal
+        blendMode: SurfaceBlendMode = .normal,
+        zOrder overrideZOrder: Int? = nil
     ) {
         Log.debug("[GhostManager] Adding surface overlay: \(surfaceID), type: \(type)")
 
@@ -519,15 +520,16 @@ extension GhostManager {
                 vm.overlays.removeAll { $0.animationID == animationID }
             }
             let insertionOrder = (vm.overlays.map(\.insertionOrder).max() ?? -1) + 1
-            let zOrder: Int
-            switch type {
-            case .base:
-                zOrder = 0
-            case .overlay, .replace:
-                zOrder = 100
-            case .bind:
-                zOrder = 200
-            }
+            let zOrder: Int = overrideZOrder ?? {
+                switch type {
+                case .base:
+                    return 0
+                case .overlay, .replace:
+                    return 100
+                case .bind:
+                    return 200
+                }
+            }()
             let idPrefix = type == .bind ? "dressup_bind_\(resolvedSurfaceID)_" : "surface_\(resolvedSurfaceID)_"
             let animationMarker = animationID.map { "anim_\($0)_" } ?? ""
             
