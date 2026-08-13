@@ -123,6 +123,25 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func legacyMoveRejectsAnInvalidAxis() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-invalid-move-axis-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 0) else {
+            Issue.record("Expected scope 0 character window")
+            return
+        }
+        let start = window.frame.origin
+        manager.executeMoveCommand(
+            args: ["not-a-coordinate", "\(Int(start.y) + 40)"],
+            async: false
+        )
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(window.frame.origin == start)
+    }
+
+    @Test @MainActor
     func moveAsyncCancelStopsAnAlreadyRunningAnimation() async throws {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-moveasync-cancel-test"))
         defer { _ = manager.shutdown() }
@@ -152,6 +171,7 @@ struct GhostUtilityCommandTests {
 
         #expect(abs(window.frame.origin.x - canceledX) < 1.0)
         #expect(abs(window.frame.origin.x - CGFloat(targetX)) > 1.0)
+        #expect(manager.resourceManager.getCharDefaultLeft(scope: 0) == Int(canceledX))
     }
 
     @Test @MainActor

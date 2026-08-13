@@ -609,7 +609,12 @@ extension GhostManager {
         if let scope {
             pending[scope]?.cancel()
             pending.removeValue(forKey: scope)
+            let wasAnimating = asyncMoveAnimationTimers[scope] != nil
             asyncMoveAnimationTimers[scope]?.invalidate()
+            if wasAnimating, let window = characterWindows[scope] {
+                resourceManager.setCharDefaultLeft(scope: scope, value: Int(window.frame.origin.x))
+                resourceManager.setCharDefaultTop(scope: scope, value: Int(window.frame.origin.y))
+            }
             var timers = asyncMoveAnimationTimers
             timers.removeValue(forKey: scope)
             asyncMoveAnimationTimers = timers
@@ -622,11 +627,19 @@ extension GhostManager {
                 workItem.cancel()
             }
             pending.removeAll()
-            for timer in asyncMoveAnimationTimers.values {
+            for (scope, timer) in asyncMoveAnimationTimers {
                 timer.invalidate()
+                if let window = characterWindows[scope] {
+                    resourceManager.setCharDefaultLeft(scope: scope, value: Int(window.frame.origin.x))
+                    resourceManager.setCharDefaultTop(scope: scope, value: Int(window.frame.origin.y))
+                }
             }
-            asyncMoveAnimationTimers.removeAll()
-            stickyIgnoreScopes.removeAll()
+            var timers = asyncMoveAnimationTimers
+            timers.removeAll()
+            asyncMoveAnimationTimers = timers
+            var ignored = stickyIgnoreScopes
+            ignored.removeAll()
+            stickyIgnoreScopes = ignored
             Log.debug("[GhostManager] Canceled all async move commands")
         }
         asyncMoveWorkItems = pending
@@ -718,15 +731,14 @@ extension GhostManager {
             return spec
         }
 
-        guard args.count >= 2 else { return nil }
+        guard args.count >= 2,
+              let xAxis = parseLegacyMoveAxis(args[0]),
+              let yAxis = parseLegacyMoveAxis(args[1]) else { return nil }
         // Legacy SSP syntax allows "fix" for either axis to retain its
         // current coordinate. Keep nil here so resolveMoveTarget can use the
         // current frame instead of rejecting the whole command.
-        spec.x = Int(args[0].lowercased() == "fix" ? "" : args[0])
-        spec.y = Int(args[1].lowercased() == "fix" ? "" : args[1])
-        guard spec.x != nil || spec.y != nil || args[0].lowercased() == "fix" || args[1].lowercased() == "fix" else {
-            return nil
-        }
+        spec.x = xAxis.value
+        spec.y = yAxis.value
         spec.time = args.count >= 3 ? (Int(args[2]) ?? 0) : 0
         spec.method = args.count >= 4 ? args[3] : ""
         spec.scopeID = args.count >= 5 ? Int(args[4]) : nil
@@ -872,6 +884,15 @@ extension GhostManager {
         }
         guard let fallback = fallback?.lowercased() else { return false }
         return fallback == "wait" || fallback == "--wait" || fallback == "true"
+    }
+
+    private func parseLegacyMoveAxis(_ token: String) -> (value: Int?, fixed: Bool)? {
+        let normalized = token.trimmingCharacters(in: .whitespacesAndNewlines)
+        if normalized.isEmpty || normalized.lowercased() == "fix" {
+            return (nil, true)
+        }
+        guard let value = Int(normalized) else { return nil }
+        return (value, false)
     }
 
     func executeSetScalingCommand(args: [String], enqueueWaitAtFront: Bool = false) {
