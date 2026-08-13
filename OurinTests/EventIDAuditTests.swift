@@ -102,4 +102,13 @@ struct EventIDAuditTests {
         #expect(GhostManager.updatePipelineEventName(base: "OnUpdateOther", stage: "OnMD5CompareFailure") == "OnUpdateOther.OnMD5CompareFailure")
         #expect(GhostManager.updatePipelineEventName(base: "OnUpdate", stage: "OnDownloadFailure") == "OnUpdate.OnDownloadFailure")
     }
+
+    @Test
+    func everyOnEventInReferenceTableHasATypedEventID() {
+        let missing = EventReferenceTable.specs.keys
+            .filter { $0.hasPrefix("On") && EventID(rawValue: $0) == nil }
+            .sorted()
+
+        #expect(missing.isEmpty, "Missing typed EventID cases: \(missing.joined(separator: ", "))")
+    }
 }
