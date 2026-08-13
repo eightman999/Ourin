@@ -2086,6 +2086,83 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         )
     }
 
+    /// `\![sound,*]` のメディア副作用を、本文と同じ再生順序で実行する。
+    /// `sound,wait` だけは待機ユニットとして直接キューへ積むため、ここには到達しない。
+    private func executeSoundCommand(args: [String]) {
+        guard args.count >= 2 else { return }
+        let subcmd = args[1].lowercased()
+        switch subcmd {
+        case "play":
+            guard args.count >= 3 else { return }
+            let filename = args[2]
+            let options = Array(args.dropFirst(3))
+            if GhostManager.isVideoFile(filename) {
+                playVideo(filename: filename, loop: false, options: options)
+            } else {
+                playSound(filename: filename, loop: false, options: options)
+            }
+        case "load":
+            guard args.count >= 3 else { return }
+            let filename = args[2]
+            let options = Array(args.dropFirst(3))
+            if GhostManager.isVideoFile(filename) {
+                loadVideo(filename: filename, options: options)
+            } else {
+                loadSound(filename: filename, options: options)
+            }
+        case "loop":
+            guard args.count >= 3 else { return }
+            let filename = args[2]
+            let options = Array(args.dropFirst(3))
+            if GhostManager.isVideoFile(filename) {
+                playVideo(filename: filename, loop: true, options: options)
+            } else {
+                playSound(filename: filename, loop: true, options: options)
+            }
+        case "cdplay":
+            let track = args.count >= 3 ? args[2] : ""
+            let filename = track.isEmpty ? "audio-cd" : "audio-cd-track-\(track)"
+            Log.info("[GhostManager] sound,cdplay is unavailable on macOS: track=\(track)")
+            notifySoundError(command: "cdplay", filename: filename, code: -2, message: "audio_cd_unsupported")
+        case "pause":
+            let filename = args.count >= 3 ? args[2] : nil
+            if let filename, GhostManager.isVideoFile(filename) {
+                pauseVideo(filename: filename)
+            } else {
+                pauseSound(filename: filename)
+                if filename == nil {
+                    pauseVideo(filename: nil)
+                }
+            }
+        case "resume":
+            let filename = args.count >= 3 ? args[2] : nil
+            if let filename, GhostManager.isVideoFile(filename) {
+                resumeVideo(filename: filename)
+            } else {
+                resumeSound(filename: filename)
+                if filename == nil {
+                    resumeVideo(filename: nil)
+                }
+            }
+        case "stop":
+            if args.count >= 3 {
+                let filename = args[2]
+                if GhostManager.isVideoFile(filename) {
+                    stopVideo(filename: filename)
+                } else {
+                    stopSound(filename: filename)
+                }
+            } else {
+                stopAllSounds()
+            }
+        case "option":
+            guard args.count >= 3 else { return }
+            applySoundOptions(filename: args[2], options: Array(args.dropFirst(3)))
+        default:
+            break
+        }
+    }
+
     // MARK: - SakuraScriptEngineDelegate
 
     func sakuraEngine(_ engine: SakuraScriptEngine, didEmit token: SakuraScriptEngine.Token) {
@@ -3005,87 +3082,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     } else if first == "sound", args.count >= 2 {
                         // \![sound,*]
                         let subcmd = args[1].lowercased()
-                        switch subcmd {
-                        case "play":
-                            if args.count >= 3 {
-                                let filename = args[2]
-                                let options = Array(args.dropFirst(3))
-                                if GhostManager.isVideoFile(filename) {
-                                    playVideo(filename: filename, loop: false, options: options)
-                                } else {
-                                    playSound(filename: filename, loop: false, options: options)
-                                }
-                            }
-                        case "load":
-                            if args.count >= 3 {
-                                let filename = args[2]
-                                let options = Array(args.dropFirst(3))
-                                if GhostManager.isVideoFile(filename) {
-                                    loadVideo(filename: filename, options: options)
-                                } else {
-                                    loadSound(filename: filename, options: options)
-                                }
-                            }
-                        case "loop":
-                            if args.count >= 3 {
-                                let filename = args[2]
-                                let options = Array(args.dropFirst(3))
-                                if GhostManager.isVideoFile(filename) {
-                                    playVideo(filename: filename, loop: true, options: options)
-                                } else {
-                                    playSound(filename: filename, loop: true, options: options)
-                                }
-                            }
-                        case "wait":
+                        if subcmd == "wait" {
                             // UKADOC: sound,wait is equivalent to _V.  It must be
                             // evaluated during playback, after preceding play/load
                             // commands have taken effect, not while the whole script
                             // is still being tokenized.
                             playbackQueue.append(.waitForAudio)
-                        case "cdplay":
-                            let track = args.count >= 3 ? args[2] : ""
-                            let filename = track.isEmpty ? "audio-cd" : "audio-cd-track-\(track)"
-                            Log.info("[GhostManager] sound,cdplay is unavailable on macOS: track=\(track)")
-                            notifySoundError(command: "cdplay", filename: filename, code: -2, message: "audio_cd_unsupported")
-                        case "pause":
-                            let filename = args.count >= 3 ? args[2] : nil
-                            if let filename, GhostManager.isVideoFile(filename) {
-                                pauseVideo(filename: filename)
-                            } else {
-                                pauseSound(filename: filename)
-                                if filename == nil {
-                                    pauseVideo(filename: nil)
-                                }
-                            }
-                        case "resume":
-                            let filename = args.count >= 3 ? args[2] : nil
-                            if let filename, GhostManager.isVideoFile(filename) {
-                                resumeVideo(filename: filename)
-                            } else {
-                                resumeSound(filename: filename)
-                                if filename == nil {
-                                    resumeVideo(filename: nil)
-                                }
-                            }
-                        case "stop":
-                            if args.count >= 3 {
-                                let filename = args[2]
-                                if GhostManager.isVideoFile(filename) {
-                                    stopVideo(filename: filename)
-                                } else {
-                                    stopSound(filename: filename)
-                                }
-                            } else {
-                                stopAllSounds()
-                            }
-                        case "option":
-                            if args.count >= 3 {
-                                let filename = args[2]
-                                let options = Array(args.dropFirst(3))
-                                applySoundOptions(filename: filename, options: options)
-                            }
-                        default:
-                            break
+                        } else {
+                            playbackQueue.append(.deferredCommand { [weak self] in
+                                self?.executeSoundCommand(args: args)
+                            })
                         }
                     } else if first == "set", args.count >= 2 {
                         // Handle \![set,*] commands

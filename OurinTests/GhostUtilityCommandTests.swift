@@ -75,7 +75,7 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
-    func cdplayReportsUnsupportedMediaThroughOnSoundError() {
+    func cdplayReportsUnsupportedMediaThroughOnSoundError() async throws {
         EventBridge.shared.stop()
 
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-cdplay-test"))
@@ -87,6 +87,7 @@ struct GhostUtilityCommandTests {
         }
 
         manager.runScript(#"\![sound,cdplay,7]"#)
+        try await Task.sleep(nanoseconds: 50_000_000)
 
         let error = runtime.requests.first { $0.id == "OnSoundError" }
         #expect(error?.method == "NOTIFY")

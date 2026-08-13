@@ -252,6 +252,7 @@ struct VideoRendererTests {
 
         let manager = GhostManager(ghostURL: root)
         manager.runScript(#"\![sound,load,clip.mp4]"#)
+        try await Task.sleep(nanoseconds: 50_000_000)
         #expect(manager.preloadedVideos["clip.mp4"]?.count == 1)
         manager.stopAllVideos()
         #expect(manager.preloadedVideos.isEmpty)

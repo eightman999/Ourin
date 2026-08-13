@@ -252,6 +252,47 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func soundCommandsAreQueuedAfterPrecedingText() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-sound-command-order"))
+        defer { _ = gm.shutdown() }
+
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("before"))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "sound", "play", "tone.wav"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "sound", "pause", "tone.wav"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "sound", "stop", "tone.wav"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .command(name: "!", args: [
+            "sound", "wait"
+        ]))
+        gm.sakuraEngine(gm.sakuraEngine, didEmit: .text("after"))
+
+        let order = gm.playbackQueue.compactMap { unit -> String? in
+            switch unit {
+            case .textToken(let text):
+                return "text:" + text
+            case .speakTextToken(let text):
+                return "speak:" + text
+            case .deferredCommand:
+                return "sound-command"
+            case .waitForAudio:
+                return "sound-wait"
+            default:
+                return nil
+            }
+        }
+
+        #expect(order == [
+            "text:before", "speak:before", "sound-command", "sound-command",
+            "sound-command", "sound-wait", "text:after", "speak:after"
+        ])
+    }
+
+    @MainActor
     @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
         let vm = gm.getBalloonVM(for: gm.currentScope)
