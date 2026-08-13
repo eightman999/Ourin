@@ -14,7 +14,23 @@ if ! cmake -S . -B build \
   -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
   -DCMAKE_OSX_DEPLOYMENT_TARGET="11.0"; then
   existing_binary="build/satori_core"
-  newer_source="$(find src third_party -type f -newer "$existing_binary" -print -quit 2>/dev/null || true)"
+  newer_source=""
+  if [[ -e "$existing_binary" ]]; then
+    # CMakeLists.txt and test fixtures are build inputs too.  Omitting either
+    # path can silently reuse a stale helper/fixture when dependencies are
+    # temporarily unavailable during a local or Xcode build.
+    for build_input in CMakeLists.txt build.sh; do
+      if [[ "$build_input" -nt "$existing_binary" ]]; then
+        newer_source="$build_input"
+        break
+      fi
+    done
+    if [[ -z "$newer_source" ]]; then
+      newer_source="$(find src third_party tests -type f -newer "$existing_binary" -print -quit 2>/dev/null || true)"
+    fi
+  else
+    newer_source="missing-binary"
+  fi
   architectures_ok=true
   if command -v lipo >/dev/null 2>&1; then
     lipo "$existing_binary" -verify_arch arm64 x86_64 >/dev/null 2>&1 || architectures_ok=false
