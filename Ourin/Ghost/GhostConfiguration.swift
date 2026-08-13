@@ -247,6 +247,8 @@ public struct GhostConfiguration {
     public enum AlignmentToDesktop: String {
         case top
         case bottom
+        case left
+        case right
         case free
     }
 

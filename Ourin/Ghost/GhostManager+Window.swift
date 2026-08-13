@@ -81,6 +81,7 @@ extension GhostManager {
         }
 
         let vm = CharacterViewModel()
+        vm.alignment = desktopAlignment(for: scope)
         characterViewModels[scope] = vm
 
         let characterView = CharacterView(viewModel: vm, scopeID: scope, onDragDropEvent: dragDropHandler)
@@ -155,6 +156,7 @@ extension GhostManager {
         window.isReleasedWhenClosed = false
 
         characterWindows[scope] = window
+        enforceDesktopAlignment(for: scope)
         if let snapshot = DisplayObserver.snapshot(for: window) {
             displayHandoverStates[scope] = snapshot
         }

@@ -54,7 +54,7 @@ class CharacterViewModel: ObservableObject {
     var stickyGroup: [Int]? = nil  // nil = independent, or array of scope IDs that move together
 
     /// Desktop alignment options
-    enum DesktopAlignment {
+    enum DesktopAlignment: Equatable {
         case free
         case top
         case bottom
@@ -3428,7 +3428,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                     case "bottom": vm.alignment = .bottom
                                     case "left": vm.alignment = .left
                                     case "right": vm.alignment = .right
-                                    case "free", "default": vm.alignment = .free
+                                    case "free": vm.alignment = .free
+                                    case "default": vm.alignment = self.desktopAlignment(for: self.currentScope)
                                     default: break
                                     }
 

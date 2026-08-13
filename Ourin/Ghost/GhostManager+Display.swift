@@ -84,10 +84,49 @@ extension GhostManager {
         // `applyGhostConfiguration` はロード用バックグラウンドキューから呼ばれるため、
         // 既存 ViewModel の更新はメインキューへ戻す。
         DispatchQueue.main.async { [weak self] in
-            self?.refreshBalloonScalingSynchronization()
+            guard let self else { return }
+            self.applyDesktopAlignmentConfiguration(config)
+            self.refreshBalloonScalingSynchronization()
         }
 
         Log.debug("[GhostManager] Ghost configuration applied successfully")
+    }
+
+    /// Resolve the effective desktop alignment for a character scope.
+    /// Scope 0/1 use the Sakura/Kero-specific setting when present; additional
+    /// scopes use their `charN` setting.  The overall setting is the fallback.
+    func desktopAlignment(
+        for scope: Int,
+        config: GhostConfiguration? = nil
+    ) -> CharacterViewModel.DesktopAlignment {
+        let configuration = config ?? ghostConfig
+        let configured: GhostConfiguration.AlignmentToDesktop?
+        switch scope {
+        case 0:
+            configured = configuration?.sakuraAlignment ?? configuration?.alignmentToDesktop
+        case 1:
+            configured = configuration?.keroAlignment ?? configuration?.alignmentToDesktop
+        default:
+            configured = configuration?.charAlignments[scope] ?? configuration?.alignmentToDesktop
+        }
+
+        switch configured {
+        case .top: return .top
+        case .bottom: return .bottom
+        case .left: return .left
+        case .right: return .right
+        case .free, nil: return .free
+        }
+    }
+
+    /// Apply alignment configuration to windows that already exist.
+    /// Additional character windows are initialized through `desktopAlignment`
+    /// when they are created later.
+    func applyDesktopAlignmentConfiguration(_ config: GhostConfiguration) {
+        for (scope, viewModel) in characterViewModels {
+            viewModel.alignment = desktopAlignment(for: scope, config: config)
+            enforceDesktopAlignment(for: scope)
+        }
     }
 
     // MARK: - Configuration Dialog

@@ -58,6 +58,38 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func alignmentCommandsApplyAndRestoreGhostDefault() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-alignment-command-test"))
+        defer { _ = manager.shutdown() }
+
+        _ = manager.ensureCharacterWindow(for: 0)
+        var config = GhostConfiguration(name: "AlignmentTest")
+        config.alignmentToDesktop = .right
+        config.sakuraAlignment = .top
+        manager.ghostConfig = config
+        manager.applyGhostConfiguration(config, ghostRoot: URL(fileURLWithPath: "/tmp/ourin-alignment-command-test"))
+
+        for _ in 0..<20 where manager.characterViewModels[0]?.alignment != .top {
+            try await Task.sleep(nanoseconds: 5_000_000)
+        }
+        #expect(manager.characterViewModels[0]?.alignment == .top)
+
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .command(
+            name: "!",
+            args: ["set", "alignmenttodesktop", "right"]
+        ))
+        manager.processNextUnit()
+        #expect(manager.characterViewModels[0]?.alignment == .right)
+
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .command(
+            name: "!",
+            args: ["set", "alignmenttodesktop", "default"]
+        ))
+        manager.processNextUnit()
+        #expect(manager.characterViewModels[0]?.alignment == .top)
+    }
+
+    @Test @MainActor
     func backlogKeepsVisibleTextAndCapsHistory() {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-backlog-test"))
 
