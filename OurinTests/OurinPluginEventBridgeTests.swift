@@ -3,6 +3,35 @@ import Testing
 
 struct OurinPluginEventBridgeTests {
     @Test
+    func missingPluginReportsNotFoundForRaiseAndNotify() {
+        let bridge = OurinPluginEventBridge(
+            registry: PluginRegistry(),
+            runScript: { _ in },
+            emitEvent: { _ in false }
+        )
+        var failures: [String] = []
+
+        bridge.dispatch(
+            pluginSpec: "missing-raise-plugin",
+            event: "OnPluginRaiseTest",
+            references: ["alpha"],
+            notifyOnly: false,
+            onFailure: { reason, plugin in failures.append("raise|\(reason)|\(plugin)") }
+        )
+        bridge.dispatchNotify(
+            pluginSpec: "missing-notify-plugin",
+            event: "OnPluginNotifyTest",
+            references: ["beta"],
+            onFailure: { reason, plugin in failures.append("notify|\(reason)|\(plugin)") }
+        )
+
+        #expect(failures == [
+            "raise|notfound|missing-raise-plugin",
+            "notify|notfound|missing-notify-plugin"
+        ])
+    }
+
+    @Test
     func parsesScriptAndEventFromGetResponse() async throws {
         let response = PluginResponse(
             statusCode: 200,

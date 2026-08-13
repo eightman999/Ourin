@@ -132,6 +132,39 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func pluginFailureEventUsesGetAndPreservesAttemptedReferences() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-plugin-failure-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.dispatchPluginEventFailure(
+            notifyOnly: false,
+            reason: "204",
+            plugin: "fixture-plugin",
+            event: "OnPluginTest",
+            references: ["alpha", "beta"]
+        )
+        manager.dispatchPluginEventFailure(
+            notifyOnly: true,
+            reason: "notfound",
+            plugin: "missing-plugin",
+            event: "OnNotifyTest",
+            references: ["gamma"]
+        )
+
+        #expect(runtime.requests.map(\.method) == ["GET", "GET"])
+        #expect(runtime.requests.map(\.id) == ["OnRaisePluginFailure", "OnNotifyPluginFailure"])
+        #expect(runtime.requests[0].refs == ["204", "fixture-plugin", "OnPluginTest", "alpha", "beta"])
+        #expect(runtime.requests[1].refs == ["notfound", "missing-plugin", "OnNotifyTest", "gamma"])
+    }
+
+    @Test @MainActor
     func ghostLifecycleCommandsSkipSuccessEventsWhenTargetUnavailable() {
         EventBridge.shared.stop()
 

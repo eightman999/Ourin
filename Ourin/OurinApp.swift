@@ -268,6 +268,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 EventBridge.shared.dispatchPluginResponseEvent(event, params: refs, notifyOnly: notifyOnly, scriptOptions: options)
             }
         }
+        pluginDispatcher?.onFailure = { callerGhost, notifyOnly, reason, plugin, event, references in
+            callerGhost?.dispatchPluginEventFailure(
+                notifyOnly: notifyOnly,
+                reason: reason,
+                plugin: plugin,
+                event: event,
+                references: references
+            )
+        }
         // HEADLINE モジュールも探索してロード
         let hRegistry = HeadlineRegistry()
         hRegistry.discoverAndLoad()

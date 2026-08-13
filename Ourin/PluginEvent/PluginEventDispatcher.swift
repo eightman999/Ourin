@@ -24,6 +24,9 @@ final class PluginEventDispatcher {
     /// プラグインが Event を返したときにホスト側へ再ディスパッチさせるためのコールバック。
     /// 構築側が `EventBridge.notify(_:params:)` 等へ配線する（OurinApp.swift:237）。
     var onEmitEvent: ((String, [String: String], Set<String>) -> Bool)?
+    /// `raiseplugin` / `notifyplugin` の配送失敗を呼び出し元へ返すコールバック。
+    /// 失敗イベント自身は呼び出し元ゴーストの SHIORI へ GET で送る。
+    var onFailure: ((_ callerGhost: GhostManager?, _ notifyOnly: Bool, _ reason: String, _ plugin: String, _ event: String, _ references: [String]) -> Void)?
 
     /// プラグインへワイヤテキストを送信する。XPC 分離が有効なら別プロセスのワーカーへ、
     /// それ以外は従来通りインプロセス（CFBundle ロード）で実行する。
@@ -105,12 +108,26 @@ final class PluginEventDispatcher {
         notify: Bool = false,
         securityLevel: PluginSecurityLevel = .local,
         to plugin: Plugin,
-        callerGhost: GhostManager? = nil
+        callerGhost: GhostManager? = nil,
+        reportsFailure: Bool = false
     ) {
-        guard let q = queues[plugin] else { return }
+        let pluginName = displayName(for: plugin)
+        guard let q = queues[plugin] else {
+            if reportsFailure {
+                reportFailure(
+                    callerGhost: callerGhost,
+                    notifyOnly: notify,
+                    reason: "error",
+                    plugin: pluginName,
+                    event: id,
+                    references: refs
+                )
+            }
+            return
+        }
         let charset = charset(for: plugin)
         let req = PluginFrame(id: id, references: refs, charset: charset, notify: notify, securityLevel: securityLevel).build()
-        q.async { [weak self, logger, id, req, plugin, notify, charset, weak callerGhost] in
+        q.async { [weak self, logger, id, req, plugin, notify, charset, pluginName, refs, reportsFailure, weak callerGhost] in
             let start = Date()
             let resp = self?.transportSend(req, to: plugin, charset: charset) ?? ""
             let elapsed = Date().timeIntervalSince(start)
@@ -118,10 +135,63 @@ final class PluginEventDispatcher {
             if elapsed > 3 {
                 logger.warning("timeout: \(id) >3s")
             }
+            if reportsFailure {
+                guard !resp.isEmpty else {
+                    self?.reportFailure(
+                        callerGhost: callerGhost,
+                        notifyOnly: notify,
+                        reason: "error",
+                        plugin: pluginName,
+                        event: id,
+                        references: refs
+                    )
+                    return
+                }
+                guard let parsed = try? PluginProtocolParser.parseResponse(resp) else {
+                    self?.reportFailure(
+                        callerGhost: callerGhost,
+                        notifyOnly: notify,
+                        reason: "error",
+                        plugin: pluginName,
+                        event: id,
+                        references: refs
+                    )
+                    return
+                }
+                guard parsed.statusCode == 200 else {
+                    self?.reportFailure(
+                        callerGhost: callerGhost,
+                        notifyOnly: notify,
+                        reason: String(parsed.statusCode),
+                        plugin: pluginName,
+                        event: id,
+                        references: refs
+                    )
+                    return
+                }
+            }
             if !notify {
                 self?.handleResponse(resp, from: plugin, callerGhost: callerGhost)
             }
         }
+    }
+
+    private func reportFailure(
+        callerGhost: GhostManager?,
+        notifyOnly: Bool,
+        reason: String,
+        plugin: String,
+        event: String,
+        references: [String]
+    ) {
+        onFailure?(callerGhost, notifyOnly, reason, plugin, event, references)
+    }
+
+    private func displayName(for plugin: Plugin) -> String {
+        guard let meta = registry.metas[plugin] else {
+            return plugin.bundle.bundleURL.deletingPathExtension().lastPathComponent
+        }
+        return meta.id.isEmpty ? meta.name : meta.id
     }
 
     /// プラグインからの応答を解釈し、Script/Event をホスト側へ引き渡す。
@@ -349,10 +419,25 @@ final class PluginEventDispatcher {
         let targets = resolvePluginTargets(spec: pluginSpec)
         guard !targets.isEmpty else {
             logger.info("no plugin target matched: \(pluginSpec)")
+            reportFailure(
+                callerGhost: callerGhost,
+                notifyOnly: notifyOnly,
+                reason: "notfound",
+                plugin: pluginSpec,
+                event: event,
+                references: references
+            )
             return
         }
         for plugin in targets {
-            sendFrame(id: event, refs: references, notify: notifyOnly, to: plugin, callerGhost: callerGhost)
+            sendFrame(
+                id: event,
+                refs: references,
+                notify: notifyOnly,
+                to: plugin,
+                callerGhost: callerGhost,
+                reportsFailure: true
+            )
         }
     }
 
@@ -363,10 +448,25 @@ final class PluginEventDispatcher {
         let targets = resolvePluginTargets(spec: pluginSpec)
         guard !targets.isEmpty else {
             logger.info("no plugin target matched (notifyplugin): \(pluginSpec)")
+            reportFailure(
+                callerGhost: callerGhost,
+                notifyOnly: true,
+                reason: "notfound",
+                plugin: pluginSpec,
+                event: event,
+                references: references
+            )
             return
         }
         for plugin in targets {
-            sendFrame(id: event, refs: references, notify: true, to: plugin, callerGhost: callerGhost)
+            sendFrame(
+                id: event,
+                refs: references,
+                notify: true,
+                to: plugin,
+                callerGhost: callerGhost,
+                reportsFailure: true
+            )
         }
     }
 

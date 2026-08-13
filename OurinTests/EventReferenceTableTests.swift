@@ -140,6 +140,36 @@ func eventReferenceTableCoversEmittedFailureAndWallpaperEvents() {
 }
 
 @Test
+func eventReferenceTablePluginAndOtherFailureReferencesMatchUkadoc() {
+    #expect(EventReferenceTable.specs["OnRaisePluginFailure"]?.references == [
+        "reason", "plugin", "event"
+    ])
+    #expect(EventReferenceTable.specs["OnNotifyPluginFailure"]?.references == [
+        "reason", "plugin", "event"
+    ])
+    #expect(EventReferenceTable.specs["OnRaiseOtherFailure"]?.references == [
+        "reason", "ghostName", "event"
+    ])
+    #expect(EventReferenceTable.specs["OnNotifyOtherFailure"]?.references == [
+        "reason", "ghostName", "event"
+    ])
+
+    #expect(EventReferenceTable.params(forEvent: "OnRaisePluginFailure", refs: [
+        "reason": "notfound",
+        "plugin": "missing-plugin",
+        "event": "OnPluginTest",
+        "Reference3": "alpha",
+        "Reference4": "beta"
+    ]) == [
+        "Reference0": "notfound",
+        "Reference1": "missing-plugin",
+        "Reference2": "OnPluginTest",
+        "Reference3": "alpha",
+        "Reference4": "beta"
+    ])
+}
+
+@Test
 func eventReferenceTableTimeEventReferences() {
     // OnSecondChange/OnMinuteChange/OnHourTimeSignal は共通 R0..R4
     let refs = ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"]

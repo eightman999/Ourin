@@ -5,6 +5,72 @@ import Testing
 @Suite(.serialized)
 @MainActor
 struct PluginBridgeIntegrationTests {
+    @Test @MainActor
+    func dispatcherReportsMissingPluginTarget() {
+        let dispatcher = PluginEventDispatcher(registry: PluginRegistry())
+        defer { dispatcher.stop() }
+
+        var failures: [String] = []
+        dispatcher.onFailure = { _, notifyOnly, reason, plugin, event, references in
+            failures.append("\(notifyOnly ? "notify" : "raise")|\(reason)|\(plugin)|\(event)|\(references.joined(separator: ","))")
+        }
+
+        dispatcher.dispatch(
+            pluginSpec: "missing-dispatcher-plugin",
+            event: "OnDispatcherRaiseTest",
+            references: ["alpha"],
+            notifyOnly: false
+        )
+        dispatcher.dispatchNotifyPlugin(
+            pluginSpec: "missing-dispatcher-notify-plugin",
+            event: "OnDispatcherNotifyTest",
+            references: ["beta"]
+        )
+
+        #expect(failures == [
+            "raise|notfound|missing-dispatcher-plugin|OnDispatcherRaiseTest|alpha",
+            "notify|notfound|missing-dispatcher-notify-plugin|OnDispatcherNotifyTest|beta"
+        ])
+    }
+
+    @Test @MainActor
+    func dispatcherReportsPluginStatusFailure() async throws {
+        let base = PluginFixtureBuilder.temporaryBaseURL(prefix: "OurinPluginBridgeFailure")
+        OurinPaths.testBaseOverride = base
+        defer {
+            OurinPaths.testBaseOverride = nil
+            try? FileManager.default.removeItem(at: base)
+        }
+
+        let pluginRoot = try OurinPaths.subdirectory("plugin")
+        _ = try PluginFixtureBuilder.build(.target, inPluginRoot: pluginRoot)
+
+        let registry = PluginRegistry()
+        registry.discoverAndLoad()
+        defer { registry.unloadAll() }
+        let dispatcher = PluginEventDispatcher(registry: registry)
+        defer { dispatcher.stop() }
+
+        var failures: [(reason: String, plugin: String)] = []
+        dispatcher.onFailure = { _, _, reason, plugin, _, _ in
+            failures.append((reason, plugin))
+        }
+        dispatcher.dispatch(
+            pluginSpec: "fixture-target",
+            event: "OnUnknownFixtureEvent",
+            references: ["alpha"],
+            notifyOnly: false
+        )
+
+        for _ in 0..<20 where failures.isEmpty {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        #expect(failures.count == 1)
+        #expect(failures.first?.reason == "501")
+        #expect(failures.first?.plugin == "fixture-target")
+    }
+
     @Test
     func utf8EchoFixtureRoundTripsThroughNativePlugin() throws {
         let fixture = try PluginFixtureBuilder.build(.utf8Echo)

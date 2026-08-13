@@ -569,6 +569,13 @@ extension GhostManager: NSWindowDelegate {
 
         guard let registry = currentPluginRegistry() else {
             Log.info("[GhostManager] Plugin registry unavailable")
+            dispatchPluginEventFailure(
+                notifyOnly: notifyOnly,
+                reason: "notfound",
+                plugin: pluginSpec,
+                event: event,
+                references: references
+            )
             return
         }
         let bridge = OurinPluginEventBridge(
@@ -592,10 +599,59 @@ extension GhostManager: NSWindowDelegate {
             }
         )
         if notifyOnly {
-            bridge.dispatchNotify(pluginSpec: pluginSpec, event: event, references: references)
+            bridge.dispatchNotify(
+                pluginSpec: pluginSpec,
+                event: event,
+                references: references,
+                onFailure: { [weak self] reason, plugin in
+                    self?.dispatchPluginEventFailure(
+                        notifyOnly: true,
+                        reason: reason,
+                        plugin: plugin,
+                        event: event,
+                        references: references
+                    )
+                }
+            )
             return
         }
-        bridge.dispatch(pluginSpec: pluginSpec, event: event, references: references, notifyOnly: notifyOnly)
+        bridge.dispatch(
+            pluginSpec: pluginSpec,
+            event: event,
+            references: references,
+            notifyOnly: false,
+            onFailure: { [weak self] reason, plugin in
+                self?.dispatchPluginEventFailure(
+                    notifyOnly: false,
+                    reason: reason,
+                    plugin: plugin,
+                    event: event,
+                    references: references
+                )
+            }
+        )
+    }
+
+    /// `raiseplugin` / `notifyplugin` が配送できなかったときの SHIORI 失敗イベント。
+    /// UKADOC の Reference0～2 と、実行対象イベントの Reference3～を保持する。
+    func dispatchPluginEventFailure(
+        notifyOnly: Bool,
+        reason: String,
+        plugin: String,
+        event: String,
+        references: [String]
+    ) {
+        let failureEvent: EventID = notifyOnly ? .OnNotifyPluginFailure : .OnRaisePluginFailure
+        var refs: [String: String] = [
+            "reason": reason.isEmpty ? "error" : reason,
+            "plugin": plugin,
+            "event": event
+        ]
+        for (index, reference) in references.enumerated() {
+            refs["Reference\(index + 3)"] = reference
+        }
+        let params = EventReferenceTable.params(forEvent: failureEvent.rawValue, refs: refs)
+        _ = EventBridge.shared.request(failureEvent, params: params, to: self)
     }
 
     func scheduleTimerPluginEvent(intervalMs: Int, repeatSpec: String, pluginSpec: String, event: String, references: [String], notifyOnly: Bool) {
