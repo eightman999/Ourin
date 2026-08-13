@@ -725,6 +725,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case clickWait(noclear: Bool)
         case end
         case deferredCommand(() -> Void) // Deferred command to execute after script completes
+        case embeddedEvent(event: String, references: [String])
     }
     var playbackQueue: [PlaybackUnit] = []
     var isPlaying: Bool = false
@@ -2349,9 +2350,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         // \![embed,event,ref0,ref1,...]
                         let eventName = args[1]
                         let refs = Array(args.dropFirst(2))
-                        playbackQueue.append(.deferredCommand { [weak self] in
-                            self?.executeEmbeddedEvent(event: eventName, references: refs)
-                        })
+                        playbackQueue.append(.embeddedEvent(event: eventName, references: refs))
                     } else if first == "timerraise", args.count >= 4 {
                         // \![timerraise,ms,repeat,event,ref0,ref1,...]
                         let intervalMs = Int(args[1]) ?? 0
@@ -4400,6 +4399,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 // Execute deferred command immediately (it's already at the right time in the queue)
                 NSLog("[GhostManager] Executing deferred command")
                 command()
+                continue
+            case .embeddedEvent(let event, let references):
+                // `\![embed]` の結果は、タグの後ろに既に積まれている本文より先に
+                // 再生する。応答側のトークンを一時キューへ収集して先頭へ戻す。
+                let followingPlayback = playbackQueue
+                playbackQueue.removeAll()
+                executeEmbeddedEvent(event: event, references: references)
+                let embeddedPlayback = playbackQueue
+                playbackQueue = embeddedPlayback + followingPlayback
                 continue
             }
         }

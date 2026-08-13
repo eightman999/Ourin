@@ -103,6 +103,23 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func embedResponseIsInsertedBeforeFollowingText() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-embed-order"))
+        defer { _ = gm.shutdown() }
+        let runtime = InputOptionsRuntime()
+        runtime.responses["OnEmbedTest"] = #"E\e"#
+        gm.shioriRuntime = runtime
+
+        gm.sakuraEngine.run(script: "before\\![embed,OnEmbedTest]after")
+        gm.processNextUnit()
+        try await Task.sleep(nanoseconds: 1_500_000_000)
+
+        #expect(runtime.requests.count == 1)
+        #expect(runtime.requests[0].id == "OnEmbedTest")
+        #expect(gm.getBalloonVM(for: 0).text == "beforeEafter")
+    }
+
+    @MainActor
     @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
         let vm = gm.getBalloonVM(for: gm.currentScope)
