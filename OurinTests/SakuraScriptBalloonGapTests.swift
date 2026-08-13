@@ -120,6 +120,46 @@ struct BalloonNewlineSpacingTests {
     }
 
     @MainActor
+    @Test func quickSectionsControlTextPlaybackRate() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-quick-section"))
+        defer { _ = gm.shutdown() }
+        let vm = gm.getBalloonVM(for: 0)
+
+        gm.sakuraEngine.run(script: "\\_qFast\\_q\\![quicksection,true]Now\\![quicksection,false]Later")
+        gm.processNextUnit()
+
+        // クイック本文は即時、通常本文は最初の1文字だけ再生される。
+        #expect(vm.text == "FastNowL")
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        #expect(vm.text == "FastNowLater")
+    }
+
+    @MainActor
+    @Test func voiceRangeCommandsRemainInPlaybackOrder() {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-voice-range"))
+        defer { _ = gm.shutdown() }
+
+        gm.sakuraEngine.run(script: #"\__v[disable]Silent\__v\__v[alternate,ひらがな]漢字\__v"#)
+
+        let order = gm.playbackQueue.compactMap { unit -> String? in
+            switch unit {
+            case .voiceCommand(let args):
+                return "voice:" + args.joined(separator: ",")
+            case .textToken(let text):
+                return "text:" + text
+            case .speakTextToken(let text):
+                return "speak:" + text
+            default:
+                return nil
+            }
+        }
+        #expect(order == [
+            "voice:disable", "text:Silent", "speak:Silent", "voice:",
+            "voice:alternate,ひらがな", "text:漢字", "speak:漢字", "voice:"
+        ])
+    }
+
+    @MainActor
     @Test func balloonOffsetCommandUsesXAndYArguments() async throws {
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-balloon-offset-command"))
         let vm = gm.getBalloonVM(for: gm.currentScope)

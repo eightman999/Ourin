@@ -706,9 +706,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     // Typing playback state
     enum PlaybackUnit {
+        case textToken(String)
         case text(Character)
         case textChunk(String)
         case speak(String)
+        case speakTextToken(String)
         case newline
         case newlineVariation(String)
         case scope(Int)
@@ -724,6 +726,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case resetPrecise
         case clickWait(noclear: Bool)
         case end
+        case toggleQuickMode
+        case setQuickMode(Bool)
+        case voiceCommand([String])
         case deferredCommand(() -> Void) // Deferred command to execute after script completes
         case embeddedEvent(event: String, references: [String])
     }
@@ -2092,7 +2097,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             }
         case .text(let text):
             // Display text character by character with typing effect
-            for ch in text { playbackQueue.append(.text(ch)) }
+            playbackQueue.append(.textToken(text))
             enqueueSpeech(for: text)
         case .newline:
             playbackQueue.append(.newline)
@@ -2288,7 +2293,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 let noclear = (args.first?.lowercased() == "noclear")
                 playbackQueue.append(.clickWait(noclear: noclear))
             case "_q":
-                quickMode.toggle()
+                playbackQueue.append(.toggleQuickMode)
             case "__t":
                 // \__t メタタグ: 教えてダイアログを開く（\![open,teachbox] と同等）
                 playbackQueue.append(.deferredCommand {
@@ -2311,7 +2316,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             case "__v":
                 // \__v[disable]...\__v / \__v[alternate,よみ]...\__v
                 // パースだけで捨てず、後続テキストの音声合成状態へ反映する。
-                applyVoiceSynthesisCommand(args)
+                playbackQueue.append(.voiceCommand(args))
             case "!":
                 NSLog("[GhostManager] ! command with args: \(args)")
                 if let first = args.first?.lowercased() {
@@ -2498,7 +2503,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         restoreWallpaper()
                     } else if first == "quicksection", args.count >= 2 {
                         let v = args[1].lowercased()
-                        quickMode = (v == "1" || v == "true")
+                        playbackQueue.append(.setQuickMode(v == "1" || v == "true"))
                     } else if first == "wait", args.count >= 2, args[1].lowercased() == "syncobject" {
                         let name = args.count >= 3 ? args[2] : ""
                         let timeout = args.count >= 4 ? (Double(args[3]) ?? 0) : 0
@@ -4184,12 +4189,20 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// 表示テキストに対応する音声単位をキューへ追加する。
     /// `alternate` は指定範囲内の最初のテキストトークンへ一度だけ適用する。
     private func enqueueSpeech(for text: String) {
+        guard !text.isEmpty else { return }
+        // 音声状態は解析時ではなく、この本文トークンが再生される時点で判定する。
+        // そうしないと `\__v[disable]text\__v` の終了タグが先に解析され、範囲全体が
+        // 無音になってしまう。
+        playbackQueue.append(.speakTextToken(text))
+    }
+
+    private func speakTextToken(_ text: String) {
         guard voiceSynthesisEnabled, !text.isEmpty else { return }
         if let alternate = voiceAlternateText, !voiceAlternateConsumed {
             voiceAlternateConsumed = true
-            playbackQueue.append(.speak(alternate))
+            speakText(alternate)
         } else {
-            playbackQueue.append(.speak(text))
+            speakText(text)
         }
     }
 
@@ -4273,6 +4286,21 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             }
             let unit = playbackQueue.removeFirst()
             switch unit {
+            case .textToken(let text):
+                guard !text.isEmpty else { continue }
+                if quickMode {
+                    // クイックセクションでも、後続のウェイトや制御タグは通常どおり
+                    // キュー上で実行する。本文トークンだけを即時追加する。
+                    appendText(text)
+                    continue
+                }
+                let characters = Array(text)
+                appendText(String(characters[0]))
+                if characters.count > 1 {
+                    playbackQueue.insert(contentsOf: characters.dropFirst().map { .text($0) }, at: 0)
+                }
+                scheduleNext(after: typingInterval)
+                return
             case .scope(let id):
                 // SSP は複数スコープ（\0=sakura / \1=kero / \p[n]）のバルーンを同時表示できる。
                 // スコープ切替では他スコープも切替先スコープ自身のバルーンも消さず、各スコープの
@@ -4311,6 +4339,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 finalizePendingAnchorIfNeeded()
                 // \e でタイムクリティカルセクション終了（UKADOC: \t はスクリプトブレークか \e まで）
                 timeCriticalActive = false
+                continue
+            case .toggleQuickMode:
+                quickMode.toggle()
+                continue
+            case .setQuickMode(let enabled):
+                quickMode = enabled
+                continue
+            case .voiceCommand(let args):
+                applyVoiceSynthesisCommand(args)
                 continue
             case .resetPrecise:
                 preciseBase = Date()
@@ -4385,6 +4422,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 continue
             case .speak(let s):
                 speakText(s)
+                continue
+            case .speakTextToken(let text):
+                speakTextToken(text)
                 continue
             case .newline:
                 // Display newline with delay
