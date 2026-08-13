@@ -128,6 +128,33 @@ struct ShioriLoaderTests {
     }
 
     @Test
+    func shiori2OtherObjectDropEventsReachLegacyBackend() throws {
+        let backend = MockShiori2Backend { _ in
+            "SHIORI/2.2 204 No Content\r\n\r\n"
+        }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OnOtherObjectDropped\r
+        Reference0: 1\r
+        Reference1: 仮想コンピュータ\r
+        Reference2: com.example.virtual-object\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        _ = adapter.request(request)
+
+        let sent = try #require(backend.requests.first)
+        #expect(sent.contains("Event: OnOtherObjectDropped\r\n"))
+        #expect(sent.contains("Reference0: 1\r\n"))
+        #expect(sent.contains("Reference1: 仮想コンピュータ\r\n"))
+        #expect(sent.contains("Reference2: com.example.virtual-object\r\n"))
+    }
+
+    @Test
     func shiori2SentenceResponseBecomesShiori3ValueResponse() throws {
         let backend = MockShiori2Backend { _ in
             """

@@ -213,7 +213,7 @@ enum Shiori2CompatAdapter {
         "OnChoiceSelect", "OnChoiceTimeout",
         "OnSSTPBreak",
         "OnInstallBegin", "OnInstallComplete", "OnInstallFailure", "OnInstallRefuse",
-        "OnFileDropping", "OnFileDropped", "OnDirectoryDrop", "OnWallpaperChange", "OnURLDropping", "OnURLDropped",
+        "OnFileDropping", "OnFileDropped", "OnOtherObjectDropping", "OnOtherObjectDropped", "OnDirectoryDrop", "OnWallpaperChange", "OnURLDropping", "OnURLDropped",
         "OnDisplayChange", "OnNetworkHeavy", "OnSSTPBlacklisting", "OnRecommendsiteChoice",
         "OnBIFF", "OnSNTPComplete", "OnSNTPFailure", "OnHeadlinesenseComplete", "OnHeadlinesenseFailure",
         "OnMusicPlay", "OnNarCreating", "OnNarCreated", "OnUpdatedataCreating", "OnUpdatedataCreated"

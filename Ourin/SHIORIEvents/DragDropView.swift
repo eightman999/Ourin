@@ -28,15 +28,36 @@ final class DragDropReceiverView: NSView {
     var onEvent: ((ShioriEvent) -> Void)?
 
     private static let multiValueSeparator = "\u{01}"
+    private static let genericItemType = NSPasteboard.PasteboardType(UTType.item.identifier)
+    private static let genericDataType = NSPasteboard.PasteboardType(UTType.data.identifier)
+
+    /// ファイル/URL/文字列以外のPasteboardも受け取り、OnOtherObject*へ分類する。
+    /// public.item/public.data はmacOSのドラッグ提供元が独自UTIしか公開しない場合の
+    /// 共通上位型として登録する。
+    static let registeredDraggedTypes: [NSPasteboard.PasteboardType] = [
+        .fileURL,
+        .URL,
+        .string,
+        genericItemType,
+        genericDataType
+    ]
+
+    private static let knownPasteboardTypeIDs: Set<String> = [
+        NSPasteboard.PasteboardType.fileURL.rawValue,
+        NSPasteboard.PasteboardType.URL.rawValue,
+        NSPasteboard.PasteboardType.string.rawValue,
+        genericItemType.rawValue,
+        genericDataType.rawValue
+    ]
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-        registerForDraggedTypes([.fileURL, .URL, .string])
+        registerForDraggedTypes(Self.registeredDraggedTypes)
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        registerForDraggedTypes([.fileURL, .URL, .string])
+        registerForDraggedTypes(Self.registeredDraggedTypes)
     }
 
     /// 標準D&Dイベントの Reference 値を作る（パス・スコープ・MIMEの順）。
@@ -54,6 +75,36 @@ final class DragDropReceiverView: NSView {
             return "inode/directory"
         }
         return UTType(filenameExtension: url.pathExtension)?.preferredMIMEType ?? "application/octet-stream"
+    }
+
+    /// 非ファイルPasteboardを公式のOnOtherObject* Referenceへ変換する。
+    /// macOSにはWindowsのShell Object IDに相当する共通値がないため、独自UTIを
+    /// objectIDとして保持し、文字列表現が取れる場合はnameに使う。
+    static func otherObjectDropReferences(
+        for items: [NSPasteboardItem],
+        scopeID: Int
+    ) -> [String: String] {
+        var names: [String] = []
+        var objectIDs: [String] = []
+
+        for item in items {
+            let typeIDs = item.types.map(\.rawValue)
+            let customTypeIDs = typeIDs.filter { !knownPasteboardTypeIDs.contains($0) }
+            let objectID = customTypeIDs.first ?? typeIDs.first ?? "unknown"
+            let name = customTypeIDs
+                .compactMap { item.string(forType: NSPasteboard.PasteboardType($0)) }
+                .first(where: { !$0.isEmpty })
+                ?? item.string(forType: .string)
+                ?? objectID
+            names.append(name)
+            objectIDs.append(objectID)
+        }
+
+        return [
+            "scopeID": String(scopeID),
+            "name": names.joined(separator: multiValueSeparator),
+            "objectID": objectIDs.joined(separator: multiValueSeparator)
+        ]
     }
 
     /// Drag entered - always allow copy operation
@@ -156,6 +207,14 @@ final class DragDropReceiverView: NSView {
                     return true
                 }
             }
+
+            // ファイル/URL/文字列でないPasteboardは、URL失敗ではなく
+            // WindowsのShell Objectに相当する公式イベントへ渡す。
+            onEvent?(ShioriEvent(
+                id: .OnOtherObjectDropped,
+                refs: Self.otherObjectDropReferences(for: items, scopeID: scopeID)
+            ))
+            return true
         }
         onEvent?(ShioriEvent(id: .OnURLDropFailure, refs: ["filePath": "unsupported_payload"]))
         return false
@@ -164,17 +223,26 @@ final class DragDropReceiverView: NSView {
     private func emitDroppingEvent(from pasteboard: NSPasteboard) {
         guard let items = pasteboard.pasteboardItems else { return }
         var fileURLs: [String] = []
+        var hasURL = false
+        var hasString = false
         for item in items {
             if let fileURL = item.string(forType: .fileURL) {
                 fileURLs.append(fileURL)
             }
             if let urlString = item.string(forType: .URL) {
+                hasURL = true
                 onEvent?(ShioriEvent(id: .OnURLDragDropping, refs: ["url": urlString]))
+            }
+            if item.string(forType: .string) != nil {
+                hasString = true
             }
         }
         if !fileURLs.isEmpty {
             let params = Dictionary(uniqueKeysWithValues: fileURLs.enumerated().map { ("Reference\($0.offset)", $0.element) })
             onEvent?(ShioriEvent(id: .OnFileDropping, params: params))
+        } else if !hasURL && !hasString {
+            onEvent?(ShioriEvent(id: .OnOtherObjectDropping,
+                                 refs: Self.otherObjectDropReferences(for: items, scopeID: scopeID)))
         }
     }
 }

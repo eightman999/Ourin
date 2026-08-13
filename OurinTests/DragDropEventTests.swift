@@ -1,4 +1,6 @@
 import Foundation
+import AppKit
+import UniformTypeIdentifiers
 import Testing
 @testable import Ourin
 
@@ -39,6 +41,28 @@ struct DragDropEventTests {
         #expect(refs["filePath"] == "/tmp/example.txt\u{01}/tmp/example.png")
         #expect(refs["scopeID"] == "2")
         #expect(refs["mimeType"] == "text/plain\u{01}image/png")
+    }
+
+    @Test
+    func otherObjectDropReferencesPreserveNameAndCustomUTI() {
+        let item = NSPasteboardItem()
+        let type = NSPasteboard.PasteboardType("com.example.virtual-object")
+        item.setString("仮想コンピュータ", forType: type)
+
+        let refs = DragDropReceiverView.otherObjectDropReferences(for: [item], scopeID: 1)
+
+        #expect(refs == [
+            "scopeID": "1",
+            "name": "仮想コンピュータ",
+            "objectID": "com.example.virtual-object"
+        ])
+    }
+
+    @Test
+    func genericDraggedTypesAreRegisteredForNonFileObjects() {
+        let registered = Set(DragDropReceiverView.registeredDraggedTypes.map(\.rawValue))
+        #expect(registered.contains(UTType.item.identifier))
+        #expect(registered.contains(UTType.data.identifier))
     }
 
     @Test @MainActor

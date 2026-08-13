@@ -156,6 +156,9 @@ public enum EventReferenceTable {
         .init(id: "OnDragDrop", references: [], category: "dragdrop"),
         .init(id: "OnFileDropped", references: [], category: "dragdrop"),
         .init(id: "OnFileDropping", references: [], category: "dragdrop"),
+        // UKADOC: 非ファイルのPasteboardオブジェクトは scope/name/objectID の順。
+        .init(id: "OnOtherObjectDropping", references: ["scopeID", "name", "objectID"], category: "dragdrop"),
+        .init(id: "OnOtherObjectDropped", references: ["scopeID", "name", "objectID"], category: "dragdrop"),
 
         // MARK: - HTTP / WebSocket
         // UKADOC: Complete/Failure/Progress は R0=method, R1=async ID,
