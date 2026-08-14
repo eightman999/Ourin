@@ -69,6 +69,21 @@ final class DragDropReceiverView: NSView {
         ]
     }
 
+    /// OnFileDropping は MIME を持たないため、ホバー中の参照だけを作る。
+    static func fileDroppingReferences(for urls: [URL], scopeID: Int) -> [String: String] {
+        [
+            "filePath": urls.map(\.path).joined(separator: multiValueSeparator),
+            "scopeID": String(scopeID)
+        ]
+    }
+
+    static func directoryDropReferences(for urls: [URL], scopeID: Int) -> [String: String] {
+        [
+            "dirPath": urls.map(\.path).joined(separator: multiValueSeparator),
+            "scopeID": String(scopeID)
+        ]
+    }
+
     private static func mimeType(for url: URL) -> String {
         var isDirectory: ObjCBool = false
         if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue {
@@ -155,47 +170,42 @@ final class DragDropReceiverView: NSView {
             // For non-.nar files, process as SHIORI events
             if !urls.isEmpty {
                 // ファイルとディレクトリのフルパスを分類する
-                var fileURLsForDrop: [URL] = []
-                var dirPaths: [String] = []
+                var dirURLs: [URL] = []
                 for url in fileURLs {
                     let path = url.path
                     var isDir: ObjCBool = false
                     let exists = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
                     if exists && isDir.boolValue {
-                        dirPaths.append(path)
-                    } else {
-                        fileURLsForDrop.append(url)
+                        dirURLs.append(url)
                     }
                 }
 
                 // 旧仕様の互換イベント（複数ファイルを Reference0.. に列挙）
                 let legacyParams = Dictionary(uniqueKeysWithValues: urls.enumerated().map { ("Reference\($0.offset)", $0.element) })
                 onEvent?(ShioriEvent(id: .OnDragDrop, params: legacyParams))
-                onEvent?(ShioriEvent(id: .OnFileDropped, params: legacyParams))
+                let standardRefs = Self.fileDropReferences(for: fileURLs, scopeID: scopeID)
+                onEvent?(ShioriEvent(id: .OnFileDropped, refs: standardRefs))
 
                 // 標準D&Dイベント: 複数パス／MIMEはバイト値1区切り、Reference1はスコープ番号。
-                if !fileURLsForDrop.isEmpty {
-                    let standardRefs = Self.fileDropReferences(for: fileURLsForDrop, scopeID: scopeID)
-                    onEvent?(ShioriEvent(id: .OnFileDrop, refs: standardRefs))
-                    onEvent?(ShioriEvent(id: .OnFileDropEx, refs: standardRefs))
-                    onEvent?(ShioriEvent(id: .OnFileDrop2, refs: standardRefs))
-                }
-                if !dirPaths.isEmpty {
-                    // OnDirectoryDrop: Reference0=ディレクトリパス、Reference1=スコープ番号
-                    onEvent?(ShioriEvent(id: .OnDirectoryDrop, refs: [
-                        "dirPath": dirPaths.joined(separator: Self.multiValueSeparator),
-                        "scopeID": String(scopeID)
-                    ]))
+                onEvent?(ShioriEvent(id: .OnFileDrop, refs: standardRefs))
+                onEvent?(ShioriEvent(id: .OnFileDropEx, refs: standardRefs))
+                onEvent?(ShioriEvent(id: .OnFileDrop2, refs: standardRefs))
+                if !dirURLs.isEmpty {
+                    onEvent?(ShioriEvent(id: .OnDirectoryDrop,
+                                         refs: Self.directoryDropReferences(for: dirURLs, scopeID: scopeID)))
                 }
                 return true
             }
 
-            // URL strings
+            // URL strings. ここではダウンロードを開始していないため、
+            // OnURLDropping/OnURLDropped/OnURLDropFailure は発火しない。
+            // それらは実ダウンロード経路が開始・完了・失敗した箇所で送る。
             for it in items {
                 if let u = it.string(forType: .URL) {
-                    onEvent?(ShioriEvent(id: .OnURLDropping, refs: ["url": u]))
-                    onEvent?(ShioriEvent(id: .OnURLDropped, refs: ["url": u]))
-                    onEvent?(ShioriEvent(id: .OnURLDrop, refs: ["url": u]))
+                    onEvent?(ShioriEvent(id: .OnURLDrop, refs: [
+                        "url": u,
+                        "scopeID": String(scopeID)
+                    ]))
                     return true
                 }
             }
@@ -216,7 +226,6 @@ final class DragDropReceiverView: NSView {
             ))
             return true
         }
-        onEvent?(ShioriEvent(id: .OnURLDropFailure, refs: ["filePath": "unsupported_payload"]))
         return false
     }
 
@@ -231,15 +240,21 @@ final class DragDropReceiverView: NSView {
             }
             if let urlString = item.string(forType: .URL) {
                 hasURL = true
-                onEvent?(ShioriEvent(id: .OnURLDragDropping, refs: ["url": urlString]))
+                onEvent?(ShioriEvent(id: .OnURLDragDropping, refs: [
+                    "url": urlString,
+                    "scopeID": String(scopeID)
+                ]))
             }
             if item.string(forType: .string) != nil {
                 hasString = true
             }
         }
         if !fileURLs.isEmpty {
-            let params = Dictionary(uniqueKeysWithValues: fileURLs.enumerated().map { ("Reference\($0.offset)", $0.element) })
-            onEvent?(ShioriEvent(id: .OnFileDropping, params: params))
+            let urls = fileURLs.compactMap(URL.init(string:))
+            onEvent?(ShioriEvent(
+                id: .OnFileDropping,
+                refs: Self.fileDroppingReferences(for: urls, scopeID: scopeID)
+            ))
         } else if !hasURL && !hasString {
             onEvent?(ShioriEvent(id: .OnOtherObjectDropping,
                                  refs: Self.otherObjectDropReferences(for: items, scopeID: scopeID)))

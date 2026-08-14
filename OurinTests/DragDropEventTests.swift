@@ -44,6 +44,30 @@ struct DragDropEventTests {
     }
 
     @Test
+    func fileDroppingAndDirectoryReferencesCarryScope() {
+        let file = URL(fileURLWithPath: "/tmp/example.txt")
+        let directory = URL(fileURLWithPath: "/tmp/example-directory", isDirectory: true)
+
+        #expect(DragDropReceiverView.fileDroppingReferences(for: [file], scopeID: 2) == [
+            "filePath": "/tmp/example.txt",
+            "scopeID": "2"
+        ])
+        #expect(DragDropReceiverView.directoryDropReferences(for: [directory], scopeID: 2) == [
+            "dirPath": "/tmp/example-directory",
+            "scopeID": "2"
+        ])
+    }
+
+    @Test
+    func urlDropReferencesUseUrlAndScopeAndDownloadedEventsUseFileFirst() {
+        #expect(EventReferenceTable.specs["OnURLDrop"]?.references == ["url", "scopeID"])
+        #expect(EventReferenceTable.specs["OnURLDragDropping"]?.references == ["url", "scopeID"])
+        #expect(EventReferenceTable.specs["OnURLDropping"]?.references == ["url", "scopeID"])
+        #expect(EventReferenceTable.specs["OnURLDropped"]?.references == ["filePath", "url", "scopeID"])
+        #expect(EventReferenceTable.specs["OnURLDropFailure"]?.references == ["filePath", "reason", "url", "scopeID"])
+    }
+
+    @Test
     func otherObjectDropReferencesPreserveNameAndCustomUTI() {
         let item = NSPasteboardItem()
         let type = NSPasteboard.PasteboardType("com.example.virtual-object")

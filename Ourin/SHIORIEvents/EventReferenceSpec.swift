@@ -173,15 +173,18 @@ public enum EventReferenceTable {
         .init(id: "OnFileDropEx", references: ["filePath", "scopeID", "mimeType"], category: "dragdrop"),
         .init(id: "OnFileDrop2", references: ["filePath", "scopeID", "mimeType"], category: "dragdrop"),
         .init(id: "OnDirectoryDrop", references: ["dirPath", "scopeID"], category: "dragdrop"),
-        .init(id: "OnURLDrop", references: ["url"], category: "dragdrop"),
-        .init(id: "OnURLDropping", references: ["url"], category: "dragdrop"),
-        .init(id: "OnURLDropped", references: ["url"], category: "dragdrop"),
+        // OnURLDrop は macOS の直接URLドロップを表す Ourin 拡張。
+        .init(id: "OnURLDrop", references: ["url", "scopeID"], category: "dragdrop"),
+        // UKADOC: DragDropping/Dropping は URL+scope、Dropped/Failure は
+        // ダウンロード結果を含むため、未実行の段階で値を捏造しない。
+        .init(id: "OnURLDropping", references: ["url", "scopeID"], category: "dragdrop"),
+        .init(id: "OnURLDropped", references: ["filePath", "url", "scopeID"], category: "dragdrop"),
         .init(id: "OnTextDrop", references: ["text"], category: "dragdrop"),
         .init(id: "OnDragEnter", references: [], category: "dragdrop"),
         .init(id: "OnDragLeave", references: [], category: "dragdrop"),
         .init(id: "OnDragDrop", references: [], category: "dragdrop"),
-        .init(id: "OnFileDropped", references: [], category: "dragdrop"),
-        .init(id: "OnFileDropping", references: [], category: "dragdrop"),
+        .init(id: "OnFileDropped", references: ["filePath", "scopeID", "mimeType"], category: "dragdrop"),
+        .init(id: "OnFileDropping", references: ["filePath", "scopeID"], category: "dragdrop"),
         // UKADOC: 非ファイルのPasteboardオブジェクトは scope/name/objectID の順。
         .init(id: "OnOtherObjectDropping", references: ["scopeID", "name", "objectID"], category: "dragdrop"),
         .init(id: "OnOtherObjectDropped", references: ["scopeID", "name", "objectID"], category: "dragdrop"),
@@ -401,7 +404,7 @@ public enum EventReferenceTable {
         .init(id: "OnSurfaceReloaded", references: ["surfaceID"], category: "shell"),
         .init(id: "OnSystemMessage", references: ["title", "body", "level"], category: "system"),
         .init(id: "OnTrayBalloonTimeout", references: ["identifier", "title"], category: "ui"),
-        .init(id: "OnURLDropFailure", references: ["filePath"], category: "dragdrop"),
+        .init(id: "OnURLDropFailure", references: ["filePath", "reason", "url", "scopeID"], category: "dragdrop"),
         .init(id: "OnURLQuery", references: ["url"], category: "dragdrop"),
         .init(id: "OnWallpaperChange", references: ["filePath"], category: "dragdrop"),
         // UKADOC: R2 は予約／空欄、R3=対象種別、R4=更新理由。
@@ -472,7 +475,7 @@ public enum EventReferenceTable {
         .init(id: "OnNSLookupFailure", references: ["host", "output"], category: "network"),
         .init(id: "OnDeviceArrival", references: ["path"], category: "system"),
         .init(id: "OnDeviceRemove", references: ["path"], category: "system"),
-        .init(id: "OnURLDragDropping", references: ["url"], category: "dragdrop"),
+        .init(id: "OnURLDragDropping", references: ["url", "scopeID"], category: "dragdrop"),
         .init(id: "OnGamepadConnected", references: ["deviceName"], category: "input"),
         .init(id: "OnGamepadDisconnected", references: ["deviceName"], category: "input"),
         .init(id: "OnGamepadButtonDown", references: ["button", "deviceName"], category: "input"),
