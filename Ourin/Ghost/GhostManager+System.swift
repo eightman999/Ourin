@@ -102,6 +102,48 @@ enum URLDropPolicy {
     }
 }
 
+/// UKADOC の OnURLDropFailure Reference2 に渡す失敗理由を、URL ドロップ専用に正規化する。
+/// 通常の OnInstallFailure は既存の理由語彙を維持するため、installFailureReason とは分離する。
+enum URLDropFailureReason {
+    static func httpStatus(_ statusCode: Int) -> String {
+        String(statusCode)
+    }
+
+    static func forDownload(error: Error?) -> String {
+        guard let error else { return "fileio" }
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .timedOut:
+                return "timeout"
+            case .cancelled:
+                return "artificial"
+            default:
+                return "fileio"
+            }
+        }
+        return "fileio"
+    }
+
+    static func forInstallation(error: Error) -> String {
+        guard let narError = error as? NarInstaller.Error else { return "fileio" }
+        switch narError {
+        case .notZip, .unsupportedType,
+             .installTxtNotFound, .installTxtDecodeFailed, .installTxtMissingKey,
+             .updateDescriptorNotFound, .updateDescriptorDecodeFailed,
+             .updateDescriptorInvalid, .updateDownloadFailed,
+             .basewareArchiveUnsupported:
+            return "unsupported"
+        case .unzipFailed, .zipSlipDetected, .invalidDeletePath,
+             .deleteInstructionDecodeFailed, .attachedComponentSourceNotFound:
+            return "fileio"
+        case .directoryConflict:
+            return "readonly"
+        case .updateMD5Mismatch:
+            return "md5 miss"
+        }
+    }
+}
+
 private struct ArchiveStatistics {
     let fileCount: Int
     let byteCount: Int64
@@ -4501,14 +4543,10 @@ extension GhostManager: NSWindowDelegate {
             from: rawURL,
             allowInsecureHTTP: allowInsecureHTTP
         ) else {
-            let isBlockedHTTP = rawURL.lowercased().hasPrefix("http://") && !allowInsecureHTTP
-            emitURLDropFailure(
-                localPath: "",
-                reason: isBlockedHTTP ? "insecure_http" : "invalid_url",
-                url: rawURL,
-                scopeID: scopeID,
-                security: security
-            )
+            // URL の構文不正・許可外スキーム・HTTP の明示許可漏れは、まだ
+            // URL の受信を試みていないため OnURLDropFailure の対象ではない。
+            // 失敗イベントは OnURLDropping 後の受信／保存／設置失敗に限定する。
+            Log.info("[GhostManager] rejected URL drop before download: \(rawURL)")
             return
         }
 
@@ -4594,7 +4632,7 @@ extension GhostManager: NSWindowDelegate {
         if error != nil {
             emitURLDropFailure(
                 localPath: localURL?.path ?? "",
-                reason: "network",
+                reason: URLDropFailureReason.forDownload(error: error),
                 url: sourceURL.absoluteString,
                 scopeID: scopeID,
                 security: security
@@ -4606,7 +4644,7 @@ extension GhostManager: NSWindowDelegate {
            !(200...299).contains(httpResponse.statusCode) {
             emitURLDropFailure(
                 localPath: localURL?.path ?? "",
-                reason: "http_\(httpResponse.statusCode)",
+                reason: URLDropFailureReason.httpStatus(httpResponse.statusCode),
                 url: sourceURL.absoluteString,
                 scopeID: scopeID,
                 security: security
@@ -4617,7 +4655,7 @@ extension GhostManager: NSWindowDelegate {
         guard let localURL else {
             emitURLDropFailure(
                 localPath: "",
-                reason: "download_failed",
+                reason: "fileio",
                 url: sourceURL.absoluteString,
                 scopeID: scopeID,
                 security: security
@@ -4653,7 +4691,7 @@ extension GhostManager: NSWindowDelegate {
             case .refused:
                 emitURLDropFailure(
                     localPath: archiveURL?.path ?? localURL.path,
-                    reason: "cancelled",
+                    reason: "artificial",
                     url: sourceURL.absoluteString,
                     scopeID: scopeID,
                     security: security
@@ -4661,7 +4699,7 @@ extension GhostManager: NSWindowDelegate {
             case .failed(let installError):
                 emitURLDropFailure(
                     localPath: archiveURL?.path ?? localURL.path,
-                    reason: installFailureReason(installError),
+                    reason: URLDropFailureReason.forInstallation(error: installError),
                     url: sourceURL.absoluteString,
                     scopeID: scopeID,
                     security: security
@@ -4670,7 +4708,7 @@ extension GhostManager: NSWindowDelegate {
         } catch {
             emitURLDropFailure(
                 localPath: archiveURL?.path ?? localURL.path,
-                reason: installFailureReason(error),
+                reason: URLDropFailureReason.forInstallation(error: error),
                 url: sourceURL.absoluteString,
                 scopeID: scopeID,
                 security: security

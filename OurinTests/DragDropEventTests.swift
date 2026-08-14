@@ -103,6 +103,17 @@ struct DragDropEventTests {
         ])
     }
 
+    @Test
+    func urlDropFailureReasonsUseStandardReasonVocabulary() {
+        #expect(URLDropFailureReason.httpStatus(404) == "404")
+        #expect(URLDropFailureReason.forDownload(error: URLError(.timedOut)) == "timeout")
+        #expect(URLDropFailureReason.forDownload(error: URLError(.cancelled)) == "artificial")
+        #expect(URLDropFailureReason.forDownload(error: URLError(.cannotConnectToHost)) == "fileio")
+        #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.directoryConflict("ghost")) == "readonly")
+        #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.updateMD5Mismatch("ghost.nar")) == "md5 miss")
+        #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.notZip) == "unsupported")
+    }
+
     @Test @MainActor
     func urlDropQueriesOnlyTargetGhostBeforeUnknownActionStops() {
         EventBridge.shared.stop()
@@ -123,6 +134,26 @@ struct DragDropEventTests {
 
         #expect(runtime.requests.map(\.id) == ["OnURLDrop", "OnURLQuery"])
         #expect(runtime.requests.last?.refs == [url, "1", "text/html", "unknown"])
+    }
+
+    @Test @MainActor
+    func invalidURLDropIsRejectedBeforeStandardFailureLifecycle() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-invalid-url-drop-test"))
+        let runtime = DragDropEventRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.handleURLDropEvent(ShioriEvent(
+            id: .OnURLDrop,
+            refs: ["url": "file:///tmp/secret.nar", "scopeID": "1"]
+        ))
+
+        #expect(runtime.requests.isEmpty)
     }
 
     @Test

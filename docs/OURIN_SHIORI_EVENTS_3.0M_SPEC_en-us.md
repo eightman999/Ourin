@@ -64,7 +64,10 @@ as a targeted GET. If it returns no usable script, the standard `OnURLQuery` GET
 the URL, scope number, MIME type, and planned action (`nar` or `unknown`). Only a planned `nar`
 action starts the lifecycle `OnURLDropping` → HTTPS (or explicitly allowed HTTP) download →
 `OnURLDropped` → NAR installation. Network, extraction, or installation failures emit
-`OnURLDropFailure`. `OnURLDropped` is never emitted before the download completes, and unknown
+`OnURLDropFailure`; HTTP failures use the bare status-code string and transport failures are
+normalized to standard reasons such as `timeout` or `fileio`. Malformed URLs, disallowed schemes,
+and HTTP without explicit opt-in are rejected before receipt begins and therefore do not emit the
+standard failure event. `OnURLDropped` is never emitted before the download completes, and unknown
 URLs are not downloaded automatically.
 
 ---
