@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
+#include <limits>
 #include <chrono>
 #include <set>
 #include <cstdlib>
@@ -4010,11 +4011,29 @@ void VM::registerBuiltins() {
         if (itResult != headers.end()) {
             resultValue = itResult->second;
         }
-        // Collect Value0, Value1, ... in numeric order.
-        for (int i = 0; ; ++i) {
-            auto it = headers.find("value" + std::to_string(i));
-            if (it == headers.end()) break;
-            saoriValueex_.push_back(Value(it->second));
+        // Collect every ValueN header in numeric order. Do not stop at a gap:
+        // a SAORI module may omit an optional value while still returning a
+        // later value (for example Value0 and Value2 only).
+        std::map<int, std::string> indexedValues;
+        for (const auto& [key, value] : headers) {
+            if (key.rfind("value", 0) != 0) continue;
+            const std::string suffix = key.substr(5);
+            if (suffix.empty() || !std::all_of(suffix.begin(), suffix.end(),
+                                               [](unsigned char c) { return std::isdigit(c); })) {
+                continue;
+            }
+            try {
+                const long long index = std::stoll(suffix);
+                if (index >= 0 && index <= std::numeric_limits<int>::max()) {
+                    indexedValues[static_cast<int>(index)] = value;
+                }
+            } catch (...) {
+                // Ignore malformed or out-of-range Value headers.
+            }
+        }
+        for (const auto& [index, value] : indexedValues) {
+            (void)index;
+            saoriValueex_.push_back(Value(value));
         }
         return Value(resultValue);
     };
