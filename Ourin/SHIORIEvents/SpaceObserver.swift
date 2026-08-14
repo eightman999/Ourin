@@ -20,5 +20,6 @@ final class SpaceObserver {
     /// 監視を停止する
     func stop() {
         if let t = token { NSWorkspace.shared.notificationCenter.removeObserver(t); token = nil }
+        handler = nil
     }
 }

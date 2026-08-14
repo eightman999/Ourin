@@ -25,6 +25,9 @@ final class SystemLoadObserver {
 
     func stop() {
         timer?.cancel(); timer = nil
+        handler = nil
+        cpuHigh = false
+        memHigh = false
     }
 
     private func check() {

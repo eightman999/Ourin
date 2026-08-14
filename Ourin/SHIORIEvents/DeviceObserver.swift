@@ -45,5 +45,6 @@ final class DeviceObserver {
             center.removeObserver(unmountedObserver)
             self.unmountedObserver = nil
         }
+        handler = nil
     }
 }

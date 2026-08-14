@@ -171,6 +171,7 @@ final class InputMonitor {
         selectionModeActive = false
         selectionStart = nil
         currentSelectionRect = nil
+        handler = nil
     }
 
     func beginSelectionMode(scope: Int, mode: String = "rect") {

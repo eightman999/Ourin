@@ -8,7 +8,10 @@ final class TimerEmitter {
     static let shared = TimerEmitter()
     private var isTesting = false
 
-    private init() {}
+    // The production path uses `shared`; an internal initializer keeps the
+    // timer lifecycle independently testable without sharing mutable state
+    // between concurrently scheduled test cases.
+    init() {}
 
     private var timer: DispatchSourceTimer?
     private var lastMinute: Int?
@@ -35,6 +38,10 @@ final class TimerEmitter {
     /// Stop timers
     func stop() {
         timer?.cancel(); timer = nil
+        handler = nil
+        lastMinute = nil
+        lastHour = nil
+        isTesting = false
         NotificationCenter.default.removeObserver(self)
     }
 
@@ -46,7 +53,8 @@ final class TimerEmitter {
         isTesting = false
     }
 
-    private func tick() {
+    /// Emit one timer tick. The optional date keeps lifecycle behaviour deterministic in tests.
+    func tick(now: Date = Date()) {
         // UKADOC: OnSecondChange / OnMinuteChange / OnHourTimeSignal の Reference
         //   Reference0: OS 連続起動時間 (hour)
         //   Reference1: 見切れフラグ / Reference2: 重なりフラグ
@@ -59,7 +67,6 @@ final class TimerEmitter {
             handler?(ShioriEvent(id: .OnSecondChange, refs: params))
         }
 
-        let now = Date()
         let cal = Calendar.current
         let minute = cal.component(.minute, from: now)
         if minute != lastMinute {

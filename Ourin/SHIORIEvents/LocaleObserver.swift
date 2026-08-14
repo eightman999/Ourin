@@ -24,5 +24,6 @@ final class LocaleObserver {
     /// 監視を停止する
     func stop() {
         if let t = token { NotificationCenter.default.removeObserver(t); token = nil }
+        handler = nil
     }
 }
