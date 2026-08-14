@@ -88,6 +88,36 @@ struct SurfaceOverlayOrderingTests {
 
     @MainActor
     @Test
+    func unloadedCharacterDoesNotHitTestAnOverlay() {
+        let viewModel = CharacterViewModel()
+        let overlayImage = NSImage(size: NSSize(width: 32, height: 32))
+        overlayImage.lockFocus()
+        NSColor.systemRed.setFill()
+        NSRect(origin: .zero, size: overlayImage.size).fill()
+        overlayImage.unlockFocus()
+        viewModel.overlays = [SurfaceOverlay(id: "detached-face", image: overlayImage)]
+
+        let host = CharacterHitTestingHostingView(
+            rootView: CharacterView(viewModel: viewModel),
+            viewModel: viewModel
+        )
+        host.frame = NSRect(x: 0, y: 0, width: 64, height: 64)
+        let window = NSWindow(
+            contentRect: host.frame,
+            styleMask: .borderless,
+            backing: .buffered,
+            defer: false
+        )
+        window.contentView = host
+        window.displayIfNeeded()
+        host.layoutSubtreeIfNeeded()
+        defer { window.orderOut(nil) }
+
+        #expect(host.hitTest(NSPoint(x: 16, y: 16)) == nil)
+    }
+
+    @MainActor
+    @Test
     func animationSurfaceAssetRemovesPureGreenBackground() async throws {
         let repositoryRoot = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()

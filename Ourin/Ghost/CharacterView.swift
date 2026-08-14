@@ -189,9 +189,13 @@ final class CharacterHitTestingHostingView: NSHostingView<CharacterView> {
         guard let hitView = super.hitTest(point) else { return nil }
         guard let viewModel = characterViewModel else { return hitView }
         guard !viewModel.repaintLocked, viewModel.alpha > alphaThreshold else { return nil }
+        // 描画側がベース未ロード中の overlay / 着せ替えを隠している間は、
+        // クリック判定も同じく無効にする。これを省くと見えない顔パーツへ
+        // OnMouse 系イベントが発火してしまう。
+        guard let baseImage = viewModel.image, baseImage.isValid else { return nil }
 
         let localPoint = characterPoint(from: point, viewModel: viewModel)
-        guard isVisibleCharacterPixel(at: localPoint, viewModel: viewModel) else { return nil }
+        guard isVisibleCharacterPixel(at: localPoint, baseImage: baseImage, viewModel: viewModel) else { return nil }
         return hitView
     }
 
@@ -257,15 +261,13 @@ final class CharacterHitTestingHostingView: NSHostingView<CharacterView> {
         )
     }
 
-    private func isVisibleCharacterPixel(at point: CGPoint, viewModel: CharacterViewModel) -> Bool {
+    private func isVisibleCharacterPixel(at point: CGPoint, baseImage: NSImage, viewModel: CharacterViewModel) -> Bool {
         let canvas = CGSize(width: bounds.width, height: bounds.height)
         guard canvas.width > 0, canvas.height > 0 else { return false }
 
-        if let baseImage = viewModel.image {
-            let destination = CGRect(origin: .zero, size: baseImage.size)
-            if image(baseImage, isVisibleAt: point, destination: destination, alpha: 1.0) {
-                return true
-            }
+        let destination = CGRect(origin: .zero, size: baseImage.size)
+        if image(baseImage, isVisibleAt: point, destination: destination, alpha: 1.0) {
+            return true
         }
 
         for overlay in SurfaceOverlay.sortedForDisplay(viewModel.overlays).reversed() {
