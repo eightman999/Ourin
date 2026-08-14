@@ -205,7 +205,7 @@
 </ul>
 <h2 id="5-sstphttpxpc">5. フレーム例（SSTP/HTTP/XPC）</h2>
 <h3 id="51-socket-sstptcp9801-notify">5.1 Socket SSTP（TCP/9801, NOTIFY）</h3>
-<div class="codehilite"><pre><span></span><code>NOTIFY SSTP/1.1
+<pre class="codehilite"><code>NOTIFY SSTP/1.1
 Sender: ExternalApp
 Charset: UTF-8
 Event: OnRequestValues
@@ -214,19 +214,19 @@ Reference1: プロフィール
 Reference2: LIFE
 
 \r\n
-</code></pre></div>
+</code></pre>
 
 <h3 id="52-sstp-over-httppost">5.2 SSTP-over-HTTP（POST）</h3>
-<div class="codehilite"><pre><span></span><code><span class="nf">POST</span> <span class="nn">/api/sstp/v1</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
-<span class="na">Host</span><span class="o">:</span> <span class="l">127.0.0.1</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain; charset=UTF-8</span>
-<span class="na">Content-Length</span><span class="o">:</span> <span class="l">&lt;len&gt;</span>
+<pre class="codehilite"><code>POST /api/sstp/v1 HTTP/1.1
+Host: 127.0.0.1
+Content-Type: text/plain; charset=UTF-8
+Content-Length: &lt;len&gt;
 
 NOTIFY SSTP/1.1
 Sender: ExternalApp
 Event: OnRequestValues
 ...
-</code></pre></div>
+</code></pre>
 
 <h3 id="53-directsstpmacxpc">5.3 DirectSSTP‑Mac（XPC）</h3>
 <ul>
@@ -246,12 +246,29 @@ Event: OnRequestValues
 <li>[ ] ローカルバインド・ポート占有時の自動再試行  </li>
 <li>[ ] 大きな本文・複数 <code>ReferenceN</code>・未知イベント名の透過</li>
 </ul>
-<h2 id="8">8. 変更履歴</h2>
+<h2 id="8-bridgetoshiori-sstp-shiori">8. BridgeToSHIORI — SSTP から SHIORI への橋渡し挙動</h2>
+<p>本節は <code>BridgeToSHIORI.swift</code> / <code>EventBridge.swift</code> の実装に基づく。</p>
+<h3 id="81">8.1 メソッドの保持</h3>
 <ul>
+<li>SSTP からの NOTIFY フレーム（<code>NOTIFY SSTP/1.x</code>）は、SHIORI へ転送する際も <code>NOTIFY SHIORI/3.0</code> として送出する。GET フレームは <code>GET SHIORI/3.0</code> として送出する。</li>
+<li>NOTIFY が GET に変換されることはない（<code>EventBridge.sendNotify</code> は常に <code>method: "NOTIFY"</code> を渡す）。</li>
+</ul>
+<h3 id="82-handle-handleresponse">8.2 handle と handleResponse</h3>
+<p>SSTP ディスパッチャ（<code>SSTPDispatcher</code>）は <code>BridgeToSHIORI.handleResponse</code> を使用し、完全な SHIORI/3.0 ワイヤ応答文字列を受け取る。これにより <code>ReferenceN</code> / <code>Value</code> / <code>ValueNotify</code> / <code>Status</code> 等の全ヘッダが保持される。<br />
+<code>GhostManager</code> / <code>ResourceBridge</code> / <code>WebHandler</code> など他の内部呼び出し元は <code>BridgeToSHIORI.handle</code> を使用し、<code>Value</code>（スクリプト文字列）のみを受け取る。</p>
+<h3 id="83-receiverghostname">8.3 ReceiverGhostName による宛先ルーティング</h3>
+<p>SSTP フレームに <code>ReceiverGhostName</code> ヘッダが含まれる場合、ブリッジは対象ゴーストのセッションへのみリクエストを送る。ヘッダが省略された場合はプライマリ（最初の登録）ゴーストへ送る。</p>
+<h3 id="84-resource">8.4 Resource イベントの扱い</h3>
+<p>SSTP 経由で <code>Resource</code> イベントが送られた場合、<code>references[0]</code> をリソース名として <code>ID: Resource</code> / <code>Reference0: &lt;name&gt;</code> の SHIORI GET として転送する。返値は短いテキスト値として扱う（UKADOC SHIORI/2.5 由来の Resource に対応する 3.0 写像）。</p>
+<h3 id="85">8.5 稼働中ゴーストへの橋渡し</h3>
+<p>ネイティブ SHIORI バンドルが未設定の場合、ブリッジは <code>liveGhostResolver</code> クロージャを通じて実際にロードされた YAYA ゴースト等へリクエストを転送する。宛先ゴーストが存在しない場合は空応答を返す。</p>
+<h2 id="9">9. 変更履歴</h2>
+<ul>
+<li>2026-06-28: §8「BridgeToSHIORI — SSTP から SHIORI への橋渡し挙動」を追加（実装に合わせた動作記述）。</li>
 <li>2025-07-27: 初版（3.0M‑Mac）。</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

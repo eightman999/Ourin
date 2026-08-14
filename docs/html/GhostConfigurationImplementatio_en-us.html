@@ -222,32 +222,32 @@
 <h2 id="usage">Usage</h2>
 <h3 id="automatic-loading">Automatic Loading</h3>
 <p>Configuration is automatically loaded when a ghost starts:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">let</span> <span class="nv">ghostRoot</span> <span class="p">=</span> <span class="n">ghostURL</span><span class="p">.</span><span class="n">appendingPathComponent</span><span class="p">(</span><span class="s">&quot;ghost/master&quot;</span><span class="p">,</span> <span class="n">isDirectory</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
-<span class="k">if</span> <span class="kd">let</span> <span class="nv">config</span> <span class="p">=</span> <span class="n">GhostConfiguration</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="n">ghostRoot</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kc">self</span><span class="p">.</span><span class="n">ghostConfig</span> <span class="p">=</span> <span class="n">config</span>
-    <span class="n">applyGhostConfiguration</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ghostRoot</span><span class="p">:</span> <span class="n">ghostRoot</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-swift">let ghostRoot = ghostURL.appendingPathComponent(&quot;ghost/master&quot;, isDirectory: true)
+if let config = GhostConfiguration.load(from: ghostRoot) {
+    self.ghostConfig = config
+    applyGhostConfiguration(config, ghostRoot: ghostRoot)
+}
+</code></pre>
 
 <h3 id="manual-loading">Manual Loading</h3>
-<div class="codehilite"><pre><span></span><code><span class="c1">// Load from a ghost directory</span>
-<span class="kd">let</span> <span class="nv">config</span> <span class="p">=</span> <span class="n">GhostConfiguration</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="n">ghostRootURL</span><span class="p">)</span>
+<pre class="codehilite"><code class="language-swift">// Load from a ghost directory
+let config = GhostConfiguration.load(from: ghostRootURL)
 
-<span class="c1">// Parse from a dictionary</span>
-<span class="kd">let</span> <span class="nv">dict</span> <span class="p">=</span> <span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;MyGhost&quot;</span><span class="p">,</span> <span class="s">&quot;sakura.name&quot;</span><span class="p">:</span> <span class="s">&quot;Sakura&quot;</span><span class="p">]</span>
-<span class="kd">let</span> <span class="nv">config</span> <span class="p">=</span> <span class="n">GhostConfiguration</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="n">dict</span><span class="p">)</span>
+// Parse from a dictionary
+let dict = [&quot;name&quot;: &quot;MyGhost&quot;, &quot;sakura.name&quot;: &quot;Sakura&quot;]
+let config = GhostConfiguration.parse(from: dict)
 
-<span class="c1">// Create programmatically</span>
-<span class="kd">let</span> <span class="nv">config</span> <span class="p">=</span> <span class="n">GhostConfiguration</span><span class="p">(</span>
-    <span class="n">name</span><span class="p">:</span> <span class="s">&quot;TestGhost&quot;</span><span class="p">,</span>
-    <span class="n">sakuraName</span><span class="p">:</span> <span class="s">&quot;Sakura&quot;</span><span class="p">,</span>
-    <span class="n">keroName</span><span class="p">:</span> <span class="s">&quot;Kero&quot;</span>
-<span class="p">)</span>
-</code></pre></div>
+// Create programmatically
+let config = GhostConfiguration(
+    name: &quot;TestGhost&quot;,
+    sakuraName: &quot;Sakura&quot;,
+    keroName: &quot;Kero&quot;
+)
+</code></pre>
 
 <h3 id="creating-ghost-from-configuration">Creating Ghost from Configuration</h3>
-<div class="codehilite"><pre><span></span><code><span class="kd">let</span> <span class="nv">ghost</span> <span class="p">=</span> <span class="n">Ghost</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="n">config</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="s">&quot;/path/to/ghost&quot;</span><span class="p">)</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-swift">let ghost = Ghost(from: config, path: &quot;/path/to/ghost&quot;)
+</code></pre>
 
 <h2 id="configuration-priority">Configuration Priority</h2>
 <ol>
@@ -272,33 +272,27 @@
 <li>Shift_JIS/CP932 (fallback for compatibility)</li>
 </ul>
 <h2 id="example-descripttxt">Example descript.txt</h2>
-<div class="codehilite"><pre><span></span><code><span class="nx">charset</span><span class="p">,</span><span class="nx">Shift_JIS</span>
-<span class="k">type</span><span class="p">,</span><span class="nx">ghost</span>
-<span class="nx">name</span><span class="p">,</span><span class="nx">Emily</span><span class="o">/</span><span class="nx">Phase4</span><span class="m m-Double">.5</span>
-<span class="nx">sakura</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span><span class="nx">Emily</span>
-<span class="nx">kero</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span><span class="nx">Teddy</span>
-<span class="nx">balloon</span><span class="p">,</span><span class="nx">emily4</span>
-<span class="nx">id</span><span class="p">,</span><span class="nx">Emily</span><span class="o">/</span><span class="nx">Phase4</span><span class="m m-Double">.5</span>
-<span class="nx">char2</span><span class="p">.</span><span class="nx">seriko</span><span class="p">.</span><span class="nx">defaultsurface</span><span class="p">,</span><span class="mi">200</span>
-<span class="nx">name</span><span class="p">.</span><span class="nx">allowoverride</span><span class="p">,</span><span class="mi">0</span>
-<span class="nx">craftmanurl</span><span class="p">,</span><span class="nx">http</span><span class="p">:</span><span class="c1">//ssp.shillest.net/</span>
-<span class="nx">craftman</span><span class="p">,[</span><span class="nx">SSPBT</span><span class="o">/</span><span class="nx">GL03B</span><span class="p">]</span><span class="nx">Emily</span><span class="w"> </span><span class="nx">Development</span><span class="w"> </span><span class="nx">Team</span>
-<span class="nx">sstp</span><span class="p">.</span><span class="nx">allowunspecifiedsend</span><span class="p">,</span><span class="mi">1</span>
-<span class="nx">icon</span><span class="p">,</span><span class="nx">icon</span><span class="p">.</span><span class="nx">ico</span>
-<span class="nx">shiori</span><span class="p">,</span><span class="nx">yaya</span><span class="p">.</span><span class="nx">dll</span>
-<span class="nx">shiori</span><span class="p">.</span><span class="nx">version</span><span class="p">,</span><span class="nx">SHIORI</span><span class="o">/</span><span class="m m-Double">3.0</span>
-</code></pre></div>
+<pre class="codehilite"><code>charset,Shift_JIS
+type,ghost
+name,Emily/Phase4.5
+sakura.name,Emily
+kero.name,Teddy
+balloon,emily4
+id,Emily/Phase4.5
+char2.seriko.defaultsurface,200
+name.allowoverride,0
+craftmanurl,http://ssp.shillest.net/
+craftman,[SSPBT/GL03B]Emily Development Team
+sstp.allowunspecifiedsend,1
+icon,icon.ico
+shiori,yaya.dll
+shiori.version,SHIORI/3.0
+</code></pre>
 
 <h2 id="future-enhancements">Future Enhancements</h2>
 <p>Potential additions identified in the specification:</p>
 <ol>
-<li><strong>MAKOTO Support:</strong></li>
-<li>
-<p><code>makoto</code> DLL specification</p>
-</li>
-<li>
-<p><strong>Advanced Position Control:</strong></p>
-</li>
+<li><strong>Advanced Position Control:</strong></li>
 <li>Shell-specific position overrides</li>
 <li>
 <p>Runtime position persistence</p>
@@ -358,9 +352,9 @@
 </ol>
 <h3 id="character-pattern-parsing">Character Pattern Parsing</h3>
 <p>Additional characters (char2, char3, etc.) are parsed using regex:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">let</span> <span class="nv">charPattern</span> <span class="p">=</span> <span class="s">&quot;^char(</span><span class="se">\\</span><span class="s">d+)</span><span class="se">\\</span><span class="s">.(.+)$&quot;</span>
-<span class="c1">// Matches: char2.name, char3.defaultx, etc.</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-swift">let charPattern = &quot;^char(\\d+)\\.(.+)$&quot;
+// Matches: char2.name, char3.defaultx, etc.
+</code></pre>
 
 <h3 id="error-handling">Error Handling</h3>
 <ul>
@@ -385,7 +379,7 @@
 <li><strong>Balloon System:</strong> Uses balloon preferences from configuration</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

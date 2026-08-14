@@ -235,69 +235,69 @@
 </ul>
 <h2 id="8-onbootoncommunicate">8. 例（OnBoot/OnCommunicate）</h2>
 <p><strong>OnBoot（起動）</strong></p>
-<div class="codehilite"><pre><span></span><code>GET SHIORI/3.0
+<pre class="codehilite"><code>GET SHIORI/3.0
 Charset: UTF-8
 Sender: Ourin
 ID: OnBoot
-</code></pre></div>
+</code></pre>
 
 <p><strong>OnCommunicate（対話）</strong></p>
-<div class="codehilite"><pre><span></span><code>GET SHIORI/3.0
+<pre class="codehilite"><code>GET SHIORI/3.0
 Charset: UTF-8
 Sender: Ourin
 ID: OnCommunicate
 Reference0: こんにちは
-</code></pre></div>
+</code></pre>
 
 <h2 id="9-c-abi">9. 最小実装（C ABI と雛形）</h2>
 <p><strong>ヘッダ</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="c1">// shiori.h (3.0M)</span>
-<span class="cp">#pragma once</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stddef.h&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdbool.h&gt;</span>
+<pre class="codehilite"><code class="language-c">// shiori.h (3.0M)
+#pragma once
+#include &lt;stddef.h&gt;
+#include &lt;stdbool.h&gt;
 
-<span class="cp">#ifdef __cplusplus</span>
-<span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="cp">#endif</span>
-<span class="kt">bool</span><span class="w"> </span><span class="nf">shiori_load</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">dir_utf8</span><span class="p">);</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">shiori_unload</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
-<span class="kt">bool</span><span class="w"> </span><span class="nf">shiori_request</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">req</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">req_len</span><span class="p">,</span>
-<span class="w">                    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">**</span><span class="w"> </span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="o">*</span><span class="w"> </span><span class="n">res_len</span><span class="p">);</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">shiori_free</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
-<span class="cp">#ifdef __cplusplus</span>
-<span class="p">}</span><span class="w"> </span><span class="c1">// extern &quot;C&quot;</span>
-<span class="cp">#endif</span>
-</code></pre></div>
+#ifdef __cplusplus
+extern &quot;C&quot; {
+#endif
+bool shiori_load(const char* dir_utf8);
+void shiori_unload(void);
+bool shiori_request(const unsigned char* req, size_t req_len,
+                    unsigned char** res, size_t* res_len);
+void shiori_free(unsigned char* p);
+#ifdef __cplusplus
+} // extern &quot;C&quot;
+#endif
+</code></pre>
 
 <p><strong>実装（超最小）</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="c1">// shiori.c (3.0M minimal)</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;shiori.h&quot;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<pre class="codehilite"><code class="language-c">// shiori.c (3.0M minimal)
+#include &quot;shiori.h&quot;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
 
-<span class="kt">bool</span><span class="w"> </span><span class="nf">shiori_load</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">dir_utf8</span><span class="p">){</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">dir_utf8</span><span class="p">;</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">shiori_unload</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+bool shiori_load(const char* dir_utf8){ (void)dir_utf8; return true; }
+void shiori_unload(void){}
 
-<span class="k">static</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="nf">duputf8</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">){</span>
-<span class="w">  </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
-<span class="w">  </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">memcpy</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
-<span class="p">}</span>
+static unsigned char* duputf8(const char* s, size_t* out){
+  size_t n = strlen(s);
+  unsigned char* p = (unsigned char*)malloc(n);
+  if(!p) return NULL; memcpy(p, s, n); *out = n; return p;
+}
 
-<span class="kt">bool</span><span class="w"> </span><span class="nf">shiori_request</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">req</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">,</span>
-<span class="w">                    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">**</span><span class="w"> </span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="o">*</span><span class="w"> </span><span class="n">res_len</span><span class="p">){</span>
-<span class="w">  </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">len</span><span class="p">;</span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">ok</span><span class="w"> </span><span class="o">=</span>
-<span class="w">    </span><span class="s">&quot;SHIORI/3.0 200 OK</span><span class="se">\r\n</span><span class="s">&quot;</span>
-<span class="w">    </span><span class="s">&quot;Charset: UTF-8</span><span class="se">\r\n</span><span class="s">&quot;</span>
-<span class="w">    </span><span class="s">&quot;Value: </span><span class="se">\\</span><span class="s">h</span><span class="se">\\</span><span class="s">s0Hello from 3.0M</span><span class="se">\r\n</span><span class="s">&quot;</span>
-<span class="w">    </span><span class="s">&quot;</span><span class="se">\r\n</span><span class="s">&quot;</span><span class="p">;</span>
-<span class="w">  </span><span class="o">*</span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duputf8</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span><span class="w"> </span><span class="n">res_len</span><span class="p">);</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="o">*</span><span class="n">res</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-<span class="p">}</span>
+bool shiori_request(const unsigned char* req, size_t len,
+                    unsigned char** res, size_t* res_len){
+  (void)len;
+  const char *ok =
+    &quot;SHIORI/3.0 200 OK\r\n&quot;
+    &quot;Charset: UTF-8\r\n&quot;
+    &quot;Value: \\h\\s0Hello from 3.0M\r\n&quot;
+    &quot;\r\n&quot;;
+  *res = duputf8(ok, res_len);
+  return *res != NULL;
+}
 
-<span class="kt">void</span><span class="w"> </span><span class="nf">shiori_free</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">){</span><span class="w"> </span><span class="n">free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
-</code></pre></div>
+void shiori_free(unsigned char* p){ free(p); }
+</code></pre>
 
 <h2 id="10-ourin">10. Ourin ホスト実装メモ</h2>
 <ul>
@@ -305,17 +305,76 @@ Reference0: こんにちは
 <li><strong>XPC 分離</strong>する場合は、<code>request(Data)-&gt;Data</code> の固定 IF で橋渡し。  </li>
 <li><strong>macOS 10.15+ / 64bit 専用</strong>、<strong>Universal 2</strong> 配布を基本とする。</li>
 </ul>
+<h2 id="101-bridgetoshiori">10.1 BridgeToSHIORI — イベントパイプライン実装</h2>
+<p><code>BridgeToSHIORI.swift</code> はホスト内部のイベントを SHIORI/3.0 ワイヤへ変換し、ネイティブ SHIORI バンドルまたは稼働中ゴースト（YAYA 等）へ橋渡しするブリッジ層である。</p>
+<h3 id="_2">メソッドの選択</h3>
+<table>
+<thead>
+<tr>
+<th>呼び出し元</th>
+<th>メソッド</th>
+<th>ワイヤ先頭行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sendGet</code> / <code>sendGetCustom</code></td>
+<td><code>GET</code></td>
+<td><code>GET SHIORI/3.0</code></td>
+</tr>
+<tr>
+<td><code>sendNotify</code> / <code>sendNotifyCustom</code></td>
+<td><code>NOTIFY</code></td>
+<td><code>NOTIFY SHIORI/3.0</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>NOTIFY は GET に強制変換されない。<code>EventBridge.sendNotify</code> は必ず <code>method: "NOTIFY"</code> を渡し、<code>BridgeToSHIORI.handle</code> もその値をそのまま <code>ShioriHost.request</code> へ転送する（<code>BridgeToSHIORI.swift:250</code> の <code>let verb = method.uppercased() == "NOTIFY" ? "NOTIFY" : "GET"</code> 参照）。</li>
+<li>時刻系イベント（<code>OnSecondChange</code> 等）は <code>cantalk</code> フラグに応じて GET/NOTIFY を動的に切り替える（<code>EventBridge.swift:443–451</code>）。</li>
+</ul>
+<h3 id="handle-handleresponse">handle と handleResponse の使い分け</h3>
+<p><code>BridgeToSHIORI</code> は 2 つの公開メソッドを持つ。</p>
+<ul>
+<li>
+<p><strong><code>handle(event:references:headers:method:) -&gt; String</code></strong><br />
+  応答の <code>Value</code>（スクリプト文字列）のみを返す。<code>GhostManager</code> / <code>ResourceBridge</code> / <code>WebHandler</code> のように、結果を直接スクリプト値として扱う呼び出し向け。</p>
+</li>
+<li>
+<p><strong><code>handleResponse(event:references:headers:method:) -&gt; String</code></strong><br />
+  完全な SHIORI/3.0 ワイヤ応答文字列を返す（<code>SHIORI/3.0 200 OK\r\n...</code>）。<br />
+<code>SSTPDispatcher.mapShioriResponse</code> が <code>ReferenceN</code> / <code>Value</code> / <code>ValueNotify</code> / <code>Status</code> 等の全ヘッダを解釈できるよう、SSTP ディスパッチャ経路でのみ使用する。</p>
+</li>
+</ul>
+<h3 id="liveghostresolver">稼働中ゴーストへの橋渡し（liveGhostResolver）</h3>
+<p>ネイティブ SHIORI バンドル（<code>SHIORI_BUNDLE_PATH</code> 環境変数）が未設定の場合、<code>handle</code> / <code>handleResponse</code> は <code>liveGhostResolver</code> クロージャを呼び出す。<br />
+このクロージャは AppDelegate が起動時に設定し、実際にロードされた YAYA ゴースト等へリクエストを転送する。<br />
+宛先ゴーストが存在しない、または応答できない場合は <code>nil</code> を返す（<code>handle</code> は空文字列を返す）。</p>
+<p>優先順位: <strong>登録済み Resource 値（テスト用）→ ネイティブ SHIORI バンドル → liveGhostResolver（稼働中ゴースト）</strong></p>
+<h3 id="resource">Resource イベントの正規化</h3>
+<p>イベント名が <code>Resource</code> のとき、<code>references[0]</code> をリソース名として扱う。<br />
+内部では通常の SHIORI <code>GET</code> として送出され（<code>ID: Resource</code> / <code>Reference0: &lt;name&gt;</code>）、返値は短いテキスト値として扱う（UKADOC SHIORI/2.5 由来の Resource に相当する 3.0 写像）。</p>
+<h3 id="receiverghostname">ReceiverGhostName による宛先ルーティング</h3>
+<p>SSTP フレームに <code>ReceiverGhostName</code> ヘッダが含まれる場合、<code>liveGhostResolver</code> はそのゴースト名に一致するセッションへのみリクエストを送る。ヘッダがない場合はプライマリゴーストへ送る。</p>
+<h3 id="_3">ワイヤ直列化における改行サニタイズ</h3>
+<p>稼働中ゴーストからの構造化応答を <code>handleResponse</code> がワイヤ文字列へ直列化する際、各ヘッダ値・Value から CR/LF を除去する。<br />
+SakuraScript の改行は <code>\n</code> トークンで表現するため、生の改行を除去しても表示上の影響はない。</p>
 <h2 id="11-implementation-status">11. 実装状況（Implementation Status）</h2>
-<p><strong>更新日:</strong> 2025-10-20</p>
+<p><strong>更新日:</strong> 2026-07-13</p>
 <h3 id="111-ourin">11.1 Ourin ホスト側の実装</h3>
 <ul>
 <li>[x] <strong>CFBundle によるロード</strong>: <code>ShioriLoader.swift</code> にて実装済み</li>
 <li>[x] <strong>YAYA バックエンド</strong>: <code>YayaBackend</code> および <code>YayaAdapter.swift</code> にて YAYA ゴーストのサポート実装済み</li>
 <li>[x] <strong>文字コード対応</strong>: UTF-8 既定、Shift_JIS/CP932 受理機能を実装済み</li>
 <li>[x] <strong>リクエスト/レスポンス処理</strong>: CRLF + 空行終端の基本的なワイヤプロトコル処理を実装済み</li>
-<li>[ ] <strong>Bundle/Plugin 形式の SHIORI</strong>: C ABI での直接ロードは未実装（現在は YAYA のみ対応）</li>
-<li>[ ] <strong>XPC 分離実行</strong>: 未実装（現在は同一プロセス内で実行）</li>
-<li>[ ] <strong>shiori_free メモリ管理</strong>: C ABI 未実装のため該当なし</li>
+<li>[x] <strong>Bundle/Plugin 形式の SHIORI</strong>: <code>BundleBackend</code> がC ABIを直接ロード</li>
+<li>[x] <strong>XPC 分離実行</strong>: 同梱<code>OurinShioriXPCService</code>で接続単位にNative SHIORIを隔離</li>
+<li>[x] <strong>shiori_free メモリ管理</strong>: <code>BundleBackend</code> / <code>DylibBackend</code> で応答解放を実装</li>
+<li>[x] <strong>共通ランタイム接続</strong>: <code>descript.txt</code> の <code>shiori</code> に従いYAYA/里々/Nativeを選択</li>
+<li>[x] <strong>里々バックエンド</strong>: 固定版SATORIを<code>satori_core</code> helperとしてUniversal 2で同梱</li>
+<li>[x] <strong>表示前トランスレータ</strong>: <code>OnTranslate</code>とghost/shell MAKOTOを仕様順で実行</li>
+<li>[x] <strong>ゴーストキャッシュ</strong>: <code>shiori.cache</code>に従うbounded runtime cacheとSuspend/Restore</li>
+<li>[x] <strong>外部SAORI</strong>: ゴーストローカル探索とWindows名からmacOS native moduleへの代替</li>
 </ul>
 <h3 id="112">11.2 実装済みの機能</h3>
 <ol>
@@ -339,32 +398,28 @@ Reference0: こんにちは
 <li>システムイベントの監視と SHIORI への転送</li>
 <li><code>EventBridge</code> によるイベント配信</li>
 </ol>
-<h3 id="113">11.3 未実装の機能</h3>
+<h3 id="113">11.3 制限事項</h3>
 <ol>
-<li><strong>C ABI での Bundle/Plugin ロード</strong></li>
-<li><code>shiori_load</code>, <code>shiori_request</code>, <code>shiori_unload</code>, <code>shiori_free</code> 関数の実装</li>
+<li><strong>配布ゴースト回帰</strong></li>
 <li>
-<p>CFBundle からの関数ポインタ解決</p>
+<p>里々と外部SAORIは実エンジンfixtureで自動試験済み。第三者配布の里々ゴーストによる実機確認は未実施。</p>
 </li>
 <li>
-<p><strong>XPC サービス分離</strong></p>
+<p><strong>Windowsバイナリ</strong></p>
 </li>
-<li>SHIORI の別プロセス実行</li>
-<li>
-<p>セキュリティサンドボックス分離</p>
-</li>
-<li>
-<p><strong>SHIORI/2.x 互換</strong></p>
-</li>
-<li>2.x プロトコルのサポート</li>
+<li>Windows DLL自体は実行しない。同名のmacOS native <code>.dylib/.so</code>が検索パスにある場合のみ代替する。</li>
 </ol>
 <h2 id="12">12. 適合チェックリスト</h2>
 <ul>
 <li>[x] <code>GET/NOTIFY SHIORI/3.0</code>、CRLF＋空行終端で往復できる（YAYA バックエンドで実装）  </li>
 <li>[x] <code>Charset</code> 未指定は UTF‑8、SJIS系ラベルは CP932 として受理  </li>
 <li>[x] <code>Value</code>/<code>ValueNotify</code> 等の拡張を必要に応じて実装（基本実装済み）  </li>
-<li>[ ] 実体は <code>.bundle/.plugin</code>（Universal 2）＋ <strong>C ABI</strong>（未実装）  </li>
-<li>[ ] <strong>shiori_free</strong> による戻り値解放（未実装）</li>
+<li>[x] 実体は <code>.bundle/.plugin</code>＋ <strong>C ABI</strong> でロード可能</li>
+<li>[x] <strong>shiori_free</strong> による戻り値解放</li>
+<li>[x] 同梱XPC ServiceによるNative SHIORIの既定隔離</li>
+<li>[x] <code>OnTranslate</code> → ghost MAKOTO → shell MAKOTOの表示前変換</li>
+<li>[x] <code>shiori.cache</code>による切替時runtime保持と明示破棄</li>
+<li>[x] SATORI外部SAORIのmacOS native代替探索</li>
 </ul>
 <h2 id="13-normativeinformative">13. 参照（Normative/Informative）</h2>
 <ul>
@@ -375,7 +430,7 @@ Reference0: こんにちは
 <li>macOS 10.15 以降 32bit 非対応</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

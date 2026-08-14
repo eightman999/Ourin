@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin Extensions and Behavioral Notes</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="ourin-extensions-and-behavioral-notes">Ourin Extensions and Behavioral Notes</h1>
+<p>This document summarizes non-standard or platform-specific behavior in Ourin.</p>
+<h2 id="platform-focus">Platform focus</h2>
+<p>Ourin is a macOS-native baseware. Several behaviors intentionally use AppKit/SwiftUI mechanics over strict SSP parity.</p>
+<p>Examples:</p>
+<ul>
+<li>Window control and animation via <code>NSWindow</code> APIs</li>
+<li>Visual effects/state modeled through SwiftUI view models</li>
+<li>Native settings/open flows for browser, mail, dialogs</li>
+</ul>
+<h2 id="sakurascript-execution-model">SakuraScript execution model</h2>
+<p>Parser and executor are separated:</p>
+<ul>
+<li><code>SakuraScriptEngine</code> tokenizes</li>
+<li><code>GhostManager</code> interprets tokens and enqueues playback units</li>
+</ul>
+<p>This supports typing effects, deferred commands, and command timing control.</p>
+<h2 id="extended-move-command-handling">Extended move command handling</h2>
+<p><code>move/moveasync</code> supports option-style forms:</p>
+<ul>
+<li><code>--X</code>, <code>--Y</code></li>
+<li><code>--time</code></li>
+<li><code>--base</code>, <code>--base-offset</code>, <code>--move-offset</code></li>
+<li><code>--option=ignore-sticky-window</code></li>
+<li><code>moveasync,cancel</code> (with optional scope)</li>
+</ul>
+<p>Positional legacy form is kept for compatibility.</p>
+<h2 id="window-group-control-extensions">Window group control extensions</h2>
+<ul>
+<li><code>set,zorder</code> accepts broader scope-token parsing (<code>current</code>, <code>all</code>, delimited lists)</li>
+<li><code>set,sticky-window</code> supports grouped forms (including <code>--group=...|...</code>)</li>
+</ul>
+<p>These are practical extensions for multi-character window control on macOS desktops.</p>
+<h2 id="dressupbind-handling">Dressup/bind handling</h2>
+<p><code>bind</code> supports:</p>
+<ul>
+<li>category form</li>
+<li>repeated tuple form</li>
+<li>disable/unbind semantic values (<code>0</code>, <code>false</code>, <code>off</code>, <code>none</code>, <code>default</code>)</li>
+</ul>
+<p>Rendering is still partial; binding state is maintained for future full compositor behavior.</p>
+<h2 id="seriko-coexistence-model">SERIKO coexistence model</h2>
+<p>Ourin currently keeps:</p>
+<ul>
+<li>legacy <code>AnimationEngine</code> path</li>
+<li>new <code>SerikoParser</code> + <code>SerikoExecutor</code> path</li>
+</ul>
+<p>Runtime uses executor first and can fall back to legacy engine when needed.</p>
+<h2 id="saori-host-bridge">SAORI host bridge</h2>
+<p>YAYA plugin operations are bridged to Swift host via JSON host operations:</p>
+<ul>
+<li><code>saori_load</code></li>
+<li><code>saori_unload</code></li>
+<li><code>saori_request</code></li>
+</ul>
+<p>This is an Ourin architecture choice for stable Rust/C++/Swift boundary handling.</p>
+<h2 id="known-compatibility-notes">Known compatibility notes</h2>
+<ul>
+<li>Some SakuraScript subcommands are partially implemented (documented in <code>SUPPORTED_SAKURA_SCRIPT.md</code>)</li>
+<li>Full SSP-level behavior parity is still in progress for advanced animation/dressup combinations</li>
+<li>Existing test suite includes unrelated historical failures; feature validation is often done with focused test targets</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -146,8 +146,16 @@
             <a href="index.html">← Back to Index</a>
         </div>
         <h1 id="yaya-core-documentation-index">YAYA Core Documentation Index</h1>
-<p><strong>Last Updated</strong>: 2025-10-16<br />
-<strong>Status</strong>: Investigation Complete, Ready for Implementation</p>
+<p><strong>Last Updated</strong>: 2026-06-27
+<strong>Status</strong>: Historical investigation document; superseded by current implementation status</p>
+<blockquote>
+<p><strong>Status correction:</strong> this document records the 2025 pre-implementation
+investigation state. The current <code>yaya_core</code> contains a C++ parser/VM,
+dictionary loading, CP932/UTF-8 handling, SHIORI IPC, and broad built-in
+function coverage. It is still partial rather than 100% faithful. Use
+<a href="../yaya_core/IMPLEMENTATION_STATUS.md"><code>../yaya_core/IMPLEMENTATION_STATUS.md</code></a>
+and <a href="AUDITS_COMPLETED.md"><code>AUDITS_COMPLETED.md</code></a> / <a href="AUDITS_TODO.md"><code>AUDITS_TODO.md</code></a> for current status.</p>
+</blockquote>
 <hr />
 <h2 id="quick-navigation">📋 Quick Navigation</h2>
 <h3 id="for-decision-makers">For Decision Makers</h3>
@@ -269,7 +277,11 @@
 <hr />
 <h2 id="investigation-summary">🔍 Investigation Summary</h2>
 <h3 id="what-we-found">What We Found</h3>
-<p><strong>The yaya_core module EXISTS in the repository</strong>, but only the IPC communication layer is implemented. The actual YAYA language interpreter (parser, VM, built-in functions) is <strong>NOT implemented</strong> (stub only).</p>
+<p><strong>Historical note:</strong> at the time of this 2025 investigation, the yaya_core module
+only had the IPC communication layer implemented. That is no longer accurate:
+the repository now contains a parser, VM, dictionary loader, encoding support,
+and broad built-in function coverage. Remaining limitations are tracked in
+<code>yaya_core/IMPLEMENTATION_STATUS.md</code>.</p>
 <h3 id="current-status-matrix">Current Status Matrix</h3>
 <table>
 <thead>
@@ -302,23 +314,23 @@
 </tr>
 <tr>
 <td>Dictionary Parser</td>
-<td>❌ Stub</td>
-<td>Needs implementation</td>
+<td>🟡 Partial</td>
+<td>Implemented with known compatibility limits</td>
 </tr>
 <tr>
 <td>YAYA VM</td>
-<td>❌ Stub</td>
-<td>Needs implementation</td>
+<td>🟡 Partial</td>
+<td>Implemented; by-reference and standalone <code>when</code> remain partial</td>
 </tr>
 <tr>
 <td>Built-in Functions</td>
-<td>❌ Stub</td>
-<td>Needs implementation</td>
+<td>🟡 Partial</td>
+<td>Broad coverage; some functions remain stubs</td>
 </tr>
 <tr>
 <td>SHIORI Adapter</td>
-<td>❌ Stub</td>
-<td>Needs implementation</td>
+<td>✅ Implemented</td>
+<td>Integrated through Swift host/JSON-line IPC</td>
 </tr>
 </tbody>
 </table>
@@ -338,23 +350,23 @@
 3. Performance tuning more challenging
 4. Can always migrate later (IPC isolation)</p>
 <h3 id="implementation-timeline">Implementation Timeline</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">Phase</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">MVP</span><span class="w"> </span><span class="p">(</span><span class="mi">3</span><span class="w"> </span><span class="n">weeks</span><span class="p">)</span>
-<span class="err">├─</span><span class="w"> </span><span class="n">Week</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">Lexer</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">loading</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">UTF</span><span class="o">-</span><span class="mi">8</span><span class="o">/</span><span class="n">CP932</span><span class="w"> </span><span class="n">support</span>
-<span class="err">├─</span><span class="w"> </span><span class="n">Week</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">Parser</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">VM</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">basic</span><span class="w"> </span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="w"> </span><span class="n">functions</span>
-<span class="err">└─</span><span class="w"> </span><span class="n">Week</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">SHIORI</span><span class="w"> </span><span class="n">integration</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Emily4</span><span class="w"> </span><span class="n">testing</span>
+<pre class="codehilite"><code>Phase 1: MVP (3 weeks)
+├─ Week 1: Lexer + file loading + UTF-8/CP932 support
+├─ Week 2: Parser + VM + basic built-in functions
+└─ Week 3: SHIORI integration + Emily4 testing
 
-<span class="n">Phase</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">Extended</span><span class="w"> </span><span class="n">Features</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="o">-</span><span class="mi">3</span><span class="w"> </span><span class="n">weeks</span><span class="p">)</span>
-<span class="err">├─</span><span class="w"> </span><span class="n">Arrays</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">dictionaries</span>
-<span class="err">├─</span><span class="w"> </span><span class="n">Loop</span><span class="w"> </span><span class="n">structures</span><span class="w"> </span><span class="p">(</span><span class="k">while</span><span class="o">/</span><span class="n">foreach</span><span class="p">)</span>
-<span class="err">├─</span><span class="w"> </span><span class="n">Regular</span><span class="w"> </span><span class="n">expressions</span>
-<span class="err">└─</span><span class="w"> </span><span class="n">Performance</span><span class="w"> </span><span class="n">optimization</span>
+Phase 2: Extended Features (2-3 weeks)
+├─ Arrays and dictionaries
+├─ Loop structures (while/foreach)
+├─ Regular expressions
+└─ Performance optimization
 
-<span class="n">Phase</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">Quality</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Optimization</span><span class="w"> </span><span class="p">(</span><span class="n">ongoing</span><span class="p">)</span>
-<span class="err">├─</span><span class="w"> </span><span class="n">Memory</span><span class="w"> </span><span class="n">leak</span><span class="w"> </span><span class="n">validation</span>
-<span class="err">├─</span><span class="w"> </span><span class="n">Performance</span><span class="w"> </span><span class="n">profiling</span>
-<span class="err">├─</span><span class="w"> </span><span class="n">Multi</span><span class="o">-</span><span class="n">ghost</span><span class="w"> </span><span class="n">compatibility</span>
-<span class="err">└─</span><span class="w"> </span><span class="p">(</span><span class="n">Optional</span><span class="p">)</span><span class="w"> </span><span class="n">Swift</span><span class="w"> </span><span class="n">VM</span><span class="w"> </span><span class="n">migration</span>
-</code></pre></div>
+Phase 3: Quality &amp; Optimization (ongoing)
+├─ Memory leak validation
+├─ Performance profiling
+├─ Multi-ghost compatibility
+└─ (Optional) Swift VM migration
+</code></pre>
 
 <h3 id="success-criteria">Success Criteria</h3>
 <p><strong>Phase 1 MVP is complete when</strong>:
@@ -366,7 +378,7 @@
 <hr />
 <h2 id="architecture-quick-reference">🏗️ Architecture Quick Reference</h2>
 <h3 id="system-layers">System Layers</h3>
-<div class="codehilite"><pre><span></span><code>┌──────────────────────────────────┐
+<pre class="codehilite"><code>┌──────────────────────────────────┐
 │   Ourin.app (Swift)              │
 │   - UI Layer                     │
 │   - YayaAdapter (IPC Client)     │
@@ -379,7 +391,7 @@
 │   - Lexer/Parser/VM              │
 │   - SHIORI Adapter               │
 └──────────────────────────────────┘
-</code></pre></div>
+</code></pre>
 
 <h3 id="component-responsibilities">Component Responsibilities</h3>
 <p><strong>Swift Layer</strong> (No changes needed):
@@ -522,7 +534,7 @@ A: Phase 1 MVP should be complete in 3 weeks, providing basic functionality.</p>
 </ul>
 <hr />
 <h2 id="license">📄 License</h2>
-<p>All documentation: CC BY-SA 4.0<br />
+<p>All documentation: CC BY-SA 4.0
 Code (yaya_core): BSD-3-Clause (YAYA compatible)</p>
 <hr />
 <p><strong>Project</strong>: Ourin (桜鈴) - macOS Native Ukagaka Baseware<br />
@@ -531,7 +543,7 @@ Code (yaya_core): BSD-3-Clause (YAYA compatible)</p>
 <p><strong>Prepared by</strong>: GitHub Copilot<br />
 <strong>Date</strong>: 2025-10-16</p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

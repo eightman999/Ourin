@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sakura Script Commands - Supported in Ourin</title>
+    <title>Sakura Script Commands - Ourin 対応状況</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
@@ -145,31 +145,1345 @@
         <div class="back-link">
             <a href="index.html">← 目次に戻る</a>
         </div>
-        <h1 id="sakura-script-commands-supported-in-ourin">Sakura Script Commands - Supported in Ourin</h1>
-<p><strong>ステータス:</strong> 翻訳待ち<br />
-<strong>原本:</strong> <a href="./SAKURASCRIPT_COMMANDS_SUPPORTED_en-us.md">SAKURASCRIPT_COMMANDS_SUPPORTED_en-us.md</a><br />
-<strong>言語:</strong> 日本語</p>
-<hr />
-<h2 id="_1">翻訳ノート</h2>
-<p>このドキュメントは英語原本の日本語翻訳用プレースホルダーです。</p>
-<p>英語版が正式な仕様を含んでいます。この日本語版は以下を維持しながら翻訳すべきです：</p>
+        <h1 id="sakura-script-commands-ourin">Sakura Script Commands - Ourin 対応状況</h1>
+<p>これは en-us 版オリジナル（<code>SAKURASCRIPT_COMMANDS_SUPPORTED_en-us.md</code>）の日本語版です。</p>
+<p>このドキュメントは、現在 Ourin の <code>SakuraScriptEngine</code> がサポートしているすべてのさくらスクリプトコマンドを一覧化したものです。</p>
+<h2 id="2026-03-ukadoc">2026-03 ukadoc ギャップ監査（優先度順）</h2>
+<p>ukadoc（<code>/manual/list_sakura_script.html</code>）と <code>GhostManager</code> の現行ランタイムハンドラを比較した結果、主な残存ギャップは以下のとおりです。</p>
+<ol>
+<li><strong>イベント連携のギャップ（高）</strong>  </li>
+<li><code>\![embed,event,...]</code> インラインイベント埋め込み  </li>
+<li><code>\![timerraise,ms,repeat,event,...]</code> 遅延／繰り返しイベント発火  </li>
+<li>
+<p>ステータス: <strong>本アップデートで実装済み</strong></p>
+</li>
+<li>
+<p><strong>ランタイム切り替えのギャップ（高）</strong>  </p>
 <ul>
-<li>技術的正確性</li>
-<li>他の日本語ドキュメントとの用語の一貫性</li>
-<li>元の構造とフォーマット</li>
-<li>すべてのコード例は変更なし</li>
-<li>コメントと説明部分の適切な翻訳</li>
+<li><code>\![change,ghost,name]</code> 完全なゴースト切り替えセマンティクス  </li>
+<li><code>\![change,shell,name]</code> シェル切り替えと再描画  </li>
+<li><code>\![change,balloon,name]</code> バルーン設定切り替え  </li>
 </ul>
-<hr />
-<h2 id="_2">内容</h2>
-<p><em>(英語原本から翻訳予定)</em></p>
-<hr />
-<p><strong>翻訳ステータス:</strong> ⏳ 待機中<br />
-<strong>翻訳者:</strong> 未定<br />
-<strong>レビュー:</strong> 未定<br />
-<strong>最終更新日:</strong> 2025-10-23</p>
+</li>
+<li>ステータス: <strong>本アップデートで拡張</strong>（<code>--option=raise-event</code>、<code>OnGhostChanging/Changed</code>、<code>OnShellChanging/Changed</code>、<code>OnBalloonChange</code>）</li>
+<li>
+<p>関連: <code>\![call,ghost,name]</code> ランタイムパスを <code>OnGhostCalling/OnGhostCalled</code> とともに追加</p>
+</li>
+<li>
+<p><strong>ダイアログ系のギャップ（高）</strong>  </p>
+</li>
+<li><code>\![open,inputbox|dateinput|sliderinput|dialog|teachbox,...]</code>  </li>
+<li>
+<p>ステータス: <strong>本アップデートで拡張</strong>（<code>passwordinput|timeinput|ipinput</code> を追加、<code>--timeout</code>、<code>--text</code> などのオプション形式引数、ダイアログサブタイプ <code>open/save/folder/color</code> に対応）</p>
+</li>
+<li>
+<p><strong>入力以外の open 系（高）</strong>  </p>
+</li>
+<li><code>\![open,browser|mailer|editor|explorer|file|readme|terms|help,...]</code> および <code>\![open,communicatebox]</code>  </li>
+<li><code>\![close,inputbox|communicatebox|dialog|teachbox,...]</code>  </li>
+<li>ステータス: <strong>本アップデートで実装済み</strong>（ランタイムルーティングを追加し、既存のダイアログイベントパスを再利用）</li>
+<li>
+<p>拡張: <code>\![open,ghostexplorer|shellexplorer|balloonexplorer|headlinesensorexplorer|pluginexplorer|rateofusegraph|calendar|messenger|surfacetest|aigraph]</code></p>
+</li>
+<li>
+<p><strong>プラグインイベント系（高）</strong>  </p>
+</li>
+<li><code>\![raiseplugin|notifyplugin,plugin,event,...]</code>  </li>
+<li><code>\![timerraiseplugin|timernotifyplugin,ms,repeat,plugin,event,...]</code>  </li>
+<li>
+<p>ステータス: <strong>本アップデートで実装済み</strong>（id／name／filename に加えて <code>random</code>／<code>lastinstalled</code> によるプラグインターゲット解決、タイマーの上書き／キャンセルセマンティクス）</p>
+</li>
+<li>
+<p><strong>サウンド拡張系（中）</strong>  </p>
+</li>
+<li><code>\![sound,play|load|loop|wait|pause|resume|stop|option,...]</code>  </li>
+<li>
+<p>ステータス: <strong>本アップデートで拡張</strong>（<code>load/wait/pause/resume/option</code> ランタイムパスを追加）</p>
+</li>
+<li>
+<p><strong>セマンティクス不一致コマンド（中）</strong>  </p>
+</li>
+<li><code>\6</code>、<code>\7</code>、<code>\-</code> の挙動が一部 ukadoc の期待と異なる  </li>
+<li>
+<p>ステータス: <strong>本アップデートで対応</strong>（<code>\7</code> は SNTP フローを開始、<code>\6</code> は SNTP 調整アクションを適用、<code>\-</code> はゴーストを終了）</p>
+</li>
+<li>
+<p><strong>ゴースト間イベントルーティング（高）</strong>  </p>
+</li>
+<li><code>\![raiseother,...]</code>、<code>\![notifyother,...]</code>  </li>
+<li><code>\![timerraiseother,...]</code>、<code>\![timernotifyother,...]</code>  </li>
+<li>
+<p>ステータス: <strong>本アップデートで実装済み</strong>（バイト1区切り文字や <code>__SYSTEM_ALL_GHOST__</code> を含むターゲット解析、キー単位のタイマースケジューリング／キャンセル）</p>
+</li>
+<li>
+<p><strong>notify タイマーセマンティクス（高）</strong>  </p>
+</li>
+<li><code>\![notify,...]</code>、<code>\![timernotify,...]</code> のレスポンス処理とタイマー挙動  </li>
+<li>ステータス: <strong>本アップデートで実装済み</strong>（<code>notify</code> はレスポンススクリプトを破棄するようになり、<code>timerraise/timernotify</code> は 0=繰り返し、&gt;=1=一回限り に従い、<code>ms=0</code> によるイベント単位のキャンセル／上書きをサポート）</li>
+</ol>
+<h2 id="_1">スコープコマンド</h2>
+<h3 id="_2">キャラクター／スコープ選択</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\0</code> or <code>\h</code></td>
+<td>Sakura（キャラクター0）に切り替え</td>
+<td><code>\0Hello from Sakura</code></td>
+</tr>
+<tr>
+<td><code>\1</code> or <code>\u</code></td>
+<td>Unyuu（キャラクター1）に切り替え</td>
+<td><code>\1Hello from Unyuu</code></td>
+</tr>
+<tr>
+<td><code>\pN</code></td>
+<td>キャラクターN（0-9）に切り替え</td>
+<td><code>\p2Hello from third character</code></td>
+</tr>
+<tr>
+<td><code>\p[N]</code></td>
+<td>キャラクターN（任意のID）に切り替え</td>
+<td><code>\p[15]Hello from character 15</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">サーフェスコマンド</h2>
+<h3 id="_4">サーフェス表示</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\sN</code></td>
+<td>サーフェスをID N（0-9）に変更</td>
+<td><code>\s1Switch to surface 1</code></td>
+</tr>
+<tr>
+<td><code>\s[N]</code></td>
+<td>サーフェスをID N（任意のID）に変更</td>
+<td><code>\s[100]Switch to surface 100</code></td>
+</tr>
+<tr>
+<td><code>\s[-1]</code></td>
+<td>サーフェスを非表示</td>
+<td><code>\s[-1]Character becomes invisible</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_5">アニメーションコマンド</h2>
+<h3 id="_6">基本アニメーション</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\i[ID]</code></td>
+<td>アニメーションIDを再生</td>
+<td><code>\i[10]Play animation 10</code></td>
+</tr>
+<tr>
+<td><code>\i[ID,wait]</code></td>
+<td>アニメーションを再生し完了まで待機</td>
+<td><code>\i[100,wait]This text appears after animation</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">アニメーション制御（<code>\!</code> コマンド経由）</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![anim,clear,ID]</code></td>
+<td>アニメーションIDを停止</td>
+<td><code>\![anim,clear,100]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,pause,ID]</code></td>
+<td>アニメーションIDを一時停止</td>
+<td><code>\![anim,pause,200]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,resume,ID]</code></td>
+<td>一時停止中のアニメーションIDを再開</td>
+<td><code>\![anim,resume,200]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,offset,ID,x,y]</code></td>
+<td>アニメーション位置をオフセット</td>
+<td><code>\![anim,offset,300,40,50]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,stop]</code></td>
+<td>すべてのアニメーションを停止</td>
+<td><code>\![anim,stop]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">アニメーションレイヤー制御</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![anim,add,overlay,ID]</code></td>
+<td>現在のサーフェスにサーフェスIDをオーバーレイ</td>
+<td><code>\![anim,add,overlay,10]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,add,overlayfast,ID]</code></td>
+<td>overlayfast モードでオーバーレイ</td>
+<td><code>\![anim,add,overlayfast,10]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,add,base,ID]</code></td>
+<td>ベースサーフェスをIDに変更</td>
+<td><code>\![anim,add,base,5]</code></td>
+</tr>
+<tr>
+<td><code>\![anim,add,move,x,y]</code></td>
+<td>サーフェスを座標に移動</td>
+<td><code>\![anim,add,move,100,200]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_9">バルーンコマンド</h2>
+<h3 id="id">バルーンID切り替え</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\bN</code></td>
+<td>バルーンをID N（0-9のみ）に変更</td>
+<td><code>\b2Switch to balloon 2</code></td>
+</tr>
+<tr>
+<td><code>\b[ID]</code></td>
+<td>バルーンをID（任意のID、負数で非表示）に変更</td>
+<td><code>\b[2]Large balloon</code></td>
+</tr>
+<tr>
+<td><code>\b[-1]</code></td>
+<td>バルーンを非表示</td>
+<td><code>\b[-1]Hidden</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意:</strong>
+- メインキャラクターのバルーンには偶数ID（0, 2, 4, 6, 8）のみ使用可能
+- 奇数IDはパートナー／右側バルーン用に予約されています
+- SSP 2.6.34+ はフォールバック構文をサポート: <code>\b[ID1,--fallback=ID2,--fallback=ID3]</code></p>
+<h3 id="_10">バルーン画像</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\_b[file,x,y]</code></td>
+<td>XY座標に画像を表示（左上を透過）</td>
+<td><code>\_b[image\test.png,50,100]</code></td>
+</tr>
+<tr>
+<td><code>\_b[file,x,y,opaque]</code></td>
+<td>透過なしで画像を表示</td>
+<td><code>\_b[test.png,0,15,opaque]</code></td>
+</tr>
+<tr>
+<td><code>\_b[file,inline]</code></td>
+<td>テキストとインラインで画像を表示</td>
+<td><code>Text\_b[icon.png,inline]more</code></td>
+</tr>
+<tr>
+<td><code>\_b[file,inline,opaque]</code></td>
+<td>透過なしでインライン画像を表示</td>
+<td><code>\_b[icon.png,inline,opaque]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>オプション</strong>（<code>\_b[file,x,y,options...]</code> または <code>\_b[file,inline,options...]</code> 用）:
+- <code>--option=opaque</code> - 透過なし
+- <code>--option=use_self_alpha</code> - PNGのアルファチャンネルを使用
+- <code>--clipping=left top right bottom</code> - 画像領域を切り抜き
+- <code>--option=fixed</code> - テキストとともにスクロールしない
+- <code>--option=background</code> - テキストの背後に表示（デフォルト）
+- <code>--option=foreground</code> - テキストの前面に表示</p>
+<p><strong>例:</strong></p>
+<pre class="codehilite"><code>\_b[test.png,10,20,--option=use_self_alpha,--clipping=100 30 150 90,--option=foreground]
+</code></pre>
+
+<h3 id="_11">バルーン制御</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,autoscroll,disable]</code></td>
+<td>オートスクロールを無効化</td>
+<td><code>\![set,autoscroll,disable]</code></td>
+</tr>
+<tr>
+<td><code>\![set,autoscroll,enable]</code></td>
+<td>オートスクロールを有効化</td>
+<td><code>\![set,autoscroll,enable]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonoffset,x,y]</code></td>
+<td>バルーンオフセットを設定</td>
+<td><code>\![set,balloonoffset,100,-50]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonoffset,@x,@y]</code></td>
+<td>バルーンの相対オフセットを設定</td>
+<td><code>\![set,balloonoffset,@100,@-50]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonalign,DIR]</code></td>
+<td>バルーンの配置を設定（left/center/top/right/bottom/none）</td>
+<td><code>\![set,balloonalign,top]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonmarker,text]</code></td>
+<td>SSTP受信マーカーを設定</td>
+<td><code>\![set,balloonmarker,SSTP]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonnum,file,cur,max]</code></td>
+<td>ファイル転送インジケータを設定</td>
+<td><code>\![set,balloonnum,test.zip,1,5]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloontimeout,ms]</code></td>
+<td>バルーンタイムアウトを設定（0 または -1 = タイムアウトなし）</td>
+<td><code>\![set,balloontimeout,3000]</code></td>
+</tr>
+<tr>
+<td><code>\![set,balloonwait,rate]</code></td>
+<td>テキスト速度の倍率を設定</td>
+<td><code>\![set,balloonwait,1.5]</code></td>
+</tr>
+<tr>
+<td><code>\![set,serikotalk,true/false]</code></td>
+<td>SERIKOの口パクアニメーションを有効化／無効化</td>
+<td><code>\![set,serikotalk,false]</code></td>
+</tr>
+<tr>
+<td><code>\![enter,onlinemode]</code></td>
+<td>オンラインマーカー表示を強制</td>
+<td><code>\![enter,onlinemode]</code></td>
+</tr>
+<tr>
+<td><code>\![leave,onlinemode]</code></td>
+<td>オンラインマーカーを非表示</td>
+<td><code>\![leave,onlinemode]</code></td>
+</tr>
+<tr>
+<td><code>\![enter,nouserbreakmode]</code></td>
+<td>ユーザーによるスクリプト中断を無効化</td>
+<td><code>\![enter,nouserbreakmode]</code></td>
+</tr>
+<tr>
+<td><code>\![leave,nouserbreakmode]</code></td>
+<td>ユーザーによるスクリプト中断を有効化</td>
+<td><code>\![leave,nouserbreakmode]</code></td>
+</tr>
+<tr>
+<td><code>\![lock,balloonrepaint]</code></td>
+<td>アンロックまたはスクリプト終了までバルーンの再描画をロック</td>
+<td><code>\![lock,balloonrepaint]</code></td>
+</tr>
+<tr>
+<td><code>\![lock,balloonrepaint,manual]</code></td>
+<td>明示的なアンロックまでバルーンの再描画をロック</td>
+<td><code>\![lock,balloonrepaint,manual]</code></td>
+</tr>
+<tr>
+<td><code>\![unlock,balloonrepaint]</code></td>
+<td>バルーンの再描画をアンロック</td>
+<td><code>\![unlock,balloonrepaint]</code></td>
+</tr>
+<tr>
+<td><code>\![lock,balloonmove]</code></td>
+<td>バルーンのドラッグ移動を禁止</td>
+<td><code>\![lock,balloonmove]</code></td>
+</tr>
+<tr>
+<td><code>\![unlock,balloonmove]</code></td>
+<td>バルーンのドラッグ移動を許可</td>
+<td><code>\![unlock,balloonmove]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_12">テキスト制御コマンド</h2>
+<h3 id="_13">基本テキスト制御</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\n</code></td>
+<td>改行</td>
+<td><code>Line 1\nLine 2</code></td>
+</tr>
+<tr>
+<td><code>\n[half]</code></td>
+<td>半分の高さの改行</td>
+<td><code>Line 1\n[half]Line 2</code></td>
+</tr>
+<tr>
+<td><code>\n[percent]</code></td>
+<td>任意の高さの改行（行高に対する%）</td>
+<td><code>Line 1\n[150]Line 2</code></td>
+</tr>
+<tr>
+<td><code>\e</code></td>
+<td>スクリプト終了</td>
+<td><code>Done\e</code></td>
+</tr>
+<tr>
+<td><code>\C</code></td>
+<td>追記モード（前のバルーンに追記）</td>
+<td><code>\CAppend to previous</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_14">テキスト配置</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\_l[x,y]</code></td>
+<td>カーソルをXY座標に配置</td>
+<td><code>\_l[30,100]Positioned</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>座標フォーマット:</strong>
+- 数値: 左上からのピクセル（例: <code>30</code>）
+- em: 文字の高さ（例: <code>5em</code>）
+- lh: 行の高さ（例: <code>2lh</code>）
+- %: 文字高に対する割合（例: <code>100%</code>）
+- @: 現在位置からの相対（例: <code>@-100</code>）
+- パラメータを省略すると現在値を維持（例: <code>\_l[,@-100]</code> はYのみ移動）</p>
+<p><strong>例:</strong></p>
+<pre class="codehilite"><code>\_l[30,5em]       Text at X=30px, Y=5 characters
+\_l[@-1650%,100]  X=left 16.5 characters, Y=100px
+\_l[,@-100]       Same X, 100px up
+</code></pre>
+
+<h3 id="_15">テキストクリア</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\c</code></td>
+<td>現在のスコープのバルーンをクリア</td>
+<td><code>Text\cCleared</code></td>
+</tr>
+<tr>
+<td><code>\c[char,N]</code></td>
+<td>カーソルからN文字をクリア</td>
+<td><code>Delete\c[char,3]End</code></td>
+</tr>
+<tr>
+<td><code>\c[char,N,start]</code></td>
+<td>指定位置からN文字をクリア</td>
+<td><code>Text\c[char,3,4]End</code></td>
+</tr>
+<tr>
+<td><code>\c[line,N]</code></td>
+<td>カーソルからN行をクリア</td>
+<td><code>Line 1\nLine 2\c[line,1]</code></td>
+</tr>
+<tr>
+<td><code>\c[line,N,start]</code></td>
+<td>指定位置からN行をクリア</td>
+<td><code>\c[line,1,2]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意:</strong>
+- 文字／行のカウントは表示位置ではなくスクリプト順に従います
+- <code>\_b[file,inline]</code> 画像は1文字としてカウントされます
+- <code>\n</code>、<code>\n[...]</code>、<code>\_l[x,y]</code> で区切られた行は別々の行としてカウントされます
+- 空行（例: <code>\n\n</code>）はカウントされません</p>
+<h3 id="_16">テキスト折り返し</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\_n</code></td>
+<td>自動折り返しを無効化（次の <code>\_n</code> まで）</td>
+<td><code>\_nNo wrap\_n</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_17">待機コマンド</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\w[N]</code></td>
+<td>N×50ms 待機</td>
+<td><code>\w[10]Wait 500ms</code></td>
+</tr>
+<tr>
+<td><code>\__w[animation,ID]</code></td>
+<td>アニメーションIDの完了を待機</td>
+<td><code>\__w[animation,400]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_18">タグのそのまま表示（パススルー）</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\_!...\_!</code></td>
+<td>タグをそのまま表示（旧フォーマット）</td>
+<td><code>\_!\1Text\n\_!</code> は <code>\1Text\n</code> を表示</td>
+</tr>
+<tr>
+<td><code>\_?...\_?</code></td>
+<td>タグをそのまま表示</td>
+<td><code>\_?\1Text\n\_?</code> は <code>\1Text\n</code> を表示</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意:</strong>
+- 開始タグと終了タグの間のテキストはさくらスクリプトとして解釈されません
+- サンプルスクリプトの表示やデバッグに便利です</p>
+<h3 id="_19">音声合成制御</h3>
+<p>Ourin は通常の表示テキストを自動的には読み上げません。音声合成を使う場合は、スクリプト内で明示的に有効化します。音声アセットの再生（<code>\_v</code>）は音声合成の設定とは独立しています。</p>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\__v[enable]...\__v</code></td>
+<td>指定範囲の音声合成を明示的に有効化（既定は無効）</td>
+<td><code>\__v[enable]Hello\__v</code></td>
+</tr>
+<tr>
+<td><code>\__v[disable]...\__v</code></td>
+<td>指定範囲の音声合成を無効化</td>
+<td><code>\__v[disable]Silent\__v</code></td>
+</tr>
+<tr>
+<td><code>\__v[alternate,text]...\__v</code></td>
+<td>次のテキストトークンの読み上げ文字列を上書き</td>
+<td><code>\__v[alternate,ひらがな]漢字\__v</code></td>
+</tr>
+<tr>
+<td><code>\_v[ファイル名]</code></td>
+<td><code>ghost/sound</code> の音声アセットを再生（TTSとは独立）</td>
+<td><code>\_v[voice.wav]</code></td>
+</tr>
+<tr>
+<td><code>\_V</code></td>
+<td>再生中の音声・効果音・動画の完了を待つ</td>
+<td><code>\_V</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_20">フォント＆テキストスタイルコマンド</h2>
+<h3 id="_21">テキスト揃え</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[align,left]</code></td>
+<td>テキストを左揃え</td>
+<td><code>\f[align,left]Left aligned</code></td>
+</tr>
+<tr>
+<td><code>\f[align,center]</code></td>
+<td>テキストを中央揃え</td>
+<td><code>\f[align,center]Centered</code></td>
+</tr>
+<tr>
+<td><code>\f[align,right]</code></td>
+<td>テキストを右揃え</td>
+<td><code>\f[align,right]Right aligned</code></td>
+</tr>
+<tr>
+<td><code>\f[valign,top]</code></td>
+<td>上に垂直揃え</td>
+<td><code>\f[valign,top]Top</code></td>
+</tr>
+<tr>
+<td><code>\f[valign,center]</code></td>
+<td>中央に垂直揃え</td>
+<td><code>\f[valign,center]Middle</code></td>
+</tr>
+<tr>
+<td><code>\f[valign,bottom]</code></td>
+<td>下に垂直揃え</td>
+<td><code>\f[valign,bottom]Bottom</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意:</strong>
+- <code>\f[align,...]</code> は次の意図的な改行（<code>\n</code>、<code>\_l</code>）まで有効
+- <code>\_l</code> タグは揃えを左にリセット
+- <code>\f[valign,...]</code> は改行でリセットされません（<code>align</code> とは異なります）
+- 揃えコマンドの後に追加されたテキストは、同じ行の前のテキストを遡及的に揃えます</p>
+<h3 id="_22">フォントプロパティ</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[name,font]</code></td>
+<td>フォントを変更（単一の名前またはファイル）</td>
+<td><code>\f[name,Arial]Arial font</code></td>
+</tr>
+<tr>
+<td><code>\f[name,font1,font2,...]</code></td>
+<td>フォールバック付きでフォントを変更</td>
+<td><code>\f[name,メイリオ,meiryo.ttf]Text</code></td>
+</tr>
+<tr>
+<td><code>\f[height,size]</code></td>
+<td>フォントサイズを設定（ピクセル）</td>
+<td><code>\f[height,15]Size 15</code></td>
+</tr>
+<tr>
+<td><code>\f[height,+N]</code></td>
+<td>相対的にサイズを拡大</td>
+<td><code>\f[height,+3]Bigger</code></td>
+</tr>
+<tr>
+<td><code>\f[height,-N]</code></td>
+<td>相対的にサイズを縮小</td>
+<td><code>\f[height,-3]Smaller</code></td>
+</tr>
+<tr>
+<td><code>\f[height,N%]</code></td>
+<td>デフォルトサイズに対する割合</td>
+<td><code>\f[height,200%]Double size</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>フォント名に関する注意:</strong>
+- <code>default</code> - バルーンのデフォルトフォントにリセット
+- <code>disable</code> - 無効テキスト用フォントを使用
+- <code>ghost/master/</code> またはバルーンフォルダ内のフォントファイルを指定可能
+- カンマ区切りの複数の名前 = 優先順位（SSPのみ）</p>
+<h3 id="_23">テキストカラー</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[color,name]</code></td>
+<td>名前付きカラー</td>
+<td><code>\f[color,red]Red text</code></td>
+</tr>
+<tr>
+<td><code>\f[color,r,g,b]</code></td>
+<td>RGBカラー（0-255）</td>
+<td><code>\f[color,100,150,200]Blue</code></td>
+</tr>
+<tr>
+<td><code>\f[color,#RRGGBB]</code></td>
+<td>16進カラー</td>
+<td><code>\f[color,#ff6600]Orange</code></td>
+</tr>
+<tr>
+<td><code>\f[color,default]</code></td>
+<td>バルーンのデフォルトにリセット</td>
+<td><code>\f[color,default]Normal</code></td>
+</tr>
+<tr>
+<td><code>\f[shadowcolor,...]</code></td>
+<td>影の色（同じフォーマット）</td>
+<td><code>\f[shadowcolor,#ffff00]Yellow shadow</code></td>
+</tr>
+<tr>
+<td><code>\f[shadowcolor,none]</code></td>
+<td>影を無効化</td>
+<td><code>\f[shadowcolor,none]No shadow</code></td>
+</tr>
+<tr>
+<td><code>\f[shadowstyle,offset]</code></td>
+<td>オフセット影（デフォルト）</td>
+<td><code>\f[shadowstyle,offset]Offset</code></td>
+</tr>
+<tr>
+<td><code>\f[shadowstyle,outline]</code></td>
+<td>アウトライン影</td>
+<td><code>\f[shadowstyle,outline]Outlined</code></td>
+</tr>
+<tr>
+<td><code>\f[anchor.font.color,...]</code></td>
+<td>アンカーテキストの色</td>
+<td><code>\f[anchor.font.color,50%,90%,20%]Link</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>カラーフォーマットに関する注意:</strong>
+- 名前付きカラー: <code>red</code>、<code>blue</code>、<code>green</code>、<code>black</code>、<code>white</code> など
+- RGB: 0-255 の3つの数値、または <code>50%,90%,20%</code> のような割合
+- 16進: 標準的なWeb形式 <code>#RRGGBB</code></p>
+<h3 id="_24">テキストスタイル</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[bold,1]</code> or <code>\f[bold,true]</code></td>
+<td>太字を有効化</td>
+<td><code>\f[bold,1]Bold text</code></td>
+</tr>
+<tr>
+<td><code>\f[bold,0]</code> or <code>\f[bold,false]</code></td>
+<td>太字を無効化</td>
+<td><code>\f[bold,0]Normal</code></td>
+</tr>
+<tr>
+<td><code>\f[bold,default]</code></td>
+<td>バルーンのデフォルトにリセット</td>
+<td><code>\f[bold,default]Default</code></td>
+</tr>
+<tr>
+<td><code>\f[bold,disable]</code></td>
+<td>無効テキストスタイルを使用</td>
+<td><code>\f[bold,disable]Disabled</code></td>
+</tr>
+<tr>
+<td><code>\f[italic,1]</code></td>
+<td>斜体を有効化</td>
+<td><code>\f[italic,1]Italic</code></td>
+</tr>
+<tr>
+<td><code>\f[strike,1]</code></td>
+<td>取り消し線を有効化</td>
+<td><code>\f[strike,1]Strike</code></td>
+</tr>
+<tr>
+<td><code>\f[underline,1]</code></td>
+<td>下線を有効化</td>
+<td><code>\f[underline,1]Underline</code></td>
+</tr>
+<tr>
+<td><code>\f[outline,1]</code></td>
+<td>アウトライン（白文字）を有効化</td>
+<td><code>\f[outline,1]Outlined</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意:</strong>
+- すべてのスタイルコマンドは次に対応: <code>1</code>/<code>true</code>（有効）、<code>0</code>/<code>false</code>（無効）、<code>default</code>、<code>disable</code>
+- フォントがそのスタイルに対応している必要があります（太字／斜体のバリアントがないフォントもあります）</p>
+<h3 id="_25">テキスト位置</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[sub,1]</code></td>
+<td>下付き文字を有効化</td>
+<td><code>H\f[sub,1]2\f[sub,0]O</code></td>
+</tr>
+<tr>
+<td><code>\f[sup,1]</code></td>
+<td>上付き文字を有効化</td>
+<td><code>X\f[sup,1]2\f[sup,0]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_26">リセットコマンド</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\f[default]</code></td>
+<td>すべてのフォント属性をバルーンのデフォルトにリセット</td>
+<td><code>\f[default]Reset all</code></td>
+</tr>
+<tr>
+<td><code>\f[disable]</code></td>
+<td>すべての属性を無効テキストスタイルに設定</td>
+<td><code>\f[disable]Disabled</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>組み合わせ例:</strong></p>
+<pre class="codehilite"><code>\f[shadowcolor,#6699cc]\f[bold,1]\f[underline,1]\f[height,20]Styled text\f[default]Normal
+\f[align,center]\f[color,red]\f[height,24]Centered Red Title\n
+H\f[sub,1]2\f[sub,0]O + O\f[sub,1]2\f[sub,0] → H\f[sub,1]2\f[sub,0]O\f[sub,1]2\f[sub,0]
+</code></pre>
+
+<h2 id="_27">キャラクター移動コマンド</h2>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\4</code></td>
+<td>他のキャラクターから離れる</td>
+<td><code>Moving...\4Done</code></td>
+</tr>
+<tr>
+<td><code>\5</code></td>
+<td>他のキャラクターに近づく</td>
+<td><code>Moving...\5Done</code></td>
+</tr>
+<tr>
+<td><code>\![move,args...]</code></td>
+<td>指定位置へ移動（下記参照）</td>
+<td>移動セクション参照</td>
+</tr>
+<tr>
+<td><code>\![moveasync,args...]</code></td>
+<td>非同期で移動</td>
+<td>移動セクション参照</td>
+</tr>
+<tr>
+<td><code>\![moveasync,cancel]</code></td>
+<td>非同期移動をキャンセル</td>
+<td><code>\![moveasync,cancel]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="move">move コマンドのパラメータ</h3>
+<p>フォーマット: <code>\![move,--X=x,--Y=y,--time=ms,--base=ref,--base-offset=pos,--move-offset=pos,--option=opt]</code></p>
+<p><strong>パラメータ:</strong>
+- <code>--X=value</code>: X座標（負数可）
+- <code>--Y=value</code>: Y座標（負数可）
+- <code>--time=ms</code>: 移動時間（ミリ秒）
+- <code>--base=ref</code>: 基準点（screen, primaryscreen, ID, ghost/ID, me, global）
+- <code>--base-offset=pos</code>: 基準点のアンカー（left.top, right.bottom, center.center など）
+- <code>--move-offset=pos</code>: 揃えるキャラクターのアンカー
+- <code>--option=opt</code>: オプション（ignore-sticky-window）</p>
+<p>旧式の位置指定（<code>x,y,time,method,scope</code>）も受け付け、<code>x</code> または <code>y</code> に <code>fix</code> を指定した軸は現在位置を維持します。<code>moveasync</code> はキュー投入前と移動中のどちらも <code>\![moveasync,cancel]</code> で停止できます。<code>--wait</code> は時間付き移動の完了待ちを再生キューへ追加します。</p>
+<p><strong>例:</strong></p>
+<pre class="codehilite"><code>\![move,--X=80,--Y=-400,--time=2500,--base=screen,--base-offset=left.bottom,--move-offset=left.top]
+</code></pre>
+
+<h2 id="_28">着せ替え／バインドコマンド</h2>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![bind,category,part,1]</code></td>
+<td>カテゴリのパーツを装着</td>
+<td><code>\![bind,head,ribbon,1]</code></td>
+</tr>
+<tr>
+<td><code>\![bind,category,part,0]</code></td>
+<td>カテゴリからパーツを外す</td>
+<td><code>\![bind,head,ribbon,0]</code></td>
+</tr>
+<tr>
+<td><code>\![bind,category,,0]</code></td>
+<td>カテゴリ内のすべてのパーツを外す</td>
+<td><code>\![bind,arm,,0]</code></td>
+</tr>
+<tr>
+<td><code>\![bind,category,part]</code></td>
+<td>パーツの装着／解除をトグル</td>
+<td><code>\![bind,head,ribbon]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_29">描画制御</h2>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![lock,repaint]</code></td>
+<td>アンロックまたはスクリプト終了まで再描画を停止</td>
+<td><code>\![lock,repaint]</code></td>
+</tr>
+<tr>
+<td><code>\![lock,repaint,manual]</code></td>
+<td>明示的なアンロックまで再描画を停止</td>
+<td><code>\![lock,repaint,manual]</code></td>
+</tr>
+<tr>
+<td><code>\![unlock,repaint]</code></td>
+<td>再描画を再開</td>
+<td><code>\![unlock,repaint]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_30">位置＆配置</h2>
+<h3 id="_31">デスクトップ配置</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,alignmentondesktop,bottom]</code></td>
+<td>デスクトップ下端にスナップ</td>
+<td><code>\![set,alignmentondesktop,bottom]</code></td>
+</tr>
+<tr>
+<td><code>\![set,alignmentondesktop,top]</code></td>
+<td>デスクトップ上端にスナップ</td>
+<td><code>\![set,alignmentondesktop,top]</code></td>
+</tr>
+<tr>
+<td><code>\![set,alignmenttodesktop,DIR]</code></td>
+<td>配置方向を設定</td>
+<td>下表参照</td>
+</tr>
+</tbody>
+</table>
+<p><strong>配置方向:</strong>
+- <code>top</code> - 上端にスナップ
+- <code>bottom</code> - 下端にスナップ
+- <code>left</code> - 左端にスナップ
+- <code>right</code> - 右端にスナップ
+- <code>free</code> - スナップなし
+- <code>default</code> - デフォルトにリセット</p>
+<h3 id="_32">位置ロック</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,position,x,y,scopeID]</code></td>
+<td>キャラクターを指定位置にロック</td>
+<td><code>\![set,position,100,200,0]</code></td>
+</tr>
+<tr>
+<td><code>\![reset,position]</code></td>
+<td>位置のロックを解除</td>
+<td><code>\![reset,position]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_33">ビジュアルエフェクト</h2>
+<h3 id="_34">スケーリング</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,scaling,ratio]</code></td>
+<td>等倍スケーリング（%）</td>
+<td><code>\![set,scaling,50]</code></td>
+</tr>
+<tr>
+<td><code>\![set,scaling,x,y]</code></td>
+<td>非等倍スケーリング（%）</td>
+<td><code>\![set,scaling,50,100]</code></td>
+</tr>
+<tr>
+<td><code>\![set,scaling,x,y,time]</code></td>
+<td>アニメーションスケーリング（time はミリ秒）</td>
+<td><code>\![set,scaling,50,100,2500]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意:</strong>
+- 100 = ユーザーが設定したスケール（100%）
+- 負の値は軸を反転（-100 = 反転）
+- ゴーストが終了するまで持続します
+- <code>time</code> または <code>--time</code> を指定すると実値をフレーム単位で補間します
+- <code>--wait=true</code> を指定すると補間完了まで再生キューが待機します</p>
+<h3 id="_35">透明度</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,alpha,value]</code></td>
+<td>透明度を設定（0-100）</td>
+<td><code>\![set,alpha,50]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意:</strong>
+- 0 = 完全に透明（不可視）
+- 100 = 完全に不透明
+- ゴーストが終了するまで持続します
+- <code>time</code> または <code>--time</code> を指定すると透明度を補間します
+- <code>--wait=true</code> を指定すると補間完了まで再生キューが待機します
+- 負値は透明度を変更せず、再描画だけを要求します</p>
+<h3 id="_36">エフェクト＆フィルタ</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![effect,plugin,speed,params]</code></td>
+<td>プラグインエフェクトを適用</td>
+<td><code>\![effect,plugin1,2.0,param]</code></td>
+</tr>
+<tr>
+<td><code>\![effect2,surfaceID,plugin,speed,params]</code></td>
+<td>追加サーフェスにエフェクトを適用</td>
+<td><code>\![effect2,10,plugin1,2.0,param]</code></td>
+</tr>
+<tr>
+<td><code>\![filter,plugin,time,params]</code></td>
+<td>継続的なフィルタを適用</td>
+<td><code>\![filter,plugin2,1000,param]</code></td>
+</tr>
+<tr>
+<td><code>\![filter]</code></td>
+<td>フィルタをクリア</td>
+<td><code>\![filter]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_37">ウィンドウ管理</h2>
+<h3 id="z">Zオーダー</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,zorder,ID1,ID2,...]</code></td>
+<td>ウィンドウの重なり順を設定</td>
+<td><code>\![set,zorder,1,0]</code></td>
+</tr>
+<tr>
+<td><code>\![reset,zorder]</code></td>
+<td>デフォルトのZオーダーにリセット</td>
+<td><code>\![reset,zorder]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意:</strong>
+- 左から右の順にリストされたID = 前面から背面
+- 例: <code>\![set,zorder,1,0]</code> はキャラクター1を常にキャラクター0の前面にします</p>
+<h3 id="_38">スティッキーウィンドウ</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![set,sticky-window,ID1,ID2,...]</code></td>
+<td>ウィンドウを連動して移動するようリンク</td>
+<td><code>\![set,sticky-window,1,0]</code></td>
+</tr>
+<tr>
+<td><code>\![reset,sticky-window]</code></td>
+<td>ウィンドウのリンクを解除</td>
+<td><code>\![reset,sticky-window]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意:</strong>
+- リンクされたウィンドウはドラッグ時に連動して移動します
+- <code>\![move]</code> コマンドでも機能します（--option=ignore-sticky-window を除く）</p>
+<h3 id="_39">ウィンドウリセット</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\![execute,resetwindowpos]</code></td>
+<td>すべてのウィンドウを初期位置にリセット</td>
+<td><code>\![execute,resetwindowpos]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_40">特殊コマンド</h2>
+<h3 id="_41">マーカー</h3>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>%*</code> or <code>\![*]</code></td>
+<td>マーカーを挿入</td>
+<td><code>Text before%*Text after</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_42">エスケープシーケンス</h2>
+<table>
+<thead>
+<tr>
+<th>シーケンス</th>
+<th>結果</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\\</code></td>
+<td>リテラルの <code>\</code></td>
+<td><code>C:\\Users</code> → <code>C:\Users</code></td>
+</tr>
+<tr>
+<td><code>\%</code></td>
+<td>リテラルの <code>%</code></td>
+<td><code>100\%</code> → <code>100%</code></td>
+</tr>
+<tr>
+<td><code>\]</code></td>
+<td>リテラルの <code>]</code>（ブラケット内）</td>
+<td><code>\![test,a\]b]</code> → 引数: <code>["test", "a]b"]</code></td>
+</tr>
+<tr>
+<td><code>\[</code></td>
+<td>リテラルの <code>[</code>（ブラケット内）</td>
+<td><code>\![test,a\[b]</code> → 引数: <code>["test", "a[b"]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_43">引数のクォート</h2>
+<p><code>[...]</code> ブラケット内の引数はカンマ区切りで、クォートに対応しています。</p>
+<table>
+<thead>
+<tr>
+<th>ルール</th>
+<th>例</th>
+<th>結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基本</td>
+<td><code>\![raise,OnTest,100]</code></td>
+<td><code>["raise", "OnTest", "100"]</code></td>
+</tr>
+<tr>
+<td>クォート内のカンマ</td>
+<td><code>\![raise,OnTest,"100,2"]</code></td>
+<td><code>["raise", "OnTest", "100,2"]</code></td>
+</tr>
+<tr>
+<td>エスケープされたクォート</td>
+<td><code>\![call,ghost,"the ""Master"""]</code></td>
+<td><code>["call", "ghost", "the \"Master\""]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_44">実装ステータス</h2>
+<h3 id="_45">✅ 完全実装</h3>
+<h4 id="sakurascriptengineswift">パーサーレベル（SakuraScriptEngine.swift）</h4>
+<p>上記のすべてのコマンドは <strong>正しくパースされます</strong>。パーサーはさくらスクリプトのテキストを、レンダリングエンジンが処理できるトークンに変換します。</p>
+<h4 id="ghostmanagerswift-characterviewmodelcharacterview">レンダリングレベル（GhostManager.swift + CharacterViewModel/CharacterView）</h4>
+<p><strong>音声 - 実装済み:</strong>
+- ✅ <code>\__v[enable|disable|alternate,...]...\__v</code> - 音声合成制御（通常文の自動読み上げは既定で無効）
+- ✅ <code>\_v[ファイル名]</code> - <code>ghost/sound</code> の音声アセット再生
+- ✅ <code>\_V</code> - 音声・効果音・動画の再生完了待ち</p>
+<p><strong>ビジュアルエフェクト - 実装済み:</strong>
+- ✅ <code>\![set,scaling,ratio]</code> - 等倍スケーリング
+- ✅ <code>\![set,scaling,x,y]</code> - 非等倍スケーリング
+- ✅ <code>\![set,alpha,value]</code> - 透明度（0-100）
+- ✅ <code>\![lock,repaint]</code> / <code>\![unlock,repaint]</code> - 描画制御
+- ✅ <code>\![set,alignmenttodesktop,DIR]</code> - デスクトップ配置の状態
+- ✅ <code>\![set,position,x,y,scopeID]</code> / <code>\![reset,position]</code> - 位置ロックの状態
+- ✅ <code>\![set,zorder,...]</code> / <code>\![reset,zorder]</code> - Zオーダーグルーピングの状態
+- ✅ <code>\![set,sticky-window,...]</code> / <code>\![reset,sticky-window]</code> - スティッキーウィンドウグルーピングの状態
+- ✅ <code>\![execute,resetwindowpos]</code> - すべてのウィンドウ位置／配置をリセット</p>
+<p><strong>コマンド処理:</strong>
+- キャラクターのビジュアル状態は <code>CharacterViewModel</code> に <code>@Published</code> プロパティとして保存されます
+- ビジュアルエフェクトは <code>CharacterView</code> で SwiftUI モディファイア（<code>.scaleEffect()</code>、<code>.opacity()</code>、<code>.allowsHitTesting()</code>）を使って適用されます
+- すべての設定はゴーストが終了するまで持続します（UKADOC仕様に準拠）
+- <code>\![lock,repaint]</code> は <code>manual</code> オプションが使われていない限り、スクリプト終了時に自動的にアンロックされます</p>
+<h3 id="_46">⚠️ 実機確認が必要な差分</h3>
+<p>この旧監査節の「パースのみ／プレースホルダーあり」という一覧は現行実装と一致しないため、完了判定には使用しない。現行コードとテストで確認できる範囲は次のとおり。</p>
+<ul>
+<li>✅ バルーン描画、可変改行、カーソル移動、クリア、画像挿入、文字書式、アンカー装飾、SERIKO、着せ替え、更新、入力ダイアログはランタイム経路を持つ。</li>
+<li>✅ オンラインマーカー、壁紙、タスクトレイ、dumpsurface、ping／nslookup、vanish は実処理と失敗イベントを持つ。</li>
+<li>✅ <code>\f[cursor*]</code> は選択ダイアログの実ボタン装飾へ反映する。</li>
+<li>✅ 選択肢の hover はモーダル中の実ボタン位置を監視し、入退場で <code>OnChoiceEnter</code>、500ms 静止で <code>OnChoiceHover</code> を発火する。</li>
+<li>✅ <code>updateother</code> の balloon／shell／plugin／headline／language 対象は、インストール済み対象を descriptor の name／id で解決し、それぞれのルートへ更新を適用する。<code>testonly</code> はダウンロードとMD5検証のみを行い、既存ファイルを変更しない。実ネットワークと実ゴーストでの表示・更新確認は未実施。</li>
+<li>⚠️ 時間付き移動・スケーリング・透明度の補間、<code>moveasync</code> の実ウィンドウ描画、およびプラットフォーム固有のウィンドウ挙動は自動テストだけでは実機確認できない。</li>
+</ul>
+<h2 id="_47">テスト</h2>
+<p>対応表のインライン例は <code>OurinTests/SakuraScriptDocumentationCoverageTests.swift</code> が自動抽出し、80件以上をパーサーの制御トークンへ変換できることを検証します。個別の境界条件・実行レベル挙動は <code>OurinTests/SakuraScriptEngineTests.swift</code> およびGhostManager側のテストで確認します。</p>
+<pre class="codehilite"><code class="language-bash">xcodebuild -project Ourin.xcodeproj -scheme Ourin \\
+  -derivedDataPath /private/tmp/Ourin-P4-DerivedData \\
+  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \\
+  -only-testing:OurinTests/SakuraScriptDocumentationCoverageTests \\
+  -only-testing:OurinTests/SakuraScriptEngineTests test
+</code></pre>
+
+<h2 id="_48">参考資料</h2>
+<ul>
+<li>完全仕様: <code>docs/SAKURASCRIPT_FULL_1.0M_PATCHED.md</code></li>
+<li>パーサー実装: <code>Ourin/SakuraScript/SakuraScriptEngine.swift</code></li>
+<li>テストスイート: <code>OurinTests/SakuraScriptEngineTests.swift</code></li>
+</ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

@@ -164,35 +164,35 @@
 </ul>
 <h3 id="22-exported-functions">2.2 Exported Functions</h3>
 <p>Expose C ABI functions from Swift code using <code>@_cdecl</code>.</p>
-<div class="codehilite"><pre><span></span><code><span class="p">@</span><span class="n">_cdecl</span><span class="p">(</span><span class="s">&quot;load&quot;</span><span class="p">)</span>
-<span class="kd">public</span> <span class="kd">func</span> <span class="nf">pluginLoad</span><span class="p">(</span><span class="kc">_</span> <span class="n">pluginDir</span><span class="p">:</span> <span class="nb">UnsafePointer</span><span class="p">&lt;</span><span class="nb">CChar</span><span class="p">&gt;)</span> <span class="p">-&gt;</span> <span class="nb">Int32</span> <span class="p">{</span>
-    <span class="c1">// Initialization process (e.g., parsing the bundle path if necessary)</span>
-    <span class="k">return</span> <span class="mi">0</span>
-<span class="p">}</span>
+<pre class="codehilite"><code class="language-swift">@_cdecl(&quot;load&quot;)
+public func pluginLoad(_ pluginDir: UnsafePointer&lt;CChar&gt;) -&gt; Int32 {
+    // Initialization process (e.g., parsing the bundle path if necessary)
+    return 0
+}
 
-<span class="p">@</span><span class="n">_cdecl</span><span class="p">(</span><span class="s">&quot;request&quot;</span><span class="p">)</span>
-<span class="kd">public</span> <span class="kd">func</span> <span class="nf">pluginRequest</span><span class="p">(</span><span class="kc">_</span> <span class="n">bytes</span><span class="p">:</span> <span class="nb">UnsafePointer</span><span class="p">&lt;</span><span class="nb">UInt8</span><span class="p">&gt;,</span> <span class="kc">_</span> <span class="n">length</span><span class="p">:</span> <span class="nb">Int</span><span class="p">,</span> <span class="kc">_</span> <span class="n">outLength</span><span class="p">:</span> <span class="nb">UnsafeMutablePointer</span><span class="p">&lt;</span><span class="nb">Int</span><span class="p">&gt;)</span> <span class="p">-&gt;</span> <span class="nb">UnsafePointer</span><span class="p">&lt;</span><span class="nb">UInt8</span><span class="p">&gt;?</span> <span class="p">{</span>
-    <span class="kd">let</span> <span class="nv">data</span> <span class="p">=</span> <span class="n">Data</span><span class="p">(</span><span class="n">bytes</span><span class="p">:</span> <span class="n">bytes</span><span class="p">,</span> <span class="bp">count</span><span class="p">:</span> <span class="n">length</span><span class="p">)</span>
-    <span class="k">guard</span> <span class="kd">let</span> <span class="nv">response</span> <span class="p">=</span> <span class="n">handleWire</span><span class="p">(</span><span class="nb">String</span><span class="p">(</span><span class="n">decoding</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="k">as</span><span class="p">:</span> <span class="nb">UTF8</span><span class="p">.</span><span class="kc">self</span><span class="p">))</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="n">outLength</span><span class="p">.</span><span class="n">pointee</span> <span class="p">=</span> <span class="mi">0</span>
-        <span class="k">return</span> <span class="kc">nil</span>
-    <span class="p">}</span>
-    <span class="kd">let</span> <span class="nv">utf8</span> <span class="p">=</span> <span class="nb">Array</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">utf8</span><span class="p">)</span>
-    <span class="kd">let</span> <span class="nv">buffer</span> <span class="p">=</span> <span class="nb">UnsafeMutablePointer</span><span class="p">&lt;</span><span class="nb">UInt8</span><span class="p">&gt;.</span><span class="n">allocate</span><span class="p">(</span><span class="n">capacity</span><span class="p">:</span> <span class="n">utf8</span><span class="p">.</span><span class="bp">count</span><span class="p">)</span>
-    <span class="kc">_</span> <span class="p">=</span> <span class="n">buffer</span><span class="p">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="n">utf8</span><span class="p">,</span> <span class="bp">count</span><span class="p">:</span> <span class="n">utf8</span><span class="p">.</span><span class="bp">count</span><span class="p">)</span>
-    <span class="n">outLength</span><span class="p">.</span><span class="n">pointee</span> <span class="p">=</span> <span class="n">utf8</span><span class="p">.</span><span class="bp">count</span>
-    <span class="k">return</span> <span class="nb">UnsafePointer</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
-<span class="p">}</span>
+@_cdecl(&quot;request&quot;)
+public func pluginRequest(_ bytes: UnsafePointer&lt;UInt8&gt;, _ length: Int, _ outLength: UnsafeMutablePointer&lt;Int&gt;) -&gt; UnsafePointer&lt;UInt8&gt;? {
+    let data = Data(bytes: bytes, count: length)
+    guard let response = handleWire(String(decoding: data, as: UTF8.self)) else {
+        outLength.pointee = 0
+        return nil
+    }
+    let utf8 = Array(response.utf8)
+    let buffer = UnsafeMutablePointer&lt;UInt8&gt;.allocate(capacity: utf8.count)
+    _ = buffer.initialize(from: utf8, count: utf8.count)
+    outLength.pointee = utf8.count
+    return UnsafePointer(buffer)
+}
 
-<span class="p">@</span><span class="n">_cdecl</span><span class="p">(</span><span class="s">&quot;unload&quot;</span><span class="p">)</span>
-<span class="kd">public</span> <span class="kd">func</span> <span class="nf">pluginUnload</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">// Cleanup</span>
-<span class="p">}</span>
-<span class="p">@</span><span class="n">_cdecl</span><span class="p">(</span><span class="s">&quot;plugin_free&quot;</span><span class="p">)</span>
-<span class="kd">public</span> <span class="kd">func</span> <span class="nf">pluginFree</span><span class="p">(</span><span class="kc">_</span> <span class="n">pointer</span><span class="p">:</span> <span class="nb">UnsafeMutablePointer</span><span class="p">&lt;</span><span class="nb">UInt8</span><span class="p">&gt;?)</span> <span class="p">{</span>
-    <span class="n">pointer</span><span class="p">?.</span><span class="n">deallocate</span><span class="p">()</span>
-<span class="p">}</span>
-</code></pre></div>
+@_cdecl(&quot;unload&quot;)
+public func pluginUnload() {
+    // Cleanup
+}
+@_cdecl(&quot;plugin_free&quot;)
+public func pluginFree(_ pointer: UnsafeMutablePointer&lt;UInt8&gt;?) {
+    pointer?.deallocate()
+}
+</code></pre>
 
 <blockquote>
 <p><strong>Note:</strong> Lifecycle management of the buffer returned from <code>request</code> is critical. If you return a copy, also expose <code>plugin_free</code> so that <code>yaya_core</code> can deallocate it.</p>
@@ -205,36 +205,36 @@
 </ul>
 <h2 id="4-loading-process-in-yaya_core">4. Loading Process in yaya_core</h2>
 <p>Link CoreFoundation in C++17 or later and use the <code>CFBundle</code> API. The following is a conceptual code snippet.</p>
-<div class="codehilite"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;CoreFoundation/CoreFoundation.h&gt;</span>
+<pre class="codehilite"><code class="language-cpp">#include &lt;CoreFoundation/CoreFoundation.h&gt;
 
-<span class="k">struct</span><span class="w"> </span><span class="nc">PluginHandle</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">CFBundleRef</span><span class="w"> </span><span class="n">bundle</span><span class="p">;</span>
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">LoadFn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int32_t</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="p">);</span>
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">RequestFn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="o">*</span><span class="p">);</span>
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">UnloadFn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">void</span><span class="p">(</span><span class="o">*</span><span class="p">)();</span>
+struct PluginHandle {
+    CFBundleRef bundle;
+    using LoadFn = int32_t(*)(const char*);
+    using RequestFn = const unsigned char*(*)(const unsigned char*, size_t, size_t*);
+    using UnloadFn = void(*)();
 
-<span class="w">    </span><span class="n">LoadFn</span><span class="w"> </span><span class="n">load</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
-<span class="w">    </span><span class="n">RequestFn</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
-<span class="w">    </span><span class="n">UnloadFn</span><span class="w"> </span><span class="n">unload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
-<span class="p">};</span>
+    LoadFn load = nullptr;
+    RequestFn request = nullptr;
+    UnloadFn unload = nullptr;
+};
 
-<span class="n">PluginHandle</span><span class="w"> </span><span class="nf">loadPlugin</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">path</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">PluginHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">{};</span>
-<span class="w">    </span><span class="n">CFURLRef</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CFURLCreateWithFileSystemPath</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span><span class="w"> </span><span class="n">CFStringCreateWithCString</span><span class="p">(</span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">kCFStringEncodingUTF8</span><span class="p">),</span><span class="w"> </span><span class="n">kCFURLPOSIXPathStyle</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
-<span class="w">    </span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CFBundleCreate</span><span class="p">(</span><span class="n">kCFAllocatorDefault</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">);</span>
-<span class="w">    </span><span class="n">CFRelease</span><span class="p">(</span><span class="n">url</span><span class="p">);</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">CFBundleLoadExecutable</span><span class="p">(</span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Failed to load plugin bundle&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="n">handle</span><span class="p">.</span><span class="n">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">PluginHandle</span><span class="o">::</span><span class="n">RequestFn</span><span class="o">&gt;</span><span class="p">(</span><span class="n">CFBundleGetFunctionPointerForName</span><span class="p">(</span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">CFSTR</span><span class="p">(</span><span class="s">&quot;request&quot;</span><span class="p">)));</span>
-<span class="w">    </span><span class="n">handle</span><span class="p">.</span><span class="n">load</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">PluginHandle</span><span class="o">::</span><span class="n">LoadFn</span><span class="o">&gt;</span><span class="p">(</span><span class="n">CFBundleGetFunctionPointerForName</span><span class="p">(</span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">CFSTR</span><span class="p">(</span><span class="s">&quot;load&quot;</span><span class="p">)));</span>
-<span class="w">    </span><span class="n">handle</span><span class="p">.</span><span class="n">unload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">PluginHandle</span><span class="o">::</span><span class="n">UnloadFn</span><span class="o">&gt;</span><span class="p">(</span><span class="n">CFBundleGetFunctionPointerForName</span><span class="p">(</span><span class="n">handle</span><span class="p">.</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">CFSTR</span><span class="p">(</span><span class="s">&quot;unload&quot;</span><span class="p">)));</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">handle</span><span class="p">.</span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;request symbol missing&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
+PluginHandle loadPlugin(const std::string&amp; path) {
+    PluginHandle handle{};
+    CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, CFStringCreateWithCString(nullptr, path.c_str(), kCFStringEncodingUTF8), kCFURLPOSIXPathStyle, true);
+    handle.bundle = CFBundleCreate(kCFAllocatorDefault, url);
+    CFRelease(url);
+    if (!handle.bundle || !CFBundleLoadExecutable(handle.bundle)) {
+        throw std::runtime_error(&quot;Failed to load plugin bundle&quot;);
+    }
+    handle.request = reinterpret_cast&lt;PluginHandle::RequestFn&gt;(CFBundleGetFunctionPointerForName(handle.bundle, CFSTR(&quot;request&quot;)));
+    handle.load = reinterpret_cast&lt;PluginHandle::LoadFn&gt;(CFBundleGetFunctionPointerForName(handle.bundle, CFSTR(&quot;load&quot;)));
+    handle.unload = reinterpret_cast&lt;PluginHandle::UnloadFn&gt;(CFBundleGetFunctionPointerForName(handle.bundle, CFSTR(&quot;unload&quot;)));
+    if (!handle.request) {
+        throw std::runtime_error(&quot;request symbol missing&quot;);
+    }
+    return handle;
+}
+</code></pre>
 
 <h3 id="41-lifecycle">4.1 Lifecycle</h3>
 <ol>
@@ -270,7 +270,7 @@
 <hr />
 <p>The above are the steps for safely handling Swift-based plugins from <code>yaya_core</code>. During implementation, please also refer to the specifications in <code>SPEC_PLUGIN_2.0M.md</code> and <code>OURIN_YAYA_ADAPTER_SPEC_1.0M.md</code> to ensure consistency with the wire specification and IPC.</p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

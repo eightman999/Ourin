@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUPPORTED SAKURA SCRIPT (Ourin)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="SUPPORTED_SAKURA_SCRIPT_ja-jp.html" class="">日本語</a> | <a href="SUPPORTED_SAKURA_SCRIPT_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="supported-sakura-script-ourin">SUPPORTED SAKURA SCRIPT (Ourin)</h1>
+<p>This document lists the SakuraScript commands currently implemented in Ourin, based on <code>SakuraScriptEngine.swift</code> parsing and <code>GhostManager.swift</code> execution paths.</p>
+<blockquote>
+<p>This file is a summary. For the comprehensive per-command list (including all <code>\![set,...]</code>/<code>\![enter,...]</code>/<code>\![lock,...]</code> subcommands), see <code>SAKURASCRIPT_COMMANDS_SUPPORTED_ja-jp.md</code> / <code>SAKURASCRIPT_COMMANDS_SUPPORTED_en-us.md</code>.</p>
+</blockquote>
+<p>Status marks:
+- ✅ Implemented
+- ⚠️ Partially implemented / limited options
+- ❌ Not implemented</p>
+<h2 id="scope-commands">Scope commands</h2>
+<ul>
+<li>✅ <code>\0</code> / <code>\1</code> / <code>\h</code> / <code>\u</code></li>
+<li>✅ <code>\p[n]</code></li>
+</ul>
+<h2 id="surface-commands">Surface commands</h2>
+<ul>
+<li>✅ <code>\s[n]</code></li>
+<li>✅ <code>\i[n]</code>, <code>\i[n,wait]</code></li>
+<li>✅ <code>\![anim,clear,ID]</code></li>
+<li>✅ <code>\![anim,pause,ID]</code></li>
+<li>✅ <code>\![anim,resume,ID]</code></li>
+<li>✅ <code>\![anim,offset,ID,x,y]</code></li>
+<li>⚠️ <code>\![anim,add,...]</code> (<code>overlay</code>, <code>base</code>, <code>bind</code>, <code>text</code> implemented; other variants are limited)</li>
+<li>✅ <code>\![anim,stop]</code></li>
+<li>✅ <code>\![bind,category,part,value]</code></li>
+</ul>
+<h2 id="balloon-text-commands">Balloon / text commands</h2>
+<ul>
+<li>✅ <code>\n</code>, <code>\n[half]</code>, <code>\n[percent]</code></li>
+<li>✅ <code>\b[n]</code>, <code>\b[...]</code></li>
+<li>✅ <code>\C</code></li>
+<li>✅ <code>\c[...]</code></li>
+<li>⚠️ <code>\f[...]</code> (major style controls implemented; unsupported subcommands are ignored)</li>
+<li>✅ <code>\_l[x,y]</code></li>
+<li>✅ <code>\_v</code> / <code>\_V</code></li>
+</ul>
+<h2 id="character-change-commands">Character change commands</h2>
+<ul>
+<li>✅ <code>\4</code> / <code>\5</code></li>
+<li>✅ <code>\![change,ghost,...]</code></li>
+<li>✅ <code>\![change,shell,...]</code></li>
+<li>✅ <code>\![change,balloon,...]</code></li>
+</ul>
+<h2 id="wait-commands">Wait commands</h2>
+<ul>
+<li>✅ <code>\w[n]</code></li>
+<li>✅ <code>\_w[ms]</code></li>
+<li>✅ <code>\__w[...]</code> (<code>clear</code>, numeric timing, and <code>animation,ID</code> wait implemented)</li>
+<li>✅ <code>\t</code></li>
+<li>✅ <code>\x</code>, <code>\x[noclear]</code></li>
+</ul>
+<h2 id="choice-commands">Choice commands</h2>
+<ul>
+<li>✅ <code>\q[...]</code></li>
+<li>✅ <code>\*</code></li>
+<li>✅ <code>\a</code></li>
+<li>✅ <code>\z</code></li>
+<li>✅ <code>\-</code></li>
+<li>✅ <code>\__q[...]</code></li>
+</ul>
+<h2 id="event-commands">Event commands</h2>
+<ul>
+<li>✅ <code>\![raise,...]</code></li>
+<li>✅ <code>\![notify,...]</code></li>
+<li>✅ <code>\![raiseother,...]</code> / <code>\![notifyother,...]</code></li>
+<li>✅ <code>\![raiseplugin,...]</code> / <code>\![notifyplugin,...]</code></li>
+<li>✅ <code>\![timerraise,...]</code> / <code>\![timernotify,...]</code></li>
+<li>✅ <code>\![timerraiseother,...]</code> / <code>\![timernotifyother,...]</code></li>
+<li>✅ <code>\![timerraiseplugin,...]</code> / <code>\![timernotifyplugin,...]</code></li>
+<li>✅ <code>\![embed,...]</code></li>
+</ul>
+<h2 id="sound-commands">Sound commands</h2>
+<ul>
+<li>✅ <code>\8[filename]</code></li>
+<li>✅ <code>\![sound,play,...]</code></li>
+<li>✅ <code>\![sound,load,...]</code></li>
+<li>✅ <code>\![sound,loop,...]</code></li>
+<li>✅ <code>\![sound,wait,...]</code></li>
+<li>✅ <code>\![sound,pause,...]</code></li>
+<li>✅ <code>\![sound,resume,...]</code></li>
+<li>✅ <code>\![sound,stop,...]</code></li>
+<li>✅ <code>\![sound,option,...]</code></li>
+</ul>
+<h2 id="open-commands">Open commands</h2>
+<ul>
+<li>✅ <code>\v</code></li>
+<li>✅ <code>\6</code></li>
+<li>✅ <code>\7</code></li>
+<li>✅ <code>\+</code></li>
+<li>✅ <code>\_+</code></li>
+<li>⚠️ <code>\![open,...]</code> (many subcommands implemented; behavior varies by OS capability)</li>
+</ul>
+<h2 id="property-operations">Property operations</h2>
+<ul>
+<li>✅ <code>%property[...]</code> expansion</li>
+<li>✅ <code>\![get,property,key]</code></li>
+<li>✅ <code>\![set,property,key,value]</code></li>
+</ul>
+<h2 id="window-and-visual-effect-commands">Window and visual-effect commands</h2>
+<ul>
+<li>✅ <code>\![move,...]</code> (named and legacy positional syntax, <code>fix</code> per-axis retention, anchors, duration, method, scope, and <code>--wait</code>)</li>
+<li>✅ <code>\![moveasync,...]</code> (queued and running animations can be canceled with <code>\![moveasync,cancel]</code>; <code>fix</code> is supported in legacy syntax)</li>
+<li>✅ <code>\![set,scaling,...]</code> (uniform/non-uniform scaling, duration, named options, and <code>--wait</code>)</li>
+<li>✅ <code>\![set,alpha,...]</code> (0–100 value, negative redraw-only behavior, duration, named options, and <code>--wait</code>)</li>
+<li>⚠️ <code>\![set,zorder,...]</code> (scope ordering and reset are implemented; complex multi-window UI combinations still need real-shell verification)</li>
+<li>⚠️ <code>\![set,sticky-window,...]</code> (grouping, relative offsets, drag following, and reset are implemented; complex multi-window UI combinations still need real-shell verification)</li>
+</ul>
+<p>The runtime behavior above is covered by unit/regression tests. Visual equivalence against a real shell remains an integration verification item; see <code>docs/AUDITS_TODO.md</code>.</p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

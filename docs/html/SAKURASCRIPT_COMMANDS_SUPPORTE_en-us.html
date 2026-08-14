@@ -147,6 +147,79 @@
         </div>
         <h1 id="sakura-script-commands-supported-in-ourin">Sakura Script Commands - Supported in Ourin</h1>
 <p>This document lists all Sakura Script commands that are currently supported by Ourin's <code>SakuraScriptEngine</code>.</p>
+<h2 id="2026-03-ukadoc-gap-audit-priority-order">2026-03 ukadoc gap audit (priority order)</h2>
+<p>Compared against ukadoc (<code>/manual/list_sakura_script.html</code>) and current runtime handlers in <code>GhostManager</code>, the main remaining gaps are:</p>
+<ol>
+<li><strong>Event integration gaps (high)</strong>  </li>
+<li><code>\![embed,event,...]</code> inline event embedding  </li>
+<li><code>\![timerraise,ms,repeat,event,...]</code> delayed/repeating event raise  </li>
+<li>
+<p>Status: <strong>Implemented in this update</strong></p>
+</li>
+<li>
+<p><strong>Runtime switching gaps (high)</strong>  </p>
+<ul>
+<li><code>\![change,ghost,name]</code> full ghost switch semantics  </li>
+<li><code>\![change,shell,name]</code> shell switch and redraw  </li>
+<li><code>\![change,balloon,name]</code> balloon config switch  </li>
+</ul>
+</li>
+<li>Status: <strong>Expanded in this update</strong> (<code>--option=raise-event</code>, <code>OnGhostChanging/Changed</code>, <code>OnShellChanging/Changed</code>, <code>OnBalloonChange</code>)</li>
+<li>
+<p>Related: <code>\![call,ghost,name]</code> runtime path added with <code>OnGhostCalling/OnGhostCalled</code></p>
+</li>
+<li>
+<p><strong>Dialog family gaps (high)</strong>  </p>
+</li>
+<li><code>\![open,inputbox|dateinput|sliderinput|dialog|teachbox,...]</code>  </li>
+<li>
+<p>Status: <strong>Expanded in this update</strong> (added <code>passwordinput|timeinput|ipinput</code>, with option-style args like <code>--timeout</code>, <code>--text</code>, and dialog subtypes <code>open/save/folder/color</code>)</p>
+</li>
+<li>
+<p><strong>Open non-input family (high)</strong>  </p>
+</li>
+<li><code>\![open,browser|mailer|editor|explorer|file|readme|terms|help,...]</code> and <code>\![open,communicatebox]</code>  </li>
+<li><code>\![close,inputbox|communicatebox|dialog|teachbox,...]</code>  </li>
+<li>Status: <strong>Implemented in this update</strong> (runtime routing added and existing dialog event paths reused)</li>
+<li>
+<p>Extended: <code>\![open,ghostexplorer|shellexplorer|balloonexplorer|headlinesensorexplorer|pluginexplorer|rateofusegraph|calendar|messenger|surfacetest|aigraph]</code></p>
+</li>
+<li>
+<p><strong>Plugin event family (high)</strong>  </p>
+</li>
+<li><code>\![raiseplugin|notifyplugin,plugin,event,...]</code>  </li>
+<li><code>\![timerraiseplugin|timernotifyplugin,ms,repeat,plugin,event,...]</code>  </li>
+<li>
+<p>Status: <strong>Implemented in this update</strong> (plugin target resolution by id/name/filename plus <code>random</code>/<code>lastinstalled</code>, timer overwrite/cancel semantics)</p>
+</li>
+<li>
+<p><strong>Sound extended family (medium)</strong>  </p>
+</li>
+<li><code>\![sound,play|load|loop|wait|pause|resume|stop|option,...]</code>  </li>
+<li>
+<p>Status: <strong>Expanded in this update</strong> (<code>load/wait/pause/resume/option</code> runtime path added)</p>
+</li>
+<li>
+<p><strong>Semantic mismatch commands (medium)</strong>  </p>
+</li>
+<li><code>\6</code>, <code>\7</code>, <code>\-</code> behavior differs from some ukadoc expectations  </li>
+<li>
+<p>Status: <strong>Addressed in this update</strong> (<code>\7</code> begins SNTP flow, <code>\6</code> applies SNTP adjustment action, <code>\-</code> exits ghost)</p>
+</li>
+<li>
+<p><strong>Cross-ghost event routing (high)</strong>  </p>
+</li>
+<li><code>\![raiseother,...]</code>, <code>\![notifyother,...]</code>  </li>
+<li><code>\![timerraiseother,...]</code>, <code>\![timernotifyother,...]</code>  </li>
+<li>
+<p>Status: <strong>Implemented in this update</strong> (target parsing including byte-1 separators and <code>__SYSTEM_ALL_GHOST__</code>, timer scheduling/cancel by key)</p>
+</li>
+<li>
+<p><strong>Notify timer semantics (high)</strong>  </p>
+</li>
+<li><code>\![notify,...]</code>, <code>\![timernotify,...]</code> return handling and timer behavior  </li>
+<li>Status: <strong>Implemented in this update</strong> (<code>notify</code> now discards response script; <code>timerraise/timernotify</code> now follow 0=repeat, &gt;=1=one-shot and support per-event cancel/overwrite with <code>ms=0</code>)</li>
+</ol>
 <h2 id="scope-commands">Scope Commands</h2>
 <h3 id="characterscope-selection">Character/Scope Selection</h3>
 <table>
@@ -372,8 +445,8 @@
 - <code>--option=background</code> - Display behind text (default)
 - <code>--option=foreground</code> - Display in front of text</p>
 <p><strong>Example:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">\_b[test.png,10,20,--option=use_self_alpha,--clipping=100</span><span class="w"> </span><span class="mh">30</span><span class="w"> </span><span class="mh">150</span><span class="w"> </span><span class="mh">90</span><span class="p">,</span><span class="o">--</span><span class="n">option</span><span class="o">=</span><span class="n">foreground</span><span class="p">]</span>
-</code></pre></div>
+<pre class="codehilite"><code>\_b[test.png,10,20,--option=use_self_alpha,--clipping=100 30 150 90,--option=foreground]
+</code></pre>
 
 <h3 id="balloon-control">Balloon Control</h3>
 <table>
@@ -545,10 +618,10 @@
 - @: Relative to current position (e.g., <code>@-100</code>)
 - Omit parameter to keep current value (e.g., <code>\_l[,@-100]</code> only moves Y)</p>
 <p><strong>Examples:</strong></p>
-<div class="codehilite"><pre><span></span><code>\_l[30,5em]       Text at X=30px, Y=5 characters
+<pre class="codehilite"><code>\_l[30,5em]       Text at X=30px, Y=5 characters
 \_l[@-1650%,100]  X=left 16.5 characters, Y=100px
 \_l[,@-100]       Same X, 100px up
-</code></pre></div>
+</code></pre>
 
 <h3 id="text-clearing">Text Clearing</h3>
 <table>
@@ -657,6 +730,7 @@
 - Text between opening and closing tags is not parsed as SakuraScript
 - Useful for displaying example scripts or debugging</p>
 <h3 id="voice-synthesis-control">Voice Synthesis Control</h3>
+<p>Ourin does not automatically synthesize speech for ordinary displayed text. Speech synthesis must be explicitly enabled in the script. Voice asset playback (<code>\_v</code>) is independent of speech synthesis.</p>
 <table>
 <thead>
 <tr>
@@ -667,14 +741,29 @@
 </thead>
 <tbody>
 <tr>
+<td><code>\__v[enable]...\__v</code></td>
+<td>Explicitly enable speech synthesis for the range (disabled by default)</td>
+<td><code>\__v[enable]Hello\__v</code></td>
+</tr>
+<tr>
 <td><code>\__v[disable]...\__v</code></td>
-<td>Disable voice synthesis for text</td>
+<td>Disable speech synthesis for the range</td>
 <td><code>\__v[disable]Silent\__v</code></td>
 </tr>
 <tr>
 <td><code>\__v[alternate,text]...\__v</code></td>
-<td>Override pronunciation</td>
+<td>Override the spoken text for the next text token</td>
 <td><code>\__v[alternate,ひらがな]漢字\__v</code></td>
+</tr>
+<tr>
+<td><code>\_v[filename]</code></td>
+<td>Play a voice asset from <code>ghost/sound</code> (independent of TTS)</td>
+<td><code>\_v[voice.wav]</code></td>
+</tr>
+<tr>
+<td><code>\_V</code></td>
+<td>Wait for active voice, sound, and video playback to finish</td>
+<td><code>\_V</code></td>
 </tr>
 </tbody>
 </table>
@@ -934,10 +1023,10 @@
 </tbody>
 </table>
 <p><strong>Example combinations:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">shadowcolor,#6699cc</span><span class="o">]</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">bold,1</span><span class="o">]</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">underline,1</span><span class="o">]</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">height,20</span><span class="o">]</span><span class="n">Styled</span><span class="w"> </span><span class="nc">text</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">default</span><span class="o">]</span><span class="n">Normal</span>
-<span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">align,center</span><span class="o">]</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">color,red</span><span class="o">]</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">height,24</span><span class="o">]</span><span class="n">Centered</span><span class="w"> </span><span class="n">Red</span><span class="w"> </span><span class="n">Title</span><span class="err">\</span><span class="n">n</span>
-<span class="n">H</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,1</span><span class="o">]</span><span class="mi">2</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,0</span><span class="o">]</span><span class="n">O</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">O</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,1</span><span class="o">]</span><span class="mi">2</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,0</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">H</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,1</span><span class="o">]</span><span class="mi">2</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,0</span><span class="o">]</span><span class="n">O</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,1</span><span class="o">]</span><span class="mi">2</span><span class="err">\</span><span class="n">f</span><span class="o">[</span><span class="n">sub,0</span><span class="o">]</span>
-</code></pre></div>
+<pre class="codehilite"><code>\f[shadowcolor,#6699cc]\f[bold,1]\f[underline,1]\f[height,20]Styled text\f[default]Normal
+\f[align,center]\f[color,red]\f[height,24]Centered Red Title\n
+H\f[sub,1]2\f[sub,0]O + O\f[sub,1]2\f[sub,0] → H\f[sub,1]2\f[sub,0]O\f[sub,1]2\f[sub,0]
+</code></pre>
 
 <h2 id="character-movement-commands">Character Movement Commands</h2>
 <table>
@@ -986,9 +1075,10 @@
 - <code>--base-offset=pos</code>: Reference anchor (left.top, right.bottom, center.center, etc.)
 - <code>--move-offset=pos</code>: Character anchor to align
 - <code>--option=opt</code>: Options (ignore-sticky-window)</p>
+<p>The legacy positional form (<code>x,y,time,method,scope</code>) is also accepted. Set either axis to <code>fix</code> to retain its current coordinate. <code>moveasync</code> can be canceled both before dispatch and while the animation is running with <code>\![moveasync,cancel]</code>. <code>--wait</code> queues a wait for a timed move to finish.</p>
 <p><strong>Example:</strong></p>
-<div class="codehilite"><pre><span></span><code>\![move,--X=80,--Y=-400,--time=2500,--base=screen,--base-offset=left.bottom,--move-offset=left.top]
-</code></pre></div>
+<pre class="codehilite"><code>\![move,--X=80,--Y=-400,--time=2500,--base=screen,--base-offset=left.bottom,--move-offset=left.top]
+</code></pre>
 
 <h2 id="dressupbind-commands">Dressup/Bind Commands</h2>
 <table>
@@ -1137,7 +1227,9 @@
 <p><strong>Notes:</strong>
 - 100 = user's configured scale (100%)
 - Negative values flip the axis (-100 = flipped)
-- Persists until ghost terminates</p>
+- Persists until ghost terminates
+- <code>time</code> or <code>--time</code> interpolates the actual value frame by frame
+- <code>--wait=true</code> queues a wait until interpolation completes</p>
 <h3 id="transparency">Transparency</h3>
 <table>
 <thead>
@@ -1158,7 +1250,10 @@
 <p><strong>Notes:</strong>
 - 0 = fully transparent (invisible)
 - 100 = fully opaque
-- Persists until ghost terminates</p>
+- Persists until ghost terminates
+- <code>time</code> or <code>--time</code> interpolates the alpha value
+- <code>--wait=true</code> queues a wait until interpolation completes
+- Negative values leave alpha unchanged and request a redraw only</p>
 <h3 id="effects-filters">Effects &amp; Filters</h3>
 <table>
 <thead>
@@ -1342,6 +1437,10 @@
 <h4 id="parser-level-sakurascriptengineswift">Parser Level (SakuraScriptEngine.swift)</h4>
 <p>All commands listed above are <strong>parsed correctly</strong>. The parser converts Sakura Script text into tokens that can be processed by the rendering engine.</p>
 <h4 id="rendering-level-ghostmanagerswift-characterviewmodelcharacterview">Rendering Level (GhostManager.swift + CharacterViewModel/CharacterView)</h4>
+<p><strong>Voice - IMPLEMENTED:</strong>
+- ✅ <code>\__v[enable|disable|alternate,...]...\__v</code> - Voice synthesis control (automatic speech for ordinary text is disabled by default)
+- ✅ <code>\_v[filename]</code> - Voice asset playback from <code>ghost/sound</code>
+- ✅ <code>\_V</code> - Wait for voice, sound, and video playback completion</p>
 <p><strong>Visual Effects - IMPLEMENTED:</strong>
 - ✅ <code>\![set,scaling,ratio]</code> - Uniform scaling
 - ✅ <code>\![set,scaling,x,y]</code> - Non-uniform scaling
@@ -1357,78 +1456,20 @@
 - Visual effects are applied in <code>CharacterView</code> using SwiftUI modifiers (<code>.scaleEffect()</code>, <code>.opacity()</code>, <code>.allowsHitTesting()</code>)
 - All settings persist until ghost terminates (per UKADOC specification)
 - <code>\![lock,repaint]</code> auto-unlocks at script end unless <code>manual</code> option is used</p>
-<h3 id="partially-implemented">⚠️ Partially Implemented</h3>
-<p><strong>Window Management - STATE STORED, BEHAVIOR TODO:</strong>
-These commands update the ViewModel state correctly, but actual window behavior needs platform implementation:
-- ⚠️ Alignment constraints (preventing window movement in certain directions)
-- ⚠️ Position locking (disabling window drag)
-- ⚠️ Z-order enforcement (keeping windows in specified stacking order)
-- ⚠️ Sticky window synchronization (moving multiple windows together)</p>
-<h3 id="not-yet-implemented-execution-level">❌ Not Yet Implemented (Execution Level)</h3>
-<p><strong>Balloon &amp; Text Commands - PARSED ONLY:</strong>
-All balloon and text commands are fully parsed, but execution is not yet implemented:
-- ❌ <code>\bN</code> / <code>\b[ID]</code> - Balloon ID switching (parsed, placeholder exists)
-- ❌ <code>\C</code> - Append mode (parsed, placeholder exists)
-- ❌ <code>\n[half]</code> / <code>\n[percent]</code> - Variable newline height (parsed, treated as regular newline)
-- ❌ <code>\_b[...]</code> - Balloon images (inline and positioned)
-- ❌ <code>\_l[x,y]</code> - Text cursor positioning
-- ❌ <code>\c</code> / <code>\c[char/line,...]</code> - Text clearing
-- ❌ <code>\_n</code> - No auto-wrap mode
-- ❌ <code>\_!...\_!</code> / <code>\_?...\_?</code> - Tag passthrough (parsed correctly)
-- ❌ <code>\__v[...]</code> - Voice synthesis control
-- ❌ <code>\![set,autoscroll,...]</code> - Auto-scroll control
-- ❌ <code>\![set,balloonoffset,...]</code> - Balloon offset
-- ❌ <code>\![set,balloonalign,...]</code> - Balloon alignment
-- ❌ <code>\![set,balloonmarker,...]</code> - SSTP marker
-- ❌ <code>\![set,balloonnum,...]</code> - File transfer indicator
-- ❌ <code>\![set,balloontimeout,...]</code> - Balloon timeout
-- ❌ <code>\![set,balloonwait,...]</code> - Text speed
-- ❌ <code>\![set,serikotalk,...]</code> - SERIKO mouth animation
-- ❌ <code>\![enter/leave,onlinemode]</code> - Online marker
-- ❌ <code>\![enter/leave,nouserbreakmode]</code> - User break control
-- ❌ <code>\![lock/unlock,balloonrepaint]</code> - Balloon repaint control
-- ❌ <code>\![lock/unlock,balloonmove]</code> - Balloon drag control</p>
-<p><strong>Font &amp; Text Styling Commands - PARSED ONLY:</strong>
-All font and text styling commands are fully parsed, but execution is not yet implemented:
-- ❌ <code>\f[align,...]</code> - Text alignment (left/center/right)
-- ❌ <code>\f[valign,...]</code> - Vertical text alignment (top/center/bottom)
-- ❌ <code>\f[name,...]</code> - Font family change
-- ❌ <code>\f[height,...]</code> - Font size (absolute, relative, percentage)
-- ❌ <code>\f[color,...]</code> - Text color
-- ❌ <code>\f[shadowcolor,...]</code> - Shadow color
-- ❌ <code>\f[shadowstyle,...]</code> - Shadow style (offset/outline)
-- ❌ <code>\f[anchor.font.color,...]</code> - Anchor text color
-- ❌ <code>\f[bold,...]</code> - Bold text style
-- ❌ <code>\f[italic,...]</code> - Italic text style
-- ❌ <code>\f[strike,...]</code> - Strikethrough text
-- ❌ <code>\f[underline,...]</code> - Underline text
-- ❌ <code>\f[outline,...]</code> - Outline (white text) style
-- ❌ <code>\f[sub,...]</code> - Subscript text
-- ❌ <code>\f[sup,...]</code> - Superscript text
-- ❌ <code>\f[default]</code> - Reset all font attributes
-- ❌ <code>\f[disable]</code> - Set disabled text style</p>
-<p><strong>Movement:</strong>
-- ❌ <code>\4</code> and <code>\5</code> - Basic character movement (parsed, handler placeholder exists)
-- ❌ <code>\![move,...]</code> / <code>\![moveasync,...]</code> - Complex movement with parameters</p>
-<p><strong>Animation:</strong>
-- ❌ <code>\![anim,clear,ID]</code> / <code>\![anim,pause,ID]</code> / <code>\![anim,resume,ID]</code> / <code>\![anim,stop]</code>
-- ❌ <code>\![anim,offset,ID,x,y]</code>
-- ❌ <code>\![anim,add,*]</code> - Animation layering
-- ❌ <code>\__w[animation,ID]</code> - Wait for animation completion</p>
-<p><strong>Dressup:</strong>
-- ❌ <code>\![bind,category,part,value]</code> - Full dressup system not yet implemented</p>
-<p><strong>Effects &amp; Filters:</strong>
-- ❌ <code>\![effect,...]</code> / <code>\![effect2,...]</code> / <code>\![filter,...]</code> - Plugin-based effects
-- ❌ <code>\![set,scaling,x,y,time]</code> - Animated scaling over time</p>
-<p><strong>Notes:</strong>
-- Parser correctly identifies all commands and extracts parameters
-- Placeholder handlers exist with TODO comments for future implementation
-- Some features require platform-specific NSWindow manipulation
-- Animation, balloon, and dressup systems require additional infrastructure</p>
+<h3 id="remaining-gaps-requiring-real-device-verification">⚠️ Remaining gaps requiring real-device verification</h3>
+<p>The old “parsed only / placeholder” list in this section no longer matches the runtime and must not be used as the completion source. The current evidence is:</p>
+<ul>
+<li>✅ Balloon rendering, variable newlines, cursor movement, clearing, inline images, text styles, anchors, SERIKO, dress-up, updates, and input dialogs have runtime paths.</li>
+<li>✅ Online markers, wallpaper, task-tray icons, dumpsurface, ping/nslookup, and vanish perform real work and emit failure events.</li>
+<li>✅ <code>\f[cursor*]</code> is applied to the actual choice-dialog buttons.</li>
+<li>✅ A local mouse monitor tracks the actual modal choice button, emitting <code>OnChoiceEnter</code> on enter/exit and <code>OnChoiceHover</code> after 500 ms of stillness.</li>
+<li>✅ <code>updateother</code> resolves installed balloon/shell/plugin/headline/language targets by descriptor name/id and applies updates to each target's own root. <code>testonly</code> downloads and verifies MD5 without changing existing files. Real-network and installed-ghost UI/update verification remains pending.</li>
+<li>⚠️ Timed move/scaling/alpha interpolation, <code>moveasync</code> rendering in a real window, and platform-specific window behavior require real UI verification beyond the unit suite.</li>
+</ul>
 <h2 id="testing">Testing</h2>
 <p>All commands have comprehensive test coverage in <code>OurinTests/SakuraScriptEngineTests.swift</code>. Run tests with:</p>
-<div class="codehilite"><pre><span></span><code>xcodebuild<span class="w"> </span>-project<span class="w"> </span>Ourin.xcodeproj<span class="w"> </span>-scheme<span class="w"> </span>Ourin<span class="w"> </span>-only-testing:OurinTests/SakuraScriptEngineTests<span class="w"> </span><span class="nb">test</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-bash">xcodebuild -project Ourin.xcodeproj -scheme Ourin -only-testing:OurinTests/SakuraScriptEngineTests test
+</code></pre>
 
 <h2 id="references">References</h2>
 <ul>
@@ -1437,7 +1478,7 @@ All font and text styling commands are fully parsed, but execution is not yet im
 <li>Test suite: <code>OurinTests/SakuraScriptEngineTests.swift</code></li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

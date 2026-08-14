@@ -1704,7 +1704,7 @@
 </tr>
 <tr>
 <td><code>OnScreenSaverStart</code> / <code>OnScreenSaverEnd</code></td>
-<td>画面スリープ/復帰は <strong>screensDidSleepNotification / screensDidWakeNotification</strong> を準用。</td>
+<td>Observe <code>com.apple.screensaver.didstart/didstop</code> via <code>DistributedNotificationCenter</code>; map screen sleep/wake separately to <code>OnDisplayPowerStatus</code>.</td>
 </tr>
 <tr>
 <td><code>OnDisplay*</code></td>
@@ -1797,7 +1797,7 @@
 <li>Apple: <strong>NSWorkspace</strong> の各通知（sleep/wake/screens）、<strong>IOKit IOPowerSources</strong>（バッテリー/AC 判定）、<strong>File System Events (FSEvents)</strong>、<strong>UNUserNotificationCenter</strong>、<strong>NSStatusItem</strong>、<strong>effectiveAppearance</strong>。</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

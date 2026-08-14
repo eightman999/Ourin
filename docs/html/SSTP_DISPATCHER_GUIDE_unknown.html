@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSTP Dispatcher Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="SSTP_DISPATCHER_GUIDE_ja-jp.html" class="">日本語</a> | <a href="SSTP_DISPATCHER_GUIDE_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="sstp-dispatcher-guide">SSTP Dispatcher Guide</h1>
+<h2 id="overview">Overview</h2>
+<p><code>Ourin/SSTP/SSTPDispatcher.swift</code> accepts parsed <code>SSTPRequest</code> and routes it to SHIORI bridge logic.</p>
+<p>Supported methods:</p>
+<ul>
+<li><code>SEND</code></li>
+<li><code>NOTIFY</code></li>
+<li><code>COMMUNICATE</code></li>
+<li><code>EXECUTE</code></li>
+<li><code>GIVE</code></li>
+<li><code>INSTALL</code></li>
+</ul>
+<p>Unsupported methods return <code>400</code>.</p>
+<h2 id="dispatch-flow">Dispatch flow</h2>
+<p>Primary entry:</p>
+<ul>
+<li><code>SSTPDispatcher.dispatch(request:)</code></li>
+</ul>
+<p>Core route function:</p>
+<ul>
+<li><code>routeToShiori(request:method:)</code></li>
+</ul>
+<p>Flow:</p>
+<ol>
+<li>Resolve event name (<code>Event</code> header override or method default)</li>
+<li>Extract references (<code>Reference0..N</code>, plus <code>Sentence</code>/<code>Command</code> special handling)</li>
+<li>Build SHIORI headers</li>
+<li>Call <code>BridgeToSHIORI.handle(...)</code></li>
+<li>Map SHIORI response fields (<code>Script</code>, <code>Value</code>, <code>Data</code>, status)</li>
+<li>Emit SSTP wire response</li>
+</ol>
+<h2 id="header-propagation">Header propagation</h2>
+<p>Dispatcher carries/normalizes:</p>
+<ul>
+<li><code>Charset</code></li>
+<li><code>Sender</code></li>
+<li><code>SenderType</code></li>
+<li><code>SecurityLevel</code></li>
+<li>optional <code>SecurityOrigin</code></li>
+</ul>
+<p><code>X-SSTP-PassThru</code> is preserved in responses.</p>
+<h2 id="method-specific-behavior">Method-specific behavior</h2>
+<ul>
+<li><code>NOTIFY</code> returns <code>204</code> regardless of returned script body</li>
+<li><code>EXECUTE</code> validates <code>Command</code> header and returns <code>400</code> if missing</li>
+<li><code>COMMUNICATE</code> injects <code>Sentence</code> into references</li>
+<li><code>GIVE</code> defaults to <code>OnChoiceSelect</code></li>
+<li><code>INSTALL</code> defaults to <code>OnInstall</code></li>
+</ul>
+<h2 id="response-model-sstpresponse">Response model (<code>SSTPResponse</code>)</h2>
+<p><code>Ourin/SSTP/SSTPResponse.swift</code> centralizes response formatting:</p>
+<ul>
+<li>Status line with default status messages</li>
+<li>Ordered key output (<code>Charset</code>, <code>Sender</code>, <code>Script</code>, <code>Data</code>, <code>X-SSTP-PassThru</code>, others)</li>
+<li><code>toWireFormat()</code> outputs CRLF-separated wire string</li>
+</ul>
+<p>Supported status messages include:</p>
+<ul>
+<li><code>200</code>, <code>204</code>, <code>210</code></li>
+<li><code>4xx</code> common validation/security errors</li>
+<li><code>5xx</code> server capability errors</li>
+<li><code>512 Invisible</code></li>
+</ul>
+<h2 id="testing">Testing</h2>
+<ul>
+<li><code>OurinTests/SSTPDispatcherTests.swift</code></li>
+<li><code>OurinTests/SSTPResponseTests.swift</code></li>
+</ul>
+<p>Tests validate routing, mapping, propagation, and wire formatting.</p>
+<h2 id="current-status">Current Status / 現在のステータス</h2>
+<p><strong>Status</strong>: End-to-end integration with live ghost complete / 稼働中ゴーストとのエンドツーエンド統合完了 / 2026-08-12</p>
+<h3 id="implemented-components">Implemented Components / 実装済みコンポーネント</h3>
+<h4 id="sstpdispatcherswift-complete">✅ <strong>SSTPDispatcher.swift</strong> (Complete / 完全)</h4>
+<p>Fully functional request parser and dispatcher with:
+- Parses all SSTP methods (SEND, NOTIFY, COMMUNICATE, EXECUTE, GIVE, INSTALL)
+- Event resolution (Event header or method default)
+- Reference extraction (Reference0..N, Sentence, Command)
+- Header normalization and propagation
+- Routes to the live ghost through <code>BridgeToSHIORI.handleResponse</code></p>
+<h4 id="sstpresponseswift-complete">✅ <strong>SSTPResponse.swift</strong> (Complete / 完全)</h4>
+<p>Fully functional response builder with:
+- All status codes (200, 204, 210, 4xx, 5xx, 512)
+- Wire format generation (toWireFormat())
+- Header ordering and formatting
+- Charset, Sender, Script, Data handling
+- X-SSTP-PassThru preservation</p>
+<h3 id="live-bridge">Live bridge / 稼働中ブリッジ</h3>
+<p><code>BridgeToSHIORI.handleResponse</code> resolves requests in this order:</p>
+<ol>
+<li>Registered <code>Resource</code> values used by focused tests</li>
+<li>A native SHIORI bundle configured by <code>SHIORI_BUNDLE_PATH</code></li>
+<li>The live ghost resolver registered by <code>AppDelegate</code></li>
+</ol>
+<p>The live resolver forwards SSTP events to the loaded YAYA ghost. If no resolver or native bundle is available, the dispatcher returns <code>503 Service Unavailable</code>; it does not synthesize a mock script.</p>
+<p>The integration is covered by <code>SSTPDispatcherTests</code>, <code>ExternalServerTests</code>, and the native SHIORI fixture tests.</p>
+<hr />
+<h2 id="operational-notes">Operational notes / 動作上の注意</h2>
+<ul>
+<li>Dispatcher is intentionally stateless.</li>
+<li>SHIORI mapping is tolerant: non-<code>SHIORI/</code> response text is treated as script payload.</li>
+<li>For protocol conformance improvements, add cases in <code>resolveEvent</code>, <code>mapShioriResponse</code>, and status mapping in <code>SSTPResponse</code>.</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

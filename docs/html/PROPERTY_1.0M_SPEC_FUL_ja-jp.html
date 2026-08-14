@@ -273,21 +273,21 @@
 <hr />
 <h2 id="6">6. 例：参照・取得・設定</h2>
 <p><strong>参照（環境変数）</strong>  </p>
-<div class="codehilite"><pre><span></span><code><span class="nf">%property</span><span class="p">[</span><span class="n">baseware</span><span class="p">.</span><span class="n">name</span><span class="p">]</span><span class="w"> </span><span class="n">ver</span><span class="p">.</span><span class="w"> </span><span class="nf">%property</span><span class="p">[</span><span class="n">baseware</span><span class="p">.</span><span class="n">version</span><span class="p">]</span>
-</code></pre></div>
+<pre class="codehilite"><code>%property[baseware.name] ver. %property[baseware.version]
+</code></pre>
 
 <p><strong>取得（イベントで受け取り）</strong>  </p>
-<div class="codehilite"><pre><span></span><code>\![get,property,OnGetSakuraName,ghostlist(Emily/Phase4.5).keroname]
+<pre class="codehilite"><code>\![get,property,OnGetSakuraName,ghostlist(Emily/Phase4.5).keroname]
 // → SHIORI側 OnGetSakuraName の reference0 に値が入る
-</code></pre></div>
+</code></pre>
 
 <p><strong>設定（メニューからシェルを非表示）</strong>  </p>
-<div class="codehilite"><pre><span></span><code>\![set,property,currentghost.shelllist(ULTIMATE FORM).menu,hidden]
-</code></pre></div>
+<pre class="codehilite"><code>\![set,property,currentghost.shelllist(ULTIMATE FORM).menu,hidden]
+</code></pre>
 
 <p><strong>設定（当たり判定ヘッドのツールチップ）</strong>  </p>
-<div class="codehilite"><pre><span></span><code>\<span class="o">!</span><span class="p">[</span><span class="n">set</span><span class="p">,</span><span class="n">property</span><span class="p">,</span><span class="n">currentghost</span><span class="o">.</span><span class="n">seriko</span><span class="o">.</span><span class="n">tooltip</span><span class="o">.</span><span class="n">scope</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">textlist</span><span class="p">(</span><span class="n">Head</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">,</span><span class="err">頭をなでる</span><span class="p">]</span>
-</code></pre></div>
+<pre class="codehilite"><code>\![set,property,currentghost.seriko.tooltip.scope(0).textlist(Head).text,頭をなでる]
+</code></pre>
 
 <hr />
 <h2 id="7">7. 互換性・注意事項</h2>
@@ -303,7 +303,7 @@
 <li>2025-07-28 (JST): 初版（1.0M for macOS）。</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

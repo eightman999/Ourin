@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スタブ実装の本実装化計画（STUB_COMPLETION_PLAN）</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="stub_completion_plan">スタブ実装の本実装化計画（STUB_COMPLETION_PLAN）</h1>
+<p>作成日: 2026-07-08
+根拠: Sonnetによるコード実測棚卸し（Swift側58件・yaya_core側8件のTODO/stub系ヒットを全件精査）＋PLUGIN_BRIDGE計画Phase5-9突合監査。
+ドキュメントの自己申告ではなく、各項目はファイル:行まで実コードで確認済み。</p>
+<h2 id="_1">進行中（本計画のスコープ外・別途完了報告）</h2>
+<p>以下は2026-07-08の互換性向上ラウンドで着手済みのため本計画から除外する。</p>
+<ul>
+<li>SHIORI SecurityLevel external伝播（SSTP外部入口）</li>
+<li>バルーン左上ピクセル透過（レガシー画像）</li>
+<li>SAORI <code>.plugin</code> バンドル対応</li>
+<li>NAR複合種別インストール</li>
+<li>Plugin bridge Phase 8 fixture一式・Phase 9 行列テスト</li>
+</ul>
+<h2 id="phase-1-p0">Phase 1: ゴースト互換性への影響が大きいもの（P0）</h2>
+<ul>
+<li>[x] <strong>1-1. lexicon（単語クラス辞書）の実装</strong> — 2026-07-08 実装済み（codex）</li>
+<li><code>Ourin/Resources/SakuraScriptLexicon.json</code>（組み込み語彙）を新設し、<code>EnvironmentExpander</code> 初期化時に確認済み10キー（<code>%ms</code>/<code>%mz</code>/<code>%ml</code>/<code>%mc</code>/<code>%mh</code>/<code>%mt</code>/<code>%me</code>/<code>%mp</code>/<code>%m?</code>/<code>%dms</code>）のみ注入。回帰テスト追加、ビルド成功、.app内へのリソース配置確認済み。</li>
+<li>未対応: ユーザー辞書での上書き口はdocsで仕様確認できなかったため新設せず（既存の <code>lexicon</code> 直接代入は維持）。<strong>実ゴーストでの表示確認は未実施（検証待ち）。</strong></li>
+<li>[x] <strong>1-2. <code>\j[label]</code> スクリプト内ラベルジャンプ</strong> — 2026-07-08 実装済み（codex）</li>
+<li><code>SakuraScriptEngine.swift</code> のparse後にラベル解決を追加。<code>\j[ID]</code> のうちURL/file/mailto・<code>On...</code>イベント以外を <code>\_a[ID]...\_a</code> 位置へ解決（仕様: SAKURASCRIPT_FULL 1980-1984, 1153-1165行）。テスト3件追加、SakuraScriptEngineTestsスイート全パス確認済み。</li>
+<li>未対応: <code>\_a[ID]</code> 以外のラベル定義構文はdocsに存在せず対象外。</li>
+<li>[x] <strong>1-3. SHIORI 2.x互換の正式実装</strong> — 難易度: 大 — <strong>2026-07-08 ユーザー決定: 互換性あり（正式実装する）→ 同日中にコア部分実装完了、2026-07-09 監査でスコープ再確認</strong></li>
+<li>実装済み: <code>Ourin/USL/Shiori2CompatAdapter.swift</code>（455行、新規）が <code>Shiori2CompatBackend</code> として <code>GET Version</code> バックエンド版数検出／3.0イベント→<code>GET Sentence SHIORI/2.2</code>+<code>Event:</code>+<code>Reference0-7</code>変換／2.xレスポンス（Sentence/BalloonOffset等）→3.0 <code>Value:</code>変換／<code>TEACH</code>→2.4/311/312往復／Shift_JISエンコードを実装。<code>ShioriLoader.swift:846,853,855</code> でXPC/Bundle/Dylib全バックエンド生成経路にラップ配線済み。<code>OurinTests/ShioriLoaderTests.swift:54-253</code>（7テスト）で完了条件（2.x応答→3.0相当変換がゴースト応答として機能）を満たすことを確認。</li>
+<li><strong>未対応（新規TODO、<code>docs/AUDITS_TODO.md</code> A節に追記）</strong>: <code>buildWordRequest</code>/<code>buildStringRequest</code>/<code>buildStatusRequest</code>/<code>buildOwnerGhostNameRequest</code>/<code>buildOtherGhostNameRequest</code>/<code>buildCommunicateRequest</code>（<code>Shiori2CompatAdapter.swift:339-422</code>）は単体テスト無し・呼び出し元未確認。<code>buildUserSentenceRequest</code>（<code>:339-348</code>）は <code>ID: OnTalk</code> 判定だが実イベントIDは <code>OnTalkRequest</code>（<code>EventID.swift:361</code>）のみで到達不能（<code>docs/SHIORI_2X_COMPAT_SPEC_ja-jp.md</code>も「要検証事項4」と明記）。旧 <code>ShioriLoader.swift:433-498</code>（<code>YayaBackend.parseRequest/buildResponse</code>）は別方向（Ourin自身が2.xサーバとして受ける側）の実装で新アダプタと未統合のまま並存（二重実装リスク）。</li>
+</ul>
+<h2 id="phase-2-uxp1">Phase 2: 表示・UX系の機能欠落（P1）</h2>
+<ul>
+<li>[x] <strong>2-1. バルーン <code>--option=fixed</code>（固定背景）</strong> — 難易度: 小</li>
+<li>2026-07-08 実装済み: <code>BalloonImage.isFixed</code> をパース〜<code>BalloonView</code>描画まで配線。ビルド＋BalloonTests 5件パス。<strong>実表示での目視確認は未実施（検証待ち）。</strong></li>
+<li>[x] <strong>2-2. バルーン垂直配置（valign）→ 誤検知につき対応不要</strong> — 2026-07-08 実測で確定</li>
+<li>正しいコマンドは <code>\f[valign,top/center/bottom]</code>（<code>\_v</code>はサウンド系で無関係、本計画の旧記載は誤り）。</li>
+<li>実装は既に存在し稼働中: <code>GhostManager.swift:2451-2466</code> が <code>vm.textVAlign</code> へ代入し、<code>BalloonView.swift:76,133-142</code> で描画反映。パーサーテストも既存（<code>SakuraScriptEngineTests.swift:1042-1051</code>）。</li>
+<li><code>BalloonRichTextViewModel.handleValignCommand</code> は<strong>呼び出し元ゼロの未使用クラス内のスタブ</strong>（クラスごとデッドコードの可能性が高い）。削除するかはユーザー判断待ち。実装は行わない。</li>
+<li>[x] <strong>2-3. SSTP 210 Break の <code>nobreak</code> キューイング</strong> — 2026-07-08 実装済み（Sonnet）</li>
+<li>UKADOC仕様確認の上、busy時ブロッキング待機（<code>SSTPBreakQueue</code>新規、既定5秒タイムアウト→409）→解消後に通常経路へ進む実装。テスト3件（キューイング後200／タイムアウト409／busy解消で続行）、ビルド＋SSTP系テスト全パス。</li>
+<li><code>EventBridge.isAnyGhostPlaying()</code> を接続し、<code>GhostManager.isPlaying</code> が true の間も busy として扱うよう修正（2026-08-12）。<code>SSTPDispatcherTests</code> で再生完了後の継続・タイムアウトを確認済み。</li>
+<li>[x] <strong>2-4. 動画レンダラ（<code>playVideo</code>）</strong> — 2026-07-08 実装済み（deep-reasoner設計→codex実装、設計書: docs/archive/VIDEO_RENDERER_DESIGN_ja-jp.md）</li>
+<li><code>VideoPlayerWindow.swift</code> 新規（AVPlayerView別窓方式）、<code>\![sound,play,&lt;動画&gt;]</code> ディスパッチ配線、stop/pause/resume/wait対応、ゴースト終了時クリーンアップ、<code>VideoRendererTests</code> 8件（直列化済み）。</li>
+<li><code>--balance</code> は <code>MTAudioProcessingTap</code> で2chのFloat32/Int16 PCMへ左右ゲインを適用する実装を追加。<code>sound,load</code> の動画プリロードは実装済み（<code>VideoPreloadPlayer</code> が <code>AVURLAsset</code>/<code>AVPlayerItem</code>/<code>AVPlayer</code> を保持し、play時に load/play オプションをマージして1つ消費・stop/cleanup で破棄）。<strong>実機での動画再生・映像表示・実音声の左右バランスは未確認（検証待ち）。</strong></li>
+<li>非対応形式・ファイル未検出は <code>OnVideoPlayFailure</code>（<code>unsupported_codec</code> / <code>file_not_found</code>）を発火し、成功イベントを誤発火しない。</li>
+<li>[x] <strong>2-5. 音声再生バックエンド（<code>play/load/loop/wait/pause/resume/stop/option</code>）</strong> — 2026-08-12 実装済み</li>
+<li><code>SoundPlayer.swift</code> を <code>AVAudioPlayer</code> ベースへ移行し、<code>--volume</code>/<code>--balance</code>/<code>--rate</code>/<code>--seektime</code>、プリロード、多重再生、メインキュー順序、自然終了・ループ境界・エラーイベントを実装。音声パスは仕様どおり <code>ghost/master</code> を優先し、旧 <code>ghost/sound</code> を後方互換フォールバックとする。</li>
+<li><code>\![sound,wait]</code> はトークン化時に待ち時間を計算せず、実行時の <code>waitForAudio</code> として <code>\_V</code> と同じ経路で処理。<code>SoundPlayerTests</code> 27件、ビルド＋直列実行を確認。</li>
+<li>音声経路の未完了項目はない。動画側では <code>sound,load</code> プリロードは実装済み。実機での動画目視・実音声確認、未対応コーデックの対応範囲確定が残る。</li>
+<li>[x] <strong>2-6. SakuraScriptの可変改行・個別アンカー範囲・アンカー装飾</strong> — 2026-08-12 実装済み（DeepSeek実装→Codex受け入れ修正）</li>
+<li><code>\\n[half]</code> / 数値・割合改行を <code>PlaybackUnit.newlineVariation</code> と <code>BalloonViewModel.lineAdvances</code> に接続し、行単位の表示へ反映。再生キュー順序、<code>\\c[char,N]</code> / <code>\\c[line,N]</code> による同期短縮も実装。</li>
+<li><code>\\_a[ID,...]...\\_a</code> を <code>BalloonAnchorRange</code> として個別保持し、範囲ごとの文字色・クリックを実装。<code>On*</code> は指定イベント、それ以外は <code>OnAnchorSelectEx</code>（R0=クリック文字列、R1=ID、R2+=引数）→<code>OnAnchorSelect</code>。プラグイン起源も保持。</li>
+<li><code>anchorstyle</code> / <code>anchorvisited*</code> / <code>anchornotselect*</code> の下線・矩形・背景・ペン色・3状態別文字色を <code>BalloonView</code> に実描画し、<code>descript.txt</code> の状態別設定も適用。<code>anchormethod</code> / <code>anchornotselectmethod</code> / <code>anchorvisitedmethod</code> は全SetROP2演算子を背景画像の実ピクセルへ合成する描画器へ接続。<strong>実ゴースト目視、実メディア環境、負値改行の厳密な実測は未完了。</strong></li>
+</ul>
+<h2 id="phase-3-p1p2">Phase 3: プラグイン・周辺システム（P1〜P2）</h2>
+<ul>
+<li>[x] <strong>3-1. Plugin menuのホストメニュー統合（PLUGIN_BRIDGE Phase 7 未達分）</strong> — 2026-07-08 実装済み（codex）</li>
+<li><code>PluginRegistry</code> にmenuモデル（<code>message.*.txt</code> 言語切替つき表示名解決）を追加し、右クリック/OwnerDrawメニューへ「プラグイン」サブメニューとして列挙。選択時は該当pluginのみへ <code>OnMenuExec</code> 送信。仕様上 Ref0=CGWindowID列のため、選択項目IDは <strong>Ref5</strong> に格納（本計画の旧記載「Reference0にID」は仕様と矛盾しており誤り）。<code>notifyplugin</code> 呼び出し元の <code>dispatchNotify</code> 移行も完了。テスト追加、ビルド＋plugin系テスト全パス。<strong>実UI操作での確認は未実施（検証待ち）。</strong></li>
+<li>[x] <strong>3-2. 行列テストで発見したPLUGINイベントの仕様ギャップ4件</strong> — 2026-07-08 解消（GLM）。①OnInstallComplete複数値API追加（0x01結合・後方互換維持） ②<code>dispatchNotifyPlugin</code>/<code>dispatchNotify</code>でNOTIFY強制の専用経路追加（Ghost側呼び出し元の移行は残タスク） ③balloonpathlistは仕様確認の結果「Ref0のみが正、現状はスーパーセットで違反ではない」と結論し現状維持 ④reasons語彙はDEBUG警告のみ追加。行列テストFIXME 0件・全パス。</li>
+<li><code>OnInstallComplete</code> の0x01区切り複数値未対応（<code>onInstallComplete(type:name:path:)</code> が単一String）</li>
+<li><code>notifyplugin</code> のNOTIFY強制がディスパッチャに無い（呼び出し元責務になっている）</li>
+<li><code>balloonpathlist</code> が仕様上Ref0のみだが複数Reference共通コードを共有</li>
+<li><code>OnOtherGhostTalk</code> の reasons 語彙バリデーション欠如</li>
+<li>該当: <code>OurinTests/PluginEventDispatchMatrixTests.swift</code> の <code>// FIXME: 仕様とのギャップ</code> コメント箇所。</li>
+<li>完了条件: 各FIXMEが解消され行列テストがスキップ無しでパス。</li>
+<li>[x] <strong>3-3. SHIORI Resource永続化のSSP互換化</strong> — 2026-07-08 実装済み（GLM）</li>
+<li>ghostKey付きモードで <code>data/profile/&lt;ghost&gt;/</code> ファイルストアを使用。UserDefaults→ファイルの初回移行（冪等・UserDefaults側データは削除しない）。移行テスト3件（UserDefaultsのみ→移行／ファイル優先／新規書き込みはファイル）全パス。旧グローバルモードはUserDefaultsのまま互換維持。</li>
+</ul>
+<h2 id="phase-4-yaya_core-p2">Phase 4: yaya_core 低頻度組み込み関数（P2）</h2>
+<ul>
+<li>[x] <strong>4-1. <code>FREADENCODE</code> / <code>FWRITEDECODE</code></strong> — 2026-07-08 実装済み。iconvによる実エンコード変換（CP932↔UTF-8往復を実機IPC＋iconvコマンド独立検証で確認）。</li>
+<li>[x] <strong>4-2. <code>LSO</code></strong> — 2026-07-08 実装済み。<code>lastSelectedIndex_</code> をparallel選択時に記録して返す。実機IPC検証済み。</li>
+<li>[x] <strong>4-3. <code>OUTPUTNUM</code></strong> — 2026-07-08 実装済み。本家仕様は「関数名を実行し候補数を返す」であり、本計画の旧記載（printf型フォーマット）は誤りだった。array型3候補→3、未定義関数→-1 を実機IPC検証済み。</li>
+<li>完了メモ: クリーンビルド成功（<code>./build.sh</code>、警告なし）。yaya_coreにテスト機構が無いため実機IPC検証で代替（テスト基盤導入は別途検討）。</li>
+</ul>
+<h2 id="phase-5">Phase 5: 検証・掃除（小粒）</h2>
+<ul>
+<li>[x] <strong>5-1. <code>fmoOperation</code> オーバーライドの裏取り</strong> — 2026-07-08 確認済み: <code>YayaCore::fmoOperation</code>（<code>yaya_core/src/YayaCore.cpp:109</code>）がオーバーライドしJSON IPCでホストへフォワード。VM.hppの既定はフォールバックであり機能欠落ではない。対応不要。</li>
+<li>[x] <strong>5-2. 古いTODOコメントの除去</strong> — 2026-07-08 完了。配線済み（<code>OurinApp.swift:232,237</code>）を実測確認の上、TODO 2行を配線先注記に置換。</li>
+<li>[x] <strong>5-3. ドキュメント訂正</strong> — 2026-07-08 完了。<code>PLUGIN_BRIDGE_COMPLETION_PLAN_ja-jp.md</code> に監査記録セクション（過大申告✅の経緯と対応）を追記。<code>AUDITS_TODO.md</code> の完了6項目（SecurityLevel/210 Break/lexicon/NAR複合/透過処理、日英両方）と推奨対応順序を実測反映。</li>
+</ul>
+<h2 id="_2">対応しない（意図的スタブとして維持）</h2>
+<ul>
+<li><code>GETMEMINFO</code> / <code>SETTAMAHWND</code> / <code>EmBeD_HiStOrY</code> は 2026-08-12 に実装済み。</li>
+<li><code>GETMEMINFO</code>: macOS の Mach / sysctl 統計を5要素配列で返す。</li>
+<li><code>SETTAMAHWND</code>: HWNDを直接扱えないmacOS向けに <code>GETSETTING("tama.hwnd")</code> で読み戻せる論理識別子として保持する。</li>
+<li><code>EmBeD_HiStOrY</code>: 文字列内の <code>%[n]</code> を同一文字列の直前埋め込み値へ解決する。</li>
+<li><code>EventReferenceSpec.swift</code> の DEBUG時 <code>assertionFailure</code>（開発時検証用として正常）</li>
+<li><code>GhostManager.swift:551,664,690</code> の起動時プレースホルダサーフェス（正常フロー）</li>
+<li>PluginScaffolder の旧生成物（旧形式のダミー実行体は生成停止済み。既存の <code>.scaffold</code> は PluginRegistry が実行対象外として扱う）</li>
+<li>MCP（Model Context Protocol）はOurinのベースウェア機能・移行互換対象外。SSPの<code>mcp.exe</code>相当の固定HTTPスタブ（<code>-32601</code>応答）は2026-08-12に削除し、<code>/api/mcp/v1</code>は公開しない（未知パスとして404）。</li>
+</ul>
+<h2 id="_3">委譲方針</h2>
+<ul>
+<li>小粒・機械的（2-1, 3-2, 4-x, 5-2）: Sonnet fast-worker または GLM</li>
+<li>中粒・配線系（1-1, 1-2, 2-3, 3-1, 3-3）: Codex / GLM（ファイル領域が重ならないよう分割）</li>
+<li>大粒・設計必要（2-4動画, 1-3を実装する場合のSHIORI 2.x）: deep-reasoner設計→Codex実装→Sonnet検証の3段</li>
+<li>各タスクは完了条件を明記して委譲し、統合後に <code>xcodebuild build</code> ＋ 可能ならテスト実行で検証する。</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

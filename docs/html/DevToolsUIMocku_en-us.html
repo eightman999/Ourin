@@ -148,23 +148,23 @@
         <h1 id="ourin-devtools-ui-mockup">Ourin DevTools UI Mockup</h1>
 <p>This document outlines a proposed "Settings, Test &amp; Debug" interface for <strong>Ourin</strong> on macOS. The mockup follows Apple's Human Interface Guidelines and utilises the standard Sidebar + Toolbar layout with a detail view on the right.</p>
 <h2 id="0-screen-map">0. Screen Map</h2>
-<div class="codehilite"><pre><span></span><code><span class="err">┌──────────────────────────────────────────────────────────────┐</span>
-<span class="err">│</span><span class="w">  </span><span class="n">Ourin</span><span class="w"> </span><span class="n">DevTools</span><span class="w">                                      </span><span class="o">[</span><span class="n">Search</span><span class="o">]</span><span class="err">│</span>
-<span class="err">│</span><span class="w">  </span><span class="err">───────────────────────────────────────────────────────────</span><span class="w"> </span><span class="err">│</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="k">General</span><span class="w">                                                  </span><span class="err">││</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="n">SHIORI</span><span class="w"> </span><span class="n">Resource</span><span class="w">                                          </span><span class="err">││</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="n">Plugins</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Events</span><span class="w">                                         </span><span class="err">││</span><span class="w">  </span><span class="err">←</span><span class="w"> </span><span class="n">Sidebar</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="k">External</span><span class="w"> </span><span class="p">(</span><span class="n">SSTP</span><span class="o">/</span><span class="n">HTTP</span><span class="o">/</span><span class="n">XPC</span><span class="p">)</span><span class="w">                                 </span><span class="err">││</span><span class="w">     </span><span class="k">Section</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Items</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="n">Headline</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">Balloon</span><span class="w">                                       </span><span class="err">││</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="n">Logging</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="k">Diagnostics</span><span class="w">                                    </span><span class="err">││</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="n">Network</span><span class="w">                                                  </span><span class="err">││</span>
-<span class="err">│</span><span class="w">                                                              </span><span class="err">│</span>
-<span class="err">│</span><span class="w">  </span><span class="err">───────────────────────────────────────────────────────────</span><span class="w"> </span><span class="err">│</span>
-<span class="err">│</span><span class="w">  </span><span class="o">[</span><span class="n">Toolbar:  ⟳ Reload   ▶ Run Test   ⏹ Stop   ⎘ Export  </span><span class="o">]</span><span class="w">    </span><span class="err">│</span>
-<span class="err">│</span><span class="w">  </span><span class="err">───────────────────────────────────────────────────────────</span><span class="w"> </span><span class="err">│</span>
-<span class="err">│</span><span class="w">  </span><span class="o">[</span><span class="n">Detail View / Form / Table / Live Preview / Log Console</span><span class="o">]</span><span class="w">  </span><span class="err">│</span>
-<span class="err">└──────────────────────────────────────────────────────────────┘</span>
-</code></pre></div>
+<pre class="codehilite"><code>┌──────────────────────────────────────────────────────────────┐
+│  Ourin DevTools                                      [Search]│
+│  ─────────────────────────────────────────────────────────── │
+│  ▸ General                                                  ││
+│  ▸ SHIORI Resource                                          ││
+│  ▸ Plugins &amp; Events                                         ││  ← Sidebar
+│  ▸ External (SSTP/HTTP/XPC)                                 ││     Section + Items
+│  ▸ Headline / Balloon                                       ││
+│  ▸ Logging &amp; Diagnostics                                    ││
+│  ▸ Network                                                  ││
+│                                                              │
+│  ─────────────────────────────────────────────────────────── │
+│  [Toolbar:  ⟳ Reload   ▶ Run Test   ⏹ Stop   ⎘ Export  ]    │
+│  ─────────────────────────────────────────────────────────── │
+│  [Detail View / Form / Table / Live Preview / Log Console]  │
+└──────────────────────────────────────────────────────────────┘
+</code></pre>
 
 <p>The sidebar offers consistent navigation while the right pane hosts searchable tables and forms. Toolbar buttons are limited to reloading, running tests, stopping tasks and exporting.</p>
 <h2 id="1-common-ui-guidelines">1. Common UI Guidelines</h2>
@@ -244,7 +244,7 @@
 <hr />
 <p><em>Last updated: 2025‑07‑27</em></p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

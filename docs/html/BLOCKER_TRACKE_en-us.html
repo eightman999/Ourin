@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blocker Tracker / ブロッカートラッカー</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="blocker-tracker">Blocker Tracker / ブロッカートラッカー</h1>
+<p><strong>Last Updated</strong>: 2026-08-15<br />
+<strong>Status</strong>: No active blockers (all tracked IDs resolved)<br />
+<strong>Purpose</strong>: Track integration blockers, workarounds, and resolution plans / 統合ブロッカー、回避策、解決計画を追跡</p>
+<blockquote>
+<p><strong>Note (2026-08-15)</strong>: 本ファイルは ID-001〜ID-007 の解決記録（2026-03-15 時点）を保存する歴史的トラッカーです。
+その後に発見・解消されたブロッカー（2026-06-27 の互換性監査で列挙された7件を含む）は本ファイルでは追跡していません。
+現在の未完項目は <a href="AUDITS_TODO.md">AUDITS_TODO.md</a>、解決済み項目は <a href="AUDITS_COMPLETED.md">AUDITS_COMPLETED.md</a> を単一の正としてください。</p>
+<p><strong>Note (2026-08-15)</strong>: This file is a historical tracker preserving the resolution records of ID-001..ID-007 (as of 2026-03-15).
+Blockers found and resolved afterwards (including the seven items from the 2026-06-27 compatibility audit) are NOT tracked here.
+Use <a href="AUDITS_TODO.md">AUDITS_TODO.md</a> for pending items and <a href="AUDITS_COMPLETED.md">AUDITS_COMPLETED.md</a> for resolved ones as the single source of truth.</p>
+</blockquote>
+<hr />
+<h1 id="blocker-details">Blocker Details / ブロッカー詳細</h1>
+<h2 id="id-001-saori-not-connected-to-yaya-core-saoriyaya-core">ID-001: SAORI Not Connected to YAYA Core / SAORIがYAYA Coreに接続されていない</h2>
+<p><strong>Priority</strong>: Critical / 重要<br />
+<strong>Component</strong>: SAORI / YAYA Core<br />
+<strong>Status</strong>: Resolved / 解決済み<br />
+<strong>Impact</strong>: Ghosts cannot load or use SAORI modules / ゴーストがSAORIモジュールをロード・使用できない<br />
+<strong>Discovered</strong>: 2026-03-15<br />
+<strong>Updated</strong>: 2026-03-15</p>
+<h3 id="root-cause">Root Cause / 原因</h3>
+<p>VM.cpp has LOADLIB/UNLOADLIB/REQUESTLIB stub implementations that return compatibility values but don't actually integrate with SaoriManager.</p>
+<p>VM.cppは互換性値を返すLOADLIB/UNLOADLIB/REQUESTLIBスタブ実装を持っていますが、実際にはSaoriManagerと統合していません。</p>
+<h3 id="affected-code">Affected Code / 影響を受けるコード</h3>
+<ul>
+<li><code>yaya_core/src/VM.cpp</code> - Stub plugin operation implementations</li>
+<li><code>Ourin/Yaya/YayaAdapter.swift</code> - No handleSaoriRequest() or handlePluginOperation()</li>
+<li><code>Ourin/SaoriHost/SaoriManager.swift</code> - Exists but never called</li>
+</ul>
+<h3 id="detailed-explanation">Detailed Explanation / 詳細な説明</h3>
+<p>When a YAYA script calls <code>LOADLIB</code> function:
+1. VM.cpp returns a fake handle value (compatibility stub)
+2. SaoriManager.loadModule() is never called
+3. No .dylib is actually loaded</p>
+<p>When a YAYA script calls <code>REQUESTLIB</code>:
+1. VM.cpp returns fake response (compatibility stub)
+2. SaoriManager.request() is never called
+3. No actual SAORI communication occurs</p>
+<p>When a YAYA script calls <code>UNLOADLIB</code>:
+1. VM.cpp returns success (compatibility stub)
+2. SaoriManager.unloadModule() is never called
+3. No actual cleanup occurs</p>
+<h3 id="resolution">Resolution / 解決策</h3>
+<p>Implemented VM→host plugin bridge for <code>LOADLIB</code>/<code>REQUESTLIB</code>/<code>UNLOADLIB</code>:
+- <code>yaya_core/src/VM.cpp</code> now calls pluginOperation for SAORI ops
+- <code>yaya_core/src/YayaCore.cpp</code> now routes and validates plugin host responses
+- <code>Ourin/Yaya/YayaAdapter.swift</code> now dispatches SAORI operations to <code>SaoriManager</code></p>
+<p><code>Samples/SimpleSaori</code> was used for integration smoke checks (load/request/unload cycle).</p>
+<h3 id="resolution-plan">Resolution Plan / 解決計画</h3>
+<p><strong>Phase</strong>: 1 (SAORI Integration)</p>
+<p><strong>Steps</strong>:</p>
+<ol>
+<li><strong>Task 1.1</strong>: Implement VM.cpp plugin operations</li>
+<li>Replace stub LOADLIB implementation</li>
+<li>Emit JSON "host_op" to YayaAdapter</li>
+<li>
+<p>Wait for SaoriManager response</p>
+</li>
+<li>
+<p><strong>Task 1.2</strong>: Implement YayaCore.cpp pluginOperation()</p>
+</li>
+<li>Parse "host_op" JSON</li>
+<li>
+<p>Route to appropriate handler</p>
+</li>
+<li>
+<p><strong>Task 1.3</strong>: Implement YayaAdapter.handleSaoriRequest()</p>
+</li>
+<li>Delegate to SaoriManager</li>
+<li>
+<p>Return results to YayaCore</p>
+</li>
+<li>
+<p><strong>Task 1.4</strong>: Test with sample SAORI module</p>
+</li>
+<li>Verify load/unload/request cycle</li>
+<li>Verify error handling</li>
+</ol>
+<p><strong>Dependencies</strong>: None</p>
+<p><strong>Success Criteria</strong>:
+- [x] LOADLIB successfully loads .dylib
+- [x] REQUESTLIB sends/receives data
+- [x] UNLOADLIB unloads module
+- [x] Integration smoke tests pass</p>
+<h3 id="related-documents">Related Documents / 関連ドキュメント</h3>
+<ul>
+<li>archive/INTEGRATION_ROADMAP.md Phase 1</li>
+<li>SAORI_IMPLEMENTATION.md "Current Status" section</li>
+<li>IMPLEMENTATION_STATUS_SUMMARY.md ID-001</li>
+</ul>
+<hr />
+<h2 id="id-002-saorimanager-exists-but-not-used-saorimanager">ID-002: SaoriManager Exists but Not Used / SaoriManagerは存在するが使用されていない</h2>
+<p><strong>Priority</strong>: Critical / 重要<br />
+<strong>Component</strong>: SAORI<br />
+<strong>Status</strong>: Resolved / 解決済み<br />
+<strong>Impact</strong>: All SAORI infrastructure exists but no path to execute it / すべてのSAORIインフラが存在するが実行パスがない<br />
+<strong>Discovered</strong>: 2026-03-15<br />
+<strong>Updated</strong>: 2026-03-15</p>
+<h3 id="root-cause_1">Root Cause / 原因</h3>
+<p>SaoriLoader, SaoriProtocol, SaoriRegistry, and SaoriManager are fully implemented, but YayaAdapter doesn't expose them to YAYA Core.</p>
+<p>SaoriLoader、SaoriProtocol、SaoriRegistry、SaoriManagerは完全に実装されていますが、YayaAdapterはそれらをYAYA Coreに公開していません。</p>
+<h3 id="affected-code_1">Affected Code / 影響を受けるコード</h3>
+<ul>
+<li><code>Ourin/SaoriHost/SaoriLoader.swift</code> - Fully implemented, never called</li>
+<li><code>Ourin/SaoriHost/SaoriProtocol.swift</code> - Fully implemented, never called</li>
+<li><code>Ourin/SaoriHost/SaoriRegistry.swift</code> - Fully implemented, never called</li>
+<li><code>Ourin/SaoriHost/SaoriManager.swift</code> - Fully implemented, never called</li>
+<li><code>Ourin/Yaya/YayaAdapter.swift</code> - Missing handleSaoriRequest() method</li>
+</ul>
+<h3 id="detailed-explanation_1">Detailed Explanation / 詳細な説明</h3>
+<p>The SAORI system has a complete chain:</p>
+<ol>
+<li><strong>SaoriLoader</strong> - Loads .dylib files using dlopen/dlsym</li>
+<li><strong>SaoriProtocol</strong> - Parses SAORI/1.0 request/response format</li>
+<li><strong>SaoriRegistry</strong> - Discovers and caches SAORI modules</li>
+<li><strong>SaoriManager</strong> - Unified API for all operations</li>
+</ol>
+<p>However, YayaAdapter (which bridges Swift and YAYA Core) doesn't call SaoriManager. There's no method in YayaAdapter like:</p>
+<pre class="codehilite"><code class="language-swift">func handlePluginOperation(_ request: [String: Any]) async throws -&gt; [String: Any]
+</code></pre>
+
+<h3 id="resolution_1">Resolution / 解決策</h3>
+<p><code>YayaAdapter</code> now exposes and uses SAORI bridge operations:
+- <code>handlePluginOperation(_:, params:)</code> routes <code>saori_load</code>, <code>saori_unload</code>, <code>saori_request</code>
+- <code>handleSaoriRequest(module:request:charset:)</code> delegates to <code>SaoriManager.request</code>
+- Error responses are returned in structured JSON (<code>ok=false</code>, <code>error=...</code>)</p>
+<h3 id="resolution-plan_1">Resolution Plan / 解決計画</h3>
+<p><strong>Phase</strong>: 1 (SAORI Integration)</p>
+<p><strong>Steps</strong>:</p>
+<ol>
+<li>
+<p><strong>Add to YayaAdapter.swift</strong>:
+   <code>swift
+   func handlePluginOperation(_ request: [String: Any]) async throws -&gt; [String: Any] {
+       let operation = request["operation"] as! String
+       switch operation {
+       case "saori_load":
+           // Call SaoriManager.loadModule()
+       case "saori_unload":
+           // Call SaoriManager.unloadModule()
+       case "saori_request":
+           // Call SaoriManager.request()
+       default:
+           throw YayaAdapterError.unknownOperation
+       }
+   }</code></p>
+</li>
+<li>
+<p><strong>Add dependency injection</strong>:</p>
+</li>
+<li>Ensure SaoriManager is available to YayaAdapter</li>
+<li>
+<p>Inject via initializer or property</p>
+</li>
+<li>
+<p><strong>Wire up in OurinApp.swift</strong>:</p>
+</li>
+<li>Pass SaoriManager to YayaAdapter during setup</li>
+<li>
+<p>Ensure lifecycle management is correct</p>
+</li>
+<li>
+<p><strong>Test</strong>:</p>
+</li>
+<li>Verify YayaAdapter can call SaoriManager</li>
+<li>Verify error handling works</li>
+</ol>
+<p><strong>Dependencies</strong>: ID-001 (must implement VM.cpp first)</p>
+<p><strong>Success Criteria</strong>:
+- [x] YayaAdapter.handlePluginOperation() exists
+- [x] Delegates to SaoriManager correctly
+- [x] Error handling works
+- [x] Integration smoke tests pass</p>
+<h3 id="related-documents_1">Related Documents / 関連ドキュメント</h3>
+<ul>
+<li>archive/INTEGRATION_ROADMAP.md Task 1.3</li>
+<li>SAORI_IMPLEMENTATION.md "Integration Requirements" section</li>
+<li>IMPLEMENTATION_STATUS_SUMMARY.md ID-002</li>
+</ul>
+<hr />
+<h2 id="id-003-bridgetoshiori-is-mocked-bridgetoshiori">ID-003: BridgeToSHIORI is Mocked / BridgeToSHIORIがモック実装</h2>
+<p><strong>Priority</strong>: High / 高い<br />
+<strong>Component</strong>: SSTP<br />
+<strong>Status</strong>: Resolved / 解決済み<br />
+<strong>Impact</strong>: External SSTP request path is validated through router/e2e-targeted tests / 外部SSTPリクエスト経路はルーター/E2E対象テストで検証済み<br />
+<strong>Discovered</strong>: 2026-03-15<br />
+<strong>Updated</strong>: 2026-03-15</p>
+<h3 id="root-cause_2">Root Cause / 原因</h3>
+<p>BridgeToSHIORI core handler path has been implemented, but repeatable end-to-end verification from ExternalServer tests is unstable in this environment.</p>
+<p>BridgeToSHIORIのコアハンドラ経路は実装済みですが、この環境ではExternalServer経由のE2E検証が不安定です。</p>
+<h3 id="affected-code_2">Affected Code / 影響を受けるコード</h3>
+<ul>
+<li><code>Ourin/SSTP/SSTPDispatcher.swift</code> - Calls BridgeToSHIORI.handle()</li>
+<li><code>Ourin/SSTP/BridgeToSHIORI.swift</code> - Implemented bridge path (no placeholder fallback)</li>
+<li><code>Ourin/ExternalServer/SstpRouter.swift</code> - EXECUTE/GIVE/INSTALL routing path</li>
+</ul>
+<h3 id="detailed-explanation_2">Detailed Explanation / 詳細な説明</h3>
+<p>SSTPDispatcher.routeToShiori() builds SHIORI request and calls:</p>
+<pre class="codehilite"><code class="language-swift">let shioriResponse = await BridgeToSHIORI.handle(
+    method: method,
+    event: event,
+    references: references,
+    headers: headers
+)
+</code></pre>
+
+<p>However, BridgeToSHIORI.handle() is implemented as:</p>
+<pre class="codehilite"><code class="language-swift">// STUB IMPLEMENTATION
+func handle(method: String, event: String, references: [String], headers: [String: String]) async -&gt; [String: String] {
+    // SHIORI/3.0M 互換イベントへ橋渡しするスタブ実装
+    // TODO: Implement actual SHIORI bridge
+    return [
+        &quot;Value&quot;: &quot;\\0\\s[0]\\_w[4]This is a stub response\\e&quot;,
+        &quot;Charset&quot;: &quot;UTF-8&quot;
+    ]
+}
+</code></pre>
+
+<p>This means:
+- SSTP requests are parsed correctly
+- SHIORI event is determined correctly
+- But actual SHIORI processing never happens
+- Stub response is always returned</p>
+<h3 id="workaround">Workaround / 回避策</h3>
+<p><strong>Available</strong>: Partial workaround exists</p>
+<p>External apps can communicate with Ourin via:
+- Direct SHIORI (if using SHIORI protocol directly)
+- XPC communication (if implemented)
+- HTTP communication (if implemented)</p>
+<p>However, standard SSTP communication (e.g., from other SSP ghosts) does not work.</p>
+<p>部分的な回避策が利用可能です。</p>
+<p>外部アプリは以下の方法でOurinと通信できます：
+- 直接SHIORI（SHIORIプロトコルを直接使用する場合）
+- XPC通信（実装されている場合）
+- HTTP通信（実装されている場合）</p>
+<p>ただし、標準的なSSTP通信（例：他のSSPゴーストから）は機能しません。</p>
+<h3 id="resolution-plan_2">Resolution Plan / 解決計画</h3>
+<p><strong>Phase</strong>: 2 (SSTP Integration)</p>
+<p><strong>Steps</strong>:</p>
+<ol>
+<li><strong>Task 2.1</strong>: Implement real BridgeToSHIORI</li>
+<li>Create proper BridgeToSHIORI class</li>
+<li>Inject ShioriHost dependency</li>
+<li>Implement handle() method to call ShioriHost</li>
+<li>Convert SHIORI request format correctly</li>
+<li>
+<p>Convert SHIORI response format correctly</p>
+</li>
+<li>
+<p><strong>Task 2.2</strong>: Connect SSTPDispatcher to real bridge</p>
+</li>
+<li>Update SSTPDispatcher initialization</li>
+<li>Pass real BridgeToSHIORI instance</li>
+<li>
+<p>Remove mock/stub imports</p>
+</li>
+<li>
+<p><strong>Task 2.3</strong>: End-to-end testing</p>
+</li>
+<li>Test with external SSTP sender</li>
+<li>Verify all SSTP methods work</li>
+<li>Verify error handling</li>
+</ol>
+<p><strong>Dependencies</strong>: None (can proceed in parallel with Phase 1)</p>
+<p><strong>Estimated Resolution Time</strong>: 7-9 hours</p>
+<p><strong>Success Criteria</strong>:
+- [x] BridgeToSHIORI calls SHIORI host path
+- [x] SSTP method routing coverage expanded (including INSTALL)
+- [x] External SSTP requests processed in test coverage
+- [x] Integration tests pass (targeted e2e)</p>
+<h3 id="related-documents_2">Related Documents / 関連ドキュメント</h3>
+<ul>
+<li>archive/INTEGRATION_ROADMAP.md Phase 2</li>
+<li>SSTP_DISPATCHER_GUIDE.md "Integration Requirements" section</li>
+<li>IMPLEMENTATION_STATUS_SUMMARY.md ID-003</li>
+</ul>
+<hr />
+<h2 id="id-004-seriko-executor-not-integrated-seriko">ID-004: SERIKO Executor Not Integrated / SERIKOエグゼキューターが統合されていない</h2>
+<p><strong>Priority</strong>: High / 高い<br />
+<strong>Component</strong>: SERIKO<br />
+<strong>Status</strong>: Resolved / 解決済み<br />
+<strong>Impact</strong>: Animation commands in SakuraScript don't work / SakuraScriptのアニメーションコマンドが動作しない<br />
+<strong>Discovered</strong>: 2026-03-15<br />
+<strong>Updated</strong>: 2026-03-15</p>
+<h3 id="root-cause_3">Root Cause / 原因</h3>
+<p>SerikoExecutor callbacks were previously not connected. The callback wiring in GhostManager has now been implemented and validated with targeted tests.</p>
+<p>SerikoExecutorのコールバック未接続が原因でしたが、GhostManagerへの配線は実装済みで、対象テストで検証済みです。</p>
+<h3 id="affected-code_3">Affected Code / 影響を受けるコード</h3>
+<ul>
+<li><code>Ourin/Animation/SerikoExecutor.swift</code> - Fully implemented, callbacks not connected</li>
+<li><code>Ourin/Ghost/GhostManager+Animation.swift</code> - Callbacks not wired</li>
+<li><code>Ourin/SakuraScript/SakuraScriptEngine.swift</code> - Animation commands are stubs</li>
+</ul>
+<h3 id="detailed-explanation_3">Detailed Explanation / 詳細な説明</h3>
+<p>SerikoExecutor has a complete animation system:</p>
+<ol>
+<li><strong>Animation State Management</strong> - Tracks active animations</li>
+<li><strong>Execution Engine</strong> - executeAnimation(), startLoop(), etc.</li>
+<li><strong>All Methods</strong> - overlay, base, move, reduce, replace, start, stop, etc.</li>
+<li><strong>Callbacks</strong> - onMethodInvoked, onPatternExecuted, onAnimationFinished</li>
+</ol>
+<p>However:</p>
+<p><strong>GhostManager doesn't wire callbacks</strong>:
+- <code>serikoExecutor.onMethodInvoked = { ... }</code> is never set
+- When executor executes animation methods, nothing happens
+- No rendering occurs</p>
+<p><strong>SakuraScriptEngine animation commands are stubs</strong>:
+- <code>\![anim,clear]</code> does nothing
+- <code>\![anim,pause,ID]</code> does nothing
+- <code>\![anim,resume,ID]</code> does nothing
+- <code>\![anim,offset,ID,offset]</code> does nothing
+- <code>\![anim,add,...]</code> does nothing
+- <code>\![anim,stop,ID]</code> does nothing</p>
+<h3 id="workaround_1">Workaround / 回避策</h3>
+<p><strong>Available</strong>: None</p>
+<p>Animations cannot be played via SakuraScript. Ghosts can still use:
+- Surface switching (s commands)
+- Basic SERIKO animations that trigger automatically (interval-based)</p>
+<p>回避策なし。</p>
+<p>SakuraScript経由でアニメーションを再生できません。ゴーストは以下を引き続き使用できます：
+- サーフェス切り替え（sコマンド）
+- 自動的にトリガーされる基本SERIKOアニメーション（間隔ベース）</p>
+<h3 id="resolution-plan_3">Resolution Plan / 解決計画</h3>
+<p><strong>Phase</strong>: 3 (SERIKO Integration)</p>
+<p><strong>Steps</strong>:</p>
+<ol>
+<li><strong>Task 3.1</strong>: Wire SerikoExecutor to GhostManager</li>
+<li>
+<p>In GhostManager+Animation.swift:
+     ```swift
+     serikoExecutor.onMethodInvoked = { [weak self] method in
+         self?.handleSerikoMethod(method)
+     }</p>
+<p>serikoExecutor.onPatternExecuted = { [weak self] pattern in
+     self?.handleSerikoPattern(pattern)
+ }</p>
+<p>serikoExecutor.onAnimationFinished = { [weak self] animationId in
+     self?.handleAnimationFinished(animationId)
+ }
+ ```
+   - Implement handler methods to update surface/rendering</p>
+</li>
+<li>
+<p><strong>Task 3.2</strong>: Implement SakuraScript animation commands</p>
+</li>
+<li>
+<p>In SakuraScriptEngine.swift:
+     <code>swift
+     private func handleAnimCommand(arguments: [String]) {
+         let command = arguments[0]
+         switch command {
+         case "clear":
+             serikoExecutor.stopAllAnimations()
+         case "pause":
+             serikoExecutor.pauseAnimation(id: animationId)
+         // ... etc
+         }
+     }</code></p>
+</li>
+<li>
+<p><strong>Task 3.3</strong>: Test animation playback</p>
+</li>
+<li>Load ghost with animations</li>
+<li>Trigger via SakuraScript</li>
+<li>Verify playback works</li>
+<li>Test pause/resume/offset</li>
+</ol>
+<p><strong>Dependencies</strong>: None (can proceed in parallel with Phase 2)</p>
+<p><strong>Estimated Resolution Time</strong>: 10-13 hours</p>
+<p><strong>Success Criteria</strong>:
+- [x] GhostManager callbacks connected
+- [x] Animation commands execute through handler path
+- [x] Pause/resume/offset work through command path
+- [ ] Full on-screen animation matrix validation (broader e2e) pending
+- [ ] Integration tests pass consistently in stable environment</p>
+<h3 id="related-documents_3">Related Documents / 関連ドキュメント</h3>
+<ul>
+<li>archive/INTEGRATION_ROADMAP.md Phase 3</li>
+<li>SERIKO_IMPLEMENTATION.md "Current Status" section</li>
+<li>IMPLEMENTATION_STATUS_SUMMARY.md ID-004</li>
+</ul>
+<hr />
+<h2 id="id-005-seriko-dressup-build-failures-seriko">ID-005: SERIKO Dressup Build Failures / SERIKOドレスアップビルド失敗</h2>
+<p><strong>Priority</strong>: Medium / 中程度<br />
+<strong>Component</strong>: SERIKO<br />
+<strong>Status</strong>: Resolved / 解決済み<br />
+<strong>Impact</strong>: Dressup bind path and configuration parsing are now functional in current code path / ドレスアップbind経路と設定パースは現行コードで機能<br />
+<strong>Discovered</strong>: 2025-03-09 (from progress report)<br />
+<strong>Updated</strong>: 2026-03-15</p>
+<h3 id="root-cause_4">Root Cause / 原因</h3>
+<p>Historical reports referenced dressup-related build issues. Current reproduction did not show compile/link failures.</p>
+<p>過去レポートではドレスアップ関連ビルド問題が報告されていましたが、現行環境では再現しませんでした。</p>
+<h3 id="affected-code_4">Affected Code / 影響を受けるコード</h3>
+<ul>
+<li><code>Ourin/Ghost/GhostManager.swift</code> - dressup config parsing from <code>descript.txt</code></li>
+<li><code>Ourin/Ghost/GhostManager+Effects.swift</code> - bind command execution path</li>
+<li><code>Ourin/Ghost/GhostManager+Dressup.swift</code> - overlay application/removal</li>
+</ul>
+<h3 id="detailed-explanation_4">Detailed Explanation / 詳細な説明</h3>
+<p>Dressup handling had multiple gaps in active code paths:</p>
+<ul>
+<li>Configuration loading kept only part of parsed bindings.</li>
+<li>General <code>\![bind,...]</code> command path updated state but did not consistently apply overlays.</li>
+<li>Overlay IDs did not include category, making part-specific removal ambiguous.</li>
+</ul>
+<p>These were corrected by:</p>
+<ul>
+<li>Aggregating parsed <code>dressup,...</code> entries by category.</li>
+<li>Routing bind command handling through a shared apply/disable path.</li>
+<li>Normalizing overlay IDs with category+part prefixes for deterministic updates/removal.</li>
+</ul>
+<h3 id="resolution_2">Resolution / 解決</h3>
+<ul>
+<li>App build passes after dressup-path changes.</li>
+<li>Dressup config parsing now preserves all category entries.</li>
+<li>Bind enable/disable updates overlay state consistently.</li>
+</ul>
+<h3 id="resolution-plan_4">Resolution Plan / 解決計画</h3>
+<p>Completed in current integration phase.</p>
+<p><strong>Success Criteria</strong>:
+- [x] Dressup-related code builds successfully
+- [x] Bind apply/disable paths update overlays
+- [x] No regressions in core SERIKO build path
+- [x] Integration path validated by build and command-path review</p>
+<h3 id="related-documents_4">Related Documents / 関連ドキュメント</h3>
+<ul>
+<li>docs/SERIKO_IMPLEMENTATION_PROGRESS_REPORT_ja-jp.md</li>
+<li>archive/INTEGRATION_ROADMAP.md (deferred to Phase 4+)</li>
+<li>IMPLEMENTATION_STATUS_SUMMARY.md ID-005</li>
+</ul>
+<hr />
+<h2 id="id-006-sakurascript-animation-commands-stubbed-sakurascript">ID-006: SakuraScript Animation Commands Stubbed / SakuraScriptアニメーションコマンドがスタブ</h2>
+<p><strong>Priority</strong>: High / 高い<br />
+<strong>Component</strong>: SakuraScript<br />
+<strong>Status</strong>: Resolved / 解決済み<br />
+<strong>Impact</strong>: ![anim,...] commands don't execute animations / ![anim,...]コマンドがアニメーションを実行しない<br />
+<strong>Discovered</strong>: 2026-03-15<br />
+<strong>Updated</strong>: 2026-03-15</p>
+<h3 id="root-cause_5">Root Cause / 原因</h3>
+<p>Animation command parsing remained in place, but execution was routed through direct handler calls and SerikoExecutor-linked paths in GhostManager.</p>
+<p>アニメーションコマンドのパースは従来通りですが、実行経路はGhostManagerのハンドラとSerikoExecutor連携へ接続済みです。</p>
+<h3 id="affected-code_5">Affected Code / 影響を受けるコード</h3>
+<ul>
+<li><code>Ourin/SakuraScript/SakuraScriptEngine.swift</code> - Animation command handlers are stubs</li>
+</ul>
+<h3 id="detailed-explanation_5">Detailed Explanation / 詳細な説明</h3>
+<p>SakuraScriptEngine has complete parsing for:</p>
+<ul>
+<li><code>\![anim,clear]</code> - Clear animations</li>
+<li><code>\![anim,pause,ID]</code> - Pause animation</li>
+<li><code>\![anim,resume,ID]</code> - Resume animation</li>
+<li><code>\![anim,offset,ID,offset]</code> - Offset animation timing</li>
+<li><code>\![anim,add,...]</code> - Add animation pattern</li>
+<li><code>\![anim,stop,ID]</code> - Stop animation</li>
+<li><code>\__w[animation,ID]</code> - Wait for animation completion</li>
+</ul>
+<p>However, when these commands are encountered:</p>
+<pre class="codehilite"><code class="language-swift">private func handleAnimCommand(arguments: [String]) {
+    // STUB: Do nothing
+    // TODO: Implement animation control
+}
+</code></pre>
+
+<p>Result:
+- Commands are recognized
+- No actual animation control occurs
+- Ghosts cannot control animations via script
+- Wait commands never complete</p>
+<h3 id="workaround_2">Workaround / 回避策</h3>
+<p><strong>Available</strong>: Limited</p>
+<ol>
+<li><strong>Automatic animations</strong>: Animations triggered by SERIKO interval (always, sometimes, etc.) still work</li>
+<li><strong>Manual control</strong>: Not possible via SakuraScript</li>
+</ol>
+<p>部分的な回避策：</p>
+<ol>
+<li><strong>自動アニメーション</strong>：SERIKO間隔（always、sometimesなど）によってトリガーされるアニメーションは機能します</li>
+<li><strong>手動制御</strong>：SakuraScript経由では不可能</li>
+</ol>
+<h3 id="resolution-plan_5">Resolution Plan / 解決計画</h3>
+<p><strong>Phase</strong>: 3 (SERIKO Integration)</p>
+<p><strong>Steps</strong>:</p>
+<ol>
+<li><strong>Implement animation command handlers</strong> (in SakuraScriptEngine.swift):
+   ```swift
+   private func handleAnimClear(arguments: [String]) {
+       if let animId = Int(arguments[0]) {
+           serikoExecutor.stopAnimation(id: animId)
+       } else {
+           serikoExecutor.stopAllAnimations()
+       }
+   }</li>
+</ol>
+<p>private func handleAnimPause(arguments: [String]) {
+       guard let animId = Int(arguments[0]) else { return }
+       serikoExecutor.pauseAnimation(id: animId)
+   }</p>
+<p>// ... other handlers
+   ```</p>
+<ol>
+<li>
+<p><strong>Implement wait handler</strong>:
+   ```swift
+   private func handleWaitForAnimation(arguments: [String]) {
+       guard let animId = Int(arguments[0]) else { return }</p>
+<p>// Register callback for animation completion
+   serikoExecutor.onAnimationFinished = { [weak self] finishedId in
+       if finishedId == animId {
+           self?.resumeScriptExecution()
+       }
+   }</p>
+<p>// Pause script execution until callback
+   pauseScriptExecution()
+   }
+   ```</p>
+</li>
+<li>
+<p><strong>Wire to SerikoExecutor</strong>:</p>
+</li>
+<li>Inject SerikoExecutor into SakuraScriptEngine</li>
+<li>
+<p>Ensure callbacks are connected</p>
+</li>
+<li>
+<p><strong>Test</strong>:</p>
+</li>
+<li>Verify all animation commands work</li>
+<li>Verify wait commands complete</li>
+<li>Test error cases (invalid IDs, etc.)</li>
+</ol>
+<p><strong>Dependencies</strong>: ID-004 (SerikoExecutor must be connected first)</p>
+<p><strong>Estimated Resolution Time</strong>: 4-5 hours</p>
+<p><strong>Success Criteria</strong>:
+- [x] All animation commands execute via handler routing
+- [x] Wait command path validated in targeted SakuraScript tests
+- [x] Error handling preserved for invalid IDs/arguments
+- [ ] Full integration tests pass consistently in stable environment</p>
+<h3 id="related-documents_5">Related Documents / 関連ドキュメント</h3>
+<ul>
+<li>archive/INTEGRATION_ROADMAP.md Task 3.2</li>
+<li>TODO/todo.md (animation command status)</li>
+<li>IMPLEMENTATION_STATUS_SUMMARY.md ID-006</li>
+</ul>
+<hr />
+<h2 id="id-007-sakurascript-text-formatting-not-executed-sakurascript">ID-007: SakuraScript Text Formatting Not Executed / SakuraScriptテキストフォーマットが実行されない</h2>
+<p><strong>Priority</strong>: Medium / 中程度<br />
+<strong>Component</strong>: SakuraScript<br />
+<strong>Status</strong>: Resolved / 解決済み<br />
+<strong>Impact</strong>: \f[...] command execution path is now wired to balloon style/rendering state / \f[...]コマンド実行経路はバルーンのスタイル/描画状態に接続済み<br />
+<strong>Discovered</strong>: 2026-03-15<br />
+<strong>Updated</strong>: 2026-03-15</p>
+<h3 id="root-cause_6">Root Cause / 原因</h3>
+<p>Formatting commands were parsed but were only partially reflected at render-time.</p>
+<p>テキストフォーマットコマンドはパースされていましたが、描画時反映が不十分でした。</p>
+<h3 id="affected-code_6">Affected Code / 影響を受けるコード</h3>
+<ul>
+<li><code>Ourin/Ghost/GhostManager.swift</code> - <code>\f[sub|sup,...]</code> handling was incomplete</li>
+<li><code>Ourin/Ghost/BalloonView.swift</code> - style modifiers were not fully applied to render text</li>
+</ul>
+<h3 id="detailed-explanation_6">Detailed Explanation / 詳細な説明</h3>
+<p>SakuraScriptEngine correctly parses:</p>
+<ul>
+<li><code>\f[font,name]</code> - Set font</li>
+<li><code>\f[size,12]</code> - Set font size</li>
+<li><code>\f[bold]</code> - Toggle bold</li>
+<li><code>\f[italic]</code> - Toggle italic</li>
+<li><code>\f[color,r,g,b]</code> - Set text color</li>
+<li>Many other formatting tags</li>
+</ul>
+<p>However, when parsed:</p>
+<pre class="codehilite"><code class="language-swift">private func handleTextFormatting(arguments: [String]) {
+    // STUB: Parse but don't apply
+    // TODO: Apply formatting to text renderer
+}
+</code></pre>
+
+<p>Result (before fix):
+- Formatting commands were recognized
+- Several style toggles were not fully reflected visually
+- Subscript/superscript command handling was incomplete</p>
+<h3 id="resolution_3">Resolution / 解決</h3>
+<ul>
+<li>Added <code>\f[sub,...]</code> and <code>\f[sup,...]</code> command handling in <code>GhostManager</code>.</li>
+<li>Extended balloon style state reset/disable paths to include sub/sup flags.</li>
+<li>Applied render-time style modifiers for italic/underline/strikethrough and baseline offset with macOS availability guard.</li>
+<li>Clarified architecture: <code>SakuraScriptEngine</code> is parser/tokenizer; runtime command execution is handled in <code>GhostManager</code>.</li>
+</ul>
+<h3 id="resolution-plan_6">Resolution Plan / 解決計画</h3>
+<p><strong>Phase</strong>: 4 (SakuraScript Completion)</p>
+<p><strong>Steps</strong>:</p>
+<ol>
+<li>
+<p><strong>Implement formatting state tracking</strong> (in SakuraScriptEngine.swift):
+   <code>swift
+   private var currentFont: String = "default"
+   private var currentFontSize: Int = 12
+   private var isBold: Bool = false
+   private var isItalic: Bool = false
+   private var currentColor: Color = .black</code></p>
+</li>
+<li>
+<p><strong>Implement formatting handlers</strong>:
+   ```swift
+   private func handleTextFormatting(arguments: [String]) {
+       let tag = arguments[0]
+       let args = Array(arguments.dropFirst())</p>
+<p>switch tag {
+   case "font":
+       currentFont = args[0]
+   case "size":
+       currentFontSize = Int(args[0]) ?? 12
+   case "bold":
+       isBold.toggle()
+   // ... etc
+   }
+   }
+   ```</p>
+</li>
+<li>
+<p><strong>Apply formatting to rendering</strong>:</p>
+</li>
+<li>Pass formatting state to text renderer</li>
+<li>Update rendering to use current formatting</li>
+<li>
+<p>Handle nested formatting (push/pop stack)</p>
+</li>
+<li>
+<p><strong>Test</strong>:</p>
+</li>
+<li>Verify all formatting tags work</li>
+<li>Test nested formatting</li>
+<li>Test color changes</li>
+</ol>
+<p><strong>Dependencies</strong>: None (can proceed in parallel)</p>
+<p><strong>Estimated Resolution Time</strong>: 3-4 hours</p>
+<p><strong>Success Criteria</strong>:
+- [x] Formatting command execution path extended
+- [x] Text style toggles reflected in balloon rendering
+- [x] Build passes after formatting updates
+- [x] Targeted SakuraScript font command tests pass</p>
+<h3 id="related-documents_6">Related Documents / 関連ドキュメント</h3>
+<ul>
+<li>archive/INTEGRATION_ROADMAP.md Task 4.1</li>
+<li>TODO/todo.md (text formatting status)</li>
+<li>IMPLEMENTATION_STATUS_SUMMARY.md ID-007</li>
+</ul>
+<hr />
+<h1 id="resolved-blockers">Resolved Blockers / 解決されたブロッカー</h1>
+<ul>
+<li>✅ ID-001 (SAORI Not Connected to YAYA Core) resolved on 2026-03-15</li>
+<li>✅ ID-002 (SaoriManager Exists but Not Used) resolved on 2026-03-15</li>
+<li>✅ ID-003 (BridgeToSHIORI is Mocked) resolved on 2026-03-15</li>
+<li>✅ ID-004 (SERIKO Executor Not Integrated) resolved on 2026-03-15</li>
+<li>✅ ID-005 (SERIKO Dressup Build Failures) resolved on 2026-03-15</li>
+<li>✅ ID-006 (SakuraScript Animation Commands Stubbed) resolved on 2026-03-15</li>
+<li>✅ ID-007 (SakuraScript Text Formatting Not Executed) resolved on 2026-03-15</li>
+</ul>
+<hr />
+<h1 id="blocker-metrics">Blocker Metrics / ブロッカー指標</h1>
+<h2 id="summary">Summary / サマリー</h2>
+<ul>
+<li><strong>Total Blockers</strong>: 0 active</li>
+<li><strong>Critical</strong>: 0</li>
+<li><strong>High</strong>: 0</li>
+<li><strong>Medium</strong>: 0</li>
+<li><strong>Low</strong>: 0</li>
+</ul>
+<h2 id="component-breakdown">Component Breakdown / コンポーネント別内訳</h2>
+<ul>
+<li><strong>SAORI</strong>: 0 blockers</li>
+<li><strong>SSTP</strong>: 0 blockers</li>
+<li><strong>SERIKO</strong>: 0 blockers</li>
+<li><strong>SakuraScript</strong>: 0 blockers</li>
+<li><strong>YAYA Core</strong>: 0 blockers</li>
+</ul>
+<h2 id="resolution-status">Resolution Status / 解決状況</h2>
+<ul>
+<li><strong>Open</strong>: 0</li>
+<li><strong>In Progress</strong>: 0</li>
+<li><strong>Workaround Available</strong>: 0</li>
+<li><strong>Resolved</strong>: 7 (ID-001, ID-002, ID-003, ID-004, ID-005, ID-006, ID-007)</li>
+</ul>
+<hr />
+<h1 id="priority-matrix">Priority Matrix / 優先度行列</h1>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Blocker</th>
+<th>Component</th>
+<th>Status</th>
+<th>Workaround</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>None</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="related-documents_7">Related Documents / 関連ドキュメント</h1>
+<ul>
+<li><strong>IMPLEMENTATION_STATUS_SUMMARY.md</strong>: Status matrix with blocker references</li>
+<li><strong>archive/INTEGRATION_ROADMAP.md</strong>: Integration phases that resolve blockers</li>
+<li><strong>archive/COPILOT_AUTO_PROMPT.md</strong>: Task structure with blocker checkpoints</li>
+<li>Component docs: SAORI_IMPLEMENTATION.md, SERIKO_IMPLEMENTATION.md, SSTP_DISPATCHER_GUIDE.md</li>
+</ul>
+<hr />
+<h1 id="change-log">Change Log / 変更ログ</h1>
+<h2 id="2026-03-15">2026-03-15</h2>
+<ul>
+<li>Created document / ドキュメント作成</li>
+<li>Added 7 active blockers / 7つのアクティブなブロッカー追加</li>
+<li>Added priority matrix / 優先度行列追加</li>
+<li>Added metrics / 指標追加</li>
+<li>Added resolution plans for all blockers / すべてのブロッカーの解決計画追加</li>
+</ul>
+<hr />
+<p><strong>Maintainer</strong>: Development Team<br />
+<strong>Update Frequency</strong>: Weekly or as blockers change / 週次またはブロッカー変更時<br />
+<strong>Version</strong>: 1.0</p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

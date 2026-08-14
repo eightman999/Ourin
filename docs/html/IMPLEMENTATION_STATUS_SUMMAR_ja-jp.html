@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Implementation Status Summary / 実装状況サマリー</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="implementation-status-summary">Implementation Status Summary / 実装状況サマリー</h1>
+<p><strong>Last Updated</strong>: 2026-08-15
+<strong>Status</strong>: Active Compatibility Hardening Phase
+<strong>目的</strong>: Single source of truth for current implementation status / 現在の実装状況の単一の情報源</p>
+<blockquote>
+<p>2026-06-27 の互換性監査で、従来の「Complete / 100%」表記は SSP/UKADOC 互換性の意味では過大であることを確認した。
+機能実装の有無と、既存ゴースト資産に対する仕様互換性は分けて扱う。
+詳細は <a href="AUDITS_COMPLETED.md">AUDITS_COMPLETED.md</a> / <a href="AUDITS_TODO.md">AUDITS_TODO.md</a> を参照。</p>
+</blockquote>
+<hr />
+<h1 id="current-status-matrix">Current Status Matrix / 現在のステータス行列</h1>
+<table>
+<thead>
+<tr>
+<th>Component / コンポーネント</th>
+<th>Files / ファイル</th>
+<th>Implemented / 実装済み</th>
+<th>Integrated / 統合済み</th>
+<th>Tested / テスト済み</th>
+<th>Blockers / ブロッカー</th>
+<th>Progress / 進捗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SAORI</strong></td>
+<td>4 files</td>
+<td>🟡 Mostly implemented / 概ね実装</td>
+<td>✅ Integrated / 統合済み</td>
+<td>🟡 Smoke tested / スモーク中心</td>
+<td>Real ghost matrix pending / 実ゴースト網羅未完</td>
+<td>80%</td>
+</tr>
+<tr>
+<td><strong>SSTP</strong></td>
+<td>multiple files</td>
+<td>🟡 Partial compatible / 部分互換</td>
+<td>✅ Integrated / 統合済み</td>
+<td>🟡 Targeted tests / 対象テスト</td>
+<td>TCP bind/body, ReferenceN response</td>
+<td>60%</td>
+</tr>
+<tr>
+<td><strong>SERIKO</strong></td>
+<td>multiple files</td>
+<td>🟡 Partial compatible / 部分互換</td>
+<td>🟡 Integrated / 統合中</td>
+<td>🟡 Targeted tests / 対象テスト</td>
+<td>Rendering fidelity and remaining SERIKO edge cases</td>
+<td>68%</td>
+</tr>
+<tr>
+<td><strong>SakuraScript</strong></td>
+<td>multiple files</td>
+<td>🟡 Broad partial / 広範な部分実装</td>
+<td>✅ Runtime connected / 実行系接続済み</td>
+<td>🟡 Targeted tests / 対象テスト</td>
+<td>Full UKADOC diff pending / 全差分未完</td>
+<td>60%</td>
+</tr>
+<tr>
+<td><strong>YAYA Core</strong></td>
+<td>yaya_core</td>
+<td>🟡 Partial compatible / 部分互換</td>
+<td>✅ Integrated / 統合済み</td>
+<td>🟡 Baseline tests / 基準テスト</td>
+<td>by-ref, standalone when, stubs</td>
+<td>60%</td>
+</tr>
+<tr>
+<td><strong>FMO</strong></td>
+<td>FMO/</td>
+<td>🟡 Semantic compatible / 意味互換</td>
+<td>✅ Integrated / 統合済み</td>
+<td>✅ Targeted tests / 対象テスト済み</td>
+<td>Windows FileMapping/HWND direct compatibility is platform-different / 直接互換はプラットフォーム差異</td>
+<td>65%</td>
+</tr>
+<tr>
+<td><strong>Plugin</strong></td>
+<td>PluginHost/</td>
+<td>🟡 Partial compatible / 部分互換</td>
+<td>✅ Integrated / 統合済み</td>
+<td>✅ Targeted tests / 対象テスト済み</td>
+<td>Windows DLL binary execution requires porting / DLL実行は移植が必要</td>
+<td>60%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Overall Compatibility Progress</strong>: 60% / 全体互換進捗: 60%</p>
+<hr />
+<h1 id="weekly-update-tracking">Weekly Update Tracking / 週次更新トラッキング</h1>
+<h2 id="week-2026-03-08-to-2026-03-14-20263814">Week 2026-03-08 to 2026-03-14 / 2026年3月8日〜14日</h2>
+<h3 id="completed">Completed / 完了したタスク</h3>
+<ul>
+<li>✅ Code review of all 9 implementation files</li>
+<li>✅ Identified integration gaps and blockers</li>
+<li>✅ Updated documentation structure</li>
+</ul>
+<h3 id="in-progress">In Progress / 進行中のタスク</h3>
+<ul>
+<li>🔄 Creating new documentation (status summary, roadmap, blocker tracker)</li>
+<li>🔄 Updating implementation plans</li>
+</ul>
+<h3 id="blocked">Blocked / ブロックされているタスク</h3>
+<ul>
+<li>❌ SSTP SHIORI bridge (blocked by ID-003)</li>
+</ul>
+<h2 id="week-2026-03-15-to-2026-03-21-202631521">Week 2026-03-15 to 2026-03-21 / 2026年3月15日〜21日</h2>
+<h3 id="completed_1">Completed / 完了したタスク</h3>
+<ul>
+<li>✅ BridgeToSHIORI core path implemented</li>
+<li>✅ SERIKO callback integration wired in GhostManager</li>
+<li>✅ <code>\![anim,*]</code> command execution path connected and validated with targeted tests</li>
+</ul>
+<hr />
+<h1 id="integration-dependencies">Integration Dependencies / 統合依存関係</h1>
+<pre class="codehilite"><code>SAORI Integration (Completed)
+  ↓ Enables / 有効化
+SSTP Integration (ID-003)
+  ↓ Enables / 有効化
+SERIKO Integration (ID-004, ID-005)
+  ↓ Enhances / 拡張
+SakuraScript Execution (ID-006, ID-007)
+  ↓ Enables / 有効化
+End-to-End Ghost Testing / エンドツーエンドゴーストテスト
+</code></pre>
+
+<p><strong>Critical Path</strong>:
+1. SSTP BridgeToSHIORI must be functional (external communication)
+2. SERIKO executor integration (animation support)
+3. SakuraScript command execution (full ghost functionality)</p>
+<hr />
+<h1 id="blocker-list">Blocker List / ブロッカー一覧</h1>
+<h2 id="active-blockers">Active Blockers / アクティブなブロッカー</h2>
+<blockquote>
+<p>2026-08-15 更新: 2026-06-27 時点で列挙していた7件のブロッカーは、その後の実装ラウンドで解消済みであることをコードで確認した（詳細は <a href="AUDITS_COMPLETED.md">AUDITS_COMPLETED.md</a> を参照）。
+現在アクティブなブロッカーはなし。残る未完項目（実ゴースト/実シェルでの目視・実機検証など P2/P3）は <a href="AUDITS_TODO.md">AUDITS_TODO.md</a> を単一の正とする。</p>
+<p>Update 2026-08-15: all seven blockers listed as of 2026-06-27 were confirmed resolved in code during subsequent implementation rounds (see <a href="AUDITS_COMPLETED.md">AUDITS_COMPLETED.md</a>).
+No active blockers remain. Remaining pending items (P2/P3 real-ghost / real-device verification) are tracked solely in <a href="AUDITS_TODO.md">AUDITS_TODO.md</a>.</p>
+</blockquote>
+<p>Resolved in later rounds (formerly listed here as active / 旧アクティブ扱い→解消済み):</p>
+<ul>
+<li>~~SHIORI bridge method propagation~~ — <code>BridgeToSHIORI</code> propagates the method; NOTIFY/GET are distinguished (<code>SSTP/BridgeToSHIORI.swift</code>, <code>ShioriBridgeContext.swift</code>).</li>
+<li>~~SSTP response mapping (<code>Reference1+</code>)~~ — all <code>ReferenceN</code> are preserved via <code>responseReferenceIndex</code> (<code>SSTP/SSTPDispatcher.swift</code>).</li>
+<li>~~SSTP listener binding/body handling~~ — TCP/HTTP bind to the given host (default <code>127.0.0.1</code>), and <code>SSTPParser</code> keeps the body after the blank line.</li>
+<li>~~SakuraScript/SERIKO fidelity~~ — core semantics fixed (<code>\t</code>/<code>\-</code>/<code>\v</code>/<code>\4</code>/<code>\5</code> etc.); remaining rendering-diff verification is tracked in AUDITS_TODO C/J.</li>
+<li>~~YAYA fidelity~~ — by-reference (<code>E.Swap</code>), standalone <code>when</code>, <code>READFMO</code>, <code>ASEARCHPOS</code>, <code>SRAND</code> etc. implemented (<code>yaya_core/src/VM.cpp</code>).</li>
+<li>~~NAR install~~ — <code>refreshundeletemask</code> colon separator and compound install types implemented (<code>NarInstall/InstallTxtParser.swift</code>, <code>Paths.swift</code>).</li>
+<li>~~Property aliases~~ — <code>sakura.*</code>/<code>kero.*</code>/<code>ghost.*</code>/<code>shell.*</code> implemented (<code>Property/PropertyManager.swift</code>, <code>AliasPropertyProvider</code>).</li>
+</ul>
+<h2 id="resolved-blockers">Resolved Blockers / 解決されたブロッカー</h2>
+<ul>
+<li>✅ ID-001 (SAORI Not Connected to YAYA Core)</li>
+<li>✅ ID-002 (SaoriManager Exists but Not Used)</li>
+<li>✅ ID-003 (BridgeToSHIORI E2E validation completed)</li>
+<li>✅ ID-004 (SERIKO Executor Not Integrated)</li>
+<li>✅ ID-005 (SERIKO Dressup Build Failures)</li>
+<li>✅ ID-006 (SakuraScript Animation Commands Stubbed)</li>
+<li>✅ ID-007 (SakuraScript Text Formatting Not Executed)</li>
+<li>✅ FMO macOS compatibility boundary documented and structured view added</li>
+<li>✅ Plugin Windows DLL metadata-only constraint documented and compatibility view added</li>
+</ul>
+<hr />
+<h1 id="component-status-details">Component Status Details / コンポーネント詳細ステータス</h1>
+<h2 id="saori-saori">SAORI / SAORIシステム</h2>
+<h3 id="implemented-features">Implemented Features / 実装済み機能</h3>
+<ul>
+<li>✅ SaoriLoader.swift: macOS native .dylib loading with dlopen/dlsym</li>
+<li>✅ SaoriProtocol.swift: SAORI/1.0 request/response parser</li>
+<li>✅ SaoriRegistry.swift: Module discovery and caching</li>
+<li>✅ SaoriManager.swift: Unified API for plugin operations</li>
+</ul>
+<h3 id="integration-gaps">Integration Gaps / 統合のギャップ</h3>
+<ul>
+<li>✅ VM.cpp LOADLIB/UNLOADLIB/REQUESTLIB integrated</li>
+<li>✅ YayaCore.cpp pluginOperation() integrated with plugin host_op routing</li>
+<li>✅ YayaAdapter.swift SAORI operation bridge integrated</li>
+<li>⚠️ Broader end-to-end ghost matrix validation is still in progress</li>
+</ul>
+<h3 id="required-integration-work">Required Integration Work / 必要な統合作業</h3>
+<ol>
+<li>Expand end-to-end tests across real ghost scripts</li>
+<li>Add additional negative-path coverage for malformed SAORI responses</li>
+</ol>
+<h3 id="test-coverage">Test Coverage / テストカバレッジ</h3>
+<ul>
+<li>📄 Test files exist (SaoriProtocolTests.swift, SaoriRegistryTests.swift)</li>
+<li>❌ Test implementations are stubs/minimal</li>
+</ul>
+<hr />
+<h2 id="sstp-sstp">SSTP / SSTPシステム</h2>
+<h3 id="implemented-features_1">Implemented Features / 実装済み機能</h3>
+<ul>
+<li>✅ SSTPDispatcher.swift: Parses all SSTP methods (SEND, NOTIFY, COMMUNICATE, EXECUTE, GIVE, INSTALL)</li>
+<li>✅ SSTPResponse.swift: Wire format generation with all status codes</li>
+<li>✅ Header mapping and event resolution</li>
+</ul>
+<h3 id="integration-gaps_1">Integration Gaps / 統合のギャップ</h3>
+<ul>
+<li>✅ BridgeToSHIORI core handler path is implemented</li>
+<li>✅ Dispatcher method mapping includes SEND/NOTIFY/COMMUNICATE/EXECUTE/GIVE/INSTALL</li>
+<li>✅ External router tests validated with serial execution mode</li>
+</ul>
+<h3 id="required-integration-work_1">Required Integration Work / 必要な統合作業</h3>
+<ol>
+<li>Pass the actual SHIORI method (<code>GET</code> vs <code>NOTIFY</code>) through <code>BridgeToSHIORI</code> / <code>ShioriHost</code>.</li>
+<li>Preserve SHIORI response <code>Reference1+</code> headers when mapping back to SSTP.</li>
+<li>Bind TCP/HTTP listeners according to configured host and forward raw TCP body data where applicable.</li>
+<li>Expand compatibility tests with external SSTP clients and SSP-like response expectations.</li>
+</ol>
+<h3 id="test-coverage_1">Test Coverage / テストカバレッジ</h3>
+<ul>
+<li>📄 Test files exist (SSTPDispatcherTests.swift, SSTPResponseTests.swift)</li>
+<li>✅ Route/method tests expanded and passing</li>
+<li>✅ ExternalServerTests passed for SSTP router flows (including EXECUTE/GIVE/INSTALL)</li>
+<li>⚠️ Full SSP/client interoperability matrix is still pending</li>
+</ul>
+<hr />
+<h2 id="seriko-seriko">SERIKO / SERIKOシステム</h2>
+<h3 id="implemented-features_2">Implemented Features / 実装済み機能</h3>
+<ul>
+<li>✅ SerikoParser.swift: Complete SERIKO/2.0 parser</li>
+<li>All interval types (always, sometimes, rarely, random, runonce, yen-e, talk, bind, never)</li>
+<li>All method types (overlay, overlayfast, base, move, isReducing, replace, start, alternativestart, stop, asis)</li>
+<li>Pattern parsing and surface definitions</li>
+<li>✅ SerikoExecutor.swift: Animation execution engine</li>
+<li>Animation state management</li>
+<li>All execute methods (overlay, base, move, reduce, replace, start, stop, etc.)</li>
+<li>Pause/resume/offset capabilities</li>
+<li>Callback system</li>
+</ul>
+<h3 id="integration-gaps_2">Integration Gaps / 統合のギャップ</h3>
+<ul>
+<li>✅ SerikoExecutor callbacks connected to GhostManager handlers</li>
+<li>✅ Script animation commands route into animation handlers/executor path</li>
+<li>⚠️ Dressup functionality has build failures (deferred)</li>
+</ul>
+<h3 id="required-integration-work_2">Required Integration Work / 必要な統合作業</h3>
+<ol>
+<li>Wire SerikoExecutor to GhostManager callbacks</li>
+<li>Implement SakuraScriptEngine ![anim,...] commands to call executor</li>
+<li>Test animation playback from SakuraScript</li>
+<li>(Optional) Fix dressup build failures (lower priority)</li>
+</ol>
+<h3 id="test-coverage_2">Test Coverage / テストカバレッジ</h3>
+<ul>
+<li>📄 Test files exist (SerikoParserTests.swift, SerikoExecutorTests.swift)</li>
+<li>✅ SerikoExecutorTests passing in targeted runs</li>
+</ul>
+<hr />
+<h2 id="sakurascript-sakurascript">SakuraScript / SakuraScriptエンジン</h2>
+<h3 id="implemented-features_3">Implemented Features / 実装済み機能</h3>
+<ul>
+<li>✅ SakuraScriptEngine.swift: Comprehensive token parsing</li>
+<li>All major command types (scopes, surfaces, animations, balloons, newlines, waits, choices, anchors, tags)</li>
+<li>Escape sequence handling</li>
+<li>Argument parsing</li>
+<li>34 commands fully implemented (see TODO/todo.md)</li>
+<li>✅ Runtime execution path is handled in <code>GhostManager</code> (<code>sakuraEngine(_:didEmit:)</code> and command handlers)</li>
+<li>Note: command <em>parsing</em> is in <code>SakuraScriptEngine</code>, while command <em>execution</em> is primarily in <code>GhostManager*</code> files.</li>
+</ul>
+<h3 id="integration-gaps_3">Integration Gaps / 統合のギャップ</h3>
+<ul>
+<li>✅ Animation commands (![anim,clear|pause|resume|offset|add|stop]) execute through GhostManager handlers</li>
+<li>✅ Text formatting commands (\f[...]) execute via balloon style state and rendering</li>
+<li>✅ Dialog commands implemented (inputbox/password/date/time/slider/ip/choice/teach/communicate/system)</li>
+<li>✅ Ghost/shell/balloon switching implemented</li>
+<li>⚠️ Some advanced options remain partially implemented (move/moveasync flags, extended set,* variants)</li>
+</ul>
+<h3 id="required-integration-work_3">Required Integration Work / 必要な統合作業</h3>
+<ol>
+<li>Refine advanced movement/resize options (move/moveasync base/offset edge-cases)</li>
+<li>Expand timed variants for set,* where applicable and add more wait coverage</li>
+<li>Fix any remaining minor command semantic differences (e.g. legacy edge-cases)</li>
+<li>Target: 90%+ command execution rate</li>
+</ol>
+<h3 id="test-coverage_3">Test Coverage / テストカバレッジ</h3>
+<ul>
+<li>📄 Test files exist (SakuraScriptEngineTests.swift)</li>
+<li>✅ Targeted animation command tests passing</li>
+<li>✅ Build/test validation after formatting execution updates</li>
+<li>⚠️ Some unrelated SakuraScript tests remain unstable in this environment</li>
+</ul>
+<hr />
+<h1 id="success-criteria">Success Criteria / 成功基準</h1>
+<h2 id="integration-completion">Integration Completion / 統合完了基準</h2>
+<p>A component is considered "Integrated" when:
+- All stub implementations are replaced with real functionality
+- End-to-end data flow works from entry point to execution
+- Integration tests pass
+- No blockers remain for that component</p>
+<h3 id="saori-integration-complete">SAORI Integration Complete</h3>
+<ul>
+<li>[x] LOADLIB successfully loads .dylib module</li>
+<li>[x] REQUESTLIB successfully sends request and gets response</li>
+<li>[x] UNLOADLIB successfully unloads module</li>
+<li>[x] Integration smoke tests pass</li>
+<li>[x] No SAORI blockers remain</li>
+</ul>
+<h3 id="sstp-integration-functional">SSTP Integration Functional</h3>
+<ul>
+<li>[x] External app can send SSTP request</li>
+<li>[x] Request reaches SHIORI system</li>
+<li>[x] SHIORI processes request and generates response</li>
+<li>[x] Response returned to external app</li>
+<li>[x] Integration tests pass (targeted e2e/route coverage)</li>
+<li>[x] No wiring blockers remain</li>
+<li>[ ] Compatibility blockers from the 2026-06-27 audit are resolved</li>
+</ul>
+<h3 id="seriko-integration-complete">SERIKO Integration Complete</h3>
+<ul>
+<li>[x] SakuraScript animation commands execute animations</li>
+<li>[x] Pause/resume/offset work as expected</li>
+<li>[x] Critical SERIKO blockers resolved (ID-004, ID-006)</li>
+<li>[ ] Animations play correctly on screen (broader e2e matrix pending)</li>
+<li>[ ] Integration tests pass (full suite stability pending)</li>
+</ul>
+<h3 id="sakurascript-execution-complete">SakuraScript Execution Complete</h3>
+<ul>
+<li>[ ] 90%+ of commands execute correctly</li>
+<li>[ ] Text formatting works</li>
+<li>[ ] Dialogs work</li>
+<li>[ ] Ghost/shell/balloon switching works</li>
+<li>[ ] Integration tests pass</li>
+<li>[ ] No SakuraScript blockers remain</li>
+</ul>
+<hr />
+<h1 id="related-documents">Related Documents / 関連ドキュメント</h1>
+<ul>
+<li><strong>archive/INTEGRATION_ROADMAP.md</strong>: Detailed integration plan with prerequisites</li>
+<li><strong>BLOCKER_TRACKER.md</strong>: Detailed blocker information with workarounds</li>
+<li><strong>AUDITS_COMPLETED.md</strong> / <strong>AUDITS_TODO.md</strong>: Current SSP/UKADOC compatibility audit results (completed &amp; pending)</li>
+<li><strong>archive/COPILOT_AUTO_PROMPT.md</strong>: Task structure for integration work</li>
+<li><strong>Component Implementation Docs</strong>: SAORI_IMPLEMENTATION.md, SERIKO_IMPLEMENTATION.md, SSTP_DISPATCHER_GUIDE.md</li>
+<li><strong>yaya_core/IMPLEMENTATION_STATUS.md</strong>: YAYA Core specific status</li>
+</ul>
+<hr />
+<h1 id="change-log">Change Log / 変更ログ</h1>
+<h2 id="2026-03-15">2026-03-15</h2>
+<ul>
+<li>Created document / ドキュメント作成</li>
+<li>Initial status matrix populated / 初期ステータス行列作成</li>
+<li>Added weekly tracking structure / 週次トラッキング構造追加</li>
+<li>Mapped integration dependencies / 統合依存関係マッピング</li>
+<li>Added blocker references / ブロッカー参照追加</li>
+</ul>
+<h2 id="2026-06-27">2026-06-27</h2>
+<ul>
+<li>Reclassified status from implementation-complete to compatibility-hardening.</li>
+<li>Added Codex compatibility audit reference and active blockers from UKADOC/SSP-oriented review.</li>
+<li>Downgraded YAYA Core from "100%" to partial compatibility to match <code>yaya_core/IMPLEMENTATION_STATUS.md</code>.</li>
+<li>Marked <code>surfaces*.txt</code> all-file loading as resolved after adding SSP filename-order loading.</li>
+<li>Documented FMO/Plugin macOS-only constraints and added structured compatibility views for FMO snapshots and plugin metadata.</li>
+</ul>
+<hr />
+<p><strong>Maintainer</strong>: Development Team<br />
+<strong>Update Frequency</strong>: Weekly / 更新頻度: 週次<br />
+<strong>Version</strong>: 1.0</p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コードと仕様書の差異レポート (2026-06-14、追記 2026-06-15)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="CODE_SPEC_DIFF_2026-06_ja-jp.html" class="">日本語</a> | <a href="CODE_SPEC_DIFF_2026-06_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="2026-06-14-2026-06-15">コードと仕様書の差異レポート (2026-06-14、追記 2026-06-15)</h1>
+<blockquote>
+<p>2026-06-15 追記: §1 の #5(HTTPポート)・#6(XPC命名)・#7(SERIKOカーソル) を解決（詳細は §5）。
+§2 の NAR 記載を実態（delete.txt/refresh/更新記述子取得は実装済み、更新の実適用のみ未配線）に訂正。
+さらに §2 の プロパティ汎用名(P1)・dylib <code>loadu</code>(P2)・Plugin XPC分離(P3)・SHIORI SecurityLevel差し込み(P4) を実装（🔧）。</p>
+</blockquote>
+<p><code>docs/</code> の各仕様書（ja-jp優先）と <code>Ourin/</code>・<code>yaya_core/</code> の実装を、
+SHIORI / SSTP / さくらスクリプト・SERIKO / プロパティ / FMO他 / Plugin の6領域で突き合わせた結果。</p>
+<p>凡例: ✅=実コードで裏取り済み / 🔧=本レポートのコミットで修正済み / 📝=未対応(要計画) / 📄=ドキュメント負債(コードは正)</p>
+<hr />
+<h2 id="0">0. 構造的傾向</h2>
+<ol>
+<li><strong>「仕様書が実装より古い」逆転現象が多数</strong>。<code>TODO/todo.md</code>(2025-10-21)・<code>IMPLEMENTATION_STATUS_SUMMARY</code>(2026-03)・各SPECの「未実装」記載が、実装済み機能を「未実装」と誤記している。2026-06のCOMPAT_FIXES以降ドキュメントが追従できていない。</li>
+<li><strong>ja-jp版が翻訳スタブのまま</strong>の仕様が複数（<code>SHIORI_RESOURCE_3.0M_ja-jp</code>、<code>SAKURASCRIPT_COMMANDS_SUPPORTED_ja-jp</code> 等）。正本は en-us 側。</li>
+<li>差異の大半は「コードのバグ」ではなく<strong>ドキュメント負債</strong>。</li>
+</ol>
+<hr />
+<h2 id="1">1. 実装バグ・明確な不整合</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>重要度</th>
+<th>差異</th>
+<th>根拠</th>
+<th>状態</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>P1</td>
+<td><strong>CPU使用率が常時≈100%</strong>。<code>(user+system+idle+nice)/total*100</code> で分子に idle を含む(=total/total)。正: idle 除外</td>
+<td><code>Ourin/Property/PropertyManager.swift:292</code></td>
+<td>🔧修正済</td>
+</tr>
+<tr>
+<td>2</td>
+<td>P1</td>
+<td><strong>メモリプロパティのキー名相違</strong>。実装 <code>system.memory.physical/.available</code> ⇔ 仕様 <code>.phyt/.phya</code></td>
+<td><code>PropertyManager.swift:251-252</code> / <code>PROPERTY_1.0M_SPEC_ja-jp.md:86-88</code></td>
+<td>🔧 phyt/phya を正式キーに追加（英語別名も互換維持）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>P1</td>
+<td><strong>Plugin <code>OnOtherGhostTalk</code> の Ref5 仕様ずれ</strong>。Ref5は「0x01区切りの単一Reference」だが実装は複数Referenceに展開</td>
+<td><code>PluginEventDispatcher.swift:142-146</code> / <code>PLUGIN_EVENT_2.0M_SPEC_FULL_ja-jp.md:88-94</code></td>
+<td>🔧 <code>ListDelimiter.join</code> で結合</td>
+</tr>
+<tr>
+<td>4</td>
+<td>P1</td>
+<td><strong>Plugin version応答が破棄</strong>。仕様は応答Valueと任意<code>Charset:</code>を以降の通信に適用。実装は <code>let _ = plugin.send(req)</code> でログのみ</td>
+<td><code>PluginEventDispatcher.swift:64-72</code> / <code>PLUGIN_EVENT_2.0M_SPEC_ja-jp.md §4.1</code></td>
+<td>🔧 応答をparseし交渉Charsetをプラグイン毎に保持・送信に反映</td>
+</tr>
+<tr>
+<td>5</td>
+<td>P1</td>
+<td><strong>HTTP SSTP のポートが 9810</strong>（仕様はTCPと同じ9801）</td>
+<td><code>SstpHttpServer.swift</code> / <code>SstpTcpServer.swift</code> / <code>SSTP_1.xM_SPEC_ja-jp.md:71</code></td>
+<td>🔧 <strong>修正済 (2026-06-15)</strong>。<code>UnifiedSstpListener</code> を新設し 9801 単一ポートで HTTP/生SSTP を先頭行判定により多重化。HTTP 専用 9810 リスナーは廃止</td>
+</tr>
+<tr>
+<td>6</td>
+<td>P1</td>
+<td><strong>XPCプロトコル二重定義・メソッド名不一致</strong>。<code>OurinSSTPXPC.executeSSTP</code> と <code>OurinExternalSstpXPC.deliverSSTP</code>。仕様は <code>executeSSTP(_:withReply:)</code> 単一</td>
+<td><code>Ourin/SSTP/DirectSSTPXPC.swift</code> / <code>Ourin/ExternalServer/XpcDirectServer.swift</code></td>
+<td>🔧 <strong>修正済 (2026-06-15)</strong>。<code>OurinExternalSstpXPC</code> を廃止し <code>XpcDirectServer</code> を共通 <code>OurinSSTPXPC.executeSSTP(_:withReply:)</code> に統一</td>
+</tr>
+<tr>
+<td>7</td>
+<td>P0/P1</td>
+<td><strong>SERIKOカーソルキーの構造相違</strong>。実装は単一 <code>cursor.scope(ID).mouselist</code>、仕様は <code>mouseup/mousedown/mousehover/mousewheellist</code> の4分岐</td>
+<td><code>GhostPropertyProvider.swift</code> / <code>PROPERTY_1.0M_SPEC_ja-jp.md:109</code></td>
+<td>🔧 <strong>修正済 (2026-06-15)</strong>。<code>serikoCursor</code> を <code>[scope:[種別:[name:path]]]</code> に再設計し4種リストの GET/SET に対応</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2">2. 未実装・部分実装（機能拡張として計画）</h2>
+<ul>
+<li>🔧 <strong>NAR更新の実適用 → 対応済み (2026-06-15)</strong>。<code>NarInstaller.downloadAndApply(entries:homeURLString:targetRoot:)</code> を新設し、<code>checkGhostUpdate</code> が更新記述子の列挙後に各ファイルをダウンロードして適用する（<code>.nar</code>/<code>.zip</code> は <code>install(fromNar:)</code>、それ以外は homeurl 基準の相対パスでゴーストルートへ保存、パストラバーサル防止）。OnUpdate.OnDownloadBegin/Complete・OnUpdateComplete を実適用結果で発火。<code>delete.txt</code>/<code>refresh</code>/<code>refreshundeletemask</code>/同梱<code>balloon.directory</code> は既存実装。</li>
+<li>🔧 <strong>汎用dylib直接ロード・<code>loadu</code>エントリ → 対応済み (2026-06-15)</strong>。SAORI/SHIORI(DylibBackend)/Headline/Plugin の各ローダで <code>loadu</code>(UTF-8パス版)を <code>load</code> より優先解決。SHIORI DylibBackend は無印 <code>load/request/unload/free</code>（Windows由来）も解決する汎用化。</li>
+<li>🔧 <strong>Plugin XPC/プロセス分離 → 対応済み (2026-06-15)</strong>。<code>PluginXpcBackend.swift</code>(<code>OurinPluginXPC</code>/<code>PluginXpcClient</code>)を新設。<code>OURIN_PLUGIN_ISOLATION_MODE=xpc</code> または <code>OURIN_PLUGIN_XPC_SERVICE</code> 指定時に <code>PluginEventDispatcher</code> が別プロセスワーカーへ送信（既定はインプロセス）。SHIORI XpcBackend と同設計。</li>
+<li>🔧 <strong>プロパティ汎用名 → 対応済み (2026-06-15)</strong>: <code>thumbnail / update_result / update_time / shiori.&lt;var&gt; / index</code> を Ghost で解決、<code>(sakura|kero|char*).bind.menu</code> を currentghost runtime 状態として GET/SET 対応。<code>index</code> は Balloon/Headline/Plugin list でも対応。</li>
+<li>🔧 <strong>SHIORI Resource キャッシュ/SET → 対応済み (2026-06-15)</strong>。<code>ResourceBridge</code> は既に5秒TTLキャッシュを保持。新たに SET 上書き層（<code>set(key:value:)</code>/<code>clearOverride(_:)</code>）を追加し、上書き値を SHIORI 問い合わせより優先（空文字=定義削除）。NSLock でスレッド安全化。</li>
+<li>🔧 <strong>バルーン高機能描画 → 一部対応 (2026-06-15)</strong>。汎用 <code>ImageLoader.load</code> に PNA（別アルファファイル）合成を追加（<code>CIBlendWithMask</code>）。<code>BalloonView</code> の縁取りを単一ブラーから8方向オフセット影による実アウトラインに改善。残: Retina(@2x) アセット選択。</li>
+<li>🔧 <strong>Plugin <code>OnChoiceSelect(Ex)/OnAnchorSelect(Ex)</code> → 配線済み (2026-06-15)</strong>。<code>GhostManager.forwardEventToPlugins</code> を新設し、選択肢確定（<code>showChoiceDialog</code>）とアンカークリック（<code>onBalloonClicked</code>）から <code>PluginEventDispatcher.onArbitraryEvent</code> へ横流し。残: <code>\q</code>(キュー済み選択肢) のプラグイン配線。</li>
+<li>🔧 <strong>SHIORI 内部イベントの SecurityLevel 差し込み → 対応済み (2026-06-15)</strong>。<code>EventBridge</code> に <code>ShioriSecurityContext</code>(level/origin)を導入し <code>notify</code>/<code>notifyCustom</code>/<code>sendNotify</code>/<code>sendNotifyCustom</code>/<code>sendGet</code> へ伝搬（既定 local）。非YAYA(<code>BridgeToSHIORI.handle</code>)経路にもヘッダを渡すよう修正（従来は SecurityLevel が欠落していた）。</li>
+<li>🔧 <strong>大量Character表示 → 対応済み (2026-06-15)</strong>。<code>GhostManager.ensureCharacterWindow(for:)</code> で scope ウィンドウを遅延生成。<code>setupWindows</code> は scope 0/1 のみ先行生成し、<code>\p[N]</code>(任意 N)はスコープ切替・サーフェス更新時に生成。残: 複数ゴースト同時実行（AppDelegate は単一 GhostManager 保持。アーキテクチャ変更が必要）。</li>
+</ul>
+<hr />
+<h2 id="3">3. ドキュメント負債（コードは正・要更新）</h2>
+<ul>
+<li>📄 <code>TODO/todo.md</code> が ❌NOT FOUND とする <code>\![embed]</code>/<code>\![timerraise]</code>/<code>\![change,*]</code>/<code>\_l[x,y]</code>/<code>\f[...]</code> は実装済み（<code>GhostManager.swift:1080-1165,2166-2170,2216-2380</code>）。→ <code>TODO/todo.md</code> 廃止、<code>docs/SUPPORTED_SAKURA_SCRIPT.md</code> を正本に。</li>
+<li>📄 <code>SERIKO_IMPLEMENTATION.md</code> が「Executor未統合」と記すが統合済み（<code>GhostManager+Animation.swift:73-83,94,155</code>）。</li>
+<li>📄 <code>SSTP_1.xM_SPEC_ja-jp.md:181-182</code> の未実装チェックリスト（SecurityLevel/Origin・ReceiverGhostName→404）は実装済み（<code>SSTPDispatcher.swift:92-113,530-537,617-637</code>）。</li>
+<li>📄 <code>SHIORI_3.0M_SPEC</code> が「XPC分離=未実装」と記すが <code>ShioriLoader.swift:293-352</code> に <code>XpcBackend</code> 実装済み。</li>
+<li>📄 <code>PLUGIN_EVENT_2.0M_SPEC_ja-jp.md:209-226</code> が全イベント「未実装」と記すが <code>PluginEventDispatcher.swift:76-151</code> に実装済み。</li>
+<li>📄 ja-jp翻訳スタブ放置、Plugin改行の短版「CRLF厳守」vs完全版「LF推奨」矛盾、Sample(<code>OurinPluginEventBridge.swift:10</code>)の旧版 <code>GET PLUGIN/2.0</code>（実装は <code>2.0M</code>）。</li>
+</ul>
+<hr />
+<h2 id="4">4. 仕様通り実装済みの主要項目（確認済み）</h2>
+<ul>
+<li><strong>SSTP</strong>: SEND/NOTIFY/COMMUNICATE/EXECUTE/GIVE/INSTALL、CRLF+空行終端、Charset(UTF-8/CP932)、ステータスコード一式、Option(nodescript等)、X-SSTP-PassThru、ReceiverGhostName→404、SecurityLevel/Origin。</li>
+<li><strong>SHIORI</strong>: 4関数 C ABI(load/unload/request/free)、UTF-8既定+SJIS受理、YAYAバックエンド、XpcBackend。</li>
+<li><strong>さくらスクリプト/SERIKO</strong>: scope/surface/anim制御/balloon/sound/wait/cursor/環境変数/<code>\f[...]</code>装飾、SERIKO executor統合。</li>
+<li><strong>Property</strong>: system.* 各種、os識別(Rosetta2検出含む)、ghost/balloon/headline/plugin各list、history、rateofuselist。</li>
+<li><strong>FMO/NAR/USL/SAORI/Web</strong>: FMO共有メモリ名・SSP風 <code>id.key\x01value\r\n</code> レコード・Ourinウィンドウ識別子・構造化互換ビュー、NAR(ZIP検証/ZipSlip防止/install.txt UTF-8&amp;CP932/型別振分/refresh)、YAYAアダプタJSON行IPC、SAORI(dlopen/dlsym統合)、Web(<code>x-ukagaka-link</code>→<code>OnXUkagakaLinkOpen</code> external/https強制)。</li>
+<li><strong>Plugin</strong>: PLUGIN/2.0M Request/Responseパーサ・ビルダ、load/loadu/unload、文字コード正規化、macOS差分(POSIXパス/0x01区切り)、Windows DLL metadata-only と native <code>.plugin</code> / <code>.bundle</code> の互換ビュー。</li>
+</ul>
+<hr />
+<h2 id="5-567-2026-06-15">5. #5/#6/#7 の対応記録（2026-06-15 解決）</h2>
+<p>当初コミットでは設計判断を要するとして保留した3件を、2026-06-15 に以下の通り解決した。</p>
+<ul>
+<li><strong>#5 HTTPポート(9810→9801)</strong>: 旧設計は TCP(9801)/HTTP(9810) を別リスナーとして同時バインドしていた。
+  SSP 同様の単一ポート多重化へ移行。<code>UnifiedSstpListener</code> を新設し 9801 で待ち受け、接続の先頭リクエスト行に
+  <code>HTTP/</code> を含むかで HTTP / 生 SSTP を判別し、それぞれ <code>SstpHttpServer.adopt</code> / <code>SstpTcpServer.adopt</code>
+  （先読みバッファ引き継ぎ）に委譲する。HTTP 専用 9810 は廃止。</li>
+<li><strong>#6 XPCプロトコル名</strong>: <code>OurinExternalSstpXPC.deliverSSTP</code> を廃止し、<code>XpcDirectServer</code> を DirectSSTP と
+  共通の <code>OurinSSTPXPC.executeSSTP(_:withReply:)</code> へ統一。direct/external の2リスナーは用途別に維持しつつ、
+  プロトコル定義とメソッド名のみ一本化（exportedInterface も <code>OurinSSTPXPC</code> に統一）。</li>
+<li><strong>#7 SERIKOカーソル構造</strong>: <code>serikoCursor</code> の格納を <code>[scope:[name:path]]</code> から
+  <code>[scope:[種別:[name:path]]]</code> に再設計し、<code>mouseuplist/mousedownlist/mousehoverlist/mousewheellist</code>
+  4種の <code>.count</code> / <code>(hit).path|name</code> / <code>.index(ID2).path|name</code> を GET/SET 両対応にした。</li>
+</ul>
+<hr />
+<h2 id="6">6. 推奨対応（優先度順）</h2>
+<ol>
+<li>✅（PR #92）CPUバグ・メモリキー・Plugin Ref5/version。</li>
+<li>✅（2026-06-15）ポート多重化(#5)・XPC命名統一(#6)・SERIKOカーソル4分岐(#7)。</li>
+<li>✅（2026-06-15）プロパティ汎用名(P1)・dylib <code>loadu</code>(P2)・Plugin XPC分離(P3)・SHIORI SecurityLevel差し込み(P4)。
+3b. ✅（2026-06-15 第2弾）NAR更新の実適用(R1)・Resource SET層(R2)・バルーンPNA/縁取り(R3)・Plugin選択/アンカー配線(R4)・大量Character遅延生成(R5)。
+3c. ✅（2026-06-15 第3弾）複数ゴースト同時実行 基盤(M1)・サーフェス/バルーン @2x Retina(M2)・Plugin <code>\q</code> 配線(M3)・ja-jp 翻訳スタブ解消(M4)・ExternalServerTests 並列分離(M5)。</li>
+<li><strong>M1</strong>: <code>AppDelegate.additionalGhosts</code> / <code>launchAdditionalGhost(at:|named:)</code> / <code>terminateAdditionalGhost</code> を新設し複数 GhostManager を同時保持。FMO は全ゴースト集約。<code>\+</code>(bootOtherGhost) は in-process で追加起動。EventBridge は既に複数セッション対応。残: SSTP 応答ヘッダ副作用（Surface/Balloon）は依然プライマリ宛。</li>
+<li><strong>M2</strong>: <code>RetinaImageLoader</code>(新規)で <code>name@2x.png</code>/<code>@3x</code> を高解像度 representation として取り込み。surface/balloon/arrow/marker ローダに適用。</li>
+<li><strong>M3</strong>: <code>showChoiceDialog()</code> を再生完了時に発火するよう配線（従来は定義のみで未呼び出し）。<code>\q</code>/<code>\__q</code> が機能し、選択時に R4 経由でプラグインへ横流し。</li>
+<li><strong>M4</strong>: SHIORI_RESOURCE_3.0M / SAKURASCRIPT_COMMANDS_SUPPORTED / PropertySystem / GhostConfigurationImplementation / RightClickMenuMockup / SHIORI_EVENTS_FULL_1.0M_PATCHED の ja-jp を整備。残: <code>YAYA_CORE_*</code>（内部アーキテクチャ文書、低優先）。</li>
+<li><strong>M5</strong>: <code>ExternalServerTests</code> に <code>@Suite(.serialized)</code> と per-test シングルトン reset を付与（<code>SSTPDispatcherTests</code> と同方式）。</li>
+<li>📝 残（要アーキテクチャ判断）: 複数ゴーストの SSTP 応答ヘッダ個別ルーティング・右クリックメニューのゴースト選択、<code>YAYA_CORE_*</code> 内部文書の翻訳。</li>
+</ol>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

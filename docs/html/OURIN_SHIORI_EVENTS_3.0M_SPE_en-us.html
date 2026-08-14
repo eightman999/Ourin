@@ -151,25 +151,71 @@
 <strong>Language:</strong> English (US)</p>
 <hr />
 <h2 id="translation-note">Translation Note</h2>
-<p>This document is a placeholder for the English translation of the Japanese original.</p>
-<p>The Japanese version contains the authoritative specification. This English version should be translated while maintaining:</p>
-<ul>
-<li>Technical accuracy</li>
-<li>Consistent terminology with other English documentation</li>
-<li>Original structure and formatting</li>
-<li>All code examples unchanged</li>
-<li>Proper translation of comments and narrative sections</li>
-</ul>
+<p>This document is a partial translation of the Japanese original. Sections are added here as they are implemented. For the full specification see <a href="./OURIN_SHIORI_EVENTS_3.0M_SPEC_ja-jp.md">OURIN_SHIORI_EVENTS_3.0M_SPEC_ja-jp.md</a>.</p>
 <hr />
-<h2 id="contents">Contents</h2>
-<p><em>(To be translated from Japanese original)</em></p>
+<h2 id="automatic-system-event-enablement">Automatic System-Event Enablement</h2>
+<h3 id="overview">Overview</h3>
+<p>Standard automatic system events — timer (<code>OnSecondChange</code>/<code>OnMinuteChange</code>/<code>OnHourTimeSignal</code>), input/mouse, sleep/wake, display change, power status, locale, appearance, session, network, gamepad, device, and speech — are enabled at <strong>real ghost-load completion</strong> as the single centralized activation point.</p>
+<p>Full-screen application events (<code>OnFullScreenAppMinimize</code> / <code>OnFullScreenAppRestore</code>) are emitted only for a detected transition of a frontmost non-Ourin application whose layer-0 window covers the display. Their <code>Reference0</code> is the fixed value <code>fullscreen</code>. Ordinary application focus changes do not emit these events; when CGWindow or frontmost-application information is unavailable, the state is left unchanged to avoid false restore notifications.</p>
+<p>Relevant source files:
+- <code>Ourin/Ghost/GhostManager.swift</code> — <code>startEventBridgeIfNeeded(enableAutoEvents:)</code>
+- <code>Ourin/SHIORIEvents/EventBridge.swift</code> — <code>start(enableAutoEvents:)</code> and the internal NOTIFY queue</p>
+<h3 id="activation-sequence">Activation Sequence</h3>
+<pre class="codehilite"><code>GhostManager.start()
+  ↓ YAYA dictionary load complete
+  ↓ (before OnBoot GET is issued)
+startEventBridgeIfNeeded(enableAutoEvents: !GhostManager.isRunningUnderTests)
+  → EventBridge.shared.start(enableAutoEvents: true)   // false under tests
+     → TimerEmitter / InputMonitor / SleepObserver /
+        DisplayObserver / SpaceObserver / PowerObserver /
+        LocaleObserver / AppearanceObserver / SessionObserver /
+        NetworkObserver / GamepadObserver / DeviceObserver /
+        SpeechObserver — all started
+     → pendingNotifies flushed (queued NOTIFYs delivered immediately)
+</code></pre>
+
+<h3 id="notify-queue-behavior-before-enablement">NOTIFY Queue Behavior Before Enablement</h3>
+<p>While <code>autoEventsEnabled = false</code>, any call to <code>broadcastNotify</code> or <code>broadcastNotifyCustom</code> appends the event to the internal <code>pendingNotifies</code> queue without delivering it. When auto events are enabled, the queue is <strong>flushed</strong> and all pending NOTIFYs are delivered to registered ghost sessions in order.</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>NOTIFY handling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>autoEventsEnabled = false</code> (before enablement)</td>
+<td>Appended to <code>pendingNotifies</code> queue; not delivered yet</td>
+</tr>
+<tr>
+<td><code>autoEventsEnabled = true</code> (after enablement)</td>
+<td>Delivered immediately. Queue is flushed first if non-empty</td>
+</tr>
+</tbody>
+</table>
+<h3 id="suppression-under-unit-tests">Suppression Under Unit Tests</h3>
+<p><code>GhostManager.isRunningUnderTests</code> detects test execution by checking for the environment variables <code>XCTestConfigurationFilePath</code> or <code>XCTestBundlePath</code>. When running under tests, <code>EventBridge.start(enableAutoEvents: false)</code> is called, so system observers (timer, input monitor, etc.) are not started.</p>
+<h3 id="difference-from-previous-behavior">Difference from Previous Behavior</h3>
+<p>Previously the default was <code>enableAutoEvents = false</code>, which meant automatic system events could remain queue-only unless the name-input dialog path in <code>GhostManager+Display</code> ran. The current implementation makes <strong>real ghost-load completion the sole activation point</strong>, ensuring automatic events are enabled regardless of which UI path the user follows.</p>
+<h2 id="url-drop-lifecycle">URL-Drop Lifecycle</h2>
+<p>For a URL dropped onto a character window, Ourin first sends the Ourin extension <code>OnURLDrop</code>
+as a targeted GET. If it returns no usable script, the standard <code>OnURLQuery</code> GET follows with
+the URL, scope number, MIME type, and planned action (<code>nar</code> or <code>unknown</code>). Only a planned <code>nar</code>
+action starts the lifecycle <code>OnURLDropping</code> → HTTPS (or explicitly allowed HTTP) download →
+<code>OnURLDropped</code> → NAR installation. Network, extraction, or installation failures emit
+<code>OnURLDropFailure</code>; HTTP failures use the bare status-code string and transport failures are
+normalized to standard reasons such as <code>timeout</code> or <code>fileio</code>. Malformed URLs, disallowed schemes,
+and HTTP without explicit opt-in are rejected before receipt begins and therefore do not emit the
+standard failure event. <code>OnURLDropped</code> is never emitted before the download completes, and unknown
+URLs are not downloaded automatically. The destination must resolve to public addresses, and
+redirects are checked by the same policy. Downloads use a 30-second request timeout, a 5-minute
+resource timeout, and a 256 MiB size limit.</p>
 <hr />
-<p><strong>Translation Status:</strong> ⏳ Pending<br />
-<strong>Translator:</strong> TBD<br />
-<strong>Review:</strong> TBD<br />
-<strong>Last Updated:</strong> 2025-10-23</p>
+<p><strong>Translation Status:</strong> ⏳ Partial (automatic-event-enablement section added 2026-06-28)<br />
+<strong>Last Updated:</strong> 2026-06-28</p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

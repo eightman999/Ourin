@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ourin — **NAR Double‑Click Installer** 仕様書（NAR-INSTALL/1.0M, macOS, ToC付き）</title>
+    <title>Ourin — **NAR Double-Click Installer** Specification (NAR-INSTALL/1.0M, macOS)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
@@ -145,31 +145,343 @@
         <div class="back-link">
             <a href="index.html">← Back to Index</a>
         </div>
-        <h1 id="ourin-nar-doubleclick-installer-nar-install10m-macos-toc">Ourin — <strong>NAR Double‑Click Installer</strong> 仕様書（NAR-INSTALL/1.0M, macOS, ToC付き）</h1>
-<p><strong>Status:</strong> Translation Pending<br />
-<strong>Original:</strong> <a href="./NAR_INSTALL_1.0M_SPEC_ja-jp.md">NAR_INSTALL_1.0M_SPEC_ja-jp.md</a><br />
-<strong>Language:</strong> English (US)</p>
+        <h1 id="ourin-nar-double-click-installer-specification-nar-install10m-macos">Ourin — <strong>NAR Double-Click Installer</strong> Specification (NAR-INSTALL/1.0M, macOS)</h1>
+<p><strong>Status:</strong> Draft
+<strong>Updated:</strong> 2026-06-28
+<strong>Target:</strong> macOS 10.15+ (Catalina and later), Universal 2 (arm64 / x86_64)</p>
+<blockquote>
+<p>Purpose: When the user double-clicks a <strong><code>.nar</code></strong> file (a ZIP archive) or opens it with Ourin via "Open With", the app receives the file and extracts <strong>ghost / balloon / shell / plugin / package / calendar / language</strong> content to the appropriate directory according to the vocabulary defined in <code>install.txt</code>. This specification follows SSP conventions (drag-and-drop / double-click) while mandating <strong>UTF-8 as the default encoding</strong>, <strong>CP932 acceptance</strong>, and <strong>Zip Slip prevention</strong>.</p>
+</blockquote>
 <hr />
-<h2 id="translation-note">Translation Note</h2>
-<p>This document is a placeholder for the English translation of the Japanese original.</p>
-<p>The Japanese version contains the authoritative specification. This English version should be translated while maintaining:</p>
+<h2 id="table-of-contents">Table of Contents</h2>
 <ul>
-<li>Technical accuracy</li>
-<li>Consistent terminology with other English documentation</li>
-<li>Original structure and formatting</li>
-<li>All code examples unchanged</li>
-<li>Proper translation of comments and narrative sections</li>
+<li><a href="#0-terminology-and-prerequisites">0. Terminology and Prerequisites</a></li>
+<li><a href="#1-scope-and-non-goals">1. Scope and Non-Goals</a></li>
+<li><a href="#2-dependencies-and-references">2. Dependencies and References</a></li>
+<li><a href="#3-file-association-utidocument-types">3. File Association (UTI/Document Types)</a></li>
+<li><a href="#4-open-handler">4. Open Handler</a></li>
+<li><a href="#5-archive-validation-and-encoding-detection">5. Archive Validation and Encoding Detection</a></li>
+<li><a href="#6-installtxt-vocabulary">6. install.txt Vocabulary</a></li>
+<li><a href="#7-extraction-policy-safe-unzip-and-placement">7. Extraction Policy (Safe Unzip and Placement)</a></li>
+<li><a href="#8-conflict-and-update-acceptdeletehomeurl">8. Conflict and Update (accept/delete/homeurl)</a></li>
+<li><a href="#9-logging-and-failure-ux">9. Logging and Failure UX</a></li>
+<li><a href="#10-security-zip-slip--quarantine">10. Security (Zip Slip / Quarantine)</a></li>
+<li><a href="#11-compatibility-notes-windowscaseline-ending-differences">11. Compatibility Notes (Windows/Case/Line-ending Differences)</a></li>
+<li><a href="#appendix-a-infoplist-example">Appendix A. Info.plist Example</a></li>
+<li><a href="#appendix-b-successfailure-flow">Appendix B. Success/Failure Flow</a></li>
+<li><a href="#appendix-c-sample-structure">Appendix C. Sample Structure</a></li>
+<li><a href="#implementation-status">Implementation Status</a></li>
+<li><a href="#changelog">Changelog</a></li>
 </ul>
 <hr />
-<h2 id="contents">Contents</h2>
-<p><em>(To be translated from Japanese original)</em></p>
+<h2 id="0-terminology-and-prerequisites">0. Terminology and Prerequisites</h2>
+<ul>
+<li><strong>.nar</strong>: Ukagaka distribution package. <strong>The actual format is ZIP.</strong></li>
+<li><strong>install.txt</strong>: The <strong>install manifest</strong> placed at the top level of the archive (<code>type</code>/<code>directory</code>/<code>*.directory</code> and other fields).</li>
+<li><strong>Ourin base directory</strong>: <code>~/Documents/Ourin/</code> (falls back to <code>~/Library/Application Support/Ourin/</code> when Documents is unavailable).</li>
+<li><strong>Character encoding</strong>: <strong>UTF-8 default</strong>, <strong>CP932 accepted</strong> (internally normalized to UTF-8).</li>
+</ul>
+<h2 id="1-scope-and-non-goals">1. Scope and Non-Goals</h2>
+<ul>
+<li><strong>In scope</strong>: Installation triggered by Finder <strong>double-click</strong>, "Open With", or <strong>drag-and-drop</strong> onto an Ourin window.</li>
+<li><strong>Non-goals</strong>: Binary-level Windows compatibility reproduction or full Install UI replication. The focus is <strong>protocol (install.txt vocabulary) compatibility</strong>.</li>
+</ul>
+<h2 id="2-dependencies-and-references">2. Dependencies and References</h2>
+<ul>
+<li><strong>Apple UTI/Document Types</strong>: <code>.nar</code> exported as a <strong>custom UTI</strong> conforming to <strong><code>public.zip-archive``. Associated via</code>CFBundleDocumentTypes`; the app implements an </strong>open handler**.</li>
+<li><strong>NSApplicationDelegate</strong>: URL/path received via <code>application(_:openFiles:)</code> / <code>application(_:open:)</code>.</li>
+<li><strong>Ukadoc</strong>: Conforms to operational conventions for <strong>install.txt / distribution / network updates</strong> (<code>updates2.dau</code>/<code>delete.txt</code>/drag-and-drop/double-click).</li>
+</ul>
+<h2 id="3-file-association-utidocument-types">3. File Association (UTI/Document Types)</h2>
+<ul>
+<li>Declare <code>jp.ourin.nar</code> in <strong>UTExportedTypeDeclarations</strong> with <code>UTTypeConformsTo = public.zip-archive</code> and extension <code>nar</code>.</li>
+<li>Set <code>LSItemContentTypes = jp.ourin.nar</code> in <strong>CFBundleDocumentTypes</strong> (Role: Viewer or Editor).</li>
+<li>Priority in case of conflict is controlled by <strong>LSHandlerRank</strong>.</li>
+</ul>
+<h2 id="4-open-handler">4. Open Handler</h2>
+<ul>
+<li>Implement both <code>NSApplicationDelegate.application(_:openFiles:)</code> (multiple files) and <code>application(_:open:)</code> (URL) so the handler is called whether the app is already running or launches fresh. Bridge AppKit delegate even in SwiftUI configurations.</li>
+</ul>
+<h2 id="5-archive-validation-and-encoding-detection">5. Archive Validation and Encoding Detection</h2>
+<ul>
+<li>Verify <strong>zip compatibility</strong> by MIME/UTType and also check the leading record.</li>
+<li><code>install.txt</code> is read <strong>preferring UTF-8</strong>. On failure, retry with <strong>CP932</strong> and normalize internally to UTF-8. BOM and CRLF are accepted.</li>
+<li>When a <code>charset</code> declaration is present on the first non-comment line (either <code>charset,&lt;value&gt;</code> or <code>charset:&lt;value&gt;</code> syntax), that encoding is used preferentially before falling back to auto-detection.</li>
+</ul>
+<h2 id="6-installtxt-vocabulary">6. install.txt Vocabulary</h2>
+<ul>
+<li><strong>Required</strong>: <code>type,&lt;kind&gt;</code> / <code>directory,&lt;install-name&gt;</code> (<code>directory</code> may be omitted for <code>supplement</code> and <code>package</code>)</li>
+<li><strong>Optional</strong>: <code>accept,&lt;identifier&gt;</code>, <code>*.directory,&lt;bundled-name&gt;</code> (e.g., <code>balloon.directory,MyBalloon</code>), <code>*.source.directory</code>, etc.</li>
+<li><strong>Recommended</strong>: Place <code>charset,UTF-8</code> <strong>at the top</strong> of the file.</li>
+</ul>
+<h3 id="61-accepted-type-values-and-install-destinations">6.1 Accepted type Values and Install Destinations</h3>
+<table>
+<thead>
+<tr>
+<th>type value</th>
+<th>Accepted spelling variants</th>
+<th>Install destination (<code>&lt;base&gt;</code> = <code>~/Documents/Ourin</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ghost</code></td>
+<td>—</td>
+<td><code>&lt;base&gt;/ghost/&lt;directory&gt;</code></td>
+</tr>
+<tr>
+<td><code>balloon</code></td>
+<td>—</td>
+<td><code>&lt;base&gt;/balloon/&lt;directory&gt;</code></td>
+</tr>
+<tr>
+<td><code>shell</code></td>
+<td>—</td>
+<td><code>&lt;base&gt;/ghost/&lt;accept&gt;/shell/&lt;directory&gt;</code></td>
+</tr>
+<tr>
+<td><code>plugin</code></td>
+<td>—</td>
+<td><code>&lt;base&gt;/plugin/&lt;directory&gt;</code></td>
+</tr>
+<tr>
+<td><code>headline</code></td>
+<td>—</td>
+<td><code>&lt;base&gt;/headline/&lt;directory&gt;</code></td>
+</tr>
+<tr>
+<td><code>package</code></td>
+<td>—</td>
+<td><code>&lt;base&gt;/package/&lt;directory&gt;</code></td>
+</tr>
+<tr>
+<td><code>supplement</code></td>
+<td>—</td>
+<td><code>&lt;base&gt;/ghost/&lt;accept&gt;/</code> (directory is optional)</td>
+</tr>
+<tr>
+<td><code>calendar/skin</code></td>
+<td><code>calendar skin</code>, <code>calendarskin</code></td>
+<td><code>&lt;base&gt;/calendar/skin/&lt;directory&gt;</code></td>
+</tr>
+<tr>
+<td><code>calendar/plugin</code></td>
+<td><code>calendar plugin</code>, <code>calendarplugin</code></td>
+<td><code>&lt;base&gt;/calendar/plugin/&lt;directory&gt;</code></td>
+</tr>
+<tr>
+<td><code>calendar</code></td>
+<td>— (legacy form without skin/plugin distinction)</td>
+<td><code>&lt;base&gt;/calendar/&lt;directory&gt;</code></td>
+</tr>
+<tr>
+<td><code>language</code></td>
+<td>—</td>
+<td><code>&lt;base&gt;/language/&lt;directory&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>calendar/skin</code> and <code>calendar/plugin</code> are accepted regardless of case, spaces, or slashes (<code>InstallTxtParser.swift</code> → <code>OurinPaths.installTarget()</code>). The legacy <code>calendar</code> form (no sub-type distinction) is retained for backward compatibility. <code>language</code> corresponds to the language type in the UKADOC install.txt specification.</p>
+<p><code>shell</code> and <code>supplement</code> require the <code>accept</code> field to specify the target ghost's directory name. If <code>accept</code> is absent, an <code>installTxtMissingKey("accept")</code> error is raised.</p>
+<h3 id="62-refreshundeletemask-field">6.2 refreshundeletemask Field</h3>
+<pre class="codehilite"><code>refreshundeletemask,pattern1:pattern2:...
+</code></pre>
+
+<ul>
+<li>The UKADOC-specified delimiter is a <strong>colon (<code>:</code>)</strong>. This is the primary separator.</li>
+<li>For compatibility with existing data, <strong>commas (<code>,</code>)</strong> are also accepted as delimiters (<code>InstallTxtParser.swift:106</code>).</li>
+<li>Values are parsed into the <code>refreshUndeleteMask: [String]</code> array as a set of regex patterns.</li>
+<li>Used in combination with <code>refresh,1</code>. When <code>refresh,1</code> is specified, paths matching any mask entry are excluded from pre-install deletion.</li>
+</ul>
+<p>Example:</p>
+<pre class="codehilite"><code>refresh,1
+refreshundeletemask,savedata:*.sav:userconfig.txt
+</code></pre>
+
+<p>The above is parsed as three colon-delimited elements: <code>savedata</code>, <code>*.sav</code>, and <code>userconfig.txt</code>.</p>
+<h2 id="7-extraction-policy-safe-unzip-and-placement">7. Extraction Policy (Safe Unzip and Placement)</h2>
+<ul>
+<li><strong>Safely extract</strong> to a temporary directory → interpret <code>install.txt</code> → copy to the <strong>install destination</strong>.</li>
+<li><strong>Excluded</strong>: <code>__MACOSX/</code>, <code>.DS_Store</code>, and <code>Thumbs.db</code> are automatically excluded.</li>
+<li><strong>Case sensitivity</strong>: File names are handled <strong>strictly</strong>, with warnings on duplicate collisions.</li>
+</ul>
+<h2 id="8-conflict-and-update-acceptdeletehomeurl">8. Conflict and Update (accept/delete/homeurl)</h2>
+<ul>
+<li>If the existing <code>{directory}</code> is present: overwrite-update if <code>accept</code> matches; suggest a rename if it differs.</li>
+<li>If <code>delete.txt</code> is present, remove unnecessary assets. Update distribution follows <code>homeurl</code> + <code>updates2.dau</code>.</li>
+</ul>
+<h2 id="9-logging-and-failure-ux">9. Logging and Failure UX</h2>
+<ul>
+<li>Log major phases (validation/parsing/extraction/post-processing) via <code>OSLog</code>.</li>
+<li>Representative errors: <code>InstallTxtMissing</code>, <code>UnsupportedType</code>, <code>ZipSlipDetected</code>, <code>NameConflict</code>, <code>DecodeFailed(sjis)</code>.</li>
+</ul>
+<h2 id="10-security-zip-slip-quarantine">10. Security (Zip Slip / Quarantine)</h2>
+<ul>
+<li><strong>Zip Slip</strong>: Normalize paths before extraction and <strong>reject</strong> any write outside the target directory via <code>..</code>, absolute paths, or symbolic links.</li>
+<li>Quarantine attributes from downloaded files are treated as a normal flow since the action is <strong>user-initiated</strong> (double-click/drop).</li>
+</ul>
+<h2 id="11-compatibility-notes-windowscaseline-ending-differences">11. Compatibility Notes (Windows/Case/Line-ending Differences)</h2>
+<ul>
+<li>Existing Windows distributions may arrive with <strong>Shift_JIS</strong> encoding and <code>\\</code> path separators. Ourin <strong>accepts the input</strong> and normalizes internally to UTF-8 / UNIX paths.</li>
+<li>Both CRLF and LF line endings are accepted.</li>
+</ul>
 <hr />
-<p><strong>Translation Status:</strong> ⏳ Pending<br />
-<strong>Translator:</strong> TBD<br />
-<strong>Review:</strong> TBD<br />
-<strong>Last Updated:</strong> 2025-10-23</p>
+<h2 id="appendix-a-infoplist-example">Appendix A. Info.plist Example</h2>
+<pre class="codehilite"><code class="language-xml">&lt;!-- Info.plist excerpt: UTI and Document Types --&gt;
+&lt;key&gt;UTExportedTypeDeclarations&lt;/key&gt;
+&lt;array&gt;
+  &lt;dict&gt;
+    &lt;key&gt;UTTypeIdentifier&lt;/key&gt;&lt;string&gt;jp.ourin.nar&lt;/string&gt;
+    &lt;key&gt;UTTypeDescription&lt;/key&gt;&lt;string&gt;Ukagaka NAR&lt;/string&gt;
+    &lt;key&gt;UTTypeConformsTo&lt;/key&gt;
+    &lt;array&gt;&lt;string&gt;public.zip-archive&lt;/string&gt;&lt;/array&gt;
+    &lt;key&gt;UTTypeTagSpecification&lt;/key&gt;
+    &lt;dict&gt;
+      &lt;key&gt;public.filename-extension&lt;/key&gt;&lt;array&gt;&lt;string&gt;nar&lt;/string&gt;&lt;/array&gt;
+      &lt;key&gt;public.mime-type&lt;/key&gt;&lt;string&gt;application/x-ukagaka-nar&lt;/string&gt;
+    &lt;/dict&gt;
+  &lt;/dict&gt;
+&lt;/array&gt;
+
+&lt;key&gt;CFBundleDocumentTypes&lt;/key&gt;
+&lt;array&gt;
+  &lt;dict&gt;
+    &lt;key&gt;CFBundleTypeName&lt;/key&gt;&lt;string&gt;Ukagaka NAR&lt;/string&gt;
+    &lt;key&gt;LSItemContentTypes&lt;/key&gt;
+    &lt;array&gt;&lt;string&gt;jp.ourin.nar&lt;/string&gt;&lt;/array&gt;
+    &lt;key&gt;CFBundleTypeRole&lt;/key&gt;&lt;string&gt;Viewer&lt;/string&gt;
+  &lt;/dict&gt;
+&lt;/array&gt;
+</code></pre>
+
+<h2 id="appendix-b-successfailure-flow">Appendix B. Success/Failure Flow</h2>
+<pre class="codehilite"><code>Finder(.nar) → Launch Services → Ourin(app open)
+ → open handler
+   → validate(zip) OK? → read install.txt → parse {type,directory,...}
+   → resolve install path
+   → safeExtract → copy/merge → post steps(readme/terms, switch)
+   → success toast
+
+Failure cases:
+  - no install.txt → error: InstallTxtMissing
+  - unsupported type → error: UnsupportedType
+  - zip slip → error: ZipSlipDetected
+  - directory conflict → user prompt(rename/overwrite)
+</code></pre>
+
+<h2 id="appendix-c-sample-structure">Appendix C. Sample Structure</h2>
+<pre class="codehilite"><code>OURIN_NAR_INSTALL_1_0M/
+  NAR_INSTALL_1.0M_SPEC.md
+  NAR_INSTALL_1.0M_PLAN.md
+  sample/
+    Sources/OurinNarInstallerSample/
+      AppDelegate.swift
+      SampleNarInstaller.swift
+      InstallTxtParser.swift
+      ZipUtil.swift
+      Paths.swift
+    Info.plist (example)
+</code></pre>
+
+<hr />
+<h2 id="implementation-status">Implementation Status</h2>
+<p><strong>Last Updated:</strong> 2026-06-28</p>
+<h3 id="implemented-in-ourin">Implemented in Ourin</h3>
+<ul>
+<li>[x] <strong>NAR file association</strong>: UTI declaration and association for <code>.nar</code> in Info.plist</li>
+<li>[x] <strong>Double-click/D&amp;D handling</strong>: openFiles handler in AppDelegate</li>
+<li>[x] <strong>ZIP extraction</strong>: Implemented in <code>ZipUtil.swift</code></li>
+<li>[x] <strong>install.txt parsing</strong>: Implemented in <code>InstallTxtParser.swift</code></li>
+<li>[x] <strong>Encoding auto-detection</strong>: UTF-8 and CP932 auto-detection implemented</li>
+<li>[x] <strong>Zip Slip prevention</strong>: Implemented in <code>ZipUtil.secureCopyTree()</code></li>
+<li>[x] <strong>Type-based install</strong>: <code>OurinPaths.installTarget()</code> resolves install destinations for ghost/balloon/shell/supplement/plugin/headline/package/calendar/calendar/skin/calendar/plugin/language</li>
+<li>[x] <strong>Basic error handling</strong>: Install error detection and reporting implemented</li>
+<li>[ ] <strong>Conflict UI</strong>: Full UI for accept/delete/homeurl is not yet complete</li>
+<li>[x] <strong>Update feature</strong>: <code>updates2.dau</code> / <code>updates.txt</code> / <code>update.txt</code> retrieval, Version 2/3 parsing, MD5 verification, and incremental-file / NAR application are implemented. Baseware updates are applied to a staged <code>.app</code>.</li>
+<li>[x] <strong>Deletion feature</strong>: <code>delete.txt</code> is fetched and applied safely during network updates (and supported for package cleanup).</li>
+</ul>
+<h3 id="implemented-features">Implemented Features</h3>
+<ol>
+<li><strong>Package Reception</strong></li>
+<li>Double-click from Finder</li>
+<li>Drag-and-drop onto the Ourin window</li>
+<li>
+<p>Launch via "Open With This Application"</p>
+</li>
+<li>
+<p><strong>Extraction and Validation</strong></p>
+</li>
+<li>ZIP header validation (PK magic number)</li>
+<li>Safe extraction to a temporary directory</li>
+<li>
+<p>install.txt presence check</p>
+</li>
+<li>
+<p><strong>install.txt Parsing</strong></p>
+</li>
+<li><code>type</code> field parsing (ghost, balloon, shell, supplement, plugin, headline, package, calendar/skin, calendar/plugin, calendar, language)</li>
+<li><code>directory</code> and <code>*.directory</code> parsing</li>
+<li><code>refreshundeletemask</code> field: colon-delimited per UKADOC; commas also accepted for compatibility</li>
+<li>
+<p>UTF-8/CP932 auto-detection and decoding</p>
+</li>
+<li>
+<p><strong>Safe Placement</strong></p>
+</li>
+<li>Zip Slip attack prevention (no escaping to parent directories)</li>
+<li>Placement under <code>~/Documents/Ourin/</code></li>
+<li>
+<p>Type-based directory routing (ghost, balloon, shell, supplement, plugin, headline, package, calendar/skin, calendar/plugin, calendar, language)</p>
+</li>
+<li>
+<p><strong>Error Handling</strong></p>
+</li>
+<li>NAR format error (NotZip)</li>
+<li>install.txt missing (InstallTxtNotFound)</li>
+<li>Decode error (InstallTxtDecodeFailed)</li>
+<li>Unsupported type (UnsupportedType)</li>
+<li>Zip Slip detected (ZipSlipDetected)</li>
+<li>Directory conflict (DirectoryConflict)</li>
+</ol>
+<h3 id="not-yet-implemented">Not Yet Implemented</h3>
+<ol>
+<li><strong>Conflict Resolution UI</strong></li>
+<li>Overwrite confirmation dialog via the <code>accept</code> field</li>
+<li>
+<p>Rename/overwrite choices presented to the user</p>
+</li>
+<li>
+<p><strong>Deletion UI</strong></p>
+</li>
+<li>
+<p>File removal UI for an uninstall workflow</p>
+</li>
+<li>
+<p><strong>Advanced Features</strong></p>
+</li>
+<li>README/terms of use display</li>
+<li>Automatic switch after install</li>
+<li><code>homeurl</code> processing</li>
+</ol>
+<h3 id="source-file-locations">Source File Locations</h3>
+<ul>
+<li><code>Ourin/NarInstall/LocalNarInstaller.swift</code>: Installer main body</li>
+<li><code>Ourin/NarInstall/InstallTxtParser.swift</code>: install.txt parsing</li>
+<li><code>Ourin/NarInstall/ZipUtil.swift</code>: ZIP extraction utility</li>
+<li><code>Ourin/NarInstall/Paths.swift</code>: Path resolution (OurinPaths)</li>
+<li><code>Ourin/NarInstall/NarInstallViewModel.swift</code>: UI ViewModel</li>
+<li><code>Ourin/NarInstall/NarInstallView.swift</code>: SwiftUI install screen</li>
+</ul>
+<hr />
+<h2 id="changelog">Changelog</h2>
+<ul>
+<li>2026-08-14: Implemented MD5-verified incremental updates for <code>updates2.dau</code> / <code>updates.txt</code> and safe <code>delete.txt</code> retrieval/removal, with traversal checks and regression tests.</li>
+<li>2026-06-28: Added §6.1 type accepted-values table (calendar/skin, calendar/plugin, calendar, language). Added §6.2 refreshundeletemask field delimiter specification (colon primary, comma compatible). Updated implementation status type list. Expanded from placeholder to full specification.</li>
+<li>2025-10-20: Implementation status section added (Japanese original).</li>
+<li>2025-07-28: Initial revision (NAR-INSTALL/1.0M).</li>
+</ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

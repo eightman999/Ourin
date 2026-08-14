@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Orchestration Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="ai-orchestration-guide">AI Orchestration Guide</h1>
+<p>マルチエージェント運用の実務手順書。Fable 5 がリードとして計画・分解・委譲・統合を行い、
+Opus / Sonnet サブエージェントと外部ピアツール（Codex / Agy / OpenCode(GLM)）を使い分ける。</p>
+<h2 id="roles">Roles</h2>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>Role</th>
+<th>Default mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fable 5 (main)</td>
+<td>オーケストレーター・テックリード・最終判断</td>
+<td>high/xhigh, max は最終統合・行き詰まりデバッグ・不可逆判断のみ</td>
+</tr>
+<tr>
+<td>deep-reasoner (Opus)</td>
+<td>設計・難デバッグ・アルゴリズム・高リスク判断の推論</td>
+<td>read-only 中心、簡潔な結論を返す</td>
+</tr>
+<tr>
+<td>fast-worker (Sonnet)</td>
+<td>機械的編集・boilerplate・テスト・整形</td>
+<td>最小スコープで実行</td>
+</tr>
+<tr>
+<td>Codex CLI</td>
+<td>ピアシニアエンジニア・救援・敵対的レビュー・独立セカンドオピニオン</td>
+<td>オンデマンド（常時レビューゲートにしない）</td>
+</tr>
+<tr>
+<td>Agy CLI</td>
+<td>長文コンテキスト監査・ドキュメント整合・ログ圧縮</td>
+<td>read-only</td>
+</tr>
+<tr>
+<td>OpenCode(GLM)</td>
+<td>第二実装レーン</td>
+<td>別 worktree / <code>glm/&lt;task&gt;</code> ブランチ</td>
+</tr>
+</tbody>
+</table>
+<h2 id="routing-table">Routing table</h2>
+<pre class="codehilite"><code class="language-text">Normal small task:
+Fable + fast-worker
+
+Medium implementation:
+Fable + fast-worker + optional OpenCode(GLM)
+
+Large implementation:
+Fable + OpenCode(GLM) in worktree + fast-worker for integration
+
+Hard design:
+Fable + deep-reasoner + Agy
+
+Stuck debugging:
+Fable + Codex rescue + deep-reasoner
+
+High-risk change:
+Fable + deep-reasoner + Codex + Agy
+</code></pre>
+
+<h2 id="flows">Flows</h2>
+<h3 id="1-normal-task-flow">1. Normal task flow</h3>
+<ol>
+<li>Fable がミッション（MISSION.template.md）を読み、計画を立てる。</li>
+<li>機械的な部分は fast-worker に委譲。判断が要る部分だけ Fable が実装。</li>
+<li>Fable が統合し、テストを実行して出力を確認（「通るはず」禁止）。</li>
+<li><code>git status</code> / <code>git diff</code> で実変更を確認してから完了報告。</li>
+</ol>
+<h3 id="2-difficult-debugging-flow">2. Difficult debugging flow</h3>
+<ol>
+<li>Fable が再現手順とエラーログを最小化。</li>
+<li>deep-reasoner に read-only で原因仮説を出させる（結論・根拠・リスク・次アクション）。</li>
+<li>2回試して直らない／ループし始めたら Codex に救援を依頼（独立視点で同じ問題を渡す）。</li>
+<li>Fable が両者の仮説を突き合わせ、最小の修正を適用。</li>
+</ol>
+<h3 id="3-high-risk-flowapi">3. High-risk flow（データ損失・マイグレーション・セキュリティ・並行処理・公開API・大規模設計）</h3>
+<ol>
+<li>deep-reasoner に独立に設計/リスク評価させる。</li>
+<li>Codex に独立に同じ問いを投げる（相互の回答は見せない）。</li>
+<li>Agy に前提・ドキュメント整合を監査させる（read-only）。</li>
+<li>必要なら OpenCode(GLM) に隔離 worktree で実装試行させる。</li>
+<li>Fable が全出力を比較し、最小安全パスを選択。不可逆操作の前にユーザー確認。</li>
+</ol>
+<h3 id="4-opencodeglm-worktree-flow">4. OpenCode(GLM) worktree flow</h3>
+<pre class="codehilite"><code class="language-bash"># メインリポジトリで
+git worktree add ../&lt;repo-name&gt;-glm -b glm/&lt;task-name&gt;
+cd ../&lt;repo-name&gt;-glm
+opencode   # ミッションを渡す
+</code></pre>
+
+<ul>
+<li>完了後、OpenCode に必須レポート（変更ファイル・アプローチ・実行テスト・リスク・未解決事項）を出させる。</li>
+<li>Fable がメイン側で diff をレビューし、cherry-pick または merge。</li>
+<li>終わったら <code>git worktree remove ../&lt;repo-name&gt;-glm</code>（未マージ変更がないことを確認してから）。</li>
+<li><strong>禁止</strong>: <code>/share</code>、公開同期、メインブランチへの直接push。</li>
+</ul>
+<h3 id="5-agy-audit-flow">5. Agy audit flow</h3>
+<ul>
+<li>用途: 大規模リポジトリスキャン、CLAUDE.md/AGENTS.md/README/docs の整合チェック、
+  隠れた前提の検出、ログ圧縮、「実装はミッションを満たしているか」監査。</li>
+<li>常に read-only 指示で起動し、AGENTS.md の Default prompt を使う。</li>
+<li>出力は 6 項目（結論・隠れた前提・矛盾・影響ファイル・リスク・推奨次アクション）に圧縮させる。</li>
+</ul>
+<h3 id="6-codex-rescue-flow">6. Codex rescue flow</h3>
+<ul>
+<li>発動条件: Claude が同じ修正を 2 回以上失敗、または設計判断が割れて進まない。</li>
+<li>Codex プラグイン（codex@openai-codex 1.0.5, 導入済み・実在コマンド確認済み）:</li>
+<li><code>/codex:review</code> — 直前の変更のレビュー</li>
+<li><code>/codex:adversarial-review</code> — 敵対的レビュー（高リスクマージ前）</li>
+<li><code>/codex:rescue --background</code> — 救援（バックグラウンド実行、<code>codex-rescue</code> エージェント）</li>
+<li><code>/codex:result</code> / <code>/codex:status</code> / <code>/codex:cancel</code> — ジョブの結果取得・状態確認・中止</li>
+<li><code>/codex:transfer</code> — セッション引き継ぎ</li>
+<li>stop-review-gate（毎ターン自動レビュー）は <strong>既定で無効</strong>。方針どおり有効化しない。
+  必要になった場合のみ <code>/codex:setup --enable-review-gate</code>、戻すときは <code>--disable-review-gate</code>。</li>
+<li>代替経路: cc-workers MCP の codex worker、または codex CLI 直接。
+  いずれも最小化した問題記述 + 関連ファイルパスを渡し、独立解を得る。</li>
+<li>Codex の提案も無検証で採用しない。Fable がテストで裏取りしてから統合。</li>
+</ul>
+<h2 id="merge-integration-policy">Merge / integration policy</h2>
+<ul>
+<li>統合は常に Fable（メイン）が行う。外部エージェントに直接 merge させない。</li>
+<li>複数エージェントが同一ファイルを同時編集することを禁止。並行させる場合は worktree で隔離。</li>
+<li>worktree からの取り込みは diff レビュー → テスト実行 → merge の順。</li>
+<li>コミットはユーザー指示があるまで行わない（Conventional Commits）。</li>
+</ul>
+<h2 id="cost-control-policy">Cost-control policy</h2>
+<ul>
+<li>既定は Fable high/xhigh。max は最終統合・行き詰まり・不可逆判断のみ。</li>
+<li>Opus (deep-reasoner) は本当に推論が重いタスクだけ。調査・棚卸しは investigator/Sonnet で足りる。</li>
+<li>Codex は高リスク判断でコストに見合う場合のみ。常時レビューゲートは張らない。</li>
+<li>大量ファイル読み込み・横断調査はメインで行わず、サブエージェント/worker に委譲してメインコンテキストを節約。</li>
+<li>サブエージェントの返答は「結論・根拠・変更ファイル・リスク・次アクション」の 5 点に圧縮させる。</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

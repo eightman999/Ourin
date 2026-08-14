@@ -236,10 +236,10 @@
 <li><code>font.*</code>、<code>validrect.*</code>、<code>origin.*</code>、<code>windowposition.*</code>、<code>use_self_alpha</code>、<code>use_input_alpha</code>、<code>paint_transparent_region_black</code>、<code>overlay_outside_balloon</code>、<code>communicatebox.*</code>、<code>arrow/online/sstp/marker</code> … <strong>UKADOC の語彙をそのままサポート</strong>。</li>
 </ul>
 <h2 id="b">付録B. 画像読込パイプライン</h2>
-<div class="codehilite"><pre><span></span><code><span class="kt">Data</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">UTI推定</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Image</span><span class="w"> </span><span class="n">I</span><span class="o">/</span><span class="n">O</span><span class="w"> </span><span class="p">(</span><span class="n">PNG</span><span class="o">/</span><span class="n">JPEG</span><span class="o">/</span><span class="n">GIF</span><span class="o">/</span><span class="n">BMP</span><span class="p">)</span><span class="w"> </span>
-<span class="w">                  </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ICO</span><span class="o">/</span><span class="n">CUR</span><span class="w"> </span><span class="err">内蔵パーサ</span><span class="w"> </span><span class="p">(</span><span class="n">PNGペイロード</span><span class="w"> </span><span class="kr">or</span><span class="w"> </span><span class="mi">32</span><span class="n">bpp</span><span class="w"> </span><span class="n">BMP</span><span class="err">→</span><span class="n">RGBA</span><span class="p">)</span>
-<span class="w">                  </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">MAG</span><span class="o">/</span><span class="n">PI</span><span class="o">/</span><span class="n">XBM</span><span class="o">:</span><span class="w"> </span><span class="n">Ourin</span><span class="w"> </span><span class="n">Decoder</span><span class="w"> </span><span class="n">SPI</span><span class="err">（拡張）</span>
-</code></pre></div>
+<pre class="codehilite"><code>Data -&gt; (UTI推定) -&gt; Image I/O (PNG/JPEG/GIF/BMP) 
+                  -&gt; ICO/CUR 内蔵パーサ (PNGペイロード or 32bpp BMP→RGBA)
+                  -&gt; MAG/PI/XBM: Ourin Decoder SPI（拡張）
+</code></pre>
 
 <hr />
 <h3 id="_2">参考（実装者向け補足）</h3>
@@ -249,7 +249,7 @@
 <li>非アクティブ前面は <strong>nonactivatingPanel</strong>、クリック透過は <strong>hitTest</strong> 制御。</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

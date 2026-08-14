@@ -404,7 +404,7 @@
 <li>スクリーンセーバ <strong>Start/End</strong> は macOS 公開 API が無いため、<strong>ディスプレイスリープ/復帰</strong>で近似（任意有効化）。</li>
 </ul>
 <h2 id="9">9. 仕様例（リクエスト/レスポンス）</h2>
-<div class="codehilite"><pre><span></span><code># OnURLDrop の例（単一）
+<pre class="codehilite"><code># OnURLDrop の例（単一）
 GET SHIORI/3.0
 ID: OnURLDrop
 Sender: Ourin
@@ -415,7 +415,7 @@ SecurityLevel: external
 
 SHIORI/3.0 200 OK
 Value: \0\s[0]URLを受け取りました：%reference[0]\e
-</code></pre></div>
+</code></pre>
 
 <hr />
 <h2 id="a-api">付録A: 代表 API 対応表</h2>
@@ -435,8 +435,19 @@ Value: \0\s[0]URLを受け取りました：%reference[0]\e
 <li>[ ] ロケール変更・テーマ切替  </li>
 <li>[ ] セキュリティ（Sandbox の security‑scoped URL、外部入力の検証）</li>
 </ul>
+<hr />
+<h2 id="c">付録C: 自動システムイベントの有効化タイミング</h2>
+<h3 id="_2">動作概要</h3>
+<p>タイマー（<code>OnSecondChange</code>/<code>OnMinuteChange</code>/<code>OnHourTimeSignal</code>）・入力/マウス・スリープ/復帰・ディスプレイ変更・電源状態・ロケール・外観（テーマ）・セッション・ネットワーク・ゲームパッド・デバイス・音声認識の各自動システムイベントは、<strong>実ゴーストのロード完了</strong>時点を唯一の集約点として <code>EventBridge</code> 内で有効化されます。</p>
+<p>実装ファイル：
+- <code>Ourin/Ghost/GhostManager.swift</code> — <code>startEventBridgeIfNeeded(enableAutoEvents:)</code> および <code>isRunningUnderTests</code>
+- <code>Ourin/SHIORIEvents/EventBridge.swift</code> — <code>start(enableAutoEvents:)</code> / <code>broadcastNotify</code> / <code>flushPendingNotifies</code></p>
+<h3 id="notify">有効化以前の NOTIFY キュー</h3>
+<p><code>autoEventsEnabled = false</code> の状態では、<code>broadcastNotify</code> / <code>broadcastNotifyCustom</code> に渡されたイベントは内部キュー (<code>pendingNotifies</code>) に積まれ、即時配送されません。有効化されると同時にキューがフラッシュされ、順次ゴーストへ配送されます。</p>
+<h3 id="_3">テスト時の抑制</h3>
+<p><code>GhostManager.isRunningUnderTests</code> が <code>true</code>（環境変数 <code>XCTestConfigurationFilePath</code> または <code>XCTestBundlePath</code> の存在で判定）の場合、<code>EventBridge.start(enableAutoEvents: false)</code> が呼ばれ、タイマーや入力監視を含むシステムオブザーバは起動されません。</p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

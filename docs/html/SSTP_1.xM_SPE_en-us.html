@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSTP/1.xM — macOS 差分仕様（Draft）</title>
+    <title>SSTP/1.xM — macOS Differential Specification (Draft)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
@@ -145,31 +145,274 @@
         <div class="back-link">
             <a href="index.html">← Back to Index</a>
         </div>
-        <h1 id="sstp1xm-macos-draft">SSTP/1.xM — macOS 差分仕様（Draft）</h1>
-<p><strong>Status:</strong> Translation Pending<br />
-<strong>Original:</strong> <a href="./SSTP_1.xM_SPEC_ja-jp.md">SSTP_1.xM_SPEC_ja-jp.md</a><br />
-<strong>Language:</strong> English (US)</p>
+        <h1 id="sstp1xm-macos-differential-specification-draft">SSTP/1.xM — macOS Differential Specification (Draft)</h1>
+<p><strong>Status:</strong> Draft
+<strong>Updated:</strong> 2026-06-28
+<strong>Audience:</strong> Ourin (Sakurarin) / baseware implementors and client developers
+<strong>Scope:</strong> Defines macOS-native (Network.framework + XPC) differences required for safe operation while maintaining the vocabulary and behavior of UKADOC <strong>SSTP/1.x</strong>.
+<strong>Non-goals:</strong> Binary compatibility with Windows WM_COPYDATA. Only vocabulary and behavioral compatibility.</p>
 <hr />
-<h2 id="translation-note">Translation Note</h2>
-<p>This document is a placeholder for the English translation of the Japanese original.</p>
-<p>The Japanese version contains the authoritative specification. This English version should be translated while maintaining:</p>
+<h2 id="table-of-contents">Table of Contents</h2>
 <ul>
-<li>Technical accuracy</li>
-<li>Consistent terminology with other English documentation</li>
-<li>Original structure and formatting</li>
-<li>All code examples unchanged</li>
-<li>Proper translation of comments and narrative sections</li>
+<li><a href="#1-policy-and-non-goals">1. Policy and Non-goals</a></li>
+<li><a href="#2-terminology">2. Terminology</a></li>
+<li><a href="#3-compatibility-policy-unchanged-from-upstream">3. Compatibility Policy (unchanged from upstream)</a></li>
+<li><a href="#4-macos-differences-replacementsadditions">4. macOS Differences (replacements/additions)</a></li>
+<li><a href="#5-character-encoding-policy">5. Character Encoding Policy</a></li>
+<li><a href="#6-header-differences-acceptednot-applicable">6. Header Differences (accepted/not applicable)</a></li>
+<li><a href="#7-status-codes">7. Status Codes</a></li>
+<li><a href="#8-sstp-over-http-compatibility">8. SSTP over HTTP (compatibility)</a></li>
+<li><a href="#9-examples-sendnotifyexecute">9. Examples (SEND/NOTIFY/EXECUTE)</a></li>
+<li><a href="#10-reference-implementation-parameters-recommended-defaults">10. Reference Implementation Parameters (recommended defaults)</a></li>
+<li><a href="#11-implementation-status">11. Implementation Status</a></li>
+<li><a href="#12-conformance-checklist">12. Conformance Checklist</a></li>
+<li><a href="#13-appendix-a-minimum-xpc-directsstp-interface">13. Appendix A: Minimum XPC DirectSSTP Interface</a></li>
 </ul>
 <hr />
-<h2 id="contents">Contents</h2>
-<p><em>(To be translated from Japanese original)</em></p>
-<hr />
-<p><strong>Translation Status:</strong> ⏳ Pending<br />
-<strong>Translator:</strong> TBD<br />
-<strong>Review:</strong> TBD<br />
-<strong>Last Updated:</strong> 2025-10-23</p>
+<h2 id="1-policy-and-non-goals">1. Policy and Non-goals</h2>
+<ul>
+<li><strong>Wire format (method/headers/CRLF termination) conforms to SSTP/1.x.</strong> Interpretation of <code>SEND/NOTIFY/COMMUNICATE/EXECUTE/GIVE</code>, <code>Charset</code>, <code>Sender</code>, <code>Option</code>, etc. follows the original specification. <strong>Keep-alive is not assumed; connections are closed after each exchange.</strong></li>
+<li><strong>Transport layer</strong>: TCP server implemented with <strong>Network.framework</strong> (default port <strong>9801/tcp</strong>; optional port 9821 for SSP compatibility). <strong>Default: loopback only.</strong></li>
+<li><strong>DirectSSTP replacement</strong>: Windows WM_COPYDATA-based DirectSSTP is replaced on macOS with <strong>XPC (NSXPCConnection)</strong> as an equivalent IPC mechanism.</li>
+</ul>
+<h2 id="2-terminology">2. Terminology</h2>
+<ul>
+<li><strong>(Socket)SSTP</strong>: SSTP exchanged over TCP.</li>
+<li><strong>DirectSSTP</strong>: Lightweight SSTP using OS IPC. On macOS, this is <strong>XPC</strong>.</li>
+<li><strong>SSTP over HTTP</strong>: Compatibility bridge that carries SSTP request/response as the HTTP message body.</li>
+</ul>
+<h2 id="3-compatibility-policy-unchanged-from-upstream">3. Compatibility Policy (unchanged from upstream)</h2>
+<ul>
+<li><strong>SSTP overview and port</strong>: SSTP is general-purpose ghost-to-ghost communication. Implementation uses 9801/tcp (SSP may also use 9821). <strong>9801 is the primary port in active use.</strong> Loopback-only listening is standard.</li>
+<li><strong>Syntax</strong>: <code>CRLF</code> line endings, <strong>blank line terminator.</strong> <strong>Charset header is required</strong> (omission causes an error or implementation-defined fallback to OS default). <strong>Responses may carry additional data.</strong> <strong>Request and response may carry different SSTP version numbers</strong>, so <strong>version-dependent interpretation is prohibited.</strong></li>
+<li><strong>Methods</strong>: <code>NOTIFY</code> (event notification), <code>SEND</code> (script delivery), <code>COMMUNICATE</code> (user-input-equivalent response), <code>EXECUTE</code> (status query/control), <code>GIVE</code> (legacy spec) are all retained.</li>
+</ul>
+<h2 id="4-macos-differences-replacementsadditions">4. macOS Differences (replacements/additions)</h2>
+<h3 id="41-socketsstp-tcp">4.1 (Socket)SSTP (TCP)</h3>
+<ul>
+<li><strong>Implementation</strong>: Started with <code>NWListener(using: .tcp, on: 9801)</code>. <strong>Default: bind to 127.0.0.1/::1 only.</strong> External exposure is opt-in via configuration.</li>
+<li><strong>Bind address</strong>: <code>SstpTcpServer.makeListener(host:port:)</code> determines the bind target from the <code>host</code> parameter. Specific addresses such as <code>127.0.0.1</code> / <code>localhost</code> / <code>::1</code> bind to that address only using <code>NWParameters.requiredLocalEndpoint</code>. Only <code>0.0.0.0</code> / <code>::</code> / empty string listens on all interfaces. <code>SstpHttpServer</code> uses the same <code>makeListener</code> method.</li>
+<li><strong>TCP body forwarding</strong>: After detecting the header terminator (<code>\r\n\r\n</code>), the TCP handler passes the <strong>entire buffer including headers and body</strong> to the SSTP stack. The previous implementation discarded the body; since <code>SSTPParser</code> reads everything after the blank line as the body, the full buffer must be forwarded.</li>
+<li><strong>Sandbox</strong>: Under App Sandbox, the server requires <strong><code>com.apple.security.network.server</code></strong> and the client requires <strong><code>com.apple.security.network.client</code></strong>.</li>
+<li><strong>Firewall</strong>: When the application firewall is enabled, <strong>incoming connections must be allowed.</strong> Signed/downloaded apps have an automatic allow setting.</li>
+</ul>
+<h3 id="42-directsstp-macos-xpc-version">4.2 DirectSSTP (macOS XPC version)</h3>
+<ul>
+<li><strong>Implementation</strong>: An <strong>XPC service</strong> such as <code>App.app/Contents/XPCServices/ukagaka.sstp.xpc</code>.</li>
+<li><strong>Interface</strong>: <code>executeSSTP(request: Data, withReply: (Data)-&gt;Void)</code> (<strong>request/response content is SSTP/1.x text</strong>).</li>
+<li><strong>Connection</strong>: <code>NSXPCConnection(serviceName:)</code> or <code>NSXPCConnection(machServiceName:)</code>. Set code signature requirements as needed.</li>
+<li><strong>Security</strong>: XPC fundamentally requires <strong>same-developer code signing</strong>. Connections to external processes require Mach service/endpoint design.</li>
+</ul>
+<h3 id="43-identifying-the-receiving-ghost">4.3 Identifying the receiving ghost</h3>
+<ul>
+<li><strong>ReceiverGhostName</strong> is recommended. <strong>ReceiverGhostHWnd</strong> is <strong>not applicable</strong> on macOS (ignored).
+  (In (Socket)SSTP, a ghost can be targeted by <strong>name</strong>. If not found, <strong>404 Not Found</strong> is returned.)</li>
+</ul>
+<h3 id="44-sstp-to-shiori-live-ghost-bridge">4.4 SSTP to SHIORI live-ghost bridge</h3>
+<ul>
+<li>External SSTP requests now reach the <strong>live loaded ghost (YAYA)</strong> via <code>SSTPDispatcher</code> → <code>BridgeToSHIORI.handleResponse</code> → <code>liveGhostResolver</code> → <code>YayaAdapter</code>. Previously, if <code>SHIORI_BUNDLE_PATH</code> was not set, no ghost was consulted.</li>
+<li><code>BridgeToSHIORI.handleResponse</code> resolves in order: (1) registered test resource, (2) native SHIORI bundle via <code>ShioriHost</code>, (3) live ghost via <code>liveGhostResolver</code>.</li>
+<li><code>liveGhostResolver</code> is a closure of type <code>(String, String, [String], [String: String]) -&gt; BridgeShioriResponse?</code> registered by <code>AppDelegate</code> at startup.</li>
+<li><strong>SHIORI method mapping</strong>:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>SSTP method</th>
+<th>SHIORI method</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NOTIFY</code></td>
+<td><code>NOTIFY SHIORI/3.0</code></td>
+<td>Notification; no return value expected (UKADOC SHIORI method spec)</td>
+</tr>
+<tr>
+<td><code>SEND</code></td>
+<td><code>GET SHIORI/3.0</code></td>
+<td>Script return value expected</td>
+</tr>
+<tr>
+<td><code>COMMUNICATE</code></td>
+<td><code>GET SHIORI/3.0</code></td>
+<td>Script return value expected</td>
+</tr>
+<tr>
+<td><code>EXECUTE</code></td>
+<td><code>GET SHIORI/3.0</code></td>
+<td>Script return value expected</td>
+</tr>
+<tr>
+<td><code>GIVE</code></td>
+<td><code>GET SHIORI/3.0</code></td>
+<td>Script return value expected</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>ReferenceN preservation</strong>: <code>mapShioriResponse</code> copies every <code>Reference0</code> through <code>ReferenceN</code> from the SHIORI response into the SSTP response headers. Per UKADOC, all <code>ReferenceN</code> headers are forwarded to the SSTP caller unchanged.</li>
+<li><strong>Multi-line value safety</strong>: Ghost responses may contain Value fields with embedded newlines (e.g. Sakura Script). <code>BridgeShioriResponse</code> keeps the response structured internally. <code>serializeWire</code> strips CR/LF from all header values before building the wire string, preventing header injection and script truncation. Sakura Script newlines are represented by the <code>\n</code> token, so stripping bare newlines from the wire is display-safe. Synchronous IPC timeout: <strong>2 seconds</strong>.</li>
+</ul>
+<h2 id="5-character-encoding-policy">5. Character Encoding Policy</h2>
+<ul>
+<li>Default is <strong>UTF-8</strong>.</li>
+<li>For compatibility, <code>Shift_JIS</code>/<code>Windows-31J</code>/<code>CP932</code>/<code>SJIS</code> and similar labels are <strong>accepted as the same family (CP932 ≈ Windows-31J)</strong>. WHATWG Encoding treats <code>shift_jis</code> and <code>windows-31j</code> as the <strong>same decoder</strong>.</li>
+</ul>
+<h2 id="6-header-differences-acceptednot-applicable">6. Header Differences (accepted/not applicable)</h2>
+<ul>
+<li><strong>Preserved</strong>: <code>Sender</code>, <code>SecurityLevel</code> (local/external), <code>SecurityOrigin</code>, <code>Option</code> (<code>nodescript</code>/<code>notranslate</code>/<code>nobreak</code>), <code>ID</code> (Owned SSTP), <code>X-SSTP-PassThru-*</code>.</li>
+<li><strong>Not applicable</strong>: <code>HWnd</code> (DirectSSTP-specific) → macOS uses XPC, so it is <strong>ignored</strong>. <code>ReceiverGhostHWnd</code> likewise.</li>
+<li><strong>SEND-specific</strong>: <code>Option: notify</code> is implemented (equivalent to SSP 2.6.76 behavior).</li>
+</ul>
+<h3 id="61-owned-sstp">6.1 Owned SSTP</h3>
+<ul>
+<li>An <code>ID</code> is valid only when it exactly matches the SHIORI <code>uniqueid</code> notified to the target ghost or that ghost's FMO record ID.</li>
+<li>With <code>ReceiverGhostName</code>, only IDs belonging to that ghost are matched. Without it, only the primary ghost is matched.</li>
+<li>A valid Owned request reaches SHIORI as <code>SecurityLevel: local</code>. Unknown or target-mismatched IDs keep their original security context.</li>
+<li>Requests from an external HTTP Origin are not promoted to Owned even when the ID matches.</li>
+</ul>
+<h2 id="7-status-codes">7. Status Codes</h2>
+<ul>
+<li><strong>200 OK</strong> (with return value) / <strong>204 No Content</strong> (no return value) / <strong>210 Break</strong> (executed but break) / <strong>400</strong> / <strong>404</strong> / <strong>408</strong> / <strong>409</strong> / <strong>413</strong> / <strong>420</strong> / <strong>500</strong> / <strong>501</strong> / <strong>503</strong> / <strong>505</strong> / <strong>512</strong> are all maintained.</li>
+</ul>
+<h2 id="8-sstp-over-http-compatibility">8. SSTP over HTTP (compatibility)</h2>
+<ul>
+<li><strong>Endpoint</strong>: <code>POST http://localhost:9801/api/sstp/v1</code>, <code>Content-Type: text/plain</code>, <strong>Content-Length required</strong>.</li>
+<li><strong>Response</strong>: HTTP always returns <strong>200 OK</strong> (body is the SSTP response). <strong>Origin other than localhost is treated as external</strong> unconditionally.</li>
+</ul>
+<h2 id="9-examples-sendnotifyexecute">9. Examples (SEND/NOTIFY/EXECUTE)</h2>
+<h3 id="91-send-minimal">9.1 SEND (minimal)</h3>
+<pre class="codehilite"><code>SEND SSTP/1.0
+Charset: UTF-8
+Sender: Ourin
+Script: \h\s0Hello
+</code></pre>
+
+<p><strong>Response</strong></p>
+<pre class="codehilite"><code>SSTP/1.4 200 OK
+Charset: UTF-8
+Script: \h\s0Received!
+</code></pre>
+
+<h3 id="92-notify-event-notification-only">9.2 NOTIFY (event notification only)</h3>
+<pre class="codehilite"><code>NOTIFY SSTP/1.0
+Charset: UTF-8
+Sender: Media Player
+Event: OnMusicPlay
+Reference0: Wings of Freedom
+Reference1: Linked Horizon
+</code></pre>
+
+<h3 id="93-execute-information-query">9.3 EXECUTE (information query)</h3>
+<pre class="codehilite"><code>EXECUTE SSTP/1.1
+Charset: UTF-8
+Sender: Ourin
+Command: GetName
+</code></pre>
+
+<h2 id="10-reference-implementation-parameters-recommended-defaults">10. Reference Implementation Parameters (recommended defaults)</h2>
+<ul>
+<li><strong>Port</strong>: 9801/tcp (optionally also 9821).</li>
+<li><strong>Bind</strong>: 127.0.0.1 / ::1 (external exposure is opt-in).</li>
+<li><strong>Charset</strong>: Default UTF-8; SJIS-family labels accepted as CP932.</li>
+</ul>
+<h2 id="11-implementation-status">11. Implementation Status</h2>
+<p><strong>Updated:</strong> 2026-06-28</p>
+<h3 id="111-ourin-host-side-implementation">11.1 Ourin host-side implementation</h3>
+<ul>
+<li>[x] <strong>TCP SSTP server</strong>: Implemented in <code>SstpTcpServer.swift</code> using Network.framework</li>
+<li>[x] <strong>HTTP SSTP server</strong>: Implemented in <code>SstpHttpServer.swift</code></li>
+<li>[x] <strong>XPC DirectSSTP</strong>: Implemented in <code>XpcDirectServer.swift</code> and <code>DirectSSTPXPC.swift</code></li>
+<li>[x] <strong>SSTP parser</strong>: Implemented in <code>SSTPParser.swift</code> (order-preserving header support)</li>
+<li>[x] <strong>SSTP dispatcher</strong>: Implemented in <code>SSTPDispatcher.swift</code> — all methods and major option headers</li>
+<li>[x] <strong>SSTP↔SHIORI live ghost bridge</strong>: Implemented in <code>BridgeToSHIORI.swift</code> via <code>liveGhostResolver</code> routing to the running ghost (YAYA)</li>
+<li>[x] <strong>Character encoding</strong>: Default UTF-8; Shift_JIS/CP932 acceptance implemented</li>
+<li>[x] <strong>Unified management</strong>: TCP/HTTP/XPC unified in <code>OurinExternalServer.swift</code></li>
+<li>[x] <strong>Full SSTP/1.x protocol</strong>: All methods and major option headers implemented</li>
+</ul>
+<h3 id="112-implemented-features">11.2 Implemented features</h3>
+<ol>
+<li><strong>SocketSSTP (TCP)</strong></li>
+<li>TCP server implementation via Network.framework</li>
+<li>Listening on port 9801</li>
+<li>Loopback-only reception via <code>requiredLocalEndpoint</code> (127.0.0.1/::1); <code>0.0.0.0</code>/<code>::</code> listens on all interfaces</li>
+<li>All SEND/NOTIFY/COMMUNICATE/EXECUTE/GIVE/INSTALL methods handled</li>
+<li>
+<p>Full request buffer (header + body) forwarded to SSTP stack (no body discarding)</p>
+</li>
+<li>
+<p><strong>SSTP over HTTP</strong></p>
+</li>
+<li>HTTP server implementation (shares <code>SstpTcpServer.makeListener</code>)</li>
+<li><code>/api/sstp/v1</code> endpoint</li>
+<li>
+<p>Accepts requests with Content-Type: text/plain</p>
+</li>
+<li>
+<p><strong>DirectSSTP (XPC)</strong></p>
+</li>
+<li>Inter-process communication via NSXPCConnection</li>
+<li><code>OurinSSTPXPC</code> protocol implemented</li>
+<li>
+<p><code>executeSSTP(_:withReply:)</code> method implemented</p>
+</li>
+<li>
+<p><strong>Request processing</strong></p>
+</li>
+<li>CRLF + blank-line terminator parsing</li>
+<li><code>Charset</code> header processing</li>
+<li><code>SecurityLevel</code>/<code>SecurityOrigin</code> interpretation and <code>securityLocalOnly</code> policy</li>
+<li>Ghost targeting via <code>ReceiverGhostName</code> (404 if not found)</li>
+<li>
+<p>All <code>Option</code> patterns (<code>nodescript</code>/<code>notranslate</code>/<code>nobreak</code>)</p>
+</li>
+<li>
+<p><strong>Routing and SHIORI bridge</strong></p>
+</li>
+<li>All channels unified through <code>SSTPDispatcher.swift</code> (old <code>SstpRouter</code> removed)</li>
+<li><code>BridgeToSHIORI.handleResponse</code> returns the full SHIORI/3.0 wire response</li>
+<li>Reaches YayaAdapter (live YAYA ghost) via <code>liveGhostResolver</code></li>
+<li>SSTP NOTIFY propagates as <code>NOTIFY SHIORI/3.0</code>; SEND/COMMUNICATE/EXECUTE/GIVE as <code>GET SHIORI/3.0</code></li>
+<li>
+<p><code>mapShioriResponse</code> reflects all <code>Reference0</code>..<code>ReferenceN</code> into the SSTP response</p>
+</li>
+<li>
+<p><strong>Safe transport of multi-line Value</strong></p>
+</li>
+<li><code>BridgeShioriResponse</code> struct keeps the response structured</li>
+<li><code>serializeWire</code> strips CR/LF from header values before wire serialization (prevents header injection and script truncation)</li>
+<li>Synchronous IPC timeout: 2 seconds</li>
+</ol>
+<h3 id="113-external-exposure-configuration">11.3 External exposure configuration</h3>
+<ul>
+<li>Loopback-only is the default</li>
+<li>Passing <code>0.0.0.0</code> / <code>::</code> as the <code>host</code> parameter enables reception on all interfaces (opt-in)</li>
+</ul>
+<h2 id="12-conformance-checklist">12. Conformance Checklist</h2>
+<ul>
+<li>[x] Correct handling of CRLF and blank-line terminator (implemented)</li>
+<li>[x] <code>Charset</code> required (UTF-8 recommended); SJIS-family accepted as CP932 (implemented)</li>
+<li>[x] <code>SecurityLevel</code>/<code>SecurityOrigin</code> interpretation (implemented)</li>
+<li>[x] Ghost targeting via <code>ReceiverGhostName</code> (404 if not found) (implemented)</li>
+<li>[x] <strong>DirectSSTP (macOS)</strong> = <strong>XPC</strong> bridging <code>request(Data)-&gt;Data</code> (implemented)</li>
+<li>[x] <strong>SSTP over HTTP</strong> <code>/api/sstp/v1</code> implemented with localhost restriction (implemented)</li>
+<li>[x] SSTP→SHIORI method mapping (NOTIFY→<code>NOTIFY SHIORI/3.0</code>, others→<code>GET SHIORI/3.0</code>) (implemented)</li>
+<li>[x] All SHIORI response <code>ReferenceN</code> forwarded to SSTP response (implemented)</li>
+<li>[x] TCP/HTTP listeners bind via <code>requiredLocalEndpoint</code> per configured <code>host</code> (implemented)</li>
+<li>[x] TCP raw path forwards full request (header + body) to SSTP stack (implemented)</li>
+<li>[x] CR/LF stripping from multi-line Value prevents header injection (implemented)</li>
+</ul>
+<h2 id="13-appendix-a-minimum-xpc-directsstp-interface">13. Appendix A: Minimum XPC DirectSSTP Interface</h2>
+<pre class="codehilite"><code class="language-swift">@objc public protocol OurinSSTPXPC {
+    func executeSSTP(_ request: Data, withReply reply: @escaping (Data) -&gt; Void)
+}
+// Host side: connect via NSXPCConnection(serviceName: &quot;app.ourin.sstp&quot;),
+// send the SSTP text (UTF-8) as Data in request.
+</code></pre>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

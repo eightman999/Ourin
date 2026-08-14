@@ -305,7 +305,7 @@
 <li>[NOTIFY] へのスクリプト返却は <strong>無視</strong>（UKADOC準拠）。</li>
 </ul>
 <h2 id="7">7. 例: フレーム</h2>
-<div class="codehilite"><pre><span></span><code># OnGhostBoot の例（2.0M）
+<pre class="codehilite"><code># OnGhostBoot の例（2.0M）
 GET PLUGIN/2.0
 ID: OnGhostBoot
 Sender: Ourin
@@ -319,7 +319,7 @@ Reference4: /Users/you/Library/Application Support/Ourin/Ghosts/Satori
 
 PLUGIN/2.0 200 OK
 Value: OK
-</code></pre></div>
+</code></pre>
 
 <h2 id="8">8. 付録: 用語</h2>
 <ul>
@@ -376,31 +376,36 @@ Value: OK
 <li><code>ListDelimiter.swift</code> による配列データの処理</li>
 </ol>
 <h3 id="_3">実装済みのイベント</h3>
+<blockquote>
+<p>更新 2026-06-15: 旧版は全イベント「未実装」と誤記していた。実態は <code>PluginEventDispatcher.swift</code> に
+主要イベントが実装済み。以下を実コードに合わせて訂正。</p>
+</blockquote>
 <ul>
-<li>[ ] <code>version</code>: 未実装</li>
-<li>[ ] <code>installedplugin</code> [NOTIFY]: 未実装</li>
-<li>[ ] <code>installedghostname</code> [NOTIFY]: 未実装</li>
-<li>[ ] <code>installedballoonname</code> [NOTIFY]: 未実装</li>
-<li>[ ] <code>ghostpathlist</code> [NOTIFY]: 未実装</li>
-<li>[ ] <code>balloonpathlist</code> [NOTIFY]: 未実装</li>
-<li>[ ] <code>headlinepathlist</code> [NOTIFY]: 未実装</li>
-<li>[ ] <code>pluginpathlist</code> [NOTIFY]: 未実装</li>
-<li>[ ] <code>OnSecondChange</code>: 未実装</li>
-<li>[ ] <code>OnOtherGhostTalk</code>: 未実装</li>
-<li>[ ] <code>OnGhostBoot</code>: 未実装</li>
-<li>[ ] <code>OnGhostExit</code> [NOTIFY]: 未実装</li>
-<li>[ ] <code>OnGhostInfoUpdate</code> [NOTIFY]: 未実装</li>
-<li>[ ] <code>OnMenuExec</code>: 未実装</li>
-<li>[ ] <code>OnInstallComplete</code>: 未実装</li>
-<li>[ ] <code>OnChoiceSelect(Ex)</code>: 未実装</li>
-<li>[ ] <code>OnAnchorSelect(Ex)</code>: 未実装</li>
-<li>[ ] <code>![raiseplugin]</code>/<code>![notifyplugin]</code>: 未実装</li>
+<li>[x] <code>version</code>: 実装済み（応答 Value/Charset を交渉しプラグイン毎に保持）</li>
+<li>[x] <code>installedplugin</code> [NOTIFY]: 実装済み（<code>ListDelimiter.join</code> で結合）</li>
+<li>[x] <code>installedghostname</code> [NOTIFY]: 実装済み（<code>sendFrame</code> 経由の NOTIFY）</li>
+<li>[x] <code>installedballoonname</code> [NOTIFY]: 実装済み（<code>sendFrame</code> 経由の NOTIFY）</li>
+<li>[x] <code>ghostpathlist</code> [NOTIFY]: 実装済み（<code>sendFrame</code> 経由の NOTIFY）</li>
+<li>[x] <code>balloonpathlist</code> [NOTIFY]: 実装済み（<code>sendFrame</code> 経由の NOTIFY）</li>
+<li>[x] <code>headlinepathlist</code> [NOTIFY]: 実装済み（<code>sendFrame</code> 経由の NOTIFY）</li>
+<li>[x] <code>pluginpathlist</code> [NOTIFY]: 実装済み（<code>sendFrame</code> 経由の NOTIFY）</li>
+<li>[x] <code>OnSecondChange</code>: 実装済み（<code>onSecondChange</code> + タイマー）</li>
+<li>[x] <code>OnOtherGhostTalk</code>: 実装済み（Ref5 は 0x01 区切り単一 Reference）</li>
+<li>[x] <code>OnGhostBoot</code>: 実装済み（<code>onGhostBoot</code>）</li>
+<li>[x] <code>OnGhostExit</code> [NOTIFY]: 実装済み（<code>onGhostExit</code>）</li>
+<li>[x] <code>OnGhostInfoUpdate</code> [NOTIFY]: 実装済み（<code>onGhostInfoUpdate</code>）</li>
+<li>[x] <code>OnMenuExec</code>: 実装済み（<code>onMenuExec</code>）</li>
+<li>[x] <code>OnInstallComplete</code>: 実装済み（<code>onInstallComplete</code>）</li>
+<li>[x] <code>OnChoiceSelect(Ex)</code>: 実装済み（plugin response 由来 choice の one-shot hook で横流し）</li>
+<li>[x] <code>OnAnchorSelect(Ex)</code>: 実装済み（plugin response 由来 anchor の one-shot hook で横流し）</li>
+<li>[x] <code>![raiseplugin]</code>/<code>![notifyplugin]</code>: 実装済み（<code>OurinPluginEventBridge.swift</code> 経由で transport 処理）</li>
 </ul>
 <h3 id="_4">実装ファイル</h3>
 <ul>
 <li><code>Ourin/PluginEvent/PluginEventDispatcher.swift</code>: イベント配信</li>
 <li><code>Ourin/PluginEvent/PluginFrame.swift</code>: フレーム構造</li>
 <li><code>Ourin/PluginEvent/PluginEncodingNormalizer.swift</code>: 文字コード処理</li>
+<li><code>Ourin/PluginEvent/OurinPluginEventBridge.swift</code>: <code>raiseplugin</code>/<code>notifyplugin</code> 応答 transport（Script/Event/Reference/Target）</li>
 <li><code>Ourin/PluginEvent/PathNormalizer.swift</code>: パス正規化</li>
 <li><code>Ourin/PluginEvent/WindowIDMapper.swift</code>: ウィンドウ ID 処理</li>
 <li><code>Ourin/PluginEvent/ListDelimiter.swift</code>: リスト区切り処理</li>
@@ -439,7 +444,7 @@ Value: OK
 <li>2025-07-27 (JST): 初版</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

@@ -163,6 +163,7 @@
 <li><a href="#42-baseware">4.2 baseware.*</a></li>
 <li><a href="#43-ghostlistactiveghostlistcurrentghost">4.3 ghostlist/activeghostlist/currentghost.*</a></li>
 <li><a href="#44-balloonlistheadlinelistpluginlisthistoryrateofuselist">4.4 balloonlist/headlinelist/pluginlist/history/rateofuselist</a></li>
+<li><a href="#45-標準名前空間エイリアスsakurakeroghostshell">4.5 標準名前空間エイリアス（sakura/kero/ghost/shell）</a></li>
 <li><a href="#5-書込可能フラグset-有効一覧">5. 書込可能フラグ（SET 有効）一覧</a></li>
 <li><a href="#6-セキュリティとサンドボックス">6. セキュリティとサンドボックス</a></li>
 <li><a href="#7-互換性と差分">7. 互換性と差分</a></li>
@@ -200,15 +201,15 @@
 <li>マルチディスプレイ時は <code>NSScreen.screens</code> の <strong>frame の合成矩形</strong>を仮想デスクトップとみなし、その左上を (0,0) とする。</li>
 </ul>
 <h3 id="32">3.2 例：座標変換の疑似コード</h3>
-<div class="codehilite"><pre><span></span><code><span class="c1">// Cocoaのグローバル座標(左下原点) -&gt; 互換座標(左上原点) への変換</span>
-<span class="kd">func</span> <span class="nf">compatibleCursorPositionString</span><span class="p">()</span> <span class="p">-&gt;</span> <span class="nb">String</span> <span class="p">{</span>
-    <span class="kd">let</span> <span class="nv">union</span> <span class="p">=</span> <span class="n">NSScreen</span><span class="p">.</span><span class="n">screens</span><span class="p">.</span><span class="bp">reduce</span><span class="p">(.</span><span class="n">null</span><span class="p">)</span> <span class="p">{</span> <span class="nv">$0</span><span class="p">.</span><span class="n">union</span><span class="p">(</span><span class="nv">$1</span><span class="p">.</span><span class="n">frame</span><span class="p">)</span> <span class="p">}</span> <span class="c1">// グローバル座標</span>
-    <span class="kd">let</span> <span class="nv">p</span> <span class="p">=</span> <span class="bp">NSEvent</span><span class="p">.</span><span class="n">mouseLocation</span> <span class="c1">// グローバル座標・左下原点・単位pt</span>
-    <span class="kd">let</span> <span class="nv">x</span> <span class="p">=</span> <span class="n">p</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">union</span><span class="p">.</span><span class="n">minX</span>
-    <span class="kd">let</span> <span class="nv">y</span> <span class="p">=</span> <span class="n">union</span><span class="p">.</span><span class="n">maxY</span> <span class="o">-</span> <span class="n">p</span><span class="p">.</span><span class="n">y</span>      <span class="c1">// Y反転して左上原点へ</span>
-    <span class="k">return</span> <span class="s">&quot;</span><span class="si">\(</span><span class="nb">Int</span><span class="si">(</span><span class="n">x</span><span class="si">))</span><span class="s">,</span><span class="si">\(</span><span class="nb">Int</span><span class="si">(</span><span class="n">y</span><span class="si">))</span><span class="s">&quot;</span>
-<span class="p">}</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-swift">// Cocoaのグローバル座標(左下原点) -&gt; 互換座標(左上原点) への変換
+func compatibleCursorPositionString() -&gt; String {
+    let union = NSScreen.screens.reduce(.null) { $0.union($1.frame) } // グローバル座標
+    let p = NSEvent.mouseLocation // グローバル座標・左下原点・単位pt
+    let x = p.x - union.minX
+    let y = union.maxY - p.y      // Y反転して左上原点へ
+    return &quot;\(Int(x)),\(Int(y))&quot;
+}
+</code></pre>
 
 <hr />
 <h2 id="4-macos">4. プロパティ語彙（macOS マッピング）</h2>
@@ -248,6 +249,52 @@
 <h3 id="44-balloonlistheadlinelistpluginlisthistoryrateofuselist">4.4 <code>balloonlist/headlinelist/pluginlist/history/rateofuselist</code></h3>
 <ul>
 <li>語彙・取得挙動は同名互換。<code>index(ID)</code> / <code>count</code> 等も踏襲。</li>
+</ul>
+<h3 id="45-sakurakeroghostshell">4.5 標準名前空間エイリアス（sakura/kero/ghost/shell）</h3>
+<p>SSP 互換の省略名前空間として、以下の 4 つのエイリアスが <code>PropertyManager</code> 初期化時に
+<code>AliasPropertyProvider</code> として登録される（<code>PropertyManager.swift</code> の <code>registerDefaultProviders</code>）。</p>
+<table>
+<thead>
+<tr>
+<th>エイリアス名前空間</th>
+<th>委譲先（展開後のプレフィックス）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sakura.*</code></td>
+<td><code>currentghost.scope(0).*</code></td>
+</tr>
+<tr>
+<td><code>kero.*</code></td>
+<td><code>currentghost.scope(1).*</code></td>
+</tr>
+<tr>
+<td><code>ghost.*</code></td>
+<td><code>currentghost.*</code></td>
+</tr>
+<tr>
+<td><code>shell.*</code></td>
+<td><code>currentghost.shelllist.current.*</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>動作の詳細:</strong></p>
+<ul>
+<li>GET (<code>%property[sakura.surface.num]</code> 等）: エイリアスプロバイダがキーを展開し、
+  <code>PropertyManager.shared.get("currentghost.scope(0).surface.num")</code> へ委譲する。
+  委譲先の挙動は直接アクセスと同一。</li>
+<li>SET (<code>\![set,property,kero.surface.num,10]</code> 等）: 同様にキー展開後、
+  <code>PropertyManager.shared.set("currentghost.scope(1).surface.num", value: "10")</code> へ委譲する。
+  委譲先が SET を受け入れる場合のみ成功する。</li>
+<li>キーが空文字の場合（例: <code>ghost</code> のみ）、委譲先プレフィックス自体（<code>currentghost</code>）を
+  キーとして使用する。</li>
+<li><code>AliasPropertyProvider.writableProperties()</code> は <code>[]</code> を返す（書き込み可能キー一覧の列挙は
+  エイリアス経由では公開されない）。エイリアス名前空間を通じた SET の可否は、
+  実際の委譲先プロバイダの実装に依存する。</li>
+<li>キャッシュ動作：<code>sakura</code> / <code>kero</code> / <code>ghost</code> / <code>shell</code> は <code>uncachedPrefixes</code> の対象外のため、
+  解決済み値はキャッシュされる。キャッシュの無効化は <code>PropertyManager.invalidateCache()</code> が
+  呼ばれた時点で行われる。</li>
 </ul>
 <hr />
 <h2 id="5-set">5. 書込可能フラグ（SET 有効）一覧</h2>
@@ -314,27 +361,27 @@
 <hr />
 <h2 id="a-rosetta-swiftc">付録A: Rosetta 検出サンプル（Swift/C）</h2>
 <p><strong>Swift</strong>（<code>sysctl.proc_translated</code> を利用）:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">import</span> <span class="nc">Foundation</span>
+<pre class="codehilite"><code class="language-swift">import Foundation
 
-<span class="kd">public</span> <span class="kd">func</span> <span class="nf">isRunningUnderRosetta</span><span class="p">()</span> <span class="p">-&gt;</span> <span class="nb">Bool</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nv">flag</span><span class="p">:</span> <span class="nb">Int32</span> <span class="p">=</span> <span class="mi">0</span>
-    <span class="kd">var</span> <span class="nv">size</span> <span class="p">=</span> <span class="n">MemoryLayout</span><span class="p">&lt;</span><span class="nb">Int32</span><span class="p">&gt;.</span><span class="n">size</span>
-    <span class="kd">let</span> <span class="nv">rc</span> <span class="p">=</span> <span class="n">sysctlbyname</span><span class="p">(</span><span class="s">&quot;sysctl.proc_translated&quot;</span><span class="p">,</span> <span class="p">&amp;</span><span class="n">flag</span><span class="p">,</span> <span class="p">&amp;</span><span class="n">size</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">rc</span> <span class="p">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">flag</span> <span class="p">==</span> <span class="mi">1</span>
-<span class="p">}</span>
-</code></pre></div>
+public func isRunningUnderRosetta() -&gt; Bool {
+    var flag: Int32 = 0
+    var size = MemoryLayout&lt;Int32&gt;.size
+    let rc = sysctlbyname(&quot;sysctl.proc_translated&quot;, &amp;flag, &amp;size, nil, 0)
+    return rc == 0 &amp;&amp; flag == 1
+}
+</code></pre>
 
 <p><strong>C</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdbool.h&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/sysctl.h&gt;</span>
+<pre class="codehilite"><code class="language-c">#include &lt;stdbool.h&gt;
+#include &lt;sys/sysctl.h&gt;
 
-<span class="kt">bool</span><span class="w"> </span><span class="nf">ourin_is_rosetta</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">flag</span><span class="p">);</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sysctlbyname</span><span class="p">(</span><span class="s">&quot;sysctl.proc_translated&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">flag</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
+bool ourin_is_rosetta(void) {
+    int flag = 0;
+    size_t size = sizeof(flag);
+    if (sysctlbyname(&quot;sysctl.proc_translated&quot;, &amp;flag, &amp;size, NULL, 0) != 0) return false;
+    return flag == 1;
+}
+</code></pre>
 
 <h2 id="b-cpumemoryos">付録B: 実装ヒント（CPU/Memory/OS 情報）</h2>
 <ul>
@@ -354,7 +401,7 @@
 <li><code>NSWindow.setFrameTopLeftPoint</code>、<code>NSView.viewDidChangeBackingProperties()</code>、<code>backingScaleFactor</code></li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

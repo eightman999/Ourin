@@ -146,6 +146,10 @@
             <a href="index.html">← 目次に戻る</a>
         </div>
         <h1 id="yaya-core">YAYA Core 詳細実装計画書</h1>
+<blockquote>
+<p>⚠️ <strong>時点スナップショット (2025-10-16)</strong>: 本計画書で「未実装」とされている辞書パーサー / YAYA VM / 組み込み関数は、
+その後すべて実装済み（Lexer / Parser / VM / 160関数）。最新状況は <code>yaya_core/IMPLEMENTATION_STATUS.md</code> を正とすること。</p>
+</blockquote>
 <p><strong>日付</strong>: 2025-10-16<br />
 <strong>バージョン</strong>: 1.0<br />
 <strong>ステータス</strong>: Draft<br />
@@ -184,13 +188,13 @@
 <h2 id="2">2. 現状分析</h2>
 <h3 id="21">2.1 既存実装の評価</h3>
 <h4 id="_5">✅ 実装済み機能</h4>
-<div class="codehilite"><pre><span></span><code>yaya_core/
+<pre class="codehilite"><code>yaya_core/
 ├── CMakeLists.txt          # Universal Binary対応済み
 ├── src/
 │   ├── main.cpp           # JSON IPC実装済み
 │   ├── YayaCore.cpp       # コマンドディスパッチ実装済み
 │   └── DictionaryManager  # スタブのみ
-</code></pre></div>
+</code></pre>
 
 <p><strong>実装済みコマンド</strong>:
 - <code>load</code>: 辞書ファイル読み込み（スタブ）
@@ -299,7 +303,7 @@
 <hr />
 <h2 id="4">4. アーキテクチャ設計</h2>
 <h3 id="41">4.1 コンポーネント構成</h3>
-<div class="codehilite"><pre><span></span><code>yaya_core (C++実行体)
+<pre class="codehilite"><code>yaya_core (C++実行体)
 ├── main.cpp              # IPC Entry Point
 ├── YayaCore              # メインコントローラー
 ├── DictionaryManager     # 辞書管理
@@ -314,38 +318,38 @@
 └── ShioriAdapter         # SHIORI/3.0M 変換
     ├── RequestParser     # SHIORIリクエスト解析
     └── ResponseBuilder   # SHIORIレスポンス構築
-</code></pre></div>
+</code></pre>
 
 <h3 id="42">4.2 データフロー</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">Swift</span><span class="w"> </span><span class="p">(</span><span class="n">YayaAdapter</span><span class="p">)</span>
-<span class="w">    </span><span class="err">↓</span><span class="w"> </span><span class="n">JSON</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;cmd&quot;</span><span class="p">:</span><span class="s2">&quot;load&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ghost_root&quot;</span><span class="p">:</span><span class="s2">&quot;/path&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dic&quot;</span><span class="p">:[</span><span class="s2">&quot;a.dic&quot;</span><span class="p">]}</span>
-<span class="w">  </span><span class="n">IPC</span><span class="w"> </span><span class="p">(</span><span class="n">stdin</span><span class="p">)</span>
-<span class="w">    </span><span class="err">↓</span>
-<span class="n">main</span><span class="o">.</span><span class="n">cpp</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">YayaCore</span><span class="p">::</span><span class="n">processCommand</span><span class="p">()</span>
-<span class="w">    </span><span class="err">↓</span>
-<span class="n">DictionaryManager</span><span class="p">::</span><span class="nb">load</span><span class="p">()</span>
-<span class="w">    </span><span class="err">├→</span><span class="w"> </span><span class="n">DictionaryLoader</span><span class="p">::</span><span class="n">readFile</span><span class="p">()</span><span class="w">  </span><span class="c1"># UTF-8/CP932自動検出</span>
-<span class="w">    </span><span class="err">├→</span><span class="w"> </span><span class="n">Lexer</span><span class="p">::</span><span class="n">tokenize</span><span class="p">()</span><span class="w">              </span><span class="c1"># トークン分割</span>
-<span class="w">    </span><span class="err">└→</span><span class="w"> </span><span class="n">Parser</span><span class="p">::</span><span class="n">parse</span><span class="p">()</span><span class="w">                </span><span class="c1"># AST構築</span>
-<span class="w">         </span><span class="err">└→</span><span class="w"> </span><span class="n">FunctionRegistry</span><span class="p">::</span><span class="n">register</span><span class="p">()</span>
+<pre class="codehilite"><code>Swift (YayaAdapter)
+    ↓ JSON {&quot;cmd&quot;:&quot;load&quot;, &quot;ghost_root&quot;:&quot;/path&quot;, &quot;dic&quot;:[&quot;a.dic&quot;]}
+  IPC (stdin)
+    ↓
+main.cpp → YayaCore::processCommand()
+    ↓
+DictionaryManager::load()
+    ├→ DictionaryLoader::readFile()  # UTF-8/CP932自動検出
+    ├→ Lexer::tokenize()              # トークン分割
+    └→ Parser::parse()                # AST構築
+         └→ FunctionRegistry::register()
 
-<span class="n">Swift</span><span class="w"> </span><span class="p">(</span><span class="n">YayaAdapter</span><span class="p">)</span>
-<span class="w">    </span><span class="err">↓</span><span class="w"> </span><span class="n">JSON</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;cmd&quot;</span><span class="p">:</span><span class="s2">&quot;request&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;method&quot;</span><span class="p">:</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;OnBoot&quot;</span><span class="p">}</span>
-<span class="w">  </span><span class="n">IPC</span><span class="w"> </span><span class="p">(</span><span class="n">stdin</span><span class="p">)</span>
-<span class="w">    </span><span class="err">↓</span>
-<span class="n">YayaCore</span><span class="p">::</span><span class="n">processCommand</span><span class="p">()</span>
-<span class="w">    </span><span class="err">↓</span>
-<span class="n">DictionaryManager</span><span class="p">::</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;OnBoot&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[])</span>
-<span class="w">    </span><span class="err">├→</span><span class="w"> </span><span class="n">FunctionRegistry</span><span class="p">::</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;OnBoot&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="err">├→</span><span class="w"> </span><span class="n">VM</span><span class="p">::</span><span class="n">execute</span><span class="p">(</span><span class="n">function</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">)</span>
-<span class="w">    </span><span class="err">│</span><span class="w">   </span><span class="err">├→</span><span class="w"> </span><span class="n">VariableStore</span><span class="p">::</span><span class="n">get</span><span class="o">/</span><span class="n">set</span><span class="p">()</span>
-<span class="w">    </span><span class="err">│</span><span class="w">   </span><span class="err">└→</span><span class="w"> </span><span class="n">BuiltinFunctions</span><span class="p">::</span><span class="n">call</span><span class="p">()</span>
-<span class="w">    </span><span class="err">└→</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;</span><span class="se">\0</span><span class="s2">\s[0]Hello\e&quot;</span><span class="w">  </span><span class="c1"># SakuraScript</span>
-<span class="w">    </span><span class="err">↓</span>
-<span class="w">  </span><span class="n">IPC</span><span class="w"> </span><span class="p">(</span><span class="n">stdout</span><span class="p">)</span>
-<span class="w">    </span><span class="err">↓</span><span class="w"> </span><span class="n">JSON</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;ok&quot;</span><span class="p">:</span><span class="bp">true</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">:</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">0</span><span class="se">\\</span><span class="s2">s[0]Hello</span><span class="se">\\</span><span class="s2">e&quot;</span><span class="p">}</span>
-<span class="n">Swift</span><span class="w"> </span><span class="p">(</span><span class="n">YayaAdapter</span><span class="p">)</span>
-</code></pre></div>
+Swift (YayaAdapter)
+    ↓ JSON {&quot;cmd&quot;:&quot;request&quot;, &quot;method&quot;:&quot;GET&quot;, &quot;id&quot;:&quot;OnBoot&quot;}
+  IPC (stdin)
+    ↓
+YayaCore::processCommand()
+    ↓
+DictionaryManager::execute(&quot;OnBoot&quot;, [])
+    ├→ FunctionRegistry::find(&quot;OnBoot&quot;)
+    ├→ VM::execute(function, args)
+    │   ├→ VariableStore::get/set()
+    │   └→ BuiltinFunctions::call()
+    └→ return &quot;\0\s[0]Hello\e&quot;  # SakuraScript
+    ↓
+  IPC (stdout)
+    ↓ JSON {&quot;ok&quot;:true, &quot;status&quot;:200, &quot;value&quot;:&quot;\\0\\s[0]Hello\\e&quot;}
+Swift (YayaAdapter)
+</code></pre>
 
 <h3 id="43">4.3 メモリ管理</h3>
 <ul>
@@ -358,18 +362,18 @@
 <h2 id="5-yaya">5. YAYA言語仕様の実装範囲</h2>
 <h3 id="51-phase-1-mvp">5.1 Phase 1: 基本機能（MVP）</h3>
 <h4 id="_9">字句要素</h4>
-<div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="err">コメント（行末まで）</span>
-<span class="o">/*</span><span class="w"> </span><span class="err">ブロックコメント</span><span class="w"> </span><span class="o">*/</span>
+<pre class="codehilite"><code class="language-yaya">// コメント（行末まで）
+/* ブロックコメント */
 
-<span class="o">//</span><span class="w"> </span><span class="err">変数</span>
-<span class="n">_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;value&quot;</span>
-<span class="n">_num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">123</span>
+// 変数
+_var = &quot;value&quot;
+_num = 123
 
-<span class="o">//</span><span class="w"> </span><span class="err">関数定義</span>
-<span class="n">OnBoot</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="s2">&quot;</span><span class="se">\0</span><span class="s2">\s[0]Hello&quot;</span>
-<span class="p">}</span>
-</code></pre></div>
+// 関数定義
+OnBoot {
+    &quot;\0\s[0]Hello&quot;
+}
+</code></pre>
 
 <h4 id="_10">データ型</h4>
 <ul>
@@ -386,17 +390,17 @@
 <li>文字列連結: <code>+</code> (自動変換)</li>
 </ul>
 <h4 id="_12">制御構造</h4>
-<div class="codehilite"><pre><span></span><code><span class="c1">// 条件分岐</span>
-<span class="k">if</span><span class="w"> </span><span class="n">condition</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// ...</span>
-<span class="p">}</span>
-<span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// ...</span>
-<span class="p">}</span>
+<pre class="codehilite"><code class="language-yaya">// 条件分岐
+if condition {
+    // ...
+}
+else {
+    // ...
+}
 
-<span class="c1">// 三項演算子</span>
-<span class="n">_result</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">condition</span><span class="w"> </span>?<span class="w"> </span><span class="n">true_value</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">false_value</span>
-</code></pre></div>
+// 三項演算子
+_result = condition ? true_value : false_value
+</code></pre>
 
 <h4 id="shiori">組み込み変数（SHIORI）</h4>
 <ul>
@@ -406,25 +410,25 @@
 </ul>
 <h3 id="52-phase-2">5.2 Phase 2: 拡張機能</h3>
 <h4 id="_13">配列・連想配列</h4>
-<div class="codehilite"><pre><span></span><code>_arr = (&quot;a&quot;, &quot;b&quot;, &quot;c&quot;)
+<pre class="codehilite"><code class="language-yaya">_arr = (&quot;a&quot;, &quot;b&quot;, &quot;c&quot;)
 _dict = (&quot;key1&quot;:&quot;value1&quot;, &quot;key2&quot;:&quot;value2&quot;)
-</code></pre></div>
+</code></pre>
 
 <h4 id="_14">ループ</h4>
-<div class="codehilite"><pre><span></span><code>while condition {
+<pre class="codehilite"><code class="language-yaya">while condition {
     // ...
 }
 
 foreach _arr; _item {
     // ...
 }
-</code></pre></div>
+</code></pre>
 
 <h4 id="_15">正規表現</h4>
-<div class="codehilite"><pre><span></span><code>if _str =~ &quot;pattern&quot; {
+<pre class="codehilite"><code class="language-yaya">if _str =~ &quot;pattern&quot; {
     // ...
 }
-</code></pre></div>
+</code></pre>
 
 <hr />
 <h2 id="6">6. 実装フェーズ</h2>
@@ -500,20 +504,20 @@ foreach _arr; _item {
 </ul>
 <h3 id="72">7.2 ビルドシステム</h3>
 <h4 id="cmake">現状: CMake</h4>
-<div class="codehilite"><pre><span></span><code><span class="c"># yaya_core/CMakeLists.txt</span>
-<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_OSX_ARCHITECTURES</span><span class="w"> </span><span class="s2">&quot;arm64;x86_64&quot;</span><span class="p">)</span><span class="w">  </span><span class="c"># ✅</span>
-<span class="nb">find_package</span><span class="p">(</span><span class="s">nlohmann_json</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span><span class="w">         </span><span class="c"># ✅</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-cmake"># yaya_core/CMakeLists.txt
+set(CMAKE_OSX_ARCHITECTURES &quot;arm64;x86_64&quot;)  # ✅
+find_package(nlohmann_json REQUIRED)         # ✅
+</code></pre>
 
 <h4 id="_18">追加設定</h4>
-<div class="codehilite"><pre><span></span><code><span class="c"># ICU検出</span>
-<span class="nb">find_package</span><span class="p">(</span><span class="s">ICU</span><span class="w"> </span><span class="s">REQUIRED</span><span class="w"> </span><span class="s">COMPONENTS</span><span class="w"> </span><span class="s">uc</span><span class="w"> </span><span class="s">i18n</span><span class="p">)</span>
-<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">yaya_core</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">ICU::uc</span><span class="w"> </span><span class="s">ICU::i18n</span><span class="p">)</span>
+<pre class="codehilite"><code class="language-cmake"># ICU検出
+find_package(ICU REQUIRED COMPONENTS uc i18n)
+target_link_libraries(yaya_core PRIVATE ICU::uc ICU::i18n)
 
-<span class="c"># C++17機能使用</span>
-<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_STANDARD</span><span class="w"> </span><span class="s">17</span><span class="p">)</span>
-<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_STANDARD_REQUIRED</span><span class="w"> </span><span class="s">ON</span><span class="p">)</span>
-</code></pre></div>
+# C++17機能使用
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+</code></pre>
 
 <h3 id="73">7.3 テストフレームワーク</h3>
 <ul>
@@ -613,25 +617,25 @@ foreach _arr; _item {
 <hr />
 <h2 id="10">10. テスト戦略</h2>
 <h3 id="101">10.1 ユニットテスト</h3>
-<div class="codehilite"><pre><span></span><code><span class="c1">// 例: Lexerテスト</span>
-<span class="n">TEST</span><span class="p">(</span><span class="n">LexerTest</span><span class="p">,</span><span class="w"> </span><span class="n">TokenizeSimpleFunction</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">Lexer</span><span class="w"> </span><span class="n">lexer</span><span class="p">(</span><span class="s">&quot;OnBoot { </span><span class="se">\&quot;</span><span class="s">hello</span><span class="se">\&quot;</span><span class="s"> }&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">tokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lexer</span><span class="p">.</span><span class="n">tokenize</span><span class="p">();</span>
-<span class="w">    </span><span class="n">EXPECT_EQ</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">TokenType</span><span class="o">::</span><span class="n">Identifier</span><span class="p">);</span>
-<span class="w">    </span><span class="n">EXPECT_EQ</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">TokenType</span><span class="o">::</span><span class="n">LeftBrace</span><span class="p">);</span>
-<span class="w">    </span><span class="c1">// ...</span>
-<span class="p">}</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-cpp">// 例: Lexerテスト
+TEST(LexerTest, TokenizeSimpleFunction) {
+    Lexer lexer(&quot;OnBoot { \&quot;hello\&quot; }&quot;);
+    auto tokens = lexer.tokenize();
+    EXPECT_EQ(tokens[0].type, TokenType::Identifier);
+    EXPECT_EQ(tokens[1].type, TokenType::LeftBrace);
+    // ...
+}
+</code></pre>
 
 <h3 id="102">10.2 統合テスト</h3>
 <ol>
 <li><strong>最小辞書テスト</strong></li>
 </ol>
-<div class="codehilite"><pre><span></span><code><span class="c1">// test_minimal.dic</span>
-<span class="n">OnBoot</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="s">&quot;\0\s[0]Test OK\e&quot;</span>
-<span class="p">}</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-yaya">// test_minimal.dic
+OnBoot {
+    &quot;\0\s[0]Test OK\e&quot;
+}
+</code></pre>
 
 <ol>
 <li><strong>Emily4フルテスト</strong></li>
@@ -692,7 +696,7 @@ foreach _arr; _item {
 <strong>最終更新</strong>: 2025-10-16<br />
 <strong>著者</strong>: GitHub Copilot (eightman999/Ourin)</p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

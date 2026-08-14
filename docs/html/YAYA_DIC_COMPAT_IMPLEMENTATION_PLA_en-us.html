@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAYA dic Compatibility Implementation Plan</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="yaya-dic-compatibility-implementation-plan">YAYA dic Compatibility Implementation Plan</h1>
+<h2 id="purpose">Purpose</h2>
+<p>This document compares Ourin's <code>yaya_core</code> dictionary support with the practical YAYA/UKADOC compatibility target. It began as an implementation plan and now also records the Phase 0-10 completion status and remaining limitations.</p>
+<p>The goal is not only to parse more <code>.dic</code> files, but to make real YAYA ghosts behave correctly through the full stack:</p>
+<ul>
+<li><code>yaya.txt</code> and dictionary loading rules</li>
+<li>YAYA language syntax and runtime semantics</li>
+<li>YAYA system dictionary (<code>yaya_base</code>) expectations</li>
+<li>SHIORI/3.0 request and response compatibility</li>
+<li>Ourin Swift integration and host callbacks</li>
+</ul>
+<h2 id="reference-scope">Reference Scope</h2>
+<h3 id="primary-references">Primary References</h3>
+<ul>
+<li>UKADOC top page: <a href="https://ssp.shillest.net/ukadoc/manual/">https://ssp.shillest.net/ukadoc/manual/</a></li>
+<li>UKADOC SHIORI/3.0: <a href="https://ssp.shillest.net/ukadoc/manual/spec_shiori3.html">https://ssp.shillest.net/ukadoc/manual/spec_shiori3.html</a></li>
+<li>UKADOC SHIORI Event list: <a href="https://ssp.shillest.net/ukadoc/manual/list_shiori_event.html">https://ssp.shillest.net/ukadoc/manual/list_shiori_event.html</a></li>
+<li>YAYA language / SHIORI reference linked by UKADOC: <a href="http://usada.sakura.vg/contents/shiori.html">http://usada.sakura.vg/contents/shiori.html</a></li>
+<li>YAYA system dictionary repository: <a href="https://github.com/YAYA-shiori/yaya-dic">https://github.com/YAYA-shiori/yaya-dic</a></li>
+<li>yaya-dic system dictionary manual: <a href="https://github.com/YAYA-shiori/yaya-dic/blob/master/docs/manual_yaya_base.md">https://github.com/YAYA-shiori/yaya-dic/blob/master/docs/manual_yaya_base.md</a></li>
+</ul>
+<h3 id="local-references">Local References</h3>
+<ul>
+<li><code>yaya_core/src/Lexer.*</code></li>
+<li><code>yaya_core/src/Parser.*</code></li>
+<li><code>yaya_core/src/AST.hpp</code></li>
+<li><code>yaya_core/src/VM.*</code></li>
+<li><code>yaya_core/src/DictionaryManager.*</code></li>
+<li><code>yaya_core/src/YayaCore.*</code></li>
+<li><code>Ourin/USL/ShioriLoader.swift</code></li>
+<li><code>Ourin/Ghost/GhostManager.swift</code></li>
+<li><code>Ourin/Yaya/YayaAdapter.swift</code></li>
+<li><code>yaya_core/PARSER_PROGRESS_UPDATE.md</code></li>
+<li><code>yaya_core/IMPLEMENTATION_STATUS.md</code></li>
+<li><code>yaya_core/FUNCTION_REFERENCE.md</code></li>
+</ul>
+<h2 id="current-state-summary">Current State Summary</h2>
+<p>This document started as the implementation plan for YAYA dic compatibility.
+Phases 0-10 have since been implemented and verified against focused regression
+tests. The section below now records the implementation status as of the latest
+audit rather than the original pre-work gap snapshot.</p>
+<p><code>yaya_core</code> supports these important basics:</p>
+<ul>
+<li>Function definitions with braced bodies</li>
+<li>Assignments and compound assignments</li>
+<li><code>if</code> / <code>elseif</code> / <code>else</code></li>
+<li><code>while</code>, <code>for</code>, <code>foreach</code></li>
+<li><code>switch</code>, <code>case</code>, and <code>when</code> parsing/runtime paths</li>
+<li>String, integer, array values</li>
+<li>Dotted identifiers such as <code>SHIORI3FW.Status</code></li>
+<li><code>reference[index]</code> and <code>_argv</code></li>
+<li>UTF-8 identifiers, including Japanese names</li>
+<li><code>_in_</code> and <code>!_in_</code></li>
+<li>Many YAYA built-in functions</li>
+<li>JSON line IPC with Swift</li>
+<li>Partial host callback support for SAORI/plugin operations</li>
+<li><code>yaya.txt</code> parsing for <code>dic</code>, <code>include</code>, <code>dicdir</code>, <code>_loading_order.txt</code>,
+  global/per-dic charset, and duplicate suppression</li>
+</ul>
+<p>The project is still not a byte-for-byte clone of Windows <code>yaya-shiori</code>; known
+limitations are tracked in <code>yaya_core/IMPLEMENTATION_STATUS.md</code>.</p>
+<h2 id="compatibility-gap-matrix">Compatibility Gap Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Expected behavior</th>
+<th>Current behavior</th>
+<th>Remaining note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>yaya.txt</code> loading</td>
+<td>Supports <code>dic</code>, <code>include</code>, <code>dicdir</code>, <code>_loading_order.txt</code>, charset hints, ordered loading</td>
+<td>Implemented in Swift collector with structured IPC entries</td>
+<td><code>_loading_order.txt</code> supports real yaya-dic <code>dic</code>/<code>dicif</code> rows plus legacy forms</td>
+</tr>
+<tr>
+<td>System dictionaries</td>
+<td><code>dicdir, yaya_base</code> loads yaya-dic in intended order</td>
+<td>Implemented and tested with missing <code>dicif</code> skip</td>
+<td>Emily4 smoke result: 33/33 dictionaries loaded</td>
+</tr>
+<tr>
+<td>Per-dic encoding</td>
+<td>File-level charset may differ and should be honored</td>
+<td>Implemented end-to-end through <code>dic_entries</code></td>
+<td>CP932/UTF-8 mixed dictionaries verified</td>
+</tr>
+<tr>
+<td>Parser reliability</td>
+<td>Real dictionaries parse without timeouts</td>
+<td>Improved for block literals, labels, <code>switch</code>, <code>case/when</code>, and postfix <code>--</code> ambiguity</td>
+<td>Known parser deviations remain in implementation status</td>
+</tr>
+<tr>
+<td><code>case/when</code> semantics</td>
+<td>Only matching <code>when</code> body runs; <code>others/default</code> fallback works</td>
+<td>Dedicated AST/runtime implemented</td>
+<td>First-match and no side effects in non-selected branches verified</td>
+</tr>
+<tr>
+<td><code>switch</code> semantics</td>
+<td>Supports real YAYA switch/block literal idioms</td>
+<td><code>--</code> separated and nested block forms implemented with index selection</td>
+<td>Index semantics are intentional for the supported YAYA idiom</td>
+</tr>
+<tr>
+<td>Block literals</td>
+<td>Supports <code>{ ... -- ... }</code> and nested/labeled blocks</td>
+<td>Implemented as array literals; variable elements no longer mutate via postfix <code>--</code></td>
+<td><code>++</code> remains postfix increment, not a separator</td>
+</tr>
+<tr>
+<td>Function declarations</td>
+<td>Handles <code>array</code>, <code>sequential</code>, <code>nonoverload</code>, <code>when</code>, declaration metadata</td>
+<td>Implemented multi-declaration registry and metadata APIs</td>
+<td><code>nonoverload</code> means last definition wins; standalone <code>when</code> dispatch remains limited</td>
+</tr>
+<tr>
+<td>Dynamic dictionaries</td>
+<td><code>DICLOAD</code>, <code>DICUNLOAD</code>, <code>UNDEFFUNC</code>, runtime dic append work</td>
+<td>Implemented with per-source ownership</td>
+<td>Relative paths are sandboxed under <code>ghost/master</code></td>
+</tr>
+<tr>
+<td>Variable persistence</td>
+<td><code>SAVEVAR</code>, <code>RESTOREVAR</code>, settings, temp var management</td>
+<td>Implemented with JSON type preservation and <code>REGISTERTEMPVAR</code> exclusion</td>
+<td>Paths are sandboxed; dictionary values depend on <code>Value</code> support</td>
+</tr>
+<tr>
+<td>SAORI</td>
+<td><code>FUNCTIONLOAD</code>, <code>FUNCTIONEX</code>, <code>SAORI</code> work through host</td>
+<td>Implemented through Swift <code>SaoriManager</code> IPC; <code>Result</code> and <code>Value*</code> parsed</td>
+<td><code>valueex</code> exposed as builtins, not implicit variables</td>
+</tr>
+<tr>
+<td>SHIORI/3.0 headers</td>
+<td>Request/response headers match UKADOC expectations</td>
+<td>Implemented generic pass-through with case-insensitive dedupe and <code>ref</code> overlay</td>
+<td>Header coverage should keep growing with fixture tests</td>
+</tr>
+<tr>
+<td>Regex and utility funcs</td>
+<td>yaya-dic functions behave like real YAYA</td>
+<td>High-impact items implemented, including <code>RE_ASEARCH</code>, <code>RE_ASEARCHEX</code>, <code>ISEVALUABLE</code>, global defines, charset IDs</td>
+<td>Windows-only/directory shims remain compatibility stubs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="implementation-plan">Implementation Plan</h2>
+<h3 id="phase-0-documentation-and-test-baseline">Phase 0: Documentation and Test Baseline</h3>
+<p>Create a clear, executable compatibility baseline before changing behavior.</p>
+<p>Tasks:</p>
+<ul>
+<li>Update <code>yaya_core/IMPLEMENTATION_STATUS.md</code> to distinguish:</li>
+<li>implemented</li>
+<li>partial</li>
+<li>compatibility stub</li>
+<li>unsupported</li>
+<li>Update <code>yaya_core/FUNCTION_REFERENCE.md</code> so stub status matches source code.</li>
+<li>Add parser/load compatibility fixtures for:</li>
+<li>simple <code>dic</code></li>
+<li>recursive <code>include</code></li>
+<li><code>dicdir</code></li>
+<li><code>_loading_order.txt</code></li>
+<li><code>case/when</code></li>
+<li><code>switch</code></li>
+<li>block literals with <code>--</code></li>
+<li>nested labeled blocks</li>
+<li>Add an Emily4/yaya-dic smoke test harness that reports:</li>
+<li>loaded files count</li>
+<li>failed files</li>
+<li>parse time</li>
+<li>request results for representative events</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>A developer can run one command and see current parser/runtime compatibility.</li>
+<li>Documentation no longer claims full support for stubbed features.</li>
+</ul>
+<h3 id="phase-1-yayatxt-dicdir-and-loading-order">Phase 1: <code>yaya.txt</code>, <code>dicdir</code>, and Loading Order</h3>
+<p>Make Ourin load standard YAYA dictionary layouts directly.</p>
+<p>Tasks:</p>
+<ul>
+<li>Extend <code>parseYayaConfigFile</code> in Swift to recognize:</li>
+<li><code>dicdir, path</code></li>
+<li>optional comments and whitespace</li>
+<li><code>_loading_order.txt</code> inside each <code>dicdir</code></li>
+<li>Resolve <code>dicdir</code> entries relative to <code>ghost/master</code>.</li>
+<li>If <code>_loading_order.txt</code> exists:</li>
+<li>read it in the directory's declared/default charset</li>
+<li>ignore blank lines and comments</li>
+<li>load only enabled entries in listed order</li>
+<li>If <code>_loading_order.txt</code> does not exist:</li>
+<li>load <code>.dic</code> files in deterministic lexical order</li>
+<li>Represent dictionary load entries as structured data:</li>
+<li>relative path</li>
+<li>optional encoding</li>
+<li>source config file</li>
+<li>source line</li>
+<li>Extend the JSON IPC <code>load</code> command to pass structured dictionary metadata, while keeping current string list compatibility during transition.</li>
+<li>Add duplicate suppression with stable first occurrence behavior.</li>
+<li>Keep cycle prevention for <code>include</code>.</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>A ghost with:</li>
+</ul>
+<pre class="codehilite"><code class="language-txt">dicdir, yaya_base
+</code></pre>
+
+<p>loads yaya-dic's intended dictionary set in the intended order.</p>
+<ul>
+<li>Existing ghosts that only use <code>dic, file.dic</code> continue to load unchanged.</li>
+</ul>
+<h3 id="phase-2-encoding-model">Phase 2: Encoding Model</h3>
+<p>Make dictionary decoding predictable and compatible with Shift_JIS/CP932-heavy ghosts.</p>
+<p>Tasks:</p>
+<ul>
+<li>Preserve charset declarations discovered from <code>yaya.txt</code>, included config files, and per-dic entries.</li>
+<li>Pass per-dictionary encoding hints to <code>DictionaryManager</code>.</li>
+<li>Keep current UTF-8 BOM and valid UTF-8 auto-detection safeguards.</li>
+<li>Decode <code>_loading_order.txt</code> with the same charset strategy.</li>
+<li>Add tests for:</li>
+<li>UTF-8 with BOM</li>
+<li>UTF-8 without BOM</li>
+<li>CP932 dictionary</li>
+<li>CP932 config that includes UTF-8 dictionary</li>
+<li>incorrect charset declaration with valid UTF-8 content</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>CP932 YAYA dictionaries with Japanese identifiers and strings load without mojibake.</li>
+<li>UTF-8 dictionaries are not accidentally converted as CP932.</li>
+</ul>
+<h3 id="phase-3-parser-grammar-completion">Phase 3: Parser Grammar Completion</h3>
+<p>Close the known Emily4 parser gaps and remove tolerant-but-wrong parsing.</p>
+<p>Tasks:</p>
+<ul>
+<li>Introduce dedicated AST nodes for:</li>
+<li><code>CaseNode</code></li>
+<li><code>WhenClauseNode</code></li>
+<li><code>SwitchNode</code> with YAYA-specific semantics</li>
+<li><code>BlockLiteralNode</code></li>
+<li><code>LabeledBlockNode</code></li>
+<li><code>ArrayLiteralNode</code> / tuple literal</li>
+<li>Implement <code>case expr { when a,b { ... } others { ... } }</code>.</li>
+<li>Implement standalone <code>when</code> only where the grammar actually permits it.</li>
+<li>Implement block literals with <code>--</code> separators.</li>
+<li>Implement nested/labeled block forms such as:</li>
+</ul>
+<pre class="codehilite"><code class="language-yaya">{{LABEL
+    ...
+}}LABEL
+</code></pre>
+
+<ul>
+<li>Revisit <code>switch</code> parsing so it supports real YAYA dictionary idioms rather than only index selection.</li>
+<li>Remove parser "success" paths that silently skip important tokens and produce incorrect runtime behavior.</li>
+<li>Keep progress guarantees and parse timeout protection.</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>All files listed as failing in <code>yaya_core/PARSER_PROGRESS_UPDATE.md</code> parse without timeout.</li>
+<li>Parser tests assert AST shape for <code>case/when</code>, <code>switch</code>, <code>--</code> block literals, and labeled blocks.</li>
+</ul>
+<h3 id="phase-4-runtime-semantics-for-advanced-constructs">Phase 4: Runtime Semantics for Advanced Constructs</h3>
+<p>Make newly parsed syntax behave correctly.</p>
+<p>Tasks:</p>
+<ul>
+<li>Execute <code>case/when</code> by evaluating the case expression once and running only the first matching clause.</li>
+<li>Implement <code>others</code> / <code>default</code> fallback.</li>
+<li>Implement block literal evaluation rules.</li>
+<li>Implement array literal and tuple behavior consistently with current <code>Value</code> arrays.</li>
+<li>Correct array element assignment and compound assignment:</li>
+<li><code>arr[i] = value</code></li>
+<li><code>arr[i] += value</code></li>
+<li><code>arr[i] ,= value</code></li>
+<li>Add tests for side-effect behavior so non-selected <code>when</code> bodies do not run.</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>Runtime behavior for <code>case/when</code> matches YAYA examples and Emily4 expectations.</li>
+<li>Array element assignment mutates only the targeted element.</li>
+</ul>
+<h3 id="phase-5-function-declaration-and-dispatch-semantics">Phase 5: Function Declaration and Dispatch Semantics</h3>
+<p>Support YAYA function declaration metadata more faithfully.</p>
+<p>Tasks:</p>
+<ul>
+<li>Replace the simple <code>functions_[name] = func</code> registry with a function registry that can hold multiple declarations per name.</li>
+<li>Track:</li>
+<li>source dictionary</li>
+<li>declaration order</li>
+<li>function type</li>
+<li>attributes</li>
+<li>enabled/undefined state</li>
+<li>Complete semantics for:</li>
+<li><code>array</code></li>
+<li><code>sequential</code></li>
+<li><code>nonoverload</code></li>
+<li><code>when</code></li>
+<li>Implement or complete:</li>
+<li><code>FUNCDECL_READ</code></li>
+<li><code>FUNCDECL_WRITE</code></li>
+<li><code>FUNCDECL_ERASE</code></li>
+<li><code>GETFUNCINFO</code></li>
+<li><code>GETFUNCLIST</code></li>
+<li><code>ISFUNC</code></li>
+<li><code>UNDEFFUNC</code></li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>Multiple same-name functions dispatch according to declaration metadata.</li>
+<li>Sequential functions concatenate in correct order.</li>
+<li>Array functions return array values without lossy string conversion.</li>
+</ul>
+<p>Implementation outcome:</p>
+<ul>
+<li>Implemented a multi-declaration function registry with source ID,
+  declaration order, enabled state, and modifier flags.</li>
+<li>Default same-name declarations concatenate in declaration order.</li>
+<li><code>nonoverload</code> disables accumulation: the latest registered declaration
+  replaces earlier declarations for that name (last definition wins).</li>
+<li><code>FUNCDECL_READ</code>, <code>FUNCDECL_WRITE</code>, <code>FUNCDECL_ERASE</code>, <code>GETFUNCINFO</code>,
+  <code>GETFUNCLIST</code>, <code>ISFUNC</code>, <code>UNDEFFUNC</code>, and <code>EVAL</code> use the registry.</li>
+<li>Limitation: the <code>when</code> attribute is recorded, but standalone <code>when</code>
+  dispatch does not yet model an implicit switch state.</li>
+</ul>
+<h3 id="phase-6-dynamic-dictionary-operations">Phase 6: Dynamic Dictionary Operations</h3>
+<p>Implement runtime dictionary loading and unloading.</p>
+<p>Tasks:</p>
+<ul>
+<li>Implement <code>DICLOAD(filename)</code>:</li>
+<li>resolve safely under <code>ghost/master</code></li>
+<li>decode using configured charset strategy</li>
+<li>parse and register functions with dictionary ownership</li>
+<li>Implement <code>DICUNLOAD(filename)</code>:</li>
+<li>unregister functions owned only by that dictionary</li>
+<li>preserve functions from other dictionaries</li>
+<li>Implement <code>APPEND_RUNTIME_DIC(code)</code>:</li>
+<li>parse code string as a temporary runtime dictionary</li>
+<li>assign synthetic source ID</li>
+<li>Make dynamic operations report errors through <code>GETLASTERROR</code> / <code>SETLASTERROR</code>.</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>A dictionary can define a new event at runtime, call it, unload it, and then observe that it is gone.</li>
+<li>Dynamic load failures do not corrupt the existing registry.</li>
+</ul>
+<p>Implementation outcome:</p>
+<ul>
+<li><code>DICLOAD</code> and <code>DICUNLOAD</code> are implemented through <code>VMCallback</code> and
+  <code>DictionaryManager</code>, with each loaded file assigned a source ID.</li>
+<li><code>APPEND_RUNTIME_DIC</code> parses code strings into a synthetic runtime source.</li>
+<li><code>DICUNLOAD</code> removes only declarations owned by the unloaded source.</li>
+<li>Runtime dictionary paths are restricted to relative paths under the ghost
+  root; absolute paths and parent traversal are rejected.</li>
+</ul>
+<h3 id="phase-7-variable-persistence-and-settings">Phase 7: Variable Persistence and Settings</h3>
+<p>Implement common persistence functions needed by real ghosts.</p>
+<p>Tasks:</p>
+<ul>
+<li>Implement <code>SAVEVAR(file)</code> and <code>RESTOREVAR(file)</code>.</li>
+<li>Store files under <code>ghost/master/var</code> unless a stricter existing convention is identified.</li>
+<li>Serialize <code>Value</code> types losslessly:</li>
+<li>string</li>
+<li>integer</li>
+<li>real</li>
+<li>array</li>
+<li>dictionary if currently supported by <code>Value</code></li>
+<li>Implement:</li>
+<li><code>GETSETTING</code></li>
+<li><code>SETSETTING</code></li>
+<li><code>GETDELIM</code></li>
+<li><code>SETDELIM</code></li>
+<li><code>DUMPVAR</code></li>
+<li>Implement temp variable registration used by yaya-dic:</li>
+<li><code>REGISTERTEMPVAR</code> / <code>UNREGISTERTEMPVAR</code> built-ins</li>
+<li>framework-level calls such as <code>SHIORI3FW.RegisterTempVar</code> can map to those
+    built-ins when the yaya-dic framework is present</li>
+<li>unload-time cleanup behavior</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>User variables survive unload/reload.</li>
+<li>Registered temporary variables are not persisted.</li>
+<li>Persistence cannot escape the ghost directory.</li>
+</ul>
+<p>Implementation outcome:</p>
+<ul>
+<li><code>SAVEVAR</code> and <code>RESTOREVAR</code> persist global variables as JSON with type tags.</li>
+<li>Persistence paths are anchored under the ghost root and reject absolute /
+  parent-traversal paths.</li>
+<li><code>REGISTERTEMPVAR</code> and <code>UNREGISTERTEMPVAR</code> maintain the save-exclusion list.</li>
+<li><code>GETSETTING</code>, <code>SETSETTING</code>, <code>GETDELIM</code>, <code>SETDELIM</code>, <code>GETLASTERROR</code>,
+  <code>SETLASTERROR</code>, <code>GETERRORLOG</code>, <code>CLEARERRORLOG</code>, <code>GETCALLSTACK</code>, and
+  <code>DUMPVAR</code> are backed by VM state.</li>
+</ul>
+<h3 id="phase-8-saori-and-host-operations">Phase 8: SAORI and Host Operations</h3>
+<p>Complete the bridge between YAYA and Ourin's Swift host capabilities.</p>
+<p>Tasks:</p>
+<ul>
+<li>Finish YAYA built-ins:</li>
+<li><code>LOADLIB</code></li>
+<li><code>UNLOADLIB</code></li>
+<li><code>REQUESTLIB</code></li>
+<li>yaya-dic wrappers <code>FUNCTIONLOAD</code>, <code>FUNCTIONEX</code>, <code>SAORI</code></li>
+<li>Route all SAORI calls through <code>YayaAdapter.handlePluginOperation</code>.</li>
+<li>Parse SAORI responses and set:</li>
+<li>return value from <code>Result</code></li>
+<li><code>valueex</code></li>
+<li><code>valueex0</code>, <code>valueex1</code>, ...</li>
+<li>status/error variables</li>
+<li>Honor SAORI charset settings:</li>
+<li><code>CHARSETLIB</code></li>
+<li><code>CHARSETLIBEX</code></li>
+<li>request/response charset headers</li>
+<li>Add integration tests with a small deterministic SAORI fixture.</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>yaya-dic SAORI helper functions work against a real or fixture SAORI module.</li>
+<li>Multi-value SAORI responses are visible from YAYA code.</li>
+</ul>
+<p>Implementation outcome:</p>
+<ul>
+<li><code>LOADLIB</code>, <code>UNLOADLIB</code>, and <code>REQUESTLIB</code> route through host IPC to
+  <code>YayaAdapter</code> / <code>SaoriManager</code>.</li>
+<li><code>REQUESTLIB</code> parses <code>Result</code> and ordered <code>Value0..</code> values; extras are
+  exposed through <code>valueex</code> and <code>valueex0..15</code>.</li>
+<li><code>FUNCTIONLOAD</code>, <code>FUNCTIONEX</code>, and <code>SAORI</code> are available as yaya-dic-style
+  wrappers.</li>
+<li><code>CHARSETLIB</code> and <code>CHARSETLIBEX</code> set the default SAORI request charset.</li>
+</ul>
+<h3 id="phase-9-shiori30-and-ukadoc-header-compatibility">Phase 9: SHIORI/3.0 and UKADOC Header Compatibility</h3>
+<p>Align request/response handling with UKADOC.</p>
+<p>Tasks:</p>
+<ul>
+<li>Expand request header construction in <code>YayaCore</code> / <code>YayaAdapter</code> to include:</li>
+<li><code>Sender</code></li>
+<li><code>SenderType</code></li>
+<li><code>SecurityLevel</code></li>
+<li><code>SecurityOrigin</code></li>
+<li><code>Status</code></li>
+<li><code>BaseID</code></li>
+<li><code>Reference*</code></li>
+<li><code>X-SSTP-PassThru-*</code></li>
+<li>Preserve caller-provided headers without accidental duplication.</li>
+<li>Parse response headers:</li>
+<li><code>Value</code></li>
+<li><code>ValueNotify</code></li>
+<li><code>Reference*</code></li>
+<li><code>Marker</code></li>
+<li><code>MarkerSend</code></li>
+<li><code>SecurityLevel</code></li>
+<li><code>ErrorLevel</code></li>
+<li><code>ErrorDescription</code></li>
+<li><code>BalloonOffset</code></li>
+<li><code>Age</code></li>
+<li><code>X-SSTP-PassThru-*</code></li>
+<li>Return all relevant headers to Swift.</li>
+<li>Confirm <code>GET</code> / <code>NOTIFY</code> behavior:</li>
+<li><code>GET</code> uses <code>Value</code></li>
+<li><code>NOTIFY</code> ignores <code>Value</code> but may process <code>ValueNotify</code></li>
+<li>Align <code>capability</code> handling with UKADOC's request/response capability notification expectations.</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>UKADOC-documented headers can round-trip through <code>yaya_core</code>.</li>
+<li>Events with response <code>Reference*</code> and <code>ValueNotify</code> work.</li>
+</ul>
+<p>Implementation outcome:</p>
+<ul>
+<li>Request construction includes defaults for <code>Charset</code>, <code>Sender</code>,
+  <code>SenderType</code>, and <code>SecurityLevel</code>.</li>
+<li>Caller-provided headers are emitted once with case-insensitive
+  deduplication; <code>ID</code> is not duplicated.</li>
+<li>Caller <code>Reference*</code> headers are preserved, then the <code>ref</code> array is overlaid
+  as the final <code>Reference0..N</code> source.</li>
+<li>Response parsing returns generic headers to Swift, including <code>Value</code>,
+  <code>ValueNotify</code>, <code>Reference*</code>, and <code>X-SSTP-PassThru-*</code>.</li>
+</ul>
+<h3 id="phase-10-built-in-function-audit">Phase 10: Built-in Function Audit</h3>
+<p>Audit all built-ins against source and documentation.</p>
+<p>Tasks:</p>
+<ul>
+<li>Classify every built-in in <code>FUNCTION_REFERENCE.md</code> as:</li>
+<li>implemented</li>
+<li>partial</li>
+<li>stub</li>
+<li>intentionally unsupported on macOS</li>
+<li>Complete high-impact partial/stub functions:</li>
+<li><code>RE_ASEARCH</code></li>
+<li><code>RE_ASEARCHEX</code></li>
+<li><code>ISEVALUABLE</code></li>
+<li><code>GETERRORLOG</code></li>
+<li><code>GETCALLSTACK</code></li>
+<li><code>GETFUNCINFO</code></li>
+<li>global define functions</li>
+<li>charset ID/name functions</li>
+<li>Keep Windows-specific functions as explicit compatibility shims where macOS cannot support them.</li>
+<li>Record intentional deviations in documentation.</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>Function docs match behavior.</li>
+<li>Stub functions are either implemented or documented as intentionally unsupported.</li>
+</ul>
+<p>Implementation outcome:</p>
+<ul>
+<li><code>RE_ASEARCH</code> and <code>RE_ASEARCHEX</code> are implemented with <code>std::regex</code>.</li>
+<li><code>ISEVALUABLE</code> now parses exactly one complete expression, so malformed input
+  such as <code>1 +</code> returns <code>0</code>.</li>
+<li><code>GETERRORLOG</code>, <code>GETCALLSTACK</code>, <code>GETFUNCINFO</code>, global define functions, and
+  charset ID/name helpers are implemented.</li>
+<li>Remaining stubs are documented as directory operations or Windows-only /
+  platform shims.</li>
+</ul>
+<h2 id="testing-strategy">Testing Strategy</h2>
+<h3 id="unit-tests">Unit Tests</h3>
+<ul>
+<li>Lexer token tests for advanced punctuation and UTF-8 identifiers.</li>
+<li>Parser AST tests for each newly supported construct.</li>
+<li>VM tests for runtime semantics.</li>
+<li>DictionaryManager tests for ordered load/unload behavior.</li>
+<li>Swift tests for <code>yaya.txt</code> config parsing.</li>
+</ul>
+<h3 id="integration-tests">Integration Tests</h3>
+<ul>
+<li>Minimal ghost:</li>
+<li>simple <code>OnBoot</code></li>
+<li><code>reference[]</code></li>
+<li><code>_argv</code></li>
+<li>persistence</li>
+<li>yaya-dic ghost:</li>
+<li><code>dicdir, yaya_base</code></li>
+<li><code>request</code></li>
+<li><code>capability</code></li>
+<li>Emily4 compatibility:</li>
+<li>load all target dictionaries</li>
+<li>execute representative events</li>
+<li>assert no parser timeout</li>
+</ul>
+<h3 id="regression-metrics">Regression Metrics</h3>
+<p>Track these metrics before and after each phase:</p>
+<ul>
+<li>Number of dictionaries discovered from config</li>
+<li>Number of dictionaries successfully parsed</li>
+<li>Parse time per dictionary</li>
+<li>Total load time</li>
+<li>Number of warnings/errors</li>
+<li>Representative event success rate</li>
+<li>Host operation success/failure counts</li>
+</ul>
+<h2 id="risk-management">Risk Management</h2>
+<h3 id="parser-ambiguity">Parser Ambiguity</h3>
+<p>YAYA syntax is permissive and historically compatibility-driven. Add dedicated AST nodes rather than continuing to skip unknown tokens silently. Silent recovery should be limited to diagnostics mode.</p>
+<h3 id="compatibility-vs-security">Compatibility vs Security</h3>
+<p>File, command, SAORI, and dynamic dictionary operations must remain constrained to safe paths or explicit host-mediated operations. Do not broaden file access to match Windows YAYA behavior exactly without an Ourin security decision.</p>
+<h3 id="documentation-drift">Documentation Drift</h3>
+<p>Every phase that changes behavior must update:</p>
+<ul>
+<li>implementation status</li>
+<li>function reference</li>
+<li>compatibility matrix</li>
+<li>tests or fixtures</li>
+</ul>
+<h2 id="recommended-order">Recommended Order</h2>
+<ol>
+<li>Phase 0: baseline and docs — <strong>done</strong></li>
+<li>Phase 1: <code>dicdir</code> and loading order — <strong>done</strong></li>
+<li>Phase 2: encoding model — <strong>done</strong></li>
+<li>Phase 3: parser grammar completion — <strong>done</strong></li>
+<li>Phase 4: runtime semantics — <strong>done</strong></li>
+<li>Phase 5: function declaration semantics — <strong>done</strong></li>
+<li>Phase 6: dynamic dictionary operations — <strong>done</strong></li>
+<li>Phase 7: persistence/settings — <strong>done</strong></li>
+<li>Phase 8: SAORI host integration — <strong>done</strong></li>
+<li>Phase 9: SHIORI/3.0 headers — <strong>done</strong></li>
+<li>Phase 10: built-in audit — <strong>done</strong></li>
+</ol>
+<p>The highest immediate compatibility gain should come from Phases 1, 3, and 4 because they unblock yaya-dic standard loading and the known Emily4 parser failures.</p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

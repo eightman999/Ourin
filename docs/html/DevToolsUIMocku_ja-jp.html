@@ -166,23 +166,23 @@
 <li>既知の課題と未決事項</li>
 </ol>
 <h2 id="0">0. 画面マップ（ワイヤーフレーム）</h2>
-<div class="codehilite"><pre><span></span><code><span class="err">┌──────────────────────────────────────────────────────────────┐</span>
-<span class="err">│</span><span class="w">  </span><span class="n">Ourin</span><span class="w"> </span><span class="n">DevTools</span><span class="w">                                      </span><span class="o">[</span><span class="n">Search</span><span class="o">]</span><span class="err">│</span>
-<span class="err">│</span><span class="w">  </span><span class="err">───────────────────────────────────────────────────────────</span><span class="w"> </span><span class="err">│</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="k">General</span><span class="w">                                                  </span><span class="err">││</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="n">SHIORI</span><span class="w"> </span><span class="n">Resource</span><span class="w">                                          </span><span class="err">││</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="n">Plugins</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Events</span><span class="w">                                         </span><span class="err">││</span><span class="w">  </span><span class="err">←</span><span class="w"> </span><span class="n">サイドバー</span><span class="err">（</span><span class="n">source</span><span class="w"> </span><span class="n">list</span><span class="err">）</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="k">External</span><span class="w"> </span><span class="p">(</span><span class="n">SSTP</span><span class="o">/</span><span class="n">HTTP</span><span class="o">/</span><span class="n">XPC</span><span class="p">)</span><span class="w">                                 </span><span class="err">││</span><span class="w">     </span><span class="n">セクション見出し</span><span class="err">＋</span><span class="n">項目</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="n">Headline</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">Balloon</span><span class="w">                                       </span><span class="err">││</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="n">Logging</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="k">Diagnostics</span><span class="w">                                    </span><span class="err">││</span>
-<span class="err">│</span><span class="w">  </span><span class="err">▸</span><span class="w"> </span><span class="n">Network</span><span class="w">                                                  </span><span class="err">││</span>
-<span class="err">│</span><span class="w">                                                              </span><span class="err">│</span>
-<span class="err">│</span><span class="w">  </span><span class="err">───────────────────────────────────────────────────────────</span><span class="w"> </span><span class="err">│</span>
-<span class="err">│</span><span class="w">  </span><span class="o">[</span><span class="n">Toolbar:  ⟳ Reload   ▶ Run Test   ⏹ Stop   ⎘ Export  </span><span class="o">]</span><span class="w">    </span><span class="err">│</span><span class="w">  </span><span class="err">←</span><span class="w"> </span><span class="n">右ペイン</span><span class="w"> </span><span class="n">ツールバー</span>
-<span class="err">│</span><span class="w">  </span><span class="err">───────────────────────────────────────────────────────────</span><span class="w"> </span><span class="err">│</span>
-<span class="err">│</span><span class="w">  </span><span class="o">[</span><span class="n">Detail View / Form / Table / Live Preview / Log Console</span><span class="o">]</span><span class="w">  </span><span class="err">│</span>
-<span class="err">└──────────────────────────────────────────────────────────────┘</span>
-</code></pre></div>
+<pre class="codehilite"><code>┌──────────────────────────────────────────────────────────────┐
+│  Ourin DevTools                                      [Search]│
+│  ─────────────────────────────────────────────────────────── │
+│  ▸ General                                                  ││
+│  ▸ SHIORI Resource                                          ││
+│  ▸ Plugins &amp; Events                                         ││  ← サイドバー（source list）
+│  ▸ External (SSTP/HTTP/XPC)                                 ││     セクション見出し＋項目
+│  ▸ Headline / Balloon                                       ││
+│  ▸ Logging &amp; Diagnostics                                    ││
+│  ▸ Network                                                  ││
+│                                                              │
+│  ─────────────────────────────────────────────────────────── │
+│  [Toolbar:  ⟳ Reload   ▶ Run Test   ⏹ Stop   ⎘ Export  ]    │  ← 右ペイン ツールバー
+│  ─────────────────────────────────────────────────────────── │
+│  [Detail View / Form / Table / Live Preview / Log Console]  │
+└──────────────────────────────────────────────────────────────┘
+</code></pre>
 
 <p>サイドバーは主要領域の一貫したナビゲーションに適し、検索やセクション分割と相性が良い。
 メニューバーから「表示 &gt; サイドバーを表示/非表示」を提供して、HIG に沿ったレイアウトを実現する。
@@ -288,7 +288,7 @@ UI:
 <hr />
 <p><em>最終更新: 2025-07-27</em></p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

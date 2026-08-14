@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHIORI External Events — **3.0M‑Mac 仕様書（UKADOC準拠）**</title>
+    <title>SHIORI External Events — **3.0M-Mac Specification (UKADOC-compliant)**</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
@@ -145,31 +145,133 @@
         <div class="back-link">
             <a href="index.html">← Back to Index</a>
         </div>
-        <h1 id="shiori-external-events-30mmac-ukadoc">SHIORI External Events — <strong>3.0M‑Mac 仕様書（UKADOC準拠）</strong></h1>
-<p><strong>Status:</strong> Translation Pending<br />
-<strong>Original:</strong> <a href="./SHIORI_EXTERNAL_3.0M_SPEC_ja-jp.md">SHIORI_EXTERNAL_3.0M_SPEC_ja-jp.md</a><br />
-<strong>Language:</strong> English (US)</p>
+        <h1 id="shiori-external-events-30m-mac-specification-ukadoc-compliant">SHIORI External Events — <strong>3.0M-Mac Specification (UKADOC-compliant)</strong></h1>
+<p><strong>Status:</strong> Draft / Ourin (macOS 10.15+ / Universal 2)
+<strong>Original:</strong> <a href="./SHIORI_EXTERNAL_3.0M_SPEC_ja-jp.md">SHIORI_EXTERNAL_3.0M_SPEC_ja-jp.md</a>
+<strong>Language:</strong> English (US)
+<strong>Updated:</strong> 2025-07-27 (JST)
+<strong>Compatibility policy:</strong> Follows UKADOC "External SHIORI Events" for event names, semantics, and Reference ordering. Windows-dependent transport is replaced with <strong>macOS-native</strong> equivalents.
+<strong>Intended audience:</strong> Ourin (baseware) implementers and external application developers.</p>
 <hr />
-<h2 id="translation-note">Translation Note</h2>
-<p>This document is a placeholder for the English translation of the Japanese original.</p>
-<p>The Japanese version contains the authoritative specification. This English version should be translated while maintaining:</p>
+<h2 id="table-of-contents">Table of Contents</h2>
 <ul>
-<li>Technical accuracy</li>
-<li>Consistent terminology with other English documentation</li>
-<li>Original structure and formatting</li>
-<li>All code examples unchanged</li>
-<li>Proper translation of comments and narrative sections</li>
+<li><a href="#1-purpose-and-scope">1. Purpose and Scope</a></li>
+<li><a href="#2-transport">2. Transport</a></li>
+<li><a href="#21-socket-sstp-tcp9801">2.1 Socket SSTP (TCP/9801)</a></li>
+<li><a href="#22-sstp-over-http-extension">2.2 SSTP-over-HTTP (extension)</a></li>
+<li><a href="#23-directsstp-mac-as-xpc-extension">2.3 DirectSSTP-Mac as XPC (extension)</a></li>
+<li><a href="#3-character-encoding--line-endings--path-notation">3. Character Encoding / Line Endings / Path Notation</a></li>
+<li><a href="#4-event-compatibility-rules">4. Event Compatibility Rules</a></li>
+<li><a href="#5-frame-examples-sstphttpxpc">5. Frame Examples (SSTP/HTTP/XPC)</a></li>
+<li><a href="#6-security--sandbox">6. Security / Sandbox</a></li>
+<li><a href="#7-test-checklist">7. Test Checklist</a></li>
+<li><a href="#8-bridgetoshiori--sstp-to-shiori-bridge-behavior">8. BridgeToSHIORI — SSTP to SHIORI Bridge Behavior</a></li>
+<li><a href="#9-change-history">9. Change History</a></li>
 </ul>
 <hr />
-<h2 id="contents">Contents</h2>
-<p><em>(To be translated from Japanese original)</em></p>
-<hr />
-<p><strong>Translation Status:</strong> ⏳ Pending<br />
-<strong>Translator:</strong> TBD<br />
-<strong>Review:</strong> TBD<br />
-<strong>Last Updated:</strong> 2025-10-23</p>
+<h2 id="1-purpose-and-scope">1. Purpose and Scope</h2>
+<ul>
+<li>Receive and forward "external SHIORI Events" fired by <strong>external apps / other ghosts / plugins</strong> to Ourin while preserving <strong>vocabulary compatibility</strong>.</li>
+<li>This page is a compatibility implementation guide based on the UKADOC catalog; individual event details are governed by the respective issuing source.</li>
+</ul>
+<h2 id="2-transport">2. Transport</h2>
+<h3 id="21-socket-sstp-tcp9801">2.1 Socket SSTP (TCP/9801)</h3>
+<ul>
+<li><strong>Send/Receive</strong>: Receive <strong>SSTP/1.x</strong> frames (<code>NOTIFY SSTP/1.x</code> / <code>SEND SSTP/1.x</code>, etc.) on <strong>TCP:9801</strong>.</li>
+<li><strong>Response</strong>: <code>SSTP/1.x 200 OK</code> / <code>204 No Content</code>, etc. (script is ignored for [NOTIFY]).</li>
+<li><strong>Compatibility</strong>: Per the original spec — <strong>CRLF line endings</strong>, <code>Charset:</code> optional (defaults to UTF-8 if absent).</li>
+</ul>
+<h3 id="22-sstp-over-http-extension">2.2 SSTP-over-HTTP (extension)</h3>
+<ul>
+<li><strong>Method/Path</strong>: <code>POST /api/sstp/v1</code></li>
+<li><strong>Header</strong>: <code>Content-Type: text/plain; charset=&lt;enc&gt;</code> (recommended)</li>
+<li><strong>Body</strong>: <strong>Raw SSTP/1.x text</strong> (<code>NOTIFY ...</code> through <code>CRLFCRLF</code>).</li>
+<li><strong>Purpose</strong>: Traversing firewalls/proxies and leveraging standard HTTP logging. <strong>SSTP grammar is unchanged</strong> to maintain compatibility.</li>
+</ul>
+<h3 id="23-directsstp-mac-as-xpc-extension">2.3 DirectSSTP-Mac as XPC (extension)</h3>
+<ul>
+<li><strong>IPC</strong>: Received as a <strong>Mach service</strong> using <code>NSXPCListener(machServiceName: "jp.ourin.sstp")</code>.</li>
+<li><strong>Interface</strong>: <code>deliverSSTP(request: Data, reply: (Data)-&gt;Void)</code> (accepts UTF-8/CP932).</li>
+<li><strong>Use case</strong>: Fast local delivery and process isolation.</li>
+</ul>
+<h2 id="3-character-encoding-line-endings-path-notation">3. Character Encoding / Line Endings / Path Notation</h2>
+<ul>
+<li><strong>Character encoding</strong>: Default <strong>UTF-8</strong>. For compatibility, <strong>CP932/Shift_JIS</strong> is accepted and normalized to UTF-8 internally. <code>Charset:</code> takes priority when specified.</li>
+<li><strong>Line endings</strong>: <strong>CRLF</strong> is required for received data (internal processing may normalize to LF).</li>
+<li><strong>Paths</strong>: <strong>POSIX absolute paths</strong> or <strong><code>file://</code> URLs</strong> are standard. Windows-format paths received are normalized by the receiver.</li>
+</ul>
+<h2 id="4-event-compatibility-rules">4. Event Compatibility Rules</h2>
+<ul>
+<li>Events <strong>marked [NOTIFY]</strong> must always be sent as NOTIFY; the <strong>returned script is ignored</strong>.</li>
+<li><strong>Unmarked</strong> events may use either <strong>GET or NOTIFY</strong> depending on context.</li>
+<li>Ourin <strong>transparently passes unknown event names</strong> to SHIORI/3.0 (preserving vocabulary).</li>
+</ul>
+<h2 id="5-frame-examples-sstphttpxpc">5. Frame Examples (SSTP/HTTP/XPC)</h2>
+<h3 id="51-socket-sstp-tcp9801-notify">5.1 Socket SSTP (TCP/9801, NOTIFY)</h3>
+<pre class="codehilite"><code>NOTIFY SSTP/1.1
+Sender: ExternalApp
+Charset: UTF-8
+Event: OnRequestValues
+Reference0: OtherGhost
+Reference1: Profile
+Reference2: LIFE
+
+\r\n
+</code></pre>
+
+<h3 id="52-sstp-over-http-post">5.2 SSTP-over-HTTP (POST)</h3>
+<pre class="codehilite"><code>POST /api/sstp/v1 HTTP/1.1
+Host: 127.0.0.1
+Content-Type: text/plain; charset=UTF-8
+Content-Length: &lt;len&gt;
+
+NOTIFY SSTP/1.1
+Sender: ExternalApp
+Event: OnRequestValues
+...
+</code></pre>
+
+<h3 id="53-directsstp-mac-xpc">5.3 DirectSSTP-Mac (XPC)</h3>
+<ul>
+<li>Pass the <strong>raw SSTP/1.x byte sequence</strong> as <code>request</code>. The response is the raw byte sequence of <code>SSTP/1.x 200 OK ...</code>.</li>
+</ul>
+<h2 id="6-security-sandbox">6. Security / Sandbox</h2>
+<ul>
+<li><strong>Receive binding</strong>: Default is <code>127.0.0.1</code> only (local only).</li>
+<li><strong>Path intake</strong>: <code>file://</code> normalization and <strong>security-scoped URL</strong> management when needed.</li>
+<li><strong>XPC</strong>: Strict <strong>exported interface</strong> on <code>NSXPCListener</code>; connection controlled by signature/identifier.</li>
+</ul>
+<h2 id="7-test-checklist">7. Test Checklist</h2>
+<ul>
+<li>[ ] CRLF line endings, <code>Charset:</code> interpretation, and mixed CP932 acceptance</li>
+<li>[ ] Behavioral differences between [NOTIFY] and unmarked; return codes (200/204/400, etc.)</li>
+<li>[ ] Same event reaches SHIORI regardless of Socket/HTTP/XPC transport</li>
+<li>[ ] Local binding; automatic retry on port conflict</li>
+<li>[ ] Large bodies, multiple <code>ReferenceN</code>, and transparent pass-through of unknown event names</li>
+</ul>
+<h2 id="8-bridgetoshiori-sstp-to-shiori-bridge-behavior">8. BridgeToSHIORI — SSTP to SHIORI Bridge Behavior</h2>
+<p>This section is based on the implementation in <code>BridgeToSHIORI.swift</code> and <code>EventBridge.swift</code>.</p>
+<h3 id="81-method-preservation">8.1 Method Preservation</h3>
+<ul>
+<li>SSTP NOTIFY frames (<code>NOTIFY SSTP/1.x</code>) are forwarded to SHIORI as <code>NOTIFY SHIORI/3.0</code>. GET frames are forwarded as <code>GET SHIORI/3.0</code>.</li>
+<li>NOTIFY is never converted to GET (<code>EventBridge.sendNotify</code> always passes <code>method: "NOTIFY"</code>).</li>
+</ul>
+<h3 id="82-handle-vs-handleresponse">8.2 handle vs. handleResponse</h3>
+<p>The SSTP dispatcher (<code>SSTPDispatcher</code>) uses <code>BridgeToSHIORI.handleResponse</code> to receive the full SHIORI/3.0 wire response string, preserving all headers including <code>ReferenceN</code>, <code>Value</code>, <code>ValueNotify</code>, and <code>Status</code>.
+Other internal callers such as <code>GhostManager</code>, <code>ResourceBridge</code>, and <code>WebHandler</code> use <code>BridgeToSHIORI.handle</code>, which returns only the <code>Value</code> (script string).</p>
+<h3 id="83-receiverghostname-routing">8.3 ReceiverGhostName Routing</h3>
+<p>When the SSTP frame contains a <code>ReceiverGhostName</code> header, the bridge routes the request only to the session matching that ghost. When the header is absent, the request is sent to the primary (first registered) ghost.</p>
+<h3 id="84-resource-event-handling">8.4 Resource Event Handling</h3>
+<p>When a <code>Resource</code> event arrives via SSTP, <code>references[0]</code> is used as the resource name and the request is forwarded as a SHIORI GET with <code>ID: Resource</code> / <code>Reference0: &lt;name&gt;</code>. The return value is treated as a short text value (the 3.0 mapping of the UKADOC SHIORI/2.5-origin Resource).</p>
+<h3 id="85-bridge-to-the-live-ghost">8.5 Bridge to the Live Ghost</h3>
+<p>When no native SHIORI bundle is configured, the bridge forwards the request to the actually loaded ghost (YAYA, etc.) via the <code>liveGhostResolver</code> closure. If no matching ghost exists, an empty response is returned.</p>
+<h2 id="9-change-history">9. Change History</h2>
+<ul>
+<li>2026-06-28: Added §8 "BridgeToSHIORI — SSTP to SHIORI Bridge Behavior" (behavior description aligned with implementation).</li>
+<li>2025-07-27: Initial version (3.0M-Mac).</li>
+</ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

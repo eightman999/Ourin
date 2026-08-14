@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugin Bridge 完全実装計画</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="PLUGIN_BRIDGE_COMPLETION_PLAN_ja-jp.html" class="">日本語</a> | <a href="PLUGIN_BRIDGE_COMPLETION_PLAN_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="plugin-bridge">Plugin Bridge 完全実装計画</h1>
+<p><strong>作成日:</strong> 2026-06-26<br />
+<strong>対象:</strong> Ourin の PLUGIN/2.0M bridge / SSP PLUGIN 互換 / PLUGIN/1.0 挙動互換<br />
+<strong>目的:</strong> UKADOC PLUGIN/2.0 の request/response、PLUGIN Event、plugin descript、旧 PLUGIN/1.0 由来の挙動を、macOS native plugin bridge として実用互換レベルまで実装する。</p>
+<h2 id="_1">参照仕様</h2>
+<ul>
+<li>UKADOC PLUGIN/2.0: https://ssp.shillest.net/ukadoc/manual/spec_plugin.html</li>
+<li>UKADOC PLUGIN Event: https://ssp.shillest.net/ukadoc/manual/list_plugin_event.html</li>
+<li>UKADOC Plugin descript.txt: https://ssp.shillest.net/ukadoc/manual/descript_plugin.html</li>
+<li>PLUGIN/1.0 参考: http://usada.sakura.vg/contents/plugin.html</li>
+<li>Ourin 仕様: <code>docs/SPEC_PLUGIN_2.0M_ja-jp.md</code></li>
+<li>Ourin イベント仕様: <code>docs/PLUGIN_EVENT_2.0M_SPEC_ja-jp.md</code></li>
+</ul>
+<h2 id="_2">完了定義</h2>
+<p>Plugin bridge 完全実装とは、以下を満たす状態とする。</p>
+<ol>
+<li>プラグインへの送信が PLUGIN/2.0 の wire semantics に準拠する。</li>
+<li>プラグインからの <code>Event</code> / <code>Reference*</code> / <code>Target</code> / <code>Script</code> / <code>ScriptOption</code> / <code>EventOption</code> 応答が、ゴーストへ仕様通り橋渡しされる。</li>
+<li>UKADOC PLUGIN Event リストの全イベントについて、少なくとも「正しい ID、GET/NOTIFY、Reference 順」で送信経路がある。</li>
+<li><code>descript.txt</code> の <code>charset</code> / <code>secondchangeinterval</code> / <code>otherghosttalk</code> が実動作へ接続される。</li>
+<li><code>property.get</code> / <code>property.set</code> が <code>pluginlist(...).ext</code> 系の拡張プロパティとして plugin へ委譲される。</li>
+<li>Shift_JIS/CP932 plugin と UTF-8 plugin の双方で、request/response の文字化けがない。</li>
+<li>PLUGIN/1.0 は macOS 上で Windows DLL を直接ロードしないが、イベント名・メニュー呼び出し・旧 descript 由来 metadata の挙動互換を提供する。</li>
+</ol>
+<h2 id="_3">現状サマリ</h2>
+<p>更新 2026-06-27: 本計画の runtime bridge 項目は実装済み。<code>Charset</code> の byte encode/decode、<code>Target</code>
+配送、<code>Event</code>/<code>Script</code> fallback、<code>ScriptOption</code>、plugin 別 <code>secondchangeinterval</code>、<code>otherghosttalk</code>
+before/after、catalog/install/ghost/menu event wiring、<code>pluginlist(...).ext</code> property 委譲、PLUGIN/1.0
+metadata 互換、DevTools console、選択肢/アンカーの plugin-origin one-shot hook を接続した。回帰は
+<code>PluginEncodingTests</code>、<code>PluginTargetRoutingTests</code>、<code>PluginPropertyBridgeTests</code> と既存 matrix、および full
+<code>xcodebuild -project Ourin.xcodeproj -scheme Ourin test</code> で検証する。</p>
+<p>実装済み:</p>
+<ul>
+<li><code>.plugin</code> / <code>.bundle</code> 検出と <code>request</code> / <code>loadu</code> / <code>unload</code> 呼び出し。</li>
+<li><code>PluginFrame</code> による GET/NOTIFY フレーム構築。</li>
+<li><code>PluginEventDispatcher</code> による plugin 単位の直列 dispatch。</li>
+<li><code>OurinPluginEventBridge</code> による <code>raiseplugin</code> / <code>notifyplugin</code> 応答 bridge。</li>
+<li><code>EventOption: notify</code>、<code>ScriptOption</code> parse、<code>__SYSTEM_ALL_GHOST__</code> の基本受理。</li>
+<li><code>OnChoiceSelect(Ex)</code> / <code>OnAnchorSelect(Ex)</code> の plugin-origin one-shot 横流し。</li>
+<li>negotiated <code>Charset</code> に基づく実 byte encode/decode。</li>
+<li><code>Target</code> の特定 ghost / all ghost / baseware 配送。</li>
+<li><code>notranslate</code> / <code>nobreak</code> の SakuraScript 実行制御。</li>
+<li><code>property.get</code> / <code>property.set</code> の plugin 委譲。</li>
+<li><code>OnOtherGhostTalk</code> の実発話 pipeline 接続と <code>before</code> / <code>after</code>。</li>
+<li>catalog 系通知の起動時・install 時 wiring。</li>
+<li>PLUGIN/1.0 由来 plugin metadata / menu/message 挙動互換。</li>
+</ul>
+<h2 id="phase-0">Phase 0: 実装状況の棚卸しと仕様同期</h2>
+<p><strong>目的:</strong> 古い docs と実コードのずれをなくし、後続実装の基準を固定する。</p>
+<p>対象:</p>
+<ul>
+<li><code>docs/SPEC_PLUGIN_2.0M_ja-jp.md</code></li>
+<li><code>docs/PLUGIN_EVENT_2.0M_SPEC_ja-jp.md</code></li>
+<li><code>docs/PLUGIN_COMPAT_FIX_PROPOSAL.md</code></li>
+<li><code>Ourin/PluginEvent/*</code></li>
+<li><code>Ourin/PluginHost/*</code></li>
+</ul>
+<p>作業:</p>
+<ol>
+<li>UKADOC のイベント一覧を Ourin 実装表へ転記し直す。</li>
+<li>各イベントを <code>implemented</code> / <code>helper-only</code> / <code>not wired</code> / <code>not implemented</code> に分類する。</li>
+<li>既存 docs の「実装済み」表現を、helper-only と runtime-wired に分ける。</li>
+</ol>
+<p>受け入れ条件:</p>
+<ul>
+<li>docs の実装状況と <code>rg</code> で確認できるコードが矛盾しない。</li>
+<li>各未実装項目がこの計画書の Phase に対応する。</li>
+</ul>
+<h2 id="phase-1-wire-charset-byte">Phase 1: Wire charset を byte レベルで実装</h2>
+<p><strong>目的:</strong> PLUGIN/2.0 の <code>Charset</code> を実際の request/response encode/decode に反映する。</p>
+<p>対象:</p>
+<ul>
+<li><code>Ourin/PluginHost/Plugin.swift</code></li>
+<li><code>Ourin/PluginHost/PluginProtocol.swift</code></li>
+<li><code>Ourin/PluginEvent/PluginEncodingNormalizer.swift</code></li>
+<li><code>Ourin/PluginEvent/PluginEventDispatcher.swift</code></li>
+<li><code>OurinTests/OurinPluginEventBridgeTests.swift</code></li>
+<li>新規: <code>OurinTests/PluginEncodingTests.swift</code></li>
+</ul>
+<p>作業:</p>
+<ol>
+<li><code>Plugin.send</code> を <code>String.Encoding</code> 指定可能にする。</li>
+<li><code>PluginRequest</code> build 後の wire を negotiated charset で byte 化する。</li>
+<li>plugin response を response <code>Charset</code> または request charset で decode し、内部 UTF-8 <code>String</code> へ正規化する。</li>
+<li><code>version</code> 応答の <code>Charset</code> を plugin ごとに保持し、次回 request へ適用する。</li>
+<li>Shift_JIS/CP932 の round-trip fixture plugin または mock request 関数をテストに追加する。</li>
+</ol>
+<p>受け入れ条件:</p>
+<ul>
+<li><code>Charset: Shift_JIS</code> plugin に日本語 <code>Reference*</code> を送っても文字化けしない。</li>
+<li>Shift_JIS response の <code>Script</code> / <code>Event</code> / <code>Reference*</code> を UTF-8 内部文字列として扱える。</li>
+<li>UTF-8 plugin の既存テストが退行しない。</li>
+</ul>
+<h2 id="phase-2-target-routing">Phase 2: Target routing の完全化</h2>
+<p><strong>目的:</strong> <code>Target</code> が指定された plugin response を、仕様通り対象 ghost へ返す。</p>
+<p>対象:</p>
+<ul>
+<li><code>Ourin/PluginEvent/OurinPluginEventBridge.swift</code></li>
+<li><code>Ourin/SHIORIEvents/EventBridge.swift</code></li>
+<li><code>Ourin/Ghost/GhostManager.swift</code></li>
+<li><code>Ourin/Ghost/GhostManager+System.swift</code></li>
+<li><code>Ourin/SSTP/BridgeToSHIORI.swift</code></li>
+</ul>
+<p>作業:</p>
+<ol>
+<li><code>PluginTransportAction.target</code> を文字列のまま判定するだけでなく、配送先 resolver に渡す。</li>
+<li>target resolver を追加する。</li>
+<li><code>nil</code> / empty: 呼び出し元 ghost を優先し、なければ active ghost。</li>
+<li><code>__SYSTEM_ALL_GHOST__</code>: 起動中全 ghost。</li>
+<li>ghost name / ghost id / ghost path / owned SSTP id: 該当 ghost。</li>
+<li><code>baseware</code> / <code>ourin</code>: baseware 側処理。</li>
+<li><code>raiseplugin</code> 呼び出し元 ghost を action context に保持する。</li>
+<li><code>PluginEventDispatcher</code> の system event 由来 response は active ghost または target 指定に従う。</li>
+<li>target 不一致時は fallback script を実行しない。</li>
+</ol>
+<p>受け入れ条件:</p>
+<ul>
+<li>2 体起動時、<code>Target</code> 指定 response が該当 ghost のみに届く。</li>
+<li><code>__SYSTEM_ALL_GHOST__</code> は全 ghost に届く。</li>
+<li><code>raiseplugin</code> response は target 未指定なら呼び出し元 ghost に戻る。</li>
+</ul>
+<h2 id="phase-3-eventscript-response-semantics">Phase 3: Event/Script response semantics の厳密化</h2>
+<p><strong>目的:</strong> <code>Event</code> が反応しない場合だけ default <code>Script</code> を実行する仕様を安定化する。</p>
+<p>対象:</p>
+<ul>
+<li><code>Ourin/PluginEvent/OurinPluginEventBridge.swift</code></li>
+<li><code>Ourin/SHIORIEvents/EventBridge.swift</code></li>
+<li><code>Ourin/SHIORIEvents/EventID.swift</code></li>
+<li><code>Ourin/Ghost/GhostManager.swift</code></li>
+<li><code>Ourin/SakuraScriptEngine.swift</code></li>
+</ul>
+<p>作業:</p>
+<ol>
+<li>plugin response 由来 <code>Event</code> は <code>EventOption: notify</code> なしなら GET として SHIORI に送る。</li>
+<li>GET response script が空なら plugin response <code>Script</code> を fallback として実行する。</li>
+<li><code>EventOption: notify</code> の場合は response script を見ず、plugin response <code>Script</code> fallback も実行しない。</li>
+<li><code>ScriptOption: nobreak</code> を「現在のトーク後に enqueue」として実装する。</li>
+<li><code>ScriptOption: notranslate</code> を SakuraScript 実行 context に伝播する。</li>
+<li><code>OnOtherGhostTalk</code> の reasons に <code>plugin-script</code> / <code>plugin-event</code> / <code>notranslate</code> を付与できるようにする。</li>
+</ol>
+<p>受け入れ条件:</p>
+<ul>
+<li><code>Event + Script</code> response で ghost が GET 応答した場合、default Script は再生されない。</li>
+<li>ghost が空応答の場合だけ default Script が再生される。</li>
+<li><code>nobreak</code> は再生中トークを中断しない。</li>
+<li><code>notranslate</code> は translate pipeline を通らない。</li>
+</ul>
+<h2 id="phase-4-ukadoc-plugin-event">Phase 4: UKADOC PLUGIN Event 全送信経路</h2>
+<p><strong>目的:</strong> イベント一覧の全 ID を runtime event source と接続する。</p>
+<p>対象:</p>
+<ul>
+<li><code>Ourin/PluginEvent/PluginEventDispatcher.swift</code></li>
+<li><code>Ourin/OurinApp.swift</code></li>
+<li><code>Ourin/Ghost/GhostManager+System.swift</code></li>
+<li><code>Ourin/Ghost/GhostManager+Balloon.swift</code></li>
+<li><code>Ourin/NarInstall/*</code></li>
+<li><code>Ourin/HeadlineHost/*</code></li>
+<li><code>Ourin/Property/*</code></li>
+</ul>
+<p>イベント別作業:</p>
+<ol>
+<li><code>version</code></li>
+<li>現状維持。ただし charset byte 実装後に再検証する。</li>
+<li><code>installedplugin</code></li>
+<li>起動時、plugin reload 時、install/uninstall 時に送る。</li>
+<li><code>installedghostname</code></li>
+<li>起動時、ghost install/uninstall 時に送る。</li>
+<li><code>Reference0</code>: ghost names。</li>
+<li><code>Reference1</code>: sakura names。</li>
+<li><code>Reference2</code>: kero names。</li>
+<li><code>installedballoonname</code></li>
+<li>起動時、balloon install/uninstall 時に送る。</li>
+<li><code>ghostpathlist</code></li>
+<li>起動時、ghost path 設定変更時に送る。</li>
+<li><code>balloonpathlist</code></li>
+<li>起動時、balloon path 設定変更時に送る。</li>
+<li><code>headlinepathlist</code></li>
+<li>起動時、headline path 設定変更時に送る。</li>
+<li><code>pluginpathlist</code></li>
+<li>起動時、plugin reload/install/uninstall 時に送る。</li>
+<li><code>OnSecondChange</code></li>
+<li><code>secondchangeinterval</code> を plugin ごとに尊重する。現在の最小 interval 一括 timer ではなく、plugin 別 timer または tick filter にする。</li>
+<li><code>OnOtherGhostTalk</code><ul>
+<li>ghost 発話直前/直後に接続する。</li>
+<li><code>otherghosttalk</code> の <code>false/0/true/1/after/before</code> を尊重する。</li>
+</ul>
+</li>
+<li><code>OnGhostBoot</code><ul>
+<li>ghost boot 完了時に送る。window 未構築なら <code>0</code>。</li>
+</ul>
+</li>
+<li><code>OnGhostExit</code><ul>
+<li>ghost exit 時に NOTIFY で送る。</li>
+</ul>
+</li>
+<li><code>OnGhostInfoUpdate</code><ul>
+<li>ghost config/shell/info update 時に NOTIFY で送る。</li>
+</ul>
+</li>
+<li><code>OnMenuExec</code><ul>
+<li>plugin menu 実行時に GET で送る。</li>
+</ul>
+</li>
+<li><code>OnInstallComplete</code><ul>
+<li>NAR / ghost / shell / balloon / plugin / headline install 完了時に送る。</li>
+</ul>
+</li>
+<li><code>OnChoiceSelect(Ex)</code> / <code>OnAnchorSelect(Ex)</code> / arbitrary choice event<ul>
+<li>plugin response 由来 script/event から出た選択肢だけ、一回限り plugin へ横流しする marker を付ける。</li>
+</ul>
+</li>
+<li><code>raiseplugin</code> / <code>notifyplugin</code> 任意名<ul>
+<li>現状を維持し、Target context と charset を接続する。</li>
+</ul>
+</li>
+<li><code>property.get</code><ul>
+<li>Phase 5 で実装する。</li>
+</ul>
+</li>
+<li><code>property.set</code><ul>
+<li>Phase 5 で実装する。</li>
+</ul>
+</li>
+</ol>
+<p>受け入れ条件:</p>
+<ul>
+<li>各イベントの Reference 順が UKADOC と一致する。</li>
+<li><code>[NOTIFY]</code> イベントは response script を無視する。</li>
+<li><code>OnSecondChange</code> は plugin ごとの interval を守る。</li>
+<li><code>OnOtherGhostTalk</code> は <code>before</code> / <code>after</code> を区別する。</li>
+</ul>
+<h2 id="phase-5-plugin-propertyget-propertyset">Phase 5: plugin 拡張 property.get / property.set</h2>
+<p><strong>目的:</strong> <code>pluginlist(...).ext</code> 由来の拡張 property を plugin request へ委譲する。</p>
+<p>対象:</p>
+<ul>
+<li><code>Ourin/Property/PluginPropertyProvider.swift</code></li>
+<li><code>Ourin/Property/PropertyManager.swift</code></li>
+<li><code>Ourin/PluginHost/PluginRegistry.swift</code></li>
+<li><code>Ourin/PluginEvent/PluginEventDispatcher.swift</code></li>
+<li><code>OurinTests/PropertySystemTests.swift</code></li>
+</ul>
+<p>設計:</p>
+<ul>
+<li><code>pluginlist(name).ext.foo</code> または <code>pluginlist.index(n).ext.foo</code> を拡張 property として扱う。</li>
+<li>get:</li>
+<li>target plugin へ <code>GET PLUGIN/2.0M</code></li>
+<li><code>ID: property.get</code></li>
+<li><code>Reference0: foo</code></li>
+<li><code>Value</code> または <code>Script</code> ではなく、仕様通り property value として response value を採用する。</li>
+<li>set:</li>
+<li>target plugin へ <code>GET</code> または <code>NOTIFY</code> ではなく、仕様に合わせ <code>GET</code> 相当の request-response とする。</li>
+<li><code>ID: property.set</code></li>
+<li><code>Reference0: foo</code></li>
+<li><code>Reference1: value</code></li>
+<li>status <code>204</code> または <code>200</code> を成功扱い。</li>
+</ul>
+<p>受け入れ条件:</p>
+<ul>
+<li><code>pluginlist.index(0).ext.somekey</code> が plugin の <code>property.get</code> response を返す。</li>
+<li><code>PropertyManager.set("pluginlist.index(0).ext.somekey", value: "x")</code> が <code>property.set</code> を呼ぶ。</li>
+<li>404/500 response は property get nil / set false になる。</li>
+</ul>
+<h2 id="phase-6-plugin10">Phase 6: PLUGIN/1.0 挙動互換</h2>
+<p><strong>目的:</strong> Windows DLL バイナリ互換ではなく、旧 plugin 配布物・旧 metadata・旧 menu 挙動を Ourin 上で扱いやすくする。</p>
+<p>対象:</p>
+<ul>
+<li><code>Ourin/PluginHost/PluginRegistry.swift</code></li>
+<li><code>Ourin/PluginHost/PluginProtocol.swift</code></li>
+<li><code>Ourin/PluginEvent/PluginEventDispatcher.swift</code></li>
+<li><code>Ourin/OwnerDrawMenu/*</code></li>
+<li><code>OurinTests/LegacyPluginRegistryTests.swift</code></li>
+</ul>
+<p>作業:</p>
+<ol>
+<li>legacy metadata-only plugin directory を bridge 対象として扱う条件を整理する。</li>
+<li><code>descript.txt</code> の旧 key alias を正規化する。</li>
+<li>native <code>.plugin</code> がない Windows DLL plugin は「ロード不可だが metadata visible」とし、menu 実行時には明示エラーまたは無効表示にする。</li>
+<li>PLUGIN/1.0 由来の menu / author / readme / charset key を <code>PluginMeta</code> に保持する。</li>
+<li>macOS native へ移植済み package が同一 ID で存在する場合、native を優先し legacy は重複登録しない。</li>
+</ol>
+<p>受け入れ条件:</p>
+<ul>
+<li>legacy plugin directory は Ourin UI 上で識別できる。</li>
+<li>native replacement がある場合は二重ロードされない。</li>
+<li>旧 descript の charset/name/id/filename が metadata として読める。</li>
+</ul>
+<h2 id="phase-7-menu-ui-devtools-bridge">Phase 7: Menu / UI / DevTools bridge</h2>
+<p><strong>目的:</strong> plugin bridge の状態と発火を UI から検証できるようにする。</p>
+<p>対象:</p>
+<ul>
+<li><code>Ourin/ContentView.swift</code></li>
+<li><code>Ourin/DevTools/*</code></li>
+<li><code>Ourin/OwnerDrawMenu/*</code></li>
+<li><code>Ourin/PluginHost/PluginRegistry.swift</code></li>
+</ul>
+<p>作業:</p>
+<ol>
+<li>Plugin DevTools に negotiated charset、package path、executable path、legacy/native 状態を表示する。</li>
+<li>任意 plugin に <code>GET</code> / <code>NOTIFY</code> request を送れる test console を追加または強化する。</li>
+<li><code>OnMenuExec</code> の実 menu からの起動を dispatcher に接続する。</li>
+<li><code>message.*.txt</code> を plugin menu 表示文言へ優先適用する。</li>
+</ol>
+<p>受け入れ条件:</p>
+<ul>
+<li>DevTools から <code>version</code> / arbitrary event / property.get を手動検証できる。</li>
+<li>plugin menu 文言が <code>message.japanese.txt</code> / <code>message.english.txt</code> で切り替わる。</li>
+</ul>
+<h2 id="phase-8-test-plugin-fixtures">Phase 8: Test plugin fixtures</h2>
+<p><strong>目的:</strong> 実 plugin 互換を unit test と integration test で固定する。</p>
+<p>対象:</p>
+<ul>
+<li><code>OurinTests/Fixtures/plugin/*</code></li>
+<li>新規 fixture plugin source</li>
+<li><code>OurinTests/PluginBridgeIntegrationTests.swift</code></li>
+</ul>
+<p>fixture:</p>
+<ol>
+<li>UTF-8 echo plugin。</li>
+<li>Shift_JIS echo plugin。</li>
+<li><code>Event + Script fallback</code> plugin。</li>
+<li><code>Target</code> plugin。</li>
+<li><code>property.get/set</code> plugin。</li>
+<li>legacy metadata-only plugin。</li>
+</ol>
+<p>受け入れ条件:</p>
+<ul>
+<li>CI または local <code>xcodebuild test</code> で fixture plugin をロードできる。</li>
+<li>byte charset、Target、fallback、property を実 plugin response で検証する。</li>
+</ul>
+<h2 id="phase-9-regression-test-matrix">Phase 9: Regression test matrix</h2>
+<p><strong>対象テスト</strong></p>
+<ul>
+<li><code>OurinPluginEventBridgeTests</code></li>
+<li><code>LegacyPluginRegistryTests</code></li>
+<li><code>PropertySystemTests</code></li>
+<li><code>SakuraScriptEngineTests</code></li>
+<li><code>SSTPDispatcherTests</code></li>
+<li>新規 <code>PluginEncodingTests</code></li>
+<li>新規 <code>PluginTargetRoutingTests</code></li>
+<li>新規 <code>PluginPropertyBridgeTests</code></li>
+<li>新規 <code>PluginEventDispatchMatrixTests</code></li>
+</ul>
+<p>検証コマンド:</p>
+<pre class="codehilite"><code class="language-bash">xcodebuild -project Ourin.xcodeproj -scheme Ourin test
+</code></pre>
+
+<p>追加で、対象変更中は以下を個別実行する。</p>
+<pre class="codehilite"><code class="language-bash">xcodebuild -project Ourin.xcodeproj -scheme Ourin -only-testing:OurinTests/OurinPluginEventBridgeTests test
+xcodebuild -project Ourin.xcodeproj -scheme Ourin -only-testing:OurinTests/PropertySystemTests test
+xcodebuild -project Ourin.xcodeproj -scheme Ourin -only-testing:OurinTests/LegacyPluginRegistryTests test
+</code></pre>
+
+<h2 id="_4">実装順序</h2>
+<p>推奨順:</p>
+<ol>
+<li>Phase 0: docs/status 棚卸し。</li>
+<li>Phase 1: charset byte 実装。</li>
+<li>Phase 2: Target routing。</li>
+<li>Phase 3: Event/Script semantics。</li>
+<li>Phase 4: event wiring。</li>
+<li>Phase 5: property.get/set。</li>
+<li>Phase 6: PLUGIN/1.0 挙動互換。</li>
+<li>Phase 7: UI/DevTools。</li>
+<li>Phase 8/9: fixtures と test matrix 拡充。</li>
+</ol>
+<p>理由:</p>
+<ul>
+<li>charset と Target は bridge 全体の土台で、後続イベントすべてに影響する。</li>
+<li>Event/Script semantics を先に固めると、OnMenuExec・raiseplugin・choice hook の挙動が安定する。</li>
+<li>property は独立度が高いが、target plugin resolution が必要なため Phase 2 後がよい。</li>
+</ul>
+<h2 id="_5">リスクと対策</h2>
+<table>
+<thead>
+<tr>
+<th>リスク</th>
+<th>影響</th>
+<th>対策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shift_JIS plugin response の decode 失敗</td>
+<td>日本語 plugin が壊れる</td>
+<td>byte fixture と CP932 fallback を追加</td>
+</tr>
+<tr>
+<td>Target routing で別 ghost に script が流れる</td>
+<td>ユーザー体験・互換性に直撃</td>
+<td>multi-ghost routing tests を追加</td>
+</tr>
+<tr>
+<td><code>nobreak</code> 実装で再生 queue が破綻</td>
+<td>トーク再生 regressions</td>
+<td>SakuraScript playback tests を追加</td>
+</tr>
+<tr>
+<td><code>OnOtherGhostTalk</code> が再帰的に発火</td>
+<td>plugin-event loop</td>
+<td>reason flag と再入抑止 token を導入</td>
+</tr>
+<tr>
+<td>property.set が副作用を持つ</td>
+<td>予期せぬ plugin 状態変更</td>
+<td>明示 target plugin のみに送る</td>
+</tr>
+<tr>
+<td>legacy plugin を誤ロード</td>
+<td>クラッシュ/無効 bundle</td>
+<td>native bundle 有無でロード可否を分離</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_6">最小マイルストーン</h2>
+<h3 id="m1-bridge-core">M1: bridge core 完成</h3>
+<ul>
+<li>charset byte 実装。</li>
+<li>Target routing。</li>
+<li>Event/Script fallback 厳密化。</li>
+<li><code>OurinPluginEventBridgeTests</code> / <code>PluginEncodingTests</code> / <code>PluginTargetRoutingTests</code> 成功。</li>
+</ul>
+<h3 id="m2-event-matrix">M2: event matrix 完成</h3>
+<ul>
+<li>UKADOC PLUGIN Event 全 ID を runtime source に接続。</li>
+<li><code>OnSecondChange</code> plugin 別 interval。</li>
+<li><code>OnOtherGhostTalk</code> before/after。</li>
+<li><code>PluginEventDispatchMatrixTests</code> 成功。</li>
+</ul>
+<h3 id="m3-property-legacy">M3: property と legacy 互換</h3>
+<ul>
+<li><code>property.get/set</code> plugin 委譲。</li>
+<li>PLUGIN/1.0 metadata-only 互換。</li>
+<li>native replacement 優先と重複抑止。</li>
+</ul>
+<h3 id="m4-ui">M4: UI と運用検証</h3>
+<ul>
+<li>DevTools で request/response を確認可能。</li>
+<li>plugin menu 文言に <code>message.*.txt</code> を反映。</li>
+<li>full <code>xcodebuild ... test</code> 成功。</li>
+</ul>
+<h2 id="docs">完了後に更新する docs</h2>
+<ul>
+<li><code>docs/SPEC_PLUGIN_2.0M_ja-jp.md</code></li>
+<li><code>docs/SPEC_PLUGIN_2.0M_en-us.md</code></li>
+<li><code>docs/PLUGIN_EVENT_2.0M_SPEC_ja-jp.md</code></li>
+<li><code>docs/PLUGIN_EVENT_2.0M_SPEC_en-us.md</code></li>
+<li><code>docs/PropertySystem_ja-jp.md</code></li>
+<li><code>docs/PropertySystem_en-us.md</code></li>
+<li><code>docs/SUPPORTED_SAKURA_SCRIPT.md</code></li>
+</ul>
+<h2 id="_7">チェックリスト</h2>
+<ul>
+<li>[x] Charset negotiated byte encode/decode</li>
+<li>[x] Target resolver</li>
+<li>[x] caller ghost context for <code>raiseplugin</code></li>
+<li>[x] <code>__SYSTEM_ALL_GHOST__</code> multi-ghost delivery</li>
+<li>[x] <code>Event</code> GET fallback semantics</li>
+<li>[x] <code>EventOption: notify</code></li>
+<li>[x] <code>ScriptOption: nobreak</code></li>
+<li>[x] <code>ScriptOption: notranslate</code></li>
+<li>[x] plugin-specific <code>secondchangeinterval</code></li>
+<li>[x] <code>otherghosttalk</code> before/after</li>
+<li>[x] <code>installedghostname</code></li>
+<li>[x] <code>installedballoonname</code></li>
+<li>[x] <code>ghostpathlist</code></li>
+<li>[x] <code>balloonpathlist</code></li>
+<li>[x] <code>headlinepathlist</code></li>
+<li>[x] <code>OnGhostBoot</code></li>
+<li>[x] <code>OnGhostExit</code></li>
+<li>[x] <code>OnGhostInfoUpdate</code></li>
+<li>[x] <code>OnMenuExec</code></li>
+<li>[x] <code>OnInstallComplete</code></li>
+<li>[x] choice/anchor one-shot plugin-origin hook</li>
+<li>[x] <code>property.get</code></li>
+<li>[x] <code>property.set</code></li>
+<li>[x] PLUGIN/1.0 metadata-only compatibility</li>
+<li>[x] DevTools request console</li>
+<li>[x] fixture/plugin bridge regression suite</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

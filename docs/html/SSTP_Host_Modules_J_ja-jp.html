@@ -149,7 +149,7 @@
 <p>Ourin に実装されている SSTP 関連モジュールの役割をまとめます。実装は <code>docs/SSTP_1.xM_SPEC.md</code> を元にしており、macOS ネイティブ環境で動作します。</p>
 <h2 id="_1">主なコンポーネント</h2>
 <ul>
-<li><strong>SSTPListener</strong>: TCP 9801 番ポートで待ち受けを行い、1 接続ごとに SSTP メッセージを処理します。</li>
+<li><strong>UnifiedSstpListener / SstpTcpServer / SstpHttpServer</strong>: TCP 9801 番ポートで待ち受けを行い（HTTP も同一ポートで多重化）、1 接続ごとに SSTP メッセージを処理します（実装: <code>Ourin/ExternalServer/</code>）。</li>
 <li><strong>HTTPBridge</strong>: <code>/api/sstp/v1</code> への POST を受け取り、SSTP として解釈する簡易 HTTP ブリッジです。</li>
 <li><strong>SSTPParser</strong>: ヘッダーや追加データを解析し <code>SSTPRequest</code> 構造体へ変換します。</li>
 <li><strong>SSTPDispatcher</strong>: メソッドに応じて SHIORI などの処理へ振り分け、応答ヘッダーを組み立てます。</li>
@@ -160,7 +160,7 @@
 </ul>
 <p>各モジュールの詳細や仕様は <code>docs/SSTP_1.xM_SPEC.md</code> を参照してください。</p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

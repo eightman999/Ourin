@@ -149,29 +149,41 @@
 <p><strong>Date</strong>: 2025-10-16<br />
 <strong>Project</strong>: Ourin (桜鈴) - macOS Native Ukagaka Baseware<br />
 <strong>Issue</strong>: Investigation of yaya_core module status and implementation planning</p>
+<blockquote>
+<p><strong>2026-06-27 status correction:</strong> this is a historical executive summary.
+The current <code>yaya_core</code> is no longer IPC-only: it includes a parser, VM,
+dictionary loader, encoding handling, and broad built-in coverage. It remains
+partially compatible rather than complete. See
+<a href="../yaya_core/IMPLEMENTATION_STATUS.md"><code>../yaya_core/IMPLEMENTATION_STATUS.md</code></a>
+and <a href="AUDITS_COMPLETED.md"><code>AUDITS_COMPLETED.md</code></a> / <a href="AUDITS_TODO.md"><code>AUDITS_TODO.md</code></a>.</p>
+</blockquote>
 <hr />
 <h2 id="tldr">TL;DR</h2>
-<p><strong>The yaya_core module EXISTS</strong> but only has the IPC framework implemented. The actual YAYA language interpreter (parser, VM, built-in functions) is <strong>NOT YET IMPLEMENTED</strong> (stub only).</p>
+<p><strong>Historical note:</strong> at the time of this investigation, <code>yaya_core</code> only had the
+IPC framework implemented. That statement is now obsolete; current status is
+partial compatibility with a working parser/VM and known remaining gaps.</p>
 <p><strong>Recommended approach</strong>: Continue with <strong>C++ implementation</strong> (Phase 1-2), optional migration to Swift in Phase 3+.</p>
 <p><strong>Estimated effort</strong>: 3 weeks for MVP, 2-3 weeks for extended features.</p>
 <hr />
 <h2 id="investigation-results">Investigation Results</h2>
 <h3 id="what-exists">What Exists ✅</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">yaya_core</span><span class="o">/</span>
-<span class="err">├──</span><span class="w"> </span><span class="n">CMakeLists</span><span class="o">.</span><span class="n">txt</span><span class="w">              </span><span class="err">✅</span><span class="w"> </span><span class="n">Universal</span><span class="w"> </span><span class="n">Binary</span><span class="w"> </span><span class="p">(</span><span class="n">arm64</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">x86_64</span><span class="p">)</span>
-<span class="err">├──</span><span class="w"> </span><span class="n">src</span><span class="o">/</span>
-<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">main</span><span class="o">.</span><span class="n">cpp</span><span class="w">                </span><span class="err">✅</span><span class="w"> </span><span class="n">JSON</span><span class="w"> </span><span class="n">line</span><span class="o">-</span><span class="n">based</span><span class="w"> </span><span class="n">IPC</span><span class="w"> </span><span class="p">(</span><span class="n">stdin</span><span class="o">/</span><span class="n">stdout</span><span class="p">)</span>
-<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">YayaCore</span><span class="o">.</span><span class="n">cpp</span><span class="w">            </span><span class="err">✅</span><span class="w"> </span><span class="n">Command</span><span class="w"> </span><span class="n">dispatcher</span><span class="w"> </span><span class="p">(</span><span class="nb">load</span><span class="o">/</span><span class="n">request</span><span class="o">/</span><span class="n">unload</span><span class="p">)</span>
-<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">DictionaryManager</span><span class="o">.</span><span class="n">cpp</span><span class="w">   </span><span class="err">❌</span><span class="w"> </span><span class="n">STUB</span><span class="w"> </span><span class="n">ONLY</span><span class="w"> </span><span class="p">(</span><span class="n">no</span><span class="w"> </span><span class="n">actual</span><span class="w"> </span><span class="n">implementation</span><span class="p">)</span>
+<pre class="codehilite"><code>yaya_core/
+├── CMakeLists.txt              ✅ Universal Binary (arm64 + x86_64)
+├── src/
+│   ├── main.cpp                ✅ JSON line-based IPC (stdin/stdout)
+│   ├── YayaCore.cpp            ✅ Command dispatcher (load/request/unload)
+│   ├── DictionaryManager.cpp   🟡 Implemented, with compatibility limits
+│   ├── Parser.cpp / Lexer.cpp  🟡 Implemented, with advanced syntax limits
+│   └── VM.cpp                  🟡 Implemented, with remaining stub built-ins
 
-<span class="n">Ourin</span><span class="o">/</span><span class="n">Yaya</span><span class="o">/</span>
-<span class="err">└──</span><span class="w"> </span><span class="n">YayaAdapter</span><span class="o">.</span><span class="n">swift</span><span class="w">           </span><span class="err">✅</span><span class="w"> </span><span class="n">Swift</span><span class="w"> </span><span class="n">IPC</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="p">(</span><span class="n">complete</span><span class="p">)</span>
+Ourin/Yaya/
+└── YayaAdapter.swift           ✅ Swift IPC client (complete)
 
-<span class="n">docs</span><span class="o">/</span>
-<span class="err">└──</span><span class="w"> </span><span class="n">OURIN_YAYA_ADAPTER_SPEC_1</span><span class="o">.</span><span class="mi">0</span><span class="n">M</span><span class="o">.</span><span class="n">md</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="n">IPC</span><span class="w"> </span><span class="n">protocol</span><span class="w"> </span><span class="n">specification</span>
-</code></pre></div>
+docs/
+└── OURIN_YAYA_ADAPTER_SPEC_1.0M.md  ✅ IPC protocol specification
+</code></pre>
 
-<h3 id="whats-missing">What's Missing ❌</h3>
+<h3 id="remaining-compatibility-gaps">Remaining Compatibility Gaps</h3>
 <table>
 <thead>
 <tr>
@@ -182,29 +194,29 @@
 </thead>
 <tbody>
 <tr>
-<td>Dictionary Parser (Lexer + Parser)</td>
-<td>Critical</td>
-<td>1 week</td>
-</tr>
-<tr>
-<td>YAYA Virtual Machine (VM)</td>
-<td>Critical</td>
-<td>1.5 weeks</td>
-</tr>
-<tr>
-<td>Built-in Functions</td>
+<td>By-reference semantics (<code>&amp;</code>)</td>
 <td>High</td>
-<td>1 week</td>
+<td>TBD</td>
 </tr>
 <tr>
-<td>SHIORI Protocol Adapter</td>
+<td>Standalone <code>when</code> / labeled block dispatch</td>
 <td>High</td>
-<td>0.5 weeks</td>
+<td>TBD</td>
 </tr>
 <tr>
-<td>UTF-8/CP932 Encoding Support</td>
+<td>Remaining stub built-ins (<code>MKDIR</code>, <code>RMDIR</code>, <code>FENUM</code>, Windows shims)</td>
 <td>Medium</td>
-<td>0.5 weeks</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Real ghost output regression matrix</td>
+<td>High</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Full SSP/YAYA reference behavior parity</td>
+<td>Long-term</td>
+<td>TBD</td>
 </tr>
 </tbody>
 </table>
@@ -314,20 +326,20 @@
 </table>
 <p><strong>No additional dependencies required</strong> beyond C++17 stdlib + macOS system libraries.</p>
 <h3 id="architecture">Architecture</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">Ourin</span><span class="o">.</span><span class="n">app</span><span class="w"> </span><span class="p">(</span><span class="n">Swift</span><span class="p">)</span>
-<span class="w">    </span><span class="err">↓</span><span class="w"> </span><span class="n">Process</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">JSON</span><span class="w"> </span><span class="n">IPC</span>
-<span class="n">yaya_core</span><span class="w"> </span><span class="p">(</span><span class="n">C</span><span class="o">++</span><span class="w"> </span><span class="n">executable</span><span class="p">)</span>
-<span class="w">    </span><span class="err">├─</span><span class="w"> </span><span class="n">main</span><span class="o">.</span><span class="n">cpp</span><span class="w"> </span><span class="p">(</span><span class="n">IPC</span><span class="w"> </span><span class="n">server</span><span class="p">)</span>
-<span class="w">    </span><span class="err">├─</span><span class="w"> </span><span class="n">YayaCore</span><span class="w"> </span><span class="p">(</span><span class="n">dispatcher</span><span class="p">)</span>
-<span class="w">    </span><span class="err">├─</span><span class="w"> </span><span class="n">DictionaryManager</span>
-<span class="w">    </span><span class="err">│</span><span class="w">   </span><span class="err">├─</span><span class="w"> </span><span class="n">Lexer</span><span class="w"> </span><span class="p">(</span><span class="n">tokenization</span><span class="p">)</span>
-<span class="w">    </span><span class="err">│</span><span class="w">   </span><span class="err">├─</span><span class="w"> </span><span class="n">Parser</span><span class="w"> </span><span class="p">(</span><span class="n">AST</span><span class="w"> </span><span class="n">construction</span><span class="p">)</span>
-<span class="w">    </span><span class="err">│</span><span class="w">   </span><span class="err">└─</span><span class="w"> </span><span class="n">VM</span><span class="w"> </span><span class="p">(</span><span class="n">execution</span><span class="p">)</span>
-<span class="w">    </span><span class="err">│</span><span class="w">       </span><span class="err">├─</span><span class="w"> </span><span class="n">VariableStore</span>
-<span class="w">    </span><span class="err">│</span><span class="w">       </span><span class="err">├─</span><span class="w"> </span><span class="n">FunctionRegistry</span>
-<span class="w">    </span><span class="err">│</span><span class="w">       </span><span class="err">└─</span><span class="w"> </span><span class="n">BuiltinFunctions</span>
-<span class="w">    </span><span class="err">└─</span><span class="w"> </span><span class="n">ShioriAdapter</span><span class="w"> </span><span class="p">(</span><span class="n">SHIORI</span><span class="o">/</span><span class="mf">3.0</span><span class="n">M</span><span class="p">)</span>
-</code></pre></div>
+<pre class="codehilite"><code>Ourin.app (Swift)
+    ↓ Process + JSON IPC
+yaya_core (C++ executable)
+    ├─ main.cpp (IPC server)
+    ├─ YayaCore (dispatcher)
+    ├─ DictionaryManager
+    │   ├─ Lexer (tokenization)
+    │   ├─ Parser (AST construction)
+    │   └─ VM (execution)
+    │       ├─ VariableStore
+    │       ├─ FunctionRegistry
+    │       └─ BuiltinFunctions
+    └─ ShioriAdapter (SHIORI/3.0M)
+</code></pre>
 
 <hr />
 <h2 id="reference-materials">Reference Materials</h2>
@@ -465,7 +477,7 @@
 <strong>Project</strong>: Ourin (eightman999/Ourin)<br />
 <strong>Date</strong>: 2025-10-16</p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

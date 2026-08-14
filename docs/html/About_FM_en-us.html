@@ -146,198 +146,222 @@
             <a href="index.html">← Back to Index</a>
         </div>
         <h1 id="about-the-fmo-feature">About the FMO Feature</h1>
-<p>This document explains the implementation policy for reproducing FMO (Forged Memory Object), used in Windows games and ghosts, on macOS.</p>
-<h2 id="objective">Objective</h2>
-<ul>
-<li>Share a 64KB data area between processes using named shared memory.</li>
-<li>Perform exclusive control using named semaphores.</li>
-<li>Implement a launch check compliant with the ninix specification.</li>
-</ul>
-<h2 id="ninix-specification-compliance">ninix Specification Compliance</h2>
-<p>This implementation complies with the FMO specification of ninix/ninix-kagari.</p>
-<h3 id="launch-check-method">Launch Check Method</h3>
-<p>In a POSIX environment, it is determined whether another baseware is running by checking if <code>shm_open('/ninix', O_RDWR, 0)</code> succeeds.</p>
-<ul>
-<li>Success → Another baseware is already running.</li>
-<li>Failure (errno == ENOENT) → Not running.</li>
-<li>Other errors → Insufficient permissions, etc.</li>
-</ul>
-<h3 id="resource-names-to-use">Resource Names to Use</h3>
-<p>For compatibility with ninix, the following names are used:</p>
-<ul>
-<li>Shared memory name: <code>/ninix</code></li>
-<li>Semaphore name: <code>/ninix_mutex</code></li>
-</ul>
-<h3 id="fmo-content">FMO Content</h3>
-<p>Data is stored in the shared memory with the following structure:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">shm_t</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w">      </span><span class="c1">// Data size (first 4 bytes)</span>
-<span class="w">    </span><span class="n">sem_t</span><span class="w"> </span><span class="n">sem</span><span class="p">;</span><span class="w">          </span><span class="c1">// Semaphore (POSIX environment)</span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">buf</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span><span class="w"> </span><span class="c1">// Path to the directory containing the UNIX socket</span>
-<span class="p">};</span>
-</code></pre></div>
+<p>This document explains the FMO (Forged Memory Object) implementation in Ourin.</p>
+<h2 id="overview">Overview</h2>
+<p>Ourin's FMO is <strong>not</strong> a full Windows FileMapping API compatibility layer. Instead, it provides <strong>semantic compatibility</strong> using POSIX shared memory. The goal is to let external tools query the list of running ghosts along with their names, paths, and surfaces. Binary/OS API compatibility with Windows tools that read FMO through Win32 APIs is out of scope. The compatibility boundary Ourin guarantees is <code>EXECUTE GetFMO</code> and the <code>id.key\x01value\r\n</code> text view.</p>
+<h2 id="shared-memory-names">Shared Memory Names</h2>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shared memory</td>
+<td><code>/ourin_fmo</code></td>
+</tr>
+<tr>
+<td>Semaphore (mutex)</td>
+<td><code>/ourin_fmo_mutex</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="fmo-record-format">FMO Record Format</h2>
+<p>An SSP-compatible format is used:</p>
+<pre class="codehilite"><code>id.key\x01value\r\n
+</code></pre>
 
-<p>In ninix, the FMO does not hold the baseware's information itself, but rather the directory path where the UNIX socket for retrieving the baseware's information is located. The path ends with a <code>/</code> (e.g., <code>/home/user/.ninix/sock/</code>).</p>
-<h2 id="main-classes">Main Classes</h2>
-<h3 id="fmomutex"><code>FmoMutex</code></h3>
 <ul>
-<li>A Mutex class that wraps a named semaphore.</li>
-<li>Performs exclusive control with <code>lock()</code> and <code>unlock()</code>.</li>
-<li>The <code>createNew</code> parameter allows switching between new creation mode and existing open mode.</li>
-<li>Only the creator executes <code>sem_unlink</code> during <code>cleanup()</code>.</li>
+<li><code>\x01</code> is ASCII SOH (Start of Heading, U+0001)</li>
+<li>Line endings are CRLF (<code>\r\n</code>)</li>
+<li><code>id</code> is a unique 32-character identifier generated when the ghost starts (also accepted for Owned SSTP matching)</li>
+</ul>
+<h3 id="fields">Fields</h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Ghost's sakura name</td>
+<td><code>Emily4</code></td>
+</tr>
+<tr>
+<td><code>keroname</code></td>
+<td>Kero's name</td>
+<td><code>Teddy</code></td>
+</tr>
+<tr>
+<td><code>fullname</code></td>
+<td>Full ghost name from descript metadata</td>
+<td><code>Emily/Phase4</code></td>
+</tr>
+<tr>
+<td><code>ghostname</code></td>
+<td>Ghost name from descript/directory metadata</td>
+<td><code>emily4</code></td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>Ghost directory path</td>
+<td><code>/Users/.../ghost/emily4</code></td>
+</tr>
+<tr>
+<td><code>ghostpath</code></td>
+<td>Ghost installation path</td>
+<td><code>/Users/.../ghost/emily4</code></td>
+</tr>
+<tr>
+<td><code>sakura.surface</code></td>
+<td>Current sakura surface ID</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>kero.surface</code></td>
+<td>Current kero surface ID</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>hwnd</code></td>
+<td>Ourin window identifier for sakura</td>
+<td><code>1001</code></td>
+</tr>
+<tr>
+<td><code>kerohwnd</code></td>
+<td>Ourin window identifier for kero</td>
+<td><code>1002</code></td>
+</tr>
+<tr>
+<td><code>hwndlist</code></td>
+<td>Comma-separated window identifiers for this ghost</td>
+<td><code>1001,1002</code></td>
+</tr>
+<tr>
+<td><code>modulestate</code></td>
+<td>Comma-separated module names and health states</td>
+<td><code>shiori:running,makoto-ghost:running</code></td>
+</tr>
+<tr>
+<td><code>shell</code></td>
+<td>Current shell name (Ourin extension)</td>
+<td><code>master</code></td>
+</tr>
+<tr>
+<td><code>balloon</code></td>
+<td>Current balloon name (Ourin extension)</td>
+<td><code>default</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-output">Example Output</h3>
+<pre class="codehilite"><code>0123456789abcdef0123456789abcdef.name\x01Emily4\r\n
+0123456789abcdef0123456789abcdef.keroname\x01Teddy\r\n
+0123456789abcdef0123456789abcdef.fullname\x01Emily/Phase4\r\n
+0123456789abcdef0123456789abcdef.ghostname\x01emily4\r\n
+0123456789abcdef0123456789abcdef.path\x01/Users/user/Library/.../ghost/emily4\r\n
+0123456789abcdef0123456789abcdef.ghostpath\x01/Users/user/Library/.../ghost/emily4\r\n
+0123456789abcdef0123456789abcdef.sakura.surface\x010\r\n
+0123456789abcdef0123456789abcdef.kero.surface\x0110\r\n
+0123456789abcdef0123456789abcdef.hwnd\x011001\r\n
+0123456789abcdef0123456789abcdef.kerohwnd\x011002\r\n
+0123456789abcdef0123456789abcdef.hwndlist\x011001,1002\r\n
+0123456789abcdef0123456789abcdef.modulestate\x01shiori:running,makoto-ghost:running\r\n
+0123456789abcdef0123456789abcdef.shell\x01master\r\n
+0123456789abcdef0123456789abcdef.balloon\x01default\r\n
+</code></pre>
+
+<h2 id="macos-specific-constraints-and-differences-from-windows">macOS-Specific Constraints and Differences from Windows</h2>
+<h3 id="filemapping-names-are-not-compatible">FileMapping Names Are Not Compatible</h3>
+<p>Ourin does not expose the exact named FileMapping objects used by Windows/SSP. On macOS it uses POSIX shared memory <code>/ourin_fmo</code> and semaphore <code>/ourin_fmo_mutex</code>. Windows external tools cannot read this FMO directly through Win32 APIs.</p>
+<h3 id="hwnd-is-not-a-win32-hwnd">hwnd is Not a Win32 HWND</h3>
+<p><code>hwnd</code>, <code>kerohwnd</code>, and <code>hwndlist</code> are not Windows window handles. Ourin prefers <code>NSWindow.windowNumber</code>; when that is unavailable, it generates a stable non-zero hash from the ghost/scope. These values are for identification and SSTP target resolution inside the running Ourin process and cannot be dereferenced as Win32 HWND values.</p>
+<h3 id="path-format">Path Format</h3>
+<p>Paths use the native macOS format (POSIX paths), not Windows backslash separators or drive letter notation.</p>
+<h3 id="shared-memory-lifetime">Shared Memory Lifetime</h3>
+<ul>
+<li>Windows: Named FileMapping is automatically deleted when all handles are closed.</li>
+<li>Ourin: POSIX shared memory retains its name while the process is alive. On normal shutdown, <code>shm_unlink</code> / <code>sem_unlink</code> are called to remove it.</li>
+<li>Shared memory left behind after a crash is safely overwritten on the next launch.</li>
+</ul>
+<h2 id="compatibility-views">Compatibility Views</h2>
+<h3 id="fmo-text-view">FMO Text View</h3>
+<p><code>FmoManager.buildSnapshot(records:)</code> generates SSP-style <code>id.key\x01value\r\n</code> text. SSTP <code>EXECUTE GetFMO</code> and the POSIX shared memory payload both use this same text view.</p>
+<h3 id="structured-view">Structured View</h3>
+<p><code>FmoCompatibilityView.parse(_:)</code> and <code>FmoManager.buildCompatibilityView(records:)</code> expose the same text as field dictionaries grouped by <code>id</code>. Tests, diagnostic UI, and macOS bridge code should use this view rather than depending on POSIX shared memory details or Windows APIs.</p>
+<h3 id="posix-shared-memory-view">POSIX Shared Memory View</h3>
+<p>In shared memory, the first 4 bytes contain a <code>uint32_t</code> UTF-8 payload length, followed by the FMO text and a trailing NUL byte. This is an Ourin macOS implementation detail, not the Windows FMO memory object format itself.</p>
+<h2 id="accessing-fmo-from-external-apps">Accessing FMO from External Apps</h2>
+<h3 id="recommended-sstp-execute-getfmo">Recommended: SSTP EXECUTE GetFMO</h3>
+<p>For macOS external apps, using the <code>GetFMO</code> command via the SSTP protocol is recommended.
+It is safer than direct shared memory access and enforces security level checks (<code>local</code> only).</p>
+<pre class="codehilite"><code>EXECUTE SSTP/1.4
+Sender: MyApp
+Command: GetFMO
+SecurityLevel: local
+Charset: UTF-8
+</code></pre>
+
+<h3 id="direct-access-posix-shared-memory">Direct Access: POSIX Shared Memory</h3>
+<p>Open the shared memory with <code>shm_open("/ourin_fmo", O_RDWR, 0)</code>, read the first 4 bytes as a <code>uint32_t</code> for the data size, then read the FMO records as UTF-8 text. Use the <code>/ourin_fmo_mutex</code> semaphore for mutual exclusion.</p>
+<h2 id="update-timing">Update Timing</h2>
+<p>The FMO is updated at the following events:</p>
+<ul>
+<li>Ghost startup (after OnBoot completes)</li>
+<li>Ghost shutdown</li>
+<li>Shell change (OnShellChanged)</li>
+<li>Balloon change (OnBalloonChange)</li>
+<li>Surface change (OnSurfaceChange)</li>
+<li>Explicit SHIORI / MAKOTO load, unload, and reload</li>
+</ul>
+<h2 id="main-classes">Main Classes</h2>
+<h3 id="fmomanager"><code>FmoManager</code></h3>
+<ul>
+<li>Overall FMO management class</li>
+<li><code>buildSnapshot(records:)</code>: Generates SSP-style record format string (static)</li>
+<li><code>buildCompatibilityView(records:)</code>: Generates a structured compatibility view from the same records (static)</li>
+<li><code>writeSnapshot(records:)</code>: Writes snapshot to shared memory</li>
+<li><code>isAnotherInstanceRunning()</code>: Checks for another instance via shared memory existence</li>
+<li><code>cleanup()</code>: Releases shared memory and semaphore on normal shutdown</li>
+</ul>
+<h3 id="fmocompatibilityview"><code>FmoCompatibilityView</code></h3>
+<ul>
+<li>Parses <code>id.key\x01value\r\n</code> FMO text into <code>fields</code> grouped by <code>id</code></li>
+<li>Ignores malformed lines and returns entries sorted by <code>id</code></li>
 </ul>
 <h3 id="fmosharedmemory"><code>FmoSharedMemory</code></h3>
 <ul>
-<li>A wrapper for handling POSIX shared memory from Swift.</li>
-<li>Adopts an ephemeral operation where <code>shm_unlink</code> is called after <code>shm_open</code>, and the memory is automatically deleted on the final close.</li>
-<li>Writes the data size in the first 4 bytes and a NUL terminator at the end.</li>
-<li>The <code>createNew</code> parameter allows switching between new creation mode and existing open mode.</li>
-<li>Only the creator executes <code>shm_unlink</code> during <code>cleanup()</code> (however, in ephemeral mode, it is already unlinked immediately after creation).</li>
+<li>POSIX shared memory wrapper</li>
+<li>Retains the shared memory name while the process is alive (no immediate unlink after creation)</li>
+<li>Writes data size in the first 4 bytes and a NUL terminator at the end</li>
+<li>Stale shared memory from crashes is safely overwritten via <code>O_CREAT</code></li>
 </ul>
-<h3 id="fmomanager"><code>FmoManager</code></h3>
+<h3 id="fmomutex"><code>FmoMutex</code></h3>
 <ul>
-<li>Initializes the above two together and is used at application launch.</li>
-<li>The <code>isAnotherInstanceRunning()</code> static method allows checking if another baseware is running.</li>
+<li>Named semaphore wrapper</li>
+<li>Stale semaphores from crashes are automatically <code>sem_unlink</code>-ed and recreated</li>
 </ul>
-<h2 id="usage-example">Usage Example</h2>
-<h3 id="launch-check-and-initialization">Launch Check and Initialization</h3>
-<div class="codehilite"><pre><span></span><code><span class="c1">// 1. First, check if another baseware is running</span>
-<span class="k">if</span> <span class="n">FmoManager</span><span class="p">.</span><span class="n">isAnotherInstanceRunning</span><span class="p">(</span><span class="n">sharedName</span><span class="p">:</span> <span class="s">&quot;/ninix&quot;</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">NSLog</span><span class="p">(</span><span class="s">&quot;Another baseware instance is already running&quot;</span><span class="p">)</span>
-    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="c1">// 2. If not running, create FMO resources</span>
-<span class="k">do</span> <span class="p">{</span>
-    <span class="kd">let</span> <span class="nv">manager</span> <span class="p">=</span> <span class="k">try</span> <span class="n">FmoManager</span><span class="p">(</span><span class="n">mutexName</span><span class="p">:</span> <span class="s">&quot;/ninix_mutex&quot;</span><span class="p">,</span> <span class="n">sharedName</span><span class="p">:</span> <span class="s">&quot;/ninix&quot;</span><span class="p">)</span>
-    <span class="c1">// Use...</span>
-<span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
-    <span class="n">NSLog</span><span class="p">(</span><span class="s">&quot;FMO initialization failed: </span><span class="si">\(</span><span class="n">error</span><span class="si">)</span><span class="s">&quot;</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
-
-<h3 id="reading-and-writing-data">Reading and Writing Data</h3>
-<div class="codehilite"><pre><span></span><code><span class="k">try</span> <span class="n">manager</span><span class="p">.</span><span class="n">memory</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mutex</span><span class="p">:</span> <span class="n">manager</span><span class="p">.</span><span class="n">mutex</span><span class="p">)</span>
-<span class="kd">let</span> <span class="nv">received</span> <span class="p">=</span> <span class="k">try</span> <span class="n">manager</span><span class="p">.</span><span class="n">memory</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">mutex</span><span class="p">:</span> <span class="n">manager</span><span class="p">.</span><span class="n">mutex</span><span class="p">)</span>
-</code></pre></div>
-
-<h3 id="cleanup">Cleanup</h3>
-<p>When the application terminates, call <code>cleanup()</code> to release the shared memory and semaphore:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">manager</span><span class="p">.</span><span class="n">cleanup</span><span class="p">()</span>
-</code></pre></div>
-
-<h2 id="implementation-flow">Implementation Flow</h2>
-<ol>
-<li><strong>Launch Check</strong>: Check for the existence of other instances with <code>FmoManager.isAnotherInstanceRunning()</code>.</li>
-<li><strong>FMO Creation</strong>: If no other instance exists, initialize with <code>FmoManager(mutexName:sharedName:)</code>.</li>
-<li><strong>Data Sharing</strong>: Read and write data to shared memory while protecting it with a mutex.</li>
-<li><strong>Cleanup</strong>: Release resources with <code>cleanup()</code> on exit.</li>
-</ol>
-<h2 id="error-handling">Error Handling</h2>
+<h3 id="fmobridgec-h"><code>FmoBridge.c / .h</code></h3>
 <ul>
-<li><code>FmoError.alreadyRunning</code>: The semaphore or shared memory already exists (another instance is running).</li>
-<li><code>FmoError.systemError(String)</code>: System error (insufficient permissions, lack of resources, etc.).</li>
+<li>C wrapper functions for calling POSIX APIs from Swift</li>
 </ul>
-<p>By performing the launch check first, unnecessary <code>alreadyRunning</code> errors can be avoided.</p>
-<h2 id="technical-details">Technical Details</h2>
-<h3 id="c-bridge-functions">C Bridge Functions</h3>
-<p>The following bridge functions are implemented (<code>FmoBridge.c/h</code>) to call POSIX APIs from Swift:</p>
-<h4 id="shared-memory-operations">Shared Memory Operations</h4>
+<h2 id="implementation-files">Implementation Files</h2>
 <ul>
-<li><code>fmo_open_shared()</code>: Create new shared memory.</li>
-<li><code>fmo_open_existing_shared()</code>: Open existing shared memory.</li>
-<li><code>fmo_map()</code>: Memory mapping.</li>
-<li><code>fmo_munmap()</code>: Unmap memory.</li>
-<li><code>fmo_shm_unlink()</code>: Delete shared memory.</li>
-</ul>
-<h4 id="semaphore-operations">Semaphore Operations</h4>
-<ul>
-<li><code>fmo_sem_open()</code>: Open/create a semaphore.</li>
-<li><code>fmo_sem_wait()</code>: Acquire a lock.</li>
-<li><code>fmo_sem_post()</code>: Release a lock.</li>
-<li><code>fmo_sem_close()</code>: Close a semaphore.</li>
-<li><code>fmo_sem_unlink()</code>: Delete a semaphore.</li>
-</ul>
-<h4 id="launch-check">Launch Check</h4>
-<ul>
-<li><code>fmo_check_running()</code>: Launch check based on the ninix specification.</li>
-<li>Attempts to open existing shared memory with <code>shm_open(name, O_RDWR, 0)</code>.</li>
-<li>Return value: 1=running, 0=not running, -1=error.</li>
-</ul>
-<h3 id="notes">Notes</h3>
-<ul>
-<li><strong>32/64bit Incompatibility</strong>: FMO cannot be exchanged between 32-bit and 64-bit processes.</li>
-<li><strong>Permissions</strong>: Access to shared memory and semaphores may be restricted in a sandboxed environment.</li>
-<li><strong>Resource Names</strong>: <code>/ninix</code> and <code>/ninix_mutex</code> are used for ninix compatibility, but can be changed if necessary.</li>
-<li><strong>Ephemeral Operation</strong>: The shared memory is unlinked immediately after creation (<code>shm_unlink</code>) and is automatically deleted when all processes close it.</li>
-</ul>
-<h2 id="implementation-status">Implementation Status</h2>
-<p><strong>Last Updated:</strong> 2025-10-20</p>
-<h3 id="implementation-in-ourin">Implementation in Ourin</h3>
-<ul>
-<li>[x] <strong>Fully Implemented</strong>: The FMO system is fully implemented and verified.</li>
-<li>[x] <strong>Launch Check</strong>: ninix specification compliant launch check using <code>FmoManager.isAnotherInstanceRunning()</code>.</li>
-<li>[x] <strong>Shared Memory Management</strong>: Management of POSIX shared memory by <code>FmoSharedMemory</code>.</li>
-<li>[x] <strong>Exclusive Control</strong>: Implementation of named semaphores with <code>FmoMutex</code>.</li>
-<li>[x] <strong>C Bridge</strong>: A set of bridge functions for the POSIX API (<code>FmoBridge.c/h</code>).</li>
-<li>[x] <strong>Ephemeral Operation</strong>: Automatic deletion feature for shared memory.</li>
-<li>[x] <strong>Error Handling</strong>: Appropriate error handling with <code>FmoError</code>.</li>
-</ul>
-<h3 id="implemented-features">Implemented Features</h3>
-<ol>
-<li>
-<p><strong>POSIX Shared Memory</strong></p>
-<ul>
-<li>Creation/opening of shared memory with <code>shm_open()</code>.</li>
-<li>Memory mapping with <code>mmap()</code>.</li>
-<li>Automatic deletion with <code>shm_unlink()</code>.</li>
-</ul>
-</li>
-<li>
-<p><strong>Named Semaphores</strong></p>
-<ul>
-<li>Creation/opening of semaphores with <code>sem_open()</code>.</li>
-<li>Exclusive control with <code>sem_wait()</code>/<code>sem_post()</code>.</li>
-<li>Deletion with <code>sem_unlink()</code>.</li>
-</ul>
-</li>
-<li>
-<p><strong>ninix Compatible Launch Check</strong></p>
-<ul>
-<li>Existence check for <code>/ninix</code> shared memory.</li>
-<li>Attempt to open existing memory in <code>O_RDWR</code> mode.</li>
-<li>Error determination based on errno.</li>
-</ul>
-</li>
-<li>
-<p><strong>Swift Interface</strong></p>
-<ul>
-<li><code>FmoManager</code>: Overall management class.</li>
-<li><code>FmoSharedMemory</code>: Shared memory wrapper.</li>
-<li><code>FmoMutex</code>: Semaphore wrapper.</li>
-<li><code>FmoError</code>: Error type definition.</li>
-</ul>
-</li>
-</ol>
-<h3 id="implementation-files">Implementation Files</h3>
-<ul>
-<li><code>Ourin/FMO/FmoManager.swift</code>: FMO management class</li>
+<li><code>Ourin/FMO/FmoManager.swift</code>: FMO management class and snapshot generation</li>
 <li><code>Ourin/FMO/FmoSharedMemory.swift</code>: Shared memory wrapper</li>
 <li><code>Ourin/FMO/FmoMutex.swift</code>: Mutex wrapper</li>
 <li><code>Ourin/FMO/FmoError.swift</code>: Error definition</li>
 <li><code>Ourin/FMO/FmoBridge.c</code>: C bridge implementation</li>
 <li><code>Ourin/FMO/FmoBridge.h</code>: C bridge header</li>
 </ul>
-<h3 id="operation-check">Operation Check</h3>
-<ul>
-<li>✅ Single instance launch control</li>
-<li>✅ Error detection when launching multiple instances</li>
-<li>✅ Reading from and writing to shared memory</li>
-<li>✅ Exclusive control with semaphores</li>
-<li>✅ Resource release on process termination</li>
-</ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin Migrator 計画</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="OURIN_MIGRATOR_PLAN_ja-jp.html" class="">日本語</a> | <a href="OURIN_MIGRATOR_PLAN_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="ourin-migrator">Ourin Migrator 計画</h1>
+<p>Ourin Migrator は、SSP/Windows 由来の資産を壊さずに読み取り、Ourin で利用可能な形へ段階的に変換・補助する DevTools 機能として実装する。</p>
+<h2 id="_1">目的</h2>
+<ul>
+<li><code>/Users/eightman/Documents/Ourin</code> 配下の SSP 互換資産を解析する</li>
+<li>Windows 向け <code>.dll</code> / <code>.exe</code> を Ourin 本体では実行せず、移行対象として扱う</li>
+<li><code>descript.txt</code> など既存の SSP 互換メタデータを維持する</li>
+<li>Ghidra headless 解析で疑似 C、imports、exports、strings、resources を取得する</li>
+<li><code>ourin.json</code> を生成し、Ourin 側の builtin 置換や macOS plugin 実装へつなげる</li>
+<li>未知 DLL については完全自動変換ではなく、<code>.plugin</code> 雛形と実装 TODO レポートを生成する</li>
+</ul>
+<h2 id="_2">基本方針</h2>
+<p>DLL/EXE は Ourin 本体ではロードしない。通常起動時は <code>descript.txt</code>、<code>ourin.json</code>、macOS native plugin、builtin replacement だけを利用する。</p>
+<p>Ghidra は Ourin に同梱しない。DevTools 側でユーザー指定の <code>analyzeHeadless</code> を外部プロセスとして呼び出す。</p>
+<p>SSP 互換の元ファイル構造は保持し、Ourin 用の追加情報だけを <code>ourin.json</code> や <code>ourin/</code> 配下に置く。</p>
+<p>移植済み plugin を配布・保管する場合は、<code>install.txt</code>、<code>descript.txt</code>、<code>message.*.txt</code> をパッケージディレクトリのルートに置き、Ourin ホストがそれらを解釈する。生成する macOS <code>.plugin</code> は、元 DLL の <code>load</code> / <code>loadu</code> / <code>request</code> / <code>unload</code> / <code>unloadu</code> 互換と、必要最小限の <code>descript.txt</code> fallback に責務を限定する。表示文言や言語選択は <code>.plugin</code> 内に固定せず、原則として <code>message.*.txt</code> へ委譲する。</p>
+<pre class="codehilite"><code class="language-text">plugin/shared_value/
+  descript.txt
+  install.txt
+  message.japanese.txt
+  message.english.txt
+  shared_value.dll
+  ourin.json
+  ourin/
+    analysis/
+      report.md
+      imports.json
+      exports.json
+      strings.txt
+      resources.txt
+      decompiled.c
+    macos/
+      shared_value.plugin/
+</code></pre>
+
+<p>配布用の macOS パッケージディレクトリは以下を標準形とする。</p>
+<pre class="codehilite"><code class="language-text">plugin/shared_value_mac/
+  install.txt
+  descript.txt
+  message.japanese.txt
+  message.english.txt
+  shared_value.plugin/
+  Sources/
+    SharedValuePlugin.c
+  OriginalDocs/
+    ReadMe.txt
+</code></pre>
+
+<p><code>OriginalDocs/</code> は元配布物の保存・参照用であり、通常の実行時入力ではない。</p>
+<h2 id="_3">実装場所</h2>
+<pre class="codehilite"><code class="language-text">Ourin/DevTools/Migrator/
+  OurinMigratorView.swift
+  LegacyAssetScanner.swift
+  LegacyBinaryAnalyzer.swift
+  GhidraHeadlessRunner.swift
+  MigrationReport.swift
+  OurinManifest.swift
+  PluginScaffolder.swift
+  Resources/
+    DecompileAll.java
+</code></pre>
+
+<p>既存の互換処理は以下を利用する。</p>
+<pre class="codehilite"><code class="language-text">Ourin/Compat/LegacyDescriptor.swift
+Ourin/Compat/SSPCompat.swift
+Ourin/Calendar/CalendarRegistry.swift
+Ourin/PluginHost/PluginRegistry.swift
+</code></pre>
+
+<h2 id="_4">対象ディレクトリ</h2>
+<p>初期スキャン対象は以下とする。</p>
+<pre class="codehilite"><code class="language-text">/Users/eightman/Documents/Ourin/plugin
+/Users/eightman/Documents/Ourin/calendar/plugin
+/Users/eightman/Documents/Ourin/headline
+/Users/eightman/Documents/Ourin/data
+</code></pre>
+
+<p>検出対象:</p>
+<pre class="codehilite"><code class="language-text">*.dll
+*.DLL
+*.exe
+*.EXE
+descript.txt
+ourin.json
+</code></pre>
+
+<h2 id="_5">表示情報</h2>
+<p>DevTools の一覧では以下を表示する。</p>
+<pre class="codehilite"><code class="language-text">Name
+Kind: plugin / calendar-plugin / headline / tool / unknown
+Binary: PE32 / PE32+ / unknown
+Filename
+ID
+Status: metadata-only / analyzed / mapped / scaffolded
+Recommendation
+</code></pre>
+
+<p>UI の基本形:</p>
+<pre class="codehilite"><code class="language-text">Ourin Migrator
+  [Scan Documents/Ourin]
+  [Ghidra Path: ...]
+  [Analyze Selected]
+  [Generate ourin.json]
+  [Create Migration Record]
+
+Name | Kind | Binary | Status | Action
+</code></pre>
+
+<p>詳細ペイン:</p>
+<pre class="codehilite"><code class="language-text">descript.txt summary
+imports
+exports
+strings preview
+resources preview
+migration recommendation
+generated files
+</code></pre>
+
+<h2 id="ghidra">Ghidra 解析</h2>
+<p>Ghidra の既定候補:</p>
+<pre class="codehilite"><code class="language-text">/Users/eightman/Downloads/ghidra_12.0.4_PUBLIC/support/analyzeHeadless
+</code></pre>
+
+<p>解析は <code>Process</code> で外部プロセスとして実行する。プロジェクト作業領域は一時ディレクトリに作成し、成果物は各対象フォルダの <code>ourin/analysis/</code> に保存する。</p>
+<p>生成物:</p>
+<pre class="codehilite"><code class="language-text">ourin/analysis/decompiled.c
+ourin/analysis/imports.json
+ourin/analysis/exports.json
+ourin/analysis/strings.txt
+ourin/analysis/resources.txt
+ourin/analysis/report.md
+</code></pre>
+
+<p>Ghidra 解析は時間がかかるため、DevTools 上で進捗表示とキャンセルを可能にする。</p>
+<h2 id="ourinjson">ourin.json</h2>
+<p><code>ourin.json</code> は、元 DLL/EXE と Ourin 側実装の対応関係を表す。</p>
+<p>例:</p>
+<pre class="codehilite"><code class="language-json">{
+  &quot;format&quot;: &quot;ourin-migration-1&quot;,
+  &quot;source&quot;: {
+    &quot;filename&quot;: &quot;shared_value.dll&quot;,
+    &quot;kind&quot;: &quot;pe32-dll&quot;,
+    &quot;sspPluginId&quot;: &quot;ABED14AF-F34B-4ff2-95B7-30ED37D5802D&quot;
+  },
+  &quot;mode&quot;: &quot;native-replacement&quot;,
+  &quot;implementation&quot;: &quot;builtin:shared_value&quot;,
+  &quot;analysis&quot;: {
+    &quot;decompiled&quot;: &quot;ourin/analysis/decompiled.c&quot;,
+    &quot;report&quot;: &quot;ourin/analysis/report.md&quot;
+  }
+}
+</code></pre>
+
+<p>主な <code>mode</code>:</p>
+<pre class="codehilite"><code class="language-text">metadata-only       DLL/EXE は実行せず、SSPメタデータだけ利用する
+native-replacement  Ourin builtin 実装へ差し替える
+native-plugin       macOS .plugin/.bundle を利用する
+scaffold            旧形式の雛形（新規生成しない）
+unsupported         現時点では未対応
+</code></pre>
+
+<h2 id="dllexe-builtin">既知 DLL/EXE の builtin 置換候補</h2>
+<p>まずは以下を移行候補として扱う。</p>
+<pre class="codehilite"><code class="language-text">shared_value.dll -&gt; builtin:shared_value
+SAKNIFE.DLL      -&gt; builtin:saknife または scaffold
+SCHEDULE.dll     -&gt; builtin:calendar_schedule または scaffold
+SSPH.exe         -&gt; builtin:ssph_compat
+mcp.exe          -&gt; unsupported（OurinはMCP互換HTTP入口を公開せず、要求は404）
+</code></pre>
+
+<p>既知 DLL は疑似 C から Swift へ機械変換するのではなく、Ourin 側で同等機能をネイティブ実装し、<code>ourin.json</code> で紐づける。</p>
+<h2 id="_6">移行記録生成</h2>
+<p>未知 DLL の場合は完全変換せず、実行体を含まない移行記録を生成する。</p>
+<pre class="codehilite"><code class="language-text">ourin/macos/&lt;name&gt;_mac/
+  descript.txt
+  message.japanese.txt
+  message.english.txt
+  ourin.json
+  OriginalDocs/
+    ReadMe.txt
+  README.md
+</code></pre>
+
+<p>移行記録には実行可能な <code>.plugin</code>、shell、固定 <code>PLUGIN/2.0M 200 OK</code> 応答を含めない。
+<code>ourin.json</code> の mode は <code>unsupported</code> とし、解析結果への相対参照と個別移植要件を保存する。</p>
+<p><code>&lt;name&gt;.plugin</code> の内部構造:</p>
+<pre class="codehilite"><code class="language-text">&lt;name&gt;.plugin/
+  Contents/
+    Info.plist
+    MacOS/&lt;name&gt;
+    Resources/
+      descript.txt
+      ourin.json
+</code></pre>
+
+<p>雛形には最低限の PLUGIN/DLL 互換入口を用意する。</p>
+<pre class="codehilite"><code class="language-text">load
+loadu
+request
+unload
+unloadu
+plugin_free（必要な場合のみ）
+</code></pre>
+
+<p>イベント ID ごとの挙動は <code>request</code> 内で分岐する。ただし、メニュー表示名やメッセージ文言は <code>message.*.txt</code> から Ourin ホストが読めるようにし、<code>.plugin</code> 側への固定埋め込みは避ける。</p>
+<p>同時に <code>ourin/analysis/report.md</code> に、exports/imports/strings から推定した実装 TODO を出力する。</p>
+<h2 id="_7">実装フェーズ</h2>
+<h3 id="phase-1">Phase 1: スキャン</h3>
+<ul>
+<li>対象ディレクトリから <code>.dll</code> / <code>.exe</code> / <code>descript.txt</code> / <code>ourin.json</code> を検出する</li>
+<li><code>file</code> 相当の判定で PE32 / PE32+ / unknown を分類する</li>
+<li><code>LegacyDescriptor</code> で <code>descript.txt</code> を UTF-8 / Shift_JIS 両対応で読む</li>
+<li>DevTools に一覧表示する</li>
+</ul>
+<h3 id="phase-2">Phase 2: 解析</h3>
+<ul>
+<li>Ghidra path を設定できるようにする</li>
+<li>選択ファイルを headless 解析する</li>
+<li>疑似 C、imports、exports、strings、resources を保存する</li>
+<li>解析ログ、成功/失敗、所要時間を記録する</li>
+</ul>
+<h3 id="phase-3">Phase 3: レポート生成</h3>
+<ul>
+<li><code>report.md</code> を生成する</li>
+<li>binary kind、exports、imports、目立つ文字列、推定機能をまとめる</li>
+<li>Ourin 側の推奨移行モードを提示する</li>
+</ul>
+<h3 id="phase-4-ourinjson">Phase 4: ourin.json 生成</h3>
+<ul>
+<li><code>metadata-only</code> / <code>native-replacement</code> / <code>native-plugin</code> / <code>scaffold</code> / <code>unsupported</code> を書けるようにする</li>
+<li>既知 DLL について builtin 実装名を自動提案する</li>
+<li>既存 <code>ourin.json</code> がある場合は上書き確認を行う</li>
+</ul>
+<h3 id="phase-5">Phase 5: 移行記録生成</h3>
+<ul>
+<li>未知 DLL 用に実行体なしの移行記録を生成する</li>
+<li>元資産のメタデータ、OriginalDocs、解析結果への参照、README を保存する</li>
+<li><code>PluginRegistry</code> は <code>unsupported</code> / 旧 <code>scaffold</code> manifest を実行対象にしない</li>
+</ul>
+<h2 id="mvp">MVP</h2>
+<p>最初の完成ラインは以下とする。</p>
+<ol>
+<li>DLL/EXE 一覧を DevTools に表示する</li>
+<li>選択ファイルを Ghidra headless で解析する</li>
+<li><code>ourin/analysis/decompiled.c</code> と <code>report.md</code> を生成する</li>
+<li><code>ourin.json</code> を生成する</li>
+<li><code>shared_value.dll</code> を <code>builtin:shared_value</code> として認識する</li>
+</ol>
+<p>MVP では自動変換を目標にしない。解析、分類、Ourin 用マニフェスト生成を主目的とする。</p>
+<h2 id="_8">注意点</h2>
+<ul>
+<li>Ghidra の疑似 C は元ソースではないため、Swift/macOS plugin への完全自動変換は行わない</li>
+<li>未信頼バイナリを扱うため、Ourin 本体プロセス内では実行しない</li>
+<li>Ghidra/Java 依存を通常ユーザーへ強制しない</li>
+<li>元の SSP 資産を破壊しない</li>
+<li>生成物の上書きは確認またはバックアップを必須にする</li>
+</ul>
+<h2 id="license-attribution">ライセンス・帰属 / License &amp; Attribution</h2>
+<ul>
+<li><strong>Ghidra</strong>: 本機能は Ghidra（National Security Agency 開発、Apache License 2.0）を外部
+  ツールとして呼び出す。Ghidra は Ourin に同梱しない。</li>
+<li>https://ghidra-sre.org/</li>
+<li>https://www.apache.org/licenses/LICENSE-2.0</li>
+<li><strong>DecompileAll.java</strong>: Ghidra スクリプト API を使用する Ourin のコード（Apache-2.0）。
+  実行時に <code>GhidraScriptSource.swift</code> から実体化される。</li>
+<li><strong>解析対象 DLL/EXE</strong>: SSP 互換資産は各々のライセンスに従う。Migrator は読み取り専用で
+  解析・変換を補助するものであり、元資産の再配布許可を意味しない。</li>
+</ul>
+<p>アプリ内 About → 「ライセンスを表示…」から Ghidra ライセンス文を参照できる。</p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

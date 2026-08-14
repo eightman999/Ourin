@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ゴースト設定システム実装</title>
+    <title>ゴースト設定システムの実装</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
@@ -145,31 +145,244 @@
         <div class="back-link">
             <a href="index.html">← 目次に戻る</a>
         </div>
-        <h1 id="_1">ゴースト設定システム実装</h1>
-<p><strong>ステータス:</strong> 翻訳待ち<br />
-<strong>原本:</strong> <a href="./GhostConfigurationImplementation_en-us.md">GhostConfigurationImplementation_en-us.md</a><br />
-<strong>言語:</strong> 日本語</p>
-<hr />
-<h2 id="_2">翻訳ノート</h2>
-<p>このドキュメントは英語原本の日本語翻訳用プレースホルダーです。</p>
-<p>英語版が正式な実装ドキュメントを含んでいます。この日本語版は以下を維持しながら翻訳すべきです：</p>
+        <blockquote>
+<p>本書は英語版原文 <code>GhostConfigurationImplementation_en-us.md</code> の日本語版です。</p>
+</blockquote>
+<h1 id="_1">ゴースト設定システムの実装</h1>
+<h2 id="_2">概要</h2>
+<p><code>descript.txt</code> ファイルからゴースト設定を読み込み、適用するための包括的なシステムを実装しました。これにより、伺かの仕様に従って、ゴーストは起動時および読み込み時に環境変数やプロパティを設定できます。</p>
+<h2 id="_3">実装の概要</h2>
+<h3 id="1-ghostconfiguration-ouringhostghostconfigurationswift">1. GhostConfiguration 構造体 (<code>Ourin/Ghost/GhostConfiguration.swift</code>)</h3>
+<p>すべての <code>descript.txt</code> の値を保持する包括的な構造体を作成しました。</p>
+<p><strong>基本情報:</strong>
+- <code>charset</code>, <code>type</code>, <code>name</code>
+- <code>sakura.name</code>, <code>kero.name</code>, <code>char*.name</code>
+- <code>id</code>, <code>title</code></p>
+<p><strong>作者情報:</strong>
+- <code>craftman</code>, <code>craftmanw</code>, <code>craftmanurl</code>
+- <code>homeurl</code></p>
+<p><strong>SHIORI 設定:</strong>
+- <code>shiori</code> (DLL ファイル名)
+- <code>shiori.version</code>, <code>shiori.cache</code>, <code>shiori.encoding</code>, <code>shiori.forceencoding</code>
+- <code>shiori.escape_unknown</code></p>
+<p><strong>サーフェス設定:</strong>
+- <code>sakura.seriko.defaultsurface</code>, <code>kero.seriko.defaultsurface</code>
+- <code>char*.seriko.defaultsurface</code>
+- <code>balloon.defaultsurface</code></p>
+<p><strong>位置設定:</strong>
+- <code>seriko.alignmenttodesktop</code> (top/bottom/free)
+- スコープ固有のアライメント: <code>sakura.seriko.alignmenttodesktop</code>, <code>kero.seriko.alignmenttodesktop</code>, <code>char*.seriko.alignmenttodesktop</code>
+- 基準位置: <code>sakura.defaultx/y</code>, <code>kero.defaultx/y</code>, <code>char*.defaultx/y</code>
+- 表示位置: <code>sakura.defaultleft/top</code>, <code>kero.defaultleft/top</code>, <code>char*.defaultleft/top</code></p>
+<p><strong>SSTP 設定:</strong>
+- <code>sstp.allowunspecifiedsend</code>, <code>sstp.allowcommunicate</code>, <code>sstp.alwaystranslate</code></p>
+<p><strong>バルーン設定:</strong>
+- <code>balloon</code>, <code>default.balloon.path</code>
+- <code>recommended.balloon</code>, <code>recommended.balloon.path</code>
+- <code>balloon.dontmove</code>, <code>balloon.syncscale</code></p>
+<p><strong>UI 設定:</strong>
+- <code>icon</code>, <code>icon.minimize</code>
+- <code>mousecursor</code>, <code>mousecursor.text</code>, <code>mousecursor.wait</code>, <code>mousecursor.hand</code>, <code>mousecursor.grip</code>, <code>mousecursor.arrow</code>
+- <code>menu.font.name</code>, <code>menu.font.height</code></p>
+<p><strong>動作設定:</strong>
+- <code>name.allowoverride</code>
+- <code>don't need onmousemove</code>, <code>don't need bind</code>, <code>don't need seriko talk</code></p>
+<p><strong>AI グラフ設定:</strong>
+- <code>shiori.logo.file</code>, <code>shiori.logo.x</code>, <code>shiori.logo.y</code>, <code>shiori.logo.align</code></p>
+<p><strong>インストール:</strong>
+- <code>install.accept</code>, <code>readme</code>, <code>readme.charset</code></p>
+<h3 id="2-ourinpropertyghostpropertyproviderswift">2. ゴースト統合 (<code>Ourin/Property/GhostPropertyProvider.swift</code>)</h3>
+<p>設定を含めるように <code>Ghost</code> 構造体を拡張しました。
+- <code>configuration: GhostConfiguration?</code> プロパティを追加
+- <code>init(from config: GhostConfiguration, path: String, username: String?)</code> イニシャライザを追加</p>
+<h3 id="3-ghostmanager-ouringhostghostmanagerswift">3. GhostManager 統合 (<code>Ourin/Ghost/GhostManager.swift</code>)</h3>
+<p><strong>設定の読み込み:</strong>
+- <code>ghostConfig: GhostConfiguration?</code> プロパティを追加
+- <code>start()</code> 中に <code>descript.txt</code> から設定を読み込み
+- デバッグ用に設定の詳細をログ出力</p>
+<p><strong>設定の適用:</strong>
+- <code>applyGhostConfiguration(_:ghostRoot:)</code> メソッドを追加
+- homeurl を ResourceManager に適用
+- デフォルトのサーフェス位置 (sakura/kero/char*.defaultx/y) を適用
+- アライメント設定に基づいて表示位置を適用
+- 位置を適用する際に <code>seriko.alignmenttodesktop</code> を尊重
+- 永続化のために位置を ResourceManager に保存</p>
+<h3 id="4-ourintestsghostconfigurationtestsswift">4. 包括的なテストスイート (<code>OurinTests/GhostConfigurationTests.swift</code>)</h3>
+<p>以下をカバーする広範なテストを作成しました。
+- 基本パース (必須/任意フィールド)
+- サーフェス設定
+- 位置設定 (アライメントを含む)
+- キャラクター固有の位置 (char2, char3 など)
+- SSTP 設定
+- バルーン設定
+- UI 設定
+- 動作設定
+- SHIORI 設定
+- インストール設定
+- AI グラフ設定
+- Emily4 の実環境テストケース
+- Ghost 構造体の統合</p>
+<h2 id="_4">使い方</h2>
+<h3 id="_5">自動読み込み</h3>
+<p>設定はゴーストの起動時に自動的に読み込まれます。</p>
+<pre class="codehilite"><code class="language-swift">let ghostRoot = ghostURL.appendingPathComponent(&quot;ghost/master&quot;, isDirectory: true)
+if let config = GhostConfiguration.load(from: ghostRoot) {
+    self.ghostConfig = config
+    applyGhostConfiguration(config, ghostRoot: ghostRoot)
+}
+</code></pre>
+
+<h3 id="_6">手動読み込み</h3>
+<pre class="codehilite"><code class="language-swift">// Load from a ghost directory
+let config = GhostConfiguration.load(from: ghostRootURL)
+
+// Parse from a dictionary
+let dict = [&quot;name&quot;: &quot;MyGhost&quot;, &quot;sakura.name&quot;: &quot;Sakura&quot;]
+let config = GhostConfiguration.parse(from: dict)
+
+// Create programmatically
+let config = GhostConfiguration(
+    name: &quot;TestGhost&quot;,
+    sakuraName: &quot;Sakura&quot;,
+    keroName: &quot;Kero&quot;
+)
+</code></pre>
+
+<h3 id="ghost">設定からの Ghost の作成</h3>
+<pre class="codehilite"><code class="language-swift">let ghost = Ghost(from: config, path: &quot;/path/to/ghost&quot;)
+</code></pre>
+
+<h2 id="_7">設定の優先順位</h2>
+<ol>
+<li><strong>位置設定:</strong></li>
+<li><code>seriko.alignmenttodesktop</code> がグローバルなデフォルト (top/bottom/free) を設定</li>
+<li><code>sakura.seriko.alignmenttodesktop</code> が sakura について上書き</li>
+<li><code>kero.seriko.alignmenttodesktop</code> が kero について上書き</li>
+<li><code>char*.seriko.alignmenttodesktop</code> が追加キャラクターについて上書き</li>
+<li>
+<p>表示位置 (<code>defaultleft/top</code>) はアライメントが <code>free</code> の場合のみ適用</p>
+</li>
+<li>
+<p><strong>実行時の値と descript.txt:</strong></p>
+</li>
+<li>設定値は起動時に読み込まれる</li>
+<li>ユーザーが変更した設定については ResourceManager の実行時の値が優先される</li>
+<li>設定は妥当なデフォルト値を提供する</li>
+</ol>
+<h2 id="_8">対応エンコーディング</h2>
 <ul>
-<li>技術的正確性</li>
-<li>他の日本語ドキュメントとの用語の一貫性</li>
-<li>元の構造とフォーマット</li>
-<li>すべてのコード例は変更なし</li>
-<li>コメントと説明部分の適切な翻訳</li>
+<li>UTF-8 (推奨)</li>
+<li>Shift_JIS/CP932 (互換性のためのフォールバック)</li>
 </ul>
-<hr />
-<h2 id="_3">内容</h2>
-<p><em>(英語原本から翻訳予定)</em></p>
-<hr />
-<p><strong>翻訳ステータス:</strong> ⏳ 待機中<br />
-<strong>翻訳者:</strong> 未定<br />
-<strong>レビュー:</strong> 未定<br />
-<strong>最終更新日:</strong> 2025-10-23</p>
+<h2 id="descripttxt">descript.txt の例</h2>
+<pre class="codehilite"><code>charset,Shift_JIS
+type,ghost
+name,Emily/Phase4.5
+sakura.name,Emily
+kero.name,Teddy
+balloon,emily4
+id,Emily/Phase4.5
+char2.seriko.defaultsurface,200
+name.allowoverride,0
+craftmanurl,http://ssp.shillest.net/
+craftman,[SSPBT/GL03B]Emily Development Team
+sstp.allowunspecifiedsend,1
+icon,icon.ico
+shiori,yaya.dll
+shiori.version,SHIORI/3.0
+</code></pre>
+
+<h2 id="_9">今後の拡張</h2>
+<p>仕様で確認された追加候補。</p>
+<ol>
+<li><strong>高度な位置制御:</strong></li>
+<li>シェル固有の位置の上書き</li>
+<li>
+<p>実行時の位置の永続化</p>
+</li>
+<li>
+<p><strong>カーソル管理:</strong></p>
+</li>
+<li>カスタムカーソルファイルの読み込みと適用</li>
+<li>
+<p>スコープ固有のカーソル設定</p>
+</li>
+<li>
+<p><strong>ツールチップ設定:</strong></p>
+</li>
+<li>
+<p><code>currentghost.seriko.tooltip.*</code> プロパティ</p>
+</li>
+<li>
+<p><strong>履歴の追跡:</strong></p>
+</li>
+<li>最近使用したゴースト/バルーン/シェル</li>
+<li>使用統計</li>
+</ol>
+<h2 id="_10">参考資料</h2>
+<ul>
+<li>UKADOC descript.txt 仕様: https://ssp.shillest.net/ukadoc/manual/descript_ghost.html</li>
+<li>SSP プロパティシステム仕様</li>
+<li>Ourin プロパティシステムのドキュメント: <code>docs/PropertySystem.md</code></li>
+</ul>
+<h2 id="_11">変更されたファイル</h2>
+<ul>
+<li><strong>新規:</strong> <code>Ourin/Ghost/GhostConfiguration.swift</code></li>
+<li><strong>新規:</strong> <code>OurinTests/GhostConfigurationTests.swift</code></li>
+<li><strong>変更:</strong> <code>Ourin/Property/GhostPropertyProvider.swift</code></li>
+<li><strong>変更:</strong> <code>Ourin/Ghost/GhostManager.swift</code></li>
+<li><strong>修正:</strong> <code>OurinTests/NarInstallTests.swift</code> (不足していた Foundation import を追加)</li>
+<li><strong>修正:</strong> <code>OurinTests/ShioriLoaderTests.swift</code> (非推奨の <code>#fail</code> を <code>Issue.record</code> に置き換え)</li>
+</ul>
+<h2 id="_12">ビルド状況</h2>
+<p>✅ ビルド成功
+✅ すべてのコードがエラーなくコンパイル
+✅ 包括的なテストスイートを作成 (すべての設定項目をカバーする 18 個のテスト)</p>
+<h2 id="_13">技術的詳細</h2>
+<h3 id="_14">パース戦略</h3>
+<p>本実装は 2 段階のパースアプローチを採用しています。</p>
+<ol>
+<li>
+<p><strong>ファイル読み込み:</strong> エンコーディング検出に既存の <code>DescriptorLoader</code> パターンを使用 (まず UTF-8、次に Shift_JIS のフォールバック)</p>
+</li>
+<li>
+<p><strong>値のパース:</strong> <code>GhostConfiguration.parse(from:)</code> が辞書を処理する。</p>
+</li>
+<li>必須フィールドを検証 (name は存在しなければならない)</li>
+<li>任意フィールドには妥当なデフォルト値</li>
+<li>安全な型変換 (Int パース、enum マッチング)</li>
+<li><code>char*</code> エントリは正規表現パターンマッチングでパース</li>
+</ol>
+<h3 id="_15">キャラクターパターンのパース</h3>
+<p>追加キャラクター (char2, char3 など) は正規表現を用いてパースされます。</p>
+<pre class="codehilite"><code class="language-swift">let charPattern = &quot;^char(\\d+)\\.(.+)$&quot;
+// Matches: char2.name, char3.defaultx, etc.
+</code></pre>
+
+<h3 id="_16">エラー処理</h3>
+<ul>
+<li>必須フィールドが欠けている場合は <code>nil</code> を返す</li>
+<li>無効な値を適切に処理 (デフォルトにフォールバック)</li>
+<li>不正な形式の設定については警告をログ出力</li>
+<li>重要でないフィールドには Swift のオプショナルを使用</li>
+</ul>
+<h3 id="_17">パフォーマンス</h3>
+<ul>
+<li>パースはゴースト起動時に一度だけ実行される</li>
+<li>設定はメモリにキャッシュされる</li>
+<li>実行時の操作にパフォーマンスへの影響はない</li>
+</ul>
+<h2 id="_18">既存システムとの統合</h2>
+<ul>
+<li><strong>PropertyManager:</strong> プロパティクエリに設定値を使用できる</li>
+<li><strong>ResourceManager:</strong> 設定から初期値を受け取り、実行時の変更を保存する</li>
+<li><strong>GhostPropertyProvider:</strong> プロパティシステムを通じて設定を公開できる</li>
+<li><strong>SERIKO Engine:</strong> 設定からサーフェスのデフォルト値を使用する</li>
+<li><strong>SSTP Server:</strong> SSTP の許可設定を尊重する</li>
+<li><strong>Balloon System:</strong> 設定からバルーンの設定を使用する</li>
+</ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

@@ -146,194 +146,234 @@
             <a href="index.html">← 目次に戻る</a>
         </div>
         <h1 id="fmo">FMO機能について</h1>
-<p>このドキュメントでは、Windows向けゲームやゴーストで利用されているFMO(Forged Memory Object)をmacOS上で再現するための実装方針を説明します。</p>
-<h2 id="_1">目的</h2>
-<ul>
-<li>名前付き共有メモリを用いてプロセス間で64KBのデータ領域を共有する</li>
-<li>名前付きセマフォを利用して排他制御を行う</li>
-<li>ninix仕様に準拠した起動判定を実装する</li>
-</ul>
-<h2 id="ninix">ninix仕様準拠について</h2>
-<p>本実装はninix/ninix-kagariのFMO仕様に準拠しています。</p>
-<h3 id="_2">起動判定方法</h3>
-<p>POSIX環境では <code>shm_open('/ninix', O_RDWR, 0)</code> が成功するかで他のベースウェアが起動しているかを判定します。</p>
-<ul>
-<li>成功 → 既に他のベースウェアが起動中</li>
-<li>失敗(errno == ENOENT) → 起動していない</li>
-<li>その他のエラー → 権限不足など</li>
-</ul>
-<h3 id="_3">使用するリソース名</h3>
-<p>ninixとの互換性のため、以下の名前を使用します：</p>
-<ul>
-<li>共有メモリ名: <code>/ninix</code></li>
-<li>セマフォ名: <code>/ninix_mutex</code></li>
-</ul>
-<h3 id="fmo_1">FMO内容</h3>
-<p>共有メモリには以下の構造でデータを格納します：</p>
-<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">shm_t</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w">      </span><span class="c1">// データサイズ（先頭4バイト）</span>
-<span class="w">    </span><span class="n">sem_t</span><span class="w"> </span><span class="n">sem</span><span class="p">;</span><span class="w">          </span><span class="c1">// セマフォ（POSIX環境）</span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">buf</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span><span class="w"> </span><span class="c1">// UNIXソケットがあるディレクトリのパス</span>
-<span class="p">};</span>
-</code></pre></div>
+<p>このドキュメントでは、Ourin の FMO（Forged Memory Object）の実装方針を説明します。</p>
+<h2 id="_1">概要</h2>
+<p>Ourin の FMO は Windows の名前付き FileMapping API の完全互換ではなく、POSIX 共有メモリによる<strong>意味的互換</strong>です。
+外部ツールが現在起動中のゴースト一覧・名前・パス・surface 等を取得できることを目的としています。
+Windows 向け FMO 直接読込ツールとのバイナリ/OS API 互換は対象外で、Ourin が保証する互換境界は
+<code>EXECUTE GetFMO</code> と <code>id.key\x01value\r\n</code> 形式のテキストビューです。</p>
+<h2 id="_2">共有メモリ名</h2>
+<table>
+<thead>
+<tr>
+<th>リソース</th>
+<th>名前</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>共有メモリ</td>
+<td><code>/ourin_fmo</code></td>
+</tr>
+<tr>
+<td>セマフォ（排他制御）</td>
+<td><code>/ourin_fmo_mutex</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="fmo_1">FMO レコード形式</h2>
+<p>SSP 互換の形式を採用しています:</p>
+<pre class="codehilite"><code>id.key\x01value\r\n
+</code></pre>
 
-<p>ninixではFMOはベースウェアの情報ではなく、ベースウェアの情報を取得できるUNIXソケットがあるディレクトリを保持します。パスは末尾が <code>/</code> で終わります（例：<code>/home/user/.ninix/sock/</code>）。</p>
-<h2 id="_4">主要クラス</h2>
-<h3 id="fmomutex"><code>FmoMutex</code></h3>
 <ul>
-<li>名前付きセマフォをラップしたMutexクラス</li>
-<li><code>lock()</code> と <code>unlock()</code> で排他制御を行います</li>
-<li><code>createNew</code> パラメータで新規作成モードと既存オープンモードを切り替え可能</li>
-<li>作成者のみが <code>cleanup()</code> 時に <code>sem_unlink</code> を実行します</li>
+<li><code>\x01</code> は ASCII SOH（Start of Heading, U+0001）</li>
+<li>改行は CRLF（<code>\r\n</code>）</li>
+<li><code>id</code> はゴースト起動時に生成する32文字の一意ID（Owned SSTPでも照合可能）</li>
+</ul>
+<h3 id="_3">フィールド一覧</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>ゴーストの sakura 名</td>
+<td><code>Emily4</code></td>
+</tr>
+<tr>
+<td><code>keroname</code></td>
+<td>kero の名前</td>
+<td><code>Teddy</code></td>
+</tr>
+<tr>
+<td><code>fullname</code></td>
+<td>descript 由来のゴーストフルネーム</td>
+<td><code>Emily/Phase4</code></td>
+</tr>
+<tr>
+<td><code>ghostname</code></td>
+<td>descript / ディレクトリ由来のゴースト名</td>
+<td><code>emily4</code></td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>ゴーストディレクトリのパス</td>
+<td><code>/Users/.../ghost/emily4</code></td>
+</tr>
+<tr>
+<td><code>ghostpath</code></td>
+<td>ゴーストのインストールパス</td>
+<td><code>/Users/.../ghost/emily4</code></td>
+</tr>
+<tr>
+<td><code>sakura.surface</code></td>
+<td>sakura の現在サーフェス ID</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>kero.surface</code></td>
+<td>kero の現在サーフェス ID</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>hwnd</code></td>
+<td>sakura 側の Ourin ウィンドウ識別子</td>
+<td><code>1001</code></td>
+</tr>
+<tr>
+<td><code>kerohwnd</code></td>
+<td>kero 側の Ourin ウィンドウ識別子</td>
+<td><code>1002</code></td>
+</tr>
+<tr>
+<td><code>hwndlist</code></td>
+<td>このゴーストに属するウィンドウ識別子の一覧</td>
+<td><code>1001,1002</code></td>
+</tr>
+<tr>
+<td><code>modulestate</code></td>
+<td>モジュール名と状態の一覧</td>
+<td><code>shiori:running,makoto-ghost:running</code></td>
+</tr>
+<tr>
+<td><code>shell</code></td>
+<td>現在のシェル名（Ourin 拡張）</td>
+<td><code>master</code></td>
+</tr>
+<tr>
+<td><code>balloon</code></td>
+<td>現在のバルーン名（Ourin 拡張）</td>
+<td><code>default</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">出力例</h3>
+<pre class="codehilite"><code>0123456789abcdef0123456789abcdef.name\x01Emily4\r\n
+0123456789abcdef0123456789abcdef.keroname\x01Teddy\r\n
+0123456789abcdef0123456789abcdef.fullname\x01Emily/Phase4\r\n
+0123456789abcdef0123456789abcdef.ghostname\x01emily4\r\n
+0123456789abcdef0123456789abcdef.path\x01/Users/user/Library/.../ghost/emily4\r\n
+0123456789abcdef0123456789abcdef.ghostpath\x01/Users/user/Library/.../ghost/emily4\r\n
+0123456789abcdef0123456789abcdef.sakura.surface\x010\r\n
+0123456789abcdef0123456789abcdef.kero.surface\x0110\r\n
+0123456789abcdef0123456789abcdef.hwnd\x011001\r\n
+0123456789abcdef0123456789abcdef.kerohwnd\x011002\r\n
+0123456789abcdef0123456789abcdef.hwndlist\x011001,1002\r\n
+0123456789abcdef0123456789abcdef.modulestate\x01shiori:running,makoto-ghost:running\r\n
+0123456789abcdef0123456789abcdef.shell\x01master\r\n
+0123456789abcdef0123456789abcdef.balloon\x01default\r\n
+</code></pre>
+
+<h2 id="macos-windows">macOS 独自制約と Windows との差異</h2>
+<h3 id="filemapping">FileMapping 名は互換しない</h3>
+<p>Windows/SSP の名前付き FileMapping をそのまま公開するものではありません。macOS では POSIX 共有メモリ
+<code>/ourin_fmo</code> とセマフォ <code>/ourin_fmo_mutex</code> を使います。Windows 向け外部ツールが Win32 API で
+FMO を直接読むことはできません。</p>
+<h3 id="hwnd-win32-hwnd">hwnd は Win32 HWND ではない</h3>
+<p><code>hwnd</code> / <code>kerohwnd</code> / <code>hwndlist</code> は Windows のウィンドウハンドルではありません。Ourin では
+<code>NSWindow.windowNumber</code> を優先し、取得できない場合はゴースト/スコープから安定ハッシュを生成した
+<strong>非ゼロの Ourin 内部ウィンドウ識別子</strong>を返します。この値は同一 Ourin 実行中の識別・SSTP 対象解決用であり、
+Win32 HWND として dereference できません。</p>
+<h3 id="_5">パス形式</h3>
+<p>パスは macOS のネイティブ形式（POSIX パス）です。Windows のバックスラッシュ区切りやドライブレター形式ではありません。</p>
+<h3 id="_6">共有メモリの寿命</h3>
+<ul>
+<li>Windows: 名前付き FileMapping は全ハンドルが閉じると自動削除</li>
+<li>Ourin: POSIX 共有メモリはプロセス生存中は名前を保持し、正常終了時に <code>shm_unlink</code> / <code>sem_unlink</code> で削除</li>
+<li>クラッシュ後に残った共有メモリは、次回起動時に安全に上書き・初期化されます</li>
+</ul>
+<h2 id="_7">互換ビュー</h2>
+<h3 id="fmo_2">FMO テキストビュー</h3>
+<p><code>FmoManager.buildSnapshot(records:)</code> は <code>id.key\x01value\r\n</code> の SSP 風テキストを生成します。
+SSTP <code>EXECUTE GetFMO</code> の応答と POSIX 共有メモリの本文は同じテキストビューを使います。</p>
+<h3 id="_8">構造化ビュー</h3>
+<p><code>FmoCompatibilityView.parse(_:)</code> と <code>FmoManager.buildCompatibilityView(records:)</code> は、FMO テキストを
+<code>id</code> ごとの field 辞書として読むための Ourin 内部 API です。テスト、診断 UI、macOS 側ブリッジはこのビューを使い、
+POSIX 共有メモリ実体や Windows API の違いに依存しないようにします。</p>
+<h3 id="posix">POSIX 共有メモリビュー</h3>
+<p>共有メモリ上では、先頭 4 バイトの <code>uint32_t</code> に UTF-8 本文長、その後に FMO テキスト、末尾に NUL を格納します。
+これは Ourin の macOS 実装詳細であり、Windows FMO のメモリオブジェクト形式そのものではありません。</p>
+<h2 id="_9">外部アプリからのアクセス方法</h2>
+<h3 id="sstp-execute-getfmo">推奨: SSTP EXECUTE GetFMO</h3>
+<p>macOS 外部アプリからは、SSTP プロトコル経由で <code>EXECUTE</code> メソッドの <code>GetFMO</code> コマンドを使うことを推奨します。
+共有メモリの直接アクセスよりも安全で、セキュリティレベルの制御（<code>local</code> のみ許可）も適用されます。</p>
+<pre class="codehilite"><code>EXECUTE SSTP/1.4
+Sender: MyApp
+Command: GetFMO
+SecurityLevel: local
+Charset: UTF-8
+</code></pre>
+
+<h3 id="posix_1">直接アクセス: POSIX 共有メモリ</h3>
+<p><code>shm_open("/ourin_fmo", O_RDWR, 0)</code> で共有メモリを開き、先頭 4 バイトの <code>uint32_t</code> でデータサイズを読み取り、その後にUTF-8 テキストとして FMO レコードを読み出せます。排他制御には <code>/ourin_fmo_mutex</code> セマフォを使用してください。</p>
+<h2 id="_10">更新タイミング</h2>
+<p>FMO は以下のタイミングで更新されます:</p>
+<ul>
+<li>ゴースト起動時（OnBoot 完了後）</li>
+<li>ゴースト終了時</li>
+<li>シェル変更時（OnShellChanged）</li>
+<li>バルーン変更時（OnBalloonChange）</li>
+<li>サーフェス変更時（OnSurfaceChange）</li>
+<li>SHIORI / MAKOTO の明示 load・unload・reload 時</li>
+</ul>
+<h2 id="_11">主要クラス</h2>
+<h3 id="fmomanager"><code>FmoManager</code></h3>
+<ul>
+<li>FMO 全体の管理クラス</li>
+<li><code>buildSnapshot(records:)</code>: SSP 風レコード形式の文字列を生成（static）</li>
+<li><code>buildCompatibilityView(records:)</code>: 同じレコードを構造化互換ビューとして生成（static）</li>
+<li><code>writeSnapshot(records:)</code>: 共有メモリへスナップショットを書き込む</li>
+<li><code>isAnotherInstanceRunning()</code>: 共有メモリの存在で他インスタンスの起動を判定</li>
+<li><code>cleanup()</code>: 正常終了時に共有メモリとセマフォを解放</li>
+</ul>
+<h3 id="fmocompatibilityview"><code>FmoCompatibilityView</code></h3>
+<ul>
+<li><code>id.key\x01value\r\n</code> 形式の FMO テキストを <code>id</code> ごとの <code>fields</code> に変換する内部ビュー</li>
+<li>不正行は無視し、<code>id</code> 昇順で entries を返す</li>
 </ul>
 <h3 id="fmosharedmemory"><code>FmoSharedMemory</code></h3>
 <ul>
-<li>POSIX共有メモリをSwiftから扱うためのラッパー</li>
-<li><code>shm_open</code> 後に <code>shm_unlink</code> を行い、最後のクローズで自動削除されるエフェメラル運用を採用</li>
-<li>先頭4バイトにデータサイズ、末尾にNUL終端を書き込みます</li>
-<li><code>createNew</code> パラメータで新規作成モードと既存オープンモードを切り替え可能</li>
-<li>作成者のみが <code>cleanup()</code> 時に <code>shm_unlink</code> を実行します（ただしエフェメラルモードでは作成直後に既にunlink済み）</li>
+<li>POSIX 共有メモリのラッパー</li>
+<li>プロセス生存中は共有メモリ名を保持（作成直後の unlink は行わない）</li>
+<li>先頭 4 バイトにデータサイズ、末尾に NUL 終端を書き込む</li>
+<li>クラッシュ後の残留共有メモリは <code>O_CREAT</code> で安全に上書きされる</li>
 </ul>
-<h3 id="fmomanager"><code>FmoManager</code></h3>
+<h3 id="fmomutex"><code>FmoMutex</code></h3>
 <ul>
-<li>上記2つをまとめて初期化し、アプリケーション起動時に使用します</li>
-<li><code>isAnotherInstanceRunning()</code> 静的メソッドで他のベースウェアの起動判定が可能</li>
+<li>名前付きセマフォのラッパー</li>
+<li>クラッシュ後の残留セマフォは自動的に <code>sem_unlink</code> → 再作成される</li>
 </ul>
-<h2 id="_5">使用例</h2>
-<h3 id="_6">起動判定と初期化</h3>
-<div class="codehilite"><pre><span></span><code><span class="c1">// 1. まず他のベースウェアが起動しているか確認</span>
-<span class="k">if</span> <span class="n">FmoManager</span><span class="p">.</span><span class="n">isAnotherInstanceRunning</span><span class="p">(</span><span class="n">sharedName</span><span class="p">:</span> <span class="s">&quot;/ninix&quot;</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">NSLog</span><span class="p">(</span><span class="s">&quot;Another baseware instance is already running&quot;</span><span class="p">)</span>
-    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="p">}</span>
-
-<span class="c1">// 2. 起動していなければFMOリソースを作成</span>
-<span class="k">do</span> <span class="p">{</span>
-    <span class="kd">let</span> <span class="nv">manager</span> <span class="p">=</span> <span class="k">try</span> <span class="n">FmoManager</span><span class="p">(</span><span class="n">mutexName</span><span class="p">:</span> <span class="s">&quot;/ninix_mutex&quot;</span><span class="p">,</span> <span class="n">sharedName</span><span class="p">:</span> <span class="s">&quot;/ninix&quot;</span><span class="p">)</span>
-    <span class="c1">// 使用...</span>
-<span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
-    <span class="n">NSLog</span><span class="p">(</span><span class="s">&quot;FMO initialization failed: </span><span class="si">\(</span><span class="n">error</span><span class="si">)</span><span class="s">&quot;</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
-
-<h3 id="_7">データの読み書き</h3>
-<div class="codehilite"><pre><span></span><code><span class="k">try</span> <span class="n">manager</span><span class="p">.</span><span class="n">memory</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mutex</span><span class="p">:</span> <span class="n">manager</span><span class="p">.</span><span class="n">mutex</span><span class="p">)</span>
-<span class="kd">let</span> <span class="nv">received</span> <span class="p">=</span> <span class="k">try</span> <span class="n">manager</span><span class="p">.</span><span class="n">memory</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">mutex</span><span class="p">:</span> <span class="n">manager</span><span class="p">.</span><span class="n">mutex</span><span class="p">)</span>
-</code></pre></div>
-
-<h3 id="_8">クリーンアップ</h3>
-<p>アプリケーション終了時には <code>cleanup()</code> を呼び、共有メモリとセマフォを解放します：</p>
-<div class="codehilite"><pre><span></span><code><span class="n">manager</span><span class="p">.</span><span class="n">cleanup</span><span class="p">()</span>
-</code></pre></div>
-
-<h2 id="_9">実装の流れ</h2>
-<ol>
-<li><strong>起動判定</strong>: <code>FmoManager.isAnotherInstanceRunning()</code> で他インスタンスの存在を確認</li>
-<li><strong>FMO作成</strong>: 他インスタンスがなければ <code>FmoManager(mutexName:sharedName:)</code> で初期化</li>
-<li><strong>データ共有</strong>: mutex で保護しながら共有メモリにデータを読み書き</li>
-<li><strong>クリーンアップ</strong>: 終了時に <code>cleanup()</code> でリソース解放</li>
-</ol>
-<h2 id="_10">エラーハンドリング</h2>
+<h3 id="fmobridgec-h"><code>FmoBridge.c / .h</code></h3>
 <ul>
-<li><code>FmoError.alreadyRunning</code>: セマフォまたは共有メモリが既に存在する（他インスタンス起動中）</li>
-<li><code>FmoError.systemError(String)</code>: システムエラー（権限不足、リソース不足など）</li>
+<li>Swift から POSIX API を呼び出すための C ラッパー関数群</li>
 </ul>
-<p>起動判定を先に行うことで、不必要な <code>alreadyRunning</code> エラーを回避できます。</p>
-<h2 id="_11">技術的な詳細</h2>
-<h3 id="c-bridge">C Bridge関数</h3>
-<p>Swift から POSIX API を呼び出すために以下のブリッジ関数を実装しています（<code>FmoBridge.c/h</code>）：</p>
-<h4 id="_12">共有メモリ操作</h4>
+<h2 id="_12">実装ファイル</h2>
 <ul>
-<li><code>fmo_open_shared()</code>: 共有メモリを新規作成</li>
-<li><code>fmo_open_existing_shared()</code>: 既存の共有メモリを開く</li>
-<li><code>fmo_map()</code>: メモリマッピング</li>
-<li><code>fmo_munmap()</code>: マッピング解除</li>
-<li><code>fmo_shm_unlink()</code>: 共有メモリ削除</li>
-</ul>
-<h4 id="_13">セマフォ操作</h4>
-<ul>
-<li><code>fmo_sem_open()</code>: セマフォを開く/作成</li>
-<li><code>fmo_sem_wait()</code>: ロック取得</li>
-<li><code>fmo_sem_post()</code>: ロック解放</li>
-<li><code>fmo_sem_close()</code>: セマフォクローズ</li>
-<li><code>fmo_sem_unlink()</code>: セマフォ削除</li>
-</ul>
-<h4 id="_14">起動判定</h4>
-<ul>
-<li><code>fmo_check_running()</code>: ninix仕様に基づく起動判定</li>
-<li><code>shm_open(name, O_RDWR, 0)</code> で既存の共有メモリを開けるか試行</li>
-<li>戻り値: 1=起動中, 0=未起動, -1=エラー</li>
-</ul>
-<h3 id="_15">注意事項</h3>
-<ul>
-<li><strong>32/64bit非互換</strong>: 32bitと64bitプロセス間ではFMOをやり取りできません</li>
-<li><strong>権限</strong>: サンドボックス環境では共有メモリやセマフォへのアクセスが制限される場合があります</li>
-<li><strong>リソース名</strong>: ninix互換性のため <code>/ninix</code> と <code>/ninix_mutex</code> を使用しますが、必要に応じて変更可能です</li>
-<li><strong>エフェメラル運用</strong>: 共有メモリは作成直後に <code>shm_unlink</code> され、全プロセスがクローズすると自動削除されます</li>
-</ul>
-<h2 id="implementation-status">実装状況（Implementation Status）</h2>
-<p><strong>更新日:</strong> 2025-10-20</p>
-<h3 id="ourin">Ourin における実装</h3>
-<ul>
-<li>[x] <strong>完全実装済み</strong>: FMO システムは完全に実装され、動作確認済み</li>
-<li>[x] <strong>起動判定</strong>: <code>FmoManager.isAnotherInstanceRunning()</code> による ninix 仕様準拠の起動判定</li>
-<li>[x] <strong>共有メモリ管理</strong>: <code>FmoSharedMemory</code> による POSIX 共有メモリの管理</li>
-<li>[x] <strong>排他制御</strong>: <code>FmoMutex</code> による名前付きセマフォの実装</li>
-<li>[x] <strong>C ブリッジ</strong>: POSIX API へのブリッジ関数群（<code>FmoBridge.c/h</code>）</li>
-<li>[x] <strong>エフェメラル運用</strong>: 共有メモリの自動削除機能</li>
-<li>[x] <strong>エラーハンドリング</strong>: <code>FmoError</code> による適切なエラー処理</li>
-</ul>
-<h3 id="_16">実装済みの機能</h3>
-<ol>
-<li><strong>POSIX 共有メモリ</strong></li>
-<li><code>shm_open()</code> による共有メモリの作成/オープン</li>
-<li><code>mmap()</code> によるメモリマッピング</li>
-<li>
-<p><code>shm_unlink()</code> による自動削除</p>
-</li>
-<li>
-<p><strong>名前付きセマフォ</strong></p>
-</li>
-<li><code>sem_open()</code> によるセマフォの作成/オープン</li>
-<li><code>sem_wait()</code>/<code>sem_post()</code> による排他制御</li>
-<li>
-<p><code>sem_unlink()</code> による削除</p>
-</li>
-<li>
-<p><strong>ninix 互換起動判定</strong></p>
-</li>
-<li><code>/ninix</code> 共有メモリの存在確認</li>
-<li><code>O_RDWR</code> モードでの既存メモリオープン試行</li>
-<li>
-<p>errno に基づくエラー判定</p>
-</li>
-<li>
-<p><strong>Swift インターフェース</strong></p>
-</li>
-<li><code>FmoManager</code>: 全体管理クラス</li>
-<li><code>FmoSharedMemory</code>: 共有メモリラッパー</li>
-<li><code>FmoMutex</code>: セマフォラッパー</li>
-<li><code>FmoError</code>: エラー型定義</li>
-</ol>
-<h3 id="_17">実装ファイル</h3>
-<ul>
-<li><code>Ourin/FMO/FmoManager.swift</code>: FMO 管理クラス</li>
+<li><code>Ourin/FMO/FmoManager.swift</code>: FMO 管理クラス・スナップショット生成</li>
 <li><code>Ourin/FMO/FmoSharedMemory.swift</code>: 共有メモリラッパー</li>
 <li><code>Ourin/FMO/FmoMutex.swift</code>: Mutex ラッパー</li>
 <li><code>Ourin/FMO/FmoError.swift</code>: エラー定義</li>
 <li><code>Ourin/FMO/FmoBridge.c</code>: C ブリッジ実装</li>
-<li><code>Ourin/FMO/FmoBridge.h</code>: C ブリッジヘッダ</li>
-</ul>
-<h3 id="_18">動作確認</h3>
-<ul>
-<li>✅ 単一インスタンス起動制御</li>
-<li>✅ 複数インスタンス起動時のエラー検出</li>
-<li>✅ 共有メモリへの読み書き</li>
-<li>✅ セマフォによる排他制御</li>
-<li>✅ プロセス終了時のリソース解放</li>
+<li><code>Ourin/FMO/FmoBridge.h</code>: C ブリッジヘッダー</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

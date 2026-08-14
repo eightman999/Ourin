@@ -155,6 +155,7 @@
 <h2 id="_2">🎯 入門・概要</h2>
 <ul>
 <li><a href="ONBOARDING.md">ONBOARDING.md</a> - Ourin の概要と始め方</li>
+<li><a href="AUDITS_COMPLETED.md">監査項目 完了済み</a> / <a href="AUDITS_TODO.md">監査項目 未完</a> - UKADOC/SSP基準の監査結果（完了・未完）</li>
 </ul>
 <h2 id="macos">📚 コア仕様書（macOS 差分版）</h2>
 <p>これらの仕様書には、現在の実装状況が追記されています。</p>
@@ -166,9 +167,10 @@
 </ul>
 <h3 id="sstp">SSTP プロトコル</h3>
 <ul>
-<li><a href="SSTP_1.xM_SPEC.md">SSTP/1.xM 仕様</a> 🟢 <strong>実装済み</strong> - SSTP プロトコルの macOS 差分仕様</li>
+<li><a href="SSTP_1.xM_SPEC.md">SSTP/1.xM 仕様</a> 🟡 <strong>部分互換</strong> - SSTP プロトコルの macOS 差分仕様</li>
 <li>TCP/HTTP/XPC サーバ実装済み</li>
 <li>基本的な SEND/NOTIFY/COMMUNICATE/EXECUTE メソッド対応</li>
+<li>TCP bind 範囲、raw TCP body、SHIORI <code>ReferenceN</code> 応答マッピングに残課題あり</li>
 </ul>
 <h3 id="_3">プラグインシステム</h3>
 <ul>
@@ -178,23 +180,26 @@
 </ul>
 <h3 id="nar">NAR インストール</h3>
 <ul>
-<li><a href="NAR_INSTALL_1.0M_SPEC.md">NAR INSTALL/1.0M 仕様</a> 🟢 <strong>実装済み</strong> - NAR パッケージインストールの仕様</li>
+<li><a href="NAR_INSTALL_1.0M_SPEC.md">NAR INSTALL/1.0M 仕様</a> 🟡 <strong>部分互換</strong> - NAR パッケージインストールの仕様</li>
 <li>ダブルクリック/D&amp;D インストール対応</li>
 <li>基本的な展開とエラー処理実装済み</li>
+<li><code>refreshundeletemask</code> 区切り、複合インストール、calendar/language系に残課題あり</li>
 </ul>
 <h2 id="_4">⚙️ システム実装仕様</h2>
 <h3 id="fmo">FMO（共有メモリ）</h3>
 <ul>
-<li><a href="About_FMO.md">FMO について</a> 🟢 <strong>完全実装</strong> - プロセス間共有メモリの実装</li>
-<li>POSIX 共有メモリとセマフォで完全実装</li>
-<li>ninix 仕様準拠の起動判定</li>
+<li><a href="About_FMO.md">FMO について</a> 🟡 <strong>部分互換</strong> - プロセス間共有メモリの実装</li>
+<li>POSIX 共有メモリとセマフォで実装</li>
+<li>SSP風レコード形式を公開</li>
+<li>Windows FMO名/HWNDとの直接互換はプラットフォーム差異として未対応</li>
 </ul>
 <h3 id="yaya">YAYA システム</h3>
 <ul>
-<li><a href="OURIN_YAYA_ADAPTER_SPEC_1.0M.md">YAYA Adapter 仕様 1.0M</a> 🟢 <strong>完全実装</strong> - YAYA ゴーストの実行アダプタ</li>
+<li><a href="OURIN_YAYA_ADAPTER_SPEC_1.0M.md">YAYA Adapter 仕様 1.0M</a> 🟡 <strong>部分互換</strong> - YAYA ゴーストの実行アダプタ</li>
 <li>ヘルパープロセスとの IPC 実装済み</li>
 <li><code>yaya.txt</code> および <code>.dic</code> ファイルの解析対応</li>
 <li>SHIORI/3.0M ブリッジ実装済み</li>
+<li>by-reference、standalone <code>when</code>、一部組み込み関数は部分実装/stub</li>
 </ul>
 <h3 id="usl">USL（ローダー）</h3>
 <ul>
@@ -278,6 +283,7 @@
 </ul>
 <h2 id="_12">📝 ドキュメント更新履歴</h2>
 <ul>
+<li><strong>2026-06-27</strong>: Codex互換性監査を追加し、実装ステータスをSSP/UKADOC互換性基準へ修正</li>
 <li><strong>2025-10-20</strong>: 実装状況セクションを各仕様書に追加、HTML 版を生成</li>
 <li><strong>2025-07-28</strong>: 初版ドキュメント作成</li>
 </ul>
@@ -290,7 +296,7 @@
 <h2 id="_14">📄 ライセンス</h2>
 <p>Ourin独自ドキュメントはCC BY-SA 4.0で提供されます。第三者資料は元のライセンスを維持します。</p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

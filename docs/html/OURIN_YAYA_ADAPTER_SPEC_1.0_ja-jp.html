@@ -252,13 +252,13 @@
 <li><strong>ID: capability</strong> を起動時にやり取りし、拡張対応を明示。</li>
 </ul>
 <h2 id="4">4. 全体アーキテクチャ</h2>
-<div class="codehilite"><pre><span></span><code>Ourin.app
+<pre class="codehilite"><code>Ourin.app
  └ Contents/
     ├ MacOS/Ourin                 # ベースウェア本体
     ├ Helpers/yaya_core           # ★推奨：YAYA 実行体（Universal 2）
     ├ Frameworks/libyaya.dylib    # 代替：共有ライブラリ
     └ Resources/...
-</code></pre></div>
+</code></pre>
 
 <ul>
 <li><strong>USL</strong> は <code>descript.txt</code> の <code>shiori</code> を横取り解釈し、<strong>YAYA Adapter</strong> を選択。</li>
@@ -286,17 +286,17 @@
 <li>文字コードは <strong>UTF‑8 固定</strong>。1行＝1メッセージ。</li>
 <li>Ourin → Adapter：</li>
 </ul>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;cmd&quot;</span><span class="p">:</span><span class="s2">&quot;load&quot;</span><span class="p">,</span><span class="nt">&quot;ghost_root&quot;</span><span class="p">:</span><span class="s2">&quot;/path/to/ghost/master&quot;</span><span class="p">,</span><span class="nt">&quot;dic&quot;</span><span class="p">:[</span><span class="s2">&quot;a.dic&quot;</span><span class="p">,</span><span class="s2">&quot;b.dic&quot;</span><span class="p">],</span><span class="nt">&quot;encoding&quot;</span><span class="p">:</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span><span class="nt">&quot;env&quot;</span><span class="p">:{</span><span class="nt">&quot;LANG&quot;</span><span class="p">:</span><span class="s2">&quot;ja_JP.UTF-8&quot;</span><span class="p">}}</span>
-<span class="p">{</span><span class="nt">&quot;cmd&quot;</span><span class="p">:</span><span class="s2">&quot;request&quot;</span><span class="p">,</span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;OnBoot&quot;</span><span class="p">,</span><span class="nt">&quot;headers&quot;</span><span class="p">:{</span><span class="nt">&quot;Charset&quot;</span><span class="p">:</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">,</span><span class="nt">&quot;Sender&quot;</span><span class="p">:</span><span class="s2">&quot;Ourin&quot;</span><span class="p">},</span><span class="nt">&quot;ref&quot;</span><span class="p">:[]}</span>
-<span class="p">{</span><span class="nt">&quot;cmd&quot;</span><span class="p">:</span><span class="s2">&quot;unload&quot;</span><span class="p">}</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-json">{&quot;cmd&quot;:&quot;load&quot;,&quot;ghost_root&quot;:&quot;/path/to/ghost/master&quot;,&quot;dic&quot;:[&quot;a.dic&quot;,&quot;b.dic&quot;],&quot;encoding&quot;:&quot;utf-8&quot;,&quot;env&quot;:{&quot;LANG&quot;:&quot;ja_JP.UTF-8&quot;}}
+{&quot;cmd&quot;:&quot;request&quot;,&quot;method&quot;:&quot;GET&quot;,&quot;id&quot;:&quot;OnBoot&quot;,&quot;headers&quot;:{&quot;Charset&quot;:&quot;UTF-8&quot;,&quot;Sender&quot;:&quot;Ourin&quot;},&quot;ref&quot;:[]}
+{&quot;cmd&quot;:&quot;unload&quot;}
+</code></pre>
 
 <ul>
 <li>Adapter → Ourin：</li>
 </ul>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;ok&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span><span class="nt">&quot;headers&quot;</span><span class="p">:{</span><span class="nt">&quot;Charset&quot;</span><span class="p">:</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">},</span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="s2">&quot;\0\s[0]Hello from YAYA\e&quot;</span><span class="p">}</span>
-<span class="p">{</span><span class="nt">&quot;ok&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="s2">&quot;load failed: ... &quot;</span><span class="p">}</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-json">{&quot;ok&quot;:true,&quot;status&quot;:200,&quot;headers&quot;:{&quot;Charset&quot;:&quot;UTF-8&quot;},&quot;value&quot;:&quot;\0\s[0]Hello from YAYA\e&quot;}
+{&quot;ok&quot;:false,&quot;status&quot;:500,&quot;error&quot;:&quot;load failed: ... &quot;}
+</code></pre>
 
 <h2 id="7-shiori30m">7. SHIORI/3.0M ブリッジ仕様</h2>
 <ul>
@@ -321,8 +321,8 @@
 5) <strong>SHIORI/3.0M</strong>：<code>OnBoot</code> を <code>GET</code> 送信 → <code>Value</code>（SakuraScript）を受領。<br />
 6) <strong>レンダラ</strong>：SakuraScript を描画（<code>\0/\1/\n/\w/\e</code> など最小集合から）。<br />
 7) <strong>表示</strong>：シェル＆バルーンに初期セリフを表示。</p>
-<div class="codehilite"><pre><span></span><code>User → Ourin → USL → YAYA Adapter → (YAYA) → USL → Ourin Renderer → Balloon
-</code></pre></div>
+<pre class="codehilite"><code>User → Ourin → USL → YAYA Adapter → (YAYA) → USL → Ourin Renderer → Balloon
+</code></pre>
 
 <h2 id="10">10. エラー処理／タイムアウト／再起動</h2>
 <ul>
@@ -356,27 +356,27 @@
 </ul>
 <h2 id="16">16. 付録（メッセージ例・テンプレコード）</h2>
 <h3 id="161-ourinadapterswiftjson">16.1 Ourin→Adapter（Swift：標準入出力JSON）</h3>
-<div class="codehilite"><pre><span></span><code><span class="kd">struct</span> <span class="nc">YayaMessage</span><span class="p">:</span> <span class="n">Codable</span> <span class="p">{</span> <span class="kd">let</span> <span class="nv">cmd</span><span class="p">:</span> <span class="nb">String</span><span class="p">;</span> <span class="kd">let</span> <span class="nv">method</span><span class="p">:</span> <span class="nb">String</span><span class="p">?;</span> <span class="kd">let</span> <span class="nv">id</span><span class="p">:</span> <span class="nb">String</span><span class="p">?;</span> <span class="kd">let</span> <span class="nv">headers</span><span class="p">:</span> <span class="p">[</span><span class="nb">String</span><span class="p">:</span><span class="nb">String</span><span class="p">]?;</span> <span class="kd">let</span> <span class="nv">ref</span><span class="p">:</span> <span class="p">[</span><span class="nb">String</span><span class="p">]?</span> <span class="p">}</span>
-<span class="kd">let</span> <span class="nv">proc</span> <span class="p">=</span> <span class="nb">Process</span><span class="p">()</span>
-<span class="n">proc</span><span class="p">.</span><span class="n">executableURL</span> <span class="p">=</span> <span class="n">Bundle</span><span class="p">.</span><span class="n">main</span><span class="p">.</span><span class="n">url</span><span class="p">(</span><span class="n">forAuxiliaryExecutable</span><span class="p">:</span> <span class="s">&quot;yaya_core&quot;</span><span class="p">)</span>
-<span class="kd">let</span> <span class="nv">inPipe</span> <span class="p">=</span> <span class="n">Pipe</span><span class="p">(),</span> <span class="n">outPipe</span> <span class="p">=</span> <span class="n">Pipe</span><span class="p">()</span>
-<span class="n">proc</span><span class="p">.</span><span class="n">standardInput</span> <span class="p">=</span> <span class="n">inPipe</span><span class="p">;</span> <span class="n">proc</span><span class="p">.</span><span class="n">standardOutput</span> <span class="p">=</span> <span class="n">outPipe</span>
-<span class="k">try</span> <span class="n">proc</span><span class="p">.</span><span class="n">run</span><span class="p">()</span>
-<span class="kd">let</span> <span class="nv">load</span> <span class="p">=</span> <span class="n">YayaMessage</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="s">&quot;load&quot;</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="kc">nil</span><span class="p">,</span> <span class="n">id</span><span class="p">:</span> <span class="kc">nil</span><span class="p">,</span> <span class="n">headers</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Charset&quot;</span><span class="p">:</span><span class="s">&quot;UTF-8&quot;</span><span class="p">],</span> <span class="n">ref</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
-<span class="kd">let</span> <span class="nv">data</span> <span class="p">=</span> <span class="k">try</span> <span class="n">JSONEncoder</span><span class="p">().</span><span class="n">encode</span><span class="p">(</span><span class="n">load</span><span class="p">)</span>
-<span class="n">inPipe</span><span class="p">.</span><span class="n">fileHandleForWriting</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">.</span><span class="n">data</span><span class="p">(</span><span class="n">using</span><span class="p">:</span> <span class="p">.</span><span class="n">utf8</span><span class="p">)</span><span class="o">!</span><span class="p">)</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-swift">struct YayaMessage: Codable { let cmd: String; let method: String?; let id: String?; let headers: [String:String]?; let ref: [String]? }
+let proc = Process()
+proc.executableURL = Bundle.main.url(forAuxiliaryExecutable: &quot;yaya_core&quot;)
+let inPipe = Pipe(), outPipe = Pipe()
+proc.standardInput = inPipe; proc.standardOutput = outPipe
+try proc.run()
+let load = YayaMessage(cmd: &quot;load&quot;, method: nil, id: nil, headers: [&quot;Charset&quot;:&quot;UTF-8&quot;], ref: nil)
+let data = try JSONEncoder().encode(load)
+inPipe.fileHandleForWriting.write(data + &quot;\n&quot;.data(using: .utf8)!)
+</code></pre>
 
 <h3 id="162-shiori-crlf">16.2 SHIORI 受発信（CRLF 終端）</h3>
-<div class="codehilite"><pre><span></span><code><span class="kd">func</span> <span class="nf">buildGET</span><span class="p">(</span><span class="n">id</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span> <span class="n">refs</span><span class="p">:</span> <span class="p">[</span><span class="nb">String</span><span class="p">])</span> <span class="p">-&gt;</span> <span class="n">Data</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nv">headers</span> <span class="p">=</span> <span class="p">[</span>
-    <span class="s">&quot;ID&quot;</span><span class="p">:</span> <span class="n">id</span><span class="p">,</span> <span class="s">&quot;Charset&quot;</span><span class="p">:</span> <span class="s">&quot;UTF-8&quot;</span><span class="p">,</span> <span class="s">&quot;Sender&quot;</span><span class="p">:</span> <span class="s">&quot;Ourin&quot;</span>
-  <span class="p">]</span>
-  <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="k">in</span> <span class="n">refs</span><span class="p">.</span><span class="n">enumerated</span><span class="p">()</span> <span class="p">{</span> <span class="n">headers</span><span class="p">[</span><span class="s">&quot;Reference</span><span class="si">\(</span><span class="n">i</span><span class="si">)</span><span class="s">&quot;</span><span class="p">]</span> <span class="p">=</span> <span class="n">r</span> <span class="p">}</span>
-  <span class="kd">let</span> <span class="nv">head</span> <span class="p">=</span> <span class="n">headers</span><span class="p">.</span><span class="bp">map</span> <span class="p">{</span> <span class="s">&quot;</span><span class="si">\(</span><span class="nv">$0</span><span class="si">)</span><span class="s">: </span><span class="si">\(</span><span class="nv">$1</span><span class="si">)</span><span class="se">\r\n</span><span class="s">&quot;</span> <span class="p">}.</span><span class="n">joined</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\r\n</span><span class="s">&quot;</span>
-  <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">utf8</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-swift">func buildGET(id: String, refs: [String]) -&gt; Data {
+  var headers = [
+    &quot;ID&quot;: id, &quot;Charset&quot;: &quot;UTF-8&quot;, &quot;Sender&quot;: &quot;Ourin&quot;
+  ]
+  for (i, r) in refs.enumerated() { headers[&quot;Reference\(i)&quot;] = r }
+  let head = headers.map { &quot;\($0): \($1)\r\n&quot; }.joined() + &quot;\r\n&quot;
+  return Data(head.utf8)
+}
+</code></pre>
 
 <hr />
 <h2 id="implementation-status">実装状況（Implementation Status）</h2>
@@ -497,14 +497,14 @@
 <li>SAORI ブリッジ機能</li>
 </ol>
 <h3 id="_6">アーキテクチャ</h3>
-<div class="codehilite"><pre><span></span><code>Ourin.app
+<pre class="codehilite"><code>Ourin.app
  └ Contents/
     ├ MacOS/Ourin              # ベースウェア本体
     │  └ ShioriLoader         # USL 実装
     │     └ YayaBackend       # YAYA 検出・管理
     │        └ YayaAdapter    # プロセス通信
     └ (外部) yaya_core        # YAYA ランタイム（別プロセス）
-</code></pre></div>
+</code></pre>
 
 <h3 id="ipc">IPC プロトコル実装状況</h3>
 <ul>
@@ -522,7 +522,7 @@
 <li>2025-07-30 22:57 UTC+09:00 (JST): 初版</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin 監査項目 — 完了済み / Audit Items — Completed</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="ourin-audit-items-completed">Ourin 監査項目 — 完了済み / Audit Items — Completed</h1>
+<p><strong>最終更新 / Last Updated</strong>: 2026-08-15</p>
+<blockquote>
+<p><strong>注記 (2026-08-15)</strong>: 本ファイルの <code>file:line</code> 引用は各項目の<strong>判定時点</strong>のものです。その後のリファクタで行番号はズレている可能性があります
+（2026-08-15 の抜き取り検証10件では、ファイル・シンボル不在は0件、行番号ズレは8件でした）。シンボル名・ファイルパスを優先して参照してください。
+Note: <code>file:line</code> citations reflect the state at audit time; line numbers may have drifted since (2026-08-15 sampling: 0 missing files/symbols, 8/10 line-number drifts). Prefer symbol names / file paths.
+<strong>集約元 / Consolidated from</strong>: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY（各 ja-jp / en-us）
+<strong>検証方法 / Verification</strong>: 全項目を現状ソースコード（file:line）と照合して完了判定。</p>
+</blockquote>
+<hr />
+<h2 id="_1">日本語</h2>
+<p>以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、<strong>現状コードで解決済み</strong>であることを確認した項目です。</p>
+<h3 id="a-shiori">A. SHIORI プロトコル</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reference順序が数値ソート化（辞書順ソートの修正）</td>
+<td><code>SHIORIEvents/EventBridge.swift:563-573</code>（<code>byIndex: [Int:String]</code> → <code>(0...maxIndex).map</code>）</td>
+</tr>
+<tr>
+<td><code>BridgeToSHIORI</code> 経由でNOTIFYメソッドが伝播</td>
+<td><code>SSTP/BridgeToSHIORI.swift</code>（method引数貫通）、<code>SSTPDispatcher</code> で <code>.notify</code>/<code>.get</code>/<code>.give</code> 区別</td>
+</tr>
+<tr>
+<td>YAYA / Bundle / Dylib SHIORI の Charset 変換</td>
+<td><code>USL/ShioriLoader.swift:623</code>（Charset検出＋変換）</td>
+</tr>
+<tr>
+<td>SSTP応答で Reference1+ が反映（Reference0のみでない）</td>
+<td><code>SSTP/SSTPDispatcher.swift:747-755</code>, <code>677-681</code>（<code>responseReferenceIndex</code> で全Nを処理）</td>
+</tr>
+<tr>
+<td>COMMUNICATE の Reference マッピング仕様準拠（R0=送信元名, R1=Sentence, R2=SSTP R0）</td>
+<td><code>SSTP/SSTPDispatcher.swift:601-610</code></td>
+</tr>
+<tr>
+<td>TEACH メソッドの互換マッピング</td>
+<td><code>USL/ShioriLoader.swift:247</code></td>
+</tr>
+<tr>
+<td><strong>Native SHIORIのXPCプロセス隔離</strong></td>
+<td><code>OurinShioriXPCService/</code>を同梱し、<code>ShioriLoader.XpcBackend</code>が既定でload/request/unloadを接続。Service側5秒watchdogでハング時にプロセス終了。<code>ShioriLoaderTests/loadRequestUnload</code>で実Service往復を確認。</td>
+</tr>
+<tr>
+<td><strong>YAYA/里々helperのtimeout復旧</strong></td>
+<td><code>Yaya/YayaAdapter.swift</code>、<code>USL/SatoriAdapter.swift</code>がhelper終了後に保存済みload contextを再適用。<code>ShioriRuntimeTests</code>の両runtime timeout回帰試験で確認。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="b-sstp">B. SSTP プロトコル</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SstpRouter 廃止・SSTPDispatcher へ一本化</strong>（二重実装の解消）</td>
+<td><code>ExternalServer/OurinExternalServer.swift:53-65</code>（<code>handleRaw</code> → <code>SSTPDispatcher.dispatch</code>）。<code>SstpRouter.swift</code> は削除済み。テスト <code>ExternalServerTests.swift:6</code> も明記</td>
+</tr>
+<tr>
+<td>応答ステータス行の <code>SSTP/SSTP/1.x</code> 二重プレフィクス バグ解消</td>
+<td><code>SSTPResponse.swift:56</code>（<code>"\(version) ..."</code> のみ、再付加なし）。回帰テスト <code>ExternalServerTests.swift:64-69</code></td>
+</tr>
+<tr>
+<td>TCP/HTTP リスナーが host 引数で実際に bind（localhost限定デフォルト）</td>
+<td><code>ExternalServer/SstpTcpServer.swift:43-53</code>（<code>NWEndpoint.hostPort</code>）、デフォルト <code>127.0.0.1</code></td>
+</tr>
+<tr>
+<td>HTTP ポートを SSTP と同一の 9801 に統合（旧 9810 廃止）</td>
+<td><code>ExternalServer/SstpHttpServer.swift:31</code>（<code>port: 9801</code>）、<code>UnifiedSstpListener.swift</code> で多重化</td>
+</tr>
+<tr>
+<td>GIVE が SHIORI（OnChoiceSelect）へルーティング（204固定ではない）</td>
+<td><code>SSTP/SSTPDispatcher.swift:564-566</code>, <code>585-586</code></td>
+</tr>
+<tr>
+<td>SEND の Script ヘッダがバルーン再生される</td>
+<td><code>SSTP/SSTPDispatcher.swift:148</code>, <code>236-238</code>（<code>playScriptOnGhosts</code> → <code>gm.runScript</code>）</td>
+</tr>
+<tr>
+<td>nodescript がバルーン表示のみ抑止（イベント dispatch は継続）</td>
+<td><code>SSTP/SSTPDispatcher.swift:230</code>, <code>181</code>。テスト <code>ExternalServerTests.swift:117-134</code></td>
+</tr>
+<tr>
+<td>IfGhost が順序保持リスト <code>[(key,value)]</code> で複数 Script/IfGhost ペア対応</td>
+<td><code>SSTP/SSTPRequest.swift:29</code>, <code>85-100</code>。テスト <code>ExternalServerTests.swift:43-61</code>, <code>198-213</code></td>
+</tr>
+<tr>
+<td>SecurityLevel / SecurityOrigin 解釈（Origin優先・localhost判定）</td>
+<td><code>SSTP/SSTPDispatcher.swift</code>（統合後スタック）</td>
+</tr>
+<tr>
+<td><strong><code>Entry</code> ヘッダが本番経路で配線</strong>（受信で保持・応答へエコー）</td>
+<td><code>SSTP/SSTPDispatcher.swift:51</code>（<code>mergeEntries</code>）、<code>156-157</code>, <code>290-291</code>（応答の <code>Entry</code> ヘッダ出力）</td>
+</tr>
+<tr>
+<td><strong>HTTP レスポンス行末を <code>\r</code> → <code>\r\n</code> に修正</strong>（RFC 7230 §3 準拠）</td>
+<td><code>ExternalServer/SstpHttpServer.swift:105-111</code>（SSTP成功応答の行末を <code>\r\n</code> 化。エラーパスも <code>\r\n</code>）</td>
+</tr>
+<tr>
+<td><strong>外部SSTP NOTIFY の ValueNotify スクリプトがバルーン再生される</strong></td>
+<td><code>SSTP/SSTPDispatcher.swift:236-247</code>（<code>method != .notify</code> ガードを撤廃し、NOTIFY 由来 ValueNotify を <code>runNotifyScript</code> で再生）。<code>SHIORIEvents/EventBridge.swift:221-240</code>（<code>playScriptOnGhostsResolving(notify:)</code> 追加）</td>
+</tr>
+<tr>
+<td><strong>SSTP パーサーが bare <code>\n</code> を許容</strong>（LFのみ送信するツール向け正規化）</td>
+<td><code>SSTP/SSTPParser.swift:7-10</code>（先頭CR無しLFをCRLFへ正規化してから分割）。テスト <code>ExternalServerTests.swift</code>（<code>parserToleratesBareLFLineEndings</code>）</td>
+</tr>
+<tr>
+<td><strong>SSTP 210 <code>nobreak</code> が実ゴーストのスクリプト再生完了まで待機</strong></td>
+<td><code>SHIORIEvents/EventBridge.swift:210-218</code>（登録済みゴーストの <code>isPlaying</code> を照会）、<code>SSTP/SstpBreakPolicy.swift:15-20</code>（<code>ShioriStatusStore</code> と再生状態を統合）。テスト <code>SSTPDispatcherTests.swift</code>（再生中待機・完了後200・タイムアウト409）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c-sakurascript">C. SakuraScript</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\t</code> = タイムクリティカルセクション（イベント抑止。ポーズではない）</td>
+<td><code>Ghost/GhostManager.swift:1045-1050</code>（<code>timeCriticalActive = true</code>）</td>
+</tr>
+<tr>
+<td><code>\-</code> = 当該ゴーストの終了（選択肢改行ではない）</td>
+<td><code>Ghost/GhostManager.swift:1081-1086</code>（<code>finalizeTermination()</code>）</td>
+</tr>
+<tr>
+<td><code>\v</code> = 最前面表示 / stay-on-top（設定ウィンドウではない）</td>
+<td><code>Ghost/GhostManager.swift:1107-1112</code>; <code>GhostManager+Window.swift:1012-1014</code>（<code>window.level = .floating</code>）</td>
+</tr>
+<tr>
+<td><code>\4</code>/<code>\5</code> = 相手キャラとの水平移動（Zオーダー切替ではない）</td>
+<td><code>Ghost/GhostManager.swift:1088-1094</code>; <code>GhostManager+Window.swift:293,312</code></td>
+</tr>
+<tr>
+<td><code>\+</code>/<code>\_+</code> = 他ゴースト起動</td>
+<td><code>Ghost/GhostManager.swift:1096-1105</code>; <code>GhostManager+System.swift:19,43</code></td>
+</tr>
+<tr>
+<td><code>\*</code> = 選択肢タイムアウト無効化（ダイアログ表示ではない）</td>
+<td><code>Ghost/GhostManager.swift:1061-1065</code>（<code>choiceTimeoutDisabled = true</code>）</td>
+</tr>
+<tr>
+<td><code>\a</code> = OnAITalk 発生（ダイアログではない）</td>
+<td><code>Ghost/GhostManager.swift:1067-1079</code></td>
+</tr>
+<tr>
+<td><code>\&amp;[ID]</code> = 実体参照（アンカーではない）</td>
+<td><code>Ghost/GhostManager.swift:2355-2363</code>, <code>789-809</code>（<code>resolveEntityReference</code>）</td>
+</tr>
+<tr>
+<td><code>\j[ID]</code> ハンドラ実装（URL/イベントジャンプ）</td>
+<td><code>Ghost/GhostManager.swift:2365-2367</code>（<code>case "j"</code> → <code>handleJumpCommand</code>）</td>
+</tr>
+<tr>
+<td><code>\_V</code> と <code>\_v</code> の大小区別分岐（case-sensitive 早期分岐）</td>
+<td><code>Ghost/GhostManager.swift:1126-1136</code></td>
+</tr>
+<tr>
+<td><code>\z</code> = キャンセル可能フラグ</td>
+<td><code>Ghost/GhostManager.swift:1056-1059</code></td>
+</tr>
+<tr>
+<td><strong><code>\__v</code> 音声合成制御と <code>\_v</code> 音声アセット再生</strong></td>
+<td><code>Ghost/GhostManager.swift:241-246</code>（音声合成状態）、<code>2860-2906</code>（<code>enable</code>/<code>disable</code>/<code>alternate</code> と通常文の既定オフ）、<code>2619-2627</code>（<code>\_v</code> → <code>playSound</code>）、<code>2992-3000</code>（<code>\_V</code> の再生完了待ち）。通常文を macOS 既定音声へ自動投入せず、音声アセットは <code>ghost/master</code> を優先し、旧 <code>ghost/sound</code> を後方互換として再生する。</td>
+</tr>
+<tr>
+<td><strong><code>\__t</code>(TeachBox) / <code>\__q</code>(選択肢キュー) / <code>\__c</code>(CommunicateBox) メタタグ実装</strong></td>
+<td><code>Ghost/GhostManager.swift</code>（<code>case "__t"</code>/<code>"__c"</code>）、<code>didEmit</code> の <code>case .choiceQueue</code>。テスト <code>SakuraScriptEngineTests.swift</code>（<code>metaTagTeachBox</code>/<code>metaTagCommunicateBox</code>/<code>choiceQueueCommand</code>/<code>choiceQueueRangeSyntaxBindsDisplayText</code>/<code>choiceQueueRangeTextNotShownInBalloon</code>/<code>choiceQueueScriptFormKeepsTitle</code>/<code>choiceQueueMultipleRangesProduceMultipleChoices</code>）</td>
+</tr>
+<tr>
+<td><strong><code>\__q</code> 範囲ベース表示テキスト結合（<code>\__q[ID,...]text\__q</code>）</strong></td>
+<td><code>SakuraScript/SakuraScriptEngine.swift</code>（<code>mergeChoiceQueueRanges</code> ポストプロセス + <code>.choiceQueue(title:id:references:)</code> トークン）。<code>Ghost/GhostManager.swift</code>（<code>case .choiceQueue</code> で title 付き選択肢生成）。ID 解釈は <code>\q</code> と同一（<code>script:</code>/<code>On*</code>/references）。※リッチラベル（画像・<code>\_l</code> 等のさくらスクリプト要素）はプレーンテキスト化される制限あり</td>
+</tr>
+<tr>
+<td><code>surfaces***.txt</code> の全読み込みとファイル名順結合（2026-06-27修正）</td>
+<td><code>Animation/SerikoParser.swift</code>, <code>Ghost/GhostManager+Animation.swift</code>（<code>docs/COMPAT_FIXES_2026-06.md</code> 参照）</td>
+</tr>
+<tr>
+<td><strong>可変改行（<code>\\n[half]</code> / 数値・割合）を再生順序付きで表示</strong></td>
+<td><code>Ghost/GhostManager.swift</code> の <code>PlaybackUnit.newlineVariation</code> と <code>BalloonViewModel.lineAdvances</code>、<code>Ghost/BalloonView.swift</code> の行単位レイアウト。<code>\\n[half]</code>、正負の数値・割合を通常行高倍率として保持し、<code>\\c</code> の文字/行短縮時も同期。明示4スイート26件（改行・キュー順序・クリア整合性・装飾状態）で確認。負値の実表示はオフセット近似で、実ゴースト目視は未実施。</td>
+</tr>
+<tr>
+<td><strong><code>\_a[ID,...]...\_a</code> の個別アンカー範囲とクリックルーティング</strong></td>
+<td><code>GhostManager.swift</code> の <code>BalloonAnchorRange</code> / <code>BalloonTextSegment</code>、<code>GhostManager+Balloon.swift</code> の <code>routeAnchorClick</code>・<code>onBalloonAnchorClicked</code>、<code>BalloonView.swift</code> の範囲別タップ処理。<code>On*</code> は指定イベントへ、その他は <code>OnAnchorSelectEx</code>（Reference0=クリック文字列、Reference1=ID、Reference2+=引数）→<code>OnAnchorSelect</code> へ振り分け、プラグイン起源も保持。<code>anchorstyle</code> / <code>anchorvisited*</code> の下線・矩形・背景・ペン色、3状態別文字色、訪問済み状態、<code>anchormethod</code> 系のSetROP2ピクセル合成まで実装。実ゴースト目視と実メディア環境での表示確認は未検証。関連テストを追加。</td>
+</tr>
+<tr>
+<td><strong><code>%lastghostname</code> / <code>%lastobjectname</code>（インストール時用）対応</strong></td>
+<td><code>SakuraScript/EnvironmentExpander.swift</code>（static <code>lastInstalledGhostName</code>/<code>lastInstalledObjectName</code> + 展開）。併せて Pattern 2 の無条件 return を修正し bare <code>%key</code> が Pattern 3 で展開されるようにした。設定元 <code>Ghost/GhostManager+System.swift:1515-1516</code>（OnInstallComplete 直前）。テスト <code>EnvironmentExpanderTests.swift</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="c-1-mayuna">C-1. MAYUNA（着せ替え）</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>\\![bind,...]</code> / <code>\\![bind-noevent,...]</code> の実行経路・状態反映・通知</strong></td>
+<td><code>Ghost/GhostManager+Dressup.swift</code>（単一/複数タプル、カテゴリ一括、値省略・空値トグル、<code>bind-noevent</code>、既定着衣）。<code>Ghost/GhostManager+Effects.swift</code>（カテゴリ一括をパーツ差分へ展開、100要素以上は <code>OnDressupChanged</code> を省略）。<code>Ghost/GhostManager.swift</code> / <code>SHIORIEvents/EventBridge.swift</code>（起動時 NOTIFY、メニュー GET、スクリプト差分の最後だけ GET）。<code>OnDressupChanged</code> の Reference0..4 と <code>OnNotifyDressupInfo</code> の byte-value-1 区切り Reference* は UKADOC 準拠。テスト <code>OurinTests/DressupBindCommandTests.swift</code> 25件（実ランタイムへの GET wire 形式を含む）。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="d-shiori">D. SHIORIイベント</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OnSecondChange/OnMinuteChange/OnHourTimeSignal に Reference0-4 付与</td>
+<td><code>SHIORIEvents/TimerEmitter.swift:49-88</code>（<code>timeEventReferences()</code>）</td>
+</tr>
+<tr>
+<td>cantalk に応じた GET/NOTIFY 切替（再生可能時はGET）</td>
+<td><code>SHIORIEvents/EventBridge.swift:430-454</code>（<code>Reference3</code> = cantalk、GET→再生 / NOTIFY→返値無視）</td>
+</tr>
+<tr>
+<td>見切れ/重なり（mikire/kasanari）のセッション単位充填</td>
+<td><code>SHIORIEvents/EventBridge.swift</code>（<code>mikireScopes()</code>/<code>kasanariScopes()</code> が R1/R2 を補完）</td>
+</tr>
+<tr>
+<td>OnBoot に Reference0（シェル名）付与</td>
+<td><code>Ghost/GhostManager.swift:2688-2697</code></td>
+</tr>
+<tr>
+<td>OnFirstBoot に Reference0（vanish回数）付与</td>
+<td><code>Ghost/GhostManager.swift:2675-2685</code></td>
+</tr>
+<tr>
+<td>存在しない <code>OnSecondBoot</code> を削除（2回目起動も OnBoot）</td>
+<td><code>Ghost/GhostManager.swift:2670</code>（コメントで廃止を明記）</td>
+</tr>
+<tr>
+<td>OnClose 応答スクリプトを再生してから終了 + Reference0（終了理由）</td>
+<td><code>Ghost/GhostManager.swift:738-768</code>（<code>beginCloseSequence</code> → <code>runScript</code> → 終了）</td>
+</tr>
+<tr>
+<td>イベントID定義の網羅性（UKADOC 252イベント中14未定義のみ）</td>
+<td><code>SHIORIEvents/EventID.swift</code>（469イベント定義、<code>EventReferenceTable</code> の <code>On*</code> ID は型付き網羅テスト済み）</td>
+</tr>
+<tr>
+<td><strong>OnMouseClick の Reference4-6 が充足</strong>（当たり判定名/ボタン/デバイス種別）</td>
+<td><code>SHIORIEvents/InputMonitor.swift:373-413</code>（R4=region, R5=button, R6="mouse"）。UKADOC list_shiori_event 準拠</td>
+</tr>
+<tr>
+<td><strong><code>EventBridge.start(enableAutoEvents:)</code> を実ゴーストロード完了時に集約有効化</strong></td>
+<td><code>Ghost/GhostManager.swift:643-646</code>（OnBoot 後、<code>!isRunningUnderTests</code> で有効化）、<code>2719-2737</code>（<code>startEventBridgeIfNeeded</code> で再起動付き有効化）</td>
+</tr>
+<tr>
+<td><strong>WebSocket/アーカイブ系14イベント実装</strong></td>
+<td><code>SHIORIEvents/EventID.swift</code>（14ケース追加）。ディスパッチ: <code>Web/GhostManager+WebSocket.swift</code>（OnExecuteWebSocket Open/Receive/Close/Error/Send/State）、<code>Ghost/GhostManager+System.swift</code>（OnExecuteHTTPStreaming, OnCompress/ExtractArchiveComplete/Failure）、<code>Ghost/GhostManager+Display.swift</code>（OnMusicPlay/OnMusicPlayEx/OnSoundLoop/OnSoundStop/OnVideoPlayEx）。既存の <code>notifyCustom</code> 文字列を型付き <code>notify(.X)</code> へ移行。テスト <code>EventIDAuditTests.swift</code></td>
+</tr>
+<tr>
+<td><strong>音声再生バックエンドと音声イベント</strong></td>
+<td><code>Ghost/SoundPlayer.swift</code>（AVAudioPlayer、volume/pan/rate/seektime、手動ループ境界、自然終了・エラー delegate）、<code>Ghost/GhostManager+Display.swift</code>（ghost/master 優先＋旧 ghost/sound フォールバック、同期的 play/load/stop/wait、プリロード・多重再生・状態掃除）。<code>OnSoundStop</code>（reason）、<code>OnSoundLoop</code>（周回境界）、<code>OnSoundError</code>（command/errorCode/filename/message）を発火。<code>OurinTests/SoundPlayerTests.swift</code> 27件、ビルド＋直列テストで確認。<code>![sound,wait]</code> は実行時 <code>waitForAudio</code> へ統一。</td>
+</tr>
+<tr>
+<td><strong>イベント Reference 仕様の表駆動化（基盤）</strong></td>
+<td><code>SHIORIEvents/EventReferenceSpec.swift</code> 新設（<code>EventReferenceTable.allSpecs</code> で主要約80イベントの Reference0..N 意味ラベル・カテゴリ・<code>notifyReturnIgnored</code> を一元定義）。<code>SHIORIEvents/EventBridge.swift</code>（<code>ShioriDispatcher.notifyReturnIgnored</code> を <code>EventReferenceTable.notifyReturnIgnoredIDs</code> から派生し、ハードコード Set を廃止）。2026-08-12に実際の自動発火ID（監視系・D&amp;D・更新系を含む）を全列挙し、未定義IDを解消。Appearance/Network/Power/SystemLoad監視の意味値も <code>ShioriEvent(id:refs:)</code> 経由へ統一。テスト <code>EventReferenceTableTests.swift</code>（従来38件セットとの完全一致・重複IDなし・主要イベント Reference 検証）。※全216箇所の発火コードの表駆動移行は漸次対応</td>
+</tr>
+<tr>
+<td><strong>Observer の GET/NOTIFY 配信と OS 状態イベントの実データ化</strong></td>
+<td><code>SHIORIEvents/EventBridge.swift</code> に <code>ShioriEventDelivery</code> を導入し、Observer の既定 GET、起動時 NOTIFY、NOTIFY 応答スクリプト抑止を発火側で明示できるようにした。<code>DisplayObserver.swift</code> は <code>OnDisplayChange</code>（bpp/width/height）と <code>OnDisplayChangeEx</code>（モニタ列）を起動時/更新時に発火。<code>PowerObserver.swift</code> は IOKit の残量・残時間・電源状態・充電・低電力モードを <code>OnBattery*</code> に変換し、閾値遷移だけを追加通知。<code>SleepObserver.swift</code> は画面スリープを <code>OnDisplayPowerStatus</code> として扱い、スクリーンセーバー通知と混同しない。<code>SessionObserver.swift</code> は <code>NSWorkspace</code> のセッション切断/再接続を接続。テスト <code>PowerObserverTests.swift</code> を追加し、全804テストで確認。</td>
+</tr>
+<tr>
+<td><strong>OnDisplayHandover / OnRecycleBinStatusUpdate の実データ・実イベント接続</strong></td>
+<td><code>DisplayObserver.swift</code> のモニタスナップショットを実ウィンドウの初期配置・移動・リサイズへ接続し、<code>OnDisplayHandover</code> を初期 <code>NOTIFY</code>（R0=init、R1=scope、R2=空、R3=現在モニタ）とモニタ変更時の対象限定 <code>GET</code>（R0=update、R2=前、R3=現在）として発火。<code>RecycleBinObserver.swift</code> はホームおよび接続ボリュームの <code>.Trash</code>/<code>.Trashes/&lt;uid&gt;</code> を vnode 監視し、項目数・割当サイズ・差分を <code>OnRecycleBinStatusUpdate</code>（起動時 <code>NOTIFY</code>、更新時 <code>GET</code>、R4=1）へ接続。<code>executeEmptyRecycleBin()</code> 後の状態再読込も追加。テスト <code>DisplayHandoverTests.swift</code> / <code>RecycleBinObserverTests.swift</code>。</td>
+</tr>
+<tr>
+<td><strong>OnOSUpdateInfo の実データ監視・OnCloseAll の全ゴースト終了集約</strong></td>
+<td><code>OSUpdateObserver.swift</code> が macOS 標準 <code>/usr/sbin/softwareupdate --list/--history</code> の実出力を読み、確認時刻・最新実行時刻・成功済み更新履歴を <code>OnOSUpdateInfo</code> の R0/R1/R2〜へ変換。起動時 <code>NOTIFY</code>、履歴差分時 <code>GET</code>、応答スクリプト抑止を実装。<code>AppDelegate</code> と <code>GhostManager.beginCloseSequence</code> は全ゴーストへ <code>OnCloseAll</code> を送り、空応答・通常本文・<code>\\-</code> 応答の再生完了を集約してから終了する。テスト <code>OSUpdateObserverTests.swift</code> / <code>CloseAllSequenceTests.swift</code>。</td>
+</tr>
+<tr>
+<td><strong>初期 Notify 系の実データ化</strong></td>
+<td><code>SHIORIEvents/SystemNotificationData.swift</code> を新設し、<code>OnNotifyUserInfo</code>（呼び方/本名/未設定誕生日/<code>undef</code>）、<code>OnNotifyOSInfo</code>（macOS/CPU/メモリ/稼働分）、<code>OnNotifyFontInfo</code>（NSFontManager の Reference*）、<code>OnNotifyInternationalInfo</code>（UTC差分/DST/ISO国・言語）を実環境から生成。起動時通知、ユーザー名変更時の再通知、ロケール変更時の国際情報再通知を接続。<code>SystemNotificationDataTests.swift</code> 5件。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="e">E. プロパティシステム</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>最長 prefix 解決（first-dot 分割→到達不能問題の解消）</td>
+<td><code>Property/PropertyManager.swift:128-141</code>（idx を長い方から走査）</td>
+</tr>
+<tr>
+<td><code>currentghost.balloon</code> プロバイダが到達可能</td>
+<td><code>Property/PropertyManager.swift:29</code></td>
+</tr>
+<tr>
+<td>値キャッシュの無効化 + <code>system.*</code>/<code>pluginlist.*</code> はキャッシュ除外</td>
+<td><code>Property/PropertyManager.swift:155</code>, <code>159-169</code>, <code>222-225</code>（<code>uncachedPrefixes</code>）</td>
+</tr>
+<tr>
+<td><code>sakura.*</code>/<code>kero.*</code>/<code>ghost.*</code>/<code>shell.*</code> 名前空間エイリアス</td>
+<td><code>Property/PropertyManager.swift:40-43</code>, <code>279-299</code>（<code>AliasPropertyProvider</code>）</td>
+</tr>
+<tr>
+<td>CPU使用率計算（恒常100%問題の解消）</td>
+<td><code>Property/PropertyManager.swift</code>（動的取得、キャッシュ除外対象）</td>
+</tr>
+<tr>
+<td><strong>名前パラメータの case が保持される</strong>（構造部のみ小文字化）</td>
+<td><code>Property/PropertyManager.swift:143-166</code>（<code>lowercasePreservingParams</code>。括弧内 <code>shelllist(MyShell)</code> 等を原文保持）。テスト <code>PropertyTests.swift</code>（<code>nameParametersPreserveOriginalCase</code>）</td>
+</tr>
+<tr>
+<td><strong>深い階層プロパティの実態調査・実データ配線・UI機能の新規実装</strong>（2026-07-01）</td>
+<td>監査の結果、<code>currentghost.seriko.cursor.*</code>/<code>tooltip.*</code>/<code>balloon.scope(ID).*</code> の<strong>パース・SET/GETロジックは既に実装済み</strong>（<code>GhostPropertyProvider.swift</code>/<code>BalloonPropertyProvider.swift</code>）と判明。ただし<strong>真の根本原因</strong>を特定：<code>Ghost/GhostManager.swift</code>（<code>SakuraScriptEngine()</code>のデフォルト初期化）で <code>sakuraEngine.propertyManager</code> が <code>PropertyManager.shared</code> と異なる独立インスタンスのままだったため、<code>\![set,property,...]</code> によるSETが <code>SSTPDispatcher</code>/<code>ResourceBridge</code> 等の読み取り経路から一切見えない配線切れがあった（cursor/tooltipに限らず全SETプロパティに影響）。<code>GhostManager.init</code>で<code>sakuraEngine.propertyManager = PropertyManager.shared</code>に修正。回帰テスト <code>OurinTests/PropertySetPropertyWiringTests.swift</code>。加えて、当たり判定連動のカーソル動的切り替え（<code>SHIORIEvents/SerikoCursorController.swift</code>新設、<code>NSCursor</code>使用箇所ゼロだった状態から実装）とツールチップ表示（<code>SHIORIEvents/SerikoTooltipController.swift</code>新設）のUI機能を新規実装し、既存の<code>InputMonitor.swift</code>当たり判定解決ロジック（<code>GhostManager+Surface.swift:459 collisionRegionName</code>）に接続。テスト <code>SerikoCursorControllerTests.swift</code>/<code>SerikoTooltipControllerTests.swift</code>。UKADOC 147項目の機械的突合により、真に未実装だったリーフ項目（<code>os.dst</code>, <code>os.locale.language/country</code>, <code>power.battery.lifetime</code>, <code>monitor.index(ID).bpp</code>, <code>disk.index(ID).type</code>, <code>network.type/.cost</code>）を<code>PropertyManager.swift</code>のSystemPropertyProviderへ追加。<code>network.downlink</code>/<code>downlink.estimate</code>はmacOSに公開APIが無いため未定義のまま（<code>dnd.mode</code>と同様のプラットフォーム制約として文書化）。テスト <code>PropertySystemTests.swift</code>（<code>System properties - deep leaf items</code>）。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="f-yayavm">F. YAYA言語VM</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>辞書ファイル CP932/Shift_JIS → UTF-8 変換（iconv実装）</strong></td>
+<td><code>yaya_core/src/DictionaryManager.cpp:13,46-89,119-172</code>（<code>convertWithIconv</code>/<code>decodeContent</code>、BOM処理込み）</td>
+</tr>
+<tr>
+<td><code>load()</code> が全辞書失敗時に false を返す</td>
+<td><code>yaya_core/src/DictionaryManager.cpp:296</code>（<code>success_count &gt; 0 || dicEntries.empty()</code>）</td>
+</tr>
+<tr>
+<td>yaya.txt <code>dic, filename, encoding</code> の per-dic encoding をC++側へ伝播</td>
+<td><code>USL/ShioriLoader.swift:232-244</code> → <code>YayaCore.cpp:147-162</code> → <code>DictionaryManager::load</code></td>
+</tr>
+<tr>
+<td>SHIORI応答の全ヘッダ解析（"Value:" 部分文字列検索を廃止）</td>
+<td><code>yaya_core/src/YayaCore.cpp:265-301</code>（行単位で <code>shioriHeaders[key]=val</code>）</td>
+</tr>
+<tr>
+<td>RE_GETSTR / RE_GETPOS / RE_GETLEN 実装</td>
+<td><code>yaya_core/src/VM.cpp:2375-2387</code></td>
+</tr>
+<tr>
+<td>RE_OPTION 実装（icase/multiline）</td>
+<td><code>yaya_core/src/VM.cpp:2390-2396</code>, <code>2289-2294</code></td>
+</tr>
+<tr>
+<td>RE_REPLACEEX 実装</td>
+<td><code>yaya_core/src/VM.cpp:2411</code></td>
+</tr>
+<tr>
+<td>RE_ASEARCH 実装</td>
+<td><code>yaya_core/src/VM.cpp:2429-2442</code></td>
+</tr>
+<tr>
+<td>SAVEVAR / RESTOREVAR 実装（JSON永続化）</td>
+<td><code>yaya_core/src/VM.cpp:2603-2649</code>, <code>2652-2690</code></td>
+</tr>
+<tr>
+<td>DICLOAD / DICUNLOAD 実装</td>
+<td><code>yaya_core/src/VM.cpp:2777-2785</code>, <code>2788-2794</code></td>
+</tr>
+<tr>
+<td>MKDIR / RMDIR / FENUM 実装（<code>std::filesystem</code>、実実装）</td>
+<td><code>yaya_core/src/VM.cpp:2153-2165</code>, <code>2168-2179</code>, <code>2039-2060</code></td>
+</tr>
+<tr>
+<td><strong><code>&amp;</code> by-reference 参照セマンティクス実装（E.Swap が in-place で動作）</strong></td>
+<td><code>yaya_core/src/VM.cpp:858-870</code>（Call サイトで <code>E.Swap</code> を特殊処理）、<code>1014-1055</code>（<code>tryResolveReference</code>/<code>readReference</code>/<code>writeReference</code>）。ローカル変数・配列要素・グローバル変数すべて交換可能。回帰テスト <code>OurinTests/ShioriLoaderTests.swift</code>（<code>yayaCoreESwapByReference</code>）</td>
+</tr>
+<tr>
+<td><strong>standalone <code>when</code> の無条件実行を停止</strong>（case 外の when はディスパッチ不能のため no-op）</td>
+<td><code>yaya_core/src/VM.cpp:943-952</code>（<code>WhenClause</code> ハンドラが本体を実行せず Void を返す）。case 内の when は従来通り <code>CaseNode</code> ハンドラが処理</td>
+</tr>
+<tr>
+<td><strong><code>READFMO</code> を実装</strong>（host_op:"fmo" 同期IPCでSwift側からFMOスナップショット取得）</td>
+<td><code>yaya_core/src/VM.cpp:2893-2906</code>（builtin）、<code>YayaCore.cpp:fmoOperation</code>（host_opブリッジ）、<code>VM.hpp:VMCallback::fmoOperation</code>。Swift側 <code>Yaya/YayaAdapter.swift</code>（<code>host_op:"fmo"</code> ハンドラ + <code>fmoSnapshotProvider</code>）、<code>OurinApp.swift:166-172</code>（provider設定）。テスト <code>ShioriLoaderTests.swift</code>（<code>yayaCoreReadFmoViaHostOp</code>）</td>
+</tr>
+<tr>
+<td><strong><code>ASEARCHPOS</code> 実装</strong>（開始位置指定の配列検索、単一インデックス返却）</td>
+<td><code>yaya_core/src/VM.cpp</code>（<code>builtins_["ASEARCHPOS"]</code>、ASEARCHEX 直後に配置）。<code>FUNCTION_REFERENCE.md</code> / <code>examples/all_functions_test.dic</code> に追記</td>
+</tr>
+<tr>
+<td><strong><code>SRAND</code> を実際にRNGへ反映（従来はシードを無視するスタブ）＋実在Emily4ゴーストの回帰テスト新設</strong>（2026-07-01）</td>
+<td><code>yaya_core/src/RandomEngine.hpp</code>（新設、<code>RAND</code>/<code>ANY</code>/<code>Value::asString()</code>の配列→文字列ランダム選択が共有する<code>yaya_rng::engine()</code>）、<code>yaya_core/src/VM.cpp</code>（<code>SRAND</code>が<code>yaya_rng::engine().seed(...)</code>を呼ぶよう修正）、<code>yaya_core/src/Value.cpp</code>（array→string変換も共有エンジンを使用）。<code>OurinTests/YayaEmily4RegressionTests.swift</code>で、Emily4の実リクエストが200応答とSakura Scriptを返すこと、全33辞書のロード、<code>SRAND</code>固定シードによる雑談配列選択の再現性、YAYAの<code>REQ.COMMAND</code>・<code>--</code>出力エリア・<code>void</code>・裸の<code>return</code>を回帰確認。本番の<code>collectDicEntries</code>（<code>USL/ShioriLoader.swift</code>）をテストからも再利用し、<code>yaya.txt</code>のinclude/dic解決を本番と同一手順で検証</td>
+</tr>
+</tbody>
+</table>
+<h3 id="g">G. プラグインシステム</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PLUGIN/2.0M GET/NOTIFY フレーム構築</td>
+<td><code>PluginHost/PluginProtocol.swift</code></td>
+</tr>
+<tr>
+<td>macOS <code>.plugin</code>/<code>.bundle</code> load/request/unload ライフサイクル</td>
+<td><code>PluginHost/Plugin.swift</code>, <code>PluginEvent/PluginEventDispatcher.swift</code></td>
+</tr>
+<tr>
+<td>Windows DLL 由来 plugin を metadata-only として区別（プラットフォーム差異を明文化）</td>
+<td><code>PluginHost/PluginRegistry.swift</code>（<code>canDispatchRequests=false</code>）、<code>docs/SPEC_PLUGIN_2.0M_ja-jp.md</code></td>
+</tr>
+<tr>
+<td>SAORI/1.0 ホスト（charset変換・Shift_JIS含む）</td>
+<td><code>SaoriHost/SaoriLoader.swift:44-61</code>, <code>SaoriProtocol.swift:158-176</code></td>
+</tr>
+<tr>
+<td><strong>PLUGIN/2.0 ホスト→プラグイン通知イベントの網羅性監査</strong>（2026-07-01）。<code>docs/PLUGIN_EVENT_2.0M_SPEC_FULL_ja-jp.md</code> §4 の全17種通知イベント（<code>version</code>/<code>installedplugin</code>/<code>installedghostname</code>/<code>installedballoonname</code>/<code>ghostpathlist</code>/<code>balloonpathlist</code>/<code>headlinepathlist</code>/<code>pluginpathlist</code>/<code>OnSecondChange</code>/<code>OnOtherGhostTalk</code>/<code>OnGhostBoot</code>/<code>OnGhostExit</code>/<code>OnGhostInfoUpdate</code>/<code>OnMenuExec</code>/<code>OnInstallComplete</code>/<code>OnChoiceSelect(Ex)</code>/<code>OnAnchorSelect(Ex)</code>）に対し送信コードと呼び出し元の双方を確認、欠落なし</td>
+<td><code>PluginEvent/PluginEventDispatcher.swift</code>（送信）、<code>OurinApp.swift</code>/<code>Ghost/GhostManager.swift</code>/<code>Ghost/GhostManager+System.swift</code>/<code>Ghost/GhostManager+Balloon.swift</code>（呼び出し元）。未使用だった<code>onSecondChange()</code>公開メソッドは削除（実際の秒間隔通知は<code>setupTimer()</code>内で直接<code>sendFrame</code>済みのため冗長）。<code>calendarskinpathlist</code>/<code>calendarpluginpathlist</code>はUKADOC非準拠のOurin独自拡張と判明（別途文書化が望ましい）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="h-nar">H. NARパッケージ</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>refreshundeletemask</code> がコロン区切り（UKADOC準拠、カンマも寛容に受容）</td>
+<td><code>NarInstall/InstallTxtParser.swift:102-108</code></td>
+</tr>
+<tr>
+<td><code>refresh</code> / <code>refreshundeletemask</code> 保護マスク処理の実装</td>
+<td><code>NarInstall/LocalNarInstaller.swift:83-85</code>, <code>175-184</code></td>
+</tr>
+<tr>
+<td>同梱バルーン（<code>balloon.directory</code>）のインストール</td>
+<td><code>NarInstall/LocalNarInstaller.swift:94-102</code>, <code>207-223</code>（<code>installBundledBalloon</code>）</td>
+</tr>
+<tr>
+<td><code>accept</code> が上書き更新を許可（既存ディレクトリ衝突の即エラー解消）</td>
+<td><code>NarInstall/LocalNarInstaller.swift:71-80</code>（<code>accept</code> は shell/supplement の親ゴースト検証のみに使用）</td>
+</tr>
+<tr>
+<td>ZIPエントリのバックスラッシュ → スラッシュ正規化（パス区切り問題）</td>
+<td><code>NarInstall/ZipUtil.swift:56-57</code>, <code>61-99</code>（<code>normalizeWindowsPaths</code> 再帰処理）</td>
+</tr>
+<tr>
+<td>Zip Slip 対策・PK header 確認</td>
+<td><code>NarInstall/LocalNarInstaller.swift:39-81</code>, <code>ZipUtil.swift</code></td>
+</tr>
+<tr>
+<td><strong>install.txt 自身の <code>charset</code> キーによる二段読み</strong>（宣言エンコーディング優先）</td>
+<td><code>NarInstall/InstallTxtParser.swift:46-83</code>（<code>declaredCharset</code> で先頭行の charset を検出→優先デコード、失敗時は UTF-8→SJIS フォールバック）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="i-fmo">I. FMO</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>作成直後の shm_unlink を廃止</strong>（プロセス生存中は名前を保持、終了時にunlink）</td>
+<td><code>FMO/FmoSharedMemory.swift:32-38</code>（作成時unlinkなし）, <code>80-86</code>（<code>close()</code> 時のみunlink）</td>
+</tr>
+<tr>
+<td>多重起動検出名を <code>/ourin_fmo</code> に統一（<code>/ninix</code>/<code>/ssp_fmo</code> のちゃんぽん解消）</td>
+<td><code>FMO/FmoManager.swift:91-92</code>, <code>98-111</code></td>
+</tr>
+<tr>
+<td>GetFMO が SSP互換レコード形式（<code>id.key\x01value\r\n</code>）を返す</td>
+<td><code>FMO/FmoManager.swift:156-178</code>（<code>buildSnapshot</code>）; <code>SSTP/SSTPDispatcher.swift:530-533</code></td>
+</tr>
+<tr>
+<td><code>FmoCompatibilityView</code> / <code>FmoCompatibilityEntry</code> による構造化診断</td>
+<td><code>FMO/FmoManager.swift:47-87</code>, <code>184-186</code></td>
+</tr>
+<tr>
+<td>POSIX共有メモリ方式をプラットフォーム差異として明文化</td>
+<td><code>docs/About_FMO_ja-jp.md</code>, <code>docs/About_FMO_en-us.md</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="j">J. バルーン・シェル・リソース</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>balloon descript.txt の SJISフォールバック・<code>balloons*.txt</code> マージ</strong></td>
+<td><code>Balloon/DescriptorLoader.swift</code>, <code>Ghost/BalloonConfig.swift</code></td>
+</tr>
+<tr>
+<td><strong>descript.txt <code>charset</code> 行による二段読み</strong>（宣言エンコーディング優先）</td>
+<td><code>Balloon/DescriptorLoader.swift:22-50</code>（isoLatin1 で charset 行を検出→Shift_JIS/UTF-8 再デコード）。テスト <code>BalloonTests.swift</code>（<code>descriptorCharsetTwoPassShiftJIS</code>）</td>
+</tr>
+<tr>
+<td>SERIKO interval/pattern パース・実行</td>
+<td><code>Animation/SerikoParser.swift</code>, <code>SerikoExecutor</code>, <code>AnimationEngine</code>（テスト <code>SerikoParserTests</code>/<code>SerikoExecutorTests</code>/<code>SurfaceOverlayOrderingTests</code>）</td>
+</tr>
+<tr>
+<td><strong>SERIKO <code>collisionex</code> の geometry/画像色判定と animation-only 当たり判定</strong>（2026-08-14）</td>
+<td><code>Animation/AnimationEngine.swift:75-208,342-488</code>（rectangle/ellipse/circle/polygon/region の形状保持、標準・旧形式パーサー、シェル相対画像のRGB領域・反転、<code>animation*.collision*</code> の実行中限定管理）、<code>Ghost/GhostManager+Animation.swift:370-378</code>（シェルディレクトリを解決基準として注入）、<code>Ghost/GhostManager+Surface.swift:636-656</code>（実行中IDを渡した実マウスイベントの領域解決）。テスト <code>AnimationEngineTests.swift</code>（通常時非表示、ellipse/circle、画像色・反転、優先順、再読込重複防止）。</td>
+</tr>
+<tr>
+<td>surfaces*.txt 全読み込み（2026-06-27修正）</td>
+<td><code>Animation/SerikoParser.swift</code>, <code>Ghost/GhostManager+Animation.swift</code></td>
+</tr>
+<tr>
+<td><strong><code>surfacetable.txt</code> の体系的処理とサーフィステストUI</strong>（2026-08-12）</td>
+<td><code>Animation/SurfaceTableParser.swift</code> 新設（<code>SurfaceTable</code>/<code>SurfaceGroup</code>/<code>SurfaceEntry</code> データモデル + <code>SurfaceTableParser.parse</code>）。<code>group,NAME { scope,N .. id,NAME }</code> 構文・<code>__disabled</code>/<code>__parts</code> マーカー・<code>option,DisableNoDefineSurfaces</code> を解釈。<code>Animation/SerikoParser.swift</code>（<code>SurfaceDefinitionLoader.loadSurfaceTable</code> 追加、surfacetable.txt を surfaces*.txt バンドルから分離）。<code>Ghost/GhostManager.swift</code>（<code>surfaceTestWindow</code>、<code>\![open,surfacetest]</code>）、<code>Ghost/SurfaceTestWindow.swift</code>（無効グループ除外、実画像プレビュー、scope切替、クリック適用）。テスト <code>SurfaceTableParserTests.swift</code> / <code>SurfaceTestCatalogTests.swift</code>。</td>
+</tr>
+</tbody>
+</table>
+<p>| <strong>yaya_core 配列要素・範囲代入の書き戻し</strong>（2026-08-12） | <code>yaya_core/src/Parser.cpp</code> / <code>VM.cpp</code>。<code>a[i]</code> の単一要素代入・複合代入に加え、YAYA準拠の閉区間 <code>a[start,end] = rhs</code>（空配列で削除、配列でスプライス）と <code>,=</code>、範囲読み取りを実装。Emily4 の <code>array_list[_i,10000] = IARRAY</code> / <code>active_array[15,10000] = IARRAY</code> を含む全辞書ロード成功。テスト <code>OurinTests/ShioriLoaderTests.swift</code> の49件を含む全体713件/59スイート成功。範囲の算術複合代入は誤って先頭要素だけを変更しないよう明示拒否。 |</p>
+<h3 id="k-2026-07-05">K. 2026-07-05 互換性向上ラウンド</h3>
+<p>Sonnet 調査エージェント3体による全域再監査（既存監査に無い新規ギャップの発見を含む）と、その修正ラウンドで解消した項目。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file:line）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>yaya_core: <code>parallel</code> 修飾子を実装</strong>（Emily4 で41箇所使用。未実装のため雑談候補配列が入れ子化しサイレント破壊されていた）</td>
+<td><code>yaya_core/src/AST.hpp</code>（<code>ParallelNode</code>）、<code>Parser.cpp</code>（文脈判定・キーワード化せず後方互換維持）、<code>VM.cpp</code>（array/sequential 収集での1段フラット化＋非 array 文脈での1要素ランダム選択、SRAND と同一 RNG）。実 Emily4 で候補プール 278件・入れ子0件を確認。テスト <code>OurinTests/YayaEmily4RegressionTests.swift</code>（フラット化検証・SRAND 再現）</td>
+</tr>
+<tr>
+<td><strong>yaya_core: <code>executeBlock</code> が代入文の値をブロック値にしない</strong>（<code>if { _tmp = 配列 }</code> 経由の入れ子配列リーク解消、本家「代入文は出力候補にならない」準拠）</td>
+<td><code>yaya_core/src/VM.cpp</code>（<code>executeBlock</code>）</td>
+</tr>
+<tr>
+<td><strong>yaya_core: <code>#globaldefine</code> / <code>#define</code> プリプロセッサ実装</strong>（Emily4 <code>aya_ghostchange_core.dic</code> で8箇所使用。従来は <code>#</code> 行が無条件コメント扱いで case 構文マクロが消失していた）</td>
+<td><code>yaya_core/src/DictionaryManager.cpp</code>（<code>preprocessDirectives</code>: 登録順の生置換、#define=ファイルスコープ / #globaldefine=以降の全ファイル）、<code>VM.hpp</code>（<code>registerGlobalDefine</code> で ISGLOBALDEFINE/PROCESSGLOBALDEFINE と整合）</td>
+</tr>
+<tr>
+<td><strong>yaya_core: <code>LOGGING</code> / <code>TRANSLATE</code> の実処理化</strong>（LOGGING=stderr 出力。TRANSLATE=本家 yaya-shiori sysfunc.cpp 準拠の文字集合対応変換、<code>-</code> 範囲展開・<code>\</code> エスケープ・変換先空での削除・不足分の末尾文字充填）</td>
+<td><code>yaya_core/src/VM.cpp</code></td>
+</tr>
+<tr>
+<td><strong><code>OnDestroy</code> イベント発火</strong>（NOTIFY、SHIORI unload 直前に対象ゴーストへ直接送信。リロード時は Reference0=<code>reload</code>、通常終了は Reference なし。UKADOC 準拠）</td>
+<td><code>Ourin/Ghost/GhostManager.swift</code>（<code>shutdown()</code> / <code>pendingDestroyReason</code>）、<code>SHIORIEvents/EventReferenceSpec.swift</code></td>
+</tr>
+<tr>
+<td><strong>マルチゴースト時の SSTP 応答副作用ルーティング</strong>（Surface/Balloon/BalloonOffset/Icon/EXECUTE 系を ReceiverGhostName で対象ゴーストへ解決。未指定はプライマリ＝単一ゴースト構成の挙動不変）</td>
+<td><code>Ourin/OurinApp.swift</code>（<code>ghostManagerForShioriRequest</code> / <code>receiverTargetKey</code>）、<code>SSTP/SSTPDispatcher.swift</code>。テスト <code>SSTPDispatcherTests.swift</code>（照合キー生成）</td>
+</tr>
+<tr>
+<td><strong><code>OnOffscreen</code> / <code>OnOverlap</code> / <code>OnOtherOffscreen</code> / <code>OnOtherOverlap</code> 実装</strong>（GET、Reference0=現在 / Reference1=直前、区切りはバイト値1。毎秒 tick で遷移検出、既存 <code>mikireScopes</code>/<code>kasanariScopes</code> 基盤を流用。OnOther 系は全ゴースト横断 <code>Sakura名/ID</code> 表記）</td>
+<td><code>Ourin/Ghost/GhostManager+Window.swift</code>（純関数 <code>offscreenRef0</code>/<code>overlapRef0</code> ＋ <code>overlapTransitionEvents</code>）、<code>SHIORIEvents/EventBridge.swift</code>（<code>dispatchOverlapTransitions</code>）。テスト <code>OverlapTransitionTests.swift</code></td>
+</tr>
+<tr>
+<td><strong>設定画面の保存値を実配線</strong>（保存辞書の読み戻しバグ修正・SMAppService 自動起動（macOS 13+）・外部 SSTP の CP932 受理ゲート・ファイルログ sink。自動アップデート確認は「未使用」注記のみ）</td>
+<td><code>Ourin/ContentView.swift</code>、<code>ExternalServer/EncodingNormalizer.swift</code>（<code>acceptsCP932</code>、既定 true=現行挙動不変）、<code>Utils/Log.swift</code>（<code>LogFileSink</code>）。テスト <code>EncodingNormalizerCP932GateTests.swift</code> / <code>LogFileSinkTests.swift</code></td>
+</tr>
+<tr>
+<td><strong>NAR <code>type,saori</code> 対応</strong>（accept あり → 対象ゴーストの <code>ghost/master/&lt;dir&gt;</code>、なし → 共有 <code>saori/&lt;dir&gt;</code>。UKADOC 未規定のため Ourin 定義として明記）</td>
+<td><code>Ourin/NarInstall/Paths.swift</code>（<code>installTarget</code>）。テスト <code>NarInstallTests.swift</code></td>
+</tr>
+<tr>
+<td><strong>SHIORI Resource のゴースト別分離</strong>（<code>OurinResource.&lt;ghostKey&gt;.&lt;key&gt;</code> 名前空間化＋旧グローバル値は最初に起動したゴーストが一度だけ backfill。複数ゴースト同時起動時の値汚染を解消）</td>
+<td><code>Ourin/Property/ResourceManager.swift</code>、<code>Ghost/GhostManager.swift</code>（<code>lazy var resourceManager</code>）。テスト <code>ResourceManagerSeparationTests.swift</code></td>
+</tr>
+<tr>
+<td><strong><code>\f[anchor*]</code> 装飾サブコマンド群の実装</strong>（選択中・非選択・訪問済みのstyle/brush/pen/fontcolorを個別状態へ反映。ROP2の全SetROP2演算子を受理し、背景画像の実ピクセルへ合成）</td>
+<td><code>Ourin/Ghost/GhostManager.swift</code>（<code>\f</code> switch）、<code>Ghost/BalloonView.swift</code>、<code>Ghost/BalloonConfig.swift</code>、<code>Ghost/AnchorRasterOperation.swift</code>、<code>Ghost/AnchorRasterImageRenderer.swift</code></td>
+</tr>
+<tr>
+<td><strong>DevTools モック UI の裁定</strong>（External Events Harness を実配線: 実サーバステータス・実 TCP/HTTP 送信・応答表示・全サーバ再起動。Headline/Balloon プレビュー・Signpost・Resource Overlay・Plugin Enabled トグルは「Preview only」注記）</td>
+<td><code>Ourin/ContentView.swift</code>、<code>ExternalServer/ServerMetrics.swift</code>（<code>requestCount</code> 公開）</td>
+</tr>
+<tr>
+<td><strong>NAR 複合 install 種別の記載訂正</strong>（AUDITS_TODO の「不足」記載は誤りで、実装済みだったことを確認）</td>
+<td><code>Ourin/NarInstall/Paths.swift:219-236</code>（calendar/skin・calendar/plugin・calendar 旧互換・language）</td>
+</tr>
+<tr>
+<td><strong>NAR ネットワーク更新の delete.txt 対応とパス安全性</strong>（2026-08-14）</td>
+<td><code>NarInstall/LocalNarInstaller.swift</code> が更新成功後（削除だけの更新を含む）に任意のサーバー <code>delete.txt</code> を取得し、<code>charset</code> 行を受理したうえで、対象ルート内の検証済みパスだけを削除。<code>testonly</code> は非破壊のまま。<code>InstallTxtParser.swift</code> は更新記述子のドットセグメント・絶対パス・ドライブパスを拒否し、<code>ZipUtil.swift</code> はコンポーネント単位のルート境界検証を使用。<code>NarInstallTests.swift</code> で MD5 検証付き更新、Windows形式 <code>delete.txt</code> パス、トラバーサル拒否、delete.txt 404（削除なし）を検証。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="english">English</h2>
+<p>The following items were raised in prior audit reports (GLM / CODEX / CLAUDE / AGY, 2026-06-10–2026-06-27) and have been <strong>verified as resolved</strong> in the current source code.</p>
+<h3 id="a-shiori-protocol">A. SHIORI Protocol</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reference order now numeric (fixed dict-string sort)</td>
+<td><code>SHIORIEvents/EventBridge.swift:563-573</code> (<code>byIndex: [Int:String]</code> → <code>(0...maxIndex).map</code>)</td>
+</tr>
+<tr>
+<td>NOTIFY method propagated through <code>BridgeToSHIORI</code></td>
+<td><code>SSTP/BridgeToSHIORI.swift</code>; <code>SSTPDispatcher</code> distinguishes <code>.notify</code>/<code>.get</code>/<code>.give</code></td>
+</tr>
+<tr>
+<td>YAYA / Bundle / Dylib SHIORI Charset conversion</td>
+<td><code>USL/ShioriLoader.swift:623</code></td>
+</tr>
+<tr>
+<td>SSTP responses reflect Reference1+ (not just Reference0)</td>
+<td><code>SSTP/SSTPDispatcher.swift:747-755</code>, <code>677-681</code></td>
+</tr>
+<tr>
+<td>COMMUNICATE Reference mapping spec-compliant (R0=sender, R1=Sentence, R2=SSTP R0)</td>
+<td><code>SSTP/SSTPDispatcher.swift:601-610</code></td>
+</tr>
+<tr>
+<td>TEACH method compatibility mapping</td>
+<td><code>USL/ShioriLoader.swift:247</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="b-sstp-protocol">B. SSTP Protocol</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SstpRouter removed; consolidated into SSTPDispatcher</strong> (dual-implementation resolved)</td>
+<td><code>ExternalServer/OurinExternalServer.swift:53-65</code>; <code>SstpRouter.swift</code> deleted. Test <code>ExternalServerTests.swift:6</code> confirms</td>
+</tr>
+<tr>
+<td>Response status-line <code>SSTP/SSTP/1.x</code> double-prefix bug fixed</td>
+<td><code>SSTPResponse.swift:56</code>; regression test <code>ExternalServerTests.swift:64-69</code></td>
+</tr>
+<tr>
+<td>TCP/HTTP listeners actually bind to host (localhost-only default)</td>
+<td><code>ExternalServer/SstpTcpServer.swift:43-53</code> (<code>NWEndpoint.hostPort</code>), default <code>127.0.0.1</code></td>
+</tr>
+<tr>
+<td>HTTP port unified to 9801 (old 9810 removed)</td>
+<td><code>ExternalServer/SstpHttpServer.swift:31</code>; <code>UnifiedSstpListener.swift</code> multiplexes</td>
+</tr>
+<tr>
+<td>GIVE routes to SHIORI OnChoiceSelect (not hard-coded 204)</td>
+<td><code>SSTP/SSTPDispatcher.swift:564-566</code>, <code>585-586</code></td>
+</tr>
+<tr>
+<td>SEND Script header replayed to balloon</td>
+<td><code>SSTP/SSTPDispatcher.swift:148</code>, <code>236-238</code></td>
+</tr>
+<tr>
+<td>nodescript suppresses balloon only (event dispatch continues)</td>
+<td><code>SSTP/SSTPDispatcher.swift:230</code>, <code>181</code>; test <code>ExternalServerTests.swift:117-134</code></td>
+</tr>
+<tr>
+<td>IfGhost order-preserving list <code>[(key,value)]</code>, multiple Script/IfGhost pairs</td>
+<td><code>SSTP/SSTPRequest.swift:29</code>, <code>85-100</code>; tests <code>ExternalServerTests.swift:43-61</code>, <code>198-213</code></td>
+</tr>
+<tr>
+<td>SecurityLevel / SecurityOrigin interpretation (Origin priority, localhost check)</td>
+<td><code>SSTP/SSTPDispatcher.swift</code></td>
+</tr>
+<tr>
+<td><strong><code>Entry</code> header wired in production path</strong> (stored on receive, echoed in response)</td>
+<td><code>SSTP/SSTPDispatcher.swift:51</code> (<code>mergeEntries</code>), <code>156-157</code>, <code>290-291</code> (<code>Entry</code> response header)</td>
+</tr>
+<tr>
+<td><strong>HTTP response line ending fixed <code>\r</code> → <code>\r\n</code></strong> (RFC 7230 §3 compliant)</td>
+<td><code>ExternalServer/SstpHttpServer.swift:105-111</code> (SSTP success response now uses <code>\r\n</code>; error path already did)</td>
+</tr>
+<tr>
+<td><strong>External SSTP NOTIFY ValueNotify script replayed to balloon</strong></td>
+<td><code>SSTP/SSTPDispatcher.swift:236-247</code> (removed <code>method != .notify</code> guard; NOTIFY ValueNotify replayed via <code>runNotifyScript</code>). <code>SHIORIEvents/EventBridge.swift:221-240</code> (added <code>playScriptOnGhostsResolving(notify:)</code>)</td>
+</tr>
+<tr>
+<td><strong>SSTP parser tolerates bare <code>\n</code></strong> (LF-only normalization for de facto tools)</td>
+<td><code>SSTP/SSTPParser.swift:7-10</code> (normalizes CR-less LF to CRLF before splitting). Test <code>ExternalServerTests.swift</code> (<code>parserToleratesBareLFLineEndings</code>)</td>
+</tr>
+<tr>
+<td><strong>SSTP 210 <code>nobreak</code> waits for live ghost script playback to finish</strong></td>
+<td><code>SHIORIEvents/EventBridge.swift:210-218</code> (query of registered ghosts' <code>isPlaying</code>), <code>SSTP/SstpBreakPolicy.swift:15-20</code> (combines <code>ShioriStatusStore</code> and playback state). Tests in <code>SSTPDispatcherTests.swift</code> cover waiting, post-playback 200, and timeout 409</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c-sakurascript_1">C. SakuraScript</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\t</code> = time-critical section (event suppression, not a pause)</td>
+<td><code>Ghost/GhostManager.swift:1045-1050</code></td>
+</tr>
+<tr>
+<td><code>\-</code> = current ghost termination (not choice newline)</td>
+<td><code>Ghost/GhostManager.swift:1081-1086</code></td>
+</tr>
+<tr>
+<td><code>\v</code> = stay-on-top / bring-to-front (not settings window)</td>
+<td><code>Ghost/GhostManager.swift:1107-1112</code>; <code>GhostManager+Window.swift:1012-1014</code></td>
+</tr>
+<tr>
+<td><code>\4</code>/<code>\5</code> = horizontal movement toward/away from partner</td>
+<td><code>Ghost/GhostManager.swift:1088-1094</code>; <code>GhostManager+Window.swift:293,312</code></td>
+</tr>
+<tr>
+<td><code>\+</code>/<code>\_+</code> = boot other/all ghosts</td>
+<td><code>Ghost/GhostManager.swift:1096-1105</code>; <code>GhostManager+System.swift:19,43</code></td>
+</tr>
+<tr>
+<td><code>\*</code> = prevent choice timeout (not dialog trigger)</td>
+<td><code>Ghost/GhostManager.swift:1061-1065</code></td>
+</tr>
+<tr>
+<td><code>\a</code> = trigger OnAITalk (not dialog)</td>
+<td><code>Ghost/GhostManager.swift:1067-1079</code></td>
+</tr>
+<tr>
+<td><code>\&amp;[ID]</code> = entity reference (not anchor)</td>
+<td><code>Ghost/GhostManager.swift:2355-2363</code>, <code>789-809</code></td>
+</tr>
+<tr>
+<td><code>\j[ID]</code> handler implemented (URL/event jump)</td>
+<td><code>Ghost/GhostManager.swift:2365-2367</code> (<code>case "j"</code>)</td>
+</tr>
+<tr>
+<td><code>\_V</code> vs <code>\_v</code> case-sensitive early branch</td>
+<td><code>Ghost/GhostManager.swift:1126-1136</code></td>
+</tr>
+<tr>
+<td><code>\z</code> = cancelability flag</td>
+<td><code>Ghost/GhostManager.swift:1056-1059</code></td>
+</tr>
+<tr>
+<td><strong><code>\__v</code> voice synthesis control and <code>\_v</code> voice asset playback</strong></td>
+<td><code>Ghost/GhostManager.swift:241-246</code> (speech state), <code>2860-2906</code> (<code>enable</code>/<code>disable</code>/<code>alternate</code> and default-off ordinary text), <code>2619-2627</code> (<code>\_v</code> → <code>playSound</code>), <code>2992-3000</code> (<code>\_V</code> playback wait). Ordinary text is not sent to the macOS default voice automatically; voice assets play independently from <code>ghost/sound</code>.</td>
+</tr>
+<tr>
+<td><strong><code>\__t</code> (TeachBox) / <code>\__q</code> (choice queue) / <code>\__c</code> (CommunicateBox) meta-tags implemented</strong></td>
+<td><code>Ghost/GhostManager.swift</code> (<code>case "__t"</code>/<code>"__c"</code>), <code>didEmit</code> <code>case .choiceQueue</code>. Tests <code>SakuraScriptEngineTests.swift</code> (<code>metaTagTeachBox</code>/<code>metaTagCommunicateBox</code>/<code>choiceQueueCommand</code>/<code>choiceQueueRangeSyntaxBindsDisplayText</code>/<code>choiceQueueRangeTextNotShownInBalloon</code>/<code>choiceQueueScriptFormKeepsTitle</code>/<code>choiceQueueMultipleRangesProduceMultipleChoices</code>)</td>
+</tr>
+<tr>
+<td><strong><code>\__q</code> range-based display-text binding (<code>\__q[ID,...]text\__q</code>)</strong></td>
+<td><code>SakuraScript/SakuraScriptEngine.swift</code> (<code>mergeChoiceQueueRanges</code> post-process + <code>.choiceQueue(title:id:references:)</code> token). <code>Ghost/GhostManager.swift</code> (<code>case .choiceQueue</code> produces a titled choice). ID semantics identical to <code>\q</code> (<code>script:</code>/<code>On*</code>/references). ※Rich labels (images, <code>\__l</code> and other script elements) are flattened to plain text</td>
+</tr>
+<tr>
+<td><code>surfaces***.txt</code> full read + filename-order merge (fixed 2026-06-27)</td>
+<td><code>Animation/SerikoParser.swift</code>, <code>Ghost/GhostManager+Animation.swift</code></td>
+</tr>
+<tr>
+<td><strong>Variable newline spacing (<code>\\n[half]</code> / numeric or percentage)</strong></td>
+<td><code>Ghost/GhostManager.swift</code> (<code>PlaybackUnit.newlineVariation</code>, <code>BalloonViewModel.lineAdvances</code>) and <code>Ghost/BalloonView.swift</code> line-based layout. <code>\\n[half]</code> and signed numeric/percentage values are retained as normal-line-height multipliers in playback order; <code>\\c</code> character/line truncation keeps the state synchronized. An explicit four-suite run passed 26 tests covering mapping, queue ordering, clearing, and anchor decoration state. Negative-value rendering is an offset approximation; in-ghost visual verification remains pending.</td>
+</tr>
+<tr>
+<td><strong>Per-range <code>\\_a[ID,...]...\\_a</code> anchors and click routing</strong></td>
+<td><code>GhostManager.swift</code> (<code>BalloonAnchorRange</code> / <code>BalloonTextSegment</code>), <code>GhostManager+Balloon.swift</code> (<code>routeAnchorClick</code> / <code>onBalloonAnchorClicked</code>), and <code>BalloonView.swift</code> per-range tap handling. <code>On*</code> IDs dispatch the specified event; other IDs dispatch <code>OnAnchorSelectEx</code> (Reference0=clicked text, Reference1=ID, Reference2+=arguments) followed by <code>OnAnchorSelect</code>, preserving plugin origin. Underline/rectangle/visited decoration remains incomplete. 17 tests in the same focused suite.</td>
+</tr>
+<tr>
+<td><strong><code>%lastghostname</code> / <code>%lastobjectname</code> (install-time) supported</strong></td>
+<td><code>SakuraScript/EnvironmentExpander.swift</code> (static <code>lastInstalledGhostName</code>/<code>lastInstalledObjectName</code> + expansion). Also fixed Pattern 2 unconditional return so bare <code>%key</code> reaches Pattern 3. Set in <code>Ghost/GhostManager+System.swift:1515-1516</code> (before OnInstallComplete). Test <code>EnvironmentExpanderTests.swift</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="c-1-mayuna-dressup">C-1. MAYUNA (dressup)</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>\\![bind,...]</code> / <code>\\![bind-noevent,...]</code> execution, state mutation, and official events</strong></td>
+<td><code>Ghost/GhostManager+Dressup.swift</code> (single/repeated tuples, category-wide operations, omitted/empty-value toggles, <code>bind-noevent</code>, default bindings). <code>Ghost/GhostManager+Effects.swift</code> (category-wide expansion to part deltas; skip <code>OnDressupChanged</code> for 100+ elements). <code>Ghost/GhostManager.swift</code> / <code>SHIORIEvents/EventBridge.swift</code> (startup NOTIFY, menu GET, script ordering with only the final delta as GET). <code>OnDressupChanged</code> Reference0..4 and byte-value-1-delimited <code>OnNotifyDressupInfo</code> Reference* follow UKADOC. <code>OurinTests/DressupBindCommandTests.swift</code> has 25 tests, including a runtime request spy.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="d-shiori-events">D. SHIORI Events</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OnSecondChange/OnMinuteChange/OnHourTimeSignal now include Reference0-4</td>
+<td><code>SHIORIEvents/TimerEmitter.swift:49-88</code></td>
+</tr>
+<tr>
+<td>GET/NOTIFY switch based on cantalk (GET when playable)</td>
+<td><code>SHIORIEvents/EventBridge.swift:430-454</code></td>
+</tr>
+<tr>
+<td>mikire/kasanari filled per-session (Reference1/Reference2)</td>
+<td><code>SHIORIEvents/EventBridge.swift</code></td>
+</tr>
+<tr>
+<td>OnBoot Reference0 (shell name)</td>
+<td><code>Ghost/GhostManager.swift:2688-2697</code></td>
+</tr>
+<tr>
+<td>OnFirstBoot Reference0 (vanish count)</td>
+<td><code>Ghost/GhostManager.swift:2675-2685</code></td>
+</tr>
+<tr>
+<td>Non-existent <code>OnSecondBoot</code> removed</td>
+<td><code>Ghost/GhostManager.swift:2670</code></td>
+</tr>
+<tr>
+<td>OnClose response script replayed before exit + Reference0 (exit reason)</td>
+<td><code>Ghost/GhostManager.swift:738-768</code></td>
+</tr>
+<tr>
+<td>Event ID coverage (only 14 undefined out of UKADOC 252)</td>
+<td><code>SHIORIEvents/EventID.swift</code> (469 events; all <code>On*</code> IDs in <code>EventReferenceTable</code> are covered by a typed-ID audit test)</td>
+</tr>
+<tr>
+<td><strong>OnMouseClick Reference4-6 fulfilled</strong> (hit name/button/device type)</td>
+<td><code>SHIORIEvents/InputMonitor.swift:373-413</code> (R4=region, R5=button, R6="mouse"). UKADOC list_shiori_event compliant</td>
+</tr>
+<tr>
+<td><strong><code>EventBridge.start(enableAutoEvents:)</code> consolidated on real ghost load</strong></td>
+<td><code>Ghost/GhostManager.swift:643-646</code> (after OnBoot, <code>!isRunningUnderTests</code>), <code>2719-2737</code> (<code>startEventBridgeIfNeeded</code> restart-with-auto-events)</td>
+</tr>
+<tr>
+<td><strong>WebSocket/archive 14 events implemented</strong></td>
+<td><code>SHIORIEvents/EventID.swift</code> (14 cases added). Dispatch: <code>Web/GhostManager+WebSocket.swift</code> (OnExecuteWebSocket Open/Receive/Close/Error/Send/State), <code>Ghost/GhostManager+System.swift</code> (OnExecuteHTTPStreaming, OnCompress/ExtractArchiveComplete/Failure), <code>Ghost/GhostManager+Display.swift</code> (OnMusicPlay/OnMusicPlayEx/OnSoundLoop/OnSoundStop/OnVideoPlayEx). Migrated existing <code>notifyCustom</code> strings to typed <code>notify(.X)</code>. Test <code>EventIDAuditTests.swift</code></td>
+</tr>
+<tr>
+<td><strong>Audio backend and sound events</strong></td>
+<td><code>Ghost/SoundPlayer.swift</code> (AVAudioPlayer, volume/pan/rate/seektime, manual loop-boundary detection, natural-finish/error delegates), <code>Ghost/GhostManager+Display.swift</code> (ghost/master preferred with legacy ghost/sound fallback, synchronous play/load/stop/wait ordering, preload/multi-instance/state cleanup). Fires <code>OnSoundStop</code> (reason), <code>OnSoundLoop</code> (loop boundary), and <code>OnSoundError</code> (command/errorCode/filename/message). <code>OurinTests/SoundPlayerTests.swift</code> 27 tests; build and serial test run passed. <code>\![sound,wait]</code> now uses runtime <code>waitForAudio</code>.</td>
+</tr>
+<tr>
+<td><strong>Event Reference spec table-driven (foundation)</strong></td>
+<td>New <code>SHIORIEvents/EventReferenceSpec.swift</code> (<code>EventReferenceTable.allSpecs</code> centralizes ~80 major events' Reference0..N semantic labels, category, and <code>notifyReturnIgnored</code>). <code>SHIORIEvents/EventBridge.swift</code> (<code>ShioriDispatcher.notifyReturnIgnored</code> now derived from <code>EventReferenceTable.notifyReturnIgnoredIDs</code>, replacing the hardcoded Set). Test <code>EventReferenceTableTests.swift</code> (exact match with legacy 38-item set, no duplicate IDs, major-event Reference verification). ※Migrating all 216 inline dispatch sites to the table is incremental</td>
+</tr>
+<tr>
+<td><strong>Observer GET/NOTIFY delivery and real OS-state references</strong></td>
+<td><code>SHIORIEvents/EventBridge.swift</code> now carries <code>ShioriEventDelivery</code>, so observers can distinguish default GET updates from startup NOTIFY and suppress startup response scripts explicitly. <code>DisplayObserver.swift</code> emits real bpp/width/height and multi-display references for <code>OnDisplayChange</code>/<code>OnDisplayChangeEx</code>. <code>PowerObserver.swift</code> converts IOKit capacity, remaining time, source state, charging, and low-power mode into <code>OnBattery*</code>, including threshold-transition events. <code>SleepObserver.swift</code> maps screen sleep to <code>OnDisplayPowerStatus</code> instead of falsely emitting a screen-saver event, and <code>SessionObserver.swift</code> connects <code>NSWorkspace</code> session disconnect/reconnect notifications. Covered by <code>PowerObserverTests.swift</code>; all 804 unit tests passed.</td>
+</tr>
+<tr>
+<td><strong>Real data and event wiring for OnDisplayHandover / OnRecycleBinStatusUpdate</strong></td>
+<td><code>DisplayObserver.swift</code> snapshots are connected to actual window initial placement, movement, and resizing. <code>OnDisplayHandover</code> emits initial <code>NOTIFY</code> (R0=init, R1=scope, R2=empty, R3=current monitor) and target-scoped <code>GET</code> on monitor changes (R0=update, R2=previous, R3=current). <code>RecycleBinObserver.swift</code> watches the home and connected-volume <code>.Trash</code>/<code>.Trashes/&lt;uid&gt;</code> directories with vnode sources, and emits count, allocated size, deltas, and R4=1 through <code>OnRecycleBinStatusUpdate</code> (startup <code>NOTIFY</code>, updates <code>GET</code>). <code>executeEmptyRecycleBin()</code> now refreshes the aggregate state after completion. Tests: <code>DisplayHandoverTests.swift</code> and <code>RecycleBinObserverTests.swift</code>.</td>
+</tr>
+<tr>
+<td><strong>Real-data OnOSUpdateInfo monitoring and all-ghost OnCloseAll termination aggregation</strong></td>
+<td><code>OSUpdateObserver.swift</code> reads the real output of macOS <code>/usr/sbin/softwareupdate --list/--history</code>, converts the check time, latest execution time, and successful installed-update history into OnOSUpdateInfo R0/R1/R2〜, and emits startup <code>NOTIFY</code> plus <code>GET</code> on history changes. <code>AppDelegate</code> and <code>GhostManager.beginCloseSequence</code> send <code>OnCloseAll</code> to every running ghost and wait for empty, normal, or <code>\\-</code> response playback completion before terminating. Tests: <code>OSUpdateObserverTests.swift</code> and <code>CloseAllSequenceTests.swift</code>.</td>
+</tr>
+<tr>
+<td><strong>Real data for initial Notify events</strong></td>
+<td>New <code>SHIORIEvents/SystemNotificationData.swift</code> builds <code>OnNotifyUserInfo</code> (address/full name/unknown birthday/<code>undef</code>), <code>OnNotifyOSInfo</code> (macOS/CPU/memory/uptime), <code>OnNotifyFontInfo</code> (NSFontManager Reference*), and <code>OnNotifyInternationalInfo</code> (UTC offset/DST/ISO country/language) from the host. Startup delivery, user-name-change refresh, and locale-change international refresh are wired. Five tests in <code>SystemNotificationDataTests.swift</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="e-property-system">E. Property System</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Longest-prefix resolution (first-dot split fixed)</td>
+<td><code>Property/PropertyManager.swift:128-141</code></td>
+</tr>
+<tr>
+<td><code>currentghost.balloon</code> provider reachable</td>
+<td><code>Property/PropertyManager.swift:29</code></td>
+</tr>
+<tr>
+<td>Value cache invalidation + <code>system.*</code>/<code>pluginlist.*</code> excluded from cache</td>
+<td><code>Property/PropertyManager.swift:155</code>, <code>159-169</code>, <code>222-225</code></td>
+</tr>
+<tr>
+<td><code>sakura.*</code>/<code>kero.*</code>/<code>ghost.*</code>/<code>shell.*</code> namespace aliases</td>
+<td><code>Property/PropertyManager.swift:40-43</code>, <code>279-299</code></td>
+</tr>
+<tr>
+<td>CPU usage calculation (perpetual 100% fixed)</td>
+<td><code>Property/PropertyManager.swift</code></td>
+</tr>
+<tr>
+<td><strong>Name parameters preserve case</strong> (structural parts lowercased only)</td>
+<td><code>Property/PropertyManager.swift:143-166</code> (<code>lowercasePreservingParams</code>; preserves <code>shelllist(MyShell)</code> etc.). Test <code>PropertyTests.swift</code> (<code>nameParametersPreserveOriginalCase</code>)</td>
+</tr>
+<tr>
+<td><strong>Deep hierarchy properties: root-cause fix, live wiring, and new UI features</strong> (2026-07-01)</td>
+<td>Audit found the <code>currentghost.seriko.cursor.*</code>/<code>tooltip.*</code>/<code>balloon.scope(ID).*</code> parse/SET/GET logic was <strong>already implemented</strong> (<code>GhostPropertyProvider.swift</code>/<code>BalloonPropertyProvider.swift</code>). Identified the actual root cause: <code>Ghost/GhostManager.swift</code> left <code>sakuraEngine.propertyManager</code> on <code>SakuraScriptEngine()</code>'s default (a <code>PropertyManager</code> instance separate from <code>PropertyManager.shared</code>), so <code>\![set,property,...]</code> writes were invisible to every other read path (<code>SSTPDispatcher</code>/<code>ResourceBridge</code>/etc.) — a gap affecting all settable properties, not just cursor/tooltip. Fixed by assigning <code>sakuraEngine.propertyManager = PropertyManager.shared</code> in <code>GhostManager.init</code>. Regression test <code>OurinTests/PropertySetPropertyWiringTests.swift</code>. Also implemented new UI features for collision-region-driven cursor switching (new <code>SHIORIEvents/SerikoCursorController.swift</code>; previously zero <code>NSCursor</code> usage anywhere) and tooltip display (new <code>SHIORIEvents/SerikoTooltipController.swift</code>), wired into the existing hit-test resolution in <code>InputMonitor.swift</code> (<code>GhostManager+Surface.swift:459 collisionRegionName</code>). Tests <code>SerikoCursorControllerTests.swift</code>/<code>SerikoTooltipControllerTests.swift</code>. A mechanical cross-check against the 147 UKADOC property system items added the genuinely-missing leaf properties (<code>os.dst</code>, <code>os.locale.language/country</code>, <code>power.battery.lifetime</code>, <code>monitor.index(ID).bpp</code>, <code>disk.index(ID).type</code>, <code>network.type/.cost</code>) to <code>SystemPropertyProvider</code> in <code>PropertyManager.swift</code>. <code>network.downlink</code>/<code>downlink.estimate</code> remain undefined — macOS has no public API for link bandwidth (documented as a platform limitation, same as <code>dnd.mode</code>). Test <code>PropertySystemTests.swift</code> (<code>System properties - deep leaf items</code>).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="f-yaya-language-vm">F. YAYA Language VM</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dictionary CP932/Shift_JIS → UTF-8 conversion (iconv)</strong></td>
+<td><code>yaya_core/src/DictionaryManager.cpp:13,46-89,119-172</code></td>
+</tr>
+<tr>
+<td><code>load()</code> returns false on total failure</td>
+<td><code>yaya_core/src/DictionaryManager.cpp:296</code></td>
+</tr>
+<tr>
+<td>Per-dic encoding propagated to C++ side</td>
+<td><code>USL/ShioriLoader.swift:232-244</code> → <code>YayaCore.cpp:147-162</code></td>
+</tr>
+<tr>
+<td>Full SHIORI response header parsing ("Value:" substring search removed)</td>
+<td><code>yaya_core/src/YayaCore.cpp:265-301</code></td>
+</tr>
+<tr>
+<td>RE_GETSTR / RE_GETPOS / RE_GETLEN</td>
+<td><code>yaya_core/src/VM.cpp:2375-2387</code></td>
+</tr>
+<tr>
+<td>RE_OPTION (icase/multiline)</td>
+<td><code>yaya_core/src/VM.cpp:2390-2396</code></td>
+</tr>
+<tr>
+<td>RE_REPLACEEX</td>
+<td><code>yaya_core/src/VM.cpp:2411</code></td>
+</tr>
+<tr>
+<td>RE_ASEARCH</td>
+<td><code>yaya_core/src/VM.cpp:2429-2442</code></td>
+</tr>
+<tr>
+<td>SAVEVAR / RESTOREVAR (JSON persistence)</td>
+<td><code>yaya_core/src/VM.cpp:2603-2690</code></td>
+</tr>
+<tr>
+<td>DICLOAD / DICUNLOAD</td>
+<td><code>yaya_core/src/VM.cpp:2777-2794</code></td>
+</tr>
+<tr>
+<td>MKDIR / RMDIR / FENUM (real <code>std::filesystem</code> implementations)</td>
+<td><code>yaya_core/src/VM.cpp:2153-2179</code>, <code>2039-2060</code></td>
+</tr>
+<tr>
+<td><strong><code>&amp;</code> by-reference semantics implemented (E.Swap mutates in-place)</strong></td>
+<td><code>yaya_core/src/VM.cpp:858-870</code> (E.Swap special-cased at Call site), <code>1014-1055</code> (<code>tryResolveReference</code>/<code>readReference</code>/<code>writeReference</code>). Swaps locals, array elements, and globals. Regression test <code>OurinTests/ShioriLoaderTests.swift</code> (<code>yayaCoreESwapByReference</code>)</td>
+</tr>
+<tr>
+<td><strong>standalone <code>when</code> no longer executes unconditionally</strong> (a <code>when</code> outside <code>case</code> has no dispatch value → no-op)</td>
+<td><code>yaya_core/src/VM.cpp:943-952</code> (<code>WhenClause</code> handler returns Void without running body). <code>when</code> inside <code>case</code> still handled by the <code>CaseNode</code> handler</td>
+</tr>
+<tr>
+<td><strong><code>READFMO</code> implemented</strong> (synchronous host_op:"fmo" IPC fetches FMO snapshot from Swift)</td>
+<td><code>yaya_core/src/VM.cpp:2893-2906</code> (builtin), <code>YayaCore.cpp:fmoOperation</code> (host_op bridge), <code>VM.hpp:VMCallback::fmoOperation</code>. Swift: <code>Yaya/YayaAdapter.swift</code> (<code>host_op:"fmo"</code> handler + <code>fmoSnapshotProvider</code>), <code>OurinApp.swift:166-172</code> (provider wiring). Test <code>ShioriLoaderTests.swift</code> (<code>yayaCoreReadFmoViaHostOp</code>)</td>
+</tr>
+<tr>
+<td><strong><code>ASEARCHPOS</code> implemented</strong> (position-based array search returning a single index)</td>
+<td><code>yaya_core/src/VM.cpp</code> (<code>builtins_["ASEARCHPOS"]</code>, placed after ASEARCHEX). Documented in <code>FUNCTION_REFERENCE.md</code> / <code>examples/all_functions_test.dic</code></td>
+</tr>
+<tr>
+<td><strong><code>SRAND</code> now actually seeds the RNG (was a no-op stub) + new real-Emily4-ghost regression tests</strong> (2026-07-01)</td>
+<td><code>yaya_core/src/RandomEngine.hpp</code> (new; the shared <code>yaya_rng::engine()</code> used by <code>RAND</code>/<code>ANY</code>/<code>Value::asString()</code>'s array→string random selection), <code>yaya_core/src/VM.cpp</code> (<code>SRAND</code> now calls <code>yaya_rng::engine().seed(...)</code>), <code>yaya_core/src/Value.cpp</code> (array→string conversion also uses the shared engine). <code>OurinTests/YayaEmily4RegressionTests.swift</code> verifies real Emily4 requests return HTTP 200 with Sakura Script, all 33 dictionaries load cleanly, fixed <code>SRAND</code> seeds reproduce random-talk selection, and YAYA <code>REQ.COMMAND</code>, <code>--</code> output areas, <code>void</code>, and bare <code>return</code> semantics. It reuses production <code>collectDicEntries</code> (<code>USL/ShioriLoader.swift</code>) so <code>yaya.txt</code> include/dic resolution matches production exactly</td>
+</tr>
+</tbody>
+</table>
+<h3 id="g-plugin-system">G. Plugin System</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PLUGIN/2.0M GET/NOTIFY frame construction</td>
+<td><code>PluginHost/PluginProtocol.swift</code></td>
+</tr>
+<tr>
+<td>macOS <code>.plugin</code>/<code>.bundle</code> lifecycle</td>
+<td><code>PluginHost/Plugin.swift</code>, <code>PluginEvent/PluginEventDispatcher.swift</code></td>
+</tr>
+<tr>
+<td>Windows DLL plugins metadata-only, distinguished (platform difference documented)</td>
+<td><code>PluginHost/PluginRegistry.swift</code>; <code>docs/SPEC_PLUGIN_2.0M_ja-jp.md</code></td>
+</tr>
+<tr>
+<td>SAORI/1.0 host (charset conversion incl. Shift_JIS)</td>
+<td><code>SaoriHost/SaoriLoader.swift:44-61</code>, <code>SaoriProtocol.swift:158-176</code></td>
+</tr>
+<tr>
+<td><strong>PLUGIN/2.0 host→plugin notification event coverage audit</strong> (2026-07-01). All 17 notification events from <code>docs/PLUGIN_EVENT_2.0M_SPEC_FULL_ja-jp.md</code> §4 (<code>version</code>/<code>installedplugin</code>/<code>installedghostname</code>/<code>installedballoonname</code>/<code>ghostpathlist</code>/<code>balloonpathlist</code>/<code>headlinepathlist</code>/<code>pluginpathlist</code>/<code>OnSecondChange</code>/<code>OnOtherGhostTalk</code>/<code>OnGhostBoot</code>/<code>OnGhostExit</code>/<code>OnGhostInfoUpdate</code>/<code>OnMenuExec</code>/<code>OnInstallComplete</code>/<code>OnChoiceSelect(Ex)</code>/<code>OnAnchorSelect(Ex)</code>) verified to have both send code and a call site; no gaps found</td>
+<td><code>PluginEvent/PluginEventDispatcher.swift</code> (senders), <code>OurinApp.swift</code>/<code>Ghost/GhostManager.swift</code>/<code>Ghost/GhostManager+System.swift</code>/<code>Ghost/GhostManager+Balloon.swift</code> (call sites). Removed the unused <code>onSecondChange()</code> public method (the actual per-second notification already calls <code>sendFrame</code> directly inside <code>setupTimer()</code>). <code>calendarskinpathlist</code>/<code>calendarpluginpathlist</code> were found to be UKADOC-non-standard Ourin extensions (worth documenting separately)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="h-nar-packages">H. NAR Packages</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>refreshundeletemask</code> colon-delimited (UKADOC; comma tolerated)</td>
+<td><code>NarInstall/InstallTxtParser.swift:102-108</code></td>
+</tr>
+<tr>
+<td><code>refresh</code>/<code>refreshundeletemask</code> protection mask implemented</td>
+<td><code>NarInstall/LocalNarInstaller.swift:83-85</code>, <code>175-184</code></td>
+</tr>
+<tr>
+<td>Bundled balloon (<code>balloon.directory</code>) installed</td>
+<td><code>NarInstall/LocalNarInstaller.swift:94-102</code>, <code>207-223</code></td>
+</tr>
+<tr>
+<td><code>accept</code> allows overwrite updates</td>
+<td><code>NarInstall/LocalNarInstaller.swift:71-80</code></td>
+</tr>
+<tr>
+<td>ZIP entry backslash → forward slash normalization</td>
+<td><code>NarInstall/ZipUtil.swift:56-57</code>, <code>61-99</code></td>
+</tr>
+<tr>
+<td>Zip Slip mitigation, PK header validation</td>
+<td><code>NarInstall/LocalNarInstaller.swift:39-81</code></td>
+</tr>
+<tr>
+<td><strong>install.txt <code>charset</code> key two-pass read</strong> (declared encoding priority)</td>
+<td><code>NarInstall/InstallTxtParser.swift:46-83</code> (<code>declaredCharset</code> detects charset line → preferred decode, fallback UTF-8→SJIS)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="i-fmo_1">I. FMO</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>No premature shm_unlink</strong> (name retained during process lifetime)</td>
+<td><code>FMO/FmoSharedMemory.swift:32-38</code>, <code>80-86</code></td>
+</tr>
+<tr>
+<td>Multi-instance detection name unified to <code>/ourin_fmo</code></td>
+<td><code>FMO/FmoManager.swift:91-92</code>, <code>98-111</code></td>
+</tr>
+<tr>
+<td>GetFMO returns SSP-compatible record format (<code>id.key\x01value\r\n</code>)</td>
+<td><code>FMO/FmoManager.swift:156-178</code>; <code>SSTP/SSTPDispatcher.swift:530-533</code></td>
+</tr>
+<tr>
+<td><code>FmoCompatibilityView</code> structured diagnostics</td>
+<td><code>FMO/FmoManager.swift:47-87</code></td>
+</tr>
+<tr>
+<td>POSIX shared memory documented as platform difference</td>
+<td><code>docs/About_FMO_ja-jp.md</code>, <code>docs/About_FMO_en-us.md</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="j-balloons-shells-resources">J. Balloons, Shells, Resources</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Balloon descript.txt SJIS fallback, <code>balloons*.txt</code> merge</td>
+<td><code>Balloon/DescriptorLoader.swift</code>, <code>Ghost/BalloonConfig.swift</code></td>
+</tr>
+<tr>
+<td><strong>descript.txt <code>charset</code> line two-pass read</strong> (declared encoding priority)</td>
+<td><code>Balloon/DescriptorLoader.swift:22-50</code> (detect charset via isoLatin1 → re-decode Shift_JIS/UTF-8). Test <code>BalloonTests.swift</code> (<code>descriptorCharsetTwoPassShiftJIS</code>)</td>
+</tr>
+<tr>
+<td>SERIKO interval/pattern parsing &amp; execution</td>
+<td><code>Animation/SerikoParser.swift</code>, <code>SerikoExecutor</code>, <code>AnimationEngine</code></td>
+</tr>
+<tr>
+<td><strong>SERIKO <code>collisionex</code> geometry/image-colour hit testing and animation-only regions</strong> (2026-08-14)</td>
+<td><code>Animation/AnimationEngine.swift:75-208,342-488</code> (rectangle/ellipse/circle/polygon/region shape retention, standard/legacy parsing, shell-relative image RGB regions with inversion, and active-only <code>animation*.collision*</code> storage), <code>Ghost/GhostManager+Animation.swift:370-378</code> (injects the shell directory as the resolver), <code>Ghost/GhostManager+Surface.swift:636-656</code> (live mouse-event resolution with active IDs). <code>AnimationEngineTests.swift</code> covers inactive filtering, ellipse/circle, image-colour inversion, precedence, and reload deduplication.</td>
+</tr>
+<tr>
+<td>surfaces*.txt full read (fixed 2026-06-27)</td>
+<td><code>Animation/SerikoParser.swift</code>, <code>Ghost/GhostManager+Animation.swift</code></td>
+</tr>
+<tr>
+<td><strong><code>surfacetable.txt</code> systematic processing and surface-test UI</strong> (2026-08-12)</td>
+<td>New <code>Animation/SurfaceTableParser.swift</code> (<code>SurfaceTable</code>/<code>SurfaceGroup</code>/<code>SurfaceEntry</code> data model + <code>SurfaceTableParser.parse</code>). Parses <code>group,NAME { scope,N .. id,NAME }</code> syntax, <code>__disabled</code>/<code>__parts</code> markers, and <code>option,DisableNoDefineSurfaces</code>. <code>Animation/SerikoParser.swift</code> separates surfacetable.txt from the surfaces*.txt bundle. <code>Ghost/GhostManager.swift</code> routes <code>\![open,surfacetest]</code> to <code>Ghost/SurfaceTestWindow.swift</code>, which provides disabled-group filtering, real image previews, scope switching, and click-to-apply. Tests: <code>SurfaceTableParserTests.swift</code> / <code>SurfaceTestCatalogTests.swift</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="k-2026-07-05-compatibility-improvement-round">K. 2026-07-05 Compatibility Improvement Round</h3>
+<p>Items resolved in the fix round following a full re-audit by three Sonnet investigation agents (including new gaps absent from prior audits).</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file:line)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>yaya_core: implemented the <code>parallel</code> modifier</strong> (used in 41 places in Emily4; its absence silently corrupted random-talk candidate arrays via nesting)</td>
+<td><code>yaya_core/src/AST.hpp</code> (<code>ParallelNode</code>), <code>Parser.cpp</code> (contextual detection, not keyword-ized for backward compat), <code>VM.cpp</code> (one-level flattening in array/sequential collection + uniform random pick in non-array contexts, same RNG as SRAND). Verified against real Emily4: candidate pool 278 entries / 0 nested. Tests in <code>OurinTests/YayaEmily4RegressionTests.swift</code> (flattening + SRAND reproducibility)</td>
+</tr>
+<tr>
+<td><strong>yaya_core: <code>executeBlock</code> no longer uses assignment values as block values</strong> (fixes nested-array leak via <code>if { _tmp = array }</code>; matches upstream "assignments are not output candidates")</td>
+<td><code>yaya_core/src/VM.cpp</code> (<code>executeBlock</code>)</td>
+</tr>
+<tr>
+<td><strong>yaya_core: <code>#globaldefine</code> / <code>#define</code> preprocessor</strong> (used 8 times in Emily4 <code>aya_ghostchange_core.dic</code>; previously <code>#</code> lines were unconditionally treated as comments, losing case-syntax macros)</td>
+<td><code>yaya_core/src/DictionaryManager.cpp</code> (<code>preprocessDirectives</code>: raw replacement in registration order; #define=file scope / #globaldefine=all subsequent files), <code>VM.hpp</code> (<code>registerGlobalDefine</code> aligned with ISGLOBALDEFINE/PROCESSGLOBALDEFINE)</td>
+</tr>
+<tr>
+<td><strong>yaya_core: real <code>LOGGING</code> / <code>TRANSLATE</code></strong> (LOGGING=stderr output; TRANSLATE per upstream yaya-shiori sysfunc.cpp: per-character set mapping with <code>-</code> range expansion, <code>\</code> escapes, delete mode when target set empty, last-char padding)</td>
+<td><code>yaya_core/src/VM.cpp</code></td>
+</tr>
+<tr>
+<td><strong><code>OnDestroy</code> event now fired</strong> (NOTIFY, sent directly to the target ghost just before SHIORI unload; Reference0=<code>reload</code> on reload, no Reference otherwise; per UKADOC)</td>
+<td><code>Ourin/Ghost/GhostManager.swift</code> (<code>shutdown()</code> / <code>pendingDestroyReason</code>), <code>SHIORIEvents/EventReferenceSpec.swift</code></td>
+</tr>
+<tr>
+<td><strong>Multi-ghost SSTP response side-effect routing</strong> (Surface/Balloon/BalloonOffset/Icon/EXECUTE resolved to the target ghost via ReceiverGhostName; unspecified falls back to primary = unchanged single-ghost behavior)</td>
+<td><code>Ourin/OurinApp.swift</code> (<code>ghostManagerForShioriRequest</code> / <code>receiverTargetKey</code>), <code>SSTP/SSTPDispatcher.swift</code>. Test in <code>SSTPDispatcherTests.swift</code></td>
+</tr>
+<tr>
+<td><strong><code>OnOffscreen</code> / <code>OnOverlap</code> / <code>OnOtherOffscreen</code> / <code>OnOtherOverlap</code> implemented</strong> (GET; Reference0=current / Reference1=previous, byte-1 separators; transition detection on the per-second tick reusing <code>mikireScopes</code>/<code>kasanariScopes</code>; OnOther* span all ghosts with <code>SakuraName/ID</code> labels)</td>
+<td><code>Ourin/Ghost/GhostManager+Window.swift</code> (pure functions <code>offscreenRef0</code>/<code>overlapRef0</code> + <code>overlapTransitionEvents</code>), <code>SHIORIEvents/EventBridge.swift</code> (<code>dispatchOverlapTransitions</code>). Tests in <code>OverlapTransitionTests.swift</code></td>
+</tr>
+<tr>
+<td><strong>Settings values actually wired</strong> (fixed read-back bug; SMAppService login item (macOS 13+); CP932 acceptance gate for external SSTP; file log sink; auto-update check marked "unused" in UI)</td>
+<td><code>Ourin/ContentView.swift</code>, <code>ExternalServer/EncodingNormalizer.swift</code> (<code>acceptsCP932</code>, default true = unchanged behavior), <code>Utils/Log.swift</code> (<code>LogFileSink</code>). Tests <code>EncodingNormalizerCP932GateTests.swift</code> / <code>LogFileSinkTests.swift</code></td>
+</tr>
+<tr>
+<td><strong>NAR <code>type,saori</code> support</strong> (with accept → target ghost's <code>ghost/master/&lt;dir&gt;</code>; without → shared <code>saori/&lt;dir&gt;</code>; documented as an Ourin-defined extension since UKADOC does not specify it)</td>
+<td><code>Ourin/NarInstall/Paths.swift</code> (<code>installTarget</code>). Test in <code>NarInstallTests.swift</code></td>
+</tr>
+<tr>
+<td><strong>Per-ghost SHIORI Resource separation</strong> (<code>OurinResource.&lt;ghostKey&gt;.&lt;key&gt;</code> namespace + one-time backfill of legacy global values by the first ghost launched; fixes cross-contamination with concurrent ghosts)</td>
+<td><code>Ourin/Property/ResourceManager.swift</code>, <code>Ghost/GhostManager.swift</code> (<code>lazy var resourceManager</code>). Tests in <code>ResourceManagerSeparationTests.swift</code></td>
+</tr>
+<tr>
+<td><strong><code>\f[anchor*]</code> decoration subcommands implemented</strong> (selected/non-selected/visited style, brush, pen, and font colors are applied as independent states; all SetROP2 method variants are parsed and composited against balloon pixels)</td>
+<td><code>Ourin/Ghost/GhostManager.swift</code> (<code>\f</code> switch), <code>Ghost/BalloonView.swift</code>, <code>Ghost/BalloonConfig.swift</code>, <code>Ghost/AnchorRasterOperation.swift</code>, <code>Ghost/AnchorRasterImageRenderer.swift</code></td>
+</tr>
+<tr>
+<td><strong>DevTools mock UI adjudication</strong> (External Events Harness wired to real APIs: live server status, real TCP/HTTP sends with response display, restart-all-servers; Headline/Balloon preview, Signpost, Resource Overlay, and Plugin Enabled toggle marked "Preview only")</td>
+<td><code>Ourin/ContentView.swift</code>, <code>ExternalServer/ServerMetrics.swift</code> (public <code>requestCount</code>)</td>
+</tr>
+<tr>
+<td><strong>Corrected NAR composite-install documentation</strong> (the "missing" claim in AUDITS_TODO was wrong; already implemented)</td>
+<td><code>Ourin/NarInstall/Paths.swift:219-236</code> (calendar/skin, calendar/plugin, legacy calendar, language)</td>
+</tr>
+<tr>
+<td><strong>NAR network update deletion and path safety</strong> (2026-08-14)</td>
+<td><code>NarInstall/LocalNarInstaller.swift</code> retrieves the optional server-side <code>delete.txt</code> after a successful update (including deletion-only updates), accepts its <code>charset</code> line, removes only validated paths under the target root, and keeps <code>testonly</code> non-mutating. <code>InstallTxtParser.swift</code> rejects dot-segment / absolute / drive paths in update descriptors; <code>ZipUtil.swift</code> uses component-aware root checks. <code>NarInstallTests.swift</code> covers MD5-verified update + Windows-style <code>delete.txt</code> paths, traversal rejection, and no-delete 404 behavior.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2026-08-15-audits_todomd-items-migrated-from-audits_todomd-2026-08-15-renewal">移管記録（2026-08-15 AUDITS_TODO.md 一新に伴う）/ Items migrated from AUDITS_TODO.md (2026-08-15 renewal)</h2>
+<p><code>AUDITS_TODO.md</code> を未完項目のみに一新した際、同ファイル内に「完了」注記付きで残っていた以下の項目を本ファイルへ移管した。各項目の詳細な根拠・経緯は本ファイルの既存セクションおよび <code>AUDITS_TODO.md</code> の git 履歴（2026-08-15 以前）に保存されている。</p>
+<p>When <code>AUDITS_TODO.md</code> was renewed to pending-only, the following items (already marked completed there) were migrated here. Full evidence remains in the sections above and in the pre-2026-08-15 git history of <code>AUDITS_TODO.md</code>.</p>
+<table>
+<thead>
+<tr>
+<th>分野 / Area</th>
+<th>項目 / Item</th>
+<th>完了日 / Completed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SHIORI</td>
+<td>SHIORI 2.x ABI 互換レイヤーコア（<code>Shiori2CompatAdapter</code>、GET Version検出・イベント/TEACH/レスポンス変換・Shift_JIS）</td>
+<td>2026-07-09</td>
+</tr>
+<tr>
+<td>SHIORI</td>
+<td>Word/String/Status/OwnerGhostName/OtherGhostName/Communicate 変換の単体テスト＋<code>OnTalkRequest</code> 不一致修正</td>
+<td>2026-07-09</td>
+</tr>
+<tr>
+<td>SHIORI</td>
+<td>SHIORI 2.x「二重実装」懸念は disjoint な役割分担と確認（統合不要と判定）</td>
+<td>2026-07-09</td>
+</tr>
+<tr>
+<td>SHIORI</td>
+<td>SecurityLevel external 伝播（<code>dispatchExternal</code> 集約、TCP/HTTP/XPC 全経路）</td>
+<td>2026-07-08</td>
+</tr>
+<tr>
+<td>SSTP</td>
+<td>210 Break nobreak キューイング＋実ゴースト再生状態接続（<code>SSTPBreakQueue</code>/<code>isAnyGhostPlaying</code>）</td>
+<td>2026-07-08 / 2026-08-12</td>
+</tr>
+<tr>
+<td>SakuraScript</td>
+<td><code>\![cancel,http,...]</code>（<code>httpStreamingTasks</code> 追跡＋<code>cancelHTTPStreaming</code>）</td>
+<td>2026-07-09</td>
+</tr>
+<tr>
+<td>SakuraScript</td>
+<td><code>moveasync</code> キャンセル・レガシー <code>fix</code> 軸・時限 <code>scaling</code>/<code>alpha</code>（<code>GhostUtilityCommandTests</code>）</td>
+<td>2026-08-14</td>
+</tr>
+<tr>
+<td>SakuraScript</td>
+<td>lexicon 内蔵辞書（<code>SakuraScriptLexicon.json</code> 10キー注入）</td>
+<td>2026-07-08</td>
+</tr>
+<tr>
+<td>SHIORIイベント</td>
+<td><code>EventReferenceTable</code> の <code>On*</code> 型定義網羅＋発火側静的照合（<code>EventIDAuditTests</code> 3種、<code>OnArchiveComplete</code> 型付き化）</td>
+<td>2026-08-14</td>
+</tr>
+<tr>
+<td>NAR</td>
+<td>同時インストール <code>*.directory</code> 系完全処理＋<code>ZipUtil.secureCopyTree</code> の /private/var バグ修正</td>
+<td>2026-07-08</td>
+</tr>
+<tr>
+<td>バルーン</td>
+<td>レガシー画像透過（バルーン側左上ピクセル <code>applyTopLeftPixelChromakey</code>）</td>
+<td>2026-07-08</td>
+</tr>
+<tr>
+<td>バルーン</td>
+<td>動画レンダラ非対応コーデックのサイレント失敗解消（<code>OnVideoPlayFailure</code> 新設）</td>
+<td>2026-07-09</td>
+</tr>
+<tr>
+<td>K監査</td>
+<td>アンカー装飾（<code>anchorstyle</code>/<code>anchorvisited*</code>/ROP2合成）実装</td>
+<td>2026-08-14</td>
+</tr>
+<tr>
+<td>K監査</td>
+<td><code>\n[half]</code>/<code>%</code> 改行間隔（<code>lineAdvances</code> 接続、4スイート26件）</td>
+<td>2026-08-14</td>
+</tr>
+<tr>
+<td>K監査</td>
+<td><code>vanishbymyself</code> 消滅経路（確認・イベント・ゴミ箱・次ゴースト起動）</td>
+<td>2026-08-14</td>
+</tr>
+<tr>
+<td>K監査</td>
+<td><code>updateother</code> 対象解決（balloon/shell/plugin/headline/language、<code>testonly</code> 回帰テスト）</td>
+<td>2026-08-14</td>
+</tr>
+<tr>
+<td>K監査</td>
+<td><code>\f[cursor*]</code> と選択肢 hover（<code>OnChoiceEnter</code>/500ms <code>OnChoiceHover</code>）</td>
+<td>2026-08-14</td>
+</tr>
+<tr>
+<td>K監査</td>
+<td><code>BalloonRichTextViewModel</code> スタブ解消（valign/subscript/superscript）</td>
+<td>2026-08-14</td>
+</tr>
+<tr>
+<td>K監査</td>
+<td><code>PropertyManager</code> AppKit スレッド安全性</td>
+<td>2026-08-14</td>
+</tr>
+<tr>
+<td>ドキュメント</td>
+<td>L監査対応: 完了済み計画・テンプレ19ファイルを <code>docs/archive/</code> へ移動、<code>yaya_core/README.md</code> 同期、BLOCKER_TRACKER と IMPLEMENTATION_STATUS_SUMMARY のブロッカー矛盾解消、<code>.serena/memories</code>（SstpRouter・macOS版数）修正、CLAUDE/AGENTS の AppDelegate 記述修正、yaya_core 進捗系md への時点注記追加</td>
+<td>2026-08-15</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>本ファイルは監査レポート（GLM/CODEX/CLAUDE/AGY）の完了項目を集約したものです。未完項目は <code>AUDITS_TODO.md</code> を参照してください。</em></p>
+<p><em>This file consolidates completed items from audit reports (GLM/CODEX/CLAUDE/AGY). For pending items, see <code>AUDITS_TODO.md</code>.</em></p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

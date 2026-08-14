@@ -211,9 +211,9 @@ SSP の「[SHIORI Event リスト]」を正とし、Ourin（macOS）で<strong>�
 <h2 id="1-mdiffmacos">1. M‑Diff（macOS差分）一覧</h2>
 <ul>
 <li><strong>座標</strong>：グローバル座標（メイン画面左上）。Window/Surface 座標は Ourin が変換。  </li>
-<li><strong>ディスプレイ変更</strong>：<code>CGDisplayRegisterReconfigurationCallback</code> で捕捉。  </li>
+<li><strong>ディスプレイ変更</strong>：<code>NSApplication.didChangeScreenParametersNotification</code> で捕捉し、主画面の bpp/解像度とマルチモニタ情報を生成。</li>
 <li><strong>スリープ/スリープ解除/画面消灯</strong>：<code>NSWorkspace</code> の <code>willSleep/didWake/screensDidSleep/screensDidWake</code> を採用。  </li>
-<li><strong>スクリーンセーバ検知</strong>：<code>ScreenSaverEngine</code> の前面化検知＋スクリーン消灯検知の組合せ（ベストエフォート）。  </li>
+<li><strong>スクリーンセーバ検知</strong>：<code>DistributedNotificationCenter</code> の <code>com.apple.screensaver.didstart/didstop</code> を使用。画面消灯は <code>OnDisplayPowerStatus</code> として分離。</li>
 <li><strong>ファイル/URLドロップ</strong>：<code>NSDraggingDestination</code> / <code>NSPasteboard.PasteboardType.fileURL</code> / UTI で受理。  </li>
 <li><strong>ウィンドウ最小化/復元</strong>：AppKit ウィンドウ状態から合成、バルーン可視状態は Ourin が保持。  </li>
 <li><strong>バッテリー/電源</strong>：Energy APIs からポーリングまたは通知。</li>
@@ -302,9 +302,9 @@ SSP の「[SHIORI Event リスト]」を正とし、Ourin（macOS）で<strong>�
 <td>OnFullScreenAppMinimize/Restore</td>
 <td>NOTIFY</td>
 <td>フルスクリーン干渉</td>
-<td>app id</td>
+<td>R0=<code>fullscreen</code></td>
 <td>—</td>
-<td>NSWorkspace 前面アプリ監視</td>
+<td>NSWorkspace 前面アプリ＋CGWindow の全画面判定。権限不足時は誤発火を避けて無通知</td>
 </tr>
 <tr>
 <td>OnVirtualDesktopChanged</td>
@@ -332,11 +332,51 @@ SSP の「[SHIORI Event リスト]」を正とし、Ourin（macOS）で<strong>�
 </tr>
 <tr>
 <td>OnSysSuspend/OnSysResume</td>
-<td>NOTIFY</td>
+<td>GET</td>
 <td>システムスリープ/復帰</td>
 <td>—</td>
-<td>—</td>
+<td>応答スクリプト</td>
 <td>NSWorkspace willSleep/didWake</td>
+</tr>
+<tr>
+<td>OnDisplayChange</td>
+<td>起動時NOTIFY/更新GET</td>
+<td>主画面の解像度・色深度変更</td>
+<td>R0=bpp, R1=width, R2=height</td>
+<td>起動時は無視、更新時は再生</td>
+<td>NSApplication.didChangeScreenParametersNotification</td>
+</tr>
+<tr>
+<td>OnDisplayChangeEx</td>
+<td>起動時NOTIFY/更新GET</td>
+<td>マルチモニタ構成変更</td>
+<td>R0=init/update, R1以降=モニタ情報</td>
+<td>起動時は無視、更新時は再生</td>
+<td>NSScreen + CoreGraphics</td>
+</tr>
+<tr>
+<td>OnDisplayPowerStatus</td>
+<td>GET</td>
+<td>画面電源ON/OFF</td>
+<td>R0=1/0</td>
+<td>応答スクリプト</td>
+<td>NSWorkspace screensDidSleep/Wake</td>
+</tr>
+<tr>
+<td>OnBatteryNotify / OnBattery*</td>
+<td>起動時NOTIFY/更新GET</td>
+<td>残量・電源・充電状態変更</td>
+<td>R0=％, R1=残り分, R2=online/offline/backup, R3=状態</td>
+<td>起動時は無視、更新時は再生</td>
+<td>IOKit IOPowerSources</td>
+</tr>
+<tr>
+<td>OnSessionDisconnect / OnSessionReconnect</td>
+<td>GET</td>
+<td>macOSユーザーセッション切断/再接続</td>
+<td>—</td>
+<td>応答スクリプト</td>
+<td>NSWorkspace session notifications</td>
 </tr>
 </tbody>
 </table>
@@ -376,6 +416,17 @@ SSP の「[SHIORI Event リスト]」を正とし、Ourin（macOS）で<strong>�
 <h3 id="213-url">2.13 URLドロップ</h3>
 <p>OnURLDragDropping / OnURLDropping / OnURLDropped / OnURLDropFailure / OnURLQuery / OnXUkagakaLinkOpen<br />
 <strong>M‑Diff</strong>：<code>public.url</code> UTI を受理。</p>
+<p>キャラクターウィンドウへのURLドロップは、対象ゴーストに Ourin 拡張の <code>OnURLDrop</code> を
+GET で問い合わせた後、応答スクリプトが無い場合に標準の <code>OnURLQuery</code> を送る。
+<code>OnURLQuery</code> の Reference は URL／スコープ番号／MIME／予定処理（<code>nar</code> または <code>unknown</code>）。
+<code>nar</code> の場合だけ <code>OnURLDropping</code> → HTTPS（または明示許可時のHTTP）ダウンロード →
+<code>OnURLDropped</code> → NAR インストールの順で処理し、通信・展開・設置に失敗した場合は
+<code>OnURLDropFailure</code> を送る。Reference1 のHTTP失敗理由はステータスコード文字列、通信失敗は
+<code>timeout</code>／<code>fileio</code> 等の標準語彙へ正規化する。構文不正・許可外スキーム・明示許可のないHTTPは
+受信開始前に拒否するため、標準の失敗イベントを発火しない。ダウンロード完了前に
+<code>OnURLDropped</code> を発火せず、未知のURLを自動ダウンロードしない。接続先は公開アドレスへ
+限定し、リダイレクトも同じ検査を通す。受信には30秒の要求タイムアウト、5分のリソース
+タイムアウト、256 MiBのサイズ上限を設ける。</p>
 <h3 id="214">2.14 ネットワーク更新</h3>
 <p>OnUpdate<em> / OnUpdateOther</em> / OnUpdateCheck<em> / OnUpdateResult</em> / OnUpdateResultExplorer + 理由/対象種別/成功・失敗理由<br />
 <strong>M‑Diff</strong>：Ourin の更新モジュールに準拠。</p>
@@ -429,15 +480,17 @@ SSP の「[SHIORI Event リスト]」を正とし、Ourin（macOS）で<strong>�
 <hr />
 <h2 id="a-ourinapi">付録A. イベント→Ourin内部APIマップ（抜粋）</h2>
 <ul>
-<li><strong>表示/ディスプレイ</strong>：CoreGraphics（Display Reconfig Callback）  </li>
+<li><strong>表示/ディスプレイ</strong>：AppKit <code>NSApplication.didChangeScreenParametersNotification</code> と CoreGraphics のディスプレイ情報</li>
+<li><strong>表示イベントの Reference</strong>：<code>DisplayObserver.swift</code> が <code>OnDisplayChange</code> の bpp/width/height と <code>OnDisplayChangeEx</code> のモニタ列を生成。</li>
 <li><strong>スリープ/復帰</strong>：NSWorkspace Notifications  </li>
+<li><strong>電源/バッテリー</strong>：IOKit <code>IOPowerSources</code> の残量・残時間・充電状態・電源種別を <code>OnBattery*</code> へ変換。</li>
 <li><strong>ドラッグ&amp;ドロップ</strong>：NSDraggingDestination / NSPasteboard（fileURL/UTType）  </li>
 <li><strong>ネットワーク</strong>：Network.framework（SSTP/HTTP）  </li>
 <li><strong>入力</strong>：NSEvent（修飾キー/座標）</li>
 </ul>
 <hr />
 <h2 id="implementation-status">実装状況（Implementation Status）</h2>
-<p><strong>更新日:</strong> 2025-10-20</p>
+<p><strong>更新日:</strong> 2026-08-12</p>
 <h3 id="ourin">Ourin におけるイベントシステム実装</h3>
 <ul>
 <li>[x] <strong>イベントブリッジ</strong>: <code>EventBridge.swift</code> にてシステムイベントの統合管理を実装済み</li>
@@ -456,9 +509,16 @@ SSP の「[SHIORI Event リスト]」を正とし、Ourin（macOS）で<strong>�
 </li>
 <li>[x] <code>OnSleep</code>, <code>OnResume</code>: <code>SleepObserver.swift</code> にて実装済み</li>
 <li>[x] <code>OnDisplayChange</code>: <code>DisplayObserver.swift</code> にて実装済み</li>
+<li>[x] <code>OnDisplayChangeEx</code>: マルチモニタの実データ付きで実装済み</li>
+<li>[x] <code>OnDisplayPowerStatus</code>: 画面スリープ/復帰を <code>SleepObserver.swift</code> から実装済み</li>
+<li>[x] <code>OnBatteryNotify/Low/Critical/ChargingStart/Stop</code>: <code>PowerObserver.swift</code> の IOKit 実データ変換で実装済み</li>
 <li>[x] <code>OnSessionLock</code>, <code>OnSessionUnlock</code>: <code>SessionObserver.swift</code> にて実装済み</li>
+<li>[x] <code>OnSessionDisconnect</code>, <code>OnSessionReconnect</code>: <code>NSWorkspace</code> セッション通知で実装済み</li>
+<li>[x] システム負荷監視: <code>SystemLoadObserver.swift</code> にて実装済み</li>
+<li>[x] <code>OnOSUpdateInfo</code>: <code>/usr/sbin/softwareupdate --list/--history</code> の実履歴を起動時 <code>NOTIFY</code>・履歴更新時 <code>GET</code> で通知</li>
+<li>[x] <code>OnCloseAll</code>: 全起動ゴーストの応答再生完了を集約してからアプリを終了</li>
 <li>
-<p>[x] システム負荷監視: <code>SystemLoadObserver.swift</code> にて実装済み</p>
+<p>[x] 初期 Notify 系: <code>OnNotifyUserInfo</code> / <code>OnNotifyOSInfo</code> / <code>OnNotifyFontInfo</code> / <code>OnNotifyInternationalInfo</code> をmacOS実データで生成し、ユーザー名・ロケール変更時に再通知</p>
 </li>
 <li>
 <p><strong>ネットワークイベント</strong></p>
@@ -554,7 +614,7 @@ SSP の「[SHIORI Event リスト]」を正とし、Ourin（macOS）で<strong>�
 <li>[ ] <code>OnCalendar*</code> イベント群</li>
 </ol>
 <h3 id="_5">イベント発火の流れ</h3>
-<div class="codehilite"><pre><span></span><code>システムイベント発生
+<pre class="codehilite"><code>システムイベント発生
   ↓
 各 Observer が検出（DisplayObserver, SleepObserver など）
   ↓
@@ -565,7 +625,7 @@ SHIORI リクエスト形式に変換
 ShioriLoader 経由で YAYA Backend へ送信
   ↓
 ゴーストがレスポンスを返却
-</code></pre></div>
+</code></pre>
 
 <h3 id="_6">座標系とパス処理</h3>
 <ul>
@@ -574,13 +634,60 @@ ShioriLoader 経由で YAYA Backend へ送信
 <li>[x] <strong>file:// URL</strong>: URL 型による処理</li>
 </ul>
 <hr />
-<h2 id="_7">変更履歴</h2>
+<hr />
+<h2 id="_7">自動システムイベントの有効化タイミング</h2>
+<h3 id="_8">概要</h3>
+<p>標準の自動システムイベント（タイマー/入力/スリープ/ディスプレイ/電源/ロケール/外観/セッション/ネットワーク/ゲームパッド/デバイス/音声認識）は、<strong>実ゴーストのロード完了</strong>を唯一の集約点として有効化されます。</p>
+<p>実装ファイル：
+- <code>Ourin/Ghost/GhostManager.swift</code> — <code>startEventBridgeIfNeeded(enableAutoEvents:)</code>
+- <code>Ourin/SHIORIEvents/EventBridge.swift</code> — <code>start(enableAutoEvents:)</code> および内部キュー機能</p>
+<h3 id="_9">有効化の流れ</h3>
+<pre class="codehilite"><code>GhostManager.start()
+  ↓ YAYA 辞書ロード完了
+  ↓ OnBoot GET 発行前
+startEventBridgeIfNeeded(enableAutoEvents: !GhostManager.isRunningUnderTests)
+  → EventBridge.shared.start(enableAutoEvents: true)   // テスト時は false
+     → TimerEmitter / InputMonitor / SleepObserver /
+        DisplayObserver / SpaceObserver / PowerObserver /
+        LocaleObserver / AppearanceObserver / SessionObserver /
+        NetworkObserver / GamepadObserver / DeviceObserver /
+        SpeechObserver をすべて開始
+     → pendingNotifies をフラッシュ（キュー済み NOTIFY を即時配送）
+</code></pre>
+
+<h3 id="notify">有効化以前の NOTIFY キュー動作</h3>
+<p><code>autoEventsEnabled = false</code> の状態で <code>broadcastNotify</code> または <code>broadcastNotifyCustom</code> が呼ばれた場合、イベントは <strong>内部キュー</strong>（<code>pendingNotifies</code>）に積まれます。自動イベントが有効化されると同時にキューが<strong>フラッシュ</strong>され、ゴーストへ順次配送されます。</p>
+<table>
+<thead>
+<tr>
+<th>状態</th>
+<th>NOTIFY の扱い</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>autoEventsEnabled = false</code>（有効化前）</td>
+<td><code>pendingNotifies</code> キューに追加（即時配送しない）</td>
+</tr>
+<tr>
+<td><code>autoEventsEnabled = true</code>（有効化後）</td>
+<td>即時配送。キューがあればフラッシュしてから通常配送へ移行</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">ユニットテストでの抑制</h3>
+<p><code>GhostManager.isRunningUnderTests</code> は環境変数 <code>XCTestConfigurationFilePath</code> または <code>XCTestBundlePath</code> の存在でテスト実行を検出します。テスト時は <code>enableAutoEvents = false</code> で <code>EventBridge.start()</code> を呼び出すため、タイマー・入力監視などのシステムオブザーバは起動されません。</p>
+<h3 id="_11">旧動作との差分</h3>
+<p>以前のデフォルトは <code>enableAutoEvents = false</code> であり、名前入力ダイアログ経路（<code>GhostManager+Display</code>）を通過しない限り自動イベントが NOTIFY キューのみに留まる経路がありました。現在は<strong>実ゴーストロード完了が唯一の有効化ポイント</strong>となり、ダイアログ経路の有無に関わらず自動イベントが確実に有効化されます。</p>
+<hr />
+<h2 id="_12">変更履歴</h2>
 <ul>
+<li>2026-06-28: 自動システムイベント有効化タイミングのセクションを追加（GhostManager.startEventBridgeIfNeeded / EventBridge.start 実装に対応）</li>
 <li>2025-10-20: 実装状況セクションを追加</li>
 <li>2025-07-28 (JST): 初版（3.0M for macOS）。</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

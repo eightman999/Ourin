@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property System Implementation</title>
+    <title>プロパティシステムの実装</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
@@ -145,31 +145,242 @@
         <div class="back-link">
             <a href="index.html">← 目次に戻る</a>
         </div>
-        <h1 id="property-system-implementation">Property System Implementation</h1>
-<p><strong>ステータス:</strong> 翻訳待ち<br />
-<strong>原本:</strong> <a href="./PropertySystem_en-us.md">PropertySystem_en-us.md</a><br />
-<strong>言語:</strong> 日本語</p>
-<hr />
-<h2 id="_1">翻訳ノート</h2>
-<p>このドキュメントは英語原本の日本語翻訳用プレースホルダーです。</p>
-<p>英語版が正式な仕様を含んでいます。この日本語版は以下を維持しながら翻訳すべきです：</p>
+        <blockquote>
+<p>本書は en-us 版原文（PropertySystem_en-us.md）の日本語訳です。</p>
+</blockquote>
+<h1 id="_1">プロパティシステムの実装</h1>
+<h2 id="_2">概要</h2>
+<p>プロパティシステムは、伺かのプロパティシステム仕様に従い、ゴーストスクリプトが実行時にベースウェアのパラメータを読み書きできるようにする仕組みです。これにより、ゴーストはシステム情報、ベースウェアの詳細、実行時データへ標準化された方法でアクセスできます。</p>
+<h2 id="_3">アーキテクチャ</h2>
+<h3 id="_4">主要コンポーネント</h3>
+<ol>
+<li><strong>PropertyProvider プロトコル</strong> (<code>PropertyProvider.swift</code>)</li>
+<li>すべてのプロパティプロバイダの基底プロトコル</li>
+<li>プロパティの読み取り用に <code>get(key:)</code> をサポート</li>
+<li>
+<p>プロパティの書き込み用に <code>set(key:value:)</code> をサポート（任意）</p>
+</li>
+<li>
+<p><strong>PropertyManager</strong> (<code>PropertyManager.swift</code>)</p>
+</li>
+<li>すべてのプロパティプロバイダを統括する中央マネージャ</li>
+<li>プレフィックスに基づいて、プロパティ要求を適切なプロバイダへ振り分け</li>
+<li><code>%property[...]</code> 環境変数の展開をサポート</li>
+</ol>
+<h3 id="_5">プロパティプロバイダ</h3>
+<h4 id="systempropertyprovider">SystemPropertyProvider</h4>
+<p><code>system.*</code> プロパティを提供します:
+- 日付/時刻: <code>system.year</code>, <code>system.month</code>, <code>system.day</code>, <code>system.hour</code>, <code>system.minute</code>, <code>system.second</code>, <code>system.millisecond</code>, <code>system.dayofweek</code>
+- カーソル: <code>system.cursor.pos</code>
+- OS 情報: <code>system.os.type</code>, <code>system.os.name</code>, <code>system.os.version</code>, <code>system.os.build</code>
+- CPU 情報: <code>system.cpu.num</code>, <code>system.cpu.vendor</code>, <code>system.cpu.name</code>, <code>system.cpu.clock</code>, <code>system.cpu.features</code>, <code>system.cpu.load</code>
+- メモリ情報: <code>system.memory.phyt</code>, <code>system.memory.phya</code>, <code>system.memory.load</code></p>
+<h4 id="basewarepropertyprovider">BasewarePropertyProvider</h4>
+<p><code>baseware.*</code> プロパティを提供します:
+- <code>baseware.name</code> - "Ourin" を返す
+- <code>baseware.version</code> - アプリケーションのバージョンを返す</p>
+<h4 id="ghostpropertyprovider">GhostPropertyProvider</h4>
+<p><code>ghostlist.*</code>, <code>activeghostlist.*</code>, <code>currentghost.*</code> に関するゴースト関連プロパティを提供します:</p>
+<p><strong>共通プロパティ:</strong>
+- <code>name</code>, <code>sakuraname</code>, <code>keroname</code>
+- <code>craftmanw</code>, <code>craftmanurl</code>
+- <code>path</code>, <code>icon</code>, <code>homeurl</code>
+- <code>username</code></p>
+<p><strong>ghostlist:</strong>
+- <code>ghostlist.count</code> - インストール済みゴーストの数
+- <code>ghostlist.index(n).{property}</code> - インデックスでゴーストにアクセス
+- <code>ghostlist({name|sakuraname|path}).{property}</code> - 識別子でゴーストにアクセス</p>
+<p><strong>currentghost:</strong>
+- 上記の基本プロパティ
+- <code>currentghost.status</code> - ゴーストのステータス
+- <code>currentghost.shelllist.count</code> - シェルの数
+- <code>currentghost.shelllist.current.{property}</code> - 現在のシェルのプロパティ
+- <code>currentghost.shelllist({name|path}).{property}</code> - 識別子で指定したシェル
+- <code>currentghost.shelllist.index(n).{property}</code> - インデックスで指定したシェル
+- <code>currentghost.scope.count</code> - スコープの数
+- <code>currentghost.scope(n).surface.num</code> - スコープのサーフェス番号
+- <code>currentghost.scope(n).{x|y|rect|name}</code> - スコープの位置と情報</p>
+<p><strong>シェルプロパティ:</strong>
+- <code>name</code>, <code>path</code>, <code>menu</code> (hidden/empty)</p>
+<p><strong>スコーププロパティ:</strong>
+- <code>surface.num</code>, <code>surface.x</code>, <code>surface.y</code>
+- <code>x</code>, <code>y</code>, <code>rect</code>
+- <code>name</code>, <code>seriko.defaultsurface</code></p>
+<h4 id="balloonpropertyprovider">BalloonPropertyProvider</h4>
+<p>バルーン関連のプロパティを提供します:</p>
+<p><strong>balloonlist:</strong>
+- <code>balloonlist.count</code>
+- <code>balloonlist.index(n).{name|path|craftmanw|craftmanurl}</code>
+- <code>balloonlist({name|path}).{property}</code></p>
+<p><strong>currentghost.balloon:</strong>
+- <code>balloon.scope(n).count</code> - バルーン画像の数
+- <code>balloon.scope(n).num</code> - バルーン ID
+- <code>balloon.scope(n).validwidth</code> - テキスト描画幅
+- <code>balloon.scope(n).validheight</code> - テキスト描画高さ
+- <code>balloon.scope(n).lines</code> - 最大行数
+- <code>balloon.scope(n).basepos.{x|y}</code> - テキスト開始位置
+- <code>balloon.scope(n).char_width</code> - 文字幅</p>
+<h4 id="headlinepropertyprovider">HeadlinePropertyProvider</h4>
+<p><code>headlinelist.*</code> プロパティを提供します:
+- <code>headlinelist.count</code>
+- <code>headlinelist.index(n).{name|path|craftmanw|craftmanurl}</code>
+- <code>headlinelist({name|path}).{property}</code></p>
+<h4 id="aliaspropertyprovider">AliasPropertyProvider</h4>
+<p>SSP 互換の省略名前空間として、<code>PropertyManager.swift</code> の <code>registerDefaultProviders</code> 内で
+4 回登録される:</p>
+<table>
+<thead>
+<tr>
+<th>登録プレフィックス</th>
+<th>委譲先プレフィックス</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sakura</code></td>
+<td><code>currentghost.scope(0)</code></td>
+</tr>
+<tr>
+<td><code>kero</code></td>
+<td><code>currentghost.scope(1)</code></td>
+</tr>
+<tr>
+<td><code>ghost</code></td>
+<td><code>currentghost</code></td>
+</tr>
+<tr>
+<td><code>shell</code></td>
+<td><code>currentghost.shelllist.current</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>get(key:)</code> / <code>set(key:value:)</code> が呼ばれると、委譲先プレフィックスをサブキーの前に付加して
+<code>PropertyManager.shared.get/set</code> に再ディスパッチする。例えば <code>sakura.surface.num</code> は
+検索前に <code>currentghost.scope(0).surface.num</code> へ展開される。GET / SET ともに既存プロバイダへ
+委譲し、エイリアス登録自体は独自の状態を持たない。</p>
+<h4 id="pluginpropertyprovider">PluginPropertyProvider</h4>
+<p><code>pluginlist.*</code> プロパティを提供します:
+- <code>pluginlist.count</code>
+- <code>pluginlist.index(n).{name|path|id|craftmanw|craftmanurl|filename|native|executablepath|packagepath|executionstate|candispatchrequests}</code>
+- <code>pluginlist({name|path|id|executablepath|packagepath}).{property}</code>
+- <code>pluginlist({name|path|id|executablepath|packagepath}).message.&lt;key&gt;</code> - plugin パッケージの <code>message.*.txt</code> から読み取った言語別文字列（例: <code>message.menu.title</code>）</p>
+<p><code>path</code> は SSP 互換の元モジュール位置、<code>executablepath</code> は macOS native <code>.plugin</code> / <code>.bundle</code> 実体、
+<code>packagepath</code> は <code>install.txt</code> 付き package directory です。Windows DLL 由来 plugin は
+<code>executionstate=metadataOnly</code>、<code>candispatchrequests=0</code> として列挙のみ行います。</p>
+<h2 id="_6">使い方</h2>
+<h3 id="_7">環境変数の展開</h3>
+<p>SakuraScript のテキスト内で <code>%property[key]</code> を使用してプロパティ値を埋め込みます:</p>
+<pre class="codehilite"><code>%property[baseware.name] ver,%property[baseware.version]
+</code></pre>
+
+<p>これは次のように展開されます:</p>
+<pre class="codehilite"><code>Ourin ver,1.0
+</code></pre>
+
+<h3 id="sakurascript">SakuraScript タグ</h3>
+<h4 id="_8">プロパティの取得</h4>
+<p>プロパティ値を取得し、その値を伴って SHIORI イベントを発火させます:</p>
+<pre class="codehilite"><code>\![get,property,EventName,PropertyKey]
+</code></pre>
+
+<p>例:</p>
+<pre class="codehilite"><code>\![get,property,OnGetSakuraName,ghostlist(Emily/Phase4.5).keroname]
+</code></pre>
+
+<p>これは <code>Reference0</code> に値 "Teddy" を含めた <code>OnGetSakuraName</code> イベントを発火させます。</p>
+<h4 id="_9">プロパティの設定</h4>
+<p>書き込み可能なプロパティ値を設定します:</p>
+<pre class="codehilite"><code>\![set,property,PropertyKey,Value]
+</code></pre>
+
+<p>例:</p>
+<pre class="codehilite"><code>\![set,property,currentghost.shelllist(ULTIMATE FORM).menu,hidden]
+</code></pre>
+
+<p>これはシェル変更メニューから "ULTIMATE FORM" シェルを非表示にします。</p>
+<h3 id="_10">プログラムからのアクセス</h3>
+<pre class="codehilite"><code class="language-swift">let manager = PropertyManager()
+
+// Get property
+if let year = manager.get(&quot;system.year&quot;) {
+    print(&quot;Current year: \(year)&quot;)
+}
+
+// Set property
+manager.set(&quot;currentghost.shelllist(Default).menu&quot;, value: &quot;hidden&quot;)
+
+// Expand text with properties
+let text = &quot;Welcome to %property[baseware.name]!&quot;
+let expanded = manager.expand(text: text)
+</code></pre>
+
+<h2 id="_11">書き込み可能なプロパティ</h2>
+<p>現在、以下のプロパティが書き込み操作をサポートしています:</p>
+<ol>
+<li><code>currentghost.shelllist({name}).menu</code> - "hidden" を設定するとメニューからシェルを非表示にする</li>
+</ol>
+<p>エイリアス名前空間 <code>sakura.*</code> / <code>kero.*</code> / <code>ghost.*</code> / <code>shell.*</code> は SET コマンドの左辺にも
+使用できる。GET と同様に委譲先フルキーへ展開され、そのキーが書き込み可能か否かで成否が決まる。
+<code>AliasPropertyProvider.writableProperties()</code> は <code>[]</code> を返すため、エイリアスは
+書き込み可能キー列挙には現れない。</p>
+<h2 id="_12">統合ポイント</h2>
+<h3 id="ghostmanager">GhostManager</h3>
+<p><code>GhostManager</code> クラスはプロパティ関連の SakuraScript コマンドを処理します:
+- <code>\![get,property,...]</code>（<code>GhostManager.swift</code> の <code>get</code> ハンドラ内 <code>property</code> 分岐）
+- <code>\![set,property,...]</code>（<code>GhostManager.swift</code> の <code>set</code> ハンドラ内 <code>property</code> 分岐）</p>
+<h3 id="sakurascriptengine">SakuraScriptEngine</h3>
+<p><code>SakuraScriptEngine</code> は <code>PropertyManager</code> と統合されています:
+- プロパティアクセス用に <code>propertyManager</code> プロパティを提供
+- <code>%property[...]</code> の展開を <code>EnvironmentExpander</code> に委譲</p>
+<h3 id="environmentexpander">EnvironmentExpander</h3>
+<p>テキスト内の <code>%property[key]</code> 展開を処理します:
+- <code>EnvironmentExpander.swift</code>（<code>%property[...]</code> 分岐）
+- <code>PropertyManager.get()</code> に委譲</p>
+<h2 id="_13">テスト</h2>
+<p>包括的なテストが <code>PropertySystemTests.swift</code> に用意されています:
+- システムプロパティ（日付/時刻、OS 情報）
+- ベースウェアプロパティ
+- ゴーストプロパティ（ghostlist, currentghost）
+- プロパティの展開
+- バルーン、ヘッドライン、プラグインのプロパティ
+- SET 機能</p>
+<p>テストの実行:</p>
+<pre class="codehilite"><code class="language-bash">xcodebuild test -project Ourin.xcodeproj -scheme Ourin
+</code></pre>
+
+<h2 id="_14">今後の拡張</h2>
+<p>仕様への完全準拠に向けた追加候補:</p>
+<ol>
+<li><strong>履歴プロパティ</strong> (<code>history.*</code>)</li>
+<li><code>history.ghost.*</code>, <code>history.balloon.*</code> など</li>
+<li>
+<p>最近使用した項目のトラッキング</p>
+</li>
+<li>
+<p><strong>追加の書き込み可能プロパティ</strong></p>
+</li>
+<li>マウスカーソルのカスタマイズ (<code>currentghost.mousecursor.*</code>)</li>
+<li>ツールチップのカスタマイズ (<code>currentghost.seriko.tooltip.*</code>)</li>
+<li>
+<p>サーフェスリストのプロパティ (<code>currentghost.seriko.surfacelist.*</code>)</p>
+</li>
+<li>
+<p><strong>動的データ連携</strong></p>
+</li>
+<li>実際の実行時ゴースト/シェル/バルーンデータへの接続</li>
+<li>リアルタイムなスコープ位置のトラッキング</li>
+<li>ライブなバルーンメトリクス</li>
+</ol>
+<p><code>rateofuselist.*</code> は実装済みです。ゴーストの起動回数・実使用時間・発言数・文字数を
+<code>UserDefaults</code> に永続化し、<code>rateofuselist.*</code> と <code>open,rateofusegraph*</code> で同じ実データを参照します。</p>
+<h2 id="_15">参考資料</h2>
 <ul>
-<li>技術的正確性</li>
-<li>他の日本語ドキュメントとの用語の一貫性</li>
-<li>元の構造とフォーマット</li>
-<li>すべてのコード例は変更なし</li>
-<li>コメントと説明部分の適切な翻訳</li>
+<li>UKADOC プロパティシステム仕様: https://usada.sakura.vg/contents/specification.html</li>
+<li>SSP のプロパティ実装</li>
+<li>CROW のプロパティテストケース</li>
 </ul>
-<hr />
-<h2 id="_2">内容</h2>
-<p><em>(英語原本から翻訳予定)</em></p>
-<hr />
-<p><strong>翻訳ステータス:</strong> ⏳ 待機中<br />
-<strong>翻訳者:</strong> 未定<br />
-<strong>レビュー:</strong> 未定<br />
-<strong>最終更新日:</strong> 2025-10-23</p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

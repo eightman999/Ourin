@@ -151,25 +151,23 @@
 <strong>Language:</strong> English (US)</p>
 <hr />
 <h2 id="translation-note">Translation Note</h2>
-<p>This document is a placeholder for the English translation of the Japanese original.</p>
-<p>The Japanese version contains the authoritative specification. This English version should be translated while maintaining:</p>
-<ul>
-<li>Technical accuracy</li>
-<li>Consistent terminology with other English documentation</li>
-<li>Original structure and formatting</li>
-<li>All code examples unchanged</li>
-<li>Proper translation of comments and narrative sections</li>
-</ul>
+<p>This document is a partial translation of the Japanese original. Sections are added here as they are implemented. For the full specification see <a href="./SHIORI_EVENTS_3.0M_SPEC_ja-jp.md">SHIORI_EVENTS_3.0M_SPEC_ja-jp.md</a>.</p>
 <hr />
-<h2 id="contents">Contents</h2>
-<p><em>(To be translated from Japanese original)</em></p>
+<h2 id="appendix-c-automatic-system-event-enablement">Appendix C: Automatic System-Event Enablement</h2>
+<h3 id="behavior-summary">Behavior summary</h3>
+<p>Automatic system events — timer (<code>OnSecondChange</code>/<code>OnMinuteChange</code>/<code>OnHourTimeSignal</code>), input/mouse, sleep/wake, display change, power status, locale, appearance (theme), session, network, gamepad, device, and speech — are enabled inside <code>EventBridge</code> at <strong>real ghost-load completion</strong> as the single centralized activation point.</p>
+<p>Relevant source files:
+- <code>Ourin/Ghost/GhostManager.swift</code> — <code>startEventBridgeIfNeeded(enableAutoEvents:)</code> and <code>isRunningUnderTests</code>
+- <code>Ourin/SHIORIEvents/EventBridge.swift</code> — <code>start(enableAutoEvents:)</code> / <code>broadcastNotify</code> / <code>flushPendingNotifies</code></p>
+<h3 id="notify-queue-before-enablement">NOTIFY queue before enablement</h3>
+<p>While <code>autoEventsEnabled = false</code>, events passed to <code>broadcastNotify</code> / <code>broadcastNotifyCustom</code> are appended to the internal <code>pendingNotifies</code> queue and not delivered immediately. When enablement occurs, the queue is flushed and events are delivered to registered ghost sessions in order.</p>
+<h3 id="suppression-under-tests">Suppression under tests</h3>
+<p>When <code>GhostManager.isRunningUnderTests</code> is <code>true</code> (detected by the presence of the environment variables <code>XCTestConfigurationFilePath</code> or <code>XCTestBundlePath</code>), <code>EventBridge.start(enableAutoEvents: false)</code> is called and system observers — including the timer and input monitor — are not started.</p>
 <hr />
-<p><strong>Translation Status:</strong> ⏳ Pending<br />
-<strong>Translator:</strong> TBD<br />
-<strong>Review:</strong> TBD<br />
-<strong>Last Updated:</strong> 2025-10-23</p>
+<p><strong>Translation Status:</strong> ⏳ Partial (Appendix C added 2026-06-28)<br />
+<strong>Last Updated:</strong> 2026-06-28</p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

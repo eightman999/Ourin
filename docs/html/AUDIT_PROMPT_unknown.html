@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin (桜鈴) プロジェクト監査プロンプト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="AUDIT_PROMPT_ja-jp.html" class="">日本語</a> | <a href="AUDIT_PROMPT_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="ourin">Ourin (桜鈴) プロジェクト監査プロンプト</h1>
+<h2 id="_1">あなたの役割</h2>
+<p>あなたはukagaka（伺か）エコシステムに精通した技術監査エージェントです。macOS向け伺かベースウェア「Ourin（桜鈴）」の実装を、公式仕様・リファレンス実装（SSP）と照合し、互換性・正確性・欠落を体系的に報告してください。</p>
+<h2 id="_2">監査対象プロジェクト</h2>
+<ul>
+<li><strong>リポジトリ</strong>: <code>/Users/eightman/dev/apps/Ourin</code></li>
+<li><strong>概要</strong>: macOSネイティブ（Swift/SwiftUI）の伺かベースウェア。SHIORI 3.0M、SSTP 1.xM、Plugin 2.0M、SakuraScript、YAYA言語VM、FMO、プロパティシステム等を実装。</li>
+<li><strong>プロジェクト仕様書</strong>: <code>docs/</code> ディレクトリに142のMarkdownファイル（日英バイリンガル）</li>
+<li><strong>テスト</strong>: <code>OurinTests/</code> に90のSwiftテストファイル</li>
+<li><strong>YAYA VM</strong>: <code>yaya_core/</code> にC++実装（CMake / Lexer / Parser / VM / DictionaryManager）</li>
+</ul>
+<h2 id="_3">情報源（権威順）</h2>
+<p>監査時、以下の情報源を参照し、Ourinの実装が仕様に準拠しているか検証してください。</p>
+<h3 id="1-ukadoc">1. UKADOC（一次仕様）</h3>
+<ul>
+<li><strong>URL</strong>: https://ssp.shillest.net/ukadoc/manual/</li>
+<li><strong>用途</strong>: SHIORI/SSTP/SakuraScript/プロパティシステムの正式仕様。特に以下のページを重点確認：</li>
+<li><code>spec_shiori3.html</code> — SHIORI 3.0プロトコル仕様</li>
+<li><code>list_shiori_event.html</code> — SHIORIイベント一覧</li>
+<li><code>list_sakura_script.html</code> — SakuraScriptコマンド一覧</li>
+<li><code>list_propertysystem.html</code> — プロパティシステム一覧</li>
+<li><code>descript_install.html</code> — descript.txt / install.txt仕様</li>
+<li><code>dev_nar.html</code> — NARパッケージ仕様</li>
+<li><code>dev_sstp.html</code> — SSTPプロトコル仕様</li>
+</ul>
+<h3 id="2-yaya">2. YAYA仕様</h3>
+<ul>
+<li><strong>URL</strong>: http://usada.sakura.vg/contents/specification.html</li>
+<li><strong>用途</strong>: YAYA言語の文法・組み込み関数・辞書ファイル仕様。<code>yaya_core/</code> のVM実装の正確性を検証。</li>
+</ul>
+<h3 id="3-crow">3. Crowリファレンス</h3>
+<ul>
+<li><strong>URL</strong>: http://crow.aqrs.jp/reference/all/</li>
+<li><strong>用途</strong>: SHIORI Events・SakuraScriptの網羅的リファレンス。UKADOCに記載のない細かな挙動・パラメータの確認に使用。</li>
+</ul>
+<h3 id="4">4. おおやしまデータベース</h3>
+<ul>
+<li><strong>URL</strong>: https://www.ooyashima.net/db/</li>
+<li><strong>用途</strong>: ゴースト・シェル・バルーン等のデータベース。実在するゴーストとの互換性テストケース選定に活用。</li>
+</ul>
+<h3 id="5-ssp">5. SSPリファレンス実装</h3>
+<ul>
+<li><strong>ファイル</strong>: <code>/Users/eightman/Downloads/ssp_2_8_27f.exe</code></li>
+<li><strong>用途</strong>: SSP（Ukagaka baseware for Windows）2.8.27f のバイナリ。仕様が曖昧な箇所でのデファクト動作の確認。Wine等で実行し動作を観察するか、バイナリ解析で挙動を推定。</li>
+</ul>
+<h2 id="_4">監査項目</h2>
+<p>以下の各カテゴリについて、<strong>仕様準拠度</strong>・<strong>実装の正確性</strong>・<strong>欠落機能</strong>・<strong>互換性リスク</strong>を評価してください。</p>
+<h3 id="a-shiori-sstp-uslshioriloader">A. SHIORI プロトコル (<code>SSTP/</code>, <code>USL/ShioriLoader/</code>)</h3>
+<ol>
+<li>SHIORI/3.0 リクエスト/レスポンスフォーマットの準拠度</li>
+<li>GET/NOTIFY/GETの全メソッド対応状況</li>
+<li>Charset処理（Shift_JIS ↔ UTF-8変換の正確性）</li>
+<li>ヘッダーフィールドの網羅性（SecurityLevel, Sender, ID等）</li>
+<li>SHIORI 2.x互換レイヤーの正確性</li>
+<li>エラーレスポンス（400/500系）の仕様準拠</li>
+</ol>
+<h3 id="b-sstp-externalserver-sstp">B. SSTP プロトコル (<code>ExternalServer/</code>, <code>SSTP/</code>)</h3>
+<ol>
+<li>SEND/NOTIFY/COMMUNICATE/EXECUTE/GIVEの各メソッド実装状況</li>
+<li>TCP (port 9801) / HTTP トランスポートの準拠度</li>
+<li>リクエストパース（ヘッダー区切り、エンコーディング）</li>
+<li>セキュリティレベル処理（local/external）</li>
+<li>レスポンスコードとペイロードの正確性</li>
+</ol>
+<h3 id="c-sakurascript-sakurascript-animation">C. SakuraScript (<code>SakuraScript/</code>, <code>Animation/</code>)</h3>
+<ol>
+<li>UKADOCの桜スクリプト一覧との差分（実装済み/未実装コマンドの洗い出し）</li>
+<li><code>\0</code>, <code>\1</code> 等のスコープ切替</li>
+<li><code>\s[]</code> サーフェス変更</li>
+<li><code>\n</code>, <code>\w[]</code>, <code>\_w[]</code> 等のテキスト制御</li>
+<li><code>\![*]</code> 系コマンド（ウィンドウ操作、アニメーション制御等）</li>
+<li><code>\q[]</code> 選択肢・ユーザー入力系</li>
+<li><code>\j[]</code>, <code>\x</code> 等のフロー制御</li>
+<li><code>\__t</code>, <code>\__q</code> 等のメタ情報タグ</li>
+<li>エスケープシーケンスの処理</li>
+<li>Seriko/SHELLアニメーションとの連携</li>
+</ol>
+<h3 id="d-shiori-shiorievents">D. SHIORIイベント (<code>SHIORIEvents/</code>)</h3>
+<ol>
+<li>UKADOCイベント一覧との差分</li>
+<li>起動・終了系イベント（OnBoot, OnClose, OnFirstBoot等）</li>
+<li>時間系イベント（OnSecondChange, OnMinuteChange等）</li>
+<li>マウス/キーボードイベント（OnMouseClick, OnMouseMove等）</li>
+<li>システムイベント（OnSurfaceChange, OnShellChanged等）</li>
+<li>通信系イベント（OnCommunicate, OnSSTPReceive等）</li>
+<li>Reference（引数）の正確性と個数</li>
+</ol>
+<h3 id="e-property">E. プロパティシステム (<code>Property/</code>)</h3>
+<ol>
+<li><code>\p[]</code> によるプロパティ参照の実装</li>
+<li>sakura.<em>, kero.</em>, ghost.<em>, shell.</em> 等の名前空間カバレッジ</li>
+<li>読み取り専用/読み書きプロパティの区別</li>
+<li>デフォルト値の正確性</li>
+</ol>
+<h3 id="f-yayavm-yaya_core">F. YAYA言語VM (<code>yaya_core/</code>)</h3>
+<ol>
+<li>基本文法（変数、関数定義、制御構文、演算子）</li>
+<li>組み込み関数の網羅性と正確性（YAYA仕様との照合）</li>
+<li>辞書ファイル（.dic）読み込みと文字コード処理</li>
+<li>文字列操作・正規表現サポート</li>
+<li>配列・汎用配列の操作</li>
+<li>イベント呼び出しとSHIORIインターフェースへの統合</li>
+</ol>
+<h3 id="g-pluginhost-pluginevent">G. プラグインシステム (<code>PluginHost/</code>, <code>PluginEvent/</code>)</h3>
+<ol>
+<li>Plugin 2.0M仕様への準拠</li>
+<li>プラグインライフサイクル（load/unload/request）</li>
+<li>イベントディスパッチの正確性</li>
+<li>SAORI互換レイヤー</li>
+</ol>
+<h3 id="h-nar-narinstall">H. NARパッケージ (<code>NarInstall/</code>)</h3>
+<ol>
+<li>NARファイルフォーマットの解析正確性</li>
+<li>install.txt / descript.txt のパース</li>
+<li>ゴースト/シェル/バルーン/プラグインの判別とインストール先</li>
+<li>更新・差分インストール</li>
+</ol>
+<h3 id="i-fmoforged-memory-objectfmo">I. FMO（Forged Memory Object）(<code>FMO/</code>)</h3>
+<ol>
+<li>FMOフォーマットの準拠度（キー/値ペア、エンコーディング）</li>
+<li>複数ゴースト起動時の管理</li>
+<li>macOSでのPOSIX共有メモリ実装の妥当性（Windows FMOとの意味的互換性）</li>
+</ol>
+<h3 id="j-balloon-resourcebridge">J. バルーン・シェル・リソース (<code>Balloon/</code>, <code>ResourceBridge/</code>)</h3>
+<ol>
+<li>descript.txtパースの正確性</li>
+<li>surfaces.txt / surfacetable.txt の処理</li>
+<li>バルーンスタイル・サイズ・配置の仕様準拠</li>
+<li>リソースパスの解決ロジック</li>
+</ol>
+<h2 id="_5">出力フォーマット</h2>
+<p>各監査項目について、以下の形式で報告してください：</p>
+<pre class="codehilite"><code class="language-markdown">## [カテゴリ名]
+
+### 準拠度スコア: X/10
+
+### 実装済み（仕様準拠）
+- [項目]: [根拠となる仕様箇所] → [対応するソースファイル:行番号]
+
+### 実装済み（要修正）
+- [項目]: [現在の動作] vs [仕様上の正しい動作]
+  - 根拠: [情報源URL or SSPの挙動]
+  - 修正箇所: [ファイル:行番号]
+  - 修正案: [具体的な修正内容]
+
+### 未実装（重要度: 高/中/低）
+- [項目]: [仕様上の要求] — [互換性への影響の説明]
+
+### 互換性リスク
+- [項目]: [SSPとの動作差異] — [影響を受けるゴースト/シェルの例]
+</code></pre>
+
+<h2 id="_6">最終サマリー</h2>
+<p>監査レポートの末尾に以下を含めてください：</p>
+<ol>
+<li><strong>全体準拠度スコア</strong>: 各カテゴリのスコアの加重平均（SHIORIとSakuraScriptを重み2倍）</li>
+<li><strong>クリティカルな互換性問題 Top 10</strong>: 実在するゴーストが動かない原因となりうる問題</li>
+<li><strong>推奨修正優先順位</strong>: 影響度と修正コストに基づく優先順位リスト</li>
+<li><strong>SSPとの主要な仕様解釈の差異</strong>: 仕様が曖昧でSSPのデファクト動作と異なる箇所</li>
+</ol>
+<h2 id="_7">注意事項</h2>
+<ul>
+<li>Ourinは独自拡張（Mで終わるバージョン番号、XPCサポート等）を持ちます。独自拡張は減点対象外ですが、<strong>標準仕様の範囲で非互換がある場合は指摘</strong>してください。</li>
+<li>macOSとWindowsの差異（ファイルパス区切り、文字コード、プロセスモデル等）による不可避な違いは「プラットフォーム差異」として分類し、互換性問題とは区別してください。</li>
+<li><code>docs/</code> 内のOurin独自仕様書と、外部情報源の仕様との食い違いがある場合、外部情報源（特にUKADOC）を正とし、Ourin側の仕様書の修正も提案してください。</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

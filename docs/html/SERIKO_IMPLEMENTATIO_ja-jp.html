@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin における SERIKO 実装</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="ourin-seriko">Ourin における SERIKO 実装</h1>
+<h2 id="_1">スコープ</h2>
+<p>Ourin は現在、SERIKO を 2 層で実装しています：</p>
+<ul>
+<li><code>AnimationEngine.swift</code> のレガシー実行パス</li>
+<li>新しいパーサー/エグゼキューターパス：</li>
+<li><code>Ourin/Animation/SerikoParser.swift</code></li>
+<li><code>Ourin/Animation/SerikoExecutor.swift</code></li>
+<li><code>Ourin/Ghost/GhostManager+Animation.swift</code> 統合</li>
+</ul>
+<h2 id="serikoparser">パーサー (<code>SerikoParser</code>)</h2>
+<p><code>SerikoParser.parseSurfaces(_:)</code> は <code>surfaces.txt</code> を読み込んで以下を抽出します：</p>
+<ul>
+<li><code>surfaceN { ... }</code> スコープブロック</li>
+<li><code>animation&lt;ID&gt;.interval,&lt;value&gt;</code></li>
+<li><code>animation&lt;ID&gt;.option,&lt;value&gt;</code></li>
+<li><code>animation&lt;ID&gt;.pattern&lt;idx&gt;,...</code></li>
+</ul>
+<p>コアモデル型：</p>
+<ul>
+<li><code>SerikoInterval</code> (<code>always</code>, <code>sometimes</code>, <code>rarely</code>, <code>random</code>, <code>runonce</code>, <code>yen-e</code>, <code>talk</code>, <code>bind</code>, <code>never</code>)</li>
+<li><code>SerikoMethod</code> (<code>overlay</code>, <code>overlayfast</code>, <code>base</code>, <code>move</code>, <code>reduce</code>, <code>replace</code>, <code>start</code>, <code>alternativestart</code>, <code>stop</code>, <code>asis</code>)</li>
+<li><code>SerikoPattern</code></li>
+<li><code>AnimationDefinition</code></li>
+</ul>
+<p>注：</p>
+<ul>
+<li>レガシー数値パターン形式は <code>overlay</code> として扱われます。</li>
+<li>不明な値は <code>.unknown(...)</code> で保持されます。</li>
+</ul>
+<h2 id="serikoexecutor">エグゼキューター (<code>SerikoExecutor</code>)</h2>
+<p><code>SerikoExecutor</code> はステートフルアニメーションスケジューラーです：</p>
+<ul>
+<li><code>register(animations:)</code> は定義を保存します</li>
+<li><code>executeAnimation(id:)</code> はアニメーションを即座に開始します</li>
+<li><code>startLoop()</code> は経過時間とインターバル規則に基づいてアクティブなアニメーションを進めます</li>
+<li><code>pauseAnimation</code>, <code>resumeAnimation</code>, <code>offsetAnimation</code>, <code>stopAnimation</code>, <code>stopAllAnimations</code></li>
+</ul>
+<p>インターバルトリガー：</p>
+<ul>
+<li>確率的：<code>sometimes</code>, <code>rarely</code>, <code>random</code></li>
+<li>ワンショット：<code>runonce</code></li>
+<li>イベント駆動：<code>yenE</code>, <code>talk</code>, <code>bind</code> トリガー API 経由</li>
+</ul>
+<p>コールバック：</p>
+<ul>
+<li><code>onMethodInvoked</code></li>
+<li><code>onPatternExecuted</code></li>
+<li><code>onAnimationFinished</code></li>
+</ul>
+<h2 id="_2">ゴースト統合</h2>
+<p><code>GhostManager+Animation.swift</code> はエグゼキューターコールバックをレンダリング処理に配線します：</p>
+<ul>
+<li><code>overlay</code> / <code>overlayFast</code> -&gt; <code>handleSurfaceOverlay</code></li>
+<li><code>base</code> -&gt; <code>handleAnimAddBase</code></li>
+<li><code>move</code> -&gt; <code>handleAnimAddMove</code></li>
+<li><code>replace</code> -&gt; <code>handleSurfaceOverlay(..., .replace)</code></li>
+<li><code>start</code> / <code>alternativeStart</code> -&gt; ネストされたエグゼキューター開始</li>
+<li><code>stop</code> -&gt; エグゼキューター停止</li>
+</ul>
+<p>実行時フロー：</p>
+<ol>
+<li><code>loadAnimationsForCurrentSurface()</code> が <code>surfaces.txt</code> をロードします</li>
+<li>パースされたアニメーションが <code>SerikoExecutor</code> に登録されます</li>
+<li><code>playAnimation(...)</code> はまずエグゼキューターを試します</li>
+<li>エグゼキューターに一致する定義がない場合、レガシー <code>AnimationEngine</code> にフォールバックします</li>
+</ol>
+<p>ループは <code>GhostManager+Animation</code> のタイマーが <code>serikoExecutor.startLoop()</code> を呼び出して駆動されます。</p>
+<h2 id="sakurascript">SakuraScript リンケージ</h2>
+<p>現在のリンケージはコマンドレベルで <code>GhostManager</code> ハンドラーを通じて行われます：</p>
+<ul>
+<li><code>\i[ID]</code> / <code>\i[ID,wait]</code></li>
+<li><code>\![anim,clear|pause|resume|offset|add|stop,...]</code></li>
+</ul>
+<p><code>waitForAnimation(id:)</code> は同期動作向けに存在し、アニメーションフローで使用されます。</p>
+<h2 id="_3">テストカバレッジ</h2>
+<ul>
+<li><code>OurinTests/SerikoParserTests.swift</code></li>
+<li>パーサー正確性</li>
+<li>実シェル <code>surfaces.txt</code> パース</li>
+<li><code>OurinTests/SerikoExecutorTests.swift</code></li>
+<li>起動/進行/オフセット</li>
+<li>runonce 完了</li>
+<li>インターバルトリガー動作</li>
+</ul>
+<h2 id="_4">現在のステータス</h2>
+<p><strong>ステータス</strong>: パーサー完了、エグゼキューター統合済み / 更新日：2026-06-15</p>
+<h3 id="_5">実装済みコンポーネント</h3>
+<h4 id="serikoparserswift">✅ <strong>SerikoParser.swift</strong> (完全)</h4>
+<p>以下を含む完全な SERIKO/2.0 パーサー：
+- すべてのインターバルタイプ (always, sometimes, rarely, random, runonce, yen-e, talk, bind, never)
+- すべてのメソッドタイプ (overlay, overlayfast, base, move, isReducing, replace, start, alternativestart, stop, asis)
+- パターンパースとサーフェス定義
+- surfaces.txt パース</p>
+<h4 id="serikoexecutorswift">✅ <strong>SerikoExecutor.swift</strong> (接続済み)</h4>
+<p>以下を含む完全に機能するアニメーション実行エンジン：
+- アニメーション状態管理
+- executeAnimation()、startLoop() メソッド
+- すべての execute メソッド (overlay, base, move, reduce, replace, start, stop など)
+- 一時停止/再開/オフセット機能
+- コールバックシステム (onMethodInvoked, onPatternExecuted, onAnimationFinished)
+- ✅ GhostManager へのコールバック配線 (<code>GhostManager+Animation.swift</code>)</p>
+<h4 id="ghostmanageranimationswift">✅ <strong>GhostManager+Animation.swift</strong> (統合済み)</h4>
+<ul>
+<li>SerikoExecutor コールバック接続済み</li>
+<li>タイマー駆動ループ (<code>serikoExecutor.startLoop()</code>) と <code>\![anim,*]</code> ルーティング実装済み</li>
+</ul>
+<h3 id="_6">統合のギャップ</h3>
+<ul>
+<li>✅ <strong>SerikoExecutor コールバック接続済み</strong> - GhostManager アニメーションハンドラー経由で配線</li>
+<li>✅ <strong>SakuraScript アニメーションコマンドルーティング済み</strong> - ![anim,*] パスでアニメーション処理を制御</li>
+<li>⚠️ <strong>高度な着せ替え動作のカバレッジ</strong> - 機能パスは存在しますが、より広いゴースト行列検証は進行中</li>
+</ul>
+<h3 id="_7">ブロック中の問題</h3>
+<ul>
+<li>現在のトラッカーでアクティブな SERIKO ブロッカーはありません。</li>
+</ul>
+<h3 id="_8">必要な統合</h3>
+<p>詳細な統合手順については、archive/INTEGRATION_ROADMAP.md の<strong>フェーズ 3</strong> を参照してください：</p>
+<ol>
+<li><strong>SerikoExecutor を GhostManager に配線</strong> (タスク 3.1)：</li>
+<li>
+<p>GhostManager+Animation.swift 内：
+     ```swift
+     serikoExecutor.onMethodInvoked = { [weak self] method in
+         self?.handleSerikoMethod(method)
+     }</p>
+<p>serikoExecutor.onPatternExecuted = { [weak self] pattern in
+     self?.handleSerikoPattern(pattern)
+ }</p>
+<p>serikoExecutor.onAnimationFinished = { [weak self] animationId in
+     self?.handleAnimationFinished(animationId)
+ }
+ ```
+   - サーフェス/レンダリングを更新するハンドラーメソッドを実装</p>
+</li>
+<li>
+<p><strong>SakuraScript アニメーションコマンドを実装</strong> (タスク 3.2)：</p>
+</li>
+<li>SakuraScriptEngine.swift 内：
+     <code>swift
+     private func handleAnimCommand(arguments: [String]) {
+         let command = arguments[0]
+         switch command {
+         case "clear":
+             serikoExecutor.stopAnimation(id: animId)
+         case "pause":
+             serikoExecutor.pauseAnimation(id: animId)
+         // ... など
+         }
+     }</code></li>
+<li>
+<p>__w[animation,ID] のウェイトハンドラーを実装</p>
+</li>
+<li>
+<p><strong>テスト</strong> (タスク 3.3)：</p>
+</li>
+<li>アニメーションを持つゴーストをロード</li>
+<li>SakuraScript 経由でトリガー</li>
+<li>再生が機能することを確認</li>
+<li>一時停止/再開/オフセットをテスト</li>
+</ol>
+<h3 id="_9">成功基準</h3>
+<ul>
+<li>[x] GhostManager コールバック接続済み</li>
+<li>[x] アニメーションコマンド実行</li>
+<li>[x] 一時停止/再開/オフセット動作</li>
+<li>[x] 重大な SERIKO ブロッカー解決済み</li>
+<li>[ ] 完全なマルチゴースト画面上行列検証</li>
+</ul>
+<hr />
+<h2 id="_10">現在の制限</h2>
+<ul>
+<li>高度なオプション互換性はゴーストデータ形状によって異なります。</li>
+<li><code>animation&lt;ID&gt;.option</code> 内のすべての SERIKO オプションがまだランタイムで適用されていません。</li>
+<li>高度な SakuraScript アニメーション待機パターンとの統合は部分的なままです。</li>
+<li>レガシーと新しいパスはコンパチビリティのため共存します。動作はコマンド/データ形状によって異なる場合があります。</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

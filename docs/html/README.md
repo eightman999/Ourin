@@ -23,8 +23,8 @@ This directory contains HTML versions of all Ourin documentation.
 - 英語版 / English: `{DocumentName}_en-us.html`
 
 ### 翻訳ステータス / Translation Status
-- ✅ 完全翻訳 / Fully Translated: 5 documents
-- ⏳ 翻訳待ち / Translation Pending: 31 documents (placeholders)
+最新の翻訳状況は [TRANSLATION_MANIFEST.md](../TRANSLATION_MANIFEST.md) を参照してください。
+See [TRANSLATION_MANIFEST.md](../TRANSLATION_MANIFEST.md) for the current translation status.
 
 ## 主要ドキュメント / Key Documents
 
@@ -60,4 +60,4 @@ Ourin独自ドキュメントはCC BY-SA 4.0です。第三者資料は元のラ
 Original Ourin documentation is CC BY-SA 4.0. Third-party material retains its original license.
 
 ## 更新日 / Last Updated
-2025-10-23
+2026-08-15

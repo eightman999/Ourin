@@ -171,90 +171,90 @@
 <h2 id="2-yaya">2. YAYA言語仕様（実装対象）</h2>
 <h3 id="21-lexical-elements">2.1 字句要素（Lexical Elements）</h3>
 <h4 id="211">2.1.1 トークン種別</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TokenType</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// リテラル</span>
-<span class="w">    </span><span class="n">String</span><span class="p">,</span><span class="w">          </span><span class="c1">// &quot;文字列&quot;</span>
-<span class="w">    </span><span class="n">Integer</span><span class="p">,</span><span class="w">         </span><span class="c1">// 123</span>
-<span class="w">    </span><span class="n">Float</span><span class="p">,</span><span class="w">           </span><span class="c1">// 3.14</span>
+<pre class="codehilite"><code class="language-cpp">enum class TokenType {
+    // リテラル
+    String,          // &quot;文字列&quot;
+    Integer,         // 123
+    Float,           // 3.14
 
-<span class="w">    </span><span class="c1">// 識別子・キーワード</span>
-<span class="w">    </span><span class="n">Identifier</span><span class="p">,</span><span class="w">      </span><span class="c1">// 変数名・関数名</span>
-<span class="w">    </span><span class="n">If</span><span class="p">,</span><span class="w">              </span><span class="c1">// if</span>
-<span class="w">    </span><span class="n">Else</span><span class="p">,</span><span class="w">            </span><span class="c1">// else</span>
-<span class="w">    </span><span class="n">ElseIf</span><span class="p">,</span><span class="w">          </span><span class="c1">// elseif</span>
-<span class="w">    </span><span class="n">When</span><span class="p">,</span><span class="w">            </span><span class="c1">// when</span>
-<span class="w">    </span><span class="n">While</span><span class="p">,</span><span class="w">           </span><span class="c1">// while</span>
-<span class="w">    </span><span class="n">For</span><span class="p">,</span><span class="w">             </span><span class="c1">// for</span>
-<span class="w">    </span><span class="n">Foreach</span><span class="p">,</span><span class="w">         </span><span class="c1">// foreach</span>
-<span class="w">    </span><span class="n">Break</span><span class="p">,</span><span class="w">           </span><span class="c1">// break</span>
-<span class="w">    </span><span class="n">Continue</span><span class="p">,</span><span class="w">        </span><span class="c1">// continue</span>
-<span class="w">    </span><span class="n">Return</span><span class="p">,</span><span class="w">          </span><span class="c1">// return</span>
+    // 識別子・キーワード
+    Identifier,      // 変数名・関数名
+    If,              // if
+    Else,            // else
+    ElseIf,          // elseif
+    When,            // when
+    While,           // while
+    For,             // for
+    Foreach,         // foreach
+    Break,           // break
+    Continue,        // continue
+    Return,          // return
 
-<span class="w">    </span><span class="c1">// 演算子</span>
-<span class="w">    </span><span class="n">Assign</span><span class="p">,</span><span class="w">          </span><span class="c1">// =</span>
-<span class="w">    </span><span class="n">Plus</span><span class="p">,</span><span class="w">            </span><span class="c1">// +</span>
-<span class="w">    </span><span class="n">Minus</span><span class="p">,</span><span class="w">           </span><span class="c1">// -</span>
-<span class="w">    </span><span class="n">Multiply</span><span class="p">,</span><span class="w">        </span><span class="c1">// *</span>
-<span class="w">    </span><span class="n">Divide</span><span class="p">,</span><span class="w">          </span><span class="c1">// /</span>
-<span class="w">    </span><span class="n">Modulo</span><span class="p">,</span><span class="w">          </span><span class="c1">// %</span>
-<span class="w">    </span><span class="n">Equal</span><span class="p">,</span><span class="w">           </span><span class="c1">// ==</span>
-<span class="w">    </span><span class="n">NotEqual</span><span class="p">,</span><span class="w">        </span><span class="c1">// !=</span>
-<span class="w">    </span><span class="n">Less</span><span class="p">,</span><span class="w">            </span><span class="c1">// &lt;</span>
-<span class="w">    </span><span class="n">Greater</span><span class="p">,</span><span class="w">         </span><span class="c1">// &gt;</span>
-<span class="w">    </span><span class="n">LessEqual</span><span class="p">,</span><span class="w">       </span><span class="c1">// &lt;=</span>
-<span class="w">    </span><span class="n">GreaterEqual</span><span class="p">,</span><span class="w">    </span><span class="c1">// &gt;=</span>
-<span class="w">    </span><span class="n">LogicalAnd</span><span class="p">,</span><span class="w">      </span><span class="c1">// &amp;&amp;</span>
-<span class="w">    </span><span class="n">LogicalOr</span><span class="p">,</span><span class="w">       </span><span class="c1">// ||</span>
-<span class="w">    </span><span class="n">LogicalNot</span><span class="p">,</span><span class="w">      </span><span class="c1">// !</span>
-<span class="w">    </span><span class="n">BitwiseAnd</span><span class="p">,</span><span class="w">      </span><span class="c1">// &amp;</span>
-<span class="w">    </span><span class="n">BitwiseOr</span><span class="p">,</span><span class="w">       </span><span class="c1">// |</span>
-<span class="w">    </span><span class="n">BitwiseXor</span><span class="p">,</span><span class="w">      </span><span class="c1">// ^</span>
-<span class="w">    </span><span class="n">LeftShift</span><span class="p">,</span><span class="w">       </span><span class="c1">// &lt;&lt;</span>
-<span class="w">    </span><span class="n">RightShift</span><span class="p">,</span><span class="w">      </span><span class="c1">// &gt;&gt;</span>
-<span class="w">    </span><span class="n">Increment</span><span class="p">,</span><span class="w">       </span><span class="c1">// ++</span>
-<span class="w">    </span><span class="n">Decrement</span><span class="p">,</span><span class="w">       </span><span class="c1">// --</span>
-<span class="w">    </span><span class="n">Question</span><span class="p">,</span><span class="w">        </span><span class="c1">// ?</span>
-<span class="w">    </span><span class="n">Colon</span><span class="p">,</span><span class="w">           </span><span class="c1">// :</span>
-<span class="w">    </span><span class="n">Comma</span><span class="p">,</span><span class="w">           </span><span class="c1">// ,</span>
-<span class="w">    </span><span class="n">Semicolon</span><span class="p">,</span><span class="w">       </span><span class="c1">// ;</span>
-<span class="w">    </span><span class="n">Match</span><span class="p">,</span><span class="w">           </span><span class="c1">// =~ (正規表現マッチ)</span>
-<span class="w">    </span><span class="n">NotMatch</span><span class="p">,</span><span class="w">        </span><span class="c1">// !~ (正規表現非マッチ)</span>
+    // 演算子
+    Assign,          // =
+    Plus,            // +
+    Minus,           // -
+    Multiply,        // *
+    Divide,          // /
+    Modulo,          // %
+    Equal,           // ==
+    NotEqual,        // !=
+    Less,            // &lt;
+    Greater,         // &gt;
+    LessEqual,       // &lt;=
+    GreaterEqual,    // &gt;=
+    LogicalAnd,      // &amp;&amp;
+    LogicalOr,       // ||
+    LogicalNot,      // !
+    BitwiseAnd,      // &amp;
+    BitwiseOr,       // |
+    BitwiseXor,      // ^
+    LeftShift,       // &lt;&lt;
+    RightShift,      // &gt;&gt;
+    Increment,       // ++
+    Decrement,       // --
+    Question,        // ?
+    Colon,           // :
+    Comma,           // ,
+    Semicolon,       // ;
+    Match,           // =~ (正規表現マッチ)
+    NotMatch,        // !~ (正規表現非マッチ)
 
-<span class="w">    </span><span class="c1">// 区切り文字</span>
-<span class="w">    </span><span class="n">LeftBrace</span><span class="p">,</span><span class="w">       </span><span class="c1">// {</span>
-<span class="w">    </span><span class="n">RightBrace</span><span class="p">,</span><span class="w">      </span><span class="c1">// }</span>
-<span class="w">    </span><span class="n">LeftParen</span><span class="p">,</span><span class="w">       </span><span class="c1">// (</span>
-<span class="w">    </span><span class="n">RightParen</span><span class="p">,</span><span class="w">      </span><span class="c1">// )</span>
-<span class="w">    </span><span class="n">LeftBracket</span><span class="p">,</span><span class="w">     </span><span class="c1">// [</span>
-<span class="w">    </span><span class="n">RightBracket</span><span class="p">,</span><span class="w">    </span><span class="c1">// ]</span>
+    // 区切り文字
+    LeftBrace,       // {
+    RightBrace,      // }
+    LeftParen,       // (
+    RightParen,      // )
+    LeftBracket,     // [
+    RightBracket,    // ]
 
-<span class="w">    </span><span class="c1">// 特殊</span>
-<span class="w">    </span><span class="n">Comment</span><span class="p">,</span><span class="w">         </span><span class="c1">// // または /* */</span>
-<span class="w">    </span><span class="n">Newline</span><span class="p">,</span><span class="w">         </span><span class="c1">// 改行</span>
-<span class="w">    </span><span class="n">Eof</span><span class="p">,</span><span class="w">             </span><span class="c1">// ファイル終端</span>
-<span class="w">    </span><span class="n">Invalid</span><span class="w">          </span><span class="c1">// エラートークン</span>
-<span class="p">};</span>
-</code></pre></div>
+    // 特殊
+    Comment,         // // または /* */
+    Newline,         // 改行
+    Eof,             // ファイル終端
+    Invalid          // エラートークン
+};
+</code></pre>
 
 <h4 id="212">2.1.2 コメント</h4>
-<div class="codehilite"><pre><span></span><code><span class="c1">// 行コメント（行末まで）</span>
+<pre class="codehilite"><code class="language-yaya">// 行コメント（行末まで）
 
-<span class="o">/*</span>
-<span class="w"> </span><span class="o">*</span><span class="w"> </span>ブロックコメント
-<span class="w"> </span><span class="o">*</span><span class="w"> </span>複数行対応
-<span class="w"> </span><span class="o">*/</span>
-</code></pre></div>
+/*
+ * ブロックコメント
+ * 複数行対応
+ */
+</code></pre>
 
 <h4 id="213">2.1.3 文字列リテラル</h4>
-<div class="codehilite"><pre><span></span><code><span class="c1">// 基本文字列</span>
-<span class="s">&quot;Hello, World&quot;</span>
+<pre class="codehilite"><code class="language-yaya">// 基本文字列
+&quot;Hello, World&quot;
 
-<span class="c1">// SakuraScript埋め込み</span>
-<span class="s">&quot;\0\s[0]こんにちは\e&quot;</span>
+// SakuraScript埋め込み
+&quot;\0\s[0]こんにちは\e&quot;
 
-<span class="c1">// エスケープシーケンス</span>
-<span class="s">&quot;改行\n タブ\t クォート\&quot;</span><span class="w"> </span>バックスラッシュ<span class="o">\\</span>&quot;
-</code></pre></div>
+// エスケープシーケンス
+&quot;改行\n タブ\t クォート\&quot; バックスラッシュ\\&quot;
+</code></pre>
 
 <p><strong>エスケープ処理</strong>:
 - <code>\n</code> → LF (0x0A)
@@ -264,203 +264,203 @@
 - その他 → そのまま（SakuraScript互換）</p>
 <h3 id="22">2.2 データ型</h3>
 <h4 id="221">2.2.1 基本型</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Value</span><span class="w"> </span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-<span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Type</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">Void</span><span class="p">,</span><span class="w">       </span><span class="c1">// 未初期化・戻り値なし</span>
-<span class="w">        </span><span class="n">Integer</span><span class="p">,</span><span class="w">    </span><span class="c1">// 整数（int64_t）</span>
-<span class="w">        </span><span class="n">Float</span><span class="p">,</span><span class="w">      </span><span class="c1">// 浮動小数点（double）</span>
-<span class="w">        </span><span class="n">String</span><span class="p">,</span><span class="w">     </span><span class="c1">// 文字列（std::string, UTF-8）</span>
-<span class="w">        </span><span class="n">Array</span><span class="p">,</span><span class="w">      </span><span class="c1">// 配列（std::vector&lt;Value&gt;）</span>
-<span class="w">        </span><span class="n">Dict</span><span class="w">        </span><span class="c1">// 連想配列（std::map&lt;std::string, Value&gt;）</span>
-<span class="w">    </span><span class="p">};</span>
+<pre class="codehilite"><code class="language-cpp">class Value {
+public:
+    enum class Type {
+        Void,       // 未初期化・戻り値なし
+        Integer,    // 整数（int64_t）
+        Float,      // 浮動小数点（double）
+        String,     // 文字列（std::string, UTF-8）
+        Array,      // 配列（std::vector&lt;Value&gt;）
+        Dict        // 連想配列（std::map&lt;std::string, Value&gt;）
+    };
 
-<span class="k">private</span><span class="o">:</span>
-<span class="w">    </span><span class="n">Type</span><span class="w"> </span><span class="n">type_</span><span class="p">;</span>
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">monostate</span><span class="p">,</span><span class="w">              </span><span class="c1">// Void</span>
-<span class="w">        </span><span class="kt">int64_t</span><span class="p">,</span><span class="w">                     </span><span class="c1">// Integer</span>
-<span class="w">        </span><span class="kt">double</span><span class="p">,</span><span class="w">                      </span><span class="c1">// Float</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w">                 </span><span class="c1">// String</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Value</span><span class="o">&gt;</span><span class="p">,</span><span class="w">          </span><span class="c1">// Array</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="o">&gt;</span><span class="w"> </span><span class="c1">// Dict</span>
-<span class="w">    </span><span class="o">&gt;</span><span class="w"> </span><span class="n">data_</span><span class="p">;</span>
-<span class="p">};</span>
-</code></pre></div>
+private:
+    Type type_;
+    std::variant&lt;
+        std::monostate,              // Void
+        int64_t,                     // Integer
+        double,                      // Float
+        std::string,                 // String
+        std::vector&lt;Value&gt;,          // Array
+        std::map&lt;std::string, Value&gt; // Dict
+    &gt; data_;
+};
+</code></pre>
 
 <h4 id="222">2.2.2 型変換規則</h4>
 <p><strong>暗黙的変換</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="err">数値</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">文字列（算術演算外の文脈）</span>
-<span class="n">_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">123</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">&quot;abc&quot;</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="s2">&quot;123abc&quot;</span>
+<pre class="codehilite"><code class="language-yaya">// 数値 → 文字列（算術演算外の文脈）
+_var = 123 + &quot;abc&quot;  // &quot;123abc&quot;
 
-<span class="o">//</span><span class="w"> </span><span class="err">文字列</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">数値（算術演算）</span>
-<span class="n">_num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;123&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">456</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="mi">579</span>
+// 文字列 → 数値（算術演算）
+_num = &quot;123&quot; + 456  // 579
 
-<span class="o">//</span><span class="w"> </span><span class="err">論理値（真偽判定）</span>
-<span class="o">//</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="err">整数</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">false</span><span class="p">,</span><span class="w"> </span><span class="err">非</span><span class="mi">0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">true</span>
-<span class="o">//</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="err">文字列</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">false</span><span class="p">,</span><span class="w"> </span><span class="err">非空</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">true</span>
-<span class="o">//</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="err">配列</span><span class="p">:</span><span class="w"> </span><span class="err">空</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">false</span><span class="p">,</span><span class="w"> </span><span class="err">非空</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">true</span>
-</code></pre></div>
+// 論理値（真偽判定）
+// - 整数: 0 = false, 非0 = true
+// - 文字列: &quot;&quot; = false, 非空 = true
+// - 配列: 空 = false, 非空 = true
+</code></pre>
 
 <h3 id="23">2.3 式と文</h3>
 <h4 id="231-expressions">2.3.1 式（Expressions）</h4>
-<div class="codehilite"><pre><span></span><code><span class="c1">// 算術式</span>
-<span class="n">_result</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="mi">10</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span>
+<pre class="codehilite"><code class="language-yaya">// 算術式
+_result = (10 + 20) * 3 / 2
 
-<span class="c1">// 比較式</span>
-<span class="n">_is_greater</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">_a</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">_b</span>
+// 比較式
+_is_greater = _a &gt; _b
 
-<span class="c1">// 論理式</span>
-<span class="n">_both</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="n">_a</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">_b</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span>
+// 論理式
+_both = (_a &gt; 0) &amp;&amp; (_b &lt; 100)
 
-<span class="c1">// 三項演算子</span>
-<span class="n">_value</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">_condition</span><span class="w"> </span>?<span class="w"> </span><span class="s">&quot;yes&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;no&quot;</span>
+// 三項演算子
+_value = _condition ? &quot;yes&quot; : &quot;no&quot;
 
-<span class="c1">// 文字列連結</span>
-<span class="n">_greeting</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;Hello, &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">_name</span>
+// 文字列連結
+_greeting = &quot;Hello, &quot; + _name
 
-<span class="c1">// 配列アクセス</span>
-<span class="n">_item</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+// 配列アクセス
+_item = _array[0]
 
-<span class="c1">// 関数呼び出し</span>
-<span class="n">_random</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">RAND</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-</code></pre></div>
+// 関数呼び出し
+_random = RAND(10)
+</code></pre>
 
 <h4 id="232-statements">2.3.2 文（Statements）</h4>
-<div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="err">代入文</span>
-<span class="n">_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">123</span>
+<pre class="codehilite"><code class="language-yaya">// 代入文
+_var = 123
 
-<span class="o">//</span><span class="w"> </span><span class="err">条件分岐</span>
-<span class="k">if</span><span class="w"> </span><span class="n">_condition</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="err">真の場合</span>
-<span class="p">}</span>
-<span class="n">elseif</span><span class="w"> </span><span class="n">_another</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="err">別の条件</span>
-<span class="p">}</span>
-<span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="err">それ以外</span>
-<span class="p">}</span>
+// 条件分岐
+if _condition {
+    // 真の場合
+}
+elseif _another {
+    // 別の条件
+}
+else {
+    // それ以外
+}
 
-<span class="o">//</span><span class="w"> </span><span class="n">when文</span><span class="err">（値による分岐）</span>
-<span class="n">when</span><span class="w"> </span><span class="n">_value</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;one&quot;</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;two&quot;</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="n">others</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;many&quot;</span><span class="w"> </span><span class="p">}</span>
-<span class="p">}</span>
+// when文（値による分岐）
+when _value {
+    1: { &quot;one&quot; }
+    2: { &quot;two&quot; }
+    others: { &quot;many&quot; }
+}
 
-<span class="o">//</span><span class="w"> </span><span class="n">while文</span>
-<span class="k">while</span><span class="w"> </span><span class="n">_count</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">_count</span><span class="o">++</span>
-<span class="p">}</span>
+// while文
+while _count &lt; 10 {
+    _count++
+}
 
-<span class="o">//</span><span class="w"> </span><span class="n">foreach文</span>
-<span class="n">foreach</span><span class="w"> </span><span class="n">_array</span><span class="p">;</span><span class="w"> </span><span class="n">_item</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="n">_itemで各要素にアクセス</span>
-<span class="p">}</span>
+// foreach文
+foreach _array; _item {
+    // _itemで各要素にアクセス
+}
 
-<span class="o">//</span><span class="w"> </span><span class="k">break</span><span class="o">/</span><span class="k">continue</span>
-<span class="k">break</span>
-<span class="k">continue</span>
+// break/continue
+break
+continue
 
-<span class="o">//</span><span class="w"> </span><span class="k">return</span><span class="err">（関数終了・戻り値）</span>
-<span class="k">return</span><span class="w"> </span><span class="n">_result</span>
-</code></pre></div>
+// return（関数終了・戻り値）
+return _result
+</code></pre>
 
 <h3 id="24">2.4 関数定義</h3>
 <h4 id="241">2.4.1 基本構文</h4>
-<div class="codehilite"><pre><span></span><code><span class="c1">// 関数定義</span>
-<span class="n">FunctionName</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// 処理</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;result&quot;</span>
-<span class="p">}</span>
+<pre class="codehilite"><code class="language-yaya">// 関数定義
+FunctionName {
+    // 処理
+    return &quot;result&quot;
+}
 
-<span class="c1">// 引数なし関数</span>
-<span class="n">OnBoot</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="s">&quot;\0\s[0]起動しました\e&quot;</span>
-<span class="p">}</span>
+// 引数なし関数
+OnBoot {
+    &quot;\0\s[0]起動しました\e&quot;
+}
 
-<span class="c1">// 引数あり関数（暗黙的パラメータ）</span>
-<span class="n">OnMouseClick</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// reference[0], reference[1], ... で引数アクセス</span>
-<span class="w">    </span><span class="n">when</span><span class="w"> </span><span class="n">reference</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="mi">0</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;\0\s[0]さくらがクリックされました&quot;</span><span class="w"> </span><span class="p">}</span>
-<span class="w">        </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;\1\s[10]うにゅうがクリックされました&quot;</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
+// 引数あり関数（暗黙的パラメータ）
+OnMouseClick {
+    // reference[0], reference[1], ... で引数アクセス
+    when reference[0] {
+        0: { &quot;\0\s[0]さくらがクリックされました&quot; }
+        1: { &quot;\1\s[10]うにゅうがクリックされました&quot; }
+    }
+}
+</code></pre>
 
 <h4 id="242">2.4.2 組み込み変数</h4>
 <p><strong>SHIORI固有</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">reference</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="w">     </span><span class="o">//</span><span class="w"> </span><span class="n">第1引数</span>
-<span class="n">reference</span><span class="o">[</span><span class="n">1</span><span class="o">]</span><span class="w">     </span><span class="o">//</span><span class="w"> </span><span class="n">第2引数</span>
-<span class="n">reference</span><span class="o">[</span><span class="n">n</span><span class="o">]</span><span class="w">     </span><span class="o">//</span><span class="w"> </span><span class="n">第n</span><span class="o">+</span><span class="mi">1</span><span class="n">引数</span>
+<pre class="codehilite"><code class="language-yaya">reference[0]     // 第1引数
+reference[1]     // 第2引数
+reference[n]     // 第n+1引数
 
-<span class="n">charset</span><span class="w">          </span><span class="o">//</span><span class="w"> </span><span class="n">文字コード</span><span class="err">（</span><span class="ss">&quot;UTF-8&quot;</span><span class="w"> </span><span class="n">など</span><span class="err">）</span>
-<span class="n">sender</span><span class="w">           </span><span class="o">//</span><span class="w"> </span><span class="n">送信元</span><span class="err">（</span><span class="ss">&quot;Ourin&quot;</span><span class="w"> </span><span class="n">など</span><span class="err">）</span>
-</code></pre></div>
+charset          // 文字コード（&quot;UTF-8&quot; など）
+sender           // 送信元（&quot;Ourin&quot; など）
+</code></pre>
 
 <p><strong>システム変数</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="n">実装予定</span>
-<span class="n">_argc</span><span class="w">            </span><span class="o">//</span><span class="w"> </span><span class="n">引数の数</span>
-<span class="n">_argv</span><span class="o">[</span><span class="n">n</span><span class="o">]</span><span class="w">         </span><span class="o">//</span><span class="w"> </span><span class="n">引数配列</span><span class="err">（</span><span class="n">reference</span><span class="err">[]</span><span class="n">のエイリアス</span><span class="err">）</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-yaya">// 実装予定
+_argc            // 引数の数
+_argv[n]         // 引数配列（reference[]のエイリアス）
+</code></pre>
 
 <h3 id="25">2.5 組み込み関数</h3>
 <h4 id="251-phase-1">2.5.1 Phase 1 必須関数</h4>
 <p><strong>乱数</strong>:</p>
-<div class="codehilite"><pre><span></span><code>RAND(max)        // 0 〜 max-1 の整数乱数
-</code></pre></div>
+<pre class="codehilite"><code class="language-yaya">RAND(max)        // 0 〜 max-1 の整数乱数
+</code></pre>
 
 <p><strong>文字列操作</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">STRLEN</span><span class="p">(</span><span class="nf">str</span><span class="p">)</span><span class="w">      </span><span class="o">//</span><span class="w"> </span><span class="n">文字列長</span><span class="err">（</span><span class="n">UTF</span><span class="o">-</span><span class="mi">8</span><span class="n">文字数</span><span class="err">）</span>
-<span class="n">STRSTR</span><span class="p">(</span><span class="n">hay</span><span class="p">,</span><span class="w"> </span><span class="n">needle</span><span class="p">,</span><span class="w"> </span><span class="o">[</span><span class="n">start</span><span class="o">]</span><span class="p">)</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="n">部分文字列検索</span><span class="err">（</span><span class="n">位置返却</span><span class="err">、</span><span class="o">-</span><span class="mi">1</span><span class="o">=</span><span class="n">未発見</span><span class="err">、</span><span class="n">start省略可</span><span class="err">）</span>
-<span class="n">SUBSTR</span><span class="p">(</span><span class="nf">str</span><span class="p">,</span><span class="w"> </span><span class="k">start</span><span class="p">,</span><span class="w"> </span><span class="nf">len</span><span class="p">)</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="n">部分文字列取得</span>
-<span class="n">TOUPPER</span><span class="p">(</span><span class="nf">str</span><span class="p">)</span><span class="w">     </span><span class="o">//</span><span class="w"> </span><span class="n">大文字化</span>
-<span class="n">TOLOWER</span><span class="p">(</span><span class="nf">str</span><span class="p">)</span><span class="w">     </span><span class="o">//</span><span class="w"> </span><span class="n">小文字化</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-yaya">STRLEN(str)      // 文字列長（UTF-8文字数）
+STRSTR(hay, needle, [start])  // 部分文字列検索（位置返却、-1=未発見、start省略可）
+SUBSTR(str, start, len)  // 部分文字列取得
+TOUPPER(str)     // 大文字化
+TOLOWER(str)     // 小文字化
+</code></pre>
 
 <p><strong>配列操作</strong>:</p>
-<div class="codehilite"><pre><span></span><code>ARRAYSIZE(arr)   // 配列サイズ
+<pre class="codehilite"><code class="language-yaya">ARRAYSIZE(arr)   // 配列サイズ
 IARRAY           // 空配列作成
-</code></pre></div>
+</code></pre>
 
 <p><strong>型変換</strong>:</p>
-<div class="codehilite"><pre><span></span><code>TOINT(val)       // 整数化
+<pre class="codehilite"><code class="language-yaya">TOINT(val)       // 整数化
 TOSTR(val)       // 文字列化
-</code></pre></div>
+</code></pre>
 
 <p><strong>判定</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">ISVAR</span><span class="p">(</span><span class="n">varname</span><span class="p">)</span><span class="w">   </span><span class="o">//</span><span class="w"> </span><span class="err">変数が定義済みか</span>
-<span class="n">ISFUNC</span><span class="p">(</span><span class="n">funcname</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="err">関数が定義済みか</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-yaya">ISVAR(varname)   // 変数が定義済みか
+ISFUNC(funcname) // 関数が定義済みか
+</code></pre>
 
 <h4 id="252-phase-2">2.5.2 Phase 2 拡張関数</h4>
 <p><strong>正規表現</strong>:</p>
-<div class="codehilite"><pre><span></span><code>RE_MATCH(str, pattern)     // マッチ判定
+<pre class="codehilite"><code class="language-yaya">RE_MATCH(str, pattern)     // マッチ判定
 RE_SEARCH(str, pattern)    // マッチ位置
 RE_REPLACE(str, pattern, replacement)  // 置換
-</code></pre></div>
+</code></pre>
 
 <p><strong>日時</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">GETTIME</span>[<span class="mi">0</span>]<span class="w">       </span><span class="o">//</span><span class="w"> </span>年
-<span class="k">GETTIME</span>[<span class="mi">1</span>]<span class="w">       </span><span class="o">//</span><span class="w"> </span>月
-<span class="k">GETTIME</span>[<span class="mi">2</span>]<span class="w">       </span><span class="o">//</span><span class="w"> </span>日
-<span class="k">GETTIME</span>[<span class="mi">3</span>]<span class="w">       </span><span class="o">//</span><span class="w"> </span>時
-<span class="k">GETTIME</span>[<span class="mi">4</span>]<span class="w">       </span><span class="o">//</span><span class="w"> </span>分
-<span class="k">GETTIME</span>[<span class="mi">5</span>]<span class="w">       </span><span class="o">//</span><span class="w"> </span>秒
-</code></pre></div>
+<pre class="codehilite"><code class="language-yaya">GETTIME[0]       // 年
+GETTIME[1]       // 月
+GETTIME[2]       // 日
+GETTIME[3]       // 時
+GETTIME[4]       // 分
+GETTIME[5]       // 秒
+</code></pre>
 
 <p><strong>ファイル操作</strong>:</p>
-<div class="codehilite"><pre><span></span><code>FOPEN(path, mode)
+<pre class="codehilite"><code class="language-yaya">FOPEN(path, mode)
 FREAD(handle)
 FWRITE(handle, data)
 FCLOSE(handle)
-</code></pre></div>
+</code></pre>
 
 <hr />
 <h2 id="3">3. アーキテクチャ詳細</h2>
 <h3 id="31">3.1 クラス構成</h3>
-<div class="codehilite"><pre><span></span><code>yaya_core/src/
+<pre class="codehilite"><code>yaya_core/src/
 ├── main.cpp                    # エントリポイント
 ├── YayaCore.{cpp,hpp}          # コントローラー
 ├── DictionaryManager.{cpp,hpp} # 辞書管理
@@ -474,7 +474,7 @@ FCLOSE(handle)
 ├── BuiltinFunctions.{cpp,hpp}  # 組み込み関数
 ├── ShioriAdapter.{cpp,hpp}     # SHIORI変換
 └── Utils.{cpp,hpp}             # ユーティリティ
-</code></pre></div>
+</code></pre>
 
 <h3 id="32-lexer">3.2 字句解析器（Lexer）</h3>
 <h4 id="321">3.2.1 責務</h4>
@@ -485,117 +485,117 @@ FCLOSE(handle)
 <li>エラー位置記録</li>
 </ul>
 <h4 id="322">3.2.2 インターフェース</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Lexer</span><span class="w"> </span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-<span class="w">    </span><span class="k">explicit</span><span class="w"> </span><span class="n">Lexer</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">source</span><span class="p">);</span>
+<pre class="codehilite"><code class="language-cpp">class Lexer {
+public:
+    explicit Lexer(std::string source);
 
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Token</span><span class="o">&gt;</span><span class="w"> </span><span class="n">tokenize</span><span class="p">();</span>
+    std::vector&lt;Token&gt; tokenize();
 
-<span class="k">private</span><span class="o">:</span>
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">source_</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">pos_</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">line_</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">column_</span><span class="p">;</span>
+private:
+    std::string source_;
+    size_t pos_;
+    size_t line_;
+    size_t column_;
 
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="nf">peek</span><span class="p">();</span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="nf">advance</span><span class="p">();</span>
-<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">match</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="n">expected</span><span class="p">);</span>
+    char peek();
+    char advance();
+    bool match(char expected);
 
-<span class="w">    </span><span class="n">Token</span><span class="w"> </span><span class="nf">makeToken</span><span class="p">(</span><span class="n">TokenType</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
-<span class="w">    </span><span class="n">Token</span><span class="w"> </span><span class="nf">makeString</span><span class="p">();</span>
-<span class="w">    </span><span class="n">Token</span><span class="w"> </span><span class="nf">makeNumber</span><span class="p">();</span>
-<span class="w">    </span><span class="n">Token</span><span class="w"> </span><span class="nf">makeIdentifier</span><span class="p">();</span>
+    Token makeToken(TokenType type);
+    Token makeString();
+    Token makeNumber();
+    Token makeIdentifier();
 
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">skipWhitespace</span><span class="p">();</span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">skipLineComment</span><span class="p">();</span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">skipBlockComment</span><span class="p">();</span>
-<span class="p">};</span>
-</code></pre></div>
+    void skipWhitespace();
+    void skipLineComment();
+    void skipBlockComment();
+};
+</code></pre>
 
 <h3 id="33-parser">3.3 構文解析器（Parser）</h3>
 <h4 id="331-bnf">3.3.1 文法（簡略版BNF）</h4>
-<div class="codehilite"><pre><span></span><code><span class="nv">Program</span><span class="w">       </span><span class="o">:=</span><span class="w"> </span><span class="nv">FunctionDef</span><span class="o">*</span>
-<span class="nv">FunctionDef</span><span class="w">   </span><span class="o">:=</span><span class="w"> </span><span class="nv">Identifier</span><span class="w"> </span><span class="o">&#39;</span><span class="p">{</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Statement</span><span class="o">*</span><span class="w"> </span><span class="o">&#39;</span><span class="p">}</span><span class="o">&#39;</span>
-<span class="nv">Statement</span><span class="w">     </span><span class="o">:=</span><span class="w"> </span><span class="nv">IfStmt</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">WhileStmt</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">ForEachStmt</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">ReturnStmt</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">ExprStmt</span>
-<span class="nv">IfStmt</span><span class="w">        </span><span class="o">:=</span><span class="w"> </span><span class="o">&#39;</span><span class="k">if</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Expression</span><span class="w"> </span><span class="o">&#39;</span><span class="p">{</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Statement</span><span class="o">*</span><span class="w"> </span><span class="o">&#39;</span><span class="p">}</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">ElseClause</span>?
-<span class="nv">ElseClause</span><span class="w">    </span><span class="o">:=</span><span class="w"> </span><span class="o">&#39;</span><span class="k">else</span><span class="o">&#39;</span><span class="w"> </span><span class="p">(</span><span class="nv">IfStmt</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;</span><span class="p">{</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Statement</span><span class="o">*</span><span class="w"> </span><span class="o">&#39;</span><span class="p">}</span><span class="o">&#39;</span><span class="p">)</span>
-<span class="nv">WhileStmt</span><span class="w">     </span><span class="o">:=</span><span class="w"> </span><span class="o">&#39;</span><span class="k">while</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Expression</span><span class="w"> </span><span class="o">&#39;</span><span class="p">{</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Statement</span><span class="o">*</span><span class="w"> </span><span class="o">&#39;</span><span class="p">}</span><span class="o">&#39;</span>
-<span class="nv">ForEachStmt</span><span class="w">   </span><span class="o">:=</span><span class="w"> </span><span class="o">&#39;</span><span class="k">for</span><span class="nv">each</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Expression</span><span class="w"> </span><span class="o">&#39;</span><span class="p">;</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Identifier</span><span class="w"> </span><span class="o">&#39;</span><span class="p">{</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Statement</span><span class="o">*</span><span class="w"> </span><span class="o">&#39;</span><span class="p">}</span><span class="o">&#39;</span>
-<span class="nv">ReturnStmt</span><span class="w">    </span><span class="o">:=</span><span class="w"> </span><span class="o">&#39;</span><span class="nv">return</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Expression</span>?
-<span class="nv">ExprStmt</span><span class="w">      </span><span class="o">:=</span><span class="w"> </span><span class="nv">Expression</span>
+<pre class="codehilite"><code>Program       := FunctionDef*
+FunctionDef   := Identifier '{' Statement* '}'
+Statement     := IfStmt | WhileStmt | ForEachStmt | ReturnStmt | ExprStmt
+IfStmt        := 'if' Expression '{' Statement* '}' ElseClause?
+ElseClause    := 'else' (IfStmt | '{' Statement* '}')
+WhileStmt     := 'while' Expression '{' Statement* '}'
+ForEachStmt   := 'foreach' Expression ';' Identifier '{' Statement* '}'
+ReturnStmt    := 'return' Expression?
+ExprStmt      := Expression
 
-<span class="nv">Expression</span><span class="w">    </span><span class="o">:=</span><span class="w"> </span><span class="nv">Assignment</span>
-<span class="nv">Assignment</span><span class="w">    </span><span class="o">:=</span><span class="w"> </span><span class="nf">Ternary</span><span class="w"> </span><span class="p">(</span><span class="o">&#39;=&#39;</span><span class="w"> </span><span class="nv">Assignment</span><span class="p">)</span>?
-<span class="nv">Ternary</span><span class="w">       </span><span class="o">:=</span><span class="w"> </span><span class="nf">LogicalOr</span><span class="w"> </span><span class="p">(</span><span class="o">&#39;</span>?<span class="o">&#39;</span><span class="w"> </span><span class="nv">Expression</span><span class="w"> </span><span class="o">&#39;:&#39;</span><span class="w"> </span><span class="nv">Ternary</span><span class="p">)</span>?
-<span class="nv">LogicalOr</span><span class="w">     </span><span class="o">:=</span><span class="w"> </span><span class="nf">LogicalAnd</span><span class="w"> </span><span class="p">(</span><span class="o">&#39;||&#39;</span><span class="w"> </span><span class="nv">LogicalAnd</span><span class="p">)</span><span class="o">*</span>
-<span class="nv">LogicalAnd</span><span class="w">    </span><span class="o">:=</span><span class="w"> </span><span class="nf">Equality</span><span class="w"> </span><span class="p">(</span><span class="o">&#39;</span>&amp;&amp;<span class="o">&#39;</span><span class="w"> </span><span class="nv">Equality</span><span class="p">)</span><span class="o">*</span>
-<span class="nv">Equality</span><span class="w">      </span><span class="o">:=</span><span class="w"> </span><span class="nf">Relational</span><span class="w"> </span><span class="p">((</span><span class="o">&#39;==&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;!=&#39;</span><span class="p">)</span><span class="w"> </span><span class="nv">Relational</span><span class="p">)</span><span class="o">*</span>
-<span class="nv">Relational</span><span class="w">    </span><span class="o">:=</span><span class="w"> </span><span class="nf">Additive</span><span class="w"> </span><span class="p">((</span><span class="o">&#39;&lt;&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;&gt;&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;&lt;=&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;&gt;=&#39;</span><span class="p">)</span><span class="w"> </span><span class="nv">Additive</span><span class="p">)</span><span class="o">*</span>
-<span class="nv">Additive</span><span class="w">      </span><span class="o">:=</span><span class="w"> </span><span class="nf">Multiplicative</span><span class="w"> </span><span class="p">((</span><span class="o">&#39;+&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;-&#39;</span><span class="p">)</span><span class="w"> </span><span class="nv">Multiplicative</span><span class="p">)</span><span class="o">*</span>
-<span class="nv">Multiplicative</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">Unary</span><span class="w"> </span><span class="p">((</span><span class="o">&#39;*&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;/&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;</span><span class="nv">%</span><span class="o">&#39;</span><span class="p">)</span><span class="w"> </span><span class="nv">Unary</span><span class="p">)</span><span class="o">*</span>
-<span class="nv">Unary</span><span class="w">         </span><span class="o">:=</span><span class="w"> </span><span class="p">(</span><span class="o">&#39;!&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;-&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;++&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;--&#39;</span><span class="p">)</span><span class="w"> </span><span class="nv">Unary</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">Postfix</span>
-<span class="nv">Postfix</span><span class="w">       </span><span class="o">:=</span><span class="w"> </span><span class="nf">Primary</span><span class="w"> </span><span class="p">(</span><span class="o">&#39;++&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;--&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;</span><span class="p">[</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Expression</span><span class="w"> </span><span class="o">&#39;</span><span class="p">]</span><span class="o">&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;</span><span class="p">(</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">ArgList</span>?<span class="w"> </span><span class="o">&#39;</span><span class="p">)</span><span class="o">&#39;</span><span class="p">)</span><span class="o">*</span>
-<span class="nv">Primary</span><span class="w">       </span><span class="o">:=</span><span class="w"> </span><span class="nv">Identifier</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">Number</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">String</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">&#39;</span><span class="p">(</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Expression</span><span class="w"> </span><span class="o">&#39;</span><span class="p">)</span><span class="o">&#39;</span>
+Expression    := Assignment
+Assignment    := Ternary ('=' Assignment)?
+Ternary       := LogicalOr ('?' Expression ':' Ternary)?
+LogicalOr     := LogicalAnd ('||' LogicalAnd)*
+LogicalAnd    := Equality ('&amp;&amp;' Equality)*
+Equality      := Relational (('==' | '!=') Relational)*
+Relational    := Additive (('&lt;' | '&gt;' | '&lt;=' | '&gt;=') Additive)*
+Additive      := Multiplicative (('+' | '-') Multiplicative)*
+Multiplicative := Unary (('*' | '/' | '%') Unary)*
+Unary         := ('!' | '-' | '++' | '--') Unary | Postfix
+Postfix       := Primary ('++' | '--' | '[' Expression ']' | '(' ArgList? ')')*
+Primary       := Identifier | Number | String | '(' Expression ')'
 
-<span class="nv">ArgList</span><span class="w">       </span><span class="o">:=</span><span class="w"> </span><span class="nf">Expression</span><span class="w"> </span><span class="p">(</span><span class="o">&#39;</span><span class="p">,</span><span class="o">&#39;</span><span class="w"> </span><span class="nv">Expression</span><span class="p">)</span><span class="o">*</span>
-</code></pre></div>
+ArgList       := Expression (',' Expression)*
+</code></pre>
 
 <h4 id="332-ast">3.3.2 抽象構文木（AST）</h4>
-<div class="codehilite"><pre><span></span><code><span class="c1">// 基底クラス</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">ASTNode</span><span class="w"> </span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-<span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="o">~</span><span class="n">ASTNode</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span>
-<span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="n">VM</span><span class="o">&amp;</span><span class="w"> </span><span class="n">vm</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="p">};</span>
+<pre class="codehilite"><code class="language-cpp">// 基底クラス
+class ASTNode {
+public:
+    virtual ~ASTNode() = default;
+    virtual Value evaluate(VM&amp; vm) = 0;
+};
 
-<span class="c1">// 式ノード</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">ExpressionNode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ASTNode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">BinaryOpNode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ExpressionNode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">UnaryOpNode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ExpressionNode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">LiteralNode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ExpressionNode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">IdentifierNode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ExpressionNode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">CallNode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ExpressionNode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
+// 式ノード
+class ExpressionNode : public ASTNode { /* ... */ };
+class BinaryOpNode : public ExpressionNode { /* ... */ };
+class UnaryOpNode : public ExpressionNode { /* ... */ };
+class LiteralNode : public ExpressionNode { /* ... */ };
+class IdentifierNode : public ExpressionNode { /* ... */ };
+class CallNode : public ExpressionNode { /* ... */ };
 
-<span class="c1">// 文ノード</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">StatementNode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ASTNode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">IfStatementNode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">StatementNode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">WhileStatementNode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">StatementNode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">ReturnStatementNode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">StatementNode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
+// 文ノード
+class StatementNode : public ASTNode { /* ... */ };
+class IfStatementNode : public StatementNode { /* ... */ };
+class WhileStatementNode : public StatementNode { /* ... */ };
+class ReturnStatementNode : public StatementNode { /* ... */ };
 
-<span class="c1">// 関数定義</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">FunctionNode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">ASTNode</span><span class="w"> </span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">StatementNode</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">body</span><span class="p">;</span>
-<span class="p">};</span>
-</code></pre></div>
+// 関数定義
+class FunctionNode : public ASTNode {
+public:
+    std::string name;
+    std::vector&lt;std::shared_ptr&lt;StatementNode&gt;&gt; body;
+};
+</code></pre>
 
 <h3 id="34-vm">3.4 仮想マシン（VM）</h3>
 <h4 id="341">3.4.1 実行モデル</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VM</span><span class="w"> </span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-<span class="w">    </span><span class="n">Value</span><span class="w"> </span><span class="n">execute</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">FunctionNode</span><span class="o">&amp;</span><span class="w"> </span><span class="n">func</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Value</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">args</span><span class="p">);</span>
+<pre class="codehilite"><code class="language-cpp">class VM {
+public:
+    Value execute(const FunctionNode&amp; func, const std::vector&lt;Value&gt;&amp; args);
 
-<span class="w">    </span><span class="c1">// 変数アクセス</span>
-<span class="w">    </span><span class="n">Value</span><span class="w"> </span><span class="nf">getVariable</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">name</span><span class="p">);</span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">setVariable</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Value</span><span class="o">&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+    // 変数アクセス
+    Value getVariable(const std::string&amp; name);
+    void setVariable(const std::string&amp; name, const Value&amp; value);
 
-<span class="w">    </span><span class="c1">// 組み込み関数呼び出し</span>
-<span class="w">    </span><span class="n">Value</span><span class="w"> </span><span class="nf">callBuiltin</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Value</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">args</span><span class="p">);</span>
+    // 組み込み関数呼び出し
+    Value callBuiltin(const std::string&amp; name, const std::vector&lt;Value&gt;&amp; args);
 
-<span class="k">private</span><span class="o">:</span>
-<span class="w">    </span><span class="n">VariableStore</span><span class="w"> </span><span class="n">variables_</span><span class="p">;</span>
-<span class="w">    </span><span class="n">FunctionRegistry</span><span class="w"> </span><span class="n">functions_</span><span class="p">;</span>
-<span class="w">    </span><span class="n">BuiltinFunctions</span><span class="w"> </span><span class="n">builtins_</span><span class="p">;</span>
+private:
+    VariableStore variables_;
+    FunctionRegistry functions_;
+    BuiltinFunctions builtins_;
 
-<span class="w">    </span><span class="c1">// 実行スタック（関数呼び出し）</span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">CallFrame</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">functionName</span><span class="p">;</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="o">&gt;</span><span class="w"> </span><span class="n">localVars</span><span class="p">;</span>
-<span class="w">    </span><span class="p">};</span>
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">CallFrame</span><span class="o">&gt;</span><span class="w"> </span><span class="n">callStack_</span><span class="p">;</span>
-<span class="p">};</span>
-</code></pre></div>
+    // 実行スタック（関数呼び出し）
+    struct CallFrame {
+        std::string functionName;
+        std::map&lt;std::string, Value&gt; localVars;
+    };
+    std::vector&lt;CallFrame&gt; callStack_;
+};
+</code></pre>
 
 <h4 id="342">3.4.2 実行フロー</h4>
 <ol>
@@ -626,18 +626,18 @@ FCLOSE(handle)
 <li>ローカル変数破棄</li>
 </ol>
 <h3 id="35">3.5 変数ストア</h3>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VariableStore</span><span class="w"> </span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-<span class="w">    </span><span class="n">Value</span><span class="w"> </span><span class="n">get</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">name</span><span class="p">);</span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Value</span><span class="o">&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
-<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">exists</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">name</span><span class="p">);</span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span>
+<pre class="codehilite"><code class="language-cpp">class VariableStore {
+public:
+    Value get(const std::string&amp; name);
+    void set(const std::string&amp; name, const Value&amp; value);
+    bool exists(const std::string&amp; name);
+    void clear();
 
-<span class="k">private</span><span class="o">:</span>
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="o">&gt;</span><span class="w"> </span><span class="n">globals_</span><span class="p">;</span>
-<span class="w">    </span><span class="c1">// スコープ管理（将来拡張）</span>
-<span class="p">};</span>
-</code></pre></div>
+private:
+    std::unordered_map&lt;std::string, Value&gt; globals_;
+    // スコープ管理（将来拡張）
+};
+</code></pre>
 
 <p><strong>変数命名規則</strong>:
 - <code>_var</code>: ローカル変数（関数内）
@@ -645,41 +645,41 @@ FCLOSE(handle)
 - <code>reference[n]</code>: SHIORI引数（読み取り専用）</p>
 <h3 id="36-shiori">3.6 SHIORI アダプタ</h3>
 <h4 id="361">3.6.1 リクエスト処理</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ShioriAdapter</span><span class="w"> </span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">processRequest</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">method</span><span class="p">,</span><span class="w"> </span>
-<span class="w">                               </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
-<span class="w">                               </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">headers</span><span class="p">,</span>
-<span class="w">                               </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">references</span><span class="p">);</span>
+<pre class="codehilite"><code class="language-cpp">class ShioriAdapter {
+public:
+    std::string processRequest(const std::string&amp; method, 
+                               const std::string&amp; id,
+                               const std::map&lt;std::string, std::string&gt;&amp; headers,
+                               const std::vector&lt;std::string&gt;&amp; references);
 
-<span class="k">private</span><span class="o">:</span>
-<span class="w">    </span><span class="n">VM</span><span class="o">&amp;</span><span class="w"> </span><span class="n">vm_</span><span class="p">;</span>
+private:
+    VM&amp; vm_;
 
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">setReferenceVariables</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">refs</span><span class="p">);</span>
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">buildResponse</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Value</span><span class="o">&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">status</span><span class="p">);</span>
-<span class="p">};</span>
-</code></pre></div>
+    void setReferenceVariables(const std::vector&lt;std::string&gt;&amp; refs);
+    std::string buildResponse(const Value&amp; result, int status);
+};
+</code></pre>
 
 <h4 id="362">3.6.2 レスポンス形式</h4>
 <p><strong>GET成功時</strong>:</p>
-<div class="codehilite"><pre><span></span><code>SHIORI/3.0 200 OK
+<pre class="codehilite"><code>SHIORI/3.0 200 OK
 Charset: UTF-8
 Sender: yaya_core
 
 \0\s[0]こんにちは\e
-</code></pre></div>
+</code></pre>
 
 <p><strong>NOTIFY成功時</strong>:</p>
-<div class="codehilite"><pre><span></span><code>SHIORI/3.0 204 No Content
+<pre class="codehilite"><code>SHIORI/3.0 204 No Content
 Charset: UTF-8
-</code></pre></div>
+</code></pre>
 
 <p><strong>エラー時</strong>:</p>
-<div class="codehilite"><pre><span></span><code>SHIORI/3.0 500 Internal Server Error
+<pre class="codehilite"><code>SHIORI/3.0 500 Internal Server Error
 Charset: UTF-8
 
-Error: Function &#39;Unknown&#39; not found
-</code></pre></div>
+Error: Function 'Unknown' not found
+</code></pre>
 
 <hr />
 <h2 id="4">4. 文字コード処理</h2>
@@ -689,76 +689,76 @@ Error: Function &#39;Unknown&#39; not found
 <li><strong>CP932</strong> (Shift_JIS): Windows互換</li>
 </ul>
 <h3 id="42">4.2 自動検出アルゴリズム</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">Encoding</span><span class="w"> </span><span class="nf">detectEncoding</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// 1. BOMチェック</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasUtf8Bom</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">Encoding</span><span class="o">::</span><span class="n">UTF8</span><span class="p">;</span>
+<pre class="codehilite"><code class="language-cpp">Encoding detectEncoding(const std::vector&lt;uint8_t&gt;&amp; data) {
+    // 1. BOMチェック
+    if (hasUtf8Bom(data)) return Encoding::UTF8;
 
-<span class="w">    </span><span class="c1">// 2. UTF-8妥当性検証</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isValidUtf8</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">Encoding</span><span class="o">::</span><span class="n">UTF8</span><span class="p">;</span>
+    // 2. UTF-8妥当性検証
+    if (isValidUtf8(data)) return Encoding::UTF8;
 
-<span class="w">    </span><span class="c1">// 3. CP932とみなす（フォールバック）</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Encoding</span><span class="o">::</span><span class="n">CP932</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
+    // 3. CP932とみなす（フォールバック）
+    return Encoding::CP932;
+}
+</code></pre>
 
 <h3 id="43">4.3 変換処理</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">convertToUtf8</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">Encoding</span><span class="w"> </span><span class="n">enc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">enc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Encoding</span><span class="o">::</span><span class="n">UTF8</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
-<span class="w">    </span><span class="p">}</span>
+<pre class="codehilite"><code class="language-cpp">std::string convertToUtf8(const std::vector&lt;uint8_t&gt;&amp; data, Encoding enc) {
+    if (enc == Encoding::UTF8) {
+        return std::string(data.begin(), data.end());
+    }
 
-<span class="w">    </span><span class="c1">// ICU使用</span>
-<span class="w">    </span><span class="n">UErrorCode</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">U_ZERO_ERROR</span><span class="p">;</span>
-<span class="w">    </span><span class="n">UConverter</span><span class="o">*</span><span class="w"> </span><span class="n">conv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ucnv_open</span><span class="p">(</span><span class="s">&quot;windows-932&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">status</span><span class="p">);</span>
-<span class="w">    </span><span class="c1">// ... 変換処理</span>
-<span class="w">    </span><span class="n">ucnv_close</span><span class="p">(</span><span class="n">conv</span><span class="p">);</span>
+    // ICU使用
+    UErrorCode status = U_ZERO_ERROR;
+    UConverter* conv = ucnv_open(&quot;windows-932&quot;, &amp;status);
+    // ... 変換処理
+    ucnv_close(conv);
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">utf8_result</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
+    return utf8_result;
+}
+</code></pre>
 
 <hr />
 <h2 id="5">5. エラーハンドリング</h2>
 <h3 id="51">5.1 エラー種別</h3>
-<div class="codehilite"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ErrorType</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">LexicalError</span><span class="p">,</span><span class="w">    </span><span class="c1">// 字句解析エラー</span>
-<span class="w">    </span><span class="n">SyntaxError</span><span class="p">,</span><span class="w">     </span><span class="c1">// 構文エラー</span>
-<span class="w">    </span><span class="n">RuntimeError</span><span class="p">,</span><span class="w">    </span><span class="c1">// 実行時エラー</span>
-<span class="w">    </span><span class="n">TypeError</span><span class="p">,</span><span class="w">       </span><span class="c1">// 型エラー</span>
-<span class="w">    </span><span class="n">NameError</span><span class="p">,</span><span class="w">       </span><span class="c1">// 未定義名</span>
-<span class="w">    </span><span class="n">FileError</span><span class="w">        </span><span class="c1">// ファイルI/Oエラー</span>
-<span class="p">};</span>
+<pre class="codehilite"><code class="language-cpp">enum class ErrorType {
+    LexicalError,    // 字句解析エラー
+    SyntaxError,     // 構文エラー
+    RuntimeError,    // 実行時エラー
+    TypeError,       // 型エラー
+    NameError,       // 未定義名
+    FileError        // ファイルI/Oエラー
+};
 
-<span class="k">class</span><span class="w"> </span><span class="nc">YayaException</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="w"> </span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-<span class="w">    </span><span class="n">YayaException</span><span class="p">(</span><span class="n">ErrorType</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">message</span><span class="p">,</span><span class="w"> </span>
-<span class="w">                  </span><span class="kt">size_t</span><span class="w"> </span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">column</span><span class="p">);</span>
+class YayaException : public std::exception {
+public:
+    YayaException(ErrorType type, const std::string&amp; message, 
+                  size_t line, size_t column);
 
-<span class="w">    </span><span class="n">ErrorType</span><span class="w"> </span><span class="nf">type</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">message</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="nf">line</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="nf">column</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
-<span class="p">};</span>
-</code></pre></div>
+    ErrorType type() const;
+    std::string message() const;
+    size_t line() const;
+    size_t column() const;
+};
+</code></pre>
 
 <h3 id="52">5.2 エラー報告</h3>
 <p><strong>開発時（詳細）</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Undefined</span><span class="w"> </span><span class="n">variable</span><span class="w"> </span><span class="s1">&#39;_unknown&#39;</span>
-<span class="w">  </span><span class="n">at</span><span class="w"> </span><span class="n">line</span><span class="w"> </span><span class="mi">42</span><span class="o">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">aya_bootend</span><span class="o">.</span><span class="na">dic</span>
+<pre class="codehilite"><code>Error: Undefined variable '_unknown'
+  at line 42, column 15 in aya_bootend.dic
 
-<span class="w">  </span><span class="mi">41</span><span class="o">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">_condition</span><span class="w"> </span><span class="o">{</span>
-<span class="w">  </span><span class="mi">42</span><span class="o">:</span><span class="w">     </span><span class="n">_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_unknown</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">123</span>
-<span class="w">                    </span><span class="o">^^^^^^^^^</span>
-<span class="w">  </span><span class="mi">43</span><span class="o">:</span><span class="w"> </span><span class="o">}</span>
-</code></pre></div>
+  41: if _condition {
+  42:     _result = _unknown + 123
+                    ^^^^^^^^^
+  43: }
+</code></pre>
 
 <p><strong>本番時（簡潔）</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;ok&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RuntimeError: Undefined variable &#39;_unknown&#39; (aya_bootend.dic:42)&quot;</span>
-<span class="p">}</span>
-</code></pre></div>
+<pre class="codehilite"><code class="language-json">{
+  &quot;ok&quot;: false,
+  &quot;status&quot;: 500,
+  &quot;error&quot;: &quot;RuntimeError: Undefined variable '_unknown' (aya_bootend.dic:42)&quot;
+}
+</code></pre>
 
 <hr />
 <h2 id="6">6. パフォーマンス最適化</h2>
@@ -782,77 +782,77 @@ Error: Function &#39;Unknown&#39; not found
 <li>メモリプール</li>
 </ul>
 <h3 id="63">6.3 プロファイリング</h3>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Instruments（macOS標準）</span>
-instruments<span class="w"> </span>-t<span class="w"> </span><span class="s2">&quot;Time Profiler&quot;</span><span class="w"> </span>./yaya_core
+<pre class="codehilite"><code class="language-bash"># Instruments（macOS標準）
+instruments -t &quot;Time Profiler&quot; ./yaya_core
 
-<span class="c1"># Valgrind（メモリリーク検出）</span>
-valgrind<span class="w"> </span>--leak-check<span class="o">=</span>full<span class="w"> </span>./yaya_core<span class="w"> </span>&lt;<span class="w"> </span>test_input.json
-</code></pre></div>
+# Valgrind（メモリリーク検出）
+valgrind --leak-check=full ./yaya_core &lt; test_input.json
+</code></pre>
 
 <hr />
 <h2 id="7">7. テスト仕様</h2>
 <h3 id="71">7.1 ユニットテスト構成</h3>
-<div class="codehilite"><pre><span></span><code>yaya_core/tests/
+<pre class="codehilite"><code>yaya_core/tests/
 ├── lexer_test.cpp
 ├── parser_test.cpp
 ├── vm_test.cpp
 ├── builtin_test.cpp
 └── integration_test.cpp
-</code></pre></div>
+</code></pre>
 
 <h3 id="72">7.2 テストケース例</h3>
-<div class="codehilite"><pre><span></span><code><span class="c1">// Lexerテスト</span>
-<span class="n">TEST</span><span class="p">(</span><span class="n">LexerTest</span><span class="p">,</span><span class="w"> </span><span class="n">TokenizeString</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">Lexer</span><span class="w"> </span><span class="n">lex</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s">&quot;Hello, World&quot;</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">tokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lex</span><span class="p">.</span><span class="n">tokenize</span><span class="p">();</span>
-<span class="w">    </span><span class="n">ASSERT_EQ</span><span class="p">(</span><span class="n">tokens</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span><span class="w"> </span><span class="c1">// String + EOF</span>
-<span class="w">    </span><span class="n">EXPECT_EQ</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">TokenType</span><span class="o">::</span><span class="n">String</span><span class="p">);</span>
-<span class="w">    </span><span class="n">EXPECT_EQ</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Hello, World&quot;</span><span class="p">);</span>
-<span class="p">}</span>
+<pre class="codehilite"><code class="language-cpp">// Lexerテスト
+TEST(LexerTest, TokenizeString) {
+    Lexer lex(R&quot;(&quot;Hello, World&quot;)&quot;);
+    auto tokens = lex.tokenize();
+    ASSERT_EQ(tokens.size(), 2); // String + EOF
+    EXPECT_EQ(tokens[0].type, TokenType::String);
+    EXPECT_EQ(tokens[0].value, &quot;Hello, World&quot;);
+}
 
-<span class="c1">// Parserテスト</span>
-<span class="n">TEST</span><span class="p">(</span><span class="n">ParserTest</span><span class="p">,</span><span class="w"> </span><span class="n">ParseFunctionDefinition</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">Parser</span><span class="w"> </span><span class="n">parser</span><span class="p">(</span><span class="s">&quot;OnBoot { </span><span class="se">\&quot;</span><span class="s">test</span><span class="se">\&quot;</span><span class="s"> }&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">ast</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parser</span><span class="p">.</span><span class="n">parse</span><span class="p">();</span>
-<span class="w">    </span><span class="n">ASSERT_EQ</span><span class="p">(</span><span class="n">ast</span><span class="p">.</span><span class="n">functions</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
-<span class="w">    </span><span class="n">EXPECT_EQ</span><span class="p">(</span><span class="n">ast</span><span class="p">.</span><span class="n">functions</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;OnBoot&quot;</span><span class="p">);</span>
-<span class="p">}</span>
+// Parserテスト
+TEST(ParserTest, ParseFunctionDefinition) {
+    Parser parser(&quot;OnBoot { \&quot;test\&quot; }&quot;);
+    auto ast = parser.parse();
+    ASSERT_EQ(ast.functions.size(), 1);
+    EXPECT_EQ(ast.functions[0].name, &quot;OnBoot&quot;);
+}
 
-<span class="c1">// VMテスト</span>
-<span class="n">TEST</span><span class="p">(</span><span class="n">VMTest</span><span class="p">,</span><span class="w"> </span><span class="n">ExecuteSimpleFunction</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">VM</span><span class="w"> </span><span class="n">vm</span><span class="p">;</span>
-<span class="w">    </span><span class="c1">// ... 関数登録</span>
-<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;OnBoot&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{});</span>
-<span class="w">    </span><span class="n">EXPECT_EQ</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">asString</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\\</span><span class="s">0</span><span class="se">\\</span><span class="s">s[0]test</span><span class="se">\\</span><span class="s">e&quot;</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div>
+// VMテスト
+TEST(VMTest, ExecuteSimpleFunction) {
+    VM vm;
+    // ... 関数登録
+    auto result = vm.execute(&quot;OnBoot&quot;, {});
+    EXPECT_EQ(result.asString(), &quot;\\0\\s[0]test\\e&quot;);
+}
+</code></pre>
 
 <h3 id="73">7.3 統合テスト</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">TEST</span><span class="p">(</span><span class="n">IntegrationTest</span><span class="p">,</span><span class="w"> </span><span class="n">LoadEmily4</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">DictionaryManager</span><span class="w"> </span><span class="n">dm</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dm</span><span class="p">.</span><span class="n">load</span><span class="p">({</span>
-<span class="w">        </span><span class="s">&quot;emily4/ghost/master/aya_bootend.dic&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="c1">// ... 他の辞書</span>
-<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="s">&quot;utf-8&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="n">ASSERT_TRUE</span><span class="p">(</span><span class="n">ok</span><span class="p">);</span>
+<pre class="codehilite"><code class="language-cpp">TEST(IntegrationTest, LoadEmily4) {
+    DictionaryManager dm;
+    bool ok = dm.load({
+        &quot;emily4/ghost/master/aya_bootend.dic&quot;,
+        // ... 他の辞書
+    }, &quot;utf-8&quot;);
+    ASSERT_TRUE(ok);
 
-<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dm</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;OnBoot&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{});</span>
-<span class="w">    </span><span class="n">EXPECT_FALSE</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">empty</span><span class="p">());</span>
-<span class="w">    </span><span class="n">EXPECT_TRUE</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\\</span><span class="s">0</span><span class="se">\\</span><span class="s">s[&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">::</span><span class="n">npos</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div>
+    auto response = dm.execute(&quot;OnBoot&quot;, {});
+    EXPECT_FALSE(response.empty());
+    EXPECT_TRUE(response.find(&quot;\\0\\s[&quot;) != std::string::npos);
+}
+</code></pre>
 
 <hr />
 <h2 id="8">8. ライセンスとクレジット</h2>
 <h3 id="81-yaya-core">8.1 YAYA Core ライセンス</h3>
 <p><strong>BSD-3-Clause License</strong>（公式YAYA準拠）</p>
-<div class="codehilite"><pre><span></span><code>Copyright (c) 2025, Ourin Project
+<pre class="codehilite"><code>Copyright (c) 2025, Ourin Project
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 ...
-</code></pre></div>
+</code></pre>
 
 <h3 id="82">8.2 依存ライブラリ</h3>
 <ul>
@@ -874,7 +874,7 @@ modification, are permitted provided that the following conditions are met:
 - リポジトリ: https://github.com/eightman999/Ourin
 - パス: <code>docs/YAYA_CORE_TECHNICAL_SPEC.md</code></p>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

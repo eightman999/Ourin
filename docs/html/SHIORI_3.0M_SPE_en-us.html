@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHIORI/3.0M — macOS ネイティブ差分仕様（Draft）</title>
+    <title>SHIORI/3.0M — macOS Native Differential Specification (Draft)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
@@ -145,31 +145,290 @@
         <div class="back-link">
             <a href="index.html">← Back to Index</a>
         </div>
-        <h1 id="shiori30m-macos-draft">SHIORI/3.0M — macOS ネイティブ差分仕様（Draft）</h1>
-<p><strong>Status:</strong> Translation Pending<br />
-<strong>Original:</strong> <a href="./SHIORI_3.0M_SPEC_ja-jp.md">SHIORI_3.0M_SPEC_ja-jp.md</a><br />
-<strong>Language:</strong> English (US)</p>
+        <h1 id="shiori30m-macos-native-differential-specification-draft">SHIORI/3.0M — macOS Native Differential Specification (Draft)</h1>
+<p><strong>Status:</strong> Draft
+<strong>Original:</strong> <a href="./SHIORI_3.0M_SPEC_ja-jp.md">SHIORI_3.0M_SPEC_ja-jp.md</a>
+<strong>Language:</strong> English (US)
+<strong>Updated:</strong> 2025-07-27
+<strong>Audience:</strong> Ourin (Rin) baseware implementers and SHIORI authors
+<strong>Scope:</strong> Maintains vocabulary/behavior compatibility with UKADOC <strong>SHIORI/3.0</strong> while replacing Windows DLL dependencies (GlobalAlloc, etc.) with <strong>macOS Bundle (.bundle/.plugin) + C ABI</strong>.
+<strong>Non-goal:</strong> Binary compatibility with Windows DLL (vocabulary and behavior compatibility only).</p>
 <hr />
-<h2 id="translation-note">Translation Note</h2>
-<p>This document is a placeholder for the English translation of the Japanese original.</p>
-<p>The Japanese version contains the authoritative specification. This English version should be translated while maintaining:</p>
+<h2 id="table-of-contents">Table of Contents</h2>
 <ul>
-<li>Technical accuracy</li>
-<li>Consistent terminology with other English documentation</li>
-<li>Original structure and formatting</li>
-<li>All code examples unchanged</li>
-<li>Proper translation of comments and narrative sections</li>
+<li><a href="#1-purpose-and-policy">1. Purpose and Policy</a></li>
+<li><a href="#2-terminology">2. Terminology</a></li>
+<li><a href="#3-compatible-unchanged">3. Compatible (Unchanged)</a></li>
+<li><a href="#4-macos-differences-replacements">4. macOS Differences (Replacements)</a></li>
+<li><a href="#5-character-encoding-policy">5. Character Encoding Policy</a></li>
+<li><a href="#6-requestresponse-wire-specification">6. Request/Response (Wire Specification)</a></li>
+<li><a href="#7-2x-2025-compatibility">7. 2.x (2.0/2.5) Compatibility</a></li>
+<li><a href="#8-examples-onbootoncommunicate">8. Examples (OnBoot/OnCommunicate)</a></li>
+<li><a href="#9-minimal-implementation-c-abi-and-template">9. Minimal Implementation (C ABI and Template)</a></li>
+<li><a href="#10-ourin-host-implementation-notes">10. Ourin Host Implementation Notes</a></li>
+<li><a href="#11-implementation-status">11. Implementation Status</a></li>
+<li><a href="#12-conformance-checklist">12. Conformance Checklist</a></li>
+<li><a href="#13-references-normativeinformative">13. References (Normative/Informative)</a></li>
 </ul>
 <hr />
-<h2 id="contents">Contents</h2>
-<p><em>(To be translated from Japanese original)</em></p>
-<hr />
-<p><strong>Translation Status:</strong> ⏳ Pending<br />
-<strong>Translator:</strong> TBD<br />
-<strong>Review:</strong> TBD<br />
-<strong>Last Updated:</strong> 2025-10-23</p>
+<h2 id="1-purpose-and-policy">1. Purpose and Policy</h2>
+<ul>
+<li><strong>SHIORI/3.0 vocabulary and behavior</strong> (<code>GET/NOTIFY</code>, <code>ID</code>, <code>Reference*</code>, <code>Charset</code>, <code>SecurityLevel/Origin</code>, etc.) are <strong>adopted as-is</strong>.</li>
+<li>The implementation (Windows DLL conventions) is <strong>reinterpreted</strong> as <strong>macOS Bundle + C ABI</strong>. <strong>XPC isolation</strong> is an optional recommendation.</li>
+</ul>
+<h2 id="2-terminology">2. Terminology</h2>
+<ul>
+<li><strong>3.0M</strong>: Identifier for this macOS differential specification.</li>
+<li><strong>Host</strong>: Baseware such as Ourin.</li>
+<li><strong>Module</strong>: SHIORI implementation body (<code>.bundle</code>/<code>.plugin</code>).</li>
+<li><strong>Wire</strong>: SHIORI message using CRLF line endings with blank line terminator (SHIORI/3.0 syntax).</li>
+</ul>
+<h2 id="3-compatible-unchanged">3. Compatible (Unchanged)</h2>
+<ul>
+<li><strong>Methods</strong>: <code>GET</code> (expects a return value), <code>NOTIFY</code> (does not expect a return value).</li>
+<li><strong>Wire syntax</strong>: CRLF line endings, <strong>blank-line terminated</strong>, header ordering (<code>Charset</code> near the top).</li>
+<li><strong>Key headers</strong>: <code>ID</code>, <code>Reference0..N</code>, <code>Sender</code>, <code>SenderType</code>, <code>SecurityLevel</code>, <code>SecurityOrigin</code>, <code>BaseID</code>, <code>Status</code>, and others.</li>
+<li><strong>Response</strong>: <code>SHIORI/3.0 200/204/...</code> with <code>Value</code> (and optional extensions such as <code>ValueNotify</code>).</li>
+</ul>
+<h2 id="4-macos-differences-replacements">4. macOS Differences (Replacements)</h2>
+<h3 id="41-implementation-dll-bundle-and-exports">4.1 Implementation (DLL → Bundle) and Exports</h3>
+<ul>
+<li>Distribution: <code>.bundle</code> (or <code>.plugin</code>). <strong>Universal 2</strong> (<code>arm64</code>/<code>x86_64</code>) recommended.</li>
+<li>Exports (<strong>C ABI</strong>):
+  <code>c
+  bool shiori_load(const char* dir_utf8);
+  void shiori_unload(void);
+  bool shiori_request(const unsigned char* req, size_t req_len,
+                      unsigned char** res, size_t* res_len);
+  void shiori_free(unsigned char* p);</code></li>
+<li><strong>Loading/Resolution</strong>: Resolved from CFBundle by <strong>function name</strong> (<code>CFBundleGetFunctionPointerForName</code>).</li>
+<li><strong>Memory management</strong>: The return value <strong>must be freed by the caller (host) via shiori_free</strong>. Mixing global allocators is not permitted.</li>
+</ul>
+<h3 id="42-execution-container-optional">4.2 Execution Container (Optional)</h3>
+<ul>
+<li>Minimum is <strong>in-process loading</strong>.</li>
+<li>For analysis or stability, isolate to an <strong>XPC service</strong> and bridge via <code>Data -&gt; Data</code>.</li>
+</ul>
+<h2 id="5-character-encoding-policy">5. Character Encoding Policy</h2>
+<ul>
+<li><strong>Default is UTF-8</strong>.</li>
+<li>For compatibility, <code>Shift_JIS / Windows-31J / CP932 / SJIS</code> labels are accepted as <strong>equivalent</strong> (treated as CP932).</li>
+<li>The response <code>Charset</code> should match the request charset.</li>
+</ul>
+<h2 id="6-requestresponse-wire-specification">6. Request/Response (Wire Specification)</h2>
+<ul>
+<li><strong>First line</strong>: <code>GET SHIORI/3.0</code> or <code>NOTIFY SHIORI/3.0</code>.</li>
+<li><strong>Terminator</strong>: CRLF + CRLF. <strong>Do not assume null termination</strong>.</li>
+<li><strong>Example (minimal)</strong>:
+  ```
+  GET SHIORI/3.0
+  Charset: UTF-8
+  ID: OnBoot</li>
+</ul>
+<p><code>**Response**</code>
+  SHIORI/3.0 200 OK
+  Charset: UTF-8
+  Value: \h\s0Hello from 3.0M</p>
+<p>```</p>
+<h2 id="7-2x-2025-compatibility">7. 2.x (2.0/2.5) Compatibility</h2>
+<ul>
+<li>Only <strong>vocabulary/behavior compatibility</strong> is provided. <strong>Binary compatibility is not provided</strong>.</li>
+<li><strong>SHIORI Resource</strong> (from 2.5) is organized in 3.0 onwards as <strong>roughly equivalent to a normal Event</strong>. Return values are treated as <strong>short text</strong>.</li>
+<li>2.x-style queries are mapped to <strong>3.0 <code>ID</code>/<code>Reference*</code></strong> where possible.</li>
+</ul>
+<h2 id="8-examples-onbootoncommunicate">8. Examples (OnBoot/OnCommunicate)</h2>
+<p><strong>OnBoot (startup)</strong></p>
+<pre class="codehilite"><code>GET SHIORI/3.0
+Charset: UTF-8
+Sender: Ourin
+ID: OnBoot
+</code></pre>
+
+<p><strong>OnCommunicate (dialogue)</strong></p>
+<pre class="codehilite"><code>GET SHIORI/3.0
+Charset: UTF-8
+Sender: Ourin
+ID: OnCommunicate
+Reference0: Hello
+</code></pre>
+
+<h2 id="9-minimal-implementation-c-abi-and-template">9. Minimal Implementation (C ABI and Template)</h2>
+<p><strong>Header</strong></p>
+<pre class="codehilite"><code class="language-c">// shiori.h (3.0M)
+#pragma once
+#include &lt;stddef.h&gt;
+#include &lt;stdbool.h&gt;
+
+#ifdef __cplusplus
+extern &quot;C&quot; {
+#endif
+bool shiori_load(const char* dir_utf8);
+void shiori_unload(void);
+bool shiori_request(const unsigned char* req, size_t req_len,
+                    unsigned char** res, size_t* res_len);
+void shiori_free(unsigned char* p);
+#ifdef __cplusplus
+} // extern &quot;C&quot;
+#endif
+</code></pre>
+
+<p><strong>Implementation (ultra-minimal)</strong></p>
+<pre class="codehilite"><code class="language-c">// shiori.c (3.0M minimal)
+#include &quot;shiori.h&quot;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+bool shiori_load(const char* dir_utf8){ (void)dir_utf8; return true; }
+void shiori_unload(void){}
+
+static unsigned char* duputf8(const char* s, size_t* out){
+  size_t n = strlen(s);
+  unsigned char* p = (unsigned char*)malloc(n);
+  if(!p) return NULL; memcpy(p, s, n); *out = n; return p;
+}
+
+bool shiori_request(const unsigned char* req, size_t len,
+                    unsigned char** res, size_t* res_len){
+  (void)len;
+  const char *ok =
+    &quot;SHIORI/3.0 200 OK\r\n&quot;
+    &quot;Charset: UTF-8\r\n&quot;
+    &quot;Value: \\h\\s0Hello from 3.0M\r\n&quot;
+    &quot;\r\n&quot;;
+  *res = duputf8(ok, res_len);
+  return *res != NULL;
+}
+
+void shiori_free(unsigned char* p){ free(p); }
+</code></pre>
+
+<h2 id="10-ourin-host-implementation-notes">10. Ourin Host Implementation Notes</h2>
+<ul>
+<li>Load via <code>CFBundle</code>, calling <code>shiori_load</code> → <code>shiori_request</code> → <code>shiori_unload</code> (on exit).</li>
+<li>When using <strong>XPC isolation</strong>, bridge via a fixed <code>request(Data)-&gt;Data</code> interface.</li>
+<li><strong>macOS 10.15+ / 64-bit only</strong>, <strong>Universal 2</strong> distribution as the baseline.</li>
+</ul>
+<h2 id="101-bridgetoshiori-event-pipeline-implementation">10.1 BridgeToSHIORI — Event Pipeline Implementation</h2>
+<p><code>BridgeToSHIORI.swift</code> is the bridge layer that converts internal host events into SHIORI/3.0 wire format and forwards them to a native SHIORI bundle or the live loaded ghost (YAYA, etc.).</p>
+<h3 id="method-selection">Method Selection</h3>
+<table>
+<thead>
+<tr>
+<th>Caller</th>
+<th>Method</th>
+<th>Wire first line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sendGet</code> / <code>sendGetCustom</code></td>
+<td><code>GET</code></td>
+<td><code>GET SHIORI/3.0</code></td>
+</tr>
+<tr>
+<td><code>sendNotify</code> / <code>sendNotifyCustom</code></td>
+<td><code>NOTIFY</code></td>
+<td><code>NOTIFY SHIORI/3.0</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>NOTIFY is never coerced into GET. <code>EventBridge.sendNotify</code> always passes <code>method: "NOTIFY"</code>, and <code>BridgeToSHIORI.handle</code> forwards that value unchanged to <code>ShioriHost.request</code> (see <code>BridgeToSHIORI.swift:250</code>: <code>let verb = method.uppercased() == "NOTIFY" ? "NOTIFY" : "GET"</code>).</li>
+<li>Timer events (<code>OnSecondChange</code>, etc.) dynamically switch between GET and NOTIFY based on the <code>cantalk</code> flag (<code>EventBridge.swift:443–451</code>).</li>
+</ul>
+<h3 id="handle-vs-handleresponse">handle vs. handleResponse</h3>
+<p><code>BridgeToSHIORI</code> exposes two public methods.</p>
+<ul>
+<li>
+<p><strong><code>handle(event:references:headers:method:) -&gt; String</code></strong>
+  Returns only the <code>Value</code> (script string) from the response. Used by callers such as <code>GhostManager</code>, <code>ResourceBridge</code>, and <code>WebHandler</code> that consume the result directly as a script value.</p>
+</li>
+<li>
+<p><strong><code>handleResponse(event:references:headers:method:) -&gt; String</code></strong>
+  Returns the full SHIORI/3.0 wire response string (<code>SHIORI/3.0 200 OK\r\n...</code>).
+  Used exclusively on the SSTP dispatcher path so that <code>SSTPDispatcher.mapShioriResponse</code> can parse all headers including <code>ReferenceN</code>, <code>Value</code>, <code>ValueNotify</code>, and <code>Status</code>.</p>
+</li>
+</ul>
+<h3 id="bridge-to-live-ghost-liveghostresolver">Bridge to Live Ghost (liveGhostResolver)</h3>
+<p>When no native SHIORI bundle is configured (<code>SHIORI_BUNDLE_PATH</code> environment variable is absent), <code>handle</code> / <code>handleResponse</code> call the <code>liveGhostResolver</code> closure.
+This closure is set by AppDelegate at startup and routes the request to the actually loaded ghost (YAYA, etc.).
+If no matching ghost exists or cannot respond, the resolver returns <code>nil</code> (<code>handle</code> returns an empty string).</p>
+<p>Priority: <strong>registered Resource value (test) → native SHIORI bundle → liveGhostResolver (live ghost)</strong></p>
+<h3 id="resource-event-normalization">Resource Event Normalization</h3>
+<p>When the event name is <code>Resource</code>, <code>references[0]</code> is treated as the resource name.
+Internally it is sent as a standard SHIORI <code>GET</code> (<code>ID: Resource</code> / <code>Reference0: &lt;name&gt;</code>), and the return value is treated as a short text value (3.0 mapping of the SHIORI/2.5-origin Resource).</p>
+<h3 id="receiverghostname-routing">ReceiverGhostName Routing</h3>
+<p>When the SSTP frame contains a <code>ReceiverGhostName</code> header, <code>liveGhostResolver</code> routes the request only to the session matching that ghost name. If the header is absent, the request goes to the primary ghost.</p>
+<h3 id="wire-serialization-and-header-sanitization">Wire Serialization and Header Sanitization</h3>
+<p>When <code>handleResponse</code> serializes a structured live-ghost response to a wire string, it strips CR/LF from all header values and the <code>Value</code> field.
+Because SakuraScript newlines are represented as <code>\n</code> tokens, removing raw newlines has no visible impact on script rendering.</p>
+<h2 id="11-implementation-status">11. Implementation Status</h2>
+<p><strong>Updated:</strong> 2025-10-20</p>
+<h3 id="111-ourin-host-side-implementation">11.1 Ourin Host-Side Implementation</h3>
+<ul>
+<li>[x] <strong>CFBundle loading</strong>: Implemented in <code>ShioriLoader.swift</code></li>
+<li>[x] <strong>YAYA backend</strong>: YAYA ghost support implemented in <code>YayaBackend</code> and <code>YayaAdapter.swift</code></li>
+<li>[x] <strong>Character encoding</strong>: UTF-8 default; Shift_JIS/CP932 acceptance implemented</li>
+<li>[x] <strong>Request/Response processing</strong>: Basic wire protocol processing with CRLF + blank-line termination implemented</li>
+<li>[ ] <strong>Bundle/Plugin-format SHIORI</strong>: Direct C ABI loading not implemented (YAYA only at present)</li>
+<li>[x] <strong>XPC isolated execution</strong>: Implemented (<code>XpcBackend</code> in <code>ShioriLoader.swift</code> bridges <code>OurinShioriXPC</code> via <code>Data-&gt;Data</code>. Updated 2026-06-15)</li>
+<li>[ ] <strong>shiori_free memory management</strong>: Not applicable until C ABI is implemented</li>
+</ul>
+<h3 id="112-implemented-features">11.2 Implemented Features</h3>
+<ol>
+<li><strong>YAYA ghost support</strong></li>
+<li>Parsing and loading of <code>yaya.txt</code></li>
+<li>Recursive loading of <code>dic</code> files</li>
+<li>Request/response processing</li>
+<li>
+<p>Basic events: <code>OnBoot</code>, <code>OnCommunicate</code>, etc.</p>
+</li>
+<li>
+<p><strong>Character encoding</strong></p>
+</li>
+<li>UTF-8 as default</li>
+<li>
+<p>Automatic detection and conversion of Shift_JIS/CP932</p>
+</li>
+<li>
+<p><strong>Event system</strong></p>
+</li>
+<li>System event monitoring and forwarding to SHIORI</li>
+<li>Event dispatching via <code>EventBridge</code></li>
+</ol>
+<h3 id="113-unimplemented-features">11.3 Unimplemented Features</h3>
+<ol>
+<li><strong>Bundle/Plugin loading via C ABI</strong></li>
+<li>Implementation of <code>shiori_load</code>, <code>shiori_request</code>, <code>shiori_unload</code>, <code>shiori_free</code></li>
+<li>
+<p>Function pointer resolution from CFBundle</p>
+</li>
+<li>
+<p>~~<strong>XPC service isolation</strong>~~ → Implemented (<code>XpcBackend</code>). Supports separate-process execution and sandbox isolation.</p>
+</li>
+<li>
+<p><strong>SHIORI/2.x compatibility</strong></p>
+</li>
+<li>2.x protocol support (not supported due to binary IPC convention differences; consolidated to 3.0)</li>
+</ol>
+<h2 id="12-conformance-checklist">12. Conformance Checklist</h2>
+<ul>
+<li>[x] <code>GET/NOTIFY SHIORI/3.0</code> round-trips with CRLF + blank-line termination (implemented via YAYA backend)</li>
+<li>[x] Missing <code>Charset</code> defaults to UTF-8; SJIS-family labels accepted as CP932</li>
+<li>[x] <code>Value</code>/<code>ValueNotify</code> and other extensions implemented as needed (basic implementation done)</li>
+<li>[ ] Implementation as <code>.bundle/.plugin</code> (Universal 2) + <strong>C ABI</strong> (not yet implemented)</li>
+<li>[ ] Return-value release via <strong>shiori_free</strong> (not yet implemented)</li>
+</ul>
+<h2 id="13-references-normativeinformative">13. References (Normative/Informative)</h2>
+<ul>
+<li>SHIORI/3.0 (UKADOC)</li>
+<li>SHIORI Event list / notes</li>
+<li>DLL common specification (basis for Windows GlobalAlloc conventions; replaced in 3.0M)</li>
+<li>Apple: CFBundle (function pointer resolution by name) / NSXPCConnection (isolated execution)</li>
+<li>macOS 10.15+; 32-bit not supported</li>
+</ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

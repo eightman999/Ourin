@@ -222,75 +222,118 @@
 - <code>headlinelist.count</code>
 - <code>headlinelist.index(n).{name|path|craftmanw|craftmanurl}</code>
 - <code>headlinelist({name|path}).{property}</code></p>
+<h4 id="aliaspropertyprovider">AliasPropertyProvider</h4>
+<p>Registered four times under the standard SSP-compatible shorthand namespaces
+(<code>registerDefaultProviders</code> in <code>PropertyManager.swift</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Registered prefix</th>
+<th>Delegation target prefix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sakura</code></td>
+<td><code>currentghost.scope(0)</code></td>
+</tr>
+<tr>
+<td><code>kero</code></td>
+<td><code>currentghost.scope(1)</code></td>
+</tr>
+<tr>
+<td><code>ghost</code></td>
+<td><code>currentghost</code></td>
+</tr>
+<tr>
+<td><code>shell</code></td>
+<td><code>currentghost.shelllist.current</code></td>
+</tr>
+</tbody>
+</table>
+<p>When <code>get(key:)</code> or <code>set(key:value:)</code> is called, the provider prepends the delegation target prefix
+to the sub-key and re-dispatches to <code>PropertyManager.shared.get/set</code>. For example,
+<code>sakura.surface.num</code> becomes <code>currentghost.scope(0).surface.num</code> before lookup.
+Both GET and SET delegate to the existing providers; alias registration does not add any
+independently stored state.</p>
 <h4 id="pluginpropertyprovider">PluginPropertyProvider</h4>
 <p>Provides <code>pluginlist.*</code> properties:
 - <code>pluginlist.count</code>
-- <code>pluginlist.index(n).{name|path|id|craftmanw|craftmanurl}</code>
-- <code>pluginlist({name|path|id}).{property}</code></p>
+- <code>pluginlist.index(n).{name|path|id|craftmanw|craftmanurl|filename|native|executablepath|packagepath|executionstate|candispatchrequests}</code>
+- <code>pluginlist({name|path|id|executablepath|packagepath}).{property}</code>
+- <code>pluginlist({name|path|id|executablepath|packagepath}).message.&lt;key&gt;</code> - localized text loaded from a plugin package <code>message.*.txt</code> file, for example <code>message.menu.title</code></p>
+<p><code>path</code> is the SSP-compatible original module path, <code>executablepath</code> is the macOS native <code>.plugin</code> / <code>.bundle</code> body,
+and <code>packagepath</code> is the package directory containing <code>install.txt</code>. Windows DLL-derived plugins are listed as
+<code>executionstate=metadataOnly</code> and <code>candispatchrequests=0</code>.</p>
 <h2 id="usage">Usage</h2>
 <h3 id="environment-variable-expansion">Environment Variable Expansion</h3>
 <p>In SakuraScript text, use <code>%property[key]</code> to embed property values:</p>
-<div class="codehilite"><pre><span></span><code><span class="nf">%property</span><span class="p">[</span><span class="n">baseware</span><span class="p">.</span><span class="n">name</span><span class="p">]</span><span class="w"> </span><span class="n">ver</span><span class="p">,</span><span class="nf">%property</span><span class="p">[</span><span class="n">baseware</span><span class="p">.</span><span class="n">version</span><span class="p">]</span>
-</code></pre></div>
+<pre class="codehilite"><code>%property[baseware.name] ver,%property[baseware.version]
+</code></pre>
 
 <p>This will be expanded to:</p>
-<div class="codehilite"><pre><span></span><code>Ourin ver,1.0
-</code></pre></div>
+<pre class="codehilite"><code>Ourin ver,1.0
+</code></pre>
 
 <h3 id="sakurascript-tags">SakuraScript Tags</h3>
 <h4 id="get-property">Get Property</h4>
 <p>Retrieve a property value and trigger a SHIORI event with the value:</p>
-<div class="codehilite"><pre><span></span><code>\![get,property,EventName,PropertyKey]
-</code></pre></div>
+<pre class="codehilite"><code>\![get,property,EventName,PropertyKey]
+</code></pre>
 
 <p>Example:</p>
-<div class="codehilite"><pre><span></span><code>\![get,property,OnGetSakuraName,ghostlist(Emily/Phase4.5).keroname]
-</code></pre></div>
+<pre class="codehilite"><code>\![get,property,OnGetSakuraName,ghostlist(Emily/Phase4.5).keroname]
+</code></pre>
 
 <p>This will trigger the <code>OnGetSakuraName</code> event with <code>Reference0</code> containing the value "Teddy".</p>
 <h4 id="set-property">Set Property</h4>
 <p>Set a writable property value:</p>
-<div class="codehilite"><pre><span></span><code>\![set,property,PropertyKey,Value]
-</code></pre></div>
+<pre class="codehilite"><code>\![set,property,PropertyKey,Value]
+</code></pre>
 
 <p>Example:</p>
-<div class="codehilite"><pre><span></span><code>\![set,property,currentghost.shelllist(ULTIMATE FORM).menu,hidden]
-</code></pre></div>
+<pre class="codehilite"><code>\![set,property,currentghost.shelllist(ULTIMATE FORM).menu,hidden]
+</code></pre>
 
 <p>This hides the "ULTIMATE FORM" shell from the shell change menu.</p>
 <h3 id="programmatic-access">Programmatic Access</h3>
-<div class="codehilite"><pre><span></span><code><span class="kd">let</span> <span class="nv">manager</span> <span class="p">=</span> <span class="n">PropertyManager</span><span class="p">()</span>
+<pre class="codehilite"><code class="language-swift">let manager = PropertyManager()
 
-<span class="c1">// Get property</span>
-<span class="k">if</span> <span class="kd">let</span> <span class="nv">year</span> <span class="p">=</span> <span class="n">manager</span><span class="p">.</span><span class="kr">get</span><span class="p">(</span><span class="s">&quot;system.year&quot;</span><span class="p">)</span> <span class="p">{</span>
-    <span class="bp">print</span><span class="p">(</span><span class="s">&quot;Current year: </span><span class="si">\(</span><span class="n">year</span><span class="si">)</span><span class="s">&quot;</span><span class="p">)</span>
-<span class="p">}</span>
+// Get property
+if let year = manager.get(&quot;system.year&quot;) {
+    print(&quot;Current year: \(year)&quot;)
+}
 
-<span class="c1">// Set property</span>
-<span class="n">manager</span><span class="p">.</span><span class="kr">set</span><span class="p">(</span><span class="s">&quot;currentghost.shelllist(Default).menu&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="s">&quot;hidden&quot;</span><span class="p">)</span>
+// Set property
+manager.set(&quot;currentghost.shelllist(Default).menu&quot;, value: &quot;hidden&quot;)
 
-<span class="c1">// Expand text with properties</span>
-<span class="kd">let</span> <span class="nv">text</span> <span class="p">=</span> <span class="s">&quot;Welcome to %property[baseware.name]!&quot;</span>
-<span class="kd">let</span> <span class="nv">expanded</span> <span class="p">=</span> <span class="n">manager</span><span class="p">.</span><span class="n">expand</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="n">text</span><span class="p">)</span>
-</code></pre></div>
+// Expand text with properties
+let text = &quot;Welcome to %property[baseware.name]!&quot;
+let expanded = manager.expand(text: text)
+</code></pre>
 
 <h2 id="writable-properties">Writable Properties</h2>
 <p>Currently, the following properties support write operations:</p>
 <ol>
 <li><code>currentghost.shelllist({name}).menu</code> - Set to "hidden" to hide shell from menu</li>
 </ol>
+<p>The alias namespaces <code>sakura.*</code>, <code>kero.*</code>, <code>ghost.*</code>, and <code>shell.*</code> can also be used on
+the left-hand side of a SET command. They expand to the same delegation target as for GET;
+the SET succeeds or fails according to whether the resolved full key is writable.
+<code>AliasPropertyProvider.writableProperties()</code> returns <code>[]</code>, so aliases do not appear in
+the writable key enumeration.</p>
 <h2 id="integration-points">Integration Points</h2>
 <h3 id="ghostmanager">GhostManager</h3>
 <p>The <code>GhostManager</code> class handles property-related SakuraScript commands:
-- <code>\![get,property,...]</code> at line 408
-- <code>\![set,property,...]</code> at line 421</p>
+- <code>\![get,property,...]</code> (the <code>property</code> branch of the <code>get</code> handler in <code>GhostManager.swift</code>)
+- <code>\![set,property,...]</code> (the <code>property</code> branch of the <code>set</code> handler in <code>GhostManager.swift</code>)</p>
 <h3 id="sakurascriptengine">SakuraScriptEngine</h3>
 <p>The <code>SakuraScriptEngine</code> integrates with <code>PropertyManager</code>:
 - Provides <code>propertyManager</code> property for property access
 - Delegates to <code>EnvironmentExpander</code> for <code>%property[...]</code> expansion</p>
 <h3 id="environmentexpander">EnvironmentExpander</h3>
 <p>Handles <code>%property[key]</code> expansion in text:
-- Line 109-111 in <code>EnvironmentExpander.swift</code>
+- The <code>%property[...]</code> branch in <code>EnvironmentExpander.swift</code>
 - Delegates to <code>PropertyManager.get()</code></p>
 <h2 id="testing">Testing</h2>
 <p>Comprehensive tests are provided in <code>PropertySystemTests.swift</code>:
@@ -301,8 +344,8 @@
 - Balloon, headline, and plugin properties
 - SET functionality</p>
 <p>Run tests with:</p>
-<div class="codehilite"><pre><span></span><code>xcodebuild<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-project<span class="w"> </span>Ourin.xcodeproj<span class="w"> </span>-scheme<span class="w"> </span>Ourin
-</code></pre></div>
+<pre class="codehilite"><code class="language-bash">xcodebuild test -project Ourin.xcodeproj -scheme Ourin
+</code></pre>
 
 <h2 id="future-enhancements">Future Enhancements</h2>
 <p>Potential additions for complete specification compliance:</p>
@@ -311,14 +354,6 @@
 <li><code>history.ghost.*</code>, <code>history.balloon.*</code>, etc.</li>
 <li>
 <p>Most recently used items tracking</p>
-</li>
-<li>
-<p><strong>Rate of Use</strong> (<code>rateofuselist.*</code>)</p>
-</li>
-<li>Ghost usage statistics</li>
-<li>Boot time tracking</li>
-<li>
-<p>Usage percentage calculation</p>
 </li>
 <li>
 <p><strong>Additional Writable Properties</strong></p>
@@ -335,6 +370,9 @@
 <li>Real-time scope position tracking</li>
 <li>Live balloon metrics</li>
 </ol>
+<p><code>rateofuselist.*</code> is implemented. Ghost boot count, active usage time, talk count, and
+character count are persisted in <code>UserDefaults</code>; <code>rateofuselist.*</code> and
+<code>open,rateofusegraph*</code> read the same runtime data.</p>
 <h2 id="references">References</h2>
 <ul>
 <li>UKADOC Property System Specification: https://usada.sakura.vg/contents/specification.html</li>
@@ -342,7 +380,7 @@
 <li>CROW Property Test Cases</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2025-10-23 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>
