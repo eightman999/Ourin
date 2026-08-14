@@ -3087,37 +3087,55 @@ extension GhostManager: NSWindowDelegate {
         Log.debug("[GhostManager] Executing update check for: \(target)")
 
         DispatchQueue.global(qos: .utility).async {
-            // Determine what to update
-            switch target.lowercased() {
-            case "self", "ghost":
-                // Check for updates to this ghost
-                self.checkGhostUpdate(options: options)
-            case "platform", "baseware":
-                // Check for updates to Ourin itself
-                self.checkPlatformUpdate(options: options)
-            case "other", "all":
-                // `updateother` can target both ghosts and installed components.
-                // Keep the legacy no-selector behavior (all ghosts), while routing
-                // explicit balloon/shell/plugin/headline/language selectors to
-                // their own installed target instead of silently updating ghosts.
-                let parsed = UpdateCommandOptions(options)
-                if !parsed.componentSelectors.isEmpty {
-                    self.checkComponentUpdates(options: options, selectors: parsed.componentSelectors)
-                    let hasGhostSelector = parsed.selectors.contains { $0.type == "ghost" }
-                    if hasGhostSelector {
-                        let ghostOptions = options.filter { rawValue in
-                            let body = rawValue.hasPrefix("--") ? String(rawValue.dropFirst(2)) : rawValue
-                            guard let separator = body.firstIndex(of: "=") else { return true }
-                            let type = String(body[..<separator]).lowercased()
-                            return !ComponentUpdateTargetDiscovery.supportedTypes.contains(type)
+            // UKADOC の `update,ghost+shell+balloon` は複数対象を一度に指定する。
+            // 各対象を同じオプションで独立して処理し、単一対象の既存イベント列を
+            // そのまま再利用する。
+            let requestedTargets = target
+                .lowercased()
+                .split(separator: "+", omittingEmptySubsequences: true)
+                .map(String.init)
+            let targets = requestedTargets.isEmpty ? [target.lowercased()] : requestedTargets
+
+            for requestedTarget in targets {
+                switch requestedTarget {
+                case "self", "ghost":
+                    // Check for updates to this ghost
+                    self.checkGhostUpdate(options: options)
+                case "platform", "baseware":
+                    // Check for updates to Ourin itself
+                    self.checkPlatformUpdate(options: options)
+                case "balloon", "shell", "plugin", "headline", "language":
+                    // `update,<component>` は名前を省略した全対象指定。
+                    // updateother のセレクタ実装を共有し、対象が無ければ
+                    // target_not_found の標準イベント列を返す。
+                    self.checkComponentUpdates(
+                        options: options,
+                        selectors: [UpdateCommandOptions.Selector(type: requestedTarget, name: "")]
+                    )
+                case "other", "all":
+                    // `updateother` can target both ghosts and installed components.
+                    // Keep the legacy no-selector behavior (all ghosts), while routing
+                    // explicit balloon/shell/plugin/headline/language selectors to
+                    // their own installed target instead of silently updating ghosts.
+                    let parsed = UpdateCommandOptions(options)
+                    if !parsed.componentSelectors.isEmpty {
+                        self.checkComponentUpdates(options: options, selectors: parsed.componentSelectors)
+                        let hasGhostSelector = parsed.selectors.contains { $0.type == "ghost" }
+                        if hasGhostSelector {
+                            let ghostOptions = options.filter { rawValue in
+                                let body = rawValue.hasPrefix("--") ? String(rawValue.dropFirst(2)) : rawValue
+                                guard let separator = body.firstIndex(of: "=") else { return true }
+                                let type = String(body[..<separator]).lowercased()
+                                return !ComponentUpdateTargetDiscovery.supportedTypes.contains(type)
+                            }
+                            self.checkAllGhostsUpdate(options: ghostOptions)
                         }
-                        self.checkAllGhostsUpdate(options: ghostOptions)
+                    } else {
+                        self.checkAllGhostsUpdate(options: options)
                     }
-                } else {
-                    self.checkAllGhostsUpdate(options: options)
+                default:
+                    Log.info("[GhostManager] Unknown update target: \(requestedTarget)")
                 }
-            default:
-                Log.info("[GhostManager] Unknown update target: \(target)")
             }
         }
     }
@@ -3511,7 +3529,9 @@ extension GhostManager: NSWindowDelegate {
     private func checkComponentUpdates(options: [String], selectors: [UpdateCommandOptions.Selector]) {
         let commandOptions = UpdateCommandOptions(options)
         let checkOnly = commandOptions.checkOnly
-        let requested = selectors.map { "\($0.type)=\($0.name)" }.joined(separator: ",")
+        let requested = selectors.map { selector in
+            selector.name.isEmpty ? selector.type : "\(selector.type)=\(selector.name)"
+        }.joined(separator: ",")
 
         func emitSelectionFailure(reason: String) {
             EventBridge.shared.notify(.OnUpdateOtherFailure, refs: [
@@ -3543,7 +3563,7 @@ extension GhostManager: NSWindowDelegate {
         let discovered = ComponentUpdateTargetDiscovery.discover(types: types)
         let targets = discovered.filter { target in
             selectors.contains { selector in
-                selector.type == target.type && target.matches(name: selector.name)
+                selector.type == target.type && (selector.name.isEmpty || target.matches(name: selector.name))
             }
         }
         guard !targets.isEmpty else {
