@@ -171,13 +171,17 @@ enum URLDropPolicy {
             && bytes[1] == 0x01
             && bytes[2] == 0x0d
             && bytes[3] == 0xb8
+        let isIPv4Compatible = bytes.prefix(12).allSatisfy { $0 == 0 }
         let isIPv4Mapped = bytes.prefix(10).allSatisfy { $0 == 0 }
             && bytes[10] == 0xff
             && bytes[11] == 0xff
         if isIPv4Mapped {
             return isBlockedIPv4(Array(bytes[12...]))
         }
-        return isZero || isUniqueLocal || isLinkLocal || isMulticast || isDocumentation
+        // ::/96 は IPv4-compatible と loopback (::1) を含む予約帯域であり、
+        // URLSession の接続先として公開アドレス扱いしてはならない。
+        return isZero || isIPv4Compatible || isUniqueLocal || isLinkLocal
+            || isMulticast || isDocumentation
     }
 
     static func mimeType(for url: URL) -> String {

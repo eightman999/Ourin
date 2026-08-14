@@ -95,6 +95,9 @@ struct DragDropEventTests {
         #expect(URLDropPolicy.remoteURL(from: "https://user:password@example.com/ghost.nar", allowInsecureHTTP: true) == nil)
         #expect(URLDropPolicy.remoteURL(from: "https://127.0.0.1/ghost.nar", allowInsecureHTTP: true) == nil)
         #expect(URLDropPolicy.remoteURL(from: "https://localhost/ghost.nar", allowInsecureHTTP: true) == nil)
+        #expect(URLDropPolicy.remoteURL(from: "https://[::1]/ghost.nar", allowInsecureHTTP: true) == nil)
+        #expect(URLDropPolicy.remoteURL(from: "https://[::ffff:127.0.0.1]/ghost.nar", allowInsecureHTTP: true) == nil)
+        #expect(URLDropPolicy.remoteURL(from: "https://[::127.0.0.1]/ghost.nar", allowInsecureHTTP: true) == nil)
         #expect(URLDropPolicy.plannedAction(for: narURL) == "nar")
         #expect(URLDropPolicy.plannedAction(for: textURL) == "unknown")
         #expect(URLDropPolicy.queryReferences(for: narURL, scopeID: 1) == [
