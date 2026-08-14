@@ -94,7 +94,7 @@ SSP の「[SHIORI Event リスト]」を正とし、Ourin（macOS）で**語彙�
 | OnDressupChanged | NOTIFY | 着せ替え変更 | R* | — | — |
 | OnBalloonChange | NOTIFY | バルーン切替 | R* | — | PNG 32bit 透過前提 |
 | OnWindowStateMinimize/Restore | NOTIFY | 最小化/復元 | scope | — | AppKit ウィンドウ最小化状態を合成 |
-| OnFullScreenAppMinimize/Restore | NOTIFY | フルスクリーン干渉 | app id | — | NSWorkspace 前面アプリ監視 |
+| OnFullScreenAppMinimize/Restore | NOTIFY | フルスクリーン干渉 | R0=`fullscreen` | — | NSWorkspace 前面アプリ＋CGWindow の全画面判定。権限不足時は誤発火を避けて無通知 |
 | OnVirtualDesktopChanged | NOTIFY | デスクトップ切替 | idx | — | Mission Control 検出はベストエフォート |
 | OnCacheSuspend/Restore | NOTIFY | メモリ圧迫/復帰 | — | — | 圧縮メモリ検知で代替 |
 | OnInitialize/OnDestroy | NOTIFY | Ourin の SHIORI初期化/破棄 | — | — | — |

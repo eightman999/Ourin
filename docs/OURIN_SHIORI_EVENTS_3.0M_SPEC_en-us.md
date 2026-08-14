@@ -18,6 +18,8 @@ This document is a partial translation of the Japanese original. Sections are ad
 
 Standard automatic system events — timer (`OnSecondChange`/`OnMinuteChange`/`OnHourTimeSignal`), input/mouse, sleep/wake, display change, power status, locale, appearance, session, network, gamepad, device, and speech — are enabled at **real ghost-load completion** as the single centralized activation point.
 
+Full-screen application events (`OnFullScreenAppMinimize` / `OnFullScreenAppRestore`) are emitted only for a detected transition of a frontmost non-Ourin application whose layer-0 window covers the display. Their `Reference0` is the fixed value `fullscreen`. Ordinary application focus changes do not emit these events; when CGWindow or frontmost-application information is unavailable, the state is left unchanged to avoid false restore notifications.
+
 Relevant source files:
 - `Ourin/Ghost/GhostManager.swift` — `startEventBridgeIfNeeded(enableAutoEvents:)`
 - `Ourin/SHIORIEvents/EventBridge.swift` — `start(enableAutoEvents:)` and the internal NOTIFY queue

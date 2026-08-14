@@ -1,4 +1,5 @@
 import Foundation
+import CoreGraphics
 import Testing
 @testable import Ourin
 
@@ -105,6 +106,61 @@ struct PowerObserverTests {
         #expect(minimized.params == ["Reference0": "fullscreen"])
         #expect(restored.id == .OnFullScreenAppRestore)
         #expect(restored.params == ["Reference0": "fullscreen"])
+    }
+
+    @Test
+    func fullScreenEventsOnlyDescribeDetectedStateTransitions() {
+        let application = FullScreenApplication(
+            processIdentifier: 42,
+            bundleIdentifier: "com.example.player",
+            name: "Player"
+        )
+
+        #expect(SessionObserver.fullScreenTransitionEvents(previous: nil, current: nil).isEmpty)
+        #expect(SessionObserver.fullScreenTransitionEvents(previous: nil, current: application).map(\.id) == [.OnFullScreenAppMinimize])
+        #expect(SessionObserver.fullScreenTransitionEvents(previous: application, current: application).isEmpty)
+        #expect(SessionObserver.fullScreenTransitionEvents(previous: application, current: nil).map(\.id) == [.OnFullScreenAppRestore])
+    }
+
+    @Test
+    func fullScreenDetectionIgnoresNormalWindowsAndOurin() {
+        let display = CGRect(x: 0, y: 0, width: 1440, height: 900)
+        let application = FullScreenApplication(
+            processIdentifier: 42,
+            bundleIdentifier: "com.example.player",
+            name: "Player"
+        )
+        let normalWindow = FullScreenWindowSnapshot(
+            ownerProcessIdentifier: application.processIdentifier,
+            layer: 0,
+            bounds: CGRect(x: 20, y: 20, width: 1400, height: 820),
+            isOnscreen: true
+        )
+        #expect(SessionObserver.detectFullScreenApplication(
+            windows: [normalWindow],
+            displayBounds: [display],
+            frontmostApplication: application,
+            ownProcessIdentifier: 99
+        ) == .none)
+
+        let fullScreenWindow = FullScreenWindowSnapshot(
+            ownerProcessIdentifier: application.processIdentifier,
+            layer: 0,
+            bounds: display,
+            isOnscreen: true
+        )
+        #expect(SessionObserver.detectFullScreenApplication(
+            windows: [fullScreenWindow],
+            displayBounds: [display],
+            frontmostApplication: application,
+            ownProcessIdentifier: 99
+        ) == .active(application))
+        #expect(SessionObserver.detectFullScreenApplication(
+            windows: [fullScreenWindow],
+            displayBounds: [display],
+            frontmostApplication: application,
+            ownProcessIdentifier: application.processIdentifier
+        ) == .none)
     }
 
     @Test
