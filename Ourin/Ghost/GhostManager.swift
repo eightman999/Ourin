@@ -937,6 +937,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     }
     var playbackQueue: [PlaybackUnit] = []
     var isPlaying: Bool = false
+    /// OnVanishSelected の応答を再生中で、完了後に消滅処理を続ける状態。
+    /// 元スクリプトと表示用スクリプトを分け、OnVanishButtonHold の Reference0 は
+    /// SHIORI の返答本文、Reference2 は実際に表示したスクリプトの進捗から作る。
+    var vanishSelectedSourceScript: String?
+    var vanishSelectedDisplayScript: String?
+    var vanishSelectedCompletion: (() -> Void)?
+    var vanishLastClickAt: Date?
+    var vanishLastClickScope: Int?
     /// 非同期待機コールバックが古いスクリプトのキューを再開しないための世代番号。
     private var playbackGeneration: UInt64 = 0
     private var quickMode: Bool = false
@@ -1809,6 +1817,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         didShutdown = true
         cancelActiveURLDropDownload()
         cancelMoveWindowAsync(scope: nil)
+        vanishSelectedSourceScript = nil
+        vanishSelectedDisplayScript = nil
+        vanishSelectedCompletion = nil
+        vanishLastClickAt = nil
+        vanishLastClickScope = nil
         if usageSessionStarted {
             RateOfUseStore.shared.endSession(identifier: ghostURL.standardizedFileURL.path)
             usageSessionStarted = false
@@ -4807,6 +4820,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 // \e を含まないスクリプトの終端でもアンカー範囲を確定する。
                 finalizePendingAnchorIfNeeded()
                 emitPluginTalkAfterIfNeeded()
+                if vanishSelectedCompletion != nil {
+                    completeVanishSelectedPlayback()
+                    return
+                }
                 finishBootIfNeeded()
                 // OnClose 応答スクリプトの再生完了後に終了する（スクリプトが \- を含まない場合の保険）
                 if terminateAfterPlayback {

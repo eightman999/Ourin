@@ -99,6 +99,7 @@ final class EventBridge {
         // This allows ghosts to work purely with script-triggered events (\![raise,...])
         if enableAutoEvents {
             TimerEmitter.shared.start(forward)
+            configureGhostClickHandler()
             InputMonitor.shared.start(handler: forward)
             SystemLoadObserver.shared.start(forward)
             SleepObserver.shared.start(forward)
@@ -127,6 +128,7 @@ final class EventBridge {
         observerGeneration &+= 1
         TimerEmitter.shared.stop()
         SleepObserver.shared.stop()
+        InputMonitor.shared.ghostClickHandler = nil
         InputMonitor.shared.stop()
         DisplayObserver.shared.stop()
         SpaceObserver.shared.stop()
@@ -170,6 +172,7 @@ final class EventBridge {
         if enabled {
             // Start all system observers
             TimerEmitter.shared.start(forward)
+            configureGhostClickHandler()
             InputMonitor.shared.start(handler: forward)
             SystemLoadObserver.shared.start(forward)
             SleepObserver.shared.start(forward)
@@ -193,6 +196,7 @@ final class EventBridge {
             // Stop all system observers
             TimerEmitter.shared.stop()
             SleepObserver.shared.stop()
+            InputMonitor.shared.ghostClickHandler = nil
             InputMonitor.shared.stop()
             DisplayObserver.shared.stop()
             SpaceObserver.shared.stop()
@@ -936,6 +940,30 @@ final class EventBridge {
 
     private func session(for ghostManager: GhostManager) -> Session? {
         sessions.values.first { $0.ghostManager === ghostManager }
+    }
+
+    /// InputMonitor のダブルクリックを、発生元ウィンドウを所有するゴーストへ
+    /// ルーティングする。消滅選択中だけ GhostManager が true を返し、通常の
+    /// OnMouseClick/OnMouseDoubleClick は従来どおり InputMonitor から配送する。
+    private func configureGhostClickHandler() {
+        InputMonitor.shared.ghostClickHandler = { [weak self] window, params, clickStreak in
+            guard let self else { return false }
+            for session in self.sessions.values {
+                guard let manager = session.ghostManager,
+                      manager.ownsInputWindow(window) else { continue }
+                if manager.isBalloonInputWindow(window) {
+                    return manager.consumesVanishBalloonInputClick(button: params["Reference5"])
+                }
+                let fallbackScope = Int(params["Reference3"] ?? "") ?? 0
+                let scope = manager.inputScope(for: window, fallback: fallbackScope)
+                return manager.handleVanishInputClick(
+                    scope: scope,
+                    button: params["Reference5"],
+                    clickStreak: clickStreak
+                )
+            }
+            return false
+        }
     }
 
     /// Observer は Network/Speech/GameController 等から任意のキューで呼ばれる。

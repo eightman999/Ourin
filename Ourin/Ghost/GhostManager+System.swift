@@ -4230,94 +4230,25 @@ extension GhostManager: NSWindowDelegate {
                 to: self,
                 playResponse: false
             ) ?? ""
-            EventBridge.shared.notify(.OnVanishing, params: [:])
-
-            let targetItem = self.vanishTargetItem(preferredName: nextGhostName)
-            do {
-                guard FileManager.default.fileExists(atPath: self.ghostURL.path) else {
-                    throw NSError(domain: "OurinVanish", code: 1, userInfo: [
-                        NSLocalizedDescriptionKey: "ghost directory does not exist"
-                    ])
-                }
-                try FileManager.default.trashItem(at: self.ghostURL, resultingItemURL: nil)
-            } catch {
-                Log.info("[GhostManager] Failed to vanish ghost \(currentName): \(error)")
-                EventBridge.shared.notifyCustom("OnVanishFailure", refs: [
-                    "ghostName": currentName,
-                    "reason": error.localizedDescription
-                ])
+            let lastScript = self.choiceSourceScript
+            let complete = { [weak self] in
+                guard let self else { return }
+                self.finishVanish(
+                    currentInfo: currentInfo,
+                    currentName: currentName,
+                    nextGhostName: nextGhostName,
+                    lastScript: lastScript,
+                    vanishSelectedScript: vanishSelectedScript
+                )
+            }
+            guard !vanishSelectedScript.isEmpty else {
+                complete()
                 return
             }
-
-            // OnFirstBoot の Reference0（vanish された回数）用に記録する。
-            let defaults = UserDefaults.standard
-            defaults.set(defaults.integer(forKey: "OurinVanishCount") + 1, forKey: "OurinVanishCount")
-            // 次に起動するゴーストを初回扱い（OnFirstBoot）にする。
-            defaults.set(0, forKey: "OurinBootCount")
-
-            // 同時起動中の他ゴーストへは、消滅元を除外した GET を送る。
-            // R1/R7 を欠落させないよう、最後のスクリプトと消滅元シェルも渡す。
-            let targetShellName = targetItem.map {
-                self.ghostEventInfo(named: $0.name).shellName
-            } ?? ""
-            let otherClosedParams = EventReferenceTable.params(
-                forEvent: EventID.OnOtherGhostClosed.rawValue,
-                refs: [
-                    "ghostName": currentInfo.mainName,
-                    "lastScript": self.choiceSourceScript,
-                    "closedGhostName": currentInfo.ghostName,
-                    "shellName": currentInfo.shellName
-                ]
+            self.beginVanishSelectedPlayback(
+                sourceScript: vanishSelectedScript,
+                completion: complete
             )
-            _ = EventBridge.shared.request(
-                .OnOtherGhostClosed,
-                params: otherClosedParams,
-                excluding: [self]
-            )
-
-            let otherVanishedParams = EventReferenceTable.params(
-                forEvent: EventID.OnOtherGhostVanished.rawValue,
-                refs: [
-                    "ghostName": currentInfo.mainName,
-                    "vanishSelectedScript": vanishSelectedScript,
-                    "vanishedGhostName": currentInfo.ghostName,
-                    "shellName": targetShellName
-                ]
-            )
-            _ = EventBridge.shared.request(
-                .OnOtherGhostVanished,
-                params: otherVanishedParams,
-                excluding: [self]
-            )
-
-            let appDelegate = NSApp.delegate as? AppDelegate
-            let isPrimary = appDelegate?.ghostManager === self
-            if isPrimary {
-                appDelegate?.ghostManager = nil
-            }
-
-            if let appDelegate {
-                if isPrimary {
-                    _ = self.shutdown()
-                    if let targetItem {
-                        let vanishedBootRequest = GhostBootRequest(
-                            eventID: .OnVanished,
-                            references: [
-                                currentInfo.mainName,
-                                vanishSelectedScript,
-                                currentInfo.ghostName,
-                                "", "", "", "", ""
-                            ]
-                        )
-                        appDelegate.runGhost(at: targetItem.path, bootRequest: vanishedBootRequest)
-                    }
-                } else {
-                    appDelegate.terminateAdditionalGhost(self)
-                }
-            } else {
-                _ = self.shutdown()
-            }
-            Log.debug("[GhostManager] Ghost vanished successfully: \(currentName)")
         }
 
         if Thread.isMainThread {
@@ -4325,6 +4256,139 @@ extension GhostManager: NSWindowDelegate {
         } else {
             DispatchQueue.main.async(execute: operation)
         }
+    }
+
+    /// OnVanishSelected の応答が最後まで再生された後に、実際の消滅処理を行う。
+    /// 再生中のダブルクリックで OnVanishButtonHold が成立した場合は、このメソッドの
+    /// 完了クロージャ自体が破棄されるため、ゴミ箱移動へ進まない。
+    private func finishVanish(
+        currentInfo: GhostEventInfo,
+        currentName: String,
+        nextGhostName: String?,
+        lastScript: String,
+        vanishSelectedScript: String
+    ) {
+        EventBridge.shared.notify(.OnVanishing, params: [:])
+
+        let targetItem = vanishTargetItem(preferredName: nextGhostName)
+        do {
+            guard FileManager.default.fileExists(atPath: ghostURL.path) else {
+                throw NSError(domain: "OurinVanish", code: 1, userInfo: [
+                    NSLocalizedDescriptionKey: "ghost directory does not exist"
+                ])
+            }
+            try FileManager.default.trashItem(at: ghostURL, resultingItemURL: nil)
+        } catch {
+            Log.info("[GhostManager] Failed to vanish ghost \(currentName): \(error)")
+            EventBridge.shared.notifyCustom("OnVanishFailure", refs: [
+                "ghostName": currentName,
+                "reason": error.localizedDescription
+            ])
+            return
+        }
+
+        // OnFirstBoot の Reference0（vanish された回数）用に記録する。
+        let defaults = UserDefaults.standard
+        defaults.set(defaults.integer(forKey: "OurinVanishCount") + 1, forKey: "OurinVanishCount")
+        // 次に起動するゴーストを初回扱い（OnFirstBoot）にする。
+        defaults.set(0, forKey: "OurinBootCount")
+
+        // 同時起動中の他ゴーストへは、消滅元を除外した GET を送る。
+        // R1/R7 を欠落させないよう、最後のスクリプトと消滅元シェルも渡す。
+        let targetShellName = targetItem.map {
+            ghostEventInfo(named: $0.name).shellName
+        } ?? ""
+        let otherClosedParams = EventReferenceTable.params(
+            forEvent: EventID.OnOtherGhostClosed.rawValue,
+            refs: [
+                "ghostName": currentInfo.mainName,
+                "lastScript": lastScript,
+                "closedGhostName": currentInfo.ghostName,
+                "shellName": currentInfo.shellName
+            ]
+        )
+        _ = EventBridge.shared.request(
+            .OnOtherGhostClosed,
+            params: otherClosedParams,
+            excluding: [self]
+        )
+
+        let otherVanishedParams = EventReferenceTable.params(
+            forEvent: EventID.OnOtherGhostVanished.rawValue,
+            refs: [
+                "ghostName": currentInfo.mainName,
+                "vanishSelectedScript": vanishSelectedScript,
+                "vanishedGhostName": currentInfo.ghostName,
+                "shellName": targetShellName
+            ]
+        )
+        _ = EventBridge.shared.request(
+            .OnOtherGhostVanished,
+            params: otherVanishedParams,
+            excluding: [self]
+        )
+
+        let appDelegate = NSApp.delegate as? AppDelegate
+        let isPrimary = appDelegate?.ghostManager === self
+        if isPrimary {
+            appDelegate?.ghostManager = nil
+        }
+
+        if let appDelegate {
+            if isPrimary {
+                _ = shutdown()
+                if let targetItem {
+                    let vanishedBootRequest = GhostBootRequest(
+                        eventID: .OnVanished,
+                        references: [
+                            currentInfo.mainName,
+                            vanishSelectedScript,
+                            currentInfo.ghostName,
+                            "", "", "", "", ""
+                        ]
+                    )
+                    appDelegate.runGhost(at: targetItem.path, bootRequest: vanishedBootRequest)
+                }
+            } else {
+                appDelegate.terminateAdditionalGhost(self)
+            }
+        } else {
+            _ = shutdown()
+        }
+        Log.debug("[GhostManager] Ghost vanished successfully: \(currentName)")
+    }
+
+    /// OnVanishSelected の応答を再生キューへ投入し、完了後の削除処理を保留する。
+    func beginVanishSelectedPlayback(sourceScript: String, completion: @escaping () -> Void) {
+        let context = ScriptTranslationContext(eventID: EventID.OnVanishSelected.rawValue)
+        let displayScript = translateForDisplay(sourceScript, context: context)
+        vanishSelectedSourceScript = sourceScript
+        vanishSelectedDisplayScript = displayScript
+        vanishSelectedCompletion = completion
+        vanishLastClickAt = nil
+        vanishLastClickScope = nil
+
+        guard !displayScript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            completeVanishSelectedPlayback()
+            return
+        }
+        runTranslatedScript(displayScript)
+        // 数値応答などで runTranslatedScript が再生を拒否した場合も、消滅処理を
+        // 保留したままにしない。
+        if !isPlaying, playbackQueue.isEmpty {
+            completeVanishSelectedPlayback()
+        }
+    }
+
+    /// 再生キュー終端から呼ばれる OnVanishSelected 完了出口。
+    func completeVanishSelectedPlayback() {
+        guard let completion = vanishSelectedCompletion else { return }
+        vanishSelectedSourceScript = nil
+        vanishSelectedDisplayScript = nil
+        vanishSelectedCompletion = nil
+        vanishLastClickAt = nil
+        vanishLastClickScope = nil
+        completion()
     }
 
     /// 通常のゴースト切替で使う終了処理。ランタイムやインストールデータは保持する。
@@ -4336,6 +4400,11 @@ extension GhostManager: NSWindowDelegate {
         balloonWindows.removeAll()
         playbackQueue.removeAll()
         isPlaying = false
+        vanishSelectedSourceScript = nil
+        vanishSelectedDisplayScript = nil
+        vanishSelectedCompletion = nil
+        vanishLastClickAt = nil
+        vanishLastClickScope = nil
     }
 
     /// 消滅後の切替先を、明示指定→現在位置からの順序選択→先頭の順に解決する。

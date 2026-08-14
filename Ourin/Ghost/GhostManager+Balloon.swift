@@ -184,7 +184,237 @@ extension GhostManager {
         triggerSerikoTalkAnimationIfEnabled(characterCount: 0)
     }
 
+    /// 指定ウィンドウがこのゴーストのキャラクター／バルーンウィンドウかを返す。
+    /// InputMonitor のダブルクリックを複数ゴーストへ誤配送しないために使う。
+    func ownsInputWindow(_ window: NSWindow) -> Bool {
+        characterWindows.values.contains { $0 === window } ||
+            balloonWindows.values.contains { $0 === window }
+    }
+
+    /// バルーンは SwiftUI のクリックコールバックがダブルクリック判定を担う。
+    /// InputMonitor 側では通常のマウスイベントだけを抑止し、同じクリックを
+    /// `OnVanishButtonHold` と `OnBalloonBreak` の両方へ流さないようにする。
+    func isBalloonInputWindow(_ window: NSWindow) -> Bool {
+        balloonWindows.values.contains { $0 === window }
+    }
+
+    /// 消滅演出中のバルーン入力を InputMonitor で消費するか返す。
+    func consumesVanishBalloonInputClick(button: String?) -> Bool {
+        guard vanishSelectedCompletion != nil else { return false }
+        return button == nil || button == "0"
+    }
+
+    /// ウィンドウ識別子からスコープを解決する。マウスイベントの
+    /// Reference3 はキャラクターウィンドウでは取得できるが、バルーン側では
+    /// 既定値になるため、発生元ウィンドウを正とする。
+    func inputScope(for window: NSWindow, fallback: Int) -> Int {
+        guard let identifier = window.identifier?.rawValue,
+              let suffix = identifier.split(separator: "_").last,
+              let scope = Int(suffix) else {
+            return fallback
+        }
+        return scope
+    }
+
+    /// 消滅演出中のクリックを消費する。1回目は通常のマウスイベントを
+    /// 発火させずに待ち、2回目で OnVanishButtonHold を発火する。
+    @discardableResult
+    func handleVanishInputClick(scope: Int, button: String?, clickStreak: Int) -> Bool {
+        guard vanishSelectedCompletion != nil else { return false }
+        // Reference5=0 は左ボタン。右クリックメニュー等は消滅演出の
+        // キャンセル操作として奪わない。
+        guard button == nil || button == "0" else { return false }
+        if clickStreak >= 2 {
+            _ = handleVanishButtonHold(scope: scope)
+        }
+        return true
+    }
+
+    /// OnVanishSelected の再生中にバルーンがクリックされた場合のフォールバック。
+    /// 入力監視が無効なテスト／埋め込み表示でも同じダブルクリック意味論を保つ。
+    func handleVanishBalloonClick(scope: Int) {
+        guard vanishSelectedCompletion != nil else { return }
+        let now = Date()
+        if let previous = vanishLastClickAt,
+           let previousScope = vanishLastClickScope,
+           previousScope == scope,
+           now.timeIntervalSince(previous) <= 0.35 {
+            _ = handleVanishButtonHold(scope: scope)
+        } else {
+            vanishLastClickAt = now
+            vanishLastClickScope = scope
+        }
+    }
+
+    /// 消滅演出を中断し、OnVanishButtonHold を GET で発火する。
+    @discardableResult
+    func handleVanishButtonHold(scope: Int) -> Bool {
+        guard let sourceScript = vanishSelectedSourceScript,
+              vanishSelectedCompletion != nil else { return false }
+
+        let displayScript = vanishSelectedDisplayScript ?? sourceScript
+        let displayedText = getBalloonVM(for: scope).text
+        let breakPosition = Self.vanishBreakPosition(
+            in: displayScript,
+            displayedText: displayedText,
+            scope: scope
+        )
+        let refs = EventReferenceTable.params(
+            forEvent: EventID.OnVanishButtonHold.rawValue,
+            refs: [
+                "displayedScript": sourceScript,
+                "scope": String(scope),
+                "breakPosition": String(breakPosition)
+            ]
+        )
+
+        // 先に完了コールバックを破棄してから GET を送る。応答スクリプトが
+        // 即時再生されても、消滅処理を再開しないようにする。
+        vanishSelectedSourceScript = nil
+        vanishSelectedDisplayScript = nil
+        vanishSelectedCompletion = nil
+        vanishLastClickAt = nil
+        vanishLastClickScope = nil
+        pendingClick = nil
+        pendingChoices.removeAll()
+        choiceHasCancelOption = false
+        choiceTimeout = nil
+        choiceTimeoutDisabled = false
+        timeCriticalActive = false
+        cancelPlaybackForBalloonBreak()
+        getBalloonVM(for: scope).resetBalloonContent()
+
+        return EventBridge.shared.request(
+            .OnVanishButtonHold,
+            params: refs,
+            to: self
+        )
+    }
+
+    /// OnVanishButtonHold Reference2 のため、表示済み本文を SakuraScript の
+    /// 元文字列上の位置へ戻す。制御タグを読み飛ばすだけでなく、\n／\_u／\_m
+    /// など表示文字を生成するタグも追跡するため、単純な表示文字数ではない。
+    static func vanishBreakPosition(in sourceScript: String, displayedText: String, scope: Int) -> Int {
+        guard !displayedText.isEmpty else { return 0 }
+
+        let chars = Array(sourceScript)
+        var index = 0
+        var sourceOffset = 0
+        var activeScope = 0
+        var visibleByScope: [Int: String] = [:]
+        var bestMatch = 0
+
+        func appendVisible(_ value: String) -> Bool {
+            guard !value.isEmpty else { return false }
+            visibleByScope[activeScope, default: ""].append(value)
+            guard activeScope == scope,
+                  displayedText.hasPrefix(visibleByScope[activeScope] ?? "") else {
+                return false
+            }
+            bestMatch = sourceOffset
+            return visibleByScope[activeScope] == displayedText
+        }
+
+        func bracketEnd(from start: Int) -> Int {
+            var cursor = start
+            while cursor < chars.count {
+                if chars[cursor] == "\\", cursor + 1 < chars.count {
+                    cursor += 2
+                    continue
+                }
+                if chars[cursor] == "]" { return cursor }
+                cursor += 1
+            }
+            return chars.count
+        }
+
+        func scalarText(_ value: String) -> String? {
+            var raw = value.trimmingCharacters(in: .whitespacesAndNewlines)
+            var radix = 10
+            if raw.lowercased().hasPrefix("0x") {
+                raw.removeFirst(2)
+                radix = 16
+            } else if raw.lowercased().hasPrefix("#x") {
+                raw.removeFirst(2)
+                radix = 16
+            } else if raw.hasPrefix("#") {
+                raw.removeFirst()
+            }
+            guard let number = UInt32(raw, radix: radix),
+                  let scalar = UnicodeScalar(number) else { return nil }
+            return String(scalar)
+        }
+
+        while index < chars.count {
+            guard chars[index] == "\\" else {
+                let value = String(chars[index])
+                index += 1
+                sourceOffset += 1
+                if appendVisible(value) { return sourceOffset }
+                continue
+            }
+
+            guard index + 1 < chars.count else {
+                index += 1
+                sourceOffset += 1
+                continue
+            }
+
+            let commandStart = index
+            let next = chars[index + 1]
+            if next == "\\" || next == "%" {
+                index += 2
+                sourceOffset += 2
+                if appendVisible(String(next)) { return sourceOffset }
+                continue
+            }
+
+            var nameEnd = index + 2
+            if next == "_" {
+                while nameEnd < chars.count, chars[nameEnd] == "_" {
+                    nameEnd += 1
+                }
+                if nameEnd < chars.count { nameEnd += 1 }
+            }
+            let commandName = String(chars[(index + 1)..<nameEnd]).lowercased()
+            var argument: String?
+            var commandEnd = nameEnd
+            if commandEnd < chars.count, chars[commandEnd] == "[" {
+                let closing = bracketEnd(from: commandEnd + 1)
+                argument = String(chars[(commandEnd + 1)..<min(closing, chars.count)])
+                commandEnd = min(closing + (closing < chars.count ? 1 : 0), chars.count)
+            }
+
+            index = commandEnd
+            sourceOffset += commandEnd - commandStart
+
+            if let scopeID = Int(commandName), (0...9).contains(scopeID) {
+                activeScope = scopeID
+            } else if commandName == "p", let scopeID = Int(argument ?? "") {
+                activeScope = scopeID
+            } else if commandName == "n" {
+                if appendVisible("\n") { return sourceOffset }
+            } else if commandName == "_u" || commandName == "_m" {
+                if let value = scalarText(argument ?? ""), appendVisible(value) {
+                    return sourceOffset
+                }
+            } else if commandName == "&",
+                      let value = resolveEntityReference(argument ?? ""),
+                      appendVisible(value) {
+                return sourceOffset
+            }
+        }
+
+        // 解析不能表示する拡張タグが含まれる場合でも、最後に確認できた
+        // 正確な位置を優先し、本文全体まで一致しなかった場合だけ終端を返す。
+        return bestMatch > 0 ? bestMatch : chars.count
+    }
+
     func onBalloonClicked(fromScope: Int) {
+        if vanishSelectedCompletion != nil {
+            handleVanishBalloonClick(scope: fromScope)
+            return
+        }
         guard !noUserBreakModeActive else {
             Log.debug("[GhostManager] Balloon click ignored: nouserbreakmode active")
             return

@@ -491,6 +491,106 @@ struct GhostUtilityCommandTests {
         #expect(manager.isPlaying == false)
     }
 
+    @Test
+    func vanishBreakPositionCountsControlTagsFromScriptStart() {
+        let script = #"\s[2]あいう\e"#
+
+        #expect(GhostManager.vanishBreakPosition(in: script, displayedText: "あ", scope: 0) == 6)
+        #expect(GhostManager.vanishBreakPosition(in: script, displayedText: "あい", scope: 0) == 7)
+    }
+
+    @Test @MainActor
+    func vanishSelectedPlaybackCompletesAfterQueueDrains() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-vanish-playback-completion-test"))
+        let runtime = CapturingUtilityRuntime()
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        var completionCount = 0
+        manager.beginVanishSelectedPlayback(sourceScript: #"\e"#) {
+            completionCount += 1
+        }
+
+        for _ in 0..<100 where completionCount == 0 {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        #expect(completionCount == 1)
+        #expect(manager.vanishSelectedCompletion == nil)
+    }
+
+    @Test @MainActor
+    func vanishButtonHoldInterruptsPlaybackWithRawScriptAndPosition() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-vanish-button-hold-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnVanishButtonHold.rawValue] = #"\0held\e"#
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        var completionCalled = false
+        let sourceScript = #"\s[2]あいう\e"#
+        manager.beginVanishSelectedPlayback(sourceScript: sourceScript) {
+            completionCalled = true
+        }
+        manager.getBalloonVM(for: 0).text = "あ"
+
+        #expect(manager.handleVanishInputClick(scope: 0, button: "0", clickStreak: 1))
+        #expect(runtime.requests.first { $0.id == EventID.OnVanishButtonHold.rawValue } == nil)
+        #expect(manager.handleVanishInputClick(scope: 0, button: "0", clickStreak: 2))
+
+        let hold = runtime.requests.first { $0.id == EventID.OnVanishButtonHold.rawValue }
+        #expect(hold?.method == "GET")
+        #expect(hold?.refs == [sourceScript, "0", "6"])
+        #expect(!completionCalled)
+        #expect(manager.vanishSelectedCompletion == nil)
+
+        let balloon = manager.getBalloonVM(for: 0)
+        for _ in 0..<100 where balloon.text != "held" {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(balloon.text == "held")
+    }
+
+    @Test @MainActor
+    func balloonVanishDoubleClickDoesNotRaiseBalloonBreak() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-balloon-vanish-double-click-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnVanishButtonHold.rawValue] = #"\0held\e"#
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        let sourceScript = #"\0あいう\e"#
+        manager.beginVanishSelectedPlayback(sourceScript: sourceScript) { }
+        manager.getBalloonVM(for: 0).text = "あ"
+
+        manager.onBalloonClicked(fromScope: 0)
+        manager.onBalloonClicked(fromScope: 0)
+
+        #expect(runtime.requests.filter { $0.id == EventID.OnVanishButtonHold.rawValue }.count == 1)
+        #expect(runtime.requests.contains { $0.id == EventID.OnBalloonBreak.rawValue } == false)
+    }
+
     @Test @MainActor
     func otherGhostLifecycleGETExcludesSourceAndTarget() {
         EventBridge.shared.stop()

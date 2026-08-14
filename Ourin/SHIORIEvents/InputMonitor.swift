@@ -12,6 +12,11 @@ final class InputMonitor {
     /// Called when a right-click (non-gesture) is detected on a ghost character window.
     /// The parameter is the screen-space click location.
     var rightClickMenuHandler: ((NSPoint) -> Void)?
+    /// Called before normal click events are delivered for a ghost/balloon window.
+    /// Returning true consumes the click (used by a lifecycle gesture such as
+    /// OnVanishButtonHold). The window is included so multi-ghost sessions can
+    /// route the gesture to the owning GhostManager instead of the primary one.
+    var ghostClickHandler: ((NSWindow, [String: String], Int) -> Bool)?
 
     // Track mouse down events to detect clicks
     private var mouseDownLocation: CGPoint?
@@ -261,11 +266,6 @@ final class InputMonitor {
         let button = mouseButtonName(for: ev)
         let isExButton = isExtendedButton(button)
 
-        handler?(ShioriEvent(id: .OnMouseClick, params: params))
-        if isExButton {
-            handler?(ShioriEvent(id: .OnMouseClickEx, params: params))
-        }
-
         if let previousTime = lastClickTime,
            let previousLoc = lastClickLocation,
            let previousButton = lastClickButton {
@@ -279,6 +279,21 @@ final class InputMonitor {
             }
         } else {
             clickStreak = 1
+        }
+
+        let consumed = ev.window.map {
+            ghostClickHandler?($0, params, clickStreak) ?? false
+        } ?? false
+        if consumed {
+            lastClickTime = Date()
+            lastClickLocation = mouseScreenLocation(for: ev)
+            lastClickButton = button
+            return
+        }
+
+        handler?(ShioriEvent(id: .OnMouseClick, params: params))
+        if isExButton {
+            handler?(ShioriEvent(id: .OnMouseClickEx, params: params))
         }
 
         if clickStreak >= 2 {
