@@ -218,7 +218,7 @@ enum URLDropPolicy {
     }
 }
 
-/// UKADOC の OnURLDropFailure Reference2 に渡す失敗理由を、URL ドロップ専用に正規化する。
+/// UKADOC の OnURLDropFailure Reference1 に渡す失敗理由を、URL ドロップ専用に正規化する。
 /// 通常の OnInstallFailure は既存の理由語彙を維持するため、installFailureReason とは分離する。
 enum URLDropFailureReason {
     static func httpStatus(_ statusCode: Int) -> String {

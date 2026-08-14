@@ -159,7 +159,7 @@ GET で問い合わせた後、応答スクリプトが無い場合に標準の 
 `OnURLQuery` の Reference は URL／スコープ番号／MIME／予定処理（`nar` または `unknown`）。
 `nar` の場合だけ `OnURLDropping` → HTTPS（または明示許可時のHTTP）ダウンロード →
 `OnURLDropped` → NAR インストールの順で処理し、通信・展開・設置に失敗した場合は
-`OnURLDropFailure` を送る。Reference2 のHTTP失敗理由はステータスコード文字列、通信失敗は
+`OnURLDropFailure` を送る。Reference1 のHTTP失敗理由はステータスコード文字列、通信失敗は
 `timeout`／`fileio` 等の標準語彙へ正規化する。構文不正・許可外スキーム・明示許可のないHTTPは
 受信開始前に拒否するため、標準の失敗イベントを発火しない。ダウンロード完了前に
 `OnURLDropped` を発火せず、未知のURLを自動ダウンロードしない。接続先は公開アドレスへ
