@@ -1037,7 +1037,8 @@ extension GhostManager {
     
     /// Setup screen change observation for alignment enforcement
     func setupScreenChangeObserver() {
-        NotificationCenter.default.addObserver(
+        removeScreenChangeObserver()
+        screenChangeObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil,
             queue: .main

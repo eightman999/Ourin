@@ -157,6 +157,15 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func screenChangeObserverIsRemovedDuringShutdown() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-screen-observer-lifecycle-test"))
+
+        #expect(manager.screenChangeObserver != nil)
+        _ = manager.shutdown()
+        #expect(manager.screenChangeObserver == nil)
+    }
+
+    @Test @MainActor
     func unloadedCharacterWindowRetainsItsCanvasSize() async throws {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-empty-window-size-test"))
         defer { _ = manager.shutdown() }

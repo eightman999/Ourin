@@ -835,6 +835,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var shellMakotoTranslator: MakotoTranslator?
     let sakuraEngine = SakuraScriptEngine()
     var eventToken: UUID?
+    /// デスクトップ配置用の画面構成 observer。ゴースト終了時に必ず解除する。
+    var screenChangeObserver: NSObjectProtocol?
     private var didShutdown = false
     // SHIORI Resource はゴースト別名前空間で保持する（複数ゴースト同時起動時の汚染防止）。
     // lazy: ghostURL 確定後（init 完了後）の初回アクセスで生成する。
@@ -1202,6 +1204,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     }
 
     deinit {
+        removeScreenChangeObserver()
         // Swift Testing/Task の所有権解放はバックグラウンドスレッドで起こり得る。
         // deinit から AppKit の停止処理を呼ぶと、stopAllVideos() などがメインキューへ
         // self の weak capture を登録する途中で objc_initWeak が abort するため、
@@ -1215,6 +1218,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             activeURLDropTask?.cancel()
             activeURLDropSession?.invalidateAndCancel()
         }
+    }
+
+    /// NotificationCenter の block observer は `removeObserver(self)` では解除されないため、
+    /// ゴースト単位で保持したトークンを明示的に破棄する。
+    func removeScreenChangeObserver() {
+        guard let observer = screenChangeObserver else { return }
+        NotificationCenter.default.removeObserver(observer)
+        screenChangeObserver = nil
     }
 
     /// `currentghost.scope(ID).scaling` が返す実効倍率を、SET/SERIKO 後の ViewModel から組み立てる。
@@ -1840,6 +1851,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             usageSessionStarted = false
         }
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
+        removeScreenChangeObserver()
         NotificationCenter.default.removeObserver(self)
         if let config = ghostConfig,
            let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher {
