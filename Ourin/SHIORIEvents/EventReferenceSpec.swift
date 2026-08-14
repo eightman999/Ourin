@@ -54,7 +54,11 @@ public enum EventReferenceTable {
     public static let allSpecs: [EventReferenceSpec] = [
         // MARK: - ライフサイクル
         .init(id: "OnFirstBoot", references: ["vanishCount"], category: "lifecycle"),
-        .init(id: "OnBoot", references: ["shellName"], category: "lifecycle"),
+        // Reference6/7 は MATERIA/SSP 互換の異常終了通知（halt/前回ゴースト名）。
+        .init(id: "OnBoot", references: [
+            "shellName", "unused1", "unused2", "unused3", "unused4", "unused5",
+            "haltReason", "previousGhostName"
+        ], category: "lifecycle"),
         .init(id: "OnInitialize", references: [], category: "lifecycle"),
         .init(id: "OnDestroy", references: ["destroyReason"], category: "lifecycle"),
         .init(id: "OnClose", references: ["closeReason"], category: "lifecycle"),

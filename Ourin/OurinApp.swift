@@ -7,6 +7,34 @@ import UserNotifications
 import Foundation
 // FMO 機能を組み込み、起動時に初期化する
 
+/// アプリプロセスの正常終了／異常終了を次回起動時に判定する永続マーカー。
+enum BootRecoveryMarker {
+    static let activeKey = "OurinCrashRecovery.active"
+    static let ghostNameKey = "OurinCrashRecovery.ghostName"
+
+    /// 前回セッションのマーカーを読み取り、現在セッションを未終了状態へ切り替える。
+    @discardableResult
+    static func beginSession(defaults: UserDefaults = .standard) -> GhostBootRecovery? {
+        let recovery = defaults.bool(forKey: activeKey)
+            ? GhostBootRecovery(previousGhostName: defaults.string(forKey: ghostNameKey) ?? "")
+            : nil
+        defaults.set(true, forKey: activeKey)
+        defaults.removeObject(forKey: ghostNameKey)
+        return recovery
+    }
+
+    static func recordActiveGhost(name: String, defaults: UserDefaults = .standard) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        defaults.set(trimmed, forKey: ghostNameKey)
+    }
+
+    static func clearSession(defaults: UserDefaults = .standard) {
+        defaults.removeObject(forKey: activeKey)
+        defaults.removeObject(forKey: ghostNameKey)
+    }
+}
+
 struct OurinApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {
@@ -102,6 +130,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     /// ベースウェア更新後の再起動で OnBasewareUpdated を一度だけ発火するための状態。
     private var pendingBasewareUpdateVersion: String?
     private var pendingBasewareUpdateMarkerURL: URL?
+    /// 前回プロセス異常終了時の OnBoot Reference6/7 を、最初の主ゴーストへ一度だけ渡す。
+    private var pendingBootRecovery: GhostBootRecovery?
     /// update,platform からの終了では OnClose を使う（通常終了は OnCloseAll）。
     private var basewareUpdateTerminationRequested = false
     let shioriRuntimeCache = ShioriRuntimeCache(capacity: 2)
@@ -178,6 +208,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         if isRunningUnderTests {
             NSLog("[AppDelegate] Detected XCTest environment; skipping full app bootstrap")
             return
+        }
+
+        pendingBootRecovery = BootRecoveryMarker.beginSession()
+        if let pendingBootRecovery {
+            NSLog("[AppDelegate] Previous Ourin session did not terminate cleanly; OnBoot recovery is pending")
         }
 
         // Ensure single instance and clean helper state by killing others first
@@ -377,6 +412,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        BootRecoveryMarker.clearSession()
         NotificationCenter.default.removeObserver(self, name: .ourinWebHomeURLReceived, object: nil)
         NotificationCenter.default.removeObserver(self, name: .fmoNeedsRefresh, object: nil)
         // 終了時に共有メモリとセマフォを開放
@@ -704,8 +740,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         NSLog("[runGhost] Creating GhostManager for: \(root.path)")
         let newManager = GhostManager(ghostURL: root)
         self.ghostManager = newManager
+        let bootRecovery = pendingBootRecovery
+        pendingBootRecovery = nil
         NSLog("[runGhost] Starting GhostManager")
-        newManager.start(bootRequest: bootRequest) { [weak self] _, result in
+        newManager.start(bootRequest: bootRequest, bootRecovery: bootRecovery) { [weak self] _, result in
             guard result.succeeded,
                   let self,
                   let version = self.pendingBasewareUpdateVersion else { return }
@@ -719,6 +757,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             }
             self.pendingBasewareUpdateVersion = nil
             self.pendingBasewareUpdateMarkerURL = nil
+        }
+    }
+
+    /// 主ゴースト名を異常終了マーカーへ記録する。追加ゴーストは上書きしない。
+    func recordActiveGhostForCrashRecovery(name: String, manager: GhostManager) {
+        let record = {
+            guard self.ghostManager === manager else { return }
+            BootRecoveryMarker.recordActiveGhost(name: name)
+        }
+        if Thread.isMainThread {
+            record()
+        } else {
+            DispatchQueue.main.async(execute: record)
         }
     }
 

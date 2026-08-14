@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import Ourin
 
@@ -54,6 +55,34 @@ func eventReferenceTableCoversMajorLifecycleEvents() {
 
     let firstBoot = EventReferenceTable.specs["OnFirstBoot"]
     #expect(firstBoot?.references.first == "vanishCount")
+}
+
+@Test
+func onBootReferencesIncludeCrashRecoveryOnlyWhenNeeded() {
+    #expect(GhostManager.onBootReferences(shellName: "Classic", recovery: nil) == ["Classic"])
+
+    let recovery = GhostBootRecovery(previousGhostName: "Emily")
+    let references = GhostManager.onBootReferences(shellName: "Classic", recovery: recovery)
+    #expect(references.count == 8)
+    #expect(references[0] == "Classic")
+    #expect(Array(references[1...5]) == ["", "", "", "", ""])
+    #expect(references[6] == "halt")
+    #expect(references[7] == "Emily")
+}
+
+@Test
+func bootRecoveryMarkerDistinguishesCleanAndAbnormalSessions() {
+    let suiteName = "OurinTests.BootRecovery.\(UUID().uuidString)"
+    let defaults = UserDefaults(suiteName: suiteName)!
+    defaults.removePersistentDomain(forName: suiteName)
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    #expect(BootRecoveryMarker.beginSession(defaults: defaults) == nil)
+    BootRecoveryMarker.recordActiveGhost(name: " Emily ", defaults: defaults)
+    #expect(BootRecoveryMarker.beginSession(defaults: defaults) == GhostBootRecovery(previousGhostName: "Emily"))
+
+    BootRecoveryMarker.clearSession(defaults: defaults)
+    #expect(BootRecoveryMarker.beginSession(defaults: defaults) == nil)
 }
 
 @Test

@@ -786,6 +786,11 @@ struct GhostBootRequest {
     let references: [String]
 }
 
+/// 前回の Ourin プロセスが異常終了した場合に、次の OnBoot へ渡す復旧情報。
+struct GhostBootRecovery: Equatable {
+    let previousGhostName: String
+}
+
 struct GhostBootResult {
     let eventID: String
     let script: String
@@ -1570,6 +1575,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     func start(
         bootRequest: GhostBootRequest? = nil,
+        bootRecovery: GhostBootRecovery? = nil,
         completion: ((GhostManager, GhostBootResult) -> Void)? = nil
     ) {
         Log.info("[GhostManager] start() called for ghost at: \(ghostURL.path)")
@@ -1591,6 +1597,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             if let config = GhostConfiguration.load(from: ghostRoot) {
                 self.ghostConfig = config
                 self.activeShellName = config.defaultShellDirectory.isEmpty ? "master" : config.defaultShellDirectory
+                DispatchQueue.main.async {
+                    (NSApp.delegate as? AppDelegate)?.recordActiveGhostForCrashRecovery(name: config.name, manager: self)
+                }
                 RateOfUseStore.shared.beginSession(
                     identifier: self.ghostURL.standardizedFileURL.path,
                     name: config.name,
@@ -1703,7 +1712,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 let result = self.obtainBootScript(
                     using: runtime,
                     bootCount: bootCount,
-                    initialRequest: bootRequest
+                    initialRequest: bootRequest,
+                    bootRecovery: bootRecovery
                 )
                 if let result {
                     let trimmed = result.script.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1790,7 +1800,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             let result = self.obtainBootScript(
                 using: runtime,
                 bootCount: 1,
-                initialRequest: request
+                initialRequest: request,
+                bootRecovery: nil
             )
             DispatchQueue.main.async {
                 let existingResult = GhostBootResult(
@@ -5077,7 +5088,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     private func obtainBootScript(
         using runtime: GhostShioriRuntime,
         bootCount: Int,
-        initialRequest: GhostBootRequest?
+        initialRequest: GhostBootRequest?,
+        bootRecovery: GhostBootRecovery? = nil
     ) -> GhostBootResult? {
         let hdrs: [String: String] = ["Charset": "UTF-8", "SecurityLevel": "local", "Sender": "Ourin"]
         let shellName = activeShellName
@@ -5134,7 +5146,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
 
         // 2) OnBoot（UKADOC: Reference0 = 起動したシェル名）
-        if let r = runtime.request(method: "GET", id: "OnBoot", headers: hdrs, refs: [shellName], timeout: 4.0), r.ok {
+        // MATERIA/SSP互換の異常終了通知では Reference6=halt、Reference7=前回ゴースト名。
+        let onBootReferences = Self.onBootReferences(
+            shellName: shellName,
+            recovery: initialRequest == nil ? bootRecovery : nil
+        )
+        if let r = runtime.request(method: "GET", id: "OnBoot", headers: hdrs, refs: onBootReferences, timeout: 4.0), r.ok {
             let v = r.value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             let pv = v.replacingOccurrences(of: "\n", with: "\\n").prefix(160)
             NSLog("[GhostManager] OnBoot response: ok=true, len=\(v.count), preview=\(pv)")
@@ -5167,6 +5184,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         // an empty boot response instead of masking a broken ghost with mock content.
         NSLog("[GhostManager] No SHIORI boot script was returned")
         return nil
+    }
+
+    /// 通常起動は既存の Reference0 のみを送り、異常終了からの復旧時だけ
+    /// UKADOC/MATERIA互換の Reference6/7 を追加する。
+    static func onBootReferences(shellName: String, recovery: GhostBootRecovery?) -> [String] {
+        guard let recovery else { return [shellName] }
+        var references = [shellName] + Array(repeating: "", count: 7)
+        references[6] = "halt"
+        references[7] = recovery.previousGhostName
+        return references
     }
 
     /// 単体テスト実行中かどうか。テスト時は自動システムイベント（タイマー/入力監視等）を抑止する。
