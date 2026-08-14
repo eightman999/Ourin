@@ -157,6 +157,32 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func windowCommandsDoNotRevealAnUnloadedCharacterScope() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-unloaded-window-command-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 2) else {
+            Issue.record("Expected a lazily created scope 2 window")
+            return
+        }
+
+        // 再発経路を再現するため、画像未設定の窓を一度だけ明示表示する。
+        window.orderFront(nil)
+        manager.currentScope = 2
+        manager.moveWindowToFront(scope: 2)
+        manager.setWindowZOrder(scopes: [2])
+        manager.resetWindowZOrder()
+        manager.setWindowState(state: "show")
+        manager.setCurrentWindowHidden(false)
+        manager.focusCurrentWindow()
+        manager.maximizeCurrentWindow()
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(manager.characterViewModels[2]?.image == nil)
+        #expect(window.isVisible == false)
+    }
+
+    @Test @MainActor
     func legacyMoveFixRetainsOnlyTheRequestedAxis() async throws {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-move-fix-test"))
         defer { _ = manager.shutdown() }

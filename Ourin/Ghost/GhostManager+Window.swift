@@ -364,6 +364,10 @@ extension GhostManager {
         Log.debug("[GhostManager] Moving scope \(scope) window to back")
         DispatchQueue.main.async {
             if let window = self.characterWindows[scope] {
+                guard self.characterWindowHasLoadedSurface(window) else {
+                    window.orderOut(nil)
+                    return
+                }
                 window.orderBack(nil)
                 window.level = .normal
                 Log.info("[GhostManager] Moved scope \(scope) to background")
@@ -392,7 +396,7 @@ extension GhostManager {
         Log.debug("[GhostManager] Moving scope \(scope) window to front")
         DispatchQueue.main.async {
             if let window = self.characterWindows[scope] {
-                window.orderFront(nil)
+                guard self.orderCharacterWindowIfLoaded(window) else { return }
                 window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
                 Log.info("[GhostManager] Moved scope \(scope) to foreground")
             }
@@ -1235,10 +1239,18 @@ extension GhostManager {
         // Order windows from back to front based on scopes array.
         for (index, scope) in scopes.enumerated() {
             guard let window = characterWindows[scope] else { continue }
+            guard characterWindowHasLoadedSurface(window) else {
+                window.orderOut(nil)
+                continue
+            }
             if index == scopes.count - 1 {
-                window.orderFront(nil)
+                _ = orderCharacterWindowIfLoaded(window)
             } else if let nextWindow = characterWindows[scopes[index + 1]] {
-                window.order(.below, relativeTo: nextWindow.windowNumber)
+                if characterWindowHasLoadedSurface(nextWindow) {
+                    window.order(.below, relativeTo: nextWindow.windowNumber)
+                } else {
+                    _ = orderCharacterWindowIfLoaded(window)
+                }
             }
         }
     }
@@ -1251,7 +1263,7 @@ extension GhostManager {
             // Restore default floating window level for all
             for (scope, window) in self.characterWindows {
                 window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
-                window.orderFront(nil)
+                _ = self.orderCharacterWindowIfLoaded(window)
                 Log.info("[GhostManager] Scope \(scope) Z-order reset")
             }
         }
@@ -1438,12 +1450,13 @@ extension GhostManager {
                 }
                 Log.info("[GhostManager] Window minimized")
             } else if stateLC == "maximize" {
+                guard self.orderCharacterWindowIfLoaded(window, makeKey: true) else { return }
                 if !window.isZoomed {
                     window.zoom(nil)
                 }
-                window.makeKeyAndOrderFront(nil)
                 Log.info("[GhostManager] Window maximized")
             } else if stateLC == "restore" {
+                guard self.orderCharacterWindowIfLoaded(window) else { return }
                 if window.isMiniaturized {
                     if let scope = self.characterWindows.first(where: { $0.value === window })?.key {
                         self.pendingWindowStateReasons[scope] = "script"
@@ -1453,17 +1466,16 @@ extension GhostManager {
                 if window.isZoomed {
                     window.zoom(nil)
                 }
-                window.orderFront(nil)
                 Log.info("[GhostManager] Window restored")
             } else if stateLC == "hide" {
                 window.orderOut(nil)
                 Log.info("[GhostManager] Window hidden")
             } else if stateLC == "show" {
-                window.orderFront(nil)
+                guard self.orderCharacterWindowIfLoaded(window) else { return }
                 Log.info("[GhostManager] Window shown")
             } else if stateLC == "focus" || stateLC == "activate" {
+                guard self.orderCharacterWindowIfLoaded(window, makeKey: true) else { return }
                 NSApp.activate(ignoringOtherApps: true)
-                window.makeKeyAndOrderFront(nil)
                 Log.info("[GhostManager] Window focused")
             }
         }
@@ -1475,7 +1487,7 @@ extension GhostManager {
             if hidden {
                 window.orderOut(nil)
             } else {
-                window.orderFront(nil)
+                _ = self.orderCharacterWindowIfLoaded(window)
             }
         }
     }
@@ -1483,19 +1495,50 @@ extension GhostManager {
     func focusCurrentWindow() {
         DispatchQueue.main.async {
             guard let window = self.characterWindows[self.currentScope] else { return }
+            guard self.orderCharacterWindowIfLoaded(window, makeKey: true) else { return }
             NSApp.activate(ignoringOtherApps: true)
-            window.makeKeyAndOrderFront(nil)
         }
     }
 
     func maximizeCurrentWindow() {
         DispatchQueue.main.async {
             guard let window = self.characterWindows[self.currentScope] else { return }
+            guard self.orderCharacterWindowIfLoaded(window, makeKey: true) else { return }
             if !window.isZoomed {
                 window.zoom(nil)
             }
-            window.makeKeyAndOrderFront(nil)
         }
+    }
+
+    /// 画像未ロードのキャラクター窓は、z-order や表示コマンドからも表示しない。
+    ///
+    /// 起動直後や `\p[N]` で先に作られた窓に SERIKO オーバーレイだけが入ると、
+    /// 目元などの画像片が単独で浮いて見える。サーフェス画像の設定は
+    /// `GhostManager+Surface.updateSurface` だけが表示を許可するため、その他の
+    /// order-front 経路もここで同じ条件に揃える。
+    @discardableResult
+    private func orderCharacterWindowIfLoaded(
+        _ window: NSWindow,
+        makeKey: Bool = false
+    ) -> Bool {
+        guard characterWindowHasLoadedSurface(window) else {
+            window.orderOut(nil)
+            return false
+        }
+
+        if makeKey {
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            window.orderFront(nil)
+        }
+        return true
+    }
+
+    private func characterWindowHasLoadedSurface(_ window: NSWindow) -> Bool {
+        guard let scope = characterWindows.first(where: { $0.value === window })?.key else {
+            return false
+        }
+        return characterViewModels[scope]?.image != nil
     }
 
     // MARK: - 見切れ / 重なり 判定 (UKADOC OnSecondChange Reference1 / Reference2)
