@@ -1192,9 +1192,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         // self の weak capture を登録する途中で objc_initWeak が abort するため、
         // UI を含む終了処理は明示的な shutdown() に限定する。
         // メインスレッドでの解放時だけは、従来どおり最後の保険として実行する。
-        cancelActiveURLDropDownload()
         if Thread.isMainThread {
             shutdown()
+        } else {
+            // deinit はバックグラウンドスレッドでも起こり得るため、状態プロパティを
+            // 書き換えず、保持している URLSession だけを停止する。
+            activeURLDropTask?.cancel()
+            activeURLDropSession?.invalidateAndCancel()
         }
     }
 

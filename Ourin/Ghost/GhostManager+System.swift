@@ -53,7 +53,8 @@ enum URLDropPolicy {
 
     static func remoteURL(
         from rawValue: String,
-        allowInsecureHTTP: Bool
+        allowInsecureHTTP: Bool,
+        resolveHost: Bool = true
     ) -> URL? {
         let rawValue = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !rawValue.isEmpty,
@@ -70,7 +71,7 @@ enum URLDropPolicy {
         guard scheme == "https" || (scheme == "http" && allowInsecureHTTP) else {
             return nil
         }
-        guard isPublicRemoteHost(host) else {
+        guard !resolveHost || isPublicRemoteHost(host) else {
             return nil
         }
         return url
@@ -4778,7 +4779,8 @@ extension GhostManager: NSWindowDelegate {
 
         guard let url = URLDropPolicy.remoteURL(
             from: rawURL,
-            allowInsecureHTTP: allowInsecureHTTP
+            allowInsecureHTTP: allowInsecureHTTP,
+            resolveHost: false
         ) else {
             // URL の構文不正・許可外スキーム・HTTP の明示許可漏れは、まだ
             // URL の受信を試みていないため OnURLDropFailure の対象ではない。
@@ -4827,6 +4829,38 @@ extension GhostManager: NSWindowDelegate {
         scopeID: Int,
         security: ShioriSecurityContext
     ) {
+        let transferID = UUID()
+        activeURLDropTransferID = transferID
+
+        // DNS 解決は UI イベントのメインスレッドから外す。検査に失敗した URL は
+        // OnURLDropping より前に止めるため、OnURLDropFailure は発火しない。
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            guard URLDropPolicy.isPublicRemoteHost(url.host ?? "") else {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self, self.activeURLDropTransferID == transferID else { return }
+                    self.activeURLDropTransferID = nil
+                    Log.info("[GhostManager] URL drop host rejected before download: \(url.absoluteString)")
+                }
+                return
+            }
+            DispatchQueue.main.async { [weak self] in
+                guard let self, self.activeURLDropTransferID == transferID else { return }
+                self.startURLDropDownload(
+                    transferID: transferID,
+                    from: url,
+                    scopeID: scopeID,
+                    security: security
+                )
+            }
+        }
+    }
+
+    private func startURLDropDownload(
+        transferID: UUID,
+        from url: URL,
+        scopeID: Int,
+        security: ShioriSecurityContext
+    ) {
         let droppingParams = EventReferenceTable.params(
             forEvent: EventID.OnURLDropping.rawValue,
             refs: ["url": url.absoluteString, "scopeID": String(scopeID)]
@@ -4838,7 +4872,6 @@ extension GhostManager: NSWindowDelegate {
             security: security
         )
 
-        let transferID = UUID()
         let delegate = URLDropDownloadDelegate(
             allowInsecureHTTP: URLDropPolicy.allowsInsecureHTTP(),
             maximumBytes: URLDropPolicy.maxDownloadBytes

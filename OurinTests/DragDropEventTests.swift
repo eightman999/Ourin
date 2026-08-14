@@ -93,6 +93,7 @@ struct DragDropEventTests {
         #expect(URLDropPolicy.remoteURL(from: "http://example.com/ghost.nar", allowInsecureHTTP: false) == nil)
         #expect(URLDropPolicy.remoteURL(from: "http://example.com/ghost.nar", allowInsecureHTTP: true)?.scheme == "http")
         #expect(URLDropPolicy.remoteURL(from: "https://user:password@example.com/ghost.nar", allowInsecureHTTP: true) == nil)
+        #expect(URLDropPolicy.remoteURL(from: "https://127.0.0.1/ghost.nar", allowInsecureHTTP: true, resolveHost: false) != nil)
         #expect(URLDropPolicy.remoteURL(from: "https://127.0.0.1/ghost.nar", allowInsecureHTTP: true) == nil)
         #expect(URLDropPolicy.remoteURL(from: "https://localhost/ghost.nar", allowInsecureHTTP: true) == nil)
         #expect(URLDropPolicy.remoteURL(from: "https://[::1]/ghost.nar", allowInsecureHTTP: true) == nil)
@@ -140,6 +141,29 @@ struct DragDropEventTests {
 
         #expect(runtime.requests.map(\.id) == ["OnURLDrop", "OnURLQuery"])
         #expect(runtime.requests.last?.refs == [url, "1", "text/html", "unknown"])
+    }
+
+    @Test @MainActor
+    func privateNarURLIsRejectedDuringBackgroundPreflight() async {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-private-url-drop-test"))
+        let runtime = DragDropEventRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            manager.shutdown()
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.handleURLDropEvent(ShioriEvent(
+            id: .OnURLDrop,
+            refs: ["url": "https://127.0.0.1/ghost.nar", "scopeID": "1"]
+        ))
+        #expect(runtime.requests.map(\.id) == ["OnURLDrop", "OnURLQuery"])
+
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        #expect(runtime.requests.map(\.id) == ["OnURLDrop", "OnURLQuery"])
     }
 
     @Test @MainActor
