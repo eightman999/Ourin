@@ -1,6 +1,10 @@
 # Ourin 監査項目 — 完了済み / Audit Items — Completed
 
-**最終更新 / Last Updated**: 2026-08-12
+**最終更新 / Last Updated**: 2026-08-15
+
+> **注記 (2026-08-15)**: 本ファイルの `file:line` 引用は各項目の**判定時点**のものです。その後のリファクタで行番号はズレている可能性があります
+> （2026-08-15 の抜き取り検証10件では、ファイル・シンボル不在は0件、行番号ズレは8件でした）。シンボル名・ファイルパスを優先して参照してください。
+> Note: `file:line` citations reflect the state at audit time; line numbers may have drifted since (2026-08-15 sampling: 0 missing files/symbols, 8/10 line-number drifts). Prefer symbol names / file paths.
 **集約元 / Consolidated from**: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY（各 ja-jp / en-us）
 **検証方法 / Verification**: 全項目を現状ソースコード（file:line）と照合して完了判定。
 
@@ -375,6 +379,37 @@ Items resolved in the fix round following a full re-audit by three Sonnet invest
 | **DevTools mock UI adjudication** (External Events Harness wired to real APIs: live server status, real TCP/HTTP sends with response display, restart-all-servers; Headline/Balloon preview, Signpost, Resource Overlay, and Plugin Enabled toggle marked "Preview only") | `Ourin/ContentView.swift`, `ExternalServer/ServerMetrics.swift` (public `requestCount`) |
 | **Corrected NAR composite-install documentation** (the "missing" claim in AUDITS_TODO was wrong; already implemented) | `Ourin/NarInstall/Paths.swift:219-236` (calendar/skin, calendar/plugin, legacy calendar, language) |
 | **NAR network update deletion and path safety** (2026-08-14) | `NarInstall/LocalNarInstaller.swift` retrieves the optional server-side `delete.txt` after a successful update (including deletion-only updates), accepts its `charset` line, removes only validated paths under the target root, and keeps `testonly` non-mutating. `InstallTxtParser.swift` rejects dot-segment / absolute / drive paths in update descriptors; `ZipUtil.swift` uses component-aware root checks. `NarInstallTests.swift` covers MD5-verified update + Windows-style `delete.txt` paths, traversal rejection, and no-delete 404 behavior. |
+
+---
+
+## 移管記録（2026-08-15 AUDITS_TODO.md 一新に伴う）/ Items migrated from AUDITS_TODO.md (2026-08-15 renewal)
+
+`AUDITS_TODO.md` を未完項目のみに一新した際、同ファイル内に「完了」注記付きで残っていた以下の項目を本ファイルへ移管した。各項目の詳細な根拠・経緯は本ファイルの既存セクションおよび `AUDITS_TODO.md` の git 履歴（2026-08-15 以前）に保存されている。
+
+When `AUDITS_TODO.md` was renewed to pending-only, the following items (already marked completed there) were migrated here. Full evidence remains in the sections above and in the pre-2026-08-15 git history of `AUDITS_TODO.md`.
+
+| 分野 / Area | 項目 / Item | 完了日 / Completed |
+|---|---|---|
+| SHIORI | SHIORI 2.x ABI 互換レイヤーコア（`Shiori2CompatAdapter`、GET Version検出・イベント/TEACH/レスポンス変換・Shift_JIS） | 2026-07-09 |
+| SHIORI | Word/String/Status/OwnerGhostName/OtherGhostName/Communicate 変換の単体テスト＋`OnTalkRequest` 不一致修正 | 2026-07-09 |
+| SHIORI | SHIORI 2.x「二重実装」懸念は disjoint な役割分担と確認（統合不要と判定） | 2026-07-09 |
+| SHIORI | SecurityLevel external 伝播（`dispatchExternal` 集約、TCP/HTTP/XPC 全経路） | 2026-07-08 |
+| SSTP | 210 Break nobreak キューイング＋実ゴースト再生状態接続（`SSTPBreakQueue`/`isAnyGhostPlaying`） | 2026-07-08 / 2026-08-12 |
+| SakuraScript | `\![cancel,http,...]`（`httpStreamingTasks` 追跡＋`cancelHTTPStreaming`） | 2026-07-09 |
+| SakuraScript | `moveasync` キャンセル・レガシー `fix` 軸・時限 `scaling`/`alpha`（`GhostUtilityCommandTests`） | 2026-08-14 |
+| SakuraScript | lexicon 内蔵辞書（`SakuraScriptLexicon.json` 10キー注入） | 2026-07-08 |
+| SHIORIイベント | `EventReferenceTable` の `On*` 型定義網羅＋発火側静的照合（`EventIDAuditTests` 3種、`OnArchiveComplete` 型付き化） | 2026-08-14 |
+| NAR | 同時インストール `*.directory` 系完全処理＋`ZipUtil.secureCopyTree` の /private/var バグ修正 | 2026-07-08 |
+| バルーン | レガシー画像透過（バルーン側左上ピクセル `applyTopLeftPixelChromakey`） | 2026-07-08 |
+| バルーン | 動画レンダラ非対応コーデックのサイレント失敗解消（`OnVideoPlayFailure` 新設） | 2026-07-09 |
+| K監査 | アンカー装飾（`anchorstyle`/`anchorvisited*`/ROP2合成）実装 | 2026-08-14 |
+| K監査 | `\n[half]`/`%` 改行間隔（`lineAdvances` 接続、4スイート26件） | 2026-08-14 |
+| K監査 | `vanishbymyself` 消滅経路（確認・イベント・ゴミ箱・次ゴースト起動） | 2026-08-14 |
+| K監査 | `updateother` 対象解決（balloon/shell/plugin/headline/language、`testonly` 回帰テスト） | 2026-08-14 |
+| K監査 | `\f[cursor*]` と選択肢 hover（`OnChoiceEnter`/500ms `OnChoiceHover`） | 2026-08-14 |
+| K監査 | `BalloonRichTextViewModel` スタブ解消（valign/subscript/superscript） | 2026-08-14 |
+| K監査 | `PropertyManager` AppKit スレッド安全性 | 2026-08-14 |
+| ドキュメント | L監査対応: 完了済み計画・テンプレ19ファイルを `docs/archive/` へ移動、`yaya_core/README.md` 同期、BLOCKER_TRACKER と IMPLEMENTATION_STATUS_SUMMARY のブロッカー矛盾解消、`.serena/memories`（SstpRouter・macOS版数）修正、CLAUDE/AGENTS の AppDelegate 記述修正、yaya_core 進捗系md への時点注記追加 | 2026-08-15 |
 
 ---
 

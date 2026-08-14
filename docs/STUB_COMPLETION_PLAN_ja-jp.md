@@ -37,7 +37,7 @@
 - [x] **2-3. SSTP 210 Break の `nobreak` キューイング** — 2026-07-08 実装済み（Sonnet）
   - UKADOC仕様確認の上、busy時ブロッキング待機（`SSTPBreakQueue`新規、既定5秒タイムアウト→409）→解消後に通常経路へ進む実装。テスト3件（キューイング後200／タイムアウト409／busy解消で続行）、ビルド＋SSTP系テスト全パス。
   - `EventBridge.isAnyGhostPlaying()` を接続し、`GhostManager.isPlaying` が true の間も busy として扱うよう修正（2026-08-12）。`SSTPDispatcherTests` で再生完了後の継続・タイムアウトを確認済み。
-- [x] **2-4. 動画レンダラ（`playVideo`）** — 2026-07-08 実装済み（deep-reasoner設計→codex実装、設計書: docs/VIDEO_RENDERER_DESIGN_ja-jp.md）
+- [x] **2-4. 動画レンダラ（`playVideo`）** — 2026-07-08 実装済み（deep-reasoner設計→codex実装、設計書: docs/archive/VIDEO_RENDERER_DESIGN_ja-jp.md）
   - `VideoPlayerWindow.swift` 新規（AVPlayerView別窓方式）、`\![sound,play,<動画>]` ディスパッチ配線、stop/pause/resume/wait対応、ゴースト終了時クリーンアップ、`VideoRendererTests` 8件（直列化済み）。
   - `--balance` は `MTAudioProcessingTap` で2chのFloat32/Int16 PCMへ左右ゲインを適用する実装を追加。`sound,load` の動画プリロードは実装済み（`VideoPreloadPlayer` が `AVURLAsset`/`AVPlayerItem`/`AVPlayer` を保持し、play時に load/play オプションをマージして1つ消費・stop/cleanup で破棄）。**実機での動画再生・映像表示・実音声の左右バランスは未確認（検証待ち）。**
   - 非対応形式・ファイル未検出は `OnVideoPlayFailure`（`unsupported_codec` / `file_not_found`）を発火し、成功イベントを誤発火しない。

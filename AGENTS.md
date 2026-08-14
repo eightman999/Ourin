@@ -60,7 +60,7 @@ For running single tests, use Xcode's test navigator or:
 - `OurinApp.swift`: Main app entry point, coordinates all subsystems
 - `ContentView.swift`: Primary SwiftUI interface
 - `DevToolsView.swift`: Developer tools interface for debugging
-- All major systems initialized in `AppDelegate.applicationDidFinishLaunching`
+- All major systems initialized in `AppDelegate.applicationDidFinishLaunching` (the `AppDelegate` class lives inside `OurinApp.swift`; there is no standalone `AppDelegate.swift`)
 
 ### File Organization
 

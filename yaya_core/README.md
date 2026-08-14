@@ -1,7 +1,7 @@
 # YAYA Core - macOS Native YAYA Interpreter
 
 **Version**: 0.1.0 (Under Development)  
-**Status**: Phase 1 - Foundation  
+**Status**: Core implemented — Lexer / Parser / VM / 160 built-in functions (see `IMPLEMENTATION_STATUS.md`)  
 **Platform**: macOS (Universal Binary: arm64 + x86_64)  
 **License**: BSD-3-Clause
 
@@ -16,7 +16,7 @@ YAYA Core is a native macOS implementation of the YAYA scripting language interp
 - ✅ **JSON-based IPC**: Line-oriented JSON communication via stdin/stdout
 - ✅ **Universal Binary**: Supports both Apple Silicon (arm64) and Intel (x86_64)
 - ✅ **UTF-8/CP932**: Automatic character encoding detection and conversion
-- 🚧 **YAYA Language**: Full YAYA script interpretation (in progress)
+- ✅ **YAYA Language**: Lexer / Parser / VM implemented (Emily4: all 33 dictionaries load successfully)
 - 🚧 **SHIORI/3.0M**: Complete SHIORI protocol compliance (in progress)
 
 ### Current Status
@@ -26,18 +26,23 @@ YAYA Core is a native macOS implementation of the YAYA scripting language interp
 - [x] JSON message parsing
 - [x] Command dispatch (load/request/unload)
 - [x] CMake build system with Universal Binary support
+- [x] Lexer (tokenizer)
+- [x] Parser (AST construction)
+- [x] Virtual Machine (VM)
+- [x] Built-in functions (all 160 implemented — see `FUNCTION_REFERENCE.md`)
+- [x] Arrays and dictionaries
+- [x] Regular expressions
 
-**In Progress** (Phase 1):
-- [ ] Dictionary file parser (Lexer + Parser)
-- [ ] YAYA Virtual Machine (VM)
-- [ ] Built-in functions (RAND, STRLEN, etc.)
+**In Progress** (Phase 2):
 - [ ] SHIORI adapter
-
-**Planned** (Phase 2+):
-- [ ] Arrays and dictionaries
-- [ ] Regular expressions
 - [ ] SAORI plugin support
 - [ ] Performance optimizations
+
+**Planned** (Phase 3+):
+- [ ] Further optimizations
+- [ ] Improved debugging facilities
+
+For detailed, dated progress see `IMPLEMENTATION_STATUS.md`.
 
 ---
 
@@ -58,12 +63,10 @@ brew install cmake nlohmann-json
 
 # Configure and build
 cd yaya_core
-mkdir build && cd build
-cmake ..
-make
+./build.sh
 
 # Verify build
-./yaya_core --version  # (when implemented)
+./build/yaya_core --version  # (when implemented)
 ```
 
 ### Testing
@@ -161,23 +164,29 @@ yaya_core (Executable)
 ```
 yaya_core/
 ├── CMakeLists.txt          # Build configuration
-├── README.md               # This file
+├── README.md               # This file (English)
+├── README.ja.md            # Japanese documentation
 ├── src/
 │   ├── main.cpp            # Entry point
-│   ├── YayaCore.{cpp,hpp}  # Core controller
+│   ├── YayaCore.{cpp,hpp}  # Core controller (SHIORI/IPC adapter)
 │   ├── DictionaryManager.{cpp,hpp}  # Dictionary loading and ownership
 │   ├── Lexer.{cpp,hpp}     # Tokenizer
 │   ├── Parser.{cpp,hpp}    # Parser
-│   ├── AST.hpp             # Abstract syntax tree
+│   ├── AST.{cpp,hpp}       # Abstract syntax tree
 │   ├── VM.{cpp,hpp}        # Virtual machine and built-ins
 │   ├── Value.{cpp,hpp}     # Runtime value type
-│   └── YayaCore.{cpp,hpp}  # SHIORI/IPC adapter
-│   ├── lexer_test.cpp
-│   ├── parser_test.cpp
-│   └── vm_test.cpp
+│   ├── BuiltinFunctions.{cpp,hpp}  # Built-in functions
+│   ├── MessageManager.{cpp,hpp}    # Message management
+│   ├── Digest.{cpp,hpp}    # Hash function wrappers
+│   └── Base64.{cpp,hpp}    # Base64 encoding
+├── third_party/            # Third-party code
+│   └── yaya/               # Ported from yaya-shiori-500
+│       ├── md5.{c,h}       # MD5 implementation
+│       ├── sha1.{c,h}      # SHA-1 implementation
+│       ├── crc32.{c,h}     # CRC32 implementation
+│       └── posix_utils.{cpp,h}  # POSIX utilities
+├── tests/                  # (planned) unit tests
 └── docs/                   # Documentation
-    ├── IMPLEMENTATION_PLAN.md
-    └── TECHNICAL_SPEC.md
 ```
 
 ### Code Style
@@ -227,9 +236,11 @@ This implementation references the official YAYA interpreter:
 
 ## Documentation
 
-- [Implementation Plan](../docs/YAYA_CORE_IMPLEMENTATION_PLAN.md) - Detailed roadmap and architecture
-- [Technical Specification](../docs/YAYA_CORE_TECHNICAL_SPEC.md) - Language specification and API reference
-- [YAYA Adapter Spec](../docs/OURIN_YAYA_ADAPTER_SPEC_1.0M.md) - IPC protocol specification
+- [Implementation Status](IMPLEMENTATION_STATUS.md) - Current, dated progress (authoritative)
+- [Function Reference](FUNCTION_REFERENCE.md) - Complete list of the 160 implemented built-ins
+- [Implementation Plan](../docs/YAYA_CORE_IMPLEMENTATION_PLAN_ja-jp.md) - Original roadmap (2025-10 snapshot; superseded by IMPLEMENTATION_STATUS.md)
+- [Technical Specification](../docs/YAYA_CORE_TECHNICAL_SPEC_en-us.md) - Language specification and API reference
+- [YAYA Adapter Spec](../docs/OURIN_YAYA_ADAPTER_SPEC_1.0M_en-us.md) - IPC protocol specification
 
 ---
 

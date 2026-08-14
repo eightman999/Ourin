@@ -127,7 +127,7 @@ Fully functional animation execution engine with:
 
 ### Integration Required
 
-See INTEGRATION_ROADMAP.md **Phase 3** for detailed integration steps:
+See archive/INTEGRATION_ROADMAP.md **Phase 3** for detailed integration steps:
 
 1. **Wire SerikoExecutor to GhostManager** (Task 3.1):
    - In GhostManager+Animation.swift:

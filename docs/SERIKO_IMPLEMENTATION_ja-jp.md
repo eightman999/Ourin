@@ -127,7 +127,7 @@ Ourin は現在、SERIKO を 2 層で実装しています：
 
 ### 必要な統合
 
-詳細な統合手順については、INTEGRATION_ROADMAP.md の**フェーズ 3** を参照してください：
+詳細な統合手順については、archive/INTEGRATION_ROADMAP.md の**フェーズ 3** を参照してください：
 
 1. **SerikoExecutor を GhostManager に配線** (タスク 3.1)：
    - GhostManager+Animation.swift 内：

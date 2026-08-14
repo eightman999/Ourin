@@ -40,7 +40,7 @@ Ourin/                     # Main application source
 
 ### 4. External Server
 - Multi-protocol: TCP, HTTP, XPC
-- `SstpRouter` handles request routing
+- Raw SSTP is parsed by `SSTPParser` and dispatched by `SSTP/SSTPDispatcher` (the old `SstpRouter` was removed)
 - Server coordination via `OurinExternalServer`
 
 ## Entry Points

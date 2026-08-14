@@ -1,5 +1,9 @@
 # YAYA Parser Enhancement for Emily4 Compatibility
 
+> ⚠️ **時点スナップショット (2025-10-18)**: 本文書で「未実装」とされている項目（case/when 等）はその後実装済み。
+> 最新状況は `IMPLEMENTATION_STATUS.md` を正とすること。
+> Snapshot as of 2025-10-18; items marked unimplemented here (e.g. case/when) have since been implemented. See `IMPLEMENTATION_STATUS.md`.
+
 ## Summary
 
 The YAYA_core parser has been successfully enhanced to support key syntax patterns used in the emily4 ghost, specifically the `_in_` membership operator which was used 202 times throughout emily4's dictionary files.
