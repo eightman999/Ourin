@@ -423,3 +423,22 @@ func eventReferenceTableMigrationAddedEvents() {
         "identifiers", "names", "paths"
     ])
 }
+
+/// 複合更新は対象順に複数 Reference を持つ1つの結果イベントへ変換する。
+@Test
+func compositeUpdateResultPayloadPreservesTargetOrder() {
+    let records = [
+        UpdateResultRecord(target: "ghost", targetName: "Emily", reason: "changed", fileList: "master/dic.dic", failedFile: nil),
+        UpdateResultRecord(target: "shell", targetName: "Classic", reason: "none", fileList: "", failedFile: nil),
+        UpdateResultRecord(target: "balloon", targetName: "Soft", reason: "network", fileList: "", failedFile: "descriptor.txt")
+    ]
+
+    let payload = GhostManager.updateResultEventPayload(records: records)
+    #expect(payload.basic.keys.sorted() == ["Reference0", "Reference1", "Reference2"])
+    #expect(payload.basic["Reference0"] == "ghost\u{1}OK\u{1}1")
+    #expect(payload.basic["Reference1"] == "shell\u{1}OK\u{1}0")
+    #expect(payload.basic["Reference2"] == "balloon\u{1}NG\u{1}network\u{1}descriptor.txt")
+    #expect(payload.extended["Reference0"] == "Emily\u{1}ghost\u{1}OK\u{1}1")
+    #expect(payload.extended["Reference1"] == "Classic\u{1}shell\u{1}OK\u{1}0")
+    #expect(payload.extended["Reference2"] == "Soft\u{1}balloon\u{1}NG\u{1}network\u{1}descriptor.txt")
+}

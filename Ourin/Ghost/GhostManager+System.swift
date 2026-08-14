@@ -460,6 +460,20 @@ private extension String {
     }
 }
 
+/// ネットワーク更新結果を、OnUpdateResult/Ex の可変 Reference 列へ変換するための値。
+struct UpdateResultRecord: Equatable {
+    let target: String
+    let targetName: String
+    let reason: String
+    let fileList: String
+    let failedFile: String?
+}
+
+struct UpdateResultEventPayload: Equatable {
+    let basic: [String: String]
+    let extended: [String: String]
+}
+
 // MARK: - System Commands and Ghost Booting
 
 extension GhostManager: NSWindowDelegate {
@@ -3096,6 +3110,15 @@ extension GhostManager: NSWindowDelegate {
                 .map(String.init)
             let targets = requestedTargets.isEmpty ? [target.lowercased()] : requestedTargets
 
+            let compositeTargets = targets.map { $0 == "self" ? "ghost" : $0 }
+            let canAggregate = compositeTargets.count > 1 && compositeTargets.allSatisfy {
+                $0 == "ghost" || ["balloon", "shell", "plugin", "headline", "language"].contains($0)
+            }
+            if canAggregate {
+                self.executeCompositeUpdate(targets: compositeTargets, options: options)
+                return
+            }
+
             for requestedTarget in targets {
                 switch requestedTarget {
                 case "self", "ghost":
@@ -3140,9 +3163,65 @@ extension GhostManager: NSWindowDelegate {
         }
     }
 
+    /// `update,ghost+shell+balloon` は各対象の進捗を個別に通知しつつ、
+    /// 最終結果だけを OnUpdateResult/Ex の1回へ集約する。
+    private func executeCompositeUpdate(targets: [String], options: [String]) {
+        var results: [UpdateResultRecord] = []
+
+        func process(index: Int) {
+            guard index < targets.count else {
+                self.emitAggregatedUpdateResultEvents(
+                    records: results,
+                    checkOnly: UpdateCommandOptions(options).checkOnly
+                )
+                return
+            }
+
+            switch targets[index] {
+            case "ghost":
+                self.checkGhostUpdate(options: options) { result in
+                    results.append(result)
+                    process(index: index + 1)
+                }
+            case "balloon", "shell", "plugin", "headline", "language":
+                let selector = UpdateCommandOptions.Selector(type: targets[index], name: "")
+                self.checkComponentUpdates(options: options, selectors: [selector]) { componentResults in
+                    results.append(contentsOf: componentResults)
+                    process(index: index + 1)
+                }
+            default:
+                process(index: index + 1)
+            }
+        }
+
+        process(index: 0)
+    }
+
     /// Check for ghost updates
-    func checkGhostUpdate(options: [String]) {
+    func checkGhostUpdate(options: [String], completion: ((UpdateResultRecord) -> Void)? = nil) {
         let commandOptions = UpdateCommandOptions(options)
+        func finish(reason: String, fileList: String, failedFile: String? = nil, checkOnly: Bool = commandOptions.checkOnly) {
+            let record = UpdateResultRecord(
+                target: "ghost",
+                targetName: self.ghostConfig?.name ?? self.ghostURL.lastPathComponent,
+                reason: reason,
+                fileList: fileList,
+                failedFile: failedFile
+            )
+            if let completion {
+                completion(record)
+            } else {
+                self.emitUpdateResultEvents(
+                    target: record.target,
+                    targetName: record.targetName,
+                    reason: record.reason,
+                    fileList: record.fileList,
+                    explorerPath: self.ghostURL.path,
+                    checkOnly: checkOnly,
+                    failedFile: record.failedFile
+                )
+            }
+        }
         emitUpdateBegin(targetType: "ghost", executionReason: commandOptions.reason)
         guard let updateURL = ghostConfig?.homeurl else {
             Log.info("[GhostManager] No update URL configured for ghost")
@@ -3152,12 +3231,7 @@ extension GhostManager: NSWindowDelegate {
                     "targetType": "ghost",
                     "executionReason": commandOptions.reason
             ])
-            self.emitUpdateResultEvents(
-                target: "ghost",
-                reason: "paramerror",
-                fileList: "",
-                explorerPath: ghostURL.path
-            )
+            finish(reason: "paramerror", fileList: "")
             EventBridge.shared.notifyCustom("OnUpdateCheckFailure", refs: ["reason": "missing_url"])
             return
         }
@@ -3183,14 +3257,7 @@ extension GhostManager: NSWindowDelegate {
                 ])
 
                 if commandOptions.checkOnly {
-                    self.emitUpdateResultEvents(
-                        target: "ghost",
-                        targetName: self.ghostConfig?.name ?? self.ghostURL.lastPathComponent,
-                        reason: reason,
-                        fileList: fileList,
-                        explorerPath: self.ghostURL.path,
-                        checkOnly: true
-                    )
+                    finish(reason: reason, fileList: fileList, checkOnly: true)
                     return
                 }
 
@@ -3202,7 +3269,7 @@ extension GhostManager: NSWindowDelegate {
                         "targetType": "ghost",
                         "executionReason": commandOptions.reason
                     ])
-                    self.emitUpdateResultEvents(target: "ghost", reason: "none", fileList: "", explorerPath: self.ghostURL.path)
+                    finish(reason: "none", fileList: "")
                     Log.debug("[GhostManager] Ghost update: no changes")
                     return
                 }
@@ -3242,12 +3309,7 @@ extension GhostManager: NSWindowDelegate {
                         "targetType": "ghost",
                         "executionReason": commandOptions.reason
                     ])
-                    self.emitUpdateResultEvents(
-                        target: "ghost",
-                        reason: appliedReason,
-                        fileList: appliedList.isEmpty ? fileList : appliedList,
-                        explorerPath: self.ghostURL.path
-                    )
+                    finish(reason: appliedReason, fileList: appliedList.isEmpty ? fileList : appliedList)
                     Log.debug("[GhostManager] Ghost update applied=\(applied.count)/\(entries.count)")
                     case .failure(let error):
                         let failureReason = self.normalizeUpdateFailureReason(error)
@@ -3261,12 +3323,7 @@ extension GhostManager: NSWindowDelegate {
                             "targetType": "ghost",
                             "executionReason": commandOptions.reason
                         ])
-                        self.emitUpdateResultEvents(
-                            target: "ghost",
-                            reason: failureReason,
-                            fileList: fileList,
-                            explorerPath: self.ghostURL.path
-                        )
+                        finish(reason: failureReason, fileList: fileList)
                     }
                 }
             case .failure(let error):
@@ -3278,12 +3335,7 @@ extension GhostManager: NSWindowDelegate {
                     "targetType": "ghost",
                     "executionReason": commandOptions.reason
                 ])
-                self.emitUpdateResultEvents(
-                    target: "ghost",
-                    reason: reason,
-                    fileList: "",
-                    explorerPath: self.ghostURL.path
-                )
+                finish(reason: reason, fileList: "")
                 EventBridge.shared.notifyCustom("OnUpdateCheckFailure", refs: ["reason": reason])
             }
         }
@@ -3526,7 +3578,11 @@ extension GhostManager: NSWindowDelegate {
     ///
     /// 対象ごとに更新記述子を確認し、同じ対象のルートへ増分ファイルを適用する。
     /// ゴースト全体更新の経路とは分離し、誤って全ゴーストへフォールバックしない。
-    private func checkComponentUpdates(options: [String], selectors: [UpdateCommandOptions.Selector]) {
+    private func checkComponentUpdates(
+        options: [String],
+        selectors: [UpdateCommandOptions.Selector],
+        completion: (([UpdateResultRecord]) -> Void)? = nil
+    ) {
         let commandOptions = UpdateCommandOptions(options)
         let checkOnly = commandOptions.checkOnly
         let requested = selectors.map { selector in
@@ -3550,6 +3606,16 @@ extension GhostManager: NSWindowDelegate {
                 "targetType": "component",
                 "executionReason": commandOptions.reason
             ])
+            if let completion {
+                completion([UpdateResultRecord(
+                    target: "component",
+                    targetName: requested,
+                    reason: reason,
+                    fileList: requested,
+                    failedFile: nil
+                )])
+                return
+            }
             self.emitUpdateResultEvents(
                 target: "component",
                 reason: reason,
@@ -3600,6 +3666,18 @@ extension GhostManager: NSWindowDelegate {
                 }
                 basicRefs["Reference\(index)"] = basic.joined(separator: separator)
                 extendedRefs["Reference\(index)"] = extended.joined(separator: separator)
+            }
+            if let completion {
+                completion(results.map {
+                    UpdateResultRecord(
+                        target: $0.target.type,
+                        targetName: $0.target.name,
+                        reason: $0.reason,
+                        fileList: $0.fileList,
+                        failedFile: $0.failedFile
+                    )
+                })
+                return
             }
             let basicEvent: EventID = checkOnly ? .OnUpdateCheckResult : .OnUpdateResult
             let extendedEvent: EventID = checkOnly ? .OnUpdateCheckResultEx : .OnUpdateResultEx
@@ -4153,6 +4231,40 @@ extension GhostManager: NSWindowDelegate {
         // Explorer execution has no separate Ex event in the current EventID set;
         // its basic record remains the same three/four-field OnUpdateResult record.
         EventBridge.shared.notify(.OnUpdateResultExplorer, params: ["Reference0": resultValueBasic])
+    }
+
+    /// 複合更新の全結果を、UKADOC の ReferenceN 形式へ一度だけ整形する。
+    static func updateResultEventPayload(records: [UpdateResultRecord]) -> UpdateResultEventPayload {
+        let separator = String(UnicodeScalar(1))
+        var basic: [String: String] = [:]
+        var extended: [String: String] = [:]
+
+        for (index, record) in records.enumerated() {
+            let success = record.reason == "none" || record.reason == "changed"
+            let value = success
+                ? String(record.fileList.isEmpty ? 0 : record.fileList.split(separator: ",").count)
+                : record.reason
+            var basicParts = [record.target, success ? "OK" : "NG", value]
+            var extendedParts = [record.targetName, record.target, success ? "OK" : "NG", value]
+            if let failedFile = record.failedFile, !failedFile.isEmpty {
+                basicParts.append(failedFile)
+                extendedParts.append(failedFile)
+            }
+            basic["Reference\(index)"] = basicParts.joined(separator: separator)
+            extended["Reference\(index)"] = extendedParts.joined(separator: separator)
+        }
+
+        return UpdateResultEventPayload(basic: basic, extended: extended)
+    }
+
+    private func emitAggregatedUpdateResultEvents(records: [UpdateResultRecord], checkOnly: Bool) {
+        guard !records.isEmpty else { return }
+        let payload = Self.updateResultEventPayload(records: records)
+        let basicEvent: EventID = checkOnly ? .OnUpdateCheckResult : .OnUpdateResult
+        let extendedEvent: EventID = checkOnly ? .OnUpdateCheckResultEx : .OnUpdateResultEx
+        EventBridge.shared.notify(basicEvent, params: payload.basic)
+        EventBridge.shared.notify(extendedEvent, params: payload.extended)
+        EventBridge.shared.notify(.OnUpdateResultExplorer, params: payload.basic)
     }
 
     private func normalizeUpdateFailureReason(_ error: Error) -> String {
