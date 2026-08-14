@@ -104,6 +104,46 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func explicitNegativeSurfaceHidesAndClearsTheScope() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-negative-surface-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 2),
+              let viewModel = manager.characterViewModels[2] else {
+            Issue.record("Expected a lazily created scope 2 window and view model")
+            return
+        }
+        viewModel.image = NSImage(size: NSSize(width: 32, height: 32))
+        viewModel.currentSurfaceID = 7
+        window.orderFront(nil)
+
+        manager.currentScope = 2
+        manager.updateSurface(id: -1)
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(viewModel.image == nil)
+        #expect(viewModel.currentSurfaceID == -1)
+        #expect(window.isVisible == false)
+    }
+
+    @Test @MainActor
+    func selectingAnEmptyScopeDoesNotShowAnEmptyWindow() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-empty-scope-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 2) else {
+            Issue.record("Expected a lazily created scope 2 window")
+            return
+        }
+        window.orderFront(nil)
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .scope(2))
+        manager.processNextUnit()
+
+        #expect(manager.characterViewModels[2]?.image == nil)
+        #expect(window.isVisible == false)
+    }
+
+    @Test @MainActor
     func legacyMoveFixRetainsOnlyTheRequestedAxis() async throws {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-move-fix-test"))
         defer { _ = manager.shutdown() }

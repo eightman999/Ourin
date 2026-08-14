@@ -993,6 +993,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var surfaceNameAliases: [String: Int] = [:]   // \s[alias] 用: 文字列別名 → サーフェスID
     var parsedSurfaceDefs: [Int: SerikoSurfaceDefinition] = [:]  // element 合成・アニメ定義のキャッシュ
     var surfaceTable: SurfaceTable? = nil  // surfacetable.txt のメタデータ（サーフィステスト用グループ定義）
+    /// スコープごとの最新サーフェス要求。非同期ロード完了後に古い要求が表示を復活させないために使う。
+    var surfaceRequestGenerationByScope: [Int: UInt64] = [:]
     var waitingForAnimation: Int? = nil  // Animation ID we're waiting for
 
     // Window management (used by Window extension)
@@ -4894,8 +4896,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
                 // Show the character window for this scope (遅延生成: 未作成スコープはここで生成)
                 if let window = ensureCharacterWindow(for: id) {
-                    window.orderFront(nil)
-                    Log.debug("[GhostManager] Ordered scope \(id) window to front")
+                    if characterViewModels[id]?.image != nil {
+                        window.orderFront(nil)
+                        Log.debug("[GhostManager] Ordered scope \(id) window to front")
+                    } else {
+                        // \pN はスコープを選択するだけで、サーフェス未設定の空窓を
+                        // 画面へ出してはならない。次の \sN が正常に読み込まれた時点で表示する。
+                        window.orderOut(nil)
+                        Log.debug("[GhostManager] Kept scope \(id) window hidden because it has no surface")
+                    }
                 }
 
                 positionBalloonWindow()

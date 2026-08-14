@@ -288,6 +288,36 @@ struct YayaEmily4RegressionTests {
         #expect(value.isEmpty)
     }
 
+    /// クリック対象が無い場合も、内部ハンドラ名や終了タグ断片を返り値として表示しない。
+    @Test
+    func emily4NoOpMouseClickDoesNotExposeGeneratedHandlerName() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping Emily4 regression test")
+            return
+        }
+        guard let master = try Self.copyEmily4Master() else {
+            print("[skip] emily4/ghost/master fixture not found; skipping")
+            return
+        }
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master)
+
+        let response = session.exchange([
+            "cmd": "request", "method": "GET", "id": "OnMouseClick",
+            "ref": ["442", "234", "0", "0", "", "0", "mouse"],
+            "headers": ["Charset": "UTF-8", "SecurityLevel": "local"]
+        ])
+
+        #expect(response?["ok"] as? Bool == true)
+        let value = response?["value"] as? String ?? ""
+        #expect(value.isEmpty)
+        #expect(!value.contains("Mouse_Click0"))
+        #expect(!value.contains("\\e"))
+    }
+
     /// Framework が組み立てた `reference` 配列を動的 EVAL から参照できることを確認する。
     ///
     /// `reference[0]` が SHIORI の parsed Reference0 ではなく、request() に渡した生の

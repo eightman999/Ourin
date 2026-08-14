@@ -22,6 +22,45 @@ enum SurfaceTransparencyMode: Equatable {
 // MARK: - Surface Loading and Compositing
 
 extension GhostManager {
+    private func nextSurfaceRequestGeneration(for scope: Int) -> UInt64 {
+        let next = (surfaceRequestGenerationByScope[scope] ?? 0) &+ 1
+        surfaceRequestGenerationByScope[scope] = next
+        return next
+    }
+
+    private func isCurrentSurfaceRequest(_ generation: UInt64, for scope: Int) -> Bool {
+        surfaceRequestGenerationByScope[scope] == generation
+    }
+
+    /// サーフェス切替後のイベントを、表示成功・非表示の両方で同じ形式にする。
+    private func dispatchSurfaceChange(
+        scope: Int,
+        newSurfaceID: Int,
+        oldSurfaceID: Int,
+        newSurfaceSize: NSSize
+    ) {
+        // UKADOC: Reference0 = sakura(scope0) の現在サーフェスID,
+        // Reference1 = kero(scope1) の現在サーフェスID,
+        // Reference2 = 変化したキャラのスコープ,サーフェスID。
+        let sakuraSurface = characterViewModels[0]?.currentSurfaceID ?? (scope == 0 ? newSurfaceID : 0)
+        let keroSurface = characterViewModels[1]?.currentSurfaceID ?? (scope == 1 ? newSurfaceID : 0)
+        let params: [String: String] = [
+            "sakuraSurface": String(sakuraSurface),
+            "keroSurface": String(keroSurface),
+            "changedScope": "\(scope),\(newSurfaceID)"
+        ]
+        EventBridge.shared.notify(.OnSurfaceChange, refs: params)
+        EventBridge.shared.notifyOtherSurfaceChange(
+            from: self,
+            scope: scope,
+            newSurfaceID: newSurfaceID,
+            oldSurfaceID: oldSurfaceID,
+            newSurfaceSize: newSurfaceSize
+        )
+        NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
+        Log.debug("[GhostManager] OnSurfaceChange dispatched: sakura=\(sakuraSurface) kero=\(keroSurface) (changed scope\(scope) \(oldSurfaceID)->\(newSurfaceID))")
+    }
+
     /// `\![set,property,currentghost.scope(N).surface.num,ID]` 等の SET を実サーフェス/アニメへ反映する。
     /// UKADOC では surface.num / animation.num / seriko.defaultsurface は WRITE 可。プロパティの
     /// 読み戻し配線（live scopeData）とは独立に、ここでは SET の副作用（表示変更）のみを適用する。
@@ -70,6 +109,7 @@ extension GhostManager {
         let id = surfaceAliases[rawID] ?? rawID
         let scope = currentScope
         let oldSurfaceID = characterViewModels[scope]?.currentSurfaceID ?? 0
+        let requestGeneration = nextSurfaceRequestGeneration(for: scope)
 
         // サーフェスに紐づく SERIKO 定義と一時オーバーレイを切り替える。
         // shared-index の対象だけは、次の定義を読み込むまで executor 内に保持する。
@@ -84,10 +124,43 @@ extension GhostManager {
                 Log.debug("[GhostManager] Cleared overlays for scope \(scope) due to surface change")
             }
         }
+
+        if id < 0 {
+            // \s[-1] は「このスコープを非表示」にする指定。画像が見つからない
+            // 通常のロード失敗とは異なり、直前の画像を残してはいけない。
+            DispatchQueue.main.async { [weak self] in
+                guard let self,
+                      self.isCurrentSurfaceRequest(requestGeneration, for: scope) else { return }
+
+                if let vm = self.characterViewModels[scope] {
+                    vm.image = nil
+                    vm.currentSurfaceID = -1
+                    vm.overlays.removeAll()
+                    vm.serikoMoveOffset = .zero
+                }
+                self.characterWindows[scope]?.orderOut(nil)
+                self.positionBalloonWindow()
+                self.dispatchSurfaceChange(
+                    scope: scope,
+                    newSurfaceID: -1,
+                    oldSurfaceID: oldSurfaceID,
+                    newSurfaceSize: .zero
+                )
+                self.startSerikoLoopIfNeeded()
+                Log.debug("[GhostManager] Hid scope \(scope) for explicit surface -1")
+            }
+            scheduleSurfaceRestore(for: requestGeneration, scope: scope)
+            return
+        }
         
         DispatchQueue.global(qos: .userInitiated).async {
             let image = self.loadImage(surfaceId: id, scope: scope)
             DispatchQueue.main.async {
+                guard self.isCurrentSurfaceRequest(requestGeneration, for: scope) else {
+                    Log.debug("[GhostManager] Ignoring stale surface request \(id) for scope \(scope)")
+                    return
+                }
+
                 // If requested surface doesn't exist, keep current surface
                 guard let image = image else {
                     Log.info("[GhostManager] Surface \(id) not found for scope \(scope), keeping current surface")
@@ -106,37 +179,27 @@ extension GhostManager {
                 if let win = self.characterWindows[scope] {
                     // Resize window to fit to new surface
                     win.setContentSize(image.size)
+                    win.orderFront(nil)
                     self.positionBalloonWindow()
                 }
-                
-                // Dispatch OnSurfaceChange event.
-                // UKADOC: Reference0 = sakura(scope0) の現在サーフェスID,
-                //         Reference1 = kero(scope1) の現在サーフェスID,
-                //         Reference2 = 変化したキャラのスコープ,サーフェスID。
-                let sakuraSurface = self.characterViewModels[0]?.currentSurfaceID ?? (scope == 0 ? id : 0)
-                let keroSurface = self.characterViewModels[1]?.currentSurfaceID ?? (scope == 1 ? id : 0)
-                let params: [String: String] = [
-                    "sakuraSurface": String(sakuraSurface),
-                    "keroSurface": String(keroSurface),
-                    "changedScope": "\(scope),\(id)"
-                ]
-                EventBridge.shared.notify(.OnSurfaceChange, refs: params)
-                EventBridge.shared.notifyOtherSurfaceChange(
-                    from: self,
+                self.dispatchSurfaceChange(
                     scope: scope,
                     newSurfaceID: id,
                     oldSurfaceID: oldSurfaceID,
                     newSurfaceSize: image.size
                 )
-                NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
-                Log.debug("[GhostManager] OnSurfaceChange dispatched: sakura=\(sakuraSurface) kero=\(keroSurface) (changed scope\(scope) \(oldSurfaceID)->\(id))")
             }
         }
         
         // Schedule OnSurfaceRestore after a delay
         // UKADOC: Reference0 = 本体側(scope0)の現在サーフェス, Reference1 = 相方側(scope1)の現在サーフェス
+        scheduleSurfaceRestore(for: requestGeneration, scope: scope)
+    }
+
+    private func scheduleSurfaceRestore(for generation: UInt64, scope: Int) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) { [weak self] in
-            guard let self = self else { return }
+            guard let self,
+                  self.isCurrentSurfaceRequest(generation, for: scope) else { return }
             let sakuraSurface = self.characterViewModels[0]?.currentSurfaceID ?? 0
             let keroSurface = self.characterViewModels[1]?.currentSurfaceID ?? 0
             let params: [String: String] = [
