@@ -198,8 +198,8 @@ let expanded = manager.expand(text: text)
 
 ### GhostManager
 `GhostManager` クラスはプロパティ関連の SakuraScript コマンドを処理します:
-- `\![get,property,...]` （408 行目）
-- `\![set,property,...]` （421 行目）
+- `\![get,property,...]`（`GhostManager.swift` の `get` ハンドラ内 `property` 分岐）
+- `\![set,property,...]`（`GhostManager.swift` の `set` ハンドラ内 `property` 分岐）
 
 ### SakuraScriptEngine
 `SakuraScriptEngine` は `PropertyManager` と統合されています:
@@ -208,7 +208,7 @@ let expanded = manager.expand(text: text)
 
 ### EnvironmentExpander
 テキスト内の `%property[key]` 展開を処理します:
-- `EnvironmentExpander.swift` の 109-111 行目
+- `EnvironmentExpander.swift`（`%property[...]` 分岐）
 - `PropertyManager.get()` に委譲
 
 ## テスト

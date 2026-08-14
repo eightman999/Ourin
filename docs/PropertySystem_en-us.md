@@ -198,8 +198,8 @@ the writable key enumeration.
 
 ### GhostManager
 The `GhostManager` class handles property-related SakuraScript commands:
-- `\![get,property,...]` at line 408
-- `\![set,property,...]` at line 421
+- `\![get,property,...]` (the `property` branch of the `get` handler in `GhostManager.swift`)
+- `\![set,property,...]` (the `property` branch of the `set` handler in `GhostManager.swift`)
 
 ### SakuraScriptEngine
 The `SakuraScriptEngine` integrates with `PropertyManager`:
@@ -208,7 +208,7 @@ The `SakuraScriptEngine` integrates with `PropertyManager`:
 
 ### EnvironmentExpander
 Handles `%property[key]` expansion in text:
-- Line 109-111 in `EnvironmentExpander.swift`
+- The `%property[...]` branch in `EnvironmentExpander.swift`
 - Delegates to `PropertyManager.get()`
 
 ## Testing

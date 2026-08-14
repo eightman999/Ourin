@@ -2,6 +2,8 @@
 
 This document lists the SakuraScript commands currently implemented in Ourin, based on `SakuraScriptEngine.swift` parsing and `GhostManager.swift` execution paths.
 
+> This file is a summary. For the comprehensive per-command list (including all `\![set,...]`/`\![enter,...]`/`\![lock,...]` subcommands), see `SAKURASCRIPT_COMMANDS_SUPPORTED_ja-jp.md` / `SAKURASCRIPT_COMMANDS_SUPPORTED_en-us.md`.
+
 Status marks:
 - ✅ Implemented
 - ⚠️ Partially implemented / limited options

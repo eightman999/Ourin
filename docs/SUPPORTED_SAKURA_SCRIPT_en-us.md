@@ -2,6 +2,8 @@
 
 This document lists the SakuraScript commands currently implemented in Ourin, based on `SakuraScriptEngine.swift` parsing and `GhostManager.swift` execution paths.
 
+> This file is a summary. For the comprehensive per-command list (including all `\![set,...]`/`\![enter,...]`/`\![lock,...]` subcommands), see `SAKURASCRIPT_COMMANDS_SUPPORTED_en-us.md`.
+
 Status marks:
 - ✅ Implemented
 - ⚠️ Partially implemented / limited options
@@ -119,9 +121,9 @@ Scope switches themselves (`\0` / `\1` / `\p[n]`) never clear balloons (see `pro
 
 ## Related commands with known partial behavior
 
-- ⚠️ `\![move,...]` (x/y/time/method/scope works; `--base`, `--base-offset`, `--move-offset`, and `--wait` supported; some edge-cases remain)
-- ⚠️ `\![moveasync,...]` (async move with cancel supported; some advanced options remain incomplete)
-- ⚠️ `\![set,scaling,...]` (core scaling implemented; some extended flags are incomplete)
-- ⚠️ `\![set,alpha,...]` (basic alpha set implemented; timed/wait variants are incomplete)
+- ✅ `\![move,...]` (named and legacy positional syntax, `fix` per-axis retention, anchors, duration, method, scope, and `--wait`; updated 2026-08-14)
+- ✅ `\![moveasync,...]` (queued and running animations can be canceled with `\![moveasync,cancel]`; `fix` is supported in legacy syntax; updated 2026-08-14)
+- ✅ `\![set,scaling,...]` (uniform/non-uniform scaling, duration, named options, and `--wait`; updated 2026-08-14)
+- ✅ `\![set,alpha,...]` (0–100 value, negative redraw-only behavior, duration, named options, and `--wait`; updated 2026-08-14)
 - ⚠️ `\![set,zorder,...]` (core ordering implemented; complex combinations are incomplete)
 - ⚠️ `\![set,sticky-window,...]` (basic grouping implemented; complex group handling is incomplete)

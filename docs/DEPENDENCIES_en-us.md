@@ -65,7 +65,7 @@ Ourin uses only Apple official frameworks:
 
 | Library | Version | Purpose | License |
 |---------|---------|---------|---------|
-| **nlohmann/json** | 3.11.2 | JSON parsing for IPC between Swift and C++ | MIT |
+| **nlohmann/json** | 3.11.0+ (`yaya_core/CMakeLists.txt` specifies 3.11.0) | JSON parsing for IPC between Swift and C++ | MIT |
 | **libiconv** | System | Character encoding conversion (Shift_JIS → UTF-8) | LGPL |
 | **CMake** | 3.20+ | Build system | BSD 3-Clause |
 

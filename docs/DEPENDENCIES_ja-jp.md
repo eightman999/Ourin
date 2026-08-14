@@ -70,7 +70,7 @@ Ourinは以下のApple公式フレームワークのみを使用しています�
 
 #### 1. nlohmann/json
 
-- **バージョン**: 3.12.0以上推奨
+- **バージョン**: 3.11.0以上（`yaya_core/CMakeLists.txt` は 3.11.0 を指定）
 - **ライセンス**: MIT License
 - **用途**: JSON形式でのプロセス間通信（IPC）
 - **リポジトリ**: https://github.com/nlohmann/json
