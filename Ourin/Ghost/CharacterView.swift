@@ -52,8 +52,19 @@ struct CharacterView: View {
         let sourceOverlays = SurfaceOverlay.sortedForDisplay(viewModel.overlays)
         let targetedEffects = viewModel.activeEffects.filter { $0.surfaceID != nil }
         let baseEffects = viewModel.activeEffects.filter { $0.surfaceID == nil }
-        let processedBase = viewModel.image.flatMap {
-            baseEffects.isEmpty ? $0 : SurfaceVisualEffectRenderer.applying(image: $0, effects: baseEffects, filters: [])
+        // A character window must never render an overlay without its base
+        // surface.  During startup/surface changes SERIKO can enqueue an
+        // overlay before the asynchronous base image load completes; letting
+        // the compositor run with `base == nil` produces detached eyes/face
+        // fragments in an otherwise empty window.
+        //
+        // Unsupported visual effects also fall back to the original base so
+        // an effect failure cannot accidentally turn a complete character
+        // into an overlay-only render.
+        let processedBase = viewModel.image.map { image in
+            baseEffects.isEmpty
+                ? image
+                : (SurfaceVisualEffectRenderer.applying(image: image, effects: baseEffects, filters: []) ?? image)
         }
         let overlays = sourceOverlays.map { overlay in
             let effects = targetedEffects.filter { $0.surfaceID == overlay.surfaceID }
@@ -77,53 +88,56 @@ struct CharacterView: View {
             || !targetedEffects.isEmpty
             || !viewModel.activeFilters.isEmpty
         ZStack(alignment: .topLeading) {
-            if needsBitmapComposition,
-               let rendered = filteredSurface ?? SurfaceBlendRenderer.composite(base: processedBase, overlays: overlays) {
-                Image(nsImage: rendered)
-                    .resizable()
-                    .frame(width: rendered.size.width, height: rendered.size.height)
-            } else {
-                // `background` SERIKO animations are rendered behind the base surface.
-                ForEach(backgroundOverlays) { overlay in
-                    OverlayView(overlay: overlay)
-                        .offset(x: overlay.offset.x, y: overlay.offset.y)
-                }
+            // Keep the entire character layer absent until a real base
+            // surface exists.  In particular, do not allow SERIKO overlays,
+            // dress-up parts, or text animations to become visible alone.
+            if let baseImage = processedBase {
+                if needsBitmapComposition,
+                   let rendered = filteredSurface ?? SurfaceBlendRenderer.composite(base: baseImage, overlays: overlays) {
+                    Image(nsImage: rendered)
+                        .resizable()
+                        .frame(width: rendered.size.width, height: rendered.size.height)
+                } else {
+                    // `background` SERIKO animations are rendered behind the base surface.
+                    ForEach(backgroundOverlays) { overlay in
+                        OverlayView(overlay: overlay)
+                            .offset(x: overlay.offset.x, y: overlay.offset.y)
+                    }
 
-                // Base surface
-                if let baseImage = processedBase {
+                    // Base surface
                     Image(nsImage: baseImage)
                         .resizable()
                         .frame(width: baseImage.size.width, height: baseImage.size.height)
+
+                    // Foreground overlay layers sorted by z-order then insertion for deterministic stacking.
+                    ForEach(foregroundOverlays) { overlay in
+                        OverlayView(overlay: overlay)
+                            .offset(x: overlay.offset.x, y: overlay.offset.y)
+                    }
                 }
 
-                // Foreground overlay layers sorted by z-order then insertion for deterministic stacking.
-                ForEach(foregroundOverlays) { overlay in
-                    OverlayView(overlay: overlay)
-                        .offset(x: overlay.offset.x, y: overlay.offset.y)
+                // Dressup parts (sorted by Z-order)
+                ForEach(viewModel.dressupParts.sorted { $0.zOrder < $1.zOrder }) { part in
+                    DressupPartView(part: part)
                 }
-            }
 
-            // Dressup parts (sorted by Z-order)
-            ForEach(viewModel.dressupParts.sorted { $0.zOrder < $1.zOrder }) { part in
-                DressupPartView(part: part)
-            }
+                // Text animations from \![anim,add,text,...]
+                ForEach(Array(viewModel.textAnimations.enumerated()), id: \.offset) { _, anim in
+                    Text(anim.text)
+                        .font(.custom(anim.fontName, size: CGFloat(anim.fontSize)))
+                        .foregroundColor(Color(
+                            red: Double(anim.r) / 255.0,
+                            green: Double(anim.g) / 255.0,
+                            blue: Double(anim.b) / 255.0
+                        ))
+                        .frame(width: CGFloat(anim.width), height: CGFloat(anim.height), alignment: .leading)
+                        .position(x: CGFloat(anim.x), y: CGFloat(anim.y))
+                }
 
-            // Text animations from \![anim,add,text,...]
-            ForEach(Array(viewModel.textAnimations.enumerated()), id: \.offset) { _, anim in
-                Text(anim.text)
-                    .font(.custom(anim.fontName, size: CGFloat(anim.fontSize)))
-                    .foregroundColor(Color(
-                        red: Double(anim.r) / 255.0,
-                        green: Double(anim.g) / 255.0,
-                        blue: Double(anim.b) / 255.0
-                    ))
-                    .frame(width: CGFloat(anim.width), height: CGFloat(anim.height), alignment: .leading)
-                    .position(x: CGFloat(anim.x), y: CGFloat(anim.y))
-            }
-
-            // Drag and drop overlay
-            if let onEvent = onDragDropEvent {
-                DragDropView(scopeID: scopeID, onEvent: onEvent)
+                // Drag and drop overlay
+                if let onEvent = onDragDropEvent {
+                    DragDropView(scopeID: scopeID, onEvent: onEvent)
+                }
             }
         }
         // SERIKO move はベースサーフェスだけでなく、その時点の描画全体を
