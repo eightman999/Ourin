@@ -6,6 +6,7 @@ import UserNotifications
 import Network
 import Security
 import UniformTypeIdentifiers
+import Darwin
 
 enum NarInstallDispatchOutcome {
     case installed(NarInstallResult)
@@ -46,6 +47,10 @@ private struct ArchiveCommandOptions {
 
 /// URLドロップで本体が行う処理と、OnURLQueryへ渡す値を一元化する。
 enum URLDropPolicy {
+    static let maxDownloadBytes: Int64 = 256 * 1024 * 1024
+    static let requestTimeout: TimeInterval = 30
+    static let resourceTimeout: TimeInterval = 300
+
     static func remoteURL(
         from rawValue: String,
         allowInsecureHTTP: Bool
@@ -65,7 +70,114 @@ enum URLDropPolicy {
         guard scheme == "https" || (scheme == "http" && allowInsecureHTTP) else {
             return nil
         }
+        guard isPublicRemoteHost(host) else {
+            return nil
+        }
         return url
+    }
+
+    /// URLSession の DNS 解決・接続先がローカルネットワークや予約帯域へ向かわないよう、
+    /// ホスト名を解決した全アドレスを検査する。名前解決できない場合は fail closed とする。
+    static func isPublicRemoteHost(_ host: String) -> Bool {
+        let normalizedHost = host
+            .trimmingCharacters(in: CharacterSet(charactersIn: "."))
+            .lowercased()
+        guard !normalizedHost.isEmpty,
+              normalizedHost != "localhost",
+              !normalizedHost.hasSuffix(".localhost"),
+              !normalizedHost.hasSuffix(".local"),
+              !normalizedHost.hasSuffix(".internal") else {
+            return false
+        }
+
+        var hints = addrinfo()
+        hints.ai_family = AF_UNSPEC
+        hints.ai_socktype = SOCK_STREAM
+        hints.ai_protocol = IPPROTO_TCP
+
+        var result: UnsafeMutablePointer<addrinfo>?
+        let resolutionCode = normalizedHost.withCString { value in
+            getaddrinfo(value, nil, &hints, &result)
+        }
+        guard resolutionCode == 0, let first = result else {
+            return false
+        }
+        defer { freeaddrinfo(first) }
+
+        var cursor: UnsafeMutablePointer<addrinfo>? = first
+        var foundAddress = false
+        while let info = cursor {
+            if let address = info.pointee.ai_addr {
+                switch info.pointee.ai_family {
+                case AF_INET:
+                    let socketAddress = address.withMemoryRebound(
+                        to: sockaddr_in.self,
+                        capacity: 1
+                    ) { $0.pointee }
+                    let bytes = withUnsafeBytes(of: socketAddress.sin_addr) { Array($0) }
+                    foundAddress = true
+                    if isBlockedIPv4(bytes) {
+                        return false
+                    }
+                case AF_INET6:
+                    let socketAddress = address.withMemoryRebound(
+                        to: sockaddr_in6.self,
+                        capacity: 1
+                    ) { $0.pointee }
+                    let bytes = withUnsafeBytes(of: socketAddress.sin6_addr) { Array($0) }
+                    foundAddress = true
+                    if isBlockedIPv6(bytes) {
+                        return false
+                    }
+                default:
+                    break
+                }
+            }
+            cursor = info.pointee.ai_next
+        }
+        return foundAddress
+    }
+
+    private static func isBlockedIPv4(_ bytes: [UInt8]) -> Bool {
+        guard bytes.count == 4 else { return true }
+        let value = (UInt32(bytes[0]) << 24)
+            | (UInt32(bytes[1]) << 16)
+            | (UInt32(bytes[2]) << 8)
+            | UInt32(bytes[3])
+
+        return value == 0
+            || (value & 0xff000000) == 0x0a000000       // 10.0.0.0/8
+            || (value & 0xffc00000) == 0x64400000       // 100.64.0.0/10
+            || (value & 0xff000000) == 0x7f000000       // 127.0.0.0/8
+            || (value & 0xffff0000) == 0xa9fe0000       // 169.254.0.0/16
+            || (value & 0xfff00000) == 0xac100000       // 172.16.0.0/12
+            || (value & 0xffffff00) == 0xc0000000       // 192.0.0.0/24
+            || (value & 0xffffff00) == 0xc0000200       // 192.0.2.0/24
+            || (value & 0xffff0000) == 0xc0a80000       // 192.168.0.0/16
+            || (value & 0xfffffe00) == 0xc6120000       // 198.18.0.0/15
+            || (value & 0xffffff00) == 0xc6336400       // 198.51.100.0/24
+            || (value & 0xffffff00) == 0xcb007100       // 203.0.113.0/24
+            || (value & 0xf0000000) == 0xe0000000       // multicast
+            || (value & 0xf0000000) == 0xf0000000       // reserved
+    }
+
+    private static func isBlockedIPv6(_ bytes: [UInt8]) -> Bool {
+        guard bytes.count == 16 else { return true }
+        let isZero = bytes.allSatisfy { $0 == 0 }
+        let isUniqueLocal = (bytes[0] & 0xfe) == 0xfc
+        let isLinkLocal = bytes[0] == 0xfe && (bytes[1] & 0xc0) == 0x80
+        let isMulticast = bytes[0] == 0xff
+        let isDocumentation = bytes[0] == 0x20
+            && bytes[1] == 0x01
+            && bytes[2] == 0x0d
+            && bytes[3] == 0xb8
+        let isIPv4Mapped = bytes.prefix(10).allSatisfy { $0 == 0 }
+            && bytes[10] == 0xff
+            && bytes[11] == 0xff
+        if isIPv4Mapped {
+            return isBlockedIPv4(Array(bytes[12...]))
+        }
+        return isZero || isUniqueLocal || isLinkLocal || isMulticast || isDocumentation
     }
 
     static func mimeType(for url: URL) -> String {
@@ -111,6 +223,9 @@ enum URLDropFailureReason {
 
     static func forDownload(error: Error?) -> String {
         guard let error else { return "fileio" }
+        if error is URLDropDownloadError {
+            return "fileio"
+        }
         if let urlError = error as? URLError {
             switch urlError.code {
             case .timedOut:
@@ -141,6 +256,124 @@ enum URLDropFailureReason {
         case .updateMD5Mismatch:
             return "md5 miss"
         }
+    }
+}
+
+enum URLDropDownloadError: Swift.Error {
+    case responseTooLarge
+    case missingDownloadedFile
+    case redirectRejected
+}
+
+/// URLSession の一時ファイルを URLSession のコールバック寿命から切り離し、
+/// サイズ制限・リダイレクト制限を適用してから GhostManager へ引き渡す。
+final class URLDropDownloadDelegate: NSObject, URLSessionDownloadDelegate {
+    typealias Completion = (URL?, URLResponse?, Error?) -> Void
+
+    private let allowInsecureHTTP: Bool
+    private let maximumBytes: Int64
+    private let completion: Completion
+    private var temporaryFileURL: URL?
+    private var terminalError: Error?
+    private var didDeliverCompletion = false
+
+    init(
+        allowInsecureHTTP: Bool,
+        maximumBytes: Int64,
+        completion: @escaping Completion
+    ) {
+        self.allowInsecureHTTP = allowInsecureHTTP
+        self.maximumBytes = maximumBytes
+        self.completion = completion
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData bytesWritten: Int64,
+        totalBytesWritten: Int64,
+        totalBytesExpectedToWrite: Int64
+    ) {
+        guard terminalError == nil else { return }
+        if totalBytesWritten > maximumBytes
+            || (totalBytesExpectedToWrite > maximumBytes && totalBytesExpectedToWrite >= 0) {
+            reject(.responseTooLarge, task: downloadTask)
+        }
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didResumeAtOffset fileOffset: Int64,
+        expectedTotalBytes: Int64
+    ) {
+        guard terminalError == nil else { return }
+        if fileOffset > maximumBytes
+            || (expectedTotalBytes > maximumBytes && expectedTotalBytes >= 0) {
+            reject(.responseTooLarge, task: downloadTask)
+        }
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didFinishDownloadingTo location: URL
+    ) {
+        guard terminalError == nil else { return }
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("OurinURLDrops", isDirectory: true)
+        let destination = directory.appendingPathComponent(
+            "\(UUID().uuidString).download",
+            isDirectory: false
+        )
+        do {
+            try FileManager.default.createDirectory(
+                at: directory,
+                withIntermediateDirectories: true
+            )
+            try FileManager.default.moveItem(at: location, to: destination)
+            temporaryFileURL = destination
+        } catch {
+            terminalError = error
+        }
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        willPerformHTTPRedirection response: HTTPURLResponse,
+        newRequest request: URLRequest,
+        completionHandler: @escaping (URLRequest?) -> Void
+    ) {
+        guard let redirectedURL = request.url,
+              let validatedURL = URLDropPolicy.remoteURL(
+                  from: redirectedURL.absoluteString,
+                  allowInsecureHTTP: allowInsecureHTTP
+              ) else {
+            terminalError = URLDropDownloadError.redirectRejected
+            completionHandler(nil)
+            task.cancel()
+            return
+        }
+        var validatedRequest = request
+        validatedRequest.url = validatedURL
+        completionHandler(validatedRequest)
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        guard !didDeliverCompletion else { return }
+        didDeliverCompletion = true
+        let finalError = terminalError
+            ?? error
+            ?? (temporaryFileURL == nil ? URLDropDownloadError.missingDownloadedFile : nil)
+        completion(temporaryFileURL, task.response, finalError)
+    }
+
+    private func reject(_ error: URLDropDownloadError, task: URLSessionDownloadTask) {
+        if terminalError == nil {
+            terminalError = error
+        }
+        task.cancel()
     }
 }
 
@@ -4550,6 +4783,11 @@ extension GhostManager: NSWindowDelegate {
             return
         }
 
+        guard activeURLDropTransferID == nil else {
+            Log.info("[GhostManager] URL drop ignored while another URL is downloading")
+            return
+        }
+
         if let response = EventBridge.shared.requestScript(
             .OnURLDrop,
             params: event.params,
@@ -4596,10 +4834,27 @@ extension GhostManager: NSWindowDelegate {
             security: security
         )
 
-        URLSession.shared.downloadTask(with: url) { [weak self] localURL, response, error in
+        let transferID = UUID()
+        let delegate = URLDropDownloadDelegate(
+            allowInsecureHTTP: URLDropPolicy.allowsInsecureHTTP(),
+            maximumBytes: URLDropPolicy.maxDownloadBytes
+        ) { [weak self] localURL, response, error in
+            guard self != nil else {
+                if let localURL {
+                    try? FileManager.default.removeItem(at: localURL)
+                }
+                return
+            }
             DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
+                guard let self,
+                      self.activeURLDropTransferID == transferID else {
+                    if let localURL {
+                        try? FileManager.default.removeItem(at: localURL)
+                    }
+                    return
+                }
                 self.finishURLDropDownload(
+                    transferID: transferID,
                     localURL: localURL,
                     response: response,
                     sourceURL: url,
@@ -4608,10 +4863,45 @@ extension GhostManager: NSWindowDelegate {
                     security: security
                 )
             }
-        }.resume()
+        }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = URLDropPolicy.requestTimeout
+        configuration.timeoutIntervalForResource = URLDropPolicy.resourceTimeout
+        configuration.waitsForConnectivity = false
+        configuration.urlCache = nil
+        configuration.httpCookieStorage = nil
+        configuration.httpShouldSetCookies = false
+        configuration.httpCookieAcceptPolicy = .never
+        let delegateQueue = OperationQueue()
+        delegateQueue.maxConcurrentOperationCount = 1
+        delegateQueue.qualityOfService = .utility
+        let session = URLSession(
+            configuration: configuration,
+            delegate: delegate,
+            delegateQueue: delegateQueue
+        )
+        let task = session.downloadTask(with: url)
+        activeURLDropTransferID = transferID
+        activeURLDropTask = task
+        activeURLDropSession = session
+        activeURLDropDelegate = delegate
+        task.resume()
+    }
+
+    /// ゴースト終了時に URLSession を止め、完了コールバック側へ失敗イベントを残さない。
+    /// delegate が既に一時ファイルを確保していた場合は、transferID 不一致時のコールバックで消去する。
+    func cancelActiveURLDropDownload() {
+        activeURLDropTask?.cancel()
+        activeURLDropSession?.invalidateAndCancel()
+        activeURLDropTransferID = nil
+        activeURLDropTask = nil
+        activeURLDropSession = nil
+        activeURLDropDelegate = nil
     }
 
     private func finishURLDropDownload(
+        transferID: UUID,
         localURL: URL?,
         response: URLResponse?,
         sourceURL: URL,
@@ -4619,6 +4909,19 @@ extension GhostManager: NSWindowDelegate {
         error: Error?,
         security: ShioriSecurityContext
     ) {
+        guard activeURLDropTransferID == transferID else {
+            if let localURL {
+                try? FileManager.default.removeItem(at: localURL)
+            }
+            return
+        }
+        let session = activeURLDropSession
+        activeURLDropTransferID = nil
+        activeURLDropTask = nil
+        activeURLDropSession = nil
+        activeURLDropDelegate = nil
+        session?.finishTasksAndInvalidate()
+
         var archiveURL: URL?
         defer {
             if let archiveURL {

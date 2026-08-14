@@ -162,7 +162,9 @@ GET で問い合わせた後、応答スクリプトが無い場合に標準の 
 `OnURLDropFailure` を送る。Reference2 のHTTP失敗理由はステータスコード文字列、通信失敗は
 `timeout`／`fileio` 等の標準語彙へ正規化する。構文不正・許可外スキーム・明示許可のないHTTPは
 受信開始前に拒否するため、標準の失敗イベントを発火しない。ダウンロード完了前に
-`OnURLDropped` を発火せず、未知のURLを自動ダウンロードしない。
+`OnURLDropped` を発火せず、未知のURLを自動ダウンロードしない。接続先は公開アドレスへ
+限定し、リダイレクトも同じ検査を通す。受信には30秒の要求タイムアウト、5分のリソース
+タイムアウト、256 MiBのサイズ上限を設ける。
 
 ### 2.14 ネットワーク更新
 OnUpdate* / OnUpdateOther* / OnUpdateCheck* / OnUpdateResult* / OnUpdateResultExplorer + 理由/対象種別/成功・失敗理由  

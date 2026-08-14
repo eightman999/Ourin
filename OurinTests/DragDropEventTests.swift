@@ -93,6 +93,8 @@ struct DragDropEventTests {
         #expect(URLDropPolicy.remoteURL(from: "http://example.com/ghost.nar", allowInsecureHTTP: false) == nil)
         #expect(URLDropPolicy.remoteURL(from: "http://example.com/ghost.nar", allowInsecureHTTP: true)?.scheme == "http")
         #expect(URLDropPolicy.remoteURL(from: "https://user:password@example.com/ghost.nar", allowInsecureHTTP: true) == nil)
+        #expect(URLDropPolicy.remoteURL(from: "https://127.0.0.1/ghost.nar", allowInsecureHTTP: true) == nil)
+        #expect(URLDropPolicy.remoteURL(from: "https://localhost/ghost.nar", allowInsecureHTTP: true) == nil)
         #expect(URLDropPolicy.plannedAction(for: narURL) == "nar")
         #expect(URLDropPolicy.plannedAction(for: textURL) == "unknown")
         #expect(URLDropPolicy.queryReferences(for: narURL, scopeID: 1) == [
@@ -109,6 +111,7 @@ struct DragDropEventTests {
         #expect(URLDropFailureReason.forDownload(error: URLError(.timedOut)) == "timeout")
         #expect(URLDropFailureReason.forDownload(error: URLError(.cancelled)) == "artificial")
         #expect(URLDropFailureReason.forDownload(error: URLError(.cannotConnectToHost)) == "fileio")
+        #expect(URLDropFailureReason.forDownload(error: URLDropDownloadError.responseTooLarge) == "fileio")
         #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.directoryConflict("ghost")) == "readonly")
         #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.updateMD5Mismatch("ghost.nar")) == "md5 miss")
         #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.notZip) == "unsupported")

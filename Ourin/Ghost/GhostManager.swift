@@ -1029,6 +1029,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var httpStreamingPendingData: [String: Data] = [:]
     /// 通常の HTTP 要求も progress 通知中は delegate の寿命を保持する。
     var httpRequestRunners: [UUID: HTTPDataTaskRunner] = [:]
+    /// URLドロップの実ダウンロードはゴースト単位で一件だけ実行し、終了まで delegate を保持する。
+    var activeURLDropTransferID: UUID?
+    var activeURLDropTask: URLSessionDownloadTask?
+    var activeURLDropSession: URLSession?
+    var activeURLDropDelegate: URLDropDownloadDelegate?
     /// `--sync` HTTP/RSS 要求が完了するまで SakuraScript を停止するための待機集合。
     var pendingHTTPWaits: Set<UUID> = []
     var selectModeActive: Bool = false
@@ -1187,6 +1192,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         // self の weak capture を登録する途中で objc_initWeak が abort するため、
         // UI を含む終了処理は明示的な shutdown() に限定する。
         // メインスレッドでの解放時だけは、従来どおり最後の保険として実行する。
+        cancelActiveURLDropDownload()
         if Thread.isMainThread {
             shutdown()
         }
@@ -1797,6 +1803,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func shutdown(preserveRuntimeForCache: Bool = false) -> CachedRuntime? {
         guard !didShutdown else { return nil }
         didShutdown = true
+        cancelActiveURLDropDownload()
         cancelMoveWindowAsync(scope: nil)
         if usageSessionStarted {
             RateOfUseStore.shared.endSession(identifier: ghostURL.standardizedFileURL.path)

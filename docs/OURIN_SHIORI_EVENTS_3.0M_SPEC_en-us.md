@@ -68,7 +68,9 @@ action starts the lifecycle `OnURLDropping` → HTTPS (or explicitly allowed HTT
 normalized to standard reasons such as `timeout` or `fileio`. Malformed URLs, disallowed schemes,
 and HTTP without explicit opt-in are rejected before receipt begins and therefore do not emit the
 standard failure event. `OnURLDropped` is never emitted before the download completes, and unknown
-URLs are not downloaded automatically.
+URLs are not downloaded automatically. The destination must resolve to public addresses, and
+redirects are checked by the same policy. Downloads use a 30-second request timeout, a 5-minute
+resource timeout, and a 256 MiB size limit.
 
 ---
 
