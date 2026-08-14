@@ -59,6 +59,22 @@ struct DragDropEventTests {
     }
 
     @Test
+    func directoryDropsDoNotEnterFileEventReferences() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ourin-drag-drop-classification-\(UUID().uuidString)", isDirectory: true)
+        let directory = root.appendingPathComponent("directory", isDirectory: true)
+        let file = root.appendingPathComponent("example.txt")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try Data("sample".utf8).write(to: file)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let classified = DragDropReceiverView.classifyFileURLs([file, directory])
+
+        #expect(classified.files == [file])
+        #expect(classified.directories == [directory])
+    }
+
+    @Test
     func urlDropReferencesUseUrlAndScopeAndDownloadedEventsUseFileFirst() {
         #expect(EventReferenceTable.specs["OnURLDrop"]?.references == ["url", "scopeID"])
         #expect(EventReferenceTable.specs["OnURLDragDropping"]?.references == ["url", "scopeID"])

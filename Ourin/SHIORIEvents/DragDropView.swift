@@ -84,6 +84,24 @@ final class DragDropReceiverView: NSView {
         ]
     }
 
+    /// ファイル系イベントとディレクトリ系イベントを重複させないよう分類する。
+    static func classifyFileURLs(_ urls: [URL]) -> (files: [URL], directories: [URL]) {
+        var files: [URL] = []
+        var directories: [URL] = []
+
+        for url in urls {
+            var isDirectory: ObjCBool = false
+            let exists = FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory)
+            if exists && isDirectory.boolValue {
+                directories.append(url)
+            } else {
+                files.append(url)
+            }
+        }
+
+        return (files, directories)
+    }
+
     private static func mimeType(for url: URL) -> String {
         var isDirectory: ObjCBool = false
         if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue {
@@ -170,29 +188,25 @@ final class DragDropReceiverView: NSView {
             // For non-.nar files, process as SHIORI events
             if !urls.isEmpty {
                 // ファイルとディレクトリのフルパスを分類する
-                var dirURLs: [URL] = []
-                for url in fileURLs {
-                    let path = url.path
-                    var isDir: ObjCBool = false
-                    let exists = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
-                    if exists && isDir.boolValue {
-                        dirURLs.append(url)
-                    }
-                }
+                let classifiedURLs = Self.classifyFileURLs(fileURLs)
 
                 // 旧仕様の互換イベント（複数ファイルを Reference0.. に列挙）
                 let legacyParams = Dictionary(uniqueKeysWithValues: urls.enumerated().map { ("Reference\($0.offset)", $0.element) })
                 onEvent?(ShioriEvent(id: .OnDragDrop, params: legacyParams))
-                let standardRefs = Self.fileDropReferences(for: fileURLs, scopeID: scopeID)
-                onEvent?(ShioriEvent(id: .OnFileDropped, refs: standardRefs))
 
-                // 標準D&Dイベント: 複数パス／MIMEはバイト値1区切り、Reference1はスコープ番号。
-                onEvent?(ShioriEvent(id: .OnFileDrop, refs: standardRefs))
-                onEvent?(ShioriEvent(id: .OnFileDropEx, refs: standardRefs))
-                onEvent?(ShioriEvent(id: .OnFileDrop2, refs: standardRefs))
-                if !dirURLs.isEmpty {
+                if !classifiedURLs.files.isEmpty {
+                    let standardRefs = Self.fileDropReferences(for: classifiedURLs.files, scopeID: scopeID)
+                    onEvent?(ShioriEvent(id: .OnFileDropped, refs: standardRefs))
+
+                    // 標準D&Dイベント: 複数パス／MIMEはバイト値1区切り、Reference1はスコープ番号。
+                    onEvent?(ShioriEvent(id: .OnFileDrop, refs: standardRefs))
+                    onEvent?(ShioriEvent(id: .OnFileDropEx, refs: standardRefs))
+                    onEvent?(ShioriEvent(id: .OnFileDrop2, refs: standardRefs))
+                }
+
+                if !classifiedURLs.directories.isEmpty {
                     onEvent?(ShioriEvent(id: .OnDirectoryDrop,
-                                         refs: Self.directoryDropReferences(for: dirURLs, scopeID: scopeID)))
+                                         refs: Self.directoryDropReferences(for: classifiedURLs.directories, scopeID: scopeID)))
                 }
                 return true
             }
