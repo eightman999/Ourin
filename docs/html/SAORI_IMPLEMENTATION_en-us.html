@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAORI Implementation in Ourin</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="SAORI_IMPLEMENTATION_ja-jp.html" class="">日本語</a> | <a href="SAORI_IMPLEMENTATION_en-us.html" class="active">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="saori-implementation-in-ourin">SAORI Implementation in Ourin</h1>
+<h2 id="scope">Scope</h2>
+<p>Ourin implements SAORI/1.0 host-side support under <code>Ourin/SaoriHost/</code> and bridges it to YAYA runtime calls.</p>
+<p>Main files:</p>
+<ul>
+<li><code>SaoriLoader.swift</code></li>
+<li><code>SaoriProtocol.swift</code></li>
+<li><code>SaoriRegistry.swift</code></li>
+<li><code>SaoriManager.swift</code></li>
+<li><code>YayaAdapter.swift</code> (bridge)</li>
+<li><code>yaya_core/src/VM.cpp</code>, <code>yaya_core/src/YayaCore.cpp</code> (plugin operations)</li>
+</ul>
+<h2 id="module-loading-saoriloader">Module loading (<code>SaoriLoader</code>)</h2>
+<p><code>SaoriLoader</code> handles dynamic loading with <code>dlopen/dlsym/dlclose</code>:</p>
+<ul>
+<li>Resolves symbol variants:</li>
+<li><code>request</code> / <code>saori_request</code></li>
+<li><code>load</code> / <code>saori_load</code></li>
+<li><code>unload</code> / <code>saori_unload</code></li>
+<li>Calls <code>load(directory)</code> when available</li>
+<li>Sends binary request payload to <code>request(...)</code></li>
+<li>Decodes response with configured charset (UTF-8 fallback)</li>
+</ul>
+<p>Error cases are surfaced via <code>SaoriLoaderError</code>.</p>
+<h2 id="protocol-handling-saoriprotocol">Protocol handling (<code>SaoriProtocol</code>)</h2>
+<p><code>SaoriProtocol</code> provides:</p>
+<ul>
+<li>SAORI request parser</li>
+<li>SAORI response parser/builder</li>
+<li>Charset conversion helpers</li>
+</ul>
+<p>Supported encodings:</p>
+<ul>
+<li>UTF-8</li>
+<li>Shift-JIS family aliases (<code>sjis</code>, <code>cp932</code>, <code>windows-31j</code>, ...)</li>
+<li>EUC-JP</li>
+<li>ISO-2022-JP</li>
+</ul>
+<h2 id="discovery-and-cache-saoriregistry">Discovery and cache (<code>SaoriRegistry</code>)</h2>
+<p><code>SaoriRegistry</code> manages:</p>
+<ul>
+<li>Search paths</li>
+<li><code>.saori</code> discovery under ghost roots</li>
+<li>Module name normalization (<code>foo</code>, <code>foo.dylib</code>, <code>libfoo.dylib</code>, ...)</li>
+<li>Loader cache and unload lifecycle</li>
+</ul>
+<p>Default search locations include app resources and user Application Support.</p>
+<h2 id="unified-api-saorimanager">Unified API (<code>SaoriManager</code>)</h2>
+<p><code>SaoriManager</code> provides a single entrypoint:</p>
+<ul>
+<li>Discover/load/unload modules</li>
+<li>Send request text with charset</li>
+<li>Process plugin operations:</li>
+<li><code>saori_load</code></li>
+<li><code>saori_unload</code></li>
+<li><code>saori_request</code></li>
+</ul>
+<h2 id="yaya-bridge-path">YAYA bridge path</h2>
+<p>Runtime chain:</p>
+<ol>
+<li>YAYA script calls <code>LOADLIB</code> / <code>UNLOADLIB</code> / <code>REQUESTLIB</code></li>
+<li><code>VM.cpp</code> forwards to <code>pluginOperation(...)</code></li>
+<li><code>YayaCore.cpp</code> emits host operation JSON (<code>host_op</code>)</li>
+<li><code>YayaAdapter.swift</code> receives <code>host_op=plugin</code></li>
+<li><code>YayaAdapter.handlePluginOperation(...)</code> delegates to <code>SaoriManager</code></li>
+<li>Result JSON is returned back to <code>yaya_core</code></li>
+</ol>
+<p><code>YayaAdapter</code> also exposes helper <code>handleSaoriRequest(...)</code>.</p>
+<h2 id="tests-and-samples">Tests and samples</h2>
+<p>Tests:</p>
+<ul>
+<li><code>OurinTests/SaoriProtocolTests.swift</code></li>
+<li><code>OurinTests/SaoriRegistryTests.swift</code></li>
+</ul>
+<p>Samples:</p>
+<ul>
+<li><code>Samples/SimpleSaori/CppSimpleSaori</code></li>
+<li><code>Samples/SimpleSaori/SwiftSimpleSaori</code></li>
+</ul>
+<p>Both sample modules implement <code>load/unload/request</code>.</p>
+<h2 id="current-status">Current Status</h2>
+<p><strong>Status</strong>: Integration Complete (Core Path) / 2026-03-15</p>
+<p>Core SAORI components are now integrated with the YAYA runtime through VM → YayaCore → YayaAdapter → SaoriManager.</p>
+<h3 id="implemented-components">Implemented Components</h3>
+<ul>
+<li>✅ <strong>SaoriLoader.swift</strong> - macOS native .dylib loading with dlopen/dlsym</li>
+<li>✅ <strong>SaoriProtocol.swift</strong> - SAORI/1.0 request/response parsing</li>
+<li>✅ <strong>SaoriRegistry.swift</strong> - Module discovery and caching</li>
+<li>✅ <strong>SaoriManager.swift</strong> - Unified API for SAORI operations</li>
+<li>✅ <strong>Test files</strong> - SaoriProtocolTests.swift, SaoriRegistryTests.swift</li>
+</ul>
+<h3 id="integration-status">Integration Status</h3>
+<ul>
+<li>✅ <strong>VM.cpp</strong> - LOADLIB/UNLOADLIB/REQUESTLIB call pluginOperation bridge</li>
+<li>✅ <strong>YayaCore.cpp</strong> - pluginOperation routed via handlePluginOperation with validation</li>
+<li>✅ <strong>YayaAdapter.swift</strong> - handlePluginOperation / handleSaoriRequest delegate to SaoriManager</li>
+<li>✅ <strong>Operational path</strong> - YAYA scripts can load/request/unload SAORI modules</li>
+</ul>
+<h3 id="blocking-issues">Blocking Issues</h3>
+<ul>
+<li>✅ <strong>ID-001</strong>: Resolved</li>
+<li>✅ <strong>ID-002</strong>: Resolved</li>
+</ul>
+<h3 id="integration-record">Integration Record</h3>
+<p>Phase 1 integration work is complete and tracked in code/tests:</p>
+<ol>
+<li>✅ <strong>VM.cpp bridge path</strong> (Task 1.1 complete)</li>
+<li>✅ <strong>YayaCore plugin operation routing</strong> (Task 1.2 complete)</li>
+<li>✅ <strong>YayaAdapter SAORI bridge wiring</strong> (Task 1.3 complete)</li>
+<li>✅ <strong>Sample + smoke coverage</strong> (Tasks 1.4-1.5 complete)</li>
+</ol>
+<h3 id="success-criteria">Success Criteria</h3>
+<ul>
+<li>[x] LOADLIB successfully loads .dylib module</li>
+<li>[x] REQUESTLIB sends request and receives response</li>
+<li>[x] UNLOADLIB unloads module</li>
+<li>[x] Integration smoke tests pass</li>
+<li>[x] No SAORI blockers remain (ID-001, ID-002 resolved)</li>
+</ul>
+<hr />
+<h2 id="current-limitations">Current limitations</h2>
+<ul>
+<li>SAORI module ABI variance is handled by common symbol aliases only.</li>
+<li>Response memory ownership depends on module behavior; modules should follow SAORI conventions.</li>
+<li>Extended SAORI security policies are not fully formalized yet (future hardening item).</li>
+<li>End-to-end ghost behavior validation is still ongoing for broader real-ghost coverage.</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

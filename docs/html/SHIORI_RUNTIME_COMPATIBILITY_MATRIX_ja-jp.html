@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIORIランタイム互換性マトリクス</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="SHIORI_RUNTIME_COMPATIBILITY_MATRIX_ja-jp.html" class="active">日本語</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="shiori">SHIORIランタイム互換性マトリクス</h1>
+<p><strong>更新日:</strong> 2026-07-15
+<strong>位置付け:</strong> SHIORIランタイム選択・ロード・障害隔離の正本。仕様語彙はUKADOC SHIORI/3.0およびghost <code>descript.txt</code>に従う。</p>
+<h2 id="_1">状態定義</h2>
+<ul>
+<li><strong>実装</strong>: 通常のGhostManager起動経路へ接続済み</li>
+<li><strong>自動試験</strong>: 実バイナリまたは注入可能なfixtureで継続検証済み</li>
+<li><strong>実ゴースト</strong>: 配布ゴーストで起動・会話・終了を確認済み</li>
+<li><strong>隔離</strong>: ハング/クラッシュがOurin本体へ波及しない</li>
+</ul>
+<h2 id="_2">ランタイム</h2>
+<table>
+<thead>
+<tr>
+<th>対象</th>
+<th>選択規則</th>
+<th style="text-align: right;">実装</th>
+<th style="text-align: right;">自動試験</th>
+<th style="text-align: right;">実ゴースト</th>
+<th style="text-align: right;">隔離</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>YAYA</td>
+<td><code>yaya.dll</code>, <code>libyaya.*</code>, <code>yaya_core</code></td>
+<td style="text-align: right;">済</td>
+<td style="text-align: right;">済</td>
+<td style="text-align: right;">Emily4回帰あり</td>
+<td style="text-align: right;">済</td>
+<td>helper障害時は終了し、次要求前にロード文脈を復元</td>
+</tr>
+<tr>
+<td>里々</td>
+<td><code>satori.dll</code>, <code>satoriya.dll</code>, <code>satori_core</code></td>
+<td style="text-align: right;">済</td>
+<td style="text-align: right;">実辞書＋外部SAORI fixture</td>
+<td style="text-align: right;"><code>9-1</code>で済</td>
+<td style="text-align: right;">済</td>
+<td>固定版SATORIをUniversal 2 helperとして同梱</td>
+</tr>
+<tr>
+<td>Native Bundle</td>
+<td>その他の<code>*.bundle/*.plugin</code></td>
+<td style="text-align: right;">済</td>
+<td style="text-align: right;">Fake loader</td>
+<td style="text-align: right;">未</td>
+<td style="text-align: right;">既定で済</td>
+<td>XPC Service内でC ABIをロード。明示的inprocess設定時のみ直接ロード</td>
+</tr>
+<tr>
+<td>Native Dylib</td>
+<td>その他の<code>*.dll/*.dylib/*.so</code></td>
+<td style="text-align: right;">済</td>
+<td style="text-align: right;">Loader単体＋embedded XPC</td>
+<td style="text-align: right;">未</td>
+<td style="text-align: right;">既定で済</td>
+<td>macOSではWindows DLLを除外し、XPC Service内で代替moduleをロード</td>
+</tr>
+<tr>
+<td>Native XPC</td>
+<td>既定。<code>OURIN_SHIORI_ISOLATION_MODE=inprocess</code>でのみ無効</td>
+<td style="text-align: right;">済</td>
+<td style="text-align: right;">実fixtureの別PID往復</td>
+<td style="text-align: right;">未</td>
+<td style="text-align: right;">済</td>
+<td>接続単位session、load/request/unload、5秒watchdog</td>
+</tr>
+<tr>
+<td>SHIORI 2.x</td>
+<td>Native backendを互換ラッパーで変換</td>
+<td style="text-align: right;">済</td>
+<td style="text-align: right;">済</td>
+<td style="text-align: right;">未</td>
+<td style="text-align: right;">backend依存</td>
+<td><code>Shiori2CompatBackend</code>を使用</td>
+</tr>
+</tbody>
+</table>
+<h2 id="p0">P0受け入れ条件</h2>
+<ul>
+<li>[x] <code>GhostShioriRuntime</code>に<code>load/request/unload</code>とロード状態がある</li>
+<li>[x] 通常起動と<code>execute load shiori</code>が同じ<code>descript.txt</code>の<code>shiori</code>値を使用する</li>
+<li>[x] load成功後だけGhostManagerとEventBridgeへruntimeを公開する</li>
+<li>[x] unload/reload時にEventBridgeが旧runtimeを保持しない</li>
+<li>[x] Native SHIORIが共通ワイヤCodec経由で構造化応答を返す</li>
+<li>[x] YAYA/里々のIPC timeout時にhelperを終了し、直列readタスクを残さない</li>
+<li>[x] Windows DLLとmacOS moduleが併存した場合にmacOS moduleを選択する</li>
+<li>[x] timeout後に同一runtimeがhelperを自動再生成し、ロード状態を復元する</li>
+<li>[x] Native SHIORIを実在するXPC Serviceへ隔離する</li>
+</ul>
+<p>P0は2026-07-13に完了。強制終了直前の未保存VM変数やSAORI副作用は復元できず、最後に永続化された状態から再ロードする。</p>
+<h2 id="p1">P1受け入れ条件</h2>
+<ul>
+<li>[x] <code>ukatech/satoriya-shiori</code>をtag/commit固定し、BSD-2-Clause本文とローカルpatch記録を保持する</li>
+<li>[x] SATORIのPOSIX ABIを<code>arm64/x86_64</code> Universal 2 helperへ静的リンクする</li>
+<li>[x] JSON Lines境界をUTF-8、SATORI内部ワイヤをCP932として変換する</li>
+<li>[x] <code>SatoriAdapter</code>を通常のGhostManager起動・終了・timeout復旧へ接続する</li>
+<li>[x] graceful unloadでSATORIの終了処理とsavedata保存を完了してからhelperを終了する</li>
+<li>[x] <code>shiori.version/encoding/forceencoding/escape_unknown</code>をNative境界へ反映し、里々の<code>escape_unknown</code>を往復復元する</li>
+<li>[x] <code>sakura.name2</code>、<code>makoto</code>、scope別<code>balloon.defaultsurface</code>を<code>GhostConfiguration</code>へ保持する</li>
+<li>[x] 実SATORI fixtureでOnBoot、日本語応答、Unicode escape、savedata生成を自動試験する</li>
+<li>[x] Xcodeビルドで<code>satori_core</code>を署名・同梱する</li>
+</ul>
+<p>P1は2026-07-13に完了。</p>
+<h2 id="p2">P2受け入れ条件</h2>
+<ul>
+<li>[x] 表示直前に環境変数展開 → <code>OnTranslate</code> → ghost MAKOTO → shell MAKOTOの順で変換する</li>
+<li>[x] <code>MAKOTO/2.0</code>の<code>TRANSLATE Sentence</code>と<code>String</code>ヘッダをNative XPCのraw backendで往復する</li>
+<li>[x] SSTPの<code>notranslate</code>を尊重し、<code>sstp.alwaystranslate=1</code>の場合だけSSTP表示を強制変換する</li>
+<li>[x] <code>OnTranslate</code>へ原因、元イベントID、元Reference群を仕様の区切りで渡す</li>
+<li>[x] SSTP由来の<code>Sender</code>、<code>SecurityLevel</code>、<code>SecurityOrigin</code>を<code>OnTranslate</code>へ継承する</li>
+<li>[x] <code>shiori.cache=1</code>のゴースト切替でruntimeをbounded LRUに保持し、Suspend/Restoreを通知する</li>
+<li>[x] <code>shiori.cache=0</code>、明示unload/reload、アプリ終了、LRU evictionでは<code>OnDestroy</code>後にunloadする</li>
+<li>[x] SATORI/YAYAがゴーストローカルと共通のSAORI検索パスを使用する</li>
+<li>[x] 配布物中のWindows SAORI名を<code>.dylib/.so</code>へ安全に代替する</li>
+<li>[x] 実SATORI＋外部SAORI native fixtureの呼び出しを自動試験する</li>
+<li>[x] 第三者配布の里々ゴーストで起動・会話・終了を確認する</li>
+</ul>
+<p>P2は2026-07-14に完了。第三者配布ゴースト<code>9-1</code>の複製上で、OnBoot、ダブルクリック会話、SAORIメニュー、Windows SAORI呼び出し時の安全な継続、OnClose、unload、savedata生成を確認した。</p>
+<h2 id="p3">P3受け入れ条件</h2>
+<ul>
+<li>[x] FMOレコードをゴースト固有の32文字IDで公開し、<code>modulestate</code>をUKADOCのモジュール名＋状態形式で出力する</li>
+<li>[x] Owned SSTPのIDを通知済み<code>uniqueid</code>またはFMO IDと照合し、対象ゴースト一致時だけlocalへ昇格する</li>
+<li>[x] 外部OriginからのOwned昇格を拒否し、TCP待受を設定したloopbackアドレスへ実際にbindする</li>
+<li>[x] 欠番を含むSSTP <code>ReferenceN</code>を添字を崩さずSHIORIへ渡す</li>
+<li>[x] SSTPのNOTIFY種別とSHIORI応答ヘッダを完全応答ブリッジで保持する</li>
+<li>[x] 翻訳後の実再生スクリプトとSSTP応答<code>Script</code>を一致させ、マルチゴースト時の応答対象を固定する</li>
+<li>[x] Native SHIORI dylibの実fixtureでload/request/unloadを継続試験する</li>
+<li>[x] 同じNative fixtureを埋め込みXPCの別PIDで実行する（<code>nativeDylibFixtureRunsThroughEmbeddedXpcService</code>）</li>
+<li>[x] SHIORI 2.x実fixtureで3.0写像と応答ヘッダ保持を継続試験する</li>
+</ul>
+<p>P3は2026-07-15に完了。FMO／Owned SSTP境界、疎なReference伝播、翻訳応答整合、Native／SHIORI 2.x実fixture、およびembedded XPCの別PID実fixture往復まで確認した。XPCサービス側の公開protocol不一致は修正済み。</p>
+<h3 id="p3_1">P3最終検証記録</h3>
+<p><code>xcodebuild -project Ourin.xcodeproj -scheme Ourin -derivedDataPath /private/tmp/Ourin-P3-DerivedData CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO -only-testing:OurinTests/ShioriLoaderTests test</code> を実行し、<code>** TEST SUCCEEDED **</code>。<code>nativeDylibFixtureRunsThroughEmbeddedXpcService()</code>、Native dylibのload/request/unload、SHIORI 2.x写像テストを確認した。</p>
+<h2 id="_3">ワイヤ応答</h2>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>状態</th>
+<th>テスト/実装</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET / NOTIFY、CRLF＋空行終端</td>
+<td>済</td>
+<td><code>ShioriWireCodec</code></td>
+</tr>
+<tr>
+<td>Charset / Sender / ID / ReferenceN</td>
+<td>済</td>
+<td><code>ShioriRuntimeTests</code></td>
+</tr>
+<tr>
+<td>Value / ValueNotify</td>
+<td>済</td>
+<td><code>ShioriRuntimeTests</code></td>
+</tr>
+<tr>
+<td>Reference0以降の複数応答</td>
+<td>済</td>
+<td><code>ShioriWireCodec</code>, <code>SSTPDispatcher</code></td>
+</tr>
+<tr>
+<td>Marker / Age / BalloonOffset / ErrorLevel</td>
+<td>実装済・回帰拡充待ち</td>
+<td><code>SSTPDispatcher.mapShioriResponse</code></td>
+</tr>
+<tr>
+<td>CP932強制・未知文字escape</td>
+<td>済</td>
+<td>Native全境界、SATORI実fixture</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">ライセンス境界</h2>
+<ul>
+<li>ninix-kagariは挙動・構造の参照および差分試験に限定し、GPL実装をOurinへコピーしない。</li>
+<li>YAYA/里々等の上流を取り込む場合は固定リビジョンとLICENSE/NOTICEを同時に保持する。</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

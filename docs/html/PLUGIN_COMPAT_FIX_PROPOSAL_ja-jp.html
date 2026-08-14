@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugin 互換実装修正案</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="PLUGIN_COMPAT_FIX_PROPOSAL_ja-jp.html" class="active">日本語</a> | <a href="PLUGIN_COMPAT_FIX_PROPOSAL_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="plugin">Plugin 互換実装修正案</h1>
+<p><strong>作成日:</strong> 2026-06-26</p>
+<p>この文書は、Ourin の SSP/PLUGIN 互換方針と現在の実装差分をそろえるための修正案をまとめる。</p>
+<h2 id="_1">前提方針</h2>
+<p>今後の macOS 移植 plugin は、次の責務分離を基本形とする。</p>
+<pre class="codehilite"><code class="language-text">SomePlugin_mac/
+  install.txt
+  descript.txt
+  message.japanese.txt
+  message.english.txt
+  SomePlugin.plugin/
+</code></pre>
+
+<ul>
+<li>Ourin ホスト側が <code>install.txt</code>、<code>descript.txt</code>、<code>message.*.txt</code> を解釈する。</li>
+<li><code>.plugin</code> bundle は DLL の <code>load</code> / <code>loadu</code> / <code>request</code> / <code>unload</code> / <code>unloadu</code> 互換に集中する。</li>
+<li>表示文字列・言語選択は原則として <code>message.*.txt</code> に寄せる。</li>
+<li>Windows DLL は macOS 上で直接ロードしない。</li>
+<li>未知 DLL の移行記録は実行体を含めず、実装済みのネイティブ plugin だけをロード対象にする。</li>
+</ul>
+<h2 id="1-dll">修正 1: 未知 DLL の偽実行体を生成しない（対応済み）</h2>
+<p>旧実装は <code>exit 0</code> の shell と固定 <code>PLUGIN/2.0M 200 OK</code> を含む <code>.plugin</code> 雛形を生成していた。
+これは未実装の動作を実装済みと誤認させ、PluginRegistry のロード失敗やログノイズを生む。</p>
+<p><code>PluginScaffolder</code> は現在、以下の実行体なし移行記録だけを生成する。</p>
+<pre class="codehilite"><code class="language-text">ourin/macos/&lt;name&gt;_mac/
+  descript.txt
+  message.japanese.txt
+  message.english.txt
+  ourin.json (mode: unsupported)
+  OriginalDocs/
+    ReadMe.txt
+  README.md
+</code></pre>
+
+<p><code>PluginRegistry</code> は <code>unsupported</code> と旧 <code>scaffold</code> manifest を実行対象から除外する。
+元資産は削除せず、元の <code>install.txt</code> は <code>OriginalDocs/</code> にのみ保存する。</p>
+<p>実装完了後の個別ネイティブ plugin は、<code>ourin.json</code> を <code>native-plugin</code> または
+<code>native-replacement</code> に更新してからロード対象とする。</p>
+<h2 id="2-plugin-id">修正 2: 同一 plugin ID の二重ロードを防ぐ</h2>
+<p><strong>問題</strong></p>
+<p><code>/Users/eightman/Documents/Ourin/plugin/SAKNIFE.plugin</code> と <code>SAKNIFE_mac/SAKNIFE.plugin</code> が並ぶと、同じ <code>id</code> の plugin が二重ロードされる可能性がある。</p>
+<p><strong>修正案</strong></p>
+<p><code>PluginRegistry.discoverAndLoad</code> にロード済み ID / bundle path の重複抑止を入れる。</p>
+<p>優先順位は以下とする。</p>
+<ol>
+<li><code>install.txt</code> 付き package directory 内の native <code>.plugin</code></li>
+<li>直置き native <code>.plugin</code></li>
+<li>legacy metadata-only directory</li>
+</ol>
+<p>同じ ID が複数ある場合は、優先順位が高いものを採用し、低いものは skip してログへ残す。</p>
+<p><strong>受け入れ条件</strong></p>
+<ul>
+<li><code>LegacyPluginRegistryTests</code> に「直置き <code>.plugin</code> と <code>*_mac</code> が同一 ID の場合、1 件だけ登録される」テストを追加する。</li>
+<li><code>installedplugin</code> と <code>pluginpathlist</code> に重複 ID が出ない。</li>
+</ul>
+<h2 id="3-pluginmetapath">修正 3: <code>PluginMeta.path</code> の意味を分離する</h2>
+<p><strong>現状:</strong> 2026-06-27 実装済み。<code>PluginMeta.compatibilityPath</code> / <code>executablePath</code> / <code>packagePath</code> と
+<code>PluginCompatibilityEntry</code> を追加し、<code>pluginlist.index(n).executablepath</code> /
+<code>pluginlist.index(n).packagepath</code> / <code>executionstate</code> / <code>candispatchrequests</code> で参照できる。</p>
+<p><strong>問題</strong></p>
+<p>package root の <code>descript.txt</code> が元 DLL の <code>filename,SAKNIFE.dll</code> を保持する場合、<code>PluginMeta.path</code> は DLL パスになる。一方、実際にロードされた native bundle は <code>SAKNIFE.plugin</code> であり、<code>pluginpathlist</code> の意味が曖昧になる。</p>
+<p><strong>修正案</strong></p>
+<p><code>PluginMeta</code> に互換パスと実行パスを分けて持たせる。</p>
+<pre class="codehilite"><code class="language-swift">public let compatibilityPath: String   // descript.txt の filename 由来。元 DLL 互換。
+public let executablePath: String      // 実ロード対象。native .plugin / .bundle。
+public let packagePath: String?        // install.txt 付き package directory。
+</code></pre>
+
+<p>既存 <code>path</code> は互換性維持のため当面残し、段階的に <code>compatibilityPath</code> の alias として扱う。</p>
+<p><strong>受け入れ条件</strong></p>
+<ul>
+<li><code>pluginlist.index(n).path</code> は従来互換として残る。</li>
+<li><code>pluginlist.index(n).executablepath</code> で native <code>.plugin</code> のパスを取得できる。</li>
+<li><code>pluginpathlist</code> は仕様上どちらを送るか明記する。推奨は package path、なければ executable path。</li>
+</ul>
+<h2 id="4-messagetxt">修正 4: <code>message.*.txt</code> を実表示へ接続する</h2>
+<p><strong>問題</strong></p>
+<p>Ourin は <code>message.*.txt</code> を <code>PluginMeta.localizedMessages</code> に保持できるが、SAKNIFE の <code>.plugin</code> 実装内にはまだ一部メニュー文言が固定で残っている。</p>
+<p><strong>修正案</strong></p>
+<p>短期対応：</p>
+<ul>
+<li>Ourin の plugin メニュー UI / DevTools 表示では <code>PluginMeta.message(for:)</code> を優先する。</li>
+<li><code>pluginlist(...).message.&lt;key&gt;</code> を使った表示例を追加する。</li>
+</ul>
+<p>中期対応：</p>
+<ul>
+<li><code>.plugin</code> の <code>load</code> に package root path を渡している場合、plugin 側が root の <code>message.*.txt</code> を読む補助関数を提供する。</li>
+<li>ただし方針としては、メニュー構築を Ourin ホスト側へ寄せ、<code>.plugin</code> は command ID を処理するだけにする。</li>
+</ul>
+<p><strong>受け入れ条件</strong></p>
+<ul>
+<li><code>SAKNIFE_mac/message.japanese.txt</code> の <code>menu.empty_recycle_bin</code> を変更すると、Ourin 側表示に反映される。</li>
+<li><code>.plugin</code> のソースに固定されたメニュー表示名が最小限になる。</li>
+</ul>
+<h2 id="5-installtxt-package-reload-rescan">修正 5: <code>install.txt</code> package の reload / rescan を明確化する</h2>
+<p><strong>問題</strong></p>
+<p>Plugin registry が package directory を読むようになったが、更新・再読み込み時の単位が bundle なのか package なのか曖昧。</p>
+<p><strong>修正案</strong></p>
+<ul>
+<li>registry の内部 record に <code>packageURL</code> を持たせる。</li>
+<li><code>unloadAll()</code> は native bundle を unload し、package metadata も消す。</li>
+<li><code>discoverAndLoad()</code> は package 単位で再評価する。</li>
+<li>DevTools の plugin list は <code>packageURL</code> と <code>executablePath</code> を両方表示できるようにする。</li>
+</ul>
+<p><strong>受け入れ条件</strong></p>
+<ul>
+<li><code>SAKNIFE_mac/message.*.txt</code> を変更後、Plugin reload で metadata が更新される。</li>
+<li>bundle 直置き plugin と package plugin の表示差が分かる。</li>
+</ul>
+<h2 id="6-saknife">修正 6: SAKNIFE の配置を標準形へ一本化する</h2>
+<p><strong>問題</strong></p>
+<p>現在は検証用として <code>SAKNIFE.plugin</code> 直置き版と <code>SAKNIFE_mac/SAKNIFE.plugin</code> が併存している。</p>
+<p><strong>修正案</strong></p>
+<p>標準は <code>SAKNIFE_mac/</code> とし、直置き <code>/plugin/SAKNIFE.plugin</code> は検証用または旧成果物として退避する。</p>
+<p>推奨配置：</p>
+<pre class="codehilite"><code class="language-text">/Users/eightman/Documents/Ourin/plugin/SAKNIFE_mac/
+</code></pre>
+
+<p>退避候補：</p>
+<pre class="codehilite"><code class="language-text">/Users/eightman/Documents/Ourin/plugin/_legacy_native/SAKNIFE.plugin
+</code></pre>
+
+<p><strong>受け入れ条件</strong></p>
+<ul>
+<li>Ourin 起動時に SAKNIFE は 1 件だけ登録される。</li>
+<li><code>installedplugin</code> に SAKNIFE が重複しない。</li>
+</ul>
+<h2 id="7-docs-tests">修正 7: docs と tests の同期</h2>
+<p><strong>問題</strong></p>
+<p>方針が docs に入り始めているが、実装と tests が完全には追従していない。</p>
+<p><strong>修正案</strong></p>
+<ul>
+<li><code>SPEC_PLUGIN_2.0M_ja-jp.md</code> の <code>*_mac</code> 方針を正とする。</li>
+<li><code>OURIN_MIGRATOR_PLAN.md</code> と <code>PluginScaffolder</code> の出力を一致させる。</li>
+<li><code>PropertySystem_ja-jp/en-us.md</code> に追加した <code>message.&lt;key&gt;</code> のテストを追加する。</li>
+</ul>
+<p><strong>受け入れ条件</strong></p>
+<ul>
+<li><code>xcodebuild -project Ourin.xcodeproj -scheme Ourin build</code> が成功する。</li>
+<li>追加または更新したテストが成功する。</li>
+<li>docs にある標準構成を Migrator が実際に生成する。</li>
+</ul>
+<h2 id="_2">推奨実装順</h2>
+<ol>
+<li>SAKNIFE 直置き <code>.plugin</code> の扱いを決め、二重ロードの危険を消す。</li>
+<li><code>PluginMeta.path</code> の意味分離を実装する。</li>
+<li><code>PluginRegistry</code> に同一 ID の優先順位・重複抑止を入れる。</li>
+<li><code>PluginScaffolder</code> を <code>*_mac/</code> 生成へ更新する。</li>
+<li><code>message.*.txt</code> を UI 表示へ接続する。</li>
+<li>tests と docs を同期する。</li>
+</ol>
+<h2 id="_3">最小修正セット</h2>
+<p>まず壊れやすいところだけ直すなら、以下の 3 点を先に行う。</p>
+<ol>
+<li>同一 plugin ID の二重ロード抑止。</li>
+<li><code>PluginMeta</code> に <code>executablePath</code> / <code>packagePath</code> を追加。</li>
+<li><code>PluginScaffolder</code> の出力を <code>*_mac/</code> に変更。</li>
+</ol>
+<p>この 3 点で、現在の方針と実装の大きなズレはほぼ解消できる。</p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

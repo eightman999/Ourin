@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin Dependencies Documentation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="DEPENDENCIES_ja-jp.html" class="">日本語</a> | <a href="DEPENDENCIES_en-us.html" class="active">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="ourin-dependencies-documentation">Ourin Dependencies Documentation</h1>
+<p><strong>Last Updated</strong>: July 13, 2026
+<strong>Version</strong>: 1.2.0</p>
+<hr />
+<h2 id="overview">Overview</h2>
+<p>The Ourin project adopts a design with minimal dependencies. This document describes all dependencies, their purposes, and security considerations.</p>
+<hr />
+<h2 id="main-application-swiftswiftui">Main Application (Swift/SwiftUI)</h2>
+<h3 id="external-dependencies">External Dependencies</h3>
+<p><strong>None</strong> - The Ourin main application has no external dependencies.</p>
+<h3 id="system-frameworks">System Frameworks</h3>
+<p>Ourin uses only Apple official frameworks:</p>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Foundation</strong></td>
+<td>macOS SDK</td>
+<td>Basic data types, collections, filesystem access</td>
+</tr>
+<tr>
+<td><strong>AppKit</strong></td>
+<td>macOS SDK</td>
+<td>macOS native UI (window management, menus, etc.)</td>
+</tr>
+<tr>
+<td><strong>SwiftUI</strong></td>
+<td>macOS SDK</td>
+<td>Modern declarative UI</td>
+</tr>
+<tr>
+<td><strong>OSLog</strong></td>
+<td>macOS SDK</td>
+<td>System logging and debug output</td>
+</tr>
+<tr>
+<td><strong>UserNotifications</strong></td>
+<td>macOS SDK</td>
+<td>Notification functionality</td>
+</tr>
+<tr>
+<td><strong>CoreImage</strong></td>
+<td>macOS SDK</td>
+<td>Image processing and filters</td>
+</tr>
+<tr>
+<td><strong>Combine</strong></td>
+<td>macOS SDK</td>
+<td>Reactive programming and async handling</td>
+</tr>
+<tr>
+<td><strong>Darwin</strong></td>
+<td>macOS SDK</td>
+<td>POSIX system calls (semaphores, shared memory, etc.)</td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td>macOS SDK</td>
+<td>Network communication (SSTP TCP server)</td>
+</tr>
+<tr>
+<td><strong>UniformTypeIdentifiers</strong></td>
+<td>macOS SDK</td>
+<td>File type identification</td>
+</tr>
+<tr>
+<td><strong>CoreGraphics</strong></td>
+<td>macOS SDK</td>
+<td>2D graphics</td>
+</tr>
+<tr>
+<td><strong>ImageIO</strong></td>
+<td>macOS SDK</td>
+<td>Image input/output</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Security Status</strong>: ✅ All frameworks are continuously maintained by Apple.</p>
+<hr />
+<h2 id="devtools-migrator-optional">DevTools Migrator (Optional)</h2>
+<h3 id="ghidra">Ghidra</h3>
+<ul>
+<li><strong>Version</strong>: 11.x or later recommended (verified with 12.0.4 in development)</li>
+<li><strong>License</strong>: Apache License 2.0</li>
+<li><strong>Copyright</strong>: National Security Agency (NSA)</li>
+<li><strong>Purpose</strong>: Decompilation and analysis of SSP-compatible Windows DLL/EXE (Migrator feature)</li>
+<li><strong>Integration</strong>: External tool only - not bundled with Ourin</li>
+<li><strong>Security</strong>: Downloaded and executed by user; Ourin does not execute untrusted binaries</li>
+</ul>
+<p><strong>Links</strong>:
+- https://ghidra-sre.org/
+- https://www.apache.org/licenses/LICENSE-2.0</p>
+<hr />
+<h2 id="build-system-cmake">Build System (CMake)</h2>
+<h3 id="yaya_core-c-yaya-language-vm">yaya_core (C++ YAYA Language VM)</h3>
+<h4 id="build-dependencies">Build Dependencies</h4>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>nlohmann/json</strong></td>
+<td>3.11.0+ (<code>yaya_core/CMakeLists.txt</code> specifies 3.11.0)</td>
+<td>JSON parsing for IPC between Swift and C++</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><strong>libiconv</strong></td>
+<td>System</td>
+<td>Character encoding conversion (Shift_JIS → UTF-8)</td>
+<td>LGPL</td>
+</tr>
+<tr>
+<td><strong>CMake</strong></td>
+<td>3.20+</td>
+<td>Build system</td>
+<td>BSD 3-Clause</td>
+</tr>
+</tbody>
+</table>
+<h4 id="build-script">Build Script</h4>
+<p>Located at: <code>yaya_core/build.sh</code></p>
+<pre class="codehilite"><code class="language-bash">#!/bin/bash
+cd yaya_core
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+</code></pre>
+
+<p><strong>Requirements</strong>:
+- macOS 12.0+
+- Xcode Command Line Tools
+- CMake 3.20+
+- C++17 compatible compiler</p>
+<h3 id="satori_core-c-satori-runtime">satori_core (C++ SATORI runtime)</h3>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th style="text-align: right;">Version</th>
+<th>Purpose</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>satoriya-shiori</strong></td>
+<td style="text-align: right;">Mc172-3 / <code>a5746694...</code></td>
+<td>SATORI dictionary engine</td>
+<td>BSD 2-Clause</td>
+</tr>
+<tr>
+<td><strong>nlohmann/json</strong></td>
+<td style="text-align: right;">3.11.0+</td>
+<td>JSON Lines IPC with Swift</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><strong>libiconv</strong></td>
+<td style="text-align: right;">System</td>
+<td>CP932/UTF-8 conversion</td>
+<td>System library</td>
+</tr>
+<tr>
+<td><strong>CMake</strong></td>
+<td style="text-align: right;">3.20+</td>
+<td>Universal 2 build</td>
+<td>BSD 3-Clause</td>
+</tr>
+</tbody>
+</table>
+<p>The fixed upstream snapshot is vendored under <code>satori_core/third_party/satoriya-shiori/</code>. The signed helper is embedded in the app, so runtime execution requires no external packages. See <code>satori_core/UPSTREAM.md</code> and <code>satori_core/PATCHES.md</code> for provenance and local changes.</p>
+<hr />
+<h2 id="development-tools-optional">Development Tools (Optional)</h2>
+<h3 id="tools-used-in-development-environment">Tools Used in Development Environment</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Xcode</strong></td>
+<td>14.0+</td>
+<td>Primary IDE</td>
+<td>Proprietary</td>
+</tr>
+<tr>
+<td><strong>Swift</strong></td>
+<td>5.7+</td>
+<td>Programming language</td>
+<td>Apache License 2.0</td>
+</tr>
+<tr>
+<td><strong>Git</strong></td>
+<td>2.30+</td>
+<td>Version control</td>
+<td>GPL v2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: These are development tools, not runtime dependencies.</p>
+<hr />
+<h2 id="runtime-dependencies-summary">Runtime Dependencies Summary</h2>
+<h3 id="always-required">Always Required</h3>
+<p>✅ <strong>macOS SDK Frameworks</strong> - Automatically available on macOS 12.0+</p>
+<h3 id="optional">Optional</h3>
+<p>🟡 <strong>Ghidra</strong> - Only needed for DevTools Migrator feature
+- Can be installed by user as needed
+- Not bundled or auto-downloaded</p>
+<p>🟡 <strong>yaya_core</strong> - Pre-built binaries included in app bundle
+- C++ compilation required only if building from source
+- Pre-built for macOS 12.0+</p>
+<hr />
+<h2 id="dependency-graph">Dependency Graph</h2>
+<pre class="codehilite"><code>Ourin (Main App)
+├── Foundation
+├── AppKit
+├── SwiftUI
+├── OSLog
+├── UserNotifications
+├── CoreImage
+├── Combine
+├── Darwin
+├── Network
+├── UniformTypeIdentifiers
+├── CoreGraphics
+├── ImageIO
+├── ShioriHost (Internal)
+├── GhostManager (Internal)
+├── PluginHost (Internal)
+├── ExternalServer (Internal)
+│   ├── SstpTcpServer
+│   ├── SstpHttpServer
+│   └── XpcDirectServer
+├── USL (Internal - SHIORI Loader)
+├── SSTP (Internal)
+├── Yaya (Internal - YAYA Adapter)
+│   ├── yaya_core (C++ subprocess)
+│   │   ├── nlohmann/json
+│   │   └── libiconv
+│   ├── SaoriHost
+│   └── ShioriHost
+├── SakuraScript (Internal)
+├── SERIKO (Internal)
+├── Property (Internal)
+├── NarInstall (Internal)
+└── DevTools (Internal)
+    └── Migrator (uses external Ghidra)
+</code></pre>
+
+<hr />
+<h2 id="license-compliance">License Compliance</h2>
+<h3 id="ourin-license">Ourin License</h3>
+<ul>
+<li><strong>Source code</strong>: Apache License 2.0</li>
+<li><strong>Project documentation</strong>: CC BY-SA 4.0</li>
+<li><strong>Third-party components and bundled content</strong>: their original licenses</li>
+<li>Repository: https://github.com/furin-lab/ourin</li>
+</ul>
+<h3 id="bundled-licenses">Bundled Licenses</h3>
+<h4 id="nlohmannjson">nlohmann/json</h4>
+<ul>
+<li><strong>License</strong>: MIT</li>
+<li><strong>Usage</strong>: JSON serialization in yaya_core</li>
+<li><strong>Distribution</strong>: Source included in <code>yaya_core/CMakeLists.txt</code></li>
+</ul>
+<h4 id="libiconv">libiconv</h4>
+<ul>
+<li><strong>License</strong>: LGPL</li>
+<li><strong>Usage</strong>: Character encoding conversion (CP932 ↔ UTF-8)</li>
+<li><strong>Distribution</strong>: System library, not bundled</li>
+</ul>
+<h4 id="swift-runtime">Swift Runtime</h4>
+<ul>
+<li><strong>License</strong>: Apache License 2.0</li>
+<li><strong>Usage</strong>: Swift standard library runtime</li>
+<li><strong>Distribution</strong>: Part of macOS, not bundled</li>
+</ul>
+<h4 id="ghidra-if-used">Ghidra (if used)</h4>
+<ul>
+<li><strong>License</strong>: Apache License 2.0</li>
+<li><strong>Usage</strong>: Optional decompilation tool for DevTools Migrator</li>
+<li><strong>Distribution</strong>: Downloaded by user, not bundled</li>
+<li><strong>Copyright</strong>: National Security Agency</li>
+</ul>
+<hr />
+<h2 id="third-party-notices">Third-Party Notices</h2>
+<h3 id="complete-list-of-notices">Complete List of Notices</h3>
+<p>When distributing Ourin, include these notices:</p>
+<pre class="codehilite"><code>This software includes components licensed under the following licenses:
+
+1. nlohmann/json
+   Copyright (c) 2013-2022 Niels Lohmann
+   https://github.com/nlohmann/json
+   License: MIT
+
+2. Ghidra (optional, if used)
+   Copyright (c) 2019 National Security Agency
+   https://ghidra-sre.org/
+   License: Apache License 2.0
+
+3. Swift Runtime
+   Copyright (c) 2014-2023 Apple Inc.
+   License: Apache License 2.0
+
+4. SATORI (satoriya-shiori)
+   Copyright (c) 2001-2005, Kusigahama Yagi.
+   Copyright (c) 2006-, SEIBIHAN.
+   https://github.com/ukatech/satoriya-shiori
+   License: BSD 2-Clause
+</code></pre>
+
+<hr />
+<h2 id="security-considerations">Security Considerations</h2>
+<h3 id="secure-coding-practices">Secure Coding Practices</h3>
+<ol>
+<li><strong>No External HTTP Dependencies</strong></li>
+<li>No automatic downloads of third-party libraries</li>
+<li>
+<p>All dependencies are either bundled or system-provided</p>
+</li>
+<li>
+<p><strong>Character Encoding Security</strong></p>
+</li>
+<li>CP932/UTF-8 conversion uses system libiconv</li>
+<li>
+<p>Input validation for ghost dictionaries</p>
+</li>
+<li>
+<p><strong>Plugin Isolation</strong></p>
+</li>
+<li>Plugins run in separate XPC processes</li>
+<li>
+<p>No direct access to sensitive files</p>
+</li>
+<li>
+<p><strong>File System Access</strong></p>
+</li>
+<li>Non-sandboxed but respects user permissions</li>
+<li>
+<p>Ghost data stored in standard user locations</p>
+</li>
+<li>
+<p><strong>Network Security</strong></p>
+</li>
+<li>SSTP over TCP/HTTP (no custom protocol)</li>
+<li>XPC for local inter-process communication</li>
+</ol>
+<h3 id="threat-model">Threat Model</h3>
+<table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Malicious ghost dictionary</td>
+<td>Input validation, parser guards</td>
+</tr>
+<tr>
+<td>Malicious plugin</td>
+<td>XPC isolation, capability restrictions</td>
+</tr>
+<tr>
+<td>Buffer overflow in yaya_core</td>
+<td>Memory-safe Swift wrapper, bounds checking</td>
+</tr>
+<tr>
+<td>Network sniffing</td>
+<td>SSTP is application-level, users can use SSH tunnel</td>
+</tr>
+<tr>
+<td>Supply chain attack</td>
+<td>Minimal dependencies, most bundled or system-provided</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="update-policy">Update Policy</h2>
+<h3 id="swiftmacos-updates">Swift/macOS Updates</h3>
+<p>The project targets macOS 12.0 LTS and later versions of Swift.</p>
+<p>When macOS/Swift versions are updated:
+1. Test with new version
+2. Update version requirements if needed
+3. Document breaking changes
+4. Provide migration guide for users</p>
+<h3 id="dependency-updates">Dependency Updates</h3>
+<p>For bundled dependencies like nlohmann/json:
+1. Monitor upstream for security updates
+2. Test compatibility before updating
+3. Document changes in CHANGELOG
+4. Provide release notes to users</p>
+<hr />
+<h2 id="building-without-external-dependencies">Building Without External Dependencies</h2>
+<h3 id="fully-offline-build">Fully Offline Build</h3>
+<p>To build Ourin without downloading any external dependencies:</p>
+<pre class="codehilite"><code class="language-bash"># All dependencies already in repository:
+xcodebuild -project Ourin.xcodeproj -scheme Ourin build
+
+# Or for yaya_core:
+cd yaya_core
+./build.sh  # Uses system CMake, nlohmann/json is local
+</code></pre>
+
+<p><strong>Note</strong>: Ghidra must be installed separately if using DevTools Migrator.</p>
+<hr />
+<h2 id="performance-impact">Performance Impact</h2>
+<h3 id="dependency-impact-on-performance">Dependency Impact on Performance</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Impact</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Swift Runtime</td>
+<td>Negligible</td>
+<td>Native compilation to machine code</td>
+</tr>
+<tr>
+<td>Foundation</td>
+<td>~20MB</td>
+<td>Part of macOS, shared across apps</td>
+</tr>
+<tr>
+<td>AppKit/SwiftUI</td>
+<td>~50MB</td>
+<td>Part of macOS, shared across apps</td>
+</tr>
+<tr>
+<td>yaya_core</td>
+<td>~10MB</td>
+<td>Compiled subprocess, efficient VM</td>
+</tr>
+<tr>
+<td>Plugins</td>
+<td>Variable</td>
+<td>Optional, user-provided</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total Base Memory</strong>: ~200MB (shared libraries included)<br />
+<strong>Ghost Runtime</strong>: +50-100MB per active ghost</p>
+<hr />
+<h2 id="maintenance-schedule">Maintenance Schedule</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Schedule</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Swift Updates</td>
+<td>Annually (macOS releases)</td>
+<td>Maintainers</td>
+</tr>
+<tr>
+<td>Dependency Security Checks</td>
+<td>Quarterly</td>
+<td>Maintainers</td>
+</tr>
+<tr>
+<td>License Compliance Audit</td>
+<td>Annually</td>
+<td>Maintainers</td>
+</tr>
+<tr>
+<td>Performance Profiling</td>
+<td>Per release</td>
+<td>QA Team</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><strong>Build Instructions</strong>: See CLAUDE.md</li>
+<li><strong>License</strong>: See LICENSE or LICENSE.txt in repo</li>
+<li><strong>Contributing</strong>: See CONTRIBUTING.md</li>
+<li><strong>Security Policy</strong>: See SECURITY.md</li>
+</ul>
+<hr />
+<p><strong>Last Reviewed</strong>: June 26, 2026<br />
+<strong>Review Cycle</strong>: Annual<br />
+<strong>Maintainer</strong>: Furin Lab Development Team</p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

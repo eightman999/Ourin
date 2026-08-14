@@ -29,14 +29,14 @@ See [TRANSLATION_MANIFEST.md](../TRANSLATION_MANIFEST.md) for the current transl
 ## 主要ドキュメント / Key Documents
 
 ### コア仕様書 / Core Specifications
-- [SHIORI/3.0M 仕様 / Specification](SHIORI_3.0M_SPE_ja-jp.html) ([EN](SHIORI_3.0M_SPE_en-us.html))
-- [SSTP/1.xM 仕様 / Specification](SSTP_1.xM_SPE_ja-jp.html) ([EN](SSTP_1.xM_SPE_en-us.html))
-- [PLUGIN/2.0M 仕様 / Specification](SPEC_PLUGIN_2.0_ja-jp.html) ([EN](SPEC_PLUGIN_2.0_en-us.html))
-- [NAR INSTALL/1.0M 仕様 / Specification](NAR_INSTALL_1.0M_SPE_ja-jp.html) ([EN](NAR_INSTALL_1.0M_SPE_en-us.html))
+- [SHIORI/3.0M 仕様 / Specification](SHIORI_3.0M_SPEC_ja-jp.html) ([EN](SHIORI_3.0M_SPEC_en-us.html))
+- [SSTP/1.xM 仕様 / Specification](SSTP_1.xM_SPEC_ja-jp.html) ([EN](SSTP_1.xM_SPEC_en-us.html))
+- [PLUGIN/2.0M 仕様 / Specification](SPEC_PLUGIN_2.0M_ja-jp.html) ([EN](SPEC_PLUGIN_2.0M_en-us.html))
+- [NAR INSTALL/1.0M 仕様 / Specification](NAR_INSTALL_1.0M_SPEC_ja-jp.html) ([EN](NAR_INSTALL_1.0M_SPEC_en-us.html))
 
 ### システム実装 / System Implementation
-- [FMO について / About FMO](About_FM_ja-jp.html) ([EN](About_FM_en-us.html))
-- [YAYA Adapter 仕様 / Specification](OURIN_YAYA_ADAPTER_SPEC_1.0_ja-jp.html) ([EN](OURIN_YAYA_ADAPTER_SPEC_1.0_en-us.html))
+- [FMO について / About FMO](About_FMO_ja-jp.html) ([EN](About_FMO_en-us.html))
+- [YAYA Adapter 仕様 / Specification](OURIN_YAYA_ADAPTER_SPEC_1.0M_ja-jp.html) ([EN](OURIN_YAYA_ADAPTER_SPEC_1.0M_en-us.html))
 
 ## 生成について / Generation
 

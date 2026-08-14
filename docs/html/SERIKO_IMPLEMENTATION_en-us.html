@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SERIKO Implementation in Ourin</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="SERIKO_IMPLEMENTATION_ja-jp.html" class="">日本語</a> | <a href="SERIKO_IMPLEMENTATION_en-us.html" class="active">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="seriko-implementation-in-ourin">SERIKO Implementation in Ourin</h1>
+<h2 id="scope">Scope</h2>
+<p>Ourin currently implements SERIKO in two layers:</p>
+<ul>
+<li>Legacy runtime path in <code>AnimationEngine.swift</code></li>
+<li>New parser/executor path in:</li>
+<li><code>Ourin/Animation/SerikoParser.swift</code></li>
+<li><code>Ourin/Animation/SerikoExecutor.swift</code></li>
+<li><code>Ourin/Ghost/GhostManager+Animation.swift</code> integration</li>
+</ul>
+<h2 id="parser-serikoparser">Parser (<code>SerikoParser</code>)</h2>
+<p><code>SerikoParser.parseSurfaces(_:)</code> reads <code>surfaces.txt</code> and extracts:</p>
+<ul>
+<li><code>surfaceN { ... }</code> scope blocks</li>
+<li><code>animation&lt;ID&gt;.interval,&lt;value&gt;</code></li>
+<li><code>animation&lt;ID&gt;.option,&lt;value&gt;</code></li>
+<li><code>animation&lt;ID&gt;.pattern&lt;idx&gt;,...</code></li>
+</ul>
+<p>Core model types:</p>
+<ul>
+<li><code>SerikoInterval</code> (<code>always</code>, <code>sometimes</code>, <code>rarely</code>, <code>random</code>, <code>runonce</code>, <code>yen-e</code>, <code>talk</code>, <code>bind</code>, <code>never</code>)</li>
+<li><code>SerikoMethod</code> (<code>overlay</code>, <code>overlayfast</code>, <code>base</code>, <code>move</code>, <code>reduce</code>, <code>replace</code>, <code>start</code>, <code>alternativestart</code>, <code>stop</code>, <code>asis</code>)</li>
+<li><code>SerikoPattern</code></li>
+<li><code>AnimationDefinition</code></li>
+</ul>
+<p>Notes:</p>
+<ul>
+<li>Legacy numeric pattern format is treated as <code>overlay</code>.</li>
+<li>Unknown values are preserved via <code>.unknown(...)</code>.</li>
+</ul>
+<h2 id="executor-serikoexecutor">Executor (<code>SerikoExecutor</code>)</h2>
+<p><code>SerikoExecutor</code> is a stateful animation scheduler:</p>
+<ul>
+<li><code>register(animations:)</code> stores definitions</li>
+<li><code>executeAnimation(id:)</code> starts an animation immediately</li>
+<li><code>startLoop()</code> advances active animations based on elapsed time and interval rules</li>
+<li><code>pauseAnimation</code>, <code>resumeAnimation</code>, <code>offsetAnimation</code>, <code>stopAnimation</code>, <code>stopAllAnimations</code></li>
+</ul>
+<p>Interval triggers:</p>
+<ul>
+<li>Probabilistic: <code>sometimes</code>, <code>rarely</code>, <code>random</code></li>
+<li>One-shot: <code>runonce</code></li>
+<li>Event-driven: <code>yenE</code>, <code>talk</code>, <code>bind</code> via trigger APIs</li>
+</ul>
+<p>Callbacks:</p>
+<ul>
+<li><code>onMethodInvoked</code></li>
+<li><code>onPatternExecuted</code></li>
+<li><code>onAnimationFinished</code></li>
+</ul>
+<h2 id="ghost-integration">Ghost integration</h2>
+<p><code>GhostManager+Animation.swift</code> wires executor callbacks into rendering actions:</p>
+<ul>
+<li><code>overlay</code> / <code>overlayFast</code> -&gt; <code>handleSurfaceOverlay</code></li>
+<li><code>base</code> -&gt; <code>handleAnimAddBase</code></li>
+<li><code>move</code> -&gt; <code>handleAnimAddMove</code></li>
+<li><code>replace</code> -&gt; <code>handleSurfaceOverlay(..., .replace)</code></li>
+<li><code>start</code> / <code>alternativeStart</code> -&gt; nested executor start</li>
+<li><code>stop</code> -&gt; executor stop</li>
+</ul>
+<p>Runtime flow:</p>
+<ol>
+<li><code>loadAnimationsForCurrentSurface()</code> loads <code>surfaces.txt</code></li>
+<li>Parsed animations are registered to <code>SerikoExecutor</code></li>
+<li><code>playAnimation(...)</code> tries executor first</li>
+<li>Falls back to legacy <code>AnimationEngine</code> if executor has no matching definition</li>
+</ol>
+<p>The loop is driven by a timer in <code>GhostManager+Animation</code> calling <code>serikoExecutor.startLoop()</code>.</p>
+<h2 id="sakurascript-linkage">SakuraScript linkage</h2>
+<p>Current linkage is command-level through <code>GhostManager</code> handlers:</p>
+<ul>
+<li><code>\i[ID]</code> / <code>\i[ID,wait]</code></li>
+<li><code>\![anim,clear|pause|resume|offset|add|stop,...]</code></li>
+</ul>
+<p><code>waitForAnimation(id:)</code> exists for synchronized behavior and is used in animation flow.</p>
+<h2 id="test-coverage">Test coverage</h2>
+<ul>
+<li><code>OurinTests/SerikoParserTests.swift</code></li>
+<li>parser correctness</li>
+<li>real shell <code>surfaces.txt</code> parsing</li>
+<li><code>OurinTests/SerikoExecutorTests.swift</code></li>
+<li>startup/advance/offset</li>
+<li>runonce completion</li>
+<li>interval trigger behavior</li>
+</ul>
+<h2 id="current-status">Current Status</h2>
+<p><strong>Status</strong>: Parser Complete, Executor Integrated / updated 2026-06-15</p>
+<h3 id="implemented-components">Implemented Components</h3>
+<h4 id="serikoparserswift-complete">✅ <strong>SerikoParser.swift</strong> (Complete)</h4>
+<p>Complete SERIKO/2.0 parser with:
+- All interval types (always, sometimes, rarely, random, runonce, yen-e, talk, bind, never)
+- All method types (overlay, overlayfast, base, move, isReducing, replace, start, alternativestart, stop, asis)
+- Pattern parsing and surface definitions
+- surfaces.txt parsing</p>
+<h4 id="serikoexecutorswift-connected">✅ <strong>SerikoExecutor.swift</strong> (Connected)</h4>
+<p>Fully functional animation execution engine with:
+- Animation state management
+- executeAnimation(), startLoop() methods
+- All execute methods (overlay, base, move, reduce, replace, start, stop, etc.)
+- Pause/resume/offset capabilities
+- Callback system (onMethodInvoked, onPatternExecuted, onAnimationFinished)
+- ✅ Callbacks wired to GhostManager (<code>GhostManager+Animation.swift</code>)</p>
+<h4 id="ghostmanageranimationswift-integrated">✅ <strong>GhostManager+Animation.swift</strong> (Integrated)</h4>
+<ul>
+<li>SerikoExecutor callbacks connected</li>
+<li>Timer-driven loop (<code>serikoExecutor.startLoop()</code>) and <code>\![anim,*]</code> routing in place</li>
+</ul>
+<h3 id="integration-gaps">Integration Gaps</h3>
+<ul>
+<li>✅ <strong>SerikoExecutor callbacks connected</strong> - wired via GhostManager animation handlers</li>
+<li>✅ <strong>SakuraScript animation commands routed</strong> - ![anim,*] path controls animation handling</li>
+<li>⚠️ <strong>Advanced dressup behavior coverage</strong> - functional path exists, but broader ghost-matrix validation is ongoing</li>
+</ul>
+<h3 id="blocking-issues">Blocking Issues</h3>
+<ul>
+<li>No active SERIKO blockers in current tracker.</li>
+</ul>
+<h3 id="integration-required">Integration Required</h3>
+<p>See archive/INTEGRATION_ROADMAP.md <strong>Phase 3</strong> for detailed integration steps:</p>
+<ol>
+<li><strong>Wire SerikoExecutor to GhostManager</strong> (Task 3.1):</li>
+<li>
+<p>In GhostManager+Animation.swift:
+     ```swift
+     serikoExecutor.onMethodInvoked = { [weak self] method in
+         self?.handleSerikoMethod(method)
+     }</p>
+<p>serikoExecutor.onPatternExecuted = { [weak self] pattern in
+     self?.handleSerikoPattern(pattern)
+ }</p>
+<p>serikoExecutor.onAnimationFinished = { [weak self] animationId in
+     self?.handleAnimationFinished(animationId)
+ }
+ ```
+   - Implement handler methods to update surface/rendering</p>
+</li>
+<li>
+<p><strong>Implement SakuraScript animation commands</strong> (Task 3.2):</p>
+</li>
+<li>In SakuraScriptEngine.swift:
+     <code>swift
+     private func handleAnimCommand(arguments: [String]) {
+         let command = arguments[0]
+         switch command {
+         case "clear":
+             serikoExecutor.stopAnimation(id: animId)
+         case "pause":
+             serikoExecutor.pauseAnimation(id: animId)
+         // ... etc
+         }
+     }</code></li>
+<li>
+<p>Implement wait handler for __w[animation,ID]</p>
+</li>
+<li>
+<p><strong>Testing</strong> (Task 3.3):</p>
+</li>
+<li>Load ghost with animations</li>
+<li>Trigger via SakuraScript</li>
+<li>Verify playback works</li>
+<li>Test pause/resume/offset</li>
+</ol>
+<h3 id="success-criteria">Success Criteria</h3>
+<ul>
+<li>[x] GhostManager callbacks connected</li>
+<li>[x] Animation commands execute</li>
+<li>[x] Pause/resume/offset work</li>
+<li>[x] Critical SERIKO blockers resolved</li>
+<li>[ ] Full multi-ghost on-screen matrix validation</li>
+</ul>
+<hr />
+<h2 id="current-limitations">Current limitations</h2>
+<ul>
+<li>Advanced option compatibility varies by ghost data shape.</li>
+<li>Not all SERIKO options in <code>animation&lt;ID&gt;.option</code> are applied at runtime yet.</li>
+<li>Integration with advanced SakuraScript animation wait patterns remains partial.</li>
+<li>Legacy and new paths coexist for compatibility; behavior may differ by command/data shape.</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

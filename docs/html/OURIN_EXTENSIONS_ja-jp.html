@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourinの拡張機能と動作上の注意</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="OURIN_EXTENSIONS_ja-jp.html" class="active">日本語</a> | <a href="OURIN_EXTENSIONS_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="ourin">Ourinの拡張機能と動作上の注意</h1>
+<h2 id="_1">プラットフォーム焦点</h2>
+<p>OurinはネイティブmacOSベースウェアです。複数の動作は意図的にSSP互換性より厳密にAppKit/SwiftUI機構を使用しています。</p>
+<p>例:</p>
+<ul>
+<li><code>NSWindow</code> APIによるウィンドウ制御とアニメーション</li>
+<li>SwiftUIビューモデルで実装された視覚効果/状態</li>
+<li>ブラウザー、メール、ダイアログのネイティブ設定/開く流れ</li>
+</ul>
+<h2 id="_2">さくらスクリプト実行モデル</h2>
+<p>パーサーとエグゼキューターが分離:</p>
+<ul>
+<li><code>SakuraScriptEngine</code> がトークン化</li>
+<li><code>GhostManager</code> がトークンを解釈し、再生ユニットをキューイング</li>
+</ul>
+<p>これにより、タイピング効果、遅延コマンド、コマンドのタイミング制御をサポートします。</p>
+<h2 id="move">拡張moveコマンドハンドリング</h2>
+<p><code>move/moveasync</code> はオプションスタイル形式をサポート:</p>
+<ul>
+<li><code>--X</code>, <code>--Y</code></li>
+<li><code>--time</code></li>
+<li><code>--base</code>, <code>--base-offset</code>, <code>--move-offset</code></li>
+<li><code>--option=ignore-sticky-window</code></li>
+<li><code>moveasync,cancel</code>（オプションのスコープ付き）</li>
+</ul>
+<p>互換性のため、従来のポジショナル形式も保持されています。</p>
+<h2 id="_3">ウィンドウグループ制御拡張機能</h2>
+<ul>
+<li><code>set,zorder</code> はより広いスコープトークン解析をサポート（<code>current</code>、<code>all</code>、区切り付きリスト）</li>
+<li><code>set,sticky-window</code> グループ化形式をサポート（<code>--group=...|...</code> を含む）</li>
+</ul>
+<p>これらはmacOSデスクトップでの複数キャラクターウィンドウ制御のための実用的な拡張機能です。</p>
+<h2 id="dressupbind">Dressup/bindハンドリング</h2>
+<p><code>bind</code> がサポート:</p>
+<ul>
+<li>カテゴリー形式</li>
+<li>反復タプル形式</li>
+<li>無効化/バインド解除セマンティック値（<code>0</code>、<code>false</code>、<code>off</code>、<code>none</code>、<code>default</code>）</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -50,7 +50,7 @@
 |キー|カテゴリ|型|例/値域|備考|
 |---|---|---|---|---|
 |homeurl|ゴースト情報|URL|http(s)://...|ネットワーク更新のベースURL。|
-|useorigin1|ゴースト情報|int(0|1)|0 or 1|更新のファイル数開始値。|
+|useorigin1|ゴースト情報|int(0\|1)|0 or 1|更新のファイル数開始値。|
 |username|ゴースト情報|string|任意|ユーザー名。|
 |sakura.defaultx|ゴースト情報|int|px|画像ベースX|
 |kero.defaultx|ゴースト情報|int|px|画像ベースX|
@@ -95,16 +95,16 @@
 |updatebuttoncaption|ゴースト情報|string|名称||
 |vanishbuttoncaption|ゴースト情報|string|名称||
 |readmebuttoncaption|ゴースト情報|string|名称||
-|vanishbuttonvisible|ゴースト情報|int(0|1)|0/1|可視|
-|sakura.popupmenu.visible|ゴースト情報|int(0|1)|0/1||
-|kero.popupmenu.visible|ゴースト情報|int(0|1)|0/1||
-|char*.popupmenu.visible|ゴースト情報|int(0|1)|0/1||
+|vanishbuttonvisible|ゴースト情報|int(0\|1)|0/1|可視|
+|sakura.popupmenu.visible|ゴースト情報|int(0\|1)|0/1||
+|kero.popupmenu.visible|ゴースト情報|int(0\|1)|0/1||
+|char*.popupmenu.visible|ゴースト情報|int(0\|1)|0/1||
 |sakura.popupmenu.type|ゴースト情報|string|型名|SSP定義に準拠|
 |kero.popupmenu.type|ゴースト情報|string|型名||
 |char*.popupmenu.type|ゴースト情報|string|型名||
 |getaistate|ゴースト情報|string|数値列 + 区切り|AIグラフ|
 |getaistateex|ゴースト情報|string/204|数値列 or 無|AIグラフ(多重)|
-|legacyinterface|ゴースト情報|int(0|1)|0/1|レガシーUI|
+|legacyinterface|ゴースト情報|int(0\|1)|0/1|レガシーUI|
 
 
 ### 4.3 更新情報
@@ -142,105 +142,107 @@
 
 
 ### 4.6 オーナードローメニュー項目表示
-（**規則**）「項目名の `.caption` を `.visible` に置換したキー」が存在し、**1=表示、0=非表示**。  
+（**規則**）「項目名の `.caption` を `.visible` に置換したキー」が存在し、**1=表示、0=非表示**。
+
 |キー|カテゴリ|型|例/値域|備考|
 |---|---|---|---|---|
-|activaterootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|addressbarbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|alignrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|alwaysstayontopbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|alwaystrayiconvisiblebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|balloonhistorybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|balloonrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|biffallbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|biffbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|calendarbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|callghosthistorybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|callghostrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|callsstpsendboxbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|char*.recommendsites.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|charsetbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|closeballoonbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|closebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|collisionvisiblebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|configurationbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|configurationrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|debugballoonbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|definedsurfaceonlybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|dressuprootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|duibutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|enableballoonmovebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|firststaffbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|ghostexplorerbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|ghosthistorybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|ghostinstallbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|ghostrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|headlinesensehistorybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|headlinesenserootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|helpbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|hidebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|historyrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|inforootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|leavepassivebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|messengerbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|pluginhistorybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|pluginrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|portalrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|purgeghostcachebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|quitbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|rateofuseballoonbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|rateofusebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|rateofuserootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|rateofusetotalbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|readmebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|termsbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|recommendrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|regionenabledbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|reloadinfobutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|resetballoonpositionbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|resettodefaultbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|scriptlogbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|shellrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|shellscaleotherbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|shellscalerootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|sntpbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchactivatewhentalkbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchactivatewhentalkexceptupdatebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchautobiffbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchautoheadlinesensebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchblacklistingbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchcompatiblemodebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchconsolealwaysvisiblebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchconsolevisiblebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchdeactivatebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchdontactivatebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchdontforcealignbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchduivisiblebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchforcealignfreebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchforcealignlimitbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchignoreserikomovebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchlocalsstpbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchmovetodefaultpositionbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchproxybutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchquietbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchreloadbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchreloadtempghostbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchremotesstpbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|switchtalkghostbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|systeminfobutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|updatebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|updatefmobutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|updateplatformbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|utilityrootbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|vanishbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|aistatebutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|dictationbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
-|texttospeechbutton.visible|メニュー項目表示|int(0|1)|0/1|1=表示, 0=非表示|
+|activaterootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|addressbarbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|alignrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|alwaysstayontopbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|alwaystrayiconvisiblebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|balloonhistorybutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|balloonrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|biffallbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|biffbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|calendarbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|callghosthistorybutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|callghostrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|callsstpsendboxbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|char*.recommendsites.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|charsetbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|closeballoonbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|closebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|collisionvisiblebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|configurationbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|configurationrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|debugballoonbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|definedsurfaceonlybutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|dressuprootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|duibutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|enableballoonmovebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|firststaffbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|ghostexplorerbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|ghosthistorybutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|ghostinstallbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|ghostrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|headlinesensehistorybutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|headlinesenserootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|helpbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|hidebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|historyrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|inforootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|leavepassivebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|messengerbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|pluginhistorybutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|pluginrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|portalrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|purgeghostcachebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|quitbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|rateofuseballoonbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|rateofusebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|rateofuserootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|rateofusetotalbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|readmebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|termsbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|recommendrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|regionenabledbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|reloadinfobutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|resetballoonpositionbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|resettodefaultbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|scriptlogbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|shellrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|shellscaleotherbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|shellscalerootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|sntpbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchactivatewhentalkbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchactivatewhentalkexceptupdatebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchautobiffbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchautoheadlinesensebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchblacklistingbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchcompatiblemodebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchconsolealwaysvisiblebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchconsolevisiblebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchdeactivatebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchdontactivatebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchdontforcealignbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchduivisiblebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchforcealignfreebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchforcealignlimitbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchignoreserikomovebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchlocalsstpbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchmovetodefaultpositionbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchproxybutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchquietbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchreloadbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchreloadtempghostbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchremotesstpbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|switchtalkghostbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|systeminfobutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|updatebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|updatefmobutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|updateplatformbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|utilityrootbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|vanishbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|aistatebutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|dictationbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
+|texttospeechbutton.visible|メニュー項目表示|int(0\|1)|0/1|1=表示, 0=非表示|
 
 
 ### 4.7 オーナードローメニュー項目名 / ショートカット
-キャプション文字列中に **`&X`** を含めると **X** がショートカットキーになる（大/小区別なし、記号も可）。  
+キャプション文字列中に **`&X`** を含めると **X** がショートカットキーになる（大/小区別なし、記号も可）。
+
 |キー|カテゴリ|型|例/値域|備考|
 |---|---|---|---|---|
 |activaterootbutton.caption|メニュー項目名|string|表示名|ショートカット: '&X' を文字列に含める|

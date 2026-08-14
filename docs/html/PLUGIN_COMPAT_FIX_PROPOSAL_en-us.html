@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugin Compatibility Implementation Proposal</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="PLUGIN_COMPAT_FIX_PROPOSAL_ja-jp.html" class="">日本語</a> | <a href="PLUGIN_COMPAT_FIX_PROPOSAL_en-us.html" class="active">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="plugin-compatibility-implementation-proposal">Plugin Compatibility Implementation Proposal</h1>
+<p><strong>Created:</strong> 2026-06-26</p>
+<p>This document consolidates the SSP/PLUGIN compatibility approach and current implementation gaps for Ourin.</p>
+<h2 id="baseline-policy">Baseline Policy</h2>
+<p>Going forward, macOS-ported plugins adopt this responsibility separation:</p>
+<pre class="codehilite"><code class="language-text">SomePlugin_mac/
+  install.txt
+  descript.txt
+  message.japanese.txt
+  message.english.txt
+  SomePlugin.plugin/
+</code></pre>
+
+<ul>
+<li>Ourin host interprets <code>install.txt</code>, <code>descript.txt</code>, <code>message.*.txt</code>.</li>
+<li><code>.plugin</code> bundle concentrates on DLL <code>load</code> / <code>loadu</code> / <code>request</code> / <code>unload</code> / <code>unloadu</code> compatibility.</li>
+<li>Display strings and language selection default to <code>message.*.txt</code>.</li>
+<li>Windows DLL is not directly loaded on macOS.</li>
+<li>Migration records for unknown DLLs contain no executable; only completed native plugins are loadable.</li>
+</ul>
+<h2 id="fix-1-do-not-generate-fake-executables-for-unknown-dlls-implemented">Fix 1: Do not generate fake executables for unknown DLLs (implemented)</h2>
+<p>The previous implementation generated an <code>exit 0</code> shell and a fixed <code>PLUGIN/2.0M 200 OK</code>
+response inside a <code>.plugin</code> scaffold. This could present incomplete behavior as implemented
+and caused PluginRegistry load failures or log noise.</p>
+<p><code>PluginScaffolder</code> now generates only this executable-free migration record:</p>
+<pre class="codehilite"><code class="language-text">ourin/macos/&lt;name&gt;_mac/
+  descript.txt
+  message.japanese.txt
+  message.english.txt
+  ourin.json (mode: unsupported)
+  OriginalDocs/
+    ReadMe.txt
+  README.md
+</code></pre>
+
+<p><code>PluginRegistry</code> excludes <code>unsupported</code> and legacy <code>scaffold</code> manifests from execution.
+The source asset is not deleted; the original <code>install.txt</code> is retained only under
+<code>OriginalDocs/</code>.</p>
+<p>After a per-asset native implementation is completed, update <code>ourin.json</code> to
+<code>native-plugin</code> or <code>native-replacement</code> before making it loadable.</p>
+<h2 id="fix-2-prevent-double-loading-of-same-plugin-id">Fix 2: Prevent double-loading of same plugin ID</h2>
+<p><strong>Problem</strong></p>
+<p><code>/Users/eightman/Documents/Ourin/plugin/SAKNIFE.plugin</code> and <code>SAKNIFE_mac/SAKNIFE.plugin</code> can both exist, causing same <code>id</code> plugin to load twice.</p>
+<p><strong>Proposal</strong></p>
+<p>Add dedup to <code>PluginRegistry.discoverAndLoad</code> for loaded ID / bundle path.</p>
+<p>Priority:</p>
+<ol>
+<li>Native <code>.plugin</code> in package directory with <code>install.txt</code></li>
+<li>Native <code>.plugin</code> placed directly</li>
+<li>Legacy metadata-only directory</li>
+</ol>
+<p>With duplicates by same ID, use highest priority, skip lower, log result.</p>
+<p><strong>Acceptance Criteria</strong></p>
+<ul>
+<li>Add test to <code>LegacyPluginRegistryTests</code>: "direct <code>.plugin</code> and <code>*_mac</code> with same ID registers only one".</li>
+<li><code>installedplugin</code> and <code>pluginpathlist</code> have no duplicate IDs.</li>
+</ul>
+<h2 id="fix-3-separate-meaning-of-pluginmetapath">Fix 3: Separate meaning of <code>PluginMeta.path</code></h2>
+<p><strong>Current:</strong> 2026-06-27 implemented. Added <code>PluginMeta.compatibilityPath</code> / <code>executablePath</code> / <code>packagePath</code> and <code>PluginCompatibilityEntry</code>; accessible via <code>pluginlist.index(n).executablepath</code> / <code>pluginlist.index(n).packagepath</code> / <code>executionstate</code> / <code>candispatchrequests</code>.</p>
+<p><strong>Problem</strong></p>
+<p>If package root <code>descript.txt</code> has legacy DLL <code>filename,SAKNIFE.dll</code>, <code>PluginMeta.path</code> becomes DLL path. But actual loaded native bundle is <code>SAKNIFE.plugin</code>, making <code>pluginpathlist</code> semantics ambiguous.</p>
+<p><strong>Proposal</strong></p>
+<p>Separate <code>PluginMeta</code> into compatibility and execution paths:</p>
+<pre class="codehilite"><code class="language-swift">public let compatibilityPath: String   // descript.txt filename, DLL compatible.
+public let executablePath: String      // actual load target, native .plugin / .bundle.
+public let packagePath: String?        // install.txt package directory.
+</code></pre>
+
+<p>Keep legacy <code>path</code> for compatibility, treat as <code>compatibilityPath</code> alias over time.</p>
+<p><strong>Acceptance Criteria</strong></p>
+<ul>
+<li><code>pluginlist.index(n).path</code> remains for backwards compatibility.</li>
+<li><code>pluginlist.index(n).executablepath</code> returns native <code>.plugin</code> path.</li>
+<li><code>pluginpathlist</code> spec clarifies which to send. Recommend package path, else executable path.</li>
+</ul>
+<h2 id="fix-4-wire-messagetxt-to-actual-display">Fix 4: Wire <code>message.*.txt</code> to actual display</h2>
+<p><strong>Problem</strong></p>
+<p>Ourin retains <code>message.*.txt</code> in <code>PluginMeta.localizedMessages</code>, but SAKNIFE <code>.plugin</code> still has fixed menu text internally.</p>
+<p><strong>Proposal</strong></p>
+<p>Short term:</p>
+<ul>
+<li>Ourin plugin menu UI / DevTools display prioritizes <code>PluginMeta.message(for:)</code>.</li>
+<li>Add display examples using <code>pluginlist(...).message.&lt;key&gt;</code>.</li>
+</ul>
+<p>Medium term:</p>
+<ul>
+<li>If <code>.plugin</code> <code>load</code> receives package root path, provide helper function for plugin to read root <code>message.*.txt</code>.</li>
+<li>Policy: shift menu building to Ourin host, let <code>.plugin</code> only process command ID.</li>
+</ul>
+<p><strong>Acceptance Criteria</strong></p>
+<ul>
+<li>Changing <code>SAKNIFE_mac/message.japanese.txt</code> <code>menu.empty_recycle_bin</code> reflects in Ourin display.</li>
+<li>Minimal fixed menu names in <code>.plugin</code> source.</li>
+</ul>
+<h2 id="fix-5-clarify-reload-rescan-of-installtxt-packages">Fix 5: Clarify reload / rescan of <code>install.txt</code> packages</h2>
+<p><strong>Problem</strong></p>
+<p>Plugin registry now reads package directories, but update/reload scope ambiguous: bundle or package?</p>
+<p><strong>Proposal</strong></p>
+<ul>
+<li>Keep <code>packageURL</code> in registry internal record.</li>
+<li><code>unloadAll()</code> unloads native bundle, clears package metadata.</li>
+<li><code>discoverAndLoad()</code> re-evaluates per package.</li>
+<li>DevTools plugin list shows both <code>packageURL</code> and <code>executablePath</code>.</li>
+</ul>
+<p><strong>Acceptance Criteria</strong></p>
+<ul>
+<li>After changing <code>SAKNIFE_mac/message.*.txt</code>, plugin reload updates metadata.</li>
+<li>UI distinguishes bundle direct vs package plugin.</li>
+</ul>
+<h2 id="fix-6-standardize-saknife-placement-to-standard-form">Fix 6: Standardize SAKNIFE placement to standard form</h2>
+<p><strong>Problem</strong></p>
+<p>Currently <code>SAKNIFE.plugin</code> direct and <code>SAKNIFE_mac/SAKNIFE.plugin</code> coexist for verification.</p>
+<p><strong>Proposal</strong></p>
+<p>Standard is <code>SAKNIFE_mac/</code>, retire direct <code>/plugin/SAKNIFE.plugin</code> as verification or legacy artifact.</p>
+<p>Preferred placement:</p>
+<pre class="codehilite"><code class="language-text">/Users/eightman/Documents/Ourin/plugin/SAKNIFE_mac/
+</code></pre>
+
+<p>Archive candidate:</p>
+<pre class="codehilite"><code class="language-text">/Users/eightman/Documents/Ourin/plugin/_legacy_native/SAKNIFE.plugin
+</code></pre>
+
+<p><strong>Acceptance Criteria</strong></p>
+<ul>
+<li>On startup, SAKNIFE registers once.</li>
+<li><code>installedplugin</code> has no SAKNIFE duplicates.</li>
+</ul>
+<h2 id="fix-7-sync-docs-and-tests">Fix 7: Sync docs and tests</h2>
+<p><strong>Problem</strong></p>
+<p>Policy entering docs, but implementation and tests not fully tracking.</p>
+<p><strong>Proposal</strong></p>
+<ul>
+<li><code>SPEC_PLUGIN_2.0M_en-us.md</code> <code>*_mac</code> policy is source of truth.</li>
+<li><code>OURIN_MIGRATOR_PLAN.md</code> and <code>PluginScaffolder</code> output align.</li>
+<li>Add tests for new <code>message.&lt;key&gt;</code> in PropertySystem_en-us/ja-jp.</li>
+</ul>
+<p><strong>Acceptance Criteria</strong></p>
+<ul>
+<li><code>xcodebuild -project Ourin.xcodeproj -scheme Ourin build</code> succeeds.</li>
+<li>Added or updated tests pass.</li>
+<li>Docs standard structure actually generated by Migrator.</li>
+</ul>
+<h2 id="recommended-implementation-order">Recommended Implementation Order</h2>
+<ol>
+<li>Decide on direct <code>.plugin</code> handling, eliminate double-load risk.</li>
+<li>Implement <code>PluginMeta.path</code> meaning separation.</li>
+<li>Add dedup to <code>PluginRegistry</code> same ID priority/dedup.</li>
+<li>Update <code>PluginScaffolder</code> to <code>*_mac/</code> output.</li>
+<li>Wire <code>message.*.txt</code> to UI display.</li>
+<li>Sync tests and docs.</li>
+</ol>
+<h2 id="minimum-fix-set">Minimum Fix Set</h2>
+<p>Focus on brittle areas first:</p>
+<ol>
+<li>Same plugin ID double-load prevention.</li>
+<li>Add <code>PluginMeta</code> <code>executablePath</code> / <code>packagePath</code>.</li>
+<li>Change <code>PluginScaffolder</code> output to <code>*_mac/</code>.</li>
+</ol>
+<p>This 3-point fix resolves most current policy/implementation drift.</p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

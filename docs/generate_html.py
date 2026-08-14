@@ -198,9 +198,9 @@ def get_language_code(filename):
 def get_base_name(filename):
     """Get base name without language suffix"""
     if filename.endswith('_ja-jp.md'):
-        return filename[:-10]
+        return filename[:-9]
     elif filename.endswith('_en-us.md'):
-        return filename[:-10]
+        return filename[:-9]
     return filename[:-3]
 
 def generate_lang_switcher(base_name, current_lang, has_ja, has_en):

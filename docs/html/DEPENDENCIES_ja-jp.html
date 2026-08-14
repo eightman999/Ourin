@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin 依存関係ドキュメント</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="DEPENDENCIES_ja-jp.html" class="active">日本語</a> | <a href="DEPENDENCIES_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="ourin">Ourin 依存関係ドキュメント</h1>
+<p><strong>最終更新</strong>: 2026年7月13日
+<strong>バージョン</strong>: 1.2.0</p>
+<hr />
+<h2 id="_1">概要</h2>
+<p>Ourinプロジェクトは、依存関係を最小限に抑えた設計を採用しています。このドキュメントでは、すべての依存関係、その用途、セキュリティに関する考慮事項について説明します。</p>
+<hr />
+<h2 id="swiftswiftui">メインアプリケーション (Swift/SwiftUI)</h2>
+<h3 id="_2">外部依存関係</h3>
+<p><strong>なし</strong> - Ourinのメインアプリケーションは外部依存関係を持ちません。</p>
+<h3 id="_3">システムフレームワーク</h3>
+<p>Ourinは以下のApple公式フレームワークのみを使用しています：</p>
+<table>
+<thead>
+<tr>
+<th>フレームワーク</th>
+<th>バージョン</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Foundation</strong></td>
+<td>macOS SDK</td>
+<td>基本的なデータ型、コレクション、ファイルシステムアクセス</td>
+</tr>
+<tr>
+<td><strong>AppKit</strong></td>
+<td>macOS SDK</td>
+<td>macOSネイティブUI（ウィンドウ管理、メニューなど）</td>
+</tr>
+<tr>
+<td><strong>SwiftUI</strong></td>
+<td>macOS SDK</td>
+<td>モダンな宣言的UI</td>
+</tr>
+<tr>
+<td><strong>OSLog</strong></td>
+<td>macOS SDK</td>
+<td>システムログ・デバッグ出力</td>
+</tr>
+<tr>
+<td><strong>UserNotifications</strong></td>
+<td>macOS SDK</td>
+<td>通知機能</td>
+</tr>
+<tr>
+<td><strong>CoreImage</strong></td>
+<td>macOS SDK</td>
+<td>画像処理・フィルター</td>
+</tr>
+<tr>
+<td><strong>Combine</strong></td>
+<td>macOS SDK</td>
+<td>リアクティブプログラミング・非同期処理</td>
+</tr>
+<tr>
+<td><strong>Darwin</strong></td>
+<td>macOS SDK</td>
+<td>POSIXシステムコール（セマフォ、共有メモリなど）</td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td>macOS SDK</td>
+<td>ネットワーク通信（SSTP TCPサーバー）</td>
+</tr>
+<tr>
+<td><strong>UniformTypeIdentifiers</strong></td>
+<td>macOS SDK</td>
+<td>ファイルタイプ識別</td>
+</tr>
+<tr>
+<td><strong>CoreGraphics</strong></td>
+<td>macOS SDK</td>
+<td>2D描画</td>
+</tr>
+<tr>
+<td><strong>ImageIO</strong></td>
+<td>macOS SDK</td>
+<td>画像入出力</td>
+</tr>
+</tbody>
+</table>
+<p><strong>セキュリティステータス</strong>: ✅ すべてのフレームワークはAppleにより継続的にメンテナンスされています。</p>
+<hr />
+<h2 id="devtools-migrator-optional">DevTools Migrator (オプション / Optional)</h2>
+<h3 id="ghidra">Ghidra</h3>
+<ul>
+<li><strong>バージョン</strong>: 11.x 以上推奨（開発環境では 12.0.4 で検証）</li>
+<li><strong>ライセンス</strong>: Apache License 2.0</li>
+<li><strong>著作権者</strong>: National Security Agency (NSA)</li>
+<li><strong>用途</strong>: SSP 互換 Windows DLL/EXE の逆コンパイル・解析（Migrator 機能）</li>
+<li><strong>リポジトリ</strong>: https://github.com/NationalSecurityAgency/ghidra</li>
+<li><strong>公式サイト</strong>: https://ghidra-sre.org/</li>
+</ul>
+<p><strong>重要</strong>: Ghidra は Ourin に<strong>同梱されません</strong>。ユーザーが別途インストールした
+<code>analyzeHeadless</code> を外部プロセスとして呼び出します。通常起動時は Ghidra / Java に依存しません。</p>
+<p><code>DecompileAll.java</code>（<code>Ourin/DevTools/Migrator/Resources/</code>）は Ghidra のスクリプト API を使用し、
+実行時に <code>GhidraScriptSource.swift</code> から一時ファイルとして実体化されます。</p>
+<p><strong>セキュリティステータス</strong>: ⚠️ Migrator は未信頼バイナリを扱いますが、解析は Ourin 本体
+プロセス外の Ghidra サブプロセスで行われます（参考: 計画「注意点」）。</p>
+<p>アプリ内の About → 「ライセンスを表示…」から Ghidra ライセンス文を参照できます。</p>
+<hr />
+<h2 id="yaya-core-c">YAYA Core (C++実装)</h2>
+<h3 id="_4">外部依存関係</h3>
+<h4 id="1-nlohmannjson">1. nlohmann/json</h4>
+<ul>
+<li><strong>バージョン</strong>: 3.11.0以上（<code>yaya_core/CMakeLists.txt</code> は 3.11.0 を指定）</li>
+<li><strong>ライセンス</strong>: MIT License</li>
+<li><strong>用途</strong>: JSON形式でのプロセス間通信（IPC）</li>
+<li><strong>リポジトリ</strong>: https://github.com/nlohmann/json</li>
+<li><strong>インストール方法</strong>:
+  <code>bash
+  brew install nlohmann-json</code></li>
+</ul>
+<p><strong>セキュリティステータス</strong>: ✅ 最新バージョン（3.12.0、2025年4月リリース）に既知の重大な脆弱性はありません。</p>
+<p><strong>既知の過去の脆弱性</strong>:
+- バージョン2.0.10以前: ヒープベースのバッファオーバーフロー脆弱性（CBOR解析時）
+- <strong>対策</strong>: バージョン3.12.0を使用することで回避済み</p>
+<h3 id="_5">バンドル済みサードパーティコード</h3>
+<p>以下のコードは <code>yaya_core/third_party/yaya/</code> に含まれています（yaya-shiori-500からの移植）：</p>
+<h4 id="1-md5-md5cmd5h">1. MD5実装 (md5.c/md5.h)</h4>
+<ul>
+<li><strong>用途</strong>: YAYAの<code>FILEDIGEST</code>および<code>STRDIGEST</code>関数（MD5モード）</li>
+<li><strong>ライセンス</strong>: BSD-3-Clause（YAYA projectより）</li>
+<li><strong>セキュリティ警告</strong>: ⚠️ MD5は暗号学的に破られています（2004年以降）</li>
+<li><strong>重要</strong>: この実装は<strong>セキュリティ目的では使用していません</strong></li>
+<li>YAYA言語仕様との互換性のためのみ提供</li>
+<li>認証・署名検証・パスワードハッシュなどには使用禁止</li>
+</ul>
+<h4 id="2-sha-1-sha1csha1h">2. SHA-1実装 (sha1.c/sha1.h)</h4>
+<ul>
+<li><strong>用途</strong>: YAYAの<code>FILEDIGEST</code>および<code>STRDIGEST</code>関数（SHA-1モード）</li>
+<li><strong>ライセンス</strong>: BSD-3-Clause（YAYA projectより）</li>
+<li><strong>セキュリティ警告</strong>: ⚠️ SHA-1は非推奨です（2017年以降）</li>
+<li><strong>重要</strong>: この実装は<strong>セキュリティ目的では使用していません</strong></li>
+<li>YAYA言語仕様との互換性のためのみ提供</li>
+<li>認証・署名検証などには使用禁止</li>
+</ul>
+<h4 id="3-crc32-crc32ccrc32h">3. CRC32実装 (crc32.c/crc32.h)</h4>
+<ul>
+<li><strong>用途</strong>: YAYAの<code>FILEDIGEST</code>および<code>STRDIGEST</code>関数（CRC32モード）</li>
+<li><strong>ライセンス</strong>: BSD-3-Clause（YAYA projectより）</li>
+<li><strong>用途制限</strong>: チェックサムのみ（暗号学的ハッシュではありません）</li>
+</ul>
+<h4 id="4-posix-utilities-posix_utilscppposix_utilsh">4. POSIX Utilities (posix_utils.cpp/posix_utils.h)</h4>
+<ul>
+<li><strong>用途</strong>: POSIX APIラッパー（ファイル操作、エンコーディング変換など）</li>
+<li><strong>ライセンス</strong>: BSD-3-Clause（YAYA projectより）</li>
+</ul>
+<hr />
+<h2 id="satori-core-c">SATORI Core (C++実装)</h2>
+<table>
+<thead>
+<tr>
+<th>ライブラリ</th>
+<th style="text-align: right;">バージョン</th>
+<th>用途</th>
+<th>ライセンス</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>satoriya-shiori</strong></td>
+<td style="text-align: right;">Mc172-3 / <code>a5746694...</code></td>
+<td>里々辞書評価器</td>
+<td>BSD-2-Clause</td>
+</tr>
+<tr>
+<td><strong>nlohmann/json</strong></td>
+<td style="text-align: right;">3.11.0以上</td>
+<td>SwiftとのJSON Lines IPC</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><strong>libiconv</strong></td>
+<td style="text-align: right;">macOS system</td>
+<td>CP932/UTF-8変換</td>
+<td>システムライブラリ</td>
+</tr>
+<tr>
+<td><strong>CMake</strong></td>
+<td style="text-align: right;">3.20以上</td>
+<td>Universal 2ビルド</td>
+<td>BSD-3-Clause</td>
+</tr>
+</tbody>
+</table>
+<p>上流ソースは<code>satori_core/third_party/satoriya-shiori/</code>へ固定して同梱し、ライセンス本文を保持します。ローカルpatchは<code>satori_core/PATCHES.md</code>、tag/commit/treeは<code>satori_core/UPSTREAM.md</code>を正本とします。生成済みhelperはアプリへ署名して同梱され、実行時に外部パッケージを必要としません。</p>
+<hr />
+<h2 id="_6">ビルドツール依存関係</h2>
+<h3 id="_7">必須ツール</h3>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>最小バージョン</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Xcode</strong></td>
+<td>16.4+</td>
+<td>Swiftコンパイル・アプリビルド</td>
+</tr>
+<tr>
+<td><strong>CMake</strong></td>
+<td>3.20+</td>
+<td>YAYA Coreビルドシステム</td>
+</tr>
+<tr>
+<td><strong>make</strong></td>
+<td>GNU Make</td>
+<td>CMakeからの呼び出し</td>
+</tr>
+<tr>
+<td><strong>Clang</strong></td>
+<td>14+ (Xcode付属)</td>
+<td>C++17コンパイル</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">インストール方法</h3>
+<pre class="codehilite"><code class="language-bash"># Xcode Command Line Tools
+xcode-select --install
+
+# CMake（Homebrew経由）
+brew install cmake
+
+# nlohmann-json
+brew install nlohmann-json
+</code></pre>
+
+<hr />
+<h2 id="_9">最小システム要件</h2>
+<h3 id="_10">現在の設定</h3>
+<ul>
+<li><strong>最小macOSバージョン</strong>: 11.0 (Big Sur)</li>
+<li><strong>推奨macOSバージョン</strong>: 13.0 (Ventura) 以上</li>
+</ul>
+<h3 id="_11">セキュリティに関する注意</h3>
+<p>⚠️ <strong>重要</strong>: macOS 11.0 (Big Sur)は2023年9月にサポート終了しており、セキュリティアップデートを受信していません。</p>
+<p><strong>推奨事項</strong>: 今後のリリースでは最小バージョンをmacOS 13.0 (Ventura)に引き上げることを検討してください。</p>
+<hr />
+<h2 id="cicd">CI/CD依存関係</h2>
+<p>GitHub Actionsワークフロー (<code>.github/workflows/macOS.yml</code>)で使用されているツール：</p>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>バージョン</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>actions/checkout</code></td>
+<td>v4</td>
+<td>リポジトリチェックアウト</td>
+</tr>
+<tr>
+<td><code>maxim-lobanov/setup-xcode</code></td>
+<td>v1</td>
+<td>Xcode選択</td>
+</tr>
+<tr>
+<td><code>actions/cache</code></td>
+<td>v4</td>
+<td>SwiftPMキャッシュ</td>
+</tr>
+<tr>
+<td><code>xcbeautify</code></td>
+<td>latest</td>
+<td>ビルドログの整形</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_12">セキュリティベストプラクティス</h2>
+<h3 id="_13">✅ 実施済み</h3>
+<ol>
+<li><strong>最小依存関係</strong>: 外部依存関係は1つのみ（nlohmann/json）</li>
+<li><strong>公式フレームワーク</strong>: Appleの公式フレームワークのみ使用</li>
+<li><strong>定期監査</strong>: 依存関係の定期的なレビュー</li>
+</ol>
+<h3 id="_14">⚠️ 検討事項</h3>
+<ol>
+<li>
+<p><strong>バージョン固定</strong>: <code>CMakeLists.txt</code>でnlohmann/jsonのバージョンを固定
+   <code>cmake
+   find_package(nlohmann_json 3.12.0 REQUIRED)</code></p>
+</li>
+<li>
+<p><strong>最小macOSバージョンの更新</strong>:</p>
+</li>
+<li>現在: macOS 11.0 (サポート終了)</li>
+<li>
+<p>推奨: macOS 13.0+ (セキュリティサポート継続中)</p>
+</li>
+<li>
+<p><strong>ハッシュ関数の文書化</strong>:</p>
+</li>
+<li>MD5/SHA-1はYAYA互換性のみ</li>
+<li>新規コードでは使用禁止を明示</li>
+</ol>
+<hr />
+<h2 id="_15">依存関係の更新方法</h2>
+<h3 id="nlohmannjson">nlohmann/jsonの更新</h3>
+<pre class="codehilite"><code class="language-bash"># Homebrewで最新版に更新
+brew upgrade nlohmann-json
+
+# バージョン確認
+brew info nlohmann-json
+
+# YAYA Coreを再ビルド
+cd yaya_core
+rm -rf build
+./build.sh
+</code></pre>
+
+<h3 id="xcode">Xcodeの更新</h3>
+<pre class="codehilite"><code class="language-bash"># 最新のXcodeをApp Storeからインストール後
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+</code></pre>
+
+<hr />
+<h2 id="_16">トラブルシューティング</h2>
+<h3 id="nlohmannjson_1">nlohmann/jsonが見つからない</h3>
+<pre class="codehilite"><code class="language-bash"># パッケージが正しくインストールされているか確認
+brew list nlohmann-json
+
+# CMakeのパッケージ検索パスを確認
+cmake --find-package -DNAME=nlohmann_json -DCOMPILER_ID=GNU -DLANGUAGE=CXX -DMODE=EXIST
+
+# 再インストール
+brew uninstall nlohmann-json
+brew install nlohmann-json
+</code></pre>
+
+<h3 id="nlohmannjsonhpp-not-found">ビルドエラー: "nlohmann/json.hpp not found"</h3>
+<p><strong>原因</strong>: Homebrewのインストールパスが認識されていない</p>
+<p><strong>解決策</strong>:</p>
+<pre class="codehilite"><code class="language-bash"># Intel Mac
+export CMAKE_PREFIX_PATH=/usr/local
+
+# Apple Silicon Mac
+export CMAKE_PREFIX_PATH=/opt/homebrew
+
+# 環境変数を設定してから再ビルド
+cd yaya_core
+rm -rf build
+./build.sh
+</code></pre>
+
+<hr />
+<h2 id="_17">参考リンク</h2>
+<h3 id="_18">公式ドキュメント</h3>
+<ul>
+<li><a href="https://github.com/nlohmann/json">nlohmann/json GitHub</a></li>
+<li><a href="https://json.nlohmann.me/">nlohmann/json ドキュメント</a></li>
+<li><a href="https://developer.apple.com/documentation/technologies">Apple Developer - Frameworks</a></li>
+</ul>
+<h3 id="_19">セキュリティ情報</h3>
+<ul>
+<li><a href="https://support.apple.com/ja-jp/HT201222">macOS セキュリティアップデート</a></li>
+<li><a href="https://github.com/nlohmann/json/security/policy">nlohmann/json Security Policy</a></li>
+</ul>
+<hr />
+<h2 id="_20">変更履歴</h2>
+<table>
+<thead>
+<tr>
+<th>日付</th>
+<th>バージョン</th>
+<th>変更内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2025-12-11</td>
+<td>1.0.0</td>
+<td>初版作成 - 依存関係の完全な文書化</td>
+</tr>
+<tr>
+<td>2026-06-26</td>
+<td>1.1.0</td>
+<td>DevTools Migrator / Ghidra（Apache 2.0）セクション追加</td>
+</tr>
+<tr>
+<td>2026-07-13</td>
+<td>1.2.0</td>
+<td>固定版SATORI Core、Universal 2 helper、BSD-2-Clause情報を追加</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_21">お問い合わせ</h2>
+<p>依存関係やセキュリティに関する質問は以下までお問い合わせください：</p>
+<p>📧 eight@eightman999.com
+🌐 https://github.com/eightman999/Ourin</p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

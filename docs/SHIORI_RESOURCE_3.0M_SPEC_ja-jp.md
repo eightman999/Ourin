@@ -58,7 +58,8 @@
 | `useorigin1` | 更新ファイルカウントの開始数（1:1開始/0:0開始） | `0/1` | 互換値。 |
 | `username` | ユーザー表示名 | 文字列 |  |
 
-**デフォルト位置（画像/画面）**  
+**デフォルト位置（画像/画面）**
+
 | Key | 意味 | 返値 | 備考 |
 |---|---|---|---|
 | `sakura.defaultx` / `kero.defaultx` / `char*.defaultx` | 画像ベースX | 数値 |  |
@@ -69,7 +70,8 @@
 **入力ボックス初期位置**  
 `(communicatebox|scriptbox|addressbar|teachbox|dateinput|timeinput|ipinput|sliderinput|passwordinput|inputbox).defaultleft` / `.defaulttop` … ディスプレイ座標（ピクセル）。
 
-**おすすめ/ポータル**  
+**おすすめ/ポータル**
+
 | Key | 意味 | 返値 | 形式 |
 |---|---|---|---|
 | `sakura.recommendsites` / `kero.recommendsites` / `char*.recommendsites` | おすすめリスト | 連結文字列 | `項目名`[0x01]`url`[0x01]`バナー画像パス`[0x01]`選択時トーク` [0x02] … |

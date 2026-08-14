@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIORI Resource — **3.0M（macOS）** 仕様書（2.x互換, M‑Add付き）</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="PROPERTY_Resource_3.0M_SPEC_ja-jp.html" class="active">日本語</a> | <a href="PROPERTY_Resource_3.0M_SPEC_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="shiori-resource-30mmacos-2x-madd">SHIORI Resource — <strong>3.0M（macOS）</strong> 仕様書（2.x互換, M‑Add付き）</h1>
+<p><strong>Updated:</strong> 2025-07-27 (JST)<br />
+<strong>対象:</strong> Ourin (macOS 10.15+ / Universal 2)<br />
+<strong>互換:</strong> UKADOC「SHIORI Resourceリスト」に準拠。返却は<strong>短いテキスト</strong>（bool様含む）、IDは小文字で「On」無し。</p>
+<h2 id="_1">目次</h2>
+<ul>
+<li><a href="#1-基本方針">1. 基本方針</a></li>
+<li><a href="#2-文字コード改行">2. 文字コード/改行</a></li>
+<li><a href="#3-座標パスm-diff">3. 座標・パス（M‑Diff）</a></li>
+<li><a href="#4-キー一覧完全">4. キー一覧（完全）</a></li>
+<li><a href="#41-shiori情報">4.1 SHIORI情報</a></li>
+<li><a href="#42-ゴースト情報">4.2 ゴースト情報</a></li>
+<li><a href="#43-更新情報">4.3 更新情報</a></li>
+<li><a href="#44-オーナードローメニュー画像">4.4 オーナードローメニュー画像</a></li>
+<li><a href="#45-オーナードローメニュー文字色">4.5 オーナードローメニュー文字色</a></li>
+<li><a href="#46-オーナードローメニュー項目表示">4.6 オーナードローメニュー項目表示</a></li>
+<li><a href="#47-オーナードローメニュー項目名--ショートカット">4.7 オーナードローメニュー項目名 / ショートカット</a></li>
+<li><a href="#5-返答コード規約">5. 返答コード規約</a></li>
+<li><a href="#6-m-add--注意">6. M‑Add / 注意</a></li>
+<li><a href="#7-出典">7. 出典</a></li>
+</ul>
+<hr />
+<h2 id="1">1. 基本方針</h2>
+<ul>
+<li><strong>語彙互換</strong>：UKADOC のキー名・意味を継承。  </li>
+<li><strong>macOS 置換（M‑Diff）</strong>：パスは POSIX/URL、座標は<strong>左上原点で解釈</strong>→内部では AppKit の<strong>左下原点</strong>に変換。</li>
+</ul>
+<h2 id="2">2. 文字コード/改行</h2>
+<ul>
+<li>送受信 <strong>UTF‑8</strong> 標準。CP932/SJIS 受理→内部UTF‑8。  </li>
+<li>改行は <code>LF</code>（<code>CRLF</code> 受理）。</li>
+</ul>
+<h2 id="3-mdiff">3. 座標・パス（M‑Diff）</h2>
+<ul>
+<li><code>*.defaultleft/top</code> 等は <strong>左上原点スクリーン座標</strong>として受理。Ourin内部で <code>y' = screenHeight - 1 - y</code> 等に変換。  </li>
+<li>画像/ログのパスは <strong>SHIORIの位置からの相対</strong>または <code>file://</code>/POSIX を推奨。</li>
+</ul>
+<h2 id="4">4. キー一覧（完全）</h2>
+<h3 id="41-shiori">4.1 SHIORI情報</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>version</td>
+<td>SHIORI情報</td>
+<td>string</td>
+<td>例:"Satori/3.0"</td>
+<td>SHIORI本体の名称/版。</td>
+</tr>
+<tr>
+<td>craftman</td>
+<td>SHIORI情報</td>
+<td>string(ASCII)</td>
+<td>作者名(7bit)</td>
+<td>作者名(7bit)。</td>
+</tr>
+<tr>
+<td>craftmanw</td>
+<td>SHIORI情報</td>
+<td>string</td>
+<td>作者名(マルチバイト可)</td>
+<td>作者名(拡張)。</td>
+</tr>
+<tr>
+<td>name</td>
+<td>SHIORI情報</td>
+<td>string(ASCII)</td>
+<td>例:"A.L.I.C.E"</td>
+<td>SHIORIの名前。</td>
+</tr>
+<tr>
+<td>log_path</td>
+<td>SHIORI情報</td>
+<td>path</td>
+<td>フルパス</td>
+<td>SHIORIログのパス。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42">4.2 ゴースト情報</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>homeurl</td>
+<td>ゴースト情報</td>
+<td>URL</td>
+<td>http(s)://...</td>
+<td>ネットワーク更新のベースURL。</td>
+</tr>
+<tr>
+<td>useorigin1</td>
+<td>ゴースト情報</td>
+<td>int(0|1)</td>
+<td>0 or 1</td>
+<td>更新のファイル数開始値。</td>
+</tr>
+<tr>
+<td>username</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>任意</td>
+<td>ユーザー名。</td>
+</tr>
+<tr>
+<td>sakura.defaultx</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースX</td>
+</tr>
+<tr>
+<td>kero.defaultx</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースX</td>
+</tr>
+<tr>
+<td>char*.defaultx</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースX</td>
+</tr>
+<tr>
+<td>sakura.defaulty</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースY</td>
+</tr>
+<tr>
+<td>kero.defaulty</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースY</td>
+</tr>
+<tr>
+<td>char*.defaulty</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>px</td>
+<td>画像ベースY</td>
+</tr>
+<tr>
+<td>sakura.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td>左上原点X</td>
+</tr>
+<tr>
+<td>kero.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td>左上原点X</td>
+</tr>
+<tr>
+<td>char*.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td>左上原点X</td>
+</tr>
+<tr>
+<td>sakura.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td>左上原点Y</td>
+</tr>
+<tr>
+<td>kero.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td>左上原点Y</td>
+</tr>
+<tr>
+<td>char*.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td>左上原点Y</td>
+</tr>
+<tr>
+<td>communicatebox.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td>入力ボックス既定X</td>
+</tr>
+<tr>
+<td>communicatebox.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td>入力ボックス既定Y</td>
+</tr>
+<tr>
+<td>scriptbox.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>scriptbox.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>addressbar.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>addressbar.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>teachbox.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>teachbox.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>dateinput.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>dateinput.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>timeinput.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>timeinput.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>ipinput.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>ipinput.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>sliderinput.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>sliderinput.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>passwordinput.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>passwordinput.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>inputbox.defaultleft</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen X</td>
+<td></td>
+</tr>
+<tr>
+<td>inputbox.defaulttop</td>
+<td>ゴースト情報</td>
+<td>int</td>
+<td>screen Y</td>
+<td></td>
+</tr>
+<tr>
+<td>sakura.recommendsites</td>
+<td>ゴースト情報</td>
+<td>list(string)</td>
+<td>特殊区切り</td>
+<td>項目名/URL/バナー/スクリプト</td>
+</tr>
+<tr>
+<td>sakura.portalsites</td>
+<td>ゴースト情報</td>
+<td>list(string)</td>
+<td>特殊区切り</td>
+<td></td>
+</tr>
+<tr>
+<td>kero.recommendsites</td>
+<td>ゴースト情報</td>
+<td>list(string)</td>
+<td>特殊区切り</td>
+<td></td>
+</tr>
+<tr>
+<td>char*.recommendsites</td>
+<td>ゴースト情報</td>
+<td>list(string)</td>
+<td>特殊区切り</td>
+<td></td>
+</tr>
+<tr>
+<td>sakura.recommendbuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td>従来ボタン名</td>
+</tr>
+<tr>
+<td>sakura.portalbuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>kero.recommendbuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>char*.recommendbuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>updatebuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>vanishbuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>readmebuttoncaption</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>名称</td>
+<td></td>
+</tr>
+<tr>
+<td>vanishbuttonvisible</td>
+<td>ゴースト情報</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>可視</td>
+</tr>
+<tr>
+<td>sakura.popupmenu.visible</td>
+<td>ゴースト情報</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td></td>
+</tr>
+<tr>
+<td>kero.popupmenu.visible</td>
+<td>ゴースト情報</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td></td>
+</tr>
+<tr>
+<td>char*.popupmenu.visible</td>
+<td>ゴースト情報</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td></td>
+</tr>
+<tr>
+<td>sakura.popupmenu.type</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>型名</td>
+<td>SSP定義に準拠</td>
+</tr>
+<tr>
+<td>kero.popupmenu.type</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>型名</td>
+<td></td>
+</tr>
+<tr>
+<td>char*.popupmenu.type</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>型名</td>
+<td></td>
+</tr>
+<tr>
+<td>getaistate</td>
+<td>ゴースト情報</td>
+<td>string</td>
+<td>数値列 + 区切り</td>
+<td>AIグラフ</td>
+</tr>
+<tr>
+<td>getaistateex</td>
+<td>ゴースト情報</td>
+<td>string/204</td>
+<td>数値列 or 無</td>
+<td>AIグラフ(多重)</td>
+</tr>
+<tr>
+<td>legacyinterface</td>
+<td>ゴースト情報</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>レガシーUI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 更新情報</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>other_homeurl_override</td>
+<td>更新情報</td>
+<td>special</td>
+<td>URL or 空/204</td>
+<td>更新先URLの強制置換</td>
+</tr>
+</tbody>
+</table>
+<h3 id="44">4.4 オーナードローメニュー画像</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>menu.sidebar.bitmap.filename</td>
+<td>メニュー画像</td>
+<td>path</td>
+<td>相対パス</td>
+<td>サイドバー</td>
+</tr>
+<tr>
+<td>menu.background.bitmap.filename</td>
+<td>メニュー画像</td>
+<td>path</td>
+<td>相対パス</td>
+<td>背景</td>
+</tr>
+<tr>
+<td>menu.foreground.bitmap.filename</td>
+<td>メニュー画像</td>
+<td>path</td>
+<td>相対パス</td>
+<td>前景</td>
+</tr>
+</tbody>
+</table>
+<h3 id="45">4.5 オーナードローメニュー文字色</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>menu.background.font.color.r</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>背景文字色</td>
+</tr>
+<tr>
+<td>menu.background.font.color.g</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>背景文字色</td>
+</tr>
+<tr>
+<td>menu.background.font.color.b</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>背景文字色</td>
+</tr>
+<tr>
+<td>menu.foreground.font.color.r</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>前景文字色</td>
+</tr>
+<tr>
+<td>menu.foreground.font.color.g</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>前景文字色</td>
+</tr>
+<tr>
+<td>menu.foreground.font.color.b</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>前景文字色</td>
+</tr>
+<tr>
+<td>menu.separator.color.r</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>セパレータ色</td>
+</tr>
+<tr>
+<td>menu.separator.color.g</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>セパレータ色</td>
+</tr>
+<tr>
+<td>menu.separator.color.b</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>セパレータ色</td>
+</tr>
+<tr>
+<td>menu.frame.color.r</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>枠色</td>
+</tr>
+<tr>
+<td>menu.frame.color.g</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>枠色</td>
+</tr>
+<tr>
+<td>menu.frame.color.b</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>枠色</td>
+</tr>
+<tr>
+<td>menu.disable.font.color.r</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>無効文字色</td>
+</tr>
+<tr>
+<td>menu.disable.font.color.g</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>無効文字色</td>
+</tr>
+<tr>
+<td>menu.disable.font.color.b</td>
+<td>メニュー色</td>
+<td>int(0..255)</td>
+<td>0..255</td>
+<td>無効文字色</td>
+</tr>
+</tbody>
+</table>
+<h3 id="46">4.6 オーナードローメニュー項目表示</h3>
+<p>（<strong>規則</strong>）「項目名の <code>.caption</code> を <code>.visible</code> に置換したキー」が存在し、<strong>1=表示、0=非表示</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>activaterootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>addressbarbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>alignrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>alwaysstayontopbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>alwaystrayiconvisiblebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>balloonhistorybutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>balloonrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>biffallbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>biffbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>calendarbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>callghosthistorybutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>callghostrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>callsstpsendboxbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>char*.recommendsites.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>charsetbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>closeballoonbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>closebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>collisionvisiblebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>configurationbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>configurationrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>debugballoonbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>definedsurfaceonlybutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>dressuprootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>duibutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>enableballoonmovebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>firststaffbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>ghostexplorerbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>ghosthistorybutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>ghostinstallbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>ghostrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>headlinesensehistorybutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>headlinesenserootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>helpbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>hidebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>historyrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>inforootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>leavepassivebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>messengerbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>pluginhistorybutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>pluginrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>portalrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>purgeghostcachebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>quitbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>rateofuseballoonbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>rateofusebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>rateofuserootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>rateofusetotalbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>readmebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>termsbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>recommendrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>regionenabledbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>reloadinfobutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>resetballoonpositionbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>resettodefaultbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>scriptlogbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>shellrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>shellscaleotherbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>shellscalerootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>sntpbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchactivatewhentalkbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchactivatewhentalkexceptupdatebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchautobiffbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchautoheadlinesensebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchblacklistingbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchcompatiblemodebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchconsolealwaysvisiblebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchconsolevisiblebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchdeactivatebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchdontactivatebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchdontforcealignbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchduivisiblebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchforcealignfreebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchforcealignlimitbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchignoreserikomovebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchlocalsstpbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchmovetodefaultpositionbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchproxybutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchquietbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchreloadbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchreloadtempghostbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchremotesstpbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>switchtalkghostbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>systeminfobutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>updatebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>updatefmobutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>updateplatformbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>utilityrootbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>vanishbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>aistatebutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>dictationbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+<tr>
+<td>texttospeechbutton.visible</td>
+<td>メニュー項目表示</td>
+<td>int(0|1)</td>
+<td>0/1</td>
+<td>1=表示, 0=非表示</td>
+</tr>
+</tbody>
+</table>
+<h3 id="47">4.7 オーナードローメニュー項目名 / ショートカット</h3>
+<p>キャプション文字列中に <strong><code>&amp;X</code></strong> を含めると <strong>X</strong> がショートカットキーになる（大/小区別なし、記号も可）。</p>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>カテゴリ</th>
+<th>型</th>
+<th>例/値域</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>activaterootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>addressbarbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>alignrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>alwaysstayontopbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>alwaystrayiconvisiblebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>balloonhistorybutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>balloonrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>biffallbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>biffbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>calendarbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>callghosthistorybutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>callghostrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>callsstpsendboxbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>char*.recommendsites.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>charsetbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>closeballoonbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>closebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>collisionvisiblebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>configurationbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>configurationrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>debugballoonbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>definedsurfaceonlybutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>dressuprootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>duibutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>enableballoonmovebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>firststaffbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>ghostexplorerbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>ghosthistorybutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>ghostinstallbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>ghostrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>headlinesensehistorybutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>headlinesenserootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>helpbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>hidebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>historyrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>inforootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>leavepassivebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>messengerbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>pluginhistorybutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>pluginrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>portalrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>purgeghostcachebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>quitbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>rateofuseballoonbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>rateofusebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>rateofuserootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>rateofusetotalbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>readmebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>termsbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>recommendrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>regionenabledbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>reloadinfobutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>resetballoonpositionbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>resettodefaultbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>scriptlogbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>shellrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>shellscaleotherbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>shellscalerootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>sntpbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchactivatewhentalkbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchactivatewhentalkexceptupdatebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchautobiffbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchautoheadlinesensebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchblacklistingbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchcompatiblemodebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchconsolealwaysvisiblebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchconsolevisiblebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchdeactivatebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchdontactivatebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchdontforcealignbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchduivisiblebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchforcealignfreebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchforcealignlimitbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchignoreserikomovebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchlocalsstpbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchmovetodefaultpositionbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchproxybutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchquietbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchreloadbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchreloadtempghostbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchremotesstpbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>switchtalkghostbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>systeminfobutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>updatebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>updatefmobutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>updateplatformbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>utilityrootbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>vanishbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>aistatebutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>dictationbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+<tr>
+<td>texttospeechbutton.caption</td>
+<td>メニュー項目名</td>
+<td>string</td>
+<td>表示名</td>
+<td>ショートカット: '&amp;X' を文字列に含める</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5">5. 返答コード規約</h2>
+<ul>
+<li><strong>200 OK</strong>：値あり（本文=短いテキスト）。  </li>
+<li><strong>204 No Content</strong>：未設定/該当なし（例：<code>getaistateex</code> で範囲外）。</li>
+</ul>
+<h2 id="6-madd">6. M‑Add / 注意</h2>
+<ul>
+<li><code>log_path</code> は Ourin の UI から「ログを開く」で使用可能（パスは macOS のファイルURLに正規化可）。  </li>
+<li><code>sakura.recommendsites</code> 等の<strong>特殊区切り</strong>は UKADOC の定義に従う（<code>[バイト1]</code> 区切り等）。  </li>
+<li><code>.visible</code>/<code>.caption</code> の<strong>組</strong>をまとめて問い合わせる最適化キャッシュを実装可。</li>
+</ul>
+<h2 id="7">7. 出典</h2>
+<ul>
+<li>UKADOC「SHIORI Resourceリスト」全体、<code>getaistate(ex)</code>、<code>legacyinterface</code>、オーナードローメニュー各種、ショートカット規定 等。  </li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

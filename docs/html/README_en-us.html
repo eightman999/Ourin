@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin (桜鈴) Documentation Index</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="README_ja-jp.html" class="">日本語</a> | <a href="README_en-us.html" class="active">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="ourin-documentation-index">Ourin (桜鈴) Documentation Index</h1>
+<p>This directory contains all specifications and documentation for Ourin.</p>
+<h2 id="how-to-view">📖 How to View</h2>
+<ul>
+<li><strong>Markdown Version</strong>: View <code>.md</code> files directly in this directory</li>
+<li><strong>HTML Version</strong>: View HTML files in the <code>html/</code> directory (select from the <a href="html/index.html">index page</a>)</li>
+</ul>
+<h2 id="getting-started">🎯 Getting Started</h2>
+<ul>
+<li><a href="ONBOARDING_en-us.md">ONBOARDING.md</a> - Ourin overview and getting started guide</li>
+<li><a href="AUDITS_COMPLETED.md">Audit Items Completed</a> / <a href="AUDITS_TODO.md">Audit Items TODO</a> - UKADOC/SSP-oriented audit results (completed &amp; pending)</li>
+</ul>
+<h2 id="core-specifications-macos-version">📚 Core Specifications (macOS Version)</h2>
+<p>These specifications include current implementation status.</p>
+<h3 id="shiori-system">SHIORI System</h3>
+<ul>
+<li><a href="SHIORI_3.0M_SPEC_en-us.md">SHIORI/3.0M Specification</a> 🟡 <strong>Partial</strong> - macOS native implementation of SHIORI protocol</li>
+<li>Implemented with YAYA backend</li>
+<li>C ABI Bundle/Plugin loading not yet implemented</li>
+</ul>
+<h3 id="sstp-protocol">SSTP Protocol</h3>
+<ul>
+<li><a href="SSTP_1.xM_SPEC_en-us.md">SSTP/1.xM Specification</a> 🟡 <strong>Partial Compatibility</strong> - macOS version of SSTP protocol</li>
+<li>TCP/HTTP/XPC server implemented</li>
+<li>Basic SEND/NOTIFY/COMMUNICATE/EXECUTE methods supported</li>
+<li>Remaining gaps: TCP bind scope, raw TCP body forwarding, SHIORI <code>ReferenceN</code> response mapping</li>
+</ul>
+<h3 id="plugin-system">Plugin System</h3>
+<ul>
+<li><a href="SPEC_PLUGIN_2.0M_en-us.md">PLUGIN/2.0M Specification</a> 🟡 <strong>Partial</strong> - macOS version of plugin system</li>
+<li>Plugin detection and loading mechanism implemented</li>
+<li>Full PLUGIN/2.0M protocol not yet implemented</li>
+</ul>
+<h3 id="nar-installation">NAR Installation</h3>
+<ul>
+<li><a href="NAR_INSTALL_1.0M_SPEC_en-us.md">NAR INSTALL/1.0M Specification</a> 🟡 <strong>Partial Compatibility</strong> - NAR package installation specification</li>
+<li>Double-click/Drag-and-drop installation supported</li>
+<li>Basic extraction and error handling implemented</li>
+<li>Remaining gaps: <code>refreshundeletemask</code> separator, compound installs, calendar/language package types</li>
+</ul>
+<h2 id="system-implementation-specifications">⚙️ System Implementation Specifications</h2>
+<h3 id="fmo-shared-memory">FMO (Shared Memory)</h3>
+<ul>
+<li><a href="About_FMO_en-us.md">About FMO</a> 🟡 <strong>Partial Compatibility</strong> - Inter-process shared memory implementation</li>
+<li>Implemented with POSIX shared memory and semaphores</li>
+<li>Exposes SSP-style record text</li>
+<li>Direct Windows FMO names/HWND compatibility is not implemented and is treated as a platform difference</li>
+</ul>
+<h3 id="yaya-system">YAYA System</h3>
+<ul>
+<li><a href="OURIN_YAYA_ADAPTER_SPEC_1.0M_en-us.md">YAYA Adapter Specification 1.0M</a> 🟡 <strong>Partial Compatibility</strong> - YAYA ghost execution adapter</li>
+<li>IPC with helper process implemented</li>
+<li><code>yaya.txt</code> and <code>.dic</code> file parsing supported</li>
+<li>SHIORI/3.0M bridge implemented</li>
+<li>By-reference semantics, standalone <code>when</code>, and some built-in functions remain partial/stubbed</li>
+</ul>
+<h3 id="usl-loader">USL (Loader)</h3>
+<ul>
+<li><a href="OURIN_USL_1.0M_SPEC_en-us.md">USL Specification 1.0M</a> 🟢 <strong>Implemented</strong> - Universal SHIORI Loader</li>
+<li>YAYA backend selection mechanism implemented</li>
+</ul>
+<h3 id="event-system">Event System</h3>
+<ul>
+<li><a href="OURIN_SHIORI_EVENTS_3.0M_SPEC_en-us.md">SHIORI Events 3.0M Specification</a> 🟡 <strong>Partial</strong> - System event and SHIORI integration</li>
+<li>Major events implemented (time, OS state, network, input, D&amp;D)</li>
+<li>
+<p>Some events not implemented (headlines, mail BIFF, voice recognition, etc.)</p>
+</li>
+<li>
+<p><a href="PLUGIN_EVENT_2.0M_SPEC_en-us.md">Plugin Event 2.0M Specification</a> 🟡 <strong>Partial</strong> - Plugin event system</p>
+</li>
+<li>Core dispatcher implemented</li>
+<li>Individual event handlers not implemented</li>
+</ul>
+<h2 id="display-ui-specifications">🎨 Display &amp; UI Specifications</h2>
+<ul>
+<li><a href="BALLOON_1.0M_SPEC_en-us.md">BALLOON/1.0M Specification</a> - Balloon (speech bubble) system specification</li>
+<li><a href="SAKURASCRIPT_FULL_1.0M_PATCHED_en-us.md">SakuraScript Full Specification 1.0M</a> - Complete SakuraScript command reference</li>
+<li><a href="SAKURASCRIPT_COMMANDS_SUPPORTED_en-us.md">SakuraScript Supported Commands</a> - List of implemented and unimplemented commands</li>
+</ul>
+<h2 id="developer-resources">🔧 Developer Resources</h2>
+<ul>
+<li><a href="DevToolsUIMockup_ja-jp.md">DevTools UI Mockup (Japanese)</a> - Developer tools UI design</li>
+<li><a href="DevToolsUIMockup_en-us.md">DevTools UI Mockup (English)</a> - Developer tools UI mockup</li>
+<li><a href="connect_swift_en-us.md">Swift Integration Guide</a> - How to integrate with Swift</li>
+<li><a href="PropertySystem_en-us.md">Property System Implementation</a> - Property system implementation details</li>
+<li><a href="GhostConfigurationImplementation_en-us.md">Ghost Configuration Implementation</a> - Ghost configuration implementation</li>
+</ul>
+<h2 id="detailed-specifications">📖 Detailed Specifications</h2>
+<h3 id="shiori-related">SHIORI Related</h3>
+<ul>
+<li><a href="SHIORI_EVENTS_3.0M_SPEC_en-us.md">SHIORI Events 3.0M Specification</a> - Detailed SHIORI event specification</li>
+<li><a href="SHIORI_EVENTS_FULL_1.0M_PATCHED_en-us.md">SHIORI Events FULL 1.0M</a> - Complete SHIORI events</li>
+<li><a href="SHIORI_RESOURCE_3.0M_SPEC_en-us.md">SHIORI Resource 3.0M Specification</a> - SHIORI resource management specification</li>
+<li><a href="SHIORI_EXTERNAL_3.0M_SPEC_en-us.md">SHIORI External 3.0M Specification</a> - External SHIORI integration specification</li>
+</ul>
+<h3 id="property-system">Property System</h3>
+<ul>
+<li><a href="PROPERTY_1.0M_SPEC_en-us.md">PROPERTY/1.0M Specification</a> - Property system specification</li>
+<li><a href="PROPERTY_1.0M_SPEC_FULL_en-us.md">PROPERTY/1.0M Full</a> - Complete property system specification</li>
+<li><a href="PROPERTY_Resource_3.0M_SPEC_en-us.md">PROPERTY Resource 3.0M Specification</a> - Property resource specification</li>
+</ul>
+<h3 id="plugins">Plugins</h3>
+<ul>
+<li><a href="PLUGIN_EVENT_2.0M_SPEC_FULL_en-us.md">Plugin Event 2.0M Full</a> - Complete plugin event specification</li>
+</ul>
+<h3 id="other-systems">Other Systems</h3>
+<ul>
+<li><a href="HEADLINE_2.0M_SPEC_en-us.md">HEADLINE/2.0M Specification</a> - Headline system specification</li>
+<li><a href="WEB_1.0M_SPEC_en-us.md">WEB/1.0M Specification</a> - Web functionality specification</li>
+<li><a href="SSTP_Host_Modules_JA_ja-jp.md">SSTP Host Modules (Japanese)</a> - SSTP host module description</li>
+</ul>
+<h2 id="yaya-core-documentation">📖 YAYA Core Documentation</h2>
+<p>YAYA Core is developed in a separate repository, but reference materials are included in this directory.</p>
+<ul>
+<li><a href="YAYA_CORE_EXECUTIVE_SUMMARY_en-us.md">YAYA Core Executive Summary</a> - YAYA Core overview and direction</li>
+<li><a href="YAYA_CORE_TECHNICAL_SPEC_en-us.md">YAYA Core Technical Specification</a> - YAYA Core technical details</li>
+<li><a href="YAYA_CORE_ARCHITECTURE_en-us.md">YAYA Core Architecture</a> - YAYA Core design and architecture</li>
+<li><a href="YAYA_CORE_IMPLEMENTATION_PLAN_en-us.md">YAYA Core Implementation Plan</a> - YAYA Core implementation plan</li>
+<li><a href="YAYA_CORE_INVESTIGATION_REPORT_en-us.md">YAYA Core Investigation Report</a> - YAYA Core investigation report</li>
+<li><a href="YAYA_CORE_INDEX_en-us.md">YAYA Core Index</a> - YAYA Core documentation index</li>
+</ul>
+<h2 id="ui-mockups">📋 UI Mockups</h2>
+<ul>
+<li><a href="RightClickMenuMockup_en-us.md">Right Click Menu Mockup</a> - Right-click menu design</li>
+</ul>
+<h2 id="implementation-status-legend">🎨 Implementation Status Legend</h2>
+<p>In the specifications, implementation status uses the following symbols:</p>
+<ul>
+<li>🟢 <strong>Complete</strong> - Feature fully implemented and verified</li>
+<li>🟡 <strong>Partial</strong> - Basic functionality implemented, some features missing</li>
+<li>🔵 <strong>Planned</strong> - Specification finalized but not yet implemented</li>
+<li><code>[x]</code> - Implemented</li>
+<li><code>[ ]</code> - Not implemented</li>
+<li><code>✅</code> - Verified</li>
+</ul>
+<h2 id="documentation-update-history">📝 Documentation Update History</h2>
+<ul>
+<li><strong>2026-06-27</strong>: Added Codex compatibility audit and corrected implementation status to UKADOC/SSP compatibility framing</li>
+<li><strong>2025-10-23</strong>: Complete bilingual structure established, all documents translated</li>
+<li><strong>2025-10-20</strong>: Added implementation status sections to specifications, generated HTML versions</li>
+<li><strong>2025-07-28</strong>: Initial documentation created</li>
+</ul>
+<h2 id="related-links">🔗 Related Links</h2>
+<ul>
+<li><a href="https://github.com/eightman999/Ourin">GitHub Repository</a></li>
+<li><a href="../README.md">Project README</a></li>
+<li><a href="html/index.html">HTML Documentation Index</a></li>
+</ul>
+<h2 id="license">📄 License</h2>
+<p>Original Ourin documentation is licensed under CC BY-SA 4.0. Third-party material retains its original license.</p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

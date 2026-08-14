@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIORI/2.x 互換仕様書（Ourin実装用）</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="SHIORI_2X_COMPAT_SPEC_ja-jp.html" class="active">日本語</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="shiori2x-ourin">SHIORI/2.x 互換仕様書（Ourin実装用）</h1>
+<p>作成日: 2026-07-08
+出典: http://usada.sakura.vg/contents/shiori.html （Materia時代の公式SHIORI仕様。以下「原典」）
+用途: Ourin の SHIORI/2.x 互換レイヤー（<code>Ourin/USL/ShioriLoader.swift</code>）実装の正本。
+方針: 原典で確認できた項目のみ「確定」。原典に無い項目（SHIORI/2.6 の詳細等）は「要検証」として明示する。</p>
+<h2 id="0">0. 共通事項（確定）</h2>
+<ul>
+<li>全リクエストは唯一のエントリポイント <code>request</code> で行う（2.0以降）。</li>
+<li>ワイヤ形式はHTTP/SSTP類似: 全行 CR+LF 区切り、1行目に <code>&lt;コマンド&gt; &lt;バージョン&gt;</code>、2行目以降にヘッダ、<strong>CR+LF 2つでターミネート</strong>。</li>
+<li>文字コードの慣例は <code>Charset: Shift_JIS</code>（原典の全例示がShift_JIS）。</li>
+<li><strong>SecurityLevel ヘッダは全リクエストに必ず付与される</strong>（原典「セキュリティ」節）: <code>local</code>（本体・ゴースト・ローカルSSTP、信用できる）/ <code>external</code>（それ以外）。</li>
+<li>OnClose等の基礎的なものを除きイベントは無視可能。無視する場合は <strong>204 No Content</strong> を返す。</li>
+</ul>
+<h3 id="_1">ステータスコード（確定）</h3>
+<table>
+<thead>
+<tr>
+<th>コード</th>
+<th>意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200 OK</td>
+<td>正常終了</td>
+</tr>
+<tr>
+<td>204 No Content</td>
+<td>正常終了・返すデータなし</td>
+</tr>
+<tr>
+<td>310 Communicate</td>
+<td><strong>deprecated</strong>（2.1由来、2.3bのTo/Age方式に置換）</td>
+</tr>
+<tr>
+<td>311 Not Enough</td>
+<td>TEACHで情報不足</td>
+</tr>
+<tr>
+<td>312 Advice</td>
+<td>TEACH内の最新ヘッダが解釈不能</td>
+</tr>
+<tr>
+<td>400 Bad Request</td>
+<td>リクエスト不備</td>
+</tr>
+<tr>
+<td>500 Internal Server Error</td>
+<td>サーバ内エラー</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-shiori20">1. SHIORI/2.0 — 基礎プロトコル（確定）</h2>
+<h3 id="get-version">GET Version</h3>
+<pre class="codehilite"><code>GET Version SHIORI/2.0
+Sender: Nobody
+Charset: Shift_JIS
+</code></pre>
+
+<p>→ <code>SHIORI/2.0 200 OK</code>（クライアントはこのバージョン情報でリクエストレベルを変える）</p>
+<h3 id="notify-ownerghostname">NOTIFY OwnerGhostName</h3>
+<pre class="codehilite"><code>NOTIFY OwnerGhostName SHIORI/2.0
+Sender: Nobody
+Ghost: さくら
+Charset: Shift_JIS
+</code></pre>
+
+<p>→ <code>SHIORI/2.0 200 OK</code>。<code>Ghost:</code> = 動作中のゴースト名。2.0のNOTIFYはこれのみ。</p>
+<h3 id="get-sentence20">GET Sentence（2.0 = ユーザー入力）</h3>
+<pre class="codehilite"><code>GET Sentence SHIORI/2.0
+Sender: User
+Charset: Shift_JIS
+Sentence: おはよー。
+</code></pre>
+
+<p>→</p>
+<pre class="codehilite"><code>SHIORI/2.0 200 OK
+Sender: First
+BalloonOffset: 0,0[1]0,0
+Sentence: \0\s0おはよー。\e
+</code></pre>
+
+<ul>
+<li>レスポンスヘッダ: <code>Sender:</code>=SHIORIのID、<code>Sentence:</code>=さくらスクリプト、<code>BalloonOffset:</code>=省略可（バイト値1とカンマ区切り、sakura.x/sakura.y/kero.x/kero.y、シェル設定をオーバーライド）。</li>
+</ul>
+<h3 id="get-word">GET Word</h3>
+<pre class="codehilite"><code>GET Word SHIORI/2.0
+Sender: materia
+Type: \ms
+Charset: Shift_JIS
+</code></pre>
+
+<p>→ <code>SHIORI/2.0 200 OK</code> + <code>Word: さくら</code>
+- <code>Type:</code> の値（単語クラス、確定）: <code>\ms</code>人 / <code>\mz</code>無機物 / <code>\ml</code>集合 / <code>\mc</code>社名 / <code>\mh</code>店名 / <code>\mt</code>技 / <code>\me</code>食物 / <code>\mp</code>地名 / <code>\m?</code>非限定 / <code>\dms</code>長めの名詞。
+  （Ourinの <code>EnvironmentExpander</code> lexicon 10キーと同一体系）</p>
+<h3 id="get-status">GET Status</h3>
+<pre class="codehilite"><code>GET Status SHIORI/2.0
+Sender: Nobody
+Charset: Shift_JIS
+</code></pre>
+
+<p>→ <code>SHIORI/2.0 200 OK</code> + <code>Status: 0,0,0,0,0,0</code>（neuron,neuronm,neuronk,neurond,neurone,synapse。AIグラフ用・無視可）</p>
+<h2 id="2-shiori22">2. SHIORI/2.2 — イベント（確定）</h2>
+<pre class="codehilite"><code>GET Sentence SHIORI/2.2
+Sender: Nobody
+Event: OnDisplayChange
+Reference0: 32
+Reference1: 1280
+Reference2: 1024
+SecurityLevel: external
+Charset: Shift_JIS
+</code></pre>
+
+<ul>
+<li><code>Event:</code> = イベント識別子（unique・一定・一意）。</li>
+<li><code>Reference0..7</code> = 付帯情報。<strong>2.2のReference上限は8個（Reference7まで）</strong>。</li>
+<li>応答は 200 OK + <code>Sentence:</code>（発話する場合）or 204（無視）。</li>
+</ul>
+<p>原典記載の主要イベント（抜粋・確定）:
+- OnFirstBoot(Ref0=Vanishカウント) / OnBoot / OnClose / OnWindowStateMinimize / OnWindowStateRestore / OnTeachStart
+- OnGhostChanging(Ref0=次ゴースト名, Ref1=manual|automatic) / OnGhostChanged(Ref0=前ゴースト名) / OnShellChanging / OnShellChanged(Ref0=次シェル名)
+- OnVanishSelecting / OnVanishSelected / OnVanishCancel / OnVanishButtonHold / OnVanished(Ref0=前ゴースト名)
+- OnSecondChange / OnMinuteChange（Ref0=連続起動時間h, Ref1=見切れ, Ref2=重なり, Ref3=cantalk。bool は 0/1）
+- OnSurfaceChange(Ref0=sakura側surface, Ref1=kero側surface) / OnSurfaceRestore
+- OnMouseMove / OnMouseClick / OnMouseDoubleClick / OnMouseWheel（Ref0=x, Ref1=y, Ref2=wheel, Ref3=owner 0:Sakura/1:Kero, Ref4=当たり判定識別子）/ OnKeyPress(Ref0=キー文字)
+- OnChoiceSelect(Ref0=選択肢ID) / OnChoiceTimeout(Ref0=タイムアウトしたスクリプト)
+- OnSSTPBreak(Ref0=例外の起きたスクリプト)
+- OnInstallBegin / OnInstallComplete(Ref0=種別 shell|ghost|balloon|plugin, Ref1=名前, Ref2=次オブジェクト名) / OnInstallFailure(Ref0=事由) / OnInstallRefuse(Ref0=指名ゴースト名)
+- OnFileDropping / OnFileDropped / OnDirectoryDrop / OnWallpaperChange / OnURLDropping / OnURLDropped
+- OnDisplayChange(Ref0=bpp, Ref1=width, Ref2=height) / OnNetworkHeavy / OnSSTPBlacklisting / OnRecommendsiteChoice
+- OnUpdate系 / OnBIFF系 / OnSNTP系 / OnHeadlinesense系 / OnMusicPlay / OnNar系 / OnUpdatedata系</p>
+<h2 id="3-shiori23b">3. SHIORI/2.3b — ゴースト間対話（確定）</h2>
+<h3 id="notify23">NOTIFY（2.3）</h3>
+<pre class="codehilite"><code>NOTIFY OwnerGhostName SHIORI/2.3
+Sender: materia
+Ghost: さくら
+Charset: Shift_JIS
+</code></pre>
+
+<pre class="codehilite"><code>NOTIFY OtherGhostName SHIORI/2.3
+Sender: materia
+GhostEx: なる[1]0[1]1
+GhostEx: まゆら[1]0[1]1
+Charset: Shift_JIS
+</code></pre>
+
+<ul>
+<li><code>GhostEx:</code> はバイト値1区切りで「ゴースト名, sakura側surface ID, kero側surface ID」。起動中の他ゴーストの数だけ積み重ねる（いなければ0個）。識別子がGhostExなのは過去互換のため。</li>
+</ul>
+<h3 id="toagereference">対話（To/Age/Reference方式）</h3>
+<ul>
+<li>SHIORIが話しかける: 200 OK レスポンスに <code>To:</code>（相手ゴースト名）と <code>Age:</code> を付ける。<code>Sentence:</code> が Direct SSTP (COMMUNICATE/1.2) で相手へ送られる。<code>Reference0..7</code> で任意の追加情報（内容規約なし・省略可）。</li>
+<li>受信側: クライアントが <code>GET Sentence SHIORI/2.3</code> を発行。通常のGET Sentenceとの違いは (a) <code>Age:</code> がある、(b) <code>Sender:</code> が Nobody ではなく相手ゴースト名、(c) <code>Surface: 0,10</code> 形式で相手サーフェス。</li>
+<li>返答するときは <code>Sender</code> で来た名前を <code>To</code> に入れて返す。<strong>Age は必ずインクリメント</strong>。返答しない場合は To を省略。</li>
+</ul>
+<h2 id="4-shiori24-teach">4. SHIORI/2.4 — TEACH（確定）</h2>
+<pre class="codehilite"><code>TEACH SHIORI/2.4
+Word: ガッツ石松
+</code></pre>
+
+<p>→ <code>SHIORI/2.4 311 Not Enough</code> + <code>Sentence: \h\s0ガッツ石松って何ですか？\e</code>
+- クライアントは追加情報を <code>Reference0, 1, ...</code> に積んで再送。序数は311のたびに増える（上限なし）。
+- 情報が揃ったら <code>200 OK</code> + <code>Sentence:</code>。解釈不能な最新ヘッダには <code>312 Advice</code>（最新Referenceのみ無効化、確定済みReferenceは再送される）。</p>
+<h2 id="5-shiori25-get-string">5. SHIORI/2.5 — GET String（確定）</h2>
+<pre class="codehilite"><code>GET String SHIORI/2.5
+ID: homeurl
+Charset: Shift_JIS
+</code></pre>
+
+<p>→ <code>SHIORI/2.5 200 OK</code> + <code>String: http://sakura.mikage.to/</code></p>
+<p>定義済みID（確定）: <code>homeurl</code>（必須）/ <code>sakura.recommendsites</code>・<code>kero.recommendsites</code>・<code>sakura.portalsites</code>（バイト値1=カラム、バイト値2=行。サイト名,URL,バナーURL。省略可）/ <code>*.recommendbuttoncaption</code>・<code>updatebuttoncaption</code>・<code>vanishbuttoncaption</code>・<code>readmebuttoncaption</code>（省略可）/ <code>vanishbuttonvisible</code>（bool文字列、省略可）/ <code>username</code>（必須）/ <code>sakura.defaultleft</code>・<code>kero.defaultleft</code>（スクリーンx座標）。
+→ Ourinでは SHIORI Resource（3.0の <code>Resource系イベント</code>）の2.x版に相当。</p>
+<h2 id="6-shiori21-26">6. SHIORI/2.1 / 2.6 について</h2>
+<ul>
+<li><strong>2.1（310 Communicate）は deprecated</strong>（原典明記）。実装しない。310を受け取った場合は無視してよい（要検証: SSPの実挙動）。</li>
+<li><strong>SHIORI/2.6</strong>: 原典ページのメニューは2.5まで。2.6の詳細仕様は原典に存在しない。SSP実装では <code>GET Sentence SHIORI/2.6</code> 等のバージョン表記が使われる（Ourinの既存フォールバックも <code>GET SHIORI/2.6</code> を送っていた）。<strong>2.6固有の追加仕様は未確認 — 実装上は「2.5までの全機能＋バージョン番号2.6」として扱い、要検証と明記する。</strong></li>
+</ul>
+<h2 id="7-ourin-30-2x">7. Ourin実装方針: 3.0イベント → 2.xリクエスト変換</h2>
+<p>前提: Ourin内部は3.0イベント駆動。SHIORIモジュールが2.x系と判明した場合（GET Versionの応答行 or descript等）、以下のマッピングで2.x形式に変換して送る。</p>
+<table>
+<thead>
+<tr>
+<th>Ourin内部（3.0）</th>
+<th>2.xリクエスト</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>各種 <code>GET</code> イベント（OnBoot等、2.2に存在するID）</td>
+<td><code>GET Sentence SHIORI/2.2</code> + <code>Event:</code> + <code>Reference0..7</code></td>
+<td>Referenceは<strong>最大8個で切り詰め</strong>（超過分は送らない）</td>
+</tr>
+<tr>
+<td><code>NOTIFY</code> イベント</td>
+<td>同上（2.xにNOTIFYイベント形式は無い）</td>
+<td>応答 <code>Sentence:</code> は破棄（3.0 NOTIFYの意味を維持）</td>
+</tr>
+<tr>
+<td>ユーザー入力（OnTalk/communicate入力）</td>
+<td><code>GET Sentence SHIORI/2.0</code> + <code>Sentence:</code></td>
+<td>Sender: User</td>
+</tr>
+<tr>
+<td>OwnerGhostName通知（起動・切替時）</td>
+<td><code>NOTIFY OwnerGhostName SHIORI/2.3</code> + <code>Ghost:</code></td>
+<td></td>
+</tr>
+<tr>
+<td>他ゴースト一覧通知（installedghostname相当）</td>
+<td><code>NOTIFY OtherGhostName SHIORI/2.3</code> + <code>GhostEx:</code>×n</td>
+<td></td>
+</tr>
+<tr>
+<td>communicate受信（OnCommunicate）</td>
+<td><code>GET Sentence SHIORI/2.3</code> + <code>Sender:</code>=相手名 + <code>Age:</code> + <code>Surface:</code></td>
+<td></td>
+</tr>
+<tr>
+<td>単語要求（lexicon補完等、Ourinが必要とする場合）</td>
+<td><code>GET Word SHIORI/2.0</code> + <code>Type:</code></td>
+<td></td>
+</tr>
+<tr>
+<td>SHIORI Resource取得</td>
+<td><code>GET String SHIORI/2.5</code> + <code>ID:</code></td>
+<td>3.0 Resource名→2.5 IDの対応は同名を基本とする（要検証）</td>
+</tr>
+<tr>
+<td>TEACH</td>
+<td><code>TEACH SHIORI/2.4</code> + <code>Word:</code>/<code>Reference*</code></td>
+<td>311/312/200 の応答処理必須</td>
+</tr>
+<tr>
+<td>2.2に存在しないイベント（OnMouseWheel以降の新イベント等）</td>
+<td><strong>送らない</strong></td>
+<td>3.0固有イベントを2.xへ勝手に流さない</td>
+</tr>
+<tr>
+<td>SecurityLevel</td>
+<td>全リクエストに <code>SecurityLevel: local|external</code> を付与</td>
+<td>2.2原典で必須</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-2x-30">8. 2.xレスポンス → 3.0内部表現への変換規則</h2>
+<ul>
+<li>ステータス行 <code>SHIORI/2.x &lt;code&gt; &lt;phrase&gt;</code> → 3.0の <code>SHIORI/3.0 &lt;code&gt;</code> 相当として解釈。</li>
+<li><code>Sentence:</code> → 3.0の <code>Value:</code> に相当（さくらスクリプト。<code>\h\s0...\e</code> 等の旧形式スクリプトはOurinのSakuraScriptEngineがそのまま解釈する）。</li>
+<li><code>Word:</code> / <code>String:</code> / <code>Status:</code> → それぞれの要求元（GET Word / GET String / GET Status）の値として返す。</li>
+<li><code>To:</code> + <code>Age:</code>（+<code>Reference*</code>）付き200 OK → 他ゴーストへのcommunicate送信要求として <code>SSTPDispatcher</code> 経由のルーティングに接続（3.0の <code>Reference0</code>=相手名のcommunicate応答に相当）。</li>
+<li><code>BalloonOffset:</code> → <code>sakura/kero.balloonoffset.x/y</code> プロパティのオーバーライドとして適用（省略時は何もしない）。</li>
+<li>311/312（TEACH中間応答） → 既存の <code>ShioriLoader</code> TEACH処理（3.0では312相当へマップ済み）と整合させる。</li>
+<li>204 → 3.0の204と同じ（無視）。</li>
+<li>文字コード: リクエスト・レスポンスとも既定 Shift_JIS（CP932）でエンコード/デコード。レスポンスに <code>Charset:</code> があればそれを優先。</li>
+</ul>
+<h2 id="9">9. 未確認・要検証事項</h2>
+<ol>
+<li><strong>SHIORI/2.6 の固有仕様</strong>（原典に無い。SSPソース・他資料での裏取りが必要）</li>
+<li>GET String の 3.0 Resource名との厳密な対応表（同名前提の妥当性）</li>
+<li>310 Communicate 受信時のSSP実挙動（無視でよいか）</li>
+<li><code>GET Sentence SHIORI/2.0</code>（ユーザー入力）を発行するUI経路がOurinに存在するか（入力ボックス実装との接続）</li>
+<li>2.2イベント一覧とOurinの3.0イベント発火箇所の完全な対応（本書の表は主要イベントのみ。全216箇所の突合は実装時に行う）</li>
+<li><code>Sender: materia</code> の値をOurinでは何にするか（<code>Ourin</code> を送る想定だが、Sender値でクライアント判定する古いSHIORIが存在する可能性 — 互換性優先なら要検討）</li>
+</ol>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FMO機能について</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="About_FMO_ja-jp.html" class="active">日本語</a> | <a href="About_FMO_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="fmo">FMO機能について</h1>
+<p>このドキュメントでは、Ourin の FMO（Forged Memory Object）の実装方針を説明します。</p>
+<h2 id="_1">概要</h2>
+<p>Ourin の FMO は Windows の名前付き FileMapping API の完全互換ではなく、POSIX 共有メモリによる<strong>意味的互換</strong>です。
+外部ツールが現在起動中のゴースト一覧・名前・パス・surface 等を取得できることを目的としています。
+Windows 向け FMO 直接読込ツールとのバイナリ/OS API 互換は対象外で、Ourin が保証する互換境界は
+<code>EXECUTE GetFMO</code> と <code>id.key\x01value\r\n</code> 形式のテキストビューです。</p>
+<h2 id="_2">共有メモリ名</h2>
+<table>
+<thead>
+<tr>
+<th>リソース</th>
+<th>名前</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>共有メモリ</td>
+<td><code>/ourin_fmo</code></td>
+</tr>
+<tr>
+<td>セマフォ（排他制御）</td>
+<td><code>/ourin_fmo_mutex</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="fmo_1">FMO レコード形式</h2>
+<p>SSP 互換の形式を採用しています:</p>
+<pre class="codehilite"><code>id.key\x01value\r\n
+</code></pre>
+
+<ul>
+<li><code>\x01</code> は ASCII SOH（Start of Heading, U+0001）</li>
+<li>改行は CRLF（<code>\r\n</code>）</li>
+<li><code>id</code> はゴースト起動時に生成する32文字の一意ID（Owned SSTPでも照合可能）</li>
+</ul>
+<h3 id="_3">フィールド一覧</h3>
+<table>
+<thead>
+<tr>
+<th>キー</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>ゴーストの sakura 名</td>
+<td><code>Emily4</code></td>
+</tr>
+<tr>
+<td><code>keroname</code></td>
+<td>kero の名前</td>
+<td><code>Teddy</code></td>
+</tr>
+<tr>
+<td><code>fullname</code></td>
+<td>descript 由来のゴーストフルネーム</td>
+<td><code>Emily/Phase4</code></td>
+</tr>
+<tr>
+<td><code>ghostname</code></td>
+<td>descript / ディレクトリ由来のゴースト名</td>
+<td><code>emily4</code></td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>ゴーストディレクトリのパス</td>
+<td><code>/Users/.../ghost/emily4</code></td>
+</tr>
+<tr>
+<td><code>ghostpath</code></td>
+<td>ゴーストのインストールパス</td>
+<td><code>/Users/.../ghost/emily4</code></td>
+</tr>
+<tr>
+<td><code>sakura.surface</code></td>
+<td>sakura の現在サーフェス ID</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>kero.surface</code></td>
+<td>kero の現在サーフェス ID</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>hwnd</code></td>
+<td>sakura 側の Ourin ウィンドウ識別子</td>
+<td><code>1001</code></td>
+</tr>
+<tr>
+<td><code>kerohwnd</code></td>
+<td>kero 側の Ourin ウィンドウ識別子</td>
+<td><code>1002</code></td>
+</tr>
+<tr>
+<td><code>hwndlist</code></td>
+<td>このゴーストに属するウィンドウ識別子の一覧</td>
+<td><code>1001,1002</code></td>
+</tr>
+<tr>
+<td><code>modulestate</code></td>
+<td>モジュール名と状態の一覧</td>
+<td><code>shiori:running,makoto-ghost:running</code></td>
+</tr>
+<tr>
+<td><code>shell</code></td>
+<td>現在のシェル名（Ourin 拡張）</td>
+<td><code>master</code></td>
+</tr>
+<tr>
+<td><code>balloon</code></td>
+<td>現在のバルーン名（Ourin 拡張）</td>
+<td><code>default</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">出力例</h3>
+<pre class="codehilite"><code>0123456789abcdef0123456789abcdef.name\x01Emily4\r\n
+0123456789abcdef0123456789abcdef.keroname\x01Teddy\r\n
+0123456789abcdef0123456789abcdef.fullname\x01Emily/Phase4\r\n
+0123456789abcdef0123456789abcdef.ghostname\x01emily4\r\n
+0123456789abcdef0123456789abcdef.path\x01/Users/user/Library/.../ghost/emily4\r\n
+0123456789abcdef0123456789abcdef.ghostpath\x01/Users/user/Library/.../ghost/emily4\r\n
+0123456789abcdef0123456789abcdef.sakura.surface\x010\r\n
+0123456789abcdef0123456789abcdef.kero.surface\x0110\r\n
+0123456789abcdef0123456789abcdef.hwnd\x011001\r\n
+0123456789abcdef0123456789abcdef.kerohwnd\x011002\r\n
+0123456789abcdef0123456789abcdef.hwndlist\x011001,1002\r\n
+0123456789abcdef0123456789abcdef.modulestate\x01shiori:running,makoto-ghost:running\r\n
+0123456789abcdef0123456789abcdef.shell\x01master\r\n
+0123456789abcdef0123456789abcdef.balloon\x01default\r\n
+</code></pre>
+
+<h2 id="macos-windows">macOS 独自制約と Windows との差異</h2>
+<h3 id="filemapping">FileMapping 名は互換しない</h3>
+<p>Windows/SSP の名前付き FileMapping をそのまま公開するものではありません。macOS では POSIX 共有メモリ
+<code>/ourin_fmo</code> とセマフォ <code>/ourin_fmo_mutex</code> を使います。Windows 向け外部ツールが Win32 API で
+FMO を直接読むことはできません。</p>
+<h3 id="hwnd-win32-hwnd">hwnd は Win32 HWND ではない</h3>
+<p><code>hwnd</code> / <code>kerohwnd</code> / <code>hwndlist</code> は Windows のウィンドウハンドルではありません。Ourin では
+<code>NSWindow.windowNumber</code> を優先し、取得できない場合はゴースト/スコープから安定ハッシュを生成した
+<strong>非ゼロの Ourin 内部ウィンドウ識別子</strong>を返します。この値は同一 Ourin 実行中の識別・SSTP 対象解決用であり、
+Win32 HWND として dereference できません。</p>
+<h3 id="_5">パス形式</h3>
+<p>パスは macOS のネイティブ形式（POSIX パス）です。Windows のバックスラッシュ区切りやドライブレター形式ではありません。</p>
+<h3 id="_6">共有メモリの寿命</h3>
+<ul>
+<li>Windows: 名前付き FileMapping は全ハンドルが閉じると自動削除</li>
+<li>Ourin: POSIX 共有メモリはプロセス生存中は名前を保持し、正常終了時に <code>shm_unlink</code> / <code>sem_unlink</code> で削除</li>
+<li>クラッシュ後に残った共有メモリは、次回起動時に安全に上書き・初期化されます</li>
+</ul>
+<h2 id="_7">互換ビュー</h2>
+<h3 id="fmo_2">FMO テキストビュー</h3>
+<p><code>FmoManager.buildSnapshot(records:)</code> は <code>id.key\x01value\r\n</code> の SSP 風テキストを生成します。
+SSTP <code>EXECUTE GetFMO</code> の応答と POSIX 共有メモリの本文は同じテキストビューを使います。</p>
+<h3 id="_8">構造化ビュー</h3>
+<p><code>FmoCompatibilityView.parse(_:)</code> と <code>FmoManager.buildCompatibilityView(records:)</code> は、FMO テキストを
+<code>id</code> ごとの field 辞書として読むための Ourin 内部 API です。テスト、診断 UI、macOS 側ブリッジはこのビューを使い、
+POSIX 共有メモリ実体や Windows API の違いに依存しないようにします。</p>
+<h3 id="posix">POSIX 共有メモリビュー</h3>
+<p>共有メモリ上では、先頭 4 バイトの <code>uint32_t</code> に UTF-8 本文長、その後に FMO テキスト、末尾に NUL を格納します。
+これは Ourin の macOS 実装詳細であり、Windows FMO のメモリオブジェクト形式そのものではありません。</p>
+<h2 id="_9">外部アプリからのアクセス方法</h2>
+<h3 id="sstp-execute-getfmo">推奨: SSTP EXECUTE GetFMO</h3>
+<p>macOS 外部アプリからは、SSTP プロトコル経由で <code>EXECUTE</code> メソッドの <code>GetFMO</code> コマンドを使うことを推奨します。
+共有メモリの直接アクセスよりも安全で、セキュリティレベルの制御（<code>local</code> のみ許可）も適用されます。</p>
+<pre class="codehilite"><code>EXECUTE SSTP/1.4
+Sender: MyApp
+Command: GetFMO
+SecurityLevel: local
+Charset: UTF-8
+</code></pre>
+
+<h3 id="posix_1">直接アクセス: POSIX 共有メモリ</h3>
+<p><code>shm_open("/ourin_fmo", O_RDWR, 0)</code> で共有メモリを開き、先頭 4 バイトの <code>uint32_t</code> でデータサイズを読み取り、その後にUTF-8 テキストとして FMO レコードを読み出せます。排他制御には <code>/ourin_fmo_mutex</code> セマフォを使用してください。</p>
+<h2 id="_10">更新タイミング</h2>
+<p>FMO は以下のタイミングで更新されます:</p>
+<ul>
+<li>ゴースト起動時（OnBoot 完了後）</li>
+<li>ゴースト終了時</li>
+<li>シェル変更時（OnShellChanged）</li>
+<li>バルーン変更時（OnBalloonChange）</li>
+<li>サーフェス変更時（OnSurfaceChange）</li>
+<li>SHIORI / MAKOTO の明示 load・unload・reload 時</li>
+</ul>
+<h2 id="_11">主要クラス</h2>
+<h3 id="fmomanager"><code>FmoManager</code></h3>
+<ul>
+<li>FMO 全体の管理クラス</li>
+<li><code>buildSnapshot(records:)</code>: SSP 風レコード形式の文字列を生成（static）</li>
+<li><code>buildCompatibilityView(records:)</code>: 同じレコードを構造化互換ビューとして生成（static）</li>
+<li><code>writeSnapshot(records:)</code>: 共有メモリへスナップショットを書き込む</li>
+<li><code>isAnotherInstanceRunning()</code>: 共有メモリの存在で他インスタンスの起動を判定</li>
+<li><code>cleanup()</code>: 正常終了時に共有メモリとセマフォを解放</li>
+</ul>
+<h3 id="fmocompatibilityview"><code>FmoCompatibilityView</code></h3>
+<ul>
+<li><code>id.key\x01value\r\n</code> 形式の FMO テキストを <code>id</code> ごとの <code>fields</code> に変換する内部ビュー</li>
+<li>不正行は無視し、<code>id</code> 昇順で entries を返す</li>
+</ul>
+<h3 id="fmosharedmemory"><code>FmoSharedMemory</code></h3>
+<ul>
+<li>POSIX 共有メモリのラッパー</li>
+<li>プロセス生存中は共有メモリ名を保持（作成直後の unlink は行わない）</li>
+<li>先頭 4 バイトにデータサイズ、末尾に NUL 終端を書き込む</li>
+<li>クラッシュ後の残留共有メモリは <code>O_CREAT</code> で安全に上書きされる</li>
+</ul>
+<h3 id="fmomutex"><code>FmoMutex</code></h3>
+<ul>
+<li>名前付きセマフォのラッパー</li>
+<li>クラッシュ後の残留セマフォは自動的に <code>sem_unlink</code> → 再作成される</li>
+</ul>
+<h3 id="fmobridgec-h"><code>FmoBridge.c / .h</code></h3>
+<ul>
+<li>Swift から POSIX API を呼び出すための C ラッパー関数群</li>
+</ul>
+<h2 id="_12">実装ファイル</h2>
+<ul>
+<li><code>Ourin/FMO/FmoManager.swift</code>: FMO 管理クラス・スナップショット生成</li>
+<li><code>Ourin/FMO/FmoSharedMemory.swift</code>: 共有メモリラッパー</li>
+<li><code>Ourin/FMO/FmoMutex.swift</code>: Mutex ラッパー</li>
+<li><code>Ourin/FMO/FmoError.swift</code>: エラー定義</li>
+<li><code>Ourin/FMO/FmoBridge.c</code>: C ブリッジ実装</li>
+<li><code>Ourin/FMO/FmoBridge.h</code>: C ブリッジヘッダー</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>
