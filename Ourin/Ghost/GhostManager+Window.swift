@@ -159,15 +159,12 @@ extension GhostManager {
 
         window.identifier = NSUserInterfaceItemIdentifier("GhostCharacterWindow_\(scope)")
 
-        // Show the window only for initial scopes (0 and 1)
-        // Other scopes (2, 3, etc.) will be shown when first referenced in a script via \pN
-        if scope <= 1 {
-            window.makeKeyAndOrderFront(nil)
-        } else {
-            // Window is created but not shown yet
-            // It will be shown when scope is switched to via script
-            Log.debug("[GhostManager] Scope \(scope) window created but not shown (will show on first use)")
-        }
+        // サーフェス画像がロードされるまで、全スコープの窓を表示しない。
+        // 起動時に scope 1 を先に表示すると、ベース画像がまだ無い窓へ SERIKO の
+        // オーバーレイだけが描画され、目元などの顔パーツが単体で浮いて見える。
+        // updateSurface が実画像を設定した時だけ orderFront する。
+        window.orderOut(nil)
+        Log.debug("[GhostManager] Scope \(scope) window created hidden until a surface is loaded")
 
         // Keep window visible and prevent auto-hiding
         window.isReleasedWhenClosed = false

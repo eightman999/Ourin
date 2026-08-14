@@ -144,6 +144,19 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func startupKeepsUnloadedCharacterScopesHidden() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-startup-empty-scope-test"))
+        defer { _ = manager.shutdown() }
+
+        manager.setupWindows()
+
+        #expect(manager.characterViewModels[0]?.image == nil)
+        #expect(manager.characterViewModels[1]?.image == nil)
+        #expect(manager.characterWindows[0]?.isVisible == false)
+        #expect(manager.characterWindows[1]?.isVisible == false)
+    }
+
+    @Test @MainActor
     func legacyMoveFixRetainsOnlyTheRequestedAxis() async throws {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-move-fix-test"))
         defer { _ = manager.shutdown() }
