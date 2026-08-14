@@ -116,7 +116,9 @@ struct DragDropEventTests {
         #expect(URLDropFailureReason.forDownload(error: URLError(.cancelled)) == "artificial")
         #expect(URLDropFailureReason.forDownload(error: URLError(.cannotConnectToHost)) == "fileio")
         #expect(URLDropFailureReason.forDownload(error: URLDropDownloadError.responseTooLarge) == "fileio")
-        #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.directoryConflict("ghost")) == "readonly")
+        #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.unzipFailed("corrupt")) == "extraction")
+        #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.installTxtNotFound) == "invalid type")
+        #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.directoryConflict("ghost")) == "unsupported")
         #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.updateMD5Mismatch("ghost.nar")) == "md5 miss")
         #expect(URLDropFailureReason.forInstallation(error: NarInstaller.Error.notZip) == "unsupported")
     }

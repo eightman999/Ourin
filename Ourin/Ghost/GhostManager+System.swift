@@ -248,16 +248,17 @@ enum URLDropFailureReason {
         guard let narError = error as? NarInstaller.Error else { return "fileio" }
         switch narError {
         case .notZip, .unsupportedType,
-             .installTxtNotFound, .installTxtDecodeFailed, .installTxtMissingKey,
              .updateDescriptorNotFound, .updateDescriptorDecodeFailed,
-             .updateDescriptorInvalid, .updateDownloadFailed,
-             .basewareArchiveUnsupported:
+             .updateDescriptorInvalid, .basewareArchiveUnsupported:
             return "unsupported"
-        case .unzipFailed, .zipSlipDetected, .invalidDeletePath,
+        case .unzipFailed:
+            return "extraction"
+        case .installTxtNotFound, .installTxtDecodeFailed, .installTxtMissingKey,
+             .zipSlipDetected, .invalidDeletePath,
              .deleteInstructionDecodeFailed, .attachedComponentSourceNotFound:
-            return "fileio"
-        case .directoryConflict:
-            return "readonly"
+            return "invalid type"
+        case .directoryConflict, .updateDownloadFailed:
+            return "unsupported"
         case .updateMD5Mismatch:
             return "md5 miss"
         }
