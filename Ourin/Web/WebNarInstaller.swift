@@ -6,6 +6,10 @@ import os.log
 /// 挙動の詳細仕様は docs/NAR_INSTALL_1.0M_SPEC.md を参照。
 
 public enum WebNarInstaller {
+    private final class DownloadSessionHolder {
+        var session: URLSession?
+    }
+
     enum Error: Swift.Error, CustomStringConvertible {
         case notZip
         case unzipFailed(String)
@@ -35,18 +39,27 @@ public enum WebNarInstaller {
 
     public static func install(from urlString: String) {
         // URL の妥当性チェック。既定は https のみ許可。設定で http を明示許可可。
-        guard let url = URL(string: urlString), let scheme = url.scheme?.lowercased() else {
+        let allowHttp = allowInsecureHTTPInstall()
+        guard let parsedURL = URL(string: urlString),
+              let parsedScheme = parsedURL.scheme?.lowercased() else {
             NSLog("[WebNarInstaller] invalid url: \(urlString)")
             return
         }
-        let allowHttp = allowInsecureHTTPInstall()
-        if !(scheme == "https" || (scheme == "http" && allowHttp)) {
+        if parsedScheme == "http" && !allowHttp {
             NSLog("[WebNarInstaller] insecure http blocked: \(urlString)")
             EventBridge.shared.notifyCustom("OnSecurityWarning", refs: [
                 "source": "nar_install_blocked",
                 "detail": "http_scheme",
                 "url": urlString
             ])
+            return
+        }
+        guard let url = URLDropPolicy.remoteURL(
+            from: urlString,
+            allowInsecureHTTP: allowHttp,
+            resolveHost: false
+        ), let scheme = url.scheme?.lowercased() else {
+            NSLog("[WebNarInstaller] invalid url: \(urlString)")
             return
         }
         if scheme == "http" && allowHttp {
@@ -57,59 +70,139 @@ public enum WebNarInstaller {
             ])
         }
 
-        // URLSession で非同期ダウンロード
-        let task = URLSession.shared.downloadTask(with: url) { local, response, error in
-            if let error = error {
-                NSLog("[WebNarInstaller] download error: \(error)")
-                EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "network"])
+        // DNS検査はURL受理元のメインスレッドを止めない。リダイレクト先は
+        // URLDropDownloadDelegate が同じ公開アドレス検査を再適用する。
+        DispatchQueue.global(qos: .utility).async {
+            guard URLDropPolicy.isPublicRemoteHost(url.host ?? "") else {
+                EventBridge.shared.notifyCustom("OnSecurityWarning", refs: [
+                    "source": "nar_install_blocked",
+                    "detail": "private_host",
+                    "url": urlString
+                ])
+                EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "fileio"])
                 return
             }
-            guard let local = local else { return }
-            let archiveURL: URL
-            do {
-                archiveURL = try normalizedArchiveURL(
-                    localURL: local,
-                    response: response,
-                    sourceURL: url
-                )
-                defer { try? FileManager.default.removeItem(at: archiveURL) }
-
-                log.info("downloaded: \(archiveURL.path)")
-                if let appDelegate = NSApp.delegate as? AppDelegate,
-                   let ghostManager = appDelegate.ghostManager {
-                    switch ghostManager.installNarFile(archiveURL) {
-                    case .installed(let result):
-                        // Web 経路は AppDelegate.installNars を経由しないため、
-                        // SHIORI 側で完了イベントを発火しても PLUGIN には届かない。
-                        // D&D／関連付けと同じ実設置対象一覧を通知する。
-                        appDelegate.pluginDispatcher?.onInstallComplete(objects: result.objects)
-                        log.info("install finished")
-                    case .refused:
-                        log.info("install refused")
-                    case .failed(let error):
-                        log.error("install failed: \(error.localizedDescription)")
-                    }
-                } else {
-                    EventBridge.shared.notifyCustom("OnInstallBegin", params: [:])
-                    let result = try installLocalNar(archiveURL)
-                    if let object = result.objects.first {
-                        EventBridge.shared.notifyCustom("OnInstallComplete", refs: [
-                            "identifier": object.identifier,
-                            "name": object.name
-                        ])
-                    }
-                    (NSApp.delegate as? AppDelegate)?.pluginDispatcher?.onInstallComplete(objects: result.objects)
-                }
-            } catch {
-                log.error("install failed: \(String(describing: error))")
-                EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "unsupported"])
+            DispatchQueue.main.async {
+                startDownload(url: url, sourceURLString: urlString)
             }
-
-            NSLog("[WebNarInstaller] downloaded: \(local.path)")
-
-
         }
-        task.resume()
+    }
+
+    private static func startDownload(url: URL, sourceURLString: String) {
+        let holder = DownloadSessionHolder()
+        let delegate = URLDropDownloadDelegate(
+            allowInsecureHTTP: allowInsecureHTTPInstall(),
+            maximumBytes: URLDropPolicy.maxDownloadBytes
+        ) { localURL, response, error in
+            DispatchQueue.main.async {
+                holder.session?.finishTasksAndInvalidate()
+                holder.session = nil
+                finishDownload(
+                    localURL: localURL,
+                    response: response,
+                    sourceURL: url,
+                    sourceURLString: sourceURLString,
+                    error: error
+                )
+            }
+        }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = URLDropPolicy.requestTimeout
+        configuration.timeoutIntervalForResource = URLDropPolicy.resourceTimeout
+        configuration.waitsForConnectivity = false
+        configuration.urlCache = nil
+        configuration.httpCookieStorage = nil
+        configuration.httpShouldSetCookies = false
+        configuration.httpCookieAcceptPolicy = .never
+        let delegateQueue = OperationQueue()
+        delegateQueue.maxConcurrentOperationCount = 1
+        delegateQueue.qualityOfService = .utility
+        let session = URLSession(
+            configuration: configuration,
+            delegate: delegate,
+            delegateQueue: delegateQueue
+        )
+        holder.session = session
+        session.downloadTask(with: url).resume()
+    }
+
+    private static func finishDownload(
+        localURL: URL?,
+        response: URLResponse?,
+        sourceURL: URL,
+        sourceURLString: String,
+        error: Swift.Error?
+    ) {
+        var archiveURL: URL?
+        defer {
+            if let archiveURL {
+                try? FileManager.default.removeItem(at: archiveURL)
+            }
+            if let localURL, localURL != archiveURL {
+                try? FileManager.default.removeItem(at: localURL)
+            }
+        }
+
+        if let error {
+            NSLog("[WebNarInstaller] download error: \(error)")
+            EventBridge.shared.notifyCustom("OnInstallFailure", refs: [
+                "reason": URLDropFailureReason.forDownload(error: error)
+            ])
+            return
+        }
+        if let httpResponse = response as? HTTPURLResponse,
+           !(200...299).contains(httpResponse.statusCode) {
+            EventBridge.shared.notifyCustom("OnInstallFailure", refs: [
+                "reason": URLDropFailureReason.httpStatus(httpResponse.statusCode)
+            ])
+            return
+        }
+        guard let localURL else {
+            EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "fileio"])
+            return
+        }
+
+        do {
+            archiveURL = try normalizedArchiveURL(
+                localURL: localURL,
+                response: response,
+                sourceURL: sourceURL
+            )
+            log.info("downloaded: \(archiveURL?.path ?? localURL.path)")
+            if let appDelegate = NSApp.delegate as? AppDelegate,
+               let ghostManager = appDelegate.ghostManager {
+                switch ghostManager.installNarFile(archiveURL ?? localURL) {
+                case .installed(let result):
+                    // Web 経路は AppDelegate.installNars を経由しないため、
+                    // SHIORI 側で完了イベントを発火しても PLUGIN には届かない。
+                    // D&D／関連付けと同じ実設置対象一覧を通知する。
+                    appDelegate.pluginDispatcher?.onInstallComplete(objects: result.objects)
+                    log.info("install finished")
+                case .refused:
+                    log.info("install refused")
+                case .failed(let error):
+                    log.error("install failed: \(error.localizedDescription)")
+                }
+            } else {
+                EventBridge.shared.notifyCustom("OnInstallBegin", params: [:])
+                let result = try installLocalNar(archiveURL ?? localURL)
+                if let object = result.objects.first {
+                    EventBridge.shared.notifyCustom("OnInstallComplete", refs: [
+                        "identifier": object.identifier,
+                        "name": object.name
+                    ])
+                }
+                (NSApp.delegate as? AppDelegate)?.pluginDispatcher?.onInstallComplete(objects: result.objects)
+            }
+        } catch {
+            log.error("install failed: \(String(describing: error))")
+            EventBridge.shared.notifyCustom("OnInstallFailure", refs: [
+                "reason": URLDropFailureReason.forInstallation(error: error)
+            ])
+        }
+
+        NSLog("[WebNarInstaller] downloaded: \(sourceURLString)")
     }
 
     /// http を許可するかを環境変数/ユーザデフォルトから判定
