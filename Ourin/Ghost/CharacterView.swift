@@ -41,6 +41,11 @@ struct DressupPartView: View {
 
 /// A view that displays the character's shell image.
 struct CharacterView: View {
+    /// GhostManager が作るキャラクター窓の初期キャンバス。
+    /// ベースサーフェスが未ロードの間もこのサイズを保持し、NSHostingView が
+    /// 空ビューの intrinsic size (0×0) へ縮まって座標を変えるのを防ぐ。
+    private static let fallbackCanvasSize = CGSize(width: 300, height: 400)
+
     /// The ViewModel that provides the character image.
     @ObservedObject var viewModel: CharacterViewModel
     /// Scope ID used by drag-and-drop SHIORI references.
@@ -88,6 +93,11 @@ struct CharacterView: View {
             || !targetedEffects.isEmpty
             || !viewModel.activeFilters.isEmpty
         ZStack(alignment: .topLeading) {
+            // 画像未ロード時もレイアウトだけは維持する。Color.clear なので、
+            // SERIKO のオーバーレイや顔パーツが単独で描画されることはない。
+            Color.clear
+                .frame(width: Self.fallbackCanvasSize.width, height: Self.fallbackCanvasSize.height)
+
             // Keep the entire character layer absent until a real base
             // surface exists.  In particular, do not allow SERIKO overlays,
             // dress-up parts, or text animations to become visible alone.

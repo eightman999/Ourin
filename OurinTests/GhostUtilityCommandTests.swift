@@ -157,6 +157,22 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func unloadedCharacterWindowRetainsItsCanvasSize() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-empty-window-size-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 0) else {
+            Issue.record("Expected scope 0 character window")
+            return
+        }
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(window.frame.size == NSSize(width: 300, height: 400))
+        #expect(manager.characterViewModels[0]?.image == nil)
+        #expect(window.isVisible == false)
+    }
+
+    @Test @MainActor
     func windowCommandsDoNotRevealAnUnloadedCharacterScope() async throws {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-unloaded-window-command-test"))
         defer { _ = manager.shutdown() }
