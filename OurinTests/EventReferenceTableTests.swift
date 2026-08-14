@@ -23,6 +23,7 @@ func eventReferenceTableNotifyReturnIgnoredMatchesLegacySet() {
         "OnNotifySelfInfo", "OnNotifyBalloonInfo", "OnNotifyShellInfo",
         "OnNotifyDressupInfo", "OnNotifyUserInfo", "OnNotifyOSInfo",
         "OnNotifyFontInfo", "OnNotifyInternationalInfo",
+        "OnLanguageChange",
     ]
     #expect(EventReferenceTable.notifyReturnIgnoredIDs == legacy)
 }
