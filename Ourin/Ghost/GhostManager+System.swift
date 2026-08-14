@@ -191,9 +191,14 @@ enum URLDropPolicy {
     }
 
     static func plannedAction(for url: URL) -> String {
+        if url.path.isEmpty || url.hasDirectoryPath {
+            return "homeurl"
+        }
         switch url.pathExtension.lowercased() {
         case "nar", "zip":
             return "nar"
+        case "rss", "rdf", "atom", "xml":
+            return "feed"
         default:
             return "unknown"
         }
@@ -4817,12 +4822,16 @@ extension GhostManager: NSWindowDelegate {
             return
         }
 
-        guard URLDropPolicy.plannedAction(for: url) == "nar" else {
+        switch URLDropPolicy.plannedAction(for: url) {
+        case "nar":
+            beginURLDropDownload(from: url, scopeID: scopeID, security: security)
+        case "feed", "homeurl":
+            // UKADOC: feed/homeurl はURLドロップ専用イベントを発火せず、
+            // OnURLQuery後の execute,install,url と同じ処理へ渡す。
+            executeInstall(params: ["url", url.absoluteString, URLDropPolicy.plannedAction(for: url)])
+        default:
             Log.debug("[GhostManager] URL drop has no supported automatic action: \(url.absoluteString)")
-            return
         }
-
-        beginURLDropDownload(from: url, scopeID: scopeID, security: security)
     }
 
     private func beginURLDropDownload(
@@ -4925,6 +4934,148 @@ extension GhostManager: NSWindowDelegate {
         activeURLDropSession = session
         activeURLDropDelegate = delegate
         task.resume()
+    }
+
+    /// `\![execute,install,url,...]` 用のNARダウンロードを、URLドロップと同じ
+    /// サイズ・リダイレクト・一時ファイル管理で実行する。
+    private func startExecuteInstallNarDownload(from url: URL) {
+        guard activeURLDropTransferID == nil else {
+            EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "artificial"])
+            return
+        }
+
+        let transferID = UUID()
+        activeURLDropTransferID = transferID
+        let delegate = URLDropDownloadDelegate(
+            allowInsecureHTTP: URLDropPolicy.allowsInsecureHTTP(),
+            maximumBytes: URLDropPolicy.maxDownloadBytes
+        ) { [weak self] localURL, response, error in
+            guard self != nil else {
+                if let localURL {
+                    try? FileManager.default.removeItem(at: localURL)
+                }
+                return
+            }
+            DispatchQueue.main.async { [weak self] in
+                guard let self,
+                      self.activeURLDropTransferID == transferID else {
+                    if let localURL {
+                        try? FileManager.default.removeItem(at: localURL)
+                    }
+                    return
+                }
+                self.finishExecuteInstallNarDownload(
+                    transferID: transferID,
+                    localURL: localURL,
+                    response: response,
+                    sourceURL: url,
+                    error: error
+                )
+            }
+        }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = URLDropPolicy.requestTimeout
+        configuration.timeoutIntervalForResource = URLDropPolicy.resourceTimeout
+        configuration.waitsForConnectivity = false
+        configuration.urlCache = nil
+        configuration.httpCookieStorage = nil
+        configuration.httpShouldSetCookies = false
+        configuration.httpCookieAcceptPolicy = .never
+        let delegateQueue = OperationQueue()
+        delegateQueue.maxConcurrentOperationCount = 1
+        delegateQueue.qualityOfService = .utility
+        let session = URLSession(
+            configuration: configuration,
+            delegate: delegate,
+            delegateQueue: delegateQueue
+        )
+        let task = session.downloadTask(with: url)
+        activeURLDropTask = task
+        activeURLDropSession = session
+        activeURLDropDelegate = delegate
+        task.resume()
+    }
+
+    private func finishExecuteInstallNarDownload(
+        transferID: UUID,
+        localURL: URL?,
+        response: URLResponse?,
+        sourceURL: URL,
+        error: Error?
+    ) {
+        guard activeURLDropTransferID == transferID else {
+            if let localURL {
+                try? FileManager.default.removeItem(at: localURL)
+            }
+            return
+        }
+        let session = activeURLDropSession
+        activeURLDropTransferID = nil
+        activeURLDropTask = nil
+        activeURLDropSession = nil
+        activeURLDropDelegate = nil
+        session?.finishTasksAndInvalidate()
+
+        var archiveURL: URL?
+        defer {
+            if let archiveURL {
+                try? FileManager.default.removeItem(at: archiveURL)
+            }
+            if let localURL, localURL != archiveURL {
+                try? FileManager.default.removeItem(at: localURL)
+            }
+        }
+
+        if let error {
+            EventBridge.shared.notifyCustom("OnInstallFailure", refs: [
+                "reason": URLDropFailureReason.forDownload(error: error)
+            ])
+            return
+        }
+        if let httpResponse = response as? HTTPURLResponse,
+           !(200...299).contains(httpResponse.statusCode) {
+            EventBridge.shared.notifyCustom("OnInstallFailure", refs: [
+                "reason": URLDropFailureReason.httpStatus(httpResponse.statusCode)
+            ])
+            return
+        }
+        guard let localURL else {
+            EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "fileio"])
+            return
+        }
+
+        do {
+            archiveURL = try normalizedDownloadedArchiveURL(
+                localURL: localURL,
+                response: response,
+                sourceURL: sourceURL
+            )
+            _ = installNarFile(archiveURL ?? localURL)
+        } catch {
+            EventBridge.shared.notifyCustom("OnInstallFailure", refs: [
+                "reason": URLDropFailureReason.forInstallation(error: error)
+            ])
+        }
+    }
+
+    private func preflightExecuteInstallURL(
+        _ url: URL,
+        completion: @escaping () -> Void
+    ) {
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            guard self != nil else { return }
+            guard URLDropPolicy.isPublicRemoteHost(url.host ?? "") else {
+                DispatchQueue.main.async {
+                    EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "fileio"])
+                }
+                return
+            }
+            DispatchQueue.main.async { [weak self] in
+                guard self != nil else { return }
+                completion()
+            }
+        }
     }
 
     /// ゴースト終了時に URLSession を止め、完了コールバック側へ失敗イベントを残さない。
@@ -5087,31 +5238,41 @@ extension GhostManager: NSWindowDelegate {
             return
         }
         if first.lowercased() == "url", params.count >= 2 {
-            guard let url = URL(string: params[1]) else {
+            let rawURL = params[1].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard let url = URLDropPolicy.remoteURL(
+                from: rawURL,
+                allowInsecureHTTP: URLDropPolicy.allowsInsecureHTTP(),
+                resolveHost: false
+            ) else {
                 EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "invalid_url"])
                 return
             }
-            URLSession.shared.downloadTask(with: url) { localURL, response, error in
-                if let error {
-                    EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": error.localizedDescription])
-                    return
+
+            let action = params.count >= 3
+                ? params[2].trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                : URLDropPolicy.plannedAction(for: url)
+            guard ["feed", "nar", "homeurl"].contains(action) else {
+                EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "unsupported"])
+                return
+            }
+
+            preflightExecuteInstallURL(url) { [weak self] in
+                guard let self else { return }
+                switch action {
+                case "feed":
+                    // RSSインストールはOnURL*ではなく、RSS取得イベントへ接続する。
+                    self.executeRSS(subcommand: "rss-get", params: [url.absoluteString])
+                case "homeurl":
+                    // 現在のゴーストに更新先を適用し、通常の更新イベント列を実行する。
+                    self.resourceManager.homeurl = url.absoluteString
+                    self.ghostConfig?.homeurl = url.absoluteString
+                    self.checkGhostUpdate(options: ["web-homeurl"])
+                case "nar":
+                    self.startExecuteInstallNarDownload(from: url)
+                default:
+                    break
                 }
-                guard let localURL else {
-                    EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "download_failed"])
-                    return
-                }
-                do {
-                    let archiveURL = try self.normalizedDownloadedArchiveURL(
-                        localURL: localURL,
-                        response: response,
-                        sourceURL: url
-                    )
-                    defer { try? FileManager.default.removeItem(at: archiveURL) }
-                    _ = self.installNarFile(archiveURL)
-                } catch {
-                    EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": "download_failed"])
-                }
-            }.resume()
+            }
             return
         }
 

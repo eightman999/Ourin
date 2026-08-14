@@ -87,6 +87,8 @@ struct DragDropEventTests {
     @Test
     func urlDropPolicyValidatesTransportAndQueryAction() {
         let narURL = URL(string: "https://example.com/ghost.nar")!
+        let feedURL = URL(string: "https://example.com/feed.xml")!
+        let homeURL = URL(string: "https://example.com/ghost/")!
         let textURL = URL(string: "https://example.com/page.html")!
 
         #expect(URLDropPolicy.remoteURL(from: narURL.absoluteString, allowInsecureHTTP: false) == narURL)
@@ -100,6 +102,8 @@ struct DragDropEventTests {
         #expect(URLDropPolicy.remoteURL(from: "https://[::ffff:127.0.0.1]/ghost.nar", allowInsecureHTTP: true) == nil)
         #expect(URLDropPolicy.remoteURL(from: "https://[::127.0.0.1]/ghost.nar", allowInsecureHTTP: true) == nil)
         #expect(URLDropPolicy.plannedAction(for: narURL) == "nar")
+        #expect(URLDropPolicy.plannedAction(for: feedURL) == "feed")
+        #expect(URLDropPolicy.plannedAction(for: homeURL) == "homeurl")
         #expect(URLDropPolicy.plannedAction(for: textURL) == "unknown")
         #expect(URLDropPolicy.queryReferences(for: narURL, scopeID: 1) == [
             "url": "https://example.com/ghost.nar",
@@ -107,6 +111,25 @@ struct DragDropEventTests {
             "mimeType": "application/x-nar",
             "plannedAction": "nar"
         ])
+    }
+
+    @Test @MainActor
+    func executeInstallURLRejectsUnsupportedTransportBeforeStartingWork() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-execute-install-url-test"))
+        let runtime = DragDropEventRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            manager.shutdown()
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.executeInstall(params: ["url", "file:///tmp/ghost.nar", "nar"])
+
+        #expect(runtime.requests.map(\.id) == ["OnInstallFailure"])
+        #expect(runtime.requests.first?.refs == ["invalid_url"])
     }
 
     @Test
