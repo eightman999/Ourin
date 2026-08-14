@@ -5,6 +5,7 @@ import Combine
 import UserNotifications
 import Network
 import Security
+import UniformTypeIdentifiers
 
 enum NarInstallDispatchOutcome {
     case installed(NarInstallResult)
@@ -40,6 +41,64 @@ private struct ArchiveCommandOptions {
 
         eventID = parsedEventID
         password = parsedPassword
+    }
+}
+
+/// URLドロップで本体が行う処理と、OnURLQueryへ渡す値を一元化する。
+enum URLDropPolicy {
+    static func remoteURL(
+        from rawValue: String,
+        allowInsecureHTTP: Bool
+    ) -> URL? {
+        let rawValue = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !rawValue.isEmpty,
+              let url = URL(string: rawValue),
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let scheme = components.scheme?.lowercased(),
+              let host = components.host,
+              !host.isEmpty,
+              components.user == nil,
+              components.password == nil else {
+            return nil
+        }
+
+        guard scheme == "https" || (scheme == "http" && allowInsecureHTTP) else {
+            return nil
+        }
+        return url
+    }
+
+    static func mimeType(for url: URL) -> String {
+        UTType(filenameExtension: url.pathExtension)?.preferredMIMEType
+            ?? "application/octet-stream"
+    }
+
+    static func plannedAction(for url: URL) -> String {
+        switch url.pathExtension.lowercased() {
+        case "nar", "zip":
+            return "nar"
+        default:
+            return "unknown"
+        }
+    }
+
+    static func queryReferences(for url: URL, scopeID: Int) -> [String: String] {
+        [
+            "url": url.absoluteString,
+            "scopeID": String(scopeID),
+            "mimeType": mimeType(for: url),
+            "plannedAction": plannedAction(for: url)
+        ]
+    }
+
+    static func allowsInsecureHTTP(
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        userDefaults: UserDefaults = .standard
+    ) -> Bool {
+        if environment["OURIN_ALLOW_HTTP_NAR"] == "1" {
+            return true
+        }
+        return userDefaults.bool(forKey: "OurinAllowInsecureNarInstall")
     }
 }
 
@@ -4427,6 +4486,220 @@ extension GhostManager: NSWindowDelegate {
         } else {
             EventBridge.shared.notifyCustom("OnDumpSurfaceFailure", refs: ["reason": reason])
         }
+    }
+
+    /// キャラクターウィンドウへドロップされたURLを、標準のURLドロップ
+    /// 生命周期へ接続する。OnURLDrop は Ourin 拡張として先に許可し、
+    /// 応答が無い場合だけ UKADOC の OnURLQuery→ダウンロードへ進む。
+    func handleURLDropEvent(_ event: ShioriEvent) {
+        let rawURL = event.params["Reference0"] ?? event.params["url"] ?? ""
+        let scopeID = Int(event.params["Reference1"] ?? event.params["scopeID"] ?? "") ?? 0
+        let allowInsecureHTTP = URLDropPolicy.allowsInsecureHTTP()
+        let security = ShioriSecurityContext.external(origin: "drag-drop")
+
+        guard let url = URLDropPolicy.remoteURL(
+            from: rawURL,
+            allowInsecureHTTP: allowInsecureHTTP
+        ) else {
+            let isBlockedHTTP = rawURL.lowercased().hasPrefix("http://") && !allowInsecureHTTP
+            emitURLDropFailure(
+                localPath: "",
+                reason: isBlockedHTTP ? "insecure_http" : "invalid_url",
+                url: rawURL,
+                scopeID: scopeID,
+                security: security
+            )
+            return
+        }
+
+        if let response = EventBridge.shared.requestScript(
+            .OnURLDrop,
+            params: event.params,
+            to: self,
+            security: security
+        ), !Self.shouldIgnoreNumericEventResponse(response, eventID: EventID.OnURLDrop.rawValue) {
+            return
+        }
+
+        let queryParams = EventReferenceTable.params(
+            forEvent: EventID.OnURLQuery.rawValue,
+            refs: URLDropPolicy.queryReferences(for: url, scopeID: scopeID)
+        )
+        if let response = EventBridge.shared.requestScript(
+            .OnURLQuery,
+            params: queryParams,
+            to: self,
+            security: security
+        ), !Self.shouldIgnoreNumericEventResponse(response, eventID: EventID.OnURLQuery.rawValue) {
+            return
+        }
+
+        guard URLDropPolicy.plannedAction(for: url) == "nar" else {
+            Log.debug("[GhostManager] URL drop has no supported automatic action: \(url.absoluteString)")
+            return
+        }
+
+        beginURLDropDownload(from: url, scopeID: scopeID, security: security)
+    }
+
+    private func beginURLDropDownload(
+        from url: URL,
+        scopeID: Int,
+        security: ShioriSecurityContext
+    ) {
+        let droppingParams = EventReferenceTable.params(
+            forEvent: EventID.OnURLDropping.rawValue,
+            refs: ["url": url.absoluteString, "scopeID": String(scopeID)]
+        )
+        _ = EventBridge.shared.requestScript(
+            .OnURLDropping,
+            params: droppingParams,
+            to: self,
+            security: security
+        )
+
+        URLSession.shared.downloadTask(with: url) { [weak self] localURL, response, error in
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.finishURLDropDownload(
+                    localURL: localURL,
+                    response: response,
+                    sourceURL: url,
+                    scopeID: scopeID,
+                    error: error,
+                    security: security
+                )
+            }
+        }.resume()
+    }
+
+    private func finishURLDropDownload(
+        localURL: URL?,
+        response: URLResponse?,
+        sourceURL: URL,
+        scopeID: Int,
+        error: Error?,
+        security: ShioriSecurityContext
+    ) {
+        var archiveURL: URL?
+        defer {
+            if let archiveURL {
+                try? FileManager.default.removeItem(at: archiveURL)
+            }
+            if let localURL, localURL != archiveURL {
+                try? FileManager.default.removeItem(at: localURL)
+            }
+        }
+
+        if error != nil {
+            emitURLDropFailure(
+                localPath: localURL?.path ?? "",
+                reason: "network",
+                url: sourceURL.absoluteString,
+                scopeID: scopeID,
+                security: security
+            )
+            return
+        }
+
+        if let httpResponse = response as? HTTPURLResponse,
+           !(200...299).contains(httpResponse.statusCode) {
+            emitURLDropFailure(
+                localPath: localURL?.path ?? "",
+                reason: "http_\(httpResponse.statusCode)",
+                url: sourceURL.absoluteString,
+                scopeID: scopeID,
+                security: security
+            )
+            return
+        }
+
+        guard let localURL else {
+            emitURLDropFailure(
+                localPath: "",
+                reason: "download_failed",
+                url: sourceURL.absoluteString,
+                scopeID: scopeID,
+                security: security
+            )
+            return
+        }
+
+        do {
+            archiveURL = try normalizedDownloadedArchiveURL(
+                localURL: localURL,
+                response: response,
+                sourceURL: sourceURL
+            )
+
+            let droppedParams = EventReferenceTable.params(
+                forEvent: EventID.OnURLDropped.rawValue,
+                refs: [
+                    "filePath": archiveURL?.path ?? localURL.path,
+                    "url": sourceURL.absoluteString,
+                    "scopeID": String(scopeID)
+                ]
+            )
+            _ = EventBridge.shared.requestScript(
+                .OnURLDropped,
+                params: droppedParams,
+                to: self,
+                security: security
+            )
+
+            switch installNarFile(archiveURL ?? localURL) {
+            case .installed:
+                break
+            case .refused:
+                emitURLDropFailure(
+                    localPath: archiveURL?.path ?? localURL.path,
+                    reason: "cancelled",
+                    url: sourceURL.absoluteString,
+                    scopeID: scopeID,
+                    security: security
+                )
+            case .failed(let installError):
+                emitURLDropFailure(
+                    localPath: archiveURL?.path ?? localURL.path,
+                    reason: installFailureReason(installError),
+                    url: sourceURL.absoluteString,
+                    scopeID: scopeID,
+                    security: security
+                )
+            }
+        } catch {
+            emitURLDropFailure(
+                localPath: archiveURL?.path ?? localURL.path,
+                reason: installFailureReason(error),
+                url: sourceURL.absoluteString,
+                scopeID: scopeID,
+                security: security
+            )
+        }
+    }
+
+    private func emitURLDropFailure(
+        localPath: String,
+        reason: String,
+        url: String,
+        scopeID: Int,
+        security: ShioriSecurityContext
+    ) {
+        let params = EventReferenceTable.params(
+            forEvent: EventID.OnURLDropFailure.rawValue,
+            refs: [
+                "filePath": localPath,
+                "reason": reason,
+                "url": url,
+                "scopeID": String(scopeID)
+            ]
+        )
+        _ = EventBridge.shared.requestScript(
+            .OnURLDropFailure,
+            params: params,
+            to: self,
+            security: security
+        )
     }
 
     func executeInstall(params: [String]) {

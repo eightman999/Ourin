@@ -57,6 +57,16 @@ While `autoEventsEnabled = false`, any call to `broadcastNotify` or `broadcastNo
 
 Previously the default was `enableAutoEvents = false`, which meant automatic system events could remain queue-only unless the name-input dialog path in `GhostManager+Display` ran. The current implementation makes **real ghost-load completion the sole activation point**, ensuring automatic events are enabled regardless of which UI path the user follows.
 
+## URL-Drop Lifecycle
+
+For a URL dropped onto a character window, Ourin first sends the Ourin extension `OnURLDrop`
+as a targeted GET. If it returns no usable script, the standard `OnURLQuery` GET follows with
+the URL, scope number, MIME type, and planned action (`nar` or `unknown`). Only a planned `nar`
+action starts the lifecycle `OnURLDropping` → HTTPS (or explicitly allowed HTTP) download →
+`OnURLDropped` → NAR installation. Network, extraction, or installation failures emit
+`OnURLDropFailure`. `OnURLDropped` is never emitted before the download completes, and unknown
+URLs are not downloaded automatically.
+
 ---
 
 **Translation Status:** ⏳ Partial (automatic-event-enablement section added 2026-06-28)  

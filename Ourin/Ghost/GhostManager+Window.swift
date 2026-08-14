@@ -81,8 +81,19 @@ extension GhostManager {
     }
 
     func setupCharacterWindow(for scope: Int) {
-        let dragDropHandler: (ShioriEvent) -> Void = { event in
-            // D&Dイベント自身のGET/NOTIFY指定を維持して全ゴーストへ配送する。
+        let dragDropHandler: (ShioriEvent) -> Void = { [weak self] event in
+            guard let self else {
+                EventBridge.shared.dispatch(event)
+                return
+            }
+
+            // URLドロップは対象キャラクターのゴーストだけへ問い合わせ、
+            // 応答が無い場合に限って標準のダウンロード生命周期へ進む。
+            if event.id == .OnURLDrop {
+                self.handleURLDropEvent(event)
+                return
+            }
+
             EventBridge.shared.dispatch(event)
         }
 

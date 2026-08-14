@@ -154,6 +154,14 @@ OnFileDropping / OnFileDropped / OnOtherObjectDropping / OnOtherObjectDropped / 
 OnURLDragDropping / OnURLDropping / OnURLDropped / OnURLDropFailure / OnURLQuery / OnXUkagakaLinkOpen  
 **M‑Diff**：`public.url` UTI を受理。
 
+キャラクターウィンドウへのURLドロップは、対象ゴーストに Ourin 拡張の `OnURLDrop` を
+GET で問い合わせた後、応答スクリプトが無い場合に標準の `OnURLQuery` を送る。
+`OnURLQuery` の Reference は URL／スコープ番号／MIME／予定処理（`nar` または `unknown`）。
+`nar` の場合だけ `OnURLDropping` → HTTPS（または明示許可時のHTTP）ダウンロード →
+`OnURLDropped` → NAR インストールの順で処理し、通信・展開・設置に失敗した場合は
+`OnURLDropFailure` を送る。ダウンロード完了前に `OnURLDropped` を発火せず、未知のURLを
+自動ダウンロードしない。
+
 ### 2.14 ネットワーク更新
 OnUpdate* / OnUpdateOther* / OnUpdateCheck* / OnUpdateResult* / OnUpdateResultExplorer + 理由/対象種別/成功・失敗理由  
 **M‑Diff**：Ourin の更新モジュールに準拠。

@@ -405,7 +405,8 @@ public enum EventReferenceTable {
         .init(id: "OnSystemMessage", references: ["title", "body", "level"], category: "system"),
         .init(id: "OnTrayBalloonTimeout", references: ["identifier", "title"], category: "ui"),
         .init(id: "OnURLDropFailure", references: ["filePath", "reason", "url", "scopeID"], category: "dragdrop"),
-        .init(id: "OnURLQuery", references: ["url"], category: "dragdrop"),
+        // UKADOC: URL, scope, MIME, then the host's planned action.
+        .init(id: "OnURLQuery", references: ["url", "scopeID", "mimeType", "plannedAction"], category: "dragdrop"),
         .init(id: "OnWallpaperChange", references: ["filePath"], category: "dragdrop"),
         // UKADOC: R2 は予約／空欄、R3=対象種別、R4=更新理由。
         .init(id: "OnUpdateBegin", references: ["ghostName", "path", "unused2", "targetType", "executionReason"], category: "update"),

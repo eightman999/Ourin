@@ -81,6 +81,48 @@ struct DragDropEventTests {
         #expect(EventReferenceTable.specs["OnURLDropping"]?.references == ["url", "scopeID"])
         #expect(EventReferenceTable.specs["OnURLDropped"]?.references == ["filePath", "url", "scopeID"])
         #expect(EventReferenceTable.specs["OnURLDropFailure"]?.references == ["filePath", "reason", "url", "scopeID"])
+        #expect(EventReferenceTable.specs["OnURLQuery"]?.references == ["url", "scopeID", "mimeType", "plannedAction"])
+    }
+
+    @Test
+    func urlDropPolicyValidatesTransportAndQueryAction() {
+        let narURL = URL(string: "https://example.com/ghost.nar")!
+        let textURL = URL(string: "https://example.com/page.html")!
+
+        #expect(URLDropPolicy.remoteURL(from: narURL.absoluteString, allowInsecureHTTP: false) == narURL)
+        #expect(URLDropPolicy.remoteURL(from: "http://example.com/ghost.nar", allowInsecureHTTP: false) == nil)
+        #expect(URLDropPolicy.remoteURL(from: "http://example.com/ghost.nar", allowInsecureHTTP: true)?.scheme == "http")
+        #expect(URLDropPolicy.remoteURL(from: "https://user:password@example.com/ghost.nar", allowInsecureHTTP: true) == nil)
+        #expect(URLDropPolicy.plannedAction(for: narURL) == "nar")
+        #expect(URLDropPolicy.plannedAction(for: textURL) == "unknown")
+        #expect(URLDropPolicy.queryReferences(for: narURL, scopeID: 1) == [
+            "url": "https://example.com/ghost.nar",
+            "scopeID": "1",
+            "mimeType": "application/x-nar",
+            "plannedAction": "nar"
+        ])
+    }
+
+    @Test @MainActor
+    func urlDropQueriesOnlyTargetGhostBeforeUnknownActionStops() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-url-drop-query-test"))
+        let runtime = DragDropEventRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        let url = "https://example.com/page.html"
+        manager.handleURLDropEvent(ShioriEvent(
+            id: .OnURLDrop,
+            refs: ["url": url, "scopeID": "1"]
+        ))
+
+        #expect(runtime.requests.map(\.id) == ["OnURLDrop", "OnURLQuery"])
+        #expect(runtime.requests.last?.refs == [url, "1", "text/html", "unknown"])
     }
 
     @Test
