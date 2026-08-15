@@ -1912,7 +1912,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         characterWindows.removeAll()
         balloonWindows.removeAll()
         stopAllVideos()
-        stopSpeechSynthesis()
+        // AVSpeechSynthesizer の状態参照自体が内部の Default QoS 処理を待つことがある。
+        // `\__v` を一度も有効化していないゴーストの終了では問い合わせ不要であり、
+        // UI/テストスレッドから不要な priority inversion を発生させない。
+        if voiceSynthesisEnabled {
+            stopSpeechSynthesis()
+        }
         // OnDestroy（NOTIFY、UKADOC）: SHIORI unload の直前に対象ゴーストへのみ直接送信する。
         // EventBridge.notify は autoEventsEnabled=false 時にキュー滞留し、全セッションへ
         // ブロードキャストされるためここでは使わない（OnClose と同じ直接送信の流儀）。
