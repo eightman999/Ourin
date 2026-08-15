@@ -18,6 +18,12 @@
 |---|---|
 | **SwiftUI delegateプロキシ環境での実ゴーストスクリプト実行** | `NSApp.delegate` は `SwiftUI.AppDelegate` プロキシになるため、`as? AppDelegate` が失敗していた。`OurinApp.swift` に `AppDelegate.resolve()`（直接 delegate を優先し、SwiftUI adaptor が保持する実体を weak に解決）を追加し、DevTools・GhostManager・EventBridge・SSTP・ドラッグ＆ドロップ等の本番参照を共通経路へ移行。`PluginTargetRoutingTests` は **4 passed / 0 failed**、`SSTPDispatcherTests` は **71 passed / 0 failed**、アプリ build は exit 0（既存警告のみ）。2026-08-15、実機の設定 → ヘッドライン・バルーン → 「スクリプト実行」で `実行対象: Emily/Phase4.5`、入力スクリプトの表示テキスト `AppDelegate resolver audit実ゴースト実行確認`、トークン（scope/surface/text/newline/end）を確認し、ゴーストウインドウが正立していることを目視確認。コミット `c5e9638`。 |
 
+### M. 2026-08-15 音声認識権限要求クラッシュの解消
+
+| 項目 | 根拠（実装・テスト・実機） |
+|---|---|
+| **起動時の音声認識権限要求を明示的操作へ分離** | `Ourin/SHIORIEvents/SpeechObserver.swift` の `poll()` から `SFSpeechRecognizer.requestAuthorization()` の自動呼び出しを削除し、権限未決定時は認識器を生成せず `OnVoiceRecognitionStatus`（`Reference0=0`, `Reference1=not_determined`）だけを配送する。設定画面の「音声認識を許可」ボタンからのみ明示要求する。`SpeechObserverTests` は **9 passed / 0 failed / 0 skipped**、アプリ build は exit 0（既存警告のみ）。2026-08-15、実ゴースト Emily4 を直接起動し、`Loaded 33/33 dictionaries`、`Starting EventBridge after OnBoot load (autoEvents=true)`、`EventBridge started`、`OnVoiceRecognitionStatus` を実ログで確認。12秒稼働中に `requestAuthorization`・`TCC`・`SIGABRT` は出ず、新規Ourinクラッシュレポートも生成されなかった。許可済みマイク入力による `OnVoiceRecognitionWord` は別途実機検証対象として残す。コミット `0d7b834`。 |
+
 ---
 
 以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、**現状コードで解決済み**であることを確認した項目です。
@@ -214,6 +220,12 @@ Sonnet 調査エージェント3体による全域再監査（既存監査に無
 | Item | Evidence (implementation, tests, and device run) |
 |---|---|
 | **Live-ghost script execution through the SwiftUI delegate proxy** | `NSApp.delegate` is a `SwiftUI.AppDelegate` proxy, so `as? AppDelegate` returned nil. Added `AppDelegate.resolve()` in `OurinApp.swift` (prefer a direct AppKit delegate, otherwise resolve the weak instance retained by the SwiftUI adaptor) and migrated production lookups across DevTools, GhostManager, EventBridge, SSTP, drag-and-drop, and related paths. `PluginTargetRoutingTests`: **4 passed / 0 failed**; `SSTPDispatcherTests`: **71 passed / 0 failed**; app build exited 0 with existing warnings only. On 2026-08-15, the real-device Settings → Headline/Balloon → “Run Script” path returned `実行対象: Emily/Phase4.5`; the parsed display text was `AppDelegate resolver audit実ゴースト実行確認` with scope/surface/text/newline/end tokens, and the ghost window was visually confirmed upright. Commit `c5e9638`. |
+
+### M. 2026-08-15 Startup speech-authorization crash resolved
+
+| Item | Evidence (implementation, tests, and device run) |
+|---|---|
+| **Separate speech-recognition authorization from automatic startup events** | Removed the automatic `SFSpeechRecognizer.requestAuthorization()` call from `poll()` in `Ourin/SHIORIEvents/SpeechObserver.swift`; when authorization is undetermined, the observer does not create a recognizer and only dispatches `OnVoiceRecognitionStatus` (`Reference0=0`, `Reference1=not_determined`). Authorization is requested only by the explicit “音声認識を許可” settings action. `SpeechObserverTests`: **9 passed / 0 failed / 0 skipped**; app build exited 0 with existing warnings only. On 2026-08-15, Emily4 was launched directly as a real ghost; the live log confirmed `Loaded 33/33 dictionaries`, `Starting EventBridge after OnBoot load (autoEvents=true)`, `EventBridge started`, and `OnVoiceRecognitionStatus`. During 12 seconds of runtime, no `requestAuthorization`, `TCC`, or `SIGABRT` appeared, and no new Ourin crash report was generated. `OnVoiceRecognitionWord` with granted microphone input remains a separate live-device verification item. Commit `0d7b834`. |
 
 ---
 

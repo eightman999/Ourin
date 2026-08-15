@@ -91,7 +91,6 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
-| P0 | 自動音声認識権限要求による実起動クラッシュ | 2026-08-15 に最新ビルドを直接実起動したところ、実ゴーストのロード後、`SpeechObserver.poll()` → `SFSpeechRecognizer.requestAuthorization()` の自動権限要求で `EXC_CRASH (SIGABRT)` が発生。クラッシュレポートの `termination.namespace=TCC` は `NSSpeechRecognitionUsageDescription` 不在として終了し、faulting thread は `__TCC_CRASHING_DUE_TO_PRIVACY_VIOLATION`。ソース／ビルド済み `Info.plist` に説明文は存在するため、起動時の自動権限要求を明示的なユーザー操作へ分離する必要がある。**修正はユーザー指示待ち**。 / On 2026-08-15, directly launching the latest build reproduced `EXC_CRASH (SIGABRT)` after the real ghost loaded: `SpeechObserver.poll()` automatically called `SFSpeechRecognizer.requestAuthorization()`. The crash report had `termination.namespace=TCC` and faulting thread `__TCC_CRASHING_DUE_TO_PRIVACY_VIOLATION`, claiming a missing `NSSpeechRecognitionUsageDescription`. The source and built `Info.plist` do contain the usage description, so startup authorization must be separated from explicit user action. **Fix pending user direction.** |
 | P2 | SERIKO関連テストのQoS priority inversion warning | `SurfaceImageOrientationTests` と `SurfaceOverlayOrderingTests` の実行で、`User-interactive/initiated` QoS のスレッドが `Default` QoS の処理を待つ runtime warning が9件発生。テストハーネス由来か本番の画像ロード・合成経路由来か未切り分け。**修正はユーザー指示待ち**。 / Nine runtime warnings reported while `SurfaceImageOrientationTests` and `SurfaceOverlayOrderingTests` ran: `User-interactive/initiated` threads waited on `Default` QoS work. It is not yet isolated whether this is test-harness-only or production image-load/compositing behavior. **Fix pending user direction.** |
 
 ---
@@ -100,7 +99,6 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | 優先度 / Priority | 項目 / Item |
 |---|---|
-| **P0** | 自動音声認識権限要求クラッシュの解消（起動時の権限要求を明示的操作へ分離） |
 | **P2** | 実ゴースト検証パス一式（SakuraScript 実行差分 → SERIKO/バルーン目視 → 動画・イベント実機） |
 | **P2 (基盤完了)** | イベント Reference 表駆動化の漸次移行 |
 | **P3** | MAYUNA 実シェル確認・翻訳プレースホルダー消化 |
