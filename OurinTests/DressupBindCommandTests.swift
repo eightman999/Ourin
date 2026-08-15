@@ -56,6 +56,8 @@ private final class RecordingGhostManager: GhostManager {
 
 // MARK: - Tests
 
+// EventBridge.shared のセッションを各テストで登録するため、suite 内の並列実行を禁止する。
+@Suite(.serialized)
 struct DressupBindTests {
 
     // MARK: - コマンド解析・計画（純粋ヘルパー）
