@@ -27,14 +27,14 @@
 			containerPortal = DF88A7E82E35199C00644F8A /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = DF88A7EF2E35199C00644F8A;
-			remoteInfo = MacUkagaka;
+			remoteInfo = Ourin;
 		};
 		DF88A8092E35199D00644F8A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DF88A7E82E35199C00644F8A /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = DF88A7EF2E35199C00644F8A;
-			remoteInfo = MacUkagaka;
+			remoteInfo = Ourin;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -802,7 +802,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = MacUkagaka;
+				TEST_TARGET_NAME = Ourin;
 				XROS_DEPLOYMENT_TARGET = 2.5;
 			};
 			name = Debug;
@@ -825,7 +825,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = MacUkagaka;
+				TEST_TARGET_NAME = Ourin;
 				XROS_DEPLOYMENT_TARGET = 2.5;
 			};
 			name = Release;
