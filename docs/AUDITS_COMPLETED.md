@@ -42,6 +42,12 @@
 |---|---|
 | **ヘッドライン・バルーン画面のゴースト選択をスクリプト実行へ接続** | `Ourin/OurinApp.swift` に選択値を設定名・インストールフォルダ名へ照合する `ghostSelectionMatches` と、稼働中ゴースト／未起動ゴーストを配送する `runDevToolsScript` を追加。未起動時は `launchAdditionalGhost` 完了後にスクリプトを実行し、実行対象をUIへ返す。`Ourin/ContentView.swift` は選択値を渡し、起動完了後に結果を表示する。`DevToolsTargetRoutingTests` は **2 passed / 0 failed**。2026-08-15、専用ビルドで設定 → ヘッドライン・バルーン → ゴースト `emily4` を選択して実行し、未起動ゴーストを追加起動後、通知に **`実行対象: Emily/Phase4.5`** と表示テキスト `DevTools selected target verification` が出ることを確認（`bonsyou` への誤送信なし）。コミット `4457a36`。 |
 
+### Q. 2026-08-15 SakuraScript `anim,add,text` 省略引数クラッシュ解消
+
+| 項目 | 根拠（実装・テスト・実機） |
+|---|---|
+| **文字列以降の省略を安全な既定値で処理** | `Ourin/Ghost/GhostTypes.swift` の `AnimAddTextParameters.parse` に、仕様上必須の8引数（`anim,add,text,x,y,width,height,text`）と、表示時間・RGB・文字サイズ・フォントの省略時既定値を集約した。`Ourin/Ghost/GhostManager.swift` はこの値型を経由して `addTextAnimation` を呼び、`args[8]`〜`args[12]` の直接参照を廃止。`SakuraScriptEngineTests` に最小形と表示時間だけ指定した部分省略形の回帰テストを追加。権限付き `xcodebuild` のクラス実行結果は **219 passed / 0 failed / 0 skipped**（`xcresulttool` summary、`** TEST SUCCEEDED **`）。実ゴーストの専用ビルド起動までは確認したが、computer-use のアクセシビリティ取得が `-10005 timeoutReached` となったため、画面上のテキストアニメーション表示は未確認。コミット `275ba98`。 |
+
 ---
 
 以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、**現状コードで解決済み**であることを確認した項目です。
@@ -262,6 +268,12 @@ Sonnet 調査エージェント3体による全域再監査（既存監査に無
 | Item | Evidence (implementation, tests, live UI) |
 |---|---|
 | **Headline/Balloon ghost selection now controls script execution** | `Ourin/OurinApp.swift` adds `ghostSelectionMatches` for config/folder matching and `runDevToolsScript` for dispatch to running ghosts or an additional ghost when the selected ghost is not running. The script is sent after `launchAdditionalGhost` completes, and the execution target is returned to the UI. `Ourin/ContentView.swift` passes the selected value and presents the result after asynchronous boot. `DevToolsTargetRoutingTests`: **2 passed / 0 failed**. On 2026-08-15, the dedicated build selected `emily4` in Settings → Headline/Balloon and executed the script; the not-running ghost was launched as an additional ghost and the notification showed **`実行対象: Emily/Phase4.5`** with display text `DevTools selected target verification` (no dispatch to `bonsyou`). Commit `4457a36`. |
+
+### Q. 2026-08-15 SakuraScript `anim,add,text` omitted-argument crash resolved
+
+| Item | Evidence (implementation, tests, live UI) |
+|---|---|
+| **Safe defaults for optional fields after the text argument** | `Ourin/Ghost/GhostTypes.swift` now centralizes parsing in `AnimAddTextParameters.parse`: the eight fields through `text` remain required, while display time, RGB, font size, and font name receive safe defaults when omitted. `Ourin/Ghost/GhostManager.swift` calls `addTextAnimation` through this value type, removing the unconditional `args[8]`–`args[12]` reads. `SakuraScriptEngineTests` adds regression coverage for the minimum form and a form specifying only display time. The privileged `xcodebuild` class run reported **219 passed / 0 failed / 0 skipped** (`xcresulttool` summary, `** TEST SUCCEEDED **`). The dedicated app build launched the real-ghost path, but computer-use accessibility retrieval returned `-10005 timeoutReached`; the on-screen text-animation result remains unverified. Commit `275ba98`. |
 
 ---
 

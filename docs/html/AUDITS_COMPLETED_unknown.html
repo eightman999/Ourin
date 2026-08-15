@@ -231,6 +231,21 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 </tr>
 </tbody>
 </table>
+<h3 id="q-2026-08-15-sakurascript-animaddtext">Q. 2026-08-15 SakuraScript <code>anim,add,text</code> 省略引数クラッシュ解消</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（実装・テスト・実機）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>文字列以降の省略を安全な既定値で処理</strong></td>
+<td><code>Ourin/Ghost/GhostTypes.swift</code> の <code>AnimAddTextParameters.parse</code> に、仕様上必須の8引数（<code>anim,add,text,x,y,width,height,text</code>）と、表示時間・RGB・文字サイズ・フォントの省略時既定値を集約した。<code>Ourin/Ghost/GhostManager.swift</code> はこの値型を経由して <code>addTextAnimation</code> を呼び、<code>args[8]</code>〜<code>args[12]</code> の直接参照を廃止。<code>SakuraScriptEngineTests</code> に最小形と表示時間だけ指定した部分省略形の回帰テストを追加。権限付き <code>xcodebuild</code> のクラス実行結果は <strong>219 passed / 0 failed / 0 skipped</strong>（<code>xcresulttool</code> summary、<code>** TEST SUCCEEDED **</code>）。実ゴーストの専用ビルド起動までは確認したが、computer-use のアクセシビリティ取得が <code>-10005 timeoutReached</code> となったため、画面上のテキストアニメーション表示は未確認。コミット <code>275ba98</code>。</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <p>以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、<strong>現状コードで解決済み</strong>であることを確認した項目です。</p>
 <h3 id="a-shiori">A. SHIORI プロトコル</h3>
@@ -917,6 +932,21 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <tr>
 <td><strong>Headline/Balloon ghost selection now controls script execution</strong></td>
 <td><code>Ourin/OurinApp.swift</code> adds <code>ghostSelectionMatches</code> for config/folder matching and <code>runDevToolsScript</code> for dispatch to running ghosts or an additional ghost when the selected ghost is not running. The script is sent after <code>launchAdditionalGhost</code> completes, and the execution target is returned to the UI. <code>Ourin/ContentView.swift</code> passes the selected value and presents the result after asynchronous boot. <code>DevToolsTargetRoutingTests</code>: <strong>2 passed / 0 failed</strong>. On 2026-08-15, the dedicated build selected <code>emily4</code> in Settings → Headline/Balloon and executed the script; the not-running ghost was launched as an additional ghost and the notification showed <strong><code>実行対象: Emily/Phase4.5</code></strong> with display text <code>DevTools selected target verification</code> (no dispatch to <code>bonsyou</code>). Commit <code>4457a36</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="q-2026-08-15-sakurascript-animaddtext-omitted-argument-crash-resolved">Q. 2026-08-15 SakuraScript <code>anim,add,text</code> omitted-argument crash resolved</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (implementation, tests, live UI)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Safe defaults for optional fields after the text argument</strong></td>
+<td><code>Ourin/Ghost/GhostTypes.swift</code> now centralizes parsing in <code>AnimAddTextParameters.parse</code>: the eight fields through <code>text</code> remain required, while display time, RGB, font size, and font name receive safe defaults when omitted. <code>Ourin/Ghost/GhostManager.swift</code> calls <code>addTextAnimation</code> through this value type, removing the unconditional <code>args[8]</code>–<code>args[12]</code> reads. <code>SakuraScriptEngineTests</code> adds regression coverage for the minimum form and a form specifying only display time. The privileged <code>xcodebuild</code> class run reported <strong>219 passed / 0 failed / 0 skipped</strong> (<code>xcresulttool</code> summary, <code>** TEST SUCCEEDED **</code>). The dedicated app build launched the real-ghost path, but computer-use accessibility retrieval returned <code>-10005 timeoutReached</code>; the on-screen text-animation result remains unverified. Commit <code>275ba98</code>.</td>
 </tr>
 </tbody>
 </table>

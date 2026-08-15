@@ -51,7 +51,7 @@
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
-| P1 | `\\![anim,add,text]` の省略引数でクラッシュ | `Ourin/Ghost/GhostManager.swift:2583-2594` は文字列までの最小形（8引数）を受け付ける一方、`args[8]`〜`args[12]` を無条件参照する。UKADOCは文字列まで必須として表示時間以降を省略可能としているため、回帰テストと安全な既定値処理が必要。登録のみ、修正待ち。 |
+| P2 | 生成HTMLのローカル参照切れ | static-site-check で `docs/html` の127 HTMLを検査したところ、ローカル参照170件が未解決だった。Markdownリンクを生成先HTMLへ変換しない参照、旧ファイル名、READMEからの相対参照が混在しているため、HTML生成器のリンク変換規則と生成物全体を修正・再検証する。 |
 
 ---
 
@@ -97,7 +97,7 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | Priority | Issue | Status |
 |---|---|---|
-| P1 | Crash on omitted optional arguments in `\\![anim,add,text]` | `Ourin/Ghost/GhostManager.swift:2583-2594` accepts the required-through-text form (8 arguments) but unconditionally indexes `args[8]` through `args[12]`. UKADOC marks fields after text as optional, so this needs a regression test and safe defaults. Registered only; fix pending. |
+| P2 | Broken local references in generated HTML | static-site-check found 170 unresolved local references across 127 HTML files in `docs/html`. The generated output mixes Markdown links that were not converted to generated HTML, legacy filenames, and README-relative references; update the generator's link mapping and re-verify the complete output. |
 
 ---
 
