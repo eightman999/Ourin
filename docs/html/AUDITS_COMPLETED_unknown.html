@@ -186,6 +186,21 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 </tr>
 </tbody>
 </table>
+<h3 id="n-2026-08-15-serikoqos-warning">N. 2026-08-15 SERIKOテストQoS warning解消</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（file / result）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>非有効な音声合成器の終了時参照によるpriority inversionを解消</strong></td>
+<td><code>Ourin/Ghost/GhostManager.swift</code> の <code>shutdown()</code> は <code>\__v</code> 音声合成が有効化されたセッションだけ <code>stopSpeechSynthesis()</code> を呼ぶよう変更。修正前は <code>SurfaceImageOrientationTests</code> / <code>SurfaceOverlayOrderingTests</code> で runtime warning が発生（監査時9件、再現resultでは13/13 passed + 6件）。修正後のresult <code>/private/tmp/ourin-seriko-qos-fix.xcresult</code> は <strong>13 passed / 0 failed / 0 skipped、Runtime Warning 0件</strong>。アプリbuild <code>/private/tmp/ourin-seriko-qos-build</code> は exit 0（既存警告のみ）。コミット <code>43d1cb3</code>。</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <p>以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、<strong>現状コードで解決済み</strong>であることを確認した項目です。</p>
 <h3 id="a-shiori">A. SHIORI プロトコル</h3>
@@ -827,6 +842,21 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <tr>
 <td><strong>Separate speech-recognition authorization from automatic startup events</strong></td>
 <td>Removed the automatic <code>SFSpeechRecognizer.requestAuthorization()</code> call from <code>poll()</code> in <code>Ourin/SHIORIEvents/SpeechObserver.swift</code>; when authorization is undetermined, the observer does not create a recognizer and only dispatches <code>OnVoiceRecognitionStatus</code> (<code>Reference0=0</code>, <code>Reference1=not_determined</code>). Authorization is requested only by the explicit “音声認識を許可” settings action. <code>SpeechObserverTests</code>: <strong>9 passed / 0 failed / 0 skipped</strong>; app build exited 0 with existing warnings only. On 2026-08-15, Emily4 was launched directly as a real ghost; the live log confirmed <code>Loaded 33/33 dictionaries</code>, <code>Starting EventBridge after OnBoot load (autoEvents=true)</code>, <code>EventBridge started</code>, and <code>OnVoiceRecognitionStatus</code>. During 12 seconds of runtime, no <code>requestAuthorization</code>, <code>TCC</code>, or <code>SIGABRT</code> appeared, and no new Ourin crash report was generated. <code>OnVoiceRecognitionWord</code> with granted microphone input remains a separate live-device verification item. Commit <code>0d7b834</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="n-2026-08-15-seriko-test-qos-warning-resolved">N. 2026-08-15 SERIKO test QoS warning resolved</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (file / result)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Removed priority inversion caused by querying an inactive speech synthesizer during shutdown</strong></td>
+<td><code>Ourin/Ghost/GhostManager.swift</code> <code>shutdown()</code> now calls <code>stopSpeechSynthesis()</code> only for sessions that enabled <code>\__v</code> speech synthesis. Before the fix, <code>SurfaceImageOrientationTests</code> / <code>SurfaceOverlayOrderingTests</code> emitted runtime warnings (nine in the audit run; the reproduced result had 13/13 passed plus six warnings). After the fix, <code>/private/tmp/ourin-seriko-qos-fix.xcresult</code> reports <strong>13 passed / 0 failed / 0 skipped and zero Runtime Warnings</strong>. The app build <code>/private/tmp/ourin-seriko-qos-build</code> exited 0 with existing warnings only. Commit <code>43d1cb3</code>.</td>
 </tr>
 </tbody>
 </table>

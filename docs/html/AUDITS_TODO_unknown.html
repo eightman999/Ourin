@@ -174,7 +174,7 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P2</td>
 <td>SERIKO 描画完全一致</td>
-<td><code>surfaceID=-1/-2</code>・ウェイト範囲・<code>shared-index</code>・<code>collisionex</code> 各形状は単体検証済み。2026-08-15 に最新ビルドで <code>emily4</code> を実起動し、画面キャプチャ上は正立・全体表示・顔パーツ単独浮遊なしを確認した。関連スイートは 33 passed だが、実コマンドでの <code>surfaceID=-1/-2</code> 等の差分確認は未完。<strong>QoS priority inversion warning 9件を新issueとして追加</strong>。</td>
+<td><code>surfaceID=-1/-2</code>・ウェイト範囲・<code>shared-index</code>・<code>collisionex</code> 各形状は単体検証済み。2026-08-15 に最新ビルドで <code>emily4</code> を実起動し、画面キャプチャ上は正立・全体表示・顔パーツ単独浮遊なしを確認した。関連スイートは 33 passed だが、実コマンドでの <code>surfaceID=-1/-2</code> 等の差分確認は未完。<strong>テスト終了時のQoS warning issueは修正済み（完了根拠は <code>AUDITS_COMPLETED.md</code> のN節）</strong>。</td>
 </tr>
 <tr>
 <td>P2</td>
@@ -286,7 +286,7 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P2</td>
 <td>SERIKO rendering parity</td>
-<td><code>surfaceID=-1/-2</code>, wait ranges, <code>shared-index</code>, <code>collisionex</code> shapes unit-tested. On 2026-08-15, the latest build launched <code>emily4</code>; the screen capture showed an upright complete character with no detached face part. The related suite passed 33 tests, but direct command-level diffs such as <code>surfaceID=-1/-2</code> remain pending. <strong>Nine QoS priority-inversion warnings were added as a new issue</strong>.</td>
+<td><code>surfaceID=-1/-2</code>, wait ranges, <code>shared-index</code>, <code>collisionex</code> shapes unit-tested. On 2026-08-15, the latest build launched <code>emily4</code>; the screen capture showed an upright complete character with no detached face part. The related suite passed 33 tests, but direct command-level diffs such as <code>surfaceID=-1/-2</code> remain pending. <strong>The test-cleanup QoS warning issue is resolved; evidence is in section N of <code>AUDITS_COMPLETED.md</code>.</strong></td>
 </tr>
 <tr>
 <td>P2</td>
@@ -377,23 +377,6 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </tbody>
 </table>
 <p>All other findings of the 2026-08-15 documentation consistency audit (archive moves, README sync, blocker-contradiction fixes, memories fixes, snapshot notes, line-number caveat) were addressed the same day → see the migrated-items section in <code>AUDITS_COMPLETED.md</code>.</p>
-<h3 id="5-issue-audit-added-issues-2026-08-15">5. 監査で追加したissue / Audit-added issues (2026-08-15)</h3>
-<table>
-<thead>
-<tr>
-<th>優先度 / Priority</th>
-<th>Issue</th>
-<th>状態 / Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>P2</td>
-<td>SERIKO関連テストのQoS priority inversion warning</td>
-<td><code>SurfaceImageOrientationTests</code> と <code>SurfaceOverlayOrderingTests</code> の実行で、<code>User-interactive/initiated</code> QoS のスレッドが <code>Default</code> QoS の処理を待つ runtime warning が9件発生。テストハーネス由来か本番の画像ロード・合成経路由来か未切り分け。<strong>修正はユーザー指示待ち</strong>。 / Nine runtime warnings reported while <code>SurfaceImageOrientationTests</code> and <code>SurfaceOverlayOrderingTests</code> ran: <code>User-interactive/initiated</code> threads waited on <code>Default</code> QoS work. It is not yet isolated whether this is test-harness-only or production image-load/compositing behavior. <strong>Fix pending user direction.</strong></td>
-</tr>
-</tbody>
-</table>
 <hr />
 <h3 id="recommended-action-order">推奨対応順序 / Recommended Action Order</h3>
 <table>

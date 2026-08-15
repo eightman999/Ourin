@@ -24,6 +24,12 @@
 |---|---|
 | **起動時の音声認識権限要求を明示的操作へ分離** | `Ourin/SHIORIEvents/SpeechObserver.swift` の `poll()` から `SFSpeechRecognizer.requestAuthorization()` の自動呼び出しを削除し、権限未決定時は認識器を生成せず `OnVoiceRecognitionStatus`（`Reference0=0`, `Reference1=not_determined`）だけを配送する。設定画面の「音声認識を許可」ボタンからのみ明示要求する。`SpeechObserverTests` は **9 passed / 0 failed / 0 skipped**、アプリ build は exit 0（既存警告のみ）。2026-08-15、実ゴースト Emily4 を直接起動し、`Loaded 33/33 dictionaries`、`Starting EventBridge after OnBoot load (autoEvents=true)`、`EventBridge started`、`OnVoiceRecognitionStatus` を実ログで確認。12秒稼働中に `requestAuthorization`・`TCC`・`SIGABRT` は出ず、新規Ourinクラッシュレポートも生成されなかった。許可済みマイク入力による `OnVoiceRecognitionWord` は別途実機検証対象として残す。コミット `0d7b834`。 |
 
+### N. 2026-08-15 SERIKOテストQoS warning解消
+
+| 項目 | 根拠（file / result） |
+|---|---|
+| **非有効な音声合成器の終了時参照によるpriority inversionを解消** | `Ourin/Ghost/GhostManager.swift` の `shutdown()` は `\__v` 音声合成が有効化されたセッションだけ `stopSpeechSynthesis()` を呼ぶよう変更。修正前は `SurfaceImageOrientationTests` / `SurfaceOverlayOrderingTests` で runtime warning が発生（監査時9件、再現resultでは13/13 passed + 6件）。修正後のresult `/private/tmp/ourin-seriko-qos-fix.xcresult` は **13 passed / 0 failed / 0 skipped、Runtime Warning 0件**。アプリbuild `/private/tmp/ourin-seriko-qos-build` は exit 0（既存警告のみ）。コミット `43d1cb3`。 |
+
 ---
 
 以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、**現状コードで解決済み**であることを確認した項目です。
@@ -226,6 +232,12 @@ Sonnet 調査エージェント3体による全域再監査（既存監査に無
 | Item | Evidence (implementation, tests, and device run) |
 |---|---|
 | **Separate speech-recognition authorization from automatic startup events** | Removed the automatic `SFSpeechRecognizer.requestAuthorization()` call from `poll()` in `Ourin/SHIORIEvents/SpeechObserver.swift`; when authorization is undetermined, the observer does not create a recognizer and only dispatches `OnVoiceRecognitionStatus` (`Reference0=0`, `Reference1=not_determined`). Authorization is requested only by the explicit “音声認識を許可” settings action. `SpeechObserverTests`: **9 passed / 0 failed / 0 skipped**; app build exited 0 with existing warnings only. On 2026-08-15, Emily4 was launched directly as a real ghost; the live log confirmed `Loaded 33/33 dictionaries`, `Starting EventBridge after OnBoot load (autoEvents=true)`, `EventBridge started`, and `OnVoiceRecognitionStatus`. During 12 seconds of runtime, no `requestAuthorization`, `TCC`, or `SIGABRT` appeared, and no new Ourin crash report was generated. `OnVoiceRecognitionWord` with granted microphone input remains a separate live-device verification item. Commit `0d7b834`. |
+
+### N. 2026-08-15 SERIKO test QoS warning resolved
+
+| Item | Evidence (file / result) |
+|---|---|
+| **Removed priority inversion caused by querying an inactive speech synthesizer during shutdown** | `Ourin/Ghost/GhostManager.swift` `shutdown()` now calls `stopSpeechSynthesis()` only for sessions that enabled `\__v` speech synthesis. Before the fix, `SurfaceImageOrientationTests` / `SurfaceOverlayOrderingTests` emitted runtime warnings (nine in the audit run; the reproduced result had 13/13 passed plus six warnings). After the fix, `/private/tmp/ourin-seriko-qos-fix.xcresult` reports **13 passed / 0 failed / 0 skipped and zero Runtime Warnings**. The app build `/private/tmp/ourin-seriko-qos-build` exited 0 with existing warnings only. Commit `43d1cb3`. |
 
 ---
 
