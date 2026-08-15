@@ -51,7 +51,7 @@
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
-| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で9件の失敗 | **未解決**。実在Emily4辞書を使う `YayaEmily4RegressionTests` を `.serialized` 化し、並列全体実行は **1089 passed / 9 failed / 0 skipped / 1098 total** まで改善した（変更: `OurinTests/YayaEmily4RegressionTests.swift`）。残る失敗は共有イベント／外部リソース／タイミング干渉の別群であり、次の作業単位で切り分ける。直列実行の既存実績は **1098 passed / 0 failed / 0 skipped / 1098 total**。 |
+| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で並列時に失敗 | **未解決**。実在Emily4辞書を使う `YayaEmily4RegressionTests` の `.serialized` 化と、`SurfaceOverlayOrderingTests` のTimer待機をMain RunLoop駆動へ変更した。2026-08-15 の並列全体実行は **1093 passed / 5 failed / 0 skipped / 1098 total**（オーバーレイTimer競合は解消）。残る5件は共有イベント／外部リソース干渉で、単独実行では成功するため次の作業単位で切り分ける。直列全体実行は **1098 passed / 0 failed / 0 skipped / 1098 total**。 |
 
 ---
 
@@ -97,7 +97,7 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | Priority | Issue | Status |
 |---|---|---|
-| P2 | **AUDIT-TEST-BASELINE-001**: 9 failures in the full `OurinTests` run | **Unresolved**. Serializing the real-Emily4-dictionary `YayaEmily4RegressionTests` suite reduced the parallel full run to **1089 passed / 9 failed / 0 skipped / 1098 total** (change: `OurinTests/YayaEmily4RegressionTests.swift`). The remaining failures are a separate shared-event/external-resource/timing-interference group and will be isolated in the next work unit. The existing serial result remains **1098 passed / 0 failed / 0 skipped / 1098 total**. |
+| P2 | **AUDIT-TEST-BASELINE-001**: parallel `OurinTests` execution still has failures | **Unresolved**. The real-Emily4-dictionary `YayaEmily4RegressionTests` suite is `.serialized`, and `SurfaceOverlayOrderingTests` now drives the main RunLoop while waiting for Timer frames. The 2026-08-15 parallel full run reached **1093 passed / 5 failed / 0 skipped / 1098 total** (the overlay Timer race is resolved). The remaining five are shared-event/external-resource interference and pass in isolation; isolate them in the next work unit. The serial full run is **1098 passed / 0 failed / 0 skipped / 1098 total**. |
 
 ---
 

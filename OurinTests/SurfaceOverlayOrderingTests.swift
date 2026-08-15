@@ -303,15 +303,29 @@ struct SurfaceOverlayOrderingTests {
             timing: sequence.timing,
             blendMode: .normal
         )
-        try await Task.sleep(nanoseconds: 20_000_000)
+        // render(0) is synchronous on the main actor. A fixed short sleep here
+        // made the assertion race the first 50 ms timer when the full suite was
+        // running other main-actor tests in parallel.
         let firstFrame = try #require(manager.characterViewModels[0]?.overlays.last)
         #expect(firstFrame.offset == CGPoint(x: 10, y: 20))
 
-        try await Task.sleep(nanoseconds: 70_000_000)
-        let secondFrame = try #require(manager.characterViewModels[0]?.overlays.last)
+        var observedSecondFrame: SurfaceOverlay?
+        let frameDeadline = Date().addingTimeInterval(1.0)
+        while Date() < frameDeadline {
+            if let candidate = manager.characterViewModels[0]?.overlays.last,
+               candidate.offset == CGPoint(x: 14, y: 24) {
+                observedSecondFrame = candidate
+                break
+            }
+            RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+        }
+        let secondFrame = try #require(observedSecondFrame)
         #expect(secondFrame.offset == CGPoint(x: 14, y: 24))
 
-        try await Task.sleep(nanoseconds: 70_000_000)
+        let stopDeadline = Date().addingTimeInterval(1.0)
+        while Date() < stopDeadline && !manager.animAddSurfaceTimers.isEmpty {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+        }
         #expect(manager.characterViewModels[0]?.overlays.last?.id != secondFrame.id)
         #expect(manager.animAddSurfaceTimers.isEmpty)
     }
