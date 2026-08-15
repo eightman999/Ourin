@@ -30,6 +30,12 @@
 |---|---|
 | **非有効な音声合成器の終了時参照によるpriority inversionを解消** | `Ourin/Ghost/GhostManager.swift` の `shutdown()` は `\__v` 音声合成が有効化されたセッションだけ `stopSpeechSynthesis()` を呼ぶよう変更。修正前は `SurfaceImageOrientationTests` / `SurfaceOverlayOrderingTests` で runtime warning が発生（監査時9件、再現resultでは13/13 passed + 6件）。修正後のresult `/private/tmp/ourin-seriko-qos-fix.xcresult` は **13 passed / 0 failed / 0 skipped、Runtime Warning 0件**。アプリbuild `/private/tmp/ourin-seriko-qos-build` は exit 0（既存警告のみ）。コミット `43d1cb3`。 |
 
+### O. 2026-08-15 SERIKO `\![anim,stop]` の always 停止
+
+| 項目 | 根拠（実装・テスト・実ゴースト） |
+|---|---|
+| **手動停止後の `interval,always` アニメーション再起動を抑止** | `Ourin/Animation/SerikoExecutor.swift` に手動停止済み always ID の抑止状態を追加し、`startScheduledAnimations()` が次の tick で再起動しないようにした。明示的な `executeAnimation(id:)` とサーフェス定義置換では抑止を解除する。`Ourin/Ghost/GhostManager+Animation.swift` の `handleAnimStop()` はグローバル停止時に always 抑止を指定する。`SerikoExecutorTests` の停止後抑止・定義置換解除テストを含む対象テストは `** TEST SUCCEEDED **`。実ゴースト `Emily/Phase4.5` へ `\h\s[5]\![anim,50]SERIKO persistent overlay` → `\h\![anim,stop]SERIKO stopped` を投入し、停止後の `SERIKO pattern executed: anim=50` 件数を最新停止マーカーから再集計して **0件**と確認。続けて同じ anim コマンドを明示実行すると `surface4000.png` と `SERIKO pattern executed: anim=50` が再出現し、再生再開を確認。コミット `4e6bc74`。 |
+
 ---
 
 以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、**現状コードで解決済み**であることを確認した項目です。
@@ -238,6 +244,12 @@ Sonnet 調査エージェント3体による全域再監査（既存監査に無
 | Item | Evidence (file / result) |
 |---|---|
 | **Removed priority inversion caused by querying an inactive speech synthesizer during shutdown** | `Ourin/Ghost/GhostManager.swift` `shutdown()` now calls `stopSpeechSynthesis()` only for sessions that enabled `\__v` speech synthesis. Before the fix, `SurfaceImageOrientationTests` / `SurfaceOverlayOrderingTests` emitted runtime warnings (nine in the audit run; the reproduced result had 13/13 passed plus six warnings). After the fix, `/private/tmp/ourin-seriko-qos-fix.xcresult` reports **13 passed / 0 failed / 0 skipped and zero Runtime Warnings**. The app build `/private/tmp/ourin-seriko-qos-build` exited 0 with existing warnings only. Commit `43d1cb3`. |
+
+### O. 2026-08-15 SERIKO `\![anim,stop]` always suppression
+
+| Item | Evidence (implementation, tests, and real ghost) |
+|---|---|
+| **Suppress automatic restart of `interval,always` animations after manual stop** | `Ourin/Animation/SerikoExecutor.swift` now tracks manually suppressed always animation IDs, so `startScheduledAnimations()` does not restart them on the next tick. Explicit `executeAnimation(id:)` and surface-definition replacement release the suppression. `Ourin/Ghost/GhostManager+Animation.swift` requests always suppression for global `handleAnimStop()`. The focused `SerikoExecutorTests` run, including stop suppression and definition-replacement release, ended with `** TEST SUCCEEDED **`. On real `Emily/Phase4.5`, `\h\s[5]\![anim,50]SERIKO persistent overlay` followed by `\h\![anim,stop]SERIKO stopped` produced **0** later `SERIKO pattern executed: anim=50` entries when counted from the latest stop marker. Replaying the same anim command explicitly produced `surface4000.png` and new `SERIKO pattern executed: anim=50` entries, confirming intentional restart. Commit `4e6bc74`. |
 
 ---
 

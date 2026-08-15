@@ -276,9 +276,9 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </thead>
 <tbody>
 <tr>
-<td><strong>P1</strong></td>
-<td><code>\![anim,stop]</code> が <code>interval,always</code> のSERIKOアニメーションを停止し続けない / <code>\![anim,stop]</code> does not keep an <code>interval,always</code> SERIKO animation stopped</td>
-<td>実ゴースト <code>Emily/Phase4.5</code> に <code>\h\s[5]\![anim,50]SERIKO persistent overlay</code> を投入すると、<code>surface4000.png</code> の合成を実ログで確認。続けて <code>\h\![anim,stop]SERIKO stopped</code> を投入し、直後は <code>AnimationEngine Stopped all animations</code> と <code>Cleared animation overlays</code> が記録されたが、その後も <code>SERIKO pattern executed: anim=50 ... surface=4000</code> が再発した。原因候補は <code>Ourin/Animation/SerikoExecutor.swift</code> の <code>startScheduledAnimations()</code> が、手動停止後も <code>.always</code> 定義を再起動する状態管理を持たないこと。<strong>修正待ち</strong>。 / Live <code>Emily/Phase4.5</code> reproduced the issue: <code>\h\s[5]\![anim,50]SERIKO persistent overlay</code> repeatedly composited <code>surface4000.png</code>. After <code>\h\![anim,stop]SERIKO stopped</code>, the log recorded <code>AnimationEngine Stopped all animations</code> and <code>Cleared animation overlays</code>, but <code>SERIKO pattern executed: anim=50 ... surface=4000</code> resumed. Suspected cause: <code>startScheduledAnimations()</code> in <code>Ourin/Animation/SerikoExecutor.swift</code> restarts <code>.always</code> definitions after manual stop because no suppression state is retained. <strong>Fix pending.</strong></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -405,9 +405,9 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </thead>
 <tbody>
 <tr>
-<td><strong>P1</strong></td>
-<td><code>\![anim,stop]</code> does not keep an <code>interval,always</code> SERIKO animation stopped</td>
-<td>Live <code>Emily/Phase4.5</code> reproduced the issue: <code>\h\s[5]\![anim,50]SERIKO persistent overlay</code> repeatedly composited <code>surface4000.png</code>. After <code>\h\![anim,stop]SERIKO stopped</code>, the log recorded <code>AnimationEngine Stopped all animations</code> and <code>Cleared animation overlays</code>, but <code>SERIKO pattern executed: anim=50 ... surface=4000</code> resumed. Suspected cause: <code>startScheduledAnimations()</code> in <code>Ourin/Animation/SerikoExecutor.swift</code> restarts <code>.always</code> definitions after manual stop because no suppression state is retained. <strong>Fix pending.</strong></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>

@@ -51,7 +51,6 @@
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
-| **P1** | `\![anim,stop]` が `interval,always` のSERIKOアニメーションを停止し続けない / `\![anim,stop]` does not keep an `interval,always` SERIKO animation stopped | 実ゴースト `Emily/Phase4.5` に `\h\s[5]\![anim,50]SERIKO persistent overlay` を投入すると、`surface4000.png` の合成を実ログで確認。続けて `\h\![anim,stop]SERIKO stopped` を投入し、直後は `AnimationEngine Stopped all animations` と `Cleared animation overlays` が記録されたが、その後も `SERIKO pattern executed: anim=50 ... surface=4000` が再発した。原因候補は `Ourin/Animation/SerikoExecutor.swift` の `startScheduledAnimations()` が、手動停止後も `.always` 定義を再起動する状態管理を持たないこと。**修正待ち**。 / Live `Emily/Phase4.5` reproduced the issue: `\h\s[5]\![anim,50]SERIKO persistent overlay` repeatedly composited `surface4000.png`. After `\h\![anim,stop]SERIKO stopped`, the log recorded `AnimationEngine Stopped all animations` and `Cleared animation overlays`, but `SERIKO pattern executed: anim=50 ... surface=4000` resumed. Suspected cause: `startScheduledAnimations()` in `Ourin/Animation/SerikoExecutor.swift` restarts `.always` definitions after manual stop because no suppression state is retained. **Fix pending.** |
 
 ---
 
@@ -97,7 +96,6 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | Priority | Issue | Status |
 |---|---|---|
-| **P1** | `\![anim,stop]` does not keep an `interval,always` SERIKO animation stopped | Live `Emily/Phase4.5` reproduced the issue: `\h\s[5]\![anim,50]SERIKO persistent overlay` repeatedly composited `surface4000.png`. After `\h\![anim,stop]SERIKO stopped`, the log recorded `AnimationEngine Stopped all animations` and `Cleared animation overlays`, but `SERIKO pattern executed: anim=50 ... surface=4000` resumed. Suspected cause: `startScheduledAnimations()` in `Ourin/Animation/SerikoExecutor.swift` restarts `.always` definitions after manual stop because no suppression state is retained. **Fix pending.** |
 
 ---
 
