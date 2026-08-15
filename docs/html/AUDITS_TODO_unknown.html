@@ -169,7 +169,7 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P2</td>
 <td>SakuraScript UKADOC 全コマンド実行差分</td>
-<td>パース網羅・ディスパッチ差分は <code>SakuraScriptDocumentationCoverageTests</code>（326タグ）で機械検証済み。2026-08-15 に DevTools の実行経路から稼働中の <code>Emily/Phase4.5</code> へ安全な scope/surface/format/wait/設定/lock/resetballoonpos 群を投入し、対象解決とトークン列を確認した。<code>notify/raise</code> と <code>q</code> も投入し、選択肢ダイアログの表示・選択後の実行結果を確認したが、イベント側の応答ログは取得できなかった。<strong>各コマンドの実行副作用・実ゴースト画面差分（更新・消滅・外部通信を含む）は未検証</strong>。</td>
+<td>パース網羅・ディスパッチ差分は <code>SakuraScriptDocumentationCoverageTests</code>（326タグ）で機械検証済み。2026-08-15 の権限付き <code>xcodebuild</code> で、構文トークン・GhostManager配送・複合サブコマンド配送の3テストメソッドが <code>** TEST SUCCEEDED **</code>（0 failed）となった。2026-08-15 に DevTools の実行経路から稼働中の <code>Emily/Phase4.5</code> へ安全な scope/surface/format/wait/設定/lock/resetballoonpos 群を投入し、対象解決とトークン列を確認した。<code>notify/raise</code> と <code>q</code> も投入し、選択肢ダイアログの表示・選択後の実行結果を確認したが、イベント側の応答ログは取得できなかった。<strong>各コマンドの実行副作用・実ゴースト画面差分（更新・消滅・外部通信を含む）は未検証</strong>。</td>
 </tr>
 <tr>
 <td>P2</td>
@@ -298,7 +298,7 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P2</td>
 <td>SakuraScript UKADOC full-command runtime diff</td>
-<td>Parse coverage &amp; dispatch diff machine-verified by <code>SakuraScriptDocumentationCoverageTests</code> (326 tags). On 2026-08-15, the DevTools execution path delivered a safe scope/surface/format/wait/settings/lock/resetballoonpos matrix to the live <code>Emily/Phase4.5</code>; target resolution and the token sequence were confirmed. <code>notify/raise</code> and <code>q</code> were also delivered; the choice dialog appeared and the post-selection execution result was observed, but no event-side response log was captured. <strong>Per-command side effects and real-ghost screen diffs (including update, vanish, and external I/O) remain unverified</strong>.</td>
+<td>Parse coverage &amp; dispatch diff machine-verified by <code>SakuraScriptDocumentationCoverageTests</code> (326 tags). A privileged <code>xcodebuild</code> run on 2026-08-15 passed all three test methods (<code>** TEST SUCCEEDED **</code>, 0 failed) covering syntax tokens, GhostManager dispatch, and compound subcommand dispatch. On 2026-08-15, the DevTools execution path delivered a safe scope/surface/format/wait/settings/lock/resetballoonpos matrix to the live <code>Emily/Phase4.5</code>; target resolution and the token sequence were confirmed. <code>notify/raise</code> and <code>q</code> were also delivered; the choice dialog appeared and the post-selection execution result was observed, but no event-side response log was captured. <strong>Per-command side effects and real-ghost screen diffs (including update, vanish, and external I/O) remain unverified</strong>.</td>
 </tr>
 <tr>
 <td>P2</td>
