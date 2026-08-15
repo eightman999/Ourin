@@ -276,9 +276,9 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </thead>
 <tbody>
 <tr>
-<td></td>
-<td></td>
-<td></td>
+<td>P1</td>
+<td><code>\\![anim,add,text]</code> の省略引数でクラッシュ</td>
+<td><code>Ourin/Ghost/GhostManager.swift:2583-2594</code> は文字列までの最小形（8引数）を受け付ける一方、<code>args[8]</code>〜<code>args[12]</code> を無条件参照する。UKADOCは文字列まで必須として表示時間以降を省略可能としているため、回帰テストと安全な既定値処理が必要。登録のみ、修正待ち。</td>
 </tr>
 </tbody>
 </table>
@@ -405,9 +405,9 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </thead>
 <tbody>
 <tr>
-<td></td>
-<td></td>
-<td></td>
+<td>P1</td>
+<td>Crash on omitted optional arguments in <code>\\![anim,add,text]</code></td>
+<td><code>Ourin/Ghost/GhostManager.swift:2583-2594</code> accepts the required-through-text form (8 arguments) but unconditionally indexes <code>args[8]</code> through <code>args[12]</code>. UKADOC marks fields after text as optional, so this needs a regression test and safe defaults. Registered only; fix pending.</td>
 </tr>
 </tbody>
 </table>

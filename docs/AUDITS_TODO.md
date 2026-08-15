@@ -51,6 +51,7 @@
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
+| P1 | `\\![anim,add,text]` の省略引数でクラッシュ | `Ourin/Ghost/GhostManager.swift:2583-2594` は文字列までの最小形（8引数）を受け付ける一方、`args[8]`〜`args[12]` を無条件参照する。UKADOCは文字列まで必須として表示時間以降を省略可能としているため、回帰テストと安全な既定値処理が必要。登録のみ、修正待ち。 |
 
 ---
 
@@ -96,6 +97,7 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | Priority | Issue | Status |
 |---|---|---|
+| P1 | Crash on omitted optional arguments in `\\![anim,add,text]` | `Ourin/Ghost/GhostManager.swift:2583-2594` accepts the required-through-text form (8 arguments) but unconditionally indexes `args[8]` through `args[12]`. UKADOC marks fields after text as optional, so this needs a regression test and safe defaults. Registered only; fix pending. |
 
 ---
 
