@@ -359,7 +359,11 @@ struct GhostUtilityCommandTests {
         #expect(customRaise?.refs == ["custom"])
         #expect(notify?.method == "NOTIFY")
         #expect(notify?.refs == ["notify"])
-        #expect(otherRuntime.requests.isEmpty)
+        // OnSoundStop など標準 NOTIFY は全ゴーストへブロードキャストされるため、
+        // 別suiteの音声テストが並列実行中なら otherRuntime に正当な通知が届き得る。
+        // ここでは、このテストの raise/notify が他ゴーストへ誤配送されていないことだけを検証する。
+        let ownEventIDs: Set<String> = ["OnBoot", "OnRaiseTest", "OnNotifyTest"]
+        #expect(otherRuntime.requests.contains { ownEventIDs.contains($0.id) } == false)
     }
 
     @Test @MainActor

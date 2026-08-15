@@ -51,7 +51,7 @@
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
-| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で並列時に失敗 | **未解決**。実在Emily4辞書を使う `YayaEmily4RegressionTests`、`EventBridge.shared` を使う `DressupBindTests`、埋め込みXPC fixtureを使う `ShioriLoaderTests` を `.serialized` 化し、`SurfaceOverlayOrderingTests` のTimer待機をMain RunLoop駆動へ変更した。最後に集計できた2026-08-15の並列全体実行は **1093 passed / 5 failed / 0 skipped / 1098 total**（オーバーレイTimer競合は解消）。続く並列再実行はテストワーカー終了後にxcodebuildがUIテスト用プロセスを待ち続け、集計不能だったため、5件は未解決のまま扱う。直列全体実行は **1098 passed / 0 failed / 0 skipped / 1098 total**、Dressup suiteは **31 passed**、ShioriLoader suiteは **52 passed**。 |
+| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で並列時に失敗 | **未解決**。実在Emily4辞書を使う `YayaEmily4RegressionTests`、`EventBridge.shared` を使う `DressupBindTests`、埋め込みXPC fixtureを使う `ShioriLoaderTests` を `.serialized` 化し、`SurfaceOverlayOrderingTests` のTimer待機をMain RunLoop駆動へ変更した。さらに `GhostUtilityCommandTests` は標準NOTIFYの正当な他ゴースト配送を除外して、raise/notify自身の誤配送だけを検証するよう修正した。最後に集計できた2026-08-15の並列全体実行は **1093 passed / 5 failed / 0 skipped / 1098 total**（オーバーレイTimer競合は解消）。`GhostUtilityCommandTests`＋`SoundPlayerTests` の並列subsetは **74 passed / 0 failed**。続く全体並列再実行はテストワーカー終了後にxcodebuildがUIテスト用プロセスを待ち続け、集計不能だったため、全体件数は未確定のまま扱う。直列全体実行は **1098 passed / 0 failed / 0 skipped / 1098 total**。 |
 
 ---
 
@@ -97,7 +97,7 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | Priority | Issue | Status |
 |---|---|---|
-| P2 | **AUDIT-TEST-BASELINE-001**: parallel `OurinTests` execution still has failures | **Unresolved**. The real-Emily4-dictionary `YayaEmily4RegressionTests`, `EventBridge.shared`-using `DressupBindTests`, and embedded-XPC-fixture `ShioriLoaderTests` suites are now `.serialized`; `SurfaceOverlayOrderingTests` drives the main RunLoop while waiting for Timer frames. The last aggregatable parallel full run on 2026-08-15 was **1093 passed / 5 failed / 0 skipped / 1098 total** (the overlay Timer race is resolved). A subsequent parallel rerun could not produce a summary because xcodebuild waited after the test worker exited, so the five failures remain unresolved. The serial full run is **1098 passed / 0 failed / 0 skipped / 1098 total**; the Dressup suite passed **31 tests** and ShioriLoader passed **52 tests**. |
+| P2 | **AUDIT-TEST-BASELINE-001**: parallel `OurinTests` execution still has failures | **Unresolved**. The real-Emily4-dictionary `YayaEmily4RegressionTests`, `EventBridge.shared`-using `DressupBindTests`, and embedded-XPC-fixture `ShioriLoaderTests` suites are now `.serialized`; `SurfaceOverlayOrderingTests` drives the main RunLoop while waiting for Timer frames. `GhostUtilityCommandTests` now ignores legitimate broadcast NOTIFYs from other ghosts and checks only for misrouted raise/notify IDs. The last aggregatable parallel full run on 2026-08-15 was **1093 passed / 5 failed / 0 skipped / 1098 total** (the overlay Timer race is resolved). The parallel `GhostUtilityCommandTests` + `SoundPlayerTests` subset passed **74/74**. A subsequent full parallel rerun could not produce a summary because xcodebuild waited after the test worker exited, so the full count remains unconfirmed. The serial full run is **1098 passed / 0 failed / 0 skipped / 1098 total**. |
 
 ---
 
