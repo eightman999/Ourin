@@ -276,6 +276,21 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 </tr>
 </tbody>
 </table>
+<h3 id="t-2026-08-15-onlanguagechange-reference-audit-ref-locale-001">T. 2026-08-15 <code>OnLanguageChange</code> Reference 表駆動移行（AUDIT-REF-LOCALE-001）</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（実装・テスト・監査）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ロケール変更イベントの意味ラベルから <code>ReferenceN</code> への変換を <code>EventReferenceTable</code> 経由へ移行</strong></td>
+<td><code>Ourin/SHIORIEvents/SystemNotificationData.swift</code> の <code>SystemLanguageInfo.references</code> が <code>languageName</code> / <code>languageID</code> / <code>resourcePath</code> / <code>helpURL</code> を保持し、<code>Ourin/SHIORIEvents/LocaleObserver.swift</code> の <code>languageChangeEvent(info:)</code> が <code>ShioriEvent(id:refs:)</code> を使用する。従来の <code>Reference0..3</code> wire 値は不変。<code>SystemNotificationDataTests</code> の <code>languageChangeEventMapsSemanticReferencesThroughEventReferenceTable</code> と <code>EventReferenceTableTests</code> は <strong>全件 passed</strong>。全216発火箇所の移行は引き続き漸次対応する。</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <p>以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、<strong>現状コードで解決済み</strong>であることを確認した項目です。</p>
 <h3 id="a-shiori">A. SHIORI プロトコル</h3>
@@ -1007,6 +1022,21 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <tr>
 <td><strong>Route keyboard, click, and drag event Reference numbering through <code>EventReferenceTable</code></strong></td>
 <td><code>Ourin/SHIORIEvents/InputMonitor.swift</code> now centralizes semantic-name to <code>ReferenceN</code> conversion per event ID and uses it for key input, click, double-click, multiple-click, and drag-start/end emission. <code>OurinTests/EventReferenceTableTests.swift</code> adds <code>inputMonitorMouseReferencesRoundTripThroughEventReferenceTable</code>, verifying exact equality with the existing raw parameters for click events (R0–R6) and move events (R0–R4/R6). The privileged <code>xcodebuild ... -only-testing:OurinTests test</code> run passed this added test. The full run was <strong>1073 passed / 21 failed / 0 skipped / 1094 total</strong>; the separate failure groups are recorded in <code>AUDITS_TODO.md</code>. Mouse enter/leave/hover and select-mode raw paths remain as the next migration slice.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="t-2026-08-15-onlanguagechange-reference-table-migration-audit-ref-locale-001">T. 2026-08-15 <code>OnLanguageChange</code> Reference table migration (AUDIT-REF-LOCALE-001)</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (implementation, tests, audit)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Migrated locale-change event conversion from semantic labels to <code>ReferenceN</code> through <code>EventReferenceTable</code></strong></td>
+<td><code>Ourin/SHIORIEvents/SystemNotificationData.swift</code> exposes <code>SystemLanguageInfo.references</code> with <code>languageName</code> / <code>languageID</code> / <code>resourcePath</code> / <code>helpURL</code>, and <code>Ourin/SHIORIEvents/LocaleObserver.swift</code> uses <code>ShioriEvent(id:refs:)</code> through <code>languageChangeEvent(info:)</code>. The existing <code>Reference0..3</code> wire values are unchanged. <code>SystemNotificationDataTests.languageChangeEventMapsSemanticReferencesThroughEventReferenceTable</code> and <code>EventReferenceTableTests</code> passed in the privileged runs. Migration of all 216 emission sites remains incremental.</td>
 </tr>
 </tbody>
 </table>

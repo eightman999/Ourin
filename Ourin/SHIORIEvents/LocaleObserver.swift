@@ -9,7 +9,11 @@ final class LocaleObserver {
     private var handler: ((ShioriEvent)->Void)?
 
     static func languageChangeEvent(bundle: Bundle = .main) -> ShioriEvent {
-        ShioriEvent(id: .OnLanguageChange, params: SystemNotificationData.currentLanguageInfo(bundle: bundle).parameters)
+        languageChangeEvent(info: SystemNotificationData.currentLanguageInfo(bundle: bundle))
+    }
+
+    static func languageChangeEvent(info: SystemLanguageInfo) -> ShioriEvent {
+        ShioriEvent(id: .OnLanguageChange, refs: info.references)
     }
 
     /// 監視を開始する

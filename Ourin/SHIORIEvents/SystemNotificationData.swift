@@ -74,13 +74,18 @@ struct SystemLanguageInfo: Equatable {
     let resourcePath: String
     let helpURL: String
 
-    var parameters: [String: String] {
+    /// OnLanguageChange の仕様テーブルへ渡す意味ラベル。
+    var references: [String: String] {
         [
-            "Reference0": languageName,
-            "Reference1": languageID,
-            "Reference2": resourcePath,
-            "Reference3": helpURL
+            "languageName": languageName,
+            "languageID": languageID,
+            "resourcePath": resourcePath,
+            "helpURL": helpURL
         ]
+    }
+
+    var parameters: [String: String] {
+        EventReferenceTable.params(forEvent: "OnLanguageChange", refs: references)
     }
 }
 

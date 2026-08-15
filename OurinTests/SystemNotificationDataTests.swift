@@ -87,6 +87,26 @@ struct SystemNotificationDataTests {
     }
 
     @Test
+    func languageChangeEventMapsSemanticReferencesThroughEventReferenceTable() {
+        let info = SystemLanguageInfo(
+            languageName: "日本語",
+            languageID: "ja",
+            resourcePath: "/tmp/ja.lproj",
+            helpURL: "https://example.invalid/help"
+        )
+
+        let event = LocaleObserver.languageChangeEvent(info: info)
+
+        #expect(info.parameters == EventReferenceTable.params(forEvent: "OnLanguageChange", refs: info.references))
+        #expect(event.params == [
+            "Reference0": "日本語",
+            "Reference1": "ja",
+            "Reference2": "/tmp/ja.lproj",
+            "Reference3": "https://example.invalid/help"
+        ])
+    }
+
+    @Test
     func currentSystemNotificationDataDoesNotReturnSyntheticEmptySystemValues() {
         let os = SystemNotificationData.currentOSInfo()
         #expect(os.system == "macOS")

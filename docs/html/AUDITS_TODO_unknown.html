@@ -243,7 +243,7 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P2（基盤完了）</td>
 <td>イベント Reference 仕様の表駆動化</td>
-<td><code>EventReferenceTable</code> 新設・<code>notifyReturnIgnored</code> 単一ソース化済み。<strong>全発火箇所（216箇所）の表駆動移行</strong>は漸次対応。</td>
+<td><code>EventReferenceTable</code> 新設・<code>notifyReturnIgnored</code> 単一ソース化済み。<code>OnLanguageChange</code> は <strong>AUDIT-REF-LOCALE-001</strong> として表駆動移行済み。<strong>全発火箇所（216箇所）の表駆動移行</strong>は漸次対応。</td>
 </tr>
 </tbody>
 </table>
@@ -277,8 +277,8 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tbody>
 <tr>
 <td>P2</td>
-<td><strong>AUDIT-TEST-BASELINE-001</strong>: <code>OurinTests</code> 全体実行で21件の失敗</td>
-<td><strong>未着手（本作業では未修正）</strong>。2026-08-15 の権限付き実行は <strong>1073 passed / 21 failed / 0 skipped / 1094 total</strong>。失敗群は YAYA/Emily4 辞書ロード11件、Native SHIORI XPC fixture、SAORI <code>readLine()</code> 2件、SERIKO/音声タイミング、ドラッグ＆ドロップ、GhostUtility、バルーン、着せ替え。入力イベント Reference 移行とは別 issue として切り分ける。</td>
+<td><strong>AUDIT-TEST-BASELINE-001</strong>: <code>OurinTests</code> 全体実行で23件の失敗</td>
+<td><strong>未着手（本作業では未修正）</strong>。2026-08-15 の変更後権限付き実行は <strong>1072 passed / 23 failed / 0 skipped / 1095 total</strong>。失敗群は YAYA/Emily4 辞書ロード11件、Native SHIORI XPC fixture、SAORI <code>readLine()</code> 2件、SERIKO/音声タイミング、ドラッグ＆ドロップ、GhostUtility、バルーン、着せ替え、SakuraScript同期、Append modeを含む。ドラッグ＆ドロップ・アンカーhover・Emily4・Append modeは単独スイートで通過しており、全体実行時の共有イベント／外部リソース干渉を切り分ける別issueとして追跡する。</td>
 </tr>
 </tbody>
 </table>
@@ -372,7 +372,7 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P2 (foundation done)</td>
 <td>Table-driven event Reference specs</td>
-<td><code>EventReferenceTable</code> and single-sourced <code>notifyReturnIgnored</code> in place. <strong>Migrating all 216 emission sites</strong> proceeds incrementally.</td>
+<td><code>EventReferenceTable</code> and single-sourced <code>notifyReturnIgnored</code> are in place. <code>OnLanguageChange</code> was migrated under <strong>AUDIT-REF-LOCALE-001</strong>. <strong>Migrating all 216 emission sites</strong> proceeds incrementally.</td>
 </tr>
 </tbody>
 </table>
@@ -406,8 +406,8 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tbody>
 <tr>
 <td>P2</td>
-<td><strong>AUDIT-TEST-BASELINE-001</strong>: 21 failures in the full <code>OurinTests</code> run</td>
-<td><strong>Not started (not fixed in this work unit)</strong>. The privileged run on 2026-08-15 reported <strong>1073 passed / 21 failed / 0 skipped / 1094 total</strong>. Failure groups: 11 YAYA/Emily4 dictionary-load tests, the native SHIORI XPC fixture, two SAORI <code>readLine()</code> tests, SERIKO/audio timing, drag-and-drop, GhostUtility, balloon, and dressup. Track separately from the input-event Reference migration.</td>
+<td><strong>AUDIT-TEST-BASELINE-001</strong>: 23 failures in the full <code>OurinTests</code> run</td>
+<td><strong>Not started (not fixed in this work unit)</strong>. The post-change privileged run on 2026-08-15 reported <strong>1072 passed / 23 failed / 0 skipped / 1095 total</strong>. Failure groups include 11 YAYA/Emily4 dictionary-load tests, the native SHIORI XPC fixture, two SAORI <code>readLine()</code> tests, SERIKO/audio timing, drag-and-drop, GhostUtility, balloon, dressup, SakuraScript synchronization, and append mode. Drag-and-drop, anchor-hover, Emily4, and append mode pass in focused suites; track full-run shared-event/external-resource interference separately.</td>
 </tr>
 </tbody>
 </table>
