@@ -265,6 +265,23 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </tbody>
 </table>
 <p>※ 2026-08-15 のドキュメント整合性監査で検出した他の項目（アーカイブ移動・README同期・ブロッカー矛盾解消・memories修正・時点注記・行番号注記）は同日中に対応済み → <code>AUDITS_COMPLETED.md</code> 移管記録参照。</p>
+<h3 id="5-issue-audit-added-issues-2026-08-15">5. 監査で追加したissue / Audit-added issues (2026-08-15)</h3>
+<table>
+<thead>
+<tr>
+<th>優先度 / Priority</th>
+<th>Issue</th>
+<th>状態 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P1</strong></td>
+<td><code>\![anim,stop]</code> が <code>interval,always</code> のSERIKOアニメーションを停止し続けない / <code>\![anim,stop]</code> does not keep an <code>interval,always</code> SERIKO animation stopped</td>
+<td>実ゴースト <code>Emily/Phase4.5</code> に <code>\h\s[5]\![anim,50]SERIKO persistent overlay</code> を投入すると、<code>surface4000.png</code> の合成を実ログで確認。続けて <code>\h\![anim,stop]SERIKO stopped</code> を投入し、直後は <code>AnimationEngine Stopped all animations</code> と <code>Cleared animation overlays</code> が記録されたが、その後も <code>SERIKO pattern executed: anim=50 ... surface=4000</code> が再発した。原因候補は <code>Ourin/Animation/SerikoExecutor.swift</code> の <code>startScheduledAnimations()</code> が、手動停止後も <code>.always</code> 定義を再起動する状態管理を持たないこと。<strong>修正待ち</strong>。 / Live <code>Emily/Phase4.5</code> reproduced the issue: <code>\h\s[5]\![anim,50]SERIKO persistent overlay</code> repeatedly composited <code>surface4000.png</code>. After <code>\h\![anim,stop]SERIKO stopped</code>, the log recorded <code>AnimationEngine Stopped all animations</code> and <code>Cleared animation overlays</code>, but <code>SERIKO pattern executed: anim=50 ... surface=4000</code> resumed. Suspected cause: <code>startScheduledAnimations()</code> in <code>Ourin/Animation/SerikoExecutor.swift</code> restarts <code>.always</code> definitions after manual stop because no suppression state is retained. <strong>Fix pending.</strong></td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="english">English</h2>
 <h3 id="1-awaiting-real-ghost-real-device-verification-code-unit-tests-done">1. Awaiting real-ghost / real-device verification (code + unit tests done)</h3>
@@ -377,6 +394,23 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </tbody>
 </table>
 <p>All other findings of the 2026-08-15 documentation consistency audit (archive moves, README sync, blocker-contradiction fixes, memories fixes, snapshot notes, line-number caveat) were addressed the same day → see the migrated-items section in <code>AUDITS_COMPLETED.md</code>.</p>
+<h3 id="5-audit-added-issues-2026-08-15">5. Audit-added issues (2026-08-15)</h3>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Issue</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P1</strong></td>
+<td><code>\![anim,stop]</code> does not keep an <code>interval,always</code> SERIKO animation stopped</td>
+<td>Live <code>Emily/Phase4.5</code> reproduced the issue: <code>\h\s[5]\![anim,50]SERIKO persistent overlay</code> repeatedly composited <code>surface4000.png</code>. After <code>\h\![anim,stop]SERIKO stopped</code>, the log recorded <code>AnimationEngine Stopped all animations</code> and <code>Cleared animation overlays</code>, but <code>SERIKO pattern executed: anim=50 ... surface=4000</code> resumed. Suspected cause: <code>startScheduledAnimations()</code> in <code>Ourin/Animation/SerikoExecutor.swift</code> restarts <code>.always</code> definitions after manual stop because no suppression state is retained. <strong>Fix pending.</strong></td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h3 id="recommended-action-order">推奨対応順序 / Recommended Action Order</h3>
 <table>
