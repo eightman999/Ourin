@@ -2580,21 +2580,19 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 if let surfaceID = Int(args[3]) {
                     handleSurfaceOverlay(surfaceID: surfaceID, type: .bind)
                 }
-            } else if addType == "text", args.count >= 8 {
-                let x = Int(args[3]) ?? 0
-                let y = Int(args[4]) ?? 0
-                let width = Int(args[5]) ?? 100
-                let height = Int(args[6]) ?? 20
-                let text = args[7]
-                let time = Int(args[8]) ?? 1000
-                let r = Int(args[9]) ?? 0
-                let g = Int(args[10]) ?? 0
-                let b = Int(args[11]) ?? 0
-                let size = Int(args[12]) ?? 12
-                let font = args.count >= 14 ? args[13] : "sans-serif"
+            } else if addType == "text", let parameters = AnimAddTextParameters.parse(args) {
                 addTextAnimation(
-                    x: x, y: y, width: width, height: height, text: text,
-                    time: time, r: r, g: g, b: b, size: size, font: font
+                    x: parameters.x,
+                    y: parameters.y,
+                    width: parameters.width,
+                    height: parameters.height,
+                    text: parameters.text,
+                    time: parameters.time,
+                    r: parameters.red,
+                    g: parameters.green,
+                    b: parameters.blue,
+                    size: parameters.size,
+                    font: parameters.font
                 )
             }
         default:

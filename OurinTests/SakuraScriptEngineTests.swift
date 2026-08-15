@@ -2304,6 +2304,39 @@ struct SakuraScriptEngineTests {
     }
 
     @Test
+    func animAddTextShortFormUsesOptionalDefaults() throws {
+        let parameters = try #require(AnimAddTextParameters.parse([
+            "anim", "add", "text", "100", "200", "500", "50", "Hello"
+        ]))
+
+        #expect(parameters.x == 100)
+        #expect(parameters.y == 200)
+        #expect(parameters.width == 500)
+        #expect(parameters.height == 50)
+        #expect(parameters.text == "Hello")
+        #expect(parameters.time == 1000)
+        #expect(parameters.red == 0)
+        #expect(parameters.green == 0)
+        #expect(parameters.blue == 0)
+        #expect(parameters.size == 12)
+        #expect(parameters.font == "sans-serif")
+    }
+
+    @Test
+    func animAddTextPartialOptionalFormDoesNotReadPastArguments() throws {
+        let parameters = try #require(AnimAddTextParameters.parse([
+            "anim", "add", "text", "1", "2", "30", "40", "Hi", "250"
+        ]))
+
+        #expect(parameters.time == 250)
+        #expect(parameters.red == 0)
+        #expect(parameters.green == 0)
+        #expect(parameters.blue == 0)
+        #expect(parameters.size == 12)
+        #expect(parameters.font == "sans-serif")
+    }
+
+    @Test
     func effect2Command() async throws {
         let engine = SakuraScriptEngine()
         let tokens = engine.parse(script: "\\![effect2,100,plugin,1.5,param]")
