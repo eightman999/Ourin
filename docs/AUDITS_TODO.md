@@ -17,7 +17,6 @@
 
 | 優先度 | 項目 | 検証内容 |
 |---|---|---|
-| P2 | DevTools実ゴーストスクリプト実行の対象解決 | 実ゴーストと `yaya_core` が稼働中にもかかわらず、設定 → ヘッドライン・バルーン → 「スクリプト実行」が `実行対象: なし（ゴースト未起動。解析のみ）` になった（2026-08-15実測）。`ContentView.swift` の `NSApp.delegate` → `AppDelegate.ghostManager` 解決経路、実バルーン再生、対象名表示を実機で再検証し、原因を特定して修正する。 |
 | P2 | SakuraScript UKADOC 全コマンド実行差分 | パース網羅・ディスパッチ差分は `SakuraScriptDocumentationCoverageTests`（326タグ）で機械検証済み。**実行結果差分・実ゴースト画面差分**が未検証。 |
 | P2 | SERIKO 描画完全一致 | `surfaceID=-1/-2`・ウェイト範囲・`shared-index`・`collisionex` 各形状は単体検証済み。**実シェルでの描画差分テスト**（`Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift`）が未実施。 |
 | P2 | バルーン描画の細部 | ROP2 アンカー装飾・可変改行（`\n[half]`・負値はオフセット近似）・バルーン右側表示・wordwrap/alignment の**実ゴースト目視**。 |
@@ -58,7 +57,6 @@ Implementation and tests exist for all of these; the remaining work is **verific
 
 | Priority | Item | What to verify |
 |---|---|---|
-| P2 | DevTools live-ghost script execution target resolution | On 2026-08-15, the settings → Headline/Balloon → “Run Script” action reported `実行対象: なし（ゴースト未起動。解析のみ）` even though a real ghost and its `yaya_core` child process were running. Reproduce on a real ghost, trace the `ContentView.swift` `NSApp.delegate` → `AppDelegate.ghostManager` path, confirm live-balloon playback and target-name reporting, then identify and fix the cause. |
 | P2 | SakuraScript UKADOC full-command runtime diff | Parse coverage & dispatch diff machine-verified by `SakuraScriptDocumentationCoverageTests` (326 tags). **Runtime-result and on-screen diffs on real ghosts** unverified. |
 | P2 | SERIKO rendering parity | `surfaceID=-1/-2`, wait ranges, `shared-index`, `collisionex` shapes unit-tested. **Real-shell rendering diff testing** (`Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift`) pending. |
 | P2 | Balloon rendering fine points | Visual check of ROP2 anchor decoration, variable newlines (`\n[half]`, negative values approximated by offsets), right-side balloons, wordwrap/alignment on real ghosts. |

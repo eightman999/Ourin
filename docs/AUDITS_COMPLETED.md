@@ -12,6 +12,14 @@
 
 ## 日本語
 
+### L. 2026-08-15 DevTools実ゴースト実行の対象解決
+
+| 項目 | 根拠（実装・テスト・実機） |
+|---|---|
+| **SwiftUI delegateプロキシ環境での実ゴーストスクリプト実行** | `NSApp.delegate` は `SwiftUI.AppDelegate` プロキシになるため、`as? AppDelegate` が失敗していた。`OurinApp.swift` に `AppDelegate.resolve()`（直接 delegate を優先し、SwiftUI adaptor が保持する実体を weak に解決）を追加し、DevTools・GhostManager・EventBridge・SSTP・ドラッグ＆ドロップ等の本番参照を共通経路へ移行。`PluginTargetRoutingTests` は **4 passed / 0 failed**、`SSTPDispatcherTests` は **71 passed / 0 failed**、アプリ build は exit 0（既存警告のみ）。2026-08-15、実機の設定 → ヘッドライン・バルーン → 「スクリプト実行」で `実行対象: Emily/Phase4.5`、入力スクリプトの表示テキスト `AppDelegate resolver audit実ゴースト実行確認`、トークン（scope/surface/text/newline/end）を確認し、ゴーストウインドウが正立していることを目視確認。コミット `c5e9638`。 |
+
+---
+
 以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、**現状コードで解決済み**であることを確認した項目です。
 
 ### A. SHIORI プロトコル
@@ -200,6 +208,14 @@ Sonnet 調査エージェント3体による全域再監査（既存監査に無
 ---
 
 ## English
+
+### L. 2026-08-15 DevTools live-ghost target resolution
+
+| Item | Evidence (implementation, tests, and device run) |
+|---|---|
+| **Live-ghost script execution through the SwiftUI delegate proxy** | `NSApp.delegate` is a `SwiftUI.AppDelegate` proxy, so `as? AppDelegate` returned nil. Added `AppDelegate.resolve()` in `OurinApp.swift` (prefer a direct AppKit delegate, otherwise resolve the weak instance retained by the SwiftUI adaptor) and migrated production lookups across DevTools, GhostManager, EventBridge, SSTP, drag-and-drop, and related paths. `PluginTargetRoutingTests`: **4 passed / 0 failed**; `SSTPDispatcherTests`: **71 passed / 0 failed**; app build exited 0 with existing warnings only. On 2026-08-15, the real-device Settings → Headline/Balloon → “Run Script” path returned `実行対象: Emily/Phase4.5`; the parsed display text was `AppDelegate resolver audit実ゴースト実行確認` with scope/surface/text/newline/end tokens, and the ghost window was visually confirmed upright. Commit `c5e9638`. |
+
+---
 
 The following items were raised in prior audit reports (GLM / CODEX / CLAUDE / AGY, 2026-06-10–2026-06-27) and have been **verified as resolved** in the current source code.
 
