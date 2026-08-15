@@ -51,7 +51,7 @@
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
-| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で23件の失敗 | **未着手（本作業では未修正）**。2026-08-15 の変更後権限付き実行は **1072 passed / 23 failed / 0 skipped / 1095 total**。失敗群は YAYA/Emily4 辞書ロード11件、Native SHIORI XPC fixture、SAORI `readLine()` 2件、SERIKO/音声タイミング、ドラッグ＆ドロップ、GhostUtility、バルーン、着せ替え、SakuraScript同期、Append modeを含む。ドラッグ＆ドロップ・アンカーhover・Emily4・Append modeは単独スイートで通過しており、全体実行時の共有イベント／外部リソース干渉を切り分ける別issueとして追跡する。 |
+| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で12件の失敗 | **未着手（本作業では未修正）**。今回の変更後の権限付き `.xctestrun` 実行は **1084 passed / 12 failed / 0 skipped / 1096 total**。失敗群は SERIKO オーバーレイ座標、ドラッグ＆ドロップのバックグラウンド処理、着せ替えイベント、Native SHIORI XPC fixture、音声ループ、GhostUtility、バルーン hover、SAORI `readLine()` 2件、SakuraScript 同期、SSTP XPC 不正エンコーディングを含む。今回追加した InputMonitor の往復テストは passed。失敗はいずれも今回の移行箇所ではなく、共有イベント／外部リソース／タイミング干渉を切り分ける別issueとして追跡する。 |
 
 ---
 
@@ -97,7 +97,7 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | Priority | Issue | Status |
 |---|---|---|
-| P2 | **AUDIT-TEST-BASELINE-001**: 23 failures in the full `OurinTests` run | **Not started (not fixed in this work unit)**. The post-change privileged run on 2026-08-15 reported **1072 passed / 23 failed / 0 skipped / 1095 total**. Failure groups include 11 YAYA/Emily4 dictionary-load tests, the native SHIORI XPC fixture, two SAORI `readLine()` tests, SERIKO/audio timing, drag-and-drop, GhostUtility, balloon, dressup, SakuraScript synchronization, and append mode. Drag-and-drop, anchor-hover, Emily4, and append mode pass in focused suites; track full-run shared-event/external-resource interference separately. |
+| P2 | **AUDIT-TEST-BASELINE-001**: 12 failures in the full `OurinTests` run | **Not started (not fixed in this work unit)**. The post-change privileged `.xctestrun` run on 2026-08-15 reported **1084 passed / 12 failed / 0 skipped / 1096 total**. Failure groups include SERIKO overlay coordinates, background drag-and-drop dispatch, dressup event delivery, the native SHIORI XPC fixture, manual audio looping, GhostUtility, balloon hover, two SAORI `readLine()` tests, SakuraScript synchronization, and invalid-encoding SSTP XPC handling. The new InputMonitor round-trip test passed. None of the failures is in this migration slice; track shared-event/external-resource/timing interference separately. |
 
 ---
 

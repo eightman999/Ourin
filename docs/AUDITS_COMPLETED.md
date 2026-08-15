@@ -66,6 +66,12 @@
 |---|---|
 | **ロケール変更イベントの意味ラベルから `ReferenceN` への変換を `EventReferenceTable` 経由へ移行** | `Ourin/SHIORIEvents/SystemNotificationData.swift` の `SystemLanguageInfo.references` が `languageName` / `languageID` / `resourcePath` / `helpURL` を保持し、`Ourin/SHIORIEvents/LocaleObserver.swift` の `languageChangeEvent(info:)` が `ShioriEvent(id:refs:)` を使用する。従来の `Reference0..3` wire 値は不変。`SystemNotificationDataTests` の `languageChangeEventMapsSemanticReferencesThroughEventReferenceTable` と `EventReferenceTableTests` は **全件 passed**。全216発火箇所の移行は引き続き漸次対応する。 |
 
+### U. 2026-08-15 入力ポインタ／選択モードの Reference 表駆動移行（AUDIT-REF-INPUT-POINTER-001）
+
+| 項目 | 根拠（実装・テスト・監査） |
+|---|---|
+| **マウス入退場・全体入退場・hover・select mode のマウスイベントを `EventReferenceTable` 経由へ移行** | `Ourin/SHIORIEvents/InputMonitor.swift` のポインタ領域・hover発火を `emitEvent` 経由へ変更。`pointerEventReferences` は R0..R4 を意味ラベルから割り当て、従来の互換拡張 `Reference6=mouse` を保持し、`modifiers` は補助ヘッダとして維持する。select mode の down/up は `scopeID` / `mode` / `position` から R0..R2 へ変換する。`OurinTests/EventReferenceTableTests.swift` の `inputMonitorPointerAndSelectionReferencesRoundTripThroughEventReferenceTable` は権限付き全体 `.xctestrun` 実行で passed。最新全体実行は **1084 passed / 12 failed / 0 skipped / 1096 total**で、残件は `AUDIT-TEST-BASELINE-001` に記録した。 |
+
 ---
 
 以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、**現状コードで解決済み**であることを確認した項目です。
@@ -310,6 +316,12 @@ Sonnet 調査エージェント3体による全域再監査（既存監査に無
 | Item | Evidence (implementation, tests, audit) |
 |---|---|
 | **Migrated locale-change event conversion from semantic labels to `ReferenceN` through `EventReferenceTable`** | `Ourin/SHIORIEvents/SystemNotificationData.swift` exposes `SystemLanguageInfo.references` with `languageName` / `languageID` / `resourcePath` / `helpURL`, and `Ourin/SHIORIEvents/LocaleObserver.swift` uses `ShioriEvent(id:refs:)` through `languageChangeEvent(info:)`. The existing `Reference0..3` wire values are unchanged. `SystemNotificationDataTests.languageChangeEventMapsSemanticReferencesThroughEventReferenceTable` and `EventReferenceTableTests` passed in the privileged runs. Migration of all 216 emission sites remains incremental. |
+
+### U. 2026-08-15 Input pointer/select Reference table migration (AUDIT-REF-INPUT-POINTER-001)
+
+| Item | Evidence (implementation, tests, audit) |
+|---|---|
+| **Migrated mouse enter/leave/all/hover and select-mode mouse events to `EventReferenceTable`** | `Ourin/SHIORIEvents/InputMonitor.swift` now routes pointer-region and hover emission through `emitEvent`. `pointerEventReferences` maps R0..R4 by semantic labels and preserves the existing compatibility extension `Reference6=mouse`; `modifiers` remains an auxiliary header. Select-mode down/up now use `scopeID` / `mode` / `position` labels, preserving R0..R2. `OurinTests/EventReferenceTableTests.swift` adds `inputMonitorPointerAndSelectionReferencesRoundTripThroughEventReferenceTable`, which passed in the privileged full `.xctestrun` run. The latest full run was **1084 passed / 12 failed / 0 skipped / 1096 total**; the remaining failures are recorded under `AUDIT-TEST-BASELINE-001`. |
 
 ---
 

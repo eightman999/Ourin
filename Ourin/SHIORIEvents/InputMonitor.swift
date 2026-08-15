@@ -385,15 +385,25 @@ final class InputMonitor {
 
         if inside {
             let params = mouseParams(for: ev, includeButton: false)
-            handler?(ShioriEvent(id: .OnMouseEnter, params: params))
-            handler?(ShioriEvent(id: .OnMouseEnterAll, params: params))
+            let references = Self.pointerEventReferences(from: params)
+            emitEvent(.OnMouseEnter,
+                      refs: references,
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
+            emitEvent(.OnMouseEnterAll,
+                      refs: references,
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
             scheduleHover(with: params)
         } else {
             hoverTimer?.invalidate()
             hoverTimer = nil
             let params = mouseParams(for: ev, includeButton: false)
-            handler?(ShioriEvent(id: .OnMouseLeave, params: params))
-            handler?(ShioriEvent(id: .OnMouseLeaveAll, params: params))
+            let references = Self.pointerEventReferences(from: params)
+            emitEvent(.OnMouseLeave,
+                      refs: references,
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
+            emitEvent(.OnMouseLeaveAll,
+                      refs: references,
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
             SerikoCursorController.shared.reset()
             SerikoTooltipController.shared.hide()
         }
@@ -431,7 +441,10 @@ final class InputMonitor {
         hoverTimer?.invalidate()
         hoverTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { [weak self] _ in
             guard let self, self.isPointerInsideGhostArea else { return }
-            self.handler?(ShioriEvent(id: .OnMouseHover, params: self.hoverParams))
+            let references = Self.pointerEventReferences(from: self.hoverParams)
+            self.emitEvent(.OnMouseHover,
+                           refs: references,
+                           additionalParams: ["modifiers": self.hoverParams["modifiers"] ?? ""])
             if let scopeStr = self.hoverParams["Reference3"], let scope = Int(scopeStr),
                let region = self.hoverParams["Reference4"], !region.isEmpty {
                 SerikoCursorController.shared.update(scope: scope, region: region, kind: .hover)
@@ -456,22 +469,22 @@ final class InputMonitor {
 
         let point = mouseScreenLocation(for: ev)
         let params = [
-            "Reference0": String(selectionModeScope),
-            "Reference1": selectionModeName,
-            "Reference2": "\(Int(point.x)),\(Int(point.y))"
+            "scopeID": String(selectionModeScope),
+            "mode": selectionModeName,
+            "position": "\(Int(point.x)),\(Int(point.y))"
         ]
 
         if isDown {
             selectionStart = point
             currentSelectionRect = .zero
-            handler?(ShioriEvent(id: .OnSelectModeMouseDown, params: params))
+            emitEvent(.OnSelectModeMouseDown, refs: params)
         } else if isDrag, let start = selectionStart {
             currentSelectionRect = selectionRect(from: start, to: point)
         } else if isUp {
             if let start = selectionStart {
                 currentSelectionRect = selectionRect(from: start, to: point)
             }
-            handler?(ShioriEvent(id: .OnSelectModeMouseUp, params: params))
+            emitEvent(.OnSelectModeMouseUp, refs: params)
         }
         return true
     }
@@ -584,18 +597,38 @@ final class InputMonitor {
     /// ここで行い、ReferenceN への変換だけを `emitEvent` に集約する。
     static func semanticMouseReferences(
         from params: [String: String],
-        includeButton: Bool
+        includeButton: Bool,
+        includeDeviceType: Bool = true
     ) -> [String: String] {
         var refs: [String: String] = [
             "x": params["Reference0"] ?? "",
             "y": params["Reference1"] ?? "",
             "wheelDelta": params["Reference2"] ?? "",
             "scopeID": params["Reference3"] ?? "",
-            "collisionID": params["Reference4"] ?? "",
-            "deviceType": params["Reference6"] ?? ""
+            "collisionID": params["Reference4"] ?? ""
         ]
+        if includeDeviceType {
+            refs["deviceType"] = params["Reference6"] ?? ""
+        }
         if includeButton, let button = params["Reference5"] {
             refs["button"] = button
+        }
+        return refs
+    }
+
+    /// 入退場・hover イベント用の意味参照を作る。
+    ///
+    /// UKADOC の固定仕様は R0..R4 だが、従来の InputMonitor は互換拡張として
+    /// `Reference6=mouse` も付与していた。表駆動化後もその wire 値を変えないため、
+    /// R6 だけは明示的な raw Reference として通過させる。
+    static func pointerEventReferences(from params: [String: String]) -> [String: String] {
+        var refs = semanticMouseReferences(
+            from: params,
+            includeButton: false,
+            includeDeviceType: false
+        )
+        if let deviceType = params["Reference6"] {
+            refs["Reference6"] = deviceType
         }
         return refs
     }

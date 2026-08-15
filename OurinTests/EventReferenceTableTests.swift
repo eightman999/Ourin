@@ -185,6 +185,35 @@ func inputMonitorMouseReferencesRoundTripThroughEventReferenceTable() {
 }
 
 @Test
+func inputMonitorPointerAndSelectionReferencesRoundTripThroughEventReferenceTable() {
+    let rawPointer = [
+        "Reference0": "11",
+        "Reference1": "22",
+        "Reference2": "0",
+        "Reference3": "1",
+        "Reference4": "Head",
+        "Reference6": "mouse"
+    ]
+    let pointerRefs = InputMonitor.pointerEventReferences(from: rawPointer)
+    for eventID in ["OnMouseEnter", "OnMouseEnterAll", "OnMouseLeave", "OnMouseLeaveAll", "OnMouseHover"] {
+        #expect(EventReferenceTable.params(forEvent: eventID, refs: pointerRefs) == rawPointer, "mismatch for \(eventID)")
+    }
+
+    let selectionRefs = [
+        "scopeID": "2",
+        "mode": "rect",
+        "position": "100,200"
+    ]
+    let expectedSelection = [
+        "Reference0": "2",
+        "Reference1": "rect",
+        "Reference2": "100,200"
+    ]
+    #expect(EventReferenceTable.params(forEvent: "OnSelectModeMouseDown", refs: selectionRefs) == expectedSelection)
+    #expect(EventReferenceTable.params(forEvent: "OnSelectModeMouseUp", refs: selectionRefs) == expectedSelection)
+}
+
+@Test
 func eventReferenceTableChoiceAndAnchorReferencesMatchUkadoc() {
     #expect(EventReferenceTable.specs["OnChoiceSelectEx"]?.references == [
         "label", "choiceID", "extInfo"
