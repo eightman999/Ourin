@@ -317,7 +317,22 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <tbody>
 <tr>
 <td><strong><code>OnDisplayChange</code> / <code>OnDisplayChangeEx</code> の発火を <code>EventReferenceTable</code> 経由へ移行</strong></td>
-<td><code>Ourin/SHIORIEvents/DisplayObserver.swift</code> の固定3項目（bpp/width/height）を <code>ShioriEvent(id:refs:)</code> へ変更し、可変長のモニタ情報を持つ <code>OnDisplayChangeEx</code> は state の添字を表から解決して <code>Reference1..N</code> の既存wire値を保持する。<code>OurinTests/EventReferenceTableTests.swift</code> の <code>displayChangeReferencesUseSemanticStateAndPreserveDynamicDisplays</code> は固定項目・可変項目の両方を検証。最新の <code>build-for-testing</code> 後の権限付き直列全体実行は <strong>1097 passed / 0 failed / 0 skipped / 1097 total</strong>。</td>
+<td><code>Ourin/SHIORIEvents/DisplayObserver.swift</code> の固定3項目（bpp/width/height）を <code>ShioriEvent(id:refs:)</code> へ変更し、可変長のモニタ情報を持つ <code>OnDisplayChangeEx</code> は state の添字を表から解決して <code>Reference1..N</code> の既存wire値を保持する。<code>OurinTests/EventReferenceTableTests.swift</code> の <code>displayChangeReferencesUseSemanticStateAndPreserveDynamicDisplays</code> は固定項目・可変項目の両方を検証。最新の <code>build-for-testing</code> 後の権限付き直列全体実行は <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong>。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="w-2026-08-15-devtools-audit-devtools-select-001">W. 2026-08-15 DevTools の選択ゴースト実行経路修正（AUDIT-DEVTOOLS-SELECT-001）</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（実装・テスト・実機監査）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Headline/Balloon 画面の Picker 選択値を実行対象へ確実に渡す</strong></td>
+<td><code>Ourin/ContentView.swift</code> の <code>HeadlineBalloonView.loadData()</code> が <code>@State</code> 更新前の配列を参照して空のゴーストを選ぶ問題を、インストール済みデータから解決する初期化へ修正した。ゴースト変更時にはシェル一覧も同時に再解決する。<code>OurinTests/DevToolsTargetRoutingTests.swift</code> の <code>headlineBalloonSelectionInitializesFromInstalledData</code> は空・既存・不在の選択値と空データを検証。最新ビルドの権限付き直列全体実行は <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong>。さらに最新ビルドを実機UIで起動し、<code>emily4</code> を選択してスクリプト実行した結果が <code>実行対象: Emily/Phase4.5</code>、表示テキストが <code>こんにちは！これはテストメッセージです。</code> となることを確認した。</td>
 </tr>
 </tbody>
 </table>
@@ -1096,7 +1111,22 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <tbody>
 <tr>
 <td><strong>Migrated <code>OnDisplayChange</code> / <code>OnDisplayChangeEx</code> emission through <code>EventReferenceTable</code></strong></td>
-<td><code>Ourin/SHIORIEvents/DisplayObserver.swift</code> now uses <code>ShioriEvent(id:refs:)</code> for the fixed bpp/width/height fields. For <code>OnDisplayChangeEx</code>, the state field is resolved by the table while the variable-length monitor records remain in their existing <code>Reference1..N</code> wire positions. <code>OurinTests/EventReferenceTableTests.swift</code> adds <code>displayChangeReferencesUseSemanticStateAndPreserveDynamicDisplays</code>, covering both fixed and dynamic fields. After the latest <code>build-for-testing</code>, the privileged serial full run reported <strong>1097 passed / 0 failed / 0 skipped / 1097 total</strong>.</td>
+<td><code>Ourin/SHIORIEvents/DisplayObserver.swift</code> now uses <code>ShioriEvent(id:refs:)</code> for the fixed bpp/width/height fields. For <code>OnDisplayChangeEx</code>, the state field is resolved by the table while the variable-length monitor records remain in their existing <code>Reference1..N</code> wire positions. <code>OurinTests/EventReferenceTableTests.swift</code> adds <code>displayChangeReferencesUseSemanticStateAndPreserveDynamicDisplays</code>, covering both fixed and dynamic fields. After the latest <code>build-for-testing</code>, the privileged serial full run reported <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="w-2026-08-15-devtools-selected-ghost-execution-routing-fix-audit-devtools-select-001">W. 2026-08-15 DevTools selected-ghost execution routing fix (AUDIT-DEVTOOLS-SELECT-001)</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (implementation, tests, live audit)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ensure the Headline/Balloon Picker selection reaches script execution</strong></td>
+<td><code>Ourin/ContentView.swift</code> now initializes <code>HeadlineBalloonView.loadData()</code> from installed data instead of reading the pre-update <code>@State</code> array, and re-resolves shells when the ghost changes. <code>OurinTests/DevToolsTargetRoutingTests.swift</code> adds <code>headlineBalloonSelectionInitializesFromInstalledData</code>, covering empty, existing, missing, and empty installed-data selections. The latest privileged serial full run reported <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong>. In the latest build's live UI, selecting <code>emily4</code> and executing the script produced <code>Target: Emily/Phase4.5</code> and the rendered text <code>こんにちは！これはテストメッセージです。</code>.</td>
 </tr>
 </tbody>
 </table>

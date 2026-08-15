@@ -3,6 +3,23 @@ import Testing
 
 struct DevToolsTargetRoutingTests {
     @Test
+    func headlineBalloonSelectionInitializesFromInstalledData() {
+        #expect(HeadlineBalloonSelection.initialGhost(
+            current: "",
+            installed: ["bonsyou", "emily4"]
+        ) == "bonsyou")
+        #expect(HeadlineBalloonSelection.initialGhost(
+            current: "emily4",
+            installed: ["bonsyou", "emily4"]
+        ) == "emily4")
+        #expect(HeadlineBalloonSelection.initialGhost(
+            current: "missing",
+            installed: ["bonsyou", "emily4"]
+        ) == "bonsyou")
+        #expect(HeadlineBalloonSelection.initialGhost(current: "", installed: []) == "")
+    }
+
+    @Test
     func selectionMatchesGhostConfigOrFolder() {
         #expect(AppDelegate.ghostSelectionMatches(
             "emily4",

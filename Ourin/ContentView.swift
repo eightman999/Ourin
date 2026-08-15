@@ -12,6 +12,17 @@ import ServiceManagement
 import Network
 import Speech
 
+enum HeadlineBalloonSelection {
+    /// Picker の初期値を、@State 更新前の古い配列ではなく実データから決める。
+    static func initialGhost(current: String, installed: [String]) -> String {
+        let trimmed = current.trimmingCharacters(in: .whitespacesAndNewlines)
+        if installed.contains(trimmed) {
+            return trimmed
+        }
+        return installed.first ?? ""
+    }
+}
+
 struct ContentView: View {
     enum Section: String, CaseIterable, Identifiable {
         case general = "General"
@@ -1066,24 +1077,36 @@ fileprivate struct HeadlineBalloonView: View {
             .frame(minWidth: 350)
         }
         .onAppear(perform: loadData)
+        .onChange(of: selectedGhost) { newGhost in
+            let installedShells = NarRegistry.shared.installedShells(for: newGhost)
+            shells = installedShells
+            if !installedShells.contains(selectedShell) {
+                selectedShell = installedShells.first ?? ""
+            }
+        }
         .onChange(of: selectedBalloon) { _ in
             loadPreviewBalloon()
         }
     }
 
     private func loadData() {
-        self.ghosts = NarRegistry.shared.installedGhosts()
-        self.shells = NarRegistry.shared.installedShells(for: selectedGhost)
-        self.balloons = NarRegistry.shared.installedBalloons()
+        let installedGhosts = NarRegistry.shared.installedGhosts()
+        let resolvedGhost = HeadlineBalloonSelection.initialGhost(
+            current: selectedGhost,
+            installed: installedGhosts
+        )
+        let installedShells = NarRegistry.shared.installedShells(for: resolvedGhost)
+        let installedBalloons = NarRegistry.shared.installedBalloons()
 
-        if selectedGhost.isEmpty, let firstGhost = ghosts.first {
-            selectedGhost = firstGhost
+        self.ghosts = installedGhosts
+        self.shells = installedShells
+        self.balloons = installedBalloons
+        self.selectedGhost = resolvedGhost
+        if !installedShells.contains(selectedShell) {
+            selectedShell = installedShells.first ?? ""
         }
-        if selectedShell.isEmpty, let firstShell = shells.first {
-            selectedShell = firstShell
-        }
-        if selectedBalloon.isEmpty, let firstBalloon = balloons.first {
-            selectedBalloon = firstBalloon
+        if !installedBalloons.contains(selectedBalloon) {
+            selectedBalloon = installedBalloons.first ?? ""
         }
         loadPreviewBalloon()
     }
