@@ -168,6 +168,11 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tbody>
 <tr>
 <td>P2</td>
+<td>DevTools実ゴーストスクリプト実行の対象解決</td>
+<td>実ゴーストと <code>yaya_core</code> が稼働中にもかかわらず、設定 → ヘッドライン・バルーン → 「スクリプト実行」が <code>実行対象: なし（ゴースト未起動。解析のみ）</code> になった（2026-08-15実測）。<code>ContentView.swift</code> の <code>NSApp.delegate</code> → <code>AppDelegate.ghostManager</code> 解決経路、実バルーン再生、対象名表示を実機で再検証し、原因を特定して修正する。</td>
+</tr>
+<tr>
+<td>P2</td>
 <td>SakuraScript UKADOC 全コマンド実行差分</td>
 <td>パース網羅・ディスパッチ差分は <code>SakuraScriptDocumentationCoverageTests</code>（326タグ）で機械検証済み。<strong>実行結果差分・実ゴースト画面差分</strong>が未検証。</td>
 </tr>
@@ -278,6 +283,11 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>P2</td>
+<td>DevTools live-ghost script execution target resolution</td>
+<td>On 2026-08-15, the settings → Headline/Balloon → “Run Script” action reported <code>実行対象: なし（ゴースト未起動。解析のみ）</code> even though a real ghost and its <code>yaya_core</code> child process were running. Reproduce on a real ghost, trace the <code>ContentView.swift</code> <code>NSApp.delegate</code> → <code>AppDelegate.ghostManager</code> path, confirm live-balloon playback and target-name reporting, then identify and fix the cause.</td>
+</tr>
 <tr>
 <td>P2</td>
 <td>SakuraScript UKADOC full-command runtime diff</td>
