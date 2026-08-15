@@ -159,6 +159,32 @@ func eventReferenceTableMouseEventReferencesMatchUkadoc() {
 }
 
 @Test
+func inputMonitorMouseReferencesRoundTripThroughEventReferenceTable() {
+    let rawClick = [
+        "Reference0": "10",
+        "Reference1": "20",
+        "Reference2": "0",
+        "Reference3": "1",
+        "Reference4": "Head",
+        "Reference5": "0",
+        "Reference6": "mouse"
+    ]
+    let clickRefs = InputMonitor.semanticMouseReferences(from: rawClick, includeButton: true)
+    #expect(EventReferenceTable.params(forEvent: "OnMouseClick", refs: clickRefs) == rawClick)
+
+    let rawMove = [
+        "Reference0": "30",
+        "Reference1": "40",
+        "Reference2": "0",
+        "Reference3": "0",
+        "Reference4": "",
+        "Reference6": "mouse"
+    ]
+    let moveRefs = InputMonitor.semanticMouseReferences(from: rawMove, includeButton: false)
+    #expect(EventReferenceTable.params(forEvent: "OnMouseMove", refs: moveRefs) == rawMove)
+}
+
+@Test
 func eventReferenceTableChoiceAndAnchorReferencesMatchUkadoc() {
     #expect(EventReferenceTable.specs["OnChoiceSelectEx"]?.references == [
         "label", "choiceID", "extInfo"

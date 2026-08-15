@@ -191,6 +191,21 @@ final class InputMonitor {
         return result
     }
 
+    /// 意味ラベルで組み立てたイベントをハンドラへ配送する。
+    ///
+    /// `additionalParams` は `modifiers` のような Reference ではない補助ヘッダ、
+    /// または既存互換用の値だけに限定する。位置引数の割り当ては
+    /// `EventReferenceTable` に任せ、入力監視側で ReferenceN を再定義しない。
+    private func emitEvent(
+        _ id: EventID,
+        refs: [String: String],
+        additionalParams: [String: String] = [:]
+    ) {
+        var params = EventReferenceTable.params(forEvent: id.rawValue, refs: refs)
+        params.merge(additionalParams, uniquingKeysWith: { _, new in new })
+        handler?(ShioriEvent(id: id, params: params))
+    }
+
     /// NSEvent を SHIORI イベントへ変換してハンドラに渡す
     private func dispatch(_ ev: NSEvent) {
         // NSEvent の種類に応じてイベント ID を決定
@@ -207,12 +222,17 @@ final class InputMonitor {
 
         // SHIORI へ渡すパラメータを構築（UKADOC: ReferenceN 形式）
         var params: [String:String]
+        var references: [String:String]
         if ev.type == .keyDown || ev.type == .keyUp {
             // OnKeyDown/OnKeyUp: Reference0=キー識別子
             params = [
                 "Reference0": ev.characters ?? "",
                 "Reference1": String(ev.keyCode),
                 "modifiers": modifierString(for: ev)
+            ]
+            references = [
+                "characters": ev.characters ?? "",
+                "keyCode": String(ev.keyCode)
             ]
         } else {
             let includeButton = ev.type != .mouseMoved && ev.type != .scrollWheel
@@ -221,11 +241,13 @@ final class InputMonitor {
                 // OnMouseWheel: Reference2=ホイール回転量
                 params["Reference2"] = String(Int(ev.scrollingDeltaY))
             }
+            references = Self.semanticMouseReferences(from: params, includeButton: includeButton)
         }
         updateSerikoCursor(for: ev, params: params)
 
-        // 構築したイベントをハンドラに通知
-        handler?(ShioriEvent(id: id, params: params))
+        // 構築したイベントをハンドラに通知。ReferenceN の割り当ては
+        // EventReferenceTable に集約し、発火側では意味ラベルだけを扱う。
+        emitEvent(id, refs: references, additionalParams: ["modifiers": params["modifiers"] ?? ""])
 
         if ev.type == .keyDown {
             let count: Int
@@ -236,20 +258,25 @@ final class InputMonitor {
             }
             keyPressCounts[ev.keyCode] = count
 
-            var pressParams = params
-            pressParams["Reference0"] = ev.charactersIgnoringModifiers ?? ev.characters ?? ""
-            pressParams["Reference2"] = String(count)
-            pressParams["Reference3"] = ev.window.map { String($0.windowNumber) } ?? ""
-            pressParams["Reference4"] = modifierString(for: ev)
-            handler?(ShioriEvent(id: .OnKeyPress, params: pressParams))
+            emitEvent(.OnKeyPress, refs: [
+                "characters": ev.charactersIgnoringModifiers ?? ev.characters ?? "",
+                "keyCode": String(ev.keyCode),
+                "keyRepeat": String(count),
+                "windowID": ev.window.map { String($0.windowNumber) } ?? "",
+                "modifiers": modifierString(for: ev)
+            ], additionalParams: ["modifiers": modifierString(for: ev)])
         } else if ev.type == .keyUp {
             keyPressCounts.removeValue(forKey: ev.keyCode)
         }
 
         if ev.type == .otherMouseDown {
-            handler?(ShioriEvent(id: .OnMouseDownEx, params: params))
+            emitEvent(.OnMouseDownEx,
+                      refs: Self.semanticMouseReferences(from: params, includeButton: true),
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
         } else if ev.type == .otherMouseUp {
-            handler?(ShioriEvent(id: .OnMouseUpEx, params: params))
+            emitEvent(.OnMouseUpEx,
+                      refs: Self.semanticMouseReferences(from: params, includeButton: true),
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
         }
 
         if ev.type == .mouseMoved || ev.type == .leftMouseDragged || ev.type == .rightMouseDragged || ev.type == .otherMouseDragged {
@@ -292,26 +319,39 @@ final class InputMonitor {
             return
         }
 
-        handler?(ShioriEvent(id: .OnMouseClick, params: params))
+        let references = Self.semanticMouseReferences(from: params, includeButton: true)
+        emitEvent(.OnMouseClick,
+                  refs: references,
+                  additionalParams: ["modifiers": params["modifiers"] ?? ""])
         if isExButton {
-            handler?(ShioriEvent(id: .OnMouseClickEx, params: params))
+            emitEvent(.OnMouseClickEx,
+                      refs: references,
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
         }
 
         if clickStreak >= 2 {
             if isExButton {
-                handler?(ShioriEvent(id: .OnMouseDoubleClickEx, params: params))
+                emitEvent(.OnMouseDoubleClickEx,
+                          refs: references,
+                          additionalParams: ["modifiers": params["modifiers"] ?? ""])
             } else {
-                handler?(ShioriEvent(id: .OnMouseDoubleClick, params: params))
+                emitEvent(.OnMouseDoubleClick,
+                          refs: references,
+                          additionalParams: ["modifiers": params["modifiers"] ?? ""])
             }
         }
         if clickStreak >= 3 {
-            var multi = params
+            var multipleReferences = references
             // OnMouseMultipleClick: Reference7 = 連続クリック回数（UKADOC 準拠の位置引数）
-            multi["Reference7"] = String(clickStreak)
+            multipleReferences["clickCount"] = String(clickStreak)
             if isExButton {
-                handler?(ShioriEvent(id: .OnMouseMultipleClickEx, params: multi))
+                emitEvent(.OnMouseMultipleClickEx,
+                          refs: multipleReferences,
+                          additionalParams: ["modifiers": params["modifiers"] ?? ""])
             } else {
-                handler?(ShioriEvent(id: .OnMouseMultipleClick, params: multi))
+                emitEvent(.OnMouseMultipleClick,
+                          refs: multipleReferences,
+                          additionalParams: ["modifiers": params["modifiers"] ?? ""])
             }
         }
         lastClickTime = Date()
@@ -367,7 +407,9 @@ final class InputMonitor {
         if let dragButton {
             params["Reference5"] = buttonReference(for: dragButton)
         }
-        handler?(ShioriEvent(id: .OnMouseDragStart, params: params))
+        emitEvent(.OnMouseDragStart,
+                  refs: Self.semanticMouseReferences(from: params, includeButton: true),
+                  additionalParams: ["modifiers": params["modifiers"] ?? ""])
     }
 
     private func dispatchDragEndIfNeeded(_ ev: NSEvent) {
@@ -377,7 +419,9 @@ final class InputMonitor {
         if let dragButton {
             params["Reference5"] = buttonReference(for: dragButton)
         }
-        handler?(ShioriEvent(id: .OnMouseDragEnd, params: params))
+        emitEvent(.OnMouseDragEnd,
+                  refs: Self.semanticMouseReferences(from: params, includeButton: true),
+                  additionalParams: ["modifiers": params["modifiers"] ?? ""])
     }
 
     private func scheduleHover(with params: [String: String]) {
@@ -532,6 +576,28 @@ final class InputMonitor {
             params["Reference5"] = buttonReference(for: mouseButtonName(for: ev))
         }
         return params
+    }
+
+    /// 既存の `mouseParams` が作った位置引数を、表駆動発火用の意味ラベルへ戻す。
+    ///
+    /// 入力座標・当たり判定は AppKit のイベントからしか得られないため、値の生成は
+    /// ここで行い、ReferenceN への変換だけを `emitEvent` に集約する。
+    static func semanticMouseReferences(
+        from params: [String: String],
+        includeButton: Bool
+    ) -> [String: String] {
+        var refs: [String: String] = [
+            "x": params["Reference0"] ?? "",
+            "y": params["Reference1"] ?? "",
+            "wheelDelta": params["Reference2"] ?? "",
+            "scopeID": params["Reference3"] ?? "",
+            "collisionID": params["Reference4"] ?? "",
+            "deviceType": params["Reference6"] ?? ""
+        ]
+        if includeButton, let button = params["Reference5"] {
+            refs["button"] = button
+        }
+        return refs
     }
 
     /// `Reference3`(scope)/`Reference4`(当たり判定領域) を元に SERIKO カーソルを更新する。

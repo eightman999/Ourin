@@ -51,6 +51,7 @@
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
+| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で21件の失敗 | **未着手（本作業では未修正）**。2026-08-15 の権限付き実行は **1073 passed / 21 failed / 0 skipped / 1094 total**。失敗群は YAYA/Emily4 辞書ロード11件、Native SHIORI XPC fixture、SAORI `readLine()` 2件、SERIKO/音声タイミング、ドラッグ＆ドロップ、GhostUtility、バルーン、着せ替え。入力イベント Reference 移行とは別 issue として切り分ける。 |
 
 ---
 
@@ -96,6 +97,7 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | Priority | Issue | Status |
 |---|---|---|
+| P2 | **AUDIT-TEST-BASELINE-001**: 21 failures in the full `OurinTests` run | **Not started (not fixed in this work unit)**. The privileged run on 2026-08-15 reported **1073 passed / 21 failed / 0 skipped / 1094 total**. Failure groups: 11 YAYA/Emily4 dictionary-load tests, the native SHIORI XPC fixture, two SAORI `readLine()` tests, SERIKO/audio timing, drag-and-drop, GhostUtility, balloon, and dressup. Track separately from the input-event Reference migration. |
 
 ---
 

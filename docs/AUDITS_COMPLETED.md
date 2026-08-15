@@ -54,6 +54,12 @@
 |---|---|
 | **Markdownリンクを生成先HTMLへ変換し、相対参照を再基準化** | `docs/generate_html.py` に生成済みMarkdown索引、言語版・旧`_JA`/`_EN`命名の解決、除外Markdownと`yaya_core`・プロジェクトREADME・`html/index.html`の相対パス変換、`href`/`src`のローカル参照変換を実装。`docs/test_generate_html.py` は **5 passed / 0 failed**。`cd docs && uv run --with markdown python3 generate_html.py` は **126 succeeded / 0 failed**。`static-site-check` は **127 HTML / 1151参照 / 壊れ参照0件 / 判定OK**。生成物は `docs/html/` 全体を更新。 |
 
+### S. 2026-08-15 入力イベントの Reference 表駆動移行
+
+| 項目 | 根拠（実装・テスト・監査） |
+|---|---|
+| **キーボード・クリック・ドラッグ系イベントの Reference 番号割当を `EventReferenceTable` 経由へ移行** | `Ourin/SHIORIEvents/InputMonitor.swift` にイベントIDごとの意味名から `ReferenceN` への変換を集約し、キー入力、クリック、ダブルクリック、複数クリック、ドラッグ開始・終了の発火を表駆動化した。`OurinTests/EventReferenceTableTests.swift` の `inputMonitorMouseReferencesRoundTripThroughEventReferenceTable` は、クリック系（R0〜R6）と移動系（R0〜R4/R6）の既存 raw パラメータとの完全一致を検証。権限付き `xcodebuild ... -only-testing:OurinTests test` でこの追加テストは passed。全体実行は **1073 passed / 21 failed / 0 skipped / 1094 total** で、別 issue の失敗群は `AUDITS_TODO.md` に記録した。マウス入退場・hover・select mode の raw 経路は次の移行スライスとして残る。 |
+
 ---
 
 以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、**現状コードで解決済み**であることを確認した項目です。
@@ -286,6 +292,12 @@ Sonnet 調査エージェント3体による全域再監査（既存監査に無
 | Item | Evidence (implementation, tests, generated output) |
 |---|---|
 | **Convert Markdown links to generated HTML and rebase local paths** | `docs/generate_html.py` now indexes generated Markdown sources, resolves language-neutral and legacy `_JA`/`_EN` names, rebases excluded Markdown plus `yaya_core`, project README, and `html/index.html` paths, and rewrites local `href`/`src` targets. `docs/test_generate_html.py`: **5 passed / 0 failed**. `cd docs && uv run --with markdown python3 generate_html.py`: **126 succeeded / 0 failed**. `static-site-check`: **127 HTML / 1151 references / 0 broken / OK**. The complete `docs/html/` generated output was updated. |
+
+### S. 2026-08-15 Table-driven Reference migration for input events
+
+| Item | Evidence (implementation, tests, audit) |
+|---|---|
+| **Route keyboard, click, and drag event Reference numbering through `EventReferenceTable`** | `Ourin/SHIORIEvents/InputMonitor.swift` now centralizes semantic-name to `ReferenceN` conversion per event ID and uses it for key input, click, double-click, multiple-click, and drag-start/end emission. `OurinTests/EventReferenceTableTests.swift` adds `inputMonitorMouseReferencesRoundTripThroughEventReferenceTable`, verifying exact equality with the existing raw parameters for click events (R0–R6) and move events (R0–R4/R6). The privileged `xcodebuild ... -only-testing:OurinTests test` run passed this added test. The full run was **1073 passed / 21 failed / 0 skipped / 1094 total**; the separate failure groups are recorded in `AUDITS_TODO.md`. Mouse enter/leave/hover and select-mode raw paths remain as the next migration slice. |
 
 ---
 
