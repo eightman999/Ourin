@@ -277,8 +277,8 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tbody>
 <tr>
 <td>P2</td>
-<td><strong>AUDIT-TEST-BASELINE-001</strong>: <code>OurinTests</code> 全体実行で12件の失敗</td>
-<td><strong>未解決（本作業では本体修正なし）</strong>。並列実行時の既存ベースラインは <strong>1084 passed / 12 failed / 0 skipped / 1096 total</strong>。一方、最新の <code>build-for-testing</code> 成果物を <code>-parallel-testing-enabled NO</code> で直列実行すると <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong> となった。単独実行でも通る失敗群を含むため、共有イベント／外部リソース／タイミング干渉を切り分けるissueとして継続する。</td>
+<td><strong>AUDIT-TEST-BASELINE-001</strong>: <code>OurinTests</code> 全体実行で9件の失敗</td>
+<td><strong>未解決</strong>。実在Emily4辞書を使う <code>YayaEmily4RegressionTests</code> を <code>.serialized</code> 化し、並列全体実行は <strong>1089 passed / 9 failed / 0 skipped / 1098 total</strong> まで改善した（変更: <code>OurinTests/YayaEmily4RegressionTests.swift</code>）。残る失敗は共有イベント／外部リソース／タイミング干渉の別群であり、次の作業単位で切り分ける。直列実行の既存実績は <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong>。</td>
 </tr>
 </tbody>
 </table>
@@ -406,8 +406,8 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tbody>
 <tr>
 <td>P2</td>
-<td><strong>AUDIT-TEST-BASELINE-001</strong>: 12 failures in the full <code>OurinTests</code> run</td>
-<td><strong>Unresolved (no production fix in this work unit)</strong>. The existing parallel run baseline was <strong>1084 passed / 12 failed / 0 skipped / 1096 total</strong>. A fresh <code>build-for-testing</code> artifact run serially with <code>-parallel-testing-enabled NO</code> reported <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong>. Because the affected groups also pass in isolation, continue tracking this as shared-event/external-resource/timing interference rather than hiding it by changing production behavior.</td>
+<td><strong>AUDIT-TEST-BASELINE-001</strong>: 9 failures in the full <code>OurinTests</code> run</td>
+<td><strong>Unresolved</strong>. Serializing the real-Emily4-dictionary <code>YayaEmily4RegressionTests</code> suite reduced the parallel full run to <strong>1089 passed / 9 failed / 0 skipped / 1098 total</strong> (change: <code>OurinTests/YayaEmily4RegressionTests.swift</code>). The remaining failures are a separate shared-event/external-resource/timing-interference group and will be isolated in the next work unit. The existing serial result remains <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong>.</td>
 </tr>
 </tbody>
 </table>

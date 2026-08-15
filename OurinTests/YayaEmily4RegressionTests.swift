@@ -10,6 +10,10 @@ import Foundation
 /// Emily4 本体（`emily4/ghost/master/*.dic`）を実際にロードして発話結果を確認するテストは無かった。
 ///
 /// yaya_core 実行ファイルが見つからない環境ではスキップする（既存の yaya_core 統合テストと同じ方針）。
+// Emily4 は実在の33辞書を yaya_core 子プロセスへロードするため、同一テストプロセス内で
+// 複数ケースを並列起動すると全ケースがCPU/ディスク競合でロード待ちを使い切る。
+// 本番コードの並列性を制限せず、重い外部プロセス fixture だけを直列化する。
+@Suite(.serialized)
 struct YayaEmily4RegressionTests {
     // MARK: - Locate fixtures
 

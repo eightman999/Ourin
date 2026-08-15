@@ -51,7 +51,7 @@
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
-| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で12件の失敗 | **未解決（本作業では本体修正なし）**。並列実行時の既存ベースラインは **1084 passed / 12 failed / 0 skipped / 1096 total**。一方、最新の `build-for-testing` 成果物を `-parallel-testing-enabled NO` で直列実行すると **1098 passed / 0 failed / 0 skipped / 1098 total** となった。単独実行でも通る失敗群を含むため、共有イベント／外部リソース／タイミング干渉を切り分けるissueとして継続する。 |
+| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で9件の失敗 | **未解決**。実在Emily4辞書を使う `YayaEmily4RegressionTests` を `.serialized` 化し、並列全体実行は **1089 passed / 9 failed / 0 skipped / 1098 total** まで改善した（変更: `OurinTests/YayaEmily4RegressionTests.swift`）。残る失敗は共有イベント／外部リソース／タイミング干渉の別群であり、次の作業単位で切り分ける。直列実行の既存実績は **1098 passed / 0 failed / 0 skipped / 1098 total**。 |
 
 ---
 
@@ -97,7 +97,7 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | Priority | Issue | Status |
 |---|---|---|
-| P2 | **AUDIT-TEST-BASELINE-001**: 12 failures in the full `OurinTests` run | **Unresolved (no production fix in this work unit)**. The existing parallel run baseline was **1084 passed / 12 failed / 0 skipped / 1096 total**. A fresh `build-for-testing` artifact run serially with `-parallel-testing-enabled NO` reported **1098 passed / 0 failed / 0 skipped / 1098 total**. Because the affected groups also pass in isolation, continue tracking this as shared-event/external-resource/timing interference rather than hiding it by changing production behavior. |
+| P2 | **AUDIT-TEST-BASELINE-001**: 9 failures in the full `OurinTests` run | **Unresolved**. Serializing the real-Emily4-dictionary `YayaEmily4RegressionTests` suite reduced the parallel full run to **1089 passed / 9 failed / 0 skipped / 1098 total** (change: `OurinTests/YayaEmily4RegressionTests.swift`). The remaining failures are a separate shared-event/external-resource/timing-interference group and will be isolated in the next work unit. The existing serial result remains **1098 passed / 0 failed / 0 skipped / 1098 total**. |
 
 ---
 
