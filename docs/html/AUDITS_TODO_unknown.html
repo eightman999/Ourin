@@ -388,6 +388,11 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </thead>
 <tbody>
 <tr>
+<td>P0</td>
+<td>自動音声認識権限要求による実起動クラッシュ</td>
+<td>2026-08-15 に最新ビルドを直接実起動したところ、実ゴーストのロード後、<code>SpeechObserver.poll()</code> → <code>SFSpeechRecognizer.requestAuthorization()</code> の自動権限要求で <code>EXC_CRASH (SIGABRT)</code> が発生。クラッシュレポートの <code>termination.namespace=TCC</code> は <code>NSSpeechRecognitionUsageDescription</code> 不在として終了し、faulting thread は <code>__TCC_CRASHING_DUE_TO_PRIVACY_VIOLATION</code>。ソース／ビルド済み <code>Info.plist</code> に説明文は存在するため、起動時の自動権限要求を明示的なユーザー操作へ分離する必要がある。<strong>修正はユーザー指示待ち</strong>。 / On 2026-08-15, directly launching the latest build reproduced <code>EXC_CRASH (SIGABRT)</code> after the real ghost loaded: <code>SpeechObserver.poll()</code> automatically called <code>SFSpeechRecognizer.requestAuthorization()</code>. The crash report had <code>termination.namespace=TCC</code> and faulting thread <code>__TCC_CRASHING_DUE_TO_PRIVACY_VIOLATION</code>, claiming a missing <code>NSSpeechRecognitionUsageDescription</code>. The source and built <code>Info.plist</code> do contain the usage description, so startup authorization must be separated from explicit user action. <strong>Fix pending user direction.</strong></td>
+</tr>
+<tr>
 <td>P2</td>
 <td>SERIKO関連テストのQoS priority inversion warning</td>
 <td><code>SurfaceImageOrientationTests</code> と <code>SurfaceOverlayOrderingTests</code> の実行で、<code>User-interactive/initiated</code> QoS のスレッドが <code>Default</code> QoS の処理を待つ runtime warning が9件発生。テストハーネス由来か本番の画像ロード・合成経路由来か未切り分け。<strong>修正はユーザー指示待ち</strong>。 / Nine runtime warnings reported while <code>SurfaceImageOrientationTests</code> and <code>SurfaceOverlayOrderingTests</code> ran: <code>User-interactive/initiated</code> threads waited on <code>Default</code> QoS work. It is not yet isolated whether this is test-harness-only or production image-load/compositing behavior. <strong>Fix pending user direction.</strong></td>
@@ -404,6 +409,10 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><strong>P0</strong></td>
+<td>自動音声認識権限要求クラッシュの解消（起動時の権限要求を明示的操作へ分離）</td>
+</tr>
 <tr>
 <td><strong>P2</strong></td>
 <td>実ゴースト検証パス一式（SakuraScript 実行差分 → SERIKO/バルーン目視 → 動画・イベント実機）</td>
