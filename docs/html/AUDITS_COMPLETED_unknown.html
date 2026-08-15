@@ -216,6 +216,21 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 </tr>
 </tbody>
 </table>
+<h3 id="p-2026-08-15-devtools">P. 2026-08-15 DevTools選択ゴーストへの実行対象配線</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（実装・テスト・実機）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ヘッドライン・バルーン画面のゴースト選択をスクリプト実行へ接続</strong></td>
+<td><code>Ourin/OurinApp.swift</code> に選択値を設定名・インストールフォルダ名へ照合する <code>ghostSelectionMatches</code> と、稼働中ゴースト／未起動ゴーストを配送する <code>runDevToolsScript</code> を追加。未起動時は <code>launchAdditionalGhost</code> 完了後にスクリプトを実行し、実行対象をUIへ返す。<code>Ourin/ContentView.swift</code> は選択値を渡し、起動完了後に結果を表示する。<code>DevToolsTargetRoutingTests</code> は <strong>2 passed / 0 failed</strong>。2026-08-15、専用ビルドで設定 → ヘッドライン・バルーン → ゴースト <code>emily4</code> を選択して実行し、未起動ゴーストを追加起動後、通知に <strong><code>実行対象: Emily/Phase4.5</code></strong> と表示テキスト <code>DevTools selected target verification</code> が出ることを確認（<code>bonsyou</code> への誤送信なし）。コミット <code>4457a36</code>。</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <p>以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、<strong>現状コードで解決済み</strong>であることを確認した項目です。</p>
 <h3 id="a-shiori">A. SHIORI プロトコル</h3>
@@ -887,6 +902,21 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <tr>
 <td><strong>Suppress automatic restart of <code>interval,always</code> animations after manual stop</strong></td>
 <td><code>Ourin/Animation/SerikoExecutor.swift</code> now tracks manually suppressed always animation IDs, so <code>startScheduledAnimations()</code> does not restart them on the next tick. Explicit <code>executeAnimation(id:)</code> and surface-definition replacement release the suppression. <code>Ourin/Ghost/GhostManager+Animation.swift</code> requests always suppression for global <code>handleAnimStop()</code>. The focused <code>SerikoExecutorTests</code> run, including stop suppression and definition-replacement release, ended with <code>** TEST SUCCEEDED **</code>. On real <code>Emily/Phase4.5</code>, <code>\h\s[5]\![anim,50]SERIKO persistent overlay</code> followed by <code>\h\![anim,stop]SERIKO stopped</code> produced <strong>0</strong> later <code>SERIKO pattern executed: anim=50</code> entries when counted from the latest stop marker. Replaying the same anim command explicitly produced <code>surface4000.png</code> and new <code>SERIKO pattern executed: anim=50</code> entries, confirming intentional restart. Commit <code>4e6bc74</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p-2026-08-15-devtools-execution-routed-to-the-selected-ghost">P. 2026-08-15 DevTools execution routed to the selected ghost</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (implementation, tests, live UI)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Headline/Balloon ghost selection now controls script execution</strong></td>
+<td><code>Ourin/OurinApp.swift</code> adds <code>ghostSelectionMatches</code> for config/folder matching and <code>runDevToolsScript</code> for dispatch to running ghosts or an additional ghost when the selected ghost is not running. The script is sent after <code>launchAdditionalGhost</code> completes, and the execution target is returned to the UI. <code>Ourin/ContentView.swift</code> passes the selected value and presents the result after asynchronous boot. <code>DevToolsTargetRoutingTests</code>: <strong>2 passed / 0 failed</strong>. On 2026-08-15, the dedicated build selected <code>emily4</code> in Settings → Headline/Balloon and executed the script; the not-running ghost was launched as an additional ghost and the notification showed <strong><code>実行対象: Emily/Phase4.5</code></strong> with display text <code>DevTools selected target verification</code> (no dispatch to <code>bonsyou</code>). Commit <code>4457a36</code>.</td>
 </tr>
 </tbody>
 </table>

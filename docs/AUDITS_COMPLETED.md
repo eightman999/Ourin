@@ -36,6 +36,12 @@
 |---|---|
 | **手動停止後の `interval,always` アニメーション再起動を抑止** | `Ourin/Animation/SerikoExecutor.swift` に手動停止済み always ID の抑止状態を追加し、`startScheduledAnimations()` が次の tick で再起動しないようにした。明示的な `executeAnimation(id:)` とサーフェス定義置換では抑止を解除する。`Ourin/Ghost/GhostManager+Animation.swift` の `handleAnimStop()` はグローバル停止時に always 抑止を指定する。`SerikoExecutorTests` の停止後抑止・定義置換解除テストを含む対象テストは `** TEST SUCCEEDED **`。実ゴースト `Emily/Phase4.5` へ `\h\s[5]\![anim,50]SERIKO persistent overlay` → `\h\![anim,stop]SERIKO stopped` を投入し、停止後の `SERIKO pattern executed: anim=50` 件数を最新停止マーカーから再集計して **0件**と確認。続けて同じ anim コマンドを明示実行すると `surface4000.png` と `SERIKO pattern executed: anim=50` が再出現し、再生再開を確認。コミット `4e6bc74`。 |
 
+### P. 2026-08-15 DevTools選択ゴーストへの実行対象配線
+
+| 項目 | 根拠（実装・テスト・実機） |
+|---|---|
+| **ヘッドライン・バルーン画面のゴースト選択をスクリプト実行へ接続** | `Ourin/OurinApp.swift` に選択値を設定名・インストールフォルダ名へ照合する `ghostSelectionMatches` と、稼働中ゴースト／未起動ゴーストを配送する `runDevToolsScript` を追加。未起動時は `launchAdditionalGhost` 完了後にスクリプトを実行し、実行対象をUIへ返す。`Ourin/ContentView.swift` は選択値を渡し、起動完了後に結果を表示する。`DevToolsTargetRoutingTests` は **2 passed / 0 failed**。2026-08-15、専用ビルドで設定 → ヘッドライン・バルーン → ゴースト `emily4` を選択して実行し、未起動ゴーストを追加起動後、通知に **`実行対象: Emily/Phase4.5`** と表示テキスト `DevTools selected target verification` が出ることを確認（`bonsyou` への誤送信なし）。コミット `4457a36`。 |
+
 ---
 
 以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、**現状コードで解決済み**であることを確認した項目です。
@@ -250,6 +256,12 @@ Sonnet 調査エージェント3体による全域再監査（既存監査に無
 | Item | Evidence (implementation, tests, and real ghost) |
 |---|---|
 | **Suppress automatic restart of `interval,always` animations after manual stop** | `Ourin/Animation/SerikoExecutor.swift` now tracks manually suppressed always animation IDs, so `startScheduledAnimations()` does not restart them on the next tick. Explicit `executeAnimation(id:)` and surface-definition replacement release the suppression. `Ourin/Ghost/GhostManager+Animation.swift` requests always suppression for global `handleAnimStop()`. The focused `SerikoExecutorTests` run, including stop suppression and definition-replacement release, ended with `** TEST SUCCEEDED **`. On real `Emily/Phase4.5`, `\h\s[5]\![anim,50]SERIKO persistent overlay` followed by `\h\![anim,stop]SERIKO stopped` produced **0** later `SERIKO pattern executed: anim=50` entries when counted from the latest stop marker. Replaying the same anim command explicitly produced `surface4000.png` and new `SERIKO pattern executed: anim=50` entries, confirming intentional restart. Commit `4e6bc74`. |
+
+### P. 2026-08-15 DevTools execution routed to the selected ghost
+
+| Item | Evidence (implementation, tests, live UI) |
+|---|---|
+| **Headline/Balloon ghost selection now controls script execution** | `Ourin/OurinApp.swift` adds `ghostSelectionMatches` for config/folder matching and `runDevToolsScript` for dispatch to running ghosts or an additional ghost when the selected ghost is not running. The script is sent after `launchAdditionalGhost` completes, and the execution target is returned to the UI. `Ourin/ContentView.swift` passes the selected value and presents the result after asynchronous boot. `DevToolsTargetRoutingTests`: **2 passed / 0 failed**. On 2026-08-15, the dedicated build selected `emily4` in Settings → Headline/Balloon and executed the script; the not-running ghost was launched as an additional ghost and the notification showed **`実行対象: Emily/Phase4.5`** with display text `DevTools selected target verification` (no dispatch to `bonsyou`). Commit `4457a36`. |
 
 ---
 

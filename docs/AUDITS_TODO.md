@@ -51,7 +51,6 @@
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
-| **P2** | DevTools の「ゴースト」選択とスクリプト実行対象が一致しない / DevTools ghost selection does not match the script execution target | 2026-08-15、ヘッドライン・バルーン画面で選択値を `emily4` にしても、スクリプト実行結果は稼働中 `bonsyou`（`梵鐘/MMOBPG`）を対象として表示された。`Ourin/ContentView.swift` の実行経路は `AppDelegate.resolve()?.ghostManager.runScript(testScript)` で稼働中ゴーストへ固定されており、選択値が実行対象へ渡されていない。選択を実行対象として配線するか、プレビュー専用選択であることをUIに明示する必要がある。**未解決**。 / On 2026-08-15, setting the Headline/Balloon “ghost” selector to `emily4` still sent the script to the active `bonsyou` ghost (`梵鐘/MMOBPG`). The execution path in `Ourin/ContentView.swift` calls `AppDelegate.resolve()?.ghostManager.runScript(testScript)` and does not pass the selected ghost. Either route the selection to execution or explicitly label it as preview-only. **Unresolved.** |
 
 ---
 
