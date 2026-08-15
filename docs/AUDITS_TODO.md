@@ -18,7 +18,7 @@
 | 優先度 | 項目 | 検証内容 |
 |---|---|---|
 | P2 | SakuraScript UKADOC 全コマンド実行差分 | パース網羅・ディスパッチ差分は `SakuraScriptDocumentationCoverageTests`（326タグ）で機械検証済み。2026-08-15 に DevTools の実行経路から稼働中の `Emily/Phase4.5` へ安全な scope/surface/format/wait/設定/lock/resetballoonpos 群を投入し、対象解決とトークン列を確認した。`notify/raise` と `q` も投入し、選択肢ダイアログの表示・選択後の実行結果を確認したが、イベント側の応答ログは取得できなかった。**各コマンドの実行副作用・実ゴースト画面差分（更新・消滅・外部通信を含む）は未検証**。 |
-| P2 | SERIKO 描画完全一致 | `surfaceID=-1/-2`・ウェイト範囲・`shared-index`・`collisionex` 各形状は単体検証済み。**実シェルでの描画差分テスト**（`Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift`）が未実施。 |
+| P2 | SERIKO 描画完全一致 | `surfaceID=-1/-2`・ウェイト範囲・`shared-index`・`collisionex` 各形状は単体検証済み。2026-08-15 に最新ビルドで `emily4` を実起動し、画面キャプチャ上は正立・全体表示・顔パーツ単独浮遊なしを確認した。関連スイートは 33 passed だが、実コマンドでの `surfaceID=-1/-2` 等の差分確認は未完。**QoS priority inversion warning 9件を新issueとして追加**。 |
 | P2 | バルーン描画の細部 | ROP2 アンカー装飾・可変改行（`\n[half]`・負値はオフセット近似）・バルーン右側表示・wordwrap/alignment の**実ゴースト目視**。 |
 | P2 | 動画・音声の実機確認 | `MTAudioProcessingTap` 左右バランス・`sound,load` プリロードは実装済み。**実機での映像表示・実音声・対応コーデック範囲**の最終確認待ち。 |
 | P2 | `vanishbymyself` / `updateother` の実環境確認 | 消滅経路・更新対象解決は実装＋回帰テスト済み。**ゴミ箱権限・復帰先選択・実ネットワーク更新**が未確認。 |
@@ -58,7 +58,7 @@ Implementation and tests exist for all of these; the remaining work is **verific
 | Priority | Item | What to verify |
 |---|---|---|
 | P2 | SakuraScript UKADOC full-command runtime diff | Parse coverage & dispatch diff machine-verified by `SakuraScriptDocumentationCoverageTests` (326 tags). On 2026-08-15, the DevTools execution path delivered a safe scope/surface/format/wait/settings/lock/resetballoonpos matrix to the live `Emily/Phase4.5`; target resolution and the token sequence were confirmed. `notify/raise` and `q` were also delivered; the choice dialog appeared and the post-selection execution result was observed, but no event-side response log was captured. **Per-command side effects and real-ghost screen diffs (including update, vanish, and external I/O) remain unverified**. |
-| P2 | SERIKO rendering parity | `surfaceID=-1/-2`, wait ranges, `shared-index`, `collisionex` shapes unit-tested. **Real-shell rendering diff testing** (`Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift`) pending. |
+| P2 | SERIKO rendering parity | `surfaceID=-1/-2`, wait ranges, `shared-index`, `collisionex` shapes unit-tested. On 2026-08-15, the latest build launched `emily4`; the screen capture showed an upright complete character with no detached face part. The related suite passed 33 tests, but direct command-level diffs such as `surfaceID=-1/-2` remain pending. **Nine QoS priority-inversion warnings were added as a new issue**. |
 | P2 | Balloon rendering fine points | Visual check of ROP2 anchor decoration, variable newlines (`\n[half]`, negative values approximated by offsets), right-side balloons, wordwrap/alignment on real ghosts. |
 | P2 | Video/audio on real hardware | `MTAudioProcessingTap` L/R balance and `sound,load` preloading implemented. **Real playback, actual audio, codec-scope confirmation** pending. |
 | P2 | `vanishbymyself` / `updateother` in real environments | Paths implemented with regression tests. **Trash permissions, next-ghost choice, real-network updates** unverified. |
@@ -86,6 +86,12 @@ Implementation and tests exist for all of these; the remaining work is **verific
 | P3 | Resolve translation placeholders in `docs/` | 20 untranslated pairs per `TRANSLATION_MANIFEST.md` (`YAYA_CORE_ARCHITECTURE` / `EXECUTIVE_SUMMARY` / `TECHNICAL_SPEC` etc.). Process via the bilingual-doc workflow. |
 
 All other findings of the 2026-08-15 documentation consistency audit (archive moves, README sync, blocker-contradiction fixes, memories fixes, snapshot notes, line-number caveat) were addressed the same day → see the migrated-items section in `AUDITS_COMPLETED.md`.
+
+### 5. 監査で追加したissue / Audit-added issues (2026-08-15)
+
+| 優先度 / Priority | Issue | 状態 / Status |
+|---|---|---|
+| P2 | SERIKO関連テストのQoS priority inversion warning | `SurfaceImageOrientationTests` と `SurfaceOverlayOrderingTests` の実行で、`User-interactive/initiated` QoS のスレッドが `Default` QoS の処理を待つ runtime warning が9件発生。テストハーネス由来か本番の画像ロード・合成経路由来か未切り分け。**修正はユーザー指示待ち**。 / Nine runtime warnings reported while `SurfaceImageOrientationTests` and `SurfaceOverlayOrderingTests` ran: `User-interactive/initiated` threads waited on `Default` QoS work. It is not yet isolated whether this is test-harness-only or production image-load/compositing behavior. **Fix pending user direction.** |
 
 ---
 
