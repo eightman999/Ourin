@@ -82,13 +82,20 @@ final class DisplayObserver {
             ]
             handler?(ShioriEvent(
                 id: .OnDisplayChange,
-                refs: params,
+                refs: [
+                    "bpp": params["bpp"] ?? "",
+                    "width": params["width"] ?? "",
+                    "height": params["height"] ?? ""
+                ],
                 delivery: initial ? .notify : .get,
                 ignoreResponseScript: initial
             ))
         }
 
-        var extended: [String: String] = ["Reference0": initial ? "init" : "update"]
+        var extended = EventReferenceTable.params(
+            forEvent: EventID.OnDisplayChangeEx.rawValue,
+            refs: ["state": initial ? "init" : "update"]
+        )
         for (index, screen) in NSScreen.screens.enumerated() {
             extended["Reference\(index + 1)"] = displayInfo(for: screen)
         }

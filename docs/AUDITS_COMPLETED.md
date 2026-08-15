@@ -70,7 +70,13 @@
 
 | 項目 | 根拠（実装・テスト・監査） |
 |---|---|
-| **マウス入退場・全体入退場・hover・select mode のマウスイベントを `EventReferenceTable` 経由へ移行** | `Ourin/SHIORIEvents/InputMonitor.swift` のポインタ領域・hover発火を `emitEvent` 経由へ変更。`pointerEventReferences` は R0..R4 を意味ラベルから割り当て、従来の互換拡張 `Reference6=mouse` を保持し、`modifiers` は補助ヘッダとして維持する。select mode の down/up は `scopeID` / `mode` / `position` から R0..R2 へ変換する。`OurinTests/EventReferenceTableTests.swift` の `inputMonitorPointerAndSelectionReferencesRoundTripThroughEventReferenceTable` は権限付き全体 `.xctestrun` 実行で passed。最新全体実行は **1084 passed / 12 failed / 0 skipped / 1096 total**で、残件は `AUDIT-TEST-BASELINE-001` に記録した。 |
+| **マウス入退場・全体入退場・hover・select mode のマウスイベントを `EventReferenceTable` 経由へ移行** | `Ourin/SHIORIEvents/InputMonitor.swift` のポインタ領域・hover発火を `emitEvent` 経由へ変更。`pointerEventReferences` は R0..R4 を意味ラベルから割り当て、従来の互換拡張 `Reference6=mouse` を保持し、`modifiers` は補助ヘッダとして維持する。select mode の down/up は `scopeID` / `mode` / `position` から R0..R2 へ変換する。`OurinTests/EventReferenceTableTests.swift` の `inputMonitorPointerAndSelectionReferencesRoundTripThroughEventReferenceTable` は権限付き全体 `.xctestrun` 実行で passed。当時の全体実行は **1084 passed / 12 failed / 0 skipped / 1096 total**で、残件は `AUDIT-TEST-BASELINE-001` に記録した。 |
+
+### V. 2026-08-15 表示変更イベントの Reference 表駆動移行（AUDIT-REF-DISPLAY-001）
+
+| 項目 | 根拠（実装・テスト・監査） |
+|---|---|
+| **`OnDisplayChange` / `OnDisplayChangeEx` の発火を `EventReferenceTable` 経由へ移行** | `Ourin/SHIORIEvents/DisplayObserver.swift` の固定3項目（bpp/width/height）を `ShioriEvent(id:refs:)` へ変更し、可変長のモニタ情報を持つ `OnDisplayChangeEx` は state の添字を表から解決して `Reference1..N` の既存wire値を保持する。`OurinTests/EventReferenceTableTests.swift` の `displayChangeReferencesUseSemanticStateAndPreserveDynamicDisplays` は固定項目・可変項目の両方を検証。最新の `build-for-testing` 後の権限付き直列全体実行は **1097 passed / 0 failed / 0 skipped / 1097 total**。 |
 
 ---
 
@@ -321,7 +327,13 @@ Sonnet 調査エージェント3体による全域再監査（既存監査に無
 
 | Item | Evidence (implementation, tests, audit) |
 |---|---|
-| **Migrated mouse enter/leave/all/hover and select-mode mouse events to `EventReferenceTable`** | `Ourin/SHIORIEvents/InputMonitor.swift` now routes pointer-region and hover emission through `emitEvent`. `pointerEventReferences` maps R0..R4 by semantic labels and preserves the existing compatibility extension `Reference6=mouse`; `modifiers` remains an auxiliary header. Select-mode down/up now use `scopeID` / `mode` / `position` labels, preserving R0..R2. `OurinTests/EventReferenceTableTests.swift` adds `inputMonitorPointerAndSelectionReferencesRoundTripThroughEventReferenceTable`, which passed in the privileged full `.xctestrun` run. The latest full run was **1084 passed / 12 failed / 0 skipped / 1096 total**; the remaining failures are recorded under `AUDIT-TEST-BASELINE-001`. |
+| **Migrated mouse enter/leave/all/hover and select-mode mouse events to `EventReferenceTable`** | `Ourin/SHIORIEvents/InputMonitor.swift` now routes pointer-region and hover emission through `emitEvent`. `pointerEventReferences` maps R0..R4 by semantic labels and preserves the existing compatibility extension `Reference6=mouse`; `modifiers` remains an auxiliary header. Select-mode down/up now use `scopeID` / `mode` / `position` labels, preserving R0..R2. `OurinTests/EventReferenceTableTests.swift` adds `inputMonitorPointerAndSelectionReferencesRoundTripThroughEventReferenceTable`, which passed in the privileged full `.xctestrun` run. The full run at that point was **1084 passed / 12 failed / 0 skipped / 1096 total**; the remaining failures are recorded under `AUDIT-TEST-BASELINE-001`. |
+
+### V. 2026-08-15 Display-change Reference table migration (AUDIT-REF-DISPLAY-001)
+
+| Item | Evidence (implementation, tests, audit) |
+|---|---|
+| **Migrated `OnDisplayChange` / `OnDisplayChangeEx` emission through `EventReferenceTable`** | `Ourin/SHIORIEvents/DisplayObserver.swift` now uses `ShioriEvent(id:refs:)` for the fixed bpp/width/height fields. For `OnDisplayChangeEx`, the state field is resolved by the table while the variable-length monitor records remain in their existing `Reference1..N` wire positions. `OurinTests/EventReferenceTableTests.swift` adds `displayChangeReferencesUseSemanticStateAndPreserveDynamicDisplays`, covering both fixed and dynamic fields. After the latest `build-for-testing`, the privileged serial full run reported **1097 passed / 0 failed / 0 skipped / 1097 total**. |
 
 ---
 

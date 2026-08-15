@@ -37,7 +37,7 @@
 
 | 優先度 | 項目 | 現状 |
 |---|---|---|
-| P2（基盤完了） | イベント Reference 仕様の表駆動化 | `EventReferenceTable` 新設・`notifyReturnIgnored` 単一ソース化済み。`OnLanguageChange` は **AUDIT-REF-LOCALE-001** として表駆動移行済み。**全発火箇所（216箇所）の表駆動移行**は漸次対応。 |
+| P2（基盤完了） | イベント Reference 仕様の表駆動化 | `EventReferenceTable` 新設・`notifyReturnIgnored` 単一ソース化済み。`OnLanguageChange` は **AUDIT-REF-LOCALE-001**、`OnDisplayChange` / `OnDisplayChangeEx` は **AUDIT-REF-DISPLAY-001** として表駆動移行済み。**残る発火箇所の表駆動移行**は漸次対応。 |
 
 ### 4. ドキュメント（2026-08-15 整合性監査の残件）
 
@@ -51,7 +51,7 @@
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
-| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で12件の失敗 | **未着手（本作業では未修正）**。今回の変更後の権限付き `.xctestrun` 実行は **1084 passed / 12 failed / 0 skipped / 1096 total**。失敗群は SERIKO オーバーレイ座標、ドラッグ＆ドロップのバックグラウンド処理、着せ替えイベント、Native SHIORI XPC fixture、音声ループ、GhostUtility、バルーン hover、SAORI `readLine()` 2件、SakuraScript 同期、SSTP XPC 不正エンコーディングを含む。今回追加した InputMonitor の往復テストは passed。失敗はいずれも今回の移行箇所ではなく、共有イベント／外部リソース／タイミング干渉を切り分ける別issueとして追跡する。 |
+| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で12件の失敗 | **未解決（本作業では本体修正なし）**。並列実行時の既存ベースラインは **1084 passed / 12 failed / 0 skipped / 1096 total**。一方、最新の `build-for-testing` 成果物を `-parallel-testing-enabled NO` で直列実行すると **1097 passed / 0 failed / 0 skipped / 1097 total** となった。単独実行でも通る失敗群を含むため、共有イベント／外部リソース／タイミング干渉を切り分けるissueとして継続する。 |
 
 ---
 
@@ -83,7 +83,7 @@ Implementation and tests exist for all of these; the remaining work is **verific
 
 | Priority | Item | Current State |
 |---|---|---|
-| P2 (foundation done) | Table-driven event Reference specs | `EventReferenceTable` and single-sourced `notifyReturnIgnored` are in place. `OnLanguageChange` was migrated under **AUDIT-REF-LOCALE-001**. **Migrating all 216 emission sites** proceeds incrementally. |
+| P2 (foundation done) | Table-driven event Reference specs | `EventReferenceTable` and single-sourced `notifyReturnIgnored` are in place. `OnLanguageChange` was migrated under **AUDIT-REF-LOCALE-001**; `OnDisplayChange` / `OnDisplayChangeEx` under **AUDIT-REF-DISPLAY-001**. **Remaining emission sites** proceed incrementally. |
 
 ### 4. Documentation (remainder of the 2026-08-15 consistency audit)
 
@@ -97,7 +97,7 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | Priority | Issue | Status |
 |---|---|---|
-| P2 | **AUDIT-TEST-BASELINE-001**: 12 failures in the full `OurinTests` run | **Not started (not fixed in this work unit)**. The post-change privileged `.xctestrun` run on 2026-08-15 reported **1084 passed / 12 failed / 0 skipped / 1096 total**. Failure groups include SERIKO overlay coordinates, background drag-and-drop dispatch, dressup event delivery, the native SHIORI XPC fixture, manual audio looping, GhostUtility, balloon hover, two SAORI `readLine()` tests, SakuraScript synchronization, and invalid-encoding SSTP XPC handling. The new InputMonitor round-trip test passed. None of the failures is in this migration slice; track shared-event/external-resource/timing interference separately. |
+| P2 | **AUDIT-TEST-BASELINE-001**: 12 failures in the full `OurinTests` run | **Unresolved (no production fix in this work unit)**. The existing parallel run baseline was **1084 passed / 12 failed / 0 skipped / 1096 total**. A fresh `build-for-testing` artifact run serially with `-parallel-testing-enabled NO` reported **1097 passed / 0 failed / 0 skipped / 1097 total**. Because the affected groups also pass in isolation, continue tracking this as shared-event/external-resource/timing interference rather than hiding it by changing production behavior. |
 
 ---
 

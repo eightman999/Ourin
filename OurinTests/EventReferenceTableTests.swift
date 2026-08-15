@@ -509,6 +509,30 @@ func eventReferenceTableMigrationAddedEvents() {
     ])
 }
 
+/// DisplayObserver の固定フィールドと可変長モニタ情報を同じ表定義で検証する。
+@Test
+func displayChangeReferencesUseSemanticStateAndPreserveDynamicDisplays() {
+    #expect(EventReferenceTable.params(forEvent: "OnDisplayChange", refs: [
+        "bpp": "32",
+        "width": "2560",
+        "height": "1440"
+    ]) == [
+        "Reference0": "32",
+        "Reference1": "2560",
+        "Reference2": "1440"
+    ])
+
+    #expect(EventReferenceTable.params(forEvent: "OnDisplayChangeEx", refs: [
+        "state": "update",
+        "Reference1": "0,0,2560,1440,32,1",
+        "Reference2": "2560,0,5120,1440,32,0"
+    ]) == [
+        "Reference0": "update",
+        "Reference1": "0,0,2560,1440,32,1",
+        "Reference2": "2560,0,5120,1440,32,0"
+    ])
+}
+
 /// 複合更新は対象順に複数 Reference を持つ1つの結果イベントへ変換する。
 @Test
 func compositeUpdateResultPayloadPreservesTargetOrder() {

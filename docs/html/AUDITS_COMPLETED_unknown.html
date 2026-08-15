@@ -302,7 +302,22 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <tbody>
 <tr>
 <td><strong>マウス入退場・全体入退場・hover・select mode のマウスイベントを <code>EventReferenceTable</code> 経由へ移行</strong></td>
-<td><code>Ourin/SHIORIEvents/InputMonitor.swift</code> のポインタ領域・hover発火を <code>emitEvent</code> 経由へ変更。<code>pointerEventReferences</code> は R0..R4 を意味ラベルから割り当て、従来の互換拡張 <code>Reference6=mouse</code> を保持し、<code>modifiers</code> は補助ヘッダとして維持する。select mode の down/up は <code>scopeID</code> / <code>mode</code> / <code>position</code> から R0..R2 へ変換する。<code>OurinTests/EventReferenceTableTests.swift</code> の <code>inputMonitorPointerAndSelectionReferencesRoundTripThroughEventReferenceTable</code> は権限付き全体 <code>.xctestrun</code> 実行で passed。最新全体実行は <strong>1084 passed / 12 failed / 0 skipped / 1096 total</strong>で、残件は <code>AUDIT-TEST-BASELINE-001</code> に記録した。</td>
+<td><code>Ourin/SHIORIEvents/InputMonitor.swift</code> のポインタ領域・hover発火を <code>emitEvent</code> 経由へ変更。<code>pointerEventReferences</code> は R0..R4 を意味ラベルから割り当て、従来の互換拡張 <code>Reference6=mouse</code> を保持し、<code>modifiers</code> は補助ヘッダとして維持する。select mode の down/up は <code>scopeID</code> / <code>mode</code> / <code>position</code> から R0..R2 へ変換する。<code>OurinTests/EventReferenceTableTests.swift</code> の <code>inputMonitorPointerAndSelectionReferencesRoundTripThroughEventReferenceTable</code> は権限付き全体 <code>.xctestrun</code> 実行で passed。当時の全体実行は <strong>1084 passed / 12 failed / 0 skipped / 1096 total</strong>で、残件は <code>AUDIT-TEST-BASELINE-001</code> に記録した。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="v-2026-08-15-reference-audit-ref-display-001">V. 2026-08-15 表示変更イベントの Reference 表駆動移行（AUDIT-REF-DISPLAY-001）</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（実装・テスト・監査）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>OnDisplayChange</code> / <code>OnDisplayChangeEx</code> の発火を <code>EventReferenceTable</code> 経由へ移行</strong></td>
+<td><code>Ourin/SHIORIEvents/DisplayObserver.swift</code> の固定3項目（bpp/width/height）を <code>ShioriEvent(id:refs:)</code> へ変更し、可変長のモニタ情報を持つ <code>OnDisplayChangeEx</code> は state の添字を表から解決して <code>Reference1..N</code> の既存wire値を保持する。<code>OurinTests/EventReferenceTableTests.swift</code> の <code>displayChangeReferencesUseSemanticStateAndPreserveDynamicDisplays</code> は固定項目・可変項目の両方を検証。最新の <code>build-for-testing</code> 後の権限付き直列全体実行は <strong>1097 passed / 0 failed / 0 skipped / 1097 total</strong>。</td>
 </tr>
 </tbody>
 </table>
@@ -1066,7 +1081,22 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <tbody>
 <tr>
 <td><strong>Migrated mouse enter/leave/all/hover and select-mode mouse events to <code>EventReferenceTable</code></strong></td>
-<td><code>Ourin/SHIORIEvents/InputMonitor.swift</code> now routes pointer-region and hover emission through <code>emitEvent</code>. <code>pointerEventReferences</code> maps R0..R4 by semantic labels and preserves the existing compatibility extension <code>Reference6=mouse</code>; <code>modifiers</code> remains an auxiliary header. Select-mode down/up now use <code>scopeID</code> / <code>mode</code> / <code>position</code> labels, preserving R0..R2. <code>OurinTests/EventReferenceTableTests.swift</code> adds <code>inputMonitorPointerAndSelectionReferencesRoundTripThroughEventReferenceTable</code>, which passed in the privileged full <code>.xctestrun</code> run. The latest full run was <strong>1084 passed / 12 failed / 0 skipped / 1096 total</strong>; the remaining failures are recorded under <code>AUDIT-TEST-BASELINE-001</code>.</td>
+<td><code>Ourin/SHIORIEvents/InputMonitor.swift</code> now routes pointer-region and hover emission through <code>emitEvent</code>. <code>pointerEventReferences</code> maps R0..R4 by semantic labels and preserves the existing compatibility extension <code>Reference6=mouse</code>; <code>modifiers</code> remains an auxiliary header. Select-mode down/up now use <code>scopeID</code> / <code>mode</code> / <code>position</code> labels, preserving R0..R2. <code>OurinTests/EventReferenceTableTests.swift</code> adds <code>inputMonitorPointerAndSelectionReferencesRoundTripThroughEventReferenceTable</code>, which passed in the privileged full <code>.xctestrun</code> run. The full run at that point was <strong>1084 passed / 12 failed / 0 skipped / 1096 total</strong>; the remaining failures are recorded under <code>AUDIT-TEST-BASELINE-001</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="v-2026-08-15-display-change-reference-table-migration-audit-ref-display-001">V. 2026-08-15 Display-change Reference table migration (AUDIT-REF-DISPLAY-001)</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (implementation, tests, audit)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Migrated <code>OnDisplayChange</code> / <code>OnDisplayChangeEx</code> emission through <code>EventReferenceTable</code></strong></td>
+<td><code>Ourin/SHIORIEvents/DisplayObserver.swift</code> now uses <code>ShioriEvent(id:refs:)</code> for the fixed bpp/width/height fields. For <code>OnDisplayChangeEx</code>, the state field is resolved by the table while the variable-length monitor records remain in their existing <code>Reference1..N</code> wire positions. <code>OurinTests/EventReferenceTableTests.swift</code> adds <code>displayChangeReferencesUseSemanticStateAndPreserveDynamicDisplays</code>, covering both fixed and dynamic fields. After the latest <code>build-for-testing</code>, the privileged serial full run reported <strong>1097 passed / 0 failed / 0 skipped / 1097 total</strong>.</td>
 </tr>
 </tbody>
 </table>
