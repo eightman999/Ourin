@@ -6831,7 +6831,10 @@ extension GhostManager: NSWindowDelegate {
         if communicateDialogCloseRequested { return }
 
         if response == .alertFirstButtonReturn {
-            _ = requestDialogEvent(eventID: "OnCommunicate", references: ["user", textField.stringValue])
+            _ = requestDialogEvent(
+                eventID: "OnCommunicate",
+                references: GhostManager.communicateBoxReferences(sentence: textField.stringValue)
+            )
         } else {
             emitCommunicateInputCancel(timedOut: timedOut)
         }

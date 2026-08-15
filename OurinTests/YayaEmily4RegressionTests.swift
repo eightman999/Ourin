@@ -237,6 +237,58 @@ struct YayaEmily4RegressionTests {
         #expect(value.contains("こんにちは"))
     }
 
+    /// CommunicateBox が生成する ECHO/1.0 配置を Emily4 の実辞書で検証する。
+    /// R1 の空要素を省略すると、Emily4 は種別を R2、本文を R3 として読めず、
+    /// OnCommunicate が入力を処理できない。
+    @Test
+    func emily4OnCommunicateReadsCommunicateBoxReference3() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping Emily4 regression test")
+            return
+        }
+        guard let master = try Self.copyEmily4Master() else {
+            print("[skip] emily4/ghost/master fixture not found; skipping")
+            return
+        }
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        // Emily4 の通常設定では台本コミュニケートを無効にしているため、
+        // Reference 配置の検証用に有効化関数だけを一時辞書で追加する。
+        let wrapperDic = """
+        台本コミュニケート有効 {
+        1
+        }
+        On_CommunicateReferenceProbe {
+        "r0=%(reference[0])|r1=%(reference[1])|r2=%(reference[2])|r3=%(reference[3])"
+        }
+        """
+        try wrapperDic.write(to: master.appendingPathComponent("_regression_communicate_wrapper.dic"),
+                            atomically: true, encoding: .utf8)
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master,
+                            extraEntries: [["path": "_regression_communicate_wrapper.dic", "encoding": "UTF-8"]])
+
+        let sentence = "こんにちは"
+        let response = session.exchange([
+            "cmd": "request", "method": "GET", "id": "OnCommunicate",
+            "ref": GhostManager.communicateBoxReferences(sentence: sentence),
+            "headers": ["Charset": "UTF-8", "SecurityLevel": "local"]
+        ])
+        let probe = session.exchange([
+            "cmd": "request", "method": "GET", "id": "On_CommunicateReferenceProbe",
+            "ref": GhostManager.communicateBoxReferences(sentence: sentence),
+            "headers": ["Charset": "UTF-8", "SecurityLevel": "local"]
+        ])
+        #expect(response?["ok"] as? Bool == true)
+        #expect(response?["status"] as? Int == 200)
+        #expect((response?["value"] as? String)?.isEmpty == false)
+        #expect(response?["value"] as? String != "0")
+        #expect(probe?["value"] as? String == "r0=user|r1=|r2=ECHO/1.0|r3=こんにちは",
+                "Unexpected parsed References: \(String(describing: probe))")
+    }
+
     /// 全33辞書が構文エラー無しでロードできることを回帰確認する
     /// （`docs/AUDITS_TODO.md`/`IMPLEMENTATION_STATUS.md` の「33/33ロード成功」主張の裏付け）。
     @Test

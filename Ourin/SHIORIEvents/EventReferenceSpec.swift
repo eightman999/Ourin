@@ -289,6 +289,9 @@ public enum EventReferenceTable {
         // MARK: - SSTP
         .init(id: "OnSSTPBlacklisting", references: ["ipAddress", "securityOrigin"], category: "sstp"),
         .init(id: "OnSSTPBreak", references: ["script", "scope", "breakPosition"], category: "sstp"),
+        // SSTP COMMUNICATE は R0=送信元、R1=Sentence。ローカル CommunicateBox
+        // は GhostManager が ECHO/1.0 の拡張配置（R0=user, R1=空, R2=種別,
+        // R3=本文）を生成するが、外部 SSTP の基本契約はこの2項を維持する。
         .init(id: "OnCommunicate", references: ["sender", "sentence"], category: "sstp"),
 
         // MARK: - AI トーク

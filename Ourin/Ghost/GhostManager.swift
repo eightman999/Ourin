@@ -5217,6 +5217,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         return references
     }
 
+    /// CommunicateBox の入力を、ゴースト間の ECHO/1.0 コミュニケートと同じ
+    /// Reference 配置で渡す。
+    ///
+    /// OnCommunicate の R0 は送信元、R1 は SSTP Reference0、R2 は
+    /// コミュニケート種別、R3 は本文である。ローカル入力には SSTP の
+    /// Reference0 が存在しないため、R1 を空文字で保持して位置を詰めない。
+    static func communicateBoxReferences(sentence: String) -> [String] {
+        ["user", "", "ECHO/1.0", sentence]
+    }
+
     /// 単体テスト実行中かどうか。テスト時は自動システムイベント（タイマー/入力監視等）を抑止する。
     static var isRunningUnderTests: Bool {
         let env = ProcessInfo.processInfo.environment

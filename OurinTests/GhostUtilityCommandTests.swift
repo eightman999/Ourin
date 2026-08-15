@@ -363,6 +363,25 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func communicateBoxUsesEchoReferenceLayout() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-communicatebox-reference-test"))
+        let runtime = CapturingUtilityRuntime()
+        manager.shioriRuntime = runtime
+        defer { _ = manager.shutdown() }
+
+        let sentence = "こんにちは"
+        let handled = manager.requestDialogEvent(
+            eventID: EventID.OnCommunicate.rawValue,
+            references: GhostManager.communicateBoxReferences(sentence: sentence)
+        )
+
+        #expect(handled == false)
+        #expect(runtime.requests.last?.method == "GET")
+        #expect(runtime.requests.last?.id == EventID.OnCommunicate.rawValue)
+        #expect(runtime.requests.last?.refs == ["user", "", "ECHO/1.0", sentence])
+    }
+
+    @Test @MainActor
     func pluginFailureEventUsesGetAndPreservesAttemptedReferences() {
         EventBridge.shared.stop()
 
