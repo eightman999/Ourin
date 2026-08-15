@@ -454,6 +454,40 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func manualStopSuppressesAlwaysUntilExplicitRestart() async throws {
+        let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 0.0 })
+        let definition = makeDefinition(id: 29, interval: .always, methods: [.overlay])
+        executor.register(animations: [29: definition])
+
+        executor.startLoop()
+        #expect(executor.activeAnimations[29] != nil)
+
+        executor.stopAllAnimations(suppressAlwaysAnimations: true)
+        #expect(executor.activeAnimations[29] == nil)
+
+        executor.startLoop()
+        #expect(executor.activeAnimations[29] == nil)
+
+        #expect(executor.executeAnimation(id: 29))
+        #expect(executor.activeAnimations[29] != nil)
+    }
+
+    @Test
+    func replacingSurfaceDefinitionsReleasesAlwaysSuppression() async throws {
+        let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 0.0 })
+        let definition = makeDefinition(id: 30, interval: .always, methods: [.overlay])
+        executor.register(animations: [30: definition])
+        executor.startLoop()
+        #expect(executor.activeAnimations[30] != nil)
+
+        executor.stopAllAnimations(suppressAlwaysAnimations: true)
+        executor.replace(animations: [30: definition])
+        executor.startLoop()
+
+        #expect(executor.activeAnimations[30] != nil)
+    }
+
+    @Test
     func parameterizedTalkIntervalWaitsForCharacterCount() async throws {
         let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 1.0 })
         let definition = makeDefinition(id: 23, interval: .talkCharacters(2), methods: [.overlay])

@@ -626,7 +626,7 @@ extension GhostManager {
 
     /// Handle \![anim,stop] command
     func handleAnimStop() {
-        serikoExecutor.stopAllAnimations()
+        serikoExecutor.stopAllAnimations(suppressAlwaysAnimations: true)
         stopSerikoLoopIfIdle()
         animationEngine.stopAllAnimations()
         activeAnimationIDsByScope.removeAll()

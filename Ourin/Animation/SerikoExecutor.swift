@@ -22,6 +22,9 @@ public final class SerikoExecutor {
 
     public private(set) var activeAnimations: [Int: AnimationState] = [:]
     private var definitions: [Int: SerikoParser.AnimationDefinition] = [:]
+    /// 手動停止後に `interval,always` が次の tick で自動再起動するのを防ぐ。
+    /// サーフェス定義の置換または明示的な再生で解除する。
+    private var suppressedAlwaysAnimationIDs: Set<Int> = []
     private var triggeredRunonce: Set<Int> = []
     /// periodic,N の前回発火時刻（animationID 毎）。実時間で N 秒間隔を判定するため保持する。
     private var lastPeriodicStart: [Int: Date] = [:]
@@ -86,6 +89,9 @@ public final class SerikoExecutor {
 
         definitions = animations
         activeAnimations = preserved
+        // 抑制状態は現サーフェスに属するため、定義を置き換えたら新しい
+        // サーフェスの always アニメーションを通常どおり自動起動できる。
+        suppressedAlwaysAnimationIDs.removeAll()
         // runonce / periodic / talk,N はサーフェス単位の状態であり、定義の
         // 置換（通常はサーフェス切替・再読込）をまたいで持ち越してはいけない。
         triggeredRunonce.removeAll()
@@ -115,6 +121,7 @@ public final class SerikoExecutor {
     @discardableResult
     public func executeAnimation(id: Int) -> Bool {
         guard let definition = definitions[id], !definition.patterns.isEmpty else { return false }
+        suppressedAlwaysAnimationIDs.remove(id)
         if (hasOption("shared", in: definition) || hasOption("shared-index", in: definition)),
            activeAnimations[id] != nil {
             return true
@@ -419,7 +426,14 @@ public final class SerikoExecutor {
         onAnimationFinished?(id, .stopped)
     }
 
-    public func stopAllAnimations() {
+    public func stopAllAnimations(suppressAlwaysAnimations: Bool = false) {
+        if suppressAlwaysAnimations {
+            suppressedAlwaysAnimationIDs.formUnion(
+                definitions.compactMap { id, definition in
+                    definition.interval.components.contains(.always) ? id : nil
+                }
+            )
+        }
         let ids = Array(activeAnimations.keys)
         for id in ids {
             stopAnimation(id: id)
@@ -467,6 +481,7 @@ public final class SerikoExecutor {
     private func startScheduledAnimations(now: Date) {
         for (id, definition) in definitions {
             guard activeAnimations[id] == nil else { continue }
+            guard !suppressedAlwaysAnimationIDs.contains(id) else { continue }
             if let series = definition.seriesOption,
                hasActiveAnimation(inSeries: series, excluding: id) {
                 continue
