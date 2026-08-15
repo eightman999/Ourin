@@ -50,6 +50,32 @@ struct SpeechObserverTests {
     }
 
     @Test
+    func automaticEventPollingNeverRequestsSpeechAuthorization() {
+        #expect(
+            !SpeechObserver.shouldRequestAuthorization(
+                authorization: .notDetermined,
+                explicitUserAction: false
+            )
+        )
+    }
+
+    @Test
+    func explicitUserActionCanRequestUndeterminedSpeechAuthorization() {
+        #expect(
+            SpeechObserver.shouldRequestAuthorization(
+                authorization: .notDetermined,
+                explicitUserAction: true
+            )
+        )
+        #expect(
+            !SpeechObserver.shouldRequestAuthorization(
+                authorization: .authorized,
+                explicitUserAction: true
+            )
+        )
+    }
+
+    @Test
     func incrementalRecognitionReportsOnlyNewSuffix() {
         #expect(
             SpeechObserver.incrementalRecognitionText(

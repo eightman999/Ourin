@@ -5,6 +5,9 @@ import Speech
 
 final class SpeechObserver {
     static let shared = SpeechObserver()
+    static let authorizationStatusDidChangeNotification = Notification.Name(
+        "OurinSpeechAuthorizationStatusDidChange"
+    )
     private init() {}
 
     private var handler: ((ShioriEvent) -> Void)?
@@ -69,6 +72,50 @@ final class SpeechObserver {
         }
     }
 
+    /// 権限要求は、起動時の自動イベントではなくユーザー操作からだけ許可する。
+    /// TCC は usage description が欠落したプロセスを SIGABRT で終了させるため、
+    /// 自動イベントのポーリングから requestAuthorization を呼び出してはならない。
+    static func shouldRequestAuthorization(
+        authorization: SFSpeechRecognizerAuthorizationStatus,
+        explicitUserAction: Bool
+    ) -> Bool {
+        explicitUserAction && authorization == .notDetermined
+    }
+
+    /// 設定画面などの明示的なユーザー操作から音声認識権限を要求する。
+    /// 自動イベント開始時には呼び出さないこと。
+    func requestSpeechAuthorization() {
+        let request = { [weak self] in
+            guard let self else { return }
+            let authorization = SFSpeechRecognizer.authorizationStatus()
+            guard Self.shouldRequestAuthorization(
+                authorization: authorization,
+                explicitUserAction: true
+            ) else {
+                self.notifyAuthorizationStatusChange(authorization)
+                return
+            }
+            guard !self.recognitionAuthorizationRequestInFlight else { return }
+            self.recognitionAuthorizationRequestInFlight = true
+            SFSpeechRecognizer.requestAuthorization { [weak self] status in
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    self.recognitionAuthorizationRequestInFlight = false
+                    self.notifyAuthorizationStatusChange(status)
+                    if self.handler != nil {
+                        self.poll()
+                    }
+                }
+            }
+        }
+
+        if Thread.isMainThread {
+            request()
+        } else {
+            DispatchQueue.main.async(execute: request)
+        }
+    }
+
     /// 前回の部分認識結果との差分だけをイベントとして発火する。
     /// 部分結果が修正された場合は、確定結果になるまで送らない。
     static func incrementalRecognitionText(
@@ -107,7 +154,11 @@ final class SpeechObserver {
         }
 
         let authorization = SFSpeechRecognizer.authorizationStatus()
-        let recognizerAvailable = SFSpeechRecognizer(locale: Locale.current)?.isAvailable ?? false
+        // 未許可状態では認識器を生成しない。自動イベント開始時のTCCアクセスを避け、
+        // 認識器はユーザーが権限を許可した後のポーリングで初めて生成する。
+        let recognizerAvailable = authorization == .authorized
+            ? (SFSpeechRecognizer(locale: Locale.current)?.isAvailable ?? false)
+            : false
         let voiceStatus = Self.voiceRecognitionStatus(
             authorization: authorization,
             recognizerAvailable: recognizerAvailable
@@ -126,8 +177,6 @@ final class SpeechObserver {
         }
 
         switch authorization {
-        case .notDetermined:
-            requestSpeechAuthorizationIfNeeded()
         case .authorized where recognizerAvailable:
             startRecognitionIfNeeded()
         default:
@@ -135,16 +184,11 @@ final class SpeechObserver {
         }
     }
 
-    private func requestSpeechAuthorizationIfNeeded() {
-        guard !recognitionAuthorizationRequestInFlight else { return }
-        recognitionAuthorizationRequestInFlight = true
-        SFSpeechRecognizer.requestAuthorization { [weak self] _ in
-            DispatchQueue.main.async {
-                guard let self, self.handler != nil else { return }
-                self.recognitionAuthorizationRequestInFlight = false
-                self.poll()
-            }
-        }
+    private func notifyAuthorizationStatusChange(_ status: SFSpeechRecognizerAuthorizationStatus) {
+        NotificationCenter.default.post(
+            name: Self.authorizationStatusDidChangeNotification,
+            object: status.rawValue
+        )
     }
 
     private func startRecognitionIfNeeded() {

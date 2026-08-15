@@ -10,6 +10,7 @@ import AppKit
 import OSLog
 import ServiceManagement
 import Network
+import Speech
 
 struct ContentView: View {
     enum Section: String, CaseIterable, Identifiable {
@@ -572,6 +573,7 @@ fileprivate struct GeneralSettingsView: View {
     @State private var availableGhosts: [String] = []
     @State private var logOutputPath = ""
     @State private var enableFileLogging = false
+    @State private var speechRecognitionStatus = "未確認"
 
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "settings")
     private let startupGhostKey = "OurinStartupGhost"
@@ -657,6 +659,25 @@ fileprivate struct GeneralSettingsView: View {
                 }
 
                 Group {
+                    Text("音声認識").font(.headline)
+                    HStack(alignment: .top) {
+                        Text("権限状態:")
+                            .frame(minWidth: 100, alignment: .trailing)
+                        Text(speechRecognitionStatus)
+                            .foregroundColor(.secondary)
+                        Button("音声認識を許可") {
+                            SpeechObserver.shared.requestSpeechAuthorization()
+                        }
+                        .disabled(SFSpeechRecognizer.authorizationStatus() != .notDetermined)
+                        Spacer()
+                    }
+                    Text("起動時には権限を要求しません。必要な場合だけ、このボタンからmacOSの確認を開始します。")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.leading, 100)
+                }
+
+                Group {
                     Text("ログ設定").font(.headline)
                     Toggle("ファイルへのログ出力を有効化", isOn: $enableFileLogging)
                     HStack(alignment: .top) {
@@ -696,6 +717,11 @@ fileprivate struct GeneralSettingsView: View {
             .padding()
         }
         .onAppear(perform: loadSettings)
+        .onReceive(NotificationCenter.default.publisher(
+            for: SpeechObserver.authorizationStatusDidChangeNotification
+        )) { _ in
+            refreshSpeechRecognitionStatus()
+        }
     }
     
     private func loadSettings() {
@@ -706,6 +732,7 @@ fileprivate struct GeneralSettingsView: View {
 
         // Rosetta状態を確認
         checkRosettaStatus()
+        refreshSpeechRecognitionStatus()
 
         // "OurinGeneralSettings" 辞書から一般設定を読み戻す
         if let settings = UserDefaults.standard.dictionary(forKey: "OurinGeneralSettings") {
@@ -745,6 +772,17 @@ fileprivate struct GeneralSettingsView: View {
         }
 
         logger.info("General settings loaded")
+    }
+
+    private func refreshSpeechRecognitionStatus() {
+        let authorization = SFSpeechRecognizer.authorizationStatus()
+        let available = authorization == .authorized
+            ? (SFSpeechRecognizer(locale: Locale.current)?.isAvailable ?? false)
+            : false
+        speechRecognitionStatus = SpeechObserver.voiceRecognitionStatus(
+            authorization: authorization,
+            recognizerAvailable: available
+        )
     }
     
     private func openDataFolderInFinder() {
