@@ -48,6 +48,12 @@
 |---|---|
 | **文字列以降の省略を安全な既定値で処理** | `Ourin/Ghost/GhostTypes.swift` の `AnimAddTextParameters.parse` に、仕様上必須の8引数（`anim,add,text,x,y,width,height,text`）と、表示時間・RGB・文字サイズ・フォントの省略時既定値を集約した。`Ourin/Ghost/GhostManager.swift` はこの値型を経由して `addTextAnimation` を呼び、`args[8]`〜`args[12]` の直接参照を廃止。`SakuraScriptEngineTests` に最小形と表示時間だけ指定した部分省略形の回帰テストを追加。権限付き `xcodebuild` のクラス実行結果は **219 passed / 0 failed / 0 skipped**（`xcresulttool` summary、`** TEST SUCCEEDED **`）。実ゴーストの専用ビルド起動までは確認したが、computer-use のアクセシビリティ取得が `-10005 timeoutReached` となったため、画面上のテキストアニメーション表示は未確認。コミット `275ba98`。 |
 
+### R. 2026-08-15 生成HTMLのローカル参照切れ解消
+
+| 項目 | 根拠（実装・テスト・生成物） |
+|---|---|
+| **Markdownリンクを生成先HTMLへ変換し、相対参照を再基準化** | `docs/generate_html.py` に生成済みMarkdown索引、言語版・旧`_JA`/`_EN`命名の解決、除外Markdownと`yaya_core`・プロジェクトREADME・`html/index.html`の相対パス変換、`href`/`src`のローカル参照変換を実装。`docs/test_generate_html.py` は **5 passed / 0 failed**。`cd docs && uv run --with markdown python3 generate_html.py` は **126 succeeded / 0 failed**。`static-site-check` は **127 HTML / 1151参照 / 壊れ参照0件 / 判定OK**。生成物は `docs/html/` 全体を更新。 |
+
 ---
 
 以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、**現状コードで解決済み**であることを確認した項目です。
@@ -274,6 +280,12 @@ Sonnet 調査エージェント3体による全域再監査（既存監査に無
 | Item | Evidence (implementation, tests, live UI) |
 |---|---|
 | **Safe defaults for optional fields after the text argument** | `Ourin/Ghost/GhostTypes.swift` now centralizes parsing in `AnimAddTextParameters.parse`: the eight fields through `text` remain required, while display time, RGB, font size, and font name receive safe defaults when omitted. `Ourin/Ghost/GhostManager.swift` calls `addTextAnimation` through this value type, removing the unconditional `args[8]`–`args[12]` reads. `SakuraScriptEngineTests` adds regression coverage for the minimum form and a form specifying only display time. The privileged `xcodebuild` class run reported **219 passed / 0 failed / 0 skipped** (`xcresulttool` summary, `** TEST SUCCEEDED **`). The dedicated app build launched the real-ghost path, but computer-use accessibility retrieval returned `-10005 timeoutReached`; the on-screen text-animation result remains unverified. Commit `275ba98`. |
+
+### R. 2026-08-15 Broken local references in generated HTML resolved
+
+| Item | Evidence (implementation, tests, generated output) |
+|---|---|
+| **Convert Markdown links to generated HTML and rebase local paths** | `docs/generate_html.py` now indexes generated Markdown sources, resolves language-neutral and legacy `_JA`/`_EN` names, rebases excluded Markdown plus `yaya_core`, project README, and `html/index.html` paths, and rewrites local `href`/`src` targets. `docs/test_generate_html.py`: **5 passed / 0 failed**. `cd docs && uv run --with markdown python3 generate_html.py`: **126 succeeded / 0 failed**. `static-site-check`: **127 HTML / 1151 references / 0 broken / OK**. The complete `docs/html/` generated output was updated. |
 
 ---
 

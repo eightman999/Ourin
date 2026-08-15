@@ -246,6 +246,21 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 </tr>
 </tbody>
 </table>
+<h3 id="r-2026-08-15-html">R. 2026-08-15 生成HTMLのローカル参照切れ解消</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>根拠（実装・テスト・生成物）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Markdownリンクを生成先HTMLへ変換し、相対参照を再基準化</strong></td>
+<td><code>docs/generate_html.py</code> に生成済みMarkdown索引、言語版・旧<code>_JA</code>/<code>_EN</code>命名の解決、除外Markdownと<code>yaya_core</code>・プロジェクトREADME・<code>html/index.html</code>の相対パス変換、<code>href</code>/<code>src</code>のローカル参照変換を実装。<code>docs/test_generate_html.py</code> は <strong>5 passed / 0 failed</strong>。<code>cd docs &amp;&amp; uv run --with markdown python3 generate_html.py</code> は <strong>126 succeeded / 0 failed</strong>。<code>static-site-check</code> は <strong>127 HTML / 1151参照 / 壊れ参照0件 / 判定OK</strong>。生成物は <code>docs/html/</code> 全体を更新。</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <p>以下は過去の監査レポート（GLM / CODEX / CLAUDE / AGY, 2026-06-10〜2026-06-27）で指摘され、<strong>現状コードで解決済み</strong>であることを確認した項目です。</p>
 <h3 id="a-shiori">A. SHIORI プロトコル</h3>
@@ -947,6 +962,21 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <tr>
 <td><strong>Safe defaults for optional fields after the text argument</strong></td>
 <td><code>Ourin/Ghost/GhostTypes.swift</code> now centralizes parsing in <code>AnimAddTextParameters.parse</code>: the eight fields through <code>text</code> remain required, while display time, RGB, font size, and font name receive safe defaults when omitted. <code>Ourin/Ghost/GhostManager.swift</code> calls <code>addTextAnimation</code> through this value type, removing the unconditional <code>args[8]</code>–<code>args[12]</code> reads. <code>SakuraScriptEngineTests</code> adds regression coverage for the minimum form and a form specifying only display time. The privileged <code>xcodebuild</code> class run reported <strong>219 passed / 0 failed / 0 skipped</strong> (<code>xcresulttool</code> summary, <code>** TEST SUCCEEDED **</code>). The dedicated app build launched the real-ghost path, but computer-use accessibility retrieval returned <code>-10005 timeoutReached</code>; the on-screen text-animation result remains unverified. Commit <code>275ba98</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="r-2026-08-15-broken-local-references-in-generated-html-resolved">R. 2026-08-15 Broken local references in generated HTML resolved</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Evidence (implementation, tests, generated output)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Convert Markdown links to generated HTML and rebase local paths</strong></td>
+<td><code>docs/generate_html.py</code> now indexes generated Markdown sources, resolves language-neutral and legacy <code>_JA</code>/<code>_EN</code> names, rebases excluded Markdown plus <code>yaya_core</code>, project README, and <code>html/index.html</code> paths, and rewrites local <code>href</code>/<code>src</code> targets. <code>docs/test_generate_html.py</code>: <strong>5 passed / 0 failed</strong>. <code>cd docs &amp;&amp; uv run --with markdown python3 generate_html.py</code>: <strong>126 succeeded / 0 failed</strong>. <code>static-site-check</code>: <strong>127 HTML / 1151 references / 0 broken / OK</strong>. The complete <code>docs/html/</code> generated output was updated.</td>
 </tr>
 </tbody>
 </table>
@@ -1672,7 +1702,7 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <p><em>本ファイルは監査レポート（GLM/CODEX/CLAUDE/AGY）の完了項目を集約したものです。未完項目は <code>AUDITS_TODO.md</code> を参照してください。</em></p>
 <p><em>This file consolidates completed items from audit reports (GLM/CODEX/CLAUDE/AGY). For pending items, see <code>AUDITS_TODO.md</code>.</em></p>
         <div class="footer">
-            <p>Generated: 2026-08-15 | <a href="../README_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-08-15 | <a href="../AUDITS_COMPLETED.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

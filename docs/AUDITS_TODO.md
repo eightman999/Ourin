@@ -51,7 +51,6 @@
 
 | 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
-| P2 | 生成HTMLのローカル参照切れ | static-site-check で `docs/html` の127 HTMLを検査したところ、ローカル参照170件が未解決だった。Markdownリンクを生成先HTMLへ変換しない参照、旧ファイル名、READMEからの相対参照が混在しているため、HTML生成器のリンク変換規則と生成物全体を修正・再検証する。 |
 
 ---
 
@@ -97,7 +96,6 @@ All other findings of the 2026-08-15 documentation consistency audit (archive mo
 
 | Priority | Issue | Status |
 |---|---|---|
-| P2 | Broken local references in generated HTML | static-site-check found 170 unresolved local references across 127 HTML files in `docs/html`. The generated output mixes Markdown links that were not converted to generated HTML, legacy filenames, and README-relative references; update the generator's link mapping and re-verify the complete output. |
 
 ---
 
