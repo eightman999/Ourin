@@ -60,7 +60,7 @@ struct ModernDevToolsCommands: Commands {
     
     private func reloadDevTools() {
         ResourceBridge.shared.invalidateAll()
-        if let appDelegate = NSApp.delegate as? AppDelegate {
+        if let appDelegate = AppDelegate.resolve() {
             appDelegate.pluginRegistry?.unloadAll()
             appDelegate.pluginRegistry?.discoverAndLoad()
         }
@@ -78,14 +78,14 @@ struct ModernDevToolsCommands: Commands {
     }
     
     private func reloadPlugins() {
-        if let appDelegate = NSApp.delegate as? AppDelegate {
+        if let appDelegate = AppDelegate.resolve() {
             appDelegate.pluginRegistry?.unloadAll()
             appDelegate.pluginRegistry?.discoverAndLoad()
         }
     }
     
     private func restartExternalServers() {
-        if let appDelegate = NSApp.delegate as? AppDelegate {
+        if let appDelegate = AppDelegate.resolve() {
             appDelegate.externalServer?.stop()
             appDelegate.externalServer?.start()
         }

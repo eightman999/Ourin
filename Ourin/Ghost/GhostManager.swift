@@ -1611,7 +1611,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 self.ghostConfig = config
                 self.activeShellName = config.defaultShellDirectory.isEmpty ? "master" : config.defaultShellDirectory
                 DispatchQueue.main.async {
-                    (NSApp.delegate as? AppDelegate)?.recordActiveGhostForCrashRecovery(name: config.name, manager: self)
+                    AppDelegate.resolve()?.recordActiveGhostForCrashRecovery(name: config.name, manager: self)
                 }
                 RateOfUseStore.shared.beginSession(
                     identifier: self.ghostURL.standardizedFileURL.path,
@@ -1656,8 +1656,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             let loadStart = Date()
             let context = self.makeShioriLoadContext(moduleName: moduleName, ghostRoot: ghostRoot)
             let appDelegate: AppDelegate? = Thread.isMainThread
-                ? NSApp.delegate as? AppDelegate
-                : DispatchQueue.main.sync { NSApp.delegate as? AppDelegate }
+                ? AppDelegate.resolve()
+                : DispatchQueue.main.sync { AppDelegate.resolve() }
             let cachedRuntime = appDelegate?.shioriRuntimeCache.take(context: context)
             let runtime: GhostShioriRuntime
             if let cachedRuntime {
@@ -1854,7 +1854,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         removeScreenChangeObserver()
         NotificationCenter.default.removeObserver(self)
         if let config = ghostConfig,
-           let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher {
+           let dispatcher = AppDelegate.resolve()?.pluginDispatcher {
             dispatcher.onGhostExit(
                 windows: characterWindows.sorted(by: { $0.key < $1.key }).map { $0.value },
                 ghostName: config.name,
@@ -2407,7 +2407,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     private func emitPluginTalkNotification(_ context: PluginTalkNotificationContext, phase: PluginOtherGhostTalkTiming) {
         guard !isEmittingPluginTalk,
-              let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher else { return }
+              let dispatcher = AppDelegate.resolve()?.pluginDispatcher else { return }
         isEmittingPluginTalk = true
         defer { isEmittingPluginTalk = false }
         let ghostName = ghostConfig?.name ?? ghostURL.lastPathComponent
@@ -5235,7 +5235,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     func startEventBridgeIfNeeded(enableAutoEvents: Bool = false) {
         // Start the event bridge only after the initial UI is ready
-        guard (NSApplication.shared.delegate as? AppDelegate)?.eventBridge == nil else {
+        guard AppDelegate.resolve()?.eventBridge == nil else {
             // If bridge is already started and we need auto events, restart with auto events enabled
             if enableAutoEvents {
                 let bridge = EventBridge.shared
@@ -5247,7 +5247,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
         let bridge = EventBridge.shared
         bridge.start(enableAutoEvents: enableAutoEvents)
-        if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+        if let appDelegate = AppDelegate.resolve() {
             appDelegate.eventBridge = bridge
         }
         Log.debug("[GhostManager] EventBridge started with enableAutoEvents=\(enableAutoEvents)")
@@ -5322,7 +5322,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             "Reference0": balloonName,
             "Reference1": balloonPath
         ])
-        if let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher {
+        if let dispatcher = AppDelegate.resolve()?.pluginDispatcher {
             let windows = characterWindows.sorted(by: { $0.key < $1.key }).map { $0.value }
             dispatcher.onGhostBoot(
                 windows: windows,
@@ -5420,7 +5420,7 @@ extension GhostManager {
     }
 
     private func executePluginMenuAction(_ action: String) {
-        guard let appDelegate = NSApp.delegate as? AppDelegate,
+        guard let appDelegate = AppDelegate.resolve(),
               let registry = appDelegate.pluginRegistry,
               let entry = registry.pluginMenuEntry(forActionIdentifier: action) else {
             Log.info("[GhostManager] Unknown plugin menu action: \(action)")
@@ -5518,7 +5518,7 @@ extension GhostManager {
             reason: "reload",
             completion: { [weak self] in
                 guard let self,
-                      let appDelegate = NSApp.delegate as? AppDelegate else { return }
+                      let appDelegate = AppDelegate.resolve() else { return }
                 appDelegate.runGhost(at: self.ghostURL)
             }
         ) else {

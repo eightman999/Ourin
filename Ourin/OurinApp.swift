@@ -110,6 +110,25 @@ struct OurinApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
+    /// SwiftUI の `NSApplicationDelegateAdaptor` は `NSApp.delegate` に
+    /// `SwiftUI.AppDelegate` プロキシを置くため、直接の型キャストでは
+    /// この実体へ到達できない。アプリが生成した実体を保持し、旧来の
+    /// AppKit 直結構成では直接 delegate を優先して解決する。
+    private(set) static weak var current: AppDelegate?
+
+    override init() {
+        super.init()
+        Self.current = self
+    }
+
+    /// 本番（SwiftUI）とテスト（AppKit直接delegate）の両構成で同じ実体を返す。
+    static func resolve() -> AppDelegate? {
+        if let direct = NSApp.delegate as? AppDelegate {
+            return direct
+        }
+        return current
+    }
+
     var fmo: FmoManager?
     var pluginRegistry: PluginRegistry?
     var headlineRegistry: HeadlineRegistry?
@@ -202,6 +221,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        Self.current = self
         if BasewareUpdateHelper.runIfRequested() {
             return
         }

@@ -597,7 +597,7 @@ final class EventBridge {
     ) -> String? {
         let prepareAndPlay: () -> String? = {
             var targets = self.sessions.values.compactMap { $0.ghostManager }
-            if let appDelegate = NSApp.delegate as? AppDelegate {
+            if let appDelegate = AppDelegate.resolve() {
                 let order = Dictionary(uniqueKeysWithValues: appDelegate.allGhostManagers.enumerated().map {
                     (ObjectIdentifier($0.element), $0.offset)
                 })
@@ -932,7 +932,7 @@ final class EventBridge {
     }
 
     private func activeGhostManager() -> GhostManager? {
-        if let app = NSApp.delegate as? AppDelegate, let gm = app.ghostManager {
+        if let app = AppDelegate.resolve(), let gm = app.ghostManager {
             return gm
         }
         return sessions.values.first?.ghostManager

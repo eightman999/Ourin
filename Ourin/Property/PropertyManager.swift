@@ -69,7 +69,7 @@ public final class PropertyManager {
 
     private func discoverDefaultHeadlines() -> [Headline] {
         onMainThread {
-            if let app = NSApp.delegate as? AppDelegate, let registry = app.headlineRegistry {
+            if let app = AppDelegate.resolve(), let registry = app.headlineRegistry {
                 let values = registry.metas.values.map {
                     Headline(name: $0.name, path: $0.filename)
                 }
@@ -83,7 +83,7 @@ public final class PropertyManager {
 
     private func discoverDefaultPluginProvider() -> PluginPropertyProvider {
         let plugins = discoverDefaultPlugins()
-        let dispatcher = onMainThread { (NSApp.delegate as? AppDelegate)?.pluginDispatcher }
+        let dispatcher = onMainThread { AppDelegate.resolve()?.pluginDispatcher }
         return PluginPropertyProvider(
             plugins: plugins,
             extGet: { plugin, key in
@@ -97,7 +97,7 @@ public final class PropertyManager {
 
     private func discoverDefaultPlugins() -> [PropertyPlugin] {
         return onMainThread {
-            if let app = NSApp.delegate as? AppDelegate, let registry = app.pluginRegistry {
+            if let app = AppDelegate.resolve(), let registry = app.pluginRegistry {
                 let values = registry.compatibilityEntries.map {
                     PropertyPlugin(
                         name: $0.name,

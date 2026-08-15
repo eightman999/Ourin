@@ -170,7 +170,7 @@ public enum WebNarInstaller {
                 sourceURL: sourceURL
             )
             log.info("downloaded: \(archiveURL?.path ?? localURL.path)")
-            if let appDelegate = NSApp.delegate as? AppDelegate,
+            if let appDelegate = AppDelegate.resolve(),
                let ghostManager = appDelegate.ghostManager {
                 switch ghostManager.installNarFile(archiveURL ?? localURL) {
                 case .installed(let result):
@@ -193,7 +193,7 @@ public enum WebNarInstaller {
                         "name": object.name
                     ])
                 }
-                (NSApp.delegate as? AppDelegate)?.pluginDispatcher?.onInstallComplete(objects: result.objects)
+                AppDelegate.resolve()?.pluginDispatcher?.onInstallComplete(objects: result.objects)
             }
         } catch {
             log.error("install failed: \(String(describing: error))")

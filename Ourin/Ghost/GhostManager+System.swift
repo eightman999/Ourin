@@ -791,7 +791,7 @@ extension GhostManager: NSWindowDelegate {
 
         // 追加ゴーストとして in-process で同時起動する（プライマリは置き換えない）。
         DispatchQueue.main.async {
-            if let appDelegate = NSApp.delegate as? AppDelegate,
+            if let appDelegate = AppDelegate.resolve(),
                appDelegate.launchAdditionalGhost(
                    named: ghostName,
                    bootRequest: bootRequest,
@@ -1116,11 +1116,11 @@ extension GhostManager: NSWindowDelegate {
     }
 
     private func currentPluginRegistry() -> PluginRegistry? {
-        (NSApp.delegate as? AppDelegate)?.pluginRegistry
+        AppDelegate.resolve()?.pluginRegistry
     }
 
     func dispatchPluginEvent(pluginSpec: String, event: String, references: [String], notifyOnly: Bool) {
-        if let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher {
+        if let dispatcher = AppDelegate.resolve()?.pluginDispatcher {
             if notifyOnly {
                 dispatcher.dispatchNotifyPlugin(pluginSpec: pluginSpec, event: event, references: references, callerGhost: self)
                 return
@@ -1510,7 +1510,7 @@ extension GhostManager: NSWindowDelegate {
     /// 選択肢/アンカー選択イベントを、登録済みプラグインへも横流しする（PLUGIN_EVENT/2.0M）。
     /// EventBridge への notifyCustom と並行して PluginEventDispatcher.onArbitraryEvent を呼ぶ。
     func forwardEventToPlugins(id: String, references: [String], notify: Bool = false) {
-        guard let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher else { return }
+        guard let dispatcher = AppDelegate.resolve()?.pluginDispatcher else { return }
         dispatcher.onArbitraryEvent(id: id, refs: references, notify: notify)
     }
 
@@ -2392,7 +2392,7 @@ extension GhostManager: NSWindowDelegate {
     }
 
     private func resolveHeadlineTarget(name: String) -> (module: HeadlineModule, meta: HeadlineMeta)? {
-        guard let registry = (NSApp.delegate as? AppDelegate)?.headlineRegistry else { return nil }
+        guard let registry = AppDelegate.resolve()?.headlineRegistry else { return nil }
         let targets = registry.modules.compactMap { module -> (HeadlineModule, HeadlineMeta)? in
             guard let meta = registry.metas[module] else { return nil }
             return (module, meta)
@@ -3455,8 +3455,8 @@ extension GhostManager: NSWindowDelegate {
                             return
                         }
                         let appDelegate: AppDelegate? = Thread.isMainThread
-                            ? NSApp.delegate as? AppDelegate
-                            : DispatchQueue.main.sync { NSApp.delegate as? AppDelegate }
+                            ? AppDelegate.resolve()
+                            : DispatchQueue.main.sync { AppDelegate.resolve() }
                         guard let appDelegate else {
                             BasewareUpdateCoordinator.discard(request)
                             let failureReason = "baseware_shutdown_unavailable"
@@ -4460,7 +4460,7 @@ extension GhostManager: NSWindowDelegate {
             excluding: [self]
         )
 
-        let appDelegate = NSApp.delegate as? AppDelegate
+        let appDelegate = AppDelegate.resolve()
         let isPrimary = appDelegate?.ghostManager === self
         if isPrimary {
             appDelegate?.ghostManager = nil
@@ -6196,7 +6196,7 @@ extension GhostManager: NSWindowDelegate {
                 params: otherParams,
                 excluding: [self, target]
             )
-            guard let appDelegate = NSApp.delegate as? AppDelegate,
+            guard let appDelegate = AppDelegate.resolve(),
                   appDelegate.completeGhostSwitch(from: self, to: target) else {
                 self.shutdown()
                 return
@@ -7058,7 +7058,7 @@ extension GhostManager: NSWindowDelegate {
     }
 
     func openDeveloperTool(_ tool: String) {
-        if let delegate = NSApp.delegate as? AppDelegate {
+        if let delegate = AppDelegate.resolve() {
             delegate.showDevTools()
             NotificationCenter.default.post(name: .devToolsReload, object: tool)
         }

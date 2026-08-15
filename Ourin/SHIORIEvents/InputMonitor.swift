@@ -506,7 +506,7 @@ final class InputMonitor {
             if let id = window.identifier?.rawValue, id.hasPrefix("GhostCharacterWindow_") {
                 if let last = id.split(separator: "_").last, let s = Int(last) {
                     scope = s
-                    if let gm = (NSApp.delegate as? AppDelegate)?.ghostManager,
+                    if let gm = AppDelegate.resolve()?.ghostManager,
                        let r = gm.collisionRegionName(at: point, scope: s), !r.isEmpty {
                         region = r
                     }

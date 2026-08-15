@@ -95,7 +95,7 @@ struct ContentView: View {
     private func reload() {
         logger.info("reload triggered")
         ResourceBridge.shared.invalidateAll()
-        if let app = NSApp.delegate as? AppDelegate {
+        if let app = AppDelegate.resolve() {
             app.pluginRegistry?.unloadAll()
             app.pluginRegistry?.discoverAndLoad()
         }
@@ -105,12 +105,12 @@ struct ContentView: View {
         let startupGhostKey = "OurinStartupGhost"
         if let ghostName = UserDefaults.standard.string(forKey: startupGhostKey), !ghostName.isEmpty {
             logger.info("starting selected ghost: \(ghostName)")
-            if let delegate = NSApp.delegate as? AppDelegate {
+            if let delegate = AppDelegate.resolve() {
                 delegate.runNamedGhost(name: ghostName)
             }
         } else {
             logger.info("no selected ghost, starting default")
-            if let delegate = NSApp.delegate as? AppDelegate {
+            if let delegate = AppDelegate.resolve() {
                 delegate.installDefaultGhost()
             }
         }
@@ -1136,7 +1136,7 @@ fileprivate struct HeadlineBalloonView: View {
         // DevTools からの実行は、稼働中のゴーストへ実際に渡す。
         // ゴースト未起動時も、固定結果を返さず実パーサーの結果を表示する。
         let executionState: String
-        if let ghostManager = (NSApp.delegate as? AppDelegate)?.ghostManager {
+        if let ghostManager = AppDelegate.resolve()?.ghostManager {
             ghostManager.runScript(testScript)
             executionState = "実行対象: \(ghostManager.ghostConfig?.name ?? "稼働中ゴースト")"
         } else {
@@ -1186,7 +1186,7 @@ fileprivate struct PluginEventView: View {
     @State private var consoleResult: String = ""
 
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "plugin")
-    private var appDelegate: AppDelegate? { NSApp.delegate as? AppDelegate }
+    private var appDelegate: AppDelegate? { AppDelegate.resolve() }
     private var dispatcher: PluginEventDispatcher? { appDelegate?.pluginDispatcher }
     private var registry: PluginRegistry? { appDelegate?.pluginRegistry }
 
@@ -1366,7 +1366,7 @@ fileprivate struct ExternalEventsView: View {
     @State private var lastResponse = ""
 
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "external")
-    private let externalServer = (NSApp.delegate as? AppDelegate)?.externalServer
+    private let externalServer = AppDelegate.resolve()?.externalServer
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -1901,7 +1901,7 @@ fileprivate struct NetworkStatusView: View {
     @State private var errorRate: Double = 0
     @State private var updateTimer: Timer?
 
-    private let externalServer = (NSApp.delegate as? AppDelegate)?.externalServer
+    private let externalServer = AppDelegate.resolve()?.externalServer
     
     var body: some View {
         ScrollView {

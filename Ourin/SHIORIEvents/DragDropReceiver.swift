@@ -61,7 +61,7 @@ final class DragDropReceiver: NSView {
             // .nar ファイルが含まれている場合はアプリの標準ファイル開処理に委譲
             if !narFiles.isEmpty {
                 for narUrl in narFiles {
-                    if let appDelegate = NSApp.delegate as? AppDelegate {
+                    if let appDelegate = AppDelegate.resolve() {
                         appDelegate.application(NSApp, open: [narUrl])
                     }
                 }

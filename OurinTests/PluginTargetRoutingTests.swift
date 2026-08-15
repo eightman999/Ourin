@@ -1,9 +1,35 @@
 import Foundation
+import AppKit
 import Testing
 @testable import Ourin
 
 @MainActor
+@Suite(.serialized)
 struct PluginTargetRoutingTests {
+    @Test
+    func appDelegateResolverUsesRegisteredInstanceWhenSwiftUIUsesProxyDelegate() {
+        let application = NSApplication.shared
+        let previousDelegate = application.delegate
+        let expected = AppDelegate()
+        application.delegate = nil
+        defer { application.delegate = previousDelegate }
+
+        #expect(AppDelegate.resolve() === expected)
+    }
+
+    @Test
+    func appDelegateResolverPrefersDirectAppKitDelegate() {
+        let application = NSApplication.shared
+        let previousDelegate = application.delegate
+        let direct = AppDelegate()
+        let fallback = AppDelegate()
+        application.delegate = direct
+        defer { application.delegate = previousDelegate }
+
+        #expect(AppDelegate.resolve() === direct)
+        withExtendedLifetime(fallback) {}
+    }
+
     @Test
     func ghostManagerMatchesNameIDPathAndWindowTarget() {
         let root = URL(fileURLWithPath: "/tmp/target-ghost")

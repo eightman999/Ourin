@@ -289,7 +289,7 @@ extension GhostManager {
     }
 
     private func appendPluginMenu(to items: inout [OwnerDrawMenuItem]) {
-        guard let registry = (NSApp.delegate as? AppDelegate)?.pluginRegistry else { return }
+        guard let registry = AppDelegate.resolve()?.pluginRegistry else { return }
         let entries = registry.pluginMenuEntries()
         guard !entries.isEmpty else { return }
 

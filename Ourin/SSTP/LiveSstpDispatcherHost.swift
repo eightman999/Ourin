@@ -18,15 +18,15 @@ struct LiveSstpDispatcherHost: SstpDispatcherHost {
     }
 
     func collectFmoRecords() -> [FmoGhostRecord] {
-        // 従来どおり AppDelegate.collectFmoRecords() を直接呼ぶ（現行のスレッド挙動を維持）。
-        guard let appDelegate = NSApp.delegate as? AppDelegate else { return [] }
+        // SwiftUI の delegate プロキシ越しでも AppDelegate 実体を解決する。
+        guard let appDelegate = AppDelegate.resolve() else { return [] }
         return appDelegate.collectFmoRecords()
     }
 
     /// メインスレッド上で実行される効果適用の本体。
     /// DispatchQueue.main.async 経由で呼ばれることを前提とする（非 @MainActor 関数）。
     private static func applyOnMain(_ effect: SstpUIEffect) {
-        guard let appDelegate = NSApp.delegate as? AppDelegate else { return }
+        guard let appDelegate = AppDelegate.resolve() else { return }
         guard let gm = appDelegate.ghostManagerForShioriRequest(headers: effect.requestHeaders) else { return }
         switch effect.kind {
         case .updateSurface(let id):
