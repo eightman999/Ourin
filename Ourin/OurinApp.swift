@@ -188,8 +188,96 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         return DispatchQueue.main.sync { self.resolveGhostManager(headers: headers) }
     }
 
+    /// DevTools のゴースト選択値が、設定名またはインストールフォルダ名に一致するかを判定する。
+    /// SSTP の ReceiverGhostName と同じ大小文字・percent encoding 規則を使う。
+    static func ghostSelectionMatches(
+        _ selection: String,
+        configName: String?,
+        folderName: String?
+    ) -> Bool {
+        guard let target = receiverTargetKey(headers: ["ReceiverGhostName": selection]) else {
+            return false
+        }
+        return [configName, folderName]
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            .contains(target)
+    }
+
+    /// DevTools のスクリプトを選択されたゴーストへ配送する。
+    /// 未起動の選択ゴーストは追加ゴーストとして起動し、起動完了後にスクリプトを再生する。
+    /// 完了コールバックはUI表示用の実行対象メッセージを返す。
+    func runDevToolsScript(
+        _ script: String,
+        selectedGhostName: String?,
+        completion: @escaping (String) -> Void
+    ) {
+        let work = { [weak self] in
+            guard let self else {
+                completion("実行対象: なし（アプリデリゲート未接続）")
+                return
+            }
+
+            let requestedName = selectedGhostName?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if let target = self.devToolsGhostManager(named: requestedName) {
+                target.runScript(script)
+                completion("実行対象: \(self.devToolsDisplayName(for: target))")
+                return
+            }
+
+            guard !requestedName.isEmpty else {
+                completion("実行対象: なし（ゴースト未起動）")
+                return
+            }
+
+            guard let item = NarRegistry.shared.installedItems(ofType: "ghost")
+                .first(where: { $0.name.caseInsensitiveCompare(requestedName) == .orderedSame }) else {
+                completion("実行対象: なし（ゴースト \(requestedName) が見つかりません）")
+                return
+            }
+
+            _ = self.launchAdditionalGhost(at: item.path) { [weak self] target, result in
+                let finish = {
+                    guard result.succeeded else {
+                        self?.terminateAdditionalGhost(target)
+                        completion("実行対象: なし（ゴースト \(requestedName) の起動に失敗）")
+                        return
+                    }
+                    target.runScript(script)
+                    completion("実行対象: \(self?.devToolsDisplayName(for: target) ?? requestedName)")
+                }
+                if Thread.isMainThread {
+                    finish()
+                } else {
+                    DispatchQueue.main.async(execute: finish)
+                }
+            }
+        }
+
+        if Thread.isMainThread {
+            work()
+        } else {
+            DispatchQueue.main.async(execute: work)
+        }
+    }
+
     private func resolveYayaAdapter(headers: [String: String]) -> YayaAdapter? {
         resolveGhostManager(headers: headers)?.yayaAdapter
+    }
+
+    private func devToolsGhostManager(named name: String) -> GhostManager? {
+        guard !name.isEmpty else { return ghostManager }
+        return allGhostManagers.first {
+            Self.ghostSelectionMatches(
+                name,
+                configName: $0.ghostConfig?.name,
+                folderName: $0.ghostURL.lastPathComponent
+            )
+        }
+    }
+
+    private func devToolsDisplayName(for manager: GhostManager) -> String {
+        manager.ghostConfig?.name ?? manager.ghostURL.lastPathComponent
     }
 
     /// ReceiverGhostName ヘッダから照合キーを作る純関数部（テスト用に static 公開）。

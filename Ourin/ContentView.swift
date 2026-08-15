@@ -975,6 +975,9 @@ fileprivate struct HeadlineBalloonView: View {
                         .pickerStyle(MenuPickerStyle())
                         .frame(width: 120)
                     }
+                    Text("スクリプト実行は選択したゴーストへ送信します。未起動なら追加ゴーストとして起動します。")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
 
                     HStack {
                         Text("シェル:")
@@ -1171,23 +1174,26 @@ fileprivate struct HeadlineBalloonView: View {
             .map { "\($0.offset): \(String(describing: $0.element))" }
             .joined(separator: "\n")
 
-        // DevTools からの実行は、稼働中のゴーストへ実際に渡す。
-        // ゴースト未起動時も、固定結果を返さず実パーサーの結果を表示する。
-        let executionState: String
-        if let ghostManager = AppDelegate.resolve()?.ghostManager {
-            ghostManager.runScript(testScript)
-            executionState = "実行対象: \(ghostManager.ghostConfig?.name ?? "稼働中ゴースト")"
-        } else {
-            executionState = "実行対象: なし（ゴースト未起動。解析のみ）"
+        let presentResult: (String) -> Void = { executionState in
+            let alert = NSAlert()
+            alert.messageText = NSLocalizedString("Script Result", comment: "Script execution result title")
+            let execLabel = NSLocalizedString("Executed Script:", comment: "executed script label")
+            let parseLabel = NSLocalizedString("Parse Result:", comment: "parse result label")
+            alert.informativeText = "\(executionState)\n\n\(execLabel)\n\(testScript)\n\n\(parseLabel)\n表示テキスト: \(parsedText.isEmpty ? "（なし）" : parsedText)\n\nトークン:\n\(tokenSummary.isEmpty ? "（なし）" : tokenSummary)"
+            alert.alertStyle = .informational
+            alert.runModal()
         }
 
-        let alert = NSAlert()
-        alert.messageText = NSLocalizedString("Script Result", comment: "Script execution result title")
-        let execLabel = NSLocalizedString("Executed Script:", comment: "executed script label")
-        let parseLabel = NSLocalizedString("Parse Result:", comment: "parse result label")
-        alert.informativeText = "\(executionState)\n\n\(execLabel)\n\(testScript)\n\n\(parseLabel)\n表示テキスト: \(parsedText.isEmpty ? "（なし）" : parsedText)\n\nトークン:\n\(tokenSummary.isEmpty ? "（なし）" : tokenSummary)"
-        alert.alertStyle = .informational
-        alert.runModal()
+        // 選択値を実行対象へ渡す。未起動ゴーストの起動完了後に結果ダイアログを表示する。
+        guard let appDelegate = AppDelegate.resolve() else {
+            presentResult("実行対象: なし（アプリデリゲート未接続）")
+            return
+        }
+        appDelegate.runDevToolsScript(
+            testScript,
+            selectedGhostName: selectedGhost,
+            completion: presentResult
+        )
     }
 }
 
