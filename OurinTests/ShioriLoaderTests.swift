@@ -51,6 +51,8 @@ private extension Data {
     }
 }
 
+// 埋め込みSHIORI XPCサービスをfixtureから起動するため、suite内の並列実行を禁止する。
+@Suite(.serialized)
 struct ShioriLoaderTests {
     @Test
     func shiori2DetectionUsesGetVersionThenConvertsEventRequest() throws {

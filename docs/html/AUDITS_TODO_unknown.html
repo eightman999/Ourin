@@ -278,7 +278,7 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P2</td>
 <td><strong>AUDIT-TEST-BASELINE-001</strong>: <code>OurinTests</code> 全体実行で並列時に失敗</td>
-<td><strong>未解決</strong>。実在Emily4辞書を使う <code>YayaEmily4RegressionTests</code> と、<code>EventBridge.shared</code> を使う <code>DressupBindTests</code> を <code>.serialized</code> 化し、<code>SurfaceOverlayOrderingTests</code> のTimer待機をMain RunLoop駆動へ変更した。最後に集計できた2026-08-15の並列全体実行は <strong>1093 passed / 5 failed / 0 skipped / 1098 total</strong>（オーバーレイTimer競合は解消）。続く並列再実行はテストワーカー終了後にxcodebuildがUIテスト用プロセスを待ち続け、集計不能だったため、5件は未解決のまま扱う。直列全体実行は <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong>、Dressup suite単体は <strong>31 passed / 0 failed</strong>。</td>
+<td><strong>未解決</strong>。実在Emily4辞書を使う <code>YayaEmily4RegressionTests</code>、<code>EventBridge.shared</code> を使う <code>DressupBindTests</code>、埋め込みXPC fixtureを使う <code>ShioriLoaderTests</code> を <code>.serialized</code> 化し、<code>SurfaceOverlayOrderingTests</code> のTimer待機をMain RunLoop駆動へ変更した。最後に集計できた2026-08-15の並列全体実行は <strong>1093 passed / 5 failed / 0 skipped / 1098 total</strong>（オーバーレイTimer競合は解消）。続く並列再実行はテストワーカー終了後にxcodebuildがUIテスト用プロセスを待ち続け、集計不能だったため、5件は未解決のまま扱う。直列全体実行は <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong>、Dressup suiteは <strong>31 passed</strong>、ShioriLoader suiteは <strong>52 passed</strong>。</td>
 </tr>
 </tbody>
 </table>
@@ -407,7 +407,7 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P2</td>
 <td><strong>AUDIT-TEST-BASELINE-001</strong>: parallel <code>OurinTests</code> execution still has failures</td>
-<td><strong>Unresolved</strong>. Both the real-Emily4-dictionary <code>YayaEmily4RegressionTests</code> suite and the <code>EventBridge.shared</code>-using <code>DressupBindTests</code> suite are now <code>.serialized</code>; <code>SurfaceOverlayOrderingTests</code> drives the main RunLoop while waiting for Timer frames. The last aggregatable parallel full run on 2026-08-15 was <strong>1093 passed / 5 failed / 0 skipped / 1098 total</strong> (the overlay Timer race is resolved). A subsequent parallel rerun could not produce a summary because xcodebuild waited after the test worker exited, so the five failures remain unresolved. The serial full run is <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong>; the Dressup suite alone is <strong>31 passed / 0 failed</strong>.</td>
+<td><strong>Unresolved</strong>. The real-Emily4-dictionary <code>YayaEmily4RegressionTests</code>, <code>EventBridge.shared</code>-using <code>DressupBindTests</code>, and embedded-XPC-fixture <code>ShioriLoaderTests</code> suites are now <code>.serialized</code>; <code>SurfaceOverlayOrderingTests</code> drives the main RunLoop while waiting for Timer frames. The last aggregatable parallel full run on 2026-08-15 was <strong>1093 passed / 5 failed / 0 skipped / 1098 total</strong> (the overlay Timer race is resolved). A subsequent parallel rerun could not produce a summary because xcodebuild waited after the test worker exited, so the five failures remain unresolved. The serial full run is <strong>1098 passed / 0 failed / 0 skipped / 1098 total</strong>; the Dressup suite passed <strong>31 tests</strong> and ShioriLoader passed <strong>52 tests</strong>.</td>
 </tr>
 </tbody>
 </table>
