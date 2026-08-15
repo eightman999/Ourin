@@ -86,6 +86,7 @@
 | OnFirstBoot に Reference0（vanish回数）付与 | `Ghost/GhostManager.swift:2675-2685` |
 | 存在しない `OnSecondBoot` を削除（2回目起動も OnBoot） | `Ghost/GhostManager.swift:2670`（コメントで廃止を明記） |
 | OnClose 応答スクリプトを再生してから終了 + Reference0（終了理由） | `Ghost/GhostManager.swift:738-768`（`beginCloseSequence` → `runScript` → 終了） |
+| **CommunicateBox の `OnCommunicate` Reference 伝播** | `Ghost/GhostManager.swift` の `communicateBoxReferences` が `R0=user / R1=空 / R2=ECHO/1.0 / R3=本文` を生成し、`Ghost/GhostManager+System.swift` の送信経路へ接続。SSTP の `R0=Sender / R1=Sentence` 契約は維持。`GhostUtilityCommandTests` と `YayaEmily4RegressionTests` を含む対象56テストが通過し、2026-08-15の実操作（Emily4「話しかける」→`こんにちは`→OK）でも入力完了後に文字 `0`・浮遊パーツは表示されなかった。Emily4 の返却は辞書側の空表示スクリプト `\0\s[0]` であり、本文応答の有無はゴースト辞書の仕様範囲。 |
 | イベントID定義の網羅性（UKADOC 252イベント中14未定義のみ） | `SHIORIEvents/EventID.swift`（469イベント定義、`EventReferenceTable` の `On*` ID は型付き網羅テスト済み） |
 | **OnMouseClick の Reference4-6 が充足**（当たり判定名/ボタン/デバイス種別） | `SHIORIEvents/InputMonitor.swift:373-413`（R4=region, R5=button, R6="mouse"）。UKADOC list_shiori_event 準拠 |
 | **`EventBridge.start(enableAutoEvents:)` を実ゴーストロード完了時に集約有効化** | `Ghost/GhostManager.swift:643-646`（OnBoot 後、`!isRunningUnderTests` で有効化）、`2719-2737`（`startEventBridgeIfNeeded` で再起動付き有効化） |
@@ -272,6 +273,7 @@ The following items were raised in prior audit reports (GLM / CODEX / CLAUDE / A
 | OnFirstBoot Reference0 (vanish count) | `Ghost/GhostManager.swift:2675-2685` |
 | Non-existent `OnSecondBoot` removed | `Ghost/GhostManager.swift:2670` |
 | OnClose response script replayed before exit + Reference0 (exit reason) | `Ghost/GhostManager.swift:738-768` |
+| **CommunicateBox `OnCommunicate` Reference propagation** | `Ghost/GhostManager.swift` (`communicateBoxReferences`) now generates `R0=user / R1=empty / R2=ECHO/1.0 / R3=body`, and `Ghost/GhostManager+System.swift` uses it for the submit path. The SSTP `R0=Sender / R1=Sentence` contract remains unchanged. The focused 56-test run, including `GhostUtilityCommandTests` and `YayaEmily4RegressionTests`, passed; the 2026-08-15 real Emily4 flow (“Talk” → `こんにちは` → OK) completed without displaying a literal `0` or floating fragments. Emily4 returned its dictionary-defined empty-display script `\0\s[0]`; whether it produces body text is ghost-dictionary behavior. |
 | Event ID coverage (only 14 undefined out of UKADOC 252) | `SHIORIEvents/EventID.swift` (469 events; all `On*` IDs in `EventReferenceTable` are covered by a typed-ID audit test) |
 | **OnMouseClick Reference4-6 fulfilled** (hit name/button/device type) | `SHIORIEvents/InputMonitor.swift:373-413` (R4=region, R5=button, R6="mouse"). UKADOC list_shiori_event compliant |
 | **`EventBridge.start(enableAutoEvents:)` consolidated on real ghost load** | `Ghost/GhostManager.swift:643-646` (after OnBoot, `!isRunningUnderTests`), `2719-2737` (`startEventBridgeIfNeeded` restart-with-auto-events) |

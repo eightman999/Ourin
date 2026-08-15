@@ -173,11 +173,6 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </tr>
 <tr>
 <td>P2</td>
-<td>CommunicateBox の <code>OnCommunicate</code> Reference 伝播</td>
-<td>2026-08-15、Emily4 を起動し「話しかける」→ <code>こんにちは</code> → OK を実操作したところ、入力ダイアログは閉じたが応答バルーンが表示されなかった。<code>Ourin/Ghost/GhostManager+System.swift</code> の <code>showCommunicateBoxDialog</code> は <code>OnCommunicate</code> に <code>Reference0=user</code> と本文だけを渡す一方、Emily4 <code>aya_communicate.dic</code> は <code>Reference2=ECHO/1.0</code>、<code>Reference3=本文</code> を参照する。実ゴースト仕様に合わせた Reference 配列の確定、応答表示、回帰テストが未完。</td>
-</tr>
-<tr>
-<td>P2</td>
 <td>SERIKO 描画完全一致</td>
 <td><code>surfaceID=-1/-2</code>・ウェイト範囲・<code>shared-index</code>・<code>collisionex</code> 各形状は単体検証済み。<strong>実シェルでの描画差分テスト</strong>（<code>Animation/SerikoParser.swift</code>, <code>Ghost/GhostManager+Animation.swift</code>）が未実施。</td>
 </tr>
@@ -287,11 +282,6 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <td>P2</td>
 <td>SakuraScript UKADOC full-command runtime diff</td>
 <td>Parse coverage &amp; dispatch diff machine-verified by <code>SakuraScriptDocumentationCoverageTests</code> (326 tags). <strong>Runtime-result and on-screen diffs on real ghosts</strong> unverified.</td>
-</tr>
-<tr>
-<td>P2</td>
-<td>CommunicateBox <code>OnCommunicate</code> Reference propagation</td>
-<td>On 2026-08-15, Emily4 was launched and the UI flow “Talk” → enter <code>こんにちは</code> → OK was performed. The input dialog closed, but no response balloon appeared. <code>showCommunicateBoxDialog</code> in <code>Ourin/Ghost/GhostManager+System.swift</code> sends only <code>Reference0=user</code> and the text, while Emily4 <code>aya_communicate.dic</code> reads <code>Reference2=ECHO/1.0</code> and <code>Reference3=body</code>. The exact Reference mapping, response display, and regression coverage remain pending.</td>
 </tr>
 <tr>
 <td>P2</td>

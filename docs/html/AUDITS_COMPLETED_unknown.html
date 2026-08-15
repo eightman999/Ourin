@@ -403,6 +403,10 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <td><code>Ghost/GhostManager.swift:738-768</code>（<code>beginCloseSequence</code> → <code>runScript</code> → 終了）</td>
 </tr>
 <tr>
+<td><strong>CommunicateBox の <code>OnCommunicate</code> Reference 伝播</strong></td>
+<td><code>Ghost/GhostManager.swift</code> の <code>communicateBoxReferences</code> が <code>R0=user / R1=空 / R2=ECHO/1.0 / R3=本文</code> を生成し、<code>Ghost/GhostManager+System.swift</code> の送信経路へ接続。SSTP の <code>R0=Sender / R1=Sentence</code> 契約は維持。<code>GhostUtilityCommandTests</code> と <code>YayaEmily4RegressionTests</code> を含む対象56テストが通過し、2026-08-15の実操作（Emily4「話しかける」→<code>こんにちは</code>→OK）でも入力完了後に文字 <code>0</code>・浮遊パーツは表示されなかった。Emily4 の返却は辞書側の空表示スクリプト <code>\0\s[0]</code> であり、本文応答の有無はゴースト辞書の仕様範囲。</td>
+</tr>
+<tr>
 <td>イベントID定義の網羅性（UKADOC 252イベント中14未定義のみ）</td>
 <td><code>SHIORIEvents/EventID.swift</code>（469イベント定義、<code>EventReferenceTable</code> の <code>On*</code> ID は型付き網羅テスト済み）</td>
 </tr>
@@ -1002,6 +1006,10 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <tr>
 <td>OnClose response script replayed before exit + Reference0 (exit reason)</td>
 <td><code>Ghost/GhostManager.swift:738-768</code></td>
+</tr>
+<tr>
+<td><strong>CommunicateBox <code>OnCommunicate</code> Reference propagation</strong></td>
+<td><code>Ghost/GhostManager.swift</code> (<code>communicateBoxReferences</code>) now generates <code>R0=user / R1=empty / R2=ECHO/1.0 / R3=body</code>, and <code>Ghost/GhostManager+System.swift</code> uses it for the submit path. The SSTP <code>R0=Sender / R1=Sentence</code> contract remains unchanged. The focused 56-test run, including <code>GhostUtilityCommandTests</code> and <code>YayaEmily4RegressionTests</code>, passed; the 2026-08-15 real Emily4 flow (“Talk” → <code>こんにちは</code> → OK) completed without displaying a literal <code>0</code> or floating fragments. Emily4 returned its dictionary-defined empty-display script <code>\0\s[0]</code>; whether it produces body text is ghost-dictionary behavior.</td>
 </tr>
 <tr>
 <td>Event ID coverage (only 14 undefined out of UKADOC 252)</td>

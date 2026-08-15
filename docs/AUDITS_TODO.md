@@ -18,7 +18,6 @@
 | 優先度 | 項目 | 検証内容 |
 |---|---|---|
 | P2 | SakuraScript UKADOC 全コマンド実行差分 | パース網羅・ディスパッチ差分は `SakuraScriptDocumentationCoverageTests`（326タグ）で機械検証済み。**実行結果差分・実ゴースト画面差分**が未検証。 |
-| P2 | CommunicateBox の `OnCommunicate` Reference 伝播 | 2026-08-15、Emily4 を起動し「話しかける」→ `こんにちは` → OK を実操作したところ、入力ダイアログは閉じたが応答バルーンが表示されなかった。`Ourin/Ghost/GhostManager+System.swift` の `showCommunicateBoxDialog` は `OnCommunicate` に `Reference0=user` と本文だけを渡す一方、Emily4 `aya_communicate.dic` は `Reference2=ECHO/1.0`、`Reference3=本文` を参照する。実ゴースト仕様に合わせた Reference 配列の確定、応答表示、回帰テストが未完。 |
 | P2 | SERIKO 描画完全一致 | `surfaceID=-1/-2`・ウェイト範囲・`shared-index`・`collisionex` 各形状は単体検証済み。**実シェルでの描画差分テスト**（`Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift`）が未実施。 |
 | P2 | バルーン描画の細部 | ROP2 アンカー装飾・可変改行（`\n[half]`・負値はオフセット近似）・バルーン右側表示・wordwrap/alignment の**実ゴースト目視**。 |
 | P2 | 動画・音声の実機確認 | `MTAudioProcessingTap` 左右バランス・`sound,load` プリロードは実装済み。**実機での映像表示・実音声・対応コーデック範囲**の最終確認待ち。 |
@@ -59,7 +58,6 @@ Implementation and tests exist for all of these; the remaining work is **verific
 | Priority | Item | What to verify |
 |---|---|---|
 | P2 | SakuraScript UKADOC full-command runtime diff | Parse coverage & dispatch diff machine-verified by `SakuraScriptDocumentationCoverageTests` (326 tags). **Runtime-result and on-screen diffs on real ghosts** unverified. |
-| P2 | CommunicateBox `OnCommunicate` Reference propagation | On 2026-08-15, Emily4 was launched and the UI flow “Talk” → enter `こんにちは` → OK was performed. The input dialog closed, but no response balloon appeared. `showCommunicateBoxDialog` in `Ourin/Ghost/GhostManager+System.swift` sends only `Reference0=user` and the text, while Emily4 `aya_communicate.dic` reads `Reference2=ECHO/1.0` and `Reference3=body`. The exact Reference mapping, response display, and regression coverage remain pending. |
 | P2 | SERIKO rendering parity | `surfaceID=-1/-2`, wait ranges, `shared-index`, `collisionex` shapes unit-tested. **Real-shell rendering diff testing** (`Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift`) pending. |
 | P2 | Balloon rendering fine points | Visual check of ROP2 anchor decoration, variable newlines (`\n[half]`, negative values approximated by offsets), right-side balloons, wordwrap/alignment on real ghosts. |
 | P2 | Video/audio on real hardware | `MTAudioProcessingTap` L/R balance and `sound,load` preloading implemented. **Real playback, actual audio, codec-scope confirmation** pending. |
