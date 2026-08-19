@@ -331,4 +331,34 @@ struct SerikoParserTests {
         let parsed = SerikoParser.parseSurfaces(bundle.content)
         #expect(parsed[7]?.animations[3]?.interval == .talk)
     }
+
+    @Test
+    func methodNoopIsAccepted() async throws {
+        // SSP GetMethodTypeFromText: noop -> 0x7000051 (何もしない)。
+        #expect(SerikoMethod.parse("noop") == .noop)
+        #expect(SerikoMethod.parse("NOOP") == .noop)
+    }
+
+    @Test
+    func methodCcyrIsAliasOfReplace() async throws {
+        // SSP GetMethodTypeFromText: ccyr -> 0x8010005 (= replace と同じ値)。
+        #expect(SerikoMethod.parse("ccyr") == .replace)
+        #expect(SerikoMethod.parse("CCYR") == .replace)
+    }
+
+    @Test
+    func surfacesWithNoopAndCcyrPatternsParse() async throws {
+        let text = """
+        surface2
+        {
+          animation0.interval,always
+          animation0.pattern0,noop,4002,250,50,120
+          animation0.pattern1,ccyr,4003,250,50,120
+        }
+        """
+
+        let parsed = SerikoParser.parseSurfaces(text)
+        #expect(parsed[2]?.animations[0]?.patterns[0].method == .noop)
+        #expect(parsed[2]?.animations[0]?.patterns[1].method == .replace)
+    }
 }

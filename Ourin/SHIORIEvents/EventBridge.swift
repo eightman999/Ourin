@@ -777,6 +777,15 @@ final class EventBridge {
         return DispatchQueue.main.sync(execute: find)
     }
 
+    /// FINE SetScript / SetScriptPartial 用のスクリプト入力ボックスを表示する。
+    /// アクティブ（優先）ゴーストを対象にし、確定内容は OnUserInput 経由で
+    /// eventID のイベントとしてゴーストへ通知する。
+    func showFineScriptInput(eventID: String, initialText: String) {
+        let gm = activeGhostManager() ?? sessions.values.compactMap(\.ghostManager).first
+        guard let gm else { return }
+        gm.showInputBoxDialog(id: eventID, timeoutMs: nil, initialText: initialText)
+    }
+
     /// 現在 SSTP 経由で配送可能なゴースト名を返す。
     ///
     /// `__SYSTEM_ALL_GHOST__` は SSTP の ReceiverGhostName にそのまま渡せないため、

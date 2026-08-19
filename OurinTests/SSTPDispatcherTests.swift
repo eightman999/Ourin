@@ -1378,4 +1378,82 @@ struct SSTPDispatcherTests {
         store.saveToDisk()
         #expect(!FileManager.default.fileExists(atPath: fileURL.path))
     }
+
+    @Test
+    func fineRejectsMissingSubcommand() async throws {
+        let fake = FakeSstpRoutingRegistry()
+        let req = SSTPRequest(
+            method: "FINE",
+            version: "SSTP/1.4",
+            headers: ["Sender": "UnitTest"]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
+        #expect(resp.contains("SSTP/1.4 400"))
+    }
+
+    @Test
+    func fineRejectsUnknownSubcommand() async throws {
+        let fake = FakeSstpRoutingRegistry()
+        let req = SSTPRequest(
+            method: "FINE",
+            version: "SSTP/1.4",
+            headers: [
+                "Sender": "UnitTest",
+                "Reference0": "NoSuchSubcommand"
+            ]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
+        // SSP はサブコマンド不一致で 0x1f5 = 501。
+        #expect(resp.contains("SSTP/1.4 501"))
+    }
+
+    @Test
+    func fineMessageSendReturns420WhenNoGhostResolves() async throws {
+        let fake = FakeSstpRoutingRegistry()
+        let req = SSTPRequest(
+            method: "FINE",
+            version: "SSTP/1.4",
+            headers: [
+                "Sender": "UnitTest",
+                "Reference0": "MessageSend",
+                "Reference1": "MissingGhost",
+                "Reference4": "\\h\\s0Hello"
+            ]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
+        // 対象ゴースト不在で SSP は 0x1a4 = 420 Refuse。
+        #expect(resp.contains("SSTP/1.4 420"))
+    }
+
+    @Test
+    func fineMessageSendRejectsMissingReference4() async throws {
+        let fake = FakeSstpRoutingRegistry()
+        let req = SSTPRequest(
+            method: "FINE",
+            version: "SSTP/1.4",
+            headers: [
+                "Sender": "UnitTest",
+                "Reference0": "MessageSend",
+                "Reference1": "Emily"
+            ]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
+        #expect(resp.contains("SSTP/1.4 400"))
+    }
+
+    @Test @MainActor
+    func fineSetScriptReturns200() throws {
+        let fake = FakeSstpRoutingRegistry()
+        let req = SSTPRequest(
+            method: "FINE",
+            version: "SSTP/1.4",
+            headers: [
+                "Sender": "UnitTest",
+                "Reference0": "SetScript",
+                "Reference1": "\\h\\s0Initial"
+            ]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
+        #expect(resp.contains("SSTP/1.4 200"))
+    }
 }

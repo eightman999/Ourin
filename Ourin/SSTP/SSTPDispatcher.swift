@@ -166,6 +166,9 @@ public enum SSTPDispatcher {
             return handleGive(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
         case "INSTALL":
             return handleInstall(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
+        case "FINE":
+            // SSP 拡張メソッド。ProcNotifyFINE @0x68adf0 相当。
+            return handleFine(request: request, securityContext: effectiveSecurityContext, isOwned: isOwned)
         default:
             return buildResponse(
                 version: version,
@@ -747,6 +750,134 @@ public enum SSTPDispatcher {
         return buildResponse(
             version: version,
             status: 400,
+            charset: charset,
+            script: nil,
+            data: nil,
+            responseHeaders: collectPassThruHeaders(from: request.headers)
+        )
+    }
+
+    /// SSP 拡張 FINE メソッド（ProcNotifyFINE @0x68adf0 互換）。
+    ///
+    /// - Reference0 = サブコマンド（MessageSend / SetScript / SetScriptPartial）
+    /// - MessageSend: Reference1=宛先ゴースト名, Reference2=さくら名,
+    ///   Reference3=けろ名, Reference4=内容。Reference4 のスクリプトを
+    ///   対象ゴーストで再生する（SSP は PlayScript(ghost, ref4, 0x82)）。
+    /// - SetScript / SetScriptPartial: スクリプト入力ボックスを表示する
+    ///   （SSP は ShowInputBox(id=0x1000001 / 0x3000001, initialText=Reference0)）。
+    private static func handleFine(
+        request: SSTPRequest,
+        securityContext: ShioriSecurityContext,
+        isOwned: Bool
+    ) -> String {
+        let version = request.version.isEmpty ? "SSTP/1.4" : request.version
+        let charset = request.headerValue("Charset") ?? "UTF-8"
+        guard let subcommand = request.headerValue("Reference0")?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !subcommand.isEmpty else {
+            return buildResponse(
+                version: version,
+                status: 400,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        }
+        switch subcommand.uppercased() {
+        case "MESSAGESEND":
+            return handleFineMessageSend(
+                request: request,
+                securityContext: securityContext,
+                isOwned: isOwned
+            )
+        case "SETSCRIPT", "SETSCRIPTPARTIAL":
+            let isPartial = subcommand.uppercased() == "SETSCRIPTPARTIAL"
+            let eventID = isPartial ? "OnFineSetScriptPartial" : "OnFineSetScript"
+            let initialText = request.headerValue("Reference0") ?? ""
+            DispatchQueue.main.async {
+                EventBridge.shared.showFineScriptInput(eventID: eventID, initialText: initialText)
+            }
+            return buildResponse(
+                version: version,
+                status: 200,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        default:
+            // SSP はサブコマンド不一致で 0x1f5 = 501。
+            return buildResponse(
+                version: version,
+                status: 501,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        }
+    }
+
+    private static func handleFineMessageSend(
+        request: SSTPRequest,
+        securityContext: ShioriSecurityContext,
+        isOwned: Bool
+    ) -> String {
+        let version = request.version.isEmpty ? "SSTP/1.4" : request.version
+        let charset = request.headerValue("Charset") ?? "UTF-8"
+        let script = request.headerValue("Reference4")
+        guard let script, !script.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            // SSP は Reference4 無しで return 0（非200系）＝400 相当。
+            return buildResponse(
+                version: version,
+                status: 400,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        }
+        // SSP FindActiveGhostFromName(Reference1) → (null, Reference2, Reference3)
+        // → GetPreferredActiveGhost の順。Ourin では名前解決を経て全対象に再生する。
+        let targetName = request.headerValue("Reference1")
+            ?? request.headerValue("Reference2")
+        var reasons: Set<String> = ["sstp-send", "fine"]
+        if securityContext.level == "external" {
+            reasons.insert("remote")
+        }
+        if isOwned {
+            reasons.insert("owned")
+        }
+        if request.options.contains(.notranslate) {
+            reasons.insert("notranslate")
+        }
+        let context = ScriptTranslationContext(
+            reasons: reasons,
+            eventID: "OnFineMessageSend",
+            references: referencesPreservingGaps(from: request),
+            isSSTP: true,
+            sender: request.headerValue("Sender") ?? "Ourin",
+            securityLevel: securityContext.level,
+            securityOrigin: securityContext.origin
+        )
+        let didPlay = EventBridge.shared.playScriptOnGhostsResolving(
+            ghostName: targetName,
+            translationContext: context
+        ) { _ in script }
+        if !didPlay {
+            // SSP は対象ゴースト不在で 0x1a4 = 420 Refuse。
+            return buildResponse(
+                version: version,
+                status: 420,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        }
+        return buildResponse(
+            version: version,
+            status: 200,
             charset: charset,
             script: nil,
             data: nil,

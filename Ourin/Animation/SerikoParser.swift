@@ -242,6 +242,8 @@ public enum SerikoMethod: Equatable {
     case parallelStart
     case parallelStop
     case asis
+    /// 何もしない method（SSP 0x7000051）。
+    case noop
     case unknown(String)
 
     static func parse(_ raw: String) -> SerikoMethod {
@@ -267,6 +269,8 @@ public enum SerikoMethod: Equatable {
         case "insert": return .insert
         case "interpolate": return .interpolate
         case "asis": return .asis
+        case "noop": return .noop
+        case "ccyr": return .replace
         default:
             if let blend = SerikoBlendMode.parse(value) {
                 return .blend(blend.mode, fast: blend.fast)

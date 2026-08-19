@@ -284,6 +284,9 @@ public final class SerikoExecutor {
             onImportInvoked?(animationID, filename, initialDelay, adjustedCoordinates.x, adjustedCoordinates.y)
         case .asis, .unknown:
             emitMethod(animationID: animationID, method: pattern.method, surfaceID: pattern.surfaceID, x: pattern.x, y: pattern.y)
+        case .noop:
+            // SSP 0x7000051: 何もしない。
+            break
         }
         onPatternExecuted?(animationID, pattern)
     }
@@ -297,7 +300,7 @@ public final class SerikoExecutor {
              .reduce, .replace, .interpolate, .blend, .asis, .unknown:
             return true
         case .import, .start, .alternativeStart, .stop, .alternativeStop, .insert,
-             .parallelStart, .parallelStop:
+             .parallelStart, .parallelStop, .noop:
             return false
         }
     }

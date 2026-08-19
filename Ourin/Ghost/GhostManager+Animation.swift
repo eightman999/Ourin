@@ -947,6 +947,9 @@ extension GhostManager {
             break
         case .unknown:
             break
+        case .noop:
+            // SSP 0x7000051: 何もしない。
+            break
         }
     }
 
