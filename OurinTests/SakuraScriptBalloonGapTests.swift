@@ -175,12 +175,16 @@ struct BalloonNewlineSpacingTests {
         // 解析中にイベントを発火せず、本文と同じ再生キューへ登録する。
         #expect(runtime.requests.isEmpty)
         gm.processNextUnit()
-        try await Task.sleep(nanoseconds: 750_000_000)
+        try await waitForRequest(runtime)
 
         #expect(runtime.requests.count == 1)
-        #expect(runtime.requests[0].method == "NOTIFY")
-        #expect(runtime.requests[0].id == "OnTest")
-        #expect(runtime.requests[0].refs == ["ref"])
+        guard let request = runtime.requests.first else {
+            Issue.record("再生完了後もNOTIFYが発火しなかった")
+            return
+        }
+        #expect(request.method == "NOTIFY")
+        #expect(request.id == "OnTest")
+        #expect(request.refs == ["ref"])
         #expect(gm.getBalloonVM(for: 0).text == "before")
     }
 
@@ -194,12 +198,16 @@ struct BalloonNewlineSpacingTests {
         gm.sakuraEngine.run(script: "before\\![get,word,lookup]")
         #expect(runtime.requests.isEmpty)
         gm.processNextUnit()
-        try await Task.sleep(nanoseconds: 750_000_000)
+        try await waitForRequest(runtime)
 
         #expect(runtime.requests.count == 1)
-        #expect(runtime.requests[0].method == "GET")
-        #expect(runtime.requests[0].id == "OnGetWord")
-        #expect(runtime.requests[0].refs == ["lookup"])
+        guard let request = runtime.requests.first else {
+            Issue.record("再生完了後もGETが発火しなかった")
+            return
+        }
+        #expect(request.method == "GET")
+        #expect(request.id == "OnGetWord")
+        #expect(request.refs == ["lookup"])
         #expect(gm.getBalloonVM(for: 0).text == "before")
     }
 
@@ -213,11 +221,17 @@ struct BalloonNewlineSpacingTests {
 
         gm.sakuraEngine.run(script: "before\\![embed,OnEmbedTest]after")
         gm.processNextUnit()
-        try await Task.sleep(nanoseconds: 1_500_000_000)
+        try await waitForRequest(runtime)
 
         #expect(runtime.requests.count == 1)
-        #expect(runtime.requests[0].id == "OnEmbedTest")
-        #expect(gm.getBalloonVM(for: 0).text == "beforeEafter")
+        guard let request = runtime.requests.first else {
+            Issue.record("再生完了後もembedイベントが発火しなかった")
+            return
+        }
+        #expect(request.id == "OnEmbedTest")
+        let vm = gm.getBalloonVM(for: 0)
+        try await waitForBalloonText(vm, equals: "beforeEafter")
+        #expect(vm.text == "beforeEafter")
     }
 
     @MainActor
@@ -723,14 +737,17 @@ struct SakuraScriptSystemCommandTests {
         let name = "ourin-sync-wait-\(UUID().uuidString)"
         SyncCenter.shared.reset(name: name)
         let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ghost-test-sync-wait"))
+        defer {
+            SyncCenter.shared.reset(name: name)
+            _ = gm.shutdown()
+        }
 
         let start = Date()
         gm.runScript("\\![wait,syncobject,\(name),200]")
         #expect(Date().timeIntervalSince(start) < 0.1)
 
-        try await Task.sleep(nanoseconds: 300_000_000)
+        try await waitForPlaybackToStop(gm)
         #expect(!gm.isPlaying)
-        SyncCenter.shared.reset(name: name)
     }
 
     @MainActor
@@ -813,6 +830,68 @@ private final class InputOptionsRuntime: GhostShioriRuntime {
     }
 
     func unload() { isLoaded = false }
+}
+
+@MainActor
+private func waitForRequest(
+    _ runtime: InputOptionsRuntime,
+    timeoutNanoseconds: UInt64 = 3_000_000_000
+) async throws {
+    let start = DispatchTime.now().uptimeNanoseconds
+    while runtime.requests.isEmpty {
+        let elapsed = DispatchTime.now().uptimeNanoseconds - start
+        if elapsed >= timeoutNanoseconds {
+            return
+        }
+        try await Task.sleep(nanoseconds: 10_000_000)
+    }
+}
+
+@MainActor
+private func waitForRequestID(
+    _ runtime: InputOptionsRuntime,
+    equals expected: String,
+    timeoutNanoseconds: UInt64 = 3_000_000_000
+) async throws {
+    let start = DispatchTime.now().uptimeNanoseconds
+    while runtime.lastRequest?.id != expected {
+        let elapsed = DispatchTime.now().uptimeNanoseconds - start
+        if elapsed >= timeoutNanoseconds {
+            return
+        }
+        try await Task.sleep(nanoseconds: 10_000_000)
+    }
+}
+
+@MainActor
+private func waitForPlaybackToStop(
+    _ manager: GhostManager,
+    timeoutNanoseconds: UInt64 = 3_000_000_000
+) async throws {
+    let start = DispatchTime.now().uptimeNanoseconds
+    while manager.isPlaying {
+        let elapsed = DispatchTime.now().uptimeNanoseconds - start
+        if elapsed >= timeoutNanoseconds {
+            return
+        }
+        try await Task.sleep(nanoseconds: 10_000_000)
+    }
+}
+
+@MainActor
+private func waitForBalloonText(
+    _ viewModel: BalloonViewModel,
+    equals expected: String,
+    timeoutNanoseconds: UInt64 = 5_000_000_000
+) async throws {
+    let start = DispatchTime.now().uptimeNanoseconds
+    while viewModel.text != expected {
+        let elapsed = DispatchTime.now().uptimeNanoseconds - start
+        if elapsed >= timeoutNanoseconds {
+            return
+        }
+        try await Task.sleep(nanoseconds: 10_000_000)
+    }
 }
 
 // MARK: - \_a[...]...\_a の範囲アンカーとクリック時ルーティング
@@ -972,7 +1051,7 @@ struct BalloonAnchorRangeTests {
         #expect(runtime.lastRequest?.id == "OnAnchorEnter")
         #expect(runtime.lastRequest?.refs == ["表示", "link", "r2"])
 
-        try await Task.sleep(nanoseconds: 600_000_000)
+        try await waitForRequestID(runtime, equals: "OnAnchorHover")
         #expect(runtime.lastRequest?.id == "OnAnchorHover")
         #expect(runtime.lastRequest?.refs == ["表示", "link", "r2"])
 

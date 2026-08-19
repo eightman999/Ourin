@@ -3,11 +3,14 @@ import Testing
 @testable import Ourin
 
 /// DirectSSTP の XPC 入口が他の SSTP 入口と同じ文字コード互換性を持つことを検証する。
+@Suite(.serialized)
 struct DirectSSTPXPCEncodingTests {
     private let key = "OurinAcceptCP932"
 
     @Test
     func decodesCp932WhenCharsetIsOmitted() throws {
+        cp932TestIsolationLock.lock()
+        defer { cp932TestIsolationLock.unlock() }
         UserDefaults.standard.set(true, forKey: key)
         defer { UserDefaults.standard.removeObject(forKey: key) }
 
@@ -17,6 +20,8 @@ struct DirectSSTPXPCEncodingTests {
 
     @Test
     func honorsDeclaredCharset() throws {
+        cp932TestIsolationLock.lock()
+        defer { cp932TestIsolationLock.unlock() }
         UserDefaults.standard.set(false, forKey: key)
         defer { UserDefaults.standard.removeObject(forKey: key) }
 
@@ -26,6 +31,8 @@ struct DirectSSTPXPCEncodingTests {
 
     @Test
     func rejectsCp932WhenDisabledAndCharsetIsOmitted() throws {
+        cp932TestIsolationLock.lock()
+        defer { cp932TestIsolationLock.unlock() }
         UserDefaults.standard.set(false, forKey: key)
         defer { UserDefaults.standard.removeObject(forKey: key) }
 
@@ -35,6 +42,8 @@ struct DirectSSTPXPCEncodingTests {
 
     @Test
     func xpcRejectsCp932WhenDisabledAndCharsetIsOmitted() throws {
+        cp932TestIsolationLock.lock()
+        defer { cp932TestIsolationLock.unlock() }
         UserDefaults.standard.set(false, forKey: key)
         defer { UserDefaults.standard.removeObject(forKey: key) }
 
@@ -44,6 +53,8 @@ struct DirectSSTPXPCEncodingTests {
 
     @Test
     func xpcAcceptsDeclaredShiftJISWhenCp932FallbackIsDisabled() throws {
+        cp932TestIsolationLock.lock()
+        defer { cp932TestIsolationLock.unlock() }
         UserDefaults.standard.set(false, forKey: key)
         defer { UserDefaults.standard.removeObject(forKey: key) }
 
@@ -53,6 +64,8 @@ struct DirectSSTPXPCEncodingTests {
 
     @Test
     func xpcReturnsBadRequestForInvalidEncoding() throws {
+        cp932TestIsolationLock.lock()
+        defer { cp932TestIsolationLock.unlock() }
         UserDefaults.standard.set(false, forKey: key)
         defer { UserDefaults.standard.removeObject(forKey: key) }
 

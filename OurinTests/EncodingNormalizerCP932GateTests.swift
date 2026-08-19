@@ -3,11 +3,16 @@ import Testing
 @testable import Ourin
 
 /// "OurinAcceptCP932" 設定によるShift_JISフォールバックのゲート挙動を検証する。
+let cp932TestIsolationLock = NSLock()
+
+@Suite(.serialized)
 struct EncodingNormalizerCP932GateTests {
     private let key = "OurinAcceptCP932"
 
     @Test
     func defaultsToAcceptingCP932() throws {
+        cp932TestIsolationLock.lock()
+        defer { cp932TestIsolationLock.unlock() }
         UserDefaults.standard.removeObject(forKey: key)
         defer { UserDefaults.standard.removeObject(forKey: key) }
 
@@ -16,6 +21,8 @@ struct EncodingNormalizerCP932GateTests {
 
     @Test
     func acceptsShiftJISFallbackWhenEnabled() throws {
+        cp932TestIsolationLock.lock()
+        defer { cp932TestIsolationLock.unlock() }
         UserDefaults.standard.set(true, forKey: key)
         defer { UserDefaults.standard.removeObject(forKey: key) }
 
@@ -26,6 +33,8 @@ struct EncodingNormalizerCP932GateTests {
 
     @Test
     func rejectsShiftJISFallbackWhenDisabled() throws {
+        cp932TestIsolationLock.lock()
+        defer { cp932TestIsolationLock.unlock() }
         UserDefaults.standard.set(false, forKey: key)
         defer { UserDefaults.standard.removeObject(forKey: key) }
 
@@ -37,6 +46,8 @@ struct EncodingNormalizerCP932GateTests {
 
     @Test
     func utf8StillAcceptedWhenCP932Disabled() throws {
+        cp932TestIsolationLock.lock()
+        defer { cp932TestIsolationLock.unlock() }
         UserDefaults.standard.set(false, forKey: key)
         defer { UserDefaults.standard.removeObject(forKey: key) }
 
@@ -47,6 +58,8 @@ struct EncodingNormalizerCP932GateTests {
 
     @Test
     func explicitCharsetBypassesGate() throws {
+        cp932TestIsolationLock.lock()
+        defer { cp932TestIsolationLock.unlock() }
         UserDefaults.standard.set(false, forKey: key)
         defer { UserDefaults.standard.removeObject(forKey: key) }
 
