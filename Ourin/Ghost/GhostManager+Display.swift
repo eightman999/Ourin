@@ -182,6 +182,10 @@ extension GhostManager {
         if normalized.hasPrefix("file://"), let url = URL(string: normalized) {
             return url
         }
+        // SSP SP_GetSoundURLType: http/https/mms/mmsh/rtsp は URL として再生する。
+        if let url = URL(string: normalized), isRemoteSoundURL(url) {
+            return url
+        }
         if normalized.hasPrefix("/") || normalized.hasPrefix("~") {
             return URL(fileURLWithPath: NSString(string: normalized).expandingTildeInPath)
         }
@@ -202,6 +206,19 @@ extension GhostManager {
             return legacyPath
         }
         return masterPath
+    }
+
+    /// SSP SP_GetSoundURLType 準拠の URL 種別判定。
+    /// http/https → ストリーミング、mms/mmsh/rtsp → 非対応種別（macOS 非対応）。
+    private func isRemoteSoundURL(_ url: URL) -> Bool {
+        guard let scheme = url.scheme?.lowercased() else { return false }
+        return ["http", "https", "mms", "mmsh", "rtsp"].contains(scheme)
+    }
+
+    /// mms/rtsp は macOS の再生基盤に存在しないため、明示的に unsupported として扱う。
+    private func isUnsupportedSoundScheme(_ url: URL) -> Bool {
+        guard let scheme = url.scheme?.lowercased() else { return false }
+        return ["mms", "mmsh", "rtsp"].contains(scheme)
     }
 
     /// 音声状態は AVAudioPlayer と GhostManager の配列を同一メインキューで管理する。
@@ -344,9 +361,18 @@ extension GhostManager {
         
         // Resolve sound file path relative to ghost directory
         let soundPath = resolveSoundPath(filename: filename)
-        
-        // Check if file exists
-        guard FileManager.default.fileExists(atPath: soundPath.path) else {
+
+        // mms/rtsp は macOS 非対応。SSP は URL 種別として受理するが再生不能のため、
+        // イベントで明示する（SP_GetSoundURLType の type 3 相当）。
+        if isUnsupportedSoundScheme(soundPath) {
+            Log.info("[GhostManager] Unsupported sound scheme: \(filename)")
+            notifySoundError(command: "play", filename: filename, code: -1, message: "unsupported_scheme")
+            return
+        }
+
+        // リモート URL はファイル実在チェックを行わない（ストリーミング）。
+        let isRemote = isRemoteSoundURL(soundPath)
+        if !isRemote, !FileManager.default.fileExists(atPath: soundPath.path) {
             Log.info("[GhostManager] Sound file not found: \(soundPath.path)")
             notifySoundError(command: "play", filename: filename, code: -1, message: "file_not_found")
             return
@@ -364,7 +390,7 @@ extension GhostManager {
                 if self.preloadedSounds[filename]?.isEmpty == true {
                     self.preloadedSounds[filename] = nil
                 }
-            } else if let created = SoundPlayer(filename: filename, url: soundPath, options: playbackOptions) {
+            } else if let created = SoundPlayer(filename: filename, url: soundPath, options: playbackOptions, isRemote: isRemote) {
                 player = created
                 wasPreloaded = false
             } else {
@@ -395,14 +421,22 @@ extension GhostManager {
         guard !filename.isEmpty else { return }
         let playbackOptions = SoundPlaybackOptions.parse(options)
         let soundPath = resolveSoundPath(filename: filename)
-        guard FileManager.default.fileExists(atPath: soundPath.path) else {
+
+        if isUnsupportedSoundScheme(soundPath) {
+            Log.info("[GhostManager] Unsupported sound scheme: \(filename)")
+            notifySoundError(command: "load", filename: filename, code: -1, message: "unsupported_scheme")
+            return
+        }
+
+        let isRemote = isRemoteSoundURL(soundPath)
+        if !isRemote, !FileManager.default.fileExists(atPath: soundPath.path) {
             Log.info("[GhostManager] Sound file not found: \(soundPath.path)")
             notifySoundError(command: "load", filename: filename, code: -1, message: "file_not_found")
             return
         }
         performOnMainSync { [weak self] in
             guard let self else { return }
-            guard let player = SoundPlayer(filename: filename, url: soundPath, options: playbackOptions) else {
+            guard let player = SoundPlayer(filename: filename, url: soundPath, options: playbackOptions, isRemote: isRemote) else {
                 Log.info("[GhostManager] Failed to preload sound: \(filename)")
                 self.notifySoundError(command: "load", filename: filename, code: -1, message: "audio_load_failed")
                 return

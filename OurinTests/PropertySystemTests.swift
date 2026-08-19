@@ -162,6 +162,7 @@ struct PropertySystemTests {
         // Basic properties
         #expect(provider.get(key: "name") == "TestGhost")
         #expect(provider.get(key: "sakuraname") == "Sakura")
+        #expect(provider.get(key: "selfname") == "Sakura")
         #expect(provider.get(key: "keroname") == "Kero")
 
         // Shell list

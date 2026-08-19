@@ -571,4 +571,40 @@ struct SoundPlayerTests {
         #expect(manager.namedSounds["bogus.wav"] == nil)
         #expect(manager.currentSounds.isEmpty)
     }
+
+    // MARK: - #123 リモート URL（http/https）再生
+
+    @Test @MainActor
+    func remoteSoundURLSkipsFileExistenceCheck() async throws {
+        let ghostURL = try makeTempGhostURL()
+        let manager = GhostManager(ghostURL: ghostURL)
+        // ローカルに実在しない https URL でも file_not_found にならず再生経路へ進む。
+        // loadSound は preloadedSounds に AVPlayer 基盤のプレイヤーを積む（失敗通知でも削除されない）。
+        manager.loadSound(filename: "https://example.com/remote.mp3")
+        try await Task.sleep(nanoseconds: 100_000_000)
+        #expect(manager.preloadedSounds["https://example.com/remote.mp3"]?.isEmpty == false)
+    }
+
+    @Test
+    func remoteSoundPlayerInitializesWithAVPlayer() {
+        let url = URL(string: "https://example.com/remote.mp3")!
+        // isRemote=true は AVPlayer 基盤で初期化され、ローカル実在チェックを行わない。
+        let player = SoundPlayer(filename: "https://example.com/remote.mp3", url: url, options: .parse([]), isRemote: true)
+        #expect(player != nil)
+        player?.play()
+        player?.stop()
+        player?.setLoop(true)
+        player?.apply(options: .parse(["--volume=0.5"]))
+    }
+
+    @Test
+    func remoteSoundPlayerWithUnsupportedSchemeRejectedByManager() async throws {
+        let ghostURL = try makeTempGhostURL()
+        let manager = GhostManager(ghostURL: ghostURL)
+        // mms/rtsp は macOS 非対応として明示的に拒否される。
+        manager.playSound(filename: "mms://example.com/stream")
+        try await Task.sleep(nanoseconds: 100_000_000)
+        #expect(manager.namedSounds["mms://example.com/stream"] == nil)
+        #expect(manager.currentSounds.isEmpty)
+    }
 }

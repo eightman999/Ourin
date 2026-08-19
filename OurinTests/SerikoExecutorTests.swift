@@ -454,6 +454,29 @@ struct SerikoExecutorTests {
     }
 
     @Test
+    func neverCompositeIgnoresNeverAndEvaluatesOthers() async throws {
+        // SSP: never と他 interval の複合では never を無視して他条件を評価する。
+        let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 1.0 })
+        let always = makeDefinition(id: 30, interval: .combined([.never, .always]), methods: [.overlay])
+        let bind = makeDefinition(id: 31, interval: .combined([.never, .bind]), methods: [.overlay])
+        let never = makeDefinition(id: 32, interval: .never, methods: [.overlay])
+        executor.register(animations: [30: always, 31: bind, 32: never])
+
+        executor.startLoop()
+        // always が有効のままなので発火する。
+        #expect(executor.activeAnimations[30] != nil)
+        // bind はイベント未発火なら発火しない。
+        #expect(executor.activeAnimations[31] == nil)
+        // never 単独は無効。
+        #expect(executor.activeAnimations[32] == nil)
+
+        executor.stopAllAnimations()
+        executor.triggerBind()
+        executor.startLoop()
+        #expect(executor.activeAnimations[31] != nil)
+    }
+
+    @Test
     func manualStopSuppressesAlwaysUntilExplicitRestart() async throws {
         let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 0.0 })
         let definition = makeDefinition(id: 29, interval: .always, methods: [.overlay])

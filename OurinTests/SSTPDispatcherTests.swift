@@ -1317,4 +1317,65 @@ struct SSTPDispatcherTests {
         // 前後空白はトリムされる
         #expect(AppDelegate.receiverTargetKey(headers: ["ReceiverGhostName": " emily4 "]) == "emily4")
     }
+
+    // MARK: - Cookie ディスク永続化 (#120)
+
+    @Test
+    func cookiePersistsAndRestoresAcrossStoreInstances() throws {
+        let store = SstpSessionStore.shared
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("sstp-cookie-test-\(UUID().uuidString)", isDirectory: true)
+        let fileURL = tempDir.appendingPathComponent("sstp_cookie.txt")
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+
+        // 元の状態を退避して復元する
+        let savedURL = store.cookieFileURL
+        defer {
+            store.cookieFileURL = savedURL
+            store.reset()
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+
+        store.reset()
+        store.cookieFileURL = fileURL
+        store.setCookie(sender: "GhostA", name: "counter", value: "42")
+        store.setCookie(sender: "GhostA", name: "topic", value: "海,空") // カンマ入り
+        store.setCookie(sender: "GhostB", name: "bgm", value: "on")
+        store.saveToDisk()
+        #expect(FileManager.default.fileExists(atPath: fileURL.path))
+
+        // 別インスタンス相当として復元を検証
+        store.reset()
+        store.loadFromDisk()
+        #expect(store.getCookie(sender: "GhostA", name: "counter") == "42")
+        #expect(store.getCookie(sender: "GhostA", name: "topic") == "海,空")
+        #expect(store.getCookie(sender: "GhostB", name: "bgm") == "on")
+        #expect(store.getCookie(sender: "GhostC", name: "counter") == nil)
+    }
+
+    @Test
+    func emptyCookiesDoNotLeaveResidualFile() throws {
+        let store = SstpSessionStore.shared
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("sstp-cookie-empty-\(UUID().uuidString)", isDirectory: true)
+        let fileURL = tempDir.appendingPathComponent("sstp_cookie.txt")
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+
+        let savedURL = store.cookieFileURL
+        defer {
+            store.cookieFileURL = savedURL
+            store.reset()
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+
+        store.reset()
+        store.cookieFileURL = fileURL
+        store.setCookie(sender: "GhostA", name: "k", value: "v")
+        store.saveToDisk()
+        #expect(FileManager.default.fileExists(atPath: fileURL.path))
+
+        store.reset()
+        store.saveToDisk()
+        #expect(!FileManager.default.fileExists(atPath: fileURL.path))
+    }
 }

@@ -233,6 +233,37 @@ final class EventBridge {
         calendarScheduleEmitter.read(id: id)
     }
 
+    /// SSP `SPCalendarCell::PlayTodaysEvent` 互換の当日イベント再生。
+    /// 起動中の各ゴーストへ `#todays event header` 辞書エントリ（取得できれば）付きで
+    /// `\b[2]M/D` + 当日予定一覧のスクリプトを直接再生する。
+    @discardableResult
+    func playTodaysEvent(date: Date = Date(), calendar: Calendar = .current) -> Bool {
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        guard let month = components.month, let day = components.day else { return false }
+        let schedules = calendarScheduleEmitter.schedules(on: date, calendar: calendar)
+        var played = false
+
+        for (_, session) in sessions {
+            guard let manager = session.ghostManager else { continue }
+            let header = session.dispatcher.fetchDictionaryEntry("#todays event header")
+            let script = CalendarScheduleEmitter.buildTodaysEventScript(
+                month: month,
+                day: day,
+                schedules: schedules,
+                header: header
+            )
+            if Thread.isMainThread {
+                manager.runScript(script, translationContext: .baseware)
+            } else {
+                DispatchQueue.main.sync {
+                    manager.runScript(script, translationContext: .baseware)
+                }
+            }
+            played = true
+        }
+        return played
+    }
+
     func beginCalendarSchedulePost(sensorName: String) {
         calendarScheduleEmitter.beginPost(sensorName: sensorName)
     }
@@ -1368,6 +1399,26 @@ final class ShioriDispatcher {
 
     /// 既存コードとの互換用。新規コードは useRuntime(_:) を使う。
     func useYaya(_ adapter: YayaAdapter?) { self.shioriRuntime = adapter }
+
+    /// ゴースト辞書エントリの生スクリプトを GET で取得する（SSP `SPGhost::GetScript` 互換）。
+    /// 取得できない場合・空の場合は nil を返す。
+    func fetchDictionaryEntry(_ entryName: String) -> String? {
+        let headers = ["Charset": "UTF-8", "Sender": "Ourin", "SecurityLevel": "local"]
+        let response: YayaResponse?
+        if let runtime = shioriRuntime {
+            response = runtime.request(method: "GET", id: entryName, headers: headers, refs: [], timeout: 2.0)
+        } else {
+            let text = BridgeToSHIORI.handle(event: entryName, references: [], headers: headers)
+            response = text.isEmpty ? nil : YayaResponse(
+                ok: true, status: 200, headers: ["Charset": "UTF-8"],
+                value: text, error: nil, loaded_dics: nil
+            )
+        }
+        guard let response, response.ok, response.status == 200,
+              let value = response.value else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
     /// イベント ID とパラメータからリクエスト文字列を組み立てる
     private func buildRequest(method: String, id: String, params: [String:String]) -> String {
         var lines = [

@@ -411,7 +411,7 @@ final class GhostPropertyProvider: PropertyProvider {
         switch prop {
         case "name":
             return ghost.name
-        case "sakuraname":
+        case "sakuraname", "selfname":
             return ghost.sakuraname
         case "keroname":
             return ghost.keroname

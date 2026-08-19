@@ -139,8 +139,51 @@ struct SerikoParserTests {
         """
 
         let animations = try #require(SerikoParser.parseSurfaces(text)[4]?.animations)
-        #expect(animations[1]?.interval == .unknown("random,5+periodic,2"))
+        // SSP 衝突解決: periodic と random が同時にある場合は random を落とす（periodic 優先）。
+        #expect(animations[1]?.interval == .periodic(2))
+        // 衝突なしの複合でもパラメータ付き interval が先頭にある場合は無効化する。
         #expect(animations[2]?.interval == .unknown("random,5+bind"))
+    }
+
+    @Test
+    func parseAbbreviatedIntervalsResolvesToFullNames() async throws {
+        // SSP SetIntervalDefinition は略称を substring で受理し、対応フラグを立てる。
+        #expect(SerikoInterval.parse("alw") == .always)
+        #expect(SerikoInterval.parse("all") == .always)
+        #expect(SerikoInterval.parse("som") == .sometimes)
+        #expect(SerikoInterval.parse("rar") == .rarely)
+        #expect(SerikoInterval.parse("ran") == .random(nil))
+        #expect(SerikoInterval.parse("per") == .periodic(nil))
+        #expect(SerikoInterval.parse("run") == .runonce)
+        #expect(SerikoInterval.parse("tal") == .talk)
+        #expect(SerikoInterval.parse("startt") == .startTalk)
+        #expect(SerikoInterval.parse("endt") == .endTalk)
+        #expect(SerikoInterval.parse("bin") == .bind)
+        #expect(SerikoInterval.parse("nev") == .never)
+        #expect(SerikoInterval.parse("yen") == .yenE)
+        #expect(SerikoInterval.parse("ran,5") == .random(5))
+        #expect(SerikoInterval.parse("per,3") == .periodic(3))
+        #expect(SerikoInterval.parse("tal,100") == .talkCharacters(100))
+    }
+
+    @Test
+    func parseNeverCompositeClearsNeverAndKeepsOthers() async throws {
+        // SSP: never と他 interval の複合では never ビットをクリアし、他を有効のまま残す。
+        #expect(SerikoInterval.parse("never+random") == .random(nil))
+        #expect(SerikoInterval.parse("bind+never+runonce") == .combined([.bind, .runonce]))
+        #expect(SerikoInterval.parse("never+always") == .always)
+        // never 単独は無効。
+        #expect(SerikoInterval.parse("never") == .never)
+    }
+
+    @Test
+    func parseConflictingIntervalsDropsLowerPriority() async throws {
+        // SSP: always と random/periodic が同時にある場合は random/periodic を落とす。
+        #expect(SerikoInterval.parse("always+random") == .always)
+        #expect(SerikoInterval.parse("always+periodic") == .always)
+        #expect(SerikoInterval.parse("always+random+periodic") == .always)
+        // SSP: periodic と random が同時にある場合は random を落とす。
+        #expect(SerikoInterval.parse("periodic+random") == .periodic(nil))
     }
 
     @Test

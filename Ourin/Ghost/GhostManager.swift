@@ -3570,7 +3570,21 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         playbackQueue.append(.deferredCommand { [weak self] in
                             guard let self else { return }
                             switch closeType {
-                            case "inputbox":
+case "scriptbox":
+                            // \![open,scriptbox,ID,...] : SSP の scriptbox 入力。
+                            // 基本 UI・OnUserInput/OnUserInputCancel の発火は inputbox と同一。
+                            let rawInputArguments = Array(args.dropFirst(2))
+                            let parsed = parseCommandArguments(rawInputArguments)
+                            let inputOptions = inputDialogOptions(from: rawInputArguments)
+                            let id = parsed.positionals.first ?? parsed.options["id"] ?? "scriptbox"
+                            let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
+                                ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
+                            let initialText = parsed.options["text"]
+                                ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
+                            playbackQueue.append(.deferredCommand {
+                                self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
+                            })
+                        case "inputbox":
                                 let id = params.first ?? "inputbox"
                                 _ = self.closeInputDialog(id: id)
                             case "communicatebox":

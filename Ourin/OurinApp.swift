@@ -448,6 +448,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
 
         // 外部 SSTP サーバを起動
+        SstpSessionStore.shared.enablePersistence()
+        SstpSessionStore.shared.loadFromDisk()
         let ext = OurinExternalServer()
         let securitySettings = ExternalServerSecuritySettings.load()
         ext.updateConfig(securitySettings.asServerConfig())

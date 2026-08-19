@@ -36,6 +36,7 @@ final class CalendarWindowModel: ObservableObject {
 
     private let loadSchedules: () -> CalendarScheduleRefreshResult
     private let readSchedule: (CalendarSchedule) -> Bool
+    private let playTodaysEventHandler: (Date) -> Bool
 
     init(
         now: Date = Date(),
@@ -44,6 +45,9 @@ final class CalendarWindowModel: ObservableObject {
         },
         readSchedule: @escaping (CalendarSchedule) -> Bool = {
             EventBridge.shared.readCalendarSchedule(id: $0.id)
+        },
+        playTodaysEvent: @escaping (Date) -> Bool = {
+            EventBridge.shared.playTodaysEvent(date: $0)
         }
     ) {
         self.displayedMonth = Calendar.current.date(
@@ -52,6 +56,7 @@ final class CalendarWindowModel: ObservableObject {
         self.selectedDate = now
         self.loadSchedules = loadSchedules
         self.readSchedule = readSchedule
+        self.playTodaysEventHandler = playTodaysEvent
     }
 
     func refresh() {
@@ -97,6 +102,12 @@ final class CalendarWindowModel: ObservableObject {
     @discardableResult
     func read(_ schedule: CalendarSchedule) -> Bool {
         readSchedule(schedule)
+    }
+
+    /// SSP の「今日の予定を再生」相当。選択中日付の予定一覧をゴーストへ喋らせる。
+    @discardableResult
+    func playTodaysEvent() -> Bool {
+        playTodaysEventHandler(selectedDate)
     }
 }
 
@@ -171,6 +182,14 @@ struct CalendarWindowView: View {
             }
             .buttonStyle(.borderless)
             .help("予定を更新")
+
+            Button {
+                _ = model.playTodaysEvent()
+            } label: {
+                Image(systemName: "play.circle")
+            }
+            .buttonStyle(.borderless)
+            .help("当日予定を再生")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)

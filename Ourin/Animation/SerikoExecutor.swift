@@ -626,7 +626,8 @@ public final class SerikoExecutor {
             case .bind:
                 guard pendingIntervalEvents.contains(.bind) else { return false }
             case .never, .unknown, .combined:
-                // `components` は複合値を平坦化するため combined には到達しない。
+                // パーサーは複合から never を除外済みのため、ここへ到達する never は
+                // 単独指定のみ（= 無効）。combined は平坦化済みなので到達しない。
                 return false
             }
         }

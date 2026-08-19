@@ -412,6 +412,83 @@ final class CalendarScheduleEmitter {
         return true
     }
 
+    /// 指定日付の予定一覧（時刻順・ソート済み）。
+    func schedules(on date: Date, calendar: Calendar = .current) -> [CalendarSchedule] {
+        stateLock.lock()
+        let result = schedules.filter {
+            guard let scheduleDate = calendar.date(from: DateComponents(
+                year: $0.year, month: $0.month, day: $0.day
+            )) else { return false }
+            return calendar.isDate(scheduleDate, inSameDayAs: date)
+        }.sorted { lhs, rhs in
+            let left = (lhs.startHour ?? 24) * 60 + (lhs.startMinute ?? 0)
+            let right = (rhs.startHour ?? 24) * 60 + (rhs.startMinute ?? 0)
+            return left == right ? lhs.caption < rhs.caption : left < right
+        }
+        stateLock.unlock()
+        return result
+    }
+
+    /// SSP `SPCalendarCell::PlayTodaysEvent` 互換の当日イベント再生。
+    ///
+    /// `header` はゴースト辞書の `#todays event header` エントリ（無ければ nil）。
+    /// 組み立て: `\b[2]M/D` + header + `\n\n[half]` + 各予定を
+    /// `>>[HH:MM] `（または範囲）と本文のタグ無効化エスケープで列挙。
+    static func buildTodaysEventScript(
+        month: Int,
+        day: Int,
+        schedules: [CalendarSchedule],
+        header: String?
+    ) -> String {
+        var script = "\\b[2]\(month)/\(day)"
+        if let header, !header.isEmpty {
+            script += header
+        }
+        script += "\\n\\n[half]"
+        for schedule in schedules {
+            script += scheduleTimePrefix(schedule)
+            script += disableScriptTag(schedule.caption)
+            if !schedule.subtitle.isEmpty {
+                script += "\\n" + disableScriptTag(schedule.subtitle)
+            }
+            script += "\\n"
+        }
+        return script
+    }
+
+    /// `>>[HH:MM] ` / `>>[HH:MM]->[HH:MM] ` / `>>`（時刻なし）の行頭プレフィックス。
+    private static func scheduleTimePrefix(_ schedule: CalendarSchedule) -> String {
+        guard let startHour = schedule.startHour, let startMinute = schedule.startMinute,
+              (0...23).contains(startHour), (0...59).contains(startMinute) else {
+            return ">>"
+        }
+        if let endHour = schedule.endHour, let endMinute = schedule.endMinute,
+           startHour == endHour, startMinute == endMinute {
+            return String(format: ">>[%02d:%02d] ", startHour, startMinute)
+        }
+        if let endHour = schedule.endHour, let endMinute = schedule.endMinute,
+           (0...23).contains(endHour), (0...59).contains(endMinute) {
+            return String(format: ">>[%02d:%02d]->[%02d:%02d] ", startHour, startMinute, endHour, endMinute)
+        }
+        return String(format: ">>[%02d:%02d] ", startHour, startMinute)
+    }
+
+    /// SSP `SPDisableScriptTag` 互換: `\`→`\\`、`%`→`\%`、改行→`\n`（CR は除去）。
+    private static func disableScriptTag(_ value: String) -> String {
+        var result = ""
+        result.reserveCapacity(value.count)
+        for ch in value {
+            switch ch {
+            case "\\": result += "\\\\"
+            case "%": result += "\\%"
+            case "\n": result += "\\n"
+            case "\r": continue
+            default: result.append(ch)
+            }
+        }
+        return result
+    }
+
     /// テストとカレンダー画面から同じ時刻判定を実行できる入口。
     func emitDueEvents(now: Date, calendar: Calendar = .current) {
         stateLock.lock()

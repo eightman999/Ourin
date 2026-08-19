@@ -36,49 +36,72 @@ public indirect enum SerikoInterval: Hashable {
         if parsed.count == 1 {
             return parsed[0]
         }
+        // SSP (SetIntervalDefinition @0x652270) 準拠の衝突解決:
+        // - never が他 interval と複合した場合は never ビットをクリアし、他を有効のまま残す。
+        // - always と random/periodic が同時にある場合は random/periodic を落とす（always 優先）。
+        // - periodic と random が同時にある場合は random を落とす（periodic 優先）。
+        var resolved = parsed
+        if resolved.contains(.always) {
+            resolved.removeAll { interval in
+                if case .random = interval { return true }
+                if case .periodic = interval { return true }
+                return false
+            }
+        }
+        if resolved.contains(where: { if case .periodic = $0 { return true }; return false }) {
+            resolved.removeAll { interval in
+                if case .random = interval { return true }
+                return false
+            }
+        }
+        resolved.removeAll { $0 == .never }
+        guard !resolved.isEmpty else { return .unknown(raw) }
+        if resolved.count == 1 {
+            return resolved[0]
+        }
         // UKADOC は parameterized interval 同士の複合指定を許可していない。
         // これを受理すると random/periodic/talk の判定が曖昧になるため無効化する。
-        guard parsed.filter(\.isParameterized).count <= 1 else {
+        guard resolved.filter(\.isParameterized).count <= 1 else {
             return .unknown(raw)
         }
-        if let parameterizedIndex = parsed.firstIndex(where: \.isParameterized),
-           parameterizedIndex != parsed.index(before: parsed.endIndex) {
+        if let parameterizedIndex = resolved.firstIndex(where: \.isParameterized),
+           parameterizedIndex != resolved.index(before: resolved.endIndex) {
             // パラメータ付き interval は複合指定の末尾に限る。
             return .unknown(raw)
         }
-        return .combined(parsed)
+        return .combined(resolved)
     }
 
     private static func parseSingle(_ value: String, raw: String) -> SerikoInterval {
-        if value == "random" {
+        if value == "random" || value == "ran" {
             return .random(nil)
         }
-        if value.hasPrefix("random,") {
-            let parameter = String(value.dropFirst("random,".count))
+        if value.hasPrefix("random,") || value.hasPrefix("ran,") {
+            let parameter = String(value.dropFirst(Int(value.hasPrefix("ran,") ? "ran,".count : "random,".count)))
             return Int(parameter).map { .random($0) } ?? .unknown(raw)
         }
-        if value == "periodic" {
+        if value == "periodic" || value == "per" {
             return .periodic(nil)
         }
-        if value.hasPrefix("periodic,") {
-            let parameter = String(value.dropFirst("periodic,".count))
+        if value.hasPrefix("periodic,") || value.hasPrefix("per,") {
+            let parameter = String(value.dropFirst(Int(value.hasPrefix("per,") ? "per,".count : "periodic,".count)))
             return Int(parameter).map { .periodic($0) } ?? .unknown(raw)
         }
         switch value {
-        case "always": return .always
-        case "sometimes": return .sometimes
-        case "rarely": return .rarely
-        case "runonce": return .runonce
-        case "yen-e": return .yenE
-        case "talk": return .talk
-        case let value where value.hasPrefix("talk,"):
-            let parameter = String(value.dropFirst("talk,".count))
+        case "always", "alw", "all": return .always
+        case "sometimes", "som": return .sometimes
+        case "rarely", "rar": return .rarely
+        case "runonce", "run": return .runonce
+        case "yen-e", "yen": return .yenE
+        case "talk", "tal": return .talk
+        case let value where value.hasPrefix("talk,") || value.hasPrefix("tal,"):
+            let parameter = String(value.dropFirst(Int(value.hasPrefix("tal,") ? "tal,".count : "talk,".count)))
             guard let count = Int(parameter), count > 0 else { return .unknown(raw) }
             return .talkCharacters(count)
-        case "starttalk": return .startTalk
-        case "endtalk": return .endTalk
-        case "bind": return .bind
-        case "never": return .never
+        case "starttalk", "startt": return .startTalk
+        case "endtalk", "endt": return .endTalk
+        case "bind", "bin": return .bind
+        case "never", "nev": return .never
         default: return .unknown(raw)
         }
     }
@@ -95,10 +118,11 @@ public indirect enum SerikoInterval: Hashable {
     }
 
     /// 複合指定を平坦化した interval 列。Executor の判定を単一の実装へ集約する。
+    /// SSP 準拠: 複合内の never はビットクリアされ、他 interval だけが残る。
     var components: [SerikoInterval] {
         switch self {
         case .combined(let values):
-            return values.flatMap(\.components)
+            return values.flatMap(\.components).filter { $0 != .never }
         default:
             return [self]
         }

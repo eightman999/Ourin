@@ -103,4 +103,95 @@ struct CalendarScheduleTests {
         #expect(events.map(\.id) == [.OnSchedule5MinutesToGo, .OnScheduleRead])
         #expect(events.last?.params["Reference1"] == "meeting")
     }
+
+    // MARK: - #119 PlayTodaysEvent
+
+    @Test
+    func todaysEventScriptIncludesHeaderAndScheduleLines() {
+        let schedules = [
+            CalendarSchedule(
+                year: 2026, month: 8, day: 14,
+                startHour: 9, startMinute: 30,
+                endHour: 10, endMinute: 15,
+                caption: "朝会", subtitle: "会議室"
+            ),
+            CalendarSchedule(
+                year: 2026, month: 8, day: 14,
+                startHour: 12, startMinute: 0,
+                caption: "お昼\\休憩%", script: "\\0本体\\e"
+            ),
+            CalendarSchedule(year: 2026, month: 8, day: 14, caption: "終日")
+        ]
+
+        let script = CalendarScheduleEmitter.buildTodaysEventScript(
+            month: 8,
+            day: 14,
+            schedules: schedules,
+            header: "今日の予定をお知らせします。"
+        )
+
+        // 先頭は \b[2]M/D 形式
+        #expect(script.hasPrefix("\\b[2]8/14"))
+        // 辞書ヘッダと区切り
+        #expect(script.contains("今日の予定をお知らせします。"))
+        #expect(script.contains("\\n\\n[half]"))
+        // 範囲付き予定: >>[09:30]->[10:15]
+        #expect(script.contains(">>[09:30]->[10:15] 朝会"))
+        #expect(script.contains("会議室"))
+        // 同一時刻開始=終了は >>[HH:MM] のみ（バックスラッシュ・% はタグ無効化エスケープ済み）
+        #expect(script.contains(">>[12:00] お昼\\\\休憩\\%"))
+        // タグ無効化エスケープ（% → \%）
+        #expect(script.contains("\\%"))
+        #expect(!script.contains("\\0本体\\e"))
+        // 時刻なし予定は >> のみ
+        #expect(script.contains(">>終日"))
+    }
+
+    @Test
+    func todaysEventScriptWithoutHeaderStillProducesValidScript() {
+        let schedules = [CalendarSchedule(year: 2026, month: 8, day: 14, caption: "予定")]
+        let script = CalendarScheduleEmitter.buildTodaysEventScript(
+            month: 8, day: 14, schedules: schedules, header: nil
+        )
+        #expect(script.hasPrefix("\\b[2]8/14"))
+        #expect(script.contains("\\n\\n[half]"))
+        #expect(script.contains(">>予定"))
+    }
+
+    @Test
+    func todaysEventScriptEscapesBackslashAndNewline() {
+        let schedules = [CalendarSchedule(
+            year: 2026, month: 8, day: 14,
+            startHour: 15, startMinute: 0,
+            caption: "一行目\n二行目\\末尾"
+        )]
+        let script = CalendarScheduleEmitter.buildTodaysEventScript(
+            month: 8, day: 14, schedules: schedules, header: nil
+        )
+        // 改行 → \n、バックスラッシュ → \\
+        #expect(script.contains(">>[15:00] 一行目\\n二行目\\\\末尾"))
+    }
+
+    @Test
+    func schedulesOnDateFiltersAndSortsByTime() throws {
+        let file = FileManager.default.temporaryDirectory
+            .appendingPathComponent("OurinCalendarSchedulesOn-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: file) }
+
+        let store = CalendarScheduleStore(fileURL: file)
+        try? store.replace([
+            CalendarSchedule(year: 2026, month: 8, day: 14, startHour: 14, startMinute: 0, caption: "午後"),
+            CalendarSchedule(year: 2026, month: 8, day: 15, startHour: 9, startMinute: 0, caption: "翌日"),
+            CalendarSchedule(year: 2026, month: 8, day: 14, startHour: 9, startMinute: 0, caption: "朝")
+        ])
+
+        let emitter = CalendarScheduleEmitter(store: store)
+        _ = emitter.refresh(emitEvents: false)
+        let calendar = Calendar(identifier: .gregorian)
+        let date = try #require(
+            calendar.date(from: DateComponents(year: 2026, month: 8, day: 14))
+        )
+        let result = emitter.schedules(on: date, calendar: calendar)
+        #expect(result.map(\.caption) == ["朝", "午後"])
+    }
 }
