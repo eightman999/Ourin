@@ -17,6 +17,11 @@ final class SpySstpDispatcherHost: SstpDispatcherHost, @unchecked Sendable {
     func collectFmoRecords() -> [FmoGhostRecord] {
         fmoRecords
     }
+
+    func collectCollisionList(params: [String]) -> String {
+        _ = params
+        return "head,body"
+    }
 }
 
 /// 共有シングルトンを扱う既存の直列化スイートへ所属させる。
@@ -43,6 +48,7 @@ extension SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Option": "nodescript"
@@ -72,6 +78,7 @@ extension SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Option": "nodescript"
@@ -104,6 +111,7 @@ extension SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Option": "nodescript"
@@ -132,6 +140,7 @@ extension SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Option": "nodescript"
@@ -160,6 +169,7 @@ extension SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Option": "nodescript"
@@ -192,6 +202,7 @@ extension SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Option": "nodescript"
@@ -222,6 +233,7 @@ extension SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "ReceiverGhostName": "Emily",
@@ -258,6 +270,7 @@ extension SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Option": "nodescript"

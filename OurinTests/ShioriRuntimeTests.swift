@@ -435,3 +435,55 @@ struct ShioriRuntimeTests {
         #expect(response.value?.contains("external-saori-ok") == true)
     }
 }
+
+
+/// SSP MakeShiori30Request 互換のワイヤ形式検証（#111/#112）。
+struct ShioriWireCodecCompatTests {
+    @Test
+    func securityOriginDefaultsToNull() {
+        let wire = ShioriWireCodec.makeRequest(
+            method: "GET", id: "OnBoot", headers: [:], refs: []
+        )
+        #expect(wire.contains("SecurityOrigin: null"))
+        #expect(wire.contains("SecurityLevel: local"))
+    }
+
+    @Test
+    func explicitSecurityOriginIsPreserved() {
+        let wire = ShioriWireCodec.makeRequest(
+            method: "GET",
+            id: "OnBoot",
+            headers: ["SecurityLevel": "external", "SecurityOrigin": "https://example.com"],
+            refs: []
+        )
+        #expect(wire.contains("SecurityOrigin: https://example.com"))
+        #expect(wire.contains("SecurityLevel: external"))
+        #expect(!wire.contains("SecurityOrigin: null"))
+    }
+
+    @Test
+    func emptySecurityOriginBecomesNull() {
+        let wire = ShioriWireCodec.makeRequest(
+            method: "GET", id: "OnBoot", headers: ["SecurityOrigin": " "], refs: []
+        )
+        #expect(wire.contains("SecurityOrigin: null"))
+    }
+
+    @Test
+    func headerOrderFollowsSSP() {
+        let wire = ShioriWireCodec.makeRequest(
+            method: "NOTIFY",
+            id: "OnSecondChange",
+            headers: ["SenderType": "external,sstp"],
+            refs: ["0", "1"]
+        )
+        let lines = wire.components(separatedBy: "\r\n")
+        #expect(lines[0] == "NOTIFY SHIORI/3.0")
+        // SSP 順: Charset → SecurityLevel → SecurityOrigin → Sender → SenderType → ID → ReferenceN
+        let keys = lines.dropFirst().compactMap { $0.split(separator: ":", maxSplits: 1).first.map(String.init) }
+        let expectedPrefix = ["Charset", "SecurityLevel", "SecurityOrigin", "Sender", "SenderType", "ID", "Reference0", "Reference1"]
+        #expect(Array(keys.prefix(expectedPrefix.count)) == expectedPrefix)
+        // ヘッダ終端の空行 + 終端CRLF
+        #expect(wire.hasSuffix("\r\n\r\n"))
+    }
+}

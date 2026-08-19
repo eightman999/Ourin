@@ -23,6 +23,13 @@ struct LiveSstpDispatcherHost: SstpDispatcherHost {
         return appDelegate.collectFmoRecords()
     }
 
+    func collectCollisionList(params: [String]) -> String {
+        guard let appDelegate = AppDelegate.resolve() else { return "" }
+        // headers 無しでプライマリゴーストを対象にする。
+        guard let gm = appDelegate.ghostManagerForShioriRequest(headers: [:]) else { return "" }
+        return gm.collectCollisionNames(params: params)
+    }
+
     /// メインスレッド上で実行される効果適用の本体。
     /// DispatchQueue.main.async 経由で呼ばれることを前提とする（非 @MainActor 関数）。
     private static func applyOnMain(_ effect: SstpUIEffect) {
@@ -43,6 +50,20 @@ struct LiveSstpDispatcherHost: SstpDispatcherHost {
             gm.moveWindowAsync(scope: scope, x: x, y: y, time: time, method: method, ignoreStickyWindow: ignoreSticky)
         case .setTrayBalloon(let options):
             gm.setTrayBalloon(options: options)
+        case .callGhost(let name, let options):
+            gm.callGhost(named: name, options: options)
+        case .openURL(let url):
+            gm.openURL(url)
+        case .ssfExec(let path, let options):
+            gm.executeSSF(path: path, options: options)
+        case .taskListExec(let options):
+            gm.executeTaskList(options: options)
+        case .compressArchive(let params):
+            gm.executeCompressArchive(params: params)
+        case .extractArchive(let params):
+            gm.executeExtractArchive(params: params)
+        case .forceActivate:
+            gm.forceActivateWindows()
         }
     }
 }

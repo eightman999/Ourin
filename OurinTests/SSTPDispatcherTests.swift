@@ -152,6 +152,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "OnOwnedTest",
                 "ID": "unknown",
                 "SecurityLevel": "external",
@@ -164,6 +165,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "OnOwnedTest",
                 "ID": "owned-a",
                 "SecurityLevel": "external",
@@ -187,7 +189,8 @@ struct SSTPDispatcherTests {
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
-            headers: ["Event": "OnOwnedTest", "ID": "owned-a", "Option": "nodescript"]
+            headers: [
+                "Sender": "UnitTest","Event": "OnOwnedTest", "ID": "owned-a", "Option": "nodescript"]
         )
 
         _ = SSTPDispatcher.dispatchExternal(request: req, origin: nil, bridge: bridge, routingRegistry: fake)
@@ -209,6 +212,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "OnSparseReferenceTest",
                 "Reference2": "two",
                 "Reference7": "",
@@ -261,7 +265,8 @@ struct SSTPDispatcherTests {
         let req = SSTPRequest(
             method: "NOTIFY",
             version: "SSTP/1.4",
-            headers: ["Event": "OnNotifyHeadersTest", "Option": "nodescript"]
+            headers: [
+                "Sender": "UnitTest","Event": "OnNotifyHeadersTest", "Option": "nodescript"]
         )
 
         let response = SSTPDispatcher.dispatch(request: req, bridge: bridge)
@@ -289,7 +294,8 @@ struct SSTPDispatcherTests {
         let request = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
-            headers: ["Event": "OnTranslationTest", "SecurityLevel": "local"]
+            headers: [
+                "Sender": "UnitTest","Event": "OnTranslationTest", "SecurityLevel": "local"]
         )
 
         let response = SSTPDispatcher.dispatch(request: request, bridge: bridge)
@@ -347,7 +353,8 @@ struct SSTPDispatcherTests {
         let response = SSTPDispatcher.dispatch(request: SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
-            headers: ["Event": "OnMultiGhostTranslationTest", "SecurityLevel": "local"]
+            headers: [
+                "Sender": "UnitTest","Event": "OnMultiGhostTranslationTest", "SecurityLevel": "local"]
         ), bridge: bridge)
 
         #expect(response.contains("Script: \\h\\s0source-primary"))
@@ -361,7 +368,8 @@ struct SSTPDispatcherTests {
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
-            headers: ["Option": "notify nodescript;notranslate,nobreak"]
+            headers: [
+                "Sender": "UnitTest","Option": "notify nodescript;notranslate,nobreak"]
         )
         #expect(req.options.contains(.notify))
         #expect(req.options.contains(.nodescript))
@@ -377,6 +385,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "event": "Resource",
                 "reference0": key,
                 "charset": "UTF-8",
@@ -414,6 +423,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Charset": "UTF-8"
@@ -429,7 +439,8 @@ struct SSTPDispatcherTests {
         let req = SSTPRequest(
             method: "NOTIFY",
             version: "SSTP/1.4",
-            headers: ["Event": "OnNotifyTest", "Charset": "UTF-8"]
+            headers: [
+                "Sender": "UnitTest","Event": "OnNotifyTest", "Charset": "UTF-8"]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 204 No Content"))
@@ -454,6 +465,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "X-SSTP-PassThru": "abc"
@@ -491,6 +503,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Status": "talking",
@@ -529,6 +542,7 @@ struct SSTPDispatcherTests {
             method: "NOTIFY",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key
             ]
@@ -554,6 +568,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Option": "notify"
@@ -572,6 +587,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Option": "nodescript"
@@ -588,6 +604,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Option": "nobreak"
@@ -604,6 +621,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headerEntries: [
+                ("Sender", "UnitTest"),
                 ("Option", "nodescript"),
                 ("Option", "nobreak")
             ]
@@ -623,6 +641,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headerEntries: [
+                ("Sender", "UnitTest"),
                 ("Event", "Resource"),
                 ("Reference0", key),
                 ("ReceiverGhostName", "Emily"),
@@ -752,6 +771,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "ReceiverGhostName": "UnknownGhost"
@@ -778,6 +798,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "SecurityOrigin": "https://example.com"
@@ -796,6 +817,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Entry": "temporary=\\h\\s0Temp"
@@ -978,7 +1000,8 @@ struct SSTPDispatcherTests {
 
     @Test
     func unsupportedVersionReturns505() async throws {
-        let req = SSTPRequest(method: "SEND", version: "SSTP/2.0", headers: [:])
+        let req = SSTPRequest(method: "SEND", version: "SSTP/2.0", headers: [
+                "Sender": "UnitTest"])
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/2.0 505 HTTP Version Not Supported"))
     }
@@ -986,7 +1009,8 @@ struct SSTPDispatcherTests {
     @Test
     func oversizedPayloadReturns413() async throws {
         let body = Data(repeating: 0x41, count: 1024 * 1024 + 1)
-        let req = SSTPRequest(method: "SEND", version: "SSTP/1.4", headers: [:], body: body)
+        let req = SSTPRequest(method: "SEND", version: "SSTP/1.4", headers: [
+                "Sender": "UnitTest"], body: body)
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 413 Payload Too Large"))
     }
@@ -996,7 +1020,8 @@ struct SSTPDispatcherTests {
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
-            headers: ["Option": "nobreak"]
+            headers: [
+                "Sender": "UnitTest","Option": "nobreak"]
         )
         let fakePolicy = FakeSstpBreakPolicy(busy: true, shouldSucceed: false)
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, breakPolicy: fakePolicy)
@@ -1049,6 +1074,7 @@ struct SSTPDispatcherTests {
             method: "SEND",
             version: "SSTP/1.4",
             headers: [
+                "Sender": "UnitTest",
                 "Event": "Resource",
                 "Reference0": key,
                 "Option": "nobreak"
@@ -1065,7 +1091,8 @@ struct SSTPDispatcherTests {
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
-            headers: ["Option": "nobreak"]
+            headers: [
+                "Sender": "UnitTest","Option": "nobreak"]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, breakPolicy: fakePolicy)
         #expect(resp.contains("SSTP/1.4 200 OK"))
@@ -1077,7 +1104,8 @@ struct SSTPDispatcherTests {
         let req = SSTPRequest(
             method: "NOTIFY",
             version: "SSTP/1.4",
-            headers: ["Option": "nobreak"]
+            headers: [
+                "Sender": "UnitTest","Option": "nobreak"]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, breakPolicy: fakePolicy)
         #expect(resp.contains("SSTP/1.4 409 Conflict"))
@@ -1179,7 +1207,8 @@ struct SSTPDispatcherTests {
         let request = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
-            headers: ["Option": "nobreak"]
+            headers: [
+                "Sender": "UnitTest","Option": "nobreak"]
         )
         let response = SSTPDispatcher.dispatch(
             request: request,
@@ -1196,7 +1225,8 @@ struct SSTPDispatcherTests {
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
-            headers: ["ReceiverGhostName": "Emily"]
+            headers: [
+                "Sender": "UnitTest","ReceiverGhostName": "Emily"]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
         #expect(resp.contains("SSTP/1.4 512 Invisible"))
@@ -1208,7 +1238,8 @@ struct SSTPDispatcherTests {
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
-            headers: ["Event": "Resource", "Reference0": "missing-resource-key"]
+            headers: [
+                "Sender": "UnitTest","Event": "Resource", "Reference0": "missing-resource-key"]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 503 Service Unavailable"))
@@ -1221,7 +1252,8 @@ struct SSTPDispatcherTests {
         let req = SSTPRequest(
             method: "SEND",
             version: "SSTP/1.4",
-            headers: ["SecurityLevel": "external"]
+            headers: [
+                "Sender": "UnitTest","SecurityLevel": "external"]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge)
         #expect(resp.contains("SSTP/1.4 420 Refuse"))

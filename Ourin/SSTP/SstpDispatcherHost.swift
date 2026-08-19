@@ -15,4 +15,7 @@ protocol SstpDispatcherHost: Sendable {
 
     /// GetFMO 用に現在起動中のゴーストレコードを収集する（ローカルセキュリティ時のみ呼ばれる）。
     func collectFmoRecords() -> [FmoGhostRecord]
+
+    /// EXECUTE GetCollision 用。params は scope / surface 等（空なら現在サーフェス）。
+    func collectCollisionList(params: [String]) -> String
 }

@@ -137,6 +137,15 @@ enum ShioriWireCodec {
         var merged = headers
         setDefaultHeader("Charset", value: charset, in: &merged)
         setDefaultHeader("Sender", value: "Ourin", in: &merged)
+        // SSP MakeShiori30Request: SecurityLevel は常時送出。
+        setDefaultHeader("SecurityLevel", value: "local", in: &merged)
+        // SSP: SecurityOrigin が無い場合はリテラル "null"。
+        if !merged.keys.contains(where: { $0.caseInsensitiveCompare("SecurityOrigin") == .orderedSame }) {
+            setHeader("SecurityOrigin", value: "null", in: &merged)
+        } else if let key = merged.keys.first(where: { $0.caseInsensitiveCompare("SecurityOrigin") == .orderedSame }),
+                  (merged[key] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            setHeader("SecurityOrigin", value: "null", in: &merged)
+        }
         setHeader("ID", value: id, in: &merged)
         for (index, reference) in refs.enumerated() {
             setHeader("Reference\(index)", value: reference, in: &merged)
@@ -199,14 +208,19 @@ enum ShioriWireCodec {
     }
 
     private static func headerSortKey(_ key: String) -> String {
+        // SSP MakeShiori30Request 順: Charset → SecurityLevel → SecurityOrigin → Sender → SenderType → ID → BaseID → ReferenceN
         let lower = key.lowercased()
         if lower == "charset" { return "00" }
-        if lower == "sender" { return "01" }
-        if lower == "id" { return "02" }
+        if lower == "securitylevel" { return "01" }
+        if lower == "securityorigin" { return "02" }
+        if lower == "sender" { return "03" }
+        if lower == "sendertype" { return "04" }
+        if lower == "id" { return "05" }
+        if lower == "baseid" { return "06" }
         if lower.hasPrefix("reference"), let index = Int(lower.dropFirst("reference".count)) {
-            return String(format: "03-%08d", index)
+            return String(format: "07-%08d", index)
         }
-        return "04-\(lower)"
+        return "08-\(lower)"
     }
 
     private static func sanitize(_ value: String) -> String {

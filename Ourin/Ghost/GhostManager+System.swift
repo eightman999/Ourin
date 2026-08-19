@@ -6268,6 +6268,61 @@ extension GhostManager: NSWindowDelegate {
         }
     }
 
+    /// SSTP EXECUTE GetCollision: 当たり判定名をカンマ区切りで返す。
+    /// params[0]=scope（省略時 currentScope）、params[1]=surfaceID（省略時現在サーフェス）。
+    func collectCollisionNames(params: [String]) -> String {
+        let scope = params.first.flatMap(Int.init) ?? currentScope
+        let surfaceID: Int
+        if params.count >= 2, let explicit = Int(params[1]) {
+            surfaceID = explicit
+        } else {
+            surfaceID = characterViewModels[scope]?.currentSurfaceID ?? 0
+        }
+        var activeIDs = activeAnimationIDsByScope[scope] ?? []
+        if scope == currentScope {
+            activeIDs.formUnion(serikoExecutor.activeAnimations.keys)
+            activeIDs.formUnion(animationEngine.activeAnimationIDs)
+        }
+        let regions = animationEngine.getCollisions(for: surfaceID, activeAnimationIDs: activeIDs)
+        return regions.map(\.name).filter { !$0.isEmpty }.joined(separator: ",")
+    }
+
+    /// SSTP EXECUTE SSFExec: ローカル .ssf / メディアを開く（関連付けアプリ or 動画再生）。
+    func executeSSF(path: String, options: [String]) {
+        _ = options
+        let resolved = resolvedPath(path)
+        if Self.isVideoFile(resolved.path) || Self.isVideoFile(path) {
+            playVideo(filename: path, loop: false, options: [])
+            return
+        }
+        openURL(resolved.path)
+    }
+
+    /// SSTP EXECUTE TaskListExec: 前面化し、SSP タスクリスト相当の操作導線とする。
+    func executeTaskList(options: [String]) {
+        _ = options
+        forceActivateWindows()
+    }
+
+    /// X-Force-Activate-Me / 前面化要求。
+    func forceActivateWindows() {
+        let activate = { [weak self] in
+            guard let self else { return }
+            NSApp.activate(ignoringOtherApps: true)
+            for window in self.characterWindows.values {
+                window.makeKeyAndOrderFront(nil)
+            }
+            for window in self.balloonWindows.values {
+                window.orderFront(nil)
+            }
+        }
+        if Thread.isMainThread {
+            activate()
+        } else {
+            DispatchQueue.main.async(execute: activate)
+        }
+    }
+
     // MARK: - Dialog Commands
 
     struct InputDialogOptions {

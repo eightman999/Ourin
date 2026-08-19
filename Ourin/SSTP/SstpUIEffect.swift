@@ -21,6 +21,20 @@ struct SstpUIEffect: Sendable, Equatable {
         case moveWindowAsync(scope: Int, x: Int, y: Int, time: Int, method: String, ignoreSticky: Bool)
         /// EXECUTE settrayballoon。
         case setTrayBalloon(options: [String])
+        /// EXECUTE CallGhost。
+        case callGhost(name: String, options: [String])
+        /// EXECUTE URLExec。
+        case openURL(String)
+        /// EXECUTE SSFExec。
+        case ssfExec(path: String, options: [String])
+        /// EXECUTE TaskListExec。
+        case taskListExec(options: [String])
+        /// EXECUTE CompressArchive。
+        case compressArchive(params: [String])
+        /// EXECUTE ExtractArchive。
+        case extractArchive(params: [String])
+        /// SHIORI / EXECUTE X-Force-Activate-Me 相当のウィンドウ前面化。
+        case forceActivate
     }
 
     /// 効果の種別。
