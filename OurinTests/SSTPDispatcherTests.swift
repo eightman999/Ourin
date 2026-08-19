@@ -1442,6 +1442,60 @@ struct SSTPDispatcherTests {
     }
 
     @Test @MainActor
+    func fineMessageSendResolvesGhostByNameAndReturns200() throws {
+        let fake = FakeSstpRoutingRegistry()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sstp-fine-message"))
+        manager.ghostConfig = GhostConfiguration(
+            name: "FineTarget",
+            sakuraName: "FineSakura",
+            keroName: "FineKero"
+        )
+        let token = EventBridge.shared.register(runtime: nil, ghostManager: manager)
+        defer { EventBridge.shared.unregister(token) }
+
+        let req = SSTPRequest(
+            method: "FINE",
+            version: "SSTP/1.4",
+            headers: [
+                "Sender": "UnitTest",
+                "Reference0": "MessageSend",
+                "Reference1": "FineTarget",
+                "Reference4": "\\h\\s0Hello"
+            ]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+    }
+
+    @Test @MainActor
+    func fineMessageSendFallsBackToSakuraNameResolution() throws {
+        let fake = FakeSstpRoutingRegistry()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sstp-fine-sakura"))
+        manager.ghostConfig = GhostConfiguration(
+            name: "FineTarget2",
+            sakuraName: "FineSakura2",
+            keroName: "FineKero2"
+        )
+        let token = EventBridge.shared.register(runtime: nil, ghostManager: manager)
+        defer { EventBridge.shared.unregister(token) }
+
+        // Reference1 が無い場合、SSP は Reference2（さくら名）で解決する。
+        let req = SSTPRequest(
+            method: "FINE",
+            version: "SSTP/1.4",
+            headers: [
+                "Sender": "UnitTest",
+                "Reference0": "MessageSend",
+                "Reference2": "FineSakura2",
+                "Reference3": "FineKero2",
+                "Reference4": "\\h\\s0Hello"
+            ]
+        )
+        let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+    }
+
+    @Test @MainActor
     func fineSetScriptReturns200() throws {
         let fake = FakeSstpRoutingRegistry()
         let req = SSTPRequest(
