@@ -436,4 +436,247 @@ extension SSTPDispatcherTests {
         // host.collectFmoRecords() の内容が Snapshot に現れる（AppDelegate 非依存の検証）
         #expect(resp.contains("EffectGhost"))
     }
+
+    // MARK: - 拡張 EXECUTE のネイティブコマンド（#113）
+
+    @Test
+    func executeCallGhostEmitsEffect() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "callghost",
+                "Reference0": "SecondGhost",
+                "Reference1": "option1"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(spy.effects.contains { $0.kind == .callGhost(name: "SecondGhost", options: ["option1"]) })
+    }
+
+    @Test
+    func executeCallGhostMissingTargetReturns400() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: ["Command": "callghost"]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 400 Bad Request"))
+        #expect(spy.effects.isEmpty)
+    }
+
+    @Test
+    func executeURLEXecEmitsEffect() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "urlexec",
+                "Reference0": "https://example.com/"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(spy.effects.contains { $0.kind == .openURL("https://example.com/") })
+    }
+
+    @Test
+    func executeSSFExecEmitsEffect() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "ssfexec",
+                "Reference0": "/path/to/app",
+                "Reference1": "-flag"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(spy.effects.contains { $0.kind == .ssfExec(path: "/path/to/app", options: ["-flag"]) })
+    }
+
+    @Test
+    func executeTaskListExecEmitsEffect() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "tasklistexec",
+                "Reference0": "open",
+                "Reference1": "/tmp"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(spy.effects.contains { $0.kind == .taskListExec(options: ["open", "/tmp"]) })
+    }
+
+    @Test
+    func executeGetCollisionReturnsHostList() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "getcollision",
+                "SecurityLevel": "local"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(resp.contains("Reference0: head,body"))
+    }
+
+    @Test
+    func executeGetCollisionExternalReturns420() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "getcollision",
+                "SecurityLevel": "external"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 420"))
+    }
+
+    @Test
+    func executeCompressArchiveEmitsEffect() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "compressarchive",
+                "Reference0": "/tmp/out.nar",
+                "Reference1": "/tmp/in",
+                "SecurityLevel": "local"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(spy.effects.contains { $0.kind == .compressArchive(params: ["/tmp/out.nar", "/tmp/in"]) })
+    }
+
+    @Test
+    func executeCompressArchiveMissingArgsReturns400() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "compressarchive",
+                "Reference0": "/tmp/out.nar",
+                "SecurityLevel": "local"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 400 Bad Request"))
+        #expect(spy.effects.isEmpty)
+    }
+
+    @Test
+    func executeCompressArchiveExternalReturns420() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "compressarchive",
+                "Reference0": "/tmp/out.nar",
+                "Reference1": "/tmp/in",
+                "SecurityLevel": "external"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 420"))
+    }
+
+    @Test
+    func executeExtractArchiveEmitsEffect() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "extractarchive",
+                "Reference0": "/tmp/in.nar",
+                "Reference1": "/tmp/out",
+                "SecurityLevel": "local"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(spy.effects.contains { $0.kind == .extractArchive(params: ["/tmp/in.nar", "/tmp/out"]) })
+    }
+
+    @Test
+    func executeExtractArchiveMissingArgsReturns400() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "extractarchive",
+                "Reference0": "/tmp/in.nar",
+                "SecurityLevel": "local"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 400 Bad Request"))
+        #expect(spy.effects.isEmpty)
+    }
+
+    @Test
+    func executeExtractArchiveExternalReturns420() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "extractarchive",
+                "Reference0": "/tmp/in.nar",
+                "Reference1": "/tmp/out",
+                "SecurityLevel": "external"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 420"))
+    }
 }
