@@ -359,16 +359,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             NSLog("[AppDelegate] Previous Ourin session did not terminate cleanly; OnBoot recovery is pending")
         }
 
-        // Ensure single instance and clean helper state by killing others first
-        ProcessKiller.killOtherOurinAndYaya()
+        // SSP 互換の単一インスタンス: 既に稼働中の Ourin があれば、それを前面に出して自分が終了する。
+        // 他の Ourin（利用者のインスタンスや XCTest ホスト）を強制終了しない。
+        if ProcessKiller.hasOtherOurinInstance() {
+            NSLog("Another Ourin instance is already running. Activating it and terminating.")
+            ProcessKiller.activateOtherInstance()
+            NSApplication.shared.terminate(nil)
+            return
+        }
+        // 前回のクラッシュ等で親を失った yaya_core だけを片付ける。
+        ProcessKiller.killOrphanedYaya()
 
-        // 共有メモリの存在で他のベースウェアが起動しているか判定
+        // 共有メモリの存在で他のベースウェアが起動しているか判定（Ourin が居なければ残留とみなす）
         if FmoManager.isAnotherInstanceRunning() {
-            if ProcessKiller.hasOtherOurinInstance() {
-                NSLog("Another baseware instance is already running. Terminating.")
-                NSApplication.shared.terminate(nil)
-                return
-            }
             NSLog("FMO exists but no other Ourin process was found. Reclaiming stale FMO resources.")
             FmoManager.reclaimStaleResources()
         }
@@ -552,8 +555,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
     func applicationWillTerminate(_ notification: Notification) {
         // XCTest ホストは起動時に本体の bootstrap を省略している。終了時だけ本体用の
-        // 後始末（ProcessKiller による他 Ourin / yaya_core の強制終了、起動回復マーカー消去）を
-        // 走らせると、利用者が起動中の Ourin や並行実行中の別テストホストまで終了させてしまう。
+        // 後始末（ProcessKiller による yaya_core の後始末、起動回復マーカー消去）を
+        // 走らせると、利用者が起動中の Ourin の起動回復状態などを乱してしまう。
         if isRunningUnderTests {
             return
         }
@@ -573,8 +576,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         ghostManager?.shutdown()
         shioriRuntimeCache.removeAll()
         SSTPOwnershipRegistry.shared.removeAll()
-        // 念のため残留プロセスを掃除
-        ProcessKiller.killOtherOurinAndYaya()
+        // 念のため自分の yaya_core と孤児だけを掃除する（他の Ourin の SHIORI には触れない）
+        ProcessKiller.killOwnAndOrphanedYaya()
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {

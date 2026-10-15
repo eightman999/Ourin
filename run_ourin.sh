@@ -80,5 +80,21 @@ if [[ ! -d "$APP_PATH" ]]; then
   exit 1
 fi
 
+# Ourin は単一インスタンス（既に稼働中ならそちらを前面に出して新しい方が終了する）。
+# 新しいビルドで起動し直すため、稼働中の Ourin を正常終了させてから起動する。
+if pgrep -f "/Ourin.app/Contents/MacOS/Ourin" >/dev/null 2>&1; then
+  echo "==> Quitting running Ourin"
+  osascript -e 'quit app id "furin-lab.Ourin"' >/dev/null 2>&1 || true
+  # ゴーストの終了トーク（OnClose）を待つため最大 30 秒待つ。残っていれば起動しない。
+  for _ in $(seq 1 300); do
+    pgrep -f "/Ourin.app/Contents/MacOS/Ourin" >/dev/null 2>&1 || break
+    sleep 0.1
+  done
+  if pgrep -f "/Ourin.app/Contents/MacOS/Ourin" >/dev/null 2>&1; then
+    echo "error: running Ourin did not quit; close it and retry" >&2
+    exit 1
+  fi
+fi
+
 echo "==> Launching $APP_PATH"
 open "$APP_PATH"
