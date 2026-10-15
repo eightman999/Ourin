@@ -93,6 +93,29 @@ struct ExternalServerTests {
     }
 
     @Test
+    func httpHeaderLinesSplitOnCrlf() throws {
+        let lines = SstpHttpServer.splitHeaderLines(
+            "POST /api/sstp/v1 HTTP/1.1\r\nHost: 127.0.0.1:9801\r\nContent-Length: 75\r\nOrigin: null\r\n\r\n"
+        )
+        #expect(lines == ["POST /api/sstp/v1 HTTP/1.1", "Host: 127.0.0.1:9801", "Content-Length: 75", "Origin: null"])
+        // LF のみのクライアントも従来どおり受理する
+        #expect(SstpHttpServer.splitHeaderLines("POST / HTTP/1.1\nContent-Length: 3\n\n").count == 2)
+    }
+
+    @Test
+    func httpSecurityHeadersAreInsertedAsSeparateLines() throws {
+        let raw = "SEND SSTP/1.4\r\nSender: Test\r\nCharset: UTF-8\r\n\r\n"
+        let routed = SstpHttpServer.injectSecurityHeaders(into: raw, origin: "null")
+        #expect(routed == "SEND SSTP/1.4\r\nSender: Test\r\nCharset: UTF-8\r\nSecurityOrigin: null\r\nSecurityLevel: external\r\n\r\n")
+        let parsed = SSTPParser.parseRequest(text: routed)
+        #expect(parsed.headerValue("Charset") == "UTF-8")
+        #expect(parsed.headerValue("SecurityLevel") == "external")
+        // 終端の空行が無い要求でも 1 行ずつ追加される
+        let open = SstpHttpServer.injectSecurityHeaders(into: "SEND SSTP/1.4\r\nCharset: UTF-8\r\n", origin: "http://localhost:3000")
+        #expect(open == "SEND SSTP/1.4\r\nCharset: UTF-8\r\nSecurityOrigin: http://localhost:3000\r\nSecurityLevel: local\r\n\r\n")
+    }
+
+    @Test
     func httpOriginAllowsOnlyLocalOrNull() throws {
         #expect(SstpHttpServer.isAcceptedOrigin("http://localhost:3000") == true)
         #expect(SstpHttpServer.isAcceptedOrigin("null") == true)

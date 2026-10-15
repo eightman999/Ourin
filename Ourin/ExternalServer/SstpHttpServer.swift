@@ -55,9 +55,7 @@ public final class SstpHttpServer {
             guard let headerEnd = buffer.range(of: Data([13,10,13,10])) else { return false }
             let header = buffer.subdata(in: 0..<headerEnd.upperBound)
             let headersText = String(data: header, encoding: .utf8) ?? ""
-            let headerLines = headersText.split(separator: "\n").map {
-                $0.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
+            let headerLines = Self.splitHeaderLines(headersText)
             guard let requestLine = headerLines.first,
                   let request = Self.parseRequestLine(requestLine) else {
                 self.sendErrorResponse(conn, status: 400)
@@ -134,16 +132,21 @@ public final class SstpHttpServer {
         EncodingNormalizer.decode(data, charset: EncodingAdapter.declaredCharset(in: data))
     }
 
-    private static func injectSecurityHeaders(into sstp: String, origin: String?) -> String {
+    static func injectSecurityHeaders(into sstp: String, origin: String?) -> String {
         guard let origin, !origin.isEmpty else { return sstp }
         let level = isLocalOrigin(origin) ? "local" : "external"
-        let headers = "SecurityOrigin: \(origin)\r\nSecurityLevel: \(level)\r\n"
+        let headers = "SecurityOrigin: \(origin)\r\nSecurityLevel: \(level)"
+        // 空行（ヘッダ終端）の直前＝最終ヘッダ行の CRLF の前に「CRLF + 追加ヘッダ」を入れる。
+        // 以前は CRLF 無しで挿入しており、最終ヘッダと連結して `Charset: UTF-8SecurityOrigin: ...` になっていた。
         if let range = sstp.range(of: "\r\n\r\n") {
             var result = sstp
-            result.insert(contentsOf: headers, at: range.lowerBound)
+            result.insert(contentsOf: "\r\n" + headers, at: range.lowerBound)
             return result
         }
-        return sstp + "\r\n" + headers + "\r\n"
+        // 終端の空行が無い要求: 末尾の改行を落としてから追加し、空行で閉じる
+        var trimmed = sstp
+        while trimmed.hasSuffix("\r\n") || trimmed.hasSuffix("\n") || trimmed.hasSuffix("\r") { trimmed.removeLast() }
+        return trimmed + "\r\n" + headers + "\r\n\r\n"
     }
 
     private static func isLocalOrigin(_ origin: String) -> Bool {
@@ -163,6 +166,16 @@ public final class SstpHttpServer {
     struct HttpRequestLine {
         let method: String
         let path: String
+    }
+
+    /// ヘッダ部を行に分割する。
+    /// `.split(separator: "\n")` は CRLF ("\r\n") を単一の Character として扱うため、
+    /// HTTP の CRLF ヘッダでは一切分割されず Content-Length を見落として常に 411 になる。
+    /// `components(separatedBy: .newlines)` は CR/LF/CRLF を正しく分割する（SurfaceTableParser と同じ手法）。
+    static func splitHeaderLines(_ headersText: String) -> [String] {
+        headersText.components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
     }
 
     static func parseRequestLine(_ line: String) -> HttpRequestLine? {
