@@ -28,6 +28,8 @@ private final class SNTPCapturingRuntime: GhostShioriRuntime {
     func unload() { isLoaded = false }
 }
 
+// EventBridge.shared へテスト用セッションを登録するため、スイート内外の並列実行を避ける。
+@Suite(.serialized, .eventBridgeIsolated)
 struct SNTPClientTests {
     @Test
     func requestUsesNTPv4ClientHeaderAndTimestamp() {
@@ -296,6 +298,7 @@ struct SNTPClientTests {
     }
 }
 
+@Suite(.serialized, .eventBridgeIsolated)
 struct MailBiffClientTests {
     @Test
     func scriptQueriesUnreadMailAndSupportsAccountSelection() {

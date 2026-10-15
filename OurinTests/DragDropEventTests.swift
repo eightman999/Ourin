@@ -26,7 +26,7 @@ private final class DragDropEventRuntime: GhostShioriRuntime {
     func unload() { isLoaded = false }
 }
 
-@Suite(.serialized)
+@Suite(.serialized, .eventBridgeIsolated)
 struct DragDropEventTests {
     @Test
     func fileDropReferencesUsePathScopeAndMimeOrder() {

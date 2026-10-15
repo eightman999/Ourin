@@ -57,7 +57,7 @@ private final class RecordingGhostManager: GhostManager {
 // MARK: - Tests
 
 // EventBridge.shared のセッションを各テストで登録するため、suite 内の並列実行を禁止する。
-@Suite(.serialized)
+@Suite(.serialized, .eventBridgeIsolated)
 struct DressupBindTests {
 
     // MARK: - コマンド解析・計画（純粋ヘルパー）
@@ -117,7 +117,7 @@ struct DressupBindTests {
         manager.characterViewModels[0] = vm
 
         manager.executeBindCommand(args: ["bind", "head", "ribbon", "1", "arm", "ring", "0"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["head"]?["ribbon"] == "1")
         #expect(vm.dressupBindings["arm"]?["ring"] == nil)
@@ -193,7 +193,7 @@ struct DressupBindTests {
         manager.characterViewModels[0] = vm
 
         manager.executeBindCommand(args: ["bind", "head", "ribbon", "1"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["head"]?["ribbon"] == "1")
         #expect(manager.eventLog == ["changed:head:ribbon:1", "info"])
@@ -209,7 +209,7 @@ struct DressupBindTests {
         manager.characterViewModels[0] = vm
 
         manager.executeBindCommand(args: ["bind", "head", "ribbon", "0"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["head"]?["ribbon"] == nil)
         #expect(manager.eventLog == ["changed:head:ribbon:0", "info"])
@@ -224,13 +224,13 @@ struct DressupBindTests {
 
         // 装着済み → トグルで外れる
         manager.executeBindCommand(args: ["bind", "head", "ribbon"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
         #expect(vm.dressupBindings["head"]?["ribbon"] == nil)
         #expect(manager.eventLog.last == "info")
 
         // 外れている状態 → トグルで着る
         manager.executeBindCommand(args: ["bind", "head", "ribbon", ""])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { vm.dressupBindings["head"]?["ribbon"] == "1" }
         #expect(vm.dressupBindings["head"]?["ribbon"] == "1")
     }
 
@@ -242,7 +242,7 @@ struct DressupBindTests {
         manager.characterViewModels[0] = vm
 
         manager.executeBindCommand(args: ["bind", "arm", "", "0"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["arm"] == nil)
         #expect(manager.eventLog == [
@@ -269,7 +269,7 @@ struct DressupBindTests {
         ]
 
         manager.executeBindCommand(args: ["bind", "head", "", "1"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["head"]?["ribbon"] == "1")
         #expect(vm.dressupBindings["head"]?["hat"] == "1")
@@ -294,7 +294,7 @@ struct DressupBindTests {
         ]
 
         manager.executeBindCommand(args: ["bind", "head", "", "1"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["head"] == ["ribbon": "1"])
         #expect(manager.eventLog == ["changed:head:ribbon:1", "info"])
@@ -308,7 +308,7 @@ struct DressupBindTests {
         manager.characterViewModels[0] = vm
 
         manager.executeBindCommand(args: ["bind", "head", "hat", "1"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["head"] == ["hat": "1"])
         #expect(manager.eventLog == [
@@ -329,7 +329,7 @@ struct DressupBindTests {
         ]
 
         manager.executeBindCommand(args: ["bind", "head", "hat", "1"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["head"] == ["ribbon": "1", "hat": "1"])
         #expect(manager.eventLog == ["changed:head:hat:1", "info"])
@@ -346,7 +346,7 @@ struct DressupBindTests {
         ]
 
         manager.executeBindCommand(args: ["bind", "head", "ribbon", "0"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["head"] == ["ribbon": "1"])
         #expect(manager.eventLog == ["info"])
@@ -363,7 +363,7 @@ struct DressupBindTests {
         ]
 
         manager.executeBindCommand(args: ["bind", "head", "", "0"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["head"] == ["hat": "1"])
         #expect(manager.eventLog == ["changed:head:ribbon:0", "info"])
@@ -389,7 +389,7 @@ struct DressupBindTests {
         ]
 
         manager.executeBindCommand(args: ["bind", "wide", "", "1"])
-        try await Task.sleep(nanoseconds: 300_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["wide"]?.count == 100)
         #expect(manager.changedRequestResponses.isEmpty)
@@ -404,12 +404,12 @@ struct DressupBindTests {
         manager.characterViewModels[0] = vm
 
         manager.executeBindCommand(args: ["bind", "arm", "", ""])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { vm.dressupBindings["arm"] == nil }
 
         #expect(vm.dressupBindings["arm"] == nil)
 
         manager.executeBindCommand(args: ["bind", "arm", ""])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { vm.dressupBindings["arm"]?[""] == "1" }
 
         // 設定なしカテゴリは空パーツで有効として記録される（トグル判定用）
         #expect(vm.dressupBindings["arm"]?[""] == "1")
@@ -422,7 +422,8 @@ struct DressupBindTests {
         manager.characterViewModels[0] = vm
 
         manager.executeBindCommand(args: ["bind-noevent", "head", "ribbon", "1"])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { vm.dressupBindings["head"]?["ribbon"] == "1" }
+        await flushMainQueue()
 
         // 状態・描画操作は bind と同じ
         #expect(vm.dressupBindings["head"]?["ribbon"] == "1")
@@ -448,7 +449,7 @@ struct DressupBindTests {
             requestChangedResponse: true,
             requestInfoResponse: true
         )
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { !manager.infoScopes.isEmpty }
 
         #expect(primary.dressupBindings["head"]?["ribbon"] == nil)
         #expect(companion.dressupBindings["head"]?["ribbon"] == "1")
@@ -481,7 +482,8 @@ struct DressupBindTests {
             requestResponse: true
         )
         manager.notifyDressupInfo(scope: 2, requestResponse: true)
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { runtime.requests.count >= 2 }
+        await flushMainQueue()
 
         let first = try #require(runtime.requests.first)
         let second = try #require(runtime.requests.dropFirst().first)
@@ -494,7 +496,7 @@ struct DressupBindTests {
         #expect(second.refs == ["2\u{1}head\u{1}ribbon\u{1}\u{1}1\u{1}"])
     }
 
-    @Test
+    @MainActor @Test
     func dressupInfoIncludesBindOptionsInFourthField() async throws {
         let runtime = CapturingDressupRuntime()
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-bind-info-options"))
@@ -511,7 +513,7 @@ struct DressupBindTests {
         defer { EventBridge.shared.unregister(token) }
 
         manager.notifyDressupInfo(scope: 0, requestResponse: true)
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { !runtime.requests.isEmpty }
 
         let request = try #require(runtime.requests.first)
         #expect(request.id == "OnNotifyDressupInfo")
@@ -527,7 +529,8 @@ struct DressupBindTests {
         // 実際のディスパッチ経路（bind-noevent の分岐）を経由する
         manager.sakuraEngine.run(script: "\\![bind-noevent,head,ribbon,1]\\e")
         manager.processNextUnit()
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { vm.dressupBindings["head"]?["ribbon"] == "1" }
+        await flushMainQueue()
 
         #expect(vm.dressupBindings["head"]?["ribbon"] == "1")
         #expect(manager.eventLog.isEmpty)
@@ -541,7 +544,7 @@ struct DressupBindTests {
 
         manager.sakuraEngine.run(script: "\\![bind,head,ribbon,1]\\e")
         manager.processNextUnit()
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { manager.eventLog.last == "info" }
 
         #expect(vm.dressupBindings["head"]?["ribbon"] == "1")
         #expect(manager.eventLog == ["changed:head:ribbon:1", "info"])

@@ -245,7 +245,7 @@ struct BalloonNewlineSpacingTests {
 
         // クイック本文は即時、通常本文は最初の1文字だけ再生される。
         #expect(vm.text == "FastNowL")
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        try await waitForBalloonText(vm, equals: "FastNowLater")
         #expect(vm.text == "FastNowLater")
     }
 
@@ -835,7 +835,7 @@ private final class InputOptionsRuntime: GhostShioriRuntime {
 @MainActor
 private func waitForRequest(
     _ runtime: InputOptionsRuntime,
-    timeoutNanoseconds: UInt64 = 3_000_000_000
+    timeoutNanoseconds: UInt64 = testWaitTimeoutNanoseconds
 ) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     while runtime.requests.isEmpty {
@@ -851,7 +851,7 @@ private func waitForRequest(
 private func waitForRequestID(
     _ runtime: InputOptionsRuntime,
     equals expected: String,
-    timeoutNanoseconds: UInt64 = 3_000_000_000
+    timeoutNanoseconds: UInt64 = testWaitTimeoutNanoseconds
 ) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     while runtime.lastRequest?.id != expected {
@@ -866,7 +866,7 @@ private func waitForRequestID(
 @MainActor
 private func waitForPlaybackToStop(
     _ manager: GhostManager,
-    timeoutNanoseconds: UInt64 = 3_000_000_000
+    timeoutNanoseconds: UInt64 = testWaitTimeoutNanoseconds
 ) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     while manager.isPlaying {
@@ -882,7 +882,7 @@ private func waitForPlaybackToStop(
 private func waitForBalloonText(
     _ viewModel: BalloonViewModel,
     equals expected: String,
-    timeoutNanoseconds: UInt64 = 5_000_000_000
+    timeoutNanoseconds: UInt64 = testWaitTimeoutNanoseconds
 ) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     while viewModel.text != expected {
@@ -896,6 +896,7 @@ private func waitForBalloonText(
 
 // MARK: - \_a[...]...\_a の範囲アンカーとクリック時ルーティング
 
+@Suite(.serialized, .eventBridgeIsolated)
 struct BalloonAnchorRangeTests {
     @MainActor
     @Test func anchorSegmentsSplitSingleLineRanges() {
@@ -1147,7 +1148,10 @@ struct BalloonClearTruncationTests {
 
         #expect(vm.text.isEmpty)
         manager.processNextUnit()
-        try await Task.sleep(nanoseconds: 400_000_000)
+        // 1 文字目は同期的に表示される。残りの文字送りと \c の実行を待つ。
+        #expect(!vm.text.isEmpty)
+        try await waitUntil { vm.text.isEmpty && manager.playbackQueue.isEmpty }
+        #expect(manager.playbackQueue.isEmpty)
         #expect(vm.text.isEmpty)
     }
 
@@ -1239,7 +1243,7 @@ struct SakuraScriptAppendModeTests {
         #expect(vm.text == "previous")
         #expect(manager.currentScope == 0)
 
-        try await Task.sleep(nanoseconds: 400_000_000)
+        try await waitForBalloonText(vm, equals: "previousnext")
         #expect(vm.text == "previousnext")
     }
 
@@ -1276,7 +1280,9 @@ struct SakuraScriptBalloonSwitchOrderTests {
 
         #expect(characterVM.currentBalloonID == originalID)
         manager.processNextUnit()
-        try await Task.sleep(nanoseconds: 700_000_000)
+        try await waitUntil {
+            vm.text == "before" && characterVM.currentBalloonID == 2 && vm.balloonID == 2
+        }
 
         #expect(vm.text == "before")
         #expect(characterVM.currentBalloonID == 2)

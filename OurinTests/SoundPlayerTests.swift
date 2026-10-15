@@ -26,7 +26,7 @@ private final class SoundEventCapturingRuntime: GhostShioriRuntime {
 
 // GhostManager の init は共有状態（PropertyManager.shared / ResourceManager / 通知センター）に触れるため、
 // 並列実行するとフレークする。直列化して実行する。
-@Suite(.serialized)
+@Suite(.serialized, .eventBridgeIsolated)
 struct SoundPlayerTests {
 
     // MARK: - WAV 生成ヘルパー
@@ -254,7 +254,7 @@ struct SoundPlayerTests {
     }
 
     @Test
-    func playerManuallyLoopsAndReportsEachBoundary() throws {
+    func playerManuallyLoopsAndReportsEachBoundary() async throws {
         let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("loop-(UUID().uuidString).wav")
         try makeWav(at: url, seconds: 0.12)
         defer { try? FileManager.default.removeItem(at: url) }
@@ -270,15 +270,19 @@ struct SoundPlayerTests {
             loopCount += 1
             lock.unlock()
         }
+        let readLoopCount: () -> Int = {
+            lock.lock()
+            defer { lock.unlock() }
+            return loopCount
+        }
         player.setLoop(true)
         player.play()
-        Thread.sleep(forTimeInterval: 0.55)
+        // 周回境界は AVAudioPlayer の delegate（メインスレッド）で検出される。全体実行では
+        // メインスレッドが他テストで混むため、固定時間ではなく 2 周分の通知を待つ。
+        try await waitUntilNonisolated { readLoopCount() >= 2 }
         player.stop()
 
-        lock.lock()
-        let observedLoops = loopCount
-        lock.unlock()
-        #expect(observedLoops >= 2)
+        #expect(readLoopCount() >= 2)
     }
 
     // MARK: - GhostManager コマンド統合 (@MainActor / 実WAV)

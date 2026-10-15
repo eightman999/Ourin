@@ -29,7 +29,7 @@ private final class CapturingUtilityRuntime: GhostShioriRuntime {
     func unload() { isLoaded = false }
 }
 
-@Suite(.serialized)
+@Suite(.serialized, .eventBridgeIsolated)
 struct GhostUtilityCommandTests {
     @Test
     func displayTextRemovesControlTagsAndKeepsNewlines() {

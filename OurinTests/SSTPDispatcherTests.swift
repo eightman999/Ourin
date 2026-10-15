@@ -107,7 +107,7 @@ struct FakeSstpBreakPolicy: SstpBreakPolicy {
     func waitWhileBusy() -> Bool { shouldSucceed }
 }
 
-@Suite(.serialized)
+@Suite(.serialized, .eventBridgeIsolated)
 struct SSTPDispatcherTests {
     /// 各テストインスタンス固有の独立した SHIORI ブリッジ。
     /// 従来の `BridgeToSHIORI`（`.shared`）の global 静的状態へ一切触れず、

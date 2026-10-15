@@ -9,7 +9,7 @@ import Testing
 /// 並列ワーカー実行下でのレースを避けるべく `.serialized` とし、各テスト前に状態を初期化する。
 /// SHIORI ブリッジ（`ShioriBridgeContext`）はインスタンス毎に独立しており、
 /// global な `BridgeToSHIORI`（`.shared`）へは一切触れない。
-@Suite(.serialized)
+@Suite(.serialized, .eventBridgeIsolated)
 struct ExternalServerTests {
     /// 各テストインスタンス固有の独立した SHIORI ブリッジ。
     let bridge = ShioriBridgeContext()

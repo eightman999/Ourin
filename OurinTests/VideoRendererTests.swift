@@ -4,7 +4,7 @@ import Testing
 
 // GhostManager の init は PropertyManager.shared の差し替え・ResourceManager のファイルI/O・
 // オブザーバ登録など共有状態に触れるため、並列実行するとフレークする。直列化して実行する。
-@Suite(.serialized)
+@Suite(.serialized, .eventBridgeIsolated)
 @MainActor
 struct VideoRendererTests {
     @Test
