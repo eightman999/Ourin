@@ -194,7 +194,11 @@ final class CharacterHitTestingHostingView: NSHostingView<CharacterView> {
         // OnMouse 系イベントが発火してしまう。
         guard let baseImage = viewModel.image, baseImage.isValid else { return nil }
 
-        let localPoint = characterPoint(from: point, viewModel: viewModel)
+        // NSView.hitTest の point は superview（窓のフレームビュー、非 flipped）の座標系。
+        // 自身の座標へ変換してから判定する。変換を省くと上下が反転し、窓より小さいサーフェス
+        // （相方など）は見えている部分を掴んでも透明扱いになってドラッグできなかった。
+        let pointInSelf = superview.map { convert(point, from: $0) } ?? point
+        let localPoint = characterPoint(from: pointInSelf, viewModel: viewModel)
         guard isVisibleCharacterPixel(at: localPoint, baseImage: baseImage, viewModel: viewModel) else { return nil }
         return hitView
     }
