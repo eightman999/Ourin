@@ -128,7 +128,12 @@ extension GhostManager {
         var didRestore = false
         if let savedX = resourceManager.getCharDefaultLeft(scope: scope),
            let savedY = resourceManager.getCharDefaultTop(scope: scope) {
-            window.setFrame(.init(x: CGFloat(savedX), y: CGFloat(savedY), width: characterWidth, height: characterHeight), display: true)
+            // 解像度・ディスプレイ構成が変わると保存位置が画面外になり得るため可視領域へ収める
+            let restored = Self.clampToVisibleScreens(
+                NSRect(x: CGFloat(savedX), y: CGFloat(savedY), width: characterWidth, height: characterHeight),
+                visibleFrames: NSScreen.screens.map(\.visibleFrame)
+            )
+            window.setFrame(restored, display: true)
             Log.debug("[GhostManager] Scope \(scope) window restored to saved position (\(savedX), \(savedY))")
             didRestore = true
         }
@@ -810,29 +815,64 @@ extension GhostManager {
             return nil
         }
 
-        let baseRect = resolveMoveBaseRect(scope: scope, spec: spec) ?? currentFrame
-        let baseAnchorPoint = resolveAnchorPoint(token: spec.baseOffset, rect: baseRect) ?? CGPoint(x: baseRect.origin.x, y: baseRect.origin.y)
-        let moveAnchorPoint = resolveAnchorPoint(token: spec.moveOffset, rect: currentFrame) ?? CGPoint(x: 0, y: 0)
-
-        if spec.base != nil {
-            let targetX = spec.x.map {
-                Int(baseAnchorPoint.x + CGFloat($0) - moveAnchorPoint.x)
-            } ?? Int(currentFrame.origin.x)
-            let targetY = spec.y.map {
-                Int(baseAnchorPoint.y + CGFloat($0) - moveAnchorPoint.y)
-            } ?? Int(currentFrame.origin.y)
-            return (targetX, targetY)
-        }
-
-        return (spec.x ?? Int(currentFrame.origin.x), spec.y ?? Int(currentFrame.origin.y))
+        // SSP 互換: --base 省略時は screen（キャラがいるモニタの左上原点）。
+        let baseRect = resolveMoveBaseRect(scope: scope, spec: spec, window: window) ?? currentFrame
+        let origin = Self.moveTargetOrigin(
+            current: currentFrame,
+            base: baseRect,
+            baseOffset: spec.baseOffset,
+            moveOffset: spec.moveOffset,
+            x: spec.x,
+            y: spec.y
+        )
+        return (Int(origin.x.rounded()), Int(origin.y.rounded()))
     }
 
-    private func resolveMoveBaseRect(scope: Int, spec: MoveCommandSpec) -> CGRect? {
-        guard let base = spec.base?.lowercased() else { return nil }
+    /// SSP の `\![move]` 座標を Cocoa のウィンドウ原点へ変換する。
+    /// UKADOC: X/Y は基準の左上を原点とし、+Y は下向き（`--Y=-400` は上方向）。
+    /// `--base-offset` は基準矩形上の点、`--move-offset` は移動するウィンドウ上の点（いずれも既定 left.top）で、
+    /// 「ウィンドウの move-offset 点を、基準の base-offset 点から (X, Y) 離れた位置へ置く」。
+    /// 省略した軸（"fix"）は現在の位置を保つ。
+    static func moveTargetOrigin(current: CGRect, base: CGRect, baseOffset: String?, moveOffset: String?, x: Int?, y: Int?) -> CGPoint {
+        // 下向き座標 v = -cocoaY で計算する（矩形の上辺 v = -maxY）
+        let baseAnchor = topDownAnchor(token: baseOffset, rect: base)
+        let moveAnchor = topDownAnchor(token: moveOffset, rect: current)
+        let moveDX = moveAnchor.x - current.minX
+        let moveDV = moveAnchor.y - (-current.maxY)
+        let left = x.map { baseAnchor.x + CGFloat($0) - moveDX } ?? current.minX
+        let topV = y.map { baseAnchor.y + CGFloat($0) - moveDV } ?? -current.maxY
+        return CGPoint(x: left, y: -topV - current.height)
+    }
+
+    /// `left.top` 形式の点を、x は Cocoa のまま、y を下向き座標（-cocoaY）で返す。不明・省略は left/top。
+    private static func topDownAnchor(token: String?, rect: CGRect) -> CGPoint {
+        let parts = (token ?? "").lowercased().split(separator: ".", maxSplits: 1).map(String.init)
+        let horizontal = parts.first ?? "left"
+        let vertical = parts.count == 2 ? parts[1] : "top"
+        let x: CGFloat
+        switch horizontal {
+        case "right": x = rect.maxX
+        case "center", "middle": x = rect.midX
+        default: x = rect.minX
+        }
+        let v: CGFloat
+        switch vertical {
+        case "bottom": v = -rect.minY
+        case "center", "middle": v = -rect.midY
+        default: v = -rect.maxY
+        }
+        return CGPoint(x: x, y: v)
+    }
+
+    private func resolveMoveBaseRect(scope: Int, spec: MoveCommandSpec, window: NSWindow) -> CGRect? {
+        let base = spec.base?.lowercased() ?? "screen"
         switch base {
         case "screen":
-            return NSScreen.main?.visibleFrame
-        case "window", "current":
+            // キャラクターウィンドウがあるモニタ（の全体矩形）の左上が原点
+            return (window.screen ?? NSScreen.main)?.frame
+        case "primaryscreen", "global":
+            return NSScreen.screens.first?.frame
+        case "me", "window", "current":
             return characterWindows[scope]?.frame
         default:
             if let value = Int(base) {
@@ -841,34 +881,11 @@ extension GhostManager {
             if base.hasPrefix("scope"), let value = Int(base.replacingOccurrences(of: "scope", with: "")) {
                 return characterWindows[value]?.frame
             }
+            if base.hasPrefix("p["), base.hasSuffix("]"), let value = Int(base.dropFirst(2).dropLast()) {
+                return characterWindows[value]?.frame
+            }
             return nil
         }
-    }
-
-    private func resolveAnchorPoint(token: String?, rect: CGRect) -> CGPoint? {
-        guard let token = token?.lowercased() else { return nil }
-        let parts = token.split(separator: ".", maxSplits: 1).map(String.init)
-        guard parts.count == 2 else { return nil }
-        let horizontal = parts[0]
-        let vertical = parts[1]
-
-        let x: CGFloat
-        switch horizontal {
-        case "left": x = rect.minX
-        case "center", "middle": x = rect.midX
-        case "right": x = rect.maxX
-        default: return nil
-        }
-
-        let y: CGFloat
-        switch vertical {
-        case "top": y = rect.maxY
-        case "center", "middle": y = rect.midY
-        case "bottom": y = rect.minY
-        default: return nil
-        }
-
-        return CGPoint(x: x, y: y)
     }
 
     private func parseLongOptions(_ args: [String]) -> (named: [String: String], positional: [String]) {
@@ -1215,8 +1232,10 @@ extension GhostManager {
                 let savedY = self.resourceManager.getCharDefaultTop(scope: scope)
 
                 if let x = savedX, let y = savedY, x != 0 || y != 0 {
-                    let newFrame = NSRect(x: CGFloat(x), y: CGFloat(y),
-                                        width: window.frame.width, height: window.frame.height)
+                    let newFrame = Self.clampToVisibleScreens(
+                        NSRect(x: CGFloat(x), y: CGFloat(y), width: window.frame.width, height: window.frame.height),
+                        visibleFrames: NSScreen.screens.map(\.visibleFrame)
+                    )
                     window.setFrame(newFrame, display: true)
                 }
                 
@@ -1378,11 +1397,9 @@ extension GhostManager {
                 let savedY = self.resourceManager.getCharDefaultTop(scope: scope)
 
                 if let x = savedX, let y = savedY, x != 0 || y != 0 {
-                    let newFrame = NSRect(
-                        x: CGFloat(x),
-                        y: CGFloat(y),
-                        width: window.frame.width,
-                        height: window.frame.height
+                    let newFrame = Self.clampToVisibleScreens(
+                        NSRect(x: CGFloat(x), y: CGFloat(y), width: window.frame.width, height: window.frame.height),
+                        visibleFrames: NSScreen.screens.map(\.visibleFrame)
                     )
                     window.setFrame(newFrame, display: true)
                 } else {
@@ -1648,5 +1665,23 @@ extension GhostManager {
         lastOverlapRef0 = overlap
 
         return events
+    }
+}
+
+extension GhostManager {
+    /// 保存位置から復元する窓を、いずれかの画面の可視領域（メニューバー・Dock を除く）へ収める。
+    /// 最も重なる画面（重ならなければ先頭＝メイン画面）を選び、窓が収まるよう原点だけを動かす。
+    /// 画面より大きい窓は左下を可視領域に合わせる。
+    static func clampToVisibleScreens(_ frame: NSRect, visibleFrames: [NSRect]) -> NSRect {
+        guard let first = visibleFrames.first else { return frame }
+        let area: (NSRect) -> CGFloat = { r in
+            let i = r.intersection(frame)
+            return i.isNull ? 0 : i.width * i.height
+        }
+        let screen = visibleFrames.max { area($0) < area($1) }.flatMap { area($0) > 0 ? $0 : nil } ?? first
+        var clamped = frame
+        clamped.origin.x = max(screen.minX, min(frame.minX, screen.maxX - frame.width))
+        clamped.origin.y = max(screen.minY, min(frame.minY, screen.maxY - frame.height))
+        return clamped
     }
 }

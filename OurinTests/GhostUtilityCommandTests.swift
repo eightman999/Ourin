@@ -226,8 +226,11 @@ struct GhostUtilityCommandTests {
         } else {
             targetY = max(lowerBound + 1, start.y - 40)
         }
+        // \![move] の Y は SSP 座標（モニタ左上原点・下向き）で渡す
+        let screenFrame = (window.screen ?? NSScreen.main)?.frame ?? .zero
+        let topDownY = Int(screenFrame.maxY - targetY - window.frame.height)
         manager.executeMoveCommand(
-            args: ["fix", "\(Int(targetY))"],
+            args: ["fix", "\(topDownY)"],
             async: false
         )
         try await Task.sleep(nanoseconds: 50_000_000)
