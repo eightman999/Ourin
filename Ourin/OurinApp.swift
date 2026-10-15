@@ -850,6 +850,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         NSLog("[runGhost] Creating GhostManager for: \(root.path)")
         let newManager = GhostManager(ghostURL: root)
         self.ghostManager = newManager
+        PropertyManager.shared.setActiveGhost(path: root.path)
         let bootRecovery = pendingBootRecovery
         pendingBootRecovery = nil
         NSLog("[runGhost] Starting GhostManager")

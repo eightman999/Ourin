@@ -84,7 +84,7 @@ final class GhostPropertyProvider: PropertyProvider {
 
     private let mode: Mode
     private let ghosts: [Ghost]
-    private let activeIndices: [Int]
+    private var activeIndices: [Int]
     private var shells: [Shell]
     private var currentShellIndex: Int
 
@@ -117,6 +117,18 @@ final class GhostPropertyProvider: PropertyProvider {
         var defaultSurface: Int
         var animationNum: String? = nil
         var scaling: String? = nil
+    }
+
+    /// 稼働中ゴーストのルートを active にする（一覧に無ければ何もしない）。
+    /// 起動時は「インストール済みの先頭」を仮の active にしているため、実際に起動したゴーストで置き換える。
+    /// - Returns: 一覧に見つかって更新したか
+    @discardableResult
+    func setActiveGhost(path: String) -> Bool {
+        let normalize = { (p: String) in URL(fileURLWithPath: p).standardizedFileURL.resolvingSymlinksInPath().path }
+        let target = normalize(path)
+        guard let index = ghosts.firstIndex(where: { normalize($0.path) == target }) else { return false }
+        activeIndices = [index]
+        return true
     }
 
     init(mode: Mode, ghosts: [Ghost], activeIndices: [Int],

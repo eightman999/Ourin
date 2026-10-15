@@ -50,8 +50,13 @@ public final class PropertyManager {
         if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
             return [Ghost(name: "DefaultGhost", path: "default")]
         }
+        // descript.txt の name/sakura.name 等を使う（SSP の GetName・currentghost.name はフォルダ名ではなくゴースト名）
         let installed = NarRegistry.shared.installedItems(ofType: "ghost")
-            .map { Ghost(name: $0.name, path: $0.path.path) }
+            .map { item in
+                GhostConfiguration.load(from: item.path.appendingPathComponent("ghost/master", isDirectory: true))
+                    .map { Ghost(from: $0, path: item.path.path) }
+                    ?? Ghost(name: item.name, path: item.path.path)
+            }
         if !installed.isEmpty {
             return installed
         }
@@ -224,6 +229,15 @@ public final class PropertyManager {
 
     public func register(_ prefix: String, provider: PropertyProvider) {
         providers[prefix.lowercased()] = provider
+        invalidateCache()
+    }
+
+    /// 本体ゴーストの起動・切替時に、ghostlist / activeghostlist / currentghost の active を実ゴーストへ合わせる。
+    /// （未設定だとインストール済みの先頭が currentghost 扱いになり、EXECUTE GetName 等が別ゴーストを返す）
+    func setActiveGhost(path: String) {
+        for prefix in ["ghostlist", "activeghostlist", "currentghost"] {
+            (providers[prefix] as? GhostPropertyProvider)?.setActiveGhost(path: path)
+        }
         invalidateCache()
     }
 

@@ -42,6 +42,24 @@ private final class DictionaryPropertyProvider: PropertyProvider {
 /// Tests for the Property System
 struct PropertySystemTests {
 
+    @Test("currentghost follows the ghost actually started, not the first installed")
+    func currentGhostFollowsStartedGhost() {
+        let ghosts = [
+            Ghost(name: "bonsyou", path: "/ghosts/bonsyou"),
+            Ghost(name: "Emily/Phase4.5", sakuraname: "Emily", keroname: "Teddy", path: "/ghosts/emily4"),
+        ]
+        let current = GhostPropertyProvider(mode: .currentghost, ghosts: ghosts, activeIndices: [0])
+        #expect(current.get(key: "name") == "bonsyou")
+
+        #expect(current.setActiveGhost(path: "/ghosts/emily4/"))
+        #expect(current.get(key: "name") == "Emily/Phase4.5")
+        #expect(current.get(key: "sakuraname") == "Emily")
+
+        // 一覧に無いパスでは変えない
+        #expect(current.setActiveGhost(path: "/elsewhere/ghost") == false)
+        #expect(current.get(key: "name") == "Emily/Phase4.5")
+    }
+
     @Test("System properties - Date/Time")
     func testSystemDateTime() {
         let provider = SystemPropertyProvider()
