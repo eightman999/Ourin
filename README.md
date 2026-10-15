@@ -171,6 +171,60 @@ Normal operation does not depend on Ghidra or Java (only when using the DevTools
 
 ---
 
+## 🔌 外部 SSTP と Claude Code 連携 / External SSTP & Claude Code Integration
+
+### 受信口 / Endpoints
+
+| 経路 / Transport | 既定 / Default | 宛先 / Address |
+|---|---|---|
+| HTTP SSTP | 無効 / off | `POST http://127.0.0.1:9801/api/sstp/v1`（本文は生の SSTP / raw SSTP body） |
+| 生 SSTP / raw TCP | 無効 / off | `127.0.0.1:9801`（同一ポートで多重化 / multiplexed） |
+| Distributed IPC | 有効 / on | 通知 `jp.ourin.sstp.request`（`id`, `request`）→ `jp.ourin.sstp.response`（`id`, `response`） |
+| XPC | 有効 / on | mach service `jp.ourin.sstp` |
+
+- HTTP／TCP は設定の `OurinExternalSSTPAllowHTTP` / `OurinExternalSSTPAllowTCP` で有効化し、Ourin を再起動する。待受は `127.0.0.1` のみ。
+  Enable with these preference keys and restart Ourin; listeners bind to `127.0.0.1` only.
+- 設定は `~/Library/Preferences/furin-lab.Ourin.plist` から読まれる。`defaults write furin-lab.Ourin …` はコンテナ側の plist に書くことがあるため、フルパスを指定する。
+  Ourin reads `~/Library/Preferences/furin-lab.Ourin.plist`; `defaults write furin-lab.Ourin …` may write the container plist instead, so pass the full path:
+  ```bash
+  defaults write "$HOME/Library/Preferences/furin-lab.Ourin.plist" OurinExternalSSTPAllowHTTP -bool true
+  ```
+- `Origin` ヘッダ付きの HTTP 要求はブラウザ由来として `SecurityLevel: external` になり、外部セキュリティレベルを許可していなければ `420 Refuse`。ローカルのツールは `Origin` を付けずに送る。
+  Requests with an `Origin` header are treated as browser-originated (`external`) and refused with `420` unless external security level is allowed; local tools should omit `Origin`.
+
+### Claude Code からの実況 / Narration from Claude Code
+
+Claude Code の mod（`ghost-narrator`、リポジトリ外）は作業の出来事を次の形で送る。SSP 互換の `SEND` なので SSP でも動く。
+The Claude Code mod `ghost-narrator` (outside this repository) sends work events as SSP-compatible `SEND` requests:
+
+```
+SEND SSTP/1.4
+Sender: Claude Code
+Charset: UTF-8
+Event: OnClaudeCode
+Reference0: <kind>
+Reference1: <detail>
+Script: <fallback script>\e
+```
+
+- `Reference0`: `start` / `prompt` / `edit` / `run` / `pass` / `fail` / `denied` / `done` / `aborted` / `say`
+- `Reference1`: コマンド・ファイル名などの詳細 / detail such as the command or file name
+- ゴーストが `OnClaudeCode` を処理すればその台詞、処理しなければ `Script` を再生する。ゴースト辞書で `Reference0` ごとに反応を書ける。
+  If the ghost handles `OnClaudeCode` its own script plays; otherwise the `Script` fallback plays.
+- デスクトップアプリの Claude Code では、`done` / `fail` / `denied` / `aborted` の台詞にセッションへ戻る選択肢が付く。
+  In the Claude desktop app, `done` / `fail` / `denied` / `aborted` lines carry a choice that jumps back to the session:
+  `\q[セッションを開く,script:\![open,browser,claude://code/continue?session=local_…]]`
+
+### 互換性の修正 / Compatibility fixes
+
+- オフセット付き element／overlay が上下鏡映される問題（顔パーツが下半身に出る）を修正 / Offset element/overlay parts were mirrored vertically.
+- HTTP SSTP が CRLF ヘッダを分割できず常に `411` を返していた問題、および `SecurityOrigin` 挿入で最終ヘッダが連結される問題を修正 / HTTP SSTP always returned `411`; injected security headers were concatenated onto the last header.
+- 保存位置が画面外でも復元していた問題を修正（可視領域へクランプ）/ Saved window positions are clamped into the visible screen.
+- `\![move]` を UKADOC どおりの座標系に変更（`--base` 既定は `screen`＝モニタ左上原点、+Y は下向き、`--move-offset` は移動窓上の点）/ `\![move]` now follows UKADOC coordinates.
+- `EXECUTE GetName`・`currentghost.*` が起動中のゴースト（descript.txt の `name`）を返すよう修正 / `GetName` and `currentghost.*` now reflect the running ghost.
+
+---
+
 ## 📖 ドキュメント / Documentation
 
 - [CLAUDE.md](CLAUDE.md) - Claude Codeのための開発ガイド / Development guide for Claude Code
