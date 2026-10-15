@@ -551,6 +551,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        // XCTest ホストは起動時に本体の bootstrap を省略している。終了時だけ本体用の
+        // 後始末（ProcessKiller による他 Ourin / yaya_core の強制終了、起動回復マーカー消去）を
+        // 走らせると、利用者が起動中の Ourin や並行実行中の別テストホストまで終了させてしまう。
+        if isRunningUnderTests {
+            return
+        }
         BootRecoveryMarker.clearSession()
         NotificationCenter.default.removeObserver(self, name: .ourinWebHomeURLReceived, object: nil)
         NotificationCenter.default.removeObserver(self, name: .fmoNeedsRefresh, object: nil)
