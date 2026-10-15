@@ -20,7 +20,6 @@ public final class PropertyManager {
         let ghosts = discoverDefaultGhosts()
         let active = ghosts.isEmpty ? [] : [0]
         let balloons = discoverDefaultBalloons()
-        let headlines = discoverDefaultHeadlines()
         let calendarSkins = CalendarRegistry.shared.installedSkins()
         let calendarPlugins = CalendarRegistry.shared.installedPlugins()
         register("ghostlist", provider: GhostPropertyProvider(mode: .ghostlist, ghosts: ghosts, activeIndices: active))
@@ -28,8 +27,15 @@ public final class PropertyManager {
         register("currentghost", provider: GhostPropertyProvider(mode: .currentghost, ghosts: ghosts, activeIndices: active))
         register("balloonlist", provider: BalloonPropertyProvider(mode: .balloonlist, balloons: balloons))
         register("currentghost.balloon", provider: BalloonPropertyProvider(mode: .currentBalloon))
-        register("headlinelist", provider: HeadlinePropertyProvider(headlines: headlines))
-        register("pluginlist", provider: discoverDefaultPluginProvider())
+        // headlinelist / pluginlist は AppDelegate（メインスレッド専用）の registry を参照する。
+        // `shared` の一回初期化中にメインへ同期すると、同時にメインから `shared` へ触れた
+        // 呼び出しが dispatch_once 待ちになり相互デッドロックするため、初回参照まで遅延する。
+        register("headlinelist", provider: LazyPropertyProvider { [unowned self] in
+            HeadlinePropertyProvider(headlines: self.discoverDefaultHeadlines())
+        })
+        register("pluginlist", provider: LazyPropertyProvider { [unowned self] in
+            self.discoverDefaultPluginProvider()
+        })
         register("calendarskinlist", provider: CalendarSkinPropertyProvider(skins: calendarSkins))
         register("calendarpluginlist", provider: CalendarPluginPropertyProvider(plugins: calendarPlugins))
         register("history", provider: HistoryPropertyProvider())
@@ -348,6 +354,41 @@ public final class PropertyManager {
         }
         return result
     }
+}
+
+/// 初回参照時に実プロバイダを構築する。
+///
+/// 構築処理（メインスレッドへの同期を含み得る）はロック外で行い、ロックは結果の
+/// 格納だけに使う。構築中にメインスレッドが同じプロバイダへ触れても、ロック待ちと
+/// メイン同期待ちが循環しない。競合時は先に格納された実体を共有する。
+final class LazyPropertyProvider: PropertyProvider {
+    private let make: () -> PropertyProvider
+    private let lock = NSLock()
+    private var resolved: PropertyProvider?
+
+    init(_ make: @escaping () -> PropertyProvider) {
+        self.make = make
+    }
+
+    private var provider: PropertyProvider {
+        lock.lock()
+        if let resolved {
+            lock.unlock()
+            return resolved
+        }
+        lock.unlock()
+
+        let built = make()
+        lock.lock()
+        defer { lock.unlock() }
+        if let resolved { return resolved }
+        resolved = built
+        return built
+    }
+
+    func get(key: String) -> String? { provider.get(key: key) }
+    func set(key: String, value: String) -> Bool { provider.set(key: key, value: value) }
+    func writableProperties() -> [String] { provider.writableProperties() }
 }
 
 /// 標準名前空間のエイリアスプロバイダ。
