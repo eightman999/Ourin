@@ -308,6 +308,42 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
     }
 
+    /// SwiftUI は先頭シーン `WindowGroup("Settings")` の窓を起動時に自動で開き、前回終了時に開いていれば復元もする。
+    /// メニュー・ゴーストから開く設定画面は識別子 `SettingsWindow` の独自窓なので、
+    /// WindowGroup 由来（`Settings-AppWindow-N`）の窓は自動表示だけと見なして閉じてよい。
+    static func isAutoOpenedSettingsWindow(identifier: String?) -> Bool {
+        guard let identifier else { return false }
+        return identifier.hasPrefix("Settings-AppWindow")
+    }
+
+    func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool {
+        false
+    }
+
+    /// 起動直後に生成・復元される WindowGroup 由来の設定窓を閉じる。
+    /// 生成タイミングが didFinishLaunching より後になるため、短時間だけ窓の表示を監視する。
+    private func suppressLaunchSettingsWindows() {
+        let closeAutoOpened = {
+            for window in NSApplication.shared.windows where Self.isAutoOpenedSettingsWindow(identifier: window.identifier?.rawValue) {
+                window.close()
+            }
+        }
+        var observers: [NSObjectProtocol] = []
+        for name in [NSWindow.didBecomeKeyNotification, NSWindow.didBecomeMainNotification, NSWindow.didUpdateNotification] {
+            observers.append(NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { note in
+                guard let window = note.object as? NSWindow,
+                      Self.isAutoOpenedSettingsWindow(identifier: window.identifier?.rawValue) else { return }
+                window.close()
+            })
+        }
+        DispatchQueue.main.async(execute: closeAutoOpened)
+        // ビルド直後の初回起動など、窓の生成・復元が遅れる場合に備えて少し長めに見張る
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+            closeAutoOpened()
+            observers.forEach(NotificationCenter.default.removeObserver)
+        }
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.current = self
         if BasewareUpdateHelper.runIfRequested() {
@@ -362,15 +398,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             pendingBasewareUpdateMarkerURL = markerURL
         }
 
-        // Hide the default Settings window on startup
-        DispatchQueue.main.async {
-            let settingsTitle = NSLocalizedString("Settings", comment: "Settings window title")
-            for window in NSApplication.shared.windows {
-                if window.title == settingsTitle || window.contentViewController?.view.className.contains("ContentView") == true {
-                    window.close()
-                }
-            }
-        }
+        // 起動時に設定画面を出さない（SSP と同様、設定はメニューから開く）。
+        suppressLaunchSettingsWindows()
 
         // Register handler for x-ukagaka-link scheme early
         WebHandler.shared.register()
