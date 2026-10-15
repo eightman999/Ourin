@@ -25,6 +25,26 @@ struct SurfaceBlendTests {
         #expect(bottom.blueComponent > bottom.redComponent)
     }
 
+    @Test func overlayOffsetYMeasuresDownwardFromTop() throws {
+        // surfaces.txt の element/overlay 座標は左上原点で +Y が下向き（emily4 の顔パーツ 85,80 相当）。
+        // 以前は内部で二重に上下反転しており、パーツが H - y - h の位置へ鏡映されていた。
+        let canvas = NSImage(size: NSSize(width: 10, height: 20))
+        canvas.lockFocus()
+        NSColor.white.setFill()
+        NSRect(x: 0, y: 0, width: 10, height: 20).fill()
+        canvas.unlockFocus()
+        let part = SurfaceOverlay(id: "face", image: Self.solidImage(color: .red), offset: CGPoint(x: 3, y: 2))
+
+        let rendered = try #require(SurfaceBlendRenderer.composite(base: canvas, overlays: [part]))
+        let tiff = try #require(rendered.tiffRepresentation)
+        let bitmap = try #require(NSBitmapImageRep(data: tiff))
+        // NSBitmapImageRep.colorAt の y も上端起点
+        let placed = try #require(bitmap.colorAt(x: 3, y: 2))
+        let mirrored = try #require(bitmap.colorAt(x: 3, y: 20 - 2 - 1))
+        #expect(placed.redComponent > 0.9 && placed.greenComponent < 0.1)
+        #expect(mirrored.greenComponent > 0.9)
+    }
+
     @Test func backgroundOverlayRendersBehindBaseSurface() throws {
         let base = Self.solidImage(color: .red)
         let background = SurfaceOverlay(

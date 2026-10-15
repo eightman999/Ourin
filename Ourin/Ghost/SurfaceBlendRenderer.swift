@@ -406,8 +406,10 @@ enum SurfaceBlendRenderer {
         guard let cgImage = image.cgImage(forProposedRect: &proposedRect, context: nil, hints: nil) else {
             return pixels
         }
-        context.translateBy(x: 0, y: CGFloat(height))
-        context.scaleBy(x: 1, y: -1)
+        // CGBitmapContext のメモリは無変換の描画で先頭行＝画像の上端になる。
+        // コンポジタの「row0＝上端、+Y＝下向き」と一致するのでここでは反転しない。
+        // （以前はここと image(pixels:) の両方で反転しており、内容は元に戻る一方で
+        //   オフセット付き element/overlay の位置だけが H - y - h に鏡映されていた）
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
 
         for index in stride(from: 0, to: pixels.count, by: 4) {
@@ -423,20 +425,10 @@ enum SurfaceBlendRenderer {
         let width = Int(size.width.rounded(.up))
         let height = Int(size.height.rounded(.up))
         guard width > 0, height > 0, pixels.count >= width * height * 4 else { return nil }
-        // `pixels` is kept in the compositor's top-left coordinate order so
-        // SERIKO offsets can be applied with positive Y meaning downward.
-        // A CGImage data provider, however, is consumed by AppKit from the
-        // bottom row first. Reverse the rows at this boundary only; doing the
-        // flip inside the compositor would invert every element/overlay offset.
+        // `pixels` はコンポジタの上端始まりの行順で、CGImage のデータも上端始まりなので
+        // そのまま渡す（行反転は不要）。
         let bytesPerRow = width * 4
-        var displayPixels = [UInt8](repeating: 0, count: width * height * 4)
-        for row in 0..<height {
-            let sourceStart = row * bytesPerRow
-            let displayStart = (height - 1 - row) * bytesPerRow
-            displayPixels[displayStart..<(displayStart + bytesPerRow)] =
-                pixels[sourceStart..<(sourceStart + bytesPerRow)]
-        }
-        guard let provider = CGDataProvider(data: Data(displayPixels) as CFData),
+        guard let provider = CGDataProvider(data: Data(pixels.prefix(height * bytesPerRow)) as CFData),
               let cgImage = CGImage(
                   width: width,
                   height: height,
