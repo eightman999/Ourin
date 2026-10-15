@@ -1393,6 +1393,102 @@ extension GhostManager: NSWindowDelegate {
             Log.debug("[GhostManager] Choice '\(title)' will trigger event: \(eventID) with refs: \(references)")
             pendingChoices.append((title: title, action: .event(id: eventID, references: references), pluginOrigin: currentScriptIsPluginOrigin))
         }
+        // SSP 互換: 選択肢はバルーン本文の、このタグの位置にクリック可能な文字として描く。
+        let index = pendingChoices.count - 1
+        inlineChoiceIndices.insert(index)
+        playbackQueue.append(.deferredCommand { [weak self] in
+            self?.appendChoiceAnchor(index: index)
+        })
+    }
+
+    /// `\q` の選択肢の表題を現在スコープの本文へ追加し、クリック可能な範囲として登録する。
+    func appendChoiceAnchor(index: Int) {
+        guard pendingChoices.indices.contains(index) else { return }
+        let choice = pendingChoices[index]
+        let vm = getBalloonVM(for: currentScope)
+        let start = (vm.text as NSString).length
+        appendText(choice.title)
+        vm.anchors.append(BalloonAnchorRange(
+            id: "",
+            references: [],
+            text: vm.anchorText(in: start),
+            range: vm.anchorRange(from: start),
+            pluginOrigin: choice.pluginOrigin,
+            choiceIndex: index
+        ))
+        vm.anchorActive = true
+    }
+
+    /// 再生完了後の選択肢提示。全て本文に描いてあればクリック待ち（必要なら時間切れ）にし、
+    /// 描いていない選択肢があれば従来のダイアログで提示する。
+    func presentPendingChoices() {
+        guard !pendingChoices.isEmpty else { return }
+        guard Set(pendingChoices.indices) == inlineChoiceIndices else {
+            inlineChoiceIndices.removeAll()
+            showChoiceDialog()
+            return
+        }
+        inlineChoiceTimer?.invalidate()
+        inlineChoiceTimer = nil
+        if !choiceTimeoutDisabled, let timeout = choiceTimeout, timeout > 0 {
+            // 選択・新しいスクリプト開始ではタイマーごと破棄される（cancelInlineChoices）
+            inlineChoiceTimer = Timer.scheduledTimer(withTimeInterval: timeout, repeats: false) { [weak self] _ in
+                guard let self, !self.inlineChoiceIndices.isEmpty else { return }
+                let sourceScript = self.choiceSourceScript.isEmpty
+                    ? self.getBalloonVM(for: self.currentScope).text
+                    : self.choiceSourceScript
+                self.cancelInlineChoices()
+                _ = self.requestDialogEvent(eventID: "OnChoiceTimeout", references: [sourceScript])
+            }
+        }
+    }
+
+    /// バルーン本文の選択肢がクリックされた。
+    func selectInlineChoice(index: Int) {
+        guard pendingChoices.indices.contains(index), inlineChoiceIndices.contains(index) else { return }
+        let choice = pendingChoices[index]
+        cancelInlineChoices()
+        performChoiceSelection(choice)
+    }
+
+    /// 選択肢の待ち状態を捨てる（選択・時間切れ・新しいスクリプト開始）。
+    func cancelInlineChoices() {
+        inlineChoiceTimer?.invalidate()
+        inlineChoiceTimer = nil
+        guard !inlineChoiceIndices.isEmpty else { return }
+        inlineChoiceIndices.removeAll()
+        pendingChoices.removeAll()
+        choiceHasCancelOption = false
+        for vm in balloonViewModels.values {
+            vm.anchors.removeAll { $0.choiceIndex != nil }
+            vm.anchorActive = !vm.anchors.isEmpty
+        }
+    }
+
+    /// 選ばれた選択肢を UKADOC どおりに処理する（ダイアログ・バルーン本文共通）。
+    func performChoiceSelection(_ choice: (title: String, action: ChoiceAction, pluginOrigin: Bool)) {
+        switch Self.choiceSelectionDispatch(title: choice.title, action: choice.action) {
+        case .directEvent(let id, let references):
+            // \q[title,OnID,r0,...] は指定イベントだけを直接発火する。
+            _ = requestDialogEvent(eventID: id, references: references)
+            if choice.pluginOrigin {
+                forwardEventToPlugins(id: id, references: references)
+            }
+
+        case .choiceEvents(let label, let choiceID, let extendedReferences):
+            // UKADOC: 通常の選択肢は OnChoiceSelectEx を先に発火し、続いて
+            // OnChoiceSelect を発火する。choiceID 自体を GET する仕様ではない。
+            let selectExReferences = [label, choiceID] + extendedReferences
+            _ = requestDialogEvent(eventID: "OnChoiceSelectEx", references: selectExReferences)
+            _ = requestDialogEvent(eventID: "OnChoiceSelect", references: [choiceID])
+            if choice.pluginOrigin {
+                forwardEventToPlugins(id: "OnChoiceSelectEx", references: selectExReferences)
+                forwardEventToPlugins(id: "OnChoiceSelect", references: [choiceID])
+            }
+
+        case .script(let script):
+            runChoiceScript(script)
+        }
     }
 
     /// Execute an embedded event and inline its script result.
@@ -1563,6 +1659,13 @@ extension GhostManager: NSWindowDelegate {
         }
     }
 
+    /// \q[title,script:...] の選択時処理。SHIORI イベントを発火せず、インライン SakuraScript を
+    /// 通常のスクリプトとして再生する。以前は sakuraEngine.run だけを呼んで再生を開始しておらず、
+    /// \![open,browser,...] 等の遅延コマンドがキューに積まれたまま実行されなかった。
+    func runChoiceScript(_ script: String) {
+        runScript(script)
+    }
+
     func showChoiceDialog() {
         guard !pendingChoices.isEmpty else { return }
 
@@ -1692,35 +1795,7 @@ extension GhostManager: NSWindowDelegate {
             } else if buttonIndex >= 0 && buttonIndex < self.pendingChoices.count {
                 // User selected a choice
                 let choice = self.pendingChoices[buttonIndex]
-
-                switch Self.choiceSelectionDispatch(title: choice.title, action: choice.action) {
-                case .directEvent(let id, let references):
-                    // \q[title,OnID,r0,...] は指定イベントだけを直接発火する。
-                    _ = self.requestDialogEvent(eventID: id, references: references)
-                    if choice.pluginOrigin {
-                        self.forwardEventToPlugins(id: id, references: references)
-                    }
-
-                case .choiceEvents(let label, let choiceID, let extendedReferences):
-                    // UKADOC: 通常の選択肢は OnChoiceSelectEx を先に発火し、続いて
-                    // OnChoiceSelect を発火する。choiceID 自体を GET する仕様ではない。
-                    let selectExReferences = [label, choiceID] + extendedReferences
-                    _ = self.requestDialogEvent(
-                        eventID: "OnChoiceSelectEx",
-                        references: selectExReferences
-                    )
-                    _ = self.requestDialogEvent(eventID: "OnChoiceSelect", references: [choiceID])
-
-                    if choice.pluginOrigin {
-                        self.forwardEventToPlugins(id: "OnChoiceSelectEx", references: selectExReferences)
-                        self.forwardEventToPlugins(id: "OnChoiceSelect", references: [choiceID])
-                    }
-
-                case .script(let script):
-                    // \q[title,script:...] は SHIORI イベントを発火せず、インライン
-                    // SakuraScript だけを実行する。
-                    self.sakuraEngine.run(script: script)
-                }
+                self.performChoiceSelection(choice)
             } else {
                 // Cancel was selected
                 if let response = self.shioriRuntime?.request(method: "GET", id: "OnChoiceCancel", timeout: 4.0), response.ok {

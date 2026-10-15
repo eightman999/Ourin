@@ -469,6 +469,10 @@ extension GhostManager {
             Log.debug("[GhostManager] Anchor click ignored: nouserbreakmode active")
             return
         }
+        if let choiceIndex = anchor.choiceIndex {
+            selectInlineChoice(index: choiceIndex)
+            return
+        }
         let pluginOrigin = anchor.pluginOrigin
 
         let vm = getBalloonVM(for: fromScope)
@@ -614,7 +618,7 @@ extension GhostManager {
 
     @objc func balloonWindowDidChangeFrame(_ notification: Notification) {
         // Save balloon window positions when moved by user
-        guard !isResettingBalloonPositions else { return }
+        guard !isResettingBalloonPositions, !isAutoPositioningBalloons else { return }
         if let window = notification.object as? NSWindow,
            let identifier = window.identifier?.rawValue,
            identifier.hasPrefix("GhostBalloonWindow_") {
@@ -628,9 +632,44 @@ extension GhostManager {
         }
     }
 
+    /// シェル descript のスコープ別バルーン設定（scope0=sakura, 1=kero, n=charN）。
+    func shellBalloonSetting(scope: Int, key: String) -> String? {
+        let prefix = scope == 0 ? "sakura" : scope == 1 ? "kero" : "char\(scope)"
+        let wanted = "\(prefix).balloon.\(key)".lowercased()
+        return shellBalloonSettings.first { $0.key.lowercased() == wanted }?.value
+            .trimmingCharacters(in: .whitespaces)
+    }
+
+    /// UKADOC（descript_shell）のバルーン既定位置。
+    /// - 左右: alignment が left/right ならその側、none（自動）ならシェルが画面左半分にあれば右、そうでなければ左。
+    ///   自動のときだけ、はみ出す側からもう一方へ回す。
+    /// - 左右に置く時はバルーン上端をシェル上端に揃え、横に接する位置が 0。
+    ///   offsetx は正でシェル側へ寄る（左置きは右へ、右置きは左へ）、offsety は正で下へ。
+    ///   左右別の offsetxl/yl・offsetxr/yr があれば優先し、無ければ offsetx/offsety。
+    static func shellBalloonOrigin(character c: CGRect, balloonSize s: CGSize, screen: CGRect?, alignment: String?, offset: (String) -> CGFloat?) -> CGPoint {
+        let mode = (alignment ?? "none").lowercased()
+        func origin(onRight: Bool) -> CGPoint {
+            let ox = offset(onRight ? "offsetxr" : "offsetxl") ?? offset("offsetx") ?? 0
+            let oy = offset(onRight ? "offsetyr" : "offsetyl") ?? offset("offsety") ?? 0
+            let x = onRight ? c.maxX - ox : c.minX - s.width + ox
+            // 下向き正の offsety を Cocoa（上向き正）へ
+            let y = c.maxY - oy - s.height
+            return CGPoint(x: x, y: y)
+        }
+        switch mode {
+        case "left": return origin(onRight: false)
+        case "right": return origin(onRight: true)
+        default:
+            let preferRight = screen.map { c.midX < $0.midX } ?? false
+            let first = origin(onRight: preferRight)
+            guard let screen else { return first }
+            let overflows = preferRight ? first.x + s.width > screen.maxX : first.x < screen.minX
+            return overflows ? origin(onRight: !preferRight) : first
+        }
+    }
+
     func positionBalloonWindow() {
         let margin: CGFloat = 8
-        let verticalOffset: CGFloat = 80 // Move balloon higher above character head
 
         // Position each balloon next to its corresponding character window
         for (scope, balloonWin) in balloonWindows {
@@ -650,10 +689,21 @@ extension GhostManager {
             // This is handled by SakuraScriptEngine commands
             // Priority 3: Default position relative to character (lowest priority)
             else {
-                // Position balloon to the right of character for all scopes
-                // This provides consistent positioning regardless of scope
-                f.origin.x = cFrame.maxX + margin
-                f.origin.y = cFrame.maxY - f.height + verticalOffset
+                // UKADOC: シェルの balloon.alignment（\![set,balloonalign] が優先）で左右を決め、
+                // 上端をシェル上端に揃えて offsetx/offsety（左右別 l/r）を適用する。
+                let alignment: String?
+                switch balloonViewModels[scope]?.balloonAlignment {
+                case .left?: alignment = "left"
+                case .right?: alignment = "right"
+                default: alignment = shellBalloonSetting(scope: scope, key: "alignment")
+                }
+                f.origin = Self.shellBalloonOrigin(
+                    character: cFrame,
+                    balloonSize: f.size,
+                    screen: charWin.screen?.visibleFrame,
+                    alignment: alignment,
+                    offset: { key in self.shellBalloonSetting(scope: scope, key: key).flatMap(Double.init).map { CGFloat($0) } }
+                )
             }
 
             // Keep balloon within screen bounds
@@ -663,7 +713,13 @@ extension GhostManager {
                 if f.maxY > screen.maxY { f.origin.y = screen.maxY - f.height - margin }
                 if f.minY < screen.minY { f.origin.y = screen.minY + margin }
             }
+            // 自動配置の移動は保存しない（保存するとシェル既定位置が以後使われなくなる）。
+            // didMove は次の run loop で届くことがあるため、解除も非同期にする。
+            isAutoPositioningBalloons = true
             balloonWin.setFrameOrigin(f.origin)
+            DispatchQueue.main.async { [weak self] in
+                self?.isAutoPositioningBalloons = false
+            }
         }
     }
 

@@ -763,14 +763,17 @@ struct BalloonAnchorRange: Equatable {
     let pluginOrigin: Bool
     /// クリック済み（訪問済み）かどうか。true のとき `anchorvisited*` 装飾で描画する。
     var visited: Bool
+    /// `\q` の選択肢をバルーン本文に描いた範囲なら、その `pendingChoices` の番号。通常のアンカーは nil。
+    let choiceIndex: Int?
 
-    init(id: String, references: [String], text: String, range: NSRange, pluginOrigin: Bool = false, visited: Bool = false) {
+    init(id: String, references: [String], text: String, range: NSRange, pluginOrigin: Bool = false, visited: Bool = false, choiceIndex: Int? = nil) {
         self.id = id
         self.references = references
         self.text = text
         self.range = range
         self.pluginOrigin = pluginOrigin
         self.visited = visited
+        self.choiceIndex = choiceIndex
     }
 }
 
@@ -1024,6 +1027,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var choiceSourceScript: String = ""
     /// \* 指定（このスクリプトの選択肢をタイムアウトさせない）
     var choiceTimeoutDisabled: Bool = false
+    /// バルーン本文に描いた `\q` 選択肢の番号（SSP 互換のインライン選択肢）。
+    var inlineChoiceIndices: Set<Int> = []
+    /// インライン選択肢の時間切れタイマー（`choiceTimeout`、`\*` で無効）。
+    var inlineChoiceTimer: Timer?
+    /// シェル descript.txt の `sakura.balloon.*` / `kero.balloon.*` / `charN.balloon.*`（offsetx/y・alignment）。
+    var shellBalloonSettings: [String: String] = [:]
+    /// 自動配置でバルーン窓を動かしている間は、その移動を「ユーザーが動かした位置」として保存しない。
+    var isAutoPositioningBalloons = false
     var localEventTimers: [String: Timer] = [:]
     /// 実ポインタが入っているアンカー（scopeごとの一意キー）。
     var hoveredAnchorKeysByScope: [Int: String] = [:]
@@ -1323,6 +1334,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
         let shellDescriptor = LegacyDescriptor.parseDictionary(fileContent)
         surfaceTransparencyMode = SurfaceTransparencyMode.parse(shellDescriptor["seriko.use_self_alpha"])
+        shellBalloonSettings = shellDescriptor.filter { $0.key.lowercased().contains(".balloon.") }
 
         let parsed = Self.parseDressupMetadata(content: fileContent)
         let partsByCategory = parsed.partsByCategory
@@ -2277,6 +2289,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         timeCriticalActive = false
         choiceTimeoutDisabled = false
         pendingAnchorOpen = nil
+        cancelInlineChoices()
         if startsInAppendMode {
             appendModeEnabled = true
             currentScope = 0
@@ -4873,9 +4886,9 @@ case "scriptbox":
                 } else if closeSequenceCompletion != nil {
                     finishCloseSequence()
                 } else if !pendingChoices.isEmpty {
-                    // \q / \__q で蓄積された選択肢を再生完了後に提示する。
-                    // 選択時に OnChoiceSelect(Ex) が発火し、プラグインへも横流しされる（showChoiceDialog 内）。
-                    showChoiceDialog()
+                    // \q はバルーン本文に描いてクリックで選ばせる（SSP 互換）。本文に描けない
+                    // 選択肢（\__q 等）が残る時だけ従来のダイアログで提示する。
+                    presentPendingChoices()
                 }
                 return
             }

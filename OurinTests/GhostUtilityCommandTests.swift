@@ -240,6 +240,48 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func scriptChoiceStartsPlayback() async throws {
+        // \q[title,script:...] を選んだらスクリプトを再生する（遅延コマンドも実行される）。
+        // 以前は解析だけで再生が始まらず、\![open,browser,...] 等が実行されなかった。
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-choice-script-test"))
+        defer { _ = manager.shutdown() }
+
+        manager.runChoiceScript("\\0選択肢から再生\\e")
+        for _ in 0..<100 where !manager.getBalloonVM(for: 0).text.contains("選択肢から再生") {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        #expect(manager.getBalloonVM(for: 0).text.contains("選択肢から再生"))
+    }
+
+    @Test @MainActor
+    func choicesAreDrawnInsideBalloonAndSelectableByClick() async throws {
+        // SSP 互換: \q はダイアログではなくバルーン本文にクリック可能な文字として描く。
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-inline-choice-test"))
+        defer { _ = manager.shutdown() }
+
+        manager.runScript("\\0どうする？\\n\\q[はい,script:\\0はいを選んだ\\e]\\q[いいえ,OnNo]\\e")
+        let vm = manager.getBalloonVM(for: 0)
+        for _ in 0..<150 where !(vm.text.contains("いいえ") && manager.isPlaying == false) {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        #expect(vm.text.contains("どうする？"))
+        #expect(vm.text.contains("はい"))
+        let choiceAnchors = vm.anchors.filter { $0.choiceIndex != nil }
+        #expect(choiceAnchors.map(\.text) == ["はい", "いいえ"])
+        #expect(manager.pendingChoices.count == 2)
+
+        // 「はい」をクリック → script: が実行され、選択肢の待ちは消える
+        let yes = try #require(choiceAnchors.first)
+        manager.onBalloonAnchorClicked(yes, fromScope: 0)
+        for _ in 0..<150 where !vm.text.contains("はいを選んだ") {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        #expect(vm.text.contains("はいを選んだ"))
+        #expect(manager.pendingChoices.isEmpty)
+        #expect(manager.inlineChoiceIndices.isEmpty)
+    }
+
+    @Test @MainActor
     func legacyMoveRejectsAnInvalidAxis() async throws {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-invalid-move-axis-test"))
         defer { _ = manager.shutdown() }
