@@ -55,7 +55,7 @@ struct YayaSaoriResponseParsingTests {
 
 /// yaya_core と JSON line IPC で直接やり取りするテスト用ハーネス。
 /// 応答が得られなかった場合に、どの段階で何を受け取ったかを失敗メッセージに残す。
-private final class YayaCoreLineHarness {
+final class YayaCoreLineHarness {
     private let process = Process()
     private let input = Pipe()
     private let output = Pipe()

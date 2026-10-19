@@ -79,7 +79,10 @@ Token Lexer::readString() {
     
     advance(); // Skip opening quote
     
-    while (current() != '\0' && current() != quote) {
+    // YAYA の文字列にバックスラッシュのエスケープは無い。`\` は常にそのまま残し
+    // （Sakura Script の `\h` や正規表現の `\\` をそのまま渡す）、囲みと同じ引用符は
+    // 2 つ重ねて 1 文字として含める（`"1""2"` → `1"2`、`'1''2'` → `1'2`）。
+    while (current() != '\0') {
         // YAYA permits long string literals to continue on the next source
         // line with a trailing `/`. The slash, newline, and indentation are
         // syntax only; they must not become part of the returned string.
@@ -91,80 +94,20 @@ Token Lexer::readString() {
             continue;
         }
 
-        if (current() == '\\') {
-            // Look ahead to see what follows the backslash
-            char next = peek();
-            
-            // If backslash is followed by the closing quote, check if it's escaping the quote
-            // or if it's a literal backslash at the end of the string
-            if (next == quote) {
-                // In YAYA, '\' at the end means a literal backslash, not an escape
-                // We need to check if there's content after the quote
-                char after_quote = peek(2);
-                
-                // If after the quote we have comma, paren, or other delimiters,
-                // treat this as a literal backslash ending the string
-                if (after_quote == ',' || after_quote == ')' || after_quote == '}' || 
-                    after_quote == ']' || after_quote == '\n' || after_quote == '\r' ||
-                    after_quote == ' ' || after_quote == '\t' || after_quote == '\0') {
-                    // This is a literal backslash at end of string
-                    value += '\\';
-                    advance(); // consume the backslash
-                    break; // Let the main loop consume the quote
-                }
+        if (current() == quote) {
+            if (peek() == quote) {
+                value += quote;
+                advance();
+                advance();
+                continue;
             }
-            
-            // YAYA string escape handling
-            // In YAYA, backslashes are mostly literal (for SakuraScript tags like \t, \u, \s, \w, etc.)
-            // Only handle specific escape sequences: \\, \", \'
-            // All other backslashes should be preserved as-is
-            advance();
-            if (current() != '\0') {
-                switch (current()) {
-                    case '\\':
-                        // \\ -> single backslash
-                        value += '\\';
-                        advance();
-                        break;
-                    case '"':
-                        // \" -> quote (only if quote matches string delimiter)
-                        if (quote == '"') {
-                            value += '"';
-                            advance();
-                        } else {
-                            // Not escaping, backslash is literal
-                            value += '\\';
-                            value += current();
-                            advance();
-                        }
-                        break;
-                    case '\'':
-                        // \' -> quote (only if quote matches string delimiter)
-                        if (quote == '\'') {
-                            value += '\'';
-                            advance();
-                        } else {
-                            // Not escaping, backslash is literal
-                            value += '\\';
-                            value += current();
-                            advance();
-                        }
-                        break;
-                    default:
-                        // All other cases: preserve backslash + character
-                        // This includes SakuraScript tags like \t, \u, \s, \w, \n, etc.
-                        value += '\\';
-                        value += current();
-                        advance();
-                        break;
-                }
-            }
-        } else {
-            value += current();
-            advance();
+            break;
         }
+
+        value += current();
+        advance();
     }
-    
+
     if (current() == quote) {
         advance(); // Skip closing quote
     }

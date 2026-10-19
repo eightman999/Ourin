@@ -180,6 +180,7 @@ extension GhostManager {
                     // Resize window to fit to new surface
                     win.setContentSize(image.size)
                     win.orderFront(nil)
+                    self.relayoutDefaultCharacterWindows()
                     self.positionBalloonWindow()
                 }
                 self.dispatchSurfaceChange(

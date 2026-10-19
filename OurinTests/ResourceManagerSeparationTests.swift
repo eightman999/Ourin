@@ -83,4 +83,24 @@ struct ResourceManagerSeparationTests {
         let global2 = ResourceManager(defaults: defaults)
         #expect(global2.get("useorigin1") == "1")
     }
+
+    @Test
+    func savedExtraCharacterPositionScopesListsOnlyScopeTwoAndAbove() {
+        let cleanup = makeTempBase()
+        defer { cleanup() }
+        let (defaults, suite) = makeDefaults()
+        defer { UserDefaults().removePersistentDomain(forName: suite) }
+
+        let rm = ResourceManager(defaults: defaults, ghostKey: "emily4")
+        rm.setCharDefaultLeft(scope: 0, value: 1428)
+        rm.setCharDefaultLeft(scope: 1, value: 1167)
+        rm.setCharDefaultLeft(scope: 2, value: 1013)
+        rm.setCharDefaultTop(scope: 3, value: 85)
+        rm.set("char2.balloon.offsetx", value: "10")
+
+        #expect(rm.savedExtraCharacterPositionScopes() == [2, 3])
+
+        rm.setCharDefaultLeft(scope: 2, value: nil)
+        #expect(rm.savedExtraCharacterPositionScopes() == [3])
+    }
 }

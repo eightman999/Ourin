@@ -95,6 +95,14 @@ extension GhostManager {
             name: NSWindow.didMoveNotification,
             object: win
         )
+        // NSHostingController は SwiftUI の内容に合わせて窓を（原点固定で）伸縮させる。
+        // 配置後に大きさが変わると左置きバルーンがキャラへ食い込むため、伸縮のたびに置き直す。
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(balloonWindowDidResize(_:)),
+            name: NSWindow.didResizeNotification,
+            object: win
+        )
 
         // show/hide per visible balloon state and resize window to fit content.
         // 本文が空でも balloonmarker / balloonnum / onlinemode は表示対象になるため、
@@ -608,6 +616,12 @@ extension GhostManager {
             let scopeStr = identifier.replacingOccurrences(of: "GhostCharacterWindow_", with: "")
             if let scope = Int(scopeStr) {
                 let frame = window.frame
+                // 既定配置の外から左右に動かされたら（ドラッグ・\![move] 等）以後は並べ直さない。
+                if !isApplyingDefaultLayout,
+                   let placedX = defaultLayoutLeftEdges[scope],
+                   abs(frame.minX - placedX) >= 1 {
+                    defaultLayoutLeftEdges.removeValue(forKey: scope)
+                }
                 resourceManager.setCharDefaultLeft(scope: scope, value: Int(frame.origin.x))
                 resourceManager.setCharDefaultTop(scope: scope, value: Int(frame.origin.y))
                 Log.debug("[GhostManager] Saved scope \(scope) position: (\(Int(frame.origin.x)), \(Int(frame.origin.y)))")
@@ -665,6 +679,14 @@ extension GhostManager {
             guard let screen else { return first }
             let overflows = preferRight ? first.x + s.width > screen.maxX : first.x < screen.minX
             return overflows ? origin(onRight: !preferRight) : first
+        }
+    }
+
+    @objc func balloonWindowDidResize(_ notification: Notification) {
+        // 伸縮の通知中に窓を動かすと NSHostingView のレイアウトと競合して中身がずれるため、
+        // 伸縮が終わった次の run loop で置き直す。
+        DispatchQueue.main.async { [weak self] in
+            self?.positionBalloonWindow()
         }
     }
 

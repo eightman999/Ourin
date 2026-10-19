@@ -141,20 +141,15 @@ extension GhostManager {
         // Otherwise use default positions
         if !didRestore {
             if let screen = NSScreen.main {
-                let screenFrame = screen.visibleFrame
-                let margin: CGFloat = 10 // Small margin between characters
-                // visibleFrame.minY は下側 Dock を除いた可視領域の下端、すなわち Dock の上端。
-                // ウィンドウの origin.y は下辺なので、ここに合わせると起動時に Dock の直上へ置ける。
-                let baseY = screenFrame.minY
-
-                // Calculate positions: all characters line up from right side
-                // Scope 0 (sakura/master) is rightmost
-                // Scope 1+ (kero/partners) are to the left of scope 0
-                let baseX = screenFrame.maxX - characterWidth - 20
-                let x = baseX - (CGFloat(scope) * (characterWidth + margin))
-
-                window.setFrame(.init(x: x, y: baseY, width: characterWidth, height: characterHeight), display: true)
-                Log.debug("[GhostManager] Scope \(scope) window at default position (\(x), \(baseY))")
+                let frame = Self.defaultCharacterFrame(
+                    scope: scope,
+                    size: NSSize(width: characterWidth, height: characterHeight),
+                    visibleFrame: screen.visibleFrame,
+                    previousLeftEdge: scope > 0 ? characterWindows[scope - 1]?.frame.minX : nil
+                )
+                window.setFrame(frame, display: true)
+                defaultLayoutLeftEdges[scope] = frame.minX
+                Log.debug("[GhostManager] Scope \(scope) window at default position (\(frame.origin.x), \(frame.origin.y))")
             } else {
                 // Fallback positioning
                 let x: CGFloat = 200 + (CGFloat(scope) * 320)
@@ -1390,22 +1385,18 @@ extension GhostManager {
         guard !EventBridge.shared.request(.OnResetWindowPos) else { return }
 
         DispatchQueue.main.async {
-            // Reset each window to its default/saved position
-            for (scope, window) in self.characterWindows {
-                // Get saved position or use default
-                let savedX = self.resourceManager.getCharDefaultLeft(scope: scope)
-                let savedY = self.resourceManager.getCharDefaultTop(scope: scope)
-
-                if let x = savedX, let y = savedY, x != 0 || y != 0 {
-                    let newFrame = Self.clampToVisibleScreens(
-                        NSRect(x: CGFloat(x), y: CGFloat(y), width: window.frame.width, height: window.frame.height),
-                        visibleFrames: NSScreen.screens.map(\.visibleFrame)
-                    )
-                    window.setFrame(newFrame, display: true)
-                } else {
-                    // Use default positions (scope-based)
-                    self.positionWindowAtDefault(scope: scope, window: window)
-                }
+            // 保存位置は移動のたびに上書きされる「現在位置」なので、それへ戻しても
+            // リセットにならない。起動時と同じ既定配置へ並べ直す（移動後の位置は
+            // characterWindowDidChangeFrame が保存する）。
+            // まだ窓が無いスコープの保存位置も消し、次に生成されたとき既定配置になるようにする。
+            for scope in self.resourceManager.savedExtraCharacterPositionScopes()
+            where self.characterWindows[scope] == nil {
+                self.resourceManager.setCharDefaultLeft(scope: scope, value: nil)
+                self.resourceManager.setCharDefaultTop(scope: scope, value: nil)
+            }
+            for scope in self.characterWindows.keys.sorted() {
+                guard let window = self.characterWindows[scope] else { continue }
+                self.positionWindowAtDefault(scope: scope, window: window)
                 
                 // Unlock window
                 window.isMovable = true
@@ -1415,32 +1406,59 @@ extension GhostManager {
         }
     }
     
+    /// 起動時の既定配置: 可視領域の右下から scope 0（さくら）を置き、scope 1 以降を
+    /// 左へ重ならないように並べる。下端は Dock を除いた可視領域の下端（Dock の直上）。
+    /// `previousLeftEdge` は 1 つ前のスコープの窓の左端。分かっていればその左隣へ置く。
+    static func defaultCharacterFrame(
+        scope: Int,
+        size: NSSize,
+        visibleFrame: NSRect,
+        previousLeftEdge: CGFloat? = nil
+    ) -> NSRect {
+        let margin: CGFloat = 10
+        let x: CGFloat
+        if scope > 0, let previousLeftEdge {
+            x = previousLeftEdge - margin - size.width
+        } else {
+            let baseX = visibleFrame.maxX - size.width - 20
+            x = baseX - CGFloat(scope) * (size.width + margin)
+        }
+        return NSRect(x: x, y: visibleFrame.minY, width: size.width, height: size.height)
+    }
+
     /// Position window at default location based on scope
     func positionWindowAtDefault(scope: Int, window: NSWindow) {
         guard let screen = NSScreen.main else { return }
-        
-        let screenFrame = screen.visibleFrame
-        let windowWidth = window.frame.width
-        let windowHeight = window.frame.height
-        
-        // Default positions based on scope
-        let x: CGFloat
-        let y: CGFloat
-        
-        switch scope {
-        case 0: // Master at right-center
-            x = screenFrame.maxX - windowWidth - 100
-            y = screenFrame.midY - windowHeight / 2
-        case 1: // Partner at left-center
-            x = screenFrame.minX + 100
-            y = screenFrame.midY - windowHeight / 2
-        default: // Others spaced out
-            x = screenFrame.midX - windowWidth / 2 + CGFloat(scope * 50)
-            y = screenFrame.midY - windowHeight / 2
+        let frame = Self.defaultCharacterFrame(
+            scope: scope,
+            size: window.frame.size,
+            visibleFrame: screen.visibleFrame,
+            previousLeftEdge: scope > 0 ? characterWindows[scope - 1]?.frame.minX : nil
+        )
+        isApplyingDefaultLayout = true
+        window.setFrame(frame, display: true)
+        isApplyingDefaultLayout = false
+        defaultLayoutLeftEdges[scope] = frame.minX
+    }
+
+    /// 既定配置にあるスコープを、現在の窓の幅（＝サーフェスの幅）で並べ直す。
+    /// サーフェス読み込みで窓の大きさが変わった後に呼ぶ。y は変えない（デスクトップ整列に任せる）。
+    func relayoutDefaultCharacterWindows() {
+        guard !defaultLayoutLeftEdges.isEmpty, let screen = NSScreen.main else { return }
+        for scope in characterWindows.keys.sorted() {
+            guard defaultLayoutLeftEdges[scope] != nil, let window = characterWindows[scope] else { continue }
+            let target = Self.defaultCharacterFrame(
+                scope: scope,
+                size: window.frame.size,
+                visibleFrame: screen.visibleFrame,
+                previousLeftEdge: scope > 0 ? characterWindows[scope - 1]?.frame.minX : nil
+            )
+            defaultLayoutLeftEdges[scope] = target.minX
+            guard window.frame.minX != target.minX else { continue }
+            isApplyingDefaultLayout = true
+            window.setFrameOrigin(NSPoint(x: target.minX, y: window.frame.minY))
+            isApplyingDefaultLayout = false
         }
-        
-        let newFrame = NSRect(x: x, y: y, width: windowWidth, height: windowHeight)
-        window.setFrame(newFrame, display: true)
     }
     
     // MARK: - Display Settings Commands

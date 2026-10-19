@@ -42,4 +42,30 @@ struct GhostWindowClampTests {
         let frame = NSRect(x: -5000, y: -5000, width: 300, height: 400)
         #expect(GhostManager.clampToVisibleScreens(frame, visibleFrames: []) == frame)
     }
+
+    @Test
+    func defaultLayoutLinesUpScopesFromRightWithoutOverlap() {
+        let size = NSSize(width: 300, height: 400)
+        let frames = (0..<4).map {
+            GhostManager.defaultCharacterFrame(scope: $0, size: size, visibleFrame: builtIn)
+        }
+        #expect(frames[0] == NSRect(x: 1408, y: 63, width: 300, height: 400))
+        for scope in 1..<frames.count {
+            #expect(frames[scope].maxX < frames[scope - 1].minX)
+            #expect(frames[scope].minY == builtIn.minY)
+        }
+    }
+
+    @Test
+    func defaultLayoutPlacesScopeLeftOfPreviousCharactersActualEdge() {
+        // UKADOC: defaultleft 未指定のキャラは「1つ前のキャラクターの左隣」。窓幅はサーフェス幅。
+        let sakura = GhostManager.defaultCharacterFrame(
+            scope: 0, size: NSSize(width: 253, height: 385), visibleFrame: builtIn)
+        let kero = GhostManager.defaultCharacterFrame(
+            scope: 1, size: NSSize(width: 255, height: 161), visibleFrame: builtIn,
+            previousLeftEdge: sakura.minX)
+        #expect(sakura.maxX == builtIn.maxX - 20)
+        #expect(kero.maxX == sakura.minX - 10)
+        #expect(kero.minY == builtIn.minY)
+    }
 }
