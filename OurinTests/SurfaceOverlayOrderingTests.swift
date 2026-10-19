@@ -208,7 +208,7 @@ struct SurfaceOverlayOrderingTests {
     @Test
     func backgroundSerikoAnimationMarksOverlayBehindBaseSurface() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("ourin-seriko-background-(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("ourin-seriko-background-\(UUID().uuidString)", isDirectory: true)
         let shell = root.appendingPathComponent("shell/master", isDirectory: true)
         try FileManager.default.createDirectory(at: shell, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -243,7 +243,7 @@ struct SurfaceOverlayOrderingTests {
     @Test
     func serikoMoveShiftsCharacterSurfaceAndResetsOnStop() throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("ourin-seriko-move-(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("ourin-seriko-move-\(UUID().uuidString)", isDirectory: true)
         let shell = root.appendingPathComponent("shell/master", isDirectory: true)
         try FileManager.default.createDirectory(at: shell, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }

@@ -189,7 +189,7 @@ struct LegacyPluginRegistryTests {
     @Test
     func excludesLegacyScaffoldBundleFromExecution() throws {
         let base = FileManager.default.temporaryDirectory
-            .appendingPathComponent("OurinPluginScaffold-(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("OurinPluginScaffold-\(UUID().uuidString)", isDirectory: true)
         OurinPaths.testBaseOverride = base
         defer {
             OurinPaths.testBaseOverride = nil

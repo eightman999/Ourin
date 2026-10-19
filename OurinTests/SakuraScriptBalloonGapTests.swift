@@ -742,10 +742,12 @@ struct SakuraScriptSystemCommandTests {
             _ = gm.shutdown()
         }
 
-        let start = Date()
-        gm.runScript("\\![wait,syncobject,\(name),200]")
-        #expect(Date().timeIntervalSince(start) < 0.1)
+        // 経過時間ではなく状態で判定する。全体実行の負荷で runScript 自体が遅くなっても、
+        // 待機をブロッキングで消化していれば戻った時点で再生は終わっている。
+        gm.runScript("\\![wait,syncobject,\(name),30000]")
+        #expect(gm.isPlaying)
 
+        SyncCenter.shared.signal(name: name)
         try await waitForPlaybackToStop(gm)
         #expect(!gm.isPlaying)
     }

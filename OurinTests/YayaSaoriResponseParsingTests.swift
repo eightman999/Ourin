@@ -11,7 +11,7 @@ struct YayaSaoriResponseParsingTests {
         try #require(FileManager.default.isExecutableFile(atPath: executable.path))
 
         let ghostRoot = FileManager.default.temporaryDirectory
-            .appendingPathComponent("Ourin-YayaSaoriRaw-(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("Ourin-YayaSaoriRaw-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: ghostRoot, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: ghostRoot) }
         try """
@@ -106,7 +106,7 @@ struct YayaSaoriResponseParsingTests {
         try #require(FileManager.default.isExecutableFile(atPath: executable.path))
 
         let ghostRoot = FileManager.default.temporaryDirectory
-            .appendingPathComponent("Ourin-YayaSaoriSparse-(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("Ourin-YayaSaoriSparse-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: ghostRoot, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: ghostRoot) }
         try """

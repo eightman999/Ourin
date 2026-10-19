@@ -255,7 +255,7 @@ struct SoundPlayerTests {
 
     @Test
     func playerManuallyLoopsAndReportsEachBoundary() async throws {
-        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("loop-(UUID().uuidString).wav")
+        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("loop-\(UUID().uuidString).wav")
         try makeWav(at: url, seconds: 0.12)
         defer { try? FileManager.default.removeItem(at: url) }
 
