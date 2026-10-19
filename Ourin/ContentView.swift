@@ -43,7 +43,6 @@ struct ContentView: View {
 
     @State private var selection: Section? = .general
     @State private var runningTask: Task<Void, Never>? = nil
-    @State private var closeDelegate: CloseConfirmationDelegate? = nil
 
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "ui")
 
@@ -66,15 +65,6 @@ struct ContentView: View {
             start: startSelectedGhost,
             export: exportDiagnostics
         ))
-        .background(
-            WindowAccessor { win in
-                if let win = win, closeDelegate == nil {
-                    let del = CloseConfirmationDelegate()
-                    win.delegate = del
-                    closeDelegate = del
-                }
-            }
-        )
         .onReceive(NotificationCenter.default.publisher(for: .devToolsReload)) { _ in
             reload()
         }

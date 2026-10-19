@@ -1,5 +1,6 @@
 import Testing
 import AppKit
+import Combine
 @testable import Ourin
 
 struct SurfaceOverlayOrderingTests {
@@ -285,7 +286,7 @@ struct SurfaceOverlayOrderingTests {
         manager.loadAnimationsForCurrentSurface(surfaceID: 0, scope: 0)
 
         manager.handleAnimAddOverlay(id: 35, x: 12, y: 34)
-        try await Task.sleep(nanoseconds: 50_000_000)
+        try await waitUntil { manager.characterViewModels[0]?.overlays.last?.offset == CGPoint(x: 12, y: 34) }
         let positioned = try #require(manager.characterViewModels[0]?.overlays.last)
         #expect(positioned.offset == CGPoint(x: 12, y: 34))
 
@@ -298,6 +299,14 @@ struct SurfaceOverlayOrderingTests {
         #expect(sequence.frames.map(\.durationMilliseconds) == [50, 50])
         #expect(sequence.timing == .runonce)
 
+        // 2 フレーム目は 50 ms だけ表示されて runonce で消えるため、ポーリングでは
+        // 全体実行時に見逃す。overlays の変更を同期的に記録して、表示された事実を確認する。
+        var shownOverlays: [SurfaceOverlay] = []
+        let recorder = manager.characterViewModels[0]?.$overlays.sink { overlays in
+            if let last = overlays.last { shownOverlays.append(last) }
+        }
+        defer { recorder?.cancel() }
+
         manager.handleAnimAddOverlaySequence(
             frames: sequence.frames,
             timing: sequence.timing,
@@ -309,23 +318,9 @@ struct SurfaceOverlayOrderingTests {
         let firstFrame = try #require(manager.characterViewModels[0]?.overlays.last)
         #expect(firstFrame.offset == CGPoint(x: 10, y: 20))
 
-        var observedSecondFrame: SurfaceOverlay?
-        let frameDeadline = Date().addingTimeInterval(1.0)
-        while Date() < frameDeadline {
-            if let candidate = manager.characterViewModels[0]?.overlays.last,
-               candidate.offset == CGPoint(x: 14, y: 24) {
-                observedSecondFrame = candidate
-                break
-            }
-            RunLoop.main.run(until: Date().addingTimeInterval(0.01))
-        }
-        let secondFrame = try #require(observedSecondFrame)
+        try await waitUntil { manager.animAddSurfaceTimers.isEmpty }
+        let secondFrame = try #require(shownOverlays.first { $0.offset == CGPoint(x: 14, y: 24) })
         #expect(secondFrame.offset == CGPoint(x: 14, y: 24))
-
-        let stopDeadline = Date().addingTimeInterval(1.0)
-        while Date() < stopDeadline && !manager.animAddSurfaceTimers.isEmpty {
-            RunLoop.main.run(until: Date().addingTimeInterval(0.01))
-        }
         #expect(manager.characterViewModels[0]?.overlays.last?.id != secondFrame.id)
         #expect(manager.animAddSurfaceTimers.isEmpty)
     }
