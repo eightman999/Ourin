@@ -337,6 +337,34 @@ struct PluginEventDispatchMatrixTests {
         #expect(!wire.contains("Reference3"))
     }
 
+    @Test
+    func onInstallCompleteUsesEveryInstalledObjectIncludingAttachedComponents() async throws {
+        let objects = [
+            NarInstalledObject(
+                identifier: "ghost",
+                name: "さくら",
+                path: "/Users/tester/Ghosts/Sakura"
+            ),
+            NarInstalledObject(
+                identifier: "balloon",
+                name: "default",
+                path: "/Users/tester/Balloons/default"
+            )
+        ]
+
+        let references = [
+            ListDelimiter.join(objects.map(\.identifier)),
+            ListDelimiter.join(objects.map(\.name)),
+            ListDelimiter.join(objects.map { PathNormalizer.posix($0.path) })
+        ]
+        let wire = PluginFrame(id: "OnInstallComplete", references: references).build()
+
+        #expect(wire.contains("Reference0: ghost\u{1}balloon"))
+        #expect(wire.contains("Reference1: さくら\u{1}default"))
+        #expect(wire.contains("Reference2: /Users/tester/Ghosts/Sakura\u{1}/Users/tester/Balloons/default"))
+        #expect(ListDelimiter.split(references[0]) == ["ghost", "balloon"])
+    }
+
     // MARK: - 16. OnChoiceSelect(Ex) / OnAnchorSelect(Ex) / \q 任意名
 
     /// 仕様 §4.16: SHIORI Event の Reference 群をそのまま横流し。

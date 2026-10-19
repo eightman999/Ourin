@@ -7,7 +7,7 @@ enum OurinPaths {
     /// SSP 標準の公開サブフォルダ。基準フォルダ直下に必ず用意する。
     /// （`data/profile` は `data` のネスト。`withIntermediateDirectories` で同時生成される）
     static let standardSubfolders = [
-        "ghost", "balloon", "plugin", "headline",
+        "ghost", "balloon", "plugin", "headline", "language",
         "calendar", "data", "data/profile", "temp", "package", "saori"
     ]
 
@@ -152,7 +152,7 @@ enum OurinPaths {
             home.appendingPathComponent("Library/Containers/furin-lab.Ourin/Data/Documents/Ourin", isDirectory: true)
         ]
         // 移行対象は公開リソースの各サブフォルダ。
-        let subfolders = ["ghost", "balloon", "plugin", "headline", "calendar", "data", "package", "saori"]
+        let subfolders = ["ghost", "balloon", "plugin", "headline", "language", "calendar", "data", "package", "saori"]
 
         var movedCount = 0
         var allOK = true

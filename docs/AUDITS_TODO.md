@@ -1,168 +1,103 @@
 # Ourin 監査項目 — 未完 / Audit Items — TODO
 
-**最終更新 / Last Updated**: 2026-07-15
-**集約元 / Consolidated from**: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY（各 ja-jp / en-us）
-**検証方法 / Verification**: 全項目を現状ソースコード（file:line）と照合して未完判定。完了済み項目は `AUDITS_COMPLETED.md` 参照。
+**最終更新 / Last Updated**: 2026-08-15（一新 / renewed）
+**集約元 / Consolidated from**: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY ＋ ドキュメント整合性監査 2026-08-15
+**検証方法 / Verification**: 全項目を現状ソースコードと照合して未完判定。完了済み項目は `AUDITS_COMPLETED.md` 参照。
+
+> **一新について (2026-08-15)**: 本ファイルに「完了」注記付きで蓄積していた項目は `AUDITS_COMPLETED.md`（「移管記録」セクション）へ移管し、本ファイルは**真に未完の項目のみ**とした。旧記載・経緯は git 履歴（2026-08-15 以前）に保存されている。
+> Renewal note: items previously kept here with "completed" annotations were migrated to `AUDITS_COMPLETED.md` ("migrated items" section); this file now lists only genuinely pending work. Prior wording is preserved in git history.
 
 ---
 
 ## 日本語
 
-以下は過去の監査レポートで指摘され、**現状コードで未解決**であることを確認した項目です。優先度（P0=最高 → P3=最低）を併記します。
+### 1. 実ゴースト・実機検証待ち（コード実装・単体テストは完了済み）
 
-### A. SHIORI プロトコル
+いずれも実装とテストは存在し、残作業は**実ゴースト／実シェル／実機での動作・目視確認**。確認して問題があれば個別のバグとして切り出す。
 
-| 優先度 | 項目 | 現状・修正案 |
+| 優先度 | 項目 | 検証内容 |
 |---|---|---|
-| — | （SHIORI 2.x ABI 互換レイヤーはコア部分が完了 2026-07-09） | `Ourin/USL/Shiori2CompatAdapter.swift`（455行、2026-07-08新規）が `Shiori2CompatBackend` として実装され、`ShioriLoader.swift:846,853,855` でXPC/Bundle/Dylibの全バックエンド生成経路にラップ配線済み。`GET Version` によるバックエンド版数検出／3.0イベント→`GET Sentence SHIORI/2.2`+`Event:`+`Reference0-7`変換／2.xレスポンス（Sentence/BalloonOffset等）→3.0 `Value:`変換／`TEACH`→2.4/311/312往復／Shift_JISエンコードは実装済みで`OurinTests/ShioriLoaderTests.swift:54-253`のテストが通る。 |
-| — | （Word/String/Status/OwnerGhostName/OtherGhostName/Communicate変換とOnTalk不一致は完了 2026-07-09） | `Shiori2CompatAdapter.swift:339-422` の6builderに `OurinTests/ShioriLoaderTests.swift` で単体テストを追加（`shiori2WordRequestUsesReference0AsTypeWhenTypeHeaderMissing`等6件）。`buildUserSentenceRequest` の判定を `ID: OnTalk`（存在しないID）から実在する `EventID.OnTalkRequest`（`EventID.swift:361`）に合わせて `lowerID == "ontalkrequest"` へ修正し到達可能化。回帰テスト `shiori2TalkRequestMapsToUserSentenceGet` 追加。 |
-| — | （SHIORI 2.x 二重実装は誤りだったことを確認 2026-07-09） | `ShioriLoader.swift:842-853`（`makeBackend`）を実測: `Shiori2CompatBackend` は **XPC/Bundle/Dylib 経由で読み込む外部 SHIORI モジュール**のみをラップする（`ShioriLoader.swift:783-811` の `init?(module:base:)` で `yaya.dll` の場合は `YayaBackend` を直接使用、`Shiori2CompatBackend`でラップしない）。一方 `YayaBackend.parseRequest/buildResponse`（`:413-498`）は Ourin 内蔵 YAYA エンジン専用のワイヤ解析で、3.0形式に加え legacy TEACH SHIORI/2.x 形式も許容する内部実装。両者は disjoint な対象（外部2.xモジュール vs 内蔵YAYA）に別々の配線点から使われており、二重実装ではない。統合不要と判定し完了扱い。 |
-| — | （SecurityLevel external 伝播は完了 2026-07-08） | 外部SSTP入口を `SSTPDispatcher.dispatchExternal` に集約し `ShioriSecurityContext.external(origin:)` を実使用。TCP/HTTP/XPC全経路でSHIORIへ `SecurityLevel: external` が届く。localOnlyポリシーの420拒否は維持。テスト追加済み。 |
+| P2 | SakuraScript UKADOC 全コマンド実行差分 | パース網羅・ディスパッチ差分は `SakuraScriptDocumentationCoverageTests`（326タグ）で機械検証済み。2026-08-15 の権限付き `xcodebuild` で、構文トークン・GhostManager配送・複合サブコマンド配送の3テストメソッドが `** TEST SUCCEEDED **`（0 failed）となった。2026-08-15 に DevTools の実行経路から稼働中の `Emily/Phase4.5` へ安全な scope/surface/format/wait/設定/lock/resetballoonpos 群を投入し、対象解決とトークン列を確認した。`notify/raise` と `q` も投入し、選択肢ダイアログの表示・選択後の実行結果を確認したが、イベント側の応答ログは取得できなかった。**各コマンドの実行副作用・実ゴースト画面差分（更新・消滅・外部通信を含む）は未検証**。 |
+| P2 | SERIKO 描画完全一致 | `surfaceID=-1/-2`・ウェイト範囲・`shared-index`・`collisionex` 各形状は単体検証済み。2026-08-15 に最新ビルドで `emily4` を実起動し、画面キャプチャ上は正立・全体表示・顔パーツ単独浮遊なしを確認した。関連スイートは 33 passed だが、実コマンドでの `surfaceID=-1/-2` 等の差分確認は未完。**テスト終了時のQoS warning issueは修正済み（完了根拠は `AUDITS_COMPLETED.md` のN節）**。 |
+| P2 | バルーン描画の細部 | ROP2 アンカー装飾・可変改行（`\n[half]`・負値はオフセット近似）・バルーン右側表示・wordwrap/alignment の**実ゴースト目視**。 |
+| P2 | 動画・音声の実機確認 | `MTAudioProcessingTap` 左右バランス・`sound,load` プリロードは実装済み。**実機での映像表示・実音声・対応コーデック範囲**の最終確認待ち。 |
+| P2 | `vanishbymyself` / `updateother` の実環境確認 | 消滅経路・更新対象解決は実装＋回帰テスト済み。**ゴミ箱権限・復帰先選択・実ネットワーク更新**が未確認。 |
+| P2 | SHIORI イベントの実機発火確認 | 静的抽出での型付きID・Reference定義漏れは0件。**動的ID・OS実機発火（電源/ディスプレイ/セッション等）・Reference値の実ゴースト検証**が未完。 |
+| P3 | MAYUNA（着せ替え）網羅 | `bindoption*.group` 制約・`OnNotifyDressupInfo` は実装済み（単体34件）。**実シェルのオーバーレイ描画・実ゴースト差分**が未確認。 |
+| P3 | lexicon・サーフェステストUI等の表示確認 | `SakuraScriptLexicon.json` 展開・`\![open,surfacetest]` は実装済み。**実ゴーストでの表示目視**が未実施。 |
 
-### B. SSTP プロトコル
+### 2. プラットフォーム差異（文書化済み・対応は保留）
 
-| 優先度 | 項目 | 現状・修正案 |
+| 優先度 | 項目 | 現状 |
 |---|---|---|
-| — | （210 Break nobreak キューイングは完了 2026-07-08） | busy時ブロッキング待機（`SSTPBreakQueue`、既定5秒タイムアウト→409）→解消後に通常経路。残課題: busy判定は `ShioriStatusStore` 基準（`GhostManager.isPlaying` 接続は未対応）。 |
+| — | SSP プラグインの Win32 DLL バイナリ互換 | macOS では直接ロード不可。文書化済み。対応 `.plugin`/`.bundle` への移植が必要になった時点で個別対応。 |
+| — | Windows HWND 直接互換 | プラットフォーム差異として文書化済み。外部ツールは `EXECUTE GetFMO` または POSIX 共有メモリを使用。 |
 
-### C. SakuraScript
+### 3. 漸次対応
 
-| 優先度 | 項目 | 現状・修正案 |
+| 優先度 | 項目 | 現状 |
 |---|---|---|
-| P2 | UKADOC SakuraScript 全コマンドとの機械的差分テスト | `SakuraScriptDocumentationCoverageTests` が対応表のインライン例（80件以上）を自動抽出し、パーサーの制御トークン到達を検証済み。UKADOC全コマンドの実行結果差分・完全性は未検証。 |
-| — | （`\![cancel,http,...]` は完了 2026-07-09） | `GhostManager.swift:245`に`httpStreamingTasks`を新設し`executeHTTPStreaming`（`GhostManager+System.swift`）がURLキーでタスク追跡。`cancelHTTPStreaming(params:)`を追加し`\![cancel,http,URL]`分岐（`GhostManager.swift`の`cancel`ハンドラ）から配線。キャンセル時は`NSURLErrorCancelled`を検知して`OnExecuteHTTPFailure`を送らず静かに中断。テスト`HTTPStreamingCancelTests.swift`追加。 |
-| — | （`\__q` 範囲ベース表示テキスト結合は完了 → `AUDITS_COMPLETED.md` 参照） | パーサで `\__q[ID,...]text\__q` を `.choiceQueue(title:id:references:)` にマージ。単一形式・範囲形式・script: 形式に対応。 |
-| P2 | SERIKO 描画メソッド・collisionex・レンダリング完全一致が未検証 | `Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift`。実シェルでの描画差分テストが必要。 |
-| — | （lexicon 内蔵辞書は完了 2026-07-08） | `Ourin/Resources/SakuraScriptLexicon.json` を新設し `EnvironmentExpander` 初期化時に10キー（%ms/%mz/%ml/%mc/%mh/%mt/%me/%mp/%m?/%dms）を注入。回帰テスト追加。実ゴースト表示確認は未実施。 |
+| P2（基盤完了） | イベント Reference 仕様の表駆動化 | `EventReferenceTable` 新設・`notifyReturnIgnored` 単一ソース化済み。`OnLanguageChange` は **AUDIT-REF-LOCALE-001**、`OnDisplayChange` / `OnDisplayChangeEx` は **AUDIT-REF-DISPLAY-001** として表駆動移行済み。**残る発火箇所の表駆動移行**は漸次対応。 |
 
-### D. SHIORIイベント
+### 4. ドキュメント（2026-08-15 整合性監査の残件）
 
-| 優先度 | 項目 | 現状・修正案 |
+| 優先度 | 項目 | 現状 |
 |---|---|---|
-| — | （WebSocket/アーカイブ系14イベントは完了 → `AUDITS_COMPLETED.md` 参照） | OnExecuteWebSocket×6, OnCompress/ExtractArchiveComplete/Failure, OnExecuteHTTPStreaming, OnMusicPlayEx, OnVideoPlayEx, OnSoundLoop を実装済み。 |
+| P3 | `docs/` の翻訳待ちプレースホルダー解消 | `TRANSLATION_MANIFEST.md` 基準で20ペア未訳（`YAYA_CORE_ARCHITECTURE`／`EXECUTIVE_SUMMARY`／`TECHNICAL_SPEC` 等）。bilingual-doc ワークフローで消化する。 |
 
-### E. プロパティシステム
+※ 2026-08-15 のドキュメント整合性監査で検出した他の項目（アーカイブ移動・README同期・ブロッカー矛盾解消・memories修正・時点注記・行番号注記）は同日中に対応済み → `AUDITS_COMPLETED.md` 移管記録参照。
 
-| 優先度 | 項目 | 現状・修正案 |
+### 5. 監査で追加したissue / Audit-added issues (2026-08-15)
+
+| 優先度 / Priority | Issue | 状態 / Status |
 |---|---|---|
-| — | （深い階層プロパティは完了 → `AUDITS_COMPLETED.md` 参照） | `seriko.cursor.*`/`tooltip.*`/`balloon.scope(ID).*` はパース済みだったが、`sakuraEngine.propertyManager` が `.shared` と別インスタンスだったためSETが反映されない配線切れが真因。修正済み。カーソル切り替え/ツールチップ表示UIも新規実装。 |
-
-### F. YAYA言語VM
-
-| 優先度 | 項目 | 現状・修正案 |
-|---|---|---|
-| — | （実在YAYAゴーストの回帰テストは完了 → `AUDITS_COMPLETED.md` 参照） | `OurinTests/YayaEmily4RegressionTests.swift` 新設。SRANDスタブ修正・Emily4実辞書のゴールデン/決定性テスト追加。 |
-| — | （`ASEARCHPOS` は完了 → `AUDITS_COMPLETED.md` 参照） | `VM.cpp` に実装済み。 |
-
-### G. プラグインシステム
-
-| 優先度 | 項目 | 現状・修正案 |
-|---|---|---|
-| — | SSPプラグインのバイナリ互換 | macOSではWin32 DLLを直接ロード不可。プラットフォーム差異として文書化済み（減点対象外）。対応`.plugin`/`.bundle`への移植が必要。 |
-| — | （PLUGIN/2.0 通知網羅性監査は完了 → `AUDITS_COMPLETED.md` 参照） | 全17種の通知イベントに送信コード・呼び出し元とも揃っていることを確認。未使用の`onSecondChange()`公開メソッドは削除済み。 |
-
-### H. NARパッケージ
-
-| 優先度 | 項目 | 現状・修正案 |
-|---|---|---|
-| — | （複合install種別は**実装済みだったことを確認** → `AUDITS_COMPLETED.md` 参照） | 2026-07-05 監査で `NarInstall/Paths.swift:219-236` に `calendar/skin`・`calendar/plugin`・`calendar` 旧互換・`language` の設置先解決が実装済みと確認（本ファイルの旧記載が誤り）。`type,saori` も同ラウンドで追加実装。 |
-| — | （同時インストール `*.directory` 系の完全処理は完了 2026-07-08） | `AttachedComponent` 構造化パース＋汎用展開（balloon/headline/plugin/calendar.skin等、refresh/refreshundeletemask対応）。この検証中に `ZipUtil.secureCopyTree` の /private/var シンボリックリンク起因の相対パス計算バグ（コピー先が `private/` 配下へズレる）を発見・修正。NarInstallTests 11件全パス。 |
-
-### I. FMO
-
-| 優先度 | 項目 | 現状・修正案 |
-|---|---|---|
-| — | Windows HWND 直接互換 | プラットフォーム差異として扱うべき（文書化済み）。macOS外部ツールは `EXECUTE GetFMO` またはPOSIX共有メモリを使用。 |
-
-### J. バルーン・シェル・リソース
-
-| 優先度 | 項目 | 現状・修正案 |
-|---|---|---|
-| P2 | SERIKO描画メソッド・collisionex・バルーン右側表示・wordwrap/alignment の細部未検証 | 実シェル/バルーンセットでのレンダリング差分テストが必要。 |
-| — | （`surfacetable.txt` の体系的処理は完了 → `AUDITS_COMPLETED.md` 参照） | `SurfaceTableParser.swift` 新設。`group,NAME { scope,N .. id,NAME }` 構文・`__disabled`/`__parts` マーカー・`option,DisableNoDefineSurfaces` を解釈。`loadImage` で未定義サーフェス描画スキップを適用。※サーフィステストダイアログ UI（`\![open,surfacetest]`）は別課題。 |
-| — | （レガシー画像透過処理は完了 2026-07-08） | サーフェス側クロマキーは実装済みだったことを実測確認。未実装だったバルーン側の左上ピクセル透過スタブを `applyTopLeftPixelChromakey` として本実装（アルファ無し画像のみ対象）。実表示の目視確認は未実施。 |
-| P3 | MAYUNA（着せ替え）の網羅性 | `\![bind,...]` 連携は `GhostManager+Dressup.swift` に存在するが、完全性は未検証。 |
-| — | （動画レンダラの非対応コーデックサイレント失敗は完了 2026-07-09） | `EventID.swift`/`EventReferenceSpec.swift` に `OnVideoPlayFailure`（Reference0=filename, Reference1=reason）を新設。`playVideo`（`GhostManager+Display.swift`）は `.unsupported` 判定時に旧来の `OnVideoPlayEx`（成功通知）ではなく `OnVideoPlayFailure`（reason=`unsupported_codec`）を発火し`Log.error`に変更。ファイル未検出時も同様に`reason=file_not_found`で失敗通知。テスト`EventIDAuditTests`/`VideoRendererTests`に追加。 |
+| P2 | **AUDIT-TEST-BASELINE-001**: `OurinTests` 全体実行で並列時に失敗 | **未解決**。実在Emily4辞書を使う `YayaEmily4RegressionTests`、`EventBridge.shared` を使う `DressupBindTests`、埋め込みXPC fixtureを使う `ShioriLoaderTests` を `.serialized` 化し、`SurfaceOverlayOrderingTests` のTimer待機をMain RunLoop駆動へ変更した。さらに `GhostUtilityCommandTests` は標準NOTIFYの正当な他ゴースト配送を除外して、raise/notify自身の誤配送だけを検証するよう修正した。Xcodeプロジェクトの `OurinTests` / `OurinUITests` の依存target参照（`remoteInfo` / `TEST_TARGET_NAME`）も現行target名 `Ourin` に修正し、`-showBuildSettings` で解決を確認した。修正後の隔離DerivedDataによる直列全体実行は **OurinTests 1087 passed / 0 failed（99 suites）＋UI tests 6 passed / 0 failed**。一方、同環境の全体並列はsuite列挙後にテストworkerが終了してOurinプロセスだけが残る状態を再現し、2分超で対象PIDを停止したため集計不能。最後に集計できた修正前の並列全体実行は **1093 passed / 5 failed / 0 skipped / 1098 total**、`GhostUtilityCommandTests`＋`SoundPlayerTests` の並列subsetは **74 passed / 0 failed**。並列実行の完走は未確定のまま扱う。 |
 
 ---
 
 ## English
 
-The following items were raised in prior audit reports and remain **unresolved** in the current source code. Priority tags (P0=highest → P3=lowest) are included.
+### 1. Awaiting real-ghost / real-device verification (code + unit tests done)
 
-### A. SHIORI Protocol
+Implementation and tests exist for all of these; the remaining work is **verification on real ghosts / shells / hardware**. File individual bugs if verification fails.
 
-| Priority | Item | Current State / Fix |
+| Priority | Item | What to verify |
 |---|---|---|
-| — | (SHIORI 2.x ABI compatibility layer core completed 2026-07-09) | `Ourin/USL/Shiori2CompatAdapter.swift` (455 lines, added 2026-07-08) implements `Shiori2CompatBackend`, wired into all XPC/Bundle/Dylib backend construction paths at `ShioriLoader.swift:846,853,855`. `GET Version` backend-version detection, 3.0-event → `GET Sentence SHIORI/2.2` + `Event:` + `Reference0-7` conversion, 2.x response (Sentence/BalloonOffset etc.) → 3.0 `Value:` conversion, `TEACH` → 2.4/311/312 round-trip, and Shift_JIS encoding are all implemented and covered by `OurinTests/ShioriLoaderTests.swift:54-253`. |
-| — | (Word/String/Status/OwnerGhostName/OtherGhostName/Communicate conversion and the OnTalk mismatch completed 2026-07-09) | Added unit tests for all 6 builders in `Shiori2CompatAdapter.swift:339-422` (`OurinTests/ShioriLoaderTests.swift`, e.g. `shiori2WordRequestUsesReference0AsTypeWhenTypeHeaderMissing` and 5 others). Fixed `buildUserSentenceRequest`'s branch from the nonexistent `ID: OnTalk` to the real `EventID.OnTalkRequest` (`EventID.swift:361`) — now `lowerID == "ontalkrequest"`, making the path reachable. Regression test `shiori2TalkRequestMapsToUserSentenceGet` added. |
-| — | (SHIORI 2.x "duplicate implementation" concern confirmed to be a false alarm 2026-07-09) | Traced `ShioriLoader.swift:842-853` (`makeBackend`): `Shiori2CompatBackend` only wraps **externally loaded SHIORI modules via XPC/Bundle/Dylib**. `init?(module:base:)` (`ShioriLoader.swift:783-811`) instantiates `YayaBackend` directly for `yaya.dll` without wrapping it in `Shiori2CompatBackend`. Meanwhile `YayaBackend.parseRequest/buildResponse` (`:413-498`) is wire parsing internal to Ourin's own bundled YAYA engine, tolerant of both 3.0-format and legacy TEACH SHIORI/2.x-format text. The two operate on disjoint backend types wired from separate call sites — not a duplicate implementation. No consolidation needed; marked resolved. |
-| — | (SecurityLevel external propagation completed 2026-07-08) | External SSTP entry points consolidated into `SSTPDispatcher.dispatchExternal` using `ShioriSecurityContext.external(origin:)`; TCP/HTTP/XPC all deliver `SecurityLevel: external` to SHIORI. localOnly 420 policy preserved. Tests added. |
+| P2 | SakuraScript UKADOC full-command runtime diff | Parse coverage & dispatch diff machine-verified by `SakuraScriptDocumentationCoverageTests` (326 tags). A privileged `xcodebuild` run on 2026-08-15 passed all three test methods (`** TEST SUCCEEDED **`, 0 failed) covering syntax tokens, GhostManager dispatch, and compound subcommand dispatch. On 2026-08-15, the DevTools execution path delivered a safe scope/surface/format/wait/settings/lock/resetballoonpos matrix to the live `Emily/Phase4.5`; target resolution and the token sequence were confirmed. `notify/raise` and `q` were also delivered; the choice dialog appeared and the post-selection execution result was observed, but no event-side response log was captured. **Per-command side effects and real-ghost screen diffs (including update, vanish, and external I/O) remain unverified**. |
+| P2 | SERIKO rendering parity | `surfaceID=-1/-2`, wait ranges, `shared-index`, `collisionex` shapes unit-tested. On 2026-08-15, the latest build launched `emily4`; the screen capture showed an upright complete character with no detached face part. The related suite passed 33 tests, but direct command-level diffs such as `surfaceID=-1/-2` remain pending. **The test-cleanup QoS warning issue is resolved; evidence is in section N of `AUDITS_COMPLETED.md`.** |
+| P2 | Balloon rendering fine points | Visual check of ROP2 anchor decoration, variable newlines (`\n[half]`, negative values approximated by offsets), right-side balloons, wordwrap/alignment on real ghosts. |
+| P2 | Video/audio on real hardware | `MTAudioProcessingTap` L/R balance and `sound,load` preloading implemented. **Real playback, actual audio, codec-scope confirmation** pending. |
+| P2 | `vanishbymyself` / `updateother` in real environments | Paths implemented with regression tests. **Trash permissions, next-ghost choice, real-network updates** unverified. |
+| P2 | SHIORI event firing on real hardware | Static extraction shows zero missing typed IDs / Reference specs. **Dynamic IDs, OS-device firing (power/display/session), real-ghost Reference values** pending. |
+| P3 | MAYUNA (dressup) thoroughness | Constraints and `OnNotifyDressupInfo` implemented (34 unit tests). **Real-shell overlay rendering and in-ghost diffs** unverified. |
+| P3 | Lexicon / surface-test UI visual checks | `SakuraScriptLexicon.json` expansion and `\![open,surfacetest]` implemented; **in-ghost visual inspection** pending. |
 
-### B. SSTP Protocol
+### 2. Platform differences (documented; action deferred)
 
-| Priority | Item | Current State / Fix |
+| Priority | Item | Current State |
 |---|---|---|
-| — | (210 Break nobreak queueing completed 2026-07-08) | Blocking wait while busy (`SSTPBreakQueue`, default 5s timeout → 409), then normal path. Remaining: busy detection is `ShioriStatusStore`-based (`GhostManager.isPlaying` wiring not done). |
+| — | SSP plugin Win32 DLL binary compatibility | Cannot load Win32 DLLs on macOS; documented. Port to `.plugin`/`.bundle` case-by-case when needed. |
+| — | Windows HWND direct compatibility | Documented platform difference. External tools use `EXECUTE GetFMO` or POSIX shared memory. |
 
-### C. SakuraScript
+### 3. Incremental migration
 
-| Priority | Item | Current State / Fix |
+| Priority | Item | Current State |
 |---|---|---|
-| P2 | No machine-generated diff test vs. full UKADOC SakuraScript list | Parser/execution are broad, but fine compatibility unverified. |
-| — | (`\![cancel,http,...]` completed 2026-07-09) | Added `httpStreamingTasks` (`GhostManager.swift:245`), tracked by URL key in `executeHTTPStreaming` (`GhostManager+System.swift`). New `cancelHTTPStreaming(params:)` wired from the `\![cancel,http,URL]` branch of the `cancel` command handler in `GhostManager.swift`. Detects `NSURLErrorCancelled` on cancellation to suppress the `OnExecuteHTTPFailure` notification for intentional aborts. Test `HTTPStreamingCancelTests.swift` added. |
-| — | (`\__q` range-based display-text binding completed → see `AUDITS_COMPLETED.md`) | Parser merges `\__q[ID,...]text\__q` into a single `.choiceQueue(title:id:references:)` token. Supports single-form, range-form, and `script:` form. |
-| P2 | SERIKO render methods, collisionex, rendering perfect match unverified | `Animation/SerikoParser.swift`, `Ghost/GhostManager+Animation.swift`. Needs rendering diff tests with real shells. |
-| — | (Built-in lexicon completed 2026-07-08) | New `Ourin/Resources/SakuraScriptLexicon.json` injected at `EnvironmentExpander` init for 10 keys (%ms/%mz/%ml/%mc/%mh/%mt/%me/%mp/%m?/%dms). Regression tests added. In-ghost visual check pending. |
+| P2 (foundation done) | Table-driven event Reference specs | `EventReferenceTable` and single-sourced `notifyReturnIgnored` are in place. `OnLanguageChange` was migrated under **AUDIT-REF-LOCALE-001**; `OnDisplayChange` / `OnDisplayChangeEx` under **AUDIT-REF-DISPLAY-001**. **Remaining emission sites** proceed incrementally. |
 
-### D. SHIORI Events
+### 4. Documentation (remainder of the 2026-08-15 consistency audit)
 
-| Priority | Item | Current State / Fix |
+| Priority | Item | Current State |
 |---|---|---|
-| — | (WebSocket/archive 14 events completed → see `AUDITS_COMPLETED.md`) | OnExecuteWebSocket×6, OnCompress/ExtractArchiveComplete/Failure, OnExecuteHTTPStreaming, OnMusicPlayEx, OnVideoPlayEx, OnSoundLoop implemented. |
+| P3 | Resolve translation placeholders in `docs/` | 20 untranslated pairs per `TRANSLATION_MANIFEST.md` (`YAYA_CORE_ARCHITECTURE` / `EXECUTIVE_SUMMARY` / `TECHNICAL_SPEC` etc.). Process via the bilingual-doc workflow. |
 
-### E. Property System
+All other findings of the 2026-08-15 documentation consistency audit (archive moves, README sync, blocker-contradiction fixes, memories fixes, snapshot notes, line-number caveat) were addressed the same day → see the migrated-items section in `AUDITS_COMPLETED.md`.
 
-| Priority | Item | Current State / Fix |
+### 5. Audit-added issues (2026-08-15)
+
+| Priority | Issue | Status |
 |---|---|---|
-| — | (Deep hierarchy properties completed → see `AUDITS_COMPLETED.md`) | `seriko.cursor.*`/`tooltip.*`/`balloon.scope(ID).*` parsing was already implemented; the real root cause was `sakuraEngine.propertyManager` being a separate instance from `.shared`, so SET never propagated. Fixed. New cursor-switching/tooltip UI also implemented. |
-
-### F. YAYA Language VM
-
-| Priority | Item | Current State / Fix |
-|---|---|---|
-| — | (Real YAYA ghost regression test completed → see `AUDITS_COMPLETED.md`) | New `OurinTests/YayaEmily4RegressionTests.swift`. Fixed the SRAND stub; added golden/determinism tests against real Emily4 dictionaries. |
-| — | (`ASEARCHPOS` completed → see `AUDITS_COMPLETED.md`) | Implemented in `VM.cpp`. |
-
-### G. Plugin System
-
-| Priority | Item | Current State / Fix |
-|---|---|---|
-| — | SSP plugin binary compatibility | macOS cannot load Win32 DLLs. Documented as platform difference (not penalized). Porting to corresponding `.plugin`/`.bundle` required. |
-| — | (PLUGIN/2.0 notification coverage audit completed → see `AUDITS_COMPLETED.md`) | Verified all 17 notification events have both send code and a call site. Removed the unused `onSecondChange()` public method. |
-
-### H. NAR Packages
-
-| Priority | Item | Current State / Fix |
-|---|---|---|
-| — | (Composite install types **confirmed already implemented** → see `AUDITS_COMPLETED.md`) | 2026-07-05 audit confirmed `NarInstall/Paths.swift:219-236` resolves `calendar/skin`, `calendar/plugin`, legacy `calendar`, and `language` (the previous claim in this file was wrong). `type,saori` was also added in the same round. |
-| — | (Concurrent-install `*.directory` family completed 2026-07-08) | Structured `AttachedComponent` parsing + generic deployment (balloon/headline/plugin/calendar.skin etc., refresh/refreshundeletemask). Also found & fixed a real `ZipUtil.secureCopyTree` bug (relative-path computation broken by the /private/var symlink, contents misplacing under `private/`). All 11 NarInstallTests pass. |
-
-### I. FMO
-
-| Priority | Item | Current State / Fix |
-|---|---|---|
-| — | Windows HWND direct compatibility | Should be treated as platform difference (documented). macOS external tools use `EXECUTE GetFMO` or POSIX shared memory. |
-
-### J. Balloons, Shells, Resources
-
-| Priority | Item | Current State / Fix |
-|---|---|---|
-| P2 | SERIKO render methods, collisionex, balloon right display, wordwrap/alignment fine points unverified | Needs rendering diff tests with real shell/balloon sets. |
-| — | (`surfacetable.txt` systematic processing completed → see `AUDITS_COMPLETED.md`) | New `SurfaceTableParser.swift`. Parses `group,NAME { scope,N .. id,NAME }` syntax, `__disabled`/`__parts` markers, and `option,DisableNoDefineSurfaces`. `loadImage` now skips undefined surfaces. ※Surface-test dialog UI (`\![open,surfacetest]`) remains a separate task. |
-| — | (Legacy image transparency completed 2026-07-08) | Surface-side chroma-key was confirmed already implemented; the missing balloon-side top-left-pixel stub is now implemented as `applyTopLeftPixelChromakey` (alpha-less images only). Visual on-screen check pending. |
-| P3 | MAYUNA (dressup) thoroughness | `\![bind,...]` integration exists in `GhostManager+Dressup.swift` but completeness unverified. |
-| — | (Video renderer silent failure on unsupported codecs completed 2026-07-09) | Added `OnVideoPlayFailure` (Reference0=filename, Reference1=reason) to `EventID.swift`/`EventReferenceSpec.swift`. `playVideo` (`GhostManager+Display.swift`) now fires `OnVideoPlayFailure` (reason=`unsupported_codec`) instead of the success event `OnVideoPlayEx` when format is `.unsupported`, and logs via `Log.error`. Missing files now also fire `OnVideoPlayFailure` (reason=`file_not_found`). Tests added to `EventIDAuditTests`/`VideoRendererTests`. |
+| P2 | **AUDIT-TEST-BASELINE-001**: parallel `OurinTests` execution still has failures | **Unresolved**. The real-Emily4-dictionary `YayaEmily4RegressionTests`, `EventBridge.shared`-using `DressupBindTests`, and embedded-XPC-fixture `ShioriLoaderTests` suites are now `.serialized`; `SurfaceOverlayOrderingTests` drives the main RunLoop while waiting for Timer frames. `GhostUtilityCommandTests` now ignores legitimate broadcast NOTIFYs from other ghosts and checks only for misrouted raise/notify IDs. The Xcode project’s `OurinTests` / `OurinUITests` dependency references (`remoteInfo` / `TEST_TARGET_NAME`) were also corrected to the current `Ourin` target, confirmed by `-showBuildSettings`. After the fix, an isolated DerivedData serial run passed **1087 `OurinTests` cases / 0 failures (99 suites) plus 6 UI tests / 0 failures**. The same isolated full-parallel run still reproduced the worker-exit/parentless-Ourin condition after suite enumeration and was stopped after more than two minutes, so it produced no aggregate. The last aggregatable parallel full run before this project-reference fix was **1093 passed / 5 failed / 0 skipped / 1098 total** (the overlay Timer race is resolved); the parallel `GhostUtilityCommandTests` + `SoundPlayerTests` subset passed **74/74**. Parallel completion remains unconfirmed. |
 
 ---
 
@@ -170,17 +105,9 @@ The following items were raised in prior audit reports and remain **unresolved**
 
 | 優先度 / Priority | 項目 / Item |
 |---|---|
-| **P2** | SakuraScript 差分テスト / SERIKO 描画差分テスト / SHIORI 2.x 判断 |
-| **P2 (基盤完了)** | イベントReference表駆動化 — `EventReferenceTable` 新設・`notifyReturnIgnored` 単一ソース化済み。全発火箇所（216箇所）の表駆動移行は漸次対応。 |
-| **P3** | MAYUNA網羅 |
-
-2026-07-15 追記: P3のNative SHIORI embedded XPC実fixtureを別PIDで再試験し、`nativeDylibFixtureRunsThroughEmbeddedXpcService`を含む`ShioriLoaderTests`が成功。P3受け入れ条件は `docs/SHIORI_RUNTIME_COMPATIBILITY_MATRIX_ja-jp.md` に反映済み。
-
-2026-07-08 完了分（詳細は `docs/STUB_COMPLETION_PLAN_ja-jp.md`）: NAR同時インストール完全処理 / lexicon内蔵 / レガシー透過処理（バルーン左上ピクセル） / SecurityLevel伝播 / 210 Breakキューイング / SAORI `.plugin` 対応 / Plugin bridge Phase 7-9（menu統合・fixture・行列テスト） / 動画レンダラ / `\j[label]` / SHIORI ResourceのSSP互換永続化 / yaya_core 4関数（FREADENCODE/FWRITEDECODE/LSO/OUTPUTNUM）。
-
-2026-07-09 追記: 同日夜（fd0fdd8）に `Shiori2CompatAdapter.swift` が実装・配線されSHIORI 2.xのコア変換（GET Version検出／イベント／TEACH／レスポンス正規化）はテスト付きで完了していたことをukadoc突合＋実装棚卸しで確認（旧記載「方針未決」は実態と不一致だったため訂正）。ただしWord/String/Status/GhostName/Communicate変換とユーザー入力経路(`OnTalk`/`OnTalkRequest`不一致)は未検証のまま残置。同時に、動画レンダラの非対応コーデック時サイレント失敗、`\![cancel,http,...]`未実装を新規に検出しTODO化した。
-
-2026-07-09 続報: 同日中に本ラウンドで新規TODO化した5項目すべてを実装・解消。(1) 動画レンダラの非対応コーデック/ファイル未検出時に`OnVideoPlayFailure`イベントを新設し発火（旧`OnVideoPlayEx`誤発火を修正）。(2) `\![cancel,http,URL]`を`httpStreamingTasks`追跡+`cancelHTTPStreaming`で実装。(3) Word/String/Status/OwnerGhostName/OtherGhostName/Communicate各builderに単体テスト追加。(4) `buildUserSentenceRequest`の`ID: OnTalk`判定を実在する`EventID.OnTalkRequest`に合わせ`ontalkrequest`へ修正。(5) 旧`YayaBackend`と`Shiori2CompatAdapter`の「二重実装」懸念は実測の結果、外部2.xモジュール(XPC/Bundle/Dylib)専用ラッパーと内蔵YAYAエンジン専用パーサーという disjoint な役割分担であることを確認し誤解と判明、統合不要と結論。全項目にビルド成功+テストパスを確認済み。残る未完了項目はSakuraScript全コマンド差分テスト・SERIKO描画完全一致検証・MAYUNA網羅性検証で、いずれも実シェル/実ゴーストでの目視検証が必要なため引き続き未完了。
+| **P2** | 実ゴースト検証パス一式（SakuraScript 実行差分 → SERIKO/バルーン目視 → 動画・イベント実機） |
+| **P2 (基盤完了)** | イベント Reference 表駆動化の漸次移行 |
+| **P3** | MAYUNA 実シェル確認・翻訳プレースホルダー消化 |
 
 ---
 

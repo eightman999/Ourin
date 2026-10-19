@@ -1,6 +1,6 @@
 # Implementation Status Summary / 実装状況サマリー
 
-**Last Updated**: 2026-06-27
+**Last Updated**: 2026-08-15
 **Status**: Active Compatibility Hardening Phase
 **目的**: Single source of truth for current implementation status / 現在の実装状況の単一の情報源
 
@@ -76,13 +76,21 @@ End-to-End Ghost Testing / エンドツーエンドゴーストテスト
 
 ## Active Blockers / アクティブなブロッカー
 
-- SHIORI bridge method propagation: `BridgeToSHIORI` still emits `GET SHIORI/3.0` for all native-host requests.
-- SSTP response mapping: SHIORI `Reference1+` headers are not preserved in SSTP responses.
-- SSTP listener binding/body handling: TCP/HTTP `host` is not used for bind, and raw TCP passes only header text.
-- SakuraScript/SERIKO fidelity: some scope/display semantics and rendering edge cases still differ from SSP.
-- YAYA fidelity: by-reference semantics, standalone `when`, and several builtins remain partial/stub.
-- NAR install: `refreshundeletemask` separator and compound install types are not fully UKADOC-compatible.
-- Property aliases: `sakura.*`, `kero.*`, `ghost.*`, and `shell.*` compatibility namespaces are incomplete.
+> 2026-08-15 更新: 2026-06-27 時点で列挙していた7件のブロッカーは、その後の実装ラウンドで解消済みであることをコードで確認した（詳細は [AUDITS_COMPLETED.md](AUDITS_COMPLETED.md) を参照）。
+> 現在アクティブなブロッカーはなし。残る未完項目（実ゴースト/実シェルでの目視・実機検証など P2/P3）は [AUDITS_TODO.md](AUDITS_TODO.md) を単一の正とする。
+>
+> Update 2026-08-15: all seven blockers listed as of 2026-06-27 were confirmed resolved in code during subsequent implementation rounds (see [AUDITS_COMPLETED.md](AUDITS_COMPLETED.md)).
+> No active blockers remain. Remaining pending items (P2/P3 real-ghost / real-device verification) are tracked solely in [AUDITS_TODO.md](AUDITS_TODO.md).
+
+Resolved in later rounds (formerly listed here as active / 旧アクティブ扱い→解消済み):
+
+- ~~SHIORI bridge method propagation~~ — `BridgeToSHIORI` propagates the method; NOTIFY/GET are distinguished (`SSTP/BridgeToSHIORI.swift`, `ShioriBridgeContext.swift`).
+- ~~SSTP response mapping (`Reference1+`)~~ — all `ReferenceN` are preserved via `responseReferenceIndex` (`SSTP/SSTPDispatcher.swift`).
+- ~~SSTP listener binding/body handling~~ — TCP/HTTP bind to the given host (default `127.0.0.1`), and `SSTPParser` keeps the body after the blank line.
+- ~~SakuraScript/SERIKO fidelity~~ — core semantics fixed (`\t`/`\-`/`\v`/`\4`/`\5` etc.); remaining rendering-diff verification is tracked in AUDITS_TODO C/J.
+- ~~YAYA fidelity~~ — by-reference (`E.Swap`), standalone `when`, `READFMO`, `ASEARCHPOS`, `SRAND` etc. implemented (`yaya_core/src/VM.cpp`).
+- ~~NAR install~~ — `refreshundeletemask` colon separator and compound install types implemented (`NarInstall/InstallTxtParser.swift`, `Paths.swift`).
+- ~~Property aliases~~ — `sakura.*`/`kero.*`/`ghost.*`/`shell.*` implemented (`Property/PropertyManager.swift`, `AliasPropertyProvider`).
 
 ## Resolved Blockers / 解決されたブロッカー
 
@@ -257,10 +265,10 @@ A component is considered "Integrated" when:
 
 # Related Documents / 関連ドキュメント
 
-- **INTEGRATION_ROADMAP.md**: Detailed integration plan with prerequisites
+- **archive/INTEGRATION_ROADMAP.md**: Detailed integration plan with prerequisites
 - **BLOCKER_TRACKER.md**: Detailed blocker information with workarounds
 - **AUDITS_COMPLETED.md** / **AUDITS_TODO.md**: Current SSP/UKADOC compatibility audit results (completed & pending)
-- **COPILOT_AUTO_PROMPT.md**: Task structure for integration work
+- **archive/COPILOT_AUTO_PROMPT.md**: Task structure for integration work
 - **Component Implementation Docs**: SAORI_IMPLEMENTATION.md, SERIKO_IMPLEMENTATION.md, SSTP_DISPATCHER_GUIDE.md
 - **yaya_core/IMPLEMENTATION_STATUS.md**: YAYA Core specific status
 

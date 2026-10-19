@@ -16,9 +16,9 @@ JSON-line IPC. It is **not** a 100% faithful reimplementation of the Windows
 is a compatibility shim.
 
 Previous versions of this document claimed "100% function coverage" and "Emily4
-fully supported". That overstated reality: many listed functions were stubs, and
-several parsed constructs lacked faithful runtime semantics. This revision
-corrects the record.
+fully supported". The current supported built-in set has executable behavior;
+this document records the remaining partial parser semantics and host/platform
+limits instead of counting fixed-value compatibility stubs as implementation.
 
 ## Loading & Configuration
 
@@ -63,8 +63,8 @@ corrects the record.
 | `_in_` / `!_in_` | implemented | |
 | UTF-8 / Japanese identifiers | implemented | |
 | Compound assignments (`+=` etc., `,=`) | implemented | |
-| Array element assignment (`a[i] = ..`) | partial | stored against the array variable (compound form is approximate) |
-| Prefix `&` (reference operator) | partial | parsed; treated as identity (no true by-reference) |
+| Array element/range assignment (`a[i] = ..`, `a[start,end] = ..`) | implemented | single-index `=`, arithmetic compound operators, and `,=` write back only the selected element; inclusive range replacement/removal and range `,=` splice are implemented. Arithmetic compound assignment on a range is rejected explicitly. |
+| Prefix `&` (reference operator) | implemented | user-function arguments and `E.Swap` write back to local/global/array-element storage; nested computed l-values remain unsupported |
 | `parallel expr` modifier | implemented | 2026-07-05: contextual detection (not keyword-ized); array/sequential collection flattens the returned array into individual candidates; non-array contexts pick one element uniformly (same RNG as SRAND) |
 
 ### Parser Reliability Note
@@ -99,7 +99,7 @@ dictionaries without parse failure (regression baseline after Phases 1/3/4).
 - **Type conversion / string / math / array / bitwise / hex-binary**: implemented
 - **LOGGING / TRANSLATE**: implemented (2026-07-05; LOGGING writes to stderr with `[YAYA][LOGGING]` prefix, TRANSLATE is the upstream tr-style character-set mapping with `-` ranges and `\` escapes)
 - **Type checking** (`ISINTSTR`, `ISREALSTR`): implemented
-- **File I/O** (`FOPEN`…`FDEL`, `FCOPY`…): implemented **with security restriction** (relative paths only; no absolute / no `..`)
+- **File I/O** (`FOPEN`…`FDEL`, `FCOPY`…): implemented **with security restriction** (relative paths only; no absolute / no `..`); `FCHARSET`/`FATTRIB`/encoded I/O are implemented
 - **System** (`GETTIME`, `EXECUTE`, `EXECUTE_WAIT`, `SLEEP`, `GETENV`): implemented
 - **Variable/function mgmt** (`ISVAR`, `ISFUNC`, `EVAL`, `GETFUNCLIST`, …): implemented
 - **Regular expressions** (`RE_*`): implemented (std::regex; Phase 10 completed `RE_ASEARCH`/`RE_ASEARCHEX`)
@@ -123,7 +123,7 @@ dictionaries without parse failure (regression baseline after Phases 1/3/4).
 
 ## Known Limitations
 
-- **By-reference semantics**: `&` is parsed but treated as pass-by-value (`E.Swap`/`E.Qsort` in-place effects are not honored).
+- **By-reference semantics**: user-function arguments and `E.Swap` support local/global/array-element storage. Nested computed l-values such as `&array[i][j]` still require compatibility coverage.
 - **Standalone `when` dispatch**: inside labeled blocks, `when` runs unconditionally (no implicit state switch). The `when` function attribute is recorded but does not add implicit dispatch.
 - **Directory ops**: `MKDIR`/`RMDIR`/`FENUM` are implemented via `std::filesystem` (relative-path sandbox; `..` traversal rejected). FENUM additionally accepts absolute paths under the macOS container sandbox.
 - **SAORI valueex as variables**: extras are exposed via `valueex`/`valueex0..15` builtins rather than implicit variables (framework scripts manage their own copy).
@@ -140,6 +140,6 @@ dictionaries without parse failure (regression baseline after Phases 1/3/4).
 - yaya_core compiles: yes
 - Simple YAYA dictionaries parse and execute: yes
 - IPC with Swift YayaAdapter works: yes
-- All `yaya-shiori-500` functions *present*: yes (but many are stubs — see above)
+- All supported `yaya-shiori-500` built-ins have executable behavior: yes
 - Emily4 loads all configured dictionaries: yes (33/33 without parse failure)
-- Emily4 event responses are correct for common events: **partial** (advanced constructs and stubbed helpers still limit full fidelity)
+- Emily4 event responses are correct for common events: **partial** (advanced parser constructs and platform-specific behavior still limit full fidelity)

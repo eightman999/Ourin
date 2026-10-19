@@ -78,7 +78,7 @@ Tests validate routing, mapping, propagation, and wire formatting.
 
 ## Current Status / 現在のステータス
 
-**Status**: Dispatcher Complete, SHIORI Bridge Stub / ディスパッチャー完了、SHIORIブリッジがスタブ / 2026-03-15
+**Status**: End-to-end integration with live ghost complete / 稼働中ゴーストとのエンドツーエンド統合完了 / 2026-08-12
 
 ### Implemented Components / 実装済みコンポーネント
 
@@ -88,7 +88,7 @@ Fully functional request parser and dispatcher with:
 - Event resolution (Event header or method default)
 - Reference extraction (Reference0..N, Sentence, Command)
 - Header normalization and propagation
-- Route to SHIORI bridge (but bridge is stub)
+- Routes to the live ghost through `BridgeToSHIORI.handleResponse`
 
 #### ✅ **SSTPResponse.swift** (Complete / 完全)
 Fully functional response builder with:
@@ -98,58 +98,17 @@ Fully functional response builder with:
 - Charset, Sender, Script, Data handling
 - X-SSTP-PassThru preservation
 
-### Integration Gaps / 統合のギャップ
-- ❌ **BridgeToSHIORI is mocked** - routeToShiori() calls stub implementation
-- ❌ **No actual SHIORI processing** - Requests never reach ShioriHost
-- ❌ **No external communication** - External SSTP requests cannot be processed end-to-end
+### Live bridge / 稼働中ブリッジ
 
-### Blocking Issues / ブロック中の問題
-- **ID-003**: BridgeToSHIORI is Mocked (see BLOCKER_TRACKER.md)
+`BridgeToSHIORI.handleResponse` resolves requests in this order:
 
-### Integration Required / 必要な統合
+1. Registered `Resource` values used by focused tests
+2. A native SHIORI bundle configured by `SHIORI_BUNDLE_PATH`
+3. The live ghost resolver registered by `AppDelegate`
 
-See INTEGRATION_ROADMAP.md **Phase 2** for detailed integration steps:
+The live resolver forwards SSTP events to the loaded YAYA ghost. If no resolver or native bundle is available, the dispatcher returns `503 Service Unavailable`; it does not synthesize a mock script.
 
-INTEGRATION_ROADMAP.mdの**フェーズ2**を参照して詳細な統合手順を確認してください：
-
-1. **Implement real BridgeToSHIORI** (Task 2.1):
-   - Create proper BridgeToSHIORI class
-   - Inject ShioriHost dependency
-   - Implement handle() method to call ShioriHost:
-     ```swift
-     func handle(method: String, event: String, references: [String], headers: [String: String]) async -> [String: String] {
-         // Build SHIORI request
-         var shioriRequest: [String: String] = [:]
-         shioriRequest["ID"] = event
-         shioriRequest["Charset"] = headers["Charset"] ?? "UTF-8"
-         
-         // Add references
-         for (index, value) in references.enumerated() {
-             shioriRequest["Reference\(index)"] = value
-         }
-         
-         // Send to SHIORI
-         return try await shioriHost.request(shioriRequest)
-     }
-     ```
-   - Convert SHIORI request/response format correctly
-
-2. **Connect SSTPDispatcher to real bridge** (Task 2.2):
-   - Update SSTPDispatcher initialization
-   - Pass real BridgeToSHIORI instance
-   - Remove mock/stub imports
-
-3. **Testing** (Task 2.3):
-   - Test with external SSTP sender
-   - Verify all SSTP methods work
-   - Verify SHIORI events fire correctly
-
-### Success Criteria / 成功基準
-- [ ] BridgeToSHIORI calls ShioriHost
-- [ ] External SSTP requests processed
-- [ ] All SSTP methods work (SEND, NOTIFY, COMMUNICATE, EXECUTE, GIVE, INSTALL)
-- [ ] Integration tests pass
-- [ ] No SSTP blockers remain (ID-003 resolved)
+The integration is covered by `SSTPDispatcherTests`, `ExternalServerTests`, and the native SHIORI fixture tests.
 
 ---
 
@@ -158,4 +117,3 @@ INTEGRATION_ROADMAP.mdの**フェーズ2**を参照して詳細な統合手順�
 - Dispatcher is intentionally stateless.
 - SHIORI mapping is tolerant: non-`SHIORI/` response text is treated as script payload.
 - For protocol conformance improvements, add cases in `resolveEvent`, `mapShioriResponse`, and status mapping in `SSTPResponse`.
-- **BridgeToSHIORI is currently stub implementation** - Integration required for external SSTP communication / BridgeToSHIORIは現在スタブ実装 - 外部SSTP通信には統合が必要

@@ -8,7 +8,10 @@ final class TimerEmitter {
     static let shared = TimerEmitter()
     private var isTesting = false
 
-    private init() {}
+    // The production path uses `shared`; an internal initializer keeps the
+    // timer lifecycle independently testable without sharing mutable state
+    // between concurrently scheduled test cases.
+    init() {}
 
     private var timer: DispatchSourceTimer?
     private var lastMinute: Int?
@@ -35,6 +38,10 @@ final class TimerEmitter {
     /// Stop timers
     func stop() {
         timer?.cancel(); timer = nil
+        handler = nil
+        lastMinute = nil
+        lastHour = nil
+        isTesting = false
         NotificationCenter.default.removeObserver(self)
     }
 
@@ -46,7 +53,12 @@ final class TimerEmitter {
         isTesting = false
     }
 
-    private func tick() {
+    /// Emit one timer tick. The optional date keeps lifecycle behaviour deterministic in tests.
+    func tick(now: Date = Date()) {
+        // stop 中（handler が nil）はイベント発火だけでなく分・時トラッキングも更新しない。
+        // 更新してしまうと、停止中の tick が次回 start 後の比較基準を汚染し、
+        // 再起動直後に OnMinuteChange / OnHourTimeSignal が発火しなくなる。
+        guard let handler else { return }
         // UKADOC: OnSecondChange / OnMinuteChange / OnHourTimeSignal の Reference
         //   Reference0: OS 連続起動時間 (hour)
         //   Reference1: 見切れフラグ / Reference2: 重なりフラグ
@@ -55,21 +67,20 @@ final class TimerEmitter {
         let params = Self.timeEventReferences()
 
         if !isTesting {
-            handler?(ShioriEvent(id: .OnIdle, params: [:]))
-            handler?(ShioriEvent(id: .OnSecondChange, refs: params))
+            handler(ShioriEvent(id: .OnIdle, params: [:]))
+            handler(ShioriEvent(id: .OnSecondChange, refs: params))
         }
 
-        let now = Date()
         let cal = Calendar.current
         let minute = cal.component(.minute, from: now)
         if minute != lastMinute {
             lastMinute = minute
-            handler?(ShioriEvent(id: .OnMinuteChange, refs: params))
+            handler(ShioriEvent(id: .OnMinuteChange, refs: params))
         }
         let hour = cal.component(.hour, from: now)
         if hour != lastHour {
             lastHour = hour
-            handler?(ShioriEvent(id: .OnHourTimeSignal, refs: params))
+            handler(ShioriEvent(id: .OnHourTimeSignal, refs: params))
         }
     }
 

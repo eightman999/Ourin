@@ -11,6 +11,7 @@ extension GhostManager {
     private struct WindowCommandStorage {
         static var stickyIgnoreScopes: [ObjectIdentifier: Set<Int>] = [:]
         static var asyncMoveWorkItems: [ObjectIdentifier: [Int: DispatchWorkItem]] = [:]
+        static var asyncMoveAnimationTimers: [ObjectIdentifier: [Int: Timer]] = [:]
         static var lastOwnerDrawMenuPoint: NSPoint?
         static var lastOwnerDrawMenuTime: TimeInterval?
     }
@@ -23,6 +24,11 @@ extension GhostManager {
     private var asyncMoveWorkItems: [Int: DispatchWorkItem] {
         get { WindowCommandStorage.asyncMoveWorkItems[ObjectIdentifier(self)] ?? [:] }
         set { WindowCommandStorage.asyncMoveWorkItems[ObjectIdentifier(self)] = newValue }
+    }
+
+    private var asyncMoveAnimationTimers: [Int: Timer] {
+        get { WindowCommandStorage.asyncMoveAnimationTimers[ObjectIdentifier(self)] ?? [:] }
+        set { WindowCommandStorage.asyncMoveAnimationTimers[ObjectIdentifier(self)] = newValue }
     }
 
     private struct MoveCommandSpec {
@@ -47,6 +53,8 @@ extension GhostManager {
 
     // Note: This extension uses the following properties declared in the main GhostManager class:
     // - stickyWindowRelationships
+    // - stickyWindowOffsets
+    // - windowZOrderScopes
 
 
     // MARK: - Window Setup
@@ -73,15 +81,27 @@ extension GhostManager {
     }
 
     func setupCharacterWindow(for scope: Int) {
-        let dragDropHandler: (ShioriEvent) -> Void = { event in
-            // Forward drag-drop events to EventBridge for broadcasting
-            EventBridge.shared.notify(event.id, params: event.params)
+        let dragDropHandler: (ShioriEvent) -> Void = { [weak self] event in
+            guard let self else {
+                EventBridge.shared.dispatch(event)
+                return
+            }
+
+            // URLドロップは対象キャラクターのゴーストだけへ問い合わせ、
+            // 応答が無い場合に限って標準のダウンロード生命周期へ進む。
+            if event.id == .OnURLDrop {
+                self.handleURLDropEvent(event)
+                return
+            }
+
+            EventBridge.shared.dispatch(event)
         }
 
         let vm = CharacterViewModel()
+        vm.alignment = desktopAlignment(for: scope)
         characterViewModels[scope] = vm
 
-        let characterView = CharacterView(viewModel: vm, onDragDropEvent: dragDropHandler)
+        let characterView = CharacterView(viewModel: vm, scopeID: scope, onDragDropEvent: dragDropHandler)
         let hostingController = NSViewController()
         hostingController.view = CharacterHitTestingHostingView(rootView: characterView, viewModel: vm)
 
@@ -108,7 +128,12 @@ extension GhostManager {
         var didRestore = false
         if let savedX = resourceManager.getCharDefaultLeft(scope: scope),
            let savedY = resourceManager.getCharDefaultTop(scope: scope) {
-            window.setFrame(.init(x: CGFloat(savedX), y: CGFloat(savedY), width: characterWidth, height: characterHeight), display: true)
+            // 解像度・ディスプレイ構成が変わると保存位置が画面外になり得るため可視領域へ収める
+            let restored = Self.clampToVisibleScreens(
+                NSRect(x: CGFloat(savedX), y: CGFloat(savedY), width: characterWidth, height: characterHeight),
+                visibleFrames: NSScreen.screens.map(\.visibleFrame)
+            )
+            window.setFrame(restored, display: true)
             Log.debug("[GhostManager] Scope \(scope) window restored to saved position (\(savedX), \(savedY))")
             didRestore = true
         }
@@ -118,7 +143,9 @@ extension GhostManager {
             if let screen = NSScreen.main {
                 let screenFrame = screen.visibleFrame
                 let margin: CGFloat = 10 // Small margin between characters
-                let baseY = screenFrame.minY + 5
+                // visibleFrame.minY は下側 Dock を除いた可視領域の下端、すなわち Dock の上端。
+                // ウィンドウの origin.y は下辺なので、ここに合わせると起動時に Dock の直上へ置ける。
+                let baseY = screenFrame.minY
 
                 // Calculate positions: all characters line up from right side
                 // Scope 0 (sakura/master) is rightmost
@@ -137,26 +164,96 @@ extension GhostManager {
 
         window.identifier = NSUserInterfaceItemIdentifier("GhostCharacterWindow_\(scope)")
 
-        // Show the window only for initial scopes (0 and 1)
-        // Other scopes (2, 3, etc.) will be shown when first referenced in a script via \pN
-        if scope <= 1 {
-            window.makeKeyAndOrderFront(nil)
-        } else {
-            // Window is created but not shown yet
-            // It will be shown when scope is switched to via script
-            Log.debug("[GhostManager] Scope \(scope) window created but not shown (will show on first use)")
-        }
+        // サーフェス画像がロードされるまで、全スコープの窓を表示しない。
+        // 起動時に scope 1 を先に表示すると、ベース画像がまだ無い窓へ SERIKO の
+        // オーバーレイだけが描画され、目元などの顔パーツが単体で浮いて見える。
+        // updateSurface が実画像を設定した時だけ orderFront する。
+        window.orderOut(nil)
+        Log.debug("[GhostManager] Scope \(scope) window created hidden until a surface is loaded")
 
         // Keep window visible and prevent auto-hiding
         window.isReleasedWhenClosed = false
 
         characterWindows[scope] = window
+        enforceDesktopAlignment(for: scope)
+        if let snapshot = DisplayObserver.snapshot(for: window) {
+            displayHandoverStates[scope] = snapshot
+        }
+
+        // Reapply a previously requested z-order when a lazily-created scope appears.
+        if let scopes = windowZOrderScopes {
+            applyWindowZOrder(scopes: scopes)
+        }
 
         // Track window movement/resize
         NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidChangeFrame(_:)), name: NSWindow.didMoveNotification, object: window)
         NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidChangeFrame(_:)), name: NSWindow.didResizeNotification, object: window)
         NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidMiniaturize(_:)), name: NSWindow.didMiniaturizeNotification, object: window)
         NotificationCenter.default.addObserver(self, selector: #selector(characterWindowDidDeminiaturize(_:)), name: NSWindow.didDeminiaturizeNotification, object: window)
+
+        // Additional scopes can be created lazily after the SHIORI runtime is
+        // already registered.  Their initial monitor state must still be
+        // observable as OnDisplayHandover(init).
+        if eventToken != nil {
+            emitInitialDisplayHandover(for: scope)
+        }
+    }
+
+    /// Emit the startup form of OnDisplayHandover once for each character
+    /// window.  The event is targeted to this ghost because Reference1 is the
+    /// scope number within the ghost, not a global window identifier.
+    func emitInitialDisplayHandoverEvents() {
+        for scope in characterWindows.keys.sorted() {
+            emitInitialDisplayHandover(for: scope)
+        }
+    }
+
+    private func emitInitialDisplayHandover(for scope: Int) {
+        guard eventToken != nil,
+              !sentInitialDisplayHandoverScopes.contains(scope),
+              let window = characterWindows[scope],
+              let snapshot = DisplayObserver.snapshot(for: window) else {
+            return
+        }
+        displayHandoverStates[scope] = snapshot
+        let sent = EventBridge.shared.notify(
+            .OnDisplayHandover,
+            refs: [
+                "state": "init",
+                "scopeID": String(scope),
+                "previousDisplay": "",
+                "currentDisplay": snapshot.wireValue
+            ],
+            to: self,
+            ignoreResponseScript: true
+        )
+        if sent {
+            sentInitialDisplayHandoverScopes.insert(scope)
+        }
+    }
+
+    /// Detect a real monitor transition for a character window.  Resize and
+    /// desktop-coordinate changes on the same monitor do not count as a
+    /// handover; the display ID is the authoritative transition key.
+    func updateDisplayHandover(for window: NSWindow, scope: Int) {
+        guard let current = DisplayObserver.snapshot(for: window) else { return }
+        let previous = displayHandoverStates[scope]
+        displayHandoverStates[scope] = current
+        guard let previous,
+              previous.displayID != current.displayID,
+              eventToken != nil else {
+            return
+        }
+        _ = EventBridge.shared.request(
+            .OnDisplayHandover,
+            refs: [
+                "state": "update",
+                "scopeID": String(scope),
+                "previousDisplay": previous.wireValue,
+                "currentDisplay": current.wireValue
+            ],
+            to: self
+        )
     }
 
     // MARK: - Right-Click Menu
@@ -197,7 +294,7 @@ extension GhostManager {
     }
 
     private func appendPluginMenu(to items: inout [OwnerDrawMenuItem]) {
-        guard let registry = (NSApp.delegate as? AppDelegate)?.pluginRegistry else { return }
+        guard let registry = AppDelegate.resolve()?.pluginRegistry else { return }
         let entries = registry.pluginMenuEntries()
         guard !entries.isEmpty else { return }
 
@@ -272,6 +369,10 @@ extension GhostManager {
         Log.debug("[GhostManager] Moving scope \(scope) window to back")
         DispatchQueue.main.async {
             if let window = self.characterWindows[scope] {
+                guard self.characterWindowHasLoadedSurface(window) else {
+                    window.orderOut(nil)
+                    return
+                }
                 window.orderBack(nil)
                 window.level = .normal
                 Log.info("[GhostManager] Moved scope \(scope) to background")
@@ -282,13 +383,17 @@ extension GhostManager {
     @objc func characterWindowDidMiniaturize(_ notification: Notification) {
         guard let window = notification.object as? NSWindow,
               let id = window.identifier?.rawValue else { return }
-        EventBridge.shared.notify(.OnWindowStateMinimize, refs: ["windowID": id])
+        let scope = characterWindows.first(where: { $0.value === window })?.key
+        let reason = scope.flatMap { pendingWindowStateReasons.removeValue(forKey: $0) } ?? "system"
+        EventBridge.shared.notify(.OnWindowStateMinimize, refs: ["reason": reason, "windowID": id])
     }
 
     @objc func characterWindowDidDeminiaturize(_ notification: Notification) {
         guard let window = notification.object as? NSWindow,
               let id = window.identifier?.rawValue else { return }
-        EventBridge.shared.notify(.OnWindowStateRestore, refs: ["windowID": id])
+        let scope = characterWindows.first(where: { $0.value === window })?.key
+        let reason = scope.flatMap { pendingWindowStateReasons.removeValue(forKey: $0) } ?? "system"
+        EventBridge.shared.notify(.OnWindowStateRestore, refs: ["reason": reason, "windowID": id])
     }
     
     /// Move window to front (above other windows)
@@ -296,7 +401,7 @@ extension GhostManager {
         Log.debug("[GhostManager] Moving scope \(scope) window to front")
         DispatchQueue.main.async {
             if let window = self.characterWindows[scope] {
-                window.orderFront(nil)
+                guard self.orderCharacterWindowIfLoaded(window) else { return }
                 window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
                 Log.info("[GhostManager] Moved scope \(scope) to foreground")
             }
@@ -348,6 +453,7 @@ extension GhostManager {
     /// Synchronous window move
     func moveWindow(scope: Int, x: Int, y: Int, time: Int, method: String, ignoreStickyWindow: Bool = false) {
         Log.debug("[GhostManager] Moving scope \(scope) to (\(x), \(y)) over \(time)ms with method '\(method)'")
+        cancelMoveWindowAsync(scope: scope)
         DispatchQueue.main.async {
             guard let window = self.characterWindows[scope] else {
                 Log.info("[GhostManager] No window found for scope \(scope)")
@@ -396,9 +502,46 @@ extension GhostManager {
         Log.debug("[GhostManager] Moving scope \(scope) asynchronously to (\(x), \(y))")
         cancelMoveWindowAsync(scope: scope)
 
-        let workItem = DispatchWorkItem { [weak self] in
+        var workItem: DispatchWorkItem?
+        workItem = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
-            self.moveWindow(scope: scope, x: x, y: y, time: time, method: method, ignoreStickyWindow: ignoreStickyWindow)
+            guard workItem?.isCancelled == false else { return }
+            guard let window = self.characterWindows[scope] else {
+                Log.info("[GhostManager] No window found for async move scope \(scope)")
+                return
+            }
+
+            let targetFrame = NSRect(
+                x: CGFloat(x),
+                y: CGFloat(y),
+                width: window.frame.width,
+                height: window.frame.height
+            )
+
+            // Keep the legacy immediate path identical to synchronous move.
+            // For timed moves we use an explicit frame timer so cancellation can
+            // stop an already-running move at its current position.
+            if time <= 0 {
+                self.moveWindow(
+                    scope: scope,
+                    x: x,
+                    y: y,
+                    time: 0,
+                    method: method,
+                    ignoreStickyWindow: ignoreStickyWindow
+                )
+            } else {
+                self.startAsyncMoveAnimation(
+                    scope: scope,
+                    from: window.frame,
+                    to: targetFrame,
+                    time: time,
+                    method: method,
+                    ignoreStickyWindow: ignoreStickyWindow
+                )
+                self.resourceManager.setCharDefaultLeft(scope: scope, value: x)
+                self.resourceManager.setCharDefaultTop(scope: scope, value: y)
+            }
             var pending = self.asyncMoveWorkItems
             pending.removeValue(forKey: scope)
             self.asyncMoveWorkItems = pending
@@ -407,7 +550,75 @@ extension GhostManager {
         pending[scope] = workItem
         asyncMoveWorkItems = pending
 
+        guard let workItem else { return }
         DispatchQueue.main.async(execute: workItem)
+    }
+
+    private func startAsyncMoveAnimation(
+        scope: Int,
+        from startFrame: NSRect,
+        to targetFrame: NSRect,
+        time: Int,
+        method: String,
+        ignoreStickyWindow: Bool
+    ) {
+        guard characterWindows[scope] != nil else { return }
+
+        if ignoreStickyWindow {
+            var ignored = stickyIgnoreScopes
+            ignored.insert(scope)
+            stickyIgnoreScopes = ignored
+        }
+
+        let duration = max(0.001, TimeInterval(time) / 1000.0)
+        let startDate = Date()
+        let timerKey = scope
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] timer in
+            guard let self, let window = self.characterWindows[scope] else {
+                timer.invalidate()
+                return
+            }
+
+            let progress = min(1.0, max(0.0, Date().timeIntervalSince(startDate) / duration))
+            let easedProgress = Self.moveAnimationProgress(progress, method: method)
+            var frame = startFrame
+            frame.origin.x = startFrame.origin.x + (targetFrame.origin.x - startFrame.origin.x) * easedProgress
+            frame.origin.y = startFrame.origin.y + (targetFrame.origin.y - startFrame.origin.y) * easedProgress
+            window.setFrame(frame, display: true)
+
+            guard progress >= 1.0 else { return }
+            timer.invalidate()
+            var timers = self.asyncMoveAnimationTimers
+            timers.removeValue(forKey: timerKey)
+            self.asyncMoveAnimationTimers = timers
+            if ignoreStickyWindow {
+                var ignored = self.stickyIgnoreScopes
+                ignored.remove(scope)
+                self.stickyIgnoreScopes = ignored
+            }
+            Log.debug("[GhostManager] Async window move animation completed for scope \(scope)")
+        }
+
+        var timers = asyncMoveAnimationTimers
+        timers[timerKey] = timer
+        asyncMoveAnimationTimers = timers
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
+    private static func moveAnimationProgress(_ progress: Double, method: String) -> Double {
+        let clamped = min(1.0, max(0.0, progress))
+        switch method.lowercased() {
+        case "linear":
+            return clamped
+        case "easein", "ease-in":
+            return clamped * clamped
+        case "easeout", "ease-out":
+            return 1.0 - (1.0 - clamped) * (1.0 - clamped)
+        default:
+            // Match NSAnimationContext's ease-in/ease-out feel used by the
+            // synchronous move path.
+            return clamped * clamped * (3.0 - 2.0 * clamped)
+        }
     }
 
     func cancelMoveWindowAsync(scope: Int?) {
@@ -415,12 +626,37 @@ extension GhostManager {
         if let scope {
             pending[scope]?.cancel()
             pending.removeValue(forKey: scope)
+            let wasAnimating = asyncMoveAnimationTimers[scope] != nil
+            asyncMoveAnimationTimers[scope]?.invalidate()
+            if wasAnimating, let window = characterWindows[scope] {
+                resourceManager.setCharDefaultLeft(scope: scope, value: Int(window.frame.origin.x))
+                resourceManager.setCharDefaultTop(scope: scope, value: Int(window.frame.origin.y))
+            }
+            var timers = asyncMoveAnimationTimers
+            timers.removeValue(forKey: scope)
+            asyncMoveAnimationTimers = timers
+            var ignored = stickyIgnoreScopes
+            ignored.remove(scope)
+            stickyIgnoreScopes = ignored
             Log.debug("[GhostManager] Canceled async move for scope \(scope)")
         } else {
             for (_, workItem) in pending {
                 workItem.cancel()
             }
             pending.removeAll()
+            for (scope, timer) in asyncMoveAnimationTimers {
+                timer.invalidate()
+                if let window = characterWindows[scope] {
+                    resourceManager.setCharDefaultLeft(scope: scope, value: Int(window.frame.origin.x))
+                    resourceManager.setCharDefaultTop(scope: scope, value: Int(window.frame.origin.y))
+                }
+            }
+            var timers = asyncMoveAnimationTimers
+            timers.removeAll()
+            asyncMoveAnimationTimers = timers
+            var ignored = stickyIgnoreScopes
+            ignored.removeAll()
+            stickyIgnoreScopes = ignored
             Log.debug("[GhostManager] Canceled all async move commands")
         }
         asyncMoveWorkItems = pending
@@ -512,9 +748,14 @@ extension GhostManager {
             return spec
         }
 
-        guard args.count >= 2, let x = Int(args[0]), let y = Int(args[1]) else { return nil }
-        spec.x = x
-        spec.y = y
+        guard args.count >= 2,
+              let xAxis = parseLegacyMoveAxis(args[0]),
+              let yAxis = parseLegacyMoveAxis(args[1]) else { return nil }
+        // Legacy SSP syntax allows "fix" for either axis to retain its
+        // current coordinate. Keep nil here so resolveMoveTarget can use the
+        // current frame instead of rejecting the whole command.
+        spec.x = xAxis.value
+        spec.y = yAxis.value
         spec.time = args.count >= 3 ? (Int(args[2]) ?? 0) : 0
         spec.method = args.count >= 4 ? args[3] : ""
         spec.scopeID = args.count >= 5 ? Int(args[4]) : nil
@@ -574,25 +815,64 @@ extension GhostManager {
             return nil
         }
 
-        let baseRect = resolveMoveBaseRect(scope: scope, spec: spec) ?? currentFrame
-        let baseAnchorPoint = resolveAnchorPoint(token: spec.baseOffset, rect: baseRect) ?? CGPoint(x: baseRect.origin.x, y: baseRect.origin.y)
-        let moveAnchorPoint = resolveAnchorPoint(token: spec.moveOffset, rect: currentFrame) ?? CGPoint(x: 0, y: 0)
-
-        if spec.base != nil {
-            let targetX = Int(baseAnchorPoint.x + CGFloat(spec.x ?? 0) - moveAnchorPoint.x)
-            let targetY = Int(baseAnchorPoint.y + CGFloat(spec.y ?? 0) - moveAnchorPoint.y)
-            return (targetX, targetY)
-        }
-
-        return (spec.x ?? Int(currentFrame.origin.x), spec.y ?? Int(currentFrame.origin.y))
+        // SSP 互換: --base 省略時は screen（キャラがいるモニタの左上原点）。
+        let baseRect = resolveMoveBaseRect(scope: scope, spec: spec, window: window) ?? currentFrame
+        let origin = Self.moveTargetOrigin(
+            current: currentFrame,
+            base: baseRect,
+            baseOffset: spec.baseOffset,
+            moveOffset: spec.moveOffset,
+            x: spec.x,
+            y: spec.y
+        )
+        return (Int(origin.x.rounded()), Int(origin.y.rounded()))
     }
 
-    private func resolveMoveBaseRect(scope: Int, spec: MoveCommandSpec) -> CGRect? {
-        guard let base = spec.base?.lowercased() else { return nil }
+    /// SSP の `\![move]` 座標を Cocoa のウィンドウ原点へ変換する。
+    /// UKADOC: X/Y は基準の左上を原点とし、+Y は下向き（`--Y=-400` は上方向）。
+    /// `--base-offset` は基準矩形上の点、`--move-offset` は移動するウィンドウ上の点（いずれも既定 left.top）で、
+    /// 「ウィンドウの move-offset 点を、基準の base-offset 点から (X, Y) 離れた位置へ置く」。
+    /// 省略した軸（"fix"）は現在の位置を保つ。
+    static func moveTargetOrigin(current: CGRect, base: CGRect, baseOffset: String?, moveOffset: String?, x: Int?, y: Int?) -> CGPoint {
+        // 下向き座標 v = -cocoaY で計算する（矩形の上辺 v = -maxY）
+        let baseAnchor = topDownAnchor(token: baseOffset, rect: base)
+        let moveAnchor = topDownAnchor(token: moveOffset, rect: current)
+        let moveDX = moveAnchor.x - current.minX
+        let moveDV = moveAnchor.y - (-current.maxY)
+        let left = x.map { baseAnchor.x + CGFloat($0) - moveDX } ?? current.minX
+        let topV = y.map { baseAnchor.y + CGFloat($0) - moveDV } ?? -current.maxY
+        return CGPoint(x: left, y: -topV - current.height)
+    }
+
+    /// `left.top` 形式の点を、x は Cocoa のまま、y を下向き座標（-cocoaY）で返す。不明・省略は left/top。
+    private static func topDownAnchor(token: String?, rect: CGRect) -> CGPoint {
+        let parts = (token ?? "").lowercased().split(separator: ".", maxSplits: 1).map(String.init)
+        let horizontal = parts.first ?? "left"
+        let vertical = parts.count == 2 ? parts[1] : "top"
+        let x: CGFloat
+        switch horizontal {
+        case "right": x = rect.maxX
+        case "center", "middle": x = rect.midX
+        default: x = rect.minX
+        }
+        let v: CGFloat
+        switch vertical {
+        case "bottom": v = -rect.minY
+        case "center", "middle": v = -rect.midY
+        default: v = -rect.maxY
+        }
+        return CGPoint(x: x, y: v)
+    }
+
+    private func resolveMoveBaseRect(scope: Int, spec: MoveCommandSpec, window: NSWindow) -> CGRect? {
+        let base = spec.base?.lowercased() ?? "screen"
         switch base {
         case "screen":
-            return NSScreen.main?.visibleFrame
-        case "window", "current":
+            // キャラクターウィンドウがあるモニタ（の全体矩形）の左上が原点
+            return (window.screen ?? NSScreen.main)?.frame
+        case "primaryscreen", "global":
+            return NSScreen.screens.first?.frame
+        case "me", "window", "current":
             return characterWindows[scope]?.frame
         default:
             if let value = Int(base) {
@@ -601,34 +881,11 @@ extension GhostManager {
             if base.hasPrefix("scope"), let value = Int(base.replacingOccurrences(of: "scope", with: "")) {
                 return characterWindows[value]?.frame
             }
+            if base.hasPrefix("p["), base.hasSuffix("]"), let value = Int(base.dropFirst(2).dropLast()) {
+                return characterWindows[value]?.frame
+            }
             return nil
         }
-    }
-
-    private func resolveAnchorPoint(token: String?, rect: CGRect) -> CGPoint? {
-        guard let token = token?.lowercased() else { return nil }
-        let parts = token.split(separator: ".", maxSplits: 1).map(String.init)
-        guard parts.count == 2 else { return nil }
-        let horizontal = parts[0]
-        let vertical = parts[1]
-
-        let x: CGFloat
-        switch horizontal {
-        case "left": x = rect.minX
-        case "center", "middle": x = rect.midX
-        case "right": x = rect.maxX
-        default: return nil
-        }
-
-        let y: CGFloat
-        switch vertical {
-        case "top": y = rect.maxY
-        case "center", "middle": y = rect.midY
-        case "bottom": y = rect.minY
-        default: return nil
-        }
-
-        return CGPoint(x: x, y: y)
     }
 
     private func parseLongOptions(_ args: [String]) -> (named: [String: String], positional: [String]) {
@@ -658,7 +915,16 @@ extension GhostManager {
         return fallback == "wait" || fallback == "--wait" || fallback == "true"
     }
 
-    func executeSetScalingCommand(args: [String]) {
+    private func parseLegacyMoveAxis(_ token: String) -> (value: Int?, fixed: Bool)? {
+        let normalized = token.trimmingCharacters(in: .whitespacesAndNewlines)
+        if normalized.isEmpty || normalized.lowercased() == "fix" {
+            return (nil, true)
+        }
+        guard let value = Int(normalized) else { return nil }
+        return (value, false)
+    }
+
+    func executeSetScalingCommand(args: [String], enqueueWaitAtFront: Bool = false) {
         guard args.count >= 3 else { return }
         let params = Array(args.dropFirst(2))
         let parsed = parseLongOptions(params)
@@ -669,10 +935,10 @@ extension GhostManager {
         let wait: Bool
 
         if !parsed.named.isEmpty {
-            xPercent = Double(parsed.named["x"] ?? parsed.named["scaling"] ?? "")
-            yPercent = Double(parsed.named["y"] ?? "")
-            timeMs = Double(parsed.named["time"] ?? "0") ?? 0
-            wait = parseWaitFlag(parsed.named, fallback: parsed.positional.first)
+            xPercent = Double(parsed.named["x"] ?? parsed.named["scaling"] ?? parsed.positional.first ?? "")
+            yPercent = Double(parsed.named["y"] ?? parsed.positional.dropFirst().first ?? "")
+            timeMs = Double(parsed.named["time"] ?? parsed.positional.dropFirst(2).first ?? "0") ?? 0
+            wait = parseWaitFlag(parsed.named, fallback: parsed.positional.dropFirst(3).first)
         } else {
             xPercent = Double(params[0])
             yPercent = params.count >= 2 ? Double(params[1]) : nil
@@ -683,28 +949,38 @@ extension GhostManager {
         guard let xPercent else { return }
         let targetScaleX = xPercent / 100.0
         let targetScaleY = (yPercent ?? xPercent) / 100.0
+        let scope = currentScope
+        let animationKey = "scaling:\(scope)"
 
-        DispatchQueue.main.async {
-            guard let vm = self.characterViewModels[self.currentScope] else { return }
-            if timeMs > 0 {
-                NSAnimationContext.runAnimationGroup({ context in
-                    context.duration = timeMs / 1000.0
-                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-                    vm.scaleX = targetScaleX
-                    vm.scaleY = targetScaleY
-                })
-            } else {
-                vm.scaleX = targetScaleX
-                vm.scaleY = targetScaleY
+        if Thread.isMainThread {
+            animateUserScaling(
+                scope: scope,
+                targetX: targetScaleX,
+                targetY: targetScaleY,
+                duration: timeMs / 1000.0
+            )
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.animateUserScaling(
+                    scope: scope,
+                    targetX: targetScaleX,
+                    targetY: targetScaleY,
+                    duration: timeMs / 1000.0
+                )
             }
         }
 
         if wait && timeMs > 0 {
-            playbackQueue.append(.wait(timeMs / 1000.0))
+            let waitUnit: GhostManager.PlaybackUnit = .waitForVisualEffect(animationKey)
+            if enqueueWaitAtFront {
+                playbackQueue.insert(waitUnit, at: 0)
+            } else {
+                playbackQueue.append(waitUnit)
+            }
         }
     }
 
-    func executeSetAlphaCommand(args: [String]) {
+    func executeSetAlphaCommand(args: [String], enqueueWaitAtFront: Bool = false) {
         guard args.count >= 3 else { return }
         let params = Array(args.dropFirst(2))
         let parsed = parseLongOptions(params)
@@ -714,9 +990,9 @@ extension GhostManager {
         let wait: Bool
 
         if !parsed.named.isEmpty {
-            alphaPercent = Double(parsed.named["value"] ?? parsed.named["alpha"] ?? "")
-            timeMs = Double(parsed.named["time"] ?? "0") ?? 0
-            wait = parseWaitFlag(parsed.named, fallback: parsed.positional.first)
+            alphaPercent = Double(parsed.named["value"] ?? parsed.named["alpha"] ?? parsed.positional.first ?? "")
+            timeMs = Double(parsed.named["time"] ?? parsed.positional.dropFirst().first ?? "0") ?? 0
+            wait = parseWaitFlag(parsed.named, fallback: parsed.positional.dropFirst(2).first)
         } else {
             alphaPercent = Double(params[0])
             timeMs = params.count >= 2 ? (Double(params[1]) ?? 0) : 0
@@ -724,24 +1000,138 @@ extension GhostManager {
         }
 
         guard let alphaPercent else { return }
-        let targetAlpha = min(max(alphaPercent / 100.0, 0.0), 1.0)
+        let scope = currentScope
 
-        DispatchQueue.main.async {
-            guard let vm = self.characterViewModels[self.currentScope] else { return }
-            if timeMs > 0 {
-                NSAnimationContext.runAnimationGroup({ context in
-                    context.duration = timeMs / 1000.0
-                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-                    vm.alpha = targetAlpha
-                })
+        // UKADOC: negative values leave the current alpha unchanged and only
+        // request a redraw.  Do not clamp them to zero (which would make the
+        // character disappear).
+        if alphaPercent < 0 {
+            let redraw = { [weak self] in
+                guard let self, let viewModel = self.characterViewModels[scope] else { return }
+                viewModel.objectWillChange.send()
+                Log.debug("[GhostManager] Redrew scope (scope) without changing alpha")
+            }
+            if Thread.isMainThread {
+                redraw()
             } else {
-                vm.alpha = targetAlpha
+                DispatchQueue.main.async(execute: redraw)
+            }
+            return
+        }
+
+        let targetAlpha = min(max(alphaPercent / 100.0, 0.0), 1.0)
+        let animationKey = "alpha:\(scope)"
+
+        if Thread.isMainThread {
+            animateCharacterAlpha(
+                scope: scope,
+                target: targetAlpha,
+                duration: timeMs / 1000.0
+            )
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.animateCharacterAlpha(
+                    scope: scope,
+                    target: targetAlpha,
+                    duration: timeMs / 1000.0
+                )
             }
         }
 
         if wait && timeMs > 0 {
-            playbackQueue.append(.wait(timeMs / 1000.0))
+            let waitUnit: GhostManager.PlaybackUnit = .waitForVisualEffect(animationKey)
+            if enqueueWaitAtFront {
+                playbackQueue.insert(waitUnit, at: 0)
+            } else {
+                playbackQueue.append(waitUnit)
+            }
         }
+    }
+
+    /// `set,scaling` の変化時間を SwiftUI の View 更新へ実際に反映する。
+    /// `NSAnimationContext` は `@Published` の Double 代入を補間しないため、
+    /// メイン RunLoop 上で値そのものを更新する。イベントは最終値に到達した時だけ発火する。
+    private func animateUserScaling(scope: Int, targetX: Double, targetY: Double, duration: TimeInterval) {
+        let key = "scaling:\(scope)"
+        cancelVisualEffectAnimation(key: key)
+        guard let viewModel = characterViewModels[scope] else { return }
+        guard duration > 0 else {
+            setUserScaling(scope: scope, x: targetX, y: targetY)
+            return
+        }
+
+        let startX = viewModel.userScaleX
+        let startY = viewModel.userScaleY
+        let startBalloonX = balloonViewModels[scope]?.scaleX
+        let startBalloonY = balloonViewModels[scope]?.scaleY
+        let startDate = Date()
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] timer in
+            guard let self, self.characterViewModels[scope] != nil else {
+                timer.invalidate()
+                return
+            }
+            let progress = min(1.0, max(0.0, Date().timeIntervalSince(startDate) / duration))
+            let eased = Self.easeInOut(progress)
+            let x = startX + (targetX - startX) * eased
+            let y = startY + (targetY - startY) * eased
+            let finished = progress >= 1.0
+            self.setUserScaling(
+                scope: scope,
+                x: finished ? targetX : x,
+                y: finished ? targetY : y,
+                emitEvent: finished,
+                eventBeforeXPercent: finished ? startX * 100.0 : nil,
+                eventBeforeYPercent: finished ? startY * 100.0 : nil,
+                eventBeforeBalloonX: finished ? startBalloonX : nil,
+                eventBeforeBalloonY: finished ? startBalloonY : nil
+            )
+            if finished {
+                timer.invalidate()
+                self.visualEffectAnimationTimers.removeValue(forKey: key)
+            }
+        }
+        visualEffectAnimationTimers[key] = timer
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
+    /// `set,alpha` の時間変化を実値へ反映する。透明度はSHIORIイベントを持たないため、
+    /// タイマー各フレームで ViewModel を更新し、最後のフレームで目標値を厳密に設定する。
+    private func animateCharacterAlpha(scope: Int, target: Double, duration: TimeInterval) {
+        let key = "alpha:\(scope)"
+        cancelVisualEffectAnimation(key: key)
+        guard let viewModel = characterViewModels[scope] else { return }
+        guard duration > 0 else {
+            viewModel.alpha = target
+            return
+        }
+
+        let start = viewModel.alpha
+        let startDate = Date()
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] timer in
+            guard let self, let viewModel = self.characterViewModels[scope] else {
+                timer.invalidate()
+                return
+            }
+            let progress = min(1.0, max(0.0, Date().timeIntervalSince(startDate) / duration))
+            let eased = Self.easeInOut(progress)
+            viewModel.alpha = progress >= 1.0 ? target : start + (target - start) * eased
+            if progress >= 1.0 {
+                timer.invalidate()
+                self.visualEffectAnimationTimers.removeValue(forKey: key)
+            }
+        }
+        visualEffectAnimationTimers[key] = timer
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
+    private func cancelVisualEffectAnimation(key: String) {
+        visualEffectAnimationTimers[key]?.invalidate()
+        visualEffectAnimationTimers.removeValue(forKey: key)
+    }
+
+    private static func easeInOut(_ progress: Double) -> Double {
+        let clamped = min(1.0, max(0.0, progress))
+        return clamped * clamped * (3.0 - 2.0 * clamped)
     }
 
     private func parseScopeTokenList(_ tokens: [String]) -> [Int] {
@@ -842,8 +1232,10 @@ extension GhostManager {
                 let savedY = self.resourceManager.getCharDefaultTop(scope: scope)
 
                 if let x = savedX, let y = savedY, x != 0 || y != 0 {
-                    let newFrame = NSRect(x: CGFloat(x), y: CGFloat(y),
-                                        width: window.frame.width, height: window.frame.height)
+                    let newFrame = Self.clampToVisibleScreens(
+                        NSRect(x: CGFloat(x), y: CGFloat(y), width: window.frame.width, height: window.frame.height),
+                        visibleFrames: NSScreen.screens.map(\.visibleFrame)
+                    )
                     window.setFrame(newFrame, display: true)
                 }
                 
@@ -856,21 +1248,29 @@ extension GhostManager {
     func setWindowZOrder(scopes: [Int]) {
         Log.debug("[GhostManager] Setting Z-order: \(scopes)")
         DispatchQueue.main.async {
-            // Order windows from back to front based on scopes array
-            for (index, scope) in scopes.enumerated() {
-                if let window = self.characterWindows[scope] {
-                    if index == scopes.count - 1 {
-                        // Last window (topmost)
-                        window.orderFront(nil)
-                    } else {
-                        // Order behind the next window
-                        if let nextWindow = self.characterWindows[scopes[index + 1]] {
-                            window.order(.below, relativeTo: nextWindow.windowNumber)
-                        }
-                    }
+            self.windowZOrderScopes = scopes
+            self.applyWindowZOrder(scopes: scopes)
+            Log.info("[GhostManager] Z-order set successfully")
+        }
+    }
+
+    private func applyWindowZOrder(scopes: [Int]) {
+        // Order windows from back to front based on scopes array.
+        for (index, scope) in scopes.enumerated() {
+            guard let window = characterWindows[scope] else { continue }
+            guard characterWindowHasLoadedSurface(window) else {
+                window.orderOut(nil)
+                continue
+            }
+            if index == scopes.count - 1 {
+                _ = orderCharacterWindowIfLoaded(window)
+            } else if let nextWindow = characterWindows[scopes[index + 1]] {
+                if characterWindowHasLoadedSurface(nextWindow) {
+                    window.order(.below, relativeTo: nextWindow.windowNumber)
+                } else {
+                    _ = orderCharacterWindowIfLoaded(window)
                 }
             }
-            Log.info("[GhostManager] Z-order set successfully")
         }
     }
     
@@ -878,10 +1278,11 @@ extension GhostManager {
     func resetWindowZOrder() {
         Log.debug("[GhostManager] Resetting Z-order to default")
         DispatchQueue.main.async {
+            self.windowZOrderScopes = nil
             // Restore default floating window level for all
             for (scope, window) in self.characterWindows {
                 window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
-                window.orderFront(nil)
+                _ = self.orderCharacterWindowIfLoaded(window)
                 Log.info("[GhostManager] Scope \(scope) Z-order reset")
             }
         }
@@ -893,6 +1294,7 @@ extension GhostManager {
         DispatchQueue.main.async {
             // Store relationships
             self.stickyWindowRelationships[masterScope] = Set(followerScopes)
+            self.captureStickyWindowOffsets(masterScope: masterScope)
             
             // Add observer for master window movement
             if let masterWindow = self.characterWindows[masterScope] {
@@ -920,19 +1322,40 @@ extension GhostManager {
         
         let masterFrame = masterWindow.frame
         
-        // Move all follower windows relative to master
+        // Move all follower windows using the relative positions captured when the
+        // sticky relationship was established. A missing offset means that the
+        // follower did not have a window yet; do not invent a position for it.
         for followerScope in followers {
-            if let followerWindow = characterWindows[followerScope] {
-                let offset: CGFloat = CGFloat((followerScope - masterScope) * 100) // Simple offset logic
-                let newFrame = NSRect(
-                    x: masterFrame.origin.x + offset,
-                    y: masterFrame.origin.y,
-                    width: followerWindow.frame.width,
-                    height: followerWindow.frame.height
-                )
-                followerWindow.setFrame(newFrame, display: true)
-            }
+            guard let followerWindow = characterWindows[followerScope],
+                  let offset = stickyWindowOffsets[masterScope]?[followerScope] else { continue }
+            let origin = Self.stickyFollowerOrigin(masterOrigin: masterFrame.origin, offset: offset)
+            var newFrame = followerWindow.frame
+            newFrame.origin = origin
+            followerWindow.setFrame(newFrame, display: true)
         }
+    }
+
+    private func captureStickyWindowOffsets(masterScope: Int) {
+        guard let masterWindow = characterWindows[masterScope] else {
+            stickyWindowOffsets[masterScope] = [:]
+            return
+        }
+
+        let masterOrigin = masterWindow.frame.origin
+        stickyWindowOffsets[masterScope] = Dictionary(
+            uniqueKeysWithValues: (stickyWindowRelationships[masterScope] ?? []).compactMap { followerScope in
+                guard let followerWindow = characterWindows[followerScope] else { return nil }
+                return (followerScope, Self.stickyOffset(masterOrigin: masterOrigin, followerOrigin: followerWindow.frame.origin))
+            }
+        )
+    }
+
+    static func stickyOffset(masterOrigin: CGPoint, followerOrigin: CGPoint) -> CGPoint {
+        CGPoint(x: followerOrigin.x - masterOrigin.x, y: followerOrigin.y - masterOrigin.y)
+    }
+
+    static func stickyFollowerOrigin(masterOrigin: CGPoint, offset: CGPoint) -> CGPoint {
+        CGPoint(x: masterOrigin.x + offset.x, y: masterOrigin.y + offset.y)
     }
     
     /// Reset sticky window relationships
@@ -950,6 +1373,7 @@ extension GhostManager {
             
             // Clear relationships
             self.stickyWindowRelationships.removeAll()
+            self.stickyWindowOffsets.removeAll()
             
             Log.info("[GhostManager] All sticky window relationships removed")
         }
@@ -958,6 +1382,13 @@ extension GhostManager {
     /// Reset all window positions to default
     func executeResetWindowPos() {
         Log.debug("[GhostManager] Executing window position reset")
+
+        // SSP互換: 位置初期化メニュー相当の操作では先にイベントをGETで発火し、
+        // 応答スクリプトが返らない場合だけ標準の位置リセットを実行する。
+        // EventBridge.request は未登録ゴースト／204応答を false として返すため、
+        // イベント処理が利用できない場合も従来どおり既定処理へフォールバックする。
+        guard !EventBridge.shared.request(.OnResetWindowPos) else { return }
+
         DispatchQueue.main.async {
             // Reset each window to its default/saved position
             for (scope, window) in self.characterWindows {
@@ -966,11 +1397,9 @@ extension GhostManager {
                 let savedY = self.resourceManager.getCharDefaultTop(scope: scope)
 
                 if let x = savedX, let y = savedY, x != 0 || y != 0 {
-                    let newFrame = NSRect(
-                        x: CGFloat(x),
-                        y: CGFloat(y),
-                        width: window.frame.width,
-                        height: window.frame.height
+                    let newFrame = Self.clampToVisibleScreens(
+                        NSRect(x: CGFloat(x), y: CGFloat(y), width: window.frame.width, height: window.frame.height),
+                        visibleFrames: NSScreen.screens.map(\.visibleFrame)
                     )
                     window.setFrame(newFrame, display: true)
                 } else {
@@ -1030,32 +1459,40 @@ extension GhostManager {
                 window.level = .normal
                 Log.info("[GhostManager] Window stay on top disabled")
             } else if stateLC == "minimize" {
-                window.miniaturize(nil)
+                if !window.isMiniaturized {
+                    if let scope = self.characterWindows.first(where: { $0.value === window })?.key {
+                        self.pendingWindowStateReasons[scope] = "script"
+                    }
+                    window.miniaturize(nil)
+                }
                 Log.info("[GhostManager] Window minimized")
             } else if stateLC == "maximize" {
+                guard self.orderCharacterWindowIfLoaded(window, makeKey: true) else { return }
                 if !window.isZoomed {
                     window.zoom(nil)
                 }
-                window.makeKeyAndOrderFront(nil)
                 Log.info("[GhostManager] Window maximized")
             } else if stateLC == "restore" {
+                guard self.orderCharacterWindowIfLoaded(window) else { return }
                 if window.isMiniaturized {
+                    if let scope = self.characterWindows.first(where: { $0.value === window })?.key {
+                        self.pendingWindowStateReasons[scope] = "script"
+                    }
                     window.deminiaturize(nil)
                 }
                 if window.isZoomed {
                     window.zoom(nil)
                 }
-                window.orderFront(nil)
                 Log.info("[GhostManager] Window restored")
             } else if stateLC == "hide" {
                 window.orderOut(nil)
                 Log.info("[GhostManager] Window hidden")
             } else if stateLC == "show" {
-                window.orderFront(nil)
+                guard self.orderCharacterWindowIfLoaded(window) else { return }
                 Log.info("[GhostManager] Window shown")
             } else if stateLC == "focus" || stateLC == "activate" {
+                guard self.orderCharacterWindowIfLoaded(window, makeKey: true) else { return }
                 NSApp.activate(ignoringOtherApps: true)
-                window.makeKeyAndOrderFront(nil)
                 Log.info("[GhostManager] Window focused")
             }
         }
@@ -1067,7 +1504,7 @@ extension GhostManager {
             if hidden {
                 window.orderOut(nil)
             } else {
-                window.orderFront(nil)
+                _ = self.orderCharacterWindowIfLoaded(window)
             }
         }
     }
@@ -1075,19 +1512,50 @@ extension GhostManager {
     func focusCurrentWindow() {
         DispatchQueue.main.async {
             guard let window = self.characterWindows[self.currentScope] else { return }
+            guard self.orderCharacterWindowIfLoaded(window, makeKey: true) else { return }
             NSApp.activate(ignoringOtherApps: true)
-            window.makeKeyAndOrderFront(nil)
         }
     }
 
     func maximizeCurrentWindow() {
         DispatchQueue.main.async {
             guard let window = self.characterWindows[self.currentScope] else { return }
+            guard self.orderCharacterWindowIfLoaded(window, makeKey: true) else { return }
             if !window.isZoomed {
                 window.zoom(nil)
             }
-            window.makeKeyAndOrderFront(nil)
         }
+    }
+
+    /// 画像未ロードのキャラクター窓は、z-order や表示コマンドからも表示しない。
+    ///
+    /// 起動直後や `\p[N]` で先に作られた窓に SERIKO オーバーレイだけが入ると、
+    /// 目元などの画像片が単独で浮いて見える。サーフェス画像の設定は
+    /// `GhostManager+Surface.updateSurface` だけが表示を許可するため、その他の
+    /// order-front 経路もここで同じ条件に揃える。
+    @discardableResult
+    private func orderCharacterWindowIfLoaded(
+        _ window: NSWindow,
+        makeKey: Bool = false
+    ) -> Bool {
+        guard characterWindowHasLoadedSurface(window) else {
+            window.orderOut(nil)
+            return false
+        }
+
+        if makeKey {
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            window.orderFront(nil)
+        }
+        return true
+    }
+
+    private func characterWindowHasLoadedSurface(_ window: NSWindow) -> Bool {
+        guard let scope = characterWindows.first(where: { $0.value === window })?.key else {
+            return false
+        }
+        return characterViewModels[scope]?.image != nil
     }
 
     // MARK: - 見切れ / 重なり 判定 (UKADOC OnSecondChange Reference1 / Reference2)
@@ -1197,5 +1665,23 @@ extension GhostManager {
         lastOverlapRef0 = overlap
 
         return events
+    }
+}
+
+extension GhostManager {
+    /// 保存位置から復元する窓を、いずれかの画面の可視領域（メニューバー・Dock を除く）へ収める。
+    /// 最も重なる画面（重ならなければ先頭＝メイン画面）を選び、窓が収まるよう原点だけを動かす。
+    /// 画面より大きい窓は左下を可視領域に合わせる。
+    static func clampToVisibleScreens(_ frame: NSRect, visibleFrames: [NSRect]) -> NSRect {
+        guard let first = visibleFrames.first else { return frame }
+        let area: (NSRect) -> CGFloat = { r in
+            let i = r.intersection(frame)
+            return i.isNull ? 0 : i.width * i.height
+        }
+        let screen = visibleFrames.max { area($0) < area($1) }.flatMap { area($0) > 0 ? $0 : nil } ?? first
+        var clamped = frame
+        clamped.origin.x = max(screen.minX, min(frame.minX, screen.maxX - frame.width))
+        clamped.origin.y = max(screen.minY, min(frame.minY, screen.maxY - frame.height))
+        return clamped
     }
 }

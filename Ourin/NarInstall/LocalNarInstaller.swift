@@ -1,7 +1,73 @@
 // Ourin/NarInstall/LocalNarInstaller.swift
 import Foundation
 import os.log
+import CommonCrypto
 
+/// NAR インストール後に SHIORI イベントへ渡す、実際に設置された対象。
+struct NarInstalledObject: Equatable {
+    let identifier: String
+    let name: String
+    let path: String
+}
+
+struct NarInstallResult {
+    let target: URL
+    let manifest: InstallManifest
+    let objects: [NarInstalledObject]
+}
+
+/// 更新記述子の1行に対応するダウンロード対象。
+struct UpdateDescriptorEntry: Equatable, Hashable {
+    let url: URL
+    let relativePath: String
+    let expectedMD5: String?
+
+    init(url: URL, relativePath: String? = nil, expectedMD5: String? = nil) {
+        self.url = url
+        self.relativePath = relativePath ?? url.lastPathComponent
+        self.expectedMD5 = expectedMD5?.lowercased()
+    }
+
+    var filename: String {
+        relativePath.isEmpty ? url.lastPathComponent : relativePath
+    }
+}
+
+/// 更新ファイルの実MD5比較結果。MD5が記述子にないファイルには生成しない。
+struct UpdateMD5Comparison: Equatable {
+    let filename: String
+    let correctMD5: String
+    let downloadedMD5: String
+
+    var matches: Bool { correctMD5.caseInsensitiveCompare(downloadedMD5) == .orderedSame }
+}
+
+enum UpdateMD5 {
+    static func hexDigest(of data: Data) -> String {
+        var digest = [UInt8](repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
+        data.withUnsafeBytes { buffer in
+            _ = CC_MD5(buffer.baseAddress, CC_LONG(buffer.count), &digest)
+        }
+        return digest.map { String(format: "%02x", $0) }.joined()
+    }
+
+    static func hexDigest(ofFile url: URL) throws -> String {
+        var context = CC_MD5_CTX()
+        _ = CC_MD5_Init(&context)
+        let handle = try FileHandle(forReadingFrom: url)
+        defer { try? handle.close() }
+
+        while let chunk = try handle.read(upToCount: 1024 * 1024), !chunk.isEmpty {
+            chunk.withUnsafeBytes { buffer in
+                _ = CC_MD5_Update(&context, buffer.baseAddress, CC_LONG(buffer.count))
+            }
+        }
+
+        var digest = [UInt8](repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
+        _ = CC_MD5_Final(&digest, &context)
+        return digest.map { String(format: "%02x", $0) }.joined()
+    }
+}
 
 final class NarInstaller {
     enum Error: Swift.Error, CustomStringConvertible {
@@ -14,8 +80,14 @@ final class NarInstaller {
         case zipSlipDetected(String)
         case directoryConflict(String)
         case invalidDeletePath(String)
+        case deleteInstructionDecodeFailed
         case updateDescriptorNotFound
         case updateDescriptorDecodeFailed
+        case updateDescriptorInvalid
+        case updateDownloadFailed(String)
+        case updateMD5Mismatch(String)
+        case basewareArchiveUnsupported(String)
+        case attachedComponentSourceNotFound(String)
 
         var description: String {
             switch self {
@@ -28,15 +100,58 @@ final class NarInstaller {
             case .zipSlipDetected(let p): return "危険なパスが検出されました: \(p)"
             case .directoryConflict(let d): return "設置先が衝突: \(d)"
             case .invalidDeletePath(let p): return "delete.txt の危険なパス: \(p)"
+            case .deleteInstructionDecodeFailed: return "delete.txt をデコードできません"
             case .updateDescriptorNotFound: return "updates2.dau / updates.txt / update.txt が見つかりません"
             case .updateDescriptorDecodeFailed: return "更新定義ファイルをデコードできません"
+            case .updateDescriptorInvalid: return "更新定義ファイルの形式が不正です"
+            case .updateDownloadFailed(let path): return "更新ファイルを適用できません: \(path)"
+            case .updateMD5Mismatch(let path): return "更新ファイルのMD5が一致しません: \(path)"
+            case .basewareArchiveUnsupported(let path): return "ベースウェア更新にアーカイブは使えません: \(path)"
+            case .attachedComponentSourceNotFound(let type): return "付属コンポーネントのソースが見つかりません: \(type)"
             }
         }
     }
 
     private let log = CompatLogger(subsystem: "jp.ourin.installer", category: "nar")
+    private let session: URLSession
+
+    init(session: URLSession = .shared) {
+        self.session = session
+    }
 
     func install(fromNar narURL: URL) throws -> URL {
+        try installWithResult(fromNar: narURL).target
+    }
+
+    /// インストール前に install.txt だけを検査する。
+    /// accept による対象ゴーストの振り分けを、ファイルを設置せずに判定するために使う。
+    func inspectManifest(fromNar narURL: URL) throws -> InstallManifest {
+        let allowedExtensions = ["nar", "zip"]
+        guard allowedExtensions.contains(narURL.pathExtension.lowercased()) else { throw Error.notZip }
+        let data = try Data(contentsOf: narURL, options: .mappedIfSafe)
+        guard data.starts(with: [0x50, 0x4b]) else { throw Error.notZip }
+
+        let tmpRoot = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent("OurinNarInspect_\(UUID().uuidString)", isDirectory: true)
+        let tmpExtract = tmpRoot.appendingPathComponent("extract", isDirectory: true)
+        try FileManager.default.createDirectory(at: tmpExtract, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmpRoot) }
+        try ZipUtil.extractZip(narURL, to: tmpExtract)
+
+        let installTxt = tmpExtract.appendingPathComponent("install.txt")
+        guard FileManager.default.fileExists(atPath: installTxt.path) else { throw Error.installTxtNotFound }
+        do {
+            return try InstallTxtParser.parse(data: Data(contentsOf: installTxt))
+        } catch let error as Error {
+            throw error
+        } catch {
+            throw Error.installTxtDecodeFailed
+        }
+    }
+
+    /// NAR をインストールし、メイン対象と付属コンポーネントの実設置結果を返す。
+    /// `install(fromNar:)` は既存 API 互換のため設置先 URL のみ返すラッパーとして残す。
+    func installWithResult(fromNar narURL: URL) throws -> NarInstallResult {
         // 1) 形式検証（拡張子 + 軽いヘッダチェック）
         let allowedExtensions = ["nar", "zip"]
         guard allowedExtensions.contains(narURL.pathExtension.lowercased()) else { throw Error.notZip }
@@ -48,6 +163,7 @@ final class NarInstaller {
             .appendingPathComponent("OurinNarInstall_\(UUID().uuidString)", isDirectory: true)
         let tmpExtract = tmpRoot.appendingPathComponent("extract", isDirectory: true)
         try FileManager.default.createDirectory(at: tmpExtract, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmpRoot) }
 
         log.info("extracting to tmp: \(tmpExtract.path,)")
         try ZipUtil.extractZip(narURL, to: tmpExtract)
@@ -106,10 +222,47 @@ final class NarInstaller {
         //    step 8 で処理済みの type=ghost + balloon（単一）は重複回避のためスキップ。
         try installAttachedComponents(fromExtract: tmpExtract, manifest: manifest)
 
-        // 10) 後始末
-        try? FileManager.default.removeItem(at: tmpRoot)
+        if manifest.type.lowercased() == "headline" {
+            UserDefaults.standard.set(manifest.directory, forKey: "OurinLastInstalledHeadlineName")
+        }
+        for component in manifest.attachedComponents where component.type == "headline" {
+            UserDefaults.standard.set(component.directory, forKey: "OurinLastInstalledHeadlineName")
+        }
+
+        // 10) 実際に設置された対象を組み立てる。付属コンポーネントは
+        // installAttachedComponents の成功後だけ結果へ含める。
+        var objects: [NarInstalledObject] = []
+        let mainIdentifier = Self.installIdentifier(type: manifest.type, hasBundledBalloon: false)
+        objects.append(NarInstalledObject(
+            identifier: mainIdentifier,
+            name: manifest.name?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+                ? manifest.name!.trimmingCharacters(in: .whitespacesAndNewlines)
+                : manifest.directory,
+            path: target.path
+        ))
+        for component in manifest.attachedComponents where !component.directory.isEmpty {
+            let targetType = component.type.replacingOccurrences(of: ".", with: "/")
+            let componentTarget = try OurinPaths.installTarget(forType: targetType, directory: component.directory)
+            let identifier = Self.installIdentifier(type: component.type, hasBundledBalloon: false)
+            objects.append(NarInstalledObject(identifier: identifier,
+                                              name: component.directory,
+                                              path: componentTarget.path))
+        }
+
         log.info("install finished")
-        return target
+        return NarInstallResult(target: target, manifest: manifest, objects: objects)
+    }
+
+    /// install.txt の種別を SHIORI のインストール識別子へ正規化する。
+    static func installIdentifier(type: String, hasBundledBalloon: Bool) -> String {
+        let normalized = type.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if normalized == "ghost" && hasBundledBalloon { return "ghost with balloon" }
+        if normalized == "shell" && hasBundledBalloon { return "shell with balloon" }
+        switch normalized {
+        case "calendar.skin", "calendar/skin": return "calendar skin"
+        case "calendar.plugin", "calendar/plugin": return "calendar plugin"
+        default: return normalized
+        }
     }
 
     /// type=shell / supplement の accept で指定された親ゴーストがインストール済みか確認する。
@@ -218,8 +371,7 @@ final class NarInstaller {
             extractRoot.appendingPathComponent(sourceName, isDirectory: true)
         ]
         guard let srcDir = candidates.first(where: { isDirectory($0) }) else {
-            log.warning("balloon.directory=\(balloonDirectory,) : ソースディレクトリが見つかりません")
-            return
+            throw Error.attachedComponentSourceNotFound("balloon")
         }
         let balloonTarget = try OurinPaths.installTarget(forType: "balloon", directory: balloonDirectory)
         try fm.createDirectory(at: balloonTarget.deletingLastPathComponent(), withIntermediateDirectories: true)
@@ -285,8 +437,7 @@ final class NarInstaller {
                        .appendingPathComponent(sourceName, isDirectory: true)
         ]
         guard let srcDir = candidates.first(where: { isDirectory($0) }) else {
-            log.warning("attached \(component.type,).directory=\(component.directory,) : ソースディレクトリが見つかりません")
-            return
+            throw Error.attachedComponentSourceNotFound(component.type)
         }
 
         let target = try OurinPaths.installTarget(forType: targetType, directory: component.directory)
@@ -301,8 +452,17 @@ final class NarInstaller {
         log.info("attached component installed: \(component.type,) -> \(target.path,)")
     }
 
-    /// updates2.dau / updates.txt / update.txt を順に解決して更新候補 URL を返す
+    /// updates2.dau / updates.txt / update.txt を順に解決して更新候補 URL を返す。
+    /// 既存呼び出しとの互換性のために残し、MD5などの詳細情報は捨てる。
     func checkUpdates(homeURLString: String, completion: @escaping (Result<[URL], Swift.Error>) -> Void) {
+        checkUpdateEntries(homeURLString: homeURLString) { result in
+            completion(result.map { $0.map(\.url) })
+        }
+    }
+
+    /// 更新記述子を解析し、URLと期待MD5を保持したまま返す。
+    func checkUpdateEntries(homeURLString: String,
+                            completion: @escaping (Result<[UpdateDescriptorEntry], Swift.Error>) -> Void) {
         let base: URL
         if let parsed = URL(string: homeURLString) {
             base = parsed
@@ -323,26 +483,96 @@ final class NarInstaller {
     ///   - entries: ダウンロード対象 URL（checkUpdates の結果）
     ///   - homeURLString: 相対パス算出の基準（ゴーストの homeurl）
     ///   - targetRoot: 増分ファイルの設置先ルート（通常はゴーストのルート URL）
+    ///   - apply: false の場合はダウンロードと検証だけを行い、設置先を変更しない
     ///   - completion: 適用できたファイル名（lastPathComponent）の配列を返す
     func downloadAndApply(entries: [URL], homeURLString: String, targetRoot: URL,
-                          completion: @escaping ([String]) -> Void) {
-        guard !entries.isEmpty else { completion([]); return }
+                          apply: Bool = true,
+                          completion: @escaping (Result<[String], Swift.Error>) -> Void) {
+        let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
+        let detailedEntries = entries.map { entry in
+            let relativePath: String?
+            if entry.absoluteString.hasPrefix(baseWithSlash) {
+                relativePath = String(entry.absoluteString.dropFirst(baseWithSlash.count))
+            } else {
+                relativePath = nil
+            }
+            return UpdateDescriptorEntry(url: entry, relativePath: relativePath)
+        }
+        downloadAndApply(entries: detailedEntries, homeURLString: homeURLString, targetRoot: targetRoot,
+                         onMD5Compare: nil, apply: apply, completion: completion)
+    }
+
+    /// 更新記述子で列挙されたファイルをMD5検証後に実ダウンロードし、設置先へ適用する。
+    func downloadAndApply(entries: [UpdateDescriptorEntry], homeURLString: String, targetRoot: URL,
+                          onMD5Compare: ((UpdateMD5Comparison) -> Void)?,
+                          apply: Bool = true,
+                          completion: @escaping (Result<[String], Swift.Error>) -> Void) {
+        guard !entries.isEmpty else {
+            applyRemoteDeleteInstructions(homeURLString: homeURLString, targetRoot: targetRoot, apply: apply,
+                                          completion: completion)
+            return
+        }
         let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
         let group = DispatchGroup()
         let lock = NSLock()
         var applied: [String] = []
+        var failures: [String] = []
+        var firstFailure: Swift.Error?
+
+        func recordFailure(_ filename: String, error: Swift.Error) {
+            lock.lock()
+            failures.append(filename)
+            if firstFailure == nil { firstFailure = error }
+            lock.unlock()
+        }
 
         for entry in entries {
             group.enter()
-            URLSession.shared.downloadTask(with: entry) { [weak self] local, response, error in
+            session.downloadTask(with: entry.url) { [self] local, response, error in
                 defer { group.leave() }
-                guard let self, let local else { return }
-                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 200
-                guard (200..<300).contains(statusCode) else {
-                    self.log.warning("update download failed status=\(statusCode,) url=\(entry.absoluteString,)")
+                if let error {
+                    self.log.warning("update download failed: \(String(describing: error),) url=\(entry.url.absoluteString,)")
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
                     return
                 }
-                let ext = entry.pathExtension.lowercased()
+                guard let local else {
+                    self.log.warning("update download returned no file url=\(entry.url.absoluteString,)")
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
+                    return
+                }
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 200
+                guard (200..<300).contains(statusCode) else {
+                    self.log.warning("update download failed status=\(statusCode,) url=\(entry.url.absoluteString,)")
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
+                    return
+                }
+                if let expectedMD5 = entry.expectedMD5 {
+                    do {
+                        let downloadedMD5 = try UpdateMD5.hexDigest(ofFile: local)
+                        let comparison = UpdateMD5Comparison(
+                            filename: entry.filename,
+                            correctMD5: expectedMD5,
+                            downloadedMD5: downloadedMD5
+                        )
+                        onMD5Compare?(comparison)
+                        guard comparison.matches else {
+                            self.log.warning("update MD5 mismatch expected=\(expectedMD5,) actual=\(downloadedMD5,) file=\(entry.filename,)")
+                            recordFailure(entry.filename, error: Error.updateMD5Mismatch(entry.filename))
+                            return
+                        }
+                    } catch {
+                        self.log.warning("update MD5 calculation failed: \(String(describing: error),) file=\(entry.filename,)")
+                        recordFailure(entry.filename, error: Error.updateMD5Mismatch(entry.filename))
+                        return
+                    }
+                }
+                if !apply {
+                    // testonly: 実体はダウンロード・検証するが、設置先は変更しない。
+                    try? FileManager.default.removeItem(at: local)
+                    lock.lock(); applied.append(entry.filename); lock.unlock()
+                    return
+                }
+                let ext = entry.url.pathExtension.lowercased()
                 do {
                     if ext == "nar" || ext == "zip" {
                         // パッケージ更新: 一時ファイルへ拡張子付きでコピーしてから install
@@ -357,34 +587,170 @@ final class NarInstaller {
                         try self.applyIncrementalFile(downloaded: local, entry: entry,
                                                       baseWithSlash: baseWithSlash, targetRoot: targetRoot)
                     }
-                    lock.lock(); applied.append(entry.lastPathComponent); lock.unlock()
+                    lock.lock(); applied.append(entry.filename); lock.unlock()
                 } catch {
-                    self.log.warning("update apply failed: \(String(describing: error),) url=\(entry.absoluteString,)")
+                    self.log.warning("update apply failed: \(String(describing: error),) url=\(entry.url.absoluteString,)")
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
+                    return
                 }
             }.resume()
         }
-        group.notify(queue: .global()) { completion(applied) }
+        group.notify(queue: .global()) {
+            lock.lock()
+            let appliedResult = applied
+            let failedResult = failures
+            let errorResult = firstFailure
+            lock.unlock()
+            if let errorResult {
+                completion(.failure(errorResult))
+                return
+            }
+            if let firstFailure = failedResult.first {
+                completion(.failure(Error.updateDownloadFailed(firstFailure)))
+                return
+            }
+            self.applyRemoteDeleteInstructions(homeURLString: homeURLString, targetRoot: targetRoot, apply: apply) { result in
+                switch result {
+                case .success(let deleted):
+                    completion(.success(appliedResult + deleted))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+
+    /// ベースウェア更新用に、ダウンロードした増分ファイルを実行中の .app ではなく
+    /// 完全コピー済みのステージング .app へ適用する。NAR/ZIP はゴースト用の
+    /// install.txt を伴うパッケージなので、ベースウェア更新では受け付けない。
+    func downloadAndStage(entries: [UpdateDescriptorEntry], homeURLString: String, targetRoot: URL,
+                          onMD5Compare: ((UpdateMD5Comparison) -> Void)? = nil,
+                          completion: @escaping (Result<[String], Swift.Error>) -> Void) {
+        guard !entries.isEmpty else { completion(.success([])); return }
+        let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
+        let group = DispatchGroup()
+        let lock = NSLock()
+        var applied: [String] = []
+        var failures: [String] = []
+        var firstFailure: Swift.Error?
+
+        func recordFailure(_ filename: String, error: Swift.Error) {
+            lock.lock()
+            failures.append(filename)
+            if firstFailure == nil { firstFailure = error }
+            lock.unlock()
+        }
+
+        for entry in entries {
+            group.enter()
+            session.downloadTask(with: entry.url) { [self] local, response, error in
+                defer { group.leave() }
+                if let error {
+                    self.log.warning("baseware update download failed: \(String(describing: error),) url=\(entry.url.absoluteString,)")
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
+                    return
+                }
+                guard let local else {
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
+                    return
+                }
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 200
+                guard (200..<300).contains(statusCode) else {
+                    recordFailure(entry.filename, error: Error.updateDownloadFailed(entry.filename))
+                    return
+                }
+                if let expectedMD5 = entry.expectedMD5 {
+                    do {
+                        let downloadedMD5 = try UpdateMD5.hexDigest(ofFile: local)
+                        let comparison = UpdateMD5Comparison(
+                            filename: entry.filename,
+                            correctMD5: expectedMD5,
+                            downloadedMD5: downloadedMD5
+                        )
+                        onMD5Compare?(comparison)
+                        guard comparison.matches else {
+                            recordFailure(entry.filename, error: Error.updateMD5Mismatch(entry.filename))
+                            return
+                        }
+                    } catch {
+                        recordFailure(entry.filename, error: Error.updateMD5Mismatch(entry.filename))
+                        return
+                    }
+                }
+                guard entry.url.pathExtension.lowercased() != "nar",
+                      entry.url.pathExtension.lowercased() != "zip" else {
+                    recordFailure(entry.filename, error: Error.basewareArchiveUnsupported(entry.filename))
+                    return
+                }
+                do {
+                    try self.applyIncrementalFile(downloaded: local, entry: entry,
+                                                  baseWithSlash: baseWithSlash, targetRoot: targetRoot,
+                                                  preserveExistingPermissions: true)
+                    lock.lock(); applied.append(entry.filename); lock.unlock()
+                } catch {
+                    self.log.warning("baseware update staging failed: \(String(describing: error),) file=\(entry.filename,)")
+                    recordFailure(entry.filename, error: error)
+                }
+            }.resume()
+        }
+        group.notify(queue: .global()) {
+            lock.lock()
+            let appliedResult = applied
+            let failedResult = failures
+            let errorResult = firstFailure
+            lock.unlock()
+            if let errorResult {
+                completion(.failure(errorResult))
+            } else if let firstFailure = failedResult.first {
+                completion(.failure(Error.updateDownloadFailed(firstFailure)))
+            } else {
+                completion(.success(appliedResult))
+            }
+        }
     }
 
     /// 増分更新ファイルを homeurl 基準の相対パスで targetRoot 配下へ保存する（パストラバーサル防止つき）。
-    private func applyIncrementalFile(downloaded: URL, entry: URL, baseWithSlash: String, targetRoot: URL) throws {
-        var relative = entry.absoluteString
-        if relative.hasPrefix(baseWithSlash) {
+    private func applyIncrementalFile(downloaded: URL, entry: UpdateDescriptorEntry,
+                                      baseWithSlash: String, targetRoot: URL,
+                                      preserveExistingPermissions: Bool = false) throws {
+        var relative = entry.relativePath
+        if relative.isEmpty || relative == entry.url.lastPathComponent {
+            if entry.url.absoluteString.hasPrefix(baseWithSlash) {
+                relative = String(entry.url.absoluteString.dropFirst(baseWithSlash.count))
+            }
+        } else if relative.hasPrefix(baseWithSlash) {
             relative = String(relative.dropFirst(baseWithSlash.count))
         } else {
-            relative = entry.lastPathComponent
+            relative = entry.relativePath
         }
         relative = (relative.removingPercentEncoding ?? relative)
             .replacingOccurrences(of: "\\", with: "/")
             .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        guard !relative.isEmpty, !relative.contains("..") else {
+        guard isSafeRelativePath(relative) else {
             throw Error.invalidDeletePath(relative)
         }
-        let dest = targetRoot.appendingPathComponent(relative)
-        let resolved = dest.resolvingSymlinksInPath()
-        let rootResolved = targetRoot.resolvingSymlinksInPath()
-        guard resolved.path.hasPrefix(rootResolved.path) || dest.path.hasPrefix(targetRoot.path) else {
+        let lexicalDest = targetRoot.appendingPathComponent(relative)
+        let parent = lexicalDest.deletingLastPathComponent().resolvingSymlinksInPath().standardizedFileURL
+        let rootResolved = targetRoot.resolvingSymlinksInPath().standardizedFileURL
+        guard isWithinRoot(parent, root: rootResolved) else {
+            throw Error.zipSlipDetected(lexicalDest.path)
+        }
+        let dest = parent.appendingPathComponent(lexicalDest.lastPathComponent)
+        let resolved = dest.resolvingSymlinksInPath().standardizedFileURL
+        guard isWithinRoot(resolved, root: rootResolved) else {
             throw Error.zipSlipDetected(dest.path)
+        }
+        if preserveExistingPermissions {
+            let permissions: NSNumber
+            if let attributes = try? FileManager.default.attributesOfItem(atPath: dest.path),
+               let existing = attributes[.posixPermissions] as? NSNumber {
+                permissions = existing
+            } else {
+                let isExecutable = dest.path.contains("/Contents/MacOS/") ||
+                    dest.path.contains("/Contents/XPCServices/")
+                permissions = NSNumber(value: isExecutable ? 0o755 : 0o644)
+            }
+            try FileManager.default.setAttributes([.posixPermissions: permissions], ofItemAtPath: downloaded.path)
         }
         try FileManager.default.createDirectory(at: dest.deletingLastPathComponent(), withIntermediateDirectories: true)
         if FileManager.default.fileExists(atPath: dest.path) {
@@ -393,19 +759,57 @@ final class NarInstaller {
         try FileManager.default.moveItem(at: downloaded, to: dest)
     }
 
-    private func fetchUpdateDescriptor(from candidates: [URL], baseURL: URL, completion: @escaping (Result<[URL], Swift.Error>) -> Void) {
+    /// ネットワーク更新先にある delete.txt を取得し、targetRoot からの相対パスを削除する。
+    /// delete.txt が無いサーバーは正常系（更新対象が無い）として扱う。
+    func applyRemoteDeleteInstructions(homeURLString: String, targetRoot: URL, apply: Bool = true,
+                                       completion: @escaping (Result<[String], Swift.Error>) -> Void) {
+        let baseWithSlash = homeURLString.hasSuffix("/") ? homeURLString : "\(homeURLString)/"
+        guard let baseURL = URL(string: baseWithSlash), baseURL.scheme != nil,
+              let deleteURL = URL(string: "delete.txt", relativeTo: baseURL)?.absoluteURL else {
+            completion(.failure(Error.updateDownloadFailed("delete.txt")))
+            return
+        }
+        session.dataTask(with: deleteURL) { [self] data, response, error in
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+            if statusCode == 404 || statusCode == 410 {
+                completion(.success([]))
+                return
+            }
+            guard let data, error == nil, (200..<300).contains(statusCode) else {
+                completion(.failure(Error.updateDownloadFailed("delete.txt")))
+                return
+            }
+            do {
+                let paths = try parseDeleteInstructions(data: data)
+                guard apply else {
+                    completion(.success(paths))
+                    return
+                }
+                completion(.success(try removeRelativePaths(paths, from: targetRoot)))
+            } catch {
+                completion(.failure(error))
+            }
+        }.resume()
+    }
+
+    private func fetchUpdateDescriptor(from candidates: [URL], baseURL: URL,
+                                       completion: @escaping (Result<[UpdateDescriptorEntry], Swift.Error>) -> Void) {
         guard let current = candidates.first else {
             completion(.failure(Error.updateDescriptorNotFound))
             return
         }
-        URLSession.shared.dataTask(with: current) { data, response, error in
+        session.dataTask(with: current) { data, response, error in
             let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
             if let data, error == nil, (200..<300).contains(statusCode) {
                 guard let text = TextEncodingDetector.decode(data) else {
                     completion(.failure(Error.updateDescriptorDecodeFailed))
                     return
                 }
-                let entries = UpdateDescriptorParser.parse(text, baseURL: baseURL)
+                guard UpdateDescriptorParser.isValidDescriptor(text, baseURL: baseURL, requireMD5: true) else {
+                    completion(.failure(Error.updateDescriptorInvalid))
+                    return
+                }
+                let entries = UpdateDescriptorParser.parseEntries(text, baseURL: baseURL, requireMD5: true)
                 completion(.success(entries))
                 return
             }
@@ -417,21 +821,71 @@ final class NarInstaller {
         let deleteTxt = extractedRoot.appendingPathComponent("delete.txt")
         guard FileManager.default.fileExists(atPath: deleteTxt.path) else { return }
 
-        let data = try Data(contentsOf: deleteTxt)
-        guard let text = TextEncodingDetector.decode(data) else { throw Error.installTxtDecodeFailed }
-        let lines = text.replacingOccurrences(of: "\r\n", with: "\n").split(separator: "\n", omittingEmptySubsequences: false)
+        let paths = try parseDeleteInstructions(data: Data(contentsOf: deleteTxt))
+        _ = try removeRelativePaths(paths, from: installTarget)
+    }
+
+    private func parseDeleteInstructions(data: Data) throws -> [String] {
+        guard let text = TextEncodingDetector.decode(data) else {
+            throw Error.deleteInstructionDecodeFailed
+        }
+        var paths: [String] = []
+        let lines = text.replacingOccurrences(of: "\r\n", with: "\n")
+            .split(separator: "\n", omittingEmptySubsequences: false)
         for raw in lines {
-            let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            var line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            if line.first == "\u{FEFF}" { line.removeFirst() }
             guard !line.isEmpty, !line.hasPrefix(";"), !line.hasPrefix("#") else { continue }
-            let normalized = line.replacingOccurrences(of: "\\", with: "/").trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-            guard !normalized.contains("..") else { throw Error.invalidDeletePath(normalized) }
-            let target = installTarget.appendingPathComponent(normalized)
-            let resolved = target.resolvingSymlinksInPath()
-            guard resolved.path.hasPrefix(installTarget.path) else { throw Error.invalidDeletePath(normalized) }
-            if FileManager.default.fileExists(atPath: resolved.path) {
-                try FileManager.default.removeItem(at: resolved)
+            let lower = line.lowercased()
+            if lower.hasPrefix("charset,") || lower.hasPrefix("charset:") { continue }
+            let normalized = line.replacingOccurrences(of: "\\", with: "/")
+            guard isSafeRelativePath(normalized) else {
+                throw Error.invalidDeletePath(line)
+            }
+            paths.append(normalized.split(separator: "/").joined(separator: "/"))
+        }
+        return paths
+    }
+
+    private func removeRelativePaths(_ paths: [String], from root: URL) throws -> [String] {
+        let rootResolved = root.resolvingSymlinksInPath().standardizedFileURL
+        var removed: [String] = []
+        let fm = FileManager.default
+        for path in paths {
+            let lexical = root.appendingPathComponent(path)
+            let parent = lexical.deletingLastPathComponent().resolvingSymlinksInPath().standardizedFileURL
+            guard isWithinRoot(parent, root: rootResolved) else {
+                throw Error.invalidDeletePath(path)
+            }
+            let target = parent.appendingPathComponent(lexical.lastPathComponent)
+            let resolved = target.resolvingSymlinksInPath().standardizedFileURL
+            guard isWithinRoot(resolved, root: rootResolved) else {
+                throw Error.invalidDeletePath(path)
+            }
+            if fm.fileExists(atPath: target.path) {
+                try fm.removeItem(at: target)
+                removed.append(path)
             }
         }
+        return removed
+    }
+
+    private func isSafeRelativePath(_ path: String) -> Bool {
+        let normalized = path.replacingOccurrences(of: "\\", with: "/")
+        guard !normalized.isEmpty,
+              !normalized.hasPrefix("/"),
+              !normalized.hasPrefix("\\"),
+              !normalized.contains("\0") else { return false }
+        let components = normalized.split(separator: "/", omittingEmptySubsequences: true)
+        guard !components.isEmpty else { return false }
+        return !components.contains { component in
+            component == "." || component == ".." || component.contains(":")
+        }
+    }
+
+    private func isWithinRoot(_ candidate: URL, root: URL) -> Bool {
+        let candidatePath = candidate.path
+        let rootPath = root.path.hasSuffix("/") ? String(root.path.dropLast()) : root.path
+        return candidatePath == rootPath || candidatePath.hasPrefix(rootPath + "/")
     }
 }
-

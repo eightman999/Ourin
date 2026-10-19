@@ -80,14 +80,14 @@ ID番号のサーフェスアニメーションを一時停止する。
 
 SSP
 記述例
-\s[0]\i[200]長いアニメーションを再生中。\![anim,pouse,200]ここで、一時停止。
+\s[0]\i[200]長いアニメーションを再生中。\![anim,pause,200]ここで、一時停止。
 
 \![anim,resume,ID]
 上記の一時停止を解除する。
 
 SSP
 記述例
-\s[0]\i[200]長いアニメーションを再生中。\![anim,pouse,200]ここで、一時停止。\![anim,resume,200]ここで、再び再生開始。
+\s[0]\i[200]長いアニメーションを再生中。\![anim,pause,200]ここで、一時停止。\![anim,resume,200]ここで、再び再生開始。
 
 \![anim,offset,ID,x座標,y座標]
 ID番号のサーフェスアニメーションの位置を指定した座標分ずらす。
@@ -2356,7 +2356,7 @@ InputBoxオプション
 --option=(noclose|noclear)
 noclose:入力後、inputboxを閉じないで表示し続ける。
 noclear:入力後、入力内容を初期化せずにそのまま表示し続ける。
-nocloseと同時に指定する(例：\![inputbox,入力内容,,,--option=noclose,--option=noclear])。
+nocloseと同時に指定する(例：\![open,inputbox,入力内容,,,--option=noclose,--option=noclear])。
 特殊なinputbox(slider,password,time,date)では無効。
 --text=デフォルト表示
 最初から表示すべき文字列。

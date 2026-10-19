@@ -5,8 +5,37 @@
 #include <set>
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
+#include <cstdlib>
 
 using json = nlohmann::json;
+
+namespace {
+
+/// YAYA イベントの制御値だけを SHIORI の発話値から除外する。
+///
+/// イベント関数が整数/実数を返すこと自体は YAYA では正当だが、SHIORI の
+/// `Value` は Sakura Script であり、数値だけをそのまま返すとベースウェアが
+/// それを会話として表示してしまう。`OnTranslate` は文字列 "0" も翻訳結果に
+/// なり得るため例外とする。
+bool isNumericEventControlValue(const std::string& eventID, const std::string& value) {
+    if (eventID.size() < 2 || eventID[0] != 'O' || eventID[1] != 'n' || eventID == "OnTranslate") {
+        return false;
+    }
+
+    const auto first = value.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) return false;
+    const auto last = value.find_last_not_of(" \t\r\n");
+    const std::string numeric = value.substr(first, last - first + 1);
+
+    char* end = nullptr;
+    errno = 0;
+    std::strtod(numeric.c_str(), &end);
+    return errno != ERANGE && end == numeric.c_str() + numeric.size() &&
+           numeric.find_first_of("0123456789") != std::string::npos;
+}
+
+}
 
 YayaCore::YayaCore() {
     // Set this instance as the callback for VM operations
@@ -324,7 +353,21 @@ std::string YayaCore::processCommand(const std::string &line) {
                     dictManager.hasFunction(id)) {
                     std::cerr << "[YayaCore] Framework returned an empty malformed GET response; "
                               << "falling back to direct event call: " << id << std::endl;
-                    value = dictManager.execute(id, refs);
+                    Value directResult = dictManager.executeValue(id, refs);
+                    const bool isEventID = id.size() >= 2 && id[0] == 'O' && id[1] == 'n';
+                    const bool isScriptValue = directResult.getType() == Value::Type::String ||
+                                               directResult.getType() == Value::Type::Array;
+                    // A YAYA event can return a numeric control value (for example,
+                    // Emily4's OnMouseMove returns integer 0 when no hit occurred).
+                    // That value is not a SHIORI Value script and must not reach the
+                    // host as speech. Preserve strings/arrays, including the literal
+                    // string "0" returned by OnTranslate.
+                    if (isEventID && !isScriptValue) {
+                        std::cerr << "[YayaCore] Ignoring non-script direct event result: id="
+                                  << id << ", type=" << static_cast<int>(directResult.getType()) << std::endl;
+                    } else {
+                        value = directResult.asString();
+                    }
                     if (!value.empty()) {
                         shioriStatus = 200;
                         shioriHeaders["Value"] = value;
@@ -332,8 +375,24 @@ std::string YayaCore::processCommand(const std::string &line) {
                 }
             } else {
                 // Fallback: call function directly (for simple ghosts without YAYA framework)
-                value = dictManager.execute(id, refs);
+                Value directResult = dictManager.executeValue(id, refs);
+                const bool isEventID = id.size() >= 2 && id[0] == 'O' && id[1] == 'n';
+                const bool isScriptValue = directResult.getType() == Value::Type::String ||
+                                           directResult.getType() == Value::Type::Array;
+                if (isEventID && !isScriptValue) {
+                    std::cerr << "[YayaCore] Ignoring non-script direct event result: id="
+                              << id << ", type=" << static_cast<int>(directResult.getType()) << std::endl;
+                } else {
+                    value = directResult.asString();
+                }
                 std::cerr << "[YayaCore] Direct function call (no YAYA framework)" << std::endl;
+            }
+
+            if (isNumericEventControlValue(id, value)) {
+                std::cerr << "[YayaCore] Ignoring numeric event control value: id="
+                          << id << ", value=" << value << std::endl;
+                value.clear();
+                shioriHeaders.erase("Value");
             }
 
             auto exec_end = std::chrono::steady_clock::now();

@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <variant>
+#include <cstdint>
 
 /// Represents a YAYA value (string, integer, array, or dictionary)
 class Value {
@@ -21,6 +22,7 @@ public:
     Value();
     explicit Value(const std::string& str);
     explicit Value(int num);
+    explicit Value(std::int64_t num);
     explicit Value(double num);
     explicit Value(const std::vector<Value>& arr);
     explicit Value(const std::map<std::string, Value>& dict);
@@ -32,6 +34,7 @@ public:
     // Conversion methods
     std::string asString() const;
     int asInt() const;
+    std::int64_t asInt64() const;
     double asReal() const;
     const std::vector<Value>& asArray() const;
     std::vector<Value>& asArrayMutable();
@@ -62,7 +65,7 @@ public:
 private:
     Type type_;
     std::string strValue_;
-    int intValue_;
+    std::int64_t intValue_;
     double real_ = 0.0;
     std::vector<Value> arrayValue_;
     std::map<std::string, Value> dictValue_;

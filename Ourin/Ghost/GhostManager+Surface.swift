@@ -4,22 +4,76 @@ import CoreImage
 import Combine
 import UserNotifications
 
+/// シェルの `seriko.use_self_alpha` によるサーフェス透過モード。
+enum SurfaceTransparencyMode: Equatable {
+    case legacy
+    case useSelfAlpha
+    case full
+
+    static func parse(_ rawValue: String?) -> Self {
+        switch rawValue?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "1", "true": return .useSelfAlpha
+        case "full": return .full
+        default: return .legacy
+        }
+    }
+}
 
 // MARK: - Surface Loading and Compositing
 
 extension GhostManager {
+    private func nextSurfaceRequestGeneration(for scope: Int) -> UInt64 {
+        let next = (surfaceRequestGenerationByScope[scope] ?? 0) &+ 1
+        surfaceRequestGenerationByScope[scope] = next
+        return next
+    }
+
+    private func isCurrentSurfaceRequest(_ generation: UInt64, for scope: Int) -> Bool {
+        surfaceRequestGenerationByScope[scope] == generation
+    }
+
+    /// サーフェス切替後のイベントを、表示成功・非表示の両方で同じ形式にする。
+    private func dispatchSurfaceChange(
+        scope: Int,
+        newSurfaceID: Int,
+        oldSurfaceID: Int,
+        newSurfaceSize: NSSize
+    ) {
+        // UKADOC: Reference0 = sakura(scope0) の現在サーフェスID,
+        // Reference1 = kero(scope1) の現在サーフェスID,
+        // Reference2 = 変化したキャラのスコープ,サーフェスID。
+        let sakuraSurface = characterViewModels[0]?.currentSurfaceID ?? (scope == 0 ? newSurfaceID : 0)
+        let keroSurface = characterViewModels[1]?.currentSurfaceID ?? (scope == 1 ? newSurfaceID : 0)
+        let params: [String: String] = [
+            "sakuraSurface": String(sakuraSurface),
+            "keroSurface": String(keroSurface),
+            "changedScope": "\(scope),\(newSurfaceID)"
+        ]
+        EventBridge.shared.notify(.OnSurfaceChange, refs: params)
+        EventBridge.shared.notifyOtherSurfaceChange(
+            from: self,
+            scope: scope,
+            newSurfaceID: newSurfaceID,
+            oldSurfaceID: oldSurfaceID,
+            newSurfaceSize: newSurfaceSize
+        )
+        NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
+        Log.debug("[GhostManager] OnSurfaceChange dispatched: sakura=\(sakuraSurface) kero=\(keroSurface) (changed scope\(scope) \(oldSurfaceID)->\(newSurfaceID))")
+    }
+
     /// `\![set,property,currentghost.scope(N).surface.num,ID]` 等の SET を実サーフェス/アニメへ反映する。
     /// UKADOC では surface.num / animation.num / seriko.defaultsurface は WRITE 可。プロパティの
     /// 読み戻し配線（live scopeData）とは独立に、ここでは SET の副作用（表示変更）のみを適用する。
-    func applyScopePropertySideEffect(key: String, value: String) {
+    @discardableResult
+    func applyScopePropertySideEffect(key: String, value: String) -> Bool {
         var k = key
         if k.hasPrefix("currentghost.") { k = String(k.dropFirst("currentghost.".count)) }
-        guard k.hasPrefix("scope(") else { return }
+        guard k.hasPrefix("scope(") else { return false }
         let afterParen = k.dropFirst("scope(".count)
-        guard let close = afterParen.firstIndex(of: ")") else { return }
-        guard let scopeID = Int(afterParen[..<close]) else { return }
+        guard let close = afterParen.firstIndex(of: ")") else { return false }
+        guard let scopeID = Int(afterParen[..<close]) else { return false }
         var rest = String(afterParen[afterParen.index(after: close)...])
-        guard rest.first == "." else { return }
+        guard rest.first == "." else { return false }
         rest.removeFirst()
 
         // 対象スコープを一時的に currentScope にして既存 API を再利用する（\4/\5 と同じ手法）。
@@ -33,13 +87,21 @@ extension GhostManager {
 
         switch rest {
         case "surface.num", "seriko.defaultsurface":
-            guard let sid = Int(value) else { return }
+            guard let sid = Int(value.trimmingCharacters(in: .whitespacesAndNewlines)) else { return false }
             withScope { updateSurface(id: sid) }
+            return true
         case "animation.num":
-            guard let aid = Int(value) else { return }
-            withScope { playAnimation(id: aid, wait: false) }
+            let rawIDs = value.split(separator: ",", omittingEmptySubsequences: false)
+            let animationIDs = rawIDs.compactMap { Int($0.trimmingCharacters(in: .whitespacesAndNewlines)) }
+            guard !rawIDs.isEmpty, animationIDs.count == rawIDs.count else { return false }
+            withScope {
+                for animationID in animationIDs {
+                    playAnimation(id: animationID, wait: false)
+                }
+            }
+            return true
         default:
-            break
+            return false
         }
     }
 
@@ -47,22 +109,62 @@ extension GhostManager {
         let id = surfaceAliases[rawID] ?? rawID
         let scope = currentScope
         let oldSurfaceID = characterViewModels[scope]?.currentSurfaceID ?? 0
+        let requestGeneration = nextSurfaceRequestGeneration(for: scope)
+
+        // サーフェスに紐づく SERIKO 定義と一時オーバーレイを切り替える。
+        // shared-index の対象だけは、次の定義を読み込むまで executor 内に保持する。
+        prepareSerikoForSurfaceTransition(scope: scope)
         
         // Clear overlays when surface changes (per UKADOC spec)
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             if let vm = self.characterViewModels[scope] {
                 vm.overlays.removeAll()
+                vm.serikoMoveOffset = .zero
                 Log.debug("[GhostManager] Cleared overlays for scope \(scope) due to surface change")
             }
+        }
+
+        if id < 0 {
+            // \s[-1] は「このスコープを非表示」にする指定。画像が見つからない
+            // 通常のロード失敗とは異なり、直前の画像を残してはいけない。
+            DispatchQueue.main.async { [weak self] in
+                guard let self,
+                      self.isCurrentSurfaceRequest(requestGeneration, for: scope) else { return }
+
+                if let vm = self.characterViewModels[scope] {
+                    vm.image = nil
+                    vm.currentSurfaceID = -1
+                    vm.overlays.removeAll()
+                    vm.serikoMoveOffset = .zero
+                }
+                self.characterWindows[scope]?.orderOut(nil)
+                self.positionBalloonWindow()
+                self.dispatchSurfaceChange(
+                    scope: scope,
+                    newSurfaceID: -1,
+                    oldSurfaceID: oldSurfaceID,
+                    newSurfaceSize: .zero
+                )
+                self.startSerikoLoopIfNeeded()
+                Log.debug("[GhostManager] Hid scope \(scope) for explicit surface -1")
+            }
+            scheduleSurfaceRestore(for: requestGeneration, scope: scope)
+            return
         }
         
         DispatchQueue.global(qos: .userInitiated).async {
             let image = self.loadImage(surfaceId: id, scope: scope)
             DispatchQueue.main.async {
+                guard self.isCurrentSurfaceRequest(requestGeneration, for: scope) else {
+                    Log.debug("[GhostManager] Ignoring stale surface request \(id) for scope \(scope)")
+                    return
+                }
+
                 // If requested surface doesn't exist, keep current surface
                 guard let image = image else {
                     Log.info("[GhostManager] Surface \(id) not found for scope \(scope), keeping current surface")
+                    self.startSerikoLoopIfNeeded()
                     return
                 }
 
@@ -73,33 +175,31 @@ extension GhostManager {
                     vm.image = image
                     vm.currentSurfaceID = id
                 }
+                self.loadAnimationsForCurrentSurface(surfaceID: id, scope: scope)
                 if let win = self.characterWindows[scope] {
                     // Resize window to fit to new surface
                     win.setContentSize(image.size)
+                    win.orderFront(nil)
                     self.positionBalloonWindow()
                 }
-                
-                // Dispatch OnSurfaceChange event.
-                // UKADOC: Reference0 = sakura(scope0) の現在サーフェスID,
-                //         Reference1 = kero(scope1) の現在サーフェスID,
-                //         Reference2 = 変化したキャラのスコープ,サーフェスID。
-                let sakuraSurface = self.characterViewModels[0]?.currentSurfaceID ?? (scope == 0 ? id : 0)
-                let keroSurface = self.characterViewModels[1]?.currentSurfaceID ?? (scope == 1 ? id : 0)
-                let params: [String: String] = [
-                    "sakuraSurface": String(sakuraSurface),
-                    "keroSurface": String(keroSurface),
-                    "changedScope": "\(scope),\(id)"
-                ]
-                EventBridge.shared.notify(.OnSurfaceChange, refs: params)
-                NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
-                Log.debug("[GhostManager] OnSurfaceChange dispatched: sakura=\(sakuraSurface) kero=\(keroSurface) (changed scope\(scope) \(oldSurfaceID)->\(id))")
+                self.dispatchSurfaceChange(
+                    scope: scope,
+                    newSurfaceID: id,
+                    oldSurfaceID: oldSurfaceID,
+                    newSurfaceSize: image.size
+                )
             }
         }
         
         // Schedule OnSurfaceRestore after a delay
         // UKADOC: Reference0 = 本体側(scope0)の現在サーフェス, Reference1 = 相方側(scope1)の現在サーフェス
+        scheduleSurfaceRestore(for: requestGeneration, scope: scope)
+    }
+
+    private func scheduleSurfaceRestore(for generation: UInt64, scope: Int) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) { [weak self] in
-            guard let self = self else { return }
+            guard let self,
+                  self.isCurrentSurfaceRequest(generation, for: scope) else { return }
             let sakuraSurface = self.characterViewModels[0]?.currentSurfaceID ?? 0
             let keroSurface = self.characterViewModels[1]?.currentSurfaceID ?? 0
             let params: [String: String] = [
@@ -111,11 +211,17 @@ extension GhostManager {
         }
     }
 
-    func loadImage(surfaceId: Int, scope: Int) -> NSImage? {
+    func loadImage(
+        surfaceId: Int,
+        scope: Int,
+        applyTransparency: Bool = true,
+        transparencyMode: SurfaceTransparencyMode? = nil
+    ) -> NSImage? {
         guard let shellURL = loadShellPath() else {
             Log.info("[GhostManager] Cannot load surface: shell path unavailable")
             return nil
         }
+        let effectiveTransparencyMode = transparencyMode ?? surfaceTransparencyMode
         // surfacetable.txt の option,DisableNoDefineSurfaces:
         // surfaces.txt にも surfacetable.txt にも定義がないサーフェスIDは描画しない（UKADOC）。
         if let table = surfaceTable, table.disableNoDefineSurfaces,
@@ -126,7 +232,12 @@ extension GhostManager {
         }
         // SERIKO/2.0: element 合成で定義されるサーフェスは複数画像を重ねて生成する
         if let elements = parsedSurfaceDefs[surfaceId]?.elements, !elements.isEmpty,
-           let composed = compositeSurfaceElements(elements, shellURL: shellURL) {
+           let composed = compositeSurfaceElements(
+               elements,
+               shellURL: shellURL,
+               applyTransparency: applyTransparency,
+               transparencyMode: effectiveTransparencyMode
+           ) {
             Log.debug("[GhostManager] Surface \(surfaceId) composed from \(elements.count) elements")
             return composed
         }
@@ -147,19 +258,17 @@ extension GhostManager {
             let url = shellURL.appendingPathComponent(name)
             // @2x/@3x バリアントがあれば高解像度 rep を取り込む（Retina 対応）
             if FileManager.default.fileExists(atPath: url.path), let img = RetinaImageLoader.image(contentsOf: url) {
-                // PNA マスクがあれば適用（白=不透明、黒=透明として扱う想定）
-                let pnaURL = url.deletingPathExtension().appendingPathExtension("pna")
-                if FileManager.default.fileExists(atPath: pnaURL.path),
-                   let masked = applyPNAMask(baseURL: url, maskURL: pnaURL) {
-                    Log.debug("[GhostManager] Image loaded with PNA mask: \(name)")
-                    return masked
+                guard applyTransparency else {
+                    Log.debug("[GhostManager] Image loaded without transparency processing: \(name)")
+                    return img
                 }
-                if let keyed = applyGreenChromakey(to: img) {
-                    Log.debug("[GhostManager] Image loaded with green chromakey: \(name)")
-                    return keyed
-                }
-                Log.debug("[GhostManager] Image loaded: \(name)")
-                return img
+                let processed = applySurfaceTransparency(
+                    to: img,
+                    sourceURL: url,
+                    mode: effectiveTransparencyMode
+                )
+                Log.debug("[GhostManager] Image loaded: \(name) transparency=\(effectiveTransparencyMode)")
+                return processed
             }
         }
         Log.info("[GhostManager] No surface image found for id=\(surfaceId) scope=\(scope). Tried: \(candidates)")
@@ -178,11 +287,11 @@ extension GhostManager {
         let ctx = CIContext(options: nil)
         guard let cg = ctx.createCGImage(output, from: baseCI.extent) else { return nil }
         let size = NSSize(width: cg.width, height: cg.height)
-        let nsimg = NSImage(size: size)
-        nsimg.lockFocus()
-        NSGraphicsContext.current?.cgContext.draw(cg, in: CGRect(origin: .zero, size: size))
-        nsimg.unlockFocus()
-        return nsimg
+        // lockFocus creates an AppKit bitmap representation whose flipped
+        // coordinate metadata is not stable when the image is later rendered
+        // by SwiftUI. Keep the Image I/O/CIImage orientation by constructing
+        // the NSImage directly from the resulting CGImage.
+        return NSImage(cgImage: cg, size: size)
     }
 
     /// PNA/alpha を持たない古いシェル素材向けに、純緑 (0,255,0) 背景を透明化する。
@@ -242,54 +351,166 @@ extension GhostManager {
     }
 
     /// 任意ファイルのサーフェス画像を読み込む（Retina + 同名 PNA マスク対応）。element 合成で使用。
-    func loadSurfaceFile(url: URL) -> NSImage? {
+    /// `applyTransparency` を false にすると、asis 用に透過色・PNA・画像アルファを
+    /// 変更せず、元画像を返す。asis の合成時にソースアルファは別途無視される。
+    func loadSurfaceFile(
+        url: URL,
+        applyTransparency: Bool = true,
+        transparencyMode: SurfaceTransparencyMode? = nil
+    ) -> NSImage? {
         guard FileManager.default.fileExists(atPath: url.path),
               let img = RetinaImageLoader.image(contentsOf: url) else { return nil }
-        let pnaURL = url.deletingPathExtension().appendingPathExtension("pna")
-        if FileManager.default.fileExists(atPath: pnaURL.path),
-           let masked = applyPNAMask(baseURL: url, maskURL: pnaURL) {
-            return masked
-        }
-        if let keyed = applyGreenChromakey(to: img) {
-            return keyed
-        }
-        return img
+        guard applyTransparency else { return img }
+        return applySurfaceTransparency(
+            to: img,
+            sourceURL: url,
+            mode: transparencyMode ?? surfaceTransparencyMode
+        )
     }
 
     /// SERIKO/2.0 element 定義を index 順に重ねて1枚の基底サーフェス画像を合成する。
-    func compositeSurfaceElements(_ elements: [SerikoElement], shellURL: URL) -> NSImage? {
+    func compositeSurfaceElements(
+        _ elements: [SerikoElement],
+        shellURL: URL,
+        applyTransparency: Bool = true,
+        transparencyMode: SurfaceTransparencyMode? = nil
+    ) -> NSImage? {
         guard !elements.isEmpty else { return nil }
-        struct Loaded { let img: NSImage; let x: Int; let y: Int; let method: SerikoMethod }
+        let effectiveTransparencyMode = transparencyMode ?? surfaceTransparencyMode
+        struct Loaded { let img: NSImage; let x: Int; let y: Int; let blendMode: SurfaceBlendMode }
         var loaded: [Loaded] = []
         for el in elements.sorted(by: { $0.index < $1.index }) {
             let url = shellURL.appendingPathComponent(el.filename)
-            guard let img = loadSurfaceFile(url: url) else {
+            let blendMode: SurfaceBlendMode
+            switch el.method {
+            case .overlay: blendMode = .normal
+            case .overlayFast: blendMode = .overlayFast
+            case .interpolate: blendMode = .interpolate
+            case .asis: blendMode = .asis
+            case .replace: blendMode = .replace
+            case .reduce: blendMode = .reduce
+            case .blend(let operation, let fast):
+                blendMode = .blend(operation, destinationAlphaAware: fast)
+            default: blendMode = .normal
+            }
+            guard let img = loadSurfaceFile(
+                url: url,
+                applyTransparency: applyTransparency && blendMode != .asis,
+                transparencyMode: effectiveTransparencyMode
+            ) else {
                 Log.info("[GhostManager] element image not found: \(el.filename)")
                 continue
             }
-            loaded.append(Loaded(img: img, x: el.x, y: el.y, method: el.method))
+            loaded.append(Loaded(img: img, x: el.x, y: el.y, blendMode: blendMode))
         }
         guard !loaded.isEmpty else { return nil }
-        // キャンバスサイズ = 全 element の包含矩形（原点(0,0)基準）
-        var maxW = 0, maxH = 0
-        for l in loaded {
-            maxW = max(maxW, l.x + Int(l.img.size.width.rounded()))
-            maxH = max(maxH, l.y + Int(l.img.size.height.rounded()))
+        let overlays = loaded.enumerated().map { index, item in
+            SurfaceOverlay(
+                id: "element_\(index)_\(item.x)_\(item.y)",
+                image: item.img,
+                offset: CGPoint(x: item.x, y: item.y),
+                alpha: 1,
+                zOrder: index,
+                insertionOrder: index,
+                blendMode: item.blendMode,
+                surfaceID: nil,
+                animationID: nil
+            )
         }
-        guard maxW > 0, maxH > 0 else { return nil }
-        let canvasSize = NSSize(width: maxW, height: maxH)
-        let canvas = NSImage(size: canvasSize)
-        canvas.lockFocus()
-        for l in loaded {
-            // SERIKO は左上原点・y 下方向。NSImage は左下原点なので変換する。
-            let drawPoint = NSPoint(x: CGFloat(l.x),
-                                    y: canvasSize.height - CGFloat(l.y) - l.img.size.height)
-            // reduce はアルファ間引き(destinationIn)、その他は通常の上書き合成(sourceOver)で近似
-            let op: NSCompositingOperation = (l.method == .reduce) ? .destinationIn : .sourceOver
-            l.img.draw(at: drawPoint, from: .zero, operation: op, fraction: 1.0)
+        return SurfaceBlendRenderer.composite(base: nil, overlays: overlays)
+    }
+
+    /// シェルの透過設定を画像ロードへ適用する。
+    private func applySurfaceTransparency(
+        to image: NSImage,
+        sourceURL: URL,
+        mode: SurfaceTransparencyMode
+    ) -> NSImage {
+        let pnaURL = sourceURL.deletingPathExtension().appendingPathExtension("pna")
+        if FileManager.default.fileExists(atPath: pnaURL.path),
+           let masked = applyPNAMask(baseURL: sourceURL, maskURL: pnaURL) {
+            return masked
         }
-        canvas.unlockFocus()
-        return canvas
+
+        switch mode {
+        case .full:
+            // `full` はPNAが無い画像をキー色透過せず、そのまま不透明画像として扱う。
+            return image
+        case .useSelfAlpha:
+            if imageHasAlphaChannel(image) {
+                return image
+            }
+            // アルファもPNAも無い場合はUKADOCの従来動作（左上キー色）へ戻る。
+            return applySurfaceTopLeftPixelChromakey(to: image) ?? image
+        case .legacy:
+            // 既存のOurin互換動作（純緑キー）を維持する。
+            return applyGreenChromakey(to: image) ?? image
+        }
+    }
+
+    private func imageHasAlphaChannel(_ image: NSImage) -> Bool {
+        guard let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return false }
+        switch cg.alphaInfo {
+        case .none, .noneSkipFirst, .noneSkipLast:
+            return false
+        default:
+            return true
+        }
+    }
+
+    /// アルファチャンネルを持たない画像の左上ピクセルをキー色として透過する。
+    private func applySurfaceTopLeftPixelChromakey(to image: NSImage) -> NSImage? {
+        guard let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        let width = cg.width
+        let height = cg.height
+        guard width > 0, height > 0 else { return nil }
+
+        let bytesPerPixel = 4
+        let bytesPerRow = width * bytesPerPixel
+        var pixels = [UInt8](repeating: 0, count: height * bytesPerRow)
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
+        guard let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: bitmapInfo
+        ) else {
+            return nil
+        }
+
+        context.draw(cg, in: CGRect(x: 0, y: 0, width: width, height: height))
+        let keyRed = pixels[0]
+        let keyGreen = pixels[1]
+        let keyBlue = pixels[2]
+        var changed = false
+        for offset in stride(from: 0, to: pixels.count, by: bytesPerPixel) {
+            guard pixels[offset] == keyRed,
+                  pixels[offset + 1] == keyGreen,
+                  pixels[offset + 2] == keyBlue else { continue }
+            pixels[offset] = 0
+            pixels[offset + 1] = 0
+            pixels[offset + 2] = 0
+            pixels[offset + 3] = 0
+            changed = true
+        }
+        guard changed,
+              let outputContext = CGContext(
+                  data: &pixels,
+                  width: width,
+                  height: height,
+                  bitsPerComponent: 8,
+                  bytesPerRow: bytesPerRow,
+                  space: colorSpace,
+                  bitmapInfo: bitmapInfo
+              ),
+              let outputCG = outputContext.makeImage() else {
+            return nil
+        }
+        return NSImage(cgImage: outputCG, size: image.size)
     }
 
     // MARK: - Surface Compositing
@@ -299,8 +520,20 @@ extension GhostManager {
     ///   - surfaceID: The surface ID to overlay
     ///   - type: The animation pattern type (overlay/base/replace/bind)
     ///   - animationID: Optional owner animation ID for deterministic overlay tracking
-    func handleSurfaceOverlay(surfaceID: Int, type: AnimationPatternType = .overlay, animationID: Int? = nil, initialOffset: CGPoint? = nil) {
+    func handleSurfaceOverlay(
+        surfaceID: Int,
+        type: AnimationPatternType = .overlay,
+        animationID: Int? = nil,
+        initialOffset: CGPoint? = nil,
+        blendMode: SurfaceBlendMode = .normal,
+        zOrder overrideZOrder: Int? = nil
+    ) {
         Log.debug("[GhostManager] Adding surface overlay: \(surfaceID), type: \(type)")
+
+        guard surfaceID >= 0 else {
+            // SERIKO の -1 は待機/消去フレームであり、画像ファイルではない。
+            return
+        }
         
         // Process based on pattern type
         switch type {
@@ -310,9 +543,9 @@ extension GhostManager {
             return
             
         case .replace:
-            // Replace current surface with this one
-            updateSurface(id: surfaceID)
-            return
+            // SERIKO replace replaces only the source rectangle. Keep the
+            // current base surface and composite the new image below.
+            break
             
         case .bind:
             // Bind dressup part as a persistent overlay that can coexist with base surface.
@@ -323,54 +556,59 @@ extension GhostManager {
             break
         }
         
-        // Load surface image from shell directory
-        guard let shellPath = loadShellPath() else {
-            Log.info("[GhostManager] Cannot add overlay - shell path not found")
-            return
-        }
-        
-        // Surface files are named surface<ID>.png
-        let surfaceFileName = "surface\(surfaceID).png"
-        let surfacePath = shellPath.appendingPathComponent(surfaceFileName)
-        
-        guard FileManager.default.fileExists(atPath: surfacePath.path) else {
-            Log.info("[GhostManager] Surface file not found: \(surfacePath.path)")
-            return
-        }
-        
-        guard let image = NSImage(contentsOf: surfacePath) else {
-            Log.info("[GhostManager] Failed to load surface image: \(surfaceFileName)")
+        let scope = currentScope
+        // 通常の \s[ID] と同じ surface resolver を使う。これにより、SERIKO の
+        // anim/add でも alias、surface element 合成、PNA/クロマキー、ゼロ埋め
+        // ファイル名、DisableNoDefineSurfaces を同じ規則で適用できる。
+        let resolvedSurfaceID = surfaceAliases[surfaceID] ?? surfaceID
+        let effectiveBlendMode: SurfaceBlendMode = type == .replace ? .replace : blendMode
+        guard let image = loadImage(
+            surfaceId: resolvedSurfaceID,
+            scope: scope,
+            applyTransparency: effectiveBlendMode != .asis
+        ) else {
+            Log.info("[GhostManager] Surface image not found for overlay id=\(surfaceID), resolved=\(resolvedSurfaceID), scope=\(scope)")
             return
         }
         
         // Add overlay to current scope's character view model
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            guard let vm = self.characterViewModels[self.currentScope] else { return }
-            let insertionOrder = (vm.overlays.map(\.insertionOrder).max() ?? -1) + 1
-            let zOrder: Int
-            switch type {
-            case .base, .replace:
-                zOrder = 0
-            case .overlay:
-                zOrder = 100
-            case .bind:
-                zOrder = 200
+            guard let vm = self.characterViewModels[scope] else { return }
+
+            // 同じアニメーションの次フレームは前フレームを置き換える。
+            // 旧実装は surface ID が変わるたびに append していたため、目元が残留した。
+            if let animationID {
+                vm.overlays.removeAll { $0.animationID == animationID }
             }
-            let idPrefix = type == .bind ? "dressup_bind_\(surfaceID)_" : "surface_\(surfaceID)_"
+            let insertionOrder = (vm.overlays.map(\.insertionOrder).max() ?? -1) + 1
+            let zOrder: Int = overrideZOrder ?? {
+                switch type {
+                case .base:
+                    return 0
+                case .overlay, .replace:
+                    return 100
+                case .bind:
+                    return 200
+                }
+            }()
+            let idPrefix = type == .bind ? "dressup_bind_\(resolvedSurfaceID)_" : "surface_\(resolvedSurfaceID)_"
             let animationMarker = animationID.map { "anim_\($0)_" } ?? ""
             
-        let overlay = SurfaceOverlay(
-            id: "\(idPrefix)\(animationMarker)\(UUID().uuidString)",
+            let overlay = SurfaceOverlay(
+                id: "\(idPrefix)\(animationMarker)\(UUID().uuidString)",
             image: image,
             offset: initialOffset ?? CGPoint.zero,
             alpha: 1.0,
             zOrder: zOrder,
-            insertionOrder: insertionOrder
+            insertionOrder: insertionOrder,
+            blendMode: effectiveBlendMode,
+            surfaceID: resolvedSurfaceID,
+            animationID: animationID
         )
             
             vm.overlays.append(overlay)
-            Log.debug("[GhostManager] Added surface overlay \(surfaceID) to scope \(self.currentScope)")
+            Log.debug("[GhostManager] Added surface overlay \(surfaceID) to scope \(scope)")
         }
     }
     
@@ -419,6 +657,7 @@ extension GhostManager {
     
     /// Clear all overlays for the current scope
     func clearSurfaceOverlays() {
+        persistentSerikoAnimationIDsByScope[currentScope] = nil
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             guard let vm = self.characterViewModels[self.currentScope] else { return }
@@ -460,9 +699,20 @@ extension GhostManager {
     func collisionRegionName(at pointInWindow: CGPoint, scope: Int) -> String? {
         guard let vm = characterViewModels[scope] else { return nil }
         let surfaceID = vm.currentSurfaceID
-        let regions = animationEngine.getCollisions(for: surfaceID)
+        var activeAnimationIDs = activeAnimationIDsByScope[scope] ?? []
+        if scope == currentScope {
+            // Keep the hit-test in sync with the actual executors even during
+            // the short interval before their completion callbacks remove the
+            // bookkeeping entry.
+            activeAnimationIDs.formUnion(serikoExecutor.activeAnimations.keys)
+            activeAnimationIDs.formUnion(animationEngine.activeAnimationIDs)
+        }
+        let regions = animationEngine.getCollisions(
+            for: surfaceID,
+            activeAnimationIDs: activeAnimationIDs
+        )
         for region in regions {
-            if region.rect.contains(pointInWindow) {
+            if region.contains(pointInWindow) {
                 return region.name
             }
         }

@@ -6,11 +6,11 @@
 
 ## 監査対象プロジェクト
 
-- **リポジトリ**: `/Users/eightman/Desktop/software_develop/Ourin`
+- **リポジトリ**: `/Users/eightman/dev/apps/Ourin`
 - **概要**: macOSネイティブ（Swift/SwiftUI）の伺かベースウェア。SHIORI 3.0M、SSTP 1.xM、Plugin 2.0M、SakuraScript、YAYA言語VM、FMO、プロパティシステム等を実装。
-- **プロジェクト仕様書**: `docs/` ディレクトリに89のMarkdownファイル（日英バイリンガル）
-- **テスト**: `OurinTests/` に30ファイル
-- **YAYA VM**: `yaya_core/` にRust/C++実装
+- **プロジェクト仕様書**: `docs/` ディレクトリに142のMarkdownファイル（日英バイリンガル）
+- **テスト**: `OurinTests/` に90のSwiftテストファイル
+- **YAYA VM**: `yaya_core/` にC++実装（CMake / Lexer / Parser / VM / DictionaryManager）
 
 ## 情報源（権威順）
 

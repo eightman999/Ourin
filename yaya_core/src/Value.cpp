@@ -10,6 +10,8 @@ Value::Value(const std::string& str) : type_(Type::String), strValue_(str), intV
 
 Value::Value(int num) : type_(Type::Integer), intValue_(num) {}
 
+Value::Value(std::int64_t num) : type_(Type::Integer), intValue_(num) {}
+
 Value::Value(double num) : type_(Type::Real), intValue_(0), real_(num) {}
 
 Value::Value(const std::vector<Value>& arr) : type_(Type::Array), arrayValue_(arr), intValue_(0) {}
@@ -58,14 +60,18 @@ std::string Value::asString() const {
 }
 
 int Value::asInt() const {
+    return static_cast<int>(asInt64());
+}
+
+std::int64_t Value::asInt64() const {
     switch (type_) {
         case Type::Integer:
             return intValue_;
         case Type::Real:
-            return static_cast<int>(real_); // truncate toward zero
+            return static_cast<std::int64_t>(real_); // truncate toward zero
         case Type::String:
             try {
-                return std::stoi(strValue_);
+                return std::stoll(strValue_);
             } catch (...) {
                 return 0;
             }
@@ -151,14 +157,14 @@ Value Value::operator-(const Value& other) const {
     if (type_ == Type::Real || other.type_ == Type::Real) {
         return Value(asReal() - other.asReal());
     }
-    return Value(asInt() - other.asInt());
+    return Value(asInt64() - other.asInt64());
 }
 
 Value Value::operator*(const Value& other) const {
     if (type_ == Type::Real || other.type_ == Type::Real) {
         return Value(asReal() * other.asReal());
     }
-    return Value(asInt() * other.asInt());
+    return Value(asInt64() * other.asInt64());
 }
 
 Value Value::operator/(const Value& other) const {
@@ -168,15 +174,15 @@ Value Value::operator/(const Value& other) const {
         if (divisor == 0.0) return Value(0.0);
         return Value(asReal() / divisor);
     }
-    int divisor = other.asInt();
+    std::int64_t divisor = other.asInt64();
     if (divisor == 0) return Value(0);
-    return Value(asInt() / divisor);
+    return Value(asInt64() / divisor);
 }
 
 Value Value::operator%(const Value& other) const {
-    int divisor = other.asInt();
+    std::int64_t divisor = other.asInt64();
     if (divisor == 0) return Value(0);
-    return Value(asInt() % divisor);
+    return Value(asInt64() % divisor);
 }
 
 bool Value::operator==(const Value& other) const {

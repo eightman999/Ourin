@@ -54,6 +54,7 @@ final class GamepadObserver {
         }
         observers.removeAll()
         GCController.stopWirelessControllerDiscovery()
+        handler = nil
     }
 
     private func attachHandlers(to controller: GCController) {

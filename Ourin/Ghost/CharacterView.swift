@@ -41,81 +41,123 @@ struct DressupPartView: View {
 
 /// A view that displays the character's shell image.
 struct CharacterView: View {
+    /// GhostManager が作るキャラクター窓の初期キャンバス。
+    /// ベースサーフェスが未ロードの間もこのサイズを保持し、NSHostingView が
+    /// 空ビューの intrinsic size (0×0) へ縮まって座標を変えるのを防ぐ。
+    private static let fallbackCanvasSize = CGSize(width: 300, height: 400)
+
     /// The ViewModel that provides the character image.
     @ObservedObject var viewModel: CharacterViewModel
+    /// Scope ID used by drag-and-drop SHIORI references.
+    var scopeID: Int = 0
     /// Optional callback for handling drag and drop events
     var onDragDropEvent: ((ShioriEvent) -> Void)?
 
     var body: some View {
+        let sourceOverlays = SurfaceOverlay.sortedForDisplay(viewModel.overlays)
+        let targetedEffects = viewModel.activeEffects.filter { $0.surfaceID != nil }
+        let baseEffects = viewModel.activeEffects.filter { $0.surfaceID == nil }
+        // A character window must never render an overlay without its base
+        // surface.  During startup/surface changes SERIKO can enqueue an
+        // overlay before the asynchronous base image load completes; letting
+        // the compositor run with `base == nil` produces detached eyes/face
+        // fragments in an otherwise empty window.
+        //
+        // Unsupported visual effects also fall back to the original base so
+        // an effect failure cannot accidentally turn a complete character
+        // into an overlay-only render.
+        let processedBase = viewModel.image.map { image in
+            baseEffects.isEmpty
+                ? image
+                : (SurfaceVisualEffectRenderer.applying(image: image, effects: baseEffects, filters: []) ?? image)
+        }
+        let overlays = sourceOverlays.map { overlay in
+            let effects = targetedEffects.filter { $0.surfaceID == overlay.surfaceID }
+            guard !effects.isEmpty,
+                  let image = SurfaceVisualEffectRenderer.applying(image: overlay.image, effects: effects, filters: []) else {
+                return overlay
+            }
+            var transformed = overlay
+            transformed.image = image
+            return transformed
+        }
+        let backgroundOverlays = overlays.filter { $0.zOrder < 0 }
+        let foregroundOverlays = overlays.filter { $0.zOrder >= 0 }
+        let filteredSurface: NSImage? = {
+            guard !viewModel.activeFilters.isEmpty else { return nil }
+            guard let composited = SurfaceBlendRenderer.composite(base: processedBase, overlays: overlays) else { return nil }
+            return SurfaceVisualEffectRenderer.applying(image: composited, effects: [], filters: viewModel.activeFilters)
+        }()
+        let needsBitmapComposition = overlays.contains { $0.blendMode != .normal }
+            || !baseEffects.isEmpty
+            || !targetedEffects.isEmpty
+            || !viewModel.activeFilters.isEmpty
         ZStack(alignment: .topLeading) {
-            // Base surface
-            if let baseImage = viewModel.image {
-                Image(nsImage: baseImage)
-                    .resizable()
-                    .frame(width: baseImage.size.width, height: baseImage.size.height)
-            }
+            // 画像未ロード時もレイアウトだけは維持する。Color.clear なので、
+            // SERIKO のオーバーレイや顔パーツが単独で描画されることはない。
+            Color.clear
+                .frame(width: Self.fallbackCanvasSize.width, height: Self.fallbackCanvasSize.height)
 
-            // Overlay layers sorted by z-order then insertion for deterministic stacking.
-            ForEach(SurfaceOverlay.sortedForDisplay(viewModel.overlays)) { overlay in
-                OverlayView(overlay: overlay)
-                    .offset(x: overlay.offset.x, y: overlay.offset.y)
-            }
+            // Keep the entire character layer absent until a real base
+            // surface exists.  In particular, do not allow SERIKO overlays,
+            // dress-up parts, or text animations to become visible alone.
+            if let baseImage = processedBase {
+                if needsBitmapComposition,
+                   let rendered = filteredSurface ?? SurfaceBlendRenderer.composite(base: baseImage, overlays: overlays) {
+                    Image(nsImage: rendered)
+                        .resizable()
+                        .frame(width: rendered.size.width, height: rendered.size.height)
+                } else {
+                    // `background` SERIKO animations are rendered behind the base surface.
+                    ForEach(backgroundOverlays) { overlay in
+                        OverlayView(overlay: overlay)
+                            .offset(x: overlay.offset.x, y: overlay.offset.y)
+                    }
 
-            // Dressup parts (sorted by Z-order)
-            ForEach(viewModel.dressupParts.sorted { $0.zOrder < $1.zOrder }) { part in
-                DressupPartView(part: part)
-            }
+                    // Base surface
+                    Image(nsImage: baseImage)
+                        .resizable()
+                        .frame(width: baseImage.size.width, height: baseImage.size.height)
 
-            // Text animations from \![anim,add,text,...]
-            ForEach(Array(viewModel.textAnimations.enumerated()), id: \.offset) { _, anim in
-                Text(anim.text)
-                    .font(.custom(anim.fontName, size: CGFloat(anim.fontSize)))
-                    .foregroundColor(Color(
-                        red: Double(anim.r) / 255.0,
-                        green: Double(anim.g) / 255.0,
-                        blue: Double(anim.b) / 255.0
-                    ))
-                    .frame(width: CGFloat(anim.width), height: CGFloat(anim.height), alignment: .leading)
-                    .position(x: CGFloat(anim.x), y: CGFloat(anim.y))
-            }
+                    // Foreground overlay layers sorted by z-order then insertion for deterministic stacking.
+                    ForEach(foregroundOverlays) { overlay in
+                        OverlayView(overlay: overlay)
+                            .offset(x: overlay.offset.x, y: overlay.offset.y)
+                    }
+                }
 
-            // Drag and drop overlay
-            if let onEvent = onDragDropEvent {
-                DragDropView(onEvent: onEvent)
+                // Dressup parts (sorted by Z-order)
+                ForEach(viewModel.dressupParts.sorted { $0.zOrder < $1.zOrder }) { part in
+                    DressupPartView(part: part)
+                }
+
+                // Text animations from \![anim,add,text,...]
+                ForEach(Array(viewModel.textAnimations.enumerated()), id: \.offset) { _, anim in
+                    Text(anim.text)
+                        .font(.custom(anim.fontName, size: CGFloat(anim.fontSize)))
+                        .foregroundColor(Color(
+                            red: Double(anim.r) / 255.0,
+                            green: Double(anim.g) / 255.0,
+                            blue: Double(anim.b) / 255.0
+                        ))
+                        .frame(width: CGFloat(anim.width), height: CGFloat(anim.height), alignment: .leading)
+                        .position(x: CGFloat(anim.x), y: CGFloat(anim.y))
+                }
+
+                // Drag and drop overlay
+                if let onEvent = onDragDropEvent {
+                    DragDropView(scopeID: scopeID, onEvent: onEvent)
+                }
             }
         }
+        // SERIKO move はベースサーフェスだけでなく、その時点の描画全体を
+        // 同じキャンバス上で移動させる。scaleEffect の内側に置くことで、
+        // シェル倍率も座標へ適用する。
+        .offset(x: viewModel.serikoMoveOffset.x, y: viewModel.serikoMoveOffset.y)
         .scaleEffect(x: viewModel.scaleX, y: viewModel.scaleY)
-        .blur(radius: filterBlurRadius())
-        .brightness(effectBrightness())
         .opacity(viewModel.alpha)
         .allowsHitTesting(!viewModel.repaintLocked)
         .contentShape(Rectangle())
-        .gesture(
-            DragGesture(minimumDistance: 0)
-                .onEnded { value in
-                    handleTap(at: value.location)
-                }
-        )
-    }
-
-    /// Handle tap/click on the character
-    private func handleTap(at location: CGPoint) {
-        NSLog("[CharacterView] Ghost tapped at location: (\(location.x), \(location.y))")
-        // The InputMonitor will dispatch this to SHIORI as OnMouseClick event
-        // with the proper coordinates and parameters
-    }
-
-    private func filterBlurRadius() -> CGFloat {
-        guard let filter = viewModel.activeFilters.last else { return 0 }
-        if let first = filter.params.first, let v = Double(first) {
-            return max(0, min(20, CGFloat(v)))
-        }
-        return 2
-    }
-
-    private func effectBrightness() -> Double {
-        guard !viewModel.activeEffects.isEmpty else { return 0 }
-        return min(0.3, Double(viewModel.activeEffects.count) * 0.05)
     }
 }
 
@@ -147,9 +189,17 @@ final class CharacterHitTestingHostingView: NSHostingView<CharacterView> {
         guard let hitView = super.hitTest(point) else { return nil }
         guard let viewModel = characterViewModel else { return hitView }
         guard !viewModel.repaintLocked, viewModel.alpha > alphaThreshold else { return nil }
+        // 描画側がベース未ロード中の overlay / 着せ替えを隠している間は、
+        // クリック判定も同じく無効にする。これを省くと見えない顔パーツへ
+        // OnMouse 系イベントが発火してしまう。
+        guard let baseImage = viewModel.image, baseImage.isValid else { return nil }
 
-        let localPoint = characterPoint(from: point, viewModel: viewModel)
-        guard isVisibleCharacterPixel(at: localPoint, viewModel: viewModel) else { return nil }
+        // NSView.hitTest の point は superview（窓のフレームビュー、非 flipped）の座標系。
+        // 自身の座標へ変換してから判定する。変換を省くと上下が反転し、窓より小さいサーフェス
+        // （相方など）は見えている部分を掴んでも透明扱いになってドラッグできなかった。
+        let pointInSelf = superview.map { convert(point, from: $0) } ?? point
+        let localPoint = characterPoint(from: pointInSelf, viewModel: viewModel)
+        guard isVisibleCharacterPixel(at: localPoint, baseImage: baseImage, viewModel: viewModel) else { return nil }
         return hitView
     }
 
@@ -183,7 +233,7 @@ final class CharacterHitTestingHostingView: NSHostingView<CharacterView> {
     }
 
     override func menu(for event: NSEvent) -> NSMenu? {
-        showRightClickMenu(for: event)
+        // コンテキストメニューは返さない（rightMouseUp 側で1回だけトリガーする）
         return nil
     }
 
@@ -196,25 +246,32 @@ final class CharacterHitTestingHostingView: NSHostingView<CharacterView> {
         let scaleX = CGFloat(viewModel.scaleX)
         let scaleY = CGFloat(viewModel.scaleY)
         guard abs(scaleX) > .ulpOfOne, abs(scaleY) > .ulpOfOne else {
-            return topLeftPoint
+            return CGPoint(
+                x: topLeftPoint.x - viewModel.serikoMoveOffset.x,
+                y: topLeftPoint.y - viewModel.serikoMoveOffset.y
+            )
         }
 
+        // move は scaleEffect の内側にあるため、画面上では移動量も倍率の
+        // 影響を受ける。ピクセル判定前にその分を戻してから逆倍率を適用する。
+        let movedPoint = CGPoint(
+            x: topLeftPoint.x - viewModel.serikoMoveOffset.x * scaleX,
+            y: topLeftPoint.y - viewModel.serikoMoveOffset.y * scaleY
+        )
         let center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
         return CGPoint(
-            x: ((topLeftPoint.x - center.x) / scaleX) + center.x,
-            y: ((topLeftPoint.y - center.y) / scaleY) + center.y
+            x: ((movedPoint.x - center.x) / scaleX) + center.x,
+            y: ((movedPoint.y - center.y) / scaleY) + center.y
         )
     }
 
-    private func isVisibleCharacterPixel(at point: CGPoint, viewModel: CharacterViewModel) -> Bool {
+    private func isVisibleCharacterPixel(at point: CGPoint, baseImage: NSImage, viewModel: CharacterViewModel) -> Bool {
         let canvas = CGSize(width: bounds.width, height: bounds.height)
         guard canvas.width > 0, canvas.height > 0 else { return false }
 
-        if let baseImage = viewModel.image {
-            let destination = CGRect(origin: .zero, size: baseImage.size)
-            if image(baseImage, isVisibleAt: point, destination: destination, alpha: 1.0) {
-                return true
-            }
+        let destination = CGRect(origin: .zero, size: baseImage.size)
+        if image(baseImage, isVisibleAt: point, destination: destination, alpha: 1.0) {
+            return true
         }
 
         for overlay in SurfaceOverlay.sortedForDisplay(viewModel.overlays).reversed() {

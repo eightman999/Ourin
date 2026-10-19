@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin 監査項目 — 未完 / Audit Items — TODO</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="ourin-audit-items-todo">Ourin 監査項目 — 未完 / Audit Items — TODO</h1>
+<p><strong>最終更新 / Last Updated</strong>: 2026-08-15（一新 / renewed）
+<strong>集約元 / Consolidated from</strong>: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY ＋ ドキュメント整合性監査 2026-08-15
+<strong>検証方法 / Verification</strong>: 全項目を現状ソースコードと照合して未完判定。完了済み項目は <code>AUDITS_COMPLETED.md</code> 参照。</p>
+<blockquote>
+<p><strong>一新について (2026-08-15)</strong>: 本ファイルに「完了」注記付きで蓄積していた項目は <code>AUDITS_COMPLETED.md</code>（「移管記録」セクション）へ移管し、本ファイルは<strong>真に未完の項目のみ</strong>とした。旧記載・経緯は git 履歴（2026-08-15 以前）に保存されている。
+Renewal note: items previously kept here with "completed" annotations were migrated to <code>AUDITS_COMPLETED.md</code> ("migrated items" section); this file now lists only genuinely pending work. Prior wording is preserved in git history.</p>
+</blockquote>
+<hr />
+<h2 id="_1">日本語</h2>
+<h3 id="1">1. 実ゴースト・実機検証待ち（コード実装・単体テストは完了済み）</h3>
+<p>いずれも実装とテストは存在し、残作業は<strong>実ゴースト／実シェル／実機での動作・目視確認</strong>。確認して問題があれば個別のバグとして切り出す。</p>
+<table>
+<thead>
+<tr>
+<th>優先度</th>
+<th>項目</th>
+<th>検証内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P2</td>
+<td>SakuraScript UKADOC 全コマンド実行差分</td>
+<td>パース網羅・ディスパッチ差分は <code>SakuraScriptDocumentationCoverageTests</code>（326タグ）で機械検証済み。2026-08-15 の権限付き <code>xcodebuild</code> で、構文トークン・GhostManager配送・複合サブコマンド配送の3テストメソッドが <code>** TEST SUCCEEDED **</code>（0 failed）となった。2026-08-15 に DevTools の実行経路から稼働中の <code>Emily/Phase4.5</code> へ安全な scope/surface/format/wait/設定/lock/resetballoonpos 群を投入し、対象解決とトークン列を確認した。<code>notify/raise</code> と <code>q</code> も投入し、選択肢ダイアログの表示・選択後の実行結果を確認したが、イベント側の応答ログは取得できなかった。<strong>各コマンドの実行副作用・実ゴースト画面差分（更新・消滅・外部通信を含む）は未検証</strong>。</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>SERIKO 描画完全一致</td>
+<td><code>surfaceID=-1/-2</code>・ウェイト範囲・<code>shared-index</code>・<code>collisionex</code> 各形状は単体検証済み。2026-08-15 に最新ビルドで <code>emily4</code> を実起動し、画面キャプチャ上は正立・全体表示・顔パーツ単独浮遊なしを確認した。関連スイートは 33 passed だが、実コマンドでの <code>surfaceID=-1/-2</code> 等の差分確認は未完。<strong>テスト終了時のQoS warning issueは修正済み（完了根拠は <code>AUDITS_COMPLETED.md</code> のN節）</strong>。</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>バルーン描画の細部</td>
+<td>ROP2 アンカー装飾・可変改行（<code>\n[half]</code>・負値はオフセット近似）・バルーン右側表示・wordwrap/alignment の<strong>実ゴースト目視</strong>。</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>動画・音声の実機確認</td>
+<td><code>MTAudioProcessingTap</code> 左右バランス・<code>sound,load</code> プリロードは実装済み。<strong>実機での映像表示・実音声・対応コーデック範囲</strong>の最終確認待ち。</td>
+</tr>
+<tr>
+<td>P2</td>
+<td><code>vanishbymyself</code> / <code>updateother</code> の実環境確認</td>
+<td>消滅経路・更新対象解決は実装＋回帰テスト済み。<strong>ゴミ箱権限・復帰先選択・実ネットワーク更新</strong>が未確認。</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>SHIORI イベントの実機発火確認</td>
+<td>静的抽出での型付きID・Reference定義漏れは0件。<strong>動的ID・OS実機発火（電源/ディスプレイ/セッション等）・Reference値の実ゴースト検証</strong>が未完。</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>MAYUNA（着せ替え）網羅</td>
+<td><code>bindoption*.group</code> 制約・<code>OnNotifyDressupInfo</code> は実装済み（単体34件）。<strong>実シェルのオーバーレイ描画・実ゴースト差分</strong>が未確認。</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>lexicon・サーフェステストUI等の表示確認</td>
+<td><code>SakuraScriptLexicon.json</code> 展開・<code>\![open,surfacetest]</code> は実装済み。<strong>実ゴーストでの表示目視</strong>が未実施。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2">2. プラットフォーム差異（文書化済み・対応は保留）</h3>
+<table>
+<thead>
+<tr>
+<th>優先度</th>
+<th>項目</th>
+<th>現状</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>—</td>
+<td>SSP プラグインの Win32 DLL バイナリ互換</td>
+<td>macOS では直接ロード不可。文書化済み。対応 <code>.plugin</code>/<code>.bundle</code> への移植が必要になった時点で個別対応。</td>
+</tr>
+<tr>
+<td>—</td>
+<td>Windows HWND 直接互換</td>
+<td>プラットフォーム差異として文書化済み。外部ツールは <code>EXECUTE GetFMO</code> または POSIX 共有メモリを使用。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3">3. 漸次対応</h3>
+<table>
+<thead>
+<tr>
+<th>優先度</th>
+<th>項目</th>
+<th>現状</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P2（基盤完了）</td>
+<td>イベント Reference 仕様の表駆動化</td>
+<td><code>EventReferenceTable</code> 新設・<code>notifyReturnIgnored</code> 単一ソース化済み。<code>OnLanguageChange</code> は <strong>AUDIT-REF-LOCALE-001</strong>、<code>OnDisplayChange</code> / <code>OnDisplayChangeEx</code> は <strong>AUDIT-REF-DISPLAY-001</strong> として表駆動移行済み。<strong>残る発火箇所の表駆動移行</strong>は漸次対応。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-2026-08-15">4. ドキュメント（2026-08-15 整合性監査の残件）</h3>
+<table>
+<thead>
+<tr>
+<th>優先度</th>
+<th>項目</th>
+<th>現状</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P3</td>
+<td><code>docs/</code> の翻訳待ちプレースホルダー解消</td>
+<td><code>TRANSLATION_MANIFEST.md</code> 基準で20ペア未訳（<code>YAYA_CORE_ARCHITECTURE</code>／<code>EXECUTIVE_SUMMARY</code>／<code>TECHNICAL_SPEC</code> 等）。bilingual-doc ワークフローで消化する。</td>
+</tr>
+</tbody>
+</table>
+<p>※ 2026-08-15 のドキュメント整合性監査で検出した他の項目（アーカイブ移動・README同期・ブロッカー矛盾解消・memories修正・時点注記・行番号注記）は同日中に対応済み → <code>AUDITS_COMPLETED.md</code> 移管記録参照。</p>
+<h3 id="5-issue-audit-added-issues-2026-08-15">5. 監査で追加したissue / Audit-added issues (2026-08-15)</h3>
+<table>
+<thead>
+<tr>
+<th>優先度 / Priority</th>
+<th>Issue</th>
+<th>状態 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P2</td>
+<td><strong>AUDIT-TEST-BASELINE-001</strong>: <code>OurinTests</code> 全体実行で並列時に失敗</td>
+<td><strong>未解決</strong>。実在Emily4辞書を使う <code>YayaEmily4RegressionTests</code>、<code>EventBridge.shared</code> を使う <code>DressupBindTests</code>、埋め込みXPC fixtureを使う <code>ShioriLoaderTests</code> を <code>.serialized</code> 化し、<code>SurfaceOverlayOrderingTests</code> のTimer待機をMain RunLoop駆動へ変更した。さらに <code>GhostUtilityCommandTests</code> は標準NOTIFYの正当な他ゴースト配送を除外して、raise/notify自身の誤配送だけを検証するよう修正した。Xcodeプロジェクトの <code>OurinTests</code> / <code>OurinUITests</code> の依存target参照（<code>remoteInfo</code> / <code>TEST_TARGET_NAME</code>）も現行target名 <code>Ourin</code> に修正し、<code>-showBuildSettings</code> で解決を確認した。修正後の隔離DerivedDataによる直列全体実行は <strong>OurinTests 1087 passed / 0 failed（99 suites）＋UI tests 6 passed / 0 failed</strong>。一方、同環境の全体並列はsuite列挙後にテストworkerが終了してOurinプロセスだけが残る状態を再現し、2分超で対象PIDを停止したため集計不能。最後に集計できた修正前の並列全体実行は <strong>1093 passed / 5 failed / 0 skipped / 1098 total</strong>、<code>GhostUtilityCommandTests</code>＋<code>SoundPlayerTests</code> の並列subsetは <strong>74 passed / 0 failed</strong>。並列実行の完走は未確定のまま扱う。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="english">English</h2>
+<h3 id="1-awaiting-real-ghost-real-device-verification-code-unit-tests-done">1. Awaiting real-ghost / real-device verification (code + unit tests done)</h3>
+<p>Implementation and tests exist for all of these; the remaining work is <strong>verification on real ghosts / shells / hardware</strong>. File individual bugs if verification fails.</p>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Item</th>
+<th>What to verify</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P2</td>
+<td>SakuraScript UKADOC full-command runtime diff</td>
+<td>Parse coverage &amp; dispatch diff machine-verified by <code>SakuraScriptDocumentationCoverageTests</code> (326 tags). A privileged <code>xcodebuild</code> run on 2026-08-15 passed all three test methods (<code>** TEST SUCCEEDED **</code>, 0 failed) covering syntax tokens, GhostManager dispatch, and compound subcommand dispatch. On 2026-08-15, the DevTools execution path delivered a safe scope/surface/format/wait/settings/lock/resetballoonpos matrix to the live <code>Emily/Phase4.5</code>; target resolution and the token sequence were confirmed. <code>notify/raise</code> and <code>q</code> were also delivered; the choice dialog appeared and the post-selection execution result was observed, but no event-side response log was captured. <strong>Per-command side effects and real-ghost screen diffs (including update, vanish, and external I/O) remain unverified</strong>.</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>SERIKO rendering parity</td>
+<td><code>surfaceID=-1/-2</code>, wait ranges, <code>shared-index</code>, <code>collisionex</code> shapes unit-tested. On 2026-08-15, the latest build launched <code>emily4</code>; the screen capture showed an upright complete character with no detached face part. The related suite passed 33 tests, but direct command-level diffs such as <code>surfaceID=-1/-2</code> remain pending. <strong>The test-cleanup QoS warning issue is resolved; evidence is in section N of <code>AUDITS_COMPLETED.md</code>.</strong></td>
+</tr>
+<tr>
+<td>P2</td>
+<td>Balloon rendering fine points</td>
+<td>Visual check of ROP2 anchor decoration, variable newlines (<code>\n[half]</code>, negative values approximated by offsets), right-side balloons, wordwrap/alignment on real ghosts.</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>Video/audio on real hardware</td>
+<td><code>MTAudioProcessingTap</code> L/R balance and <code>sound,load</code> preloading implemented. <strong>Real playback, actual audio, codec-scope confirmation</strong> pending.</td>
+</tr>
+<tr>
+<td>P2</td>
+<td><code>vanishbymyself</code> / <code>updateother</code> in real environments</td>
+<td>Paths implemented with regression tests. <strong>Trash permissions, next-ghost choice, real-network updates</strong> unverified.</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>SHIORI event firing on real hardware</td>
+<td>Static extraction shows zero missing typed IDs / Reference specs. <strong>Dynamic IDs, OS-device firing (power/display/session), real-ghost Reference values</strong> pending.</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>MAYUNA (dressup) thoroughness</td>
+<td>Constraints and <code>OnNotifyDressupInfo</code> implemented (34 unit tests). <strong>Real-shell overlay rendering and in-ghost diffs</strong> unverified.</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>Lexicon / surface-test UI visual checks</td>
+<td><code>SakuraScriptLexicon.json</code> expansion and <code>\![open,surfacetest]</code> implemented; <strong>in-ghost visual inspection</strong> pending.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-platform-differences-documented-action-deferred">2. Platform differences (documented; action deferred)</h3>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Item</th>
+<th>Current State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>—</td>
+<td>SSP plugin Win32 DLL binary compatibility</td>
+<td>Cannot load Win32 DLLs on macOS; documented. Port to <code>.plugin</code>/<code>.bundle</code> case-by-case when needed.</td>
+</tr>
+<tr>
+<td>—</td>
+<td>Windows HWND direct compatibility</td>
+<td>Documented platform difference. External tools use <code>EXECUTE GetFMO</code> or POSIX shared memory.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-incremental-migration">3. Incremental migration</h3>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Item</th>
+<th>Current State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P2 (foundation done)</td>
+<td>Table-driven event Reference specs</td>
+<td><code>EventReferenceTable</code> and single-sourced <code>notifyReturnIgnored</code> are in place. <code>OnLanguageChange</code> was migrated under <strong>AUDIT-REF-LOCALE-001</strong>; <code>OnDisplayChange</code> / <code>OnDisplayChangeEx</code> under <strong>AUDIT-REF-DISPLAY-001</strong>. <strong>Remaining emission sites</strong> proceed incrementally.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-documentation-remainder-of-the-2026-08-15-consistency-audit">4. Documentation (remainder of the 2026-08-15 consistency audit)</h3>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Item</th>
+<th>Current State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P3</td>
+<td>Resolve translation placeholders in <code>docs/</code></td>
+<td>20 untranslated pairs per <code>TRANSLATION_MANIFEST.md</code> (<code>YAYA_CORE_ARCHITECTURE</code> / <code>EXECUTIVE_SUMMARY</code> / <code>TECHNICAL_SPEC</code> etc.). Process via the bilingual-doc workflow.</td>
+</tr>
+</tbody>
+</table>
+<p>All other findings of the 2026-08-15 documentation consistency audit (archive moves, README sync, blocker-contradiction fixes, memories fixes, snapshot notes, line-number caveat) were addressed the same day → see the migrated-items section in <code>AUDITS_COMPLETED.md</code>.</p>
+<h3 id="5-audit-added-issues-2026-08-15">5. Audit-added issues (2026-08-15)</h3>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Issue</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P2</td>
+<td><strong>AUDIT-TEST-BASELINE-001</strong>: parallel <code>OurinTests</code> execution still has failures</td>
+<td><strong>Unresolved</strong>. The real-Emily4-dictionary <code>YayaEmily4RegressionTests</code>, <code>EventBridge.shared</code>-using <code>DressupBindTests</code>, and embedded-XPC-fixture <code>ShioriLoaderTests</code> suites are now <code>.serialized</code>; <code>SurfaceOverlayOrderingTests</code> drives the main RunLoop while waiting for Timer frames. <code>GhostUtilityCommandTests</code> now ignores legitimate broadcast NOTIFYs from other ghosts and checks only for misrouted raise/notify IDs. The Xcode project’s <code>OurinTests</code> / <code>OurinUITests</code> dependency references (<code>remoteInfo</code> / <code>TEST_TARGET_NAME</code>) were also corrected to the current <code>Ourin</code> target, confirmed by <code>-showBuildSettings</code>. After the fix, an isolated DerivedData serial run passed <strong>1087 <code>OurinTests</code> cases / 0 failures (99 suites) plus 6 UI tests / 0 failures</strong>. The same isolated full-parallel run still reproduced the worker-exit/parentless-Ourin condition after suite enumeration and was stopped after more than two minutes, so it produced no aggregate. The last aggregatable parallel full run before this project-reference fix was <strong>1093 passed / 5 failed / 0 skipped / 1098 total</strong> (the overlay Timer race is resolved); the parallel <code>GhostUtilityCommandTests</code> + <code>SoundPlayerTests</code> subset passed <strong>74/74</strong>. Parallel completion remains unconfirmed.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="recommended-action-order">推奨対応順序 / Recommended Action Order</h3>
+<table>
+<thead>
+<tr>
+<th>優先度 / Priority</th>
+<th>項目 / Item</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P2</strong></td>
+<td>実ゴースト検証パス一式（SakuraScript 実行差分 → SERIKO/バルーン目視 → 動画・イベント実機）</td>
+</tr>
+<tr>
+<td><strong>P2 (基盤完了)</strong></td>
+<td>イベント Reference 表駆動化の漸次移行</td>
+</tr>
+<tr>
+<td><strong>P3</strong></td>
+<td>MAYUNA 実シェル確認・翻訳プレースホルダー消化</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>本ファイルは監査レポート（GLM/CODEX/CLAUDE/AGY）の未完項目を集約したものです。完了済み項目は <code>AUDITS_COMPLETED.md</code> を参照してください。</em></p>
+<p><em>This file consolidates pending items from audit reports (GLM/CODEX/CLAUDE/AGY). For completed items, see <code>AUDITS_COMPLETED.md</code>.</em></p>
+        <div class="footer">
+            <p>Generated: 2026-08-15 | <a href="../AUDITS_TODO.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

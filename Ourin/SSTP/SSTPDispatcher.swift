@@ -149,8 +149,14 @@ public enum SSTPDispatcher {
         let methodName = effectiveNotify ? "NOTIFY" : request.method.uppercased()
         switch methodName {
         case "SEND":
+            if let refused = refuseIfMissingSenderAndUserAgent(request: request, version: version, charset: charset) {
+                return refused
+            }
             return routeToShiori(request: request, method: .send, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry, breakPolicy: breakPolicy)
         case "NOTIFY":
+            if let refused = refuseIfMissingSenderAndUserAgent(request: request, version: version, charset: charset) {
+                return refused
+            }
             return handleNotify(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry, breakPolicy: breakPolicy)
         case "COMMUNICATE":
             return handleCommunicate(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
@@ -160,6 +166,9 @@ public enum SSTPDispatcher {
             return handleGive(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
         case "INSTALL":
             return handleInstall(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
+        case "FINE":
+            // SSP 拡張メソッド。ProcNotifyFINE @0x68adf0 相当。
+            return handleFine(request: request, securityContext: effectiveSecurityContext, isOwned: isOwned)
         default:
             return buildResponse(
                 version: version,
@@ -194,6 +203,10 @@ public enum SSTPDispatcher {
         let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         let charset = request.headerValue("Charset") ?? "UTF-8"
         let options = request.options
+        // SSP PlaySSTP: X-Force-Activate-Me = true|enable|非0 → ウィンドウ前面化。
+        if isForceActivateHeader(request.headerValue("X-Force-Activate-Me")) {
+            host.apply(SstpUIEffect(.forceActivate, requestHeaders: request.headers))
+        }
         if request.receiverGhostName != nil,
            !routingRegistry.hasGhosts() {
             return buildResponse(
@@ -221,18 +234,13 @@ public enum SSTPDispatcher {
            breakPolicy.isBusy() {
             // UKADOC SSTP/1.x: nobreak = 「現在実行中のスクリプトを中断せず、終わるまで待つ」。
             // 実行中スクリプトを打ち切らず、busy が解消するまでこの要求を待機させる。
-            EventBridge.shared.notify(.OnSSTPBreak, refs: [
-                "script": request.headerValue("Sender") ?? "ExternalSSTP",
-                "scope": "queued"
-            ])
+            let breakReferences = sstpBreakReferences(for: request)
+            EventBridge.shared.notify(.OnSSTPBreak, refs: breakReferences)
             let didClear = breakPolicy.waitWhileBusy()
             if !didClear {
                 // タイムアウト時だけ409を返す。210 Breakは実行中スクリプトを
                 // 実際に中断した場合の応答なので、ここでは使用しない。
-                EventBridge.shared.notify(.OnSSTPBreak, refs: [
-                    "script": request.headerValue("Sender") ?? "ExternalSSTP",
-                    "scope": "busy"
-                ])
+                EventBridge.shared.notify(.OnSSTPBreak, refs: breakReferences)
                 return buildResponse(
                     version: version,
                     status: 409,
@@ -247,8 +255,10 @@ public enum SSTPDispatcher {
         // Event 無しの SEND は SHIORI を介さず Script ヘッダを直接バルーン再生する（SSTP の基本動作）。
         // IfGhost がある場合は UKADOC の振り分けルールに従う。
         if method == .send, (request.headerValue("Event") ?? "").isEmpty {
+            let identity = currentGhostIdentity(routingRegistry: routingRegistry)
             let script = resolveScript(
-                forGhost: request.receiverGhostName ?? currentGhostName(routingRegistry: routingRegistry),
+                forGhost: request.receiverGhostName ?? identity.sakura,
+                keroName: identity.kero,
                 request: request,
                 shioriScript: nil
             )
@@ -312,14 +322,14 @@ public enum SSTPDispatcher {
         let status: Int
         if method == .notify {
             if let mappedStatus = mapped.status {
-                status = mappedStatus
+                status = convertShioriStatusToSSTP(mappedStatus)
             } else if mapped.valueNotify != nil {
                 status = 200
             } else {
                 status = 204
             }
         } else {
-            status = mapped.status ?? 200
+            status = convertShioriStatusToSSTP(mapped.status ?? 200)
         }
 
         let scriptForSstp: String?
@@ -343,8 +353,10 @@ public enum SSTPDispatcher {
         // nodescript はバルーン再生のみ抑止する。応答の Script ヘッダや
         // イベント処理（SHIORI送出）には影響しない（UKADOC spec_sstp）
         let suppressBalloon = options.contains(.nodescript) || scriptOptionTokens.contains("nodescript")
+        let identity = currentGhostIdentity(routingRegistry: routingRegistry)
         let finalScript = resolveScript(
-            forGhost: request.receiverGhostName ?? currentGhostName(routingRegistry: routingRegistry),
+            forGhost: request.receiverGhostName ?? identity.sakura,
+            keroName: identity.kero,
             request: request,
             shioriScript: scriptForSstp
         )
@@ -425,6 +437,17 @@ public enum SSTPDispatcher {
         )
     }
 
+    private static func sstpBreakReferences(for request: SSTPRequest) -> [String: String] {
+        [
+            // Script は Sender ではなく、SSTP要求が中断対象として扱う本文。
+            "script": request.headerValue("Script") ?? request.headerValue("Reference0") ?? "",
+            // SSTP標準に無い拡張ヘッダが無い場合は本体スコープを既定値にする。
+            "scope": request.headerValue("Scope") ?? request.headerValue("Reference1") ?? "0",
+            // nobreak の待機開始時点では本文はまだ再生されていないため位置は0。
+            "breakPosition": request.headerValue("BreakPosition") ?? request.headerValue("Reference2") ?? "0"
+        ]
+    }
+
     private static func handleNotify(_ request: SSTPRequest, securityContext: ShioriSecurityContext, isOwned: Bool, host: SstpDispatcherHost, bridge: ShioriBridge, routingRegistry: SstpRoutingRegistry, breakPolicy: SstpBreakPolicy = LiveSstpBreakPolicy.live) -> String {
         routeToShiori(request: request, method: .notify, securityContext: securityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry, breakPolicy: breakPolicy)
     }
@@ -448,8 +471,12 @@ public enum SSTPDispatcher {
         }
         let sender = request.headerValue("Sender") ?? "Ourin"
         let refs = extractReferences(from: request)
-        let commandKey = command.lowercased()
-        let commandArgs = Array(refs.dropFirst())
+        let parsedCommand = parseExecuteCommand(command)
+        let commandKey = parsedCommand.name.lowercased()
+        // Command[args] 形式なら括弧内を優先。否则は Reference0 以降（Command を Reference0 に載せた後の dropFirst）。
+        let commandArgs = parsedCommand.bracketArgs.isEmpty
+            ? Array(refs.dropFirst())
+            : parsedCommand.bracketArgs
 
         if let commandResponse = handleExtendedExecuteCommand(
             commandKey: commandKey,
@@ -645,9 +672,235 @@ public enum SSTPDispatcher {
         case "settrayballoon":
             host.apply(SstpUIEffect(.setTrayBalloon(options: commandArgs), requestHeaders: requestHeaders))
             return success(nil)
+        case "callghost":
+            guard let target = commandArgs.first, !target.isEmpty else { return badRequest() }
+            let options = Array(commandArgs.dropFirst())
+            host.apply(SstpUIEffect(.callGhost(name: target, options: options), requestHeaders: requestHeaders))
+            return success(nil)
+        case "urlexec":
+            guard let url = commandArgs.first, !url.isEmpty else { return badRequest() }
+            host.apply(SstpUIEffect(.openURL(url), requestHeaders: requestHeaders))
+            return success(nil)
+        case "ssfexec":
+            guard let path = commandArgs.first, !path.isEmpty else { return badRequest() }
+            host.apply(SstpUIEffect(.ssfExec(path: path, options: Array(commandArgs.dropFirst())), requestHeaders: requestHeaders))
+            return success(nil)
+        case "tasklistexec":
+            host.apply(SstpUIEffect(.taskListExec(options: commandArgs), requestHeaders: requestHeaders))
+            return success(nil)
+        case "getcollision":
+            let securityLevel = resolveSecurityLevel(from: requestHeaders)
+            guard securityLevel == "local" else {
+                return buildResponse(
+                    version: version,
+                    status: 420,
+                    charset: charset,
+                    script: nil,
+                    data: nil,
+                    responseHeaders: responseHeaders
+                )
+            }
+            return success(host.collectCollisionList(params: commandArgs))
+        case "compressarchive":
+            let securityLevel = resolveSecurityLevel(from: requestHeaders)
+            guard securityLevel == "local" else {
+                return buildResponse(
+                    version: version,
+                    status: 420,
+                    charset: charset,
+                    script: nil,
+                    data: nil,
+                    responseHeaders: responseHeaders
+                )
+            }
+            guard commandArgs.count >= 2 else { return badRequest() }
+            host.apply(SstpUIEffect(.compressArchive(params: commandArgs), requestHeaders: requestHeaders))
+            return success(nil)
+        case "extractarchive":
+            let securityLevel = resolveSecurityLevel(from: requestHeaders)
+            guard securityLevel == "local" else {
+                return buildResponse(
+                    version: version,
+                    status: 420,
+                    charset: charset,
+                    script: nil,
+                    data: nil,
+                    responseHeaders: responseHeaders
+                )
+            }
+            guard commandArgs.count >= 2 else { return badRequest() }
+            host.apply(SstpUIEffect(.extractArchive(params: commandArgs), requestHeaders: requestHeaders))
+            return success(nil)
         default:
             return nil
         }
+    }
+
+    /// SSP `ProcNotify`: Sender と User-Agent の両方が無い SEND/NOTIFY は 400。
+    private static func refuseIfMissingSenderAndUserAgent(
+        request: SSTPRequest,
+        version: String,
+        charset: String
+    ) -> String? {
+        let sender = request.headerValue("Sender")?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let userAgent = request.headerValue("User-Agent")?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard sender.isEmpty && userAgent.isEmpty else { return nil }
+        return buildResponse(
+            version: version,
+            status: 400,
+            charset: charset,
+            script: nil,
+            data: nil,
+            responseHeaders: collectPassThruHeaders(from: request.headers)
+        )
+    }
+
+    /// SSP 拡張 FINE メソッド（ProcNotifyFINE @0x68adf0 互換）。
+    ///
+    /// - Reference0 = サブコマンド（MessageSend / SetScript / SetScriptPartial）
+    /// - MessageSend: Reference1=宛先ゴースト名, Reference2=さくら名,
+    ///   Reference3=けろ名, Reference4=内容。Reference4 のスクリプトを
+    ///   対象ゴーストで再生する（SSP は PlayScript(ghost, ref4, 0x82)）。
+    /// - SetScript / SetScriptPartial: スクリプト入力ボックスを表示する
+    ///   （SSP は ShowInputBox(id=0x1000001 / 0x3000001, initialText=Reference0)）。
+    private static func handleFine(
+        request: SSTPRequest,
+        securityContext: ShioriSecurityContext,
+        isOwned: Bool
+    ) -> String {
+        let version = request.version.isEmpty ? "SSTP/1.4" : request.version
+        let charset = request.headerValue("Charset") ?? "UTF-8"
+        guard let subcommand = request.headerValue("Reference0")?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !subcommand.isEmpty else {
+            return buildResponse(
+                version: version,
+                status: 400,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        }
+        switch subcommand.uppercased() {
+        case "MESSAGESEND":
+            return handleFineMessageSend(
+                request: request,
+                securityContext: securityContext,
+                isOwned: isOwned
+            )
+        case "SETSCRIPT", "SETSCRIPTPARTIAL":
+            let isPartial = subcommand.uppercased() == "SETSCRIPTPARTIAL"
+            let eventID = isPartial ? "OnFineSetScriptPartial" : "OnFineSetScript"
+            let initialText = request.headerValue("Reference0") ?? ""
+            DispatchQueue.main.async {
+                EventBridge.shared.showFineScriptInput(eventID: eventID, initialText: initialText)
+            }
+            return buildResponse(
+                version: version,
+                status: 200,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        default:
+            // SSP はサブコマンド不一致で 0x1f5 = 501。
+            return buildResponse(
+                version: version,
+                status: 501,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        }
+    }
+
+    private static func handleFineMessageSend(
+        request: SSTPRequest,
+        securityContext: ShioriSecurityContext,
+        isOwned: Bool
+    ) -> String {
+        let version = request.version.isEmpty ? "SSTP/1.4" : request.version
+        let charset = request.headerValue("Charset") ?? "UTF-8"
+        let script = request.headerValue("Reference4")
+        guard let script, !script.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            // SSP は Reference4 無しで return 0（非200系）＝400 相当。
+            return buildResponse(
+                version: version,
+                status: 400,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        }
+        // SSP FindActiveGhostFromName(Reference1) → (null, Reference2, Reference3)
+        // → GetPreferredActiveGhost の順。Ourin では名前解決を経て全対象に再生する。
+        let targetName = request.headerValue("Reference1")
+            ?? request.headerValue("Reference2")
+        var reasons: Set<String> = ["sstp-send", "fine"]
+        if securityContext.level == "external" {
+            reasons.insert("remote")
+        }
+        if isOwned {
+            reasons.insert("owned")
+        }
+        if request.options.contains(.notranslate) {
+            reasons.insert("notranslate")
+        }
+        let context = ScriptTranslationContext(
+            reasons: reasons,
+            eventID: "OnFineMessageSend",
+            references: referencesPreservingGaps(from: request),
+            isSSTP: true,
+            sender: request.headerValue("Sender") ?? "Ourin",
+            securityLevel: securityContext.level,
+            securityOrigin: securityContext.origin
+        )
+        let didPlay = EventBridge.shared.playScriptOnGhostsResolving(
+            ghostName: targetName,
+            translationContext: context
+        ) { _ in script }
+        if !didPlay {
+            // SSP は対象ゴースト不在で 0x1a4 = 420 Refuse。
+            return buildResponse(
+                version: version,
+                status: 420,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        }
+        return buildResponse(
+            version: version,
+            status: 200,
+            charset: charset,
+            script: nil,
+            data: nil,
+            responseHeaders: collectPassThruHeaders(from: request.headers)
+        )
+    }
+
+    /// `Command` または `Command[arg1,arg2]` 形式を分解する（SSP ProcExecute 互換）。
+    private static func parseExecuteCommand(_ command: String) -> (name: String, bracketArgs: [String]) {
+        let trimmed = command.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let open = trimmed.firstIndex(of: "[") else {
+            return (trimmed, [])
+        }
+        let name = String(trimmed[..<open]).trimmingCharacters(in: .whitespacesAndNewlines)
+        var inner = String(trimmed[trimmed.index(after: open)...])
+        if inner.hasSuffix("]") {
+            inner = String(inner.dropLast())
+        }
+        let args = inner
+            .split(separator: ",", omittingEmptySubsequences: false)
+            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return (name, args)
     }
 
     private static func buildGetFmoPayload(host: SstpDispatcherHost) -> String {
@@ -788,23 +1041,28 @@ public enum SSTPDispatcher {
             "SenderType": senderType,
             "SecurityLevel": security.level
         ]
+        // SSP: SecurityOrigin が無い場合はリテラル "null"。
         if let origin = security.origin, !origin.isEmpty {
             headers["SecurityOrigin"] = origin
+        } else if let securityOrigin = request.headerValue("SecurityOrigin"),
+                  !securityOrigin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            headers["SecurityOrigin"] = securityOrigin
+        } else {
+            headers["SecurityOrigin"] = "null"
         }
         if let status = request.headerValue("Status"), !status.isEmpty {
             headers["Status"] = status
         } else {
             headers["Status"] = ShioriStatusStore.shared.currentStatus
         }
-        if headers["SecurityOrigin"] == nil,
-           let securityOrigin = request.headerValue("SecurityOrigin"),
-           !securityOrigin.isEmpty {
-            headers["SecurityOrigin"] = securityOrigin
-        }
         copyIfPresent("BaseID", from: request, to: &headers)
         copyIfPresent("Marker", from: request, to: &headers)
         copyIfPresent("ErrorLevel", from: request, to: &headers)
         copyIfPresent("ErrorDescription", from: request, to: &headers)
+        // COMMUNICATE は送信元が現在の Surface を付加できる。受信側の SHIORI
+        // はこのヘッダを OnCommunicate の文脈として参照するため、応答側の
+        // Surface 処理だけでなく入力経路にも保持して渡す。
+        copyIfPresent("Surface", from: request, to: &headers)
         copyIfPresent("BalloonOffset", from: request, to: &headers)
         copyIfPresent("Age", from: request, to: &headers)
         copyIfPresent("MarkerSend", from: request, to: &headers)
@@ -908,7 +1166,8 @@ public enum SSTPDispatcher {
                 if key.hasPrefix("reference"),
                    let index = Int(key.dropFirst("reference".count)), index >= 0 {
                     responseHeaders["Reference\(index)"] = val
-                } else if key == "x-sstp-passthru" || key.hasPrefix(passThruPrefix) {
+                } else if key == "x-sstp-passthru" || key.hasPrefix(passThruPrefix)
+                            || key.hasPrefix("x-sstp-return-") {
                     responseHeaders[originalKey] = val
                 }
                 continue
@@ -948,14 +1207,40 @@ public enum SSTPDispatcher {
     }
 
     private static func collectPassThruHeaders(from headers: [String: String]) -> [String: String] {
-        var result: [String: String] = [:]
+        var passThru: [String: String] = [:]
+        var returnHeaders: [String: String] = [:]
         for (key, value) in headers {
             let lower = key.lowercased()
             if lower == "x-sstp-passthru" || lower.hasPrefix(passThruPrefix) {
-                result[key] = value
+                passThru[key] = value
+            } else if lower.hasPrefix("x-sstp-return-") {
+                // SSP ParseGenericHeaders: PassThru が無ければ Return にフォールバック。
+                returnHeaders[key] = value
             }
         }
-        return result
+        return passThru.isEmpty ? returnHeaders : passThru
+    }
+
+    /// SSP `SPSSTPServer_ConvertShioriResultToSSTPResult`: 標準外ステータスは 204。
+    private static func convertShioriStatusToSSTP(_ status: Int) -> Int {
+        switch status {
+        case 200, 400, 408, 409, 501, 503:
+            return status
+        case 204:
+            return 204
+        default:
+            return 204
+        }
+    }
+
+    private static func isForceActivateHeader(_ raw: String?) -> Bool {
+        guard let raw = raw?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
+            return false
+        }
+        let lower = raw.lowercased()
+        if lower == "true" || lower == "enable" { return true }
+        if let number = Int(raw), number != 0 { return true }
+        return false
     }
 
     private static func copyIfPresent(_ key: String, from request: SSTPRequest, to target: inout [String: String]) {
@@ -973,6 +1258,7 @@ public enum SSTPDispatcher {
     /// IfGhost 一致 > SHIORI 応答スクリプト > デフォルトスクリプト（Script ヘッダ）の順で採用する。
     private static func resolveScript(
         forGhost ghostName: String?,
+        keroName: String? = nil,
         request: SSTPRequest,
         shioriScript: String?
     ) -> String? {
@@ -980,7 +1266,7 @@ public enum SSTPDispatcher {
         let shiori = (shioriScript?.isEmpty == false) ? shioriScript : nil
         let defaultScript = bindings.first { binding in
             guard let ifGhost = binding.ifGhost else { return true }
-            return defaultGhostAliases.contains(sakuraName(of: ifGhost))
+            return defaultGhostAliases.contains(sakuraName(of: ifGhost).lowercased())
         }?.script
         guard bindings.contains(where: { $0.ifGhost != nil }) else {
             // IfGhost 無し: SHIORI 応答を優先し、無ければ Script ヘッダを保険として使う
@@ -990,7 +1276,7 @@ public enum SSTPDispatcher {
            !target.isEmpty,
            let matched = bindings.first(where: { binding in
                guard let ifGhost = binding.ifGhost else { return false }
-               return sakuraName(of: ifGhost).caseInsensitiveCompare(target) == .orderedSame
+               return ifGhostMatches(ifGhost, sakuraName: target, keroName: keroName)
            }),
            !matched.script.isEmpty {
             return matched.script
@@ -998,13 +1284,38 @@ public enum SSTPDispatcher {
         return shiori ?? defaultScript
     }
 
-    /// IfGhost ヘッダ「\0側名,\1側名」書式から \0 側名を取り出す
+    /// IfGhost の名前が対象ゴーストのキャラクター名と一致するか判定する。
+    /// UKADOC: `\0側名,\1側名` のペア指定では両方の名前が一致する必要がある。
+    private static func ifGhostMatches(_ ifGhost: String, sakuraName: String, keroName: String?) -> Bool {
+        let names = ifGhost.split(separator: ",", omittingEmptySubsequences: false)
+            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+        guard let expectedSakura = names.first,
+              expectedSakura.caseInsensitiveCompare(sakuraName) == .orderedSame else {
+            return false
+        }
+        guard names.count > 1 else { return true }
+        guard let expectedKero = names.dropFirst().first,
+              !expectedKero.isEmpty,
+              let keroName,
+              expectedKero.caseInsensitiveCompare(keroName) == .orderedSame else {
+            return false
+        }
+        return true
+    }
+
+    /// IfGhost ヘッダから \0 側名を取り出す（デフォルトゴースト判定用）。
     private static func sakuraName(of ifGhost: String) -> String {
         ifGhost.split(separator: ",").first.map { String($0).trimmingCharacters(in: .whitespaces) } ?? ifGhost
     }
 
-    private static func currentGhostName(routingRegistry: SstpRoutingRegistry) -> String? {
-        PropertyManager.shared.get("currentghost.name") ?? routingRegistry.allGhostNames().first
+    private static func currentGhostIdentity(routingRegistry: SstpRoutingRegistry) -> (sakura: String?, kero: String?) {
+        let sakura = PropertyManager.shared.get("currentghost.scope(0).name")
+            ?? PropertyManager.shared.get("currentghost.sakuraname")
+            ?? PropertyManager.shared.get("currentghost.name")
+            ?? routingRegistry.allGhostNames().first
+        let kero = PropertyManager.shared.get("currentghost.scope(1).name")
+            ?? PropertyManager.shared.get("currentghost.keroname")
+        return (sakura, kero)
     }
 
     /// 確定したスクリプトをバルーンで再生する。IfGhost がある場合はゴースト毎に振り分ける。
@@ -1046,9 +1357,11 @@ public enum SSTPDispatcher {
             ghostName: request.receiverGhostName,
             notify: notify,
             translationContext: context
-        ) { sessionGhostName in
-            resolveScript(
-                forGhost: sessionGhostName ?? request.receiverGhostName,
+        ) { manager in
+            let sakuraName = manager.ghostConfig?.sakuraName ?? manager.ghostConfig?.name
+            return resolveScript(
+                forGhost: sakuraName ?? request.receiverGhostName,
+                keroName: manager.ghostConfig?.keroName,
                 request: request,
                 shioriScript: shioriScript
             )

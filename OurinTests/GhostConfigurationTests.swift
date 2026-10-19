@@ -107,6 +107,20 @@ struct GhostConfigurationTests {
         #expect(config.keroDefaultTop == 400)
     }
 
+    @Test("Parse horizontal desktop alignment")
+    func testHorizontalDesktopAlignment() throws {
+        let dict: [String: String] = [
+            "name": "HorizontalPositionTest",
+            "seriko.alignmenttodesktop": "right",
+            "char2.seriko.alignmenttodesktop": "left"
+        ]
+
+        let config = try #require(GhostConfiguration.parse(from: dict))
+
+        #expect(config.alignmentToDesktop == .right)
+        #expect(config.charAlignments[2] == .left)
+    }
+
     @Test("Parse character-specific positions")
     func testCharacterPositions() throws {
         let dict: [String: String] = [

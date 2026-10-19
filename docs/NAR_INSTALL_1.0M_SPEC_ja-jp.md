@@ -199,8 +199,8 @@ OURIN_NAR_INSTALL_1_0M/
 - [x] **型別インストール**: `OurinPaths.installTarget()` にて ghost/balloon/shell/supplement/plugin/headline/package/calendar/calendar/skin/calendar/plugin/language の配置先解決を実装済み
 - [x] **基本的なエラー処理**: インストールエラーの検出と報告を実装済み
 - [ ] **競合時の UI**: accept/delete/homeurl の完全な UI 実装は未完了
-- [ ] **更新機能**: updates2.dau の処理は未実装
-- [ ] **削除機能**: delete.txt の処理は未実装
+- [x] **更新機能**: `updates2.dau` / `updates.txt` / `update.txt` の取得、Version 2/3形式の解析、MD5検証、増分ファイル／NAR適用を実装済み。ベースウェア更新はステージング `.app` へ適用する。
+- [x] **削除機能**: ネットワーク更新時の `delete.txt` 取得・安全な相対パス削除を実装済み（パッケージ内の削除指示にも対応）。
 
 ### 実装済みの機能
 
@@ -238,15 +238,10 @@ OURIN_NAR_INSTALL_1_0M/
    - `accept` フィールドによる上書き確認ダイアログ
    - ユーザーへのリネーム/上書き選択肢の提示
 
-2. **ネットワーク更新**
-   - `updates2.dau` の処理
-   - 自動更新チェック
+2. **削除処理**
+   - アンインストール時のファイル削除 UI
 
-3. **削除処理**
-   - `delete.txt` の処理
-   - アンインストール時のファイル削除
-
-4. **高度な機能**
+3. **高度な機能**
    - README/利用規約の表示
    - インストール後の自動切り替え
    - homeurl の処理
@@ -263,6 +258,7 @@ OURIN_NAR_INSTALL_1_0M/
 ---
 
 ## 変更履歴
+- 2026-08-14: `updates2.dau` / `updates.txt` のMD5検証付き増分更新と `delete.txt` の安全な取得・削除を実装。更新／削除パスのトラバーサル検査と回帰テストを追加。
 - 2026-06-28: §6.1 type 受理値テーブルを追加（calendar/skin、calendar/plugin、calendar、language を追記）。§6.2 refreshundeletemask フィールドの区切り文字仕様（コロン主・カンマ互換）を追記。実装状況の type 一覧を更新。
 - 2025-10-20: 実装状況セクションを追加
 - 2025-07-28 20:07 UTC+09:00: 初版（NAR-INSTALL/1.0M）。

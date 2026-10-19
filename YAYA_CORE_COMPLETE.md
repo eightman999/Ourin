@@ -1,8 +1,8 @@
-# YAYA_core Implementation - FULLY COMPLETE ✅
+# YAYA_core Implementation Notes
 
 ## Overview
 
-YAYA_core has been **FULLY EXPANDED** based on yaya-shiori-500 reference implementation. The YAYA interpreter now has **complete function coverage** (160/160 functions) and is production-ready for integration with the Ourin macOS application.
+YAYA_core has been expanded against the yaya-shiori-500 reference implementation. The supported built-ins have executable behavior and are integrated with the Ourin macOS application; this note does not claim byte-for-byte Windows compatibility.
 
 ## What Was Accomplished
 
@@ -38,7 +38,7 @@ All core components have been implemented and tested:
    - Expression evaluation
    - Control flow execution
    - Function call resolution
-   - **160 built-in functions** (100% coverage)
+   - The supported built-in function set is registered and executable; platform-specific behavior is documented separately.
 
 5. **Built-in Functions** (160 total - COMPLETE)
    
@@ -76,13 +76,13 @@ All core components have been implemented and tested:
    - GETFUNCLIST, GETVARLIST, GETSYSTEMFUNCLIST
    - EVAL, DUMPVAR, DICLOAD, DICUNLOAD, UNDEFFUNC
    
-   **File Operations (20 functions - secure stubs)**:
+   **File Operations (20 functions - security-restricted)**:
    - FOPEN, FCLOSE, FREAD, FWRITE, FWRITE2
    - FREADBIN, FWRITEBIN, FREADENCODE, FWRITEDECODE
    - FSIZE, FSEEK, FTELL, FCHARSET, FATTRIB, FDIGEST
    - FENUM, FCOPY, FMOVE, FDEL, FRENAME, MKDIR, RMDIR
    
-   **Regular Expressions (11 functions - stubs)**:
+   **Regular Expressions (11 functions - std::regex implementation)**:
    - RE_SEARCH, RE_MATCH, RE_GREP, RE_REPLACE, RE_REPLACEEX
    - RE_SPLIT, RE_OPTION, RE_GETSTR, RE_GETPOS, RE_GETLEN
    - RE_ASEARCH, RE_ASEARCHEX
@@ -201,15 +201,14 @@ fi
 ## Known Limitations
 
 ### Security-Focused Design
-For production safety, certain functions are implemented as secure stubs:
+For production safety, file operations accept only relative paths without
+`..` traversal. System commands and SAORI requests are routed through the
+host boundary, where the host decides whether the operation is allowed.
 
-- **File Operations**: Return safe defaults (no actual file I/O to prevent security issues)
-- **System Commands**: EXECUTE functions disabled
-- **SAORI Libraries**: Not supported (plugin system alternative available)
-
-### Optional Features (Not Critical)
-- **Regular Expressions**: Would require regex library integration
-- **Full Character Set Conversion**: ZEN2HAN/HAN2ZEN simplified
+### Compatibility Limits
+- **Regular Expressions**: implemented with the C++ `std::regex` ECMAScript dialect.
+- **Character Set Conversion**: CP932/UTF-8 file conversion uses `iconv`; width
+  conversion covers the supported ASCII/full-width range.
 
 ### What Works Perfectly
 **All core YAYA functionality** needed for ghost operation:

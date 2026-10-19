@@ -383,25 +383,13 @@ private final class ShioriHost {
     deinit { loader.unload() }
 
     func request(event: String, references: [String], headers: [String: String] = [:], method: String = "GET") -> String? {
-        // SHIORI/2.x はバイナリ IPC ベースで 3.0 と全く互換性がない。
-        // 過去の「3.0 形式ヘッダで 2.6 を名乗る」フォールバックは 2.x 実装には届かないため削除し、
-        // 3.0 一本に統一する（旧式 SHIORI が必要な場合は別途 ShioriLoader を拡張する）。
-        // method は GET / NOTIFY を切り替える。NOTIFY は返値を期待しないイベントで使う（UKADOC SHIORI method 仕様）。
-        let verb = method.uppercased() == "NOTIFY" ? "NOTIFY" : "GET"
-        var lines = [
-            "\(verb) SHIORI/3.0",
-            "Charset: UTF-8",
-            "Sender: Ourin",
-            "ID: \(event)"
-        ]
-        for (i, ref) in references.enumerated() {
-            lines.append("Reference\(i): \(ref)")
-        }
-        for (key, value) in headers {
-            lines.append("\(key): \(value)")
-        }
-        lines.append("")
-        let req = lines.joined(separator: "\r\n") + "\r\n"
+        // SHIORI/3.0 ワイヤは ShioriWireCodec に集約（ID=イベント名、SecurityOrigin:null 既定など SSP 互換）。
+        let req = ShioriWireCodec.makeRequest(
+            method: method,
+            id: event,
+            headers: headers,
+            refs: references
+        )
         return loader.request(req)
     }
 }

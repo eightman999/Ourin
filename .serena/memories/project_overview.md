@@ -12,8 +12,7 @@ Ourin (桜鈴) is a **macOS-native ukagaka baseware** - a desktop companion/assi
 - YAYA ghost format compatibility
 
 ## Target Platform
-- **macOS 11.0+** (primary target)
-- Fallback support for older macOS versions
+- **macOS 13.0+ (Ventura)** (primary target; see README.md)
 - Native Cocoa/AppKit integration with SwiftUI UI
 
 ## License

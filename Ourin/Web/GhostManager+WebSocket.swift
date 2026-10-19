@@ -39,13 +39,33 @@ extension GhostManager {
             let task = URLSession.shared.webSocketTask(with: url)
             self.webSocketTasks[key] = task
             task.resume()
-            // delegate を持たない簡易実装のため、resume 直後に楽観的に Open を通知する。
-            EventBridge.shared.notify(.OnExecuteWebSocketOpen, refs: ["url": key])
-            EventBridge.shared.notify(.OnExecuteWebSocketState, refs: [
-                "state": "open",
-                "url": key
-            ])
-            self.receiveNextWebSocketMessage(task, key: key)
+            // `resume()` は接続開始を要求するだけで、WebSocket handshake の完了を
+            // 意味しない。Ping の成功を handshake 完了の確認として使い、成功時だけ
+            // Open/state と受信ループを開始する。
+            task.sendPing { [weak self] error in
+                DispatchQueue.main.async {
+                    guard let self, self.webSocketTasks[key] === task else { return }
+                    if let error {
+                        self.webSocketTasks.removeValue(forKey: key)
+                        EventBridge.shared.notify(.OnExecuteWebSocketError, refs: [
+                            "reason": error.localizedDescription,
+                            "url": key
+                        ])
+                        EventBridge.shared.notify(.OnExecuteWebSocketState, refs: [
+                            "state": "error",
+                            "url": key
+                        ])
+                        return
+                    }
+
+                    EventBridge.shared.notify(.OnExecuteWebSocketOpen, refs: ["url": key])
+                    EventBridge.shared.notify(.OnExecuteWebSocketState, refs: [
+                        "state": "open",
+                        "url": key
+                    ])
+                    self.receiveNextWebSocketMessage(task, key: key)
+                }
+            }
         }
     }
 
@@ -131,6 +151,7 @@ extension GhostManager {
                         "url": key
                     ])
                     self.webSocketTasks.removeValue(forKey: key)
+                    EventBridge.shared.notify(.OnExecuteWebSocketClose, refs: ["url": key])
                 case .success(let message):
                     switch message {
                     case .string(let text):

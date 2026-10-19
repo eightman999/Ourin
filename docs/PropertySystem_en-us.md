@@ -198,8 +198,8 @@ the writable key enumeration.
 
 ### GhostManager
 The `GhostManager` class handles property-related SakuraScript commands:
-- `\![get,property,...]` at line 408
-- `\![set,property,...]` at line 421
+- `\![get,property,...]` (the `property` branch of the `get` handler in `GhostManager.swift`)
+- `\![set,property,...]` (the `property` branch of the `set` handler in `GhostManager.swift`)
 
 ### SakuraScriptEngine
 The `SakuraScriptEngine` integrates with `PropertyManager`:
@@ -208,7 +208,7 @@ The `SakuraScriptEngine` integrates with `PropertyManager`:
 
 ### EnvironmentExpander
 Handles `%property[key]` expansion in text:
-- Line 109-111 in `EnvironmentExpander.swift`
+- The `%property[...]` branch in `EnvironmentExpander.swift`
 - Delegates to `PropertyManager.get()`
 
 ## Testing
@@ -234,20 +234,19 @@ Potential additions for complete specification compliance:
    - `history.ghost.*`, `history.balloon.*`, etc.
    - Most recently used items tracking
 
-2. **Rate of Use** (`rateofuselist.*`)
-   - Ghost usage statistics
-   - Boot time tracking
-   - Usage percentage calculation
-
-3. **Additional Writable Properties**
+2. **Additional Writable Properties**
    - Mouse cursor customization (`currentghost.mousecursor.*`)
    - Tooltip customization (`currentghost.seriko.tooltip.*`)
    - Surface list properties (`currentghost.seriko.surfacelist.*`)
 
-4. **Dynamic Data Integration**
+3. **Dynamic Data Integration**
    - Connect to actual runtime ghost/shell/balloon data
    - Real-time scope position tracking
    - Live balloon metrics
+
+`rateofuselist.*` is implemented. Ghost boot count, active usage time, talk count, and
+character count are persisted in `UserDefaults`; `rateofuselist.*` and
+`open,rateofusegraph*` read the same runtime data.
 
 ## References
 

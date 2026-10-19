@@ -29,7 +29,7 @@ public:
     // （`id.key\x01value\r\n` 形式）を返す。デフォルトは未対応（空）。
     virtual nlohmann::json fmoOperation(const std::string& op, const nlohmann::json& params) {
         (void)op; (void)params;
-        return nlohmann::json{{"ok", false}, {"error", "fmoOperation not implemented"}};
+        return nlohmann::json{{"ok", false}, {"error", "FMO host callback unavailable"}};
     }
 
     // Dynamic dictionary operations (Phase 6). Returns success flag.
@@ -112,6 +112,10 @@ private:
     // SETDELIM/GETDELIM で設定する配列⇔文字列の既定区切り文字（SPLIT の区切り省略時に使用）
     std::string arrayDelimiter_ = ",";
 
+    // FCHARSET で設定するテキストファイルの既定文字コード。
+    // 0=Shift_JIS/CP932、1=UTF-8、127=OS既定（macOSではUTF-8として扱う）。
+    int fileCharset_ = 1;
+
     // SHIORI reference values
     std::vector<Value> references_;
 
@@ -136,6 +140,9 @@ private:
 
     // OUTPUTNUM() 用: 直近に execute() した array/sequential 関数が収集した候補数。
     int lastOutputNum_ = 0;
+
+    // 文字列中の `%[n]` が参照する、同一文字列内の直前の埋め込み値。
+    std::vector<std::string> embeddedHistory_;
 
     // Built-in functions
     std::map<std::string, std::function<Value(const std::vector<Value>&)>> builtins_;
@@ -180,11 +187,26 @@ private:
     // YAYA 前置 '&'（参照渡し）の解決用ヘルパ。
     // ノードが UnaryOpNode("&", operand) で、operand が変数または配列要素参照なら
     // その格納位置を表す RefTarget を返す（配列添字はこの時点で評価する）。
+    // `&array[i][j]` のような入れ子添字も、ルート変数からの添字列として保持する。
     struct RefTarget {
         std::string varName;
-        bool hasIndex = false;
-        int arrayIdx = 0;
+        std::vector<int> arrayIndices;
+        // `_` 変数は呼び出し元のローカルスコープを保持する必要がある。
+        // ネストした関数の実行中に現在の最上位スコープへ書くと、呼び出し元ではなく
+        // 呼び出し先の同名ローカル変数を更新してしまうため、解決時の深さを記録する。
+        bool isLocal = false;
+        size_t localScopeIndex = 0;
     };
+
+    struct ReferenceArgument {
+        size_t argumentIndex = 0;
+        RefTarget target;
+    };
+
+    // 通常のユーザー関数呼び出しへ渡す参照引数。execute() の入口で1フレーム消費し、
+    // 関数終了時に更新済みの `_argv[index]` を呼び出し元の格納場所へ書き戻す。
+    std::vector<std::vector<ReferenceArgument>> pendingReferenceArguments_;
+
     std::optional<RefTarget> tryResolveReference(std::shared_ptr<AST::Node> node);
     Value readReference(const RefTarget& target);
     void writeReference(const RefTarget& target, const Value& value);

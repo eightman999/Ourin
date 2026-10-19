@@ -1,5 +1,9 @@
 # SERIKO Overlay & Dressup Rendering Implementation Report
 
+> ⚠️ **Snapshot notice**: claims in this report such as "GhostManager+Animation.swift was deleted", "DressupInfoExtended type not found", and "build failures" reflect the state at writing time.
+> Currently `GhostManager+Animation.swift` (SERIKO execution) and `GhostManager+Dressup.swift` (dressup) exist and the project builds.
+> Treat `docs/SERIKO_IMPLEMENTATION.md` / `docs/AUDITS_COMPLETED.md` as the source of truth.
+
 **Status:** Implementation In Progress
 **Updated:** 2025-03-09
 **Target:** Ourin (macOS 10.15+ / Universal 2)

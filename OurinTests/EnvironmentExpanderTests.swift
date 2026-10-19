@@ -54,4 +54,15 @@ struct EnvironmentExpanderTests {
         #expect(!text.contains("%mh"))
         #expect(!text.contains("%me"))
     }
+
+    @Test
+    func percentStarExpandsToCommunicationMarkerCommand() {
+        let engine = SakuraScriptEngine()
+
+        #expect(engine.expandEnvironment(in: "本文%*") == "本文\\![*]")
+        #expect(
+            engine.parse(script: engine.expandEnvironment(in: "本文%*"), expandEnvironment: false)
+                == [.text("本文"), .command(name: "!", args: ["*"])]
+        )
+    }
 }

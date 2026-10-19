@@ -10,15 +10,3 @@ struct LogEntry: Identifiable {
     let message: String
     let metadata: String
 }
-
-struct SignpostEntry: Identifiable {
-    let id = UUID()
-    let name: String
-    let type: SignpostType
-    let duration: Double
-}
-
-enum SignpostType {
-    case interval
-    case instant
-}

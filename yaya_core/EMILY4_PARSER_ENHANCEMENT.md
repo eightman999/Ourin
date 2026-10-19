@@ -1,5 +1,9 @@
 # YAYA Parser Enhancement for Emily4 Compatibility
 
+> ⚠️ **時点スナップショット (2025-10-18)**: 本文書で「未実装」とされている項目（case/when 等）はその後実装済み。
+> 最新状況は `IMPLEMENTATION_STATUS.md` を正とすること。
+> Snapshot as of 2025-10-18; items marked unimplemented here (e.g. case/when) have since been implemented. See `IMPLEMENTATION_STATUS.md`.
+
 ## Summary
 
 The YAYA_core parser has been successfully enhanced to support key syntax patterns used in the emily4 ghost, specifically the `_in_` membership operator which was used 202 times throughout emily4's dictionary files.
@@ -48,6 +52,18 @@ Tested with representative emily4 dictionary files:
 
 ### Key Achievement
 The primary goal has been achieved: **files that use the `_in_` operator now parse successfully**, including major files like `aya_bootend.dic` which previously failed at line 331 with the error "Expected '{' after elseif condition".
+
+### Current verification update (2026-08-12)
+
+Array lvalue compatibility now also covers the inclusive YAYA range form:
+
+- `array[index] = value`, arithmetic compound assignment, and `array[index] ,= value` update only the selected element.
+- `array[start,end] = rhs` uses an inclusive interval; an empty array RHS removes the interval and an array RHS splices replacement elements.
+- `array[start,end] ,= rhs` preserves the selected interval and appends the RHS within that interval's replacement.
+- Range reads use the same inclusive-end semantics, including reversed endpoints.
+- The Emily4 regression suite loads all configured dictionaries, including the `array_list[_i,10000] = IARRAY` and `active_array[15,10000] = IARRAY` forms.
+
+The current Xcode run completed **713 tests in 59 suites with 0 failures**, and `yaya_core/build.sh` completed successfully. Range arithmetic compound assignment is intentionally rejected with an explicit parse error because silently applying it to only the first element would be incorrect.
 
 ## Usage Examples
 

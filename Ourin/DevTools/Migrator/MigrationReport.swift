@@ -168,16 +168,16 @@ enum MigrationReport {
     }
 
     /// exports/imports/既知 DLL 情報から、実装すべき機能の TODO を推定する。
-    /// 計画「.plugin 雛形生成」節の「exports/imports/strings から推定した実装 TODO」に対応。
+    /// 計画「移行記録生成」節の「exports/imports/strings から推定した実装要件」に対応。
     private static func implementationTODOs(asset: LegacyAssetScanner.Asset,
                                             exports: [ExportEntry],
                                             imports: [ImportEntry],
                                             manifest: OurinManifest?) -> [String] {
         var todos: [String] = []
         let exportNames = Set(exports.map { $0.name.lowercased() })
-        let importNames = Set(imports.flatMap { $0.name.lowercased().split(separator: ".").last.map(String.init) })
+        let importNames = Set(imports.compactMap { $0.name.lowercased().split(separator: ".").last.map(String.init) })
 
-        // SSP plugin イベント入口の検出（計画「.plugin 雛形生成」のイベント入口と同期）
+        // SSP plugin イベント入口の検出（移行記録に実装要件として記録）
         let eventEntryPoints: [(keyword: String, todo: String)] = [
             ("load", "Load / 初期化エントリポイントの実装"),
             ("unload", "Unload / 終了処理の実装"),
@@ -189,7 +189,7 @@ enum MigrationReport {
             todos.append("- [ ] \(ep.todo)")
         }
 
-        // 最低限のイベント入口 TODO（雛形生成時の基準）
+        // 最低限のイベント入口要件（移行記録に出力）
         for required in ["OnBoot", "OnSecondChange", "OnMinuteChange", "OnGhostChanged"] {
             if exportNames.contains(required.lowercased()) {
                 todos.append("- [x] \(required) はエクスポート済み（要：macOS 版での等価実装）")
@@ -203,7 +203,7 @@ enum MigrationReport {
             todos.append("- [x] 既知 DLL: `\(OurinManifest.builtinImplementation(for: asset.filename) ?? "?")` でネイティブ置換")
             todos.append("- [ ] builtin 側で元 DLL のイベント refs 互換性を確認")
         } else {
-            todos.append("- [ ] 未知 DLL: `.plugin` 雛形を生成し、export からエントリポイントを写す")
+            todos.append("- [ ] 未知 DLL: 個別のネイティブ `.plugin` を実装し、export から必要な入口を確定する")
             todos.append("- [ ] import している Windows API を macOS 等価で置き換える（例: `Kernel32`→Foundation、`WS2_32`→Network フレームワーク）")
         }
 

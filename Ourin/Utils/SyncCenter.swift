@@ -35,5 +35,25 @@ final class SyncCenter {
         guard !name.isEmpty else { return }
         semaphore(for: name).signal()
     }
-}
 
+    /// Set a named syncobject to the signaled state.
+    ///
+    /// The in-process primitive is semaphore-like, so setting it releases
+    /// one waiter. This is the useful equivalent of SSP's set operation for
+    /// the primitive used by Ourin.
+    func set(name: String) {
+        signal(name: name)
+    }
+
+    /// Reset a named syncobject to the unsignaled state.
+    ///
+    /// Replacing the semaphore discards a pending signal before the next
+    /// wait. A waiter that already acquired the previous semaphore is not
+    /// interrupted, matching the best-effort in-process boundary here.
+    func reset(name: String) {
+        guard !name.isEmpty else { return }
+        lock.lock()
+        events.removeValue(forKey: name)
+        lock.unlock()
+    }
+}

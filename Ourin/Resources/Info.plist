@@ -68,6 +68,10 @@
 	</array>
     <key>NSDocumentsFolderUsageDescription</key>
     <string>Ourin はゴースト・バルーン・プラグインなどのデータを「書類」フォルダ内の Ourin フォルダに保存・読み込みします。</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Ourin は音声認識イベントをゴーストへ通知するために音声認識を使用します。</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Ourin は音声認識イベントを発火するためにマイク入力を使用します。</string>
     <key>NSHumanReadableCopyright</key>
     <string>© 2025 Furin Lab and contributors</string>
     <key>AppReleaseDate</key>

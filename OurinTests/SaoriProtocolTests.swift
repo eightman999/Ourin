@@ -80,4 +80,13 @@ struct SaoriProtocolTests {
         #expect(SaoriProtocol.statusMessage(for: 311) == "Insecure")
         #expect(SaoriProtocol.statusMessage(for: 312) == "No Content (Not Trusted)")
     }
+
+    @Test
+    func responseHeaderLookupIsCaseInsensitive() throws {
+        let response = try SaoriProtocol.parseResponse(
+            "SAORI/1.0 200 OK\r\nresult: done\r\nvalue0: first\r\n\r\n"
+        )
+        #expect(response.headerValue("Result") == "done")
+        #expect(response.headerValue("VALUE0") == "first")
+    }
 }

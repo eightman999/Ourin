@@ -113,7 +113,7 @@ enum ZipUtil {
         for case let fileURL as URL in enumerator {
             let fileName = fileURL.lastPathComponent
             let resolvedFilePath = fileURL.resolvingSymlinksInPath().path
-            guard resolvedFilePath.hasPrefix(srcBase) else { continue }
+            guard isWithinRoot(resolvedFilePath, root: srcBase) else { continue }
             let relative = String(resolvedFilePath.dropFirst(srcBase.count)).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
 
             // Skip ignored files
@@ -132,7 +132,7 @@ enum ZipUtil {
 
             let target = dst.appendingPathComponent(relative, isDirectory: vals.isDirectory == true)
             let resolved = target.resolvingSymlinksInPath()
-            guard resolved.path.hasPrefix(dstBase) else {
+            guard isWithinRoot(resolved.path, root: dstBase) else {
                 throw NarInstaller.Error.zipSlipDetected(target.path)
             }
             if vals.isDirectory == true {
@@ -143,5 +143,10 @@ enum ZipUtil {
                 try fm.copyItem(at: fileURL, to: resolved)
             }
         }
+    }
+
+    private static func isWithinRoot(_ candidate: String, root: String) -> Bool {
+        let normalizedRoot = root.hasSuffix("/") ? String(root.dropLast()) : root
+        return candidate == normalizedRoot || candidate.hasPrefix(normalizedRoot + "/")
     }
 }

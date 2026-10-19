@@ -1,44 +1,69 @@
 import Foundation
+import Darwin
 
 private var moduleDir: String = ""
-private var responseBuffer: UnsafeMutablePointer<UInt8>?
+private var responseBuffer: UnsafeMutablePointer<CChar>?
 private var responseLength: Int = 0
 
 private func storeResponse(_ text: String) {
-    responseBuffer?.deallocate()
+    if let responseBuffer {
+        free(responseBuffer)
+    }
     let bytes = Array(text.utf8)
     responseLength = bytes.count
-    let ptr = UnsafeMutablePointer<UInt8>.allocate(capacity: bytes.count)
-    ptr.initialize(from: bytes, count: bytes.count)
-    responseBuffer = ptr
+    guard let ptr = malloc(max(bytes.count, 1)) else {
+        responseLength = 0
+        responseBuffer = nil
+        return
+    }
+    if !bytes.isEmpty {
+        bytes.withUnsafeBytes { raw in
+            ptr.copyMemory(from: raw.baseAddress!, byteCount: bytes.count)
+        }
+    }
+    responseBuffer = ptr.assumingMemoryBound(to: CChar.self)
 }
 
 @_cdecl("load")
-public func load(_ module_dir_utf8: UnsafePointer<CChar>?) -> Int32 {
-    moduleDir = module_dir_utf8.map { String(cString: $0) } ?? ""
+public func load(_ module_dir_utf8: UnsafeMutablePointer<CChar>?, _ module_dir_len: Int64) -> Int32 {
+    if let module_dir_utf8, module_dir_len > 0, module_dir_len <= Int64(Int.max) {
+        let data = Data(bytes: module_dir_utf8, count: Int(module_dir_len))
+        moduleDir = String(decoding: data, as: UTF8.self)
+    } else {
+        moduleDir = ""
+    }
+    if let module_dir_utf8 {
+        free(module_dir_utf8)
+    }
     return 1
 }
 
 @_cdecl("unload")
-public func unload() {
-    responseBuffer?.deallocate()
+public func unload() -> Int32 {
+    if let responseBuffer {
+        free(responseBuffer)
+    }
     responseBuffer = nil
     responseLength = 0
     moduleDir = ""
+    return 1
 }
 
 @_cdecl("request")
 public func request(
-    _ req: UnsafePointer<UInt8>?,
-    _ req_len: Int32,
-    _ res_len: UnsafeMutablePointer<Int32>?
-) -> UnsafePointer<UInt8>? {
+    _ req: UnsafeMutablePointer<CChar>?,
+    _ res_len: UnsafeMutablePointer<Int64>?
+) -> UnsafeMutablePointer<CChar>? {
     let reqText: String
-    if let req, req_len > 0 {
-        let data = Data(bytes: req, count: Int(req_len))
+    let reqLength = res_len?.pointee ?? 0
+    if let req, reqLength > 0, reqLength <= Int64(Int.max) {
+        let data = Data(bytes: req, count: Int(reqLength))
         reqText = String(data: data, encoding: .utf8) ?? ""
     } else {
         reqText = ""
+    }
+    if let req {
+        free(req)
     }
 
     var value = "Hello from Swift SAORI"
@@ -52,11 +77,11 @@ public func request(
     SAORI/1.0 200 OK\r
     Charset: UTF-8\r
     Result: 1\r
-    Value: \(value)\r
+    Value0: \(value)\r
     \r
     """
     storeResponse(wire)
-    res_len?.pointee = Int32(responseLength)
+    res_len?.pointee = Int64(responseLength)
     guard let responseBuffer else { return nil }
-    return UnsafePointer(responseBuffer)
+    return responseBuffer
 }

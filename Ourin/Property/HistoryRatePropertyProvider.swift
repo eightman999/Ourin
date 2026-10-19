@@ -20,6 +20,201 @@ public struct RateOfUseEntry {
     }
 }
 
+/// 実行中ゴーストの使用統計。`rateofusegraph*` と `rateofuselist.*` が同じ
+/// 永続データを見るための共通スナップショット。
+struct GhostUsageSnapshot: Identifiable, Equatable {
+    let id: String
+    let name: String
+    let sakuraname: String
+    let keroname: String
+    let bootCount: Int
+    let activeMinutes: Int
+    let talkCount: Int
+    let characterCount: Int
+    let percent: Int
+    let lastUsedAt: Date?
+}
+
+/// ゴーストの起動・使用時間を永続化するストア。
+///
+/// `rateofusegraphballoon` / `rateofusegraphtotal` は Windows 固有の
+/// バルーン内部カウンタを再現できないため、Ourin では同じ実使用セッションの
+/// 記録を使う。存在しない固定値やダミー URLを返さず、起動中の時間も表示時に
+/// 合算する。
+final class RateOfUseStore {
+    static let shared = RateOfUseStore()
+
+    private static let storageKey = "OurinRateOfUseRecords.v1"
+
+    private struct StoredRecord: Codable {
+        var name: String
+        var sakuraname: String
+        var keroname: String
+        var bootCount: Int
+        var totalSeconds: TimeInterval
+        var talkCount: Int
+        var characterCount: Int
+        var lastUsedAt: TimeInterval?
+
+        init(name: String, sakuraname: String, keroname: String) {
+            self.name = name
+            self.sakuraname = sakuraname
+            self.keroname = keroname
+            self.bootCount = 0
+            self.totalSeconds = 0
+            self.talkCount = 0
+            self.characterCount = 0
+            self.lastUsedAt = nil
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case name, sakuraname, keroname, bootCount, totalSeconds
+            case talkCount, characterCount, lastUsedAt
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+            sakuraname = try container.decodeIfPresent(String.self, forKey: .sakuraname) ?? name
+            keroname = try container.decodeIfPresent(String.self, forKey: .keroname) ?? ""
+            bootCount = try container.decodeIfPresent(Int.self, forKey: .bootCount) ?? 0
+            totalSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .totalSeconds) ?? 0
+            talkCount = try container.decodeIfPresent(Int.self, forKey: .talkCount) ?? 0
+            characterCount = try container.decodeIfPresent(Int.self, forKey: .characterCount) ?? 0
+            lastUsedAt = try container.decodeIfPresent(TimeInterval.self, forKey: .lastUsedAt)
+        }
+    }
+
+    private let defaults: UserDefaults
+    private let lock = NSLock()
+    private var records: [String: StoredRecord]
+    private var activeSessions: [String: Date] = [:]
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        if let data = defaults.data(forKey: Self.storageKey),
+           let decoded = try? JSONDecoder().decode([String: StoredRecord].self, from: data) {
+            records = decoded
+        } else {
+            records = [:]
+        }
+    }
+
+    func beginSession(identifier: String, name: String, sakuraname: String, keroname: String) {
+        let key = normalizedIdentifier(identifier)
+        guard !key.isEmpty else { return }
+        lock.lock()
+        defer { lock.unlock() }
+
+        var record = records[key] ?? StoredRecord(name: name, sakuraname: sakuraname, keroname: keroname)
+        updateMetadata(&record, name: name, sakuraname: sakuraname, keroname: keroname)
+        if activeSessions[key] == nil {
+            record.bootCount += 1
+            activeSessions[key] = Date()
+        }
+        records[key] = record
+        persistLocked()
+    }
+
+    func recordTalk(identifier: String, name: String, sakuraname: String, keroname: String, characterCount: Int) {
+        let key = normalizedIdentifier(identifier)
+        guard !key.isEmpty else { return }
+        lock.lock()
+        defer { lock.unlock() }
+
+        var record = records[key] ?? StoredRecord(name: name, sakuraname: sakuraname, keroname: keroname)
+        updateMetadata(&record, name: name, sakuraname: sakuraname, keroname: keroname)
+        record.talkCount += 1
+        record.characterCount += max(0, characterCount)
+        record.lastUsedAt = Date().timeIntervalSince1970
+        records[key] = record
+        persistLocked()
+    }
+
+    func endSession(identifier: String) {
+        let key = normalizedIdentifier(identifier)
+        guard !key.isEmpty else { return }
+        lock.lock()
+        defer { lock.unlock() }
+        guard let startedAt = activeSessions.removeValue(forKey: key), var record = records[key] else {
+            return
+        }
+        record.totalSeconds += max(0, Date().timeIntervalSince(startedAt))
+        records[key] = record
+        persistLocked()
+    }
+
+    func snapshots() -> [GhostUsageSnapshot] {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let raw = records.map { key, record in
+            let seconds = effectiveSeconds(for: key, record: record)
+            return (key: key, record: record, seconds: seconds)
+        }
+        let totalSeconds = raw.reduce(0) { $0 + $1.seconds }
+        return raw
+            .sorted { lhs, rhs in
+                if lhs.seconds != rhs.seconds { return lhs.seconds > rhs.seconds }
+                return lhs.record.name.localizedStandardCompare(rhs.record.name) == .orderedAscending
+            }
+            .map { item in
+                let percent: Int
+                if totalSeconds > 0 {
+                    percent = Int((item.seconds / totalSeconds * 100).rounded())
+                } else if raw.count == 1 {
+                    percent = 100
+                } else {
+                    percent = 0
+                }
+                return GhostUsageSnapshot(
+                    id: item.key,
+                    name: item.record.name.isEmpty ? item.key : item.record.name,
+                    sakuraname: item.record.sakuraname,
+                    keroname: item.record.keroname,
+                    bootCount: item.record.bootCount,
+                    activeMinutes: Int(item.seconds / 60),
+                    talkCount: item.record.talkCount,
+                    characterCount: item.record.characterCount,
+                    percent: min(100, max(0, percent)),
+                    lastUsedAt: item.record.lastUsedAt.map(Date.init(timeIntervalSince1970:))
+                )
+            }
+    }
+
+    func entries() -> [RateOfUseEntry] {
+        snapshots().map {
+            RateOfUseEntry(
+                name: $0.name,
+                sakuraname: $0.sakuraname,
+                keroname: $0.keroname,
+                boottime: $0.bootCount,
+                bootminute: $0.activeMinutes,
+                percent: $0.percent
+            )
+        }
+    }
+
+    private func normalizedIdentifier(_ identifier: String) -> String {
+        identifier.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func updateMetadata(_ record: inout StoredRecord, name: String, sakuraname: String, keroname: String) {
+        if !name.isEmpty { record.name = name }
+        if !sakuraname.isEmpty { record.sakuraname = sakuraname }
+        if !keroname.isEmpty { record.keroname = keroname }
+    }
+
+    private func effectiveSeconds(for key: String, record: StoredRecord) -> TimeInterval {
+        record.totalSeconds + (activeSessions[key].map { max(0, Date().timeIntervalSince($0)) } ?? 0)
+    }
+
+    private func persistLocked() {
+        guard let data = try? JSONEncoder().encode(records) else { return }
+        defaults.set(data, forKey: Self.storageKey)
+    }
+}
+
 /// Provides history.* properties.
 /// Supported keys:
 /// - history.ghost.count / history.ghost(name|path).prop / history.ghost.index(n).prop
@@ -156,13 +351,14 @@ final class HistoryPropertyProvider: PropertyProvider {
 /// - rateofuselist(name).prop
 /// - rateofuselist.index(n).prop
 final class RateOfUsePropertyProvider: PropertyProvider {
-    private let entries: [RateOfUseEntry]
+    private let entriesProvider: () -> [RateOfUseEntry]
 
-    init(entries: [RateOfUseEntry] = []) {
-        self.entries = entries
+    init(entries: [RateOfUseEntry] = [], entriesProvider: (() -> [RateOfUseEntry])? = nil) {
+        self.entriesProvider = entriesProvider ?? { entries }
     }
 
     func get(key: String) -> String? {
+        let entries = entriesProvider()
         if key == "count" {
             return String(entries.count)
         }

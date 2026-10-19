@@ -1,7 +1,7 @@
 # YAYA Core - macOSネイティブYAYAインタープリター
 
 **バージョン**: 0.1.0 (開発中)
-**ステータス**: フェーズ1 - 基盤構築
+**ステータス**: コア実装済み — Lexer / Parser / VM / 組み込み160関数（詳細は `IMPLEMENTATION_STATUS.md`）
 **プラットフォーム**: macOS (ユニバーサルバイナリ: arm64 + x86_64)
 **ライセンス**: BSD-3-Clause
 
@@ -16,7 +16,7 @@ YAYA Coreは、伺か/ゴーストデスクトップコンパニオン用のYAYA
 - ✅ **JSONベースIPC**: stdin/stdoutによる行指向のJSON通信
 - ✅ **ユニバーサルバイナリ**: Apple Silicon (arm64)とIntel (x86_64)の両方をサポート
 - ✅ **UTF-8/CP932**: 自動文字エンコーディング検出と変換
-- 🚧 **YAYA言語**: 完全なYAYAスクリプト解釈（実装中）
+- ✅ **YAYA言語**: Lexer / Parser / VM 実装済み（Emily4 全33辞書ロード成功）
 - 🚧 **SHIORI/3.0M**: 完全なSHIORIプロトコル準拠（実装中）
 
 ### 現在のステータス
@@ -256,10 +256,11 @@ let response = adapter.request(method: "GET", id: "OnBoot", refs: [])
 
 ## ドキュメント
 
-- [実装計画](../docs/YAYA_CORE_IMPLEMENTATION_PLAN.md) - 詳細なロードマップとアーキテクチャ
-- [技術仕様](../docs/YAYA_CORE_TECHNICAL_SPEC.md) - 言語仕様とAPIリファレンス
-- [YAYAアダプター仕様](../docs/OURIN_YAYA_ADAPTER_SPEC_1.0M.md) - IPCプロトコル仕様
+- [実装ステータス](IMPLEMENTATION_STATUS.md) - 日付付きの最新進捗（正本）
 - [関数リファレンス](FUNCTION_REFERENCE.md) - 実装済み160関数の完全リスト
+- [実装計画](../docs/YAYA_CORE_IMPLEMENTATION_PLAN_ja-jp.md) - 当初ロードマップ（2025-10時点のスナップショット。現状は IMPLEMENTATION_STATUS.md を参照）
+- [技術仕様](../docs/YAYA_CORE_TECHNICAL_SPEC_ja-jp.md) - 言語仕様とAPIリファレンス
+- [YAYAアダプター仕様](../docs/OURIN_YAYA_ADAPTER_SPEC_1.0M_ja-jp.md) - IPCプロトコル仕様
 
 ---
 

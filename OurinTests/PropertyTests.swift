@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import Ourin
 
@@ -30,5 +31,17 @@ struct PropertyTests {
         // 名前パラメータ "MyShell" が小文字化されず届く
         _ = mgr.get("TestNS.ShellList(MyShell).menu")
         #expect(provider.lastKey == "shelllist(MyShell).menu")
+    }
+
+    @Test
+    func initializationFromBackgroundThreadKeepsAppKitAccessOnMain() async {
+        let headlineCount = await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                let manager = PropertyManager()
+                continuation.resume(returning: manager.get("headlinelist.count"))
+            }
+        }
+
+        #expect(headlineCount == "0")
     }
 }

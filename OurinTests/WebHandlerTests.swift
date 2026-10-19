@@ -54,4 +54,34 @@ struct WebHandlerTests {
         #expect(receivedInfo == "hello from web")
         #expect(receivedGhost == "Emily")
     }
+
+    @Test
+    func eventDispatchesExactlyOnceWithReferenceZero() throws {
+        var calls: [(event: String, params: [String: String], ghost: String)] = []
+        let handler = WebHandler { event, params, ghost in
+            calls.append((event, params, ghost))
+        }
+
+        handler.handleURL(URL(string: "x-ukagaka-link:type=event&ghost=Emily&info=hello")!)
+
+        #expect(calls.count == 1)
+        #expect(calls.first?.event == "OnXUkagakaLinkOpen")
+        #expect(calls.first?.params == ["Reference0": "hello"])
+        #expect(calls.first?.ghost == "Emily")
+    }
+
+    @Test
+    func queryDispatchesExactlyOnceWithReferenceZero() throws {
+        var calls: [(event: String, params: [String: String], ghost: String)] = []
+        let handler = WebHandler { event, params, ghost in
+            calls.append((event, params, ghost))
+        }
+
+        handler.handleURL(URL(string: "x-ukagaka-link:type=query&ghost=Emily&query=%E3%83%86%E3%82%B9%E3%83%88")!)
+
+        #expect(calls.count == 1)
+        #expect(calls.first?.event == "OnURLQuery")
+        #expect(calls.first?.params == ["Reference0": "テスト"])
+        #expect(calls.first?.ghost == "Emily")
+    }
 }

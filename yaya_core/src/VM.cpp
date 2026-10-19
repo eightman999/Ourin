@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
+#include <limits>
 #include <chrono>
 #include <set>
 #include <cstdlib>
@@ -22,8 +23,15 @@
 #include <iconv.h>
 #include <cerrno>
 #include <cstring>
+#include <sys/stat.h>
 #include "Digest.hpp"
 #include "Base64.hpp"
+#include <unistd.h>
+#if defined(__APPLE__)
+#include <mach/mach.h>
+#include <mach/mach_host.h>
+#include <sys/sysctl.h>
+#endif
 
 namespace {
 
@@ -68,6 +76,72 @@ bool convertEncodingVM(const std::string& input, const char* fromCode, const cha
     iconv_close(cd);
     if (ok) output = std::move(result);
     return ok;
+}
+
+// GETMEMINFO と同じ5要素を、ホストOSの実メモリ統計から作る。
+// Windows の MEMORYSTATUSEX に対応する値: load, totalPhys, availPhys,
+// totalVirtual, availVirtual（バイト単位、loadのみ百分率）。
+std::vector<std::int64_t> currentMemoryInfo() {
+    std::uint64_t totalPhys = 0;
+    std::uint64_t availPhys = 0;
+    std::uint64_t totalSwap = 0;
+    std::uint64_t availSwap = 0;
+
+#if defined(__APPLE__)
+    std::uint64_t hardwareMemory = 0;
+    size_t hardwareMemorySize = sizeof(hardwareMemory);
+    if (sysctlbyname("hw.memsize", &hardwareMemory, &hardwareMemorySize, nullptr, 0) == 0) {
+        totalPhys = hardwareMemory;
+    }
+
+    vm_size_t pageSize = 0;
+    vm_statistics64_data_t vmStats{};
+    mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
+    if (host_page_size(mach_host_self(), &pageSize) == KERN_SUCCESS &&
+        host_statistics64(mach_host_self(), HOST_VM_INFO64,
+                          reinterpret_cast<host_info64_t>(&vmStats), &count) == KERN_SUCCESS) {
+        const std::uint64_t availablePages =
+            static_cast<std::uint64_t>(vmStats.free_count) +
+            static_cast<std::uint64_t>(vmStats.inactive_count) +
+            static_cast<std::uint64_t>(vmStats.speculative_count);
+        availPhys = availablePages * static_cast<std::uint64_t>(pageSize);
+    }
+
+    struct xsw_usage swapUsage{};
+    size_t swapUsageSize = sizeof(swapUsage);
+    if (sysctlbyname("vm.swapusage", &swapUsage, &swapUsageSize, nullptr, 0) == 0) {
+        totalSwap = static_cast<std::uint64_t>(swapUsage.xsu_total);
+        availSwap = static_cast<std::uint64_t>(swapUsage.xsu_avail);
+    }
+#else
+    const long pageSize = sysconf(_SC_PAGESIZE);
+    const long totalPages = sysconf(_SC_PHYS_PAGES);
+    const long availablePages = sysconf(_SC_AVPHYS_PAGES);
+    if (pageSize > 0 && totalPages > 0) {
+        totalPhys = static_cast<std::uint64_t>(pageSize) * static_cast<std::uint64_t>(totalPages);
+    }
+    if (pageSize > 0 && availablePages > 0) {
+        availPhys = static_cast<std::uint64_t>(pageSize) * static_cast<std::uint64_t>(availablePages);
+    }
+#endif
+
+    // 実行環境や権限で統計の一部が取れない場合も、totalから導ける範囲は返す。
+    if (totalPhys == 0) {
+        totalPhys = availPhys;
+    }
+    availPhys = std::min(availPhys, totalPhys);
+    const std::uint64_t usedPhys = totalPhys > availPhys ? totalPhys - availPhys : 0;
+    const std::uint64_t load = totalPhys == 0 ? 0 : (usedPhys * 100) / totalPhys;
+    const std::uint64_t totalVirtual = totalPhys + totalSwap;
+    const std::uint64_t availVirtual = availPhys + availSwap;
+
+    return {
+        static_cast<std::int64_t>(std::min<std::uint64_t>(load, 100)),
+        static_cast<std::int64_t>(totalPhys),
+        static_cast<std::int64_t>(availPhys),
+        static_cast<std::int64_t>(totalVirtual),
+        static_cast<std::int64_t>(std::min(availVirtual, totalVirtual))
+    };
 }
 
 // UTF-8 バイト列をコードポイント配列にデコードする。
@@ -171,6 +245,73 @@ std::string utf8Slice(const std::vector<uint32_t>& cps, size_t start, size_t cou
     return out;
 }
 
+// YAYA 範囲左辺値代入の配列実装。arr[start, end] は両端を含む閉区間。
+//  - RHS が配列: 閉区間 [start, end] を RHS の要素で置換する（splice）。空配列なら区間を削除する。
+//  - RHS がスカラー: 区間の先頭要素がその値になり、残りの区間要素は削除される。
+// start が配列サイズを超える場合は必要に応じてパディング/追記する（arraySet と同じ伸長挙動）。
+static void rangeAssignArray(Value& arr, int start, int end, const Value& rhs) {
+    std::vector<Value>& a = arr.asArrayMutable();
+    if (start < 0) start = 0;
+    if (end < 0) return;
+    if (end < start) std::swap(start, end);
+    const int n = static_cast<int>(a.size());
+
+    if (rhs.getType() == Value::Type::Array) {
+        const auto& rep = rhs.asArray();
+        if (start >= n) {
+            a.resize(static_cast<size_t>(start));
+            a.insert(a.end(), rep.begin(), rep.end());
+        } else if (end >= n) {
+            a.erase(a.begin() + start, a.end());
+            a.insert(a.end(), rep.begin(), rep.end());
+        } else {
+            a.erase(a.begin() + start, a.begin() + end + 1);
+            a.insert(a.begin() + start, rep.begin(), rep.end());
+        }
+    } else {
+        if (start >= n) {
+            a.resize(static_cast<size_t>(start + 1));
+            a[start] = rhs;
+        } else if (end >= n) {
+            a.erase(a.begin() + start, a.end());
+            a.push_back(rhs);
+        } else {
+            a.erase(a.begin() + start + 1, a.begin() + end + 1);
+            a[start] = rhs;
+        }
+    }
+}
+
+// YAYA 範囲 `,=` の配列実装。閉区間 [start, end] の現在要素に RHS を連結し、
+// その結果を区間に書き戻す（単一要素 `,=` が「現在値 + RHS」を代入するのと同様の拡張）。
+static void rangeConcatAssignArray(Value& arr, int start, int end, const Value& rhs) {
+    std::vector<Value>& a = arr.asArrayMutable();
+    if (start < 0) start = 0;
+    if (end < 0) return;
+    if (end < start) std::swap(start, end);
+    const int n = static_cast<int>(a.size());
+
+    std::vector<Value> sub;
+    for (int i = start; i <= end && i < n; i++) sub.push_back(a[i]);
+    if (rhs.getType() == Value::Type::Array) {
+        const auto& r = rhs.asArray();
+        sub.insert(sub.end(), r.begin(), r.end());
+    } else {
+        sub.push_back(rhs);
+    }
+
+    if (start >= n) {
+        a.resize(static_cast<size_t>(start));
+        a.insert(a.end(), sub.begin(), sub.end());
+    } else if (end >= n) {
+        a.erase(a.begin() + start, a.end());
+        a.insert(a.end(), sub.begin(), sub.end());
+    } else {
+        a.erase(a.begin() + start, a.begin() + end + 1);
+        a.insert(a.begin() + start, sub.begin(), sub.end());
+    }
+}
+
 // printf 風の書式整形。サポートする変換: d i u s f g e x X o c %。
 // フラグ/幅/精度（例: %05d, %-10s, %.2f, %+d）を許容し、各指定子に対して
 // 次の引数を消費する。整数系は asInt、f/g/e は asReal、s は asString で型変換する。
@@ -254,6 +395,75 @@ std::string formatPrintf(const std::string& format, const std::vector<Value>& ar
         }
     }
     return result;
+}
+
+// YAYA の文字列疑似配列（text[index, delimiter]）を分解する。
+// 区切り文字は正規表現ではなくリテラル文字列で、空要素も保持する。
+// 空文字列の delimiter は SETDELIM() の既定区切りへ解決してから呼び出す。
+static std::vector<std::string> splitPseudoArray(const std::string& text,
+                                                  const std::string& delimiter) {
+    if (text.empty()) return {};
+
+    std::vector<std::string> parts;
+    if (delimiter.empty()) {
+        // 念のため無限ループを避ける。通常は呼び出し側で既定区切りへ解決する。
+        for (unsigned char c : text) parts.emplace_back(1, static_cast<char>(c));
+        return parts;
+    }
+
+    size_t start = 0;
+    while (true) {
+        const size_t separator = text.find(delimiter, start);
+        if (separator == std::string::npos) {
+            parts.push_back(text.substr(start));
+            break;
+        }
+        parts.push_back(text.substr(start, separator - start));
+        start = separator + delimiter.size();
+    }
+    return parts;
+}
+
+// These AST calls mutate a variable and are statement-like in YAYA. Their
+// return value is useful when nested inside an expression, but must not become
+// an output candidate when the call is a standalone statement.
+static bool isOutputSuppressedNode(const std::shared_ptr<AST::Node>& node) {
+    if (!node) return true;
+    if (node->type == AST::NodeType::Assignment ||
+        node->type == AST::NodeType::Void ||
+        node->type == AST::NodeType::Combine) {
+        return true;
+    }
+
+    auto* call = dynamic_cast<AST::CallNode*>(node.get());
+    if (!call) return false;
+
+    static const std::set<std::string> assignmentCalls = {
+        "__array_concat_assign__",
+        "__assign__", "__plus_assign__", "__minus_assign__",
+        "__star_assign__", "__slash_assign__", "__percent_assign__",
+        "__concat_assign__", "__range_assign__", "__range_concat_assign__",
+        "__postinc__", "__postdec__", "__preinc__", "__predec__"
+    };
+    if (assignmentCalls.count(call->functionName) != 0) return true;
+
+    // Built-ins that perform an operation as a statement must not leak their
+    // status/handle value into the function's talk candidates.  The value is
+    // still available when the call is nested or assigned to a variable.
+    static const std::set<std::string> statementOnlyBuiltins = {
+        "APPEND_RUNTIME_DIC", "CHARSETLIB", "CHARSETLIBEX",
+        "CLEARERRORLOG", "DICLOAD", "DICUNLOAD",
+        "ERASEVAR", "EXECUTE", "EXECUTE_WAIT",
+        "FCLOSE", "FCOPY", "FDEL", "FOPEN", "FRENAME",
+        "FSEEK", "FWRITE", "FWRITE2", "FWRITEBIN", "FWRITEDECODE",
+        "FUNCDECL_ERASE", "FUNCDECL_WRITE",
+        "LETTONAME", "LOADLIB", "LOGGING", "MKDIR", "RMDIR",
+        "REGISTERTEMPVAR", "RESTOREVAR", "SAVEVAR", "SETDELIM",
+        "SETGLOBALDEFINE", "SETLASTERROR", "SETSETTING", "SETTAMAHWND",
+        "SLEEP", "SRAND", "UNDEFFUNC", "UNDEFGLOBALDEFINE",
+        "UNLOADLIB", "UNREGISTERTEMPVAR"
+    };
+    return statementOnlyBuiltins.count(call->functionName) != 0;
 }
 
 } // namespace
@@ -386,6 +596,14 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         std::cerr << "[VM::execute] [depth=" << recursion_depth_ << "] Looking for function: " << functionName << std::endl;
     }
 
+    // Call site が解決した参照引数を、この呼び出しフレームへ移す。組み込み関数や
+    // 未定義関数では書き戻し先がないため、後段で自然に破棄される。
+    std::vector<ReferenceArgument> referenceArguments;
+    if (!pendingReferenceArguments_.empty()) {
+        referenceArguments = std::move(pendingReferenceArguments_.back());
+        pendingReferenceArguments_.pop_back();
+    }
+
     // Check if it's a built-in function
     if (builtins_.find(functionName) != builtins_.end()) {
         Value result = callBuiltin(functionName, args);
@@ -468,6 +686,20 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         }
     }
 
+    // 関数内で `_argv[index] = ...` された値を、参照引数の元の格納場所へ戻す。
+    // 書き戻しはローカルスコープをまだ保持している間に行う必要がある。
+    if (!referenceArguments.empty()) {
+        const Value calleeArguments = getVariable("_argv");
+        for (const auto& reference : referenceArguments) {
+            if (calleeArguments.getType() != Value::Type::Array ||
+                reference.argumentIndex >= calleeArguments.asArray().size()) {
+                continue;
+            }
+            writeReference(reference.target, calleeArguments.arrayGet(
+                static_cast<int>(reference.argumentIndex)));
+        }
+    }
+
     // Pop local variable scope
     localScopes_.pop_back();
 
@@ -513,7 +745,7 @@ Value VM::executeFunctionDecl(const FunctionDecl& decl) {
                     continue;
                 }
                 Value v = executeNode(stmt);
-                if (stmt && stmt->type != AST::NodeType::Assignment && !v.isVoid()) {
+                if (!isOutputSuppressedNode(stmt) && !v.isVoid()) {
                     collected.push_back(v);
                 }
             }
@@ -622,7 +854,7 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                         return Value(std::stod(s));
                     }
                     // Decimal fallback
-                    return Value(std::stoi(s, nullptr, 10));
+                    return Value(static_cast<std::int64_t>(std::stoll(s, nullptr, 10)));
                 } catch (...) {
                     return Value(0);
                 }
@@ -795,27 +1027,79 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 return Value();
             }
 
-            // Range/slice: __range__(base, start, length)
-            // YAYA syntax: str[start, length] or array[start, count]
+            // Range/slice and string pseudo-array access: __range__(base, start, end[, delimiter])
+            // YAYA syntax supports both:
+            //   str[start, end]              -> inclusive code-point/array range
+            //   str[index, "delimiter"]      -> delimiter-split pseudo-array element
+            //   str[start, end, "delimiter"] -> delimiter-split range joined by delimiter
+            // Bounds are clamped for safety; a negative start is treated as 0 and an end past
+            // the size is treated as the last index.
             if (call->functionName == "__range__") {
-                if (call->arguments.size() == 3) {
+                if (call->arguments.size() == 3 || call->arguments.size() == 4) {
                     Value base = executeNode(call->arguments[0]);
                     int start = executeNode(call->arguments[1]).asInt();
-                    int len   = executeNode(call->arguments[2]).asInt();
+                    Value endValue = executeNode(call->arguments[2]);
+
+                    // In YAYA, a string in the second bracket position is a delimiter,
+                    // not a numeric range endpoint. This is used by the SHIORI framework
+                    // itself (`_line[0, " SHIORI"]`) to split request lines.
+                    if (base.getType() == Value::Type::String &&
+                        endValue.getType() == Value::Type::String) {
+                        std::string delimiter = endValue.asString();
+                        if (call->arguments.size() == 4) {
+                            // The explicit third argument is the delimiter for a range.
+                            delimiter = executeNode(call->arguments[3]).asString();
+                        }
+                        if (delimiter.empty()) delimiter = arrayDelimiter_;
+
+                        const auto parts = splitPseudoArray(base.asString(), delimiter);
+                        if (call->arguments.size() == 3) {
+                            return (start >= 0 && start < static_cast<int>(parts.size()))
+                                ? Value(parts[static_cast<size_t>(start)])
+                                : Value(std::string());
+                        }
+                    }
+
+                    int end = endValue.asInt();
 
                     if (base.getType() == Value::Type::String) {
-                        std::string s = base.asString();
+                        if (call->arguments.size() == 4) {
+                            const Value delimiterValue = executeNode(call->arguments[3]);
+                            std::string delimiter = delimiterValue.asString();
+                            if (delimiter.empty()) delimiter = arrayDelimiter_;
+                            const auto parts = splitPseudoArray(base.asString(), delimiter);
+                            if (start < 0) start = 0;
+                            if (end < 0) return Value(std::string());
+                            if (end < start) std::swap(start, end);
+                            if (end >= static_cast<int>(parts.size())) {
+                                end = static_cast<int>(parts.size()) - 1;
+                            }
+                            if (end < start) return Value(std::string());
+                            std::string joined;
+                            for (int i = start; i <= end; ++i) {
+                                if (!joined.empty()) joined += delimiter;
+                                joined += parts[static_cast<size_t>(i)];
+                            }
+                            return Value(joined);
+                        }
+                        // UTF-8-safe: slice by code points so CJK ranges are not cut mid-byte.
+                        std::vector<uint32_t> cps = decodeUtf8(base.asString());
                         if (start < 0) start = 0;
-                        if (start >= static_cast<int>(s.size())) return Value(std::string(""));
-                        if (len < 0) len = 0;
-                        return Value(s.substr(start, len));
+                        if (end < 0) return Value(std::string(""));
+                        if (end < start) std::swap(start, end);
+                        if (end >= static_cast<int>(cps.size())) end = static_cast<int>(cps.size()) - 1;
+                        if (end < start) return Value(std::string(""));
+                        return Value(utf8Slice(cps, static_cast<size_t>(start),
+                                               static_cast<size_t>(end - start + 1)));
                     }
                     if (base.getType() == Value::Type::Array) {
                         const auto& arr = base.asArray();
+                        if (start < 0) start = 0;
+                        if (end < 0) return Value(std::vector<Value>());
+                        if (end < start) std::swap(start, end);
+                        if (end >= static_cast<int>(arr.size())) end = static_cast<int>(arr.size()) - 1;
                         std::vector<Value> sub;
-                        for (int i = start; i < start + len && i < static_cast<int>(arr.size()); i++) {
-                            if (i >= 0) sub.push_back(arr[i]);
-                        }
+                        for (int i = start; i <= end; i++) sub.push_back(arr[i]);
                         return Value(sub);
                     }
                 }
@@ -867,6 +1151,33 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 bool isPost = (call->functionName == "__postinc__" ||
                                call->functionName == "__postdec__");
                 return isPost ? preVal : newVal;
+            }
+
+            // Range/slice lvalue assignment: arr[start, end] = rhs / arr[start, end] ,= rhs.
+            // The inclusive interval [start, end] is spliced (array RHS) or replaced (scalar RHS
+            // keeps the first element and drops the rest); an empty array RHS removes the interval.
+            // A non-array target is left untouched (safe no-op, mirroring Value::arraySet).
+            if ((call->functionName == "__range_assign__" ||
+                 call->functionName == "__range_concat_assign__") &&
+                call->arguments.size() == 4) {
+                auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get());
+                if (var) {
+                    int start = executeNode(call->arguments[1]).asInt();
+                    int end   = executeNode(call->arguments[2]).asInt();
+                    Value rhs = executeNode(call->arguments[3]);
+                    Value arr = getVariable(var->name);
+                    if (arr.getType() != Value::Type::Array) {
+                        return Value();
+                    }
+                    if (call->functionName == "__range_assign__") {
+                        rangeAssignArray(arr, start, end, rhs);
+                    } else {
+                        rangeConcatAssignArray(arr, start, end, rhs);
+                    }
+                    setVariable(var->name, arr);
+                    return arr;
+                }
+                return Value();
             }
 
             // Assignment operators: __assign__, __plus_assign__, etc.
@@ -950,10 +1261,21 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 return Value();
             }
 
-            // Regular function call
+            // 通常の関数呼び出し。前置 '&' の引数は値を渡した後、呼び出し先の
+            // `_argv[index]` を呼び出し元の格納場所へ書き戻す参照フレームを作る。
             std::vector<Value> args;
-            for (const auto& argNode : call->arguments) {
-                args.push_back(executeNode(argNode));
+            std::vector<ReferenceArgument> referenceArguments;
+            for (size_t index = 0; index < call->arguments.size(); ++index) {
+                const auto& argNode = call->arguments[index];
+                if (auto reference = tryResolveReference(argNode)) {
+                    args.push_back(readReference(*reference));
+                    referenceArguments.push_back(ReferenceArgument{index, *reference});
+                } else {
+                    args.push_back(executeNode(argNode));
+                }
+            }
+            if (!referenceArguments.empty()) {
+                pendingReferenceArguments_.push_back(std::move(referenceArguments));
             }
             return execute(call->functionName, args);
         }
@@ -963,18 +1285,19 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             auto indexVal = executeNode(access->index);
             int index = indexVal.asInt();
             
-            // Special case for "reference" array (SHIORI references)
-            if (access->arrayName == "reference") {
-                if (index >= 0 && index < static_cast<int>(references_.size())) {
-                    return references_[index];
-                }
-                return Value();
-            }
-            
-            // For other arrays, get from variables
+            // The framework stores parsed Reference* headers in the global
+            // `reference` array. Prefer that variable; `references_` is only
+            // the direct-call fallback used by simple dictionaries without a
+            // framework. This also prevents reference[0] from exposing the
+            // raw request string and recursively feeding dynamic EVAL calls.
             Value arrayVar = getVariable(access->arrayName);
             if (arrayVar.getType() == Value::Type::Array) {
                 return arrayVar.arrayGet(index);
+            }
+
+            if (access->arrayName == "reference" &&
+                index >= 0 && index < static_cast<int>(references_.size())) {
+                return references_[index];
             }
             
             return Value();
@@ -1053,6 +1376,20 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             // Skip to the next iteration of the nearest enclosing loop.
             throw ContinueException();
         }
+
+        case AST::NodeType::Combine:
+            // The separator is consumed by executeBlock(), where output areas
+            // are selected. It is a no-op in contexts that collect candidates
+            // directly (array/sequential functions).
+            return Value();
+
+        case AST::NodeType::Void: {
+            auto* voidNode = dynamic_cast<AST::VoidNode*>(node.get());
+            if (voidNode && voidNode->expression) {
+                (void)executeNode(voidNode->expression);
+            }
+            return Value();
+        }
         
         default:
             return Value();
@@ -1060,16 +1397,51 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
 }
 
 Value VM::executeBlock(const std::vector<std::shared_ptr<AST::Node>>& statements) {
-    Value lastValue;
+    std::vector<Value> areaCandidates;
+    Value assembled;
+    bool hasAssembled = false;
+
+    auto selectArea = [&]() {
+        if (areaCandidates.empty()) return;
+
+        std::uniform_int_distribution<size_t> distribution(0, areaCandidates.size() - 1);
+        Value selected = areaCandidates[distribution(yaya_rng::engine())];
+        if (!hasAssembled) {
+            assembled = selected;
+            hasAssembled = true;
+        } else {
+            assembled = Value(assembled.asString() + selected.asString());
+        }
+        areaCandidates.clear();
+    };
+
     for (const auto& stmt : statements) {
+        if (stmt && stmt->type == AST::NodeType::Combine) {
+            selectArea();
+            continue;
+        }
+
+        // A bare return returns the output accumulated in the current function
+        // area, matching YAYA's `0; return` / `1; return` idiom.
+        if (stmt && stmt->type == AST::NodeType::Return) {
+            auto* returnNode = dynamic_cast<AST::ReturnNode*>(stmt.get());
+            if (returnNode && returnNode->value) {
+                Value explicitValue = executeNode(returnNode->value);
+                if (!explicitValue.isVoid()) areaCandidates.push_back(explicitValue);
+            }
+            selectArea();
+            throw ReturnException(hasAssembled ? assembled : Value());
+        }
+
         Value v = executeNode(stmt);
-        // 代入文は出力候補にならない（本家YAYA準拠）。副作用のみ実行し、
-        // ブロックの値には反映しない（if の分岐値として配列代入が漏れるのを防ぐ）
-        if (stmt && stmt->type != AST::NodeType::Assignment) {
-            lastValue = v;
+        // 代入文と void 式は出力候補にならない（本家YAYA準拠）。
+        if (!isOutputSuppressedNode(stmt) && !v.isVoid()) {
+            areaCandidates.push_back(v);
         }
     }
-    return lastValue;
+
+    selectArea();
+    return hasAssembled ? assembled : Value();
 }
 
 Value VM::evaluateBinaryOp(const std::string& op, const Value& left, const Value& right) {
@@ -1128,31 +1500,116 @@ std::optional<VM::RefTarget> VM::tryResolveReference(std::shared_ptr<AST::Node> 
     auto* unary = dynamic_cast<AST::UnaryOpNode*>(node.get());
     if (!unary || unary->op != "&") return std::nullopt;
     const auto& operand = unary->operand;
-    if (auto* var = dynamic_cast<AST::VariableNode*>(operand.get())) {
-        return RefTarget{ var->name, false, 0 };
-    }
-    if (auto* acc = dynamic_cast<AST::ArrayAccessNode*>(operand.get())) {
-        int idx = executeNode(acc->index).asInt();
-        return RefTarget{ acc->arrayName, true, idx };
-    }
-    return std::nullopt;
+
+    // ArrayAccessNode is retained for the first index of a plain variable for
+    // compatibility. Further indexes are represented by nested __index__ calls
+    // from Parser::parsePrimary(), so collect the whole l-value chain before
+    // evaluating any of its indexes.
+    std::string rootName;
+    std::vector<int> indices;
+    std::function<bool(const std::shared_ptr<AST::Node>&)> collect =
+        [&](const std::shared_ptr<AST::Node>& current) -> bool {
+        if (auto* var = dynamic_cast<AST::VariableNode*>(current.get())) {
+            rootName = var->name;
+            return true;
+        }
+        if (auto* acc = dynamic_cast<AST::ArrayAccessNode*>(current.get())) {
+            rootName = acc->arrayName;
+            indices.push_back(executeNode(acc->index).asInt());
+            return true;
+        }
+        if (auto* call = dynamic_cast<AST::CallNode*>(current.get());
+            call && call->functionName == "__index__" && call->arguments.size() == 2) {
+            if (!collect(call->arguments[0])) return false;
+            indices.push_back(executeNode(call->arguments[1]).asInt());
+            return true;
+        }
+        return false;
+    };
+
+    if (!collect(operand) || rootName.empty()) return std::nullopt;
+
+    const bool isLocal = rootName[0] == '_' && !localScopes_.empty();
+    return RefTarget{
+        rootName,
+        indices,
+        isLocal,
+        isLocal ? localScopes_.size() - 1 : 0
+    };
 }
 
 Value VM::readReference(const RefTarget& target) {
-    Value v = getVariable(target.varName);
-    if (target.hasIndex) {
-        return v.arrayGet(target.arrayIdx);
+    Value v;
+    if (target.isLocal) {
+        if (target.localScopeIndex >= localScopes_.size()) return Value();
+        auto it = localScopes_[target.localScopeIndex].find(target.varName);
+        if (it == localScopes_[target.localScopeIndex].end()) return Value();
+        v = it->second;
+    } else {
+        auto it = variables_.find(target.varName);
+        if (it == variables_.end()) return Value();
+        v = it->second;
+    }
+
+    for (int index : target.arrayIndices) {
+        if (index < 0 || v.getType() != Value::Type::Array) return Value();
+        v = v.arrayGet(static_cast<size_t>(index));
     }
     return v;
 }
 
 void VM::writeReference(const RefTarget& target, const Value& value) {
-    if (target.hasIndex) {
-        Value arr = getVariable(target.varName);
-        arr.arraySet(target.arrayIdx, value);
-        setVariable(target.varName, arr);
+    if (target.arrayIndices.empty()) {
+        if (target.isLocal) {
+            if (target.localScopeIndex < localScopes_.size()) {
+                localScopes_[target.localScopeIndex][target.varName] = value;
+            }
+        } else {
+            variables_[target.varName] = value;
+        }
+        return;
+    }
+
+    Value root;
+    if (target.isLocal) {
+        if (target.localScopeIndex >= localScopes_.size()) return;
+        auto it = localScopes_[target.localScopeIndex].find(target.varName);
+        if (it == localScopes_[target.localScopeIndex].end()) return;
+        root = it->second;
     } else {
-        setVariable(target.varName, value);
+        auto it = variables_.find(target.varName);
+        if (it == variables_.end()) return;
+        root = it->second;
+    }
+
+    // Update the deepest element and copy each modified child back up to the
+    // root value. This preserves Value's copy semantics while making nested
+    // references such as &matrix[row][column] observable to the caller.
+    std::function<bool(Value&, size_t)> writeNested =
+        [&](Value& container, size_t level) -> bool {
+        if (level >= target.arrayIndices.size() || container.getType() != Value::Type::Array) {
+            return false;
+        }
+        const int index = target.arrayIndices[level];
+        if (index < 0) return false;
+        const size_t arrayIndex = static_cast<size_t>(index);
+        if (level + 1 == target.arrayIndices.size()) {
+            container.arraySet(arrayIndex, value);
+            return true;
+        }
+        Value child = container.arrayGet(arrayIndex);
+        if (!writeNested(child, level + 1)) return false;
+        container.arraySet(arrayIndex, child);
+        return true;
+    };
+
+    if (!writeNested(root, 0)) return;
+    if (target.isLocal) {
+        if (target.localScopeIndex < localScopes_.size()) {
+            localScopes_[target.localScopeIndex][target.varName] = root;
+        }
+    } else {
+        variables_[target.varName] = root;
     }
 }
 
@@ -1772,16 +2229,88 @@ void VM::registerBuiltins() {
         return Value(-1);
     };
     
-    // ASORT(array) - Sort array (simplified - sorts as strings)
+    // ASORT(option, values...) - YAYA のソート。
+    // 本家の呼び出し（ASORT('string,ascending', array)）と、旧 Ourin 実装の
+    // 配列単独呼び出し（ASORT(array)）の両方を受け付ける。配列を第2引数へ
+    // 渡す場合は、その配列の要素をソート対象へ展開する。
     builtins_["ASORT"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(std::vector<Value>());
-        if (args[0].getType() != Value::Type::Array) return args[0];
-        
-        std::vector<Value> result = args[0].asArray();
-        std::sort(result.begin(), result.end(), [](const Value& a, const Value& b) {
-            return a.asString() < b.asString();
+        std::vector<Value> values;
+        std::string option = "string,ascending";
+
+        if (args.empty()) return Value(values);
+
+        if (args[0].getType() == Value::Type::Array) {
+            values = args[0].asArray();
+            if (args.size() >= 2 && args[1].getType() == Value::Type::String) {
+                option = args[1].asString();
+            }
+        } else {
+            // 公式形: 第1引数はオプション。空文字列／未知の文字列は
+            // 本家と同じく string,ascending として扱う。
+            if (args[0].getType() == Value::Type::String && !args[0].asString().empty()) {
+                option = args[0].asString();
+            }
+            if (args.size() >= 2 && args[1].getType() == Value::Type::Array) {
+                values = args[1].asArray();
+                // 配列展開後の追加スカラーも失わない。
+                for (size_t i = 2; i < args.size(); ++i) values.push_back(args[i]);
+            } else {
+                for (size_t i = 1; i < args.size(); ++i) values.push_back(args[i]);
+            }
+        }
+
+        if (values.empty()) return Value(std::vector<Value>());
+
+        std::string normalizedOption = option;
+        std::transform(normalizedOption.begin(), normalizedOption.end(), normalizedOption.begin(),
+                       [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        const bool descending = normalizedOption.find("des") != std::string::npos;
+        const bool indexMode = normalizedOption.find("index") != std::string::npos;
+        const bool integerMode = normalizedOption.find("int") != std::string::npos;
+        const bool realMode = normalizedOption.find("double") != std::string::npos;
+        const bool lengthMode = normalizedOption.find("len") != std::string::npos;
+        const bool caseSensitive = normalizedOption.find("case") != std::string::npos;
+
+        auto foldASCII = [](std::string value) {
+            std::transform(value.begin(), value.end(), value.begin(),
+                           [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+            return value;
+        };
+
+        std::vector<size_t> order(values.size());
+        for (size_t i = 0; i < order.size(); ++i) order[i] = i;
+        std::stable_sort(order.begin(), order.end(), [&](size_t left, size_t right) {
+            const Value& lhs = values[left];
+            const Value& rhs = values[right];
+            bool less = false;
+            bool greater = false;
+
+            if (integerMode) {
+                less = lhs.asInt64() < rhs.asInt64();
+                greater = lhs.asInt64() > rhs.asInt64();
+            } else if (realMode) {
+                less = lhs.asReal() < rhs.asReal();
+                greater = lhs.asReal() > rhs.asReal();
+            } else if (lengthMode) {
+                const auto lhsLength = utf8Length(lhs.asString());
+                const auto rhsLength = utf8Length(rhs.asString());
+                less = lhsLength < rhsLength;
+                greater = lhsLength > rhsLength;
+            } else {
+                const std::string lhsText = caseSensitive ? lhs.asString() : foldASCII(lhs.asString());
+                const std::string rhsText = caseSensitive ? rhs.asString() : foldASCII(rhs.asString());
+                less = lhsText < rhsText;
+                greater = lhsText > rhsText;
+            }
+
+            return descending ? greater : less;
         });
-        
+
+        std::vector<Value> result;
+        result.reserve(order.size());
+        for (size_t index : order) {
+            result.emplace_back(indexMode ? Value(static_cast<std::int64_t>(index)) : values[index]);
+        }
         return Value(result);
     };
     
@@ -2011,12 +2540,14 @@ void VM::registerBuiltins() {
     
     // ===== System Operations =====
     
-    // GETTICKCOUNT() - Get milliseconds since epoch (simplified)
+    // GETTICKCOUNT() - Get milliseconds since the Unix epoch.
+    // YAYA の POSIX 実装は epoch milliseconds を返すため、int へ縮小しない。
     builtins_["GETTICKCOUNT"] = [](const std::vector<Value>& args) -> Value {
-        (void)args;
+        // 互換用の引数。非ゼロ指定時は本家と同じく 0 を返す。
+        if (!args.empty() && args[0].asInt() != 0) return Value(0);
         auto now = std::chrono::system_clock::now();
         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-        return Value(static_cast<int>(ms.count()));
+        return Value(static_cast<std::int64_t>(ms.count()));
     };
     
     // GETSECCOUNT() - Get seconds since epoch
@@ -2040,8 +2571,6 @@ void VM::registerBuiltins() {
     // File handle management (shared between file operation functions)
     static std::map<int, std::unique_ptr<std::fstream>> fileHandles;
     static int nextHandle = 1;
-    static std::string ghostBasePath; // Will be set when ghost loads
-    
     // Helper to validate path is within ghost directory
     auto isPathSafe = [](const std::string& path) -> bool {
         // For now, allow relative paths only (no absolute paths, no .. )
@@ -2050,9 +2579,18 @@ void VM::registerBuiltins() {
         if (path.find("..") != std::string::npos) return false; // No parent directory access
         return true;
     };
+
+    // YAYA の相対ファイル名は辞書を実行しているゴーストのルートへ解決する。
+    // セキュリティ判定は元の文字列に対して先に行い、絶対パスは既存の FENUM 互換のため保持する。
+    auto resolveGhostPath = [this](const std::string& path) -> std::string {
+        namespace fs = std::filesystem;
+        const fs::path candidate(path);
+        if (candidate.is_absolute() || ghostRootPath_.empty()) return candidate.string();
+        return (fs::path(ghostRootPath_) / candidate).lexically_normal().string();
+    };
     
     // FOPEN(filename, mode) - Open file
-    builtins_["FOPEN"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FOPEN"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(-1);
         std::string filename = args[0].asString();
         std::string mode = args[1].asString();
@@ -2061,6 +2599,7 @@ void VM::registerBuiltins() {
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
             return Value(-1);
         }
+        filename = resolveGhostPath(filename);
         
         // Determine open mode
         std::ios_base::openmode openMode = std::ios_base::binary;
@@ -2098,7 +2637,7 @@ void VM::registerBuiltins() {
     };
     
     // FREAD(handle) - Read from file
-    builtins_["FREAD"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FREAD"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
         int handle = args[0].asInt();
         
@@ -2109,13 +2648,19 @@ void VM::registerBuiltins() {
         
         std::string line;
         if (std::getline(*it->second, line)) {
+            if (fileCharset_ == 0) {
+                std::string converted;
+                if (convertEncodingVM(line, "CP932", "UTF-8", converted)) {
+                    return Value(converted);
+                }
+            }
             return Value(line);
         }
         return Value("");
     };
     
     // FWRITE(handle, data) - Write to file
-    builtins_["FWRITE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FWRITE"] = [this](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         int handle = args[0].asInt();
         std::string data = args[1].asString();
@@ -2125,12 +2670,18 @@ void VM::registerBuiltins() {
             return Value(0);
         }
         
-        *it->second << data;
-        return Value(static_cast<int>(data.length()));
+        std::string encoded = data;
+        if (fileCharset_ == 0) {
+            if (!convertEncodingVM(data, "UTF-8", "CP932", encoded)) {
+                return Value(0);
+            }
+        }
+        *it->second << encoded;
+        return Value(static_cast<int>(encoded.length()));
     };
     
     // FWRITE2(filename, data) - Write to file directly
-    builtins_["FWRITE2"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FWRITE2"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string filename = args[0].asString();
         std::string data = args[1].asString();
@@ -2139,6 +2690,7 @@ void VM::registerBuiltins() {
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
             return Value(0);
         }
+        filename = resolveGhostPath(filename);
         
         try {
             std::ofstream file(filename, std::ios_base::out | std::ios_base::trunc);
@@ -2152,7 +2704,7 @@ void VM::registerBuiltins() {
     };
     
     // FSIZE(filename) - Get file size
-    builtins_["FSIZE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FSIZE"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(-1);
         std::string filename = args[0].asString();
         
@@ -2160,6 +2712,7 @@ void VM::registerBuiltins() {
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
             return Value(-1);
         }
+        filename = resolveGhostPath(filename);
         
         try {
             std::ifstream file(filename, std::ios_base::ate | std::ios_base::binary);
@@ -2171,7 +2724,7 @@ void VM::registerBuiltins() {
     };
     
     // FENUM(path, pattern) - Enumerate files (simple substring match)
-    builtins_["FENUM"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FENUM"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         std::vector<Value> out;
         if (args.size() < 2) return Value(out);
         std::string dir = args[0].asString();
@@ -2179,6 +2732,7 @@ void VM::registerBuiltins() {
         // YAYA ゴーストは自分の絶対パス配下を列挙するため絶対パスを許可する
         // （macOS コンテナのサンドボックスが実境界）。親階層への .. 抜けのみ禁止。
         if (dir.empty() || dir.find("..") != std::string::npos) return Value(out);
+        dir = resolveGhostPath(dir);
         try {
             std::string needle;
             for (char c : pat) if (c != '*') needle += c;
@@ -2195,7 +2749,7 @@ void VM::registerBuiltins() {
     };
     
     // FCOPY(src, dst) - Copy file
-    builtins_["FCOPY"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FCOPY"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string src = args[0].asString();
         std::string dst = args[1].asString();
@@ -2205,6 +2759,8 @@ void VM::registerBuiltins() {
             src.find("..") != std::string::npos || dst.find("..") != std::string::npos) {
             return Value(0);
         }
+        src = resolveGhostPath(src);
+        dst = resolveGhostPath(dst);
         
         try {
             std::ifstream srcFile(src, std::ios_base::binary);
@@ -2221,7 +2777,7 @@ void VM::registerBuiltins() {
     };
     
     // FMOVE(src, dst) - Move file
-    builtins_["FMOVE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FMOVE"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string src = args[0].asString();
         std::string dst = args[1].asString();
@@ -2231,6 +2787,8 @@ void VM::registerBuiltins() {
             src.find("..") != std::string::npos || dst.find("..") != std::string::npos) {
             return Value(0);
         }
+        src = resolveGhostPath(src);
+        dst = resolveGhostPath(dst);
         
         try {
             if (std::rename(src.c_str(), dst.c_str()) == 0) {
@@ -2243,7 +2801,7 @@ void VM::registerBuiltins() {
     };
     
     // FDEL(filename) - Delete file
-    builtins_["FDEL"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FDEL"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         std::string filename = args[0].asString();
         
@@ -2251,6 +2809,7 @@ void VM::registerBuiltins() {
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
             return Value(0);
         }
+        filename = resolveGhostPath(filename);
         
         try {
             if (std::remove(filename.c_str()) == 0) {
@@ -2263,7 +2822,7 @@ void VM::registerBuiltins() {
     };
     
     // FRENAME(old, new) - Rename file
-    builtins_["FRENAME"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FRENAME"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string oldName = args[0].asString();
         std::string newName = args[1].asString();
@@ -2273,6 +2832,8 @@ void VM::registerBuiltins() {
             oldName.find("..") != std::string::npos || newName.find("..") != std::string::npos) {
             return Value(0);
         }
+        oldName = resolveGhostPath(oldName);
+        newName = resolveGhostPath(newName);
         
         try {
             if (std::rename(oldName.c_str(), newName.c_str()) == 0) {
@@ -2285,11 +2846,12 @@ void VM::registerBuiltins() {
     };
     
     // MKDIR(path) - Create directory
-    builtins_["MKDIR"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["MKDIR"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         std::string path = args[0].asString();
         // Security: only relative paths without parent traversal
         if (path.empty() || path[0] == '/' || path.find("..") != std::string::npos) return Value(0);
+        path = resolveGhostPath(path);
         try {
             namespace fs = std::filesystem;
             fs::create_directories(path);
@@ -2300,10 +2862,11 @@ void VM::registerBuiltins() {
     };
     
     // RMDIR(path) - Remove directory (only if empty)
-    builtins_["RMDIR"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["RMDIR"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         std::string path = args[0].asString();
         if (path.empty() || path[0] == '/' || path.find("..") != std::string::npos) return Value(0);
+        path = resolveGhostPath(path);
         try {
             namespace fs = std::filesystem;
             bool removed = fs::remove(path);
@@ -2341,16 +2904,63 @@ void VM::registerBuiltins() {
         return Value(static_cast<int>(it->second->tellg()));
     };
     
-    // FCHARSET(filename) - Detect file charset
-    builtins_["FCHARSET"] = [](const std::vector<Value>& args) -> Value {
-        // Charset detection is complex - default to UTF-8
-        return Value("UTF-8");
+    // FCHARSET(charset) - Set the default text-file charset.
+    // Upstream values: 0=Shift_JIS, 1=UTF-8, 127=OS default.
+    builtins_["FCHARSET"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) {
+            lastError_ = 8;
+            return Value();
+        }
+
+        int charset = -1;
+        if (args[0].getType() == Value::Type::Integer || args[0].getType() == Value::Type::Real) {
+            charset = args[0].asInt();
+        } else {
+            const std::string name = normalizeEncodingNameVM(args[0].asString());
+            if (name == "CP932") charset = 0;
+            else if (name == "UTF-8") charset = 1;
+            else if (name == "AUTO") charset = 127;
+        }
+
+        if (charset != 0 && charset != 1 && charset != 127) {
+            lastError_ = 12;
+            return Value();
+        }
+        fileCharset_ = charset;
+        return Value();
     };
     
-    // FATTRIB(filename) - Get file attributes
-    builtins_["FATTRIB"] = [](const std::vector<Value>& args) -> Value {
-        // Would need platform-specific code
-        return Value(0);
+    // FATTRIB(filename) - Return the 11-element YAYA file-attribute array.
+    // POSIX has no direct equivalent for most Windows flags; those positions
+    // remain zero while directory/regular/hidden/read-only and timestamps are
+    // populated from stat(2).
+    builtins_["FATTRIB"] = [isPathSafe, resolveGhostPath](const std::vector<Value>& args) -> Value {
+        if (args.empty() || !isPathSafe(args[0].asString())) {
+            return Value(-1);
+        }
+
+        const std::string path = resolveGhostPath(args[0].asString());
+        struct stat info{};
+        if (::stat(path.c_str(), &info) != 0) {
+            return Value(-1);
+        }
+
+        const std::string name = std::filesystem::path(path).filename().string();
+        const bool hidden = !name.empty() && name.front() == '.' && name != "." && name != "..";
+        const bool readOnly = ::access(path.c_str(), W_OK) != 0;
+        std::vector<Value> attributes;
+        attributes.emplace_back(0); // archive
+        attributes.emplace_back(0); // compressed
+        attributes.emplace_back(S_ISDIR(info.st_mode) ? 1 : 0);
+        attributes.emplace_back(hidden ? 1 : 0);
+        attributes.emplace_back(S_ISREG(info.st_mode) ? 1 : 0);
+        attributes.emplace_back(0); // offline
+        attributes.emplace_back(readOnly ? 1 : 0);
+        attributes.emplace_back(0); // system
+        attributes.emplace_back(0); // temporary
+        attributes.emplace_back(static_cast<std::int64_t>(info.st_ctime));
+        attributes.emplace_back(static_cast<std::int64_t>(info.st_mtime));
+        return Value(attributes);
     };
     
     // FREADBIN(handle) - Read binary from file
@@ -2388,10 +2998,11 @@ void VM::registerBuiltins() {
     
     // FREADENCODE(handle, encoding) - 指定エンコーディングでファイル残り全体を読み込み、
     // UTF-8 に変換して返す。ハンドル不正/未オープン時は空文字列。
-    builtins_["FREADENCODE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FREADENCODE"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
         int handle = args[0].asInt();
-        std::string encoding = args.size() >= 2 ? args[1].asString() : std::string("UTF-8");
+        std::string encoding = args.size() >= 2 ? args[1].asString()
+                                                : (fileCharset_ == 0 ? "CP932" : "UTF-8");
 
         auto it = fileHandles.find(handle);
         if (it == fileHandles.end() || !it->second->is_open()) {
@@ -2415,11 +3026,12 @@ void VM::registerBuiltins() {
 
     // FWRITEDECODE(handle, data, encoding) - UTF-8 の data を指定エンコーディングへ変換し
     // ファイルへ書き込む。書き込みバイト数を返す（失敗時は0）。
-    builtins_["FWRITEDECODE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FWRITEDECODE"] = [this](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         int handle = args[0].asInt();
         std::string data = args[1].asString();
-        std::string encoding = args.size() >= 3 ? args[2].asString() : std::string("UTF-8");
+        std::string encoding = args.size() >= 3 ? args[2].asString()
+                                                : (fileCharset_ == 0 ? "CP932" : "UTF-8");
 
         auto it = fileHandles.find(handle);
         if (it == fileHandles.end() || !it->second->is_open()) {
@@ -2442,12 +3054,13 @@ void VM::registerBuiltins() {
     };
     
     // FDIGEST(filename, algorithm) - File hash/digest (md5/sha1/crc32)
-    builtins_["FDIGEST"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FDIGEST"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value("");
         std::string filename = args[0].asString();
         std::string algo = args[1].asString();
         for (auto& ch : algo) ch = static_cast<char>(std::tolower(ch));
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) return Value("");
+        filename = resolveGhostPath(filename);
         std::ifstream f(filename, std::ios::binary);
         if (!f.is_open()) return Value("");
         std::ostringstream buffer;
@@ -2798,7 +3411,7 @@ void VM::registerBuiltins() {
             nlohmann::json j;
             switch (v.getType()) {
                 case Value::Type::String: j["t"] = "s"; j["v"] = v.asString(); break;
-                case Value::Type::Integer: j["t"] = "i"; j["v"] = v.asInt(); break;
+                case Value::Type::Integer: j["t"] = "i"; j["v"] = v.asInt64(); break;
                 case Value::Type::Real: j["t"] = "r"; j["v"] = v.asReal(); break;
                 case Value::Type::Array: {
                     j["t"] = "a";
@@ -2844,7 +3457,7 @@ void VM::registerBuiltins() {
         std::function<Value(const nlohmann::json&)> fromJson = [&fromJson](const nlohmann::json& j) -> Value {
             std::string t = j.value("t", std::string("v"));
             if (t == "s") return Value(j.value("v", std::string()));
-            if (t == "i") return Value(j.value("v", 0));
+            if (t == "i") return Value(j.value("v", static_cast<std::int64_t>(0)));
             if (t == "r") return Value(j.value("v", 0.0));
             if (t == "a") {
                 std::vector<Value> arr;
@@ -3020,9 +3633,14 @@ void VM::registerBuiltins() {
         return Value(1);
     };
     
-    // GETMEMINFO() - Get memory information (stub)
+    // GETMEMINFO() - memoryload,totalphys,availphys,totalvirtual,availvirtual
     builtins_["GETMEMINFO"] = [](const std::vector<Value>& args) -> Value {
-        return Value(std::vector<Value>());
+        (void)args;
+        std::vector<Value> result;
+        for (const auto value : currentMemoryInfo()) {
+            result.emplace_back(Value(value));
+        }
+        return Value(result);
     };
     
     // READFMO(name) - FMO（Forged Memory Object）のスナップショットを読み込む。
@@ -3041,8 +3659,15 @@ void VM::registerBuiltins() {
         return Value("");
     };
     
-    // SETTAMAHWND(hwnd) - Set TAMA window handle (stub - Windows-specific)
-    builtins_["SETTAMAHWND"] = [](const std::vector<Value>& args) -> Value {
+    // SETTAMAHWND(hwnd) - Windows のログ受信先指定を macOS の論理設定として保持する。
+    // Ourin では HWND を直接参照できないため、GETSETTING("tama.hwnd") から読み戻せる
+    // 数値状態として扱う。Windows 実装のウィンドウ送信そのものはホスト側の責務。
+    builtins_["SETTAMAHWND"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) {
+            lastError_ = 8;
+            return Value(0);
+        }
+        settings_["tama.hwnd"] = Value(args[0].asInt64());
         return Value(0);
     };
     
@@ -3353,6 +3978,11 @@ void VM::registerBuiltins() {
         std::string resultValue;
         std::map<std::string, std::string> headers;
         {
+            auto normalizeHeaderName = [](std::string key) {
+                std::transform(key.begin(), key.end(), key.begin(),
+                               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+                return key;
+            };
             // Normalize CRLF parsing
             size_t lineStart = 0;
             bool firstLine = true;
@@ -3372,20 +4002,38 @@ void VM::registerBuiltins() {
                 if (colon == std::string::npos) continue;
                 std::string key = line.substr(0, colon);
                 std::string val = line.substr(colon + 1);
-                if (!val.empty() && val.front() == ' ') val.erase(0, 1);
-                headers[key] = val;
+                if (!val.empty() && (val.front() == ' ' || val.front() == '\t')) val.erase(0, 1);
+                headers[normalizeHeaderName(key)] = val;
             }
         }
 
-        auto itResult = headers.find("Result");
+        auto itResult = headers.find("result");
         if (itResult != headers.end()) {
             resultValue = itResult->second;
         }
-        // Collect Value0, Value1, ... in numeric order.
-        for (int i = 0; ; ++i) {
-            auto it = headers.find("Value" + std::to_string(i));
-            if (it == headers.end()) break;
-            saoriValueex_.push_back(Value(it->second));
+        // Collect every ValueN header in numeric order. Do not stop at a gap:
+        // a SAORI module may omit an optional value while still returning a
+        // later value (for example Value0 and Value2 only).
+        std::map<int, std::string> indexedValues;
+        for (const auto& [key, value] : headers) {
+            if (key.rfind("value", 0) != 0) continue;
+            const std::string suffix = key.substr(5);
+            if (suffix.empty() || !std::all_of(suffix.begin(), suffix.end(),
+                                               [](unsigned char c) { return std::isdigit(c); })) {
+                continue;
+            }
+            try {
+                const long long index = std::stoll(suffix);
+                if (index >= 0 && index <= std::numeric_limits<int>::max()) {
+                    indexedValues[static_cast<int>(index)] = value;
+                }
+            } catch (...) {
+                // Ignore malformed or out-of-range Value headers.
+            }
+        }
+        for (const auto& [index, value] : indexedValues) {
+            (void)index;
+            saoriValueex_.push_back(Value(value));
         }
         return Value(resultValue);
     };
@@ -3449,19 +4097,84 @@ void VM::registerBuiltins() {
         }
     };
     
-    // TOAUTO(value) - Auto-convert type (tries to detect best type)
-    builtins_["TOAUTO"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value();
-        return args[0]; // Just return as-is
+    // TOAUTO/CVAUTO の文字列自動変換。
+    // YAYA は整数文字列（符号付き十進）を Integer、ドットを1つだけ含む
+    // 数値文字列を Real、それ以外を String として返す。
+    auto isIntegerText = [](const std::string& text) -> bool {
+        if (text.empty()) return false;
+        const size_t start = (text.front() == '-' || text.front() == '+') ? 1 : 0;
+        if (start == text.size() || text.size() - start > 19) return false;
+        for (size_t i = start; i < text.size(); ++i) {
+            if (text[i] < '0' || text[i] > '9') return false;
+        }
+        try {
+            size_t consumed = 0;
+            (void)std::stoll(text, &consumed, 10);
+            return consumed == text.size();
+        } catch (...) {
+            return false;
+        }
     };
-    
-    // TOAUTOEX(value) - Auto-convert extended
-    builtins_["TOAUTOEX"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value();
-        return args[0];
+
+    auto isRealText = [isIntegerText](const std::string& text) -> bool {
+        if (text.empty() || isIntegerText(text)) return false;
+        const size_t start = (text.front() == '-' || text.front() == '+') ? 1 : 0;
+        if (start == text.size()) return false;
+        size_t dotCount = 0;
+        size_t digitCount = 0;
+        for (size_t i = start; i < text.size(); ++i) {
+            if (text[i] == '.') {
+                ++dotCount;
+            } else if (text[i] >= '0' && text[i] <= '9') {
+                ++digitCount;
+            } else {
+                return false;
+            }
+        }
+        if (dotCount != 1 || digitCount == 0) return false;
+        try {
+            size_t consumed = 0;
+            (void)std::stod(text, &consumed);
+            return consumed == text.size();
+        } catch (...) {
+            return false;
+        }
     };
-    
-    // CVAUTO, CVAUTOEX - Aliases for TOAUTO, TOAUTOEX
+
+    auto autoConvert = [isIntegerText, isRealText](const Value& value, bool preserveFormatting) -> Value {
+        if (value.getType() != Value::Type::String) return value;
+        const std::string text = value.asString();
+        try {
+            if (isIntegerText(text)) {
+                Value converted(static_cast<std::int64_t>(std::stoll(text, nullptr, 10)));
+                if (!preserveFormatting || converted.asString() == text) return converted;
+                return value;
+            }
+            if (isRealText(text)) {
+                Value converted(std::stod(text));
+                if (!preserveFormatting || converted.asString() == text) return converted;
+                return value;
+            }
+        } catch (...) {
+            // 変換不能な値は元の文字列を保持する（YAYA の TOAUTO と同じ）。
+        }
+        return value;
+    };
+
+    builtins_["TOAUTO"] = [autoConvert](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value();
+        return autoConvert(args[0], false);
+    };
+
+    // TOAUTOEX は数値化後の文字列表現が入力と完全一致する場合だけ変換する。
+    // 例: "123" は Integer、"001" は String のまま。
+    builtins_["TOAUTOEX"] = [autoConvert](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value();
+        return autoConvert(args[0], true);
+    };
+
+    // CVAUTO, CVAUTOEX は VM の値渡し API では代入先参照を受け取れないため、
+    // 変換結果を返す関数として実装する（通常の `x = CVAUTO(v)` と互換）。
     builtins_["CVAUTO"] = builtins_["TOAUTO"];
     builtins_["CVAUTOEX"] = builtins_["TOAUTOEX"];
     
@@ -3558,39 +4271,129 @@ void VM::registerBuiltins() {
         return Value(lastOutputNum_);
     };
     
-    // EmBeD_HiStOrY - Embedded history function (stub)
-    builtins_["EmBeD_HiStOrY"] = [](const std::vector<Value>& args) -> Value {
-        (void)args;
-        return Value("");
+    // EmBeD_HiStOrY - `%[n]` の実行時参照。n=0 は直前の埋め込み値。
+    builtins_["EmBeD_HiStOrY"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value("");
+        const auto offset = args[0].asInt64();
+        if (offset < 0 || static_cast<std::uint64_t>(offset) >= embeddedHistory_.size()) {
+            return Value("");
+        }
+        const auto index = embeddedHistory_.size() - 1 - static_cast<size_t>(offset);
+        return Value(embeddedHistory_[index]);
     };
 }
 
-// Interpolate embedded expressions in strings like %(_varname) or %(funcname())
-// IMPORTANT: SSP/baseware percent variables like %(charname(0)) should NOT be interpolated by YAYA
+// Interpolate embedded expressions in strings like %(_varname) or %(funcname()).
+// %[n] refers to the n-th preceding embedded value in this same string.
+// IMPORTANT: SSP/baseware percent variables like %(charname(0)) should NOT be interpolated by YAYA.
 std::string VM::interpolateString(const std::string& str) {
     std::string result;
     size_t pos = 0;
 
-    // List of SSP/baseware variables that should NOT be interpolated by YAYA
+    // Nested interpolation can occur while evaluating an embedded expression.
+    // Preserve the caller's history while the nested expression is evaluated.
+    const auto previousHistory = embeddedHistory_;
+    embeddedHistory_.clear();
+
+    // List of SSP/baseware variables that should NOT be interpolated by YAYA.
     static const std::unordered_set<std::string> ssp_vars = {
         "charname", "username", "selfname", "selfname2", "keroname",
         "month", "day", "hour", "minute", "second",
         "screenwidth", "screenheight", "property"
     };
 
+    auto trim = [](std::string value) {
+        const auto first = value.find_first_not_of(" \t\r\n");
+        if (first == std::string::npos) return std::string();
+        const auto last = value.find_last_not_of(" \t\r\n");
+        return value.substr(first, last - first + 1);
+    };
+
+    auto evaluateEmbeddedExpression = [this](const std::string& expression) -> std::optional<Value> {
+        try {
+            // public な parse() は関数定義を要求するため、合成関数で包んで本体を実行する。
+            Lexer lexer("__interp__{\n" + expression + "\n}");
+            Parser parser(lexer.tokenize());
+            auto funcs = parser.parse();
+            if (funcs.empty() || !funcs[0]) return std::nullopt;
+
+            Value value;
+            for (const auto& stmt : funcs[0]->body) {
+                value = executeNode(stmt);
+            }
+            return value;
+        } catch (...) {
+            return std::nullopt;
+        }
+    };
+
     while (pos < str.length()) {
-        // Look for %(
-        size_t start = str.find("%(", pos);
+        const size_t expressionStart = str.find("%(", pos);
+        const size_t historyStart = str.find("%[", pos);
+        size_t start = std::string::npos;
+        bool isHistoryReference = false;
+        if (expressionStart == std::string::npos) {
+            start = historyStart;
+            isHistoryReference = true;
+        } else if (historyStart == std::string::npos || expressionStart < historyStart) {
+            start = expressionStart;
+        } else {
+            start = historyStart;
+            isHistoryReference = true;
+        }
+
         if (start == std::string::npos) {
-            // No more embedded expressions
             result += str.substr(pos);
             break;
         }
 
-        // Add text before %(
         result += str.substr(pos, start - pos);
 
-        // Find matching ) - need to handle nested parentheses for function calls
+        if (isHistoryReference) {
+            // Find matching ] while allowing nested brackets and quoted strings.
+            int depth = 1;
+            char quote = '\0';
+            size_t end = start + 2;
+            for (; end < str.length(); ++end) {
+                const char c = str[end];
+                if (quote != '\0') {
+                    if (c == quote) quote = '\0';
+                    continue;
+                }
+                if (c == '\'' || c == '"') {
+                    quote = c;
+                } else if (c == '[') {
+                    depth++;
+                } else if (c == ']') {
+                    depth--;
+                    if (depth == 0) break;
+                }
+            }
+            if (depth != 0) {
+                result += str.substr(start);
+                break;
+            }
+
+            const std::string expression = trim(str.substr(start + 2, end - start - 2));
+            const std::string original = str.substr(start, end - start + 1);
+            bool substituted = false;
+            if (!expression.empty()) {
+                if (const auto offsetValue = evaluateEmbeddedExpression(expression)) {
+                    const auto offset = offsetValue->asInt64();
+                    if (offset >= 0 &&
+                        static_cast<std::uint64_t>(offset) < embeddedHistory_.size()) {
+                        const auto index = embeddedHistory_.size() - 1 - static_cast<size_t>(offset);
+                        result += embeddedHistory_[index];
+                        substituted = true;
+                    }
+                }
+            }
+            if (!substituted) result += original;
+            pos = end + 1;
+            continue;
+        }
+
+        // Find matching ) - need to handle nested parentheses for function calls.
         int depth = 1;
         size_t end = start + 2;
         while (end < str.length() && depth > 0) {
@@ -3600,60 +4403,36 @@ std::string VM::interpolateString(const std::string& str) {
         }
 
         if (depth != 0) {
-            // Malformed - just add the rest
             result += str.substr(start);
             break;
         }
 
-        // Extract the embedded expression
-        std::string expr = str.substr(start + 2, end - start - 2);
+        const std::string expr = str.substr(start + 2, end - start - 2);
 
-        // Check if this looks like an SSP/baseware variable (e.g., charname(...))
         bool is_ssp_var = false;
         for (const auto& ssp_var : ssp_vars) {
-            if (expr == ssp_var || expr.rfind(ssp_var + "(", 0) == 0 || expr.rfind(ssp_var + "[", 0) == 0) {
+            if (expr == ssp_var || expr.rfind(ssp_var + "(", 0) == 0 ||
+                expr.rfind(ssp_var + "[", 0) == 0) {
                 is_ssp_var = true;
                 break;
             }
         }
 
+        std::string expansion;
         if (is_ssp_var) {
-            // Leave SSP variables for baseware to expand
-            result += "%(" + expr + ")";
+            expansion = "%(" + expr + ")";
+        } else if (const auto value = evaluateEmbeddedExpression(expr)) {
+            expansion = value->asString();
         } else {
-            // 任意の式として評価する。inner text を Lexer/Parser に通し、
-            // 得られた式ノードを executeNode で評価して asString() を埋め込む。
-            bool evaluated = false;
-            try {
-                // public な parse() は関数定義を要求するため、合成関数で包んで本体を実行する
-                Lexer lexer("__interp__{\n" + expr + "\n}");
-                Parser parser(lexer.tokenize());
-                auto funcs = parser.parse();
-                if (!funcs.empty() && funcs[0]) {
-                    Value val;
-                    for (const auto& stmt : funcs[0]->body) {
-                        val = executeNode(stmt);
-                    }
-                    result += val.asString();
-                    evaluated = true;
-                }
-            } catch (...) {
-                // パース/評価失敗時は下位のフォールバックへ
-            }
-            if (!evaluated) {
-                // フォールバック: 単純な変数参照として評価する
-                Value val = getVariable(expr);
-                if (!val.isVoid()) {
-                    result += val.asString();
-                } else {
-                    // 変数も見つからない場合は空文字（旧挙動は baseware 展開のため残置だったが
-                    // 任意式評価の失敗時は空とする）
-                }
-            }
+            const Value variableValue = getVariable(expr);
+            if (!variableValue.isVoid()) expansion = variableValue.asString();
         }
 
+        result += expansion;
+        embeddedHistory_.push_back(expansion);
         pos = end + 1;
     }
 
+    embeddedHistory_ = previousHistory;
     return result;
 }

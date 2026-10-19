@@ -104,7 +104,7 @@ Tests validate routing, mapping, propagation, and wire formatting.
 
 ## Current Status
 
-**Status**: End-to-end integration with live ghost complete / 2026-06-28
+**Status**: End-to-end integration with live ghost complete / 2026-08-12
 
 ### Implemented Components
 

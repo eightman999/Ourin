@@ -1,5 +1,9 @@
 # SERIKOオーバーレイ・着せ替えレンダリング実装レポート
 
+> ⚠️ **時点スナップショット**: 本レポートの「GhostManager+Animation.swift は削除」「DressupInfoExtended 型が見つからない」「ビルド失敗」等の記述は作成当時の状態であり、
+> 現在は `GhostManager+Animation.swift`（SERIKO実行）・`GhostManager+Dressup.swift`（着せ替え）が存在しビルドも通っている。
+> 現状は `docs/SERIKO_IMPLEMENTATION.md` / `docs/AUDITS_COMPLETED.md` を正とすること。
+
 **Status:** Implementation In Progress
 **Updated:** 2025-03-09
 **Target:** Ourin (macOS 10.15+ / Universal 2)

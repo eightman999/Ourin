@@ -55,9 +55,7 @@ public final class SstpHttpServer {
             guard let headerEnd = buffer.range(of: Data([13,10,13,10])) else { return false }
             let header = buffer.subdata(in: 0..<headerEnd.upperBound)
             let headersText = String(data: header, encoding: .utf8) ?? ""
-            let headerLines = headersText.split(separator: "\n").map {
-                $0.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
+            let headerLines = Self.splitHeaderLines(headersText)
             guard let requestLine = headerLines.first,
                   let request = Self.parseRequestLine(requestLine) else {
                 self.sendErrorResponse(conn, status: 400)
@@ -67,9 +65,7 @@ public final class SstpHttpServer {
                 self.sendErrorResponse(conn, status: 405)
                 return true
             }
-            let isSSTPRequest = request.path == "/api/sstp/v1"
-            let isMCPCompatRequest = request.path == "/api/mcp/v1"
-            guard isSSTPRequest || isMCPCompatRequest else {
+            guard request.path == "/api/sstp/v1" else {
                 self.sendErrorResponse(conn, status: 404)
                 return true
             }
@@ -99,11 +95,6 @@ public final class SstpHttpServer {
             // 本文がまだ全部届いていなければ追加読込を待つ。
             guard buffer.count - bodyStart >= contentLength else { return false }
             let body = buffer.subdata(in: bodyStart..<bodyStart+contentLength)
-            if isMCPCompatRequest {
-                self.sendMCPCompatResponse(conn: conn, body: body)
-                ServerMetrics.shared.record(duration: 0, error: false)
-                return true
-            }
             guard let sstp = Self.decode(body) else { return false }
             let start = Date()
             let routedSstp = Self.injectSecurityHeaders(into: sstp, origin: originHeader)
@@ -135,62 +126,27 @@ public final class SstpHttpServer {
         readMore()
     }
 
-    private func sendMCPCompatResponse(conn: NWConnection, body: Data) {
-        let id = Self.jsonRPCID(from: body)
-        let payload: [String: Any] = [
-            "jsonrpc": "2.0",
-            "id": id,
-            "error": [
-                "code": -32601,
-                "message": "Ourin MCP compatibility endpoint is available, but native MCP methods are not implemented."
-            ]
-        ]
-        let data = (try? JSONSerialization.data(withJSONObject: payload)) ?? Data()
-        let lines = [
-            "HTTP/1.1 200 OK\r\n",
-            "Content-Type: application/json; charset=UTF-8\r\n",
-            "Content-Length: \(data.count)\r\n",
-            "\r\n"
-        ]
-        var http = Data(lines.joined().utf8)
-        http.append(data)
-        logger.info("mcp compat size=\(body.count)")
-        conn.send(content: http, completion: .contentProcessed { _ in conn.cancel() })
-    }
-
-    private static func jsonRPCID(from body: Data) -> Any {
-        guard
-            let object = try? JSONSerialization.jsonObject(with: body),
-            let dict = object as? [String: Any],
-            let id = dict["id"]
-        else {
-            return NSNull()
-        }
-        if id is String || id is NSNumber || id is NSNull {
-            return id
-        }
-        return NSNull()
-    }
-
     private static func decode(_ data: Data) -> String? {
         // 宣言された Charset を尊重しつつ、未指定時は UTF-8→Shift_JIS の順でフォールバック
         // （CP932受理設定がfalseの場合はShift_JISフォールバックをスキップする）
-        let charset = EncodingAdapter.detectCharset(in: data)
-        return EncodingAdapter.decode(data, charset: charset)
-            ?? String(data: data, encoding: .utf8)
-            ?? (EncodingNormalizer.acceptsCP932 ? String(data: data, encoding: .shiftJIS) : nil)
+        EncodingNormalizer.decode(data, charset: EncodingAdapter.declaredCharset(in: data))
     }
 
-    private static func injectSecurityHeaders(into sstp: String, origin: String?) -> String {
+    static func injectSecurityHeaders(into sstp: String, origin: String?) -> String {
         guard let origin, !origin.isEmpty else { return sstp }
         let level = isLocalOrigin(origin) ? "local" : "external"
-        let headers = "SecurityOrigin: \(origin)\r\nSecurityLevel: \(level)\r\n"
+        let headers = "SecurityOrigin: \(origin)\r\nSecurityLevel: \(level)"
+        // 空行（ヘッダ終端）の直前＝最終ヘッダ行の CRLF の前に「CRLF + 追加ヘッダ」を入れる。
+        // 以前は CRLF 無しで挿入しており、最終ヘッダと連結して `Charset: UTF-8SecurityOrigin: ...` になっていた。
         if let range = sstp.range(of: "\r\n\r\n") {
             var result = sstp
-            result.insert(contentsOf: headers, at: range.lowerBound)
+            result.insert(contentsOf: "\r\n" + headers, at: range.lowerBound)
             return result
         }
-        return sstp + "\r\n" + headers + "\r\n"
+        // 終端の空行が無い要求: 末尾の改行を落としてから追加し、空行で閉じる
+        var trimmed = sstp
+        while trimmed.hasSuffix("\r\n") || trimmed.hasSuffix("\n") || trimmed.hasSuffix("\r") { trimmed.removeLast() }
+        return trimmed + "\r\n" + headers + "\r\n\r\n"
     }
 
     private static func isLocalOrigin(_ origin: String) -> Bool {
@@ -210,6 +166,16 @@ public final class SstpHttpServer {
     struct HttpRequestLine {
         let method: String
         let path: String
+    }
+
+    /// ヘッダ部を行に分割する。
+    /// `.split(separator: "\n")` は CRLF ("\r\n") を単一の Character として扱うため、
+    /// HTTP の CRLF ヘッダでは一切分割されず Content-Length を見落として常に 411 になる。
+    /// `components(separatedBy: .newlines)` は CR/LF/CRLF を正しく分割する（SurfaceTableParser と同じ手法）。
+    static func splitHeaderLines(_ headersText: String) -> [String] {
+        headersText.components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
     }
 
     static func parseRequestLine(_ line: String) -> HttpRequestLine? {

@@ -198,8 +198,8 @@ let expanded = manager.expand(text: text)
 
 ### GhostManager
 `GhostManager` クラスはプロパティ関連の SakuraScript コマンドを処理します:
-- `\![get,property,...]` （408 行目）
-- `\![set,property,...]` （421 行目）
+- `\![get,property,...]`（`GhostManager.swift` の `get` ハンドラ内 `property` 分岐）
+- `\![set,property,...]`（`GhostManager.swift` の `set` ハンドラ内 `property` 分岐）
 
 ### SakuraScriptEngine
 `SakuraScriptEngine` は `PropertyManager` と統合されています:
@@ -208,7 +208,7 @@ let expanded = manager.expand(text: text)
 
 ### EnvironmentExpander
 テキスト内の `%property[key]` 展開を処理します:
-- `EnvironmentExpander.swift` の 109-111 行目
+- `EnvironmentExpander.swift`（`%property[...]` 分岐）
 - `PropertyManager.get()` に委譲
 
 ## テスト
@@ -234,20 +234,18 @@ xcodebuild test -project Ourin.xcodeproj -scheme Ourin
    - `history.ghost.*`, `history.balloon.*` など
    - 最近使用した項目のトラッキング
 
-2. **使用率** (`rateofuselist.*`)
-   - ゴーストの使用統計
-   - 起動時間のトラッキング
-   - 使用率の計算
-
-3. **追加の書き込み可能プロパティ**
+2. **追加の書き込み可能プロパティ**
    - マウスカーソルのカスタマイズ (`currentghost.mousecursor.*`)
    - ツールチップのカスタマイズ (`currentghost.seriko.tooltip.*`)
    - サーフェスリストのプロパティ (`currentghost.seriko.surfacelist.*`)
 
-4. **動的データ連携**
+3. **動的データ連携**
    - 実際の実行時ゴースト/シェル/バルーンデータへの接続
    - リアルタイムなスコープ位置のトラッキング
    - ライブなバルーンメトリクス
+
+`rateofuselist.*` は実装済みです。ゴーストの起動回数・実使用時間・発言数・文字数を
+`UserDefaults` に永続化し、`rateofuselist.*` と `open,rateofusegraph*` で同じ実データを参照します。
 
 ## 参考資料
 

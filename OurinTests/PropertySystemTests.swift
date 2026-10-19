@@ -42,6 +42,24 @@ private final class DictionaryPropertyProvider: PropertyProvider {
 /// Tests for the Property System
 struct PropertySystemTests {
 
+    @Test("currentghost follows the ghost actually started, not the first installed")
+    func currentGhostFollowsStartedGhost() {
+        let ghosts = [
+            Ghost(name: "bonsyou", path: "/ghosts/bonsyou"),
+            Ghost(name: "Emily/Phase4.5", sakuraname: "Emily", keroname: "Teddy", path: "/ghosts/emily4"),
+        ]
+        let current = GhostPropertyProvider(mode: .currentghost, ghosts: ghosts, activeIndices: [0])
+        #expect(current.get(key: "name") == "bonsyou")
+
+        #expect(current.setActiveGhost(path: "/ghosts/emily4/"))
+        #expect(current.get(key: "name") == "Emily/Phase4.5")
+        #expect(current.get(key: "sakuraname") == "Emily")
+
+        // 一覧に無いパスでは変えない
+        #expect(current.setActiveGhost(path: "/elsewhere/ghost") == false)
+        #expect(current.get(key: "name") == "Emily/Phase4.5")
+    }
+
     @Test("System properties - Date/Time")
     func testSystemDateTime() {
         let provider = SystemPropertyProvider()
@@ -162,6 +180,7 @@ struct PropertySystemTests {
         // Basic properties
         #expect(provider.get(key: "name") == "TestGhost")
         #expect(provider.get(key: "sakuraname") == "Sakura")
+        #expect(provider.get(key: "selfname") == "Sakura")
         #expect(provider.get(key: "keroname") == "Kero")
 
         // Shell list
@@ -223,7 +242,10 @@ struct PropertySystemTests {
         #expect(manager.get("history.balloon.count") == "0")
         #expect(manager.get("history.headline.count") == "0")
         #expect(manager.get("history.plugin.count") == "0")
-        #expect(manager.get("rateofuselist.count") == "0")
+        // 使用履歴は UserDefaults に永続化され、他テストや起動済みアプリの実データを
+        // 含み得るため、空件数を仮定せず実数値として解決できることだけを確認する。
+        let rateOfUseCount = manager.get("rateofuselist.count")
+        #expect(rateOfUseCount.flatMap(Int.init).map { $0 >= 0 } == true)
     }
 
     @Test("PropertyManager - %property[] expansion")

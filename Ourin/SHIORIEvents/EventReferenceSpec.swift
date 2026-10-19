@@ -54,21 +54,45 @@ public enum EventReferenceTable {
     public static let allSpecs: [EventReferenceSpec] = [
         // MARK: - ライフサイクル
         .init(id: "OnFirstBoot", references: ["vanishCount"], category: "lifecycle"),
-        .init(id: "OnBoot", references: ["shellName"], category: "lifecycle"),
+        // Reference6/7 は MATERIA/SSP 互換の異常終了通知（halt/前回ゴースト名）。
+        .init(id: "OnBoot", references: [
+            "shellName", "unused1", "unused2", "unused3", "unused4", "unused5",
+            "haltReason", "previousGhostName"
+        ], category: "lifecycle"),
         .init(id: "OnInitialize", references: [], category: "lifecycle"),
         .init(id: "OnDestroy", references: ["destroyReason"], category: "lifecycle"),
         .init(id: "OnClose", references: ["closeReason"], category: "lifecycle"),
+        .init(id: "OnCloseAll", references: ["closeReason", "menuScope", "windowScope"], category: "lifecycle"),
         .init(id: "OnVanishing", references: [], category: "lifecycle"),
-        .init(id: "OnVanished", references: [], category: "lifecycle"),
+        // UKADOC: R0=消滅したゴースト本体名, R1=OnVanishSelected応答,
+        // R2=消滅したゴースト名, R7=切替先シェル名。R3..R6 は予約領域。
+        .init(id: "OnVanished", references: [
+            "ghostName", "vanishSelectedScript", "vanishedGhostName",
+            "unused3", "unused4", "unused5", "unused6", "shellName"
+        ], category: "lifecycle"),
         .init(id: "OnVanishSelecting", references: [], category: "lifecycle"),
-        .init(id: "OnVanishSelected", references: ["ghostName"], category: "lifecycle"),
+        .init(id: "OnVanishSelected", references: [], category: "lifecycle"),
 
         // MARK: - ゴースト切替
         .init(id: "OnGhostChanging", references: ["nextGhostName", "changeMode", "nextGhostNameSSP", "nextGhostPath"], category: "ghost"),
-        .init(id: "OnGhostChanged", references: ["prevGhostName", "changeScript", "prevGhostNameSSP", "prevGhostPath"], category: "ghost"),
-        .init(id: "OnOtherGhostBooted", references: ["ghostName", "sakuraName", "keroName", "shellName", "ghostPath"], category: "ghost"),
-        .init(id: "OnOtherGhostChanged", references: ["prevGhostName", "nextGhostName"], category: "ghost"),
-        .init(id: "OnOtherGhostClosed", references: ["ghostName"], category: "ghost"),
+        .init(id: "OnGhostChanged", references: ["prevGhostName", "changeScript", "prevGhostNameSSP", "prevGhostPath", "unused4", "unused5", "unused6", "shellName"], category: "ghost"),
+        // UKADOC: R0=起動したゴースト本体名, R1=起動スクリプト,
+        // R2=起動したゴーストのSSP名, R7=シェル名。R3..R6 は予約領域。
+        .init(id: "OnOtherGhostBooted", references: ["ghostName", "bootScript", "ghostNameSSP", "unused3", "unused4", "unused5", "unused6", "shellName"], category: "ghost"),
+        // UKADOC: R0/R1=旧/新ゴースト本体名, R2/R3=旧/新切替スクリプト,
+        // R4/R5=旧/新ゴーストのSSP名, R14/R15=旧/新シェル名。R6..R13 は予約領域。
+        .init(id: "OnOtherGhostChanged", references: [
+            "prevGhostName", "nextGhostName", "prevChangeScript", "nextChangeScript",
+            "prevGhostNameSSP", "nextGhostNameSSP",
+            "unused6", "unused7", "unused8", "unused9", "unused10", "unused11", "unused12", "unused13",
+            "prevShellName", "nextShellName"
+        ], category: "ghost"),
+        // UKADOC: R0=終了したゴースト本体名, R1=最後のスクリプト,
+        // R2=終了したゴースト名, R7=終了したゴーストのシェル名。R3..R6 は予約領域。
+        .init(id: "OnOtherGhostClosed", references: [
+            "ghostName", "lastScript", "closedGhostName",
+            "unused3", "unused4", "unused5", "unused6", "shellName"
+        ], category: "ghost"),
 
         // MARK: - 見切れ / 重なり（UKADOC: Reference0=現在状態, Reference1=直前状態, 区切りはバイト値1）
         .init(id: "OnOffscreen", references: ["current", "previous"], category: "shell"),
@@ -80,6 +104,17 @@ public enum EventReferenceTable {
         .init(id: "OnSecondChange", references: ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"], category: "time"),
         .init(id: "OnMinuteChange", references: ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"], category: "time"),
         .init(id: "OnHourTimeSignal", references: ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"], category: "time"),
+        .init(id: "OnIdle", references: [], category: "time"),
+
+        // MARK: - カレンダー
+        // UKADOC: スケジュールイベントの Reference0..3 は type/caption/subtitle/script。
+        .init(id: "OnSchedule5MinutesToGo", references: ["type", "caption", "subtitle", "script"], category: "calendar"),
+        .init(id: "OnScheduleRead", references: ["type", "caption", "subtitle", "script"], category: "calendar"),
+        .init(id: "OnSchedulesenseBegin", references: ["sensorName"], category: "calendar"),
+        .init(id: "OnSchedulesenseComplete", references: ["sensorName", "scheduleCount"], category: "calendar"),
+        .init(id: "OnSchedulesenseFailure", references: ["reason"], category: "calendar"),
+        .init(id: "OnSchedulepostBegin", references: ["sensorName"], category: "calendar"),
+        .init(id: "OnSchedulepostComplete", references: ["sensorName"], category: "calendar"),
 
         // MARK: - マウス
         .init(id: "OnMouseClick", references: ["x", "y", "wheelDelta", "scopeID", "collisionID", "button", "deviceType"], category: "mouse"),
@@ -97,46 +132,77 @@ public enum EventReferenceTable {
         .init(id: "OnMouseDragStart", references: ["x", "y", "wheelDelta", "scopeID", "collisionID", "button", "deviceType"], category: "mouse"),
         .init(id: "OnMouseDragEnd", references: ["x", "y", "wheelDelta", "scopeID", "collisionID", "button", "deviceType"], category: "mouse"),
         .init(id: "OnMouseGesture", references: ["direction", "startPosition", "endPosition"], category: "mouse"),
+        .init(id: "OnMouseDownEx", references: ["x", "y", "wheelDelta", "scopeID", "collisionID", "button", "deviceType"], category: "mouse"),
+        .init(id: "OnMouseUpEx", references: ["x", "y", "wheelDelta", "scopeID", "collisionID", "button", "deviceType"], category: "mouse"),
+        .init(id: "OnMouseEnterAll", references: ["x", "y", "wheelDelta", "scopeID", "collisionID"], category: "mouse"),
+        .init(id: "OnMouseLeaveAll", references: ["x", "y", "wheelDelta", "scopeID", "collisionID"], category: "mouse"),
+        .init(id: "OnMouseHover", references: ["x", "y", "wheelDelta", "scopeID", "collisionID"], category: "mouse"),
 
         // MARK: - キー
         .init(id: "OnKeyDown", references: ["characters", "keyCode"], category: "key"),
+        .init(id: "OnKeyPress", references: ["characters", "keyCode", "keyRepeat", "windowID", "modifiers"], category: "key"),
         .init(id: "OnKeyUp", references: ["characters", "keyCode"], category: "key"),
 
         // MARK: - バルーン / 選択肢
         .init(id: "OnBalloonBreak", references: ["displayedScript", "scope", "breakPosition"], category: "ui"),
         .init(id: "OnBalloonClose", references: ["displayedScript"], category: "ui"),
-        .init(id: "OnBalloonTimeout", references: ["scope"], category: "ui"),
+        .init(id: "OnBalloonTimeout", references: ["displayedScript", "remainingTime"], category: "ui"),
         .init(id: "OnBalloonChange", references: ["prevBalloonName", "newBalloonName", "phase"], category: "ui"),
         .init(id: "OnChoiceEnter", references: ["label", "choiceID", "extInfo"], category: "ui"),
+        .init(id: "OnChoiceHover", references: ["label", "choiceID", "extInfo"], category: "ui"),
         .init(id: "OnChoiceSelect", references: ["choiceID"], category: "ui"),
-        .init(id: "OnChoiceSelectEx", references: ["choiceID", "extInfo"], category: "ui"),
+        .init(id: "OnChoiceSelectEx", references: ["label", "choiceID", "extInfo"], category: "ui"),
+        .init(id: "OnChoiceTimeout", references: ["timedOutScript"], category: "ui"),
         .init(id: "OnAnchorSelect", references: ["anchorID"], category: "ui"),
-        .init(id: "OnAnchorEnter", references: ["anchorID"], category: "ui"),
+        .init(id: "OnAnchorSelectEx", references: ["label", "anchorID", "extInfo"], category: "ui"),
+        .init(id: "OnAnchorEnter", references: ["label", "anchorID", "extInfo"], category: "ui"),
 
         // MARK: - シェル / サーフェス
         .init(id: "OnShellChanging", references: ["prevShellName", "newShellName"], category: "shell"),
         .init(id: "OnShellChanged", references: ["prevShellName", "newShellName"], category: "shell"),
         .init(id: "OnSurfaceChange", references: ["sakuraSurface", "keroSurface", "changedScope"], category: "shell"),
+        // UKADOC: R0=ghost name, R1=sakura name, R2=changed scope/window,
+        // R3=new surface ID, R4=old surface ID, R5=new surface rectangle.
+        .init(id: "OnOtherSurfaceChange", references: ["ghostName", "sakuraName", "scopeID", "newSurfaceID", "oldSurfaceID", "newSurfaceSize"], category: "shell"),
         .init(id: "OnSurfaceRestore", references: ["sakuraSurface", "keroSurface"], category: "shell"),
         .init(id: "OnSurfacesReloaded", references: ["shellName"], category: "shell"),
-        .init(id: "OnDressupChanged", references: ["category", "part", "value"], category: "shell"),
+        .init(id: "OnShellScaling", references: ["afterX", "beforeX", "afterY", "beforeY"], category: "shell"),
+        .init(id: "OnBalloonScaling", references: ["afterX", "beforeX", "afterY", "beforeY"], category: "ui"),
+        // UKADOC: character ID, part, enabled(1/0), category, source(script/user).
+        .init(id: "OnDressupChanged", references: ["characterID", "part", "value", "category", "source"], category: "shell"),
         .init(id: "OnAnimationFinished", references: ["animationID"], category: "shell"),
 
         // MARK: - D&D
-        .init(id: "OnFileDrop", references: ["filePath"], category: "dragdrop"),
-        .init(id: "OnFileDrop2", references: ["filePath", "x", "y"], category: "dragdrop"),
-        .init(id: "OnDirectoryDrop", references: ["dirPath"], category: "dragdrop"),
-        .init(id: "OnURLDrop", references: ["url"], category: "dragdrop"),
-        .init(id: "OnURLDropping", references: ["url"], category: "dragdrop"),
-        .init(id: "OnURLDropped", references: ["url"], category: "dragdrop"),
+        .init(id: "OnFileDrop", references: ["filePath", "scopeID", "mimeType"], category: "dragdrop"),
+        .init(id: "OnFileDropEx", references: ["filePath", "scopeID", "mimeType"], category: "dragdrop"),
+        .init(id: "OnFileDrop2", references: ["filePath", "scopeID", "mimeType"], category: "dragdrop"),
+        .init(id: "OnDirectoryDrop", references: ["dirPath", "scopeID"], category: "dragdrop"),
+        // OnURLDrop は macOS の直接URLドロップを表す Ourin 拡張。
+        .init(id: "OnURLDrop", references: ["url", "scopeID"], category: "dragdrop"),
+        // UKADOC: DragDropping/Dropping は URL+scope、Dropped/Failure は
+        // ダウンロード結果を含むため、未実行の段階で値を捏造しない。
+        .init(id: "OnURLDropping", references: ["url", "scopeID"], category: "dragdrop"),
+        .init(id: "OnURLDropped", references: ["filePath", "url", "scopeID"], category: "dragdrop"),
         .init(id: "OnTextDrop", references: ["text"], category: "dragdrop"),
+        .init(id: "OnDragEnter", references: [], category: "dragdrop"),
+        .init(id: "OnDragLeave", references: [], category: "dragdrop"),
+        .init(id: "OnDragDrop", references: [], category: "dragdrop"),
+        .init(id: "OnFileDropped", references: ["filePath", "scopeID", "mimeType"], category: "dragdrop"),
+        .init(id: "OnFileDropping", references: ["filePath", "scopeID"], category: "dragdrop"),
+        // UKADOC: 非ファイルのPasteboardオブジェクトは scope/name/objectID の順。
+        .init(id: "OnOtherObjectDropping", references: ["scopeID", "name", "objectID"], category: "dragdrop"),
+        .init(id: "OnOtherObjectDropped", references: ["scopeID", "name", "objectID"], category: "dragdrop"),
 
         // MARK: - HTTP / WebSocket
-        .init(id: "OnExecuteHTTPComplete", references: ["statusCode", "body", "url", "method"], category: "network"),
-        .init(id: "OnExecuteHTTPProgress", references: ["phase", "progress", "method", "url"], category: "network"),
-        .init(id: "OnExecuteHTTPFailure", references: ["reason", "url", "method"], category: "network"),
-        .init(id: "OnExecuteHTTPSSLInfo", references: ["host", "url"], category: "network"),
-        .init(id: "OnExecuteHTTPStreaming", references: ["body", "url", "statusCode", "method"], category: "network"),
+        // UKADOC: Complete/Failure/Progress は R0=method, R1=async ID,
+        // R2=URL, R3=data/file path, R4=result, R5=cookie, R6=response headers。
+        .init(id: "OnExecuteHTTPComplete", references: ["method", "asyncID", "url", "data", "result", "cookie", "responseHeaders"], category: "network"),
+        .init(id: "OnExecuteHTTPProgress", references: ["method", "asyncID", "url", "data", "result", "cookie", "responseHeaders"], category: "network"),
+        .init(id: "OnExecuteHTTPFailure", references: ["method", "asyncID", "url", "data", "result", "cookie", "responseHeaders"], category: "network"),
+        // R9 の証明書チェーンは発火箇所で raw Reference9 として追加する。
+        .init(id: "OnExecuteHTTPSSLInfo", references: ["asyncID", "url", "statusCode", "tlsVersion"], category: "network"),
+        // Streaming は Complete の R4 をチャンク本文に置き換える。
+        .init(id: "OnExecuteHTTPStreaming", references: ["method", "asyncID", "url", "data", "body", "cookie", "responseHeaders"], category: "network"),
         .init(id: "OnExecuteWebSocketOpen", references: ["url"], category: "network"),
         .init(id: "OnExecuteWebSocketReceive", references: ["payload", "url", "dataType"], category: "network"),
         .init(id: "OnExecuteWebSocketSend", references: ["payload", "url", "dataType"], category: "network"),
@@ -145,38 +211,87 @@ public enum EventReferenceTable {
         .init(id: "OnExecuteWebSocketClose", references: ["url"], category: "network"),
 
         // MARK: - メディア
-        .init(id: "OnMusicPlay", references: ["filename"], category: "media"),
-        .init(id: "OnMusicPlayEx", references: ["filename"], category: "media"),
+        // OnMusicPlay 系はローカルの \\![sound] ではなく外部メディアプレイヤーの曲情報。
+        // OnMusicPlayEx は Reference2 以降に拡張情報が続くため、発火側で raw ReferenceN を追加する。
+        .init(id: "OnMusicPlay", references: ["title", "artist"], category: "media"),
+        .init(id: "OnMusicPlayEx", references: ["title", "artist"], category: "media"),
         .init(id: "OnMusicStop", references: ["filename"], category: "media"),
         .init(id: "OnSoundLoop", references: ["filename"], category: "media"),
-        .init(id: "OnSoundStop", references: ["filename"], category: "media"),
+        .init(id: "OnSoundStop", references: ["filename", "reason"], category: "media"),
+        .init(id: "OnSoundError", references: ["command", "errorCode", "filename", "message"], category: "media"),
         .init(id: "OnVideoPlayEx", references: ["filename", "loopMode"], category: "media"),
         .init(id: "OnVideoPlayFailure", references: ["filename", "reason"], category: "media"),
 
         // MARK: - アップデート / NAR
-        .init(id: "OnUpdateResult", references: ["reason", "fileList", "target"], category: "update"),
-        .init(id: "OnUpdateResultEx", references: ["reason", "fileList", "target", "explorerPath"], category: "update"),
-        .init(id: "OnUpdateResultExplorer", references: ["explorerPath", "target"], category: "update"),
+        // OnUpdateResult 系は Reference* が更新対象ごとに可変長で並ぶため、
+        // 発火側で raw ReferenceN を組み立てる。
+        .init(id: "OnUpdateResult", references: [], category: "update"),
+        .init(id: "OnUpdateResultEx", references: [], category: "update"),
+        .init(id: "OnUpdateResultExplorer", references: [], category: "update"),
+        .init(id: "OnUpdateCheckResult", references: [], category: "update"),
+        .init(id: "OnUpdateCheckResultEx", references: [], category: "update"),
         .init(id: "OnNarCreating", references: ["name"], category: "update"),
         .init(id: "OnNarCreated", references: ["filePath"], category: "update"),
         .init(id: "OnInstall", references: [], category: "update"),
-        .init(id: "OnInstallComplete", references: ["type", "name", "path"], category: "update"),
+        // UKADOC: Complete は identifier/name/name2、Ex/All は byte-1 区切りの
+        // identifier/name/path リスト。path は Ex/All のみで通知する。
+        .init(id: "OnInstallComplete", references: ["identifier", "name", "name2"], category: "update"),
+        .init(id: "OnInstallCompleteEx", references: ["identifiers", "names", "paths"], category: "update"),
+        .init(id: "OnInstallCompleteAll", references: ["identifiers", "names", "paths"], category: "update"),
+        .init(id: "OnInstallRefuse", references: ["accept", "identifier", "name"], category: "update"),
+        .init(id: "OnInstallReroute", references: ["accept", "identifier", "name"], category: "update"),
+
+        // UKADOC のネストされたネットワーク更新イベント。
+        // OnUpdateOther の Complete/Failure は Reference0 を定義していないため、
+        // 表駆動 API で Reference1 以降へ写像できるよう unused0 を明示する。
+        .init(id: "OnUpdate.OnDownloadBegin", references: ["filename", "fileIndex", "fileCountMinusOne", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdate.OnMD5CompareBegin", references: ["filename", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdate.OnMD5CompareComplete", references: ["filename", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdate.OnMD5CompareFailure", references: ["filename", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOther.OnDownloadBegin", references: ["filename", "fileIndex", "fileCountMinusOne", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOther.OnMD5CompareBegin", references: ["filename", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOther.OnMD5CompareComplete", references: ["unused0", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOther.OnMD5CompareFailure", references: ["unused0", "correctMD5", "downloadedMD5", "targetType", "executionReason"], category: "update"),
 
         // MARK: - 通信 / SNTP / BIFF / Headline
-        .init(id: "OnSNTPComplete", references: [], category: "network"),
-        .init(id: "OnSNTPFailure", references: ["reason"], category: "network"),
+        .init(id: "OnSNTPBegin", references: ["server"], category: "network"),
+        .init(id: "OnSNTPCompareEx", references: ["server", "serverTime", "localTime", "deltaSeconds", "deltaMilliseconds"], category: "network"),
+        .init(id: "OnSNTPCompare", references: ["server", "serverTime", "localTime", "deltaSeconds", "deltaMilliseconds"], category: "network"),
+        .init(id: "OnSNTPCorrectEx", references: ["server", "serverTime", "localTime", "deltaSeconds", "deltaMilliseconds"], category: "network"),
+        .init(id: "OnSNTPCorrect", references: ["server", "serverTime", "localTime", "deltaSeconds", "deltaMilliseconds"], category: "network"),
+        .init(id: "OnSNTPFailure", references: ["server"], category: "network"),
+        .init(id: "OnBIFFBegin", references: ["unused0", "unused1", "account"], category: "network"),
+        .init(id: "OnBIFFComplete", references: ["mailCount", "mailBytes", "account", "newMailDelta", "topResult", "listResult", "uidlResult", "senderAndSubject"], category: "network"),
+        .init(id: "OnBIFF2Complete", references: ["mailCount", "mailBytes", "account", "topResult"], category: "network"),
+        .init(id: "OnBIFFFailure", references: ["reason", "unused1", "account"], category: "network"),
+        .init(id: "OnHeadlinesenseBegin", references: ["siteName", "url"], category: "network"),
+        .init(id: "OnHeadlinesense.OnFind", references: ["siteName", "url", "phase", "content"], category: "network"),
+        .init(id: "OnHeadlinesenseComplete", references: ["reason"], category: "network"),
+        .init(id: "OnHeadlinesenseFailure", references: ["reason"], category: "network"),
+        .init(id: "OnRSSBegin", references: ["siteName", "url"], category: "network"),
+        // R0=no update、更新時は R0=siteName、R1=url、R2以降=item wire value。
+        .init(id: "OnRSSComplete", references: ["siteName", "url", "item"], category: "network"),
+        .init(id: "OnRSSFailure", references: ["reason"], category: "network"),
         .init(id: "OnHeadlineCheck", references: ["headline", "url"], category: "network"),
-        .init(id: "OnBIFF", references: ["state"], category: "network"),
 
         // MARK: - ウィンドウ / トレイ
-        .init(id: "OnWindowStateMinimize", references: ["windowID"], category: "ui"),
-        .init(id: "OnWindowStateRestore", references: ["windowID"], category: "ui"),
+        .init(id: "OnWindowStateMinimize", references: ["reason", "windowID"], category: "ui"),
+        .init(id: "OnWindowStateRestore", references: ["reason", "windowID"], category: "ui"),
+        .init(id: "OnSelectModeBegin", references: ["scopeID", "mode"], category: "ui"),
+        .init(id: "OnSelectModeCancel", references: ["scopeID", "mode"], category: "ui"),
+        .init(id: "OnSelectModeComplete", references: ["scopeID", "mode", "selectionRect"], category: "ui"),
+        .init(id: "OnSelectModeMouseDown", references: ["scopeID", "mode", "position"], category: "ui"),
+        .init(id: "OnSelectModeMouseUp", references: ["scopeID", "mode", "position"], category: "ui"),
         .init(id: "OnTrayBalloonClick", references: ["identifier", "title", "message"], category: "ui"),
+        .init(id: "OnResetWindowPos", references: [], category: "ui"),
         .init(id: "OnSecurityWarning", references: ["source", "detail", "url"], category: "system"),
 
         // MARK: - SSTP
         .init(id: "OnSSTPBlacklisting", references: ["ipAddress", "securityOrigin"], category: "sstp"),
-        .init(id: "OnSSTPBreak", references: ["script", "scope"], category: "sstp"),
+        .init(id: "OnSSTPBreak", references: ["script", "scope", "breakPosition"], category: "sstp"),
+        // SSTP COMMUNICATE は R0=送信元、R1=Sentence。ローカル CommunicateBox
+        // は GhostManager が ECHO/1.0 の拡張配置（R0=user, R1=空, R2=種別,
+        // R3=本文）を生成するが、外部 SSTP の基本契約はこの2項を維持する。
         .init(id: "OnCommunicate", references: ["sender", "sentence"], category: "sstp"),
 
         // MARK: - AI トーク
@@ -211,18 +326,20 @@ public enum EventReferenceTable {
         .init(id: "OnNotifySelfInfo", references: ["ghostName", "sakuraName", "keroName", "shellName", "shellPath", "balloonName", "balloonPath"], notifyReturnIgnored: true, category: "system"),
         .init(id: "OnNotifyBalloonInfo", references: ["balloonName", "balloonPath"], notifyReturnIgnored: true, category: "system"),
         .init(id: "OnNotifyShellInfo", references: ["shellName", "shellPath"], notifyReturnIgnored: true, category: "system"),
-        .init(id: "OnNotifyDressupInfo", references: [], notifyReturnIgnored: true, category: "system"),
-        .init(id: "OnNotifyUserInfo", references: ["userName"], notifyReturnIgnored: true, category: "system"),
-        .init(id: "OnNotifyOSInfo", references: ["osInfo"], notifyReturnIgnored: true, category: "system"),
-        .init(id: "OnNotifyFontInfo", references: [], notifyReturnIgnored: true, category: "system"),
-        .init(id: "OnNotifyInternationalInfo", references: [], notifyReturnIgnored: true, category: "system"),
+        // Reference* contains a byte-value-1-delimited MAYUNA record.
+        .init(id: "OnNotifyDressupInfo", references: ["dressupInfo"], notifyReturnIgnored: true, category: "system"),
+        .init(id: "OnNotifyUserInfo", references: ["addressName", "fullName", "birthday", "gender"], notifyReturnIgnored: true, category: "system"),
+        .init(id: "OnNotifyOSInfo", references: ["osInfo", "cpuInfo", "memoryInfo", "uptimeMinutes"], notifyReturnIgnored: true, category: "system"),
+        // Reference* はインストール済みフォントの数だけ繰り返される。
+        .init(id: "OnNotifyFontInfo", references: ["fontName"], notifyReturnIgnored: true, category: "system"),
+        .init(id: "OnNotifyInternationalInfo", references: ["utcOffsetMinutes", "daylightSavingTime", "countryCode", "languageCode"], notifyReturnIgnored: true, category: "system"),
 
         // MARK: - 発火箇所の表駆動移行で追加（2026-06）
         // 全 ~216 発火箇所の table 駆動化に伴い、発火されている全イベントを網羅。
         // ラベルは UKADOC list_shiori_event(_ex)/list_plugin_event の Reference 意味 +
         // 実コードが各 ReferenceN に格納する値で検証済み（移行は ReferenceN とバイト等価）。
-        .init(id: "OnAnchorHover", references: ["text"], category: "ui"),
-        .init(id: "OnAnchorSelectEx", references: [], category: "ui"),
+        .init(id: "OnAnchorHover", references: ["label", "anchorID", "extInfo"], category: "ui"),
+        .init(id: "OnArchiveComplete", references: ["eventID", "fileCount", "compressedSize", "uncompressedSize"], category: "update"),
         .init(id: "OnArchiveFailure", references: ["operation", "reason"], category: "update"),
         .init(id: "OnBasewareUpdated", references: ["version"], category: "update"),
         .init(id: "OnBasewareUpdating", references: ["version"], category: "update"),
@@ -230,7 +347,8 @@ public enum EventReferenceTable {
         .init(id: "OnClipboardRead", references: ["text"], category: "system"),
         .init(id: "OnClipboardWrite", references: ["text"], category: "system"),
         .init(id: "OnCompressArchiveBegin", references: ["source", "outputPath"], category: "update"),
-        .init(id: "OnCompressArchiveFailure", references: ["eventID"], category: "update"),
+        .init(id: "OnCompressArchiveComplete", references: ["eventID", "fileCount", "compressedSize", "uncompressedSize"], category: "update"),
+        .init(id: "OnCompressArchiveFailure", references: ["eventID", "error"], category: "update"),
         .init(id: "OnCreateShortcutComplete", references: ["linkPath"], category: "system"),
         .init(id: "OnCreateShortcutFailure", references: ["reason"], category: "system"),
         .init(id: "OnCreateUpdateDataComplete", references: ["filePath"], category: "update"),
@@ -240,14 +358,21 @@ public enum EventReferenceTable {
         .init(id: "OnDumpSurfaceFailure", references: ["reason"], category: "shell"),
         .init(id: "OnEmptyRecycleBinComplete", references: ["count"], category: "system"),
         .init(id: "OnEmptyRecycleBinFailure", references: ["reason"], category: "system"),
-        .init(id: "OnExecuteRSSComplete", references: ["title", "url", "method"], category: "network"),
-        .init(id: "OnExecuteRSSFailure", references: ["reason", "url", "method"], category: "network"),
-        .init(id: "OnExecuteRSS_SSLInfo", references: ["host", "url"], category: "network"),
+        .init(id: "OnExecuteRSSComplete", references: ["item"], category: "network"),
+        .init(id: "OnExecuteRSSFailure", references: ["method", "asyncID", "url", "data", "result", "cookie", "responseHeaders"], category: "network"),
+        .init(id: "OnExecuteRSS_SSLInfo", references: ["asyncID", "url", "statusCode", "tlsVersion"], category: "network"),
         .init(id: "OnExtractArchiveBegin", references: ["archivePath", "destPath"], category: "update"),
-        .init(id: "OnExtractArchiveFailure", references: ["eventID"], category: "update"),
-        .init(id: "OnGhostCallComplete", references: ["ghostName"], category: "ghost"),
-        .init(id: "OnGhostCalled", references: ["ghostName"], category: "ghost"),
-        .init(id: "OnGhostCalling", references: ["ghostName"], category: "ghost"),
+        .init(id: "OnExtractArchiveComplete", references: ["eventID", "fileCount", "compressedSize", "uncompressedSize"], category: "update"),
+        .init(id: "OnExtractArchiveFailure", references: ["eventID", "error"], category: "update"),
+        // UKADOC: OnGhostCalling は切替前と同じく R0=対象本体名,
+        // R1=manual/automatic, R2=対象SSP名, R3=対象パス。
+        .init(id: "OnGhostCalling", references: ["nextGhostName", "changeMode", "nextGhostNameSSP", "nextGhostPath"], category: "ghost"),
+        // UKADOC: R0=呼出元本体名, R1=呼出スクリプト, R2=呼出元SSP名,
+        // R3=呼出元パス, R7=呼出先シェル名。
+        .init(id: "OnGhostCalled", references: ["callingGhostName", "callScript", "callingGhostNameSSP", "callingGhostPath", "unused4", "unused5", "unused6", "calledShellName"], category: "ghost"),
+        // UKADOC: R0=呼出元本体名, R1=呼出先の起動スクリプト,
+        // R2=呼出元SSP名, R7=呼出先シェル名。
+        .init(id: "OnGhostCallComplete", references: ["calledGhostMainName", "calledBootScript", "calledGhostNameSSP", "unused3", "unused4", "unused5", "unused6", "calledShellName"], category: "ghost"),
         .init(id: "OnGhostTermsAccept", references: ["ghostName"], category: "ghost"),
         .init(id: "OnGhostTermsDecline", references: ["ghostName"], category: "ghost"),
         .init(id: "OnHeadlineCheckFailure", references: ["reason"], category: "network"),
@@ -258,20 +383,26 @@ public enum EventReferenceTable {
         .init(id: "OnNameChanged", references: ["userName"], category: "ghost"),
         .init(id: "OnNoUserBreakModeBegin", references: [], category: "ui"),
         .init(id: "OnNoUserBreakModeEnd", references: [], category: "ui"),
-        .init(id: "OnOtherGhostVanished", references: ["ghostName"], category: "ghost"),
+        // UKADOC: R0=消滅したゴースト本体名, R1=OnVanishSelected応答,
+        // R2=消滅したゴースト名, R7=切替先ゴーストのシェル名。R3..R6 は予約領域。
+        .init(id: "OnOtherGhostVanished", references: [
+            "ghostName", "vanishSelectedScript", "vanishedGhostName",
+            "unused3", "unused4", "unused5", "unused6", "shellName"
+        ], category: "ghost"),
+        .init(id: "OnReadmeOpenFailure", references: ["type", "name", "path"], category: "system"),
+        .init(id: "OnRecycleBinEmpty", references: ["count", "size", "countDelta", "sizeDelta", "success", "ghostName"], category: "system"),
+        .init(id: "OnRecycleBinEmptyFromOther", references: ["count", "size", "countDelta", "sizeDelta", "success", "ghostName"], category: "system"),
+        .init(id: "OnRecycleBinStatusUpdate", references: ["count", "size", "countDelta", "sizeDelta", "success", "ghostName"], category: "system"),
         .init(id: "OnPassiveModeBegin", references: [], category: "ui"),
         .init(id: "OnPassiveModeEnd", references: [], category: "ui"),
         .init(id: "OnPingComplete", references: ["host", "output"], category: "network"),
         .init(id: "OnPingFailure", references: ["host", "output"], category: "network"),
         .init(id: "OnPingProgress", references: ["host", "progress", "result"], category: "network"),
-        .init(id: "OnSNTP", references: ["dateTime", "timezone"], category: "network"),
-        .init(id: "OnSNTPAdjust", references: ["deltaMs", "dateTime", "timezone"], category: "network"),
-        .init(id: "OnSNTPBegin", references: [], category: "network"),
-        .init(id: "OnSNTPCompare", references: ["dateTime", "timezone"], category: "network"),
+        .init(id: "OnRaisePluginFailure", references: ["reason", "plugin", "event"], category: "communication"),
+        .init(id: "OnNotifyPluginFailure", references: ["reason", "plugin", "event"], category: "communication"),
+        .init(id: "OnRaiseOtherFailure", references: ["reason", "ghostName", "event"], category: "communication"),
+        .init(id: "OnNotifyOtherFailure", references: ["reason", "ghostName", "event"], category: "communication"),
         .init(id: "OnSSPCompatExecutable", references: ["kind", "rawPath", "path", "dataPath"], category: "system"),
-        .init(id: "OnSelectModeBegin", references: [], category: "ui"),
-        .init(id: "OnSelectModeCancel", references: [], category: "ui"),
-        .init(id: "OnSelectModeComplete", references: [], category: "ui"),
         .init(id: "OnSerikoTalkChanged", references: ["enabled"], category: "shell"),
         .init(id: "OnShioriDebugModeChanged", references: ["enabled"], category: "system"),
         .init(id: "OnShioriLoadFailure", references: ["reason"], category: "system"),
@@ -280,36 +411,89 @@ public enum EventReferenceTable {
         .init(id: "OnSurfaceReloaded", references: ["surfaceID"], category: "shell"),
         .init(id: "OnSystemMessage", references: ["title", "body", "level"], category: "system"),
         .init(id: "OnTrayBalloonTimeout", references: ["identifier", "title"], category: "ui"),
-        .init(id: "OnURLDropFailure", references: ["filePath"], category: "dragdrop"),
-        .init(id: "OnURLQuery", references: ["url"], category: "dragdrop"),
-        .init(id: "OnUpdateBegin", references: ["ghostName", "path", "extra2", "type"], category: "update"),
-        .init(id: "OnUpdateCheckComplete", references: ["reason", "fileList", "count", "type"], category: "update"),
-        .init(id: "OnUpdateCheckFailure", references: ["reason"], category: "update"),
-        .init(id: "OnUpdateComplete", references: ["reason", "fileList", "count", "type"], category: "update"),
-        .init(id: "OnUpdateFailure", references: ["reason", "fileList", "extra2", "type"], category: "update"),
-        .init(id: "OnUpdateOtherBegin", references: ["ghostName", "path", "extra2", "type"], category: "update"),
-        .init(id: "OnUpdateOtherComplete", references: ["reason", "fileList", "extra2", "type"], category: "update"),
-        .init(id: "OnUpdateOtherReady", references: ["fileIndex", "fileList", "extra2", "type"], category: "update"),
-        .init(id: "OnUpdateReady", references: ["fileIndex", "fileList", "extra2", "type"], category: "update"),
+        .init(id: "OnURLDropFailure", references: ["filePath", "reason", "url", "scopeID"], category: "dragdrop"),
+        // UKADOC: URL, scope, MIME, then the host's planned action.
+        .init(id: "OnURLQuery", references: ["url", "scopeID", "mimeType", "plannedAction"], category: "dragdrop"),
+        .init(id: "OnWallpaperChange", references: ["filePath"], category: "dragdrop"),
+        // UKADOC: R2 は予約／空欄、R3=対象種別、R4=更新理由。
+        .init(id: "OnUpdateBegin", references: ["ghostName", "path", "unused2", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateCheckComplete", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateCheckFailure", references: ["reason", "unused1", "unused2", "unused3", "executionReason"], category: "update"),
+        .init(id: "OnUpdateComplete", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateFailure", references: ["reason", "fileList", "failedFile", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOtherBegin", references: ["ghostName", "path", "unused2", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOtherComplete", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOtherFailure", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateOtherReady", references: ["fileIndex", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
+        .init(id: "OnUpdateProcessExec", references: ["executionReason"], category: "update"),
+        .init(id: "OnUpdateReady", references: ["fileIndex", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
         .init(id: "OnUpdatedataCreated", references: ["path"], category: "update"),
         .init(id: "OnUpdatedataCreating", references: ["filePath"], category: "update"),
-        .init(id: "OnVanishButtonHold", references: [], category: "lifecycle"),
+        // UKADOC: R0=中断されたスクリプト, R1=スコープ番号, R2=中断位置。
+        .init(id: "OnVanishButtonHold", references: ["displayedScript", "scope", "breakPosition"], category: "lifecycle"),
         .init(id: "OnVanishCancel", references: [], category: "lifecycle"),
+        .init(id: "OnVanishFailure", references: ["ghostName", "reason"], category: "ghost"),
+        .init(id: "OnWallpaperChanged", references: ["filename"], category: "system"),
+        .init(id: "OnWallpaperFailure", references: ["filename", "reason"], category: "system"),
         .init(id: "OnXUkagakaLinkOpen", references: ["info"], category: "general"),
 
         // MARK: - オブザーバ発火イベント（ShioriEvent 経由）
+        .init(id: "OnAppearanceChanged", references: ["appearance"], category: "system"),
+        .init(id: "OnDarkTheme", references: ["application", "system"], category: "system"),
+        .init(id: "OnDisplayChange", references: ["bpp", "width", "height"], category: "system"),
+        .init(id: "OnDisplayChangeEx", references: ["state", "displayInfo"], category: "system"),
+        .init(id: "OnDisplayHandover", references: ["state", "scopeID", "previousDisplay", "currentDisplay"], category: "system"),
+        .init(id: "OnDisplayPowerStatus", references: ["status"], category: "system"),
+        .init(id: "OnOSUpdateInfo", references: ["checkedAt", "executedAt", "history"], category: "system"),
+        .init(id: "OnLocaleChange", references: [], category: "system"),
+        // 起動時は NOTIFY で送られ、応答スクリプトを再生しない（UKADOC）。
+        .init(id: "OnLanguageChange", references: ["languageName", "languageID", "resourcePath", "helpURL"], notifyReturnIgnored: true, category: "system"),
+        .init(id: "OnNetworkStatusChange", references: ["status"], category: "network"),
+        .init(id: "OnNetworkOnline", references: [], category: "network"),
+        .init(id: "OnNetworkOffline", references: [], category: "network"),
+        .init(id: "OnNetworkHeavy", references: [], category: "network"),
+        .init(id: "OnPowerSourceChanged", references: ["source"], category: "system"),
+        .init(id: "OnBatteryNotify", references: ["percent", "remainingMinutes", "powerState", "status"], category: "system"),
+        .init(id: "OnBatteryLow", references: ["percent", "remainingMinutes", "powerState", "status"], category: "system"),
+        .init(id: "OnBatteryCritical", references: ["percent", "remainingMinutes", "powerState", "status"], category: "system"),
+        .init(id: "OnBatteryChargingStart", references: ["percent", "remainingMinutes", "powerState", "status"], category: "system"),
+        .init(id: "OnBatteryChargingStop", references: ["percent", "remainingMinutes", "powerState", "status"], category: "system"),
+        .init(id: "OnThermalStateChanged", references: ["state"], category: "system"),
+        .init(id: "OnSessionLock", references: [], category: "system"),
+        .init(id: "OnSessionUnlock", references: [], category: "system"),
+        .init(id: "OnSessionDisconnect", references: [], category: "system"),
+        .init(id: "OnSessionReconnect", references: [], category: "system"),
+        .init(id: "OnScreenLock", references: [], category: "system"),
+        .init(id: "OnScreenUnlock", references: [], category: "system"),
+        .init(id: "OnFullScreenAppMinimize", references: ["reason"], category: "system"),
+        .init(id: "OnFullScreenAppRestore", references: ["reason"], category: "system"),
+        .init(id: "OnSysSuspend", references: [], category: "system"),
+        .init(id: "OnSleep", references: [], category: "system"),
+        .init(id: "OnSysResume", references: ["reason"], category: "system"),
+        .init(id: "OnWake", references: [], category: "system"),
+        .init(id: "OnScreenSaverStart", references: ["name", "path", "timeoutSeconds"], category: "system"),
+        .init(id: "OnScreenSaverEnd", references: ["name", "path", "timeoutSeconds"], category: "system"),
+        .init(id: "OnSpaceChanged", references: [], category: "system"),
+        .init(id: "OnVirtualDesktopChanged", references: [], category: "system"),
+        .init(id: "OnCPULoadHigh", references: ["load"], category: "system"),
+        .init(id: "OnCPULoadLow", references: ["load"], category: "system"),
+        .init(id: "OnMemoryLoadHigh", references: ["load"], category: "system"),
+        .init(id: "OnMemoryLoadLow", references: ["load"], category: "system"),
         .init(id: "OnNSLookupComplete", references: ["host", "output"], category: "network"),
         .init(id: "OnNSLookupFailure", references: ["host", "output"], category: "network"),
         .init(id: "OnDeviceArrival", references: ["path"], category: "system"),
         .init(id: "OnDeviceRemove", references: ["path"], category: "system"),
-        .init(id: "OnURLDragDropping", references: ["url"], category: "dragdrop"),
+        .init(id: "OnURLDragDropping", references: ["url", "scopeID"], category: "dragdrop"),
         .init(id: "OnGamepadConnected", references: ["deviceName"], category: "input"),
         .init(id: "OnGamepadDisconnected", references: ["deviceName"], category: "input"),
         .init(id: "OnGamepadButtonDown", references: ["button", "deviceName"], category: "input"),
         .init(id: "OnGamepadButtonUp", references: ["button", "deviceName"], category: "input"),
         .init(id: "OnGamepadAxisMove", references: ["axis", "x", "y", "deviceName"], category: "input"),
-        .init(id: "OnSpeechSynthesisStatus", references: ["status"], category: "system"),
-        .init(id: "OnVoiceRecognitionStatus", references: ["status"], category: "system"),
+        // UKADOC: Reference0 は機能の有効状態 (0/1)。詳細な状態名は Ourin 拡張の Reference1。
+        .init(id: "OnSpeechSynthesisStatus", references: ["enabled", "status"], category: "system"),
+        .init(id: "OnVoiceRecognitionStatus", references: ["enabled", "status"], category: "system"),
+        // UKADOC: Reference0=スコープ番号、Reference1=認識語。
+        .init(id: "OnVoiceRecognitionWord", references: ["scopeID", "word"], category: "system"),
     ]
 
     // MARK: - 表駆動発火 API の中核（ラベル ⇄ ReferenceN 変換）

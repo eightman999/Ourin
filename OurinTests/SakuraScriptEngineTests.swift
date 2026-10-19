@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import Ourin
 
@@ -13,6 +14,17 @@ struct SakuraScriptEngineTests {
             .surface(1),
             .animation(2, wait: true),
             .end
+        ])
+    }
+
+    @Test
+    func parsesMultiDigitWaitAsOneCommandArgument() {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: #"\w10\w[25]"#)
+
+        #expect(tokens == [
+            .command(name: "w", args: ["10"]),
+            .command(name: "w", args: ["25"])
         ])
     }
 
@@ -166,6 +178,16 @@ struct SakuraScriptEngineTests {
         }
         if case .command(let name, let args) = tokens[1] {
             #expect(args == ["anim", "resume", "200"])
+        }
+    }
+
+    @Test
+    func legacyAnimationPauseCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![anim,pause200]")
+        #expect(tokens.count == 1)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["anim", "pause200"])
         }
     }
 
@@ -556,11 +578,32 @@ struct SakuraScriptEngineTests {
     @Test
     func balloonIDWithFallback() async throws {
         let engine = SakuraScriptEngine()
-        // SSP 2.6.34+ fallback syntax - parser takes first ID
-        let tokens = engine.parse(script: "\\b[2,--fallback=0]Fallback test")
+        // SSP 2.6.34+ fallback syntax keeps all fallback candidates.
+        let tokens = engine.parse(script: "\\b[2, --fallback=0]Fallback test")
         #expect(tokens.count == 2)
-        #expect(tokens[0] == .balloon(2))
+        #expect(tokens[0] == .balloonWithFallback(primary: 2, fallbacks: [0]))
         #expect(tokens[1] == .text("Fallback test"))
+    }
+
+    @Test @MainActor
+    func balloonFallbackSelectsFirstInstalledSurface() async throws {
+        let ghostRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("emily4")
+        let balloonRoot = ghostRoot.appendingPathComponent("balloon")
+        let manager = GhostManager(ghostURL: ghostRoot)
+        let characterViewModel = CharacterViewModel()
+        characterViewModel.currentBalloonID = 7
+        manager.characterViewModels[0] = characterViewModel
+        manager.balloonImageLoader = BalloonImageLoader(balloonPath: balloonRoot.path)
+
+        manager.sakuraEngine.run(script: "\\b[999,--fallback=0]")
+        // `sakuraEngine.run` はトークンを再生キューへ登録するだけなので、
+        // 実際のバルーン切替まで再生キューを進める。
+        manager.processNextUnit()
+
+        #expect(manager.characterViewModels[0]?.currentBalloonID == 0)
     }
 
     @Test
@@ -1343,10 +1386,59 @@ struct SakuraScriptEngineTests {
         let engine = SakuraScriptEngine()
         let tokens = engine.parse(script: "\\q[OnTest][Test Choice]")
         #expect(tokens.count == 1)
-        if case .command(let name, let args) = tokens[0] {
-            #expect(name == "q")
-            #expect(args == ["OnTest", "Test Choice"])
+        if case .choiceLegacy(let title, let id, let numbered) = tokens[0] {
+            #expect(title == "Test Choice")
+            #expect(id == "OnTest")
+            #expect(!numbered)
+        } else {
+            Issue.record("expected legacy choice token")
         }
+    }
+
+    @Test
+    func numberedChoiceIDTitleFormat() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\q*[OnTest][Test Choice]")
+        #expect(tokens == [.choiceLegacy(title: "Test Choice", id: "OnTest", numbered: true)])
+    }
+
+    @Test @MainActor
+    func legacyChoiceExecutesTheIDWithTheTitleInOrder() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-legacy-choice-test"))
+        manager.sakuraEngine.run(script: "\\q*[OnTest][Test Choice]")
+        let choice = try #require(manager.pendingChoices.first)
+        #expect(choice.title == "1. Test Choice")
+        if case .event(let id, let references) = choice.action {
+            #expect(id == "OnTest")
+            #expect(references.isEmpty)
+        } else {
+            Issue.record("expected event choice")
+        }
+    }
+
+    @Test
+    func choiceSelectionDispatchFollowsSakuraScriptEventForms() {
+        let direct = GhostManager.choiceSelectionDispatch(
+            title: "春",
+            action: .event(id: "OnLikeSeason", references: ["花見", "桜"])
+        )
+        #expect(direct == .directEvent(id: "OnLikeSeason", references: ["花見", "桜"]))
+
+        let standard = GhostManager.choiceSelectionDispatch(
+            title: "好き",
+            action: .event(id: "Like", references: ["追加情報"])
+        )
+        #expect(standard == .choiceEvents(
+            label: "好き",
+            choiceID: "Like",
+            extendedReferences: ["追加情報"]
+        ))
+
+        let script = GhostManager.choiceSelectionDispatch(
+            title: "閉じる",
+            action: .script("\\e")
+        )
+        #expect(script == .script("\\e"))
     }
 
     @Test
@@ -2179,6 +2271,29 @@ struct SakuraScriptEngineTests {
     }
 
     @Test
+    func animStopSpecificCommand() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![anim,stop,200]")
+        #expect(tokens.count == 1)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["anim", "stop", "200"])
+        }
+    }
+
+    @Test
+    func wallpaperSaveAndRestoreCommands() async throws {
+        let engine = SakuraScriptEngine()
+        let tokens = engine.parse(script: "\\![save,wallpaper]\\![restore,wallpaper]")
+        #expect(tokens.count == 2)
+        if case .command(_, let args) = tokens[0] {
+            #expect(args == ["save", "wallpaper"])
+        }
+        if case .command(_, let args) = tokens[1] {
+            #expect(args == ["restore", "wallpaper"])
+        }
+    }
+
+    @Test
     func animAddTextCommand() async throws {
         let engine = SakuraScriptEngine()
         let tokens = engine.parse(script: "\\![anim,add,text,100,200,500,50,Hello,1000,255,0,0,20,Arial]")
@@ -2186,6 +2301,39 @@ struct SakuraScriptEngineTests {
         if case .command(let name, let args) = tokens[0] {
             #expect(args == ["anim", "add", "text", "100", "200", "500", "50", "Hello", "1000", "255", "0", "0", "20", "Arial"])
         }
+    }
+
+    @Test
+    func animAddTextShortFormUsesOptionalDefaults() throws {
+        let parameters = try #require(AnimAddTextParameters.parse([
+            "anim", "add", "text", "100", "200", "500", "50", "Hello"
+        ]))
+
+        #expect(parameters.x == 100)
+        #expect(parameters.y == 200)
+        #expect(parameters.width == 500)
+        #expect(parameters.height == 50)
+        #expect(parameters.text == "Hello")
+        #expect(parameters.time == 1000)
+        #expect(parameters.red == 0)
+        #expect(parameters.green == 0)
+        #expect(parameters.blue == 0)
+        #expect(parameters.size == 12)
+        #expect(parameters.font == "sans-serif")
+    }
+
+    @Test
+    func animAddTextPartialOptionalFormDoesNotReadPastArguments() throws {
+        let parameters = try #require(AnimAddTextParameters.parse([
+            "anim", "add", "text", "1", "2", "30", "40", "Hi", "250"
+        ]))
+
+        #expect(parameters.time == 250)
+        #expect(parameters.red == 0)
+        #expect(parameters.green == 0)
+        #expect(parameters.blue == 0)
+        #expect(parameters.size == 12)
+        #expect(parameters.font == "sans-serif")
     }
 
     @Test

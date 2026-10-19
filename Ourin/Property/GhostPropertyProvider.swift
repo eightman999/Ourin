@@ -84,12 +84,15 @@ final class GhostPropertyProvider: PropertyProvider {
 
     private let mode: Mode
     private let ghosts: [Ghost]
-    private let activeIndices: [Int]
+    private var activeIndices: [Int]
     private var shells: [Shell]
     private var currentShellIndex: Int
 
     // Scope-related runtime data (for currentghost mode)
     private var scopeData: [Int: ScopeData]
+    /// 実行中 GhostManager の scope プロパティ。nil の場合は scopeData の静的値へフォールバックする。
+    private var liveScopePropertyProvider: ((Int, String) -> String?)?
+    private var liveScopePropertySetter: ((Int, String, String) -> Bool)?
     private var mouseCursor: [String: String]
     private var balloonMouseCursor: [String: String]
     // SERIKO カーソルは scope → リスト種別(mouseup/down/hover/wheel) → 名前 → パス
@@ -112,11 +115,27 @@ final class GhostPropertyProvider: PropertyProvider {
         var rect: String  // "left,top,right,bottom"
         var name: String
         var defaultSurface: Int
+        var animationNum: String? = nil
+        var scaling: String? = nil
+    }
+
+    /// 稼働中ゴーストのルートを active にする（一覧に無ければ何もしない）。
+    /// 起動時は「インストール済みの先頭」を仮の active にしているため、実際に起動したゴーストで置き換える。
+    /// - Returns: 一覧に見つかって更新したか
+    @discardableResult
+    func setActiveGhost(path: String) -> Bool {
+        let normalize = { (p: String) in URL(fileURLWithPath: p).standardizedFileURL.resolvingSymlinksInPath().path }
+        let target = normalize(path)
+        guard let index = ghosts.firstIndex(where: { normalize($0.path) == target }) else { return false }
+        activeIndices = [index]
+        return true
     }
 
     init(mode: Mode, ghosts: [Ghost], activeIndices: [Int],
          shells: [Shell] = [], currentShellIndex: Int = 0,
          scopeData: [Int: ScopeData] = [:],
+         scopePropertyProvider: ((Int, String) -> String?)? = nil,
+         scopePropertySetter: ((Int, String, String) -> Bool)? = nil,
          mouseCursor: [String: String] = [:],
          balloonMouseCursor: [String: String] = [:],
          serikoCursor: [Int: [String: [String: String]]] = [:],
@@ -129,12 +148,25 @@ final class GhostPropertyProvider: PropertyProvider {
         self.shells = shells
         self.currentShellIndex = currentShellIndex
         self.scopeData = scopeData
+        self.liveScopePropertyProvider = scopePropertyProvider
+        self.liveScopePropertySetter = scopePropertySetter
         self.mouseCursor = mouseCursor
         self.balloonMouseCursor = balloonMouseCursor
         self.serikoCursor = serikoCursor
         self.serikoTooltips = serikoTooltips
         self.serikoSurfaceListAll = serikoSurfaceListAll
         self.serikoSurfaceListDefined = serikoSurfaceListDefined
+    }
+
+    /// 実行中の GhostManager と scope プロパティを接続する。
+    /// 既存のカーソル・ツールチップ等の runtime 状態を保持したまま更新するため、
+    /// PropertyManager がプロバイダを再生成する必要はない。
+    func setScopePropertyProvider(
+        get: @escaping (Int, String) -> String?,
+        set: @escaping (Int, String, String) -> Bool
+    ) {
+        liveScopePropertyProvider = get
+        liveScopePropertySetter = set
     }
 
     func get(key: String) -> String? {
@@ -150,6 +182,11 @@ final class GhostPropertyProvider: PropertyProvider {
 
     func set(key: String, value: String) -> Bool {
         guard mode == .currentghost else { return false }
+
+        if let (scopeID, property) = parseScopeAccess(key: key),
+           let liveScopePropertySetter {
+            return liveScopePropertySetter(scopeID, property, value)
+        }
 
         // Handle currentghost.shelllist(name).menu
         if key.hasPrefix("shelllist(") {
@@ -366,6 +403,10 @@ final class GhostPropertyProvider: PropertyProvider {
         // scope(n).property
         if key.hasPrefix("scope(") {
             if let (scopeId, prop) = parseScopeAccess(key: key) {
+                if let liveScopePropertyProvider,
+                   let value = liveScopePropertyProvider(scopeId, prop) {
+                    return value
+                }
                 guard let data = scopeData[scopeId] else { return nil }
                 return getScopeProperty(data, prop: prop)
             }
@@ -382,7 +423,7 @@ final class GhostPropertyProvider: PropertyProvider {
         switch prop {
         case "name":
             return ghost.name
-        case "sakuraname":
+        case "sakuraname", "selfname":
             return ghost.sakuraname
         case "keroname":
             return ghost.keroname
@@ -452,6 +493,10 @@ final class GhostPropertyProvider: PropertyProvider {
             return scope.rect
         case "name":
             return scope.name
+        case "animation.num":
+            return scope.animationNum
+        case "scaling":
+            return scope.scaling
         default:
             return nil
         }

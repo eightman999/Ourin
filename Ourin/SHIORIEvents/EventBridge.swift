@@ -30,14 +30,31 @@ struct ShioriSecurityContext: Equatable {
 
 final class EventBridge {
     static let shared = EventBridge()
-    private init() {}
+    private let calendarScheduleEmitter: CalendarScheduleEmitter
+
+    private init() {
+        let emitter = CalendarScheduleEmitter()
+        calendarScheduleEmitter = emitter
+        emitter.setHandler { [weak self] event in
+            guard let self else { return }
+            if Thread.isMainThread {
+                self.broadcast(event: event)
+            } else {
+                DispatchQueue.main.async { [weak self] in
+                    self?.broadcast(event: event)
+                }
+            }
+        }
+    }
 
     private var started = false
     private var autoEventsEnabled = false
+    /// Observer callback の世代。stop→start の間に main queue へ残った古いイベントを破棄する。
+    private var observerGeneration: UInt64 = 0
 
     // Queue for NOTIFY events that occur when autoEvents are disabled
     private enum QueuedNotify {
-        case standard(id: EventID, params: [String: String], security: ShioriSecurityContext)
+        case standard(id: EventID, params: [String: String], ignoreResponseScript: Bool, security: ShioriSecurityContext)
         case custom(eventName: String, params: [String: String], ignoreResponseScript: Bool, security: ShioriSecurityContext)
     }
     private var pendingNotifies: [QueuedNotify] = []
@@ -72,12 +89,17 @@ final class EventBridge {
         }
         started = true
         autoEventsEnabled = enableAutoEvents
-        let forward: (ShioriEvent) -> Void = { [weak self] ev in self?.broadcastNotify(id: ev.id, params: ev.params) }
+        observerGeneration &+= 1
+        let generation = observerGeneration
+        let forward: (ShioriEvent) -> Void = { [weak self] ev in
+            self?.dispatchObserverEvent(ev, generation: generation)
+        }
 
         // All system events are now optional - only enable if explicitly requested
         // This allows ghosts to work purely with script-triggered events (\![raise,...])
         if enableAutoEvents {
             TimerEmitter.shared.start(forward)
+            configureGhostClickHandler()
             InputMonitor.shared.start(handler: forward)
             SystemLoadObserver.shared.start(forward)
             SleepObserver.shared.start(forward)
@@ -91,6 +113,9 @@ final class EventBridge {
             GamepadObserver.shared.start(forward)
             DeviceObserver.shared.start(forward)
             SpeechObserver.shared.start(forward)
+            OSUpdateObserver.shared.start(forward)
+            RecycleBinObserver.shared.start(forward)
+            calendarScheduleEmitter.start()
 
             // Flush any queued NOTIFY events that occurred while auto events were disabled
             flushPendingNotifies()
@@ -100,8 +125,10 @@ final class EventBridge {
 
     /// すべてのオブザーバを停止する
     func stop() {
+        observerGeneration &+= 1
         TimerEmitter.shared.stop()
         SleepObserver.shared.stop()
+        InputMonitor.shared.ghostClickHandler = nil
         InputMonitor.shared.stop()
         DisplayObserver.shared.stop()
         SpaceObserver.shared.stop()
@@ -114,8 +141,17 @@ final class EventBridge {
         GamepadObserver.shared.stop()
         DeviceObserver.shared.stop()
         SpeechObserver.shared.stop()
+        OSUpdateObserver.shared.stop()
+        RecycleBinObserver.shared.stop()
+        calendarScheduleEmitter.stop()
         started = false
         autoEventsEnabled = false
+        // 停止はイベントライフサイクルの境界。停止前に observer が積んだ通知を
+        // 次の起動へ持ち越すと、旧セッションの状態を新しい起動へ誤配送する。
+        pendingNotifies.removeAll()
+        // 他ゴーストの状態も次の起動で現在値から再確立する。
+        lastOtherOffscreenRef0 = nil
+        lastOtherOverlapRef0 = nil
         // OnClose は GhostManager.beginCloseSequence が GET で送出し応答スクリプトを再生する
         // （ここで送ると二重送信になるため送らない）
     }
@@ -127,11 +163,16 @@ final class EventBridge {
         guard enabled != autoEventsEnabled else { return }
 
         autoEventsEnabled = enabled
-        let forward: (ShioriEvent) -> Void = { [weak self] ev in self?.broadcastNotify(id: ev.id, params: ev.params) }
+        observerGeneration &+= 1
+        let generation = observerGeneration
+        let forward: (ShioriEvent) -> Void = { [weak self] ev in
+            self?.dispatchObserverEvent(ev, generation: generation)
+        }
 
         if enabled {
             // Start all system observers
             TimerEmitter.shared.start(forward)
+            configureGhostClickHandler()
             InputMonitor.shared.start(handler: forward)
             SystemLoadObserver.shared.start(forward)
             SleepObserver.shared.start(forward)
@@ -145,6 +186,9 @@ final class EventBridge {
             GamepadObserver.shared.start(forward)
             DeviceObserver.shared.start(forward)
             SpeechObserver.shared.start(forward)
+            OSUpdateObserver.shared.start(forward)
+            RecycleBinObserver.shared.start(forward)
+            calendarScheduleEmitter.start()
 
             // Flush any queued NOTIFY events
             flushPendingNotifies()
@@ -152,6 +196,7 @@ final class EventBridge {
             // Stop all system observers
             TimerEmitter.shared.stop()
             SleepObserver.shared.stop()
+            InputMonitor.shared.ghostClickHandler = nil
             InputMonitor.shared.stop()
             DisplayObserver.shared.stop()
             SpaceObserver.shared.stop()
@@ -164,7 +209,67 @@ final class EventBridge {
             GamepadObserver.shared.stop()
             DeviceObserver.shared.stop()
             SpeechObserver.shared.stop()
+            OSUpdateObserver.shared.stop()
+            RecycleBinObserver.shared.stop()
+            calendarScheduleEmitter.stop()
         }
+    }
+
+    /// カレンダーの保存済み予定を再読込し、センスイベントを発火する。
+    @discardableResult
+    func refreshCalendarSchedules(sensorName: String = CalendarScheduleEmitter.builtinSensorName) -> CalendarScheduleRefreshResult {
+        calendarScheduleEmitter.refresh(sensorName: sensorName)
+    }
+
+    /// SCHEDULE/1.0 のセンサー応答を保存してカレンダーへ反映する。
+    @discardableResult
+    func importCalendarScheduleData(_ data: Data, sensorName: String) -> CalendarScheduleRefreshResult {
+        calendarScheduleEmitter.importSensorData(data, sensorName: sensorName)
+    }
+
+    /// 指定予定を読み上げ、OnScheduleRead を全ゴーストへ送る。
+    @discardableResult
+    func readCalendarSchedule(id: UUID) -> Bool {
+        calendarScheduleEmitter.read(id: id)
+    }
+
+    /// SSP `SPCalendarCell::PlayTodaysEvent` 互換の当日イベント再生。
+    /// 起動中の各ゴーストへ `#todays event header` 辞書エントリ（取得できれば）付きで
+    /// `\b[2]M/D` + 当日予定一覧のスクリプトを直接再生する。
+    @discardableResult
+    func playTodaysEvent(date: Date = Date(), calendar: Calendar = .current) -> Bool {
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        guard let month = components.month, let day = components.day else { return false }
+        let schedules = calendarScheduleEmitter.schedules(on: date, calendar: calendar)
+        var played = false
+
+        for (_, session) in sessions {
+            guard let manager = session.ghostManager else { continue }
+            let header = session.dispatcher.fetchDictionaryEntry("#todays event header")
+            let script = CalendarScheduleEmitter.buildTodaysEventScript(
+                month: month,
+                day: day,
+                schedules: schedules,
+                header: header
+            )
+            if Thread.isMainThread {
+                manager.runScript(script, translationContext: .baseware)
+            } else {
+                DispatchQueue.main.sync {
+                    manager.runScript(script, translationContext: .baseware)
+                }
+            }
+            played = true
+        }
+        return played
+    }
+
+    func beginCalendarSchedulePost(sensorName: String) {
+        calendarScheduleEmitter.beginPost(sensorName: sensorName)
+    }
+
+    func completeCalendarSchedulePost(sensorName: String) {
+        calendarScheduleEmitter.completePost(sensorName: sensorName)
     }
 
     /// Flush all pending NOTIFY events that were queued while auto events were disabled
@@ -174,8 +279,8 @@ final class EventBridge {
         Log.debug("[EventBridge] Flushing \(pendingNotifies.count) queued NOTIFY events")
         for queued in pendingNotifies {
             switch queued {
-            case .standard(let id, let params, let security):
-                broadcastNotifyImmediate(id: id, params: params, security: security)
+            case .standard(let id, let params, let ignoreResponseScript, let security):
+                broadcastNotifyImmediate(id: id, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
             case .custom(let eventName, let params, let ignoreResponseScript, let security):
                 broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
             }
@@ -201,17 +306,259 @@ final class EventBridge {
         sessions.removeValue(forKey: token)
     }
 
+    /// 登録済みゴーストのいずれかがスクリプト再生中かを照会する。
+    ///
+    /// `sessions` と `GhostManager.isPlaying` はメインスレッドで扱われるため、
+    /// 非メインスレッド（SSTP受信経路等）からの照会はメインスレッドへ委譲して安全に読む。
+    /// メインスレッド上から呼ばれた場合は直接参照し、`DispatchQueue.main.sync` による
+    /// デッドロックを避ける。
+    func isAnyGhostPlaying() -> Bool {
+        let query: () -> Bool = {
+            self.sessions.values.contains { $0.ghostManager?.isPlaying == true }
+        }
+        if Thread.isMainThread {
+            return query()
+        }
+        return DispatchQueue.main.sync(execute: query)
+    }
+
     /// Public helper to send a NOTIFY event by ID
     /// - Parameter security: 発生源のセキュリティ文脈（既定: 内部システム = local）
     func notify(_ id: EventID, params: [String:String] = [:], security: ShioriSecurityContext = .local) {
-        broadcastNotify(id: id, params: params, security: security)
+        // 明示的なAPI呼び出し（スクリプト、メディア、初期化等）は
+        // 自動システムイベントの開始状態に依存させない。キューに入れるのは
+        // observer の forward が呼ぶ private broadcastNotify() だけにする。
+        performOnMain {
+            self.broadcastNotifyImmediate(id: id, params: params, security: security)
+        }
     }
 
     /// 表駆動発火（推奨）: 意味ラベル辞書でイベントを送出する。
     /// 例: `notify(.OnMouseClick, refs: ["x": px, "y": py, "button": btn])`。
     /// ラベル → `ReferenceN` 変換は `EventReferenceTable`（SHIORIEvents/EventReferenceSpec.swift）が担う。
     func notify(_ id: EventID, refs: [String:String], security: ShioriSecurityContext = .local) {
-        broadcastNotify(id: id, params: EventReferenceTable.params(forEvent: id.rawValue, refs: refs), security: security)
+        let params = EventReferenceTable.params(forEvent: id.rawValue, refs: refs)
+        performOnMain {
+            self.broadcastNotifyImmediate(id: id, params: params, security: security)
+        }
+    }
+
+    /// 他ゴーストのサーフェス変更を、監視を有効にしたセッションだけへ GET で送る。
+    ///
+    /// `OnOtherSurfaceChange` は全体ブロードキャストではなく、変更元を除外して
+    /// 受信側の `\![set,othersurfacechange,true]` の状態を判定する必要があるため、
+    /// 通常の `notify` とは別に送信元付きの経路を持つ。
+    func notifyOtherSurfaceChange(
+        from source: GhostManager,
+        scope: Int,
+        newSurfaceID: Int,
+        oldSurfaceID: Int,
+        newSurfaceSize: CGSize,
+        security: ShioriSecurityContext = .local
+    ) {
+        let send = {
+            let sourceGhostName = source.ghostConfig?.name ?? source.ghostURL.lastPathComponent
+            let sourceSakuraName = source.ghostConfig?.sakuraName ?? sourceGhostName
+            let width = max(0, Int(newSurfaceSize.width.rounded()))
+            let height = max(0, Int(newSurfaceSize.height.rounded()))
+            let params = EventReferenceTable.params(
+                forEvent: EventID.OnOtherSurfaceChange.rawValue,
+                refs: [
+                    "ghostName": sourceGhostName,
+                    "sakuraName": sourceSakuraName,
+                    "scopeID": String(scope),
+                    "newSurfaceID": String(newSurfaceID),
+                    "oldSurfaceID": String(oldSurfaceID),
+                    "newSurfaceSize": "0,0,\(width),\(height)"
+                ]
+            )
+
+            for session in self.sessions.values {
+                guard let target = session.ghostManager,
+                      target !== source,
+                      target.observesOtherSurfaceChange else { continue }
+
+                let script = session.dispatcher.sendGet(
+                    id: .OnOtherSurfaceChange,
+                    params: params,
+                    security: security
+                )
+                let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { continue }
+                let context = Self.translationContext(
+                    eventID: EventID.OnOtherSurfaceChange.rawValue,
+                    params: params
+                )
+                DispatchQueue.main.async {
+                    target.runScript(trimmed, translationContext: context)
+                }
+            }
+        }
+
+        if Thread.isMainThread {
+            send()
+        } else {
+            DispatchQueue.main.sync(execute: send)
+        }
+    }
+
+    /// Observer/UI由来のイベントを、イベント自身が指定した配送方式で送る。
+    /// D&Dのように EventBridge 外で生成されるイベントも、GET/NOTIFY の仕様を失わないよう
+    /// この入口を使う。
+    func dispatch(_ event: ShioriEvent) {
+        performOnMain {
+            self.broadcast(event: event)
+        }
+    }
+
+    /// スクリプトの `\\![raise,...]` 用に、標準イベント名を GET で実行する。
+    /// `notify` はシステム由来の NOTIFY を表すため、raise をそこへ流すと
+    /// SHIORI の返答スクリプトが再生されない。raise はイベントの結果を会話へ
+    /// 反映する仕様なので、明示的に GET 経路を公開する。
+    @discardableResult
+    func request(_ id: EventID, params: [String:String] = [:], security: ShioriSecurityContext = .local) -> Bool {
+        let send = {
+            var producedScript = false
+            for (_, session) in self.sessions {
+                let script = session.dispatcher.sendGet(id: id, params: params, security: security)
+                let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { continue }
+                producedScript = true
+                let context = Self.translationContext(eventID: id.rawValue, params: params)
+                let manager = session.ghostManager
+                DispatchQueue.main.async {
+                    manager?.runScript(trimmed, translationContext: context)
+                }
+            }
+            return producedScript
+        }
+        if Thread.isMainThread {
+            return send()
+        }
+        return DispatchQueue.main.sync(execute: send)
+    }
+
+    @discardableResult
+    func request(_ id: EventID,
+                 params: [String:String] = [:],
+                 to target: GhostManager,
+                 security: ShioriSecurityContext = .local) -> Bool {
+        requestScript(id, params: params, to: target, security: security) != nil
+    }
+
+    /// 指定ゴーストへの GET の応答スクリプトを返しつつ再生する。
+    /// 切替イベントの Reference1 のように、後続イベントへ応答本文を引き渡す必要がある
+    /// ライフサイクル処理で使用する。`playResponse` を false にすると、応答本文を
+    /// 後続イベントへ渡すだけで、対象ゴーストの現在の再生を中断しない。
+    @discardableResult
+    func requestScript(_ id: EventID,
+                       params: [String:String] = [:],
+                       to target: GhostManager,
+                       playResponse: Bool = true,
+                       security: ShioriSecurityContext = .local) -> String? {
+        let send: () -> String? = {
+            guard let session = self.session(for: target) else { return nil }
+            let script = session.dispatcher.sendGet(id: id, params: params, security: security)
+            let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return nil }
+            if playResponse {
+                target.runScript(trimmed, translationContext: Self.translationContext(eventID: id.rawValue, params: params))
+            }
+            return trimmed
+        }
+        if Thread.isMainThread {
+            return send()
+        }
+        return DispatchQueue.main.sync { send() }
+    }
+
+    /// 表駆動発火の指定ゴースト向けGET。
+    @discardableResult
+    func request(_ id: EventID,
+                 refs: [String:String],
+                 to target: GhostManager,
+                 security: ShioriSecurityContext = .local) -> Bool {
+        request(id,
+                params: EventReferenceTable.params(forEvent: id.rawValue, refs: refs),
+                to: target,
+                security: security)
+    }
+
+    /// 指定したゴーストを除外して GET をブロードキャストする。
+    ///
+    /// `OnOtherGhostBooted` / `OnOtherGhostChanged` のように、発生源と対象自身には
+    /// 送らず、無関係な起動中ゴーストだけへ通知するイベントで使用する。
+    @discardableResult
+    func request(_ id: EventID,
+                 params: [String:String] = [:],
+                 excluding excludedGhosts: [GhostManager],
+                 security: ShioriSecurityContext = .local) -> Bool {
+        let excludedIDs = Set(excludedGhosts.map(ObjectIdentifier.init))
+        let send = {
+            var producedScript = false
+            for (_, session) in self.sessions {
+                guard let manager = session.ghostManager,
+                      !excludedIDs.contains(ObjectIdentifier(manager)) else { continue }
+                let script = session.dispatcher.sendGet(id: id, params: params, security: security)
+                let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { continue }
+                producedScript = true
+                let context = Self.translationContext(eventID: id.rawValue, params: params)
+                if Thread.isMainThread {
+                    manager.runScript(trimmed, translationContext: context)
+                } else {
+                    DispatchQueue.main.sync {
+                        manager.runScript(trimmed, translationContext: context)
+                    }
+                }
+            }
+            return producedScript
+        }
+        if Thread.isMainThread {
+            return send()
+        }
+        return DispatchQueue.main.sync(execute: send)
+    }
+
+    func notify(_ id: EventID,
+                params: [String:String] = [:],
+                to target: GhostManager,
+                ignoreResponseScript: Bool = false,
+                security: ShioriSecurityContext = .local) {
+        let send = {
+            guard let session = self.session(for: target) else { return }
+            session.dispatcher.sendNotify(id: id,
+                                          params: params,
+                                          ignoreResponseScript: ignoreResponseScript,
+                                          security: security)
+        }
+        if Thread.isMainThread {
+            send()
+        } else {
+            DispatchQueue.main.sync(execute: send)
+        }
+    }
+
+    /// 表駆動発火の指定ゴースト向けNOTIFY。
+    @discardableResult
+    func notify(_ id: EventID,
+                refs: [String:String],
+                to target: GhostManager,
+                ignoreResponseScript: Bool = false,
+                security: ShioriSecurityContext = .local) -> Bool {
+        let params = EventReferenceTable.params(forEvent: id.rawValue, refs: refs)
+        let send = {
+            guard let session = self.session(for: target) else { return false }
+            session.dispatcher.sendNotify(id: id,
+                                          params: params,
+                                          ignoreResponseScript: ignoreResponseScript,
+                                          security: security)
+            return true
+        }
+        if Thread.isMainThread {
+            return send()
+        }
+        return DispatchQueue.main.sync(execute: send)
     }
 
     /// 外部SSTP（SEND の Script ヘッダ等）から、登録済みゴーストのバルーンでスクリプトを再生する。
@@ -231,8 +578,9 @@ final class EventBridge {
     }
 
     /// ゴースト毎に異なるスクリプトを再生する（SSTP の IfGhost 振り分け用）。
-    /// resolve はセッションのゴースト名（descript.txt の name、不明時 nil）を受け取り
-    /// 再生するスクリプトを返す。nil または空を返したセッションでは再生しない。
+    /// resolve は対象セッションの GhostManager を受け取り、再生するスクリプトを返す。
+    /// nil または空を返したセッションでは再生しない。GhostManager を渡すことで、
+    /// descript.txt の name だけでなく sakura.name / kero.name も判定に利用できる。
     /// - Parameter notify: true の場合は `runScript` ではなく `runNotifyScript` を使う。
     ///   NOTIFY 由来のスクリプト（ValueNotify）は可視テキストを含まないとき現バルーンを保持する。
     @discardableResult
@@ -240,17 +588,19 @@ final class EventBridge {
         ghostName: String? = nil,
         notify: Bool = false,
         translationContext: ScriptTranslationContext = .baseware,
-        resolve: @escaping (String?) -> String?
+        resolve: @escaping (GhostManager) -> String?
     ) -> Bool {
         var targets = sessions.values.compactMap { $0.ghostManager }
         if let name = ghostName?.lowercased(), !name.isEmpty {
             targets = targets.filter {
-                ($0.ghostConfig?.name.lowercased() == name) || ($0.ghostURL.lastPathComponent.lowercased() == name)
+                ($0.ghostConfig?.name.lowercased() == name)
+                    || ($0.ghostConfig?.sakuraName.lowercased() == name)
+                    || ($0.ghostURL.lastPathComponent.lowercased() == name)
             }
         }
         var jobs: [(GhostManager, String)] = []
         for gm in targets {
-            let resolved = resolve(gm.ghostConfig?.name)?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let resolved = resolve(gm)?.trimmingCharacters(in: .whitespacesAndNewlines)
             if let script = resolved, !script.isEmpty {
                 jobs.append((gm, script))
             }
@@ -274,11 +624,11 @@ final class EventBridge {
         ghostName: String? = nil,
         notify: Bool = false,
         translationContext: ScriptTranslationContext = .baseware,
-        resolve: @escaping (String?) -> String?
+        resolve: @escaping (GhostManager) -> String?
     ) -> String? {
         let prepareAndPlay: () -> String? = {
             var targets = self.sessions.values.compactMap { $0.ghostManager }
-            if let appDelegate = NSApp.delegate as? AppDelegate {
+            if let appDelegate = AppDelegate.resolve() {
                 let order = Dictionary(uniqueKeysWithValues: appDelegate.allGhostManagers.enumerated().map {
                     (ObjectIdentifier($0.element), $0.offset)
                 })
@@ -296,7 +646,7 @@ final class EventBridge {
 
             var jobs: [(GhostManager, String)] = []
             for gm in targets {
-                guard let source = resolve(gm.ghostConfig?.name)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                guard let source = resolve(gm)?.trimmingCharacters(in: .whitespacesAndNewlines),
                       !source.isEmpty else { continue }
                 let translated = gm.translateForDisplay(source, context: translationContext)
                     .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -319,16 +669,192 @@ final class EventBridge {
         return DispatchQueue.main.sync(execute: prepareAndPlay)
     }
 
-    /// Public helper to send a NOTIFY event by custom name (for \![raise,...])
+    /// スクリプトの `\![notify,...]` など、カスタム名の NOTIFY を送る。
     /// - Parameter security: 発生源のセキュリティ文脈（既定: 内部 = local）
     func notifyCustom(_ eventName: String, params: [String:String] = [:], ignoreResponseScript: Bool = false, security: ShioriSecurityContext = .local) {
-        broadcastNotifyCustom(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
+        performOnMain {
+            self.broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
+        }
+    }
+
+    func notifyCustom(_ eventName: String,
+                      params: [String:String],
+                      to target: GhostManager,
+                      ignoreResponseScript: Bool = false,
+                      security: ShioriSecurityContext = .local) {
+        let send = {
+            guard let session = self.session(for: target) else { return }
+            session.dispatcher.sendNotifyCustom(
+                eventName: eventName,
+                params: params,
+                ignoreResponseScript: ignoreResponseScript,
+                security: security
+            )
+        }
+        if Thread.isMainThread {
+            send()
+        } else {
+            DispatchQueue.main.sync(execute: send)
+        }
+    }
+
+    /// 指定ゴースト以外へだけカスタム NOTIFY を配送する。
+    /// OnRecycleBinEmptyFromOther のような「実行元以外」イベントで使用する。
+    func notifyCustom(_ eventName: String,
+                      params: [String:String],
+                      excluding target: GhostManager,
+                      ignoreResponseScript: Bool = false,
+                      security: ShioriSecurityContext = .local) {
+        let send = {
+            for session in self.sessions.values where session.ghostManager !== target {
+                session.dispatcher.sendNotifyCustom(
+                    eventName: eventName,
+                    params: params,
+                    ignoreResponseScript: ignoreResponseScript,
+                    security: security
+                )
+            }
+        }
+        if Thread.isMainThread {
+            send()
+        } else {
+            DispatchQueue.main.sync(execute: send)
+        }
     }
 
     /// 表駆動発火（推奨）: 意味ラベル辞書でカスタム名イベント（EventID 列挙に無いもの）を送出する。
     /// 例: `notifyCustom("OnExecuteRSSFailure", refs: ["reason": msg, "url": u, "method": m])`。
     func notifyCustom(_ eventName: String, refs: [String:String], ignoreResponseScript: Bool = false, security: ShioriSecurityContext = .local) {
-        broadcastNotifyCustom(eventName: eventName, params: EventReferenceTable.params(forEvent: eventName, refs: refs), ignoreResponseScript: ignoreResponseScript, security: security)
+        let params = EventReferenceTable.params(forEvent: eventName, refs: refs)
+        performOnMain {
+            self.broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
+        }
+    }
+
+    /// 指定した起動中ゴーストへだけカスタム NOTIFY を送る。
+    /// インストールの accept/reroute のように、対象ゴースト以外へ配送してはいけないイベントで使う。
+    @discardableResult
+    func notifyCustom(_ eventName: String,
+                      refs: [String:String],
+                      to target: GhostManager,
+                      ignoreResponseScript: Bool = false,
+                      security: ShioriSecurityContext = .local) -> Bool {
+        let params = EventReferenceTable.params(forEvent: eventName, refs: refs)
+        let send = {
+            guard let session = self.session(for: target) else { return false }
+            session.dispatcher.sendNotifyCustom(eventName: eventName,
+                                                 params: params,
+                                                 ignoreResponseScript: ignoreResponseScript,
+                                                 security: security)
+            return true
+        }
+        if Thread.isMainThread {
+            return send()
+        }
+        return DispatchQueue.main.sync(execute: send)
+    }
+
+    /// `install.txt` の accept に対応する起動中ゴーストを返す。
+    /// descript.txt の name、ディレクトリ名、install.accept のいずれも対象名として扱う。
+    func runningGhost(named acceptedName: String, excluding: GhostManager? = nil) -> GhostManager? {
+        let normalized = acceptedName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !normalized.isEmpty else { return nil }
+        let find = {
+            self.sessions.values.compactMap(\.ghostManager).first { gm in
+                guard gm !== excluding else { return false }
+                var names = [
+                    gm.ghostConfig?.name ?? "",
+                    gm.ghostConfig?.sakuraName ?? "",
+                    gm.ghostURL.lastPathComponent
+                ]
+                names.append(contentsOf: gm.ghostConfig?.installAccept ?? [])
+                return names.contains { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == normalized }
+            }
+        }
+        if Thread.isMainThread {
+            return find()
+        }
+        return DispatchQueue.main.sync(execute: find)
+    }
+
+    /// FINE SetScript / SetScriptPartial 用のスクリプト入力ボックスを表示する。
+    /// アクティブ（優先）ゴーストを対象にし、確定内容は OnUserInput 経由で
+    /// eventID のイベントとしてゴーストへ通知する。
+    func showFineScriptInput(eventID: String, initialText: String) {
+        let gm = activeGhostManager() ?? sessions.values.compactMap(\.ghostManager).first
+        guard let gm else { return }
+        gm.showInputBoxDialog(id: eventID, timeoutMs: nil, initialText: initialText)
+    }
+
+    /// 現在 SSTP 経由で配送可能なゴースト名を返す。
+    ///
+    /// `__SYSTEM_ALL_GHOST__` は SSTP の ReceiverGhostName にそのまま渡せないため、
+    /// 送信前に個別の受信先へ展開する必要がある。実際に登録済みのセッションだけを
+    /// 対象にし、descript.txt の name（未設定時はゴーストディレクトリ名）を返す。
+    func runningGhostNames() -> [String] {
+        let collect = {
+            var names: [String] = []
+            var seen = Set<String>()
+            for ghostManager in self.sessions.values.compactMap(\.ghostManager) {
+                let configuredName = ghostManager.ghostConfig?.name
+                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                let fallbackName = ghostManager.ghostURL.lastPathComponent
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                let name = configuredName.isEmpty ? fallbackName : configuredName
+                guard !name.isEmpty else { continue }
+                let key = name.lowercased()
+                guard seen.insert(key).inserted else { continue }
+                names.append(name)
+            }
+            return names.sorted { lhs, rhs in
+                let left = lhs.lowercased()
+                let right = rhs.lowercased()
+                return left == right ? lhs < rhs : left < right
+            }
+        }
+        if Thread.isMainThread {
+            return collect()
+        }
+        return DispatchQueue.main.sync(execute: collect)
+    }
+
+    /// カスタム名イベントを GET として全セッションへ送出し、応答スクリプトを再生する。
+    ///
+    /// GET はシステム自動イベントの有効/無効にかかわらず即時配送する。
+    /// `OnDressupChanged` の最終差分や、ユーザー操作時の
+    /// `OnNotifyDressupInfo` のように、応答スクリプトが意味を持つイベントで使用する。
+    @discardableResult
+    func requestCustom(_ eventName: String, params: [String:String] = [:], security: ShioriSecurityContext = .local) -> Bool {
+        let send = { self.broadcastGetCustomImmediate(eventName: eventName, params: params, security: security) }
+        if Thread.isMainThread {
+            return send()
+        }
+        return DispatchQueue.main.sync(execute: send)
+    }
+
+    @discardableResult
+    func requestCustom(_ eventName: String,
+                       params: [String:String],
+                       to target: GhostManager,
+                       security: ShioriSecurityContext = .local) -> Bool {
+        let send = {
+            guard let session = self.session(for: target) else { return false }
+            let script = session.dispatcher.sendGetCustom(eventName: eventName, params: params, security: security)
+            let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return false }
+            target.runScript(trimmed, translationContext: Self.translationContext(eventID: eventName, params: params))
+            return true
+        }
+        if Thread.isMainThread {
+            return send()
+        }
+        return DispatchQueue.main.sync(execute: send)
+    }
+
+    /// 表駆動発火（推奨）: 意味ラベル辞書でカスタム名 GET を送出する。
+    @discardableResult
+    func requestCustom(_ eventName: String, refs: [String:String], security: ShioriSecurityContext = .local) -> Bool {
+        requestCustom(eventName, params: EventReferenceTable.params(forEvent: eventName, refs: refs), security: security)
     }
 
     /// PLUGIN/2.0 `Event` 応答をゴーストへ橋渡しする。
@@ -446,7 +972,7 @@ final class EventBridge {
     }
 
     private func activeGhostManager() -> GhostManager? {
-        if let app = NSApp.delegate as? AppDelegate, let gm = app.ghostManager {
+        if let app = AppDelegate.resolve(), let gm = app.ghostManager {
             return gm
         }
         return sessions.values.first?.ghostManager
@@ -456,16 +982,103 @@ final class EventBridge {
         sessions.values.first { $0.ghostManager === ghostManager }
     }
 
+    /// InputMonitor のダブルクリックを、発生元ウィンドウを所有するゴーストへ
+    /// ルーティングする。消滅選択中だけ GhostManager が true を返し、通常の
+    /// OnMouseClick/OnMouseDoubleClick は従来どおり InputMonitor から配送する。
+    private func configureGhostClickHandler() {
+        InputMonitor.shared.ghostClickHandler = { [weak self] window, params, clickStreak in
+            guard let self else { return false }
+            for session in self.sessions.values {
+                guard let manager = session.ghostManager,
+                      manager.ownsInputWindow(window) else { continue }
+                if manager.isBalloonInputWindow(window) {
+                    return manager.consumesVanishBalloonInputClick(button: params["Reference5"])
+                }
+                let fallbackScope = Int(params["Reference3"] ?? "") ?? 0
+                let scope = manager.inputScope(for: window, fallback: fallbackScope)
+                return manager.handleVanishInputClick(
+                    scope: scope,
+                    button: params["Reference5"],
+                    clickStreak: clickStreak
+                )
+            }
+            return false
+        }
+    }
+
+    /// Observer は Network/Speech/GameController 等から任意のキューで呼ばれる。
+    /// セッション辞書、GhostManager状態、SHIORIランタイムを同時に触るため、
+    /// observer由来のイベントは main queue に直列化する。
+    ///
+    /// 世代を捕捉してから非同期配送することで、stop→start の境界をまたいだ
+    /// 古いイベントが新しいゴーストセッションへ流れ込むことも防ぐ。
+    private func dispatchObserverEvent(_ event: ShioriEvent, generation: UInt64) {
+        let deliver = { [weak self] in
+            guard let self,
+                  self.started,
+                  self.autoEventsEnabled,
+                  self.observerGeneration == generation else { return }
+            self.broadcast(event: event)
+        }
+        if Thread.isMainThread {
+            deliver()
+        } else {
+            DispatchQueue.main.async(execute: deliver)
+        }
+    }
+
+    /// EventBridge の共有状態とSHIORI実行を main queue に統一する。
+    /// 既に main queue 上なら同期呼び出しを避け、通常のイベント順序を保つ。
+    private func performOnMain(_ action: @escaping () -> Void) {
+        if Thread.isMainThread {
+            action()
+        } else {
+            DispatchQueue.main.sync(execute: action)
+        }
+    }
+
     // Broadcast a NOTIFY to all registered sessions
     // If auto events are disabled, queue the event for later delivery
-    private func broadcastNotify(id: EventID, params: [String:String], security: ShioriSecurityContext = .local) {
+    private func broadcast(event: ShioriEvent) {
+        switch event.delivery {
+        case .get:
+            broadcastGetImmediate(id: event.id, params: event.params, security: event.security)
+        case .notify:
+            broadcastNotify(id: event.id,
+                            params: event.params,
+                            ignoreResponseScript: event.ignoreResponseScript,
+                            security: event.security)
+        }
+
+        // ロケール変更時は、既存の OnLocaleChange / OnLanguageChange に加えて
+        // 起動時 Notify と同じ国際化情報を再通知する。
+        if event.id == .OnLocaleChange {
+            broadcastNotifyImmediate(
+                id: .OnNotifyInternationalInfo,
+                params: SystemNotificationData.currentInternationalInfo().parameters,
+                ignoreResponseScript: true,
+                security: event.security
+            )
+        }
+    }
+
+    private func broadcastNotify(id: EventID,
+                                 params: [String:String],
+                                 ignoreResponseScript: Bool = false,
+                                 security: ShioriSecurityContext = .local) {
         if !autoEventsEnabled {
             // Queue this event for later when auto events are enabled
-            pendingNotifies.append(.standard(id: id, params: params, security: security))
+            pendingNotifies.append(.standard(id: id,
+                                              params: params,
+                                              ignoreResponseScript: ignoreResponseScript,
+                                              security: security))
             Log.debug("[EventBridge] Queued NOTIFY event: \(id.rawValue) (auto events disabled)")
             return
         }
-        broadcastNotifyImmediate(id: id, params: params, security: security)
+        broadcastNotifyImmediate(id: id,
+                                 params: params,
+                                 ignoreResponseScript: ignoreResponseScript,
+                                 security: security)
     }
 
     // Broadcast a custom NOTIFY to all registered sessions
@@ -518,7 +1131,10 @@ final class EventBridge {
     private var lastOtherOverlapRef0: String?
 
     // Immediately broadcast a NOTIFY to all registered sessions (bypassing queue)
-    private func broadcastNotifyImmediate(id: EventID, params: [String:String], security: ShioriSecurityContext = .local) {
+    private func broadcastNotifyImmediate(id: EventID,
+                                          params: [String:String],
+                                          ignoreResponseScript: Bool = false,
+                                          security: ShioriSecurityContext = .local) {
         // Save character names on OnNotifySelfInfo
         if id == .OnNotifySelfInfo {
             let sakuraName = params["Reference0"] ?? params["Reference1"] ?? ""
@@ -575,7 +1191,68 @@ final class EventBridge {
                 }
                 continue
             }
-            s.dispatcher.sendNotify(id: id, params: params, security: security)
+            s.dispatcher.sendNotify(id: id,
+                                    params: params,
+                                    ignoreResponseScript: ignoreResponseScript,
+                                    security: security)
+        }
+    }
+
+    /// GET イベントを全ゴーストへ送り、返された Sakura Script を各ゴーストで再生する。
+    /// 起動時 NOTIFY と更新時 GET の両方を持つイベントは、起動側からは
+    /// `ShioriEvent.delivery == .notify` を指定する。
+    private func broadcastGetImmediate(id: EventID,
+                                       params: [String:String],
+                                       security: ShioriSecurityContext = .local) {
+        if Self.timeSignalEvents.contains(id) {
+            broadcastTimeSignalImmediate(id: id, params: params, security: security)
+            return
+        }
+
+        for (_, s) in sessions {
+            // \t タイムクリティカルセクション中はマウス系イベントを抑止する（UKADOC）。
+            if Self.mouseEvents.contains(id), s.ghostManager?.timeCriticalActive == true {
+                continue
+            }
+            let script = s.dispatcher.sendGet(id: id, params: params, security: security)
+            let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { continue }
+            let gm = s.ghostManager
+            let context = Self.translationContext(eventID: id.rawValue, params: params)
+            DispatchQueue.main.async { gm?.runScript(trimmed, translationContext: context) }
+        }
+
+        if id == .OnSecondChange {
+            dispatchOverlapTransitions(security: security)
+        }
+    }
+
+    /// 時刻系イベントは、会話可能時だけ GET、会話不能時は NOTIFY とする。
+    private func broadcastTimeSignalImmediate(id: EventID,
+                                               params: [String:String],
+                                               security: ShioriSecurityContext) {
+        for (_, s) in sessions {
+            var p = params
+            let cantalk = s.ghostManager?.canPlayTalkNow() ?? false
+            p["Reference3"] = cantalk ? "1" : "0"
+            if let gm = s.ghostManager {
+                p["Reference1"] = gm.mikireScopes()
+                p["Reference2"] = gm.kasanariScopes()
+            }
+            if cantalk {
+                let script = s.dispatcher.sendGet(id: id, params: p, security: security)
+                let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    let gm = s.ghostManager
+                    let context = Self.translationContext(eventID: id.rawValue, params: p)
+                    DispatchQueue.main.async { gm?.runScript(trimmed, translationContext: context) }
+                }
+            } else {
+                s.dispatcher.sendNotify(id: id, params: p, ignoreResponseScript: true, security: security)
+            }
+        }
+        if id == .OnSecondChange {
+            dispatchOverlapTransitions(security: security)
         }
     }
 
@@ -668,20 +1345,55 @@ final class EventBridge {
     }
 }
 
+/// Observer が SHIORI に要求する wire method。
+/// UKADOC は `[NOTIFY]` の明記がないイベントを GET と定義しているため、
+/// Observer の既定値は GET とする。起動時だけ NOTIFY になるイベントは発火側で
+/// `.notify` を明示する。
+enum ShioriEventDelivery: Equatable {
+    case get
+    case notify
+}
+
 /// 個別の SHIORI イベントを表す構造体
 struct ShioriEvent {
     /// イベント識別子
     let id: EventID
     /// パラメータ辞書（ReferenceN に相当）
     let params: [String:String]
+    /// GET/NOTIFY の配送方式
+    let delivery: ShioriEventDelivery
+    /// NOTIFY 応答のスクリプトを再生しない場合に true
+    let ignoreResponseScript: Bool
+    /// 発生源のセキュリティ文脈
+    let security: ShioriSecurityContext
+
+    init(id: EventID,
+         params: [String:String],
+         delivery: ShioriEventDelivery = .get,
+         ignoreResponseScript: Bool = false,
+         security: ShioriSecurityContext = .local) {
+        self.id = id
+        self.params = params
+        self.delivery = delivery
+        self.ignoreResponseScript = ignoreResponseScript
+        self.security = security
+    }
 }
 
 extension ShioriEvent {
     /// 表駆動コンストラクタ（推奨）: 意味ラベル辞書から `params` を生成する。
     /// 例: `ShioriEvent(id: .OnMouseClick, refs: ["x": px, "y": py])`。
     /// ラベル → `ReferenceN` 変換は `EventReferenceTable` が担う。
-    init(id: EventID, refs: [String:String]) {
-        self.init(id: id, params: EventReferenceTable.params(forEvent: id.rawValue, refs: refs))
+    init(id: EventID,
+         refs: [String:String],
+         delivery: ShioriEventDelivery = .get,
+         ignoreResponseScript: Bool = false,
+         security: ShioriSecurityContext = .local) {
+        self.init(id: id,
+                  params: EventReferenceTable.params(forEvent: id.rawValue, refs: refs),
+                  delivery: delivery,
+                  ignoreResponseScript: ignoreResponseScript,
+                  security: security)
     }
 }
 
@@ -696,6 +1408,26 @@ final class ShioriDispatcher {
 
     /// 既存コードとの互換用。新規コードは useRuntime(_:) を使う。
     func useYaya(_ adapter: YayaAdapter?) { self.shioriRuntime = adapter }
+
+    /// ゴースト辞書エントリの生スクリプトを GET で取得する（SSP `SPGhost::GetScript` 互換）。
+    /// 取得できない場合・空の場合は nil を返す。
+    func fetchDictionaryEntry(_ entryName: String) -> String? {
+        let headers = ["Charset": "UTF-8", "Sender": "Ourin", "SecurityLevel": "local"]
+        let response: YayaResponse?
+        if let runtime = shioriRuntime {
+            response = runtime.request(method: "GET", id: entryName, headers: headers, refs: [], timeout: 2.0)
+        } else {
+            let text = BridgeToSHIORI.handle(event: entryName, references: [], headers: headers)
+            response = text.isEmpty ? nil : YayaResponse(
+                ok: true, status: 200, headers: ["Charset": "UTF-8"],
+                value: text, error: nil, loaded_dics: nil
+            )
+        }
+        guard let response, response.ok, response.status == 200,
+              let value = response.value else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
     /// イベント ID とパラメータからリクエスト文字列を組み立てる
     private func buildRequest(method: String, id: String, params: [String:String]) -> String {
         var lines = [

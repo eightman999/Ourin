@@ -12,6 +12,11 @@ final class InputMonitor {
     /// Called when a right-click (non-gesture) is detected on a ghost character window.
     /// The parameter is the screen-space click location.
     var rightClickMenuHandler: ((NSPoint) -> Void)?
+    /// Called before normal click events are delivered for a ghost/balloon window.
+    /// Returning true consumes the click (used by a lifecycle gesture such as
+    /// OnVanishButtonHold). The window is included so multi-ghost sessions can
+    /// route the gesture to the owning GhostManager instead of the primary one.
+    var ghostClickHandler: ((NSWindow, [String: String], Int) -> Bool)?
 
     // Track mouse down events to detect clicks
     private var mouseDownLocation: CGPoint?
@@ -28,6 +33,14 @@ final class InputMonitor {
     private var isPointerInsideGhostArea = false
     private var hoverTimer: Timer?
     private var hoverParams: [String: String] = [:]
+    private var keyPressCounts: [UInt16: Int] = [:]
+
+    // \\![enter,selectrect] / \\![enter,selectmode,rect] state.
+    private(set) var selectionModeActive = false
+    private var selectionModeScope = 0
+    private var selectionModeName = "rect"
+    private var selectionStart: NSPoint?
+    private var currentSelectionRect: CGRect?
 
     /// 監視を開始し、イベント発生時にハンドラへ通知する
     func start(handler: @escaping (ShioriEvent)->Void) {
@@ -35,6 +48,13 @@ final class InputMonitor {
         local = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged, .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp, .mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged, .scrollWheel]) { [weak self] ev in
             guard let self = self else { return ev }
             self.updatePointerRegion(for: ev)
+
+            // Selection mode owns mouse gestures while it is active. The event is
+            // still returned to AppKit so normal window tracking remains intact,
+            // but ordinary click/drag SHIORI events are not synthesized twice.
+            if self.selectionModeActive, self.handleSelectionModeEvent(ev) {
+                return ev
+            }
 
             // マウスダウン・アップイベントの場合、ゴースト/バルーンウィンドウかどうかを判定する
             if ev.type == .leftMouseDown || ev.type == .rightMouseDown || ev.type == .otherMouseDown ||
@@ -147,6 +167,43 @@ final class InputMonitor {
         isPointerInsideGhostArea = false
         SerikoCursorController.shared.reset()
         SerikoTooltipController.shared.hide()
+        keyPressCounts.removeAll()
+        selectionModeActive = false
+        selectionStart = nil
+        currentSelectionRect = nil
+        handler = nil
+    }
+
+    func beginSelectionMode(scope: Int, mode: String = "rect") {
+        selectionModeActive = true
+        selectionModeScope = scope
+        selectionModeName = mode.isEmpty ? "rect" : mode
+        selectionStart = nil
+        currentSelectionRect = nil
+    }
+
+    @discardableResult
+    func endSelectionMode() -> CGRect? {
+        let result = currentSelectionRect
+        selectionModeActive = false
+        selectionStart = nil
+        currentSelectionRect = nil
+        return result
+    }
+
+    /// 意味ラベルで組み立てたイベントをハンドラへ配送する。
+    ///
+    /// `additionalParams` は `modifiers` のような Reference ではない補助ヘッダ、
+    /// または既存互換用の値だけに限定する。位置引数の割り当ては
+    /// `EventReferenceTable` に任せ、入力監視側で ReferenceN を再定義しない。
+    private func emitEvent(
+        _ id: EventID,
+        refs: [String: String],
+        additionalParams: [String: String] = [:]
+    ) {
+        var params = EventReferenceTable.params(forEvent: id.rawValue, refs: refs)
+        params.merge(additionalParams, uniquingKeysWith: { _, new in new })
+        handler?(ShioriEvent(id: id, params: params))
     }
 
     /// NSEvent を SHIORI イベントへ変換してハンドラに渡す
@@ -165,12 +222,17 @@ final class InputMonitor {
 
         // SHIORI へ渡すパラメータを構築（UKADOC: ReferenceN 形式）
         var params: [String:String]
+        var references: [String:String]
         if ev.type == .keyDown || ev.type == .keyUp {
             // OnKeyDown/OnKeyUp: Reference0=キー識別子
             params = [
                 "Reference0": ev.characters ?? "",
                 "Reference1": String(ev.keyCode),
                 "modifiers": modifierString(for: ev)
+            ]
+            references = [
+                "characters": ev.characters ?? "",
+                "keyCode": String(ev.keyCode)
             ]
         } else {
             let includeButton = ev.type != .mouseMoved && ev.type != .scrollWheel
@@ -179,16 +241,42 @@ final class InputMonitor {
                 // OnMouseWheel: Reference2=ホイール回転量
                 params["Reference2"] = String(Int(ev.scrollingDeltaY))
             }
+            references = Self.semanticMouseReferences(from: params, includeButton: includeButton)
         }
         updateSerikoCursor(for: ev, params: params)
 
-        // 構築したイベントをハンドラに通知
-        handler?(ShioriEvent(id: id, params: params))
+        // 構築したイベントをハンドラに通知。ReferenceN の割り当ては
+        // EventReferenceTable に集約し、発火側では意味ラベルだけを扱う。
+        emitEvent(id, refs: references, additionalParams: ["modifiers": params["modifiers"] ?? ""])
+
+        if ev.type == .keyDown {
+            let count: Int
+            if ev.isARepeat {
+                count = (keyPressCounts[ev.keyCode] ?? 0) + 1
+            } else {
+                count = 1
+            }
+            keyPressCounts[ev.keyCode] = count
+
+            emitEvent(.OnKeyPress, refs: [
+                "characters": ev.charactersIgnoringModifiers ?? ev.characters ?? "",
+                "keyCode": String(ev.keyCode),
+                "keyRepeat": String(count),
+                "windowID": ev.window.map { String($0.windowNumber) } ?? "",
+                "modifiers": modifierString(for: ev)
+            ], additionalParams: ["modifiers": modifierString(for: ev)])
+        } else if ev.type == .keyUp {
+            keyPressCounts.removeValue(forKey: ev.keyCode)
+        }
 
         if ev.type == .otherMouseDown {
-            handler?(ShioriEvent(id: .OnMouseDownEx, params: params))
+            emitEvent(.OnMouseDownEx,
+                      refs: Self.semanticMouseReferences(from: params, includeButton: true),
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
         } else if ev.type == .otherMouseUp {
-            handler?(ShioriEvent(id: .OnMouseUpEx, params: params))
+            emitEvent(.OnMouseUpEx,
+                      refs: Self.semanticMouseReferences(from: params, includeButton: true),
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
         }
 
         if ev.type == .mouseMoved || ev.type == .leftMouseDragged || ev.type == .rightMouseDragged || ev.type == .otherMouseDragged {
@@ -206,11 +294,6 @@ final class InputMonitor {
         let button = mouseButtonName(for: ev)
         let isExButton = isExtendedButton(button)
 
-        handler?(ShioriEvent(id: .OnMouseClick, params: params))
-        if isExButton {
-            handler?(ShioriEvent(id: .OnMouseClickEx, params: params))
-        }
-
         if let previousTime = lastClickTime,
            let previousLoc = lastClickLocation,
            let previousButton = lastClickButton {
@@ -226,21 +309,49 @@ final class InputMonitor {
             clickStreak = 1
         }
 
+        let consumed = ev.window.map {
+            ghostClickHandler?($0, params, clickStreak) ?? false
+        } ?? false
+        if consumed {
+            lastClickTime = Date()
+            lastClickLocation = mouseScreenLocation(for: ev)
+            lastClickButton = button
+            return
+        }
+
+        let references = Self.semanticMouseReferences(from: params, includeButton: true)
+        emitEvent(.OnMouseClick,
+                  refs: references,
+                  additionalParams: ["modifiers": params["modifiers"] ?? ""])
+        if isExButton {
+            emitEvent(.OnMouseClickEx,
+                      refs: references,
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
+        }
+
         if clickStreak >= 2 {
             if isExButton {
-                handler?(ShioriEvent(id: .OnMouseDoubleClickEx, params: params))
+                emitEvent(.OnMouseDoubleClickEx,
+                          refs: references,
+                          additionalParams: ["modifiers": params["modifiers"] ?? ""])
             } else {
-                handler?(ShioriEvent(id: .OnMouseDoubleClick, params: params))
+                emitEvent(.OnMouseDoubleClick,
+                          refs: references,
+                          additionalParams: ["modifiers": params["modifiers"] ?? ""])
             }
         }
         if clickStreak >= 3 {
-            var multi = params
+            var multipleReferences = references
             // OnMouseMultipleClick: Reference7 = 連続クリック回数（UKADOC 準拠の位置引数）
-            multi["Reference7"] = String(clickStreak)
+            multipleReferences["clickCount"] = String(clickStreak)
             if isExButton {
-                handler?(ShioriEvent(id: .OnMouseMultipleClickEx, params: multi))
+                emitEvent(.OnMouseMultipleClickEx,
+                          refs: multipleReferences,
+                          additionalParams: ["modifiers": params["modifiers"] ?? ""])
             } else {
-                handler?(ShioriEvent(id: .OnMouseMultipleClick, params: multi))
+                emitEvent(.OnMouseMultipleClick,
+                          refs: multipleReferences,
+                          additionalParams: ["modifiers": params["modifiers"] ?? ""])
             }
         }
         lastClickTime = Date()
@@ -274,15 +385,25 @@ final class InputMonitor {
 
         if inside {
             let params = mouseParams(for: ev, includeButton: false)
-            handler?(ShioriEvent(id: .OnMouseEnter, params: params))
-            handler?(ShioriEvent(id: .OnMouseEnterAll, params: params))
+            let references = Self.pointerEventReferences(from: params)
+            emitEvent(.OnMouseEnter,
+                      refs: references,
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
+            emitEvent(.OnMouseEnterAll,
+                      refs: references,
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
             scheduleHover(with: params)
         } else {
             hoverTimer?.invalidate()
             hoverTimer = nil
             let params = mouseParams(for: ev, includeButton: false)
-            handler?(ShioriEvent(id: .OnMouseLeave, params: params))
-            handler?(ShioriEvent(id: .OnMouseLeaveAll, params: params))
+            let references = Self.pointerEventReferences(from: params)
+            emitEvent(.OnMouseLeave,
+                      refs: references,
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
+            emitEvent(.OnMouseLeaveAll,
+                      refs: references,
+                      additionalParams: ["modifiers": params["modifiers"] ?? ""])
             SerikoCursorController.shared.reset()
             SerikoTooltipController.shared.hide()
         }
@@ -296,7 +417,9 @@ final class InputMonitor {
         if let dragButton {
             params["Reference5"] = buttonReference(for: dragButton)
         }
-        handler?(ShioriEvent(id: .OnMouseDragStart, params: params))
+        emitEvent(.OnMouseDragStart,
+                  refs: Self.semanticMouseReferences(from: params, includeButton: true),
+                  additionalParams: ["modifiers": params["modifiers"] ?? ""])
     }
 
     private func dispatchDragEndIfNeeded(_ ev: NSEvent) {
@@ -306,7 +429,9 @@ final class InputMonitor {
         if let dragButton {
             params["Reference5"] = buttonReference(for: dragButton)
         }
-        handler?(ShioriEvent(id: .OnMouseDragEnd, params: params))
+        emitEvent(.OnMouseDragEnd,
+                  refs: Self.semanticMouseReferences(from: params, includeButton: true),
+                  additionalParams: ["modifiers": params["modifiers"] ?? ""])
     }
 
     private func scheduleHover(with params: [String: String]) {
@@ -316,7 +441,10 @@ final class InputMonitor {
         hoverTimer?.invalidate()
         hoverTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { [weak self] _ in
             guard let self, self.isPointerInsideGhostArea else { return }
-            self.handler?(ShioriEvent(id: .OnMouseHover, params: self.hoverParams))
+            let references = Self.pointerEventReferences(from: self.hoverParams)
+            self.emitEvent(.OnMouseHover,
+                           refs: references,
+                           additionalParams: ["modifiers": self.hoverParams["modifiers"] ?? ""])
             if let scopeStr = self.hoverParams["Reference3"], let scope = Int(scopeStr),
                let region = self.hoverParams["Reference4"], !region.isEmpty {
                 SerikoCursorController.shared.update(scope: scope, region: region, kind: .hover)
@@ -331,6 +459,43 @@ final class InputMonitor {
             return w.convertToScreen(NSRect(origin: loc, size: .zero)).origin
         }
         return loc
+    }
+
+    private func handleSelectionModeEvent(_ ev: NSEvent) -> Bool {
+        let isDown = ev.type == .leftMouseDown
+        let isUp = ev.type == .leftMouseUp
+        let isDrag = ev.type == .leftMouseDragged
+        guard isDown || isUp || isDrag else { return false }
+
+        let point = mouseScreenLocation(for: ev)
+        let params = [
+            "scopeID": String(selectionModeScope),
+            "mode": selectionModeName,
+            "position": "\(Int(point.x)),\(Int(point.y))"
+        ]
+
+        if isDown {
+            selectionStart = point
+            currentSelectionRect = .zero
+            emitEvent(.OnSelectModeMouseDown, refs: params)
+        } else if isDrag, let start = selectionStart {
+            currentSelectionRect = selectionRect(from: start, to: point)
+        } else if isUp {
+            if let start = selectionStart {
+                currentSelectionRect = selectionRect(from: start, to: point)
+            }
+            emitEvent(.OnSelectModeMouseUp, refs: params)
+        }
+        return true
+    }
+
+    private func selectionRect(from start: NSPoint, to end: NSPoint) -> CGRect {
+        CGRect(
+            x: min(start.x, end.x),
+            y: min(start.y, end.y),
+            width: abs(end.x - start.x),
+            height: abs(end.y - start.y)
+        )
     }
 
     private func mouseButtonName(for ev: NSEvent) -> String {
@@ -398,7 +563,7 @@ final class InputMonitor {
             if let id = window.identifier?.rawValue, id.hasPrefix("GhostCharacterWindow_") {
                 if let last = id.split(separator: "_").last, let s = Int(last) {
                     scope = s
-                    if let gm = (NSApp.delegate as? AppDelegate)?.ghostManager,
+                    if let gm = AppDelegate.resolve()?.ghostManager,
                        let r = gm.collisionRegionName(at: point, scope: s), !r.isEmpty {
                         region = r
                     }
@@ -424,6 +589,48 @@ final class InputMonitor {
             params["Reference5"] = buttonReference(for: mouseButtonName(for: ev))
         }
         return params
+    }
+
+    /// 既存の `mouseParams` が作った位置引数を、表駆動発火用の意味ラベルへ戻す。
+    ///
+    /// 入力座標・当たり判定は AppKit のイベントからしか得られないため、値の生成は
+    /// ここで行い、ReferenceN への変換だけを `emitEvent` に集約する。
+    static func semanticMouseReferences(
+        from params: [String: String],
+        includeButton: Bool,
+        includeDeviceType: Bool = true
+    ) -> [String: String] {
+        var refs: [String: String] = [
+            "x": params["Reference0"] ?? "",
+            "y": params["Reference1"] ?? "",
+            "wheelDelta": params["Reference2"] ?? "",
+            "scopeID": params["Reference3"] ?? "",
+            "collisionID": params["Reference4"] ?? ""
+        ]
+        if includeDeviceType {
+            refs["deviceType"] = params["Reference6"] ?? ""
+        }
+        if includeButton, let button = params["Reference5"] {
+            refs["button"] = button
+        }
+        return refs
+    }
+
+    /// 入退場・hover イベント用の意味参照を作る。
+    ///
+    /// UKADOC の固定仕様は R0..R4 だが、従来の InputMonitor は互換拡張として
+    /// `Reference6=mouse` も付与していた。表駆動化後もその wire 値を変えないため、
+    /// R6 だけは明示的な raw Reference として通過させる。
+    static func pointerEventReferences(from params: [String: String]) -> [String: String] {
+        var refs = semanticMouseReferences(
+            from: params,
+            includeButton: false,
+            includeDeviceType: false
+        )
+        if let deviceType = params["Reference6"] {
+            refs["Reference6"] = deviceType
+        }
+        return refs
     }
 
     /// `Reference3`(scope)/`Reference4`(当たり判定領域) を元に SERIKO カーソルを更新する。

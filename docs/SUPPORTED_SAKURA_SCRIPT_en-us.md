@@ -2,6 +2,8 @@
 
 This document lists the SakuraScript commands currently implemented in Ourin, based on `SakuraScriptEngine.swift` parsing and `GhostManager.swift` execution paths.
 
+> This file is a summary. For the comprehensive per-command list (including all `\![set,...]`/`\![enter,...]`/`\![lock,...]` subcommands), see `SAKURASCRIPT_COMMANDS_SUPPORTED_en-us.md`.
+
 Status marks:
 - ✅ Implemented
 - ⚠️ Partially implemented / limited options
@@ -32,11 +34,14 @@ Scope switches themselves (`\0` / `\1` / `\p[n]`) never clear balloons (see `pro
 - ✅ `\s[n]`
 - ✅ `\i[n]`, `\i[n,wait]`
 - ✅ `\![anim,clear,ID]`
-- ✅ `\![anim,pause,ID]`
+- ✅ `\![anim,pause,ID]` / `\![anim,pauseID]`
 - ✅ `\![anim,resume,ID]`
 - ✅ `\![anim,offset,ID,x,y]`
-- ⚠️ `\![anim,add,...]` (`overlay`, `base`, `bind`, `text` implemented; other variants are limited)
-- ✅ `\![anim,stop]`
+- ✅ `\![anim,add,overlay|overlayfast,ID[,x,y]]`
+- ✅ `\![anim,add,overlay,ID,x,y,duration,...[,runonce|always]]`
+- ✅ `\![anim,add,base,ID]` / `\![anim,add,move,x,y]` / `\![anim,add,bind,ID]`
+- ✅ `\![anim,add,text,x,y,width,height,text,...]` (text is required)
+- ✅ `\![anim,stop]` / `\![anim,stop,ID]`
 - ✅ `\![bind,category,part,value]`
 
 ## Balloon / text commands
@@ -48,6 +53,7 @@ Scope switches themselves (`\0` / `\1` / `\p[n]`) never clear balloons (see `pro
 - ⚠️ `\f[...]` (major style controls implemented; unsupported subcommands are ignored)
 - ✅ `\_l[x,y]`
 - ✅ `\_v` / `\_V`
+- ✅ `\![execute,resetballoonpos]`
 
 ## Character change commands
 
@@ -55,12 +61,14 @@ Scope switches themselves (`\0` / `\1` / `\p[n]`) never clear balloons (see `pro
 - ✅ `\![change,ghost,...]`
 - ✅ `\![change,shell,...]`
 - ✅ `\![change,balloon,...]`
+- ✅ `\![save,wallpaper]` / `\![restore,wallpaper]`
 
 ## Wait commands
 
 - ✅ `\w[n]`
 - ✅ `\_w[ms]`
 - ✅ `\__w[...]` (`clear`, numeric timing, and `animation,ID` wait implemented)
+- ✅ `\![wait,syncobject,name,timeout]` / `\![set,syncobject,name]` / `\![reset,syncobject,name]`
 - ✅ `\t`
 - ✅ `\x`, `\x[noclear]`
 
@@ -113,9 +121,9 @@ Scope switches themselves (`\0` / `\1` / `\p[n]`) never clear balloons (see `pro
 
 ## Related commands with known partial behavior
 
-- ⚠️ `\![move,...]` (x/y/time/method/scope works; `--base`, `--base-offset`, `--move-offset`, and `--wait` supported; some edge-cases remain)
-- ⚠️ `\![moveasync,...]` (async move with cancel supported; some advanced options remain incomplete)
-- ⚠️ `\![set,scaling,...]` (core scaling implemented; some extended flags are incomplete)
-- ⚠️ `\![set,alpha,...]` (basic alpha set implemented; timed/wait variants are incomplete)
+- ✅ `\![move,...]` (named and legacy positional syntax, `fix` per-axis retention, anchors, duration, method, scope, and `--wait`; updated 2026-08-14)
+- ✅ `\![moveasync,...]` (queued and running animations can be canceled with `\![moveasync,cancel]`; `fix` is supported in legacy syntax; updated 2026-08-14)
+- ✅ `\![set,scaling,...]` (uniform/non-uniform scaling, duration, named options, and `--wait`; updated 2026-08-14)
+- ✅ `\![set,alpha,...]` (0–100 value, negative redraw-only behavior, duration, named options, and `--wait`; updated 2026-08-14)
 - ⚠️ `\![set,zorder,...]` (core ordering implemented; complex combinations are incomplete)
 - ⚠️ `\![set,sticky-window,...]` (basic grouping implemented; complex group handling is incomplete)

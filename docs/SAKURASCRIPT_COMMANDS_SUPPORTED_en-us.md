@@ -235,10 +235,15 @@ Compared against ukadoc (`/manual/list_sakura_script.html`) and current runtime 
 
 ### Voice Synthesis Control
 
+Ourin does not automatically synthesize speech for ordinary displayed text. Speech synthesis must be explicitly enabled in the script. Voice asset playback (`\_v`) is independent of speech synthesis.
+
 | Command | Description | Example |
 |---------|-------------|---------|
-| `\__v[disable]...\__v` | Disable voice synthesis for text | `\__v[disable]Silent\__v` |
-| `\__v[alternate,text]...\__v` | Override pronunciation | `\__v[alternate,ひらがな]漢字\__v` |
+| `\__v[enable]...\__v` | Explicitly enable speech synthesis for the range (disabled by default) | `\__v[enable]Hello\__v` |
+| `\__v[disable]...\__v` | Disable speech synthesis for the range | `\__v[disable]Silent\__v` |
+| `\__v[alternate,text]...\__v` | Override the spoken text for the next text token | `\__v[alternate,ひらがな]漢字\__v` |
+| `\_v[filename]` | Play a voice asset from `ghost/sound` (independent of TTS) | `\_v[voice.wav]` |
+| `\_V` | Wait for active voice, sound, and video playback to finish | `\_V` |
 
 ## Font & Text Styling Commands
 
@@ -356,6 +361,8 @@ Format: `\![move,--X=x,--Y=y,--time=ms,--base=ref,--base-offset=pos,--move-offse
 - `--move-offset=pos`: Character anchor to align
 - `--option=opt`: Options (ignore-sticky-window)
 
+The legacy positional form (`x,y,time,method,scope`) is also accepted. Set either axis to `fix` to retain its current coordinate. `moveasync` can be canceled both before dispatch and while the animation is running with `\![moveasync,cancel]`. `--wait` queues a wait for a timed move to finish.
+
 **Example:**
 ```
 \![move,--X=80,--Y=-400,--time=2500,--base=screen,--base-offset=left.bottom,--move-offset=left.top]
@@ -417,6 +424,8 @@ Format: `\![move,--X=x,--Y=y,--time=ms,--base=ref,--base-offset=pos,--move-offse
 - 100 = user's configured scale (100%)
 - Negative values flip the axis (-100 = flipped)
 - Persists until ghost terminates
+- `time` or `--time` interpolates the actual value frame by frame
+- `--wait=true` queues a wait until interpolation completes
 
 ### Transparency
 
@@ -428,6 +437,9 @@ Format: `\![move,--X=x,--Y=y,--time=ms,--base=ref,--base-offset=pos,--move-offse
 - 0 = fully transparent (invisible)
 - 100 = fully opaque
 - Persists until ghost terminates
+- `time` or `--time` interpolates the alpha value
+- `--wait=true` queues a wait until interpolation completes
+- Negative values leave alpha unchanged and request a redraw only
 
 ### Effects & Filters
 
@@ -504,6 +516,11 @@ All commands listed above are **parsed correctly**. The parser converts Sakura S
 
 #### Rendering Level (GhostManager.swift + CharacterViewModel/CharacterView)
 
+**Voice - IMPLEMENTED:**
+- ✅ `\__v[enable|disable|alternate,...]...\__v` - Voice synthesis control (automatic speech for ordinary text is disabled by default)
+- ✅ `\_v[filename]` - Voice asset playback from `ghost/sound`
+- ✅ `\_V` - Wait for voice, sound, and video playback completion
+
 **Visual Effects - IMPLEMENTED:**
 - ✅ `\![set,scaling,ratio]` - Uniform scaling
 - ✅ `\![set,scaling,x,y]` - Non-uniform scaling
@@ -521,83 +538,16 @@ All commands listed above are **parsed correctly**. The parser converts Sakura S
 - All settings persist until ghost terminates (per UKADOC specification)
 - `\![lock,repaint]` auto-unlocks at script end unless `manual` option is used
 
-### ⚠️ Partially Implemented
+### ⚠️ Remaining gaps requiring real-device verification
 
-**Window Management - STATE STORED, BEHAVIOR TODO:**
-These commands update the ViewModel state correctly, but actual window behavior needs platform implementation:
-- ⚠️ Alignment constraints (preventing window movement in certain directions)
-- ⚠️ Position locking (disabling window drag)
-- ⚠️ Z-order enforcement (keeping windows in specified stacking order)
-- ⚠️ Sticky window synchronization (moving multiple windows together)
+The old “parsed only / placeholder” list in this section no longer matches the runtime and must not be used as the completion source. The current evidence is:
 
-### ❌ Not Yet Implemented (Execution Level)
-
-**Balloon & Text Commands - PARSED ONLY:**
-All balloon and text commands are fully parsed, but execution is not yet implemented:
-- ❌ `\bN` / `\b[ID]` - Balloon ID switching (parsed, placeholder exists)
-- ❌ `\C` - Append mode (parsed, placeholder exists)
-- ❌ `\n[half]` / `\n[percent]` - Variable newline height (parsed, treated as regular newline)
-- ❌ `\_b[...]` - Balloon images (inline and positioned)
-- ❌ `\_l[x,y]` - Text cursor positioning
-- ❌ `\c` / `\c[char/line,...]` - Text clearing
-- ❌ `\_n` - No auto-wrap mode
-- ❌ `\_!...\_!` / `\_?...\_?` - Tag passthrough (parsed correctly)
-- ❌ `\__v[...]` - Voice synthesis control
-- ❌ `\![set,autoscroll,...]` - Auto-scroll control
-- ❌ `\![set,balloonoffset,...]` - Balloon offset
-- ❌ `\![set,balloonalign,...]` - Balloon alignment
-- ❌ `\![set,balloonmarker,...]` - SSTP marker
-- ❌ `\![set,balloonnum,...]` - File transfer indicator
-- ❌ `\![set,balloontimeout,...]` - Balloon timeout
-- ❌ `\![set,balloonwait,...]` - Text speed
-- ❌ `\![set,serikotalk,...]` - SERIKO mouth animation
-- ❌ `\![enter/leave,onlinemode]` - Online marker
-- ❌ `\![enter/leave,nouserbreakmode]` - User break control
-- ❌ `\![lock/unlock,balloonrepaint]` - Balloon repaint control
-- ❌ `\![lock/unlock,balloonmove]` - Balloon drag control
-
-**Font & Text Styling Commands - PARSED ONLY:**
-All font and text styling commands are fully parsed, but execution is not yet implemented:
-- ❌ `\f[align,...]` - Text alignment (left/center/right)
-- ❌ `\f[valign,...]` - Vertical text alignment (top/center/bottom)
-- ❌ `\f[name,...]` - Font family change
-- ❌ `\f[height,...]` - Font size (absolute, relative, percentage)
-- ❌ `\f[color,...]` - Text color
-- ❌ `\f[shadowcolor,...]` - Shadow color
-- ❌ `\f[shadowstyle,...]` - Shadow style (offset/outline)
-- ❌ `\f[anchor.font.color,...]` - Anchor text color
-- ❌ `\f[bold,...]` - Bold text style
-- ❌ `\f[italic,...]` - Italic text style
-- ❌ `\f[strike,...]` - Strikethrough text
-- ❌ `\f[underline,...]` - Underline text
-- ❌ `\f[outline,...]` - Outline (white text) style
-- ❌ `\f[sub,...]` - Subscript text
-- ❌ `\f[sup,...]` - Superscript text
-- ❌ `\f[default]` - Reset all font attributes
-- ❌ `\f[disable]` - Set disabled text style
-
-**Movement:**
-- ❌ `\4` and `\5` - Basic character movement (parsed, handler placeholder exists)
-- ❌ `\![move,...]` / `\![moveasync,...]` - Complex movement with parameters
-
-**Animation:**
-- ❌ `\![anim,clear,ID]` / `\![anim,pause,ID]` / `\![anim,resume,ID]` / `\![anim,stop]`
-- ❌ `\![anim,offset,ID,x,y]`
-- ❌ `\![anim,add,*]` - Animation layering
-- ❌ `\__w[animation,ID]` - Wait for animation completion
-
-**Dressup:**
-- ❌ `\![bind,category,part,value]` - Full dressup system not yet implemented
-
-**Effects & Filters:**
-- ❌ `\![effect,...]` / `\![effect2,...]` / `\![filter,...]` - Plugin-based effects
-- ❌ `\![set,scaling,x,y,time]` - Animated scaling over time
-
-**Notes:**
-- Parser correctly identifies all commands and extracts parameters
-- Placeholder handlers exist with TODO comments for future implementation
-- Some features require platform-specific NSWindow manipulation
-- Animation, balloon, and dressup systems require additional infrastructure
+- ✅ Balloon rendering, variable newlines, cursor movement, clearing, inline images, text styles, anchors, SERIKO, dress-up, updates, and input dialogs have runtime paths.
+- ✅ Online markers, wallpaper, task-tray icons, dumpsurface, ping/nslookup, and vanish perform real work and emit failure events.
+- ✅ `\f[cursor*]` is applied to the actual choice-dialog buttons.
+- ✅ A local mouse monitor tracks the actual modal choice button, emitting `OnChoiceEnter` on enter/exit and `OnChoiceHover` after 500 ms of stillness.
+- ✅ `updateother` resolves installed balloon/shell/plugin/headline/language targets by descriptor name/id and applies updates to each target's own root. `testonly` downloads and verifies MD5 without changing existing files. Real-network and installed-ghost UI/update verification remains pending.
+- ⚠️ Timed move/scaling/alpha interpolation, `moveasync` rendering in a real window, and platform-specific window behavior require real UI verification beyond the unit suite.
 
 ## Testing
 

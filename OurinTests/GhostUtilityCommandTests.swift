@@ -1,0 +1,1350 @@
+import Foundation
+import AppKit
+import Testing
+@testable import Ourin
+
+private final class CapturingUtilityRuntime: GhostShioriRuntime {
+    let kind: ShioriRuntimeKind = .native
+    var isLoaded = true
+    var resourceManager: ResourceManager?
+    var requests: [(method: String, id: String, refs: [String])] = []
+    var responses: [String: String] = [:]
+
+    func load(context: ShioriRuntimeLoadContext) -> Bool { true }
+
+    func request(
+        method: String,
+        id: String,
+        headers: [String: String],
+        refs: [String],
+        timeout: TimeInterval
+    ) -> ShioriRuntimeResponse? {
+        requests.append((method, id, refs))
+        if let value = responses[id] {
+            return .init(ok: true, status: 200, value: value)
+        }
+        return .init(ok: true, status: 204)
+    }
+
+    func unload() { isLoaded = false }
+}
+
+@Suite(.serialized, .eventBridgeIsolated)
+struct GhostUtilityCommandTests {
+    @Test
+    func displayTextRemovesControlTagsAndKeepsNewlines() {
+        let engine = SakuraScriptEngine()
+        let script = #"\0Hello\n[half]World\![sound,cdplay,7]\e"#
+
+        #expect(engine.displayText(from: script) == "Hello\nWorld")
+    }
+
+    @Test @MainActor
+    func multiDigitWaitDoesNotBecomeSpokenText() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-multi-digit-wait-test"))
+        defer { _ = manager.shutdown() }
+
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .command(name: "w", args: ["10"]))
+
+        #expect(manager.playbackQueue.count == 1)
+        guard let unit = manager.playbackQueue.first else {
+            Issue.record("Expected a wait unit for \\w10")
+            return
+        }
+        if case .wait(let seconds) = unit {
+            #expect(abs(seconds - 0.5) < 0.0001)
+        } else {
+            Issue.record("\\w10 must enqueue a wait, not a text unit")
+        }
+    }
+
+    @Test @MainActor
+    func alignmentCommandsApplyAndRestoreGhostDefault() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-alignment-command-test"))
+        defer { _ = manager.shutdown() }
+
+        _ = manager.ensureCharacterWindow(for: 0)
+        var config = GhostConfiguration(name: "AlignmentTest")
+        config.alignmentToDesktop = .right
+        config.sakuraAlignment = .top
+        manager.ghostConfig = config
+        manager.applyGhostConfiguration(config, ghostRoot: URL(fileURLWithPath: "/tmp/ourin-alignment-command-test"))
+
+        for _ in 0..<20 where manager.characterViewModels[0]?.alignment != .top {
+            try await Task.sleep(nanoseconds: 5_000_000)
+        }
+        #expect(manager.characterViewModels[0]?.alignment == .top)
+
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .command(
+            name: "!",
+            args: ["set", "alignmenttodesktop", "right"]
+        ))
+        manager.processNextUnit()
+        #expect(manager.characterViewModels[0]?.alignment == .right)
+
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .command(
+            name: "!",
+            args: ["set", "alignmenttodesktop", "default"]
+        ))
+        manager.processNextUnit()
+        #expect(manager.characterViewModels[0]?.alignment == .top)
+    }
+
+    @Test @MainActor
+    func negativeAlphaOnlyRedrawsWithoutChangingValue() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-negative-alpha-test"))
+        defer { _ = manager.shutdown() }
+
+        _ = manager.ensureCharacterWindow(for: 0)
+        manager.characterViewModels[0]?.alpha = 0.42
+
+        manager.executeSetAlphaCommand(args: ["set", "alpha", "-1"])
+
+        #expect(manager.characterViewModels[0]?.alpha == 0.42)
+    }
+
+    @Test @MainActor
+    func explicitNegativeSurfaceHidesAndClearsTheScope() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-negative-surface-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 2),
+              let viewModel = manager.characterViewModels[2] else {
+            Issue.record("Expected a lazily created scope 2 window and view model")
+            return
+        }
+        viewModel.image = NSImage(size: NSSize(width: 32, height: 32))
+        viewModel.currentSurfaceID = 7
+        window.orderFront(nil)
+
+        manager.currentScope = 2
+        manager.updateSurface(id: -1)
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(viewModel.image == nil)
+        #expect(viewModel.currentSurfaceID == -1)
+        #expect(window.isVisible == false)
+    }
+
+    @Test @MainActor
+    func selectingAnEmptyScopeDoesNotShowAnEmptyWindow() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-empty-scope-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 2) else {
+            Issue.record("Expected a lazily created scope 2 window")
+            return
+        }
+        window.orderFront(nil)
+        manager.sakuraEngine(manager.sakuraEngine, didEmit: .scope(2))
+        manager.processNextUnit()
+
+        #expect(manager.characterViewModels[2]?.image == nil)
+        #expect(window.isVisible == false)
+    }
+
+    @Test @MainActor
+    func startupKeepsUnloadedCharacterScopesHidden() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-startup-empty-scope-test"))
+        defer { _ = manager.shutdown() }
+
+        manager.setupWindows()
+
+        #expect(manager.characterViewModels[0]?.image == nil)
+        #expect(manager.characterViewModels[1]?.image == nil)
+        #expect(manager.characterWindows[0]?.isVisible == false)
+        #expect(manager.characterWindows[1]?.isVisible == false)
+    }
+
+    @Test @MainActor
+    func screenChangeObserverIsRemovedDuringShutdown() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-screen-observer-lifecycle-test"))
+
+        #expect(manager.screenChangeObserver != nil)
+        _ = manager.shutdown()
+        #expect(manager.screenChangeObserver == nil)
+    }
+
+    @Test @MainActor
+    func unloadedCharacterWindowRetainsItsCanvasSize() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-empty-window-size-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 0) else {
+            Issue.record("Expected scope 0 character window")
+            return
+        }
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(window.frame.size == NSSize(width: 300, height: 400))
+        #expect(manager.characterViewModels[0]?.image == nil)
+        #expect(window.isVisible == false)
+    }
+
+    @Test @MainActor
+    func windowCommandsDoNotRevealAnUnloadedCharacterScope() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-unloaded-window-command-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 2) else {
+            Issue.record("Expected a lazily created scope 2 window")
+            return
+        }
+
+        // 再発経路を再現するため、画像未設定の窓を一度だけ明示表示する。
+        window.orderFront(nil)
+        manager.currentScope = 2
+        manager.moveWindowToFront(scope: 2)
+        manager.setWindowZOrder(scopes: [2])
+        manager.resetWindowZOrder()
+        manager.setWindowState(state: "show")
+        manager.setCurrentWindowHidden(false)
+        manager.focusCurrentWindow()
+        manager.maximizeCurrentWindow()
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(manager.characterViewModels[2]?.image == nil)
+        #expect(window.isVisible == false)
+    }
+
+    @Test @MainActor
+    func legacyMoveFixRetainsOnlyTheRequestedAxis() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-move-fix-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 0) else {
+            Issue.record("Expected scope 0 character window")
+            return
+        }
+        let start = window.frame.origin
+        let visibleFrame = window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
+        let upperBound = visibleFrame.map { $0.maxY - window.frame.height - 1 } ?? (start.y + 40)
+        let lowerBound = visibleFrame?.minY ?? (start.y - 40)
+        let targetY: CGFloat
+        if start.y + 40 <= upperBound {
+            targetY = start.y + 40
+        } else {
+            targetY = max(lowerBound + 1, start.y - 40)
+        }
+        // \![move] の Y は SSP 座標（モニタ左上原点・下向き）で渡す
+        let screenFrame = (window.screen ?? NSScreen.main)?.frame ?? .zero
+        let topDownY = Int(screenFrame.maxY - targetY - window.frame.height)
+        manager.executeMoveCommand(
+            args: ["fix", "\(topDownY)"],
+            async: false
+        )
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(window.frame.origin.x == start.x)
+        #expect(abs(window.frame.origin.y - targetY) < 0.5)
+    }
+
+    @Test @MainActor
+    func scriptChoiceStartsPlayback() async throws {
+        // \q[title,script:...] を選んだらスクリプトを再生する（遅延コマンドも実行される）。
+        // 以前は解析だけで再生が始まらず、\![open,browser,...] 等が実行されなかった。
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-choice-script-test"))
+        defer { _ = manager.shutdown() }
+
+        manager.runChoiceScript("\\0選択肢から再生\\e")
+        for _ in 0..<100 where !manager.getBalloonVM(for: 0).text.contains("選択肢から再生") {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        #expect(manager.getBalloonVM(for: 0).text.contains("選択肢から再生"))
+    }
+
+    @Test @MainActor
+    func choicesAreDrawnInsideBalloonAndSelectableByClick() async throws {
+        // SSP 互換: \q はダイアログではなくバルーン本文にクリック可能な文字として描く。
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-inline-choice-test"))
+        defer { _ = manager.shutdown() }
+
+        manager.runScript("\\0どうする？\\n\\q[はい,script:\\0はいを選んだ\\e]\\q[いいえ,OnNo]\\e")
+        let vm = manager.getBalloonVM(for: 0)
+        for _ in 0..<150 where !(vm.text.contains("いいえ") && manager.isPlaying == false) {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        #expect(vm.text.contains("どうする？"))
+        #expect(vm.text.contains("はい"))
+        let choiceAnchors = vm.anchors.filter { $0.choiceIndex != nil }
+        #expect(choiceAnchors.map(\.text) == ["はい", "いいえ"])
+        #expect(manager.pendingChoices.count == 2)
+
+        // 「はい」をクリック → script: が実行され、選択肢の待ちは消える
+        let yes = try #require(choiceAnchors.first)
+        manager.onBalloonAnchorClicked(yes, fromScope: 0)
+        for _ in 0..<150 where !vm.text.contains("はいを選んだ") {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        #expect(vm.text.contains("はいを選んだ"))
+        #expect(manager.pendingChoices.isEmpty)
+        #expect(manager.inlineChoiceIndices.isEmpty)
+    }
+
+    @Test @MainActor
+    func legacyMoveRejectsAnInvalidAxis() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-invalid-move-axis-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 0) else {
+            Issue.record("Expected scope 0 character window")
+            return
+        }
+        let start = window.frame.origin
+        manager.executeMoveCommand(
+            args: ["not-a-coordinate", "\(Int(start.y) + 40)"],
+            async: false
+        )
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(window.frame.origin == start)
+    }
+
+    @Test @MainActor
+    func moveAsyncCancelStopsAnAlreadyRunningAnimation() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-moveasync-cancel-test"))
+        defer { _ = manager.shutdown() }
+
+        guard let window = manager.ensureCharacterWindow(for: 0) else {
+            Issue.record("Expected scope 0 character window")
+            return
+        }
+        let start = window.frame.origin
+        let targetX = Int(start.x) + 300
+        manager.moveWindowAsync(
+            scope: 0,
+            x: targetX,
+            y: Int(start.y),
+            time: 1000,
+            method: "linear"
+        )
+        try await Task.sleep(nanoseconds: 220_000_000)
+
+        let midMoveX = window.frame.origin.x
+        #expect(midMoveX > start.x + 1)
+        #expect(midMoveX < CGFloat(targetX) - 1)
+
+        manager.cancelMoveWindowAsync(scope: 0)
+        let canceledX = window.frame.origin.x
+        try await Task.sleep(nanoseconds: 220_000_000)
+
+        #expect(abs(window.frame.origin.x - canceledX) < 1.0)
+        #expect(abs(window.frame.origin.x - CGFloat(targetX)) > 1.0)
+        #expect(manager.resourceManager.getCharDefaultLeft(scope: 0) == Int(canceledX))
+    }
+
+    @Test @MainActor
+    func backlogKeepsVisibleTextAndCapsHistory() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-backlog-test"))
+
+        manager.recordBacklog(from: #"\0Control-only\![sound,cdplay,7]\e"#)
+        #expect(manager.backlogEntries.count == 1)
+        #expect(manager.backlogEntries[0].text == "Control-only")
+
+        for index in 1...200 {
+            manager.recordBacklog(from: "\\0Entry \(index)\\e")
+        }
+
+        #expect(manager.backlogEntries.count == 200)
+        #expect(manager.backlogEntries.first?.text == "Entry 1")
+        #expect(manager.backlogEntries.last?.text == "Entry 200")
+    }
+
+    @Test @MainActor
+    func cdplayReportsUnsupportedMediaThroughOnSoundError() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-cdplay-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.runScript(#"\![sound,cdplay,7]"#)
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        let error = runtime.requests.first { $0.id == "OnSoundError" }
+        #expect(error?.method == "NOTIFY")
+        #expect(error?.refs == ["cdplay", "-2", "audio-cd-track-7", "audio_cd_unsupported"])
+    }
+
+    @Test @MainActor
+    func raiseUsesGetAndNotifyUsesNotify() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-raise-command-test"))
+        let runtime = CapturingUtilityRuntime()
+        // 応答表示の検証は別テストで行うため、ここでは後続イベントの
+        // 再生順序を短い終了スクリプトで検証する。
+        runtime.responses["OnBoot"] = #"\e"#
+        runtime.responses["OnRaiseTest"] = #"\e"#
+        manager.shioriRuntime = runtime
+        let otherManager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-raise-command-other-test"))
+        let otherRuntime = CapturingUtilityRuntime()
+        otherManager.shioriRuntime = otherRuntime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        let otherToken = EventBridge.shared.register(runtime: otherRuntime, ghostManager: otherManager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.unregister(otherToken)
+            EventBridge.shared.stop()
+        }
+
+        manager.runScript(#"\![raise,OnBoot,standard]\![raise,OnRaiseTest,custom]\![notify,OnNotifyTest,notify]"#)
+        try await Task.sleep(nanoseconds: 200_000_000)
+
+        let standardRaise = runtime.requests.first { $0.id == "OnBoot" }
+        let customRaise = runtime.requests.first { $0.id == "OnRaiseTest" }
+        let notify = runtime.requests.first { $0.id == "OnNotifyTest" }
+        #expect(standardRaise?.method == "GET")
+        #expect(standardRaise?.refs == ["standard"])
+        #expect(customRaise?.method == "GET")
+        #expect(customRaise?.refs == ["custom"])
+        #expect(notify?.method == "NOTIFY")
+        #expect(notify?.refs == ["notify"])
+        // OnSoundStop など標準 NOTIFY は全ゴーストへブロードキャストされるため、
+        // 別suiteの音声テストが並列実行中なら otherRuntime に正当な通知が届き得る。
+        // ここでは、このテストの raise/notify が他ゴーストへ誤配送されていないことだけを検証する。
+        let ownEventIDs: Set<String> = ["OnBoot", "OnRaiseTest", "OnNotifyTest"]
+        #expect(otherRuntime.requests.contains { ownEventIDs.contains($0.id) } == false)
+    }
+
+    @Test @MainActor
+    func communicateBoxUsesEchoReferenceLayout() {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-communicatebox-reference-test"))
+        let runtime = CapturingUtilityRuntime()
+        manager.shioriRuntime = runtime
+        defer { _ = manager.shutdown() }
+
+        let sentence = "こんにちは"
+        let handled = manager.requestDialogEvent(
+            eventID: EventID.OnCommunicate.rawValue,
+            references: GhostManager.communicateBoxReferences(sentence: sentence)
+        )
+
+        #expect(handled == false)
+        #expect(runtime.requests.last?.method == "GET")
+        #expect(runtime.requests.last?.id == EventID.OnCommunicate.rawValue)
+        #expect(runtime.requests.last?.refs == ["user", "", "ECHO/1.0", sentence])
+    }
+
+    @Test @MainActor
+    func pluginFailureEventUsesGetAndPreservesAttemptedReferences() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-plugin-failure-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.dispatchPluginEventFailure(
+            notifyOnly: false,
+            reason: "204",
+            plugin: "fixture-plugin",
+            event: "OnPluginTest",
+            references: ["alpha", "beta"]
+        )
+        manager.dispatchPluginEventFailure(
+            notifyOnly: true,
+            reason: "notfound",
+            plugin: "missing-plugin",
+            event: "OnNotifyTest",
+            references: ["gamma"]
+        )
+
+        #expect(runtime.requests.map(\.method) == ["GET", "GET"])
+        #expect(runtime.requests.map(\.id) == ["OnRaisePluginFailure", "OnNotifyPluginFailure"])
+        #expect(runtime.requests[0].refs == ["204", "fixture-plugin", "OnPluginTest", "alpha", "beta"])
+        #expect(runtime.requests[1].refs == ["notfound", "missing-plugin", "OnNotifyTest", "gamma"])
+    }
+
+    @Test @MainActor
+    func otherGhostFailureEventsUseGetAndAggregateTargetReferences() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-failure-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.dispatchOtherGhostEventFailure(
+            notifyOnly: false,
+            failures: [
+                OtherGhostFailure(reason: "notfound", ghostName: "missing-a"),
+                OtherGhostFailure(reason: "204", ghostName: "missing-b")
+            ],
+            event: "OnOtherRaiseTest",
+            references: ["alpha", "beta"]
+        )
+        manager.dispatchOtherGhostEventFailure(
+            notifyOnly: true,
+            failures: [OtherGhostFailure(reason: "minimized", ghostName: "hidden")],
+            event: "OnOtherNotifyTest",
+            references: ["gamma"]
+        )
+
+        #expect(runtime.requests.map(\.method) == ["GET", "GET"])
+        #expect(runtime.requests.map(\.id) == ["OnRaiseOtherFailure", "OnNotifyOtherFailure"])
+        #expect(runtime.requests[0].refs == [
+            "notfound\u{1}204", "missing-a\u{1}missing-b", "OnOtherRaiseTest", "alpha", "beta"
+        ])
+        #expect(runtime.requests[1].refs == ["minimized", "hidden", "OnOtherNotifyTest", "gamma"])
+    }
+
+    @Test
+    func otherGhostSSTPRequestsUseMethodAndNumericReferenceOrder() {
+        let request = GhostManager.makeSSTPEventRequest(
+            method: "send",
+            event: "OnOtherTest",
+            references: [
+                "Reference10": "ten",
+                "Reference2": "two",
+                "Reference0": "zero"
+            ],
+            receiverGhostName: "Target"
+        )
+
+        #expect(request.hasPrefix("SEND SSTP/1.1\r\n"))
+        #expect(request.contains("ReceiverGhostName: Target\r\n"))
+        #expect(request.range(of: "Reference0: zero")!.lowerBound < request.range(of: "Reference2: two")!.lowerBound)
+        #expect(request.range(of: "Reference2: two")!.lowerBound < request.range(of: "Reference10: ten")!.lowerBound)
+
+        let notify = GhostManager.makeSSTPEventRequest(
+            method: "NOTIFY",
+            event: "OnOtherNotifyTest",
+            references: [:]
+        )
+        #expect(notify.hasPrefix("NOTIFY SSTP/1.1\r\n"))
+    }
+
+    @Test @MainActor
+    func allGhostTargetExpandsToEachRegisteredGhostReceiver() {
+        EventBridge.shared.stop()
+
+        let first = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-all-ghost-alpha"))
+        first.ghostConfig = GhostConfiguration(name: "Alpha Ghost")
+        let second = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-all-ghost-beta"))
+        second.ghostConfig = GhostConfiguration(name: "Beta Ghost")
+        let firstToken = EventBridge.shared.register(runtime: CapturingUtilityRuntime(), ghostManager: first)
+        let secondToken = EventBridge.shared.register(runtime: CapturingUtilityRuntime(), ghostManager: second)
+        defer {
+            EventBridge.shared.unregister(firstToken)
+            EventBridge.shared.unregister(secondToken)
+            EventBridge.shared.stop()
+            _ = first.shutdown()
+            _ = second.shutdown()
+        }
+
+        #expect(EventBridge.shared.runningGhostNames() == ["Alpha Ghost", "Beta Ghost"])
+
+        let plan = GhostManager.planOtherGhostTargets(
+            ["__SYSTEM_ALL_GHOST__", "Missing Ghost"],
+            allGhostNames: EventBridge.shared.runningGhostNames()
+        )
+        #expect(plan == [
+            OtherGhostDispatchTarget(order: 0, ghostName: "Alpha Ghost", receiverGhostName: "Alpha Ghost"),
+            OtherGhostDispatchTarget(order: 1, ghostName: "Beta Ghost", receiverGhostName: "Beta Ghost"),
+            OtherGhostDispatchTarget(order: 2, ghostName: "Missing Ghost", receiverGhostName: "Missing Ghost")
+        ])
+
+        let emptyPlan = GhostManager.planOtherGhostTargets(
+            ["__SYSTEM_ALL_GHOST__"],
+            allGhostNames: []
+        )
+        #expect(emptyPlan == [
+            OtherGhostDispatchTarget(order: 0, ghostName: "__SYSTEM_ALL_GHOST__", receiverGhostName: nil)
+        ])
+    }
+
+    @Test
+    func parsesSSTPResponseStatusForFailureClassification() {
+        #expect(GhostManager.parseSSTPStatusCode(from: Data("SSTP/1.1 204 No Content\r\n\r\n".utf8)) == 204)
+        #expect(GhostManager.parseSSTPStatusCode(from: Data("SSTP/1.4 512 Invisible\n\n".utf8)) == 512)
+        #expect(GhostManager.parseSSTPResponse(from: Data("SSTP/1.1 204 No Content\r\nStatus: passive\r\n\r\n".utf8)) == ParsedSSTPResponse(statusCode: 204, status: "passive"))
+        #expect(GhostManager.parseSSTPStatusCode(from: Data("invalid response\r\n".utf8)) == nil)
+        #expect(GhostManager.otherGhostFailureReason(for: .response(statusCode: 200, status: nil)) == nil)
+        #expect(GhostManager.otherGhostFailureReason(for: .response(statusCode: 404, status: nil)) == "notfound")
+        #expect(GhostManager.otherGhostFailureReason(for: .response(statusCode: 204, status: nil)) == "204")
+        #expect(GhostManager.otherGhostFailureReason(for: .response(statusCode: 204, status: "talking, passive")) == "passivemode")
+    }
+
+    @Test @MainActor
+    func ghostLifecycleCommandsSkipSuccessEventsWhenTargetUnavailable() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-ghost-lifecycle-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.callGhost(named: "missing-ghost", options: ["--option=raise-event"])
+
+        let calling = runtime.requests.first { $0.id == "OnGhostCalling" }
+        #expect(calling?.method == "GET")
+        #expect(calling?.refs == ["missing-ghost", "manual", "missing-ghost", ""])
+        #expect(runtime.requests.contains { $0.id == "OnGhostCalled" } == false)
+        #expect(runtime.requests.contains { $0.id == "OnGhostCallComplete" } == false)
+
+        runtime.requests.removeAll()
+        manager.switchGhost(named: "missing-ghost", options: ["--option=raise-event"])
+
+        let changing = runtime.requests.first { $0.id == "OnGhostChanging" }
+        #expect(changing?.method == "GET")
+        #expect(changing?.refs == ["missing-ghost", "manual", "missing-ghost", ""])
+        #expect(runtime.requests.contains { $0.id == "OnGhostChanged" } == false)
+    }
+
+    @Test @MainActor
+    func existingGhostLifecycleRequestCompletesWithoutNewBootNotification() async throws {
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-existing-ghost-lifecycle-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnGhostCalled.rawValue] = #"\0called\e"#
+        manager.shioriRuntime = runtime
+        var completionResult: GhostBootResult?
+        manager.requestLifecycleEvent(
+            GhostBootRequest(
+                eventID: .OnGhostCalled,
+                references: ["Caller", "", "CallerSSP", "/tmp/caller", "", "", "", ""]
+            )
+        ) { _, result in
+            completionResult = result
+        }
+        defer {
+            _ = manager.shutdown()
+        }
+
+        for _ in 0..<300 where completionResult == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let called = runtime.requests.first { $0.id == EventID.OnGhostCalled.rawValue }
+        #expect(called?.method == "GET")
+        #expect(called?.refs == ["Caller", "", "CallerSSP", "/tmp/caller", "", "", "", "master"])
+        #expect(completionResult?.succeeded == true)
+        #expect(completionResult?.isNewBoot == false)
+    }
+
+    @Test @MainActor
+    func lifecycleResponseCanBeForwardedWithoutReplacingCurrentPlayback() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-vanish-response-forward-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnVanishSelected.rawValue] = #"\0selected\e"#
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        let response = EventBridge.shared.requestScript(
+            .OnVanishSelected,
+            to: manager,
+            playResponse: false
+        )
+
+        #expect(response == #"\0selected\e"#)
+        #expect(runtime.requests.last?.method == "GET")
+        #expect(runtime.requests.last?.id == EventID.OnVanishSelected.rawValue)
+        #expect(runtime.requests.last?.refs.isEmpty == true)
+        #expect(manager.isPlaying == false)
+    }
+
+    @Test
+    func vanishBreakPositionCountsControlTagsFromScriptStart() {
+        let script = #"\s[2]あいう\e"#
+
+        #expect(GhostManager.vanishBreakPosition(in: script, displayedText: "あ", scope: 0) == 6)
+        #expect(GhostManager.vanishBreakPosition(in: script, displayedText: "あい", scope: 0) == 7)
+    }
+
+    @Test @MainActor
+    func vanishSelectedPlaybackCompletesAfterQueueDrains() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-vanish-playback-completion-test"))
+        let runtime = CapturingUtilityRuntime()
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        var completionCount = 0
+        manager.beginVanishSelectedPlayback(sourceScript: #"\e"#) {
+            completionCount += 1
+        }
+
+        for _ in 0..<100 where completionCount == 0 {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        #expect(completionCount == 1)
+        #expect(manager.vanishSelectedCompletion == nil)
+    }
+
+    @Test @MainActor
+    func vanishButtonHoldInterruptsPlaybackWithRawScriptAndPosition() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-vanish-button-hold-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnVanishButtonHold.rawValue] = #"\0held\e"#
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        var completionCalled = false
+        let sourceScript = #"\s[2]あいう\e"#
+        manager.beginVanishSelectedPlayback(sourceScript: sourceScript) {
+            completionCalled = true
+        }
+        manager.getBalloonVM(for: 0).text = "あ"
+
+        #expect(manager.handleVanishInputClick(scope: 0, button: "0", clickStreak: 1))
+        #expect(runtime.requests.first { $0.id == EventID.OnVanishButtonHold.rawValue } == nil)
+        #expect(manager.handleVanishInputClick(scope: 0, button: "0", clickStreak: 2))
+
+        let hold = runtime.requests.first { $0.id == EventID.OnVanishButtonHold.rawValue }
+        #expect(hold?.method == "GET")
+        #expect(hold?.refs == [sourceScript, "0", "6"])
+        #expect(!completionCalled)
+        #expect(manager.vanishSelectedCompletion == nil)
+
+        let balloon = manager.getBalloonVM(for: 0)
+        for _ in 0..<100 where balloon.text != "held" {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(balloon.text == "held")
+    }
+
+    @Test @MainActor
+    func balloonVanishDoubleClickDoesNotRaiseBalloonBreak() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-balloon-vanish-double-click-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnVanishButtonHold.rawValue] = #"\0held\e"#
+        manager.shioriRuntime = runtime
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        let sourceScript = #"\0あいう\e"#
+        manager.beginVanishSelectedPlayback(sourceScript: sourceScript) { }
+        manager.getBalloonVM(for: 0).text = "あ"
+
+        manager.onBalloonClicked(fromScope: 0)
+        manager.onBalloonClicked(fromScope: 0)
+
+        #expect(runtime.requests.filter { $0.id == EventID.OnVanishButtonHold.rawValue }.count == 1)
+        #expect(runtime.requests.contains { $0.id == EventID.OnBalloonBreak.rawValue } == false)
+    }
+
+    @Test @MainActor
+    func otherGhostLifecycleGETExcludesSourceAndTarget() {
+        EventBridge.shared.stop()
+
+        var source: GhostManager? = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-ghost-source"))
+        var target: GhostManager? = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-ghost-target"))
+        var unrelated: GhostManager? = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-ghost-unrelated"))
+        let sourceRuntime = CapturingUtilityRuntime()
+        let targetRuntime = CapturingUtilityRuntime()
+        let unrelatedRuntime = CapturingUtilityRuntime()
+        let sourceToken = EventBridge.shared.register(runtime: sourceRuntime, ghostManager: source!)
+        let targetToken = EventBridge.shared.register(runtime: targetRuntime, ghostManager: target!)
+        let unrelatedToken = EventBridge.shared.register(runtime: unrelatedRuntime, ghostManager: unrelated!)
+        defer {
+            EventBridge.shared.unregister(sourceToken)
+            EventBridge.shared.unregister(targetToken)
+            EventBridge.shared.unregister(unrelatedToken)
+            EventBridge.shared.stop()
+            _ = source?.shutdown()
+            _ = target?.shutdown()
+            _ = unrelated?.shutdown()
+            source = nil
+            target = nil
+            unrelated = nil
+        }
+
+        let params = EventReferenceTable.params(
+            forEvent: EventID.OnOtherGhostBooted.rawValue,
+            refs: ["ghostName": "Target", "bootScript": "\\0boot\\e", "ghostNameSSP": "Target", "shellName": "master"]
+        )
+        _ = EventBridge.shared.request(
+            .OnOtherGhostBooted,
+            params: params,
+            excluding: [source!, target!]
+        )
+
+        #expect(sourceRuntime.requests.isEmpty)
+        #expect(targetRuntime.requests.isEmpty)
+        #expect(unrelatedRuntime.requests.count == 1)
+        #expect(unrelatedRuntime.requests[0].method == "GET")
+        #expect(unrelatedRuntime.requests[0].id == "OnOtherGhostBooted")
+        #expect(unrelatedRuntime.requests[0].refs == ["Target", "\\0boot\\e", "Target", "", "", "", "", "master"])
+    }
+
+    @Test @MainActor
+    func resetWindowPositionRaisesEventBeforeDefaultReset() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-reset-window-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.runScript(#"\![execute,resetwindowpos]"#)
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        let resetEvent = runtime.requests.first { $0.id == EventID.OnResetWindowPos.rawValue }
+        #expect(resetEvent?.method == "GET")
+        #expect(resetEvent?.refs.isEmpty == true)
+    }
+
+    @Test @MainActor
+    func balloonTimeoutNotifiesDisplayedScriptAndZeroRemainingTime() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-balloon-timeout-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        let balloon = manager.getBalloonVM(for: manager.currentScope)
+        balloon.balloonTimeout = 0.01
+        manager.appendText("timed out")
+
+        for _ in 0..<20 where runtime.requests.first(where: { $0.id == EventID.OnBalloonTimeout.rawValue }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let timeout = runtime.requests.first { $0.id == EventID.OnBalloonTimeout.rawValue }
+        #expect(timeout?.method == "GET")
+        #expect(timeout?.refs == ["timed out", "0"])
+
+        let close = runtime.requests.first { $0.id == EventID.OnBalloonClose.rawValue }
+        #expect(close == nil)
+        #expect(balloon.text.isEmpty)
+    }
+
+    @Test @MainActor
+    func balloonClickClosesWaitingBalloonWithGetOnly() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-balloon-close-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.pendingClick = false
+        let balloon = manager.getBalloonVM(for: 0)
+        balloon.text = "waiting"
+        manager.onBalloonClicked(fromScope: 0)
+
+        let close = runtime.requests.first { $0.id == EventID.OnBalloonClose.rawValue }
+        #expect(close?.method == "GET")
+        #expect(close?.refs == ["waiting"])
+        #expect(runtime.requests.filter { $0.id.hasPrefix("OnBalloon") }.count == 1)
+        #expect(balloon.text.isEmpty)
+    }
+
+    @Test @MainActor
+    func balloonClickBreaksPlayingBalloonAndDeliversResponse() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-balloon-break-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnBalloonBreak.rawValue] = #"\0ok\e"#
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            _ = manager.shutdown()
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.isPlaying = true
+        let balloon = manager.getBalloonVM(for: 0)
+        balloon.text = "speaking"
+        manager.onBalloonClicked(fromScope: 0)
+
+        let breakEvent = runtime.requests.first { $0.id == EventID.OnBalloonBreak.rawValue }
+        #expect(breakEvent?.method == "GET")
+        #expect(breakEvent?.refs == ["speaking", "0", "8"])
+        #expect(runtime.requests.filter { $0.id.hasPrefix("OnBalloon") }.count == 1)
+
+        for _ in 0..<100 where balloon.text != "ok" || manager.isPlaying {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(balloon.text == "ok")
+        #expect(!manager.isPlaying)
+    }
+
+    @Test @MainActor
+    func scalingCommandRaisesShellScalingWithBeforeAndAfterPercentages() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-shell-scaling-event-test"))
+        _ = manager.ensureCharacterWindow(for: 0)
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        let otherManager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-shell-scaling-event-other-test"))
+        let otherRuntime = CapturingUtilityRuntime()
+        let otherToken = EventBridge.shared.register(runtime: otherRuntime, ghostManager: otherManager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.unregister(otherToken)
+            EventBridge.shared.stop()
+        }
+
+        manager.executeSetScalingCommand(args: ["set", "scaling", "50", "75"])
+
+        for _ in 0..<20 where runtime.requests.first(where: { $0.id == EventID.OnShellScaling.rawValue }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let event = runtime.requests.first { $0.id == EventID.OnShellScaling.rawValue }
+        #expect(event?.method == "GET")
+        #expect(event?.refs == ["50.0", "100.0", "75.0", "100.0"])
+        #expect(manager.characterViewModels[0]?.userScaleX == 0.5)
+        #expect(manager.characterViewModels[0]?.userScaleY == 0.75)
+        #expect(otherRuntime.requests.isEmpty)
+    }
+
+    @Test @MainActor
+    func scalingCommandSynchronizesBalloonAndRaisesBalloonScalingEvent() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-balloon-scaling-event-test"))
+        _ = manager.ensureCharacterWindow(for: 0)
+        var config = GhostConfiguration(name: "BalloonScalingTest")
+        config.balloonSyncScale = true
+        manager.ghostConfig = config
+        let balloon = manager.getBalloonVM(for: 0)
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.executeSetScalingCommand(args: ["set", "scaling", "50", "75"])
+
+        for _ in 0..<20 where runtime.requests.first(where: { $0.id == EventID.OnBalloonScaling.rawValue }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let event = runtime.requests.first { $0.id == EventID.OnBalloonScaling.rawValue }
+        #expect(event?.method == "GET")
+        #expect(event?.refs == ["50.0", "100.0", "75.0", "100.0"])
+        #expect(balloon.scaleX == 0.5)
+        #expect(balloon.scaleY == 0.75)
+    }
+
+    @Test @MainActor
+    func timedScalingInterpolatesAndEmitsOnlyTheCompletedTransition() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-timed-scaling-test"))
+        _ = manager.ensureCharacterWindow(for: 0)
+        var config = GhostConfiguration(name: "TimedScalingTest")
+        config.balloonSyncScale = true
+        manager.ghostConfig = config
+        let balloon = manager.getBalloonVM(for: 0)
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.executeSetScalingCommand(args: ["set", "scaling", "50", "75", "180"])
+        try await Task.sleep(nanoseconds: 80_000_000)
+
+        let intermediateX = manager.characterViewModels[0]?.userScaleX ?? 1.0
+        let intermediateY = manager.characterViewModels[0]?.userScaleY ?? 1.0
+        #expect(intermediateX < 1.0 && intermediateX > 0.5)
+        #expect(intermediateY < 1.0 && intermediateY > 0.75)
+        #expect(runtime.requests.filter { $0.id == EventID.OnShellScaling.rawValue }.isEmpty)
+
+        for _ in 0..<40 where manager.characterViewModels[0]?.userScaleX != 0.5 {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        #expect(manager.characterViewModels[0]?.userScaleX == 0.5)
+        #expect(manager.characterViewModels[0]?.userScaleY == 0.75)
+        let events = runtime.requests.filter { $0.id == EventID.OnShellScaling.rawValue }
+        #expect(events.count == 1)
+        #expect(events.first?.refs == ["50.0", "100.0", "75.0", "100.0"])
+        let balloonEvents = runtime.requests.filter { $0.id == EventID.OnBalloonScaling.rawValue }
+        #expect(balloonEvents.count == 1)
+        #expect(balloonEvents.first?.refs == ["50.0", "100.0", "75.0", "100.0"])
+        #expect(balloon.scaleX == 0.5)
+        #expect(balloon.scaleY == 0.75)
+    }
+
+    @Test @MainActor
+    func timedAlphaInterpolatesAndReachesExactTarget() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-timed-alpha-test"))
+        _ = manager.ensureCharacterWindow(for: 0)
+        defer {
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.executeSetAlphaCommand(args: ["set", "alpha", "0", "180"])
+        try await Task.sleep(nanoseconds: 80_000_000)
+
+        let intermediate = manager.characterViewModels[0]?.alpha ?? 0
+        #expect(intermediate > 0.0 && intermediate < 1.0)
+
+        for _ in 0..<40 where manager.characterViewModels[0]?.alpha != 0.0 {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(manager.characterViewModels[0]?.alpha == 0.0)
+    }
+
+    @Test @MainActor
+    func timedVisualEffectWaitUsesCompletionUnitAndAcceptsMixedOptions() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-timed-visual-effect-wait-test"))
+        _ = manager.ensureCharacterWindow(for: 0)
+        defer {
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.executeSetScalingCommand(args: ["set", "scaling", "50", "75", "180", "--wait=true"])
+
+        let scalingWait = manager.playbackQueue.contains { unit in
+            if case .waitForVisualEffect("scaling:0") = unit { return true }
+            return false
+        }
+        #expect(scalingWait)
+        #expect(manager.playbackQueue.contains { unit in
+            if case .wait = unit { return true }
+            return false
+        } == false)
+
+        manager.playbackQueue.removeAll()
+        manager.executeSetAlphaCommand(args: ["set", "alpha", "25", "180", "--wait=true"])
+
+        let alphaWait = manager.playbackQueue.contains { unit in
+            if case .waitForVisualEffect("alpha:0") = unit { return true }
+            return false
+        }
+        #expect(alphaWait)
+        #expect(manager.characterViewModels[0]?.alpha ?? 1.0 > 0.25)
+    }
+
+    @Test @MainActor
+    func otherSurfaceChangeIsSentOnlyToOptedInOtherGhosts() {
+        EventBridge.shared.stop()
+
+        let source = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-surface-source"))
+        var sourceConfig = GhostConfiguration(name: "SourceGhost")
+        sourceConfig.sakuraName = "Source Sakura"
+        source.ghostConfig = sourceConfig
+        let sourceRuntime = CapturingUtilityRuntime()
+        let sourceToken = EventBridge.shared.register(runtime: sourceRuntime, ghostManager: source)
+
+        let observer = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-surface-observer"))
+        let observerRuntime = CapturingUtilityRuntime()
+        let observerToken = EventBridge.shared.register(runtime: observerRuntime, ghostManager: observer)
+        observer.setOtherSurfaceChange(enabled: true)
+
+        let disabled = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-other-surface-disabled"))
+        let disabledRuntime = CapturingUtilityRuntime()
+        let disabledToken = EventBridge.shared.register(runtime: disabledRuntime, ghostManager: disabled)
+        defer {
+            EventBridge.shared.unregister(sourceToken)
+            EventBridge.shared.unregister(observerToken)
+            EventBridge.shared.unregister(disabledToken)
+            EventBridge.shared.stop()
+        }
+
+        EventBridge.shared.notifyOtherSurfaceChange(
+            from: source,
+            scope: 0,
+            newSurfaceID: 17,
+            oldSurfaceID: 3,
+            newSurfaceSize: CGSize(width: 100, height: 200)
+        )
+
+        let event = observerRuntime.requests.first { $0.id == EventID.OnOtherSurfaceChange.rawValue }
+        #expect(event?.method == "GET")
+        #expect(event?.refs == ["SourceGhost", "Source Sakura", "0", "17", "3", "0,0,100,200"])
+        #expect(sourceRuntime.requests.isEmpty)
+        #expect(disabledRuntime.requests.isEmpty)
+    }
+
+    @Test @MainActor
+    func headlineRSSDispatchUsesStandardEventsAndFallback() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-headline-rss-event-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        #expect(!manager.dispatchRSSBegin(siteName: "Feed", url: "https://example.test/feed"))
+        #expect(runtime.requests.map(\.id) == ["OnRSSBegin", "OnHeadlinesenseBegin"])
+        #expect(runtime.requests.allSatisfy { $0.method == "GET" })
+        #expect(runtime.requests.allSatisfy { $0.refs == ["Feed", "https://example.test/feed"] })
+
+        runtime.requests.removeAll()
+        runtime.responses["OnRSSBegin"] = #"\0RSS begin handled\e"#
+        #expect(manager.dispatchRSSBegin(siteName: "Feed", url: "https://example.test/feed"))
+        #expect(runtime.requests.map(\.id) == ["OnRSSBegin"])
+        runtime.responses.removeValue(forKey: "OnRSSBegin")
+
+        let item = RSSFeedItem(
+            title: "Title",
+            url: "https://example.test/item",
+            publishedAt: nil,
+            author: "Author",
+            summary: "Summary"
+        )
+        runtime.requests.removeAll()
+        #expect(!manager.dispatchRSSComplete(siteName: "Feed", url: "https://example.test/feed", items: [item]))
+        let complete = runtime.requests.first { $0.id == "OnRSSComplete" }
+        #expect(complete?.method == "GET")
+        #expect(complete?.refs == ["Feed", "https://example.test/feed", item.wireValue])
+        let find = runtime.requests.first { $0.id == "OnHeadlinesense.OnFind" }
+        #expect(find?.method == "GET")
+        #expect(find?.refs == ["Feed", "https://example.test/feed", "First and Last", "Summary"])
+        #expect(runtime.requests.contains { $0.id == "OnHeadlinesenseComplete" } == false)
+
+        runtime.requests.removeAll()
+        #expect(!manager.dispatchRSSComplete(siteName: "Feed", url: "https://example.test/feed", items: []))
+        let noUpdateRSS = runtime.requests.first { $0.id == "OnRSSComplete" }
+        #expect(noUpdateRSS?.method == "GET")
+        #expect(noUpdateRSS?.refs == ["no update"])
+        let noUpdateHeadline = runtime.requests.first { $0.id == "OnHeadlinesenseComplete" }
+        #expect(noUpdateHeadline?.method == "GET")
+        #expect(noUpdateHeadline?.refs == ["no update"])
+
+        runtime.requests.removeAll()
+        #expect(!manager.dispatchRSSFailure(reason: "can't analyze"))
+        let rssFailure = runtime.requests.first { $0.id == "OnRSSFailure" }
+        #expect(rssFailure?.method == "GET")
+        #expect(rssFailure?.refs == ["can't analyze"])
+        let headlineFailure = runtime.requests.first { $0.id == "OnHeadlinesenseFailure" }
+        #expect(headlineFailure?.method == "GET")
+        #expect(headlineFailure?.refs == ["can't analyze"])
+    }
+
+    @Test @MainActor
+    func menuUpdateLetsGhostCustomizeStandardUpdate() {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-menu-update-custom-test"))
+        let runtime = CapturingUtilityRuntime()
+        runtime.responses[EventID.OnUpdateProcessExec.rawValue] = #"\0custom update\e"#
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.handleMenuAction("menu_update")
+
+        #expect(runtime.requests.count == 1)
+        #expect(runtime.requests[0].method == "GET")
+        #expect(runtime.requests[0].id == EventID.OnUpdateProcessExec.rawValue)
+        #expect(runtime.requests[0].refs == ["manual"])
+    }
+
+    @Test @MainActor
+    func menuUpdateFallsBackToStandardUpdateOnEmptyResponse() async throws {
+        EventBridge.shared.stop()
+
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-menu-update-fallback-test"))
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+            _ = manager.shutdown()
+        }
+
+        manager.handleMenuAction("menu_update")
+        for _ in 0..<100 where runtime.requests.contains(where: { $0.id == EventID.OnUpdateBegin.rawValue }) == false {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        #expect(runtime.requests.first?.id == EventID.OnUpdateProcessExec.rawValue)
+        #expect(runtime.requests.first?.method == "GET")
+        #expect(runtime.requests.first?.refs == ["manual"])
+        #expect(runtime.requests.contains { $0.id == EventID.OnUpdateBegin.rawValue })
+        #expect(runtime.requests.contains { $0.id == EventID.OnUpdateFailure.rawValue })
+    }
+
+    @Test @MainActor
+    func archiveCommandsDispatchStandardReferencesAndCustomEvent() async throws {
+        EventBridge.shared.stop()
+
+        let fileManager = FileManager.default
+        let root = fileManager.temporaryDirectory
+            .appendingPathComponent("ourin-archive-command-\(UUID().uuidString)", isDirectory: true)
+        let source = root.appendingPathComponent("source", isDirectory: true)
+        let sourceFile = source.appendingPathComponent("payload.txt")
+        let archive = root.appendingPathComponent("payload.zip")
+        let extracted = root.appendingPathComponent("extracted", isDirectory: true)
+        try fileManager.createDirectory(at: source, withIntermediateDirectories: true)
+        let payload = Data("archive payload".utf8)
+        try payload.write(to: sourceFile)
+        defer { try? fileManager.removeItem(at: root) }
+
+        let manager = GhostManager(ghostURL: root)
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.executeCompressArchive(params: [
+            source.path,
+            archive.path,
+            "--event=OnArchiveCompressTest"
+        ])
+        for _ in 0..<100 where runtime.requests.first(where: { $0.id == "OnArchiveCompressTest" }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let compress = runtime.requests.first { $0.id == "OnArchiveCompressTest" }
+        #expect(compress?.method == "GET")
+        let compressRefs = compress?.refs ?? []
+        #expect(compressRefs.count == 4)
+        if compressRefs.count == 4 {
+            #expect(compressRefs[0] == "OnArchiveCompressTest")
+            #expect(compressRefs[1] == "1")
+            #expect((Int64(compressRefs[2]) ?? 0) > 0)
+            #expect(compressRefs[3] == String(payload.count))
+        }
+        #expect(fileManager.fileExists(atPath: archive.path))
+
+        manager.executeExtractArchive(params: [
+            archive.path,
+            extracted.path,
+            "--event=OnArchiveExtractTest"
+        ])
+        for _ in 0..<100 where runtime.requests.first(where: { $0.id == "OnArchiveExtractTest" }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let extract = runtime.requests.first { $0.id == "OnArchiveExtractTest" }
+        #expect(extract?.method == "GET")
+        let extractRefs = extract?.refs ?? []
+        #expect(extractRefs.count == 4)
+        if extractRefs.count == 4 {
+            #expect(extractRefs[0] == "OnArchiveExtractTest")
+            #expect(extractRefs[1] == "1")
+            #expect(extractRefs[2] == String(ArchiveTestSupport.fileSize(at: archive)))
+            #expect(extractRefs[3] == String(payload.count))
+        }
+        #expect(try Data(contentsOf: extracted.appendingPathComponent("source/payload.txt")) == payload)
+
+        let passwordArchive = root.appendingPathComponent("password.zip")
+        let passwordExtracted = root.appendingPathComponent("password-extracted", isDirectory: true)
+        manager.executeCompressArchive(params: [
+            source.path,
+            passwordArchive.path,
+            "--password=secret",
+            "--event=OnArchivePasswordCompressTest"
+        ])
+        for _ in 0..<100 where runtime.requests.first(where: { $0.id == "OnArchivePasswordCompressTest" }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(runtime.requests.first(where: { $0.id == "OnArchivePasswordCompressTest" })?.method == "GET")
+
+        manager.executeExtractArchive(params: [
+            passwordArchive.path,
+            passwordExtracted.path,
+            "--password=secret",
+            "--event=OnArchivePasswordExtractTest"
+        ])
+        for _ in 0..<100 where runtime.requests.first(where: { $0.id == "OnArchivePasswordExtractTest" }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(runtime.requests.first(where: { $0.id == "OnArchivePasswordExtractTest" })?.method == "GET")
+        #expect(try Data(contentsOf: passwordExtracted.appendingPathComponent("source/payload.txt")) == payload)
+    }
+
+    @Test @MainActor
+    func archiveFailureUsesDefaultGetEventAndErrorReference() async throws {
+        EventBridge.shared.stop()
+
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ourin-archive-failure-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let manager = GhostManager(ghostURL: root)
+        let runtime = CapturingUtilityRuntime()
+        let token = EventBridge.shared.register(runtime: runtime, ghostManager: manager)
+        defer {
+            EventBridge.shared.unregister(token)
+            EventBridge.shared.stop()
+        }
+
+        manager.executeExtractArchive(params: [
+            root.appendingPathComponent("missing.zip").path,
+            root.appendingPathComponent("destination", isDirectory: true).path
+        ])
+        for _ in 0..<100 where runtime.requests.first(where: { $0.id == EventID.OnExtractArchiveFailure.rawValue }) == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        let event = runtime.requests.first { $0.id == EventID.OnExtractArchiveFailure.rawValue }
+        #expect(event?.method == "GET")
+        #expect(event?.refs == ["", "file not found"])
+    }
+}
+
+private enum ArchiveTestSupport {
+    static func fileSize(at url: URL) -> Int64 {
+        guard let values = try? url.resourceValues(forKeys: [.fileSizeKey]) else { return 0 }
+        return Int64(values.fileSize ?? 0)
+    }
+}

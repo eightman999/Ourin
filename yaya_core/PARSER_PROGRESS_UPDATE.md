@@ -1,5 +1,9 @@
 # YAYA Parser Enhancement Progress - Final Update
 
+> ⚠️ **時点スナップショット (2025-10-18)**: 本文書の「74.2% (23/31)」は当時の値。
+> 現在は Emily4 全33辞書のロードに成功している。最新状況は `IMPLEMENTATION_STATUS.md` を正とすること。
+> Snapshot as of 2025-10-18; Emily4 now loads all 33 dictionaries. See `IMPLEMENTATION_STATUS.md` for current status.
+
 ## Achievement: 74.2% Emily4 Compatibility! 🎉
 
 The YAYA_core parser has been significantly enhanced to support the majority of emily4 dictionary syntax patterns, achieving a **74.2% success rate** (23 out of 31 files parsing successfully).
@@ -47,6 +51,12 @@ The YAYA_core parser has been significantly enhanced to support the majority of 
 2. ✅ Array element compound assignment (e.g., `array[i] += value`)
 3. ✅ Expression statements as implicit return values
 4. ✅ Ternary operator (`? :`)
+
+### Range assignment verification (2026-08-12)
+
+- ✅ Inclusive range reads (`array[start,end]`) with reversed endpoint normalization.
+- ✅ Inclusive range replacement/removal (`array[start,end] = rhs`) and range concatenation (` ,=`).
+- ✅ Emily4 range lvalues load successfully; the full regression run completed 713 tests in 59 suites.
 
 ### Identifiers
 1. ✅ ASCII alphanumeric + underscore

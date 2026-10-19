@@ -1,14 +1,13 @@
 import SwiftUI
 import AppKit
 
-// SSP の右クリックメニューを模倣した UI。
-// メニュー構成例は docs/RightClickMenuMockup.md を参照。
+// メニューバーからもゴースト操作を行える補助メニュー。
 
 /// 右クリックメニュー UI の SwiftUI 実装（メニューバーエクストラ用）
 @available(macOS 11.0, *)
 struct RightClickMenu: View {
     private var ghostManager: GhostManager? {
-        (NSApp.delegate as? AppDelegate)?.ghostManager
+        AppDelegate.resolve()?.ghostManager
     }
 
     var body: some View {
@@ -58,7 +57,7 @@ struct RightClickMenu: View {
             }
 
             Button("DevTools") {
-                (NSApp.delegate as? AppDelegate)?.showDevTools()
+                AppDelegate.resolve()?.showDevTools()
             }
 
             Divider()
@@ -162,7 +161,7 @@ struct RightClickMenu: View {
 
     @ViewBuilder
     private var pluginSubmenu: some View {
-        let entries = (NSApp.delegate as? AppDelegate)?.pluginRegistry?.pluginMenuEntries() ?? []
+        let entries = AppDelegate.resolve()?.pluginRegistry?.pluginMenuEntries() ?? []
         if !entries.isEmpty {
             Menu("プラグイン(P)") {
                 ForEach(entries, id: \.actionIdentifier) { entry in

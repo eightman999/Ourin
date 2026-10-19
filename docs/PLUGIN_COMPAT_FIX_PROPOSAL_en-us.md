@@ -21,41 +21,33 @@ SomePlugin_mac/
 - `.plugin` bundle concentrates on DLL `load` / `loadu` / `request` / `unload` / `unloadu` compatibility.
 - Display strings and language selection default to `message.*.txt`.
 - Windows DLL is not directly loaded on macOS.
+- Migration records for unknown DLLs contain no executable; only completed native plugins are loadable.
 
-## Fix 1: Update PluginScaffolder output format to `*_mac/`
+## Fix 1: Do not generate fake executables for unknown DLLs (implemented)
 
-**Problem**
+The previous implementation generated an `exit 0` shell and a fixed `PLUGIN/2.0M 200 OK`
+response inside a `.plugin` scaffold. This could present incomplete behavior as implemented
+and caused PluginRegistry load failures or log noise.
 
-`docs/SPEC_PLUGIN_2.0M_en-us.md` and `docs/OURIN_MIGRATOR_PLAN.md` standardized `SomePlugin_mac/`, but current `PluginScaffolder` generates legacy format `ourin/macos/<name>.plugin/`.
-
-**Proposal**
-
-Change `PluginScaffolder.scaffold` output to:
+`PluginScaffolder` now generates only this executable-free migration record:
 
 ```text
 ourin/macos/<name>_mac/
-  install.txt
   descript.txt
   message.japanese.txt
   message.english.txt
-  <name>.plugin/
-    Contents/
-      Info.plist
-      MacOS/<name>
-      Resources/
-        descript.txt
-        ourin.json
-  Sources/
-    <name>Plugin.c
+  ourin.json (mode: unsupported)
   OriginalDocs/
     ReadMe.txt
+  README.md
 ```
 
-**Acceptance Criteria**
+`PluginRegistry` excludes `unsupported` and legacy `scaffold` manifests from execution.
+The source asset is not deleted; the original `install.txt` is retained only under
+`OriginalDocs/`.
 
-- `OurinMigratorTests.scaffoldGeneratesPluginBundleStructure` updated to new structure and passes.
-- If existing `descript.txt` / `install.txt` / `message.*.txt` present, copy to root and `OriginalDocs/`.
-- `IMPLEMENTATION_TODO.md` not in bundle but in `<name>_mac/README.md` or `Sources/`.
+After a per-asset native implementation is completed, update `ourin.json` to
+`native-plugin` or `native-replacement` before making it loadable.
 
 ## Fix 2: Prevent double-loading of same plugin ID
 

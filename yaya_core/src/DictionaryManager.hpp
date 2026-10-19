@@ -26,6 +26,13 @@ public:
     bool load(const std::vector<DicEntry>& dicEntries,
               const std::string& defaultEncoding);
     void unload();
+    /// Execute a function while preserving the YAYA return type.
+    ///
+    /// The SHIORI host must distinguish a script string from numeric control
+    /// results such as the `0` returned by Emily4's no-op mouse handlers.
+    /// `execute()` remains the string-compatible boundary for existing callers.
+    Value executeValue(const std::string& functionName,
+                       const std::vector<std::string>& args);
     std::string execute(const std::string& functionName,
                         const std::vector<std::string>& args);
 

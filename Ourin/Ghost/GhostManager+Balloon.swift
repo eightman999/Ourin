@@ -5,6 +5,38 @@ import Combine
 import UserNotifications
 
 
+// MARK: - アンカークリックのイベントルーティング
+
+/// アンカークリック時のイベントルーティング。
+enum AnchorClickRouting: Equatable {
+    /// `\_a[OnID,r0,r1,...]`: 引数は Reference0+ に配置して OnID イベントを直接発火する。
+    case directEvent(id: String, references: [String])
+    /// `\_a[ID,r2,r3,...]`: クリックされたテキスト（Reference0）・ID（Reference1）・引数（Reference2+）で OnAnchorSelectEx を発火する。
+    case anchorSelect(id: String, clickedText: String, selectedReferences: [String])
+}
+
+/// UKADOC に基づき、アンカーの ID 先頭 "On" の有無でイベントルーティングを決定する純関数。
+func routeAnchorClick(_ anchor: BalloonAnchorRange) -> AnchorClickRouting {
+    if anchor.id.hasPrefix("On") {
+        return .directEvent(id: anchor.id, references: anchor.references)
+    }
+    return .anchorSelect(id: anchor.id, clickedText: anchor.text, selectedReferences: anchor.references)
+}
+
+/// UKADOC の OnAnchorSelectEx / OnAnchorEnter / OnAnchorHover 共通の参照列を作る。
+/// Reference0=表示ラベル、Reference1=ID、Reference2以降=アンカー引数。
+func anchorEventParameters(for anchor: BalloonAnchorRange) -> [String: String] {
+    var params: [String: String] = [
+        "Reference0": anchor.text,
+        "Reference1": anchor.id
+    ]
+    for (index, reference) in anchor.references.enumerated() {
+        params["Reference\(index + 2)"] = reference
+    }
+    return params
+}
+
+
 // MARK: - Balloon Management and Positioning
 
 extension GhostManager {
@@ -12,15 +44,25 @@ extension GhostManager {
     func getBalloonVM(for scope: Int) -> BalloonViewModel {
         if let vm = balloonViewModels[scope] { return vm }
         let vm = BalloonViewModel()
+        // アンカー装飾の既定値をバルーン設定（descript.txt の anchor.pen.color / anchor.font.color）から取る。
+        vm.applyBalloonConfigAnchorDefaults(config: balloonConfig)
         // Initialize balloon ID from character view model
         if let charVM = characterViewModels[scope] {
             vm.balloonID = charVM.currentBalloonID
+            if ghostConfig?.balloonSyncScale == true {
+                vm.scaleX = charVM.scaleX
+                vm.scaleY = charVM.scaleY
+            }
         }
         balloonViewModels[scope] = vm
 
         let view = BalloonView(
             viewModel: vm,
             onClick: { [weak self] in self?.onBalloonClicked(fromScope: scope) },
+            onAnchorClick: { [weak self] anchor in self?.onBalloonAnchorClicked(anchor, fromScope: scope) },
+            onAnchorHover: { [weak self] anchor, hovering in
+                self?.onBalloonAnchorHover(anchor, fromScope: scope, hovering: hovering)
+            },
             config: balloonConfig,
             imageLoader: balloonImageLoader
         )
@@ -54,13 +96,29 @@ extension GhostManager {
             object: win
         )
 
-        // show/hide per text and resize window to fit content
-        // Use debouncing to prevent flickering from rapid text updates
-        balloonTextCancellables[scope] = vm.$text
+        // show/hide per visible balloon state and resize window to fit content.
+        // 本文が空でも balloonmarker / balloonnum / onlinemode は表示対象になるため、
+        // text publisher だけを監視すると強制オンラインマーカーがウィンドウへ出ない。
+        // objectWillChange はこれら全ての @Published 状態をまとめて捕捉する。
+        balloonTextCancellables[scope] = vm.objectWillChange
             .debounce(for: .milliseconds(50), scheduler: RunLoop.main)
-            .sink { [weak self, weak win, weak hc] text in
+            .sink { [weak self, weak win, weak hc] _ in
                 guard let self = self, let win = win, let hc = hc else { return }
-                if text.isEmpty {
+                let hasBalloonNumber = vm.balloonNumberVisible
+                    && (!vm.balloonNumberFileName.isEmpty
+                        || !vm.balloonNumberCurrent.isEmpty
+                        || !vm.balloonNumberMaximum.isEmpty)
+                let hasOnlineMarker = vm.onlineModeActive
+                    && self.balloonImageLoader?.loadOnlineMarker(
+                        index: vm.onlineMarkerIndex,
+                        filenamePrefix: self.balloonConfig?.onlineMarkerFilename ?? "online"
+                    ) != nil
+                let hasVisibleContent = !vm.text.isEmpty
+                    || !vm.balloonImages.isEmpty
+                    || !vm.balloonMarkerText.isEmpty
+                    || hasBalloonNumber
+                    || hasOnlineMarker
+                if !hasVisibleContent {
                     if win.isVisible {
                         win.orderOut(nil)
                     }
@@ -69,8 +127,12 @@ extension GhostManager {
 
                     // Resize window to fit content
                     let fittingSize = hc.view.fittingSize
-                    let newSize = CGSize(width: max(250, min(fittingSize.width, 400)),
-                                       height: max(50, min(fittingSize.height, 600)))
+                    // 通常倍率では従来の上限を維持する。同期倍率が 100% を超える場合は
+                    // 変換後のコンテンツをクリップしないよう、拡大後のサイズをそのまま採用する。
+                    let scaledBeyondDefault = abs(vm.scaleX) > 1.0 || abs(vm.scaleY) > 1.0
+                    let width = scaledBeyondDefault ? fittingSize.width : min(fittingSize.width, 400)
+                    let height = scaledBeyondDefault ? fittingSize.height : min(fittingSize.height, 600)
+                    let newSize = CGSize(width: max(250, width), height: max(50, height))
 
                     // Only update if size changed significantly (avoid micro-adjustments)
                     let currentSize = win.frame.size
@@ -97,90 +159,442 @@ extension GhostManager {
         //     let targets = syncScopes.isEmpty ? [0,1] : Array(syncScopes)
         //     for sc in targets { getBalloonVM(for: sc).text += s }
         // } else {
-            getBalloonVM(for: currentScope).text += s
+            let vm = getBalloonVM(for: currentScope)
+            // 途中に含まれる改行も lineAdvances と同期させる（`\n` タグ経由でない改行は送り倍率 1.0）。
+            let parts = s.split(separator: "\n", omittingEmptySubsequences: false)
+            for (index, part) in parts.enumerated() {
+                if index > 0 { vm.appendNewline(advance: 1.0) }
+                if !part.isEmpty { vm.text += String(part) }
+            }
             scheduleBalloonTimeout(for: currentScope)
-            triggerSerikoTalkAnimationIfEnabled()
+            let characterCount = s.reduce(into: 0) { count, character in
+                if character != "\n" { count += 1 }
+            }
+            triggerSerikoTalkAnimationIfEnabled(characterCount: characterCount)
         // }
     }
 
-    func onBalloonClicked(fromScope: Int) {
-        if let noclear = pendingClick {
-            if noUserBreakModeActive {
-                Log.debug("[GhostManager] Balloon click ignored: nouserbreakmode active")
-                return
+    /// `\n[half]` / `\n[パーセント]` / 通常 `\n` の改行を、垂直送り倍率つきで表示する。
+    func appendNewline(advance: CGFloat) {
+        let vm = getBalloonVM(for: currentScope)
+        vm.appendNewline(advance: advance)
+        scheduleBalloonTimeout(for: currentScope)
+        // 改行は表示位置を進めるイベントであり、talk,N の文字数には含めない。
+        // 引数 0 でも talk（パラメータなし）のイベント通知は従来どおり維持する。
+        triggerSerikoTalkAnimationIfEnabled(characterCount: 0)
+    }
+
+    /// 指定ウィンドウがこのゴーストのキャラクター／バルーンウィンドウかを返す。
+    /// InputMonitor のダブルクリックを複数ゴーストへ誤配送しないために使う。
+    func ownsInputWindow(_ window: NSWindow) -> Bool {
+        characterWindows.values.contains { $0 === window } ||
+            balloonWindows.values.contains { $0 === window }
+    }
+
+    /// バルーンは SwiftUI のクリックコールバックがダブルクリック判定を担う。
+    /// InputMonitor 側では通常のマウスイベントだけを抑止し、同じクリックを
+    /// `OnVanishButtonHold` と `OnBalloonBreak` の両方へ流さないようにする。
+    func isBalloonInputWindow(_ window: NSWindow) -> Bool {
+        balloonWindows.values.contains { $0 === window }
+    }
+
+    /// 消滅演出中のバルーン入力を InputMonitor で消費するか返す。
+    func consumesVanishBalloonInputClick(button: String?) -> Bool {
+        guard vanishSelectedCompletion != nil else { return false }
+        return button == nil || button == "0"
+    }
+
+    /// ウィンドウ識別子からスコープを解決する。マウスイベントの
+    /// Reference3 はキャラクターウィンドウでは取得できるが、バルーン側では
+    /// 既定値になるため、発生元ウィンドウを正とする。
+    func inputScope(for window: NSWindow, fallback: Int) -> Int {
+        guard let identifier = window.identifier?.rawValue,
+              let suffix = identifier.split(separator: "_").last,
+              let scope = Int(suffix) else {
+            return fallback
+        }
+        return scope
+    }
+
+    /// 消滅演出中のクリックを消費する。1回目は通常のマウスイベントを
+    /// 発火させずに待ち、2回目で OnVanishButtonHold を発火する。
+    @discardableResult
+    func handleVanishInputClick(scope: Int, button: String?, clickStreak: Int) -> Bool {
+        guard vanishSelectedCompletion != nil else { return false }
+        // Reference5=0 は左ボタン。右クリックメニュー等は消滅演出の
+        // キャンセル操作として奪わない。
+        guard button == nil || button == "0" else { return false }
+        if clickStreak >= 2 {
+            _ = handleVanishButtonHold(scope: scope)
+        }
+        return true
+    }
+
+    /// OnVanishSelected の再生中にバルーンがクリックされた場合のフォールバック。
+    /// 入力監視が無効なテスト／埋め込み表示でも同じダブルクリック意味論を保つ。
+    func handleVanishBalloonClick(scope: Int) {
+        guard vanishSelectedCompletion != nil else { return }
+        let now = Date()
+        if let previous = vanishLastClickAt,
+           let previousScope = vanishLastClickScope,
+           previousScope == scope,
+           now.timeIntervalSince(previous) <= 0.35 {
+            _ = handleVanishButtonHold(scope: scope)
+        } else {
+            vanishLastClickAt = now
+            vanishLastClickScope = scope
+        }
+    }
+
+    /// 消滅演出を中断し、OnVanishButtonHold を GET で発火する。
+    @discardableResult
+    func handleVanishButtonHold(scope: Int) -> Bool {
+        guard let sourceScript = vanishSelectedSourceScript,
+              vanishSelectedCompletion != nil else { return false }
+
+        let displayScript = vanishSelectedDisplayScript ?? sourceScript
+        let displayedText = getBalloonVM(for: scope).text
+        let breakPosition = Self.vanishBreakPosition(
+            in: displayScript,
+            displayedText: displayedText,
+            scope: scope
+        )
+        let refs = EventReferenceTable.params(
+            forEvent: EventID.OnVanishButtonHold.rawValue,
+            refs: [
+                "displayedScript": sourceScript,
+                "scope": String(scope),
+                "breakPosition": String(breakPosition)
+            ]
+        )
+
+        // 先に完了コールバックを破棄してから GET を送る。応答スクリプトが
+        // 即時再生されても、消滅処理を再開しないようにする。
+        vanishSelectedSourceScript = nil
+        vanishSelectedDisplayScript = nil
+        vanishSelectedCompletion = nil
+        vanishLastClickAt = nil
+        vanishLastClickScope = nil
+        pendingClick = nil
+        pendingChoices.removeAll()
+        choiceHasCancelOption = false
+        choiceTimeout = nil
+        choiceTimeoutDisabled = false
+        timeCriticalActive = false
+        cancelPlaybackForBalloonBreak()
+        getBalloonVM(for: scope).resetBalloonContent()
+
+        return EventBridge.shared.request(
+            .OnVanishButtonHold,
+            params: refs,
+            to: self
+        )
+    }
+
+    /// OnVanishButtonHold Reference2 のため、表示済み本文を SakuraScript の
+    /// 元文字列上の位置へ戻す。制御タグを読み飛ばすだけでなく、\n／\_u／\_m
+    /// など表示文字を生成するタグも追跡するため、単純な表示文字数ではない。
+    static func vanishBreakPosition(in sourceScript: String, displayedText: String, scope: Int) -> Int {
+        guard !displayedText.isEmpty else { return 0 }
+
+        let chars = Array(sourceScript)
+        var index = 0
+        var sourceOffset = 0
+        var activeScope = 0
+        var visibleByScope: [Int: String] = [:]
+        var bestMatch = 0
+
+        func appendVisible(_ value: String) -> Bool {
+            guard !value.isEmpty else { return false }
+            visibleByScope[activeScope, default: ""].append(value)
+            guard activeScope == scope,
+                  displayedText.hasPrefix(visibleByScope[activeScope] ?? "") else {
+                return false
             }
+            bestMatch = sourceOffset
+            return visibleByScope[activeScope] == displayedText
+        }
+
+        func bracketEnd(from start: Int) -> Int {
+            var cursor = start
+            while cursor < chars.count {
+                if chars[cursor] == "\\", cursor + 1 < chars.count {
+                    cursor += 2
+                    continue
+                }
+                if chars[cursor] == "]" { return cursor }
+                cursor += 1
+            }
+            return chars.count
+        }
+
+        func scalarText(_ value: String) -> String? {
+            var raw = value.trimmingCharacters(in: .whitespacesAndNewlines)
+            var radix = 10
+            if raw.lowercased().hasPrefix("0x") {
+                raw.removeFirst(2)
+                radix = 16
+            } else if raw.lowercased().hasPrefix("#x") {
+                raw.removeFirst(2)
+                radix = 16
+            } else if raw.hasPrefix("#") {
+                raw.removeFirst()
+            }
+            guard let number = UInt32(raw, radix: radix),
+                  let scalar = UnicodeScalar(number) else { return nil }
+            return String(scalar)
+        }
+
+        while index < chars.count {
+            guard chars[index] == "\\" else {
+                let value = String(chars[index])
+                index += 1
+                sourceOffset += 1
+                if appendVisible(value) { return sourceOffset }
+                continue
+            }
+
+            guard index + 1 < chars.count else {
+                index += 1
+                sourceOffset += 1
+                continue
+            }
+
+            let commandStart = index
+            let next = chars[index + 1]
+            if next == "\\" || next == "%" {
+                index += 2
+                sourceOffset += 2
+                if appendVisible(String(next)) { return sourceOffset }
+                continue
+            }
+
+            var nameEnd = index + 2
+            if next == "_" {
+                while nameEnd < chars.count, chars[nameEnd] == "_" {
+                    nameEnd += 1
+                }
+                if nameEnd < chars.count { nameEnd += 1 }
+            }
+            let commandName = String(chars[(index + 1)..<nameEnd]).lowercased()
+            var argument: String?
+            var commandEnd = nameEnd
+            if commandEnd < chars.count, chars[commandEnd] == "[" {
+                let closing = bracketEnd(from: commandEnd + 1)
+                argument = String(chars[(commandEnd + 1)..<min(closing, chars.count)])
+                commandEnd = min(closing + (closing < chars.count ? 1 : 0), chars.count)
+            }
+
+            index = commandEnd
+            sourceOffset += commandEnd - commandStart
+
+            if let scopeID = Int(commandName), (0...9).contains(scopeID) {
+                activeScope = scopeID
+            } else if commandName == "p", let scopeID = Int(argument ?? "") {
+                activeScope = scopeID
+            } else if commandName == "n" {
+                if appendVisible("\n") { return sourceOffset }
+            } else if commandName == "_u" || commandName == "_m" {
+                if let value = scalarText(argument ?? ""), appendVisible(value) {
+                    return sourceOffset
+                }
+            } else if commandName == "&",
+                      let value = resolveEntityReference(argument ?? ""),
+                      appendVisible(value) {
+                return sourceOffset
+            }
+        }
+
+        // 解析不能表示する拡張タグが含まれる場合でも、最後に確認できた
+        // 正確な位置を優先し、本文全体まで一致しなかった場合だけ終端を返す。
+        return bestMatch > 0 ? bestMatch : chars.count
+    }
+
+    func onBalloonClicked(fromScope: Int) {
+        if vanishSelectedCompletion != nil {
+            handleVanishBalloonClick(scope: fromScope)
+            return
+        }
+        guard !noUserBreakModeActive else {
+            Log.debug("[GhostManager] Balloon click ignored: nouserbreakmode active")
+            return
+        }
+
+        if let noclear = pendingClick {
             pendingClick = nil
             if !noclear {
-                // UKADOC: OnBalloonBreak R0=中断時に表示中のスクリプト, R1=スコープ(本体0/相方1), R2=中断位置(文字数)
-                //         OnBalloonClose R0=閉じる際に表示されていたスクリプト
-                // 元の SakuraScript は保持していないため、表示中テキストを最良近似として用いる。
+                // 通常の \x 待機は再生の正常終了。OnBalloonClose のみをGET配送する。
                 let vm = getBalloonVM(for: fromScope)
                 let displayedScript = vm.text
-                vm.text = ""
-                EventBridge.shared.notify(.OnBalloonBreak, refs: [
-                    "displayedScript": displayedScript,
-                    "scope": String(fromScope),
-                    "breakPosition": String(displayedScript.count)
-                ])
-                EventBridge.shared.notify(.OnBalloonClose, refs: ["displayedScript": displayedScript])
+                cancelBalloonTimeout(for: fromScope)
+                vm.resetBalloonContent()
+                _ = EventBridge.shared.request(
+                    .OnBalloonClose,
+                    refs: ["displayedScript": displayedScript],
+                    to: self
+                )
             }
             processNextUnit()
             return
         }
 
-        guard let pendingAnchor = pendingAnchorAction else { return }
-        pendingAnchorAction = nil
-        let action = pendingAnchor.action
-        let pluginOrigin = pendingAnchor.pluginOrigin
+        // 再生中のクリックはユーザー中断。このケースでも「\x待機」と同じく
+        // 現在の表示を閉じて、OnBalloonBreak の応答スクリプトを再生できるようにする。
+        guard isPlaying else { return }
+        let vm = getBalloonVM(for: fromScope)
+        let displayedScript = vm.text
+        cancelBalloonTimeout(for: fromScope)
+        cancelPlaybackForBalloonBreak()
+        pendingChoices.removeAll()
+        choiceHasCancelOption = false
+        choiceTimeout = nil
+        choiceTimeoutDisabled = false
+        timeCriticalActive = false
+        pendingClick = nil
+        vm.resetBalloonContent()
+        _ = EventBridge.shared.request(
+            .OnBalloonBreak,
+            refs: [
+                "displayedScript": displayedScript,
+                "scope": String(fromScope),
+                "breakPosition": String(displayedScript.count)
+            ],
+            to: self
+        )
+    }
+
+    /// `\_a` 範囲アンカーがクリックされたときの処理。
+    func onBalloonAnchorClicked(_ anchor: BalloonAnchorRange, fromScope: Int) {
+        if noUserBreakModeActive {
+            Log.debug("[GhostManager] Anchor click ignored: nouserbreakmode active")
+            return
+        }
+        if let choiceIndex = anchor.choiceIndex {
+            selectInlineChoice(index: choiceIndex)
+            return
+        }
+        let pluginOrigin = anchor.pluginOrigin
 
         let vm = getBalloonVM(for: fromScope)
         vm.anchorActive = false
+        // クリックされたアンカーを訪問済みとして記録し、以後 `anchorvisited*` 装飾で描画する。
+        vm.markAnchorVisited(id: anchor.id, range: anchor.range)
 
-        switch action {
-        case .event(let id, let references):
+        switch routeAnchorClick(anchor) {
+        case .directEvent(let id, let references):
             var params: [String: String] = [:]
             for (index, ref) in references.enumerated() {
                 params["Reference\(index)"] = ref
             }
-
-            if id.hasPrefix("On") {
-                EventBridge.shared.notifyCustom(id, params: params)
-                if pluginOrigin {
-                    forwardEventToPlugins(id: id, references: references)
-                }
-            } else {
-                var exParams = params
-                exParams["Reference1"] = id
-                EventBridge.shared.notifyCustom("OnAnchorSelectEx", params: exParams)
-                EventBridge.shared.notifyCustom("OnAnchorSelect", refs: ["anchorID": id])
-                if pluginOrigin {
-                    forwardEventToPlugins(id: "OnAnchorSelect", references: [id])
-                    forwardEventToPlugins(id: "OnAnchorSelectEx", references: references + [id])
-                }
+            _ = EventBridge.shared.requestCustom(id, params: params, to: self)
+            if pluginOrigin {
+                forwardEventToPlugins(id: id, references: references)
             }
-        case .script(let script):
-            sakuraEngine.run(script: script)
+        case .anchorSelect(let id, let clickedText, let selectedReferences):
+            // UKADOC: OnAnchorSelectEx は Reference0=クリックされたテキスト, Reference1=ID, Reference2+=引数。
+            let selected = BalloonAnchorRange(
+                id: id,
+                references: selectedReferences,
+                text: clickedText,
+                range: anchor.range,
+                pluginOrigin: anchor.pluginOrigin,
+                visited: anchor.visited
+            )
+            let handledByEx = EventBridge.shared.requestCustom(
+                "OnAnchorSelectEx",
+                params: anchorEventParameters(for: selected),
+                to: self
+            )
+            // UKADOC: OnAnchorSelect は Ex が空応答のときだけ発火する。
+            if !handledByEx {
+                _ = EventBridge.shared.requestCustom(
+                    "OnAnchorSelect",
+                    params: EventReferenceTable.params(forEvent: "OnAnchorSelect", refs: ["anchorID": id]),
+                    to: self
+                )
+            }
+            if pluginOrigin {
+                forwardEventToPlugins(id: "OnAnchorSelect", references: [id])
+                forwardEventToPlugins(id: "OnAnchorSelectEx", references: [clickedText, id] + selectedReferences)
+            }
+        }
+    }
+
+    /// 実際のアンカー文字列へポインタが入った／外れたときのイベントを発火する。
+    /// スクリプトの `\_a` 開始時はまだ表示テキストが確定していないため、ここでは発火しない。
+    func onBalloonAnchorHover(_ anchor: BalloonAnchorRange, fromScope scope: Int, hovering: Bool) {
+        let timerKey = "anchor-hover-\(scope)"
+        let key = "\(anchor.id)|\(anchor.range.location)|\(anchor.range.length)"
+
+        if hovering {
+            if hoveredAnchorKeysByScope[scope] == key {
+                return
+            }
+
+            localEventTimers[timerKey]?.invalidate()
+            localEventTimers.removeValue(forKey: timerKey)
+            if hoveredAnchorKeysByScope[scope] != nil {
+                // SwiftUI の再構成で入退場順が入れ替わっても、前のアンカーを閉じる。
+                _ = EventBridge.shared.requestCustom("OnAnchorEnter", params: [:], to: self)
+            }
+            hoveredAnchorKeysByScope[scope] = key
+
+            _ = EventBridge.shared.requestCustom(
+                "OnAnchorEnter",
+                params: anchorEventParameters(for: anchor),
+                to: self
+            )
+
+            let timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+                guard let self, self.hoveredAnchorKeysByScope[scope] == key else { return }
+                _ = EventBridge.shared.requestCustom(
+                    "OnAnchorHover",
+                    params: anchorEventParameters(for: anchor),
+                    to: self
+                )
+                self.localEventTimers.removeValue(forKey: timerKey)
+            }
+            localEventTimers[timerKey] = timer
+        } else {
+            guard hoveredAnchorKeysByScope[scope] == key else { return }
+            localEventTimers[timerKey]?.invalidate()
+            localEventTimers.removeValue(forKey: timerKey)
+            hoveredAnchorKeysByScope.removeValue(forKey: scope)
+            // UKADOC: アンカーから外れた OnAnchorEnter は Reference なし。
+            _ = EventBridge.shared.requestCustom("OnAnchorEnter", params: [:], to: self)
         }
     }
 
     private func scheduleBalloonTimeout(for scope: Int) {
         let key = "balloon-timeout-\(scope)"
-        if let timer = localEventTimers[key] {
-            timer.invalidate()
-            localEventTimers.removeValue(forKey: key)
-        }
+        cancelBalloonTimeout(for: scope)
         guard let vm = balloonViewModels[scope], vm.balloonTimeout > 0 else { return }
         let timer = Timer.scheduledTimer(withTimeInterval: vm.balloonTimeout, repeats: false) { [weak self] _ in
             guard let self else { return }
             let balloonVM = self.getBalloonVM(for: scope)
             let displayedScript = balloonVM.text
-            balloonVM.text = ""
-            EventBridge.shared.notify(.OnBalloonTimeout, refs: ["scope": String(scope)])
-            // UKADOC: OnBalloonClose R0=閉じる際に表示されていたスクリプト（表示中テキストで近似）
-            EventBridge.shared.notify(.OnBalloonClose, refs: ["displayedScript": displayedScript])
+            balloonVM.resetBalloonContent()
+            // UKADOC: OnBalloonTimeout R0=タイムアウト時に表示されていたスクリプト、R1=残り時間。
+            // タイマーの発火時点では残り時間は 0 とする。
+            // OnBalloonTimeout はタイムアウトの応答だけを返すGETイベント。
+            // タイムアウトはユーザーの「閉じる」操作ではないため、OnBalloonClose は発火しない。
+            _ = EventBridge.shared.request(
+                .OnBalloonTimeout,
+                refs: [
+                    "displayedScript": displayedScript,
+                    "remainingTime": "0"
+                ],
+                to: self
+            )
             self.localEventTimers.removeValue(forKey: key)
         }
         localEventTimers[key] = timer
+    }
+
+    private func cancelBalloonTimeout(for scope: Int) {
+        let key = "balloon-timeout-\(scope)"
+        localEventTimers[key]?.invalidate()
+        localEventTimers.removeValue(forKey: key)
     }
     // MARK: - Balloon Positioning
 
@@ -197,12 +611,14 @@ extension GhostManager {
                 resourceManager.setCharDefaultLeft(scope: scope, value: Int(frame.origin.x))
                 resourceManager.setCharDefaultTop(scope: scope, value: Int(frame.origin.y))
                 Log.debug("[GhostManager] Saved scope \(scope) position: (\(Int(frame.origin.x)), \(Int(frame.origin.y)))")
+                updateDisplayHandover(for: window, scope: scope)
             }
         }
     }
 
     @objc func balloonWindowDidChangeFrame(_ notification: Notification) {
         // Save balloon window positions when moved by user
+        guard !isResettingBalloonPositions, !isAutoPositioningBalloons else { return }
         if let window = notification.object as? NSWindow,
            let identifier = window.identifier?.rawValue,
            identifier.hasPrefix("GhostBalloonWindow_") {
@@ -216,9 +632,44 @@ extension GhostManager {
         }
     }
 
+    /// シェル descript のスコープ別バルーン設定（scope0=sakura, 1=kero, n=charN）。
+    func shellBalloonSetting(scope: Int, key: String) -> String? {
+        let prefix = scope == 0 ? "sakura" : scope == 1 ? "kero" : "char\(scope)"
+        let wanted = "\(prefix).balloon.\(key)".lowercased()
+        return shellBalloonSettings.first { $0.key.lowercased() == wanted }?.value
+            .trimmingCharacters(in: .whitespaces)
+    }
+
+    /// UKADOC（descript_shell）のバルーン既定位置。
+    /// - 左右: alignment が left/right ならその側、none（自動）ならシェルが画面左半分にあれば右、そうでなければ左。
+    ///   自動のときだけ、はみ出す側からもう一方へ回す。
+    /// - 左右に置く時はバルーン上端をシェル上端に揃え、横に接する位置が 0。
+    ///   offsetx は正でシェル側へ寄る（左置きは右へ、右置きは左へ）、offsety は正で下へ。
+    ///   左右別の offsetxl/yl・offsetxr/yr があれば優先し、無ければ offsetx/offsety。
+    static func shellBalloonOrigin(character c: CGRect, balloonSize s: CGSize, screen: CGRect?, alignment: String?, offset: (String) -> CGFloat?) -> CGPoint {
+        let mode = (alignment ?? "none").lowercased()
+        func origin(onRight: Bool) -> CGPoint {
+            let ox = offset(onRight ? "offsetxr" : "offsetxl") ?? offset("offsetx") ?? 0
+            let oy = offset(onRight ? "offsetyr" : "offsetyl") ?? offset("offsety") ?? 0
+            let x = onRight ? c.maxX - ox : c.minX - s.width + ox
+            // 下向き正の offsety を Cocoa（上向き正）へ
+            let y = c.maxY - oy - s.height
+            return CGPoint(x: x, y: y)
+        }
+        switch mode {
+        case "left": return origin(onRight: false)
+        case "right": return origin(onRight: true)
+        default:
+            let preferRight = screen.map { c.midX < $0.midX } ?? false
+            let first = origin(onRight: preferRight)
+            guard let screen else { return first }
+            let overflows = preferRight ? first.x + s.width > screen.maxX : first.x < screen.minX
+            return overflows ? origin(onRight: !preferRight) : first
+        }
+    }
+
     func positionBalloonWindow() {
         let margin: CGFloat = 8
-        let verticalOffset: CGFloat = 80 // Move balloon higher above character head
 
         // Position each balloon next to its corresponding character window
         for (scope, balloonWin) in balloonWindows {
@@ -238,10 +689,21 @@ extension GhostManager {
             // This is handled by SakuraScriptEngine commands
             // Priority 3: Default position relative to character (lowest priority)
             else {
-                // Position balloon to the right of character for all scopes
-                // This provides consistent positioning regardless of scope
-                f.origin.x = cFrame.maxX + margin
-                f.origin.y = cFrame.maxY - f.height + verticalOffset
+                // UKADOC: シェルの balloon.alignment（\![set,balloonalign] が優先）で左右を決め、
+                // 上端をシェル上端に揃えて offsetx/offsety（左右別 l/r）を適用する。
+                let alignment: String?
+                switch balloonViewModels[scope]?.balloonAlignment {
+                case .left?: alignment = "left"
+                case .right?: alignment = "right"
+                default: alignment = shellBalloonSetting(scope: scope, key: "alignment")
+                }
+                f.origin = Self.shellBalloonOrigin(
+                    character: cFrame,
+                    balloonSize: f.size,
+                    screen: charWin.screen?.visibleFrame,
+                    alignment: alignment,
+                    offset: { key in self.shellBalloonSetting(scope: scope, key: key).flatMap(Double.init).map { CGFloat($0) } }
+                )
             }
 
             // Keep balloon within screen bounds
@@ -251,7 +713,35 @@ extension GhostManager {
                 if f.maxY > screen.maxY { f.origin.y = screen.maxY - f.height - margin }
                 if f.minY < screen.minY { f.origin.y = screen.minY + margin }
             }
+            // 自動配置の移動は保存しない（保存するとシェル既定位置が以後使われなくなる）。
+            // didMove は次の run loop で届くことがあるため、解除も非同期にする。
+            isAutoPositioningBalloons = true
             balloonWin.setFrameOrigin(f.origin)
+            DispatchQueue.main.async { [weak self] in
+                self?.isAutoPositioningBalloons = false
+            }
+        }
+    }
+
+    /// `\![execute,resetballoonpos]` — 各バルーンの保存位置を消し、初期位置へ戻す。
+    func resetBalloonPositions() {
+        let reset = { [weak self] in
+            guard let self else { return }
+            self.isResettingBalloonPositions = true
+            self.resourceManager.resetBalloonPositions()
+            self.positionBalloonWindow()
+            // NSWindow.didMoveNotification が次の run loop で届く場合も、
+            // その移動をユーザー操作として永続化しない。
+            DispatchQueue.main.async { [weak self] in
+                self?.isResettingBalloonPositions = false
+            }
+            Log.info("[GhostManager] All balloon positions reset")
+        }
+
+        if Thread.isMainThread {
+            reset()
+        } else {
+            DispatchQueue.main.async(execute: reset)
         }
     }
 
@@ -304,7 +794,15 @@ extension GhostManager {
         let image = loadBalloonImage(filepath: filepath, isOpaque: isOpaque, useSelfAlpha: useSelfAlpha)
 
         DispatchQueue.main.async {
-            guard let vm = self.balloonViewModels[self.currentScope] else { return }
+            // スコープ切替直後など、バルーンウィンドウがまだ遅延生成されていない
+            // 場合でも \_b の画像を捨てず、通常の表示経路と同じVMを生成する。
+            let vm = self.getBalloonVM(for: self.currentScope)
+            let inlineTextOffset: Int?
+            if isInline, image != nil {
+                inlineTextOffset = vm.appendInlineImagePlaceholder()
+            } else {
+                inlineTextOffset = nil
+            }
 
             let balloonImage = BalloonViewModel.BalloonImage(
                 filepath: filepath,
@@ -316,12 +814,13 @@ extension GhostManager {
                 clipping: clipping,
                 isForeground: isForeground,
                 isFixed: isFixed,
+                inlineTextOffset: inlineTextOffset,
                 image: image
             )
             
             if isInline {
-                // For inline images, we'll insert them into the text at the current position
-                // This is handled by the text rendering system
+                // 文字内配置の本実装は後続のリッチテキスト作業で扱うが、画像自体は
+                // 現在の描画経路へ登録して寿命・clear対象を統一する。
                 Log.debug("[GhostManager] Inline image: \(filepath)")
             }
             
@@ -333,7 +832,7 @@ extension GhostManager {
     /// Parse balloon image option
     private func parseBalloonImageOption(_ option: String, _ isOpaque: inout Bool, _ useSelfAlpha: inout Bool, _ clipping: inout CGRect?, _ isForeground: inout Bool, _ isFixed: inout Bool) {
         let opt = option.lowercased()
-        if opt == "opaque" {
+        if opt == "opaque" || opt == "--option=opaque" {
             isOpaque = true
         } else if opt == "--option=use_self_alpha" {
             useSelfAlpha = true
@@ -456,15 +955,22 @@ extension GhostManager {
 
     /// Handle cursor position move - \_l[x,y]
     func handleCursorMove(x: String, y: String) {
-        let baseX = getBalloonVM(for: currentScope).cursorX
-        let baseY = getBalloonVM(for: currentScope).cursorY
+        let scope = currentScope
+        let vm = getBalloonVM(for: scope)
+        let baseX = vm.cursorX
+        let baseY = vm.cursorY
         let newX = parseCursorCoordinate(value: x, base: baseX)
         let newY = parseCursorCoordinate(value: y, base: baseY)
+
+        // UKADOC: \_l is an intentional line break context for \f[align].
+        // Reset before dispatching the coordinate update so following text in
+        // the same playback queue starts with the new line's default alignment.
+        vm.resetCurrentLineAlignment()
         
         DispatchQueue.main.async {
-            guard let vm = self.balloonViewModels[self.currentScope] else { return }
-            vm.cursorX = newX
-            vm.cursorY = newY
+            guard let target = self.balloonViewModels[scope] else { return }
+            target.cursorX = newX
+            target.cursorY = newY
             Log.debug("[GhostManager] Cursor moved to: (\(newX), \(newY))")
         }
     }
@@ -697,16 +1203,32 @@ extension GhostManager {
         return parseColor(from: normalized.joined(separator: ","), defaultValue: defaultValue)
     }
 
-    /// Parse tri-state value (0/1/true/false/default/disable)
-    func parseTriState(_ value: String, currentValue: String) -> Bool {
-        let v = value.lowercased()
-        if v == "1" || v == "true" {
+    /// Parse tri-state value (0/1/true/false/default/disable).
+    ///
+    /// `default` and `disable` are semantic values, not unknown values: they
+    /// must restore the corresponding balloon style instead of retaining the
+    /// current style. The caller can provide a different disabled value for
+    /// properties such as strike-through, which is part of the disabled text
+    /// appearance.
+    func parseTriState(
+        _ value: String,
+        currentValue: String,
+        defaultValue: Bool = false,
+        disabledValue: Bool = false
+    ) -> Bool {
+        let v = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        switch v {
+        case "1", "true":
             return true
-        } else if v == "0" || v == "false" {
+        case "0", "false":
             return false
+        case "default":
+            return defaultValue
+        case "disable":
+            return disabledValue
+        default:
+            return currentValue == "1"
         }
-        // default/disable - return current value
-        return currentValue == "1"
     }
 
     /// Reset font to default values
@@ -721,9 +1243,29 @@ extension GhostManager {
         vm.fontSubscript = false
         vm.fontSuperscript = false
         vm.fontColor = config?.fontColor ?? .textColor
+        vm.setTextAlignment(.left)
+        vm.setVerticalTextAlignment(.top)
         vm.shadowColor = .clear
         vm.shadowStyle = .none
         vm.outlineWidth = 0
+        if let config {
+            vm.cursorStyle = AnchorDecorationStyle(shape: config.cursorStyle) ?? .square
+            vm.cursorBrushColor = config.cursorBrushColor
+            vm.cursorPenColor = config.cursorPenColor
+            vm.cursorFontColor = config.cursorFontColor
+            vm.cursorMethod = AnchorRasterOperation(name: config.cursorBlendMethod) ?? .none
+        } else {
+            vm.cursorStyle = .square
+            vm.cursorBrushColor = .clear
+            vm.cursorPenColor = .linkColor
+            vm.cursorFontColor = .textColor
+            vm.cursorMethod = .none
+        }
+        vm.cursorNotSelectStyle = .none
+        vm.cursorNotSelectBrushColor = .clear
+        vm.cursorNotSelectPenColor = .linkColor
+        vm.cursorNotSelectFontColor = .textColor
+        vm.cursorNotSelectMethod = .none
     }
 
     /// Set font to disabled style
@@ -745,83 +1287,88 @@ extension GhostManager {
 
     /// Clear text - \c[char,line,...]
     func handleTextClear(args: [String]) {
-        guard let vm = balloonViewModels[currentScope] else { return }
-        
-        var charsToClear = 0
-        var linesToClear = 0
-        
-        if args.isEmpty {
-            // Clear all text
-            vm.text = ""
-            Log.debug("[GhostManager] Cleared all text")
-            return
-        }
-        
-        // 位置引数形式（UKADOC 準拠）: \c[char,N] / \c[line,N] / \c[char,N,start] / \c[all]。
-        // 旧 `char=N` / `line=N` 形式も後方互換で受理する。
-        switch args.first {
-        case "all":
-            vm.text = ""
-            Log.debug("[GhostManager] Cleared all text")
-            return
-        case "char":
-            if args.count >= 2, let count = Int(args[1]) { charsToClear = count }
-        case "line":
-            if args.count >= 2, let count = Int(args[1]) { linesToClear = count }
-        default:
-            for arg in args {
-                if arg == "all" {
-                    vm.text = ""
-                    Log.debug("[GhostManager] Cleared all text")
-                    return
-                }
-                let parts = arg.split(separator: "=")
-                if parts.count >= 2, let count = Int(parts[1]) {
-                    if arg.hasPrefix("char") { charsToClear = count }
-                    else if arg.hasPrefix("line") { linesToClear = count }
+        let apply = { [weak self] in
+            guard let self else { return }
+            let vm = self.getBalloonVM(for: self.currentScope)
+            var charsToClear = 0
+            var charStart: Int?
+            var linesToClear = 0
+            var lineStart: Int?
+
+            if args.isEmpty {
+                vm.resetBalloonContent()
+                Log.debug("[GhostManager] Cleared all text")
+                return
+            }
+
+            // 位置引数形式（UKADOC 準拠）: \c[char,N] / \c[line,N] / \c[char,N,start] / \c[all]。
+            // 旧 `char=N` / `line=N` 形式も後方互換で受理する。
+            switch args.first?.lowercased() {
+            case "all":
+                vm.resetBalloonContent()
+                Log.debug("[GhostManager] Cleared all text")
+                return
+            case "char":
+                if args.count >= 2, let count = Int(args[1]) { charsToClear = count }
+                if args.count >= 3 { charStart = Int(args[2]) }
+            case "line":
+                if args.count >= 2, let count = Int(args[1]) { linesToClear = count }
+                if args.count >= 3 { lineStart = Int(args[2]) }
+            default:
+                for arg in args {
+                    if arg.lowercased() == "all" {
+                        vm.resetBalloonContent()
+                        Log.debug("[GhostManager] Cleared all text")
+                        return
+                    }
+                    let parts = arg.split(separator: "=", maxSplits: 1).map(String.init)
+                    if parts.count >= 2, let count = Int(parts[1]) {
+                        if parts[0].lowercased() == "char" { charsToClear = count }
+                        else if parts[0].lowercased() == "line" { linesToClear = count }
+                    }
                 }
             }
-        }
-        
-        DispatchQueue.main.async {
+
             if charsToClear > 0 {
-                let charsToRemove = min(charsToClear, vm.text.count)
-                vm.text = String(vm.text.dropLast(charsToRemove))
-                Log.debug("[GhostManager] Cleared \(charsToRemove) chars")
+                vm.clearCharacters(charsToClear, start: charStart)
+                Log.debug("[GhostManager] Cleared \(charsToClear) chars at \(charStart.map(String.init) ?? "cursor")")
             } else if linesToClear > 0 {
-                let lines = vm.text.components(separatedBy: .newlines)
-                let linesToRemove = min(linesToClear, lines.count)
-                vm.text = lines.dropLast(linesToRemove).joined(separator: "\n")
-                Log.debug("[GhostManager] Cleared \(linesToRemove) lines")
+                vm.clearLines(linesToClear, start: lineStart)
+                Log.debug("[GhostManager] Cleared \(linesToClear) lines at \(lineStart.map(String.init) ?? "cursor")")
             }
+        }
+
+        if Thread.isMainThread {
+            apply()
+        } else {
+            DispatchQueue.main.async(execute: apply)
         }
     }
 
     /// Handle newline with custom height - \n[half] or \n[percent]
     func handleNewline(type: String) {
-        guard let vm = balloonViewModels[currentScope] else { return }
-        
         let typeLower = type.lowercased()
-        
-        DispatchQueue.main.async {
+        let apply = { [weak self] in
+            guard let self else { return }
+            let advance: CGFloat
             switch typeLower {
             case "half":
-                // Half-height newline - adjust line spacing
-                vm.text += "\n"
+                advance = 0.5
                 Log.debug("[GhostManager] Half-height newline")
             case let percent where typeLower.hasSuffix("%"):
                 // Percentage-based newline - adjust line spacing
-                if let pct = Double(percent.dropLast()) {
-                    let fontSize = vm.fontSize
-                    let lineHeight = fontSize * (pct / 100.0)
-                    // For now, just append newline - custom spacing handled by text rendering
-                    vm.text += "\n"
-                    Log.debug("[GhostManager] \(percent) height newline")
-                }
+                advance = BalloonViewModel.newlineAdvance(for: percent)
+                Log.debug("[GhostManager] \(percent) height newline")
             default:
-                // Regular newline
-                vm.text += "\n"
+                advance = BalloonViewModel.newlineAdvance(for: typeLower)
+                Log.debug("[GhostManager] Newline advance: \(advance)")
             }
+            self.appendNewline(advance: advance)
+        }
+        if Thread.isMainThread {
+            apply()
+        } else {
+            DispatchQueue.main.async(execute: apply)
         }
     }
     

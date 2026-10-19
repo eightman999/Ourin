@@ -51,6 +51,8 @@ private extension Data {
     }
 }
 
+// 埋め込みSHIORI XPCサービスをfixtureから起動するため、suite内の並列実行を禁止する。
+@Suite(.serialized)
 struct ShioriLoaderTests {
     @Test
     func shiori2DetectionUsesGetVersionThenConvertsEventRequest() throws {
@@ -125,6 +127,33 @@ struct ShioriLoaderTests {
         #expect(sent == expected)
         #expect(!sent.contains("Reference8"))
         #expect(sent.hasSuffix("\r\n\r\n"))
+    }
+
+    @Test
+    func shiori2OtherObjectDropEventsReachLegacyBackend() throws {
+        let backend = MockShiori2Backend { _ in
+            "SHIORI/2.2 204 No Content\r\n\r\n"
+        }
+        let adapter = Shiori2CompatBackend(wrapping: backend, detectedVersion: "SHIORI/2.6")
+        let request = """
+        GET SHIORI/3.0\r
+        Charset: UTF-8\r
+        Sender: Ourin\r
+        ID: OnOtherObjectDropped\r
+        Reference0: 1\r
+        Reference1: 仮想コンピュータ\r
+        Reference2: com.example.virtual-object\r
+        SecurityLevel: local\r
+        \r
+        """
+
+        _ = adapter.request(request)
+
+        let sent = try #require(backend.requests.first)
+        #expect(sent.contains("Event: OnOtherObjectDropped\r\n"))
+        #expect(sent.contains("Reference0: 1\r\n"))
+        #expect(sent.contains("Reference1: 仮想コンピュータ\r\n"))
+        #expect(sent.contains("Reference2: com.example.virtual-object\r\n"))
     }
 
     @Test
@@ -1143,6 +1172,309 @@ struct ShioriLoaderTests {
         #expect(Self.runYayaCore(exe: exe, requests: [loadReq, req("SwapGlobal")]) == "BA")
     }
 
+    /// 入れ子配列の要素（`&matrix[row][column]`）も E.Swap の参照先として
+    /// ルート配列へ書き戻されることを検証する。
+    @Test
+    func yayaCoreESwapByReferenceSupportsNestedArrayElements() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        SwapNestedArrayElem {
+            _rowA = { 'a' -- 'b' }
+            _rowB = { 'c' -- 'd' }
+            _matrix = { _rowA -- _rowB }
+            E.Swap(&_matrix[0][1], &_matrix[1][0])
+            _matrix[0][0] + _matrix[0][1] + _matrix[1][0] + _matrix[1][1]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path,
+            "encoding": "UTF-8", "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "SwapNestedArrayElem",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        // [a,b]/[c,d] -> [a,c]/[b,d]
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "acbd")
+    }
+
+    /// `&` を受け取る通常のユーザー関数でも、関数内の `_argv` 更新を呼び出し元へ
+    /// 書き戻す。Emily4 の再帰的な `E.SortArray.Qsort` がこの経路を使用する。
+    @Test
+    func yayaCoreGenericByReferencePropagatesThroughNestedCall() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        MutateArgument {
+            _argv[0] = _argv[0] + '!'
+        }
+        Caller {
+            _value = 'before'
+            MutateArgument(&_value)
+            _value
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path,
+            "encoding": "UTF-8", "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "Caller",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "before!")
+    }
+
+    /// 配列要素代入 `arr[i] = value` が、配列全体ではなく正確にその要素だけを
+    /// 書き換え、隣接要素には影響しないことを検証する。
+    @Test
+    func yayaCoreArrayElementAssignmentWritesOnlyIndexedElement() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        ArrElemAssign {
+            _arr = { 'a' -- 'b' -- 'c' }
+            _arr[1] = 'X'
+            _arr[0] + _arr[1] + _arr[2]
+        }
+        ArrElemNeighborsUnchanged {
+            _arr = { 'a' -- 'b' -- 'c' }
+            _arr[1] = 'X'
+            _arr[0] + ',' + _arr[2]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        func req(_ id: String) -> [String: Any] {
+            return ["cmd": "request", "method": "GET", "id": id, "ref": [], "headers": ["Charset": "UTF-8"]]
+        }
+
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, req("ArrElemAssign")]) == "aXc")
+        // 要素1だけを書き換え、要素0と要素2は元のまま残る。
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, req("ArrElemNeighborsUnchanged")]) == "a,c")
+    }
+
+    /// 配列要素の複合代入 `arr[i] += / -= / *= / /= / %= value` が、対象要素のみに
+    /// 反映され、他の要素を巻き込まないことを検証する。
+    @Test
+    func yayaCoreArrayElementCompoundAssignmentAppliesToElementOnly() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        ArrElemCompound {
+            _arr = { 1 -- 2 -- 3 -- 4 -- 5 -- 6 }
+            _arr[0] += 5
+            _arr[1] -= 5
+            _arr[2] *= 2
+            _arr[3] /= 4
+            _arr[4] %= 7
+            _arr[0] + ',' + _arr[1] + ',' + _arr[2] + ',' + _arr[3] + ',' + _arr[4] + ',' + _arr[5]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "ArrElemCompound",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        // [1,2,3,4,5,6] → [6,-3,6,1,5,6]（末尾要素6は不変）
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "6,-3,6,1,5,6")
+    }
+
+    /// 配列要素の連結代入 `arr[i] ,= value`（文字列要素は文字列連結）が、
+    /// 対象要素のみに反映されることを検証する。
+    @Test
+    func yayaCoreArrayElementConcatAssignmentAppliesToElementOnly() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        ArrElemConcat {
+            _arr = { 'a' -- 'b' -- 'c' }
+            _arr[1] ,= 'X'
+            _arr[0] + _arr[1] + _arr[2]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "ArrElemConcat",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "abXc")
+    }
+
+    /// 範囲/スライス左辺値 `arr[a, b] = IARRAY` が、両端を含む閉区間を削除することを
+    /// 検証する。`{1--2--3--4--5}` の `[2, 4]`（= 要素 3,4,5）を空配列で置換すると
+    /// 先頭の `1,2` だけが残る。
+    @Test
+    func yayaCoreRangeLvalueEmptyArrayRemovesInterval() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        RangeLvalueClear {
+            _a = { 1 -- 2 -- 3 -- 4 -- 5 }
+            _a[2, 4] = IARRAY
+            _a[0] + ',' + _a[1]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "RangeLvalueClear",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        // [1,2,3,4,5] → [1,2]（閉区間 [2,4] の要素 3,4,5 が削除される）
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "1,2")
+    }
+
+    /// 範囲/スライス左辺値 `arr[a, b] = { ... }` が、閉区間を配列で置換（スプライス）
+    /// することを検証する。`{1--2--3--4}` の `[1, 2]` を `{8--9}` で置き換えると
+    /// `1,8,9,4` になる。
+    @Test
+    func yayaCoreRangeLvalueSplicesArrayIntoInterval() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        RangeLvalueSplice {
+            _a = { 1 -- 2 -- 3 -- 4 }
+            _a[1, 2] = { 8 -- 9 }
+            _a[0] + ',' + _a[1] + ',' + _a[2] + ',' + _a[3]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "RangeLvalueSplice",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        // [1,2,3,4] → [1,8,9,4]（閉区間 [1,2] の要素 2,3 が {8,9} に置き換わる）
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "1,8,9,4")
+    }
+
+    /// 範囲読み `arr[start, end]` が、長さではなく両端を含む閉区間を返すことを検証する。
+    /// `{1--2--3--4--5}` の `[1, 2]` は長さ2で要素1,2（= 2,3）を返す。もし length 解釈なら
+    /// 要素 1,2,3（= 2,3,4）になってしまうため、この違いで閉区間セマンティクスを確定する。
+    @Test
+    func yayaCoreRangeReadIsInclusive() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        RangeReadInclusive {
+            _a = { 1 -- 2 -- 3 -- 4 -- 5 }
+            _sub = _a[1, 2]
+            ARRAYSIZE(_sub) + ':' + _sub[0] + ',' + _sub[1]
+        }
+        RangeReadReversed {
+            _a = { 1 -- 2 -- 3 -- 4 -- 5 }
+            _sub = _a[2, 1]
+            ARRAYSIZE(_sub) + ':' + _sub[0] + ',' + _sub[1]
+        }
+        RangeWriteReversed {
+            _a = { 1 -- 2 -- 3 -- 4 -- 5 }
+            _a[4, 2] = IARRAY
+            _a[0] + ',' + _a[1]
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let entries: [[String: String]] = [["path": "t.dic", "encoding": "UTF-8"]]
+        let loadReq: [String: Any] = ["cmd": "load", "ghost_root": ghost.path,
+                                      "encoding": "UTF-8", "dic_entries": entries]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "RangeReadInclusive",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+    // 要素1,2 のみ（= [2,3]）。length 解釈だと [2,3,4] になる。
+    #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "2:2,3")
+
+    let reversedRead: [String: Any] = [
+        "cmd": "request", "method": "GET", "id": "RangeReadReversed",
+        "ref": [], "headers": ["Charset": "UTF-8"]
+    ]
+    let reversedWrite: [String: Any] = [
+        "cmd": "request", "method": "GET", "id": "RangeWriteReversed",
+        "ref": [], "headers": ["Charset": "UTF-8"]
+    ]
+    // 公式YAYAと同じく、終端が逆でも範囲端を交換して [1,2] として扱う。
+    #expect(Self.runYayaCore(exe: exe, requests: [loadReq, reversedRead]) == "2:2,3")
+    #expect(Self.runYayaCore(exe: exe, requests: [loadReq, reversedWrite]) == "1,2")
+}
+
     /// `READFMO(name)` が host_op:"fmo" 経由で現在の FMO スナップショットを同期的に取得できるか。
     /// yaya_core と行ベースで双方向 IPC し、READFMO 呼び出し時に発行される host_op へ応答する。
     @Test
@@ -1214,14 +1546,169 @@ struct ShioriLoaderTests {
         #expect(resp?["value"] as? String == snapshot)
     }
 
+    /// GETMEMINFO が空配列や32bit整数に丸められず、OSの実メモリ値を返すことを検証する。
+    @Test
+    func yayaCoreGetMemInfoReturnsHostMemoryArray() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ memory integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        GetMemoryInfo {
+            _info = GETMEMINFO()
+            _count = ARRAYSIZE(_info)
+            "count=%(_count), load=%(_info[0]), total=%(_info[1]), available=%(_info[2])"
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+            "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "GetMemoryInfo",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+        let value = Self.runYayaCore(exe: exe, requests: [loadReq, request]) ?? ""
+
+        #expect(value.contains("count=5"))
+        let fields = Dictionary(uniqueKeysWithValues: value.split(separator: ",").compactMap { field -> (String, String)? in
+            let parts = field.split(separator: "=", maxSplits: 1).map(String.init)
+            guard parts.count == 2 else { return nil }
+            return (parts[0].trimmingCharacters(in: .whitespaces), parts[1])
+        })
+        let load = Int(fields["load"] ?? "-1")
+        let total = Int64(fields["total"] ?? "0") ?? 0
+        let available = Int64(fields["available"] ?? "-1") ?? -1
+        #expect((0...100).contains(load ?? -1))
+        #expect(total > 0)
+        #expect(available >= 0 && available <= total)
+    }
+
+    /// YAYA の文字列埋め込み履歴参照を検証する。
+    @Test
+    func yayaCoreEmbeddedHistoryReferencesPreviousValues() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping embedded history integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        EmbeddedHistory {
+            "prefix %(1) %[0] middle %(2) %[0] %[1]"
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+            "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "EmbeddedHistory",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) ==
+                "prefix 1 1 middle 2 2 1")
+    }
+
+    /// macOS では HWND を直接送信できないため、SETTAMAHWND の指定値を
+    /// 論理設定として保持し、GETSETTING で読み戻せることを検証する。
+    @Test
+    func yayaCoreTamaWindowHandleIsStoredAsLogicalSetting() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping TAMA window integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        TamaWindow {
+            SETTAMAHWND(123456789012)
+            GETSETTING("tama.hwnd")
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+            "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "TamaWindow",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "123456789012")
+    }
+
+    /// FCHARSET の CP932 テキスト入出力と、FATTRIB の POSIX 属性変換を検証する。
+    @Test
+    func yayaCoreFileCharsetAndAttributesAreImplemented() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping file function integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        FileFunctions {
+            FCHARSET(0)
+            _h = FOPEN("cp932.txt", "w")
+            FWRITE(_h, "日本語")
+            FCLOSE(_h)
+            _h = FOPEN("cp932.txt", "r")
+            _text = FREAD(_h)
+            FCLOSE(_h)
+            _a = FATTRIB("cp932.txt")
+            "text=%(_text),count=%(_a[0] + 11),directory=%(_a[2]),normal=%(_a[4]),created=%(_a[9]),modified=%(_a[10])"
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+            "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "FileFunctions",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        let value = Self.runYayaCore(exe: exe, requests: [loadReq, request], currentDirectory: ghost) ?? ""
+        #expect(value.contains("text=日本語"))
+        #expect(value.contains("count=11"))
+        #expect(value.contains("directory=0"))
+        #expect(value.contains("normal=1"))
+        #expect(value.contains("created="))
+        #expect(value.contains("modified="))
+
+        let bytes = try Data(contentsOf: ghost.appendingPathComponent("cp932.txt"))
+        #expect(bytes == Data([0x93, 0xFA, 0x96, 0x7B, 0x8C, 0xEA]))
+    }
+
     /// Run yaya_core with a sequence of JSON-line requests; return the `value` of the
     /// last response (or nil). Each invocation is a fresh process: load + one request.
-    private static func runYayaCore(exe: URL, requests: [[String: Any]]) -> String? {
+    private static func runYayaCore(exe: URL, requests: [[String: Any]], currentDirectory: URL? = nil) -> String? {
         let stdin = requests.map { (try? JSONSerialization.data(withJSONObject: $0)) ?? Data() }
             .map { String(data: $0, encoding: .utf8) ?? "" }
             .joined(separator: "\n") + "\n"
         let proc = Process()
         proc.executableURL = exe
+        proc.currentDirectoryURL = currentDirectory
         let inPipe = Pipe()
         let outPipe = Pipe()
         proc.standardInput = inPipe

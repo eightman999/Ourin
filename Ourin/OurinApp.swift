@@ -7,6 +7,34 @@ import UserNotifications
 import Foundation
 // FMO 機能を組み込み、起動時に初期化する
 
+/// アプリプロセスの正常終了／異常終了を次回起動時に判定する永続マーカー。
+enum BootRecoveryMarker {
+    static let activeKey = "OurinCrashRecovery.active"
+    static let ghostNameKey = "OurinCrashRecovery.ghostName"
+
+    /// 前回セッションのマーカーを読み取り、現在セッションを未終了状態へ切り替える。
+    @discardableResult
+    static func beginSession(defaults: UserDefaults = .standard) -> GhostBootRecovery? {
+        let recovery = defaults.bool(forKey: activeKey)
+            ? GhostBootRecovery(previousGhostName: defaults.string(forKey: ghostNameKey) ?? "")
+            : nil
+        defaults.set(true, forKey: activeKey)
+        defaults.removeObject(forKey: ghostNameKey)
+        return recovery
+    }
+
+    static func recordActiveGhost(name: String, defaults: UserDefaults = .standard) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        defaults.set(trimmed, forKey: ghostNameKey)
+    }
+
+    static func clearSession(defaults: UserDefaults = .standard) {
+        defaults.removeObject(forKey: activeKey)
+        defaults.removeObject(forKey: ghostNameKey)
+    }
+}
+
 struct OurinApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {
@@ -82,6 +110,25 @@ struct OurinApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
+    /// SwiftUI の `NSApplicationDelegateAdaptor` は `NSApp.delegate` に
+    /// `SwiftUI.AppDelegate` プロキシを置くため、直接の型キャストでは
+    /// この実体へ到達できない。アプリが生成した実体を保持し、旧来の
+    /// AppKit 直結構成では直接 delegate を優先して解決する。
+    private(set) static weak var current: AppDelegate?
+
+    override init() {
+        super.init()
+        Self.current = self
+    }
+
+    /// 本番（SwiftUI）とテスト（AppKit直接delegate）の両構成で同じ実体を返す。
+    static func resolve() -> AppDelegate? {
+        if let direct = NSApp.delegate as? AppDelegate {
+            return direct
+        }
+        return current
+    }
+
     var fmo: FmoManager?
     var pluginRegistry: PluginRegistry?
     var headlineRegistry: HeadlineRegistry?
@@ -96,6 +143,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     var ghostManager: GhostManager?
     /// 同時起動している追加ゴースト（プライマリ以外）。複数ゴースト同時実行用。
     var additionalGhosts: [GhostManager] = []
+    /// アプリ全体終了時の OnCloseAll 集約状態。
+    private var closeAllSequenceActive = false
+    private var pendingCloseAllManagers: Set<ObjectIdentifier> = []
+    /// ベースウェア更新後の再起動で OnBasewareUpdated を一度だけ発火するための状態。
+    private var pendingBasewareUpdateVersion: String?
+    private var pendingBasewareUpdateMarkerURL: URL?
+    /// 前回プロセス異常終了時の OnBoot Reference6/7 を、最初の主ゴーストへ一度だけ渡す。
+    private var pendingBootRecovery: GhostBootRecovery?
+    /// update,platform からの終了では OnClose を使う（通常終了は OnCloseAll）。
+    private var basewareUpdateTerminationRequested = false
     let shioriRuntimeCache = ShioriRuntimeCache(capacity: 2)
     /// 起動中の全ゴースト（プライマリ＋追加）。FMO 集約・一括終了に使う。
     var allGhostManagers: [GhostManager] {
@@ -131,8 +188,96 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         return DispatchQueue.main.sync { self.resolveGhostManager(headers: headers) }
     }
 
+    /// DevTools のゴースト選択値が、設定名またはインストールフォルダ名に一致するかを判定する。
+    /// SSTP の ReceiverGhostName と同じ大小文字・percent encoding 規則を使う。
+    static func ghostSelectionMatches(
+        _ selection: String,
+        configName: String?,
+        folderName: String?
+    ) -> Bool {
+        guard let target = receiverTargetKey(headers: ["ReceiverGhostName": selection]) else {
+            return false
+        }
+        return [configName, folderName]
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            .contains(target)
+    }
+
+    /// DevTools のスクリプトを選択されたゴーストへ配送する。
+    /// 未起動の選択ゴーストは追加ゴーストとして起動し、起動完了後にスクリプトを再生する。
+    /// 完了コールバックはUI表示用の実行対象メッセージを返す。
+    func runDevToolsScript(
+        _ script: String,
+        selectedGhostName: String?,
+        completion: @escaping (String) -> Void
+    ) {
+        let work = { [weak self] in
+            guard let self else {
+                completion("実行対象: なし（アプリデリゲート未接続）")
+                return
+            }
+
+            let requestedName = selectedGhostName?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if let target = self.devToolsGhostManager(named: requestedName) {
+                target.runScript(script)
+                completion("実行対象: \(self.devToolsDisplayName(for: target))")
+                return
+            }
+
+            guard !requestedName.isEmpty else {
+                completion("実行対象: なし（ゴースト未起動）")
+                return
+            }
+
+            guard let item = NarRegistry.shared.installedItems(ofType: "ghost")
+                .first(where: { $0.name.caseInsensitiveCompare(requestedName) == .orderedSame }) else {
+                completion("実行対象: なし（ゴースト \(requestedName) が見つかりません）")
+                return
+            }
+
+            _ = self.launchAdditionalGhost(at: item.path) { [weak self] target, result in
+                let finish = {
+                    guard result.succeeded else {
+                        self?.terminateAdditionalGhost(target)
+                        completion("実行対象: なし（ゴースト \(requestedName) の起動に失敗）")
+                        return
+                    }
+                    target.runScript(script)
+                    completion("実行対象: \(self?.devToolsDisplayName(for: target) ?? requestedName)")
+                }
+                if Thread.isMainThread {
+                    finish()
+                } else {
+                    DispatchQueue.main.async(execute: finish)
+                }
+            }
+        }
+
+        if Thread.isMainThread {
+            work()
+        } else {
+            DispatchQueue.main.async(execute: work)
+        }
+    }
+
     private func resolveYayaAdapter(headers: [String: String]) -> YayaAdapter? {
         resolveGhostManager(headers: headers)?.yayaAdapter
+    }
+
+    private func devToolsGhostManager(named name: String) -> GhostManager? {
+        guard !name.isEmpty else { return ghostManager }
+        return allGhostManagers.first {
+            Self.ghostSelectionMatches(
+                name,
+                configName: $0.ghostConfig?.name,
+                folderName: $0.ghostURL.lastPathComponent
+            )
+        }
+    }
+
+    private func devToolsDisplayName(for manager: GhostManager) -> String {
+        manager.ghostConfig?.name ?? manager.ghostURL.lastPathComponent
     }
 
     /// ReceiverGhostName ヘッダから照合キーを作る純関数部（テスト用に static 公開）。
@@ -163,22 +308,70 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
     }
 
+    /// SwiftUI は先頭シーン `WindowGroup("Settings")` の窓を起動時に自動で開き、前回終了時に開いていれば復元もする。
+    /// メニュー・ゴーストから開く設定画面は識別子 `SettingsWindow` の独自窓なので、
+    /// WindowGroup 由来（`Settings-AppWindow-N`）の窓は自動表示だけと見なして閉じてよい。
+    static func isAutoOpenedSettingsWindow(identifier: String?) -> Bool {
+        guard let identifier else { return false }
+        return identifier.hasPrefix("Settings-AppWindow")
+    }
+
+    func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool {
+        false
+    }
+
+    /// 起動直後に生成・復元される WindowGroup 由来の設定窓を閉じる。
+    /// 生成タイミングが didFinishLaunching より後になるため、短時間だけ窓の表示を監視する。
+    private func suppressLaunchSettingsWindows() {
+        let closeAutoOpened = {
+            for window in NSApplication.shared.windows where Self.isAutoOpenedSettingsWindow(identifier: window.identifier?.rawValue) {
+                window.close()
+            }
+        }
+        var observers: [NSObjectProtocol] = []
+        for name in [NSWindow.didBecomeKeyNotification, NSWindow.didBecomeMainNotification, NSWindow.didUpdateNotification] {
+            observers.append(NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { note in
+                guard let window = note.object as? NSWindow,
+                      Self.isAutoOpenedSettingsWindow(identifier: window.identifier?.rawValue) else { return }
+                window.close()
+            })
+        }
+        DispatchQueue.main.async(execute: closeAutoOpened)
+        // ビルド直後の初回起動など、窓の生成・復元が遅れる場合に備えて少し長めに見張る
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+            closeAutoOpened()
+            observers.forEach(NotificationCenter.default.removeObserver)
+        }
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
+        Self.current = self
+        if BasewareUpdateHelper.runIfRequested() {
+            return
+        }
         if isRunningUnderTests {
             NSLog("[AppDelegate] Detected XCTest environment; skipping full app bootstrap")
             return
         }
 
-        // Ensure single instance and clean helper state by killing others first
-        ProcessKiller.killOtherOurinAndYaya()
+        pendingBootRecovery = BootRecoveryMarker.beginSession()
+        if let pendingBootRecovery {
+            NSLog("[AppDelegate] Previous Ourin session did not terminate cleanly; OnBoot recovery is pending")
+        }
 
-        // 共有メモリの存在で他のベースウェアが起動しているか判定
+        // SSP 互換の単一インスタンス: 既に稼働中の Ourin があれば、それを前面に出して自分が終了する。
+        // 他の Ourin（利用者のインスタンスや XCTest ホスト）を強制終了しない。
+        if ProcessKiller.hasOtherOurinInstance() {
+            NSLog("Another Ourin instance is already running. Activating it and terminating.")
+            ProcessKiller.activateOtherInstance()
+            NSApplication.shared.terminate(nil)
+            return
+        }
+        // 前回のクラッシュ等で親を失った yaya_core だけを片付ける。
+        ProcessKiller.killOrphanedYaya()
+
+        // 共有メモリの存在で他のベースウェアが起動しているか判定（Ourin が居なければ残留とみなす）
         if FmoManager.isAnotherInstanceRunning() {
-            if ProcessKiller.hasOtherOurinInstance() {
-                NSLog("Another baseware instance is already running. Terminating.")
-                NSApplication.shared.terminate(nil)
-                return
-            }
             NSLog("FMO exists but no other Ourin process was found. Reclaiming stale FMO resources.")
             FmoManager.reclaimStaleResources()
         }
@@ -202,16 +395,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // 旧データ（Application Support / 旧サンドボックスコンテナ）を ~/Documents/Ourin へ一度だけ移行する。
         // plugin/headline 探索や startup ghost より前に行い、各 Registry が移行後の公開フォルダを参照できるようにする。
         OurinPaths.migrateLegacyDataIfNeeded()
-
-        // Hide the default Settings window on startup
-        DispatchQueue.main.async {
-            let settingsTitle = NSLocalizedString("Settings", comment: "Settings window title")
-            for window in NSApplication.shared.windows {
-                if window.title == settingsTitle || window.contentViewController?.view.className.contains("ContentView") == true {
-                    window.close()
-                }
-            }
+        if let markerURL = try? BasewareUpdateMarker.defaultURL(),
+           let version = BasewareUpdateMarker.appliedVersion(at: markerURL) {
+            pendingBasewareUpdateVersion = version
+            pendingBasewareUpdateMarkerURL = markerURL
         }
+
+        // 起動時に設定画面を出さない（SSP と同様、設定はメニューから開く）。
+        suppressLaunchSettingsWindows()
 
         // Register handler for x-ukagaka-link scheme early
         WebHandler.shared.register()
@@ -252,6 +443,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 EventBridge.shared.dispatchPluginResponseEvent(event, params: refs, notifyOnly: notifyOnly, scriptOptions: options)
             }
         }
+        pluginDispatcher?.onFailure = { callerGhost, notifyOnly, reason, plugin, event, references in
+            callerGhost?.dispatchPluginEventFailure(
+                notifyOnly: notifyOnly,
+                reason: reason,
+                plugin: plugin,
+                event: event,
+                references: references
+            )
+        }
         // HEADLINE モジュールも探索してロード
         let hRegistry = HeadlineRegistry()
         hRegistry.discoverAndLoad()
@@ -280,6 +480,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
 
         // 外部 SSTP サーバを起動
+        SstpSessionStore.shared.enablePersistence()
+        SstpSessionStore.shared.loadFromDisk()
         let ext = OurinExternalServer()
         let securitySettings = ExternalServerSecuritySettings.load()
         ext.updateConfig(securitySettings.asServerConfig())
@@ -314,18 +516,51 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        // OnClose を GET で送り、応答スクリプト（お別れトーク、末尾 \-）を再生してから終了する（UKADOC）
+        // アプリ全体終了では、起動中の全ゴーストへ OnCloseAll を送り、各応答スクリプト
+        // （お別れトーク、末尾 \- を含む）を再生してから終了する（UKADOC）。
         if isRunningUnderTests { return .terminateNow }
-        guard let gm = ghostManager, !gm.isShuttingDown else {
+        if closeAllSequenceActive {
+            return .terminateLater
+        }
+        guard !allGhostManagers.isEmpty else {
             return .terminateNow
         }
-        if gm.beginCloseSequence(reason: "user", replyToTermination: true) {
+        let reason = basewareUpdateTerminationRequested ? "update" : "user"
+        let eventID = basewareUpdateTerminationRequested ? EventID.OnClose.rawValue : EventID.OnCloseAll.rawValue
+        if beginCloseAllSequence(reason: reason, eventID: eventID) {
             return .terminateLater
         }
         return .terminateNow
     }
 
+    /// ステージ済みベースウェア更新の helper を起動した後、通常の終了シーケンスへ移る。
+    /// helper は親プロセスの終了を待つため、ここで直接アプリバンドルを変更しない。
+    func beginBasewareUpdateShutdown(version: String) {
+        let begin = {
+            guard !self.basewareUpdateTerminationRequested else { return }
+            self.basewareUpdateTerminationRequested = true
+            EventBridge.shared.request(
+                .OnBasewareUpdating,
+                params: EventReferenceTable.params(forEvent: EventID.OnBasewareUpdating.rawValue,
+                                                   refs: ["version": version])
+            )
+            NSApplication.shared.terminate(nil)
+        }
+        if Thread.isMainThread {
+            begin()
+        } else {
+            DispatchQueue.main.async(execute: begin)
+        }
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
+        // XCTest ホストは起動時に本体の bootstrap を省略している。終了時だけ本体用の
+        // 後始末（ProcessKiller による yaya_core の後始末、起動回復マーカー消去）を
+        // 走らせると、利用者が起動中の Ourin の起動回復状態などを乱してしまう。
+        if isRunningUnderTests {
+            return
+        }
+        BootRecoveryMarker.clearSession()
         NotificationCenter.default.removeObserver(self, name: .ourinWebHomeURLReceived, object: nil)
         NotificationCenter.default.removeObserver(self, name: .fmoNeedsRefresh, object: nil)
         // 終了時に共有メモリとセマフォを開放
@@ -341,8 +576,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         ghostManager?.shutdown()
         shioriRuntimeCache.removeAll()
         SSTPOwnershipRegistry.shared.removeAll()
-        // 念のため残留プロセスを掃除
-        ProcessKiller.killOtherOurinAndYaya()
+        // 念のため自分の yaya_core と孤児だけを掃除する（他の Ourin の SHIORI には触れない）
+        ProcessKiller.killOwnAndOrphanedYaya()
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
@@ -357,18 +592,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     func application(_ app: NSApplication, openFiles filenames: [String]) {
-        for path in filenames {
-            if URL(fileURLWithPath: path).pathExtension.lowercased() == "nar" {
-                installNar(at: URL(fileURLWithPath: path))
-            }
-        }
+        let urls = filenames
+            .map(URL.init(fileURLWithPath:))
+            .filter { ["nar", "zip"].contains($0.pathExtension.lowercased()) }
+        installNars(at: urls)
         app.reply(toOpenOrPrint: NSApplication.DelegateReply.success)
     }
 
     func application(_ app: NSApplication, open urls: [URL]) {
-        for url in urls where ["nar", "zip"].contains(url.pathExtension.lowercased()) {
-            installNar(at: url)
-        }
+        installNars(at: urls.filter { ["nar", "zip"].contains($0.pathExtension.lowercased()) })
     }
 
     @objc private func handleFmoRefresh(_ notification: Notification) {
@@ -424,41 +656,104 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     private func installNar(at url: URL) {
-        NSLog("[installNar] Installing NAR from: \(url.path)")
+        installNars(at: [url])
+    }
+
+    /// 複数 NAR の D&D/関連付けを順番に処理し、全件成功時だけ OnInstallCompleteAll を最後に送る。
+    private func installNars(at urls: [URL]) {
+        guard !urls.isEmpty else { return }
+        NSLog("[installNar] Installing NAR files: \(urls.map(\.path))")
+        // 起動中ゴーストがある場合は、SHIORI 経由のインストールと同じ
+        // accept／reroute／failure／completion イベント経路を使う。
+        let eventManager = ghostManager ?? additionalGhosts.first
         DispatchQueue.global(qos: .userInitiated).async {
-            do {
-                let target = try self.narInstaller.install(fromNar: url)
-                NSLog("[installNar] Installed to: \(target.path)")
-                DispatchQueue.main.async {
-                    self.notifyInstallComplete(at: target)
-                    self.notifyPluginCatalogs()
-                    let title = NSLocalizedString("Installed", comment: "Alert title when installation succeeded")
-                    let fmt = NSLocalizedString("Installed: %@", comment: "Alert body for installed file")
-                    let text = String(format: fmt, url.lastPathComponent)
-                    NSApp.presentAlert(style: .informational, title: title, text: text)
-                    NSLog("[installNar] Running ghost at: \(target.path)")
-                    self.runGhost(at: target)
-                }
-            } catch NarInstaller.Error.directoryConflict(let ghostName) {
-                NSLog("[installNar] Ghost \(ghostName) already installed, running it instead")
-                // Find the already-installed ghost and run it
-                DispatchQueue.main.async {
-                    if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == ghostName }) {
-                        NSLog("[installNar] Found already-installed ghost at: \(ghost.path.path)")
-                        self.runGhost(at: ghost.path)
-                    } else {
-                        NSLog("[installNar] Could not find already-installed ghost: \(ghostName)")
-                        let title = NSLocalizedString("Ghost conflict", comment: "Alert title for ghost conflict")
-                        let fmt = NSLocalizedString("Ghost '%@' is already installed but could not be loaded.", comment: "Alert body for ghost conflict")
-                        let text = String(format: fmt, ghostName)
-                        NSApp.presentAlert(style: .warning, title: title, text: text)
+            var installed: [(url: URL, result: NarInstallResult)] = []
+            var failures: [(url: URL, error: Error, eventAlreadySent: Bool)] = []
+            var refusals: [URL] = []
+            for url in urls {
+                if let eventManager {
+                    switch eventManager.installNarFile(url) {
+                    case .installed(let result):
+                        installed.append((url, result))
+                        NSLog("[installNar] Installed to: \(result.target.path)")
+                    case .refused:
+                        refusals.append(url)
+                        NSLog("[installNar] Install refused for \(url.path)")
+                    case .failed(let error):
+                        failures.append((url, error, true))
+                        NSLog("[installNar] Install failed for \(url.path): \(error)")
+                    }
+                } else {
+                    // 起動中の SHIORI がまだない初期インストールでは、イベントの
+                    // 宛先がないため従来の直接インストールを使う。
+                    EventBridge.shared.notifyCustom("OnInstallBegin", params: [:])
+                    do {
+                        let result = try self.narInstaller.installWithResult(fromNar: url)
+                        installed.append((url, result))
+                        NSLog("[installNar] Installed to: \(result.target.path)")
+                    } catch {
+                        failures.append((url, error, false))
+                        NSLog("[installNar] Install failed for \(url.path): \(error)")
                     }
                 }
-            } catch {
-                NSLog("[installNar] Install failed: \(error)")
-                DispatchQueue.main.async {
+            }
+
+            DispatchQueue.main.async {
+                if eventManager == nil {
+                    for item in installed {
+                        EventBridge.shared.notifyCustom("OnInstallComplete", refs: [
+                            "identifier": item.result.objects.first?.identifier ?? "",
+                            "name": item.result.objects.first?.name ?? ""
+                        ])
+                    }
+                }
+
+                // UKADOC: 複数 NAR がすべて成功した場合のみ、各 Complete/Ex の後に一度発火する。
+                // 既存のゴーストを runGhost で置き換える前に、元の受信先へ送る。
+                if urls.count > 1, failures.isEmpty, refusals.isEmpty, !installed.isEmpty {
+                    let separator = String(UnicodeScalar(1))
+                    let objects = installed.flatMap { $0.result.objects }
+                    let refs = [
+                        "identifiers": objects.map(\.identifier).joined(separator: separator),
+                        "names": objects.map(\.name).joined(separator: separator),
+                        "paths": objects.map(\.path).joined(separator: separator)
+                    ]
+                    if let eventManager {
+                        _ = EventBridge.shared.notifyCustom("OnInstallCompleteAll", refs: refs, to: eventManager)
+                    } else {
+                        EventBridge.shared.notifyCustom("OnInstallCompleteAll", refs: refs)
+                    }
+                }
+
+                for item in installed {
+                    self.notifyInstallComplete(for: item.result)
+                    NSLog("[installNar] Running ghost at: \(item.result.target.path)")
+                    self.runGhost(at: item.result.target)
+                }
+
+                self.notifyPluginCatalogs()
+                for item in failures {
+                    let reason = (eventManager?.installFailureReason(item.error)) ?? "unsupported"
+                    if !item.eventAlreadySent {
+                        if let eventManager {
+                            _ = EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": reason], to: eventManager)
+                        } else {
+                            EventBridge.shared.notifyCustom("OnInstallFailure", refs: ["reason": reason])
+                        }
+                    }
                     let title = NSLocalizedString("Install failed", comment: "Alert title for install failure")
-                    NSApp.presentAlert(style: .critical, title: title, text: String(describing: error))
+                    NSApp.presentAlert(style: .critical, title: title, text: String(describing: item.error))
+                }
+                if !refusals.isEmpty {
+                    let title = NSLocalizedString("Install refused", comment: "Install refusal alert title")
+                    let names = refusals.map(\.lastPathComponent).joined(separator: ", ")
+                    NSApp.presentAlert(style: .informational, title: title, text: names)
+                }
+                for item in installed {
+                    let title = NSLocalizedString("Installed", comment: "Alert title for installed file")
+                    let fmt = NSLocalizedString("Installed: %@", comment: "Alert body for installed file")
+                    let text = String(format: fmt, item.url.lastPathComponent)
+                    NSApp.presentAlert(style: .informational, title: title, text: text)
                 }
             }
         }
@@ -497,10 +792,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         dispatcher.notifyHeadlinePathList(paths: headlinePaths)
     }
 
-    private func notifyInstallComplete(at target: URL) {
-        let type = target.deletingLastPathComponent().lastPathComponent
-        let name = target.lastPathComponent
-        pluginDispatcher?.onInstallComplete(type: type, name: name, path: target.path)
+    private func notifyInstallComplete(for result: NarInstallResult) {
+        pluginDispatcher?.onInstallComplete(objects: result.objects)
     }
 
     /// 起動中の全ゴースト（プライマリ＋追加）から FmoGhostRecord を収集する。
@@ -580,7 +873,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         fmo.writeSnapshot(records: records)
     }
 
-    func runGhost(at root: URL) {
+    func runGhost(at root: URL, bootRequest: GhostBootRequest? = nil) {
         NSLog("[runGhost] Starting ghost from: \(root.path)")
         // If a ghost is already running, shut it down first.
         if let existingManager = self.ghostManager {
@@ -595,8 +888,38 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         NSLog("[runGhost] Creating GhostManager for: \(root.path)")
         let newManager = GhostManager(ghostURL: root)
         self.ghostManager = newManager
+        PropertyManager.shared.setActiveGhost(path: root.path)
+        let bootRecovery = pendingBootRecovery
+        pendingBootRecovery = nil
         NSLog("[runGhost] Starting GhostManager")
-        newManager.start()
+        newManager.start(bootRequest: bootRequest, bootRecovery: bootRecovery) { [weak self] _, result in
+            guard result.succeeded,
+                  let self,
+                  let version = self.pendingBasewareUpdateVersion else { return }
+            EventBridge.shared.request(
+                .OnBasewareUpdated,
+                params: EventReferenceTable.params(forEvent: EventID.OnBasewareUpdated.rawValue,
+                                                   refs: ["version": version])
+            )
+            if let markerURL = self.pendingBasewareUpdateMarkerURL {
+                BasewareUpdateMarker.remove(at: markerURL)
+            }
+            self.pendingBasewareUpdateVersion = nil
+            self.pendingBasewareUpdateMarkerURL = nil
+        }
+    }
+
+    /// 主ゴースト名を異常終了マーカーへ記録する。追加ゴーストは上書きしない。
+    func recordActiveGhostForCrashRecovery(name: String, manager: GhostManager) {
+        let record = {
+            guard self.ghostManager === manager else { return }
+            BootRecoveryMarker.recordActiveGhost(name: name)
+        }
+        if Thread.isMainThread {
+            record()
+        } else {
+            DispatchQueue.main.async(execute: record)
+        }
     }
 
     // MARK: - Multiple concurrent ghosts
@@ -606,28 +929,69 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     /// SSTP は ReceiverGhostName で対象を絞り込める。
     /// - Returns: 起動した GhostManager（既に同一パスが起動中なら既存を返す）
     @discardableResult
-    func launchAdditionalGhost(at root: URL) -> GhostManager {
+    func launchAdditionalGhost(
+        at root: URL,
+        bootRequest: GhostBootRequest? = nil,
+        completion: ((GhostManager, GhostBootResult) -> Void)? = nil
+    ) -> GhostManager {
         if let existing = allGhostManagers.first(where: { $0.ghostURL.standardizedFileURL == root.standardizedFileURL }) {
             NSLog("[launchAdditionalGhost] already running: \(root.lastPathComponent)")
+            if let bootRequest, let completion {
+                existing.requestLifecycleEvent(bootRequest, completion: completion)
+            }
             return existing
         }
         NSLog("[launchAdditionalGhost] launching: \(root.path)")
         let manager = GhostManager(ghostURL: root)
         additionalGhosts.append(manager)
-        manager.start()
+        manager.start(bootRequest: bootRequest, completion: completion)
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         return manager
     }
 
     /// インストール済みゴースト名から追加ゴーストを起動する。
     @discardableResult
-    func launchAdditionalGhost(named name: String) -> GhostManager? {
+    func launchAdditionalGhost(
+        named name: String,
+        bootRequest: GhostBootRequest? = nil,
+        completion: ((GhostManager, GhostBootResult) -> Void)? = nil
+    ) -> GhostManager? {
         guard let item = NarRegistry.shared.installedItems(ofType: "ghost")
             .first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) else {
             NSLog("[launchAdditionalGhost] not found: \(name)")
             return nil
         }
-        return launchAdditionalGhost(at: item.path)
+        return launchAdditionalGhost(at: item.path, bootRequest: bootRequest, completion: completion)
+    }
+
+    /// ゴースト切替完了後に、切替先をプライマリへ昇格し、切替元を終了する。
+    /// 追加ゴーストの単なる起動と異なり、主ゴーストの所有権をここで一度だけ入れ替える。
+    @discardableResult
+    func completeGhostSwitch(from source: GhostManager, to target: GhostManager) -> Bool {
+        guard source !== target, allGhostManagers.contains(where: { $0 === target }) else { return false }
+
+        let sourceWasPrimary = ghostManager === source
+        let sourceIndex = additionalGhosts.firstIndex(where: { $0 === source })
+        guard sourceWasPrimary || sourceIndex != nil else { return false }
+
+        if let targetIndex = additionalGhosts.firstIndex(where: { $0 === target }) {
+            additionalGhosts.remove(at: targetIndex)
+        }
+
+        if sourceWasPrimary {
+            ghostManager = target
+        } else {
+            // targetIndex の削除で source の添字がずれる可能性があるため、参照で再取得する。
+            if let sourceIndex = additionalGhosts.firstIndex(where: { $0 === source }) {
+                additionalGhosts.remove(at: sourceIndex)
+            } else {
+                return false
+            }
+        }
+
+        source.shutdown()
+        NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
+        return true
     }
 
     /// 追加ゴーストを終了する（プライマリは対象外）。
@@ -644,6 +1008,54 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         additionalGhosts.removeAll()
         for m in managers { m.shutdown() }
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
+    }
+
+    /// アプリケーション終了時に全ゴーストの OnCloseAll 応答を集約する。
+    /// 各 GhostManager は応答の再生完了後に1回だけ完了コールバックを呼ぶため、
+    /// 1体の応答が空でも、別ゴーストの再生中にアプリを終了しない。
+    @discardableResult
+    private func beginCloseAllSequence(reason: String, eventID: String = EventID.OnCloseAll.rawValue) -> Bool {
+        guard !closeAllSequenceActive else { return false }
+        let managers = allGhostManagers
+        guard !managers.isEmpty else { return false }
+
+        closeAllSequenceActive = true
+        pendingCloseAllManagers = Set(managers.map(ObjectIdentifier.init))
+        for manager in managers {
+            let started = manager.beginCloseSequence(
+                eventID: eventID,
+                reason: reason,
+                completion: { [weak self, weak manager] in
+                    self?.closeAllManagerDidFinish(manager)
+                }
+            )
+            if !started {
+                pendingCloseAllManagers.remove(ObjectIdentifier(manager))
+            }
+        }
+        if pendingCloseAllManagers.isEmpty {
+            finishCloseAllSequence()
+        }
+        return true
+    }
+
+    private func closeAllManagerDidFinish(_ manager: GhostManager?) {
+        guard closeAllSequenceActive, let manager else { return }
+        pendingCloseAllManagers.remove(ObjectIdentifier(manager))
+        if pendingCloseAllManagers.isEmpty {
+            finishCloseAllSequence()
+        }
+    }
+
+    private func finishCloseAllSequence() {
+        guard closeAllSequenceActive else { return }
+        pendingCloseAllManagers.removeAll()
+        // 応答スクリプトをすべて再生し終えた後でだけ、ランタイムを破棄する。
+        let primary = ghostManager
+        terminateAllAdditionalGhosts()
+        primary?.shutdown()
+        closeAllSequenceActive = false
+        NSApp.reply(toApplicationShouldTerminate: true)
     }
 
     /// Show DevTools window on macOS < 13

@@ -49,20 +49,36 @@ final class OurinPluginEventBridge {
         }
     }
 
-    func dispatch(pluginSpec: String, event: String, references: [String], notifyOnly: Bool) {
+    func dispatch(
+        pluginSpec: String,
+        event: String,
+        references: [String],
+        notifyOnly: Bool,
+        onFailure: ((_ reason: String, _ plugin: String) -> Void)? = nil
+    ) {
         let targets = resolveTargets(spec: pluginSpec)
         guard !targets.isEmpty else {
             Log.info("[PluginEventBridge] No plugin target matched: \(pluginSpec)")
+            onFailure?("notfound", pluginSpec)
             return
         }
         let refMap = Dictionary(uniqueKeysWithValues: references.enumerated().map { ("Reference\($0.offset)", $0.element) })
         for plugin in targets {
+            let pluginName = displayName(for: plugin)
             do {
                 if notifyOnly {
-                    _ = try plugin.notify(id: event, references: refMap)
+                    let response = try plugin.notify(id: event, references: refMap)
+                    guard response.statusCode == 200 else {
+                        onFailure?(String(response.statusCode), pluginName)
+                        continue
+                    }
                     continue
                 }
                 let response = try plugin.get(id: event, references: refMap)
+                guard response.statusCode == 200 else {
+                    onFailure?(String(response.statusCode), pluginName)
+                    continue
+                }
                 guard let action = Self.transportAction(from: response, notifyOnly: false) else {
                     continue
                 }
@@ -73,6 +89,7 @@ final class OurinPluginEventBridge {
                 Self.deliver(action, runScript: runScript, emitEvent: emitEvent)
             } catch {
                 Log.info("[PluginEventBridge] dispatch failed (\(event)): \(error)")
+                onFailure?("error", pluginName)
             }
         }
     }
@@ -80,20 +97,39 @@ final class OurinPluginEventBridge {
     /// notifyplugin 経路のディスパッチ（常に [NOTIFY] を強制）。
     /// 仕様 PLUGIN_EVENT/2.0M §4.17: notifyplugin は [NOTIFY] 固定。
     /// 呼び出し元のフラグに依らず NOTIFY として送信する専用エントリポイント。
-    func dispatchNotify(pluginSpec: String, event: String, references: [String]) {
+    func dispatchNotify(
+        pluginSpec: String,
+        event: String,
+        references: [String],
+        onFailure: ((_ reason: String, _ plugin: String) -> Void)? = nil
+    ) {
         let targets = resolveTargets(spec: pluginSpec)
         guard !targets.isEmpty else {
             Log.info("[PluginEventBridge] No plugin target matched (notifyplugin): \(pluginSpec)")
+            onFailure?("notfound", pluginSpec)
             return
         }
         let refMap = Dictionary(uniqueKeysWithValues: references.enumerated().map { ("Reference\($0.offset)", $0.element) })
         for plugin in targets {
+            let pluginName = displayName(for: plugin)
             do {
-                _ = try plugin.notify(id: event, references: refMap)
+                let response = try plugin.notify(id: event, references: refMap)
+                guard response.statusCode == 200 else {
+                    onFailure?(String(response.statusCode), pluginName)
+                    continue
+                }
             } catch {
                 Log.info("[PluginEventBridge] dispatchNotify failed (\(event)): \(error)")
+                onFailure?("error", pluginName)
             }
         }
+    }
+
+    private func displayName(for plugin: Plugin) -> String {
+        guard let meta = registry.metas[plugin] else {
+            return plugin.bundle.bundleURL.deletingPathExtension().lastPathComponent
+        }
+        return meta.id.isEmpty ? meta.name : meta.id
     }
 
     static func shouldHandleTarget(_ target: String?) -> Bool {

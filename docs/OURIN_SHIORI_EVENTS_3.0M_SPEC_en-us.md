@@ -18,6 +18,8 @@ This document is a partial translation of the Japanese original. Sections are ad
 
 Standard automatic system events — timer (`OnSecondChange`/`OnMinuteChange`/`OnHourTimeSignal`), input/mouse, sleep/wake, display change, power status, locale, appearance, session, network, gamepad, device, and speech — are enabled at **real ghost-load completion** as the single centralized activation point.
 
+Full-screen application events (`OnFullScreenAppMinimize` / `OnFullScreenAppRestore`) are emitted only for a detected transition of a frontmost non-Ourin application whose layer-0 window covers the display. Their `Reference0` is the fixed value `fullscreen`. Ordinary application focus changes do not emit these events; when CGWindow or frontmost-application information is unavailable, the state is left unchanged to avoid false restore notifications.
+
 Relevant source files:
 - `Ourin/Ghost/GhostManager.swift` — `startEventBridgeIfNeeded(enableAutoEvents:)`
 - `Ourin/SHIORIEvents/EventBridge.swift` — `start(enableAutoEvents:)` and the internal NOTIFY queue
@@ -54,6 +56,21 @@ While `autoEventsEnabled = false`, any call to `broadcastNotify` or `broadcastNo
 ### Difference from Previous Behavior
 
 Previously the default was `enableAutoEvents = false`, which meant automatic system events could remain queue-only unless the name-input dialog path in `GhostManager+Display` ran. The current implementation makes **real ghost-load completion the sole activation point**, ensuring automatic events are enabled regardless of which UI path the user follows.
+
+## URL-Drop Lifecycle
+
+For a URL dropped onto a character window, Ourin first sends the Ourin extension `OnURLDrop`
+as a targeted GET. If it returns no usable script, the standard `OnURLQuery` GET follows with
+the URL, scope number, MIME type, and planned action (`nar` or `unknown`). Only a planned `nar`
+action starts the lifecycle `OnURLDropping` → HTTPS (or explicitly allowed HTTP) download →
+`OnURLDropped` → NAR installation. Network, extraction, or installation failures emit
+`OnURLDropFailure`; HTTP failures use the bare status-code string and transport failures are
+normalized to standard reasons such as `timeout` or `fileio`. Malformed URLs, disallowed schemes,
+and HTTP without explicit opt-in are rejected before receipt begins and therefore do not emit the
+standard failure event. `OnURLDropped` is never emitted before the download completes, and unknown
+URLs are not downloaded automatically. The destination must resolve to public addresses, and
+redirects are checked by the same policy. Downloads use a 30-second request timeout, a 5-minute
+resource timeout, and a 256 MiB size limit.
 
 ---
 

@@ -8,6 +8,11 @@ import UserNotifications
 // MARK: - Effects, Filters, Dressup, and Text Animations
 
 extension GhostManager {
+    private struct DressupChange {
+        let part: String
+        let value: String
+    }
+
     // MARK: - Effect and Filter Commands
     
     /// Apply effect plugin
@@ -57,70 +62,233 @@ extension GhostManager {
     }
     
     // MARK: - Dressup Command
-    
-    /// Handle bind/dressup command
-    func handleBindDressup(category: String, part: String, value: String, scope: Int? = nil) {
+
+    /// Handle bind/dressup command（UKADOC `\![bind,...]` / `\![bind-noevent,...]`）
+    ///
+    /// - `value`: "0"・"false"・"off"・"none"・"default" は脱衣（無効化）、それ以外は着衣（有効化）。
+    ///   nil または空文字の場合は現在の状態をトグルする。
+    /// - `part` が空文字の場合はカテゴリ単位で操作する。
+    /// - `emitEvents` が false（`bind-noevent`）の場合は状態・描画のみ行い
+    ///   OnDressupChanged / OnNotifyDressupInfo を送出しない。
+    /// - `emitInfo` を false にすると OnDressupChanged だけを送出する。複数タプルの
+    ///   コマンドでは最後に一度だけ OnNotifyDressupInfo を送出するために使う。
+    func handleBindDressup(
+        category: String,
+        part: String,
+        value: String?,
+        scope: Int? = nil,
+        emitEvents: Bool = true,
+        emitInfo: Bool = true,
+        source: String = "script",
+        requestChangedResponse: Bool = false,
+        requestInfoResponse: Bool = false,
+        completion: (() -> Void)? = nil
+    ) {
         let targetScope = scope ?? currentScope
-        Log.debug("[GhostManager] Bind dressup: scope=\(targetScope), category=\(category), part=\(part), value=\(value)")
+        let trimmedValue = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let lowered = trimmedValue.lowercased()
+        let wantsToggle = trimmedValue.isEmpty
+        let disableRequested = lowered == "0" || lowered == "false" || lowered == "off" || lowered == "none" || lowered == "default"
+        Log.debug("[GhostManager] Bind dressup: scope=\(targetScope), category=\(category), part=\(part), value=\(value ?? "<toggle>"), emitEvents=\(emitEvents)")
 
-        let lowered = value.lowercased()
-        let disable = lowered == "0" || lowered == "false" || lowered == "off" || lowered == "none" || lowered == "default"
-
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             guard let vm = self.characterViewModels[targetScope] else { return }
-            if disable {
-                vm.dressupBindings[category]?[part] = nil
+
+            // 値省略（トグル）時は現在の装着状態から目標値を決定する
+            let shouldDisable: Bool
+            let eventValue: String
+            if wantsToggle {
+                let enabled: Bool
+                if part.isEmpty {
+                    enabled = (vm.dressupBindings[category]?.isEmpty == false)
+                } else {
+                    enabled = vm.dressupBindings[category]?[part] != nil
+                }
+                shouldDisable = enabled
+                eventValue = enabled ? "0" : "1"
+            } else {
+                shouldDisable = disableRequested
+                eventValue = shouldDisable ? "0" : "1"
+            }
+
+            var changes: [DressupChange] = []
+            let configuredParts = self.dressupConfigurations
+                .first(where: { $0.category == category })?.parts
+                .map(\.partName) ?? []
+            let bindOptions = self.dressupBindOptionsByScope[targetScope]?[category]
+            let requiresSelection = bindOptions?.mustSelect == true
+            let allowsMultiple = bindOptions?.allowsMultiple == true
+            let existingParts = vm.dressupBindings[category].map { Array($0.keys).sorted() } ?? []
+
+            func disablePart(_ targetPart: String, eventValue: String = "0") {
+                vm.dressupBindings[category]?[targetPart] = nil
                 if vm.dressupBindings[category]?.isEmpty == true {
                     vm.dressupBindings[category] = nil
                 }
-                let prefix = self.dressupOverlayPrefix(category: category, part: part)
+                let prefix = self.dressupOverlayPrefix(category: category, part: targetPart)
                 vm.overlays.removeAll { $0.id.hasPrefix(prefix) }
+                changes.append(DressupChange(part: targetPart, value: eventValue))
+            }
+
+            func enablePart(_ targetPart: String, eventValue: String = "1") {
+                if vm.dressupBindings[category] == nil {
+                    vm.dressupBindings[category] = [:]
+                }
+                vm.dressupBindings[category]?[targetPart] = eventValue
+                if !targetPart.isEmpty {
+                    self.applyDressup(category: category, part: targetPart, value: eventValue, scope: targetScope)
+                }
+                changes.append(DressupChange(part: targetPart, value: eventValue))
+            }
+
+            if shouldDisable {
+                if part.isEmpty {
+                    if requiresSelection {
+                        // `mustselect` はカテゴリを空にできない。複数選択状態が
+                        // 既に存在する場合だけ、決定的に1つを残して他を外す。
+                        for existingPart in existingParts.dropFirst() {
+                            disablePart(existingPart, eventValue: eventValue)
+                        }
+                        if existingParts.count > 1 {
+                            Log.debug("[GhostManager] Preserved one dressup part due to mustselect: \(category)")
+                        }
+                    } else {
+                        vm.dressupBindings[category] = nil
+                        let categoryPrefix = "dressup_\(category.replacingOccurrences(of: " ", with: "_"))_"
+                        vm.overlays.removeAll { $0.id.hasPrefix(categoryPrefix) }
+
+                        var affectedParts = configuredParts
+                        for existingPart in existingParts where !affectedParts.contains(existingPart) {
+                            affectedParts.append(existingPart)
+                        }
+                        if affectedParts.isEmpty {
+                            changes.append(DressupChange(part: "", value: eventValue))
+                        } else {
+                            changes.append(contentsOf: affectedParts.map { DressupChange(part: $0, value: eventValue) })
+                        }
+                    }
+                } else {
+                    let isEnabled = vm.dressupBindings[category]?[part] != nil
+                    if requiresSelection && isEnabled && existingParts.count <= 1 {
+                        // `mustselect` では最後の有効パーツを脱衣できない。
+                        Log.debug("[GhostManager] Refused to clear last mustselect dressup part: \(category)/\(part)")
+                    } else {
+                        disablePart(part, eventValue: eventValue)
+                    }
+                }
                 Log.debug("[GhostManager] Disabled dressup: \(category)/\(part)")
             } else {
                 if vm.dressupBindings[category] == nil {
                     vm.dressupBindings[category] = [:]
                 }
-                vm.dressupBindings[category]?[part] = value
+                if part.isEmpty {
+                    // `multiple` があるカテゴリだけ全パーツを同時に着衣する。
+                    // 指定がないカテゴリは、現在の1パーツを維持し、未選択なら
+                    // 設定順の先頭だけを選択する（UKADOCの既定値）。
+                    let configParts = self.dressupConfigurations.first(where: { $0.category == category })?.parts ?? []
+                    if allowsMultiple {
+                        for binding in configParts {
+                            enablePart(binding.partName, eventValue: eventValue)
+                        }
+                        if configParts.isEmpty {
+                            // 設定なしカテゴリでも、従来どおり空パーツを状態として
+                            // 保持し、後続のトグル判定を成立させる。
+                            enablePart(part, eventValue: eventValue)
+                        }
+                    } else if let selectedPart = existingParts.first ?? configParts.first?.partName {
+                        for existingPart in existingParts where existingPart != selectedPart {
+                            disablePart(existingPart)
+                        }
+                        if vm.dressupBindings[category]?[selectedPart] == nil {
+                            enablePart(selectedPart, eventValue: eventValue)
+                        } else {
+                            changes.append(DressupChange(part: selectedPart, value: eventValue))
+                        }
+                    } else {
+                        // 設定が見つからない場合もカテゴリ自体を有効として記録する（トグル判定用）
+                        enablePart(part, eventValue: eventValue)
+                    }
+                } else {
+                    if !allowsMultiple {
+                        for existingPart in existingParts where existingPart != part {
+                            disablePart(existingPart)
+                        }
+                    }
+                    enablePart(part, eventValue: eventValue)
+                }
             }
-        }
 
-        if !disable {
-            applyDressup(category: category, part: part, value: value, scope: targetScope)
+            // SERIKO の bind interval は、SHIORI 通知の有無とは独立した描画イベント。
+            // 現在表示中のスコープで実際に状態が変わった場合だけ発火させる。
+            if targetScope == self.currentScope, !changes.isEmpty {
+                self.serikoExecutor.triggerBind()
+                self.startSerikoLoopIfNeeded()
+            }
+
+            // 通常 bind は描画（applyDressup の main キュー処理）完了後に
+            // OnDressupChanged → OnNotifyDressupInfo の順で送出する。
+            // 複数タプルは completion から次の操作へ進めることで、変更通知を
+            // すべて送出してから OnNotifyDressupInfo を1回だけ送出できる。
+            if emitEvents || emitInfo || completion != nil {
+                DispatchQueue.main.async {
+                    if emitEvents {
+                        if changes.count >= 100 {
+                            // UKADOC: large dressup diffs are delivered through
+                            // OnNotifyDressupInfo instead of a long Changed sequence.
+                            Log.info("[GhostManager] Skipping OnDressupChanged for large dressup diff: \(changes.count) parts")
+                        } else {
+                            for (index, change) in changes.enumerated() {
+                                self.notifyDressupChanged(
+                                    category: category,
+                                    part: change.part,
+                                    value: change.value,
+                                    scope: targetScope,
+                                    source: source,
+                                    requestResponse: requestChangedResponse && index == changes.count - 1
+                                )
+                            }
+                        }
+                        if emitInfo {
+                            self.notifyDressupInfo(scope: targetScope, requestResponse: requestInfoResponse)
+                        }
+                    }
+                    completion?()
+                }
+            }
         }
     }
 
     func executeBindCommand(args: [String]) {
-        guard args.count >= 2 else { return }
-        let subcmd = args[1].lowercased()
+        let plans = Self.parseDressupBindPlans(args: args)
+        guard !plans.isEmpty else { return }
+        let infoScope = currentScope
 
-        if subcmd == "category" {
-            // \![bind,category,part,value]
-            if args.count >= 4 {
-                let category = args[2]
-                let part = args[3]
-                let value = args.count >= 5 ? args[4] : "true"
-                handleBindDressup(category: category, part: part, value: value)
+        func process(_ index: Int) {
+            guard index < plans.count else {
+                if plans.contains(where: { $0.emitsEvents }) {
+                    // Sakura Script 起因の OnNotifyDressupInfo は NOTIFY。
+                    notifyDressupInfo(scope: infoScope, requestResponse: false)
+                }
+                return
             }
-            return
+
+            let plan = plans[index]
+            let hasLaterEvent = plans.dropFirst(index + 1).contains(where: { $0.emitsEvents })
+            handleBindDressup(
+                category: plan.category,
+                part: plan.part,
+                value: plan.value,
+                scope: infoScope,
+                emitEvents: plan.emitsEvents,
+                emitInfo: false,
+                source: "script",
+                requestChangedResponse: plan.emitsEvents && !hasLaterEvent,
+                completion: { process(index + 1) }
+            )
         }
 
-        // Supports repeated tuples: \![bind,cat,part,val,cat2,part2,val2,...]
-        if args.count >= 4 {
-            var idx = 1
-            while idx + 2 < args.count {
-                let category = args[idx]
-                let part = args[idx + 1]
-                let value = args[idx + 2]
-                handleBindDressup(category: category, part: part, value: value)
-                idx += 3
-            }
-            return
-        }
-
-        // Fallback: \![bind,cat,part] => true
-        if args.count == 3 {
-            handleBindDressup(category: args[1], part: args[2], value: "true")
-        }
+        process(0)
     }
     
     // MARK: - Text Animation Command
@@ -159,28 +327,40 @@ extension GhostManager {
             Log.info("[GhostManager] Cannot switch balloon: no viewmodel for scope \(scope)")
             return
         }
-        
+
+        let apply = { [weak self] in
+            guard let self else { return }
+            vm.currentBalloonID = balloonID
+            if let balloonVM = self.balloonViewModels[scope] {
+                balloonVM.balloonID = balloonID
+            }
+            Log.info("[GhostManager] Switched to balloon ID \(balloonID) for scope \(scope)")
+        }
+
         // Hide balloon if ID is -1
         if balloonID == -1 {
-            DispatchQueue.main.async {
+            let hide = { [weak self] in
+                guard let self else { return }
                 if let balloonWindow = self.balloonWindows[scope] {
                     balloonWindow.orderOut(nil)
                     Log.info("[GhostManager] Hiding balloon for scope \(scope)")
                 }
             }
+            if Thread.isMainThread { hide() } else { DispatchQueue.main.async(execute: hide) }
             return
         }
-        
-        DispatchQueue.main.async {
-            vm.currentBalloonID = balloonID
-            
-            // Also update the BalloonViewModel's balloonID
-            if let balloonVM = self.balloonViewModels[scope] {
-                balloonVM.balloonID = balloonID
-            }
-            
-            Log.info("[GhostManager] Switched to balloon ID \(balloonID) for scope \(scope)")
-        }
+
+        if Thread.isMainThread { apply() } else { DispatchQueue.main.async(execute: apply) }
+    }
+
+    /// 指定順で存在するバルーン画像を選び、最初の候補へ切り替える。
+    /// 画像ローダーが未初期化の場合は、互換性のため先頭候補をそのまま使う。
+    func switchBalloon(to candidates: [Int], scope: Int) {
+        guard let first = candidates.first else { return }
+        let selected = candidates.first { id in
+            id == -1 || balloonImageLoader?.surfaceExists(index: id, type: "s") == true
+        } ?? first
+        switchBalloon(to: selected, scope: scope)
     }
 
     /// Switch balloon by numeric ID or balloon directory/name.

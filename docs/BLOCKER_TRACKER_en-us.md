@@ -1,8 +1,16 @@
 # Blocker Tracker / ブロッカートラッカー
 
-**Last Updated**: 2026-03-15  
+**Last Updated**: 2026-08-15  
 **Status**: No active blockers (all tracked IDs resolved)  
 **Purpose**: Track integration blockers, workarounds, and resolution plans / 統合ブロッカー、回避策、解決計画を追跡
+
+> **Note (2026-08-15)**: 本ファイルは ID-001〜ID-007 の解決記録（2026-03-15 時点）を保存する歴史的トラッカーです。
+> その後に発見・解消されたブロッカー（2026-06-27 の互換性監査で列挙された7件を含む）は本ファイルでは追跡していません。
+> 現在の未完項目は [AUDITS_TODO.md](AUDITS_TODO.md)、解決済み項目は [AUDITS_COMPLETED.md](AUDITS_COMPLETED.md) を単一の正としてください。
+>
+> **Note (2026-08-15)**: This file is a historical tracker preserving the resolution records of ID-001..ID-007 (as of 2026-03-15).
+> Blockers found and resolved afterwards (including the seven items from the 2026-06-27 compatibility audit) are NOT tracked here.
+> Use [AUDITS_TODO.md](AUDITS_TODO.md) for pending items and [AUDITS_COMPLETED.md](AUDITS_COMPLETED.md) for resolved ones as the single source of truth.
 
 ---
 
@@ -88,7 +96,7 @@ Implemented VM→host plugin bridge for `LOADLIB`/`REQUESTLIB`/`UNLOADLIB`:
 
 ### Related Documents / 関連ドキュメント
 
-- INTEGRATION_ROADMAP.md Phase 1
+- archive/INTEGRATION_ROADMAP.md Phase 1
 - SAORI_IMPLEMENTATION.md "Current Status" section
 - IMPLEMENTATION_STATUS_SUMMARY.md ID-001
 
@@ -184,7 +192,7 @@ func handlePluginOperation(_ request: [String: Any]) async throws -> [String: An
 
 ### Related Documents / 関連ドキュメント
 
-- INTEGRATION_ROADMAP.md Task 1.3
+- archive/INTEGRATION_ROADMAP.md Task 1.3
 - SAORI_IMPLEMENTATION.md "Integration Requirements" section
 - IMPLEMENTATION_STATUS_SUMMARY.md ID-002
 
@@ -299,7 +307,7 @@ However, standard SSTP communication (e.g., from other SSP ghosts) does not work
 
 ### Related Documents / 関連ドキュメント
 
-- INTEGRATION_ROADMAP.md Phase 2
+- archive/INTEGRATION_ROADMAP.md Phase 2
 - SSTP_DISPATCHER_GUIDE.md "Integration Requirements" section
 - IMPLEMENTATION_STATUS_SUMMARY.md ID-003
 
@@ -421,7 +429,7 @@ SakuraScript経由でアニメーションを再生できません。ゴース�
 
 ### Related Documents / 関連ドキュメント
 
-- INTEGRATION_ROADMAP.md Phase 3
+- archive/INTEGRATION_ROADMAP.md Phase 3
 - SERIKO_IMPLEMENTATION.md "Current Status" section
 - IMPLEMENTATION_STATUS_SUMMARY.md ID-004
 
@@ -481,7 +489,7 @@ Completed in current integration phase.
 ### Related Documents / 関連ドキュメント
 
 - docs/SERIKO_IMPLEMENTATION_PROGRESS_REPORT_ja-jp.md
-- INTEGRATION_ROADMAP.md (deferred to Phase 4+)
+- archive/INTEGRATION_ROADMAP.md (deferred to Phase 4+)
 - IMPLEMENTATION_STATUS_SUMMARY.md ID-005
 
 ---
@@ -606,7 +614,7 @@ Result:
 
 ### Related Documents / 関連ドキュメント
 
-- INTEGRATION_ROADMAP.md Task 3.2
+- archive/INTEGRATION_ROADMAP.md Task 3.2
 - TODO/todo.md (animation command status)
 - IMPLEMENTATION_STATUS_SUMMARY.md ID-006
 
@@ -719,7 +727,7 @@ Result (before fix):
 
 ### Related Documents / 関連ドキュメント
 
-- INTEGRATION_ROADMAP.md Task 4.1
+- archive/INTEGRATION_ROADMAP.md Task 4.1
 - TODO/todo.md (text formatting status)
 - IMPLEMENTATION_STATUS_SUMMARY.md ID-007
 
@@ -775,8 +783,8 @@ Result (before fix):
 # Related Documents / 関連ドキュメント
 
 - **IMPLEMENTATION_STATUS_SUMMARY.md**: Status matrix with blocker references
-- **INTEGRATION_ROADMAP.md**: Integration phases that resolve blockers
-- **COPILOT_AUTO_PROMPT.md**: Task structure with blocker checkpoints
+- **archive/INTEGRATION_ROADMAP.md**: Integration phases that resolve blockers
+- **archive/COPILOT_AUTO_PROMPT.md**: Task structure with blocker checkpoints
 - Component docs: SAORI_IMPLEMENTATION.md, SERIKO_IMPLEMENTATION.md, SSTP_DISPATCHER_GUIDE.md
 
 ---

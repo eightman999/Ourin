@@ -2,6 +2,8 @@
 
 本文書は、Ourin で現在実装されている SakuraScript コマンドを、`SakuraScriptEngine.swift` のパース処理と `GhostManager.swift` の実行パスに基づいて一覧にしたものです。
 
+> 本ファイルは要約です。全コマンドの網羅リスト（`\![set,...]`/`\![enter,...]`/`\![lock,...]` 等の全サブコマンドを含む）は `SAKURASCRIPT_COMMANDS_SUPPORTED_ja-jp.md` を参照してください。
+
 ステータスマーク：
 - ✅ 実装済み
 - ⚠️ 部分実装 / オプション限定
@@ -32,11 +34,14 @@ SSP 互換の実装として、スコープ切替（`\0` / `\1` / `\p[n]`）は�
 - ✅ `\s[n]`
 - ✅ `\i[n]`, `\i[n,wait]`
 - ✅ `\![anim,clear,ID]`
-- ✅ `\![anim,pause,ID]`
+- ✅ `\![anim,pause,ID]` / `\![anim,pauseID]`
 - ✅ `\![anim,resume,ID]`
 - ✅ `\![anim,offset,ID,x,y]`
-- ⚠️ `\![anim,add,...]` (`overlay`, `base`, `bind`, `text` は実装済み。その他は限定的)
-- ✅ `\![anim,stop]`
+- ✅ `\![anim,add,overlay|overlayfast,ID[,x,y]]`
+- ✅ `\![anim,add,overlay,ID,x,y,表示時間,...[,runonce|always]]`
+- ✅ `\![anim,add,base,ID]` / `\![anim,add,move,x,y]` / `\![anim,add,bind,ID]`
+- ✅ `\![anim,add,text,x,y,横幅,縦幅,文字列,...]`（文字列まで必須）
+- ✅ `\![anim,stop]` / `\![anim,stop,ID]`
 - ✅ `\![bind,category,part,value]`
 
 ## バルーン / テキストコマンド
@@ -48,6 +53,7 @@ SSP 互換の実装として、スコープ切替（`\0` / `\1` / `\p[n]`）は�
 - ⚠️ `\f[...]` (主要なスタイル制御は実装済み。未対応のサブコマンドは無視)
 - ✅ `\_l[x,y]`
 - ✅ `\_v` / `\_V`
+- ✅ `\![execute,resetballoonpos]`
 
 ## キャラクター変更コマンド
 
@@ -55,12 +61,14 @@ SSP 互換の実装として、スコープ切替（`\0` / `\1` / `\p[n]`）は�
 - ✅ `\![change,ghost,...]`
 - ✅ `\![change,shell,...]`
 - ✅ `\![change,balloon,...]`
+- ✅ `\![save,wallpaper]` / `\![restore,wallpaper]`
 
 ## 待機コマンド
 
 - ✅ `\w[n]`
 - ✅ `\_w[ms]`
 - ✅ `\__w[...]` (`clear`, 数値タイミング、および `animation,ID` 待機は実装済み)
+- ✅ `\![wait,syncobject,name,timeout]` / `\![set,syncobject,name]` / `\![reset,syncobject,name]`
 - ✅ `\t`
 - ✅ `\x`, `\x[noclear]`
 
@@ -113,9 +121,9 @@ SSP 互換の実装として、スコープ切替（`\0` / `\1` / `\p[n]`）は�
 
 ## 既知の部分的動作を持つ関連コマンド
 
-- ⚠️ `\![move,...]` (x/y/time/method/scope は動作；`--base`、`--base-offset`、`--move-offset`、`--wait` に対応；いくつかのエッジケースが残る)
-- ⚠️ `\![moveasync,...]` (非同期移動とキャンセルに対応；いくつかの高度なオプションは未実装)
-- ⚠️ `\![set,scaling,...]` (コアスケーリング実装；いくつかの拡張フラグは未実装)
-- ⚠️ `\![set,alpha,...]` (基本的なアルファ設定は実装済み；タイミング/待機バリアントは未実装)
+- ✅ `\![move,...]` (名前付き・レガシー位置指定構文、`fix` の軸別保持、アンカー、duration、method、scope、`--wait` に対応；2026-08-14更新)
+- ✅ `\![moveasync,...]` (キュー中・実行中のアニメーションを `\![moveasync,cancel]` でキャンセル可能；レガシー構文の `fix` に対応；2026-08-14更新)
+- ✅ `\![set,scaling,...]` (等倍/非等倍スケーリング、duration、名前付きオプション、`--wait` に対応；2026-08-14更新)
+- ✅ `\![set,alpha,...]` (0–100値、負値の再描画のみ挙動、duration、名前付きオプション、`--wait` に対応；2026-08-14更新)
 - ⚠️ `\![set,zorder,...]` (コア順序付けは実装済み；複雑な組み合わせは未実装)
 - ⚠️ `\![set,sticky-window,...]` (基本的なグループ化は実装済み；複雑なグループ処理は未実装)

@@ -20,7 +20,6 @@ public final class PropertyManager {
         let ghosts = discoverDefaultGhosts()
         let active = ghosts.isEmpty ? [] : [0]
         let balloons = discoverDefaultBalloons()
-        let headlines = discoverDefaultHeadlines()
         let calendarSkins = CalendarRegistry.shared.installedSkins()
         let calendarPlugins = CalendarRegistry.shared.installedPlugins()
         register("ghostlist", provider: GhostPropertyProvider(mode: .ghostlist, ghosts: ghosts, activeIndices: active))
@@ -28,12 +27,21 @@ public final class PropertyManager {
         register("currentghost", provider: GhostPropertyProvider(mode: .currentghost, ghosts: ghosts, activeIndices: active))
         register("balloonlist", provider: BalloonPropertyProvider(mode: .balloonlist, balloons: balloons))
         register("currentghost.balloon", provider: BalloonPropertyProvider(mode: .currentBalloon))
-        register("headlinelist", provider: HeadlinePropertyProvider(headlines: headlines))
-        register("pluginlist", provider: discoverDefaultPluginProvider())
+        // headlinelist / pluginlist は AppDelegate（メインスレッド専用）の registry を参照する。
+        // `shared` の一回初期化中にメインへ同期すると、同時にメインから `shared` へ触れた
+        // 呼び出しが dispatch_once 待ちになり相互デッドロックするため、初回参照まで遅延する。
+        register("headlinelist", provider: LazyPropertyProvider { [unowned self] in
+            HeadlinePropertyProvider(headlines: self.discoverDefaultHeadlines())
+        })
+        register("pluginlist", provider: LazyPropertyProvider { [unowned self] in
+            self.discoverDefaultPluginProvider()
+        })
         register("calendarskinlist", provider: CalendarSkinPropertyProvider(skins: calendarSkins))
         register("calendarpluginlist", provider: CalendarPluginPropertyProvider(plugins: calendarPlugins))
         register("history", provider: HistoryPropertyProvider())
-        register("rateofuselist", provider: RateOfUsePropertyProvider())
+        register("rateofuselist", provider: RateOfUsePropertyProvider(entriesProvider: {
+            RateOfUseStore.shared.entries()
+        }))
 
         // SSP 互換の標準名前空間エイリアス（UKADOC プロパティシステム）。
         // sakura.* / kero.* は scope(0) / scope(1) のショートカット、
@@ -48,8 +56,13 @@ public final class PropertyManager {
         if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
             return [Ghost(name: "DefaultGhost", path: "default")]
         }
+        // descript.txt の name/sakura.name 等を使う（SSP の GetName・currentghost.name はフォルダ名ではなくゴースト名）
         let installed = NarRegistry.shared.installedItems(ofType: "ghost")
-            .map { Ghost(name: $0.name, path: $0.path.path) }
+            .map { item in
+                GhostConfiguration.load(from: item.path.appendingPathComponent("ghost/master", isDirectory: true))
+                    .map { Ghost(from: $0, path: item.path.path) }
+                    ?? Ghost(name: item.name, path: item.path.path)
+            }
         if !installed.isEmpty {
             return installed
         }
@@ -66,20 +79,22 @@ public final class PropertyManager {
     }
 
     private func discoverDefaultHeadlines() -> [Headline] {
-        if let app = NSApp.delegate as? AppDelegate, let registry = app.headlineRegistry {
-            let values = registry.metas.values.map {
-                Headline(name: $0.name, path: $0.filename)
+        onMainThread {
+            if let app = AppDelegate.resolve(), let registry = app.headlineRegistry {
+                let values = registry.metas.values.map {
+                    Headline(name: $0.name, path: $0.filename)
+                }
+                if !values.isEmpty {
+                    return values
+                }
             }
-            if !values.isEmpty {
-                return values
-            }
+            return []
         }
-        return []
     }
 
     private func discoverDefaultPluginProvider() -> PluginPropertyProvider {
         let plugins = discoverDefaultPlugins()
-        let dispatcher = (NSApp.delegate as? AppDelegate)?.pluginDispatcher
+        let dispatcher = onMainThread { AppDelegate.resolve()?.pluginDispatcher }
         return PluginPropertyProvider(
             plugins: plugins,
             extGet: { plugin, key in
@@ -92,29 +107,41 @@ public final class PropertyManager {
     }
 
     private func discoverDefaultPlugins() -> [PropertyPlugin] {
-        if let app = NSApp.delegate as? AppDelegate, let registry = app.pluginRegistry {
-            let values = registry.compatibilityEntries.map {
-                PropertyPlugin(
-                    name: $0.name,
-                    path: $0.compatibilityPath,
-                    id: $0.id,
-                    charset: $0.charset,
-                    craftmanw: $0.craftman ?? "",
-                    craftmanurl: $0.craftmanURL ?? "",
-                    filename: $0.filename,
-                    native: $0.native,
-                    localizedMessages: $0.localizedMessages,
-                    executablePath: $0.executablePath,
-                    packagePath: $0.packagePath,
-                    executionState: $0.executionState.rawValue,
-                    canDispatchRequests: $0.canDispatchRequests
-                )
+        return onMainThread {
+            if let app = AppDelegate.resolve(), let registry = app.pluginRegistry {
+                let values = registry.compatibilityEntries.map {
+                    PropertyPlugin(
+                        name: $0.name,
+                        path: $0.compatibilityPath,
+                        id: $0.id,
+                        charset: $0.charset,
+                        craftmanw: $0.craftman ?? "",
+                        craftmanurl: $0.craftmanURL ?? "",
+                        filename: $0.filename,
+                        native: $0.native,
+                        localizedMessages: $0.localizedMessages,
+                        executablePath: $0.executablePath,
+                        packagePath: $0.packagePath,
+                        executionState: $0.executionState.rawValue,
+                        canDispatchRequests: $0.canDispatchRequests
+                    )
+                }
+                if !values.isEmpty {
+                    return values
+                }
             }
-            if !values.isEmpty {
-                return values
-            }
+            return []
         }
-        return []
+    }
+
+    /// AppKit の NSApplication / AppDelegate はメインスレッドからのみ参照する。
+    /// SakuraScriptEngine は外部イベント処理やテストからバックグラウンドで生成されるため、
+    /// 初期プロバイダ探索だけを同期的にメインへ戻し、値の構築後は呼び出し元へ返す。
+    private func onMainThread<T>(_ body: () -> T) -> T {
+        if Thread.isMainThread {
+            return body()
+        }
+        return DispatchQueue.main.sync(execute: body)
     }
 
     public func expand(_ text: String) -> String {
@@ -174,7 +201,9 @@ public final class PropertyManager {
 
     /// 動的に値が変わる名前空間はキャッシュしない（system.second / system.cursor.pos 等が
     /// 初回取得値で固定されるのを防ぐ）。
-    private static let uncachedPrefixes: Set<String> = ["system", "pluginlist"]
+    private static let uncachedPrefixes: Set<String> = [
+        "system", "pluginlist", "rateofuselist", "currentghost"
+    ]
 
     public func get(_ key: String) -> String? {
         let lower = Self.lowercasePreservingParams(key)
@@ -206,6 +235,38 @@ public final class PropertyManager {
 
     public func register(_ prefix: String, provider: PropertyProvider) {
         providers[prefix.lowercased()] = provider
+        invalidateCache()
+    }
+
+    /// 本体ゴーストの起動・切替時に、ghostlist / activeghostlist / currentghost の active を実ゴーストへ合わせる。
+    /// （未設定だとインストール済みの先頭が currentghost 扱いになり、EXECUTE GetName 等が別ゴーストを返す）
+    func setActiveGhost(path: String) {
+        for prefix in ["ghostlist", "activeghostlist", "currentghost"] {
+            (providers[prefix] as? GhostPropertyProvider)?.setActiveGhost(path: path)
+        }
+        invalidateCache()
+    }
+
+    /// 実行中 GhostManager の状態を currentghost 系プロパティへ接続する。
+    /// プロバイダ自体は再生成せず、SET 済みのカーソル・ツールチップ等を保持したまま
+    /// 変化する倍率だけを live getter で読む。currentghost はウィンドウ生成や
+    /// アニメーションで変化するため、常にキャッシュ対象外として扱う。
+    func bindCurrentGhostRuntime(_ manager: GhostManager) {
+        if let ghostProvider = providers["currentghost"] as? GhostPropertyProvider {
+            ghostProvider.setScopePropertyProvider(
+                get: { [weak manager] scope, property in
+                    manager?.propertyScopeValue(for: scope, property: property)
+                },
+                set: { [weak manager] scope, property, value in
+                    manager?.setPropertyScopeValue(for: scope, property: property, value: value) ?? false
+                }
+            )
+        }
+        if let balloonProvider = providers["currentghost.balloon"] as? BalloonPropertyProvider {
+            balloonProvider.setScopeScalingProvider { [weak manager] scope in
+                manager?.propertyBalloonScopeScaling(for: scope)
+            }
+        }
         invalidateCache()
     }
 
@@ -293,6 +354,41 @@ public final class PropertyManager {
         }
         return result
     }
+}
+
+/// 初回参照時に実プロバイダを構築する。
+///
+/// 構築処理（メインスレッドへの同期を含み得る）はロック外で行い、ロックは結果の
+/// 格納だけに使う。構築中にメインスレッドが同じプロバイダへ触れても、ロック待ちと
+/// メイン同期待ちが循環しない。競合時は先に格納された実体を共有する。
+final class LazyPropertyProvider: PropertyProvider {
+    private let make: () -> PropertyProvider
+    private let lock = NSLock()
+    private var resolved: PropertyProvider?
+
+    init(_ make: @escaping () -> PropertyProvider) {
+        self.make = make
+    }
+
+    private var provider: PropertyProvider {
+        lock.lock()
+        if let resolved {
+            lock.unlock()
+            return resolved
+        }
+        lock.unlock()
+
+        let built = make()
+        lock.lock()
+        defer { lock.unlock() }
+        if let resolved { return resolved }
+        resolved = built
+        return built
+    }
+
+    func get(key: String) -> String? { provider.get(key: key) }
+    func set(key: String, value: String) -> Bool { provider.set(key: key, value: value) }
+    func writableProperties() -> [String] { provider.writableProperties() }
 }
 
 /// 標準名前空間のエイリアスプロバイダ。
