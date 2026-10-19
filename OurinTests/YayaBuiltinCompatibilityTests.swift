@@ -58,6 +58,35 @@ struct YayaBuiltinCompatibilityTests {
         #expect(value == "1:5,4|0|2|2")
     }
 
+    @Test
+    func arrayFunctionConcatenatesArrayCandidatesInsteadOfNesting() throws {
+        // 本家の例: request : array { "This is a pen." ("A","B","C") 3.14 } → 5 要素。
+        let value = try evaluate("""
+        Test
+        {
+        	_a = Candidates
+        	_e = Empty
+        	ARRAYSIZE(_a) + ':' + _a[1] + _a[2] + '|' + GETTYPE(_a[1]) + '|' + ARRAYSIZE(_e)
+        }
+        Candidates : array
+        {
+        	'x'
+        	('p','q')
+        	IARRAY
+        }
+        Empty : array
+        {
+        	if 0 {
+        		'a'
+        	}
+        	else {
+        		IARRAY
+        	}
+        }
+        """)
+        #expect(value == "3:pq|3|0")
+    }
+
     private func evaluate(_ dictionary: String) throws -> String {
         let core = try YayaCoreLineHarness(name: "Builtin", dictionary: dictionary)
         defer { core.close() }

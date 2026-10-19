@@ -769,7 +769,13 @@ Value VM::executeFunctionDecl(const FunctionDecl& decl) {
                 }
                 Value v = executeNode(stmt);
                 if (!isOutputSuppressedNode(stmt) && !v.isVoid()) {
-                    collected.push_back(v);
+                    // YAYA の array は「出力候補をすべて結合した汎用配列」。配列の候補は
+                    // 入れ子にせず要素を連結する（空配列 IARRAY は何も足さない）。
+                    if (isArray && v.getType() == Value::Type::Array) {
+                        for (const auto& elem : v.asArray()) collected.push_back(elem);
+                    } else {
+                        collected.push_back(v);
+                    }
                 }
             }
         } catch (const ReturnException& ret) {
