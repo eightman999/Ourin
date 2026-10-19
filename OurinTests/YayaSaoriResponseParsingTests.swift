@@ -137,7 +137,9 @@ private final class YayaCoreLineHarness {
         let lock = NSLock()
         var data = Data()
         var reachedEOF = false
-        DispatchQueue.global(qos: .userInitiated).async {
+        // 全体実行では他テストのブロッキング待ちで GCD のスレッドプールが埋まり、
+        // global queue に積んだ読み取りが上限内に始まらないことがある。専用スレッドで読む。
+        Thread {
             while true {
                 let byte = handle.readData(ofLength: 1)
                 lock.lock()
@@ -150,7 +152,7 @@ private final class YayaCoreLineHarness {
                 data.append(byte)
             }
             semaphore.signal()
-        }
+        }.start()
         let finished = semaphore.wait(timeout: .now() + timeout) == .success
         lock.lock()
         defer { lock.unlock() }
