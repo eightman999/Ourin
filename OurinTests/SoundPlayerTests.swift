@@ -601,10 +601,11 @@ struct SoundPlayerTests {
         player?.apply(options: .parse(["--volume=0.5"]))
     }
 
-    @Test
+    @Test @MainActor
     func remoteSoundPlayerWithUnsupportedSchemeRejectedByManager() async throws {
         let ghostURL = try makeTempGhostURL()
         let manager = GhostManager(ghostURL: ghostURL)
+        defer { _ = manager.shutdown() }
         // mms/rtsp は macOS 非対応として明示的に拒否される。
         manager.playSound(filename: "mms://example.com/stream")
         try await Task.sleep(nanoseconds: 100_000_000)
