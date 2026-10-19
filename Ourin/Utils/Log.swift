@@ -9,17 +9,17 @@ enum Log {
     }
 
     static func info(_ message: String) {
-        NSLog(message)
+        NSLog("%@", message)
         LogFileSink.shared.write(level: "INFO", message: message)
     }
 
     static func debug(_ message: String) {
-        if verbose { NSLog(message) }
+        if verbose { NSLog("%@", message) }
         LogFileSink.shared.write(level: "DEBUG", message: message)
     }
 
     static func error(_ message: String) {
-        NSLog(message)
+        NSLog("%@", message)
         LogFileSink.shared.write(level: "ERROR", message: message)
     }
 }

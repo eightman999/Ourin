@@ -37,7 +37,7 @@ public final class EnvironmentExpander {
         let pattern1 = "%\\(([^\\)]+)\\(([^\\)]+)\\)\\)"
         if let regex1 = try? NSRegularExpression(pattern: pattern1) {
             let matches = regex1.matches(in: text, range: NSRange(location: 0, length: text.utf16.count))
-            Foundation.NSLog("[EnvironmentExpander] Pattern 1: \(pattern1), matches: \(matches.count)")
+            Foundation.NSLog("%@", "[EnvironmentExpander] Pattern 1: \(pattern1), matches: \(matches.count)")
             
             var result = text
             for m in matches.reversed() {
@@ -47,14 +47,14 @@ public final class EnvironmentExpander {
                 let key = String(result[keyRange]).lowercased()
                 let arg = String(result[argRange])
                 
-                Foundation.NSLog("[EnvironmentExpander] Pattern 1 matched: key=\(key), arg=\(arg)")
+                Foundation.NSLog("%@", "[EnvironmentExpander] Pattern 1 matched: key=\(key), arg=\(arg)")
                 
                 let replacement = expandVariable(key: key, arg: arg, now: now)
-                Foundation.NSLog("[EnvironmentExpander] Replacement: \(replacement)")
+                Foundation.NSLog("%@", "[EnvironmentExpander] Replacement: \(replacement)")
                 result.replaceSubrange(full, with: replacement)
             }
             if !matches.isEmpty {
-                Foundation.NSLog("[EnvironmentExpander] Final result: \(result)")
+                Foundation.NSLog("%@", "[EnvironmentExpander] Final result: \(result)")
                 return result
             }
         }
@@ -63,7 +63,7 @@ public final class EnvironmentExpander {
         let pattern2 = "%([a-zA-Z?*]+)(?:\\[([^\\]]+)\\]|\\(([^\\)]+)\\))"
         if let regex2 = try? NSRegularExpression(pattern: pattern2) {
             let matches = regex2.matches(in: text, range: NSRange(location: 0, length: text.utf16.count))
-            Foundation.NSLog("[EnvironmentExpander] Pattern 2: \(pattern2), matches: \(matches.count)")
+            Foundation.NSLog("%@", "[EnvironmentExpander] Pattern 2: \(pattern2), matches: \(matches.count)")
             
             var result = text
             for m in matches.reversed() {
@@ -82,13 +82,13 @@ public final class EnvironmentExpander {
                 let key = String(result[keyRange]).lowercased()
                 let arg = argRange.map { String(result[$0]) }
                 
-                Foundation.NSLog("[EnvironmentExpander] Pattern 2 matched: key=\(key), arg=\(arg ?? "nil")")
+                Foundation.NSLog("%@", "[EnvironmentExpander] Pattern 2 matched: key=\(key), arg=\(arg ?? "nil")")
                 
                 let replacement = expandVariable(key: key, arg: arg, now: now)
-                Foundation.NSLog("[EnvironmentExpander] Replacement: \(replacement)")
+                Foundation.NSLog("%@", "[EnvironmentExpander] Replacement: \(replacement)")
                 result.replaceSubrange(full, with: replacement)
             }
-            Foundation.NSLog("[EnvironmentExpander] Final result: \(result)")
+            Foundation.NSLog("%@", "[EnvironmentExpander] Final result: \(result)")
             // マッチが無い場合は括弧無しの `%key`（Pattern 3）へフォールスルーする。
             // 無条件 return すると bare 変数（%lastghostname 等）が展開されずに残る。
             if !matches.isEmpty {
@@ -100,7 +100,7 @@ public final class EnvironmentExpander {
         let pattern3 = "%([a-zA-Z?*]+)"
         if let regex3 = try? NSRegularExpression(pattern: pattern3) {
             let matches = regex3.matches(in: text, range: NSRange(location: 0, length: text.utf16.count))
-            Foundation.NSLog("[EnvironmentExpander] Pattern 3: \(pattern3), matches: \(matches.count)")
+            Foundation.NSLog("%@", "[EnvironmentExpander] Pattern 3: \(pattern3), matches: \(matches.count)")
             
             var result = text
             for m in matches.reversed() {
@@ -108,13 +108,13 @@ public final class EnvironmentExpander {
                 let keyRange = Range(m.range(at: 1), in: result)!
                 let key = String(result[keyRange]).lowercased()
                 
-                Foundation.NSLog("[EnvironmentExpander] Pattern 3 matched: key=\(key)")
+                Foundation.NSLog("%@", "[EnvironmentExpander] Pattern 3 matched: key=\(key)")
                 
                 let replacement = expandVariable(key: key, arg: nil, now: now)
-                Foundation.NSLog("[EnvironmentExpander] Replacement: \(replacement)")
+                Foundation.NSLog("%@", "[EnvironmentExpander] Replacement: \(replacement)")
                 result.replaceSubrange(full, with: replacement)
             }
-            Foundation.NSLog("[EnvironmentExpander] Final result: \(result)")
+            Foundation.NSLog("%@", "[EnvironmentExpander] Final result: \(result)")
             return result
         }
         
@@ -122,7 +122,7 @@ public final class EnvironmentExpander {
     }
 
     private func expandVariable(key: String, arg: String?, now: Date) -> String {
-        Foundation.NSLog("[EnvironmentExpander] expandVariable() called: key=\(key), arg=\(arg ?? "nil")")
+        Foundation.NSLog("%@", "[EnvironmentExpander] expandVariable() called: key=\(key), arg=\(arg ?? "nil")")
 
         // Date/time
         let cal = Calendar.current
@@ -141,22 +141,22 @@ public final class EnvironmentExpander {
         case "lastghostname": return Self.lastInstalledGhostName ?? ""
         case "lastobjectname": return Self.lastInstalledObjectName ?? ""
         case "charname":
-            Foundation.NSLog("[EnvironmentExpander] charname: arg=\(arg ?? "nil"), selfname=\(selfname ?? "nil"), keroname=\(keroname ?? "nil")")
+            Foundation.NSLog("%@", "[EnvironmentExpander] charname: arg=\(arg ?? "nil"), selfname=\(selfname ?? "nil"), keroname=\(keroname ?? "nil")")
             // %(charname[scope]) - Get character name for scope
             if let arg = arg, let scope = Int(arg) {
                 switch scope {
                 case 0:
-                    Foundation.NSLog("[EnvironmentExpander] charname(0) returning: \(selfname ?? "")")
+                    Foundation.NSLog("%@", "[EnvironmentExpander] charname(0) returning: \(selfname ?? "")")
                     return selfname ?? ""
                 case 1:
-                    Foundation.NSLog("[EnvironmentExpander] charname(1) returning: \(keroname ?? "")")
+                    Foundation.NSLog("%@", "[EnvironmentExpander] charname(1) returning: \(keroname ?? "")")
                     return keroname ?? ""
                 default:
-                    Foundation.NSLog("[EnvironmentExpander] charname(\(scope)) returning empty")
+                    Foundation.NSLog("%@", "[EnvironmentExpander] charname(\(scope)) returning empty")
                     return ""
                 }
             }
-            Foundation.NSLog("[EnvironmentExpander] charname: no valid arg, returning empty")
+            Foundation.NSLog("%@", "[EnvironmentExpander] charname: no valid arg, returning empty")
             return ""
         case "screenwidth":
             return String(Int(NSScreen.main?.frame.width ?? 0))
@@ -210,7 +210,7 @@ private enum SakuraScriptLexiconLoader {
 
     static func loadDefaultLexicon(bundle: Bundle = .main) -> [String: [String]] {
         guard let url = resourceURL(in: bundle) else {
-            Foundation.NSLog("[EnvironmentExpander] Default lexicon resource not found: \(resourceName).json")
+            Foundation.NSLog("%@", "[EnvironmentExpander] Default lexicon resource not found: \(resourceName).json")
             return [:]
         }
 
@@ -219,7 +219,7 @@ private enum SakuraScriptLexiconLoader {
             let decoded = try JSONDecoder().decode([String: [String]].self, from: data)
             return sanitize(decoded)
         } catch {
-            Foundation.NSLog("[EnvironmentExpander] Failed to load default lexicon: \(error)")
+            Foundation.NSLog("%@", "[EnvironmentExpander] Failed to load default lexicon: \(error)")
             return [:]
         }
     }

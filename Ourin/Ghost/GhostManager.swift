@@ -1191,6 +1191,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // MARK: - Initialization
 
     init(ghostURL: URL) {
+        // NSWindow 生成や WindowCommandStorage 等の共有 static 状態をロックなしで触るため、
+        // メインスレッド専用。別スレッドで生成するとヒープ破壊として遅れて表面化する。
+        assert(Thread.isMainThread, "GhostManager must be created on the main thread")
         self.ghostURL = ghostURL
         super.init()
         self.sakuraEngine.delegate = self

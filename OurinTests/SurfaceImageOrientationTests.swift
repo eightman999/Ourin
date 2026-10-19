@@ -5,6 +5,9 @@ import Testing
 @testable import Ourin
 
 struct SurfaceImageOrientationTests {
+    // GhostManager は NSWindow や共有 static 状態を触るため、メインスレッド外で
+    // 生成・shutdown すると並走する他テストの GhostManager とヒープを壊し合う。
+    @MainActor
     @Test
     func pnaMaskedShellKeepsTopOfSurfaceAtTop() throws {
         let repositoryRoot = URL(fileURLWithPath: #filePath)

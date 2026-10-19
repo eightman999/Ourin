@@ -6,8 +6,16 @@ private final class CloseAllRuntime: GhostShioriRuntime {
     let kind: ShioriRuntimeKind = .native
     var isLoaded = true
     var resourceManager: ResourceManager?
-    var requests: [(method: String, id: String, refs: [String])] = []
     var response: ShioriRuntimeResponse = .init(ok: true, status: 204)
+    // beginCloseSequence は request をグローバルキューから呼ぶため、テスト側の
+    // ポーリング読み取りと競合しないようロックで保護する。
+    private let lock = NSLock()
+    private var recordedRequests: [(method: String, id: String, refs: [String])] = []
+    var requests: [(method: String, id: String, refs: [String])] {
+        lock.lock()
+        defer { lock.unlock() }
+        return recordedRequests
+    }
 
     func load(context: ShioriRuntimeLoadContext) -> Bool { true }
 
@@ -18,7 +26,9 @@ private final class CloseAllRuntime: GhostShioriRuntime {
         refs: [String],
         timeout: TimeInterval
     ) -> ShioriRuntimeResponse? {
-        requests.append((method, id, refs))
+        lock.lock()
+        recordedRequests.append((method, id, refs))
+        lock.unlock()
         return response
     }
 
