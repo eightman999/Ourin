@@ -233,6 +233,29 @@ size_t utf8Length(const std::string& s) {
     return decodeUtf8(s).size();
 }
 
+// バイト位置 → 文字位置。YAYA の位置・長さは文字単位なので、std::string::find や
+// std::regex が返すバイト位置を辞書へ返す前に変換する。
+size_t utf8CharIndexFromByte(const std::string& s, size_t bytePos) {
+    if (bytePos > s.size()) bytePos = s.size();
+    size_t chars = 0;
+    for (size_t i = 0; i < bytePos; ++i) {
+        if ((static_cast<unsigned char>(s[i]) & 0xC0) != 0x80) ++chars;
+    }
+    return chars;
+}
+
+// 文字位置 → バイト位置。文字数を超える位置は文字列末尾のバイト位置を返す。
+size_t utf8ByteIndexFromChar(const std::string& s, size_t charPos) {
+    size_t chars = 0;
+    for (size_t i = 0; i < s.size(); ++i) {
+        if ((static_cast<unsigned char>(s[i]) & 0xC0) != 0x80) {
+            if (chars == charPos) return i;
+            ++chars;
+        }
+    }
+    return s.size();
+}
+
 // コードポイント列を [start, start+count) で切り出して UTF-8 文字列に再構築する。
 // start/count は文字（コードポイント）単位。範囲はクランプする。
 std::string utf8Slice(const std::vector<uint32_t>& cps, size_t start, size_t count) {
@@ -1299,7 +1322,18 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 index >= 0 && index < static_cast<int>(references_.size())) {
                 return references_[index];
             }
-            
+
+            // 変数が無く関数名なら、裸の関数名と同じく引数なしで呼んで添字を取る
+            // （YAYA では `GETTIME[4]` のように関数の戻り値へ直接添字を付けられる）。
+            if (arrayVar.isVoid() &&
+                (functions_.find(access->arrayName) != functions_.end() ||
+                 builtins_.find(access->arrayName) != builtins_.end())) {
+                Value result = execute(access->arrayName, {});
+                if (result.getType() == Value::Type::Array) {
+                    return result.arrayGet(index);
+                }
+            }
+
             return Value();
         }
         
@@ -1659,21 +1693,24 @@ void VM::registerBuiltins() {
     builtins_["SPRINTF"] = builtins_["STRFORM"];
     
     // GETTIME[index] - Get current time component
+    // GETTIME([sec[, timezone]]) - 日時を汎用配列で返す（YAYA 準拠）。
+    // [0]年 [1]月 [2]日 [3]曜日(0=日) [4]時 [5]分 [6]秒 [7]年内経過日数(1/1=0) [8]夏時間フラグ
+    // sec 省略時は現在時刻。timezone 指定は未対応で、常に OS のローカルタイムで求める。
     builtins_["GETTIME"] = [](const std::vector<Value>& args) -> Value {
-        std::time_t t = std::time(nullptr);
-        std::tm* now = std::localtime(&t);
-        if (args.empty()) return Value(0);
-        int index = args[0].asInt();
-        switch (index) {
-            case 0: return Value(now->tm_year + 1900); // Year
-            case 1: return Value(now->tm_mon + 1);     // Month
-            case 2: return Value(now->tm_mday);        // Day
-            case 3: return Value(now->tm_wday);        // Day of week
-            case 4: return Value(now->tm_hour);        // Hour
-            case 5: return Value(now->tm_min);         // Minute
-            case 6: return Value(now->tm_sec);         // Second
-            default: return Value(0);
-        }
+        std::time_t t = args.empty() ? std::time(nullptr) : static_cast<std::time_t>(args[0].asInt());
+        std::tm local{};
+        if (localtime_r(&t, &local) == nullptr) return Value(-1);
+        return Value(std::vector<Value>{
+            Value(local.tm_year + 1900),
+            Value(local.tm_mon + 1),
+            Value(local.tm_mday),
+            Value(local.tm_wday),
+            Value(local.tm_hour),
+            Value(local.tm_min),
+            Value(local.tm_sec),
+            Value(local.tm_yday),
+            Value(local.tm_isdst > 0 ? 1 : 0)
+        });
     };
     
     // ISVAR(varname) - Check if variable exists
@@ -1905,17 +1942,17 @@ void VM::registerBuiltins() {
         std::string haystack = args[0].asString();
         std::string needle = args[1].asString();
 
-        // Optional start position (default: 0)
+        // Optional start position (default: 0). 開始位置と戻り値は文字単位（YAYA 準拠）。
         int start = (args.size() >= 3) ? args[2].asInt() : 0;
 
         // Validate start position - allow start == length (search from end)
-        if (start < 0 || start > static_cast<int>(haystack.length())) {
+        if (start < 0 || start > static_cast<int>(utf8Length(haystack))) {
             return Value(-1);
         }
 
         // Search from start position
-        size_t pos = haystack.find(needle, start);
-        int result = (pos == std::string::npos ? -1 : static_cast<int>(pos));
+        size_t pos = haystack.find(needle, utf8ByteIndexFromChar(haystack, static_cast<size_t>(start)));
+        int result = (pos == std::string::npos ? -1 : static_cast<int>(utf8CharIndexFromByte(haystack, pos)));
 
         // Debug logging for troubleshooting infinite loops
         static int call_count = 0;
@@ -3078,12 +3115,46 @@ void VM::registerBuiltins() {
     //       引数順も本家準拠: RE_xxx(対象文字列, パターン)。
     //       （旧実装は (パターン, 文字列) 順だったが本家は (str, pattern)）
 
-    // RE_OPTION を反映した std::regex を生成する
-    auto makeRegex = [this](const std::string& pattern) {
+    // std::regex（char）はバイト単位で照合するため、`[(（]` のような全角文字を含む
+    // 文字クラスが UTF-8 の途中バイトに一致して文字列を壊す。RE_* はコードポイント列
+    // （wchar_t は macOS で 32bit）に変換して std::wregex で照合し、位置・長さは文字単位で返す。
+    auto toWide = [](const std::string& s) {
+        std::vector<uint32_t> cps = decodeUtf8(s);
+        return std::wstring(cps.begin(), cps.end());
+    };
+    auto fromWide = [](const std::wstring& w) {
+        std::string out;
+        for (wchar_t c : w) appendUtf8(out, static_cast<uint32_t>(c));
+        return out;
+    };
+
+    // RE_OPTION を反映した std::wregex を生成する。
+    // 辞書では `[\x1,]` のような 1 桁の 16 進エスケープが使われるが、ECMAScript は
+    // `\xHH` の 2 桁しか受け付けないため、1 桁なら 0 を補ってから渡す。
+    auto makeRegex = [this, toWide](const std::string& pattern) {
+        auto isHex = [](char c) { return std::isxdigit(static_cast<unsigned char>(c)) != 0; };
+        std::string normalized;
+        normalized.reserve(pattern.size() + 4);
+        for (size_t i = 0; i < pattern.size(); ++i) {
+            if (pattern[i] == '\\' && i + 1 < pattern.size()) {
+                if (pattern[i + 1] == 'x' && i + 2 < pattern.size() && isHex(pattern[i + 2]) &&
+                    (i + 3 >= pattern.size() || !isHex(pattern[i + 3]))) {
+                    normalized += "\\x0";
+                    normalized += pattern[i + 2];
+                    i += 2;
+                    continue;
+                }
+                normalized += pattern[i];
+                normalized += pattern[i + 1];
+                ++i;
+                continue;
+            }
+            normalized += pattern[i];
+        }
         auto flags = std::regex::ECMAScript;
         if (reOptions_ & 1) flags |= std::regex::icase;
         if (reOptions_ & 2) flags |= std::regex::multiline;
-        return std::regex(pattern, flags);
+        return std::wregex(toWide(normalized), flags);
     };
 
     auto clearReState = [this]() {
@@ -3092,10 +3163,10 @@ void VM::registerBuiltins() {
         reMatchLengths_.clear();
     };
 
-    // マッチ結果（グループ含む）を保存する
-    auto storeMatch = [this](const std::smatch& m) {
+    // マッチ結果（グループ含む）を保存する。位置・長さは文字単位（YAYA 準拠）。
+    auto storeMatch = [this, fromWide](const std::wsmatch& m) {
         for (size_t i = 0; i < m.size(); ++i) {
-            reMatchStrings_.emplace_back(m[i].str());
+            reMatchStrings_.emplace_back(fromWide(m[i].str()));
             if (m[i].matched) {
                 reMatchPositions_.emplace_back(static_cast<int>(m.position(i)));
                 reMatchLengths_.emplace_back(static_cast<int>(m.length(i)));
@@ -3107,13 +3178,13 @@ void VM::registerBuiltins() {
     };
 
     // RE_SEARCH(str, pattern) - Search for pattern; return 1/0 (マッチ結果は RE_GET* で取得)
-    builtins_["RE_SEARCH"] = [this, makeRegex, clearReState, storeMatch](const std::vector<Value>& args) -> Value {
+    builtins_["RE_SEARCH"] = [this, makeRegex, clearReState, storeMatch, toWide](const std::vector<Value>& args) -> Value {
         clearReState();
         if (args.size() < 2) return Value(0);
         try {
-            std::regex re = makeRegex(args[1].asString());
-            std::smatch m;
-            std::string s = args[0].asString();
+            std::wregex re = makeRegex(args[1].asString());
+            std::wsmatch m;
+            const std::wstring s = toWide(args[0].asString());
             if (std::regex_search(s, m, re)) {
                 storeMatch(m);
                 return Value(1);
@@ -3126,13 +3197,13 @@ void VM::registerBuiltins() {
     };
 
     // RE_MATCH(str, pattern) - Full match; return 1/0
-    builtins_["RE_MATCH"] = [this, makeRegex, clearReState, storeMatch](const std::vector<Value>& args) -> Value {
+    builtins_["RE_MATCH"] = [this, makeRegex, clearReState, storeMatch, toWide](const std::vector<Value>& args) -> Value {
         clearReState();
         if (args.size() < 2) return Value(0);
         try {
-            std::regex re = makeRegex(args[1].asString());
-            std::smatch m;
-            std::string s = args[0].asString();
+            std::wregex re = makeRegex(args[1].asString());
+            std::wsmatch m;
+            const std::wstring s = toWide(args[0].asString());
             if (std::regex_match(s, m, re)) {
                 storeMatch(m);
                 return Value(1);
@@ -3145,15 +3216,15 @@ void VM::registerBuiltins() {
     };
 
     // RE_GREP(str, pattern) - Return match count; matches stored for RE_GET*
-    builtins_["RE_GREP"] = [this, makeRegex, clearReState](const std::vector<Value>& args) -> Value {
+    builtins_["RE_GREP"] = [this, makeRegex, clearReState, toWide, fromWide](const std::vector<Value>& args) -> Value {
         clearReState();
         if (args.size() < 2) return Value(0);
         int count = 0;
         try {
-            std::regex re = makeRegex(args[1].asString());
-            const std::string s = args[0].asString();
-            for (std::sregex_iterator it(s.begin(), s.end(), re), end; it != end; ++it) {
-                reMatchStrings_.emplace_back(it->str());
+            std::wregex re = makeRegex(args[1].asString());
+            const std::wstring s = toWide(args[0].asString());
+            for (std::wsregex_iterator it(s.begin(), s.end(), re), end; it != end; ++it) {
+                reMatchStrings_.emplace_back(fromWide(it->str()));
                 reMatchPositions_.emplace_back(static_cast<int>(it->position()));
                 reMatchLengths_.emplace_back(static_cast<int>(it->length()));
                 ++count;
@@ -3189,10 +3260,12 @@ void VM::registerBuiltins() {
     };
 
     // RE_REPLACE(str, pattern, replacement) - Replace all occurrences
-    builtins_["RE_REPLACE"] = [this, makeRegex](const std::vector<Value>& args) -> Value {
+    builtins_["RE_REPLACE"] = [this, makeRegex, toWide, fromWide](const std::vector<Value>& args) -> Value {
         if (args.size() < 3) return Value("");
         try {
-            return Value(std::regex_replace(args[0].asString(), makeRegex(args[1].asString()), args[2].asString()));
+            return Value(fromWide(std::regex_replace(toWide(args[0].asString()),
+                                                     makeRegex(args[1].asString()),
+                                                     toWide(args[2].asString()))));
         } catch (const std::exception& e) {
             std::cerr << "[VM] RE_REPLACE regex error: " << e.what() << std::endl;
             return args[0];
@@ -3203,15 +3276,30 @@ void VM::registerBuiltins() {
     // std::regex_replace は ECMAScript 形式 ($1) をそのまま解釈するため同実装で良い
     builtins_["RE_REPLACEEX"] = builtins_["RE_REPLACE"];
     
-    // RE_SPLIT(str, pattern) - Split by regex（本家準拠の引数順）
-    builtins_["RE_SPLIT"] = [this, makeRegex](const std::vector<Value>& args) -> Value {
+    // RE_SPLIT(str, pattern[, max]) - 正規表現で分割する（YAYA 準拠）。
+    // 分割に使った区切り（マッチ全体）を RE_GETSTR / RE_GETPOS / RE_GETLEN で取得できる。
+    // 辞書側は「分割片と区切りを交互に連結し直す」用途で使うため、区切りを捨ててはいけない。
+    // max が 1 以上なら max 個で打ち切り、残りを最後の要素にまとめる。
+    builtins_["RE_SPLIT"] = [this, makeRegex, clearReState, toWide, fromWide](const std::vector<Value>& args) -> Value {
+        clearReState();
         std::vector<Value> out;
         if (args.size() < 2) return Value(out);
         try {
-            std::regex re = makeRegex(args[1].asString());
-            const std::string s = args[0].asString();
-            std::sregex_token_iterator it(s.begin(), s.end(), re, -1), end;
-            for (; it != end; ++it) out.emplace_back(it->str());
+            std::wregex re = makeRegex(args[1].asString());
+            const std::wstring s = toWide(args[0].asString());
+            const int maxParts = (args.size() >= 3) ? args[2].asInt() : 0;
+            size_t pieceStart = 0;
+            for (std::wsregex_iterator it(s.begin(), s.end(), re), end; it != end; ++it) {
+                if (maxParts > 0 && static_cast<int>(out.size()) + 1 >= maxParts) break;
+                const std::wsmatch& m = *it;
+                const size_t pos = static_cast<size_t>(m.position(0));
+                out.emplace_back(fromWide(s.substr(pieceStart, pos - pieceStart)));
+                reMatchStrings_.emplace_back(fromWide(m.str(0)));
+                reMatchPositions_.emplace_back(static_cast<int>(pos));
+                reMatchLengths_.emplace_back(static_cast<int>(m.length(0)));
+                pieceStart = pos + static_cast<size_t>(m.length(0));
+            }
+            out.emplace_back(fromWide(s.substr(pieceStart)));
         } catch (const std::exception& e) {
             std::cerr << "[VM] RE_SPLIT regex error: " << e.what() << std::endl;
         }
@@ -3219,33 +3307,33 @@ void VM::registerBuiltins() {
     };
     
     // RE_ASEARCH(array, pattern) - Return index of first array element matching regex.
-    builtins_["RE_ASEARCH"] = [this, makeRegex](const std::vector<Value>& args) -> Value {
+    builtins_["RE_ASEARCH"] = [this, makeRegex, toWide](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(-1);
         if (args[0].getType() != Value::Type::Array) return Value(-1);
-        std::regex re;
+        std::wregex re;
         try { re = makeRegex(args[1].asString()); }
         catch (...) { return Value(-1); }
         const auto& arr = args[0].asArray();
         for (size_t i = 0; i < arr.size(); ++i) {
             try {
-                if (std::regex_search(arr[i].asString(), re)) return Value(static_cast<int>(i));
+                if (std::regex_search(toWide(arr[i].asString()), re)) return Value(static_cast<int>(i));
             } catch (...) {}
         }
         return Value(-1);
     };
 
     // RE_ASEARCHEX(array, pattern) - Return array of all matching element indices.
-    builtins_["RE_ASEARCHEX"] = [this, makeRegex](const std::vector<Value>& args) -> Value {
+    builtins_["RE_ASEARCHEX"] = [this, makeRegex, toWide](const std::vector<Value>& args) -> Value {
         std::vector<Value> out;
         if (args.size() < 2) return Value(out);
         if (args[0].getType() != Value::Type::Array) return Value(out);
-        std::regex re;
+        std::wregex re;
         try { re = makeRegex(args[1].asString()); }
         catch (...) { return Value(out); }
         const auto& arr = args[0].asArray();
         for (size_t i = 0; i < arr.size(); ++i) {
             try {
-                if (std::regex_search(arr[i].asString(), re)) out.push_back(Value(static_cast<int>(i)));
+                if (std::regex_search(toWide(arr[i].asString()), re)) out.push_back(Value(static_cast<int>(i)));
             } catch (...) {}
         }
         return Value(out);
