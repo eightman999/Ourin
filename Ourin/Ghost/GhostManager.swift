@@ -862,6 +862,11 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     // Window management
     var characterWindows: [Int: NSWindow] = [:] // Support multiple scopes (0=master, 1=partner)
+    /// 既定配置（保存位置もユーザー／スクリプトの移動も無い）にあるスコープと、その時に置いた左端 X。
+    /// サーフェスの大きさが決まるたびに実際の幅で「左隣」へ並べ直す（UKADOC の defaultleft 未指定時の既定）。
+    var defaultLayoutLeftEdges: [Int: CGFloat] = [:]
+    /// 既定配置の並べ直し中は、その移動を「ユーザーが動かした」と見なさない。
+    var isApplyingDefaultLayout = false
     var balloonWindows: [Int: NSWindow] = [:]
     /// `resetballoonpos` のプログラム移動をユーザー移動として保存しない。
     var isResettingBalloonPositions = false
@@ -4935,6 +4940,11 @@ case "scriptbox":
                 }
                 currentScope = id
                 Log.debug("[GhostManager] Switched to scope \(id)")
+                // 話し手のバルーンを他スコープのバルーンより手前へ。重なっていても今話している
+                // 本文が隠れないようにする（未表示のバルーンは表示時に orderFront される）。
+                if let balloon = balloonWindows[id], balloon.isVisible {
+                    balloon.orderFront(nil)
+                }
 
                 // Show the character window for this scope (遅延生成: 未作成スコープはここで生成)
                 if let window = ensureCharacterWindow(for: id) {

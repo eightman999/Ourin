@@ -225,6 +225,27 @@ public final class ResourceManager {
         if let v = value { set(key, value: String(v)) } else { remove(key) }
     }
 
+    /// 位置が保存されている scope 2 以降（`charN.defaultleft` / `charN.defaulttop`）の一覧。
+    public func savedExtraCharacterPositionScopes() -> [Int] {
+        let keys: [String]
+        if fileStore != nil {
+            keys = Array(cache.keys)
+        } else {
+            keys = defaults.dictionaryRepresentation().keys
+                .filter { $0.hasPrefix(prefix) }
+                .map { String($0.dropFirst(prefix.count)) }
+        }
+        var scopes = Set<Int>()
+        for key in keys where key.hasPrefix("char") {
+            let parts = key.dropFirst("char".count).split(separator: ".", maxSplits: 1)
+            guard parts.count == 2,
+                  parts[1] == "defaultleft" || parts[1] == "defaulttop",
+                  let scope = Int(parts[0]), scope >= 2 else { continue }
+            scopes.insert(scope)
+        }
+        return scopes.sorted()
+    }
+
     // MARK: - Balloon positions
 
     /// Get saved balloon left position for scope

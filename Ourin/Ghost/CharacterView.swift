@@ -95,8 +95,14 @@ struct CharacterView: View {
         ZStack(alignment: .topLeading) {
             // 画像未ロード時もレイアウトだけは維持する。Color.clear なので、
             // SERIKO のオーバーレイや顔パーツが単独で描画されることはない。
+            // サーフェスがあればキャンバスはその大きさ（SSP 同様、キャラ窓＝サーフェス）。
+            // 固定 300×400 のままだと小さい絵が窓の左上に描かれ、デスクトップ下端から浮く上に、
+            // バルーンの「シェル上端」や既定配置の「左隣」が実際の絵とずれる。
             Color.clear
-                .frame(width: Self.fallbackCanvasSize.width, height: Self.fallbackCanvasSize.height)
+                .frame(
+                    width: processedBase?.size.width ?? Self.fallbackCanvasSize.width,
+                    height: processedBase?.size.height ?? Self.fallbackCanvasSize.height
+                )
 
             // Keep the entire character layer absent until a real base
             // surface exists.  In particular, do not allow SERIKO overlays,
