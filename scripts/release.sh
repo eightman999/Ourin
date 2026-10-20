@@ -14,6 +14,7 @@
 #   TEAM_ID          チーム ID（既定: ST983BCMDG）
 #   NOTARY_PROFILE   notarytool の keychain profile（既定: ourin-notary）
 #   SKIP_NOTARIZE=1  公証と staple を省略する（署名確認だけしたいとき）
+#   SKIP_INSTALLER=1 Ourin Installer.app（scripts/build-installer.sh）を作らない
 #
 # プロジェクトの DEVELOPMENT_TEAM は開発用のまま変えず、配布時だけここで署名し直す。
 set -euo pipefail
@@ -82,40 +83,15 @@ if [ "${SKIP_NOTARIZE:-0}" = "1" ]; then
     exit 0
 fi
 
-log "公証 (notarytool)"
-SUBMIT_ZIP="$OUT_DIR/Ourin-notarize.zip"
-ditto -c -k --keepParent "$APP" "$SUBMIT_ZIP"
-if ! xcrun notarytool submit "$SUBMIT_ZIP" --keychain-profile "$NOTARY_PROFILE" \
-        --team-id "$TEAM_ID" --output-format json > "$OUT_DIR/notary-submit.json"; then
-    cat "$OUT_DIR/notary-submit.json" >&2
-    exit 1
-fi
-SUBMISSION_ID="$(/usr/bin/plutil -extract id raw "$OUT_DIR/notary-submit.json")"
-echo "submission: $SUBMISSION_ID"
-# 待機中の回線断で提出ごとやり直さないよう、待機だけ再試行する。
-STATUS=""
-for attempt in 1 2 3; do
-    if xcrun notarytool wait "$SUBMISSION_ID" --keychain-profile "$NOTARY_PROFILE" \
-            --timeout 30m --output-format json > "$OUT_DIR/notary.json"; then
-        STATUS="$(/usr/bin/plutil -extract status raw "$OUT_DIR/notary.json" 2>/dev/null || true)"
-        [ -n "$STATUS" ] && break
-    fi
-    echo "notarytool wait 失敗 ($attempt/3)、30 秒後に再試行" >&2
-    sleep 30
-done
-cat "$OUT_DIR/notary.json"
-if [ "$STATUS" != "Accepted" ]; then
-    xcrun notarytool log "$SUBMISSION_ID" --keychain-profile "$NOTARY_PROFILE" "$OUT_DIR/notary-log.json" || true
-    echo "公証に失敗しました ($STATUS): $OUT_DIR/notary-log.json" >&2
-    exit 1
-fi
-rm -f "$SUBMIT_ZIP"
-
-log "staple と Gatekeeper 確認"
-xcrun stapler staple "$APP"
-xcrun stapler validate "$APP"
-spctl -a -t exec -vv "$APP"
+# shellcheck source=notarize.sh
+. "$SCRIPT_DIR/notarize.sh"
+notarize_and_staple "$APP" "$OUT_DIR" "$NOTARY_PROFILE" "$TEAM_ID"
 
 ditto -c -k --keepParent "$APP" "$ZIP"
 (cd "$OUT_DIR" && shasum -a 256 "$(basename "$ZIP")" | tee "$(basename "$ZIP").sha256")
 log "完了: $ZIP"
+
+if [ "${SKIP_INSTALLER:-0}" != "1" ]; then
+    SIGN_IDENTITY="$SIGN_IDENTITY" NOTARY_PROFILE="$NOTARY_PROFILE" TEAM_ID="$TEAM_ID" \
+        "$SCRIPT_DIR/build-installer.sh" "$APP" "$OUT_DIR"
+fi
