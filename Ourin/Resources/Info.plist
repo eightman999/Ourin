@@ -6,6 +6,12 @@
 	<string>Ourin</string>
 	<key>CFBundleIdentifier</key>
 	<string>furin-lab.Ourin</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
 	<key>CFBundleVersion</key>
 	<string>21</string>
 	<key>CFBundleShortVersionString</key>
