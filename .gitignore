@@ -4,3 +4,5 @@
 /satori_core/build/
 /graphify-out
 /build/release/
+/Installer/.build/
+/Installer/.swiftpm/
