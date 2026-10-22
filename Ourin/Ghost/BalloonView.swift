@@ -177,6 +177,22 @@ struct BalloonView: View {
         return CGRect(x: left, y: top, width: right - left, height: bottom - top)
     }
 
+    /// スコープごとのバルーン背景画像の種別（UKADOC: balloons=sakura / balloonk=kero / balloond=char2以降）。
+    static func imageType(forScope scope: Int) -> String {
+        switch scope {
+        case 0: return "s"
+        case 1: return "k"
+        default: return "d"
+        }
+    }
+
+    /// スコープ専用の画像を優先し、無ければ balloons* へフォールバックする。
+    static func loadBackgroundImage(loader: BalloonImageLoader?, index: Int, scope: Int) -> NSImage? {
+        let type = imageType(forScope: scope)
+        if let image = loader?.loadSurface(index: index, type: type) { return image }
+        return type == "s" ? nil : loader?.loadSurface(index: index, type: "s")
+    }
+
     var body: some View {
         let hasBalloonNumber = viewModel.balloonNumberVisible
             && (!viewModel.balloonNumberFileName.isEmpty
@@ -191,7 +207,11 @@ struct BalloonView: View {
         let hasAuxiliaryText = !viewModel.balloonMarkerText.isEmpty || hasBalloonNumber
         let hasBalloonImages = !viewModel.balloonImages.isEmpty
         if !viewModel.text.isEmpty || hasAuxiliaryText || onlineMarkerImage != nil || hasBalloonImages {
-            let bImage = imageLoader?.loadSurface(index: viewModel.balloonID, type: "s")
+            let bImage = Self.loadBackgroundImage(
+                loader: imageLoader,
+                index: viewModel.balloonID,
+                scope: viewModel.scope
+            )
             let size = balloonSize(for: bImage)
             let scaledSize = Self.scaledSize(
                 for: size,

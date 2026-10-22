@@ -5,110 +5,110 @@ surface0
 animation0.interval,random,4
 animation0.pattern0,overlay,2,100,0,0
 animation0.pattern1,overlay,-1,50,0,0
-collision0,88,5,165,38,Head
+collision0,90,5,158,38,Head
 collision1,98,38,152,108,Face
 collision2,100,108,150,150,Bust
 collision3,88,150,162,210,Belly
 collision4,62,210,188,270,Skirt
 collision5,88,270,162,440,Legs
-collision6,30,215,62,300,Hand
-collision7,188,215,220,300,Hand
+collision6,37,215,62,296,Hand
+collision7,188,215,213,297,Hand
 }
 
 surface1
 {
-collision0,88,5,165,38,Head
+collision0,90,5,158,38,Head
 collision1,98,38,152,108,Face
 collision2,100,108,150,150,Bust
 collision3,88,150,162,210,Belly
 collision4,62,210,188,270,Skirt
 collision5,88,270,162,440,Legs
-collision6,30,215,62,300,Hand
-collision7,188,215,220,300,Hand
+collision6,37,215,62,296,Hand
+collision7,188,215,213,297,Hand
 }
 
 surface2
 {
-collision0,88,5,165,38,Head
+collision0,90,5,158,38,Head
 collision1,98,38,152,108,Face
 collision2,100,108,150,150,Bust
 collision3,88,150,162,210,Belly
 collision4,62,210,188,270,Skirt
 collision5,88,270,162,440,Legs
-collision6,30,215,62,300,Hand
-collision7,188,215,220,300,Hand
+collision6,37,215,62,296,Hand
+collision7,188,215,213,297,Hand
 }
 
 surface3
 {
-collision0,88,5,165,38,Head
+collision0,90,5,158,38,Head
 collision1,98,38,152,108,Face
 collision2,100,108,150,150,Bust
 collision3,88,150,162,210,Belly
 collision4,62,210,188,270,Skirt
 collision5,88,270,162,440,Legs
-collision6,30,215,62,300,Hand
-collision7,188,215,220,300,Hand
+collision6,37,215,62,296,Hand
+collision7,188,215,213,297,Hand
 }
 
 surface4
 {
-collision0,88,5,165,38,Head
+collision0,90,5,158,38,Head
 collision1,98,38,152,108,Face
 collision2,100,108,150,150,Bust
 collision3,88,150,162,210,Belly
 collision4,62,210,188,270,Skirt
 collision5,88,270,162,440,Legs
-collision6,30,215,62,300,Hand
-collision7,188,215,220,300,Hand
+collision6,37,215,62,296,Hand
+collision7,188,215,213,297,Hand
 }
 
 surface5
 {
-collision0,88,5,165,38,Head
+collision0,90,5,158,38,Head
 collision1,98,38,152,108,Face
 collision2,100,108,150,150,Bust
 collision3,88,150,162,210,Belly
 collision4,62,210,188,270,Skirt
 collision5,88,270,162,440,Legs
-collision6,30,215,62,300,Hand
-collision7,188,215,220,300,Hand
+collision6,37,215,62,296,Hand
+collision7,188,215,213,297,Hand
 }
 
 surface6
 {
-collision0,88,5,165,38,Head
+collision0,90,5,158,38,Head
 collision1,98,38,152,108,Face
 collision2,100,108,150,150,Bust
 collision3,88,150,162,210,Belly
 collision4,62,210,188,270,Skirt
 collision5,88,270,162,440,Legs
-collision6,30,215,62,300,Hand
-collision7,188,215,220,300,Hand
+collision6,37,215,62,296,Hand
+collision7,188,215,213,297,Hand
 }
 
 surface7
 {
-collision0,88,5,165,38,Head
+collision0,90,5,158,38,Head
 collision1,98,38,152,108,Face
 collision2,100,108,150,150,Bust
 collision3,88,150,162,210,Belly
 collision4,62,210,188,270,Skirt
 collision5,88,270,162,440,Legs
-collision6,30,215,62,300,Hand
-collision7,188,215,220,300,Hand
+collision6,37,215,62,296,Hand
+collision7,188,215,213,297,Hand
 }
 
 surface8
 {
-collision0,88,5,165,38,Head
+collision0,90,5,158,38,Head
 collision1,98,38,152,108,Face
 collision2,100,108,150,150,Bust
 collision3,88,150,162,210,Belly
 collision4,62,210,188,270,Skirt
 collision5,88,270,162,440,Legs
-collision6,30,215,62,300,Hand
-collision7,188,215,220,300,Hand
+collision6,37,215,62,296,Hand
+collision7,188,215,213,297,Hand
 }
 
 surface100
@@ -116,7 +116,7 @@ surface100
 animation0.interval,random,4
 animation0.pattern0,overlay,102,100,0,0
 animation0.pattern1,overlay,-1,50,0,0
-collision0,92,5,168,32,Head
+collision0,97,5,163,32,Head
 collision1,100,32,155,95,Face
 collision2,92,95,160,185,Bust
 collision3,90,185,165,245,Belly
@@ -127,7 +127,7 @@ collision6,170,200,220,300,Hand
 
 surface101
 {
-collision0,92,5,168,32,Head
+collision0,97,5,163,32,Head
 collision1,100,32,155,95,Face
 collision2,92,95,160,185,Bust
 collision3,90,185,165,245,Belly
@@ -138,7 +138,7 @@ collision6,170,200,220,300,Hand
 
 surface102
 {
-collision0,92,5,168,32,Head
+collision0,97,5,163,32,Head
 collision1,100,32,155,95,Face
 collision2,92,95,160,185,Bust
 collision3,90,185,165,245,Belly
@@ -149,7 +149,7 @@ collision6,170,200,220,300,Hand
 
 surface103
 {
-collision0,92,5,168,32,Head
+collision0,97,5,163,32,Head
 collision1,100,32,155,95,Face
 collision2,92,95,160,185,Bust
 collision3,90,185,165,245,Belly
@@ -160,7 +160,7 @@ collision6,170,200,220,300,Hand
 
 surface104
 {
-collision0,92,5,168,32,Head
+collision0,97,5,163,32,Head
 collision1,100,32,155,95,Face
 collision2,92,95,160,185,Bust
 collision3,90,185,165,245,Belly
@@ -171,7 +171,7 @@ collision6,170,200,220,300,Hand
 
 surface105
 {
-collision0,92,5,168,32,Head
+collision0,97,5,163,32,Head
 collision1,100,32,155,95,Face
 collision2,92,95,160,185,Bust
 collision3,90,185,165,245,Belly
@@ -182,7 +182,7 @@ collision6,170,200,220,300,Hand
 
 surface106
 {
-collision0,92,5,168,32,Head
+collision0,97,5,163,32,Head
 collision1,100,32,155,95,Face
 collision2,92,95,160,185,Bust
 collision3,90,185,165,245,Belly
@@ -193,7 +193,7 @@ collision6,170,200,220,300,Hand
 
 surface107
 {
-collision0,92,5,168,32,Head
+collision0,97,5,163,32,Head
 collision1,100,32,155,95,Face
 collision2,92,95,160,185,Bust
 collision3,90,185,165,245,Belly
@@ -204,7 +204,7 @@ collision6,170,200,220,300,Hand
 
 surface108
 {
-collision0,92,5,168,32,Head
+collision0,97,5,163,32,Head
 collision1,100,32,155,95,Face
 collision2,92,95,160,185,Bust
 collision3,90,185,165,245,Belly

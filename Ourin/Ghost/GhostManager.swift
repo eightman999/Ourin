@@ -75,6 +75,8 @@ class BalloonViewModel: ObservableObject {
 
     @Published var text: String = ""
     @Published var balloonID: Int = 0  // Current balloon style ID (0, 2, 4, etc.)
+    /// このバルーンが属するスコープ（0=さくら, 1=kero, 2以降=追加キャラ）。背景画像の種別選択に使う。
+    var scope: Int = 0
 
     /// バルーンの実効表示倍率。`balloon.syncscale,true` の場合はシェル倍率と同期する。
     /// 符号は反転表示を保持し、描画領域の計算では絶対値を使用する。
