@@ -1,7 +1,7 @@
 #!/bin/bash
-# DefaultGhost/rin を rin.nar にまとめる（Xcode の Resources に同梱）。
+# DefaultGhost/sakura を sakura.nar にまとめる（Xcode の Resources に同梱）。
 set -euo pipefail
 cd "$(dirname "$0")/.."
-rm -f rin.nar
-(cd DefaultGhost/rin && zip -qr -X ../../rin.nar . -x '.DS_Store')
-echo "built rin.nar"
+rm -f sakura.nar
+(cd DefaultGhost/sakura && zip -qr -X ../../sakura.nar . -x '.DS_Store')
+echo "built sakura.nar"

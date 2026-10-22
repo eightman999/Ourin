@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Rin 標準ゴーストのプレースホルダ立ち絵を生成する（標準ライブラリのみ）。
-本絵ができたら DefaultGhost/rin/shell/master/surface*.png を差し替えればよい。"""
+本絵ができたら DefaultGhost/sakura/shell/master/surface*.png を差し替えればよい。"""
 import math, struct, sys, zlib
 from pathlib import Path
 
@@ -49,7 +49,7 @@ def bell():
     ell(px,w,h,70,124,6,3,(200,110,100,255))
     return w, h, px
 
-out = Path(sys.argv[1] if len(sys.argv) > 1 else 'DefaultGhost/rin/shell/master')
+out = Path(sys.argv[1] if len(sys.argv) > 1 else 'DefaultGhost/sakura/shell/master')
 for name, (w, h, px) in {'surface0.png': rin(), 'surface1.png': rin(True), 'surface10.png': bell()}.items():
     png(out / name, w, h, px)
 w, h, px = rin(); png(out.parent.parent / 'thumbnail.png', w, h, px)

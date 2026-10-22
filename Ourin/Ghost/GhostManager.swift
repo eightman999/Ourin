@@ -2257,7 +2257,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// OnTranslate の異常な裸数値で、元の Sakura Script 全体を置換しない。
     /// 元の本文自体が数値だけの場合は、正当な翻訳結果として受け入れる。
     static func shouldAcceptTranslationResponse(original: String, candidate: String) -> Bool {
-        !isNumericOnlyScript(candidate) || isNumericOnlyScript(original)
+        // OnTranslate を定義しない辞書（YAYA の標準フレームワークのみ）は空値を返す。
+        // 空値は「変換なし」として扱い、再生する台本を空に置き換えない。
+        let originalIsBlank = original.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let candidateIsBlank = candidate.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if candidateIsBlank && !originalIsBlank { return false }
+        return !isNumericOnlyScript(candidate) || isNumericOnlyScript(original)
     }
 
     private static func isNumericOnlyScript(_ value: String) -> Bool {

@@ -7,5 +7,8 @@ sakura.balloon.offsetx,0
 sakura.balloon.offsety,40
 sakura.seriko.alignmenttodesktop,bottom
 kero.balloon.offsetx,0
-kero.balloon.offsety,20
+kero.balloon.offsety,40
 kero.seriko.alignmenttodesktop,bottom
+char2.balloon.offsetx,0
+char2.balloon.offsety,20
+char2.seriko.alignmenttodesktop,bottom

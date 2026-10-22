@@ -40,6 +40,9 @@ struct NumericEventResponseTests {
         #expect(!GhostManager.shouldAcceptTranslationResponse(original: "\\0Text\\e", candidate: "0"))
         #expect(GhostManager.shouldAcceptTranslationResponse(original: "0", candidate: "0"))
         #expect(GhostManager.shouldAcceptTranslationResponse(original: "\\0Text\\e", candidate: "\\0Translated\\e"))
+        // OnTranslate 未定義の辞書が返す空値で、台本を空にしない。
+        #expect(!GhostManager.shouldAcceptTranslationResponse(original: "\\0Text\\e", candidate: ""))
+        #expect(!GhostManager.shouldAcceptTranslationResponse(original: "\\0Text\\e", candidate: " \n"))
     }
 
     @Test

@@ -49,7 +49,7 @@ def main():
     args = parser.parse_args()
     base, smile, blink, bell = [Image.open(getattr(args, name)).convert("RGBA")
                                for name in ("normal", "smile", "blink", "bell")]
-    root = Path("DefaultGhost/rin")
+    root = Path("DefaultGhost/sakura")
     shell = root / "shell/master"
     resample = Image.Resampling.LANCZOS
     variants = [base, expression(base, smile, True), expression(base, blink, False)]

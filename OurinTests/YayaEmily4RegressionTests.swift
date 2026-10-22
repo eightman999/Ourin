@@ -611,18 +611,18 @@ struct YayaEmily4RegressionTests {
         #expect(third != nil && !(third?.isEmpty ?? true))
     }
 
-    // MARK: - 標準ゴースト Rin
+    // MARK: - 標準ゴースト（さくら）
 
-    /// リポジトリの `DefaultGhost/rin/ghost/master` を実際に yaya_core へロードして発話を確認する。
+    /// リポジトリの `DefaultGhost/sakura/ghost/master` を実際に yaya_core へロードして発話を確認する。
     @Test
-    func rinDefaultGhostLoadsAndTalks() throws {
+    func sakuraDefaultGhostLoadsAndTalks() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Rin regression test")
             return
         }
         let source = URL(fileURLWithPath: #file)
             .deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("DefaultGhost/rin/ghost/master")
+            .appendingPathComponent("DefaultGhost/sakura/ghost/master")
         let master = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
         try FileManager.default.copyItem(at: source, to: master)
         defer { try? FileManager.default.removeItem(at: master) }

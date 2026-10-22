@@ -623,20 +623,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         NSLog("[WebHandler] Applied homeurl from web link: \(urlString)")
     }
 
-    /// Install bundled rin.nar and run it if present
+    /// Install bundled sakura.nar and run it if present
     func installDefaultGhost() {
-        // 既に rin が導入済みなら再インストールせず起動する。
-        if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == "rin" }) {
-            NSLog("[installDefaultGhost] rin already installed at \(ghost.path.path); running it")
+        // 既に sakura が導入済みなら再インストールせず起動する。
+        if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == "sakura" }) {
+            NSLog("[installDefaultGhost] sakura already installed at \(ghost.path.path); running it")
             runGhost(at: ghost.path)
             return
         }
 
-        if let url = Bundle.main.url(forResource: "rin", withExtension: "nar") {
-            NSLog("[installDefaultGhost] Found rin.nar at: \(url.path)")
+        if let url = Bundle.main.url(forResource: "sakura", withExtension: "nar") {
+            NSLog("[installDefaultGhost] Found sakura.nar at: \(url.path)")
             installNar(at: url)
         } else {
-            NSLog("[installDefaultGhost] Bundled rin.nar not found and rin not installed")
+            NSLog("[installDefaultGhost] Bundled sakura.nar not found and sakura not installed")
         }
     }
 
