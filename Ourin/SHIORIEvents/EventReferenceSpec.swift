@@ -203,12 +203,17 @@ public enum EventReferenceTable {
         .init(id: "OnExecuteHTTPSSLInfo", references: ["asyncID", "url", "statusCode", "tlsVersion"], category: "network"),
         // Streaming は Complete の R4 をチャンク本文に置き換える。
         .init(id: "OnExecuteHTTPStreaming", references: ["method", "asyncID", "url", "data", "body", "cookie", "responseHeaders"], category: "network"),
-        .init(id: "OnExecuteWebSocketOpen", references: ["url"], category: "network"),
-        .init(id: "OnExecuteWebSocketReceive", references: ["payload", "url", "dataType"], category: "network"),
+        // UKADOC 2.8.05: R0 は --async の識別子、R1 は URL。
+        .init(id: "OnExecuteWebSocketOpen", references: ["asyncID", "url", "status"], category: "network"),
+        .init(id: "OnExecuteWebSocketReceive", references: ["asyncID", "url", "opcode", "data"], category: "network"),
+        .init(id: "OnExecuteWebSocketReconnect", references: ["asyncID", "url", "status"], category: "network"),
+        .init(id: "OnExecuteWebSocketFailure", references: ["asyncID", "url", "reason"], category: "network"),
+        .init(id: "OnExecuteWebSocket_SSLInfo", references: ["asyncID", "url", "status", "tlsVersion"], category: "network"),
+        // 以下 Send / State / Error は Ourin 独自拡張。
         .init(id: "OnExecuteWebSocketSend", references: ["payload", "url", "dataType"], category: "network"),
         .init(id: "OnExecuteWebSocketState", references: ["state", "url"], category: "network"),
         .init(id: "OnExecuteWebSocketError", references: ["reason", "url"], category: "network"),
-        .init(id: "OnExecuteWebSocketClose", references: ["url"], category: "network"),
+        .init(id: "OnExecuteWebSocketClose", references: ["asyncID", "url", "reason"], category: "network"),
 
         // MARK: - メディア
         // OnMusicPlay 系はローカルの \\![sound] ではなく外部メディアプレイヤーの曲情報。
