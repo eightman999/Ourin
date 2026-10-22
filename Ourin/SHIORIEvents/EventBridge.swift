@@ -657,7 +657,7 @@ final class EventBridge {
                 if notify {
                     gm.runTranslatedNotifyScript(translated)
                 } else {
-                    gm.runTranslatedScript(translated)
+                    gm.runTranslatedScript(translated, isExternal: translationContext.isSSTP)
                 }
             }
             return jobs.first?.1

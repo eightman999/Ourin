@@ -141,6 +141,8 @@ public enum EventID: String, CaseIterable {
     case OnExecuteRSSFailure = "OnExecuteRSSFailure"
     case OnExecuteRSS_SSLInfo = "OnExecuteRSS_SSLInfo"
     case OnExecuteWebSocketClose = "OnExecuteWebSocketClose"
+    case OnExecuteFileWatchChange = "OnExecuteFileWatchChange"
+    case OnExecuteFileWatchFailure = "OnExecuteFileWatchFailure"
     case OnExecuteWebSocketError = "OnExecuteWebSocketError"
     case OnExecuteWebSocketOpen = "OnExecuteWebSocketOpen"
     case OnExecuteWebSocketReceive = "OnExecuteWebSocketReceive"

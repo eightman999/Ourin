@@ -203,6 +203,9 @@ public enum EventReferenceTable {
         .init(id: "OnExecuteHTTPSSLInfo", references: ["asyncID", "url", "statusCode", "tlsVersion"], category: "network"),
         // Streaming は Complete の R4 をチャンク本文に置き換える。
         .init(id: "OnExecuteHTTPStreaming", references: ["method", "asyncID", "url", "data", "body", "cookie", "responseHeaders"], category: "network"),
+        // UKADOC 2.8.91: \![execute,filewatch]
+        .init(id: "OnExecuteFileWatchChange", references: ["asyncID", "path", "kind", "fullPath"], category: "file"),
+        .init(id: "OnExecuteFileWatchFailure", references: ["asyncID", "path", "reason"], category: "file"),
         .init(id: "OnExecuteWebSocketOpen", references: ["url"], category: "network"),
         .init(id: "OnExecuteWebSocketReceive", references: ["payload", "url", "dataType"], category: "network"),
         .init(id: "OnExecuteWebSocketSend", references: ["payload", "url", "dataType"], category: "network"),
