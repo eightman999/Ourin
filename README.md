@@ -47,8 +47,8 @@ Third-party components and bundled content retain their original licenses.
   里々ランタイムは固定版SATORIを`satori_core` helperとして同梱します。
 - SAORI host boundary: modified BSD + ukagaka exception ([ukatech/csaori](https://github.com/ukatech/csaori) に準拠)
   SAORIホストの実装・互換性監査ではcsaoriの入力/出力構造と文字コード規則を基準にします。
-- Default ghost (Emily/Phase4.5): CC BY-NC 4.0  
-  既定ゴースト（Emily/Phase4.5）: CC BY-NC 4.0
+- Default ghost (Rin): same license as Ourin; art is a placeholder  
+  既定ゴースト（Rin）: Ourin本体と同じライセンス。立ち絵は仮絵
 - Migrator (DevTools): uses **Ghidra** (Apache 2.0) as an external tool — not bundled  
   Migrator（DevTools）: **Ghidra**（Apache 2.0）を外部ツールとして利用（同梱なし）
 

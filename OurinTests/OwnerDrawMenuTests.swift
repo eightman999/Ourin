@@ -94,11 +94,14 @@ class OwnerDrawMenuTests: XCTestCase {
         XCTAssertEqual(config.sidebarAlignment, .bottom)
     }
 
-    func testEmilyShellMenuAssetsLoadFromShellBase() {
-        let projectRoot = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-        let shellBase = projectRoot.appendingPathComponent("emily4/shell/master", isDirectory: true)
+    func testShellMenuAssetsLoadFromShellBase() throws {
+        let root = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let shellBase = try TestGhostFixture.makeShell(in: root)
+        let menuDir = shellBase.appendingPathComponent("menu", isDirectory: true)
+        try TestGhostFixture.writeSolidPNG(to: menuDir.appendingPathComponent("background.png"), width: 300, height: 728)
+        try TestGhostFixture.writeSolidPNG(to: menuDir.appendingPathComponent("foreground.png"), width: 300, height: 728)
+        try TestGhostFixture.writeSolidPNG(to: menuDir.appendingPathComponent("sidebar.png"), width: 24, height: 500)
 
         BridgeToSHIORI.setResource("menu.background.bitmap.filename", value: "menu/background.png")
         BridgeToSHIORI.setResource("menu.foreground.bitmap.filename", value: "menu/foreground.png")

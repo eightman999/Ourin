@@ -648,13 +648,23 @@ struct BalloonScalingLayoutTests {
 
 struct BalloonTextLayoutTests {
     @Test func descriptorCoordinatesAndMarginsDefineTextRegion() throws {
-        let path = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appendingPathComponent("emily4/balloon/descript.txt")
-            .path
-        guard let config = BalloonConfig.load(from: path) else {
-            Issue.record("Emily balloon descript.txt could not be loaded")
+        let root = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let descript = root.appendingPathComponent("descript.txt")
+        try """
+        charset,UTF-8
+        name,layout-test
+        origin.x,20
+        origin.y,10
+        wordwrappoint.x,-34
+        wordwrappoint.y,0
+        validrect.left,0
+        validrect.top,0
+        validrect.right,0
+        validrect.bottom,-10
+        """.write(to: descript, atomically: true, encoding: .utf8)
+        guard let config = BalloonConfig.load(from: descript.path) else {
+            Issue.record("balloon descript.txt could not be loaded")
             return
         }
 

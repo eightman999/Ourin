@@ -1,0 +1,11 @@
+charset,UTF-8
+type,shell
+name,master
+craftman,Ourin
+
+sakura.balloon.offsetx,0
+sakura.balloon.offsety,40
+sakura.seriko.alignmenttodesktop,bottom
+kero.balloon.offsetx,0
+kero.balloon.offsety,20
+kero.seriko.alignmenttodesktop,bottom

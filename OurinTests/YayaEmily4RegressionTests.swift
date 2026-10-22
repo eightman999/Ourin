@@ -21,7 +21,7 @@ struct YayaEmily4RegressionTests {
         var dir = URL(fileURLWithPath: #file).deletingLastPathComponent() // OurinTests/
         for _ in 0..<4 {
             dir = dir.deletingLastPathComponent()
-            if FileManager.default.fileExists(atPath: dir.appendingPathComponent("emily4/ghost/master/yaya.txt").path) {
+            if FileManager.default.fileExists(atPath: dir.appendingPathComponent("yaya_core/CMakeLists.txt").path) {
                 return dir
             }
         }
@@ -38,9 +38,10 @@ struct YayaEmily4RegressionTests {
     /// Emily4 の `ghost/master` を一時ディレクトリへコピーしたものを返す。
     /// テスト専用の追加辞書（SRAND シード検証用ラッパー等）を、git 管理下の実データを汚さずに
     /// 追加投入できるようにするため。
+    /// Emily4 は同梱しないため、`OURIN_EMILY4_DIR`（Emily4 ゴーストのルート）を指定した場合だけ実行する。
     private static func copyEmily4Master() throws -> URL? {
-        guard let root = repoRoot() else { return nil }
-        let source = root.appendingPathComponent("emily4/ghost/master")
+        guard let dir = ProcessInfo.processInfo.environment["OURIN_EMILY4_DIR"], !dir.isEmpty else { return nil }
+        let source = URL(fileURLWithPath: dir).appendingPathComponent("ghost/master")
         guard FileManager.default.fileExists(atPath: source.path) else { return nil }
         let dest = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
         try FileManager.default.copyItem(at: source, to: dest)
@@ -187,7 +188,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -218,7 +219,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -251,7 +252,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -302,7 +303,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -324,7 +325,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -352,7 +353,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -386,7 +387,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -417,7 +418,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -483,7 +484,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -523,7 +524,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -580,7 +581,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -608,5 +609,37 @@ struct YayaEmily4RegressionTests {
         #expect(first != nil && !(first?.isEmpty ?? true), "parallel in non-array context must select one candidate")
         #expect(first == second, "Same SRAND seed must reproduce the same parallel selection")
         #expect(third != nil && !(third?.isEmpty ?? true))
+    }
+
+    // MARK: - 標準ゴースト Rin
+
+    /// リポジトリの `DefaultGhost/rin/ghost/master` を実際に yaya_core へロードして発話を確認する。
+    @Test
+    func rinDefaultGhostLoadsAndTalks() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping Rin regression test")
+            return
+        }
+        let source = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("DefaultGhost/rin/ghost/master")
+        let master = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.copyItem(at: source, to: master)
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master)
+
+        for id in ["OnBoot", "OnClose", "OnMouseDoubleClick", "OnAiTalk"] {
+            let resp = session.exchange([
+                "cmd": "request", "method": "GET", "id": id,
+                "ref": [], "headers": ["Charset": "UTF-8"]
+            ])
+            #expect(resp?["ok"] as? Bool == true, "\(id)")
+            #expect(resp?["status"] as? Int == 200, "\(id)")
+            let value = resp?["value"] as? String ?? ""
+            #expect(value.contains("\\0") || value.contains("\\1"), "\(id) should return a Sakura Script: \(value)")
+        }
     }
 }

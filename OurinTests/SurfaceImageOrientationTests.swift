@@ -5,19 +5,28 @@ import Testing
 @testable import Ourin
 
 struct SurfaceImageOrientationTests {
+
+    /// 上端 40 行だけ透明、それ以外は不透明になる PNG + PNA（グレースケール PNG のマスク）を作る。
+    private static func writePNAFixture(in root: URL) throws -> (base: URL, mask: URL) {
+        let shell = try TestGhostFixture.makeShell(in: root)
+        let base = shell.appendingPathComponent("surface0000.png")
+        let mask = shell.appendingPathComponent("surface0000.pna")
+        try TestGhostFixture.writeSolidPNG(to: base, width: 252, height: 400)
+        let maskPNG = shell.appendingPathComponent("mask.png")
+        try TestGhostFixture.writePNG(to: maskPNG, width: 252, height: 400) { _, y in
+            y < 40 ? .init(r: 0, g: 0, b: 0) : .init(r: 255, g: 255, b: 255)
+        }
+        try FileManager.default.moveItem(at: maskPNG, to: mask)
+        return (base, mask)
+    }
+    // GhostManager は NSWindow や共有 static 状態を触るため、メインスレッド外で
+    // 生成・shutdown すると並走する他テストの GhostManager とヒープを壊し合う。
+    @MainActor
     @Test
     func pnaMaskedShellKeepsTopOfSurfaceAtTop() throws {
-        let repositoryRoot = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-        let shellRoot = repositoryRoot.appendingPathComponent("emily4/shell/master")
-        let baseURL = shellRoot.appendingPathComponent("surface0000.png")
-        let maskURL = shellRoot.appendingPathComponent("surface0000.pna")
-        guard FileManager.default.fileExists(atPath: baseURL.path),
-              FileManager.default.fileExists(atPath: maskURL.path) else {
-            print("[skip] Emily4 surface0000 PNA fixture not found")
-            return
-        }
+        let repositoryRoot = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: repositoryRoot) }
+        let (baseURL, maskURL) = try Self.writePNAFixture(in: repositoryRoot)
 
         let manager = GhostManager(ghostURL: repositoryRoot)
         defer { manager.shutdown() }
@@ -26,7 +35,7 @@ struct SurfaceImageOrientationTests {
         let cgImage = try #require(masked.cgImage(forProposedRect: &proposedRect, context: nil, hints: nil))
         let bitmap = NSBitmapImageRep(cgImage: cgImage)
 
-        // surface0000's upper hair/face area is opaque around this point. The
+        // the fixture's area below the transparent top band is opaque around this point. The
         // old lockFocus conversion placed that area at the bottom instead.
         let upperSurface = try #require(bitmap.colorAt(x: 126, y: 50))
         #expect(upperSurface.alphaComponent > 0.5)
@@ -60,17 +69,9 @@ struct SurfaceImageOrientationTests {
     @MainActor
     @Test
     func characterViewKeepsPnaSurfaceOrientation() throws {
-        let repositoryRoot = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-        let shellRoot = repositoryRoot.appendingPathComponent("emily4/shell/master")
-        let baseURL = shellRoot.appendingPathComponent("surface0000.png")
-        let maskURL = shellRoot.appendingPathComponent("surface0000.pna")
-        guard FileManager.default.fileExists(atPath: baseURL.path),
-              FileManager.default.fileExists(atPath: maskURL.path) else {
-            print("[skip] Emily4 surface0000 PNA fixture not found")
-            return
-        }
+        let repositoryRoot = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: repositoryRoot) }
+        let (baseURL, maskURL) = try Self.writePNAFixture(in: repositoryRoot)
 
         let manager = GhostManager(ghostURL: repositoryRoot)
         defer { manager.shutdown() }

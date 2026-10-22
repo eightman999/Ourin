@@ -3,3 +3,7 @@
 /yaya_core/build/
 /satori_core/build/
 /graphify-out
+
+# 旧同梱ゴースト（テストfixture用にローカルのみ保持）
+/emily4/
+/emily4.nar

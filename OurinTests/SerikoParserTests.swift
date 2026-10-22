@@ -61,10 +61,13 @@ struct SerikoParserTests {
     }
 
     @Test
-    func parseRealShellSurfacesTxt() async throws {
-        let testsDir = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-        let repoRoot = testsDir.deletingLastPathComponent()
-        let surfaces = repoRoot.appendingPathComponent("emily4/shell/master/surfaces.txt")
+    func parseShiftJISShellSurfacesTxt() async throws {
+        // 実シェルに多い Shift_JIS・CRLF の surfaces.txt を、ファイル経由で読み込んで解析できること。
+        let root = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let surfaces = try TestGhostFixture.makeShell(in: root).appendingPathComponent("surfaces.txt")
+        let text = "charset,Shift_JIS\r\n\r\nsurface0\r\n{\r\nanimation50.interval,sometimes\r\nanimation50.pattern0,overlay,5006,50,85,80\r\nanimation50.pattern1,overlay,-1,50,85,80\r\n}\r\n"
+        try #require(text.data(using: .shiftJIS)).write(to: surfaces)
         let content = try String(contentsOf: surfaces, encoding: .shiftJIS)
         let parsed = SerikoParser.parseSurfaces(content)
 
