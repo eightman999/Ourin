@@ -1,5 +1,7 @@
-// さくら(\0) / りんね(\1) / ベル(\p[2]) : Ourin 標準ゴースト 最小辞書
+// さくら(\0) / りんね(\1) / ベル(\p[2]) : Ourin 標準ゴースト イベント辞書
+// 会話の本文は dialogue.dic（scripts/gen_default_dialogue.py による自動生成）。
 // 表情: さくら 0通常 1笑顔 3照れ 4驚き 5困り 6怒り 7眠い 8ドヤ / りんね 100〜108 同順 / ベル 10通常 11眠る 12驚き 13ご機嫌
+
 OnFirstBoot
 {
 	"\0\s[1]はじめまして、さくらです！\n\1\s[100]りんねだ。よろしく。\n\p[2]\s[13]ベル……ふわあ。\e"
@@ -7,12 +9,24 @@ OnFirstBoot
 
 OnBoot
 {
-	"\0\s[0]起動したよ。Ourin へようこそ！\n\1\s[108]ようやく来たか。\n\p[2]\s[11]……zzz。\e"
+	_h = GETTIME[3]
+	if _h >= 5 && _h <= 10 {
+		Talk_boot_morning
+	}
+	elseif _h >= 11 && _h <= 16 {
+		Talk_boot_day
+	}
+	elseif _h >= 17 && _h <= 20 {
+		Talk_boot_evening
+	}
+	else {
+		Talk_boot_night
+	}
 }
 
 OnClose
 {
-	"\0\s[1]またね！\n\1\s[100]ああ、また。\n\p[2]\s[10]ばいばい。\e"
+	Talk_close
 }
 
 // 当たり判定: reference[3]=キャラ番号(0 さくら/1 りんね/2 ベル) reference[4]=当たり判定名
@@ -22,36 +36,40 @@ OnMouseClick
 	_who = reference[3]
 	_part = reference[4]
 	// 参照が空・不明なときはさくらとして応答する
-	if _who != 1 && _who != 2 {
-		if _part == "Head" { "\0\s[1]なでなで？ えへへ。\e" }
-		elseif _part == "Face" { "\0\s[3]わ、顔はちょっと……恥ずかしいよ。\e" }
-		elseif _part == "Bust" { "\0\s[6]もう、どこ触ってるの！\1\s[105]……おい。\e" }
-		elseif _part == "Belly" { "\0\s[5]くすぐったいよう……。\e" }
-		elseif _part == "Skirt" { "\0\s[6]スカートはだめ！\1\s[106]さくらに手を出すな。\e" }
-		elseif _part == "Legs" { "\0\s[4]ひゃっ！\e" }
-		elseif _part == "Hand" { "\0\s[1]手をつなぐ？ ……なんてね。\e" }
-		else { "\0\s[0]なあに？\e" }
+	if _who == 1 {
+		_name = "rinne"
 	}
-	elseif _who == 1 {
-		if _part == "Head" { "\1\s[103]……子ども扱いするな。\0\s[1]ふふ。\e" }
-		elseif _part == "Face" { "\1\s[104]なんだ、急に。\e" }
-		elseif _part == "Bust" { "\1\s[105]……用があるなら口で言え。\e" }
-		elseif _part == "Belly" { "\1\s[107]腹は減っていないぞ。\e" }
-		elseif _part == "Legs" { "\1\s[106]蹴るな。\e" }
-		elseif _part == "Hand" { "\1\s[108]手を貸してほしいのか？\e" }
-		else { "\1\s[100]どうした。\e" }
+	elseif _who == 2 {
+		_name = "bell"
 	}
 	else {
-		if _part == "Head" { "\p[2]\s[13]ちりん。\e" }
-		elseif _part == "Face" { "\p[2]\s[12]にゃっ！\e" }
-		else { "\p[2]\s[10]……ふわあ。\e" }
+		_name = "sakura"
+	}
+	_fn = "Talk_click_" + _name + "_" + _part
+	if ISFUNC(_fn) {
+		EVAL(_fn)
+	}
+	else {
+		ClickDefault(_name)
+	}
+}
+
+ClickDefault
+{
+	if _argv[0] == "rinne" {
+		"\1\s[100]どうした。\e"
+	}
+	elseif _argv[0] == "bell" {
+		"\p[2]\s[10]……ちりん。\e"
+	}
+	else {
+		"\0\s[0]なあに？\e"
 	}
 }
 
 OnMouseDoubleClick
 {
 	_who = reference[3]
-	// 参照が空・不明なときはさくらとして応答する
 	if _who != 1 && _who != 2 {
 		"\0\s[4]わっ、なあに？\1\s[107]呼んだか？\e"
 	}
@@ -63,16 +81,40 @@ OnMouseDoubleClick
 	}
 }
 
+// 時間帯に合わせた雑談。約3回に1回は時間帯の話題にする。
 OnAiTalk
 {
-	_talks = IARRAY
-	_talks ,= "\0\s[0]いい天気だね。\n\1\s[100]洗濯日和というやつだな。\e"
-	_talks ,= "\0\s[1]お茶でも飲もうか。\n\1\s[103]……付き合ってやる。\e"
-	_talks ,= "\0\s[0]桜の鈴、聞こえる？\n\p[2]\s[13]ちりん。\e"
-	_talks ,= "\0\s[6]もう、りんねってば！\n\1\s[108]ふっ、気づかなかったか。\e"
-	_talks ,= "\0\s[5]ちょっと困っちゃった……。\n\1\s[105]どうした、話してみろ。\e"
-	_talks ,= "\0\s[7]ねむい……。\n\p[2]\s[11]ぐう……。\n\1\s[100]ベルはもう寝ているな。\e"
-	_talks[RAND(ARRAYSIZE(_talks))]
+	_h = GETTIME[3]
+	if RAND(3) == 0 {
+		if _h >= 5 && _h <= 10 {
+			Talk_aitalk_morning
+		}
+		elseif _h >= 11 && _h <= 16 {
+			Talk_aitalk_day
+		}
+		elseif _h >= 17 && _h <= 20 {
+			Talk_aitalk_evening
+		}
+		else {
+			Talk_aitalk_night
+		}
+	}
+	else {
+		Talk_aitalk
+	}
+}
+
+// 放置の声かけ。OnIdle は毎秒届き、reference[3]=トーク再生可否 reference[4]=システム全体の放置秒数。
+// 10分以上放置したら一度だけ話し、操作が戻ったら次の放置に備える。
+OnIdle
+{
+	if reference[4] < 5 {
+		IdleTalked = 0
+	}
+	elseif reference[3] == 1 && IdleTalked != 1 && reference[4] >= 600 {
+		IdleTalked = 1
+		Talk_idle
+	}
 }
 
 OnSecondChange

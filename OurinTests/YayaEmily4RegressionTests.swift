@@ -671,10 +671,61 @@ struct YayaEmily4RegressionTests {
         let sakuraFace = click("0", "Face")
         let rinneFace = click("1", "Face")
         let bellHead = click("2", "Head")
-        #expect(sakuraFace.hasPrefix("\\0"), "\(sakuraFace)")
-        #expect(rinneFace.hasPrefix("\\1"), "\(rinneFace)")
-        #expect(bellHead.hasPrefix("\\p[2]"), "\(bellHead)")
+        // 台本は別キャラの台詞から始まることがあるため、対象キャラが話すことだけを確認する。
+        #expect(sakuraFace.contains("\\0"), "\(sakuraFace)")
+        #expect(rinneFace.contains("\\1"), "\(rinneFace)")
+        #expect(bellHead.contains("\\p[2]"), "\(bellHead)")
         #expect(click("0", "Skirt") != click("0", "Head"))
         #expect(!click("1", "Legs").isEmpty)
+    }
+
+    /// 起動・クリック（EVAL によるキャラ別・部位別の振り分け）・OnIdle の放置検出が動くこと。
+    @Test
+    func sakuraGhostDialogueDispatchAndIdle() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping")
+            return
+        }
+        let source = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("DefaultGhost/sakura/ghost/master")
+        let master = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.copyItem(at: source, to: master)
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master)
+
+        func get(_ id: String, _ refs: [String]) -> String {
+            let resp = session.exchange([
+                "cmd": "request", "method": "GET", "id": id,
+                "ref": refs, "headers": ["Charset": "UTF-8"]
+            ])
+            return resp?["value"] as? String ?? ""
+        }
+
+        // 起動・終了は台本を返す。
+        for id in ["OnBoot", "OnClose"] {
+            let value = get(id, [])
+            #expect(value.hasSuffix("\\e") && value.contains("\\s["), "\(id): \(value)")
+        }
+
+        // 存在しない部位名でも既定の応答に落ちる（空にならない）。
+        #expect(!get("OnMouseClick", ["1", "1", "0", "0", "NoSuchPart", "0"]).isEmpty)
+        // 部位ごとの台本が振り分けられる（Bell の Body など別カテゴリでも空にならない）。
+        #expect(get("OnMouseClick", ["1", "1", "0", "2", "Body", "0"]).contains("\\p[2]"))
+
+        // OnIdle: R3=トーク可否, R4=放置秒数。10分以上で一度だけ話し、操作が戻ればまた話せる。
+        func idle(canTalk: String, seconds: String) -> String {
+            get("OnIdle", ["1", "", "", canTalk, seconds])
+        }
+        #expect(idle(canTalk: "1", seconds: "30").isEmpty)
+        #expect(idle(canTalk: "0", seconds: "700").isEmpty)
+        let first = idle(canTalk: "1", seconds: "700")
+        #expect(first.hasSuffix("\\e"), "\(first)")
+        #expect(idle(canTalk: "1", seconds: "701").isEmpty)
+        #expect(idle(canTalk: "1", seconds: "0").isEmpty)
+        #expect(!idle(canTalk: "1", seconds: "900").isEmpty)
     }
 }

@@ -5,3 +5,4 @@ charset.save, UTF-8
 charset.extension, UTF-8
 
 dic, rin.dic
+dic, dialogue.dic
