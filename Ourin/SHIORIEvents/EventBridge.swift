@@ -104,6 +104,7 @@ final class EventBridge {
             SystemLoadObserver.shared.start(forward)
             SleepObserver.shared.start(forward)
             DisplayObserver.shared.start(forward)
+            DesktopWallpaperObserver.shared.start(forward)
             SpaceObserver.shared.start(forward)
             PowerObserver.shared.start(forward)
             LocaleObserver.shared.start(forward)
@@ -131,6 +132,7 @@ final class EventBridge {
         InputMonitor.shared.ghostClickHandler = nil
         InputMonitor.shared.stop()
         DisplayObserver.shared.stop()
+        DesktopWallpaperObserver.shared.stop()
         SpaceObserver.shared.stop()
         PowerObserver.shared.stop()
         LocaleObserver.shared.stop()
@@ -177,6 +179,7 @@ final class EventBridge {
             SystemLoadObserver.shared.start(forward)
             SleepObserver.shared.start(forward)
             DisplayObserver.shared.start(forward)
+            DesktopWallpaperObserver.shared.start(forward)
             SpaceObserver.shared.start(forward)
             PowerObserver.shared.start(forward)
             LocaleObserver.shared.start(forward)
@@ -199,6 +202,7 @@ final class EventBridge {
             InputMonitor.shared.ghostClickHandler = nil
             InputMonitor.shared.stop()
             DisplayObserver.shared.stop()
+            DesktopWallpaperObserver.shared.stop()
             SpaceObserver.shared.stop()
             PowerObserver.shared.stop()
             LocaleObserver.shared.stop()
