@@ -104,7 +104,7 @@ public enum EventReferenceTable {
         .init(id: "OnSecondChange", references: ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"], category: "time"),
         .init(id: "OnMinuteChange", references: ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"], category: "time"),
         .init(id: "OnHourTimeSignal", references: ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"], category: "time"),
-        .init(id: "OnIdle", references: [], category: "time"),
+        .init(id: "OnIdle", references: ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"], category: "time"),
 
         // MARK: - カレンダー
         // UKADOC: スケジュールイベントの Reference0..3 は type/caption/subtitle/script。
