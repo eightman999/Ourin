@@ -421,6 +421,7 @@ public enum EventID: String, CaseIterable {
     case OnVoiceRecognitionStatus = "OnVoiceRecognitionStatus"
     case OnVoiceRecognitionWord = "OnVoiceRecognitionWord"
     case OnWallpaperChange = "OnWallpaperChange"
+    case OnDesktopWallpaperChange = "OnDesktopWallpaperChange"
     case OnWeatherStation = "OnWeatherStation"
     case OnWebsiteUpdateNotify = "OnWebsiteUpdateNotify"
     case OnWindowStateMinimize = "OnWindowStateMinimize"

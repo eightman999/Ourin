@@ -415,6 +415,8 @@ public enum EventReferenceTable {
         // UKADOC: URL, scope, MIME, then the host's planned action.
         .init(id: "OnURLQuery", references: ["url", "scopeID", "mimeType", "plannedAction"], category: "dragdrop"),
         .init(id: "OnWallpaperChange", references: ["filePath"], category: "dragdrop"),
+        // UKADOC 2.8.86。R6 以降はモニタごとの「番号[\\1]パス[\\1]スタイル」が続く。
+        .init(id: "OnDesktopWallpaperChange", references: ["state", "cause", "path", "previousPath", "style", "backgroundColor"], category: "system"),
         // UKADOC: R2 は予約／空欄、R3=対象種別、R4=更新理由。
         .init(id: "OnUpdateBegin", references: ["ghostName", "path", "unused2", "targetType", "executionReason"], category: "update"),
         .init(id: "OnUpdateCheckComplete", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),

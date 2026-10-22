@@ -1843,6 +1843,7 @@ extension GhostManager: NSWindowDelegate {
                 return
             }
             let workspace = NSWorkspace.shared
+            DesktopWallpaperObserver.shared.noteSelfChange()
             for screen in NSScreen.screens {
                 guard let url = self.savedWallpaperURLs[self.wallpaperScreenKey(screen)] else { continue }
                 do {
@@ -1922,6 +1923,8 @@ extension GhostManager: NSWindowDelegate {
             let workspace = NSWorkspace.shared
             let options = self.wallpaperOptions(rawOptions)
             let targets = NSScreen.screens.isEmpty ? [NSScreen.main].compactMap { $0 } : NSScreen.screens
+            // この変更で検知される OnDesktopWallpaperChange のきっかけを self にする。
+            DesktopWallpaperObserver.shared.noteSelfChange()
             var failed = false
             for screen in targets {
                 do {
