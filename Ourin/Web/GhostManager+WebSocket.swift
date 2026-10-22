@@ -2,176 +2,113 @@ import Foundation
 
 // MARK: - WebSocket (\![execute,websocket] / \![send,websocket] / \![close,websocket] / \![cancel,websocket])
 //
-// UKADOC のさくらスクリプト WebSocket 系コマンドを URLSessionWebSocketTask で実装する。
-// 受信・状態変化は SHIORI イベントへ通知する（Ourin のイベント写像）:
-//   OnExecuteWebSocketOpen     Reference0=URL
-//   OnExecuteWebSocketReceive  Reference0=本文（テキスト、またはバイナリ時は Base64）, Reference1=URL, Reference2="binary"（バイナリ時）
-//   OnExecuteWebSocketClose    Reference0=URL
-//   OnExecuteWebSocketError    Reference0=理由, Reference1=URL
-//   OnExecuteWebSocketSend     Reference0=送信内容, Reference1=URL, Reference2="binary"（バイナリ時）
-//   OnExecuteWebSocketState    Reference0=状態(open/closing/closed/error), Reference1=URL
-//
-// 既存の OnExecuteHTTP* と同じ命名規約（OnExecute<種別><段階>）に揃えている。
+// UKADOC 2.8.05 の WebSocket 系コマンド。接続ごとの状態と UKADOC のイベント
+// （Open / Receive / Reconnect / Close / Failure / _SSLInfo）は WebSocketConnection が扱う。
+// Ourin 独自拡張として、送信結果を OnExecuteWebSocketSend（R0=送信内容 R1=URL R2="binary"）、
+// 送信失敗を OnExecuteWebSocketError（R0=理由 R1=URL）でも通知する。
 extension GhostManager {
 
-    /// \![execute,websocket,URL] — 接続を開き受信ループを開始する。
+    /// \![execute,websocket,URL,オプション...] — `--async`、`--header`、`--timeout` は http 系と同じ。
     func executeWebSocket(params: [String]) {
-        guard let rawURL = params.first,
-              let url = URL(string: rawURL),
+        let options = HTTPCommandOptions(arguments: Array(params.dropFirst()))
+        let rawURL = params.first ?? ""
+        guard let url = URL(string: rawURL),
               let scheme = url.scheme?.lowercased(),
               scheme == "ws" || scheme == "wss" else {
-            let bad = params.first ?? ""
-            EventBridge.shared.notify(.OnExecuteWebSocketError, refs: [
-                "reason": "invalid_url",
-                "url": bad
-            ])
+            Self.emitWebSocketEvent(
+                WebSocketConnection.eventName(.failure, customEventID: options.customEventID),
+                params: ["Reference0": options.asyncID, "Reference1": rawURL, "Reference2": "invalid url"]
+            )
             return
         }
         let key = url.absoluteString
 
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            // 既存接続があれば張り替える
-            if let existing = self.webSocketTasks[key] {
-                existing.cancel(with: .goingAway, reason: nil)
-                self.webSocketTasks.removeValue(forKey: key)
-            }
-            let task = URLSession.shared.webSocketTask(with: url)
-            self.webSocketTasks[key] = task
-            task.resume()
-            // `resume()` は接続開始を要求するだけで、WebSocket handshake の完了を
-            // 意味しない。Ping の成功を handshake 完了の確認として使い、成功時だけ
-            // Open/state と受信ループを開始する。
-            task.sendPing { [weak self] error in
-                DispatchQueue.main.async {
-                    guard let self, self.webSocketTasks[key] === task else { return }
-                    if let error {
-                        self.webSocketTasks.removeValue(forKey: key)
-                        EventBridge.shared.notify(.OnExecuteWebSocketError, refs: [
-                            "reason": error.localizedDescription,
-                            "url": key
-                        ])
-                        EventBridge.shared.notify(.OnExecuteWebSocketState, refs: [
-                            "state": "error",
-                            "url": key
-                        ])
-                        return
+            // 同じ URL の接続があれば張り替える（古い接続は userbreak で閉じる）。
+            self.webSocketConnections.removeValue(forKey: key)?.cancel()
+            let connection = WebSocketConnection(
+                url: url,
+                asyncID: options.asyncID,
+                customEventID: options.customEventID,
+                headers: options.headers,
+                timeout: options.timeout
+            ) { [weak self] name, params in
+                Self.emitWebSocketEvent(name, params: params)
+                // Close / Failure の後は接続表から外す。
+                if name == WebSocketConnection.eventName(.close, customEventID: options.customEventID)
+                    || name == WebSocketConnection.eventName(.failure, customEventID: options.customEventID) {
+                    DispatchQueue.main.async {
+                        guard let self, let current = self.webSocketConnections[key], !current.isActive else { return }
+                        self.webSocketConnections.removeValue(forKey: key)
                     }
-
-                    EventBridge.shared.notify(.OnExecuteWebSocketOpen, refs: ["url": key])
-                    EventBridge.shared.notify(.OnExecuteWebSocketState, refs: [
-                        "state": "open",
-                        "url": key
-                    ])
-                    self.receiveNextWebSocketMessage(task, key: key)
                 }
             }
+            self.webSocketConnections[key] = connection
+            connection.start()
         }
     }
 
-    /// \![send,websocket,URL,data] / \![send,websocket-binary,URL,base64]
+    /// \![send,websocket,URL,data1,data2,...] / \![send,websocket-binary,URL,base64]
     func sendWebSocket(params: [String], binary: Bool) {
         guard params.count >= 2, let url = URL(string: params[0]) else { return }
         let key = url.absoluteString
-        let payload = params[1]
+        // テキストは data を2つ以上指定すると CRLF で結合する（UKADOC）。
+        let payload = binary ? params[1] : params.dropFirst().joined(separator: "\r\n")
 
         DispatchQueue.main.async { [weak self] in
-            guard let self, let task = self.webSocketTasks[key] else { return }
-            let message: URLSessionWebSocketTask.Message
-            if binary {
-                let data = Data(base64Encoded: payload) ?? Data(payload.utf8)
-                message = .data(data)
-            } else {
-                message = .string(payload)
-            }
-            task.send(message) { error in
+            // セッションが存在しない場合（接続前・切断後）はタグを無視する。
+            guard let self, let connection = self.webSocketConnections[key] else { return }
+            let completion: (Error?) -> Void = { error in
                 if let error {
                     EventBridge.shared.notify(.OnExecuteWebSocketError, refs: [
                         "reason": error.localizedDescription,
                         "url": key
                     ])
                 } else {
-                    var sendParams: [String: String] = [
-                        "payload": payload,
-                        "url": key
-                    ]
-                    if binary {
-                        sendParams["dataType"] = "binary"
-                    }
+                    var sendParams = ["payload": payload, "url": key]
+                    if binary { sendParams["dataType"] = "binary" }
                     EventBridge.shared.notify(.OnExecuteWebSocketSend, refs: sendParams)
                 }
             }
-        }
-    }
-
-    /// \![close,websocket,URL] — 正常クローズ（close フレーム送出）。
-    func closeWebSocket(params: [String]) {
-        finishWebSocket(params: params, normal: true)
-    }
-
-    /// \![cancel,websocket,URL] — 即時キャンセル（close フレームなし）。
-    func cancelWebSocket(params: [String]) {
-        finishWebSocket(params: params, normal: false)
-    }
-
-    private func finishWebSocket(params: [String], normal: Bool) {
-        guard let url = URL(string: params.first ?? "") else { return }
-        let key = url.absoluteString
-        DispatchQueue.main.async { [weak self] in
-            guard let self, let task = self.webSocketTasks[key] else { return }
-            self.webSocketTasks.removeValue(forKey: key)
-            if normal {
-                task.cancel(with: .normalClosure, reason: nil)
+            if binary {
+                guard let data = Data(base64Encoded: payload) else { return }
+                connection.send(data: data, completion: completion)
             } else {
-                task.cancel()
+                connection.send(text: payload, completion: completion)
             }
-            EventBridge.shared.notify(.OnExecuteWebSocketState, refs: [
-                "state": normal ? "closed" : "closing",
-                "url": key
-            ])
-            EventBridge.shared.notify(.OnExecuteWebSocketClose, refs: ["url": key])
         }
     }
 
-    /// 受信ループ。1メッセージ受信ごとに自身を再スケジュールする。
-    private func receiveNextWebSocketMessage(_ task: URLSessionWebSocketTask, key: String) {
-        task.receive { [weak self] result in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                // すでに閉じられている場合は何もしない
-                guard self.webSocketTasks[key] === task else { return }
-                switch result {
-                case .failure(let error):
-                    EventBridge.shared.notify(.OnExecuteWebSocketError, refs: [
-                        "reason": error.localizedDescription,
-                        "url": key
-                    ])
-                    EventBridge.shared.notify(.OnExecuteWebSocketState, refs: [
-                        "state": "error",
-                        "url": key
-                    ])
-                    self.webSocketTasks.removeValue(forKey: key)
-                    EventBridge.shared.notify(.OnExecuteWebSocketClose, refs: ["url": key])
-                case .success(let message):
-                    switch message {
-                    case .string(let text):
-                        EventBridge.shared.notify(.OnExecuteWebSocketReceive, refs: [
-                            "payload": text,
-                            "url": key
-                        ])
-                    case .data(let data):
-                        EventBridge.shared.notify(.OnExecuteWebSocketReceive, refs: [
-                            "payload": data.base64EncodedString(),
-                            "url": key,
-                            "dataType": "binary"
-                        ])
-                    @unknown default:
-                        break
-                    }
-                    // 接続が生きていれば次の受信を待つ
-                    self.receiveNextWebSocketMessage(task, key: key)
-                }
-            }
+    /// \![close,websocket,URL(,status_code)] — Close フレームで正常に切断する。
+    func closeWebSocket(params: [String]) {
+        guard let url = URL(string: params.first ?? "") else { return }
+        let code = params.count >= 2 ? Int(params[1].trimmingCharacters(in: .whitespaces)) ?? 1000 : 1000
+        DispatchQueue.main.async { [weak self] in
+            self?.webSocketConnections[url.absoluteString]?.close(code: code)
+        }
+    }
+
+    /// \![cancel,websocket,URL] — Close フレームを送らずに強制中断する（再接続待ち中も含む）。
+    func cancelWebSocket(params: [String]) {
+        guard let url = URL(string: params.first ?? "") else { return }
+        DispatchQueue.main.async { [weak self] in
+            self?.webSocketConnections.removeValue(forKey: url.absoluteString)?.cancel()
+        }
+    }
+
+    /// ゴースト終了時にすべての接続を中断する（UKADOC: Close の R2 は "userbreak"）。
+    func cancelAllWebSockets() {
+        let connections = webSocketConnections.values
+        webSocketConnections.removeAll()
+        connections.forEach { $0.cancel() }
+    }
+
+    private static func emitWebSocketEvent(_ name: String, params: [String: String]) {
+        if let id = EventID(rawValue: name) {
+            EventBridge.shared.notify(id, params: params)
+        } else {
+            EventBridge.shared.notifyCustom(name, params: params)
         }
     }
 }
