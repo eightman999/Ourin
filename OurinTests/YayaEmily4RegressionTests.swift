@@ -642,4 +642,39 @@ struct YayaEmily4RegressionTests {
             #expect(value.contains("\\0") || value.contains("\\1"), "\(id) should return a Sakura Script: \(value)")
         }
     }
+
+    /// キャラクターごと・部位ごとの当たり判定に応じて、別々のキャラが別々の台詞を返すこと。
+    @Test
+    func sakuraGhostRespondsPerCharacterAndRegion() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping")
+            return
+        }
+        let source = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("DefaultGhost/sakura/ghost/master")
+        let master = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.copyItem(at: source, to: master)
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master)
+
+        func click(_ scope: String, _ region: String) -> String {
+            let resp = session.exchange([
+                "cmd": "request", "method": "GET", "id": "OnMouseClick",
+                "ref": ["10", "10", "0", scope, region, "0"], "headers": ["Charset": "UTF-8"]
+            ])
+            return resp?["value"] as? String ?? ""
+        }
+        let sakuraFace = click("0", "Face")
+        let rinneFace = click("1", "Face")
+        let bellHead = click("2", "Head")
+        #expect(sakuraFace.hasPrefix("\\0"), "\(sakuraFace)")
+        #expect(rinneFace.hasPrefix("\\1"), "\(rinneFace)")
+        #expect(bellHead.hasPrefix("\\p[2]"), "\(bellHead)")
+        #expect(click("0", "Skirt") != click("0", "Head"))
+        #expect(!click("1", "Legs").isEmpty)
+    }
 }
