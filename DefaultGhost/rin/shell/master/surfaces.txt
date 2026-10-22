@@ -2,10 +2,15 @@ charset,UTF-8
 
 surface0
 {
+animation0.interval,random,4
+animation0.pattern0,overlay,2,100,0,0
+animation0.pattern1,overlay,-1,50,0,0
 }
+
 surface1
 {
 }
+
 surface10
 {
 }
