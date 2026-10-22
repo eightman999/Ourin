@@ -7219,7 +7219,7 @@ extension GhostManager: NSWindowDelegate {
         }
     }
 
-    private func scheduleModalTimeout(timeoutMs: Int?, onTimeout: @escaping () -> Void) -> Timer? {
+    func scheduleModalTimeout(timeoutMs: Int?, onTimeout: @escaping () -> Void) -> Timer? {
         guard let timeoutMs, timeoutMs > 0 else { return nil }
         let timeoutSec = TimeInterval(timeoutMs) / 1000.0
         return Timer.scheduledTimer(withTimeInterval: timeoutSec, repeats: false) { _ in

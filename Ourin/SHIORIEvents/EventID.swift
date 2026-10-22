@@ -409,6 +409,8 @@ public enum EventID: String, CaseIterable {
     case OnUpdatedataCreating = "OnUpdatedataCreating"
     case OnUserInput = "OnUserInput"
     case OnUserInputCancel = "OnUserInputCancel"
+    case OnTextAreaInput = "OnTextAreaInput"
+    case OnTextAreaInputCancel = "OnTextAreaInputCancel"
     case OnVanishButtonHold = "OnVanishButtonHold"
     case OnVanishCancel = "OnVanishCancel"
     case OnVanishSelected = "OnVanishSelected"
