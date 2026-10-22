@@ -1052,6 +1052,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var visualEffectAnimationTimers: [String: Timer] = [:]
     /// \![execute,websocket,URL] で開いた WebSocket 接続（URL 文字列でキー）
     var webSocketTasks: [String: URLSessionWebSocketTask] = [:]
+    /// `\![execute,filewatch]` の監視（初回の監視開始時に作る）。
+    var fileWatchRegistry: FileWatchRegistry?
+    /// 再生中のスクリプトが SSTP など外部から送られたものか（`runTranslatedScript` で更新）。
+    var currentPlaybackIsExternal = false
     /// \![execute,http-stream*,URL] で開始した HTTP ストリーミング要求（URL 文字列でキー）。\![cancel,http,URL] で中断する。
     var httpStreamingTasks: [String: URLSessionDataTask] = [:]
     /// URLSession delegate を保持するための HTTP ストリーミング実行器。
@@ -1861,6 +1865,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         didShutdown = true
         cancelActiveURLDropDownload()
         cancelMoveWindowAsync(scope: nil)
+        fileWatchRegistry?.cancelAll()
+        fileWatchRegistry = nil
         vanishSelectedSourceScript = nil
         vanishSelectedDisplayScript = nil
         vanishSelectedCompletion = nil
@@ -2245,7 +2251,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             return
         }
         let translated = translateForDisplay(script, context: translationContext)
-        runTranslatedScript(translated)
+        runTranslatedScript(translated, isExternal: translationContext.isSSTP)
     }
 
     /// SHIORIのイベント応答はSakura Scriptであり、裸の数値は会話本文ではなく
@@ -2271,9 +2277,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     /// 既にOnTranslate/MAKOTOを通過したスクリプトを再生する。
     /// SSTP応答と実再生で同じ翻訳結果を共有し、二重翻訳を避けるための内部境界。
-    func runTranslatedScript(_ script: String) {
+    /// - Parameter isExternal: SSTP など外部から送られたスクリプトか。外部から実行できない
+    ///   コマンド（`\![execute,filewatch]` 等）の判定に使う。
+    func runTranslatedScript(_ script: String, isExternal: Bool = false) {
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        currentPlaybackIsExternal = isExternal
         choiceSourceScript = trimmed
         recordBacklog(from: trimmed)
         beginPluginTalkNotification(script: trimmed, reasons: ["owned"])
@@ -2718,6 +2727,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             executeNslookup(params: Array(args.dropFirst(2)))
         } else if subcmd == "websocket" {
             executeWebSocket(params: Array(args.dropFirst(2)))
+        } else if subcmd == "filewatch" {
+            executeFileWatch(params: Array(args.dropFirst(2)), isExternal: currentPlaybackIsExternal)
         }
     }
 
@@ -3642,6 +3653,8 @@ case "scriptbox":
                             guard let self else { return }
                             if cancelType == "websocket" {
                                 self.cancelWebSocket(params: params)
+                            } else if cancelType == "filewatch" {
+                                self.fileWatchRegistry?.cancel(path: params.first ?? "")
                             } else if cancelType == "http" {
                                 self.cancelHTTPStreaming(params: params)
                             }
