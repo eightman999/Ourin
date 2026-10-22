@@ -35,16 +35,7 @@ OnMouseClick
 {
 	_who = reference[3]
 	_part = reference[4]
-	// 参照が空・不明なときはさくらとして応答する
-	if _who == 1 {
-		_name = "rinne"
-	}
-	elseif _who == 2 {
-		_name = "bell"
-	}
-	else {
-		_name = "sakura"
-	}
+	_name = WhoName(_who)
 	_fn = "Talk_click_" + _name + "_" + _part
 	if ISFUNC(_fn) {
 		EVAL(_fn)
@@ -119,8 +110,201 @@ OnIdle
 
 OnSecondChange
 {
-	// Reference3 = トーク可能フラグ。約90秒に1回ランダムトーク
-	if reference[3] == 1 && RAND(90) == 0 {
-		OnAiTalk
+	if reference[3] == 1 {
+		if PendingTalk != "" && GETSECCOUNT - LastReaction > 15 {
+			// なでなで・ホイールの反応は、トーク可能なこのタイミングで話す。
+			_fn = PendingTalk
+			PendingTalk = ""
+			LastReaction = GETSECCOUNT
+			EVAL(_fn)
+		}
+		elseif RAND(90) == 0 {
+			// 約90秒に1回ランダムトーク
+			OnAiTalk
+		}
 	}
+}
+
+// 時報（毎時0分）
+OnHourTimeSignal
+{
+	_h = GETTIME[3]
+	if _h == 12 {
+		Talk_chime_noon
+	}
+	elseif _h == 0 {
+		Talk_chime_midnight
+	}
+	elseif _h >= 5 && _h <= 10 {
+		Talk_chime_morning
+	}
+	elseif _h >= 11 && _h <= 16 {
+		Talk_chime_day
+	}
+	elseif _h >= 17 && _h <= 20 {
+		Talk_chime_evening
+	}
+	else {
+		Talk_chime_night
+	}
+}
+
+// なでなで: 同じ部位の上でマウスを動かし続けたら反応を予約する。
+// OnMouseMove は画面全体の移動でも届く（当たり判定名が空）ので、部位が空なら数え直す。
+OnMouseMove
+{
+	_part = reference[4]
+	if _part == "" {
+		StrokeKey = ""
+		StrokeCount = 0
+	}
+	else {
+		_key = reference[3] + "_" + _part
+		if _key != StrokeKey {
+			StrokeKey = _key
+			StrokeCount = 1
+		}
+		else {
+			StrokeCount = StrokeCount + 1
+		}
+		if StrokeCount >= 120 {
+			StrokeCount = 0
+			_fn = "Talk_stroke_" + WhoName(reference[3]) + "_" + _part
+			if ISFUNC(_fn) {
+				PendingTalk = _fn
+			}
+		}
+	}
+}
+
+// ホイール: キャラの上で回されたら反応を予約する（連続して回されても1回にまとめる）。
+OnMouseWheel
+{
+	_fn = "Talk_wheel_" + WhoName(reference[3])
+	if ISFUNC(_fn) {
+		PendingTalk = _fn
+	}
+}
+
+// 消滅（アンインストール）
+OnVanishSelecting
+{
+	Talk_vanish_selecting
+}
+OnVanishSelected
+{
+	Talk_vanish_selected
+}
+OnVanishCancel
+{
+	Talk_vanish_cancel
+}
+OnVanishButtonHold
+{
+	Talk_vanish_hold
+}
+OnVanished
+{
+	Talk_vanished
+}
+
+// インストール
+OnInstallBegin
+{
+	Talk_install_begin
+}
+OnInstallComplete
+{
+	Talk_install_complete
+}
+OnInstallFailure
+{
+	Talk_install_failure
+}
+OnInstallRefuse
+{
+	Talk_install_refuse
+}
+OnInstallCompleteAll
+{
+	Talk_install_complete_all
+}
+
+// 終了・ゴースト切替
+OnCloseAll
+{
+	Talk_closeall
+}
+OnGhostChanging
+{
+	Talk_ghost_changing
+}
+OnGhostChanged
+{
+	Talk_ghost_changed
+}
+OnGhostCalling
+{
+	Talk_ghost_calling
+}
+
+// システム
+OnBatteryLow
+{
+	Talk_battery_low
+}
+OnBatteryCritical
+{
+	Talk_battery_critical
+}
+OnNetworkOffline
+{
+	Talk_network_offline
+}
+OnNetworkOnline
+{
+	Talk_network_online
+}
+OnScreenSaverStart
+{
+	Talk_screensaver_start
+}
+OnScreenSaverEnd
+{
+	Talk_screensaver_end
+}
+OnDisplayChange
+{
+	Talk_display_change
+}
+OnFileDrop
+{
+	Talk_file_drop
+}
+OnShellChanged
+{
+	Talk_shell_changed
+}
+
+// キャラ番号 → 台本名（0 さくら / 1 りんね / 2 ベル。空・不明はさくら）
+WhoName
+{
+	if _argv[0] == 1 {
+		"rinne"
+	}
+	elseif _argv[0] == 2 {
+		"bell"
+	}
+	else {
+		"sakura"
+	}
+}
+
+// 参照値を台本へ埋め込む前に、Sakura Script の注入になる文字（\ と %）を取り除く。
+Esc
+{
+	_s = _argv[0]
+	_s = REPLACE(_s, CHR(92), "")
+	_s = REPLACE(_s, "%", "")
+	_s
 }
