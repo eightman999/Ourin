@@ -888,6 +888,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var activeInputAlert: NSAlert?
     var activeInputDialogID: String?
     var inputDialogCloseRequested = false
+    /// 開いている textareabox（`\![close,inputbox]` では閉じないため inputbox と分けて持つ）。
+    var activeTextAreaAlert: NSAlert?
+    var activeTextAreaID: String?
+    var textAreaCloseRequested = false
     var activeCommunicateAlert: NSAlert?
     var communicateDialogCloseRequested = false
 
@@ -3591,6 +3595,26 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         playbackQueue.append(.deferredCommand { [weak self] in
                             guard let self else { return }
                             switch closeType {
+                        case "textareabox":
+                            // \![open,textareabox,ID,表示時間,テキスト,オプション...]（UKADOC 2.9.10）
+                            let rawInputArguments = Array(args.dropFirst(2))
+                            let parsed = parseCommandArguments(rawInputArguments)
+                            let inputOptions = inputDialogOptions(from: rawInputArguments)
+                            let id = parsed.positionals.first ?? parsed.options["id"] ?? "textareabox"
+                            let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
+                                ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
+                            let initialText = parsed.options["text"]
+                                ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
+                            let placeholder = parsed.options["placeholder"] ?? ""
+                            playbackQueue.append(.deferredCommand {
+                                self.showTextAreaBoxDialog(
+                                    id: id,
+                                    timeoutMs: timeoutMs,
+                                    initialText: Self.textAreaLines(from: initialText),
+                                    placeholder: Self.textAreaLines(from: placeholder),
+                                    options: inputOptions
+                                )
+                            })
 case "scriptbox":
                             // \![open,scriptbox,ID,...] : SSP の scriptbox 入力。
                             // 基本 UI・OnUserInput/OnUserInputCancel の発火は inputbox と同一。
@@ -3608,6 +3632,8 @@ case "scriptbox":
                         case "inputbox":
                                 let id = params.first ?? "inputbox"
                                 _ = self.closeInputDialog(id: id)
+                            case "textareabox":
+                                _ = self.closeTextAreaDialog(id: params.first ?? "textareabox")
                             case "communicatebox":
                                 self.closeCommunicateBoxDialog()
                             case "dialog":
