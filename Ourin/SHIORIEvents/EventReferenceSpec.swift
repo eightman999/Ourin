@@ -415,6 +415,8 @@ public enum EventReferenceTable {
         // UKADOC: URL, scope, MIME, then the host's planned action.
         .init(id: "OnURLQuery", references: ["url", "scopeID", "mimeType", "plannedAction"], category: "dragdrop"),
         .init(id: "OnWallpaperChange", references: ["filePath"], category: "dragdrop"),
+        // UKADOC 2.9.18〜2.9.20: R2〜R5 はチャンネル・帯域ごとの値をバイト値1区切りで並べる。
+        .init(id: "OnSoundSpectrum", references: ["filename", "bandCount", "channelLevels", "channelPeaks", "bandLevels", "bandPeaks", "position"], category: "sound"),
         // UKADOC: R2 は予約／空欄、R3=対象種別、R4=更新理由。
         .init(id: "OnUpdateBegin", references: ["ghostName", "path", "unused2", "targetType", "executionReason"], category: "update"),
         .init(id: "OnUpdateCheckComplete", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
