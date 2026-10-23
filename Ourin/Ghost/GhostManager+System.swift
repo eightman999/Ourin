@@ -2980,11 +2980,11 @@ extension GhostManager: NSWindowDelegate {
 
     private func httpEventName(for id: EventID, customEventID: String) -> String {
         switch id {
-        case .OnExecuteHTTPComplete, .OnExecuteRSSComplete:
+        case .OnExecuteHTTPComplete, .OnExecuteRSSComplete, .OnExecuteICalComplete:
             return customEventID
-        case .OnExecuteHTTPProgress:
+        case .OnExecuteHTTPProgress, .OnExecuteICalProgress:
             return customEventID + "Progress"
-        case .OnExecuteHTTPFailure, .OnExecuteRSSFailure:
+        case .OnExecuteHTTPFailure, .OnExecuteRSSFailure, .OnExecuteICalFailure:
             return customEventID + "Failure"
         case .OnExecuteHTTPStreaming:
             return customEventID + "Streaming"
@@ -3138,6 +3138,100 @@ extension GhostManager: NSWindowDelegate {
             playbackQueue.append(.waitForHTTP(waitID))
         }
         runner.start()
+    }
+
+    // MARK: - iCal（\![execute,ical-get/ical-post]、UKADOC 2.8.90）
+
+    /// HTTP で取得した iCalendar を解析し、OnExecuteICalComplete（予定ごとに ReferenceN）で通知する。
+    /// 取得失敗は OnExecuteICalFailure（OnExecuteHTTPFailure と同じ並び。解析失敗は R4=parse、
+    /// 同じ URL の取得が進行中なら R4=downloading）。`--async` が On 始まりなら Complete は ID、
+    /// Failure は ID+Failure、Progress は ID+Progress。_SSLInfo は置き換えない。
+    func executeICal(subcommand: String, params: [String]) {
+        let options = HTTPCommandOptions(arguments: Array(params.dropFirst()), parameterRoot: httpParameterRoot())
+        let rawURL = params.first ?? ""
+        let method = subcommand == "ical-post" ? "POST" : "GET"
+        func fail(_ reason: String, data: String = "", cookie: String = "", headers: String = "", url: String? = nil) {
+            notifyHTTPEvent(.OnExecuteICalFailure, method: method, options: options, url: url ?? rawURL,
+                            data: data, result: reason, cookie: cookie, responseHeaders: headers)
+        }
+        if let inputError = options.parameterInputFileError {
+            fail("param_input_\(inputError)")
+            return
+        }
+        guard let url = URL(string: rawURL), !rawURL.isEmpty else {
+            fail("invalid_url")
+            return
+        }
+        let key = url.absoluteString
+        // 同じ URL の取得がすでに進行中なら、新しい取得は始めずに downloading で失敗させる。
+        guard icalRequests[key] == nil else {
+            fail("downloading", url: key)
+            return
+        }
+        let query = ICalQuery(options: Array(params.dropFirst()))
+        let request = makeHTTPRequest(url: url, method: method, options: options)
+        let taskID = UUID()
+        icalRequests[key] = taskID
+        let waitID = options.waitForCompletion ? UUID() : nil
+        let runner = HTTPDataTaskRunner(request: request, onData: { [weak self] _, accumulated, response in
+            guard let self, options.progressNotify else { return }
+            self.notifyHTTPEvent(.OnExecuteICalProgress, method: method, options: options, url: key,
+                                 data: self.httpEventData(options: options, data: accumulated, outputURL: nil),
+                                 result: response.map { String($0.statusCode) } ?? "0",
+                                 cookie: self.httpResponseCookie(response, url: url),
+                                 responseHeaders: self.httpResponseHeaders(response))
+        }, onComplete: { [weak self] data, response, metrics, error in
+            guard let self else { return }
+            if let waitID { self.completeHTTPWait(waitID) }
+            self.httpRequestRunners.removeValue(forKey: taskID)
+            if self.icalRequests[key] == taskID { self.icalRequests.removeValue(forKey: key) }
+            let headers = self.httpResponseHeaders(response)
+            let cookie = self.httpResponseCookie(response, url: url)
+            // 取得失敗（HTTP が 200 以外）でも SSL/TLS 接続が成功していれば通知する。
+            if url.scheme?.lowercased() == "https", self.hasTLSConnection(response: response, metrics: metrics) {
+                self.notifyHTTPSSLInfo(eventID: .OnExecuteICal_SSLInfo, asyncID: options.asyncID, url: key,
+                                       statusCode: response.map { String($0.statusCode) } ?? "0", metrics: metrics)
+            }
+            if let error {
+                fail(self.httpFailureResult(error), cookie: cookie, headers: headers, url: key)
+                return
+            }
+            guard let response else {
+                fail("invalid_response", cookie: cookie, headers: headers, url: key)
+                return
+            }
+            guard (200..<300).contains(response.statusCode) else {
+                fail(String(response.statusCode), cookie: cookie, headers: headers, url: key)
+                return
+            }
+            let text = String(decoding: data, as: UTF8.self)
+            // VCALENDAR が無い応答は、iCalendar として解析できなかったものとして扱う。
+            guard text.range(of: "BEGIN:VCALENDAR", options: .caseInsensitive) != nil else {
+                fail("parse", cookie: cookie, headers: headers, url: key)
+                return
+            }
+            let calendar = ICalendarCodec.parse(text)
+            let selection = ICalendarQuerying.select(events: calendar.events, query: query)
+            let refs = ICalendarReferences.complete(calendarInfo: calendar, selection: selection, query: query)
+            if let customEventID = options.customEventID {
+                EventBridge.shared.notifyCustom(self.httpEventName(for: .OnExecuteICalComplete, customEventID: customEventID), params: refs)
+            } else {
+                EventBridge.shared.notify(.OnExecuteICalComplete, params: refs)
+            }
+        })
+        httpRequestRunners[taskID] = runner
+        if let waitID {
+            pendingHTTPWaits.insert(waitID)
+            playbackQueue.append(.waitForHTTP(waitID))
+        }
+        runner.start()
+    }
+
+    /// `\![cancel,ical,URL]` — 進行中の取得を中断する（OnExecuteICalFailure が cancelled で届く）。
+    func cancelICal(params: [String]) {
+        guard let rawURL = params.first, let url = URL(string: rawURL),
+              let taskID = icalRequests[url.absoluteString] else { return }
+        httpRequestRunners[taskID]?.cancel()
     }
 
     private func sanitizeRSSWireValue(_ raw: String) -> String {
