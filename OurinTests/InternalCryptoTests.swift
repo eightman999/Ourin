@@ -327,7 +327,7 @@ struct InternalCryptoDerivationTests {
 struct InternalCryptoSignatureTests {
     @Test
     func ed25519SignatureMatchesTheDocumentedExample() throws {
-        // 記述例（RFC 8037 の Ed25519）。Ed25519 は同じ鍵とデータなら毎回同じ署名になる。
+        // 記述例（RFC 8037 の Ed25519）。署名は RFC 8037 のもの。
         let key = "MC4CAQAwBQYDK2VwBCIEIJ1hsZ3v/VpguoRK9JLsLMREScVpezJpGXA7rAMcrn9g"
         let data = "eyJhbGciOiJFZERTQSJ9.RXhhbXBsZSBvZiBFZDI1NTE5IHNpZ25pbmc"
         let signature = "hgyY0il_MGCjP0JzlnLWG1PPOt7-09PGcvMg3AIbQR6dWbhijcNR4ki4iylGjg5BhVsPt9g7sVvpAr_MuM0KAg"
