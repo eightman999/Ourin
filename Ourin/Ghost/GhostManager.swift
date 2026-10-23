@@ -5384,6 +5384,8 @@ case "scriptbox":
         }
 
         sendUserInfoNotify()
+        // OnNotifyHolidayInfo: 今日が祝日のときだけ、OnNotifyUserInfo の直後に送る。
+        sendHolidayInfoNotify()
 
         // OnNotifyOSInfo: macOS/CPU/memory/uptime を実環境から通知する。
         bridge.notify(.OnNotifyOSInfo, params: SystemNotificationData.currentOSInfo().parameters)

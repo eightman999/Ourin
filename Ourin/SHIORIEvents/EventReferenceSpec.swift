@@ -329,6 +329,8 @@ public enum EventReferenceTable {
         // Reference* contains a byte-value-1-delimited MAYUNA record.
         .init(id: "OnNotifyDressupInfo", references: ["dressupInfo"], notifyReturnIgnored: true, category: "system"),
         .init(id: "OnNotifyUserInfo", references: ["addressName", "fullName", "birthday", "gender"], notifyReturnIgnored: true, category: "system"),
+        // UKADOC 2.9.11: 今日の祝日名。祝日でない日や、名前の載っていない祝日では送られない。
+        .init(id: "OnNotifyHolidayInfo", references: ["name", "date", "countryCode"], notifyReturnIgnored: true, category: "system"),
         .init(id: "OnNotifyOSInfo", references: ["osInfo", "cpuInfo", "memoryInfo", "uptimeMinutes"], notifyReturnIgnored: true, category: "system"),
         // Reference* はインストール済みフォントの数だけ繰り返される。
         .init(id: "OnNotifyFontInfo", references: ["fontName"], notifyReturnIgnored: true, category: "system"),
