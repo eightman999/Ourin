@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A10000000000000000000001 /* OurinShioriXPCService.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = A10000000000000000000004 /* OurinShioriXPCService.xpc */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */ = {isa = PBXBuildFile; fileRef = 8684A3B06E824388A6939F39 /* emily4.nar */; };
+		3B9ADBDA98BE41B980EF4FF3 /* sakura.nar in Resources */ = {isa = PBXBuildFile; fileRef = 8684A3B06E824388A6939F39 /* sakura.nar */; };
 		A0F475111AF14D23831E8DFA /* yaya_core in Copy yaya_core */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A20000000000000000000001 /* satori_core in Copy helper cores */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* satori_core */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		DFC17CB12EA33CC600D2F390 /* yaya_core in Resources */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; };
@@ -68,7 +68,7 @@
 		A10000000000000000000004 /* OurinShioriXPCService.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = OurinShioriXPCService.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 		4461E2FD564847458C545C0E /* yaya_core */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = yaya_core; path = yaya_core/build/yaya_core; sourceTree = "<group>"; };
 		A20000000000000000000002 /* satori_core */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = satori_core; path = satori_core/build/satori_core; sourceTree = "<group>"; };
-		8684A3B06E824388A6939F39 /* emily4.nar */ = {isa = PBXFileReference; lastKnownFileType = archive; path = emily4.nar; sourceTree = "<group>"; };
+		8684A3B06E824388A6939F39 /* sakura.nar */ = {isa = PBXFileReference; lastKnownFileType = archive; path = sakura.nar; sourceTree = "<group>"; };
 		DF88A7F02E35199C00644F8A /* Ourin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ourin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF88A7FE2E35199D00644F8A /* OurinTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF88A8082E35199D00644F8A /* OurinUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -180,7 +180,7 @@
 		DFC17AD22EA272E800D2F390 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				8684A3B06E824388A6939F39 /* emily4.nar */,
+				8684A3B06E824388A6939F39 /* sakura.nar */,
 				4461E2FD564847458C545C0E /* yaya_core */,
 				A20000000000000000000002 /* satori_core */,
 			);
@@ -347,7 +347,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFC17CB12EA33CC600D2F390 /* yaya_core in Resources */,
-				3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */,
+				3B9ADBDA98BE41B980EF4FF3 /* sakura.nar in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

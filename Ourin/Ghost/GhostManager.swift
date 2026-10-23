@@ -75,6 +75,8 @@ class BalloonViewModel: ObservableObject {
 
     @Published var text: String = ""
     @Published var balloonID: Int = 0  // Current balloon style ID (0, 2, 4, etc.)
+    /// このバルーンが属するスコープ（0=さくら, 1=kero, 2以降=追加キャラ）。背景画像の種別選択に使う。
+    var scope: Int = 0
 
     /// バルーンの実効表示倍率。`balloon.syncscale,true` の場合はシェル倍率と同期する。
     /// 符号は反転表示を保持し、描画領域の計算では絶対値を使用する。
@@ -2260,7 +2262,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// OnTranslate の異常な裸数値で、元の Sakura Script 全体を置換しない。
     /// 元の本文自体が数値だけの場合は、正当な翻訳結果として受け入れる。
     static func shouldAcceptTranslationResponse(original: String, candidate: String) -> Bool {
-        !isNumericOnlyScript(candidate) || isNumericOnlyScript(original)
+        // OnTranslate を定義しない辞書（YAYA の標準フレームワークのみ）は空値を返す。
+        // 空値は「変換なし」として扱い、再生する台本を空に置き換えない。
+        let originalIsBlank = original.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let candidateIsBlank = candidate.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if candidateIsBlank && !originalIsBlank { return false }
+        return !isNumericOnlyScript(candidate) || isNumericOnlyScript(original)
     }
 
     private static func isNumericOnlyScript(_ value: String) -> Bool {

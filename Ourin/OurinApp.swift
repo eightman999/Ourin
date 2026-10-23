@@ -623,21 +623,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         NSLog("[WebHandler] Applied homeurl from web link: \(urlString)")
     }
 
-    /// Install bundled emily4.nar and run it if present
+    /// Install bundled sakura.nar and run it if present
     func installDefaultGhost() {
-        // 既に emily4 が導入済み（移行で取り込まれた場合を含む）なら再インストールせず起動する。
-        // これをしないと、移行で配置済みの ghost/emily4 へバンドル nar を重ねて書き込もうとし、衝突する。
-        if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == "emily4" }) {
-            NSLog("[installDefaultGhost] emily4 already installed at \(ghost.path.path); running it")
+        // 既に sakura が導入済みなら再インストールせず起動する。
+        if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == "sakura" }) {
+            NSLog("[installDefaultGhost] sakura already installed at \(ghost.path.path); running it")
             runGhost(at: ghost.path)
             return
         }
 
-        if let url = Bundle.main.url(forResource: "emily4", withExtension: "nar") {
-            NSLog("[installDefaultGhost] Found emily4.nar at: \(url.path)")
+        if let url = Bundle.main.url(forResource: "sakura", withExtension: "nar") {
+            NSLog("[installDefaultGhost] Found sakura.nar at: \(url.path)")
             installNar(at: url)
         } else {
-            NSLog("[installDefaultGhost] Bundled emily4.nar not found and emily4 not installed")
+            NSLog("[installDefaultGhost] Bundled sakura.nar not found and sakura not installed")
         }
     }
 

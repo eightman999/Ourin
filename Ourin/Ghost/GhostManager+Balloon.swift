@@ -44,6 +44,7 @@ extension GhostManager {
     func getBalloonVM(for scope: Int) -> BalloonViewModel {
         if let vm = balloonViewModels[scope] { return vm }
         let vm = BalloonViewModel()
+        vm.scope = scope
         // アンカー装飾の既定値をバルーン設定（descript.txt の anchor.pen.color / anchor.font.color）から取る。
         vm.applyBalloonConfigAnchorDefaults(config: balloonConfig)
         // Initialize balloon ID from character view model

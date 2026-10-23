@@ -298,9 +298,9 @@ func eventReferenceTablePluginAndOtherFailureReferencesMatchUkadoc() {
 
 @Test
 func eventReferenceTableTimeEventReferences() {
-    // OnSecondChange/OnMinuteChange/OnHourTimeSignal は共通 R0..R4
+    // OnSecondChange/OnMinuteChange/OnHourTimeSignal/OnIdle は共通 R0..R4
     let refs = ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"]
-    for id in ["OnSecondChange", "OnMinuteChange", "OnHourTimeSignal"] {
+    for id in ["OnSecondChange", "OnMinuteChange", "OnHourTimeSignal", "OnIdle"] {
         #expect(EventReferenceTable.specs[id]?.references == refs, "mismatch for \(id)")
     }
 }

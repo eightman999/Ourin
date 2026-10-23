@@ -1,0 +1,310 @@
+// さくら(\0) / りんね(\1) / ベル(\p[2]) : Ourin 標準ゴースト イベント辞書
+// 会話の本文は dialogue.dic（scripts/gen_default_dialogue.py による自動生成）。
+// 表情: さくら 0通常 1笑顔 3照れ 4驚き 5困り 6怒り 7眠い 8ドヤ / りんね 100〜108 同順 / ベル 10通常 11眠る 12驚き 13ご機嫌
+
+OnFirstBoot
+{
+	"\0\s[1]はじめまして、さくらです！\n\1\s[100]りんねだ。よろしく。\n\p[2]\s[13]ベル……ふわあ。\e"
+}
+
+OnBoot
+{
+	_h = GETTIME[3]
+	if _h >= 5 && _h <= 10 {
+		Talk_boot_morning
+	}
+	elseif _h >= 11 && _h <= 16 {
+		Talk_boot_day
+	}
+	elseif _h >= 17 && _h <= 20 {
+		Talk_boot_evening
+	}
+	else {
+		Talk_boot_night
+	}
+}
+
+OnClose
+{
+	Talk_close
+}
+
+// 当たり判定: reference[3]=キャラ番号(0 さくら/1 りんね/2 ベル) reference[4]=当たり判定名
+// さくら: Head Face Bust Belly Skirt Legs Hand / りんね: Head Face Bust Belly Legs Hand / ベル: Head Face Body
+OnMouseClick
+{
+	_who = reference[3]
+	_part = reference[4]
+	_name = WhoName(_who)
+	_fn = "Talk_click_" + _name + "_" + _part
+	if ISFUNC(_fn) {
+		EVAL(_fn)
+	}
+	else {
+		ClickDefault(_name)
+	}
+}
+
+ClickDefault
+{
+	if _argv[0] == "rinne" {
+		"\1\s[100]どうした。\e"
+	}
+	elseif _argv[0] == "bell" {
+		"\p[2]\s[10]……ちりん。\e"
+	}
+	else {
+		"\0\s[0]なあに？\e"
+	}
+}
+
+OnMouseDoubleClick
+{
+	_who = reference[3]
+	if _who != 1 && _who != 2 {
+		"\0\s[4]わっ、なあに？\1\s[107]呼んだか？\e"
+	}
+	elseif _who == 1 {
+		"\1\s[104]……何か用か？\0\s[1]りんね、照れてる？\1\s[106]照れていない。\e"
+	}
+	else {
+		"\p[2]\s[12]ぴゃっ！\e"
+	}
+}
+
+// 時間帯に合わせた雑談。約3回に1回は時間帯の話題にする。
+OnAiTalk
+{
+	_h = GETTIME[3]
+	if RAND(3) == 0 {
+		if _h >= 5 && _h <= 10 {
+			Talk_aitalk_morning
+		}
+		elseif _h >= 11 && _h <= 16 {
+			Talk_aitalk_day
+		}
+		elseif _h >= 17 && _h <= 20 {
+			Talk_aitalk_evening
+		}
+		else {
+			Talk_aitalk_night
+		}
+	}
+	else {
+		Talk_aitalk
+	}
+}
+
+// 放置の声かけ。OnIdle は毎秒届き、reference[3]=トーク再生可否 reference[4]=システム全体の放置秒数。
+// 10分以上放置したら一度だけ話し、操作が戻ったら次の放置に備える。
+OnIdle
+{
+	if reference[4] < 5 {
+		IdleTalked = 0
+	}
+	elseif reference[3] == 1 && IdleTalked != 1 && reference[4] >= 600 {
+		IdleTalked = 1
+		Talk_idle
+	}
+}
+
+OnSecondChange
+{
+	if reference[3] == 1 {
+		if PendingTalk != "" && GETSECCOUNT - LastReaction > 15 {
+			// なでなで・ホイールの反応は、トーク可能なこのタイミングで話す。
+			_fn = PendingTalk
+			PendingTalk = ""
+			LastReaction = GETSECCOUNT
+			EVAL(_fn)
+		}
+		elseif RAND(90) == 0 {
+			// 約90秒に1回ランダムトーク
+			OnAiTalk
+		}
+	}
+}
+
+// 時報（毎時0分）
+OnHourTimeSignal
+{
+	_h = GETTIME[3]
+	if _h == 12 {
+		Talk_chime_noon
+	}
+	elseif _h == 0 {
+		Talk_chime_midnight
+	}
+	elseif _h >= 5 && _h <= 10 {
+		Talk_chime_morning
+	}
+	elseif _h >= 11 && _h <= 16 {
+		Talk_chime_day
+	}
+	elseif _h >= 17 && _h <= 20 {
+		Talk_chime_evening
+	}
+	else {
+		Talk_chime_night
+	}
+}
+
+// なでなで: 同じ部位の上でマウスを動かし続けたら反応を予約する。
+// OnMouseMove は画面全体の移動でも届く（当たり判定名が空）ので、部位が空なら数え直す。
+OnMouseMove
+{
+	_part = reference[4]
+	if _part == "" {
+		StrokeKey = ""
+		StrokeCount = 0
+	}
+	else {
+		_key = reference[3] + "_" + _part
+		if _key != StrokeKey {
+			StrokeKey = _key
+			StrokeCount = 1
+		}
+		else {
+			StrokeCount = StrokeCount + 1
+		}
+		if StrokeCount >= 120 {
+			StrokeCount = 0
+			_fn = "Talk_stroke_" + WhoName(reference[3]) + "_" + _part
+			if ISFUNC(_fn) {
+				PendingTalk = _fn
+			}
+		}
+	}
+}
+
+// ホイール: キャラの上で回されたら反応を予約する（連続して回されても1回にまとめる）。
+OnMouseWheel
+{
+	_fn = "Talk_wheel_" + WhoName(reference[3])
+	if ISFUNC(_fn) {
+		PendingTalk = _fn
+	}
+}
+
+// 消滅（アンインストール）
+OnVanishSelecting
+{
+	Talk_vanish_selecting
+}
+OnVanishSelected
+{
+	Talk_vanish_selected
+}
+OnVanishCancel
+{
+	Talk_vanish_cancel
+}
+OnVanishButtonHold
+{
+	Talk_vanish_hold
+}
+OnVanished
+{
+	Talk_vanished
+}
+
+// インストール
+OnInstallBegin
+{
+	Talk_install_begin
+}
+OnInstallComplete
+{
+	Talk_install_complete
+}
+OnInstallFailure
+{
+	Talk_install_failure
+}
+OnInstallRefuse
+{
+	Talk_install_refuse
+}
+OnInstallCompleteAll
+{
+	Talk_install_complete_all
+}
+
+// 終了・ゴースト切替
+OnCloseAll
+{
+	Talk_closeall
+}
+OnGhostChanging
+{
+	Talk_ghost_changing
+}
+OnGhostChanged
+{
+	Talk_ghost_changed
+}
+OnGhostCalling
+{
+	Talk_ghost_calling
+}
+
+// システム
+OnBatteryLow
+{
+	Talk_battery_low
+}
+OnBatteryCritical
+{
+	Talk_battery_critical
+}
+OnNetworkOffline
+{
+	Talk_network_offline
+}
+OnNetworkOnline
+{
+	Talk_network_online
+}
+OnScreenSaverStart
+{
+	Talk_screensaver_start
+}
+OnScreenSaverEnd
+{
+	Talk_screensaver_end
+}
+OnDisplayChange
+{
+	Talk_display_change
+}
+OnFileDrop
+{
+	Talk_file_drop
+}
+OnShellChanged
+{
+	Talk_shell_changed
+}
+
+// キャラ番号 → 台本名（0 さくら / 1 りんね / 2 ベル。空・不明はさくら）
+WhoName
+{
+	if _argv[0] == 1 {
+		"rinne"
+	}
+	elseif _argv[0] == 2 {
+		"bell"
+	}
+	else {
+		"sakura"
+	}
+}
+
+// 参照値を台本へ埋め込む前に、Sakura Script の注入になる文字（\ と %）を取り除く。
+Esc
+{
+	_s = _argv[0]
+	_s = REPLACE(_s, CHR(92), "")
+	_s = REPLACE(_s, "%", "")
+	_s
+}

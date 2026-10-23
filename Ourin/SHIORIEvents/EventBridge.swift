@@ -1094,7 +1094,7 @@ final class EventBridge {
     }
 
     // 時刻系イベント: Reference3（トーク再生可否）に応じて GET / NOTIFY を切り替える（UKADOC）
-    private static let timeSignalEvents: Set<EventID> = [.OnSecondChange, .OnMinuteChange, .OnHourTimeSignal]
+    private static let timeSignalEvents: Set<EventID> = [.OnSecondChange, .OnMinuteChange, .OnHourTimeSignal, .OnIdle]
 
     // ユーザー操作で会話を返しうるイベントは GET で問い合わせる。
     private static let mouseTalkEvents: Set<EventID> = [

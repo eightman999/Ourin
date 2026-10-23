@@ -1,0 +1,6 @@
+charset,UTF-8
+type,ghost
+name,sakura
+directory,sakura
+balloon.directory,sakura
+balloon.source.directory,balloon
