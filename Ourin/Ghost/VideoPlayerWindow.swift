@@ -17,10 +17,17 @@ struct SoundPlaybackOptions: Equatable {
     var seektime: SeekTime?
     var showWindow: Bool?
     var soundOnly: Bool?
+    /// `--spectrum=間隔`（ミリ秒。20〜1000 に丸める。0 なら通知を止める）。
+    var spectrum: Int?
+    /// `--spectrum-bands`（0・5・10・15・31 のうち最も近いもの）。
+    var spectrumBands: Int?
+    /// `--spectrum-hold`（ピークホールド時間、0〜10000 ミリ秒）。
+    var spectrumHold: Int?
 
     var isEmpty: Bool {
         volume == nil && balance == nil && rate == nil && seektime == nil
             && showWindow == nil && soundOnly == nil
+            && spectrum == nil && spectrumBands == nil && spectrumHold == nil
     }
 
     static func parse(_ options: [String]) -> SoundPlaybackOptions {
@@ -62,6 +69,18 @@ struct SoundPlaybackOptions: Equatable {
             case "sound-only":
                 if let boolean = parseBool(value) {
                     parsed.soundOnly = boolean
+                }
+            case "spectrum":
+                if let raw = value, let number = Int(raw.trimmingCharacters(in: .whitespaces)) {
+                    parsed.spectrum = number <= 0 ? 0 : max(20, min(1000, number))
+                }
+            case "spectrum-bands":
+                if let raw = value, let number = Int(raw.trimmingCharacters(in: .whitespaces)) {
+                    parsed.spectrumBands = SpectrumBands.nearestSupported(number)
+                }
+            case "spectrum-hold":
+                if let raw = value, let number = Int(raw.trimmingCharacters(in: .whitespaces)) {
+                    parsed.spectrumHold = max(0, min(10_000, number))
                 }
             default:
                 continue
