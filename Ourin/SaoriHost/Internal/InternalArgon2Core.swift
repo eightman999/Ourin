@@ -5,9 +5,9 @@ enum InternalArgon2Core {
     private static let blockWords = 128
 
     static func deriveID(password: Data, salt: Data, iterations: Int, memoryKiB: Int, lanes: Int, length: Int,
-                         secret: Data = Data(), associatedData: Data = Data()) -> Data {
+                         secret: Data = Data(), associatedData: Data = Data(), version: Int = 0x13) -> Data {
         func le32(_ value: Int) -> Data { Data((0..<4).map { UInt8(truncatingIfNeeded: value >> (8 * $0)) }) }
-        var seed = le32(lanes) + le32(length) + le32(memoryKiB) + le32(iterations) + le32(0x13) + le32(2)
+        var seed = le32(lanes) + le32(length) + le32(memoryKiB) + le32(iterations) + le32(version) + le32(2)
         seed += le32(password.count) + password + le32(salt.count) + salt + le32(secret.count) + secret + le32(associatedData.count) + associatedData
         let h0 = Blake2b.hash(seed, outputLength: 64)
 
@@ -82,7 +82,7 @@ enum InternalArgon2Core {
                         let prevBlock = Array(memory[(previous * blockWords)..<((previous + 1) * blockWords)])
                         let refBlock = Array(memory[(refIndex * blockWords)..<((refIndex + 1) * blockWords)])
                         var out = Array(memory[(current * blockWords)..<((current + 1) * blockWords)])
-                        compress(prev: prevBlock, ref: refBlock, into: &out, xor: pass != 0, tmp: &scratchA, tmp2: &scratchB)
+                        compress(prev: prevBlock, ref: refBlock, into: &out, xor: pass != 0 && version == 0x13, tmp: &scratchA, tmp2: &scratchB)
                         memory.replaceSubrange((current * blockWords)..<((current + 1) * blockWords), with: out)
                     }
                 }

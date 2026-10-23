@@ -275,8 +275,23 @@ struct InternalCryptoDerivationTests {
 
     @Test
     func derivationParametersAreValidatedPerMethod() {
-        fails(call("DeriveKey", ["scrypt", "p", "s", "32"]), 400, "unsupported algorithm")
-        fails(call("DeriveKey", ["argon2id", "p", "s", "32"]), 400, "unsupported algorithm")
+        // scrypt: RFC 7914 §12 のベクタ。
+        ok(call("DeriveKey", ["scrypt", "password", "NaCl", "64", "--n=1024", "--r=8", "--p=16"]),
+           "fdbabe1c9d3472007856e7190d01e9fe7c6ad7cbc8237830e77376634b3731622eaf30d92e22a3886ff109279d9830dac727afb94a83ee6d8360cbdfa2cc0640")
+        fails(call("DeriveKey", ["scrypt", "p", "s", "32", "--n=1000"]), 400, "invalid parameter") // 2 の累乗ではない
+        fails(call("DeriveKey", ["scrypt", "p", "s", "32", "--n=1048576", "--r=8"]), 400, "out of range") // 12MiB を超える
+        fails(call("DeriveKey", ["scrypt", "p", "s", "32", "--p=17"]), 400, "out of range")
+        fails(call("DeriveKey", ["scrypt", "p", "s", "32", "--iterations=2"]), 400, "invalid parameter")
+        // argon2id: 範囲と、同じ入力なら同じ値・違う入力なら違う値。
+        let argon = call("DeriveKey", ["argon2id", "password", "somesalt", "32", "--iterations=2", "--memory=64", "--lanes=2"])
+        #expect(argon.result?.count == 64)
+        ok(call("DeriveKey", ["argon2id", "password", "somesalt", "32", "--iterations=2", "--memory=64", "--lanes=2"]), argon.result ?? "")
+        #expect(call("DeriveKey", ["argon2id", "password", "somesalt", "32", "--iterations=2", "--memory=64", "--lanes=1"]).result != argon.result)
+        fails(call("DeriveKey", ["argon2id", "p", "short", "32"]), 400, "out of range") // salt が 8 バイト未満
+        fails(call("DeriveKey", ["argon2id", "p", "somesalt", "3"]), 400, "out of range") // 長さが 4 未満
+        fails(call("DeriveKey", ["argon2id", "p", "somesalt", "32", "--memory=12289"]), 400, "out of range")
+        fails(call("DeriveKey", ["argon2id", "p", "somesalt", "32", "--memory=15", "--lanes=2"]), 400, "out of range") // lanes×8 未満
+        fails(call("DeriveKey", ["argon2id", "p", "somesalt", "32", "--n=8"]), 400, "invalid parameter")
         fails(call("DeriveKey", ["nothing", "p", "s", "32"]), 400, "unsupported algorithm")
         // その方式で使わないオプションは invalid parameter。
         fails(call("DeriveKey", ["hkdf", "p", "s", "32", "--iterations=10"]), 400, "invalid parameter")
@@ -422,12 +437,8 @@ struct InternalCryptoSignatureTests {
         let outcome = try! SaoriProtocol.parseResponse(InternalSaoriRegistry.shared.handle(
             requestText: "EXECUTE SAORI/1.0\r\nModule: internal_system\r\nArgument0: ListFunctions\r\nArgument1: internal_crypto\r\n\r\n"))
         let names = (outcome.headerValue("Result") ?? "").split(separator: ",").map(String.init)
-        // 実装済みの関数が並び順どおりに入っている（ほかの関数は別の変更で足される）。
-        for name in ["Digest", "HMAC", "Compare", "Encrypt", "Decrypt", "DeriveKey", "TOTP", "GenerateKeyPair", "Sign", "Verify", "KeyAgreement"] {
-            #expect(names.contains(name), "\(name)")
-        }
-        let verifyIndex = names.firstIndex(of: "Verify"), agreementIndex = names.firstIndex(of: "KeyAgreement")
-        #expect(verifyIndex != nil && agreementIndex == verifyIndex.map { $0 + 1 })
+        #expect(names == ["Digest", "HMAC", "Compare", "Encrypt", "Decrypt", "DeriveKey", "TOTP", "GenerateKeyPair", "Sign", "Verify",
+                          "KeyAgreement", "HashPassword", "VerifyPassword", "Protect", "Unprotect"])
         fails(call("NoSuchFunction", ["p"]), 400, "unknown function")
     }
 

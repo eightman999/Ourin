@@ -230,14 +230,15 @@ struct InternalCryptoModule: InternalSaoriModule {
 
     private var deriveKey: InternalSaoriFunction {
         InternalSaoriFunction("DeriveKey", positionals: 4,
-                              options: ["password-in", "salt-in", "digest", "iterations", "info", "info-in", "out", "charset"]) { call, _ in
+                              options: ["password-in", "salt-in", "digest", "iterations", "info", "info-in", "n", "r", "p", "memory", "lanes", "out", "charset"]) { call, _ in
             let method = call.positionals[0].lowercased()
             let allowed: Set<String>
             switch method {
             case "pbkdf2": allowed = ["digest", "iterations"]
             case "hkdf", "hkdf-expand": allowed = ["digest", "info", "info-in"]
             case "hkdf-extract": allowed = ["digest"]
-            case "scrypt", "argon2id": throw InternalSaoriError.unsupportedAlgorithm
+            case "scrypt": allowed = ["n", "r", "p"]
+            case "argon2id": allowed = ["iterations", "memory", "lanes"]
             default: throw InternalSaoriError.unsupportedAlgorithm
             }
             // その方式で使わないオプションは不正。
@@ -269,6 +270,19 @@ struct InternalCryptoModule: InternalSaoriModule {
                 // 結果は PRK で、長さはハッシュの長さちょうどでなければならない。
                 guard length == algorithm.digestLength else { throw InternalSaoriError.outOfRange }
                 derived = Self.hkdfExtract(algorithm, salt: salt, ikm: password)
+            case "scrypt":
+                let n = try Self.integerOption(call, "n", default: 8192, range: 2...Int.max), r = try Self.integerOption(call, "r", default: 8, range: 1...Int.max)
+                let p = try Self.integerOption(call, "p", default: 10, range: 1...16)
+                guard n & (n - 1) == 0 else { throw InternalSaoriError.invalidParameter }
+                // N × r × 128 バイトが 12MiB まで。
+                guard n <= (12 << 20) / 128, r <= (12 << 20) / 128, n * r * 128 <= 12 << 20 else { throw InternalSaoriError.outOfRange }
+                derived = try InternalScrypt.derive(password: password, salt: salt, n: n, r: r, p: p, length: length)
+            case "argon2id":
+                let iterations = try Self.integerOption(call, "iterations", default: 3, range: 1...1000)
+                let lanes = try Self.integerOption(call, "lanes", default: 1, range: 1...16)
+                let memory = try Self.integerOption(call, "memory", default: 12288, range: (lanes * 8)...12288)
+                guard salt.count >= 8, length >= 4 else { throw InternalSaoriError.outOfRange }
+                derived = try InternalArgon2.deriveID(password: password, salt: salt, iterations: iterations, memoryKiB: memory, lanes: lanes, length: length)
             default: // hkdf-expand。password が PRK、salt は空にする。
                 guard !password.isEmpty, salt.isEmpty else { throw InternalSaoriError.invalidParameter }
                 guard length <= 255 * algorithm.digestLength else { throw InternalSaoriError.outOfRange }
@@ -493,6 +507,14 @@ struct InternalCryptoModule: InternalSaoriModule {
     }
 
     // MARK: - 入出力
+
+    /// 整数のオプション。書かれていなければ既定値、数でなければ invalid parameter、範囲の外なら out of range。
+    private static func integerOption(_ call: InternalSaoriCall, _ name: String, default value: Int, range: ClosedRange<Int>) throws -> Int {
+        guard let text = call.option(name) else { return value }
+        guard let number = Int(text) else { throw InternalSaoriError.invalidParameter }
+        guard range.contains(number) else { throw InternalSaoriError.outOfRange }
+        return number
+    }
 
     private static func bytes(_ value: String, _ call: InternalSaoriCall, option: String, defaultFormat: String) throws -> Data {
         try InternalSaoriCodec.decode(value, format: call.option(option), defaultFormat: defaultFormat, charset: call.option("charset"))
