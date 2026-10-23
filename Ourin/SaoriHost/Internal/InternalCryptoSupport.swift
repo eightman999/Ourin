@@ -8,6 +8,7 @@ enum InternalCryptoSupport {
 
     enum HashAlgorithm: String {
         case md5, sha1, sha224, sha256, sha384, sha512
+        case sha512256, sha3224, sha3256, sha3384, sha3512, blake2b512, blake2s256
 
         var digestLength: Int {
             switch self {
@@ -17,8 +18,27 @@ enum InternalCryptoSupport {
             case .sha256: return Int(CC_SHA256_DIGEST_LENGTH)
             case .sha384: return Int(CC_SHA384_DIGEST_LENGTH)
             case .sha512: return Int(CC_SHA512_DIGEST_LENGTH)
+            case .sha512256, .sha3256, .blake2s256: return 32
+            case .sha3224: return 28
+            case .sha3384: return 48
+            case .sha3512, .blake2b512: return 64
             }
         }
+
+        /// HMAC のブロック長（バイト）。
+        var blockLength: Int {
+            switch self {
+            case .md5, .sha1, .sha224, .sha256, .blake2s256: return 64
+            case .sha384, .sha512, .sha512256, .blake2b512: return 128
+            case .sha3224: return 144
+            case .sha3256: return 136
+            case .sha3384: return 104
+            case .sha3512: return 72
+            }
+        }
+
+        /// OS の HMAC が持たない（自前のハッシュで組み立てる）アルゴリズム。
+        var usesGenericHMAC: Bool { pbkdf2PRF == nil && self != .md5 }
 
         var hmacAlgorithm: CCHmacAlgorithm {
             switch self {
@@ -28,6 +48,7 @@ enum InternalCryptoSupport {
             case .sha256: return CCHmacAlgorithm(kCCHmacAlgSHA256)
             case .sha384: return CCHmacAlgorithm(kCCHmacAlgSHA384)
             case .sha512: return CCHmacAlgorithm(kCCHmacAlgSHA512)
+            default: preconditionFailure("generic HMAC")
             }
         }
 
@@ -40,12 +61,13 @@ enum InternalCryptoSupport {
             case .sha256: return CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256)
             case .sha384: return CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA384)
             case .sha512: return CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA512)
+            default: return nil
             }
         }
     }
 
     /// アルゴリズム名。ハイフン・アンダースコアの有無と大文字小文字は区別しない（SHA-256 も sha_256 も sha256 と同じ）。
-    /// OS の部品で賄えない名前（sha512-256・sha3-*・blake2*）は、知らない名前と同じ unsupported algorithm。
+    /// 知らない名前は unsupported algorithm。
     static func hashAlgorithm(_ name: String) throws -> HashAlgorithm {
         let normalized = name.lowercased().replacingOccurrences(of: "-", with: "").replacingOccurrences(of: "_", with: "")
         guard let algorithm = HashAlgorithm(rawValue: normalized) else { throw InternalSaoriError.unsupportedAlgorithm }
@@ -58,6 +80,7 @@ enum InternalCryptoSupport {
     final class Hasher {
         private enum State {
             case md5(Insecure.MD5), sha1(Insecure.SHA1), sha224(CC_SHA256_CTX), sha256(SHA256), sha384(SHA384), sha512(SHA512)
+            case custom(InternalStreamingHash)
         }
 
         private var state: State
@@ -73,6 +96,13 @@ enum InternalCryptoSupport {
             case .sha256: state = .sha256(SHA256())
             case .sha384: state = .sha384(SHA384())
             case .sha512: state = .sha512(SHA512())
+            case .sha512256: state = .custom(SHA512_256Hash())
+            case .sha3224: state = .custom(SHA3Hash(outputBits: 224))
+            case .sha3256: state = .custom(SHA3Hash(outputBits: 256))
+            case .sha3384: state = .custom(SHA3Hash(outputBits: 384))
+            case .sha3512: state = .custom(SHA3Hash(outputBits: 512))
+            case .blake2b512: state = .custom(Blake2bHash())
+            case .blake2s256: state = .custom(Blake2sHash())
             }
         }
 
@@ -86,6 +116,7 @@ enum InternalCryptoSupport {
             case .sha256(var hash): hash.update(data: data); state = .sha256(hash)
             case .sha384(var hash): hash.update(data: data); state = .sha384(hash)
             case .sha512(var hash): hash.update(data: data); state = .sha512(hash)
+            case .custom(let hash): hash.update(data)
             }
         }
 
@@ -100,6 +131,7 @@ enum InternalCryptoSupport {
             case .sha256(let hash): return Data(hash.finalize())
             case .sha384(let hash): return Data(hash.finalize())
             case .sha512(let hash): return Data(hash.finalize())
+            case .custom(let hash): return hash.finalize()
             }
         }
     }
@@ -109,17 +141,41 @@ enum InternalCryptoSupport {
     final class MAC {
         private var context = CCHmacContext()
         private let algorithm: HashAlgorithm
+        // OS の HMAC が無いアルゴリズム用（RFC 2104 の素直な組み立て）。
+        private var inner: Hasher?
+        private var outerKey = Data()
 
         init(_ algorithm: HashAlgorithm, key: Data) {
             self.algorithm = algorithm
-            key.withUnsafeBytes { CCHmacInit(&context, algorithm.hmacAlgorithm, $0.baseAddress, $0.count) }
+            if algorithm.usesGenericHMAC {
+                var block = key
+                if block.count > algorithm.blockLength {
+                    let hasher = Hasher(algorithm)
+                    hasher.update(block)
+                    block = hasher.finalize()
+                }
+                block.append(Data(count: algorithm.blockLength - block.count))
+                let inner = Hasher(algorithm)
+                inner.update(Data(block.map { $0 ^ 0x36 }))
+                self.inner = inner
+                outerKey = Data(block.map { $0 ^ 0x5c })
+            } else {
+                key.withUnsafeBytes { CCHmacInit(&context, algorithm.hmacAlgorithm, $0.baseAddress, $0.count) }
+            }
         }
 
         func update(_ data: Data) {
+            if let inner { inner.update(data); return }
             data.withUnsafeBytes { CCHmacUpdate(&context, $0.baseAddress, $0.count) }
         }
 
         func finalize() -> Data {
+            if let inner {
+                let outer = Hasher(algorithm)
+                outer.update(outerKey)
+                outer.update(inner.finalize())
+                return outer.finalize()
+            }
             var output = [UInt8](repeating: 0, count: algorithm.digestLength)
             CCHmacFinal(&context, &output)
             return Data(output)
