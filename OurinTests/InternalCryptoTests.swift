@@ -404,7 +404,7 @@ struct InternalCryptoSignatureTests {
 
     @Test
     func unimplementedSignatureAlgorithmsAreUnsupported() {
-        for algorithm in ["bip340", "rs256", "ps256", "rsa-2048"] {
+        for algorithm in ["bip340", "rsa-1024", "rsa-8192", "sha3"] {
             fails(call("GenerateKeyPair", [algorithm]), 400, "unsupported algorithm")
             fails(call("Sign", [algorithm, "key", "m"]), 400, "unsupported algorithm")
         }
