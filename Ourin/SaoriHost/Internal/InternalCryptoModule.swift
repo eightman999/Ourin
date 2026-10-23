@@ -371,10 +371,10 @@ struct InternalCryptoModule: InternalSaoriModule {
         }
     }
 
-    // MARK: - 公開鍵署名（ed25519 / es256 / rs256 / ps256）
+    // MARK: - 公開鍵署名（ed25519 / es256 / rs256 / ps256 / bip340）
 
     private enum SignatureAlgorithm {
-        case ed25519, es256, rs256, ps256
+        case ed25519, es256, rs256, ps256, bip340
         /// GenerateKeyPair だけの名前（rsa-2048 など。鍵は rs256 と ps256 のどちらにも使える）。
         case rsa(bits: Int)
 
@@ -384,6 +384,7 @@ struct InternalCryptoModule: InternalSaoriModule {
             case "es256": self = .es256
             case "rs256": self = .rs256
             case "ps256": self = .ps256
+            case "bip340": self = .bip340
             case "rsa2048": self = .rsa(bits: 2048)
             case "rsa3072": self = .rsa(bits: 3072)
             case "rsa4096": self = .rsa(bits: 4096)
@@ -408,6 +409,13 @@ struct InternalCryptoModule: InternalSaoriModule {
             case .rsa(let bits):
                 let pair = try InternalRSA.generate(bits: bits)
                 return InternalSaoriResult(pair.privateKey.base64EncodedString(), values: [pair.privateKey.base64EncodedString(), pair.publicKey.base64EncodedString()])
+            case .bip340:
+                var secret = Data()
+                repeat { secret = try InternalRandomModule.randomBytes(32) } while InternalSecp256k1.publicKey(secret: secret) == nil
+                let publicKey = InternalSecp256k1.publicKey(secret: secret)!
+                let secretHex = try InternalSaoriCodec.encode(secret, format: "hex", defaultFormat: "hex", charset: nil)
+                let publicHex = try InternalSaoriCodec.encode(publicKey, format: "hex", defaultFormat: "hex", charset: nil)
+                return InternalSaoriResult(secretHex, values: [secretHex, publicHex])
             case .rs256, .ps256:
                 // 署名の方式の名前で鍵は作れない（rsa-2048 などを使う）。
                 throw InternalSaoriError.unsupportedAlgorithm
@@ -416,13 +424,26 @@ struct InternalCryptoModule: InternalSaoriModule {
     }
 
     private var sign: InternalSaoriFunction {
-        InternalSaoriFunction("Sign", positionals: 3, options: ["data-in", "out", "charset"]) { call, _ in
+        InternalSaoriFunction("Sign", positionals: 3, options: ["data-in", "out", "charset", "key-in", "aux", "aux-in"]) { call, _ in
             let algorithm = try SignatureAlgorithm(call.positionals[0])
+            // --key-in= / --aux= は bip340 だけのオプション。
+            if case .bip340 = algorithm {} else {
+                guard call.option("key-in") == nil, call.option("aux") == nil, call.option("aux-in") == nil else { throw InternalSaoriError.invalidParameter }
+            }
             let data = try Self.bytes(call.positionals[2], call, option: "data-in", defaultFormat: "text")
             let signature: Data
             switch algorithm {
+            case .bip340:
+                let secret = try Self.bytes(call.positionals[1], call, option: "key-in", defaultFormat: "hex")
+                guard InternalSecp256k1.scalar(secret) != nil else { throw InternalKeyCodec.invalidKey }
+                let aux = try Self.bytesIfPresent(call, option: "aux", inOption: "aux-in", defaultFormat: "hex") ?? InternalRandomModule.randomBytes(32)
+                guard aux.count == 32 else { throw InternalSaoriError.invalidParameter }
+                guard let schnorr = InternalSecp256k1.schnorrSign(secret: secret, message: data, aux: aux) else { throw InternalSaoriError.internalError }
+                return InternalSaoriResult(try Self.output(schnorr, call, defaultFormat: "hex"))
             case .ed25519:
-                signature = try InternalKeyCodec.ed25519PrivateKey(call.positionals[1]).signature(for: data)
+                // RFC 8032 の決定的な署名（CryptoKit の署名は毎回変わる）。
+                let seed = try InternalKeyCodec.ed25519PrivateKey(call.positionals[1]).rawRepresentation
+                signature = InternalEd25519.sign(seed: seed, message: data)
             case .es256:
                 // r‖s の 64 バイト（JWS と同じ形で、DER 形式ではない）。
                 signature = try InternalKeyCodec.p256PrivateKey(call.positionals[1]).signature(for: data).rawRepresentation
@@ -430,7 +451,7 @@ struct InternalCryptoModule: InternalSaoriModule {
                 signature = try InternalRSA.sign(data, with: try InternalRSA.privateKey(call.positionals[1]), scheme: .pkcs1v15)
             case .ps256:
                 signature = try InternalRSA.sign(data, with: try InternalRSA.privateKey(call.positionals[1]), scheme: .pss)
-            case .rsa:
+            case .rsa, .bip340:
                 throw InternalSaoriError.unsupportedAlgorithm
             }
             return InternalSaoriResult(try Self.output(signature, call, defaultFormat: "base64url"))
@@ -439,9 +460,19 @@ struct InternalCryptoModule: InternalSaoriModule {
 
     /// 署名を公開鍵で検証する。正しければ 1、正しくなければ 0（署名の長さが違うときも 0）。公開鍵の代わりに秘密鍵も渡せる。
     private var verify: InternalSaoriFunction {
-        InternalSaoriFunction("Verify", positionals: 4, options: ["data-in", "signature-in", "charset"]) { call, _ in
+        InternalSaoriFunction("Verify", positionals: 4, options: ["data-in", "signature-in", "charset", "key-in"]) { call, _ in
             let algorithm = try SignatureAlgorithm(call.positionals[0])
+            if case .bip340 = algorithm {} else {
+                guard call.option("key-in") == nil else { throw InternalSaoriError.invalidParameter }
+            }
             let data = try Self.bytes(call.positionals[2], call, option: "data-in", defaultFormat: "text")
+            if case .bip340 = algorithm {
+                // 公開鍵は x 座標だけの 32 バイト（秘密鍵は受け付けない）。署名の長さが違うときは 0。
+                let key = try Self.bytes(call.positionals[1], call, option: "key-in", defaultFormat: "hex")
+                guard key.count == 32 else { throw InternalKeyCodec.invalidKey }
+                let signature = try Self.bytes(call.positionals[3], call, option: "signature-in", defaultFormat: "hex")
+                return InternalSaoriResult(InternalSecp256k1.schnorrVerify(publicKey: key, message: data, signature: signature) ? "1" : "0")
+            }
             let signature = try Self.bytes(call.positionals[3], call, option: "signature-in", defaultFormat: "base64url")
             let valid: Bool
             switch algorithm {
@@ -454,7 +485,7 @@ struct InternalCryptoModule: InternalSaoriModule {
                 valid = InternalRSA.verify(signature, for: data, with: try InternalRSA.publicKey(call.positionals[1]), scheme: .pkcs1v15)
             case .ps256:
                 valid = InternalRSA.verify(signature, for: data, with: try InternalRSA.publicKey(call.positionals[1]), scheme: .pss)
-            case .rsa:
+            case .rsa, .bip340:
                 throw InternalSaoriError.unsupportedAlgorithm
             }
             return InternalSaoriResult(valid ? "1" : "0")

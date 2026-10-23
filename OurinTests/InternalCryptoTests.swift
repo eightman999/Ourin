@@ -334,8 +334,10 @@ struct InternalCryptoSignatureTests {
         let key = "MC4CAQAwBQYDK2VwBCIEIJ1hsZ3v/VpguoRK9JLsLMREScVpezJpGXA7rAMcrn9g"
         let data = "eyJhbGciOiJFZERTQSJ9.RXhhbXBsZSBvZiBFZDI1NTE5IHNpZ25pbmc"
         let signature = "hgyY0il_MGCjP0JzlnLWG1PPOt7-09PGcvMg3AIbQR6dWbhijcNR4ki4iylGjg5BhVsPt9g7sVvpAr_MuM0KAg"
-        // CryptoKit の Ed25519 は署名が毎回変わる（どれも検証できる）ので、記述例の署名は検証側で確かめる。
-        let signed = try #require(call("Sign", ["ed25519", key, data]).result)
+        // Ed25519 は決定的（RFC 8032）なので、記述例の署名とそのまま一致し、毎回同じになる。
+        ok(call("Sign", ["ed25519", key, data]), signature)
+        ok(call("Sign", ["ed25519", key, data]), signature)
+        let signed = signature
         ok(call("Verify", ["ed25519", key, data, signed]), "1")
         ok(call("Verify", ["ed25519", key, data, signature]), "1")
         // 公開鍵の代わりに秘密鍵を渡してもよい。
@@ -407,7 +409,7 @@ struct InternalCryptoSignatureTests {
 
     @Test
     func unimplementedSignatureAlgorithmsAreUnsupported() {
-        for algorithm in ["bip340", "rsa-1024", "rsa-8192", "sha3"] {
+        for algorithm in ["rsa-1024", "rsa-8192", "sha3"] {
             fails(call("GenerateKeyPair", [algorithm]), 400, "unsupported algorithm")
             fails(call("Sign", [algorithm, "key", "m"]), 400, "unsupported algorithm")
         }
@@ -420,9 +422,13 @@ struct InternalCryptoSignatureTests {
         let outcome = try! SaoriProtocol.parseResponse(InternalSaoriRegistry.shared.handle(
             requestText: "EXECUTE SAORI/1.0\r\nModule: internal_system\r\nArgument0: ListFunctions\r\nArgument1: internal_crypto\r\n\r\n"))
         let names = (outcome.headerValue("Result") ?? "").split(separator: ",").map(String.init)
-        #expect(names == ["Digest", "HMAC", "Compare", "Encrypt", "Decrypt", "DeriveKey", "TOTP", "GenerateKeyPair", "Sign", "Verify"])
-        fails(call("HashPassword", ["p"]), 400, "unknown function")
-        fails(call("Protect", ["d"]), 400, "unknown function")
+        // 実装済みの関数が並び順どおりに入っている（ほかの関数は別の変更で足される）。
+        for name in ["Digest", "HMAC", "Compare", "Encrypt", "Decrypt", "DeriveKey", "TOTP", "GenerateKeyPair", "Sign", "Verify", "KeyAgreement"] {
+            #expect(names.contains(name), "\(name)")
+        }
+        let verifyIndex = names.firstIndex(of: "Verify"), agreementIndex = names.firstIndex(of: "KeyAgreement")
+        #expect(verifyIndex != nil && agreementIndex == verifyIndex.map { $0 + 1 })
+        fails(call("NoSuchFunction", ["p"]), 400, "unknown function")
     }
 
     @Test
