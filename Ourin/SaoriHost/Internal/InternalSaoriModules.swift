@@ -4,7 +4,10 @@ import Security
 extension InternalSaoriRegistry {
     /// Ourin が実装している内蔵モジュール。
     static func standardModules() -> [InternalSaoriModule] {
-        [InternalSystemModule(), InternalRandomModule(), InternalTimeModule(), InternalTextModule(), InternalDataModule()]
+        [
+            InternalSystemModule(), InternalRandomModule(), InternalTimeModule(), InternalTextModule(),
+            InternalDataModule(), InternalCryptoModule()
+        ]
     }
 }
 
