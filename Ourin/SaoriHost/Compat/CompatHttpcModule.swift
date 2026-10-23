@@ -106,12 +106,11 @@ final class CompatHttpcModule: CompatSaoriModule {
         return text
     }
 
-    /// DLL と同じ場所（ゴーストのフォルダの中だけ）に保存する。
+    /// DLL と同じ場所を基準に保存する（原作どおり、DLL のフォルダにファイル名をつないだ場所）。
     private func save(_ address: String, to name: String) -> Bool {
-        guard let root = environment.ghostRoot?.standardizedFileURL,
-              let target = environment.resolve(name, base: environment.moduleDirectory ?? root),
-              target.path.hasPrefix(root.path + "/"),
+        guard let base = environment.moduleDirectory ?? environment.ghostRoot,
               let url = URL(string: address), let reply = CompatSaoriHooks.fetch(url) else { return false }
+        let target = base.appendingPathComponent(name.replacingOccurrences(of: "\\", with: "/"))
         return (try? reply.data.write(to: target, options: .atomic)) != nil
     }
 

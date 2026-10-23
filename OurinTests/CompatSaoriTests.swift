@@ -172,6 +172,20 @@ struct CompatSaoriTests {
         #expect(s("split", "1-2+3", "/([-+])/").result == "5")
         #expect(s("get", "1").result == "-")
         #expect(s("split", "abc", "//").result == "3")
+        // Argument1（と Argument2）を省くと、前回の文字列の続きから調べる（原作どおり）。
+        #expect(s("match", "a1b2c3", "/[0-9]/").result == "1")
+        #expect(s("get", "0").result == "1")
+        #expect(s("match").result == "1")
+        #expect(s("get", "0").result == "2")
+        #expect(s("match").result == "1")
+        #expect(s("match").result == "0")
+        #expect(s("get", "0").result == "3") // 同じ正規表現なら、前回の結果が残る
+        #expect(s("match", "x", "/y/").result == "0")
+        #expect(s("get", "0").result == "") // 正規表現が変われば残らない
+        #expect(s("replace", "aaa", "s/a/b/").result == "1")
+        #expect(s("get", "0").result == "baa")
+        #expect(s("replace").result == "1") // 続きの "aa" を置換する
+        #expect(s("get", "0").result == "ba")
         // 形の誤り。
         #expect(s("match", "a", "abc").status == 400)
         #expect(s("match", "a", "/(/").status == 400)
@@ -229,13 +243,13 @@ struct CompatSaoriTests {
         #expect(copied.last == "a\nb\\nc")
         #expect(ghost.call("clipcopy.dll", []).status == 400)
 
-        // textcopy: Argument1 が 0 以外ならコピーした文字列を返す。Argument2 は改行に置き換える文字列。
+        // textcopy: Argument1 が 0 以外ならコピーした文字列を返す。
         #expect(ghost.call("textcopy.dll", ["hello"]).status == 204)
         #expect(copied.last == "hello")
         #expect(ghost.call("textcopy.dll", ["hello", "1"]).result == "hello")
         #expect(ghost.call("textcopy.dll", ["hello", "0"]).status == 204)
-        #expect(ghost.call("textcopy.dll", ["a|b", "1", "|"]).result == "a|b")
-        #expect(copied.last == "a\nb")
+        #expect(ghost.call("textcopy.dll", ["a|b", "1", "|"]).result == "a|b") // Argument2 は使わない
+        #expect(copied.last == "a|b")
         #expect(ghost.call("textcopy.dll", [""]).status == 400)
         // Direct SSTP からも使える。
         #expect(direct("textcopy", ["x", "1"]).result == "x")
@@ -287,16 +301,13 @@ struct CompatSaoriTests {
         let load = Int(c("mem.os").result ?? "") ?? -1
         #expect((0...100).contains(load))
         #expect(c("cpu.clockex").result?.range(of: #"^\d+\.\d{3}$"#, options: .regularExpression) != nil)
-        // Argument1 が 0 なら返さない。知らないコードは 400（param error）。
+        // Argument1 は数値として読み、0 なら返さない（数字でなければ 0）。知らないコードは 400（param error）。
         #expect(c("os.name", "0").status == 204)
         #expect(c("os.name", "1").result == "macOS")
+        #expect(c("os.name", "cpu.num").status == 204)
+        #expect(c("os.name", "1").values.isEmpty)
         #expect(c("nothing").status == 400)
         #expect(c("nothing").result == nil)
-        // CCPUID のように複数のコードを並べると Value に入る。
-        let many = c("os.name", "cpu.num", "nothing")
-        #expect(many.result == "macOS")
-        #expect(many.values.count == 3)
-        #expect(many.values[2] == "param error")
         #expect(c().status == 204)
 
         let usage = Int(ghost.call("cpuusage.dll", ["get"]).result ?? "") ?? -1
@@ -368,10 +379,12 @@ struct CompatSaoriTests {
         #expect(h("erase_tag", "utf8", "http://example.com/sjis").status == 200)
         #expect(h("sjis", "erase_tag", "http://example.com/sjis").result == "こんにちは")
         #expect(h("translate_tag", "http://example.com/tags").result == "A\\nB\\n-----------------------------------------------\\n\\_a[u]link\\_a〔pic〕<\\&>(c)")
-        // 2 つ: DLL と同じ場所に保存（バイナリも可）。ゴーストのフォルダの外へは保存しない。
+        // 2 つ: DLL と同じ場所を基準に保存（バイナリも可。原作どおり、ファイル名をそのままつなぐ）。
         #expect(h("http://example.com/bin", "out.bin").result == "1")
         #expect(try Data(contentsOf: ghost.root.appendingPathComponent("saori/out.bin")) == Data([0, 1, 2, 255]))
-        #expect(h("http://example.com/bin", "../../../escape.bin").result == "0")
+        #expect(h("http://example.com/bin", "..\\up.bin").result == "1")
+        #expect(FileManager.default.fileExists(atPath: ghost.root.appendingPathComponent("up.bin").path))
+        #expect(h("http://example.com/bin", "no/such/dir/x.bin").result == "0")
         #expect(h("http://example.com/missing", "x.bin").result == "0")
         // 取れなければ空。引数が多すぎても空。
         #expect(h("http://example.com/missing").result == "")
@@ -513,16 +526,21 @@ struct CompatSaoriTests {
         let calendar = Calendar(identifier: .gregorian)
         let start = calendar.date(from: DateComponents(year: 2026, month: 10, day: 20, hour: 22))!
         let usage = CompatHanayuUsage(file: file, now: start)
-        usage.update(now: start.addingTimeInterval(4 * 3600)) // 22時〜翌2時
-        #expect(abs((usage.hours["20261020"] ?? 0) - 2) < 0.001)
-        #expect(abs((usage.hours["20261021"] ?? 0) - 2) < 0.001)
-        let days = usage.lastSevenDays(now: start.addingTimeInterval(4 * 3600))
+        usage.update(now: start.addingTimeInterval(4 * 3600 + 30)) // 22時〜翌2時0分30秒
+        #expect(usage.minutes["20261020"] == 120)
+        #expect(usage.minutes["20261021"] == 120) // 30 秒は次に持ち越す
+        usage.update(now: start.addingTimeInterval(4 * 3600 + 90))
+        #expect(usage.minutes["20261021"] == 121)
+        let now = start.addingTimeInterval(4 * 3600 + 90)
+        let days = usage.lastSevenDays(now: now)
         #expect(days.count == 7)
         #expect(days.last?.label == "10/21")
-        #expect(abs((days.last?.hours ?? 0) - 2) < 0.001)
-        usage.save(now: start.addingTimeInterval(4 * 3600))
+        #expect(abs((days.last?.hours ?? 0) - 121.0 / 60) < 0.001)
+        // 原作と同じ形式: 6 日前から今日までの 7 行、`yyyyMMdd,分`、改行は CR LF。
+        usage.save(now: now)
+        #expect(try String(contentsOf: file, encoding: .utf8) == "20261015,0\r\n20261016,0\r\n20261017,0\r\n20261018,0\r\n20261019,0\r\n20261020,120\r\n20261021,121\r\n")
         let reloaded = CompatHanayuUsage(file: file)
-        #expect(abs((reloaded.hours["20261021"] ?? 0) - 2) < 0.001)
+        #expect(reloaded.minutes["20261021"] == 121)
     }
 
     @Test

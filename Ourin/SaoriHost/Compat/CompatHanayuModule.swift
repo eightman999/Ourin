@@ -7,7 +7,7 @@ import Foundation
 /// - hide [スタイル名]: 窓を閉じる（開いていなければ 400）
 /// 設定は DLL と同じ場所の hanayu.txt（`[スタイル名]` か `スタイル名 { }` で区切る。区切りの前はスタイル名の無い既定）。
 /// graph が usetime（既定）なら起動時間、line / bar / radar / radar2 なら引数の値を描く。
-/// 起動時間は、このモジュールを読み込んでいた時間（SHIORI と同じ寿命）を hanayud.txt に日ごとに記録する。
+/// 起動時間は、このモジュールを読み込んでいた時間（SHIORI と同じ寿命）を hanayud.txt に日ごとに分で記録する。
 final class CompatHanayuModule: CompatSaoriModule {
     private let environment: CompatSaoriEnvironment
     private let baseDirectory: URL?
@@ -119,21 +119,24 @@ struct CompatHanayuConfig {
 
 // MARK: - 起動時間（hanayud.txt）
 
-/// 日ごとの起動時間。`yyyyMMdd,時間` の行で保存する（直近 7 日分）。
+/// 日ごとの起動時間。原作と同じく、分の整数で数え、hanayud.txt に 6 日前から今日までの 7 行
+/// （`yyyyMMdd,分`。改行は CR LF）で保存する。1 分に満たない秒は次に持ち越す。
 final class CompatHanayuUsage {
     private let file: URL?
-    private(set) var hours: [String: Double] = [:]
+    private(set) var minutes: [String: Int] = [:]
     private var lastUpdate: Date
+    private var carriedSeconds: TimeInterval = 0
     private let lock = NSLock()
     private let calendar = Calendar(identifier: .gregorian)
 
     init(file: URL?, now: Date = Date()) {
         self.file = file
         lastUpdate = now
-        guard let file, let text = try? String(contentsOf: file, encoding: .utf8) else { return }
-        for line in text.components(separatedBy: .newlines) where !line.hasPrefix("#") {
+        guard let file, let data = try? Data(contentsOf: file) else { return }
+        let text = String(decoding: data, as: UTF8.self)
+        for line in text.components(separatedBy: .newlines) {
             let parts = line.split(separator: ",", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
-            if parts.count == 2, parts[0].count == 8, let value = Double(parts[1]) { hours[parts[0]] = value }
+            if parts.count == 2, parts[0].count == 8, let value = Int(parts[1]) { minutes[parts[0]] = value }
         }
     }
 
@@ -142,36 +145,43 @@ final class CompatHanayuUsage {
         return String(format: "%04d%02d%02d", parts.year ?? 0, parts.month ?? 0, parts.day ?? 0)
     }
 
-    /// 前回からの経過時間を、日付の境目で分けて足す。
+    /// 前回からの経過時間を、日付の境目で分けて足す（分の単位。端数は持ち越す）。
     func update(now: Date) {
         lock.lock(); defer { lock.unlock() }
         var cursor = lastUpdate
         while cursor < now {
             let nextDay = calendar.startOfDay(for: cursor).addingTimeInterval(86_400)
             let end = min(nextDay, now)
-            hours[key(cursor), default: 0] += end.timeIntervalSince(cursor) / 3600
+            carriedSeconds += end.timeIntervalSince(cursor)
+            let whole = Int(carriedSeconds / 60)
+            if whole > 0 {
+                minutes[key(cursor), default: 0] += whole
+                carriedSeconds -= Double(whole * 60)
+            }
             cursor = end
         }
         lastUpdate = now
     }
 
-    /// 6 日前から今日まで（ラベルは `月/日`）。
+    /// 6 日前から今日まで（ラベルは `月/日`、値は時間）。
     func lastSevenDays(now: Date) -> [(label: String, hours: Double)] {
         lock.lock(); defer { lock.unlock() }
         return (-6...0).map { offset in
             let day = calendar.date(byAdding: .day, value: offset, to: now)!
             let parts = calendar.dateComponents([.month, .day], from: day)
-            return ("\(parts.month ?? 0)/\(parts.day ?? 0)", hours[key(day)] ?? 0)
+            return ("\(parts.month ?? 0)/\(parts.day ?? 0)", Double(minutes[key(day)] ?? 0) / 60)
         }
     }
 
     func save(now: Date = Date()) {
         guard let file else { return }
         lock.lock()
-        let oldest = key(calendar.date(byAdding: .day, value: -6, to: now)!)
-        let lines = hours.filter { $0.key >= oldest }.sorted { $0.key < $1.key }.map { "\($0.key),\($0.value)" }
+        let lines = (-6...0).map { offset -> String in
+            let day = key(calendar.date(byAdding: .day, value: offset, to: now)!)
+            return "\(day),\(minutes[day] ?? 0)\r\n"
+        }
         lock.unlock()
-        try? (["# hanayu usage (hours per day)"] + lines).joined(separator: "\n").appending("\n").write(to: file, atomically: true, encoding: .utf8)
+        try? Data(lines.joined().utf8).write(to: file, options: .atomic)
     }
 }
 

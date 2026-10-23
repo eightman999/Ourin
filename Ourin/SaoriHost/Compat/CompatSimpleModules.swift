@@ -32,20 +32,15 @@ final class CompatClipcopyModule: CompatSaoriModule {
     }
 }
 
-// MARK: - textcopy（橋本孔明氏作。CSaori の textcopy2 と同じ動き）
+// MARK: - textcopy（橋本孔明氏作）
 
 /// クリップボードに文字列をコピーする。Argument1 が 0 以外なら、コピーした文字列を Result に返す（それ以外は 204）。
-/// Argument2 があれば、その文字列を改行に置き換えてからコピーする（textcopy2 の拡張）。
 final class CompatTextcopyModule: CompatSaoriModule {
     init(environment: CompatSaoriEnvironment) {}
 
     func execute(_ arguments: [String], charset: String) -> CompatSaoriResult {
         guard let text = arguments.first, !text.isEmpty else { return .badRequest }
-        var copied = text
-        if arguments.count >= 3, !arguments[2].isEmpty {
-            copied = copied.replacingOccurrences(of: arguments[2], with: "\n")
-        }
-        guard CompatSaoriHooks.writeClipboard(copied) else { return .internalError }
+        guard CompatSaoriHooks.writeClipboard(text) else { return .internalError }
         if arguments.count >= 2, CompatSaoriHost.leadingInteger(arguments[1]) != 0 {
             return .ok(text)
         }
@@ -222,30 +217,19 @@ final class CompatHouchiModule: CompatSaoriModule {
     }
 }
 
-// MARK: - saori_cpuid（七瀬いーうぃ氏作。CCPUID の拡張も一部）
+// MARK: - saori_cpuid（七瀬いーうぃ氏作。取得情報コードは CCPUID の追加分も読む）
 
-/// CPU・メモリ・OS の情報を返す。Argument1 が数値の 0 なら返さない（204）。
-/// CCPUID のように Argument1 以降にも取得情報コードを並べると、それぞれの値が Value0 から順に入る（Value0 は Argument0 の値）。
+/// CPU・メモリ・OS の情報を返す。Argument1 が 0（数値として読んで 0）なら返さない（204）。
 final class CompatSaoriCPUIDModule: CompatSaoriModule {
     init(environment: CompatSaoriEnvironment) {}
 
     func execute(_ arguments: [String], charset: String) -> CompatSaoriResult {
-        guard let first = arguments.first else { return .noContent }
-        // Argument1 が数値なら「返す / 返さない」の指定（原作）、そうでなければ追加の取得情報コード（CCPUID）。
-        var keys = [first]
-        if arguments.count >= 2 {
-            let flag = arguments[1].trimmingCharacters(in: .whitespaces)
-            if let number = Int(flag) {
-                if number == 0 { return .noContent }
-            } else {
-                keys += arguments.dropFirst()
-            }
-        }
-        let values = keys.map { Self.value(for: $0) }
-        guard let result = values.first ?? nil else {
+        guard let key = arguments.first else { return .noContent }
+        if arguments.count >= 2, CompatSaoriHost.leadingInteger(arguments[1]) == 0 { return .noContent }
+        guard let result = Self.value(for: key) else {
             return CompatSaoriResult(status: 400, result: "param error", error: "param error")
         }
-        return .ok(result, values: keys.count > 1 ? values.map { $0 ?? "param error" } : [])
+        return .ok(result)
     }
 
     static func value(for key: String) -> String? {

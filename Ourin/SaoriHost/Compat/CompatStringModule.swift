@@ -5,6 +5,8 @@ import Foundation
 /// - match（`/正規表現/オプション`）: マッチすれば 1（g なら個数）。get 0 で全体、get n で n 番目の () の文字列
 /// - replace（`s/正規表現/置換/オプション`）: 置換した数。get 0 で置換後の文字列、get n で n 番目の ()
 /// - split（`/正規表現/オプション`）: 分割した数。get n で n 番目（0 から）の文字列
+/// - 原作どおり、対象の文字列（Argument1）と正規表現（Argument2）は覚えておき、省くと前回のものを使う。
+///   Argument1 を省いた match / replace は、前回マッチした位置の続きから調べる（Argument1 を渡すと先頭に戻る）。
 /// - オプション: g（すべて）・i（大文字小文字を区別しない）・m・s・x・h（先に半角に変換）
 /// - isalpha / isupper / islower / isnumber / isalnum / isinteger / isdecimal / issjis / isjis / iseuc: 1 か 0
 /// - toupper / tolower / tozenkaku / tohankaku / tosjis / tojis / toeuc / trim: 変換した文字列
@@ -18,6 +20,10 @@ final class CompatStringModule: CompatSaoriModule {
     }
 
     private var last = Last.none
+    /// 対象の文字列・続きの位置（UTF-16 の位置）・正規表現。原作と同じく呼び出しをまたいで覚えておく。
+    private var target = ""
+    private var offset = 0
+    private var regexSource: String?
     private let lock = NSLock()
 
     init(environment: CompatSaoriEnvironment) {}
@@ -25,12 +31,24 @@ final class CompatStringModule: CompatSaoriModule {
     func execute(_ arguments: [String], charset: String) -> CompatSaoriResult {
         guard let function = arguments.first?.lowercased() else { return .badRequest }
         let text = arguments.count >= 2 ? arguments[1] : ""
-        let regex = arguments.count >= 3 ? arguments[2] : ""
         lock.lock(); defer { lock.unlock() }
         switch function {
-        case "match": return match(text, regex)
-        case "replace": return replace(text, regex)
-        case "split": return split(text, regex)
+        case "match", "replace", "split":
+            if arguments.count >= 2 {
+                target = arguments[1]
+                offset = 0
+            }
+            var regexChanged = false
+            if arguments.count >= 3 {
+                regexChanged = arguments[2] != regexSource
+                regexSource = arguments[2]
+            }
+            guard let source = regexSource else { return .badRequest }
+            switch function {
+            case "match": return match(source, regexChanged: regexChanged)
+            case "replace": return replace(source, regexChanged: regexChanged)
+            default: return split(source)
+            }
         case "get": return get(CompatSaoriHost.leadingInteger(text))
         case "isalpha": return flag(!text.isEmpty && text.unicodeScalars.allSatisfy { $0.isASCII && $0.properties.isAlphabetic })
         case "isupper": return flag(!text.isEmpty && text.unicodeScalars.allSatisfy { ("A"..."Z").contains($0) })
@@ -70,45 +88,61 @@ final class CompatStringModule: CompatSaoriModule {
 
     private static let invalidRegex = CompatSaoriResult(status: 400, error: "invalid regular expression")
 
-    private func match(_ text: String, _ source: String) -> CompatSaoriResult {
-        guard let pattern = Self.parse(source, replace: false) else { return Self.invalidRegex }
-        let target = pattern.hankaku ? Self.toHankaku(text) : text
-        let range = NSRange(target.startIndex..., in: target)
-        if pattern.global {
-            let matches = pattern.regex.matches(in: target, range: range)
-            last = matches.last.map { .match(groups: Self.groups(of: $0, in: target)) } ?? .none
-            return .ok(String(matches.count))
+    /// マッチしなかったときの get。正規表現が前回と同じなら、前回マッチしたときの () が残る（原作の bregexp の動き）。
+    private func groupsAfterFailure(regexChanged: Bool) -> [String] {
+        guard !regexChanged else { return [] }
+        switch last {
+        case .match(let groups), .replace(_, let groups): return groups
+        default: return []
         }
-        guard let found = pattern.regex.firstMatch(in: target, range: range) else {
-            last = .none
-            return .ok("0")
-        }
-        last = .match(groups: Self.groups(of: found, in: target))
-        return .ok("1")
     }
 
-    private func replace(_ text: String, _ source: String) -> CompatSaoriResult {
+    private func match(_ source: String, regexChanged: Bool) -> CompatSaoriResult {
+        guard let pattern = Self.parse(source, replace: false) else { return Self.invalidRegex }
+        let text = pattern.hankaku ? Self.toHankaku(target) : target
+        let length = (text as NSString).length
+        let range = NSRange(location: min(offset, length), length: length - min(offset, length))
+        let found = pattern.global ? pattern.regex.matches(in: text, range: range) : pattern.regex.firstMatch(in: text, range: range).map { [$0] } ?? []
+        guard let lastMatch = found.last else {
+            last = .match(groups: groupsAfterFailure(regexChanged: regexChanged))
+            return .ok("0")
+        }
+        offset = lastMatch.range.location + lastMatch.range.length
+        last = .match(groups: Self.groups(of: lastMatch, in: text))
+        return .ok(pattern.global ? String(found.count) : "1")
+    }
+
+    /// 続きの位置から後ろを置換する（get 0 はその部分の置換後の文字列）。
+    private func replace(_ source: String, regexChanged: Bool) -> CompatSaoriResult {
         guard let pattern = Self.parse(source, replace: true), let template = pattern.replacement else { return Self.invalidRegex }
-        let target = pattern.hankaku ? Self.toHankaku(text) : text
-        let all = pattern.regex.matches(in: target, range: NSRange(target.startIndex..., in: target))
+        let whole = pattern.hankaku ? Self.toHankaku(target) : target
+        let start = min(offset, (whole as NSString).length)
+        let text = (whole as NSString).substring(from: start)
+        let all = pattern.regex.matches(in: text, range: NSRange(location: 0, length: (text as NSString).length))
         let used = pattern.global ? all : Array(all.prefix(1))
-        let output = NSMutableString(string: target)
+        guard let lastMatch = used.last else {
+            last = .replace(result: "", groups: groupsAfterFailure(regexChanged: regexChanged))
+            return .ok("0")
+        }
+        let output = NSMutableString(string: text)
         for found in used.reversed() {
-            let replacement = pattern.regex.replacementString(for: found, in: target, offset: 0, template: template)
+            let replacement = pattern.regex.replacementString(for: found, in: text, offset: 0, template: template)
             output.replaceCharacters(in: found.range, with: replacement)
         }
-        last = .replace(result: output as String, groups: used.last.map { Self.groups(of: $0, in: target) } ?? [])
+        offset = start + lastMatch.range.location + lastMatch.range.length
+        last = .replace(result: output as String, groups: Self.groups(of: lastMatch, in: text))
         return .ok(String(used.count))
     }
 
     /// Perl の split と同じく、() の中も要素に入れ、末尾の空の要素は捨てる。
-    private func split(_ text: String, _ source: String) -> CompatSaoriResult {
+    private func split(_ source: String) -> CompatSaoriResult {
         guard let pattern = Self.parse(source, replace: false) else { return Self.invalidRegex }
-        let target = pattern.hankaku ? Self.toHankaku(text) : text
-        let nsTarget = target as NSString
+        let whole = pattern.hankaku ? Self.toHankaku(target) : target
+        let text = (whole as NSString).substring(from: min(offset, (whole as NSString).length))
+        let nsTarget = text as NSString
         var pieces: [String] = []
         var cursor = 0
-        for found in pattern.regex.matches(in: target, range: NSRange(location: 0, length: nsTarget.length)) {
+        for found in pattern.regex.matches(in: text, range: NSRange(location: 0, length: nsTarget.length)) {
             // 先頭の幅 0 のマッチでは区切らない。
             if found.range.length == 0 && found.range.location == 0 { continue }
             if found.range.length == 0 && found.range.location >= nsTarget.length { break }
