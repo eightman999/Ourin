@@ -112,7 +112,7 @@ struct InternalJWTTests {
         // --alg= が無い・知らない名前（none を含む）・RSA 系（未実装）。
         jwtFails(jwt("Verify", [documented, secret]), 400, "invalid parameter")
         jwtFails(jwt("Verify", [documented, secret, "--alg="]), 400, "invalid parameter")
-        for alg in ["none", "RS256", "PS256", "HS1", "ES384"] {
+        for alg in ["none", "RS384", "PS512", "HS1", "ES384"] {
             jwtFails(jwt("Verify", [documented, secret, "--alg=\(alg)"]), 400, "unsupported algorithm")
             jwtFails(jwt("Sign", [alg, secret, "{}"]), 400, "unsupported algorithm")
         }

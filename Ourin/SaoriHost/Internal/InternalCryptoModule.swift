@@ -5,7 +5,7 @@ import Foundation
 /// ハッシュ・MAC・共通鍵暗号・鍵の導出・ワンタイムパスワード・公開鍵署名（UKADOC 2.9.13〜）。
 ///
 /// OS の部品（CryptoKit・CommonCrypto）で賄える範囲を実装している。未実装の方式（sha512-256・sha3・blake2、
-/// scrypt・argon2id、bip340・RSA、HashPassword / VerifyPassword、Protect / Unprotect）は `unsupported algorithm`
+/// scrypt・argon2id、bip340・HashPassword / VerifyPassword、Protect / Unprotect）は `unsupported algorithm`
 /// か、関数が無い（`unknown function`）として扱い、`ListFunctions` にも出さない。
 struct InternalCryptoModule: InternalSaoriModule {
     let name = "internal_crypto"
@@ -352,15 +352,22 @@ struct InternalCryptoModule: InternalSaoriModule {
         }
     }
 
-    // MARK: - 公開鍵署名（ed25519 / es256）
+    // MARK: - 公開鍵署名（ed25519 / es256 / rs256 / ps256）
 
     private enum SignatureAlgorithm {
-        case ed25519, es256
+        case ed25519, es256, rs256, ps256
+        /// GenerateKeyPair だけの名前（rsa-2048 など。鍵は rs256 と ps256 のどちらにも使える）。
+        case rsa(bits: Int)
 
         init(_ name: String) throws {
             switch name.lowercased().replacingOccurrences(of: "-", with: "").replacingOccurrences(of: "_", with: "") {
             case "ed25519": self = .ed25519
             case "es256": self = .es256
+            case "rs256": self = .rs256
+            case "ps256": self = .ps256
+            case "rsa2048": self = .rsa(bits: 2048)
+            case "rsa3072": self = .rsa(bits: 3072)
+            case "rsa4096": self = .rsa(bits: 4096)
             default: throw InternalSaoriError.unsupportedAlgorithm
             }
         }
@@ -379,6 +386,12 @@ struct InternalCryptoModule: InternalSaoriModule {
                 let key = P256.Signing.PrivateKey()
                 let privateKey = key.derRepresentation
                 return InternalSaoriResult(privateKey.base64EncodedString(), values: [privateKey.base64EncodedString(), key.publicKey.derRepresentation.base64EncodedString()])
+            case .rsa(let bits):
+                let pair = try InternalRSA.generate(bits: bits)
+                return InternalSaoriResult(pair.privateKey.base64EncodedString(), values: [pair.privateKey.base64EncodedString(), pair.publicKey.base64EncodedString()])
+            case .rs256, .ps256:
+                // 署名の方式の名前で鍵は作れない（rsa-2048 などを使う）。
+                throw InternalSaoriError.unsupportedAlgorithm
             }
         }
     }
@@ -394,6 +407,12 @@ struct InternalCryptoModule: InternalSaoriModule {
             case .es256:
                 // r‖s の 64 バイト（JWS と同じ形で、DER 形式ではない）。
                 signature = try InternalKeyCodec.p256PrivateKey(call.positionals[1]).signature(for: data).rawRepresentation
+            case .rs256:
+                signature = try InternalRSA.sign(data, with: try InternalRSA.privateKey(call.positionals[1]), scheme: .pkcs1v15)
+            case .ps256:
+                signature = try InternalRSA.sign(data, with: try InternalRSA.privateKey(call.positionals[1]), scheme: .pss)
+            case .rsa:
+                throw InternalSaoriError.unsupportedAlgorithm
             }
             return InternalSaoriResult(try Self.output(signature, call, defaultFormat: "base64url"))
         }
@@ -412,6 +431,12 @@ struct InternalCryptoModule: InternalSaoriModule {
             case .es256:
                 let key = try InternalKeyCodec.p256PublicKey(call.positionals[1])
                 valid = (try? P256.Signing.ECDSASignature(rawRepresentation: signature)).map { key.isValidSignature($0, for: data) } ?? false
+            case .rs256:
+                valid = InternalRSA.verify(signature, for: data, with: try InternalRSA.publicKey(call.positionals[1]), scheme: .pkcs1v15)
+            case .ps256:
+                valid = InternalRSA.verify(signature, for: data, with: try InternalRSA.publicKey(call.positionals[1]), scheme: .pss)
+            case .rsa:
+                throw InternalSaoriError.unsupportedAlgorithm
             }
             return InternalSaoriResult(valid ? "1" : "0")
         }

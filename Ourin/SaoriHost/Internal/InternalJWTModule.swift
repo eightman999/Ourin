@@ -3,8 +3,7 @@ import Foundation
 
 /// JWT（RFC 7519）の作成と検証（UKADOC 2.9.13 internal_jwt）。形式は JWS のコンパクト形式だけ。
 ///
-/// HS256 / HS384 / HS512、ES256、EdDSA（Ed25519）を実装している。RS256 / PS256 は RSA が未実装なので、
-/// none や知らない名前と同じく `unsupported algorithm`。
+/// HS256 / HS384 / HS512、RS256 / PS256、ES256、EdDSA（Ed25519）。none や知らない名前は `unsupported algorithm`。
 struct InternalJWTModule: InternalSaoriModule {
     let name = "internal_jwt"
 
@@ -15,6 +14,7 @@ struct InternalJWTModule: InternalSaoriModule {
     private enum Algorithm {
         case hmac(Support.HashAlgorithm, name: String)
         case es256, eddsa
+        case rsa(InternalRSA.Scheme, name: String)
 
         /// 大文字小文字は区別しない。
         init(_ text: String) throws {
@@ -24,6 +24,8 @@ struct InternalJWTModule: InternalSaoriModule {
             case "HS512": self = .hmac(.sha512, name: "HS512")
             case "ES256": self = .es256
             case "EDDSA": self = .eddsa
+            case "RS256": self = .rsa(.pkcs1v15, name: "RS256")
+            case "PS256": self = .rsa(.pss, name: "PS256")
             default: throw InternalSaoriError.unsupportedAlgorithm
             }
         }
@@ -31,7 +33,7 @@ struct InternalJWTModule: InternalSaoriModule {
         /// ヘッダの alg に書く正式な名前。
         var name: String {
             switch self {
-            case .hmac(_, let name): return name
+            case .hmac(_, let name), .rsa(_, let name): return name
             case .es256: return "ES256"
             case .eddsa: return "EdDSA"
             }
@@ -60,6 +62,9 @@ struct InternalJWTModule: InternalSaoriModule {
             case .eddsa:
                 guard call.option("key-in") == nil else { throw InternalSaoriError.invalidParameter }
                 signature = try InternalKeyCodec.ed25519PrivateKey(call.positionals[1]).signature(for: message)
+            case .rsa(let scheme, _):
+                guard call.option("key-in") == nil else { throw InternalSaoriError.invalidParameter }
+                signature = try InternalRSA.sign(message, with: try InternalRSA.privateKey(call.positionals[1]), scheme: scheme)
             }
             return InternalSaoriResult(signingInput + "." + Self.base64url(signature))
         }
@@ -106,7 +111,7 @@ struct InternalJWTModule: InternalSaoriModule {
             }
 
             // 鍵は、トークンを読む前に確かめる（読めない・種類が違う・短いは invalid key）。
-            enum Key { case hmac(Data), p256(P256.Signing.PublicKey), ed25519(Curve25519.Signing.PublicKey) }
+            enum Key { case hmac(Data), p256(P256.Signing.PublicKey), ed25519(Curve25519.Signing.PublicKey), rsa(SecKey) }
             let key: Key
             switch algorithm {
             case .hmac(let hash, _): key = .hmac(try Self.hmacKey(call.positionals[1], call: call, hash: hash))
@@ -116,6 +121,9 @@ struct InternalJWTModule: InternalSaoriModule {
             case .eddsa:
                 guard call.option("key-in") == nil else { throw InternalSaoriError.invalidParameter }
                 key = .ed25519(try InternalKeyCodec.ed25519PublicKey(call.positionals[1]))
+            case .rsa:
+                guard call.option("key-in") == nil else { throw InternalSaoriError.invalidParameter }
+                key = .rsa(try InternalRSA.publicKey(call.positionals[1]))
             }
 
             let failure = InternalSaoriError.failed("authentication failed")
@@ -139,6 +147,8 @@ struct InternalJWTModule: InternalSaoriModule {
                 valid = (try? P256.Signing.ECDSASignature(rawRepresentation: signature)).map { publicKey.isValidSignature($0, for: message) } ?? false
             case (_, .ed25519(let publicKey)):
                 valid = publicKey.isValidSignature(signature, for: message)
+            case (.rsa(let scheme, _), .rsa(let publicKey)):
+                valid = InternalRSA.verify(signature, for: message, with: publicKey, scheme: scheme)
             default:
                 valid = false
             }
