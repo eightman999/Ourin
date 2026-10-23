@@ -417,9 +417,12 @@ struct InternalCryptoSignatureTests {
         let outcome = try! SaoriProtocol.parseResponse(InternalSaoriRegistry.shared.handle(
             requestText: "EXECUTE SAORI/1.0\r\nModule: internal_system\r\nArgument0: ListFunctions\r\nArgument1: internal_crypto\r\n\r\n"))
         let names = (outcome.headerValue("Result") ?? "").split(separator: ",").map(String.init)
-        #expect(names == ["Digest", "HMAC", "Compare", "Encrypt", "Decrypt", "DeriveKey", "TOTP", "GenerateKeyPair", "Sign", "Verify"])
-        fails(call("HashPassword", ["p"]), 400, "unknown function")
-        fails(call("Protect", ["d"]), 400, "unknown function")
+        // 実装した関数の並び（鍵共有・データの保護を足す変更とぶつからないよう、含まれていることだけを確かめる）。
+        let implemented = ["Digest", "HMAC", "Compare", "Encrypt", "Decrypt", "DeriveKey", "TOTP", "GenerateKeyPair", "Sign", "Verify",
+                           "HashPassword", "VerifyPassword"]
+        #expect(Set(implemented).isSubset(of: Set(names)))
+        #expect(names.filter { implemented.contains($0) } == implemented)
+        fails(call("NoSuchFunction", ["p"]), 400, "unknown function")
     }
 
     @Test
