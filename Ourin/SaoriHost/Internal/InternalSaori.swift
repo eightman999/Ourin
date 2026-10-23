@@ -148,6 +148,10 @@ final class InternalSaoriRegistry {
             return Self.errorResponse(.invalidParameter, charset: charset)
         }
         guard let module = module(named: moduleName) else {
+            // 互換モジュール（Module: string など）。Direct SSTP の呼び出しは「ゴーストなし」で、DLL として load したものとは状態を共有しない。
+            if CompatSaoriRegistry.compatName(moduleName) != nil, !moduleName.contains("/"), !moduleName.contains("\\") {
+                return CompatSaoriHost.directSSTP.handle(module: moduleName, request: request, defaultCharset: charset)
+            }
             return Self.errorResponse(.unknownModule, charset: charset)
         }
 

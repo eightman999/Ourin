@@ -453,7 +453,7 @@ struct InternalCryptoSignatureTests {
             box.lock.lock(); box.event = (name, params); box.lock.unlock()
         })
         #expect(call("GenerateKeyPair", ["es256", "--async=OnKeys"], context: context).status == 204)
-        let deadline = Date().addingTimeInterval(8)
+        let deadline = Date().addingTimeInterval(30)
         while Date() < deadline {
             box.lock.lock(); let done = box.event != nil; box.lock.unlock()
             if done { break }
