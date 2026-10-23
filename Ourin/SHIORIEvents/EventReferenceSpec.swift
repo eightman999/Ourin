@@ -418,6 +418,11 @@ public enum EventReferenceTable {
         // UKADOC: URL, scope, MIME, then the host's planned action.
         .init(id: "OnURLQuery", references: ["url", "scopeID", "mimeType", "plannedAction"], category: "dragdrop"),
         .init(id: "OnWallpaperChange", references: ["filePath"], category: "dragdrop"),
+        // UKADOC 2.8.91 / 2.8.90。ScheduleGetComplete と ScheduleTodayNotify の Reference は予定の数だけ続く。
+        .init(id: "OnExecuteScheduleComplete", references: ["operation", "uid"], category: "calendar"),
+        .init(id: "OnExecuteScheduleFailure", references: ["operation", "reason", "uid"], category: "calendar"),
+        .init(id: "OnExecuteScheduleGetComplete", references: ["calendar"], category: "calendar"),
+        .init(id: "OnScheduleTodayNotify", references: ["schedule"], category: "calendar"),
         // UKADOC: R2 は予約／空欄、R3=対象種別、R4=更新理由。
         .init(id: "OnUpdateBegin", references: ["ghostName", "path", "unused2", "targetType", "executionReason"], category: "update"),
         .init(id: "OnUpdateCheckComplete", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),

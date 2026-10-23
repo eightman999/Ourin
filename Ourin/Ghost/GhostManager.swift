@@ -2729,6 +2729,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             executeWebSocket(params: Array(args.dropFirst(2)))
         } else if subcmd == "filewatch" {
             executeFileWatch(params: Array(args.dropFirst(2)), isExternal: currentPlaybackIsExternal)
+        } else if subcmd == "schedule-add" || subcmd == "schedule-delete" || subcmd == "schedule-get" {
+            executeGhostSchedule(subcommand: subcmd, arguments: Array(args.dropFirst(2)), isExternal: currentPlaybackIsExternal)
         }
     }
 
