@@ -14,6 +14,7 @@ struct InternalCryptoModule: InternalSaoriModule {
 
     var functions: [InternalSaoriFunction] {
         [digest, hmac, compare, encrypt, decrypt, deriveKey, totp, generateKeyPair, sign, verify]
+            + InternalCryptoKeyAgreement.functions + InternalCryptoPasswords.functions + InternalCryptoProtect.functions
     }
 
     // MARK: - Digest / HMAC / Compare
