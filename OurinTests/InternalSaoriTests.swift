@@ -133,8 +133,9 @@ struct InternalSaoriAsyncTests {
         var all: [(name: String, references: [String: String])] { lock.lock(); defer { lock.unlock() }; return storage }
     }
 
+    /// 重いテスト（scrypt・bcrypt など）と並ぶと非同期のキューが待たされるので、長めに待つ。
     private func wait(_ events: Events, count: Int = 1) async throws {
-        let deadline = Date().addingTimeInterval(8)
+        let deadline = Date().addingTimeInterval(30)
         while events.all.count < count, Date() < deadline { try await Task.sleep(nanoseconds: 20_000_000) }
     }
 

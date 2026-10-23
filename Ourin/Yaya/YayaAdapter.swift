@@ -455,6 +455,11 @@ final class YayaAdapter: GhostShioriRuntime {
                 return InternalSaoriRegistry.shared.module(named: internalName) != nil
                     ? ["ok": true] : ["ok": false, "error": "unknown module"]
             }
+            // 互換モジュール（string.dll など）は DLL を読まずに内蔵の機能を用意する。
+            if SaoriManager.compatModuleName(module) != nil {
+                saoriManager.loadCompatModule(named: module)
+                return ["ok": true]
+            }
             do {
                 _ = try saoriManager.loadModule(named: module)
                 return ["ok": true]

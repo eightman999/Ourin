@@ -189,7 +189,7 @@ struct InternalFileTests {
         let context = InternalSaoriContext(ghostRoot: fixture.root, deliverEvent: { box.set($0, $1) })
         let outcome = mediaInfo(["sound/a.mp3", "title", "duration", "--async=OnMediaInfo"], context: context)
         #expect(outcome.status == 204)
-        let deadline = Date().addingTimeInterval(8)
+        let deadline = Date().addingTimeInterval(30)
         while box.get() == nil, Date() < deadline { try await Task.sleep(nanoseconds: 20_000_000) }
         let event = try #require(box.get())
         #expect(event.name == "OnMediaInfo")

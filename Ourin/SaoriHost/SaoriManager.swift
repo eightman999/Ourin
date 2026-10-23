@@ -3,7 +3,12 @@ import Foundation
 public final class SaoriManager {
     private let registry: SaoriRegistry
     /// 内蔵モジュール（internal_*）を呼ぶときの、呼び出し元ゴーストの情報。ゴーストを読み込んだときに設定する。
-    var internalContext: InternalSaoriContext = .none
+    /// 互換モジュール（string.dll など）にも同じゴーストを伝える。
+    var internalContext: InternalSaoriContext = .none {
+        didSet { compatHost.configure(ghostRoot: internalContext.ghostRoot, deliverEvent: internalContext.deliverEvent) }
+    }
+    /// このゴーストが load した互換モジュール（DLL を読まずに差し替えたもの）。
+    let compatHost = CompatSaoriHost()
 
     public init(registry: SaoriRegistry = SaoriRegistry()) {
         self.registry = registry
@@ -22,6 +27,16 @@ public final class SaoriManager {
         var base = (name as NSString).lastPathComponent
         if base.lowercased().hasSuffix(".dll") { base = String(base.dropLast(4)) }
         return InternalSaoriRegistry.isInternalName(base) ? base : nil
+    }
+
+    /// 互換モジュールの名前なら、その名前（`saori/string.dll` → `string`）。
+    static func compatModuleName(_ name: String) -> String? {
+        CompatSaoriRegistry.compatName(name)
+    }
+
+    /// 互換モジュールを用意する（DLL の load の代わり）。
+    func loadCompatModule(named name: String) {
+        compatHost.load(module: name)
     }
 
     @discardableResult
@@ -44,10 +59,15 @@ public final class SaoriManager {
     }
 
     public func unloadModule(named name: String) {
+        if Self.compatModuleName(name) != nil {
+            compatHost.unload(module: name)
+            return
+        }
         registry.unloadModule(named: name)
     }
 
     public func unloadAll() {
+        compatHost.unloadAll()
         registry.unloadAll()
     }
 
@@ -55,6 +75,10 @@ public final class SaoriManager {
         // 内蔵モジュールは DLL を読まず、ベースウェア自身が処理する。
         if let internalName = Self.internalModuleName(moduleName) {
             return internalRequest(moduleName: internalName, requestText: requestText, charset: charset)
+        }
+        // 互換モジュールは、ゴーストの DLL があっても読まずに内蔵の機能で処理する（ファイル名で判定）。
+        if Self.compatModuleName(moduleName) != nil {
+            return compatHost.handle(module: moduleName, requestText: requestText, charset: charset)
         }
         // REQUESTLIB/execute may be used without a preceding LOADLIB. Use the
         // public load path so the lifecycle/version handshake is guaranteed for
@@ -97,6 +121,10 @@ public final class SaoriManager {
             if let internalName = Self.internalModuleName(module) {
                 return InternalSaoriRegistry.shared.module(named: internalName) != nil
                     ? ["ok": true] : ["ok": false, "error": "unknown module"]
+            }
+            if Self.compatModuleName(module) != nil {
+                loadCompatModule(named: module)
+                return ["ok": true]
             }
             do {
                 _ = try loadModule(named: module)
