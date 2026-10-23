@@ -1,0 +1,19 @@
+Japanese national holidays table (holidays-JP.txt) / 国民の祝日・休日の表
+
+出典 / Source:
+  内閣府「国民の祝日について」
+  https://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html
+  （syukujitsu.csv を UTF-8・LF に変換し、説明の行を加えたもの。収録期間は昭和30年（1955年）から令和9年（2027年）まで）
+
+利用条件 / Terms:
+  内閣府ホームページのコンテンツは、権利表記がない限り「公共データ利用規約（第1.0版）」（デジタル庁）が適用されます。
+  この規約は、出典の記載を条件として、複製・公衆送信・翻訳・変形・再配布などを認めるものです。
+  https://www.cao.go.jp/notice/rule.html
+
+加工について / Modifications:
+  文字コードと改行の変換、先頭の説明行の追加のみを行い、日付と名称は変更していません。
+  この表は内閣府が公表したものを加工して作成しており、内閣府が内容を保証するものではありません。
+
+更新について / Updates:
+  翌年以降の祝日は内閣府が毎年2月に公表します。2028年以降の祝日名は、表を更新するまで通知されません。
+  ~/Documents/Ourin/calendar/holidays-JP.txt を置くと、同梱の表より優先して使われます。

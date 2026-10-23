@@ -267,6 +267,7 @@ public enum EventID: String, CaseIterable {
     case OnNotifySelfInfo = "OnNotifySelfInfo"
     case OnNotifyShellInfo = "OnNotifyShellInfo"
     case OnNotifyUserInfo = "OnNotifyUserInfo"
+    case OnNotifyHolidayInfo = "OnNotifyHolidayInfo"
     case OnOSUpdateInfo = "OnOSUpdateInfo"
     case OnOffscreen = "OnOffscreen"
     case OnOtherGhostBooted = "OnOtherGhostBooted"
