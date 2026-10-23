@@ -7,3 +7,6 @@
 # 旧同梱ゴースト（テストfixture用にローカルのみ保持）
 /emily4/
 /emily4.nar
+/build/release/
+/Installer/.build/
+/Installer/.swiftpm/
