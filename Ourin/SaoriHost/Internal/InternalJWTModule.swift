@@ -61,7 +61,7 @@ struct InternalJWTModule: InternalSaoriModule {
                 signature = try InternalKeyCodec.p256PrivateKey(call.positionals[1]).signature(for: message).rawRepresentation
             case .eddsa:
                 guard call.option("key-in") == nil else { throw InternalSaoriError.invalidParameter }
-                signature = try InternalKeyCodec.ed25519PrivateKey(call.positionals[1]).signature(for: message)
+                signature = InternalEd25519.sign(seed: try InternalKeyCodec.ed25519PrivateKey(call.positionals[1]).rawRepresentation, message: message)
             case .rsa(let scheme, _):
                 guard call.option("key-in") == nil else { throw InternalSaoriError.invalidParameter }
                 signature = try InternalRSA.sign(message, with: try InternalRSA.privateKey(call.positionals[1]), scheme: scheme)
