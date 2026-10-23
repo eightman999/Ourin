@@ -50,8 +50,11 @@ struct InternalCryptoHashTests {
     func algorithmNamesIgnoreHyphensUnderscoresAndCase() {
         let expected = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
         for name in ["SHA256", "SHA-256", "sha_256", "Sha-256"] { ok(call("Digest", [name, "abc"]), expected) }
-        // OS の部品で賄えない名前は、知らない名前と同じ unsupported algorithm。
-        for name in ["sha512-256", "sha3-256", "sha3-512", "blake2b512", "blake2s256", "crc32", "nothing"] {
+        for name in ["sha512-256", "SHA3_256", "sha3-512", "Blake2b512", "blake2s-256"] {
+            #expect(call("Digest", [name, "abc"]).status == 200, "\(name)")
+        }
+        // 知らない名前は unsupported algorithm。
+        for name in ["crc32", "nothing", "sha3", "blake2b"] {
             fails(call("Digest", [name, "abc"]), 400, "unsupported algorithm")
         }
     }
@@ -103,7 +106,7 @@ struct InternalCryptoHashTests {
         ok(call("HMAC", ["sha224", "Jefe", data]), "a30e01098bc6dbbf45690f3a7e9e6d0f8bbea2a39e6148008fd05e44")
         // 鍵を 16 進で渡す。
         ok(call("HMAC", ["sha256", "4a656665", data, "--key-in=hex"]), "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843")
-        fails(call("HMAC", ["sha3-256", "k", "d"]), 400, "unsupported algorithm")
+        fails(call("HMAC", ["crc32", "k", "d"]), 400, "unsupported algorithm")
     }
 
     @Test
@@ -272,8 +275,23 @@ struct InternalCryptoDerivationTests {
 
     @Test
     func derivationParametersAreValidatedPerMethod() {
-        fails(call("DeriveKey", ["scrypt", "p", "s", "32"]), 400, "unsupported algorithm")
-        fails(call("DeriveKey", ["argon2id", "p", "s", "32"]), 400, "unsupported algorithm")
+        // scrypt: RFC 7914 §12 のベクタ。
+        ok(call("DeriveKey", ["scrypt", "password", "NaCl", "64", "--n=1024", "--r=8", "--p=16"]),
+           "fdbabe1c9d3472007856e7190d01e9fe7c6ad7cbc8237830e77376634b3731622eaf30d92e22a3886ff109279d9830dac727afb94a83ee6d8360cbdfa2cc0640")
+        fails(call("DeriveKey", ["scrypt", "p", "s", "32", "--n=1000"]), 400, "invalid parameter") // 2 の累乗ではない
+        fails(call("DeriveKey", ["scrypt", "p", "s", "32", "--n=1048576", "--r=8"]), 400, "out of range") // 12MiB を超える
+        fails(call("DeriveKey", ["scrypt", "p", "s", "32", "--p=17"]), 400, "out of range")
+        fails(call("DeriveKey", ["scrypt", "p", "s", "32", "--iterations=2"]), 400, "invalid parameter")
+        // argon2id: 範囲と、同じ入力なら同じ値・違う入力なら違う値。
+        let argon = call("DeriveKey", ["argon2id", "password", "somesalt", "32", "--iterations=2", "--memory=64", "--lanes=2"])
+        #expect(argon.result?.count == 64)
+        ok(call("DeriveKey", ["argon2id", "password", "somesalt", "32", "--iterations=2", "--memory=64", "--lanes=2"]), argon.result ?? "")
+        #expect(call("DeriveKey", ["argon2id", "password", "somesalt", "32", "--iterations=2", "--memory=64", "--lanes=1"]).result != argon.result)
+        fails(call("DeriveKey", ["argon2id", "p", "short", "32"]), 400, "out of range") // salt が 8 バイト未満
+        fails(call("DeriveKey", ["argon2id", "p", "somesalt", "3"]), 400, "out of range") // 長さが 4 未満
+        fails(call("DeriveKey", ["argon2id", "p", "somesalt", "32", "--memory=12289"]), 400, "out of range")
+        fails(call("DeriveKey", ["argon2id", "p", "somesalt", "32", "--memory=15", "--lanes=2"]), 400, "out of range") // lanes×8 未満
+        fails(call("DeriveKey", ["argon2id", "p", "somesalt", "32", "--n=8"]), 400, "invalid parameter")
         fails(call("DeriveKey", ["nothing", "p", "s", "32"]), 400, "unsupported algorithm")
         // その方式で使わないオプションは invalid parameter。
         fails(call("DeriveKey", ["hkdf", "p", "s", "32", "--iterations=10"]), 400, "invalid parameter")
@@ -331,8 +349,10 @@ struct InternalCryptoSignatureTests {
         let key = "MC4CAQAwBQYDK2VwBCIEIJ1hsZ3v/VpguoRK9JLsLMREScVpezJpGXA7rAMcrn9g"
         let data = "eyJhbGciOiJFZERTQSJ9.RXhhbXBsZSBvZiBFZDI1NTE5IHNpZ25pbmc"
         let signature = "hgyY0il_MGCjP0JzlnLWG1PPOt7-09PGcvMg3AIbQR6dWbhijcNR4ki4iylGjg5BhVsPt9g7sVvpAr_MuM0KAg"
-        // CryptoKit の Ed25519 は署名が毎回変わる（どれも検証できる）ので、記述例の署名は検証側で確かめる。
-        let signed = try #require(call("Sign", ["ed25519", key, data]).result)
+        // Ed25519 は決定的（RFC 8032）なので、記述例の署名とそのまま一致し、毎回同じになる。
+        ok(call("Sign", ["ed25519", key, data]), signature)
+        ok(call("Sign", ["ed25519", key, data]), signature)
+        let signed = signature
         ok(call("Verify", ["ed25519", key, data, signed]), "1")
         ok(call("Verify", ["ed25519", key, data, signature]), "1")
         // 公開鍵の代わりに秘密鍵を渡してもよい。
@@ -404,7 +424,7 @@ struct InternalCryptoSignatureTests {
 
     @Test
     func unimplementedSignatureAlgorithmsAreUnsupported() {
-        for algorithm in ["bip340", "rsa-1024", "rsa-8192", "sha3"] {
+        for algorithm in ["rsa-1024", "rsa-8192", "sha3"] {
             fails(call("GenerateKeyPair", [algorithm]), 400, "unsupported algorithm")
             fails(call("Sign", [algorithm, "key", "m"]), 400, "unsupported algorithm")
         }
@@ -417,9 +437,9 @@ struct InternalCryptoSignatureTests {
         let outcome = try! SaoriProtocol.parseResponse(InternalSaoriRegistry.shared.handle(
             requestText: "EXECUTE SAORI/1.0\r\nModule: internal_system\r\nArgument0: ListFunctions\r\nArgument1: internal_crypto\r\n\r\n"))
         let names = (outcome.headerValue("Result") ?? "").split(separator: ",").map(String.init)
-        #expect(names == ["Digest", "HMAC", "Compare", "Encrypt", "Decrypt", "DeriveKey", "TOTP", "GenerateKeyPair", "Sign", "Verify"])
-        fails(call("HashPassword", ["p"]), 400, "unknown function")
-        fails(call("Protect", ["d"]), 400, "unknown function")
+        #expect(names == ["Digest", "HMAC", "Compare", "Encrypt", "Decrypt", "DeriveKey", "TOTP", "GenerateKeyPair", "Sign", "Verify",
+                          "KeyAgreement", "HashPassword", "VerifyPassword", "Protect", "Unprotect"])
+        fails(call("NoSuchFunction", ["p"]), 400, "unknown function")
     }
 
     @Test

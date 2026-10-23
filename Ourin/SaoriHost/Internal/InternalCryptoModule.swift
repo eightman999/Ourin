@@ -4,9 +4,9 @@ import Foundation
 
 /// ハッシュ・MAC・共通鍵暗号・鍵の導出・ワンタイムパスワード・公開鍵署名（UKADOC 2.9.13〜）。
 ///
-/// OS の部品（CryptoKit・CommonCrypto）で賄える範囲を実装している。未実装の方式（sha512-256・sha3・blake2、
-/// scrypt・argon2id、bip340・HashPassword / VerifyPassword、Protect / Unprotect）は `unsupported algorithm`
-/// か、関数が無い（`unknown function`）として扱い、`ListFunctions` にも出さない。
+/// 純 Swift の部品（SHA-3・BLAKE2・scrypt・Argon2id・bcrypt・DES-crypt・secp256k1・Ed25519）と OS の部品
+/// （CryptoKit・CommonCrypto・Security）で、UKADOC の internal_crypto の全関数を実装している。
+/// Protect / Unprotect は Windows の DPAPI の代わりに、Mac のハードウェア UUID から導いた鍵を使う。
 struct InternalCryptoModule: InternalSaoriModule {
     let name = "internal_crypto"
 
@@ -14,6 +14,7 @@ struct InternalCryptoModule: InternalSaoriModule {
 
     var functions: [InternalSaoriFunction] {
         [digest, hmac, compare, encrypt, decrypt, deriveKey, totp, generateKeyPair, sign, verify]
+            + InternalCryptoKeyAgreement.functions + InternalCryptoPasswords.functions + InternalCryptoProtect.functions
     }
 
     // MARK: - Digest / HMAC / Compare
@@ -229,14 +230,15 @@ struct InternalCryptoModule: InternalSaoriModule {
 
     private var deriveKey: InternalSaoriFunction {
         InternalSaoriFunction("DeriveKey", positionals: 4,
-                              options: ["password-in", "salt-in", "digest", "iterations", "info", "info-in", "out", "charset"]) { call, _ in
+                              options: ["password-in", "salt-in", "digest", "iterations", "info", "info-in", "n", "r", "p", "memory", "lanes", "out", "charset"]) { call, _ in
             let method = call.positionals[0].lowercased()
             let allowed: Set<String>
             switch method {
             case "pbkdf2": allowed = ["digest", "iterations"]
             case "hkdf", "hkdf-expand": allowed = ["digest", "info", "info-in"]
             case "hkdf-extract": allowed = ["digest"]
-            case "scrypt", "argon2id": throw InternalSaoriError.unsupportedAlgorithm
+            case "scrypt": allowed = ["n", "r", "p"]
+            case "argon2id": allowed = ["iterations", "memory", "lanes"]
             default: throw InternalSaoriError.unsupportedAlgorithm
             }
             // その方式で使わないオプションは不正。
@@ -268,6 +270,19 @@ struct InternalCryptoModule: InternalSaoriModule {
                 // 結果は PRK で、長さはハッシュの長さちょうどでなければならない。
                 guard length == algorithm.digestLength else { throw InternalSaoriError.outOfRange }
                 derived = Self.hkdfExtract(algorithm, salt: salt, ikm: password)
+            case "scrypt":
+                let n = try Self.integerOption(call, "n", default: 8192, range: 2...Int.max), r = try Self.integerOption(call, "r", default: 8, range: 1...Int.max)
+                let p = try Self.integerOption(call, "p", default: 10, range: 1...16)
+                guard n & (n - 1) == 0 else { throw InternalSaoriError.invalidParameter }
+                // N × r × 128 バイトが 12MiB まで。
+                guard n <= (12 << 20) / 128, r <= (12 << 20) / 128, n * r * 128 <= 12 << 20 else { throw InternalSaoriError.outOfRange }
+                derived = try InternalScrypt.derive(password: password, salt: salt, n: n, r: r, p: p, length: length)
+            case "argon2id":
+                let iterations = try Self.integerOption(call, "iterations", default: 3, range: 1...1000)
+                let lanes = try Self.integerOption(call, "lanes", default: 1, range: 1...16)
+                let memory = try Self.integerOption(call, "memory", default: 12288, range: (lanes * 8)...12288)
+                guard salt.count >= 8, length >= 4 else { throw InternalSaoriError.outOfRange }
+                derived = try InternalArgon2.deriveID(password: password, salt: salt, iterations: iterations, memoryKiB: memory, lanes: lanes, length: length)
             default: // hkdf-expand。password が PRK、salt は空にする。
                 guard !password.isEmpty, salt.isEmpty else { throw InternalSaoriError.invalidParameter }
                 guard length <= 255 * algorithm.digestLength else { throw InternalSaoriError.outOfRange }
@@ -278,7 +293,25 @@ struct InternalCryptoModule: InternalSaoriModule {
     }
 
     private static func pbkdf2(_ algorithm: Support.HashAlgorithm, password: Data, salt: Data, iterations: Int, length: Int) throws -> Data {
-        guard let prf = algorithm.pbkdf2PRF else { throw InternalSaoriError.unsupportedAlgorithm }
+        guard algorithm != .md5 else { throw InternalSaoriError.unsupportedAlgorithm }
+        guard let prf = algorithm.pbkdf2PRF else {
+            // OS に PRF が無いアルゴリズムは、HMAC を繰り返して RFC 8018 の通りに組み立てる。
+            var derived = Data()
+            var blockIndex: UInt32 = 1
+            while derived.count < length {
+                var u = Support.hmac(algorithm, key: password, data: salt + Data([UInt8(blockIndex >> 24), UInt8((blockIndex >> 16) & 0xff), UInt8((blockIndex >> 8) & 0xff), UInt8(blockIndex & 0xff)]))
+                var t = u
+                if iterations > 1 {
+                    for _ in 1..<iterations {
+                        u = Support.hmac(algorithm, key: password, data: u)
+                        for index in 0..<t.count { t[index] ^= u[index] }
+                    }
+                }
+                derived.append(t)
+                blockIndex += 1
+            }
+            return derived.prefix(length)
+        }
         var derived = [UInt8](repeating: 0, count: length)
         let status = password.withUnsafeBytes { passwordBytes in
             salt.withUnsafeBytes { saltBytes in
@@ -352,10 +385,10 @@ struct InternalCryptoModule: InternalSaoriModule {
         }
     }
 
-    // MARK: - 公開鍵署名（ed25519 / es256 / rs256 / ps256）
+    // MARK: - 公開鍵署名（ed25519 / es256 / rs256 / ps256 / bip340）
 
     private enum SignatureAlgorithm {
-        case ed25519, es256, rs256, ps256
+        case ed25519, es256, rs256, ps256, bip340
         /// GenerateKeyPair だけの名前（rsa-2048 など。鍵は rs256 と ps256 のどちらにも使える）。
         case rsa(bits: Int)
 
@@ -365,6 +398,7 @@ struct InternalCryptoModule: InternalSaoriModule {
             case "es256": self = .es256
             case "rs256": self = .rs256
             case "ps256": self = .ps256
+            case "bip340": self = .bip340
             case "rsa2048": self = .rsa(bits: 2048)
             case "rsa3072": self = .rsa(bits: 3072)
             case "rsa4096": self = .rsa(bits: 4096)
@@ -389,6 +423,13 @@ struct InternalCryptoModule: InternalSaoriModule {
             case .rsa(let bits):
                 let pair = try InternalRSA.generate(bits: bits)
                 return InternalSaoriResult(pair.privateKey.base64EncodedString(), values: [pair.privateKey.base64EncodedString(), pair.publicKey.base64EncodedString()])
+            case .bip340:
+                var secret = Data()
+                repeat { secret = try InternalRandomModule.randomBytes(32) } while InternalSecp256k1.publicKey(secret: secret) == nil
+                let publicKey = InternalSecp256k1.publicKey(secret: secret)!
+                let secretHex = try InternalSaoriCodec.encode(secret, format: "hex", defaultFormat: "hex", charset: nil)
+                let publicHex = try InternalSaoriCodec.encode(publicKey, format: "hex", defaultFormat: "hex", charset: nil)
+                return InternalSaoriResult(secretHex, values: [secretHex, publicHex])
             case .rs256, .ps256:
                 // 署名の方式の名前で鍵は作れない（rsa-2048 などを使う）。
                 throw InternalSaoriError.unsupportedAlgorithm
@@ -397,13 +438,26 @@ struct InternalCryptoModule: InternalSaoriModule {
     }
 
     private var sign: InternalSaoriFunction {
-        InternalSaoriFunction("Sign", positionals: 3, options: ["data-in", "out", "charset"]) { call, _ in
+        InternalSaoriFunction("Sign", positionals: 3, options: ["data-in", "out", "charset", "key-in", "aux", "aux-in"]) { call, _ in
             let algorithm = try SignatureAlgorithm(call.positionals[0])
+            // --key-in= / --aux= は bip340 だけのオプション。
+            if case .bip340 = algorithm {} else {
+                guard call.option("key-in") == nil, call.option("aux") == nil, call.option("aux-in") == nil else { throw InternalSaoriError.invalidParameter }
+            }
             let data = try Self.bytes(call.positionals[2], call, option: "data-in", defaultFormat: "text")
             let signature: Data
             switch algorithm {
+            case .bip340:
+                let secret = try Self.bytes(call.positionals[1], call, option: "key-in", defaultFormat: "hex")
+                guard InternalSecp256k1.scalar(secret) != nil else { throw InternalKeyCodec.invalidKey }
+                let aux = try Self.bytesIfPresent(call, option: "aux", inOption: "aux-in", defaultFormat: "hex") ?? InternalRandomModule.randomBytes(32)
+                guard aux.count == 32 else { throw InternalSaoriError.invalidParameter }
+                guard let schnorr = InternalSecp256k1.schnorrSign(secret: secret, message: data, aux: aux) else { throw InternalSaoriError.internalError }
+                return InternalSaoriResult(try Self.output(schnorr, call, defaultFormat: "hex"))
             case .ed25519:
-                signature = try InternalKeyCodec.ed25519PrivateKey(call.positionals[1]).signature(for: data)
+                // RFC 8032 の決定的な署名（CryptoKit の署名は毎回変わる）。
+                let seed = try InternalKeyCodec.ed25519PrivateKey(call.positionals[1]).rawRepresentation
+                signature = InternalEd25519.sign(seed: seed, message: data)
             case .es256:
                 // r‖s の 64 バイト（JWS と同じ形で、DER 形式ではない）。
                 signature = try InternalKeyCodec.p256PrivateKey(call.positionals[1]).signature(for: data).rawRepresentation
@@ -411,7 +465,7 @@ struct InternalCryptoModule: InternalSaoriModule {
                 signature = try InternalRSA.sign(data, with: try InternalRSA.privateKey(call.positionals[1]), scheme: .pkcs1v15)
             case .ps256:
                 signature = try InternalRSA.sign(data, with: try InternalRSA.privateKey(call.positionals[1]), scheme: .pss)
-            case .rsa:
+            case .rsa, .bip340:
                 throw InternalSaoriError.unsupportedAlgorithm
             }
             return InternalSaoriResult(try Self.output(signature, call, defaultFormat: "base64url"))
@@ -420,9 +474,19 @@ struct InternalCryptoModule: InternalSaoriModule {
 
     /// 署名を公開鍵で検証する。正しければ 1、正しくなければ 0（署名の長さが違うときも 0）。公開鍵の代わりに秘密鍵も渡せる。
     private var verify: InternalSaoriFunction {
-        InternalSaoriFunction("Verify", positionals: 4, options: ["data-in", "signature-in", "charset"]) { call, _ in
+        InternalSaoriFunction("Verify", positionals: 4, options: ["data-in", "signature-in", "charset", "key-in"]) { call, _ in
             let algorithm = try SignatureAlgorithm(call.positionals[0])
+            if case .bip340 = algorithm {} else {
+                guard call.option("key-in") == nil else { throw InternalSaoriError.invalidParameter }
+            }
             let data = try Self.bytes(call.positionals[2], call, option: "data-in", defaultFormat: "text")
+            if case .bip340 = algorithm {
+                // 公開鍵は x 座標だけの 32 バイト（秘密鍵は受け付けない）。署名の長さが違うときは 0。
+                let key = try Self.bytes(call.positionals[1], call, option: "key-in", defaultFormat: "hex")
+                guard key.count == 32 else { throw InternalKeyCodec.invalidKey }
+                let signature = try Self.bytes(call.positionals[3], call, option: "signature-in", defaultFormat: "hex")
+                return InternalSaoriResult(InternalSecp256k1.schnorrVerify(publicKey: key, message: data, signature: signature) ? "1" : "0")
+            }
             let signature = try Self.bytes(call.positionals[3], call, option: "signature-in", defaultFormat: "base64url")
             let valid: Bool
             switch algorithm {
@@ -435,7 +499,7 @@ struct InternalCryptoModule: InternalSaoriModule {
                 valid = InternalRSA.verify(signature, for: data, with: try InternalRSA.publicKey(call.positionals[1]), scheme: .pkcs1v15)
             case .ps256:
                 valid = InternalRSA.verify(signature, for: data, with: try InternalRSA.publicKey(call.positionals[1]), scheme: .pss)
-            case .rsa:
+            case .rsa, .bip340:
                 throw InternalSaoriError.unsupportedAlgorithm
             }
             return InternalSaoriResult(valid ? "1" : "0")
@@ -443,6 +507,14 @@ struct InternalCryptoModule: InternalSaoriModule {
     }
 
     // MARK: - 入出力
+
+    /// 整数のオプション。書かれていなければ既定値、数でなければ invalid parameter、範囲の外なら out of range。
+    private static func integerOption(_ call: InternalSaoriCall, _ name: String, default value: Int, range: ClosedRange<Int>) throws -> Int {
+        guard let text = call.option(name) else { return value }
+        guard let number = Int(text) else { throw InternalSaoriError.invalidParameter }
+        guard range.contains(number) else { throw InternalSaoriError.outOfRange }
+        return number
+    }
 
     private static func bytes(_ value: String, _ call: InternalSaoriCall, option: String, defaultFormat: String) throws -> Data {
         try InternalSaoriCodec.decode(value, format: call.option(option), defaultFormat: defaultFormat, charset: call.option("charset"))
