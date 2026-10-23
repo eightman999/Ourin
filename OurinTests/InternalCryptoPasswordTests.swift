@@ -443,3 +443,18 @@ struct InternalPasswordRoundTripTests {
         _ = roundTrip("bcrypt", shape: "\\$2b\\$12\\$\(crypt64){53}", heavy: true)
     }
 }
+
+struct InternalArgon2PasswordTests {
+    @Test
+    func argon2idIsTheDefaultMethodAndRoundTrips() {
+        let hashed = pwCall("HashPassword", ["correct horse"])
+        #expect(hashed.status == 200, "\(hashed.error ?? "")")
+        #expect(matches(hashed.result, #"^\$argon2id\$v=19\$m=12288,t=3,p=1\$[A-Za-z0-9+/]{22}\$[A-Za-z0-9+/]{43}$"#), "\(hashed.result ?? "")")
+        pwVerifies("correct horse", hashed.result ?? "")
+        pwOk(pwCall("VerifyPassword", ["wrong", hashed.result ?? ""]), "0")
+        // v= の無いもの（v=16）と v=19 は別の計算（2 周目以降が XOR か上書きか）になる。
+        let salt = "c29tZXNhbHQ" // somesalt
+        let v19 = pwCall("VerifyPassword", ["password", "$argon2id$v=19$m=64,t=2,p=1$\(salt)$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"])
+        #expect(v19.result == "0")
+    }
+}

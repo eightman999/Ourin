@@ -4,9 +4,9 @@ import Foundation
 
 /// ハッシュ・MAC・共通鍵暗号・鍵の導出・ワンタイムパスワード・公開鍵署名（UKADOC 2.9.13〜）。
 ///
-/// OS の部品（CryptoKit・CommonCrypto）で賄える範囲を実装している。未実装の方式（sha512-256・sha3・blake2、
-/// scrypt・argon2id、bip340・HashPassword / VerifyPassword、Protect / Unprotect）は `unsupported algorithm`
-/// か、関数が無い（`unknown function`）として扱い、`ListFunctions` にも出さない。
+/// 純 Swift の部品（SHA-3・BLAKE2・scrypt・Argon2id・bcrypt・DES-crypt・secp256k1・Ed25519）と OS の部品
+/// （CryptoKit・CommonCrypto・Security）で、UKADOC の internal_crypto の全関数を実装している。
+/// Protect / Unprotect は Windows の DPAPI の代わりに、Mac のハードウェア UUID から導いた鍵を使う。
 struct InternalCryptoModule: InternalSaoriModule {
     let name = "internal_crypto"
 

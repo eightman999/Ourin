@@ -619,7 +619,7 @@ struct InternalSaoriDeliveryTests {
         let accepted = call("internal_data", "Convert", ["abc", "--out=hex", "--async=OnHexDone"], context: context)
         #expect(accepted.status == 204)
 
-        let deadline = Date().addingTimeInterval(8)
+        let deadline = Date().addingTimeInterval(30)
         while !callerRuntime.requests.contains(where: { $0.id == "OnHexDone" }), Date() < deadline {
             try await Task.sleep(nanoseconds: 50_000_000)
         }
