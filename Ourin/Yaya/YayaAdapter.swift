@@ -296,6 +296,14 @@ final class YayaAdapter: GhostShioriRuntime {
     @discardableResult
     func load(context: ShioriRuntimeLoadContext) -> Bool {
         saoriManager.discover(under: context.ghostURL)
+        // 内蔵モジュールの `--async` の結果は、このゴーストへイベントで届ける。
+        let ghostURL = context.ghostURL
+        saoriManager.internalContext = InternalSaoriContext(
+            ghostRoot: context.ghostRoot,
+            deliverEvent: { name, params in
+                EventBridge.shared.notifyCustom(name, params: params, toGhostAt: ghostURL)
+            }
+        )
         saoriManager.addSearchPath(context.ghostRoot.appendingPathComponent(".saori", isDirectory: true))
         saoriManager.addSearchPath(context.ghostRoot.appendingPathComponent("saori", isDirectory: true))
         let loaded = load(
@@ -442,6 +450,11 @@ final class YayaAdapter: GhostShioriRuntime {
             guard let module = params["module"] as? String, !module.isEmpty else {
                 return ["ok": false, "error": "module parameter required"]
             }
+            // 内蔵モジュール（internal_*）は読み込み不要。名前が正しいかだけ確かめる。
+            if let internalName = SaoriManager.internalModuleName(module) {
+                return InternalSaoriRegistry.shared.module(named: internalName) != nil
+                    ? ["ok": true] : ["ok": false, "error": "unknown module"]
+            }
             do {
                 _ = try saoriManager.loadModule(named: module)
                 return ["ok": true]
@@ -454,6 +467,7 @@ final class YayaAdapter: GhostShioriRuntime {
             guard let module = params["module"] as? String, !module.isEmpty else {
                 return ["ok": false, "error": "module parameter required"]
             }
+            if SaoriManager.internalModuleName(module) != nil { return ["ok": true] }
             saoriManager.unloadModule(named: module)
             return ["ok": true]
 

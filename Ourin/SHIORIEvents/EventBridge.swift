@@ -677,6 +677,25 @@ final class EventBridge {
         }
     }
 
+    /// 指定した場所のゴーストへだけ NOTIFY する（どのスレッドからでも呼べる）。そのゴーストが終了していれば何もしない。
+    func notifyCustom(_ eventName: String,
+                      params: [String:String],
+                      toGhostAt ghostURL: URL,
+                      ignoreResponseScript: Bool = false,
+                      security: ShioriSecurityContext = .local) {
+        let key = ghostURL.standardizedFileURL.path
+        performOnMain {
+            for (_, session) in self.sessions where session.ghostManager?.ghostURL.standardizedFileURL.path == key {
+                session.dispatcher.sendNotifyCustom(
+                    eventName: eventName,
+                    params: params,
+                    ignoreResponseScript: ignoreResponseScript,
+                    security: security
+                )
+            }
+        }
+    }
+
     func notifyCustom(_ eventName: String,
                       params: [String:String],
                       to target: GhostManager,

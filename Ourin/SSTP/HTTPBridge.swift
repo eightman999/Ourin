@@ -26,6 +26,12 @@ public enum HTTPBridge {
         }
 
         let body = String(text[range.upperBound...])
+        // SAORI over DirectSSTP は Direct SSTP だけ。HTTP の 200 の本文として direct sstp only を返す。
+        if InternalSaoriRouting.isSaoriRequest(body) {
+            let resp = InternalSaoriRouting.directSSTPOnlyResponse
+            let http = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: \(resp.utf8.count)\r\n\r\n\(resp)"
+            return Data(http.utf8)
+        }
         // ボディ部を SSTP とみなして解析
         var req = SSTPParser.parseRequest(text: body)
         if let originHeader, !originHeader.isEmpty {

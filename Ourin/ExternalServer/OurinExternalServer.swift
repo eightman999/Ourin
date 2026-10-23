@@ -51,7 +51,13 @@ public final class OurinExternalServer {
         self.bridge = bridge
         unified.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
         unifiedCompat.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
-        xpc.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
+        // XPC が Ourin の Direct SSTP。SAORI/1.0 の要求は内蔵モジュールで処理する。
+        xpc.onRequest = { [weak self] raw in
+            if InternalSaoriRouting.isSaoriRequest(raw) {
+                return String(decoding: InternalSaoriRouting.respond(to: raw), as: UTF8.self)
+            }
+            return self?.handleRaw(raw) ?? ""
+        }
         applyRuntimeConfig()
     }
 
@@ -65,6 +71,8 @@ public final class OurinExternalServer {
     /// 生の SSTP テキストを解析して SSTP ディスパッチャへ渡し、応答を返す。
     /// unified TCP / HTTP / XPC / distributed IPC の全コールバックがこの経路へ合流する。
     func handleRaw(_ raw: String) -> String {
+        // SAORI over DirectSSTP は Direct SSTP だけで受け付ける（TCP・HTTP・distributed IPC では受け付けない）。
+        if InternalSaoriRouting.isSaoriRequest(raw) { return InternalSaoriRouting.directSSTPOnlyResponse }
         let start = Date()
         let request = SSTPParser.parseRequest(text: raw)
         guard !request.method.isEmpty else {
