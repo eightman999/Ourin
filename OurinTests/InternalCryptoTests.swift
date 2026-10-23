@@ -50,8 +50,11 @@ struct InternalCryptoHashTests {
     func algorithmNamesIgnoreHyphensUnderscoresAndCase() {
         let expected = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
         for name in ["SHA256", "SHA-256", "sha_256", "Sha-256"] { ok(call("Digest", [name, "abc"]), expected) }
-        // OS の部品で賄えない名前は、知らない名前と同じ unsupported algorithm。
-        for name in ["sha512-256", "sha3-256", "sha3-512", "blake2b512", "blake2s256", "crc32", "nothing"] {
+        for name in ["sha512-256", "SHA3_256", "sha3-512", "Blake2b512", "blake2s-256"] {
+            #expect(call("Digest", [name, "abc"]).status == 200, "\(name)")
+        }
+        // 知らない名前は unsupported algorithm。
+        for name in ["crc32", "nothing", "sha3", "blake2b"] {
             fails(call("Digest", [name, "abc"]), 400, "unsupported algorithm")
         }
     }
@@ -103,7 +106,7 @@ struct InternalCryptoHashTests {
         ok(call("HMAC", ["sha224", "Jefe", data]), "a30e01098bc6dbbf45690f3a7e9e6d0f8bbea2a39e6148008fd05e44")
         // 鍵を 16 進で渡す。
         ok(call("HMAC", ["sha256", "4a656665", data, "--key-in=hex"]), "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843")
-        fails(call("HMAC", ["sha3-256", "k", "d"]), 400, "unsupported algorithm")
+        fails(call("HMAC", ["crc32", "k", "d"]), 400, "unsupported algorithm")
     }
 
     @Test

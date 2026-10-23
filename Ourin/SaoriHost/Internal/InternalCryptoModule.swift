@@ -279,7 +279,25 @@ struct InternalCryptoModule: InternalSaoriModule {
     }
 
     private static func pbkdf2(_ algorithm: Support.HashAlgorithm, password: Data, salt: Data, iterations: Int, length: Int) throws -> Data {
-        guard let prf = algorithm.pbkdf2PRF else { throw InternalSaoriError.unsupportedAlgorithm }
+        guard algorithm != .md5 else { throw InternalSaoriError.unsupportedAlgorithm }
+        guard let prf = algorithm.pbkdf2PRF else {
+            // OS に PRF が無いアルゴリズムは、HMAC を繰り返して RFC 8018 の通りに組み立てる。
+            var derived = Data()
+            var blockIndex: UInt32 = 1
+            while derived.count < length {
+                var u = Support.hmac(algorithm, key: password, data: salt + Data([UInt8(blockIndex >> 24), UInt8((blockIndex >> 16) & 0xff), UInt8((blockIndex >> 8) & 0xff), UInt8(blockIndex & 0xff)]))
+                var t = u
+                if iterations > 1 {
+                    for _ in 1..<iterations {
+                        u = Support.hmac(algorithm, key: password, data: u)
+                        for index in 0..<t.count { t[index] ^= u[index] }
+                    }
+                }
+                derived.append(t)
+                blockIndex += 1
+            }
+            return derived.prefix(length)
+        }
         var derived = [UInt8](repeating: 0, count: length)
         let status = password.withUnsafeBytes { passwordBytes in
             salt.withUnsafeBytes { saltBytes in
