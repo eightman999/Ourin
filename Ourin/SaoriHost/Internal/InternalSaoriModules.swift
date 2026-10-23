@@ -6,7 +6,7 @@ extension InternalSaoriRegistry {
     static func standardModules() -> [InternalSaoriModule] {
         [
             InternalSystemModule(), InternalRandomModule(), InternalTimeModule(), InternalTextModule(),
-            InternalDataModule(), InternalCryptoModule(), InternalJWTModule()
+            InternalDataModule(), InternalCryptoModule(), InternalJWTModule(), InternalFileModule()
         ]
     }
 }

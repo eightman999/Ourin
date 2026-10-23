@@ -193,10 +193,19 @@ final class InternalSaoriRegistry {
     /// 位置引数の位置にある値は `--` で始まっていてもデータとして読む。オプションは位置引数より後ろにだけ書ける。
     static func parse(arguments: [String], for function: InternalSaoriFunction) throws -> InternalSaoriCall {
         guard arguments.count >= function.required else { throw InternalSaoriError.invalidParameter }
-        let positionalCount = min(function.total, arguments.count)
-        let positionals = Array(arguments.prefix(positionalCount))
         var options: [String: String] = [:]
         let allowed = function.options.union(["async"])
+        // 省略できる位置引数（キーの並びなど）は、このモジュールのオプション名で始まる引数の手前までにする。
+        var positionalCount = min(function.total, arguments.count)
+        if let stop = arguments.indices.dropFirst(function.required).first(where: { index in
+            let argument = arguments[index]
+            guard argument.hasPrefix("--") else { return false }
+            let body = argument.dropFirst(2)
+            return allowed.contains(String(body[..<(body.firstIndex(of: "=") ?? body.endIndex)]).lowercased())
+        }), stop < positionalCount {
+            positionalCount = stop
+        }
+        let positionals = Array(arguments.prefix(positionalCount))
         for argument in arguments.dropFirst(positionalCount) {
             // 位置引数より後ろにある `--` で始まらない値は不正。
             guard argument.hasPrefix("--") else { throw InternalSaoriError.invalidParameter }
