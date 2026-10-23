@@ -418,6 +418,12 @@ public enum EventReferenceTable {
         // UKADOC: URL, scope, MIME, then the host's planned action.
         .init(id: "OnURLQuery", references: ["url", "scopeID", "mimeType", "plannedAction"], category: "dragdrop"),
         .init(id: "OnWallpaperChange", references: ["filePath"], category: "dragdrop"),
+        // UKADOC 2.8.90: \![execute,ical-get/ical-post]。Complete の Reference は予定の数だけ続く。
+        // Failure / Progress は OnExecuteHTTPFailure / OnExecuteHTTPComplete と同じ並び（R4 は parse / downloading など）。
+        .init(id: "OnExecuteICalComplete", references: ["calendar"], category: "network"),
+        .init(id: "OnExecuteICalFailure", references: ["method", "asyncID", "url", "data", "result", "cookie", "responseHeaders"], category: "network"),
+        .init(id: "OnExecuteICalProgress", references: ["method", "asyncID", "url", "data", "result", "cookie", "responseHeaders"], category: "network"),
+        .init(id: "OnExecuteICal_SSLInfo", references: ["asyncID", "url", "statusCode", "tlsVersion"], category: "network"),
         // UKADOC 2.8.91 / 2.8.90。ScheduleGetComplete と ScheduleTodayNotify の Reference は予定の数だけ続く。
         .init(id: "OnExecuteScheduleComplete", references: ["operation", "uid"], category: "calendar"),
         .init(id: "OnExecuteScheduleFailure", references: ["operation", "reason", "uid"], category: "calendar"),

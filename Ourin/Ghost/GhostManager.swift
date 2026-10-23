@@ -1066,6 +1066,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var httpStreamingPendingData: [String: Data] = [:]
     /// 通常の HTTP 要求も progress 通知中は delegate の寿命を保持する。
     var httpRequestRunners: [UUID: HTTPDataTaskRunner] = [:]
+    /// 進行中の `\![execute,ical-get/ical-post]`（キーは URL 文字列。同じ URL の重複取得と cancel に使う）。
+    var icalRequests: [String: UUID] = [:]
     /// URLドロップの実ダウンロードはゴースト単位で一件だけ実行し、終了まで delegate を保持する。
     var activeURLDropTransferID: UUID?
     var activeURLDropTask: URLSessionDownloadTask?
@@ -2727,6 +2729,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             executeNslookup(params: Array(args.dropFirst(2)))
         } else if subcmd == "websocket" {
             executeWebSocket(params: Array(args.dropFirst(2)))
+        } else if subcmd == "ical-get" || subcmd == "ical-post" {
+            executeCommandAtPlaybackPosition {
+                executeICal(subcommand: subcmd, params: Array(args.dropFirst(2)))
+            }
         } else if subcmd == "filewatch" {
             executeFileWatch(params: Array(args.dropFirst(2)), isExternal: currentPlaybackIsExternal)
         } else if subcmd == "schedule-add" || subcmd == "schedule-delete" || subcmd == "schedule-get" {
@@ -3655,6 +3661,8 @@ case "scriptbox":
                             guard let self else { return }
                             if cancelType == "websocket" {
                                 self.cancelWebSocket(params: params)
+                            } else if cancelType == "ical" {
+                                self.cancelICal(params: params)
                             } else if cancelType == "filewatch" {
                                 self.fileWatchRegistry?.cancel(path: params.first ?? "")
                             } else if cancelType == "http" {
