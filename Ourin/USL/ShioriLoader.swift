@@ -649,15 +649,20 @@ final class BundleBackend: ShioriBackend {
         self.communication = communication
         self.moduleURL = url
         
-        func loadSymbol<T>(_ name: String, as type: T.Type) -> T? {
-            guard let sym = CFBundleGetFunctionPointerForName(b, name as CFString) else { return nil }
-            return unsafeBitCast(sym, to: type)
+        func loadSymbol<T>(_ names: [String], as type: T.Type) -> T? {
+            for name in names {
+                if let sym = CFBundleGetFunctionPointerForName(b, name as CFString) {
+                    return unsafeBitCast(sym, to: type)
+                }
+            }
+            return nil
         }
-        
-        loadFn = loadSymbol("shiori_load", as: ShioriLoad.self)
-        requestFn = loadSymbol("shiori_request", as: ShioriRequest.self)
-        unloadFn = loadSymbol("shiori_unload", as: ShioriUnload.self)
-        freeFn = loadSymbol("shiori_free", as: ShioriFree.self)
+
+        // DylibBackend と同じ別名解決（`shiori_` 接頭辞・無印・UTF-8 パス版 `loadu`）。
+        loadFn = loadSymbol(["shiori_loadu", "loadu", "shiori_load", "load"], as: ShioriLoad.self)
+        requestFn = loadSymbol(["shiori_request", "request"], as: ShioriRequest.self)
+        unloadFn = loadSymbol(["shiori_unloadu", "unloadu", "shiori_unload", "unload"], as: ShioriUnload.self)
+        freeFn = loadSymbol(["shiori_free"], as: ShioriFree.self) ?? { pointer in free(pointer) }
 
         guard requestFn != nil else {
             throw ShioriLoaderError.missingRequiredSymbol("shiori_request")
@@ -670,10 +675,9 @@ final class BundleBackend: ShioriBackend {
         NSLog("[BundleBackend] Found symbols: load=\(loadFn != nil), request=\(requestFn != nil), unload=\(unloadFn != nil), free=\(freeFn != nil)")
         
         if let l = loadFn {
-            let dirPath = url.deletingLastPathComponent().path
-            let dirCString = (dirPath as NSString).utf8String
-            _ = l(dirCString)
-            NSLog("[BundleBackend] Called shiori_load with path: \(dirPath)")
+            let directoryURL = url.deletingLastPathComponent()
+            _ = UkagakaModuleABI.callLoad(l, directoryURL: directoryURL)
+            NSLog("[BundleBackend] Called shiori_load with path: \(UkagakaModuleABI.directoryArgument(for: directoryURL))")
         }
     }
     
@@ -772,7 +776,7 @@ final class DylibBackend: ShioriBackend {
 
         // call load if available
         if let l = loadFn {
-            _ = l(url.deletingLastPathComponent().path)
+            _ = UkagakaModuleABI.callLoad(l, directoryURL: url.deletingLastPathComponent())
         }
     }
 
@@ -808,7 +812,8 @@ final class DylibBackend: ShioriBackend {
 
 
 /// Function pointer types for SHIORI C-ABI
-private typealias ShioriLoad = @convention(c) (UnsafePointer<CChar>?) -> Bool
+/// `load(HGLOBAL h, long len)` 互換。旧来の `shiori_load(const char*)` にも同じポインタで渡せる。
+private typealias ShioriLoad = UkagakaModuleABI.LoadFn
 private typealias ShioriRequest = @convention(c) (UnsafePointer<UInt8>?, Int, UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>?, UnsafeMutablePointer<Int>?) -> Bool
 private typealias ShioriUnload = @convention(c) () -> Void
 private typealias ShioriFree = @convention(c) (UnsafeMutablePointer<UInt8>?) -> Void

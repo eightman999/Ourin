@@ -2337,7 +2337,7 @@ extension GhostManager: NSWindowDelegate {
                 version: .v2_0M,
                 charset: target.meta.charset
             )
-            let response = target.module.send(request)
+            let response = target.module.send(request, charset: target.meta.charset)
             guard !response.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                 _ = self.dispatchRSSFailure(reason: "can't download")
                 return
@@ -2486,12 +2486,12 @@ extension GhostManager: NSWindowDelegate {
         return targets.first {
             $0.1.name.lowercased() == normalized
                 || $0.1.filename.lowercased() == normalized
-                || $0.0.bundle.bundleURL.deletingPathExtension().lastPathComponent.lowercased() == normalized
+                || $0.0.url.deletingPathExtension().lastPathComponent.lowercased() == normalized
         }
     }
 
     private func headlineHistoryKey(for target: (module: HeadlineModule, meta: HeadlineMeta)) -> String {
-        let stableName = target.meta.name.isEmpty ? target.module.bundle.bundleURL.path : target.meta.name
+        let stableName = target.meta.name.isEmpty ? target.module.url.path : target.meta.name
         let encoded = Data(stableName.utf8).base64EncodedString()
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: "+", with: "-")

@@ -2,13 +2,15 @@ import Foundation
 
 public final class SaoriManager {
     private let registry: SaoriRegistry
+    /// GET Version を済ませたモジュール（同一ローダーには一度だけ送る）。
+    private var handshaken: Set<ObjectIdentifier> = []
 
     public init(registry: SaoriRegistry = SaoriRegistry()) {
         self.registry = registry
     }
 
-    public func addSearchPath(_ path: URL) {
-        registry.addSearchPath(path)
+    public func addSearchPath(_ path: URL, prioritized: Bool = false) {
+        registry.addSearchPath(path, prioritized: prioritized)
     }
 
     public func discover(under base: URL) {
@@ -18,15 +20,23 @@ public final class SaoriManager {
     @discardableResult
     public func loadModule(named name: String) throws -> SaoriLoader {
         let loader = try registry.loadModule(named: name)
-        try ensureVersionHandshake(loader: loader)
+        let key = ObjectIdentifier(loader)
+        if !handshaken.contains(key) {
+            try ensureVersionHandshake(loader: loader)
+            handshaken.insert(key)
+        }
         return loader
     }
 
     public func unloadModule(named name: String) {
+        if let loader = registry.loadedModule(named: name) {
+            handshaken.remove(ObjectIdentifier(loader))
+        }
         registry.unloadModule(named: name)
     }
 
     public func unloadAll() {
+        handshaken.removeAll()
         registry.unloadAll()
     }
 

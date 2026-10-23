@@ -787,7 +787,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         dispatcher.notifyInstalledBalloonName(names: balloons.map { $0.name })
         dispatcher.notifyBalloonPathList(paths: balloons.map { $0.path.path })
 
-        let headlinePaths = headlineRegistry?.modules.map { $0.bundle.bundleURL.path } ?? []
+        let headlinePaths = headlineRegistry?.modules.map { $0.url.path } ?? []
         dispatcher.notifyHeadlinePathList(paths: headlinePaths)
     }
 

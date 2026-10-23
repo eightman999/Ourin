@@ -298,6 +298,9 @@ final class YayaAdapter: GhostShioriRuntime {
         saoriManager.discover(under: context.ghostURL)
         saoriManager.addSearchPath(context.ghostRoot.appendingPathComponent(".saori", isDirectory: true))
         saoriManager.addSearchPath(context.ghostRoot.appendingPathComponent("saori", isDirectory: true))
+        // YAYA の LOADLIB 等に渡るパスは ghost/master 基準の相対パス（例: `saori\foo.dll`）。
+        // ゴースト固有の SAORI を baseware 既定の saori/ より先に探す。
+        saoriManager.addSearchPath(context.ghostRoot, prioritized: true)
         let loaded = load(
             ghostRoot: context.ghostRoot,
             dicEntries: context.dictionaryEntries,
