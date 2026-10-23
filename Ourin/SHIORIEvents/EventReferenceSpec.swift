@@ -415,6 +415,9 @@ public enum EventReferenceTable {
         // UKADOC: URL, scope, MIME, then the host's planned action.
         .init(id: "OnURLQuery", references: ["url", "scopeID", "mimeType", "plannedAction"], category: "dragdrop"),
         .init(id: "OnWallpaperChange", references: ["filePath"], category: "dragdrop"),
+        // UKADOC 2.9.13: 内蔵SAORIモジュールの --async の結果。Complete の R4 以降は Value0 以降。
+        .init(id: "OnInternalSaoriComplete", references: ["asyncID", "result", "module", "function"], category: "saori"),
+        .init(id: "OnInternalSaoriFailure", references: ["asyncID", "reason", "module", "function"], category: "saori"),
         // UKADOC: R2 は予約／空欄、R3=対象種別、R4=更新理由。
         .init(id: "OnUpdateBegin", references: ["ghostName", "path", "unused2", "targetType", "executionReason"], category: "update"),
         .init(id: "OnUpdateCheckComplete", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),
