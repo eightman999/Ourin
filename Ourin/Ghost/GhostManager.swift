@@ -1328,12 +1328,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         guard let shellPath = loadShellPath() else { return }
         let descriptPath = shellPath.appendingPathComponent("descript.txt")
 
-        var content: String?
-        if let utf8Content = try? String(contentsOf: descriptPath, encoding: .utf8) {
-            content = utf8Content
-        } else if let shiftJISContent = try? String(contentsOf: descriptPath, encoding: .shiftJIS) {
-            content = shiftJISContent
-        }
+        let content = (try? Data(contentsOf: descriptPath)).flatMap(EncodingAdapter.decodeTextDefinition)
 
         guard let fileContent = content else {
             Log.debug("[GhostManager] Failed to load shell descript.txt")

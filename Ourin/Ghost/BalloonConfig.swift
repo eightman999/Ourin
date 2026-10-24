@@ -95,21 +95,15 @@ struct BalloonConfig {
     var onlineMarkerInterval: TimeInterval = 0.5
 
     static func load(from path: String) -> BalloonConfig? {
-        // Try multiple encodings
+        // BOM・charset 宣言・UTF-8・Shift_JIS の順に判別する（中国語・韓国語などのバルーンも読める）。
+        // 宣言の無いファイルは、これまでどおり Shift_JIS を UTF-8 より先に試す。
         var content: String?
-
-        // Try Shift_JIS first
-        if let shiftJISContent = try? String(contentsOfFile: path, encoding: .shiftJIS) {
-            content = shiftJISContent
-        }
-        // Fallback to UTF-8
-        else if let utf8Content = try? String(contentsOfFile: path, encoding: .utf8) {
-            content = utf8Content
-        }
-        // Last resort: let system detect encoding
-        else if let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
-                let detectedContent = String(data: data, encoding: .shiftJIS) ?? String(data: data, encoding: .utf8) {
-            content = detectedContent
+        if let data = try? Data(contentsOf: URL(fileURLWithPath: path)) {
+            if EncodingAdapter.declaredTextCharset(in: data) != nil || data.starts(with: [0xEF, 0xBB, 0xBF]) {
+                content = EncodingAdapter.decodeTextDefinition(data)
+            } else {
+                content = String(data: data, encoding: .shiftJIS) ?? String(data: data, encoding: .utf8)
+            }
         }
 
         guard let content = content else {

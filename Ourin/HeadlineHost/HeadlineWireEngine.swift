@@ -68,11 +68,8 @@ public struct HeadlineWireEngine {
         for line in response.split(whereSeparator: { $0.isNewline }) {
             let raw = String(line)
             guard raw.lowercased().hasPrefix("charset:") else { continue }
-            let value = raw.dropFirst("Charset:".count).trimmingCharacters(in: .whitespaces).lowercased()
-            if ["shift_jis", "windows-31j", "cp932", "ms932", "sjis"].contains(value) {
-                return .shiftJIS
-            }
-            return .utf8
+            let value = raw.dropFirst("Charset:".count).trimmingCharacters(in: .whitespaces)
+            return EncodingAdapter.encoding(for: value)
         }
         return .utf8
     }
@@ -82,11 +79,8 @@ public struct HeadlineWireEngine {
         for line in response.split(whereSeparator: { $0.isNewline }) {
             let raw = String(line)
             guard raw.lowercased().hasPrefix("requestcharset:") else { continue }
-            let value = raw.dropFirst("RequestCharset:".count).trimmingCharacters(in: .whitespaces).lowercased()
-            if ["shift_jis", "windows-31j", "cp932", "ms932", "sjis"].contains(value) {
-                return .shiftJIS
-            }
-            return .utf8
+            let value = raw.dropFirst("RequestCharset:".count).trimmingCharacters(in: .whitespaces)
+            return EncodingAdapter.encoding(for: value)
         }
         return nil
     }
@@ -94,10 +88,7 @@ public struct HeadlineWireEngine {
     // MARK: - Private Helpers
 
     private static func charsetString(for encoding: String.Encoding) -> String {
-        switch encoding {
-        case .shiftJIS: return "Shift_JIS"
-        default: return "UTF-8"
-        }
+        EncodingAdapter.charsetName(for: encoding)
     }
 
     private static func normalizePathForWire(_ rawPath: String) -> String {

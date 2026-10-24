@@ -695,12 +695,7 @@ extension GhostManager: NSWindowDelegate {
         }
 
         private static func encoding(for raw: String) -> String.Encoding {
-            switch raw.lowercased().replacingOccurrences(of: "-", with: "_") {
-            case "shift_jis", "sjis", "cp932", "windows_31j", "ms932": return .shiftJIS
-            case "euc_jp", "eucjp": return .japaneseEUC
-            case "utf8", "utf_8": return .utf8
-            default: return .utf8
-            }
+            EncodingAdapter.encoding(for: raw)
         }
     }
 

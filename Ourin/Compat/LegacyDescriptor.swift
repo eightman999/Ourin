@@ -1,13 +1,5 @@
 import Foundation
 
-extension String.Encoding {
-    static let ourinShiftJIS = String.Encoding(
-        rawValue: CFStringConvertEncodingToNSStringEncoding(
-            CFStringEncoding(CFStringEncodings.shiftJIS.rawValue)
-        )
-    )
-}
-
 enum LegacyDescriptor {
     static func readDictionary(from url: URL) -> [String: String]? {
         guard let data = try? Data(contentsOf: url),
@@ -16,21 +8,7 @@ enum LegacyDescriptor {
     }
 
     static func decode(_ data: Data) -> String? {
-        let probe = String(data: data.prefix(256), encoding: .utf8) ?? ""
-        var encoding: String.Encoding = .utf8
-        if let firstLine = probe.split(whereSeparator: { $0.isNewline }).first {
-            let lower = firstLine.lowercased()
-            if lower.starts(with: "charset") {
-                let value = lower.split(separator: ",", maxSplits: 1).last?
-                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-                if ["shift_jis", "windows-31j", "cp932", "ms932", "sjis"].contains(value) {
-                    encoding = .ourinShiftJIS
-                }
-            }
-        }
-        return String(data: data, encoding: encoding)
-            ?? String(data: data, encoding: .utf8)
-            ?? String(data: data, encoding: .ourinShiftJIS)
+        EncodingAdapter.decodeTextDefinition(data)
     }
 
     static func parseDictionary(_ text: String) -> [String: String] {
