@@ -1659,9 +1659,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 Log.info("[GhostManager] Failed to load ghost configuration from descript.txt")
             }
 
-            // Load balloon configuration from ghost/balloon/descript.txt
-            // Try to find balloon directory in ghost root first
-            let balloonPath = self.ghostURL.appendingPathComponent("balloon", isDirectory: true).path
+            // 標準のバルーン: descript.txt の指定（UKADOC）に合うインストール済みのバルーン。
+            // 指定が無い・見つからないときは、従来どおりゴーストのフォルダの balloon/。
+            var balloonPath = self.ghostURL.appendingPathComponent("balloon", isDirectory: true).path
+            if let config = self.ghostConfig, let base = try? OurinPaths.baseDirectory(),
+               let configured = Self.configuredBalloonDirectory(for: config, ghostURL: self.ghostURL, baseDirectory: base) {
+                balloonPath = configured.path
+            }
             let balloonDescriptPath = (balloonPath as NSString).appendingPathComponent("descript.txt")
             if let config = BalloonConfig.load(from: balloonDescriptPath) {
                 self.balloonConfig = config
@@ -5658,7 +5662,11 @@ extension GhostManager {
         if let id = Int(balloonID) {
             switchBalloon(to: id, scope: currentScope)
         } else {
-            Log.info("[GhostManager] Invalid balloon ID: \(balloonID)")
+            // メニューはインストール済みのバルーンのフォルダ名を（パーセントエンコードして）渡す。
+            let name = balloonID.removingPercentEncoding ?? balloonID
+            if !switchBalloon(named: name, scope: currentScope, raiseEvent: true) {
+                Log.info("[GhostManager] Invalid balloon ID: \(balloonID)")
+            }
         }
     }
 }
