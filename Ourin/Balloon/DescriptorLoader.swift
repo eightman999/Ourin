@@ -34,42 +34,9 @@ public struct DescriptorLoader {
         return dict
     }
 
-    /// raw バイト列をデコードする。先頭の `charset,XXX` 行で宣言されたエンコーディングを優先し、
-    /// 宣言が無ければ UTF-8 → Shift_JIS の順でフォールバックする。
-    /// 検出パスでは ASCII 互換の isoLatin1（1:1 バイト写像・絶対失敗しない）を使う。
+    /// raw バイト列をデコードする。BOM・`charset,XXX` の宣言を優先し、無ければ UTF-8 → Shift_JIS の順に試す。
     private static func decode(raw: Data) -> String {
-        if let detected = String(data: raw, encoding: .isoLatin1) {
-            let declared = detected
-                .components(separatedBy: .newlines)
-                .lazy
-                .compactMap { line -> String? in
-                    guard let comma = line.firstIndex(of: ",") else { return nil }
-                    let key = String(line[..<comma]).trimmingCharacters(in: .whitespaces).lowercased()
-                    guard key == "charset" else { return nil }
-                    return String(line[line.index(after: comma)...]).trimmingCharacters(in: .whitespaces).lowercased()
-                }
-                .first
-            if let declared {
-                if isShiftJIS(declared), let s = String(data: raw, encoding: .shiftJIS) {
-                    return s
-                }
-                if declared.contains("utf"), let s = String(data: raw, encoding: .utf8) {
-                    return s
-                }
-            }
-        }
-        if let s = String(data: raw, encoding: .utf8) { return s }
-        if let s = String(data: raw, encoding: .shiftJIS) { return s }
-        return String(data: raw, encoding: .isoLatin1) ?? ""
-    }
-
-    private static func isShiftJIS(_ charset: String) -> Bool {
-        let c = charset.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: "_", with: "")
-        return c == "shiftjis" || c == "sjis" || c == "cp932" || c == "mskanji" || c == "windows31j"
+        EncodingAdapter.decodeTextDefinition(raw) ?? String(data: raw, encoding: .isoLatin1) ?? ""
     }
 }
 
-private extension String.Encoding {
-    /// Windows 互換の Shift_JIS コードページ (CP932)
-    static let shiftJIS = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.shiftJIS.rawValue)))
-}

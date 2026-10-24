@@ -138,13 +138,9 @@ final class NarInstallViewModel: ObservableObject {
     }
 
     private func parseDescript(at url: URL) -> String? {
-        guard let content = try? String(contentsOf: url, encoding: .shiftJIS) else {
-            // Shift_JISで読めなかったらUTF-8で試す
-            guard let content = try? String(contentsOf: url, encoding: .utf8) else {
-                logger.warning("Failed to read descript.txt at \(url.path)")
-                return nil
-            }
-            return parseDescriptContent(content)
+        guard let content = (try? Data(contentsOf: url)).flatMap(EncodingAdapter.decodeTextDefinition) else {
+            logger.warning("Failed to read descript.txt at \(url.path)")
+            return nil
         }
         return parseDescriptContent(content)
     }

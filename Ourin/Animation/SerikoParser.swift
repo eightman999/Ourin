@@ -935,9 +935,6 @@ public enum SurfaceDefinitionLoader {
     }
 
     private static func readTextFile(_ url: URL) -> String? {
-        if let utf8 = try? String(contentsOf: url, encoding: .utf8) {
-            return utf8
-        }
-        return try? String(contentsOf: url, encoding: .shiftJIS)
+        (try? Data(contentsOf: url)).flatMap(EncodingAdapter.decodeTextDefinition)
     }
 }
