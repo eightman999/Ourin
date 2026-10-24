@@ -1439,6 +1439,7 @@ extension GhostManager: NSWindowDelegate {
                     : self.choiceSourceScript
                 self.cancelInlineChoices()
                 _ = self.requestDialogEvent(eventID: "OnChoiceTimeout", references: [sourceScript])
+                self.scheduleSurfaceRestoreIfTalkEnded()
             }
         }
     }
@@ -1449,6 +1450,7 @@ extension GhostManager: NSWindowDelegate {
         let choice = pendingChoices[index]
         cancelInlineChoices()
         performChoiceSelection(choice)
+        scheduleSurfaceRestoreIfTalkEnded()
     }
 
     /// 選択肢の待ち状態を捨てる（選択・時間切れ・新しいスクリプト開始）。
@@ -1811,6 +1813,7 @@ extension GhostManager: NSWindowDelegate {
             // Clear choice state
             self.pendingChoices.removeAll()
             self.choiceHasCancelOption = false
+            self.scheduleSurfaceRestoreIfTalkEnded()
         }
     }
     

@@ -1005,6 +1005,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var surfaceTable: SurfaceTable? = nil  // surfacetable.txt のメタデータ（サーフィステスト用グループ定義）
     /// スコープごとの最新サーフェス要求。非同期ロード完了後に古い要求が表示を復活させないために使う。
     var surfaceRequestGenerationByScope: [Int: UInt64] = [:]
+    /// バルーンが閉じてから OnSurfaceRestore を送るまでの秒数（SSP は 15 秒）。テストでは短くする。
+    var surfaceRestoreDelay: TimeInterval = 15
+    /// トークをバルーンに表示してから、まだ OnSurfaceRestore を送っていない。
+    var surfaceRestorePending = false
+    /// バルーンが閉じた後の OnSurfaceRestore 待ち。新しいトークの表示で取り消す。
+    var surfaceRestoreTimer: Timer?
     var waitingForAnimation: Int? = nil  // Animation ID we're waiting for
 
     // Window management (used by Window extension)
@@ -1887,6 +1893,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             timer.invalidate()
         }
         localEventTimers.removeAll()
+        cancelSurfaceRestoreTimer()
+        surfaceRestorePending = false
         hoveredAnchorKeysByScope.removeAll()
         for timer in remoteEventTimers.values {
             timer.invalidate()
@@ -4897,6 +4905,8 @@ case "scriptbox":
                     // \q はバルーン本文に描いてクリックで選ばせる（SSP 互換）。本文に描けない
                     // 選択肢（\__q 等）が残る時だけ従来のダイアログで提示する。
                     presentPendingChoices()
+                } else {
+                    scheduleSurfaceRestoreIfTalkEnded()
                 }
                 return
             }

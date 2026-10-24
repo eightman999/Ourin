@@ -149,7 +149,6 @@ extension GhostManager {
                 self.startSerikoLoopIfNeeded()
                 Log.debug("[GhostManager] Hid scope \(scope) for explicit surface -1")
             }
-            scheduleSurfaceRestore(for: requestGeneration, scope: scope)
             return
         }
         
@@ -191,25 +190,69 @@ extension GhostManager {
                 )
             }
         }
-        
-        // Schedule OnSurfaceRestore after a delay
-        // UKADOC: Reference0 = 本体側(scope0)の現在サーフェス, Reference1 = 相方側(scope1)の現在サーフェス
-        scheduleSurfaceRestore(for: requestGeneration, scope: scope)
     }
 
-    private func scheduleSurfaceRestore(for generation: UInt64, scope: Int) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) { [weak self] in
-            guard let self,
-                  self.isCurrentSurfaceRequest(generation, for: scope) else { return }
-            let sakuraSurface = self.characterViewModels[0]?.currentSurfaceID ?? 0
-            let keroSurface = self.characterViewModels[1]?.currentSurfaceID ?? 0
-            let params: [String: String] = [
-                "sakuraSurface": String(sakuraSurface),
-                "keroSurface": String(keroSurface)
-            ]
-            EventBridge.shared.notify(.OnSurfaceRestore, refs: params)
-            Log.debug("[GhostManager] OnSurfaceRestore dispatched")
+    // MARK: - OnSurfaceRestore
+
+    // UKADOC（OnSurfaceRestore）: トーク後一定時間経過後に一度発生。SSP では喋りタイムアウトの
+    // 秒数 + 15 秒後（つまりバルーンが閉じてから 15 秒後）。喋りタイムアウトが 0 のときだけ、
+    // OnSurfaceRestore が発生するまでバルーンが表示され続ける。
+    // サーフェスの変更ではなくトークの表示を起点にし、トーク中・選択肢待ち・バルーン表示中は送らない。
+
+    /// バルーンにトークを表示した。閉じるまでは OnSurfaceRestore を送らない。
+    func noteTalkShownForSurfaceRestore() {
+        surfaceRestorePending = true
+        cancelSurfaceRestoreTimer()
+    }
+
+    func cancelSurfaceRestoreTimer() {
+        surfaceRestoreTimer?.invalidate()
+        surfaceRestoreTimer = nil
+    }
+
+    /// トークが終わってバルーンが閉じていれば、`surfaceRestoreDelay` 秒後に OnSurfaceRestore を一度送る。
+    /// トークの終わり・喋りタイムアウト・選択肢の決定や時間切れなど、閉じうる時点ごとに呼ぶ。
+    func scheduleSurfaceRestoreIfTalkEnded() {
+        guard surfaceRestorePending,
+              surfaceRestoreTimer == nil,
+              isTalkClosedForSurfaceRestore() else { return }
+        surfaceRestoreTimer = Timer.scheduledTimer(withTimeInterval: surfaceRestoreDelay, repeats: false) { [weak self] _ in
+            guard let self else { return }
+            self.surfaceRestoreTimer = nil
+            self.dispatchSurfaceRestore()
         }
+    }
+
+    /// 再生・クリック待ち・選択肢待ちがなく、喋りタイムアウトで閉じるバルーンも残っていない。
+    /// 喋りタイムアウト 0 のバルーンは表示中でも閉じたものとして数える（OnSurfaceRestore まで表示する）。
+    private func isTalkClosedForSurfaceRestore() -> Bool {
+        !isPlaying
+            && pendingClick == nil
+            && pendingChoices.isEmpty
+            && inlineChoiceIndices.isEmpty
+            && !hasTalkBalloonAwaitingTimeout()
+    }
+
+    private func dispatchSurfaceRestore() {
+        // 待つ間に再生や選択肢待ちが始まっていたら送らず、次に閉じた時点から数え直す。
+        guard surfaceRestorePending, isTalkClosedForSurfaceRestore() else { return }
+        // UKADOC: パッシブモード（誘導モードを含む）では OnSurfaceRestore が来ない。
+        guard !passiveModeActive, !inductionModeActive else { return }
+        surfaceRestorePending = false
+        // 喋りタイムアウト 0 で残したバルーンは、OnSurfaceRestore の時点で閉じる。
+        for vm in balloonViewModels.values where !vm.text.isEmpty || !vm.balloonImages.isEmpty {
+            vm.resetBalloonContent()
+        }
+        // UKADOC: Reference0 = 本体側(scope0)の現在サーフェス, Reference1 = 相方側(scope1)の現在サーフェス
+        let sakuraSurface = characterViewModels[0]?.currentSurfaceID ?? 0
+        let keroSurface = characterViewModels[1]?.currentSurfaceID ?? 0
+        let params: [String: String] = [
+            "sakuraSurface": String(sakuraSurface),
+            "keroSurface": String(keroSurface)
+        ]
+        // 自分のトークの後の復帰なので、このゴーストだけへ GET で送り、応答を再生する。
+        EventBridge.shared.request(.OnSurfaceRestore, refs: params, to: self)
+        Log.debug("[GhostManager] OnSurfaceRestore dispatched")
     }
 
     func loadImage(
