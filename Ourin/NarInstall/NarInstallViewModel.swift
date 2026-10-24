@@ -16,7 +16,7 @@ final class NarInstallViewModel: ObservableObject {
     /// NARファイルをインストールする
     func installNar(from url: URL) {
         guard !isInstalling else {
-            errorMessage = "現在、別のインストールが進行中です。"
+            errorMessage = NSLocalizedString("現在、別のインストールが進行中です。", comment: "NAR install busy")
             return
         }
         
@@ -24,7 +24,7 @@ final class NarInstallViewModel: ObservableObject {
         let allowedExtensions = ["nar", "zip"]
         let fileExtension = url.pathExtension.lowercased()
         guard allowedExtensions.contains(fileExtension) else {
-            errorMessage = "無効なファイル形式です。NARファイル（.narまたは.zip）をドロップしてください。"
+            errorMessage = NSLocalizedString("無効なファイル形式です。NARファイル（.narまたは.zip）をドロップしてください。", comment: "NAR invalid file")
             return
         }
         
@@ -32,7 +32,7 @@ final class NarInstallViewModel: ObservableObject {
         
         isInstalling = true
         progress = 0.0
-        statusMessage = "インストールを開始しています..."
+        statusMessage = NSLocalizedString("インストールを開始しています...", comment: "NAR install status")
         errorMessage = nil
         
         Task {
@@ -46,19 +46,19 @@ final class NarInstallViewModel: ObservableObject {
                 }
                 
                 // インストール実行
-                progressHandler(0.1, "ファイルを検証中...")
+                progressHandler(0.1, NSLocalizedString("ファイルを検証中...", comment: "NAR install progress"))
                 let installURL = try installer.install(fromNar: url)
                 
-                progressHandler(0.5, "パッケージを展開中...")
+                progressHandler(0.5, NSLocalizedString("パッケージを展開中...", comment: "NAR install progress"))
                 try await Task.sleep(nanoseconds: 500_000_000) // 0.5秒待機（UI表示のため）
                 
-                progressHandler(0.8, "設定を適用中...")
+                progressHandler(0.8, NSLocalizedString("設定を適用中...", comment: "NAR install progress"))
                 try await Task.sleep(nanoseconds: 300_000_000) // 0.3秒待機
                 
-                progressHandler(1.0, "インストール完了！")
+                progressHandler(1.0, NSLocalizedString("インストール完了！", comment: "NAR install progress"))
                 
                 DispatchQueue.main.async {
-                    self.statusMessage = "インストールが正常に完了しました"
+                    self.statusMessage = NSLocalizedString("インストールが正常に完了しました", comment: "NAR install status")
                     self.isInstalling = false
                     self.loadInstalledPackages() // インストール後、リストを更新
                     self.logger.info("NARインストール完了: \(installURL.path)")
@@ -66,18 +66,18 @@ final class NarInstallViewModel: ObservableObject {
                 
             } catch let error as NarInstaller.Error {
                 DispatchQueue.main.async {
-                    self.errorMessage = "インストールエラー: \(error.description)"
+                    self.errorMessage = String(format: NSLocalizedString("インストールエラー: %@", comment: "NAR install error"), error.description)
                     self.isInstalling = false
                     self.progress = 0.0
-                    self.statusMessage = "インストール失敗"
+                    self.statusMessage = NSLocalizedString("インストール失敗", comment: "NAR install status")
                     self.logger.warning("NARインストール失敗: \(error.localizedDescription)")
                 }
             } catch {
                 DispatchQueue.main.async {
-                    self.errorMessage = "予期しないエラーが発生しました: \(error.localizedDescription)"
+                    self.errorMessage = String(format: NSLocalizedString("予期しないエラーが発生しました: %@", comment: "NAR install error"), error.localizedDescription)
                     self.isInstalling = false
                     self.progress = 0.0
-                    self.statusMessage = "インストール失敗"
+                    self.statusMessage = NSLocalizedString("インストール失敗", comment: "NAR install status")
                     self.logger.warning("NARインストール失敗: \(error.localizedDescription)")
                 }
             }
@@ -132,7 +132,7 @@ final class NarInstallViewModel: ObservableObject {
                 }
             }()
             let pkgName = displayName ?? dir.lastPathComponent
-            result.append(NarPackage(name: pkgName, version: "不明", installPath: dir.path, installDate: cdate))
+            result.append(NarPackage(name: pkgName, version: NSLocalizedString("不明", comment: "Unknown version"), installPath: dir.path, installDate: cdate))
         }
         return result
     }

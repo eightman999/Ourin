@@ -182,8 +182,8 @@ struct RightClickMenu: View {
         panel.canChooseDirectories = false
         panel.allowsMultipleSelection = false
         panel.allowedContentTypes = [.init(filenameExtension: "nar")].compactMap { $0 }
-        panel.title = "NARファイルを選択"
-        panel.message = "読み込むNARファイルを選択してください"
+        panel.title = NSLocalizedString("NARファイルを選択", comment: "NAR open panel title")
+        panel.message = NSLocalizedString("読み込むNARファイルを選択してください", comment: "NAR open panel message")
 
         panel.begin { response in
             if response == .OK, let url = panel.url {

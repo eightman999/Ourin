@@ -102,7 +102,7 @@ enum SurfaceTestCatalog {
             }
             groups.append(SurfaceTestGroup(
                 id: "unlisted",
-                name: "未分類（実ファイル・定義）",
+                name: NSLocalizedString("未分類（実ファイル・定義）", comment: "Surface test group"),
                 scope: nil,
                 entries: entries
             ))
@@ -111,7 +111,7 @@ enum SurfaceTestCatalog {
         if groups.isEmpty {
             groups.append(SurfaceTestGroup(
                 id: "empty",
-                name: "サーフェスなし",
+                name: NSLocalizedString("サーフェスなし", comment: "Surface test group"),
                 scope: nil,
                 entries: []
             ))
@@ -148,7 +148,7 @@ private struct SurfaceTestRow: View {
                 .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.gray.opacity(0.35)))
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(entry.name.isEmpty ? "（名前なし）" : entry.name)
+                    (entry.name.isEmpty ? Text("（名前なし）") : Text(verbatim: entry.name))
                         .lineLimit(1)
                     Text("surface\(entry.surfaceID) · scope \(entry.preferredScope.map(String.init) ?? String(targetScope))")
                         .font(.caption)

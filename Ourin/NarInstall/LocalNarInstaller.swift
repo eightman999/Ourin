@@ -91,23 +91,23 @@ final class NarInstaller {
 
         var description: String {
             switch self {
-            case .notZip: return "NAR (ZIP) ではありません"
-            case .unzipFailed(let s): return "展開に失敗: \(s)"
-            case .installTxtNotFound: return "install.txt が見つかりません"
-            case .installTxtDecodeFailed: return "install.txt を読み取れません（UTF‑8/SJIS）"
-            case .installTxtMissingKey(let k): return "install.txt の必須キーが不足: \(k)"
-            case .unsupportedType(let t): return "未対応の type: \(t)"
-            case .zipSlipDetected(let p): return "危険なパスが検出されました: \(p)"
-            case .directoryConflict(let d): return "設置先が衝突: \(d)"
-            case .invalidDeletePath(let p): return "delete.txt の危険なパス: \(p)"
-            case .deleteInstructionDecodeFailed: return "delete.txt をデコードできません"
-            case .updateDescriptorNotFound: return "updates2.dau / updates.txt / update.txt が見つかりません"
-            case .updateDescriptorDecodeFailed: return "更新定義ファイルをデコードできません"
-            case .updateDescriptorInvalid: return "更新定義ファイルの形式が不正です"
-            case .updateDownloadFailed(let path): return "更新ファイルを適用できません: \(path)"
-            case .updateMD5Mismatch(let path): return "更新ファイルのMD5が一致しません: \(path)"
-            case .basewareArchiveUnsupported(let path): return "ベースウェア更新にアーカイブは使えません: \(path)"
-            case .attachedComponentSourceNotFound(let type): return "付属コンポーネントのソースが見つかりません: \(type)"
+            case .notZip: return NSLocalizedString("NAR (ZIP) ではありません", comment: "NAR install error")
+            case .unzipFailed(let s): return String(format: NSLocalizedString("展開に失敗: %@", comment: "NAR install error"), s)
+            case .installTxtNotFound: return NSLocalizedString("install.txt が見つかりません", comment: "NAR install error")
+            case .installTxtDecodeFailed: return NSLocalizedString("install.txt を読み取れません（UTF-8/SJIS）", comment: "NAR install error")
+            case .installTxtMissingKey(let k): return String(format: NSLocalizedString("install.txt の必須キーが不足: %@", comment: "NAR install error"), k)
+            case .unsupportedType(let t): return String(format: NSLocalizedString("未対応の type: %@", comment: "NAR install error"), t)
+            case .zipSlipDetected(let p): return String(format: NSLocalizedString("危険なパスが検出されました: %@", comment: "NAR install error"), p)
+            case .directoryConflict(let d): return String(format: NSLocalizedString("設置先が衝突: %@", comment: "NAR install error"), d)
+            case .invalidDeletePath(let p): return String(format: NSLocalizedString("delete.txt の危険なパス: %@", comment: "NAR install error"), p)
+            case .deleteInstructionDecodeFailed: return NSLocalizedString("delete.txt をデコードできません", comment: "NAR install error")
+            case .updateDescriptorNotFound: return NSLocalizedString("updates2.dau / updates.txt / update.txt が見つかりません", comment: "NAR install error")
+            case .updateDescriptorDecodeFailed: return NSLocalizedString("更新定義ファイルをデコードできません", comment: "NAR install error")
+            case .updateDescriptorInvalid: return NSLocalizedString("更新定義ファイルの形式が不正です", comment: "NAR install error")
+            case .updateDownloadFailed(let path): return String(format: NSLocalizedString("更新ファイルを適用できません: %@", comment: "NAR install error"), path)
+            case .updateMD5Mismatch(let path): return String(format: NSLocalizedString("更新ファイルのMD5が一致しません: %@", comment: "NAR install error"), path)
+            case .basewareArchiveUnsupported(let path): return String(format: NSLocalizedString("ベースウェア更新にアーカイブは使えません: %@", comment: "Baseware update error"), path)
+            case .attachedComponentSourceNotFound(let type): return String(format: NSLocalizedString("付属コンポーネントのソースが見つかりません: %@", comment: "NAR install error"), type)
             }
         }
     }

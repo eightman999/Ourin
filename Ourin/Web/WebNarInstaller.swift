@@ -22,14 +22,14 @@ public enum WebNarInstaller {
 
         var description: String {
             switch self {
-            case .notZip: return "NAR (ZIP) ではありません"
-            case .unzipFailed(let s): return "展開に失敗: \(s)"
-            case .installTxtNotFound: return "install.txt が見つかりません"
-            case .installTxtDecodeFailed: return "install.txt を読み取れません（UTF-8/SJIS）"
-            case .installTxtMissingKey(let k): return "install.txt の必須キーが不足: \(k)"
-            case .unsupportedType(let t): return "未対応の type: \(t)"
-            case .zipSlipDetected(let p): return "危険なパスが検出されました: \(p)"
-            case .directoryConflict(let d): return "設置先が衝突: \(d)"
+            case .notZip: return NSLocalizedString("NAR (ZIP) ではありません", comment: "NAR install error")
+            case .unzipFailed(let s): return String(format: NSLocalizedString("展開に失敗: %@", comment: "NAR install error"), s)
+            case .installTxtNotFound: return NSLocalizedString("install.txt が見つかりません", comment: "NAR install error")
+            case .installTxtDecodeFailed: return NSLocalizedString("install.txt を読み取れません（UTF-8/SJIS）", comment: "NAR install error")
+            case .installTxtMissingKey(let k): return String(format: NSLocalizedString("install.txt の必須キーが不足: %@", comment: "NAR install error"), k)
+            case .unsupportedType(let t): return String(format: NSLocalizedString("未対応の type: %@", comment: "NAR install error"), t)
+            case .zipSlipDetected(let p): return String(format: NSLocalizedString("危険なパスが検出されました: %@", comment: "NAR install error"), p)
+            case .directoryConflict(let d): return String(format: NSLocalizedString("設置先が衝突: %@", comment: "NAR install error"), d)
             }
         }
     }

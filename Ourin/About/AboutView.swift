@@ -58,7 +58,7 @@ struct AboutView: View {
     private func thirdPartyFilesWithAppLicense() -> [LicenseFile] {
         var files = thirdPartyFiles
         if !appLicenseText.isEmpty {
-            files.insert(LicenseFile(name: "Ourin ライセンス", content: appLicenseText), at: 0)
+            files.insert(LicenseFile(name: NSLocalizedString("Ourin ライセンス", comment: "App license title"), content: appLicenseText), at: 0)
         }
         return files
     }
