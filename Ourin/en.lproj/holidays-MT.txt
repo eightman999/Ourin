@@ -1,0 +1,437 @@
+# MT holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/2/10,Feast of Saint Paul's Shipwreck
+2020/3/19,Feast of Saint Joseph
+2020/3/31,Freedom Day
+2020/4/10,Good Friday
+2020/5/1,Worker's Day
+2020/6/7,Sette Giugno
+2020/6/29,Feast of Saint Peter and Saint Paul
+2020/8/15,Feast of the Assumption
+2020/9/8,Feast of Our Lady of Victories
+2020/9/21,Independence Day
+2020/12/8,Feast of the Immaculate Conception
+2020/12/13,Republic Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/2/10,Feast of Saint Paul's Shipwreck
+2021/3/19,Feast of Saint Joseph
+2021/3/31,Freedom Day
+2021/4/2,Good Friday
+2021/5/1,Worker's Day
+2021/6/7,Sette Giugno
+2021/6/29,Feast of Saint Peter and Saint Paul
+2021/8/15,Feast of the Assumption
+2021/9/8,Feast of Our Lady of Victories
+2021/9/21,Independence Day
+2021/12/8,Feast of the Immaculate Conception
+2021/12/13,Republic Day
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/2/10,Feast of Saint Paul's Shipwreck
+2022/3/19,Feast of Saint Joseph
+2022/3/31,Freedom Day
+2022/4/15,Good Friday
+2022/5/1,Worker's Day
+2022/6/7,Sette Giugno
+2022/6/29,Feast of Saint Peter and Saint Paul
+2022/8/15,Feast of the Assumption
+2022/9/8,Feast of Our Lady of Victories
+2022/9/21,Independence Day
+2022/12/8,Feast of the Immaculate Conception
+2022/12/13,Republic Day
+2022/12/25,Christmas Day
+2023/1/1,New Year's Day
+2023/2/10,Feast of Saint Paul's Shipwreck
+2023/3/19,Feast of Saint Joseph
+2023/3/31,Freedom Day
+2023/4/7,Good Friday
+2023/5/1,Worker's Day
+2023/6/7,Sette Giugno
+2023/6/29,Feast of Saint Peter and Saint Paul
+2023/8/15,Feast of the Assumption
+2023/9/8,Feast of Our Lady of Victories
+2023/9/21,Independence Day
+2023/12/8,Feast of the Immaculate Conception
+2023/12/13,Republic Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/2/10,Feast of Saint Paul's Shipwreck
+2024/3/19,Feast of Saint Joseph
+2024/3/29,Good Friday
+2024/3/31,Freedom Day
+2024/5/1,Worker's Day
+2024/6/7,Sette Giugno
+2024/6/29,Feast of Saint Peter and Saint Paul
+2024/8/15,Feast of the Assumption
+2024/9/8,Feast of Our Lady of Victories
+2024/9/21,Independence Day
+2024/12/8,Feast of the Immaculate Conception
+2024/12/13,Republic Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/2/10,Feast of Saint Paul's Shipwreck
+2025/3/19,Feast of Saint Joseph
+2025/3/31,Freedom Day
+2025/4/18,Good Friday
+2025/5/1,Worker's Day
+2025/6/7,Sette Giugno
+2025/6/29,Feast of Saint Peter and Saint Paul
+2025/8/15,Feast of the Assumption
+2025/9/8,Feast of Our Lady of Victories
+2025/9/21,Independence Day
+2025/12/8,Feast of the Immaculate Conception
+2025/12/13,Republic Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/2/10,Feast of Saint Paul's Shipwreck
+2026/3/19,Feast of Saint Joseph
+2026/3/31,Freedom Day
+2026/4/3,Good Friday
+2026/5/1,Worker's Day
+2026/6/7,Sette Giugno
+2026/6/29,Feast of Saint Peter and Saint Paul
+2026/8/15,Feast of the Assumption
+2026/9/8,Feast of Our Lady of Victories
+2026/9/21,Independence Day
+2026/12/8,Feast of the Immaculate Conception
+2026/12/13,Republic Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/2/10,Feast of Saint Paul's Shipwreck
+2027/3/19,Feast of Saint Joseph
+2027/3/26,Good Friday
+2027/3/31,Freedom Day
+2027/5/1,Worker's Day
+2027/6/7,Sette Giugno
+2027/6/29,Feast of Saint Peter and Saint Paul
+2027/8/15,Feast of the Assumption
+2027/9/8,Feast of Our Lady of Victories
+2027/9/21,Independence Day
+2027/12/8,Feast of the Immaculate Conception
+2027/12/13,Republic Day
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/2/10,Feast of Saint Paul's Shipwreck
+2028/3/19,Feast of Saint Joseph
+2028/3/31,Freedom Day
+2028/4/14,Good Friday
+2028/5/1,Worker's Day
+2028/6/7,Sette Giugno
+2028/6/29,Feast of Saint Peter and Saint Paul
+2028/8/15,Feast of the Assumption
+2028/9/8,Feast of Our Lady of Victories
+2028/9/21,Independence Day
+2028/12/8,Feast of the Immaculate Conception
+2028/12/13,Republic Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/2/10,Feast of Saint Paul's Shipwreck
+2029/3/19,Feast of Saint Joseph
+2029/3/30,Good Friday
+2029/3/31,Freedom Day
+2029/5/1,Worker's Day
+2029/6/7,Sette Giugno
+2029/6/29,Feast of Saint Peter and Saint Paul
+2029/8/15,Feast of the Assumption
+2029/9/8,Feast of Our Lady of Victories
+2029/9/21,Independence Day
+2029/12/8,Feast of the Immaculate Conception
+2029/12/13,Republic Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/2/10,Feast of Saint Paul's Shipwreck
+2030/3/19,Feast of Saint Joseph
+2030/3/31,Freedom Day
+2030/4/19,Good Friday
+2030/5/1,Worker's Day
+2030/6/7,Sette Giugno
+2030/6/29,Feast of Saint Peter and Saint Paul
+2030/8/15,Feast of the Assumption
+2030/9/8,Feast of Our Lady of Victories
+2030/9/21,Independence Day
+2030/12/8,Feast of the Immaculate Conception
+2030/12/13,Republic Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/2/10,Feast of Saint Paul's Shipwreck
+2031/3/19,Feast of Saint Joseph
+2031/3/31,Freedom Day
+2031/4/11,Good Friday
+2031/5/1,Worker's Day
+2031/6/7,Sette Giugno
+2031/6/29,Feast of Saint Peter and Saint Paul
+2031/8/15,Feast of the Assumption
+2031/9/8,Feast of Our Lady of Victories
+2031/9/21,Independence Day
+2031/12/8,Feast of the Immaculate Conception
+2031/12/13,Republic Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/2/10,Feast of Saint Paul's Shipwreck
+2032/3/19,Feast of Saint Joseph
+2032/3/26,Good Friday
+2032/3/31,Freedom Day
+2032/5/1,Worker's Day
+2032/6/7,Sette Giugno
+2032/6/29,Feast of Saint Peter and Saint Paul
+2032/8/15,Feast of the Assumption
+2032/9/8,Feast of Our Lady of Victories
+2032/9/21,Independence Day
+2032/12/8,Feast of the Immaculate Conception
+2032/12/13,Republic Day
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/2/10,Feast of Saint Paul's Shipwreck
+2033/3/19,Feast of Saint Joseph
+2033/3/31,Freedom Day
+2033/4/15,Good Friday
+2033/5/1,Worker's Day
+2033/6/7,Sette Giugno
+2033/6/29,Feast of Saint Peter and Saint Paul
+2033/8/15,Feast of the Assumption
+2033/9/8,Feast of Our Lady of Victories
+2033/9/21,Independence Day
+2033/12/8,Feast of the Immaculate Conception
+2033/12/13,Republic Day
+2033/12/25,Christmas Day
+2034/1/1,New Year's Day
+2034/2/10,Feast of Saint Paul's Shipwreck
+2034/3/19,Feast of Saint Joseph
+2034/3/31,Freedom Day
+2034/4/7,Good Friday
+2034/5/1,Worker's Day
+2034/6/7,Sette Giugno
+2034/6/29,Feast of Saint Peter and Saint Paul
+2034/8/15,Feast of the Assumption
+2034/9/8,Feast of Our Lady of Victories
+2034/9/21,Independence Day
+2034/12/8,Feast of the Immaculate Conception
+2034/12/13,Republic Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/2/10,Feast of Saint Paul's Shipwreck
+2035/3/19,Feast of Saint Joseph
+2035/3/23,Good Friday
+2035/3/31,Freedom Day
+2035/5/1,Worker's Day
+2035/6/7,Sette Giugno
+2035/6/29,Feast of Saint Peter and Saint Paul
+2035/8/15,Feast of the Assumption
+2035/9/8,Feast of Our Lady of Victories
+2035/9/21,Independence Day
+2035/12/8,Feast of the Immaculate Conception
+2035/12/13,Republic Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/2/10,Feast of Saint Paul's Shipwreck
+2036/3/19,Feast of Saint Joseph
+2036/3/31,Freedom Day
+2036/4/11,Good Friday
+2036/5/1,Worker's Day
+2036/6/7,Sette Giugno
+2036/6/29,Feast of Saint Peter and Saint Paul
+2036/8/15,Feast of the Assumption
+2036/9/8,Feast of Our Lady of Victories
+2036/9/21,Independence Day
+2036/12/8,Feast of the Immaculate Conception
+2036/12/13,Republic Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/2/10,Feast of Saint Paul's Shipwreck
+2037/3/19,Feast of Saint Joseph
+2037/3/31,Freedom Day
+2037/4/3,Good Friday
+2037/5/1,Worker's Day
+2037/6/7,Sette Giugno
+2037/6/29,Feast of Saint Peter and Saint Paul
+2037/8/15,Feast of the Assumption
+2037/9/8,Feast of Our Lady of Victories
+2037/9/21,Independence Day
+2037/12/8,Feast of the Immaculate Conception
+2037/12/13,Republic Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/2/10,Feast of Saint Paul's Shipwreck
+2038/3/19,Feast of Saint Joseph
+2038/3/31,Freedom Day
+2038/4/23,Good Friday
+2038/5/1,Worker's Day
+2038/6/7,Sette Giugno
+2038/6/29,Feast of Saint Peter and Saint Paul
+2038/8/15,Feast of the Assumption
+2038/9/8,Feast of Our Lady of Victories
+2038/9/21,Independence Day
+2038/12/8,Feast of the Immaculate Conception
+2038/12/13,Republic Day
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/2/10,Feast of Saint Paul's Shipwreck
+2039/3/19,Feast of Saint Joseph
+2039/3/31,Freedom Day
+2039/4/8,Good Friday
+2039/5/1,Worker's Day
+2039/6/7,Sette Giugno
+2039/6/29,Feast of Saint Peter and Saint Paul
+2039/8/15,Feast of the Assumption
+2039/9/8,Feast of Our Lady of Victories
+2039/9/21,Independence Day
+2039/12/8,Feast of the Immaculate Conception
+2039/12/13,Republic Day
+2039/12/25,Christmas Day
+2040/1/1,New Year's Day
+2040/2/10,Feast of Saint Paul's Shipwreck
+2040/3/19,Feast of Saint Joseph
+2040/3/30,Good Friday
+2040/3/31,Freedom Day
+2040/5/1,Worker's Day
+2040/6/7,Sette Giugno
+2040/6/29,Feast of Saint Peter and Saint Paul
+2040/8/15,Feast of the Assumption
+2040/9/8,Feast of Our Lady of Victories
+2040/9/21,Independence Day
+2040/12/8,Feast of the Immaculate Conception
+2040/12/13,Republic Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/2/10,Feast of Saint Paul's Shipwreck
+2041/3/19,Feast of Saint Joseph
+2041/3/31,Freedom Day
+2041/4/19,Good Friday
+2041/5/1,Worker's Day
+2041/6/7,Sette Giugno
+2041/6/29,Feast of Saint Peter and Saint Paul
+2041/8/15,Feast of the Assumption
+2041/9/8,Feast of Our Lady of Victories
+2041/9/21,Independence Day
+2041/12/8,Feast of the Immaculate Conception
+2041/12/13,Republic Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/2/10,Feast of Saint Paul's Shipwreck
+2042/3/19,Feast of Saint Joseph
+2042/3/31,Freedom Day
+2042/4/4,Good Friday
+2042/5/1,Worker's Day
+2042/6/7,Sette Giugno
+2042/6/29,Feast of Saint Peter and Saint Paul
+2042/8/15,Feast of the Assumption
+2042/9/8,Feast of Our Lady of Victories
+2042/9/21,Independence Day
+2042/12/8,Feast of the Immaculate Conception
+2042/12/13,Republic Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/2/10,Feast of Saint Paul's Shipwreck
+2043/3/19,Feast of Saint Joseph
+2043/3/27,Good Friday
+2043/3/31,Freedom Day
+2043/5/1,Worker's Day
+2043/6/7,Sette Giugno
+2043/6/29,Feast of Saint Peter and Saint Paul
+2043/8/15,Feast of the Assumption
+2043/9/8,Feast of Our Lady of Victories
+2043/9/21,Independence Day
+2043/12/8,Feast of the Immaculate Conception
+2043/12/13,Republic Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/2/10,Feast of Saint Paul's Shipwreck
+2044/3/19,Feast of Saint Joseph
+2044/3/31,Freedom Day
+2044/4/15,Good Friday
+2044/5/1,Worker's Day
+2044/6/7,Sette Giugno
+2044/6/29,Feast of Saint Peter and Saint Paul
+2044/8/15,Feast of the Assumption
+2044/9/8,Feast of Our Lady of Victories
+2044/9/21,Independence Day
+2044/12/8,Feast of the Immaculate Conception
+2044/12/13,Republic Day
+2044/12/25,Christmas Day
+2045/1/1,New Year's Day
+2045/2/10,Feast of Saint Paul's Shipwreck
+2045/3/19,Feast of Saint Joseph
+2045/3/31,Freedom Day
+2045/4/7,Good Friday
+2045/5/1,Worker's Day
+2045/6/7,Sette Giugno
+2045/6/29,Feast of Saint Peter and Saint Paul
+2045/8/15,Feast of the Assumption
+2045/9/8,Feast of Our Lady of Victories
+2045/9/21,Independence Day
+2045/12/8,Feast of the Immaculate Conception
+2045/12/13,Republic Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/2/10,Feast of Saint Paul's Shipwreck
+2046/3/19,Feast of Saint Joseph
+2046/3/23,Good Friday
+2046/3/31,Freedom Day
+2046/5/1,Worker's Day
+2046/6/7,Sette Giugno
+2046/6/29,Feast of Saint Peter and Saint Paul
+2046/8/15,Feast of the Assumption
+2046/9/8,Feast of Our Lady of Victories
+2046/9/21,Independence Day
+2046/12/8,Feast of the Immaculate Conception
+2046/12/13,Republic Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/2/10,Feast of Saint Paul's Shipwreck
+2047/3/19,Feast of Saint Joseph
+2047/3/31,Freedom Day
+2047/4/12,Good Friday
+2047/5/1,Worker's Day
+2047/6/7,Sette Giugno
+2047/6/29,Feast of Saint Peter and Saint Paul
+2047/8/15,Feast of the Assumption
+2047/9/8,Feast of Our Lady of Victories
+2047/9/21,Independence Day
+2047/12/8,Feast of the Immaculate Conception
+2047/12/13,Republic Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/2/10,Feast of Saint Paul's Shipwreck
+2048/3/19,Feast of Saint Joseph
+2048/3/31,Freedom Day
+2048/4/3,Good Friday
+2048/5/1,Worker's Day
+2048/6/7,Sette Giugno
+2048/6/29,Feast of Saint Peter and Saint Paul
+2048/8/15,Feast of the Assumption
+2048/9/8,Feast of Our Lady of Victories
+2048/9/21,Independence Day
+2048/12/8,Feast of the Immaculate Conception
+2048/12/13,Republic Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/2/10,Feast of Saint Paul's Shipwreck
+2049/3/19,Feast of Saint Joseph
+2049/3/31,Freedom Day
+2049/4/16,Good Friday
+2049/5/1,Worker's Day
+2049/6/7,Sette Giugno
+2049/6/29,Feast of Saint Peter and Saint Paul
+2049/8/15,Feast of the Assumption
+2049/9/8,Feast of Our Lady of Victories
+2049/9/21,Independence Day
+2049/12/8,Feast of the Immaculate Conception
+2049/12/13,Republic Day
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/2/10,Feast of Saint Paul's Shipwreck
+2050/3/19,Feast of Saint Joseph
+2050/3/31,Freedom Day
+2050/4/8,Good Friday
+2050/5/1,Worker's Day
+2050/6/7,Sette Giugno
+2050/6/29,Feast of Saint Peter and Saint Paul
+2050/8/15,Feast of the Assumption
+2050/9/8,Feast of Our Lady of Victories
+2050/9/21,Independence Day
+2050/12/8,Feast of the Immaculate Conception
+2050/12/13,Republic Day
+2050/12/25,Christmas Day

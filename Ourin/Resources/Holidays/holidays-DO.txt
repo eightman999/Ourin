@@ -1,0 +1,375 @@
+# DO の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/1/6,Día de los Santos Reyes
+2020/1/21,Día de la Altagracia
+2020/1/26,Día de Duarte
+2020/2/27,Día de la Independencia Nacional
+2020/4/10,Viernes Santo
+2020/5/4,Día del Trabajo
+2020/6/11,Corpus Christi
+2020/8/16,Día de la Restauración
+2020/9/24,Día de las Mercedes
+2020/11/9,Día de la Constitución
+2020/12/25,Día de Navidad
+2021/1/1,Año Nuevo
+2021/1/4,Día de los Santos Reyes
+2021/1/21,Día de la Altagracia
+2021/1/25,Día de Duarte
+2021/2/27,Día de la Independencia Nacional
+2021/4/2,Viernes Santo
+2021/5/1,Día del Trabajo
+2021/6/3,Corpus Christi
+2021/8/16,Día de la Restauración
+2021/9/24,Día de las Mercedes
+2021/11/6,Día de la Constitución
+2021/12/25,Día de Navidad
+2022/1/1,Año Nuevo
+2022/1/10,Día de los Santos Reyes
+2022/1/21,Día de la Altagracia
+2022/1/24,Día de Duarte
+2022/2/27,Día de la Independencia Nacional
+2022/4/15,Viernes Santo
+2022/5/2,Día del Trabajo
+2022/6/16,Corpus Christi
+2022/8/15,Día de la Restauración
+2022/9/24,Día de las Mercedes
+2022/11/6,Día de la Constitución
+2022/12/25,Día de Navidad
+2023/1/1,Año Nuevo
+2023/1/9,Día de los Santos Reyes
+2023/1/21,Día de la Altagracia
+2023/1/30,Día de Duarte
+2023/2/27,Día de la Independencia Nacional
+2023/4/7,Viernes Santo
+2023/5/1,Día del Trabajo
+2023/6/8,Corpus Christi
+2023/8/14,Día de la Restauración
+2023/9/24,Día de las Mercedes
+2023/11/6,Día de la Constitución
+2023/12/25,Día de Navidad
+2024/1/1,Año Nuevo
+2024/1/6,Día de los Santos Reyes
+2024/1/21,Día de la Altagracia
+2024/1/29,Día de Duarte
+2024/2/27,Día de la Independencia Nacional
+2024/3/29,Viernes Santo
+2024/4/29,Día del Trabajo
+2024/5/30,Corpus Christi
+2024/8/16,Día de la Restauración
+2024/9/24,Día de las Mercedes
+2024/11/4,Día de la Constitución
+2024/12/25,Día de Navidad
+2025/1/1,Año Nuevo
+2025/1/6,Día de los Santos Reyes
+2025/1/21,Día de la Altagracia
+2025/1/26,Día de Duarte
+2025/2/27,Día de la Independencia Nacional
+2025/4/18,Viernes Santo
+2025/5/5,Día del Trabajo
+2025/6/19,Corpus Christi
+2025/8/16,Día de la Restauración
+2025/9/24,Día de las Mercedes
+2025/11/10,Día de la Constitución
+2025/12/25,Día de Navidad
+2026/1/1,Año Nuevo
+2026/1/5,Día de los Santos Reyes
+2026/1/21,Día de la Altagracia
+2026/1/26,Día de Duarte
+2026/2/27,Día de la Independencia Nacional
+2026/4/3,Viernes Santo
+2026/5/4,Día del Trabajo
+2026/6/4,Corpus Christi
+2026/8/16,Día de la Restauración
+2026/9/24,Día de las Mercedes
+2026/11/9,Día de la Constitución
+2026/12/25,Día de Navidad
+2027/1/1,Año Nuevo
+2027/1/4,Día de los Santos Reyes
+2027/1/21,Día de la Altagracia
+2027/1/25,Día de Duarte
+2027/2/27,Día de la Independencia Nacional
+2027/3/26,Viernes Santo
+2027/5/1,Día del Trabajo
+2027/5/27,Corpus Christi
+2027/8/16,Día de la Restauración
+2027/9/24,Día de las Mercedes
+2027/11/6,Día de la Constitución
+2027/12/25,Día de Navidad
+2028/1/1,Año Nuevo
+2028/1/10,Día de los Santos Reyes
+2028/1/21,Día de la Altagracia
+2028/1/24,Día de Duarte
+2028/2/27,Día de la Independencia Nacional
+2028/4/14,Viernes Santo
+2028/5/1,Día del Trabajo
+2028/6/15,Corpus Christi
+2028/8/16,Día de la Restauración
+2028/9/24,Día de las Mercedes
+2028/11/6,Día de la Constitución
+2028/12/25,Día de Navidad
+2029/1/1,Año Nuevo
+2029/1/6,Día de los Santos Reyes
+2029/1/21,Día de la Altagracia
+2029/1/29,Día de Duarte
+2029/2/27,Día de la Independencia Nacional
+2029/3/30,Viernes Santo
+2029/4/30,Día del Trabajo
+2029/5/31,Corpus Christi
+2029/8/20,Día de la Restauración
+2029/9/24,Día de las Mercedes
+2029/11/5,Día de la Constitución
+2029/12/25,Día de Navidad
+2030/1/1,Año Nuevo
+2030/1/6,Día de los Santos Reyes
+2030/1/21,Día de la Altagracia
+2030/1/26,Día de Duarte
+2030/2/27,Día de la Independencia Nacional
+2030/4/19,Viernes Santo
+2030/4/29,Día del Trabajo
+2030/6/20,Corpus Christi
+2030/8/19,Día de la Restauración
+2030/9/24,Día de las Mercedes
+2030/11/4,Día de la Constitución
+2030/12/25,Día de Navidad
+2031/1/1,Año Nuevo
+2031/1/6,Día de los Santos Reyes
+2031/1/21,Día de la Altagracia
+2031/1/26,Día de Duarte
+2031/2/27,Día de la Independencia Nacional
+2031/4/11,Viernes Santo
+2031/5/5,Día del Trabajo
+2031/6/12,Corpus Christi
+2031/8/16,Día de la Restauración
+2031/9/24,Día de las Mercedes
+2031/11/10,Día de la Constitución
+2031/12/25,Día de Navidad
+2032/1/1,Año Nuevo
+2032/1/5,Día de los Santos Reyes
+2032/1/21,Día de la Altagracia
+2032/1/26,Día de Duarte
+2032/2/27,Día de la Independencia Nacional
+2032/3/26,Viernes Santo
+2032/5/1,Día del Trabajo
+2032/5/27,Corpus Christi
+2032/8/16,Día de la Restauración
+2032/9/24,Día de las Mercedes
+2032/11/6,Día de la Constitución
+2032/12/25,Día de Navidad
+2033/1/1,Año Nuevo
+2033/1/10,Día de los Santos Reyes
+2033/1/21,Día de la Altagracia
+2033/1/24,Día de Duarte
+2033/2/27,Día de la Independencia Nacional
+2033/4/15,Viernes Santo
+2033/5/2,Día del Trabajo
+2033/6/16,Corpus Christi
+2033/8/15,Día de la Restauración
+2033/9/24,Día de las Mercedes
+2033/11/6,Día de la Constitución
+2033/12/25,Día de Navidad
+2034/1/1,Año Nuevo
+2034/1/9,Día de los Santos Reyes
+2034/1/21,Día de la Altagracia
+2034/1/30,Día de Duarte
+2034/2/27,Día de la Independencia Nacional
+2034/4/7,Viernes Santo
+2034/5/1,Día del Trabajo
+2034/6/8,Corpus Christi
+2034/8/14,Día de la Restauración
+2034/9/24,Día de las Mercedes
+2034/11/6,Día de la Constitución
+2034/12/25,Día de Navidad
+2035/1/1,Año Nuevo
+2035/1/6,Día de los Santos Reyes
+2035/1/21,Día de la Altagracia
+2035/1/29,Día de Duarte
+2035/2/27,Día de la Independencia Nacional
+2035/3/23,Viernes Santo
+2035/4/30,Día del Trabajo
+2035/5/24,Corpus Christi
+2035/8/20,Día de la Restauración
+2035/9/24,Día de las Mercedes
+2035/11/5,Día de la Constitución
+2035/12/25,Día de Navidad
+2036/1/1,Año Nuevo
+2036/1/6,Día de los Santos Reyes
+2036/1/21,Día de la Altagracia
+2036/1/26,Día de Duarte
+2036/2/27,Día de la Independencia Nacional
+2036/4/11,Viernes Santo
+2036/5/5,Día del Trabajo
+2036/6/12,Corpus Christi
+2036/8/16,Día de la Restauración
+2036/9/24,Día de las Mercedes
+2036/11/10,Día de la Constitución
+2036/12/25,Día de Navidad
+2037/1/1,Año Nuevo
+2037/1/5,Día de los Santos Reyes
+2037/1/21,Día de la Altagracia
+2037/1/26,Día de Duarte
+2037/2/27,Día de la Independencia Nacional
+2037/4/3,Viernes Santo
+2037/5/4,Día del Trabajo
+2037/6/4,Corpus Christi
+2037/8/16,Día de la Restauración
+2037/9/24,Día de las Mercedes
+2037/11/9,Día de la Constitución
+2037/12/25,Día de Navidad
+2038/1/1,Año Nuevo
+2038/1/4,Día de los Santos Reyes
+2038/1/21,Día de la Altagracia
+2038/1/25,Día de Duarte
+2038/2/27,Día de la Independencia Nacional
+2038/4/23,Viernes Santo
+2038/5/1,Día del Trabajo
+2038/6/24,Corpus Christi
+2038/8/16,Día de la Restauración
+2038/9/24,Día de las Mercedes
+2038/11/6,Día de la Constitución
+2038/12/25,Día de Navidad
+2039/1/1,Año Nuevo
+2039/1/10,Día de los Santos Reyes
+2039/1/21,Día de la Altagracia
+2039/1/24,Día de Duarte
+2039/2/27,Día de la Independencia Nacional
+2039/4/8,Viernes Santo
+2039/5/2,Día del Trabajo
+2039/6/9,Corpus Christi
+2039/8/15,Día de la Restauración
+2039/9/24,Día de las Mercedes
+2039/11/6,Día de la Constitución
+2039/12/25,Día de Navidad
+2040/1/1,Año Nuevo
+2040/1/9,Día de los Santos Reyes
+2040/1/21,Día de la Altagracia
+2040/1/30,Día de Duarte
+2040/2/27,Día de la Independencia Nacional
+2040/3/30,Viernes Santo
+2040/4/30,Día del Trabajo
+2040/5/31,Corpus Christi
+2040/8/16,Día de la Restauración
+2040/9/24,Día de las Mercedes
+2040/11/5,Día de la Constitución
+2040/12/25,Día de Navidad
+2041/1/1,Año Nuevo
+2041/1/6,Día de los Santos Reyes
+2041/1/21,Día de la Altagracia
+2041/1/26,Día de Duarte
+2041/2/27,Día de la Independencia Nacional
+2041/4/19,Viernes Santo
+2041/4/29,Día del Trabajo
+2041/6/20,Corpus Christi
+2041/8/19,Día de la Restauración
+2041/9/24,Día de las Mercedes
+2041/11/4,Día de la Constitución
+2041/12/25,Día de Navidad
+2042/1/1,Año Nuevo
+2042/1/6,Día de los Santos Reyes
+2042/1/21,Día de la Altagracia
+2042/1/26,Día de Duarte
+2042/2/27,Día de la Independencia Nacional
+2042/4/4,Viernes Santo
+2042/5/5,Día del Trabajo
+2042/6/5,Corpus Christi
+2042/8/16,Día de la Restauración
+2042/9/24,Día de las Mercedes
+2042/11/10,Día de la Constitución
+2042/12/25,Día de Navidad
+2043/1/1,Año Nuevo
+2043/1/5,Día de los Santos Reyes
+2043/1/21,Día de la Altagracia
+2043/1/26,Día de Duarte
+2043/2/27,Día de la Independencia Nacional
+2043/3/27,Viernes Santo
+2043/5/4,Día del Trabajo
+2043/5/28,Corpus Christi
+2043/8/16,Día de la Restauración
+2043/9/24,Día de las Mercedes
+2043/11/9,Día de la Constitución
+2043/12/25,Día de Navidad
+2044/1/1,Año Nuevo
+2044/1/4,Día de los Santos Reyes
+2044/1/21,Día de la Altagracia
+2044/1/25,Día de Duarte
+2044/2/27,Día de la Independencia Nacional
+2044/4/15,Viernes Santo
+2044/5/2,Día del Trabajo
+2044/6/16,Corpus Christi
+2044/8/16,Día de la Restauración
+2044/9/24,Día de las Mercedes
+2044/11/6,Día de la Constitución
+2044/12/25,Día de Navidad
+2045/1/1,Año Nuevo
+2045/1/9,Día de los Santos Reyes
+2045/1/21,Día de la Altagracia
+2045/1/30,Día de Duarte
+2045/2/27,Día de la Independencia Nacional
+2045/4/7,Viernes Santo
+2045/5/1,Día del Trabajo
+2045/6/8,Corpus Christi
+2045/8/14,Día de la Restauración
+2045/9/24,Día de las Mercedes
+2045/11/6,Día de la Constitución
+2045/12/25,Día de Navidad
+2046/1/1,Año Nuevo
+2046/1/6,Día de los Santos Reyes
+2046/1/21,Día de la Altagracia
+2046/1/29,Día de Duarte
+2046/2/27,Día de la Independencia Nacional
+2046/3/23,Viernes Santo
+2046/4/30,Día del Trabajo
+2046/5/24,Corpus Christi
+2046/8/20,Día de la Restauración
+2046/9/24,Día de las Mercedes
+2046/11/5,Día de la Constitución
+2046/12/25,Día de Navidad
+2047/1/1,Año Nuevo
+2047/1/6,Día de los Santos Reyes
+2047/1/21,Día de la Altagracia
+2047/1/26,Día de Duarte
+2047/2/27,Día de la Independencia Nacional
+2047/4/12,Viernes Santo
+2047/4/29,Día del Trabajo
+2047/6/13,Corpus Christi
+2047/8/19,Día de la Restauración
+2047/9/24,Día de las Mercedes
+2047/11/4,Día de la Constitución
+2047/12/25,Día de Navidad
+2048/1/1,Año Nuevo
+2048/1/6,Día de los Santos Reyes
+2048/1/21,Día de la Altagracia
+2048/1/26,Día de Duarte
+2048/2/27,Día de la Independencia Nacional
+2048/4/3,Viernes Santo
+2048/5/4,Día del Trabajo
+2048/6/4,Corpus Christi
+2048/8/16,Día de la Restauración
+2048/9/24,Día de las Mercedes
+2048/11/9,Día de la Constitución
+2048/12/25,Día de Navidad
+2049/1/1,Año Nuevo
+2049/1/4,Día de los Santos Reyes
+2049/1/21,Día de la Altagracia
+2049/1/25,Día de Duarte
+2049/2/27,Día de la Independencia Nacional
+2049/4/16,Viernes Santo
+2049/5/1,Día del Trabajo
+2049/6/17,Corpus Christi
+2049/8/16,Día de la Restauración
+2049/9/24,Día de las Mercedes
+2049/11/6,Día de la Constitución
+2049/12/25,Día de Navidad
+2050/1/1,Año Nuevo
+2050/1/10,Día de los Santos Reyes
+2050/1/21,Día de la Altagracia
+2050/1/24,Día de Duarte
+2050/2/27,Día de la Independencia Nacional
+2050/4/8,Viernes Santo
+2050/5/2,Día del Trabajo
+2050/6/9,Corpus Christi
+2050/8/15,Día de la Restauración
+2050/9/24,Día de las Mercedes
+2050/11/6,Día de la Constitución
+2050/12/25,Día de Navidad

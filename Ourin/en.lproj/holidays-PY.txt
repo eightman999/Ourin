@@ -1,0 +1,431 @@
+# PY holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/3/1,Patriots Day
+2020/4/9,Maundy Thursday
+2020/4/10,Good Friday
+2020/4/12,Easter Sunday
+2020/5/1,Workers' Day
+2020/5/14,National Holiday
+2020/5/15,National Independence Day
+2020/6/12,Chaco Armistice Day
+2020/8/15,Asuncion Foundation's Day
+2020/9/29,Boqueron Battle Day
+2020/12/8,Caacupe Virgin Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/3/1,Patriots Day
+2021/4/1,Maundy Thursday
+2021/4/2,Good Friday
+2021/4/4,Easter Sunday
+2021/5/1,Workers' Day
+2021/5/14,National Holiday
+2021/5/15,National Independence Day
+2021/6/12,Chaco Armistice Day
+2021/8/15,Asuncion Foundation's Day
+2021/9/27,Boqueron Battle Day
+2021/12/8,Caacupe Virgin Day
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/2/28,Patriots Day
+2022/4/14,Maundy Thursday
+2022/4/15,Good Friday
+2022/4/17,Easter Sunday
+2022/5/1,Workers' Day
+2022/5/14,National Holiday
+2022/5/15,National Independence Day
+2022/6/12,Chaco Armistice Day
+2022/8/15,Asuncion Foundation's Day
+2022/10/3,Boqueron Battle Day
+2022/12/8,Caacupe Virgin Day
+2022/12/25,Christmas Day
+2023/1/1,New Year's Day
+2023/2/27,Patriots Day
+2023/4/6,Maundy Thursday
+2023/4/7,Good Friday
+2023/4/9,Easter Sunday
+2023/5/1,Workers' Day
+2023/5/14,National Holiday
+2023/5/15,National Independence Day
+2023/6/12,Chaco Armistice Day
+2023/8/15,Asuncion Foundation's Day
+2023/9/29,Boqueron Battle Day
+2023/12/8,Caacupe Virgin Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/3/1,Patriots Day
+2024/3/28,Maundy Thursday
+2024/3/29,Good Friday
+2024/3/31,Easter Sunday
+2024/5/1,Workers' Day
+2024/5/14,National Holiday
+2024/5/15,National Independence Day
+2024/6/10,Chaco Armistice Day
+2024/8/15,Asuncion Foundation's Day
+2024/9/30,Boqueron Battle Day
+2024/12/8,Caacupe Virgin Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/3/3,Patriots Day
+2025/4/17,Maundy Thursday
+2025/4/18,Good Friday
+2025/4/20,Easter Sunday
+2025/5/1,Workers' Day
+2025/5/14,National Holiday
+2025/5/15,National Independence Day
+2025/6/16,Chaco Armistice Day
+2025/8/15,Asuncion Foundation's Day
+2025/9/29,Boqueron Battle Day
+2025/12/8,Caacupe Virgin Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/3/1,Patriots Day
+2026/4/2,Maundy Thursday
+2026/4/3,Good Friday
+2026/4/5,Easter Sunday
+2026/5/1,Workers' Day
+2026/5/14,National Holiday
+2026/5/15,National Independence Day
+2026/6/12,Chaco Armistice Day
+2026/6/22,Constitution Oath Day
+2026/8/15,Asuncion Foundation's Day
+2026/9/29,Boqueron Battle Day
+2026/12/8,Caacupe Virgin Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/3/1,Patriots Day
+2027/3/25,Maundy Thursday
+2027/3/26,Good Friday
+2027/3/28,Easter Sunday
+2027/5/1,Workers' Day
+2027/5/14,National Holiday
+2027/5/15,National Independence Day
+2027/6/12,Chaco Armistice Day
+2027/6/20,Constitution Oath Day
+2027/8/15,Asuncion Foundation's Day
+2027/9/29,Boqueron Battle Day
+2027/12/8,Caacupe Virgin Day
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/3/1,Patriots Day
+2028/4/13,Maundy Thursday
+2028/4/14,Good Friday
+2028/4/16,Easter Sunday
+2028/5/1,Workers' Day
+2028/5/14,National Holiday
+2028/5/15,National Independence Day
+2028/6/12,Chaco Armistice Day
+2028/6/20,Constitution Oath Day
+2028/8/15,Asuncion Foundation's Day
+2028/9/29,Boqueron Battle Day
+2028/12/8,Caacupe Virgin Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/3/1,Patriots Day
+2029/3/29,Maundy Thursday
+2029/3/30,Good Friday
+2029/4/1,Easter Sunday
+2029/5/1,Workers' Day
+2029/5/14,National Holiday
+2029/5/15,National Independence Day
+2029/6/12,Chaco Armistice Day
+2029/6/20,Constitution Oath Day
+2029/8/15,Asuncion Foundation's Day
+2029/9/29,Boqueron Battle Day
+2029/12/8,Caacupe Virgin Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/3/1,Patriots Day
+2030/4/18,Maundy Thursday
+2030/4/19,Good Friday
+2030/4/21,Easter Sunday
+2030/5/1,Workers' Day
+2030/5/14,National Holiday
+2030/5/15,National Independence Day
+2030/6/12,Chaco Armistice Day
+2030/6/20,Constitution Oath Day
+2030/8/15,Asuncion Foundation's Day
+2030/9/29,Boqueron Battle Day
+2030/12/8,Caacupe Virgin Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/3/1,Patriots Day
+2031/4/10,Maundy Thursday
+2031/4/11,Good Friday
+2031/4/13,Easter Sunday
+2031/5/1,Workers' Day
+2031/5/14,National Holiday
+2031/5/15,National Independence Day
+2031/6/12,Chaco Armistice Day
+2031/6/20,Constitution Oath Day
+2031/8/15,Asuncion Foundation's Day
+2031/9/29,Boqueron Battle Day
+2031/12/8,Caacupe Virgin Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/3/1,Patriots Day
+2032/3/25,Maundy Thursday
+2032/3/26,Good Friday
+2032/3/28,Easter Sunday
+2032/5/1,Workers' Day
+2032/5/14,National Holiday
+2032/5/15,National Independence Day
+2032/6/12,Chaco Armistice Day
+2032/6/20,Constitution Oath Day
+2032/8/15,Asuncion Foundation's Day
+2032/9/29,Boqueron Battle Day
+2032/12/8,Caacupe Virgin Day
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/3/1,Patriots Day
+2033/4/14,Maundy Thursday
+2033/4/15,Good Friday
+2033/4/17,Easter Sunday
+2033/5/1,Workers' Day
+2033/5/14,National Holiday
+2033/5/15,National Independence Day
+2033/6/12,Chaco Armistice Day
+2033/6/20,Constitution Oath Day
+2033/8/15,Asuncion Foundation's Day
+2033/9/29,Boqueron Battle Day
+2033/12/8,Caacupe Virgin Day
+2033/12/25,Christmas Day
+2034/1/1,New Year's Day
+2034/3/1,Patriots Day
+2034/4/6,Maundy Thursday
+2034/4/7,Good Friday
+2034/4/9,Easter Sunday
+2034/5/1,Workers' Day
+2034/5/14,National Holiday
+2034/5/15,National Independence Day
+2034/6/12,Chaco Armistice Day
+2034/6/20,Constitution Oath Day
+2034/8/15,Asuncion Foundation's Day
+2034/9/29,Boqueron Battle Day
+2034/12/8,Caacupe Virgin Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/3/1,Patriots Day
+2035/3/22,Maundy Thursday
+2035/3/23,Good Friday
+2035/3/25,Easter Sunday
+2035/5/1,Workers' Day
+2035/5/14,National Holiday
+2035/5/15,National Independence Day
+2035/6/12,Chaco Armistice Day
+2035/6/20,Constitution Oath Day
+2035/8/15,Asuncion Foundation's Day
+2035/9/29,Boqueron Battle Day
+2035/12/8,Caacupe Virgin Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/3/1,Patriots Day
+2036/4/10,Maundy Thursday
+2036/4/11,Good Friday
+2036/4/13,Easter Sunday
+2036/5/1,Workers' Day
+2036/5/14,National Holiday
+2036/5/15,National Independence Day
+2036/6/12,Chaco Armistice Day
+2036/6/20,Constitution Oath Day
+2036/8/15,Asuncion Foundation's Day
+2036/9/29,Boqueron Battle Day
+2036/12/8,Caacupe Virgin Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/3/1,Patriots Day
+2037/4/2,Maundy Thursday
+2037/4/3,Good Friday
+2037/4/5,Easter Sunday
+2037/5/1,Workers' Day
+2037/5/14,National Holiday
+2037/5/15,National Independence Day
+2037/6/12,Chaco Armistice Day
+2037/6/20,Constitution Oath Day
+2037/8/15,Asuncion Foundation's Day
+2037/9/29,Boqueron Battle Day
+2037/12/8,Caacupe Virgin Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/3/1,Patriots Day
+2038/4/22,Maundy Thursday
+2038/4/23,Good Friday
+2038/4/25,Easter Sunday
+2038/5/1,Workers' Day
+2038/5/14,National Holiday
+2038/5/15,National Independence Day
+2038/6/12,Chaco Armistice Day
+2038/6/20,Constitution Oath Day
+2038/8/15,Asuncion Foundation's Day
+2038/9/29,Boqueron Battle Day
+2038/12/8,Caacupe Virgin Day
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/3/1,Patriots Day
+2039/4/7,Maundy Thursday
+2039/4/8,Good Friday
+2039/4/10,Easter Sunday
+2039/5/1,Workers' Day
+2039/5/14,National Holiday
+2039/5/15,National Independence Day
+2039/6/12,Chaco Armistice Day
+2039/6/20,Constitution Oath Day
+2039/8/15,Asuncion Foundation's Day
+2039/9/29,Boqueron Battle Day
+2039/12/8,Caacupe Virgin Day
+2039/12/25,Christmas Day
+2040/1/1,New Year's Day
+2040/3/1,Patriots Day
+2040/3/29,Maundy Thursday
+2040/3/30,Good Friday
+2040/4/1,Easter Sunday
+2040/5/1,Workers' Day
+2040/5/14,National Holiday
+2040/5/15,National Independence Day
+2040/6/12,Chaco Armistice Day
+2040/6/20,Constitution Oath Day
+2040/8/15,Asuncion Foundation's Day
+2040/9/29,Boqueron Battle Day
+2040/12/8,Caacupe Virgin Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/3/1,Patriots Day
+2041/4/18,Maundy Thursday
+2041/4/19,Good Friday
+2041/4/21,Easter Sunday
+2041/5/1,Workers' Day
+2041/5/14,National Holiday
+2041/5/15,National Independence Day
+2041/6/12,Chaco Armistice Day
+2041/6/20,Constitution Oath Day
+2041/8/15,Asuncion Foundation's Day
+2041/9/29,Boqueron Battle Day
+2041/12/8,Caacupe Virgin Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/3/1,Patriots Day
+2042/4/3,Maundy Thursday
+2042/4/4,Good Friday
+2042/4/6,Easter Sunday
+2042/5/1,Workers' Day
+2042/5/14,National Holiday
+2042/5/15,National Independence Day
+2042/6/12,Chaco Armistice Day
+2042/6/20,Constitution Oath Day
+2042/8/15,Asuncion Foundation's Day
+2042/9/29,Boqueron Battle Day
+2042/12/8,Caacupe Virgin Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/3/1,Patriots Day
+2043/3/26,Maundy Thursday
+2043/3/27,Good Friday
+2043/3/29,Easter Sunday
+2043/5/1,Workers' Day
+2043/5/14,National Holiday
+2043/5/15,National Independence Day
+2043/6/12,Chaco Armistice Day
+2043/6/20,Constitution Oath Day
+2043/8/15,Asuncion Foundation's Day
+2043/9/29,Boqueron Battle Day
+2043/12/8,Caacupe Virgin Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/3/1,Patriots Day
+2044/4/14,Maundy Thursday
+2044/4/15,Good Friday
+2044/4/17,Easter Sunday
+2044/5/1,Workers' Day
+2044/5/14,National Holiday
+2044/5/15,National Independence Day
+2044/6/12,Chaco Armistice Day
+2044/6/20,Constitution Oath Day
+2044/8/15,Asuncion Foundation's Day
+2044/9/29,Boqueron Battle Day
+2044/12/8,Caacupe Virgin Day
+2044/12/25,Christmas Day
+2045/1/1,New Year's Day
+2045/3/1,Patriots Day
+2045/4/6,Maundy Thursday
+2045/4/7,Good Friday
+2045/4/9,Easter Sunday
+2045/5/1,Workers' Day
+2045/5/14,National Holiday
+2045/5/15,National Independence Day
+2045/6/12,Chaco Armistice Day
+2045/6/20,Constitution Oath Day
+2045/8/15,Asuncion Foundation's Day
+2045/9/29,Boqueron Battle Day
+2045/12/8,Caacupe Virgin Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/3/1,Patriots Day
+2046/3/22,Maundy Thursday
+2046/3/23,Good Friday
+2046/3/25,Easter Sunday
+2046/5/1,Workers' Day
+2046/5/14,National Holiday
+2046/5/15,National Independence Day
+2046/6/12,Chaco Armistice Day
+2046/6/20,Constitution Oath Day
+2046/8/15,Asuncion Foundation's Day
+2046/9/29,Boqueron Battle Day
+2046/12/8,Caacupe Virgin Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/3/1,Patriots Day
+2047/4/11,Maundy Thursday
+2047/4/12,Good Friday
+2047/4/14,Easter Sunday
+2047/5/1,Workers' Day
+2047/5/14,National Holiday
+2047/5/15,National Independence Day
+2047/6/12,Chaco Armistice Day
+2047/6/20,Constitution Oath Day
+2047/8/15,Asuncion Foundation's Day
+2047/9/29,Boqueron Battle Day
+2047/12/8,Caacupe Virgin Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/3/1,Patriots Day
+2048/4/2,Maundy Thursday
+2048/4/3,Good Friday
+2048/4/5,Easter Sunday
+2048/5/1,Workers' Day
+2048/5/14,National Holiday
+2048/5/15,National Independence Day
+2048/6/12,Chaco Armistice Day
+2048/6/20,Constitution Oath Day
+2048/8/15,Asuncion Foundation's Day
+2048/9/29,Boqueron Battle Day
+2048/12/8,Caacupe Virgin Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/3/1,Patriots Day
+2049/4/15,Maundy Thursday
+2049/4/16,Good Friday
+2049/4/18,Easter Sunday
+2049/5/1,Workers' Day
+2049/5/14,National Holiday
+2049/5/15,National Independence Day
+2049/6/12,Chaco Armistice Day
+2049/6/20,Constitution Oath Day
+2049/8/15,Asuncion Foundation's Day
+2049/9/29,Boqueron Battle Day
+2049/12/8,Caacupe Virgin Day
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/3/1,Patriots Day
+2050/4/7,Maundy Thursday
+2050/4/8,Good Friday
+2050/4/10,Easter Sunday
+2050/5/1,Workers' Day
+2050/5/14,National Holiday
+2050/5/15,National Independence Day
+2050/6/12,Chaco Armistice Day
+2050/6/20,Constitution Oath Day
+2050/8/15,Asuncion Foundation's Day
+2050/9/29,Boqueron Battle Day
+2050/12/8,Caacupe Virgin Day
+2050/12/25,Christmas Day

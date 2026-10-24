@@ -1,0 +1,451 @@
+# SR の祝日（2020〜2050年、言語: nl）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Nieuwjaarsdag
+2020/2/25,Dag van Bevrijding en Vernieuwing
+2020/3/9,Holi-Phagwa
+2020/4/10,Goede vrijdag
+2020/4/13,Tweede paasdag
+2020/5/1,Dag van de Arbeid
+2020/5/24,Ied-Ul-Fitre
+2020/7/1,Keti Koti Dey
+2020/7/31,Ied-Ul-Adha
+2020/8/9,Dag der Inheemsen
+2020/10/10,Dag der Marrons
+2020/11/14,Divali
+2020/11/25,Onafhankelijkheidsdag
+2020/12/25,Eerste kerstdag
+2020/12/26,Tweede kerstdag
+2021/1/1,Nieuwjaarsdag
+2021/3/28,Holi-Phagwa
+2021/4/2,Goede vrijdag
+2021/4/5,Tweede paasdag
+2021/5/1,Dag van de Arbeid
+2021/5/13,Ied-Ul-Fitre
+2021/7/1,Keti Koti Dey
+2021/7/20,Ied-Ul-Adha
+2021/8/9,Dag der Inheemsen
+2021/10/10,Dag der Marrons
+2021/11/4,Divali
+2021/11/25,Onafhankelijkheidsdag
+2021/12/25,Eerste kerstdag
+2021/12/26,Tweede kerstdag
+2022/1/1,Nieuwjaarsdag
+2022/2/1,Chinees Nieuwjaar
+2022/3/18,Holi-Phagwa
+2022/4/15,Goede vrijdag
+2022/4/18,Tweede paasdag
+2022/5/1,Dag van de Arbeid
+2022/5/2,Ied-Ul-Fitre
+2022/7/1,Keti Koti Dey
+2022/7/9,Ied-Ul-Adha
+2022/8/9,Dag der Inheemsen
+2022/10/10,Dag der Marrons
+2022/10/24,Divali
+2022/11/25,Onafhankelijkheidsdag
+2022/12/25,Eerste kerstdag
+2022/12/26,Tweede kerstdag
+2023/1/1,Nieuwjaarsdag
+2023/1/22,Chinees Nieuwjaar
+2023/3/7,Holi-Phagwa
+2023/4/7,Goede vrijdag
+2023/4/10,Tweede paasdag
+2023/4/22,Ied-Ul-Fitre
+2023/5/1,Dag van de Arbeid
+2023/6/29,Ied-Ul-Adha
+2023/7/1,Keti Koti Dey
+2023/8/9,Dag der Inheemsen
+2023/10/10,Dag der Marrons
+2023/11/12,Divali
+2023/11/25,Onafhankelijkheidsdag
+2023/12/25,Eerste kerstdag
+2023/12/26,Tweede kerstdag
+2024/1/1,Nieuwjaarsdag
+2024/2/10,Chinees Nieuwjaar
+2024/3/25,Holi-Phagwa
+2024/3/29,Goede vrijdag
+2024/4/1,Tweede paasdag
+2024/4/10,Ied-Ul-Fitre
+2024/5/1,Dag van de Arbeid
+2024/6/16,Ied-Ul-Adha
+2024/7/1,Keti Koti Dey
+2024/8/9,Dag der Inheemsen
+2024/10/10,Dag der Marrons
+2024/10/31,Divali
+2024/11/25,Onafhankelijkheidsdag
+2024/12/25,Eerste kerstdag
+2024/12/26,Tweede kerstdag
+2025/1/1,Nieuwjaarsdag
+2025/1/29,Chinees Nieuwjaar
+2025/3/14,Holi-Phagwa
+2025/3/31,Ied-Ul-Fitre
+2025/4/18,Goede vrijdag
+2025/4/21,Tweede paasdag
+2025/5/1,Dag van de Arbeid
+2025/6/7,Ied-Ul-Adha
+2025/7/1,Dag der Vrijheden
+2025/8/9,Dag der Inheemsen
+2025/10/10,Dag der Marrons
+2025/10/20,Divali
+2025/11/25,Onafhankelijkheidsdag
+2025/12/25,Eerste kerstdag
+2025/12/26,Tweede kerstdag
+2026/1/1,Nieuwjaarsdag
+2026/2/17,Chinees Nieuwjaar
+2026/3/3,Holi-Phagwa
+2026/3/20,Ied-Ul-Fitre (geschat)
+2026/4/3,Goede vrijdag
+2026/4/6,Tweede paasdag
+2026/5/1,Dag van de Arbeid
+2026/5/27,Ied-Ul-Adha (geschat)
+2026/7/1,Dag der Vrijheden
+2026/8/9,Dag der Inheemsen
+2026/10/10,Dag der Marrons
+2026/11/8,Divali
+2026/11/25,Onafhankelijkheidsdag
+2026/12/25,Eerste kerstdag
+2026/12/26,Tweede kerstdag
+2027/1/1,Nieuwjaarsdag
+2027/2/6,Chinees Nieuwjaar
+2027/3/9,Ied-Ul-Fitre (geschat)
+2027/3/22,Holi-Phagwa
+2027/3/26,Goede vrijdag
+2027/3/29,Tweede paasdag
+2027/5/1,Dag van de Arbeid
+2027/5/16,Ied-Ul-Adha (geschat)
+2027/7/1,Dag der Vrijheden
+2027/8/9,Dag der Inheemsen
+2027/10/10,Dag der Marrons
+2027/10/28,Divali
+2027/11/25,Onafhankelijkheidsdag
+2027/12/25,Eerste kerstdag
+2027/12/26,Tweede kerstdag
+2028/1/1,Nieuwjaarsdag
+2028/1/26,Chinees Nieuwjaar
+2028/2/26,Ied-Ul-Fitre (geschat)
+2028/3/11,Holi-Phagwa
+2028/4/14,Goede vrijdag
+2028/4/17,Tweede paasdag
+2028/5/1,Dag van de Arbeid
+2028/5/5,Ied-Ul-Adha (geschat)
+2028/7/1,Dag der Vrijheden
+2028/8/9,Dag der Inheemsen
+2028/10/10,Dag der Marrons
+2028/10/17,Divali
+2028/11/25,Onafhankelijkheidsdag
+2028/12/25,Eerste kerstdag
+2028/12/26,Tweede kerstdag
+2029/1/1,Nieuwjaarsdag
+2029/2/13,Chinees Nieuwjaar
+2029/2/14,Ied-Ul-Fitre (geschat)
+2029/3/28,Holi-Phagwa
+2029/3/30,Goede vrijdag
+2029/4/2,Tweede paasdag
+2029/4/24,Ied-Ul-Adha (geschat)
+2029/5/1,Dag van de Arbeid
+2029/7/1,Dag der Vrijheden
+2029/8/9,Dag der Inheemsen
+2029/10/10,Dag der Marrons
+2029/11/5,Divali
+2029/11/25,Onafhankelijkheidsdag
+2029/12/25,Eerste kerstdag
+2029/12/26,Tweede kerstdag
+2030/1/1,Nieuwjaarsdag
+2030/2/3,Chinees Nieuwjaar
+2030/2/4,Ied-Ul-Fitre (geschat)
+2030/3/19,Holi-Phagwa
+2030/4/13,Ied-Ul-Adha (geschat)
+2030/4/19,Goede vrijdag
+2030/4/22,Tweede paasdag
+2030/5/1,Dag van de Arbeid
+2030/7/1,Dag der Vrijheden
+2030/8/9,Dag der Inheemsen
+2030/10/10,Dag der Marrons
+2030/10/25,Divali
+2030/11/25,Onafhankelijkheidsdag
+2030/12/25,Eerste kerstdag
+2030/12/26,Tweede kerstdag
+2031/1/1,Nieuwjaarsdag
+2031/1/23,Chinees Nieuwjaar
+2031/1/24,Ied-Ul-Fitre (geschat)
+2031/3/9,Holi-Phagwa
+2031/4/2,Ied-Ul-Adha (geschat)
+2031/4/11,Goede vrijdag
+2031/4/14,Tweede paasdag
+2031/5/1,Dag van de Arbeid
+2031/7/1,Dag der Vrijheden
+2031/8/9,Dag der Inheemsen
+2031/10/10,Dag der Marrons
+2031/11/14,Divali
+2031/11/25,Onafhankelijkheidsdag
+2031/12/25,Eerste kerstdag
+2031/12/26,Tweede kerstdag
+2032/1/1,Nieuwjaarsdag
+2032/1/14,Ied-Ul-Fitre (geschat)
+2032/2/11,Chinees Nieuwjaar
+2032/3/22,Ied-Ul-Adha (geschat)
+2032/3/26,Goede vrijdag
+2032/3/27,Holi-Phagwa
+2032/3/29,Tweede paasdag
+2032/5/1,Dag van de Arbeid
+2032/7/1,Dag der Vrijheden
+2032/8/9,Dag der Inheemsen
+2032/10/10,Dag der Marrons
+2032/11/2,Divali
+2032/11/25,Onafhankelijkheidsdag
+2032/12/25,Eerste kerstdag
+2032/12/26,Tweede kerstdag
+2033/1/1,Nieuwjaarsdag
+2033/1/2,Ied-Ul-Fitre (geschat)
+2033/1/31,Chinees Nieuwjaar
+2033/3/11,Ied-Ul-Adha (geschat)
+2033/3/16,Holi-Phagwa
+2033/4/15,Goede vrijdag
+2033/4/18,Tweede paasdag
+2033/5/1,Dag van de Arbeid
+2033/7/1,Dag der Vrijheden
+2033/8/9,Dag der Inheemsen
+2033/10/10,Dag der Marrons
+2033/10/22,Divali
+2033/11/25,Onafhankelijkheidsdag
+2033/12/23,Ied-Ul-Fitre (geschat)
+2033/12/25,Eerste kerstdag
+2033/12/26,Tweede kerstdag
+2034/1/1,Nieuwjaarsdag
+2034/2/19,Chinees Nieuwjaar
+2034/3/1,Ied-Ul-Adha (geschat)
+2034/3/5,Holi-Phagwa
+2034/4/7,Goede vrijdag
+2034/4/10,Tweede paasdag
+2034/5/1,Dag van de Arbeid
+2034/7/1,Dag der Vrijheden
+2034/8/9,Dag der Inheemsen
+2034/10/10,Dag der Marrons
+2034/11/10,Divali
+2034/11/25,Onafhankelijkheidsdag
+2034/12/12,Ied-Ul-Fitre (geschat)
+2034/12/25,Eerste kerstdag
+2034/12/26,Tweede kerstdag
+2035/1/1,Nieuwjaarsdag
+2035/2/8,Chinees Nieuwjaar
+2035/2/18,Ied-Ul-Adha (geschat)
+2035/3/23,Goede vrijdag
+2035/3/24,Holi-Phagwa
+2035/3/26,Tweede paasdag
+2035/5/1,Dag van de Arbeid
+2035/7/1,Dag der Vrijheden
+2035/8/9,Dag der Inheemsen
+2035/10/10,Dag der Marrons
+2035/10/30,Divali
+2035/11/25,Onafhankelijkheidsdag
+2035/12/1,Ied-Ul-Fitre (geschat)
+2035/12/25,Eerste kerstdag
+2035/12/26,Tweede kerstdag
+2036/1/1,Nieuwjaarsdag
+2036/1/28,Chinees Nieuwjaar
+2036/2/7,Ied-Ul-Adha (geschat)
+2036/4/11,Goede vrijdag
+2036/4/14,Tweede paasdag
+2036/5/1,Dag van de Arbeid
+2036/7/1,Dag der Vrijheden
+2036/8/9,Dag der Inheemsen
+2036/10/10,Dag der Marrons
+2036/11/17,Divali
+2036/11/19,Ied-Ul-Fitre (geschat)
+2036/11/25,Onafhankelijkheidsdag
+2036/12/25,Eerste kerstdag
+2036/12/26,Tweede kerstdag
+2037/1/1,Nieuwjaarsdag
+2037/1/26,Ied-Ul-Adha (geschat)
+2037/2/15,Chinees Nieuwjaar
+2037/4/3,Goede vrijdag
+2037/4/6,Tweede paasdag
+2037/5/1,Dag van de Arbeid
+2037/7/1,Dag der Vrijheden
+2037/8/9,Dag der Inheemsen
+2037/10/10,Dag der Marrons
+2037/11/6,Divali
+2037/11/8,Ied-Ul-Fitre (geschat)
+2037/11/25,Onafhankelijkheidsdag
+2037/12/25,Eerste kerstdag
+2037/12/26,Tweede kerstdag
+2038/1/1,Nieuwjaarsdag
+2038/1/16,Ied-Ul-Adha (geschat)
+2038/2/4,Chinees Nieuwjaar
+2038/4/23,Goede vrijdag
+2038/4/26,Tweede paasdag
+2038/5/1,Dag van de Arbeid
+2038/7/1,Dag der Vrijheden
+2038/8/9,Dag der Inheemsen
+2038/10/10,Dag der Marrons
+2038/10/27,Divali
+2038/10/29,Ied-Ul-Fitre (geschat)
+2038/11/25,Onafhankelijkheidsdag
+2038/12/25,Eerste kerstdag
+2038/12/26,Tweede kerstdag
+2039/1/1,Nieuwjaarsdag
+2039/1/5,Ied-Ul-Adha (geschat)
+2039/1/24,Chinees Nieuwjaar
+2039/4/8,Goede vrijdag
+2039/4/11,Tweede paasdag
+2039/5/1,Dag van de Arbeid
+2039/7/1,Dag der Vrijheden
+2039/8/9,Dag der Inheemsen
+2039/10/10,Dag der Marrons
+2039/10/19,Ied-Ul-Fitre (geschat)
+2039/11/15,Divali
+2039/11/25,Onafhankelijkheidsdag
+2039/12/25,Eerste kerstdag
+2039/12/26,Ied-Ul-Adha (geschat); Tweede kerstdag
+2040/1/1,Nieuwjaarsdag
+2040/2/12,Chinees Nieuwjaar
+2040/3/30,Goede vrijdag
+2040/4/2,Tweede paasdag
+2040/5/1,Dag van de Arbeid
+2040/7/1,Dag der Vrijheden
+2040/8/9,Dag der Inheemsen
+2040/10/7,Ied-Ul-Fitre (geschat)
+2040/10/10,Dag der Marrons
+2040/11/4,Divali
+2040/11/25,Onafhankelijkheidsdag
+2040/12/14,Ied-Ul-Adha (geschat)
+2040/12/25,Eerste kerstdag
+2040/12/26,Tweede kerstdag
+2041/1/1,Nieuwjaarsdag
+2041/2/1,Chinees Nieuwjaar
+2041/4/19,Goede vrijdag
+2041/4/22,Tweede paasdag
+2041/5/1,Dag van de Arbeid
+2041/7/1,Dag der Vrijheden
+2041/8/9,Dag der Inheemsen
+2041/9/26,Ied-Ul-Fitre (geschat)
+2041/10/10,Dag der Marrons
+2041/10/24,Divali
+2041/11/25,Onafhankelijkheidsdag
+2041/12/4,Ied-Ul-Adha (geschat)
+2041/12/25,Eerste kerstdag
+2041/12/26,Tweede kerstdag
+2042/1/1,Nieuwjaarsdag
+2042/1/22,Chinees Nieuwjaar
+2042/4/4,Goede vrijdag
+2042/4/7,Tweede paasdag
+2042/5/1,Dag van de Arbeid
+2042/7/1,Dag der Vrijheden
+2042/8/9,Dag der Inheemsen
+2042/9/15,Ied-Ul-Fitre (geschat)
+2042/10/10,Dag der Marrons
+2042/11/12,Divali
+2042/11/23,Ied-Ul-Adha (geschat)
+2042/11/25,Onafhankelijkheidsdag
+2042/12/25,Eerste kerstdag
+2042/12/26,Tweede kerstdag
+2043/1/1,Nieuwjaarsdag
+2043/2/10,Chinees Nieuwjaar
+2043/3/27,Goede vrijdag
+2043/3/30,Tweede paasdag
+2043/5/1,Dag van de Arbeid
+2043/7/1,Dag der Vrijheden
+2043/8/9,Dag der Inheemsen
+2043/9/4,Ied-Ul-Fitre (geschat)
+2043/10/10,Dag der Marrons
+2043/11/1,Divali
+2043/11/12,Ied-Ul-Adha (geschat)
+2043/11/25,Onafhankelijkheidsdag
+2043/12/25,Eerste kerstdag
+2043/12/26,Tweede kerstdag
+2044/1/1,Nieuwjaarsdag
+2044/1/30,Chinees Nieuwjaar
+2044/4/15,Goede vrijdag
+2044/4/18,Tweede paasdag
+2044/5/1,Dag van de Arbeid
+2044/7/1,Dag der Vrijheden
+2044/8/9,Dag der Inheemsen
+2044/8/24,Ied-Ul-Fitre (geschat)
+2044/10/10,Dag der Marrons
+2044/10/31,Ied-Ul-Adha (geschat)
+2044/11/18,Divali
+2044/11/25,Onafhankelijkheidsdag
+2044/12/25,Eerste kerstdag
+2044/12/26,Tweede kerstdag
+2045/1/1,Nieuwjaarsdag
+2045/2/17,Chinees Nieuwjaar
+2045/4/7,Goede vrijdag
+2045/4/10,Tweede paasdag
+2045/5/1,Dag van de Arbeid
+2045/7/1,Dag der Vrijheden
+2045/8/9,Dag der Inheemsen
+2045/8/14,Ied-Ul-Fitre (geschat)
+2045/10/10,Dag der Marrons
+2045/10/21,Ied-Ul-Adha (geschat)
+2045/11/8,Divali
+2045/11/25,Onafhankelijkheidsdag
+2045/12/25,Eerste kerstdag
+2045/12/26,Tweede kerstdag
+2046/1/1,Nieuwjaarsdag
+2046/2/6,Chinees Nieuwjaar
+2046/3/23,Goede vrijdag
+2046/3/26,Tweede paasdag
+2046/5/1,Dag van de Arbeid
+2046/7/1,Dag der Vrijheden
+2046/8/3,Ied-Ul-Fitre (geschat)
+2046/8/9,Dag der Inheemsen
+2046/10/10,Dag der Marrons; Ied-Ul-Adha (geschat)
+2046/10/28,Divali
+2046/11/25,Onafhankelijkheidsdag
+2046/12/25,Eerste kerstdag
+2046/12/26,Tweede kerstdag
+2047/1/1,Nieuwjaarsdag
+2047/1/26,Chinees Nieuwjaar
+2047/4/12,Goede vrijdag
+2047/4/15,Tweede paasdag
+2047/5/1,Dag van de Arbeid
+2047/7/1,Dag der Vrijheden
+2047/7/24,Ied-Ul-Fitre (geschat)
+2047/8/9,Dag der Inheemsen
+2047/9/30,Ied-Ul-Adha (geschat)
+2047/10/10,Dag der Marrons
+2047/11/16,Divali
+2047/11/25,Onafhankelijkheidsdag
+2047/12/25,Eerste kerstdag
+2047/12/26,Tweede kerstdag
+2048/1/1,Nieuwjaarsdag
+2048/2/14,Chinees Nieuwjaar
+2048/4/3,Goede vrijdag
+2048/4/6,Tweede paasdag
+2048/5/1,Dag van de Arbeid
+2048/7/1,Dag der Vrijheden
+2048/7/12,Ied-Ul-Fitre (geschat)
+2048/8/9,Dag der Inheemsen
+2048/9/19,Ied-Ul-Adha (geschat)
+2048/10/10,Dag der Marrons
+2048/11/5,Divali
+2048/11/25,Onafhankelijkheidsdag
+2048/12/25,Eerste kerstdag
+2048/12/26,Tweede kerstdag
+2049/1/1,Nieuwjaarsdag
+2049/2/2,Chinees Nieuwjaar
+2049/4/16,Goede vrijdag
+2049/4/19,Tweede paasdag
+2049/5/1,Dag van de Arbeid
+2049/7/1,Dag der Vrijheden; Ied-Ul-Fitre (geschat)
+2049/8/9,Dag der Inheemsen
+2049/9/8,Ied-Ul-Adha (geschat)
+2049/10/10,Dag der Marrons
+2049/10/26,Divali
+2049/11/25,Onafhankelijkheidsdag
+2049/12/25,Eerste kerstdag
+2049/12/26,Tweede kerstdag
+2050/1/1,Nieuwjaarsdag
+2050/1/23,Chinees Nieuwjaar
+2050/4/8,Goede vrijdag
+2050/4/11,Tweede paasdag
+2050/5/1,Dag van de Arbeid
+2050/6/20,Ied-Ul-Fitre (geschat)
+2050/7/1,Dag der Vrijheden
+2050/8/9,Dag der Inheemsen
+2050/8/28,Ied-Ul-Adha (geschat)
+2050/10/10,Dag der Marrons
+2050/11/13,Divali
+2050/11/25,Onafhankelijkheidsdag
+2050/12/25,Eerste kerstdag
+2050/12/26,Tweede kerstdag

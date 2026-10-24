@@ -1,0 +1,582 @@
+# CO の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/1/6,Día de los Reyes Magos
+2020/3/23,Día de San José (observado)
+2020/4/9,Jueves Santo
+2020/4/10,Viernes Santo
+2020/5/1,Día del Trabajo
+2020/5/25,Ascensión del señor (observado)
+2020/6/15,Corpus Christi (observado)
+2020/6/22,Sagrado Corazón (observado)
+2020/6/29,San Pedro y San Pablo
+2020/7/20,Día de la Independencia
+2020/8/7,Batalla de Boyacá
+2020/8/17,La Asunción (observado)
+2020/10/12,Día de la Raza
+2020/11/2,Día de Todos los Santos (observado)
+2020/11/16,Independencia de Cartagena (observado)
+2020/12/8,La Inmaculada Concepción
+2020/12/25,Navidad
+2021/1/1,Año Nuevo
+2021/1/11,Día de los Reyes Magos (observado)
+2021/3/22,Día de San José (observado)
+2021/4/1,Jueves Santo
+2021/4/2,Viernes Santo
+2021/5/1,Día del Trabajo
+2021/5/17,Ascensión del señor (observado)
+2021/6/7,Corpus Christi (observado)
+2021/6/14,Sagrado Corazón (observado)
+2021/7/5,San Pedro y San Pablo (observado)
+2021/7/20,Día de la Independencia
+2021/8/7,Batalla de Boyacá
+2021/8/16,La Asunción (observado)
+2021/10/18,Día de la Raza (observado)
+2021/11/1,Día de Todos los Santos
+2021/11/15,Independencia de Cartagena (observado)
+2021/12/8,La Inmaculada Concepción
+2021/12/25,Navidad
+2022/1/1,Año Nuevo
+2022/1/10,Día de los Reyes Magos (observado)
+2022/3/21,Día de San José (observado)
+2022/4/14,Jueves Santo
+2022/4/15,Viernes Santo
+2022/5/1,Día del Trabajo
+2022/5/30,Ascensión del señor (observado)
+2022/6/20,Corpus Christi (observado)
+2022/6/27,Sagrado Corazón (observado)
+2022/7/4,San Pedro y San Pablo (observado)
+2022/7/20,Día de la Independencia
+2022/8/7,Batalla de Boyacá
+2022/8/15,La Asunción
+2022/10/17,Día de la Raza (observado)
+2022/11/7,Día de Todos los Santos (observado)
+2022/11/14,Independencia de Cartagena (observado)
+2022/12/8,La Inmaculada Concepción
+2022/12/25,Navidad
+2023/1/1,Año Nuevo
+2023/1/9,Día de los Reyes Magos (observado)
+2023/3/20,Día de San José (observado)
+2023/4/6,Jueves Santo
+2023/4/7,Viernes Santo
+2023/5/1,Día del Trabajo
+2023/5/22,Ascensión del señor (observado)
+2023/6/12,Corpus Christi (observado)
+2023/6/19,Sagrado Corazón (observado)
+2023/7/3,San Pedro y San Pablo (observado)
+2023/7/20,Día de la Independencia
+2023/8/7,Batalla de Boyacá
+2023/8/21,La Asunción (observado)
+2023/10/16,Día de la Raza (observado)
+2023/11/6,Día de Todos los Santos (observado)
+2023/11/13,Independencia de Cartagena (observado)
+2023/12/8,La Inmaculada Concepción
+2023/12/25,Navidad
+2024/1/1,Año Nuevo
+2024/1/8,Día de los Reyes Magos (observado)
+2024/3/25,Día de San José (observado)
+2024/3/28,Jueves Santo
+2024/3/29,Viernes Santo
+2024/5/1,Día del Trabajo
+2024/5/13,Ascensión del señor (observado)
+2024/6/3,Corpus Christi (observado)
+2024/6/10,Sagrado Corazón (observado)
+2024/7/1,San Pedro y San Pablo (observado)
+2024/7/20,Día de la Independencia
+2024/8/7,Batalla de Boyacá
+2024/8/19,La Asunción (observado)
+2024/10/14,Día de la Raza (observado)
+2024/11/4,Día de Todos los Santos (observado)
+2024/11/11,Independencia de Cartagena
+2024/12/8,La Inmaculada Concepción
+2024/12/25,Navidad
+2025/1/1,Año Nuevo
+2025/1/6,Día de los Reyes Magos
+2025/3/24,Día de San José (observado)
+2025/4/17,Jueves Santo
+2025/4/18,Viernes Santo
+2025/5/1,Día del Trabajo
+2025/6/2,Ascensión del señor (observado)
+2025/6/23,Corpus Christi (observado)
+2025/6/30,Sagrado Corazón (observado); San Pedro y San Pablo (observado)
+2025/7/20,Día de la Independencia
+2025/8/7,Batalla de Boyacá
+2025/8/18,La Asunción (observado)
+2025/10/13,Día de la Raza (observado)
+2025/11/3,Día de Todos los Santos (observado)
+2025/11/17,Independencia de Cartagena (observado)
+2025/12/8,La Inmaculada Concepción
+2025/12/25,Navidad
+2026/1/1,Año Nuevo
+2026/1/12,Día de los Reyes Magos (observado)
+2026/3/23,Día de San José (observado)
+2026/4/2,Jueves Santo
+2026/4/3,Viernes Santo
+2026/5/1,Día del Trabajo
+2026/5/18,Ascensión del señor (observado)
+2026/6/8,Corpus Christi (observado)
+2026/6/15,Sagrado Corazón (observado)
+2026/6/29,San Pedro y San Pablo
+2026/7/13,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2026/7/20,Día de la Independencia
+2026/8/7,Batalla de Boyacá
+2026/8/17,La Asunción (observado)
+2026/10/12,Día de la Raza
+2026/11/2,Día de Todos los Santos (observado)
+2026/11/16,Independencia de Cartagena (observado)
+2026/12/8,La Inmaculada Concepción
+2026/12/25,Navidad
+2027/1/1,Año Nuevo
+2027/1/11,Día de los Reyes Magos (observado)
+2027/3/22,Día de San José (observado)
+2027/3/25,Jueves Santo
+2027/3/26,Viernes Santo
+2027/5/1,Día del Trabajo
+2027/5/10,Ascensión del señor (observado)
+2027/5/31,Corpus Christi (observado)
+2027/6/7,Sagrado Corazón (observado)
+2027/7/5,San Pedro y San Pablo (observado)
+2027/7/12,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2027/7/20,Día de la Independencia
+2027/8/7,Batalla de Boyacá
+2027/8/16,La Asunción (observado)
+2027/10/18,Día de la Raza (observado)
+2027/11/1,Día de Todos los Santos
+2027/11/15,Independencia de Cartagena (observado)
+2027/12/8,La Inmaculada Concepción
+2027/12/25,Navidad
+2028/1/1,Año Nuevo
+2028/1/10,Día de los Reyes Magos (observado)
+2028/3/20,Día de San José (observado)
+2028/4/13,Jueves Santo
+2028/4/14,Viernes Santo
+2028/5/1,Día del Trabajo
+2028/5/29,Ascensión del señor (observado)
+2028/6/19,Corpus Christi (observado)
+2028/6/26,Sagrado Corazón (observado)
+2028/7/3,San Pedro y San Pablo (observado)
+2028/7/10,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2028/7/20,Día de la Independencia
+2028/8/7,Batalla de Boyacá
+2028/8/21,La Asunción (observado)
+2028/10/16,Día de la Raza (observado)
+2028/11/6,Día de Todos los Santos (observado)
+2028/11/13,Independencia de Cartagena (observado)
+2028/12/8,La Inmaculada Concepción
+2028/12/25,Navidad
+2029/1/1,Año Nuevo
+2029/1/8,Día de los Reyes Magos (observado)
+2029/3/19,Día de San José
+2029/3/29,Jueves Santo
+2029/3/30,Viernes Santo
+2029/5/1,Día del Trabajo
+2029/5/14,Ascensión del señor (observado)
+2029/6/4,Corpus Christi (observado)
+2029/6/11,Sagrado Corazón (observado)
+2029/7/2,San Pedro y San Pablo (observado)
+2029/7/9,Día de Nuestra Señora del Rosario de Chiquinquirá
+2029/7/20,Día de la Independencia
+2029/8/7,Batalla de Boyacá
+2029/8/20,La Asunción (observado)
+2029/10/15,Día de la Raza (observado)
+2029/11/5,Día de Todos los Santos (observado)
+2029/11/12,Independencia de Cartagena (observado)
+2029/12/8,La Inmaculada Concepción
+2029/12/25,Navidad
+2030/1/1,Año Nuevo
+2030/1/7,Día de los Reyes Magos (observado)
+2030/3/25,Día de San José (observado)
+2030/4/18,Jueves Santo
+2030/4/19,Viernes Santo
+2030/5/1,Día del Trabajo
+2030/6/3,Ascensión del señor (observado)
+2030/6/24,Corpus Christi (observado)
+2030/7/1,Sagrado Corazón (observado); San Pedro y San Pablo (observado)
+2030/7/15,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2030/7/20,Día de la Independencia
+2030/8/7,Batalla de Boyacá
+2030/8/19,La Asunción (observado)
+2030/10/14,Día de la Raza (observado)
+2030/11/4,Día de Todos los Santos (observado)
+2030/11/11,Independencia de Cartagena
+2030/12/8,La Inmaculada Concepción
+2030/12/25,Navidad
+2031/1/1,Año Nuevo
+2031/1/6,Día de los Reyes Magos
+2031/3/24,Día de San José (observado)
+2031/4/10,Jueves Santo
+2031/4/11,Viernes Santo
+2031/5/1,Día del Trabajo
+2031/5/26,Ascensión del señor (observado)
+2031/6/16,Corpus Christi (observado)
+2031/6/23,Sagrado Corazón (observado)
+2031/6/30,San Pedro y San Pablo (observado)
+2031/7/14,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2031/7/20,Día de la Independencia
+2031/8/7,Batalla de Boyacá
+2031/8/18,La Asunción (observado)
+2031/10/13,Día de la Raza (observado)
+2031/11/3,Día de Todos los Santos (observado)
+2031/11/17,Independencia de Cartagena (observado)
+2031/12/8,La Inmaculada Concepción
+2031/12/25,Navidad
+2032/1/1,Año Nuevo
+2032/1/12,Día de los Reyes Magos (observado)
+2032/3/22,Día de San José (observado)
+2032/3/25,Jueves Santo
+2032/3/26,Viernes Santo
+2032/5/1,Día del Trabajo
+2032/5/10,Ascensión del señor (observado)
+2032/5/31,Corpus Christi (observado)
+2032/6/7,Sagrado Corazón (observado)
+2032/7/5,San Pedro y San Pablo (observado)
+2032/7/12,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2032/7/20,Día de la Independencia
+2032/8/7,Batalla de Boyacá
+2032/8/16,La Asunción (observado)
+2032/10/18,Día de la Raza (observado)
+2032/11/1,Día de Todos los Santos
+2032/11/15,Independencia de Cartagena (observado)
+2032/12/8,La Inmaculada Concepción
+2032/12/25,Navidad
+2033/1/1,Año Nuevo
+2033/1/10,Día de los Reyes Magos (observado)
+2033/3/21,Día de San José (observado)
+2033/4/14,Jueves Santo
+2033/4/15,Viernes Santo
+2033/5/1,Día del Trabajo
+2033/5/30,Ascensión del señor (observado)
+2033/6/20,Corpus Christi (observado)
+2033/6/27,Sagrado Corazón (observado)
+2033/7/4,San Pedro y San Pablo (observado)
+2033/7/11,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2033/7/20,Día de la Independencia
+2033/8/7,Batalla de Boyacá
+2033/8/15,La Asunción
+2033/10/17,Día de la Raza (observado)
+2033/11/7,Día de Todos los Santos (observado)
+2033/11/14,Independencia de Cartagena (observado)
+2033/12/8,La Inmaculada Concepción
+2033/12/25,Navidad
+2034/1/1,Año Nuevo
+2034/1/9,Día de los Reyes Magos (observado)
+2034/3/20,Día de San José (observado)
+2034/4/6,Jueves Santo
+2034/4/7,Viernes Santo
+2034/5/1,Día del Trabajo
+2034/5/22,Ascensión del señor (observado)
+2034/6/12,Corpus Christi (observado)
+2034/6/19,Sagrado Corazón (observado)
+2034/7/3,San Pedro y San Pablo (observado)
+2034/7/10,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2034/7/20,Día de la Independencia
+2034/8/7,Batalla de Boyacá
+2034/8/21,La Asunción (observado)
+2034/10/16,Día de la Raza (observado)
+2034/11/6,Día de Todos los Santos (observado)
+2034/11/13,Independencia de Cartagena (observado)
+2034/12/8,La Inmaculada Concepción
+2034/12/25,Navidad
+2035/1/1,Año Nuevo
+2035/1/8,Día de los Reyes Magos (observado)
+2035/3/19,Día de San José
+2035/3/22,Jueves Santo
+2035/3/23,Viernes Santo
+2035/5/1,Día del Trabajo
+2035/5/7,Ascensión del señor (observado)
+2035/5/28,Corpus Christi (observado)
+2035/6/4,Sagrado Corazón (observado)
+2035/7/2,San Pedro y San Pablo (observado)
+2035/7/9,Día de Nuestra Señora del Rosario de Chiquinquirá
+2035/7/20,Día de la Independencia
+2035/8/7,Batalla de Boyacá
+2035/8/20,La Asunción (observado)
+2035/10/15,Día de la Raza (observado)
+2035/11/5,Día de Todos los Santos (observado)
+2035/11/12,Independencia de Cartagena (observado)
+2035/12/8,La Inmaculada Concepción
+2035/12/25,Navidad
+2036/1/1,Año Nuevo
+2036/1/7,Día de los Reyes Magos (observado)
+2036/3/24,Día de San José (observado)
+2036/4/10,Jueves Santo
+2036/4/11,Viernes Santo
+2036/5/1,Día del Trabajo
+2036/5/26,Ascensión del señor (observado)
+2036/6/16,Corpus Christi (observado)
+2036/6/23,Sagrado Corazón (observado)
+2036/6/30,San Pedro y San Pablo (observado)
+2036/7/14,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2036/7/20,Día de la Independencia
+2036/8/7,Batalla de Boyacá
+2036/8/18,La Asunción (observado)
+2036/10/13,Día de la Raza (observado)
+2036/11/3,Día de Todos los Santos (observado)
+2036/11/17,Independencia de Cartagena (observado)
+2036/12/8,La Inmaculada Concepción
+2036/12/25,Navidad
+2037/1/1,Año Nuevo
+2037/1/12,Día de los Reyes Magos (observado)
+2037/3/23,Día de San José (observado)
+2037/4/2,Jueves Santo
+2037/4/3,Viernes Santo
+2037/5/1,Día del Trabajo
+2037/5/18,Ascensión del señor (observado)
+2037/6/8,Corpus Christi (observado)
+2037/6/15,Sagrado Corazón (observado)
+2037/6/29,San Pedro y San Pablo
+2037/7/13,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2037/7/20,Día de la Independencia
+2037/8/7,Batalla de Boyacá
+2037/8/17,La Asunción (observado)
+2037/10/12,Día de la Raza
+2037/11/2,Día de Todos los Santos (observado)
+2037/11/16,Independencia de Cartagena (observado)
+2037/12/8,La Inmaculada Concepción
+2037/12/25,Navidad
+2038/1/1,Año Nuevo
+2038/1/11,Día de los Reyes Magos (observado)
+2038/3/22,Día de San José (observado)
+2038/4/22,Jueves Santo
+2038/4/23,Viernes Santo
+2038/5/1,Día del Trabajo
+2038/6/7,Ascensión del señor (observado)
+2038/6/28,Corpus Christi (observado)
+2038/7/5,Sagrado Corazón (observado); San Pedro y San Pablo (observado)
+2038/7/12,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2038/7/20,Día de la Independencia
+2038/8/7,Batalla de Boyacá
+2038/8/16,La Asunción (observado)
+2038/10/18,Día de la Raza (observado)
+2038/11/1,Día de Todos los Santos
+2038/11/15,Independencia de Cartagena (observado)
+2038/12/8,La Inmaculada Concepción
+2038/12/25,Navidad
+2039/1/1,Año Nuevo
+2039/1/10,Día de los Reyes Magos (observado)
+2039/3/21,Día de San José (observado)
+2039/4/7,Jueves Santo
+2039/4/8,Viernes Santo
+2039/5/1,Día del Trabajo
+2039/5/23,Ascensión del señor (observado)
+2039/6/13,Corpus Christi (observado)
+2039/6/20,Sagrado Corazón (observado)
+2039/7/4,San Pedro y San Pablo (observado)
+2039/7/11,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2039/7/20,Día de la Independencia
+2039/8/7,Batalla de Boyacá
+2039/8/15,La Asunción
+2039/10/17,Día de la Raza (observado)
+2039/11/7,Día de Todos los Santos (observado)
+2039/11/14,Independencia de Cartagena (observado)
+2039/12/8,La Inmaculada Concepción
+2039/12/25,Navidad
+2040/1/1,Año Nuevo
+2040/1/9,Día de los Reyes Magos (observado)
+2040/3/19,Día de San José
+2040/3/29,Jueves Santo
+2040/3/30,Viernes Santo
+2040/5/1,Día del Trabajo
+2040/5/14,Ascensión del señor (observado)
+2040/6/4,Corpus Christi (observado)
+2040/6/11,Sagrado Corazón (observado)
+2040/7/2,San Pedro y San Pablo (observado)
+2040/7/9,Día de Nuestra Señora del Rosario de Chiquinquirá
+2040/7/20,Día de la Independencia
+2040/8/7,Batalla de Boyacá
+2040/8/20,La Asunción (observado)
+2040/10/15,Día de la Raza (observado)
+2040/11/5,Día de Todos los Santos (observado)
+2040/11/12,Independencia de Cartagena (observado)
+2040/12/8,La Inmaculada Concepción
+2040/12/25,Navidad
+2041/1/1,Año Nuevo
+2041/1/7,Día de los Reyes Magos (observado)
+2041/3/25,Día de San José (observado)
+2041/4/18,Jueves Santo
+2041/4/19,Viernes Santo
+2041/5/1,Día del Trabajo
+2041/6/3,Ascensión del señor (observado)
+2041/6/24,Corpus Christi (observado)
+2041/7/1,Sagrado Corazón (observado); San Pedro y San Pablo (observado)
+2041/7/15,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2041/7/20,Día de la Independencia
+2041/8/7,Batalla de Boyacá
+2041/8/19,La Asunción (observado)
+2041/10/14,Día de la Raza (observado)
+2041/11/4,Día de Todos los Santos (observado)
+2041/11/11,Independencia de Cartagena
+2041/12/8,La Inmaculada Concepción
+2041/12/25,Navidad
+2042/1/1,Año Nuevo
+2042/1/6,Día de los Reyes Magos
+2042/3/24,Día de San José (observado)
+2042/4/3,Jueves Santo
+2042/4/4,Viernes Santo
+2042/5/1,Día del Trabajo
+2042/5/19,Ascensión del señor (observado)
+2042/6/9,Corpus Christi (observado)
+2042/6/16,Sagrado Corazón (observado)
+2042/6/30,San Pedro y San Pablo (observado)
+2042/7/14,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2042/7/20,Día de la Independencia
+2042/8/7,Batalla de Boyacá
+2042/8/18,La Asunción (observado)
+2042/10/13,Día de la Raza (observado)
+2042/11/3,Día de Todos los Santos (observado)
+2042/11/17,Independencia de Cartagena (observado)
+2042/12/8,La Inmaculada Concepción
+2042/12/25,Navidad
+2043/1/1,Año Nuevo
+2043/1/12,Día de los Reyes Magos (observado)
+2043/3/23,Día de San José (observado)
+2043/3/26,Jueves Santo
+2043/3/27,Viernes Santo
+2043/5/1,Día del Trabajo
+2043/5/11,Ascensión del señor (observado)
+2043/6/1,Corpus Christi (observado)
+2043/6/8,Sagrado Corazón (observado)
+2043/6/29,San Pedro y San Pablo
+2043/7/13,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2043/7/20,Día de la Independencia
+2043/8/7,Batalla de Boyacá
+2043/8/17,La Asunción (observado)
+2043/10/12,Día de la Raza
+2043/11/2,Día de Todos los Santos (observado)
+2043/11/16,Independencia de Cartagena (observado)
+2043/12/8,La Inmaculada Concepción
+2043/12/25,Navidad
+2044/1/1,Año Nuevo
+2044/1/11,Día de los Reyes Magos (observado)
+2044/3/21,Día de San José (observado)
+2044/4/14,Jueves Santo
+2044/4/15,Viernes Santo
+2044/5/1,Día del Trabajo
+2044/5/30,Ascensión del señor (observado)
+2044/6/20,Corpus Christi (observado)
+2044/6/27,Sagrado Corazón (observado)
+2044/7/4,San Pedro y San Pablo (observado)
+2044/7/11,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2044/7/20,Día de la Independencia
+2044/8/7,Batalla de Boyacá
+2044/8/15,La Asunción
+2044/10/17,Día de la Raza (observado)
+2044/11/7,Día de Todos los Santos (observado)
+2044/11/14,Independencia de Cartagena (observado)
+2044/12/8,La Inmaculada Concepción
+2044/12/25,Navidad
+2045/1/1,Año Nuevo
+2045/1/9,Día de los Reyes Magos (observado)
+2045/3/20,Día de San José (observado)
+2045/4/6,Jueves Santo
+2045/4/7,Viernes Santo
+2045/5/1,Día del Trabajo
+2045/5/22,Ascensión del señor (observado)
+2045/6/12,Corpus Christi (observado)
+2045/6/19,Sagrado Corazón (observado)
+2045/7/3,San Pedro y San Pablo (observado)
+2045/7/10,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2045/7/20,Día de la Independencia
+2045/8/7,Batalla de Boyacá
+2045/8/21,La Asunción (observado)
+2045/10/16,Día de la Raza (observado)
+2045/11/6,Día de Todos los Santos (observado)
+2045/11/13,Independencia de Cartagena (observado)
+2045/12/8,La Inmaculada Concepción
+2045/12/25,Navidad
+2046/1/1,Año Nuevo
+2046/1/8,Día de los Reyes Magos (observado)
+2046/3/19,Día de San José
+2046/3/22,Jueves Santo
+2046/3/23,Viernes Santo
+2046/5/1,Día del Trabajo
+2046/5/7,Ascensión del señor (observado)
+2046/5/28,Corpus Christi (observado)
+2046/6/4,Sagrado Corazón (observado)
+2046/7/2,San Pedro y San Pablo (observado)
+2046/7/9,Día de Nuestra Señora del Rosario de Chiquinquirá
+2046/7/20,Día de la Independencia
+2046/8/7,Batalla de Boyacá
+2046/8/20,La Asunción (observado)
+2046/10/15,Día de la Raza (observado)
+2046/11/5,Día de Todos los Santos (observado)
+2046/11/12,Independencia de Cartagena (observado)
+2046/12/8,La Inmaculada Concepción
+2046/12/25,Navidad
+2047/1/1,Año Nuevo
+2047/1/7,Día de los Reyes Magos (observado)
+2047/3/25,Día de San José (observado)
+2047/4/11,Jueves Santo
+2047/4/12,Viernes Santo
+2047/5/1,Día del Trabajo
+2047/5/27,Ascensión del señor (observado)
+2047/6/17,Corpus Christi (observado)
+2047/6/24,Sagrado Corazón (observado)
+2047/7/1,San Pedro y San Pablo (observado)
+2047/7/15,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2047/7/20,Día de la Independencia
+2047/8/7,Batalla de Boyacá
+2047/8/19,La Asunción (observado)
+2047/10/14,Día de la Raza (observado)
+2047/11/4,Día de Todos los Santos (observado)
+2047/11/11,Independencia de Cartagena
+2047/12/8,La Inmaculada Concepción
+2047/12/25,Navidad
+2048/1/1,Año Nuevo
+2048/1/6,Día de los Reyes Magos
+2048/3/23,Día de San José (observado)
+2048/4/2,Jueves Santo
+2048/4/3,Viernes Santo
+2048/5/1,Día del Trabajo
+2048/5/18,Ascensión del señor (observado)
+2048/6/8,Corpus Christi (observado)
+2048/6/15,Sagrado Corazón (observado)
+2048/6/29,San Pedro y San Pablo
+2048/7/13,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2048/7/20,Día de la Independencia
+2048/8/7,Batalla de Boyacá
+2048/8/17,La Asunción (observado)
+2048/10/12,Día de la Raza
+2048/11/2,Día de Todos los Santos (observado)
+2048/11/16,Independencia de Cartagena (observado)
+2048/12/8,La Inmaculada Concepción
+2048/12/25,Navidad
+2049/1/1,Año Nuevo
+2049/1/11,Día de los Reyes Magos (observado)
+2049/3/22,Día de San José (observado)
+2049/4/15,Jueves Santo
+2049/4/16,Viernes Santo
+2049/5/1,Día del Trabajo
+2049/5/31,Ascensión del señor (observado)
+2049/6/21,Corpus Christi (observado)
+2049/6/28,Sagrado Corazón (observado)
+2049/7/5,San Pedro y San Pablo (observado)
+2049/7/12,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2049/7/20,Día de la Independencia
+2049/8/7,Batalla de Boyacá
+2049/8/16,La Asunción (observado)
+2049/10/18,Día de la Raza (observado)
+2049/11/1,Día de Todos los Santos
+2049/11/15,Independencia de Cartagena (observado)
+2049/12/8,La Inmaculada Concepción
+2049/12/25,Navidad
+2050/1/1,Año Nuevo
+2050/1/10,Día de los Reyes Magos (observado)
+2050/3/21,Día de San José (observado)
+2050/4/7,Jueves Santo
+2050/4/8,Viernes Santo
+2050/5/1,Día del Trabajo
+2050/5/23,Ascensión del señor (observado)
+2050/6/13,Corpus Christi (observado)
+2050/6/20,Sagrado Corazón (observado)
+2050/7/4,San Pedro y San Pablo (observado)
+2050/7/11,Día de Nuestra Señora del Rosario de Chiquinquirá (observado)
+2050/7/20,Día de la Independencia
+2050/8/7,Batalla de Boyacá
+2050/8/15,La Asunción
+2050/10/17,Día de la Raza (observado)
+2050/11/7,Día de Todos los Santos (observado)
+2050/11/14,Independencia de Cartagena (observado)
+2050/12/8,La Inmaculada Concepción
+2050/12/25,Navidad

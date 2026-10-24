@@ -1,0 +1,311 @@
+# NI の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/4/9,Jueves Santo
+2020/4/10,Viernes Santo
+2020/5/1,Día del Trabajo
+2020/7/19,Día de la Revolución
+2020/9/14,Batalla de San Jacinto
+2020/9/15,Día de la Independencia
+2020/12/8,Concepción de María
+2020/12/25,Navidad
+2021/1/1,Año Nuevo
+2021/4/1,Jueves Santo
+2021/4/2,Viernes Santo
+2021/5/1,Día del Trabajo
+2021/7/19,Día de la Revolución
+2021/9/14,Batalla de San Jacinto
+2021/9/15,Día de la Independencia
+2021/12/8,Concepción de María
+2021/12/25,Navidad
+2022/1/1,Año Nuevo
+2022/4/14,Jueves Santo
+2022/4/15,Viernes Santo
+2022/5/1,Día del Trabajo
+2022/5/30,Día de la Madre
+2022/7/19,Día de la Revolución
+2022/9/14,Batalla de San Jacinto
+2022/9/15,Día de la Independencia
+2022/12/8,Concepción de María
+2022/12/25,Navidad
+2023/1/1,Año Nuevo
+2023/4/6,Jueves Santo
+2023/4/7,Viernes Santo
+2023/5/1,Día del Trabajo
+2023/5/30,Día de la Madre
+2023/7/19,Día de la Revolución
+2023/9/14,Batalla de San Jacinto
+2023/9/15,Día de la Independencia
+2023/12/8,Concepción de María
+2023/12/25,Navidad
+2024/1/1,Año Nuevo
+2024/3/28,Jueves Santo
+2024/3/29,Viernes Santo
+2024/5/1,Día del Trabajo
+2024/5/30,Día de la Madre
+2024/7/19,Día de la Revolución
+2024/9/14,Batalla de San Jacinto
+2024/9/15,Día de la Independencia
+2024/12/8,Concepción de María
+2024/12/25,Navidad
+2025/1/1,Año Nuevo
+2025/4/17,Jueves Santo
+2025/4/18,Viernes Santo
+2025/5/1,Día del Trabajo
+2025/5/30,Día de la Madre
+2025/7/19,Día de la Revolución
+2025/9/14,Batalla de San Jacinto
+2025/9/15,Día de la Independencia
+2025/12/8,Concepción de María
+2025/12/25,Navidad
+2026/1/1,Año Nuevo
+2026/4/2,Jueves Santo
+2026/4/3,Viernes Santo
+2026/5/1,Día del Trabajo
+2026/5/30,Día de la Madre
+2026/7/19,Día de la Revolución
+2026/9/14,Batalla de San Jacinto
+2026/9/15,Día de la Independencia
+2026/12/8,Concepción de María
+2026/12/25,Navidad
+2027/1/1,Año Nuevo
+2027/3/25,Jueves Santo
+2027/3/26,Viernes Santo
+2027/5/1,Día del Trabajo
+2027/5/30,Día de la Madre
+2027/7/19,Día de la Revolución
+2027/9/14,Batalla de San Jacinto
+2027/9/15,Día de la Independencia
+2027/12/8,Concepción de María
+2027/12/25,Navidad
+2028/1/1,Año Nuevo
+2028/4/13,Jueves Santo
+2028/4/14,Viernes Santo
+2028/5/1,Día del Trabajo
+2028/5/30,Día de la Madre
+2028/7/19,Día de la Revolución
+2028/9/14,Batalla de San Jacinto
+2028/9/15,Día de la Independencia
+2028/12/8,Concepción de María
+2028/12/25,Navidad
+2029/1/1,Año Nuevo
+2029/3/29,Jueves Santo
+2029/3/30,Viernes Santo
+2029/5/1,Día del Trabajo
+2029/5/30,Día de la Madre
+2029/7/19,Día de la Revolución
+2029/9/14,Batalla de San Jacinto
+2029/9/15,Día de la Independencia
+2029/12/8,Concepción de María
+2029/12/25,Navidad
+2030/1/1,Año Nuevo
+2030/4/18,Jueves Santo
+2030/4/19,Viernes Santo
+2030/5/1,Día del Trabajo
+2030/5/30,Día de la Madre
+2030/7/19,Día de la Revolución
+2030/9/14,Batalla de San Jacinto
+2030/9/15,Día de la Independencia
+2030/12/8,Concepción de María
+2030/12/25,Navidad
+2031/1/1,Año Nuevo
+2031/4/10,Jueves Santo
+2031/4/11,Viernes Santo
+2031/5/1,Día del Trabajo
+2031/5/30,Día de la Madre
+2031/7/19,Día de la Revolución
+2031/9/14,Batalla de San Jacinto
+2031/9/15,Día de la Independencia
+2031/12/8,Concepción de María
+2031/12/25,Navidad
+2032/1/1,Año Nuevo
+2032/3/25,Jueves Santo
+2032/3/26,Viernes Santo
+2032/5/1,Día del Trabajo
+2032/5/30,Día de la Madre
+2032/7/19,Día de la Revolución
+2032/9/14,Batalla de San Jacinto
+2032/9/15,Día de la Independencia
+2032/12/8,Concepción de María
+2032/12/25,Navidad
+2033/1/1,Año Nuevo
+2033/4/14,Jueves Santo
+2033/4/15,Viernes Santo
+2033/5/1,Día del Trabajo
+2033/5/30,Día de la Madre
+2033/7/19,Día de la Revolución
+2033/9/14,Batalla de San Jacinto
+2033/9/15,Día de la Independencia
+2033/12/8,Concepción de María
+2033/12/25,Navidad
+2034/1/1,Año Nuevo
+2034/4/6,Jueves Santo
+2034/4/7,Viernes Santo
+2034/5/1,Día del Trabajo
+2034/5/30,Día de la Madre
+2034/7/19,Día de la Revolución
+2034/9/14,Batalla de San Jacinto
+2034/9/15,Día de la Independencia
+2034/12/8,Concepción de María
+2034/12/25,Navidad
+2035/1/1,Año Nuevo
+2035/3/22,Jueves Santo
+2035/3/23,Viernes Santo
+2035/5/1,Día del Trabajo
+2035/5/30,Día de la Madre
+2035/7/19,Día de la Revolución
+2035/9/14,Batalla de San Jacinto
+2035/9/15,Día de la Independencia
+2035/12/8,Concepción de María
+2035/12/25,Navidad
+2036/1/1,Año Nuevo
+2036/4/10,Jueves Santo
+2036/4/11,Viernes Santo
+2036/5/1,Día del Trabajo
+2036/5/30,Día de la Madre
+2036/7/19,Día de la Revolución
+2036/9/14,Batalla de San Jacinto
+2036/9/15,Día de la Independencia
+2036/12/8,Concepción de María
+2036/12/25,Navidad
+2037/1/1,Año Nuevo
+2037/4/2,Jueves Santo
+2037/4/3,Viernes Santo
+2037/5/1,Día del Trabajo
+2037/5/30,Día de la Madre
+2037/7/19,Día de la Revolución
+2037/9/14,Batalla de San Jacinto
+2037/9/15,Día de la Independencia
+2037/12/8,Concepción de María
+2037/12/25,Navidad
+2038/1/1,Año Nuevo
+2038/4/22,Jueves Santo
+2038/4/23,Viernes Santo
+2038/5/1,Día del Trabajo
+2038/5/30,Día de la Madre
+2038/7/19,Día de la Revolución
+2038/9/14,Batalla de San Jacinto
+2038/9/15,Día de la Independencia
+2038/12/8,Concepción de María
+2038/12/25,Navidad
+2039/1/1,Año Nuevo
+2039/4/7,Jueves Santo
+2039/4/8,Viernes Santo
+2039/5/1,Día del Trabajo
+2039/5/30,Día de la Madre
+2039/7/19,Día de la Revolución
+2039/9/14,Batalla de San Jacinto
+2039/9/15,Día de la Independencia
+2039/12/8,Concepción de María
+2039/12/25,Navidad
+2040/1/1,Año Nuevo
+2040/3/29,Jueves Santo
+2040/3/30,Viernes Santo
+2040/5/1,Día del Trabajo
+2040/5/30,Día de la Madre
+2040/7/19,Día de la Revolución
+2040/9/14,Batalla de San Jacinto
+2040/9/15,Día de la Independencia
+2040/12/8,Concepción de María
+2040/12/25,Navidad
+2041/1/1,Año Nuevo
+2041/4/18,Jueves Santo
+2041/4/19,Viernes Santo
+2041/5/1,Día del Trabajo
+2041/5/30,Día de la Madre
+2041/7/19,Día de la Revolución
+2041/9/14,Batalla de San Jacinto
+2041/9/15,Día de la Independencia
+2041/12/8,Concepción de María
+2041/12/25,Navidad
+2042/1/1,Año Nuevo
+2042/4/3,Jueves Santo
+2042/4/4,Viernes Santo
+2042/5/1,Día del Trabajo
+2042/5/30,Día de la Madre
+2042/7/19,Día de la Revolución
+2042/9/14,Batalla de San Jacinto
+2042/9/15,Día de la Independencia
+2042/12/8,Concepción de María
+2042/12/25,Navidad
+2043/1/1,Año Nuevo
+2043/3/26,Jueves Santo
+2043/3/27,Viernes Santo
+2043/5/1,Día del Trabajo
+2043/5/30,Día de la Madre
+2043/7/19,Día de la Revolución
+2043/9/14,Batalla de San Jacinto
+2043/9/15,Día de la Independencia
+2043/12/8,Concepción de María
+2043/12/25,Navidad
+2044/1/1,Año Nuevo
+2044/4/14,Jueves Santo
+2044/4/15,Viernes Santo
+2044/5/1,Día del Trabajo
+2044/5/30,Día de la Madre
+2044/7/19,Día de la Revolución
+2044/9/14,Batalla de San Jacinto
+2044/9/15,Día de la Independencia
+2044/12/8,Concepción de María
+2044/12/25,Navidad
+2045/1/1,Año Nuevo
+2045/4/6,Jueves Santo
+2045/4/7,Viernes Santo
+2045/5/1,Día del Trabajo
+2045/5/30,Día de la Madre
+2045/7/19,Día de la Revolución
+2045/9/14,Batalla de San Jacinto
+2045/9/15,Día de la Independencia
+2045/12/8,Concepción de María
+2045/12/25,Navidad
+2046/1/1,Año Nuevo
+2046/3/22,Jueves Santo
+2046/3/23,Viernes Santo
+2046/5/1,Día del Trabajo
+2046/5/30,Día de la Madre
+2046/7/19,Día de la Revolución
+2046/9/14,Batalla de San Jacinto
+2046/9/15,Día de la Independencia
+2046/12/8,Concepción de María
+2046/12/25,Navidad
+2047/1/1,Año Nuevo
+2047/4/11,Jueves Santo
+2047/4/12,Viernes Santo
+2047/5/1,Día del Trabajo
+2047/5/30,Día de la Madre
+2047/7/19,Día de la Revolución
+2047/9/14,Batalla de San Jacinto
+2047/9/15,Día de la Independencia
+2047/12/8,Concepción de María
+2047/12/25,Navidad
+2048/1/1,Año Nuevo
+2048/4/2,Jueves Santo
+2048/4/3,Viernes Santo
+2048/5/1,Día del Trabajo
+2048/5/30,Día de la Madre
+2048/7/19,Día de la Revolución
+2048/9/14,Batalla de San Jacinto
+2048/9/15,Día de la Independencia
+2048/12/8,Concepción de María
+2048/12/25,Navidad
+2049/1/1,Año Nuevo
+2049/4/15,Jueves Santo
+2049/4/16,Viernes Santo
+2049/5/1,Día del Trabajo
+2049/5/30,Día de la Madre
+2049/7/19,Día de la Revolución
+2049/9/14,Batalla de San Jacinto
+2049/9/15,Día de la Independencia
+2049/12/8,Concepción de María
+2049/12/25,Navidad
+2050/1/1,Año Nuevo
+2050/4/7,Jueves Santo
+2050/4/8,Viernes Santo
+2050/5/1,Día del Trabajo
+2050/5/30,Día de la Madre
+2050/7/19,Día de la Revolución
+2050/9/14,Batalla de San Jacinto
+2050/9/15,Día de la Independencia
+2050/12/8,Concepción de María
+2050/12/25,Navidad

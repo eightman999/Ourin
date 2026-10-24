@@ -1,0 +1,473 @@
+# EC holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/2/24,Carnival
+2020/2/25,Carnival
+2020/4/10,Good Friday
+2020/5/1,Labor Day
+2020/5/24,The Battle of Pichincha
+2020/5/25,The Battle of Pichincha (observed)
+2020/8/10,Declaration of Independence of Quito
+2020/10/9,Independence of Guayaquil
+2020/11/2,All Souls' Day
+2020/11/3,Independence of Cuenca
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/2/15,Carnival
+2021/2/16,Carnival
+2021/4/2,Good Friday
+2021/4/30,Labor Day (observed)
+2021/5/1,Labor Day
+2021/5/24,The Battle of Pichincha
+2021/8/9,Declaration of Independence of Quito (observed)
+2021/8/10,Declaration of Independence of Quito
+2021/10/8,Independence of Guayaquil (observed)
+2021/10/9,Independence of Guayaquil
+2021/11/1,All Souls' Day (observed)
+2021/11/2,All Souls' Day
+2021/11/3,Independence of Cuenca
+2021/12/24,Christmas Day (observed)
+2021/12/25,Christmas Day
+2021/12/31,New Year's Day (observed)
+2022/1/1,New Year's Day
+2022/2/28,Carnival
+2022/3/1,Carnival
+2022/4/15,Good Friday
+2022/5/1,Labor Day
+2022/5/2,Labor Day (observed)
+2022/5/23,The Battle of Pichincha (observed)
+2022/5/24,The Battle of Pichincha
+2022/8/10,Declaration of Independence of Quito
+2022/8/12,Declaration of Independence of Quito (observed)
+2022/10/9,Independence of Guayaquil
+2022/10/10,Independence of Guayaquil (observed)
+2022/11/2,All Souls' Day
+2022/11/3,Independence of Cuenca
+2022/11/4,All Souls' Day (observed)
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/2/20,Carnival
+2023/2/21,Carnival
+2023/4/7,Good Friday
+2023/5/1,Labor Day
+2023/5/24,The Battle of Pichincha
+2023/5/26,The Battle of Pichincha (observed)
+2023/8/10,Declaration of Independence of Quito
+2023/8/11,Declaration of Independence of Quito (observed)
+2023/10/9,Independence of Guayaquil
+2023/11/2,All Souls' Day
+2023/11/3,Independence of Cuenca
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/2/12,Carnival
+2024/2/13,Carnival
+2024/3/29,Good Friday
+2024/5/1,Labor Day
+2024/5/3,Labor Day (observed)
+2024/5/24,The Battle of Pichincha
+2024/8/9,Declaration of Independence of Quito (observed)
+2024/8/10,Declaration of Independence of Quito
+2024/10/9,Independence of Guayaquil
+2024/10/11,Independence of Guayaquil (observed)
+2024/11/1,All Souls' Day (observed)
+2024/11/2,All Souls' Day
+2024/11/3,Independence of Cuenca
+2024/11/4,Independence of Cuenca (observed)
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/3/3,Carnival
+2025/3/4,Carnival
+2025/4/18,Good Friday
+2025/5/1,Labor Day
+2025/5/2,Labor Day (observed)
+2025/5/23,The Battle of Pichincha (observed)
+2025/5/24,The Battle of Pichincha
+2025/8/10,Declaration of Independence of Quito
+2025/8/11,Declaration of Independence of Quito (observed)
+2025/10/9,Independence of Guayaquil
+2025/10/10,Independence of Guayaquil (observed)
+2025/11/2,All Souls' Day
+2025/11/3,Independence of Cuenca
+2025/11/4,All Souls' Day (observed)
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/2/16,Carnival
+2026/2/17,Carnival
+2026/4/3,Good Friday
+2026/5/1,Labor Day
+2026/5/24,The Battle of Pichincha
+2026/5/25,The Battle of Pichincha (observed)
+2026/8/10,Declaration of Independence of Quito
+2026/10/9,Independence of Guayaquil
+2026/11/2,All Souls' Day
+2026/11/3,Independence of Cuenca
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/2/8,Carnival
+2027/2/9,Carnival
+2027/3/26,Good Friday
+2027/4/30,Labor Day (observed)
+2027/5/1,Labor Day
+2027/5/24,The Battle of Pichincha
+2027/8/9,Declaration of Independence of Quito (observed)
+2027/8/10,Declaration of Independence of Quito
+2027/10/8,Independence of Guayaquil (observed)
+2027/10/9,Independence of Guayaquil
+2027/11/1,All Souls' Day (observed)
+2027/11/2,All Souls' Day
+2027/11/3,Independence of Cuenca
+2027/12/24,Christmas Day (observed)
+2027/12/25,Christmas Day
+2027/12/31,New Year's Day (observed)
+2028/1/1,New Year's Day
+2028/2/28,Carnival
+2028/2/29,Carnival
+2028/4/14,Good Friday
+2028/5/1,Labor Day
+2028/5/24,The Battle of Pichincha
+2028/5/26,The Battle of Pichincha (observed)
+2028/8/10,Declaration of Independence of Quito
+2028/8/11,Declaration of Independence of Quito (observed)
+2028/10/9,Independence of Guayaquil
+2028/11/2,All Souls' Day
+2028/11/3,Independence of Cuenca
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/2/12,Carnival
+2029/2/13,Carnival
+2029/3/30,Good Friday
+2029/4/30,Labor Day (observed)
+2029/5/1,Labor Day
+2029/5/24,The Battle of Pichincha
+2029/5/25,The Battle of Pichincha (observed)
+2029/8/10,Declaration of Independence of Quito
+2029/10/8,Independence of Guayaquil (observed)
+2029/10/9,Independence of Guayaquil
+2029/11/2,All Souls' Day
+2029/11/3,Independence of Cuenca
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/3/4,Carnival
+2030/3/5,Carnival
+2030/4/19,Good Friday
+2030/5/1,Labor Day
+2030/5/3,Labor Day (observed)
+2030/5/24,The Battle of Pichincha
+2030/8/9,Declaration of Independence of Quito (observed)
+2030/8/10,Declaration of Independence of Quito
+2030/10/9,Independence of Guayaquil
+2030/10/11,Independence of Guayaquil (observed)
+2030/11/1,All Souls' Day (observed)
+2030/11/2,All Souls' Day
+2030/11/3,Independence of Cuenca
+2030/11/4,Independence of Cuenca (observed)
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/2/24,Carnival
+2031/2/25,Carnival
+2031/4/11,Good Friday
+2031/5/1,Labor Day
+2031/5/2,Labor Day (observed)
+2031/5/23,The Battle of Pichincha (observed)
+2031/5/24,The Battle of Pichincha
+2031/8/10,Declaration of Independence of Quito
+2031/8/11,Declaration of Independence of Quito (observed)
+2031/10/9,Independence of Guayaquil
+2031/10/10,Independence of Guayaquil (observed)
+2031/11/2,All Souls' Day
+2031/11/3,Independence of Cuenca
+2031/11/4,All Souls' Day (observed)
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/2/9,Carnival
+2032/2/10,Carnival
+2032/3/26,Good Friday
+2032/4/30,Labor Day (observed)
+2032/5/1,Labor Day
+2032/5/24,The Battle of Pichincha
+2032/8/9,Declaration of Independence of Quito (observed)
+2032/8/10,Declaration of Independence of Quito
+2032/10/8,Independence of Guayaquil (observed)
+2032/10/9,Independence of Guayaquil
+2032/11/1,All Souls' Day (observed)
+2032/11/2,All Souls' Day
+2032/11/3,Independence of Cuenca
+2032/12/24,Christmas Day (observed)
+2032/12/25,Christmas Day
+2032/12/31,New Year's Day (observed)
+2033/1/1,New Year's Day
+2033/2/28,Carnival
+2033/3/1,Carnival
+2033/4/15,Good Friday
+2033/5/1,Labor Day
+2033/5/2,Labor Day (observed)
+2033/5/23,The Battle of Pichincha (observed)
+2033/5/24,The Battle of Pichincha
+2033/8/10,Declaration of Independence of Quito
+2033/8/12,Declaration of Independence of Quito (observed)
+2033/10/9,Independence of Guayaquil
+2033/10/10,Independence of Guayaquil (observed)
+2033/11/2,All Souls' Day
+2033/11/3,Independence of Cuenca
+2033/11/4,All Souls' Day (observed)
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/2/20,Carnival
+2034/2/21,Carnival
+2034/4/7,Good Friday
+2034/5/1,Labor Day
+2034/5/24,The Battle of Pichincha
+2034/5/26,The Battle of Pichincha (observed)
+2034/8/10,Declaration of Independence of Quito
+2034/8/11,Declaration of Independence of Quito (observed)
+2034/10/9,Independence of Guayaquil
+2034/11/2,All Souls' Day
+2034/11/3,Independence of Cuenca
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/2/5,Carnival
+2035/2/6,Carnival
+2035/3/23,Good Friday
+2035/4/30,Labor Day (observed)
+2035/5/1,Labor Day
+2035/5/24,The Battle of Pichincha
+2035/5/25,The Battle of Pichincha (observed)
+2035/8/10,Declaration of Independence of Quito
+2035/10/8,Independence of Guayaquil (observed)
+2035/10/9,Independence of Guayaquil
+2035/11/2,All Souls' Day
+2035/11/3,Independence of Cuenca
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/2/25,Carnival
+2036/2/26,Carnival
+2036/4/11,Good Friday
+2036/5/1,Labor Day
+2036/5/2,Labor Day (observed)
+2036/5/23,The Battle of Pichincha (observed)
+2036/5/24,The Battle of Pichincha
+2036/8/10,Declaration of Independence of Quito
+2036/8/11,Declaration of Independence of Quito (observed)
+2036/10/9,Independence of Guayaquil
+2036/10/10,Independence of Guayaquil (observed)
+2036/11/2,All Souls' Day
+2036/11/3,Independence of Cuenca
+2036/11/4,All Souls' Day (observed)
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/2/16,Carnival
+2037/2/17,Carnival
+2037/4/3,Good Friday
+2037/5/1,Labor Day
+2037/5/24,The Battle of Pichincha
+2037/5/25,The Battle of Pichincha (observed)
+2037/8/10,Declaration of Independence of Quito
+2037/10/9,Independence of Guayaquil
+2037/11/2,All Souls' Day
+2037/11/3,Independence of Cuenca
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/3/8,Carnival
+2038/3/9,Carnival
+2038/4/23,Good Friday
+2038/4/30,Labor Day (observed)
+2038/5/1,Labor Day
+2038/5/24,The Battle of Pichincha
+2038/8/9,Declaration of Independence of Quito (observed)
+2038/8/10,Declaration of Independence of Quito
+2038/10/8,Independence of Guayaquil (observed)
+2038/10/9,Independence of Guayaquil
+2038/11/1,All Souls' Day (observed)
+2038/11/2,All Souls' Day
+2038/11/3,Independence of Cuenca
+2038/12/24,Christmas Day (observed)
+2038/12/25,Christmas Day
+2038/12/31,New Year's Day (observed)
+2039/1/1,New Year's Day
+2039/2/21,Carnival
+2039/2/22,Carnival
+2039/4/8,Good Friday
+2039/5/1,Labor Day
+2039/5/2,Labor Day (observed)
+2039/5/23,The Battle of Pichincha (observed)
+2039/5/24,The Battle of Pichincha
+2039/8/10,Declaration of Independence of Quito
+2039/8/12,Declaration of Independence of Quito (observed)
+2039/10/9,Independence of Guayaquil
+2039/10/10,Independence of Guayaquil (observed)
+2039/11/2,All Souls' Day
+2039/11/3,Independence of Cuenca
+2039/11/4,All Souls' Day (observed)
+2039/12/25,Christmas Day
+2039/12/26,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/2/13,Carnival
+2040/2/14,Carnival
+2040/3/30,Good Friday
+2040/4/30,Labor Day (observed)
+2040/5/1,Labor Day
+2040/5/24,The Battle of Pichincha
+2040/5/25,The Battle of Pichincha (observed)
+2040/8/10,Declaration of Independence of Quito
+2040/10/8,Independence of Guayaquil (observed)
+2040/10/9,Independence of Guayaquil
+2040/11/2,All Souls' Day
+2040/11/3,Independence of Cuenca
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/3/4,Carnival
+2041/3/5,Carnival
+2041/4/19,Good Friday
+2041/5/1,Labor Day
+2041/5/3,Labor Day (observed)
+2041/5/24,The Battle of Pichincha
+2041/8/9,Declaration of Independence of Quito (observed)
+2041/8/10,Declaration of Independence of Quito
+2041/10/9,Independence of Guayaquil
+2041/10/11,Independence of Guayaquil (observed)
+2041/11/1,All Souls' Day (observed)
+2041/11/2,All Souls' Day
+2041/11/3,Independence of Cuenca
+2041/11/4,Independence of Cuenca (observed)
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/2/17,Carnival
+2042/2/18,Carnival
+2042/4/4,Good Friday
+2042/5/1,Labor Day
+2042/5/2,Labor Day (observed)
+2042/5/23,The Battle of Pichincha (observed)
+2042/5/24,The Battle of Pichincha
+2042/8/10,Declaration of Independence of Quito
+2042/8/11,Declaration of Independence of Quito (observed)
+2042/10/9,Independence of Guayaquil
+2042/10/10,Independence of Guayaquil (observed)
+2042/11/2,All Souls' Day
+2042/11/3,Independence of Cuenca
+2042/11/4,All Souls' Day (observed)
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/2/9,Carnival
+2043/2/10,Carnival
+2043/3/27,Good Friday
+2043/5/1,Labor Day
+2043/5/24,The Battle of Pichincha
+2043/5/25,The Battle of Pichincha (observed)
+2043/8/10,Declaration of Independence of Quito
+2043/10/9,Independence of Guayaquil
+2043/11/2,All Souls' Day
+2043/11/3,Independence of Cuenca
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/2/29,Carnival
+2044/3/1,Carnival
+2044/4/15,Good Friday
+2044/5/1,Labor Day
+2044/5/2,Labor Day (observed)
+2044/5/23,The Battle of Pichincha (observed)
+2044/5/24,The Battle of Pichincha
+2044/8/10,Declaration of Independence of Quito
+2044/8/12,Declaration of Independence of Quito (observed)
+2044/10/9,Independence of Guayaquil
+2044/10/10,Independence of Guayaquil (observed)
+2044/11/2,All Souls' Day
+2044/11/3,Independence of Cuenca
+2044/11/4,All Souls' Day (observed)
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/2/20,Carnival
+2045/2/21,Carnival
+2045/4/7,Good Friday
+2045/5/1,Labor Day
+2045/5/24,The Battle of Pichincha
+2045/5/26,The Battle of Pichincha (observed)
+2045/8/10,Declaration of Independence of Quito
+2045/8/11,Declaration of Independence of Quito (observed)
+2045/10/9,Independence of Guayaquil
+2045/11/2,All Souls' Day
+2045/11/3,Independence of Cuenca
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/2/5,Carnival
+2046/2/6,Carnival
+2046/3/23,Good Friday
+2046/4/30,Labor Day (observed)
+2046/5/1,Labor Day
+2046/5/24,The Battle of Pichincha
+2046/5/25,The Battle of Pichincha (observed)
+2046/8/10,Declaration of Independence of Quito
+2046/10/8,Independence of Guayaquil (observed)
+2046/10/9,Independence of Guayaquil
+2046/11/2,All Souls' Day
+2046/11/3,Independence of Cuenca
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/2/25,Carnival
+2047/2/26,Carnival
+2047/4/12,Good Friday
+2047/5/1,Labor Day
+2047/5/3,Labor Day (observed)
+2047/5/24,The Battle of Pichincha
+2047/8/9,Declaration of Independence of Quito (observed)
+2047/8/10,Declaration of Independence of Quito
+2047/10/9,Independence of Guayaquil
+2047/10/11,Independence of Guayaquil (observed)
+2047/11/1,All Souls' Day (observed)
+2047/11/2,All Souls' Day
+2047/11/3,Independence of Cuenca
+2047/11/4,Independence of Cuenca (observed)
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/2/17,Carnival
+2048/2/18,Carnival
+2048/4/3,Good Friday
+2048/5/1,Labor Day
+2048/5/24,The Battle of Pichincha
+2048/5/25,The Battle of Pichincha (observed)
+2048/8/10,Declaration of Independence of Quito
+2048/10/9,Independence of Guayaquil
+2048/11/2,All Souls' Day
+2048/11/3,Independence of Cuenca
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/3/1,Carnival
+2049/3/2,Carnival
+2049/4/16,Good Friday
+2049/4/30,Labor Day (observed)
+2049/5/1,Labor Day
+2049/5/24,The Battle of Pichincha
+2049/8/9,Declaration of Independence of Quito (observed)
+2049/8/10,Declaration of Independence of Quito
+2049/10/8,Independence of Guayaquil (observed)
+2049/10/9,Independence of Guayaquil
+2049/11/1,All Souls' Day (observed)
+2049/11/2,All Souls' Day
+2049/11/3,Independence of Cuenca
+2049/12/24,Christmas Day (observed)
+2049/12/25,Christmas Day
+2049/12/31,New Year's Day (observed)
+2050/1/1,New Year's Day
+2050/2/21,Carnival
+2050/2/22,Carnival
+2050/4/8,Good Friday
+2050/5/1,Labor Day
+2050/5/2,Labor Day (observed)
+2050/5/23,The Battle of Pichincha (observed)
+2050/5/24,The Battle of Pichincha
+2050/8/10,Declaration of Independence of Quito
+2050/8/12,Declaration of Independence of Quito (observed)
+2050/10/9,Independence of Guayaquil
+2050/10/10,Independence of Guayaquil (observed)
+2050/11/2,All Souls' Day
+2050/11/3,Independence of Cuenca
+2050/11/4,All Souls' Day (observed)
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)

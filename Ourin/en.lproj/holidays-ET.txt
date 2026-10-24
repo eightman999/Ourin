@@ -1,0 +1,379 @@
+# ET holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/7,Christmas Day
+2020/1/20,Epiphany
+2020/3/2,Adwa Victory Day
+2020/4/17,Good Friday
+2020/4/19,Easter Sunday
+2020/5/1,International Workers' Day
+2020/5/5,Ethiopian Patriots' Victory Day
+2020/5/24,Eid al-Fitr
+2020/5/28,Downfall of the Dergue Regime Day
+2020/7/31,Eid al-Adha
+2020/9/11,Ethiopian New Year
+2020/9/27,Finding of True Cross
+2020/10/29,Prophet's Birthday
+2021/1/7,Christmas Day
+2021/1/19,Epiphany
+2021/3/2,Adwa Victory Day
+2021/4/30,Good Friday
+2021/5/1,International Workers' Day
+2021/5/2,Easter Sunday
+2021/5/5,Ethiopian Patriots' Victory Day
+2021/5/13,Eid al-Fitr
+2021/5/28,Downfall of the Dergue Regime Day
+2021/7/20,Eid al-Adha
+2021/9/11,Ethiopian New Year
+2021/9/27,Finding of True Cross
+2021/10/18,Prophet's Birthday
+2022/1/7,Christmas Day
+2022/1/19,Epiphany
+2022/3/2,Adwa Victory Day
+2022/4/22,Good Friday
+2022/4/24,Easter Sunday
+2022/5/1,International Workers' Day
+2022/5/2,Eid al-Fitr
+2022/5/5,Ethiopian Patriots' Victory Day
+2022/5/28,Downfall of the Dergue Regime Day
+2022/7/9,Eid al-Adha
+2022/9/11,Ethiopian New Year
+2022/9/27,Finding of True Cross
+2022/10/8,Prophet's Birthday
+2023/1/7,Christmas Day
+2023/1/19,Epiphany
+2023/3/2,Adwa Victory Day
+2023/4/14,Good Friday
+2023/4/16,Easter Sunday
+2023/4/21,Eid al-Fitr
+2023/5/1,International Workers' Day
+2023/5/5,Ethiopian Patriots' Victory Day
+2023/5/28,Downfall of the Dergue Regime Day
+2023/6/28,Eid al-Adha
+2023/9/12,Ethiopian New Year
+2023/9/27,Prophet's Birthday
+2023/9/28,Finding of True Cross
+2024/1/7,Christmas Day
+2024/1/20,Epiphany
+2024/3/2,Adwa Victory Day
+2024/4/10,Eid al-Fitr
+2024/5/1,International Workers' Day
+2024/5/3,Good Friday
+2024/5/5,Easter Sunday; Ethiopian Patriots' Victory Day
+2024/5/28,Downfall of the Dergue Regime Day
+2024/6/16,Eid al-Adha
+2024/9/11,Ethiopian New Year
+2024/9/15,Prophet's Birthday
+2024/9/27,Finding of True Cross
+2025/1/7,Christmas Day
+2025/1/19,Epiphany
+2025/3/2,Adwa Victory Day
+2025/3/30,Eid al-Fitr
+2025/4/18,Good Friday
+2025/4/20,Easter Sunday
+2025/5/1,International Workers' Day
+2025/5/5,Ethiopian Patriots' Victory Day
+2025/6/6,Eid al-Adha
+2025/9/5,Prophet's Birthday
+2025/9/11,Ethiopian New Year
+2025/9/27,Finding of True Cross
+2026/1/7,Christmas Day
+2026/1/19,Epiphany
+2026/3/2,Adwa Victory Day
+2026/3/20,Eid al-Fitr (estimated)
+2026/4/10,Good Friday
+2026/4/12,Easter Sunday
+2026/5/1,International Workers' Day
+2026/5/5,Ethiopian Patriots' Victory Day
+2026/5/27,Eid al-Adha (estimated)
+2026/8/25,Prophet's Birthday (estimated)
+2026/9/11,Ethiopian New Year
+2026/9/27,Finding of True Cross
+2027/1/7,Christmas Day
+2027/1/19,Epiphany
+2027/3/2,Adwa Victory Day
+2027/3/9,Eid al-Fitr (estimated)
+2027/4/30,Good Friday
+2027/5/1,International Workers' Day
+2027/5/2,Easter Sunday
+2027/5/5,Ethiopian Patriots' Victory Day
+2027/5/16,Eid al-Adha (estimated)
+2027/8/14,Prophet's Birthday (estimated)
+2027/9/12,Ethiopian New Year
+2027/9/28,Finding of True Cross
+2028/1/7,Christmas Day
+2028/1/20,Epiphany
+2028/2/26,Eid al-Fitr (estimated)
+2028/3/2,Adwa Victory Day
+2028/4/14,Good Friday
+2028/4/16,Easter Sunday
+2028/5/1,International Workers' Day
+2028/5/5,Eid al-Adha (estimated); Ethiopian Patriots' Victory Day
+2028/8/3,Prophet's Birthday (estimated)
+2028/9/11,Ethiopian New Year
+2028/9/27,Finding of True Cross
+2029/1/7,Christmas Day
+2029/1/19,Epiphany
+2029/2/14,Eid al-Fitr (estimated)
+2029/3/2,Adwa Victory Day
+2029/4/6,Good Friday
+2029/4/8,Easter Sunday
+2029/4/24,Eid al-Adha (estimated)
+2029/5/1,International Workers' Day
+2029/5/5,Ethiopian Patriots' Victory Day
+2029/7/24,Prophet's Birthday (estimated)
+2029/9/11,Ethiopian New Year
+2029/9/27,Finding of True Cross
+2030/1/7,Christmas Day
+2030/1/19,Epiphany
+2030/2/4,Eid al-Fitr (estimated)
+2030/3/2,Adwa Victory Day
+2030/4/13,Eid al-Adha (estimated)
+2030/4/26,Good Friday
+2030/4/28,Easter Sunday
+2030/5/1,International Workers' Day
+2030/5/5,Ethiopian Patriots' Victory Day
+2030/7/13,Prophet's Birthday (estimated)
+2030/9/11,Ethiopian New Year
+2030/9/27,Finding of True Cross
+2031/1/7,Christmas Day
+2031/1/19,Epiphany
+2031/1/24,Eid al-Fitr (estimated)
+2031/3/2,Adwa Victory Day
+2031/4/2,Eid al-Adha (estimated)
+2031/4/11,Good Friday
+2031/4/13,Easter Sunday
+2031/5/1,International Workers' Day
+2031/5/5,Ethiopian Patriots' Victory Day
+2031/7/2,Prophet's Birthday (estimated)
+2031/9/12,Ethiopian New Year
+2031/9/28,Finding of True Cross
+2032/1/7,Christmas Day
+2032/1/14,Eid al-Fitr (estimated)
+2032/1/20,Epiphany
+2032/3/2,Adwa Victory Day
+2032/3/22,Eid al-Adha (estimated)
+2032/4/30,Good Friday
+2032/5/1,International Workers' Day
+2032/5/2,Easter Sunday
+2032/5/5,Ethiopian Patriots' Victory Day
+2032/6/20,Prophet's Birthday (estimated)
+2032/9/11,Ethiopian New Year
+2032/9/27,Finding of True Cross
+2033/1/2,Eid al-Fitr (estimated)
+2033/1/7,Christmas Day
+2033/1/19,Epiphany
+2033/3/2,Adwa Victory Day
+2033/3/11,Eid al-Adha (estimated)
+2033/4/22,Good Friday
+2033/4/24,Easter Sunday
+2033/5/1,International Workers' Day
+2033/5/5,Ethiopian Patriots' Victory Day
+2033/6/9,Prophet's Birthday (estimated)
+2033/9/11,Ethiopian New Year
+2033/9/27,Finding of True Cross
+2033/12/23,Eid al-Fitr (estimated)
+2034/1/7,Christmas Day
+2034/1/19,Epiphany
+2034/3/1,Eid al-Adha (estimated)
+2034/3/2,Adwa Victory Day
+2034/4/7,Good Friday
+2034/4/9,Easter Sunday
+2034/5/1,International Workers' Day
+2034/5/5,Ethiopian Patriots' Victory Day
+2034/5/30,Prophet's Birthday (estimated)
+2034/9/11,Ethiopian New Year
+2034/9/27,Finding of True Cross
+2034/12/12,Eid al-Fitr (estimated)
+2035/1/7,Christmas Day
+2035/1/19,Epiphany
+2035/2/18,Eid al-Adha (estimated)
+2035/3/2,Adwa Victory Day
+2035/4/27,Good Friday
+2035/4/29,Easter Sunday
+2035/5/1,International Workers' Day
+2035/5/5,Ethiopian Patriots' Victory Day
+2035/5/20,Prophet's Birthday (estimated)
+2035/9/12,Ethiopian New Year
+2035/9/28,Finding of True Cross
+2035/12/1,Eid al-Fitr (estimated)
+2036/1/7,Christmas Day
+2036/1/20,Epiphany
+2036/2/7,Eid al-Adha (estimated)
+2036/3/2,Adwa Victory Day
+2036/4/18,Good Friday
+2036/4/20,Easter Sunday
+2036/5/1,International Workers' Day
+2036/5/5,Ethiopian Patriots' Victory Day
+2036/5/8,Prophet's Birthday (estimated)
+2036/9/11,Ethiopian New Year
+2036/9/27,Finding of True Cross
+2036/11/19,Eid al-Fitr (estimated)
+2037/1/7,Christmas Day
+2037/1/19,Epiphany
+2037/1/26,Eid al-Adha (estimated)
+2037/3/2,Adwa Victory Day
+2037/4/3,Good Friday
+2037/4/5,Easter Sunday
+2037/4/28,Prophet's Birthday (estimated)
+2037/5/1,International Workers' Day
+2037/5/5,Ethiopian Patriots' Victory Day
+2037/9/11,Ethiopian New Year
+2037/9/27,Finding of True Cross
+2037/11/8,Eid al-Fitr (estimated)
+2038/1/7,Christmas Day
+2038/1/16,Eid al-Adha (estimated)
+2038/1/19,Epiphany
+2038/3/2,Adwa Victory Day
+2038/4/17,Prophet's Birthday (estimated)
+2038/4/23,Good Friday
+2038/4/25,Easter Sunday
+2038/5/1,International Workers' Day
+2038/5/5,Ethiopian Patriots' Victory Day
+2038/9/11,Ethiopian New Year
+2038/9/27,Finding of True Cross
+2038/10/29,Eid al-Fitr (estimated)
+2039/1/5,Eid al-Adha (estimated)
+2039/1/7,Christmas Day
+2039/1/19,Epiphany
+2039/3/2,Adwa Victory Day
+2039/4/6,Prophet's Birthday (estimated)
+2039/4/15,Good Friday
+2039/4/17,Easter Sunday
+2039/5/1,International Workers' Day
+2039/5/5,Ethiopian Patriots' Victory Day
+2039/9/12,Ethiopian New Year
+2039/9/28,Finding of True Cross
+2039/10/19,Eid al-Fitr (estimated)
+2039/12/26,Eid al-Adha (estimated)
+2040/1/7,Christmas Day
+2040/1/20,Epiphany
+2040/3/2,Adwa Victory Day
+2040/3/25,Prophet's Birthday (estimated)
+2040/5/1,International Workers' Day
+2040/5/4,Good Friday
+2040/5/5,Ethiopian Patriots' Victory Day
+2040/5/6,Easter Sunday
+2040/9/11,Ethiopian New Year
+2040/9/27,Finding of True Cross
+2040/10/7,Eid al-Fitr (estimated)
+2040/12/14,Eid al-Adha (estimated)
+2041/1/7,Christmas Day
+2041/1/19,Epiphany
+2041/3/2,Adwa Victory Day
+2041/3/15,Prophet's Birthday (estimated)
+2041/4/19,Good Friday
+2041/4/21,Easter Sunday
+2041/5/1,International Workers' Day
+2041/5/5,Ethiopian Patriots' Victory Day
+2041/9/11,Ethiopian New Year
+2041/9/26,Eid al-Fitr (estimated)
+2041/9/27,Finding of True Cross
+2041/12/4,Eid al-Adha (estimated)
+2042/1/7,Christmas Day
+2042/1/19,Epiphany
+2042/3/2,Adwa Victory Day
+2042/3/4,Prophet's Birthday (estimated)
+2042/4/11,Good Friday
+2042/4/13,Easter Sunday
+2042/5/1,International Workers' Day
+2042/5/5,Ethiopian Patriots' Victory Day
+2042/9/11,Ethiopian New Year
+2042/9/15,Eid al-Fitr (estimated)
+2042/9/27,Finding of True Cross
+2042/11/23,Eid al-Adha (estimated)
+2043/1/7,Christmas Day
+2043/1/19,Epiphany
+2043/2/22,Prophet's Birthday (estimated)
+2043/3/2,Adwa Victory Day
+2043/5/1,Good Friday; International Workers' Day
+2043/5/3,Easter Sunday
+2043/5/5,Ethiopian Patriots' Victory Day
+2043/9/4,Eid al-Fitr (estimated)
+2043/9/12,Ethiopian New Year
+2043/9/28,Finding of True Cross
+2043/11/12,Eid al-Adha (estimated)
+2044/1/7,Christmas Day
+2044/1/20,Epiphany
+2044/2/11,Prophet's Birthday (estimated)
+2044/3/2,Adwa Victory Day
+2044/4/22,Good Friday
+2044/4/24,Easter Sunday
+2044/5/1,International Workers' Day
+2044/5/5,Ethiopian Patriots' Victory Day
+2044/8/24,Eid al-Fitr (estimated)
+2044/9/11,Ethiopian New Year
+2044/9/27,Finding of True Cross
+2044/10/31,Eid al-Adha (estimated)
+2045/1/7,Christmas Day
+2045/1/19,Epiphany
+2045/1/30,Prophet's Birthday (estimated)
+2045/3/2,Adwa Victory Day
+2045/4/7,Good Friday
+2045/4/9,Easter Sunday
+2045/5/1,International Workers' Day
+2045/5/5,Ethiopian Patriots' Victory Day
+2045/8/14,Eid al-Fitr (estimated)
+2045/9/11,Ethiopian New Year
+2045/9/27,Finding of True Cross
+2045/10/21,Eid al-Adha (estimated)
+2046/1/7,Christmas Day
+2046/1/19,Epiphany; Prophet's Birthday (estimated)
+2046/3/2,Adwa Victory Day
+2046/4/27,Good Friday
+2046/4/29,Easter Sunday
+2046/5/1,International Workers' Day
+2046/5/5,Ethiopian Patriots' Victory Day
+2046/8/3,Eid al-Fitr (estimated)
+2046/9/11,Ethiopian New Year
+2046/9/27,Finding of True Cross
+2046/10/10,Eid al-Adha (estimated)
+2047/1/7,Christmas Day
+2047/1/8,Prophet's Birthday (estimated)
+2047/1/19,Epiphany
+2047/3/2,Adwa Victory Day
+2047/4/19,Good Friday
+2047/4/21,Easter Sunday
+2047/5/1,International Workers' Day
+2047/5/5,Ethiopian Patriots' Victory Day
+2047/7/24,Eid al-Fitr (estimated)
+2047/9/12,Ethiopian New Year
+2047/9/28,Finding of True Cross
+2047/9/30,Eid al-Adha (estimated)
+2047/12/29,Prophet's Birthday (estimated)
+2048/1/7,Christmas Day
+2048/1/20,Epiphany
+2048/3/2,Adwa Victory Day
+2048/4/3,Good Friday
+2048/4/5,Easter Sunday
+2048/5/1,International Workers' Day
+2048/5/5,Ethiopian Patriots' Victory Day
+2048/7/12,Eid al-Fitr (estimated)
+2048/9/11,Ethiopian New Year
+2048/9/19,Eid al-Adha (estimated)
+2048/9/27,Finding of True Cross
+2048/12/18,Prophet's Birthday (estimated)
+2049/1/7,Christmas Day
+2049/1/19,Epiphany
+2049/3/2,Adwa Victory Day
+2049/4/23,Good Friday
+2049/4/25,Easter Sunday
+2049/5/1,International Workers' Day
+2049/5/5,Ethiopian Patriots' Victory Day
+2049/7/1,Eid al-Fitr (estimated)
+2049/9/8,Eid al-Adha (estimated)
+2049/9/11,Ethiopian New Year
+2049/9/27,Finding of True Cross
+2049/12/7,Prophet's Birthday (estimated)
+2050/1/7,Christmas Day
+2050/1/19,Epiphany
+2050/3/2,Adwa Victory Day
+2050/4/15,Good Friday
+2050/4/17,Easter Sunday
+2050/5/1,International Workers' Day
+2050/5/5,Ethiopian Patriots' Victory Day
+2050/6/20,Eid al-Fitr (estimated)
+2050/8/28,Eid al-Adha (estimated)
+2050/9/11,Ethiopian New Year
+2050/9/27,Finding of True Cross
+2050/11/26,Prophet's Birthday (estimated)

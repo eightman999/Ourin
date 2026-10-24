@@ -1,0 +1,396 @@
+# TV holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/3/9,Commonwealth Day
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/11,Gospel Day
+2020/6/13,Queen's Birthday
+2020/8/3,National Youth Day
+2020/10/1,Tuvalu Day
+2020/10/2,Tuvalu Day
+2020/10/12,National Children's Day
+2020/11/9,Heir to the Throne's Birthday
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2020/12/28,Boxing Day (observed)
+2021/1/1,New Year's Day
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/10,Gospel Day
+2021/6/12,Queen's Birthday
+2021/8/2,National Youth Day
+2021/10/1,Tuvalu Day
+2021/10/2,Tuvalu Day
+2021/10/4,Tuvalu Day (observed)
+2021/10/11,National Children's Day
+2021/11/8,Heir to the Throne's Birthday
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Christmas Day (observed)
+2021/12/28,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/5/9,Gospel Day
+2022/6/11,Queen's Birthday
+2022/8/1,National Youth Day
+2022/10/1,Tuvalu Day
+2022/10/2,Tuvalu Day
+2022/10/3,Tuvalu Day (observed)
+2022/10/4,Tuvalu Day (observed)
+2022/10/10,National Children's Day
+2022/11/14,Heir to the Throne's Birthday
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2022/12/27,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/5/15,Gospel Day
+2023/6/10,King's Birthday
+2023/8/7,National Youth Day
+2023/10/1,Tuvalu Day
+2023/10/2,Tuvalu Day
+2023/10/3,Tuvalu Day (observed)
+2023/10/9,National Children's Day
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/5/13,Gospel Day
+2024/6/8,King's Birthday
+2024/8/5,National Youth Day
+2024/10/1,Tuvalu Day
+2024/10/2,Tuvalu Day
+2024/10/14,National Children's Day
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/12,Gospel Day
+2025/6/14,King's Birthday
+2025/8/4,National Youth Day
+2025/10/1,Tuvalu Day
+2025/10/2,Tuvalu Day
+2025/10/13,National Children's Day
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/11,Gospel Day
+2026/6/13,King's Birthday
+2026/8/3,National Youth Day
+2026/10/1,Tuvalu Day
+2026/10/2,Tuvalu Day
+2026/10/12,National Children's Day
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2026/12/28,Boxing Day (observed)
+2027/1/1,New Year's Day
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/5/10,Gospel Day
+2027/6/12,King's Birthday
+2027/8/2,National Youth Day
+2027/10/1,Tuvalu Day
+2027/10/2,Tuvalu Day
+2027/10/4,Tuvalu Day (observed)
+2027/10/11,National Children's Day
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2027/12/27,Christmas Day (observed)
+2027/12/28,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/15,Gospel Day
+2028/6/10,King's Birthday
+2028/8/7,National Youth Day
+2028/10/1,Tuvalu Day
+2028/10/2,Tuvalu Day
+2028/10/3,Tuvalu Day (observed)
+2028/10/9,National Children's Day
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/5/14,Gospel Day
+2029/6/9,King's Birthday
+2029/8/6,National Youth Day
+2029/10/1,Tuvalu Day
+2029/10/2,Tuvalu Day
+2029/10/15,National Children's Day
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/13,Gospel Day
+2030/6/8,King's Birthday
+2030/8/5,National Youth Day
+2030/10/1,Tuvalu Day
+2030/10/2,Tuvalu Day
+2030/10/14,National Children's Day
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/12,Gospel Day
+2031/6/14,King's Birthday
+2031/8/4,National Youth Day
+2031/10/1,Tuvalu Day
+2031/10/2,Tuvalu Day
+2031/10/13,National Children's Day
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/5/10,Gospel Day
+2032/6/12,King's Birthday
+2032/8/2,National Youth Day
+2032/10/1,Tuvalu Day
+2032/10/2,Tuvalu Day
+2032/10/4,Tuvalu Day (observed)
+2032/10/11,National Children's Day
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2032/12/27,Christmas Day (observed)
+2032/12/28,Boxing Day (observed)
+2033/1/1,New Year's Day
+2033/1/3,New Year's Day (observed)
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/9,Gospel Day
+2033/6/11,King's Birthday
+2033/8/1,National Youth Day
+2033/10/1,Tuvalu Day
+2033/10/2,Tuvalu Day
+2033/10/3,Tuvalu Day (observed)
+2033/10/4,Tuvalu Day (observed)
+2033/10/10,National Children's Day
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day
+2033/12/27,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/15,Gospel Day
+2034/6/10,King's Birthday
+2034/8/7,National Youth Day
+2034/10/1,Tuvalu Day
+2034/10/2,Tuvalu Day
+2034/10/3,Tuvalu Day (observed)
+2034/10/9,National Children's Day
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/5/14,Gospel Day
+2035/6/9,King's Birthday
+2035/8/6,National Youth Day
+2035/10/1,Tuvalu Day
+2035/10/2,Tuvalu Day
+2035/10/15,National Children's Day
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/12,Gospel Day
+2036/6/14,King's Birthday
+2036/8/4,National Youth Day
+2036/10/1,Tuvalu Day
+2036/10/2,Tuvalu Day
+2036/10/13,National Children's Day
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/5/11,Gospel Day
+2037/6/13,King's Birthday
+2037/8/3,National Youth Day
+2037/10/1,Tuvalu Day
+2037/10/2,Tuvalu Day
+2037/10/12,National Children's Day
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2037/12/28,Boxing Day (observed)
+2038/1/1,New Year's Day
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/10,Gospel Day
+2038/6/12,King's Birthday
+2038/8/2,National Youth Day
+2038/10/1,Tuvalu Day
+2038/10/2,Tuvalu Day
+2038/10/4,Tuvalu Day (observed)
+2038/10/11,National Children's Day
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2038/12/27,Christmas Day (observed)
+2038/12/28,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/9,Gospel Day
+2039/6/11,King's Birthday
+2039/8/1,National Youth Day
+2039/10/1,Tuvalu Day
+2039/10/2,Tuvalu Day
+2039/10/3,Tuvalu Day (observed)
+2039/10/4,Tuvalu Day (observed)
+2039/10/10,National Children's Day
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day
+2039/12/27,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/5/14,Gospel Day
+2040/6/9,King's Birthday
+2040/8/6,National Youth Day
+2040/10/1,Tuvalu Day
+2040/10/2,Tuvalu Day
+2040/10/15,National Children's Day
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/13,Gospel Day
+2041/6/8,King's Birthday
+2041/8/5,National Youth Day
+2041/10/1,Tuvalu Day
+2041/10/2,Tuvalu Day
+2041/10/14,National Children's Day
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/12,Gospel Day
+2042/6/14,King's Birthday
+2042/8/4,National Youth Day
+2042/10/1,Tuvalu Day
+2042/10/2,Tuvalu Day
+2042/10/13,National Children's Day
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/5/11,Gospel Day
+2043/6/13,King's Birthday
+2043/8/3,National Youth Day
+2043/10/1,Tuvalu Day
+2043/10/2,Tuvalu Day
+2043/10/12,National Children's Day
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2043/12/28,Boxing Day (observed)
+2044/1/1,New Year's Day
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/9,Gospel Day
+2044/6/11,King's Birthday
+2044/8/1,National Youth Day
+2044/10/1,Tuvalu Day
+2044/10/2,Tuvalu Day
+2044/10/3,Tuvalu Day (observed)
+2044/10/4,Tuvalu Day (observed)
+2044/10/10,National Children's Day
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2044/12/27,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/15,Gospel Day
+2045/6/10,King's Birthday
+2045/8/7,National Youth Day
+2045/10/1,Tuvalu Day
+2045/10/2,Tuvalu Day
+2045/10/3,Tuvalu Day (observed)
+2045/10/9,National Children's Day
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/5/14,Gospel Day
+2046/6/9,King's Birthday
+2046/8/6,National Youth Day
+2046/10/1,Tuvalu Day
+2046/10/2,Tuvalu Day
+2046/10/15,National Children's Day
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/13,Gospel Day
+2047/6/8,King's Birthday
+2047/8/5,National Youth Day
+2047/10/1,Tuvalu Day
+2047/10/2,Tuvalu Day
+2047/10/14,National Children's Day
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2048/1/1,New Year's Day
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/11,Gospel Day
+2048/6/13,King's Birthday
+2048/8/3,National Youth Day
+2048/10/1,Tuvalu Day
+2048/10/2,Tuvalu Day
+2048/10/12,National Children's Day
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2048/12/28,Boxing Day (observed)
+2049/1/1,New Year's Day
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/10,Gospel Day
+2049/6/12,King's Birthday
+2049/8/2,National Youth Day
+2049/10/1,Tuvalu Day
+2049/10/2,Tuvalu Day
+2049/10/4,Tuvalu Day (observed)
+2049/10/11,National Children's Day
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2049/12/27,Christmas Day (observed)
+2049/12/28,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/9,Gospel Day
+2050/6/11,King's Birthday
+2050/8/1,National Youth Day
+2050/10/1,Tuvalu Day
+2050/10/2,Tuvalu Day
+2050/10/3,Tuvalu Day (observed)
+2050/10/4,Tuvalu Day (observed)
+2050/10/10,National Children's Day
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day
+2050/12/27,Christmas Day (observed)

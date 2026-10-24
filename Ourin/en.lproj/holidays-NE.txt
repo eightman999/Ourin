@@ -1,0 +1,488 @@
+# NE holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/4/13,Easter Monday
+2020/4/24,National Concord Day
+2020/5/1,International Labor Day
+2020/5/20,Laylat al-Qadr
+2020/5/23,Eid al-Fitr
+2020/7/31,Eid al-Adha
+2020/8/1,Day after Eid al-Adha
+2020/8/3,Anniversary of the Proclamation of Independence
+2020/8/21,Islamic New Year
+2020/10/29,Prophet's Birthday
+2020/12/18,National Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/4/5,Easter Monday
+2021/4/24,National Concord Day
+2021/5/1,International Labor Day
+2021/5/9,Laylat al-Qadr
+2021/5/10,Laylat al-Qadr (observed)
+2021/5/12,Eid al-Fitr
+2021/7/20,Eid al-Adha
+2021/7/21,Day after Eid al-Adha
+2021/8/3,Anniversary of the Proclamation of Independence
+2021/8/10,Islamic New Year
+2021/10/18,Prophet's Birthday
+2021/12/18,National Day
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/4/18,Easter Monday
+2022/4/24,National Concord Day
+2022/4/25,National Concord Day (observed)
+2022/4/28,Laylat al-Qadr
+2022/5/1,Eid al-Fitr; International Labor Day
+2022/5/2,Eid al-Fitr (observed); International Labor Day (observed)
+2022/7/10,Eid al-Adha
+2022/7/11,Day after Eid al-Adha
+2022/7/30,Islamic New Year
+2022/8/3,Anniversary of the Proclamation of Independence
+2022/10/8,Prophet's Birthday
+2022/12/18,National Day
+2022/12/19,National Day (observed)
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/4/10,Easter Monday
+2023/4/18,Laylat al-Qadr
+2023/4/21,Eid al-Fitr
+2023/4/24,National Concord Day
+2023/5/1,International Labor Day
+2023/6/28,Eid al-Adha
+2023/6/29,Day after Eid al-Adha
+2023/7/19,Islamic New Year
+2023/8/3,Anniversary of the Proclamation of Independence
+2023/9/27,Prophet's Birthday
+2023/12/18,National Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/4/1,Easter Monday
+2024/4/6,Laylat al-Qadr
+2024/4/9,Eid al-Fitr
+2024/4/24,National Concord Day
+2024/5/1,International Labor Day
+2024/6/16,Eid al-Adha
+2024/6/17,Day after Eid al-Adha
+2024/7/6,Islamic New Year
+2024/7/26,Anniversary of the CNSP Coup
+2024/8/3,Anniversary of the Proclamation of Independence
+2024/9/16,Prophet's Birthday
+2024/12/18,National Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/3/27,Laylat al-Qadr
+2025/3/30,Eid al-Fitr
+2025/3/31,Eid al-Fitr (observed)
+2025/4/21,Easter Monday
+2025/4/24,National Concord Day
+2025/5/1,International Labor Day
+2025/6/7,Eid al-Adha
+2025/6/8,Day after Eid al-Adha
+2025/6/9,Day after Eid al-Adha (observed)
+2025/6/27,Islamic New Year
+2025/7/26,Anniversary of the CNSP Coup
+2025/8/3,Anniversary of the Proclamation of Independence
+2025/8/4,Anniversary of the Proclamation of Independence (observed)
+2025/9/5,Prophet's Birthday
+2025/12/18,National Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/3/16,Laylat al-Qadr (estimated)
+2026/3/20,Eid al-Fitr (estimated)
+2026/4/6,Easter Monday
+2026/4/24,National Concord Day
+2026/5/1,International Labor Day
+2026/5/27,Eid al-Adha (estimated)
+2026/5/28,Day after Eid al-Adha (estimated)
+2026/6/16,Islamic New Year (estimated)
+2026/7/26,Anniversary of the CNSP Coup
+2026/7/27,Anniversary of the CNSP Coup (observed)
+2026/8/3,Anniversary of the Proclamation of Independence
+2026/8/25,Prophet's Birthday (estimated)
+2026/12/18,National Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/3/6,Laylat al-Qadr (estimated)
+2027/3/9,Eid al-Fitr (estimated)
+2027/3/29,Easter Monday
+2027/4/24,National Concord Day
+2027/5/1,International Labor Day
+2027/5/16,Eid al-Adha (estimated)
+2027/5/17,Day after Eid al-Adha (estimated)
+2027/6/6,Islamic New Year (estimated)
+2027/6/7,Islamic New Year (observed, estimated)
+2027/7/26,Anniversary of the CNSP Coup
+2027/8/3,Anniversary of the Proclamation of Independence
+2027/8/14,Prophet's Birthday (estimated)
+2027/12/18,National Day
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/2/23,Laylat al-Qadr (estimated)
+2028/2/26,Eid al-Fitr (estimated)
+2028/4/17,Easter Monday
+2028/4/24,National Concord Day
+2028/5/1,International Labor Day
+2028/5/5,Eid al-Adha (estimated)
+2028/5/6,Day after Eid al-Adha (estimated)
+2028/5/25,Islamic New Year (estimated)
+2028/7/26,Anniversary of the CNSP Coup
+2028/8/3,Anniversary of the Proclamation of Independence; Prophet's Birthday (estimated)
+2028/12/18,National Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/2/11,Laylat al-Qadr (estimated)
+2029/2/12,Laylat al-Qadr (observed, estimated)
+2029/2/14,Eid al-Fitr (estimated)
+2029/4/2,Easter Monday
+2029/4/24,Eid al-Adha (estimated); National Concord Day
+2029/4/25,Day after Eid al-Adha (estimated)
+2029/5/1,International Labor Day
+2029/5/14,Islamic New Year (estimated)
+2029/7/24,Prophet's Birthday (estimated)
+2029/7/26,Anniversary of the CNSP Coup
+2029/8/3,Anniversary of the Proclamation of Independence
+2029/12/18,National Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/1/31,Laylat al-Qadr (estimated)
+2030/2/4,Eid al-Fitr (estimated)
+2030/4/13,Eid al-Adha (estimated)
+2030/4/14,Day after Eid al-Adha (estimated)
+2030/4/15,Day after Eid al-Adha (observed, estimated)
+2030/4/22,Easter Monday
+2030/4/24,National Concord Day
+2030/5/1,International Labor Day
+2030/5/3,Islamic New Year (estimated)
+2030/7/13,Prophet's Birthday (estimated)
+2030/7/26,Anniversary of the CNSP Coup
+2030/8/3,Anniversary of the Proclamation of Independence
+2030/12/18,National Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/1/21,Laylat al-Qadr (estimated)
+2031/1/24,Eid al-Fitr (estimated)
+2031/4/2,Eid al-Adha (estimated)
+2031/4/3,Day after Eid al-Adha (estimated)
+2031/4/14,Easter Monday
+2031/4/23,Islamic New Year (estimated)
+2031/4/24,National Concord Day
+2031/5/1,International Labor Day
+2031/7/2,Prophet's Birthday (estimated)
+2031/7/26,Anniversary of the CNSP Coup
+2031/8/3,Anniversary of the Proclamation of Independence
+2031/8/4,Anniversary of the Proclamation of Independence (observed)
+2031/12/18,National Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/1/10,Laylat al-Qadr (estimated)
+2032/1/14,Eid al-Fitr (estimated)
+2032/3/22,Eid al-Adha (estimated)
+2032/3/23,Day after Eid al-Adha (estimated)
+2032/3/29,Easter Monday
+2032/4/11,Islamic New Year (estimated)
+2032/4/12,Islamic New Year (observed, estimated)
+2032/4/24,National Concord Day
+2032/5/1,International Labor Day
+2032/6/20,Prophet's Birthday (estimated)
+2032/6/21,Prophet's Birthday (observed, estimated)
+2032/7/26,Anniversary of the CNSP Coup
+2032/8/3,Anniversary of the Proclamation of Independence
+2032/12/18,National Day
+2032/12/25,Christmas Day
+2032/12/30,Laylat al-Qadr (estimated)
+2033/1/1,New Year's Day
+2033/1/2,Eid al-Fitr (estimated)
+2033/1/3,Eid al-Fitr (observed, estimated)
+2033/3/11,Eid al-Adha (estimated)
+2033/3/12,Day after Eid al-Adha (estimated)
+2033/4/1,Islamic New Year (estimated)
+2033/4/18,Easter Monday
+2033/4/24,National Concord Day
+2033/4/25,National Concord Day (observed)
+2033/5/1,International Labor Day
+2033/5/2,International Labor Day (observed)
+2033/6/9,Prophet's Birthday (estimated)
+2033/7/26,Anniversary of the CNSP Coup
+2033/8/3,Anniversary of the Proclamation of Independence
+2033/12/18,National Day
+2033/12/19,Laylat al-Qadr (estimated); National Day (observed)
+2033/12/23,Eid al-Fitr (estimated)
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/3/1,Eid al-Adha (estimated)
+2034/3/2,Day after Eid al-Adha (estimated)
+2034/3/21,Islamic New Year (estimated)
+2034/4/10,Easter Monday
+2034/4/24,National Concord Day
+2034/5/1,International Labor Day
+2034/5/30,Prophet's Birthday (estimated)
+2034/7/26,Anniversary of the CNSP Coup
+2034/8/3,Anniversary of the Proclamation of Independence
+2034/12/8,Laylat al-Qadr (estimated)
+2034/12/12,Eid al-Fitr (estimated)
+2034/12/18,National Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/2/18,Eid al-Adha (estimated)
+2035/2/19,Day after Eid al-Adha (estimated)
+2035/3/11,Islamic New Year (estimated)
+2035/3/12,Islamic New Year (observed, estimated)
+2035/3/26,Easter Monday
+2035/4/24,National Concord Day
+2035/5/1,International Labor Day
+2035/5/20,Prophet's Birthday (estimated)
+2035/5/21,Prophet's Birthday (observed, estimated)
+2035/7/26,Anniversary of the CNSP Coup
+2035/8/3,Anniversary of the Proclamation of Independence
+2035/11/27,Laylat al-Qadr (estimated)
+2035/12/1,Eid al-Fitr (estimated)
+2035/12/18,National Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/2/7,Eid al-Adha (estimated)
+2036/2/8,Day after Eid al-Adha (estimated)
+2036/2/28,Islamic New Year (estimated)
+2036/4/14,Easter Monday
+2036/4/24,National Concord Day
+2036/5/1,International Labor Day
+2036/5/8,Prophet's Birthday (estimated)
+2036/7/26,Anniversary of the CNSP Coup
+2036/8/3,Anniversary of the Proclamation of Independence
+2036/8/4,Anniversary of the Proclamation of Independence (observed)
+2036/11/15,Laylat al-Qadr (estimated)
+2036/11/19,Eid al-Fitr (estimated)
+2036/12/18,National Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/1/26,Eid al-Adha (estimated)
+2037/1/27,Day after Eid al-Adha (estimated)
+2037/2/16,Islamic New Year (estimated)
+2037/4/6,Easter Monday
+2037/4/24,National Concord Day
+2037/4/28,Prophet's Birthday (estimated)
+2037/5/1,International Labor Day
+2037/7/26,Anniversary of the CNSP Coup
+2037/7/27,Anniversary of the CNSP Coup (observed)
+2037/8/3,Anniversary of the Proclamation of Independence
+2037/11/5,Laylat al-Qadr (estimated)
+2037/11/8,Eid al-Fitr (estimated)
+2037/11/9,Eid al-Fitr (observed, estimated)
+2037/12/18,National Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/1/16,Eid al-Adha (estimated)
+2038/1/17,Day after Eid al-Adha (estimated)
+2038/1/18,Day after Eid al-Adha (observed, estimated)
+2038/2/5,Islamic New Year (estimated)
+2038/4/17,Prophet's Birthday (estimated)
+2038/4/24,National Concord Day
+2038/4/26,Easter Monday
+2038/5/1,International Labor Day
+2038/7/26,Anniversary of the CNSP Coup
+2038/8/3,Anniversary of the Proclamation of Independence
+2038/10/26,Laylat al-Qadr (estimated)
+2038/10/29,Eid al-Fitr (estimated)
+2038/12/18,National Day
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/1/5,Eid al-Adha (estimated)
+2039/1/6,Day after Eid al-Adha (estimated)
+2039/1/26,Islamic New Year (estimated)
+2039/4/6,Prophet's Birthday (estimated)
+2039/4/11,Easter Monday
+2039/4/24,National Concord Day
+2039/4/25,National Concord Day (observed)
+2039/5/1,International Labor Day
+2039/5/2,International Labor Day (observed)
+2039/7/26,Anniversary of the CNSP Coup
+2039/8/3,Anniversary of the Proclamation of Independence
+2039/10/15,Laylat al-Qadr (estimated)
+2039/10/19,Eid al-Fitr (estimated)
+2039/12/18,National Day
+2039/12/19,National Day (observed)
+2039/12/25,Christmas Day
+2039/12/26,Christmas Day (observed); Eid al-Adha (estimated)
+2039/12/27,Day after Eid al-Adha (estimated)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/1/15,Islamic New Year (estimated)
+2040/1/16,Islamic New Year (observed, estimated)
+2040/3/25,Prophet's Birthday (estimated)
+2040/3/26,Prophet's Birthday (observed, estimated)
+2040/4/2,Easter Monday
+2040/4/24,National Concord Day
+2040/5/1,International Labor Day
+2040/7/26,Anniversary of the CNSP Coup
+2040/8/3,Anniversary of the Proclamation of Independence
+2040/10/3,Laylat al-Qadr (estimated)
+2040/10/7,Eid al-Fitr (estimated)
+2040/10/8,Eid al-Fitr (observed, estimated)
+2040/12/14,Eid al-Adha (estimated)
+2040/12/15,Day after Eid al-Adha (estimated)
+2040/12/18,National Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/1/4,Islamic New Year (estimated)
+2041/3/15,Prophet's Birthday (estimated)
+2041/4/22,Easter Monday
+2041/4/24,National Concord Day
+2041/5/1,International Labor Day
+2041/7/26,Anniversary of the CNSP Coup
+2041/8/3,Anniversary of the Proclamation of Independence
+2041/9/23,Laylat al-Qadr (estimated)
+2041/9/26,Eid al-Fitr (estimated)
+2041/12/4,Eid al-Adha (estimated)
+2041/12/5,Day after Eid al-Adha (estimated)
+2041/12/18,National Day
+2041/12/24,Islamic New Year (estimated)
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/3/4,Prophet's Birthday (estimated)
+2042/4/7,Easter Monday
+2042/4/24,National Concord Day
+2042/5/1,International Labor Day
+2042/7/26,Anniversary of the CNSP Coup
+2042/8/3,Anniversary of the Proclamation of Independence
+2042/8/4,Anniversary of the Proclamation of Independence (observed)
+2042/9/12,Laylat al-Qadr (estimated)
+2042/9/15,Eid al-Fitr (estimated)
+2042/11/23,Eid al-Adha (estimated)
+2042/11/24,Day after Eid al-Adha (estimated)
+2042/12/14,Islamic New Year (estimated)
+2042/12/15,Islamic New Year (observed, estimated)
+2042/12/18,National Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/2/22,Prophet's Birthday (estimated)
+2043/2/23,Prophet's Birthday (observed, estimated)
+2043/3/30,Easter Monday
+2043/4/24,National Concord Day
+2043/5/1,International Labor Day
+2043/7/26,Anniversary of the CNSP Coup
+2043/7/27,Anniversary of the CNSP Coup (observed)
+2043/8/3,Anniversary of the Proclamation of Independence
+2043/9/1,Laylat al-Qadr (estimated)
+2043/9/4,Eid al-Fitr (estimated)
+2043/11/12,Eid al-Adha (estimated)
+2043/11/13,Day after Eid al-Adha (estimated)
+2043/12/3,Islamic New Year (estimated)
+2043/12/18,National Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/2/11,Prophet's Birthday (estimated)
+2044/4/18,Easter Monday
+2044/4/24,National Concord Day
+2044/4/25,National Concord Day (observed)
+2044/5/1,International Labor Day
+2044/5/2,International Labor Day (observed)
+2044/7/26,Anniversary of the CNSP Coup
+2044/8/3,Anniversary of the Proclamation of Independence
+2044/8/21,Laylat al-Qadr (estimated)
+2044/8/22,Laylat al-Qadr (observed, estimated)
+2044/8/24,Eid al-Fitr (estimated)
+2044/10/31,Eid al-Adha (estimated)
+2044/11/1,Day after Eid al-Adha (estimated)
+2044/11/21,Islamic New Year (estimated)
+2044/12/18,National Day
+2044/12/19,National Day (observed)
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/30,Prophet's Birthday (estimated)
+2045/4/10,Easter Monday
+2045/4/24,National Concord Day
+2045/5/1,International Labor Day
+2045/7/26,Anniversary of the CNSP Coup
+2045/8/3,Anniversary of the Proclamation of Independence
+2045/8/10,Laylat al-Qadr (estimated)
+2045/8/14,Eid al-Fitr (estimated)
+2045/10/21,Eid al-Adha (estimated)
+2045/10/22,Day after Eid al-Adha (estimated)
+2045/10/23,Day after Eid al-Adha (observed, estimated)
+2045/11/10,Islamic New Year (estimated)
+2045/12/18,National Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/1/19,Prophet's Birthday (estimated)
+2046/3/26,Easter Monday
+2046/4/24,National Concord Day
+2046/5/1,International Labor Day
+2046/7/26,Anniversary of the CNSP Coup
+2046/7/31,Laylat al-Qadr (estimated)
+2046/8/3,Anniversary of the Proclamation of Independence; Eid al-Fitr (estimated)
+2046/10/10,Eid al-Adha (estimated)
+2046/10/11,Day after Eid al-Adha (estimated)
+2046/10/31,Islamic New Year (estimated)
+2046/12/18,National Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/1/8,Prophet's Birthday (estimated)
+2047/4/15,Easter Monday
+2047/4/24,National Concord Day
+2047/5/1,International Labor Day
+2047/7/20,Laylat al-Qadr (estimated)
+2047/7/24,Eid al-Fitr (estimated)
+2047/7/26,Anniversary of the CNSP Coup
+2047/8/3,Anniversary of the Proclamation of Independence
+2047/9/30,Eid al-Adha (estimated)
+2047/10/1,Day after Eid al-Adha (estimated)
+2047/10/20,Islamic New Year (estimated)
+2047/10/21,Islamic New Year (observed, estimated)
+2047/12/18,National Day
+2047/12/25,Christmas Day
+2047/12/29,Prophet's Birthday (estimated)
+2047/12/30,Prophet's Birthday (observed, estimated)
+2048/1/1,New Year's Day
+2048/4/6,Easter Monday
+2048/4/24,National Concord Day
+2048/5/1,International Labor Day
+2048/7/8,Laylat al-Qadr (estimated)
+2048/7/12,Eid al-Fitr (estimated)
+2048/7/13,Eid al-Fitr (observed, estimated)
+2048/7/26,Anniversary of the CNSP Coup
+2048/7/27,Anniversary of the CNSP Coup (observed)
+2048/8/3,Anniversary of the Proclamation of Independence
+2048/9/19,Eid al-Adha (estimated)
+2048/9/20,Day after Eid al-Adha (estimated)
+2048/9/21,Day after Eid al-Adha (observed, estimated)
+2048/10/9,Islamic New Year (estimated)
+2048/12/18,National Day; Prophet's Birthday (estimated)
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/4/19,Easter Monday
+2049/4/24,National Concord Day
+2049/5/1,International Labor Day
+2049/6/28,Laylat al-Qadr (estimated)
+2049/7/1,Eid al-Fitr (estimated)
+2049/7/26,Anniversary of the CNSP Coup
+2049/8/3,Anniversary of the Proclamation of Independence
+2049/9/8,Eid al-Adha (estimated)
+2049/9/9,Day after Eid al-Adha (estimated)
+2049/9/28,Islamic New Year (estimated)
+2049/12/7,Prophet's Birthday (estimated)
+2049/12/18,National Day
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/4/11,Easter Monday
+2050/4/24,National Concord Day
+2050/4/25,National Concord Day (observed)
+2050/5/1,International Labor Day
+2050/5/2,International Labor Day (observed)
+2050/6/17,Laylat al-Qadr (estimated)
+2050/6/20,Eid al-Fitr (estimated)
+2050/7/26,Anniversary of the CNSP Coup
+2050/8/3,Anniversary of the Proclamation of Independence
+2050/8/28,Eid al-Adha (estimated)
+2050/8/29,Day after Eid al-Adha (estimated)
+2050/9/17,Islamic New Year (estimated)
+2050/11/26,Prophet's Birthday (estimated)
+2050/12/18,National Day
+2050/12/19,National Day (observed)
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)

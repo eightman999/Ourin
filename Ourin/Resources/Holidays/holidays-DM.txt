@@ -1,0 +1,397 @@
+# DM の祝日（2020〜2050年、言語: en）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/2/24,Carnival Monday
+2020/2/25,Carnival Tuesday
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/4,Labour Day
+2020/6/1,Whit Monday
+2020/8/3,Emancipation Day
+2020/11/3,Independence Day
+2020/11/4,National Day of Community Service
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2021/1/1,New Year's Day
+2021/2/15,Carnival Monday
+2021/2/16,Carnival Tuesday
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/3,Labour Day
+2021/5/24,Whit Monday
+2021/8/2,Emancipation Day
+2021/11/3,Independence Day
+2021/11/4,National Day of Community Service
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/2/28,Carnival Monday
+2022/3/1,Carnival Tuesday
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/5/2,Labour Day
+2022/6/6,Whit Monday
+2022/8/1,Emancipation Day
+2022/11/3,Independence Day
+2022/11/4,National Day of Community Service
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2022/12/27,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/2/20,Carnival Monday
+2023/2/21,Carnival Tuesday
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/5/1,Labour Day
+2023/5/29,Whit Monday
+2023/8/7,Emancipation Day
+2023/11/3,Independence Day
+2023/11/4,National Day of Community Service
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/2/12,Carnival Monday
+2024/2/13,Carnival Tuesday
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/5/6,Labour Day
+2024/5/20,Whit Monday
+2024/8/5,Emancipation Day
+2024/11/3,Independence Day
+2024/11/4,National Day of Community Service
+2024/11/5,Independence Day (observed)
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/3/3,Carnival Monday
+2025/3/4,Carnival Tuesday
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/5,Labour Day
+2025/6/9,Whit Monday
+2025/8/4,Emancipation Day
+2025/11/3,Independence Day
+2025/11/4,National Day of Community Service
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/2/16,Carnival Monday
+2026/2/17,Carnival Tuesday
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/4,Labour Day
+2026/5/25,Whit Monday
+2026/8/3,Emancipation Day
+2026/11/3,Independence Day
+2026/11/4,National Day of Community Service
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2027/1/1,New Year's Day
+2027/2/8,Carnival Monday
+2027/2/9,Carnival Tuesday
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/5/3,Labour Day
+2027/5/17,Whit Monday
+2027/8/2,Emancipation Day
+2027/11/3,Independence Day
+2027/11/4,National Day of Community Service
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2027/12/27,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/2/28,Carnival Monday
+2028/2/29,Carnival Tuesday
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/1,Labour Day
+2028/6/5,Whit Monday
+2028/8/7,Emancipation Day
+2028/11/3,Independence Day
+2028/11/4,National Day of Community Service
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/2/12,Carnival Monday
+2029/2/13,Carnival Tuesday
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/5/7,Labour Day
+2029/5/21,Whit Monday
+2029/8/6,Emancipation Day
+2029/11/3,Independence Day
+2029/11/4,National Day of Community Service
+2029/11/5,National Day of Community Service (observed)
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/3/4,Carnival Monday
+2030/3/5,Carnival Tuesday
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/6,Labour Day
+2030/6/10,Whit Monday
+2030/8/5,Emancipation Day
+2030/11/3,Independence Day
+2030/11/4,National Day of Community Service
+2030/11/5,Independence Day (observed)
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/2/24,Carnival Monday
+2031/2/25,Carnival Tuesday
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/5,Labour Day
+2031/6/2,Whit Monday
+2031/8/4,Emancipation Day
+2031/11/3,Independence Day
+2031/11/4,National Day of Community Service
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/2/9,Carnival Monday
+2032/2/10,Carnival Tuesday
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/5/3,Labour Day
+2032/5/17,Whit Monday
+2032/8/2,Emancipation Day
+2032/11/3,Independence Day
+2032/11/4,National Day of Community Service
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2032/12/27,Boxing Day (observed)
+2033/1/1,New Year's Day
+2033/2/28,Carnival Monday
+2033/3/1,Carnival Tuesday
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/2,Labour Day
+2033/6/6,Whit Monday
+2033/8/1,Emancipation Day
+2033/11/3,Independence Day
+2033/11/4,National Day of Community Service
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day
+2033/12/27,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/2/20,Carnival Monday
+2034/2/21,Carnival Tuesday
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/1,Labour Day
+2034/5/29,Whit Monday
+2034/8/7,Emancipation Day
+2034/11/3,Independence Day
+2034/11/4,National Day of Community Service
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/2/5,Carnival Monday
+2035/2/6,Carnival Tuesday
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/5/7,Labour Day
+2035/5/14,Whit Monday
+2035/8/6,Emancipation Day
+2035/11/3,Independence Day
+2035/11/4,National Day of Community Service
+2035/11/5,National Day of Community Service (observed)
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/2/25,Carnival Monday
+2036/2/26,Carnival Tuesday
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/5,Labour Day
+2036/6/2,Whit Monday
+2036/8/4,Emancipation Day
+2036/11/3,Independence Day
+2036/11/4,National Day of Community Service
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/2/16,Carnival Monday
+2037/2/17,Carnival Tuesday
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/5/4,Labour Day
+2037/5/25,Whit Monday
+2037/8/3,Emancipation Day
+2037/11/3,Independence Day
+2037/11/4,National Day of Community Service
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2038/1/1,New Year's Day
+2038/3/8,Carnival Monday
+2038/3/9,Carnival Tuesday
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/3,Labour Day
+2038/6/14,Whit Monday
+2038/8/2,Emancipation Day
+2038/11/3,Independence Day
+2038/11/4,National Day of Community Service
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2038/12/27,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/2/21,Carnival Monday
+2039/2/22,Carnival Tuesday
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/2,Labour Day
+2039/5/30,Whit Monday
+2039/8/1,Emancipation Day
+2039/11/3,Independence Day
+2039/11/4,National Day of Community Service
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day
+2039/12/27,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/2/13,Carnival Monday
+2040/2/14,Carnival Tuesday
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/5/7,Labour Day
+2040/5/21,Whit Monday
+2040/8/6,Emancipation Day
+2040/11/3,Independence Day
+2040/11/4,National Day of Community Service
+2040/11/5,National Day of Community Service (observed)
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/3/4,Carnival Monday
+2041/3/5,Carnival Tuesday
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/6,Labour Day
+2041/6/10,Whit Monday
+2041/8/5,Emancipation Day
+2041/11/3,Independence Day
+2041/11/4,National Day of Community Service
+2041/11/5,Independence Day (observed)
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/2/17,Carnival Monday
+2042/2/18,Carnival Tuesday
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/5,Labour Day
+2042/5/26,Whit Monday
+2042/8/4,Emancipation Day
+2042/11/3,Independence Day
+2042/11/4,National Day of Community Service
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/2/9,Carnival Monday
+2043/2/10,Carnival Tuesday
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/5/4,Labour Day
+2043/5/18,Whit Monday
+2043/8/3,Emancipation Day
+2043/11/3,Independence Day
+2043/11/4,National Day of Community Service
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2044/1/1,New Year's Day
+2044/2/29,Carnival Monday
+2044/3/1,Carnival Tuesday
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/2,Labour Day
+2044/6/6,Whit Monday
+2044/8/1,Emancipation Day
+2044/11/3,Independence Day
+2044/11/4,National Day of Community Service
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2044/12/27,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/2/20,Carnival Monday
+2045/2/21,Carnival Tuesday
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/1,Labour Day
+2045/5/29,Whit Monday
+2045/8/7,Emancipation Day
+2045/11/3,Independence Day
+2045/11/4,National Day of Community Service
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/2/5,Carnival Monday
+2046/2/6,Carnival Tuesday
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/5/7,Labour Day
+2046/5/14,Whit Monday
+2046/8/6,Emancipation Day
+2046/11/3,Independence Day
+2046/11/4,National Day of Community Service
+2046/11/5,National Day of Community Service (observed)
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/2/25,Carnival Monday
+2047/2/26,Carnival Tuesday
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/6,Labour Day
+2047/6/3,Whit Monday
+2047/8/5,Emancipation Day
+2047/11/3,Independence Day
+2047/11/4,National Day of Community Service
+2047/11/5,Independence Day (observed)
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2048/1/1,New Year's Day
+2048/2/17,Carnival Monday
+2048/2/18,Carnival Tuesday
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/4,Labour Day
+2048/5/25,Whit Monday
+2048/8/3,Emancipation Day
+2048/11/3,Independence Day
+2048/11/4,National Day of Community Service
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2049/1/1,New Year's Day
+2049/3/1,Carnival Monday
+2049/3/2,Carnival Tuesday
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/3,Labour Day
+2049/6/7,Whit Monday
+2049/8/2,Emancipation Day
+2049/11/3,Independence Day
+2049/11/4,National Day of Community Service
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2049/12/27,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/2/21,Carnival Monday
+2050/2/22,Carnival Tuesday
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/2,Labour Day
+2050/5/30,Whit Monday
+2050/8/1,Emancipation Day
+2050/11/3,Independence Day
+2050/11/4,National Day of Community Service
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day
+2050/12/27,Christmas Day (observed)

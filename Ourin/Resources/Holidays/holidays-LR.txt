@@ -1,0 +1,344 @@
+# LR の祝日（2020〜2050年、言語: en）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/2/11,Armed Forces Day
+2020/3/11,Decoration Day
+2020/3/15,J. J. Roberts Memorial Birthday
+2020/4/10,Fasting and Prayer Day
+2020/5/14,National Unification and Integration Day
+2020/7/26,Independence Day
+2020/8/24,National Flag Day
+2020/11/5,Thanksgiving Day
+2020/11/29,Tubman Administration Goodwill Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/2/11,Armed Forces Day
+2021/3/10,Decoration Day
+2021/3/15,J. J. Roberts Memorial Birthday
+2021/4/9,Fasting and Prayer Day
+2021/5/14,National Unification and Integration Day
+2021/7/26,Independence Day
+2021/8/24,National Flag Day
+2021/11/4,Thanksgiving Day
+2021/11/29,Tubman Administration Goodwill Day
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/2/11,Armed Forces Day
+2022/3/9,Decoration Day
+2022/3/15,J. J. Roberts Memorial Birthday
+2022/4/8,Fasting and Prayer Day
+2022/5/14,National Unification and Integration Day
+2022/7/26,Independence Day
+2022/8/24,National Flag Day
+2022/11/3,Thanksgiving Day
+2022/11/29,Tubman Administration Goodwill Day
+2022/12/25,Christmas Day
+2023/1/1,New Year's Day
+2023/2/11,Armed Forces Day
+2023/3/8,Decoration Day
+2023/3/15,J. J. Roberts Memorial Birthday
+2023/4/14,Fasting and Prayer Day
+2023/5/14,National Unification and Integration Day
+2023/7/26,Independence Day
+2023/8/24,National Flag Day
+2023/11/2,Thanksgiving Day
+2023/11/29,Tubman Administration Goodwill Day
+2023/12/25,Christmas Day
+2024/1/1,Inauguration Day; New Year's Day
+2024/2/11,Armed Forces Day
+2024/3/13,Decoration Day
+2024/3/15,J. J. Roberts Memorial Birthday
+2024/4/12,Fasting and Prayer Day
+2024/5/14,National Unification and Integration Day
+2024/7/26,Independence Day
+2024/8/24,National Flag Day
+2024/11/7,Thanksgiving Day
+2024/11/29,Tubman Administration Goodwill Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/2/11,Armed Forces Day
+2025/3/12,Decoration Day
+2025/3/15,J. J. Roberts Memorial Birthday
+2025/4/11,Fasting and Prayer Day
+2025/5/14,National Unification and Integration Day
+2025/7/26,Independence Day
+2025/8/24,National Flag Day
+2025/11/6,Thanksgiving Day
+2025/11/29,Tubman Administration Goodwill Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/2/11,Armed Forces Day
+2026/3/11,Decoration Day
+2026/3/15,J. J. Roberts Memorial Birthday
+2026/4/10,Fasting and Prayer Day
+2026/5/14,National Unification and Integration Day
+2026/7/26,Independence Day
+2026/8/24,National Flag Day
+2026/11/5,Thanksgiving Day
+2026/11/29,Tubman Administration Goodwill Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/2/11,Armed Forces Day
+2027/3/10,Decoration Day
+2027/3/15,J. J. Roberts Memorial Birthday
+2027/4/9,Fasting and Prayer Day
+2027/5/14,National Unification and Integration Day
+2027/7/26,Independence Day
+2027/8/24,National Flag Day
+2027/11/4,Thanksgiving Day
+2027/11/29,Tubman Administration Goodwill Day
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/2/11,Armed Forces Day
+2028/3/8,Decoration Day
+2028/3/15,J. J. Roberts Memorial Birthday
+2028/4/14,Fasting and Prayer Day
+2028/5/14,National Unification and Integration Day
+2028/7/26,Independence Day
+2028/8/24,National Flag Day
+2028/11/2,Thanksgiving Day
+2028/11/29,Tubman Administration Goodwill Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/2/11,Armed Forces Day
+2029/3/14,Decoration Day
+2029/3/15,J. J. Roberts Memorial Birthday
+2029/4/13,Fasting and Prayer Day
+2029/5/14,National Unification and Integration Day
+2029/7/26,Independence Day
+2029/8/24,National Flag Day
+2029/11/1,Thanksgiving Day
+2029/11/29,Tubman Administration Goodwill Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/2/11,Armed Forces Day
+2030/3/13,Decoration Day
+2030/3/15,J. J. Roberts Memorial Birthday
+2030/4/12,Fasting and Prayer Day
+2030/5/14,National Unification and Integration Day
+2030/7/26,Independence Day
+2030/8/24,National Flag Day
+2030/11/7,Thanksgiving Day
+2030/11/29,Tubman Administration Goodwill Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/2/11,Armed Forces Day
+2031/3/12,Decoration Day
+2031/3/15,J. J. Roberts Memorial Birthday
+2031/4/11,Fasting and Prayer Day
+2031/5/14,National Unification and Integration Day
+2031/7/26,Independence Day
+2031/8/24,National Flag Day
+2031/11/6,Thanksgiving Day
+2031/11/29,Tubman Administration Goodwill Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/2/11,Armed Forces Day
+2032/3/10,Decoration Day
+2032/3/15,J. J. Roberts Memorial Birthday
+2032/4/9,Fasting and Prayer Day
+2032/5/14,National Unification and Integration Day
+2032/7/26,Independence Day
+2032/8/24,National Flag Day
+2032/11/4,Thanksgiving Day
+2032/11/29,Tubman Administration Goodwill Day
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/2/11,Armed Forces Day
+2033/3/9,Decoration Day
+2033/3/15,J. J. Roberts Memorial Birthday
+2033/4/8,Fasting and Prayer Day
+2033/5/14,National Unification and Integration Day
+2033/7/26,Independence Day
+2033/8/24,National Flag Day
+2033/11/3,Thanksgiving Day
+2033/11/29,Tubman Administration Goodwill Day
+2033/12/25,Christmas Day
+2034/1/1,New Year's Day
+2034/2/11,Armed Forces Day
+2034/3/8,Decoration Day
+2034/3/15,J. J. Roberts Memorial Birthday
+2034/4/14,Fasting and Prayer Day
+2034/5/14,National Unification and Integration Day
+2034/7/26,Independence Day
+2034/8/24,National Flag Day
+2034/11/2,Thanksgiving Day
+2034/11/29,Tubman Administration Goodwill Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/2/11,Armed Forces Day
+2035/3/14,Decoration Day
+2035/3/15,J. J. Roberts Memorial Birthday
+2035/4/13,Fasting and Prayer Day
+2035/5/14,National Unification and Integration Day
+2035/7/26,Independence Day
+2035/8/24,National Flag Day
+2035/11/1,Thanksgiving Day
+2035/11/29,Tubman Administration Goodwill Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/2/11,Armed Forces Day
+2036/3/12,Decoration Day
+2036/3/15,J. J. Roberts Memorial Birthday
+2036/4/11,Fasting and Prayer Day
+2036/5/14,National Unification and Integration Day
+2036/7/26,Independence Day
+2036/8/24,National Flag Day
+2036/11/6,Thanksgiving Day
+2036/11/29,Tubman Administration Goodwill Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/2/11,Armed Forces Day
+2037/3/11,Decoration Day
+2037/3/15,J. J. Roberts Memorial Birthday
+2037/4/10,Fasting and Prayer Day
+2037/5/14,National Unification and Integration Day
+2037/7/26,Independence Day
+2037/8/24,National Flag Day
+2037/11/5,Thanksgiving Day
+2037/11/29,Tubman Administration Goodwill Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/2/11,Armed Forces Day
+2038/3/10,Decoration Day
+2038/3/15,J. J. Roberts Memorial Birthday
+2038/4/9,Fasting and Prayer Day
+2038/5/14,National Unification and Integration Day
+2038/7/26,Independence Day
+2038/8/24,National Flag Day
+2038/11/4,Thanksgiving Day
+2038/11/29,Tubman Administration Goodwill Day
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/2/11,Armed Forces Day
+2039/3/9,Decoration Day
+2039/3/15,J. J. Roberts Memorial Birthday
+2039/4/8,Fasting and Prayer Day
+2039/5/14,National Unification and Integration Day
+2039/7/26,Independence Day
+2039/8/24,National Flag Day
+2039/11/3,Thanksgiving Day
+2039/11/29,Tubman Administration Goodwill Day
+2039/12/25,Christmas Day
+2040/1/1,New Year's Day
+2040/2/11,Armed Forces Day
+2040/3/14,Decoration Day
+2040/3/15,J. J. Roberts Memorial Birthday
+2040/4/13,Fasting and Prayer Day
+2040/5/14,National Unification and Integration Day
+2040/7/26,Independence Day
+2040/8/24,National Flag Day
+2040/11/1,Thanksgiving Day
+2040/11/29,Tubman Administration Goodwill Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/2/11,Armed Forces Day
+2041/3/13,Decoration Day
+2041/3/15,J. J. Roberts Memorial Birthday
+2041/4/12,Fasting and Prayer Day
+2041/5/14,National Unification and Integration Day
+2041/7/26,Independence Day
+2041/8/24,National Flag Day
+2041/11/7,Thanksgiving Day
+2041/11/29,Tubman Administration Goodwill Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/2/11,Armed Forces Day
+2042/3/12,Decoration Day
+2042/3/15,J. J. Roberts Memorial Birthday
+2042/4/11,Fasting and Prayer Day
+2042/5/14,National Unification and Integration Day
+2042/7/26,Independence Day
+2042/8/24,National Flag Day
+2042/11/6,Thanksgiving Day
+2042/11/29,Tubman Administration Goodwill Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/2/11,Armed Forces Day
+2043/3/11,Decoration Day
+2043/3/15,J. J. Roberts Memorial Birthday
+2043/4/10,Fasting and Prayer Day
+2043/5/14,National Unification and Integration Day
+2043/7/26,Independence Day
+2043/8/24,National Flag Day
+2043/11/5,Thanksgiving Day
+2043/11/29,Tubman Administration Goodwill Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/2/11,Armed Forces Day
+2044/3/9,Decoration Day
+2044/3/15,J. J. Roberts Memorial Birthday
+2044/4/8,Fasting and Prayer Day
+2044/5/14,National Unification and Integration Day
+2044/7/26,Independence Day
+2044/8/24,National Flag Day
+2044/11/3,Thanksgiving Day
+2044/11/29,Tubman Administration Goodwill Day
+2044/12/25,Christmas Day
+2045/1/1,New Year's Day
+2045/2/11,Armed Forces Day
+2045/3/8,Decoration Day
+2045/3/15,J. J. Roberts Memorial Birthday
+2045/4/14,Fasting and Prayer Day
+2045/5/14,National Unification and Integration Day
+2045/7/26,Independence Day
+2045/8/24,National Flag Day
+2045/11/2,Thanksgiving Day
+2045/11/29,Tubman Administration Goodwill Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/2/11,Armed Forces Day
+2046/3/14,Decoration Day
+2046/3/15,J. J. Roberts Memorial Birthday
+2046/4/13,Fasting and Prayer Day
+2046/5/14,National Unification and Integration Day
+2046/7/26,Independence Day
+2046/8/24,National Flag Day
+2046/11/1,Thanksgiving Day
+2046/11/29,Tubman Administration Goodwill Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/2/11,Armed Forces Day
+2047/3/13,Decoration Day
+2047/3/15,J. J. Roberts Memorial Birthday
+2047/4/12,Fasting and Prayer Day
+2047/5/14,National Unification and Integration Day
+2047/7/26,Independence Day
+2047/8/24,National Flag Day
+2047/11/7,Thanksgiving Day
+2047/11/29,Tubman Administration Goodwill Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/2/11,Armed Forces Day
+2048/3/11,Decoration Day
+2048/3/15,J. J. Roberts Memorial Birthday
+2048/4/10,Fasting and Prayer Day
+2048/5/14,National Unification and Integration Day
+2048/7/26,Independence Day
+2048/8/24,National Flag Day
+2048/11/5,Thanksgiving Day
+2048/11/29,Tubman Administration Goodwill Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/2/11,Armed Forces Day
+2049/3/10,Decoration Day
+2049/3/15,J. J. Roberts Memorial Birthday
+2049/4/9,Fasting and Prayer Day
+2049/5/14,National Unification and Integration Day
+2049/7/26,Independence Day
+2049/8/24,National Flag Day
+2049/11/4,Thanksgiving Day
+2049/11/29,Tubman Administration Goodwill Day
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/2/11,Armed Forces Day
+2050/3/9,Decoration Day
+2050/3/15,J. J. Roberts Memorial Birthday
+2050/4/8,Fasting and Prayer Day
+2050/5/14,National Unification and Integration Day
+2050/7/26,Independence Day
+2050/8/24,National Flag Day
+2050/11/3,Thanksgiving Day
+2050/11/29,Tubman Administration Goodwill Day
+2050/12/25,Christmas Day

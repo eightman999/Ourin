@@ -1,0 +1,352 @@
+# BM の祝日（2020〜2050年、言語: en_BM）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/4/10,Good Friday
+2020/5/29,Bermuda Day
+2020/6/15,National Heroes Day
+2020/7/30,Emancipation Day
+2020/7/31,Mary Prince Day
+2020/9/7,Labour Day
+2020/11/11,Remembrance Day
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2020/12/28,Boxing Day (observed)
+2021/1/1,New Year's Day
+2021/4/2,Good Friday
+2021/5/28,Bermuda Day
+2021/6/21,National Heroes Day
+2021/7/29,Emancipation Day
+2021/7/30,Mary Prince Day
+2021/9/6,Labour Day
+2021/10/18,Flora Duffy Day
+2021/11/11,Remembrance Day
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Christmas Day (observed)
+2021/12/28,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/4/15,Good Friday
+2022/5/27,Bermuda Day
+2022/6/20,National Heroes Day
+2022/7/28,Emancipation Day
+2022/7/29,Mary Prince Day
+2022/9/5,Labour Day
+2022/11/11,Remembrance Day
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2022/12/27,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/4/7,Good Friday
+2023/5/8,The Coronation of His Majesty King Charles III
+2023/5/26,Bermuda Day
+2023/6/19,National Heroes Day
+2023/8/3,Emancipation Day
+2023/8/4,Mary Prince Day
+2023/9/4,Labour Day
+2023/11/11,Remembrance Day
+2023/11/13,Remembrance Day (observed)
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/3/29,Good Friday
+2024/5/24,Bermuda Day
+2024/6/17,National Heroes Day
+2024/8/1,Emancipation Day
+2024/8/2,Mary Prince Day
+2024/9/2,Labour Day
+2024/11/11,Remembrance Day
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/4/18,Good Friday
+2025/5/23,Bermuda Day
+2025/6/16,National Heroes Day
+2025/7/31,Emancipation Day
+2025/8/1,Mary Prince Day
+2025/9/1,Labour Day
+2025/11/11,Remembrance Day
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/4/3,Good Friday
+2026/5/22,Bermuda Day
+2026/6/15,National Heroes Day
+2026/7/30,Emancipation Day
+2026/7/31,Mary Prince Day
+2026/9/7,Labour Day
+2026/11/11,Remembrance Day
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2026/12/28,Boxing Day (observed)
+2027/1/1,New Year's Day
+2027/3/26,Good Friday
+2027/5/28,Bermuda Day
+2027/6/21,National Heroes Day
+2027/7/29,Emancipation Day
+2027/7/30,Mary Prince Day
+2027/9/6,Labour Day
+2027/11/11,Remembrance Day
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2027/12/27,Christmas Day (observed)
+2027/12/28,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/4/14,Good Friday
+2028/5/26,Bermuda Day
+2028/6/19,National Heroes Day
+2028/8/3,Emancipation Day
+2028/8/4,Mary Prince Day
+2028/9/4,Labour Day
+2028/11/11,Remembrance Day
+2028/11/13,Remembrance Day (observed)
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/3/30,Good Friday
+2029/5/25,Bermuda Day
+2029/6/18,National Heroes Day
+2029/8/2,Emancipation Day
+2029/8/3,Mary Prince Day
+2029/9/3,Labour Day
+2029/11/11,Remembrance Day
+2029/11/12,Remembrance Day (observed)
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/4/19,Good Friday
+2030/5/24,Bermuda Day
+2030/6/17,National Heroes Day
+2030/8/1,Emancipation Day
+2030/8/2,Mary Prince Day
+2030/9/2,Labour Day
+2030/11/11,Remembrance Day
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/4/11,Good Friday
+2031/5/23,Bermuda Day
+2031/6/16,National Heroes Day
+2031/7/31,Emancipation Day
+2031/8/1,Mary Prince Day
+2031/9/1,Labour Day
+2031/11/11,Remembrance Day
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/3/26,Good Friday
+2032/5/28,Bermuda Day
+2032/6/21,National Heroes Day
+2032/7/29,Emancipation Day
+2032/7/30,Mary Prince Day
+2032/9/6,Labour Day
+2032/11/11,Remembrance Day
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2032/12/27,Christmas Day (observed)
+2032/12/28,Boxing Day (observed)
+2033/1/1,New Year's Day
+2033/1/3,New Year's Day (observed)
+2033/4/15,Good Friday
+2033/5/27,Bermuda Day
+2033/6/20,National Heroes Day
+2033/7/28,Emancipation Day
+2033/7/29,Mary Prince Day
+2033/9/5,Labour Day
+2033/11/11,Remembrance Day
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day
+2033/12/27,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/4/7,Good Friday
+2034/5/26,Bermuda Day
+2034/6/19,National Heroes Day
+2034/8/3,Emancipation Day
+2034/8/4,Mary Prince Day
+2034/9/4,Labour Day
+2034/11/11,Remembrance Day
+2034/11/13,Remembrance Day (observed)
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/3/23,Good Friday
+2035/5/25,Bermuda Day
+2035/6/18,National Heroes Day
+2035/8/2,Emancipation Day
+2035/8/3,Mary Prince Day
+2035/9/3,Labour Day
+2035/11/11,Remembrance Day
+2035/11/12,Remembrance Day (observed)
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/4/11,Good Friday
+2036/5/23,Bermuda Day
+2036/6/16,National Heroes Day
+2036/7/31,Emancipation Day
+2036/8/1,Mary Prince Day
+2036/9/1,Labour Day
+2036/11/11,Remembrance Day
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/4/3,Good Friday
+2037/5/22,Bermuda Day
+2037/6/15,National Heroes Day
+2037/7/30,Emancipation Day
+2037/7/31,Mary Prince Day
+2037/9/7,Labour Day
+2037/11/11,Remembrance Day
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2037/12/28,Boxing Day (observed)
+2038/1/1,New Year's Day
+2038/4/23,Good Friday
+2038/5/28,Bermuda Day
+2038/6/21,National Heroes Day
+2038/7/29,Emancipation Day
+2038/7/30,Mary Prince Day
+2038/9/6,Labour Day
+2038/11/11,Remembrance Day
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2038/12/27,Christmas Day (observed)
+2038/12/28,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/4/8,Good Friday
+2039/5/27,Bermuda Day
+2039/6/20,National Heroes Day
+2039/7/28,Emancipation Day
+2039/7/29,Mary Prince Day
+2039/9/5,Labour Day
+2039/11/11,Remembrance Day
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day
+2039/12/27,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/3/30,Good Friday
+2040/5/25,Bermuda Day
+2040/6/18,National Heroes Day
+2040/8/2,Emancipation Day
+2040/8/3,Mary Prince Day
+2040/9/3,Labour Day
+2040/11/11,Remembrance Day
+2040/11/12,Remembrance Day (observed)
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/4/19,Good Friday
+2041/5/24,Bermuda Day
+2041/6/17,National Heroes Day
+2041/8/1,Emancipation Day
+2041/8/2,Mary Prince Day
+2041/9/2,Labour Day
+2041/11/11,Remembrance Day
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/4/4,Good Friday
+2042/5/23,Bermuda Day
+2042/6/16,National Heroes Day
+2042/7/31,Emancipation Day
+2042/8/1,Mary Prince Day
+2042/9/1,Labour Day
+2042/11/11,Remembrance Day
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/3/27,Good Friday
+2043/5/22,Bermuda Day
+2043/6/15,National Heroes Day
+2043/7/30,Emancipation Day
+2043/7/31,Mary Prince Day
+2043/9/7,Labour Day
+2043/11/11,Remembrance Day
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2043/12/28,Boxing Day (observed)
+2044/1/1,New Year's Day
+2044/4/15,Good Friday
+2044/5/27,Bermuda Day
+2044/6/20,National Heroes Day
+2044/7/28,Emancipation Day
+2044/7/29,Mary Prince Day
+2044/9/5,Labour Day
+2044/11/11,Remembrance Day
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2044/12/27,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/4/7,Good Friday
+2045/5/26,Bermuda Day
+2045/6/19,National Heroes Day
+2045/8/3,Emancipation Day
+2045/8/4,Mary Prince Day
+2045/9/4,Labour Day
+2045/11/11,Remembrance Day
+2045/11/13,Remembrance Day (observed)
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/3/23,Good Friday
+2046/5/25,Bermuda Day
+2046/6/18,National Heroes Day
+2046/8/2,Emancipation Day
+2046/8/3,Mary Prince Day
+2046/9/3,Labour Day
+2046/11/11,Remembrance Day
+2046/11/12,Remembrance Day (observed)
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/4/12,Good Friday
+2047/5/24,Bermuda Day
+2047/6/17,National Heroes Day
+2047/8/1,Emancipation Day
+2047/8/2,Mary Prince Day
+2047/9/2,Labour Day
+2047/11/11,Remembrance Day
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2048/1/1,New Year's Day
+2048/4/3,Good Friday
+2048/5/22,Bermuda Day
+2048/6/15,National Heroes Day
+2048/7/30,Emancipation Day
+2048/7/31,Mary Prince Day
+2048/9/7,Labour Day
+2048/11/11,Remembrance Day
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2048/12/28,Boxing Day (observed)
+2049/1/1,New Year's Day
+2049/4/16,Good Friday
+2049/5/28,Bermuda Day
+2049/6/21,National Heroes Day
+2049/7/29,Emancipation Day
+2049/7/30,Mary Prince Day
+2049/9/6,Labour Day
+2049/11/11,Remembrance Day
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2049/12/27,Christmas Day (observed)
+2049/12/28,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/4/8,Good Friday
+2050/5/27,Bermuda Day
+2050/6/20,National Heroes Day
+2050/7/28,Emancipation Day
+2050/7/29,Mary Prince Day
+2050/9/5,Labour Day
+2050/11/11,Remembrance Day
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day
+2050/12/27,Christmas Day (observed)

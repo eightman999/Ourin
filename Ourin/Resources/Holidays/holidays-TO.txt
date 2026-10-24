@@ -1,0 +1,354 @@
+# TO の祝日（2020〜2050年、言語: to）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2020/4/10,Falaite Lelei
+2020/4/13,Monite ʻo e Toetuʻu
+2020/4/25,ʻAho Anzac
+2020/6/8,ʻAho Tauʻataina (fakatokangaʻi)
+2020/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2020/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2020/11/2,ʻAho Konisitutone (fakatokangaʻi)
+2020/12/7,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2020/12/25,ʻAho Kilisimasi
+2020/12/26,ʻAho 2 ʻo e Kilisimasi
+2021/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2021/4/2,Falaite Lelei
+2021/4/5,Monite ʻo e Toetuʻu
+2021/4/25,ʻAho Anzac
+2021/6/7,ʻAho Tauʻataina (fakatokangaʻi)
+2021/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2021/7/5,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule (fakatokangaʻi)
+2021/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2021/11/8,ʻAho Konisitutone (fakatokangaʻi)
+2021/12/6,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2021/12/25,ʻAho Kilisimasi
+2021/12/26,ʻAho 2 ʻo e Kilisimasi
+2021/12/27,ʻAho 2 ʻo e Kilisimasi (fakatokangaʻi)
+2022/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2022/4/15,Falaite Lelei
+2022/4/18,Monite ʻo e Toetuʻu
+2022/4/25,ʻAho Anzac
+2022/6/6,ʻAho Tauʻataina (fakatokangaʻi)
+2022/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2022/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2022/11/7,ʻAho Konisitutone (fakatokangaʻi)
+2022/12/5,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2022/12/25,ʻAho Kilisimasi
+2022/12/26,ʻAho 2 ʻo e Kilisimasi
+2023/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2023/4/7,Falaite Lelei
+2023/4/10,Monite ʻo e Toetuʻu
+2023/4/25,ʻAho Anzac
+2023/6/5,ʻAho Tauʻataina (fakatokangaʻi)
+2023/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2023/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2023/9/18,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga (fakatokangaʻi)
+2023/11/6,ʻAho Konisitutone (fakatokangaʻi)
+2023/12/4,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I
+2023/12/25,ʻAho Kilisimasi
+2023/12/26,ʻAho 2 ʻo e Kilisimasi
+2024/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2024/3/29,Falaite Lelei
+2024/4/1,Monite ʻo e Toetuʻu
+2024/4/25,ʻAho Anzac
+2024/6/3,ʻAho Tauʻataina (fakatokangaʻi)
+2024/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2024/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2024/11/4,ʻAho Konisitutone
+2024/12/2,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2024/12/25,ʻAho Kilisimasi
+2024/12/26,ʻAho 2 ʻo e Kilisimasi
+2025/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2025/4/18,Falaite Lelei
+2025/4/21,Monite ʻo e Toetuʻu
+2025/4/25,ʻAho Anzac
+2025/6/2,ʻAho Tauʻataina (fakatokangaʻi)
+2025/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2025/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2025/11/3,ʻAho Konisitutone (fakatokangaʻi)
+2025/12/8,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2025/12/25,ʻAho Kilisimasi
+2025/12/26,ʻAho 2 ʻo e Kilisimasi
+2026/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2026/4/3,Falaite Lelei
+2026/4/6,Monite ʻo e Toetuʻu
+2026/4/25,ʻAho Anzac
+2026/6/8,ʻAho Tauʻataina (fakatokangaʻi)
+2026/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2026/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2026/11/2,ʻAho Konisitutone (fakatokangaʻi)
+2026/12/7,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2026/12/25,ʻAho Kilisimasi
+2026/12/26,ʻAho 2 ʻo e Kilisimasi
+2027/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2027/3/26,Falaite Lelei
+2027/3/29,Monite ʻo e Toetuʻu
+2027/4/25,ʻAho Anzac
+2027/6/7,ʻAho Tauʻataina (fakatokangaʻi)
+2027/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2027/7/5,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule (fakatokangaʻi)
+2027/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2027/11/8,ʻAho Konisitutone (fakatokangaʻi)
+2027/12/6,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2027/12/25,ʻAho Kilisimasi
+2027/12/26,ʻAho 2 ʻo e Kilisimasi
+2028/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2028/4/14,Falaite Lelei
+2028/4/17,Monite ʻo e Toetuʻu
+2028/4/25,ʻAho Anzac
+2028/6/5,ʻAho Tauʻataina (fakatokangaʻi)
+2028/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2028/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2028/9/18,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga (fakatokangaʻi)
+2028/11/6,ʻAho Konisitutone (fakatokangaʻi)
+2028/12/4,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I
+2028/12/25,ʻAho Kilisimasi
+2028/12/26,ʻAho 2 ʻo e Kilisimasi
+2029/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2029/3/30,Falaite Lelei
+2029/4/2,Monite ʻo e Toetuʻu
+2029/4/25,ʻAho Anzac
+2029/6/4,ʻAho Tauʻataina
+2029/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2029/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2029/11/5,ʻAho Konisitutone (fakatokangaʻi)
+2029/12/3,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2029/12/25,ʻAho Kilisimasi
+2029/12/26,ʻAho 2 ʻo e Kilisimasi
+2030/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2030/4/19,Falaite Lelei
+2030/4/22,Monite ʻo e Toetuʻu
+2030/4/25,ʻAho Anzac
+2030/6/3,ʻAho Tauʻataina (fakatokangaʻi)
+2030/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2030/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2030/11/4,ʻAho Konisitutone
+2030/12/2,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2030/12/25,ʻAho Kilisimasi
+2030/12/26,ʻAho 2 ʻo e Kilisimasi
+2031/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2031/4/11,Falaite Lelei
+2031/4/14,Monite ʻo e Toetuʻu
+2031/4/25,ʻAho Anzac
+2031/6/2,ʻAho Tauʻataina (fakatokangaʻi)
+2031/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2031/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2031/11/3,ʻAho Konisitutone (fakatokangaʻi)
+2031/12/8,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2031/12/25,ʻAho Kilisimasi
+2031/12/26,ʻAho 2 ʻo e Kilisimasi
+2032/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2032/3/26,Falaite Lelei
+2032/3/29,Monite ʻo e Toetuʻu
+2032/4/25,ʻAho Anzac
+2032/6/7,ʻAho Tauʻataina (fakatokangaʻi)
+2032/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2032/7/5,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule (fakatokangaʻi)
+2032/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2032/11/8,ʻAho Konisitutone (fakatokangaʻi)
+2032/12/6,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2032/12/25,ʻAho Kilisimasi
+2032/12/26,ʻAho 2 ʻo e Kilisimasi
+2033/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2033/4/15,Falaite Lelei
+2033/4/18,Monite ʻo e Toetuʻu
+2033/4/25,ʻAho Anzac
+2033/6/6,ʻAho Tauʻataina (fakatokangaʻi)
+2033/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2033/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2033/11/7,ʻAho Konisitutone (fakatokangaʻi)
+2033/12/5,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2033/12/25,ʻAho Kilisimasi
+2033/12/26,ʻAho 2 ʻo e Kilisimasi
+2034/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2034/4/7,Falaite Lelei
+2034/4/10,Monite ʻo e Toetuʻu
+2034/4/25,ʻAho Anzac
+2034/6/5,ʻAho Tauʻataina (fakatokangaʻi)
+2034/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2034/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2034/9/18,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga (fakatokangaʻi)
+2034/11/6,ʻAho Konisitutone (fakatokangaʻi)
+2034/12/4,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I
+2034/12/25,ʻAho Kilisimasi
+2034/12/26,ʻAho 2 ʻo e Kilisimasi
+2035/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2035/3/23,Falaite Lelei
+2035/3/26,Monite ʻo e Toetuʻu
+2035/4/25,ʻAho Anzac
+2035/6/4,ʻAho Tauʻataina
+2035/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2035/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2035/11/5,ʻAho Konisitutone (fakatokangaʻi)
+2035/12/3,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2035/12/25,ʻAho Kilisimasi
+2035/12/26,ʻAho 2 ʻo e Kilisimasi
+2036/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2036/4/11,Falaite Lelei
+2036/4/14,Monite ʻo e Toetuʻu
+2036/4/25,ʻAho Anzac
+2036/6/2,ʻAho Tauʻataina (fakatokangaʻi)
+2036/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2036/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2036/11/3,ʻAho Konisitutone (fakatokangaʻi)
+2036/12/8,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2036/12/25,ʻAho Kilisimasi
+2036/12/26,ʻAho 2 ʻo e Kilisimasi
+2037/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2037/4/3,Falaite Lelei
+2037/4/6,Monite ʻo e Toetuʻu
+2037/4/25,ʻAho Anzac
+2037/6/8,ʻAho Tauʻataina (fakatokangaʻi)
+2037/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2037/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2037/11/2,ʻAho Konisitutone (fakatokangaʻi)
+2037/12/7,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2037/12/25,ʻAho Kilisimasi
+2037/12/26,ʻAho 2 ʻo e Kilisimasi
+2038/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2038/4/23,Falaite Lelei
+2038/4/25,ʻAho Anzac
+2038/4/26,Monite ʻo e Toetuʻu
+2038/6/7,ʻAho Tauʻataina (fakatokangaʻi)
+2038/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2038/7/5,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule (fakatokangaʻi)
+2038/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2038/11/8,ʻAho Konisitutone (fakatokangaʻi)
+2038/12/6,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2038/12/25,ʻAho Kilisimasi
+2038/12/26,ʻAho 2 ʻo e Kilisimasi
+2039/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2039/4/8,Falaite Lelei
+2039/4/11,Monite ʻo e Toetuʻu
+2039/4/25,ʻAho Anzac
+2039/6/6,ʻAho Tauʻataina (fakatokangaʻi)
+2039/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2039/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2039/11/7,ʻAho Konisitutone (fakatokangaʻi)
+2039/12/5,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2039/12/25,ʻAho Kilisimasi
+2039/12/26,ʻAho 2 ʻo e Kilisimasi
+2040/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2040/3/30,Falaite Lelei
+2040/4/2,Monite ʻo e Toetuʻu
+2040/4/25,ʻAho Anzac
+2040/6/4,ʻAho Tauʻataina
+2040/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2040/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2040/11/5,ʻAho Konisitutone (fakatokangaʻi)
+2040/12/3,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2040/12/25,ʻAho Kilisimasi
+2040/12/26,ʻAho 2 ʻo e Kilisimasi
+2041/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2041/4/19,Falaite Lelei
+2041/4/22,Monite ʻo e Toetuʻu
+2041/4/25,ʻAho Anzac
+2041/6/3,ʻAho Tauʻataina (fakatokangaʻi)
+2041/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2041/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2041/11/4,ʻAho Konisitutone
+2041/12/2,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2041/12/25,ʻAho Kilisimasi
+2041/12/26,ʻAho 2 ʻo e Kilisimasi
+2042/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2042/4/4,Falaite Lelei
+2042/4/7,Monite ʻo e Toetuʻu
+2042/4/25,ʻAho Anzac
+2042/6/2,ʻAho Tauʻataina (fakatokangaʻi)
+2042/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2042/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2042/11/3,ʻAho Konisitutone (fakatokangaʻi)
+2042/12/8,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2042/12/25,ʻAho Kilisimasi
+2042/12/26,ʻAho 2 ʻo e Kilisimasi
+2043/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2043/3/27,Falaite Lelei
+2043/3/30,Monite ʻo e Toetuʻu
+2043/4/25,ʻAho Anzac
+2043/6/8,ʻAho Tauʻataina (fakatokangaʻi)
+2043/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2043/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2043/11/2,ʻAho Konisitutone (fakatokangaʻi)
+2043/12/7,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2043/12/25,ʻAho Kilisimasi
+2043/12/26,ʻAho 2 ʻo e Kilisimasi
+2044/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2044/4/15,Falaite Lelei
+2044/4/18,Monite ʻo e Toetuʻu
+2044/4/25,ʻAho Anzac
+2044/6/6,ʻAho Tauʻataina (fakatokangaʻi)
+2044/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2044/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2044/11/7,ʻAho Konisitutone (fakatokangaʻi)
+2044/12/5,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2044/12/25,ʻAho Kilisimasi
+2044/12/26,ʻAho 2 ʻo e Kilisimasi
+2045/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2045/4/7,Falaite Lelei
+2045/4/10,Monite ʻo e Toetuʻu
+2045/4/25,ʻAho Anzac
+2045/6/5,ʻAho Tauʻataina (fakatokangaʻi)
+2045/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2045/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2045/9/18,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga (fakatokangaʻi)
+2045/11/6,ʻAho Konisitutone (fakatokangaʻi)
+2045/12/4,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I
+2045/12/25,ʻAho Kilisimasi
+2045/12/26,ʻAho 2 ʻo e Kilisimasi
+2046/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2046/3/23,Falaite Lelei
+2046/3/26,Monite ʻo e Toetuʻu
+2046/4/25,ʻAho Anzac
+2046/6/4,ʻAho Tauʻataina
+2046/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2046/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2046/11/5,ʻAho Konisitutone (fakatokangaʻi)
+2046/12/3,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2046/12/25,ʻAho Kilisimasi
+2046/12/26,ʻAho 2 ʻo e Kilisimasi
+2047/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2047/4/12,Falaite Lelei
+2047/4/15,Monite ʻo e Toetuʻu
+2047/4/25,ʻAho Anzac
+2047/6/3,ʻAho Tauʻataina (fakatokangaʻi)
+2047/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2047/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2047/11/4,ʻAho Konisitutone
+2047/12/2,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2047/12/25,ʻAho Kilisimasi
+2047/12/26,ʻAho 2 ʻo e Kilisimasi
+2048/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2048/4/3,Falaite Lelei
+2048/4/6,Monite ʻo e Toetuʻu
+2048/4/25,ʻAho Anzac
+2048/6/8,ʻAho Tauʻataina (fakatokangaʻi)
+2048/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2048/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2048/11/2,ʻAho Konisitutone (fakatokangaʻi)
+2048/12/7,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2048/12/25,ʻAho Kilisimasi
+2048/12/26,ʻAho 2 ʻo e Kilisimasi
+2049/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2049/4/16,Falaite Lelei
+2049/4/19,Monite ʻo e Toetuʻu
+2049/4/25,ʻAho Anzac
+2049/6/7,ʻAho Tauʻataina (fakatokangaʻi)
+2049/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2049/7/5,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule (fakatokangaʻi)
+2049/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2049/11/8,ʻAho Konisitutone (fakatokangaʻi)
+2049/12/6,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2049/12/25,ʻAho Kilisimasi
+2049/12/26,ʻAho 2 ʻo e Kilisimasi
+2050/1/1,ʻUluaki ʻAho ʻo e Taʻu Foʻou
+2050/4/8,Falaite Lelei
+2050/4/11,Monite ʻo e Toetuʻu
+2050/4/25,ʻAho Anzac
+2050/6/6,ʻAho Tauʻataina (fakatokangaʻi)
+2050/7/4,ʻAho ʻAloʻi ʻo ʻEne ʻAfio ko e Tuʻi ʻo Tonga ʻoku lolotonga Pule
+2050/9/17,ʻAho ʻAloʻi ʻo e ʻEa ki he Kalauni ʻo Tonga
+2050/11/7,ʻAho Konisitutone (fakatokangaʻi)
+2050/12/5,ʻAho Fakamanatu ʻo e Hilifaki Kalauni ʻo ʻEne ʻAfio ko Siaosi Tupou I (fakatokangaʻi)
+2050/12/25,ʻAho Kilisimasi
+2050/12/26,ʻAho 2 ʻo e Kilisimasi

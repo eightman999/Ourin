@@ -1,0 +1,432 @@
+# PL の祝日（2020〜2050年、言語: pl）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Nowy Rok
+2020/1/6,Święto Trzech Króli
+2020/4/12,Niedziela Wielkanocna
+2020/4/13,Poniedziałek Wielkanocny
+2020/5/1,Święto Państwowe
+2020/5/3,Święto Narodowe Trzeciego Maja
+2020/5/31,Zielone Świątki
+2020/6/11,Dzień Bożego Ciała
+2020/8/15,Wniebowzięcie Najświętszej Marii Panny
+2020/11/1,Uroczystość Wszystkich Świętych
+2020/11/11,Narodowe Święto Niepodległości
+2020/12/25,Boże Narodzenie (pierwszy dzień)
+2020/12/26,Boże Narodzenie (drugi dzień)
+2021/1/1,Nowy Rok
+2021/1/6,Święto Trzech Króli
+2021/4/4,Niedziela Wielkanocna
+2021/4/5,Poniedziałek Wielkanocny
+2021/5/1,Święto Państwowe
+2021/5/3,Święto Narodowe Trzeciego Maja
+2021/5/23,Zielone Świątki
+2021/6/3,Dzień Bożego Ciała
+2021/8/15,Wniebowzięcie Najświętszej Marii Panny
+2021/11/1,Uroczystość Wszystkich Świętych
+2021/11/11,Narodowe Święto Niepodległości
+2021/12/25,Boże Narodzenie (pierwszy dzień)
+2021/12/26,Boże Narodzenie (drugi dzień)
+2022/1/1,Nowy Rok
+2022/1/6,Święto Trzech Króli
+2022/4/17,Niedziela Wielkanocna
+2022/4/18,Poniedziałek Wielkanocny
+2022/5/1,Święto Państwowe
+2022/5/3,Święto Narodowe Trzeciego Maja
+2022/6/5,Zielone Świątki
+2022/6/16,Dzień Bożego Ciała
+2022/8/15,Wniebowzięcie Najświętszej Marii Panny
+2022/11/1,Uroczystość Wszystkich Świętych
+2022/11/11,Narodowe Święto Niepodległości
+2022/12/25,Boże Narodzenie (pierwszy dzień)
+2022/12/26,Boże Narodzenie (drugi dzień)
+2023/1/1,Nowy Rok
+2023/1/6,Święto Trzech Króli
+2023/4/9,Niedziela Wielkanocna
+2023/4/10,Poniedziałek Wielkanocny
+2023/5/1,Święto Państwowe
+2023/5/3,Święto Narodowe Trzeciego Maja
+2023/5/28,Zielone Świątki
+2023/6/8,Dzień Bożego Ciała
+2023/8/15,Wniebowzięcie Najświętszej Marii Panny
+2023/11/1,Uroczystość Wszystkich Świętych
+2023/11/11,Narodowe Święto Niepodległości
+2023/12/25,Boże Narodzenie (pierwszy dzień)
+2023/12/26,Boże Narodzenie (drugi dzień)
+2024/1/1,Nowy Rok
+2024/1/6,Święto Trzech Króli
+2024/3/31,Niedziela Wielkanocna
+2024/4/1,Poniedziałek Wielkanocny
+2024/5/1,Święto Państwowe
+2024/5/3,Święto Narodowe Trzeciego Maja
+2024/5/19,Zielone Świątki
+2024/5/30,Dzień Bożego Ciała
+2024/8/15,Wniebowzięcie Najświętszej Marii Panny
+2024/11/1,Uroczystość Wszystkich Świętych
+2024/11/11,Narodowe Święto Niepodległości
+2024/12/25,Boże Narodzenie (pierwszy dzień)
+2024/12/26,Boże Narodzenie (drugi dzień)
+2025/1/1,Nowy Rok
+2025/1/6,Święto Trzech Króli
+2025/4/20,Niedziela Wielkanocna
+2025/4/21,Poniedziałek Wielkanocny
+2025/5/1,Święto Państwowe
+2025/5/3,Święto Narodowe Trzeciego Maja
+2025/6/8,Zielone Świątki
+2025/6/19,Dzień Bożego Ciała
+2025/8/15,Wniebowzięcie Najświętszej Marii Panny
+2025/11/1,Uroczystość Wszystkich Świętych
+2025/11/11,Narodowe Święto Niepodległości
+2025/12/24,Wigilia Bożego Narodzenia
+2025/12/25,Boże Narodzenie (pierwszy dzień)
+2025/12/26,Boże Narodzenie (drugi dzień)
+2026/1/1,Nowy Rok
+2026/1/6,Święto Trzech Króli
+2026/4/5,Niedziela Wielkanocna
+2026/4/6,Poniedziałek Wielkanocny
+2026/5/1,Święto Państwowe
+2026/5/3,Święto Narodowe Trzeciego Maja
+2026/5/24,Zielone Świątki
+2026/6/4,Dzień Bożego Ciała
+2026/8/15,Wniebowzięcie Najświętszej Marii Panny
+2026/11/1,Uroczystość Wszystkich Świętych
+2026/11/11,Narodowe Święto Niepodległości
+2026/12/24,Wigilia Bożego Narodzenia
+2026/12/25,Boże Narodzenie (pierwszy dzień)
+2026/12/26,Boże Narodzenie (drugi dzień)
+2027/1/1,Nowy Rok
+2027/1/6,Święto Trzech Króli
+2027/3/28,Niedziela Wielkanocna
+2027/3/29,Poniedziałek Wielkanocny
+2027/5/1,Święto Państwowe
+2027/5/3,Święto Narodowe Trzeciego Maja
+2027/5/16,Zielone Świątki
+2027/5/27,Dzień Bożego Ciała
+2027/8/15,Wniebowzięcie Najświętszej Marii Panny
+2027/11/1,Uroczystość Wszystkich Świętych
+2027/11/11,Narodowe Święto Niepodległości
+2027/12/24,Wigilia Bożego Narodzenia
+2027/12/25,Boże Narodzenie (pierwszy dzień)
+2027/12/26,Boże Narodzenie (drugi dzień)
+2028/1/1,Nowy Rok
+2028/1/6,Święto Trzech Króli
+2028/4/16,Niedziela Wielkanocna
+2028/4/17,Poniedziałek Wielkanocny
+2028/5/1,Święto Państwowe
+2028/5/3,Święto Narodowe Trzeciego Maja
+2028/6/4,Zielone Świątki
+2028/6/15,Dzień Bożego Ciała
+2028/8/15,Wniebowzięcie Najświętszej Marii Panny
+2028/11/1,Uroczystość Wszystkich Świętych
+2028/11/11,Narodowe Święto Niepodległości
+2028/12/24,Wigilia Bożego Narodzenia
+2028/12/25,Boże Narodzenie (pierwszy dzień)
+2028/12/26,Boże Narodzenie (drugi dzień)
+2029/1/1,Nowy Rok
+2029/1/6,Święto Trzech Króli
+2029/4/1,Niedziela Wielkanocna
+2029/4/2,Poniedziałek Wielkanocny
+2029/5/1,Święto Państwowe
+2029/5/3,Święto Narodowe Trzeciego Maja
+2029/5/20,Zielone Świątki
+2029/5/31,Dzień Bożego Ciała
+2029/8/15,Wniebowzięcie Najświętszej Marii Panny
+2029/11/1,Uroczystość Wszystkich Świętych
+2029/11/11,Narodowe Święto Niepodległości
+2029/12/24,Wigilia Bożego Narodzenia
+2029/12/25,Boże Narodzenie (pierwszy dzień)
+2029/12/26,Boże Narodzenie (drugi dzień)
+2030/1/1,Nowy Rok
+2030/1/6,Święto Trzech Króli
+2030/4/21,Niedziela Wielkanocna
+2030/4/22,Poniedziałek Wielkanocny
+2030/5/1,Święto Państwowe
+2030/5/3,Święto Narodowe Trzeciego Maja
+2030/6/9,Zielone Świątki
+2030/6/20,Dzień Bożego Ciała
+2030/8/15,Wniebowzięcie Najświętszej Marii Panny
+2030/11/1,Uroczystość Wszystkich Świętych
+2030/11/11,Narodowe Święto Niepodległości
+2030/12/24,Wigilia Bożego Narodzenia
+2030/12/25,Boże Narodzenie (pierwszy dzień)
+2030/12/26,Boże Narodzenie (drugi dzień)
+2031/1/1,Nowy Rok
+2031/1/6,Święto Trzech Króli
+2031/4/13,Niedziela Wielkanocna
+2031/4/14,Poniedziałek Wielkanocny
+2031/5/1,Święto Państwowe
+2031/5/3,Święto Narodowe Trzeciego Maja
+2031/6/1,Zielone Świątki
+2031/6/12,Dzień Bożego Ciała
+2031/8/15,Wniebowzięcie Najświętszej Marii Panny
+2031/11/1,Uroczystość Wszystkich Świętych
+2031/11/11,Narodowe Święto Niepodległości
+2031/12/24,Wigilia Bożego Narodzenia
+2031/12/25,Boże Narodzenie (pierwszy dzień)
+2031/12/26,Boże Narodzenie (drugi dzień)
+2032/1/1,Nowy Rok
+2032/1/6,Święto Trzech Króli
+2032/3/28,Niedziela Wielkanocna
+2032/3/29,Poniedziałek Wielkanocny
+2032/5/1,Święto Państwowe
+2032/5/3,Święto Narodowe Trzeciego Maja
+2032/5/16,Zielone Świątki
+2032/5/27,Dzień Bożego Ciała
+2032/8/15,Wniebowzięcie Najświętszej Marii Panny
+2032/11/1,Uroczystość Wszystkich Świętych
+2032/11/11,Narodowe Święto Niepodległości
+2032/12/24,Wigilia Bożego Narodzenia
+2032/12/25,Boże Narodzenie (pierwszy dzień)
+2032/12/26,Boże Narodzenie (drugi dzień)
+2033/1/1,Nowy Rok
+2033/1/6,Święto Trzech Króli
+2033/4/17,Niedziela Wielkanocna
+2033/4/18,Poniedziałek Wielkanocny
+2033/5/1,Święto Państwowe
+2033/5/3,Święto Narodowe Trzeciego Maja
+2033/6/5,Zielone Świątki
+2033/6/16,Dzień Bożego Ciała
+2033/8/15,Wniebowzięcie Najświętszej Marii Panny
+2033/11/1,Uroczystość Wszystkich Świętych
+2033/11/11,Narodowe Święto Niepodległości
+2033/12/24,Wigilia Bożego Narodzenia
+2033/12/25,Boże Narodzenie (pierwszy dzień)
+2033/12/26,Boże Narodzenie (drugi dzień)
+2034/1/1,Nowy Rok
+2034/1/6,Święto Trzech Króli
+2034/4/9,Niedziela Wielkanocna
+2034/4/10,Poniedziałek Wielkanocny
+2034/5/1,Święto Państwowe
+2034/5/3,Święto Narodowe Trzeciego Maja
+2034/5/28,Zielone Świątki
+2034/6/8,Dzień Bożego Ciała
+2034/8/15,Wniebowzięcie Najświętszej Marii Panny
+2034/11/1,Uroczystość Wszystkich Świętych
+2034/11/11,Narodowe Święto Niepodległości
+2034/12/24,Wigilia Bożego Narodzenia
+2034/12/25,Boże Narodzenie (pierwszy dzień)
+2034/12/26,Boże Narodzenie (drugi dzień)
+2035/1/1,Nowy Rok
+2035/1/6,Święto Trzech Króli
+2035/3/25,Niedziela Wielkanocna
+2035/3/26,Poniedziałek Wielkanocny
+2035/5/1,Święto Państwowe
+2035/5/3,Święto Narodowe Trzeciego Maja
+2035/5/13,Zielone Świątki
+2035/5/24,Dzień Bożego Ciała
+2035/8/15,Wniebowzięcie Najświętszej Marii Panny
+2035/11/1,Uroczystość Wszystkich Świętych
+2035/11/11,Narodowe Święto Niepodległości
+2035/12/24,Wigilia Bożego Narodzenia
+2035/12/25,Boże Narodzenie (pierwszy dzień)
+2035/12/26,Boże Narodzenie (drugi dzień)
+2036/1/1,Nowy Rok
+2036/1/6,Święto Trzech Króli
+2036/4/13,Niedziela Wielkanocna
+2036/4/14,Poniedziałek Wielkanocny
+2036/5/1,Święto Państwowe
+2036/5/3,Święto Narodowe Trzeciego Maja
+2036/6/1,Zielone Świątki
+2036/6/12,Dzień Bożego Ciała
+2036/8/15,Wniebowzięcie Najświętszej Marii Panny
+2036/11/1,Uroczystość Wszystkich Świętych
+2036/11/11,Narodowe Święto Niepodległości
+2036/12/24,Wigilia Bożego Narodzenia
+2036/12/25,Boże Narodzenie (pierwszy dzień)
+2036/12/26,Boże Narodzenie (drugi dzień)
+2037/1/1,Nowy Rok
+2037/1/6,Święto Trzech Króli
+2037/4/5,Niedziela Wielkanocna
+2037/4/6,Poniedziałek Wielkanocny
+2037/5/1,Święto Państwowe
+2037/5/3,Święto Narodowe Trzeciego Maja
+2037/5/24,Zielone Świątki
+2037/6/4,Dzień Bożego Ciała
+2037/8/15,Wniebowzięcie Najświętszej Marii Panny
+2037/11/1,Uroczystość Wszystkich Świętych
+2037/11/11,Narodowe Święto Niepodległości
+2037/12/24,Wigilia Bożego Narodzenia
+2037/12/25,Boże Narodzenie (pierwszy dzień)
+2037/12/26,Boże Narodzenie (drugi dzień)
+2038/1/1,Nowy Rok
+2038/1/6,Święto Trzech Króli
+2038/4/25,Niedziela Wielkanocna
+2038/4/26,Poniedziałek Wielkanocny
+2038/5/1,Święto Państwowe
+2038/5/3,Święto Narodowe Trzeciego Maja
+2038/6/13,Zielone Świątki
+2038/6/24,Dzień Bożego Ciała
+2038/8/15,Wniebowzięcie Najświętszej Marii Panny
+2038/11/1,Uroczystość Wszystkich Świętych
+2038/11/11,Narodowe Święto Niepodległości
+2038/12/24,Wigilia Bożego Narodzenia
+2038/12/25,Boże Narodzenie (pierwszy dzień)
+2038/12/26,Boże Narodzenie (drugi dzień)
+2039/1/1,Nowy Rok
+2039/1/6,Święto Trzech Króli
+2039/4/10,Niedziela Wielkanocna
+2039/4/11,Poniedziałek Wielkanocny
+2039/5/1,Święto Państwowe
+2039/5/3,Święto Narodowe Trzeciego Maja
+2039/5/29,Zielone Świątki
+2039/6/9,Dzień Bożego Ciała
+2039/8/15,Wniebowzięcie Najświętszej Marii Panny
+2039/11/1,Uroczystość Wszystkich Świętych
+2039/11/11,Narodowe Święto Niepodległości
+2039/12/24,Wigilia Bożego Narodzenia
+2039/12/25,Boże Narodzenie (pierwszy dzień)
+2039/12/26,Boże Narodzenie (drugi dzień)
+2040/1/1,Nowy Rok
+2040/1/6,Święto Trzech Króli
+2040/4/1,Niedziela Wielkanocna
+2040/4/2,Poniedziałek Wielkanocny
+2040/5/1,Święto Państwowe
+2040/5/3,Święto Narodowe Trzeciego Maja
+2040/5/20,Zielone Świątki
+2040/5/31,Dzień Bożego Ciała
+2040/8/15,Wniebowzięcie Najświętszej Marii Panny
+2040/11/1,Uroczystość Wszystkich Świętych
+2040/11/11,Narodowe Święto Niepodległości
+2040/12/24,Wigilia Bożego Narodzenia
+2040/12/25,Boże Narodzenie (pierwszy dzień)
+2040/12/26,Boże Narodzenie (drugi dzień)
+2041/1/1,Nowy Rok
+2041/1/6,Święto Trzech Króli
+2041/4/21,Niedziela Wielkanocna
+2041/4/22,Poniedziałek Wielkanocny
+2041/5/1,Święto Państwowe
+2041/5/3,Święto Narodowe Trzeciego Maja
+2041/6/9,Zielone Świątki
+2041/6/20,Dzień Bożego Ciała
+2041/8/15,Wniebowzięcie Najświętszej Marii Panny
+2041/11/1,Uroczystość Wszystkich Świętych
+2041/11/11,Narodowe Święto Niepodległości
+2041/12/24,Wigilia Bożego Narodzenia
+2041/12/25,Boże Narodzenie (pierwszy dzień)
+2041/12/26,Boże Narodzenie (drugi dzień)
+2042/1/1,Nowy Rok
+2042/1/6,Święto Trzech Króli
+2042/4/6,Niedziela Wielkanocna
+2042/4/7,Poniedziałek Wielkanocny
+2042/5/1,Święto Państwowe
+2042/5/3,Święto Narodowe Trzeciego Maja
+2042/5/25,Zielone Świątki
+2042/6/5,Dzień Bożego Ciała
+2042/8/15,Wniebowzięcie Najświętszej Marii Panny
+2042/11/1,Uroczystość Wszystkich Świętych
+2042/11/11,Narodowe Święto Niepodległości
+2042/12/24,Wigilia Bożego Narodzenia
+2042/12/25,Boże Narodzenie (pierwszy dzień)
+2042/12/26,Boże Narodzenie (drugi dzień)
+2043/1/1,Nowy Rok
+2043/1/6,Święto Trzech Króli
+2043/3/29,Niedziela Wielkanocna
+2043/3/30,Poniedziałek Wielkanocny
+2043/5/1,Święto Państwowe
+2043/5/3,Święto Narodowe Trzeciego Maja
+2043/5/17,Zielone Świątki
+2043/5/28,Dzień Bożego Ciała
+2043/8/15,Wniebowzięcie Najświętszej Marii Panny
+2043/11/1,Uroczystość Wszystkich Świętych
+2043/11/11,Narodowe Święto Niepodległości
+2043/12/24,Wigilia Bożego Narodzenia
+2043/12/25,Boże Narodzenie (pierwszy dzień)
+2043/12/26,Boże Narodzenie (drugi dzień)
+2044/1/1,Nowy Rok
+2044/1/6,Święto Trzech Króli
+2044/4/17,Niedziela Wielkanocna
+2044/4/18,Poniedziałek Wielkanocny
+2044/5/1,Święto Państwowe
+2044/5/3,Święto Narodowe Trzeciego Maja
+2044/6/5,Zielone Świątki
+2044/6/16,Dzień Bożego Ciała
+2044/8/15,Wniebowzięcie Najświętszej Marii Panny
+2044/11/1,Uroczystość Wszystkich Świętych
+2044/11/11,Narodowe Święto Niepodległości
+2044/12/24,Wigilia Bożego Narodzenia
+2044/12/25,Boże Narodzenie (pierwszy dzień)
+2044/12/26,Boże Narodzenie (drugi dzień)
+2045/1/1,Nowy Rok
+2045/1/6,Święto Trzech Króli
+2045/4/9,Niedziela Wielkanocna
+2045/4/10,Poniedziałek Wielkanocny
+2045/5/1,Święto Państwowe
+2045/5/3,Święto Narodowe Trzeciego Maja
+2045/5/28,Zielone Świątki
+2045/6/8,Dzień Bożego Ciała
+2045/8/15,Wniebowzięcie Najświętszej Marii Panny
+2045/11/1,Uroczystość Wszystkich Świętych
+2045/11/11,Narodowe Święto Niepodległości
+2045/12/24,Wigilia Bożego Narodzenia
+2045/12/25,Boże Narodzenie (pierwszy dzień)
+2045/12/26,Boże Narodzenie (drugi dzień)
+2046/1/1,Nowy Rok
+2046/1/6,Święto Trzech Króli
+2046/3/25,Niedziela Wielkanocna
+2046/3/26,Poniedziałek Wielkanocny
+2046/5/1,Święto Państwowe
+2046/5/3,Święto Narodowe Trzeciego Maja
+2046/5/13,Zielone Świątki
+2046/5/24,Dzień Bożego Ciała
+2046/8/15,Wniebowzięcie Najświętszej Marii Panny
+2046/11/1,Uroczystość Wszystkich Świętych
+2046/11/11,Narodowe Święto Niepodległości
+2046/12/24,Wigilia Bożego Narodzenia
+2046/12/25,Boże Narodzenie (pierwszy dzień)
+2046/12/26,Boże Narodzenie (drugi dzień)
+2047/1/1,Nowy Rok
+2047/1/6,Święto Trzech Króli
+2047/4/14,Niedziela Wielkanocna
+2047/4/15,Poniedziałek Wielkanocny
+2047/5/1,Święto Państwowe
+2047/5/3,Święto Narodowe Trzeciego Maja
+2047/6/2,Zielone Świątki
+2047/6/13,Dzień Bożego Ciała
+2047/8/15,Wniebowzięcie Najświętszej Marii Panny
+2047/11/1,Uroczystość Wszystkich Świętych
+2047/11/11,Narodowe Święto Niepodległości
+2047/12/24,Wigilia Bożego Narodzenia
+2047/12/25,Boże Narodzenie (pierwszy dzień)
+2047/12/26,Boże Narodzenie (drugi dzień)
+2048/1/1,Nowy Rok
+2048/1/6,Święto Trzech Króli
+2048/4/5,Niedziela Wielkanocna
+2048/4/6,Poniedziałek Wielkanocny
+2048/5/1,Święto Państwowe
+2048/5/3,Święto Narodowe Trzeciego Maja
+2048/5/24,Zielone Świątki
+2048/6/4,Dzień Bożego Ciała
+2048/8/15,Wniebowzięcie Najświętszej Marii Panny
+2048/11/1,Uroczystość Wszystkich Świętych
+2048/11/11,Narodowe Święto Niepodległości
+2048/12/24,Wigilia Bożego Narodzenia
+2048/12/25,Boże Narodzenie (pierwszy dzień)
+2048/12/26,Boże Narodzenie (drugi dzień)
+2049/1/1,Nowy Rok
+2049/1/6,Święto Trzech Króli
+2049/4/18,Niedziela Wielkanocna
+2049/4/19,Poniedziałek Wielkanocny
+2049/5/1,Święto Państwowe
+2049/5/3,Święto Narodowe Trzeciego Maja
+2049/6/6,Zielone Świątki
+2049/6/17,Dzień Bożego Ciała
+2049/8/15,Wniebowzięcie Najświętszej Marii Panny
+2049/11/1,Uroczystość Wszystkich Świętych
+2049/11/11,Narodowe Święto Niepodległości
+2049/12/24,Wigilia Bożego Narodzenia
+2049/12/25,Boże Narodzenie (pierwszy dzień)
+2049/12/26,Boże Narodzenie (drugi dzień)
+2050/1/1,Nowy Rok
+2050/1/6,Święto Trzech Króli
+2050/4/10,Niedziela Wielkanocna
+2050/4/11,Poniedziałek Wielkanocny
+2050/5/1,Święto Państwowe
+2050/5/3,Święto Narodowe Trzeciego Maja
+2050/5/29,Zielone Świątki
+2050/6/9,Dzień Bożego Ciała
+2050/8/15,Wniebowzięcie Najświętszej Marii Panny
+2050/11/1,Uroczystość Wszystkich Świętych
+2050/11/11,Narodowe Święto Niepodległości
+2050/12/24,Wigilia Bożego Narodzenia
+2050/12/25,Boże Narodzenie (pierwszy dzień)
+2050/12/26,Boże Narodzenie (drugi dzień)

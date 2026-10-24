@@ -1,0 +1,479 @@
+# GQ holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/3/8,International Women's Day
+2020/4/9,Maundy Thursday
+2020/4/10,Good Friday
+2020/5/1,International Labor Day
+2020/5/25,African Liberation Day
+2020/6/5,President's Day
+2020/6/11,Corpus Christi
+2020/8/3,Armed Forces Day
+2020/8/15,Constitution Day
+2020/8/17,Constitution Day (observed)
+2020/10/12,National Independence Day
+2020/12/8,Immaculate Conception
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/3/8,International Women's Day
+2021/4/1,Maundy Thursday
+2021/4/2,Good Friday
+2021/5/1,International Labor Day
+2021/5/3,International Labor Day (observed)
+2021/5/25,African Liberation Day
+2021/6/3,Corpus Christi
+2021/6/5,President's Day
+2021/6/7,President's Day (observed)
+2021/8/3,Armed Forces Day
+2021/8/15,Constitution Day
+2021/8/16,Constitution Day (observed)
+2021/10/12,National Independence Day
+2021/12/8,Immaculate Conception
+2021/12/25,Christmas Day
+2021/12/27,Christmas Day (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/3/8,International Women's Day
+2022/4/14,Maundy Thursday
+2022/4/15,Good Friday
+2022/5/1,International Labor Day
+2022/5/2,International Labor Day (observed)
+2022/5/25,African Liberation Day
+2022/6/5,President's Day
+2022/6/6,President's Day (observed)
+2022/6/16,Corpus Christi
+2022/8/3,Armed Forces Day
+2022/8/15,Constitution Day
+2022/10/12,National Independence Day
+2022/12/8,Immaculate Conception
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/3/8,International Women's Day
+2023/4/6,Maundy Thursday
+2023/4/7,Good Friday
+2023/5/1,International Labor Day
+2023/5/25,African Liberation Day
+2023/6/5,President's Day
+2023/6/8,Corpus Christi
+2023/8/3,Armed Forces Day
+2023/8/15,Constitution Day
+2023/10/12,National Independence Day
+2023/12/8,Immaculate Conception
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/1/23,AFCON Victory Against Ivory Coast
+2024/3/8,International Women's Day
+2024/3/28,Maundy Thursday
+2024/3/29,Good Friday
+2024/5/1,International Labor Day
+2024/5/25,African Liberation Day
+2024/5/30,Corpus Christi
+2024/6/5,President's Day
+2024/8/3,Armed Forces Day
+2024/8/5,Armed Forces Day (observed)
+2024/8/15,Constitution Day
+2024/10/12,National Independence Day
+2024/10/14,National Independence Day (observed)
+2024/12/8,Immaculate Conception
+2024/12/9,Immaculate Conception (observed)
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/3/8,International Women's Day
+2025/4/17,Maundy Thursday
+2025/4/18,Good Friday
+2025/5/1,International Labor Day
+2025/5/25,African Liberation Day
+2025/6/5,President's Day
+2025/6/19,Corpus Christi
+2025/8/3,Armed Forces Day
+2025/8/4,Armed Forces Day (observed)
+2025/8/15,Constitution Day
+2025/10/12,National Independence Day
+2025/10/13,National Independence Day (observed)
+2025/12/8,Immaculate Conception
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/3/8,International Women's Day
+2026/4/2,Maundy Thursday
+2026/4/3,Good Friday
+2026/5/1,International Labor Day
+2026/5/25,African Liberation Day
+2026/6/4,Corpus Christi
+2026/6/5,President's Day
+2026/8/3,Armed Forces Day
+2026/8/15,Constitution Day
+2026/8/17,Constitution Day (observed)
+2026/10/12,National Independence Day
+2026/12/8,Immaculate Conception
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/3/8,International Women's Day
+2027/3/25,Maundy Thursday
+2027/3/26,Good Friday
+2027/5/1,International Labor Day
+2027/5/3,International Labor Day (observed)
+2027/5/25,African Liberation Day
+2027/5/27,Corpus Christi
+2027/6/5,President's Day
+2027/6/7,President's Day (observed)
+2027/8/3,Armed Forces Day
+2027/8/15,Constitution Day
+2027/8/16,Constitution Day (observed)
+2027/10/12,National Independence Day
+2027/12/8,Immaculate Conception
+2027/12/25,Christmas Day
+2027/12/27,Christmas Day (observed)
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/3/8,International Women's Day
+2028/4/13,Maundy Thursday
+2028/4/14,Good Friday
+2028/5/1,International Labor Day
+2028/5/25,African Liberation Day
+2028/6/5,President's Day
+2028/6/15,Corpus Christi
+2028/8/3,Armed Forces Day
+2028/8/15,Constitution Day
+2028/10/12,National Independence Day
+2028/12/8,Immaculate Conception
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/3/8,International Women's Day
+2029/3/29,Maundy Thursday
+2029/3/30,Good Friday
+2029/5/1,International Labor Day
+2029/5/25,African Liberation Day
+2029/5/31,Corpus Christi
+2029/6/5,President's Day
+2029/8/3,Armed Forces Day
+2029/8/15,Constitution Day
+2029/10/12,National Independence Day
+2029/12/8,Immaculate Conception
+2029/12/10,Immaculate Conception (observed)
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/3/8,International Women's Day
+2030/4/18,Maundy Thursday
+2030/4/19,Good Friday
+2030/5/1,International Labor Day
+2030/5/25,African Liberation Day
+2030/6/5,President's Day
+2030/6/20,Corpus Christi
+2030/8/3,Armed Forces Day
+2030/8/5,Armed Forces Day (observed)
+2030/8/15,Constitution Day
+2030/10/12,National Independence Day
+2030/10/14,National Independence Day (observed)
+2030/12/8,Immaculate Conception
+2030/12/9,Immaculate Conception (observed)
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/3/8,International Women's Day
+2031/4/10,Maundy Thursday
+2031/4/11,Good Friday
+2031/5/1,International Labor Day
+2031/5/25,African Liberation Day
+2031/6/5,President's Day
+2031/6/12,Corpus Christi
+2031/8/3,Armed Forces Day
+2031/8/4,Armed Forces Day (observed)
+2031/8/15,Constitution Day
+2031/10/12,National Independence Day
+2031/10/13,National Independence Day (observed)
+2031/12/8,Immaculate Conception
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/3/8,International Women's Day
+2032/3/25,Maundy Thursday
+2032/3/26,Good Friday
+2032/5/1,International Labor Day
+2032/5/3,International Labor Day (observed)
+2032/5/25,African Liberation Day
+2032/5/27,Corpus Christi
+2032/6/5,President's Day
+2032/6/7,President's Day (observed)
+2032/8/3,Armed Forces Day
+2032/8/15,Constitution Day
+2032/8/16,Constitution Day (observed)
+2032/10/12,National Independence Day
+2032/12/8,Immaculate Conception
+2032/12/25,Christmas Day
+2032/12/27,Christmas Day (observed)
+2033/1/1,New Year's Day
+2033/1/3,New Year's Day (observed)
+2033/3/8,International Women's Day
+2033/4/14,Maundy Thursday
+2033/4/15,Good Friday
+2033/5/1,International Labor Day
+2033/5/2,International Labor Day (observed)
+2033/5/25,African Liberation Day
+2033/6/5,President's Day
+2033/6/6,President's Day (observed)
+2033/6/16,Corpus Christi
+2033/8/3,Armed Forces Day
+2033/8/15,Constitution Day
+2033/10/12,National Independence Day
+2033/12/8,Immaculate Conception
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/3/8,International Women's Day
+2034/4/6,Maundy Thursday
+2034/4/7,Good Friday
+2034/5/1,International Labor Day
+2034/5/25,African Liberation Day
+2034/6/5,President's Day
+2034/6/8,Corpus Christi
+2034/8/3,Armed Forces Day
+2034/8/15,Constitution Day
+2034/10/12,National Independence Day
+2034/12/8,Immaculate Conception
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/3/8,International Women's Day
+2035/3/22,Maundy Thursday
+2035/3/23,Good Friday
+2035/5/1,International Labor Day
+2035/5/24,Corpus Christi
+2035/5/25,African Liberation Day
+2035/6/5,President's Day
+2035/8/3,Armed Forces Day
+2035/8/15,Constitution Day
+2035/10/12,National Independence Day
+2035/12/8,Immaculate Conception
+2035/12/10,Immaculate Conception (observed)
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/3/8,International Women's Day
+2036/4/10,Maundy Thursday
+2036/4/11,Good Friday
+2036/5/1,International Labor Day
+2036/5/25,African Liberation Day
+2036/6/5,President's Day
+2036/6/12,Corpus Christi
+2036/8/3,Armed Forces Day
+2036/8/4,Armed Forces Day (observed)
+2036/8/15,Constitution Day
+2036/10/12,National Independence Day
+2036/10/13,National Independence Day (observed)
+2036/12/8,Immaculate Conception
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/3/8,International Women's Day
+2037/4/2,Maundy Thursday
+2037/4/3,Good Friday
+2037/5/1,International Labor Day
+2037/5/25,African Liberation Day
+2037/6/4,Corpus Christi
+2037/6/5,President's Day
+2037/8/3,Armed Forces Day
+2037/8/15,Constitution Day
+2037/8/17,Constitution Day (observed)
+2037/10/12,National Independence Day
+2037/12/8,Immaculate Conception
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/3/8,International Women's Day
+2038/4/22,Maundy Thursday
+2038/4/23,Good Friday
+2038/5/1,International Labor Day
+2038/5/3,International Labor Day (observed)
+2038/5/25,African Liberation Day
+2038/6/5,President's Day
+2038/6/7,President's Day (observed)
+2038/6/24,Corpus Christi
+2038/8/3,Armed Forces Day
+2038/8/15,Constitution Day
+2038/8/16,Constitution Day (observed)
+2038/10/12,National Independence Day
+2038/12/8,Immaculate Conception
+2038/12/25,Christmas Day
+2038/12/27,Christmas Day (observed)
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/3/8,International Women's Day
+2039/4/7,Maundy Thursday
+2039/4/8,Good Friday
+2039/5/1,International Labor Day
+2039/5/2,International Labor Day (observed)
+2039/5/25,African Liberation Day
+2039/6/5,President's Day
+2039/6/6,President's Day (observed)
+2039/6/9,Corpus Christi
+2039/8/3,Armed Forces Day
+2039/8/15,Constitution Day
+2039/10/12,National Independence Day
+2039/12/8,Immaculate Conception
+2039/12/25,Christmas Day
+2039/12/26,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/3/8,International Women's Day
+2040/3/29,Maundy Thursday
+2040/3/30,Good Friday
+2040/5/1,International Labor Day
+2040/5/25,African Liberation Day
+2040/5/31,Corpus Christi
+2040/6/5,President's Day
+2040/8/3,Armed Forces Day
+2040/8/15,Constitution Day
+2040/10/12,National Independence Day
+2040/12/8,Immaculate Conception
+2040/12/10,Immaculate Conception (observed)
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/3/8,International Women's Day
+2041/4/18,Maundy Thursday
+2041/4/19,Good Friday
+2041/5/1,International Labor Day
+2041/5/25,African Liberation Day
+2041/6/5,President's Day
+2041/6/20,Corpus Christi
+2041/8/3,Armed Forces Day
+2041/8/5,Armed Forces Day (observed)
+2041/8/15,Constitution Day
+2041/10/12,National Independence Day
+2041/10/14,National Independence Day (observed)
+2041/12/8,Immaculate Conception
+2041/12/9,Immaculate Conception (observed)
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/3/8,International Women's Day
+2042/4/3,Maundy Thursday
+2042/4/4,Good Friday
+2042/5/1,International Labor Day
+2042/5/25,African Liberation Day
+2042/6/5,Corpus Christi; President's Day
+2042/8/3,Armed Forces Day
+2042/8/4,Armed Forces Day (observed)
+2042/8/15,Constitution Day
+2042/10/12,National Independence Day
+2042/10/13,National Independence Day (observed)
+2042/12/8,Immaculate Conception
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/3/8,International Women's Day
+2043/3/26,Maundy Thursday
+2043/3/27,Good Friday
+2043/5/1,International Labor Day
+2043/5/25,African Liberation Day
+2043/5/28,Corpus Christi
+2043/6/5,President's Day
+2043/8/3,Armed Forces Day
+2043/8/15,Constitution Day
+2043/8/17,Constitution Day (observed)
+2043/10/12,National Independence Day
+2043/12/8,Immaculate Conception
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/3/8,International Women's Day
+2044/4/14,Maundy Thursday
+2044/4/15,Good Friday
+2044/5/1,International Labor Day
+2044/5/2,International Labor Day (observed)
+2044/5/25,African Liberation Day
+2044/6/5,President's Day
+2044/6/6,President's Day (observed)
+2044/6/16,Corpus Christi
+2044/8/3,Armed Forces Day
+2044/8/15,Constitution Day
+2044/10/12,National Independence Day
+2044/12/8,Immaculate Conception
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/3/8,International Women's Day
+2045/4/6,Maundy Thursday
+2045/4/7,Good Friday
+2045/5/1,International Labor Day
+2045/5/25,African Liberation Day
+2045/6/5,President's Day
+2045/6/8,Corpus Christi
+2045/8/3,Armed Forces Day
+2045/8/15,Constitution Day
+2045/10/12,National Independence Day
+2045/12/8,Immaculate Conception
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/3/8,International Women's Day
+2046/3/22,Maundy Thursday
+2046/3/23,Good Friday
+2046/5/1,International Labor Day
+2046/5/24,Corpus Christi
+2046/5/25,African Liberation Day
+2046/6/5,President's Day
+2046/8/3,Armed Forces Day
+2046/8/15,Constitution Day
+2046/10/12,National Independence Day
+2046/12/8,Immaculate Conception
+2046/12/10,Immaculate Conception (observed)
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/3/8,International Women's Day
+2047/4/11,Maundy Thursday
+2047/4/12,Good Friday
+2047/5/1,International Labor Day
+2047/5/25,African Liberation Day
+2047/6/5,President's Day
+2047/6/13,Corpus Christi
+2047/8/3,Armed Forces Day
+2047/8/5,Armed Forces Day (observed)
+2047/8/15,Constitution Day
+2047/10/12,National Independence Day
+2047/10/14,National Independence Day (observed)
+2047/12/8,Immaculate Conception
+2047/12/9,Immaculate Conception (observed)
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/3/8,International Women's Day
+2048/4/2,Maundy Thursday
+2048/4/3,Good Friday
+2048/5/1,International Labor Day
+2048/5/25,African Liberation Day
+2048/6/4,Corpus Christi
+2048/6/5,President's Day
+2048/8/3,Armed Forces Day
+2048/8/15,Constitution Day
+2048/8/17,Constitution Day (observed)
+2048/10/12,National Independence Day
+2048/12/8,Immaculate Conception
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/3/8,International Women's Day
+2049/4/15,Maundy Thursday
+2049/4/16,Good Friday
+2049/5/1,International Labor Day
+2049/5/3,International Labor Day (observed)
+2049/5/25,African Liberation Day
+2049/6/5,President's Day
+2049/6/7,President's Day (observed)
+2049/6/17,Corpus Christi
+2049/8/3,Armed Forces Day
+2049/8/15,Constitution Day
+2049/8/16,Constitution Day (observed)
+2049/10/12,National Independence Day
+2049/12/8,Immaculate Conception
+2049/12/25,Christmas Day
+2049/12/27,Christmas Day (observed)
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/3/8,International Women's Day
+2050/4/7,Maundy Thursday
+2050/4/8,Good Friday
+2050/5/1,International Labor Day
+2050/5/2,International Labor Day (observed)
+2050/5/25,African Liberation Day
+2050/6/5,President's Day
+2050/6/6,President's Day (observed)
+2050/6/9,Corpus Christi
+2050/8/3,Armed Forces Day
+2050/8/15,Constitution Day
+2050/10/12,National Independence Day
+2050/12/8,Immaculate Conception
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)

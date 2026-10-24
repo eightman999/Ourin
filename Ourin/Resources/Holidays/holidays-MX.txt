@@ -1,0 +1,225 @@
+# MX の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/2/3,Día de la Constitución
+2020/3/16,Natalicio de Benito Juárez
+2020/5/1,Día del Trabajo
+2020/9/16,Día de la Independencia
+2020/11/16,Día de la Revolución
+2020/12/25,Navidad
+2021/1/1,Año Nuevo
+2021/2/1,Día de la Constitución
+2021/3/15,Natalicio de Benito Juárez
+2021/5/1,Día del Trabajo
+2021/9/16,Día de la Independencia
+2021/11/15,Día de la Revolución
+2021/12/25,Navidad
+2022/1/1,Año Nuevo
+2022/2/7,Día de la Constitución
+2022/3/21,Natalicio de Benito Juárez
+2022/5/1,Día del Trabajo
+2022/9/16,Día de la Independencia
+2022/11/21,Día de la Revolución
+2022/12/25,Navidad
+2023/1/1,Año Nuevo
+2023/2/6,Día de la Constitución
+2023/3/20,Natalicio de Benito Juárez
+2023/5/1,Día del Trabajo
+2023/9/16,Día de la Independencia
+2023/11/20,Día de la Revolución
+2023/12/25,Navidad
+2024/1/1,Año Nuevo
+2024/2/5,Día de la Constitución
+2024/3/18,Natalicio de Benito Juárez
+2024/5/1,Día del Trabajo
+2024/9/16,Día de la Independencia
+2024/10/1,Transmisión del Poder Ejecutivo Federal
+2024/11/18,Día de la Revolución
+2024/12/25,Navidad
+2025/1/1,Año Nuevo
+2025/2/3,Día de la Constitución
+2025/3/17,Natalicio de Benito Juárez
+2025/5/1,Día del Trabajo
+2025/9/16,Día de la Independencia
+2025/11/17,Día de la Revolución
+2025/12/25,Navidad
+2026/1/1,Año Nuevo
+2026/2/2,Día de la Constitución
+2026/3/16,Natalicio de Benito Juárez
+2026/5/1,Día del Trabajo
+2026/9/16,Día de la Independencia
+2026/11/16,Día de la Revolución
+2026/12/25,Navidad
+2027/1/1,Año Nuevo
+2027/2/1,Día de la Constitución
+2027/3/15,Natalicio de Benito Juárez
+2027/5/1,Día del Trabajo
+2027/9/16,Día de la Independencia
+2027/11/15,Día de la Revolución
+2027/12/25,Navidad
+2028/1/1,Año Nuevo
+2028/2/7,Día de la Constitución
+2028/3/20,Natalicio de Benito Juárez
+2028/5/1,Día del Trabajo
+2028/9/16,Día de la Independencia
+2028/11/20,Día de la Revolución
+2028/12/25,Navidad
+2029/1/1,Año Nuevo
+2029/2/5,Día de la Constitución
+2029/3/19,Natalicio de Benito Juárez
+2029/5/1,Día del Trabajo
+2029/9/16,Día de la Independencia
+2029/11/19,Día de la Revolución
+2029/12/25,Navidad
+2030/1/1,Año Nuevo
+2030/2/4,Día de la Constitución
+2030/3/18,Natalicio de Benito Juárez
+2030/5/1,Día del Trabajo
+2030/9/16,Día de la Independencia
+2030/10/1,Transmisión del Poder Ejecutivo Federal
+2030/11/18,Día de la Revolución
+2030/12/25,Navidad
+2031/1/1,Año Nuevo
+2031/2/3,Día de la Constitución
+2031/3/17,Natalicio de Benito Juárez
+2031/5/1,Día del Trabajo
+2031/9/16,Día de la Independencia
+2031/11/17,Día de la Revolución
+2031/12/25,Navidad
+2032/1/1,Año Nuevo
+2032/2/2,Día de la Constitución
+2032/3/15,Natalicio de Benito Juárez
+2032/5/1,Día del Trabajo
+2032/9/16,Día de la Independencia
+2032/11/15,Día de la Revolución
+2032/12/25,Navidad
+2033/1/1,Año Nuevo
+2033/2/7,Día de la Constitución
+2033/3/21,Natalicio de Benito Juárez
+2033/5/1,Día del Trabajo
+2033/9/16,Día de la Independencia
+2033/11/21,Día de la Revolución
+2033/12/25,Navidad
+2034/1/1,Año Nuevo
+2034/2/6,Día de la Constitución
+2034/3/20,Natalicio de Benito Juárez
+2034/5/1,Día del Trabajo
+2034/9/16,Día de la Independencia
+2034/11/20,Día de la Revolución
+2034/12/25,Navidad
+2035/1/1,Año Nuevo
+2035/2/5,Día de la Constitución
+2035/3/19,Natalicio de Benito Juárez
+2035/5/1,Día del Trabajo
+2035/9/16,Día de la Independencia
+2035/11/19,Día de la Revolución
+2035/12/25,Navidad
+2036/1/1,Año Nuevo
+2036/2/4,Día de la Constitución
+2036/3/17,Natalicio de Benito Juárez
+2036/5/1,Día del Trabajo
+2036/9/16,Día de la Independencia
+2036/10/1,Transmisión del Poder Ejecutivo Federal
+2036/11/17,Día de la Revolución
+2036/12/25,Navidad
+2037/1/1,Año Nuevo
+2037/2/2,Día de la Constitución
+2037/3/16,Natalicio de Benito Juárez
+2037/5/1,Día del Trabajo
+2037/9/16,Día de la Independencia
+2037/11/16,Día de la Revolución
+2037/12/25,Navidad
+2038/1/1,Año Nuevo
+2038/2/1,Día de la Constitución
+2038/3/15,Natalicio de Benito Juárez
+2038/5/1,Día del Trabajo
+2038/9/16,Día de la Independencia
+2038/11/15,Día de la Revolución
+2038/12/25,Navidad
+2039/1/1,Año Nuevo
+2039/2/7,Día de la Constitución
+2039/3/21,Natalicio de Benito Juárez
+2039/5/1,Día del Trabajo
+2039/9/16,Día de la Independencia
+2039/11/21,Día de la Revolución
+2039/12/25,Navidad
+2040/1/1,Año Nuevo
+2040/2/6,Día de la Constitución
+2040/3/19,Natalicio de Benito Juárez
+2040/5/1,Día del Trabajo
+2040/9/16,Día de la Independencia
+2040/11/19,Día de la Revolución
+2040/12/25,Navidad
+2041/1/1,Año Nuevo
+2041/2/4,Día de la Constitución
+2041/3/18,Natalicio de Benito Juárez
+2041/5/1,Día del Trabajo
+2041/9/16,Día de la Independencia
+2041/11/18,Día de la Revolución
+2041/12/25,Navidad
+2042/1/1,Año Nuevo
+2042/2/3,Día de la Constitución
+2042/3/17,Natalicio de Benito Juárez
+2042/5/1,Día del Trabajo
+2042/9/16,Día de la Independencia
+2042/10/1,Transmisión del Poder Ejecutivo Federal
+2042/11/17,Día de la Revolución
+2042/12/25,Navidad
+2043/1/1,Año Nuevo
+2043/2/2,Día de la Constitución
+2043/3/16,Natalicio de Benito Juárez
+2043/5/1,Día del Trabajo
+2043/9/16,Día de la Independencia
+2043/11/16,Día de la Revolución
+2043/12/25,Navidad
+2044/1/1,Año Nuevo
+2044/2/1,Día de la Constitución
+2044/3/21,Natalicio de Benito Juárez
+2044/5/1,Día del Trabajo
+2044/9/16,Día de la Independencia
+2044/11/21,Día de la Revolución
+2044/12/25,Navidad
+2045/1/1,Año Nuevo
+2045/2/6,Día de la Constitución
+2045/3/20,Natalicio de Benito Juárez
+2045/5/1,Día del Trabajo
+2045/9/16,Día de la Independencia
+2045/11/20,Día de la Revolución
+2045/12/25,Navidad
+2046/1/1,Año Nuevo
+2046/2/5,Día de la Constitución
+2046/3/19,Natalicio de Benito Juárez
+2046/5/1,Día del Trabajo
+2046/9/16,Día de la Independencia
+2046/11/19,Día de la Revolución
+2046/12/25,Navidad
+2047/1/1,Año Nuevo
+2047/2/4,Día de la Constitución
+2047/3/18,Natalicio de Benito Juárez
+2047/5/1,Día del Trabajo
+2047/9/16,Día de la Independencia
+2047/11/18,Día de la Revolución
+2047/12/25,Navidad
+2048/1/1,Año Nuevo
+2048/2/3,Día de la Constitución
+2048/3/16,Natalicio de Benito Juárez
+2048/5/1,Día del Trabajo
+2048/9/16,Día de la Independencia
+2048/10/1,Transmisión del Poder Ejecutivo Federal
+2048/11/16,Día de la Revolución
+2048/12/25,Navidad
+2049/1/1,Año Nuevo
+2049/2/1,Día de la Constitución
+2049/3/15,Natalicio de Benito Juárez
+2049/5/1,Día del Trabajo
+2049/9/16,Día de la Independencia
+2049/11/15,Día de la Revolución
+2049/12/25,Navidad
+2050/1/1,Año Nuevo
+2050/2/7,Día de la Constitución
+2050/3/21,Natalicio de Benito Juárez
+2050/5/1,Día del Trabajo
+2050/9/16,Día de la Independencia
+2050/11/21,Día de la Revolución
+2050/12/25,Navidad

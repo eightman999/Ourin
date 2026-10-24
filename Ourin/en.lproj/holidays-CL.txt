@@ -1,0 +1,516 @@
+# CL holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/4/10,Good Friday
+2020/4/11,Holy Saturday
+2020/5/1,Labor Day
+2020/5/21,Navy Day
+2020/6/29,Saint Peter and Saint Paul's Day
+2020/7/16,Our Lady of Mount Carmel
+2020/8/15,Assumption Day
+2020/9/18,Independence Day
+2020/9/19,Army Day
+2020/10/12,Meeting of Two Worlds' Day
+2020/10/31,Reformation Day
+2020/11/1,All Saints' Day
+2020/12/8,Immaculate Conception
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/4/2,Good Friday
+2021/4/3,Holy Saturday
+2021/5/1,Labor Day
+2021/5/21,Navy Day
+2021/6/21,National Indigenous Peoples Day
+2021/6/28,Saint Peter and Saint Paul's Day
+2021/7/16,Our Lady of Mount Carmel
+2021/8/15,Assumption Day
+2021/9/17,National Holiday
+2021/9/18,Independence Day
+2021/9/19,Army Day
+2021/10/11,Meeting of Two Worlds' Day
+2021/10/31,Reformation Day
+2021/11/1,All Saints' Day
+2021/12/8,Immaculate Conception
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/4/15,Good Friday
+2022/4/16,Holy Saturday
+2022/5/1,Labor Day
+2022/5/21,Navy Day
+2022/6/21,National Indigenous Peoples Day
+2022/6/27,Saint Peter and Saint Paul's Day
+2022/7/16,Our Lady of Mount Carmel
+2022/8/15,Assumption Day
+2022/9/16,National Holiday
+2022/9/18,Independence Day
+2022/9/19,Army Day
+2022/10/10,Meeting of Two Worlds' Day
+2022/10/31,Reformation Day
+2022/11/1,All Saints' Day
+2022/12/8,Immaculate Conception
+2022/12/25,Christmas Day
+2023/1/1,New Year's Day
+2023/1/2,National Holiday
+2023/4/7,Good Friday
+2023/4/8,Holy Saturday
+2023/5/1,Labor Day
+2023/5/21,Navy Day
+2023/6/21,National Indigenous Peoples Day
+2023/6/26,Saint Peter and Saint Paul's Day
+2023/7/16,Our Lady of Mount Carmel
+2023/8/15,Assumption Day
+2023/9/18,Independence Day
+2023/9/19,Army Day
+2023/10/9,Meeting of Two Worlds' Day
+2023/10/27,Reformation Day
+2023/11/1,All Saints' Day
+2023/12/8,Immaculate Conception
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/3/29,Good Friday
+2024/3/30,Holy Saturday
+2024/5/1,Labor Day
+2024/5/21,Navy Day
+2024/6/20,National Indigenous Peoples Day
+2024/6/29,Saint Peter and Saint Paul's Day
+2024/7/16,Our Lady of Mount Carmel
+2024/8/15,Assumption Day
+2024/9/18,Independence Day
+2024/9/19,Army Day
+2024/9/20,National Holiday
+2024/10/12,Meeting of Two Worlds' Day
+2024/10/31,Reformation Day
+2024/11/1,All Saints' Day
+2024/12/8,Immaculate Conception
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/4/18,Good Friday
+2025/4/19,Holy Saturday
+2025/5/1,Labor Day
+2025/5/21,Navy Day
+2025/6/20,National Indigenous Peoples Day
+2025/6/29,Saint Peter and Saint Paul's Day
+2025/7/16,Our Lady of Mount Carmel
+2025/8/15,Assumption Day
+2025/9/18,Independence Day
+2025/9/19,Army Day
+2025/10/12,Meeting of Two Worlds' Day
+2025/10/31,Reformation Day
+2025/11/1,All Saints' Day
+2025/12/8,Immaculate Conception
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/4/3,Good Friday
+2026/4/4,Holy Saturday
+2026/5/1,Labor Day
+2026/5/21,Navy Day
+2026/6/21,National Indigenous Peoples Day
+2026/6/29,Saint Peter and Saint Paul's Day
+2026/7/16,Our Lady of Mount Carmel
+2026/8/15,Assumption Day
+2026/9/18,Independence Day
+2026/9/19,Army Day
+2026/10/12,Meeting of Two Worlds' Day
+2026/10/31,Reformation Day
+2026/11/1,All Saints' Day
+2026/12/8,Immaculate Conception
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/3/26,Good Friday
+2027/3/27,Holy Saturday
+2027/5/1,Labor Day
+2027/5/21,Navy Day
+2027/6/21,National Indigenous Peoples Day
+2027/6/28,Saint Peter and Saint Paul's Day
+2027/7/16,Our Lady of Mount Carmel
+2027/8/15,Assumption Day
+2027/9/17,National Holiday
+2027/9/18,Independence Day
+2027/9/19,Army Day
+2027/10/11,Meeting of Two Worlds' Day
+2027/10/31,Reformation Day
+2027/11/1,All Saints' Day
+2027/12/8,Immaculate Conception
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/4/14,Good Friday
+2028/4/15,Holy Saturday
+2028/5/1,Labor Day
+2028/5/21,Navy Day
+2028/6/20,National Indigenous Peoples Day
+2028/6/26,Saint Peter and Saint Paul's Day
+2028/7/16,Our Lady of Mount Carmel
+2028/8/15,Assumption Day
+2028/9/18,Independence Day
+2028/9/19,Army Day
+2028/10/9,Meeting of Two Worlds' Day
+2028/10/27,Reformation Day
+2028/11/1,All Saints' Day
+2028/12/8,Immaculate Conception
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/3/30,Good Friday
+2029/3/31,Holy Saturday
+2029/5/1,Labor Day
+2029/5/21,Navy Day
+2029/6/20,National Indigenous Peoples Day
+2029/7/2,Saint Peter and Saint Paul's Day
+2029/7/16,Our Lady of Mount Carmel
+2029/8/15,Assumption Day
+2029/9/17,National Holiday
+2029/9/18,Independence Day
+2029/9/19,Army Day
+2029/10/15,Meeting of Two Worlds' Day
+2029/11/1,All Saints' Day
+2029/11/2,Reformation Day
+2029/12/8,Immaculate Conception
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/4/19,Good Friday
+2030/4/20,Holy Saturday
+2030/5/1,Labor Day
+2030/5/21,Navy Day
+2030/6/21,National Indigenous Peoples Day
+2030/6/29,Saint Peter and Saint Paul's Day
+2030/7/16,Our Lady of Mount Carmel
+2030/8/15,Assumption Day
+2030/9/18,Independence Day
+2030/9/19,Army Day
+2030/9/20,National Holiday
+2030/10/12,Meeting of Two Worlds' Day
+2030/10/31,Reformation Day
+2030/11/1,All Saints' Day
+2030/12/8,Immaculate Conception
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/4/11,Good Friday
+2031/4/12,Holy Saturday
+2031/5/1,Labor Day
+2031/5/21,Navy Day
+2031/6/21,National Indigenous Peoples Day
+2031/6/29,Saint Peter and Saint Paul's Day
+2031/7/16,Our Lady of Mount Carmel
+2031/8/15,Assumption Day
+2031/9/18,Independence Day
+2031/9/19,Army Day
+2031/10/12,Meeting of Two Worlds' Day
+2031/10/31,Reformation Day
+2031/11/1,All Saints' Day
+2031/12/8,Immaculate Conception
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/3/26,Good Friday
+2032/3/27,Holy Saturday
+2032/5/1,Labor Day
+2032/5/21,Navy Day
+2032/6/20,National Indigenous Peoples Day
+2032/6/28,Saint Peter and Saint Paul's Day
+2032/7/16,Our Lady of Mount Carmel
+2032/8/15,Assumption Day
+2032/9/17,National Holiday
+2032/9/18,Independence Day
+2032/9/19,Army Day
+2032/10/11,Meeting of Two Worlds' Day
+2032/10/31,Reformation Day
+2032/11/1,All Saints' Day
+2032/12/8,Immaculate Conception
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/4/15,Good Friday
+2033/4/16,Holy Saturday
+2033/5/1,Labor Day
+2033/5/21,Navy Day
+2033/6/20,National Indigenous Peoples Day
+2033/6/27,Saint Peter and Saint Paul's Day
+2033/7/16,Our Lady of Mount Carmel
+2033/8/15,Assumption Day
+2033/9/18,Independence Day
+2033/9/19,Army Day
+2033/10/10,Meeting of Two Worlds' Day
+2033/10/31,Reformation Day
+2033/11/1,All Saints' Day
+2033/12/8,Immaculate Conception
+2033/12/25,Christmas Day
+2034/1/1,New Year's Day
+2034/1/2,National Holiday
+2034/4/7,Good Friday
+2034/4/8,Holy Saturday
+2034/5/1,Labor Day
+2034/5/21,Navy Day
+2034/6/21,National Indigenous Peoples Day
+2034/6/26,Saint Peter and Saint Paul's Day
+2034/7/16,Our Lady of Mount Carmel
+2034/8/15,Assumption Day
+2034/9/18,Independence Day
+2034/9/19,Army Day
+2034/10/9,Meeting of Two Worlds' Day
+2034/10/27,Reformation Day
+2034/11/1,All Saints' Day
+2034/12/8,Immaculate Conception
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/3/23,Good Friday
+2035/3/24,Holy Saturday
+2035/5/1,Labor Day
+2035/5/21,Navy Day
+2035/6/21,National Indigenous Peoples Day
+2035/7/2,Saint Peter and Saint Paul's Day
+2035/7/16,Our Lady of Mount Carmel
+2035/8/15,Assumption Day
+2035/9/17,National Holiday
+2035/9/18,Independence Day
+2035/9/19,Army Day
+2035/10/15,Meeting of Two Worlds' Day
+2035/11/1,All Saints' Day
+2035/11/2,Reformation Day
+2035/12/8,Immaculate Conception
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/4/11,Good Friday
+2036/4/12,Holy Saturday
+2036/5/1,Labor Day
+2036/5/21,Navy Day
+2036/6/20,National Indigenous Peoples Day
+2036/6/29,Saint Peter and Saint Paul's Day
+2036/7/16,Our Lady of Mount Carmel
+2036/8/15,Assumption Day
+2036/9/18,Independence Day
+2036/9/19,Army Day
+2036/10/12,Meeting of Two Worlds' Day
+2036/10/31,Reformation Day
+2036/11/1,All Saints' Day
+2036/12/8,Immaculate Conception
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/4/3,Good Friday
+2037/4/4,Holy Saturday
+2037/5/1,Labor Day
+2037/5/21,Navy Day
+2037/6/20,National Indigenous Peoples Day
+2037/6/29,Saint Peter and Saint Paul's Day
+2037/7/16,Our Lady of Mount Carmel
+2037/8/15,Assumption Day
+2037/9/18,Independence Day
+2037/9/19,Army Day
+2037/10/12,Meeting of Two Worlds' Day
+2037/10/31,Reformation Day
+2037/11/1,All Saints' Day
+2037/12/8,Immaculate Conception
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/4/23,Good Friday
+2038/4/24,Holy Saturday
+2038/5/1,Labor Day
+2038/5/21,Navy Day
+2038/6/21,National Indigenous Peoples Day
+2038/6/28,Saint Peter and Saint Paul's Day
+2038/7/16,Our Lady of Mount Carmel
+2038/8/15,Assumption Day
+2038/9/17,National Holiday
+2038/9/18,Independence Day
+2038/9/19,Army Day
+2038/10/11,Meeting of Two Worlds' Day
+2038/10/31,Reformation Day
+2038/11/1,All Saints' Day
+2038/12/8,Immaculate Conception
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/4/8,Good Friday
+2039/4/9,Holy Saturday
+2039/5/1,Labor Day
+2039/5/21,Navy Day
+2039/6/21,National Indigenous Peoples Day
+2039/6/27,Saint Peter and Saint Paul's Day
+2039/7/16,Our Lady of Mount Carmel
+2039/8/15,Assumption Day
+2039/9/18,Independence Day
+2039/9/19,Army Day
+2039/10/10,Meeting of Two Worlds' Day
+2039/10/31,Reformation Day
+2039/11/1,All Saints' Day
+2039/12/8,Immaculate Conception
+2039/12/25,Christmas Day
+2040/1/1,New Year's Day
+2040/1/2,National Holiday
+2040/3/30,Good Friday
+2040/3/31,Holy Saturday
+2040/5/1,Labor Day
+2040/5/21,Navy Day
+2040/6/20,National Indigenous Peoples Day
+2040/7/2,Saint Peter and Saint Paul's Day
+2040/7/16,Our Lady of Mount Carmel
+2040/8/15,Assumption Day
+2040/9/17,National Holiday
+2040/9/18,Independence Day
+2040/9/19,Army Day
+2040/10/15,Meeting of Two Worlds' Day
+2040/11/1,All Saints' Day
+2040/11/2,Reformation Day
+2040/12/8,Immaculate Conception
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/4/19,Good Friday
+2041/4/20,Holy Saturday
+2041/5/1,Labor Day
+2041/5/21,Navy Day
+2041/6/20,National Indigenous Peoples Day
+2041/6/29,Saint Peter and Saint Paul's Day
+2041/7/16,Our Lady of Mount Carmel
+2041/8/15,Assumption Day
+2041/9/18,Independence Day
+2041/9/19,Army Day
+2041/9/20,National Holiday
+2041/10/12,Meeting of Two Worlds' Day
+2041/10/31,Reformation Day
+2041/11/1,All Saints' Day
+2041/12/8,Immaculate Conception
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/4/4,Good Friday
+2042/4/5,Holy Saturday
+2042/5/1,Labor Day
+2042/5/21,Navy Day
+2042/6/21,National Indigenous Peoples Day
+2042/6/29,Saint Peter and Saint Paul's Day
+2042/7/16,Our Lady of Mount Carmel
+2042/8/15,Assumption Day
+2042/9/18,Independence Day
+2042/9/19,Army Day
+2042/10/12,Meeting of Two Worlds' Day
+2042/10/31,Reformation Day
+2042/11/1,All Saints' Day
+2042/12/8,Immaculate Conception
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/3/27,Good Friday
+2043/3/28,Holy Saturday
+2043/5/1,Labor Day
+2043/5/21,Navy Day
+2043/6/21,National Indigenous Peoples Day
+2043/6/29,Saint Peter and Saint Paul's Day
+2043/7/16,Our Lady of Mount Carmel
+2043/8/15,Assumption Day
+2043/9/18,Independence Day
+2043/9/19,Army Day
+2043/10/12,Meeting of Two Worlds' Day
+2043/10/31,Reformation Day
+2043/11/1,All Saints' Day
+2043/12/8,Immaculate Conception
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/4/15,Good Friday
+2044/4/16,Holy Saturday
+2044/5/1,Labor Day
+2044/5/21,Navy Day
+2044/6/20,National Indigenous Peoples Day
+2044/6/27,Saint Peter and Saint Paul's Day
+2044/7/16,Our Lady of Mount Carmel
+2044/8/15,Assumption Day
+2044/9/18,Independence Day
+2044/9/19,Army Day
+2044/10/10,Meeting of Two Worlds' Day
+2044/10/31,Reformation Day
+2044/11/1,All Saints' Day
+2044/12/8,Immaculate Conception
+2044/12/25,Christmas Day
+2045/1/1,New Year's Day
+2045/1/2,National Holiday
+2045/4/7,Good Friday
+2045/4/8,Holy Saturday
+2045/5/1,Labor Day
+2045/5/21,Navy Day
+2045/6/20,National Indigenous Peoples Day
+2045/6/26,Saint Peter and Saint Paul's Day
+2045/7/16,Our Lady of Mount Carmel
+2045/8/15,Assumption Day
+2045/9/18,Independence Day
+2045/9/19,Army Day
+2045/10/9,Meeting of Two Worlds' Day
+2045/10/27,Reformation Day
+2045/11/1,All Saints' Day
+2045/12/8,Immaculate Conception
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/3/23,Good Friday
+2046/3/24,Holy Saturday
+2046/5/1,Labor Day
+2046/5/21,Navy Day
+2046/6/21,National Indigenous Peoples Day
+2046/7/2,Saint Peter and Saint Paul's Day
+2046/7/16,Our Lady of Mount Carmel
+2046/8/15,Assumption Day
+2046/9/17,National Holiday
+2046/9/18,Independence Day
+2046/9/19,Army Day
+2046/10/15,Meeting of Two Worlds' Day
+2046/11/1,All Saints' Day
+2046/11/2,Reformation Day
+2046/12/8,Immaculate Conception
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/4/12,Good Friday
+2047/4/13,Holy Saturday
+2047/5/1,Labor Day
+2047/5/21,Navy Day
+2047/6/21,National Indigenous Peoples Day
+2047/6/29,Saint Peter and Saint Paul's Day
+2047/7/16,Our Lady of Mount Carmel
+2047/8/15,Assumption Day
+2047/9/18,Independence Day
+2047/9/19,Army Day
+2047/9/20,National Holiday
+2047/10/12,Meeting of Two Worlds' Day
+2047/10/31,Reformation Day
+2047/11/1,All Saints' Day
+2047/12/8,Immaculate Conception
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/4/3,Good Friday
+2048/4/4,Holy Saturday
+2048/5/1,Labor Day
+2048/5/21,Navy Day
+2048/6/20,National Indigenous Peoples Day
+2048/6/29,Saint Peter and Saint Paul's Day
+2048/7/16,Our Lady of Mount Carmel
+2048/8/15,Assumption Day
+2048/9/18,Independence Day
+2048/9/19,Army Day
+2048/10/12,Meeting of Two Worlds' Day
+2048/10/31,Reformation Day
+2048/11/1,All Saints' Day
+2048/12/8,Immaculate Conception
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/4/16,Good Friday
+2049/4/17,Holy Saturday
+2049/5/1,Labor Day
+2049/5/21,Navy Day
+2049/6/20,National Indigenous Peoples Day
+2049/6/28,Saint Peter and Saint Paul's Day
+2049/7/16,Our Lady of Mount Carmel
+2049/8/15,Assumption Day
+2049/9/17,National Holiday
+2049/9/18,Independence Day
+2049/9/19,Army Day
+2049/10/11,Meeting of Two Worlds' Day
+2049/10/31,Reformation Day
+2049/11/1,All Saints' Day
+2049/12/8,Immaculate Conception
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/4/8,Good Friday
+2050/4/9,Holy Saturday
+2050/5/1,Labor Day
+2050/5/21,Navy Day
+2050/6/20,National Indigenous Peoples Day
+2050/6/27,Saint Peter and Saint Paul's Day
+2050/7/16,Our Lady of Mount Carmel
+2050/8/15,Assumption Day
+2050/9/18,Independence Day
+2050/9/19,Army Day
+2050/10/10,Meeting of Two Worlds' Day
+2050/10/31,Reformation Day
+2050/11/1,All Saints' Day
+2050/12/8,Immaculate Conception
+2050/12/25,Christmas Day

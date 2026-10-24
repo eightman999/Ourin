@@ -1,0 +1,616 @@
+# TW holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,Founding Day of the Republic of China
+2020/1/23,Day off (substituted from 02/15/2020)
+2020/1/24,Chinese New Year's Eve
+2020/1/25,Chinese New Year
+2020/1/26,Chinese New Year
+2020/1/27,Chinese New Year
+2020/1/28,Chinese New Year (observed)
+2020/1/29,Chinese New Year (observed)
+2020/2/28,Peace Memorial Day
+2020/4/2,Tomb-Sweeping Day (observed)
+2020/4/3,Children's Day (observed)
+2020/4/4,Children's Day; Tomb-Sweeping Day
+2020/6/25,Dragon Boat Festival
+2020/6/26,Day off (substituted from 06/20/2020)
+2020/10/1,Mid-Autumn Festival
+2020/10/2,Day off (substituted from 09/26/2020)
+2020/10/9,National Day (observed)
+2020/10/10,National Day
+2021/1/1,Founding Day of the Republic of China
+2021/2/10,Day off (substituted from 02/20/2021)
+2021/2/11,Chinese New Year's Eve
+2021/2/12,Chinese New Year
+2021/2/13,Chinese New Year
+2021/2/14,Chinese New Year
+2021/2/15,Chinese New Year (observed)
+2021/2/16,Chinese New Year (observed)
+2021/2/28,Peace Memorial Day
+2021/3/1,Peace Memorial Day (observed)
+2021/4/2,Children's Day (observed)
+2021/4/4,Children's Day; Tomb-Sweeping Day
+2021/4/5,Tomb-Sweeping Day (observed)
+2021/6/14,Dragon Boat Festival
+2021/9/20,Day off (substituted from 09/11/2021)
+2021/9/21,Mid-Autumn Festival
+2021/10/10,National Day
+2021/10/11,National Day (observed)
+2021/12/31,Founding Day of the Republic of China (observed)
+2022/1/1,Founding Day of the Republic of China
+2022/1/31,Chinese New Year's Eve
+2022/2/1,Chinese New Year
+2022/2/2,Chinese New Year
+2022/2/3,Chinese New Year
+2022/2/4,Day off (substituted from 01/22/2022)
+2022/2/28,Peace Memorial Day
+2022/4/4,Children's Day
+2022/4/5,Tomb-Sweeping Day
+2022/6/3,Dragon Boat Festival
+2022/9/9,Mid-Autumn Festival (observed)
+2022/9/10,Mid-Autumn Festival
+2022/10/10,National Day
+2023/1/1,Founding Day of the Republic of China
+2023/1/2,Founding Day of the Republic of China (observed)
+2023/1/20,Day off (substituted from 01/07/2023)
+2023/1/21,Chinese New Year's Eve
+2023/1/22,Chinese New Year
+2023/1/23,Chinese New Year
+2023/1/24,Chinese New Year
+2023/1/25,Chinese New Year's Eve (observed)
+2023/1/26,Chinese New Year (observed)
+2023/1/27,Day off (substituted from 02/04/2023)
+2023/2/27,Day off (substituted from 02/18/2023)
+2023/2/28,Peace Memorial Day
+2023/4/3,Day off (substituted from 03/25/2023)
+2023/4/4,Children's Day
+2023/4/5,Tomb-Sweeping Day
+2023/6/22,Dragon Boat Festival
+2023/6/23,Day off (substituted from 06/17/2023)
+2023/9/29,Mid-Autumn Festival
+2023/10/9,Day off (substituted from 09/23/2023)
+2023/10/10,National Day
+2024/1/1,Founding Day of the Republic of China
+2024/2/8,Day off (substituted from 02/17/2024)
+2024/2/9,Chinese New Year's Eve
+2024/2/10,Chinese New Year
+2024/2/11,Chinese New Year
+2024/2/12,Chinese New Year
+2024/2/13,Chinese New Year (observed)
+2024/2/14,Chinese New Year (observed)
+2024/2/28,Peace Memorial Day
+2024/4/4,Children's Day; Tomb-Sweeping Day
+2024/4/5,Children's Day (observed)
+2024/6/10,Dragon Boat Festival
+2024/9/17,Mid-Autumn Festival
+2024/10/10,National Day
+2025/1/1,Founding Day of the Republic of China
+2025/1/27,Day off (substituted from 02/08/2025)
+2025/1/28,Chinese New Year's Eve
+2025/1/29,Chinese New Year
+2025/1/30,Chinese New Year
+2025/1/31,Chinese New Year
+2025/2/28,Peace Memorial Day
+2025/4/3,Children's Day (observed)
+2025/4/4,Children's Day; Tomb-Sweeping Day
+2025/5/30,Dragon Boat Festival (observed)
+2025/5/31,Dragon Boat Festival
+2025/9/28,Confucius' Birthday
+2025/9/29,Confucius' Birthday (observed)
+2025/10/6,Mid-Autumn Festival
+2025/10/10,National Day
+2025/10/24,Taiwan Restoration and Guningtou Victory Memorial Day (observed)
+2025/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2025/12/25,Constitution Day
+2026/1/1,Founding Day of the Republic of China
+2026/2/15,Chinese New Year's Eve
+2026/2/16,Chinese New Year's Eve
+2026/2/17,Chinese New Year
+2026/2/18,Chinese New Year
+2026/2/19,Chinese New Year
+2026/2/20,Chinese New Year's Eve (observed)
+2026/2/27,Peace Memorial Day (observed)
+2026/2/28,Peace Memorial Day
+2026/4/3,Children's Day (observed)
+2026/4/4,Children's Day
+2026/4/5,Tomb-Sweeping Day
+2026/4/6,Tomb-Sweeping Day (observed)
+2026/5/1,Labor Day
+2026/6/19,Dragon Boat Festival
+2026/9/25,Mid-Autumn Festival
+2026/9/28,Confucius' Birthday
+2026/10/9,National Day (observed)
+2026/10/10,National Day
+2026/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2026/10/26,Taiwan Restoration and Guningtou Victory Memorial Day (observed)
+2026/12/25,Constitution Day
+2027/1/1,Founding Day of the Republic of China
+2027/2/4,Chinese New Year's Eve
+2027/2/5,Chinese New Year's Eve
+2027/2/6,Chinese New Year
+2027/2/7,Chinese New Year
+2027/2/8,Chinese New Year
+2027/2/9,Chinese New Year (observed)
+2027/2/10,Chinese New Year (observed)
+2027/2/28,Peace Memorial Day
+2027/3/1,Peace Memorial Day (observed)
+2027/4/4,Children's Day
+2027/4/5,Tomb-Sweeping Day
+2027/4/6,Children's Day (observed)
+2027/4/30,Labor Day (observed)
+2027/5/1,Labor Day
+2027/6/9,Dragon Boat Festival
+2027/9/15,Mid-Autumn Festival
+2027/9/28,Confucius' Birthday
+2027/10/10,National Day
+2027/10/11,National Day (observed)
+2027/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2027/12/24,Constitution Day (observed)
+2027/12/25,Constitution Day
+2027/12/31,Founding Day of the Republic of China (observed)
+2028/1/1,Founding Day of the Republic of China
+2028/1/24,Chinese New Year's Eve
+2028/1/25,Chinese New Year's Eve
+2028/1/26,Chinese New Year
+2028/1/27,Chinese New Year
+2028/1/28,Chinese New Year
+2028/2/28,Peace Memorial Day
+2028/4/3,Children's Day (observed)
+2028/4/4,Children's Day; Tomb-Sweeping Day
+2028/5/1,Labor Day
+2028/5/28,Dragon Boat Festival
+2028/5/29,Dragon Boat Festival (observed)
+2028/9/28,Confucius' Birthday
+2028/10/3,Mid-Autumn Festival
+2028/10/10,National Day
+2028/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2028/12/25,Constitution Day
+2029/1/1,Founding Day of the Republic of China
+2029/2/11,Chinese New Year's Eve
+2029/2/12,Chinese New Year's Eve
+2029/2/13,Chinese New Year
+2029/2/14,Chinese New Year
+2029/2/15,Chinese New Year
+2029/2/16,Chinese New Year's Eve (observed)
+2029/2/28,Peace Memorial Day
+2029/4/3,Children's Day (observed)
+2029/4/4,Children's Day; Tomb-Sweeping Day
+2029/5/1,Labor Day
+2029/6/15,Dragon Boat Festival (observed)
+2029/6/16,Dragon Boat Festival
+2029/9/21,Mid-Autumn Festival (observed)
+2029/9/22,Mid-Autumn Festival
+2029/9/28,Confucius' Birthday
+2029/10/10,National Day
+2029/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2029/12/25,Constitution Day
+2030/1/1,Founding Day of the Republic of China
+2030/2/1,Chinese New Year's Eve
+2030/2/2,Chinese New Year's Eve
+2030/2/3,Chinese New Year
+2030/2/4,Chinese New Year
+2030/2/5,Chinese New Year
+2030/2/6,Chinese New Year's Eve (observed)
+2030/2/7,Chinese New Year (observed)
+2030/2/28,Peace Memorial Day
+2030/4/4,Children's Day
+2030/4/5,Tomb-Sweeping Day
+2030/5/1,Labor Day
+2030/6/5,Dragon Boat Festival
+2030/9/12,Mid-Autumn Festival
+2030/9/27,Confucius' Birthday (observed)
+2030/9/28,Confucius' Birthday
+2030/10/10,National Day
+2030/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2030/12/25,Constitution Day
+2031/1/1,Founding Day of the Republic of China
+2031/1/21,Chinese New Year's Eve
+2031/1/22,Chinese New Year's Eve
+2031/1/23,Chinese New Year
+2031/1/24,Chinese New Year
+2031/1/25,Chinese New Year
+2031/1/27,Chinese New Year (observed)
+2031/2/28,Peace Memorial Day
+2031/4/3,Tomb-Sweeping Day (observed)
+2031/4/4,Children's Day
+2031/4/5,Tomb-Sweeping Day
+2031/5/1,Labor Day
+2031/6/24,Dragon Boat Festival
+2031/9/28,Confucius' Birthday
+2031/9/29,Confucius' Birthday (observed)
+2031/10/1,Mid-Autumn Festival
+2031/10/10,National Day
+2031/10/24,Taiwan Restoration and Guningtou Victory Memorial Day (observed)
+2031/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2031/12/25,Constitution Day
+2032/1/1,Founding Day of the Republic of China
+2032/2/9,Chinese New Year's Eve
+2032/2/10,Chinese New Year's Eve
+2032/2/11,Chinese New Year
+2032/2/12,Chinese New Year
+2032/2/13,Chinese New Year
+2032/2/27,Peace Memorial Day (observed)
+2032/2/28,Peace Memorial Day
+2032/4/2,Children's Day (observed)
+2032/4/4,Children's Day; Tomb-Sweeping Day
+2032/4/5,Tomb-Sweeping Day (observed)
+2032/4/30,Labor Day (observed)
+2032/5/1,Labor Day
+2032/6/11,Dragon Boat Festival (observed)
+2032/6/12,Dragon Boat Festival
+2032/9/19,Mid-Autumn Festival
+2032/9/20,Mid-Autumn Festival (observed)
+2032/9/28,Confucius' Birthday
+2032/10/10,National Day
+2032/10/11,National Day (observed)
+2032/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2032/12/24,Constitution Day (observed)
+2032/12/25,Constitution Day
+2032/12/31,Founding Day of the Republic of China (observed)
+2033/1/1,Founding Day of the Republic of China
+2033/1/29,Chinese New Year's Eve
+2033/1/30,Chinese New Year's Eve
+2033/1/31,Chinese New Year
+2033/2/1,Chinese New Year
+2033/2/2,Chinese New Year
+2033/2/3,Chinese New Year's Eve (observed)
+2033/2/4,Chinese New Year's Eve (observed)
+2033/2/28,Peace Memorial Day
+2033/4/4,Children's Day; Tomb-Sweeping Day
+2033/4/5,Children's Day (observed)
+2033/5/1,Labor Day
+2033/5/2,Labor Day (observed)
+2033/6/1,Dragon Boat Festival
+2033/9/8,Mid-Autumn Festival
+2033/9/28,Confucius' Birthday
+2033/10/10,National Day
+2033/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2033/12/25,Constitution Day
+2033/12/26,Constitution Day (observed)
+2034/1/1,Founding Day of the Republic of China
+2034/1/2,Founding Day of the Republic of China (observed)
+2034/2/17,Chinese New Year's Eve
+2034/2/18,Chinese New Year's Eve
+2034/2/19,Chinese New Year
+2034/2/20,Chinese New Year
+2034/2/21,Chinese New Year
+2034/2/22,Chinese New Year's Eve (observed)
+2034/2/23,Chinese New Year (observed)
+2034/2/28,Peace Memorial Day
+2034/4/4,Children's Day
+2034/4/5,Tomb-Sweeping Day
+2034/5/1,Labor Day
+2034/6/20,Dragon Boat Festival
+2034/9/27,Mid-Autumn Festival
+2034/9/28,Confucius' Birthday
+2034/10/10,National Day
+2034/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2034/12/25,Constitution Day
+2035/1/1,Founding Day of the Republic of China
+2035/2/6,Chinese New Year's Eve
+2035/2/7,Chinese New Year's Eve
+2035/2/8,Chinese New Year
+2035/2/9,Chinese New Year
+2035/2/10,Chinese New Year
+2035/2/12,Chinese New Year (observed)
+2035/2/28,Peace Memorial Day
+2035/4/4,Children's Day
+2035/4/5,Tomb-Sweeping Day
+2035/5/1,Labor Day
+2035/6/10,Dragon Boat Festival
+2035/6/11,Dragon Boat Festival (observed)
+2035/9/16,Mid-Autumn Festival
+2035/9/17,Mid-Autumn Festival (observed)
+2035/9/28,Confucius' Birthday
+2035/10/10,National Day
+2035/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2035/12/25,Constitution Day
+2036/1/1,Founding Day of the Republic of China
+2036/1/26,Chinese New Year's Eve
+2036/1/27,Chinese New Year's Eve
+2036/1/28,Chinese New Year
+2036/1/29,Chinese New Year
+2036/1/30,Chinese New Year
+2036/1/31,Chinese New Year's Eve (observed)
+2036/2/1,Chinese New Year's Eve (observed)
+2036/2/28,Peace Memorial Day
+2036/4/3,Children's Day (observed)
+2036/4/4,Children's Day; Tomb-Sweeping Day
+2036/5/1,Labor Day
+2036/5/30,Dragon Boat Festival
+2036/9/28,Confucius' Birthday
+2036/9/29,Confucius' Birthday (observed)
+2036/10/3,Mid-Autumn Festival (observed)
+2036/10/4,Mid-Autumn Festival
+2036/10/10,National Day
+2036/10/24,Taiwan Restoration and Guningtou Victory Memorial Day (observed)
+2036/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2036/12/25,Constitution Day
+2037/1/1,Founding Day of the Republic of China
+2037/2/13,Chinese New Year's Eve
+2037/2/14,Chinese New Year's Eve
+2037/2/15,Chinese New Year
+2037/2/16,Chinese New Year
+2037/2/17,Chinese New Year
+2037/2/18,Chinese New Year's Eve (observed)
+2037/2/19,Chinese New Year (observed)
+2037/2/27,Peace Memorial Day (observed)
+2037/2/28,Peace Memorial Day
+2037/4/2,Tomb-Sweeping Day (observed)
+2037/4/3,Children's Day (observed)
+2037/4/4,Children's Day; Tomb-Sweeping Day
+2037/5/1,Labor Day
+2037/6/18,Dragon Boat Festival
+2037/9/24,Mid-Autumn Festival
+2037/9/28,Confucius' Birthday
+2037/10/9,National Day (observed)
+2037/10/10,National Day
+2037/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2037/10/26,Taiwan Restoration and Guningtou Victory Memorial Day (observed)
+2037/12/25,Constitution Day
+2038/1/1,Founding Day of the Republic of China
+2038/2/2,Chinese New Year's Eve
+2038/2/3,Chinese New Year's Eve
+2038/2/4,Chinese New Year
+2038/2/5,Chinese New Year
+2038/2/6,Chinese New Year
+2038/2/8,Chinese New Year (observed)
+2038/2/28,Peace Memorial Day
+2038/3/1,Peace Memorial Day (observed)
+2038/4/4,Children's Day
+2038/4/5,Tomb-Sweeping Day
+2038/4/6,Children's Day (observed)
+2038/4/30,Labor Day (observed)
+2038/5/1,Labor Day
+2038/6/7,Dragon Boat Festival
+2038/9/13,Mid-Autumn Festival
+2038/9/28,Confucius' Birthday
+2038/10/10,National Day
+2038/10/11,National Day (observed)
+2038/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2038/12/24,Constitution Day (observed)
+2038/12/25,Constitution Day
+2038/12/31,Founding Day of the Republic of China (observed)
+2039/1/1,Founding Day of the Republic of China
+2039/1/22,Chinese New Year's Eve
+2039/1/23,Chinese New Year's Eve
+2039/1/24,Chinese New Year
+2039/1/25,Chinese New Year
+2039/1/26,Chinese New Year
+2039/1/27,Chinese New Year's Eve (observed)
+2039/1/28,Chinese New Year's Eve (observed)
+2039/2/28,Peace Memorial Day
+2039/4/4,Children's Day
+2039/4/5,Tomb-Sweeping Day
+2039/5/1,Labor Day
+2039/5/2,Labor Day (observed)
+2039/5/27,Dragon Boat Festival
+2039/9/28,Confucius' Birthday
+2039/10/2,Mid-Autumn Festival
+2039/10/3,Mid-Autumn Festival (observed)
+2039/10/10,National Day
+2039/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2039/12/25,Constitution Day
+2039/12/26,Constitution Day (observed)
+2040/1/1,Founding Day of the Republic of China
+2040/1/2,Founding Day of the Republic of China (observed)
+2040/2/10,Chinese New Year's Eve
+2040/2/11,Chinese New Year's Eve
+2040/2/12,Chinese New Year
+2040/2/13,Chinese New Year
+2040/2/14,Chinese New Year
+2040/2/15,Chinese New Year's Eve (observed)
+2040/2/16,Chinese New Year (observed)
+2040/2/28,Peace Memorial Day
+2040/4/3,Children's Day (observed)
+2040/4/4,Children's Day; Tomb-Sweeping Day
+2040/5/1,Labor Day
+2040/6/14,Dragon Boat Festival
+2040/9/20,Mid-Autumn Festival
+2040/9/28,Confucius' Birthday
+2040/10/10,National Day
+2040/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2040/12/25,Constitution Day
+2041/1/1,Founding Day of the Republic of China
+2041/1/30,Chinese New Year's Eve
+2041/1/31,Chinese New Year's Eve
+2041/2/1,Chinese New Year
+2041/2/2,Chinese New Year
+2041/2/3,Chinese New Year
+2041/2/4,Chinese New Year (observed)
+2041/2/5,Chinese New Year (observed)
+2041/2/28,Peace Memorial Day
+2041/4/4,Children's Day; Tomb-Sweeping Day
+2041/4/5,Children's Day (observed)
+2041/5/1,Labor Day
+2041/6/3,Dragon Boat Festival
+2041/9/10,Mid-Autumn Festival
+2041/9/27,Confucius' Birthday (observed)
+2041/9/28,Confucius' Birthday
+2041/10/10,National Day
+2041/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2041/12/25,Constitution Day
+2042/1/1,Founding Day of the Republic of China
+2042/1/20,Chinese New Year's Eve
+2042/1/21,Chinese New Year's Eve
+2042/1/22,Chinese New Year
+2042/1/23,Chinese New Year
+2042/1/24,Chinese New Year
+2042/2/28,Peace Memorial Day
+2042/4/3,Children's Day (observed)
+2042/4/4,Children's Day; Tomb-Sweeping Day
+2042/5/1,Labor Day
+2042/6/22,Dragon Boat Festival
+2042/6/23,Dragon Boat Festival (observed)
+2042/9/28,Confucius' Birthday; Mid-Autumn Festival
+2042/9/29,Confucius' Birthday (observed)
+2042/9/30,Mid-Autumn Festival (observed)
+2042/10/10,National Day
+2042/10/24,Taiwan Restoration and Guningtou Victory Memorial Day (observed)
+2042/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2042/12/25,Constitution Day
+2043/1/1,Founding Day of the Republic of China
+2043/2/8,Chinese New Year's Eve
+2043/2/9,Chinese New Year's Eve
+2043/2/10,Chinese New Year
+2043/2/11,Chinese New Year
+2043/2/12,Chinese New Year
+2043/2/13,Chinese New Year's Eve (observed)
+2043/2/27,Peace Memorial Day (observed)
+2043/2/28,Peace Memorial Day
+2043/4/3,Children's Day (observed)
+2043/4/4,Children's Day
+2043/4/5,Tomb-Sweeping Day
+2043/4/6,Tomb-Sweeping Day (observed)
+2043/5/1,Labor Day
+2043/6/11,Dragon Boat Festival
+2043/9/17,Mid-Autumn Festival
+2043/9/28,Confucius' Birthday
+2043/10/9,National Day (observed)
+2043/10/10,National Day
+2043/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2043/10/26,Taiwan Restoration and Guningtou Victory Memorial Day (observed)
+2043/12/25,Constitution Day
+2044/1/1,Founding Day of the Republic of China
+2044/1/28,Chinese New Year's Eve
+2044/1/29,Chinese New Year's Eve
+2044/1/30,Chinese New Year
+2044/1/31,Chinese New Year
+2044/2/1,Chinese New Year
+2044/2/2,Chinese New Year (observed)
+2044/2/3,Chinese New Year (observed)
+2044/2/28,Peace Memorial Day
+2044/2/29,Peace Memorial Day (observed)
+2044/4/4,Children's Day; Tomb-Sweeping Day
+2044/4/5,Children's Day (observed)
+2044/5/1,Labor Day
+2044/5/2,Labor Day (observed)
+2044/5/31,Dragon Boat Festival
+2044/9/28,Confucius' Birthday
+2044/10/5,Mid-Autumn Festival
+2044/10/10,National Day
+2044/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2044/12/25,Constitution Day
+2044/12/26,Constitution Day (observed)
+2045/1/1,Founding Day of the Republic of China
+2045/1/2,Founding Day of the Republic of China (observed)
+2045/2/15,Chinese New Year's Eve
+2045/2/16,Chinese New Year's Eve
+2045/2/17,Chinese New Year
+2045/2/18,Chinese New Year
+2045/2/19,Chinese New Year
+2045/2/20,Chinese New Year (observed)
+2045/2/21,Chinese New Year (observed)
+2045/2/28,Peace Memorial Day
+2045/4/3,Children's Day (observed)
+2045/4/4,Children's Day; Tomb-Sweeping Day
+2045/5/1,Labor Day
+2045/6/19,Dragon Boat Festival
+2045/9/25,Mid-Autumn Festival
+2045/9/28,Confucius' Birthday
+2045/10/10,National Day
+2045/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2045/12/25,Constitution Day
+2046/1/1,Founding Day of the Republic of China
+2046/2/4,Chinese New Year's Eve
+2046/2/5,Chinese New Year's Eve
+2046/2/6,Chinese New Year
+2046/2/7,Chinese New Year
+2046/2/8,Chinese New Year
+2046/2/9,Chinese New Year's Eve (observed)
+2046/2/28,Peace Memorial Day
+2046/4/3,Children's Day (observed)
+2046/4/4,Children's Day; Tomb-Sweeping Day
+2046/5/1,Labor Day
+2046/6/8,Dragon Boat Festival
+2046/9/14,Mid-Autumn Festival (observed)
+2046/9/15,Mid-Autumn Festival
+2046/9/28,Confucius' Birthday
+2046/10/10,National Day
+2046/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2046/12/25,Constitution Day
+2047/1/1,Founding Day of the Republic of China
+2047/1/24,Chinese New Year's Eve
+2047/1/25,Chinese New Year's Eve
+2047/1/26,Chinese New Year
+2047/1/27,Chinese New Year
+2047/1/28,Chinese New Year
+2047/1/29,Chinese New Year (observed)
+2047/1/30,Chinese New Year (observed)
+2047/2/28,Peace Memorial Day
+2047/4/4,Children's Day
+2047/4/5,Tomb-Sweeping Day
+2047/5/1,Labor Day
+2047/5/29,Dragon Boat Festival
+2047/9/27,Confucius' Birthday (observed)
+2047/9/28,Confucius' Birthday
+2047/10/4,Mid-Autumn Festival
+2047/10/10,National Day
+2047/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2047/12/25,Constitution Day
+2048/1/1,Founding Day of the Republic of China
+2048/2/12,Chinese New Year's Eve
+2048/2/13,Chinese New Year's Eve
+2048/2/14,Chinese New Year
+2048/2/15,Chinese New Year
+2048/2/16,Chinese New Year
+2048/2/17,Chinese New Year (observed)
+2048/2/18,Chinese New Year (observed)
+2048/2/28,Peace Memorial Day
+2048/4/2,Tomb-Sweeping Day (observed)
+2048/4/3,Children's Day (observed)
+2048/4/4,Children's Day; Tomb-Sweeping Day
+2048/5/1,Labor Day
+2048/6/15,Dragon Boat Festival
+2048/9/22,Mid-Autumn Festival
+2048/9/28,Confucius' Birthday
+2048/10/9,National Day (observed)
+2048/10/10,National Day
+2048/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2048/10/26,Taiwan Restoration and Guningtou Victory Memorial Day (observed)
+2048/12/25,Constitution Day
+2049/1/1,Founding Day of the Republic of China
+2049/1/31,Chinese New Year's Eve
+2049/2/1,Chinese New Year's Eve
+2049/2/2,Chinese New Year
+2049/2/3,Chinese New Year
+2049/2/4,Chinese New Year
+2049/2/5,Chinese New Year's Eve (observed)
+2049/2/28,Peace Memorial Day
+2049/3/1,Peace Memorial Day (observed)
+2049/4/2,Children's Day (observed)
+2049/4/4,Children's Day; Tomb-Sweeping Day
+2049/4/5,Tomb-Sweeping Day (observed)
+2049/4/30,Labor Day (observed)
+2049/5/1,Labor Day
+2049/6/4,Dragon Boat Festival
+2049/9/10,Mid-Autumn Festival (observed)
+2049/9/11,Mid-Autumn Festival
+2049/9/28,Confucius' Birthday
+2049/10/10,National Day
+2049/10/11,National Day (observed)
+2049/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2049/12/24,Constitution Day (observed)
+2049/12/25,Constitution Day
+2049/12/31,Founding Day of the Republic of China (observed)
+2050/1/1,Founding Day of the Republic of China
+2050/1/21,Chinese New Year's Eve
+2050/1/22,Chinese New Year's Eve
+2050/1/23,Chinese New Year
+2050/1/24,Chinese New Year
+2050/1/25,Chinese New Year
+2050/1/26,Chinese New Year's Eve (observed)
+2050/1/27,Chinese New Year (observed)
+2050/2/28,Peace Memorial Day
+2050/4/4,Children's Day; Tomb-Sweeping Day
+2050/4/5,Children's Day (observed)
+2050/5/1,Labor Day
+2050/5/2,Labor Day (observed)
+2050/6/23,Dragon Boat Festival
+2050/9/28,Confucius' Birthday
+2050/9/30,Mid-Autumn Festival
+2050/10/10,National Day
+2050/10/25,Taiwan Restoration and Guningtou Victory Memorial Day
+2050/12/25,Constitution Day
+2050/12/26,Constitution Day (observed)

@@ -1,0 +1,875 @@
+# MM holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/4,Independence Day
+2020/2/12,Union Day
+2020/3/2,Peasants' Day
+2020/3/8,Full Moon Day of Tabaung
+2020/3/27,Armed Forces Day
+2020/4/12,Myanmar New Year
+2020/4/13,Myanmar New Year
+2020/4/14,Myanmar New Year
+2020/4/15,Myanmar New Year
+2020/4/16,Myanmar New Year
+2020/5/1,May Day
+2020/5/6,Full Moon Day of Kason
+2020/7/19,Martyrs' Day
+2020/8/1,Eid al-Adha
+2020/8/3,Full Moon Day of Waso
+2020/10/30,Thadingyut Holidays
+2020/10/31,Thadingyut Holidays
+2020/11/1,Thadingyut Holidays
+2020/11/15,Diwali
+2020/11/29,Full Moon Day of Tazaungmon
+2020/12/9,National Day
+2020/12/25,Christmas Day
+2021/1/4,Independence Day
+2021/1/13,Karen New Year
+2021/2/12,Union Day
+2021/3/2,Peasants' Day
+2021/3/27,Armed Forces Day; Full Moon Day of Tabaung
+2021/4/13,Myanmar New Year
+2021/4/14,Myanmar New Year
+2021/4/15,Myanmar New Year
+2021/4/16,Myanmar New Year
+2021/5/1,May Day
+2021/5/25,Full Moon Day of Kason
+2021/7/19,Martyrs' Day
+2021/7/21,Eid al-Adha
+2021/7/23,Full Moon Day of Waso
+2021/10/19,Thadingyut Holidays
+2021/10/20,Thadingyut Holidays
+2021/10/21,Thadingyut Holidays
+2021/11/4,Diwali
+2021/11/18,Full Moon Day of Tazaungmon
+2021/11/28,National Day
+2021/12/25,Christmas Day
+2022/1/2,Karen New Year
+2022/1/4,Independence Day
+2022/2/12,Union Day
+2022/3/2,Peasants' Day
+2022/3/16,Full Moon Day of Tabaung
+2022/3/27,Armed Forces Day
+2022/4/9,Myanmar New Year
+2022/4/10,Myanmar New Year
+2022/4/11,Myanmar New Year
+2022/4/12,Myanmar New Year
+2022/4/13,Myanmar New Year
+2022/4/14,Myanmar New Year
+2022/4/15,Myanmar New Year
+2022/4/16,Myanmar New Year
+2022/5/1,May Day
+2022/5/14,Full Moon Day of Kason
+2022/7/10,Eid al-Adha
+2022/7/12,Full Moon Day of Waso
+2022/7/19,Martyrs' Day
+2022/10/8,Thadingyut Holidays
+2022/10/9,Thadingyut Holidays
+2022/10/10,Thadingyut Holidays
+2022/10/24,Diwali
+2022/11/7,Full Moon Day of Tazaungmon
+2022/11/17,National Day
+2022/12/22,Karen New Year
+2022/12/25,Christmas Day
+2023/1/4,Independence Day
+2023/2/12,Union Day
+2023/3/2,Peasants' Day
+2023/3/5,Full Moon Day of Tabaung
+2023/3/27,Armed Forces Day
+2023/4/9,Myanmar New Year
+2023/4/10,Myanmar New Year
+2023/4/11,Myanmar New Year
+2023/4/12,Myanmar New Year
+2023/4/13,Myanmar New Year
+2023/4/14,Myanmar New Year
+2023/4/15,Myanmar New Year
+2023/4/16,Myanmar New Year
+2023/5/1,May Day
+2023/5/3,Full Moon Day of Kason
+2023/6/29,Eid al-Adha
+2023/7/19,Martyrs' Day
+2023/8/1,Full Moon Day of Waso
+2023/10/28,Thadingyut Holidays
+2023/10/29,Thadingyut Holidays
+2023/10/30,Thadingyut Holidays
+2023/11/13,Diwali
+2023/11/27,Full Moon Day of Tazaungmon
+2023/12/7,National Day
+2023/12/25,Christmas Day
+2024/1/4,Independence Day
+2024/1/11,Karen New Year
+2024/2/12,Union Day
+2024/3/2,Peasants' Day
+2024/3/24,Full Moon Day of Tabaung
+2024/3/27,Armed Forces Day
+2024/4/13,Myanmar New Year
+2024/4/14,Myanmar New Year
+2024/4/15,Myanmar New Year
+2024/4/16,Myanmar New Year
+2024/4/17,Myanmar New Year
+2024/4/18,Myanmar New Year
+2024/4/19,Myanmar New Year
+2024/4/20,Myanmar New Year
+2024/4/21,Myanmar New Year
+2024/5/1,May Day
+2024/5/22,Full Moon Day of Kason
+2024/6/17,Eid al-Adha
+2024/7/19,Martyrs' Day
+2024/7/20,Full Moon Day of Waso
+2024/10/16,Thadingyut Holidays
+2024/10/17,Thadingyut Holidays
+2024/10/18,Thadingyut Holidays
+2024/11/1,Diwali
+2024/11/15,Full Moon Day of Tazaungmon
+2024/11/25,National Day
+2024/12/25,Christmas Day
+2024/12/30,Karen New Year
+2024/12/31,Day off (substituted from 01/11/2025)
+2025/1/1,New Year's Day
+2025/1/4,Independence Day
+2025/1/29,Chinese New Year
+2025/2/12,Union Day
+2025/3/2,Peasants' Day
+2025/3/12,Day off (substituted from 03/22/2025)
+2025/3/13,Full Moon Day of Tabaung
+2025/3/14,Day off (substituted from 03/29/2025)
+2025/3/27,Armed Forces Day
+2025/4/13,Myanmar New Year
+2025/4/14,Myanmar New Year
+2025/4/15,Myanmar New Year
+2025/4/16,Myanmar New Year
+2025/4/17,Myanmar New Year
+2025/4/18,Myanmar New Year
+2025/4/19,Myanmar New Year
+2025/4/20,Myanmar New Year
+2025/4/21,Myanmar New Year
+2025/5/1,May Day
+2025/5/11,Full Moon Day of Kason
+2025/6/7,Eid al-Adha
+2025/7/9,Full Moon Day of Waso
+2025/7/19,Martyrs' Day
+2025/10/5,Thadingyut Holidays
+2025/10/6,Thadingyut Holidays
+2025/10/7,Thadingyut Holidays
+2025/10/21,Diwali
+2025/11/3,Day off (substituted from 11/08/2025)
+2025/11/4,Full Moon Day of Tazaungmon
+2025/11/14,National Day
+2025/12/19,Karen New Year
+2025/12/25,Christmas Day
+2025/12/26,Day off (substituted from 01/03/2026)
+2026/1/1,New Year's Day
+2026/1/4,Independence Day
+2026/2/12,Union Day
+2026/2/17,Chinese New Year
+2026/3/2,Full Moon Day of Tabaung; Peasants' Day
+2026/3/27,Armed Forces Day
+2026/4/13,Myanmar New Year
+2026/4/14,Myanmar New Year
+2026/4/15,Myanmar New Year
+2026/4/16,Myanmar New Year
+2026/4/17,Myanmar New Year
+2026/4/18,Myanmar New Year
+2026/4/19,Myanmar New Year
+2026/4/20,Myanmar New Year
+2026/4/21,Myanmar New Year
+2026/4/30,Full Moon Day of Kason
+2026/5/1,May Day
+2026/5/28,Eid al-Adha (estimated)
+2026/7/19,Martyrs' Day
+2026/7/29,Full Moon Day of Waso
+2026/10/25,Thadingyut Holidays
+2026/10/26,Thadingyut Holidays
+2026/10/27,Thadingyut Holidays
+2026/11/10,Diwali
+2026/11/24,Full Moon Day of Tazaungmon
+2026/12/4,National Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/1/4,Independence Day
+2027/1/8,Karen New Year
+2027/2/6,Chinese New Year
+2027/2/12,Union Day
+2027/3/2,Peasants' Day
+2027/3/22,Full Moon Day of Tabaung
+2027/3/27,Armed Forces Day
+2027/4/13,Myanmar New Year
+2027/4/14,Myanmar New Year
+2027/4/15,Myanmar New Year
+2027/4/16,Myanmar New Year
+2027/4/17,Myanmar New Year
+2027/4/18,Myanmar New Year
+2027/4/19,Myanmar New Year
+2027/4/20,Myanmar New Year
+2027/4/21,Myanmar New Year
+2027/5/1,May Day
+2027/5/17,Eid al-Adha (estimated)
+2027/5/20,Full Moon Day of Kason
+2027/7/18,Full Moon Day of Waso
+2027/7/19,Martyrs' Day
+2027/10/14,Thadingyut Holidays
+2027/10/15,Thadingyut Holidays
+2027/10/16,Thadingyut Holidays
+2027/10/30,Diwali
+2027/11/13,Full Moon Day of Tazaungmon
+2027/11/23,National Day
+2027/12/25,Christmas Day
+2027/12/28,Karen New Year
+2028/1/1,New Year's Day
+2028/1/4,Independence Day
+2028/1/26,Chinese New Year
+2028/2/12,Union Day
+2028/3/2,Peasants' Day
+2028/3/10,Full Moon Day of Tabaung
+2028/3/27,Armed Forces Day
+2028/4/13,Myanmar New Year
+2028/4/14,Myanmar New Year
+2028/4/15,Myanmar New Year
+2028/4/16,Myanmar New Year
+2028/4/17,Myanmar New Year
+2028/4/18,Myanmar New Year
+2028/4/19,Myanmar New Year
+2028/4/20,Myanmar New Year
+2028/4/21,Myanmar New Year
+2028/5/1,May Day
+2028/5/6,Eid al-Adha (estimated)
+2028/5/8,Full Moon Day of Kason
+2028/7/6,Full Moon Day of Waso
+2028/7/19,Martyrs' Day
+2028/10/2,Thadingyut Holidays
+2028/10/3,Thadingyut Holidays
+2028/10/4,Thadingyut Holidays
+2028/10/18,Diwali
+2028/11/1,Full Moon Day of Tazaungmon
+2028/11/11,National Day
+2028/12/16,Karen New Year
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/1/4,Independence Day
+2029/2/12,Union Day
+2029/2/13,Chinese New Year
+2029/2/27,Full Moon Day of Tabaung
+2029/3/2,Peasants' Day
+2029/3/27,Armed Forces Day
+2029/4/13,Myanmar New Year
+2029/4/14,Myanmar New Year
+2029/4/15,Myanmar New Year
+2029/4/16,Myanmar New Year
+2029/4/17,Myanmar New Year
+2029/4/18,Myanmar New Year
+2029/4/19,Myanmar New Year
+2029/4/20,Myanmar New Year
+2029/4/21,Myanmar New Year
+2029/4/25,Eid al-Adha (estimated)
+2029/4/27,Full Moon Day of Kason
+2029/5/1,May Day
+2029/7/19,Martyrs' Day
+2029/7/25,Full Moon Day of Waso
+2029/10/21,Thadingyut Holidays
+2029/10/22,Thadingyut Holidays
+2029/10/23,Thadingyut Holidays
+2029/11/6,Diwali
+2029/11/20,Full Moon Day of Tazaungmon
+2029/11/30,National Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/1/4,Independence Day; Karen New Year
+2030/2/3,Chinese New Year
+2030/2/12,Union Day
+2030/3/2,Peasants' Day
+2030/3/18,Full Moon Day of Tabaung
+2030/3/27,Armed Forces Day
+2030/4/13,Myanmar New Year
+2030/4/14,Eid al-Adha (estimated); Myanmar New Year
+2030/4/15,Myanmar New Year
+2030/4/16,Myanmar New Year
+2030/4/17,Myanmar New Year
+2030/4/18,Myanmar New Year
+2030/4/19,Myanmar New Year
+2030/4/20,Myanmar New Year
+2030/4/21,Myanmar New Year
+2030/5/1,May Day
+2030/5/16,Full Moon Day of Kason
+2030/7/14,Full Moon Day of Waso
+2030/7/19,Martyrs' Day
+2030/10/10,Thadingyut Holidays
+2030/10/11,Thadingyut Holidays
+2030/10/12,Thadingyut Holidays
+2030/10/26,Diwali
+2030/11/9,Full Moon Day of Tazaungmon
+2030/11/19,National Day
+2030/12/24,Karen New Year
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/1/4,Independence Day
+2031/1/23,Chinese New Year
+2031/2/12,Union Day
+2031/3/2,Peasants' Day
+2031/3/7,Full Moon Day of Tabaung
+2031/3/27,Armed Forces Day
+2031/4/3,Eid al-Adha (estimated)
+2031/4/13,Myanmar New Year
+2031/4/14,Myanmar New Year
+2031/4/15,Myanmar New Year
+2031/4/16,Myanmar New Year
+2031/4/17,Myanmar New Year
+2031/4/18,Myanmar New Year
+2031/4/19,Myanmar New Year
+2031/4/20,Myanmar New Year
+2031/4/21,Myanmar New Year
+2031/5/1,May Day
+2031/5/5,Full Moon Day of Kason
+2031/7/19,Martyrs' Day
+2031/8/3,Full Moon Day of Waso
+2031/10/30,Thadingyut Holidays
+2031/10/31,Thadingyut Holidays
+2031/11/1,Thadingyut Holidays
+2031/11/15,Diwali
+2031/11/29,Full Moon Day of Tazaungmon
+2031/12/9,National Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/1/4,Independence Day
+2032/1/13,Karen New Year
+2032/2/11,Chinese New Year
+2032/2/12,Union Day
+2032/3/2,Peasants' Day
+2032/3/23,Eid al-Adha (estimated)
+2032/3/26,Full Moon Day of Tabaung
+2032/3/27,Armed Forces Day
+2032/4/13,Myanmar New Year
+2032/4/14,Myanmar New Year
+2032/4/15,Myanmar New Year
+2032/4/16,Myanmar New Year
+2032/4/17,Myanmar New Year
+2032/4/18,Myanmar New Year
+2032/4/19,Myanmar New Year
+2032/4/20,Myanmar New Year
+2032/4/21,Myanmar New Year
+2032/5/1,May Day
+2032/5/24,Full Moon Day of Kason
+2032/7/19,Martyrs' Day
+2032/7/22,Full Moon Day of Waso
+2032/10/18,Thadingyut Holidays
+2032/10/19,Thadingyut Holidays
+2032/10/20,Thadingyut Holidays
+2032/11/3,Diwali
+2032/11/17,Full Moon Day of Tazaungmon
+2032/11/27,National Day
+2032/12/25,Christmas Day
+2033/1/1,Karen New Year; New Year's Day
+2033/1/4,Independence Day
+2033/1/31,Chinese New Year
+2033/2/12,Union Day
+2033/3/2,Peasants' Day
+2033/3/12,Eid al-Adha (estimated)
+2033/3/15,Full Moon Day of Tabaung
+2033/3/27,Armed Forces Day
+2033/4/13,Myanmar New Year
+2033/4/14,Myanmar New Year
+2033/4/15,Myanmar New Year
+2033/4/16,Myanmar New Year
+2033/4/17,Myanmar New Year
+2033/4/18,Myanmar New Year
+2033/4/19,Myanmar New Year
+2033/4/20,Myanmar New Year
+2033/4/21,Myanmar New Year
+2033/5/1,May Day
+2033/5/13,Full Moon Day of Kason
+2033/7/11,Full Moon Day of Waso
+2033/7/19,Martyrs' Day
+2033/10/7,Thadingyut Holidays
+2033/10/8,Thadingyut Holidays
+2033/10/9,Thadingyut Holidays
+2033/10/23,Diwali
+2033/11/6,Full Moon Day of Tazaungmon
+2033/11/16,National Day
+2033/12/21,Karen New Year
+2033/12/25,Christmas Day
+2034/1/1,New Year's Day
+2034/1/4,Independence Day
+2034/2/12,Union Day
+2034/2/19,Chinese New Year
+2034/3/2,Eid al-Adha (estimated); Peasants' Day
+2034/3/4,Full Moon Day of Tabaung
+2034/3/27,Armed Forces Day
+2034/4/13,Myanmar New Year
+2034/4/14,Myanmar New Year
+2034/4/15,Myanmar New Year
+2034/4/16,Myanmar New Year
+2034/4/17,Myanmar New Year
+2034/4/18,Myanmar New Year
+2034/4/19,Myanmar New Year
+2034/4/20,Myanmar New Year
+2034/4/21,Myanmar New Year
+2034/5/1,May Day
+2034/5/2,Full Moon Day of Kason
+2034/7/19,Martyrs' Day
+2034/7/30,Full Moon Day of Waso
+2034/10/26,Thadingyut Holidays
+2034/10/27,Thadingyut Holidays
+2034/10/28,Thadingyut Holidays
+2034/11/11,Diwali
+2034/11/25,Full Moon Day of Tazaungmon
+2034/12/5,National Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/1/4,Independence Day
+2035/1/9,Karen New Year
+2035/2/8,Chinese New Year
+2035/2/12,Union Day
+2035/2/19,Eid al-Adha (estimated)
+2035/3/2,Peasants' Day
+2035/3/23,Full Moon Day of Tabaung
+2035/3/27,Armed Forces Day
+2035/4/13,Myanmar New Year
+2035/4/14,Myanmar New Year
+2035/4/15,Myanmar New Year
+2035/4/16,Myanmar New Year
+2035/4/17,Myanmar New Year
+2035/4/18,Myanmar New Year
+2035/4/19,Myanmar New Year
+2035/4/20,Myanmar New Year
+2035/4/21,Myanmar New Year
+2035/5/1,May Day
+2035/5/21,Full Moon Day of Kason
+2035/7/19,Full Moon Day of Waso; Martyrs' Day
+2035/10/15,Thadingyut Holidays
+2035/10/16,Thadingyut Holidays
+2035/10/17,Thadingyut Holidays
+2035/10/31,Diwali
+2035/11/14,Full Moon Day of Tazaungmon
+2035/11/24,National Day
+2035/12/25,Christmas Day
+2035/12/29,Karen New Year
+2036/1/1,New Year's Day
+2036/1/4,Independence Day
+2036/1/28,Chinese New Year
+2036/2/8,Eid al-Adha (estimated)
+2036/2/12,Union Day
+2036/3/2,Peasants' Day
+2036/3/11,Full Moon Day of Tabaung
+2036/3/27,Armed Forces Day
+2036/4/13,Myanmar New Year
+2036/4/14,Myanmar New Year
+2036/4/15,Myanmar New Year
+2036/4/16,Myanmar New Year
+2036/4/17,Myanmar New Year
+2036/4/18,Myanmar New Year
+2036/4/19,Myanmar New Year
+2036/4/20,Myanmar New Year
+2036/4/21,Myanmar New Year
+2036/5/1,May Day
+2036/5/9,Full Moon Day of Kason
+2036/7/7,Full Moon Day of Waso
+2036/7/19,Martyrs' Day
+2036/10/3,Thadingyut Holidays
+2036/10/4,Thadingyut Holidays
+2036/10/5,Thadingyut Holidays
+2036/10/19,Diwali
+2036/11/2,Full Moon Day of Tazaungmon
+2036/11/12,National Day
+2036/12/17,Karen New Year
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/1/4,Independence Day
+2037/1/27,Eid al-Adha (estimated)
+2037/2/12,Union Day
+2037/2/15,Chinese New Year
+2037/2/28,Full Moon Day of Tabaung
+2037/3/2,Peasants' Day
+2037/3/27,Armed Forces Day
+2037/4/13,Myanmar New Year
+2037/4/14,Myanmar New Year
+2037/4/15,Myanmar New Year
+2037/4/16,Myanmar New Year
+2037/4/17,Myanmar New Year
+2037/4/18,Myanmar New Year
+2037/4/19,Myanmar New Year
+2037/4/20,Myanmar New Year
+2037/4/21,Myanmar New Year
+2037/4/28,Full Moon Day of Kason
+2037/5/1,May Day
+2037/7/19,Martyrs' Day
+2037/7/27,Full Moon Day of Waso
+2037/10/23,Thadingyut Holidays
+2037/10/24,Thadingyut Holidays
+2037/10/25,Thadingyut Holidays
+2037/11/8,Diwali
+2037/11/22,Full Moon Day of Tazaungmon
+2037/12/2,National Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/1/4,Independence Day
+2038/1/6,Karen New Year
+2038/1/17,Eid al-Adha (estimated)
+2038/2/4,Chinese New Year
+2038/2/12,Union Day
+2038/3/2,Peasants' Day
+2038/3/20,Full Moon Day of Tabaung
+2038/3/27,Armed Forces Day
+2038/4/13,Myanmar New Year
+2038/4/14,Myanmar New Year
+2038/4/15,Myanmar New Year
+2038/4/16,Myanmar New Year
+2038/4/17,Myanmar New Year
+2038/4/18,Myanmar New Year
+2038/4/19,Myanmar New Year
+2038/4/20,Myanmar New Year
+2038/4/21,Myanmar New Year
+2038/5/1,May Day
+2038/5/18,Full Moon Day of Kason
+2038/7/16,Full Moon Day of Waso
+2038/7/19,Martyrs' Day
+2038/10/12,Thadingyut Holidays
+2038/10/13,Thadingyut Holidays
+2038/10/14,Thadingyut Holidays
+2038/10/28,Diwali
+2038/11/11,Full Moon Day of Tazaungmon
+2038/11/21,National Day
+2038/12/25,Christmas Day
+2038/12/26,Karen New Year
+2039/1/1,New Year's Day
+2039/1/4,Independence Day
+2039/1/6,Eid al-Adha (estimated)
+2039/1/24,Chinese New Year
+2039/2/12,Union Day
+2039/3/2,Peasants' Day
+2039/3/9,Full Moon Day of Tabaung
+2039/3/27,Armed Forces Day
+2039/4/13,Myanmar New Year
+2039/4/14,Myanmar New Year
+2039/4/15,Myanmar New Year
+2039/4/16,Myanmar New Year
+2039/4/17,Myanmar New Year
+2039/4/18,Myanmar New Year
+2039/4/19,Myanmar New Year
+2039/4/20,Myanmar New Year
+2039/4/21,Myanmar New Year
+2039/5/1,May Day
+2039/5/7,Full Moon Day of Kason
+2039/7/19,Martyrs' Day
+2039/8/4,Full Moon Day of Waso
+2039/10/31,Thadingyut Holidays
+2039/11/1,Thadingyut Holidays
+2039/11/2,Thadingyut Holidays
+2039/11/16,Diwali
+2039/11/30,Full Moon Day of Tazaungmon
+2039/12/10,National Day
+2039/12/25,Christmas Day
+2039/12/27,Eid al-Adha (estimated)
+2040/1/1,New Year's Day
+2040/1/4,Independence Day
+2040/1/14,Karen New Year
+2040/2/12,Chinese New Year; Union Day
+2040/3/2,Peasants' Day
+2040/3/27,Armed Forces Day; Full Moon Day of Tabaung
+2040/4/13,Myanmar New Year
+2040/4/14,Myanmar New Year
+2040/4/15,Myanmar New Year
+2040/4/16,Myanmar New Year
+2040/4/17,Myanmar New Year
+2040/4/18,Myanmar New Year
+2040/4/19,Myanmar New Year
+2040/4/20,Myanmar New Year
+2040/4/21,Myanmar New Year
+2040/5/1,May Day
+2040/5/25,Full Moon Day of Kason
+2040/7/19,Martyrs' Day
+2040/7/23,Full Moon Day of Waso
+2040/10/19,Thadingyut Holidays
+2040/10/20,Thadingyut Holidays
+2040/10/21,Thadingyut Holidays
+2040/11/4,Diwali
+2040/11/18,Full Moon Day of Tazaungmon
+2040/11/28,National Day
+2040/12/15,Eid al-Adha (estimated)
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/1/2,Karen New Year
+2041/1/4,Independence Day
+2041/2/1,Chinese New Year
+2041/2/12,Union Day
+2041/3/2,Peasants' Day
+2041/3/16,Full Moon Day of Tabaung
+2041/3/27,Armed Forces Day
+2041/4/13,Myanmar New Year
+2041/4/14,Myanmar New Year
+2041/4/15,Myanmar New Year
+2041/4/16,Myanmar New Year
+2041/4/17,Myanmar New Year
+2041/4/18,Myanmar New Year
+2041/4/19,Myanmar New Year
+2041/4/20,Myanmar New Year
+2041/4/21,Myanmar New Year
+2041/5/1,May Day
+2041/5/14,Full Moon Day of Kason
+2041/7/12,Full Moon Day of Waso
+2041/7/19,Martyrs' Day
+2041/10/8,Thadingyut Holidays
+2041/10/9,Thadingyut Holidays
+2041/10/10,Thadingyut Holidays
+2041/10/24,Diwali
+2041/11/7,Full Moon Day of Tazaungmon
+2041/11/17,National Day
+2041/12/5,Eid al-Adha (estimated)
+2041/12/22,Karen New Year
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/1/4,Independence Day
+2042/1/22,Chinese New Year
+2042/2/12,Union Day
+2042/3/2,Peasants' Day
+2042/3/5,Full Moon Day of Tabaung
+2042/3/27,Armed Forces Day
+2042/4/13,Myanmar New Year
+2042/4/14,Myanmar New Year
+2042/4/15,Myanmar New Year
+2042/4/16,Myanmar New Year
+2042/4/17,Myanmar New Year
+2042/4/18,Myanmar New Year
+2042/4/19,Myanmar New Year
+2042/4/20,Myanmar New Year
+2042/4/21,Myanmar New Year
+2042/5/1,May Day
+2042/5/3,Full Moon Day of Kason
+2042/7/19,Martyrs' Day
+2042/8/1,Full Moon Day of Waso
+2042/10/28,Thadingyut Holidays
+2042/10/29,Thadingyut Holidays
+2042/10/30,Thadingyut Holidays
+2042/11/13,Diwali
+2042/11/24,Eid al-Adha (estimated)
+2042/11/27,Full Moon Day of Tazaungmon
+2042/12/7,National Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/1/4,Independence Day
+2043/1/11,Karen New Year
+2043/2/10,Chinese New Year
+2043/2/12,Union Day
+2043/3/2,Peasants' Day
+2043/3/25,Full Moon Day of Tabaung
+2043/3/27,Armed Forces Day
+2043/4/13,Myanmar New Year
+2043/4/14,Myanmar New Year
+2043/4/15,Myanmar New Year
+2043/4/16,Myanmar New Year
+2043/4/17,Myanmar New Year
+2043/4/18,Myanmar New Year
+2043/4/19,Myanmar New Year
+2043/4/20,Myanmar New Year
+2043/4/21,Myanmar New Year
+2043/5/1,May Day
+2043/5/23,Full Moon Day of Kason
+2043/7/19,Martyrs' Day
+2043/7/21,Full Moon Day of Waso
+2043/10/17,Thadingyut Holidays
+2043/10/18,Thadingyut Holidays
+2043/10/19,Thadingyut Holidays
+2043/11/2,Diwali
+2043/11/13,Eid al-Adha (estimated)
+2043/11/16,Full Moon Day of Tazaungmon
+2043/11/26,National Day
+2043/12/25,Christmas Day
+2043/12/31,Karen New Year
+2044/1/1,New Year's Day
+2044/1/4,Independence Day
+2044/1/30,Chinese New Year
+2044/2/12,Union Day
+2044/3/2,Peasants' Day
+2044/3/13,Full Moon Day of Tabaung
+2044/3/27,Armed Forces Day
+2044/4/13,Myanmar New Year
+2044/4/14,Myanmar New Year
+2044/4/15,Myanmar New Year
+2044/4/16,Myanmar New Year
+2044/4/17,Myanmar New Year
+2044/4/18,Myanmar New Year
+2044/4/19,Myanmar New Year
+2044/4/20,Myanmar New Year
+2044/4/21,Myanmar New Year
+2044/5/1,May Day
+2044/5/11,Full Moon Day of Kason
+2044/7/9,Full Moon Day of Waso
+2044/7/19,Martyrs' Day
+2044/10/5,Thadingyut Holidays
+2044/10/6,Thadingyut Holidays
+2044/10/7,Thadingyut Holidays
+2044/10/21,Diwali
+2044/11/1,Eid al-Adha (estimated)
+2044/11/4,Full Moon Day of Tazaungmon
+2044/11/14,National Day
+2044/12/19,Karen New Year
+2044/12/25,Christmas Day
+2045/1/1,New Year's Day
+2045/1/4,Independence Day
+2045/2/12,Union Day
+2045/2/17,Chinese New Year
+2045/3/2,Full Moon Day of Tabaung; Peasants' Day
+2045/3/27,Armed Forces Day
+2045/4/13,Myanmar New Year
+2045/4/14,Myanmar New Year
+2045/4/15,Myanmar New Year
+2045/4/16,Myanmar New Year
+2045/4/17,Myanmar New Year
+2045/4/18,Myanmar New Year
+2045/4/19,Myanmar New Year
+2045/4/20,Myanmar New Year
+2045/4/21,Myanmar New Year
+2045/4/30,Full Moon Day of Kason
+2045/5/1,May Day
+2045/7/19,Martyrs' Day
+2045/7/28,Full Moon Day of Waso
+2045/10/22,Eid al-Adha (estimated)
+2045/10/24,Thadingyut Holidays
+2045/10/25,Thadingyut Holidays
+2045/10/26,Thadingyut Holidays
+2045/11/9,Diwali
+2045/11/23,Full Moon Day of Tazaungmon
+2045/12/3,National Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/1/4,Independence Day
+2046/1/7,Karen New Year
+2046/2/6,Chinese New Year
+2046/2/12,Union Day
+2046/3/2,Peasants' Day
+2046/3/21,Full Moon Day of Tabaung
+2046/3/27,Armed Forces Day
+2046/4/13,Myanmar New Year
+2046/4/14,Myanmar New Year
+2046/4/15,Myanmar New Year
+2046/4/16,Myanmar New Year
+2046/4/17,Myanmar New Year
+2046/4/18,Myanmar New Year
+2046/4/19,Myanmar New Year
+2046/4/20,Myanmar New Year
+2046/4/21,Myanmar New Year
+2046/5/1,May Day
+2046/5/19,Full Moon Day of Kason
+2046/7/17,Full Moon Day of Waso
+2046/7/19,Martyrs' Day
+2046/10/11,Eid al-Adha (estimated)
+2046/10/13,Thadingyut Holidays
+2046/10/14,Thadingyut Holidays
+2046/10/15,Thadingyut Holidays
+2046/10/29,Diwali
+2046/11/12,Full Moon Day of Tazaungmon
+2046/11/22,National Day
+2046/12/25,Christmas Day
+2046/12/27,Karen New Year
+2047/1/1,New Year's Day
+2047/1/4,Independence Day
+2047/1/26,Chinese New Year
+2047/2/12,Union Day
+2047/3/2,Peasants' Day
+2047/3/10,Full Moon Day of Tabaung
+2047/3/27,Armed Forces Day
+2047/4/13,Myanmar New Year
+2047/4/14,Myanmar New Year
+2047/4/15,Myanmar New Year
+2047/4/16,Myanmar New Year
+2047/4/17,Myanmar New Year
+2047/4/18,Myanmar New Year
+2047/4/19,Myanmar New Year
+2047/4/20,Myanmar New Year
+2047/4/21,Myanmar New Year
+2047/5/1,May Day
+2047/5/8,Full Moon Day of Kason
+2047/7/6,Full Moon Day of Waso
+2047/7/19,Martyrs' Day
+2047/10/1,Eid al-Adha (estimated)
+2047/10/2,Thadingyut Holidays
+2047/10/3,Thadingyut Holidays
+2047/10/4,Thadingyut Holidays
+2047/10/18,Diwali
+2047/11/1,Full Moon Day of Tazaungmon
+2047/11/11,National Day
+2047/12/16,Karen New Year
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/1/4,Independence Day
+2048/2/12,Union Day
+2048/2/14,Chinese New Year
+2048/2/27,Full Moon Day of Tabaung
+2048/3/2,Peasants' Day
+2048/3/27,Armed Forces Day
+2048/4/13,Myanmar New Year
+2048/4/14,Myanmar New Year
+2048/4/15,Myanmar New Year
+2048/4/16,Myanmar New Year
+2048/4/17,Myanmar New Year
+2048/4/18,Myanmar New Year
+2048/4/19,Myanmar New Year
+2048/4/20,Myanmar New Year
+2048/4/21,Myanmar New Year
+2048/4/26,Full Moon Day of Kason
+2048/5/1,May Day
+2048/7/19,Martyrs' Day
+2048/7/25,Full Moon Day of Waso
+2048/9/20,Eid al-Adha (estimated)
+2048/10/21,Thadingyut Holidays
+2048/10/22,Thadingyut Holidays
+2048/10/23,Thadingyut Holidays
+2048/11/6,Diwali
+2048/11/20,Full Moon Day of Tazaungmon
+2048/11/30,National Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/1/4,Independence Day; Karen New Year
+2049/2/2,Chinese New Year
+2049/2/12,Union Day
+2049/3/2,Peasants' Day
+2049/3/18,Full Moon Day of Tabaung
+2049/3/27,Armed Forces Day
+2049/4/13,Myanmar New Year
+2049/4/14,Myanmar New Year
+2049/4/15,Myanmar New Year
+2049/4/16,Myanmar New Year
+2049/4/17,Myanmar New Year
+2049/4/18,Myanmar New Year
+2049/4/19,Myanmar New Year
+2049/4/20,Myanmar New Year
+2049/4/21,Myanmar New Year
+2049/5/1,May Day
+2049/5/16,Full Moon Day of Kason
+2049/7/14,Full Moon Day of Waso
+2049/7/19,Martyrs' Day
+2049/9/9,Eid al-Adha (estimated)
+2049/10/10,Thadingyut Holidays
+2049/10/11,Thadingyut Holidays
+2049/10/12,Thadingyut Holidays
+2049/10/26,Diwali
+2049/11/9,Full Moon Day of Tazaungmon
+2049/11/19,National Day
+2049/12/24,Karen New Year
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/1/4,Independence Day
+2050/1/23,Chinese New Year
+2050/2/12,Union Day
+2050/3/2,Peasants' Day
+2050/3/7,Full Moon Day of Tabaung
+2050/3/27,Armed Forces Day
+2050/4/13,Myanmar New Year
+2050/4/14,Myanmar New Year
+2050/4/15,Myanmar New Year
+2050/4/16,Myanmar New Year
+2050/4/17,Myanmar New Year
+2050/4/18,Myanmar New Year
+2050/4/19,Myanmar New Year
+2050/4/20,Myanmar New Year
+2050/4/21,Myanmar New Year
+2050/5/1,May Day
+2050/5/5,Full Moon Day of Kason
+2050/7/19,Martyrs' Day
+2050/8/2,Full Moon Day of Waso
+2050/8/29,Eid al-Adha (estimated)
+2050/10/29,Thadingyut Holidays
+2050/10/30,Thadingyut Holidays
+2050/10/31,Thadingyut Holidays
+2050/11/14,Diwali
+2050/11/28,Full Moon Day of Tazaungmon
+2050/12/8,National Day
+2050/12/25,Christmas Day

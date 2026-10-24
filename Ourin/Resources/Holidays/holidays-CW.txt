@@ -1,0 +1,375 @@
+# CW の祝日（2020〜2050年、言語: pap_CW）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Aña Nobo
+2020/2/24,Dialuna despues di Carnaval Grandi
+2020/4/10,Bièrnèsantu
+2020/4/12,Pasku di Resurekshon
+2020/4/13,Di dos dia di Pasku di Resurekshon
+2020/4/27,Dia di Rey
+2020/5/1,Dia di Obrero
+2020/5/21,Dia di Asenshon
+2020/7/2,Dia di Himno i Bandera
+2020/10/10,Dia di Pais Kòrsou
+2020/12/25,Pasku di Nasementu
+2020/12/26,Di dos dia di Pasku di Nasementu
+2021/1/1,Aña Nobo
+2021/2/15,Dialuna despues di Carnaval Grandi
+2021/4/2,Bièrnèsantu
+2021/4/4,Pasku di Resurekshon
+2021/4/5,Di dos dia di Pasku di Resurekshon
+2021/4/27,Dia di Rey
+2021/5/1,Dia di Obrero
+2021/5/13,Dia di Asenshon
+2021/7/2,Dia di Himno i Bandera
+2021/10/10,Dia di Pais Kòrsou
+2021/12/25,Pasku di Nasementu
+2021/12/26,Di dos dia di Pasku di Nasementu
+2022/1/1,Aña Nobo
+2022/2/28,Dialuna despues di Carnaval Grandi
+2022/4/15,Bièrnèsantu
+2022/4/17,Pasku di Resurekshon
+2022/4/18,Di dos dia di Pasku di Resurekshon
+2022/4/27,Dia di Rey
+2022/5/2,Dia di Obrero
+2022/5/26,Dia di Asenshon
+2022/7/2,Dia di Himno i Bandera
+2022/10/10,Dia di Pais Kòrsou
+2022/12/25,Pasku di Nasementu
+2022/12/26,Di dos dia di Pasku di Nasementu
+2023/1/1,Aña Nobo
+2023/2/20,Dialuna despues di Carnaval Grandi
+2023/4/7,Bièrnèsantu
+2023/4/9,Pasku di Resurekshon
+2023/4/10,Di dos dia di Pasku di Resurekshon
+2023/4/27,Dia di Rey
+2023/5/1,Dia di Obrero
+2023/5/18,Dia di Asenshon
+2023/7/2,Dia di Himno i Bandera
+2023/10/10,Dia di Pais Kòrsou
+2023/12/25,Pasku di Nasementu
+2023/12/26,Di dos dia di Pasku di Nasementu
+2024/1/1,Aña Nobo
+2024/2/12,Dialuna despues di Carnaval Grandi
+2024/3/29,Bièrnèsantu
+2024/3/31,Pasku di Resurekshon
+2024/4/1,Di dos dia di Pasku di Resurekshon
+2024/4/27,Dia di Rey
+2024/5/1,Dia di Obrero
+2024/5/9,Dia di Asenshon
+2024/7/2,Dia di Himno i Bandera
+2024/10/10,Dia di Pais Kòrsou
+2024/12/25,Pasku di Nasementu
+2024/12/26,Di dos dia di Pasku di Nasementu
+2025/1/1,Aña Nobo
+2025/3/3,Dialuna despues di Carnaval Grandi
+2025/4/18,Bièrnèsantu
+2025/4/20,Pasku di Resurekshon
+2025/4/21,Di dos dia di Pasku di Resurekshon
+2025/4/26,Dia di Rey
+2025/5/1,Dia di Obrero
+2025/5/29,Dia di Asenshon
+2025/7/2,Dia di Himno i Bandera
+2025/10/10,Dia di Pais Kòrsou
+2025/12/25,Pasku di Nasementu
+2025/12/26,Di dos dia di Pasku di Nasementu
+2026/1/1,Aña Nobo
+2026/2/16,Dialuna despues di Carnaval Grandi
+2026/4/3,Bièrnèsantu
+2026/4/5,Pasku di Resurekshon
+2026/4/6,Di dos dia di Pasku di Resurekshon
+2026/4/27,Dia di Rey
+2026/5/1,Dia di Obrero
+2026/5/14,Dia di Asenshon
+2026/7/2,Dia di Himno i Bandera
+2026/10/10,Dia di Pais Kòrsou
+2026/12/25,Pasku di Nasementu
+2026/12/26,Di dos dia di Pasku di Nasementu
+2027/1/1,Aña Nobo
+2027/2/8,Dialuna despues di Carnaval Grandi
+2027/3/26,Bièrnèsantu
+2027/3/28,Pasku di Resurekshon
+2027/3/29,Di dos dia di Pasku di Resurekshon
+2027/4/27,Dia di Rey
+2027/5/1,Dia di Obrero
+2027/5/6,Dia di Asenshon
+2027/7/2,Dia di Himno i Bandera
+2027/10/10,Dia di Pais Kòrsou
+2027/12/25,Pasku di Nasementu
+2027/12/26,Di dos dia di Pasku di Nasementu
+2028/1/1,Aña Nobo
+2028/2/28,Dialuna despues di Carnaval Grandi
+2028/4/14,Bièrnèsantu
+2028/4/16,Pasku di Resurekshon
+2028/4/17,Di dos dia di Pasku di Resurekshon
+2028/4/27,Dia di Rey
+2028/5/1,Dia di Obrero
+2028/5/25,Dia di Asenshon
+2028/7/2,Dia di Himno i Bandera
+2028/10/10,Dia di Pais Kòrsou
+2028/12/25,Pasku di Nasementu
+2028/12/26,Di dos dia di Pasku di Nasementu
+2029/1/1,Aña Nobo
+2029/2/12,Dialuna despues di Carnaval Grandi
+2029/3/30,Bièrnèsantu
+2029/4/1,Pasku di Resurekshon
+2029/4/2,Di dos dia di Pasku di Resurekshon
+2029/4/27,Dia di Rey
+2029/5/1,Dia di Obrero
+2029/5/10,Dia di Asenshon
+2029/7/2,Dia di Himno i Bandera
+2029/10/10,Dia di Pais Kòrsou
+2029/12/25,Pasku di Nasementu
+2029/12/26,Di dos dia di Pasku di Nasementu
+2030/1/1,Aña Nobo
+2030/3/4,Dialuna despues di Carnaval Grandi
+2030/4/19,Bièrnèsantu
+2030/4/21,Pasku di Resurekshon
+2030/4/22,Di dos dia di Pasku di Resurekshon
+2030/4/27,Dia di Rey
+2030/5/1,Dia di Obrero
+2030/5/30,Dia di Asenshon
+2030/7/2,Dia di Himno i Bandera
+2030/10/10,Dia di Pais Kòrsou
+2030/12/25,Pasku di Nasementu
+2030/12/26,Di dos dia di Pasku di Nasementu
+2031/1/1,Aña Nobo
+2031/2/24,Dialuna despues di Carnaval Grandi
+2031/4/11,Bièrnèsantu
+2031/4/13,Pasku di Resurekshon
+2031/4/14,Di dos dia di Pasku di Resurekshon
+2031/4/26,Dia di Rey
+2031/5/1,Dia di Obrero
+2031/5/22,Dia di Asenshon
+2031/7/2,Dia di Himno i Bandera
+2031/10/10,Dia di Pais Kòrsou
+2031/12/25,Pasku di Nasementu
+2031/12/26,Di dos dia di Pasku di Nasementu
+2032/1/1,Aña Nobo
+2032/2/9,Dialuna despues di Carnaval Grandi
+2032/3/26,Bièrnèsantu
+2032/3/28,Pasku di Resurekshon
+2032/3/29,Di dos dia di Pasku di Resurekshon
+2032/4/27,Dia di Rey
+2032/5/1,Dia di Obrero
+2032/5/6,Dia di Asenshon
+2032/7/2,Dia di Himno i Bandera
+2032/10/10,Dia di Pais Kòrsou
+2032/12/25,Pasku di Nasementu
+2032/12/26,Di dos dia di Pasku di Nasementu
+2033/1/1,Aña Nobo
+2033/2/28,Dialuna despues di Carnaval Grandi
+2033/4/15,Bièrnèsantu
+2033/4/17,Pasku di Resurekshon
+2033/4/18,Di dos dia di Pasku di Resurekshon
+2033/4/27,Dia di Rey
+2033/5/2,Dia di Obrero
+2033/5/26,Dia di Asenshon
+2033/7/2,Dia di Himno i Bandera
+2033/10/10,Dia di Pais Kòrsou
+2033/12/25,Pasku di Nasementu
+2033/12/26,Di dos dia di Pasku di Nasementu
+2034/1/1,Aña Nobo
+2034/2/20,Dialuna despues di Carnaval Grandi
+2034/4/7,Bièrnèsantu
+2034/4/9,Pasku di Resurekshon
+2034/4/10,Di dos dia di Pasku di Resurekshon
+2034/4/27,Dia di Rey
+2034/5/1,Dia di Obrero
+2034/5/18,Dia di Asenshon
+2034/7/2,Dia di Himno i Bandera
+2034/10/10,Dia di Pais Kòrsou
+2034/12/25,Pasku di Nasementu
+2034/12/26,Di dos dia di Pasku di Nasementu
+2035/1/1,Aña Nobo
+2035/2/5,Dialuna despues di Carnaval Grandi
+2035/3/23,Bièrnèsantu
+2035/3/25,Pasku di Resurekshon
+2035/3/26,Di dos dia di Pasku di Resurekshon
+2035/4/27,Dia di Rey
+2035/5/1,Dia di Obrero
+2035/5/3,Dia di Asenshon
+2035/7/2,Dia di Himno i Bandera
+2035/10/10,Dia di Pais Kòrsou
+2035/12/25,Pasku di Nasementu
+2035/12/26,Di dos dia di Pasku di Nasementu
+2036/1/1,Aña Nobo
+2036/2/25,Dialuna despues di Carnaval Grandi
+2036/4/11,Bièrnèsantu
+2036/4/13,Pasku di Resurekshon
+2036/4/14,Di dos dia di Pasku di Resurekshon
+2036/4/26,Dia di Rey
+2036/5/1,Dia di Obrero
+2036/5/22,Dia di Asenshon
+2036/7/2,Dia di Himno i Bandera
+2036/10/10,Dia di Pais Kòrsou
+2036/12/25,Pasku di Nasementu
+2036/12/26,Di dos dia di Pasku di Nasementu
+2037/1/1,Aña Nobo
+2037/2/16,Dialuna despues di Carnaval Grandi
+2037/4/3,Bièrnèsantu
+2037/4/5,Pasku di Resurekshon
+2037/4/6,Di dos dia di Pasku di Resurekshon
+2037/4/27,Dia di Rey
+2037/5/1,Dia di Obrero
+2037/5/14,Dia di Asenshon
+2037/7/2,Dia di Himno i Bandera
+2037/10/10,Dia di Pais Kòrsou
+2037/12/25,Pasku di Nasementu
+2037/12/26,Di dos dia di Pasku di Nasementu
+2038/1/1,Aña Nobo
+2038/3/8,Dialuna despues di Carnaval Grandi
+2038/4/23,Bièrnèsantu
+2038/4/25,Pasku di Resurekshon
+2038/4/26,Di dos dia di Pasku di Resurekshon
+2038/4/27,Dia di Rey
+2038/5/1,Dia di Obrero
+2038/6/3,Dia di Asenshon
+2038/7/2,Dia di Himno i Bandera
+2038/10/10,Dia di Pais Kòrsou
+2038/12/25,Pasku di Nasementu
+2038/12/26,Di dos dia di Pasku di Nasementu
+2039/1/1,Aña Nobo
+2039/2/21,Dialuna despues di Carnaval Grandi
+2039/4/8,Bièrnèsantu
+2039/4/10,Pasku di Resurekshon
+2039/4/11,Di dos dia di Pasku di Resurekshon
+2039/4/27,Dia di Rey
+2039/5/2,Dia di Obrero
+2039/5/19,Dia di Asenshon
+2039/7/2,Dia di Himno i Bandera
+2039/10/10,Dia di Pais Kòrsou
+2039/12/25,Pasku di Nasementu
+2039/12/26,Di dos dia di Pasku di Nasementu
+2040/1/1,Aña Nobo
+2040/2/13,Dialuna despues di Carnaval Grandi
+2040/3/30,Bièrnèsantu
+2040/4/1,Pasku di Resurekshon
+2040/4/2,Di dos dia di Pasku di Resurekshon
+2040/4/27,Dia di Rey
+2040/5/1,Dia di Obrero
+2040/5/10,Dia di Asenshon
+2040/7/2,Dia di Himno i Bandera
+2040/10/10,Dia di Pais Kòrsou
+2040/12/25,Pasku di Nasementu
+2040/12/26,Di dos dia di Pasku di Nasementu
+2041/1/1,Aña Nobo
+2041/3/4,Dialuna despues di Carnaval Grandi
+2041/4/19,Bièrnèsantu
+2041/4/21,Pasku di Resurekshon
+2041/4/22,Di dos dia di Pasku di Resurekshon
+2041/4/27,Dia di Rey
+2041/5/1,Dia di Obrero
+2041/5/30,Dia di Asenshon
+2041/7/2,Dia di Himno i Bandera
+2041/10/10,Dia di Pais Kòrsou
+2041/12/25,Pasku di Nasementu
+2041/12/26,Di dos dia di Pasku di Nasementu
+2042/1/1,Aña Nobo
+2042/2/17,Dialuna despues di Carnaval Grandi
+2042/4/4,Bièrnèsantu
+2042/4/6,Pasku di Resurekshon
+2042/4/7,Di dos dia di Pasku di Resurekshon
+2042/4/26,Dia di Rey
+2042/5/1,Dia di Obrero
+2042/5/15,Dia di Asenshon
+2042/7/2,Dia di Himno i Bandera
+2042/10/10,Dia di Pais Kòrsou
+2042/12/25,Pasku di Nasementu
+2042/12/26,Di dos dia di Pasku di Nasementu
+2043/1/1,Aña Nobo
+2043/2/9,Dialuna despues di Carnaval Grandi
+2043/3/27,Bièrnèsantu
+2043/3/29,Pasku di Resurekshon
+2043/3/30,Di dos dia di Pasku di Resurekshon
+2043/4/27,Dia di Rey
+2043/5/1,Dia di Obrero
+2043/5/7,Dia di Asenshon
+2043/7/2,Dia di Himno i Bandera
+2043/10/10,Dia di Pais Kòrsou
+2043/12/25,Pasku di Nasementu
+2043/12/26,Di dos dia di Pasku di Nasementu
+2044/1/1,Aña Nobo
+2044/2/29,Dialuna despues di Carnaval Grandi
+2044/4/15,Bièrnèsantu
+2044/4/17,Pasku di Resurekshon
+2044/4/18,Di dos dia di Pasku di Resurekshon
+2044/4/27,Dia di Rey
+2044/5/2,Dia di Obrero
+2044/5/26,Dia di Asenshon
+2044/7/2,Dia di Himno i Bandera
+2044/10/10,Dia di Pais Kòrsou
+2044/12/25,Pasku di Nasementu
+2044/12/26,Di dos dia di Pasku di Nasementu
+2045/1/1,Aña Nobo
+2045/2/20,Dialuna despues di Carnaval Grandi
+2045/4/7,Bièrnèsantu
+2045/4/9,Pasku di Resurekshon
+2045/4/10,Di dos dia di Pasku di Resurekshon
+2045/4/27,Dia di Rey
+2045/5/1,Dia di Obrero
+2045/5/18,Dia di Asenshon
+2045/7/2,Dia di Himno i Bandera
+2045/10/10,Dia di Pais Kòrsou
+2045/12/25,Pasku di Nasementu
+2045/12/26,Di dos dia di Pasku di Nasementu
+2046/1/1,Aña Nobo
+2046/2/5,Dialuna despues di Carnaval Grandi
+2046/3/23,Bièrnèsantu
+2046/3/25,Pasku di Resurekshon
+2046/3/26,Di dos dia di Pasku di Resurekshon
+2046/4/27,Dia di Rey
+2046/5/1,Dia di Obrero
+2046/5/3,Dia di Asenshon
+2046/7/2,Dia di Himno i Bandera
+2046/10/10,Dia di Pais Kòrsou
+2046/12/25,Pasku di Nasementu
+2046/12/26,Di dos dia di Pasku di Nasementu
+2047/1/1,Aña Nobo
+2047/2/25,Dialuna despues di Carnaval Grandi
+2047/4/12,Bièrnèsantu
+2047/4/14,Pasku di Resurekshon
+2047/4/15,Di dos dia di Pasku di Resurekshon
+2047/4/27,Dia di Rey
+2047/5/1,Dia di Obrero
+2047/5/23,Dia di Asenshon
+2047/7/2,Dia di Himno i Bandera
+2047/10/10,Dia di Pais Kòrsou
+2047/12/25,Pasku di Nasementu
+2047/12/26,Di dos dia di Pasku di Nasementu
+2048/1/1,Aña Nobo
+2048/2/17,Dialuna despues di Carnaval Grandi
+2048/4/3,Bièrnèsantu
+2048/4/5,Pasku di Resurekshon
+2048/4/6,Di dos dia di Pasku di Resurekshon
+2048/4/27,Dia di Rey
+2048/5/1,Dia di Obrero
+2048/5/14,Dia di Asenshon
+2048/7/2,Dia di Himno i Bandera
+2048/10/10,Dia di Pais Kòrsou
+2048/12/25,Pasku di Nasementu
+2048/12/26,Di dos dia di Pasku di Nasementu
+2049/1/1,Aña Nobo
+2049/3/1,Dialuna despues di Carnaval Grandi
+2049/4/16,Bièrnèsantu
+2049/4/18,Pasku di Resurekshon
+2049/4/19,Di dos dia di Pasku di Resurekshon
+2049/4/27,Dia di Rey
+2049/5/1,Dia di Obrero
+2049/5/27,Dia di Asenshon
+2049/7/2,Dia di Himno i Bandera
+2049/10/10,Dia di Pais Kòrsou
+2049/12/25,Pasku di Nasementu
+2049/12/26,Di dos dia di Pasku di Nasementu
+2050/1/1,Aña Nobo
+2050/2/21,Dialuna despues di Carnaval Grandi
+2050/4/8,Bièrnèsantu
+2050/4/10,Pasku di Resurekshon
+2050/4/11,Di dos dia di Pasku di Resurekshon
+2050/4/27,Dia di Rey
+2050/5/2,Dia di Obrero
+2050/5/19,Dia di Asenshon
+2050/7/2,Dia di Himno i Bandera
+2050/10/10,Dia di Pais Kòrsou
+2050/12/25,Pasku di Nasementu
+2050/12/26,Di dos dia di Pasku di Nasementu

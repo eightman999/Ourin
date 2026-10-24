@@ -1,0 +1,439 @@
+# UG の祝日（2020〜2050年、言語: en）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/1/26,NRM Liberation Day
+2020/2/16,Archbishop Janani Luwum Day
+2020/3/8,Women's Day
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/1,Labour Day
+2020/5/24,Eid al-Fitr (estimated)
+2020/6/3,Uganda Martyrs' Day
+2020/6/9,National Heroes' Day
+2020/7/31,Eid al-Adha (estimated)
+2020/10/9,Independence Day
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2021/1/1,New Year's Day
+2021/1/26,NRM Liberation Day
+2021/2/16,Archbishop Janani Luwum Day
+2021/3/8,Women's Day
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/1,Labour Day
+2021/5/13,Eid al-Fitr (estimated)
+2021/6/3,Uganda Martyrs' Day
+2021/6/9,National Heroes' Day
+2021/7/20,Eid al-Adha (estimated)
+2021/10/9,Independence Day
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2022/1/1,New Year's Day
+2022/1/26,NRM Liberation Day
+2022/2/16,Archbishop Janani Luwum Day
+2022/3/8,Women's Day
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/5/1,Labour Day
+2022/5/2,Eid al-Fitr (estimated)
+2022/6/3,Uganda Martyrs' Day
+2022/6/9,National Heroes' Day
+2022/7/9,Eid al-Adha (estimated)
+2022/10/9,Independence Day
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2023/1/1,New Year's Day
+2023/1/26,NRM Liberation Day
+2023/2/16,Archbishop Janani Luwum Day
+2023/3/8,Women's Day
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/4/21,Eid al-Fitr (estimated)
+2023/5/1,Labour Day
+2023/6/3,Uganda Martyrs' Day
+2023/6/9,National Heroes' Day
+2023/6/28,Eid al-Adha (estimated)
+2023/10/9,Independence Day
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/1/26,NRM Liberation Day
+2024/2/16,Archbishop Janani Luwum Day
+2024/3/8,Women's Day
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/4/10,Eid al-Fitr (estimated)
+2024/5/1,Labour Day
+2024/6/3,Uganda Martyrs' Day
+2024/6/9,National Heroes' Day
+2024/6/16,Eid al-Adha (estimated)
+2024/10/9,Independence Day
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/1/26,NRM Liberation Day
+2025/2/16,Archbishop Janani Luwum Day
+2025/3/8,Women's Day
+2025/3/30,Eid al-Fitr (estimated)
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/1,Labour Day
+2025/6/3,Uganda Martyrs' Day
+2025/6/6,Eid al-Adha (estimated)
+2025/6/9,National Heroes' Day
+2025/10/9,Independence Day
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/1/15,General Elections
+2026/1/16,General Elections
+2026/1/26,NRM Liberation Day
+2026/2/16,Archbishop Janani Luwum Day
+2026/3/8,Women's Day
+2026/3/20,Eid al-Fitr (estimated)
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/1,Labour Day
+2026/5/27,Eid al-Adha (estimated)
+2026/6/3,Uganda Martyrs' Day
+2026/6/9,National Heroes' Day
+2026/10/9,Independence Day
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2027/1/1,New Year's Day
+2027/1/26,NRM Liberation Day
+2027/2/16,Archbishop Janani Luwum Day
+2027/3/8,Women's Day
+2027/3/9,Eid al-Fitr (estimated)
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/5/1,Labour Day
+2027/5/16,Eid al-Adha (estimated)
+2027/6/3,Uganda Martyrs' Day
+2027/6/9,National Heroes' Day
+2027/10/9,Independence Day
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2028/1/1,New Year's Day
+2028/1/26,NRM Liberation Day
+2028/2/16,Archbishop Janani Luwum Day
+2028/2/26,Eid al-Fitr (estimated)
+2028/3/8,Women's Day
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/1,Labour Day
+2028/5/5,Eid al-Adha (estimated)
+2028/6/3,Uganda Martyrs' Day
+2028/6/9,National Heroes' Day
+2028/10/9,Independence Day
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/1/26,NRM Liberation Day
+2029/2/14,Eid al-Fitr (estimated)
+2029/2/16,Archbishop Janani Luwum Day
+2029/3/8,Women's Day
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/4/24,Eid al-Adha (estimated)
+2029/5/1,Labour Day
+2029/6/3,Uganda Martyrs' Day
+2029/6/9,National Heroes' Day
+2029/10/9,Independence Day
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/1/26,NRM Liberation Day
+2030/2/4,Eid al-Fitr (estimated)
+2030/2/16,Archbishop Janani Luwum Day
+2030/3/8,Women's Day
+2030/4/13,Eid al-Adha (estimated)
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/1,Labour Day
+2030/6/3,Uganda Martyrs' Day
+2030/6/9,National Heroes' Day
+2030/10/9,Independence Day
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/1/24,Eid al-Fitr (estimated)
+2031/1/26,NRM Liberation Day
+2031/2/16,Archbishop Janani Luwum Day
+2031/3/8,Women's Day
+2031/4/2,Eid al-Adha (estimated)
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/1,Labour Day
+2031/6/3,Uganda Martyrs' Day
+2031/6/9,National Heroes' Day
+2031/10/9,Independence Day
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/1/14,Eid al-Fitr (estimated)
+2032/1/26,NRM Liberation Day
+2032/2/16,Archbishop Janani Luwum Day
+2032/3/8,Women's Day
+2032/3/22,Eid al-Adha (estimated)
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/5/1,Labour Day
+2032/6/3,Uganda Martyrs' Day
+2032/6/9,National Heroes' Day
+2032/10/9,Independence Day
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2033/1/1,New Year's Day
+2033/1/2,Eid al-Fitr (estimated)
+2033/1/26,NRM Liberation Day
+2033/2/16,Archbishop Janani Luwum Day
+2033/3/8,Women's Day
+2033/3/11,Eid al-Adha (estimated)
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/1,Labour Day
+2033/6/3,Uganda Martyrs' Day
+2033/6/9,National Heroes' Day
+2033/10/9,Independence Day
+2033/12/23,Eid al-Fitr (estimated)
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day
+2034/1/1,New Year's Day
+2034/1/26,NRM Liberation Day
+2034/2/16,Archbishop Janani Luwum Day
+2034/3/1,Eid al-Adha (estimated)
+2034/3/8,Women's Day
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/1,Labour Day
+2034/6/3,Uganda Martyrs' Day
+2034/6/9,National Heroes' Day
+2034/10/9,Independence Day
+2034/12/12,Eid al-Fitr (estimated)
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/1/26,NRM Liberation Day
+2035/2/16,Archbishop Janani Luwum Day
+2035/2/18,Eid al-Adha (estimated)
+2035/3/8,Women's Day
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/5/1,Labour Day
+2035/6/3,Uganda Martyrs' Day
+2035/6/9,National Heroes' Day
+2035/10/9,Independence Day
+2035/12/1,Eid al-Fitr (estimated)
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/1/26,NRM Liberation Day
+2036/2/7,Eid al-Adha (estimated)
+2036/2/16,Archbishop Janani Luwum Day
+2036/3/8,Women's Day
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/1,Labour Day
+2036/6/3,Uganda Martyrs' Day
+2036/6/9,National Heroes' Day
+2036/10/9,Independence Day
+2036/11/19,Eid al-Fitr (estimated)
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/1/26,Eid al-Adha (estimated); NRM Liberation Day
+2037/2/16,Archbishop Janani Luwum Day
+2037/3/8,Women's Day
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/5/1,Labour Day
+2037/6/3,Uganda Martyrs' Day
+2037/6/9,National Heroes' Day
+2037/10/9,Independence Day
+2037/11/8,Eid al-Fitr (estimated)
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2038/1/1,New Year's Day
+2038/1/16,Eid al-Adha (estimated)
+2038/1/26,NRM Liberation Day
+2038/2/16,Archbishop Janani Luwum Day
+2038/3/8,Women's Day
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/1,Labour Day
+2038/6/3,Uganda Martyrs' Day
+2038/6/9,National Heroes' Day
+2038/10/9,Independence Day
+2038/10/29,Eid al-Fitr (estimated)
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2039/1/1,New Year's Day
+2039/1/5,Eid al-Adha (estimated)
+2039/1/26,NRM Liberation Day
+2039/2/16,Archbishop Janani Luwum Day
+2039/3/8,Women's Day
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/1,Labour Day
+2039/6/3,Uganda Martyrs' Day
+2039/6/9,National Heroes' Day
+2039/10/9,Independence Day
+2039/10/19,Eid al-Fitr (estimated)
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day; Eid al-Adha (estimated)
+2040/1/1,New Year's Day
+2040/1/26,NRM Liberation Day
+2040/2/16,Archbishop Janani Luwum Day
+2040/3/8,Women's Day
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/5/1,Labour Day
+2040/6/3,Uganda Martyrs' Day
+2040/6/9,National Heroes' Day
+2040/10/7,Eid al-Fitr (estimated)
+2040/10/9,Independence Day
+2040/12/14,Eid al-Adha (estimated)
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/1/26,NRM Liberation Day
+2041/2/16,Archbishop Janani Luwum Day
+2041/3/8,Women's Day
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/1,Labour Day
+2041/6/3,Uganda Martyrs' Day
+2041/6/9,National Heroes' Day
+2041/9/26,Eid al-Fitr (estimated)
+2041/10/9,Independence Day
+2041/12/4,Eid al-Adha (estimated)
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/1/26,NRM Liberation Day
+2042/2/16,Archbishop Janani Luwum Day
+2042/3/8,Women's Day
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/1,Labour Day
+2042/6/3,Uganda Martyrs' Day
+2042/6/9,National Heroes' Day
+2042/9/15,Eid al-Fitr (estimated)
+2042/10/9,Independence Day
+2042/11/23,Eid al-Adha (estimated)
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/1/26,NRM Liberation Day
+2043/2/16,Archbishop Janani Luwum Day
+2043/3/8,Women's Day
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/5/1,Labour Day
+2043/6/3,Uganda Martyrs' Day
+2043/6/9,National Heroes' Day
+2043/9/4,Eid al-Fitr (estimated)
+2043/10/9,Independence Day
+2043/11/12,Eid al-Adha (estimated)
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2044/1/1,New Year's Day
+2044/1/26,NRM Liberation Day
+2044/2/16,Archbishop Janani Luwum Day
+2044/3/8,Women's Day
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/1,Labour Day
+2044/6/3,Uganda Martyrs' Day
+2044/6/9,National Heroes' Day
+2044/8/24,Eid al-Fitr (estimated)
+2044/10/9,Independence Day
+2044/10/31,Eid al-Adha (estimated)
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2045/1/1,New Year's Day
+2045/1/26,NRM Liberation Day
+2045/2/16,Archbishop Janani Luwum Day
+2045/3/8,Women's Day
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/1,Labour Day
+2045/6/3,Uganda Martyrs' Day
+2045/6/9,National Heroes' Day
+2045/8/14,Eid al-Fitr (estimated)
+2045/10/9,Independence Day
+2045/10/21,Eid al-Adha (estimated)
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/1/26,NRM Liberation Day
+2046/2/16,Archbishop Janani Luwum Day
+2046/3/8,Women's Day
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/5/1,Labour Day
+2046/6/3,Uganda Martyrs' Day
+2046/6/9,National Heroes' Day
+2046/8/3,Eid al-Fitr (estimated)
+2046/10/9,Independence Day
+2046/10/10,Eid al-Adha (estimated)
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/1/26,NRM Liberation Day
+2047/2/16,Archbishop Janani Luwum Day
+2047/3/8,Women's Day
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/1,Labour Day
+2047/6/3,Uganda Martyrs' Day
+2047/6/9,National Heroes' Day
+2047/7/24,Eid al-Fitr (estimated)
+2047/9/30,Eid al-Adha (estimated)
+2047/10/9,Independence Day
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2048/1/1,New Year's Day
+2048/1/26,NRM Liberation Day
+2048/2/16,Archbishop Janani Luwum Day
+2048/3/8,Women's Day
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/1,Labour Day
+2048/6/3,Uganda Martyrs' Day
+2048/6/9,National Heroes' Day
+2048/7/12,Eid al-Fitr (estimated)
+2048/9/19,Eid al-Adha (estimated)
+2048/10/9,Independence Day
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2049/1/1,New Year's Day
+2049/1/26,NRM Liberation Day
+2049/2/16,Archbishop Janani Luwum Day
+2049/3/8,Women's Day
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/1,Labour Day
+2049/6/3,Uganda Martyrs' Day
+2049/6/9,National Heroes' Day
+2049/7/1,Eid al-Fitr (estimated)
+2049/9/8,Eid al-Adha (estimated)
+2049/10/9,Independence Day
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2050/1/1,New Year's Day
+2050/1/26,NRM Liberation Day
+2050/2/16,Archbishop Janani Luwum Day
+2050/3/8,Women's Day
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/1,Labour Day
+2050/6/3,Uganda Martyrs' Day
+2050/6/9,National Heroes' Day
+2050/6/20,Eid al-Fitr (estimated)
+2050/8/28,Eid al-Adha (estimated)
+2050/10/9,Independence Day
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day

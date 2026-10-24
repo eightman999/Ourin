@@ -1,0 +1,598 @@
+# NP holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/15,Maghe Sankranti
+2020/1/25,Sonam Lhochhar
+2020/2/21,Maha Shivaratri
+2020/2/24,Gyalpo Lhosar
+2020/3/8,International Women's Day
+2020/3/9,Fagu Poornima
+2020/3/10,Fagu Poornima (Terai)
+2020/4/13,Nepali New Year
+2020/5/1,International Labor Day
+2020/5/7,Buddha Jayanti
+2020/5/25,Eid al-Fitr
+2020/8/1,Eid al-Adha
+2020/9/19,Constitution Day
+2020/10/23,Fulpati
+2020/10/24,Maha Ashtami
+2020/10/25,Maha Navami
+2020/10/26,Bijaya Dashami
+2020/10/27,Ekadashi (Dashain)
+2020/11/14,Laxmi Pooja
+2020/11/15,Gai Tihar
+2020/11/16,Gobardhan Pooja; Mha Pooja
+2020/11/17,Bhai Tika
+2020/11/20,Chhath Parva
+2020/12/25,Christmas Day
+2020/12/30,Tamu Lhochhar
+2021/1/14,Maghe Sankranti
+2021/1/29,Martyr's Day
+2021/2/12,Sonam Lhochhar
+2021/2/19,National Democracy Day
+2021/3/8,International Women's Day
+2021/3/11,Maha Shivaratri
+2021/3/14,Gyalpo Lhosar
+2021/3/28,Fagu Poornima
+2021/3/29,Fagu Poornima (Terai)
+2021/4/14,Nepali New Year
+2021/4/21,Ram Navami
+2021/5/1,International Labor Day
+2021/5/14,Eid al-Fitr
+2021/5/26,Buddha Jayanti
+2021/5/29,Republic Day
+2021/7/21,Eid al-Adha
+2021/8/22,Janai Poornima
+2021/8/30,Shree Krishna Janmashtami
+2021/9/19,Constitution Day
+2021/10/7,Ghatasthapana
+2021/10/12,Fulpati
+2021/10/13,Maha Ashtami
+2021/10/14,Maha Navami
+2021/10/15,Bijaya Dashami
+2021/10/16,Ekadashi (Dashain)
+2021/10/17,Duwadashi (Dashain)
+2021/11/4,Gai Tihar; Laxmi Pooja
+2021/11/5,Gobardhan Pooja; Mha Pooja
+2021/11/6,Bhai Tika
+2021/11/7,Tihar Holiday
+2021/11/10,Chhath Parva
+2021/12/25,Christmas Day
+2021/12/30,Tamu Lhochhar
+2022/1/15,Maghe Sankranti
+2022/1/30,Martyr's Day
+2022/2/2,Sonam Lhochhar
+2022/2/19,National Democracy Day
+2022/3/1,Maha Shivaratri
+2022/3/3,Gyalpo Lhosar
+2022/3/8,International Women's Day
+2022/3/17,Fagu Poornima
+2022/3/18,Fagu Poornima (Terai)
+2022/4/10,Ram Navami
+2022/4/14,Nepali New Year
+2022/5/1,International Labor Day
+2022/5/3,Eid al-Fitr
+2022/5/16,Buddha Jayanti
+2022/5/29,Republic Day
+2022/7/10,Eid al-Adha
+2022/8/12,Janai Poornima
+2022/8/19,Shree Krishna Janmashtami
+2022/9/19,Constitution Day
+2022/9/26,Ghatasthapana
+2022/10/2,Fulpati
+2022/10/3,Maha Ashtami
+2022/10/4,Maha Navami
+2022/10/5,Bijaya Dashami
+2022/10/6,Ekadashi (Dashain)
+2022/10/7,Duwadashi (Dashain)
+2022/10/24,Laxmi Pooja
+2022/10/25,Gai Tihar
+2022/10/26,Gobardhan Pooja; Mha Pooja
+2022/10/27,Bhai Tika
+2022/10/28,Tihar Holiday
+2022/10/30,Chhath Parva
+2022/12/25,Christmas Day
+2022/12/30,Tamu Lhochhar
+2023/1/11,Prithvi Jayanti
+2023/1/15,Maghe Sankranti
+2023/1/16,Day of National Mourning
+2023/1/22,Sonam Lhochhar
+2023/1/30,Martyr's Day
+2023/2/13,People War's Day
+2023/2/18,Maha Shivaratri
+2023/2/19,National Democracy Day
+2023/2/21,Gyalpo Lhosar
+2023/3/6,Fagu Poornima
+2023/3/7,Fagu Poornima (Terai)
+2023/3/8,International Women's Day
+2023/3/30,Ram Navami
+2023/4/14,Nepali New Year
+2023/4/22,Eid al-Fitr
+2023/5/1,International Labor Day
+2023/5/5,Buddha Jayanti
+2023/5/29,Republic Day
+2023/6/29,Eid al-Adha
+2023/8/31,Janai Poornima
+2023/9/6,Shree Krishna Janmashtami
+2023/9/14,Day of National Mourning
+2023/9/20,Constitution Day
+2023/10/15,Ghatasthapana
+2023/10/21,Fulpati
+2023/10/22,Maha Ashtami
+2023/10/23,Maha Navami
+2023/10/24,Bijaya Dashami
+2023/10/25,Ekadashi (Dashain)
+2023/10/26,Duwadashi (Dashain)
+2023/11/12,Laxmi Pooja
+2023/11/13,Gai Tihar
+2023/11/14,Gobardhan Pooja; Mha Pooja
+2023/11/15,Bhai Tika
+2023/11/16,Tihar Holiday
+2023/11/19,Chhath Parva
+2023/12/25,Christmas Day
+2023/12/31,Tamu Lhochhar
+2024/1/11,Prithvi Jayanti
+2024/1/15,Maghe Sankranti
+2024/1/30,Martyr's Day
+2024/2/10,Sonam Lhochhar
+2024/2/19,National Democracy Day
+2024/3/8,International Women's Day; Maha Shivaratri
+2024/3/11,Gyalpo Lhosar
+2024/3/24,Fagu Poornima
+2024/3/25,Fagu Poornima (Terai)
+2024/4/11,Eid al-Fitr
+2024/4/13,Nepali New Year
+2024/4/17,Ram Navami
+2024/5/1,International Labor Day
+2024/5/23,Buddha Jayanti
+2024/5/28,Republic Day
+2024/6/17,Eid al-Adha
+2024/8/19,Janai Poornima
+2024/8/26,Shree Krishna Janmashtami
+2024/9/19,Constitution Day
+2024/10/3,Ghatasthapana
+2024/10/10,Fulpati
+2024/10/11,Maha Ashtami; Maha Navami
+2024/10/12,Bijaya Dashami
+2024/10/13,Ekadashi (Dashain)
+2024/10/14,Duwadashi (Dashain)
+2024/10/31,Laxmi Pooja
+2024/11/1,Gai Tihar
+2024/11/2,Gobardhan Pooja; Mha Pooja
+2024/11/3,Bhai Tika
+2024/11/4,Tihar Holiday
+2024/11/7,Chhath Parva
+2024/12/25,Christmas Day
+2024/12/30,Tamu Lhochhar
+2025/1/11,Prithvi Jayanti
+2025/1/14,Maghe Sankranti
+2025/1/29,Martyr's Day
+2025/1/30,Sonam Lhochhar
+2025/2/19,National Democracy Day
+2025/2/26,Maha Shivaratri
+2025/2/28,Gyalpo Lhosar
+2025/3/8,International Women's Day
+2025/3/13,Fagu Poornima
+2025/3/14,Fagu Poornima (Terai)
+2025/3/31,Eid al-Fitr
+2025/4/6,Ram Navami
+2025/4/14,Nepali New Year
+2025/5/1,International Labor Day
+2025/5/12,Buddha Jayanti
+2025/5/28,Republic Day
+2025/6/7,Eid al-Adha
+2025/8/9,Janai Poornima
+2025/8/16,Shree Krishna Janmashtami
+2025/9/19,Constitution Day
+2025/9/22,Ghatasthapana
+2025/9/29,Fulpati
+2025/9/30,Maha Ashtami
+2025/10/1,Maha Navami
+2025/10/2,Bijaya Dashami
+2025/10/3,Ekadashi (Dashain)
+2025/10/4,Duwadashi (Dashain)
+2025/10/20,Laxmi Pooja
+2025/10/21,Gai Tihar
+2025/10/22,Gobardhan Pooja; Mha Pooja
+2025/10/23,Bhai Tika
+2025/10/24,Tihar Holiday
+2025/10/27,Chhath Parva
+2025/12/25,Christmas Day
+2025/12/30,Tamu Lhochhar
+2026/1/11,Prithvi Jayanti
+2026/1/15,Maghe Sankranti
+2026/1/19,Sonam Lhochhar
+2026/1/29,Martyr's Day
+2026/2/15,Maha Shivaratri
+2026/2/18,Gyalpo Lhosar
+2026/2/19,National Democracy Day
+2026/3/2,Fagu Poornima
+2026/3/3,Fagu Poornima (Terai)
+2026/3/8,International Women's Day
+2026/3/21,Eid al-Fitr (estimated)
+2026/3/27,Ram Navami
+2026/4/14,Nepali New Year
+2026/5/1,Buddha Jayanti; International Labor Day
+2026/5/28,Eid al-Adha (estimated)
+2026/5/29,Republic Day
+2026/8/28,Janai Poornima
+2026/9/4,Shree Krishna Janmashtami
+2026/9/19,Constitution Day
+2026/10/11,Ghatasthapana
+2026/10/18,Fulpati
+2026/10/19,Maha Ashtami; Maha Navami
+2026/10/20,Bijaya Dashami
+2026/10/21,Ekadashi (Dashain)
+2026/10/22,Duwadashi (Dashain)
+2026/11/8,Laxmi Pooja
+2026/11/9,Gai Tihar
+2026/11/10,Gobardhan Pooja; Mha Pooja
+2026/11/11,Bhai Tika
+2026/11/15,Chhath Parva
+2026/12/25,Christmas Day
+2026/12/30,Tamu Lhochhar
+2027/1/11,Prithvi Jayanti
+2027/1/15,Maghe Sankranti
+2027/1/29,Martyr's Day
+2027/2/7,Gyalpo Lhosar; Sonam Lhochhar
+2027/2/19,National Democracy Day
+2027/3/6,Maha Shivaratri
+2027/3/8,International Women's Day
+2027/3/10,Eid al-Fitr (estimated)
+2027/3/21,Fagu Poornima
+2027/3/22,Fagu Poornima (Terai)
+2027/4/14,Nepali New Year
+2027/4/15,Ram Navami
+2027/5/1,International Labor Day
+2027/5/17,Eid al-Adha (estimated)
+2027/5/20,Buddha Jayanti
+2027/5/29,Republic Day
+2027/8/17,Janai Poornima
+2027/8/25,Shree Krishna Janmashtami
+2027/9/19,Constitution Day
+2027/9/30,Ghatasthapana
+2027/10/6,Fulpati
+2027/10/7,Maha Ashtami
+2027/10/8,Maha Navami
+2027/10/9,Bijaya Dashami
+2027/10/10,Ekadashi (Dashain)
+2027/10/11,Duwadashi (Dashain)
+2027/10/29,Gai Tihar; Laxmi Pooja
+2027/10/30,Gobardhan Pooja; Mha Pooja
+2027/10/31,Bhai Tika
+2027/11/4,Chhath Parva
+2027/12/25,Christmas Day
+2027/12/30,Tamu Lhochhar
+2028/1/11,Prithvi Jayanti
+2028/1/15,Maghe Sankranti
+2028/1/29,Martyr's Day
+2028/2/19,National Democracy Day
+2028/2/23,Maha Shivaratri
+2028/2/26,Gyalpo Lhosar; Sonam Lhochhar
+2028/2/27,Eid al-Fitr (estimated)
+2028/3/8,International Women's Day
+2028/3/10,Fagu Poornima
+2028/3/11,Fagu Poornima (Terai)
+2028/4/3,Ram Navami
+2028/4/13,Nepali New Year
+2028/5/1,International Labor Day
+2028/5/6,Eid al-Adha (estimated)
+2028/5/8,Buddha Jayanti
+2028/5/28,Republic Day
+2028/8/5,Janai Poornima
+2028/8/13,Shree Krishna Janmashtami
+2028/9/18,Constitution Day
+2028/9/19,Ghatasthapana
+2028/9/25,Fulpati
+2028/9/26,Maha Ashtami; Maha Navami
+2028/9/27,Bijaya Dashami
+2028/9/28,Ekadashi (Dashain)
+2028/9/29,Duwadashi (Dashain)
+2028/10/17,Gai Tihar; Laxmi Pooja
+2028/10/18,Gobardhan Pooja; Mha Pooja
+2028/10/19,Bhai Tika
+2028/10/23,Chhath Parva
+2028/12/25,Christmas Day
+2028/12/30,Tamu Lhochhar
+2029/1/11,Prithvi Jayanti
+2029/1/14,Maghe Sankranti
+2029/1/15,Sonam Lhochhar
+2029/1/29,Martyr's Day
+2029/2/11,Maha Shivaratri
+2029/2/14,Gyalpo Lhosar
+2029/2/15,Eid al-Fitr (estimated)
+2029/2/19,National Democracy Day
+2029/2/28,Fagu Poornima
+2029/3/1,Fagu Poornima (Terai)
+2029/3/8,International Women's Day
+2029/4/14,Nepali New Year
+2029/4/22,Ram Navami
+2029/4/25,Eid al-Adha (estimated)
+2029/5/1,International Labor Day
+2029/5/27,Buddha Jayanti
+2029/5/28,Republic Day
+2029/8/23,Janai Poornima
+2029/9/1,Shree Krishna Janmashtami
+2029/9/19,Constitution Day
+2029/10/8,Ghatasthapana
+2029/10/13,Fulpati
+2029/10/14,Maha Ashtami
+2029/10/15,Maha Navami
+2029/10/16,Bijaya Dashami
+2029/10/17,Ekadashi (Dashain)
+2029/10/18,Duwadashi (Dashain)
+2029/11/5,Gai Tihar; Laxmi Pooja
+2029/11/6,Gobardhan Pooja; Mha Pooja
+2029/11/7,Bhai Tika
+2029/11/11,Chhath Parva
+2029/12/25,Christmas Day
+2029/12/30,Tamu Lhochhar
+2030/1/11,Prithvi Jayanti
+2030/1/14,Maghe Sankranti
+2030/1/29,Martyr's Day
+2030/2/3,Sonam Lhochhar
+2030/2/5,Eid al-Fitr (estimated)
+2030/2/19,National Democracy Day
+2030/3/2,Maha Shivaratri
+2030/3/5,Gyalpo Lhosar
+2030/3/8,International Women's Day
+2030/3/19,Fagu Poornima
+2030/3/20,Fagu Poornima (Terai)
+2030/4/12,Ram Navami
+2030/4/14,Eid al-Adha (estimated); Nepali New Year
+2030/5/1,International Labor Day
+2030/5/17,Buddha Jayanti
+2030/5/29,Republic Day
+2030/8/13,Janai Poornima
+2030/8/21,Shree Krishna Janmashtami
+2030/9/19,Constitution Day
+2030/9/28,Ghatasthapana
+2030/10/3,Fulpati
+2030/10/4,Maha Ashtami
+2030/10/5,Maha Navami
+2030/10/6,Bijaya Dashami
+2030/10/7,Ekadashi (Dashain)
+2030/10/8,Duwadashi (Dashain)
+2030/10/26,Gai Tihar; Laxmi Pooja
+2030/10/27,Gobardhan Pooja; Mha Pooja
+2030/10/28,Bhai Tika
+2030/11/1,Chhath Parva
+2030/12/25,Christmas Day
+2030/12/31,Tamu Lhochhar
+2031/1/11,Prithvi Jayanti
+2031/1/15,Maghe Sankranti
+2031/1/24,Sonam Lhochhar
+2031/1/25,Eid al-Fitr (estimated)
+2031/1/30,Martyr's Day
+2031/2/20,Maha Shivaratri; National Democracy Day
+2031/2/22,Gyalpo Lhosar
+2031/3/8,Fagu Poornima; International Women's Day
+2031/3/9,Fagu Poornima (Terai)
+2031/4/1,Ram Navami
+2031/4/3,Eid al-Adha (estimated)
+2031/4/14,Nepali New Year
+2031/5/1,International Labor Day
+2031/5/7,Buddha Jayanti
+2031/5/29,Republic Day
+2031/8/2,Janai Poornima
+2031/8/10,Shree Krishna Janmashtami
+2031/9/19,Constitution Day
+2031/10/17,Ghatasthapana
+2031/10/22,Fulpati
+2031/10/23,Maha Ashtami
+2031/10/24,Maha Navami
+2031/10/25,Bijaya Dashami
+2031/10/26,Ekadashi (Dashain)
+2031/10/27,Duwadashi (Dashain)
+2031/11/14,Gai Tihar; Laxmi Pooja
+2031/11/15,Gobardhan Pooja; Mha Pooja
+2031/11/16,Bhai Tika
+2031/11/20,Chhath Parva
+2031/12/25,Christmas Day
+2031/12/31,Tamu Lhochhar
+2032/1/11,Prithvi Jayanti
+2032/1/15,Eid al-Fitr (estimated); Maghe Sankranti
+2032/1/30,Martyr's Day
+2032/2/12,Gyalpo Lhosar; Sonam Lhochhar
+2032/2/20,National Democracy Day
+2032/3/8,International Women's Day
+2032/3/10,Maha Shivaratri
+2032/3/23,Eid al-Adha (estimated)
+2032/3/26,Fagu Poornima
+2032/3/27,Fagu Poornima (Terai)
+2032/4/13,Nepali New Year
+2032/4/19,Ram Navami
+2032/5/1,International Labor Day
+2032/5/25,Buddha Jayanti
+2032/5/28,Republic Day
+2032/8/20,Janai Poornima
+2032/8/28,Shree Krishna Janmashtami
+2032/9/19,Constitution Day
+2032/10/5,Ghatasthapana
+2032/10/11,Fulpati
+2032/10/12,Maha Ashtami
+2032/10/13,Maha Navami
+2032/10/14,Bijaya Dashami
+2032/10/15,Ekadashi (Dashain)
+2032/10/16,Duwadashi (Dashain)
+2032/11/2,Gai Tihar; Laxmi Pooja
+2032/11/3,Gobardhan Pooja; Mha Pooja
+2032/11/4,Bhai Tika
+2032/11/9,Chhath Parva
+2032/12/25,Christmas Day
+2032/12/30,Tamu Lhochhar
+2033/1/3,Eid al-Fitr (estimated)
+2033/1/11,Prithvi Jayanti
+2033/1/14,Maghe Sankranti
+2033/1/29,Martyr's Day
+2033/1/31,Sonam Lhochhar
+2033/2/19,National Democracy Day
+2033/2/27,Maha Shivaratri
+2033/3/2,Gyalpo Lhosar
+2033/3/8,International Women's Day
+2033/3/12,Eid al-Adha (estimated)
+2033/3/15,Fagu Poornima
+2033/3/16,Fagu Poornima (Terai)
+2033/4/7,Ram Navami
+2033/4/14,Nepali New Year
+2033/5/1,International Labor Day
+2033/5/14,Buddha Jayanti
+2033/8/10,Janai Poornima
+2033/8/17,Shree Krishna Janmashtami
+2033/9/24,Ghatasthapana
+2033/10/1,Fulpati
+2033/10/2,Maha Ashtami; Maha Navami
+2033/10/3,Bijaya Dashami
+2033/10/4,Ekadashi (Dashain)
+2033/10/5,Duwadashi (Dashain)
+2033/10/22,Gai Tihar; Laxmi Pooja
+2033/10/23,Gobardhan Pooja; Mha Pooja
+2033/10/24,Bhai Tika
+2033/10/29,Chhath Parva
+2033/12/24,Eid al-Fitr (estimated)
+2033/12/25,Christmas Day
+2034/1/11,Prithvi Jayanti
+2034/1/14,Maghe Sankranti
+2034/1/21,Sonam Lhochhar
+2034/2/17,Maha Shivaratri
+2034/2/19,Gyalpo Lhosar
+2034/3/2,Eid al-Adha (estimated)
+2034/3/4,Fagu Poornima
+2034/3/5,Fagu Poornima (Terai)
+2034/3/8,International Women's Day
+2034/3/28,Ram Navami
+2034/4/14,Nepali New Year
+2034/5/1,International Labor Day
+2034/5/3,Buddha Jayanti
+2034/8/29,Janai Poornima
+2034/9/6,Shree Krishna Janmashtami
+2034/10/13,Ghatasthapana
+2034/10/19,Fulpati
+2034/10/20,Maha Ashtami
+2034/10/21,Maha Navami
+2034/10/22,Bijaya Dashami
+2034/10/23,Ekadashi (Dashain)
+2034/10/24,Duwadashi (Dashain)
+2034/11/10,Gai Tihar; Laxmi Pooja
+2034/11/11,Gobardhan Pooja; Mha Pooja
+2034/11/12,Bhai Tika
+2034/11/17,Chhath Parva
+2034/12/13,Eid al-Fitr (estimated)
+2034/12/25,Christmas Day
+2035/1/11,Prithvi Jayanti
+2035/1/15,Maghe Sankranti
+2035/2/9,Gyalpo Lhosar; Sonam Lhochhar
+2035/2/19,Eid al-Adha (estimated)
+2035/3/8,International Women's Day; Maha Shivaratri
+2035/3/23,Fagu Poornima
+2035/3/24,Fagu Poornima (Terai)
+2035/4/14,Nepali New Year
+2035/4/16,Ram Navami
+2035/5/1,International Labor Day
+2035/5/22,Buddha Jayanti
+2035/8/18,Janai Poornima
+2035/8/26,Shree Krishna Janmashtami
+2035/10/2,Ghatasthapana
+2035/10/8,Fulpati
+2035/10/9,Maha Ashtami
+2035/10/10,Maha Navami
+2035/10/11,Bijaya Dashami
+2035/10/12,Ekadashi (Dashain)
+2035/10/13,Duwadashi (Dashain)
+2035/10/30,Gai Tihar; Laxmi Pooja
+2035/10/31,Gobardhan Pooja; Mha Pooja
+2035/11/1,Bhai Tika
+2035/11/6,Chhath Parva
+2035/12/2,Eid al-Fitr (estimated)
+2035/12/25,Christmas Day
+2036/1/11,Prithvi Jayanti
+2036/2/8,Eid al-Adha (estimated)
+2036/3/8,International Women's Day
+2036/5/1,International Labor Day
+2036/11/20,Eid al-Fitr (estimated)
+2036/12/25,Christmas Day
+2037/1/11,Prithvi Jayanti
+2037/1/27,Eid al-Adha (estimated)
+2037/3/8,International Women's Day
+2037/5/1,International Labor Day
+2037/11/9,Eid al-Fitr (estimated)
+2037/12/25,Christmas Day
+2038/1/11,Prithvi Jayanti
+2038/1/17,Eid al-Adha (estimated)
+2038/3/8,International Women's Day
+2038/5/1,International Labor Day
+2038/10/30,Eid al-Fitr (estimated)
+2038/12/25,Christmas Day
+2039/1/6,Eid al-Adha (estimated)
+2039/1/11,Prithvi Jayanti
+2039/3/8,International Women's Day
+2039/5/1,International Labor Day
+2039/10/20,Eid al-Fitr (estimated)
+2039/12/25,Christmas Day
+2039/12/27,Eid al-Adha (estimated)
+2040/1/11,Prithvi Jayanti
+2040/3/8,International Women's Day
+2040/5/1,International Labor Day
+2040/10/8,Eid al-Fitr (estimated)
+2040/12/15,Eid al-Adha (estimated)
+2040/12/25,Christmas Day
+2041/1/11,Prithvi Jayanti
+2041/3/8,International Women's Day
+2041/5/1,International Labor Day
+2041/9/27,Eid al-Fitr (estimated)
+2041/12/5,Eid al-Adha (estimated)
+2041/12/25,Christmas Day
+2042/1/11,Prithvi Jayanti
+2042/3/8,International Women's Day
+2042/5/1,International Labor Day
+2042/9/16,Eid al-Fitr (estimated)
+2042/11/24,Eid al-Adha (estimated)
+2042/12/25,Christmas Day
+2043/1/11,Prithvi Jayanti
+2043/3/8,International Women's Day
+2043/5/1,International Labor Day
+2043/9/5,Eid al-Fitr (estimated)
+2043/11/13,Eid al-Adha (estimated)
+2043/12/25,Christmas Day
+2044/1/11,Prithvi Jayanti
+2044/3/8,International Women's Day
+2044/5/1,International Labor Day
+2044/8/25,Eid al-Fitr (estimated)
+2044/11/1,Eid al-Adha (estimated)
+2044/12/25,Christmas Day
+2045/1/11,Prithvi Jayanti
+2045/3/8,International Women's Day
+2045/5/1,International Labor Day
+2045/8/15,Eid al-Fitr (estimated)
+2045/10/22,Eid al-Adha (estimated)
+2045/12/25,Christmas Day
+2046/1/11,Prithvi Jayanti
+2046/3/8,International Women's Day
+2046/5/1,International Labor Day
+2046/8/4,Eid al-Fitr (estimated)
+2046/10/11,Eid al-Adha (estimated)
+2046/12/25,Christmas Day
+2047/1/11,Prithvi Jayanti
+2047/3/8,International Women's Day
+2047/5/1,International Labor Day
+2047/7/25,Eid al-Fitr (estimated)
+2047/10/1,Eid al-Adha (estimated)
+2047/12/25,Christmas Day
+2048/1/11,Prithvi Jayanti
+2048/3/8,International Women's Day
+2048/5/1,International Labor Day
+2048/7/13,Eid al-Fitr (estimated)
+2048/9/20,Eid al-Adha (estimated)
+2048/12/25,Christmas Day
+2049/1/11,Prithvi Jayanti
+2049/3/8,International Women's Day
+2049/5/1,International Labor Day
+2049/7/2,Eid al-Fitr (estimated)
+2049/9/9,Eid al-Adha (estimated)
+2049/12/25,Christmas Day
+2050/1/11,Prithvi Jayanti
+2050/3/8,International Women's Day
+2050/5/1,International Labor Day
+2050/6/21,Eid al-Fitr (estimated)
+2050/8/29,Eid al-Adha (estimated)
+2050/12/25,Christmas Day

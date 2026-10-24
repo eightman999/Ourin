@@ -1,0 +1,375 @@
+# YT の祝日（2020〜2050年、言語: fr）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Jour de l'an
+2020/4/13,Lundi de Pâques
+2020/4/27,Abolition de l'esclavage
+2020/5/1,Fête du Travail
+2020/5/8,Fête de la Victoire
+2020/5/21,Ascension
+2020/6/1,Lundi de Pentecôte
+2020/7/14,Fête nationale
+2020/8/15,Assomption
+2020/11/1,Toussaint
+2020/11/11,Armistice
+2020/12/25,Noël
+2021/1/1,Jour de l'an
+2021/4/5,Lundi de Pâques
+2021/4/27,Abolition de l'esclavage
+2021/5/1,Fête du Travail
+2021/5/8,Fête de la Victoire
+2021/5/13,Ascension
+2021/5/24,Lundi de Pentecôte
+2021/7/14,Fête nationale
+2021/8/15,Assomption
+2021/11/1,Toussaint
+2021/11/11,Armistice
+2021/12/25,Noël
+2022/1/1,Jour de l'an
+2022/4/18,Lundi de Pâques
+2022/4/27,Abolition de l'esclavage
+2022/5/1,Fête du Travail
+2022/5/8,Fête de la Victoire
+2022/5/26,Ascension
+2022/6/6,Lundi de Pentecôte
+2022/7/14,Fête nationale
+2022/8/15,Assomption
+2022/11/1,Toussaint
+2022/11/11,Armistice
+2022/12/25,Noël
+2023/1/1,Jour de l'an
+2023/4/10,Lundi de Pâques
+2023/4/27,Abolition de l'esclavage
+2023/5/1,Fête du Travail
+2023/5/8,Fête de la Victoire
+2023/5/18,Ascension
+2023/5/29,Lundi de Pentecôte
+2023/7/14,Fête nationale
+2023/8/15,Assomption
+2023/11/1,Toussaint
+2023/11/11,Armistice
+2023/12/25,Noël
+2024/1/1,Jour de l'an
+2024/4/1,Lundi de Pâques
+2024/4/27,Abolition de l'esclavage
+2024/5/1,Fête du Travail
+2024/5/8,Fête de la Victoire
+2024/5/9,Ascension
+2024/5/20,Lundi de Pentecôte
+2024/7/14,Fête nationale
+2024/8/15,Assomption
+2024/11/1,Toussaint
+2024/11/11,Armistice
+2024/12/25,Noël
+2025/1/1,Jour de l'an
+2025/4/21,Lundi de Pâques
+2025/4/27,Abolition de l'esclavage
+2025/5/1,Fête du Travail
+2025/5/8,Fête de la Victoire
+2025/5/29,Ascension
+2025/6/9,Lundi de Pentecôte
+2025/7/14,Fête nationale
+2025/8/15,Assomption
+2025/11/1,Toussaint
+2025/11/11,Armistice
+2025/12/25,Noël
+2026/1/1,Jour de l'an
+2026/4/6,Lundi de Pâques
+2026/4/27,Abolition de l'esclavage
+2026/5/1,Fête du Travail
+2026/5/8,Fête de la Victoire
+2026/5/14,Ascension
+2026/5/25,Lundi de Pentecôte
+2026/7/14,Fête nationale
+2026/8/15,Assomption
+2026/11/1,Toussaint
+2026/11/11,Armistice
+2026/12/25,Noël
+2027/1/1,Jour de l'an
+2027/3/29,Lundi de Pâques
+2027/4/27,Abolition de l'esclavage
+2027/5/1,Fête du Travail
+2027/5/6,Ascension
+2027/5/8,Fête de la Victoire
+2027/5/17,Lundi de Pentecôte
+2027/7/14,Fête nationale
+2027/8/15,Assomption
+2027/11/1,Toussaint
+2027/11/11,Armistice
+2027/12/25,Noël
+2028/1/1,Jour de l'an
+2028/4/17,Lundi de Pâques
+2028/4/27,Abolition de l'esclavage
+2028/5/1,Fête du Travail
+2028/5/8,Fête de la Victoire
+2028/5/25,Ascension
+2028/6/5,Lundi de Pentecôte
+2028/7/14,Fête nationale
+2028/8/15,Assomption
+2028/11/1,Toussaint
+2028/11/11,Armistice
+2028/12/25,Noël
+2029/1/1,Jour de l'an
+2029/4/2,Lundi de Pâques
+2029/4/27,Abolition de l'esclavage
+2029/5/1,Fête du Travail
+2029/5/8,Fête de la Victoire
+2029/5/10,Ascension
+2029/5/21,Lundi de Pentecôte
+2029/7/14,Fête nationale
+2029/8/15,Assomption
+2029/11/1,Toussaint
+2029/11/11,Armistice
+2029/12/25,Noël
+2030/1/1,Jour de l'an
+2030/4/22,Lundi de Pâques
+2030/4/27,Abolition de l'esclavage
+2030/5/1,Fête du Travail
+2030/5/8,Fête de la Victoire
+2030/5/30,Ascension
+2030/6/10,Lundi de Pentecôte
+2030/7/14,Fête nationale
+2030/8/15,Assomption
+2030/11/1,Toussaint
+2030/11/11,Armistice
+2030/12/25,Noël
+2031/1/1,Jour de l'an
+2031/4/14,Lundi de Pâques
+2031/4/27,Abolition de l'esclavage
+2031/5/1,Fête du Travail
+2031/5/8,Fête de la Victoire
+2031/5/22,Ascension
+2031/6/2,Lundi de Pentecôte
+2031/7/14,Fête nationale
+2031/8/15,Assomption
+2031/11/1,Toussaint
+2031/11/11,Armistice
+2031/12/25,Noël
+2032/1/1,Jour de l'an
+2032/3/29,Lundi de Pâques
+2032/4/27,Abolition de l'esclavage
+2032/5/1,Fête du Travail
+2032/5/6,Ascension
+2032/5/8,Fête de la Victoire
+2032/5/17,Lundi de Pentecôte
+2032/7/14,Fête nationale
+2032/8/15,Assomption
+2032/11/1,Toussaint
+2032/11/11,Armistice
+2032/12/25,Noël
+2033/1/1,Jour de l'an
+2033/4/18,Lundi de Pâques
+2033/4/27,Abolition de l'esclavage
+2033/5/1,Fête du Travail
+2033/5/8,Fête de la Victoire
+2033/5/26,Ascension
+2033/6/6,Lundi de Pentecôte
+2033/7/14,Fête nationale
+2033/8/15,Assomption
+2033/11/1,Toussaint
+2033/11/11,Armistice
+2033/12/25,Noël
+2034/1/1,Jour de l'an
+2034/4/10,Lundi de Pâques
+2034/4/27,Abolition de l'esclavage
+2034/5/1,Fête du Travail
+2034/5/8,Fête de la Victoire
+2034/5/18,Ascension
+2034/5/29,Lundi de Pentecôte
+2034/7/14,Fête nationale
+2034/8/15,Assomption
+2034/11/1,Toussaint
+2034/11/11,Armistice
+2034/12/25,Noël
+2035/1/1,Jour de l'an
+2035/3/26,Lundi de Pâques
+2035/4/27,Abolition de l'esclavage
+2035/5/1,Fête du Travail
+2035/5/3,Ascension
+2035/5/8,Fête de la Victoire
+2035/5/14,Lundi de Pentecôte
+2035/7/14,Fête nationale
+2035/8/15,Assomption
+2035/11/1,Toussaint
+2035/11/11,Armistice
+2035/12/25,Noël
+2036/1/1,Jour de l'an
+2036/4/14,Lundi de Pâques
+2036/4/27,Abolition de l'esclavage
+2036/5/1,Fête du Travail
+2036/5/8,Fête de la Victoire
+2036/5/22,Ascension
+2036/6/2,Lundi de Pentecôte
+2036/7/14,Fête nationale
+2036/8/15,Assomption
+2036/11/1,Toussaint
+2036/11/11,Armistice
+2036/12/25,Noël
+2037/1/1,Jour de l'an
+2037/4/6,Lundi de Pâques
+2037/4/27,Abolition de l'esclavage
+2037/5/1,Fête du Travail
+2037/5/8,Fête de la Victoire
+2037/5/14,Ascension
+2037/5/25,Lundi de Pentecôte
+2037/7/14,Fête nationale
+2037/8/15,Assomption
+2037/11/1,Toussaint
+2037/11/11,Armistice
+2037/12/25,Noël
+2038/1/1,Jour de l'an
+2038/4/26,Lundi de Pâques
+2038/4/27,Abolition de l'esclavage
+2038/5/1,Fête du Travail
+2038/5/8,Fête de la Victoire
+2038/6/3,Ascension
+2038/6/14,Lundi de Pentecôte
+2038/7/14,Fête nationale
+2038/8/15,Assomption
+2038/11/1,Toussaint
+2038/11/11,Armistice
+2038/12/25,Noël
+2039/1/1,Jour de l'an
+2039/4/11,Lundi de Pâques
+2039/4/27,Abolition de l'esclavage
+2039/5/1,Fête du Travail
+2039/5/8,Fête de la Victoire
+2039/5/19,Ascension
+2039/5/30,Lundi de Pentecôte
+2039/7/14,Fête nationale
+2039/8/15,Assomption
+2039/11/1,Toussaint
+2039/11/11,Armistice
+2039/12/25,Noël
+2040/1/1,Jour de l'an
+2040/4/2,Lundi de Pâques
+2040/4/27,Abolition de l'esclavage
+2040/5/1,Fête du Travail
+2040/5/8,Fête de la Victoire
+2040/5/10,Ascension
+2040/5/21,Lundi de Pentecôte
+2040/7/14,Fête nationale
+2040/8/15,Assomption
+2040/11/1,Toussaint
+2040/11/11,Armistice
+2040/12/25,Noël
+2041/1/1,Jour de l'an
+2041/4/22,Lundi de Pâques
+2041/4/27,Abolition de l'esclavage
+2041/5/1,Fête du Travail
+2041/5/8,Fête de la Victoire
+2041/5/30,Ascension
+2041/6/10,Lundi de Pentecôte
+2041/7/14,Fête nationale
+2041/8/15,Assomption
+2041/11/1,Toussaint
+2041/11/11,Armistice
+2041/12/25,Noël
+2042/1/1,Jour de l'an
+2042/4/7,Lundi de Pâques
+2042/4/27,Abolition de l'esclavage
+2042/5/1,Fête du Travail
+2042/5/8,Fête de la Victoire
+2042/5/15,Ascension
+2042/5/26,Lundi de Pentecôte
+2042/7/14,Fête nationale
+2042/8/15,Assomption
+2042/11/1,Toussaint
+2042/11/11,Armistice
+2042/12/25,Noël
+2043/1/1,Jour de l'an
+2043/3/30,Lundi de Pâques
+2043/4/27,Abolition de l'esclavage
+2043/5/1,Fête du Travail
+2043/5/7,Ascension
+2043/5/8,Fête de la Victoire
+2043/5/18,Lundi de Pentecôte
+2043/7/14,Fête nationale
+2043/8/15,Assomption
+2043/11/1,Toussaint
+2043/11/11,Armistice
+2043/12/25,Noël
+2044/1/1,Jour de l'an
+2044/4/18,Lundi de Pâques
+2044/4/27,Abolition de l'esclavage
+2044/5/1,Fête du Travail
+2044/5/8,Fête de la Victoire
+2044/5/26,Ascension
+2044/6/6,Lundi de Pentecôte
+2044/7/14,Fête nationale
+2044/8/15,Assomption
+2044/11/1,Toussaint
+2044/11/11,Armistice
+2044/12/25,Noël
+2045/1/1,Jour de l'an
+2045/4/10,Lundi de Pâques
+2045/4/27,Abolition de l'esclavage
+2045/5/1,Fête du Travail
+2045/5/8,Fête de la Victoire
+2045/5/18,Ascension
+2045/5/29,Lundi de Pentecôte
+2045/7/14,Fête nationale
+2045/8/15,Assomption
+2045/11/1,Toussaint
+2045/11/11,Armistice
+2045/12/25,Noël
+2046/1/1,Jour de l'an
+2046/3/26,Lundi de Pâques
+2046/4/27,Abolition de l'esclavage
+2046/5/1,Fête du Travail
+2046/5/3,Ascension
+2046/5/8,Fête de la Victoire
+2046/5/14,Lundi de Pentecôte
+2046/7/14,Fête nationale
+2046/8/15,Assomption
+2046/11/1,Toussaint
+2046/11/11,Armistice
+2046/12/25,Noël
+2047/1/1,Jour de l'an
+2047/4/15,Lundi de Pâques
+2047/4/27,Abolition de l'esclavage
+2047/5/1,Fête du Travail
+2047/5/8,Fête de la Victoire
+2047/5/23,Ascension
+2047/6/3,Lundi de Pentecôte
+2047/7/14,Fête nationale
+2047/8/15,Assomption
+2047/11/1,Toussaint
+2047/11/11,Armistice
+2047/12/25,Noël
+2048/1/1,Jour de l'an
+2048/4/6,Lundi de Pâques
+2048/4/27,Abolition de l'esclavage
+2048/5/1,Fête du Travail
+2048/5/8,Fête de la Victoire
+2048/5/14,Ascension
+2048/5/25,Lundi de Pentecôte
+2048/7/14,Fête nationale
+2048/8/15,Assomption
+2048/11/1,Toussaint
+2048/11/11,Armistice
+2048/12/25,Noël
+2049/1/1,Jour de l'an
+2049/4/19,Lundi de Pâques
+2049/4/27,Abolition de l'esclavage
+2049/5/1,Fête du Travail
+2049/5/8,Fête de la Victoire
+2049/5/27,Ascension
+2049/6/7,Lundi de Pentecôte
+2049/7/14,Fête nationale
+2049/8/15,Assomption
+2049/11/1,Toussaint
+2049/11/11,Armistice
+2049/12/25,Noël
+2050/1/1,Jour de l'an
+2050/4/11,Lundi de Pâques
+2050/4/27,Abolition de l'esclavage
+2050/5/1,Fête du Travail
+2050/5/8,Fête de la Victoire
+2050/5/19,Ascension
+2050/5/30,Lundi de Pentecôte
+2050/7/14,Fête nationale
+2050/8/15,Assomption
+2050/11/1,Toussaint
+2050/11/11,Armistice
+2050/12/25,Noël

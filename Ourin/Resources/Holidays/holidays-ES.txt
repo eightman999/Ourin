@@ -1,0 +1,272 @@
+# ES の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/1/6,Epifanía del Señor
+2020/4/10,Viernes Santo
+2020/5/1,Fiesta del Trabajo
+2020/8/15,Asunción de la Virgen
+2020/10/12,Fiesta Nacional de España
+2020/12/8,Inmaculada Concepción
+2020/12/25,Natividad del Señor
+2021/1/1,Año Nuevo
+2021/1/6,Epifanía del Señor
+2021/4/2,Viernes Santo
+2021/5/1,Fiesta del Trabajo
+2021/10/12,Fiesta Nacional de España
+2021/11/1,Todos los Santos
+2021/12/6,Día de la Constitución Española
+2021/12/8,Inmaculada Concepción
+2021/12/25,Natividad del Señor
+2022/1/1,Año Nuevo
+2022/1/6,Epifanía del Señor
+2022/4/15,Viernes Santo
+2022/8/15,Asunción de la Virgen
+2022/10/12,Fiesta Nacional de España
+2022/11/1,Todos los Santos
+2022/12/6,Día de la Constitución Española
+2022/12/8,Inmaculada Concepción
+2023/1/6,Epifanía del Señor
+2023/4/7,Viernes Santo
+2023/5/1,Fiesta del Trabajo
+2023/8/15,Asunción de la Virgen
+2023/10/12,Fiesta Nacional de España
+2023/11/1,Todos los Santos
+2023/12/6,Día de la Constitución Española
+2023/12/8,Inmaculada Concepción
+2023/12/25,Natividad del Señor
+2024/1/1,Año Nuevo
+2024/1/6,Epifanía del Señor
+2024/3/29,Viernes Santo
+2024/5/1,Fiesta del Trabajo
+2024/8/15,Asunción de la Virgen
+2024/10/12,Fiesta Nacional de España
+2024/11/1,Todos los Santos
+2024/12/6,Día de la Constitución Española
+2024/12/25,Natividad del Señor
+2025/1/1,Año Nuevo
+2025/1/6,Epifanía del Señor
+2025/4/18,Viernes Santo
+2025/5/1,Fiesta del Trabajo
+2025/8/15,Asunción de la Virgen
+2025/11/1,Todos los Santos
+2025/12/6,Día de la Constitución Española
+2025/12/8,Inmaculada Concepción
+2025/12/25,Natividad del Señor
+2026/1/1,Año Nuevo
+2026/1/6,Epifanía del Señor
+2026/4/3,Viernes Santo
+2026/5/1,Fiesta del Trabajo
+2026/8/15,Asunción de la Virgen
+2026/10/12,Fiesta Nacional de España
+2026/12/8,Inmaculada Concepción
+2026/12/25,Natividad del Señor
+2027/1/1,Año Nuevo
+2027/1/6,Epifanía del Señor
+2027/3/26,Viernes Santo
+2027/5/1,Fiesta del Trabajo
+2027/10/12,Fiesta Nacional de España
+2027/11/1,Todos los Santos
+2027/12/6,Día de la Constitución Española
+2027/12/8,Inmaculada Concepción
+2027/12/25,Natividad del Señor
+2028/1/1,Año Nuevo
+2028/1/6,Epifanía del Señor
+2028/4/14,Viernes Santo
+2028/5/1,Fiesta del Trabajo
+2028/8/15,Asunción de la Virgen
+2028/10/12,Fiesta Nacional de España
+2028/11/1,Todos los Santos
+2028/12/6,Día de la Constitución Española
+2028/12/8,Inmaculada Concepción
+2028/12/25,Natividad del Señor
+2029/1/1,Año Nuevo
+2029/1/6,Epifanía del Señor
+2029/3/30,Viernes Santo
+2029/5/1,Fiesta del Trabajo
+2029/8/15,Asunción de la Virgen
+2029/10/12,Fiesta Nacional de España
+2029/11/1,Todos los Santos
+2029/12/6,Día de la Constitución Española
+2029/12/8,Inmaculada Concepción
+2029/12/25,Natividad del Señor
+2030/1/1,Año Nuevo
+2030/4/19,Viernes Santo
+2030/5/1,Fiesta del Trabajo
+2030/8/15,Asunción de la Virgen
+2030/10/12,Fiesta Nacional de España
+2030/11/1,Todos los Santos
+2030/12/6,Día de la Constitución Española
+2030/12/25,Natividad del Señor
+2031/1/1,Año Nuevo
+2031/1/6,Epifanía del Señor
+2031/4/11,Viernes Santo
+2031/5/1,Fiesta del Trabajo
+2031/8/15,Asunción de la Virgen
+2031/11/1,Todos los Santos
+2031/12/6,Día de la Constitución Española
+2031/12/8,Inmaculada Concepción
+2031/12/25,Natividad del Señor
+2032/1/1,Año Nuevo
+2032/1/6,Epifanía del Señor
+2032/3/26,Viernes Santo
+2032/5/1,Fiesta del Trabajo
+2032/10/12,Fiesta Nacional de España
+2032/11/1,Todos los Santos
+2032/12/6,Día de la Constitución Española
+2032/12/8,Inmaculada Concepción
+2032/12/25,Natividad del Señor
+2033/1/1,Año Nuevo
+2033/1/6,Epifanía del Señor
+2033/4/15,Viernes Santo
+2033/8/15,Asunción de la Virgen
+2033/10/12,Fiesta Nacional de España
+2033/11/1,Todos los Santos
+2033/12/6,Día de la Constitución Española
+2033/12/8,Inmaculada Concepción
+2034/1/6,Epifanía del Señor
+2034/4/7,Viernes Santo
+2034/5/1,Fiesta del Trabajo
+2034/8/15,Asunción de la Virgen
+2034/10/12,Fiesta Nacional de España
+2034/11/1,Todos los Santos
+2034/12/6,Día de la Constitución Española
+2034/12/8,Inmaculada Concepción
+2034/12/25,Natividad del Señor
+2035/1/1,Año Nuevo
+2035/1/6,Epifanía del Señor
+2035/3/23,Viernes Santo
+2035/5/1,Fiesta del Trabajo
+2035/8/15,Asunción de la Virgen
+2035/10/12,Fiesta Nacional de España
+2035/11/1,Todos los Santos
+2035/12/6,Día de la Constitución Española
+2035/12/8,Inmaculada Concepción
+2035/12/25,Natividad del Señor
+2036/1/1,Año Nuevo
+2036/4/11,Viernes Santo
+2036/5/1,Fiesta del Trabajo
+2036/8/15,Asunción de la Virgen
+2036/11/1,Todos los Santos
+2036/12/6,Día de la Constitución Española
+2036/12/8,Inmaculada Concepción
+2036/12/25,Natividad del Señor
+2037/1/1,Año Nuevo
+2037/1/6,Epifanía del Señor
+2037/4/3,Viernes Santo
+2037/5/1,Fiesta del Trabajo
+2037/8/15,Asunción de la Virgen
+2037/10/12,Fiesta Nacional de España
+2037/12/8,Inmaculada Concepción
+2037/12/25,Natividad del Señor
+2038/1/1,Año Nuevo
+2038/1/6,Epifanía del Señor
+2038/4/23,Viernes Santo
+2038/5/1,Fiesta del Trabajo
+2038/10/12,Fiesta Nacional de España
+2038/11/1,Todos los Santos
+2038/12/6,Día de la Constitución Española
+2038/12/8,Inmaculada Concepción
+2038/12/25,Natividad del Señor
+2039/1/1,Año Nuevo
+2039/1/6,Epifanía del Señor
+2039/4/8,Viernes Santo
+2039/8/15,Asunción de la Virgen
+2039/10/12,Fiesta Nacional de España
+2039/11/1,Todos los Santos
+2039/12/6,Día de la Constitución Española
+2039/12/8,Inmaculada Concepción
+2040/1/6,Epifanía del Señor
+2040/3/30,Viernes Santo
+2040/5/1,Fiesta del Trabajo
+2040/8/15,Asunción de la Virgen
+2040/10/12,Fiesta Nacional de España
+2040/11/1,Todos los Santos
+2040/12/6,Día de la Constitución Española
+2040/12/8,Inmaculada Concepción
+2040/12/25,Natividad del Señor
+2041/1/1,Año Nuevo
+2041/4/19,Viernes Santo
+2041/5/1,Fiesta del Trabajo
+2041/8/15,Asunción de la Virgen
+2041/10/12,Fiesta Nacional de España
+2041/11/1,Todos los Santos
+2041/12/6,Día de la Constitución Española
+2041/12/25,Natividad del Señor
+2042/1/1,Año Nuevo
+2042/1/6,Epifanía del Señor
+2042/4/4,Viernes Santo
+2042/5/1,Fiesta del Trabajo
+2042/8/15,Asunción de la Virgen
+2042/11/1,Todos los Santos
+2042/12/6,Día de la Constitución Española
+2042/12/8,Inmaculada Concepción
+2042/12/25,Natividad del Señor
+2043/1/1,Año Nuevo
+2043/1/6,Epifanía del Señor
+2043/3/27,Viernes Santo
+2043/5/1,Fiesta del Trabajo
+2043/8/15,Asunción de la Virgen
+2043/10/12,Fiesta Nacional de España
+2043/12/8,Inmaculada Concepción
+2043/12/25,Natividad del Señor
+2044/1/1,Año Nuevo
+2044/1/6,Epifanía del Señor
+2044/4/15,Viernes Santo
+2044/8/15,Asunción de la Virgen
+2044/10/12,Fiesta Nacional de España
+2044/11/1,Todos los Santos
+2044/12/6,Día de la Constitución Española
+2044/12/8,Inmaculada Concepción
+2045/1/6,Epifanía del Señor
+2045/4/7,Viernes Santo
+2045/5/1,Fiesta del Trabajo
+2045/8/15,Asunción de la Virgen
+2045/10/12,Fiesta Nacional de España
+2045/11/1,Todos los Santos
+2045/12/6,Día de la Constitución Española
+2045/12/8,Inmaculada Concepción
+2045/12/25,Natividad del Señor
+2046/1/1,Año Nuevo
+2046/1/6,Epifanía del Señor
+2046/3/23,Viernes Santo
+2046/5/1,Fiesta del Trabajo
+2046/8/15,Asunción de la Virgen
+2046/10/12,Fiesta Nacional de España
+2046/11/1,Todos los Santos
+2046/12/6,Día de la Constitución Española
+2046/12/8,Inmaculada Concepción
+2046/12/25,Natividad del Señor
+2047/1/1,Año Nuevo
+2047/4/12,Viernes Santo
+2047/5/1,Fiesta del Trabajo
+2047/8/15,Asunción de la Virgen
+2047/10/12,Fiesta Nacional de España
+2047/11/1,Todos los Santos
+2047/12/6,Día de la Constitución Española
+2047/12/25,Natividad del Señor
+2048/1/1,Año Nuevo
+2048/1/6,Epifanía del Señor
+2048/4/3,Viernes Santo
+2048/5/1,Fiesta del Trabajo
+2048/8/15,Asunción de la Virgen
+2048/10/12,Fiesta Nacional de España
+2048/12/8,Inmaculada Concepción
+2048/12/25,Natividad del Señor
+2049/1/1,Año Nuevo
+2049/1/6,Epifanía del Señor
+2049/4/16,Viernes Santo
+2049/5/1,Fiesta del Trabajo
+2049/10/12,Fiesta Nacional de España
+2049/11/1,Todos los Santos
+2049/12/6,Día de la Constitución Española
+2049/12/8,Inmaculada Concepción
+2049/12/25,Natividad del Señor
+2050/1/1,Año Nuevo
+2050/1/6,Epifanía del Señor
+2050/4/8,Viernes Santo
+2050/8/15,Asunción de la Virgen
+2050/10/12,Fiesta Nacional de España
+2050/11/1,Todos los Santos
+2050/12/6,Día de la Constitución Española
+2050/12/8,Inmaculada Concepción

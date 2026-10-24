@@ -1,0 +1,499 @@
+# HT の祝日（2020〜2050年、言語: fr_HT）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2020/1/2,Jour des Aïeux
+2020/2/23,Carnaval
+2020/2/24,Lundi Gras
+2020/2/25,Mardi Gras
+2020/4/10,Vendredi Saint
+2020/4/12,Pâques
+2020/5/1,Fête de l'Agriculture et du Travail
+2020/5/18,Fête du Drapeau et de l'Université
+2020/6/11,Fête-Dieu
+2020/8/15,Assomption de Marie
+2020/10/17,Mort de Dessalines
+2020/11/1,La Toussaint
+2020/11/2,Fête des Morts
+2020/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2020/12/25,Noël
+2021/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2021/1/2,Jour des Aïeux
+2021/2/14,Carnaval
+2021/2/15,Lundi Gras
+2021/2/16,Mardi Gras
+2021/4/2,Vendredi Saint
+2021/4/4,Pâques
+2021/5/1,Fête de l'Agriculture et du Travail
+2021/5/18,Fête du Drapeau et de l'Université
+2021/6/3,Fête-Dieu
+2021/8/15,Assomption de Marie
+2021/10/17,Mort de Dessalines
+2021/11/1,La Toussaint
+2021/11/2,Fête des Morts
+2021/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2021/12/25,Noël
+2022/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2022/1/2,Jour des Aïeux
+2022/2/27,Carnaval
+2022/2/28,Lundi Gras
+2022/3/1,Mardi Gras
+2022/4/15,Vendredi Saint
+2022/4/17,Pâques
+2022/5/1,Fête de l'Agriculture et du Travail
+2022/5/18,Fête du Drapeau et de l'Université
+2022/6/16,Fête-Dieu
+2022/8/15,Assomption de Marie
+2022/10/17,Mort de Dessalines
+2022/11/1,La Toussaint
+2022/11/2,Fête des Morts
+2022/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2022/12/25,Noël
+2023/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2023/1/2,Jour des Aïeux
+2023/2/19,Carnaval
+2023/2/20,Lundi Gras
+2023/2/21,Mardi Gras
+2023/4/7,Vendredi Saint
+2023/4/9,Pâques
+2023/5/1,Fête de l'Agriculture et du Travail
+2023/5/18,Fête du Drapeau et de l'Université
+2023/6/8,Fête-Dieu
+2023/8/15,Assomption de Marie
+2023/10/17,Mort de Dessalines
+2023/11/1,La Toussaint
+2023/11/2,Fête des Morts
+2023/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2023/12/25,Noël
+2024/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2024/1/2,Jour des Aïeux
+2024/2/11,Carnaval
+2024/2/12,Lundi Gras
+2024/2/13,Mardi Gras
+2024/3/29,Vendredi Saint
+2024/3/31,Pâques
+2024/5/1,Fête de l'Agriculture et du Travail
+2024/5/18,Fête du Drapeau et de l'Université
+2024/5/30,Fête-Dieu
+2024/8/15,Assomption de Marie
+2024/10/17,Mort de Dessalines
+2024/11/1,La Toussaint
+2024/11/2,Fête des Morts
+2024/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2024/12/25,Noël
+2025/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2025/1/2,Jour des Aïeux
+2025/3/2,Carnaval
+2025/3/3,Lundi Gras
+2025/3/4,Mardi Gras
+2025/4/18,Vendredi Saint
+2025/4/20,Pâques
+2025/5/1,Fête de l'Agriculture et du Travail
+2025/5/18,Fête du Drapeau et de l'Université
+2025/6/19,Fête-Dieu
+2025/8/15,Assomption de Marie
+2025/10/17,Mort de Dessalines
+2025/11/1,La Toussaint
+2025/11/2,Fête des Morts
+2025/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2025/12/25,Noël
+2026/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2026/1/2,Jour des Aïeux
+2026/2/15,Carnaval
+2026/2/16,Lundi Gras
+2026/2/17,Mardi Gras
+2026/4/3,Vendredi Saint
+2026/4/5,Pâques
+2026/5/1,Fête de l'Agriculture et du Travail
+2026/5/18,Fête du Drapeau et de l'Université
+2026/6/4,Fête-Dieu
+2026/8/15,Assomption de Marie
+2026/10/17,Mort de Dessalines
+2026/11/1,La Toussaint
+2026/11/2,Fête des Morts
+2026/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2026/12/25,Noël
+2027/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2027/1/2,Jour des Aïeux
+2027/2/7,Carnaval
+2027/2/8,Lundi Gras
+2027/2/9,Mardi Gras
+2027/3/26,Vendredi Saint
+2027/3/28,Pâques
+2027/5/1,Fête de l'Agriculture et du Travail
+2027/5/18,Fête du Drapeau et de l'Université
+2027/5/27,Fête-Dieu
+2027/8/15,Assomption de Marie
+2027/10/17,Mort de Dessalines
+2027/11/1,La Toussaint
+2027/11/2,Fête des Morts
+2027/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2027/12/25,Noël
+2028/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2028/1/2,Jour des Aïeux
+2028/2/27,Carnaval
+2028/2/28,Lundi Gras
+2028/2/29,Mardi Gras
+2028/4/14,Vendredi Saint
+2028/4/16,Pâques
+2028/5/1,Fête de l'Agriculture et du Travail
+2028/5/18,Fête du Drapeau et de l'Université
+2028/6/15,Fête-Dieu
+2028/8/15,Assomption de Marie
+2028/10/17,Mort de Dessalines
+2028/11/1,La Toussaint
+2028/11/2,Fête des Morts
+2028/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2028/12/25,Noël
+2029/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2029/1/2,Jour des Aïeux
+2029/2/11,Carnaval
+2029/2/12,Lundi Gras
+2029/2/13,Mardi Gras
+2029/3/30,Vendredi Saint
+2029/4/1,Pâques
+2029/5/1,Fête de l'Agriculture et du Travail
+2029/5/18,Fête du Drapeau et de l'Université
+2029/5/31,Fête-Dieu
+2029/8/15,Assomption de Marie
+2029/10/17,Mort de Dessalines
+2029/11/1,La Toussaint
+2029/11/2,Fête des Morts
+2029/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2029/12/25,Noël
+2030/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2030/1/2,Jour des Aïeux
+2030/3/3,Carnaval
+2030/3/4,Lundi Gras
+2030/3/5,Mardi Gras
+2030/4/19,Vendredi Saint
+2030/4/21,Pâques
+2030/5/1,Fête de l'Agriculture et du Travail
+2030/5/18,Fête du Drapeau et de l'Université
+2030/6/20,Fête-Dieu
+2030/8/15,Assomption de Marie
+2030/10/17,Mort de Dessalines
+2030/11/1,La Toussaint
+2030/11/2,Fête des Morts
+2030/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2030/12/25,Noël
+2031/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2031/1/2,Jour des Aïeux
+2031/2/23,Carnaval
+2031/2/24,Lundi Gras
+2031/2/25,Mardi Gras
+2031/4/11,Vendredi Saint
+2031/4/13,Pâques
+2031/5/1,Fête de l'Agriculture et du Travail
+2031/5/18,Fête du Drapeau et de l'Université
+2031/6/12,Fête-Dieu
+2031/8/15,Assomption de Marie
+2031/10/17,Mort de Dessalines
+2031/11/1,La Toussaint
+2031/11/2,Fête des Morts
+2031/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2031/12/25,Noël
+2032/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2032/1/2,Jour des Aïeux
+2032/2/8,Carnaval
+2032/2/9,Lundi Gras
+2032/2/10,Mardi Gras
+2032/3/26,Vendredi Saint
+2032/3/28,Pâques
+2032/5/1,Fête de l'Agriculture et du Travail
+2032/5/18,Fête du Drapeau et de l'Université
+2032/5/27,Fête-Dieu
+2032/8/15,Assomption de Marie
+2032/10/17,Mort de Dessalines
+2032/11/1,La Toussaint
+2032/11/2,Fête des Morts
+2032/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2032/12/25,Noël
+2033/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2033/1/2,Jour des Aïeux
+2033/2/27,Carnaval
+2033/2/28,Lundi Gras
+2033/3/1,Mardi Gras
+2033/4/15,Vendredi Saint
+2033/4/17,Pâques
+2033/5/1,Fête de l'Agriculture et du Travail
+2033/5/18,Fête du Drapeau et de l'Université
+2033/6/16,Fête-Dieu
+2033/8/15,Assomption de Marie
+2033/10/17,Mort de Dessalines
+2033/11/1,La Toussaint
+2033/11/2,Fête des Morts
+2033/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2033/12/25,Noël
+2034/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2034/1/2,Jour des Aïeux
+2034/2/19,Carnaval
+2034/2/20,Lundi Gras
+2034/2/21,Mardi Gras
+2034/4/7,Vendredi Saint
+2034/4/9,Pâques
+2034/5/1,Fête de l'Agriculture et du Travail
+2034/5/18,Fête du Drapeau et de l'Université
+2034/6/8,Fête-Dieu
+2034/8/15,Assomption de Marie
+2034/10/17,Mort de Dessalines
+2034/11/1,La Toussaint
+2034/11/2,Fête des Morts
+2034/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2034/12/25,Noël
+2035/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2035/1/2,Jour des Aïeux
+2035/2/4,Carnaval
+2035/2/5,Lundi Gras
+2035/2/6,Mardi Gras
+2035/3/23,Vendredi Saint
+2035/3/25,Pâques
+2035/5/1,Fête de l'Agriculture et du Travail
+2035/5/18,Fête du Drapeau et de l'Université
+2035/5/24,Fête-Dieu
+2035/8/15,Assomption de Marie
+2035/10/17,Mort de Dessalines
+2035/11/1,La Toussaint
+2035/11/2,Fête des Morts
+2035/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2035/12/25,Noël
+2036/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2036/1/2,Jour des Aïeux
+2036/2/24,Carnaval
+2036/2/25,Lundi Gras
+2036/2/26,Mardi Gras
+2036/4/11,Vendredi Saint
+2036/4/13,Pâques
+2036/5/1,Fête de l'Agriculture et du Travail
+2036/5/18,Fête du Drapeau et de l'Université
+2036/6/12,Fête-Dieu
+2036/8/15,Assomption de Marie
+2036/10/17,Mort de Dessalines
+2036/11/1,La Toussaint
+2036/11/2,Fête des Morts
+2036/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2036/12/25,Noël
+2037/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2037/1/2,Jour des Aïeux
+2037/2/15,Carnaval
+2037/2/16,Lundi Gras
+2037/2/17,Mardi Gras
+2037/4/3,Vendredi Saint
+2037/4/5,Pâques
+2037/5/1,Fête de l'Agriculture et du Travail
+2037/5/18,Fête du Drapeau et de l'Université
+2037/6/4,Fête-Dieu
+2037/8/15,Assomption de Marie
+2037/10/17,Mort de Dessalines
+2037/11/1,La Toussaint
+2037/11/2,Fête des Morts
+2037/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2037/12/25,Noël
+2038/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2038/1/2,Jour des Aïeux
+2038/3/7,Carnaval
+2038/3/8,Lundi Gras
+2038/3/9,Mardi Gras
+2038/4/23,Vendredi Saint
+2038/4/25,Pâques
+2038/5/1,Fête de l'Agriculture et du Travail
+2038/5/18,Fête du Drapeau et de l'Université
+2038/6/24,Fête-Dieu
+2038/8/15,Assomption de Marie
+2038/10/17,Mort de Dessalines
+2038/11/1,La Toussaint
+2038/11/2,Fête des Morts
+2038/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2038/12/25,Noël
+2039/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2039/1/2,Jour des Aïeux
+2039/2/20,Carnaval
+2039/2/21,Lundi Gras
+2039/2/22,Mardi Gras
+2039/4/8,Vendredi Saint
+2039/4/10,Pâques
+2039/5/1,Fête de l'Agriculture et du Travail
+2039/5/18,Fête du Drapeau et de l'Université
+2039/6/9,Fête-Dieu
+2039/8/15,Assomption de Marie
+2039/10/17,Mort de Dessalines
+2039/11/1,La Toussaint
+2039/11/2,Fête des Morts
+2039/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2039/12/25,Noël
+2040/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2040/1/2,Jour des Aïeux
+2040/2/12,Carnaval
+2040/2/13,Lundi Gras
+2040/2/14,Mardi Gras
+2040/3/30,Vendredi Saint
+2040/4/1,Pâques
+2040/5/1,Fête de l'Agriculture et du Travail
+2040/5/18,Fête du Drapeau et de l'Université
+2040/5/31,Fête-Dieu
+2040/8/15,Assomption de Marie
+2040/10/17,Mort de Dessalines
+2040/11/1,La Toussaint
+2040/11/2,Fête des Morts
+2040/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2040/12/25,Noël
+2041/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2041/1/2,Jour des Aïeux
+2041/3/3,Carnaval
+2041/3/4,Lundi Gras
+2041/3/5,Mardi Gras
+2041/4/19,Vendredi Saint
+2041/4/21,Pâques
+2041/5/1,Fête de l'Agriculture et du Travail
+2041/5/18,Fête du Drapeau et de l'Université
+2041/6/20,Fête-Dieu
+2041/8/15,Assomption de Marie
+2041/10/17,Mort de Dessalines
+2041/11/1,La Toussaint
+2041/11/2,Fête des Morts
+2041/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2041/12/25,Noël
+2042/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2042/1/2,Jour des Aïeux
+2042/2/16,Carnaval
+2042/2/17,Lundi Gras
+2042/2/18,Mardi Gras
+2042/4/4,Vendredi Saint
+2042/4/6,Pâques
+2042/5/1,Fête de l'Agriculture et du Travail
+2042/5/18,Fête du Drapeau et de l'Université
+2042/6/5,Fête-Dieu
+2042/8/15,Assomption de Marie
+2042/10/17,Mort de Dessalines
+2042/11/1,La Toussaint
+2042/11/2,Fête des Morts
+2042/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2042/12/25,Noël
+2043/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2043/1/2,Jour des Aïeux
+2043/2/8,Carnaval
+2043/2/9,Lundi Gras
+2043/2/10,Mardi Gras
+2043/3/27,Vendredi Saint
+2043/3/29,Pâques
+2043/5/1,Fête de l'Agriculture et du Travail
+2043/5/18,Fête du Drapeau et de l'Université
+2043/5/28,Fête-Dieu
+2043/8/15,Assomption de Marie
+2043/10/17,Mort de Dessalines
+2043/11/1,La Toussaint
+2043/11/2,Fête des Morts
+2043/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2043/12/25,Noël
+2044/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2044/1/2,Jour des Aïeux
+2044/2/28,Carnaval
+2044/2/29,Lundi Gras
+2044/3/1,Mardi Gras
+2044/4/15,Vendredi Saint
+2044/4/17,Pâques
+2044/5/1,Fête de l'Agriculture et du Travail
+2044/5/18,Fête du Drapeau et de l'Université
+2044/6/16,Fête-Dieu
+2044/8/15,Assomption de Marie
+2044/10/17,Mort de Dessalines
+2044/11/1,La Toussaint
+2044/11/2,Fête des Morts
+2044/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2044/12/25,Noël
+2045/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2045/1/2,Jour des Aïeux
+2045/2/19,Carnaval
+2045/2/20,Lundi Gras
+2045/2/21,Mardi Gras
+2045/4/7,Vendredi Saint
+2045/4/9,Pâques
+2045/5/1,Fête de l'Agriculture et du Travail
+2045/5/18,Fête du Drapeau et de l'Université
+2045/6/8,Fête-Dieu
+2045/8/15,Assomption de Marie
+2045/10/17,Mort de Dessalines
+2045/11/1,La Toussaint
+2045/11/2,Fête des Morts
+2045/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2045/12/25,Noël
+2046/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2046/1/2,Jour des Aïeux
+2046/2/4,Carnaval
+2046/2/5,Lundi Gras
+2046/2/6,Mardi Gras
+2046/3/23,Vendredi Saint
+2046/3/25,Pâques
+2046/5/1,Fête de l'Agriculture et du Travail
+2046/5/18,Fête du Drapeau et de l'Université
+2046/5/24,Fête-Dieu
+2046/8/15,Assomption de Marie
+2046/10/17,Mort de Dessalines
+2046/11/1,La Toussaint
+2046/11/2,Fête des Morts
+2046/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2046/12/25,Noël
+2047/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2047/1/2,Jour des Aïeux
+2047/2/24,Carnaval
+2047/2/25,Lundi Gras
+2047/2/26,Mardi Gras
+2047/4/12,Vendredi Saint
+2047/4/14,Pâques
+2047/5/1,Fête de l'Agriculture et du Travail
+2047/5/18,Fête du Drapeau et de l'Université
+2047/6/13,Fête-Dieu
+2047/8/15,Assomption de Marie
+2047/10/17,Mort de Dessalines
+2047/11/1,La Toussaint
+2047/11/2,Fête des Morts
+2047/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2047/12/25,Noël
+2048/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2048/1/2,Jour des Aïeux
+2048/2/16,Carnaval
+2048/2/17,Lundi Gras
+2048/2/18,Mardi Gras
+2048/4/3,Vendredi Saint
+2048/4/5,Pâques
+2048/5/1,Fête de l'Agriculture et du Travail
+2048/5/18,Fête du Drapeau et de l'Université
+2048/6/4,Fête-Dieu
+2048/8/15,Assomption de Marie
+2048/10/17,Mort de Dessalines
+2048/11/1,La Toussaint
+2048/11/2,Fête des Morts
+2048/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2048/12/25,Noël
+2049/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2049/1/2,Jour des Aïeux
+2049/2/28,Carnaval
+2049/3/1,Lundi Gras
+2049/3/2,Mardi Gras
+2049/4/16,Vendredi Saint
+2049/4/18,Pâques
+2049/5/1,Fête de l'Agriculture et du Travail
+2049/5/18,Fête du Drapeau et de l'Université
+2049/6/17,Fête-Dieu
+2049/8/15,Assomption de Marie
+2049/10/17,Mort de Dessalines
+2049/11/1,La Toussaint
+2049/11/2,Fête des Morts
+2049/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2049/12/25,Noël
+2050/1/1,Fête de l'Indépendance Nationale; Nouvel An
+2050/1/2,Jour des Aïeux
+2050/2/20,Carnaval
+2050/2/21,Lundi Gras
+2050/2/22,Mardi Gras
+2050/4/8,Vendredi Saint
+2050/4/10,Pâques
+2050/5/1,Fête de l'Agriculture et du Travail
+2050/5/18,Fête du Drapeau et de l'Université
+2050/6/9,Fête-Dieu
+2050/8/15,Assomption de Marie
+2050/10/17,Mort de Dessalines
+2050/11/1,La Toussaint
+2050/11/2,Fête des Morts
+2050/11/18,Commémoration de la Bataille de Vertières; Jour des Forces Armées
+2050/12/25,Noël

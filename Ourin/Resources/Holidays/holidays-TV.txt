@@ -1,0 +1,396 @@
+# TV の祝日（2020〜2050年、言語: tvl）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Tausaga Fou
+2020/3/9,Aso Atefenua
+2020/4/10,Aso toe tu
+2020/4/13,Toe Tu aso gafua
+2020/5/11,Te Aso o te Tala Lei
+2020/6/13,Asofanau Fafine
+2020/8/3,Aso tupulaga
+2020/10/1,Tutokotasi
+2020/10/2,Tutokotasi
+2020/10/12,Aso Tamaliki
+2020/11/9,Aso fanau o te sui ote Tupu
+2020/12/25,Kilisimasi
+2020/12/26,Aso Faipele
+2020/12/28,Aso Faipele (fakamatakuga)
+2021/1/1,Tausaga Fou
+2021/4/2,Aso toe tu
+2021/4/5,Toe Tu aso gafua
+2021/5/10,Te Aso o te Tala Lei
+2021/6/12,Asofanau Fafine
+2021/8/2,Aso tupulaga
+2021/10/1,Tutokotasi
+2021/10/2,Tutokotasi
+2021/10/4,Tutokotasi (fakamatakuga)
+2021/10/11,Aso Tamaliki
+2021/11/8,Aso fanau o te sui ote Tupu
+2021/12/25,Kilisimasi
+2021/12/26,Aso Faipele
+2021/12/27,Kilisimasi (fakamatakuga)
+2021/12/28,Aso Faipele (fakamatakuga)
+2022/1/1,Tausaga Fou
+2022/1/3,Tausaga Fou (fakamatakuga)
+2022/4/15,Aso toe tu
+2022/4/18,Toe Tu aso gafua
+2022/5/9,Te Aso o te Tala Lei
+2022/6/11,Asofanau Fafine
+2022/8/1,Aso tupulaga
+2022/10/1,Tutokotasi
+2022/10/2,Tutokotasi
+2022/10/3,Tutokotasi (fakamatakuga)
+2022/10/4,Tutokotasi (fakamatakuga)
+2022/10/10,Aso Tamaliki
+2022/11/14,Aso fanau o te sui ote Tupu
+2022/12/25,Kilisimasi
+2022/12/26,Aso Faipele
+2022/12/27,Kilisimasi (fakamatakuga)
+2023/1/1,Tausaga Fou
+2023/1/2,Tausaga Fou (fakamatakuga)
+2023/4/7,Aso toe tu
+2023/4/10,Toe Tu aso gafua
+2023/5/15,Te Aso o te Tala Lei
+2023/6/10,Asofanau Tupu
+2023/8/7,Aso tupulaga
+2023/10/1,Tutokotasi
+2023/10/2,Tutokotasi
+2023/10/3,Tutokotasi (fakamatakuga)
+2023/10/9,Aso Tamaliki
+2023/12/25,Kilisimasi
+2023/12/26,Aso Faipele
+2024/1/1,Tausaga Fou
+2024/3/29,Aso toe tu
+2024/4/1,Toe Tu aso gafua
+2024/5/13,Te Aso o te Tala Lei
+2024/6/8,Asofanau Tupu
+2024/8/5,Aso tupulaga
+2024/10/1,Tutokotasi
+2024/10/2,Tutokotasi
+2024/10/14,Aso Tamaliki
+2024/12/25,Kilisimasi
+2024/12/26,Aso Faipele
+2025/1/1,Tausaga Fou
+2025/4/18,Aso toe tu
+2025/4/21,Toe Tu aso gafua
+2025/5/12,Te Aso o te Tala Lei
+2025/6/14,Asofanau Tupu
+2025/8/4,Aso tupulaga
+2025/10/1,Tutokotasi
+2025/10/2,Tutokotasi
+2025/10/13,Aso Tamaliki
+2025/12/25,Kilisimasi
+2025/12/26,Aso Faipele
+2026/1/1,Tausaga Fou
+2026/4/3,Aso toe tu
+2026/4/6,Toe Tu aso gafua
+2026/5/11,Te Aso o te Tala Lei
+2026/6/13,Asofanau Tupu
+2026/8/3,Aso tupulaga
+2026/10/1,Tutokotasi
+2026/10/2,Tutokotasi
+2026/10/12,Aso Tamaliki
+2026/12/25,Kilisimasi
+2026/12/26,Aso Faipele
+2026/12/28,Aso Faipele (fakamatakuga)
+2027/1/1,Tausaga Fou
+2027/3/26,Aso toe tu
+2027/3/29,Toe Tu aso gafua
+2027/5/10,Te Aso o te Tala Lei
+2027/6/12,Asofanau Tupu
+2027/8/2,Aso tupulaga
+2027/10/1,Tutokotasi
+2027/10/2,Tutokotasi
+2027/10/4,Tutokotasi (fakamatakuga)
+2027/10/11,Aso Tamaliki
+2027/12/25,Kilisimasi
+2027/12/26,Aso Faipele
+2027/12/27,Kilisimasi (fakamatakuga)
+2027/12/28,Aso Faipele (fakamatakuga)
+2028/1/1,Tausaga Fou
+2028/1/3,Tausaga Fou (fakamatakuga)
+2028/4/14,Aso toe tu
+2028/4/17,Toe Tu aso gafua
+2028/5/15,Te Aso o te Tala Lei
+2028/6/10,Asofanau Tupu
+2028/8/7,Aso tupulaga
+2028/10/1,Tutokotasi
+2028/10/2,Tutokotasi
+2028/10/3,Tutokotasi (fakamatakuga)
+2028/10/9,Aso Tamaliki
+2028/12/25,Kilisimasi
+2028/12/26,Aso Faipele
+2029/1/1,Tausaga Fou
+2029/3/30,Aso toe tu
+2029/4/2,Toe Tu aso gafua
+2029/5/14,Te Aso o te Tala Lei
+2029/6/9,Asofanau Tupu
+2029/8/6,Aso tupulaga
+2029/10/1,Tutokotasi
+2029/10/2,Tutokotasi
+2029/10/15,Aso Tamaliki
+2029/12/25,Kilisimasi
+2029/12/26,Aso Faipele
+2030/1/1,Tausaga Fou
+2030/4/19,Aso toe tu
+2030/4/22,Toe Tu aso gafua
+2030/5/13,Te Aso o te Tala Lei
+2030/6/8,Asofanau Tupu
+2030/8/5,Aso tupulaga
+2030/10/1,Tutokotasi
+2030/10/2,Tutokotasi
+2030/10/14,Aso Tamaliki
+2030/12/25,Kilisimasi
+2030/12/26,Aso Faipele
+2031/1/1,Tausaga Fou
+2031/4/11,Aso toe tu
+2031/4/14,Toe Tu aso gafua
+2031/5/12,Te Aso o te Tala Lei
+2031/6/14,Asofanau Tupu
+2031/8/4,Aso tupulaga
+2031/10/1,Tutokotasi
+2031/10/2,Tutokotasi
+2031/10/13,Aso Tamaliki
+2031/12/25,Kilisimasi
+2031/12/26,Aso Faipele
+2032/1/1,Tausaga Fou
+2032/3/26,Aso toe tu
+2032/3/29,Toe Tu aso gafua
+2032/5/10,Te Aso o te Tala Lei
+2032/6/12,Asofanau Tupu
+2032/8/2,Aso tupulaga
+2032/10/1,Tutokotasi
+2032/10/2,Tutokotasi
+2032/10/4,Tutokotasi (fakamatakuga)
+2032/10/11,Aso Tamaliki
+2032/12/25,Kilisimasi
+2032/12/26,Aso Faipele
+2032/12/27,Kilisimasi (fakamatakuga)
+2032/12/28,Aso Faipele (fakamatakuga)
+2033/1/1,Tausaga Fou
+2033/1/3,Tausaga Fou (fakamatakuga)
+2033/4/15,Aso toe tu
+2033/4/18,Toe Tu aso gafua
+2033/5/9,Te Aso o te Tala Lei
+2033/6/11,Asofanau Tupu
+2033/8/1,Aso tupulaga
+2033/10/1,Tutokotasi
+2033/10/2,Tutokotasi
+2033/10/3,Tutokotasi (fakamatakuga)
+2033/10/4,Tutokotasi (fakamatakuga)
+2033/10/10,Aso Tamaliki
+2033/12/25,Kilisimasi
+2033/12/26,Aso Faipele
+2033/12/27,Kilisimasi (fakamatakuga)
+2034/1/1,Tausaga Fou
+2034/1/2,Tausaga Fou (fakamatakuga)
+2034/4/7,Aso toe tu
+2034/4/10,Toe Tu aso gafua
+2034/5/15,Te Aso o te Tala Lei
+2034/6/10,Asofanau Tupu
+2034/8/7,Aso tupulaga
+2034/10/1,Tutokotasi
+2034/10/2,Tutokotasi
+2034/10/3,Tutokotasi (fakamatakuga)
+2034/10/9,Aso Tamaliki
+2034/12/25,Kilisimasi
+2034/12/26,Aso Faipele
+2035/1/1,Tausaga Fou
+2035/3/23,Aso toe tu
+2035/3/26,Toe Tu aso gafua
+2035/5/14,Te Aso o te Tala Lei
+2035/6/9,Asofanau Tupu
+2035/8/6,Aso tupulaga
+2035/10/1,Tutokotasi
+2035/10/2,Tutokotasi
+2035/10/15,Aso Tamaliki
+2035/12/25,Kilisimasi
+2035/12/26,Aso Faipele
+2036/1/1,Tausaga Fou
+2036/4/11,Aso toe tu
+2036/4/14,Toe Tu aso gafua
+2036/5/12,Te Aso o te Tala Lei
+2036/6/14,Asofanau Tupu
+2036/8/4,Aso tupulaga
+2036/10/1,Tutokotasi
+2036/10/2,Tutokotasi
+2036/10/13,Aso Tamaliki
+2036/12/25,Kilisimasi
+2036/12/26,Aso Faipele
+2037/1/1,Tausaga Fou
+2037/4/3,Aso toe tu
+2037/4/6,Toe Tu aso gafua
+2037/5/11,Te Aso o te Tala Lei
+2037/6/13,Asofanau Tupu
+2037/8/3,Aso tupulaga
+2037/10/1,Tutokotasi
+2037/10/2,Tutokotasi
+2037/10/12,Aso Tamaliki
+2037/12/25,Kilisimasi
+2037/12/26,Aso Faipele
+2037/12/28,Aso Faipele (fakamatakuga)
+2038/1/1,Tausaga Fou
+2038/4/23,Aso toe tu
+2038/4/26,Toe Tu aso gafua
+2038/5/10,Te Aso o te Tala Lei
+2038/6/12,Asofanau Tupu
+2038/8/2,Aso tupulaga
+2038/10/1,Tutokotasi
+2038/10/2,Tutokotasi
+2038/10/4,Tutokotasi (fakamatakuga)
+2038/10/11,Aso Tamaliki
+2038/12/25,Kilisimasi
+2038/12/26,Aso Faipele
+2038/12/27,Kilisimasi (fakamatakuga)
+2038/12/28,Aso Faipele (fakamatakuga)
+2039/1/1,Tausaga Fou
+2039/1/3,Tausaga Fou (fakamatakuga)
+2039/4/8,Aso toe tu
+2039/4/11,Toe Tu aso gafua
+2039/5/9,Te Aso o te Tala Lei
+2039/6/11,Asofanau Tupu
+2039/8/1,Aso tupulaga
+2039/10/1,Tutokotasi
+2039/10/2,Tutokotasi
+2039/10/3,Tutokotasi (fakamatakuga)
+2039/10/4,Tutokotasi (fakamatakuga)
+2039/10/10,Aso Tamaliki
+2039/12/25,Kilisimasi
+2039/12/26,Aso Faipele
+2039/12/27,Kilisimasi (fakamatakuga)
+2040/1/1,Tausaga Fou
+2040/1/2,Tausaga Fou (fakamatakuga)
+2040/3/30,Aso toe tu
+2040/4/2,Toe Tu aso gafua
+2040/5/14,Te Aso o te Tala Lei
+2040/6/9,Asofanau Tupu
+2040/8/6,Aso tupulaga
+2040/10/1,Tutokotasi
+2040/10/2,Tutokotasi
+2040/10/15,Aso Tamaliki
+2040/12/25,Kilisimasi
+2040/12/26,Aso Faipele
+2041/1/1,Tausaga Fou
+2041/4/19,Aso toe tu
+2041/4/22,Toe Tu aso gafua
+2041/5/13,Te Aso o te Tala Lei
+2041/6/8,Asofanau Tupu
+2041/8/5,Aso tupulaga
+2041/10/1,Tutokotasi
+2041/10/2,Tutokotasi
+2041/10/14,Aso Tamaliki
+2041/12/25,Kilisimasi
+2041/12/26,Aso Faipele
+2042/1/1,Tausaga Fou
+2042/4/4,Aso toe tu
+2042/4/7,Toe Tu aso gafua
+2042/5/12,Te Aso o te Tala Lei
+2042/6/14,Asofanau Tupu
+2042/8/4,Aso tupulaga
+2042/10/1,Tutokotasi
+2042/10/2,Tutokotasi
+2042/10/13,Aso Tamaliki
+2042/12/25,Kilisimasi
+2042/12/26,Aso Faipele
+2043/1/1,Tausaga Fou
+2043/3/27,Aso toe tu
+2043/3/30,Toe Tu aso gafua
+2043/5/11,Te Aso o te Tala Lei
+2043/6/13,Asofanau Tupu
+2043/8/3,Aso tupulaga
+2043/10/1,Tutokotasi
+2043/10/2,Tutokotasi
+2043/10/12,Aso Tamaliki
+2043/12/25,Kilisimasi
+2043/12/26,Aso Faipele
+2043/12/28,Aso Faipele (fakamatakuga)
+2044/1/1,Tausaga Fou
+2044/4/15,Aso toe tu
+2044/4/18,Toe Tu aso gafua
+2044/5/9,Te Aso o te Tala Lei
+2044/6/11,Asofanau Tupu
+2044/8/1,Aso tupulaga
+2044/10/1,Tutokotasi
+2044/10/2,Tutokotasi
+2044/10/3,Tutokotasi (fakamatakuga)
+2044/10/4,Tutokotasi (fakamatakuga)
+2044/10/10,Aso Tamaliki
+2044/12/25,Kilisimasi
+2044/12/26,Aso Faipele
+2044/12/27,Kilisimasi (fakamatakuga)
+2045/1/1,Tausaga Fou
+2045/1/2,Tausaga Fou (fakamatakuga)
+2045/4/7,Aso toe tu
+2045/4/10,Toe Tu aso gafua
+2045/5/15,Te Aso o te Tala Lei
+2045/6/10,Asofanau Tupu
+2045/8/7,Aso tupulaga
+2045/10/1,Tutokotasi
+2045/10/2,Tutokotasi
+2045/10/3,Tutokotasi (fakamatakuga)
+2045/10/9,Aso Tamaliki
+2045/12/25,Kilisimasi
+2045/12/26,Aso Faipele
+2046/1/1,Tausaga Fou
+2046/3/23,Aso toe tu
+2046/3/26,Toe Tu aso gafua
+2046/5/14,Te Aso o te Tala Lei
+2046/6/9,Asofanau Tupu
+2046/8/6,Aso tupulaga
+2046/10/1,Tutokotasi
+2046/10/2,Tutokotasi
+2046/10/15,Aso Tamaliki
+2046/12/25,Kilisimasi
+2046/12/26,Aso Faipele
+2047/1/1,Tausaga Fou
+2047/4/12,Aso toe tu
+2047/4/15,Toe Tu aso gafua
+2047/5/13,Te Aso o te Tala Lei
+2047/6/8,Asofanau Tupu
+2047/8/5,Aso tupulaga
+2047/10/1,Tutokotasi
+2047/10/2,Tutokotasi
+2047/10/14,Aso Tamaliki
+2047/12/25,Kilisimasi
+2047/12/26,Aso Faipele
+2048/1/1,Tausaga Fou
+2048/4/3,Aso toe tu
+2048/4/6,Toe Tu aso gafua
+2048/5/11,Te Aso o te Tala Lei
+2048/6/13,Asofanau Tupu
+2048/8/3,Aso tupulaga
+2048/10/1,Tutokotasi
+2048/10/2,Tutokotasi
+2048/10/12,Aso Tamaliki
+2048/12/25,Kilisimasi
+2048/12/26,Aso Faipele
+2048/12/28,Aso Faipele (fakamatakuga)
+2049/1/1,Tausaga Fou
+2049/4/16,Aso toe tu
+2049/4/19,Toe Tu aso gafua
+2049/5/10,Te Aso o te Tala Lei
+2049/6/12,Asofanau Tupu
+2049/8/2,Aso tupulaga
+2049/10/1,Tutokotasi
+2049/10/2,Tutokotasi
+2049/10/4,Tutokotasi (fakamatakuga)
+2049/10/11,Aso Tamaliki
+2049/12/25,Kilisimasi
+2049/12/26,Aso Faipele
+2049/12/27,Kilisimasi (fakamatakuga)
+2049/12/28,Aso Faipele (fakamatakuga)
+2050/1/1,Tausaga Fou
+2050/1/3,Tausaga Fou (fakamatakuga)
+2050/4/8,Aso toe tu
+2050/4/11,Toe Tu aso gafua
+2050/5/9,Te Aso o te Tala Lei
+2050/6/11,Asofanau Tupu
+2050/8/1,Aso tupulaga
+2050/10/1,Tutokotasi
+2050/10/2,Tutokotasi
+2050/10/3,Tutokotasi (fakamatakuga)
+2050/10/4,Tutokotasi (fakamatakuga)
+2050/10/10,Aso Tamaliki
+2050/12/25,Kilisimasi
+2050/12/26,Aso Faipele
+2050/12/27,Kilisimasi (fakamatakuga)

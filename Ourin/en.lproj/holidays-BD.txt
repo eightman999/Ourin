@@ -1,0 +1,568 @@
+# BD holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/2/21,Martyrs' Day and International Mother Language Day
+2020/3/17,Sheikh Mujibur Rahman's Birthday
+2020/3/26,Independence Day
+2020/4/9,Mid-Sha'ban (estimated)
+2020/4/14,Bengali New Year's Day
+2020/5/1,May Day
+2020/5/21,Laylat al-Qadr (estimated)
+2020/5/22,Jumu'atul-Wida (estimated)
+2020/5/25,Eid al-Fitr (estimated)
+2020/5/26,Eid al-Fitr (estimated)
+2020/5/27,Eid al-Fitr (estimated)
+2020/8/1,Eid al-Adha (estimated)
+2020/8/2,Eid al-Adha (estimated)
+2020/8/3,Eid al-Adha (estimated)
+2020/8/15,National Mourning Day
+2020/8/30,Ashura (estimated)
+2020/10/30,Prophet's Birthday (estimated)
+2020/12/16,Victory Day
+2020/12/25,Christmas Day
+2021/2/21,Martyrs' Day and International Mother Language Day
+2021/3/17,Sheikh Mujibur Rahman's Birthday
+2021/3/26,Independence Day
+2021/3/29,Mid-Sha'ban (estimated)
+2021/4/14,Bengali New Year's Day
+2021/5/1,May Day
+2021/5/7,Jumu'atul-Wida (estimated)
+2021/5/10,Laylat al-Qadr (estimated)
+2021/5/14,Eid al-Fitr (estimated)
+2021/5/15,Eid al-Fitr (estimated)
+2021/5/16,Eid al-Fitr (estimated)
+2021/7/21,Eid al-Adha (estimated)
+2021/7/22,Eid al-Adha (estimated)
+2021/7/23,Eid al-Adha (estimated)
+2021/8/15,National Mourning Day
+2021/8/19,Ashura (estimated)
+2021/10/19,Prophet's Birthday (estimated)
+2021/12/16,Victory Day
+2021/12/25,Christmas Day
+2022/2/21,Martyrs' Day and International Mother Language Day
+2022/3/17,Sheikh Mujibur Rahman's Birthday
+2022/3/19,Mid-Sha'ban
+2022/3/26,Independence Day
+2022/4/14,Bengali New Year's Day
+2022/4/29,Jumu'atul-Wida; Laylat al-Qadr
+2022/5/1,May Day
+2022/5/3,Eid al-Fitr
+2022/5/4,Eid al-Fitr
+2022/5/5,Eid al-Fitr
+2022/7/10,Eid al-Adha
+2022/7/11,Eid al-Adha
+2022/7/12,Eid al-Adha
+2022/8/9,Ashura
+2022/8/15,National Mourning Day
+2022/10/9,Prophet's Birthday
+2022/12/16,Victory Day
+2022/12/25,Christmas Day
+2023/2/21,Martyrs' Day and International Mother Language Day
+2023/3/8,Mid-Sha'ban
+2023/3/17,Sheikh Mujibur Rahman's Birthday
+2023/3/26,Independence Day
+2023/4/14,Bengali New Year's Day
+2023/4/19,Laylat al-Qadr
+2023/4/21,Jumu'atul-Wida
+2023/4/22,Eid al-Fitr
+2023/4/23,Eid al-Fitr
+2023/4/24,Eid al-Fitr
+2023/5/1,May Day
+2023/6/29,Eid al-Adha
+2023/6/30,Eid al-Adha
+2023/7/1,Eid al-Adha
+2023/7/29,Ashura
+2023/8/15,National Mourning Day
+2023/9/28,Prophet's Birthday
+2023/12/16,Victory Day
+2023/12/25,Christmas Day
+2024/1/7,Public Holiday
+2024/2/21,Martyrs' Day and International Mother Language Day
+2024/2/26,Mid-Sha'ban
+2024/3/17,Sheikh Mujibur Rahman's Birthday
+2024/3/26,Independence Day
+2024/4/5,Jumu'atul-Wida
+2024/4/7,Laylat al-Qadr
+2024/4/10,Eid al-Fitr
+2024/4/11,Eid al-Fitr
+2024/4/12,Eid al-Fitr
+2024/4/14,Bengali New Year's Day
+2024/5/1,May Day
+2024/6/17,Eid al-Adha
+2024/6/18,Eid al-Adha
+2024/6/19,Eid al-Adha
+2024/7/17,Ashura
+2024/8/5,Public Holiday
+2024/8/6,Public Holiday
+2024/8/7,Public Holiday
+2024/8/15,National Mourning Day
+2024/9/16,Prophet's Birthday
+2024/12/16,Victory Day
+2024/12/25,Christmas Day
+2025/2/15,Mid-Sha'ban
+2025/2/21,Martyrs' Day and International Mother Language Day
+2025/3/26,Independence Day
+2025/3/28,Jumu'atul-Wida; Laylat al-Qadr
+2025/3/31,Eid al-Fitr
+2025/4/1,Eid al-Fitr
+2025/4/2,Eid al-Fitr
+2025/4/14,Bengali New Year's Day
+2025/5/1,May Day
+2025/6/7,Eid al-Adha
+2025/6/8,Eid al-Adha
+2025/6/9,Eid al-Adha
+2025/7/6,Ashura
+2025/8/5,July Mass Uprising Day
+2025/9/6,Prophet's Birthday
+2025/12/16,Victory Day
+2025/12/25,Christmas Day
+2026/2/4,Mid-Sha'ban
+2026/2/21,Martyrs' Day and International Mother Language Day
+2026/3/17,Laylat al-Qadr
+2026/3/20,Jumu'atul-Wida
+2026/3/21,Eid al-Fitr
+2026/3/22,Eid al-Fitr
+2026/3/23,Eid al-Fitr
+2026/3/26,Independence Day
+2026/4/14,Bengali New Year's Day
+2026/5/1,May Day
+2026/5/28,Eid al-Adha
+2026/5/29,Eid al-Adha
+2026/5/30,Eid al-Adha
+2026/6/26,Ashura
+2026/8/5,July Mass Uprising Day
+2026/8/26,Prophet's Birthday
+2026/12/16,Victory Day
+2026/12/25,Christmas Day
+2027/1/24,Mid-Sha'ban (estimated)
+2027/2/21,Martyrs' Day and International Mother Language Day
+2027/3/5,Jumu'atul-Wida (estimated)
+2027/3/7,Laylat al-Qadr (estimated)
+2027/3/10,Eid al-Fitr (estimated)
+2027/3/11,Eid al-Fitr (estimated)
+2027/3/12,Eid al-Fitr (estimated)
+2027/3/26,Independence Day
+2027/4/14,Bengali New Year's Day
+2027/5/1,May Day
+2027/5/17,Eid al-Adha (estimated)
+2027/5/18,Eid al-Adha (estimated)
+2027/5/19,Eid al-Adha (estimated)
+2027/6/16,Ashura (estimated)
+2027/8/5,July Mass Uprising Day
+2027/8/15,Prophet's Birthday (estimated)
+2027/12/16,Victory Day
+2027/12/25,Christmas Day
+2028/1/13,Mid-Sha'ban (estimated)
+2028/2/21,Martyrs' Day and International Mother Language Day
+2028/2/24,Laylat al-Qadr (estimated)
+2028/2/25,Jumu'atul-Wida (estimated)
+2028/2/27,Eid al-Fitr (estimated)
+2028/2/28,Eid al-Fitr (estimated)
+2028/2/29,Eid al-Fitr (estimated)
+2028/3/26,Independence Day
+2028/4/14,Bengali New Year's Day
+2028/5/1,May Day
+2028/5/6,Eid al-Adha (estimated)
+2028/5/7,Eid al-Adha (estimated)
+2028/5/8,Eid al-Adha (estimated)
+2028/6/4,Ashura (estimated)
+2028/8/4,Prophet's Birthday (estimated)
+2028/8/5,July Mass Uprising Day
+2028/12/16,Victory Day
+2028/12/25,Christmas Day
+2029/1/1,Mid-Sha'ban (estimated)
+2029/2/9,Jumu'atul-Wida (estimated)
+2029/2/12,Laylat al-Qadr (estimated)
+2029/2/15,Eid al-Fitr (estimated)
+2029/2/16,Eid al-Fitr (estimated)
+2029/2/17,Eid al-Fitr (estimated)
+2029/2/21,Martyrs' Day and International Mother Language Day
+2029/3/26,Independence Day
+2029/4/14,Bengali New Year's Day
+2029/4/25,Eid al-Adha (estimated)
+2029/4/26,Eid al-Adha (estimated)
+2029/4/27,Eid al-Adha (estimated)
+2029/5/1,May Day
+2029/5/24,Ashura (estimated)
+2029/7/25,Prophet's Birthday (estimated)
+2029/8/5,July Mass Uprising Day
+2029/12/16,Victory Day
+2029/12/22,Mid-Sha'ban (estimated)
+2029/12/25,Christmas Day
+2030/2/1,Jumu'atul-Wida (estimated); Laylat al-Qadr (estimated)
+2030/2/5,Eid al-Fitr (estimated)
+2030/2/6,Eid al-Fitr (estimated)
+2030/2/7,Eid al-Fitr (estimated)
+2030/2/21,Martyrs' Day and International Mother Language Day
+2030/3/26,Independence Day
+2030/4/14,Bengali New Year's Day; Eid al-Adha (estimated)
+2030/4/15,Eid al-Adha (estimated)
+2030/4/16,Eid al-Adha (estimated)
+2030/5/1,May Day
+2030/5/13,Ashura (estimated)
+2030/7/14,Prophet's Birthday (estimated)
+2030/8/5,July Mass Uprising Day
+2030/12/11,Mid-Sha'ban (estimated)
+2030/12/16,Victory Day
+2030/12/25,Christmas Day
+2031/1/17,Jumu'atul-Wida (estimated)
+2031/1/22,Laylat al-Qadr (estimated)
+2031/1/25,Eid al-Fitr (estimated)
+2031/1/26,Eid al-Fitr (estimated)
+2031/1/27,Eid al-Fitr (estimated)
+2031/2/21,Martyrs' Day and International Mother Language Day
+2031/3/26,Independence Day
+2031/4/3,Eid al-Adha (estimated)
+2031/4/4,Eid al-Adha (estimated)
+2031/4/5,Eid al-Adha (estimated)
+2031/4/14,Bengali New Year's Day
+2031/5/1,May Day
+2031/5/3,Ashura (estimated)
+2031/7/3,Prophet's Birthday (estimated)
+2031/8/5,July Mass Uprising Day
+2031/12/1,Mid-Sha'ban (estimated)
+2031/12/16,Victory Day
+2031/12/25,Christmas Day
+2032/1/9,Jumu'atul-Wida (estimated)
+2032/1/11,Laylat al-Qadr (estimated)
+2032/1/15,Eid al-Fitr (estimated)
+2032/1/16,Eid al-Fitr (estimated)
+2032/1/17,Eid al-Fitr (estimated)
+2032/2/21,Martyrs' Day and International Mother Language Day
+2032/3/23,Eid al-Adha (estimated)
+2032/3/24,Eid al-Adha (estimated)
+2032/3/25,Eid al-Adha (estimated)
+2032/3/26,Independence Day
+2032/4/14,Bengali New Year's Day
+2032/4/21,Ashura (estimated)
+2032/5/1,May Day
+2032/6/21,Prophet's Birthday (estimated)
+2032/8/5,July Mass Uprising Day
+2032/11/19,Mid-Sha'ban (estimated)
+2032/12/16,Victory Day
+2032/12/25,Christmas Day
+2032/12/31,Jumu'atul-Wida (estimated); Laylat al-Qadr (estimated)
+2033/1/3,Eid al-Fitr (estimated)
+2033/1/4,Eid al-Fitr (estimated)
+2033/1/5,Eid al-Fitr (estimated)
+2033/2/21,Martyrs' Day and International Mother Language Day
+2033/3/12,Eid al-Adha (estimated)
+2033/3/13,Eid al-Adha (estimated)
+2033/3/14,Eid al-Adha (estimated)
+2033/3/26,Independence Day
+2033/4/11,Ashura (estimated)
+2033/4/14,Bengali New Year's Day
+2033/5/1,May Day
+2033/6/10,Prophet's Birthday (estimated)
+2033/8/5,July Mass Uprising Day
+2033/11/8,Mid-Sha'ban (estimated)
+2033/12/16,Jumu'atul-Wida (estimated); Victory Day
+2033/12/20,Laylat al-Qadr (estimated)
+2033/12/24,Eid al-Fitr (estimated)
+2033/12/25,Christmas Day; Eid al-Fitr (estimated)
+2033/12/26,Eid al-Fitr (estimated)
+2034/2/21,Martyrs' Day and International Mother Language Day
+2034/3/2,Eid al-Adha (estimated)
+2034/3/3,Eid al-Adha (estimated)
+2034/3/4,Eid al-Adha (estimated)
+2034/3/26,Independence Day
+2034/3/31,Ashura (estimated)
+2034/4/14,Bengali New Year's Day
+2034/5/1,May Day
+2034/5/31,Prophet's Birthday (estimated)
+2034/8/5,July Mass Uprising Day
+2034/10/28,Mid-Sha'ban (estimated)
+2034/12/8,Jumu'atul-Wida (estimated)
+2034/12/9,Laylat al-Qadr (estimated)
+2034/12/13,Eid al-Fitr (estimated)
+2034/12/14,Eid al-Fitr (estimated)
+2034/12/15,Eid al-Fitr (estimated)
+2034/12/16,Victory Day
+2034/12/25,Christmas Day
+2035/2/19,Eid al-Adha (estimated)
+2035/2/20,Eid al-Adha (estimated)
+2035/2/21,Eid al-Adha (estimated); Martyrs' Day and International Mother Language Day
+2035/3/21,Ashura (estimated)
+2035/3/26,Independence Day
+2035/4/14,Bengali New Year's Day
+2035/5/1,May Day
+2035/5/21,Prophet's Birthday (estimated)
+2035/8/5,July Mass Uprising Day
+2035/10/17,Mid-Sha'ban (estimated)
+2035/11/28,Laylat al-Qadr (estimated)
+2035/11/30,Jumu'atul-Wida (estimated)
+2035/12/2,Eid al-Fitr (estimated)
+2035/12/3,Eid al-Fitr (estimated)
+2035/12/4,Eid al-Fitr (estimated)
+2035/12/16,Victory Day
+2035/12/25,Christmas Day
+2036/2/8,Eid al-Adha (estimated)
+2036/2/9,Eid al-Adha (estimated)
+2036/2/10,Eid al-Adha (estimated)
+2036/2/21,Martyrs' Day and International Mother Language Day
+2036/3/9,Ashura (estimated)
+2036/3/26,Independence Day
+2036/4/14,Bengali New Year's Day
+2036/5/1,May Day
+2036/5/9,Prophet's Birthday (estimated)
+2036/8/5,July Mass Uprising Day
+2036/10/6,Mid-Sha'ban (estimated)
+2036/11/14,Jumu'atul-Wida (estimated)
+2036/11/16,Laylat al-Qadr (estimated)
+2036/11/20,Eid al-Fitr (estimated)
+2036/11/21,Eid al-Fitr (estimated)
+2036/11/22,Eid al-Fitr (estimated)
+2036/12/16,Victory Day
+2036/12/25,Christmas Day
+2037/1/27,Eid al-Adha (estimated)
+2037/1/28,Eid al-Adha (estimated)
+2037/1/29,Eid al-Adha (estimated)
+2037/2/21,Martyrs' Day and International Mother Language Day
+2037/2/26,Ashura (estimated)
+2037/3/26,Independence Day
+2037/4/14,Bengali New Year's Day
+2037/4/29,Prophet's Birthday (estimated)
+2037/5/1,May Day
+2037/8/5,July Mass Uprising Day
+2037/9/26,Mid-Sha'ban (estimated)
+2037/11/6,Jumu'atul-Wida (estimated); Laylat al-Qadr (estimated)
+2037/11/9,Eid al-Fitr (estimated)
+2037/11/10,Eid al-Fitr (estimated)
+2037/11/11,Eid al-Fitr (estimated)
+2037/12/16,Victory Day
+2037/12/25,Christmas Day
+2038/1/17,Eid al-Adha (estimated)
+2038/1/18,Eid al-Adha (estimated)
+2038/1/19,Eid al-Adha (estimated)
+2038/2/15,Ashura (estimated)
+2038/2/21,Martyrs' Day and International Mother Language Day
+2038/3/26,Independence Day
+2038/4/14,Bengali New Year's Day
+2038/4/18,Prophet's Birthday (estimated)
+2038/5/1,May Day
+2038/8/5,July Mass Uprising Day
+2038/9/15,Mid-Sha'ban (estimated)
+2038/10/22,Jumu'atul-Wida (estimated)
+2038/10/27,Laylat al-Qadr (estimated)
+2038/10/30,Eid al-Fitr (estimated)
+2038/10/31,Eid al-Fitr (estimated)
+2038/11/1,Eid al-Fitr (estimated)
+2038/12/16,Victory Day
+2038/12/25,Christmas Day
+2039/1/6,Eid al-Adha (estimated)
+2039/1/7,Eid al-Adha (estimated)
+2039/1/8,Eid al-Adha (estimated)
+2039/2/5,Ashura (estimated)
+2039/2/21,Martyrs' Day and International Mother Language Day
+2039/3/26,Independence Day
+2039/4/7,Prophet's Birthday (estimated)
+2039/4/14,Bengali New Year's Day
+2039/5/1,May Day
+2039/8/5,July Mass Uprising Day
+2039/9/5,Mid-Sha'ban (estimated)
+2039/10/14,Jumu'atul-Wida (estimated)
+2039/10/16,Laylat al-Qadr (estimated)
+2039/10/20,Eid al-Fitr (estimated)
+2039/10/21,Eid al-Fitr (estimated)
+2039/10/22,Eid al-Fitr (estimated)
+2039/12/16,Victory Day
+2039/12/25,Christmas Day
+2039/12/27,Eid al-Adha (estimated)
+2039/12/28,Eid al-Adha (estimated)
+2039/12/29,Eid al-Adha (estimated)
+2040/1/25,Ashura (estimated)
+2040/2/21,Martyrs' Day and International Mother Language Day
+2040/3/26,Independence Day; Prophet's Birthday (estimated)
+2040/4/14,Bengali New Year's Day
+2040/5/1,May Day
+2040/8/5,July Mass Uprising Day
+2040/8/24,Mid-Sha'ban (estimated)
+2040/10/4,Laylat al-Qadr (estimated)
+2040/10/5,Jumu'atul-Wida (estimated)
+2040/10/8,Eid al-Fitr (estimated)
+2040/10/9,Eid al-Fitr (estimated)
+2040/10/10,Eid al-Fitr (estimated)
+2040/12/15,Eid al-Adha (estimated)
+2040/12/16,Eid al-Adha (estimated); Victory Day
+2040/12/17,Eid al-Adha (estimated)
+2040/12/25,Christmas Day
+2041/1/14,Ashura (estimated)
+2041/2/21,Martyrs' Day and International Mother Language Day
+2041/3/16,Prophet's Birthday (estimated)
+2041/3/26,Independence Day
+2041/4/14,Bengali New Year's Day
+2041/5/1,May Day
+2041/8/5,July Mass Uprising Day
+2041/8/13,Mid-Sha'ban (estimated)
+2041/9/20,Jumu'atul-Wida (estimated)
+2041/9/24,Laylat al-Qadr (estimated)
+2041/9/27,Eid al-Fitr (estimated)
+2041/9/28,Eid al-Fitr (estimated)
+2041/9/29,Eid al-Fitr (estimated)
+2041/12/5,Eid al-Adha (estimated)
+2041/12/6,Eid al-Adha (estimated)
+2041/12/7,Eid al-Adha (estimated)
+2041/12/16,Victory Day
+2041/12/25,Christmas Day
+2042/1/3,Ashura (estimated)
+2042/2/21,Martyrs' Day and International Mother Language Day
+2042/3/5,Prophet's Birthday (estimated)
+2042/3/26,Independence Day
+2042/4/14,Bengali New Year's Day
+2042/5/1,May Day
+2042/8/2,Mid-Sha'ban (estimated)
+2042/8/5,July Mass Uprising Day
+2042/9/12,Jumu'atul-Wida (estimated)
+2042/9/13,Laylat al-Qadr (estimated)
+2042/9/16,Eid al-Fitr (estimated)
+2042/9/17,Eid al-Fitr (estimated)
+2042/9/18,Eid al-Fitr (estimated)
+2042/11/24,Eid al-Adha (estimated)
+2042/11/25,Eid al-Adha (estimated)
+2042/11/26,Eid al-Adha (estimated)
+2042/12/16,Victory Day
+2042/12/24,Ashura (estimated)
+2042/12/25,Christmas Day
+2043/2/21,Martyrs' Day and International Mother Language Day
+2043/2/23,Prophet's Birthday (estimated)
+2043/3/26,Independence Day
+2043/4/14,Bengali New Year's Day
+2043/5/1,May Day
+2043/7/23,Mid-Sha'ban (estimated)
+2043/8/5,July Mass Uprising Day
+2043/8/28,Jumu'atul-Wida (estimated)
+2043/9/2,Laylat al-Qadr (estimated)
+2043/9/5,Eid al-Fitr (estimated)
+2043/9/6,Eid al-Fitr (estimated)
+2043/9/7,Eid al-Fitr (estimated)
+2043/11/13,Eid al-Adha (estimated)
+2043/11/14,Eid al-Adha (estimated)
+2043/11/15,Eid al-Adha (estimated)
+2043/12/13,Ashura (estimated)
+2043/12/16,Victory Day
+2043/12/25,Christmas Day
+2044/2/12,Prophet's Birthday (estimated)
+2044/2/21,Martyrs' Day and International Mother Language Day
+2044/3/26,Independence Day
+2044/4/14,Bengali New Year's Day
+2044/5/1,May Day
+2044/7/11,Mid-Sha'ban (estimated)
+2044/8/5,July Mass Uprising Day
+2044/8/19,Jumu'atul-Wida (estimated)
+2044/8/22,Laylat al-Qadr (estimated)
+2044/8/25,Eid al-Fitr (estimated)
+2044/8/26,Eid al-Fitr (estimated)
+2044/8/27,Eid al-Fitr (estimated)
+2044/11/1,Eid al-Adha (estimated)
+2044/11/2,Eid al-Adha (estimated)
+2044/11/3,Eid al-Adha (estimated)
+2044/12/1,Ashura (estimated)
+2044/12/16,Victory Day
+2044/12/25,Christmas Day
+2045/1/31,Prophet's Birthday (estimated)
+2045/2/21,Martyrs' Day and International Mother Language Day
+2045/3/26,Independence Day
+2045/4/14,Bengali New Year's Day
+2045/5/1,May Day
+2045/7/1,Mid-Sha'ban (estimated)
+2045/8/5,July Mass Uprising Day
+2045/8/11,Jumu'atul-Wida (estimated); Laylat al-Qadr (estimated)
+2045/8/15,Eid al-Fitr (estimated)
+2045/8/16,Eid al-Fitr (estimated)
+2045/8/17,Eid al-Fitr (estimated)
+2045/10/22,Eid al-Adha (estimated)
+2045/10/23,Eid al-Adha (estimated)
+2045/10/24,Eid al-Adha (estimated)
+2045/11/20,Ashura (estimated)
+2045/12/16,Victory Day
+2045/12/25,Christmas Day
+2046/1/20,Prophet's Birthday (estimated)
+2046/2/21,Martyrs' Day and International Mother Language Day
+2046/3/26,Independence Day
+2046/4/14,Bengali New Year's Day
+2046/5/1,May Day
+2046/6/20,Mid-Sha'ban (estimated)
+2046/7/27,Jumu'atul-Wida (estimated)
+2046/8/1,Laylat al-Qadr (estimated)
+2046/8/4,Eid al-Fitr (estimated)
+2046/8/5,Eid al-Fitr (estimated); July Mass Uprising Day
+2046/8/6,Eid al-Fitr (estimated)
+2046/10/11,Eid al-Adha (estimated)
+2046/10/12,Eid al-Adha (estimated)
+2046/10/13,Eid al-Adha (estimated)
+2046/11/10,Ashura (estimated)
+2046/12/16,Victory Day
+2046/12/25,Christmas Day
+2047/1/9,Prophet's Birthday (estimated)
+2047/2/21,Martyrs' Day and International Mother Language Day
+2047/3/26,Independence Day
+2047/4/14,Bengali New Year's Day
+2047/5/1,May Day
+2047/6/10,Mid-Sha'ban (estimated)
+2047/7/19,Jumu'atul-Wida (estimated)
+2047/7/21,Laylat al-Qadr (estimated)
+2047/7/25,Eid al-Fitr (estimated)
+2047/7/26,Eid al-Fitr (estimated)
+2047/7/27,Eid al-Fitr (estimated)
+2047/8/5,July Mass Uprising Day
+2047/10/1,Eid al-Adha (estimated)
+2047/10/2,Eid al-Adha (estimated)
+2047/10/3,Eid al-Adha (estimated)
+2047/10/30,Ashura (estimated)
+2047/12/16,Victory Day
+2047/12/25,Christmas Day
+2047/12/30,Prophet's Birthday (estimated)
+2048/2/21,Martyrs' Day and International Mother Language Day
+2048/3/26,Independence Day
+2048/4/14,Bengali New Year's Day
+2048/5/1,May Day
+2048/5/29,Mid-Sha'ban (estimated)
+2048/7/9,Laylat al-Qadr (estimated)
+2048/7/10,Jumu'atul-Wida (estimated)
+2048/7/13,Eid al-Fitr (estimated)
+2048/7/14,Eid al-Fitr (estimated)
+2048/7/15,Eid al-Fitr (estimated)
+2048/8/5,July Mass Uprising Day
+2048/9/20,Eid al-Adha (estimated)
+2048/9/21,Eid al-Adha (estimated)
+2048/9/22,Eid al-Adha (estimated)
+2048/10/19,Ashura (estimated)
+2048/12/16,Victory Day
+2048/12/19,Prophet's Birthday (estimated)
+2048/12/25,Christmas Day
+2049/2/21,Martyrs' Day and International Mother Language Day
+2049/3/26,Independence Day
+2049/4/14,Bengali New Year's Day
+2049/5/1,May Day
+2049/5/18,Mid-Sha'ban (estimated)
+2049/6/25,Jumu'atul-Wida (estimated)
+2049/6/29,Laylat al-Qadr (estimated)
+2049/7/2,Eid al-Fitr (estimated)
+2049/7/3,Eid al-Fitr (estimated)
+2049/7/4,Eid al-Fitr (estimated)
+2049/8/5,July Mass Uprising Day
+2049/9/9,Eid al-Adha (estimated)
+2049/9/10,Eid al-Adha (estimated)
+2049/9/11,Eid al-Adha (estimated)
+2049/10/8,Ashura (estimated)
+2049/12/8,Prophet's Birthday (estimated)
+2049/12/16,Victory Day
+2049/12/25,Christmas Day
+2050/2/21,Martyrs' Day and International Mother Language Day
+2050/3/26,Independence Day
+2050/4/14,Bengali New Year's Day
+2050/5/1,May Day
+2050/5/7,Mid-Sha'ban (estimated)
+2050/6/17,Jumu'atul-Wida (estimated)
+2050/6/18,Laylat al-Qadr (estimated)
+2050/6/21,Eid al-Fitr (estimated)
+2050/6/22,Eid al-Fitr (estimated)
+2050/6/23,Eid al-Fitr (estimated)
+2050/8/5,July Mass Uprising Day
+2050/8/29,Eid al-Adha (estimated)
+2050/8/30,Eid al-Adha (estimated)
+2050/8/31,Eid al-Adha (estimated)
+2050/9/27,Ashura (estimated)
+2050/11/27,Prophet's Birthday (estimated)
+2050/12/16,Victory Day
+2050/12/25,Christmas Day

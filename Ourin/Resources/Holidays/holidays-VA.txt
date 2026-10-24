@@ -1,0 +1,903 @@
+# VA の祝日（2020〜2050年、言語: it）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Solennità di Maria Santissima Madre di Dio
+2020/1/6,Epifania del Signore
+2020/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2020/3/13,Anniversario dell'Elezione del Santo Padre
+2020/3/19,San Giuseppe
+2020/4/9,Giovedì Santo
+2020/4/10,Venerdì Santo
+2020/4/11,Sabato Santo
+2020/4/12,Pasqua di Resurrezione
+2020/4/13,Lunedì dell'Angelo
+2020/4/14,Martedì in Albis
+2020/4/23,Onomastico del Santo Padre
+2020/5/1,San Giuseppe Artigiano
+2020/5/21,Ascensione del Signore
+2020/5/31,Solennità della Pentecoste
+2020/6/7,Solennità della Santissima Trinità
+2020/6/11,Corpus Domini
+2020/6/29,Santi Pietro e Paolo
+2020/8/14,Vigilia dell'Assunzione di Maria Santissima
+2020/8/15,Assunzione di Maria Santissima
+2020/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2020/11/1,Tutti i Santi
+2020/11/2,Tutti i Fedeli Defunti
+2020/12/8,Immacolata Concezione
+2020/12/24,Vigilia di Natale
+2020/12/25,Natale
+2020/12/26,Santo Stefano
+2020/12/27,San Giovanni
+2020/12/31,Ultimo giorno dell'anno
+2021/1/1,Solennità di Maria Santissima Madre di Dio
+2021/1/6,Epifania del Signore
+2021/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2021/3/13,Anniversario dell'Elezione del Santo Padre
+2021/3/19,San Giuseppe
+2021/4/1,Giovedì Santo
+2021/4/2,Venerdì Santo
+2021/4/3,Sabato Santo
+2021/4/4,Pasqua di Resurrezione
+2021/4/5,Lunedì dell'Angelo
+2021/4/6,Martedì in Albis
+2021/4/23,Onomastico del Santo Padre
+2021/5/1,San Giuseppe Artigiano
+2021/5/13,Ascensione del Signore
+2021/5/23,Solennità della Pentecoste
+2021/5/30,Solennità della Santissima Trinità
+2021/6/3,Corpus Domini
+2021/6/29,Santi Pietro e Paolo
+2021/8/14,Vigilia dell'Assunzione di Maria Santissima
+2021/8/15,Assunzione di Maria Santissima
+2021/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2021/11/1,Tutti i Santi
+2021/11/2,Tutti i Fedeli Defunti
+2021/12/8,Immacolata Concezione
+2021/12/24,Vigilia di Natale
+2021/12/25,Natale
+2021/12/26,Santo Stefano
+2021/12/27,San Giovanni
+2021/12/31,Ultimo giorno dell'anno
+2022/1/1,Solennità di Maria Santissima Madre di Dio
+2022/1/6,Epifania del Signore
+2022/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2022/3/13,Anniversario dell'Elezione del Santo Padre
+2022/3/19,San Giuseppe
+2022/4/14,Giovedì Santo
+2022/4/15,Venerdì Santo
+2022/4/16,Sabato Santo
+2022/4/17,Pasqua di Resurrezione
+2022/4/18,Lunedì dell'Angelo
+2022/4/19,Martedì in Albis
+2022/4/23,Onomastico del Santo Padre
+2022/5/1,San Giuseppe Artigiano
+2022/5/26,Ascensione del Signore
+2022/6/5,Solennità della Pentecoste
+2022/6/12,Solennità della Santissima Trinità
+2022/6/16,Corpus Domini
+2022/6/29,Santi Pietro e Paolo
+2022/8/14,Vigilia dell'Assunzione di Maria Santissima
+2022/8/15,Assunzione di Maria Santissima
+2022/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2022/11/1,Tutti i Santi
+2022/11/2,Tutti i Fedeli Defunti
+2022/12/8,Immacolata Concezione
+2022/12/24,Vigilia di Natale
+2022/12/25,Natale
+2022/12/26,Santo Stefano
+2022/12/27,San Giovanni
+2022/12/31,Ultimo giorno dell'anno
+2023/1/1,Solennità di Maria Santissima Madre di Dio
+2023/1/6,Epifania del Signore
+2023/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2023/3/13,Anniversario dell'Elezione del Santo Padre
+2023/3/19,San Giuseppe
+2023/4/6,Giovedì Santo
+2023/4/7,Venerdì Santo
+2023/4/8,Sabato Santo
+2023/4/9,Pasqua di Resurrezione
+2023/4/10,Lunedì dell'Angelo
+2023/4/11,Martedì in Albis
+2023/4/23,Onomastico del Santo Padre
+2023/5/1,San Giuseppe Artigiano
+2023/5/18,Ascensione del Signore
+2023/5/28,Solennità della Pentecoste
+2023/6/4,Solennità della Santissima Trinità
+2023/6/8,Corpus Domini
+2023/6/29,Santi Pietro e Paolo
+2023/8/14,Vigilia dell'Assunzione di Maria Santissima
+2023/8/15,Assunzione di Maria Santissima
+2023/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2023/11/1,Tutti i Santi
+2023/11/2,Tutti i Fedeli Defunti
+2023/12/8,Immacolata Concezione
+2023/12/24,Vigilia di Natale
+2023/12/25,Natale
+2023/12/26,Santo Stefano
+2023/12/27,San Giovanni
+2023/12/31,Ultimo giorno dell'anno
+2024/1/1,Solennità di Maria Santissima Madre di Dio
+2024/1/6,Epifania del Signore
+2024/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2024/3/13,Anniversario dell'Elezione del Santo Padre
+2024/3/19,San Giuseppe
+2024/3/28,Giovedì Santo
+2024/3/29,Venerdì Santo
+2024/3/30,Sabato Santo
+2024/3/31,Pasqua di Resurrezione
+2024/4/1,Lunedì dell'Angelo
+2024/4/2,Martedì in Albis
+2024/4/23,Onomastico del Santo Padre
+2024/5/1,San Giuseppe Artigiano
+2024/5/9,Ascensione del Signore
+2024/5/19,Solennità della Pentecoste
+2024/5/26,Solennità della Santissima Trinità
+2024/5/30,Corpus Domini
+2024/6/29,Santi Pietro e Paolo
+2024/8/14,Vigilia dell'Assunzione di Maria Santissima
+2024/8/15,Assunzione di Maria Santissima
+2024/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2024/11/1,Tutti i Santi
+2024/11/2,Tutti i Fedeli Defunti
+2024/12/8,Immacolata Concezione
+2024/12/24,Vigilia di Natale
+2024/12/25,Natale
+2024/12/26,Santo Stefano
+2024/12/27,San Giovanni
+2024/12/31,Ultimo giorno dell'anno
+2025/1/1,Solennità di Maria Santissima Madre di Dio
+2025/1/6,Epifania del Signore
+2025/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2025/3/13,Anniversario dell'Elezione del Santo Padre
+2025/3/19,San Giuseppe
+2025/4/17,Giovedì Santo
+2025/4/18,Venerdì Santo
+2025/4/19,Sabato Santo
+2025/4/20,Pasqua di Resurrezione
+2025/4/21,Lunedì dell'Angelo
+2025/4/22,Martedì in Albis
+2025/4/23,Onomastico del Santo Padre
+2025/5/1,San Giuseppe Artigiano
+2025/5/29,Ascensione del Signore
+2025/6/8,Solennità della Pentecoste
+2025/6/15,Solennità della Santissima Trinità
+2025/6/19,Corpus Domini
+2025/6/29,Santi Pietro e Paolo
+2025/8/14,Vigilia dell'Assunzione di Maria Santissima
+2025/8/15,Assunzione di Maria Santissima
+2025/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2025/9/17,Onomastico del Santo Padre
+2025/11/1,Tutti i Santi
+2025/11/2,Tutti i Fedeli Defunti
+2025/12/8,Immacolata Concezione
+2025/12/24,Vigilia di Natale
+2025/12/25,Natale
+2025/12/26,Santo Stefano
+2025/12/27,San Giovanni
+2025/12/31,Ultimo giorno dell'anno
+2026/1/1,Solennità di Maria Santissima Madre di Dio
+2026/1/6,Epifania del Signore
+2026/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2026/3/19,San Giuseppe
+2026/4/2,Giovedì Santo
+2026/4/3,Venerdì Santo
+2026/4/4,Sabato Santo
+2026/4/5,Pasqua di Resurrezione
+2026/4/6,Lunedì dell'Angelo
+2026/4/7,Martedì in Albis
+2026/5/1,San Giuseppe Artigiano
+2026/5/8,Anniversario dell'Elezione del Santo Padre
+2026/5/14,Ascensione del Signore
+2026/5/24,Solennità della Pentecoste
+2026/5/31,Solennità della Santissima Trinità
+2026/6/4,Corpus Domini
+2026/6/29,Santi Pietro e Paolo
+2026/8/14,Vigilia dell'Assunzione di Maria Santissima
+2026/8/15,Assunzione di Maria Santissima
+2026/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2026/9/17,Onomastico del Santo Padre
+2026/11/1,Tutti i Santi
+2026/11/2,Tutti i Fedeli Defunti
+2026/12/8,Immacolata Concezione
+2026/12/24,Vigilia di Natale
+2026/12/25,Natale
+2026/12/26,Santo Stefano
+2026/12/27,San Giovanni
+2026/12/31,Ultimo giorno dell'anno
+2027/1/1,Solennità di Maria Santissima Madre di Dio
+2027/1/6,Epifania del Signore
+2027/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2027/3/19,San Giuseppe
+2027/3/25,Giovedì Santo
+2027/3/26,Venerdì Santo
+2027/3/27,Sabato Santo
+2027/3/28,Pasqua di Resurrezione
+2027/3/29,Lunedì dell'Angelo
+2027/3/30,Martedì in Albis
+2027/5/1,San Giuseppe Artigiano
+2027/5/6,Ascensione del Signore
+2027/5/8,Anniversario dell'Elezione del Santo Padre
+2027/5/16,Solennità della Pentecoste
+2027/5/23,Solennità della Santissima Trinità
+2027/5/27,Corpus Domini
+2027/6/29,Santi Pietro e Paolo
+2027/8/14,Vigilia dell'Assunzione di Maria Santissima
+2027/8/15,Assunzione di Maria Santissima
+2027/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2027/9/17,Onomastico del Santo Padre
+2027/11/1,Tutti i Santi
+2027/11/2,Tutti i Fedeli Defunti
+2027/12/8,Immacolata Concezione
+2027/12/24,Vigilia di Natale
+2027/12/25,Natale
+2027/12/26,Santo Stefano
+2027/12/27,San Giovanni
+2027/12/31,Ultimo giorno dell'anno
+2028/1/1,Solennità di Maria Santissima Madre di Dio
+2028/1/6,Epifania del Signore
+2028/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2028/3/19,San Giuseppe
+2028/4/13,Giovedì Santo
+2028/4/14,Venerdì Santo
+2028/4/15,Sabato Santo
+2028/4/16,Pasqua di Resurrezione
+2028/4/17,Lunedì dell'Angelo
+2028/4/18,Martedì in Albis
+2028/5/1,San Giuseppe Artigiano
+2028/5/8,Anniversario dell'Elezione del Santo Padre
+2028/5/25,Ascensione del Signore
+2028/6/4,Solennità della Pentecoste
+2028/6/11,Solennità della Santissima Trinità
+2028/6/15,Corpus Domini
+2028/6/29,Santi Pietro e Paolo
+2028/8/14,Vigilia dell'Assunzione di Maria Santissima
+2028/8/15,Assunzione di Maria Santissima
+2028/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2028/9/17,Onomastico del Santo Padre
+2028/11/1,Tutti i Santi
+2028/11/2,Tutti i Fedeli Defunti
+2028/12/8,Immacolata Concezione
+2028/12/24,Vigilia di Natale
+2028/12/25,Natale
+2028/12/26,Santo Stefano
+2028/12/27,San Giovanni
+2028/12/31,Ultimo giorno dell'anno
+2029/1/1,Solennità di Maria Santissima Madre di Dio
+2029/1/6,Epifania del Signore
+2029/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2029/3/19,San Giuseppe
+2029/3/29,Giovedì Santo
+2029/3/30,Venerdì Santo
+2029/3/31,Sabato Santo
+2029/4/1,Pasqua di Resurrezione
+2029/4/2,Lunedì dell'Angelo
+2029/4/3,Martedì in Albis
+2029/5/1,San Giuseppe Artigiano
+2029/5/8,Anniversario dell'Elezione del Santo Padre
+2029/5/10,Ascensione del Signore
+2029/5/20,Solennità della Pentecoste
+2029/5/27,Solennità della Santissima Trinità
+2029/5/31,Corpus Domini
+2029/6/29,Santi Pietro e Paolo
+2029/8/14,Vigilia dell'Assunzione di Maria Santissima
+2029/8/15,Assunzione di Maria Santissima
+2029/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2029/9/17,Onomastico del Santo Padre
+2029/11/1,Tutti i Santi
+2029/11/2,Tutti i Fedeli Defunti
+2029/12/8,Immacolata Concezione
+2029/12/24,Vigilia di Natale
+2029/12/25,Natale
+2029/12/26,Santo Stefano
+2029/12/27,San Giovanni
+2029/12/31,Ultimo giorno dell'anno
+2030/1/1,Solennità di Maria Santissima Madre di Dio
+2030/1/6,Epifania del Signore
+2030/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2030/3/19,San Giuseppe
+2030/4/18,Giovedì Santo
+2030/4/19,Venerdì Santo
+2030/4/20,Sabato Santo
+2030/4/21,Pasqua di Resurrezione
+2030/4/22,Lunedì dell'Angelo
+2030/4/23,Martedì in Albis
+2030/5/1,San Giuseppe Artigiano
+2030/5/8,Anniversario dell'Elezione del Santo Padre
+2030/5/30,Ascensione del Signore
+2030/6/9,Solennità della Pentecoste
+2030/6/16,Solennità della Santissima Trinità
+2030/6/20,Corpus Domini
+2030/6/29,Santi Pietro e Paolo
+2030/8/14,Vigilia dell'Assunzione di Maria Santissima
+2030/8/15,Assunzione di Maria Santissima
+2030/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2030/9/17,Onomastico del Santo Padre
+2030/11/1,Tutti i Santi
+2030/11/2,Tutti i Fedeli Defunti
+2030/12/8,Immacolata Concezione
+2030/12/24,Vigilia di Natale
+2030/12/25,Natale
+2030/12/26,Santo Stefano
+2030/12/27,San Giovanni
+2030/12/31,Ultimo giorno dell'anno
+2031/1/1,Solennità di Maria Santissima Madre di Dio
+2031/1/6,Epifania del Signore
+2031/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2031/3/19,San Giuseppe
+2031/4/10,Giovedì Santo
+2031/4/11,Venerdì Santo
+2031/4/12,Sabato Santo
+2031/4/13,Pasqua di Resurrezione
+2031/4/14,Lunedì dell'Angelo
+2031/4/15,Martedì in Albis
+2031/5/1,San Giuseppe Artigiano
+2031/5/8,Anniversario dell'Elezione del Santo Padre
+2031/5/22,Ascensione del Signore
+2031/6/1,Solennità della Pentecoste
+2031/6/8,Solennità della Santissima Trinità
+2031/6/12,Corpus Domini
+2031/6/29,Santi Pietro e Paolo
+2031/8/14,Vigilia dell'Assunzione di Maria Santissima
+2031/8/15,Assunzione di Maria Santissima
+2031/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2031/9/17,Onomastico del Santo Padre
+2031/11/1,Tutti i Santi
+2031/11/2,Tutti i Fedeli Defunti
+2031/12/8,Immacolata Concezione
+2031/12/24,Vigilia di Natale
+2031/12/25,Natale
+2031/12/26,Santo Stefano
+2031/12/27,San Giovanni
+2031/12/31,Ultimo giorno dell'anno
+2032/1/1,Solennità di Maria Santissima Madre di Dio
+2032/1/6,Epifania del Signore
+2032/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2032/3/19,San Giuseppe
+2032/3/25,Giovedì Santo
+2032/3/26,Venerdì Santo
+2032/3/27,Sabato Santo
+2032/3/28,Pasqua di Resurrezione
+2032/3/29,Lunedì dell'Angelo
+2032/3/30,Martedì in Albis
+2032/5/1,San Giuseppe Artigiano
+2032/5/6,Ascensione del Signore
+2032/5/8,Anniversario dell'Elezione del Santo Padre
+2032/5/16,Solennità della Pentecoste
+2032/5/23,Solennità della Santissima Trinità
+2032/5/27,Corpus Domini
+2032/6/29,Santi Pietro e Paolo
+2032/8/14,Vigilia dell'Assunzione di Maria Santissima
+2032/8/15,Assunzione di Maria Santissima
+2032/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2032/9/17,Onomastico del Santo Padre
+2032/11/1,Tutti i Santi
+2032/11/2,Tutti i Fedeli Defunti
+2032/12/8,Immacolata Concezione
+2032/12/24,Vigilia di Natale
+2032/12/25,Natale
+2032/12/26,Santo Stefano
+2032/12/27,San Giovanni
+2032/12/31,Ultimo giorno dell'anno
+2033/1/1,Solennità di Maria Santissima Madre di Dio
+2033/1/6,Epifania del Signore
+2033/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2033/3/19,San Giuseppe
+2033/4/14,Giovedì Santo
+2033/4/15,Venerdì Santo
+2033/4/16,Sabato Santo
+2033/4/17,Pasqua di Resurrezione
+2033/4/18,Lunedì dell'Angelo
+2033/4/19,Martedì in Albis
+2033/5/1,San Giuseppe Artigiano
+2033/5/8,Anniversario dell'Elezione del Santo Padre
+2033/5/26,Ascensione del Signore
+2033/6/5,Solennità della Pentecoste
+2033/6/12,Solennità della Santissima Trinità
+2033/6/16,Corpus Domini
+2033/6/29,Santi Pietro e Paolo
+2033/8/14,Vigilia dell'Assunzione di Maria Santissima
+2033/8/15,Assunzione di Maria Santissima
+2033/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2033/9/17,Onomastico del Santo Padre
+2033/11/1,Tutti i Santi
+2033/11/2,Tutti i Fedeli Defunti
+2033/12/8,Immacolata Concezione
+2033/12/24,Vigilia di Natale
+2033/12/25,Natale
+2033/12/26,Santo Stefano
+2033/12/27,San Giovanni
+2033/12/31,Ultimo giorno dell'anno
+2034/1/1,Solennità di Maria Santissima Madre di Dio
+2034/1/6,Epifania del Signore
+2034/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2034/3/19,San Giuseppe
+2034/4/6,Giovedì Santo
+2034/4/7,Venerdì Santo
+2034/4/8,Sabato Santo
+2034/4/9,Pasqua di Resurrezione
+2034/4/10,Lunedì dell'Angelo
+2034/4/11,Martedì in Albis
+2034/5/1,San Giuseppe Artigiano
+2034/5/8,Anniversario dell'Elezione del Santo Padre
+2034/5/18,Ascensione del Signore
+2034/5/28,Solennità della Pentecoste
+2034/6/4,Solennità della Santissima Trinità
+2034/6/8,Corpus Domini
+2034/6/29,Santi Pietro e Paolo
+2034/8/14,Vigilia dell'Assunzione di Maria Santissima
+2034/8/15,Assunzione di Maria Santissima
+2034/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2034/9/17,Onomastico del Santo Padre
+2034/11/1,Tutti i Santi
+2034/11/2,Tutti i Fedeli Defunti
+2034/12/8,Immacolata Concezione
+2034/12/24,Vigilia di Natale
+2034/12/25,Natale
+2034/12/26,Santo Stefano
+2034/12/27,San Giovanni
+2034/12/31,Ultimo giorno dell'anno
+2035/1/1,Solennità di Maria Santissima Madre di Dio
+2035/1/6,Epifania del Signore
+2035/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2035/3/19,San Giuseppe
+2035/3/22,Giovedì Santo
+2035/3/23,Venerdì Santo
+2035/3/24,Sabato Santo
+2035/3/25,Pasqua di Resurrezione
+2035/3/26,Lunedì dell'Angelo
+2035/3/27,Martedì in Albis
+2035/5/1,San Giuseppe Artigiano
+2035/5/3,Ascensione del Signore
+2035/5/8,Anniversario dell'Elezione del Santo Padre
+2035/5/13,Solennità della Pentecoste
+2035/5/20,Solennità della Santissima Trinità
+2035/5/24,Corpus Domini
+2035/6/29,Santi Pietro e Paolo
+2035/8/14,Vigilia dell'Assunzione di Maria Santissima
+2035/8/15,Assunzione di Maria Santissima
+2035/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2035/9/17,Onomastico del Santo Padre
+2035/11/1,Tutti i Santi
+2035/11/2,Tutti i Fedeli Defunti
+2035/12/8,Immacolata Concezione
+2035/12/24,Vigilia di Natale
+2035/12/25,Natale
+2035/12/26,Santo Stefano
+2035/12/27,San Giovanni
+2035/12/31,Ultimo giorno dell'anno
+2036/1/1,Solennità di Maria Santissima Madre di Dio
+2036/1/6,Epifania del Signore
+2036/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2036/3/19,San Giuseppe
+2036/4/10,Giovedì Santo
+2036/4/11,Venerdì Santo
+2036/4/12,Sabato Santo
+2036/4/13,Pasqua di Resurrezione
+2036/4/14,Lunedì dell'Angelo
+2036/4/15,Martedì in Albis
+2036/5/1,San Giuseppe Artigiano
+2036/5/8,Anniversario dell'Elezione del Santo Padre
+2036/5/22,Ascensione del Signore
+2036/6/1,Solennità della Pentecoste
+2036/6/8,Solennità della Santissima Trinità
+2036/6/12,Corpus Domini
+2036/6/29,Santi Pietro e Paolo
+2036/8/14,Vigilia dell'Assunzione di Maria Santissima
+2036/8/15,Assunzione di Maria Santissima
+2036/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2036/9/17,Onomastico del Santo Padre
+2036/11/1,Tutti i Santi
+2036/11/2,Tutti i Fedeli Defunti
+2036/12/8,Immacolata Concezione
+2036/12/24,Vigilia di Natale
+2036/12/25,Natale
+2036/12/26,Santo Stefano
+2036/12/27,San Giovanni
+2036/12/31,Ultimo giorno dell'anno
+2037/1/1,Solennità di Maria Santissima Madre di Dio
+2037/1/6,Epifania del Signore
+2037/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2037/3/19,San Giuseppe
+2037/4/2,Giovedì Santo
+2037/4/3,Venerdì Santo
+2037/4/4,Sabato Santo
+2037/4/5,Pasqua di Resurrezione
+2037/4/6,Lunedì dell'Angelo
+2037/4/7,Martedì in Albis
+2037/5/1,San Giuseppe Artigiano
+2037/5/8,Anniversario dell'Elezione del Santo Padre
+2037/5/14,Ascensione del Signore
+2037/5/24,Solennità della Pentecoste
+2037/5/31,Solennità della Santissima Trinità
+2037/6/4,Corpus Domini
+2037/6/29,Santi Pietro e Paolo
+2037/8/14,Vigilia dell'Assunzione di Maria Santissima
+2037/8/15,Assunzione di Maria Santissima
+2037/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2037/9/17,Onomastico del Santo Padre
+2037/11/1,Tutti i Santi
+2037/11/2,Tutti i Fedeli Defunti
+2037/12/8,Immacolata Concezione
+2037/12/24,Vigilia di Natale
+2037/12/25,Natale
+2037/12/26,Santo Stefano
+2037/12/27,San Giovanni
+2037/12/31,Ultimo giorno dell'anno
+2038/1/1,Solennità di Maria Santissima Madre di Dio
+2038/1/6,Epifania del Signore
+2038/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2038/3/19,San Giuseppe
+2038/4/22,Giovedì Santo
+2038/4/23,Venerdì Santo
+2038/4/24,Sabato Santo
+2038/4/25,Pasqua di Resurrezione
+2038/4/26,Lunedì dell'Angelo
+2038/4/27,Martedì in Albis
+2038/5/1,San Giuseppe Artigiano
+2038/5/8,Anniversario dell'Elezione del Santo Padre
+2038/6/3,Ascensione del Signore
+2038/6/13,Solennità della Pentecoste
+2038/6/20,Solennità della Santissima Trinità
+2038/6/24,Corpus Domini
+2038/6/29,Santi Pietro e Paolo
+2038/8/14,Vigilia dell'Assunzione di Maria Santissima
+2038/8/15,Assunzione di Maria Santissima
+2038/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2038/9/17,Onomastico del Santo Padre
+2038/11/1,Tutti i Santi
+2038/11/2,Tutti i Fedeli Defunti
+2038/12/8,Immacolata Concezione
+2038/12/24,Vigilia di Natale
+2038/12/25,Natale
+2038/12/26,Santo Stefano
+2038/12/27,San Giovanni
+2038/12/31,Ultimo giorno dell'anno
+2039/1/1,Solennità di Maria Santissima Madre di Dio
+2039/1/6,Epifania del Signore
+2039/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2039/3/19,San Giuseppe
+2039/4/7,Giovedì Santo
+2039/4/8,Venerdì Santo
+2039/4/9,Sabato Santo
+2039/4/10,Pasqua di Resurrezione
+2039/4/11,Lunedì dell'Angelo
+2039/4/12,Martedì in Albis
+2039/5/1,San Giuseppe Artigiano
+2039/5/8,Anniversario dell'Elezione del Santo Padre
+2039/5/19,Ascensione del Signore
+2039/5/29,Solennità della Pentecoste
+2039/6/5,Solennità della Santissima Trinità
+2039/6/9,Corpus Domini
+2039/6/29,Santi Pietro e Paolo
+2039/8/14,Vigilia dell'Assunzione di Maria Santissima
+2039/8/15,Assunzione di Maria Santissima
+2039/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2039/9/17,Onomastico del Santo Padre
+2039/11/1,Tutti i Santi
+2039/11/2,Tutti i Fedeli Defunti
+2039/12/8,Immacolata Concezione
+2039/12/24,Vigilia di Natale
+2039/12/25,Natale
+2039/12/26,Santo Stefano
+2039/12/27,San Giovanni
+2039/12/31,Ultimo giorno dell'anno
+2040/1/1,Solennità di Maria Santissima Madre di Dio
+2040/1/6,Epifania del Signore
+2040/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2040/3/19,San Giuseppe
+2040/3/29,Giovedì Santo
+2040/3/30,Venerdì Santo
+2040/3/31,Sabato Santo
+2040/4/1,Pasqua di Resurrezione
+2040/4/2,Lunedì dell'Angelo
+2040/4/3,Martedì in Albis
+2040/5/1,San Giuseppe Artigiano
+2040/5/8,Anniversario dell'Elezione del Santo Padre
+2040/5/10,Ascensione del Signore
+2040/5/20,Solennità della Pentecoste
+2040/5/27,Solennità della Santissima Trinità
+2040/5/31,Corpus Domini
+2040/6/29,Santi Pietro e Paolo
+2040/8/14,Vigilia dell'Assunzione di Maria Santissima
+2040/8/15,Assunzione di Maria Santissima
+2040/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2040/9/17,Onomastico del Santo Padre
+2040/11/1,Tutti i Santi
+2040/11/2,Tutti i Fedeli Defunti
+2040/12/8,Immacolata Concezione
+2040/12/24,Vigilia di Natale
+2040/12/25,Natale
+2040/12/26,Santo Stefano
+2040/12/27,San Giovanni
+2040/12/31,Ultimo giorno dell'anno
+2041/1/1,Solennità di Maria Santissima Madre di Dio
+2041/1/6,Epifania del Signore
+2041/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2041/3/19,San Giuseppe
+2041/4/18,Giovedì Santo
+2041/4/19,Venerdì Santo
+2041/4/20,Sabato Santo
+2041/4/21,Pasqua di Resurrezione
+2041/4/22,Lunedì dell'Angelo
+2041/4/23,Martedì in Albis
+2041/5/1,San Giuseppe Artigiano
+2041/5/8,Anniversario dell'Elezione del Santo Padre
+2041/5/30,Ascensione del Signore
+2041/6/9,Solennità della Pentecoste
+2041/6/16,Solennità della Santissima Trinità
+2041/6/20,Corpus Domini
+2041/6/29,Santi Pietro e Paolo
+2041/8/14,Vigilia dell'Assunzione di Maria Santissima
+2041/8/15,Assunzione di Maria Santissima
+2041/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2041/9/17,Onomastico del Santo Padre
+2041/11/1,Tutti i Santi
+2041/11/2,Tutti i Fedeli Defunti
+2041/12/8,Immacolata Concezione
+2041/12/24,Vigilia di Natale
+2041/12/25,Natale
+2041/12/26,Santo Stefano
+2041/12/27,San Giovanni
+2041/12/31,Ultimo giorno dell'anno
+2042/1/1,Solennità di Maria Santissima Madre di Dio
+2042/1/6,Epifania del Signore
+2042/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2042/3/19,San Giuseppe
+2042/4/3,Giovedì Santo
+2042/4/4,Venerdì Santo
+2042/4/5,Sabato Santo
+2042/4/6,Pasqua di Resurrezione
+2042/4/7,Lunedì dell'Angelo
+2042/4/8,Martedì in Albis
+2042/5/1,San Giuseppe Artigiano
+2042/5/8,Anniversario dell'Elezione del Santo Padre
+2042/5/15,Ascensione del Signore
+2042/5/25,Solennità della Pentecoste
+2042/6/1,Solennità della Santissima Trinità
+2042/6/5,Corpus Domini
+2042/6/29,Santi Pietro e Paolo
+2042/8/14,Vigilia dell'Assunzione di Maria Santissima
+2042/8/15,Assunzione di Maria Santissima
+2042/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2042/9/17,Onomastico del Santo Padre
+2042/11/1,Tutti i Santi
+2042/11/2,Tutti i Fedeli Defunti
+2042/12/8,Immacolata Concezione
+2042/12/24,Vigilia di Natale
+2042/12/25,Natale
+2042/12/26,Santo Stefano
+2042/12/27,San Giovanni
+2042/12/31,Ultimo giorno dell'anno
+2043/1/1,Solennità di Maria Santissima Madre di Dio
+2043/1/6,Epifania del Signore
+2043/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2043/3/19,San Giuseppe
+2043/3/26,Giovedì Santo
+2043/3/27,Venerdì Santo
+2043/3/28,Sabato Santo
+2043/3/29,Pasqua di Resurrezione
+2043/3/30,Lunedì dell'Angelo
+2043/3/31,Martedì in Albis
+2043/5/1,San Giuseppe Artigiano
+2043/5/7,Ascensione del Signore
+2043/5/8,Anniversario dell'Elezione del Santo Padre
+2043/5/17,Solennità della Pentecoste
+2043/5/24,Solennità della Santissima Trinità
+2043/5/28,Corpus Domini
+2043/6/29,Santi Pietro e Paolo
+2043/8/14,Vigilia dell'Assunzione di Maria Santissima
+2043/8/15,Assunzione di Maria Santissima
+2043/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2043/9/17,Onomastico del Santo Padre
+2043/11/1,Tutti i Santi
+2043/11/2,Tutti i Fedeli Defunti
+2043/12/8,Immacolata Concezione
+2043/12/24,Vigilia di Natale
+2043/12/25,Natale
+2043/12/26,Santo Stefano
+2043/12/27,San Giovanni
+2043/12/31,Ultimo giorno dell'anno
+2044/1/1,Solennità di Maria Santissima Madre di Dio
+2044/1/6,Epifania del Signore
+2044/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2044/3/19,San Giuseppe
+2044/4/14,Giovedì Santo
+2044/4/15,Venerdì Santo
+2044/4/16,Sabato Santo
+2044/4/17,Pasqua di Resurrezione
+2044/4/18,Lunedì dell'Angelo
+2044/4/19,Martedì in Albis
+2044/5/1,San Giuseppe Artigiano
+2044/5/8,Anniversario dell'Elezione del Santo Padre
+2044/5/26,Ascensione del Signore
+2044/6/5,Solennità della Pentecoste
+2044/6/12,Solennità della Santissima Trinità
+2044/6/16,Corpus Domini
+2044/6/29,Santi Pietro e Paolo
+2044/8/14,Vigilia dell'Assunzione di Maria Santissima
+2044/8/15,Assunzione di Maria Santissima
+2044/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2044/9/17,Onomastico del Santo Padre
+2044/11/1,Tutti i Santi
+2044/11/2,Tutti i Fedeli Defunti
+2044/12/8,Immacolata Concezione
+2044/12/24,Vigilia di Natale
+2044/12/25,Natale
+2044/12/26,Santo Stefano
+2044/12/27,San Giovanni
+2044/12/31,Ultimo giorno dell'anno
+2045/1/1,Solennità di Maria Santissima Madre di Dio
+2045/1/6,Epifania del Signore
+2045/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2045/3/19,San Giuseppe
+2045/4/6,Giovedì Santo
+2045/4/7,Venerdì Santo
+2045/4/8,Sabato Santo
+2045/4/9,Pasqua di Resurrezione
+2045/4/10,Lunedì dell'Angelo
+2045/4/11,Martedì in Albis
+2045/5/1,San Giuseppe Artigiano
+2045/5/8,Anniversario dell'Elezione del Santo Padre
+2045/5/18,Ascensione del Signore
+2045/5/28,Solennità della Pentecoste
+2045/6/4,Solennità della Santissima Trinità
+2045/6/8,Corpus Domini
+2045/6/29,Santi Pietro e Paolo
+2045/8/14,Vigilia dell'Assunzione di Maria Santissima
+2045/8/15,Assunzione di Maria Santissima
+2045/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2045/9/17,Onomastico del Santo Padre
+2045/11/1,Tutti i Santi
+2045/11/2,Tutti i Fedeli Defunti
+2045/12/8,Immacolata Concezione
+2045/12/24,Vigilia di Natale
+2045/12/25,Natale
+2045/12/26,Santo Stefano
+2045/12/27,San Giovanni
+2045/12/31,Ultimo giorno dell'anno
+2046/1/1,Solennità di Maria Santissima Madre di Dio
+2046/1/6,Epifania del Signore
+2046/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2046/3/19,San Giuseppe
+2046/3/22,Giovedì Santo
+2046/3/23,Venerdì Santo
+2046/3/24,Sabato Santo
+2046/3/25,Pasqua di Resurrezione
+2046/3/26,Lunedì dell'Angelo
+2046/3/27,Martedì in Albis
+2046/5/1,San Giuseppe Artigiano
+2046/5/3,Ascensione del Signore
+2046/5/8,Anniversario dell'Elezione del Santo Padre
+2046/5/13,Solennità della Pentecoste
+2046/5/20,Solennità della Santissima Trinità
+2046/5/24,Corpus Domini
+2046/6/29,Santi Pietro e Paolo
+2046/8/14,Vigilia dell'Assunzione di Maria Santissima
+2046/8/15,Assunzione di Maria Santissima
+2046/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2046/9/17,Onomastico del Santo Padre
+2046/11/1,Tutti i Santi
+2046/11/2,Tutti i Fedeli Defunti
+2046/12/8,Immacolata Concezione
+2046/12/24,Vigilia di Natale
+2046/12/25,Natale
+2046/12/26,Santo Stefano
+2046/12/27,San Giovanni
+2046/12/31,Ultimo giorno dell'anno
+2047/1/1,Solennità di Maria Santissima Madre di Dio
+2047/1/6,Epifania del Signore
+2047/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2047/3/19,San Giuseppe
+2047/4/11,Giovedì Santo
+2047/4/12,Venerdì Santo
+2047/4/13,Sabato Santo
+2047/4/14,Pasqua di Resurrezione
+2047/4/15,Lunedì dell'Angelo
+2047/4/16,Martedì in Albis
+2047/5/1,San Giuseppe Artigiano
+2047/5/8,Anniversario dell'Elezione del Santo Padre
+2047/5/23,Ascensione del Signore
+2047/6/2,Solennità della Pentecoste
+2047/6/9,Solennità della Santissima Trinità
+2047/6/13,Corpus Domini
+2047/6/29,Santi Pietro e Paolo
+2047/8/14,Vigilia dell'Assunzione di Maria Santissima
+2047/8/15,Assunzione di Maria Santissima
+2047/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2047/9/17,Onomastico del Santo Padre
+2047/11/1,Tutti i Santi
+2047/11/2,Tutti i Fedeli Defunti
+2047/12/8,Immacolata Concezione
+2047/12/24,Vigilia di Natale
+2047/12/25,Natale
+2047/12/26,Santo Stefano
+2047/12/27,San Giovanni
+2047/12/31,Ultimo giorno dell'anno
+2048/1/1,Solennità di Maria Santissima Madre di Dio
+2048/1/6,Epifania del Signore
+2048/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2048/3/19,San Giuseppe
+2048/4/2,Giovedì Santo
+2048/4/3,Venerdì Santo
+2048/4/4,Sabato Santo
+2048/4/5,Pasqua di Resurrezione
+2048/4/6,Lunedì dell'Angelo
+2048/4/7,Martedì in Albis
+2048/5/1,San Giuseppe Artigiano
+2048/5/8,Anniversario dell'Elezione del Santo Padre
+2048/5/14,Ascensione del Signore
+2048/5/24,Solennità della Pentecoste
+2048/5/31,Solennità della Santissima Trinità
+2048/6/4,Corpus Domini
+2048/6/29,Santi Pietro e Paolo
+2048/8/14,Vigilia dell'Assunzione di Maria Santissima
+2048/8/15,Assunzione di Maria Santissima
+2048/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2048/9/17,Onomastico del Santo Padre
+2048/11/1,Tutti i Santi
+2048/11/2,Tutti i Fedeli Defunti
+2048/12/8,Immacolata Concezione
+2048/12/24,Vigilia di Natale
+2048/12/25,Natale
+2048/12/26,Santo Stefano
+2048/12/27,San Giovanni
+2048/12/31,Ultimo giorno dell'anno
+2049/1/1,Solennità di Maria Santissima Madre di Dio
+2049/1/6,Epifania del Signore
+2049/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2049/3/19,San Giuseppe
+2049/4/15,Giovedì Santo
+2049/4/16,Venerdì Santo
+2049/4/17,Sabato Santo
+2049/4/18,Pasqua di Resurrezione
+2049/4/19,Lunedì dell'Angelo
+2049/4/20,Martedì in Albis
+2049/5/1,San Giuseppe Artigiano
+2049/5/8,Anniversario dell'Elezione del Santo Padre
+2049/5/27,Ascensione del Signore
+2049/6/6,Solennità della Pentecoste
+2049/6/13,Solennità della Santissima Trinità
+2049/6/17,Corpus Domini
+2049/6/29,Santi Pietro e Paolo
+2049/8/14,Vigilia dell'Assunzione di Maria Santissima
+2049/8/15,Assunzione di Maria Santissima
+2049/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2049/9/17,Onomastico del Santo Padre
+2049/11/1,Tutti i Santi
+2049/11/2,Tutti i Fedeli Defunti
+2049/12/8,Immacolata Concezione
+2049/12/24,Vigilia di Natale
+2049/12/25,Natale
+2049/12/26,Santo Stefano
+2049/12/27,San Giovanni
+2049/12/31,Ultimo giorno dell'anno
+2050/1/1,Solennità di Maria Santissima Madre di Dio
+2050/1/6,Epifania del Signore
+2050/2/11,Anniversario della istituzione dello Stato della Città del Vaticano
+2050/3/19,San Giuseppe
+2050/4/7,Giovedì Santo
+2050/4/8,Venerdì Santo
+2050/4/9,Sabato Santo
+2050/4/10,Pasqua di Resurrezione
+2050/4/11,Lunedì dell'Angelo
+2050/4/12,Martedì in Albis
+2050/5/1,San Giuseppe Artigiano
+2050/5/8,Anniversario dell'Elezione del Santo Padre
+2050/5/19,Ascensione del Signore
+2050/5/29,Solennità della Pentecoste
+2050/6/5,Solennità della Santissima Trinità
+2050/6/9,Corpus Domini
+2050/6/29,Santi Pietro e Paolo
+2050/8/14,Vigilia dell'Assunzione di Maria Santissima
+2050/8/15,Assunzione di Maria Santissima
+2050/8/16,Giorno Successivo all'Assunzione di Maria Santissima
+2050/9/17,Onomastico del Santo Padre
+2050/11/1,Tutti i Santi
+2050/11/2,Tutti i Fedeli Defunti
+2050/12/8,Immacolata Concezione
+2050/12/24,Vigilia di Natale
+2050/12/25,Natale
+2050/12/26,Santo Stefano
+2050/12/27,San Giovanni
+2050/12/31,Ultimo giorno dell'anno
