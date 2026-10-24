@@ -11,7 +11,7 @@
 "Settings" = "설정";
 "Settings..." = "설정…";
 "About Ourin" = "Ourin 정보";
-"DevTools" = "개발 도구";
+"DevTools" = "DevTools";
 "General Settings" = "일반 설정";
 "SHIORI Resource Viewer" = "SHIORI 리소스 뷰어";
 "Plugin Manager / Event Injector" = "플러그인 관리 / 이벤트 주입";
@@ -125,12 +125,12 @@
 "キャンセル" = "취소";
 "終了" = "종료";
 "最小化" = "최소화";
-"DevTools を表示" = "개발 도구 보기";
+"DevTools を表示" = "DevTools 보기";
 "リロード" = "다시 불러오기";
 "診断情報をエクスポート" = "진단 정보 내보내기";
 "プラグインを再読み込み" = "플러그인 다시 불러오기";
 "外部サーバーを再起動" = "외부 서버 다시 시작";
-"DevTools ヘルプ" = "개발 도구 도움말";
+"DevTools ヘルプ" = "DevTools 도움말";
 "SHIORI 仕様書を開く" = "SHIORI 사양서 열기";
 "プラグイン開発ガイド" = "플러그인 개발 가이드";
 "SHIORIリソース" = "SHIORI 리소스";
@@ -150,7 +150,7 @@
 "シェル切替" = "셸 전환";
 "バルーン切替" = "말풍선 전환";
 "設定" = "설정";
-"DevTools を開く" = "개발 도구 열기";
+"DevTools を開く" = "DevTools 열기";
 "更新" = "새로 고침";
 "Error: %@" = "오류: %@";
 "Invalid URL" = "잘못된 URL";

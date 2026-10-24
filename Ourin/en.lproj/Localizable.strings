@@ -209,7 +209,7 @@
 "Preview not available." = "Preview not available.";
 "Copy key" = "Copy key";
 "Copy value" = "Copy value";
-"Copy effective" = "Copy effective";
+"Copy effective" = "Copy effective value";
 "未確認" = "Not checked";
 "Finderで開く" = "Open in Finder";
 "文字コード" = "Character Encoding";
@@ -236,7 +236,7 @@
 "ログファイルの保存先を選択" = "Choose Log File Location";
 "ログファイルを保存する場所を選択してください" = "Choose where to save the log file";
 "ゴースト" = "Ghost";
-"スクリプト実行は選択したゴーストへ送信します。未起動なら追加ゴーストとして起動します。" = "Run Script sends to the selected ghost. If it is not running, it is launched as an additional ghost.";
+"スクリプト実行は選択したゴーストへ送信します。未起動なら追加ゴーストとして起動します。" = "Run Script sends the script to the selected ghost. If it is not running, it is launched as an additional ghost.";
 "シェル" = "Shell";
 "バルーン" = "Balloon";
 "（インストール済みバルーンの実画像）" = "(actual images of the installed balloon)";
@@ -353,12 +353,12 @@
 "Input" = "Input";
 "Please enter text." = "Please enter text.";
 "Password Input" = "Password Input";
-"Please enter password." = "Please enter password.";
+"Please enter password." = "Please enter a password.";
 "Date Input" = "Date Input";
 "Slider Input" = "Slider Input";
 "Time Input" = "Time Input";
 "IP Input" = "IP Input";
-"Please enter IP address." = "Please enter IP address.";
+"Please enter IP address." = "Please enter an IP address.";
 "Choice Input" = "Choice Input";
 "Teach" = "Teach";
 "Enter text to teach." = "Enter text to teach.";
@@ -476,7 +476,7 @@
 "インストール日" = "Install Date";
 "(descript.txt がありません)" = "(no descript.txt)";
 "(解析後に表示されます)" = "(shown after analysis)";
-"state: %@" = "state: %@";
+"state: %@" = "State: %@";
 "scope 0（本体）" = "scope 0 (main)";
 "Error" = "Error";
 "Caption:" = "Caption:";

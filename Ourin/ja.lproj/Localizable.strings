@@ -11,7 +11,7 @@
 "Settings" = "設定";
 "Settings..." = "設定…";
 "About Ourin" = "Ourin について";
-"DevTools" = "開発ツール";
+"DevTools" = "DevTools";
 "General Settings" = "一般設定";
 "SHIORI Resource Viewer" = "SHIORI リソースビューア";
 "Plugin Manager / Event Injector" = "プラグイン管理・イベント注入";
@@ -40,12 +40,12 @@
 "操作" = "操作";
 "設定が保存されました" = "設定が保存されました";
 "変更は次回起動時に適用されます" = "変更は次回起動時に適用されます";
-"Headline テスト" = "Headline テスト";
+"Headline テスト" = "ヘッドラインテスト";
 "更新テスト" = "更新テスト";
 "クリア" = "クリア";
 "レスポンス:" = "レスポンス:";
 "更新テストを実行してください" = "更新テストを実行してください";
-"Balloon テスト" = "Balloon テスト";
+"Balloon テスト" = "バルーンテスト";
 "ゴースト:" = "ゴースト:";
 "シェル:" = "シェル:";
 "バルーン:" = "バルーン:";
@@ -78,7 +78,7 @@
 "• 技術選定ノート TN3151 準拠" = "• 技術選定ノート TN3151 準拠";
 "• ローカルネットワーク権限が必要" = "• ローカルネットワーク権限が必要";
 "• TeamID/コード署名によるXPC権限制御" = "• TeamID/コード署名によるXPC権限制御";
-"Stopped" = "停止";
+"Stopped" = "停止中";
 "Running" = "稼働中";
 "Loaded Plugins" = "読み込まれたプラグイン";
 "Enabled" = "有効";
@@ -108,7 +108,7 @@
 "Script Result" = "スクリプト実行結果";
 "Executed Script:" = "実行スクリプト:";
 "Parse Result:" = "パース結果:";
-"- Surface:" = "- Surface:";
+"- Surface:" = "- サーフェス:";
 "- Text:" = "- テキスト:";
 "- End tag detected" = "- 終了タグ検出";
 "バージョン: %@" = "バージョン: %@";
@@ -190,7 +190,7 @@
 "Apply" = "適用";
 "実行中ゴーストの ResourceBridge に反映し、次回起動にも引き継ぎます" = "実行中ゴーストの ResourceBridge に反映し、次回起動にも引き継ぎます";
 "Clear" = "クリア";
-"Overlay: 実行中ゴーストへ適用" = "Overlay: 実行中ゴーストへ適用";
+"Overlay: 実行中ゴーストへ適用" = "上書き: 実行中ゴーストへ適用";
 "Key" = "キー";
 "Value (read-only)" = "値（読み取り専用）";
 "Overlay (Ourin)" = "上書き（Ourin）";
