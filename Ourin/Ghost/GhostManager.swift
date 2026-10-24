@@ -884,10 +884,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// ブロッキングモーダルではなく専用ウィンドウとして保持する。
     var teachBoxTextField: NSTextField?
     var teachBoxProgrammaticClose = false
-    /// 現在表示中のInputBox/CommunicateBoxをスクリプトから閉じるためのモーダル参照。
-    var activeInputAlert: NSAlert?
-    var activeInputDialogID: String?
-    var inputDialogCloseRequested = false
+    /// 開いている入力ボックス（モーダルにしない。\![close,inputbox] で ID ごとに閉じる）。
+    var activeInputDialogs: [ModelessInputDialog] = []
+    /// 現在表示中の CommunicateBox をスクリプトから閉じるためのモーダル参照。
     var activeCommunicateAlert: NSAlert?
     var communicateDialogCloseRequested = false
 
@@ -1859,6 +1858,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func shutdown(preserveRuntimeForCache: Bool = false) -> CachedRuntime? {
         guard !didShutdown else { return nil }
         didShutdown = true
+        // 開いたままの入力ボックスは、結果のイベントを送らずに閉じる。
+        activeInputDialogs.forEach { $0.dismiss() }
         cancelActiveURLDropDownload()
         cancelMoveWindowAsync(scope: nil)
         vanishSelectedSourceScript = nil

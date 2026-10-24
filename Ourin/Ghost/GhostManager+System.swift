@@ -6443,35 +6443,53 @@ extension GhostManager: NSWindowDelegate {
         InputDialogOptions(rawArguments: rawArguments)
     }
 
-    private func beginInputDialog(_ alert: NSAlert, id: String) {
-        activeInputAlert = alert
-        activeInputDialogID = id
-        inputDialogCloseRequested = false
+    /// 入力ボックスをモーダルにせずに開く（SSP の入力ボックスはゴーストの動きを止めない）。
+    /// 同じ ID のものが開いていれば、結果のイベントを送らずに閉じてから開く。
+    /// handler は決定・取消・タイムアウトを受け、true を返すと閉じる。
+    @discardableResult
+    private func presentInputDialog(
+        _ alert: NSAlert,
+        id: String,
+        timeoutMs: Int?,
+        handler: @escaping (ModelessInputDialog.Outcome) -> Bool
+    ) -> ModelessInputDialog {
+        closeInputDialog(id: id)
+        let dialog = ModelessInputDialog(id: id, alert: alert)
+        dialog.onClose = { [weak self, weak dialog] in
+            self?.activeInputDialogs.removeAll { $0 === dialog }
+        }
+        activeInputDialogs.append(dialog)
+        dialog.present(timeoutMs: timeoutMs, handler: handler)
+        return dialog
     }
 
-    private func endInputDialog() {
-        activeInputAlert = nil
-        activeInputDialogID = nil
-        inputDialogCloseRequested = false
+    /// OK（最初のボタン）なら決定、それ以外は取消・タイムアウトとして、入力のイベントを送って閉じる。
+    private func presentSingleValueInputDialog(
+        _ alert: NSAlert,
+        id: String,
+        timeoutMs: Int?,
+        options: InputDialogOptions,
+        supplemental: String = "",
+        value: @escaping () -> String
+    ) {
+        presentInputDialog(alert, id: id, timeoutMs: timeoutMs) { [weak self] outcome in
+            guard let self else { return true }
+            if outcome == .button(0) {
+                self.emitUserInput(id: id, value: value(), supplemental: supplemental, options: options)
+            } else {
+                self.emitUserInputCancel(id: id, timedOut: outcome == .timeout, supplemental: supplemental, options: options)
+            }
+            return true
+        }
     }
 
     @discardableResult
     func closeInputDialog(id: String) -> Bool {
-        guard let alert = activeInputAlert,
-              let activeID = activeInputDialogID,
-              id == "__SYSTEM_ALL_INPUT__" || activeID.caseInsensitiveCompare(id) == .orderedSame else {
-            return false
+        let targets = activeInputDialogs.filter {
+            id == "__SYSTEM_ALL_INPUT__" || $0.id.caseInsensitiveCompare(id) == .orderedSame
         }
-        inputDialogCloseRequested = true
-        alert.window.close()
-        NSApp.abortModal()
-        return true
-    }
-
-    private func consumeInputDialogCloseRequest() -> Bool {
-        let requested = inputDialogCloseRequested
-        inputDialogCloseRequested = false
-        return requested
+        targets.forEach { $0.dismiss() }
+        return !targets.isEmpty
     }
 
     private func beginCommunicateDialog(_ alert: NSAlert) {
@@ -6523,8 +6541,6 @@ extension GhostManager: NSWindowDelegate {
         alert.accessoryView = textField
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
 
         let limitObserver: NSObjectProtocol?
         if options.limit != nil {
@@ -6541,27 +6557,21 @@ extension GhostManager: NSWindowDelegate {
         } else {
             limitObserver = nil
         }
-        defer {
-            if let limitObserver { NotificationCenter.default.removeObserver(limitObserver) }
-        }
 
-        while true {
-            var timedOut = false
-            let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-            let response = alert.runModal()
-            timer?.invalidate()
-
-            if consumeInputDialogCloseRequest() { break }
-
-            if response == .alertFirstButtonReturn {
-                let value = options.limited(textField.stringValue)
-                emitUserInput(id: id, value: value, options: options)
-                guard options.noClose else { break }
-                if !options.noClear { textField.stringValue = "" }
-            } else {
-                emitUserInputCancel(id: id, timedOut: timedOut, options: options)
-                break
+        let dialog = presentInputDialog(alert, id: id, timeoutMs: timeoutMs) { [weak self] outcome in
+            guard let self else { return true }
+            guard outcome == .button(0) else {
+                self.emitUserInputCancel(id: id, timedOut: outcome == .timeout, options: options)
+                return true
             }
+            self.emitUserInput(id: id, value: options.limited(textField.stringValue), options: options)
+            // --option=noclose は決定しても閉じずに次の入力を待つ。
+            guard options.noClose else { return true }
+            if !options.noClear { textField.stringValue = "" }
+            return false
+        }
+        if let limitObserver {
+            dialog.addCleanup { NotificationCenter.default.removeObserver(limitObserver) }
         }
     }
 
@@ -6576,20 +6586,8 @@ extension GhostManager: NSWindowDelegate {
         alert.accessoryView = textField
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-
-        var timedOut = false
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        if response == .alertFirstButtonReturn {
-            emitUserInput(id: id, value: options.limited(textField.stringValue), options: options)
-        } else {
-            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
+        presentSingleValueInputDialog(alert, id: id, timeoutMs: timeoutMs, options: options) {
+            options.limited(textField.stringValue)
         }
     }
 
@@ -6612,22 +6610,9 @@ extension GhostManager: NSWindowDelegate {
         alert.accessoryView = datePicker
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-
-        var timedOut = false
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        if response == .alertFirstButtonReturn {
+        presentSingleValueInputDialog(alert, id: id, timeoutMs: timeoutMs, options: options) {
             let selectedComps = Calendar.current.dateComponents([.year, .month, .day], from: datePicker.dateValue)
-            let value = "\(selectedComps.year ?? 0),\(selectedComps.month ?? 0),\(selectedComps.day ?? 0)"
-            emitUserInput(id: id, value: value, options: options)
-        } else {
-            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
+            return "\(selectedComps.year ?? 0),\(selectedComps.month ?? 0),\(selectedComps.day ?? 0)"
         }
     }
 
@@ -6653,30 +6638,11 @@ extension GhostManager: NSWindowDelegate {
 
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-
-        var timedOut = false
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        if response == .alertFirstButtonReturn {
-            emitUserInput(
-                id: id,
-                value: String(slider.doubleValue),
-                supplemental: "\(minValue),\(maxValue)",
-                options: options
-            )
-        } else {
-            emitUserInputCancel(
-                id: id,
-                timedOut: timedOut,
-                supplemental: "\(minValue),\(maxValue)",
-                options: options
-            )
+        presentSingleValueInputDialog(
+            alert, id: id, timeoutMs: timeoutMs, options: options,
+            supplemental: "\(minValue),\(maxValue)"
+        ) {
+            String(slider.doubleValue)
         }
     }
 
@@ -6699,22 +6665,9 @@ extension GhostManager: NSWindowDelegate {
         alert.accessoryView = timePicker
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-
-        var timedOut = false
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        if response == .alertFirstButtonReturn {
+        presentSingleValueInputDialog(alert, id: id, timeoutMs: timeoutMs, options: options) {
             let selectedComps = Calendar.current.dateComponents([.hour, .minute, .second], from: timePicker.dateValue)
-            let value = "\(selectedComps.hour ?? 0),\(selectedComps.minute ?? 0),\(selectedComps.second ?? 0)"
-            emitUserInput(id: id, value: value, options: options)
-        } else {
-            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
+            return "\(selectedComps.hour ?? 0),\(selectedComps.minute ?? 0),\(selectedComps.second ?? 0)"
         }
     }
 
@@ -6729,20 +6682,8 @@ extension GhostManager: NSWindowDelegate {
         alert.accessoryView = textField
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-
-        var timedOut = false
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        if response == .alertFirstButtonReturn {
-            emitUserInput(id: id, value: options.limited(textField.stringValue), options: options)
-        } else {
-            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
+        presentSingleValueInputDialog(alert, id: id, timeoutMs: timeoutMs, options: options) {
+            options.limited(textField.stringValue)
         }
     }
 
@@ -6761,20 +6702,14 @@ extension GhostManager: NSWindowDelegate {
         }
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
 
-        var timedOut = false
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        let buttonIndex = response.rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
-        if buttonIndex >= 0 && buttonIndex < sanitized.count {
-            emitUserInput(id: id, value: sanitized[buttonIndex], options: options)
-        } else {
-            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
+        presentInputDialog(alert, id: id, timeoutMs: timeoutMs) { [weak self] outcome in
+            guard let self else { return true }
+            if case .button(let index) = outcome, index < sanitized.count {
+                self.emitUserInput(id: id, value: sanitized[index], options: options)
+            } else {
+                self.emitUserInputCancel(id: id, timedOut: outcome == .timeout, options: options)
+            }
+            return true
         }
     }
 
