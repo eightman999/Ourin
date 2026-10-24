@@ -139,6 +139,8 @@ struct DicEntry: Equatable {
 final class DicCollector {
     var entries: [DicEntry] = []
     var globalCharset: String? = nil
+    /// YAYA の `basepath` 指定（最上位の設定フォルダからの相対パス）。実行時の基準フォルダになる。
+    var basePath: String? = nil
     /// Already-visited absolute config paths (include cycle prevention).
     private var visited: Set<String> = []
 
@@ -238,11 +240,26 @@ func collectDicEntries(content: String, baseURL: URL, sourceName: String,
             continue
         }
 
+        // "basepath, X": YAYA の基準フォルダ（dic の読み込み元・実行時のファイル操作の基準）を移す。
+        // 相対なら今の基準から。絶対パスはゴーストの外を指すので受け付けない。
+        if lower.hasPrefix("basepath,") {
+            let value = String(lineWithoutComment.dropFirst("basepath,".count))
+                .trimmingCharacters(in: .whitespaces)
+                .replacingOccurrences(of: "\\", with: "/")
+            let isAbsolute = value.hasPrefix("/") || value.dropFirst().first == ":"
+            if !value.isEmpty, !isAbsolute {
+                collector.basePath = collector.basePath.map { "\($0)/\(value)" } ?? value
+            }
+            continue
+        }
+
         // Parse "dic, filename" or "dic, path/filename, encoding"
         if lower.hasPrefix("dic,") {
             let remainder = String(lineWithoutComment.dropFirst(4)).trimmingCharacters(in: .whitespaces)
             let parts = remainder.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-            guard let dicPath = parts.first, !dicPath.isEmpty else { continue }
+            guard let written = parts.first, !written.isEmpty else { continue }
+            // YAYA は dic を基準フォルダ（basepath で移したもの）から読む。
+            let dicPath = collector.basePath.map { "\($0)/\(written)" } ?? written
             // parts[1], if present, is the per-dic encoding
             var perDicEnc: String? = nil
             if parts.count >= 2 {
@@ -254,9 +271,12 @@ func collectDicEntries(content: String, baseURL: URL, sourceName: String,
         }
 
         // Parse "dicdir, path" — load a directory of .dic files in declared order.
+        // YAYA は _loading_order.txt を設定の場所から、フォルダの走査を基準フォルダから探す。
         if lower.hasPrefix("dicdir,") {
             let dirRel = String(lineWithoutComment.dropFirst("dicdir,".count)).trimmingCharacters(in: .whitespaces)
-            let dirURL = baseURL.appendingPathComponent(dirRel)
+            let loadDir = baseURL.appendingPathComponent(dirRel)
+            let scanDir = collector.basePath.map { baseURL.appendingPathComponent($0).appendingPathComponent(dirRel) } ?? loadDir
+            let dirURL = loadingOrderFile(in: loadDir) != nil ? loadDir : scanDir
             NSLog("[YayaBackend] Processing dicdir: \(dirRel)")
             let dirEntries = expandDicDir(dirURL: dirURL, baseURL: baseURL, globalCharset: collector.globalCharset,
                                           source: sourceName, line: lineNumber)
@@ -298,36 +318,69 @@ func collectDicEntries(content: String, baseURL: URL, sourceName: String,
     }
 }
 
+/// base から見た target の相対パス。target が base の外なら `..` で上がる。同じなら空文字列。
+private func relativePath(from base: URL, to target: URL) -> String {
+    let baseParts = base.standardizedFileURL.pathComponents
+    let targetParts = target.standardizedFileURL.pathComponents
+    var common = 0
+    while common < baseParts.count, common < targetParts.count, baseParts[common] == targetParts[common] {
+        common += 1
+    }
+    let ups = Array(repeating: "..", count: baseParts.count - common)
+    return (ups + targetParts[common...]).joined(separator: "/")
+}
+
+/// YAYA の `basepath` を反映した実行時の基準フォルダと、そこから見た辞書のパス。
+/// basepath の先が無いときは、YAYA と同じく指定を無視する。yaya_core はファイル操作を基準フォルダの中に
+/// 限っているので、ゴーストのフォルダ（limit）の外を指す basepath も無視する。
+func applyYayaBasePath(_ collector: DicCollector, root: URL, within limit: URL) -> (root: URL, entries: [DicEntry]) {
+    guard let basePath = collector.basePath else { return (root, collector.entries) }
+    let newRoot = root.appendingPathComponent(basePath, isDirectory: true).standardizedFileURL
+    let limitPath = limit.standardizedFileURL.path
+    guard newRoot.path == limitPath || newRoot.path.hasPrefix(limitPath + "/") else {
+        NSLog("[YayaBackend] basepath points outside the ghost, ignored: \(basePath)")
+        return (root, collector.entries)
+    }
+    var isDirectory: ObjCBool = false
+    guard FileManager.default.fileExists(atPath: newRoot.path, isDirectory: &isDirectory), isDirectory.boolValue else {
+        NSLog("[YayaBackend] basepath not found, ignored: \(basePath)")
+        return (root, collector.entries)
+    }
+    let entries = collector.entries.map { entry in
+        DicEntry(
+            path: relativePath(from: newRoot, to: root.appendingPathComponent(entry.path)),
+            encoding: entry.encoding,
+            sourceConfig: entry.sourceConfig,
+            sourceLine: entry.sourceLine
+        )
+    }
+    return (newRoot, entries)
+}
+
+/// dicdir の読み込み順ファイル。YAYA と同じく `_loading_order_override.txt` を優先する。
+func loadingOrderFile(in dirURL: URL) -> URL? {
+    ["_loading_order_override.txt", "_loading_order.txt"]
+        .map { dirURL.appendingPathComponent($0) }
+        .first { FileManager.default.fileExists(atPath: $0.path) }
+}
+
 /// Expand a `dicdir` directory into ordered dic entries.
 /// If `_loading_order.txt` exists, honor its enable/disable + ordering; otherwise load `.dic`
 /// files in deterministic lexical order. Paths are returned relative to baseURL (ghost/master).
-private func expandDicDir(dirURL: URL, baseURL: URL, globalCharset: String?, source: String, line: Int) -> [DicEntry] {
+private func expandDicDir(dirURL: URL, baseURL: URL, globalCharset: String?, source: String, line: Int, depth: Int = 0) -> [DicEntry] {
     let fm = FileManager.default
     guard fm.fileExists(atPath: dirURL.path) else {
         NSLog("[YayaBackend] dicdir not found: \(dirURL.path)")
         return []
     }
 
-    let loadingOrderURL = dirURL.appendingPathComponent("_loading_order.txt")
+    let loadingOrderURL = loadingOrderFile(in: dirURL) ?? dirURL.appendingPathComponent("_loading_order.txt")
 
     // Helper: build a DicEntry relative to baseURL from a filename inside dirURL.
+    // dicdir は基準フォルダの外も指せる（DLL を shiori/ に置き `dicdir, ../dic` とする YAYA ゴーストなど）。
     func entry(forFile filename: String, encoding: String?) -> DicEntry {
-        // Path relative to baseURL (ghost/master). dicdir entries are typically subpaths.
-        let fileRelToBase: String
-        if dirURL.path == baseURL.path {
-            fileRelToBase = filename
-        } else {
-            // Compute relative path dirRel/filename
-            let baseStd = baseURL.standardizedFileURL.path
-            let dirStd = dirURL.standardizedFileURL.path
-            if dirStd.hasPrefix(baseStd) {
-                let rel = String(dirStd.dropFirst(baseStd.count))
-                let cleaned = rel.hasPrefix("/") ? String(rel.dropFirst()) : rel
-                fileRelToBase = cleaned.isEmpty ? filename : "\(cleaned)/\(filename)"
-            } else {
-                fileRelToBase = filename
-            }
-        }
+        let dirRel = relativePath(from: baseURL, to: dirURL)
+        let fileRelToBase = dirRel.isEmpty ? filename : "\(dirRel)/\(filename)"
         return DicEntry(path: fileRelToBase, encoding: encoding ?? globalCharset, sourceConfig: source, sourceLine: line)
     }
 
@@ -368,6 +421,18 @@ private func expandDicDir(dirURL: URL, baseURL: URL, globalCharset: String?, sou
                 continue
             }
 
+            // 入れ子の "dicdir, sub"。YAYA は読み込み順ファイルを includeEX として読むので、
+            // sub はこのフォルダから見たパスになる。
+            if lower.hasPrefix("dicdir,") {
+                let sub = String(entryToken.dropFirst("dicdir,".count)).trimmingCharacters(in: .whitespaces)
+                guard !sub.isEmpty, depth < 16 else { continue }
+                result.append(contentsOf: expandDicDir(
+                    dirURL: dirURL.appendingPathComponent(sub), baseURL: baseURL, globalCharset: globalCharset,
+                    source: source, line: line, depth: depth + 1
+                ))
+                continue
+            }
+
             // Tolerate legacy "flag,filepath" / bare "filepath" forms.
             let parts = entryToken.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             guard let first = parts.first, !first.isEmpty else { continue }
@@ -375,6 +440,9 @@ private func expandDicDir(dirURL: URL, baseURL: URL, globalCharset: String?, sou
                 // 0,filepath (disabled) -> skip; 1,filepath (enabled) -> load
                 if flag == 0 { continue }
                 result.append(entry(forFile: parts[1], encoding: nil))
+            } else if parts.count >= 2 {
+                // 他の指定（charset など）を辞書のファイル名と取り違えない。
+                NSLog("[YayaBackend] \(dirURL.lastPathComponent)/_loading_order: skipping unsupported directive \(first)")
             } else {
                 result.append(entry(forFile: first, encoding: nil))
             }
@@ -383,11 +451,25 @@ private func expandDicDir(dirURL: URL, baseURL: URL, globalCharset: String?, sou
         // Fall through to lexical enumeration if order file was empty.
     }
 
-    // 2) Lexical fallback: enumerate .dic files in the directory (shallow).
+    // 2) Lexical fallback: enumerate .dic files in the directory.
+    //    YAYA はサブフォルダも dicdir として辿る（Taromati2 の dic/communicate/talk など）。
     NSLog("[YayaBackend] dicdir: no usable _loading_order.txt, loading .dic files lexically from \(dirURL.lastPathComponent)")
     guard let contents = try? fm.contentsOfDirectory(atPath: dirURL.path) else { return [] }
-    let dicFiles = contents.filter { $0.lowercased().hasSuffix(".dic") }.sorted()
-    return dicFiles.map { entry(forFile: $0, encoding: nil) }
+    var result: [DicEntry] = []
+    for name in contents.sorted() where !name.hasPrefix(".") {
+        var isDirectory: ObjCBool = false
+        fm.fileExists(atPath: dirURL.appendingPathComponent(name).path, isDirectory: &isDirectory)
+        if isDirectory.boolValue {
+            guard depth < 16 else { continue }
+            result.append(contentsOf: expandDicDir(
+                dirURL: dirURL.appendingPathComponent(name), baseURL: baseURL, globalCharset: globalCharset,
+                source: source, line: line, depth: depth + 1
+            ))
+        } else if name.lowercased().hasSuffix(".dic") {
+            result.append(entry(forFile: name, encoding: nil))
+        }
+    }
+    return result
 }
 
 // MARK: - YayaBackend Helpers
