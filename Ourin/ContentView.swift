@@ -299,7 +299,7 @@ fileprivate struct ShioriResourceView: View {
     private var toolBar: some View {
         HStack(spacing: 12) {
             Picker("Filter", selection: $filter) {
-                ForEach(ResourceFilter.allCases) { f in Text(f.rawValue).tag(f) }
+                ForEach(ResourceFilter.allCases) { f in Text(LocalizedStringKey(f.rawValue)).tag(f) }
             }
             .pickerStyle(SegmentedPickerStyle())
             .frame(maxWidth: 420)
@@ -310,7 +310,7 @@ fileprivate struct ShioriResourceView: View {
 
             // Sort controls (compact)
             Picker("Sort", selection: $sortField) {
-                ForEach(SortField.allCases) { f in Text(f.rawValue).tag(f) }
+                ForEach(SortField.allCases) { f in Text(LocalizedStringKey(f.rawValue)).tag(f) }
             }.frame(width: 140)
             Toggle("Asc", isOn: $sortAscending).frame(width: 60)
 
@@ -1721,7 +1721,7 @@ fileprivate struct LoggingDiagnosticsView: View {
                         .font(.caption)
                     Picker("Category", selection: $selectedCategory) {
                         ForEach(categories, id: \.self) { category in
-                            Text(category.isEmpty ? "All" : category).tag(category)
+                            Text(category.isEmpty ? NSLocalizedString("All", comment: "Log filter") : category).tag(category)
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
@@ -1733,7 +1733,7 @@ fileprivate struct LoggingDiagnosticsView: View {
                         .font(.caption)
                     Picker("Level", selection: $selectedLevel) {
                         ForEach(levels, id: \.self) { level in
-                            Text(level.capitalized).tag(level)
+                            Text(level == "all" ? NSLocalizedString("All", comment: "Log filter") : level.capitalized).tag(level)
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
