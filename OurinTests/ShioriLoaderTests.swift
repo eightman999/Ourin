@@ -1071,6 +1071,253 @@ struct ShioriLoaderTests {
         #expect(Self.runYayaCore(exe: exe, requests: [loadReq, rNm]) == "10")
     }
 
+    // MARK: - yaya_core: 配列要素の ++/--・文字列への添字・簡易配列（Taromati2 の辞書）
+
+    /// `dic` だけを読み込ませた yaya_core で、関数を名前で呼んでその値を返す `call` を body に渡す。
+    private static func withYayaCoreDic(_ dic: String, _ body: (_ call: (String) -> String?) throws -> Void) throws {
+        guard let exe = locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        let load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                   "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]]
+        try body { id in
+            runYayaCore(exe: exe, requests: [load, ["cmd": "request", "method": "GET", "id": id,
+                                                    "ref": [], "headers": ["Charset": "UTF-8"]]])
+        }
+    }
+
+    /// `a[i]++` / `a[i]--` は YAYA と同じく `a[i] += 1` / `a[i] -= 1`（linkwnd.dic `LinkWndMapNum[0]++` など）。
+    @Test
+    func yayaCoreIncrementsAndDecrementsArrayElements() throws {
+        try Self.withYayaCoreDic("""
+        ElemInc {
+            _a = (1, 2, 3)
+            _a[1]++
+            _a[1]
+        }
+        ElemDec {
+            _a = (1, 2, 3)
+            _a[1]--
+            _a[1]
+        }
+        // 要素の -- は出力しない（以前は `--` を出力の区切りと読み、要素の値を出力していた）
+        ElemDecNoOutput {
+            _a = (5, 5)
+            _a[0]--
+            'done'
+        }
+        // 範囲外の要素は VOID + 1 = 1 になり、間は空の要素で埋まる
+        ElemIncOutOfRange {
+            _a = (1)
+            _a[3]++
+            TOSTR(ARRAYSIZE(_a)) + ':' + _a[3]
+        }
+        // 簡易配列の要素は文字列なので、++ は「1」をつなぎ、-- は数として引く（YAYA の + と -）
+        SimpleElemIncDec {
+            _s = '1,2,3'
+            _s[1]++
+            _s[2]--
+            _s
+        }
+        NestedInc {
+            map = IARRAY
+            map[1][2] = 7
+            map[1][2]++
+            map[1][2]
+        }
+        DottedInc {
+            Game.count = (0, 0)
+            Game.count[1]++
+            Game.count[1]
+        }
+        UndefinedInc {
+            _c++
+            _c
+        }
+        ForIncrement {
+            _a = (0)
+            for _i = 0; _i < 3; _a[0]++ {
+                _i++
+            }
+            _a[0]
+        }
+        // switch の中の `--` は従来どおり区切り
+        SwitchSeparator {
+            _a = ('p', 'q')
+            switch 1 {
+                _a[0] -- _a[1]
+            }
+        }
+        """) { call in
+            #expect(call("ElemInc") == "3")
+            #expect(call("ElemDec") == "1")
+            #expect(call("ElemDecNoOutput") == "done")
+            #expect(call("ElemIncOutOfRange") == "4:1")
+            #expect(call("SimpleElemIncDec") == "1,21,2")
+            #expect(call("NestedInc") == "8")
+            #expect(call("DottedInc") == "1")
+            #expect(call("UndefinedInc") == "1")
+            #expect(call("ForIncrement") == "3")
+            #expect(call("SwitchSeparator") == "q")
+        }
+    }
+
+    /// 文字列リテラルへの添字は簡易配列の要素（Calendar.dic `'否,是'[_eventrange]` など）。
+    @Test
+    func yayaCoreIndexesStringLiterals() throws {
+        try Self.withYayaCoreDic("""
+        LiteralIndex {
+            _f = 1
+            '否,是'[_f]
+        }
+        LiteralIndexExpr {
+            _i = 2
+            'a,b,c,d'[_i - 1] + "x,y"[TOINT('1')]
+        }
+        LiteralIndexOutOfRange {
+            '[' + 'a,b'[5] + ']'
+        }
+        LiteralIndexDelimiter {
+            'a|b|c'[2, '|']
+        }
+        LiteralIndexEmbedded {
+            _f = 0
+            "[%('否,是'[_f])]"
+        }
+        LiteralIndexAssigned {
+            _t = 'OFF,ON'[1]
+            _t
+        }
+        """) { call in
+            #expect(call("LiteralIndex") == "是")
+            #expect(call("LiteralIndexExpr") == "by")
+            #expect(call("LiteralIndexOutOfRange") == "[]")
+            #expect(call("LiteralIndexDelimiter") == "c")
+            #expect(call("LiteralIndexEmbedded") == "[否]")
+            #expect(call("LiteralIndexAssigned") == "ON")
+        }
+    }
+
+    /// `a[i] = x` は YAYA の CValue::SetArrayValue と同じ（汎用配列・簡易配列・多次元）。
+    @Test
+    func yayaCoreAssignsArrayElementsLikeYaya() throws {
+        try Self.withYayaCoreDic("""
+        // 範囲外は空の要素で埋めて追加、負の添字は末尾に追加
+        GeneralPadAndAppend {
+            _a = (1, 2)
+            _a[4] = 5
+            _a[-1] = 6
+            TOSTR(ARRAYSIZE(_a)) + ':' + _a[2] + ':' + _a[4] + ':' + _a[5]
+        }
+        // 右辺の配列は展開して差し込む
+        GeneralSpread {
+            _a = (1, 2, 3)
+            _a[1] = (8, 9)
+            TOSTR(ARRAYSIZE(_a)) + ':' + _a[1] + _a[2] + _a[3]
+        }
+        // 未定義・整数の変数は汎用配列になる
+        BecomesArray {
+            _u[2] = 'x'
+            _n = 5
+            _n[1] = 6
+            TOSTR(ARRAYSIZE(_u)) + ':' + _u[2] + ':' + ARRAYSIZE(_n) + ':' + _n[1]
+        }
+        SimpleSet {
+            _s = 'a,b,c'
+            _s[1] = 'X'
+            _s[4] = 'e'
+            _s
+        }
+        SimpleRead {
+            _s = 'a,b,c'
+            _s[0] + _s[2] + '[' + _s[3] + ']'
+        }
+        CompoundElement {
+            _a = (10, 20)
+            _a[0] += 5
+            _a[1] *= 2
+            _s = 'x,y'
+            _s[1] += 'z'
+            TOSTR(_a[0]) + ':' + _a[1] + ':' + _s
+        }
+        // linkwnd.dic の `map=IARRAY` と `map[pos.i][pos.j] = 1`
+        NestedAssign {
+            map = IARRAY
+            map[1][2] = 7
+            map[0][0] = 1
+            TOSTR(ARRAYSIZE(map)) + ':' + ARRAYSIZE(map[1]) + ':' + map[1][2] + ':' + map[0][0]
+        }
+        """) { call in
+            #expect(call("GeneralPadAndAppend") == "6::5:6")
+            #expect(call("GeneralSpread") == "4:893")
+            #expect(call("BecomesArray") == "3:x:2:6")
+            #expect(call("SimpleSet") == "a,X,c,,e")
+            #expect(call("SimpleRead") == "ac[]")
+            #expect(call("CompoundElement") == "15:40:x,yz")
+            #expect(call("NestedAssign") == "2:3:7:1")
+        }
+    }
+
+    /// SETDELIM(変数, 区切り) は変数ごとの簡易配列の区切り（pseudoAI.dic `SETDELIM(_temp,'#')` など）。
+    @Test
+    func yayaCoreUsesPerVariableDelimiters() throws {
+        try Self.withYayaCoreDic("""
+        LocalDelimiter {
+            _t = 'a#b#c'
+            SETDELIM(_t, '#')
+            _t[1] = 'X'
+            _t[2] + ':' + _t + ':' + ARRAYSIZE(_t) + ':' + GETDELIM(_t)
+        }
+        GlobalDelimiter {
+            gdelim = 'p*q'
+            SETDELIM(gdelim, '*')
+            gdelim[1]
+        }
+        // ほかの変数の区切りは変わらない（以前は全体の区切りが `_t` の値になっていた）
+        DelimiterIsPerVariable {
+            _t = 'a#b'
+            SETDELIM(_t, '#')
+            _u = 'c,d'
+            _u[1] + ':' + ARRAYSIZE(_u) + ':' + GETDELIM(_u)
+        }
+        ArraySizeOfValues {
+            TOSTR(ARRAYSIZE('a,b,c')) + ':' + ARRAYSIZE('') + ':' + ARRAYSIZE(5)
+        }
+        """) { call in
+            #expect(call("LocalDelimiter") == "c:a#X#c:3:#")
+            #expect(call("GlobalDelimiter") == "q")
+            #expect(call("DelimiterIsPerVariable") == "d:2:,")
+            #expect(call("ArraySizeOfValues") == "3:0:1")
+        }
+    }
+
+    /// for の見出しの `;;` は YAYA では空の文として読み飛ばされる（linkwnd.dic `..._buff != '';;_buff = FREAD(_mapfile){`）。
+    @Test
+    func yayaCoreSkipsEmptyStatementsInForHeader() throws {
+        try Self.withYayaCoreDic("""
+        ForDoubleSemicolon {
+            _s = ''
+            _n = 0
+            for _i = 0; _i < 3;; _i++ {
+                _s += _i
+                _n++
+                if _n > 5 {
+                    break
+                }
+            }
+            _s
+        }
+        """) { call in
+            // 以前は増分が読み捨てられ、_i が 0 のまま回り続けていた。
+            #expect(call("ForDoubleSemicolon") == "012")
+        }
+    }
+
     @Test
     func yayaCoreCaseWhenFirstMatchAndOthers() throws {
         guard let exe = Self.locateYayaCore() else {
@@ -1319,10 +1566,11 @@ struct ShioriLoaderTests {
         #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "6,-3,6,1,5,6")
     }
 
-    /// 配列要素の連結代入 `arr[i] ,= value`（文字列要素は文字列連結）が、
-    /// 対象要素のみに反映されることを検証する。
+    /// 配列要素の連結代入 `arr[i] ,= value` は、YAYA と同じく `(arr[i], value)` を i の位置へ
+    /// 展開して書き込む（value が arr[i] の後ろに差し込まれ、ほかの要素はそのまま）。
+    /// Taromati2 の SQL.dic `_res[_ColumnID] ,= _argv[1]` は、これで列名を差し込んでいる。
     @Test
-    func yayaCoreArrayElementConcatAssignmentAppliesToElementOnly() throws {
+    func yayaCoreArrayElementConcatAssignmentInsertsAfterElement() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping C++ parser integration test")
             return
@@ -1335,7 +1583,7 @@ struct ShioriLoaderTests {
         ArrElemConcat {
             _arr = { 'a' -- 'b' -- 'c' }
             _arr[1] ,= 'X'
-            _arr[0] + _arr[1] + _arr[2]
+            TOSTR(ARRAYSIZE(_arr)) + ':' + _arr[0] + _arr[1] + _arr[2] + _arr[3]
         }
         """
         try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
@@ -1348,7 +1596,7 @@ struct ShioriLoaderTests {
             "ref": [], "headers": ["Charset": "UTF-8"]
         ]
 
-        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "abXc")
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "4:abXc")
     }
 
     /// 範囲/スライス左辺値 `arr[a, b] = IARRAY` が、両端を含む閉区間を削除することを

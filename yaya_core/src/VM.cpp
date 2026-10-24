@@ -447,6 +447,92 @@ static std::vector<std::string> splitPseudoArray(const std::string& text,
     return parts;
 }
 
+// YAYA の `a[i]` の読み出し（yaya-shiori の CValue::operator[] の添字 1 つの場合）。
+// 汎用配列はその要素、文字列は delimiter で分けた簡易配列の要素、整数・実数は [0] だけその値。
+// 範囲外（負の添字を含む）は VOID。
+static Value yayaElementGet(const Value& container, std::int64_t index, const std::string& delimiter) {
+    switch (container.getType()) {
+        case Value::Type::Array:
+            return index >= 0 ? container.arrayGet(static_cast<size_t>(index)) : Value();
+        case Value::Type::String: {
+            const auto parts = splitPseudoArray(container.asString(), delimiter);
+            return (index >= 0 && index < static_cast<std::int64_t>(parts.size()))
+                ? Value(parts[static_cast<size_t>(index)]) : Value();
+        }
+        case Value::Type::Integer:
+        case Value::Type::Real:
+            return index == 0 ? container : Value();
+        default:
+            return Value();
+    }
+}
+
+// YAYA の `a[i] = value`（yaya-shiori の CValue::SetArrayValue の添字 1 つの場合）。
+// - 範囲内なら置き換え、範囲外は空の要素で埋めてから末尾に追加する。負の添字は埋めずに末尾に追加する。
+// - 右辺が配列なら要素を展開して差し込む。汎用配列では spread が false のとき（多次元の代入で
+//   手前の次元へ書き戻すとき）と、今の要素が配列のときは展開しない。
+// - 文字列は簡易配列として delimiter で分けて書き換え、つなぎ直す。
+// - 未定義・整数・実数は、元の値を捨てて [0] が VOID の汎用配列に変えてから書き込む。
+static void yayaElementSet(Value& container, std::int64_t index, const Value& value,
+                           const std::string& delimiter, bool spread) {
+    // YAYA は埋める要素が多すぎる代入（`_a[2000000000] = 1` など）をメモリ不足として扱う。
+    static constexpr std::int64_t kMaxPad = 0x1000000;
+    if (container.getType() == Value::Type::Dictionary) return;
+
+    if (container.getType() == Value::Type::String) {
+        std::vector<std::string> parts = splitPseudoArray(container.asString(), delimiter);
+        if (index - static_cast<std::int64_t>(parts.size()) > kMaxPad) return;
+        std::vector<std::string> inserted;
+        if (value.getType() == Value::Type::Array) {
+            for (const auto& element : value.asArray()) inserted.push_back(element.asString());
+        } else {
+            inserted.push_back(value.asString());
+        }
+        if (index >= 0 && index < static_cast<std::int64_t>(parts.size())) {
+            auto position = parts.erase(parts.begin() + index);
+            parts.insert(position, inserted.begin(), inserted.end());
+        } else {
+            if (index > static_cast<std::int64_t>(parts.size())) parts.resize(static_cast<size_t>(index));
+            parts.insert(parts.end(), inserted.begin(), inserted.end());
+        }
+        std::string joined;
+        for (size_t i = 0; i < parts.size(); ++i) {
+            if (i) joined += delimiter;
+            joined += parts[i];
+        }
+        container = Value(joined);
+        return;
+    }
+
+    const std::int64_t size = container.getType() == Value::Type::Array
+        ? static_cast<std::int64_t>(container.arraySize()) : 1;
+    if (index - size > kMaxPad) return;
+    if (container.getType() != Value::Type::Array) {
+        container = Value(std::vector<Value>{ Value() });
+    }
+    auto& elements = container.asArrayMutable();
+    bool expand = spread && value.getType() == Value::Type::Array;
+    if (index >= 0 && index < static_cast<std::int64_t>(elements.size())) {
+        auto position = elements.begin() + index;
+        if (position->getType() == Value::Type::Array || position->getType() == Value::Type::Dictionary) {
+            expand = false;
+        }
+        if (expand) {
+            position = elements.erase(position);
+            elements.insert(position, value.asArray().begin(), value.asArray().end());
+        } else {
+            *position = value;
+        }
+        return;
+    }
+    if (index > static_cast<std::int64_t>(elements.size())) elements.resize(static_cast<size_t>(index));
+    if (expand) {
+        elements.insert(elements.end(), value.asArray().begin(), value.asArray().end());
+    } else {
+        elements.push_back(value);
+    }
+}
+
 // These AST calls mutate a variable and are statement-like in YAYA. Their
 // return value is useful when nested inside an expression, but must not become
 // an output candidate when the call is a standalone statement.
@@ -1142,8 +1228,10 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                     Value idxV = executeNode(call->arguments[1]);
                     int idx = idxV.asInt();
 
-                    if (base.getType() == Value::Type::Array) {
-                        return base.arrayGet(idx);
+                    // 変数でない項（文字列リテラル、多次元の手前の要素など）の簡易配列は既定の区切り ","。
+                    if (base.getType() == Value::Type::Array || base.getType() == Value::Type::String ||
+                        base.getType() == Value::Type::Integer || base.getType() == Value::Type::Real) {
+                        return yayaElementGet(base, idxV.asInt64(), ",");
                     }
 
                     // Special handling if base was a variable named 'reference'
@@ -1217,63 +1305,85 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             };
             if (assignOps.count(call->functionName) &&
                 call->arguments.size() == 2) {
-                auto rhs = executeNode(call->arguments[1]);
-
-                // Determine target variable name from LHS AST node
-                std::string varName;
-                int arrayIdx = -1;
-                if (auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get())) {
-                    varName = var->name;
-                } else if (auto* acc = dynamic_cast<AST::ArrayAccessNode*>(call->arguments[0].get())) {
-                    varName = acc->arrayName;
-                    arrayIdx = executeNode(acc->index).asInt();
+                // 左辺は変数そのものか、変数の要素（`a[i]`、`a[i][j]`）。YAYA と同じく左辺の添字を先に
+                // 評価し、要素は汎用配列・簡易配列（文字列）の意味で書き換える。`a[i]++` / `a[i]--` も
+                // Parser が `a[i] += 1` / `a[i] -= 1` にしてここへ来る。
+                auto target = resolveElementLvalue(call->arguments[0]);
+                if (!target) {
+                    auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get());
+                    if (!var) {
+                        executeNode(call->arguments[1]);
+                        return Value();
+                    }
+                    target = ElementLvalue{ var->name, {} };
                 }
 
-                if (!varName.empty()) {
-                    if (call->functionName == "__assign__") {
-                        if (arrayIdx >= 0) {
-                            Value arr = getVariable(varName);
-                            arr.arraySet(arrayIdx, rhs);
-                            setVariable(varName, arr);
+                Value rhs = executeNode(call->arguments[1]);
+                if (call->functionName == "__assign__") {
+                    writeElementLvalue(*target, rhs);
+                    return rhs;
+                }
+
+                // Compound assignments
+                Value current = readElementLvalue(*target);
+                Value result;
+                if (call->functionName == "__plus_assign__") {
+                    result = evaluateBinaryOp("+", current, rhs);
+                } else if (call->functionName == "__minus_assign__") {
+                    result = evaluateBinaryOp("-", current, rhs);
+                } else if (call->functionName == "__star_assign__") {
+                    result = evaluateBinaryOp("*", current, rhs);
+                } else if (call->functionName == "__slash_assign__") {
+                    result = evaluateBinaryOp("/", current, rhs);
+                } else if (call->functionName == "__percent_assign__") {
+                    result = evaluateBinaryOp("%", current, rhs);
+                } else if (!target->indices.empty()) {
+                    // `a[i] ,= x`: 今の要素と右辺をつないだ配列を、要素の位置へ展開して書き込む。
+                    std::vector<Value> joined;
+                    for (const Value* part : { &current, &rhs }) {
+                        if (part->getType() == Value::Type::Array) {
+                            joined.insert(joined.end(), part->asArray().begin(), part->asArray().end());
                         } else {
-                            setVariable(varName, rhs);
+                            joined.push_back(*part);
                         }
-                        return rhs;
                     }
-                    // Compound assignments
-                    Value current = (arrayIdx >= 0) ? getVariable(varName).arrayGet(arrayIdx) : getVariable(varName);
-                    Value result;
-                    if (call->functionName == "__plus_assign__") {
-                        result = evaluateBinaryOp("+", current, rhs);
-                    } else if (call->functionName == "__minus_assign__") {
-                        result = evaluateBinaryOp("-", current, rhs);
-                    } else if (call->functionName == "__star_assign__") {
-                        result = evaluateBinaryOp("*", current, rhs);
-                    } else if (call->functionName == "__slash_assign__") {
-                        result = evaluateBinaryOp("/", current, rhs);
-                    } else if (call->functionName == "__percent_assign__") {
-                        result = evaluateBinaryOp("%", current, rhs);
-                    } else if (call->functionName == "__concat_assign__") {
-                        // YAYA ,= operator: array append or string concat
-                        if (current.getType() == Value::Type::Array) {
-                            current.arrayConcat(rhs);
-                            result = current;
-                        } else {
-                            result = Value(current.asString() + rhs.asString());
-                        }
+                    result = Value(joined);
+                } else {
+                    // YAYA ,= operator: array append or string concat
+                    if (current.getType() == Value::Type::Array) {
+                        current.arrayConcat(rhs);
+                        result = current;
                     } else {
-                        result = rhs;
+                        result = Value(current.asString() + rhs.asString());
                     }
-                    if (arrayIdx >= 0) {
-                        Value arr = getVariable(varName);
-                        arr.arraySet(arrayIdx, result);
-                        setVariable(varName, arr);
-                    } else {
-                        setVariable(varName, result);
-                    }
-                    return result;
+                }
+                writeElementLvalue(*target, result);
+                return result;
+            }
+
+            // SETDELIM(変数, 区切り) / GETDELIM(変数) / ARRAYSIZE(変数): YAYA は変数ごとに簡易配列の
+            // 区切りを持つ。値ではなく変数そのものが要るので、引数を値にする前にここで扱う。
+            if (call->functionName == "SETDELIM" && call->arguments.size() >= 2) {
+                auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get());
+                const Value delimiter = executeNode(call->arguments[1]);
+                // YAYA は変数でないもの・文字列でない区切り・空の区切りを警告して無視する。
+                if (var && delimiter.getType() == Value::Type::String && !delimiter.asString().empty()) {
+                    setVariableDelimiter(var->name, delimiter.asString());
                 }
                 return Value();
+            }
+            if (call->functionName == "GETDELIM" && !call->arguments.empty()) {
+                auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get());
+                return Value(var ? variableDelimiter(var->name) : std::string());
+            }
+            if (call->functionName == "ARRAYSIZE" && call->arguments.size() == 1) {
+                if (auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get())) {
+                    const Value value = getVariable(var->name);
+                    if (value.getType() == Value::Type::String) {
+                        return Value(static_cast<int>(
+                            splitPseudoArray(value.asString(), variableDelimiter(var->name)).size()));
+                    }
+                }
             }
 
             // E.Swap(&a, &b): YAYA の参照渡し（&）で2つの変数/配列要素を in-place 交換する。
@@ -1322,6 +1432,11 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             Value arrayVar = getVariable(access->arrayName);
             if (arrayVar.getType() == Value::Type::Array) {
                 return arrayVar.arrayGet(index);
+            }
+            // 文字列は簡易配列（変数の区切りで分けた要素）、整数・実数は [0] だけその値（YAYA）。
+            if (arrayVar.getType() == Value::Type::String || arrayVar.getType() == Value::Type::Integer ||
+                arrayVar.getType() == Value::Type::Real) {
+                return yayaElementGet(arrayVar, indexVal.asInt64(), variableDelimiter(access->arrayName));
             }
 
             if (access->arrayName == "reference" &&
@@ -1653,6 +1768,85 @@ void VM::writeReference(const RefTarget& target, const Value& value) {
     }
 }
 
+std::optional<VM::ElementLvalue> VM::resolveElementLvalue(const std::shared_ptr<AST::Node>& node) {
+    // Parser は変数の最初の添字を ArrayAccessNode、2 つ目からを __index__ の入れ子で表す。
+    std::vector<std::shared_ptr<AST::Node>> indexNodes;
+    std::shared_ptr<AST::Node> current = node;
+    while (auto* call = dynamic_cast<AST::CallNode*>(current.get())) {
+        if (call->functionName != "__index__" || call->arguments.size() != 2) return std::nullopt;
+        indexNodes.push_back(call->arguments[1]);
+        current = call->arguments[0];
+    }
+    auto* access = dynamic_cast<AST::ArrayAccessNode*>(current.get());
+    if (!access) return std::nullopt;
+    indexNodes.push_back(access->index);
+
+    ElementLvalue target;
+    target.varName = access->arrayName;
+    for (auto it = indexNodes.rbegin(); it != indexNodes.rend(); ++it) {
+        target.indices.push_back(executeNode(*it).asInt64());
+    }
+    return target;
+}
+
+// 複合代入の左辺の値。範囲外の要素は VOID（yaya-shiori の GetCompoundSubstLeftValue）。
+Value VM::readElementLvalue(const ElementLvalue& target) {
+    Value value = getVariable(target.varName);
+    for (size_t level = 0; level < target.indices.size(); ++level) {
+        // 簡易配列の区切りは、変数に直接付けた添字だけがその変数の区切りを使う。
+        const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
+        value = yayaElementGet(value, target.indices[level], delimiter);
+    }
+    return value;
+}
+
+// 一番内側の要素を書き換え、手前の次元へ順に書き戻す（yaya-shiori の SubstToArray）。
+// 手前の次元へ書き戻すときは、入れ子が崩れないよう配列を展開しない。
+void VM::writeElementLvalue(const ElementLvalue& target, const Value& value) {
+    if (target.indices.empty()) {
+        setVariable(target.varName, value);
+        return;
+    }
+    std::vector<Value> containers{ getVariable(target.varName) };
+    for (size_t level = 0; level + 1 < target.indices.size(); ++level) {
+        const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
+        containers.push_back(yayaElementGet(containers[level], target.indices[level], delimiter));
+    }
+    for (size_t level = target.indices.size(); level-- > 0;) {
+        const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
+        const bool innermost = level + 1 == target.indices.size();
+        yayaElementSet(containers[level], target.indices[level],
+                       innermost ? value : containers[level + 1], delimiter, innermost);
+    }
+    setVariable(target.varName, containers[0]);
+}
+
+namespace {
+// ローカル変数の区切りを、そのローカルスコープの中に変数名と衝突しない名前で持つ。
+// 関数を抜けてスコープが消えると区切りも消える（YAYA でもローカル変数とともに消える）。
+std::string localDelimiterKey(const std::string& name) {
+    return std::string("\x1F" "delimiter:") + name;
+}
+} // namespace
+
+std::string VM::variableDelimiter(const std::string& name) const {
+    if (!name.empty() && name[0] == '_' && !localScopes_.empty()) {
+        const auto& scope = localScopes_.back();
+        auto it = scope.find(localDelimiterKey(name));
+        return it != scope.end() ? it->second.asString() : std::string(",");
+    }
+    auto it = variableDelimiters_.find(name);
+    return it != variableDelimiters_.end() ? it->second : std::string(",");
+}
+
+void VM::setVariableDelimiter(const std::string& name, const std::string& delimiter) {
+    if (!name.empty() && name[0] == '_' && !localScopes_.empty()) {
+        localScopes_.back()[localDelimiterKey(name)] = Value(delimiter);
+    } else {
+        variableDelimiters_[name] = delimiter;
+    }
+}
+
 Value VM::callBuiltin(const std::string& name, const std::vector<Value>& args) {
     auto it = builtins_.find(name);
     if (it != builtins_.end()) {
@@ -1866,10 +2060,18 @@ void VM::registerBuiltins() {
     };
     
     // ARRAYSIZE(arr) - Get array size
+    // 文字列は簡易配列の要素数（区切りは ","。変数の区切りは呼び出し側の ARRAYSIZE(変数) で扱う）、
+    // 整数・実数は 1、VOID は 0（YAYA）。
     builtins_["ARRAYSIZE"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         if (args[0].getType() == Value::Type::Array) {
             return Value(static_cast<int>(args[0].arraySize()));
+        }
+        if (args[0].getType() == Value::Type::String) {
+            return Value(static_cast<int>(splitPseudoArray(args[0].asString(), ",").size()));
+        }
+        if (args[0].getType() == Value::Type::Integer || args[0].getType() == Value::Type::Real) {
+            return Value(1);
         }
         return Value(0);
     };
@@ -2534,6 +2736,7 @@ void VM::registerBuiltins() {
     builtins_["ERASEVAR"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         std::string varName = args[0].asString();
+        variableDelimiters_.erase(varName);
         auto it = variables_.find(varName);
         if (it != variables_.end()) {
             variables_.erase(it);
@@ -3919,17 +4122,16 @@ void VM::registerBuiltins() {
         return Value(-1);
     };
     
-    // GETDELIM() - 現在の配列区切り文字を返す
-    builtins_["GETDELIM"] = [this](const std::vector<Value>& args) -> Value {
+    // GETDELIM(変数) / SETDELIM(変数, 区切り) は変数そのものが要るので executeNode の CallNode で扱う。
+    // ここに来るのは引数が変数でない（または足りない）呼び出しで、YAYA は警告して何もしない。
+    builtins_["GETDELIM"] = [](const std::vector<Value>& args) -> Value {
         (void)args;
-        return Value(arrayDelimiter_);
+        return Value(std::string());
     };
 
-    // SETDELIM(delim) - 配列区切り文字を設定する（SPLIT の区切り省略時に使用）
-    builtins_["SETDELIM"] = [this](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        arrayDelimiter_ = args[0].asString();
-        return Value(1);
+    builtins_["SETDELIM"] = [](const std::vector<Value>& args) -> Value {
+        (void)args;
+        return Value();
     };
     
     // GETSETTING(key) - Get setting value (Phase 7).

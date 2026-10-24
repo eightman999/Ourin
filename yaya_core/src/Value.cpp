@@ -146,9 +146,11 @@ Value Value::operator+(const Value& other) const {
     if (type_ == Type::Real || other.type_ == Type::Real) {
         return Value(asReal() + other.asReal());
     }
-    // Integer addition
-    if (type_ == Type::Integer && other.type_ == Type::Integer) {
-        return Value(intValue_ + other.intValue_);
+    // Integer addition. YAYA では VOID（未定義の変数・範囲外の要素）は 0 として整数に足す。
+    if ((type_ == Type::Integer || type_ == Type::Void) &&
+        (other.type_ == Type::Integer || other.type_ == Type::Void) &&
+        !(type_ == Type::Void && other.type_ == Type::Void)) {
+        return Value(asInt64() + other.asInt64());
     }
     return Value();
 }
