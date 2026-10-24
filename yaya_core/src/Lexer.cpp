@@ -186,6 +186,14 @@ Token Lexer::readIdentifier() {
             value += current();
             advance();
         }
+        // YAYA の名前は `.` を含められる（`SHIORI3FW.Foo`、`FCHARSET.default`、`Talk.0.0`）。
+        // 予約語や数字の区切りもまとめて 1 つの名前にする。
+        else if (ch == '.' && !value.empty()) {
+            unsigned char next = static_cast<unsigned char>(peek());
+            if (!(std::isalnum(next) || next == '_' || next >= 0x80)) break;
+            value += current();
+            advance();
+        }
         else {
             break;
         }
@@ -234,6 +242,18 @@ std::vector<Token> Lexer::tokenize() {
             (current() == '#')) {
             skipComment();
             continue;
+        }
+        // 行末の `/` は次の行への継続（YAYA）。`/` と改行は構文上の記号で、トークンにしない。
+        if (current() == '/') {
+            size_t after = pos_ + 1;
+            while (after < source_.size() &&
+                   (source_[after] == ' ' || source_[after] == '\t' || source_[after] == '\r')) {
+                after++;
+            }
+            if (after < source_.size() && source_[after] == '\n') {
+                while (pos_ <= after && current() != '\0') advance();
+                continue;
+            }
         }
         // Special handling for '--': only treat as comment at start of statement.
         // '--' is an operator (decrement / block-literal separator) when it follows a
