@@ -39,6 +39,8 @@ private:
     std::shared_ptr<AST::Node> parseMultiplication();
     std::shared_ptr<AST::Node> parseUnary();
     std::shared_ptr<AST::Node> parsePrimary();
+    std::shared_ptr<AST::Node> parseIndexSuffixes(std::shared_ptr<AST::Node> node);
+    static bool isElementLvalue(const std::shared_ptr<AST::Node>& node);
     std::shared_ptr<AST::Node> parseAssignment();
     std::shared_ptr<AST::Node> parseIf();
     std::shared_ptr<AST::Node> parseWhile();

@@ -109,8 +109,13 @@ private:
     // Local variable scope stack (for variables starting with '_')
     std::vector<std::map<std::string, Value>> localScopes_;
 
-    // SETDELIM/GETDELIM で設定する配列⇔文字列の既定区切り文字（SPLIT の区切り省略時に使用）
+    // 配列⇔文字列の既定区切り文字（SPLIT の区切り省略時などに使用）。
+    // SETDELIM は変数ごとの区切り（variableDelimiters_）を設定し、これは変えない。
     std::string arrayDelimiter_ = ",";
+
+    // SETDELIM(変数, 区切り) で変数ごとに設定する簡易配列の区切り（グローバル変数の分）。
+    // ローカル変数の分は、変数と同じ寿命になるようローカルスコープの中に持つ（variableDelimiter）。
+    std::map<std::string, std::string> variableDelimiters_;
 
     // FCHARSET で設定するテキストファイルの既定文字コード。
     // 0=Shift_JIS/CP932、1=UTF-8、127=OS既定（macOSではUTF-8として扱う）。
@@ -210,6 +215,19 @@ private:
     std::optional<RefTarget> tryResolveReference(std::shared_ptr<AST::Node> node);
     Value readReference(const RefTarget& target);
     void writeReference(const RefTarget& target, const Value& value);
+
+    // 代入の左辺になる変数の要素（`a[i]`、`a[i][j]` ...）。添字は解決時に評価する。
+    struct ElementLvalue {
+        std::string varName;
+        std::vector<std::int64_t> indices;
+    };
+    std::optional<ElementLvalue> resolveElementLvalue(const std::shared_ptr<AST::Node>& node);
+    Value readElementLvalue(const ElementLvalue& target);
+    void writeElementLvalue(const ElementLvalue& target, const Value& value);
+
+    // 変数の簡易配列の区切り（SETDELIM で設定していなければ ","）。
+    std::string variableDelimiter(const std::string& name) const;
+    void setVariableDelimiter(const std::string& name, const std::string& delimiter);
     
     // Register built-in functions
     void registerBuiltins();
