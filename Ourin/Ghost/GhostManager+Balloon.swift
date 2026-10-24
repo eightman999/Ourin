@@ -175,6 +175,7 @@ extension GhostManager {
                 if !part.isEmpty { vm.text += String(part) }
             }
             scheduleBalloonTimeout(for: currentScope)
+            noteTalkShownForSurfaceRestore()
             let characterCount = s.reduce(into: 0) { count, character in
                 if character != "\n" { count += 1 }
             }
@@ -187,6 +188,7 @@ extension GhostManager {
         let vm = getBalloonVM(for: currentScope)
         vm.appendNewline(advance: advance)
         scheduleBalloonTimeout(for: currentScope)
+        noteTalkShownForSurfaceRestore()
         // 改行は表示位置を進めるイベントであり、talk,N の文字数には含めない。
         // 引数 0 でも talk（パラメータなし）のイベント通知は従来どおり維持する。
         triggerSerikoTalkAnimationIfEnabled(characterCount: 0)
@@ -469,6 +471,7 @@ extension GhostManager {
             ],
             to: self
         )
+        scheduleSurfaceRestoreIfTalkEnded()
     }
 
     /// `\_a` 範囲アンカーがクリックされたときの処理。
@@ -595,6 +598,8 @@ extension GhostManager {
                 to: self
             )
             self.localEventTimers.removeValue(forKey: key)
+            // 喋りタイムアウトでバルーンが閉じた時点から OnSurfaceRestore までの時間を数える。
+            self.scheduleSurfaceRestoreIfTalkEnded()
         }
         localEventTimers[key] = timer
     }
@@ -603,6 +608,14 @@ extension GhostManager {
         let key = "balloon-timeout-\(scope)"
         localEventTimers[key]?.invalidate()
         localEventTimers.removeValue(forKey: key)
+    }
+
+    /// 喋りタイムアウトで閉じる予定のまま、トークを表示しているバルーンがあるか。
+    func hasTalkBalloonAwaitingTimeout() -> Bool {
+        balloonViewModels.contains { scope, vm in
+            (!vm.text.isEmpty || !vm.balloonImages.isEmpty)
+                && localEventTimers["balloon-timeout-\(scope)"] != nil
+        }
     }
     // MARK: - Balloon Positioning
 
