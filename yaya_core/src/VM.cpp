@@ -1003,6 +1003,21 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             auto* feNode = dynamic_cast<AST::ForeachNode*>(node.get());
             Value result;
             Value arrayVal = executeNode(feNode->arrayExpr);
+            // 文字列は簡易配列（区切りで分けた要素）として回す（YAYA の foreach）。
+            if (arrayVal.getType() == Value::Type::String) {
+                const std::string text = arrayVal.asString();
+                std::vector<Value> parts;
+                if (!text.empty()) {
+                    size_t start = 0;
+                    while (true) {
+                        size_t found = arrayDelimiter_.empty() ? std::string::npos : text.find(arrayDelimiter_, start);
+                        parts.emplace_back(text.substr(start, found == std::string::npos ? std::string::npos : found - start));
+                        if (found == std::string::npos) break;
+                        start = found + arrayDelimiter_.size();
+                    }
+                }
+                arrayVal = Value(parts);
+            }
             if (arrayVal.getType() == Value::Type::Array) {
                 const auto& arr = arrayVal.asArray();
                 // Snapshot elements so mutation of the source array mid-loop is safe.

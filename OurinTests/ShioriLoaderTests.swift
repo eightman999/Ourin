@@ -1700,6 +1700,86 @@ struct ShioriLoaderTests {
         #expect(bytes == Data([0x93, 0xFA, 0x96, 0x7B, 0x8C, 0xEA]))
     }
 
+    /// Taromati2 の辞書で構文エラーになっていた YAYA の書き方（#175）。
+    @Test
+    func yayaCoreParsesTaromati2SyntaxForms() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        let dic = """
+        #define LIST 'a,b,c'
+        // switch の中の { } に for・if を書ける（YAYA のサブブロック）
+        Sw {
+            switch _argv[0] {
+                'zero'
+                {
+                    _s = ''
+                    for _i = 0; _i < 3; _i++ {
+                        _s += TOSTR(_i)
+                    }
+                    if _s == '012' {
+                        'loop:' + _s
+                    }
+                }
+            }
+        }
+        SwProbe {
+            Sw(1)
+        }
+        // 名前の中の予約語や数字の区切り
+        Cfg.default:void {
+            Hit = 'default-ok'
+        }
+        Talk.0.0 {
+            'talk00'
+        }
+        NameProbe {
+            _x = Cfg.default()
+            Hit + ',' + Talk.0.0()
+        }
+        // foreach の配列に式（define で置き換わる文字列・配列リテラル）
+        EachProbe {
+            _r = ''
+            foreach LIST; _e {
+                _r += _e
+            }
+            foreach ('x', 'y'); _e {
+                _r += _e
+            }
+            _r
+        }
+        // 引数の省略
+        ArgCount {
+            TOSTR(_argc) + ':' + _argv[2] + ':' + _argv[0]
+        }
+        ArgProbe {
+            ArgCount(,,'z')
+        }
+        // 行末の / による行の継続
+        ContProbe {
+            _a = (1, 2,/
+                  3, 4)
+            ARRAYSIZE(_a)
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        let load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                   "dic_entries": [["path": "t.dic"]]]
+        func request(_ id: String) -> String? {
+            Self.runYayaCore(exe: exe, requests: [load, ["cmd": "request", "method": "GET", "id": id,
+                                                         "ref": [], "headers": ["Charset": "UTF-8"]]])
+        }
+        #expect(request("SwProbe") == "loop:012")
+        #expect(request("NameProbe") == "default-ok,talk00")
+        #expect(request("EachProbe") == "abcxy")
+        #expect(request("ArgProbe") == "3:z:")
+        #expect(request("ContProbe") == "4")
+    }
+
     /// Run yaya_core with a sequence of JSON-line requests; return the `value` of the
     /// last response (or nil). Each invocation is a fresh process: load + one request.
     private static func runYayaCore(exe: URL, requests: [[String: Any]], currentDirectory: URL? = nil) -> String? {
