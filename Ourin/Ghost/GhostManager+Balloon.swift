@@ -46,6 +46,8 @@ extension GhostManager {
         let vm = BalloonViewModel()
         // アンカー装飾の既定値をバルーン設定（descript.txt の anchor.pen.color / anchor.font.color）から取る。
         vm.applyBalloonConfigAnchorDefaults(config: balloonConfig)
+        // 本文の既定（descript.txt の font.color / font.height）も表示の最初から使う。
+        applyBalloonFontDefaults(vm: vm)
         // Initialize balloon ID from character view model
         if let charVM = characterViewModels[scope] {
             vm.balloonID = charVM.currentBalloonID
@@ -1253,18 +1255,37 @@ extension GhostManager {
         }
     }
 
+    /// 本文の既定スタイル（バルーンの descript.txt の font.height・font.color。UKADOC の既定値は 12・0,0,0）。
+    /// バルーン設定が無いときは 12・`.textColor`。
+    func applyBalloonFontDefaults(vm: BalloonViewModel) {
+        let config = balloonConfig
+        vm.fontSize = CGFloat(config?.fontHeight ?? 12)
+        vm.fontColor = config?.fontColor ?? .textColor
+    }
+
+    /// バルーン設定の切り替え後、作成済みのバルーンにも新しい設定の既定（本文・アンカー・カーソル）を入れる。
+    func applyBalloonConfigDefaultsToBalloonViewModels() {
+        let apply = { [weak self] in
+            guard let self else { return }
+            for vm in self.balloonViewModels.values {
+                vm.applyBalloonConfigAnchorDefaults(config: self.balloonConfig)
+                self.applyBalloonFontDefaults(vm: vm)
+            }
+        }
+        if Thread.isMainThread { apply() } else { DispatchQueue.main.async(execute: apply) }
+    }
+
     /// Reset font to default values
     func resetFontDefaults(vm: BalloonViewModel) {
         let config = balloonConfig
         vm.fontName = ""
-        vm.fontSize = CGFloat(config?.fontHeight ?? 12)
         vm.fontWeight = .regular
         vm.fontItalic = false
         vm.fontUnderline = false
         vm.fontStrike = false
         vm.fontSubscript = false
         vm.fontSuperscript = false
-        vm.fontColor = config?.fontColor ?? .textColor
+        applyBalloonFontDefaults(vm: vm)
         vm.setTextAlignment(.left)
         vm.setVerticalTextAlignment(.top)
         vm.shadowColor = .clear
