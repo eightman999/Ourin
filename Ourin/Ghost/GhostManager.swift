@@ -1590,6 +1590,18 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         )
     }
 
+    /// SSP はゴーストごとに ghost/master/profile を作って設定を置く。辞書にはそれがある前提で
+    /// ファイルを置くものがある（Taromati2 の PROFILE_PATH）ので、SHIORI を読む前に用意する。
+    static func prepareProfileDirectory(ghostRoot: URL) {
+        let profile = ghostRoot.appendingPathComponent("profile", isDirectory: true)
+        guard FileManager.default.fileExists(atPath: ghostRoot.path) else { return }
+        do {
+            try FileManager.default.createDirectory(at: profile, withIntermediateDirectories: true)
+        } catch {
+            Log.info("[GhostManager] Could not create profile folder: \(error.localizedDescription)")
+        }
+    }
+
     /// 共通Factoryとload(context:)を通じてSHIORIを生成・ロードする。
     func createLoadedShioriRuntime(moduleName: String, ghostRoot: URL) -> GhostShioriRuntime? {
         guard let runtime = ShioriRuntimeFactory.makeRuntime(for: moduleName) else {
@@ -1626,6 +1638,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         DispatchQueue.global(qos: .userInitiated).async {
             let ghostRoot = self.ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
             Log.debug("[GhostManager] Ghost root: \(ghostRoot.path)")
+            Self.prepareProfileDirectory(ghostRoot: ghostRoot)
             // Load ghost configuration from descript.txt
             if let config = GhostConfiguration.load(from: ghostRoot) {
                 self.ghostConfig = config

@@ -2625,11 +2625,28 @@ void VM::registerBuiltins() {
 
     // YAYA の相対ファイル名は辞書を実行しているゴーストのルートへ解決する。
     // セキュリティ判定は元の文字列に対して先に行い、絶対パスは既存の FENUM 互換のため保持する。
+    // `\` は YAYA 本体の POSIX 版（posix_path）と同じく区切りとして扱う。元の文字列が `\` で
+    // 始まっていても、安全確認を通った相対パスなので絶対パスにはしない。
     auto resolveGhostPath = [this](const std::string& path) -> std::string {
         namespace fs = std::filesystem;
-        const fs::path candidate(path);
+        std::string unixPath = path;
+        std::replace(unixPath.begin(), unixPath.end(), '\\', '/');
+        if (!path.empty() && path[0] == '\\') {
+            const auto first = unixPath.find_first_not_of('/');
+            unixPath = first == std::string::npos ? std::string() : unixPath.substr(first);
+        }
+        const fs::path candidate(unixPath);
         if (candidate.is_absolute() || ghostRootPath_.empty()) return candidate.string();
         return (fs::path(ghostRootPath_) / candidate).lexically_normal().string();
+    };
+
+    // FCOPY / FMOVE のコピー先が既存のフォルダなら、その中に同じ名前で置く
+    // （YAYA 本体の Windows 版は常にコピー先をフォルダとして扱い、POSIX 版はこの形）。
+    auto placeInExistingDirectory = [](const std::string& src, const std::string& dst) -> std::string {
+        namespace fs = std::filesystem;
+        std::error_code ec;
+        if (!fs::is_directory(dst, ec)) return dst;
+        return (fs::path(dst) / fs::path(src).filename()).string();
     };
     
     // FOPEN(filename, mode) - Open file
@@ -2792,7 +2809,7 @@ void VM::registerBuiltins() {
     };
     
     // FCOPY(src, dst) - Copy file
-    builtins_["FCOPY"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
+    builtins_["FCOPY"] = [resolveGhostPath, placeInExistingDirectory](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string src = args[0].asString();
         std::string dst = args[1].asString();
@@ -2803,12 +2820,19 @@ void VM::registerBuiltins() {
             return Value(0);
         }
         src = resolveGhostPath(src);
-        dst = resolveGhostPath(dst);
+        dst = placeInExistingDirectory(src, resolveGhostPath(dst));
         
         try {
+            namespace fs = std::filesystem;
+            std::error_code ec;
+            // コピー元は通常のファイル。コピー先がフォルダ、またはコピー元と同じファイルなら何もしない。
+            if (!fs::is_regular_file(src, ec)) return Value(0);
+            if (fs::is_directory(dst, ec) || fs::equivalent(src, dst, ec)) return Value(0);
+
             std::ifstream srcFile(src, std::ios_base::binary);
             if (!srcFile.is_open()) return Value(0);
             
+            std::remove(dst.c_str()); // コピー先がシンボリックリンクなら、リンク先へ書かない
             std::ofstream dstFile(dst, std::ios_base::binary);
             if (!dstFile.is_open()) return Value(0);
             
@@ -2820,7 +2844,7 @@ void VM::registerBuiltins() {
     };
     
     // FMOVE(src, dst) - Move file
-    builtins_["FMOVE"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
+    builtins_["FMOVE"] = [resolveGhostPath, placeInExistingDirectory](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string src = args[0].asString();
         std::string dst = args[1].asString();
@@ -2831,9 +2855,12 @@ void VM::registerBuiltins() {
             return Value(0);
         }
         src = resolveGhostPath(src);
-        dst = resolveGhostPath(dst);
+        dst = placeInExistingDirectory(src, resolveGhostPath(dst));
         
         try {
+            // YAYA 本体（MoveFile）と同じく、移動先が既にあれば失敗する。
+            std::error_code ec;
+            if (std::filesystem::exists(std::filesystem::symlink_status(dst, ec))) return Value(0);
             if (std::rename(src.c_str(), dst.c_str()) == 0) {
                 return Value(1);
             }
@@ -3852,26 +3879,32 @@ void VM::registerBuiltins() {
         return Value("YAYA_core - YAYA interpreter for Ourin\nBased on YAYA specification");
     };
     
-    // SPLITPATH(path) - Split file path into components
+    // SPLITPATH(path) - (ドライブ, フォルダ, 名前, 拡張子) の 4 要素に分ける。
+    // YAYA 本体の Windows 版（_wsplitpath）と同じく、フォルダは末尾の区切りを含み、拡張子は '.' を
+    // 含む（"C:\dir\name.ext" → "C:", "\dir\", "name", ".ext"）。区切りは '\' と '/' の両方。
+    // ゴーストは名前と拡張子をつないでファイル名に戻す（Taromati2 の SPLITPATH.roughly）。
     builtins_["SPLITPATH"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(std::vector<Value>());
-        std::string path = args[0].asString();
-        
-        std::vector<Value> result;
-        // Simple split by / or backslash
-        size_t pos = 0;
-        size_t found;
-        while ((found = path.find_first_of("/\\\\", pos)) != std::string::npos) {
-            if (found > pos) {
-                result.push_back(Value(path.substr(pos, found - pos)));
-            }
-            pos = found + 1;
+        std::string rest = args[0].asString();
+
+        std::string drive;
+        if (rest.size() >= 2 && rest[1] == ':' && std::isalpha(static_cast<unsigned char>(rest[0]))) {
+            drive = rest.substr(0, 2);
+            rest = rest.substr(2);
         }
-        if (pos < path.length()) {
-            result.push_back(Value(path.substr(pos)));
+        std::string dir;
+        const size_t lastSeparator = rest.find_last_of("/\\");
+        if (lastSeparator != std::string::npos) {
+            dir = rest.substr(0, lastSeparator + 1);
+            rest = rest.substr(lastSeparator + 1);
         }
-        
-        return Value(result);
+        std::string ext;
+        const size_t lastPeriod = rest.rfind('.');
+        if (lastPeriod != std::string::npos) {
+            ext = rest.substr(lastPeriod);
+            rest = rest.substr(0, lastPeriod);
+        }
+        return Value(std::vector<Value>{Value(drive), Value(dir), Value(rest), Value(ext)});
     };
     
     // GETSTRBYTES(str) - Get string byte length
