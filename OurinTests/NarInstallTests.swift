@@ -409,6 +409,44 @@ struct NarInstallTests {
         #expect(FileManager.default.fileExists(atPath: skinFile.path), "calendar skin should be installed under calendar/skin/")
     }
 
+    /// LZMA（zip の圧縮方式 14）の項目を含む NAR。ditto では展開できない（#169）。
+    /// install.txt と descript.txt が LZMA、readme.txt が無圧縮。Python の zipfile（ZIP_LZMA）で作成。
+    private static let lzmaNarBase64 = "UEsDBD8AAgAOAAAAWF2gJtEMVwAAAEwAAAALAAAAaW5zdGFsbC50eHQJBAUAXQAAgAAAMZoISEYy70HkIKGTlyXRxc9TW+fwCLGaFX05u7Uh5Zg81/1t/pDU89DTsiTkZZZxiDFiacGdOpynOtqla63phTDYfvsVyBf//6Q+oABQSwMEPwACAA4AAABYXWuSdP5KAAAAOQAAABkAAABnaG9zdC9tYXN0ZXIvZGVzY3JpcHQudHh0CQQFAF0AAIAAADGaCEhGMu9B5CChk5cl0cXPJfLaafHvtC+7V8DUaw659oFH+YCuJAqrR748Tgg49Um4BaYnY3X2rvfw/9z0AABQSwMEFAAAAAAAAABYXTZ7CCYOAAAADgAAAAoAAAByZWFkbWUudHh0c3RvcmVkIGVudHJ5DQpQSwECPwM/AAIADgAAAFhdoCbRDFcAAABMAAAACwAAAAAAAAAAAAAAgAEAAAAAaW5zdGFsbC50eHRQSwECPwM/AAIADgAAAFhda5J0/koAAAA5AAAAGQAAAAAAAAAAAAAAgAGAAAAAZ2hvc3QvbWFzdGVyL2Rlc2NyaXB0LnR4dFBLAQIUAxQAAAAAAAAAWF02ewgmDgAAAA4AAAAKAAAAAAAAAAAAAACAAQEBAAByZWFkbWUudHh0UEsFBgAAAAADAAMAuAAAADcBAAAAAA=="
+
+    /// `../ourin_lzma_escape.txt` と `ok.txt` を LZMA で入れた zip。
+    private static let lzmaTraversalZipBase64 = "UEsDBD8AAgAOAAAAWF2DFtyMFAAAAAEAAAAYAAAALi4vb3VyaW5fbHptYV9lc2NhcGUudHh0CQQFAF0AAIAAADxB+////+AAAABQSwMEPwACAA4AAABYXa930mIUAAAAAQAAAAYAAABvay50eHQJBAUAXQAAgAAAPUH7////4AAAAFBLAQI/Az8AAgAOAAAAWF2DFtyMFAAAAAEAAAAYAAAAAAAAAAAAAACAAQAAAAAuLi9vdXJpbl9sem1hX2VzY2FwZS50eHRQSwECPwM/AAIADgAAAFhdr3fSYhQAAAABAAAABgAAAAAAAAAAAAAAgAFKAAAAb2sudHh0UEsFBgAAAAACAAIAegAAAIIAAAAAAA=="
+
+    @Test
+    func installLzmaCompressedNar() throws {
+        let fm = FileManager.default
+        let dir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try fm.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? fm.removeItem(at: dir) }
+        let nar = dir.appendingPathComponent("lzma.nar")
+        try #require(Data(base64Encoded: Self.lzmaNarBase64)).write(to: nar)
+
+        let target = try NarInstaller().install(fromNar: nar)
+        defer { try? fm.removeItem(at: target) }
+        let descript = try String(contentsOf: target.appendingPathComponent("ghost/master/descript.txt"), encoding: .utf8)
+        #expect(descript.contains("sakura.name,さくら"))
+        let readme = try String(contentsOf: target.appendingPathComponent("readme.txt"), encoding: .utf8)
+        #expect(readme == "stored entry\r\n")
+    }
+
+    @Test
+    func lzmaZipWithParentDirectoryEntryIsRejected() throws {
+        let fm = FileManager.default
+        let dir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let extract = dir.appendingPathComponent("inner/extract", isDirectory: true)
+        try fm.createDirectory(at: extract, withIntermediateDirectories: true)
+        defer { try? fm.removeItem(at: dir) }
+        let zip = dir.appendingPathComponent("traversal.zip")
+        try #require(Data(base64Encoded: Self.lzmaTraversalZipBase64)).write(to: zip)
+
+        #expect(throws: NarInstaller.Error.self) { try ZipUtil.extractZip(zip, to: extract) }
+        #expect(!fm.fileExists(atPath: dir.appendingPathComponent("inner/ourin_lzma_escape.txt").path))
+    }
+
     private func makeSampleNar(encoding: String.Encoding, dirName: String, withDeleteInstruction: Bool = false) throws -> URL {
         let fm = FileManager.default
         let base = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
