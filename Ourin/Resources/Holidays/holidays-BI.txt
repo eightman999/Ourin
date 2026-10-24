@@ -1,0 +1,491 @@
+# BI の祝日（2020〜2050年、言語: fr_BI）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Jour de l'an
+2020/2/5,Fête de l'Unité
+2020/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2020/5/1,Fête Internationale du Travail
+2020/5/21,Jour de l'Ascension
+2020/5/24,Aid-El-Fithr
+2020/5/25,Aid-El-Fithr (observé)
+2020/7/1,Anniversaire de l'Indépendance
+2020/7/31,Aid-El-Adha
+2020/8/15,Assomption
+2020/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2020/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2020/11/1,Toussaint
+2020/11/2,Toussaint (observé)
+2020/12/25,Noël
+2021/1/1,Jour de l'an
+2021/2/5,Fête de l'Unité
+2021/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2021/5/1,Fête Internationale du Travail
+2021/5/13,Aid-El-Fithr; Jour de l'Ascension
+2021/7/1,Anniversaire de l'Indépendance
+2021/7/20,Aid-El-Adha
+2021/8/15,Assomption
+2021/8/16,Assomption (observé)
+2021/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2021/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2021/11/1,Toussaint
+2021/12/25,Noël
+2022/1/1,Jour de l'an
+2022/2/5,Fête de l'Unité
+2022/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2022/5/1,Fête Internationale du Travail
+2022/5/2,Aid-El-Fithr; Fête Internationale du Travail (observé)
+2022/5/26,Jour de l'Ascension
+2022/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2022/7/1,Anniversaire de l'Indépendance
+2022/7/9,Aid-El-Adha
+2022/8/15,Assomption
+2022/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2022/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2022/11/1,Toussaint
+2022/12/25,Noël
+2022/12/26,Noël (observé)
+2023/1/1,Jour de l'an
+2023/1/2,Jour de l'an (observé)
+2023/2/5,Fête de l'Unité
+2023/2/6,Fête de l'Unité (observé)
+2023/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2023/4/21,Aid-El-Fithr
+2023/5/1,Fête Internationale du Travail
+2023/5/18,Jour de l'Ascension
+2023/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2023/6/28,Aid-El-Adha
+2023/7/1,Anniversaire de l'Indépendance
+2023/8/15,Assomption
+2023/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2023/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2023/11/1,Toussaint
+2023/12/25,Noël
+2024/1/1,Jour de l'an
+2024/2/5,Fête de l'Unité
+2024/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2024/4/10,Aid-El-Fithr
+2024/5/1,Fête Internationale du Travail
+2024/5/9,Jour de l'Ascension
+2024/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2024/6/16,Aid-El-Adha
+2024/6/17,Aid-El-Adha (observé)
+2024/7/1,Anniversaire de l'Indépendance
+2024/8/15,Assomption
+2024/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2024/10/14,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore (observé)
+2024/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2024/11/1,Toussaint
+2024/12/25,Noël
+2025/1/1,Jour de l'an
+2025/2/5,Fête de l'Unité
+2025/3/30,Aid-El-Fithr
+2025/3/31,Aid-El-Fithr (observé)
+2025/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2025/4/7,Commémoration de l'Assassinat du Président Cyprien Ntaryamira (observé)
+2025/5/1,Fête Internationale du Travail
+2025/5/29,Jour de l'Ascension
+2025/6/6,Aid-El-Adha
+2025/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2025/6/9,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza (observé)
+2025/7/1,Anniversaire de l'Indépendance
+2025/8/15,Assomption
+2025/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2025/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2025/11/1,Toussaint
+2025/12/25,Noël
+2026/1/1,Jour de l'an
+2026/2/5,Fête de l'Unité
+2026/3/20,Aid-El-Fithr (estimé)
+2026/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2026/5/1,Fête Internationale du Travail
+2026/5/14,Jour de l'Ascension
+2026/5/27,Aid-El-Adha (estimé)
+2026/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2026/7/1,Anniversaire de l'Indépendance
+2026/8/15,Assomption
+2026/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2026/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2026/11/1,Toussaint
+2026/11/2,Toussaint (observé)
+2026/12/25,Noël
+2027/1/1,Jour de l'an
+2027/2/5,Fête de l'Unité
+2027/3/9,Aid-El-Fithr (estimé)
+2027/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2027/5/1,Fête Internationale du Travail
+2027/5/6,Jour de l'Ascension
+2027/5/16,Aid-El-Adha (estimé)
+2027/5/17,Aid-El-Adha (observé, estimé)
+2027/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2027/7/1,Anniversaire de l'Indépendance
+2027/8/15,Assomption
+2027/8/16,Assomption (observé)
+2027/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2027/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2027/11/1,Toussaint
+2027/12/25,Noël
+2028/1/1,Jour de l'an
+2028/2/5,Fête de l'Unité
+2028/2/26,Aid-El-Fithr (estimé)
+2028/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2028/5/1,Fête Internationale du Travail
+2028/5/5,Aid-El-Adha (estimé)
+2028/5/25,Jour de l'Ascension
+2028/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2028/7/1,Anniversaire de l'Indépendance
+2028/8/15,Assomption
+2028/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2028/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2028/11/1,Toussaint
+2028/12/25,Noël
+2029/1/1,Jour de l'an
+2029/2/5,Fête de l'Unité
+2029/2/14,Aid-El-Fithr (estimé)
+2029/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2029/4/24,Aid-El-Adha (estimé)
+2029/5/1,Fête Internationale du Travail
+2029/5/10,Jour de l'Ascension
+2029/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2029/7/1,Anniversaire de l'Indépendance
+2029/7/2,Anniversaire de l'Indépendance (observé)
+2029/8/15,Assomption
+2029/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2029/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2029/10/22,Commémoration de l'Assassinat du Président Melchior Ndadaye (observé)
+2029/11/1,Toussaint
+2029/12/25,Noël
+2030/1/1,Jour de l'an
+2030/2/4,Aid-El-Fithr (estimé)
+2030/2/5,Fête de l'Unité
+2030/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2030/4/13,Aid-El-Adha (estimé)
+2030/5/1,Fête Internationale du Travail
+2030/5/30,Jour de l'Ascension
+2030/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2030/7/1,Anniversaire de l'Indépendance
+2030/8/15,Assomption
+2030/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2030/10/14,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore (observé)
+2030/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2030/11/1,Toussaint
+2030/12/25,Noël
+2031/1/1,Jour de l'an
+2031/1/24,Aid-El-Fithr (estimé)
+2031/2/5,Fête de l'Unité
+2031/4/2,Aid-El-Adha (estimé)
+2031/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2031/4/7,Commémoration de l'Assassinat du Président Cyprien Ntaryamira (observé)
+2031/5/1,Fête Internationale du Travail
+2031/5/22,Jour de l'Ascension
+2031/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2031/6/9,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza (observé)
+2031/7/1,Anniversaire de l'Indépendance
+2031/8/15,Assomption
+2031/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2031/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2031/11/1,Toussaint
+2031/12/25,Noël
+2032/1/1,Jour de l'an
+2032/1/14,Aid-El-Fithr (estimé)
+2032/2/5,Fête de l'Unité
+2032/3/22,Aid-El-Adha (estimé)
+2032/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2032/5/1,Fête Internationale du Travail
+2032/5/6,Jour de l'Ascension
+2032/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2032/7/1,Anniversaire de l'Indépendance
+2032/8/15,Assomption
+2032/8/16,Assomption (observé)
+2032/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2032/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2032/11/1,Toussaint
+2032/12/25,Noël
+2033/1/1,Jour de l'an
+2033/1/2,Aid-El-Fithr (estimé)
+2033/1/3,Aid-El-Fithr (observé, estimé)
+2033/2/5,Fête de l'Unité
+2033/3/11,Aid-El-Adha (estimé)
+2033/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2033/5/1,Fête Internationale du Travail
+2033/5/2,Fête Internationale du Travail (observé)
+2033/5/26,Jour de l'Ascension
+2033/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2033/7/1,Anniversaire de l'Indépendance
+2033/8/15,Assomption
+2033/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2033/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2033/11/1,Toussaint
+2033/12/23,Aid-El-Fithr (estimé)
+2033/12/25,Noël
+2033/12/26,Noël (observé)
+2034/1/1,Jour de l'an
+2034/1/2,Jour de l'an (observé)
+2034/2/5,Fête de l'Unité
+2034/2/6,Fête de l'Unité (observé)
+2034/3/1,Aid-El-Adha (estimé)
+2034/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2034/5/1,Fête Internationale du Travail
+2034/5/18,Jour de l'Ascension
+2034/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2034/7/1,Anniversaire de l'Indépendance
+2034/8/15,Assomption
+2034/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2034/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2034/11/1,Toussaint
+2034/12/12,Aid-El-Fithr (estimé)
+2034/12/25,Noël
+2035/1/1,Jour de l'an
+2035/2/5,Fête de l'Unité
+2035/2/18,Aid-El-Adha (estimé)
+2035/2/19,Aid-El-Adha (observé, estimé)
+2035/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2035/5/1,Fête Internationale du Travail
+2035/5/3,Jour de l'Ascension
+2035/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2035/7/1,Anniversaire de l'Indépendance
+2035/7/2,Anniversaire de l'Indépendance (observé)
+2035/8/15,Assomption
+2035/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2035/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2035/10/22,Commémoration de l'Assassinat du Président Melchior Ndadaye (observé)
+2035/11/1,Toussaint
+2035/12/1,Aid-El-Fithr (estimé)
+2035/12/25,Noël
+2036/1/1,Jour de l'an
+2036/2/5,Fête de l'Unité
+2036/2/7,Aid-El-Adha (estimé)
+2036/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2036/4/7,Commémoration de l'Assassinat du Président Cyprien Ntaryamira (observé)
+2036/5/1,Fête Internationale du Travail
+2036/5/22,Jour de l'Ascension
+2036/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2036/6/9,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza (observé)
+2036/7/1,Anniversaire de l'Indépendance
+2036/8/15,Assomption
+2036/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2036/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2036/11/1,Toussaint
+2036/11/19,Aid-El-Fithr (estimé)
+2036/12/25,Noël
+2037/1/1,Jour de l'an
+2037/1/26,Aid-El-Adha (estimé)
+2037/2/5,Fête de l'Unité
+2037/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2037/5/1,Fête Internationale du Travail
+2037/5/14,Jour de l'Ascension
+2037/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2037/7/1,Anniversaire de l'Indépendance
+2037/8/15,Assomption
+2037/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2037/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2037/11/1,Toussaint
+2037/11/2,Toussaint (observé)
+2037/11/8,Aid-El-Fithr (estimé)
+2037/11/9,Aid-El-Fithr (observé, estimé)
+2037/12/25,Noël
+2038/1/1,Jour de l'an
+2038/1/16,Aid-El-Adha (estimé)
+2038/2/5,Fête de l'Unité
+2038/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2038/5/1,Fête Internationale du Travail
+2038/6/3,Jour de l'Ascension
+2038/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2038/7/1,Anniversaire de l'Indépendance
+2038/8/15,Assomption
+2038/8/16,Assomption (observé)
+2038/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2038/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2038/10/29,Aid-El-Fithr (estimé)
+2038/11/1,Toussaint
+2038/12/25,Noël
+2039/1/1,Jour de l'an
+2039/1/5,Aid-El-Adha (estimé)
+2039/2/5,Fête de l'Unité
+2039/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2039/5/1,Fête Internationale du Travail
+2039/5/2,Fête Internationale du Travail (observé)
+2039/5/19,Jour de l'Ascension
+2039/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2039/7/1,Anniversaire de l'Indépendance
+2039/8/15,Assomption
+2039/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2039/10/19,Aid-El-Fithr (estimé)
+2039/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2039/11/1,Toussaint
+2039/12/25,Noël
+2039/12/26,Aid-El-Adha (estimé); Noël (observé)
+2040/1/1,Jour de l'an
+2040/1/2,Jour de l'an (observé)
+2040/2/5,Fête de l'Unité
+2040/2/6,Fête de l'Unité (observé)
+2040/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2040/5/1,Fête Internationale du Travail
+2040/5/10,Jour de l'Ascension
+2040/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2040/7/1,Anniversaire de l'Indépendance
+2040/7/2,Anniversaire de l'Indépendance (observé)
+2040/8/15,Assomption
+2040/10/7,Aid-El-Fithr (estimé)
+2040/10/8,Aid-El-Fithr (observé, estimé)
+2040/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2040/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2040/10/22,Commémoration de l'Assassinat du Président Melchior Ndadaye (observé)
+2040/11/1,Toussaint
+2040/12/14,Aid-El-Adha (estimé)
+2040/12/25,Noël
+2041/1/1,Jour de l'an
+2041/2/5,Fête de l'Unité
+2041/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2041/5/1,Fête Internationale du Travail
+2041/5/30,Jour de l'Ascension
+2041/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2041/7/1,Anniversaire de l'Indépendance
+2041/8/15,Assomption
+2041/9/26,Aid-El-Fithr (estimé)
+2041/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2041/10/14,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore (observé)
+2041/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2041/11/1,Toussaint
+2041/12/4,Aid-El-Adha (estimé)
+2041/12/25,Noël
+2042/1/1,Jour de l'an
+2042/2/5,Fête de l'Unité
+2042/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2042/4/7,Commémoration de l'Assassinat du Président Cyprien Ntaryamira (observé)
+2042/5/1,Fête Internationale du Travail
+2042/5/15,Jour de l'Ascension
+2042/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2042/6/9,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza (observé)
+2042/7/1,Anniversaire de l'Indépendance
+2042/8/15,Assomption
+2042/9/15,Aid-El-Fithr (estimé)
+2042/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2042/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2042/11/1,Toussaint
+2042/11/23,Aid-El-Adha (estimé)
+2042/11/24,Aid-El-Adha (observé, estimé)
+2042/12/25,Noël
+2043/1/1,Jour de l'an
+2043/2/5,Fête de l'Unité
+2043/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2043/5/1,Fête Internationale du Travail
+2043/5/7,Jour de l'Ascension
+2043/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2043/7/1,Anniversaire de l'Indépendance
+2043/8/15,Assomption
+2043/9/4,Aid-El-Fithr (estimé)
+2043/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2043/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2043/11/1,Toussaint
+2043/11/2,Toussaint (observé)
+2043/11/12,Aid-El-Adha (estimé)
+2043/12/25,Noël
+2044/1/1,Jour de l'an
+2044/2/5,Fête de l'Unité
+2044/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2044/5/1,Fête Internationale du Travail
+2044/5/2,Fête Internationale du Travail (observé)
+2044/5/26,Jour de l'Ascension
+2044/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2044/7/1,Anniversaire de l'Indépendance
+2044/8/15,Assomption
+2044/8/24,Aid-El-Fithr (estimé)
+2044/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2044/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2044/10/31,Aid-El-Adha (estimé)
+2044/11/1,Toussaint
+2044/12/25,Noël
+2044/12/26,Noël (observé)
+2045/1/1,Jour de l'an
+2045/1/2,Jour de l'an (observé)
+2045/2/5,Fête de l'Unité
+2045/2/6,Fête de l'Unité (observé)
+2045/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2045/5/1,Fête Internationale du Travail
+2045/5/18,Jour de l'Ascension
+2045/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2045/7/1,Anniversaire de l'Indépendance
+2045/8/14,Aid-El-Fithr (estimé)
+2045/8/15,Assomption
+2045/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2045/10/21,Aid-El-Adha (estimé); Commémoration de l'Assassinat du Président Melchior Ndadaye
+2045/11/1,Toussaint
+2045/12/25,Noël
+2046/1/1,Jour de l'an
+2046/2/5,Fête de l'Unité
+2046/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2046/5/1,Fête Internationale du Travail
+2046/5/3,Jour de l'Ascension
+2046/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2046/7/1,Anniversaire de l'Indépendance
+2046/7/2,Anniversaire de l'Indépendance (observé)
+2046/8/3,Aid-El-Fithr (estimé)
+2046/8/15,Assomption
+2046/10/10,Aid-El-Adha (estimé)
+2046/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2046/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2046/10/22,Commémoration de l'Assassinat du Président Melchior Ndadaye (observé)
+2046/11/1,Toussaint
+2046/12/25,Noël
+2047/1/1,Jour de l'an
+2047/2/5,Fête de l'Unité
+2047/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2047/5/1,Fête Internationale du Travail
+2047/5/23,Jour de l'Ascension
+2047/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2047/7/1,Anniversaire de l'Indépendance
+2047/7/24,Aid-El-Fithr (estimé)
+2047/8/15,Assomption
+2047/9/30,Aid-El-Adha (estimé)
+2047/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2047/10/14,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore (observé)
+2047/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2047/11/1,Toussaint
+2047/12/25,Noël
+2048/1/1,Jour de l'an
+2048/2/5,Fête de l'Unité
+2048/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2048/5/1,Fête Internationale du Travail
+2048/5/14,Jour de l'Ascension
+2048/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2048/7/1,Anniversaire de l'Indépendance
+2048/7/12,Aid-El-Fithr (estimé)
+2048/7/13,Aid-El-Fithr (observé, estimé)
+2048/8/15,Assomption
+2048/9/19,Aid-El-Adha (estimé)
+2048/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2048/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2048/11/1,Toussaint
+2048/11/2,Toussaint (observé)
+2048/12/25,Noël
+2049/1/1,Jour de l'an
+2049/2/5,Fête de l'Unité
+2049/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2049/5/1,Fête Internationale du Travail
+2049/5/27,Jour de l'Ascension
+2049/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2049/7/1,Aid-El-Fithr (estimé); Anniversaire de l'Indépendance
+2049/8/15,Assomption
+2049/8/16,Assomption (observé)
+2049/9/8,Aid-El-Adha (estimé)
+2049/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2049/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2049/11/1,Toussaint
+2049/12/25,Noël
+2050/1/1,Jour de l'an
+2050/2/5,Fête de l'Unité
+2050/4/6,Commémoration de l'Assassinat du Président Cyprien Ntaryamira
+2050/5/1,Fête Internationale du Travail
+2050/5/2,Fête Internationale du Travail (observé)
+2050/5/19,Jour de l'Ascension
+2050/6/8,Journée Nationale du Patriotisme et Commémoration de la Mort du Président Pierre Nkurunziza
+2050/6/20,Aid-El-Fithr (estimé)
+2050/7/1,Anniversaire de l'Indépendance
+2050/8/15,Assomption
+2050/8/28,Aid-El-Adha (estimé)
+2050/8/29,Aid-El-Adha (observé, estimé)
+2050/10/13,Commémoration de l'Assassinat du Héros National, le Prince Louis Rwagasore
+2050/10/21,Commémoration de l'Assassinat du Président Melchior Ndadaye
+2050/11/1,Toussaint
+2050/12/25,Noël
+2050/12/26,Noël (observé)

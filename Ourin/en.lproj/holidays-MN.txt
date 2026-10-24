@@ -1,0 +1,494 @@
+# MN holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/2/24,Lunar New Year
+2020/2/25,Lunar New Year
+2020/2/26,Lunar New Year
+2020/3/8,International Women's Day
+2020/6/1,Children's Day
+2020/6/5,The Buddha's Birthday
+2020/7/11,National Festival and People's Revolution Anniversary
+2020/7/12,National Festival and People's Revolution Anniversary
+2020/7/13,National Festival and People's Revolution Anniversary
+2020/7/14,National Festival and People's Revolution Anniversary
+2020/7/15,National Festival and People's Revolution Anniversary
+2020/11/16,Genghis Khan's Birthday
+2020/11/26,Republic Day
+2020/12/29,National Freedom and Independence Day
+2021/1/1,New Year's Day
+2021/2/12,Lunar New Year
+2021/2/13,Lunar New Year
+2021/2/14,Lunar New Year
+2021/3/8,International Women's Day
+2021/5/26,The Buddha's Birthday
+2021/6/1,Children's Day
+2021/7/11,National Festival and People's Revolution Anniversary
+2021/7/12,National Festival and People's Revolution Anniversary
+2021/7/13,National Festival and People's Revolution Anniversary
+2021/7/14,National Festival and People's Revolution Anniversary
+2021/7/15,National Festival and People's Revolution Anniversary
+2021/11/5,Genghis Khan's Birthday
+2021/11/26,Republic Day
+2021/12/29,National Freedom and Independence Day
+2022/1/1,New Year's Day
+2022/2/2,Lunar New Year
+2022/2/3,Lunar New Year
+2022/2/4,Lunar New Year
+2022/3/8,International Women's Day
+2022/6/1,Children's Day
+2022/6/14,The Buddha's Birthday
+2022/7/11,National Festival and People's Revolution Anniversary
+2022/7/12,National Festival and People's Revolution Anniversary
+2022/7/13,National Festival and People's Revolution Anniversary
+2022/7/14,National Festival and People's Revolution Anniversary
+2022/7/15,National Festival and People's Revolution Anniversary
+2022/11/24,Genghis Khan's Birthday
+2022/11/26,Republic Day
+2022/12/29,National Freedom and Independence Day
+2023/1/1,New Year's Day
+2023/2/21,Lunar New Year
+2023/2/22,Lunar New Year
+2023/2/23,Lunar New Year
+2023/3/8,International Women's Day
+2023/6/1,Children's Day
+2023/6/4,The Buddha's Birthday
+2023/7/10,National Festival and People's Revolution Anniversary
+2023/7/11,National Festival and People's Revolution Anniversary
+2023/7/12,National Festival and People's Revolution Anniversary
+2023/7/13,National Festival and People's Revolution Anniversary
+2023/7/14,National Festival and People's Revolution Anniversary
+2023/7/15,National Festival and People's Revolution Anniversary
+2023/11/14,Genghis Khan's Birthday
+2023/11/26,Republic Day
+2023/12/29,National Freedom and Independence Day
+2024/1/1,New Year's Day
+2024/2/10,Lunar New Year
+2024/2/11,Lunar New Year
+2024/2/12,Lunar New Year
+2024/3/8,International Women's Day
+2024/5/23,The Buddha's Birthday
+2024/6/1,Children's Day
+2024/7/10,National Festival and People's Revolution Anniversary
+2024/7/11,National Festival and People's Revolution Anniversary
+2024/7/12,National Festival and People's Revolution Anniversary
+2024/7/13,National Festival and People's Revolution Anniversary
+2024/7/14,National Festival and People's Revolution Anniversary
+2024/7/15,National Festival and People's Revolution Anniversary
+2024/11/2,Genghis Khan's Birthday
+2024/11/26,Republic Day
+2024/12/29,National Freedom and Independence Day
+2025/1/1,New Year's Day
+2025/3/1,Lunar New Year
+2025/3/2,Lunar New Year
+2025/3/3,Lunar New Year
+2025/3/8,International Women's Day
+2025/6/1,Children's Day
+2025/6/11,The Buddha's Birthday
+2025/7/10,National Festival and People's Revolution Anniversary
+2025/7/11,National Festival and People's Revolution Anniversary
+2025/7/12,National Festival and People's Revolution Anniversary
+2025/7/13,National Festival and People's Revolution Anniversary
+2025/7/14,National Festival and People's Revolution Anniversary
+2025/7/15,National Festival and People's Revolution Anniversary
+2025/11/21,Genghis Khan's Birthday
+2025/11/26,Republic Day
+2025/12/29,National Freedom and Independence Day
+2026/1/1,New Year's Day
+2026/2/18,Lunar New Year
+2026/2/19,Lunar New Year
+2026/2/20,Lunar New Year
+2026/3/8,International Women's Day
+2026/5/31,The Buddha's Birthday
+2026/6/1,Children's Day
+2026/7/10,National Festival and People's Revolution Anniversary
+2026/7/11,National Festival and People's Revolution Anniversary
+2026/7/12,National Festival and People's Revolution Anniversary
+2026/7/13,National Festival and People's Revolution Anniversary
+2026/7/14,National Festival and People's Revolution Anniversary
+2026/7/15,National Festival and People's Revolution Anniversary
+2026/11/10,Genghis Khan's Birthday
+2026/11/26,Republic Day
+2026/12/29,National Freedom and Independence Day
+2027/1/1,New Year's Day
+2027/2/7,Lunar New Year
+2027/2/8,Lunar New Year
+2027/2/9,Lunar New Year
+2027/3/8,International Women's Day
+2027/5/20,The Buddha's Birthday
+2027/6/1,Children's Day
+2027/7/10,National Festival and People's Revolution Anniversary
+2027/7/11,National Festival and People's Revolution Anniversary
+2027/7/12,National Festival and People's Revolution Anniversary
+2027/7/13,National Festival and People's Revolution Anniversary
+2027/7/14,National Festival and People's Revolution Anniversary
+2027/7/15,National Festival and People's Revolution Anniversary
+2027/11/26,Republic Day
+2027/11/29,Genghis Khan's Birthday
+2027/12/29,National Freedom and Independence Day
+2028/1/1,New Year's Day
+2028/2/26,Lunar New Year
+2028/2/27,Lunar New Year
+2028/2/28,Lunar New Year
+2028/3/8,International Women's Day
+2028/6/1,Children's Day
+2028/6/7,The Buddha's Birthday
+2028/7/10,National Festival and People's Revolution Anniversary
+2028/7/11,National Festival and People's Revolution Anniversary
+2028/7/12,National Festival and People's Revolution Anniversary
+2028/7/13,National Festival and People's Revolution Anniversary
+2028/7/14,National Festival and People's Revolution Anniversary
+2028/7/15,National Festival and People's Revolution Anniversary
+2028/11/17,Genghis Khan's Birthday
+2028/11/26,Republic Day
+2028/12/29,National Freedom and Independence Day
+2029/1/1,New Year's Day
+2029/2/14,Lunar New Year
+2029/2/15,Lunar New Year
+2029/2/16,Lunar New Year
+2029/3/8,International Women's Day
+2029/5/27,The Buddha's Birthday
+2029/6/1,Children's Day
+2029/7/10,National Festival and People's Revolution Anniversary
+2029/7/11,National Festival and People's Revolution Anniversary
+2029/7/12,National Festival and People's Revolution Anniversary
+2029/7/13,National Festival and People's Revolution Anniversary
+2029/7/14,National Festival and People's Revolution Anniversary
+2029/7/15,National Festival and People's Revolution Anniversary
+2029/11/7,Genghis Khan's Birthday
+2029/11/26,Republic Day
+2029/12/29,National Freedom and Independence Day
+2030/1/1,New Year's Day
+2030/2/3,Lunar New Year
+2030/2/4,Lunar New Year
+2030/2/5,Lunar New Year
+2030/3/8,International Women's Day
+2030/5/17,The Buddha's Birthday
+2030/6/1,Children's Day
+2030/7/10,National Festival and People's Revolution Anniversary
+2030/7/11,National Festival and People's Revolution Anniversary
+2030/7/12,National Festival and People's Revolution Anniversary
+2030/7/13,National Festival and People's Revolution Anniversary
+2030/7/14,National Festival and People's Revolution Anniversary
+2030/7/15,National Festival and People's Revolution Anniversary
+2030/11/26,Genghis Khan's Birthday; Republic Day
+2030/12/29,National Freedom and Independence Day
+2031/1/1,New Year's Day
+2031/2/22,Lunar New Year
+2031/2/23,Lunar New Year
+2031/2/24,Lunar New Year
+2031/3/8,International Women's Day
+2031/6/1,Children's Day
+2031/6/5,The Buddha's Birthday
+2031/7/10,National Festival and People's Revolution Anniversary
+2031/7/11,National Festival and People's Revolution Anniversary
+2031/7/12,National Festival and People's Revolution Anniversary
+2031/7/13,National Festival and People's Revolution Anniversary
+2031/7/14,National Festival and People's Revolution Anniversary
+2031/7/15,National Festival and People's Revolution Anniversary
+2031/11/15,Genghis Khan's Birthday
+2031/11/26,Republic Day
+2031/12/29,National Freedom and Independence Day
+2032/1/1,New Year's Day
+2032/2/12,Lunar New Year
+2032/2/13,Lunar New Year
+2032/2/14,Lunar New Year
+2032/3/8,International Women's Day
+2032/5/25,The Buddha's Birthday
+2032/6/1,Children's Day
+2032/7/10,National Festival and People's Revolution Anniversary
+2032/7/11,National Festival and People's Revolution Anniversary
+2032/7/12,National Festival and People's Revolution Anniversary
+2032/7/13,National Festival and People's Revolution Anniversary
+2032/7/14,National Festival and People's Revolution Anniversary
+2032/7/15,National Festival and People's Revolution Anniversary
+2032/11/4,Genghis Khan's Birthday
+2032/11/26,Republic Day
+2032/12/29,National Freedom and Independence Day
+2033/1/1,New Year's Day
+2033/1/31,Lunar New Year
+2033/2/1,Lunar New Year
+2033/2/2,Lunar New Year
+2033/3/8,International Women's Day
+2033/6/1,Children's Day
+2033/6/12,The Buddha's Birthday
+2033/7/10,National Festival and People's Revolution Anniversary
+2033/7/11,National Festival and People's Revolution Anniversary
+2033/7/12,National Festival and People's Revolution Anniversary
+2033/7/13,National Festival and People's Revolution Anniversary
+2033/7/14,National Festival and People's Revolution Anniversary
+2033/7/15,National Festival and People's Revolution Anniversary
+2033/11/22,Genghis Khan's Birthday
+2033/11/26,Republic Day
+2033/12/29,National Freedom and Independence Day
+2034/1/1,New Year's Day
+2034/2/19,Lunar New Year
+2034/2/20,Lunar New Year
+2034/2/21,Lunar New Year
+2034/3/8,International Women's Day
+2034/6/1,Children's Day
+2034/6/2,The Buddha's Birthday
+2034/7/10,National Festival and People's Revolution Anniversary
+2034/7/11,National Festival and People's Revolution Anniversary
+2034/7/12,National Festival and People's Revolution Anniversary
+2034/7/13,National Festival and People's Revolution Anniversary
+2034/7/14,National Festival and People's Revolution Anniversary
+2034/7/15,National Festival and People's Revolution Anniversary
+2034/11/11,Genghis Khan's Birthday
+2034/11/26,Republic Day
+2034/12/29,National Freedom and Independence Day
+2035/1/1,New Year's Day
+2035/2/9,Lunar New Year
+2035/2/10,Lunar New Year
+2035/2/11,Lunar New Year
+2035/3/8,International Women's Day
+2035/5/22,The Buddha's Birthday
+2035/6/1,Children's Day
+2035/7/10,National Festival and People's Revolution Anniversary
+2035/7/11,National Festival and People's Revolution Anniversary
+2035/7/12,National Festival and People's Revolution Anniversary
+2035/7/13,National Festival and People's Revolution Anniversary
+2035/7/14,National Festival and People's Revolution Anniversary
+2035/7/15,National Festival and People's Revolution Anniversary
+2035/11/26,Republic Day
+2035/11/30,Genghis Khan's Birthday
+2035/12/29,National Freedom and Independence Day
+2036/1/1,New Year's Day
+2036/2/28,Lunar New Year
+2036/2/29,Lunar New Year
+2036/3/1,Lunar New Year
+2036/3/8,International Women's Day
+2036/6/1,Children's Day
+2036/6/8,The Buddha's Birthday
+2036/7/10,National Festival and People's Revolution Anniversary
+2036/7/11,National Festival and People's Revolution Anniversary
+2036/7/12,National Festival and People's Revolution Anniversary
+2036/7/13,National Festival and People's Revolution Anniversary
+2036/7/14,National Festival and People's Revolution Anniversary
+2036/7/15,National Festival and People's Revolution Anniversary
+2036/11/18,Genghis Khan's Birthday
+2036/11/26,Republic Day
+2036/12/29,National Freedom and Independence Day
+2037/1/1,New Year's Day
+2037/2/16,Lunar New Year
+2037/2/17,Lunar New Year
+2037/2/18,Lunar New Year
+2037/3/8,International Women's Day
+2037/5/29,The Buddha's Birthday
+2037/6/1,Children's Day
+2037/7/10,National Festival and People's Revolution Anniversary
+2037/7/11,National Festival and People's Revolution Anniversary
+2037/7/12,National Festival and People's Revolution Anniversary
+2037/7/13,National Festival and People's Revolution Anniversary
+2037/7/14,National Festival and People's Revolution Anniversary
+2037/7/15,National Festival and People's Revolution Anniversary
+2037/11/8,Genghis Khan's Birthday
+2037/11/26,Republic Day
+2037/12/29,National Freedom and Independence Day
+2038/1/1,New Year's Day
+2038/2/5,Lunar New Year
+2038/2/6,Lunar New Year
+2038/2/7,Lunar New Year
+2038/3/8,International Women's Day
+2038/5/18,The Buddha's Birthday
+2038/6/1,Children's Day
+2038/7/10,National Festival and People's Revolution Anniversary
+2038/7/11,National Festival and People's Revolution Anniversary
+2038/7/12,National Festival and People's Revolution Anniversary
+2038/7/13,National Festival and People's Revolution Anniversary
+2038/7/14,National Festival and People's Revolution Anniversary
+2038/7/15,National Festival and People's Revolution Anniversary
+2038/11/26,Republic Day
+2038/11/27,Genghis Khan's Birthday
+2038/12/29,National Freedom and Independence Day
+2039/1/1,New Year's Day
+2039/2/24,Lunar New Year
+2039/2/25,Lunar New Year
+2039/2/26,Lunar New Year
+2039/3/8,International Women's Day
+2039/6/1,Children's Day
+2039/6/6,The Buddha's Birthday
+2039/7/10,National Festival and People's Revolution Anniversary
+2039/7/11,National Festival and People's Revolution Anniversary
+2039/7/12,National Festival and People's Revolution Anniversary
+2039/7/13,National Festival and People's Revolution Anniversary
+2039/7/14,National Festival and People's Revolution Anniversary
+2039/7/15,National Festival and People's Revolution Anniversary
+2039/11/17,Genghis Khan's Birthday
+2039/11/26,Republic Day
+2039/12/29,National Freedom and Independence Day
+2040/1/1,New Year's Day
+2040/2/13,Lunar New Year
+2040/2/14,Lunar New Year
+2040/2/15,Lunar New Year
+2040/3/8,International Women's Day
+2040/5/26,The Buddha's Birthday
+2040/6/1,Children's Day
+2040/7/10,National Festival and People's Revolution Anniversary
+2040/7/11,National Festival and People's Revolution Anniversary
+2040/7/12,National Festival and People's Revolution Anniversary
+2040/7/13,National Festival and People's Revolution Anniversary
+2040/7/14,National Festival and People's Revolution Anniversary
+2040/7/15,National Festival and People's Revolution Anniversary
+2040/11/5,Genghis Khan's Birthday
+2040/11/26,Republic Day
+2040/12/29,National Freedom and Independence Day
+2041/1/1,New Year's Day
+2041/2/2,Lunar New Year
+2041/2/3,Lunar New Year
+2041/2/4,Lunar New Year
+2041/3/8,International Women's Day
+2041/6/1,Children's Day
+2041/6/14,The Buddha's Birthday
+2041/7/10,National Festival and People's Revolution Anniversary
+2041/7/11,National Festival and People's Revolution Anniversary
+2041/7/12,National Festival and People's Revolution Anniversary
+2041/7/13,National Festival and People's Revolution Anniversary
+2041/7/14,National Festival and People's Revolution Anniversary
+2041/7/15,National Festival and People's Revolution Anniversary
+2041/11/24,Genghis Khan's Birthday
+2041/11/26,Republic Day
+2041/12/29,National Freedom and Independence Day
+2042/1/1,New Year's Day
+2042/2/21,Lunar New Year
+2042/2/22,Lunar New Year
+2042/2/23,Lunar New Year
+2042/3/8,International Women's Day
+2042/6/1,Children's Day
+2042/6/3,The Buddha's Birthday
+2042/7/10,National Festival and People's Revolution Anniversary
+2042/7/11,National Festival and People's Revolution Anniversary
+2042/7/12,National Festival and People's Revolution Anniversary
+2042/7/13,National Festival and People's Revolution Anniversary
+2042/7/14,National Festival and People's Revolution Anniversary
+2042/7/15,National Festival and People's Revolution Anniversary
+2042/11/13,Genghis Khan's Birthday
+2042/11/26,Republic Day
+2042/12/29,National Freedom and Independence Day
+2043/1/1,New Year's Day
+2043/2/10,Lunar New Year
+2043/2/11,Lunar New Year
+2043/2/12,Lunar New Year
+2043/3/8,International Women's Day
+2043/5/23,The Buddha's Birthday
+2043/6/1,Children's Day
+2043/7/10,National Festival and People's Revolution Anniversary
+2043/7/11,National Festival and People's Revolution Anniversary
+2043/7/12,National Festival and People's Revolution Anniversary
+2043/7/13,National Festival and People's Revolution Anniversary
+2043/7/14,National Festival and People's Revolution Anniversary
+2043/7/15,National Festival and People's Revolution Anniversary
+2043/11/2,Genghis Khan's Birthday
+2043/11/26,Republic Day
+2043/12/29,National Freedom and Independence Day
+2044/1/1,New Year's Day
+2044/2/29,Lunar New Year
+2044/3/1,Lunar New Year
+2044/3/2,Lunar New Year
+2044/3/8,International Women's Day
+2044/6/1,Children's Day
+2044/6/10,The Buddha's Birthday
+2044/7/10,National Festival and People's Revolution Anniversary
+2044/7/11,National Festival and People's Revolution Anniversary
+2044/7/12,National Festival and People's Revolution Anniversary
+2044/7/13,National Festival and People's Revolution Anniversary
+2044/7/14,National Festival and People's Revolution Anniversary
+2044/7/15,National Festival and People's Revolution Anniversary
+2044/11/20,Genghis Khan's Birthday
+2044/11/26,Republic Day
+2044/12/29,National Freedom and Independence Day
+2045/1/1,New Year's Day
+2045/2/17,Lunar New Year
+2045/2/18,Lunar New Year
+2045/2/19,Lunar New Year
+2045/3/8,International Women's Day
+2045/5/30,The Buddha's Birthday
+2045/6/1,Children's Day
+2045/7/10,National Festival and People's Revolution Anniversary
+2045/7/11,National Festival and People's Revolution Anniversary
+2045/7/12,National Festival and People's Revolution Anniversary
+2045/7/13,National Festival and People's Revolution Anniversary
+2045/7/14,National Festival and People's Revolution Anniversary
+2045/7/15,National Festival and People's Revolution Anniversary
+2045/11/9,Genghis Khan's Birthday
+2045/11/26,Republic Day
+2045/12/29,National Freedom and Independence Day
+2046/1/1,New Year's Day
+2046/2/6,Lunar New Year
+2046/2/7,Lunar New Year
+2046/2/8,Lunar New Year
+2046/3/8,International Women's Day
+2046/5/20,The Buddha's Birthday
+2046/6/1,Children's Day
+2046/7/10,National Festival and People's Revolution Anniversary
+2046/7/11,National Festival and People's Revolution Anniversary
+2046/7/12,National Festival and People's Revolution Anniversary
+2046/7/13,National Festival and People's Revolution Anniversary
+2046/7/14,National Festival and People's Revolution Anniversary
+2046/7/15,National Festival and People's Revolution Anniversary
+2046/11/26,Republic Day
+2046/11/28,Genghis Khan's Birthday
+2046/12/29,National Freedom and Independence Day
+2047/1/1,New Year's Day
+2047/2/25,Lunar New Year
+2047/2/26,Lunar New Year
+2047/2/27,Lunar New Year
+2047/3/8,International Women's Day
+2047/6/1,Children's Day
+2047/6/8,The Buddha's Birthday
+2047/7/10,National Festival and People's Revolution Anniversary
+2047/7/11,National Festival and People's Revolution Anniversary
+2047/7/12,National Festival and People's Revolution Anniversary
+2047/7/13,National Festival and People's Revolution Anniversary
+2047/7/14,National Festival and People's Revolution Anniversary
+2047/7/15,National Festival and People's Revolution Anniversary
+2047/11/18,Genghis Khan's Birthday
+2047/11/26,Republic Day
+2047/12/29,National Freedom and Independence Day
+2048/1/1,New Year's Day
+2048/2/14,Lunar New Year
+2048/2/15,Lunar New Year
+2048/2/16,Lunar New Year
+2048/3/8,International Women's Day
+2048/5/27,The Buddha's Birthday
+2048/6/1,Children's Day
+2048/7/10,National Festival and People's Revolution Anniversary
+2048/7/11,National Festival and People's Revolution Anniversary
+2048/7/12,National Festival and People's Revolution Anniversary
+2048/7/13,National Festival and People's Revolution Anniversary
+2048/7/14,National Festival and People's Revolution Anniversary
+2048/7/15,National Festival and People's Revolution Anniversary
+2048/11/7,Genghis Khan's Birthday
+2048/11/26,Republic Day
+2048/12/29,National Freedom and Independence Day
+2049/1/1,New Year's Day
+2049/2/3,Lunar New Year
+2049/2/4,Lunar New Year
+2049/2/5,Lunar New Year
+2049/3/8,International Women's Day
+2049/5/17,The Buddha's Birthday
+2049/6/1,Children's Day
+2049/7/10,National Festival and People's Revolution Anniversary
+2049/7/11,National Festival and People's Revolution Anniversary
+2049/7/12,National Festival and People's Revolution Anniversary
+2049/7/13,National Festival and People's Revolution Anniversary
+2049/7/14,National Festival and People's Revolution Anniversary
+2049/7/15,National Festival and People's Revolution Anniversary
+2049/11/26,Genghis Khan's Birthday; Republic Day
+2049/12/29,National Freedom and Independence Day
+2050/1/1,New Year's Day
+2050/2/22,Lunar New Year
+2050/2/23,Lunar New Year
+2050/2/24,Lunar New Year
+2050/3/8,International Women's Day
+2050/6/1,Children's Day
+2050/6/5,The Buddha's Birthday
+2050/7/10,National Festival and People's Revolution Anniversary
+2050/7/11,National Festival and People's Revolution Anniversary
+2050/7/12,National Festival and People's Revolution Anniversary
+2050/7/13,National Festival and People's Revolution Anniversary
+2050/7/14,National Festival and People's Revolution Anniversary
+2050/7/15,National Festival and People's Revolution Anniversary
+2050/11/15,Genghis Khan's Birthday
+2050/11/26,Republic Day
+2050/12/29,National Freedom and Independence Day

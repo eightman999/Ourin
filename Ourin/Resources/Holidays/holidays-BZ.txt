@@ -1,0 +1,437 @@
+# BZ の祝日（2020〜2050年、言語: en）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/3/9,National Heroes and Benefactors Day
+2020/4/10,Good Friday
+2020/4/11,Holy Saturday
+2020/4/13,Easter Monday
+2020/5/1,Labour Day
+2020/5/25,Commonwealth Day (observed)
+2020/9/10,Saint George's Caye Day
+2020/9/21,Independence Day
+2020/10/12,Pan American Day
+2020/11/19,Garifuna Settlement Day
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2021/1/1,New Year's Day
+2021/1/15,George Price Day
+2021/3/8,National Heroes and Benefactors Day (observed)
+2021/4/2,Good Friday
+2021/4/3,Holy Saturday
+2021/4/5,Easter Monday
+2021/5/1,Labour Day
+2021/5/24,Commonwealth Day
+2021/8/2,Emancipation Day (observed)
+2021/9/10,Saint George's Caye Day
+2021/9/21,Independence Day
+2021/10/11,Indigenous Peoples' Resistance Day (observed)
+2021/11/19,Garifuna Settlement Day
+2021/12/25,Christmas Day
+2021/12/27,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/1/15,George Price Day
+2022/3/7,National Heroes and Benefactors Day (observed)
+2022/4/15,Good Friday
+2022/4/16,Holy Saturday
+2022/4/18,Easter Monday
+2022/5/2,Labour Day (observed)
+2022/8/1,Emancipation Day
+2022/9/10,Saint George's Caye Day
+2022/9/21,Independence Day
+2022/10/10,Indigenous Peoples' Resistance Day (observed)
+2022/11/19,Garifuna Settlement Day
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2023/1/2,New Year's Day (observed)
+2023/1/16,George Price Day (observed)
+2023/3/6,National Heroes and Benefactors Day (observed)
+2023/4/7,Good Friday
+2023/4/8,Holy Saturday
+2023/4/10,Easter Monday
+2023/5/1,Labour Day
+2023/7/31,Emancipation Day (observed)
+2023/9/11,Saint George's Caye Day (observed)
+2023/9/21,Independence Day
+2023/10/9,Indigenous Peoples' Resistance Day (observed)
+2023/11/20,Garifuna Settlement Day (observed)
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/1/15,George Price Day
+2024/3/9,National Heroes and Benefactors Day
+2024/3/29,Good Friday
+2024/3/30,Holy Saturday
+2024/4/1,Easter Monday
+2024/5/1,Labour Day
+2024/7/29,Emancipation Day (observed)
+2024/9/10,Saint George's Caye Day
+2024/9/21,Independence Day
+2024/10/12,Indigenous Peoples' Resistance Day
+2024/11/19,Garifuna Settlement Day
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/1/15,George Price Day
+2025/3/10,National Heroes and Benefactors Day (observed)
+2025/4/18,Good Friday
+2025/4/19,Holy Saturday
+2025/4/21,Easter Monday
+2025/5/1,Labour Day
+2025/8/4,Emancipation Day (observed)
+2025/9/10,Saint George's Caye Day
+2025/9/22,Independence Day (observed)
+2025/10/13,Indigenous Peoples' Resistance Day (observed)
+2025/11/19,Garifuna Settlement Day
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/1/15,George Price Day
+2026/3/9,National Heroes and Benefactors Day
+2026/4/3,Good Friday
+2026/4/4,Holy Saturday
+2026/4/6,Easter Monday
+2026/5/1,Labour Day
+2026/8/1,Emancipation Day
+2026/9/10,Saint George's Caye Day
+2026/9/21,Independence Day
+2026/10/12,Indigenous Peoples' Resistance Day
+2026/11/19,Garifuna Settlement Day
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2027/1/1,New Year's Day
+2027/1/15,George Price Day
+2027/3/8,National Heroes and Benefactors Day (observed)
+2027/3/26,Good Friday
+2027/3/27,Holy Saturday
+2027/3/29,Easter Monday
+2027/5/1,Labour Day
+2027/8/2,Emancipation Day (observed)
+2027/9/10,Saint George's Caye Day
+2027/9/21,Independence Day
+2027/10/11,Indigenous Peoples' Resistance Day (observed)
+2027/11/19,Garifuna Settlement Day
+2027/12/25,Christmas Day
+2027/12/27,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/1/15,George Price Day
+2028/3/6,National Heroes and Benefactors Day (observed)
+2028/4/14,Good Friday
+2028/4/15,Holy Saturday
+2028/4/17,Easter Monday
+2028/5/1,Labour Day
+2028/7/31,Emancipation Day (observed)
+2028/9/11,Saint George's Caye Day (observed)
+2028/9/21,Independence Day
+2028/10/9,Indigenous Peoples' Resistance Day (observed)
+2028/11/20,Garifuna Settlement Day (observed)
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/1/15,George Price Day
+2029/3/12,National Heroes and Benefactors Day (observed)
+2029/3/30,Good Friday
+2029/3/31,Holy Saturday
+2029/4/2,Easter Monday
+2029/5/1,Labour Day
+2029/7/30,Emancipation Day (observed)
+2029/9/10,Saint George's Caye Day
+2029/9/21,Independence Day
+2029/10/15,Indigenous Peoples' Resistance Day (observed)
+2029/11/19,Garifuna Settlement Day
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/1/15,George Price Day
+2030/3/9,National Heroes and Benefactors Day
+2030/4/19,Good Friday
+2030/4/20,Holy Saturday
+2030/4/22,Easter Monday
+2030/5/1,Labour Day
+2030/7/29,Emancipation Day (observed)
+2030/9/10,Saint George's Caye Day
+2030/9/21,Independence Day
+2030/10/12,Indigenous Peoples' Resistance Day
+2030/11/19,Garifuna Settlement Day
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/1/15,George Price Day
+2031/3/10,National Heroes and Benefactors Day (observed)
+2031/4/11,Good Friday
+2031/4/12,Holy Saturday
+2031/4/14,Easter Monday
+2031/5/1,Labour Day
+2031/8/4,Emancipation Day (observed)
+2031/9/10,Saint George's Caye Day
+2031/9/22,Independence Day (observed)
+2031/10/13,Indigenous Peoples' Resistance Day (observed)
+2031/11/19,Garifuna Settlement Day
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/1/15,George Price Day
+2032/3/8,National Heroes and Benefactors Day (observed)
+2032/3/26,Good Friday
+2032/3/27,Holy Saturday
+2032/3/29,Easter Monday
+2032/5/1,Labour Day
+2032/8/2,Emancipation Day (observed)
+2032/9/10,Saint George's Caye Day
+2032/9/21,Independence Day
+2032/10/11,Indigenous Peoples' Resistance Day (observed)
+2032/11/19,Garifuna Settlement Day
+2032/12/25,Christmas Day
+2032/12/27,Boxing Day (observed)
+2033/1/1,New Year's Day
+2033/1/15,George Price Day
+2033/3/7,National Heroes and Benefactors Day (observed)
+2033/4/15,Good Friday
+2033/4/16,Holy Saturday
+2033/4/18,Easter Monday
+2033/5/2,Labour Day (observed)
+2033/8/1,Emancipation Day
+2033/9/10,Saint George's Caye Day
+2033/9/21,Independence Day
+2033/10/10,Indigenous Peoples' Resistance Day (observed)
+2033/11/19,Garifuna Settlement Day
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day
+2034/1/2,New Year's Day (observed)
+2034/1/16,George Price Day (observed)
+2034/3/6,National Heroes and Benefactors Day (observed)
+2034/4/7,Good Friday
+2034/4/8,Holy Saturday
+2034/4/10,Easter Monday
+2034/5/1,Labour Day
+2034/7/31,Emancipation Day (observed)
+2034/9/11,Saint George's Caye Day (observed)
+2034/9/21,Independence Day
+2034/10/9,Indigenous Peoples' Resistance Day (observed)
+2034/11/20,Garifuna Settlement Day (observed)
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/1/15,George Price Day
+2035/3/12,National Heroes and Benefactors Day (observed)
+2035/3/23,Good Friday
+2035/3/24,Holy Saturday
+2035/3/26,Easter Monday
+2035/5/1,Labour Day
+2035/7/30,Emancipation Day (observed)
+2035/9/10,Saint George's Caye Day
+2035/9/21,Independence Day
+2035/10/15,Indigenous Peoples' Resistance Day (observed)
+2035/11/19,Garifuna Settlement Day
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/1/15,George Price Day
+2036/3/10,National Heroes and Benefactors Day (observed)
+2036/4/11,Good Friday
+2036/4/12,Holy Saturday
+2036/4/14,Easter Monday
+2036/5/1,Labour Day
+2036/8/4,Emancipation Day (observed)
+2036/9/10,Saint George's Caye Day
+2036/9/22,Independence Day (observed)
+2036/10/13,Indigenous Peoples' Resistance Day (observed)
+2036/11/19,Garifuna Settlement Day
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/1/15,George Price Day
+2037/3/9,National Heroes and Benefactors Day
+2037/4/3,Good Friday
+2037/4/4,Holy Saturday
+2037/4/6,Easter Monday
+2037/5/1,Labour Day
+2037/8/1,Emancipation Day
+2037/9/10,Saint George's Caye Day
+2037/9/21,Independence Day
+2037/10/12,Indigenous Peoples' Resistance Day
+2037/11/19,Garifuna Settlement Day
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2038/1/1,New Year's Day
+2038/1/15,George Price Day
+2038/3/8,National Heroes and Benefactors Day (observed)
+2038/4/23,Good Friday
+2038/4/24,Holy Saturday
+2038/4/26,Easter Monday
+2038/5/1,Labour Day
+2038/8/2,Emancipation Day (observed)
+2038/9/10,Saint George's Caye Day
+2038/9/21,Independence Day
+2038/10/11,Indigenous Peoples' Resistance Day (observed)
+2038/11/19,Garifuna Settlement Day
+2038/12/25,Christmas Day
+2038/12/27,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/1/15,George Price Day
+2039/3/7,National Heroes and Benefactors Day (observed)
+2039/4/8,Good Friday
+2039/4/9,Holy Saturday
+2039/4/11,Easter Monday
+2039/5/2,Labour Day (observed)
+2039/8/1,Emancipation Day
+2039/9/10,Saint George's Caye Day
+2039/9/21,Independence Day
+2039/10/10,Indigenous Peoples' Resistance Day (observed)
+2039/11/19,Garifuna Settlement Day
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day
+2040/1/2,New Year's Day (observed)
+2040/1/16,George Price Day (observed)
+2040/3/12,National Heroes and Benefactors Day (observed)
+2040/3/30,Good Friday
+2040/3/31,Holy Saturday
+2040/4/2,Easter Monday
+2040/5/1,Labour Day
+2040/7/30,Emancipation Day (observed)
+2040/9/10,Saint George's Caye Day
+2040/9/21,Independence Day
+2040/10/15,Indigenous Peoples' Resistance Day (observed)
+2040/11/19,Garifuna Settlement Day
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/1/15,George Price Day
+2041/3/9,National Heroes and Benefactors Day
+2041/4/19,Good Friday
+2041/4/20,Holy Saturday
+2041/4/22,Easter Monday
+2041/5/1,Labour Day
+2041/7/29,Emancipation Day (observed)
+2041/9/10,Saint George's Caye Day
+2041/9/21,Independence Day
+2041/10/12,Indigenous Peoples' Resistance Day
+2041/11/19,Garifuna Settlement Day
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/1/15,George Price Day
+2042/3/10,National Heroes and Benefactors Day (observed)
+2042/4/4,Good Friday
+2042/4/5,Holy Saturday
+2042/4/7,Easter Monday
+2042/5/1,Labour Day
+2042/8/4,Emancipation Day (observed)
+2042/9/10,Saint George's Caye Day
+2042/9/22,Independence Day (observed)
+2042/10/13,Indigenous Peoples' Resistance Day (observed)
+2042/11/19,Garifuna Settlement Day
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/1/15,George Price Day
+2043/3/9,National Heroes and Benefactors Day
+2043/3/27,Good Friday
+2043/3/28,Holy Saturday
+2043/3/30,Easter Monday
+2043/5/1,Labour Day
+2043/8/1,Emancipation Day
+2043/9/10,Saint George's Caye Day
+2043/9/21,Independence Day
+2043/10/12,Indigenous Peoples' Resistance Day
+2043/11/19,Garifuna Settlement Day
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2044/1/1,New Year's Day
+2044/1/15,George Price Day
+2044/3/7,National Heroes and Benefactors Day (observed)
+2044/4/15,Good Friday
+2044/4/16,Holy Saturday
+2044/4/18,Easter Monday
+2044/5/2,Labour Day (observed)
+2044/8/1,Emancipation Day
+2044/9/10,Saint George's Caye Day
+2044/9/21,Independence Day
+2044/10/10,Indigenous Peoples' Resistance Day (observed)
+2044/11/19,Garifuna Settlement Day
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2045/1/2,New Year's Day (observed)
+2045/1/16,George Price Day (observed)
+2045/3/6,National Heroes and Benefactors Day (observed)
+2045/4/7,Good Friday
+2045/4/8,Holy Saturday
+2045/4/10,Easter Monday
+2045/5/1,Labour Day
+2045/7/31,Emancipation Day (observed)
+2045/9/11,Saint George's Caye Day (observed)
+2045/9/21,Independence Day
+2045/10/9,Indigenous Peoples' Resistance Day (observed)
+2045/11/20,Garifuna Settlement Day (observed)
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/1/15,George Price Day
+2046/3/12,National Heroes and Benefactors Day (observed)
+2046/3/23,Good Friday
+2046/3/24,Holy Saturday
+2046/3/26,Easter Monday
+2046/5/1,Labour Day
+2046/7/30,Emancipation Day (observed)
+2046/9/10,Saint George's Caye Day
+2046/9/21,Independence Day
+2046/10/15,Indigenous Peoples' Resistance Day (observed)
+2046/11/19,Garifuna Settlement Day
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/1/15,George Price Day
+2047/3/9,National Heroes and Benefactors Day
+2047/4/12,Good Friday
+2047/4/13,Holy Saturday
+2047/4/15,Easter Monday
+2047/5/1,Labour Day
+2047/7/29,Emancipation Day (observed)
+2047/9/10,Saint George's Caye Day
+2047/9/21,Independence Day
+2047/10/12,Indigenous Peoples' Resistance Day
+2047/11/19,Garifuna Settlement Day
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2048/1/1,New Year's Day
+2048/1/15,George Price Day
+2048/3/9,National Heroes and Benefactors Day
+2048/4/3,Good Friday
+2048/4/4,Holy Saturday
+2048/4/6,Easter Monday
+2048/5/1,Labour Day
+2048/8/1,Emancipation Day
+2048/9/10,Saint George's Caye Day
+2048/9/21,Independence Day
+2048/10/12,Indigenous Peoples' Resistance Day
+2048/11/19,Garifuna Settlement Day
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2049/1/1,New Year's Day
+2049/1/15,George Price Day
+2049/3/8,National Heroes and Benefactors Day (observed)
+2049/4/16,Good Friday
+2049/4/17,Holy Saturday
+2049/4/19,Easter Monday
+2049/5/1,Labour Day
+2049/8/2,Emancipation Day (observed)
+2049/9/10,Saint George's Caye Day
+2049/9/21,Independence Day
+2049/10/11,Indigenous Peoples' Resistance Day (observed)
+2049/11/19,Garifuna Settlement Day
+2049/12/25,Christmas Day
+2049/12/27,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/1/15,George Price Day
+2050/3/7,National Heroes and Benefactors Day (observed)
+2050/4/8,Good Friday
+2050/4/9,Holy Saturday
+2050/4/11,Easter Monday
+2050/5/2,Labour Day (observed)
+2050/8/1,Emancipation Day
+2050/9/10,Saint George's Caye Day
+2050/9/21,Independence Day
+2050/10/10,Indigenous Peoples' Resistance Day (observed)
+2050/11/19,Garifuna Settlement Day
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day

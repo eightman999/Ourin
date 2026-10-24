@@ -1,0 +1,505 @@
+# XK の祝日（2020〜2050年、言語: sq）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Viti i Ri
+2020/1/2,Viti i Ri
+2020/1/7,Krishtlindjet Ortodokse
+2020/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2020/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2020/4/12,Pashkët Katolike
+2020/4/13,Pashkët Katolike (ditë pushimi e shtyrë)
+2020/4/19,Pashkët Ortodokse
+2020/4/20,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2020/5/1,Dita Ndërkombëtare e Punës
+2020/5/9,Dita e Evropës
+2020/5/11,Dita e Evropës (ditë pushimi e shtyrë)
+2020/5/24,Bajrami i Madh, dita e parë (e vlerësuar)
+2020/5/25,Bajrami i Madh, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2020/7/31,Bajrami i Vogël, dita e parë (e vlerësuar)
+2020/12/25,Krishtlindjet Katolike
+2021/1/1,Viti i Ri
+2021/1/2,Viti i Ri
+2021/1/4,Viti i Ri (ditë pushimi e shtyrë)
+2021/1/7,Krishtlindjet Ortodokse
+2021/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2021/4/4,Pashkët Katolike
+2021/4/5,Pashkët Katolike (ditë pushimi e shtyrë)
+2021/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2021/5/1,Dita Ndërkombëtare e Punës
+2021/5/2,Pashkët Ortodokse
+2021/5/3,Dita Ndërkombëtare e Punës (ditë pushimi e shtyrë)
+2021/5/4,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2021/5/9,Dita e Evropës
+2021/5/10,Dita e Evropës (ditë pushimi e shtyrë)
+2021/5/13,Bajrami i Madh, dita e parë (e vlerësuar)
+2021/7/20,Bajrami i Vogël, dita e parë (e vlerësuar)
+2021/12/25,Krishtlindjet Katolike
+2021/12/27,Krishtlindjet Katolike (ditë pushimi e shtyrë)
+2022/1/1,Viti i Ri
+2022/1/2,Viti i Ri
+2022/1/3,Viti i Ri (ditë pushimi e shtyrë)
+2022/1/4,Viti i Ri (ditë pushimi e shtyrë)
+2022/1/7,Krishtlindjet Ortodokse
+2022/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2022/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2022/4/11,Dita e Kushtetutës së Republikës së Kosovës (ditë pushimi e shtyrë)
+2022/4/17,Pashkët Katolike
+2022/4/18,Pashkët Katolike (ditë pushimi e shtyrë)
+2022/4/24,Pashkët Ortodokse
+2022/4/25,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2022/5/1,Dita Ndërkombëtare e Punës
+2022/5/2,Bajrami i Madh, dita e parë (e vlerësuar)
+2022/5/3,Dita Ndërkombëtare e Punës (ditë pushimi e shtyrë)
+2022/5/9,Dita e Evropës
+2022/7/9,Bajrami i Vogël, dita e parë (e vlerësuar)
+2022/7/11,Bajrami i Vogël, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2022/12/25,Krishtlindjet Katolike
+2022/12/26,Krishtlindjet Katolike (ditë pushimi e shtyrë)
+2023/1/1,Viti i Ri
+2023/1/2,Viti i Ri
+2023/1/3,Viti i Ri (ditë pushimi e shtyrë)
+2023/1/7,Krishtlindjet Ortodokse
+2023/1/9,Krishtlindjet Ortodokse (ditë pushimi e shtyrë)
+2023/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2023/4/9,Dita e Kushtetutës së Republikës së Kosovës; Pashkët Katolike
+2023/4/10,Dita e Kushtetutës së Republikës së Kosovës (ditë pushimi e shtyrë); Pashkët Katolike (ditë pushimi e shtyrë)
+2023/4/16,Pashkët Ortodokse
+2023/4/17,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2023/4/21,Bajrami i Madh, dita e parë (e vlerësuar)
+2023/5/1,Dita Ndërkombëtare e Punës
+2023/5/9,Dita e Evropës
+2023/6/28,Bajrami i Vogël, dita e parë (e vlerësuar)
+2023/12/25,Krishtlindjet Katolike
+2024/1/1,Viti i Ri
+2024/1/2,Viti i Ri
+2024/1/7,Krishtlindjet Ortodokse
+2024/1/8,Krishtlindjet Ortodokse (ditë pushimi e shtyrë)
+2024/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2024/2/19,Dita e Pavarësisë së Republikës së Kosovës (ditë pushimi e shtyrë)
+2024/3/31,Pashkët Katolike
+2024/4/1,Pashkët Katolike (ditë pushimi e shtyrë)
+2024/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2024/4/10,Bajrami i Madh, dita e parë (e vlerësuar)
+2024/5/1,Dita Ndërkombëtare e Punës
+2024/5/5,Pashkët Ortodokse
+2024/5/6,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2024/5/9,Dita e Evropës
+2024/6/16,Bajrami i Vogël, dita e parë (e vlerësuar)
+2024/6/17,Bajrami i Vogël, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2024/12/25,Krishtlindjet Katolike
+2025/1/1,Viti i Ri
+2025/1/2,Viti i Ri
+2025/1/7,Krishtlindjet Ortodokse
+2025/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2025/3/30,Bajrami i Madh, dita e parë (e vlerësuar)
+2025/3/31,Bajrami i Madh, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2025/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2025/4/20,Pashkët Katolike; Pashkët Ortodokse
+2025/4/21,Pashkët Katolike (ditë pushimi e shtyrë); Pashkët Ortodokse (ditë pushimi e shtyrë)
+2025/5/1,Dita Ndërkombëtare e Punës
+2025/5/9,Dita e Evropës
+2025/6/6,Bajrami i Vogël, dita e parë (e vlerësuar)
+2025/12/25,Krishtlindjet Katolike
+2026/1/1,Viti i Ri
+2026/1/2,Viti i Ri
+2026/1/7,Krishtlindjet Ortodokse
+2026/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2026/3/20,Bajrami i Madh, dita e parë (e vlerësuar)
+2026/4/5,Pashkët Katolike
+2026/4/6,Pashkët Katolike (ditë pushimi e shtyrë)
+2026/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2026/4/12,Pashkët Ortodokse
+2026/4/13,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2026/5/1,Dita Ndërkombëtare e Punës
+2026/5/9,Dita e Evropës
+2026/5/11,Dita e Evropës (ditë pushimi e shtyrë)
+2026/5/27,Bajrami i Vogël, dita e parë (e vlerësuar)
+2026/12/25,Krishtlindjet Katolike
+2027/1/1,Viti i Ri
+2027/1/2,Viti i Ri
+2027/1/4,Viti i Ri (ditë pushimi e shtyrë)
+2027/1/7,Krishtlindjet Ortodokse
+2027/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2027/3/9,Bajrami i Madh, dita e parë (e vlerësuar)
+2027/3/28,Pashkët Katolike
+2027/3/29,Pashkët Katolike (ditë pushimi e shtyrë)
+2027/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2027/5/1,Dita Ndërkombëtare e Punës
+2027/5/2,Pashkët Ortodokse
+2027/5/3,Dita Ndërkombëtare e Punës (ditë pushimi e shtyrë)
+2027/5/4,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2027/5/9,Dita e Evropës
+2027/5/10,Dita e Evropës (ditë pushimi e shtyrë)
+2027/5/16,Bajrami i Vogël, dita e parë (e vlerësuar)
+2027/5/17,Bajrami i Vogël, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2027/12/25,Krishtlindjet Katolike
+2027/12/27,Krishtlindjet Katolike (ditë pushimi e shtyrë)
+2028/1/1,Viti i Ri
+2028/1/2,Viti i Ri
+2028/1/3,Viti i Ri (ditë pushimi e shtyrë)
+2028/1/4,Viti i Ri (ditë pushimi e shtyrë)
+2028/1/7,Krishtlindjet Ortodokse
+2028/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2028/2/26,Bajrami i Madh, dita e parë (e vlerësuar)
+2028/2/28,Bajrami i Madh, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2028/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2028/4/10,Dita e Kushtetutës së Republikës së Kosovës (ditë pushimi e shtyrë)
+2028/4/16,Pashkët Katolike; Pashkët Ortodokse
+2028/4/17,Pashkët Katolike (ditë pushimi e shtyrë); Pashkët Ortodokse (ditë pushimi e shtyrë)
+2028/5/1,Dita Ndërkombëtare e Punës
+2028/5/5,Bajrami i Vogël, dita e parë (e vlerësuar)
+2028/5/9,Dita e Evropës
+2028/12/25,Krishtlindjet Katolike
+2029/1/1,Viti i Ri
+2029/1/2,Viti i Ri
+2029/1/7,Krishtlindjet Ortodokse
+2029/1/8,Krishtlindjet Ortodokse (ditë pushimi e shtyrë)
+2029/2/14,Bajrami i Madh, dita e parë (e vlerësuar)
+2029/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2029/2/19,Dita e Pavarësisë së Republikës së Kosovës (ditë pushimi e shtyrë)
+2029/4/1,Pashkët Katolike
+2029/4/2,Pashkët Katolike (ditë pushimi e shtyrë)
+2029/4/8,Pashkët Ortodokse
+2029/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2029/4/10,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2029/4/24,Bajrami i Vogël, dita e parë (e vlerësuar)
+2029/5/1,Dita Ndërkombëtare e Punës
+2029/5/9,Dita e Evropës
+2029/12/25,Krishtlindjet Katolike
+2030/1/1,Viti i Ri
+2030/1/2,Viti i Ri
+2030/1/7,Krishtlindjet Ortodokse
+2030/2/4,Bajrami i Madh, dita e parë (e vlerësuar)
+2030/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2030/2/18,Dita e Pavarësisë së Republikës së Kosovës (ditë pushimi e shtyrë)
+2030/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2030/4/13,Bajrami i Vogël, dita e parë (e vlerësuar)
+2030/4/15,Bajrami i Vogël, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2030/4/21,Pashkët Katolike
+2030/4/22,Pashkët Katolike (ditë pushimi e shtyrë)
+2030/4/28,Pashkët Ortodokse
+2030/4/29,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2030/5/1,Dita Ndërkombëtare e Punës
+2030/5/9,Dita e Evropës
+2030/12/25,Krishtlindjet Katolike
+2031/1/1,Viti i Ri
+2031/1/2,Viti i Ri
+2031/1/7,Krishtlindjet Ortodokse
+2031/1/24,Bajrami i Madh, dita e parë (e vlerësuar)
+2031/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2031/4/2,Bajrami i Vogël, dita e parë (e vlerësuar)
+2031/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2031/4/13,Pashkët Katolike; Pashkët Ortodokse
+2031/4/14,Pashkët Katolike (ditë pushimi e shtyrë); Pashkët Ortodokse (ditë pushimi e shtyrë)
+2031/5/1,Dita Ndërkombëtare e Punës
+2031/5/9,Dita e Evropës
+2031/12/25,Krishtlindjet Katolike
+2032/1/1,Viti i Ri
+2032/1/2,Viti i Ri
+2032/1/7,Krishtlindjet Ortodokse
+2032/1/14,Bajrami i Madh, dita e parë (e vlerësuar)
+2032/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2032/3/22,Bajrami i Vogël, dita e parë (e vlerësuar)
+2032/3/28,Pashkët Katolike
+2032/3/29,Pashkët Katolike (ditë pushimi e shtyrë)
+2032/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2032/5/1,Dita Ndërkombëtare e Punës
+2032/5/2,Pashkët Ortodokse
+2032/5/3,Dita Ndërkombëtare e Punës (ditë pushimi e shtyrë)
+2032/5/4,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2032/5/9,Dita e Evropës
+2032/5/10,Dita e Evropës (ditë pushimi e shtyrë)
+2032/12/25,Krishtlindjet Katolike
+2032/12/27,Krishtlindjet Katolike (ditë pushimi e shtyrë)
+2033/1/1,Viti i Ri
+2033/1/2,Bajrami i Madh, dita e parë (e vlerësuar); Viti i Ri
+2033/1/3,Viti i Ri (ditë pushimi e shtyrë)
+2033/1/4,Bajrami i Madh, dita e parë (ditë pushimi e shtyrë, e vlerësuar); Viti i Ri (ditë pushimi e shtyrë)
+2033/1/7,Krishtlindjet Ortodokse
+2033/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2033/3/11,Bajrami i Vogël, dita e parë (e vlerësuar)
+2033/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2033/4/11,Dita e Kushtetutës së Republikës së Kosovës (ditë pushimi e shtyrë)
+2033/4/17,Pashkët Katolike
+2033/4/18,Pashkët Katolike (ditë pushimi e shtyrë)
+2033/4/24,Pashkët Ortodokse
+2033/4/25,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2033/5/1,Dita Ndërkombëtare e Punës
+2033/5/2,Dita Ndërkombëtare e Punës (ditë pushimi e shtyrë)
+2033/5/9,Dita e Evropës
+2033/12/23,Bajrami i Madh, dita e parë (e vlerësuar)
+2033/12/25,Krishtlindjet Katolike
+2033/12/26,Krishtlindjet Katolike (ditë pushimi e shtyrë)
+2034/1/1,Viti i Ri
+2034/1/2,Viti i Ri
+2034/1/3,Viti i Ri (ditë pushimi e shtyrë)
+2034/1/7,Krishtlindjet Ortodokse
+2034/1/9,Krishtlindjet Ortodokse (ditë pushimi e shtyrë)
+2034/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2034/3/1,Bajrami i Vogël, dita e parë (e vlerësuar)
+2034/4/9,Dita e Kushtetutës së Republikës së Kosovës; Pashkët Katolike; Pashkët Ortodokse
+2034/4/10,Dita e Kushtetutës së Republikës së Kosovës (ditë pushimi e shtyrë); Pashkët Katolike (ditë pushimi e shtyrë); Pashkët Ortodokse (ditë pushimi e shtyrë)
+2034/5/1,Dita Ndërkombëtare e Punës
+2034/5/9,Dita e Evropës
+2034/12/12,Bajrami i Madh, dita e parë (e vlerësuar)
+2034/12/25,Krishtlindjet Katolike
+2035/1/1,Viti i Ri
+2035/1/2,Viti i Ri
+2035/1/7,Krishtlindjet Ortodokse
+2035/1/8,Krishtlindjet Ortodokse (ditë pushimi e shtyrë)
+2035/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2035/2/18,Bajrami i Vogël, dita e parë (e vlerësuar)
+2035/2/19,Dita e Pavarësisë së Republikës së Kosovës (ditë pushimi e shtyrë)
+2035/2/20,Bajrami i Vogël, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2035/3/25,Pashkët Katolike
+2035/3/26,Pashkët Katolike (ditë pushimi e shtyrë)
+2035/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2035/4/29,Pashkët Ortodokse
+2035/4/30,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2035/5/1,Dita Ndërkombëtare e Punës
+2035/5/9,Dita e Evropës
+2035/12/1,Bajrami i Madh, dita e parë (e vlerësuar)
+2035/12/3,Bajrami i Madh, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2035/12/25,Krishtlindjet Katolike
+2036/1/1,Viti i Ri
+2036/1/2,Viti i Ri
+2036/1/7,Krishtlindjet Ortodokse
+2036/2/7,Bajrami i Vogël, dita e parë (e vlerësuar)
+2036/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2036/2/18,Dita e Pavarësisë së Republikës së Kosovës (ditë pushimi e shtyrë)
+2036/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2036/4/13,Pashkët Katolike
+2036/4/14,Pashkët Katolike (ditë pushimi e shtyrë)
+2036/4/20,Pashkët Ortodokse
+2036/4/21,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2036/5/1,Dita Ndërkombëtare e Punës
+2036/5/9,Dita e Evropës
+2036/11/19,Bajrami i Madh, dita e parë (e vlerësuar)
+2036/12/25,Krishtlindjet Katolike
+2037/1/1,Viti i Ri
+2037/1/2,Viti i Ri
+2037/1/7,Krishtlindjet Ortodokse
+2037/1/26,Bajrami i Vogël, dita e parë (e vlerësuar)
+2037/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2037/4/5,Pashkët Katolike; Pashkët Ortodokse
+2037/4/6,Pashkët Katolike (ditë pushimi e shtyrë); Pashkët Ortodokse (ditë pushimi e shtyrë)
+2037/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2037/5/1,Dita Ndërkombëtare e Punës
+2037/5/9,Dita e Evropës
+2037/5/11,Dita e Evropës (ditë pushimi e shtyrë)
+2037/11/8,Bajrami i Madh, dita e parë (e vlerësuar)
+2037/11/9,Bajrami i Madh, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2037/12/25,Krishtlindjet Katolike
+2038/1/1,Viti i Ri
+2038/1/2,Viti i Ri
+2038/1/4,Viti i Ri (ditë pushimi e shtyrë)
+2038/1/7,Krishtlindjet Ortodokse
+2038/1/16,Bajrami i Vogël, dita e parë (e vlerësuar)
+2038/1/18,Bajrami i Vogël, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2038/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2038/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2038/4/25,Pashkët Katolike; Pashkët Ortodokse
+2038/4/26,Pashkët Katolike (ditë pushimi e shtyrë); Pashkët Ortodokse (ditë pushimi e shtyrë)
+2038/5/1,Dita Ndërkombëtare e Punës
+2038/5/3,Dita Ndërkombëtare e Punës (ditë pushimi e shtyrë)
+2038/5/9,Dita e Evropës
+2038/5/10,Dita e Evropës (ditë pushimi e shtyrë)
+2038/10/29,Bajrami i Madh, dita e parë (e vlerësuar)
+2038/12/25,Krishtlindjet Katolike
+2038/12/27,Krishtlindjet Katolike (ditë pushimi e shtyrë)
+2039/1/1,Viti i Ri
+2039/1/2,Viti i Ri
+2039/1/3,Viti i Ri (ditë pushimi e shtyrë)
+2039/1/4,Viti i Ri (ditë pushimi e shtyrë)
+2039/1/5,Bajrami i Vogël, dita e parë (e vlerësuar)
+2039/1/7,Krishtlindjet Ortodokse
+2039/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2039/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2039/4/10,Pashkët Katolike
+2039/4/11,Dita e Kushtetutës së Republikës së Kosovës (ditë pushimi e shtyrë)
+2039/4/12,Pashkët Katolike (ditë pushimi e shtyrë)
+2039/4/17,Pashkët Ortodokse
+2039/4/18,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2039/5/1,Dita Ndërkombëtare e Punës
+2039/5/2,Dita Ndërkombëtare e Punës (ditë pushimi e shtyrë)
+2039/5/9,Dita e Evropës
+2039/10/19,Bajrami i Madh, dita e parë (e vlerësuar)
+2039/12/25,Krishtlindjet Katolike
+2039/12/26,Bajrami i Vogël, dita e parë (e vlerësuar)
+2039/12/27,Krishtlindjet Katolike (ditë pushimi e shtyrë)
+2040/1/1,Viti i Ri
+2040/1/2,Viti i Ri
+2040/1/3,Viti i Ri (ditë pushimi e shtyrë)
+2040/1/7,Krishtlindjet Ortodokse
+2040/1/9,Krishtlindjet Ortodokse (ditë pushimi e shtyrë)
+2040/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2040/4/1,Pashkët Katolike
+2040/4/2,Pashkët Katolike (ditë pushimi e shtyrë)
+2040/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2040/5/1,Dita Ndërkombëtare e Punës
+2040/5/6,Pashkët Ortodokse
+2040/5/7,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2040/5/9,Dita e Evropës
+2040/10/7,Bajrami i Madh, dita e parë (e vlerësuar)
+2040/10/8,Bajrami i Madh, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2040/12/14,Bajrami i Vogël, dita e parë (e vlerësuar)
+2040/12/25,Krishtlindjet Katolike
+2041/1/1,Viti i Ri
+2041/1/2,Viti i Ri
+2041/1/7,Krishtlindjet Ortodokse
+2041/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2041/2/18,Dita e Pavarësisë së Republikës së Kosovës (ditë pushimi e shtyrë)
+2041/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2041/4/21,Pashkët Katolike; Pashkët Ortodokse
+2041/4/22,Pashkët Katolike (ditë pushimi e shtyrë); Pashkët Ortodokse (ditë pushimi e shtyrë)
+2041/5/1,Dita Ndërkombëtare e Punës
+2041/5/9,Dita e Evropës
+2041/9/26,Bajrami i Madh, dita e parë (e vlerësuar)
+2041/12/4,Bajrami i Vogël, dita e parë (e vlerësuar)
+2041/12/25,Krishtlindjet Katolike
+2042/1/1,Viti i Ri
+2042/1/2,Viti i Ri
+2042/1/7,Krishtlindjet Ortodokse
+2042/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2042/4/6,Pashkët Katolike
+2042/4/7,Pashkët Katolike (ditë pushimi e shtyrë)
+2042/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2042/4/13,Pashkët Ortodokse
+2042/4/14,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2042/5/1,Dita Ndërkombëtare e Punës
+2042/5/9,Dita e Evropës
+2042/9/15,Bajrami i Madh, dita e parë (e vlerësuar)
+2042/11/23,Bajrami i Vogël, dita e parë (e vlerësuar)
+2042/11/24,Bajrami i Vogël, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2042/12/25,Krishtlindjet Katolike
+2043/1/1,Viti i Ri
+2043/1/2,Viti i Ri
+2043/1/7,Krishtlindjet Ortodokse
+2043/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2043/3/29,Pashkët Katolike
+2043/3/30,Pashkët Katolike (ditë pushimi e shtyrë)
+2043/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2043/5/1,Dita Ndërkombëtare e Punës
+2043/5/3,Pashkët Ortodokse
+2043/5/4,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2043/5/9,Dita e Evropës
+2043/5/11,Dita e Evropës (ditë pushimi e shtyrë)
+2043/9/4,Bajrami i Madh, dita e parë (e vlerësuar)
+2043/11/12,Bajrami i Vogël, dita e parë (e vlerësuar)
+2043/12/25,Krishtlindjet Katolike
+2044/1/1,Viti i Ri
+2044/1/2,Viti i Ri
+2044/1/4,Viti i Ri (ditë pushimi e shtyrë)
+2044/1/7,Krishtlindjet Ortodokse
+2044/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2044/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2044/4/11,Dita e Kushtetutës së Republikës së Kosovës (ditë pushimi e shtyrë)
+2044/4/17,Pashkët Katolike
+2044/4/18,Pashkët Katolike (ditë pushimi e shtyrë)
+2044/4/24,Pashkët Ortodokse
+2044/4/25,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2044/5/1,Dita Ndërkombëtare e Punës
+2044/5/2,Dita Ndërkombëtare e Punës (ditë pushimi e shtyrë)
+2044/5/9,Dita e Evropës
+2044/8/24,Bajrami i Madh, dita e parë (e vlerësuar)
+2044/10/31,Bajrami i Vogël, dita e parë (e vlerësuar)
+2044/12/25,Krishtlindjet Katolike
+2044/12/26,Krishtlindjet Katolike (ditë pushimi e shtyrë)
+2045/1/1,Viti i Ri
+2045/1/2,Viti i Ri
+2045/1/3,Viti i Ri (ditë pushimi e shtyrë)
+2045/1/7,Krishtlindjet Ortodokse
+2045/1/9,Krishtlindjet Ortodokse (ditë pushimi e shtyrë)
+2045/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2045/4/9,Dita e Kushtetutës së Republikës së Kosovës; Pashkët Katolike; Pashkët Ortodokse
+2045/4/10,Dita e Kushtetutës së Republikës së Kosovës (ditë pushimi e shtyrë); Pashkët Katolike (ditë pushimi e shtyrë); Pashkët Ortodokse (ditë pushimi e shtyrë)
+2045/5/1,Dita Ndërkombëtare e Punës
+2045/5/9,Dita e Evropës
+2045/8/14,Bajrami i Madh, dita e parë (e vlerësuar)
+2045/10/21,Bajrami i Vogël, dita e parë (e vlerësuar)
+2045/10/23,Bajrami i Vogël, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2045/12/25,Krishtlindjet Katolike
+2046/1/1,Viti i Ri
+2046/1/2,Viti i Ri
+2046/1/7,Krishtlindjet Ortodokse
+2046/1/8,Krishtlindjet Ortodokse (ditë pushimi e shtyrë)
+2046/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2046/2/19,Dita e Pavarësisë së Republikës së Kosovës (ditë pushimi e shtyrë)
+2046/3/25,Pashkët Katolike
+2046/3/26,Pashkët Katolike (ditë pushimi e shtyrë)
+2046/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2046/4/29,Pashkët Ortodokse
+2046/4/30,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2046/5/1,Dita Ndërkombëtare e Punës
+2046/5/9,Dita e Evropës
+2046/8/3,Bajrami i Madh, dita e parë (e vlerësuar)
+2046/10/10,Bajrami i Vogël, dita e parë (e vlerësuar)
+2046/12/25,Krishtlindjet Katolike
+2047/1/1,Viti i Ri
+2047/1/2,Viti i Ri
+2047/1/7,Krishtlindjet Ortodokse
+2047/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2047/2/18,Dita e Pavarësisë së Republikës së Kosovës (ditë pushimi e shtyrë)
+2047/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2047/4/14,Pashkët Katolike
+2047/4/15,Pashkët Katolike (ditë pushimi e shtyrë)
+2047/4/21,Pashkët Ortodokse
+2047/4/22,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2047/5/1,Dita Ndërkombëtare e Punës
+2047/5/9,Dita e Evropës
+2047/7/24,Bajrami i Madh, dita e parë (e vlerësuar)
+2047/9/30,Bajrami i Vogël, dita e parë (e vlerësuar)
+2047/12/25,Krishtlindjet Katolike
+2048/1/1,Viti i Ri
+2048/1/2,Viti i Ri
+2048/1/7,Krishtlindjet Ortodokse
+2048/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2048/4/5,Pashkët Katolike; Pashkët Ortodokse
+2048/4/6,Pashkët Katolike (ditë pushimi e shtyrë); Pashkët Ortodokse (ditë pushimi e shtyrë)
+2048/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2048/5/1,Dita Ndërkombëtare e Punës
+2048/5/9,Dita e Evropës
+2048/5/11,Dita e Evropës (ditë pushimi e shtyrë)
+2048/7/12,Bajrami i Madh, dita e parë (e vlerësuar)
+2048/7/13,Bajrami i Madh, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2048/9/19,Bajrami i Vogël, dita e parë (e vlerësuar)
+2048/9/21,Bajrami i Vogël, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2048/12/25,Krishtlindjet Katolike
+2049/1/1,Viti i Ri
+2049/1/2,Viti i Ri
+2049/1/4,Viti i Ri (ditë pushimi e shtyrë)
+2049/1/7,Krishtlindjet Ortodokse
+2049/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2049/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2049/4/18,Pashkët Katolike
+2049/4/19,Pashkët Katolike (ditë pushimi e shtyrë)
+2049/4/25,Pashkët Ortodokse
+2049/4/26,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2049/5/1,Dita Ndërkombëtare e Punës
+2049/5/3,Dita Ndërkombëtare e Punës (ditë pushimi e shtyrë)
+2049/5/9,Dita e Evropës
+2049/5/10,Dita e Evropës (ditë pushimi e shtyrë)
+2049/7/1,Bajrami i Madh, dita e parë (e vlerësuar)
+2049/9/8,Bajrami i Vogël, dita e parë (e vlerësuar)
+2049/12/25,Krishtlindjet Katolike
+2049/12/27,Krishtlindjet Katolike (ditë pushimi e shtyrë)
+2050/1/1,Viti i Ri
+2050/1/2,Viti i Ri
+2050/1/3,Viti i Ri (ditë pushimi e shtyrë)
+2050/1/4,Viti i Ri (ditë pushimi e shtyrë)
+2050/1/7,Krishtlindjet Ortodokse
+2050/2/17,Dita e Pavarësisë së Republikës së Kosovës
+2050/4/9,Dita e Kushtetutës së Republikës së Kosovës
+2050/4/10,Pashkët Katolike
+2050/4/11,Dita e Kushtetutës së Republikës së Kosovës (ditë pushimi e shtyrë)
+2050/4/12,Pashkët Katolike (ditë pushimi e shtyrë)
+2050/4/17,Pashkët Ortodokse
+2050/4/18,Pashkët Ortodokse (ditë pushimi e shtyrë)
+2050/5/1,Dita Ndërkombëtare e Punës
+2050/5/2,Dita Ndërkombëtare e Punës (ditë pushimi e shtyrë)
+2050/5/9,Dita e Evropës
+2050/6/20,Bajrami i Madh, dita e parë (e vlerësuar)
+2050/8/28,Bajrami i Vogël, dita e parë (e vlerësuar)
+2050/8/29,Bajrami i Vogël, dita e parë (ditë pushimi e shtyrë, e vlerësuar)
+2050/12/25,Krishtlindjet Katolike
+2050/12/26,Krishtlindjet Katolike (ditë pushimi e shtyrë)

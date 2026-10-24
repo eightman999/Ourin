@@ -1,0 +1,159 @@
+# UY holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/3/1,Presidential Inauguration Day
+2020/5/1,Workers' Day
+2020/7/18,Constitution Day
+2020/8/25,Independence Declaration Day
+2020/12/25,Family Day
+2021/1/1,New Year's Day
+2021/5/1,Workers' Day
+2021/7/18,Constitution Day
+2021/8/25,Independence Declaration Day
+2021/12/25,Family Day
+2022/1/1,New Year's Day
+2022/5/1,Workers' Day
+2022/7/18,Constitution Day
+2022/8/25,Independence Declaration Day
+2022/12/25,Family Day
+2023/1/1,New Year's Day
+2023/5/1,Workers' Day
+2023/7/18,Constitution Day
+2023/8/25,Independence Declaration Day
+2023/12/25,Family Day
+2024/1/1,New Year's Day
+2024/5/1,Workers' Day
+2024/7/18,Constitution Day
+2024/8/25,Independence Declaration Day
+2024/12/25,Family Day
+2025/1/1,New Year's Day
+2025/5/1,Workers' Day
+2025/7/18,Constitution Day
+2025/8/25,Independence Declaration Day
+2025/12/25,Family Day
+2026/1/1,New Year's Day
+2026/5/1,Workers' Day
+2026/7/18,Constitution Day
+2026/8/25,Independence Declaration Day
+2026/12/25,Family Day
+2027/1/1,New Year's Day
+2027/5/1,Workers' Day
+2027/7/18,Constitution Day
+2027/8/25,Independence Declaration Day
+2027/12/25,Family Day
+2028/1/1,New Year's Day
+2028/5/1,Workers' Day
+2028/7/18,Constitution Day
+2028/8/25,Independence Declaration Day
+2028/12/25,Family Day
+2029/1/1,New Year's Day
+2029/5/1,Workers' Day
+2029/7/18,Constitution Day
+2029/8/25,Independence Declaration Day
+2029/12/25,Family Day
+2030/1/1,New Year's Day
+2030/5/1,Workers' Day
+2030/7/18,Constitution Day
+2030/8/25,Independence Declaration Day
+2030/12/25,Family Day
+2031/1/1,New Year's Day
+2031/5/1,Workers' Day
+2031/7/18,Constitution Day
+2031/8/25,Independence Declaration Day
+2031/12/25,Family Day
+2032/1/1,New Year's Day
+2032/5/1,Workers' Day
+2032/7/18,Constitution Day
+2032/8/25,Independence Declaration Day
+2032/12/25,Family Day
+2033/1/1,New Year's Day
+2033/5/1,Workers' Day
+2033/7/18,Constitution Day
+2033/8/25,Independence Declaration Day
+2033/12/25,Family Day
+2034/1/1,New Year's Day
+2034/5/1,Workers' Day
+2034/7/18,Constitution Day
+2034/8/25,Independence Declaration Day
+2034/12/25,Family Day
+2035/1/1,New Year's Day
+2035/5/1,Workers' Day
+2035/7/18,Constitution Day
+2035/8/25,Independence Declaration Day
+2035/12/25,Family Day
+2036/1/1,New Year's Day
+2036/5/1,Workers' Day
+2036/7/18,Constitution Day
+2036/8/25,Independence Declaration Day
+2036/12/25,Family Day
+2037/1/1,New Year's Day
+2037/5/1,Workers' Day
+2037/7/18,Constitution Day
+2037/8/25,Independence Declaration Day
+2037/12/25,Family Day
+2038/1/1,New Year's Day
+2038/5/1,Workers' Day
+2038/7/18,Constitution Day
+2038/8/25,Independence Declaration Day
+2038/12/25,Family Day
+2039/1/1,New Year's Day
+2039/5/1,Workers' Day
+2039/7/18,Constitution Day
+2039/8/25,Independence Declaration Day
+2039/12/25,Family Day
+2040/1/1,New Year's Day
+2040/5/1,Workers' Day
+2040/7/18,Constitution Day
+2040/8/25,Independence Declaration Day
+2040/12/25,Family Day
+2041/1/1,New Year's Day
+2041/5/1,Workers' Day
+2041/7/18,Constitution Day
+2041/8/25,Independence Declaration Day
+2041/12/25,Family Day
+2042/1/1,New Year's Day
+2042/5/1,Workers' Day
+2042/7/18,Constitution Day
+2042/8/25,Independence Declaration Day
+2042/12/25,Family Day
+2043/1/1,New Year's Day
+2043/5/1,Workers' Day
+2043/7/18,Constitution Day
+2043/8/25,Independence Declaration Day
+2043/12/25,Family Day
+2044/1/1,New Year's Day
+2044/5/1,Workers' Day
+2044/7/18,Constitution Day
+2044/8/25,Independence Declaration Day
+2044/12/25,Family Day
+2045/1/1,New Year's Day
+2045/5/1,Workers' Day
+2045/7/18,Constitution Day
+2045/8/25,Independence Declaration Day
+2045/12/25,Family Day
+2046/1/1,New Year's Day
+2046/5/1,Workers' Day
+2046/7/18,Constitution Day
+2046/8/25,Independence Declaration Day
+2046/12/25,Family Day
+2047/1/1,New Year's Day
+2047/5/1,Workers' Day
+2047/7/18,Constitution Day
+2047/8/25,Independence Declaration Day
+2047/12/25,Family Day
+2048/1/1,New Year's Day
+2048/5/1,Workers' Day
+2048/7/18,Constitution Day
+2048/8/25,Independence Declaration Day
+2048/12/25,Family Day
+2049/1/1,New Year's Day
+2049/5/1,Workers' Day
+2049/7/18,Constitution Day
+2049/8/25,Independence Declaration Day
+2049/12/25,Family Day
+2050/1/1,New Year's Day
+2050/5/1,Workers' Day
+2050/7/18,Constitution Day
+2050/8/25,Independence Declaration Day
+2050/12/25,Family Day

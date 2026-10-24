@@ -1,0 +1,346 @@
+# JM の祝日（2020〜2050年、言語: en）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/2/26,Ash Wednesday
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/23,National Labour Day
+2020/5/25,National Labour Day (observed)
+2020/8/1,Emancipation Day
+2020/8/6,Independence Day
+2020/10/19,National Heroes Day
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2021/1/1,New Year's Day
+2021/2/17,Ash Wednesday
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/23,National Labour Day
+2021/5/24,National Labour Day (observed)
+2021/8/1,Emancipation Day
+2021/8/2,Emancipation Day (observed)
+2021/8/6,Independence Day
+2021/10/18,National Heroes Day
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/3/2,Ash Wednesday
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/5/23,National Labour Day
+2022/8/1,Emancipation Day
+2022/8/6,Independence Day
+2022/10/17,National Heroes Day
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2022/12/27,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/2/22,Ash Wednesday
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/5/23,National Labour Day
+2023/8/1,Emancipation Day
+2023/8/6,Independence Day
+2023/8/7,Independence Day (observed)
+2023/10/16,National Heroes Day
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/2/14,Ash Wednesday
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/5/23,National Labour Day
+2024/8/1,Emancipation Day
+2024/8/6,Independence Day
+2024/10/21,National Heroes Day
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/3/5,Ash Wednesday
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/23,National Labour Day
+2025/8/1,Emancipation Day
+2025/8/6,Independence Day
+2025/10/20,National Heroes Day
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/2/18,Ash Wednesday
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/23,National Labour Day
+2026/5/25,National Labour Day (observed)
+2026/8/1,Emancipation Day
+2026/8/6,Independence Day
+2026/10/19,National Heroes Day
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2027/1/1,New Year's Day
+2027/2/10,Ash Wednesday
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/5/23,National Labour Day
+2027/5/24,National Labour Day (observed)
+2027/8/1,Emancipation Day
+2027/8/2,Emancipation Day (observed)
+2027/8/6,Independence Day
+2027/10/18,National Heroes Day
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2027/12/27,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/3/1,Ash Wednesday
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/23,National Labour Day
+2028/8/1,Emancipation Day
+2028/8/6,Independence Day
+2028/8/7,Independence Day (observed)
+2028/10/16,National Heroes Day
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/2/14,Ash Wednesday
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/5/23,National Labour Day
+2029/8/1,Emancipation Day
+2029/8/6,Independence Day
+2029/10/15,National Heroes Day
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/3/6,Ash Wednesday
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/23,National Labour Day
+2030/8/1,Emancipation Day
+2030/8/6,Independence Day
+2030/10/21,National Heroes Day
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/2/26,Ash Wednesday
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/23,National Labour Day
+2031/8/1,Emancipation Day
+2031/8/6,Independence Day
+2031/10/20,National Heroes Day
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/2/11,Ash Wednesday
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/5/23,National Labour Day
+2032/5/24,National Labour Day (observed)
+2032/8/1,Emancipation Day
+2032/8/2,Emancipation Day (observed)
+2032/8/6,Independence Day
+2032/10/18,National Heroes Day
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2032/12/27,Boxing Day (observed)
+2033/1/1,New Year's Day
+2033/3/2,Ash Wednesday
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/23,National Labour Day
+2033/8/1,Emancipation Day
+2033/8/6,Independence Day
+2033/10/17,National Heroes Day
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day
+2033/12/27,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/2/22,Ash Wednesday
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/23,National Labour Day
+2034/8/1,Emancipation Day
+2034/8/6,Independence Day
+2034/8/7,Independence Day (observed)
+2034/10/16,National Heroes Day
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/2/7,Ash Wednesday
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/5/23,National Labour Day
+2035/8/1,Emancipation Day
+2035/8/6,Independence Day
+2035/10/15,National Heroes Day
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/2/27,Ash Wednesday
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/23,National Labour Day
+2036/8/1,Emancipation Day
+2036/8/6,Independence Day
+2036/10/20,National Heroes Day
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/2/18,Ash Wednesday
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/5/23,National Labour Day
+2037/5/25,National Labour Day (observed)
+2037/8/1,Emancipation Day
+2037/8/6,Independence Day
+2037/10/19,National Heroes Day
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2038/1/1,New Year's Day
+2038/3/10,Ash Wednesday
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/23,National Labour Day
+2038/5/24,National Labour Day (observed)
+2038/8/1,Emancipation Day
+2038/8/2,Emancipation Day (observed)
+2038/8/6,Independence Day
+2038/10/18,National Heroes Day
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2038/12/27,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/2/23,Ash Wednesday
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/23,National Labour Day
+2039/8/1,Emancipation Day
+2039/8/6,Independence Day
+2039/10/17,National Heroes Day
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day
+2039/12/27,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/2/15,Ash Wednesday
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/5/23,National Labour Day
+2040/8/1,Emancipation Day
+2040/8/6,Independence Day
+2040/10/15,National Heroes Day
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/3/6,Ash Wednesday
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/23,National Labour Day
+2041/8/1,Emancipation Day
+2041/8/6,Independence Day
+2041/10/21,National Heroes Day
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/2/19,Ash Wednesday
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/23,National Labour Day
+2042/8/1,Emancipation Day
+2042/8/6,Independence Day
+2042/10/20,National Heroes Day
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/2/11,Ash Wednesday
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/5/23,National Labour Day
+2043/5/25,National Labour Day (observed)
+2043/8/1,Emancipation Day
+2043/8/6,Independence Day
+2043/10/19,National Heroes Day
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2044/1/1,New Year's Day
+2044/3/2,Ash Wednesday
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/23,National Labour Day
+2044/8/1,Emancipation Day
+2044/8/6,Independence Day
+2044/10/17,National Heroes Day
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2044/12/27,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/2/22,Ash Wednesday
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/23,National Labour Day
+2045/8/1,Emancipation Day
+2045/8/6,Independence Day
+2045/8/7,Independence Day (observed)
+2045/10/16,National Heroes Day
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/2/7,Ash Wednesday
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/5/23,National Labour Day
+2046/8/1,Emancipation Day
+2046/8/6,Independence Day
+2046/10/15,National Heroes Day
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/2/27,Ash Wednesday
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/23,National Labour Day
+2047/8/1,Emancipation Day
+2047/8/6,Independence Day
+2047/10/21,National Heroes Day
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2048/1/1,New Year's Day
+2048/2/19,Ash Wednesday
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/23,National Labour Day
+2048/5/25,National Labour Day (observed)
+2048/8/1,Emancipation Day
+2048/8/6,Independence Day
+2048/10/19,National Heroes Day
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2049/1/1,New Year's Day
+2049/3/3,Ash Wednesday
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/23,National Labour Day
+2049/5/24,National Labour Day (observed)
+2049/8/1,Emancipation Day
+2049/8/2,Emancipation Day (observed)
+2049/8/6,Independence Day
+2049/10/18,National Heroes Day
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2049/12/27,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/2/23,Ash Wednesday
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/23,National Labour Day
+2050/8/1,Emancipation Day
+2050/8/6,Independence Day
+2050/10/17,National Heroes Day
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day
+2050/12/27,Christmas Day (observed)

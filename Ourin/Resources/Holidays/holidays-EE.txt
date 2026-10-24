@@ -1,0 +1,375 @@
+# EE の祝日（2020〜2050年、言語: et）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,uusaasta
+2020/2/24,iseseisvuspäev
+2020/4/10,suur reede
+2020/4/12,ülestõusmispühade 1. püha
+2020/5/1,kevadpüha
+2020/5/31,nelipühade 1. püha
+2020/6/23,võidupüha
+2020/6/24,jaanipäev
+2020/8/20,taasiseseisvumispäev
+2020/12/24,jõululaupäev
+2020/12/25,esimene jõulupüha
+2020/12/26,teine jõulupüha
+2021/1/1,uusaasta
+2021/2/24,iseseisvuspäev
+2021/4/2,suur reede
+2021/4/4,ülestõusmispühade 1. püha
+2021/5/1,kevadpüha
+2021/5/23,nelipühade 1. püha
+2021/6/23,võidupüha
+2021/6/24,jaanipäev
+2021/8/20,taasiseseisvumispäev
+2021/12/24,jõululaupäev
+2021/12/25,esimene jõulupüha
+2021/12/26,teine jõulupüha
+2022/1/1,uusaasta
+2022/2/24,iseseisvuspäev
+2022/4/15,suur reede
+2022/4/17,ülestõusmispühade 1. püha
+2022/5/1,kevadpüha
+2022/6/5,nelipühade 1. püha
+2022/6/23,võidupüha
+2022/6/24,jaanipäev
+2022/8/20,taasiseseisvumispäev
+2022/12/24,jõululaupäev
+2022/12/25,esimene jõulupüha
+2022/12/26,teine jõulupüha
+2023/1/1,uusaasta
+2023/2/24,iseseisvuspäev
+2023/4/7,suur reede
+2023/4/9,ülestõusmispühade 1. püha
+2023/5/1,kevadpüha
+2023/5/28,nelipühade 1. püha
+2023/6/23,võidupüha
+2023/6/24,jaanipäev
+2023/8/20,taasiseseisvumispäev
+2023/12/24,jõululaupäev
+2023/12/25,esimene jõulupüha
+2023/12/26,teine jõulupüha
+2024/1/1,uusaasta
+2024/2/24,iseseisvuspäev
+2024/3/29,suur reede
+2024/3/31,ülestõusmispühade 1. püha
+2024/5/1,kevadpüha
+2024/5/19,nelipühade 1. püha
+2024/6/23,võidupüha
+2024/6/24,jaanipäev
+2024/8/20,taasiseseisvumispäev
+2024/12/24,jõululaupäev
+2024/12/25,esimene jõulupüha
+2024/12/26,teine jõulupüha
+2025/1/1,uusaasta
+2025/2/24,iseseisvuspäev
+2025/4/18,suur reede
+2025/4/20,ülestõusmispühade 1. püha
+2025/5/1,kevadpüha
+2025/6/8,nelipühade 1. püha
+2025/6/23,võidupüha
+2025/6/24,jaanipäev
+2025/8/20,taasiseseisvumispäev
+2025/12/24,jõululaupäev
+2025/12/25,esimene jõulupüha
+2025/12/26,teine jõulupüha
+2026/1/1,uusaasta
+2026/2/24,iseseisvuspäev
+2026/4/3,suur reede
+2026/4/5,ülestõusmispühade 1. püha
+2026/5/1,kevadpüha
+2026/5/24,nelipühade 1. püha
+2026/6/23,võidupüha
+2026/6/24,jaanipäev
+2026/8/20,taasiseseisvumispäev
+2026/12/24,jõululaupäev
+2026/12/25,esimene jõulupüha
+2026/12/26,teine jõulupüha
+2027/1/1,uusaasta
+2027/2/24,iseseisvuspäev
+2027/3/26,suur reede
+2027/3/28,ülestõusmispühade 1. püha
+2027/5/1,kevadpüha
+2027/5/16,nelipühade 1. püha
+2027/6/23,võidupüha
+2027/6/24,jaanipäev
+2027/8/20,taasiseseisvumispäev
+2027/12/24,jõululaupäev
+2027/12/25,esimene jõulupüha
+2027/12/26,teine jõulupüha
+2028/1/1,uusaasta
+2028/2/24,iseseisvuspäev
+2028/4/14,suur reede
+2028/4/16,ülestõusmispühade 1. püha
+2028/5/1,kevadpüha
+2028/6/4,nelipühade 1. püha
+2028/6/23,võidupüha
+2028/6/24,jaanipäev
+2028/8/20,taasiseseisvumispäev
+2028/12/24,jõululaupäev
+2028/12/25,esimene jõulupüha
+2028/12/26,teine jõulupüha
+2029/1/1,uusaasta
+2029/2/24,iseseisvuspäev
+2029/3/30,suur reede
+2029/4/1,ülestõusmispühade 1. püha
+2029/5/1,kevadpüha
+2029/5/20,nelipühade 1. püha
+2029/6/23,võidupüha
+2029/6/24,jaanipäev
+2029/8/20,taasiseseisvumispäev
+2029/12/24,jõululaupäev
+2029/12/25,esimene jõulupüha
+2029/12/26,teine jõulupüha
+2030/1/1,uusaasta
+2030/2/24,iseseisvuspäev
+2030/4/19,suur reede
+2030/4/21,ülestõusmispühade 1. püha
+2030/5/1,kevadpüha
+2030/6/9,nelipühade 1. püha
+2030/6/23,võidupüha
+2030/6/24,jaanipäev
+2030/8/20,taasiseseisvumispäev
+2030/12/24,jõululaupäev
+2030/12/25,esimene jõulupüha
+2030/12/26,teine jõulupüha
+2031/1/1,uusaasta
+2031/2/24,iseseisvuspäev
+2031/4/11,suur reede
+2031/4/13,ülestõusmispühade 1. püha
+2031/5/1,kevadpüha
+2031/6/1,nelipühade 1. püha
+2031/6/23,võidupüha
+2031/6/24,jaanipäev
+2031/8/20,taasiseseisvumispäev
+2031/12/24,jõululaupäev
+2031/12/25,esimene jõulupüha
+2031/12/26,teine jõulupüha
+2032/1/1,uusaasta
+2032/2/24,iseseisvuspäev
+2032/3/26,suur reede
+2032/3/28,ülestõusmispühade 1. püha
+2032/5/1,kevadpüha
+2032/5/16,nelipühade 1. püha
+2032/6/23,võidupüha
+2032/6/24,jaanipäev
+2032/8/20,taasiseseisvumispäev
+2032/12/24,jõululaupäev
+2032/12/25,esimene jõulupüha
+2032/12/26,teine jõulupüha
+2033/1/1,uusaasta
+2033/2/24,iseseisvuspäev
+2033/4/15,suur reede
+2033/4/17,ülestõusmispühade 1. püha
+2033/5/1,kevadpüha
+2033/6/5,nelipühade 1. püha
+2033/6/23,võidupüha
+2033/6/24,jaanipäev
+2033/8/20,taasiseseisvumispäev
+2033/12/24,jõululaupäev
+2033/12/25,esimene jõulupüha
+2033/12/26,teine jõulupüha
+2034/1/1,uusaasta
+2034/2/24,iseseisvuspäev
+2034/4/7,suur reede
+2034/4/9,ülestõusmispühade 1. püha
+2034/5/1,kevadpüha
+2034/5/28,nelipühade 1. püha
+2034/6/23,võidupüha
+2034/6/24,jaanipäev
+2034/8/20,taasiseseisvumispäev
+2034/12/24,jõululaupäev
+2034/12/25,esimene jõulupüha
+2034/12/26,teine jõulupüha
+2035/1/1,uusaasta
+2035/2/24,iseseisvuspäev
+2035/3/23,suur reede
+2035/3/25,ülestõusmispühade 1. püha
+2035/5/1,kevadpüha
+2035/5/13,nelipühade 1. püha
+2035/6/23,võidupüha
+2035/6/24,jaanipäev
+2035/8/20,taasiseseisvumispäev
+2035/12/24,jõululaupäev
+2035/12/25,esimene jõulupüha
+2035/12/26,teine jõulupüha
+2036/1/1,uusaasta
+2036/2/24,iseseisvuspäev
+2036/4/11,suur reede
+2036/4/13,ülestõusmispühade 1. püha
+2036/5/1,kevadpüha
+2036/6/1,nelipühade 1. püha
+2036/6/23,võidupüha
+2036/6/24,jaanipäev
+2036/8/20,taasiseseisvumispäev
+2036/12/24,jõululaupäev
+2036/12/25,esimene jõulupüha
+2036/12/26,teine jõulupüha
+2037/1/1,uusaasta
+2037/2/24,iseseisvuspäev
+2037/4/3,suur reede
+2037/4/5,ülestõusmispühade 1. püha
+2037/5/1,kevadpüha
+2037/5/24,nelipühade 1. püha
+2037/6/23,võidupüha
+2037/6/24,jaanipäev
+2037/8/20,taasiseseisvumispäev
+2037/12/24,jõululaupäev
+2037/12/25,esimene jõulupüha
+2037/12/26,teine jõulupüha
+2038/1/1,uusaasta
+2038/2/24,iseseisvuspäev
+2038/4/23,suur reede
+2038/4/25,ülestõusmispühade 1. püha
+2038/5/1,kevadpüha
+2038/6/13,nelipühade 1. püha
+2038/6/23,võidupüha
+2038/6/24,jaanipäev
+2038/8/20,taasiseseisvumispäev
+2038/12/24,jõululaupäev
+2038/12/25,esimene jõulupüha
+2038/12/26,teine jõulupüha
+2039/1/1,uusaasta
+2039/2/24,iseseisvuspäev
+2039/4/8,suur reede
+2039/4/10,ülestõusmispühade 1. püha
+2039/5/1,kevadpüha
+2039/5/29,nelipühade 1. püha
+2039/6/23,võidupüha
+2039/6/24,jaanipäev
+2039/8/20,taasiseseisvumispäev
+2039/12/24,jõululaupäev
+2039/12/25,esimene jõulupüha
+2039/12/26,teine jõulupüha
+2040/1/1,uusaasta
+2040/2/24,iseseisvuspäev
+2040/3/30,suur reede
+2040/4/1,ülestõusmispühade 1. püha
+2040/5/1,kevadpüha
+2040/5/20,nelipühade 1. püha
+2040/6/23,võidupüha
+2040/6/24,jaanipäev
+2040/8/20,taasiseseisvumispäev
+2040/12/24,jõululaupäev
+2040/12/25,esimene jõulupüha
+2040/12/26,teine jõulupüha
+2041/1/1,uusaasta
+2041/2/24,iseseisvuspäev
+2041/4/19,suur reede
+2041/4/21,ülestõusmispühade 1. püha
+2041/5/1,kevadpüha
+2041/6/9,nelipühade 1. püha
+2041/6/23,võidupüha
+2041/6/24,jaanipäev
+2041/8/20,taasiseseisvumispäev
+2041/12/24,jõululaupäev
+2041/12/25,esimene jõulupüha
+2041/12/26,teine jõulupüha
+2042/1/1,uusaasta
+2042/2/24,iseseisvuspäev
+2042/4/4,suur reede
+2042/4/6,ülestõusmispühade 1. püha
+2042/5/1,kevadpüha
+2042/5/25,nelipühade 1. püha
+2042/6/23,võidupüha
+2042/6/24,jaanipäev
+2042/8/20,taasiseseisvumispäev
+2042/12/24,jõululaupäev
+2042/12/25,esimene jõulupüha
+2042/12/26,teine jõulupüha
+2043/1/1,uusaasta
+2043/2/24,iseseisvuspäev
+2043/3/27,suur reede
+2043/3/29,ülestõusmispühade 1. püha
+2043/5/1,kevadpüha
+2043/5/17,nelipühade 1. püha
+2043/6/23,võidupüha
+2043/6/24,jaanipäev
+2043/8/20,taasiseseisvumispäev
+2043/12/24,jõululaupäev
+2043/12/25,esimene jõulupüha
+2043/12/26,teine jõulupüha
+2044/1/1,uusaasta
+2044/2/24,iseseisvuspäev
+2044/4/15,suur reede
+2044/4/17,ülestõusmispühade 1. püha
+2044/5/1,kevadpüha
+2044/6/5,nelipühade 1. püha
+2044/6/23,võidupüha
+2044/6/24,jaanipäev
+2044/8/20,taasiseseisvumispäev
+2044/12/24,jõululaupäev
+2044/12/25,esimene jõulupüha
+2044/12/26,teine jõulupüha
+2045/1/1,uusaasta
+2045/2/24,iseseisvuspäev
+2045/4/7,suur reede
+2045/4/9,ülestõusmispühade 1. püha
+2045/5/1,kevadpüha
+2045/5/28,nelipühade 1. püha
+2045/6/23,võidupüha
+2045/6/24,jaanipäev
+2045/8/20,taasiseseisvumispäev
+2045/12/24,jõululaupäev
+2045/12/25,esimene jõulupüha
+2045/12/26,teine jõulupüha
+2046/1/1,uusaasta
+2046/2/24,iseseisvuspäev
+2046/3/23,suur reede
+2046/3/25,ülestõusmispühade 1. püha
+2046/5/1,kevadpüha
+2046/5/13,nelipühade 1. püha
+2046/6/23,võidupüha
+2046/6/24,jaanipäev
+2046/8/20,taasiseseisvumispäev
+2046/12/24,jõululaupäev
+2046/12/25,esimene jõulupüha
+2046/12/26,teine jõulupüha
+2047/1/1,uusaasta
+2047/2/24,iseseisvuspäev
+2047/4/12,suur reede
+2047/4/14,ülestõusmispühade 1. püha
+2047/5/1,kevadpüha
+2047/6/2,nelipühade 1. püha
+2047/6/23,võidupüha
+2047/6/24,jaanipäev
+2047/8/20,taasiseseisvumispäev
+2047/12/24,jõululaupäev
+2047/12/25,esimene jõulupüha
+2047/12/26,teine jõulupüha
+2048/1/1,uusaasta
+2048/2/24,iseseisvuspäev
+2048/4/3,suur reede
+2048/4/5,ülestõusmispühade 1. püha
+2048/5/1,kevadpüha
+2048/5/24,nelipühade 1. püha
+2048/6/23,võidupüha
+2048/6/24,jaanipäev
+2048/8/20,taasiseseisvumispäev
+2048/12/24,jõululaupäev
+2048/12/25,esimene jõulupüha
+2048/12/26,teine jõulupüha
+2049/1/1,uusaasta
+2049/2/24,iseseisvuspäev
+2049/4/16,suur reede
+2049/4/18,ülestõusmispühade 1. püha
+2049/5/1,kevadpüha
+2049/6/6,nelipühade 1. püha
+2049/6/23,võidupüha
+2049/6/24,jaanipäev
+2049/8/20,taasiseseisvumispäev
+2049/12/24,jõululaupäev
+2049/12/25,esimene jõulupüha
+2049/12/26,teine jõulupüha
+2050/1/1,uusaasta
+2050/2/24,iseseisvuspäev
+2050/4/8,suur reede
+2050/4/10,ülestõusmispühade 1. püha
+2050/5/1,kevadpüha
+2050/5/29,nelipühade 1. püha
+2050/6/23,võidupüha
+2050/6/24,jaanipäev
+2050/8/20,taasiseseisvumispäev
+2050/12/24,jõululaupäev
+2050/12/25,esimene jõulupüha
+2050/12/26,teine jõulupüha

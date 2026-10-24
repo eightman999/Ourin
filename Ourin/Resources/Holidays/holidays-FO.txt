@@ -1,0 +1,437 @@
+# FO の祝日（2020〜2050年、言語: fo）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Nýggjársdagur
+2020/4/9,Skírhósdagur
+2020/4/10,Langifríggjadagur
+2020/4/12,Páskadagur
+2020/4/13,Annar páskadagur
+2020/5/8,Dýri biðidagur
+2020/5/21,Kristi himmalsferðardagur
+2020/5/31,Hvítusunnudagur
+2020/6/1,Annar hvítusunnudagur
+2020/7/29,Ólavsøkudagur
+2020/12/24,Jólaaftan
+2020/12/25,Jóladagur
+2020/12/26,Annar jóladagur
+2020/12/31,Nýggjársaftan
+2021/1/1,Nýggjársdagur
+2021/4/1,Skírhósdagur
+2021/4/2,Langifríggjadagur
+2021/4/4,Páskadagur
+2021/4/5,Annar páskadagur
+2021/4/30,Dýri biðidagur
+2021/5/13,Kristi himmalsferðardagur
+2021/5/23,Hvítusunnudagur
+2021/5/24,Annar hvítusunnudagur
+2021/7/29,Ólavsøkudagur
+2021/12/24,Jólaaftan
+2021/12/25,Jóladagur
+2021/12/26,Annar jóladagur
+2021/12/31,Nýggjársaftan
+2022/1/1,Nýggjársdagur
+2022/4/14,Skírhósdagur
+2022/4/15,Langifríggjadagur
+2022/4/17,Páskadagur
+2022/4/18,Annar páskadagur
+2022/5/13,Dýri biðidagur
+2022/5/26,Kristi himmalsferðardagur
+2022/6/5,Hvítusunnudagur
+2022/6/6,Annar hvítusunnudagur
+2022/7/29,Ólavsøkudagur
+2022/12/24,Jólaaftan
+2022/12/25,Jóladagur
+2022/12/26,Annar jóladagur
+2022/12/31,Nýggjársaftan
+2023/1/1,Nýggjársdagur
+2023/4/6,Skírhósdagur
+2023/4/7,Langifríggjadagur
+2023/4/9,Páskadagur
+2023/4/10,Annar páskadagur
+2023/5/5,Dýri biðidagur
+2023/5/18,Kristi himmalsferðardagur
+2023/5/28,Hvítusunnudagur
+2023/5/29,Annar hvítusunnudagur
+2023/7/29,Ólavsøkudagur
+2023/12/24,Jólaaftan
+2023/12/25,Jóladagur
+2023/12/26,Annar jóladagur
+2023/12/31,Nýggjársaftan
+2024/1/1,Nýggjársdagur
+2024/3/28,Skírhósdagur
+2024/3/29,Langifríggjadagur
+2024/3/31,Páskadagur
+2024/4/1,Annar páskadagur
+2024/4/26,Dýri biðidagur
+2024/5/9,Kristi himmalsferðardagur
+2024/5/19,Hvítusunnudagur
+2024/5/20,Annar hvítusunnudagur
+2024/7/29,Ólavsøkudagur
+2024/12/24,Jólaaftan
+2024/12/25,Jóladagur
+2024/12/26,Annar jóladagur
+2024/12/31,Nýggjársaftan
+2025/1/1,Nýggjársdagur
+2025/4/17,Skírhósdagur
+2025/4/18,Langifríggjadagur
+2025/4/20,Páskadagur
+2025/4/21,Annar páskadagur
+2025/5/16,Dýri biðidagur
+2025/5/29,Kristi himmalsferðardagur
+2025/6/8,Hvítusunnudagur
+2025/6/9,Annar hvítusunnudagur
+2025/7/29,Ólavsøkudagur
+2025/12/24,Jólaaftan
+2025/12/25,Jóladagur
+2025/12/26,Annar jóladagur
+2025/12/31,Nýggjársaftan
+2026/1/1,Nýggjársdagur
+2026/4/2,Skírhósdagur
+2026/4/3,Langifríggjadagur
+2026/4/5,Páskadagur
+2026/4/6,Annar páskadagur
+2026/5/1,Dýri biðidagur
+2026/5/14,Kristi himmalsferðardagur
+2026/5/24,Hvítusunnudagur
+2026/5/25,Annar hvítusunnudagur
+2026/7/29,Ólavsøkudagur
+2026/12/24,Jólaaftan
+2026/12/25,Jóladagur
+2026/12/26,Annar jóladagur
+2026/12/31,Nýggjársaftan
+2027/1/1,Nýggjársdagur
+2027/3/25,Skírhósdagur
+2027/3/26,Langifríggjadagur
+2027/3/28,Páskadagur
+2027/3/29,Annar páskadagur
+2027/4/23,Dýri biðidagur
+2027/5/6,Kristi himmalsferðardagur
+2027/5/16,Hvítusunnudagur
+2027/5/17,Annar hvítusunnudagur
+2027/7/29,Ólavsøkudagur
+2027/12/24,Jólaaftan
+2027/12/25,Jóladagur
+2027/12/26,Annar jóladagur
+2027/12/31,Nýggjársaftan
+2028/1/1,Nýggjársdagur
+2028/4/13,Skírhósdagur
+2028/4/14,Langifríggjadagur
+2028/4/16,Páskadagur
+2028/4/17,Annar páskadagur
+2028/5/12,Dýri biðidagur
+2028/5/25,Kristi himmalsferðardagur
+2028/6/4,Hvítusunnudagur
+2028/6/5,Annar hvítusunnudagur
+2028/7/29,Ólavsøkudagur
+2028/12/24,Jólaaftan
+2028/12/25,Jóladagur
+2028/12/26,Annar jóladagur
+2028/12/31,Nýggjársaftan
+2029/1/1,Nýggjársdagur
+2029/3/29,Skírhósdagur
+2029/3/30,Langifríggjadagur
+2029/4/1,Páskadagur
+2029/4/2,Annar páskadagur
+2029/4/27,Dýri biðidagur
+2029/5/10,Kristi himmalsferðardagur
+2029/5/20,Hvítusunnudagur
+2029/5/21,Annar hvítusunnudagur
+2029/7/29,Ólavsøkudagur
+2029/12/24,Jólaaftan
+2029/12/25,Jóladagur
+2029/12/26,Annar jóladagur
+2029/12/31,Nýggjársaftan
+2030/1/1,Nýggjársdagur
+2030/4/18,Skírhósdagur
+2030/4/19,Langifríggjadagur
+2030/4/21,Páskadagur
+2030/4/22,Annar páskadagur
+2030/5/17,Dýri biðidagur
+2030/5/30,Kristi himmalsferðardagur
+2030/6/9,Hvítusunnudagur
+2030/6/10,Annar hvítusunnudagur
+2030/7/29,Ólavsøkudagur
+2030/12/24,Jólaaftan
+2030/12/25,Jóladagur
+2030/12/26,Annar jóladagur
+2030/12/31,Nýggjársaftan
+2031/1/1,Nýggjársdagur
+2031/4/10,Skírhósdagur
+2031/4/11,Langifríggjadagur
+2031/4/13,Páskadagur
+2031/4/14,Annar páskadagur
+2031/5/9,Dýri biðidagur
+2031/5/22,Kristi himmalsferðardagur
+2031/6/1,Hvítusunnudagur
+2031/6/2,Annar hvítusunnudagur
+2031/7/29,Ólavsøkudagur
+2031/12/24,Jólaaftan
+2031/12/25,Jóladagur
+2031/12/26,Annar jóladagur
+2031/12/31,Nýggjársaftan
+2032/1/1,Nýggjársdagur
+2032/3/25,Skírhósdagur
+2032/3/26,Langifríggjadagur
+2032/3/28,Páskadagur
+2032/3/29,Annar páskadagur
+2032/4/23,Dýri biðidagur
+2032/5/6,Kristi himmalsferðardagur
+2032/5/16,Hvítusunnudagur
+2032/5/17,Annar hvítusunnudagur
+2032/7/29,Ólavsøkudagur
+2032/12/24,Jólaaftan
+2032/12/25,Jóladagur
+2032/12/26,Annar jóladagur
+2032/12/31,Nýggjársaftan
+2033/1/1,Nýggjársdagur
+2033/4/14,Skírhósdagur
+2033/4/15,Langifríggjadagur
+2033/4/17,Páskadagur
+2033/4/18,Annar páskadagur
+2033/5/13,Dýri biðidagur
+2033/5/26,Kristi himmalsferðardagur
+2033/6/5,Hvítusunnudagur
+2033/6/6,Annar hvítusunnudagur
+2033/7/29,Ólavsøkudagur
+2033/12/24,Jólaaftan
+2033/12/25,Jóladagur
+2033/12/26,Annar jóladagur
+2033/12/31,Nýggjársaftan
+2034/1/1,Nýggjársdagur
+2034/4/6,Skírhósdagur
+2034/4/7,Langifríggjadagur
+2034/4/9,Páskadagur
+2034/4/10,Annar páskadagur
+2034/5/5,Dýri biðidagur
+2034/5/18,Kristi himmalsferðardagur
+2034/5/28,Hvítusunnudagur
+2034/5/29,Annar hvítusunnudagur
+2034/7/29,Ólavsøkudagur
+2034/12/24,Jólaaftan
+2034/12/25,Jóladagur
+2034/12/26,Annar jóladagur
+2034/12/31,Nýggjársaftan
+2035/1/1,Nýggjársdagur
+2035/3/22,Skírhósdagur
+2035/3/23,Langifríggjadagur
+2035/3/25,Páskadagur
+2035/3/26,Annar páskadagur
+2035/4/20,Dýri biðidagur
+2035/5/3,Kristi himmalsferðardagur
+2035/5/13,Hvítusunnudagur
+2035/5/14,Annar hvítusunnudagur
+2035/7/29,Ólavsøkudagur
+2035/12/24,Jólaaftan
+2035/12/25,Jóladagur
+2035/12/26,Annar jóladagur
+2035/12/31,Nýggjársaftan
+2036/1/1,Nýggjársdagur
+2036/4/10,Skírhósdagur
+2036/4/11,Langifríggjadagur
+2036/4/13,Páskadagur
+2036/4/14,Annar páskadagur
+2036/5/9,Dýri biðidagur
+2036/5/22,Kristi himmalsferðardagur
+2036/6/1,Hvítusunnudagur
+2036/6/2,Annar hvítusunnudagur
+2036/7/29,Ólavsøkudagur
+2036/12/24,Jólaaftan
+2036/12/25,Jóladagur
+2036/12/26,Annar jóladagur
+2036/12/31,Nýggjársaftan
+2037/1/1,Nýggjársdagur
+2037/4/2,Skírhósdagur
+2037/4/3,Langifríggjadagur
+2037/4/5,Páskadagur
+2037/4/6,Annar páskadagur
+2037/5/1,Dýri biðidagur
+2037/5/14,Kristi himmalsferðardagur
+2037/5/24,Hvítusunnudagur
+2037/5/25,Annar hvítusunnudagur
+2037/7/29,Ólavsøkudagur
+2037/12/24,Jólaaftan
+2037/12/25,Jóladagur
+2037/12/26,Annar jóladagur
+2037/12/31,Nýggjársaftan
+2038/1/1,Nýggjársdagur
+2038/4/22,Skírhósdagur
+2038/4/23,Langifríggjadagur
+2038/4/25,Páskadagur
+2038/4/26,Annar páskadagur
+2038/5/21,Dýri biðidagur
+2038/6/3,Kristi himmalsferðardagur
+2038/6/13,Hvítusunnudagur
+2038/6/14,Annar hvítusunnudagur
+2038/7/29,Ólavsøkudagur
+2038/12/24,Jólaaftan
+2038/12/25,Jóladagur
+2038/12/26,Annar jóladagur
+2038/12/31,Nýggjársaftan
+2039/1/1,Nýggjársdagur
+2039/4/7,Skírhósdagur
+2039/4/8,Langifríggjadagur
+2039/4/10,Páskadagur
+2039/4/11,Annar páskadagur
+2039/5/6,Dýri biðidagur
+2039/5/19,Kristi himmalsferðardagur
+2039/5/29,Hvítusunnudagur
+2039/5/30,Annar hvítusunnudagur
+2039/7/29,Ólavsøkudagur
+2039/12/24,Jólaaftan
+2039/12/25,Jóladagur
+2039/12/26,Annar jóladagur
+2039/12/31,Nýggjársaftan
+2040/1/1,Nýggjársdagur
+2040/3/29,Skírhósdagur
+2040/3/30,Langifríggjadagur
+2040/4/1,Páskadagur
+2040/4/2,Annar páskadagur
+2040/4/27,Dýri biðidagur
+2040/5/10,Kristi himmalsferðardagur
+2040/5/20,Hvítusunnudagur
+2040/5/21,Annar hvítusunnudagur
+2040/7/29,Ólavsøkudagur
+2040/12/24,Jólaaftan
+2040/12/25,Jóladagur
+2040/12/26,Annar jóladagur
+2040/12/31,Nýggjársaftan
+2041/1/1,Nýggjársdagur
+2041/4/18,Skírhósdagur
+2041/4/19,Langifríggjadagur
+2041/4/21,Páskadagur
+2041/4/22,Annar páskadagur
+2041/5/17,Dýri biðidagur
+2041/5/30,Kristi himmalsferðardagur
+2041/6/9,Hvítusunnudagur
+2041/6/10,Annar hvítusunnudagur
+2041/7/29,Ólavsøkudagur
+2041/12/24,Jólaaftan
+2041/12/25,Jóladagur
+2041/12/26,Annar jóladagur
+2041/12/31,Nýggjársaftan
+2042/1/1,Nýggjársdagur
+2042/4/3,Skírhósdagur
+2042/4/4,Langifríggjadagur
+2042/4/6,Páskadagur
+2042/4/7,Annar páskadagur
+2042/5/2,Dýri biðidagur
+2042/5/15,Kristi himmalsferðardagur
+2042/5/25,Hvítusunnudagur
+2042/5/26,Annar hvítusunnudagur
+2042/7/29,Ólavsøkudagur
+2042/12/24,Jólaaftan
+2042/12/25,Jóladagur
+2042/12/26,Annar jóladagur
+2042/12/31,Nýggjársaftan
+2043/1/1,Nýggjársdagur
+2043/3/26,Skírhósdagur
+2043/3/27,Langifríggjadagur
+2043/3/29,Páskadagur
+2043/3/30,Annar páskadagur
+2043/4/24,Dýri biðidagur
+2043/5/7,Kristi himmalsferðardagur
+2043/5/17,Hvítusunnudagur
+2043/5/18,Annar hvítusunnudagur
+2043/7/29,Ólavsøkudagur
+2043/12/24,Jólaaftan
+2043/12/25,Jóladagur
+2043/12/26,Annar jóladagur
+2043/12/31,Nýggjársaftan
+2044/1/1,Nýggjársdagur
+2044/4/14,Skírhósdagur
+2044/4/15,Langifríggjadagur
+2044/4/17,Páskadagur
+2044/4/18,Annar páskadagur
+2044/5/13,Dýri biðidagur
+2044/5/26,Kristi himmalsferðardagur
+2044/6/5,Hvítusunnudagur
+2044/6/6,Annar hvítusunnudagur
+2044/7/29,Ólavsøkudagur
+2044/12/24,Jólaaftan
+2044/12/25,Jóladagur
+2044/12/26,Annar jóladagur
+2044/12/31,Nýggjársaftan
+2045/1/1,Nýggjársdagur
+2045/4/6,Skírhósdagur
+2045/4/7,Langifríggjadagur
+2045/4/9,Páskadagur
+2045/4/10,Annar páskadagur
+2045/5/5,Dýri biðidagur
+2045/5/18,Kristi himmalsferðardagur
+2045/5/28,Hvítusunnudagur
+2045/5/29,Annar hvítusunnudagur
+2045/7/29,Ólavsøkudagur
+2045/12/24,Jólaaftan
+2045/12/25,Jóladagur
+2045/12/26,Annar jóladagur
+2045/12/31,Nýggjársaftan
+2046/1/1,Nýggjársdagur
+2046/3/22,Skírhósdagur
+2046/3/23,Langifríggjadagur
+2046/3/25,Páskadagur
+2046/3/26,Annar páskadagur
+2046/4/20,Dýri biðidagur
+2046/5/3,Kristi himmalsferðardagur
+2046/5/13,Hvítusunnudagur
+2046/5/14,Annar hvítusunnudagur
+2046/7/29,Ólavsøkudagur
+2046/12/24,Jólaaftan
+2046/12/25,Jóladagur
+2046/12/26,Annar jóladagur
+2046/12/31,Nýggjársaftan
+2047/1/1,Nýggjársdagur
+2047/4/11,Skírhósdagur
+2047/4/12,Langifríggjadagur
+2047/4/14,Páskadagur
+2047/4/15,Annar páskadagur
+2047/5/10,Dýri biðidagur
+2047/5/23,Kristi himmalsferðardagur
+2047/6/2,Hvítusunnudagur
+2047/6/3,Annar hvítusunnudagur
+2047/7/29,Ólavsøkudagur
+2047/12/24,Jólaaftan
+2047/12/25,Jóladagur
+2047/12/26,Annar jóladagur
+2047/12/31,Nýggjársaftan
+2048/1/1,Nýggjársdagur
+2048/4/2,Skírhósdagur
+2048/4/3,Langifríggjadagur
+2048/4/5,Páskadagur
+2048/4/6,Annar páskadagur
+2048/5/1,Dýri biðidagur
+2048/5/14,Kristi himmalsferðardagur
+2048/5/24,Hvítusunnudagur
+2048/5/25,Annar hvítusunnudagur
+2048/7/29,Ólavsøkudagur
+2048/12/24,Jólaaftan
+2048/12/25,Jóladagur
+2048/12/26,Annar jóladagur
+2048/12/31,Nýggjársaftan
+2049/1/1,Nýggjársdagur
+2049/4/15,Skírhósdagur
+2049/4/16,Langifríggjadagur
+2049/4/18,Páskadagur
+2049/4/19,Annar páskadagur
+2049/5/14,Dýri biðidagur
+2049/5/27,Kristi himmalsferðardagur
+2049/6/6,Hvítusunnudagur
+2049/6/7,Annar hvítusunnudagur
+2049/7/29,Ólavsøkudagur
+2049/12/24,Jólaaftan
+2049/12/25,Jóladagur
+2049/12/26,Annar jóladagur
+2049/12/31,Nýggjársaftan
+2050/1/1,Nýggjársdagur
+2050/4/7,Skírhósdagur
+2050/4/8,Langifríggjadagur
+2050/4/10,Páskadagur
+2050/4/11,Annar páskadagur
+2050/5/6,Dýri biðidagur
+2050/5/19,Kristi himmalsferðardagur
+2050/5/29,Hvítusunnudagur
+2050/5/30,Annar hvítusunnudagur
+2050/7/29,Ólavsøkudagur
+2050/12/24,Jólaaftan
+2050/12/25,Jóladagur
+2050/12/26,Annar jóladagur
+2050/12/31,Nýggjársaftan

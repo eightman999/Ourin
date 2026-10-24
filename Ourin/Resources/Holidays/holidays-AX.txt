@@ -1,0 +1,497 @@
+# AX の祝日（2020〜2050年、言語: fi）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Uudenvuodenpäivä
+2020/1/6,Loppiainen
+2020/4/10,Pitkäperjantai
+2020/4/12,Pääsiäispäivä
+2020/4/13,Toinen pääsiäispäivä
+2020/5/1,Vappu
+2020/5/21,Helatorstai
+2020/5/31,Helluntaipäivä
+2020/6/9,Ahvenanmaan itsehallintopäivä
+2020/6/19,Juhannusaatto
+2020/6/20,Juhannuspäivä
+2020/10/31,Pyhäinpäivä
+2020/12/6,Itsenäisyyspäivä
+2020/12/24,Jouluaatto
+2020/12/25,Joulupäivä
+2020/12/26,Tapaninpäivä
+2021/1/1,Uudenvuodenpäivä
+2021/1/6,Loppiainen
+2021/4/2,Pitkäperjantai
+2021/4/4,Pääsiäispäivä
+2021/4/5,Toinen pääsiäispäivä
+2021/5/1,Vappu
+2021/5/13,Helatorstai
+2021/5/23,Helluntaipäivä
+2021/6/9,Ahvenanmaan itsehallintopäivä
+2021/6/25,Juhannusaatto
+2021/6/26,Juhannuspäivä
+2021/11/6,Pyhäinpäivä
+2021/12/6,Itsenäisyyspäivä
+2021/12/24,Jouluaatto
+2021/12/25,Joulupäivä
+2021/12/26,Tapaninpäivä
+2022/1/1,Uudenvuodenpäivä
+2022/1/6,Loppiainen
+2022/4/15,Pitkäperjantai
+2022/4/17,Pääsiäispäivä
+2022/4/18,Toinen pääsiäispäivä
+2022/5/1,Vappu
+2022/5/26,Helatorstai
+2022/6/5,Helluntaipäivä
+2022/6/9,Ahvenanmaan itsehallintopäivä
+2022/6/24,Juhannusaatto
+2022/6/25,Juhannuspäivä
+2022/11/5,Pyhäinpäivä
+2022/12/6,Itsenäisyyspäivä
+2022/12/24,Jouluaatto
+2022/12/25,Joulupäivä
+2022/12/26,Tapaninpäivä
+2023/1/1,Uudenvuodenpäivä
+2023/1/6,Loppiainen
+2023/4/7,Pitkäperjantai
+2023/4/9,Pääsiäispäivä
+2023/4/10,Toinen pääsiäispäivä
+2023/5/1,Vappu
+2023/5/18,Helatorstai
+2023/5/28,Helluntaipäivä
+2023/6/9,Ahvenanmaan itsehallintopäivä
+2023/6/23,Juhannusaatto
+2023/6/24,Juhannuspäivä
+2023/11/4,Pyhäinpäivä
+2023/12/6,Itsenäisyyspäivä
+2023/12/24,Jouluaatto
+2023/12/25,Joulupäivä
+2023/12/26,Tapaninpäivä
+2024/1/1,Uudenvuodenpäivä
+2024/1/6,Loppiainen
+2024/3/29,Pitkäperjantai
+2024/3/31,Pääsiäispäivä
+2024/4/1,Toinen pääsiäispäivä
+2024/5/1,Vappu
+2024/5/9,Helatorstai
+2024/5/19,Helluntaipäivä
+2024/6/9,Ahvenanmaan itsehallintopäivä
+2024/6/21,Juhannusaatto
+2024/6/22,Juhannuspäivä
+2024/11/2,Pyhäinpäivä
+2024/12/6,Itsenäisyyspäivä
+2024/12/24,Jouluaatto
+2024/12/25,Joulupäivä
+2024/12/26,Tapaninpäivä
+2025/1/1,Uudenvuodenpäivä
+2025/1/6,Loppiainen
+2025/4/18,Pitkäperjantai
+2025/4/20,Pääsiäispäivä
+2025/4/21,Toinen pääsiäispäivä
+2025/5/1,Vappu
+2025/5/29,Helatorstai
+2025/6/8,Helluntaipäivä
+2025/6/9,Ahvenanmaan itsehallintopäivä
+2025/6/20,Juhannusaatto
+2025/6/21,Juhannuspäivä
+2025/11/1,Pyhäinpäivä
+2025/12/6,Itsenäisyyspäivä
+2025/12/24,Jouluaatto
+2025/12/25,Joulupäivä
+2025/12/26,Tapaninpäivä
+2026/1/1,Uudenvuodenpäivä
+2026/1/6,Loppiainen
+2026/4/3,Pitkäperjantai
+2026/4/5,Pääsiäispäivä
+2026/4/6,Toinen pääsiäispäivä
+2026/5/1,Vappu
+2026/5/14,Helatorstai
+2026/5/24,Helluntaipäivä
+2026/6/9,Ahvenanmaan itsehallintopäivä
+2026/6/19,Juhannusaatto
+2026/6/20,Juhannuspäivä
+2026/10/31,Pyhäinpäivä
+2026/12/6,Itsenäisyyspäivä
+2026/12/24,Jouluaatto
+2026/12/25,Joulupäivä
+2026/12/26,Tapaninpäivä
+2027/1/1,Uudenvuodenpäivä
+2027/1/6,Loppiainen
+2027/3/26,Pitkäperjantai
+2027/3/28,Pääsiäispäivä
+2027/3/29,Toinen pääsiäispäivä
+2027/5/1,Vappu
+2027/5/6,Helatorstai
+2027/5/16,Helluntaipäivä
+2027/6/9,Ahvenanmaan itsehallintopäivä
+2027/6/25,Juhannusaatto
+2027/6/26,Juhannuspäivä
+2027/11/6,Pyhäinpäivä
+2027/12/6,Itsenäisyyspäivä
+2027/12/24,Jouluaatto
+2027/12/25,Joulupäivä
+2027/12/26,Tapaninpäivä
+2028/1/1,Uudenvuodenpäivä
+2028/1/6,Loppiainen
+2028/4/14,Pitkäperjantai
+2028/4/16,Pääsiäispäivä
+2028/4/17,Toinen pääsiäispäivä
+2028/5/1,Vappu
+2028/5/25,Helatorstai
+2028/6/4,Helluntaipäivä
+2028/6/9,Ahvenanmaan itsehallintopäivä
+2028/6/23,Juhannusaatto
+2028/6/24,Juhannuspäivä
+2028/11/4,Pyhäinpäivä
+2028/12/6,Itsenäisyyspäivä
+2028/12/24,Jouluaatto
+2028/12/25,Joulupäivä
+2028/12/26,Tapaninpäivä
+2029/1/1,Uudenvuodenpäivä
+2029/1/6,Loppiainen
+2029/3/30,Pitkäperjantai
+2029/4/1,Pääsiäispäivä
+2029/4/2,Toinen pääsiäispäivä
+2029/5/1,Vappu
+2029/5/10,Helatorstai
+2029/5/20,Helluntaipäivä
+2029/6/9,Ahvenanmaan itsehallintopäivä
+2029/6/22,Juhannusaatto
+2029/6/23,Juhannuspäivä
+2029/11/3,Pyhäinpäivä
+2029/12/6,Itsenäisyyspäivä
+2029/12/24,Jouluaatto
+2029/12/25,Joulupäivä
+2029/12/26,Tapaninpäivä
+2030/1/1,Uudenvuodenpäivä
+2030/1/6,Loppiainen
+2030/4/19,Pitkäperjantai
+2030/4/21,Pääsiäispäivä
+2030/4/22,Toinen pääsiäispäivä
+2030/5/1,Vappu
+2030/5/30,Helatorstai
+2030/6/9,Ahvenanmaan itsehallintopäivä; Helluntaipäivä
+2030/6/21,Juhannusaatto
+2030/6/22,Juhannuspäivä
+2030/11/2,Pyhäinpäivä
+2030/12/6,Itsenäisyyspäivä
+2030/12/24,Jouluaatto
+2030/12/25,Joulupäivä
+2030/12/26,Tapaninpäivä
+2031/1/1,Uudenvuodenpäivä
+2031/1/6,Loppiainen
+2031/4/11,Pitkäperjantai
+2031/4/13,Pääsiäispäivä
+2031/4/14,Toinen pääsiäispäivä
+2031/5/1,Vappu
+2031/5/22,Helatorstai
+2031/6/1,Helluntaipäivä
+2031/6/9,Ahvenanmaan itsehallintopäivä
+2031/6/20,Juhannusaatto
+2031/6/21,Juhannuspäivä
+2031/11/1,Pyhäinpäivä
+2031/12/6,Itsenäisyyspäivä
+2031/12/24,Jouluaatto
+2031/12/25,Joulupäivä
+2031/12/26,Tapaninpäivä
+2032/1/1,Uudenvuodenpäivä
+2032/1/6,Loppiainen
+2032/3/26,Pitkäperjantai
+2032/3/28,Pääsiäispäivä
+2032/3/29,Toinen pääsiäispäivä
+2032/5/1,Vappu
+2032/5/6,Helatorstai
+2032/5/16,Helluntaipäivä
+2032/6/9,Ahvenanmaan itsehallintopäivä
+2032/6/25,Juhannusaatto
+2032/6/26,Juhannuspäivä
+2032/11/6,Pyhäinpäivä
+2032/12/6,Itsenäisyyspäivä
+2032/12/24,Jouluaatto
+2032/12/25,Joulupäivä
+2032/12/26,Tapaninpäivä
+2033/1/1,Uudenvuodenpäivä
+2033/1/6,Loppiainen
+2033/4/15,Pitkäperjantai
+2033/4/17,Pääsiäispäivä
+2033/4/18,Toinen pääsiäispäivä
+2033/5/1,Vappu
+2033/5/26,Helatorstai
+2033/6/5,Helluntaipäivä
+2033/6/9,Ahvenanmaan itsehallintopäivä
+2033/6/24,Juhannusaatto
+2033/6/25,Juhannuspäivä
+2033/11/5,Pyhäinpäivä
+2033/12/6,Itsenäisyyspäivä
+2033/12/24,Jouluaatto
+2033/12/25,Joulupäivä
+2033/12/26,Tapaninpäivä
+2034/1/1,Uudenvuodenpäivä
+2034/1/6,Loppiainen
+2034/4/7,Pitkäperjantai
+2034/4/9,Pääsiäispäivä
+2034/4/10,Toinen pääsiäispäivä
+2034/5/1,Vappu
+2034/5/18,Helatorstai
+2034/5/28,Helluntaipäivä
+2034/6/9,Ahvenanmaan itsehallintopäivä
+2034/6/23,Juhannusaatto
+2034/6/24,Juhannuspäivä
+2034/11/4,Pyhäinpäivä
+2034/12/6,Itsenäisyyspäivä
+2034/12/24,Jouluaatto
+2034/12/25,Joulupäivä
+2034/12/26,Tapaninpäivä
+2035/1/1,Uudenvuodenpäivä
+2035/1/6,Loppiainen
+2035/3/23,Pitkäperjantai
+2035/3/25,Pääsiäispäivä
+2035/3/26,Toinen pääsiäispäivä
+2035/5/1,Vappu
+2035/5/3,Helatorstai
+2035/5/13,Helluntaipäivä
+2035/6/9,Ahvenanmaan itsehallintopäivä
+2035/6/22,Juhannusaatto
+2035/6/23,Juhannuspäivä
+2035/11/3,Pyhäinpäivä
+2035/12/6,Itsenäisyyspäivä
+2035/12/24,Jouluaatto
+2035/12/25,Joulupäivä
+2035/12/26,Tapaninpäivä
+2036/1/1,Uudenvuodenpäivä
+2036/1/6,Loppiainen
+2036/4/11,Pitkäperjantai
+2036/4/13,Pääsiäispäivä
+2036/4/14,Toinen pääsiäispäivä
+2036/5/1,Vappu
+2036/5/22,Helatorstai
+2036/6/1,Helluntaipäivä
+2036/6/9,Ahvenanmaan itsehallintopäivä
+2036/6/20,Juhannusaatto
+2036/6/21,Juhannuspäivä
+2036/11/1,Pyhäinpäivä
+2036/12/6,Itsenäisyyspäivä
+2036/12/24,Jouluaatto
+2036/12/25,Joulupäivä
+2036/12/26,Tapaninpäivä
+2037/1/1,Uudenvuodenpäivä
+2037/1/6,Loppiainen
+2037/4/3,Pitkäperjantai
+2037/4/5,Pääsiäispäivä
+2037/4/6,Toinen pääsiäispäivä
+2037/5/1,Vappu
+2037/5/14,Helatorstai
+2037/5/24,Helluntaipäivä
+2037/6/9,Ahvenanmaan itsehallintopäivä
+2037/6/19,Juhannusaatto
+2037/6/20,Juhannuspäivä
+2037/10/31,Pyhäinpäivä
+2037/12/6,Itsenäisyyspäivä
+2037/12/24,Jouluaatto
+2037/12/25,Joulupäivä
+2037/12/26,Tapaninpäivä
+2038/1/1,Uudenvuodenpäivä
+2038/1/6,Loppiainen
+2038/4/23,Pitkäperjantai
+2038/4/25,Pääsiäispäivä
+2038/4/26,Toinen pääsiäispäivä
+2038/5/1,Vappu
+2038/6/3,Helatorstai
+2038/6/9,Ahvenanmaan itsehallintopäivä
+2038/6/13,Helluntaipäivä
+2038/6/25,Juhannusaatto
+2038/6/26,Juhannuspäivä
+2038/11/6,Pyhäinpäivä
+2038/12/6,Itsenäisyyspäivä
+2038/12/24,Jouluaatto
+2038/12/25,Joulupäivä
+2038/12/26,Tapaninpäivä
+2039/1/1,Uudenvuodenpäivä
+2039/1/6,Loppiainen
+2039/4/8,Pitkäperjantai
+2039/4/10,Pääsiäispäivä
+2039/4/11,Toinen pääsiäispäivä
+2039/5/1,Vappu
+2039/5/19,Helatorstai
+2039/5/29,Helluntaipäivä
+2039/6/9,Ahvenanmaan itsehallintopäivä
+2039/6/24,Juhannusaatto
+2039/6/25,Juhannuspäivä
+2039/11/5,Pyhäinpäivä
+2039/12/6,Itsenäisyyspäivä
+2039/12/24,Jouluaatto
+2039/12/25,Joulupäivä
+2039/12/26,Tapaninpäivä
+2040/1/1,Uudenvuodenpäivä
+2040/1/6,Loppiainen
+2040/3/30,Pitkäperjantai
+2040/4/1,Pääsiäispäivä
+2040/4/2,Toinen pääsiäispäivä
+2040/5/1,Vappu
+2040/5/10,Helatorstai
+2040/5/20,Helluntaipäivä
+2040/6/9,Ahvenanmaan itsehallintopäivä
+2040/6/22,Juhannusaatto
+2040/6/23,Juhannuspäivä
+2040/11/3,Pyhäinpäivä
+2040/12/6,Itsenäisyyspäivä
+2040/12/24,Jouluaatto
+2040/12/25,Joulupäivä
+2040/12/26,Tapaninpäivä
+2041/1/1,Uudenvuodenpäivä
+2041/1/6,Loppiainen
+2041/4/19,Pitkäperjantai
+2041/4/21,Pääsiäispäivä
+2041/4/22,Toinen pääsiäispäivä
+2041/5/1,Vappu
+2041/5/30,Helatorstai
+2041/6/9,Ahvenanmaan itsehallintopäivä; Helluntaipäivä
+2041/6/21,Juhannusaatto
+2041/6/22,Juhannuspäivä
+2041/11/2,Pyhäinpäivä
+2041/12/6,Itsenäisyyspäivä
+2041/12/24,Jouluaatto
+2041/12/25,Joulupäivä
+2041/12/26,Tapaninpäivä
+2042/1/1,Uudenvuodenpäivä
+2042/1/6,Loppiainen
+2042/4/4,Pitkäperjantai
+2042/4/6,Pääsiäispäivä
+2042/4/7,Toinen pääsiäispäivä
+2042/5/1,Vappu
+2042/5/15,Helatorstai
+2042/5/25,Helluntaipäivä
+2042/6/9,Ahvenanmaan itsehallintopäivä
+2042/6/20,Juhannusaatto
+2042/6/21,Juhannuspäivä
+2042/11/1,Pyhäinpäivä
+2042/12/6,Itsenäisyyspäivä
+2042/12/24,Jouluaatto
+2042/12/25,Joulupäivä
+2042/12/26,Tapaninpäivä
+2043/1/1,Uudenvuodenpäivä
+2043/1/6,Loppiainen
+2043/3/27,Pitkäperjantai
+2043/3/29,Pääsiäispäivä
+2043/3/30,Toinen pääsiäispäivä
+2043/5/1,Vappu
+2043/5/7,Helatorstai
+2043/5/17,Helluntaipäivä
+2043/6/9,Ahvenanmaan itsehallintopäivä
+2043/6/19,Juhannusaatto
+2043/6/20,Juhannuspäivä
+2043/10/31,Pyhäinpäivä
+2043/12/6,Itsenäisyyspäivä
+2043/12/24,Jouluaatto
+2043/12/25,Joulupäivä
+2043/12/26,Tapaninpäivä
+2044/1/1,Uudenvuodenpäivä
+2044/1/6,Loppiainen
+2044/4/15,Pitkäperjantai
+2044/4/17,Pääsiäispäivä
+2044/4/18,Toinen pääsiäispäivä
+2044/5/1,Vappu
+2044/5/26,Helatorstai
+2044/6/5,Helluntaipäivä
+2044/6/9,Ahvenanmaan itsehallintopäivä
+2044/6/24,Juhannusaatto
+2044/6/25,Juhannuspäivä
+2044/11/5,Pyhäinpäivä
+2044/12/6,Itsenäisyyspäivä
+2044/12/24,Jouluaatto
+2044/12/25,Joulupäivä
+2044/12/26,Tapaninpäivä
+2045/1/1,Uudenvuodenpäivä
+2045/1/6,Loppiainen
+2045/4/7,Pitkäperjantai
+2045/4/9,Pääsiäispäivä
+2045/4/10,Toinen pääsiäispäivä
+2045/5/1,Vappu
+2045/5/18,Helatorstai
+2045/5/28,Helluntaipäivä
+2045/6/9,Ahvenanmaan itsehallintopäivä
+2045/6/23,Juhannusaatto
+2045/6/24,Juhannuspäivä
+2045/11/4,Pyhäinpäivä
+2045/12/6,Itsenäisyyspäivä
+2045/12/24,Jouluaatto
+2045/12/25,Joulupäivä
+2045/12/26,Tapaninpäivä
+2046/1/1,Uudenvuodenpäivä
+2046/1/6,Loppiainen
+2046/3/23,Pitkäperjantai
+2046/3/25,Pääsiäispäivä
+2046/3/26,Toinen pääsiäispäivä
+2046/5/1,Vappu
+2046/5/3,Helatorstai
+2046/5/13,Helluntaipäivä
+2046/6/9,Ahvenanmaan itsehallintopäivä
+2046/6/22,Juhannusaatto
+2046/6/23,Juhannuspäivä
+2046/11/3,Pyhäinpäivä
+2046/12/6,Itsenäisyyspäivä
+2046/12/24,Jouluaatto
+2046/12/25,Joulupäivä
+2046/12/26,Tapaninpäivä
+2047/1/1,Uudenvuodenpäivä
+2047/1/6,Loppiainen
+2047/4/12,Pitkäperjantai
+2047/4/14,Pääsiäispäivä
+2047/4/15,Toinen pääsiäispäivä
+2047/5/1,Vappu
+2047/5/23,Helatorstai
+2047/6/2,Helluntaipäivä
+2047/6/9,Ahvenanmaan itsehallintopäivä
+2047/6/21,Juhannusaatto
+2047/6/22,Juhannuspäivä
+2047/11/2,Pyhäinpäivä
+2047/12/6,Itsenäisyyspäivä
+2047/12/24,Jouluaatto
+2047/12/25,Joulupäivä
+2047/12/26,Tapaninpäivä
+2048/1/1,Uudenvuodenpäivä
+2048/1/6,Loppiainen
+2048/4/3,Pitkäperjantai
+2048/4/5,Pääsiäispäivä
+2048/4/6,Toinen pääsiäispäivä
+2048/5/1,Vappu
+2048/5/14,Helatorstai
+2048/5/24,Helluntaipäivä
+2048/6/9,Ahvenanmaan itsehallintopäivä
+2048/6/19,Juhannusaatto
+2048/6/20,Juhannuspäivä
+2048/10/31,Pyhäinpäivä
+2048/12/6,Itsenäisyyspäivä
+2048/12/24,Jouluaatto
+2048/12/25,Joulupäivä
+2048/12/26,Tapaninpäivä
+2049/1/1,Uudenvuodenpäivä
+2049/1/6,Loppiainen
+2049/4/16,Pitkäperjantai
+2049/4/18,Pääsiäispäivä
+2049/4/19,Toinen pääsiäispäivä
+2049/5/1,Vappu
+2049/5/27,Helatorstai
+2049/6/6,Helluntaipäivä
+2049/6/9,Ahvenanmaan itsehallintopäivä
+2049/6/25,Juhannusaatto
+2049/6/26,Juhannuspäivä
+2049/11/6,Pyhäinpäivä
+2049/12/6,Itsenäisyyspäivä
+2049/12/24,Jouluaatto
+2049/12/25,Joulupäivä
+2049/12/26,Tapaninpäivä
+2050/1/1,Uudenvuodenpäivä
+2050/1/6,Loppiainen
+2050/4/8,Pitkäperjantai
+2050/4/10,Pääsiäispäivä
+2050/4/11,Toinen pääsiäispäivä
+2050/5/1,Vappu
+2050/5/19,Helatorstai
+2050/5/29,Helluntaipäivä
+2050/6/9,Ahvenanmaan itsehallintopäivä
+2050/6/24,Juhannusaatto
+2050/6/25,Juhannuspäivä
+2050/11/5,Pyhäinpäivä
+2050/12/6,Itsenäisyyspäivä
+2050/12/24,Jouluaatto
+2050/12/25,Joulupäivä
+2050/12/26,Tapaninpäivä

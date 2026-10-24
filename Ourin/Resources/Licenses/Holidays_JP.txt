@@ -11,9 +11,12 @@ Japanese national holidays table (holidays-JP.txt) / 国民の祝日・休日の
   https://www.cao.go.jp/notice/rule.html
 
 加工について / Modifications:
-  文字コードと改行の変換、先頭の説明行の追加のみを行い、日付と名称は変更していません。
+  文字コードと改行を変換し、先頭に説明の行を加えました。
+  内閣府の表では「休日」と書かれている日を、振替休日（日曜の祝日の翌日以降）と国民の休日（祝日に挟まれた日）に分けて書いています。
+  ほかの日付と名称は変更していません。
+  2028年以降は、内閣府の表ではなく python-holidays（MIT ライセンス。Holidays_python-holidays.txt）から生成した日本語名で補っています。
   この表は内閣府が公表したものを加工して作成しており、内閣府が内容を保証するものではありません。
 
 更新について / Updates:
-  翌年以降の祝日は内閣府が毎年2月に公表します。2028年以降の祝日名は、表を更新するまで通知されません。
+  翌年以降の祝日は内閣府が毎年2月に公表します。表を作り直すときは scripts/gen_holidays.py を使います。
   ~/Documents/Ourin/calendar/holidays-JP.txt を置くと、同梱の表より優先して使われます。

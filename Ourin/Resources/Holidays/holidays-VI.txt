@@ -1,0 +1,628 @@
+# VI の祝日（2020〜2050年、言語: en_US）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/1/6,Three Kings Day
+2020/1/20,Martin Luther King Jr. Day
+2020/2/17,Presidents' Day
+2020/3/31,Transfer Day
+2020/4/9,Holy Thursday
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/25,Memorial Day
+2020/7/3,Emancipation Day; Independence Day (observed)
+2020/7/4,Independence Day
+2020/9/7,Labor Day
+2020/10/12,Columbus Day and Puerto Rico Friendship Day
+2020/11/1,Liberty Day
+2020/11/11,Veterans Day
+2020/11/26,Thanksgiving Day
+2020/12/25,Christmas Day
+2020/12/26,Christmas Second Day
+2021/1/1,New Year's Day
+2021/1/6,Three Kings Day
+2021/1/18,Martin Luther King Jr. Day
+2021/2/15,Presidents' Day
+2021/3/31,Transfer Day
+2021/4/1,Holy Thursday
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/31,Memorial Day
+2021/6/18,Juneteenth National Independence Day (observed)
+2021/6/19,Juneteenth National Independence Day
+2021/7/3,Emancipation Day
+2021/7/4,Independence Day
+2021/7/5,Independence Day (observed)
+2021/9/6,Labor Day
+2021/10/11,Columbus Day and Puerto Rico Friendship Day
+2021/11/1,Liberty Day
+2021/11/11,Veterans Day
+2021/11/25,Thanksgiving Day
+2021/12/24,Christmas Day (observed)
+2021/12/25,Christmas Day
+2021/12/26,Christmas Second Day
+2021/12/31,New Year's Day (observed)
+2022/1/1,New Year's Day
+2022/1/6,Three Kings Day
+2022/1/17,Martin Luther King Jr. Day
+2022/2/21,Presidents' Day
+2022/3/31,Transfer Day
+2022/4/14,Holy Thursday
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/5/30,Memorial Day
+2022/6/19,Juneteenth National Independence Day
+2022/6/20,Juneteenth National Independence Day (observed)
+2022/7/3,Emancipation Day
+2022/7/4,Independence Day
+2022/9/5,Labor Day
+2022/10/10,Columbus Day and Puerto Rico Friendship Day
+2022/11/1,Liberty Day
+2022/11/11,Veterans Day
+2022/11/24,Thanksgiving Day
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed); Christmas Second Day
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/1/6,Three Kings Day
+2023/1/16,Martin Luther King Jr. Day
+2023/2/20,Presidents' Day
+2023/3/31,Transfer Day
+2023/4/6,Holy Thursday
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/5/29,Memorial Day
+2023/6/19,Juneteenth National Independence Day
+2023/7/3,Emancipation Day
+2023/7/4,Independence Day
+2023/9/4,Labor Day
+2023/10/9,Columbus Day and Puerto Rico Friendship Day
+2023/11/1,Liberty Day
+2023/11/10,Veterans Day (observed)
+2023/11/11,Veterans Day
+2023/11/23,Thanksgiving Day
+2023/12/25,Christmas Day
+2023/12/26,Christmas Second Day
+2024/1/1,New Year's Day
+2024/1/6,Three Kings Day
+2024/1/15,Martin Luther King Jr. Day
+2024/2/19,Presidents' Day
+2024/3/28,Holy Thursday
+2024/3/29,Good Friday
+2024/3/31,Transfer Day
+2024/4/1,Easter Monday
+2024/5/27,Memorial Day
+2024/6/19,Juneteenth National Independence Day
+2024/7/3,Emancipation Day
+2024/7/4,Independence Day
+2024/9/2,Labor Day
+2024/10/14,Columbus Day and Puerto Rico Friendship Day
+2024/11/1,Liberty Day
+2024/11/11,Veterans Day
+2024/11/28,Thanksgiving Day
+2024/12/25,Christmas Day
+2024/12/26,Christmas Second Day
+2025/1/1,New Year's Day
+2025/1/6,Three Kings Day
+2025/1/20,Martin Luther King Jr. Day
+2025/2/17,Presidents' Day
+2025/3/31,Transfer Day
+2025/4/17,Holy Thursday
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/26,Memorial Day
+2025/6/19,Juneteenth National Independence Day
+2025/7/3,Emancipation Day
+2025/7/4,Independence Day
+2025/9/1,Labor Day
+2025/10/13,Columbus Day and Puerto Rico Friendship Day
+2025/11/1,Liberty Day
+2025/11/11,Veterans Day
+2025/11/27,Thanksgiving Day
+2025/12/25,Christmas Day
+2025/12/26,Christmas Second Day
+2026/1/1,New Year's Day
+2026/1/6,Three Kings Day
+2026/1/19,Martin Luther King Jr. Day
+2026/2/16,Presidents' Day
+2026/3/31,Transfer Day
+2026/4/2,Holy Thursday
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/25,Memorial Day
+2026/6/19,Juneteenth National Independence Day
+2026/7/3,Emancipation Day; Independence Day (observed)
+2026/7/4,Independence Day
+2026/9/7,Labor Day
+2026/10/12,Columbus Day and Puerto Rico Friendship Day
+2026/11/1,Liberty Day
+2026/11/11,Veterans Day
+2026/11/26,Thanksgiving Day
+2026/12/25,Christmas Day
+2026/12/26,Christmas Second Day
+2027/1/1,New Year's Day
+2027/1/6,Three Kings Day
+2027/1/18,Martin Luther King Jr. Day
+2027/2/15,Presidents' Day
+2027/3/25,Holy Thursday
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/3/31,Transfer Day
+2027/5/31,Memorial Day
+2027/6/18,Juneteenth National Independence Day (observed)
+2027/6/19,Juneteenth National Independence Day
+2027/7/3,Emancipation Day
+2027/7/4,Independence Day
+2027/7/5,Independence Day (observed)
+2027/9/6,Labor Day
+2027/10/11,Columbus Day and Puerto Rico Friendship Day
+2027/11/1,Liberty Day
+2027/11/11,Veterans Day
+2027/11/25,Thanksgiving Day
+2027/12/24,Christmas Day (observed)
+2027/12/25,Christmas Day
+2027/12/26,Christmas Second Day
+2027/12/31,New Year's Day (observed)
+2028/1/1,New Year's Day
+2028/1/6,Three Kings Day
+2028/1/17,Martin Luther King Jr. Day
+2028/2/21,Presidents' Day
+2028/3/31,Transfer Day
+2028/4/13,Holy Thursday
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/29,Memorial Day
+2028/6/19,Juneteenth National Independence Day
+2028/7/3,Emancipation Day
+2028/7/4,Independence Day
+2028/9/4,Labor Day
+2028/10/9,Columbus Day and Puerto Rico Friendship Day
+2028/11/1,Liberty Day
+2028/11/10,Veterans Day (observed)
+2028/11/11,Veterans Day
+2028/11/23,Thanksgiving Day
+2028/12/25,Christmas Day
+2028/12/26,Christmas Second Day
+2029/1/1,New Year's Day
+2029/1/6,Three Kings Day
+2029/1/15,Martin Luther King Jr. Day
+2029/2/19,Presidents' Day
+2029/3/29,Holy Thursday
+2029/3/30,Good Friday
+2029/3/31,Transfer Day
+2029/4/2,Easter Monday
+2029/5/28,Memorial Day
+2029/6/19,Juneteenth National Independence Day
+2029/7/3,Emancipation Day
+2029/7/4,Independence Day
+2029/9/3,Labor Day
+2029/10/8,Columbus Day and Puerto Rico Friendship Day
+2029/11/1,Liberty Day
+2029/11/11,Veterans Day
+2029/11/12,Veterans Day (observed)
+2029/11/22,Thanksgiving Day
+2029/12/25,Christmas Day
+2029/12/26,Christmas Second Day
+2030/1/1,New Year's Day
+2030/1/6,Three Kings Day
+2030/1/21,Martin Luther King Jr. Day
+2030/2/18,Presidents' Day
+2030/3/31,Transfer Day
+2030/4/18,Holy Thursday
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/27,Memorial Day
+2030/6/19,Juneteenth National Independence Day
+2030/7/3,Emancipation Day
+2030/7/4,Independence Day
+2030/9/2,Labor Day
+2030/10/14,Columbus Day and Puerto Rico Friendship Day
+2030/11/1,Liberty Day
+2030/11/11,Veterans Day
+2030/11/28,Thanksgiving Day
+2030/12/25,Christmas Day
+2030/12/26,Christmas Second Day
+2031/1/1,New Year's Day
+2031/1/6,Three Kings Day
+2031/1/20,Martin Luther King Jr. Day
+2031/2/17,Presidents' Day
+2031/3/31,Transfer Day
+2031/4/10,Holy Thursday
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/26,Memorial Day
+2031/6/19,Juneteenth National Independence Day
+2031/7/3,Emancipation Day
+2031/7/4,Independence Day
+2031/9/1,Labor Day
+2031/10/13,Columbus Day and Puerto Rico Friendship Day
+2031/11/1,Liberty Day
+2031/11/11,Veterans Day
+2031/11/27,Thanksgiving Day
+2031/12/25,Christmas Day
+2031/12/26,Christmas Second Day
+2032/1/1,New Year's Day
+2032/1/6,Three Kings Day
+2032/1/19,Martin Luther King Jr. Day
+2032/2/16,Presidents' Day
+2032/3/25,Holy Thursday
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/3/31,Transfer Day
+2032/5/31,Memorial Day
+2032/6/18,Juneteenth National Independence Day (observed)
+2032/6/19,Juneteenth National Independence Day
+2032/7/3,Emancipation Day
+2032/7/4,Independence Day
+2032/7/5,Independence Day (observed)
+2032/9/6,Labor Day
+2032/10/11,Columbus Day and Puerto Rico Friendship Day
+2032/11/1,Liberty Day
+2032/11/11,Veterans Day
+2032/11/25,Thanksgiving Day
+2032/12/24,Christmas Day (observed)
+2032/12/25,Christmas Day
+2032/12/26,Christmas Second Day
+2032/12/31,New Year's Day (observed)
+2033/1/1,New Year's Day
+2033/1/6,Three Kings Day
+2033/1/17,Martin Luther King Jr. Day
+2033/2/21,Presidents' Day
+2033/3/31,Transfer Day
+2033/4/14,Holy Thursday
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/30,Memorial Day
+2033/6/19,Juneteenth National Independence Day
+2033/6/20,Juneteenth National Independence Day (observed)
+2033/7/3,Emancipation Day
+2033/7/4,Independence Day
+2033/9/5,Labor Day
+2033/10/10,Columbus Day and Puerto Rico Friendship Day
+2033/11/1,Liberty Day
+2033/11/11,Veterans Day
+2033/11/24,Thanksgiving Day
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed); Christmas Second Day
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/1/6,Three Kings Day
+2034/1/16,Martin Luther King Jr. Day
+2034/2/20,Presidents' Day
+2034/3/31,Transfer Day
+2034/4/6,Holy Thursday
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/29,Memorial Day
+2034/6/19,Juneteenth National Independence Day
+2034/7/3,Emancipation Day
+2034/7/4,Independence Day
+2034/9/4,Labor Day
+2034/10/9,Columbus Day and Puerto Rico Friendship Day
+2034/11/1,Liberty Day
+2034/11/10,Veterans Day (observed)
+2034/11/11,Veterans Day
+2034/11/23,Thanksgiving Day
+2034/12/25,Christmas Day
+2034/12/26,Christmas Second Day
+2035/1/1,New Year's Day
+2035/1/6,Three Kings Day
+2035/1/15,Martin Luther King Jr. Day
+2035/2/19,Presidents' Day
+2035/3/22,Holy Thursday
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/3/31,Transfer Day
+2035/5/28,Memorial Day
+2035/6/19,Juneteenth National Independence Day
+2035/7/3,Emancipation Day
+2035/7/4,Independence Day
+2035/9/3,Labor Day
+2035/10/8,Columbus Day and Puerto Rico Friendship Day
+2035/11/1,Liberty Day
+2035/11/11,Veterans Day
+2035/11/12,Veterans Day (observed)
+2035/11/22,Thanksgiving Day
+2035/12/25,Christmas Day
+2035/12/26,Christmas Second Day
+2036/1/1,New Year's Day
+2036/1/6,Three Kings Day
+2036/1/21,Martin Luther King Jr. Day
+2036/2/18,Presidents' Day
+2036/3/31,Transfer Day
+2036/4/10,Holy Thursday
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/26,Memorial Day
+2036/6/19,Juneteenth National Independence Day
+2036/7/3,Emancipation Day
+2036/7/4,Independence Day
+2036/9/1,Labor Day
+2036/10/13,Columbus Day and Puerto Rico Friendship Day
+2036/11/1,Liberty Day
+2036/11/11,Veterans Day
+2036/11/27,Thanksgiving Day
+2036/12/25,Christmas Day
+2036/12/26,Christmas Second Day
+2037/1/1,New Year's Day
+2037/1/6,Three Kings Day
+2037/1/19,Martin Luther King Jr. Day
+2037/2/16,Presidents' Day
+2037/3/31,Transfer Day
+2037/4/2,Holy Thursday
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/5/25,Memorial Day
+2037/6/19,Juneteenth National Independence Day
+2037/7/3,Emancipation Day; Independence Day (observed)
+2037/7/4,Independence Day
+2037/9/7,Labor Day
+2037/10/12,Columbus Day and Puerto Rico Friendship Day
+2037/11/1,Liberty Day
+2037/11/11,Veterans Day
+2037/11/26,Thanksgiving Day
+2037/12/25,Christmas Day
+2037/12/26,Christmas Second Day
+2038/1/1,New Year's Day
+2038/1/6,Three Kings Day
+2038/1/18,Martin Luther King Jr. Day
+2038/2/15,Presidents' Day
+2038/3/31,Transfer Day
+2038/4/22,Holy Thursday
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/31,Memorial Day
+2038/6/18,Juneteenth National Independence Day (observed)
+2038/6/19,Juneteenth National Independence Day
+2038/7/3,Emancipation Day
+2038/7/4,Independence Day
+2038/7/5,Independence Day (observed)
+2038/9/6,Labor Day
+2038/10/11,Columbus Day and Puerto Rico Friendship Day
+2038/11/1,Liberty Day
+2038/11/11,Veterans Day
+2038/11/25,Thanksgiving Day
+2038/12/24,Christmas Day (observed)
+2038/12/25,Christmas Day
+2038/12/26,Christmas Second Day
+2038/12/31,New Year's Day (observed)
+2039/1/1,New Year's Day
+2039/1/6,Three Kings Day
+2039/1/17,Martin Luther King Jr. Day
+2039/2/21,Presidents' Day
+2039/3/31,Transfer Day
+2039/4/7,Holy Thursday
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/30,Memorial Day
+2039/6/19,Juneteenth National Independence Day
+2039/6/20,Juneteenth National Independence Day (observed)
+2039/7/3,Emancipation Day
+2039/7/4,Independence Day
+2039/9/5,Labor Day
+2039/10/10,Columbus Day and Puerto Rico Friendship Day
+2039/11/1,Liberty Day
+2039/11/11,Veterans Day
+2039/11/24,Thanksgiving Day
+2039/12/25,Christmas Day
+2039/12/26,Christmas Day (observed); Christmas Second Day
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/1/6,Three Kings Day
+2040/1/16,Martin Luther King Jr. Day
+2040/2/20,Presidents' Day
+2040/3/29,Holy Thursday
+2040/3/30,Good Friday
+2040/3/31,Transfer Day
+2040/4/2,Easter Monday
+2040/5/28,Memorial Day
+2040/6/19,Juneteenth National Independence Day
+2040/7/3,Emancipation Day
+2040/7/4,Independence Day
+2040/9/3,Labor Day
+2040/10/8,Columbus Day and Puerto Rico Friendship Day
+2040/11/1,Liberty Day
+2040/11/11,Veterans Day
+2040/11/12,Veterans Day (observed)
+2040/11/22,Thanksgiving Day
+2040/12/25,Christmas Day
+2040/12/26,Christmas Second Day
+2041/1/1,New Year's Day
+2041/1/6,Three Kings Day
+2041/1/21,Martin Luther King Jr. Day
+2041/2/18,Presidents' Day
+2041/3/31,Transfer Day
+2041/4/18,Holy Thursday
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/27,Memorial Day
+2041/6/19,Juneteenth National Independence Day
+2041/7/3,Emancipation Day
+2041/7/4,Independence Day
+2041/9/2,Labor Day
+2041/10/14,Columbus Day and Puerto Rico Friendship Day
+2041/11/1,Liberty Day
+2041/11/11,Veterans Day
+2041/11/28,Thanksgiving Day
+2041/12/25,Christmas Day
+2041/12/26,Christmas Second Day
+2042/1/1,New Year's Day
+2042/1/6,Three Kings Day
+2042/1/20,Martin Luther King Jr. Day
+2042/2/17,Presidents' Day
+2042/3/31,Transfer Day
+2042/4/3,Holy Thursday
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/26,Memorial Day
+2042/6/19,Juneteenth National Independence Day
+2042/7/3,Emancipation Day
+2042/7/4,Independence Day
+2042/9/1,Labor Day
+2042/10/13,Columbus Day and Puerto Rico Friendship Day
+2042/11/1,Liberty Day
+2042/11/11,Veterans Day
+2042/11/27,Thanksgiving Day
+2042/12/25,Christmas Day
+2042/12/26,Christmas Second Day
+2043/1/1,New Year's Day
+2043/1/6,Three Kings Day
+2043/1/19,Martin Luther King Jr. Day
+2043/2/16,Presidents' Day
+2043/3/26,Holy Thursday
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/3/31,Transfer Day
+2043/5/25,Memorial Day
+2043/6/19,Juneteenth National Independence Day
+2043/7/3,Emancipation Day; Independence Day (observed)
+2043/7/4,Independence Day
+2043/9/7,Labor Day
+2043/10/12,Columbus Day and Puerto Rico Friendship Day
+2043/11/1,Liberty Day
+2043/11/11,Veterans Day
+2043/11/26,Thanksgiving Day
+2043/12/25,Christmas Day
+2043/12/26,Christmas Second Day
+2044/1/1,New Year's Day
+2044/1/6,Three Kings Day
+2044/1/18,Martin Luther King Jr. Day
+2044/2/15,Presidents' Day
+2044/3/31,Transfer Day
+2044/4/14,Holy Thursday
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/30,Memorial Day
+2044/6/19,Juneteenth National Independence Day
+2044/6/20,Juneteenth National Independence Day (observed)
+2044/7/3,Emancipation Day
+2044/7/4,Independence Day
+2044/9/5,Labor Day
+2044/10/10,Columbus Day and Puerto Rico Friendship Day
+2044/11/1,Liberty Day
+2044/11/11,Veterans Day
+2044/11/24,Thanksgiving Day
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed); Christmas Second Day
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/6,Three Kings Day
+2045/1/16,Martin Luther King Jr. Day
+2045/2/20,Presidents' Day
+2045/3/31,Transfer Day
+2045/4/6,Holy Thursday
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/29,Memorial Day
+2045/6/19,Juneteenth National Independence Day
+2045/7/3,Emancipation Day
+2045/7/4,Independence Day
+2045/9/4,Labor Day
+2045/10/9,Columbus Day and Puerto Rico Friendship Day
+2045/11/1,Liberty Day
+2045/11/10,Veterans Day (observed)
+2045/11/11,Veterans Day
+2045/11/23,Thanksgiving Day
+2045/12/25,Christmas Day
+2045/12/26,Christmas Second Day
+2046/1/1,New Year's Day
+2046/1/6,Three Kings Day
+2046/1/15,Martin Luther King Jr. Day
+2046/2/19,Presidents' Day
+2046/3/22,Holy Thursday
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/3/31,Transfer Day
+2046/5/28,Memorial Day
+2046/6/19,Juneteenth National Independence Day
+2046/7/3,Emancipation Day
+2046/7/4,Independence Day
+2046/9/3,Labor Day
+2046/10/8,Columbus Day and Puerto Rico Friendship Day
+2046/11/1,Liberty Day
+2046/11/11,Veterans Day
+2046/11/12,Veterans Day (observed)
+2046/11/22,Thanksgiving Day
+2046/12/25,Christmas Day
+2046/12/26,Christmas Second Day
+2047/1/1,New Year's Day
+2047/1/6,Three Kings Day
+2047/1/21,Martin Luther King Jr. Day
+2047/2/18,Presidents' Day
+2047/3/31,Transfer Day
+2047/4/11,Holy Thursday
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/27,Memorial Day
+2047/6/19,Juneteenth National Independence Day
+2047/7/3,Emancipation Day
+2047/7/4,Independence Day
+2047/9/2,Labor Day
+2047/10/14,Columbus Day and Puerto Rico Friendship Day
+2047/11/1,Liberty Day
+2047/11/11,Veterans Day
+2047/11/28,Thanksgiving Day
+2047/12/25,Christmas Day
+2047/12/26,Christmas Second Day
+2048/1/1,New Year's Day
+2048/1/6,Three Kings Day
+2048/1/20,Martin Luther King Jr. Day
+2048/2/17,Presidents' Day
+2048/3/31,Transfer Day
+2048/4/2,Holy Thursday
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/25,Memorial Day
+2048/6/19,Juneteenth National Independence Day
+2048/7/3,Emancipation Day; Independence Day (observed)
+2048/7/4,Independence Day
+2048/9/7,Labor Day
+2048/10/12,Columbus Day and Puerto Rico Friendship Day
+2048/11/1,Liberty Day
+2048/11/11,Veterans Day
+2048/11/26,Thanksgiving Day
+2048/12/25,Christmas Day
+2048/12/26,Christmas Second Day
+2049/1/1,New Year's Day
+2049/1/6,Three Kings Day
+2049/1/18,Martin Luther King Jr. Day
+2049/2/15,Presidents' Day
+2049/3/31,Transfer Day
+2049/4/15,Holy Thursday
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/31,Memorial Day
+2049/6/18,Juneteenth National Independence Day (observed)
+2049/6/19,Juneteenth National Independence Day
+2049/7/3,Emancipation Day
+2049/7/4,Independence Day
+2049/7/5,Independence Day (observed)
+2049/9/6,Labor Day
+2049/10/11,Columbus Day and Puerto Rico Friendship Day
+2049/11/1,Liberty Day
+2049/11/11,Veterans Day
+2049/11/25,Thanksgiving Day
+2049/12/24,Christmas Day (observed)
+2049/12/25,Christmas Day
+2049/12/26,Christmas Second Day
+2049/12/31,New Year's Day (observed)
+2050/1/1,New Year's Day
+2050/1/6,Three Kings Day
+2050/1/17,Martin Luther King Jr. Day
+2050/2/21,Presidents' Day
+2050/3/31,Transfer Day
+2050/4/7,Holy Thursday
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/30,Memorial Day
+2050/6/19,Juneteenth National Independence Day
+2050/6/20,Juneteenth National Independence Day (observed)
+2050/7/3,Emancipation Day
+2050/7/4,Independence Day
+2050/9/5,Labor Day
+2050/10/10,Columbus Day and Puerto Rico Friendship Day
+2050/11/1,Liberty Day
+2050/11/11,Veterans Day
+2050/11/24,Thanksgiving Day
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed); Christmas Second Day

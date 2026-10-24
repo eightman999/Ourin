@@ -1,0 +1,362 @@
+# ST の祝日（2020〜2050年、言語: pt_ST）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Ano Novo
+2020/1/3,Dia do Rei Amador (observado)
+2020/1/4,Dia do Rei Amador
+2020/2/3,Dia dos Mártires
+2020/5/1,Dia do Trabalhador
+2020/7/12,Dia da Independência
+2020/7/13,Dia da Independência (observado)
+2020/9/6,Dia das Forças Armadas
+2020/9/7,Dia das Forças Armadas (observado)
+2020/9/30,Dia da Reforma Agrária
+2020/12/21,Dia de São Tomé
+2020/12/25,Natal
+2021/1/1,Ano Novo
+2021/1/4,Dia do Rei Amador
+2021/2/3,Dia dos Mártires
+2021/4/30,Dia do Trabalhador (observado)
+2021/5/1,Dia do Trabalhador
+2021/7/12,Dia da Independência
+2021/9/6,Dia das Forças Armadas
+2021/9/30,Dia da Reforma Agrária
+2021/12/21,Dia de São Tomé
+2021/12/24,Natal (observado)
+2021/12/25,Natal
+2021/12/31,Ano Novo (observado)
+2022/1/1,Ano Novo
+2022/1/4,Dia do Rei Amador
+2022/2/3,Dia dos Mártires
+2022/5/1,Dia do Trabalhador
+2022/5/2,Dia do Trabalhador (observado)
+2022/7/12,Dia da Independência
+2022/9/6,Dia das Forças Armadas
+2022/9/30,Dia da Reforma Agrária
+2022/12/21,Dia de São Tomé
+2022/12/25,Natal
+2022/12/26,Natal (observado)
+2023/1/1,Ano Novo
+2023/1/2,Ano Novo (observado)
+2023/1/4,Dia do Rei Amador
+2023/2/3,Dia dos Mártires
+2023/5/1,Dia do Trabalhador
+2023/7/12,Dia da Independência
+2023/9/6,Dia das Forças Armadas
+2023/9/29,Dia da Reforma Agrária (observado)
+2023/9/30,Dia da Reforma Agrária
+2023/12/21,Dia de São Tomé
+2023/12/25,Natal
+2024/1/1,Ano Novo
+2024/1/4,Dia do Rei Amador
+2024/2/2,Dia dos Mártires (observado)
+2024/2/3,Dia dos Mártires
+2024/5/1,Dia do Trabalhador
+2024/7/12,Dia da Independência
+2024/9/6,Dia das Forças Armadas
+2024/9/30,Dia da Reforma Agrária
+2024/12/20,Dia de São Tomé (observado)
+2024/12/21,Dia de São Tomé
+2024/12/25,Natal
+2025/1/1,Ano Novo
+2025/1/3,Dia do Rei Amador (observado)
+2025/1/4,Dia do Rei Amador
+2025/2/3,Dia dos Mártires
+2025/5/1,Dia do Trabalhador
+2025/7/11,Dia da Independência (observado)
+2025/7/12,Dia da Independência
+2025/9/5,Dia das Forças Armadas (observado)
+2025/9/6,Dia das Forças Armadas
+2025/9/30,Dia da Reforma Agrária
+2025/12/21,Dia de São Tomé
+2025/12/22,Dia de São Tomé (observado)
+2025/12/25,Natal
+2026/1/1,Ano Novo
+2026/1/4,Dia do Rei Amador
+2026/1/5,Dia do Rei Amador (observado)
+2026/2/3,Dia dos Mártires
+2026/5/1,Dia do Trabalhador
+2026/7/12,Dia da Independência
+2026/7/13,Dia da Independência (observado)
+2026/9/6,Dia das Forças Armadas
+2026/9/7,Dia das Forças Armadas (observado)
+2026/9/30,Dia da Reforma Agrária
+2026/12/21,Dia de São Tomé
+2026/12/25,Natal
+2027/1/1,Ano Novo
+2027/1/4,Dia do Rei Amador
+2027/2/3,Dia dos Mártires
+2027/4/30,Dia do Trabalhador (observado)
+2027/5/1,Dia do Trabalhador
+2027/7/12,Dia da Independência
+2027/9/6,Dia das Forças Armadas
+2027/9/30,Dia da Reforma Agrária
+2027/12/21,Dia de São Tomé
+2027/12/24,Natal (observado)
+2027/12/25,Natal
+2027/12/31,Ano Novo (observado)
+2028/1/1,Ano Novo
+2028/1/4,Dia do Rei Amador
+2028/2/3,Dia dos Mártires
+2028/5/1,Dia do Trabalhador
+2028/7/12,Dia da Independência
+2028/9/6,Dia das Forças Armadas
+2028/9/29,Dia da Reforma Agrária (observado)
+2028/9/30,Dia da Reforma Agrária
+2028/12/21,Dia de São Tomé
+2028/12/25,Natal
+2029/1/1,Ano Novo
+2029/1/4,Dia do Rei Amador
+2029/2/2,Dia dos Mártires (observado)
+2029/2/3,Dia dos Mártires
+2029/5/1,Dia do Trabalhador
+2029/7/12,Dia da Independência
+2029/9/6,Dia das Forças Armadas
+2029/9/30,Dia da Reforma Agrária
+2029/10/1,Dia da Reforma Agrária (observado)
+2029/12/21,Dia de São Tomé
+2029/12/25,Natal
+2030/1/1,Ano Novo
+2030/1/4,Dia do Rei Amador
+2030/2/3,Dia dos Mártires
+2030/2/4,Dia dos Mártires (observado)
+2030/5/1,Dia do Trabalhador
+2030/7/12,Dia da Independência
+2030/9/6,Dia das Forças Armadas
+2030/9/30,Dia da Reforma Agrária
+2030/12/20,Dia de São Tomé (observado)
+2030/12/21,Dia de São Tomé
+2030/12/25,Natal
+2031/1/1,Ano Novo
+2031/1/3,Dia do Rei Amador (observado)
+2031/1/4,Dia do Rei Amador
+2031/2/3,Dia dos Mártires
+2031/5/1,Dia do Trabalhador
+2031/7/11,Dia da Independência (observado)
+2031/7/12,Dia da Independência
+2031/9/5,Dia das Forças Armadas (observado)
+2031/9/6,Dia das Forças Armadas
+2031/9/30,Dia da Reforma Agrária
+2031/12/21,Dia de São Tomé
+2031/12/22,Dia de São Tomé (observado)
+2031/12/25,Natal
+2032/1/1,Ano Novo
+2032/1/4,Dia do Rei Amador
+2032/1/5,Dia do Rei Amador (observado)
+2032/2/3,Dia dos Mártires
+2032/4/30,Dia do Trabalhador (observado)
+2032/5/1,Dia do Trabalhador
+2032/7/12,Dia da Independência
+2032/9/6,Dia das Forças Armadas
+2032/9/30,Dia da Reforma Agrária
+2032/12/21,Dia de São Tomé
+2032/12/24,Natal (observado)
+2032/12/25,Natal
+2032/12/31,Ano Novo (observado)
+2033/1/1,Ano Novo
+2033/1/4,Dia do Rei Amador
+2033/2/3,Dia dos Mártires
+2033/5/1,Dia do Trabalhador
+2033/5/2,Dia do Trabalhador (observado)
+2033/7/12,Dia da Independência
+2033/9/6,Dia das Forças Armadas
+2033/9/30,Dia da Reforma Agrária
+2033/12/21,Dia de São Tomé
+2033/12/25,Natal
+2033/12/26,Natal (observado)
+2034/1/1,Ano Novo
+2034/1/2,Ano Novo (observado)
+2034/1/4,Dia do Rei Amador
+2034/2/3,Dia dos Mártires
+2034/5/1,Dia do Trabalhador
+2034/7/12,Dia da Independência
+2034/9/6,Dia das Forças Armadas
+2034/9/29,Dia da Reforma Agrária (observado)
+2034/9/30,Dia da Reforma Agrária
+2034/12/21,Dia de São Tomé
+2034/12/25,Natal
+2035/1/1,Ano Novo
+2035/1/4,Dia do Rei Amador
+2035/2/2,Dia dos Mártires (observado)
+2035/2/3,Dia dos Mártires
+2035/5/1,Dia do Trabalhador
+2035/7/12,Dia da Independência
+2035/9/6,Dia das Forças Armadas
+2035/9/30,Dia da Reforma Agrária
+2035/10/1,Dia da Reforma Agrária (observado)
+2035/12/21,Dia de São Tomé
+2035/12/25,Natal
+2036/1/1,Ano Novo
+2036/1/4,Dia do Rei Amador
+2036/2/3,Dia dos Mártires
+2036/2/4,Dia dos Mártires (observado)
+2036/5/1,Dia do Trabalhador
+2036/7/11,Dia da Independência (observado)
+2036/7/12,Dia da Independência
+2036/9/5,Dia das Forças Armadas (observado)
+2036/9/6,Dia das Forças Armadas
+2036/9/30,Dia da Reforma Agrária
+2036/12/21,Dia de São Tomé
+2036/12/22,Dia de São Tomé (observado)
+2036/12/25,Natal
+2037/1/1,Ano Novo
+2037/1/4,Dia do Rei Amador
+2037/1/5,Dia do Rei Amador (observado)
+2037/2/3,Dia dos Mártires
+2037/5/1,Dia do Trabalhador
+2037/7/12,Dia da Independência
+2037/7/13,Dia da Independência (observado)
+2037/9/6,Dia das Forças Armadas
+2037/9/7,Dia das Forças Armadas (observado)
+2037/9/30,Dia da Reforma Agrária
+2037/12/21,Dia de São Tomé
+2037/12/25,Natal
+2038/1/1,Ano Novo
+2038/1/4,Dia do Rei Amador
+2038/2/3,Dia dos Mártires
+2038/4/30,Dia do Trabalhador (observado)
+2038/5/1,Dia do Trabalhador
+2038/7/12,Dia da Independência
+2038/9/6,Dia das Forças Armadas
+2038/9/30,Dia da Reforma Agrária
+2038/12/21,Dia de São Tomé
+2038/12/24,Natal (observado)
+2038/12/25,Natal
+2038/12/31,Ano Novo (observado)
+2039/1/1,Ano Novo
+2039/1/4,Dia do Rei Amador
+2039/2/3,Dia dos Mártires
+2039/5/1,Dia do Trabalhador
+2039/5/2,Dia do Trabalhador (observado)
+2039/7/12,Dia da Independência
+2039/9/6,Dia das Forças Armadas
+2039/9/30,Dia da Reforma Agrária
+2039/12/21,Dia de São Tomé
+2039/12/25,Natal
+2039/12/26,Natal (observado)
+2040/1/1,Ano Novo
+2040/1/2,Ano Novo (observado)
+2040/1/4,Dia do Rei Amador
+2040/2/3,Dia dos Mártires
+2040/5/1,Dia do Trabalhador
+2040/7/12,Dia da Independência
+2040/9/6,Dia das Forças Armadas
+2040/9/30,Dia da Reforma Agrária
+2040/10/1,Dia da Reforma Agrária (observado)
+2040/12/21,Dia de São Tomé
+2040/12/25,Natal
+2041/1/1,Ano Novo
+2041/1/4,Dia do Rei Amador
+2041/2/3,Dia dos Mártires
+2041/2/4,Dia dos Mártires (observado)
+2041/5/1,Dia do Trabalhador
+2041/7/12,Dia da Independência
+2041/9/6,Dia das Forças Armadas
+2041/9/30,Dia da Reforma Agrária
+2041/12/20,Dia de São Tomé (observado)
+2041/12/21,Dia de São Tomé
+2041/12/25,Natal
+2042/1/1,Ano Novo
+2042/1/3,Dia do Rei Amador (observado)
+2042/1/4,Dia do Rei Amador
+2042/2/3,Dia dos Mártires
+2042/5/1,Dia do Trabalhador
+2042/7/11,Dia da Independência (observado)
+2042/7/12,Dia da Independência
+2042/9/5,Dia das Forças Armadas (observado)
+2042/9/6,Dia das Forças Armadas
+2042/9/30,Dia da Reforma Agrária
+2042/12/21,Dia de São Tomé
+2042/12/22,Dia de São Tomé (observado)
+2042/12/25,Natal
+2043/1/1,Ano Novo
+2043/1/4,Dia do Rei Amador
+2043/1/5,Dia do Rei Amador (observado)
+2043/2/3,Dia dos Mártires
+2043/5/1,Dia do Trabalhador
+2043/7/12,Dia da Independência
+2043/7/13,Dia da Independência (observado)
+2043/9/6,Dia das Forças Armadas
+2043/9/7,Dia das Forças Armadas (observado)
+2043/9/30,Dia da Reforma Agrária
+2043/12/21,Dia de São Tomé
+2043/12/25,Natal
+2044/1/1,Ano Novo
+2044/1/4,Dia do Rei Amador
+2044/2/3,Dia dos Mártires
+2044/5/1,Dia do Trabalhador
+2044/5/2,Dia do Trabalhador (observado)
+2044/7/12,Dia da Independência
+2044/9/6,Dia das Forças Armadas
+2044/9/30,Dia da Reforma Agrária
+2044/12/21,Dia de São Tomé
+2044/12/25,Natal
+2044/12/26,Natal (observado)
+2045/1/1,Ano Novo
+2045/1/2,Ano Novo (observado)
+2045/1/4,Dia do Rei Amador
+2045/2/3,Dia dos Mártires
+2045/5/1,Dia do Trabalhador
+2045/7/12,Dia da Independência
+2045/9/6,Dia das Forças Armadas
+2045/9/29,Dia da Reforma Agrária (observado)
+2045/9/30,Dia da Reforma Agrária
+2045/12/21,Dia de São Tomé
+2045/12/25,Natal
+2046/1/1,Ano Novo
+2046/1/4,Dia do Rei Amador
+2046/2/2,Dia dos Mártires (observado)
+2046/2/3,Dia dos Mártires
+2046/5/1,Dia do Trabalhador
+2046/7/12,Dia da Independência
+2046/9/6,Dia das Forças Armadas
+2046/9/30,Dia da Reforma Agrária
+2046/10/1,Dia da Reforma Agrária (observado)
+2046/12/21,Dia de São Tomé
+2046/12/25,Natal
+2047/1/1,Ano Novo
+2047/1/4,Dia do Rei Amador
+2047/2/3,Dia dos Mártires
+2047/2/4,Dia dos Mártires (observado)
+2047/5/1,Dia do Trabalhador
+2047/7/12,Dia da Independência
+2047/9/6,Dia das Forças Armadas
+2047/9/30,Dia da Reforma Agrária
+2047/12/20,Dia de São Tomé (observado)
+2047/12/21,Dia de São Tomé
+2047/12/25,Natal
+2048/1/1,Ano Novo
+2048/1/3,Dia do Rei Amador (observado)
+2048/1/4,Dia do Rei Amador
+2048/2/3,Dia dos Mártires
+2048/5/1,Dia do Trabalhador
+2048/7/12,Dia da Independência
+2048/7/13,Dia da Independência (observado)
+2048/9/6,Dia das Forças Armadas
+2048/9/7,Dia das Forças Armadas (observado)
+2048/9/30,Dia da Reforma Agrária
+2048/12/21,Dia de São Tomé
+2048/12/25,Natal
+2049/1/1,Ano Novo
+2049/1/4,Dia do Rei Amador
+2049/2/3,Dia dos Mártires
+2049/4/30,Dia do Trabalhador (observado)
+2049/5/1,Dia do Trabalhador
+2049/7/12,Dia da Independência
+2049/9/6,Dia das Forças Armadas
+2049/9/30,Dia da Reforma Agrária
+2049/12/21,Dia de São Tomé
+2049/12/24,Natal (observado)
+2049/12/25,Natal
+2049/12/31,Ano Novo (observado)
+2050/1/1,Ano Novo
+2050/1/4,Dia do Rei Amador
+2050/2/3,Dia dos Mártires
+2050/5/1,Dia do Trabalhador
+2050/5/2,Dia do Trabalhador (observado)
+2050/7/12,Dia da Independência
+2050/9/6,Dia das Forças Armadas
+2050/9/30,Dia da Reforma Agrária
+2050/12/21,Dia de São Tomé
+2050/12/25,Natal
+2050/12/26,Natal (observado)

@@ -1,0 +1,225 @@
+# MX holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/2/3,Constitution Day
+2020/3/16,Benito Juárez's birthday
+2020/5/1,Labor Day
+2020/9/16,Independence Day
+2020/11/16,Revolution Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/2/1,Constitution Day
+2021/3/15,Benito Juárez's birthday
+2021/5/1,Labor Day
+2021/9/16,Independence Day
+2021/11/15,Revolution Day
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/2/7,Constitution Day
+2022/3/21,Benito Juárez's birthday
+2022/5/1,Labor Day
+2022/9/16,Independence Day
+2022/11/21,Revolution Day
+2022/12/25,Christmas Day
+2023/1/1,New Year's Day
+2023/2/6,Constitution Day
+2023/3/20,Benito Juárez's birthday
+2023/5/1,Labor Day
+2023/9/16,Independence Day
+2023/11/20,Revolution Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/2/5,Constitution Day
+2024/3/18,Benito Juárez's birthday
+2024/5/1,Labor Day
+2024/9/16,Independence Day
+2024/10/1,Change of Federal Government
+2024/11/18,Revolution Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/2/3,Constitution Day
+2025/3/17,Benito Juárez's birthday
+2025/5/1,Labor Day
+2025/9/16,Independence Day
+2025/11/17,Revolution Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/2/2,Constitution Day
+2026/3/16,Benito Juárez's birthday
+2026/5/1,Labor Day
+2026/9/16,Independence Day
+2026/11/16,Revolution Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/2/1,Constitution Day
+2027/3/15,Benito Juárez's birthday
+2027/5/1,Labor Day
+2027/9/16,Independence Day
+2027/11/15,Revolution Day
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/2/7,Constitution Day
+2028/3/20,Benito Juárez's birthday
+2028/5/1,Labor Day
+2028/9/16,Independence Day
+2028/11/20,Revolution Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/2/5,Constitution Day
+2029/3/19,Benito Juárez's birthday
+2029/5/1,Labor Day
+2029/9/16,Independence Day
+2029/11/19,Revolution Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/2/4,Constitution Day
+2030/3/18,Benito Juárez's birthday
+2030/5/1,Labor Day
+2030/9/16,Independence Day
+2030/10/1,Change of Federal Government
+2030/11/18,Revolution Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/2/3,Constitution Day
+2031/3/17,Benito Juárez's birthday
+2031/5/1,Labor Day
+2031/9/16,Independence Day
+2031/11/17,Revolution Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/2/2,Constitution Day
+2032/3/15,Benito Juárez's birthday
+2032/5/1,Labor Day
+2032/9/16,Independence Day
+2032/11/15,Revolution Day
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/2/7,Constitution Day
+2033/3/21,Benito Juárez's birthday
+2033/5/1,Labor Day
+2033/9/16,Independence Day
+2033/11/21,Revolution Day
+2033/12/25,Christmas Day
+2034/1/1,New Year's Day
+2034/2/6,Constitution Day
+2034/3/20,Benito Juárez's birthday
+2034/5/1,Labor Day
+2034/9/16,Independence Day
+2034/11/20,Revolution Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/2/5,Constitution Day
+2035/3/19,Benito Juárez's birthday
+2035/5/1,Labor Day
+2035/9/16,Independence Day
+2035/11/19,Revolution Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/2/4,Constitution Day
+2036/3/17,Benito Juárez's birthday
+2036/5/1,Labor Day
+2036/9/16,Independence Day
+2036/10/1,Change of Federal Government
+2036/11/17,Revolution Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/2/2,Constitution Day
+2037/3/16,Benito Juárez's birthday
+2037/5/1,Labor Day
+2037/9/16,Independence Day
+2037/11/16,Revolution Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/2/1,Constitution Day
+2038/3/15,Benito Juárez's birthday
+2038/5/1,Labor Day
+2038/9/16,Independence Day
+2038/11/15,Revolution Day
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/2/7,Constitution Day
+2039/3/21,Benito Juárez's birthday
+2039/5/1,Labor Day
+2039/9/16,Independence Day
+2039/11/21,Revolution Day
+2039/12/25,Christmas Day
+2040/1/1,New Year's Day
+2040/2/6,Constitution Day
+2040/3/19,Benito Juárez's birthday
+2040/5/1,Labor Day
+2040/9/16,Independence Day
+2040/11/19,Revolution Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/2/4,Constitution Day
+2041/3/18,Benito Juárez's birthday
+2041/5/1,Labor Day
+2041/9/16,Independence Day
+2041/11/18,Revolution Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/2/3,Constitution Day
+2042/3/17,Benito Juárez's birthday
+2042/5/1,Labor Day
+2042/9/16,Independence Day
+2042/10/1,Change of Federal Government
+2042/11/17,Revolution Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/2/2,Constitution Day
+2043/3/16,Benito Juárez's birthday
+2043/5/1,Labor Day
+2043/9/16,Independence Day
+2043/11/16,Revolution Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/2/1,Constitution Day
+2044/3/21,Benito Juárez's birthday
+2044/5/1,Labor Day
+2044/9/16,Independence Day
+2044/11/21,Revolution Day
+2044/12/25,Christmas Day
+2045/1/1,New Year's Day
+2045/2/6,Constitution Day
+2045/3/20,Benito Juárez's birthday
+2045/5/1,Labor Day
+2045/9/16,Independence Day
+2045/11/20,Revolution Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/2/5,Constitution Day
+2046/3/19,Benito Juárez's birthday
+2046/5/1,Labor Day
+2046/9/16,Independence Day
+2046/11/19,Revolution Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/2/4,Constitution Day
+2047/3/18,Benito Juárez's birthday
+2047/5/1,Labor Day
+2047/9/16,Independence Day
+2047/11/18,Revolution Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/2/3,Constitution Day
+2048/3/16,Benito Juárez's birthday
+2048/5/1,Labor Day
+2048/9/16,Independence Day
+2048/10/1,Change of Federal Government
+2048/11/16,Revolution Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/2/1,Constitution Day
+2049/3/15,Benito Juárez's birthday
+2049/5/1,Labor Day
+2049/9/16,Independence Day
+2049/11/15,Revolution Day
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/2/7,Constitution Day
+2050/3/21,Benito Juárez's birthday
+2050/5/1,Labor Day
+2050/9/16,Independence Day
+2050/11/21,Revolution Day
+2050/12/25,Christmas Day

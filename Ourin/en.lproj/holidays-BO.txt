@@ -1,0 +1,402 @@
+# BO holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/22,Plurinational State Foundation Day
+2020/2/24,Carnival
+2020/2/25,Carnival
+2020/4/10,Good Friday
+2020/5/1,Labor Day
+2020/6/11,Corpus Christi
+2020/6/21,Aymara New Year
+2020/6/22,Aymara New Year (observed)
+2020/8/6,Independence Day
+2020/10/17,National Dignity Day
+2020/11/2,All Souls' Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/1/22,Plurinational State Foundation Day
+2021/2/15,Carnival
+2021/2/16,Carnival
+2021/4/2,Good Friday
+2021/5/1,Labor Day
+2021/6/3,Corpus Christi
+2021/6/21,Aymara New Year
+2021/8/6,Independence Day
+2021/10/17,National Dignity Day
+2021/11/2,All Souls' Day
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/1/22,Plurinational State Foundation Day
+2022/2/28,Carnival
+2022/3/1,Carnival
+2022/4/15,Good Friday
+2022/5/1,Labor Day
+2022/5/2,Labor Day (observed)
+2022/6/16,Corpus Christi
+2022/6/21,Aymara New Year
+2022/8/6,Independence Day
+2022/10/17,National Dignity Day
+2022/11/2,All Souls' Day
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/1/22,Plurinational State Foundation Day
+2023/1/23,Plurinational State Foundation Day (observed)
+2023/2/20,Carnival
+2023/2/21,Carnival
+2023/4/7,Good Friday
+2023/5/1,Labor Day
+2023/6/8,Corpus Christi
+2023/6/21,Aymara New Year
+2023/8/6,Independence Day
+2023/8/7,Independence Day (observed)
+2023/10/17,National Dignity Day
+2023/11/2,All Souls' Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/1/22,Plurinational State Foundation Day
+2024/2/12,Carnival
+2024/2/13,Carnival
+2024/3/29,Good Friday
+2024/5/1,Labor Day
+2024/5/30,Corpus Christi
+2024/6/21,Aymara New Year
+2024/8/6,Independence Day
+2024/10/17,National Dignity Day
+2024/11/2,All Souls' Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/1/22,Plurinational State Foundation Day
+2025/3/3,Carnival
+2025/3/4,Carnival
+2025/4/18,Good Friday
+2025/5/1,Labor Day
+2025/6/19,Corpus Christi
+2025/6/21,Aymara New Year
+2025/8/6,Independence Day
+2025/10/17,National Dignity Day
+2025/11/2,All Souls' Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/1/22,Plurinational State Foundation Day
+2026/2/16,Carnival
+2026/2/17,Carnival
+2026/4/3,Good Friday
+2026/5/1,Labor Day
+2026/6/4,Corpus Christi
+2026/6/21,Aymara New Year
+2026/6/22,Aymara New Year (observed)
+2026/8/6,Independence Day
+2026/10/17,National Dignity Day
+2026/11/2,All Souls' Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/1/22,Plurinational State Foundation Day
+2027/2/8,Carnival
+2027/2/9,Carnival
+2027/3/26,Good Friday
+2027/5/1,Labor Day
+2027/5/27,Corpus Christi
+2027/6/21,Aymara New Year
+2027/8/6,Independence Day
+2027/10/17,National Dignity Day
+2027/11/2,All Souls' Day
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/1/22,Plurinational State Foundation Day
+2028/2/28,Carnival
+2028/2/29,Carnival
+2028/4/14,Good Friday
+2028/5/1,Labor Day
+2028/6/15,Corpus Christi
+2028/6/21,Aymara New Year
+2028/8/6,Independence Day
+2028/8/7,Independence Day (observed)
+2028/10/17,National Dignity Day
+2028/11/2,All Souls' Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/1/22,Plurinational State Foundation Day
+2029/2/12,Carnival
+2029/2/13,Carnival
+2029/3/30,Good Friday
+2029/5/1,Labor Day
+2029/5/31,Corpus Christi
+2029/6/21,Aymara New Year
+2029/8/6,Independence Day
+2029/10/17,National Dignity Day
+2029/11/2,All Souls' Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/1/22,Plurinational State Foundation Day
+2030/3/4,Carnival
+2030/3/5,Carnival
+2030/4/19,Good Friday
+2030/5/1,Labor Day
+2030/6/20,Corpus Christi
+2030/6/21,Aymara New Year
+2030/8/6,Independence Day
+2030/10/17,National Dignity Day
+2030/11/2,All Souls' Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/1/22,Plurinational State Foundation Day
+2031/2/24,Carnival
+2031/2/25,Carnival
+2031/4/11,Good Friday
+2031/5/1,Labor Day
+2031/6/12,Corpus Christi
+2031/6/21,Aymara New Year
+2031/8/6,Independence Day
+2031/10/17,National Dignity Day
+2031/11/2,All Souls' Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/1/22,Plurinational State Foundation Day
+2032/2/9,Carnival
+2032/2/10,Carnival
+2032/3/26,Good Friday
+2032/5/1,Labor Day
+2032/5/27,Corpus Christi
+2032/6/21,Aymara New Year
+2032/8/6,Independence Day
+2032/10/17,National Dignity Day
+2032/11/2,All Souls' Day
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/1/22,Plurinational State Foundation Day
+2033/2/28,Carnival
+2033/3/1,Carnival
+2033/4/15,Good Friday
+2033/5/1,Labor Day
+2033/5/2,Labor Day (observed)
+2033/6/16,Corpus Christi
+2033/6/21,Aymara New Year
+2033/8/6,Independence Day
+2033/10/17,National Dignity Day
+2033/11/2,All Souls' Day
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/1/22,Plurinational State Foundation Day
+2034/1/23,Plurinational State Foundation Day (observed)
+2034/2/20,Carnival
+2034/2/21,Carnival
+2034/4/7,Good Friday
+2034/5/1,Labor Day
+2034/6/8,Corpus Christi
+2034/6/21,Aymara New Year
+2034/8/6,Independence Day
+2034/8/7,Independence Day (observed)
+2034/10/17,National Dignity Day
+2034/11/2,All Souls' Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/1/22,Plurinational State Foundation Day
+2035/2/5,Carnival
+2035/2/6,Carnival
+2035/3/23,Good Friday
+2035/5/1,Labor Day
+2035/5/24,Corpus Christi
+2035/6/21,Aymara New Year
+2035/8/6,Independence Day
+2035/10/17,National Dignity Day
+2035/11/2,All Souls' Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/1/22,Plurinational State Foundation Day
+2036/2/25,Carnival
+2036/2/26,Carnival
+2036/4/11,Good Friday
+2036/5/1,Labor Day
+2036/6/12,Corpus Christi
+2036/6/21,Aymara New Year
+2036/8/6,Independence Day
+2036/10/17,National Dignity Day
+2036/11/2,All Souls' Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/1/22,Plurinational State Foundation Day
+2037/2/16,Carnival
+2037/2/17,Carnival
+2037/4/3,Good Friday
+2037/5/1,Labor Day
+2037/6/4,Corpus Christi
+2037/6/21,Aymara New Year
+2037/6/22,Aymara New Year (observed)
+2037/8/6,Independence Day
+2037/10/17,National Dignity Day
+2037/11/2,All Souls' Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/1/22,Plurinational State Foundation Day
+2038/3/8,Carnival
+2038/3/9,Carnival
+2038/4/23,Good Friday
+2038/5/1,Labor Day
+2038/6/21,Aymara New Year
+2038/6/24,Corpus Christi
+2038/8/6,Independence Day
+2038/10/17,National Dignity Day
+2038/11/2,All Souls' Day
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/1/22,Plurinational State Foundation Day
+2039/2/21,Carnival
+2039/2/22,Carnival
+2039/4/8,Good Friday
+2039/5/1,Labor Day
+2039/5/2,Labor Day (observed)
+2039/6/9,Corpus Christi
+2039/6/21,Aymara New Year
+2039/8/6,Independence Day
+2039/10/17,National Dignity Day
+2039/11/2,All Souls' Day
+2039/12/25,Christmas Day
+2039/12/26,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/1/22,Plurinational State Foundation Day
+2040/1/23,Plurinational State Foundation Day (observed)
+2040/2/13,Carnival
+2040/2/14,Carnival
+2040/3/30,Good Friday
+2040/5/1,Labor Day
+2040/5/31,Corpus Christi
+2040/6/21,Aymara New Year
+2040/8/6,Independence Day
+2040/10/17,National Dignity Day
+2040/11/2,All Souls' Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/1/22,Plurinational State Foundation Day
+2041/3/4,Carnival
+2041/3/5,Carnival
+2041/4/19,Good Friday
+2041/5/1,Labor Day
+2041/6/20,Corpus Christi
+2041/6/21,Aymara New Year
+2041/8/6,Independence Day
+2041/10/17,National Dignity Day
+2041/11/2,All Souls' Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/1/22,Plurinational State Foundation Day
+2042/2/17,Carnival
+2042/2/18,Carnival
+2042/4/4,Good Friday
+2042/5/1,Labor Day
+2042/6/5,Corpus Christi
+2042/6/21,Aymara New Year
+2042/8/6,Independence Day
+2042/10/17,National Dignity Day
+2042/11/2,All Souls' Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/1/22,Plurinational State Foundation Day
+2043/2/9,Carnival
+2043/2/10,Carnival
+2043/3/27,Good Friday
+2043/5/1,Labor Day
+2043/5/28,Corpus Christi
+2043/6/21,Aymara New Year
+2043/6/22,Aymara New Year (observed)
+2043/8/6,Independence Day
+2043/10/17,National Dignity Day
+2043/11/2,All Souls' Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/1/22,Plurinational State Foundation Day
+2044/2/29,Carnival
+2044/3/1,Carnival
+2044/4/15,Good Friday
+2044/5/1,Labor Day
+2044/5/2,Labor Day (observed)
+2044/6/16,Corpus Christi
+2044/6/21,Aymara New Year
+2044/8/6,Independence Day
+2044/10/17,National Dignity Day
+2044/11/2,All Souls' Day
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/22,Plurinational State Foundation Day
+2045/1/23,Plurinational State Foundation Day (observed)
+2045/2/20,Carnival
+2045/2/21,Carnival
+2045/4/7,Good Friday
+2045/5/1,Labor Day
+2045/6/8,Corpus Christi
+2045/6/21,Aymara New Year
+2045/8/6,Independence Day
+2045/8/7,Independence Day (observed)
+2045/10/17,National Dignity Day
+2045/11/2,All Souls' Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/1/22,Plurinational State Foundation Day
+2046/2/5,Carnival
+2046/2/6,Carnival
+2046/3/23,Good Friday
+2046/5/1,Labor Day
+2046/5/24,Corpus Christi
+2046/6/21,Aymara New Year
+2046/8/6,Independence Day
+2046/10/17,National Dignity Day
+2046/11/2,All Souls' Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/1/22,Plurinational State Foundation Day
+2047/2/25,Carnival
+2047/2/26,Carnival
+2047/4/12,Good Friday
+2047/5/1,Labor Day
+2047/6/13,Corpus Christi
+2047/6/21,Aymara New Year
+2047/8/6,Independence Day
+2047/10/17,National Dignity Day
+2047/11/2,All Souls' Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/1/22,Plurinational State Foundation Day
+2048/2/17,Carnival
+2048/2/18,Carnival
+2048/4/3,Good Friday
+2048/5/1,Labor Day
+2048/6/4,Corpus Christi
+2048/6/21,Aymara New Year
+2048/6/22,Aymara New Year (observed)
+2048/8/6,Independence Day
+2048/10/17,National Dignity Day
+2048/11/2,All Souls' Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/1/22,Plurinational State Foundation Day
+2049/3/1,Carnival
+2049/3/2,Carnival
+2049/4/16,Good Friday
+2049/5/1,Labor Day
+2049/6/17,Corpus Christi
+2049/6/21,Aymara New Year
+2049/8/6,Independence Day
+2049/10/17,National Dignity Day
+2049/11/2,All Souls' Day
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/1/22,Plurinational State Foundation Day
+2050/2/21,Carnival
+2050/2/22,Carnival
+2050/4/8,Good Friday
+2050/5/1,Labor Day
+2050/5/2,Labor Day (observed)
+2050/6/9,Corpus Christi
+2050/6/21,Aymara New Year
+2050/8/6,Independence Day
+2050/10/17,National Dignity Day
+2050/11/2,All Souls' Day
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)

@@ -1,0 +1,405 @@
+# PT の祝日（2020〜2050年、言語: pt_PT）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Ano Novo
+2020/4/10,Sexta-feira Santa
+2020/4/12,Páscoa
+2020/4/25,Dia da Liberdade
+2020/5/1,Dia do Trabalhador
+2020/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2020/6/11,Corpo de Deus
+2020/8/15,Assunção de Nossa Senhora
+2020/10/5,Implantação da República
+2020/11/1,Dia de Todos os Santos
+2020/12/1,Restauração da Independência
+2020/12/8,Imaculada Conceição
+2020/12/25,Dia de Natal
+2021/1/1,Ano Novo
+2021/4/2,Sexta-feira Santa
+2021/4/4,Páscoa
+2021/4/25,Dia da Liberdade
+2021/5/1,Dia do Trabalhador
+2021/6/3,Corpo de Deus
+2021/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2021/8/15,Assunção de Nossa Senhora
+2021/10/5,Implantação da República
+2021/11/1,Dia de Todos os Santos
+2021/12/1,Restauração da Independência
+2021/12/8,Imaculada Conceição
+2021/12/25,Dia de Natal
+2022/1/1,Ano Novo
+2022/4/15,Sexta-feira Santa
+2022/4/17,Páscoa
+2022/4/25,Dia da Liberdade
+2022/5/1,Dia do Trabalhador
+2022/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2022/6/16,Corpo de Deus
+2022/8/15,Assunção de Nossa Senhora
+2022/10/5,Implantação da República
+2022/11/1,Dia de Todos os Santos
+2022/12/1,Restauração da Independência
+2022/12/8,Imaculada Conceição
+2022/12/25,Dia de Natal
+2023/1/1,Ano Novo
+2023/4/7,Sexta-feira Santa
+2023/4/9,Páscoa
+2023/4/25,Dia da Liberdade
+2023/5/1,Dia do Trabalhador
+2023/6/8,Corpo de Deus
+2023/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2023/8/15,Assunção de Nossa Senhora
+2023/10/5,Implantação da República
+2023/11/1,Dia de Todos os Santos
+2023/12/1,Restauração da Independência
+2023/12/8,Imaculada Conceição
+2023/12/25,Dia de Natal
+2024/1/1,Ano Novo
+2024/3/29,Sexta-feira Santa
+2024/3/31,Páscoa
+2024/4/25,Dia da Liberdade
+2024/5/1,Dia do Trabalhador
+2024/5/30,Corpo de Deus
+2024/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2024/8/15,Assunção de Nossa Senhora
+2024/10/5,Implantação da República
+2024/11/1,Dia de Todos os Santos
+2024/12/1,Restauração da Independência
+2024/12/8,Imaculada Conceição
+2024/12/25,Dia de Natal
+2025/1/1,Ano Novo
+2025/4/18,Sexta-feira Santa
+2025/4/20,Páscoa
+2025/4/25,Dia da Liberdade
+2025/5/1,Dia do Trabalhador
+2025/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2025/6/19,Corpo de Deus
+2025/8/15,Assunção de Nossa Senhora
+2025/10/5,Implantação da República
+2025/11/1,Dia de Todos os Santos
+2025/12/1,Restauração da Independência
+2025/12/8,Imaculada Conceição
+2025/12/25,Dia de Natal
+2026/1/1,Ano Novo
+2026/4/3,Sexta-feira Santa
+2026/4/5,Páscoa
+2026/4/25,Dia da Liberdade
+2026/5/1,Dia do Trabalhador
+2026/6/4,Corpo de Deus
+2026/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2026/8/15,Assunção de Nossa Senhora
+2026/10/5,Implantação da República
+2026/11/1,Dia de Todos os Santos
+2026/12/1,Restauração da Independência
+2026/12/8,Imaculada Conceição
+2026/12/25,Dia de Natal
+2027/1/1,Ano Novo
+2027/3/26,Sexta-feira Santa
+2027/3/28,Páscoa
+2027/4/25,Dia da Liberdade
+2027/5/1,Dia do Trabalhador
+2027/5/27,Corpo de Deus
+2027/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2027/8/15,Assunção de Nossa Senhora
+2027/10/5,Implantação da República
+2027/11/1,Dia de Todos os Santos
+2027/12/1,Restauração da Independência
+2027/12/8,Imaculada Conceição
+2027/12/25,Dia de Natal
+2028/1/1,Ano Novo
+2028/4/14,Sexta-feira Santa
+2028/4/16,Páscoa
+2028/4/25,Dia da Liberdade
+2028/5/1,Dia do Trabalhador
+2028/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2028/6/15,Corpo de Deus
+2028/8/15,Assunção de Nossa Senhora
+2028/10/5,Implantação da República
+2028/11/1,Dia de Todos os Santos
+2028/12/1,Restauração da Independência
+2028/12/8,Imaculada Conceição
+2028/12/25,Dia de Natal
+2029/1/1,Ano Novo
+2029/3/30,Sexta-feira Santa
+2029/4/1,Páscoa
+2029/4/25,Dia da Liberdade
+2029/5/1,Dia do Trabalhador
+2029/5/31,Corpo de Deus
+2029/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2029/8/15,Assunção de Nossa Senhora
+2029/10/5,Implantação da República
+2029/11/1,Dia de Todos os Santos
+2029/12/1,Restauração da Independência
+2029/12/8,Imaculada Conceição
+2029/12/25,Dia de Natal
+2030/1/1,Ano Novo
+2030/4/19,Sexta-feira Santa
+2030/4/21,Páscoa
+2030/4/25,Dia da Liberdade
+2030/5/1,Dia do Trabalhador
+2030/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2030/6/20,Corpo de Deus
+2030/8/15,Assunção de Nossa Senhora
+2030/10/5,Implantação da República
+2030/11/1,Dia de Todos os Santos
+2030/12/1,Restauração da Independência
+2030/12/8,Imaculada Conceição
+2030/12/25,Dia de Natal
+2031/1/1,Ano Novo
+2031/4/11,Sexta-feira Santa
+2031/4/13,Páscoa
+2031/4/25,Dia da Liberdade
+2031/5/1,Dia do Trabalhador
+2031/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2031/6/12,Corpo de Deus
+2031/8/15,Assunção de Nossa Senhora
+2031/10/5,Implantação da República
+2031/11/1,Dia de Todos os Santos
+2031/12/1,Restauração da Independência
+2031/12/8,Imaculada Conceição
+2031/12/25,Dia de Natal
+2032/1/1,Ano Novo
+2032/3/26,Sexta-feira Santa
+2032/3/28,Páscoa
+2032/4/25,Dia da Liberdade
+2032/5/1,Dia do Trabalhador
+2032/5/27,Corpo de Deus
+2032/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2032/8/15,Assunção de Nossa Senhora
+2032/10/5,Implantação da República
+2032/11/1,Dia de Todos os Santos
+2032/12/1,Restauração da Independência
+2032/12/8,Imaculada Conceição
+2032/12/25,Dia de Natal
+2033/1/1,Ano Novo
+2033/4/15,Sexta-feira Santa
+2033/4/17,Páscoa
+2033/4/25,Dia da Liberdade
+2033/5/1,Dia do Trabalhador
+2033/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2033/6/16,Corpo de Deus
+2033/8/15,Assunção de Nossa Senhora
+2033/10/5,Implantação da República
+2033/11/1,Dia de Todos os Santos
+2033/12/1,Restauração da Independência
+2033/12/8,Imaculada Conceição
+2033/12/25,Dia de Natal
+2034/1/1,Ano Novo
+2034/4/7,Sexta-feira Santa
+2034/4/9,Páscoa
+2034/4/25,Dia da Liberdade
+2034/5/1,Dia do Trabalhador
+2034/6/8,Corpo de Deus
+2034/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2034/8/15,Assunção de Nossa Senhora
+2034/10/5,Implantação da República
+2034/11/1,Dia de Todos os Santos
+2034/12/1,Restauração da Independência
+2034/12/8,Imaculada Conceição
+2034/12/25,Dia de Natal
+2035/1/1,Ano Novo
+2035/3/23,Sexta-feira Santa
+2035/3/25,Páscoa
+2035/4/25,Dia da Liberdade
+2035/5/1,Dia do Trabalhador
+2035/5/24,Corpo de Deus
+2035/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2035/8/15,Assunção de Nossa Senhora
+2035/10/5,Implantação da República
+2035/11/1,Dia de Todos os Santos
+2035/12/1,Restauração da Independência
+2035/12/8,Imaculada Conceição
+2035/12/25,Dia de Natal
+2036/1/1,Ano Novo
+2036/4/11,Sexta-feira Santa
+2036/4/13,Páscoa
+2036/4/25,Dia da Liberdade
+2036/5/1,Dia do Trabalhador
+2036/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2036/6/12,Corpo de Deus
+2036/8/15,Assunção de Nossa Senhora
+2036/10/5,Implantação da República
+2036/11/1,Dia de Todos os Santos
+2036/12/1,Restauração da Independência
+2036/12/8,Imaculada Conceição
+2036/12/25,Dia de Natal
+2037/1/1,Ano Novo
+2037/4/3,Sexta-feira Santa
+2037/4/5,Páscoa
+2037/4/25,Dia da Liberdade
+2037/5/1,Dia do Trabalhador
+2037/6/4,Corpo de Deus
+2037/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2037/8/15,Assunção de Nossa Senhora
+2037/10/5,Implantação da República
+2037/11/1,Dia de Todos os Santos
+2037/12/1,Restauração da Independência
+2037/12/8,Imaculada Conceição
+2037/12/25,Dia de Natal
+2038/1/1,Ano Novo
+2038/4/23,Sexta-feira Santa
+2038/4/25,Dia da Liberdade; Páscoa
+2038/5/1,Dia do Trabalhador
+2038/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2038/6/24,Corpo de Deus
+2038/8/15,Assunção de Nossa Senhora
+2038/10/5,Implantação da República
+2038/11/1,Dia de Todos os Santos
+2038/12/1,Restauração da Independência
+2038/12/8,Imaculada Conceição
+2038/12/25,Dia de Natal
+2039/1/1,Ano Novo
+2039/4/8,Sexta-feira Santa
+2039/4/10,Páscoa
+2039/4/25,Dia da Liberdade
+2039/5/1,Dia do Trabalhador
+2039/6/9,Corpo de Deus
+2039/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2039/8/15,Assunção de Nossa Senhora
+2039/10/5,Implantação da República
+2039/11/1,Dia de Todos os Santos
+2039/12/1,Restauração da Independência
+2039/12/8,Imaculada Conceição
+2039/12/25,Dia de Natal
+2040/1/1,Ano Novo
+2040/3/30,Sexta-feira Santa
+2040/4/1,Páscoa
+2040/4/25,Dia da Liberdade
+2040/5/1,Dia do Trabalhador
+2040/5/31,Corpo de Deus
+2040/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2040/8/15,Assunção de Nossa Senhora
+2040/10/5,Implantação da República
+2040/11/1,Dia de Todos os Santos
+2040/12/1,Restauração da Independência
+2040/12/8,Imaculada Conceição
+2040/12/25,Dia de Natal
+2041/1/1,Ano Novo
+2041/4/19,Sexta-feira Santa
+2041/4/21,Páscoa
+2041/4/25,Dia da Liberdade
+2041/5/1,Dia do Trabalhador
+2041/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2041/6/20,Corpo de Deus
+2041/8/15,Assunção de Nossa Senhora
+2041/10/5,Implantação da República
+2041/11/1,Dia de Todos os Santos
+2041/12/1,Restauração da Independência
+2041/12/8,Imaculada Conceição
+2041/12/25,Dia de Natal
+2042/1/1,Ano Novo
+2042/4/4,Sexta-feira Santa
+2042/4/6,Páscoa
+2042/4/25,Dia da Liberdade
+2042/5/1,Dia do Trabalhador
+2042/6/5,Corpo de Deus
+2042/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2042/8/15,Assunção de Nossa Senhora
+2042/10/5,Implantação da República
+2042/11/1,Dia de Todos os Santos
+2042/12/1,Restauração da Independência
+2042/12/8,Imaculada Conceição
+2042/12/25,Dia de Natal
+2043/1/1,Ano Novo
+2043/3/27,Sexta-feira Santa
+2043/3/29,Páscoa
+2043/4/25,Dia da Liberdade
+2043/5/1,Dia do Trabalhador
+2043/5/28,Corpo de Deus
+2043/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2043/8/15,Assunção de Nossa Senhora
+2043/10/5,Implantação da República
+2043/11/1,Dia de Todos os Santos
+2043/12/1,Restauração da Independência
+2043/12/8,Imaculada Conceição
+2043/12/25,Dia de Natal
+2044/1/1,Ano Novo
+2044/4/15,Sexta-feira Santa
+2044/4/17,Páscoa
+2044/4/25,Dia da Liberdade
+2044/5/1,Dia do Trabalhador
+2044/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2044/6/16,Corpo de Deus
+2044/8/15,Assunção de Nossa Senhora
+2044/10/5,Implantação da República
+2044/11/1,Dia de Todos os Santos
+2044/12/1,Restauração da Independência
+2044/12/8,Imaculada Conceição
+2044/12/25,Dia de Natal
+2045/1/1,Ano Novo
+2045/4/7,Sexta-feira Santa
+2045/4/9,Páscoa
+2045/4/25,Dia da Liberdade
+2045/5/1,Dia do Trabalhador
+2045/6/8,Corpo de Deus
+2045/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2045/8/15,Assunção de Nossa Senhora
+2045/10/5,Implantação da República
+2045/11/1,Dia de Todos os Santos
+2045/12/1,Restauração da Independência
+2045/12/8,Imaculada Conceição
+2045/12/25,Dia de Natal
+2046/1/1,Ano Novo
+2046/3/23,Sexta-feira Santa
+2046/3/25,Páscoa
+2046/4/25,Dia da Liberdade
+2046/5/1,Dia do Trabalhador
+2046/5/24,Corpo de Deus
+2046/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2046/8/15,Assunção de Nossa Senhora
+2046/10/5,Implantação da República
+2046/11/1,Dia de Todos os Santos
+2046/12/1,Restauração da Independência
+2046/12/8,Imaculada Conceição
+2046/12/25,Dia de Natal
+2047/1/1,Ano Novo
+2047/4/12,Sexta-feira Santa
+2047/4/14,Páscoa
+2047/4/25,Dia da Liberdade
+2047/5/1,Dia do Trabalhador
+2047/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2047/6/13,Corpo de Deus
+2047/8/15,Assunção de Nossa Senhora
+2047/10/5,Implantação da República
+2047/11/1,Dia de Todos os Santos
+2047/12/1,Restauração da Independência
+2047/12/8,Imaculada Conceição
+2047/12/25,Dia de Natal
+2048/1/1,Ano Novo
+2048/4/3,Sexta-feira Santa
+2048/4/5,Páscoa
+2048/4/25,Dia da Liberdade
+2048/5/1,Dia do Trabalhador
+2048/6/4,Corpo de Deus
+2048/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2048/8/15,Assunção de Nossa Senhora
+2048/10/5,Implantação da República
+2048/11/1,Dia de Todos os Santos
+2048/12/1,Restauração da Independência
+2048/12/8,Imaculada Conceição
+2048/12/25,Dia de Natal
+2049/1/1,Ano Novo
+2049/4/16,Sexta-feira Santa
+2049/4/18,Páscoa
+2049/4/25,Dia da Liberdade
+2049/5/1,Dia do Trabalhador
+2049/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2049/6/17,Corpo de Deus
+2049/8/15,Assunção de Nossa Senhora
+2049/10/5,Implantação da República
+2049/11/1,Dia de Todos os Santos
+2049/12/1,Restauração da Independência
+2049/12/8,Imaculada Conceição
+2049/12/25,Dia de Natal
+2050/1/1,Ano Novo
+2050/4/8,Sexta-feira Santa
+2050/4/10,Páscoa
+2050/4/25,Dia da Liberdade
+2050/5/1,Dia do Trabalhador
+2050/6/9,Corpo de Deus
+2050/6/10,Dia de Portugal, de Camões e das Comunidades Portuguesas
+2050/8/15,Assunção de Nossa Senhora
+2050/10/5,Implantação da República
+2050/11/1,Dia de Todos os Santos
+2050/12/1,Restauração da Independência
+2050/12/8,Imaculada Conceição
+2050/12/25,Dia de Natal

@@ -1,0 +1,405 @@
+# SE の祝日（2020〜2050年、言語: sv）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Nyårsdagen
+2020/1/6,Trettondedag jul
+2020/4/10,Långfredagen
+2020/4/12,Påskdagen
+2020/4/13,Annandag påsk
+2020/5/1,Första maj
+2020/5/21,Kristi himmelsfärdsdag
+2020/5/31,Pingstdagen
+2020/6/6,Nationaldagen
+2020/6/20,Midsommardagen
+2020/10/31,Alla helgons dag
+2020/12/25,Juldagen
+2020/12/26,Annandag jul
+2021/1/1,Nyårsdagen
+2021/1/6,Trettondedag jul
+2021/4/2,Långfredagen
+2021/4/4,Påskdagen
+2021/4/5,Annandag påsk
+2021/5/1,Första maj
+2021/5/13,Kristi himmelsfärdsdag
+2021/5/23,Pingstdagen
+2021/6/6,Nationaldagen
+2021/6/26,Midsommardagen
+2021/11/6,Alla helgons dag
+2021/12/25,Juldagen
+2021/12/26,Annandag jul
+2022/1/1,Nyårsdagen
+2022/1/6,Trettondedag jul
+2022/4/15,Långfredagen
+2022/4/17,Påskdagen
+2022/4/18,Annandag påsk
+2022/5/1,Första maj
+2022/5/26,Kristi himmelsfärdsdag
+2022/6/5,Pingstdagen
+2022/6/6,Nationaldagen
+2022/6/25,Midsommardagen
+2022/11/5,Alla helgons dag
+2022/12/25,Juldagen
+2022/12/26,Annandag jul
+2023/1/1,Nyårsdagen
+2023/1/6,Trettondedag jul
+2023/4/7,Långfredagen
+2023/4/9,Påskdagen
+2023/4/10,Annandag påsk
+2023/5/1,Första maj
+2023/5/18,Kristi himmelsfärdsdag
+2023/5/28,Pingstdagen
+2023/6/6,Nationaldagen
+2023/6/24,Midsommardagen
+2023/11/4,Alla helgons dag
+2023/12/25,Juldagen
+2023/12/26,Annandag jul
+2024/1/1,Nyårsdagen
+2024/1/6,Trettondedag jul
+2024/3/29,Långfredagen
+2024/3/31,Påskdagen
+2024/4/1,Annandag påsk
+2024/5/1,Första maj
+2024/5/9,Kristi himmelsfärdsdag
+2024/5/19,Pingstdagen
+2024/6/6,Nationaldagen
+2024/6/22,Midsommardagen
+2024/11/2,Alla helgons dag
+2024/12/25,Juldagen
+2024/12/26,Annandag jul
+2025/1/1,Nyårsdagen
+2025/1/6,Trettondedag jul
+2025/4/18,Långfredagen
+2025/4/20,Påskdagen
+2025/4/21,Annandag påsk
+2025/5/1,Första maj
+2025/5/29,Kristi himmelsfärdsdag
+2025/6/6,Nationaldagen
+2025/6/8,Pingstdagen
+2025/6/21,Midsommardagen
+2025/11/1,Alla helgons dag
+2025/12/25,Juldagen
+2025/12/26,Annandag jul
+2026/1/1,Nyårsdagen
+2026/1/6,Trettondedag jul
+2026/4/3,Långfredagen
+2026/4/5,Påskdagen
+2026/4/6,Annandag påsk
+2026/5/1,Första maj
+2026/5/14,Kristi himmelsfärdsdag
+2026/5/24,Pingstdagen
+2026/6/6,Nationaldagen
+2026/6/20,Midsommardagen
+2026/10/31,Alla helgons dag
+2026/12/25,Juldagen
+2026/12/26,Annandag jul
+2027/1/1,Nyårsdagen
+2027/1/6,Trettondedag jul
+2027/3/26,Långfredagen
+2027/3/28,Påskdagen
+2027/3/29,Annandag påsk
+2027/5/1,Första maj
+2027/5/6,Kristi himmelsfärdsdag
+2027/5/16,Pingstdagen
+2027/6/6,Nationaldagen
+2027/6/26,Midsommardagen
+2027/11/6,Alla helgons dag
+2027/12/25,Juldagen
+2027/12/26,Annandag jul
+2028/1/1,Nyårsdagen
+2028/1/6,Trettondedag jul
+2028/4/14,Långfredagen
+2028/4/16,Påskdagen
+2028/4/17,Annandag påsk
+2028/5/1,Första maj
+2028/5/25,Kristi himmelsfärdsdag
+2028/6/4,Pingstdagen
+2028/6/6,Nationaldagen
+2028/6/24,Midsommardagen
+2028/11/4,Alla helgons dag
+2028/12/25,Juldagen
+2028/12/26,Annandag jul
+2029/1/1,Nyårsdagen
+2029/1/6,Trettondedag jul
+2029/3/30,Långfredagen
+2029/4/1,Påskdagen
+2029/4/2,Annandag påsk
+2029/5/1,Första maj
+2029/5/10,Kristi himmelsfärdsdag
+2029/5/20,Pingstdagen
+2029/6/6,Nationaldagen
+2029/6/23,Midsommardagen
+2029/11/3,Alla helgons dag
+2029/12/25,Juldagen
+2029/12/26,Annandag jul
+2030/1/1,Nyårsdagen
+2030/1/6,Trettondedag jul
+2030/4/19,Långfredagen
+2030/4/21,Påskdagen
+2030/4/22,Annandag påsk
+2030/5/1,Första maj
+2030/5/30,Kristi himmelsfärdsdag
+2030/6/6,Nationaldagen
+2030/6/9,Pingstdagen
+2030/6/22,Midsommardagen
+2030/11/2,Alla helgons dag
+2030/12/25,Juldagen
+2030/12/26,Annandag jul
+2031/1/1,Nyårsdagen
+2031/1/6,Trettondedag jul
+2031/4/11,Långfredagen
+2031/4/13,Påskdagen
+2031/4/14,Annandag påsk
+2031/5/1,Första maj
+2031/5/22,Kristi himmelsfärdsdag
+2031/6/1,Pingstdagen
+2031/6/6,Nationaldagen
+2031/6/21,Midsommardagen
+2031/11/1,Alla helgons dag
+2031/12/25,Juldagen
+2031/12/26,Annandag jul
+2032/1/1,Nyårsdagen
+2032/1/6,Trettondedag jul
+2032/3/26,Långfredagen
+2032/3/28,Påskdagen
+2032/3/29,Annandag påsk
+2032/5/1,Första maj
+2032/5/6,Kristi himmelsfärdsdag
+2032/5/16,Pingstdagen
+2032/6/6,Nationaldagen
+2032/6/26,Midsommardagen
+2032/11/6,Alla helgons dag
+2032/12/25,Juldagen
+2032/12/26,Annandag jul
+2033/1/1,Nyårsdagen
+2033/1/6,Trettondedag jul
+2033/4/15,Långfredagen
+2033/4/17,Påskdagen
+2033/4/18,Annandag påsk
+2033/5/1,Första maj
+2033/5/26,Kristi himmelsfärdsdag
+2033/6/5,Pingstdagen
+2033/6/6,Nationaldagen
+2033/6/25,Midsommardagen
+2033/11/5,Alla helgons dag
+2033/12/25,Juldagen
+2033/12/26,Annandag jul
+2034/1/1,Nyårsdagen
+2034/1/6,Trettondedag jul
+2034/4/7,Långfredagen
+2034/4/9,Påskdagen
+2034/4/10,Annandag påsk
+2034/5/1,Första maj
+2034/5/18,Kristi himmelsfärdsdag
+2034/5/28,Pingstdagen
+2034/6/6,Nationaldagen
+2034/6/24,Midsommardagen
+2034/11/4,Alla helgons dag
+2034/12/25,Juldagen
+2034/12/26,Annandag jul
+2035/1/1,Nyårsdagen
+2035/1/6,Trettondedag jul
+2035/3/23,Långfredagen
+2035/3/25,Påskdagen
+2035/3/26,Annandag påsk
+2035/5/1,Första maj
+2035/5/3,Kristi himmelsfärdsdag
+2035/5/13,Pingstdagen
+2035/6/6,Nationaldagen
+2035/6/23,Midsommardagen
+2035/11/3,Alla helgons dag
+2035/12/25,Juldagen
+2035/12/26,Annandag jul
+2036/1/1,Nyårsdagen
+2036/1/6,Trettondedag jul
+2036/4/11,Långfredagen
+2036/4/13,Påskdagen
+2036/4/14,Annandag påsk
+2036/5/1,Första maj
+2036/5/22,Kristi himmelsfärdsdag
+2036/6/1,Pingstdagen
+2036/6/6,Nationaldagen
+2036/6/21,Midsommardagen
+2036/11/1,Alla helgons dag
+2036/12/25,Juldagen
+2036/12/26,Annandag jul
+2037/1/1,Nyårsdagen
+2037/1/6,Trettondedag jul
+2037/4/3,Långfredagen
+2037/4/5,Påskdagen
+2037/4/6,Annandag påsk
+2037/5/1,Första maj
+2037/5/14,Kristi himmelsfärdsdag
+2037/5/24,Pingstdagen
+2037/6/6,Nationaldagen
+2037/6/20,Midsommardagen
+2037/10/31,Alla helgons dag
+2037/12/25,Juldagen
+2037/12/26,Annandag jul
+2038/1/1,Nyårsdagen
+2038/1/6,Trettondedag jul
+2038/4/23,Långfredagen
+2038/4/25,Påskdagen
+2038/4/26,Annandag påsk
+2038/5/1,Första maj
+2038/6/3,Kristi himmelsfärdsdag
+2038/6/6,Nationaldagen
+2038/6/13,Pingstdagen
+2038/6/26,Midsommardagen
+2038/11/6,Alla helgons dag
+2038/12/25,Juldagen
+2038/12/26,Annandag jul
+2039/1/1,Nyårsdagen
+2039/1/6,Trettondedag jul
+2039/4/8,Långfredagen
+2039/4/10,Påskdagen
+2039/4/11,Annandag påsk
+2039/5/1,Första maj
+2039/5/19,Kristi himmelsfärdsdag
+2039/5/29,Pingstdagen
+2039/6/6,Nationaldagen
+2039/6/25,Midsommardagen
+2039/11/5,Alla helgons dag
+2039/12/25,Juldagen
+2039/12/26,Annandag jul
+2040/1/1,Nyårsdagen
+2040/1/6,Trettondedag jul
+2040/3/30,Långfredagen
+2040/4/1,Påskdagen
+2040/4/2,Annandag påsk
+2040/5/1,Första maj
+2040/5/10,Kristi himmelsfärdsdag
+2040/5/20,Pingstdagen
+2040/6/6,Nationaldagen
+2040/6/23,Midsommardagen
+2040/11/3,Alla helgons dag
+2040/12/25,Juldagen
+2040/12/26,Annandag jul
+2041/1/1,Nyårsdagen
+2041/1/6,Trettondedag jul
+2041/4/19,Långfredagen
+2041/4/21,Påskdagen
+2041/4/22,Annandag påsk
+2041/5/1,Första maj
+2041/5/30,Kristi himmelsfärdsdag
+2041/6/6,Nationaldagen
+2041/6/9,Pingstdagen
+2041/6/22,Midsommardagen
+2041/11/2,Alla helgons dag
+2041/12/25,Juldagen
+2041/12/26,Annandag jul
+2042/1/1,Nyårsdagen
+2042/1/6,Trettondedag jul
+2042/4/4,Långfredagen
+2042/4/6,Påskdagen
+2042/4/7,Annandag påsk
+2042/5/1,Första maj
+2042/5/15,Kristi himmelsfärdsdag
+2042/5/25,Pingstdagen
+2042/6/6,Nationaldagen
+2042/6/21,Midsommardagen
+2042/11/1,Alla helgons dag
+2042/12/25,Juldagen
+2042/12/26,Annandag jul
+2043/1/1,Nyårsdagen
+2043/1/6,Trettondedag jul
+2043/3/27,Långfredagen
+2043/3/29,Påskdagen
+2043/3/30,Annandag påsk
+2043/5/1,Första maj
+2043/5/7,Kristi himmelsfärdsdag
+2043/5/17,Pingstdagen
+2043/6/6,Nationaldagen
+2043/6/20,Midsommardagen
+2043/10/31,Alla helgons dag
+2043/12/25,Juldagen
+2043/12/26,Annandag jul
+2044/1/1,Nyårsdagen
+2044/1/6,Trettondedag jul
+2044/4/15,Långfredagen
+2044/4/17,Påskdagen
+2044/4/18,Annandag påsk
+2044/5/1,Första maj
+2044/5/26,Kristi himmelsfärdsdag
+2044/6/5,Pingstdagen
+2044/6/6,Nationaldagen
+2044/6/25,Midsommardagen
+2044/11/5,Alla helgons dag
+2044/12/25,Juldagen
+2044/12/26,Annandag jul
+2045/1/1,Nyårsdagen
+2045/1/6,Trettondedag jul
+2045/4/7,Långfredagen
+2045/4/9,Påskdagen
+2045/4/10,Annandag påsk
+2045/5/1,Första maj
+2045/5/18,Kristi himmelsfärdsdag
+2045/5/28,Pingstdagen
+2045/6/6,Nationaldagen
+2045/6/24,Midsommardagen
+2045/11/4,Alla helgons dag
+2045/12/25,Juldagen
+2045/12/26,Annandag jul
+2046/1/1,Nyårsdagen
+2046/1/6,Trettondedag jul
+2046/3/23,Långfredagen
+2046/3/25,Påskdagen
+2046/3/26,Annandag påsk
+2046/5/1,Första maj
+2046/5/3,Kristi himmelsfärdsdag
+2046/5/13,Pingstdagen
+2046/6/6,Nationaldagen
+2046/6/23,Midsommardagen
+2046/11/3,Alla helgons dag
+2046/12/25,Juldagen
+2046/12/26,Annandag jul
+2047/1/1,Nyårsdagen
+2047/1/6,Trettondedag jul
+2047/4/12,Långfredagen
+2047/4/14,Påskdagen
+2047/4/15,Annandag påsk
+2047/5/1,Första maj
+2047/5/23,Kristi himmelsfärdsdag
+2047/6/2,Pingstdagen
+2047/6/6,Nationaldagen
+2047/6/22,Midsommardagen
+2047/11/2,Alla helgons dag
+2047/12/25,Juldagen
+2047/12/26,Annandag jul
+2048/1/1,Nyårsdagen
+2048/1/6,Trettondedag jul
+2048/4/3,Långfredagen
+2048/4/5,Påskdagen
+2048/4/6,Annandag påsk
+2048/5/1,Första maj
+2048/5/14,Kristi himmelsfärdsdag
+2048/5/24,Pingstdagen
+2048/6/6,Nationaldagen
+2048/6/20,Midsommardagen
+2048/10/31,Alla helgons dag
+2048/12/25,Juldagen
+2048/12/26,Annandag jul
+2049/1/1,Nyårsdagen
+2049/1/6,Trettondedag jul
+2049/4/16,Långfredagen
+2049/4/18,Påskdagen
+2049/4/19,Annandag påsk
+2049/5/1,Första maj
+2049/5/27,Kristi himmelsfärdsdag
+2049/6/6,Nationaldagen; Pingstdagen
+2049/6/26,Midsommardagen
+2049/11/6,Alla helgons dag
+2049/12/25,Juldagen
+2049/12/26,Annandag jul
+2050/1/1,Nyårsdagen
+2050/1/6,Trettondedag jul
+2050/4/8,Långfredagen
+2050/4/10,Påskdagen
+2050/4/11,Annandag påsk
+2050/5/1,Första maj
+2050/5/19,Kristi himmelsfärdsdag
+2050/5/29,Pingstdagen
+2050/6/6,Nationaldagen
+2050/6/25,Midsommardagen
+2050/11/5,Alla helgons dag
+2050/12/25,Juldagen
+2050/12/26,Annandag jul

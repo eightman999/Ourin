@@ -1,0 +1,367 @@
+# GS の祝日（2020〜2050年、言語: en_GS）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/1/17,Possession Day
+2020/4/10,Good Friday
+2020/4/21,The Queen's Birthday
+2020/4/25,Liberation Day
+2020/4/27,Liberation Day (observed)
+2020/5/20,Shackleton Day
+2020/6/21,Mid-winter Day
+2020/6/22,Mid-winter Day (observed)
+2020/9/4,Toothfish Day
+2020/10/30,Environment Day
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2020/12/28,Boxing Day (observed)
+2021/1/1,New Year's Day
+2021/1/17,Possession Day
+2021/1/18,Possession Day (observed)
+2021/4/2,Good Friday
+2021/4/21,The Queen's Birthday
+2021/4/25,Liberation Day
+2021/4/26,Liberation Day (observed)
+2021/5/20,Shackleton Day
+2021/6/21,Mid-winter Day
+2021/9/4,Toothfish Day
+2021/9/6,Toothfish Day (observed)
+2021/10/29,Environment Day (observed)
+2021/10/30,Environment Day
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Christmas Day (observed)
+2021/12/28,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/1/17,Possession Day
+2022/4/15,Good Friday
+2022/4/21,The Queen's Birthday
+2022/4/25,Liberation Day
+2022/5/20,Shackleton Day
+2022/6/2,The Queen's Platinum Jubilee
+2022/6/3,The Queen's Platinum Jubilee
+2022/6/21,Mid-winter Day
+2022/10/30,Environment Day
+2022/10/31,Environment Day (observed)
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day; Christmas Day (observed)
+2022/12/27,Boxing Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/1/17,Possession Day
+2023/4/7,Good Friday
+2023/4/25,Liberation Day
+2023/5/8,Coronation of King Charles III
+2023/5/19,Shackleton Day (observed)
+2023/5/20,Shackleton Day
+2023/6/21,Mid-winter Day
+2023/10/30,Environment Day
+2023/11/14,King's Birthday
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/1/17,Possession Day
+2024/3/29,Good Friday
+2024/4/25,Liberation Day
+2024/5/20,Shackleton Day
+2024/6/21,Mid-winter Day
+2024/10/30,Environment Day
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/1/17,Possession Day
+2025/4/18,Good Friday
+2025/4/25,Liberation Day
+2025/5/20,Shackleton Day
+2025/6/20,Mid-winter Day (observed)
+2025/6/21,Mid-winter Day
+2025/10/30,Environment Day
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/1/17,Possession Day
+2026/1/19,Possession Day (observed)
+2026/4/3,Good Friday
+2026/4/25,Liberation Day
+2026/4/27,Liberation Day (observed)
+2026/5/20,Shackleton Day
+2026/6/21,Mid-winter Day
+2026/6/22,Mid-winter Day (observed)
+2026/10/30,Environment Day
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2026/12/28,Boxing Day (observed)
+2027/1/1,New Year's Day
+2027/1/17,Possession Day
+2027/1/18,Possession Day (observed)
+2027/3/26,Good Friday
+2027/4/25,Liberation Day
+2027/4/26,Liberation Day (observed)
+2027/5/20,Shackleton Day
+2027/6/21,Mid-winter Day
+2027/10/30,Environment Day
+2027/11/1,Environment Day (observed)
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2027/12/27,Christmas Day (observed)
+2027/12/28,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/1/17,Possession Day
+2028/4/14,Good Friday
+2028/4/25,Liberation Day
+2028/5/20,Shackleton Day
+2028/5/22,Shackleton Day (observed)
+2028/6/21,Mid-winter Day
+2028/10/30,Environment Day
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/1/17,Possession Day
+2029/3/30,Good Friday
+2029/4/25,Liberation Day
+2029/5/20,Shackleton Day
+2029/5/21,Shackleton Day (observed)
+2029/6/21,Mid-winter Day
+2029/10/30,Environment Day
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/1/17,Possession Day
+2030/4/19,Good Friday
+2030/4/25,Liberation Day
+2030/5/20,Shackleton Day
+2030/6/21,Mid-winter Day
+2030/10/30,Environment Day
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/1/17,Possession Day
+2031/4/11,Good Friday
+2031/4/25,Liberation Day
+2031/5/20,Shackleton Day
+2031/6/21,Mid-winter Day
+2031/6/23,Mid-winter Day (observed)
+2031/10/30,Environment Day
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/1/17,Possession Day
+2032/1/19,Possession Day (observed)
+2032/3/26,Good Friday
+2032/4/25,Liberation Day
+2032/4/26,Liberation Day (observed)
+2032/5/20,Shackleton Day
+2032/6/21,Mid-winter Day
+2032/10/30,Environment Day
+2032/11/1,Environment Day (observed)
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2032/12/27,Christmas Day (observed)
+2032/12/28,Boxing Day (observed)
+2033/1/1,New Year's Day
+2033/1/3,New Year's Day (observed)
+2033/1/17,Possession Day
+2033/4/15,Good Friday
+2033/4/25,Liberation Day
+2033/5/20,Shackleton Day
+2033/6/21,Mid-winter Day
+2033/10/30,Environment Day
+2033/10/31,Environment Day (observed)
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day; Christmas Day (observed)
+2033/12/27,Boxing Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/1/17,Possession Day
+2034/4/7,Good Friday
+2034/4/25,Liberation Day
+2034/5/20,Shackleton Day
+2034/5/22,Shackleton Day (observed)
+2034/6/21,Mid-winter Day
+2034/10/30,Environment Day
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/1/17,Possession Day
+2035/3/23,Good Friday
+2035/4/25,Liberation Day
+2035/5/20,Shackleton Day
+2035/5/21,Shackleton Day (observed)
+2035/6/21,Mid-winter Day
+2035/10/30,Environment Day
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/1/17,Possession Day
+2036/4/11,Good Friday
+2036/4/25,Liberation Day
+2036/5/20,Shackleton Day
+2036/6/21,Mid-winter Day
+2036/6/23,Mid-winter Day (observed)
+2036/10/30,Environment Day
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/1/17,Possession Day
+2037/1/19,Possession Day (observed)
+2037/4/3,Good Friday
+2037/4/25,Liberation Day
+2037/4/27,Liberation Day (observed)
+2037/5/20,Shackleton Day
+2037/6/21,Mid-winter Day
+2037/6/22,Mid-winter Day (observed)
+2037/10/30,Environment Day
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2037/12/28,Boxing Day (observed)
+2038/1/1,New Year's Day
+2038/1/17,Possession Day
+2038/1/18,Possession Day (observed)
+2038/4/23,Good Friday
+2038/4/25,Liberation Day
+2038/4/26,Liberation Day (observed)
+2038/5/20,Shackleton Day
+2038/6/21,Mid-winter Day
+2038/10/30,Environment Day
+2038/11/1,Environment Day (observed)
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2038/12/27,Christmas Day (observed)
+2038/12/28,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/1/17,Possession Day
+2039/4/8,Good Friday
+2039/4/25,Liberation Day
+2039/5/20,Shackleton Day
+2039/6/21,Mid-winter Day
+2039/10/30,Environment Day
+2039/10/31,Environment Day (observed)
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day; Christmas Day (observed)
+2039/12/27,Boxing Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/1/17,Possession Day
+2040/3/30,Good Friday
+2040/4/25,Liberation Day
+2040/5/20,Shackleton Day
+2040/5/21,Shackleton Day (observed)
+2040/6/21,Mid-winter Day
+2040/10/30,Environment Day
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/1/17,Possession Day
+2041/4/19,Good Friday
+2041/4/25,Liberation Day
+2041/5/20,Shackleton Day
+2041/6/21,Mid-winter Day
+2041/10/30,Environment Day
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/1/17,Possession Day
+2042/4/4,Good Friday
+2042/4/25,Liberation Day
+2042/5/20,Shackleton Day
+2042/6/21,Mid-winter Day
+2042/6/23,Mid-winter Day (observed)
+2042/10/30,Environment Day
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/1/17,Possession Day
+2043/1/19,Possession Day (observed)
+2043/3/27,Good Friday
+2043/4/25,Liberation Day
+2043/4/27,Liberation Day (observed)
+2043/5/20,Shackleton Day
+2043/6/21,Mid-winter Day
+2043/6/22,Mid-winter Day (observed)
+2043/10/30,Environment Day
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2043/12/28,Boxing Day (observed)
+2044/1/1,New Year's Day
+2044/1/17,Possession Day
+2044/1/18,Possession Day (observed)
+2044/4/15,Good Friday
+2044/4/25,Liberation Day
+2044/5/20,Shackleton Day
+2044/6/21,Mid-winter Day
+2044/10/30,Environment Day
+2044/10/31,Environment Day (observed)
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day; Christmas Day (observed)
+2044/12/27,Boxing Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/17,Possession Day
+2045/4/7,Good Friday
+2045/4/25,Liberation Day
+2045/5/20,Shackleton Day
+2045/5/22,Shackleton Day (observed)
+2045/6/21,Mid-winter Day
+2045/10/30,Environment Day
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/1/17,Possession Day
+2046/3/23,Good Friday
+2046/4/25,Liberation Day
+2046/5/20,Shackleton Day
+2046/5/21,Shackleton Day (observed)
+2046/6/21,Mid-winter Day
+2046/10/30,Environment Day
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/1/17,Possession Day
+2047/4/12,Good Friday
+2047/4/25,Liberation Day
+2047/5/20,Shackleton Day
+2047/6/21,Mid-winter Day
+2047/10/30,Environment Day
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2048/1/1,New Year's Day
+2048/1/17,Possession Day
+2048/4/3,Good Friday
+2048/4/25,Liberation Day
+2048/4/27,Liberation Day (observed)
+2048/5/20,Shackleton Day
+2048/6/21,Mid-winter Day
+2048/6/22,Mid-winter Day (observed)
+2048/10/30,Environment Day
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2048/12/28,Boxing Day (observed)
+2049/1/1,New Year's Day
+2049/1/17,Possession Day
+2049/1/18,Possession Day (observed)
+2049/4/16,Good Friday
+2049/4/25,Liberation Day
+2049/4/26,Liberation Day (observed)
+2049/5/20,Shackleton Day
+2049/6/21,Mid-winter Day
+2049/10/30,Environment Day
+2049/11/1,Environment Day (observed)
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2049/12/27,Christmas Day (observed)
+2049/12/28,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/1/17,Possession Day
+2050/4/8,Good Friday
+2050/4/25,Liberation Day
+2050/5/20,Shackleton Day
+2050/6/21,Mid-winter Day
+2050/10/30,Environment Day
+2050/10/31,Environment Day (observed)
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day; Christmas Day (observed)
+2050/12/27,Boxing Day (observed)

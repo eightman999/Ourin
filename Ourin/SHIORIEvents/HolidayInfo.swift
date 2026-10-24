@@ -43,17 +43,21 @@ struct HolidayTable: Equatable {
 }
 
 enum HolidayInfoProvider {
-    /// 祝日表を探す場所。ユーザーが置いた表（calendar/）を同梱の表より優先する。
+    /// 祝日表を探す場所。ユーザーが置いた表（calendar/）を同梱の表より、表示に使っている言語のフォルダの表を
+    /// 言語によらない表より優先する（SSP の「言語フォルダの祝日表」に当たる）。
     struct Sources {
         var userDirectory: URL?
         var bundle: Bundle?
+        /// 表示に使っている言語（lproj の名前。en・ja など）。ユーザーの表では calendar/<言語>/ を、同梱の表では <言語>.lproj を見る。
+        var language: String?
 
         static var standard: Sources {
-            Sources(userDirectory: try? OurinPaths.subdirectory("calendar"), bundle: .main)
+            Sources(userDirectory: try? OurinPaths.subdirectory("calendar"), bundle: .main, language: Bundle.main.preferredLocalizations.first)
         }
     }
 
     /// 地域設定の国別の表（holidays-XX.txt）、無ければ既定の表（holidays.txt）から今日の祝日名を引く。
+    /// 表は、calendar/<言語>/ → calendar/ → 同梱の <言語>.lproj → 同梱の言語によらない表（その国の公用語の名前）の順に探す。
     /// 祝日でない日、表が無い日、名前の載っていない祝日では nil（SSP と同じく何も送らない）。
     static func today(
         now: Date = Date(),
@@ -85,14 +89,25 @@ enum HolidayInfoProvider {
     }
 
     private static func loadTable(named name: String, sources: Sources) -> String? {
+        var urls: [URL] = []
+        let language = sources.language.flatMap { $0.isEmpty ? nil : $0 }
         if let directory = sources.userDirectory {
-            let url = directory.appendingPathComponent("\(name).txt")
+            if let language { urls.append(directory.appendingPathComponent(language, isDirectory: true).appendingPathComponent("\(name).txt")) }
+            urls.append(directory.appendingPathComponent("\(name).txt"))
+        }
+        if let resources = sources.bundle?.resourceURL {
+            // 言語フォルダ（<言語>.lproj）の表。
+            if let language {
+                urls.append(resources.appendingPathComponent("\(language).lproj", isDirectory: true).appendingPathComponent("\(name).txt"))
+            }
+            // 言語によらない表（同梱のときはフォルダの中身が Resources 直下に置かれる）。
+            urls.append(resources.appendingPathComponent("Holidays", isDirectory: true).appendingPathComponent("\(name).txt"))
+            urls.append(resources.appendingPathComponent("\(name).txt"))
+        }
+        for url in urls {
             if let text = try? String(contentsOf: url, encoding: .utf8) { return text }
         }
-        guard let bundle = sources.bundle else { return nil }
-        let url = bundle.url(forResource: name, withExtension: "txt", subdirectory: "Holidays")
-            ?? bundle.url(forResource: name, withExtension: "txt")
-        return url.flatMap { try? String(contentsOf: $0, encoding: .utf8) }
+        return nil
     }
 }
 

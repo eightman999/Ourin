@@ -1,0 +1,615 @@
+# BN の祝日（2020〜2050年、言語: ms）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Awal Tahun Masihi
+2020/1/25,Tahun Baru Cina
+2020/2/23,Hari Kebangsaan
+2020/2/24,Hari Kebangsaan (diperhatikan)
+2020/3/22,Israk dan Mikraj
+2020/3/23,Israk dan Mikraj (diperhatikan)
+2020/4/24,Hari Pertama Berpuasa
+2020/4/25,Hari Pertama Berpuasa (diperhatikan)
+2020/5/10,Hari Nuzul Al-Quran
+2020/5/11,Hari Nuzul Al-Quran (diperhatikan)
+2020/5/24,Hari Raya Aidil Fitri
+2020/5/25,Hari Raya Aidil Fitri
+2020/5/26,Hari Raya Aidil Fitri
+2020/5/27,Hari Raya Aidil Fitri (diperhatikan)
+2020/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2020/6/1,Hari Angkatan Bersenjata Diraja Brunei (diperhatikan)
+2020/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2020/7/31,Hari Raya Aidil Adha
+2020/8/1,Hari Raya Aidil Adha (diperhatikan)
+2020/8/20,Awal Tahun Hijrah
+2020/10/29,Maulidur Rasul
+2020/12/25,Hari Natal
+2020/12/26,Hari Natal (diperhatikan)
+2021/1/1,Awal Tahun Masihi
+2021/1/2,Awal Tahun Masihi (diperhatikan)
+2021/2/12,Tahun Baru Cina
+2021/2/13,Tahun Baru Cina (diperhatikan)
+2021/2/23,Hari Kebangsaan
+2021/3/11,Israk dan Mikraj
+2021/4/13,Hari Pertama Berpuasa
+2021/4/29,Hari Nuzul Al-Quran
+2021/5/13,Hari Raya Aidil Fitri
+2021/5/14,Hari Raya Aidil Fitri
+2021/5/15,Hari Raya Aidil Fitri
+2021/5/17,Hari Raya Aidil Fitri (diperhatikan)
+2021/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2021/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2021/7/20,Hari Raya Aidil Adha
+2021/8/10,Awal Tahun Hijrah
+2021/10/19,Maulidur Rasul
+2021/12/25,Hari Natal
+2022/1/1,Awal Tahun Masihi
+2022/2/1,Tahun Baru Cina
+2022/2/23,Hari Kebangsaan
+2022/2/28,Israk dan Mikraj
+2022/4/3,Hari Pertama Berpuasa
+2022/4/4,Hari Pertama Berpuasa (diperhatikan)
+2022/4/19,Hari Nuzul Al-Quran
+2022/5/2,Hari Raya Aidil Fitri
+2022/5/3,Hari Raya Aidil Fitri
+2022/5/4,Hari Raya Aidil Fitri
+2022/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2022/7/9,Hari Raya Aidil Adha
+2022/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2022/7/16,Hari Keputeraan KDYMM Sultan Brunei (diperhatikan)
+2022/7/30,Awal Tahun Hijrah
+2022/10/8,Maulidur Rasul
+2022/12/25,Hari Natal
+2022/12/26,Hari Natal (diperhatikan)
+2023/1/1,Awal Tahun Masihi
+2023/1/2,Awal Tahun Masihi (diperhatikan)
+2023/1/22,Tahun Baru Cina
+2023/1/23,Tahun Baru Cina (diperhatikan)
+2023/2/18,Israk dan Mikraj
+2023/2/23,Hari Kebangsaan
+2023/3/23,Hari Pertama Berpuasa
+2023/4/8,Hari Nuzul Al-Quran
+2023/4/22,Hari Raya Aidil Fitri
+2023/4/23,Hari Raya Aidil Fitri
+2023/4/24,Hari Raya Aidil Fitri
+2023/4/25,Hari Raya Aidil Fitri (diperhatikan)
+2023/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2023/6/29,Hari Raya Aidil Adha
+2023/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2023/7/19,Awal Tahun Hijrah
+2023/9/28,Maulidur Rasul
+2023/12/25,Hari Natal
+2024/1/1,Awal Tahun Masihi
+2024/2/8,Israk dan Mikraj
+2024/2/10,Tahun Baru Cina
+2024/2/23,Hari Kebangsaan
+2024/2/24,Hari Kebangsaan (diperhatikan)
+2024/3/12,Hari Pertama Berpuasa
+2024/3/28,Hari Nuzul Al-Quran
+2024/4/10,Hari Raya Aidil Fitri
+2024/4/11,Hari Raya Aidil Fitri
+2024/4/12,Hari Raya Aidil Fitri
+2024/4/13,Hari Raya Aidil Fitri (diperhatikan)
+2024/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2024/6/1,Hari Angkatan Bersenjata Diraja Brunei (diperhatikan)
+2024/6/17,Hari Raya Aidil Adha
+2024/7/7,Awal Tahun Hijrah
+2024/7/8,Awal Tahun Hijrah (diperhatikan)
+2024/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2024/9/16,Maulidur Rasul
+2024/12/25,Hari Natal
+2025/1/1,Awal Tahun Masihi
+2025/1/27,Israk dan Mikraj
+2025/1/29,Tahun Baru Cina
+2025/2/23,Hari Kebangsaan
+2025/2/24,Hari Kebangsaan (diperhatikan)
+2025/3/2,Hari Pertama Berpuasa
+2025/3/3,Hari Pertama Berpuasa (diperhatikan)
+2025/3/18,Hari Nuzul Al-Quran
+2025/3/31,Hari Raya Aidil Fitri
+2025/4/1,Hari Raya Aidil Fitri
+2025/4/2,Hari Raya Aidil Fitri
+2025/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2025/6/7,Hari Raya Aidil Adha
+2025/6/27,Awal Tahun Hijrah
+2025/6/28,Awal Tahun Hijrah (diperhatikan)
+2025/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2025/9/5,Maulidur Rasul
+2025/9/6,Maulidur Rasul (diperhatikan)
+2025/12/25,Hari Natal
+2026/1/1,Awal Tahun Masihi
+2026/1/17,Israk dan Mikraj
+2026/2/17,Tahun Baru Cina
+2026/2/19,Hari Pertama Berpuasa
+2026/2/23,Hari Kebangsaan
+2026/3/7,Hari Nuzul Al-Quran
+2026/3/21,Hari Raya Aidil Fitri
+2026/3/22,Hari Raya Aidil Fitri
+2026/3/23,Hari Raya Aidil Fitri
+2026/3/24,Hari Raya Aidil Fitri (diperhatikan)
+2026/5/27,Hari Raya Aidil Adha
+2026/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2026/6/1,Hari Angkatan Bersenjata Diraja Brunei (diperhatikan)
+2026/6/17,Awal Tahun Hijrah
+2026/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2026/8/25,Maulidur Rasul
+2026/12/25,Hari Natal
+2026/12/26,Hari Natal (diperhatikan)
+2027/1/1,Awal Tahun Masihi
+2027/1/2,Awal Tahun Masihi (diperhatikan)
+2027/1/6,Israk dan Mikraj (anggaran)
+2027/2/6,Tahun Baru Cina
+2027/2/8,Hari Pertama Berpuasa (anggaran)
+2027/2/23,Hari Kebangsaan
+2027/2/24,Hari Nuzul Al-Quran (anggaran)
+2027/3/10,Hari Raya Aidil Fitri (anggaran)
+2027/3/11,Hari Raya Aidil Fitri (anggaran)
+2027/3/12,Hari Raya Aidil Fitri (anggaran)
+2027/3/13,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2027/5/17,Hari Raya Aidil Adha (anggaran)
+2027/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2027/6/6,Awal Tahun Hijrah (anggaran)
+2027/6/7,Awal Tahun Hijrah (diperhatikan, anggaran)
+2027/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2027/8/15,Maulidur Rasul (anggaran)
+2027/8/16,Maulidur Rasul (diperhatikan, anggaran)
+2027/12/25,Hari Natal
+2027/12/26,Israk dan Mikraj (anggaran)
+2027/12/27,Israk dan Mikraj (diperhatikan, anggaran)
+2028/1/1,Awal Tahun Masihi
+2028/1/26,Tahun Baru Cina
+2028/1/28,Hari Pertama Berpuasa (anggaran)
+2028/1/29,Hari Pertama Berpuasa (diperhatikan, anggaran)
+2028/2/13,Hari Nuzul Al-Quran (anggaran)
+2028/2/14,Hari Nuzul Al-Quran (diperhatikan, anggaran)
+2028/2/23,Hari Kebangsaan
+2028/2/27,Hari Raya Aidil Fitri (anggaran)
+2028/2/28,Hari Raya Aidil Fitri (anggaran)
+2028/2/29,Hari Raya Aidil Fitri (anggaran)
+2028/3/1,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2028/5/5,Hari Raya Aidil Adha (anggaran)
+2028/5/6,Hari Raya Aidil Adha (diperhatikan, anggaran)
+2028/5/26,Awal Tahun Hijrah (anggaran)
+2028/5/27,Awal Tahun Hijrah (diperhatikan, anggaran)
+2028/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2028/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2028/8/4,Maulidur Rasul (anggaran)
+2028/8/5,Maulidur Rasul (diperhatikan, anggaran)
+2028/12/14,Israk dan Mikraj (anggaran)
+2028/12/25,Hari Natal
+2029/1/1,Awal Tahun Masihi
+2029/1/16,Hari Pertama Berpuasa (anggaran)
+2029/2/1,Hari Nuzul Al-Quran (anggaran)
+2029/2/13,Tahun Baru Cina
+2029/2/15,Hari Raya Aidil Fitri (anggaran)
+2029/2/16,Hari Raya Aidil Fitri (anggaran)
+2029/2/17,Hari Raya Aidil Fitri (anggaran)
+2029/2/19,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2029/2/23,Hari Kebangsaan
+2029/2/24,Hari Kebangsaan (diperhatikan)
+2029/4/25,Hari Raya Aidil Adha (anggaran)
+2029/5/15,Awal Tahun Hijrah (anggaran)
+2029/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2029/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2029/7/16,Hari Keputeraan KDYMM Sultan Brunei (diperhatikan)
+2029/7/24,Maulidur Rasul (anggaran)
+2029/12/4,Israk dan Mikraj (anggaran)
+2029/12/25,Hari Natal
+2030/1/1,Awal Tahun Masihi
+2030/1/6,Hari Pertama Berpuasa (anggaran)
+2030/1/7,Hari Pertama Berpuasa (diperhatikan, anggaran)
+2030/1/22,Hari Nuzul Al-Quran (anggaran)
+2030/2/3,Tahun Baru Cina
+2030/2/4,Hari Raya Aidil Fitri (anggaran)
+2030/2/5,Hari Raya Aidil Fitri (anggaran)
+2030/2/6,Hari Raya Aidil Fitri (anggaran)
+2030/2/7,Tahun Baru Cina (diperhatikan)
+2030/2/23,Hari Kebangsaan
+2030/4/14,Hari Raya Aidil Adha (anggaran)
+2030/4/15,Hari Raya Aidil Adha (diperhatikan, anggaran)
+2030/5/4,Awal Tahun Hijrah (anggaran)
+2030/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2030/6/1,Hari Angkatan Bersenjata Diraja Brunei (diperhatikan)
+2030/7/13,Maulidur Rasul (anggaran)
+2030/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2030/11/23,Israk dan Mikraj (anggaran)
+2030/12/25,Hari Natal
+2030/12/26,Hari Pertama Berpuasa (anggaran)
+2031/1/1,Awal Tahun Masihi
+2031/1/11,Hari Nuzul Al-Quran (anggaran)
+2031/1/23,Tahun Baru Cina
+2031/1/25,Hari Raya Aidil Fitri (anggaran)
+2031/1/26,Hari Raya Aidil Fitri (anggaran)
+2031/1/27,Hari Raya Aidil Fitri (anggaran)
+2031/1/28,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2031/2/23,Hari Kebangsaan
+2031/2/24,Hari Kebangsaan (diperhatikan)
+2031/4/3,Hari Raya Aidil Adha (anggaran)
+2031/4/23,Awal Tahun Hijrah (anggaran)
+2031/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2031/7/2,Maulidur Rasul (anggaran)
+2031/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2031/11/13,Israk dan Mikraj (anggaran)
+2031/12/16,Hari Pertama Berpuasa (anggaran)
+2031/12/25,Hari Natal
+2032/1/1,Awal Tahun Masihi; Hari Nuzul Al-Quran (anggaran)
+2032/1/3,Awal Tahun Masihi (diperhatikan); Hari Nuzul Al-Quran (diperhatikan, anggaran)
+2032/1/14,Hari Raya Aidil Fitri (anggaran)
+2032/1/15,Hari Raya Aidil Fitri (anggaran)
+2032/1/16,Hari Raya Aidil Fitri (anggaran)
+2032/1/17,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2032/2/11,Tahun Baru Cina
+2032/2/23,Hari Kebangsaan
+2032/3/22,Hari Raya Aidil Adha (anggaran)
+2032/4/12,Awal Tahun Hijrah (anggaran)
+2032/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2032/6/21,Maulidur Rasul (anggaran)
+2032/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2032/11/1,Israk dan Mikraj (anggaran)
+2032/12/4,Hari Pertama Berpuasa (anggaran)
+2032/12/20,Hari Nuzul Al-Quran (anggaran)
+2032/12/25,Hari Natal
+2033/1/1,Awal Tahun Masihi
+2033/1/3,Hari Raya Aidil Fitri (anggaran)
+2033/1/4,Hari Raya Aidil Fitri (anggaran)
+2033/1/5,Hari Raya Aidil Fitri (anggaran)
+2033/1/31,Tahun Baru Cina
+2033/2/23,Hari Kebangsaan
+2033/3/12,Hari Raya Aidil Adha (anggaran)
+2033/4/1,Awal Tahun Hijrah (anggaran)
+2033/4/2,Awal Tahun Hijrah (diperhatikan, anggaran)
+2033/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2033/6/10,Maulidur Rasul (anggaran)
+2033/6/11,Maulidur Rasul (diperhatikan, anggaran)
+2033/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2033/7/16,Hari Keputeraan KDYMM Sultan Brunei (diperhatikan)
+2033/10/21,Israk dan Mikraj (anggaran)
+2033/10/22,Israk dan Mikraj (diperhatikan, anggaran)
+2033/11/24,Hari Pertama Berpuasa (anggaran)
+2033/12/10,Hari Nuzul Al-Quran (anggaran)
+2033/12/23,Hari Raya Aidil Fitri (anggaran)
+2033/12/24,Hari Raya Aidil Fitri (anggaran)
+2033/12/25,Hari Natal; Hari Raya Aidil Fitri (anggaran)
+2033/12/26,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2033/12/27,Hari Natal (diperhatikan)
+2033/12/28,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2034/1/1,Awal Tahun Masihi
+2034/1/2,Awal Tahun Masihi (diperhatikan)
+2034/2/19,Tahun Baru Cina
+2034/2/20,Tahun Baru Cina (diperhatikan)
+2034/2/23,Hari Kebangsaan
+2034/3/1,Hari Raya Aidil Adha (anggaran)
+2034/3/22,Awal Tahun Hijrah (anggaran)
+2034/5/30,Maulidur Rasul (anggaran)
+2034/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2034/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2034/10/10,Israk dan Mikraj (anggaran)
+2034/11/13,Hari Pertama Berpuasa (anggaran)
+2034/11/29,Hari Nuzul Al-Quran (anggaran)
+2034/12/12,Hari Raya Aidil Fitri (anggaran)
+2034/12/13,Hari Raya Aidil Fitri (anggaran)
+2034/12/14,Hari Raya Aidil Fitri (anggaran)
+2034/12/25,Hari Natal
+2035/1/1,Awal Tahun Masihi
+2035/2/8,Tahun Baru Cina
+2035/2/19,Hari Raya Aidil Adha (anggaran)
+2035/2/23,Hari Kebangsaan
+2035/2/24,Hari Kebangsaan (diperhatikan)
+2035/3/11,Awal Tahun Hijrah (anggaran)
+2035/3/12,Awal Tahun Hijrah (diperhatikan, anggaran)
+2035/5/20,Maulidur Rasul (anggaran)
+2035/5/21,Maulidur Rasul (diperhatikan, anggaran)
+2035/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2035/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2035/7/16,Hari Keputeraan KDYMM Sultan Brunei (diperhatikan)
+2035/9/30,Israk dan Mikraj (anggaran)
+2035/10/1,Israk dan Mikraj (diperhatikan, anggaran)
+2035/11/2,Hari Pertama Berpuasa (anggaran)
+2035/11/3,Hari Pertama Berpuasa (diperhatikan, anggaran)
+2035/11/18,Hari Nuzul Al-Quran (anggaran)
+2035/11/19,Hari Nuzul Al-Quran (diperhatikan, anggaran)
+2035/12/1,Hari Raya Aidil Fitri (anggaran)
+2035/12/2,Hari Raya Aidil Fitri (anggaran)
+2035/12/3,Hari Raya Aidil Fitri (anggaran)
+2035/12/4,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2035/12/25,Hari Natal
+2036/1/1,Awal Tahun Masihi
+2036/1/28,Tahun Baru Cina
+2036/2/8,Hari Raya Aidil Adha (anggaran)
+2036/2/9,Hari Raya Aidil Adha (diperhatikan, anggaran)
+2036/2/23,Hari Kebangsaan
+2036/2/29,Awal Tahun Hijrah (anggaran)
+2036/3/1,Awal Tahun Hijrah (diperhatikan, anggaran)
+2036/5/9,Maulidur Rasul (anggaran)
+2036/5/10,Maulidur Rasul (diperhatikan, anggaran)
+2036/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2036/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2036/9/18,Israk dan Mikraj (anggaran)
+2036/10/21,Hari Pertama Berpuasa (anggaran)
+2036/11/6,Hari Nuzul Al-Quran (anggaran)
+2036/11/19,Hari Raya Aidil Fitri (anggaran)
+2036/11/20,Hari Raya Aidil Fitri (anggaran)
+2036/11/21,Hari Raya Aidil Fitri (anggaran)
+2036/11/22,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2036/12/25,Hari Natal
+2037/1/1,Awal Tahun Masihi
+2037/1/27,Hari Raya Aidil Adha (anggaran)
+2037/2/15,Tahun Baru Cina
+2037/2/16,Tahun Baru Cina (diperhatikan)
+2037/2/17,Awal Tahun Hijrah (anggaran)
+2037/2/23,Hari Kebangsaan
+2037/4/28,Maulidur Rasul (anggaran)
+2037/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2037/6/1,Hari Angkatan Bersenjata Diraja Brunei (diperhatikan)
+2037/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2037/9/8,Israk dan Mikraj (anggaran)
+2037/10/10,Hari Pertama Berpuasa (anggaran)
+2037/10/26,Hari Nuzul Al-Quran (anggaran)
+2037/11/9,Hari Raya Aidil Fitri (anggaran)
+2037/11/10,Hari Raya Aidil Fitri (anggaran)
+2037/11/11,Hari Raya Aidil Fitri (anggaran)
+2037/12/25,Hari Natal
+2037/12/26,Hari Natal (diperhatikan)
+2038/1/1,Awal Tahun Masihi
+2038/1/2,Awal Tahun Masihi (diperhatikan)
+2038/1/16,Hari Raya Aidil Adha (anggaran)
+2038/2/4,Tahun Baru Cina
+2038/2/6,Awal Tahun Hijrah (anggaran)
+2038/2/23,Hari Kebangsaan
+2038/4/17,Maulidur Rasul (anggaran)
+2038/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2038/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2038/8/29,Israk dan Mikraj (anggaran)
+2038/8/30,Israk dan Mikraj (diperhatikan, anggaran)
+2038/9/30,Hari Pertama Berpuasa (anggaran)
+2038/10/16,Hari Nuzul Al-Quran (anggaran)
+2038/10/30,Hari Raya Aidil Fitri (anggaran)
+2038/10/31,Hari Raya Aidil Fitri (anggaran)
+2038/11/1,Hari Raya Aidil Fitri (anggaran)
+2038/11/2,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2038/12/25,Hari Natal
+2039/1/1,Awal Tahun Masihi
+2039/1/6,Hari Raya Aidil Adha (anggaran)
+2039/1/24,Tahun Baru Cina
+2039/1/26,Awal Tahun Hijrah (anggaran)
+2039/2/23,Hari Kebangsaan
+2039/4/6,Maulidur Rasul (anggaran)
+2039/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2039/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2039/7/16,Hari Keputeraan KDYMM Sultan Brunei (diperhatikan)
+2039/8/18,Israk dan Mikraj (anggaran)
+2039/9/20,Hari Pertama Berpuasa (anggaran)
+2039/10/6,Hari Nuzul Al-Quran (anggaran)
+2039/10/19,Hari Raya Aidil Fitri (anggaran)
+2039/10/20,Hari Raya Aidil Fitri (anggaran)
+2039/10/21,Hari Raya Aidil Fitri (anggaran)
+2039/10/22,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2039/12/25,Hari Natal
+2039/12/26,Hari Raya Aidil Adha (anggaran)
+2039/12/27,Hari Natal (diperhatikan)
+2040/1/1,Awal Tahun Masihi
+2040/1/2,Awal Tahun Masihi (diperhatikan)
+2040/1/16,Awal Tahun Hijrah (anggaran)
+2040/2/12,Tahun Baru Cina
+2040/2/13,Tahun Baru Cina (diperhatikan)
+2040/2/23,Hari Kebangsaan
+2040/3/25,Maulidur Rasul (anggaran)
+2040/3/26,Maulidur Rasul (diperhatikan, anggaran)
+2040/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2040/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2040/7/16,Hari Keputeraan KDYMM Sultan Brunei (diperhatikan)
+2040/8/6,Israk dan Mikraj (anggaran)
+2040/9/8,Hari Pertama Berpuasa (anggaran)
+2040/9/24,Hari Nuzul Al-Quran (anggaran)
+2040/10/8,Hari Raya Aidil Fitri (anggaran)
+2040/10/9,Hari Raya Aidil Fitri (anggaran)
+2040/10/10,Hari Raya Aidil Fitri (anggaran)
+2040/12/15,Hari Raya Aidil Adha (anggaran)
+2040/12/25,Hari Natal
+2041/1/1,Awal Tahun Masihi
+2041/1/4,Awal Tahun Hijrah (anggaran)
+2041/1/5,Awal Tahun Hijrah (diperhatikan, anggaran)
+2041/2/1,Tahun Baru Cina
+2041/2/2,Tahun Baru Cina (diperhatikan)
+2041/2/23,Hari Kebangsaan
+2041/3/15,Maulidur Rasul (anggaran)
+2041/3/16,Maulidur Rasul (diperhatikan, anggaran)
+2041/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2041/6/1,Hari Angkatan Bersenjata Diraja Brunei (diperhatikan)
+2041/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2041/7/26,Israk dan Mikraj (anggaran)
+2041/7/27,Israk dan Mikraj (diperhatikan, anggaran)
+2041/8/28,Hari Pertama Berpuasa (anggaran)
+2041/9/13,Hari Nuzul Al-Quran (anggaran)
+2041/9/14,Hari Nuzul Al-Quran (diperhatikan, anggaran)
+2041/9/27,Hari Raya Aidil Fitri (anggaran)
+2041/9/28,Hari Raya Aidil Fitri (anggaran)
+2041/9/29,Hari Raya Aidil Fitri (anggaran)
+2041/9/30,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2041/10/1,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2041/12/4,Hari Raya Aidil Adha (anggaran)
+2041/12/25,Awal Tahun Hijrah (anggaran); Hari Natal
+2041/12/26,Awal Tahun Hijrah (diperhatikan, anggaran); Hari Natal (diperhatikan)
+2042/1/1,Awal Tahun Masihi
+2042/1/22,Tahun Baru Cina
+2042/2/23,Hari Kebangsaan
+2042/2/24,Hari Kebangsaan (diperhatikan)
+2042/3/5,Maulidur Rasul (anggaran)
+2042/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2042/7/15,Hari Keputeraan KDYMM Sultan Brunei; Israk dan Mikraj (anggaran)
+2042/7/16,Hari Keputeraan KDYMM Sultan Brunei (diperhatikan); Israk dan Mikraj (diperhatikan, anggaran)
+2042/8/17,Hari Pertama Berpuasa (anggaran)
+2042/8/18,Hari Pertama Berpuasa (diperhatikan, anggaran)
+2042/9/2,Hari Nuzul Al-Quran (anggaran)
+2042/9/16,Hari Raya Aidil Fitri (anggaran)
+2042/9/17,Hari Raya Aidil Fitri (anggaran)
+2042/9/18,Hari Raya Aidil Fitri (anggaran)
+2042/11/23,Hari Raya Aidil Adha (anggaran)
+2042/11/24,Hari Raya Aidil Adha (diperhatikan, anggaran)
+2042/12/14,Awal Tahun Hijrah (anggaran)
+2042/12/15,Awal Tahun Hijrah (diperhatikan, anggaran)
+2042/12/25,Hari Natal
+2043/1/1,Awal Tahun Masihi
+2043/2/10,Tahun Baru Cina
+2043/2/22,Maulidur Rasul (anggaran)
+2043/2/23,Hari Kebangsaan
+2043/2/24,Maulidur Rasul (diperhatikan, anggaran)
+2043/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2043/6/1,Hari Angkatan Bersenjata Diraja Brunei (diperhatikan)
+2043/7/5,Israk dan Mikraj (anggaran)
+2043/7/6,Israk dan Mikraj (diperhatikan, anggaran)
+2043/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2043/8/7,Hari Pertama Berpuasa (anggaran)
+2043/8/8,Hari Pertama Berpuasa (diperhatikan, anggaran)
+2043/8/23,Hari Nuzul Al-Quran (anggaran)
+2043/8/24,Hari Nuzul Al-Quran (diperhatikan, anggaran)
+2043/9/5,Hari Raya Aidil Fitri (anggaran)
+2043/9/6,Hari Raya Aidil Fitri (anggaran)
+2043/9/7,Hari Raya Aidil Fitri (anggaran)
+2043/9/8,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2043/11/12,Hari Raya Aidil Adha (anggaran)
+2043/12/3,Awal Tahun Hijrah (anggaran)
+2043/12/25,Hari Natal
+2043/12/26,Hari Natal (diperhatikan)
+2044/1/1,Awal Tahun Masihi
+2044/1/2,Awal Tahun Masihi (diperhatikan)
+2044/1/30,Tahun Baru Cina
+2044/2/12,Maulidur Rasul (anggaran)
+2044/2/13,Maulidur Rasul (diperhatikan, anggaran)
+2044/2/23,Hari Kebangsaan
+2044/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2044/6/24,Israk dan Mikraj (anggaran)
+2044/6/25,Israk dan Mikraj (diperhatikan, anggaran)
+2044/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2044/7/16,Hari Keputeraan KDYMM Sultan Brunei (diperhatikan)
+2044/7/26,Hari Pertama Berpuasa (anggaran)
+2044/8/11,Hari Nuzul Al-Quran (anggaran)
+2044/8/25,Hari Raya Aidil Fitri (anggaran)
+2044/8/26,Hari Raya Aidil Fitri (anggaran)
+2044/8/27,Hari Raya Aidil Fitri (anggaran)
+2044/8/29,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2044/11/1,Hari Raya Aidil Adha (anggaran)
+2044/11/21,Awal Tahun Hijrah (anggaran)
+2044/12/25,Hari Natal
+2044/12/26,Hari Natal (diperhatikan)
+2045/1/1,Awal Tahun Masihi
+2045/1/2,Awal Tahun Masihi (diperhatikan)
+2045/1/31,Maulidur Rasul (anggaran)
+2045/2/17,Tahun Baru Cina
+2045/2/18,Tahun Baru Cina (diperhatikan)
+2045/2/23,Hari Kebangsaan
+2045/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2045/6/13,Israk dan Mikraj (anggaran)
+2045/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2045/7/16,Hari Pertama Berpuasa (anggaran)
+2045/7/17,Hari Pertama Berpuasa (diperhatikan, anggaran)
+2045/8/1,Hari Nuzul Al-Quran (anggaran)
+2045/8/14,Hari Raya Aidil Fitri (anggaran)
+2045/8/15,Hari Raya Aidil Fitri (anggaran)
+2045/8/16,Hari Raya Aidil Fitri (anggaran)
+2045/10/21,Hari Raya Aidil Adha (anggaran)
+2045/11/10,Awal Tahun Hijrah (anggaran)
+2045/11/11,Awal Tahun Hijrah (diperhatikan, anggaran)
+2045/12/25,Hari Natal
+2046/1/1,Awal Tahun Masihi
+2046/1/20,Maulidur Rasul (anggaran)
+2046/2/6,Tahun Baru Cina
+2046/2/23,Hari Kebangsaan
+2046/2/24,Hari Kebangsaan (diperhatikan)
+2046/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2046/6/3,Israk dan Mikraj (anggaran)
+2046/6/4,Israk dan Mikraj (diperhatikan, anggaran)
+2046/7/6,Hari Pertama Berpuasa (anggaran)
+2046/7/7,Hari Pertama Berpuasa (diperhatikan, anggaran)
+2046/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2046/7/16,Hari Keputeraan KDYMM Sultan Brunei (diperhatikan)
+2046/7/22,Hari Nuzul Al-Quran (anggaran)
+2046/7/23,Hari Nuzul Al-Quran (diperhatikan, anggaran)
+2046/8/4,Hari Raya Aidil Fitri (anggaran)
+2046/8/5,Hari Raya Aidil Fitri (anggaran)
+2046/8/6,Hari Raya Aidil Fitri (anggaran)
+2046/8/7,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2046/10/11,Hari Raya Aidil Adha (anggaran)
+2046/10/31,Awal Tahun Hijrah (anggaran)
+2046/12/25,Hari Natal
+2047/1/1,Awal Tahun Masihi
+2047/1/9,Maulidur Rasul (anggaran)
+2047/1/26,Tahun Baru Cina
+2047/2/23,Hari Kebangsaan
+2047/5/23,Israk dan Mikraj (anggaran)
+2047/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2047/6/1,Hari Angkatan Bersenjata Diraja Brunei (diperhatikan)
+2047/6/25,Hari Pertama Berpuasa (anggaran)
+2047/7/11,Hari Nuzul Al-Quran (anggaran)
+2047/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2047/7/24,Hari Raya Aidil Fitri (anggaran)
+2047/7/25,Hari Raya Aidil Fitri (anggaran)
+2047/7/26,Hari Raya Aidil Fitri (anggaran)
+2047/7/27,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2047/9/30,Hari Raya Aidil Adha (anggaran)
+2047/10/21,Awal Tahun Hijrah (anggaran)
+2047/12/25,Hari Natal
+2047/12/29,Maulidur Rasul (anggaran)
+2047/12/30,Maulidur Rasul (diperhatikan, anggaran)
+2048/1/1,Awal Tahun Masihi
+2048/2/14,Tahun Baru Cina
+2048/2/15,Tahun Baru Cina (diperhatikan)
+2048/2/23,Hari Kebangsaan
+2048/2/24,Hari Kebangsaan (diperhatikan)
+2048/5/11,Israk dan Mikraj (anggaran)
+2048/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2048/6/1,Hari Angkatan Bersenjata Diraja Brunei (diperhatikan)
+2048/6/13,Hari Pertama Berpuasa (anggaran)
+2048/6/29,Hari Nuzul Al-Quran (anggaran)
+2048/7/13,Hari Raya Aidil Fitri (anggaran)
+2048/7/14,Hari Raya Aidil Fitri (anggaran)
+2048/7/15,Hari Keputeraan KDYMM Sultan Brunei; Hari Raya Aidil Fitri (anggaran)
+2048/7/16,Hari Keputeraan KDYMM Sultan Brunei (diperhatikan); Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2048/9/19,Hari Raya Aidil Adha (anggaran)
+2048/10/9,Awal Tahun Hijrah (anggaran)
+2048/10/10,Awal Tahun Hijrah (diperhatikan, anggaran)
+2048/12/18,Maulidur Rasul (anggaran)
+2048/12/19,Maulidur Rasul (diperhatikan, anggaran)
+2048/12/25,Hari Natal
+2048/12/26,Hari Natal (diperhatikan)
+2049/1/1,Awal Tahun Masihi
+2049/1/2,Awal Tahun Masihi (diperhatikan)
+2049/2/2,Tahun Baru Cina
+2049/2/23,Hari Kebangsaan
+2049/4/30,Israk dan Mikraj (anggaran)
+2049/5/1,Israk dan Mikraj (diperhatikan, anggaran)
+2049/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2049/6/2,Hari Pertama Berpuasa (anggaran)
+2049/6/18,Hari Nuzul Al-Quran (anggaran)
+2049/6/19,Hari Nuzul Al-Quran (diperhatikan, anggaran)
+2049/7/2,Hari Raya Aidil Fitri (anggaran)
+2049/7/3,Hari Raya Aidil Fitri (anggaran)
+2049/7/4,Hari Raya Aidil Fitri (anggaran)
+2049/7/5,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2049/7/6,Hari Raya Aidil Fitri (diperhatikan, anggaran)
+2049/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2049/9/8,Hari Raya Aidil Adha (anggaran)
+2049/9/29,Awal Tahun Hijrah (anggaran)
+2049/12/8,Maulidur Rasul (anggaran)
+2049/12/25,Hari Natal
+2050/1/1,Awal Tahun Masihi
+2050/1/23,Tahun Baru Cina
+2050/1/24,Tahun Baru Cina (diperhatikan)
+2050/2/23,Hari Kebangsaan
+2050/4/20,Israk dan Mikraj (anggaran)
+2050/5/22,Hari Pertama Berpuasa (anggaran)
+2050/5/23,Hari Pertama Berpuasa (diperhatikan, anggaran)
+2050/5/31,Hari Angkatan Bersenjata Diraja Brunei
+2050/6/7,Hari Nuzul Al-Quran (anggaran)
+2050/6/21,Hari Raya Aidil Fitri (anggaran)
+2050/6/22,Hari Raya Aidil Fitri (anggaran)
+2050/6/23,Hari Raya Aidil Fitri (anggaran)
+2050/7/15,Hari Keputeraan KDYMM Sultan Brunei
+2050/7/16,Hari Keputeraan KDYMM Sultan Brunei (diperhatikan)
+2050/8/28,Hari Raya Aidil Adha (anggaran)
+2050/8/29,Hari Raya Aidil Adha (diperhatikan, anggaran)
+2050/9/18,Awal Tahun Hijrah (anggaran)
+2050/9/19,Awal Tahun Hijrah (diperhatikan, anggaran)
+2050/11/27,Maulidur Rasul (anggaran)
+2050/11/28,Maulidur Rasul (diperhatikan, anggaran)
+2050/12/25,Hari Natal
+2050/12/26,Hari Natal (diperhatikan)

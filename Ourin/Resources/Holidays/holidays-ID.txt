@@ -1,0 +1,531 @@
+# ID の祝日（2020〜2050年、言語: id）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Tahun Baru Masehi
+2020/1/25,Tahun Baru Imlek
+2020/3/22,Isra Mikraj Nabi Muhammad
+2020/3/25,Hari Suci Nyepi
+2020/4/10,Wafat Yesus Kristus
+2020/5/1,Hari Buruh Internasional
+2020/5/7,Hari Raya Waisak
+2020/5/21,Kenaikan Yesus Kristus
+2020/5/24,Hari Raya Idul Fitri
+2020/5/25,Hari kedua dari Hari Raya Idul Fitri
+2020/6/1,Hari Lahir Pancasila
+2020/7/31,Hari Raya Idul Adha
+2020/8/17,Hari Kemerdekaan Republik Indonesia
+2020/8/20,Tahun Baru Islam
+2020/10/29,Maulid Nabi Muhammad
+2020/12/9,Hari Pemilihan Kepala Daerah
+2020/12/25,Hari Raya Natal
+2021/1/1,Tahun Baru Masehi
+2021/2/12,Tahun Baru Imlek
+2021/3/11,Isra Mikraj Nabi Muhammad
+2021/3/14,Hari Suci Nyepi
+2021/4/2,Wafat Yesus Kristus
+2021/5/1,Hari Buruh Internasional
+2021/5/13,Hari Raya Idul Fitri; Kenaikan Yesus Kristus
+2021/5/14,Hari kedua dari Hari Raya Idul Fitri
+2021/5/26,Hari Raya Waisak
+2021/6/1,Hari Lahir Pancasila
+2021/7/20,Hari Raya Idul Adha
+2021/8/11,Tahun Baru Islam
+2021/8/17,Hari Kemerdekaan Republik Indonesia
+2021/10/20,Maulid Nabi Muhammad
+2021/12/25,Hari Raya Natal
+2022/1/1,Tahun Baru Masehi
+2022/2/1,Tahun Baru Imlek
+2022/2/28,Isra Mikraj Nabi Muhammad
+2022/3/3,Hari Suci Nyepi
+2022/4/15,Wafat Yesus Kristus
+2022/5/1,Hari Buruh Internasional
+2022/5/2,Hari Raya Idul Fitri
+2022/5/3,Hari kedua dari Hari Raya Idul Fitri
+2022/5/16,Hari Raya Waisak
+2022/5/26,Kenaikan Yesus Kristus
+2022/6/1,Hari Lahir Pancasila
+2022/7/10,Hari Raya Idul Adha
+2022/7/30,Tahun Baru Islam
+2022/8/17,Hari Kemerdekaan Republik Indonesia
+2022/10/8,Maulid Nabi Muhammad
+2022/12/25,Hari Raya Natal
+2023/1/1,Tahun Baru Masehi
+2023/1/22,Tahun Baru Imlek
+2023/2/18,Isra Mikraj Nabi Muhammad
+2023/3/22,Hari Suci Nyepi
+2023/4/7,Wafat Yesus Kristus
+2023/4/22,Hari Raya Idul Fitri
+2023/4/23,Hari kedua dari Hari Raya Idul Fitri
+2023/5/1,Hari Buruh Internasional
+2023/5/18,Kenaikan Yesus Kristus
+2023/6/1,Hari Lahir Pancasila
+2023/6/4,Hari Raya Waisak
+2023/6/29,Hari Raya Idul Adha
+2023/7/19,Tahun Baru Islam
+2023/8/17,Hari Kemerdekaan Republik Indonesia
+2023/9/28,Maulid Nabi Muhammad
+2023/12/25,Hari Raya Natal
+2024/1/1,Tahun Baru Masehi
+2024/2/8,Isra Mikraj Nabi Muhammad
+2024/2/10,Tahun Baru Imlek
+2024/2/14,Hari Pemilihan Umum
+2024/3/11,Hari Suci Nyepi
+2024/3/29,Wafat Yesus Kristus
+2024/3/31,Kebangkitan Yesus Kristus
+2024/4/10,Hari Raya Idul Fitri
+2024/4/11,Hari kedua dari Hari Raya Idul Fitri
+2024/5/1,Hari Buruh Internasional
+2024/5/9,Kenaikan Yesus Kristus
+2024/5/23,Hari Raya Waisak
+2024/6/1,Hari Lahir Pancasila
+2024/6/17,Hari Raya Idul Adha
+2024/7/7,Tahun Baru Islam
+2024/8/17,Hari Kemerdekaan Republik Indonesia
+2024/9/16,Maulid Nabi Muhammad
+2024/11/27,Hari Pemilihan Kepala Daerah
+2024/12/25,Hari Raya Natal
+2025/1/1,Tahun Baru Masehi
+2025/1/27,Isra Mikraj Nabi Muhammad
+2025/1/29,Tahun Baru Imlek
+2025/3/29,Hari Suci Nyepi
+2025/3/31,Hari Raya Idul Fitri
+2025/4/1,Hari kedua dari Hari Raya Idul Fitri
+2025/4/18,Wafat Yesus Kristus
+2025/4/20,Kebangkitan Yesus Kristus
+2025/5/1,Hari Buruh Internasional
+2025/5/12,Hari Raya Waisak
+2025/5/29,Kenaikan Yesus Kristus
+2025/6/1,Hari Lahir Pancasila
+2025/6/6,Hari Raya Idul Adha
+2025/6/27,Tahun Baru Islam
+2025/8/17,Hari Kemerdekaan Republik Indonesia
+2025/9/5,Maulid Nabi Muhammad
+2025/12/25,Hari Raya Natal
+2026/1/1,Tahun Baru Masehi
+2026/1/16,Isra Mikraj Nabi Muhammad
+2026/2/17,Tahun Baru Imlek
+2026/3/19,Hari Suci Nyepi
+2026/3/21,Hari Raya Idul Fitri
+2026/3/22,Hari kedua dari Hari Raya Idul Fitri
+2026/4/3,Wafat Yesus Kristus
+2026/4/5,Kebangkitan Yesus Kristus
+2026/5/1,Hari Buruh Internasional
+2026/5/14,Kenaikan Yesus Kristus
+2026/5/27,Hari Raya Idul Adha
+2026/5/31,Hari Raya Waisak
+2026/6/1,Hari Lahir Pancasila
+2026/6/16,Tahun Baru Islam
+2026/8/17,Hari Kemerdekaan Republik Indonesia
+2026/8/25,Maulid Nabi Muhammad
+2026/12/25,Hari Raya Natal
+2027/1/1,Tahun Baru Masehi
+2027/1/5,Isra Mikraj Nabi Muhammad
+2027/2/6,Tahun Baru Imlek
+2027/3/8,Hari Suci Nyepi
+2027/3/10,Hari Raya Idul Fitri (perkiraan)
+2027/3/11,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2027/3/26,Wafat Yesus Kristus
+2027/3/28,Kebangkitan Yesus Kristus
+2027/5/1,Hari Buruh Internasional
+2027/5/6,Kenaikan Yesus Kristus
+2027/5/17,Hari Raya Idul Adha (perkiraan)
+2027/5/20,Hari Raya Waisak
+2027/6/1,Hari Lahir Pancasila
+2027/6/6,Tahun Baru Islam
+2027/8/15,Maulid Nabi Muhammad
+2027/8/17,Hari Kemerdekaan Republik Indonesia
+2027/12/25,Hari Raya Natal
+2027/12/26,Isra Mikraj Nabi Muhammad
+2028/1/1,Tahun Baru Masehi
+2028/1/26,Tahun Baru Imlek (perkiraan)
+2028/2/27,Hari Raya Idul Fitri (perkiraan)
+2028/2/28,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2028/3/26,Hari Suci Nyepi
+2028/4/14,Wafat Yesus Kristus
+2028/4/16,Kebangkitan Yesus Kristus
+2028/5/1,Hari Buruh Internasional
+2028/5/5,Hari Raya Idul Adha (perkiraan)
+2028/5/9,Hari Raya Waisak (perkiraan)
+2028/5/25,Kenaikan Yesus Kristus
+2028/5/26,Tahun Baru Islam (perkiraan)
+2028/6/1,Hari Lahir Pancasila
+2028/8/4,Maulid Nabi Muhammad (perkiraan)
+2028/8/17,Hari Kemerdekaan Republik Indonesia
+2028/12/14,Isra Mikraj Nabi Muhammad (perkiraan)
+2028/12/25,Hari Raya Natal
+2029/1/1,Tahun Baru Masehi
+2029/2/13,Tahun Baru Imlek (perkiraan)
+2029/2/15,Hari Raya Idul Fitri (perkiraan)
+2029/2/16,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2029/3/15,Hari Suci Nyepi
+2029/3/30,Wafat Yesus Kristus
+2029/4/1,Kebangkitan Yesus Kristus
+2029/4/25,Hari Raya Idul Adha (perkiraan)
+2029/5/1,Hari Buruh Internasional
+2029/5/10,Kenaikan Yesus Kristus
+2029/5/15,Tahun Baru Islam (perkiraan)
+2029/5/27,Hari Raya Waisak (perkiraan)
+2029/6/1,Hari Lahir Pancasila
+2029/7/24,Maulid Nabi Muhammad (perkiraan)
+2029/8/17,Hari Kemerdekaan Republik Indonesia
+2029/12/4,Isra Mikraj Nabi Muhammad (perkiraan)
+2029/12/25,Hari Raya Natal
+2030/1/1,Tahun Baru Masehi
+2030/2/3,Tahun Baru Imlek (perkiraan)
+2030/2/4,Hari Raya Idul Fitri (perkiraan)
+2030/2/5,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2030/3/5,Hari Suci Nyepi
+2030/4/14,Hari Raya Idul Adha (perkiraan)
+2030/4/19,Wafat Yesus Kristus
+2030/4/21,Kebangkitan Yesus Kristus
+2030/5/1,Hari Buruh Internasional
+2030/5/4,Tahun Baru Islam (perkiraan)
+2030/5/16,Hari Raya Waisak (perkiraan)
+2030/5/30,Kenaikan Yesus Kristus
+2030/6/1,Hari Lahir Pancasila
+2030/7/13,Maulid Nabi Muhammad (perkiraan)
+2030/8/17,Hari Kemerdekaan Republik Indonesia
+2030/11/23,Isra Mikraj Nabi Muhammad (perkiraan)
+2030/12/25,Hari Raya Natal
+2031/1/1,Tahun Baru Masehi
+2031/1/23,Tahun Baru Imlek (perkiraan)
+2031/1/25,Hari Raya Idul Fitri (perkiraan)
+2031/1/26,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2031/3/24,Hari Suci Nyepi
+2031/4/3,Hari Raya Idul Adha (perkiraan)
+2031/4/11,Wafat Yesus Kristus
+2031/4/13,Kebangkitan Yesus Kristus
+2031/4/23,Tahun Baru Islam (perkiraan)
+2031/5/1,Hari Buruh Internasional
+2031/5/22,Kenaikan Yesus Kristus
+2031/6/1,Hari Lahir Pancasila
+2031/6/4,Hari Raya Waisak (perkiraan)
+2031/7/2,Maulid Nabi Muhammad (perkiraan)
+2031/8/17,Hari Kemerdekaan Republik Indonesia
+2031/11/13,Isra Mikraj Nabi Muhammad (perkiraan)
+2031/12/25,Hari Raya Natal
+2032/1/1,Tahun Baru Masehi
+2032/1/14,Hari Raya Idul Fitri (perkiraan)
+2032/1/15,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2032/2/11,Tahun Baru Imlek (perkiraan)
+2032/3/12,Hari Suci Nyepi
+2032/3/22,Hari Raya Idul Adha (perkiraan)
+2032/3/26,Wafat Yesus Kristus
+2032/3/28,Kebangkitan Yesus Kristus
+2032/4/12,Tahun Baru Islam (perkiraan)
+2032/5/1,Hari Buruh Internasional
+2032/5/6,Kenaikan Yesus Kristus
+2032/5/23,Hari Raya Waisak (perkiraan)
+2032/6/1,Hari Lahir Pancasila
+2032/6/21,Maulid Nabi Muhammad (perkiraan)
+2032/8/17,Hari Kemerdekaan Republik Indonesia
+2032/11/1,Isra Mikraj Nabi Muhammad (perkiraan)
+2032/12/25,Hari Raya Natal
+2033/1/1,Tahun Baru Masehi
+2033/1/3,Hari Raya Idul Fitri (perkiraan)
+2033/1/4,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2033/1/31,Tahun Baru Imlek (perkiraan)
+2033/3/12,Hari Raya Idul Adha (perkiraan)
+2033/3/31,Hari Suci Nyepi
+2033/4/1,Tahun Baru Islam (perkiraan)
+2033/4/15,Wafat Yesus Kristus
+2033/4/17,Kebangkitan Yesus Kristus
+2033/5/1,Hari Buruh Internasional
+2033/5/13,Hari Raya Waisak (perkiraan)
+2033/5/26,Kenaikan Yesus Kristus
+2033/6/1,Hari Lahir Pancasila
+2033/6/10,Maulid Nabi Muhammad (perkiraan)
+2033/8/17,Hari Kemerdekaan Republik Indonesia
+2033/10/21,Isra Mikraj Nabi Muhammad (perkiraan)
+2033/12/23,Hari Raya Idul Fitri (perkiraan)
+2033/12/24,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2033/12/25,Hari Raya Natal
+2034/1/1,Tahun Baru Masehi
+2034/2/19,Tahun Baru Imlek (perkiraan)
+2034/3/1,Hari Raya Idul Adha (perkiraan)
+2034/3/20,Hari Suci Nyepi
+2034/3/22,Tahun Baru Islam (perkiraan)
+2034/4/7,Wafat Yesus Kristus
+2034/4/9,Kebangkitan Yesus Kristus
+2034/5/1,Hari Buruh Internasional
+2034/5/18,Kenaikan Yesus Kristus
+2034/5/30,Maulid Nabi Muhammad (perkiraan)
+2034/6/1,Hari Lahir Pancasila; Hari Raya Waisak (perkiraan)
+2034/8/17,Hari Kemerdekaan Republik Indonesia
+2034/10/10,Isra Mikraj Nabi Muhammad (perkiraan)
+2034/12/12,Hari Raya Idul Fitri (perkiraan)
+2034/12/13,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2034/12/25,Hari Raya Natal
+2035/1/1,Tahun Baru Masehi
+2035/2/8,Tahun Baru Imlek (perkiraan)
+2035/2/19,Hari Raya Idul Adha (perkiraan)
+2035/3/10,Hari Suci Nyepi
+2035/3/11,Tahun Baru Islam (perkiraan)
+2035/3/23,Wafat Yesus Kristus
+2035/3/25,Kebangkitan Yesus Kristus
+2035/5/1,Hari Buruh Internasional
+2035/5/3,Kenaikan Yesus Kristus
+2035/5/20,Maulid Nabi Muhammad (perkiraan)
+2035/5/22,Hari Raya Waisak (perkiraan)
+2035/6/1,Hari Lahir Pancasila
+2035/8/17,Hari Kemerdekaan Republik Indonesia
+2035/9/30,Isra Mikraj Nabi Muhammad (perkiraan)
+2035/12/1,Hari Raya Idul Fitri (perkiraan)
+2035/12/2,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2035/12/25,Hari Raya Natal
+2036/1/1,Tahun Baru Masehi
+2036/1/28,Tahun Baru Imlek (perkiraan)
+2036/2/8,Hari Raya Idul Adha (perkiraan)
+2036/2/29,Tahun Baru Islam (perkiraan)
+2036/3/28,Hari Suci Nyepi
+2036/4/11,Wafat Yesus Kristus
+2036/4/13,Kebangkitan Yesus Kristus
+2036/5/1,Hari Buruh Internasional
+2036/5/9,Maulid Nabi Muhammad (perkiraan)
+2036/5/10,Hari Raya Waisak (perkiraan)
+2036/5/22,Kenaikan Yesus Kristus
+2036/6/1,Hari Lahir Pancasila
+2036/8/17,Hari Kemerdekaan Republik Indonesia
+2036/9/18,Isra Mikraj Nabi Muhammad (perkiraan)
+2036/11/19,Hari Raya Idul Fitri (perkiraan)
+2036/11/20,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2036/12/25,Hari Raya Natal
+2037/1/1,Tahun Baru Masehi
+2037/1/27,Hari Raya Idul Adha (perkiraan)
+2037/2/15,Tahun Baru Imlek (perkiraan)
+2037/2/17,Tahun Baru Islam (perkiraan)
+2037/3/17,Hari Suci Nyepi
+2037/4/3,Wafat Yesus Kristus
+2037/4/5,Kebangkitan Yesus Kristus
+2037/4/28,Maulid Nabi Muhammad (perkiraan)
+2037/5/1,Hari Buruh Internasional
+2037/5/14,Kenaikan Yesus Kristus
+2037/5/29,Hari Raya Waisak (perkiraan)
+2037/6/1,Hari Lahir Pancasila
+2037/8/17,Hari Kemerdekaan Republik Indonesia
+2037/9/8,Isra Mikraj Nabi Muhammad (perkiraan)
+2037/11/9,Hari Raya Idul Fitri (perkiraan)
+2037/11/10,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2037/12/25,Hari Raya Natal
+2038/1/1,Tahun Baru Masehi
+2038/1/16,Hari Raya Idul Adha (perkiraan)
+2038/2/4,Tahun Baru Imlek (perkiraan)
+2038/2/6,Tahun Baru Islam (perkiraan)
+2038/3/6,Hari Suci Nyepi
+2038/4/17,Maulid Nabi Muhammad (perkiraan)
+2038/4/23,Wafat Yesus Kristus
+2038/4/25,Kebangkitan Yesus Kristus
+2038/5/1,Hari Buruh Internasional
+2038/5/18,Hari Raya Waisak (perkiraan)
+2038/6/1,Hari Lahir Pancasila
+2038/6/3,Kenaikan Yesus Kristus
+2038/8/17,Hari Kemerdekaan Republik Indonesia
+2038/8/29,Isra Mikraj Nabi Muhammad (perkiraan)
+2038/10/30,Hari Raya Idul Fitri (perkiraan)
+2038/10/31,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2038/12/25,Hari Raya Natal
+2039/1/1,Tahun Baru Masehi
+2039/1/6,Hari Raya Idul Adha (perkiraan)
+2039/1/24,Tahun Baru Imlek (perkiraan)
+2039/1/26,Tahun Baru Islam (perkiraan)
+2039/3/25,Hari Suci Nyepi
+2039/4/6,Maulid Nabi Muhammad (perkiraan)
+2039/4/8,Wafat Yesus Kristus
+2039/4/10,Kebangkitan Yesus Kristus
+2039/5/1,Hari Buruh Internasional
+2039/5/7,Hari Raya Waisak (perkiraan)
+2039/5/19,Kenaikan Yesus Kristus
+2039/6/1,Hari Lahir Pancasila
+2039/8/17,Hari Kemerdekaan Republik Indonesia
+2039/8/18,Isra Mikraj Nabi Muhammad (perkiraan)
+2039/10/19,Hari Raya Idul Fitri (perkiraan)
+2039/10/20,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2039/12/25,Hari Raya Natal
+2039/12/26,Hari Raya Idul Adha (perkiraan)
+2040/1/1,Tahun Baru Masehi
+2040/1/16,Tahun Baru Islam (perkiraan)
+2040/2/12,Tahun Baru Imlek (perkiraan)
+2040/3/14,Hari Suci Nyepi
+2040/3/25,Maulid Nabi Muhammad (perkiraan)
+2040/3/30,Wafat Yesus Kristus
+2040/4/1,Kebangkitan Yesus Kristus
+2040/5/1,Hari Buruh Internasional
+2040/5/10,Kenaikan Yesus Kristus
+2040/5/25,Hari Raya Waisak (perkiraan)
+2040/6/1,Hari Lahir Pancasila
+2040/8/6,Isra Mikraj Nabi Muhammad (perkiraan)
+2040/8/17,Hari Kemerdekaan Republik Indonesia
+2040/10/8,Hari Raya Idul Fitri (perkiraan)
+2040/10/9,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2040/12/15,Hari Raya Idul Adha (perkiraan)
+2040/12/25,Hari Raya Natal
+2041/1/1,Tahun Baru Masehi
+2041/1/4,Tahun Baru Islam (perkiraan)
+2041/2/1,Tahun Baru Imlek (perkiraan)
+2041/3/3,Hari Suci Nyepi
+2041/3/15,Maulid Nabi Muhammad (perkiraan)
+2041/4/19,Wafat Yesus Kristus
+2041/4/21,Kebangkitan Yesus Kristus
+2041/5/1,Hari Buruh Internasional
+2041/5/14,Hari Raya Waisak (perkiraan)
+2041/5/30,Kenaikan Yesus Kristus
+2041/6/1,Hari Lahir Pancasila
+2041/7/26,Isra Mikraj Nabi Muhammad (perkiraan)
+2041/8/17,Hari Kemerdekaan Republik Indonesia
+2041/9/27,Hari Raya Idul Fitri (perkiraan)
+2041/9/28,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2041/12/4,Hari Raya Idul Adha (perkiraan)
+2041/12/25,Hari Raya Natal; Tahun Baru Islam (perkiraan)
+2042/1/1,Tahun Baru Masehi
+2042/1/22,Tahun Baru Imlek (perkiraan)
+2042/3/5,Maulid Nabi Muhammad (perkiraan)
+2042/3/22,Hari Suci Nyepi
+2042/4/4,Wafat Yesus Kristus
+2042/4/6,Kebangkitan Yesus Kristus
+2042/5/1,Hari Buruh Internasional
+2042/5/15,Kenaikan Yesus Kristus
+2042/6/1,Hari Lahir Pancasila
+2042/6/2,Hari Raya Waisak (perkiraan)
+2042/7/15,Isra Mikraj Nabi Muhammad (perkiraan)
+2042/8/17,Hari Kemerdekaan Republik Indonesia
+2042/9/16,Hari Raya Idul Fitri (perkiraan)
+2042/9/17,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2042/11/23,Hari Raya Idul Adha (perkiraan)
+2042/12/14,Tahun Baru Islam (perkiraan)
+2042/12/25,Hari Raya Natal
+2043/1/1,Tahun Baru Masehi
+2043/2/10,Tahun Baru Imlek (perkiraan)
+2043/2/22,Maulid Nabi Muhammad (perkiraan)
+2043/3/11,Hari Suci Nyepi
+2043/3/27,Wafat Yesus Kristus
+2043/3/29,Kebangkitan Yesus Kristus
+2043/5/1,Hari Buruh Internasional
+2043/5/7,Kenaikan Yesus Kristus
+2043/5/23,Hari Raya Waisak (perkiraan)
+2043/6/1,Hari Lahir Pancasila
+2043/7/5,Isra Mikraj Nabi Muhammad (perkiraan)
+2043/8/17,Hari Kemerdekaan Republik Indonesia
+2043/9/5,Hari Raya Idul Fitri (perkiraan)
+2043/9/6,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2043/11/12,Hari Raya Idul Adha (perkiraan)
+2043/12/3,Tahun Baru Islam (perkiraan)
+2043/12/25,Hari Raya Natal
+2044/1/1,Tahun Baru Masehi
+2044/1/30,Tahun Baru Imlek (perkiraan)
+2044/2/12,Maulid Nabi Muhammad (perkiraan)
+2044/3/29,Hari Suci Nyepi
+2044/4/15,Wafat Yesus Kristus
+2044/4/17,Kebangkitan Yesus Kristus
+2044/5/1,Hari Buruh Internasional
+2044/5/12,Hari Raya Waisak (perkiraan)
+2044/5/26,Kenaikan Yesus Kristus
+2044/6/1,Hari Lahir Pancasila
+2044/6/24,Isra Mikraj Nabi Muhammad (perkiraan)
+2044/8/17,Hari Kemerdekaan Republik Indonesia
+2044/8/25,Hari Raya Idul Fitri (perkiraan)
+2044/8/26,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2044/11/1,Hari Raya Idul Adha (perkiraan)
+2044/11/21,Tahun Baru Islam (perkiraan)
+2044/12/25,Hari Raya Natal
+2045/1/1,Tahun Baru Masehi
+2045/1/31,Maulid Nabi Muhammad (perkiraan)
+2045/2/17,Tahun Baru Imlek (perkiraan)
+2045/3/19,Hari Suci Nyepi
+2045/4/7,Wafat Yesus Kristus
+2045/4/9,Kebangkitan Yesus Kristus
+2045/5/1,Hari Buruh Internasional
+2045/5/18,Kenaikan Yesus Kristus
+2045/5/31,Hari Raya Waisak (perkiraan)
+2045/6/1,Hari Lahir Pancasila
+2045/6/13,Isra Mikraj Nabi Muhammad (perkiraan)
+2045/8/14,Hari Raya Idul Fitri (perkiraan)
+2045/8/15,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2045/8/17,Hari Kemerdekaan Republik Indonesia
+2045/10/21,Hari Raya Idul Adha (perkiraan)
+2045/11/10,Tahun Baru Islam (perkiraan)
+2045/12/25,Hari Raya Natal
+2046/1/1,Tahun Baru Masehi
+2046/1/20,Maulid Nabi Muhammad (perkiraan)
+2046/2/6,Tahun Baru Imlek (perkiraan)
+2046/3/8,Hari Suci Nyepi
+2046/3/23,Wafat Yesus Kristus
+2046/3/25,Kebangkitan Yesus Kristus
+2046/5/1,Hari Buruh Internasional
+2046/5/3,Kenaikan Yesus Kristus
+2046/5/20,Hari Raya Waisak (perkiraan)
+2046/6/1,Hari Lahir Pancasila
+2046/6/3,Isra Mikraj Nabi Muhammad (perkiraan)
+2046/8/4,Hari Raya Idul Fitri (perkiraan)
+2046/8/5,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2046/8/17,Hari Kemerdekaan Republik Indonesia
+2046/10/11,Hari Raya Idul Adha (perkiraan)
+2046/10/31,Tahun Baru Islam (perkiraan)
+2046/12/25,Hari Raya Natal
+2047/1/1,Tahun Baru Masehi
+2047/1/9,Maulid Nabi Muhammad (perkiraan)
+2047/1/26,Tahun Baru Imlek (perkiraan)
+2047/3/27,Hari Suci Nyepi
+2047/4/12,Wafat Yesus Kristus
+2047/4/14,Kebangkitan Yesus Kristus
+2047/5/1,Hari Buruh Internasional
+2047/5/9,Hari Raya Waisak (perkiraan)
+2047/5/23,Isra Mikraj Nabi Muhammad (perkiraan); Kenaikan Yesus Kristus
+2047/6/1,Hari Lahir Pancasila
+2047/7/24,Hari Raya Idul Fitri (perkiraan)
+2047/7/25,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2047/8/17,Hari Kemerdekaan Republik Indonesia
+2047/9/30,Hari Raya Idul Adha (perkiraan)
+2047/10/21,Tahun Baru Islam (perkiraan)
+2047/12/25,Hari Raya Natal
+2047/12/29,Maulid Nabi Muhammad (perkiraan)
+2048/1/1,Tahun Baru Masehi
+2048/2/14,Tahun Baru Imlek (perkiraan)
+2048/3/15,Hari Suci Nyepi
+2048/4/3,Wafat Yesus Kristus
+2048/4/5,Kebangkitan Yesus Kristus
+2048/5/1,Hari Buruh Internasional
+2048/5/11,Isra Mikraj Nabi Muhammad (perkiraan)
+2048/5/14,Kenaikan Yesus Kristus
+2048/5/27,Hari Raya Waisak (perkiraan)
+2048/6/1,Hari Lahir Pancasila
+2048/7/13,Hari Raya Idul Fitri (perkiraan)
+2048/7/14,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2048/8/17,Hari Kemerdekaan Republik Indonesia
+2048/9/19,Hari Raya Idul Adha (perkiraan)
+2048/10/9,Tahun Baru Islam (perkiraan)
+2048/12/18,Maulid Nabi Muhammad (perkiraan)
+2048/12/25,Hari Raya Natal
+2049/1/1,Tahun Baru Masehi
+2049/2/2,Tahun Baru Imlek (perkiraan)
+2049/3/5,Hari Suci Nyepi
+2049/4/16,Wafat Yesus Kristus
+2049/4/18,Kebangkitan Yesus Kristus
+2049/4/30,Isra Mikraj Nabi Muhammad (perkiraan)
+2049/5/1,Hari Buruh Internasional
+2049/5/16,Hari Raya Waisak (perkiraan)
+2049/5/27,Kenaikan Yesus Kristus
+2049/6/1,Hari Lahir Pancasila
+2049/7/2,Hari Raya Idul Fitri (perkiraan)
+2049/7/3,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2049/8/17,Hari Kemerdekaan Republik Indonesia
+2049/9/8,Hari Raya Idul Adha (perkiraan)
+2049/9/29,Tahun Baru Islam (perkiraan)
+2049/12/8,Maulid Nabi Muhammad (perkiraan)
+2049/12/25,Hari Raya Natal
+2050/1/1,Tahun Baru Masehi
+2050/1/23,Tahun Baru Imlek (perkiraan)
+2050/3/24,Hari Suci Nyepi
+2050/4/8,Wafat Yesus Kristus
+2050/4/10,Kebangkitan Yesus Kristus
+2050/4/20,Isra Mikraj Nabi Muhammad (perkiraan)
+2050/5/1,Hari Buruh Internasional
+2050/5/19,Kenaikan Yesus Kristus
+2050/6/1,Hari Lahir Pancasila
+2050/6/4,Hari Raya Waisak (perkiraan)
+2050/6/21,Hari Raya Idul Fitri (perkiraan)
+2050/6/22,Hari kedua dari Hari Raya Idul Fitri (perkiraan)
+2050/8/17,Hari Kemerdekaan Republik Indonesia
+2050/8/28,Hari Raya Idul Adha (perkiraan)
+2050/9/18,Tahun Baru Islam (perkiraan)
+2050/11/27,Maulid Nabi Muhammad (perkiraan)
+2050/12/25,Hari Raya Natal

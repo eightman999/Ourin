@@ -1,0 +1,467 @@
+# MY holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/25,Chinese New Year
+2020/1/26,Chinese New Year (Second Day)
+2020/1/27,Chinese New Year (Second Day) (observed)
+2020/5/1,Labor Day
+2020/5/7,Vesak Day
+2020/5/24,Eid al-Fitr
+2020/5/25,Eid al-Fitr (Second Day)
+2020/5/26,Eid al-Fitr (observed)
+2020/6/8,Birthday of HM Yang di-Pertuan Agong
+2020/7/31,Eid al-Adha
+2020/8/20,Islamic New Year
+2020/8/31,National Day
+2020/9/16,Malaysia Day
+2020/10/29,Prophet Muhammad's Birthday
+2020/12/25,Christmas Day
+2021/2/12,Chinese New Year
+2021/2/13,Chinese New Year (Second Day)
+2021/5/1,Labor Day
+2021/5/13,Eid al-Fitr
+2021/5/14,Eid al-Fitr (Second Day)
+2021/5/26,Vesak Day
+2021/6/7,Birthday of HM Yang di-Pertuan Agong
+2021/7/20,Eid al-Adha
+2021/8/10,Islamic New Year
+2021/8/31,National Day
+2021/9/16,Malaysia Day
+2021/10/19,Prophet Muhammad's Birthday
+2021/12/25,Christmas Day
+2022/2/1,Chinese New Year
+2022/2/2,Chinese New Year (Second Day)
+2022/5/1,Labor Day
+2022/5/2,Eid al-Fitr
+2022/5/3,Eid al-Fitr (Second Day)
+2022/5/4,Labor Day (observed)
+2022/5/15,Vesak Day
+2022/5/16,Vesak Day (observed)
+2022/6/6,Birthday of HM Yang di-Pertuan Agong
+2022/7/10,Eid al-Adha
+2022/7/11,Eid al-Adha (observed)
+2022/7/30,Islamic New Year
+2022/8/31,National Day
+2022/9/16,Malaysia Day
+2022/10/10,Prophet Muhammad's Birthday
+2022/11/18,General election additional holiday
+2022/11/19,General election additional holiday
+2022/11/28,Additional holiday
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/22,Chinese New Year
+2023/1/23,Chinese New Year (Second Day)
+2023/1/24,Chinese New Year (observed)
+2023/4/21,Eid al-Fitr (additional holiday)
+2023/4/22,Eid al-Fitr
+2023/4/23,Eid al-Fitr (Second Day)
+2023/4/24,Eid al-Fitr (Second Day) (observed)
+2023/5/1,Labor Day
+2023/5/4,Vesak Day
+2023/6/5,Birthday of HM Yang di-Pertuan Agong
+2023/6/29,Eid al-Adha
+2023/7/19,Islamic New Year
+2023/8/31,National Day
+2023/9/16,Malaysia Day
+2023/9/28,Prophet Muhammad's Birthday
+2023/12/25,Christmas Day
+2024/2/10,Chinese New Year
+2024/2/11,Chinese New Year (Second Day)
+2024/2/12,Chinese New Year (Second Day) (observed)
+2024/4/10,Eid al-Fitr
+2024/4/11,Eid al-Fitr (Second Day)
+2024/5/1,Labor Day
+2024/5/22,Vesak Day
+2024/6/3,Birthday of HM Yang di-Pertuan Agong
+2024/6/17,Eid al-Adha
+2024/7/7,Islamic New Year
+2024/8/31,National Day
+2024/9/16,Malaysia Day; Prophet Muhammad's Birthday
+2024/12/25,Christmas Day
+2025/1/29,Chinese New Year
+2025/1/30,Chinese New Year (Second Day)
+2025/3/31,Eid al-Fitr
+2025/4/1,Eid al-Fitr (Second Day)
+2025/5/1,Labor Day
+2025/5/12,Vesak Day
+2025/6/2,Birthday of HM Yang di-Pertuan Agong
+2025/6/7,Eid al-Adha
+2025/6/27,Islamic New Year
+2025/8/31,National Day
+2025/9/1,National Day (observed)
+2025/9/5,Prophet Muhammad's Birthday
+2025/9/15,Additional holiday
+2025/9/16,Malaysia Day
+2025/12/25,Christmas Day
+2026/2/17,Chinese New Year
+2026/2/18,Chinese New Year (Second Day)
+2026/3/20,Eid al-Fitr (additional holiday)
+2026/3/21,Eid al-Fitr
+2026/3/22,Eid al-Fitr (Second Day)
+2026/3/23,Eid al-Fitr (Second Day) (observed)
+2026/5/1,Labor Day
+2026/5/27,Eid al-Adha
+2026/5/31,Vesak Day
+2026/6/1,Birthday of HM Yang di-Pertuan Agong
+2026/6/2,Vesak Day (observed)
+2026/6/17,Islamic New Year
+2026/8/25,Prophet Muhammad's Birthday
+2026/8/31,National Day
+2026/9/16,Malaysia Day
+2026/12/25,Christmas Day
+2027/2/6,Chinese New Year
+2027/2/7,Chinese New Year (Second Day)
+2027/2/8,Chinese New Year (Second Day) (observed)
+2027/3/10,Eid al-Fitr
+2027/3/11,Eid al-Fitr (Second Day)
+2027/5/1,Labor Day
+2027/5/17,Eid al-Adha
+2027/5/20,Vesak Day
+2027/6/6,Islamic New Year
+2027/6/7,Birthday of HM Yang di-Pertuan Agong
+2027/8/15,Prophet Muhammad's Birthday
+2027/8/16,Prophet Muhammad's Birthday (observed)
+2027/8/31,National Day
+2027/9/16,Malaysia Day
+2027/12/25,Christmas Day
+2028/1/26,Chinese New Year (estimated)
+2028/1/27,Chinese New Year (Second Day) (estimated)
+2028/2/27,Eid al-Fitr (estimated)
+2028/2/28,Eid al-Fitr (Second Day) (estimated)
+2028/2/29,Eid al-Fitr (observed, estimated)
+2028/5/1,Labor Day
+2028/5/5,Eid al-Adha (estimated)
+2028/5/9,Vesak Day (estimated)
+2028/5/26,Islamic New Year (estimated)
+2028/6/5,Birthday of HM Yang di-Pertuan Agong
+2028/8/4,Prophet Muhammad's Birthday (estimated)
+2028/8/31,National Day
+2028/9/16,Malaysia Day
+2028/12/25,Christmas Day
+2029/2/13,Chinese New Year (estimated)
+2029/2/14,Chinese New Year (Second Day) (estimated)
+2029/2/15,Eid al-Fitr (estimated)
+2029/2/16,Eid al-Fitr (Second Day) (estimated)
+2029/4/25,Eid al-Adha (estimated)
+2029/5/1,Labor Day
+2029/5/15,Islamic New Year (estimated)
+2029/5/27,Vesak Day (estimated)
+2029/5/28,Vesak Day (observed, estimated)
+2029/6/4,Birthday of HM Yang di-Pertuan Agong
+2029/7/24,Prophet Muhammad's Birthday (estimated)
+2029/8/31,National Day
+2029/9/16,Malaysia Day
+2029/9/17,Malaysia Day (observed)
+2029/12/25,Christmas Day
+2030/2/3,Chinese New Year (estimated)
+2030/2/4,Chinese New Year (Second Day) (estimated); Eid al-Fitr (estimated)
+2030/2/5,Eid al-Fitr (Second Day) (estimated)
+2030/2/6,Chinese New Year (observed, estimated)
+2030/4/14,Eid al-Adha (estimated)
+2030/4/15,Eid al-Adha (observed, estimated)
+2030/5/1,Labor Day
+2030/5/4,Islamic New Year (estimated)
+2030/5/16,Vesak Day (estimated)
+2030/6/3,Birthday of HM Yang di-Pertuan Agong
+2030/7/13,Prophet Muhammad's Birthday (estimated)
+2030/8/31,National Day
+2030/9/16,Malaysia Day
+2030/12/25,Christmas Day
+2031/1/23,Chinese New Year (estimated)
+2031/1/24,Chinese New Year (Second Day) (estimated)
+2031/1/25,Eid al-Fitr (estimated)
+2031/1/26,Eid al-Fitr (Second Day) (estimated)
+2031/1/27,Eid al-Fitr (Second Day) (observed, estimated)
+2031/4/3,Eid al-Adha (estimated)
+2031/4/23,Islamic New Year (estimated)
+2031/5/1,Labor Day
+2031/5/6,Vesak Day (estimated)
+2031/6/2,Birthday of HM Yang di-Pertuan Agong
+2031/7/2,Prophet Muhammad's Birthday (estimated)
+2031/8/31,National Day
+2031/9/1,National Day (observed)
+2031/9/16,Malaysia Day
+2031/12/25,Christmas Day
+2032/1/14,Eid al-Fitr (estimated)
+2032/1/15,Eid al-Fitr (Second Day) (estimated)
+2032/2/11,Chinese New Year (estimated)
+2032/2/12,Chinese New Year (Second Day) (estimated)
+2032/3/22,Eid al-Adha (estimated)
+2032/4/12,Islamic New Year (estimated)
+2032/5/1,Labor Day
+2032/5/23,Vesak Day (estimated)
+2032/5/24,Vesak Day (observed, estimated)
+2032/6/7,Birthday of HM Yang di-Pertuan Agong
+2032/6/21,Prophet Muhammad's Birthday (estimated)
+2032/8/31,National Day
+2032/9/16,Malaysia Day
+2032/12/25,Christmas Day
+2033/1/3,Eid al-Fitr (estimated)
+2033/1/4,Eid al-Fitr (Second Day) (estimated)
+2033/1/31,Chinese New Year (estimated)
+2033/2/1,Chinese New Year (Second Day) (estimated)
+2033/3/12,Eid al-Adha (estimated)
+2033/4/1,Islamic New Year (estimated)
+2033/5/1,Labor Day
+2033/5/2,Labor Day (observed)
+2033/5/13,Vesak Day (estimated)
+2033/6/6,Birthday of HM Yang di-Pertuan Agong
+2033/6/10,Prophet Muhammad's Birthday (estimated)
+2033/8/31,National Day
+2033/9/16,Malaysia Day
+2033/12/23,Eid al-Fitr (estimated)
+2033/12/24,Eid al-Fitr (Second Day) (estimated)
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2034/2/19,Chinese New Year (estimated)
+2034/2/20,Chinese New Year (Second Day) (estimated)
+2034/2/21,Chinese New Year (observed, estimated)
+2034/3/1,Eid al-Adha (estimated)
+2034/3/22,Islamic New Year (estimated)
+2034/5/1,Labor Day
+2034/5/3,Vesak Day (estimated)
+2034/5/30,Prophet Muhammad's Birthday (estimated)
+2034/6/5,Birthday of HM Yang di-Pertuan Agong
+2034/8/31,National Day
+2034/9/16,Malaysia Day
+2034/12/12,Eid al-Fitr (estimated)
+2034/12/13,Eid al-Fitr (Second Day) (estimated)
+2034/12/25,Christmas Day
+2035/2/8,Chinese New Year (estimated)
+2035/2/9,Chinese New Year (Second Day) (estimated)
+2035/2/19,Eid al-Adha (estimated)
+2035/3/11,Islamic New Year (estimated)
+2035/5/1,Labor Day
+2035/5/20,Prophet Muhammad's Birthday (estimated)
+2035/5/21,Prophet Muhammad's Birthday (observed, estimated)
+2035/5/22,Vesak Day (estimated)
+2035/6/4,Birthday of HM Yang di-Pertuan Agong
+2035/8/31,National Day
+2035/9/16,Malaysia Day
+2035/9/17,Malaysia Day (observed)
+2035/12/1,Eid al-Fitr (estimated)
+2035/12/2,Eid al-Fitr (Second Day) (estimated)
+2035/12/3,Eid al-Fitr (Second Day) (observed, estimated)
+2035/12/25,Christmas Day
+2036/1/28,Chinese New Year (estimated)
+2036/1/29,Chinese New Year (Second Day) (estimated)
+2036/2/8,Eid al-Adha (estimated)
+2036/2/29,Islamic New Year (estimated)
+2036/5/1,Labor Day
+2036/5/9,Prophet Muhammad's Birthday (estimated)
+2036/5/10,Vesak Day (estimated)
+2036/6/2,Birthday of HM Yang di-Pertuan Agong
+2036/8/31,National Day
+2036/9/1,National Day (observed)
+2036/9/16,Malaysia Day
+2036/11/19,Eid al-Fitr (estimated)
+2036/11/20,Eid al-Fitr (Second Day) (estimated)
+2036/12/25,Christmas Day
+2037/1/27,Eid al-Adha (estimated)
+2037/2/15,Chinese New Year (estimated)
+2037/2/16,Chinese New Year (Second Day) (estimated)
+2037/2/17,Islamic New Year (estimated)
+2037/2/18,Chinese New Year (observed, estimated)
+2037/4/28,Prophet Muhammad's Birthday (estimated)
+2037/5/1,Labor Day
+2037/5/29,Vesak Day (estimated)
+2037/6/1,Birthday of HM Yang di-Pertuan Agong
+2037/8/31,National Day
+2037/9/16,Malaysia Day
+2037/11/9,Eid al-Fitr (estimated)
+2037/11/10,Eid al-Fitr (Second Day) (estimated)
+2037/12/25,Christmas Day
+2038/1/16,Eid al-Adha (estimated)
+2038/2/4,Chinese New Year (estimated)
+2038/2/5,Chinese New Year (Second Day) (estimated)
+2038/2/6,Islamic New Year (estimated)
+2038/4/17,Prophet Muhammad's Birthday (estimated)
+2038/5/1,Labor Day
+2038/5/18,Vesak Day (estimated)
+2038/6/7,Birthday of HM Yang di-Pertuan Agong
+2038/8/31,National Day
+2038/9/16,Malaysia Day
+2038/10/30,Eid al-Fitr (estimated)
+2038/10/31,Eid al-Fitr (Second Day) (estimated)
+2038/11/1,Eid al-Fitr (Second Day) (observed, estimated)
+2038/12/25,Christmas Day
+2039/1/6,Eid al-Adha (estimated)
+2039/1/24,Chinese New Year (estimated)
+2039/1/25,Chinese New Year (Second Day) (estimated)
+2039/1/26,Islamic New Year (estimated)
+2039/4/6,Prophet Muhammad's Birthday (estimated)
+2039/5/1,Labor Day
+2039/5/2,Labor Day (observed)
+2039/5/7,Vesak Day (estimated)
+2039/6/6,Birthday of HM Yang di-Pertuan Agong
+2039/8/31,National Day
+2039/9/16,Malaysia Day
+2039/10/19,Eid al-Fitr (estimated)
+2039/10/20,Eid al-Fitr (Second Day) (estimated)
+2039/12/25,Christmas Day
+2039/12/26,Eid al-Adha (estimated)
+2039/12/27,Christmas Day (observed)
+2040/1/16,Islamic New Year (estimated)
+2040/2/12,Chinese New Year (estimated)
+2040/2/13,Chinese New Year (Second Day) (estimated)
+2040/2/14,Chinese New Year (observed, estimated)
+2040/3/25,Prophet Muhammad's Birthday (estimated)
+2040/3/26,Prophet Muhammad's Birthday (observed, estimated)
+2040/5/1,Labor Day
+2040/5/25,Vesak Day (estimated)
+2040/6/4,Birthday of HM Yang di-Pertuan Agong
+2040/8/31,National Day
+2040/9/16,Malaysia Day
+2040/9/17,Malaysia Day (observed)
+2040/10/8,Eid al-Fitr (estimated)
+2040/10/9,Eid al-Fitr (Second Day) (estimated)
+2040/12/15,Eid al-Adha (estimated)
+2040/12/25,Christmas Day
+2041/1/4,Islamic New Year (estimated)
+2041/2/1,Chinese New Year (estimated)
+2041/2/2,Chinese New Year (Second Day) (estimated)
+2041/3/15,Prophet Muhammad's Birthday (estimated)
+2041/5/1,Labor Day
+2041/5/14,Vesak Day (estimated)
+2041/6/3,Birthday of HM Yang di-Pertuan Agong
+2041/8/31,National Day
+2041/9/16,Malaysia Day
+2041/9/27,Eid al-Fitr (estimated)
+2041/9/28,Eid al-Fitr (Second Day) (estimated)
+2041/12/4,Eid al-Adha (estimated)
+2041/12/25,Christmas Day; Islamic New Year (estimated)
+2042/1/22,Chinese New Year (estimated)
+2042/1/23,Chinese New Year (Second Day) (estimated)
+2042/3/5,Prophet Muhammad's Birthday (estimated)
+2042/5/1,Labor Day
+2042/5/4,Vesak Day (estimated)
+2042/5/5,Vesak Day (observed, estimated)
+2042/6/2,Birthday of HM Yang di-Pertuan Agong
+2042/8/31,National Day
+2042/9/1,National Day (observed)
+2042/9/16,Eid al-Fitr (estimated); Malaysia Day
+2042/9/17,Eid al-Fitr (Second Day) (estimated)
+2042/11/23,Eid al-Adha (estimated)
+2042/11/24,Eid al-Adha (observed, estimated)
+2042/12/14,Islamic New Year (estimated)
+2042/12/25,Christmas Day
+2043/2/10,Chinese New Year (estimated)
+2043/2/11,Chinese New Year (Second Day) (estimated)
+2043/2/22,Prophet Muhammad's Birthday (estimated)
+2043/2/23,Prophet Muhammad's Birthday (observed, estimated)
+2043/5/1,Labor Day
+2043/5/23,Vesak Day (estimated)
+2043/6/1,Birthday of HM Yang di-Pertuan Agong
+2043/8/31,National Day
+2043/9/5,Eid al-Fitr (estimated)
+2043/9/6,Eid al-Fitr (Second Day) (estimated)
+2043/9/7,Eid al-Fitr (Second Day) (observed, estimated)
+2043/9/16,Malaysia Day
+2043/11/12,Eid al-Adha (estimated)
+2043/12/3,Islamic New Year (estimated)
+2043/12/25,Christmas Day
+2044/1/30,Chinese New Year (estimated)
+2044/1/31,Chinese New Year (Second Day) (estimated)
+2044/2/1,Chinese New Year (Second Day) (observed, estimated)
+2044/2/12,Prophet Muhammad's Birthday (estimated)
+2044/5/1,Labor Day
+2044/5/2,Labor Day (observed)
+2044/5/12,Vesak Day (estimated)
+2044/6/6,Birthday of HM Yang di-Pertuan Agong
+2044/8/25,Eid al-Fitr (estimated)
+2044/8/26,Eid al-Fitr (Second Day) (estimated)
+2044/8/31,National Day
+2044/9/16,Malaysia Day
+2044/11/1,Eid al-Adha (estimated)
+2044/11/21,Islamic New Year (estimated)
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/31,Prophet Muhammad's Birthday (estimated)
+2045/2/17,Chinese New Year (estimated)
+2045/2/18,Chinese New Year (Second Day) (estimated)
+2045/5/1,Labor Day; Vesak Day (estimated)
+2045/6/5,Birthday of HM Yang di-Pertuan Agong
+2045/8/14,Eid al-Fitr (estimated)
+2045/8/15,Eid al-Fitr (Second Day) (estimated)
+2045/8/31,National Day
+2045/9/16,Malaysia Day
+2045/10/21,Eid al-Adha (estimated)
+2045/11/10,Islamic New Year (estimated)
+2045/12/25,Christmas Day
+2046/1/20,Prophet Muhammad's Birthday (estimated)
+2046/2/6,Chinese New Year (estimated)
+2046/2/7,Chinese New Year (Second Day) (estimated)
+2046/5/1,Labor Day
+2046/5/20,Vesak Day (estimated)
+2046/5/21,Vesak Day (observed, estimated)
+2046/6/4,Birthday of HM Yang di-Pertuan Agong
+2046/8/4,Eid al-Fitr (estimated)
+2046/8/5,Eid al-Fitr (Second Day) (estimated)
+2046/8/6,Eid al-Fitr (Second Day) (observed, estimated)
+2046/8/31,National Day
+2046/9/16,Malaysia Day
+2046/9/17,Malaysia Day (observed)
+2046/10/11,Eid al-Adha (estimated)
+2046/10/31,Islamic New Year (estimated)
+2046/12/25,Christmas Day
+2047/1/9,Prophet Muhammad's Birthday (estimated)
+2047/1/26,Chinese New Year (estimated)
+2047/1/27,Chinese New Year (Second Day) (estimated)
+2047/1/28,Chinese New Year (Second Day) (observed, estimated)
+2047/5/1,Labor Day
+2047/5/9,Vesak Day (estimated)
+2047/6/3,Birthday of HM Yang di-Pertuan Agong
+2047/7/24,Eid al-Fitr (estimated)
+2047/7/25,Eid al-Fitr (Second Day) (estimated)
+2047/8/31,National Day
+2047/9/16,Malaysia Day
+2047/9/30,Eid al-Adha (estimated)
+2047/10/21,Islamic New Year (estimated)
+2047/12/25,Christmas Day
+2047/12/29,Prophet Muhammad's Birthday (estimated)
+2047/12/30,Prophet Muhammad's Birthday (observed, estimated)
+2048/2/14,Chinese New Year (estimated)
+2048/2/15,Chinese New Year (Second Day) (estimated)
+2048/5/1,Labor Day
+2048/5/27,Vesak Day (estimated)
+2048/6/1,Birthday of HM Yang di-Pertuan Agong
+2048/7/13,Eid al-Fitr (estimated)
+2048/7/14,Eid al-Fitr (Second Day) (estimated)
+2048/8/31,National Day
+2048/9/16,Malaysia Day
+2048/9/19,Eid al-Adha (estimated)
+2048/10/9,Islamic New Year (estimated)
+2048/12/18,Prophet Muhammad's Birthday (estimated)
+2048/12/25,Christmas Day
+2049/2/2,Chinese New Year (estimated)
+2049/2/3,Chinese New Year (Second Day) (estimated)
+2049/5/1,Labor Day
+2049/5/16,Vesak Day (estimated)
+2049/5/17,Vesak Day (observed, estimated)
+2049/6/7,Birthday of HM Yang di-Pertuan Agong
+2049/7/2,Eid al-Fitr (estimated)
+2049/7/3,Eid al-Fitr (Second Day) (estimated)
+2049/8/31,National Day
+2049/9/8,Eid al-Adha (estimated)
+2049/9/16,Malaysia Day
+2049/9/29,Islamic New Year (estimated)
+2049/12/8,Prophet Muhammad's Birthday (estimated)
+2049/12/25,Christmas Day
+2050/1/23,Chinese New Year (estimated)
+2050/1/24,Chinese New Year (Second Day) (estimated)
+2050/1/25,Chinese New Year (observed, estimated)
+2050/5/1,Labor Day
+2050/5/2,Labor Day (observed)
+2050/5/5,Vesak Day (estimated)
+2050/6/6,Birthday of HM Yang di-Pertuan Agong
+2050/6/21,Eid al-Fitr (estimated)
+2050/6/22,Eid al-Fitr (Second Day) (estimated)
+2050/8/28,Eid al-Adha (estimated)
+2050/8/29,Eid al-Adha (observed, estimated)
+2050/8/31,National Day
+2050/9/16,Malaysia Day
+2050/9/18,Islamic New Year (estimated)
+2050/11/27,Prophet Muhammad's Birthday (estimated)
+2050/11/28,Prophet Muhammad's Birthday (observed, estimated)
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)

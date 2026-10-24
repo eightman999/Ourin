@@ -1,0 +1,406 @@
+# MD の祝日（2020〜2050年、言語: ro）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Anul Nou
+2020/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2020/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2020/3/8,Ziua internațională a femeii
+2020/4/19,Paștele
+2020/4/20,Paștele
+2020/4/27,Paștele blajinilor
+2020/5/1,Ziua internațională a solidarității oamenilor muncii
+2020/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2020/6/1,Ziua Ocrotirii Copilului
+2020/8/27,Ziua independenței Republicii Moldova
+2020/8/31,Limba noastră
+2020/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2021/1/1,Anul Nou
+2021/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2021/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2021/3/8,Ziua internațională a femeii
+2021/5/1,Ziua internațională a solidarității oamenilor muncii
+2021/5/2,Paștele
+2021/5/3,Paștele
+2021/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2021/5/10,Paștele blajinilor
+2021/6/1,Ziua Ocrotirii Copilului
+2021/8/27,Ziua independenței Republicii Moldova
+2021/8/31,Limba noastră
+2021/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2022/1/1,Anul Nou
+2022/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2022/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2022/3/8,Ziua internațională a femeii
+2022/4/24,Paștele
+2022/4/25,Paștele
+2022/5/1,Ziua internațională a solidarității oamenilor muncii
+2022/5/2,Paștele blajinilor
+2022/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2022/6/1,Ziua Ocrotirii Copilului
+2022/8/27,Ziua independenței Republicii Moldova
+2022/8/31,Limba noastră
+2022/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2023/1/1,Anul Nou
+2023/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2023/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2023/3/8,Ziua internațională a femeii
+2023/4/16,Paștele
+2023/4/17,Paștele
+2023/4/24,Paștele blajinilor
+2023/5/1,Ziua internațională a solidarității oamenilor muncii
+2023/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2023/6/1,Ziua Ocrotirii Copilului
+2023/8/27,Ziua independenței Republicii Moldova
+2023/8/31,Limba noastră
+2023/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2024/1/1,Anul Nou
+2024/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2024/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2024/3/8,Ziua internațională a femeii
+2024/5/1,Ziua internațională a solidarității oamenilor muncii
+2024/5/5,Paștele
+2024/5/6,Paștele
+2024/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2024/5/13,Paștele blajinilor
+2024/6/1,Ziua Ocrotirii Copilului
+2024/8/27,Ziua independenței Republicii Moldova
+2024/8/31,Limba noastră
+2024/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2025/1/1,Anul Nou
+2025/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2025/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2025/3/8,Ziua internațională a femeii
+2025/4/20,Paștele
+2025/4/21,Paștele
+2025/4/28,Paștele blajinilor
+2025/5/1,Ziua internațională a solidarității oamenilor muncii
+2025/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2025/6/1,Ziua Ocrotirii Copilului
+2025/8/27,Ziua independenței Republicii Moldova
+2025/8/31,Limba noastră
+2025/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2026/1/1,Anul Nou
+2026/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2026/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2026/3/8,Ziua internațională a femeii
+2026/4/12,Paștele
+2026/4/13,Paștele
+2026/4/20,Paștele blajinilor
+2026/5/1,Ziua internațională a solidarității oamenilor muncii
+2026/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2026/6/1,Ziua Ocrotirii Copilului
+2026/8/27,Ziua independenței Republicii Moldova
+2026/8/31,Limba noastră
+2026/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2027/1/1,Anul Nou
+2027/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2027/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2027/3/8,Ziua internațională a femeii
+2027/5/1,Ziua internațională a solidarității oamenilor muncii
+2027/5/2,Paștele
+2027/5/3,Paștele
+2027/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2027/5/10,Paștele blajinilor
+2027/6/1,Ziua Ocrotirii Copilului
+2027/8/27,Ziua independenței Republicii Moldova
+2027/8/31,Limba noastră
+2027/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2028/1/1,Anul Nou
+2028/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2028/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2028/3/8,Ziua internațională a femeii
+2028/4/16,Paștele
+2028/4/17,Paștele
+2028/4/24,Paștele blajinilor
+2028/5/1,Ziua internațională a solidarității oamenilor muncii
+2028/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2028/6/1,Ziua Ocrotirii Copilului
+2028/8/27,Ziua independenței Republicii Moldova
+2028/8/31,Limba noastră
+2028/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2029/1/1,Anul Nou
+2029/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2029/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2029/3/8,Ziua internațională a femeii
+2029/4/8,Paștele
+2029/4/9,Paștele
+2029/4/16,Paștele blajinilor
+2029/5/1,Ziua internațională a solidarității oamenilor muncii
+2029/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2029/6/1,Ziua Ocrotirii Copilului
+2029/8/27,Ziua independenței Republicii Moldova
+2029/8/31,Limba noastră
+2029/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2030/1/1,Anul Nou
+2030/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2030/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2030/3/8,Ziua internațională a femeii
+2030/4/28,Paștele
+2030/4/29,Paștele
+2030/5/1,Ziua internațională a solidarității oamenilor muncii
+2030/5/6,Paștele blajinilor
+2030/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2030/6/1,Ziua Ocrotirii Copilului
+2030/8/27,Ziua independenței Republicii Moldova
+2030/8/31,Limba noastră
+2030/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2031/1/1,Anul Nou
+2031/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2031/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2031/3/8,Ziua internațională a femeii
+2031/4/13,Paștele
+2031/4/14,Paștele
+2031/4/21,Paștele blajinilor
+2031/5/1,Ziua internațională a solidarității oamenilor muncii
+2031/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2031/6/1,Ziua Ocrotirii Copilului
+2031/8/27,Ziua independenței Republicii Moldova
+2031/8/31,Limba noastră
+2031/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2032/1/1,Anul Nou
+2032/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2032/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2032/3/8,Ziua internațională a femeii
+2032/5/1,Ziua internațională a solidarității oamenilor muncii
+2032/5/2,Paștele
+2032/5/3,Paștele
+2032/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2032/5/10,Paștele blajinilor
+2032/6/1,Ziua Ocrotirii Copilului
+2032/8/27,Ziua independenței Republicii Moldova
+2032/8/31,Limba noastră
+2032/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2033/1/1,Anul Nou
+2033/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2033/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2033/3/8,Ziua internațională a femeii
+2033/4/24,Paștele
+2033/4/25,Paștele
+2033/5/1,Ziua internațională a solidarității oamenilor muncii
+2033/5/2,Paștele blajinilor
+2033/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2033/6/1,Ziua Ocrotirii Copilului
+2033/8/27,Ziua independenței Republicii Moldova
+2033/8/31,Limba noastră
+2033/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2034/1/1,Anul Nou
+2034/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2034/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2034/3/8,Ziua internațională a femeii
+2034/4/9,Paștele
+2034/4/10,Paștele
+2034/4/17,Paștele blajinilor
+2034/5/1,Ziua internațională a solidarității oamenilor muncii
+2034/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2034/6/1,Ziua Ocrotirii Copilului
+2034/8/27,Ziua independenței Republicii Moldova
+2034/8/31,Limba noastră
+2034/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2035/1/1,Anul Nou
+2035/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2035/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2035/3/8,Ziua internațională a femeii
+2035/4/29,Paștele
+2035/4/30,Paștele
+2035/5/1,Ziua internațională a solidarității oamenilor muncii
+2035/5/7,Paștele blajinilor
+2035/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2035/6/1,Ziua Ocrotirii Copilului
+2035/8/27,Ziua independenței Republicii Moldova
+2035/8/31,Limba noastră
+2035/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2036/1/1,Anul Nou
+2036/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2036/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2036/3/8,Ziua internațională a femeii
+2036/4/20,Paștele
+2036/4/21,Paștele
+2036/4/28,Paștele blajinilor
+2036/5/1,Ziua internațională a solidarității oamenilor muncii
+2036/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2036/6/1,Ziua Ocrotirii Copilului
+2036/8/27,Ziua independenței Republicii Moldova
+2036/8/31,Limba noastră
+2036/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2037/1/1,Anul Nou
+2037/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2037/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2037/3/8,Ziua internațională a femeii
+2037/4/5,Paștele
+2037/4/6,Paștele
+2037/4/13,Paștele blajinilor
+2037/5/1,Ziua internațională a solidarității oamenilor muncii
+2037/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2037/6/1,Ziua Ocrotirii Copilului
+2037/8/27,Ziua independenței Republicii Moldova
+2037/8/31,Limba noastră
+2037/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2038/1/1,Anul Nou
+2038/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2038/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2038/3/8,Ziua internațională a femeii
+2038/4/25,Paștele
+2038/4/26,Paștele
+2038/5/1,Ziua internațională a solidarității oamenilor muncii
+2038/5/3,Paștele blajinilor
+2038/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2038/6/1,Ziua Ocrotirii Copilului
+2038/8/27,Ziua independenței Republicii Moldova
+2038/8/31,Limba noastră
+2038/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2039/1/1,Anul Nou
+2039/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2039/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2039/3/8,Ziua internațională a femeii
+2039/4/17,Paștele
+2039/4/18,Paștele
+2039/4/25,Paștele blajinilor
+2039/5/1,Ziua internațională a solidarității oamenilor muncii
+2039/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2039/6/1,Ziua Ocrotirii Copilului
+2039/8/27,Ziua independenței Republicii Moldova
+2039/8/31,Limba noastră
+2039/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2040/1/1,Anul Nou
+2040/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2040/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2040/3/8,Ziua internațională a femeii
+2040/5/1,Ziua internațională a solidarității oamenilor muncii
+2040/5/6,Paștele
+2040/5/7,Paștele
+2040/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2040/5/14,Paștele blajinilor
+2040/6/1,Ziua Ocrotirii Copilului
+2040/8/27,Ziua independenței Republicii Moldova
+2040/8/31,Limba noastră
+2040/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2041/1/1,Anul Nou
+2041/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2041/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2041/3/8,Ziua internațională a femeii
+2041/4/21,Paștele
+2041/4/22,Paștele
+2041/4/29,Paștele blajinilor
+2041/5/1,Ziua internațională a solidarității oamenilor muncii
+2041/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2041/6/1,Ziua Ocrotirii Copilului
+2041/8/27,Ziua independenței Republicii Moldova
+2041/8/31,Limba noastră
+2041/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2042/1/1,Anul Nou
+2042/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2042/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2042/3/8,Ziua internațională a femeii
+2042/4/13,Paștele
+2042/4/14,Paștele
+2042/4/21,Paștele blajinilor
+2042/5/1,Ziua internațională a solidarității oamenilor muncii
+2042/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2042/6/1,Ziua Ocrotirii Copilului
+2042/8/27,Ziua independenței Republicii Moldova
+2042/8/31,Limba noastră
+2042/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2043/1/1,Anul Nou
+2043/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2043/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2043/3/8,Ziua internațională a femeii
+2043/5/1,Ziua internațională a solidarității oamenilor muncii
+2043/5/3,Paștele
+2043/5/4,Paștele
+2043/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2043/5/11,Paștele blajinilor
+2043/6/1,Ziua Ocrotirii Copilului
+2043/8/27,Ziua independenței Republicii Moldova
+2043/8/31,Limba noastră
+2043/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2044/1/1,Anul Nou
+2044/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2044/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2044/3/8,Ziua internațională a femeii
+2044/4/24,Paștele
+2044/4/25,Paștele
+2044/5/1,Ziua internațională a solidarității oamenilor muncii
+2044/5/2,Paștele blajinilor
+2044/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2044/6/1,Ziua Ocrotirii Copilului
+2044/8/27,Ziua independenței Republicii Moldova
+2044/8/31,Limba noastră
+2044/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2045/1/1,Anul Nou
+2045/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2045/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2045/3/8,Ziua internațională a femeii
+2045/4/9,Paștele
+2045/4/10,Paștele
+2045/4/17,Paștele blajinilor
+2045/5/1,Ziua internațională a solidarității oamenilor muncii
+2045/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2045/6/1,Ziua Ocrotirii Copilului
+2045/8/27,Ziua independenței Republicii Moldova
+2045/8/31,Limba noastră
+2045/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2046/1/1,Anul Nou
+2046/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2046/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2046/3/8,Ziua internațională a femeii
+2046/4/29,Paștele
+2046/4/30,Paștele
+2046/5/1,Ziua internațională a solidarității oamenilor muncii
+2046/5/7,Paștele blajinilor
+2046/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2046/6/1,Ziua Ocrotirii Copilului
+2046/8/27,Ziua independenței Republicii Moldova
+2046/8/31,Limba noastră
+2046/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2047/1/1,Anul Nou
+2047/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2047/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2047/3/8,Ziua internațională a femeii
+2047/4/21,Paștele
+2047/4/22,Paștele
+2047/4/29,Paștele blajinilor
+2047/5/1,Ziua internațională a solidarității oamenilor muncii
+2047/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2047/6/1,Ziua Ocrotirii Copilului
+2047/8/27,Ziua independenței Republicii Moldova
+2047/8/31,Limba noastră
+2047/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2048/1/1,Anul Nou
+2048/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2048/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2048/3/8,Ziua internațională a femeii
+2048/4/5,Paștele
+2048/4/6,Paștele
+2048/4/13,Paștele blajinilor
+2048/5/1,Ziua internațională a solidarității oamenilor muncii
+2048/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2048/6/1,Ziua Ocrotirii Copilului
+2048/8/27,Ziua independenței Republicii Moldova
+2048/8/31,Limba noastră
+2048/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2049/1/1,Anul Nou
+2049/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2049/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2049/3/8,Ziua internațională a femeii
+2049/4/25,Paștele
+2049/4/26,Paștele
+2049/5/1,Ziua internațională a solidarității oamenilor muncii
+2049/5/3,Paștele blajinilor
+2049/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2049/6/1,Ziua Ocrotirii Copilului
+2049/8/27,Ziua independenței Republicii Moldova
+2049/8/31,Limba noastră
+2049/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)
+2050/1/1,Anul Nou
+2050/1/7,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2050/1/8,Nașterea lui Iisus Hristos (Crăciunul pe stil vechi)
+2050/3/8,Ziua internațională a femeii
+2050/4/17,Paștele
+2050/4/18,Paștele
+2050/4/25,Paștele blajinilor
+2050/5/1,Ziua internațională a solidarității oamenilor muncii
+2050/5/9,Ziua Europei; Ziua Victoriei și a comemorării eroilor căzuți pentru Independența Patriei
+2050/6/1,Ziua Ocrotirii Copilului
+2050/8/27,Ziua independenței Republicii Moldova
+2050/8/31,Limba noastră
+2050/12/25,Nașterea lui Iisus Hristos (Crăciunul pe stil nou)

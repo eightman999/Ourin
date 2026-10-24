@@ -1,0 +1,405 @@
+# SE holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/6,Epiphany
+2020/4/10,Good Friday
+2020/4/12,Easter Sunday
+2020/4/13,Easter Monday
+2020/5/1,May Day
+2020/5/21,Ascension Day
+2020/5/31,Pentecost
+2020/6/6,National Day
+2020/6/20,Midsummer Day
+2020/10/31,All Saints' Day
+2020/12/25,Christmas Day
+2020/12/26,Second Day of Christmas
+2021/1/1,New Year's Day
+2021/1/6,Epiphany
+2021/4/2,Good Friday
+2021/4/4,Easter Sunday
+2021/4/5,Easter Monday
+2021/5/1,May Day
+2021/5/13,Ascension Day
+2021/5/23,Pentecost
+2021/6/6,National Day
+2021/6/26,Midsummer Day
+2021/11/6,All Saints' Day
+2021/12/25,Christmas Day
+2021/12/26,Second Day of Christmas
+2022/1/1,New Year's Day
+2022/1/6,Epiphany
+2022/4/15,Good Friday
+2022/4/17,Easter Sunday
+2022/4/18,Easter Monday
+2022/5/1,May Day
+2022/5/26,Ascension Day
+2022/6/5,Pentecost
+2022/6/6,National Day
+2022/6/25,Midsummer Day
+2022/11/5,All Saints' Day
+2022/12/25,Christmas Day
+2022/12/26,Second Day of Christmas
+2023/1/1,New Year's Day
+2023/1/6,Epiphany
+2023/4/7,Good Friday
+2023/4/9,Easter Sunday
+2023/4/10,Easter Monday
+2023/5/1,May Day
+2023/5/18,Ascension Day
+2023/5/28,Pentecost
+2023/6/6,National Day
+2023/6/24,Midsummer Day
+2023/11/4,All Saints' Day
+2023/12/25,Christmas Day
+2023/12/26,Second Day of Christmas
+2024/1/1,New Year's Day
+2024/1/6,Epiphany
+2024/3/29,Good Friday
+2024/3/31,Easter Sunday
+2024/4/1,Easter Monday
+2024/5/1,May Day
+2024/5/9,Ascension Day
+2024/5/19,Pentecost
+2024/6/6,National Day
+2024/6/22,Midsummer Day
+2024/11/2,All Saints' Day
+2024/12/25,Christmas Day
+2024/12/26,Second Day of Christmas
+2025/1/1,New Year's Day
+2025/1/6,Epiphany
+2025/4/18,Good Friday
+2025/4/20,Easter Sunday
+2025/4/21,Easter Monday
+2025/5/1,May Day
+2025/5/29,Ascension Day
+2025/6/6,National Day
+2025/6/8,Pentecost
+2025/6/21,Midsummer Day
+2025/11/1,All Saints' Day
+2025/12/25,Christmas Day
+2025/12/26,Second Day of Christmas
+2026/1/1,New Year's Day
+2026/1/6,Epiphany
+2026/4/3,Good Friday
+2026/4/5,Easter Sunday
+2026/4/6,Easter Monday
+2026/5/1,May Day
+2026/5/14,Ascension Day
+2026/5/24,Pentecost
+2026/6/6,National Day
+2026/6/20,Midsummer Day
+2026/10/31,All Saints' Day
+2026/12/25,Christmas Day
+2026/12/26,Second Day of Christmas
+2027/1/1,New Year's Day
+2027/1/6,Epiphany
+2027/3/26,Good Friday
+2027/3/28,Easter Sunday
+2027/3/29,Easter Monday
+2027/5/1,May Day
+2027/5/6,Ascension Day
+2027/5/16,Pentecost
+2027/6/6,National Day
+2027/6/26,Midsummer Day
+2027/11/6,All Saints' Day
+2027/12/25,Christmas Day
+2027/12/26,Second Day of Christmas
+2028/1/1,New Year's Day
+2028/1/6,Epiphany
+2028/4/14,Good Friday
+2028/4/16,Easter Sunday
+2028/4/17,Easter Monday
+2028/5/1,May Day
+2028/5/25,Ascension Day
+2028/6/4,Pentecost
+2028/6/6,National Day
+2028/6/24,Midsummer Day
+2028/11/4,All Saints' Day
+2028/12/25,Christmas Day
+2028/12/26,Second Day of Christmas
+2029/1/1,New Year's Day
+2029/1/6,Epiphany
+2029/3/30,Good Friday
+2029/4/1,Easter Sunday
+2029/4/2,Easter Monday
+2029/5/1,May Day
+2029/5/10,Ascension Day
+2029/5/20,Pentecost
+2029/6/6,National Day
+2029/6/23,Midsummer Day
+2029/11/3,All Saints' Day
+2029/12/25,Christmas Day
+2029/12/26,Second Day of Christmas
+2030/1/1,New Year's Day
+2030/1/6,Epiphany
+2030/4/19,Good Friday
+2030/4/21,Easter Sunday
+2030/4/22,Easter Monday
+2030/5/1,May Day
+2030/5/30,Ascension Day
+2030/6/6,National Day
+2030/6/9,Pentecost
+2030/6/22,Midsummer Day
+2030/11/2,All Saints' Day
+2030/12/25,Christmas Day
+2030/12/26,Second Day of Christmas
+2031/1/1,New Year's Day
+2031/1/6,Epiphany
+2031/4/11,Good Friday
+2031/4/13,Easter Sunday
+2031/4/14,Easter Monday
+2031/5/1,May Day
+2031/5/22,Ascension Day
+2031/6/1,Pentecost
+2031/6/6,National Day
+2031/6/21,Midsummer Day
+2031/11/1,All Saints' Day
+2031/12/25,Christmas Day
+2031/12/26,Second Day of Christmas
+2032/1/1,New Year's Day
+2032/1/6,Epiphany
+2032/3/26,Good Friday
+2032/3/28,Easter Sunday
+2032/3/29,Easter Monday
+2032/5/1,May Day
+2032/5/6,Ascension Day
+2032/5/16,Pentecost
+2032/6/6,National Day
+2032/6/26,Midsummer Day
+2032/11/6,All Saints' Day
+2032/12/25,Christmas Day
+2032/12/26,Second Day of Christmas
+2033/1/1,New Year's Day
+2033/1/6,Epiphany
+2033/4/15,Good Friday
+2033/4/17,Easter Sunday
+2033/4/18,Easter Monday
+2033/5/1,May Day
+2033/5/26,Ascension Day
+2033/6/5,Pentecost
+2033/6/6,National Day
+2033/6/25,Midsummer Day
+2033/11/5,All Saints' Day
+2033/12/25,Christmas Day
+2033/12/26,Second Day of Christmas
+2034/1/1,New Year's Day
+2034/1/6,Epiphany
+2034/4/7,Good Friday
+2034/4/9,Easter Sunday
+2034/4/10,Easter Monday
+2034/5/1,May Day
+2034/5/18,Ascension Day
+2034/5/28,Pentecost
+2034/6/6,National Day
+2034/6/24,Midsummer Day
+2034/11/4,All Saints' Day
+2034/12/25,Christmas Day
+2034/12/26,Second Day of Christmas
+2035/1/1,New Year's Day
+2035/1/6,Epiphany
+2035/3/23,Good Friday
+2035/3/25,Easter Sunday
+2035/3/26,Easter Monday
+2035/5/1,May Day
+2035/5/3,Ascension Day
+2035/5/13,Pentecost
+2035/6/6,National Day
+2035/6/23,Midsummer Day
+2035/11/3,All Saints' Day
+2035/12/25,Christmas Day
+2035/12/26,Second Day of Christmas
+2036/1/1,New Year's Day
+2036/1/6,Epiphany
+2036/4/11,Good Friday
+2036/4/13,Easter Sunday
+2036/4/14,Easter Monday
+2036/5/1,May Day
+2036/5/22,Ascension Day
+2036/6/1,Pentecost
+2036/6/6,National Day
+2036/6/21,Midsummer Day
+2036/11/1,All Saints' Day
+2036/12/25,Christmas Day
+2036/12/26,Second Day of Christmas
+2037/1/1,New Year's Day
+2037/1/6,Epiphany
+2037/4/3,Good Friday
+2037/4/5,Easter Sunday
+2037/4/6,Easter Monday
+2037/5/1,May Day
+2037/5/14,Ascension Day
+2037/5/24,Pentecost
+2037/6/6,National Day
+2037/6/20,Midsummer Day
+2037/10/31,All Saints' Day
+2037/12/25,Christmas Day
+2037/12/26,Second Day of Christmas
+2038/1/1,New Year's Day
+2038/1/6,Epiphany
+2038/4/23,Good Friday
+2038/4/25,Easter Sunday
+2038/4/26,Easter Monday
+2038/5/1,May Day
+2038/6/3,Ascension Day
+2038/6/6,National Day
+2038/6/13,Pentecost
+2038/6/26,Midsummer Day
+2038/11/6,All Saints' Day
+2038/12/25,Christmas Day
+2038/12/26,Second Day of Christmas
+2039/1/1,New Year's Day
+2039/1/6,Epiphany
+2039/4/8,Good Friday
+2039/4/10,Easter Sunday
+2039/4/11,Easter Monday
+2039/5/1,May Day
+2039/5/19,Ascension Day
+2039/5/29,Pentecost
+2039/6/6,National Day
+2039/6/25,Midsummer Day
+2039/11/5,All Saints' Day
+2039/12/25,Christmas Day
+2039/12/26,Second Day of Christmas
+2040/1/1,New Year's Day
+2040/1/6,Epiphany
+2040/3/30,Good Friday
+2040/4/1,Easter Sunday
+2040/4/2,Easter Monday
+2040/5/1,May Day
+2040/5/10,Ascension Day
+2040/5/20,Pentecost
+2040/6/6,National Day
+2040/6/23,Midsummer Day
+2040/11/3,All Saints' Day
+2040/12/25,Christmas Day
+2040/12/26,Second Day of Christmas
+2041/1/1,New Year's Day
+2041/1/6,Epiphany
+2041/4/19,Good Friday
+2041/4/21,Easter Sunday
+2041/4/22,Easter Monday
+2041/5/1,May Day
+2041/5/30,Ascension Day
+2041/6/6,National Day
+2041/6/9,Pentecost
+2041/6/22,Midsummer Day
+2041/11/2,All Saints' Day
+2041/12/25,Christmas Day
+2041/12/26,Second Day of Christmas
+2042/1/1,New Year's Day
+2042/1/6,Epiphany
+2042/4/4,Good Friday
+2042/4/6,Easter Sunday
+2042/4/7,Easter Monday
+2042/5/1,May Day
+2042/5/15,Ascension Day
+2042/5/25,Pentecost
+2042/6/6,National Day
+2042/6/21,Midsummer Day
+2042/11/1,All Saints' Day
+2042/12/25,Christmas Day
+2042/12/26,Second Day of Christmas
+2043/1/1,New Year's Day
+2043/1/6,Epiphany
+2043/3/27,Good Friday
+2043/3/29,Easter Sunday
+2043/3/30,Easter Monday
+2043/5/1,May Day
+2043/5/7,Ascension Day
+2043/5/17,Pentecost
+2043/6/6,National Day
+2043/6/20,Midsummer Day
+2043/10/31,All Saints' Day
+2043/12/25,Christmas Day
+2043/12/26,Second Day of Christmas
+2044/1/1,New Year's Day
+2044/1/6,Epiphany
+2044/4/15,Good Friday
+2044/4/17,Easter Sunday
+2044/4/18,Easter Monday
+2044/5/1,May Day
+2044/5/26,Ascension Day
+2044/6/5,Pentecost
+2044/6/6,National Day
+2044/6/25,Midsummer Day
+2044/11/5,All Saints' Day
+2044/12/25,Christmas Day
+2044/12/26,Second Day of Christmas
+2045/1/1,New Year's Day
+2045/1/6,Epiphany
+2045/4/7,Good Friday
+2045/4/9,Easter Sunday
+2045/4/10,Easter Monday
+2045/5/1,May Day
+2045/5/18,Ascension Day
+2045/5/28,Pentecost
+2045/6/6,National Day
+2045/6/24,Midsummer Day
+2045/11/4,All Saints' Day
+2045/12/25,Christmas Day
+2045/12/26,Second Day of Christmas
+2046/1/1,New Year's Day
+2046/1/6,Epiphany
+2046/3/23,Good Friday
+2046/3/25,Easter Sunday
+2046/3/26,Easter Monday
+2046/5/1,May Day
+2046/5/3,Ascension Day
+2046/5/13,Pentecost
+2046/6/6,National Day
+2046/6/23,Midsummer Day
+2046/11/3,All Saints' Day
+2046/12/25,Christmas Day
+2046/12/26,Second Day of Christmas
+2047/1/1,New Year's Day
+2047/1/6,Epiphany
+2047/4/12,Good Friday
+2047/4/14,Easter Sunday
+2047/4/15,Easter Monday
+2047/5/1,May Day
+2047/5/23,Ascension Day
+2047/6/2,Pentecost
+2047/6/6,National Day
+2047/6/22,Midsummer Day
+2047/11/2,All Saints' Day
+2047/12/25,Christmas Day
+2047/12/26,Second Day of Christmas
+2048/1/1,New Year's Day
+2048/1/6,Epiphany
+2048/4/3,Good Friday
+2048/4/5,Easter Sunday
+2048/4/6,Easter Monday
+2048/5/1,May Day
+2048/5/14,Ascension Day
+2048/5/24,Pentecost
+2048/6/6,National Day
+2048/6/20,Midsummer Day
+2048/10/31,All Saints' Day
+2048/12/25,Christmas Day
+2048/12/26,Second Day of Christmas
+2049/1/1,New Year's Day
+2049/1/6,Epiphany
+2049/4/16,Good Friday
+2049/4/18,Easter Sunday
+2049/4/19,Easter Monday
+2049/5/1,May Day
+2049/5/27,Ascension Day
+2049/6/6,National Day; Pentecost
+2049/6/26,Midsummer Day
+2049/11/6,All Saints' Day
+2049/12/25,Christmas Day
+2049/12/26,Second Day of Christmas
+2050/1/1,New Year's Day
+2050/1/6,Epiphany
+2050/4/8,Good Friday
+2050/4/10,Easter Sunday
+2050/4/11,Easter Monday
+2050/5/1,May Day
+2050/5/19,Ascension Day
+2050/5/29,Pentecost
+2050/6/6,National Day
+2050/6/25,Midsummer Day
+2050/11/5,All Saints' Day
+2050/12/25,Christmas Day
+2050/12/26,Second Day of Christmas

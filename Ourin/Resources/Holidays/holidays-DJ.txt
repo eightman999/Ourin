@@ -1,0 +1,410 @@
+# DJ の祝日（2020〜2050年、言語: fr）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Nouvel an
+2020/3/22,Al Isra et Al Mirague (estimé)
+2020/5/1,Fête du travail
+2020/5/24,Eid al-Fitr (estimé)
+2020/5/25,Eid al-Fitr deuxième jour (estimé)
+2020/6/27,Fête de l'indépendance
+2020/6/28,Fête de l'indépendance deuxième jour
+2020/7/30,Arafat (estimé)
+2020/7/31,Eid al-Adha (estimé)
+2020/8/1,Eid al-Adha deuxième jour (estimé)
+2020/8/20,Nouvel an musulman (estimé)
+2020/10/29,Anniversaire du prophète Muhammad (estimé)
+2020/12/25,Noël
+2021/1/1,Nouvel an
+2021/3/11,Al Isra et Al Mirague (estimé)
+2021/5/1,Fête du travail
+2021/5/13,Eid al-Fitr (estimé)
+2021/5/14,Eid al-Fitr deuxième jour (estimé)
+2021/6/27,Fête de l'indépendance
+2021/6/28,Fête de l'indépendance deuxième jour
+2021/7/19,Arafat (estimé)
+2021/7/20,Eid al-Adha (estimé)
+2021/7/21,Eid al-Adha deuxième jour (estimé)
+2021/8/9,Nouvel an musulman (estimé)
+2021/10/18,Anniversaire du prophète Muhammad (estimé)
+2021/12/25,Noël
+2022/1/1,Nouvel an
+2022/2/28,Al Isra et Al Mirague (estimé)
+2022/5/1,Fête du travail
+2022/5/2,Eid al-Fitr (estimé)
+2022/5/3,Eid al-Fitr deuxième jour (estimé)
+2022/6/27,Fête de l'indépendance
+2022/6/28,Fête de l'indépendance deuxième jour
+2022/7/8,Arafat (estimé)
+2022/7/9,Eid al-Adha (estimé)
+2022/7/10,Eid al-Adha deuxième jour (estimé)
+2022/7/30,Nouvel an musulman (estimé)
+2022/10/8,Anniversaire du prophète Muhammad (estimé)
+2022/12/25,Noël
+2023/1/1,Nouvel an
+2023/2/18,Al Isra et Al Mirague (estimé)
+2023/4/21,Eid al-Fitr (estimé)
+2023/4/22,Eid al-Fitr deuxième jour (estimé)
+2023/5/1,Fête du travail
+2023/6/27,Arafat (estimé); Fête de l'indépendance
+2023/6/28,Eid al-Adha (estimé); Fête de l'indépendance deuxième jour
+2023/6/29,Eid al-Adha deuxième jour (estimé)
+2023/7/19,Nouvel an musulman (estimé)
+2023/9/27,Anniversaire du prophète Muhammad (estimé)
+2023/12/25,Noël
+2024/1/1,Nouvel an
+2024/2/8,Al Isra et Al Mirague (estimé)
+2024/4/10,Eid al-Fitr (estimé)
+2024/4/11,Eid al-Fitr deuxième jour (estimé)
+2024/5/1,Fête du travail
+2024/6/15,Arafat (estimé)
+2024/6/16,Eid al-Adha (estimé)
+2024/6/17,Eid al-Adha deuxième jour (estimé)
+2024/6/27,Fête de l'indépendance
+2024/6/28,Fête de l'indépendance deuxième jour
+2024/7/7,Nouvel an musulman (estimé)
+2024/9/15,Anniversaire du prophète Muhammad (estimé)
+2024/12/25,Noël
+2025/1/1,Nouvel an
+2025/1/27,Al Isra et Al Mirague (estimé)
+2025/3/30,Eid al-Fitr (estimé)
+2025/3/31,Eid al-Fitr deuxième jour (estimé)
+2025/5/1,Fête du travail
+2025/6/5,Arafat (estimé)
+2025/6/6,Eid al-Adha (estimé)
+2025/6/7,Eid al-Adha deuxième jour (estimé)
+2025/6/26,Nouvel an musulman (estimé)
+2025/6/27,Fête de l'indépendance
+2025/6/28,Fête de l'indépendance deuxième jour
+2025/9/4,Anniversaire du prophète Muhammad (estimé)
+2025/12/25,Noël
+2026/1/1,Nouvel an
+2026/1/16,Al Isra et Al Mirague (estimé)
+2026/3/20,Eid al-Fitr (estimé)
+2026/3/21,Eid al-Fitr deuxième jour (estimé)
+2026/5/1,Fête du travail
+2026/5/26,Arafat (estimé)
+2026/5/27,Eid al-Adha (estimé)
+2026/5/28,Eid al-Adha deuxième jour (estimé)
+2026/6/16,Nouvel an musulman (estimé)
+2026/6/27,Fête de l'indépendance
+2026/6/28,Fête de l'indépendance deuxième jour
+2026/8/25,Anniversaire du prophète Muhammad (estimé)
+2026/12/25,Noël
+2027/1/1,Nouvel an
+2027/1/5,Al Isra et Al Mirague (estimé)
+2027/3/9,Eid al-Fitr (estimé)
+2027/3/10,Eid al-Fitr deuxième jour (estimé)
+2027/5/1,Fête du travail
+2027/5/15,Arafat (estimé)
+2027/5/16,Eid al-Adha (estimé)
+2027/5/17,Eid al-Adha deuxième jour (estimé)
+2027/6/6,Nouvel an musulman (estimé)
+2027/6/27,Fête de l'indépendance
+2027/6/28,Fête de l'indépendance deuxième jour
+2027/8/14,Anniversaire du prophète Muhammad (estimé)
+2027/12/25,Al Isra et Al Mirague (estimé); Noël
+2028/1/1,Nouvel an
+2028/2/26,Eid al-Fitr (estimé)
+2028/2/27,Eid al-Fitr deuxième jour (estimé)
+2028/5/1,Fête du travail
+2028/5/4,Arafat (estimé)
+2028/5/5,Eid al-Adha (estimé)
+2028/5/6,Eid al-Adha deuxième jour (estimé)
+2028/5/25,Nouvel an musulman (estimé)
+2028/6/27,Fête de l'indépendance
+2028/6/28,Fête de l'indépendance deuxième jour
+2028/8/3,Anniversaire du prophète Muhammad (estimé)
+2028/12/14,Al Isra et Al Mirague (estimé)
+2028/12/25,Noël
+2029/1/1,Nouvel an
+2029/2/14,Eid al-Fitr (estimé)
+2029/2/15,Eid al-Fitr deuxième jour (estimé)
+2029/4/23,Arafat (estimé)
+2029/4/24,Eid al-Adha (estimé)
+2029/4/25,Eid al-Adha deuxième jour (estimé)
+2029/5/1,Fête du travail
+2029/5/14,Nouvel an musulman (estimé)
+2029/6/27,Fête de l'indépendance
+2029/6/28,Fête de l'indépendance deuxième jour
+2029/7/24,Anniversaire du prophète Muhammad (estimé)
+2029/12/3,Al Isra et Al Mirague (estimé)
+2029/12/25,Noël
+2030/1/1,Nouvel an
+2030/2/4,Eid al-Fitr (estimé)
+2030/2/5,Eid al-Fitr deuxième jour (estimé)
+2030/4/12,Arafat (estimé)
+2030/4/13,Eid al-Adha (estimé)
+2030/4/14,Eid al-Adha deuxième jour (estimé)
+2030/5/1,Fête du travail
+2030/5/3,Nouvel an musulman (estimé)
+2030/6/27,Fête de l'indépendance
+2030/6/28,Fête de l'indépendance deuxième jour
+2030/7/13,Anniversaire du prophète Muhammad (estimé)
+2030/11/23,Al Isra et Al Mirague (estimé)
+2030/12/25,Noël
+2031/1/1,Nouvel an
+2031/1/24,Eid al-Fitr (estimé)
+2031/1/25,Eid al-Fitr deuxième jour (estimé)
+2031/4/1,Arafat (estimé)
+2031/4/2,Eid al-Adha (estimé)
+2031/4/3,Eid al-Adha deuxième jour (estimé)
+2031/4/23,Nouvel an musulman (estimé)
+2031/5/1,Fête du travail
+2031/6/27,Fête de l'indépendance
+2031/6/28,Fête de l'indépendance deuxième jour
+2031/7/2,Anniversaire du prophète Muhammad (estimé)
+2031/11/12,Al Isra et Al Mirague (estimé)
+2031/12/25,Noël
+2032/1/1,Nouvel an
+2032/1/14,Eid al-Fitr (estimé)
+2032/1/15,Eid al-Fitr deuxième jour (estimé)
+2032/3/21,Arafat (estimé)
+2032/3/22,Eid al-Adha (estimé)
+2032/3/23,Eid al-Adha deuxième jour (estimé)
+2032/4/11,Nouvel an musulman (estimé)
+2032/5/1,Fête du travail
+2032/6/20,Anniversaire du prophète Muhammad (estimé)
+2032/6/27,Fête de l'indépendance
+2032/6/28,Fête de l'indépendance deuxième jour
+2032/11/1,Al Isra et Al Mirague (estimé)
+2032/12/25,Noël
+2033/1/1,Nouvel an
+2033/1/2,Eid al-Fitr (estimé)
+2033/1/3,Eid al-Fitr deuxième jour (estimé)
+2033/3/10,Arafat (estimé)
+2033/3/11,Eid al-Adha (estimé)
+2033/3/12,Eid al-Adha deuxième jour (estimé)
+2033/4/1,Nouvel an musulman (estimé)
+2033/5/1,Fête du travail
+2033/6/9,Anniversaire du prophète Muhammad (estimé)
+2033/6/27,Fête de l'indépendance
+2033/6/28,Fête de l'indépendance deuxième jour
+2033/10/21,Al Isra et Al Mirague (estimé)
+2033/12/23,Eid al-Fitr (estimé)
+2033/12/24,Eid al-Fitr deuxième jour (estimé)
+2033/12/25,Noël
+2034/1/1,Nouvel an
+2034/2/28,Arafat (estimé)
+2034/3/1,Eid al-Adha (estimé)
+2034/3/2,Eid al-Adha deuxième jour (estimé)
+2034/3/21,Nouvel an musulman (estimé)
+2034/5/1,Fête du travail
+2034/5/30,Anniversaire du prophète Muhammad (estimé)
+2034/6/27,Fête de l'indépendance
+2034/6/28,Fête de l'indépendance deuxième jour
+2034/10/10,Al Isra et Al Mirague (estimé)
+2034/12/12,Eid al-Fitr (estimé)
+2034/12/13,Eid al-Fitr deuxième jour (estimé)
+2034/12/25,Noël
+2035/1/1,Nouvel an
+2035/2/17,Arafat (estimé)
+2035/2/18,Eid al-Adha (estimé)
+2035/2/19,Eid al-Adha deuxième jour (estimé)
+2035/3/11,Nouvel an musulman (estimé)
+2035/5/1,Fête du travail
+2035/5/20,Anniversaire du prophète Muhammad (estimé)
+2035/6/27,Fête de l'indépendance
+2035/6/28,Fête de l'indépendance deuxième jour
+2035/9/29,Al Isra et Al Mirague (estimé)
+2035/12/1,Eid al-Fitr (estimé)
+2035/12/2,Eid al-Fitr deuxième jour (estimé)
+2035/12/25,Noël
+2036/1/1,Nouvel an
+2036/2/6,Arafat (estimé)
+2036/2/7,Eid al-Adha (estimé)
+2036/2/8,Eid al-Adha deuxième jour (estimé)
+2036/2/28,Nouvel an musulman (estimé)
+2036/5/1,Fête du travail
+2036/5/8,Anniversaire du prophète Muhammad (estimé)
+2036/6/27,Fête de l'indépendance
+2036/6/28,Fête de l'indépendance deuxième jour
+2036/9/18,Al Isra et Al Mirague (estimé)
+2036/11/19,Eid al-Fitr (estimé)
+2036/11/20,Eid al-Fitr deuxième jour (estimé)
+2036/12/25,Noël
+2037/1/1,Nouvel an
+2037/1/25,Arafat (estimé)
+2037/1/26,Eid al-Adha (estimé)
+2037/1/27,Eid al-Adha deuxième jour (estimé)
+2037/2/16,Nouvel an musulman (estimé)
+2037/4/28,Anniversaire du prophète Muhammad (estimé)
+2037/5/1,Fête du travail
+2037/6/27,Fête de l'indépendance
+2037/6/28,Fête de l'indépendance deuxième jour
+2037/9/7,Al Isra et Al Mirague (estimé)
+2037/11/8,Eid al-Fitr (estimé)
+2037/11/9,Eid al-Fitr deuxième jour (estimé)
+2037/12/25,Noël
+2038/1/1,Nouvel an
+2038/1/15,Arafat (estimé)
+2038/1/16,Eid al-Adha (estimé)
+2038/1/17,Eid al-Adha deuxième jour (estimé)
+2038/2/5,Nouvel an musulman (estimé)
+2038/4/17,Anniversaire du prophète Muhammad (estimé)
+2038/5/1,Fête du travail
+2038/6/27,Fête de l'indépendance
+2038/6/28,Fête de l'indépendance deuxième jour
+2038/8/28,Al Isra et Al Mirague (estimé)
+2038/10/29,Eid al-Fitr (estimé)
+2038/10/30,Eid al-Fitr deuxième jour (estimé)
+2038/12/25,Noël
+2039/1/1,Nouvel an
+2039/1/4,Arafat (estimé)
+2039/1/5,Eid al-Adha (estimé)
+2039/1/6,Eid al-Adha deuxième jour (estimé)
+2039/1/26,Nouvel an musulman (estimé)
+2039/4/6,Anniversaire du prophète Muhammad (estimé)
+2039/5/1,Fête du travail
+2039/6/27,Fête de l'indépendance
+2039/6/28,Fête de l'indépendance deuxième jour
+2039/8/17,Al Isra et Al Mirague (estimé)
+2039/10/19,Eid al-Fitr (estimé)
+2039/10/20,Eid al-Fitr deuxième jour (estimé)
+2039/12/25,Arafat (estimé); Noël
+2039/12/26,Eid al-Adha (estimé)
+2039/12/27,Eid al-Adha deuxième jour (estimé)
+2040/1/1,Nouvel an
+2040/1/15,Nouvel an musulman (estimé)
+2040/3/25,Anniversaire du prophète Muhammad (estimé)
+2040/5/1,Fête du travail
+2040/6/27,Fête de l'indépendance
+2040/6/28,Fête de l'indépendance deuxième jour
+2040/8/5,Al Isra et Al Mirague (estimé)
+2040/10/7,Eid al-Fitr (estimé)
+2040/10/8,Eid al-Fitr deuxième jour (estimé)
+2040/12/13,Arafat (estimé)
+2040/12/14,Eid al-Adha (estimé)
+2040/12/15,Eid al-Adha deuxième jour (estimé)
+2040/12/25,Noël
+2041/1/1,Nouvel an
+2041/1/4,Nouvel an musulman (estimé)
+2041/3/15,Anniversaire du prophète Muhammad (estimé)
+2041/5/1,Fête du travail
+2041/6/27,Fête de l'indépendance
+2041/6/28,Fête de l'indépendance deuxième jour
+2041/7/25,Al Isra et Al Mirague (estimé)
+2041/9/26,Eid al-Fitr (estimé)
+2041/9/27,Eid al-Fitr deuxième jour (estimé)
+2041/12/3,Arafat (estimé)
+2041/12/4,Eid al-Adha (estimé)
+2041/12/5,Eid al-Adha deuxième jour (estimé)
+2041/12/24,Nouvel an musulman (estimé)
+2041/12/25,Noël
+2042/1/1,Nouvel an
+2042/3/4,Anniversaire du prophète Muhammad (estimé)
+2042/5/1,Fête du travail
+2042/6/27,Fête de l'indépendance
+2042/6/28,Fête de l'indépendance deuxième jour
+2042/7/15,Al Isra et Al Mirague (estimé)
+2042/9/15,Eid al-Fitr (estimé)
+2042/9/16,Eid al-Fitr deuxième jour (estimé)
+2042/11/22,Arafat (estimé)
+2042/11/23,Eid al-Adha (estimé)
+2042/11/24,Eid al-Adha deuxième jour (estimé)
+2042/12/14,Nouvel an musulman (estimé)
+2042/12/25,Noël
+2043/1/1,Nouvel an
+2043/2/22,Anniversaire du prophète Muhammad (estimé)
+2043/5/1,Fête du travail
+2043/6/27,Fête de l'indépendance
+2043/6/28,Fête de l'indépendance deuxième jour
+2043/7/4,Al Isra et Al Mirague (estimé)
+2043/9/4,Eid al-Fitr (estimé)
+2043/9/5,Eid al-Fitr deuxième jour (estimé)
+2043/11/11,Arafat (estimé)
+2043/11/12,Eid al-Adha (estimé)
+2043/11/13,Eid al-Adha deuxième jour (estimé)
+2043/12/3,Nouvel an musulman (estimé)
+2043/12/25,Noël
+2044/1/1,Nouvel an
+2044/2/11,Anniversaire du prophète Muhammad (estimé)
+2044/5/1,Fête du travail
+2044/6/23,Al Isra et Al Mirague (estimé)
+2044/6/27,Fête de l'indépendance
+2044/6/28,Fête de l'indépendance deuxième jour
+2044/8/24,Eid al-Fitr (estimé)
+2044/8/25,Eid al-Fitr deuxième jour (estimé)
+2044/10/30,Arafat (estimé)
+2044/10/31,Eid al-Adha (estimé)
+2044/11/1,Eid al-Adha deuxième jour (estimé)
+2044/11/21,Nouvel an musulman (estimé)
+2044/12/25,Noël
+2045/1/1,Nouvel an
+2045/1/30,Anniversaire du prophète Muhammad (estimé)
+2045/5/1,Fête du travail
+2045/6/13,Al Isra et Al Mirague (estimé)
+2045/6/27,Fête de l'indépendance
+2045/6/28,Fête de l'indépendance deuxième jour
+2045/8/14,Eid al-Fitr (estimé)
+2045/8/15,Eid al-Fitr deuxième jour (estimé)
+2045/10/20,Arafat (estimé)
+2045/10/21,Eid al-Adha (estimé)
+2045/10/22,Eid al-Adha deuxième jour (estimé)
+2045/11/10,Nouvel an musulman (estimé)
+2045/12/25,Noël
+2046/1/1,Nouvel an
+2046/1/19,Anniversaire du prophète Muhammad (estimé)
+2046/5/1,Fête du travail
+2046/6/2,Al Isra et Al Mirague (estimé)
+2046/6/27,Fête de l'indépendance
+2046/6/28,Fête de l'indépendance deuxième jour
+2046/8/3,Eid al-Fitr (estimé)
+2046/8/4,Eid al-Fitr deuxième jour (estimé)
+2046/10/9,Arafat (estimé)
+2046/10/10,Eid al-Adha (estimé)
+2046/10/11,Eid al-Adha deuxième jour (estimé)
+2046/10/31,Nouvel an musulman (estimé)
+2046/12/25,Noël
+2047/1/1,Nouvel an
+2047/1/8,Anniversaire du prophète Muhammad (estimé)
+2047/5/1,Fête du travail
+2047/5/22,Al Isra et Al Mirague (estimé)
+2047/6/27,Fête de l'indépendance
+2047/6/28,Fête de l'indépendance deuxième jour
+2047/7/24,Eid al-Fitr (estimé)
+2047/7/25,Eid al-Fitr deuxième jour (estimé)
+2047/9/29,Arafat (estimé)
+2047/9/30,Eid al-Adha (estimé)
+2047/10/1,Eid al-Adha deuxième jour (estimé)
+2047/10/20,Nouvel an musulman (estimé)
+2047/12/25,Noël
+2047/12/29,Anniversaire du prophète Muhammad (estimé)
+2048/1/1,Nouvel an
+2048/5/1,Fête du travail
+2048/5/10,Al Isra et Al Mirague (estimé)
+2048/6/27,Fête de l'indépendance
+2048/6/28,Fête de l'indépendance deuxième jour
+2048/7/12,Eid al-Fitr (estimé)
+2048/7/13,Eid al-Fitr deuxième jour (estimé)
+2048/9/18,Arafat (estimé)
+2048/9/19,Eid al-Adha (estimé)
+2048/9/20,Eid al-Adha deuxième jour (estimé)
+2048/10/9,Nouvel an musulman (estimé)
+2048/12/18,Anniversaire du prophète Muhammad (estimé)
+2048/12/25,Noël
+2049/1/1,Nouvel an
+2049/4/29,Al Isra et Al Mirague (estimé)
+2049/5/1,Fête du travail
+2049/6/27,Fête de l'indépendance
+2049/6/28,Fête de l'indépendance deuxième jour
+2049/7/1,Eid al-Fitr (estimé)
+2049/7/2,Eid al-Fitr deuxième jour (estimé)
+2049/9/7,Arafat (estimé)
+2049/9/8,Eid al-Adha (estimé)
+2049/9/9,Eid al-Adha deuxième jour (estimé)
+2049/9/28,Nouvel an musulman (estimé)
+2049/12/7,Anniversaire du prophète Muhammad (estimé)
+2049/12/25,Noël
+2050/1/1,Nouvel an
+2050/4/19,Al Isra et Al Mirague (estimé)
+2050/5/1,Fête du travail
+2050/6/20,Eid al-Fitr (estimé)
+2050/6/21,Eid al-Fitr deuxième jour (estimé)
+2050/6/27,Fête de l'indépendance
+2050/6/28,Fête de l'indépendance deuxième jour
+2050/8/27,Arafat (estimé)
+2050/8/28,Eid al-Adha (estimé)
+2050/8/29,Eid al-Adha deuxième jour (estimé)
+2050/9/17,Nouvel an musulman (estimé)
+2050/11/26,Anniversaire du prophète Muhammad (estimé)
+2050/12/25,Noël

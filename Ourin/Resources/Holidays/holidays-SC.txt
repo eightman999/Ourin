@@ -1,0 +1,446 @@
+# SC の祝日（2020〜2050年、言語: en_SC）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/1/2,New Year Holiday
+2020/1/3,Bridge Public Holiday
+2020/4/10,Good Friday
+2020/4/11,Easter Saturday
+2020/4/13,Easter Monday
+2020/5/1,Labour Day
+2020/6/11,The Fete Dieu
+2020/6/18,Constitution Day
+2020/6/29,Independence (National) Day
+2020/8/15,Assumption Day
+2020/10/24,General Election Day
+2020/10/26,Bridge Public Holiday
+2020/11/1,All Saints Day
+2020/11/2,All Saints Day (observed)
+2020/12/8,The Feast of the Immaculate Conception
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/1/2,New Year Holiday
+2021/4/2,Good Friday
+2021/4/3,Easter Saturday
+2021/4/5,Easter Monday
+2021/5/1,Labour Day
+2021/6/3,The Fete Dieu
+2021/6/18,Constitution Day
+2021/6/29,Independence (National) Day
+2021/8/15,Assumption Day
+2021/8/16,Assumption Day (observed)
+2021/11/1,All Saints Day
+2021/12/8,The Feast of the Immaculate Conception
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/1/2,New Year Holiday
+2022/1/3,New Year Holiday (observed)
+2022/4/15,Good Friday
+2022/4/16,Easter Saturday
+2022/4/18,Easter Monday
+2022/5/1,Labour Day
+2022/5/2,Labour Day (observed)
+2022/6/16,The Fete Dieu
+2022/6/18,Constitution Day
+2022/6/29,Independence (National) Day
+2022/8/15,Assumption Day
+2022/11/1,All Saints Day
+2022/12/8,The Feast of the Immaculate Conception
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year Holiday
+2023/4/7,Good Friday
+2023/4/8,Easter Saturday
+2023/4/10,Easter Monday
+2023/5/1,Labour Day
+2023/6/8,The Fete Dieu
+2023/6/18,Constitution Day
+2023/6/19,Constitution Day (observed)
+2023/6/29,Independence (National) Day
+2023/8/15,Assumption Day
+2023/11/1,All Saints Day
+2023/12/8,The Feast of the Immaculate Conception
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/1/2,New Year Holiday
+2024/3/29,Good Friday
+2024/3/30,Easter Saturday
+2024/4/1,Easter Monday
+2024/5/1,Labour Day
+2024/5/30,The Fete Dieu
+2024/6/18,Constitution Day
+2024/6/29,Independence (National) Day
+2024/8/15,Assumption Day
+2024/11/1,All Saints Day
+2024/12/8,The Feast of the Immaculate Conception
+2024/12/9,The Feast of the Immaculate Conception (observed)
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/1/2,New Year Holiday
+2025/4/18,Good Friday
+2025/4/19,Easter Saturday
+2025/4/21,Easter Monday
+2025/5/1,Labour Day
+2025/6/18,Constitution Day
+2025/6/19,The Fete Dieu
+2025/6/29,Independence (National) Day
+2025/6/30,Independence (National) Day (observed)
+2025/8/15,Assumption Day
+2025/11/1,All Saints Day
+2025/12/8,The Feast of the Immaculate Conception
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/1/2,New Year Holiday
+2026/4/3,Good Friday
+2026/4/4,Easter Saturday
+2026/4/6,Easter Monday
+2026/5/1,Labour Day
+2026/6/4,The Fete Dieu
+2026/6/18,Constitution Day
+2026/6/29,Independence (National) Day
+2026/8/15,Assumption Day
+2026/11/1,All Saints Day
+2026/11/2,All Saints Day (observed)
+2026/12/8,The Feast of the Immaculate Conception
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/1/2,New Year Holiday
+2027/3/26,Good Friday
+2027/3/27,Easter Saturday
+2027/3/29,Easter Monday
+2027/5/1,Labour Day
+2027/5/27,The Fete Dieu
+2027/6/18,Constitution Day
+2027/6/29,Independence (National) Day
+2027/8/15,Assumption Day
+2027/8/16,Assumption Day (observed)
+2027/11/1,All Saints Day
+2027/12/8,The Feast of the Immaculate Conception
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/1/2,New Year Holiday
+2028/1/3,New Year Holiday (observed)
+2028/4/14,Good Friday
+2028/4/15,Easter Saturday
+2028/4/17,Easter Monday
+2028/5/1,Labour Day
+2028/6/15,The Fete Dieu
+2028/6/18,Constitution Day
+2028/6/19,Constitution Day (observed)
+2028/6/29,Independence (National) Day
+2028/8/15,Assumption Day
+2028/11/1,All Saints Day
+2028/12/8,The Feast of the Immaculate Conception
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/1/2,New Year Holiday
+2029/3/30,Good Friday
+2029/3/31,Easter Saturday
+2029/4/2,Easter Monday
+2029/5/1,Labour Day
+2029/5/31,The Fete Dieu
+2029/6/18,Constitution Day
+2029/6/29,Independence (National) Day
+2029/8/15,Assumption Day
+2029/11/1,All Saints Day
+2029/12/8,The Feast of the Immaculate Conception
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/1/2,New Year Holiday
+2030/4/19,Good Friday
+2030/4/20,Easter Saturday
+2030/4/22,Easter Monday
+2030/5/1,Labour Day
+2030/6/18,Constitution Day
+2030/6/20,The Fete Dieu
+2030/6/29,Independence (National) Day
+2030/8/15,Assumption Day
+2030/11/1,All Saints Day
+2030/12/8,The Feast of the Immaculate Conception
+2030/12/9,The Feast of the Immaculate Conception (observed)
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/1/2,New Year Holiday
+2031/4/11,Good Friday
+2031/4/12,Easter Saturday
+2031/4/14,Easter Monday
+2031/5/1,Labour Day
+2031/6/12,The Fete Dieu
+2031/6/18,Constitution Day
+2031/6/29,Independence (National) Day
+2031/6/30,Independence (National) Day (observed)
+2031/8/15,Assumption Day
+2031/11/1,All Saints Day
+2031/12/8,The Feast of the Immaculate Conception
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/1/2,New Year Holiday
+2032/3/26,Good Friday
+2032/3/27,Easter Saturday
+2032/3/29,Easter Monday
+2032/5/1,Labour Day
+2032/5/27,The Fete Dieu
+2032/6/18,Constitution Day
+2032/6/29,Independence (National) Day
+2032/8/15,Assumption Day
+2032/8/16,Assumption Day (observed)
+2032/11/1,All Saints Day
+2032/12/8,The Feast of the Immaculate Conception
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/1/2,New Year Holiday
+2033/1/3,New Year Holiday (observed)
+2033/4/15,Good Friday
+2033/4/16,Easter Saturday
+2033/4/18,Easter Monday
+2033/5/1,Labour Day
+2033/5/2,Labour Day (observed)
+2033/6/16,The Fete Dieu
+2033/6/18,Constitution Day
+2033/6/29,Independence (National) Day
+2033/8/15,Assumption Day
+2033/11/1,All Saints Day
+2033/12/8,The Feast of the Immaculate Conception
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year Holiday
+2034/4/7,Good Friday
+2034/4/8,Easter Saturday
+2034/4/10,Easter Monday
+2034/5/1,Labour Day
+2034/6/8,The Fete Dieu
+2034/6/18,Constitution Day
+2034/6/19,Constitution Day (observed)
+2034/6/29,Independence (National) Day
+2034/8/15,Assumption Day
+2034/11/1,All Saints Day
+2034/12/8,The Feast of the Immaculate Conception
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/1/2,New Year Holiday
+2035/3/23,Good Friday
+2035/3/24,Easter Saturday
+2035/3/26,Easter Monday
+2035/5/1,Labour Day
+2035/5/24,The Fete Dieu
+2035/6/18,Constitution Day
+2035/6/29,Independence (National) Day
+2035/8/15,Assumption Day
+2035/11/1,All Saints Day
+2035/12/8,The Feast of the Immaculate Conception
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/1/2,New Year Holiday
+2036/4/11,Good Friday
+2036/4/12,Easter Saturday
+2036/4/14,Easter Monday
+2036/5/1,Labour Day
+2036/6/12,The Fete Dieu
+2036/6/18,Constitution Day
+2036/6/29,Independence (National) Day
+2036/6/30,Independence (National) Day (observed)
+2036/8/15,Assumption Day
+2036/11/1,All Saints Day
+2036/12/8,The Feast of the Immaculate Conception
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/1/2,New Year Holiday
+2037/4/3,Good Friday
+2037/4/4,Easter Saturday
+2037/4/6,Easter Monday
+2037/5/1,Labour Day
+2037/6/4,The Fete Dieu
+2037/6/18,Constitution Day
+2037/6/29,Independence (National) Day
+2037/8/15,Assumption Day
+2037/11/1,All Saints Day
+2037/11/2,All Saints Day (observed)
+2037/12/8,The Feast of the Immaculate Conception
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/1/2,New Year Holiday
+2038/4/23,Good Friday
+2038/4/24,Easter Saturday
+2038/4/26,Easter Monday
+2038/5/1,Labour Day
+2038/6/18,Constitution Day
+2038/6/24,The Fete Dieu
+2038/6/29,Independence (National) Day
+2038/8/15,Assumption Day
+2038/8/16,Assumption Day (observed)
+2038/11/1,All Saints Day
+2038/12/8,The Feast of the Immaculate Conception
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/1/2,New Year Holiday
+2039/1/3,New Year Holiday (observed)
+2039/4/8,Good Friday
+2039/4/9,Easter Saturday
+2039/4/11,Easter Monday
+2039/5/1,Labour Day
+2039/5/2,Labour Day (observed)
+2039/6/9,The Fete Dieu
+2039/6/18,Constitution Day
+2039/6/29,Independence (National) Day
+2039/8/15,Assumption Day
+2039/11/1,All Saints Day
+2039/12/8,The Feast of the Immaculate Conception
+2039/12/25,Christmas Day
+2039/12/26,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year Holiday
+2040/3/30,Good Friday
+2040/3/31,Easter Saturday
+2040/4/2,Easter Monday
+2040/5/1,Labour Day
+2040/5/31,The Fete Dieu
+2040/6/18,Constitution Day
+2040/6/29,Independence (National) Day
+2040/8/15,Assumption Day
+2040/11/1,All Saints Day
+2040/12/8,The Feast of the Immaculate Conception
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/1/2,New Year Holiday
+2041/4/19,Good Friday
+2041/4/20,Easter Saturday
+2041/4/22,Easter Monday
+2041/5/1,Labour Day
+2041/6/18,Constitution Day
+2041/6/20,The Fete Dieu
+2041/6/29,Independence (National) Day
+2041/8/15,Assumption Day
+2041/11/1,All Saints Day
+2041/12/8,The Feast of the Immaculate Conception
+2041/12/9,The Feast of the Immaculate Conception (observed)
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/1/2,New Year Holiday
+2042/4/4,Good Friday
+2042/4/5,Easter Saturday
+2042/4/7,Easter Monday
+2042/5/1,Labour Day
+2042/6/5,The Fete Dieu
+2042/6/18,Constitution Day
+2042/6/29,Independence (National) Day
+2042/6/30,Independence (National) Day (observed)
+2042/8/15,Assumption Day
+2042/11/1,All Saints Day
+2042/12/8,The Feast of the Immaculate Conception
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/1/2,New Year Holiday
+2043/3/27,Good Friday
+2043/3/28,Easter Saturday
+2043/3/30,Easter Monday
+2043/5/1,Labour Day
+2043/5/28,The Fete Dieu
+2043/6/18,Constitution Day
+2043/6/29,Independence (National) Day
+2043/8/15,Assumption Day
+2043/11/1,All Saints Day
+2043/11/2,All Saints Day (observed)
+2043/12/8,The Feast of the Immaculate Conception
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/1/2,New Year Holiday
+2044/4/15,Good Friday
+2044/4/16,Easter Saturday
+2044/4/18,Easter Monday
+2044/5/1,Labour Day
+2044/5/2,Labour Day (observed)
+2044/6/16,The Fete Dieu
+2044/6/18,Constitution Day
+2044/6/29,Independence (National) Day
+2044/8/15,Assumption Day
+2044/11/1,All Saints Day
+2044/12/8,The Feast of the Immaculate Conception
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year Holiday
+2045/4/7,Good Friday
+2045/4/8,Easter Saturday
+2045/4/10,Easter Monday
+2045/5/1,Labour Day
+2045/6/8,The Fete Dieu
+2045/6/18,Constitution Day
+2045/6/19,Constitution Day (observed)
+2045/6/29,Independence (National) Day
+2045/8/15,Assumption Day
+2045/11/1,All Saints Day
+2045/12/8,The Feast of the Immaculate Conception
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/1/2,New Year Holiday
+2046/3/23,Good Friday
+2046/3/24,Easter Saturday
+2046/3/26,Easter Monday
+2046/5/1,Labour Day
+2046/5/24,The Fete Dieu
+2046/6/18,Constitution Day
+2046/6/29,Independence (National) Day
+2046/8/15,Assumption Day
+2046/11/1,All Saints Day
+2046/12/8,The Feast of the Immaculate Conception
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/1/2,New Year Holiday
+2047/4/12,Good Friday
+2047/4/13,Easter Saturday
+2047/4/15,Easter Monday
+2047/5/1,Labour Day
+2047/6/13,The Fete Dieu
+2047/6/18,Constitution Day
+2047/6/29,Independence (National) Day
+2047/8/15,Assumption Day
+2047/11/1,All Saints Day
+2047/12/8,The Feast of the Immaculate Conception
+2047/12/9,The Feast of the Immaculate Conception (observed)
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/1/2,New Year Holiday
+2048/4/3,Good Friday
+2048/4/4,Easter Saturday
+2048/4/6,Easter Monday
+2048/5/1,Labour Day
+2048/6/4,The Fete Dieu
+2048/6/18,Constitution Day
+2048/6/29,Independence (National) Day
+2048/8/15,Assumption Day
+2048/11/1,All Saints Day
+2048/11/2,All Saints Day (observed)
+2048/12/8,The Feast of the Immaculate Conception
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/1/2,New Year Holiday
+2049/4/16,Good Friday
+2049/4/17,Easter Saturday
+2049/4/19,Easter Monday
+2049/5/1,Labour Day
+2049/6/17,The Fete Dieu
+2049/6/18,Constitution Day
+2049/6/29,Independence (National) Day
+2049/8/15,Assumption Day
+2049/8/16,Assumption Day (observed)
+2049/11/1,All Saints Day
+2049/12/8,The Feast of the Immaculate Conception
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/1/2,New Year Holiday
+2050/1/3,New Year Holiday (observed)
+2050/4/8,Good Friday
+2050/4/9,Easter Saturday
+2050/4/11,Easter Monday
+2050/5/1,Labour Day
+2050/5/2,Labour Day (observed)
+2050/6/9,The Fete Dieu
+2050/6/18,Constitution Day
+2050/6/29,Independence (National) Day
+2050/8/15,Assumption Day
+2050/11/1,All Saints Day
+2050/12/8,The Feast of the Immaculate Conception
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)

@@ -1,0 +1,159 @@
+# UY の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/3/1,Inauguración del Presidente de la República
+2020/5/1,Día de los Trabajadores
+2020/7/18,Jura de la Constitución
+2020/8/25,Declaratoria de la Independencia
+2020/12/25,Día de la Familia
+2021/1/1,Año Nuevo
+2021/5/1,Día de los Trabajadores
+2021/7/18,Jura de la Constitución
+2021/8/25,Declaratoria de la Independencia
+2021/12/25,Día de la Familia
+2022/1/1,Año Nuevo
+2022/5/1,Día de los Trabajadores
+2022/7/18,Jura de la Constitución
+2022/8/25,Declaratoria de la Independencia
+2022/12/25,Día de la Familia
+2023/1/1,Año Nuevo
+2023/5/1,Día de los Trabajadores
+2023/7/18,Jura de la Constitución
+2023/8/25,Declaratoria de la Independencia
+2023/12/25,Día de la Familia
+2024/1/1,Año Nuevo
+2024/5/1,Día de los Trabajadores
+2024/7/18,Jura de la Constitución
+2024/8/25,Declaratoria de la Independencia
+2024/12/25,Día de la Familia
+2025/1/1,Año Nuevo
+2025/5/1,Día de los Trabajadores
+2025/7/18,Jura de la Constitución
+2025/8/25,Declaratoria de la Independencia
+2025/12/25,Día de la Familia
+2026/1/1,Año Nuevo
+2026/5/1,Día de los Trabajadores
+2026/7/18,Jura de la Constitución
+2026/8/25,Declaratoria de la Independencia
+2026/12/25,Día de la Familia
+2027/1/1,Año Nuevo
+2027/5/1,Día de los Trabajadores
+2027/7/18,Jura de la Constitución
+2027/8/25,Declaratoria de la Independencia
+2027/12/25,Día de la Familia
+2028/1/1,Año Nuevo
+2028/5/1,Día de los Trabajadores
+2028/7/18,Jura de la Constitución
+2028/8/25,Declaratoria de la Independencia
+2028/12/25,Día de la Familia
+2029/1/1,Año Nuevo
+2029/5/1,Día de los Trabajadores
+2029/7/18,Jura de la Constitución
+2029/8/25,Declaratoria de la Independencia
+2029/12/25,Día de la Familia
+2030/1/1,Año Nuevo
+2030/5/1,Día de los Trabajadores
+2030/7/18,Jura de la Constitución
+2030/8/25,Declaratoria de la Independencia
+2030/12/25,Día de la Familia
+2031/1/1,Año Nuevo
+2031/5/1,Día de los Trabajadores
+2031/7/18,Jura de la Constitución
+2031/8/25,Declaratoria de la Independencia
+2031/12/25,Día de la Familia
+2032/1/1,Año Nuevo
+2032/5/1,Día de los Trabajadores
+2032/7/18,Jura de la Constitución
+2032/8/25,Declaratoria de la Independencia
+2032/12/25,Día de la Familia
+2033/1/1,Año Nuevo
+2033/5/1,Día de los Trabajadores
+2033/7/18,Jura de la Constitución
+2033/8/25,Declaratoria de la Independencia
+2033/12/25,Día de la Familia
+2034/1/1,Año Nuevo
+2034/5/1,Día de los Trabajadores
+2034/7/18,Jura de la Constitución
+2034/8/25,Declaratoria de la Independencia
+2034/12/25,Día de la Familia
+2035/1/1,Año Nuevo
+2035/5/1,Día de los Trabajadores
+2035/7/18,Jura de la Constitución
+2035/8/25,Declaratoria de la Independencia
+2035/12/25,Día de la Familia
+2036/1/1,Año Nuevo
+2036/5/1,Día de los Trabajadores
+2036/7/18,Jura de la Constitución
+2036/8/25,Declaratoria de la Independencia
+2036/12/25,Día de la Familia
+2037/1/1,Año Nuevo
+2037/5/1,Día de los Trabajadores
+2037/7/18,Jura de la Constitución
+2037/8/25,Declaratoria de la Independencia
+2037/12/25,Día de la Familia
+2038/1/1,Año Nuevo
+2038/5/1,Día de los Trabajadores
+2038/7/18,Jura de la Constitución
+2038/8/25,Declaratoria de la Independencia
+2038/12/25,Día de la Familia
+2039/1/1,Año Nuevo
+2039/5/1,Día de los Trabajadores
+2039/7/18,Jura de la Constitución
+2039/8/25,Declaratoria de la Independencia
+2039/12/25,Día de la Familia
+2040/1/1,Año Nuevo
+2040/5/1,Día de los Trabajadores
+2040/7/18,Jura de la Constitución
+2040/8/25,Declaratoria de la Independencia
+2040/12/25,Día de la Familia
+2041/1/1,Año Nuevo
+2041/5/1,Día de los Trabajadores
+2041/7/18,Jura de la Constitución
+2041/8/25,Declaratoria de la Independencia
+2041/12/25,Día de la Familia
+2042/1/1,Año Nuevo
+2042/5/1,Día de los Trabajadores
+2042/7/18,Jura de la Constitución
+2042/8/25,Declaratoria de la Independencia
+2042/12/25,Día de la Familia
+2043/1/1,Año Nuevo
+2043/5/1,Día de los Trabajadores
+2043/7/18,Jura de la Constitución
+2043/8/25,Declaratoria de la Independencia
+2043/12/25,Día de la Familia
+2044/1/1,Año Nuevo
+2044/5/1,Día de los Trabajadores
+2044/7/18,Jura de la Constitución
+2044/8/25,Declaratoria de la Independencia
+2044/12/25,Día de la Familia
+2045/1/1,Año Nuevo
+2045/5/1,Día de los Trabajadores
+2045/7/18,Jura de la Constitución
+2045/8/25,Declaratoria de la Independencia
+2045/12/25,Día de la Familia
+2046/1/1,Año Nuevo
+2046/5/1,Día de los Trabajadores
+2046/7/18,Jura de la Constitución
+2046/8/25,Declaratoria de la Independencia
+2046/12/25,Día de la Familia
+2047/1/1,Año Nuevo
+2047/5/1,Día de los Trabajadores
+2047/7/18,Jura de la Constitución
+2047/8/25,Declaratoria de la Independencia
+2047/12/25,Día de la Familia
+2048/1/1,Año Nuevo
+2048/5/1,Día de los Trabajadores
+2048/7/18,Jura de la Constitución
+2048/8/25,Declaratoria de la Independencia
+2048/12/25,Día de la Familia
+2049/1/1,Año Nuevo
+2049/5/1,Día de los Trabajadores
+2049/7/18,Jura de la Constitución
+2049/8/25,Declaratoria de la Independencia
+2049/12/25,Día de la Familia
+2050/1/1,Año Nuevo
+2050/5/1,Día de los Trabajadores
+2050/7/18,Jura de la Constitución
+2050/8/25,Declaratoria de la Independencia
+2050/12/25,Día de la Familia

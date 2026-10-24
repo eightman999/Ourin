@@ -1,0 +1,322 @@
+# MZ の祝日（2020〜2050年、言語: pt_MZ）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Dia da Fraternidade universal
+2020/2/3,Dia dos Heróis Moçambicanos
+2020/4/7,Dia da Mulher Moçambicana
+2020/5/1,Dia Internacional dos Trabalhadores
+2020/6/25,Dia da Independência Nacional
+2020/9/7,Dia da Vitória
+2020/9/25,Dia das Forças Armadas de Libertação Nacional
+2020/10/4,Dia da Paz e Reconciliação
+2020/10/5,Dia da Paz e Reconciliação (ponte)
+2020/12/25,Dia da Família
+2021/1/1,Dia da Fraternidade universal
+2021/2/3,Dia dos Heróis Moçambicanos
+2021/4/7,Dia da Mulher Moçambicana
+2021/5/1,Dia Internacional dos Trabalhadores
+2021/6/25,Dia da Independência Nacional
+2021/9/7,Dia da Vitória
+2021/9/25,Dia das Forças Armadas de Libertação Nacional
+2021/10/4,Dia da Paz e Reconciliação
+2021/12/25,Dia da Família
+2022/1/1,Dia da Fraternidade universal
+2022/2/3,Dia dos Heróis Moçambicanos
+2022/4/7,Dia da Mulher Moçambicana
+2022/5/1,Dia Internacional dos Trabalhadores
+2022/5/2,Dia Internacional dos Trabalhadores (ponte)
+2022/6/25,Dia da Independência Nacional
+2022/9/7,Dia da Vitória
+2022/9/25,Dia das Forças Armadas de Libertação Nacional
+2022/9/26,Dia das Forças Armadas de Libertação Nacional (ponte)
+2022/10/4,Dia da Paz e Reconciliação
+2022/12/25,Dia da Família
+2022/12/26,Dia da Família (ponte)
+2023/1/1,Dia da Fraternidade universal
+2023/1/2,Dia da Fraternidade universal (ponte)
+2023/2/3,Dia dos Heróis Moçambicanos
+2023/4/7,Dia da Mulher Moçambicana
+2023/5/1,Dia Internacional dos Trabalhadores
+2023/6/25,Dia da Independência Nacional
+2023/6/26,Dia da Independência Nacional (ponte)
+2023/9/7,Dia da Vitória
+2023/9/25,Dia das Forças Armadas de Libertação Nacional
+2023/10/4,Dia da Paz e Reconciliação
+2023/12/25,Dia da Família
+2024/1/1,Dia da Fraternidade universal
+2024/2/3,Dia dos Heróis Moçambicanos
+2024/4/7,Dia da Mulher Moçambicana
+2024/4/8,Dia da Mulher Moçambicana (ponte)
+2024/5/1,Dia Internacional dos Trabalhadores
+2024/6/25,Dia da Independência Nacional
+2024/9/7,Dia da Vitória
+2024/9/25,Dia das Forças Armadas de Libertação Nacional
+2024/10/4,Dia da Paz e Reconciliação
+2024/12/25,Dia da Família
+2025/1/1,Dia da Fraternidade universal
+2025/2/3,Dia dos Heróis Moçambicanos
+2025/4/7,Dia da Mulher Moçambicana
+2025/5/1,Dia Internacional dos Trabalhadores
+2025/6/25,Dia da Independência Nacional
+2025/9/7,Dia da Vitória
+2025/9/8,Dia da Vitória (ponte)
+2025/9/25,Dia das Forças Armadas de Libertação Nacional
+2025/10/4,Dia da Paz e Reconciliação
+2025/12/25,Dia da Família
+2026/1/1,Dia da Fraternidade universal
+2026/2/3,Dia dos Heróis Moçambicanos
+2026/4/7,Dia da Mulher Moçambicana
+2026/5/1,Dia Internacional dos Trabalhadores
+2026/6/25,Dia da Independência Nacional
+2026/9/7,Dia da Vitória
+2026/9/25,Dia das Forças Armadas de Libertação Nacional
+2026/10/4,Dia da Paz e Reconciliação
+2026/10/5,Dia da Paz e Reconciliação (ponte)
+2026/12/25,Dia da Família
+2027/1/1,Dia da Fraternidade universal
+2027/2/3,Dia dos Heróis Moçambicanos
+2027/4/7,Dia da Mulher Moçambicana
+2027/5/1,Dia Internacional dos Trabalhadores
+2027/6/25,Dia da Independência Nacional
+2027/9/7,Dia da Vitória
+2027/9/25,Dia das Forças Armadas de Libertação Nacional
+2027/10/4,Dia da Paz e Reconciliação
+2027/12/25,Dia da Família
+2028/1/1,Dia da Fraternidade universal
+2028/2/3,Dia dos Heróis Moçambicanos
+2028/4/7,Dia da Mulher Moçambicana
+2028/5/1,Dia Internacional dos Trabalhadores
+2028/6/25,Dia da Independência Nacional
+2028/6/26,Dia da Independência Nacional (ponte)
+2028/9/7,Dia da Vitória
+2028/9/25,Dia das Forças Armadas de Libertação Nacional
+2028/10/4,Dia da Paz e Reconciliação
+2028/12/25,Dia da Família
+2029/1/1,Dia da Fraternidade universal
+2029/2/3,Dia dos Heróis Moçambicanos
+2029/4/7,Dia da Mulher Moçambicana
+2029/5/1,Dia Internacional dos Trabalhadores
+2029/6/25,Dia da Independência Nacional
+2029/9/7,Dia da Vitória
+2029/9/25,Dia das Forças Armadas de Libertação Nacional
+2029/10/4,Dia da Paz e Reconciliação
+2029/12/25,Dia da Família
+2030/1/1,Dia da Fraternidade universal
+2030/2/3,Dia dos Heróis Moçambicanos
+2030/2/4,Dia dos Heróis Moçambicanos (ponte)
+2030/4/7,Dia da Mulher Moçambicana
+2030/4/8,Dia da Mulher Moçambicana (ponte)
+2030/5/1,Dia Internacional dos Trabalhadores
+2030/6/25,Dia da Independência Nacional
+2030/9/7,Dia da Vitória
+2030/9/25,Dia das Forças Armadas de Libertação Nacional
+2030/10/4,Dia da Paz e Reconciliação
+2030/12/25,Dia da Família
+2031/1/1,Dia da Fraternidade universal
+2031/2/3,Dia dos Heróis Moçambicanos
+2031/4/7,Dia da Mulher Moçambicana
+2031/5/1,Dia Internacional dos Trabalhadores
+2031/6/25,Dia da Independência Nacional
+2031/9/7,Dia da Vitória
+2031/9/8,Dia da Vitória (ponte)
+2031/9/25,Dia das Forças Armadas de Libertação Nacional
+2031/10/4,Dia da Paz e Reconciliação
+2031/12/25,Dia da Família
+2032/1/1,Dia da Fraternidade universal
+2032/2/3,Dia dos Heróis Moçambicanos
+2032/4/7,Dia da Mulher Moçambicana
+2032/5/1,Dia Internacional dos Trabalhadores
+2032/6/25,Dia da Independência Nacional
+2032/9/7,Dia da Vitória
+2032/9/25,Dia das Forças Armadas de Libertação Nacional
+2032/10/4,Dia da Paz e Reconciliação
+2032/12/25,Dia da Família
+2033/1/1,Dia da Fraternidade universal
+2033/2/3,Dia dos Heróis Moçambicanos
+2033/4/7,Dia da Mulher Moçambicana
+2033/5/1,Dia Internacional dos Trabalhadores
+2033/5/2,Dia Internacional dos Trabalhadores (ponte)
+2033/6/25,Dia da Independência Nacional
+2033/9/7,Dia da Vitória
+2033/9/25,Dia das Forças Armadas de Libertação Nacional
+2033/9/26,Dia das Forças Armadas de Libertação Nacional (ponte)
+2033/10/4,Dia da Paz e Reconciliação
+2033/12/25,Dia da Família
+2033/12/26,Dia da Família (ponte)
+2034/1/1,Dia da Fraternidade universal
+2034/1/2,Dia da Fraternidade universal (ponte)
+2034/2/3,Dia dos Heróis Moçambicanos
+2034/4/7,Dia da Mulher Moçambicana
+2034/5/1,Dia Internacional dos Trabalhadores
+2034/6/25,Dia da Independência Nacional
+2034/6/26,Dia da Independência Nacional (ponte)
+2034/9/7,Dia da Vitória
+2034/9/25,Dia das Forças Armadas de Libertação Nacional
+2034/10/4,Dia da Paz e Reconciliação
+2034/12/25,Dia da Família
+2035/1/1,Dia da Fraternidade universal
+2035/2/3,Dia dos Heróis Moçambicanos
+2035/4/7,Dia da Mulher Moçambicana
+2035/5/1,Dia Internacional dos Trabalhadores
+2035/6/25,Dia da Independência Nacional
+2035/9/7,Dia da Vitória
+2035/9/25,Dia das Forças Armadas de Libertação Nacional
+2035/10/4,Dia da Paz e Reconciliação
+2035/12/25,Dia da Família
+2036/1/1,Dia da Fraternidade universal
+2036/2/3,Dia dos Heróis Moçambicanos
+2036/2/4,Dia dos Heróis Moçambicanos (ponte)
+2036/4/7,Dia da Mulher Moçambicana
+2036/5/1,Dia Internacional dos Trabalhadores
+2036/6/25,Dia da Independência Nacional
+2036/9/7,Dia da Vitória
+2036/9/8,Dia da Vitória (ponte)
+2036/9/25,Dia das Forças Armadas de Libertação Nacional
+2036/10/4,Dia da Paz e Reconciliação
+2036/12/25,Dia da Família
+2037/1/1,Dia da Fraternidade universal
+2037/2/3,Dia dos Heróis Moçambicanos
+2037/4/7,Dia da Mulher Moçambicana
+2037/5/1,Dia Internacional dos Trabalhadores
+2037/6/25,Dia da Independência Nacional
+2037/9/7,Dia da Vitória
+2037/9/25,Dia das Forças Armadas de Libertação Nacional
+2037/10/4,Dia da Paz e Reconciliação
+2037/10/5,Dia da Paz e Reconciliação (ponte)
+2037/12/25,Dia da Família
+2038/1/1,Dia da Fraternidade universal
+2038/2/3,Dia dos Heróis Moçambicanos
+2038/4/7,Dia da Mulher Moçambicana
+2038/5/1,Dia Internacional dos Trabalhadores
+2038/6/25,Dia da Independência Nacional
+2038/9/7,Dia da Vitória
+2038/9/25,Dia das Forças Armadas de Libertação Nacional
+2038/10/4,Dia da Paz e Reconciliação
+2038/12/25,Dia da Família
+2039/1/1,Dia da Fraternidade universal
+2039/2/3,Dia dos Heróis Moçambicanos
+2039/4/7,Dia da Mulher Moçambicana
+2039/5/1,Dia Internacional dos Trabalhadores
+2039/5/2,Dia Internacional dos Trabalhadores (ponte)
+2039/6/25,Dia da Independência Nacional
+2039/9/7,Dia da Vitória
+2039/9/25,Dia das Forças Armadas de Libertação Nacional
+2039/9/26,Dia das Forças Armadas de Libertação Nacional (ponte)
+2039/10/4,Dia da Paz e Reconciliação
+2039/12/25,Dia da Família
+2039/12/26,Dia da Família (ponte)
+2040/1/1,Dia da Fraternidade universal
+2040/1/2,Dia da Fraternidade universal (ponte)
+2040/2/3,Dia dos Heróis Moçambicanos
+2040/4/7,Dia da Mulher Moçambicana
+2040/5/1,Dia Internacional dos Trabalhadores
+2040/6/25,Dia da Independência Nacional
+2040/9/7,Dia da Vitória
+2040/9/25,Dia das Forças Armadas de Libertação Nacional
+2040/10/4,Dia da Paz e Reconciliação
+2040/12/25,Dia da Família
+2041/1/1,Dia da Fraternidade universal
+2041/2/3,Dia dos Heróis Moçambicanos
+2041/2/4,Dia dos Heróis Moçambicanos (ponte)
+2041/4/7,Dia da Mulher Moçambicana
+2041/4/8,Dia da Mulher Moçambicana (ponte)
+2041/5/1,Dia Internacional dos Trabalhadores
+2041/6/25,Dia da Independência Nacional
+2041/9/7,Dia da Vitória
+2041/9/25,Dia das Forças Armadas de Libertação Nacional
+2041/10/4,Dia da Paz e Reconciliação
+2041/12/25,Dia da Família
+2042/1/1,Dia da Fraternidade universal
+2042/2/3,Dia dos Heróis Moçambicanos
+2042/4/7,Dia da Mulher Moçambicana
+2042/5/1,Dia Internacional dos Trabalhadores
+2042/6/25,Dia da Independência Nacional
+2042/9/7,Dia da Vitória
+2042/9/8,Dia da Vitória (ponte)
+2042/9/25,Dia das Forças Armadas de Libertação Nacional
+2042/10/4,Dia da Paz e Reconciliação
+2042/12/25,Dia da Família
+2043/1/1,Dia da Fraternidade universal
+2043/2/3,Dia dos Heróis Moçambicanos
+2043/4/7,Dia da Mulher Moçambicana
+2043/5/1,Dia Internacional dos Trabalhadores
+2043/6/25,Dia da Independência Nacional
+2043/9/7,Dia da Vitória
+2043/9/25,Dia das Forças Armadas de Libertação Nacional
+2043/10/4,Dia da Paz e Reconciliação
+2043/10/5,Dia da Paz e Reconciliação (ponte)
+2043/12/25,Dia da Família
+2044/1/1,Dia da Fraternidade universal
+2044/2/3,Dia dos Heróis Moçambicanos
+2044/4/7,Dia da Mulher Moçambicana
+2044/5/1,Dia Internacional dos Trabalhadores
+2044/5/2,Dia Internacional dos Trabalhadores (ponte)
+2044/6/25,Dia da Independência Nacional
+2044/9/7,Dia da Vitória
+2044/9/25,Dia das Forças Armadas de Libertação Nacional
+2044/9/26,Dia das Forças Armadas de Libertação Nacional (ponte)
+2044/10/4,Dia da Paz e Reconciliação
+2044/12/25,Dia da Família
+2044/12/26,Dia da Família (ponte)
+2045/1/1,Dia da Fraternidade universal
+2045/1/2,Dia da Fraternidade universal (ponte)
+2045/2/3,Dia dos Heróis Moçambicanos
+2045/4/7,Dia da Mulher Moçambicana
+2045/5/1,Dia Internacional dos Trabalhadores
+2045/6/25,Dia da Independência Nacional
+2045/6/26,Dia da Independência Nacional (ponte)
+2045/9/7,Dia da Vitória
+2045/9/25,Dia das Forças Armadas de Libertação Nacional
+2045/10/4,Dia da Paz e Reconciliação
+2045/12/25,Dia da Família
+2046/1/1,Dia da Fraternidade universal
+2046/2/3,Dia dos Heróis Moçambicanos
+2046/4/7,Dia da Mulher Moçambicana
+2046/5/1,Dia Internacional dos Trabalhadores
+2046/6/25,Dia da Independência Nacional
+2046/9/7,Dia da Vitória
+2046/9/25,Dia das Forças Armadas de Libertação Nacional
+2046/10/4,Dia da Paz e Reconciliação
+2046/12/25,Dia da Família
+2047/1/1,Dia da Fraternidade universal
+2047/2/3,Dia dos Heróis Moçambicanos
+2047/2/4,Dia dos Heróis Moçambicanos (ponte)
+2047/4/7,Dia da Mulher Moçambicana
+2047/4/8,Dia da Mulher Moçambicana (ponte)
+2047/5/1,Dia Internacional dos Trabalhadores
+2047/6/25,Dia da Independência Nacional
+2047/9/7,Dia da Vitória
+2047/9/25,Dia das Forças Armadas de Libertação Nacional
+2047/10/4,Dia da Paz e Reconciliação
+2047/12/25,Dia da Família
+2048/1/1,Dia da Fraternidade universal
+2048/2/3,Dia dos Heróis Moçambicanos
+2048/4/7,Dia da Mulher Moçambicana
+2048/5/1,Dia Internacional dos Trabalhadores
+2048/6/25,Dia da Independência Nacional
+2048/9/7,Dia da Vitória
+2048/9/25,Dia das Forças Armadas de Libertação Nacional
+2048/10/4,Dia da Paz e Reconciliação
+2048/10/5,Dia da Paz e Reconciliação (ponte)
+2048/12/25,Dia da Família
+2049/1/1,Dia da Fraternidade universal
+2049/2/3,Dia dos Heróis Moçambicanos
+2049/4/7,Dia da Mulher Moçambicana
+2049/5/1,Dia Internacional dos Trabalhadores
+2049/6/25,Dia da Independência Nacional
+2049/9/7,Dia da Vitória
+2049/9/25,Dia das Forças Armadas de Libertação Nacional
+2049/10/4,Dia da Paz e Reconciliação
+2049/12/25,Dia da Família
+2050/1/1,Dia da Fraternidade universal
+2050/2/3,Dia dos Heróis Moçambicanos
+2050/4/7,Dia da Mulher Moçambicana
+2050/5/1,Dia Internacional dos Trabalhadores
+2050/5/2,Dia Internacional dos Trabalhadores (ponte)
+2050/6/25,Dia da Independência Nacional
+2050/9/7,Dia da Vitória
+2050/9/25,Dia das Forças Armadas de Libertação Nacional
+2050/9/26,Dia das Forças Armadas de Libertação Nacional (ponte)
+2050/10/4,Dia da Paz e Reconciliação
+2050/12/25,Dia da Família
+2050/12/26,Dia da Família (ponte)

@@ -1,0 +1,44 @@
+# UA holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/6,Day off (substituted from 01/11/2020)
+2020/1/7,Christmas Day
+2020/3/8,International Women's Day
+2020/3/9,International Women's Day (observed)
+2020/4/19,Easter Sunday (Pascha)
+2020/4/20,Easter Sunday (Pascha) (observed)
+2020/5/1,Labor Day
+2020/5/9,Day of Victory over Nazism in World War II (Victory Day)
+2020/5/11,Day of Victory over Nazism in World War II (Victory Day) (observed)
+2020/6/7,Pentecost
+2020/6/8,Pentecost (observed)
+2020/6/28,Day of the Constitution of Ukraine
+2020/6/29,Day of the Constitution of Ukraine (observed)
+2020/8/24,Independence Day
+2020/10/14,Defender of Ukraine Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/1/7,Christmas Day
+2021/1/8,Day off (substituted from 01/16/2021)
+2021/3/8,International Women's Day
+2021/5/1,Labor Day
+2021/5/2,Easter Sunday (Pascha)
+2021/5/3,Labor Day (observed)
+2021/5/4,Easter Sunday (Pascha) (observed)
+2021/5/9,Day of Victory over Nazism in World War II (Victory Day)
+2021/5/10,Day of Victory over Nazism in World War II (Victory Day) (observed)
+2021/6/20,Pentecost
+2021/6/21,Pentecost (observed)
+2021/6/28,Day of the Constitution of Ukraine
+2021/8/23,Day off (substituted from 08/28/2021)
+2021/8/24,Independence Day
+2021/10/14,Day of defenders of Ukraine
+2021/10/15,Day off (substituted from 10/23/2021)
+2021/12/25,Christmas Day
+2021/12/27,Christmas Day (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/1/7,Christmas Day
+2022/3/7,Day off (substituted from 03/12/2022)
+2022/3/8,International Women's Day

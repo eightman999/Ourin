@@ -1,0 +1,456 @@
+# GH の祝日（2020〜2050年、言語: en）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/1/7,Constitution Day
+2020/3/6,Independence Day
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/1,Workers' Day
+2020/5/24,Eid-ul-Fitr
+2020/5/25,Public Holiday
+2020/7/31,Eid-ul-Adha
+2020/8/4,Founders' Day
+2020/9/21,Kwame Nkrumah Memorial Day
+2020/12/7,Farmers' Day
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2020/12/28,Public Holiday
+2021/1/1,New Year's Day
+2021/1/7,Constitution Day
+2021/3/6,Independence Day
+2021/3/8,Public Holiday
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/1,Workers' Day
+2021/5/3,Public Holiday
+2021/5/13,Eid-ul-Fitr
+2021/7/20,Eid-ul-Adha
+2021/8/4,Founders' Day
+2021/9/21,Kwame Nkrumah Memorial Day
+2021/12/3,Farmers' Day
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Public Holiday
+2021/12/28,Public Holiday
+2022/1/1,New Year's Day
+2022/1/3,Public Holiday
+2022/1/7,Constitution Day
+2022/3/6,Independence Day
+2022/3/7,Public Holiday
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/5/1,Workers' Day
+2022/5/2,Public Holiday
+2022/5/3,Eid-ul-Fitr
+2022/7/9,Eid-ul-Adha
+2022/7/11,Public Holiday
+2022/8/4,Founders' Day
+2022/9/21,Kwame Nkrumah Memorial Day
+2022/12/2,Farmers' Day
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2022/12/27,Public Holiday
+2023/1/1,New Year's Day
+2023/1/2,Public Holiday
+2023/1/7,Constitution Day
+2023/1/9,Public Holiday
+2023/3/6,Independence Day
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/4/22,Eid-ul-Fitr
+2023/4/24,Public Holiday
+2023/5/1,Workers' Day
+2023/6/28,Eid-ul-Adha
+2023/8/4,Founders' Day
+2023/9/21,Kwame Nkrumah Memorial Day
+2023/12/1,Farmers' Day
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/1/7,Constitution Day
+2024/1/8,Public Holiday
+2024/3/6,Independence Day
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/4/11,Eid-ul-Fitr
+2024/5/1,Workers' Day
+2024/6/16,Eid-ul-Adha
+2024/6/17,Public Holiday
+2024/8/4,Founders' Day
+2024/8/5,Public Holiday
+2024/9/21,Kwame Nkrumah Memorial Day
+2024/9/23,Public Holiday
+2024/12/6,Farmers' Day
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/1/7,Constitution Day
+2025/3/6,Independence Day
+2025/3/30,Eid-ul-Fitr
+2025/3/31,Public Holiday
+2025/4/1,Public Holiday
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/1,Workers' Day
+2025/6/6,Eid-ul-Adha
+2025/7/1,Republic Day
+2025/7/4,Public Holiday
+2025/9/21,Founder's Day
+2025/9/22,Public Holiday
+2025/12/5,Farmers' Day
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/1/7,Constitution Day
+2026/1/9,Public Holiday
+2026/3/6,Independence Day
+2026/3/20,Eid-ul-Fitr
+2026/3/21,Shaqq Day
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/1,Labour Day
+2026/5/27,Eid-ul-Adha
+2026/7/1,Republic Day
+2026/7/3,Public Holiday
+2026/9/21,Founder's Day
+2026/12/4,Farmers' Day
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2027/1/1,New Year's Day
+2027/1/7,Constitution Day
+2027/3/6,Independence Day
+2027/3/9,Eid-ul-Fitr (estimated)
+2027/3/10,Shaqq Day (estimated)
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/5/1,Labour Day
+2027/5/16,Eid-ul-Adha (estimated)
+2027/7/1,Republic Day
+2027/9/21,Founder's Day
+2027/12/3,Farmers' Day
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2028/1/1,New Year's Day
+2028/1/7,Constitution Day
+2028/2/26,Eid-ul-Fitr (estimated)
+2028/2/27,Shaqq Day (estimated)
+2028/3/6,Independence Day
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/1,Labour Day
+2028/5/5,Eid-ul-Adha (estimated)
+2028/7/1,Republic Day
+2028/9/21,Founder's Day
+2028/12/1,Farmers' Day
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/1/7,Constitution Day
+2029/2/14,Eid-ul-Fitr (estimated)
+2029/2/15,Shaqq Day (estimated)
+2029/3/6,Independence Day
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/4/24,Eid-ul-Adha (estimated)
+2029/5/1,Labour Day
+2029/7/1,Republic Day
+2029/9/21,Founder's Day
+2029/12/7,Farmers' Day
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/1/7,Constitution Day
+2030/2/4,Eid-ul-Fitr (estimated)
+2030/2/5,Shaqq Day (estimated)
+2030/3/6,Independence Day
+2030/4/13,Eid-ul-Adha (estimated)
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/1,Labour Day
+2030/7/1,Republic Day
+2030/9/21,Founder's Day
+2030/12/6,Farmers' Day
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/1/7,Constitution Day
+2031/1/24,Eid-ul-Fitr (estimated)
+2031/1/25,Shaqq Day (estimated)
+2031/3/6,Independence Day
+2031/4/2,Eid-ul-Adha (estimated)
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/1,Labour Day
+2031/7/1,Republic Day
+2031/9/21,Founder's Day
+2031/12/5,Farmers' Day
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/1/7,Constitution Day
+2032/1/14,Eid-ul-Fitr (estimated)
+2032/1/15,Shaqq Day (estimated)
+2032/3/6,Independence Day
+2032/3/22,Eid-ul-Adha (estimated)
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/5/1,Labour Day
+2032/7/1,Republic Day
+2032/9/21,Founder's Day
+2032/12/3,Farmers' Day
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2033/1/1,New Year's Day
+2033/1/2,Eid-ul-Fitr (estimated)
+2033/1/3,Shaqq Day (estimated)
+2033/1/7,Constitution Day
+2033/3/6,Independence Day
+2033/3/11,Eid-ul-Adha (estimated)
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/1,Labour Day
+2033/7/1,Republic Day
+2033/9/21,Founder's Day
+2033/12/2,Farmers' Day
+2033/12/23,Eid-ul-Fitr (estimated)
+2033/12/24,Shaqq Day (estimated)
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day
+2034/1/1,New Year's Day
+2034/1/7,Constitution Day
+2034/3/1,Eid-ul-Adha (estimated)
+2034/3/6,Independence Day
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/1,Labour Day
+2034/7/1,Republic Day
+2034/9/21,Founder's Day
+2034/12/1,Farmers' Day
+2034/12/12,Eid-ul-Fitr (estimated)
+2034/12/13,Shaqq Day (estimated)
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/1/7,Constitution Day
+2035/2/18,Eid-ul-Adha (estimated)
+2035/3/6,Independence Day
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/5/1,Labour Day
+2035/7/1,Republic Day
+2035/9/21,Founder's Day
+2035/12/1,Eid-ul-Fitr (estimated)
+2035/12/2,Shaqq Day (estimated)
+2035/12/7,Farmers' Day
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/1/7,Constitution Day
+2036/2/7,Eid-ul-Adha (estimated)
+2036/3/6,Independence Day
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/1,Labour Day
+2036/7/1,Republic Day
+2036/9/21,Founder's Day
+2036/11/19,Eid-ul-Fitr (estimated)
+2036/11/20,Shaqq Day (estimated)
+2036/12/5,Farmers' Day
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/1/7,Constitution Day
+2037/1/26,Eid-ul-Adha (estimated)
+2037/3/6,Independence Day
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/5/1,Labour Day
+2037/7/1,Republic Day
+2037/9/21,Founder's Day
+2037/11/8,Eid-ul-Fitr (estimated)
+2037/11/9,Shaqq Day (estimated)
+2037/12/4,Farmers' Day
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2038/1/1,New Year's Day
+2038/1/7,Constitution Day
+2038/1/16,Eid-ul-Adha (estimated)
+2038/3/6,Independence Day
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/1,Labour Day
+2038/7/1,Republic Day
+2038/9/21,Founder's Day
+2038/10/29,Eid-ul-Fitr (estimated)
+2038/10/30,Shaqq Day (estimated)
+2038/12/3,Farmers' Day
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2039/1/1,New Year's Day
+2039/1/5,Eid-ul-Adha (estimated)
+2039/1/7,Constitution Day
+2039/3/6,Independence Day
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/1,Labour Day
+2039/7/1,Republic Day
+2039/9/21,Founder's Day
+2039/10/19,Eid-ul-Fitr (estimated)
+2039/10/20,Shaqq Day (estimated)
+2039/12/2,Farmers' Day
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day; Eid-ul-Adha (estimated)
+2040/1/1,New Year's Day
+2040/1/7,Constitution Day
+2040/3/6,Independence Day
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/5/1,Labour Day
+2040/7/1,Republic Day
+2040/9/21,Founder's Day
+2040/10/7,Eid-ul-Fitr (estimated)
+2040/10/8,Shaqq Day (estimated)
+2040/12/7,Farmers' Day
+2040/12/14,Eid-ul-Adha (estimated)
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/1/7,Constitution Day
+2041/3/6,Independence Day
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/1,Labour Day
+2041/7/1,Republic Day
+2041/9/21,Founder's Day
+2041/9/26,Eid-ul-Fitr (estimated)
+2041/9/27,Shaqq Day (estimated)
+2041/12/4,Eid-ul-Adha (estimated)
+2041/12/6,Farmers' Day
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/1/7,Constitution Day
+2042/3/6,Independence Day
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/1,Labour Day
+2042/7/1,Republic Day
+2042/9/15,Eid-ul-Fitr (estimated)
+2042/9/16,Shaqq Day (estimated)
+2042/9/21,Founder's Day
+2042/11/23,Eid-ul-Adha (estimated)
+2042/12/5,Farmers' Day
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/1/7,Constitution Day
+2043/3/6,Independence Day
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/5/1,Labour Day
+2043/7/1,Republic Day
+2043/9/4,Eid-ul-Fitr (estimated)
+2043/9/5,Shaqq Day (estimated)
+2043/9/21,Founder's Day
+2043/11/12,Eid-ul-Adha (estimated)
+2043/12/4,Farmers' Day
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2044/1/1,New Year's Day
+2044/1/7,Constitution Day
+2044/3/6,Independence Day
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/1,Labour Day
+2044/7/1,Republic Day
+2044/8/24,Eid-ul-Fitr (estimated)
+2044/8/25,Shaqq Day (estimated)
+2044/9/21,Founder's Day
+2044/10/31,Eid-ul-Adha (estimated)
+2044/12/2,Farmers' Day
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2045/1/1,New Year's Day
+2045/1/7,Constitution Day
+2045/3/6,Independence Day
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/1,Labour Day
+2045/7/1,Republic Day
+2045/8/14,Eid-ul-Fitr (estimated)
+2045/8/15,Shaqq Day (estimated)
+2045/9/21,Founder's Day
+2045/10/21,Eid-ul-Adha (estimated)
+2045/12/1,Farmers' Day
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/1/7,Constitution Day
+2046/3/6,Independence Day
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/5/1,Labour Day
+2046/7/1,Republic Day
+2046/8/3,Eid-ul-Fitr (estimated)
+2046/8/4,Shaqq Day (estimated)
+2046/9/21,Founder's Day
+2046/10/10,Eid-ul-Adha (estimated)
+2046/12/7,Farmers' Day
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/1/7,Constitution Day
+2047/3/6,Independence Day
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/1,Labour Day
+2047/7/1,Republic Day
+2047/7/24,Eid-ul-Fitr (estimated)
+2047/7/25,Shaqq Day (estimated)
+2047/9/21,Founder's Day
+2047/9/30,Eid-ul-Adha (estimated)
+2047/12/6,Farmers' Day
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2048/1/1,New Year's Day
+2048/1/7,Constitution Day
+2048/3/6,Independence Day
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/1,Labour Day
+2048/7/1,Republic Day
+2048/7/12,Eid-ul-Fitr (estimated)
+2048/7/13,Shaqq Day (estimated)
+2048/9/19,Eid-ul-Adha (estimated)
+2048/9/21,Founder's Day
+2048/12/4,Farmers' Day
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2049/1/1,New Year's Day
+2049/1/7,Constitution Day
+2049/3/6,Independence Day
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/1,Labour Day
+2049/7/1,Eid-ul-Fitr (estimated); Republic Day
+2049/7/2,Shaqq Day (estimated)
+2049/9/8,Eid-ul-Adha (estimated)
+2049/9/21,Founder's Day
+2049/12/3,Farmers' Day
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2050/1/1,New Year's Day
+2050/1/7,Constitution Day
+2050/3/6,Independence Day
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/1,Labour Day
+2050/6/20,Eid-ul-Fitr (estimated)
+2050/6/21,Shaqq Day (estimated)
+2050/7/1,Republic Day
+2050/8/28,Eid-ul-Adha (estimated)
+2050/9/21,Founder's Day
+2050/12/2,Farmers' Day
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day

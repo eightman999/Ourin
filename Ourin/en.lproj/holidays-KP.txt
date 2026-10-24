@@ -1,0 +1,679 @@
+# KP holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/25,Korean New Year
+2020/2/8,Daeboreum; Founding Day of the Korean People's Army
+2020/2/16,Day of the Shining Star
+2020/2/17,Day of the Shining Star
+2020/3/8,International Women's Day
+2020/4/4,Cheongmyeong Festival
+2020/4/15,Day of the Sun
+2020/4/16,Day of the Sun
+2020/4/25,Founding Day of the Korean People's Revolutionary Army
+2020/5/1,International Workers' Day
+2020/6/6,Foundation Day of the Korean Children's Union
+2020/7/27,Day of Victory in the Great Fatherland Liberation War
+2020/8/15,Liberation Day
+2020/8/25,Day of Songun
+2020/8/28,Youth Day
+2020/9/9,Founding Day of the DPRK
+2020/10/1,Chuseok
+2020/10/10,Foundation Day of the Workers' Party of Korea
+2020/11/16,Mother's Day
+2020/12/27,Socialist Constitution Day
+2021/1/1,New Year's Day
+2021/2/8,Founding Day of the Korean People's Army
+2021/2/12,Korean New Year
+2021/2/16,Day of the Shining Star
+2021/2/17,Day of the Shining Star
+2021/2/26,Daeboreum
+2021/3/8,International Women's Day
+2021/4/4,Cheongmyeong Festival
+2021/4/15,Day of the Sun
+2021/4/16,Day of the Sun
+2021/4/25,Founding Day of the Korean People's Revolutionary Army
+2021/5/1,International Workers' Day
+2021/6/6,Foundation Day of the Korean Children's Union
+2021/7/27,Day of Victory in the Great Fatherland Liberation War
+2021/8/15,Liberation Day
+2021/8/25,Day of Songun
+2021/8/28,Youth Day
+2021/9/9,Founding Day of the DPRK
+2021/9/21,Chuseok
+2021/10/10,Foundation Day of the Workers' Party of Korea
+2021/11/16,Mother's Day
+2021/12/27,Socialist Constitution Day
+2022/1/1,New Year's Day
+2022/2/1,Korean New Year
+2022/2/8,Founding Day of the Korean People's Army
+2022/2/15,Daeboreum
+2022/2/16,Day of the Shining Star
+2022/2/17,Day of the Shining Star
+2022/3/8,International Women's Day
+2022/4/5,Cheongmyeong Festival
+2022/4/15,Day of the Sun
+2022/4/16,Day of the Sun
+2022/4/25,Founding Day of the Korean People's Revolutionary Army
+2022/5/1,International Workers' Day
+2022/6/6,Foundation Day of the Korean Children's Union
+2022/7/27,Day of Victory in the Great Fatherland Liberation War
+2022/8/15,Liberation Day
+2022/8/25,Day of Songun
+2022/8/28,Youth Day
+2022/9/9,Founding Day of the DPRK
+2022/9/10,Chuseok
+2022/10/10,Foundation Day of the Workers' Party of Korea
+2022/11/16,Mother's Day
+2022/12/27,Socialist Constitution Day
+2023/1/1,New Year's Day
+2023/1/22,Korean New Year
+2023/2/5,Daeboreum
+2023/2/8,Founding Day of the Korean People's Army
+2023/2/16,Day of the Shining Star
+2023/2/17,Day of the Shining Star
+2023/3/8,International Women's Day
+2023/4/5,Cheongmyeong Festival
+2023/4/15,Day of the Sun
+2023/4/16,Day of the Sun
+2023/4/25,Founding Day of the Korean People's Revolutionary Army
+2023/5/1,International Workers' Day
+2023/6/6,Foundation Day of the Korean Children's Union
+2023/7/27,Day of Victory in the Great Fatherland Liberation War
+2023/8/15,Liberation Day
+2023/8/25,Day of Songun
+2023/8/28,Youth Day
+2023/9/9,Founding Day of the DPRK
+2023/9/29,Chuseok
+2023/10/10,Foundation Day of the Workers' Party of Korea
+2023/11/16,Mother's Day
+2023/12/27,Socialist Constitution Day
+2024/1/1,New Year's Day
+2024/2/8,Founding Day of the Korean People's Army
+2024/2/10,Korean New Year
+2024/2/16,Day of the Shining Star
+2024/2/17,Day of the Shining Star
+2024/2/24,Daeboreum
+2024/3/8,International Women's Day
+2024/4/4,Cheongmyeong Festival
+2024/4/15,Day of the Sun
+2024/4/16,Day of the Sun
+2024/4/25,Founding Day of the Korean People's Revolutionary Army
+2024/5/1,International Workers' Day
+2024/6/6,Foundation Day of the Korean Children's Union
+2024/7/27,Day of Victory in the Great Fatherland Liberation War
+2024/8/15,Liberation Day
+2024/8/25,Day of Songun
+2024/8/28,Youth Day
+2024/9/9,Founding Day of the DPRK
+2024/9/17,Chuseok
+2024/10/10,Foundation Day of the Workers' Party of Korea
+2024/11/16,Mother's Day
+2024/12/27,Socialist Constitution Day
+2025/1/1,New Year's Day
+2025/1/29,Korean New Year
+2025/2/8,Founding Day of the Korean People's Army
+2025/2/12,Daeboreum
+2025/2/16,Day of the Shining Star
+2025/2/17,Day of the Shining Star
+2025/3/8,International Women's Day
+2025/4/4,Cheongmyeong Festival
+2025/4/15,Day of the Sun
+2025/4/16,Day of the Sun
+2025/4/25,Founding Day of the Korean People's Revolutionary Army
+2025/5/1,International Workers' Day
+2025/6/6,Foundation Day of the Korean Children's Union
+2025/7/27,Day of Victory in the Great Fatherland Liberation War
+2025/8/15,Liberation Day
+2025/8/25,Day of Songun
+2025/8/28,Youth Day
+2025/9/9,Founding Day of the DPRK
+2025/10/6,Chuseok
+2025/10/10,Foundation Day of the Workers' Party of Korea
+2025/11/16,Mother's Day
+2025/12/27,Socialist Constitution Day
+2026/1/1,New Year's Day
+2026/2/8,Founding Day of the Korean People's Army
+2026/2/16,Day of the Shining Star
+2026/2/17,Day of the Shining Star; Korean New Year
+2026/3/3,Daeboreum
+2026/3/8,International Women's Day
+2026/4/5,Cheongmyeong Festival
+2026/4/15,Day of the Sun
+2026/4/16,Day of the Sun
+2026/4/25,Founding Day of the Korean People's Revolutionary Army
+2026/5/1,International Workers' Day
+2026/6/6,Foundation Day of the Korean Children's Union
+2026/7/27,Day of Victory in the Great Fatherland Liberation War
+2026/8/15,Liberation Day
+2026/8/25,Day of Songun
+2026/8/28,Youth Day
+2026/9/9,Founding Day of the DPRK
+2026/9/25,Chuseok
+2026/10/10,Foundation Day of the Workers' Party of Korea
+2026/11/16,Mother's Day
+2026/12/27,Socialist Constitution Day
+2027/1/1,New Year's Day
+2027/2/7,Korean New Year
+2027/2/8,Founding Day of the Korean People's Army
+2027/2/16,Day of the Shining Star
+2027/2/17,Day of the Shining Star
+2027/2/21,Daeboreum
+2027/3/8,International Women's Day
+2027/4/5,Cheongmyeong Festival
+2027/4/15,Day of the Sun
+2027/4/16,Day of the Sun
+2027/4/25,Founding Day of the Korean People's Revolutionary Army
+2027/5/1,International Workers' Day
+2027/6/6,Foundation Day of the Korean Children's Union
+2027/7/27,Day of Victory in the Great Fatherland Liberation War
+2027/8/15,Liberation Day
+2027/8/25,Day of Songun
+2027/8/28,Youth Day
+2027/9/9,Founding Day of the DPRK
+2027/9/15,Chuseok
+2027/10/10,Foundation Day of the Workers' Party of Korea
+2027/11/16,Mother's Day
+2027/12/27,Socialist Constitution Day
+2028/1/1,New Year's Day
+2028/1/27,Korean New Year
+2028/2/8,Founding Day of the Korean People's Army
+2028/2/10,Daeboreum
+2028/2/16,Day of the Shining Star
+2028/2/17,Day of the Shining Star
+2028/3/8,International Women's Day
+2028/4/4,Cheongmyeong Festival
+2028/4/15,Day of the Sun
+2028/4/16,Day of the Sun
+2028/4/25,Founding Day of the Korean People's Revolutionary Army
+2028/5/1,International Workers' Day
+2028/6/6,Foundation Day of the Korean Children's Union
+2028/7/27,Day of Victory in the Great Fatherland Liberation War
+2028/8/15,Liberation Day
+2028/8/25,Day of Songun
+2028/8/28,Youth Day
+2028/9/9,Founding Day of the DPRK
+2028/10/3,Chuseok
+2028/10/10,Foundation Day of the Workers' Party of Korea
+2028/11/16,Mother's Day
+2028/12/27,Socialist Constitution Day
+2029/1/1,New Year's Day
+2029/2/8,Founding Day of the Korean People's Army
+2029/2/13,Korean New Year
+2029/2/16,Day of the Shining Star
+2029/2/17,Day of the Shining Star
+2029/2/27,Daeboreum
+2029/3/8,International Women's Day
+2029/4/4,Cheongmyeong Festival
+2029/4/15,Day of the Sun
+2029/4/16,Day of the Sun
+2029/4/25,Founding Day of the Korean People's Revolutionary Army
+2029/5/1,International Workers' Day
+2029/6/6,Foundation Day of the Korean Children's Union
+2029/7/27,Day of Victory in the Great Fatherland Liberation War
+2029/8/15,Liberation Day
+2029/8/25,Day of Songun
+2029/8/28,Youth Day
+2029/9/9,Founding Day of the DPRK
+2029/9/22,Chuseok
+2029/10/10,Foundation Day of the Workers' Party of Korea
+2029/11/16,Mother's Day
+2029/12/27,Socialist Constitution Day
+2030/1/1,New Year's Day
+2030/2/3,Korean New Year
+2030/2/8,Founding Day of the Korean People's Army
+2030/2/16,Day of the Shining Star
+2030/2/17,Daeboreum; Day of the Shining Star
+2030/3/8,International Women's Day
+2030/4/5,Cheongmyeong Festival
+2030/4/15,Day of the Sun
+2030/4/16,Day of the Sun
+2030/4/25,Founding Day of the Korean People's Revolutionary Army
+2030/5/1,International Workers' Day
+2030/6/6,Foundation Day of the Korean Children's Union
+2030/7/27,Day of Victory in the Great Fatherland Liberation War
+2030/8/15,Liberation Day
+2030/8/25,Day of Songun
+2030/8/28,Youth Day
+2030/9/9,Founding Day of the DPRK
+2030/9/12,Chuseok
+2030/10/10,Foundation Day of the Workers' Party of Korea
+2030/11/16,Mother's Day
+2030/12/27,Socialist Constitution Day
+2031/1/1,New Year's Day
+2031/1/23,Korean New Year
+2031/2/6,Daeboreum
+2031/2/8,Founding Day of the Korean People's Army
+2031/2/16,Day of the Shining Star
+2031/2/17,Day of the Shining Star
+2031/3/8,International Women's Day
+2031/4/5,Cheongmyeong Festival
+2031/4/15,Day of the Sun
+2031/4/16,Day of the Sun
+2031/4/25,Founding Day of the Korean People's Revolutionary Army
+2031/5/1,International Workers' Day
+2031/6/6,Foundation Day of the Korean Children's Union
+2031/7/27,Day of Victory in the Great Fatherland Liberation War
+2031/8/15,Liberation Day
+2031/8/25,Day of Songun
+2031/8/28,Youth Day
+2031/9/9,Founding Day of the DPRK
+2031/10/1,Chuseok
+2031/10/10,Foundation Day of the Workers' Party of Korea
+2031/11/16,Mother's Day
+2031/12/27,Socialist Constitution Day
+2032/1/1,New Year's Day
+2032/2/8,Founding Day of the Korean People's Army
+2032/2/11,Korean New Year
+2032/2/16,Day of the Shining Star
+2032/2/17,Day of the Shining Star
+2032/2/25,Daeboreum
+2032/3/8,International Women's Day
+2032/4/4,Cheongmyeong Festival
+2032/4/15,Day of the Sun
+2032/4/16,Day of the Sun
+2032/4/25,Founding Day of the Korean People's Revolutionary Army
+2032/5/1,International Workers' Day
+2032/6/6,Foundation Day of the Korean Children's Union
+2032/7/27,Day of Victory in the Great Fatherland Liberation War
+2032/8/15,Liberation Day
+2032/8/25,Day of Songun
+2032/8/28,Youth Day
+2032/9/9,Founding Day of the DPRK
+2032/9/19,Chuseok
+2032/10/10,Foundation Day of the Workers' Party of Korea
+2032/11/16,Mother's Day
+2032/12/27,Socialist Constitution Day
+2033/1/1,New Year's Day
+2033/1/31,Korean New Year
+2033/2/8,Founding Day of the Korean People's Army
+2033/2/14,Daeboreum
+2033/2/16,Day of the Shining Star
+2033/2/17,Day of the Shining Star
+2033/3/8,International Women's Day
+2033/4/4,Cheongmyeong Festival
+2033/4/15,Day of the Sun
+2033/4/16,Day of the Sun
+2033/4/25,Founding Day of the Korean People's Revolutionary Army
+2033/5/1,International Workers' Day
+2033/6/6,Foundation Day of the Korean Children's Union
+2033/7/27,Day of Victory in the Great Fatherland Liberation War
+2033/8/15,Liberation Day
+2033/8/25,Day of Songun
+2033/8/28,Youth Day
+2033/9/8,Chuseok
+2033/9/9,Founding Day of the DPRK
+2033/10/10,Foundation Day of the Workers' Party of Korea
+2033/11/16,Mother's Day
+2033/12/27,Socialist Constitution Day
+2034/1/1,New Year's Day
+2034/2/8,Founding Day of the Korean People's Army
+2034/2/16,Day of the Shining Star
+2034/2/17,Day of the Shining Star
+2034/2/19,Korean New Year
+2034/3/5,Daeboreum
+2034/3/8,International Women's Day
+2034/4/5,Cheongmyeong Festival
+2034/4/15,Day of the Sun
+2034/4/16,Day of the Sun
+2034/4/25,Founding Day of the Korean People's Revolutionary Army
+2034/5/1,International Workers' Day
+2034/6/6,Foundation Day of the Korean Children's Union
+2034/7/27,Day of Victory in the Great Fatherland Liberation War
+2034/8/15,Liberation Day
+2034/8/25,Day of Songun
+2034/8/28,Youth Day
+2034/9/9,Founding Day of the DPRK
+2034/9/27,Chuseok
+2034/10/10,Foundation Day of the Workers' Party of Korea
+2034/11/16,Mother's Day
+2034/12/27,Socialist Constitution Day
+2035/1/1,New Year's Day
+2035/2/8,Founding Day of the Korean People's Army; Korean New Year
+2035/2/16,Day of the Shining Star
+2035/2/17,Day of the Shining Star
+2035/2/22,Daeboreum
+2035/3/8,International Women's Day
+2035/4/5,Cheongmyeong Festival
+2035/4/15,Day of the Sun
+2035/4/16,Day of the Sun
+2035/4/25,Founding Day of the Korean People's Revolutionary Army
+2035/5/1,International Workers' Day
+2035/6/6,Foundation Day of the Korean Children's Union
+2035/7/27,Day of Victory in the Great Fatherland Liberation War
+2035/8/15,Liberation Day
+2035/8/25,Day of Songun
+2035/8/28,Youth Day
+2035/9/9,Founding Day of the DPRK
+2035/9/16,Chuseok
+2035/10/10,Foundation Day of the Workers' Party of Korea
+2035/11/16,Mother's Day
+2035/12/27,Socialist Constitution Day
+2036/1/1,New Year's Day
+2036/1/28,Korean New Year
+2036/2/8,Founding Day of the Korean People's Army
+2036/2/11,Daeboreum
+2036/2/16,Day of the Shining Star
+2036/2/17,Day of the Shining Star
+2036/3/8,International Women's Day
+2036/4/4,Cheongmyeong Festival
+2036/4/15,Day of the Sun
+2036/4/16,Day of the Sun
+2036/4/25,Founding Day of the Korean People's Revolutionary Army
+2036/5/1,International Workers' Day
+2036/6/6,Foundation Day of the Korean Children's Union
+2036/7/27,Day of Victory in the Great Fatherland Liberation War
+2036/8/15,Liberation Day
+2036/8/25,Day of Songun
+2036/8/28,Youth Day
+2036/9/9,Founding Day of the DPRK
+2036/10/4,Chuseok
+2036/10/10,Foundation Day of the Workers' Party of Korea
+2036/11/16,Mother's Day
+2036/12/27,Socialist Constitution Day
+2037/1/1,New Year's Day
+2037/2/8,Founding Day of the Korean People's Army
+2037/2/15,Korean New Year
+2037/2/16,Day of the Shining Star
+2037/2/17,Day of the Shining Star
+2037/3/1,Daeboreum
+2037/3/8,International Women's Day
+2037/4/4,Cheongmyeong Festival
+2037/4/15,Day of the Sun
+2037/4/16,Day of the Sun
+2037/4/25,Founding Day of the Korean People's Revolutionary Army
+2037/5/1,International Workers' Day
+2037/6/6,Foundation Day of the Korean Children's Union
+2037/7/27,Day of Victory in the Great Fatherland Liberation War
+2037/8/15,Liberation Day
+2037/8/25,Day of Songun
+2037/8/28,Youth Day
+2037/9/9,Founding Day of the DPRK
+2037/9/24,Chuseok
+2037/10/10,Foundation Day of the Workers' Party of Korea
+2037/11/16,Mother's Day
+2037/12/27,Socialist Constitution Day
+2038/1/1,New Year's Day
+2038/2/4,Korean New Year
+2038/2/8,Founding Day of the Korean People's Army
+2038/2/16,Day of the Shining Star
+2038/2/17,Day of the Shining Star
+2038/2/18,Daeboreum
+2038/3/8,International Women's Day
+2038/4/5,Cheongmyeong Festival
+2038/4/15,Day of the Sun
+2038/4/16,Day of the Sun
+2038/4/25,Founding Day of the Korean People's Revolutionary Army
+2038/5/1,International Workers' Day
+2038/6/6,Foundation Day of the Korean Children's Union
+2038/7/27,Day of Victory in the Great Fatherland Liberation War
+2038/8/15,Liberation Day
+2038/8/25,Day of Songun
+2038/8/28,Youth Day
+2038/9/9,Founding Day of the DPRK
+2038/9/13,Chuseok
+2038/10/10,Foundation Day of the Workers' Party of Korea
+2038/11/16,Mother's Day
+2038/12/27,Socialist Constitution Day
+2039/1/1,New Year's Day
+2039/1/24,Korean New Year
+2039/2/7,Daeboreum
+2039/2/8,Founding Day of the Korean People's Army
+2039/2/16,Day of the Shining Star
+2039/2/17,Day of the Shining Star
+2039/3/8,International Women's Day
+2039/4/5,Cheongmyeong Festival
+2039/4/15,Day of the Sun
+2039/4/16,Day of the Sun
+2039/4/25,Founding Day of the Korean People's Revolutionary Army
+2039/5/1,International Workers' Day
+2039/6/6,Foundation Day of the Korean Children's Union
+2039/7/27,Day of Victory in the Great Fatherland Liberation War
+2039/8/15,Liberation Day
+2039/8/25,Day of Songun
+2039/8/28,Youth Day
+2039/9/9,Founding Day of the DPRK
+2039/10/2,Chuseok
+2039/10/10,Foundation Day of the Workers' Party of Korea
+2039/11/16,Mother's Day
+2039/12/27,Socialist Constitution Day
+2040/1/1,New Year's Day
+2040/2/8,Founding Day of the Korean People's Army
+2040/2/12,Korean New Year
+2040/2/16,Day of the Shining Star
+2040/2/17,Day of the Shining Star
+2040/2/26,Daeboreum
+2040/3/8,International Women's Day
+2040/4/4,Cheongmyeong Festival
+2040/4/15,Day of the Sun
+2040/4/16,Day of the Sun
+2040/4/25,Founding Day of the Korean People's Revolutionary Army
+2040/5/1,International Workers' Day
+2040/6/6,Foundation Day of the Korean Children's Union
+2040/7/27,Day of Victory in the Great Fatherland Liberation War
+2040/8/15,Liberation Day
+2040/8/25,Day of Songun
+2040/8/28,Youth Day
+2040/9/9,Founding Day of the DPRK
+2040/9/21,Chuseok
+2040/10/10,Foundation Day of the Workers' Party of Korea
+2040/11/16,Mother's Day
+2040/12/27,Socialist Constitution Day
+2041/1/1,New Year's Day
+2041/2/1,Korean New Year
+2041/2/8,Founding Day of the Korean People's Army
+2041/2/15,Daeboreum
+2041/2/16,Day of the Shining Star
+2041/2/17,Day of the Shining Star
+2041/3/8,International Women's Day
+2041/4/4,Cheongmyeong Festival
+2041/4/15,Day of the Sun
+2041/4/16,Day of the Sun
+2041/4/25,Founding Day of the Korean People's Revolutionary Army
+2041/5/1,International Workers' Day
+2041/6/6,Foundation Day of the Korean Children's Union
+2041/7/27,Day of Victory in the Great Fatherland Liberation War
+2041/8/15,Liberation Day
+2041/8/25,Day of Songun
+2041/8/28,Youth Day
+2041/9/9,Founding Day of the DPRK
+2041/9/10,Chuseok
+2041/10/10,Foundation Day of the Workers' Party of Korea
+2041/11/16,Mother's Day
+2041/12/27,Socialist Constitution Day
+2042/1/1,New Year's Day
+2042/1/22,Korean New Year
+2042/2/5,Daeboreum
+2042/2/8,Founding Day of the Korean People's Army
+2042/2/16,Day of the Shining Star
+2042/2/17,Day of the Shining Star
+2042/3/8,International Women's Day
+2042/4/5,Cheongmyeong Festival
+2042/4/15,Day of the Sun
+2042/4/16,Day of the Sun
+2042/4/25,Founding Day of the Korean People's Revolutionary Army
+2042/5/1,International Workers' Day
+2042/6/6,Foundation Day of the Korean Children's Union
+2042/7/27,Day of Victory in the Great Fatherland Liberation War
+2042/8/15,Liberation Day
+2042/8/25,Day of Songun
+2042/8/28,Youth Day
+2042/9/9,Founding Day of the DPRK
+2042/9/28,Chuseok
+2042/10/10,Foundation Day of the Workers' Party of Korea
+2042/11/16,Mother's Day
+2042/12/27,Socialist Constitution Day
+2043/1/1,New Year's Day
+2043/2/8,Founding Day of the Korean People's Army
+2043/2/10,Korean New Year
+2043/2/16,Day of the Shining Star
+2043/2/17,Day of the Shining Star
+2043/2/24,Daeboreum
+2043/3/8,International Women's Day
+2043/4/5,Cheongmyeong Festival
+2043/4/15,Day of the Sun
+2043/4/16,Day of the Sun
+2043/4/25,Founding Day of the Korean People's Revolutionary Army
+2043/5/1,International Workers' Day
+2043/6/6,Foundation Day of the Korean Children's Union
+2043/7/27,Day of Victory in the Great Fatherland Liberation War
+2043/8/15,Liberation Day
+2043/8/25,Day of Songun
+2043/8/28,Youth Day
+2043/9/9,Founding Day of the DPRK
+2043/9/17,Chuseok
+2043/10/10,Foundation Day of the Workers' Party of Korea
+2043/11/16,Mother's Day
+2043/12/27,Socialist Constitution Day
+2044/1/1,New Year's Day
+2044/1/30,Korean New Year
+2044/2/8,Founding Day of the Korean People's Army
+2044/2/13,Daeboreum
+2044/2/16,Day of the Shining Star
+2044/2/17,Day of the Shining Star
+2044/3/8,International Women's Day
+2044/4/4,Cheongmyeong Festival
+2044/4/15,Day of the Sun
+2044/4/16,Day of the Sun
+2044/4/25,Founding Day of the Korean People's Revolutionary Army
+2044/5/1,International Workers' Day
+2044/6/6,Foundation Day of the Korean Children's Union
+2044/7/27,Day of Victory in the Great Fatherland Liberation War
+2044/8/15,Liberation Day
+2044/8/25,Day of Songun
+2044/8/28,Youth Day
+2044/9/9,Founding Day of the DPRK
+2044/10/5,Chuseok
+2044/10/10,Foundation Day of the Workers' Party of Korea
+2044/11/16,Mother's Day
+2044/12/27,Socialist Constitution Day
+2045/1/1,New Year's Day
+2045/2/8,Founding Day of the Korean People's Army
+2045/2/16,Day of the Shining Star
+2045/2/17,Day of the Shining Star; Korean New Year
+2045/3/3,Daeboreum
+2045/3/8,International Women's Day
+2045/4/4,Cheongmyeong Festival
+2045/4/15,Day of the Sun
+2045/4/16,Day of the Sun
+2045/4/25,Founding Day of the Korean People's Revolutionary Army
+2045/5/1,International Workers' Day
+2045/6/6,Foundation Day of the Korean Children's Union
+2045/7/27,Day of Victory in the Great Fatherland Liberation War
+2045/8/15,Liberation Day
+2045/8/25,Day of Songun
+2045/8/28,Youth Day
+2045/9/9,Founding Day of the DPRK
+2045/9/25,Chuseok
+2045/10/10,Foundation Day of the Workers' Party of Korea
+2045/11/16,Mother's Day
+2045/12/27,Socialist Constitution Day
+2046/1/1,New Year's Day
+2046/2/6,Korean New Year
+2046/2/8,Founding Day of the Korean People's Army
+2046/2/16,Day of the Shining Star
+2046/2/17,Day of the Shining Star
+2046/2/20,Daeboreum
+2046/3/8,International Women's Day
+2046/4/4,Cheongmyeong Festival
+2046/4/15,Day of the Sun
+2046/4/16,Day of the Sun
+2046/4/25,Founding Day of the Korean People's Revolutionary Army
+2046/5/1,International Workers' Day
+2046/6/6,Foundation Day of the Korean Children's Union
+2046/7/27,Day of Victory in the Great Fatherland Liberation War
+2046/8/15,Liberation Day
+2046/8/25,Day of Songun
+2046/8/28,Youth Day
+2046/9/9,Founding Day of the DPRK
+2046/9/15,Chuseok
+2046/10/10,Foundation Day of the Workers' Party of Korea
+2046/11/16,Mother's Day
+2046/12/27,Socialist Constitution Day
+2047/1/1,New Year's Day
+2047/1/26,Korean New Year
+2047/2/8,Founding Day of the Korean People's Army
+2047/2/9,Daeboreum
+2047/2/16,Day of the Shining Star
+2047/2/17,Day of the Shining Star
+2047/3/8,International Women's Day
+2047/4/5,Cheongmyeong Festival
+2047/4/15,Day of the Sun
+2047/4/16,Day of the Sun
+2047/4/25,Founding Day of the Korean People's Revolutionary Army
+2047/5/1,International Workers' Day
+2047/6/6,Foundation Day of the Korean Children's Union
+2047/7/27,Day of Victory in the Great Fatherland Liberation War
+2047/8/15,Liberation Day
+2047/8/25,Day of Songun
+2047/8/28,Youth Day
+2047/9/9,Founding Day of the DPRK
+2047/10/4,Chuseok
+2047/10/10,Foundation Day of the Workers' Party of Korea
+2047/11/16,Mother's Day
+2047/12/27,Socialist Constitution Day
+2048/1/1,New Year's Day
+2048/2/8,Founding Day of the Korean People's Army
+2048/2/14,Korean New Year
+2048/2/16,Day of the Shining Star
+2048/2/17,Day of the Shining Star
+2048/2/28,Daeboreum
+2048/3/8,International Women's Day
+2048/4/4,Cheongmyeong Festival
+2048/4/15,Day of the Sun
+2048/4/16,Day of the Sun
+2048/4/25,Founding Day of the Korean People's Revolutionary Army
+2048/5/1,International Workers' Day
+2048/6/6,Foundation Day of the Korean Children's Union
+2048/7/27,Day of Victory in the Great Fatherland Liberation War
+2048/8/15,Liberation Day
+2048/8/25,Day of Songun
+2048/8/28,Youth Day
+2048/9/9,Founding Day of the DPRK
+2048/9/22,Chuseok
+2048/10/10,Foundation Day of the Workers' Party of Korea
+2048/11/16,Mother's Day
+2048/12/27,Socialist Constitution Day
+2049/1/1,New Year's Day
+2049/2/2,Korean New Year
+2049/2/8,Founding Day of the Korean People's Army
+2049/2/16,Daeboreum; Day of the Shining Star
+2049/2/17,Day of the Shining Star
+2049/3/8,International Women's Day
+2049/4/4,Cheongmyeong Festival
+2049/4/15,Day of the Sun
+2049/4/16,Day of the Sun
+2049/4/25,Founding Day of the Korean People's Revolutionary Army
+2049/5/1,International Workers' Day
+2049/6/6,Foundation Day of the Korean Children's Union
+2049/7/27,Day of Victory in the Great Fatherland Liberation War
+2049/8/15,Liberation Day
+2049/8/25,Day of Songun
+2049/8/28,Youth Day
+2049/9/9,Founding Day of the DPRK
+2049/9/11,Chuseok
+2049/10/10,Foundation Day of the Workers' Party of Korea
+2049/11/16,Mother's Day
+2049/12/27,Socialist Constitution Day
+2050/1/1,New Year's Day
+2050/1/23,Korean New Year
+2050/2/6,Daeboreum
+2050/2/8,Founding Day of the Korean People's Army
+2050/2/16,Day of the Shining Star
+2050/2/17,Day of the Shining Star
+2050/3/8,International Women's Day
+2050/4/4,Cheongmyeong Festival
+2050/4/15,Day of the Sun
+2050/4/16,Day of the Sun
+2050/4/25,Founding Day of the Korean People's Revolutionary Army
+2050/5/1,International Workers' Day
+2050/6/6,Foundation Day of the Korean Children's Union
+2050/7/27,Day of Victory in the Great Fatherland Liberation War
+2050/8/15,Liberation Day
+2050/8/25,Day of Songun
+2050/8/28,Youth Day
+2050/9/9,Founding Day of the DPRK
+2050/9/30,Chuseok
+2050/10/10,Foundation Day of the Workers' Party of Korea
+2050/11/16,Mother's Day
+2050/12/27,Socialist Constitution Day

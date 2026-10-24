@@ -1,0 +1,536 @@
+# NR の祝日（2020〜2050年、言語: en_NR）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/1/31,Independence Day
+2020/2/1,Day following Independence Day
+2020/2/3,Day following Independence Day (observed)
+2020/3/8,International Women's Day
+2020/3/9,International Women's Day (observed)
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/4/14,Easter Tuesday
+2020/5/17,Constitution Day
+2020/5/18,Constitution Day (observed)
+2020/7/1,RONPHOS Handover
+2020/8/19,Ibumin Earoeni Day
+2020/9/25,Sir Hammer DeRoburt Day
+2020/10/26,Angam Day
+2020/12/25,Christmas Day
+2020/12/26,Day following Christmas
+2020/12/28,Day following Christmas (observed)
+2021/1/1,New Year's Day
+2021/1/31,Independence Day
+2021/2/1,Day following Independence Day
+2021/2/2,Independence Day (observed)
+2021/3/8,International Women's Day
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/4/6,Easter Tuesday
+2021/5/17,Constitution Day
+2021/7/1,RONPHOS Handover
+2021/8/19,Ibumin Earoeni Day
+2021/9/25,Sir Hammer DeRoburt Day
+2021/9/27,Sir Hammer DeRoburt Day (observed)
+2021/10/26,Angam Day
+2021/12/25,Christmas Day
+2021/12/26,Day following Christmas
+2021/12/27,Christmas Day (observed)
+2021/12/28,Day following Christmas (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/1/31,Independence Day
+2022/2/1,Day following Independence Day
+2022/3/8,International Women's Day
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/4/19,Easter Tuesday
+2022/5/17,Constitution Day
+2022/7/1,RONPHOS Handover
+2022/8/19,Ibumin Earoeni Day
+2022/9/25,Sir Hammer DeRoburt Day
+2022/9/26,Sir Hammer DeRoburt Day (observed)
+2022/10/26,Angam Day
+2022/12/25,Christmas Day
+2022/12/26,Day following Christmas
+2022/12/27,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/1/31,Independence Day
+2023/2/1,Day following Independence Day
+2023/3/8,International Women's Day
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/4/11,Easter Tuesday
+2023/5/17,Constitution Day
+2023/7/1,RONPHOS Handover
+2023/7/3,RONPHOS Handover (observed)
+2023/8/19,Ibumin Earoeni Day
+2023/8/21,Ibumin Earoeni Day (observed)
+2023/9/25,Sir Hammer DeRoburt Day
+2023/10/26,Angam Day
+2023/12/25,Christmas Day
+2023/12/26,Day following Christmas
+2024/1/1,New Year's Day
+2024/1/31,Independence Day
+2024/2/1,Day following Independence Day
+2024/3/8,International Women's Day
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/4/2,Easter Tuesday
+2024/5/17,Constitution Day
+2024/7/1,RONPHOS Handover
+2024/8/19,Ibumin Earoeni Day
+2024/9/25,Sir Hammer DeRoburt Day
+2024/10/26,Angam Day
+2024/10/28,Angam Day (observed)
+2024/12/25,Christmas Day
+2024/12/26,Day following Christmas
+2025/1/1,New Year's Day
+2025/1/31,Independence Day
+2025/2/1,Day following Independence Day
+2025/2/3,Day following Independence Day (observed)
+2025/3/8,International Women's Day
+2025/3/10,International Women's Day (observed)
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/4/22,Easter Tuesday
+2025/5/17,Constitution Day
+2025/5/19,Constitution Day (observed)
+2025/7/1,RONPHOS Handover
+2025/8/19,Ibumin Earoeni Day
+2025/9/25,Sir Hammer DeRoburt Day
+2025/10/26,Angam Day
+2025/10/27,Angam Day (observed)
+2025/12/25,Christmas Day
+2025/12/26,Day following Christmas
+2026/1/1,New Year's Day
+2026/1/31,Independence Day
+2026/2/1,Day following Independence Day
+2026/2/2,Independence Day (observed)
+2026/2/3,Day following Independence Day (observed)
+2026/3/8,International Women's Day
+2026/3/9,International Women's Day (observed)
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/4/7,Easter Tuesday
+2026/5/17,Constitution Day
+2026/5/18,Constitution Day (observed)
+2026/7/1,RONPHOS Handover
+2026/8/19,Ibumin Earoeni Day
+2026/9/25,Sir Hammer DeRoburt Day
+2026/10/26,Angam Day
+2026/12/25,Christmas Day
+2026/12/26,Day following Christmas
+2026/12/28,Day following Christmas (observed)
+2027/1/1,New Year's Day
+2027/1/31,Independence Day
+2027/2/1,Day following Independence Day
+2027/2/2,Independence Day (observed)
+2027/3/8,International Women's Day
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/3/30,Easter Tuesday
+2027/5/17,Constitution Day
+2027/7/1,RONPHOS Handover
+2027/8/19,Ibumin Earoeni Day
+2027/9/25,Sir Hammer DeRoburt Day
+2027/9/27,Sir Hammer DeRoburt Day (observed)
+2027/10/26,Angam Day
+2027/12/25,Christmas Day
+2027/12/26,Day following Christmas
+2027/12/27,Christmas Day (observed)
+2027/12/28,Day following Christmas (observed)
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/1/31,Independence Day
+2028/2/1,Day following Independence Day
+2028/3/8,International Women's Day
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/4/18,Easter Tuesday
+2028/5/17,Constitution Day
+2028/7/1,RONPHOS Handover
+2028/7/3,RONPHOS Handover (observed)
+2028/8/19,Ibumin Earoeni Day
+2028/8/21,Ibumin Earoeni Day (observed)
+2028/9/25,Sir Hammer DeRoburt Day
+2028/10/26,Angam Day
+2028/12/25,Christmas Day
+2028/12/26,Day following Christmas
+2029/1/1,New Year's Day
+2029/1/31,Independence Day
+2029/2/1,Day following Independence Day
+2029/3/8,International Women's Day
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/4/3,Easter Tuesday
+2029/5/17,Constitution Day
+2029/7/1,RONPHOS Handover
+2029/7/2,RONPHOS Handover (observed)
+2029/8/19,Ibumin Earoeni Day
+2029/8/20,Ibumin Earoeni Day (observed)
+2029/9/25,Sir Hammer DeRoburt Day
+2029/10/26,Angam Day
+2029/12/25,Christmas Day
+2029/12/26,Day following Christmas
+2030/1/1,New Year's Day
+2030/1/31,Independence Day
+2030/2/1,Day following Independence Day
+2030/3/8,International Women's Day
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/4/23,Easter Tuesday
+2030/5/17,Constitution Day
+2030/7/1,RONPHOS Handover
+2030/8/19,Ibumin Earoeni Day
+2030/9/25,Sir Hammer DeRoburt Day
+2030/10/26,Angam Day
+2030/10/28,Angam Day (observed)
+2030/12/25,Christmas Day
+2030/12/26,Day following Christmas
+2031/1/1,New Year's Day
+2031/1/31,Independence Day
+2031/2/1,Day following Independence Day
+2031/2/3,Day following Independence Day (observed)
+2031/3/8,International Women's Day
+2031/3/10,International Women's Day (observed)
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/4/15,Easter Tuesday
+2031/5/17,Constitution Day
+2031/5/19,Constitution Day (observed)
+2031/7/1,RONPHOS Handover
+2031/8/19,Ibumin Earoeni Day
+2031/9/25,Sir Hammer DeRoburt Day
+2031/10/26,Angam Day
+2031/10/27,Angam Day (observed)
+2031/12/25,Christmas Day
+2031/12/26,Day following Christmas
+2032/1/1,New Year's Day
+2032/1/31,Independence Day
+2032/2/1,Day following Independence Day
+2032/2/2,Independence Day (observed)
+2032/2/3,Day following Independence Day (observed)
+2032/3/8,International Women's Day
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/3/30,Easter Tuesday
+2032/5/17,Constitution Day
+2032/7/1,RONPHOS Handover
+2032/8/19,Ibumin Earoeni Day
+2032/9/25,Sir Hammer DeRoburt Day
+2032/9/27,Sir Hammer DeRoburt Day (observed)
+2032/10/26,Angam Day
+2032/12/25,Christmas Day
+2032/12/26,Day following Christmas
+2032/12/27,Christmas Day (observed)
+2032/12/28,Day following Christmas (observed)
+2033/1/1,New Year's Day
+2033/1/3,New Year's Day (observed)
+2033/1/31,Independence Day
+2033/2/1,Day following Independence Day
+2033/3/8,International Women's Day
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/4/19,Easter Tuesday
+2033/5/17,Constitution Day
+2033/7/1,RONPHOS Handover
+2033/8/19,Ibumin Earoeni Day
+2033/9/25,Sir Hammer DeRoburt Day
+2033/9/26,Sir Hammer DeRoburt Day (observed)
+2033/10/26,Angam Day
+2033/12/25,Christmas Day
+2033/12/26,Day following Christmas
+2033/12/27,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/1/31,Independence Day
+2034/2/1,Day following Independence Day
+2034/3/8,International Women's Day
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/4/11,Easter Tuesday
+2034/5/17,Constitution Day
+2034/7/1,RONPHOS Handover
+2034/7/3,RONPHOS Handover (observed)
+2034/8/19,Ibumin Earoeni Day
+2034/8/21,Ibumin Earoeni Day (observed)
+2034/9/25,Sir Hammer DeRoburt Day
+2034/10/26,Angam Day
+2034/12/25,Christmas Day
+2034/12/26,Day following Christmas
+2035/1/1,New Year's Day
+2035/1/31,Independence Day
+2035/2/1,Day following Independence Day
+2035/3/8,International Women's Day
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/3/27,Easter Tuesday
+2035/5/17,Constitution Day
+2035/7/1,RONPHOS Handover
+2035/7/2,RONPHOS Handover (observed)
+2035/8/19,Ibumin Earoeni Day
+2035/8/20,Ibumin Earoeni Day (observed)
+2035/9/25,Sir Hammer DeRoburt Day
+2035/10/26,Angam Day
+2035/12/25,Christmas Day
+2035/12/26,Day following Christmas
+2036/1/1,New Year's Day
+2036/1/31,Independence Day
+2036/2/1,Day following Independence Day
+2036/3/8,International Women's Day
+2036/3/10,International Women's Day (observed)
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/4/15,Easter Tuesday
+2036/5/17,Constitution Day
+2036/5/19,Constitution Day (observed)
+2036/7/1,RONPHOS Handover
+2036/8/19,Ibumin Earoeni Day
+2036/9/25,Sir Hammer DeRoburt Day
+2036/10/26,Angam Day
+2036/10/27,Angam Day (observed)
+2036/12/25,Christmas Day
+2036/12/26,Day following Christmas
+2037/1/1,New Year's Day
+2037/1/31,Independence Day
+2037/2/1,Day following Independence Day
+2037/2/2,Independence Day (observed)
+2037/2/3,Day following Independence Day (observed)
+2037/3/8,International Women's Day
+2037/3/9,International Women's Day (observed)
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/4/7,Easter Tuesday
+2037/5/17,Constitution Day
+2037/5/18,Constitution Day (observed)
+2037/7/1,RONPHOS Handover
+2037/8/19,Ibumin Earoeni Day
+2037/9/25,Sir Hammer DeRoburt Day
+2037/10/26,Angam Day
+2037/12/25,Christmas Day
+2037/12/26,Day following Christmas
+2037/12/28,Day following Christmas (observed)
+2038/1/1,New Year's Day
+2038/1/31,Independence Day
+2038/2/1,Day following Independence Day
+2038/2/2,Independence Day (observed)
+2038/3/8,International Women's Day
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/4/27,Easter Tuesday
+2038/5/17,Constitution Day
+2038/7/1,RONPHOS Handover
+2038/8/19,Ibumin Earoeni Day
+2038/9/25,Sir Hammer DeRoburt Day
+2038/9/27,Sir Hammer DeRoburt Day (observed)
+2038/10/26,Angam Day
+2038/12/25,Christmas Day
+2038/12/26,Day following Christmas
+2038/12/27,Christmas Day (observed)
+2038/12/28,Day following Christmas (observed)
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/1/31,Independence Day
+2039/2/1,Day following Independence Day
+2039/3/8,International Women's Day
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/4/12,Easter Tuesday
+2039/5/17,Constitution Day
+2039/7/1,RONPHOS Handover
+2039/8/19,Ibumin Earoeni Day
+2039/9/25,Sir Hammer DeRoburt Day
+2039/9/26,Sir Hammer DeRoburt Day (observed)
+2039/10/26,Angam Day
+2039/12/25,Christmas Day
+2039/12/26,Day following Christmas
+2039/12/27,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/1/31,Independence Day
+2040/2/1,Day following Independence Day
+2040/3/8,International Women's Day
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/4/3,Easter Tuesday
+2040/5/17,Constitution Day
+2040/7/1,RONPHOS Handover
+2040/7/2,RONPHOS Handover (observed)
+2040/8/19,Ibumin Earoeni Day
+2040/8/20,Ibumin Earoeni Day (observed)
+2040/9/25,Sir Hammer DeRoburt Day
+2040/10/26,Angam Day
+2040/12/25,Christmas Day
+2040/12/26,Day following Christmas
+2041/1/1,New Year's Day
+2041/1/31,Independence Day
+2041/2/1,Day following Independence Day
+2041/3/8,International Women's Day
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/4/23,Easter Tuesday
+2041/5/17,Constitution Day
+2041/7/1,RONPHOS Handover
+2041/8/19,Ibumin Earoeni Day
+2041/9/25,Sir Hammer DeRoburt Day
+2041/10/26,Angam Day
+2041/10/28,Angam Day (observed)
+2041/12/25,Christmas Day
+2041/12/26,Day following Christmas
+2042/1/1,New Year's Day
+2042/1/31,Independence Day
+2042/2/1,Day following Independence Day
+2042/2/3,Day following Independence Day (observed)
+2042/3/8,International Women's Day
+2042/3/10,International Women's Day (observed)
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/4/8,Easter Tuesday
+2042/5/17,Constitution Day
+2042/5/19,Constitution Day (observed)
+2042/7/1,RONPHOS Handover
+2042/8/19,Ibumin Earoeni Day
+2042/9/25,Sir Hammer DeRoburt Day
+2042/10/26,Angam Day
+2042/10/27,Angam Day (observed)
+2042/12/25,Christmas Day
+2042/12/26,Day following Christmas
+2043/1/1,New Year's Day
+2043/1/31,Independence Day
+2043/2/1,Day following Independence Day
+2043/2/2,Independence Day (observed)
+2043/2/3,Day following Independence Day (observed)
+2043/3/8,International Women's Day
+2043/3/9,International Women's Day (observed)
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/3/31,Easter Tuesday
+2043/5/17,Constitution Day
+2043/5/18,Constitution Day (observed)
+2043/7/1,RONPHOS Handover
+2043/8/19,Ibumin Earoeni Day
+2043/9/25,Sir Hammer DeRoburt Day
+2043/10/26,Angam Day
+2043/12/25,Christmas Day
+2043/12/26,Day following Christmas
+2043/12/28,Day following Christmas (observed)
+2044/1/1,New Year's Day
+2044/1/31,Independence Day
+2044/2/1,Day following Independence Day
+2044/2/2,Independence Day (observed)
+2044/3/8,International Women's Day
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/4/19,Easter Tuesday
+2044/5/17,Constitution Day
+2044/7/1,RONPHOS Handover
+2044/8/19,Ibumin Earoeni Day
+2044/9/25,Sir Hammer DeRoburt Day
+2044/9/26,Sir Hammer DeRoburt Day (observed)
+2044/10/26,Angam Day
+2044/12/25,Christmas Day
+2044/12/26,Day following Christmas
+2044/12/27,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/31,Independence Day
+2045/2/1,Day following Independence Day
+2045/3/8,International Women's Day
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/4/11,Easter Tuesday
+2045/5/17,Constitution Day
+2045/7/1,RONPHOS Handover
+2045/7/3,RONPHOS Handover (observed)
+2045/8/19,Ibumin Earoeni Day
+2045/8/21,Ibumin Earoeni Day (observed)
+2045/9/25,Sir Hammer DeRoburt Day
+2045/10/26,Angam Day
+2045/12/25,Christmas Day
+2045/12/26,Day following Christmas
+2046/1/1,New Year's Day
+2046/1/31,Independence Day
+2046/2/1,Day following Independence Day
+2046/3/8,International Women's Day
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/3/27,Easter Tuesday
+2046/5/17,Constitution Day
+2046/7/1,RONPHOS Handover
+2046/7/2,RONPHOS Handover (observed)
+2046/8/19,Ibumin Earoeni Day
+2046/8/20,Ibumin Earoeni Day (observed)
+2046/9/25,Sir Hammer DeRoburt Day
+2046/10/26,Angam Day
+2046/12/25,Christmas Day
+2046/12/26,Day following Christmas
+2047/1/1,New Year's Day
+2047/1/31,Independence Day
+2047/2/1,Day following Independence Day
+2047/3/8,International Women's Day
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/4/16,Easter Tuesday
+2047/5/17,Constitution Day
+2047/7/1,RONPHOS Handover
+2047/8/19,Ibumin Earoeni Day
+2047/9/25,Sir Hammer DeRoburt Day
+2047/10/26,Angam Day
+2047/10/28,Angam Day (observed)
+2047/12/25,Christmas Day
+2047/12/26,Day following Christmas
+2048/1/1,New Year's Day
+2048/1/31,Independence Day
+2048/2/1,Day following Independence Day
+2048/2/3,Day following Independence Day (observed)
+2048/3/8,International Women's Day
+2048/3/9,International Women's Day (observed)
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/4/7,Easter Tuesday
+2048/5/17,Constitution Day
+2048/5/18,Constitution Day (observed)
+2048/7/1,RONPHOS Handover
+2048/8/19,Ibumin Earoeni Day
+2048/9/25,Sir Hammer DeRoburt Day
+2048/10/26,Angam Day
+2048/12/25,Christmas Day
+2048/12/26,Day following Christmas
+2048/12/28,Day following Christmas (observed)
+2049/1/1,New Year's Day
+2049/1/31,Independence Day
+2049/2/1,Day following Independence Day
+2049/2/2,Independence Day (observed)
+2049/3/8,International Women's Day
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/4/20,Easter Tuesday
+2049/5/17,Constitution Day
+2049/7/1,RONPHOS Handover
+2049/8/19,Ibumin Earoeni Day
+2049/9/25,Sir Hammer DeRoburt Day
+2049/9/27,Sir Hammer DeRoburt Day (observed)
+2049/10/26,Angam Day
+2049/12/25,Christmas Day
+2049/12/26,Day following Christmas
+2049/12/27,Christmas Day (observed)
+2049/12/28,Day following Christmas (observed)
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/1/31,Independence Day
+2050/2/1,Day following Independence Day
+2050/3/8,International Women's Day
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/4/12,Easter Tuesday
+2050/5/17,Constitution Day
+2050/7/1,RONPHOS Handover
+2050/8/19,Ibumin Earoeni Day
+2050/9/25,Sir Hammer DeRoburt Day
+2050/9/26,Sir Hammer DeRoburt Day (observed)
+2050/10/26,Angam Day
+2050/12/25,Christmas Day
+2050/12/26,Day following Christmas
+2050/12/27,Christmas Day (observed)

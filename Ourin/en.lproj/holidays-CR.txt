@@ -1,0 +1,279 @@
+# CR holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/4/9,Maundy Thursday
+2020/4/10,Good Friday
+2020/4/11,Juan Santamaría Day
+2020/5/1,International Labor Day
+2020/7/27,Annexation of the Party of Nicoya to Costa Rica (observed)
+2020/8/17,Mother's Day (observed)
+2020/9/14,Independence Day (observed)
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/4/1,Maundy Thursday
+2021/4/2,Good Friday
+2021/4/11,Juan Santamaría Day
+2021/5/3,International Labor Day (observed)
+2021/7/26,Annexation of the Party of Nicoya to Costa Rica (observed)
+2021/8/15,Mother's Day
+2021/9/13,Independence Day (observed)
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/4/11,Juan Santamaría Day
+2022/4/14,Maundy Thursday
+2022/4/15,Good Friday
+2022/5/1,International Labor Day
+2022/7/25,Annexation of the Party of Nicoya to Costa Rica
+2022/8/15,Mother's Day
+2022/9/19,Independence Day (observed)
+2022/12/25,Christmas Day
+2023/1/1,New Year's Day
+2023/4/6,Maundy Thursday
+2023/4/7,Good Friday
+2023/4/10,Juan Santamaría Day (observed)
+2023/5/1,International Labor Day
+2023/7/24,Annexation of the Party of Nicoya to Costa Rica (observed)
+2023/8/14,Mother's Day (observed)
+2023/9/15,Independence Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/3/28,Maundy Thursday
+2024/3/29,Good Friday
+2024/4/15,Juan Santamaría Day (observed)
+2024/5/1,International Labor Day
+2024/7/29,Annexation of the Party of Nicoya to Costa Rica (observed)
+2024/8/19,Mother's Day (observed)
+2024/9/15,Independence Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/4/11,Juan Santamaría Day
+2025/4/17,Maundy Thursday
+2025/4/18,Good Friday
+2025/5/1,International Labor Day
+2025/7/25,Annexation of the Party of Nicoya to Costa Rica
+2025/8/15,Mother's Day
+2025/9/15,Independence Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/4/2,Maundy Thursday
+2026/4/3,Good Friday
+2026/4/11,Juan Santamaría Day
+2026/5/1,International Labor Day
+2026/7/25,Annexation of the Party of Nicoya to Costa Rica
+2026/8/15,Mother's Day
+2026/9/15,Independence Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/3/25,Maundy Thursday
+2027/3/26,Good Friday
+2027/4/11,Juan Santamaría Day
+2027/5/1,International Labor Day
+2027/7/25,Annexation of the Party of Nicoya to Costa Rica
+2027/8/15,Mother's Day
+2027/9/15,Independence Day
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/4/11,Juan Santamaría Day
+2028/4/13,Maundy Thursday
+2028/4/14,Good Friday
+2028/5/1,International Labor Day
+2028/7/25,Annexation of the Party of Nicoya to Costa Rica
+2028/8/15,Mother's Day
+2028/9/15,Independence Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/3/29,Maundy Thursday
+2029/3/30,Good Friday
+2029/4/11,Juan Santamaría Day
+2029/5/1,International Labor Day
+2029/7/25,Annexation of the Party of Nicoya to Costa Rica
+2029/8/15,Mother's Day
+2029/9/15,Independence Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/4/11,Juan Santamaría Day
+2030/4/18,Maundy Thursday
+2030/4/19,Good Friday
+2030/5/1,International Labor Day
+2030/7/25,Annexation of the Party of Nicoya to Costa Rica
+2030/8/15,Mother's Day
+2030/9/15,Independence Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/4/10,Maundy Thursday
+2031/4/11,Good Friday; Juan Santamaría Day
+2031/5/1,International Labor Day
+2031/7/25,Annexation of the Party of Nicoya to Costa Rica
+2031/8/15,Mother's Day
+2031/9/15,Independence Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/3/25,Maundy Thursday
+2032/3/26,Good Friday
+2032/4/11,Juan Santamaría Day
+2032/5/1,International Labor Day
+2032/7/25,Annexation of the Party of Nicoya to Costa Rica
+2032/8/15,Mother's Day
+2032/9/15,Independence Day
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/4/11,Juan Santamaría Day
+2033/4/14,Maundy Thursday
+2033/4/15,Good Friday
+2033/5/1,International Labor Day
+2033/7/25,Annexation of the Party of Nicoya to Costa Rica
+2033/8/15,Mother's Day
+2033/9/15,Independence Day
+2033/12/25,Christmas Day
+2034/1/1,New Year's Day
+2034/4/6,Maundy Thursday
+2034/4/7,Good Friday
+2034/4/11,Juan Santamaría Day
+2034/5/1,International Labor Day
+2034/7/25,Annexation of the Party of Nicoya to Costa Rica
+2034/8/15,Mother's Day
+2034/9/15,Independence Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/3/22,Maundy Thursday
+2035/3/23,Good Friday
+2035/4/11,Juan Santamaría Day
+2035/5/1,International Labor Day
+2035/7/25,Annexation of the Party of Nicoya to Costa Rica
+2035/8/15,Mother's Day
+2035/9/15,Independence Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/4/10,Maundy Thursday
+2036/4/11,Good Friday; Juan Santamaría Day
+2036/5/1,International Labor Day
+2036/7/25,Annexation of the Party of Nicoya to Costa Rica
+2036/8/15,Mother's Day
+2036/9/15,Independence Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/4/2,Maundy Thursday
+2037/4/3,Good Friday
+2037/4/11,Juan Santamaría Day
+2037/5/1,International Labor Day
+2037/7/25,Annexation of the Party of Nicoya to Costa Rica
+2037/8/15,Mother's Day
+2037/9/15,Independence Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/4/11,Juan Santamaría Day
+2038/4/22,Maundy Thursday
+2038/4/23,Good Friday
+2038/5/1,International Labor Day
+2038/7/25,Annexation of the Party of Nicoya to Costa Rica
+2038/8/15,Mother's Day
+2038/9/15,Independence Day
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/4/7,Maundy Thursday
+2039/4/8,Good Friday
+2039/4/11,Juan Santamaría Day
+2039/5/1,International Labor Day
+2039/7/25,Annexation of the Party of Nicoya to Costa Rica
+2039/8/15,Mother's Day
+2039/9/15,Independence Day
+2039/12/25,Christmas Day
+2040/1/1,New Year's Day
+2040/3/29,Maundy Thursday
+2040/3/30,Good Friday
+2040/4/11,Juan Santamaría Day
+2040/5/1,International Labor Day
+2040/7/25,Annexation of the Party of Nicoya to Costa Rica
+2040/8/15,Mother's Day
+2040/9/15,Independence Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/4/11,Juan Santamaría Day
+2041/4/18,Maundy Thursday
+2041/4/19,Good Friday
+2041/5/1,International Labor Day
+2041/7/25,Annexation of the Party of Nicoya to Costa Rica
+2041/8/15,Mother's Day
+2041/9/15,Independence Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/4/3,Maundy Thursday
+2042/4/4,Good Friday
+2042/4/11,Juan Santamaría Day
+2042/5/1,International Labor Day
+2042/7/25,Annexation of the Party of Nicoya to Costa Rica
+2042/8/15,Mother's Day
+2042/9/15,Independence Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/3/26,Maundy Thursday
+2043/3/27,Good Friday
+2043/4/11,Juan Santamaría Day
+2043/5/1,International Labor Day
+2043/7/25,Annexation of the Party of Nicoya to Costa Rica
+2043/8/15,Mother's Day
+2043/9/15,Independence Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/4/11,Juan Santamaría Day
+2044/4/14,Maundy Thursday
+2044/4/15,Good Friday
+2044/5/1,International Labor Day
+2044/7/25,Annexation of the Party of Nicoya to Costa Rica
+2044/8/15,Mother's Day
+2044/9/15,Independence Day
+2044/12/25,Christmas Day
+2045/1/1,New Year's Day
+2045/4/6,Maundy Thursday
+2045/4/7,Good Friday
+2045/4/11,Juan Santamaría Day
+2045/5/1,International Labor Day
+2045/7/25,Annexation of the Party of Nicoya to Costa Rica
+2045/8/15,Mother's Day
+2045/9/15,Independence Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/3/22,Maundy Thursday
+2046/3/23,Good Friday
+2046/4/11,Juan Santamaría Day
+2046/5/1,International Labor Day
+2046/7/25,Annexation of the Party of Nicoya to Costa Rica
+2046/8/15,Mother's Day
+2046/9/15,Independence Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/4/11,Juan Santamaría Day; Maundy Thursday
+2047/4/12,Good Friday
+2047/5/1,International Labor Day
+2047/7/25,Annexation of the Party of Nicoya to Costa Rica
+2047/8/15,Mother's Day
+2047/9/15,Independence Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/4/2,Maundy Thursday
+2048/4/3,Good Friday
+2048/4/11,Juan Santamaría Day
+2048/5/1,International Labor Day
+2048/7/25,Annexation of the Party of Nicoya to Costa Rica
+2048/8/15,Mother's Day
+2048/9/15,Independence Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/4/11,Juan Santamaría Day
+2049/4/15,Maundy Thursday
+2049/4/16,Good Friday
+2049/5/1,International Labor Day
+2049/7/25,Annexation of the Party of Nicoya to Costa Rica
+2049/8/15,Mother's Day
+2049/9/15,Independence Day
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/4/7,Maundy Thursday
+2050/4/8,Good Friday
+2050/4/11,Juan Santamaría Day
+2050/5/1,International Labor Day
+2050/7/25,Annexation of the Party of Nicoya to Costa Rica
+2050/8/15,Mother's Day
+2050/9/15,Independence Day
+2050/12/25,Christmas Day

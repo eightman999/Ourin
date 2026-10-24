@@ -1,0 +1,396 @@
+# SG の祝日（2020〜2050年、言語: en_SG）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/1/25,Chinese New Year
+2020/1/26,Chinese New Year
+2020/1/27,Chinese New Year (observed)
+2020/4/10,Good Friday
+2020/5/1,Labour Day
+2020/5/7,Vesak Day
+2020/5/24,Hari Raya Puasa
+2020/5/25,Hari Raya Puasa (observed)
+2020/7/10,Polling Day
+2020/7/31,Hari Raya Haji
+2020/8/9,National Day
+2020/8/10,National Day (observed)
+2020/11/14,Deepavali
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/2/12,Chinese New Year
+2021/2/13,Chinese New Year
+2021/4/2,Good Friday
+2021/5/1,Labour Day
+2021/5/13,Hari Raya Puasa
+2021/5/26,Vesak Day
+2021/7/20,Hari Raya Haji
+2021/8/9,National Day
+2021/11/4,Deepavali
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/2/1,Chinese New Year
+2022/2/2,Chinese New Year
+2022/4/15,Good Friday
+2022/5/1,Labour Day
+2022/5/2,Labour Day (observed)
+2022/5/3,Hari Raya Puasa
+2022/5/15,Vesak Day
+2022/5/16,Vesak Day (observed)
+2022/7/10,Hari Raya Haji
+2022/7/11,Hari Raya Haji (observed)
+2022/8/9,National Day
+2022/10/24,Deepavali
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/1/22,Chinese New Year
+2023/1/23,Chinese New Year
+2023/1/24,Chinese New Year (observed)
+2023/4/7,Good Friday
+2023/4/22,Hari Raya Puasa
+2023/5/1,Labour Day
+2023/6/2,Vesak Day
+2023/6/29,Hari Raya Haji
+2023/8/9,National Day
+2023/9/1,Polling Day
+2023/11/12,Deepavali
+2023/11/13,Deepavali (observed)
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/2/10,Chinese New Year
+2024/2/11,Chinese New Year
+2024/2/12,Chinese New Year (observed)
+2024/3/29,Good Friday
+2024/4/10,Hari Raya Puasa
+2024/5/1,Labour Day
+2024/5/22,Vesak Day
+2024/6/17,Hari Raya Haji
+2024/8/9,National Day
+2024/10/31,Deepavali
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/1/29,Chinese New Year
+2025/1/30,Chinese New Year
+2025/3/31,Hari Raya Puasa
+2025/4/18,Good Friday
+2025/5/1,Labour Day
+2025/5/3,Polling Day
+2025/5/12,Vesak Day
+2025/6/7,Hari Raya Haji
+2025/8/9,National Day
+2025/10/20,Deepavali
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/2/17,Chinese New Year
+2026/2/18,Chinese New Year
+2026/3/21,Hari Raya Puasa
+2026/4/3,Good Friday
+2026/5/1,Labour Day
+2026/5/27,Hari Raya Haji
+2026/5/31,Vesak Day
+2026/6/1,Vesak Day (observed)
+2026/8/9,National Day
+2026/8/10,National Day (observed)
+2026/11/8,Deepavali
+2026/11/9,Deepavali (observed)
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/2/6,Chinese New Year
+2027/2/7,Chinese New Year
+2027/2/8,Chinese New Year (observed)
+2027/3/10,Hari Raya Puasa
+2027/3/26,Good Friday
+2027/5/1,Labour Day
+2027/5/17,Hari Raya Haji
+2027/5/20,Vesak Day
+2027/8/9,National Day
+2027/10/28,Deepavali
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/1/26,Chinese New Year (estimated)
+2028/1/27,Chinese New Year (estimated)
+2028/2/27,Hari Raya Puasa (estimated)
+2028/2/28,Hari Raya Puasa (observed, estimated)
+2028/4/14,Good Friday
+2028/5/1,Labour Day
+2028/5/5,Hari Raya Haji (estimated)
+2028/5/9,Vesak Day (estimated)
+2028/8/9,National Day
+2028/11/15,Deepavali
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/2/13,Chinese New Year (estimated)
+2029/2/14,Chinese New Year (estimated)
+2029/2/15,Hari Raya Puasa (estimated)
+2029/3/30,Good Friday
+2029/4/25,Hari Raya Haji (estimated)
+2029/5/1,Labour Day
+2029/5/27,Vesak Day (estimated)
+2029/5/28,Vesak Day (observed, estimated)
+2029/8/9,National Day
+2029/11/5,Deepavali
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/2/3,Chinese New Year (estimated)
+2030/2/4,Chinese New Year (estimated); Hari Raya Puasa (estimated)
+2030/2/5,Chinese New Year (observed, estimated)
+2030/4/14,Hari Raya Haji (estimated)
+2030/4/15,Hari Raya Haji (observed, estimated)
+2030/4/19,Good Friday
+2030/5/1,Labour Day
+2030/5/16,Vesak Day (estimated)
+2030/8/9,National Day
+2030/10/26,Deepavali
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/1/23,Chinese New Year (estimated)
+2031/1/24,Chinese New Year (estimated)
+2031/1/25,Hari Raya Puasa (estimated)
+2031/4/3,Hari Raya Haji (estimated)
+2031/4/11,Good Friday
+2031/5/1,Labour Day
+2031/6/4,Vesak Day (estimated)
+2031/8/9,National Day
+2031/11/14,Deepavali
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/1/14,Hari Raya Puasa (estimated)
+2032/2/11,Chinese New Year (estimated)
+2032/2/12,Chinese New Year (estimated)
+2032/3/22,Hari Raya Haji (estimated)
+2032/3/26,Good Friday
+2032/5/1,Labour Day
+2032/5/23,Vesak Day (estimated)
+2032/5/24,Vesak Day (observed, estimated)
+2032/8/9,National Day
+2032/11/2,Deepavali
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/1/3,Hari Raya Puasa (estimated)
+2033/1/31,Chinese New Year (estimated)
+2033/2/1,Chinese New Year (estimated)
+2033/3/12,Hari Raya Haji (estimated)
+2033/4/15,Good Friday
+2033/5/1,Labour Day
+2033/5/2,Labour Day (observed)
+2033/5/13,Vesak Day (estimated)
+2033/8/9,National Day
+2033/10/22,Deepavali
+2033/12/23,Hari Raya Puasa (estimated)
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/2/19,Chinese New Year (estimated)
+2034/2/20,Chinese New Year (estimated)
+2034/2/21,Chinese New Year (observed, estimated)
+2034/3/1,Hari Raya Haji (estimated)
+2034/4/7,Good Friday
+2034/5/1,Labour Day
+2034/6/1,Vesak Day (estimated)
+2034/8/9,National Day
+2034/11/10,Deepavali
+2034/12/12,Hari Raya Puasa (estimated)
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/2/8,Chinese New Year (estimated)
+2035/2/9,Chinese New Year (estimated)
+2035/2/19,Hari Raya Haji (estimated)
+2035/3/23,Good Friday
+2035/5/1,Labour Day
+2035/5/22,Vesak Day (estimated)
+2035/8/9,National Day
+2035/10/30,Deepavali
+2035/12/1,Hari Raya Puasa (estimated)
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/1/28,Chinese New Year (estimated)
+2036/1/29,Chinese New Year (estimated)
+2036/2/8,Hari Raya Haji (estimated)
+2036/4/11,Good Friday
+2036/5/1,Labour Day
+2036/5/10,Vesak Day (estimated)
+2036/8/9,National Day
+2036/11/17,Deepavali
+2036/11/19,Hari Raya Puasa (estimated)
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/1/27,Hari Raya Haji (estimated)
+2037/2/15,Chinese New Year (estimated)
+2037/2/16,Chinese New Year (estimated)
+2037/2/17,Chinese New Year (observed, estimated)
+2037/4/3,Good Friday
+2037/5/1,Labour Day
+2037/5/29,Vesak Day (estimated)
+2037/8/9,National Day
+2037/8/10,National Day (observed)
+2037/11/6,Deepavali
+2037/11/9,Hari Raya Puasa (estimated)
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/1/16,Hari Raya Haji (estimated)
+2038/2/4,Chinese New Year (estimated)
+2038/2/5,Chinese New Year (estimated)
+2038/4/23,Good Friday
+2038/5/1,Labour Day
+2038/5/18,Vesak Day (estimated)
+2038/8/9,National Day
+2038/10/27,Deepavali
+2038/10/30,Hari Raya Puasa (estimated)
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/1/6,Hari Raya Haji (estimated)
+2039/1/24,Chinese New Year (estimated)
+2039/1/25,Chinese New Year (estimated)
+2039/4/8,Good Friday
+2039/5/1,Labour Day
+2039/5/2,Labour Day (observed)
+2039/5/7,Vesak Day (estimated)
+2039/8/9,National Day
+2039/10/19,Hari Raya Puasa (estimated)
+2039/11/15,Deepavali
+2039/12/25,Christmas Day
+2039/12/26,Hari Raya Haji (estimated)
+2039/12/27,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/2/12,Chinese New Year (estimated)
+2040/2/13,Chinese New Year (estimated)
+2040/2/14,Chinese New Year (observed, estimated)
+2040/3/30,Good Friday
+2040/5/1,Labour Day
+2040/5/25,Vesak Day (estimated)
+2040/8/9,National Day
+2040/10/8,Hari Raya Puasa (estimated)
+2040/11/4,Deepavali
+2040/11/5,Deepavali (observed)
+2040/12/15,Hari Raya Haji (estimated)
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/2/1,Chinese New Year (estimated)
+2041/2/2,Chinese New Year (estimated)
+2041/4/19,Good Friday
+2041/5/1,Labour Day
+2041/5/14,Vesak Day (estimated)
+2041/8/9,National Day
+2041/9/27,Hari Raya Puasa (estimated)
+2041/10/24,Deepavali
+2041/12/4,Hari Raya Haji (estimated)
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/1/22,Chinese New Year (estimated)
+2042/1/23,Chinese New Year (estimated)
+2042/4/4,Good Friday
+2042/5/1,Labour Day
+2042/6/2,Vesak Day (estimated)
+2042/8/9,National Day
+2042/9/16,Hari Raya Puasa (estimated)
+2042/11/12,Deepavali
+2042/11/23,Hari Raya Haji (estimated)
+2042/11/24,Hari Raya Haji (observed, estimated)
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/2/10,Chinese New Year (estimated)
+2043/2/11,Chinese New Year (estimated)
+2043/3/27,Good Friday
+2043/5/1,Labour Day
+2043/5/23,Vesak Day (estimated)
+2043/8/9,National Day
+2043/8/10,National Day (observed)
+2043/9/5,Hari Raya Puasa (estimated)
+2043/11/1,Deepavali
+2043/11/2,Deepavali (observed)
+2043/11/12,Hari Raya Haji (estimated)
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/1/30,Chinese New Year (estimated)
+2044/1/31,Chinese New Year (estimated)
+2044/2/1,Chinese New Year (observed, estimated)
+2044/4/15,Good Friday
+2044/5/1,Labour Day
+2044/5/2,Labour Day (observed)
+2044/5/12,Vesak Day (estimated)
+2044/8/9,National Day
+2044/8/25,Hari Raya Puasa (estimated)
+2044/11/1,Hari Raya Haji (estimated)
+2044/11/18,Deepavali
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/2/17,Chinese New Year (estimated)
+2045/2/18,Chinese New Year (estimated)
+2045/4/7,Good Friday
+2045/5/1,Labour Day
+2045/5/31,Vesak Day (estimated)
+2045/8/9,National Day
+2045/8/14,Hari Raya Puasa (estimated)
+2045/10/21,Hari Raya Haji (estimated)
+2045/11/8,Deepavali
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/2/6,Chinese New Year (estimated)
+2046/2/7,Chinese New Year (estimated)
+2046/3/23,Good Friday
+2046/5/1,Labour Day
+2046/5/20,Vesak Day (estimated)
+2046/5/21,Vesak Day (observed, estimated)
+2046/8/4,Hari Raya Puasa (estimated)
+2046/8/9,National Day
+2046/10/11,Hari Raya Haji (estimated)
+2046/10/28,Deepavali
+2046/10/29,Deepavali (observed)
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/1/26,Chinese New Year (estimated)
+2047/1/27,Chinese New Year (estimated)
+2047/1/28,Chinese New Year (observed, estimated)
+2047/4/12,Good Friday
+2047/5/1,Labour Day
+2047/5/9,Vesak Day (estimated)
+2047/7/24,Hari Raya Puasa (estimated)
+2047/8/9,National Day
+2047/9/30,Hari Raya Haji (estimated)
+2047/11/16,Deepavali
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/2/14,Chinese New Year (estimated)
+2048/2/15,Chinese New Year (estimated)
+2048/4/3,Good Friday
+2048/5/1,Labour Day
+2048/5/27,Vesak Day (estimated)
+2048/7/13,Hari Raya Puasa (estimated)
+2048/8/9,National Day
+2048/8/10,National Day (observed)
+2048/9/19,Hari Raya Haji (estimated)
+2048/11/5,Deepavali
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/2/2,Chinese New Year (estimated)
+2049/2/3,Chinese New Year (estimated)
+2049/4/16,Good Friday
+2049/5/1,Labour Day
+2049/5/16,Vesak Day (estimated)
+2049/5/17,Vesak Day (observed, estimated)
+2049/7/2,Hari Raya Puasa (estimated)
+2049/8/9,National Day
+2049/9/8,Hari Raya Haji (estimated)
+2049/10/26,Deepavali
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/1/23,Chinese New Year (estimated)
+2050/1/24,Chinese New Year (estimated)
+2050/1/25,Chinese New Year (observed, estimated)
+2050/4/8,Good Friday
+2050/5/1,Labour Day
+2050/5/2,Labour Day (observed)
+2050/6/4,Vesak Day (estimated)
+2050/6/21,Hari Raya Puasa (estimated)
+2050/8/9,National Day
+2050/8/28,Hari Raya Haji (estimated)
+2050/8/29,Hari Raya Haji (observed, estimated)
+2050/11/13,Deepavali
+2050/11/14,Deepavali (observed)
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)
