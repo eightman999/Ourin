@@ -902,7 +902,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var balloonViewModels: [Int: BalloonViewModel] = [:]
 
     // Balloon configuration and image loader
-    var balloonConfig: BalloonConfig?
+    var balloonConfig: BalloonConfig? {
+        // 切り替え（\![change,balloon]・\![reload,descript] など）で、作成済みのバルーンの既定スタイルも新しい設定にする。
+        didSet { applyBalloonConfigDefaultsToBalloonViewModels() }
+    }
     var balloonImageLoader: BalloonImageLoader?
 
     var currentScope: Int = 0
