@@ -1700,6 +1700,88 @@ struct ShioriLoaderTests {
         #expect(bytes == Data([0x93, 0xFA, 0x96, 0x7B, 0x8C, 0xEA]))
     }
 
+    private static func encoding(_ cf: CFStringEncodings) -> String.Encoding {
+        String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(cf.rawValue)))
+    }
+
+    /// 中国語・韓国語の文字コードで書いた辞書を、charset の指定どおりに読む（#171）。
+    @Test
+    func yayaCoreDecodesChineseAndKoreanDictionaries() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let cases: [(charset: String, encoding: String.Encoding, text: String)] = [
+            ("Big5", Self.encoding(.dosChineseTrad), "繁體中文：龍鬱體，人格與氣泡"),
+            ("cp950", Self.encoding(.dosChineseTrad), "外觀"),
+            ("GBK", Self.encoding(.dosChineseSimplif), "简体中文：龙郁体，人格与气泡"),
+            ("GB2312", Self.encoding(.dosChineseSimplif), "外观"),
+            ("gb18030", Self.encoding(.GB_18030_2000), "头条"),
+            ("EUC-KR", Self.encoding(.dosKorean), "한국어 테스트: 고스트와 말풍선"),
+            ("ks_c_5601-1987", Self.encoding(.dosKorean), "셸"),
+        ]
+        for c in cases {
+            let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+            try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: ghost) }
+            let bytes = try #require("Greeting {\n    \"\(c.text)\"\n}\n".data(using: c.encoding), "\(c.charset)")
+            // UTF-8 として読めてしまうと変換を試せないので、そうでないことを確かめておく。
+            #expect(String(data: bytes, encoding: .utf8) == nil, "\(c.charset)")
+            try bytes.write(to: ghost.appendingPathComponent("t.dic"))
+
+            // yaya.txt の charset（全体）と、dic 行の文字コード（辞書ごと）の両方で読める。
+            let request: [String: Any] = ["cmd": "request", "method": "GET", "id": "Greeting",
+                                          "ref": [], "headers": ["Charset": "UTF-8"]]
+            let global: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": c.charset,
+                                         "dic_entries": [["path": "t.dic"]]]
+            #expect(Self.runYayaCore(exe: exe, requests: [global, request]) == c.text, "\(c.charset)")
+            let perDic: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                         "dic_entries": [["path": "t.dic", "encoding": c.charset]]]
+            #expect(Self.runYayaCore(exe: exe, requests: [perDic, request]) == c.text, "\(c.charset)")
+        }
+    }
+
+    /// FREADENCODE / FWRITEDECODE も Big5・GBK・EUC-KR を扱う（#171）。
+    @Test
+    func yayaCoreFileEncodingFunctionsHandleChineseAndKorean() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        try #require("简体中文".data(using: Self.encoding(.dosChineseSimplif))).write(to: ghost.appendingPathComponent("gbk.txt"))
+        let dic = """
+        ReadGbk {
+            _h = FOPEN("gbk.txt", "r")
+            _s = FREADENCODE(_h, "GBK")
+            FCLOSE(_h)
+            _s
+        }
+        WriteBig5AndKorean {
+            _h = FOPEN("big5.txt", "w")
+            FWRITEDECODE(_h, "繁體", "Big5")
+            FCLOSE(_h)
+            _h = FOPEN("euckr.txt", "w")
+            FWRITEDECODE(_h, "한국어", "EUC-KR")
+            FCLOSE(_h)
+            "done"
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        let load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                   "dic_entries": [["path": "t.dic"]]]
+        func request(_ id: String) -> String? {
+            Self.runYayaCore(exe: exe, requests: [load, ["cmd": "request", "method": "GET", "id": id,
+                                                         "ref": [], "headers": ["Charset": "UTF-8"]]])
+        }
+        #expect(request("ReadGbk") == "简体中文")
+        #expect(request("WriteBig5AndKorean") == "done")
+        #expect(try Data(contentsOf: ghost.appendingPathComponent("big5.txt")) == "繁體".data(using: Self.encoding(.dosChineseTrad)))
+        #expect(try Data(contentsOf: ghost.appendingPathComponent("euckr.txt")) == "한국어".data(using: Self.encoding(.dosKorean)))
+    }
+
     /// Run yaya_core with a sequence of JSON-line requests; return the `value` of the
     /// last response (or nil). Each invocation is a fresh process: load + one request.
     private static func runYayaCore(exe: URL, requests: [[String: Any]], currentDirectory: URL? = nil) -> String? {

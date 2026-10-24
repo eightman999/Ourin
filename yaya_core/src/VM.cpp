@@ -35,7 +35,8 @@
 
 namespace {
 
-// yaya.txt の charset 表記ゆれを吸収する。戻り値: "UTF-8" / "CP932" / "AUTO"
+// yaya.txt の charset 表記ゆれを吸収する。戻り値: "UTF-8" / "CP932" / "AUTO"、
+// または中国語・韓国語の iconv 名 "CP950" / "CP936" / "GB18030" / "CP949"
 // (DictionaryManager.cpp の normalizeEncodingName と同等のロジック)
 std::string normalizeEncodingNameVM(std::string enc) {
     std::transform(enc.begin(), enc.end(), enc.begin(),
@@ -45,7 +46,13 @@ std::string normalizeEncodingNameVM(std::string enc) {
               enc.end());
     if (enc == "utf8") return "UTF-8";
     if (enc == "shiftjis" || enc == "sjis" || enc == "cp932" ||
-        enc == "windows31j" || enc == "ms932" || enc == "ms_kanji") return "CP932";
+        enc == "windows31j" || enc == "ms932" || enc == "mskanji") return "CP932";
+    if (enc == "big5" || enc == "cp950" || enc == "windows950" || enc == "xbig5") return "CP950";
+    if (enc == "gb2312" || enc == "gbk" || enc == "cp936" || enc == "windows936" ||
+        enc == "euccn" || enc == "xgbk") return "CP936";
+    if (enc == "gb18030") return "GB18030";
+    if (enc == "euckr" || enc == "cp949" || enc == "windows949" || enc == "uhc" ||
+        enc == "ksc56011987" || enc == "ksc5601") return "CP949";
     if (enc.empty() || enc == "auto" || enc == "default") return "AUTO";
     return "AUTO";
 }
@@ -3061,7 +3068,7 @@ void VM::registerBuiltins() {
             return Value(raw);
         }
         std::string converted;
-        if (convertEncodingVM(raw, "CP932", "UTF-8", converted)) {
+        if (convertEncodingVM(raw, norm.c_str(), "UTF-8", converted)) {
             return Value(converted);
         }
         return Value("");
@@ -3083,9 +3090,9 @@ void VM::registerBuiltins() {
 
         std::string norm = normalizeEncodingNameVM(encoding);
         std::string toWrite = data;
-        if (norm == "CP932") {
+        if (norm != "UTF-8" && norm != "AUTO") {
             std::string converted;
-            if (!convertEncodingVM(data, "UTF-8", "CP932", converted)) {
+            if (!convertEncodingVM(data, "UTF-8", norm.c_str(), converted)) {
                 return Value(0);
             }
             toWrite = converted;
