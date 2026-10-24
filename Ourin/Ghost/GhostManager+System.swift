@@ -4416,11 +4416,11 @@ extension GhostManager: NSWindowDelegate {
 
             if query {
                 let alert = NSAlert()
-                alert.messageText = "ゴーストの消滅"
-                alert.informativeText = "「\(currentName)」を消滅させますか？\nこの操作は取り消せません。"
+                alert.messageText = NSLocalizedString("ゴーストの消滅", comment: "Vanish confirmation title")
+                alert.informativeText = String(format: NSLocalizedString("「%@」を消滅させますか？\nこの操作は取り消せません。", comment: "Vanish confirmation message"), currentName)
                 alert.alertStyle = .critical
-                alert.addButton(withTitle: "消滅")
-                alert.addButton(withTitle: "キャンセル")
+                alert.addButton(withTitle: NSLocalizedString("消滅", comment: "Vanish button"))
+                alert.addButton(withTitle: NSLocalizedString("キャンセル", comment: "Cancel"))
                 guard alert.runModal() == .alertFirstButtonReturn else {
                     _ = EventBridge.shared.requestScript(.OnVanishCancel, to: self)
                     return

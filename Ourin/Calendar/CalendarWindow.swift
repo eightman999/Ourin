@@ -63,10 +63,10 @@ final class CalendarWindowModel: ObservableObject {
         let result = loadSchedules()
         schedules = result.schedules
         if result.rejectedLineNumbers.isEmpty {
-            lastRefreshMessage = "\(result.schedules.count)件"
+            lastRefreshMessage = String(format: NSLocalizedString("%lld件", comment: "Schedule count"), result.schedules.count)
         } else {
             let lines = result.rejectedLineNumbers.map(String.init).joined(separator: ", ")
-            lastRefreshMessage = "\(result.schedules.count)件（無効な行: \(lines)）"
+            lastRefreshMessage = String(format: NSLocalizedString("%lld件（無効な行: %@）", comment: "Schedule count with invalid lines"), result.schedules.count, lines)
         }
     }
 
@@ -118,7 +118,7 @@ struct CalendarWindowView: View {
     private var monthTitle: String {
         let formatter = DateFormatter()
         formatter.locale = Locale.current
-        formatter.dateFormat = "yyyy年M月"
+        formatter.setLocalizedDateFormatFromTemplate("yMMMM")
         return formatter.string(from: model.displayedMonth)
     }
 
@@ -259,7 +259,7 @@ struct CalendarWindowView: View {
     private var selectedDateTitle: String {
         let formatter = DateFormatter()
         formatter.locale = Locale.current
-        formatter.dateFormat = "yyyy年M月d日"
+        formatter.setLocalizedDateFormatFromTemplate("yMMMMd")
         return formatter.string(from: model.selectedDate)
     }
 }
@@ -324,7 +324,7 @@ private struct CalendarScheduleRow: View {
 
     private var timeText: String {
         guard let hour = schedule.startHour, let minute = schedule.startMinute else {
-            return "終日"
+            return NSLocalizedString("終日", comment: "All-day schedule")
         }
         let start = String(format: "%02d:%02d", hour, minute)
         guard let endHour = schedule.endHour, let endMinute = schedule.endMinute else {
@@ -394,7 +394,7 @@ final class CalendarWindowController: NSWindowController {
                 backing: .buffered,
                 defer: false
             )
-            calendarWindow.title = "カレンダー"
+            calendarWindow.title = NSLocalizedString("カレンダー", comment: "Calendar window title")
             calendarWindow.contentViewController = hosting
             calendarWindow.isReleasedWhenClosed = false
             calendarWindow.center()

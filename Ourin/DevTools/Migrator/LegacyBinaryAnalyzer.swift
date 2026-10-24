@@ -51,7 +51,7 @@ final class LegacyBinaryAnalyzer {
                  completion: @escaping (Result<LegacyAssetScanner.Asset, Error>) -> Void) {
         guard let binaryURL = asset.binaryURL else {
             let err = NSError(domain: "OurinMigrator", code: 1,
-                              userInfo: [NSLocalizedDescriptionKey: "バイナリが存在しません"])
+                              userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("バイナリが存在しません", comment: "Migrator error")])
             completion(.failure(err))
             return
         }
@@ -93,7 +93,7 @@ final class LegacyBinaryAnalyzer {
                 case .cancelled:
                     progress(.cancelled)
                     completion(.failure(NSError(domain: "OurinMigrator", code: 3,
-                                                userInfo: [NSLocalizedDescriptionKey: "キャンセルされました"])))
+                                                userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("キャンセルされました", comment: "Migrator error")])))
                 }
             }
         )

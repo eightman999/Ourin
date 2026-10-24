@@ -461,8 +461,8 @@ fileprivate struct ShioriResourceView: View {
         return AnyView(VStack(alignment: .leading) {
             Text("Menu Item Preview")
             Text("Caption: \(displayCaption)")
-            Text("Shortcut: \(shortcut.map(String.init) ?? "None")")
-            Text("Visible: \(visible ? "Yes" : "No")")
+            Text("Shortcut: \(shortcut.map(String.init) ?? NSLocalizedString("None", comment: "No shortcut"))")
+            (visible ? Text("Visible: Yes") : Text("Visible: No"))
         })
     }
     
@@ -574,7 +574,7 @@ fileprivate struct GeneralSettingsView: View {
     @State private var availableGhosts: [String] = []
     @State private var logOutputPath = ""
     @State private var enableFileLogging = false
-    @State private var speechRecognitionStatus = "未確認"
+    @State private var speechRecognitionStatus = NSLocalizedString("未確認", comment: "Speech recognition status before checking")
 
     private let logger = CompatLogger(subsystem: "jp.ourin.devtools", category: "settings")
     private let startupGhostKey = "OurinStartupGhost"
@@ -633,7 +633,7 @@ fileprivate struct GeneralSettingsView: View {
                     Text("システム設定").font(.headline)
                     Toggle("自動起動", isOn: $autoStart)
                         .disabled(!autoStartAvailable)
-                        .help(autoStartAvailable ? "" : "macOS 13以降で利用可能です")
+                        .help(autoStartAvailable ? Text(verbatim: "") : Text("macOS 13以降で利用可能です"))
                     if !autoStartAvailable {
                         Text("自動起動はmacOS 13以降で利用可能です")
                             .font(.caption)
@@ -815,8 +815,8 @@ fileprivate struct GeneralSettingsView: View {
         let panel = NSSavePanel()
         panel.canCreateDirectories = true
         panel.nameFieldStringValue = "ourin.log"
-        panel.title = "ログファイルの保存先を選択"
-        panel.message = "ログファイルを保存する場所を選択してください"
+        panel.title = NSLocalizedString("ログファイルの保存先を選択", comment: "Log file panel title")
+        panel.message = NSLocalizedString("ログファイルを保存する場所を選択してください", comment: "Log file panel message")
 
         panel.begin { response in
             if response == .OK, let url = panel.url {
@@ -947,7 +947,7 @@ fileprivate struct HeadlineBalloonView: View {
                         .foregroundColor(.secondary)
                     
                     ScrollView {
-                        Text(headlineResponse.isEmpty ? "更新テストを実行してください" : headlineResponse)
+                        (headlineResponse.isEmpty ? Text("更新テストを実行してください") : Text(verbatim: headlineResponse))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(8)
                             .background(Color.gray.opacity(0.1))
@@ -1114,7 +1114,7 @@ fileprivate struct HeadlineBalloonView: View {
         previewBalloonConfig = BalloonConfig.load(from: root.appendingPathComponent("descript.txt").path)
         previewBalloonLoader = BalloonImageLoader(balloonPath: root.path)
         previewBalloonViewModel.balloonID = 0
-        previewBalloonViewModel.text = "こんにちは！\nこれは実バルーン画像の確認です。"
+        previewBalloonViewModel.text = NSLocalizedString("こんにちは！\nこれは実バルーン画像の確認です。", comment: "Balloon preview sample text")
     }
     
     private func testHeadlineUpdate() {
@@ -1167,9 +1167,9 @@ fileprivate struct HeadlineBalloonView: View {
         let disabled = NSLocalizedString("Disabled", comment: "disabled state")
         let imageInfo: String
         if let image = previewBalloonLoader?.loadSurface(index: 0) {
-            imageInfo = "実画像: \(Int(image.size.width))×\(Int(image.size.height)) pt"
+            imageInfo = String(format: NSLocalizedString("実画像: %lld×%lld pt", comment: "Balloon image size"), Int(image.size.width), Int(image.size.height))
         } else {
-            imageInfo = "実画像: 読み込み不可"
+            imageInfo = NSLocalizedString("実画像: 読み込み不可", comment: "Balloon image unavailable")
         }
         alert.informativeText = "\(shellLabel) \(selectedShell)\n\(balloonLabel) \(selectedBalloon)\n\(scaleLabel) \(String(format: "%.1f", balloonPreviewScale))x\n\(dpiLabel) \(showDPI ? enabled : disabled)\n\(imageInfo)"
         alert.alertStyle = .informational
@@ -1192,14 +1192,17 @@ fileprivate struct HeadlineBalloonView: View {
             alert.messageText = NSLocalizedString("Script Result", comment: "Script execution result title")
             let execLabel = NSLocalizedString("Executed Script:", comment: "executed script label")
             let parseLabel = NSLocalizedString("Parse Result:", comment: "parse result label")
-            alert.informativeText = "\(executionState)\n\n\(execLabel)\n\(testScript)\n\n\(parseLabel)\n表示テキスト: \(parsedText.isEmpty ? "（なし）" : parsedText)\n\nトークン:\n\(tokenSummary.isEmpty ? "（なし）" : tokenSummary)"
+            let none = NSLocalizedString("（なし）", comment: "Nothing")
+            let textLabel = NSLocalizedString("表示テキスト:", comment: "Parsed display text label")
+            let tokenLabel = NSLocalizedString("トークン:", comment: "Token list label")
+            alert.informativeText = "\(executionState)\n\n\(execLabel)\n\(testScript)\n\n\(parseLabel)\n\(textLabel) \(parsedText.isEmpty ? none : parsedText)\n\n\(tokenLabel)\n\(tokenSummary.isEmpty ? none : tokenSummary)"
             alert.alertStyle = .informational
             alert.runModal()
         }
 
         // 選択値を実行対象へ渡す。未起動ゴーストの起動完了後に結果ダイアログを表示する。
         guard let appDelegate = AppDelegate.resolve() else {
-            presentResult("実行対象: なし（アプリデリゲート未接続）")
+            presentResult(NSLocalizedString("実行対象: なし（アプリデリゲート未接続）", comment: "DevTools script target missing"))
             return
         }
         appDelegate.runDevToolsScript(
@@ -1453,7 +1456,7 @@ fileprivate struct ExternalEventsView: View {
             HStack {
                 VStack(alignment: .leading) {
                     Text("SSTP (TCP/9801)").font(.subheadline)
-                    Text("Status: \(tcpStatus)").foregroundColor(tcpStatus == "Running" ? .green : .red)
+                    Text("Status: \(Text(LocalizedStringKey(tcpStatus)))").foregroundColor(tcpStatus == "Running" ? .green : .red)
                 }
                 Spacer()
             }
@@ -1465,7 +1468,7 @@ fileprivate struct ExternalEventsView: View {
             HStack {
                 VStack(alignment: .leading) {
                     Text("HTTP (/api/sstp/v1)").font(.subheadline)
-                    Text("Status: \(httpStatus)").foregroundColor(httpStatus == "Running" ? .green : .red)
+                    Text("Status: \(Text(LocalizedStringKey(httpStatus)))").foregroundColor(httpStatus == "Running" ? .green : .red)
                 }
                 Spacer()
             }
@@ -1477,7 +1480,7 @@ fileprivate struct ExternalEventsView: View {
             HStack {
                 VStack(alignment: .leading) {
                     Text("XPC (jp.ourin.sstp)").font(.subheadline)
-                    Text("Status: \(xpcStatus)").foregroundColor(xpcStatus == "Running" ? .green : .red)
+                    Text("Status: \(Text(LocalizedStringKey(xpcStatus)))").foregroundColor(xpcStatus == "Running" ? .green : .red)
                 }
                 Spacer()
             }
@@ -1973,7 +1976,7 @@ fileprivate struct NetworkStatusView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             statusIndicator(color: tcpRunning ? .green : .gray)
-                            Text("状態: \(tcpRunning ? "稼働中" : "停止中")")
+                            Text(tcpRunning ? "状態: 稼働中" : "状態: 停止中")
                             Spacer()
                         }
 
@@ -2008,7 +2011,7 @@ fileprivate struct NetworkStatusView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             statusIndicator(color: httpRunning ? .green : .gray)
-                            Text("状態: \(httpRunning ? "稼働中" : "停止中")")
+                            Text(httpRunning ? "状態: 稼働中" : "状態: 停止中")
                             Spacer()
                         }
 
@@ -2043,7 +2046,7 @@ fileprivate struct NetworkStatusView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             statusIndicator(color: xpcRunning ? .green : .gray)
-                            Text("状態: \(xpcRunning ? "稼働中" : "停止中")")
+                            Text(xpcRunning ? "状態: 稼働中" : "状態: 停止中")
                             Spacer()
                         }
 
