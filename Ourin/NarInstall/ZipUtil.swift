@@ -98,6 +98,22 @@ enum ZipUtil {
         }
     }
 
+    /// 展開した NAR の中身のルート。直下に install.txt が無く、隠しファイル（`.nar_icon` など）と
+    /// `__MACOSX` を除くとフォルダ 1 つだけで、その中に install.txt があれば、そのフォルダをルートとする。
+    /// フォルダごと圧縮した NAR（Taromati2.nar など）を、ninix-kagari と同じく 1 段上げて扱うため。
+    static func packageRoot(in extracted: URL) -> URL {
+        let fm = FileManager.default
+        if fm.fileExists(atPath: extracted.appendingPathComponent("install.txt").path) { return extracted }
+        let entries = ((try? fm.contentsOfDirectory(at: extracted, includingPropertiesForKeys: [.isDirectoryKey])) ?? [])
+            .filter { !$0.lastPathComponent.hasPrefix(".") && !shouldIgnore(directoryName: $0.lastPathComponent) }
+        guard entries.count == 1,
+              (try? entries[0].resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true,
+              fm.fileExists(atPath: entries[0].appendingPathComponent("install.txt").path) else {
+            return extracted
+        }
+        return entries[0]
+    }
+
     /// Zip Slip 対策：dst 内へのコピー時に、正規化した最終パスが必ずターゲット配下であることを確認
     static func secureCopyTree(from src: URL, to dst: URL) throws {
         let fm = FileManager.default
