@@ -43,7 +43,9 @@ bool hasNonAscii(const std::string& s) {
     return false;
 }
 
-// yaya.txt の charset 表記ゆれを吸収する。戻り値: "UTF-8" / "CP932" / "AUTO"
+// yaya.txt の charset 表記ゆれを吸収する。戻り値: "UTF-8" / "CP932" / "AUTO"、
+// または中国語・韓国語の iconv 名 "CP950"（Big5）/ "CP936"（GB2312・GBK）/ "GB18030" / "CP949"（EUC-KR・UHC）。
+// Windows で書かれた辞書は Windows のコードページ（拡張文字を含む）で読む。
 std::string normalizeEncodingName(std::string enc) {
     std::transform(enc.begin(), enc.end(), enc.begin(),
                    [](unsigned char c) { return std::tolower(c); });
@@ -52,7 +54,13 @@ std::string normalizeEncodingName(std::string enc) {
               enc.end());
     if (enc == "utf8") return "UTF-8";
     if (enc == "shiftjis" || enc == "sjis" || enc == "cp932" ||
-        enc == "windows31j" || enc == "ms932" || enc == "ms_kanji") return "CP932";
+        enc == "windows31j" || enc == "ms932" || enc == "mskanji") return "CP932";
+    if (enc == "big5" || enc == "cp950" || enc == "windows950" || enc == "xbig5") return "CP950";
+    if (enc == "gb2312" || enc == "gbk" || enc == "cp936" || enc == "windows936" ||
+        enc == "euccn" || enc == "xgbk") return "CP936";
+    if (enc == "gb18030") return "GB18030";
+    if (enc == "euckr" || enc == "cp949" || enc == "windows949" || enc == "uhc" ||
+        enc == "ksc56011987" || enc == "ksc5601") return "CP949";
     if (enc.empty() || enc == "auto" || enc == "default") return "AUTO";
     std::cerr << "[DictionaryManager] Unknown encoding name '" << enc
               << "', falling back to auto-detection" << std::endl;
@@ -142,19 +150,20 @@ std::string DictionaryManager::decodeContent(const std::string& raw,
         return raw;
     }
 
-    if (norm == "CP932") {
-        // 宣言と異なり実体が UTF-8 のケース（作者が charset 更新を忘れた等）を保護する
+    if (norm != "AUTO") {
+        // CP932・Big5・GBK・EUC-KR など。宣言と異なり実体が UTF-8 のケース
+        // （作者が charset 更新を忘れた等）を保護する
         if (hasNonAscii(raw) && isValidUTF8(raw)) {
             std::cerr << "[DictionaryManager] WARNING: " << filename
-                      << " declared Shift_JIS/CP932 but content is valid UTF-8; using as UTF-8" << std::endl;
+                      << " declared " << norm << " but content is valid UTF-8; using as UTF-8" << std::endl;
             return raw;
         }
         std::string converted;
-        if (convertWithIconv(raw, "CP932", converted)) {
+        if (convertWithIconv(raw, norm.c_str(), converted)) {
             return converted;
         }
         std::cerr << "[DictionaryManager] ERROR: " << filename
-                  << ": CP932 -> UTF-8 conversion failed; loading raw bytes (may mis-parse)" << std::endl;
+                  << ": " << norm << " -> UTF-8 conversion failed; loading raw bytes (may mis-parse)" << std::endl;
         return raw;
     }
 
