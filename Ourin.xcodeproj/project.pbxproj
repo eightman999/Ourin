@@ -370,6 +370,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		A20000000000000000000003 /* Build satori_core */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -385,10 +386,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd \"${SRCROOT}/satori_core\"\n./build.sh\n";
+			shellScript = "cd \"${SRCROOT}/satori_core\"\nneeds_build=0\nif [ ! -x \"build/satori_core\" ] || [ \"CMakeLists.txt\" -nt \"build/satori_core\" ] || [ \"build.sh\" -nt \"build/satori_core\" ]; then\n    needs_build=1\nfi\nif [ \"$needs_build\" -eq 0 ] && find src third_party tests -type f -newer \"build/satori_core\" -print -quit | grep -q .; then\n    needs_build=1\nfi\nif [ \"$needs_build\" -eq 1 ]; then\n    ./build.sh\nfi\n";
 		};
 		FB9B89652D3B4A46A677B797 /* Build yaya_core */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
