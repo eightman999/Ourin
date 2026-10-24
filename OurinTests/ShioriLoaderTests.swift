@@ -1791,6 +1791,52 @@ struct ShioriLoaderTests {
         #expect(Self.runYayaCore(exe: exe, requests: [load, get("Runaway"), get("Ping")]) == "pong")
     }
 
+    /// ループの外の break は関数をまたがず、例外で抜けても再帰の深さとスコープが戻る（#176）。
+    /// 戻らないと深さが要求をまたいで積み上がり、Taromati2 では OnBoot 以降の呼び出しが
+    /// すべて MAX_RECURSION_DEPTH で失敗していた。
+    @Test
+    func yayaCoreBreakOutsideLoopDoesNotLeakCallFrames() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        let dic = """
+        Breaker {
+            break
+            'x'
+        }
+        Counter {
+            _n = 0
+            for _i = 0; _i < 5; _i++ {
+                _x = Breaker()
+                _n++
+            }
+            TOSTR(_n)
+        }
+        Many {
+            for _i = 0; _i < 1500; _i++ {
+                _x = Breaker()
+            }
+            Ok()
+        }
+        Ok {
+            'ok'
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        let load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                   "dic_entries": [["path": "t.dic"]], "fncdepth": 0]
+        func get(_ id: String) -> [String: Any] {
+            ["cmd": "request", "method": "GET", "id": id, "ref": [], "headers": ["Charset": "UTF-8"]]
+        }
+        #expect(Self.runYayaCore(exe: exe, requests: [load, get("Counter")]) == "5")
+        // 1500 回分の break の後でも、深さが残らず次の呼び出しが通る。
+        #expect(Self.runYayaCore(exe: exe, requests: [load, get("Many")]) == "ok")
+    }
+
     @Test
     func yayaConfigFunctionDepthIsCollected() {
         var collector = DicCollector()
