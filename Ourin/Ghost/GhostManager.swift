@@ -1586,6 +1586,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             moduleName: moduleName,
             dictionaryEntries: collector.entries,
             dictionaryEncoding: collector.globalCharset ?? "auto",
+            functionDepthLimit: collector.functionDepth,
             communication: communication
         )
     }

@@ -181,6 +181,9 @@ std::string YayaCore::processCommand(const std::string &line) {
 
             // Anchor relative paths (DICLOAD / SAVEVAR / DICUNLOAD) under the ghost root.
             dictManager.setGhostRoot(ghostRoot);
+            // YAYA の設定の fncdepth（無指定なら本家と同じ 32）。
+            dictManager.setMaxFunctionDepth(req.contains("fncdepth") && req["fncdepth"].is_number_integer()
+                                                ? req["fncdepth"].get<int>() : VM::DEFAULT_FUNCTION_DEPTH);
 
             // Build structured entries. Prefer "dic_entries" (per-dic encoding) over flat "dic".
             std::vector<DictionaryManager::DicEntry> dicEntries;

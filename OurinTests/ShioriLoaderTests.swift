@@ -1700,6 +1700,153 @@ struct ShioriLoaderTests {
         #expect(bytes == Data([0x93, 0xFA, 0x96, 0x7B, 0x8C, 0xEA]))
     }
 
+    /// YAYA の fncdepth（#176）: 既定 32、0 は無制限。超えた呼び出しは空を返し、shiori.OnCallLimit を呼ぶ。
+    @Test
+    func yayaCoreLimitsFunctionCallDepthLikeYaya() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        let dic = """
+        Rec {
+            if _argv[0] <= 0 {
+                'bottom'
+            }
+            else {
+                Rec(_argv[0] - 1)
+            }
+        }
+        Shallow {
+            Rec(20)
+        }
+        Deep {
+            Rec(40)
+        }
+        LimitProbe {
+            _x = Rec(40)
+            CallLimitDic
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        try "shiori.OnCallLimit {\n    CallLimitDic = 'hit:' + _argv[0]\n}\n"
+            .write(to: ghost.appendingPathComponent("limit.dic"), atomically: true, encoding: .utf8)
+
+        func request(_ id: String, fncdepth: Int?, dics: [String] = ["t.dic"]) -> String? {
+            var load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                       "dic_entries": dics.map { ["path": $0] }]
+            if let fncdepth { load["fncdepth"] = fncdepth }
+            return Self.runYayaCore(exe: exe, requests: [load, ["cmd": "request", "method": "GET", "id": id,
+                                                                 "ref": [], "headers": ["Charset": "UTF-8"]]])
+        }
+        // 既定（本家と同じ 32）: 22 段は届き、42 段は上限で空になる。
+        #expect(request("Shallow", fncdepth: nil) == "bottom")
+        #expect(request("Deep", fncdepth: nil) == "")
+        // 0 は無制限。指定した深さを超えると空。
+        #expect(request("Deep", fncdepth: 0) == "bottom")
+        #expect(request("Deep", fncdepth: 100) == "bottom")
+        #expect(request("Shallow", fncdepth: 10) == "")
+        // 上限を超えたら shiori.OnCallLimit を呼ぶ（_argv[0] は辞書名）。
+        let hit = request("LimitProbe", fncdepth: nil, dics: ["t.dic", "limit.dic"])
+        #expect(hit?.hasPrefix("hit:") == true, "\(String(describing: hit))")
+    }
+
+    /// fncdepth,0（無制限）で止まらない再帰も、スタックを使い切って落ちずに空を返す（#176）。
+    /// Taromati2 では関数が欠けた状態の再帰で yaya_core が SIGSEGV で落ちていた。
+    @Test
+    func yayaCoreSurvivesRunawayRecursionWithUnlimitedDepth() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        // 1 段ごとにスタックを多めに使うよう、式と制御構造を重ねる。
+        let dic = """
+        Runaway {
+            _a = (1, 2, 3)
+            if ARRAYSIZE(_a) == 3 {
+                foreach _a; _i {
+                    if _i == 1 {
+                        _s = 'x' + TOSTR(_i) + Runaway(_argv[0] + 1)
+                    }
+                }
+            }
+            _s
+        }
+        Ping {
+            'pong'
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        let load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                   "dic_entries": [["path": "t.dic"]], "fncdepth": 0]
+        func get(_ id: String) -> [String: Any] {
+            ["cmd": "request", "method": "GET", "id": id, "ref": [], "headers": ["Charset": "UTF-8"]]
+        }
+        // 落ちていなければ、続く Ping に応答する。
+        #expect(Self.runYayaCore(exe: exe, requests: [load, get("Runaway"), get("Ping")]) == "pong")
+    }
+
+    /// ループの外の break は関数をまたがず、例外で抜けても再帰の深さとスコープが戻る（#176）。
+    /// 戻らないと深さが要求をまたいで積み上がり、Taromati2 では OnBoot 以降の呼び出しが
+    /// すべて MAX_RECURSION_DEPTH で失敗していた。
+    @Test
+    func yayaCoreBreakOutsideLoopDoesNotLeakCallFrames() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        let dic = """
+        Breaker {
+            break
+            'x'
+        }
+        Counter {
+            _n = 0
+            for _i = 0; _i < 5; _i++ {
+                _x = Breaker()
+                _n++
+            }
+            TOSTR(_n)
+        }
+        Many {
+            for _i = 0; _i < 1500; _i++ {
+                _x = Breaker()
+            }
+            Ok()
+        }
+        Ok {
+            'ok'
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        let load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                   "dic_entries": [["path": "t.dic"]], "fncdepth": 0]
+        func get(_ id: String) -> [String: Any] {
+            ["cmd": "request", "method": "GET", "id": id, "ref": [], "headers": ["Charset": "UTF-8"]]
+        }
+        #expect(Self.runYayaCore(exe: exe, requests: [load, get("Counter")]) == "5")
+        // 1500 回分の break の後でも、深さが残らず次の呼び出しが通る。
+        #expect(Self.runYayaCore(exe: exe, requests: [load, get("Many")]) == "ok")
+    }
+
+    @Test
+    func yayaConfigFunctionDepthIsCollected() {
+        var collector = DicCollector()
+        collectDicEntries(content: "fncdepth, 0\r\nfncdepth, 64\r\ndic, a.dic\r\n",
+                          baseURL: URL(fileURLWithPath: "/tmp"), sourceName: "yaya.txt",
+                          collector: &collector, visited: [])
+        #expect(collector.functionDepth == 0)
+        #expect(collector.entries.map(\.path) == ["a.dic"])
+    }
+
     /// Run yaya_core with a sequence of JSON-line requests; return the `value` of the
     /// last response (or nil). Each invocation is a fresh process: load + one request.
     private static func runYayaCore(exe: URL, requests: [[String: Any]], currentDirectory: URL? = nil) -> String? {
@@ -1713,7 +1860,9 @@ struct ShioriLoaderTests {
         let outPipe = Pipe()
         proc.standardInput = inPipe
         proc.standardOutput = outPipe
-        proc.standardError = Pipe()
+        // 読まないパイプにすると、深い再帰などで stderr のトレースが 64KB を超えたとき
+        // yaya_core の書き込みが止まって返らなくなる。
+        proc.standardError = FileHandle.nullDevice
         do { try proc.run() } catch { return nil }
         inPipe.fileHandleForWriting.write(Data(stdin.utf8))
         inPipe.fileHandleForWriting.closeFile()

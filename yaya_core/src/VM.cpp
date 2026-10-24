@@ -600,12 +600,17 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         return Value();
     }
 
-    // 再帰深度チェック（無限ループ防止）
-    recursion_depth_++;
+    // 再帰深度チェック（無限ループ防止）。どの抜け方（早期 return・組み込み関数や関数本体からの
+    // 例外）でも必ず 1 つ戻す。戻し損ねると深さが要求をまたいで積み上がり、やがてすべての
+    // 呼び出しが MAX_RECURSION_DEPTH で失敗する。
+    struct RecursionDepthGuard {
+        int& depth;
+        explicit RecursionDepthGuard(int& d) : depth(d) { ++depth; }
+        ~RecursionDepthGuard() { --depth; }
+    } recursionDepthGuard(recursion_depth_);
     if (recursion_depth_ > MAX_RECURSION_DEPTH) {
         std::cerr << "[VM::execute] ERROR: Maximum recursion depth (" << MAX_RECURSION_DEPTH
                   << ") exceeded while calling: " << functionName << std::endl;
-        recursion_depth_--;
         return Value();
     }
 
@@ -630,7 +635,6 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     // Check if it's a built-in function
     if (builtins_.find(functionName) != builtins_.end()) {
         Value result = callBuiltin(functionName, args);
-        recursion_depth_--;
         return result;
     }
 
@@ -638,7 +642,6 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     auto it = functions_.find(functionName);
     if (it == functions_.end() || it->second.empty()) {
         std::cerr << "[VM::execute] WARNING: Function not found: \"" << functionName << "\", returning void" << std::endl;
-        recursion_depth_--;
         return Value();
     }
 
@@ -649,7 +652,31 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     }
     if (active.empty()) {
         std::cerr << "[VM::execute] WARNING: Function disabled: \"" << functionName << "\", returning void" << std::endl;
-        recursion_depth_--;
+        return Value();
+    }
+
+    // fncdepth: 上限を超えた呼び出しは本体を実行せずに空を返す（yaya-shiori の CFunction::Execute）。
+    // shiori.OnCallLimit があれば上限を一時的に外して呼ぶ（_argv[0] は辞書名。本家の _argv[1] の
+    // 行番号は持っていないので空）。無ければエラー E_E 97 を記録する。
+    struct FunctionDepthGuard {
+        int& depth;
+        explicit FunctionDepthGuard(int& d) : depth(d) { ++depth; }
+        ~FunctionDepthGuard() { --depth; }
+    } functionDepthGuard(functionDepth_);
+    if (maxFunctionDepth_ > 0 && functionDepth_ > maxFunctionDepth_) {
+        std::cerr << "[VM::execute] ERROR: function call depth limit (fncdepth " << maxFunctionDepth_
+                  << ") exceeded while calling: " << functionName << std::endl;
+        const auto source = sourceNames_.find(active.front()->sourceId);
+        const std::string dicName = source == sourceNames_.end() ? "" : source->second;
+        if (functionName != "shiori.OnCallLimit" && hasFunction("shiori.OnCallLimit")) {
+            const int savedLimit = maxFunctionDepth_;
+            maxFunctionDepth_ = 0;
+            execute("shiori.OnCallLimit", {Value(dicName), Value(std::string())});
+            maxFunctionDepth_ = savedLimit;
+        } else {
+            lastError_ = 97;
+            errorLog_.push_back("E_E 97: function call depth limit exceeded: " + functionName);
+        }
         return Value();
     }
 
@@ -664,6 +691,14 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
 
     // Push new local variable scope (YAYA: variables starting with '_' are function-local)
     localScopes_.emplace_back();
+    // 例外で抜けても、このスコープを必ず戻す（戻さないと呼び出し元のローカル変数がずれる）。
+    struct CallFrameGuard {
+        VM& vm;
+        bool active = true;
+        ~CallFrameGuard() {
+            if (active) vm.localScopes_.pop_back();
+        }
+    } callFrameGuard{*this};
 
     // Set _argv / _argc for this function call (now goes to local scope)
     std::vector<Value> argArray;
@@ -680,6 +715,9 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     bool anyNonoverload = false;
     for (const auto* d : active) { if (d->nonoverload) { anyNonoverload = true; break; } }
 
+    // YAYA の break / continue は関数をまたがない。ループの外のものはここで止め、関数を終える
+    // （止めないと呼び出し元のループを抜けさせてしまう）。
+    try {
     if (active.size() == 1 || anyNonoverload) {
         result = executeFunctionDecl(*active.front());
     } else {
@@ -708,6 +746,9 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
             result = Value(s);
         }
     }
+    } catch (const BreakException&) {
+    } catch (const ContinueException&) {
+    }
 
     // 関数内で `_argv[index] = ...` された値を、参照引数の元の格納場所へ戻す。
     // 書き戻しはローカルスコープをまだ保持している間に行う必要がある。
@@ -724,6 +765,7 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     }
 
     // Pop local variable scope
+    callFrameGuard.active = false;
     localScopes_.pop_back();
 
     auto exec_end = std::chrono::steady_clock::now();
@@ -736,7 +778,6 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     }
     std::cerr << std::endl;
 
-    recursion_depth_--;
     return result;
 }
 

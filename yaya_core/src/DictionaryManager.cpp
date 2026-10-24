@@ -309,6 +309,7 @@ bool DictionaryManager::load(const std::vector<DicEntry>& dicEntries,
     vm_ = std::make_unique<VM>();
     if (storedCallback_) vm_->setCallback(storedCallback_);  // preserve callback through reset
     if (!ghostRoot_.empty()) vm_->setGhostRootPath(ghostRoot_);
+    vm_->setMaxFunctionDepth(maxFunctionDepth_);
     loadedDicFiles_.clear();
     preprocessorGlobalDefines_.clear();
 
@@ -411,6 +412,14 @@ std::string DictionaryManager::execute(const std::string& functionName,
 void DictionaryManager::setGhostRoot(const std::string& root) {
     ghostRoot_ = root;
     if (vm_) vm_->setGhostRootPath(root);
+}
+
+void DictionaryManager::setMaxFunctionDepth(int depth) {
+    maxFunctionDepth_ = depth;
+    if (vm_) {
+        vm_->setMaxFunctionDepth(depth);
+        maxFunctionDepth_ = vm_->maxFunctionDepth();
+    }
 }
 
 bool DictionaryManager::dicLoad(const std::string& relativePath, const std::string& encoding) {

@@ -15,16 +15,19 @@ struct YayaRequest: Codable {
     let headers: [String:String]?
     let ref: [String]?
     let message_path: String?
+    /// YAYA の設定の fncdepth（関数の呼び出しの深さの上限。0 は無制限）。nil なら yaya_core の既定。
+    let fncdepth: Int?
 
     // Convenience initializer that keeps existing call sites simple.
     init(cmd: String, ghost_root: String? = nil, dic: [String]? = nil, dic_entries: [[String: String]]? = nil,
          encoding: String? = nil, env: [String:String]? = nil, method: String? = nil,
          id: String? = nil, headers: [String:String]? = nil, ref: [String]? = nil,
-         messagePath: String? = nil) {
+         messagePath: String? = nil, fncdepth: Int? = nil) {
         self.cmd = cmd; self.ghost_root = ghost_root; self.dic = dic; self.dic_entries = dic_entries
         self.encoding = encoding; self.env = env; self.method = method; self.id = id
         self.headers = headers; self.ref = ref
         self.message_path = messagePath
+        self.fncdepth = fncdepth
     }
 }
 
@@ -215,7 +218,7 @@ final class YayaAdapter: GhostShioriRuntime {
     /// Load dictionaries for a ghost and perform capability handshake.
     /// - Parameter encoding: yaya.txt の charset 指定（"Shift_JIS" 等）。"auto" は自動判定（UTF-8妥当→UTF-8、それ以外はCP932変換）。
     @discardableResult
-    func load(ghostRoot: URL, dicEntries: [DicEntry], encoding: String = "auto") -> Bool {
+    func load(ghostRoot: URL, dicEntries: [DicEntry], encoding: String = "auto", functionDepthLimit: Int? = nil) -> Bool {
         isLoaded = false
         guard proc.isRunning else {
             NSLog("[YayaAdapter] load() rejected because yaya_core is not running")
@@ -252,7 +255,7 @@ final class YayaAdapter: GhostShioriRuntime {
         let req = YayaRequest(cmd: "load", ghost_root: ghostRoot.path, dic: dicEntries.map { $0.path },
                               dic_entries: structured, encoding: encoding,
                               env: ["LANG":"ja_JP.UTF-8"], method: nil, id: nil,
-                              headers: ["Charset":"UTF-8"], ref: nil)
+                              headers: ["Charset":"UTF-8"], ref: nil, fncdepth: functionDepthLimit)
 
         // 辞書ロードはタイムアウト付きで実行する。
         // ヘルパー側のパース不具合（無限ループ等）でロードが返らなくても、
@@ -301,7 +304,8 @@ final class YayaAdapter: GhostShioriRuntime {
         let loaded = load(
             ghostRoot: context.ghostRoot,
             dicEntries: context.dictionaryEntries,
-            encoding: context.dictionaryEncoding
+            encoding: context.dictionaryEncoding,
+            functionDepthLimit: context.functionDepthLimit
         )
         if loaded {
             lastLoadContext = context
@@ -345,7 +349,8 @@ final class YayaAdapter: GhostShioriRuntime {
         let restored = load(
             ghostRoot: context.ghostRoot,
             dicEntries: context.dictionaryEntries,
-            encoding: context.dictionaryEncoding
+            encoding: context.dictionaryEncoding,
+            functionDepthLimit: context.functionDepthLimit
         )
         if !restored {
             forceTerminate()
