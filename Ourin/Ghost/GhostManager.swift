@@ -1541,7 +1541,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // MARK: - Public API
 
     /// descript.txtのSHIORI指定から、実装言語に依存しないロード入力を作る。
-    /// YAYAの場合だけyaya.txtを解釈し、他ランタイムへYAYA辞書規則を持ち込まない。
+    /// YAYAの場合だけ設定（yaya.txt、別名の DLL なら <DLL名>.txt）を解釈し、他ランタイムへYAYA辞書規則を持ち込まない。
     func makeShioriLoadContext(moduleName: String, ghostRoot: URL) -> ShioriRuntimeLoadContext {
         let communication = ShioriCommunicationOptions(
             version: ghostConfig?.shioriVersion,
@@ -1550,7 +1550,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             escapeUnknown: ghostConfig?.shioriEscapeUnknown ?? false,
             cache: ghostConfig?.shioriCache ?? false
         )
-        guard ShioriRuntimeFactory.kind(for: moduleName) == .yaya else {
+        guard ShioriRuntimeFactory.kind(for: moduleName, ghostRoot: ghostRoot) == .yaya else {
             return ShioriRuntimeLoadContext(
                 ghostURL: ghostURL,
                 ghostRoot: ghostRoot,
@@ -1559,32 +1559,38 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             )
         }
 
+        // YAYA は DLL のあるフォルダを基準に、`<DLL名>.txt` を設定として読む
+        // （shiori/aya.dll なら shiori/aya.txt。辞書のパスも shiori/ が基準）。
         let fm = FileManager.default
         var collector = DicCollector()
-        let yayaTxtPath = ghostRoot.appendingPathComponent("yaya.txt")
+        let yayaRoot = ShioriRuntimeFactory.yayaBaseURL(for: moduleName, ghostRoot: ghostRoot)
+        let yayaTxtPath = ShioriRuntimeFactory.yayaConfigURL(for: moduleName, ghostRoot: ghostRoot)
+        let configName = yayaTxtPath.lastPathComponent
         if let yayaContent = (try? String(contentsOf: yayaTxtPath, encoding: .utf8)) ??
                              (try? String(contentsOf: yayaTxtPath, encoding: .shiftJIS)) {
-            Log.debug("[GhostManager] Found yaya.txt, parsing dictionary list with includes...")
+            Log.debug("[GhostManager] Found \(configName), parsing dictionary list with includes...")
             collectDicEntries(
                 content: yayaContent,
-                baseURL: ghostRoot,
-                sourceName: "yaya.txt",
+                baseURL: yayaRoot,
+                sourceName: configName,
                 collector: &collector,
                 visited: []
             )
         } else {
-            let contents = (try? fm.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil)) ?? []
+            let contents = (try? fm.contentsOfDirectory(at: yayaRoot, includingPropertiesForKeys: nil)) ?? []
             collector.entries = contents
                 .filter { $0.pathExtension.lowercased() == "dic" }
                 .map { DicEntry(path: $0.lastPathComponent, encoding: nil, sourceConfig: "(fallback)", sourceLine: 0) }
-            Log.debug("[GhostManager] yaya.txt not found, loading all \(collector.entries.count) .dic files")
+            Log.debug("[GhostManager] \(configName) not found, loading all \(collector.entries.count) .dic files")
         }
 
+        // 設定に basepath があれば、そこが実行時の基準フォルダになる（Taromati2 は `basepath, ..`）。
+        let based = applyYayaBasePath(collector, root: yayaRoot, within: ghostURL)
         return ShioriRuntimeLoadContext(
             ghostURL: ghostURL,
-            ghostRoot: ghostRoot,
+            ghostRoot: based.root,
             moduleName: moduleName,
-            dictionaryEntries: collector.entries,
+            dictionaryEntries: based.entries,
             dictionaryEncoding: collector.globalCharset ?? "auto",
             communication: communication
         )
@@ -1592,7 +1598,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     /// 共通Factoryとload(context:)を通じてSHIORIを生成・ロードする。
     func createLoadedShioriRuntime(moduleName: String, ghostRoot: URL) -> GhostShioriRuntime? {
-        guard let runtime = ShioriRuntimeFactory.makeRuntime(for: moduleName) else {
+        guard let runtime = ShioriRuntimeFactory.makeRuntime(for: moduleName, ghostRoot: ghostRoot) else {
             Log.info("[GhostManager] Failed to create SHIORI runtime for \(moduleName)")
             return nil
         }
