@@ -139,6 +139,8 @@ struct DicEntry: Equatable {
 final class DicCollector {
     var entries: [DicEntry] = []
     var globalCharset: String? = nil
+    /// YAYA の `fncdepth`（関数の呼び出しの深さの上限。0 は無制限）。最初の指定を使う。
+    var functionDepth: Int? = nil
     /// Already-visited absolute config paths (include cycle prevention).
     private var visited: Set<String> = []
 
@@ -235,6 +237,15 @@ func collectDicEntries(content: String, baseURL: URL, sourceName: String,
                 }
             }
             // Other charset scopes (output/file/save/extension) are noted but not needed for loading.
+            continue
+        }
+
+        // "fncdepth, N": 関数の呼び出しの深さの上限（yaya_core へ渡す）。
+        if lower.hasPrefix("fncdepth,") {
+            let value = String(lineWithoutComment.dropFirst("fncdepth,".count)).trimmingCharacters(in: .whitespaces)
+            if collector.functionDepth == nil, let depth = Int(value) {
+                collector.functionDepth = depth
+            }
             continue
         }
 

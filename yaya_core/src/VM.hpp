@@ -83,6 +83,14 @@ public:
     // Check if a function is registered
     bool hasFunction(const std::string& name) const;
 
+    // YAYA の fncdepth: ユーザー関数の呼び出しの深さの上限（yaya-shiori の CCallLimit）。
+    // 既定 32、0 は無制限、0 以外で 2 未満は 2。超えた呼び出しは本体を実行せずに空を返す。
+    static constexpr int DEFAULT_FUNCTION_DEPTH = 32;
+    void setMaxFunctionDepth(int depth) {
+        maxFunctionDepth_ = depth < 0 ? DEFAULT_FUNCTION_DEPTH : (depth == 1 ? 2 : depth);
+    }
+    int maxFunctionDepth() const { return maxFunctionDepth_; }
+
     // Set the ghost root path used to anchor relative persistence/DICLOAD paths.
     void setGhostRootPath(const std::string& path) { ghostRootPath_ = path; }
     std::string getGhostRootPath() const { return ghostRootPath_; }
@@ -155,9 +163,13 @@ private:
     // RE_OPTION で設定する正規表現オプション（bit0: icase, bit1: multiline）
     int reOptions_ = 0;
 
-    // 再帰深度制限（無限ループ防止）
+    // 再帰深度制限（無限ループ防止）。fncdepth が無制限でもこれは超えない。
     int recursion_depth_ = 0;
     static constexpr int MAX_RECURSION_DEPTH = 1000;
+
+    // 実行中のユーザー関数の深さと、その上限（fncdepth）。
+    int functionDepth_ = 0;
+    int maxFunctionDepth_ = DEFAULT_FUNCTION_DEPTH;
 
     // 実行タイムアウト（無限ループ防止）
     std::chrono::steady_clock::time_point execution_start_time_;

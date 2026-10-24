@@ -653,6 +653,32 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         return Value();
     }
 
+    // fncdepth: 上限を超えた呼び出しは本体を実行せずに空を返す（yaya-shiori の CFunction::Execute）。
+    // shiori.OnCallLimit があれば上限を一時的に外して呼ぶ（_argv[0] は辞書名。本家の _argv[1] の
+    // 行番号は持っていないので空）。無ければエラー E_E 97 を記録する。
+    struct FunctionDepthGuard {
+        int& depth;
+        explicit FunctionDepthGuard(int& d) : depth(d) { ++depth; }
+        ~FunctionDepthGuard() { --depth; }
+    } functionDepthGuard(functionDepth_);
+    if (maxFunctionDepth_ > 0 && functionDepth_ > maxFunctionDepth_) {
+        std::cerr << "[VM::execute] ERROR: function call depth limit (fncdepth " << maxFunctionDepth_
+                  << ") exceeded while calling: " << functionName << std::endl;
+        const auto source = sourceNames_.find(active.front()->sourceId);
+        const std::string dicName = source == sourceNames_.end() ? "" : source->second;
+        if (functionName != "shiori.OnCallLimit" && hasFunction("shiori.OnCallLimit")) {
+            const int savedLimit = maxFunctionDepth_;
+            maxFunctionDepth_ = 0;
+            execute("shiori.OnCallLimit", {Value(dicName), Value(std::string())});
+            maxFunctionDepth_ = savedLimit;
+        } else {
+            lastError_ = 97;
+            errorLog_.push_back("E_E 97: function call depth limit exceeded: " + functionName);
+        }
+        recursion_depth_--;
+        return Value();
+    }
+
     std::cerr << "[VM::execute] Found user function: " << functionName
               << " (" << active.size() << " decl(s)), executing..." << std::endl;
     auto exec_start = std::chrono::steady_clock::now();
