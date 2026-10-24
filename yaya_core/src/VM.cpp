@@ -4379,7 +4379,8 @@ void VM::registerBuiltins() {
 
 // Interpolate embedded expressions in strings like %(_varname) or %(funcname()).
 // %[n] refers to the n-th preceding embedded value in this same string.
-// IMPORTANT: SSP/baseware percent variables like %(charname(0)) should NOT be interpolated by YAYA.
+// YAYA 本家（CParser0::ConvertEmbedStringToFormula）は %(…) を名前に関係なく TOSTR(…) として評価する。
+// SSP の環境変数は括弧なしの %username 形式なので、ここでは手を付けずベースウェアに残す。
 std::string VM::interpolateString(const std::string& str) {
     std::string result;
     size_t pos = 0;
@@ -4388,13 +4389,6 @@ std::string VM::interpolateString(const std::string& str) {
     // Preserve the caller's history while the nested expression is evaluated.
     const auto previousHistory = embeddedHistory_;
     embeddedHistory_.clear();
-
-    // List of SSP/baseware variables that should NOT be interpolated by YAYA.
-    static const std::unordered_set<std::string> ssp_vars = {
-        "charname", "username", "selfname", "selfname2", "keroname",
-        "month", "day", "hour", "minute", "second",
-        "screenwidth", "screenheight", "property"
-    };
 
     auto trim = [](std::string value) {
         const auto first = value.find_first_not_of(" \t\r\n");
@@ -4503,19 +4497,8 @@ std::string VM::interpolateString(const std::string& str) {
 
         const std::string expr = str.substr(start + 2, end - start - 2);
 
-        bool is_ssp_var = false;
-        for (const auto& ssp_var : ssp_vars) {
-            if (expr == ssp_var || expr.rfind(ssp_var + "(", 0) == 0 ||
-                expr.rfind(ssp_var + "[", 0) == 0) {
-                is_ssp_var = true;
-                break;
-            }
-        }
-
         std::string expansion;
-        if (is_ssp_var) {
-            expansion = "%(" + expr + ")";
-        } else if (const auto value = evaluateEmbeddedExpression(expr)) {
+        if (const auto value = evaluateEmbeddedExpression(expr)) {
             expansion = value->asString();
         } else {
             const Value variableValue = getVariable(expr);
