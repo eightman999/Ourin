@@ -18,7 +18,8 @@ All 33 original PRs and integration/CI PRs #214/#215 are merged into master. The
 
 ## 追加の対応実装（開発ブランチ）
 
-- 15件のネイティブ`.plugin`を生成。UGMのhash/JSON/配列引数/loopback HTTP対応を追加し、元辞書11件無改変で保存・再ロードまで確認。ロード成功は12/15（CeVIO/AIVOICEの外部起動失敗を検出し、以前の集計を訂正）。[個別結果と配布元](compatibility-corpus/plugin-ports.md)を参照。元のWindows DLLは実行せず、辞書adapterまたはネイティブ連携実装を利用。
+- 15件のネイティブ`.plugin`を生成。UGMのhash/JSON/配列引数/loopback HTTP対応を追加し、元辞書11件無改変で保存・再ロードまで確認。Bouyomiの限定TCP連携を追加し、ロード成功は13/15。元辞書のメニュー・音声設定保存再読込・実socket送信を確認（CeVIO/AIVOICEはWindows起動依存で引き続き拒否）。[個別結果と配布元](compatibility-corpus/plugin-ports.md)を参照。元のWindows DLLは実行せず、辞書adapterまたはネイティブ連携実装を利用。
+- Aosoraの任意導入に対応。上流VMの未初期化を固定ソースのビルド時に修正し、実ゴースト2件で元辞書のまま起動・終了・再ロード成功。[検証と入手先](compatibility-corpus/aosora.md)。通常配布には非同梱、会話・ゲーム・GUI全体は未検証。
 - 失敗していたKAGARIゴースト4件の起動・会話応答・終了・再ロードを確認。[再検証](compatibility-corpus/kagari-fixes.md)。ゲームAI/Windows SAORI/GUI全機能は残件。
 - 複数の直置きbundleのID衝突と、load失敗後も要求を送るPluginHostの動作を修正。灯系は専用helperへ分離。関連18 suite・192テスト/226実行PASS、失敗0・SKIP 0。全体試行はAudioQueue出力タイムアウトで中断したため全体PASSとは区別する。
 - Windows音声API、SNS/外部サービス、AXによる実画面タイトル取得など、未検証または未対応の依存は成功数に含めない。

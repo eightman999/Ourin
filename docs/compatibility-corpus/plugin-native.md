@@ -138,6 +138,21 @@ python3 engines/additional/test_akari_values.py --fixtures /path/to/plugin-fixtu
 
 追加検証では、プラグイン内のEXECUTE/EXECUTE_WAITをhostへ接続し、明示mapのない外部プログラムを拒否します。CeVIO-TalkerとSSP-AIVOICEはload時に必要なWindows helperを起動できないため、以前のload成功判定を訂正しました。専用API・named pipeを含むWindows bridgeは残件です。
 
-apxxxxxxe/Bouyomiはproxy_ex.dllの`/charset`・`core.exe -l/-count/-hash`、外部実行の`-e/-g/-v`を使います。[音声一覧](https://github.com/apxxxxxxe/Bouyomi/blob/dd917482a00ba5200e0d833c29126af570b7401c/core/data/voice.go)はWindows SAPI/registry、voice設定は元YAYAテキスト保存に依存します。NightWork向けSendTalkの実装だけでは互換になりません。Windows bridgeによる音声一覧・設定・発声の往復が残件です。
+apxxxxxxe/Bouyomiはproxy_ex.dllの`/charset`・`core.exe -l/-count/-hash`、外部実行の`-e/-g/-v`を使います。[音声一覧](https://github.com/apxxxxxxe/Bouyomi/blob/dd917482a00ba5200e0d833c29126af570b7401c/core/data/voice.go)はWindows SAPI/registry、voice設定は元YAYAテキスト保存に依存します。NightWork向けSendTalkの実装だけでは互換になりません。下記の追加実装で標準音声の限定TCP経路を確認しました。SAPI音声、Windowsプログラムの起動、旧設定の移行は残件です。
 
 UGMの限定HTTP helperと実配布物での結果は[プラグイン一覧](plugin-ports.md#ugmの追加対応と検証範囲)へ。
+
+
+## Bouyomiの限定TCP対応（追加検証）
+
+`generate.py --bouyomi-tcp-backend` で明示した場合に、`proxy_ex.dll` の `/charset` と `core.exe -l/-count/-hash`、`EXECUTE(core.exe, -e/-g/-v)` をOurin側の限定実装へ接続します。元Goソースは転載せず、元YAYA辞書も変更しません。
+
+- 起動設定が空の `-e` は、起動対象なしとして完了します。非空のWindowsプログラムパスは拒否し、実行したようには扱いません。
+- 音声一覧は棒読みちゃんの標準0–8です。Windows SAPI音声は提供しません。`JapaneseOnly` は上流のSAPI列挙に対する絞り込みなので、この標準一覧には影響しません。
+- `-count` はホストのメニューイベントで受け取った対象ゴーストの `ghost/master/descript.txt` だけを読みます。symlinkによる範囲外参照と応答ヘッダーへの制御文字混入は拒否します。
+- 元の声質選択イベントから保存したOurin形式の設定を読み、話者ごとの音声番号をTCP packetへ反映します。旧YAYAテキスト保存の移行は未対応です。
+- 接続先はloopbackの50001番（明示的な検証用設定は `OURIN_BOUYOMI_PORT`）。実行ファイルやshellへ入力を渡しません。接続できない場合やSAPI音声指定は失敗になります。
+
+配布物の元辞書3件を保持したまま、2周のload・version・メニュー・音声選択・unload/reloadを検証しました。未設定の標準音声、保存したscope 0/1の音声番号、quicksection除外、日本語本文を合成receiverが受け取る実socketで照合しました。発声イベントの204はScriptなしの正常応答で、packetの実受信を別に検査しています。
+
+この結果は棒読みちゃん実機の音声再生、全Sakura Script構文、Ourin GUI、Intel実行の確認ではありません。Windows音声エンジンやCeVIO/AIVOICEの依存は残ります。[変換結果一覧](plugin-ports.md)も参照してください。

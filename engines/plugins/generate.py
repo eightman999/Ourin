@@ -92,6 +92,10 @@ def generate(args):
                 raise ValueError('UGM requires localweb/html under the payload root')
             shutil.copy2(args.ugm_http_helper, resources / 'ugm_http_helper')
             manifest['ugm_http_helper'] = 'ugm_http_helper'
+        if getattr(args, 'bouyomi_tcp_backend', False):
+            if args.engine != 'yaya':
+                raise ValueError('--bouyomi-tcp-backend requires YAYA')
+            manifest['bouyomi_tcp_backend'] = True
         for value in args.saori_backend:
             key, separator, path = value.partition('=')
             if not separator:
@@ -133,6 +137,7 @@ def main():
     parser.add_argument('--engine-library', type=Path)
     parser.add_argument('--source-url')
     parser.add_argument('--ugm-http-helper', type=Path, help='Trusted Ourin loopback-only replacement for localweb/ugm_server.exe; opt-in')
+    parser.add_argument('--bouyomi-tcp-backend', action='store_true', help='Opt-in Bouyomi core/proxy TCP port; standard voices only, no Windows process/SAPI support')
     parser.add_argument('--saori-backend', action='append', default=[])
     args = parser.parse_args()
     try:

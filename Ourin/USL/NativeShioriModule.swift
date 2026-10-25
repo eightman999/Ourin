@@ -10,7 +10,12 @@ final class NativeShioriModule {
         case ukagakaInt32 = "ukagaka-int32"
         /// KAGARI POSIX 版 (`kagari_load` / `kagari_request(id,…)` / `kagari_unload`).
         case kagari
+        /// Aosora POSIX uses C long instance IDs (zero means load failure).
+        case aosora
     }
+    private typealias AosoraLoad = @convention(c) (UnsafeMutableRawPointer?, Int) -> Int
+    private typealias AosoraUnload = @convention(c) (Int) -> Int32
+    private typealias AosoraRequest = @convention(c) (Int, UnsafeMutableRawPointer?, UnsafeMutablePointer<Int>?) -> UnsafeMutableRawPointer?
     private typealias KagariLoad = @convention(c) (UnsafeMutableRawPointer?, Int) -> Int32
     private typealias KagariUnload = @convention(c) (Int32) -> Int32
     private typealias KagariRequest = @convention(c) (Int32, UnsafeMutableRawPointer?, UnsafeMutablePointer<Int>?) -> UnsafeMutableRawPointer?
@@ -127,6 +132,26 @@ final class NativeShioriModule {
                     loaded = load(input, count) != 0
                 } else { loaded = true }
                 if loaded, let unload = symbol(unloadNames, StandardUnload.self) { performUnload = { _ = unload() } }
+            case .aosora:
+                guard let load = symbol(["aosora_load"], AosoraLoad.self),
+                      let unload = symbol(["aosora_unload"], AosoraUnload.self),
+                      let request = symbol(["aosora_request"], AosoraRequest.self) else {
+                    throw Self.error("Missing aosora_load/aosora_request/aosora_unload")
+                }
+                let pathData = Data(path.utf8)
+                guard let input = Self.owned(pathData) else { throw Self.error("Allocation failed") }
+                let instance = load(input, pathData.count)
+                guard instance > 0 else { throw Self.error("aosora_load failed") }
+                performRequest = { data in
+                    guard let input = Self.owned(data) else { return nil }
+                    var length = data.count
+                    guard let output = request(instance, input, &length) else { return nil }
+                    defer { free(output) }
+                    guard length >= 0, length <= 64 * 1024 * 1024 else { return nil }
+                    return Data(bytes: output, count: length)
+                }
+                performUnload = { _ = unload(instance) }
+                loaded = true
             case .kagari:
                 guard let load = symbol(["kagari_load"], KagariLoad.self),
                       let unload = symbol(["kagari_unload"], KagariUnload.self),

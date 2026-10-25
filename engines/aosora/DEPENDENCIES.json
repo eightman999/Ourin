@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/kanadelab/aosora-shiori",
+  "revision": "b9f6641c58ca4bfdaa775960e4b666c7282339db",
+  "archive_sha256": "6d3f8c4aedd13c8edbcda3f43fba8cdf9783fee4b656d077af2f73dad435c49f",
+  "license": "Source use restricted to personal use or participation in the upstream project unless separately permitted; see upstream license.txt",
+  "redistributable": false,
+  "jsoncpp": "Bundled upstream jsoncpp-1.9.6; MIT/public domain"
+}

@@ -394,7 +394,7 @@
         "core.exe",
         "棒読みちゃんTCP"
       ],
-      "port_strategy": "YAYA辞書を保持しGo coreをmacOSでbuild。元proxy_ex呼出を限定native backendへ接続する必要あり。",
+      "port_strategy": "元YAYA辞書を保持し、明示opt-inでproxy_ex/coreの限定コマンドをOurin独立実装へ接続。標準音声0–8をloopback TCPで送信。Windows SAPI・自動起動は非対応。",
       "source_evidence": [
         "https://github.com/apxxxxxxe/Bouyomi/blob/dd917482a00ba5200e0d833c29126af570b7401c/descript.txt",
         "https://github.com/apxxxxxxe/Bouyomi/blob/dd917482a00ba5200e0d833c29126af570b7401c/readme.txt"
@@ -402,18 +402,145 @@
       "archive_sha256": "e2921a6e21cc2e0f78162e9cecec7eb1f587a69bf54d1505b64a3d995134ce0c",
       "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
       "verification": {
-        "status": "unsupported",
+        "status": "partial",
         "layer": "native .plugin C ABI + isolated helper; GUI not tested",
-        "loaded": false,
-        "reloaded": false,
-        "events": [],
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "version",
+            "status": 200,
+            "bytes": 73,
+            "sha256": "490611183054133805bee5d86f6beacfc7f545599d1324ecb8e84594b7810518"
+          },
+          {
+            "id": "OnMenuExec",
+            "status": 200,
+            "bytes": 537,
+            "sha256": "857d9191531a3c212caf737f080990b4811c9fdf6ce0a08bc35d124c657cf4e8"
+          },
+          {
+            "id": "OnMenuShow",
+            "status": 200,
+            "bytes": 879,
+            "sha256": "753caa335ade71a949e4e28e239d394287ba3ef9283a527fd575c4636bfe2cc2"
+          }
+        ],
         "temporary_copy_deleted": true,
-        "reason": "proxy_ex.dll /charset・core.exeの音声一覧(-l)等が未mapでload拒否。起動(-e)・発声(-g/-v)、Windows SAPI/registry、旧YAYAテキストvoice設定に依存。TCP送信だけでは代替できない。",
+        "reason": "元辞書3件無改変。load・メニュー・音声設定保存再読込・実TCP packetを2周検証。実発声・Windows SAPI・自動起動・旧テキスト設定移行・GUIは未検証または非対応。",
         "rechecked_on": "2026-10-25",
         "host_execution": "explicit host mapping; unmapped commands refused",
         "native_artifacts_sha256": {
-          "Contents/MacOS/OurinPluginAdapter": "a85aa6915d47703f5e041ed18785bf760afb034c2a19ea5a3e9d897fc74afa90",
+          "Contents/MacOS/OurinPluginAdapter": "7e48ff92c115ea698aaa3e71f1fcda84abe0ca041e5bc2ba8c40f50b284fb1f5",
           "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709"
+        },
+        "bouyomi_tcp_evidence": {
+          "schema": 1,
+          "plugin": "bouyomi",
+          "cycles": [
+            {
+              "cycle": 1,
+              "loaded": true,
+              "events": [
+                {
+                  "id": "version",
+                  "status": 200,
+                  "bytes": 73,
+                  "sha256": "490611183054133805bee5d86f6beacfc7f545599d1324ecb8e84594b7810518"
+                },
+                {
+                  "id": "OnMenuExec",
+                  "status": 200,
+                  "bytes": 537,
+                  "sha256": "d5949da95b7b82907d39173767d6e28446eecf0d93d35f336f66bd8201dd788f"
+                },
+                {
+                  "id": "OnMenuShow",
+                  "status": 200,
+                  "bytes": 879,
+                  "sha256": "ae2b3980e973a359763558be9396efd657770dea094b29522bc810784212726c"
+                }
+              ],
+              "default_packet_verified": true,
+              "saved_scope_voices": [
+                2,
+                3
+              ],
+              "tcp_packets": [
+                {
+                  "bytes": 33,
+                  "sha256": "c2065bedf535f938ee3d8089e5bbcb8bdd6ef523b462ac1ce2633482a00c2321"
+                },
+                {
+                  "bytes": 27,
+                  "sha256": "4b9d09ee7cec749d0817eb84e19a1ac1f5783b8f84bb78d848f669fe9cc99159"
+                }
+              ],
+              "scope_voice_and_quicksection_verified": true,
+              "talk_status": 204,
+              "unsupported_sapi_rejected": true,
+              "absent_service_rejected": true
+            },
+            {
+              "cycle": 2,
+              "loaded": true,
+              "events": [
+                {
+                  "id": "version",
+                  "status": 200,
+                  "bytes": 73,
+                  "sha256": "490611183054133805bee5d86f6beacfc7f545599d1324ecb8e84594b7810518"
+                },
+                {
+                  "id": "OnMenuExec",
+                  "status": 200,
+                  "bytes": 457,
+                  "sha256": "075099683c7bee4234acf72b4cf0b7c5342bc7cc0d09415ad321c6721edef689"
+                },
+                {
+                  "id": "OnMenuShow",
+                  "status": 200,
+                  "bytes": 839,
+                  "sha256": "9719e6645e2eeb284f1bc397333777cbe6067b1fe130a653a209d6cad992374f"
+                }
+              ],
+              "saved_scope_voices": [
+                2,
+                3
+              ],
+              "tcp_packets": [
+                {
+                  "bytes": 33,
+                  "sha256": "c2065bedf535f938ee3d8089e5bbcb8bdd6ef523b462ac1ce2633482a00c2321"
+                },
+                {
+                  "bytes": 27,
+                  "sha256": "4b9d09ee7cec749d0817eb84e19a1ac1f5783b8f84bb78d848f669fe9cc99159"
+                }
+              ],
+              "scope_voice_and_quicksection_verified": true,
+              "talk_status": 204,
+              "unsupported_sapi_rejected": true,
+              "absent_service_rejected": true
+            }
+          ],
+          "external_speech_verified": false,
+          "limitations": [
+            "Windows engine auto-launch",
+            "Windows SAPI voices 10001+",
+            "existing upstream text voice-state migration",
+            "external speech synthesis",
+            "full Sakura Script coverage",
+            "Ourin GUI and Intel execution"
+          ],
+          "payload_hashes_unchanged": true,
+          "dictionary_sha256": {
+            "yaya_plugin_main.dic": "b9f9bf18850ed646386617e351d051eef8504036e05b935b9f3946397a8313f8",
+            "system/yaya_plugin2.dic": "62f94c0a01d64d48f1c0e24a80bce8a0df59a2a91813498abf8caa67a3e58c76",
+            "system/yaya_optional.dic": "7af6831b50f2bf3e0207bf06999a80514ebf9b0c7446bfd9c97f485f27b4c98c"
+          },
+          "source_payload_unchanged": true,
+          "temporary_copy_deleted": true
         }
       },
       "generated_artifact": "build/plugin-ports/bouyomi.plugin",
@@ -1264,7 +1391,7 @@
       "denominator": 11
     },
     "yaya_script_response": {
-      "numerator": 6,
+      "numerator": 8,
       "denominator": 11
     },
     "yaya_load_rejected": {
@@ -1322,6 +1449,24 @@
     "xcode_full": {
       "status": "interrupted",
       "reason": "Repeated macOS AudioQueue output-start timeouts in SoundPlayerTests; no full-suite pass claim."
+    },
+    "bouyomi_adapter_tests": {
+      "passed": 10,
+      "failed": 0,
+      "log_sha256": "a40a02afa5721240489b2d83062ac04d3e0edcf5c38d8e99062c035f2377b1f5"
+    },
+    "load_followup_xcode": {
+      "suites": 8,
+      "tests_passed": 118,
+      "executions_passed": 154,
+      "failed": 0,
+      "skipped": 0,
+      "architecture": "arm64"
+    },
+    "load_followup_adapter_regressions": {
+      "yaya_passed": 11,
+      "ugm_passed": 4,
+      "failed": 0
     }
   },
   "temporary_acquisition_cleanup": {
@@ -1334,8 +1479,8 @@
   "followup_summary": {
     "reviewed_on": "2026-10-25",
     "generated": 15,
-    "loaded": 12,
+    "loaded": 13,
     "fully_compatible_claimed": false,
-    "correction": "CeVIO/AIVOICE were previously counted as loaded despite failed external startup; now rejected. UGM now loads and serves loopback HTTP."
+    "correction": "CeVIO/AIVOICE startup failures remain rejected. After the corrected 12/15 count, Bouyomi opt-in TCP support raises verified loads to 13/15; real speech and GUI are not claimed."
   }
 }

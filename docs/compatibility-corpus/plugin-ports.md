@@ -2,9 +2,9 @@
 
 確認日: 2026-10-25。公開配布物15件を調査し、YAYA 11件、灯（Akari）3件、専用native 1件のローカル変換成果物を生成しました。DLLの改名ではなく、実際の辞書を既存VMまたはnative engineで実行するadapterです。
 
-**生成15/15と完全互換15/15は異なります。** 最新のロード成功は **12/15**（YAYA 8/11、灯3/3、native TMIDI 1/1）です。YAYAの対象イベントでScriptを確認したのは7件、GetWindowTitleは必要な画面・権限条件が揃わず501です。UGMは追加修正によりロード・メニュー・loopback HTTP配信・合成保存データの維持まで成功しました。GUI全操作や実サービス接続の成功率ではありません。
+**生成15/15と完全互換15/15は異なります。** 最新のロード成功は **13/15**（YAYA 9/11、灯3/3、native TMIDI 1/1）です。YAYAの対象イベントでScriptを確認したのは8件、GetWindowTitleは必要な画面・権限条件が揃わず501です。UGMは追加修正によりロード・メニュー・loopback HTTP配信・合成保存データの維持まで成功しました。Bouyomiは明示した棒読みちゃんTCPモードで、元辞書のロード・メニュー・音声選択の保存再読込・実socketへの送信を追加確認しました。GUI全操作や実サービス接続の成功率ではありません。
 
-**前回集計の訂正:** 13/15としていた結果には、CeVIO・AIVOICEの必須Windows helper起動失敗を無視したロード成功2件が含まれていました。プラグインのEXECUTEを明示したhost実行mapへ接続し、未対応の起動を失敗として扱ったため、この2件はロード拒否へ訂正しました。UGMの改善1件を加え、最新値は12/15です。
+**前回集計の訂正:** 13/15としていた結果には、CeVIO・AIVOICEの必須Windows helper起動失敗を無視したロード成功2件が含まれていました。プラグインのEXECUTEを明示したhost実行mapへ接続し、未対応の起動を失敗として扱ったため、この2件はロード拒否へ訂正しました。UGMの改善1件を加えて12/15へ訂正した後、今回Bouyomiの限定TCP対応が成功したため13/15となりました。CeVIO・AIVOICEは引き続きロード拒否です。
 
 ## 一覧
 
@@ -16,7 +16,7 @@
 |tmidi_msg / JiayuYangX|C++/Win32 / native|[作者READMEにpluginコードの利用・改変許可（SPDX明示なし）](https://github.com/JiayuYangX/tmidi_msg/blob/e70cc6bc0cd8006ba48e82326fafe9042d25bd96/README.en.md)|[作者・release](https://github.com/JiayuYangX/tmidi_msg/releases/tag/v1.1.0) · [ダウンロード](https://github.com/JiayuYangX/tmidi_msg/releases/download/v1.1.0/tmidi_msg.nar)|native C ABI・実TCP loopbackを確認|専用native adapterと合成loopback bridgeの6回帰PASS。Windows DDE producerと実TMIDI Playerは未検証。未接続503。|
 |stampcollection / postic / YAYA-shiori整備班|YAYA / yaya|[作者readmeで再配布・改変配布可](https://github.com/YAYA-shiori/stampcollection/blob/79221c64fef156106eacafe89f8189bc0a4a5811/readme.txt)|[作者・release](https://github.com/YAYA-shiori/stampcollection/releases/tag/v20260330102740-79221c6) · [ダウンロード](https://github.com/YAYA-shiori/stampcollection/releases/download/v20260330102740-79221c6/stampcollection.nar)|load → 対象イベント → unload → 再load / PLUGIN/2.0 200 OK|メニューScript応答確認。スタンプ入手、玉/tamac.exe連携、実画面は未検証。|
 |Wallet of Unyu / Don / nikolat|YAYA / yaya|[CC0-1.0（本体）](https://github.com/nikolat/wallet_of_unyu/blob/1b583968bd4ff7a245b4fb21489e3e1e1ab1817c/LICENSE)|[作者・release](https://github.com/nikolat/wallet_of_unyu/releases/tag/v1.2.0) · [ダウンロード](https://github.com/nikolat/wallet_of_unyu/releases/download/v1.2.0/wallet_of_unyu.nar)|load → 対象イベント → unload → 再load / PLUGIN/2.0 200 OK|メニューScript応答確認。残高API、認証・送受金は未検証。|
-|Bouyomi / 日野つみ / HinoTsumi|YAYA, Go / yaya|[明示ライセンス未確認](https://github.com/apxxxxxxe/Bouyomi/blob/dd917482a00ba5200e0d833c29126af570b7401c/readme.txt)|[作者・release](https://github.com/apxxxxxxe/Bouyomi/releases/tag/v1.5.1) · [ダウンロード](https://github.com/apxxxxxxe/Bouyomi/releases/download/v1.5.1/Bouyomi.nar)|load拒否|proxy_ex.dllの/charset・音声一覧等が未map。Windows SAPI/registry、core.exe起動・発声、旧YAYAテキストvoice設定が残件。|
+|Bouyomi / 日野つみ / HinoTsumi|YAYA, Go / yaya|[明示ライセンス未確認](https://github.com/apxxxxxxe/Bouyomi/blob/dd917482a00ba5200e0d833c29126af570b7401c/readme.txt)|[作者・release](https://github.com/apxxxxxxe/Bouyomi/releases/tag/v1.5.1) · [ダウンロード](https://github.com/apxxxxxxe/Bouyomi/releases/download/v1.5.1/Bouyomi.nar)|限定TCPモードでload・メニュー・音声設定保存・再load・実socket送信成功|元辞書3件無改変。標準音声0–8を確認。Windows自動起動、SAPI音声、旧テキスト設定の移行、実音声出力は未対応または未検証。|
 |うかてん / Don / nikolat|灯（Akari）辞書 / akari|[辞書はpublic domain宣言](https://github.com/nikolat/ukaten/blob/6bc355842625d7c9cf5c7e75f523759bd77ef9e2/readme.txt)|[作者・release](https://github.com/nikolat/ukaten/releases/tag/v1.0) · [ダウンロード](https://github.com/nikolat/ukaten/releases/download/v1.0/ukaten.nar)|load・version・unload・再load成功。固定HTTP fixtureでメニュー応答|実bundleのネットワーク禁止時はメニュー204。気象API実接続・実UIは未検証。|
 |うかどんゅう / Don / nikolat|灯（Akari）辞書, YAYA補助 / akari|[NYSDL 0.9982（辞書）・各モジュール別条件](https://github.com/nikolat/ukadonyu/blob/497bcc9c3a5ac224f3946abc9210b2f9026dd560/licence.txt)|[作者・release](https://github.com/nikolat/ukadonyu/releases/tag/v2.2) · [ダウンロード](https://github.com/nikolat/ukadonyu/releases/download/v2.2/ukadonyu.nar)|load・version・unload・再load成功。2回目メニューでbooting Script|Mastodon認証・投稿、Windows SAORI、実UIは未検証。|
 |ukagakaPlugin_CeVIO-Talker / ambergon|YAYA, C# / yaya|[明示ライセンス未確認](https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/blob/eb7a36d30ef329da97e6c8a6e9f41ad14af25044/readme.md)|[作者・release](https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/releases/tag/version1.0.7) · [ダウンロード](https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/releases/download/version1.0.7/ukagakaPlugin_CeVIO-Talker.nar)|load拒否（以前の成功判定を訂正）|load内EXECUTEのWindows helper起動が未対応。専用音声API・named pipeも未対応。|
@@ -104,3 +104,8 @@ OurinTests全体の試行は、SoundPlayerTestsでmacOS AudioQueueの出力開�
 hash foreach 8、ユーザー関数引数10、JSON 8、既存ファイル保存9、YAYA adapter 11、UGM HTTP 7、UGM adapter 4の計57回帰がPASS。UGMの実配布物probeは別に上記2cyclesで検証しました。同じVMを使う他のYAYAプラグイン10件も一時コピーで再検証し、起動依存の判定訂正を一覧へ反映しています。
 
 追加前のPR #218 head `25f90b8` は[CI全5項目成功](https://github.com/eightman999/Ourin/actions/runs/40176454744)。追加修正後は関連18 suite・192テスト/226実行がPASS、失敗0・SKIP 0。これらを未実施のGUI検証や公開版バイナリへの収録と混同しません。
+
+
+## ロード対応の追加回帰
+
+Bouyomi限定TCPの10テスト、既存YAYA adapterの11テスト、UGM adapterの4テストが成功しました。Ourin関連8 suiteは118集計テスト・154実行、失敗0・SKIP 0です。実プロセス・XPCの検証を含み、GUI操作やWindows音声ソフトの実発声を意味しません。

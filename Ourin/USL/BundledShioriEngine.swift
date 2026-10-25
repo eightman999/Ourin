@@ -11,6 +11,8 @@ enum BundledShioriEngine: String, CaseIterable {
     case hisui
     case yuhna
     case misaka
+    /// Optional personal build only; never embedded by engines/package.sh.
+    case aosora
 
     /// 上流ビルド成果物の候補名（Frameworks または検証用 override から探す）。
     var artifactNames: [String] {
@@ -26,6 +28,7 @@ enum BundledShioriEngine: String, CaseIterable {
         case .hisui: return ["libhisui.dylib"]
         case .yuhna: return ["libyuhna.dylib"]
         case .misaka: return ["libmisaka.dylib"]
+        case .aosora: return ["libaosora.dylib"]
         }
     }
 
@@ -34,6 +37,7 @@ enum BundledShioriEngine: String, CaseIterable {
         switch self {
         case .kawari: return "ukagaka-long"
         case .kagari: return "kagari"
+        case .aosora: return "aosora"
         case .akari, .eseShiori, .niseShiori, .shino, .hisui, .yuhna, .misaka: return "ukagaka-int32"
         }
     }
@@ -49,6 +53,7 @@ enum BundledShioriEngine: String, CaseIterable {
         case .hisui: return "OURIN_HISUI_ENGINE"
         case .yuhna: return "OURIN_YUHNA_ENGINE"
         case .misaka: return "OURIN_MISAKA_ENGINE"
+        case .aosora: return "OURIN_AOSORA_ENGINE"
         }
     }
 
@@ -76,6 +81,7 @@ enum BundledShioriEngine: String, CaseIterable {
         case "hisui": return .hisui
         case "yuhna": return .yuhna
         case "misaka": return .misaka
+        case "aosora": return .aosora
         case "shiori":
             return isKawariDictionaryRoot(dictionaryDirectory(moduleName: moduleName, ghostRoot: ghostRoot)) ? .kawari : nil
         default:
@@ -89,6 +95,8 @@ enum BundledShioriEngine: String, CaseIterable {
             let url = URL(fileURLWithPath: override)
             if FileManager.default.fileExists(atPath: url.path) { return url }
         }
+        // Source-derived Aosora requires separate redistribution permission.
+        guard engine != .aosora else { return nil }
         let fm = FileManager.default
         for directory in bundledSearchDirectories() {
             for name in engine.artifactNames {

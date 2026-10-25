@@ -1,0 +1,379 @@
+{
+  "schema": 1,
+  "generated_at": "2026-10-25T13:13:35.920822+00:00",
+  "scope": "Private local Aosora build: sandboxed SHIORI lifecycle, not GUI, gameplay, SAORI or redistribution approval",
+  "license": {
+    "source_url": "https://github.com/kanadelab/aosora-shiori/blob/b9f6641c58ca4bfdaa775960e4b666c7282339db/license.txt",
+    "source_use": "Personal use or upstream-project participation; other use requires permission",
+    "redistributable": false,
+    "bundled_in_ourin_release": false
+  },
+  "engine": {
+    "repository": "https://github.com/kanadelab/aosora-shiori",
+    "revision": "b9f6641c58ca4bfdaa775960e4b666c7282339db",
+    "archive_sha256": "6d3f8c4aedd13c8edbcda3f43fba8cdf9783fee4b656d077af2f73dad435c49f",
+    "library_sha256": "3adaba86c4f2939ddeb59ce6bfc779edd04ce03b3a76a03e5c09d7f412afd5ce",
+    "architecture": "arm64",
+    "abi": "aosora (positive C long instance IDs, int unload status)",
+    "adapter_sha256": "bd8d0111e2d076f27c85d2e25bcffcc203f77d6d746d1685f0e2bfe2a01709bf",
+    "build_script_sha256": "a8fcefbcb3e31de981a72892d69d98bb7ce65dd4b6a33bf1ac2da1716276990a",
+    "fixes": [
+      "Initialize root-frame loopDepth, loopMode and tryDepth; class declarations no longer stop root initialization",
+      "Reject script load/boot errors",
+      "Call Shiori::Unload before destroying instance to save state",
+      "Reject concurrent in-process instances because upstream TextSystem is a singleton"
+    ]
+  },
+  "verification": {
+    "downloaded_ghosts": 2,
+    "load_success": 2,
+    "lifecycle_reopen_success": 2,
+    "runtime_pass": 0,
+    "runtime_partial": 2,
+    "native_regression_tests_passed": 7,
+    "response_classification_tests_passed": 2,
+    "gui_tested": false,
+    "save_semantics_tested": "Ourin-authored fixture: existing count 19 changed to 37 and reloaded; not claimed for all ghost state",
+    "swift_regression_tests_passed": 3,
+    "swift_regression_executions_passed": 5,
+    "swift_layers": [
+      "NativeShioriModule with LP64 instance IDs and zero failure",
+      "Actual Aosora engine in-process and XPC lifecycle/save",
+      "ShioriRuntimeFactory resolving aosora.dll through the optional engine override"
+    ],
+    "corpus_regression_tests": {
+      "total": 35,
+      "passed": 34,
+      "skipped": 1,
+      "failed": 0,
+      "skip_reason": "Optional trusted-library test requires OURIN_CORPUS_ENGINE_DIR"
+    }
+  },
+  "items": [
+    {
+      "id": "doll-at-the-bay-window",
+      "name": "doll_at_the_bay_window",
+      "source_url": "https://github.com/tukinami/doll_at_the_bay_window/releases/tag/v1.0.0",
+      "download_url": "https://github.com/tukinami/doll_at_the_bay_window/releases/download/v1.0.0/doll_at_the_bay_window.nar",
+      "archive_sha256": "ac685f5d565942c415f73f89a9865d597954a0a12ac86bb3bdaa7cac01ecff17",
+      "download_bytes": 3940817,
+      "runtime": {
+        "status": "partial",
+        "executed": true,
+        "attempted": true,
+        "checks": {
+          "structure": {
+            "ghost_master": "ghost/master",
+            "source_tree_sha256": "bf11053ea51fff14260e23ec3baaf24b14a911c4b80ed29f1beee6edbb3af1b2",
+            "source_file_count": 57,
+            "digest_complete": true
+          },
+          "engine": {
+            "module_stem": "aosora",
+            "runtime_kind": "native",
+            "bundled_engine": "aosora",
+            "helper": "native_dylib",
+            "abi": "aosora",
+            "native_artifact": "libaosora.dylib",
+            "windows_only_metadata": false,
+            "ghost_windows_module_present": true,
+            "engine_hint_applied": false,
+            "unsupported_reason": null
+          },
+          "runtime_executed": true,
+          "verification_layer": "SHIORI helper lifecycle; GUI and external SAORI unverified",
+          "lifecycle": [
+            {
+              "event": "load",
+              "ok": true,
+              "http_status": 200,
+              "value_length": 0,
+              "value_nonempty": false,
+              "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "error_category": null
+            },
+            {
+              "event": "OnBoot",
+              "ok": true,
+              "http_status": 200,
+              "value_length": 256,
+              "value_nonempty": true,
+              "value_sha256": "4e52bc3f9bc0ddc9497b3457d4009d743c817e6ce97dee013474095e99455b72",
+              "error_category": null
+            },
+            {
+              "event": "OnClose",
+              "ok": true,
+              "http_status": 200,
+              "value_length": 65,
+              "value_nonempty": true,
+              "value_sha256": "6eff0f76041a358525459b977efcda0485a6a2b828f21a4561068f63fca92b54",
+              "error_category": null
+            },
+            {
+              "event": "OnDestroy",
+              "ok": true,
+              "http_status": 204,
+              "value_length": 0,
+              "value_nonempty": false,
+              "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "error_category": null
+            },
+            {
+              "event": "unload",
+              "ok": true,
+              "http_status": 200,
+              "value_length": 0,
+              "value_nonempty": false,
+              "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "error_category": null
+            }
+          ],
+          "conversation": {
+            "event": "OnAITalk",
+            "ok": false,
+            "http_status": 204,
+            "value_length": 0,
+            "value_nonempty": false,
+            "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "error_category": null
+          },
+          "persistence": {
+            "tree_sha256_after_cycle": "57748215ed6a8e8159b9ebe7bbc07d50f7d96a8a825750c3f5f4c7e6464f0e0e",
+            "tree_changed": true,
+            "save_file_observed": null,
+            "persistence_semantically_verified": false,
+            "digest_error": null,
+            "cycle2": [
+              {
+                "event": "load",
+                "ok": true,
+                "http_status": 200,
+                "value_length": 0,
+                "value_nonempty": false,
+                "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "error_category": null
+              },
+              {
+                "event": "OnBoot",
+                "ok": true,
+                "http_status": 200,
+                "value_length": 256,
+                "value_nonempty": true,
+                "value_sha256": "4e52bc3f9bc0ddc9497b3457d4009d743c817e6ce97dee013474095e99455b72",
+                "error_category": null
+              },
+              {
+                "event": "OnClose",
+                "ok": true,
+                "http_status": 200,
+                "value_length": 65,
+                "value_nonempty": true,
+                "value_sha256": "6eff0f76041a358525459b977efcda0485a6a2b828f21a4561068f63fca92b54",
+                "error_category": null
+              },
+              {
+                "event": "unload",
+                "ok": true,
+                "http_status": 200,
+                "value_length": 0,
+                "value_nonempty": false,
+                "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "error_category": null
+              }
+            ],
+            "cycle2_load_ok": true,
+            "cycle2_complete": true
+          },
+          "host_capabilities": {
+            "unavailable_ops": [],
+            "fmo_empty_snapshot": false
+          },
+          "dictionary_integrity": {
+            "before": {
+              "files": 6,
+              "sha256": "9258ac7b4011eaeb4ae8136f45129955b3a1a2c81461af01fad26b1e77cedb6c"
+            },
+            "after": {
+              "files": 6,
+              "sha256": "9258ac7b4011eaeb4ae8136f45129955b3a1a2c81461af01fad26b1e77cedb6c"
+            },
+            "unchanged": true,
+            "scope": "All .as and .asproj files; generated savedata is separate"
+          }
+        },
+        "reason": "lifecycle_without_conversation"
+      },
+      "cleanup": {
+        "status": "pass"
+      },
+      "notes": "Load, OnBoot, OnClose and unload passed twice. OnAITalk returned 204, so runtime remains partial; UI and full interaction are untested."
+    },
+    {
+      "id": "mancala-board-ghost",
+      "name": "mancala-board-ghost",
+      "source_url": "https://github.com/lost-nd-xxx/mancala-board-ghost/releases/tag/v1.0.1",
+      "download_url": "https://github.com/lost-nd-xxx/mancala-board-ghost/releases/download/v1.0.1/mancala-board-ghost.nar",
+      "archive_sha256": "f563f30707ddc099e9fa8e734ece3995db69a22768de44aaf1ac729e6455efce",
+      "download_bytes": 1578002,
+      "runtime": {
+        "status": "partial",
+        "executed": true,
+        "attempted": true,
+        "checks": {
+          "structure": {
+            "ghost_master": "ghost/master",
+            "source_tree_sha256": "82378d283030d081f89cce6c92e0ed7c4c0cd33abaf9c00d902974e5a2196d27",
+            "source_file_count": 80,
+            "digest_complete": true
+          },
+          "engine": {
+            "module_stem": "aosora",
+            "runtime_kind": "native",
+            "bundled_engine": "aosora",
+            "helper": "native_dylib",
+            "abi": "aosora",
+            "native_artifact": "libaosora.dylib",
+            "windows_only_metadata": false,
+            "ghost_windows_module_present": true,
+            "engine_hint_applied": false,
+            "unsupported_reason": null
+          },
+          "runtime_executed": true,
+          "verification_layer": "SHIORI helper lifecycle; GUI and external SAORI unverified",
+          "lifecycle": [
+            {
+              "event": "load",
+              "ok": true,
+              "http_status": 200,
+              "value_length": 0,
+              "value_nonempty": false,
+              "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "error_category": null
+            },
+            {
+              "event": "OnBoot",
+              "ok": true,
+              "http_status": 200,
+              "value_length": 1305,
+              "value_nonempty": true,
+              "value_sha256": "c180c5c7feb943f961a3e033d8a55a761f1dae577d377011bb184551d9353b5e",
+              "error_category": null
+            },
+            {
+              "event": "OnClose",
+              "ok": true,
+              "http_status": 200,
+              "value_length": 18,
+              "value_nonempty": true,
+              "value_sha256": "deb9681a8402c0ee94f1e8dbdf22044cad5eeab95f31abb640abcd34ab7b890d",
+              "error_category": null
+            },
+            {
+              "event": "OnDestroy",
+              "ok": true,
+              "http_status": 204,
+              "value_length": 0,
+              "value_nonempty": false,
+              "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "error_category": null
+            },
+            {
+              "event": "unload",
+              "ok": true,
+              "http_status": 200,
+              "value_length": 0,
+              "value_nonempty": false,
+              "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "error_category": null
+            }
+          ],
+          "conversation": {
+            "event": "OnAITalk",
+            "ok": false,
+            "http_status": 204,
+            "value_length": 0,
+            "value_nonempty": false,
+            "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "error_category": null
+          },
+          "persistence": {
+            "tree_sha256_after_cycle": "a52fdb05578b1b5cd82d6b2b1eb1c78266aa03ef0646da3d0a630d7271630915",
+            "tree_changed": true,
+            "save_file_observed": null,
+            "persistence_semantically_verified": false,
+            "digest_error": null,
+            "cycle2": [
+              {
+                "event": "load",
+                "ok": true,
+                "http_status": 200,
+                "value_length": 0,
+                "value_nonempty": false,
+                "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "error_category": null
+              },
+              {
+                "event": "OnBoot",
+                "ok": true,
+                "http_status": 200,
+                "value_length": 1305,
+                "value_nonempty": true,
+                "value_sha256": "c180c5c7feb943f961a3e033d8a55a761f1dae577d377011bb184551d9353b5e",
+                "error_category": null
+              },
+              {
+                "event": "OnClose",
+                "ok": true,
+                "http_status": 200,
+                "value_length": 18,
+                "value_nonempty": true,
+                "value_sha256": "deb9681a8402c0ee94f1e8dbdf22044cad5eeab95f31abb640abcd34ab7b890d",
+                "error_category": null
+              },
+              {
+                "event": "unload",
+                "ok": true,
+                "http_status": 200,
+                "value_length": 0,
+                "value_nonempty": false,
+                "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "error_category": null
+              }
+            ],
+            "cycle2_load_ok": true,
+            "cycle2_complete": true
+          },
+          "host_capabilities": {
+            "unavailable_ops": [],
+            "fmo_empty_snapshot": false
+          },
+          "dictionary_integrity": {
+            "before": {
+              "files": 7,
+              "sha256": "79ab2271580ee90475efbd7bc6d25c63036e21e15bfb8d13d3213c873efe0bee"
+            },
+            "after": {
+              "files": 7,
+              "sha256": "79ab2271580ee90475efbd7bc6d25c63036e21e15bfb8d13d3213c873efe0bee"
+            },
+            "unchanged": true,
+            "scope": "All .as and .asproj files; generated savedata is separate"
+          }
+        },
+        "reason": "lifecycle_without_conversation"
+      },
+      "cleanup": {
+        "status": "pass"
+      },
+      "notes": "Load, OnBoot, OnClose and unload passed twice. OnAITalk returned 204, so runtime remains partial; UI and full interaction are untested."
+    }
+  ],
+  "cleanup_pending": [],
+  "cleanup": {
+    "downloaded_ghost_archives_removed": true,
+    "extracted_ghosts_removed": true,
+    "temporary_upstream_source_removed": true,
+    "private_compiled_engine_retained": true
+  }
+}

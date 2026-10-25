@@ -17,6 +17,13 @@
 #include <signal.h>
 #include <spawn.h>
 #include <string>
+#include <sstream>
+#include <CommonCrypto/CommonDigest.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <regex>
+#include <set>
+
 #include <sys/wait.h>
 #include <unistd.h>
 extern char **environ;
@@ -81,6 +88,7 @@ void stop() {
  for(auto &[key,b]:backends){if(b.unload)b.unload();dlclose(b.handle);}backends.clear();
 }
 using Clock=std::chrono::steady_clock;
+#include "bouyomi_backend.hpp"
 void waitFD(int fd,short event,Clock::time_point deadline) {
  auto ms=std::chrono::duration_cast<std::chrono::milliseconds>(deadline-Clock::now()).count();
  if(ms<=0)throw std::runtime_error("helper timeout");pollfd p{fd,event,0};int n;
@@ -130,11 +138,20 @@ bool startUGM(const json& params) {
 json callback(const json &message) {
  const auto denied=[](){unavailable=true;return json{{"ok",false},{"status",501},{"error","host operation unavailable in plugin adapter"}};};
  if(message.value("host_op","")=="execute") {
+  if(bouyomi::enabled()) {
+   try {if(bouyomi::execute(message.at("params")))return {{"ok",true},{"status",200},{"exit_code",0}};}catch(...){return denied();}
+  }
   if(startUGM(message.at("params")))return {{"ok",true},{"status",200},{"exit_code",0}};
   return denied();
  }
  if(message.value("host_op","")!="plugin")return denied();
  auto op=message.at("params");auto params=op.at("params");std::string key=moduleKey(params.value("module",""));
+ if(bouyomi::enabled()&&key=="proxy_ex.dll") {
+  const auto operation=op.value("operation","");
+  if(operation=="saori_load"||operation=="saori_unload")return {{"ok",true}};
+  if(operation!="saori_request")return denied();
+  try {return {{"ok",true},{"status",200},{"response",bouyomi::saori(params.value("request",""))}};}catch(...){return denied();}
+ }
  auto configured=settings.value("saori_backends",json::object());if(!configured.contains(key))return denied();
  std::string operation=op.value("operation","");
  if(operation=="saori_unload") {auto it=backends.find(key);if(it!=backends.end()){if(it->second.unload)it->second.unload();dlclose(it->second.handle);backends.erase(it);}return {{"ok",true}};}
@@ -180,11 +197,12 @@ void launch(const fs::path &helper,const fs::path &cwd) {
 std::string failure(int code,const std::string &reason) {return "PLUGIN/2.0 "+std::to_string(code)+" "+reason+"\r\nCharset: UTF-8\r\n\r\n";}
 }
 extern "C" int32_t plugin_loadu(char *directory,size_t) {
- free(directory);std::lock_guard<std::mutex> lock(guard);stop();unavailable=false;
+ free(directory);std::lock_guard<std::mutex> lock(guard);stop();bouyomi::reset();unavailable=false;
  try {
   Dl_info info{};if(!dladdr(reinterpret_cast<void*>(&plugin_loadu),&info))return 0;
   resources=fs::path(info.dli_fname).parent_path().parent_path()/"Resources";
   std::ifstream file(resources/"adapter.json");file>>settings;
+  if(bouyomi::enabled())bouyomi::configure();
   auto load=settings.at("load");load["host_execute"]=true;auto root=inside(resources,load.at("ghost_root").get<std::string>());load["ghost_root"]=root.string();
   load["save_file"]=inside(resources,load.at("save_file").get<std::string>()).string();
   for(auto &entry:load.at("dic_entries"))inside(root,entry.at("path").get<std::string>());
@@ -210,6 +228,7 @@ extern "C" const unsigned char* plugin_request(const unsigned char *data,size_t 
   else if(length>LIMIT||(!data&&length))responseBuffer=failure(400,"Invalid Request");
   else {
    std::string wire(reinterpret_cast<const char*>(data),length);wire=codec(wire,header(wire,"Charset"),"UTF-8");
+   bouyomi::grantRequestRoot(wire);
    auto result=transact({{"cmd","plugin_request"},{"wire",wire}});
    if(unavailable)responseBuffer=failure(501,"Host Capability Unavailable");
    else if(result.value("ok",false)&&result.contains("wire")) {

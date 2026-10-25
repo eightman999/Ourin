@@ -162,6 +162,60 @@ def bind_kagari(module: ctypes.CDLL, libc: ctypes.CDLL) -> tuple:
     return do_load, do_request, do_unload
 
 
+def parse_aosora_response(raw: bytes) -> dict:
+    # Upstream reports script errors using SHIORI 200 + ErrorLevel. Warnings
+    # are not failures; multiple errors use the protocol's SOH separator.
+    for line in raw.lower().split(b"\r\n"):
+        key, separator, value = line.partition(b":")
+        if separator and key == b"errorlevel" and b"error" in [v.strip() for v in value.split(b"\x01")]:
+            return {"ok": False, "status": 500, "value": "", "error": "aosora_runtime_error"}
+    return parse_shiori_response(raw)
+
+
+def bind_aosora(module: ctypes.CDLL, libc: ctypes.CDLL) -> tuple:
+    module.aosora_load.argtypes = [ctypes.c_void_p, ctypes.c_long]
+    module.aosora_load.restype = ctypes.c_long
+    module.aosora_request.argtypes = [ctypes.c_long, ctypes.c_void_p, ctypes.POINTER(ctypes.c_long)]
+    module.aosora_request.restype = ctypes.c_void_p
+    module.aosora_unload.argtypes = [ctypes.c_long]
+    module.aosora_unload.restype = ctypes.c_int
+    instance = 0
+
+    def do_load(ghost_root: str) -> dict:
+        nonlocal instance
+        data = (ghost_root.rstrip("/") + "/").encode()
+        instance = module.aosora_load(owned(libc, data), ctypes.c_long(len(data)))
+        loaded = instance > 0
+        return {"ok": loaded, "status": 200 if loaded else 500, "value": ""}
+
+    def do_request(command: dict) -> dict:
+        if instance <= 0:
+            return {"ok": False, "status": 500, "value": ""}
+        payload = wire_request(command)
+        length = ctypes.c_long(len(payload))
+        pointer = module.aosora_request(instance, owned(libc, payload), ctypes.byref(length))
+        if not pointer:
+            return {"ok": False, "status": 500, "value": ""}
+        try:
+            if not 0 <= length.value <= 64 * 1024 * 1024:
+                return {"ok": False, "status": 500, "value": ""}
+            raw = ctypes.string_at(pointer, length.value)
+        finally:
+            libc.free(pointer)
+        return parse_aosora_response(raw)
+
+    def do_unload() -> dict:
+        nonlocal instance
+        ok = True
+        if instance > 0:
+            # Aosora uses positive long IDs; adapter.cpp calls Unload before erase.
+            ok = module.aosora_unload(instance) == 1
+            instance = 0
+        return {"ok": ok, "status": 200 if ok else 500, "value": ""}
+
+    return do_load, do_request, do_unload
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--abi", required=True)
@@ -181,6 +235,8 @@ def main() -> int:
         do_load, do_request, do_unload = bind_long(module, libc)
     elif abi == "ukagaka-int32":
         do_load, do_request, do_unload = bind_int32(module, libc)
+    elif abi == "aosora":
+        do_load, do_request, do_unload = bind_aosora(module, libc)
     elif abi == "kagari":
         do_load, do_request, do_unload = bind_kagari(module, libc)
     else:

@@ -5,6 +5,8 @@ from pathlib import Path
 
 
 BUNDLED_ENGINES = {
+    # Optional personal build: resolved only from explicitly trusted --engine-dir.
+    "aosora": ("aosora", ("libaosora.dylib",)),
     "kawari": ("ukagaka-long", ("libkawari_shiori.dylib", "libshiori.dylib", "shiori.dylib", "kawari.dylib")),
     "kagari": ("kagari", ("libkagari.dylib", "kagari.dylib")),
     "akari": ("ukagaka-int32", ("libakari.dylib",)),
@@ -174,6 +176,9 @@ def resolve_engine(
         repo / "build/engines/kawari",
         repo / "engines",
     ]
+
+    if bundled == "aosora":
+        search_dirs = list(engine_dirs)
 
     if kind == "yaya_core":
         helper_name = "yaya_core"
