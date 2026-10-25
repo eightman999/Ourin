@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Manifest</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="translation-manifest">Translation Manifest</h1>
+<p>This document tracks the translation status of all Ourin documentation.</p>
+<h2 id="status-overview">Status Overview</h2>
+<p>⚠️ <strong>Re-audited 2026-07-02.</strong> The previous "100% complete / 61 pairs / 0 remaining" summary
+was stale and did not match the files on disk. A fresh count of <code>docs/*_ja-jp.md</code> /
+<code>docs/*_en-us.md</code> plus the legacy <code>DEPENDENCIES</code> pair found that <strong>20 pairs still contain a
+"Translation Pending" placeholder stub</strong> on one side. This manifest now reflects the actual
+per-file state, verified by reading each flagged file's content (not just checking that both
+files exist).</p>
+<ul>
+<li><strong>Total tracked pairs</strong>: 57 (56 <code>_ja-jp</code> / <code>_en-us</code> pairs + 1 <code>DEPENDENCIES</code> pair)</li>
+<li><strong>Complete pairs</strong>: 37</li>
+<li><strong>Need Translation</strong>: 20 (16 need EN, 4 need JA)</li>
+<li><strong>Completion</strong>: 37/57 (65%)</li>
+<li><strong>Notes</strong>: Original unsuffixed working docs (audit reports, plans, summaries) are kept
+  in place; their translated counterparts were added alongside rather than renaming them.
+  The legacy <code>DEPENDENCIES.ja.md</code> / <code>DEPENDENCIES.en.md</code> pair was migrated to the standard
+  <code>DEPENDENCIES_ja-jp.md</code> / <code>DEPENDENCIES_en-us.md</code> naming on 2026-07-02 (see
+  <a href="../TRANSLATION_WORKFLOW.md">TRANSLATION_WORKFLOW.md</a>); all pairs now use one naming scheme.</li>
+</ul>
+<h2 id="complete-pairs-37">Complete Pairs (37)</h2>
+<ol>
+<li>✅ About_FMO</li>
+<li>✅ AUDIT_PROMPT</li>
+<li>✅ BALLOON_1.0M_SPEC</li>
+<li>✅ BLOCKER_TRACKER</li>
+<li>✅ CODE_SPEC_DIFF_2026-06</li>
+<li>✅ COMPAT_FIXES_2026-06</li>
+<li>✅ connect_swift</li>
+<li>✅ DEPENDENCIES (<code>DEPENDENCIES_en-us.md</code> / <code>DEPENDENCIES_ja-jp.md</code>)</li>
+<li>✅ DevToolsUIMockup</li>
+<li>✅ DOCUMENTATION_UPDATE_SUMMARY（2026-08-15 <code>docs/archive/</code> へ移動）</li>
+<li>✅ GhostConfigurationImplementation</li>
+<li>✅ IMPLEMENTATION_PLAN_2026-06（2026-08-15 <code>docs/archive/</code> へ移動）</li>
+<li>✅ IMPLEMENTATION_STATUS_SUMMARY</li>
+<li>✅ INTEGRATION_ROADMAP（2026-08-15 <code>docs/archive/</code> へ移動）</li>
+<li>✅ NAR_INSTALL_1.0M_SPEC</li>
+<li>✅ OURIN_EXTENSIONS</li>
+<li>✅ OURIN_MIGRATOR_PLAN</li>
+<li>✅ PLUGIN_BRIDGE_COMPLETION_PLAN</li>
+<li>✅ PLUGIN_COMPAT_FIX_PROPOSAL</li>
+<li>✅ PROJECT_SUMMARY（2026-08-15 <code>docs/archive/</code> へ移動）</li>
+<li>✅ PROPERTY_1.0M_SPEC</li>
+<li>✅ PropertySystem</li>
+<li>✅ README</li>
+<li>✅ RightClickMenuMockup</li>
+<li>✅ SAKURASCRIPT_COMMANDS_SUPPORTED</li>
+<li>✅ SAORI_IMPLEMENTATION</li>
+<li>✅ SERIKO_IMPLEMENTATION</li>
+<li>✅ SERIKO_IMPLEMENTATION_PROGRESS_REPORT</li>
+<li>✅ SERIKO_OVERLAY_DRESSUP_RENDERING_SPEC</li>
+<li>✅ SHIORI_3.0M_SPEC</li>
+<li>✅ SHIORI_EVENTS_FULL_1.0M_PATCHED</li>
+<li>✅ SHIORI_EXTERNAL_3.0M_SPEC</li>
+<li>✅ SHIORI_RESOURCE_3.0M_SPEC</li>
+<li>✅ SSTP_1.xM_SPEC</li>
+<li>✅ SSTP_DISPATCHER_GUIDE</li>
+<li>✅ SUPPORTED_SAKURA_SCRIPT</li>
+<li>✅ YAYA_DIC_COMPAT_IMPLEMENTATION_PLAN</li>
+</ol>
+<h2 id="documents-needing-translation-20">Documents Needing Translation (20)</h2>
+<p>Each entry below was verified by opening the file: the listed side still contains the
+<code>**Status:** Translation Pending</code> (or <code>**ステータス:** 翻訳待ち</code>) placeholder stub, not a
+real translation.</p>
+<h3 id="need-en-translation-16">Need EN translation (16)</h3>
+<ol>
+<li>⏳ SPEC_PLUGIN_2.0M (JA → <strong>need EN</strong>)</li>
+<li>⏳ OURIN_YAYA_ADAPTER_SPEC_1.0M (JA → <strong>need EN</strong>)</li>
+<li>⏳ OURIN_USL_1.0M_SPEC (JA → <strong>need EN</strong>)</li>
+<li>⏳ OURIN_SHIORI_EVENTS_3.0M_SPEC (JA → <strong>need EN</strong>)</li>
+<li>⏳ SHIORI_EVENTS_3.0M_SPEC (JA → <strong>need EN</strong>)</li>
+<li>⏳ PLUGIN_EVENT_2.0M_SPEC (JA → <strong>need EN</strong>)</li>
+<li>⏳ PLUGIN_EVENT_2.0M_SPEC_FULL (JA → <strong>need EN</strong>)</li>
+<li>⏳ PROPERTY_1.0M_SPEC_FULL (JA → <strong>need EN</strong>)</li>
+<li>⏳ PROPERTY_Resource_3.0M_SPEC (JA → <strong>need EN</strong>)</li>
+<li>⏳ SAKURASCRIPT_FULL_1.0M_PATCHED (JA → <strong>need EN</strong>)</li>
+<li>⏳ HEADLINE_2.0M_SPEC (JA → <strong>need EN</strong>)</li>
+<li>⏳ WEB_1.0M_SPEC (JA → <strong>need EN</strong>)</li>
+<li>⏳ SSTP_Host_Modules_JA (JA → <strong>need EN</strong>)</li>
+<li>⏳ ONBOARDING (JA → <strong>need EN</strong>)</li>
+<li>⏳ YAYA_CORE_IMPLEMENTATION_PLAN (JA → <strong>need EN</strong>)</li>
+<li>⏳ YAYA_CORE_INVESTIGATION_REPORT (JA → <strong>need EN</strong>)</li>
+</ol>
+<h3 id="need-ja-translation-4">Need JA translation (4)</h3>
+<ol>
+<li>⏳ YAYA_CORE_ARCHITECTURE (EN → <strong>need JA</strong>)</li>
+<li>⏳ YAYA_CORE_EXECUTIVE_SUMMARY (EN → <strong>need JA</strong>)</li>
+<li>⏳ YAYA_CORE_INDEX (EN → <strong>need JA</strong>)</li>
+<li>⏳ YAYA_CORE_TECHNICAL_SPEC (EN → <strong>need JA</strong>)</li>
+</ol>
+<h2 id="translation-guidelines">Translation Guidelines</h2>
+<h3 id="for-technical-specifications">For Technical Specifications</h3>
+<ul>
+<li>Keep technical terms (API names, functions, etc.) in English in both versions</li>
+<li>Translate narrative descriptions and explanations</li>
+<li>Maintain consistent terminology across documents</li>
+</ul>
+<h3 id="for-code-examples">For Code Examples</h3>
+<ul>
+<li>Keep code unchanged</li>
+<li>Translate comments and explanations</li>
+</ul>
+<h3 id="formatting">Formatting</h3>
+<ul>
+<li>Maintain identical markdown structure</li>
+<li>Keep all anchor links and references consistent</li>
+<li>Ensure TOC/index entries match</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>All files use the language suffix naming (<code>_ja-jp.md</code> or <code>_en-us.md</code>); the former
+  <code>DEPENDENCIES.ja.md</code> / <code>DEPENDENCIES.en.md</code> exception was migrated on 2026-07-02.</li>
+<li>Files marked with ✅ are complete with both languages (verified by content, not just
+  file existence — a file can exist and still be an unfilled placeholder stub).</li>
+<li>Files marked with ⏳ need translation as indicated; the placeholder side still reads
+  "Translation Pending" / "翻訳待ち".</li>
+<li>Priority order in this list reflects importance for end users and developers.</li>
+</ul>
+<h2 id="2026-10-25-additions">2026-10-25 additions</h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Japanese</th>
+<th>English</th>
+<th>Translation status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Native SHIORI ABI</td>
+<td><a href="NATIVE_SHIORI_ABI_ja-jp.html">NATIVE_SHIORI_ABI_ja-jp.md</a></td>
+<td><a href="NATIVE_SHIORI_ABI_en-us.html">NATIVE_SHIORI_ABI_en-us.md</a></td>
+<td>Complete; declarations, signatures, ownership and limitations compared on 2026-10-25</td>
+</tr>
+<tr>
+<td>SHIOLINK</td>
+<td><a href="SHIOLINK_ja-jp.html">SHIOLINK_ja-jp.md</a></td>
+<td><a href="SHIOLINK_en-us.html">SHIOLINK_en-us.md</a></td>
+<td>Complete; configuration, transport and limitations compared on 2026-10-25</td>
+</tr>
+<tr>
+<td>Known issues</td>
+<td><a href="KNOWN_ISSUES_ja-jp.html">KNOWN_ISSUES_ja-jp.md</a></td>
+<td><a href="KNOWN_ISSUES_en-us.html">KNOWN_ISSUES_en-us.md</a></td>
+<td>Complete; constraints and verification layers aligned</td>
+</tr>
+<tr>
+<td>Bug reporting</td>
+<td><a href="BUG_REPORT_GUIDE_ja-jp.html">BUG_REPORT_GUIDE_ja-jp.md</a></td>
+<td><a href="BUG_REPORT_GUIDE_en-us.html">BUG_REPORT_GUIDE_en-us.md</a></td>
+<td>Complete; diagnostics, reproducibility and redaction aligned</td>
+</tr>
+<tr>
+<td>Bundled KAWARI/KAGARI</td>
+<td><a href="KAWARI_KAGARI_ENGINES_ja-jp.html">KAWARI_KAGARI_ENGINES_ja-jp.md</a></td>
+<td><a href="KAWARI_KAGARI_ENGINES_en-us.html">KAWARI_KAGARI_ENGINES_en-us.md</a></td>
+<td>Complete; build, ABI and verification limits aligned</td>
+</tr>
+</tbody>
+</table>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../TRANSLATION_MANIFEST.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -3,6 +3,9 @@
 > 誤記している（いずれも `GhostManager.swift` に実装済み）。
 > さくらスクリプトの対応状況は **`docs/SAKURASCRIPT_COMMANDS_SUPPORTED_en-us.md` / `docs/SUPPORTED_SAKURA_SCRIPT.md` を正本**とすること。
 > 本ファイルは履歴用に残置。
+>
+> **現在のTODO（2026-10-24更新）**: [監査残件](../docs/AUDITS_TODO.md) / [実装・GitHub issue照合](../docs/TODO_ISSUE_STATUS.md) / [完了記録](../docs/AUDITS_COMPLETED.md)。
+> Current TODOs: follow the audit backlog and issue reconciliation above; the historical list below is not actionable.
 
 # SakuraScript Implementation Status
 

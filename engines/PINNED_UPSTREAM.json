@@ -1,0 +1,13 @@
+{
+  "kagari_shiori": {
+    "repository": "https://github.com/Tatakinov/kagari_shiori",
+    "revision": "ba87ccbd850c787aeeea7d31bed293d64bc09f01",
+    "license": "LICENSE",
+    "dependencies": {
+      "lua": "5.4.4",
+      "sol2": "3.2.2"
+    },
+    "darwin_artifact": "libkagari.dylib",
+    "ourin_shiori_abi": "kagari"
+  }
+}

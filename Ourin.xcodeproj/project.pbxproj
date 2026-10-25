@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A30000000000000000000001 /* NativeShioriModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000002 /* NativeShioriModule.swift */; };
 		A10000000000000000000001 /* OurinShioriXPCService.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = A10000000000000000000004 /* OurinShioriXPCService.xpc */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3B9ADBDA98BE41B980EF4FF3 /* sakura.nar in Resources */ = {isa = PBXBuildFile; fileRef = 8684A3B06E824388A6939F39 /* sakura.nar */; };
 		A0F475111AF14D23831E8DFA /* yaya_core in Copy yaya_core */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -65,6 +66,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A30000000000000000000002 /* NativeShioriModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ourin/USL/NativeShioriModule.swift; sourceTree = SOURCE_ROOT; };
 		A10000000000000000000004 /* OurinShioriXPCService.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = OurinShioriXPCService.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 		4461E2FD564847458C545C0E /* yaya_core */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = yaya_core; path = yaya_core/build/yaya_core; sourceTree = "<group>"; };
 		A20000000000000000000002 /* satori_core */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = satori_core; path = satori_core/build/satori_core; sourceTree = "<group>"; };
@@ -216,6 +218,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = DF88A8122E35199D00644F8A /* Build configuration list for PBXNativeTarget "Ourin" */;
 			buildPhases = (
+				A40000000000000000000001 /* Build and embed native SHIORI engines */,
 				FB9B89652D3B4A46A677B797 /* Build yaya_core */,
 				A20000000000000000000003 /* Build satori_core */,
 				DF88A7EC2E35199C00644F8A /* Sources */,
@@ -406,6 +409,18 @@
 			shellPath = /bin/sh;
 			shellScript = "cd \"${SRCROOT}/yaya_core\"\nneeds_build=0\nif [ ! -x \"build/yaya_core\" ] || [ \"CMakeLists.txt\" -nt \"build/yaya_core\" ] || [ \"build.sh\" -nt \"build/yaya_core\" ]; then\n    needs_build=1\nfi\nif [ \"$needs_build\" -eq 0 ] && find src third_party -type f -newer \"build/yaya_core\" -print -quit | grep -q .; then\n    needs_build=1\nfi\nif [ \"$needs_build\" -eq 1 ]; then\n    ./build.sh\nfi\n";
 		};
+		A40000000000000000000001 /* Build and embed native SHIORI engines */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = ();
+			inputPaths = ();
+			name = "Build and embed native SHIORI engines";
+			outputPaths = ();
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "bash \"${SRCROOT}/engines/package.sh\"\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -413,6 +428,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A30000000000000000000001 /* NativeShioriModule.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

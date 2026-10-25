@@ -292,7 +292,19 @@
   const unsigned char* request(const unsigned char* buf, size_t len, size_t* out_len);
   /* optional */ void plugin_free(void* p);</code>
   ※ 2.0 の関数構成を C ABI に読み替える（HGLOBAL 等の WinAPI 前提は撤廃）。</li>
-<li><strong>メモリ管理</strong>：既定は <strong>呼び出し側（ホスト）でコピー/破棄</strong>。必要なら <code>plugin_free()</code> を任意提供。</li>
+<li><strong>メモリ管理</strong>：既定は <strong>呼び出し側（ホスト）でコピー/破棄</strong>。必要なら <code>plugin_free()</code> を任意提供。
+  ホストは応答を複製するだけで <code>plugin_free()</code> を自動では呼ばない（静的バッファを返す実装と両立させるため）。</li>
+<li><strong>load の引数</strong>：ホストは <code>malloc</code> 確保・NUL 終端・<strong>末尾 <code>/</code> 付き</strong>のディレクトリを <code>load(ptr, len)</code> 形式で渡す。
+  所有権はモジュールへ移るので <code>free()</code> してよい。<code>int load(const char*)</code> の実装もそのまま受け取れる。戻り値 0 はログに残すがロードは継続する。</li>
+<li><strong>Windows DLL 互換 ABI（任意）</strong>：DLL のソースを変えずに移植する場合、Windows と同じ
+  <code>c
+  int   load(void *h, long len);      // h は free する
+  void *request(void *h, long *len);  // h は free する。*len は入力長→出力長。戻り値は malloc 確保（ホストが free）</code>
+  を使える。<code>.plugin</code> / <code>.bundle</code> は Info.plist に <code>OurinModuleABI</code> = <code>ukagaka</code> を宣言する。
+  bundle にしない単体 <code>.dylib</code> はこの規約を既定とする。HEADLINE の <code>execute</code> も同じ扱い。</li>
+<li><strong>配置と解決</strong>：<code>plugin/&lt;name&gt;/descript.txt</code> の <code>filename</code>（例 <code>Foo.dll</code>）から、同じディレクトリの
+  <code>Foo.dylib</code> / <code>libFoo.dylib</code> / <code>Foo.plugin</code> / <code>Foo.bundle</code> / <code>Foo.so</code> を大小文字を区別せずに探す。
+  <code>install.txt</code> は不要。Windows PE（<code>MZ</code>）の <code>.dll</code> 自体は実行対象にしない。HEADLINE（<code>headline/&lt;name&gt;/</code>）・SAORI も同じ規則で解決する。</li>
 </ul>
 <h2 id="8">8. イベント分岐（実装指針）</h2>
 <ul>
@@ -356,7 +368,7 @@ Charset: UTF-8
 <li>[x] <strong>CFBundle ロード</strong>: <code>.plugin</code> および <code>.bundle</code> ファイルのロード機能を実装済み</li>
 <li>[x] <strong>descript.txt 解析</strong>: プラグインメタデータの読み取りを実装済み</li>
 <li>[x] <strong>install.txt パッケージ検出</strong>: <code>type,plugin</code> ディレクトリ配下の native <code>.plugin</code> 読み込みを実装済み</li>
-<li>[x] <strong>message.*.txt 解析</strong>: パッケージルートの言語別メッセージ辞書を読み取り、plugin メタデータへ保持</li>
+<li>[x] **message.*.txt 解析**: パッケージルートの言語別メッセージ辞書を読み取り、plugin メタデータへ保持</li>
 <li>[x] <strong>互換ビュー</strong>: <code>PluginCompatibilityEntry</code> で <code>path</code> / <code>executablePath</code> / <code>packagePath</code> / 実行可否を明示</li>
 <li>[x] <strong>legacy DLL metadata-only</strong>: Windows DLL 資産をロードせず、一覧・プロパティ互換情報として登録</li>
 <li>[x] <strong>文字コード対応</strong>: UTF-8 既定、Shift_JIS/CP932 の自動検出を実装済み</li>
@@ -546,7 +558,7 @@ private extension Bundle { var _cfBundle: CFBundle { CFBundleGetBundleWithIdenti
 <p>注: 本文中の例・定数は説明用。実装では例外処理・境界チェック・SJIS→UTF‑8 変換のエラー処理等を追加すること。</p>
 </blockquote>
         <div class="footer">
-            <p>Generated: 2026-08-15 | <a href="../SPEC_PLUGIN_2.0M_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-10-25 | <a href="../SPEC_PLUGIN_2.0M_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

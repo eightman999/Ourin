@@ -118,3 +118,13 @@ real translation.
 - Files marked with ⏳ need translation as indicated; the placeholder side still reads
   "Translation Pending" / "翻訳待ち".
 - Priority order in this list reflects importance for end users and developers.
+
+## 2026-10-25 additions
+
+| Document | Japanese | English | Translation status |
+|---|---|---|---|
+| Native SHIORI ABI | [NATIVE_SHIORI_ABI_ja-jp.md](NATIVE_SHIORI_ABI_ja-jp.md) | [NATIVE_SHIORI_ABI_en-us.md](NATIVE_SHIORI_ABI_en-us.md) | Complete; declarations, signatures, ownership and limitations compared on 2026-10-25 |
+| SHIOLINK | [SHIOLINK_ja-jp.md](SHIOLINK_ja-jp.md) | [SHIOLINK_en-us.md](SHIOLINK_en-us.md) | Complete; configuration, transport and limitations compared on 2026-10-25 |
+| Known issues | [KNOWN_ISSUES_ja-jp.md](KNOWN_ISSUES_ja-jp.md) | [KNOWN_ISSUES_en-us.md](KNOWN_ISSUES_en-us.md) | Complete; constraints and verification layers aligned |
+| Bug reporting | [BUG_REPORT_GUIDE_ja-jp.md](BUG_REPORT_GUIDE_ja-jp.md) | [BUG_REPORT_GUIDE_en-us.md](BUG_REPORT_GUIDE_en-us.md) | Complete; diagnostics, reproducibility and redaction aligned |
+| Bundled KAWARI/KAGARI | [KAWARI_KAGARI_ENGINES_ja-jp.md](KAWARI_KAGARI_ENGINES_ja-jp.md) | [KAWARI_KAGARI_ENGINES_en-us.md](KAWARI_KAGARI_ENGINES_en-us.md) | Complete; build, ABI and verification limits aligned |

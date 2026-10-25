@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>残件の優先順位と委譲記録 / Priorities and delegation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="priorities-and-delegation">残件の優先順位と委譲記録 / Priorities and delegation</h1>
+<p>確認日: 2026-10-25。作業先は <code>codex/ourin-pr-integration</code>。ローカル変更であり、GitHubのmerge/close、commit/push、正式リリースは未実施。</p>
+<h2 id="priority-order">優先順 / Priority order</h2>
+<table>
+<thead>
+<tr>
+<th>順位</th>
+<th>対象</th>
+<th>実行先</th>
+<th>現状と完了条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0-1</td>
+<td>#96 #97 #99、#98の準備</td>
+<td>Devin CLI / SWE-2 High</td>
+<td>CI・最低OS・版数検査を実装。統合側でレビュー修正、metadata正常・変異17ケースPASS。GitHub CI実行、最低OS実機、正式署名・公証、branch protectionは残る。</td>
+</tr>
+<tr>
+<td>P0-2</td>
+<td>#100 #103</td>
+<td>OpenCode / HAI DeepSeek v4.1 Flash</td>
+<td>初回は25分timeout。取得済み証拠を絞ったHAI再実行で信頼モデル・ライセンス監査2文書を作成。権限・認証設定の変更は範囲外。監査指摘の解消と実配布物照合を完了条件にする。</td>
+</tr>
+<tr>
+<td>P1-1</td>
+<td>#101、華和梨・KAGARI</td>
+<td>Cursor CLI / Composer 2.5</td>
+<td>固定上流の実エンジン・ABI・buildを実装。統合側でUniversal 2同梱とXPCテストを追加。華和梨LOBOの実エンジン検証は成功。KAGARI最小辞書PASS、もすはsaori_universal.native不足を記録。</td>
+</tr>
+<tr>
+<td>P1-2</td>
+<td>#191等の実ゴースト互換性</td>
+<td>Devin CLI / SWE-2 High → 統合側引継ぎ</td>
+<td>調査中に確認必須toolが拒否され、実編集前に停止。終了コード0を成功扱いせず引継ぎ。統合側でFOPEN/FREAD・foreach・変数永続化・GETVARLISTを修正。実helper9件PASS、Taromati2定期イベント停止を解消。</td>
+</tr>
+<tr>
+<td>P1-3</td>
+<td>#109 #118</td>
+<td>OpenCode / z.ai GLM 5.3 Flash</td>
+<td>z.aiの変更を回収（25分timeout）。統合側でFINE単一宛先配送・初期値のwire検証を補強し、scriptbox open/close修正を検証。最終全体1,541実行/失敗0で統合回帰PASS。実入力窓の手動確認とSSP比較は残る。</td>
+</tr>
+<tr>
+<td>P1-4</td>
+<td>#95 #104</td>
+<td>OpenCode / DeepSeek Free → 統合側引継ぎ</td>
+<td>認証期限切れ。rdshのFree endpointもFreeTierErrorで拒否、保存済みDSHキーを使う実OpenCodeでも期限切れ。課金モデルへの置換・認証変更は行わず、文書整備は統合側で完了（9ファイル、50リンク検査PASS）。</td>
+</tr>
+<tr>
+<td>P1-5</td>
+<td>#102</td>
+<td>統合側</td>
+<td>クリーンMacでinstall→NAR→保存→再起動。チェックリスト整備済みでも実機E2E完了とはしない。</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>#161、描画・音声・OSイベント</td>
+<td>後続キュー</td>
+<td>実シェル、実機・目視での残差確認。自動テスト件数だけで完了にしない。</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>#121、自動クラウド同期、翻訳残件</td>
+<td>後続キュー</td>
+<td>手動.ssg入出力と自動同期を区別。仕様とデータ保護方針を先に決める。</td>
+</tr>
+<tr>
+<td>追跡</td>
+<td>#105 #141</td>
+<td>統合側</td>
+<td>子issueの証拠を集約。上記gateが残る間はrelease完了にしない。</td>
+</tr>
+<tr>
+<td>保留</td>
+<td>#114 #122 #124</td>
+<td>割当対象外</td>
+<td>既存の対象外・保留判断を維持。</td>
+</tr>
+</tbody>
+</table>
+<p>既に取り込んだClaude PR 33件の重複実装は割り当てず、<a href="TODO_ISSUE_STATUS_unknown.html">全issue表</a>と<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を基準にした。</p>
+<h2 id="site-copy">サイト文言 / Site copy</h2>
+<ul>
+<li>agy / Gemini 3.8 Flash High: 5ページの校閲結果を取得。英語装飾・過剰な比喩を整理し、公開版と開発版、紹介デモと実アプリを区別した。</li>
+<li>Sarashina: rdshの14プロファイルに接続先・キーなし。ブラウザもログイン前。ユーザーが現在操作できないため認証待ちとして保留。突合済みとは扱わない。</li>
+<li>デザイン: 白い紙色・墨色・淡い桜色、細い罫線と明朝見出し。紹介／使い方／資料／対応状況／ダウンロードの5ページ。</li>
+</ul>
+<h2 id="evidence-english-summary">Evidence / English summary</h2>
+<p>Provider labels above refer to actual CLI/model attempts, not substitute Codex agents. DeepSeek Free could not authenticate; the direct rdsh route was rejected by the provider's Free-tier restriction. Devin's YAYA run stopped at a confirmation-required tool despite exit code zero; implementation was reassigned explicitly. Gemini reviewed the site copy. Sarashina has not reviewed it because authentication is unavailable. Local integration, automated engine probes, GUI validation, remote CI and public release are separate acceptance layers.</p>
+<p>Task-local execution logs: <code>/tmp/ourin-delegation-20261025/</code>. No credential values or third-party ghost archives are included in this repository.</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../DELEGATION_2026-10-25.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

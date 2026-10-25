@@ -8,6 +8,7 @@ enum ShioriRuntimeKind: String, Codable, Equatable {
     case yaya
     case satori
     case native
+    case shiolink
 }
 
 /// descript.txtのshiori.*をワイヤ境界まで保持する通信設定。

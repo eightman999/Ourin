@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Known Issues and Verification Coverage</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="KNOWN_ISSUES_ja-jp.html" class="">日本語</a> | <a href="KNOWN_ISSUES_en-us.html" class="active">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="known-issues-and-verification-coverage">Known Issues and Verification Coverage</h1>
+<p>Updated: 2026-10-25. This document describes the development integration build, not a guarantee that changes are included in a published release. <a href="KNOWN_ISSUES_ja-jp.html">日本語</a></p>
+<p>Use this document for defects and user-visible limitations, the <a href="SHIORI_RUNTIME_COMPATIBILITY_MATRIX_ja-jp.html">compatibility matrix</a> for runtime implementation/test coverage, and the <a href="TODO_ISSUE_STATUS_unknown.html">TODO reconciliation</a> for issue status. Distinguish implemented, locally integrated, verified with a real ghost, and fixed in a published release. Latest measurements are in the <a href="REAL_GHOST_VERIFICATION_2026-10-25_unknown.html">real-ghost verification record</a> and <a href="KAWARI_KAGARI_ENGINES_en-us.html">KAWARI/KAGARI guide</a>; the detailed real-ghost measurement record is currently in Japanese.</p>
+<h2 id="limitations-and-unverified-coverage">Limitations and unverified coverage</h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Current scope and impact</th>
+<th>Tracking and action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows-only modules</td>
+<td>Ourin does not directly execute Windows DLLs on macOS. SHIORI/SAORI support depends on macOS modules, built-in compatibility implementations, and each runtime's coverage. Renaming an extension does not make a module executable.</td>
+<td><a href="https://github.com/eightman999/Ourin/issues/101">#101</a>, <a href="NATIVE_SHIORI_ABI_en-us.html">Native ABI</a>. Report the public ghost name, version, and SHIORI type.</td>
+</tr>
+<tr>
+<td>KAWARI/KAGARI coverage</td>
+<td>Building an engine or passing a minimal dictionary test does not establish compatibility with every ghost, SAORI, or Lua extension. Real KAGARI ghosts also require validation of their native Lua dependencies.</td>
+<td><a href="https://github.com/eightman999/Ourin/issues/101">#101</a>. Check the engine guide and measurement records for the tested target and execution layer.</td>
+</tr>
+<tr>
+<td>YAYA save formats and verification scope</td>
+<td>The October 25 fixed build resolves Taromati2’s periodic-event hang. Emily4 and Taromati2 saved in Ourin’s format and reloaded in separate processes. Taromati2’s OnDestroy 400 is the dictionary’s expected response to an undefined event. Upstream text/encrypted save import/export remains unsupported; GUI and real SAORI integration remain unverified.</td>
+<td>Related to <a href="https://github.com/eightman999/Ourin/pull/191">PR #191</a>. See the <a href="REAL_GHOST_VERIFICATION_2026-10-25_unknown.html">real-ghost record</a>. No identical-input comparison with an upstream binary was run. Existing saves in unknown formats are not overwritten.</td>
+</tr>
+<tr>
+<td>Real-ghost coverage for SHIOLINK, SHIORI 2.x, and Native</td>
+<td>Passing real fixtures or separate-process tests is distinct from checking every operation of distributed ghosts. Untested combinations of ghosts and external executables remain.</td>
+<td><a href="https://github.com/eightman999/Ourin/issues/101">#101</a>, <a href="SHIOLINK_en-us.html">SHIOLINK</a>. Unverified does not mean either unsupported or verified.</td>
+</tr>
+<tr>
+<td>Saving after forced termination</td>
+<td>Recovery from timeout/crash cannot restore unsaved VM state or SAORI side effects immediately before termination.</td>
+<td>Reload starts from the last persisted state. Report save problems reproducible with normal shutdown using the <a href="BUG_REPORT_GUIDE_en-us.html">report guide</a>.</td>
+</tr>
+<tr>
+<td>Diagnostic export coverage</td>
+<td>Settings Export contains the last 24 hours of <code>jp.ourin.devtools</code> logs. It does not collect every SHIORI/helper log or OS/CPU/version field, and does not automatically anonymize data. The Debug menu's diagnostic export currently writes only a timestamp message.</td>
+<td><a href="https://github.com/eightman999/Ourin/issues/104">#104</a>. Use <a href="BUG_REPORT_GUIDE_en-us.html">log collection instructions</a> for selected or file logs. Empty logs do not prove that no defect occurred.</td>
+</tr>
+<tr>
+<td>Release-environment validation</td>
+<td>Development targets now use macOS 13.0 or later, but minimum-OS, clean-Mac, and physical Intel release testing is not marked complete. This does not change the requirements of older distributed releases.</td>
+<td><a href="https://github.com/eightman999/Ourin/issues/97">#97</a>, <a href="https://github.com/eightman999/Ourin/issues/102">#102</a>, <a href="RELEASE_GATES_2026-10-25_unknown.html">release gates</a>.</td>
+</tr>
+<tr>
+<td>Deferred/out-of-scope integrations</td>
+<td>The Windows FineFMO shared-memory contract and IP Messenger/MsgSender integration are deferred. They are distinct from ordinary POSIX FMO. <code>mcp.exe</code> is recorded as outside Ukagaka compatibility scope.</td>
+<td><a href="https://github.com/eightman999/Ourin/issues/124">#124</a>, <a href="https://github.com/eightman999/Ourin/issues/122">#122</a>, <a href="https://github.com/eightman999/Ourin/issues/114">#114</a>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="recording-resolved-issues">Recording resolved issues</h2>
+<p>An old issue title saying “not implemented” may no longer describe the implementation. See the <a href="PR_TAKEOVER_2026-10-25_unknown.html">PR takeover record</a> for integrated changes and validation. Local integration alone does not close a GitHub issue or establish inclusion in a distributed release.</p>
+<p>When fixing an item, record the issue/PR, verification date, tested commit/version, and reproduction result in its row. After publication, add the released version and move the entry to resolved status, preserving information relevant to users of older builds. Release notes should link this document and describe release-specific limitations.</p>
+<h2 id="reporting">Reporting</h2>
+<p>Use the <a href="BUG_REPORT_GUIDE_en-us.html">Bug Report Guide</a> for symptoms not listed here or still reproducible in a fixed build. Environment, reproduction steps, expected behavior, and actual results are enough to begin a report; logs and ghost data are not required.</p>
+<p>Translation: body, tables, and link targets checked against the <a href="KNOWN_ISSUES_ja-jp.html">Japanese version</a> on 2026-10-25. Keep both languages synchronized when updating.</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../KNOWN_ISSUES_en-us.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

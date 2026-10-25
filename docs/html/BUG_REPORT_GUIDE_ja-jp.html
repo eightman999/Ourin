@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バグ報告ガイド</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="BUG_REPORT_GUIDE_ja-jp.html" class="active">日本語</a> | <a href="BUG_REPORT_GUIDE_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="_1">バグ報告ガイド</h1>
+<p>更新日: 2026-10-25。<a href="BUG_REPORT_GUIDE_en-us.html">English</a> / <a href="KNOWN_ISSUES_ja-jp.html">既知の問題</a></p>
+<p><a href="https://github.com/eightman999/Ourin/issues">既存Issue</a>と既知の問題を確認し、同じ症状がなければ<a href="https://github.com/eightman999/Ourin/issues/new?template=bug_report.md">Bug reportテンプレート</a>を使ってください。分からない項目は「不明」、実行できなかった確認は「未実施」で構いません。</p>
+<h2 id="_2">最低限必要な情報</h2>
+<ul>
+<li>Ourinの版・ビルド番号（About Ourinで確認）、配布元または開発commit。</li>
+<li>macOSの版、Intel/Apple Silicon、分かる場合はRosetta実行の有無。</li>
+<li>ゴーストの公開名・版・配布URL、SHIORIの種別・版（分かる範囲）。関連するshell、balloon、SAORI、plugin。</li>
+<li>再現手順、期待する動作、実際の動作、発生頻度と時刻・タイムゾーン。</li>
+<li>起動時、会話時、保存時、再起動後など、問題が起きる場面。問題を調べるために実セーブデータを削除する必要はありません。</li>
+</ul>
+<p>ゴースト名や配布URLを公開できない場合はその旨を記載し、再配布可能な最小fixtureでの再現を相談してください。私的な辞書、会話内容、NAR、セーブファイルを報告の必須資料にはしません。</p>
+<h2 id="_3">ログを取得する</h2>
+<p>以下は現行ソースで確認した操作です。配布版や言語設定で表示が異なる場合は、利用版と表示名を報告してください。</p>
+<h3 id="_4">必要な行だけコピーする</h3>
+<ol>
+<li>Ourinの<code>Settings...</code>（設定、⌘,）を開き、<code>Logging &amp; Diagnostics</code>を選択します。</li>
+<li>発生時刻に合う<code>Since</code>と適切な<code>Subsystem</code>を選び、「更新」を押します。</li>
+<li>発生前後の関連行を選択して「コピー」を押し、共有用のテキストファイルへ貼り付けます。共有前に次節の除去を行います。</li>
+</ol>
+<h3 id="export">設定画面からExportする</h3>
+<p>設定ウィンドウの上部にある共有アイコン（上向き矢印、ツールチップ<code>Export</code>）で<code>OurinDiagnostics.txt</code>を作成し、Finderで表示します。ファイルは一時ディレクトリにあるため、必要な抜粋を別の共有用ファイルへ保存してください。</p>
+<p><strong>取得範囲は<code>jp.ourin.devtools</code>の直近24時間のみ</strong>です。表示中のログフィルタとは連動せず、SHIORI/helperの全ログや環境情報をまとめる機能ではありません。<strong>Debugメニューの「診断情報をエクスポート」は現状、日時文のみ</strong>なので、そちらの出力を完全な診断情報として送らないでください。エントリが0件なら、その旨と再現時刻を記載します。</p>
+<h3 id="_5">ファイルログが必要な場合</h3>
+<ol>
+<li>設定の<code>General</code>にある「ログ設定」で「ファイルへのログ出力を有効化」をオンにします。</li>
+<li>表示された「ログ出力先」を確認し、「設定を保存」を押します。既定はアプリのホームディレクトリ配下の<code>Library/Logs/Ourin/ourin.log</code>です。実際の場所は画面の値を優先してください。</li>
+<li>発生時刻を記録して一度再現し、指定ファイルから該当する前後の行だけを共有用コピーへ抜き出します。</li>
+<li>調査が終わったらトグルをオフにし、「設定を保存」を押します。保存先の既存ログや実ゴーストデータを削除する必要はありません。</li>
+</ol>
+<p>ファイルログは<code>Log</code>経由の記録であり、全OSLog、helperのstderr、第三者コードの出力を網羅しません。ファイルが生成されない場合も、取得不可として報告できます。</p>
+<h2 id="_6">共有前に確認する</h2>
+<p>GitHub Issueは公開されます。出力の自動匿名化は保証していません。<strong>元データを変更せず、共有用コピー</strong>を読んで以下を取り除いてください。</p>
+<ul>
+<li>APIキー、トークン、パスワード、Cookie、Authorizationヘッダ、秘密鍵、<code>.env</code>の内容。</li>
+<li><code>/Users/実名/...</code>などの個人パス、ユーザー名、メールアドレス、端末ID。例: <code>/Users/&lt;user&gt;/...</code>へ置換。</li>
+<li>私的な会話・辞書・保存内容、クリップボード、外部通信の本文、非公開URLやホスト名。</li>
+<li>スクリーンショットの他アプリ、通知、アカウント名。必要な範囲だけ切り出します。</li>
+</ul>
+<p>エラーコード、イベント名、時刻の前後関係、拡張子は可能な範囲で残すと調査に役立ちます。秘匿が難しい場合は添付せず、症状だけを報告してください。診断のための<code>sysdiagnose</code>全体、ホームフォルダ、ghostフォルダ一式の公開は不要です。</p>
+<h2 id="_7">クラッシュ・応答停止</h2>
+<p>終了したプロセス名（Ourin / yaya_core / satori_core / OurinShioriXPCServiceなど）、発生時刻、直前の操作、Ourin本体も終了したかを記載します。macOSのコンソールで該当クラッシュレポートが見つかる場合は、版・OS・アーキテクチャ、Exception/Termination Reason、該当スレッドの抜粋を共有用コピーから添付してください。個人パスや識別子を除去し、レポートがなければ「取得不可」で構いません。</p>
+<p>応答停止の場合は待った時間、画面だけか会話・終了操作も止まったかを記載します。診断のために長時間繰り返し停止させたり、未保存データを削除したりする必要はありません。</p>
+<h2 id="_8">実装根拠と残件</h2>
+<p>操作名・取得範囲は<a href="../../Ourin/ContentView.swift">ContentView.swift</a>、<a href="../../Ourin/DevTools/DevToolsCommands.swift">DevToolsCommands.swift</a>、<a href="../../Ourin/Utils/Log.swift">Log.swift</a>の2026-10-25時点の実装を確認しています。これはGUI実機操作の再検証ではありません。環境情報の一括Export、Export入口の統一、匿名化機能は<a href="https://github.com/eightman999/Ourin/issues/104">#104</a>の追加検討・検証対象です。</p>
+<p>翻訳: <a href="BUG_REPORT_GUIDE_en-us.html">英語版</a>と手順・制限・プライバシー項目を照合（2026-10-25）。</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../BUG_REPORT_GUIDE_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

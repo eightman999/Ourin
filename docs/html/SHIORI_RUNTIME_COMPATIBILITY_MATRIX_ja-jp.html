@@ -146,7 +146,7 @@
             <a href="index.html">← 目次に戻る</a>
         </div>
         <h1 id="shiori">SHIORIランタイム互換性マトリクス</h1>
-<p><strong>更新日:</strong> 2026-07-15
+<p><strong>更新日:</strong> 2026-10-25
 <strong>位置付け:</strong> SHIORIランタイム選択・ロード・障害隔離の正本。仕様語彙はUKADOC SHIORI/3.0およびghost <code>descript.txt</code>に従う。</p>
 <h2 id="_1">状態定義</h2>
 <ul>
@@ -225,6 +225,40 @@
 </tr>
 </tbody>
 </table>
+<h2 id="2026-10-25">2026-10-25 開発版での追加検証</h2>
+<p>公開版 v0.0.1.21 には以下の新しい同梱エンジン・SHIOLINK拡張は含まれない。</p>
+<table>
+<thead>
+<tr>
+<th>対象</th>
+<th>実装・配布物</th>
+<th>確認済み</th>
+<th>残件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>華和梨</td>
+<td>固定上流をUniversal 2 dylibとして同梱、macOSモジュールの無いKAWARI辞書を解決</td>
+<td>実エンジンのin-process/XPC、LOBOの起動・会話・終了・保存・別process再load</td>
+<td>Ourin GUI上の実ゴースト操作と広い辞書網羅</td>
+</tr>
+<tr>
+<td>KAGARI</td>
+<td>固定上流＋Lua 5.4.4、instance-ID ABI、Universal 2同梱</td>
+<td>実エンジンのin-process/XPC、最小Lua lifecycle・load失敗</td>
+<td>もすはmacOS版saori_universal.native不足。実ゴーストの保存・再起動は未完</td>
+</tr>
+<tr>
+<td>SHIOLINK</td>
+<td>外部processアダプターを通常factoryへ接続</td>
+<td>実子process fixture、実アプリのOnBootログ</td>
+<td>MiyoJS等の実配布ゴースト、画面操作</td>
+</tr>
+</tbody>
+</table>
+<p>KAGARIのLuaSocket／luautf8／luachild／lua-iconvは検証用にmacOSビルドしたが、配布ゴースト固有の追加依存まで同梱したものではない。Windows DLLやLinux ELFはmacOSで直接実行しない。</p>
+<p>証拠: <a href="REAL_GHOST_VERIFICATION_2026-10-25_unknown.html">実ゴースト検証</a>、<a href="kagari-mosu-report_unknown.html">もすの検証</a>、<a href="KAWARI_KAGARI_ENGINES_ja-jp.html">エンジン導入</a>。<a href="KNOWN_ISSUES_ja-jp.html">既知の問題</a>と<a href="BUG_REPORT_GUIDE_ja-jp.html">報告手順</a>も参照。</p>
 <h2 id="p0">P0受け入れ条件</h2>
 <ul>
 <li>[x] <code>GhostShioriRuntime</code>に<code>load/request/unload</code>とロード状態がある</li>
@@ -329,7 +363,7 @@
 <li>YAYA/里々等の上流を取り込む場合は固定リビジョンとLICENSE/NOTICEを同時に保持する。</li>
 </ul>
         <div class="footer">
-            <p>Generated: 2026-08-15 | <a href="../SHIORI_RUNTIME_COMPATIBILITY_MATRIX_ja-jp.md">Source (MD)</a></p>
+            <p>Generated: 2026-10-25 | <a href="../SHIORI_RUNTIME_COMPATIBILITY_MATRIX_ja-jp.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

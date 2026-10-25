@@ -9,13 +9,15 @@ struct ShioriRuntimeFactory {
     }
 
     static func kind(for moduleName: String) -> ShioriRuntimeKind {
-        let rawName = URL(fileURLWithPath: moduleName).deletingPathExtension().lastPathComponent.lowercased()
+        let rawName = URL(fileURLWithPath: moduleName.replacingOccurrences(of: "\\", with: "/")).deletingPathExtension().lastPathComponent.lowercased()
         let name = rawName.hasPrefix("lib") ? String(rawName.dropFirst(3)) : rawName
         switch name {
         case "yaya", "yaya_core":
             return .yaya
         case "satori", "satoriya", "satori_core":
             return .satori
+        case "shiolink", "shiolink_core":
+            return .shiolink
         default:
             return .native
         }
@@ -28,6 +30,8 @@ struct ShioriRuntimeFactory {
             return YayaAdapter()
         case .satori:
             return SatoriAdapter()
+        case .shiolink:
+            return ShiolinkAdapter()
         case .native:
             return NativeShioriRuntime()
         }
@@ -52,7 +56,16 @@ final class NativeShioriRuntime: GhostShioriRuntime {
     private var communication = ShioriCommunicationOptions()
 
     init(loaderFactory: @escaping LoaderFactory = { context in
-        ShioriLoader(module: context.moduleName, base: context.ghostURL, communication: context.communication)
+        let loadDirectory = context.ghostRoot
+            .appendingPathComponent(context.moduleName.replacingOccurrences(of: "\\", with: "/"))
+            .deletingLastPathComponent()
+        if let moduleURL = BundledShioriEngine.resolveModuleURL(
+            moduleName: context.moduleName, ghostURL: context.ghostURL, ghostRoot: context.ghostRoot
+        ) {
+            return ShioriLoader(moduleURL: moduleURL, communication: context.communication, loadDirectory: loadDirectory)
+        }
+        return ShioriLoader(module: context.moduleName, base: context.ghostURL,
+                            communication: context.communication, loadDirectory: loadDirectory)
     }) {
         self.loaderFactory = loaderFactory
     }

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delegation Report: P0 release issues (#96/#97/#99, #98 prep, #102 手順)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="delegation-report-p0-release-issues-969799-98-prep-102">Delegation Report: P0 release issues (#96/#97/#99, #98 prep, #102 手順)</h1>
+<p>Worker: P0 release-gate lane / Date: 2026-10-25
+報告先ID: 1792857120079 (<code>*-unused</code> プレースホルダを本worker用に置換)</p>
+<h2 id="1">1. 結論 / アプローチ要約</h2>
+<ul>
+<li><strong>最低 macOS を 13.0 に統一</strong> (#97): README を正本とし、<code>LSMinimumSystemVersion</code>
+  と全ターゲットの <code>MACOSX_DEPLOYMENT_TARGET</code> を 11.0/15.5 → 13.0 へ揃えた。
+  根拠は API availability: コア UX の <code>MenuBarExtra</code>・DevTools の
+  <code>NavigationSplitView</code> が macOS 13 API で、11/12 では主要機能が黙って欠落する。
+  11.0 公称は未検証の縮退機能をユーザーへ約束するため不適切と判断。</li>
+<li><strong>バージョンは 0.0.1.21/21 のまま据え置き</strong> (#99): 1.0 への引き上げはせず、
+  現行値の整合を機械的に検査する <code>scripts/check_release_metadata.py</code> を新設。
+  dev 期の <code>X.Y.Z.B</code> ↔ build 一致規則、SemVer 移行方針、tag 規則、
+  <code>AppReleaseDate</code> 更新運用を文書化。pbxproj の <code>MARKETING_VERSION</code> /
+  <code>CURRENT_PROJECT_VERSION</code> も Info.plist と一致させた (XPC バンドル版数の
+  生成元であり、従来 1.0/1 で不整合だった)。</li>
+<li><strong>CI を release gate 化</strong> (#96): <code>metadata</code> / <code>test</code> / <code>helper-cores</code> /
+  <code>release-gate</code> の必須ジョブ + advisory の x86_64 Rosetta leg。Release
+  universal ビルドで XPC/helper/sakura.nar の同梱と両 arch を <code>lipo</code> で
+  機械検証。クリーン checkout で <code>-scheme</code> を解決するため<strong>共有スキームを
+  新設</strong> (従来コミットされておらず CI が必ず失敗する状態だった)。</li>
+<li><strong>#98</strong>: 既存 <code>release.sh</code>/<code>notarize.sh</code> の手順を文書化し、nested signing・
+  公証・staple・SHA-256 の AC 対応表を整理。credential 追加なし。
+  <code>Contents/Resources/yaya_core</code> の無署名二重同梱を公証リスクとして記録。</li>
+<li><strong>#102</strong>: 11 シナリオを実行手順化したチェックリストを文書化
+  (クリーン条件・quarantine・savedata 保存先・失敗系)。</li>
+</ul>
+<h2 id="2">2. 変更ファイル</h2>
+<table>
+<thead>
+<tr>
+<th>ファイル</th>
+<th>変更</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ourin.xcodeproj/project.pbxproj</code></td>
+<td><code>MACOSX_DEPLOYMENT_TARGET</code> 全8箇所 → 13.0、<code>MARKETING_VERSION</code> 全8箇所 → 0.0.1.21、<code>CURRENT_PROJECT_VERSION</code> 全8箇所 → 21。他者の NativeShioriModule/XPC 追加は未変更</td>
+</tr>
+<tr>
+<td><code>Ourin.xcodeproj/xcshareddata/xcschemes/Ourin.xcscheme</code></td>
+<td><strong>新規</strong> (所有範囲外指定だったが CI の必須前提。フラグ立てて報告)</td>
+</tr>
+<tr>
+<td><code>Ourin/Resources/Info.plist</code></td>
+<td><code>LSMinimumSystemVersion</code> 11.0→13.0、<code>AppReleaseDate</code> 2025-10-21→2026-10-25</td>
+</tr>
+<tr>
+<td><code>.github/workflows/macOS.yml</code></td>
+<td>全面改訂 (上記ジョブ構成)</td>
+</tr>
+<tr>
+<td><code>scripts/check_release_metadata.py</code></td>
+<td><strong>新規</strong> (stdlib のみ、CI/ubuntu でも動作)</td>
+</tr>
+<tr>
+<td><code>docs/RELEASE_GATES_2026-10-25.md</code></td>
+<td><strong>新規</strong> (#96-#99 方針 + #98 手順 + #102 E2E + 承認依存一覧)</td>
+</tr>
+<tr>
+<td><code>docs/delegation/1792857120079-p0-release.md</code></td>
+<td>本ファイル</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3">3. 根拠</h2>
+<ul>
+<li>
+<h1 id="97-menubarextraourinourinappswift65-if-availablemacos-130">97: <code>MenuBarExtra</code>=<code>Ourin/OurinApp.swift:65</code> (<code>if #available(macOS 13.0)</code> 内)、</h1>
+<code>NavigationSplitView</code>=<code>Ourin/DevTools/DevToolsView.swift:24</code> (同上)、
+  README:67 <code>macOS 13.0 (Ventura) 以上</code>、issue 本文「現行 README を正本と
+  するなら macOS 13.0+ に統一」。</li>
+<li>Intel matrix 非採用: macos-13 runner は Xcode 15 系まで (本件は
+  <code>objectVersion=77</code>/Xcode 16.4 必須/Swift Testing 使用で不可)、
+  <code>macos-15-intel</code> は有償 larger runner。代替として universal build + lipo
+  hard gate と Rosetta advisory leg。</li>
+<li>共有スキーム: <code>git ls-files</code> に <code>xcshareddata</code> が存在せず、
+  <code>xcodebuild -scheme</code> はクリーン環境で解決不可 → CI 必須前提として新設。</li>
+</ul>
+<h2 id="4">4. 実行したテストと実際の結果</h2>
+<ul>
+<li><strong>未実行 (設計上の制約)</strong>: exec/terminal 系ツール不可の環境指示のため、
+  python 実行・xcodebuild 等の動的検証は行えない。親の一括 build/test に委譲。</li>
+<li>実施した静的検証:</li>
+<li>pbxproj: 対象4キーの全出現を grep で再確認 → 24 箇所すべて期待値</li>
+<li><code>check_release_metadata.py</code>: コードレビュー (無効日付 <code>9999-99-99</code> で
+    <code>strptime</code> 例外となるパスを修正済)。<strong>要親検証</strong>:
+    <code>python3 scripts/check_release_metadata.py</code> が PASS すること
+    (予想: LSMinimumSystemVersion=13.0, 8 targets 一致, README 一致 で PASS)</li>
+<li>Info.plist: plist XML としてキー配置を確認 (既存スタイル維持)</li>
+<li>xcscheme: BlueprintIdentifier は pbxproj の実 ID
+    (Ourin=DF88A7EF…44F8A, OurinTests=DF88A7FD…44F8A,
+    OurinUITests=DF88A807…44F8A) と一致</li>
+</ul>
+<h2 id="5">5. リスク</h2>
+<ul>
+<li><code>OurinTests</code>/<code>OurinUITests</code> の deployment target を 15.5→13.0 に下げた。
+  Swift Testing フレームワークの下限を下回ると test ターゲットのコンパイル
+  で失敗し得る (実害なしと判断するが親 build で確認)。</li>
+<li>shared scheme 追加で testables = OurinTests + OurinUITests が <code>xcodebuild
+  test</code> で両方実行される。UITests が CI 上で権限/不安定さを持つ場合
+  test ジョブが flaky 化し得る → その場合 scheme 側で UITests を
+  <code>skipped="YES"</code> にするフォールバックを提案。</li>
+<li>Rosetta x86_64 leg は未検証のため advisory (continue-on-error) 扱い。</li>
+<li>workflow は未実行のため YAML/パス (DerivedData 配下) の実地確認が必要。</li>
+</ul>
+<h2 id="6">6. 残件 (承認依存・親判断)</h2>
+<ol>
+<li><strong>branch protection</strong>: master に required checks
+   <code>metadata</code>/<code>test</code>/<code>release-gate</code>/<code>helper-cores</code> を登録 (repo admin 権限)。</li>
+<li>README/CONTRIBUTING への CI 再現手順追記 — RELEASE_GATES §3 に追記案あり
+   (README は所有範囲外のため未編集)。</li>
+<li><code>satori_core/CMakeLists.txt</code>(+build.sh) の <code>CMAKE_OSX_DEPLOYMENT_TARGET</code>
+   を 13.0 へ、<code>yaya_core</code> も同値明示を推奨 (所有範囲外)。</li>
+<li><code>Installer/Package.swift</code> <code>platforms: .macOS(.v12)</code> の方針決定
+   (移行ツール用途なら v12 維持が妥当と考える。製品判断)。</li>
+<li><code>Contents/Resources/yaya_core</code> の無署名二重同梱 → 公証リスク。
+   Resources への複製を外す恒久対応を要検討 (release.sh の全 Mach-O 走査で
+   現状は回避可能)。</li>
+<li>
+<h1 id="98-credential-developer-id-notarytool-profile">98 の credential 実物 (Developer ID 証明書、notarytool profile) と</h1>
+   quarantine 環境での Gatekeeper 実測。</li>
+<li>
+<h1 id="102-e2e-macos-13-intel">102 の実機 E2E 実施 (macOS 13 実機/Intel 実機を含む) と発見不具合の</h1>
+   Issue 分割。</li>
+<li>リリース時: Info.plist 3 値 + pbxproj 2 値の更新 →
+   <code>check_release_metadata.py --release</code> → <code>git tag v…</code> (手順は文書化済)。</li>
+</ol>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../delegation/1792857120079-p0-release.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

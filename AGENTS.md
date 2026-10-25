@@ -1,196 +1,29 @@
-# AGENTS.md
+# Ourin — エージェント指示
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+Ourin（桜鈴）はmacOS向け伺かベースウェア。SHIORI／SSTP／Pluginおよび既存ゴーストとの互換性を維持する。
 
-## Project Overview
+## 保護する制約
 
-Ourin (桜鈴) is a macOS-native ukagaka baseware (伺かベースウェア) - a desktop companion/assistant application similar to the Windows "ukagaka" ecosystem. It implements various Japanese desktop character standards including SHIORI, SSTP, and plugin systems.
+- `AppDelegate` は `Ourin/OurinApp.swift` 内にあり、独立した `AppDelegate.swift` はない。主要systemの初期化は `applicationDidFinishLaunching` に集約される。
+- 外部TCP／HTTP／XPCのSSTPは `SSTPParser` → `SSTP/SSTPDispatcher` の単一stackへ接続する。旧 `SstpRouter` を別経路として復活させない。
+- FMOはPOSIX shared memoryとnamed semaphoreによるprocess間通信／単一instance制御。共有メモリやlockの契約をSwift側だけの都合で変更しない。
+- `yaya_core/` はC++製YAYA parser／VMで、Swiftとはhelper processのJSON line IPCで通信する。互換性問題は仕様・再現入力・実装を照合し、ゴーストデータを改変して症状を隠さない。
+- ユーザーのghost/NARデータは実データとして扱う。保存先は `~/Library/Containers/furin-lab.Ourin/Data/Library/Application Support/Ourin/ghost/`。破壊的操作・外部公開・課金・認証／権限変更は対象と範囲の明示承認が必要。commit／pushは依頼された場合だけ行う。
 
-## Build & Test Commands
+## 変更範囲に応じた検証
 
-This is an Xcode project. Use these commands:
+- Xcode入口: `xcodebuild -project Ourin.xcodeproj -scheme Ourin build`、`xcodebuild -project Ourin.xcodeproj -scheme Ourin test`。必要なら `-only-testing:OurinTests/TestClassName/testMethodName` で対象を選ぶ。
+- C++ parser／VM変更時: `cd yaya_core && ./build.sh`。`yaya_core/CMakeLists.txt` の依存（nlohmann_json／iconv）も確認する。
+- GUI・IPC・ghost動作に関わる変更は実app／processで対象操作を再現する。生成されたappの実在する出力先を確認して起動する。
+- 依頼範囲のローカル編集・build・affected test・再現fixture作成と、変更起因の失敗修正は続行する。完了時に結果・実行検証・残る未確認を簡潔に報告する。
 
-- **Build**: `xcodebuild -project Ourin.xcodeproj -scheme Ourin build`
-- **Test**: `xcodebuild -project Ourin.xcodeproj -scheme Ourin test`
-- **Run**: Open `Ourin.xcodeproj` in Xcode and run, or `xcodebuild -project Ourin.xcodeproj -scheme Ourin build && open build/Release/Ourin.app`
+## 必要なときだけ読む
 
-For running single tests, use Xcode's test navigator or:
-`xcodebuild -project Ourin.xcodeproj -scheme Ourin -only-testing:OurinTests/TestClassName/testMethodName test`
+| 作業領域 | 参照先 |
+|---|---|
+| SHIORI protocol | [SHIORI 3.0仕様](https://ssp.shillest.net/ukadoc/manual/spec_shiori3.html) と `docs/` の該当仕様 |
+| Sakura Script・property | [桜スクリプト](https://ssp.shillest.net/ukadoc/manual/list_sakura_script.html)、[property仕様](https://ssp.shillest.net/ukadoc/manual/list_propertysystem.html) |
+| YAYA構文 | [YAYA言語](http://usada.sakura.vg/contents/shiori.html)、`yaya_core/src/` の該当実装 |
+| FMO／Plugin／NAR／Eventの詳細・旧ログprefix | [旧技術ガイド](.agent-context/legacy/AGENTS-before-2026-09-05.md) の該当節と現在の実装 |
 
-## Architecture Overview
-
-### Core Systems
-
-1. **FMO (Forged Memory Object)** - `FMO/`
-   - Cross-process shared memory system using POSIX shared memory and named semaphores
-   - `FmoManager` coordinates `FmoMutex` and `FmoSharedMemory`
-   - Used for single-instance enforcement and process communication
-
-2. **SHIORI System** - `SSTP/`, `USL/`
-   - Core ghost AI/response system following SHIORI 3.0M specification
-   - `SSTPDispatcher` handles SSTP protocol requests
-   - `ShioriLoader` manages dynamic loading of SHIORI modules
-
-3. **Plugin Architecture** - `PluginHost/`
-   - Dynamic plugin loading system supporting `.plugin` and `.bundle` files
-   - `PluginRegistry` discovers and manages plugin lifecycle
-   - Plugins searched in app bundle and standard locations
-
-4. **External Server** - `ExternalServer/`
-   - Multi-protocol server supporting TCP, HTTP, and XPC communication
-   - `OurinExternalServer` coordinates `SstpTcpServer`, `SstpHttpServer`, `XpcDirectServer`
-   - Raw SSTP from all channels is parsed by `SSTPParser` and handled by `SSTP/SSTPDispatcher` (single SSTP stack; the old `SstpRouter` was removed)
-
-5. **Event System** - `SHIORIEvents/`, `PluginEvent/`
-   - System event monitoring (sleep, display, input, network, etc.)
-   - `EventBridge` coordinates system observers and dispatches to SHIORI
-   - `PluginEventDispatcher` distributes events to loaded plugins
-
-6. **NAR Package System** - `NarInstall/`
-   - Handles installation of NAR (ghost package) files
-   - `LocalNarInstaller` extracts and installs packages
-   - Integrated with file association and drag-drop
-
-7. **Ghost Runners** - `Yaya/`
-   - `YayaAdapter` provides compatibility with YAYA ghost format
-   - Handles ghost loading, execution, and unloading
-
-### Key Integration Points
-
-- `OurinApp.swift`: Main app entry point, coordinates all subsystems
-- `ContentView.swift`: Primary SwiftUI interface
-- `DevToolsView.swift`: Developer tools interface for debugging
-- All major systems initialized in `AppDelegate.applicationDidFinishLaunching` (the `AppDelegate` class lives inside `OurinApp.swift`; there is no standalone `AppDelegate.swift`)
-
-### File Organization
-
-- `Ourin/`: Main application code
-- `OurinTests/`: Unit tests using Swift Testing framework  
-- `docs/`: Extensive specification documentation for all protocols
-- `Samples/`: Reference implementations and examples
-- Source organized by functional area (FMO, SSTP, PluginHost, etc.)
-
-### Protocol Specifications
-
-The `docs/` directory contains comprehensive specifications:
-- SHIORI 3.0M, SSTP 1.xM, Plugin 2.0M protocols
-- Ourin-specific extensions and adaptations
-- Implementation guides for various subsystems
-
-This codebase implements a complex multi-protocol system for desktop companions with extensive plugin support, cross-process communication, and compatibility with existing ukagaka ecosystem standards.
-
-## yaya_core (C++実装)
-
-### 概要
-`yaya_core/` ディレクトリにはC++製のYAYA言語パーサーとVMが含まれています（ヘルパープロセスとして JSON line IPC で Swift 側と通信）。
-
-### 重要パス
-- `yaya_core/src/`: C++ソースファイル（Lexer/Parser/VM/DictionaryManager/YayaCore）
-- `yaya_core/CMakeLists.txt`: CMake設定（nlohmann_json, iconv に依存）
-- `yaya_core/build.sh`: ビルドスクリプト
-- ゴーストデータ: `~/Library/Containers/furin-lab.Ourin/Data/Library/Application Support/Ourin/ghost/`
-
-### デバッグログ
-stderr出力で以下のプレフィックスを使用:
-- `[Parser]`: パーサー関連
-- `[VM]`: 仮想マシン実行
-- `[DictionaryManager]`: 辞書ファイル読み込み
-
-### よくあるエラー
-- `Expected '{' after function name`: 関数定義の構文エラー
-- `Expected '=' in assignment`: 代入文の構文エラー
-- `Unexpected token '++'`: インクリメント演算子の処理
-
-### ビルドコマンド
-```bash
-cd yaya_core && ./build.sh
-```
-
-## 参考リソース
-- **SHIORI 3.0仕様:** https://ssp.shillest.net/ukadoc/manual/spec_shiori3.html
-- **桜スクリプト:** https://ssp.shillest.net/ukadoc/manual/list_sakura_script.html
-- **プロパティシステム:** https://ssp.shillest.net/ukadoc/manual/list_propertysystem.html
-- **YAYA言語:** http://usada.sakura.vg/contents/shiori.html
-
----
-
-# External Agent Policy
-
-This repository uses multiple coding agents.
-
-## Agy / Antigravity CLI
-
-Default role:
-- read-only audit
-- requirements checking
-- documentation consistency
-- long-context scan
-- log and diff compression
-
-Default prompt:
-
-```text
-Read the mission, CLAUDE.md, AGENTS.md, README, and relevant docs.
-Do not edit files.
-Return:
-1. conclusion
-2. hidden assumptions
-3. contradictions
-4. affected files
-5. risks
-6. recommended next action
-```
-
-Rules:
-- Agy is NOT a primary implementation worker.
-- If Agy must implement something, isolate it in a separate branch/worktree first.
-
-## OpenCode(GLM)
-
-Default role:
-- secondary implementation lane
-- independent patch attempt
-- scoped feature work
-- tests and refactors
-
-Rules:
-- Prefer separate git worktree
-- Keep changes minimal
-- Do not redesign unrelated systems
-- Do not use `/share` (never share private repository content publicly)
-- Return changed files, tests run, risks, and unresolved questions
-
-Suggested worktree flow:
-
-```bash
-git worktree add ../PROJECT-glm -b glm/TASK_NAME
-cd ../PROJECT-glm
-opencode
-```
-
-## Codex
-
-Default role:
-- peer senior engineer
-- rescue
-- adversarial review
-- independent second opinion
-
-Use cases:
-- hard bug
-- design challenge
-- security-sensitive review
-- Claude loop recovery
-- final review before risky merge
-
-Rules:
-- Do not enable an always-on review gate by default.
-- Use Codex on high-risk decisions only when the extra cost is justified.
-
-## Required final report (all external agents)
-
-1. conclusion / approach summary
-2. changed files (if any)
-3. tests run and their actual output
-4. risks
-5. unresolved questions
+旧 [AGENTS](.agent-context/legacy/AGENTS-before-2026-09-05.md) と [CLAUDE](.agent-context/legacy/CLAUDE-before-2026-09-05.md) は履歴として原文保全。モデル役割・固定effort・全資料先読み・多重レビューは現行指示ではない。通常作業で全文を読む必要はない。

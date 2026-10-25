@@ -1,0 +1,11 @@
+--- a/kagari.cpp
++++ b/kagari.cpp
+@@ -6,7 +6,7 @@ namespace {
+ #if defined(_WIN32)
+     const char *kDirSep = "\\";
+     const char *kExt        = "dll";
+-#elif defined(__unix__)
++#elif defined(__unix__) || defined(__APPLE__)
+     const char *kDirSep = "/";
+     const char *kExt        = "so";
+ #else

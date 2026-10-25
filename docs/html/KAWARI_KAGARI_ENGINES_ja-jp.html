@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAWARI / KAGARI 実エンジン同梱</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="KAWARI_KAGARI_ENGINES_ja-jp.html" class="active">日本語</a> | <a href="KAWARI_KAGARI_ENGINES_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="kawari-kagari">KAWARI / KAGARI 実エンジン同梱</h1>
+<p>更新: 2026-10-25。開発版のビルド・解決規則。互換性マトリクスの実測は別途更新する。</p>
+<h2 id="_1">上流の固定版</h2>
+<p><code>engines/PINNED_UPSTREAM.json</code> に repository と revision を記録する。ライセンス本文は各上流の <code>LICENSE</code> をビルド出力へ <code>LICENSE.kawari</code> / <code>LICENSE.kagari</code> としてコピーする（リポジトリ全体の vendoring はしない）。</p>
+<table>
+<thead>
+<tr>
+<th>エンジン</th>
+<th>リポジトリ</th>
+<th>macOS 成果物</th>
+<th>OurinShioriABI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>華和梨 (KAWARI)</td>
+<td><a href="https://github.com/ukatech/kawari">ukatech/kawari</a></td>
+<td><code>libkawari_shiori.dylib</code>（上流 POSIX 名は <code>libshiori.bundle</code> の単体 dylib）</td>
+<td><code>ukagaka-long</code>（<code>loadu</code> 優先）</td>
+</tr>
+<tr>
+<td>KAGARI</td>
+<td><a href="https://github.com/Tatakinov/kagari_shiori">Tatakinov/kagari_shiori</a></td>
+<td><code>libkagari.dylib</code></td>
+<td><code>kagari</code></td>
+</tr>
+</tbody>
+</table>
+<p>KAGARI の Windows 版 <code>load</code> / <code>request</code> 2 引数 ABI とは別に、POSIX 版は <code>kagari_load</code> / <code>kagari_request(int id, …)</code> / <code>kagari_unload</code> の instance-ID 付き ABI を使う。Ourin は POSIX ビルドのみを対象とする。</p>
+<h2 id="_2">ビルド</h2>
+<pre class="codehilite"><code class="language-bash">./engines/kawari/build.sh    # → build/engines/kawari/libkawari_shiori.dylib
+./engines/kagari/build.sh    # → build/engines/kagari/libkagari.dylib + liblua.5.4.dylib
+</code></pre>
+
+<p>KAGARI ビルドは <code>engines/kagari/DEPENDENCIES.json</code> に SHA256 付きで Lua 5.4.4 / sol2 v3.2.2 を記録し、<code>build/deps/kagari/</code> に展開する（Homebrew 不要）。上流 <code>kagari_shiori</code> には <code>engines/kagari/patches/</code> の macOS / load 失敗修正を適用する。sol2 3.2.2 は Apple Clang 向けに <code>003-sol2-optional-ref-emplace.patch</code> を当てる。</p>
+<p><code>OURIN_KAGARI_UNIVERSAL=1</code> で arm64 + x86_64 を別ビルドして <code>lipo</code> 結合できる（デフォルトはホスト arch のみ）。</p>
+<p>検証:</p>
+<pre class="codehilite"><code class="language-bash">python3 engines/kagari/verify_kagari_mosu.py build/engines/kagari/libkagari.dylib
+</code></pre>
+
+<p>（最小 SHIORI ライフサイクル + 『もす』NAR の <code>/tmp</code> コピー。luasocket は検証時に lunarmodules/luasocket v3.1.0 をビルドして <code>corelib/socket/core.so</code> へ配置）</p>
+<p>検証用に <code>OURIN_KAWARI_ENGINE</code> / <code>OURIN_KAGARI_ENGINE</code> 環境変数で成果物パスを上書きできる。</p>
+<h2 id="_3">ゴーストからの解決</h2>
+<ol>
+<li>ゴースト同梱の <code>.dylib</code> / <code>.bundle</code> を USL 探索パスから探す（従来どおり）。</li>
+<li>macOS で <code>.dll</code> しか無い場合、<code>BundledShioriEngine</code> がモジュール名と辞書マーカーからエンジン種別を推定し、<code>Frameworks</code> または <code>Resources/Engines</code> の同梱物へフォールバックする。</li>
+<li><code>kawari.dll</code> / <code>kosui.dll</code> → KAWARI</li>
+<li><code>kagari.dll</code> → KAGARI</li>
+<li><code>shiori.dll</code> かつ同フォルダに <code>kawarirc.ini</code> / <code>kawarirc.kis</code> → KAWARI</li>
+</ol>
+<p>ScriptBridge プラグインの KAWARI 辞書パーサーは会話再生の補助であり、本エンジンの代替ではない。</p>
+<h2 id="xcode">Xcodeへの同梱</h2>
+<p>アプリtargetの <code>Build and embed native SHIORI engines</code> フェーズが <code>engines/package.sh</code> を実行する。固定入力が変わったときにUniversal 2をビルドし、3本のdylibを <code>Contents/Frameworks</code> へコピー・署名する。ABI宣言は <code>Contents/Resources/EngineMetadata</code>、ライセンス本文は <code>EngineLicenses</code> へ配置する。Frameworksにplistを置くとapp署名が失敗するため、コードと宣言の配置を分けている。</p>
+<p><code>KawariKagariEngineTests</code> は環境変数なしでアプリ同梱物を使用する。実KAWARI/KAGARIのin-process/XPC往復、KAGARIのunload/reload・load失敗、instance-ID fixtureを検証。2026-10-25の対象検証は関連4suite、42実行/35固有test、失敗0・skip0。</p>
+<h2 id="_4">実ゴーストの確認範囲</h2>
+<ul>
+<li>LOBO: KAWARI実エンジンで起動・会話・終了・保存・別process再load成功。Ourin実アプリでも通常factoryが <code>kind=native</code> を選択し、OnBoot本文が返ることを確認。Macロック中のため画面操作は未確認。</li>
+<li>もす: 正規LuaSocket／luautf8／luachild／lua-iconvをmacOS向けにビルド。<code>saori_universal.native</code> のmacOS実装不足でloadが失敗し、実ゴーストの保存・再起動は未確認。Windows DLL/Linux ELFへの置換やLua側stubは使っていない。</li>
+<li>詳細: <a href="REAL_GHOST_VERIFICATION_2026-10-25_unknown.html">実ゴースト検証</a>、<a href="kagari-mosu-report_unknown.html">KAGARI検証記録</a>。GUI・クリーンMac・Intel実機は別の検証項目。</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../KAWARI_KAGARI_ENGINES_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>
