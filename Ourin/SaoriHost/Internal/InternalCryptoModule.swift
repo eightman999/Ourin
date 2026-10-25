@@ -196,7 +196,19 @@ struct InternalCryptoModule: InternalSaoriModule {
             return Support.chaCha20(key: key, nonce: nonce, input: body)
         case .aesCBC:
             guard !body.isEmpty, body.count % 16 == 0 else { throw failure }
-            do { return try crypt(kCCDecrypt, mode: kCCModeCBC, padding: CCPadding(ccPKCS7Padding), key: key, iv: nonce, input: body) } catch { throw failure }
+            // CommonCrypto's PKCS#7 unpadding does not consistently reject malformed
+            // padding on every supported OS. Validate the raw final block ourselves,
+            // including binary output where a text decoder cannot reject bad bytes.
+            let padded: Data
+            do {
+                padded = try crypt(kCCDecrypt, mode: kCCModeCBC, padding: CCPadding(ccNoPadding), key: key, iv: nonce, input: body)
+            } catch { throw failure }
+            guard let paddingByte = padded.last, paddingByte > 0, paddingByte <= 16,
+                  Int(paddingByte) <= padded.count else { throw failure }
+            var mismatch: UInt8 = 0
+            for byte in padded.suffix(Int(paddingByte)) { mismatch |= byte ^ paddingByte }
+            guard mismatch == 0 else { throw failure }
+            return Data(padded.dropLast(Int(paddingByte)))
         case .aesCTR:
             return try crypt(kCCDecrypt, mode: kCCModeCTR, padding: CCPadding(ccNoPadding), key: key, iv: nonce, input: body)
         }

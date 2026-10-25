@@ -230,14 +230,19 @@ struct InternalCryptoCipherTests {
         fails(call("Decrypt", ["aes-256-gcm", key32, bytes.base64EncodedString()]), 500, "authentication failed")
         fails(call("Decrypt", ["aes-256-gcm", "fedcba9876543210fedcba9876543210", packed]), 500, "authentication failed")
         // 5-byte plaintext has eleven 0x0b padding bytes. Flipping the IV's last
-        // byte by 0x0b makes the last decrypted byte zero: invalid PKCS#7 padding.
+        // byte by 0xff makes the last decrypted byte 0xf4, larger than a block.
         // A random wrong key can accidentally produce valid padding, so do not
         // use wrong-key rejection as a deterministic CBC assertion.
         let iv = String(repeating: "00", count: 16)
         let cbc = try #require(call("Encrypt", ["aes-256-cbc", key32, "hello", "--iv=\(iv)", "--pack=none"]).result)
         ok(call("Decrypt", ["aes-256-cbc", key32, cbc, "--iv=\(iv)", "--pack=none"]), "hello")
-        let invalidPaddingIV = String(repeating: "00", count: 15) + "0b"
-        fails(call("Decrypt", ["aes-256-cbc", key32, cbc, "--iv=\(invalidPaddingIV)", "--pack=none"]), 500, "authentication failed")
+        // Mismatched padding bytes, zero padding length, and length > block size.
+        for lastByte in ["01", "0b", "ff"] {
+            let invalidPaddingIV = String(repeating: "00", count: 15) + lastByte
+            for output in ["text", "hex"] {
+                fails(call("Decrypt", ["aes-256-cbc", key32, cbc, "--iv=\(invalidPaddingIV)", "--pack=none", "--out=\(output)"]), 500, "authentication failed")
+            }
+        }
         // 復号した結果が文字列にならない（--out=text で NUL を含む）ときは not text。
         let binary = call("Encrypt", ["aes-256-gcm", key32, "00ff", "--data-in=hex"]).result ?? ""
         fails(call("Decrypt", ["aes-256-gcm", key32, binary]), 500, "not text")
