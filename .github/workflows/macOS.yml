@@ -94,6 +94,9 @@ jobs:
             xcodebuild -list -project "${{ steps.detect.outputs.path }}"
           fi
 
+      - name: Test installer (SwiftPM)
+        run: swift test --package-path Installer
+
       - name: Build & Test (macOS)
         shell: bash
         run: |
