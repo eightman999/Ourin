@@ -1,0 +1,8 @@
+type,balloon
+charset,UTF-8
+name,CorpusBalloonFixture
+font.color.r,10
+font.color.g,20
+font.color.b,30
+origin.x,4
+origin.y,6

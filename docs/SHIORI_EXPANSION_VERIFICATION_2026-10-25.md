@@ -2,6 +2,8 @@
 
 対象は `master 88b8172` を基点とする開発ブランチ `codex/site-docs-and-more-shiori`。公開済み v0.0.1.21 への収録を意味しません。
 
+PR #216の最終head `a567943` は[CI全5項目が成功](https://github.com/eightman999/Ourin/actions/runs/40164170664)し、`master c3809b9` へマージ済みです。以下のローカル検証とremote CIは実行条件を区別して記録しています。
+
 ## 確認した変更
 
 - 灯・ese-shiori・偽栞・忍・翡翠・結奈・美坂の独立した互換実装を固定ソースから同梱。既存のDLL名から通常のNative runtimeへ接続。
