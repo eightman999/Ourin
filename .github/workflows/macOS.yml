@@ -68,6 +68,9 @@ jobs:
         run: swift test --package-path Installer
 
       - name: Build & Test (macOS, Debug)
+        # Suites share the app main run loop and process-wide runtimes. Running
+        # CPU-heavy crypto suites alongside deadline-based IPC/UI tests starves
+        # their callbacks on CI; use the same serial execution as local checks.
         shell: bash
         run: |
           set -eo pipefail
@@ -80,6 +83,7 @@ jobs:
             -project "$PROJECT" \
             -scheme "$SCHEME" \
             -destination "$DEST" \
+            -parallel-testing-enabled NO \
             -enableCodeCoverage YES \
             -resultBundlePath "$RESULT_BUNDLE" \
             CODE_SIGNING_ALLOWED=NO \
@@ -251,6 +255,7 @@ jobs:
           brew list nlohmann-json >/dev/null 2>&1 || brew install nlohmann-json
           brew list xcbeautify >/dev/null 2>&1 || brew install xcbeautify
       - name: Build & Test (macOS, x86_64 under Rosetta)
+        # Keep the shared-runtime test execution policy identical to the main leg.
         shell: bash
         run: |
           set -eo pipefail
@@ -258,6 +263,7 @@ jobs:
             -project "$PROJECT" \
             -scheme "$SCHEME" \
             -destination 'platform=macOS,arch=x86_64' \
+            -parallel-testing-enabled NO \
             CODE_SIGNING_ALLOWED=NO \
             test | tee xcodebuild-x86_64.log | xcbeautify
       - name: Upload build logs
