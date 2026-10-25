@@ -35,3 +35,8 @@ xcrun clang++ -std=c++17 -O2 -arch arm64 -arch x86_64 \
   -mmacosx-version-min=13.0 "${INCLUDES[@]}" \
   "$ROOT/engines/plugins/akari_helper.cpp" -o "$OUT/akari_helper"
 codesign --force --sign - "$OUT/akari_helper"
+
+# Explicit, narrowly scoped replacement for UGM's Windows static-file server.
+xcrun clang++ -std=c++17 -O2 -arch arm64 -arch x86_64 \
+  -mmacosx-version-min=13.0 "$ROOT/engines/plugins/ugm_http_helper.cpp" -o "$OUT/ugm_http_helper"
+codesign --force --sign - "$OUT/ugm_http_helper"

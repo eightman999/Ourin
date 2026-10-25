@@ -28,6 +28,7 @@ constexpr size_t LIMIT = 4 * 1024 * 1024;
 std::mutex guard;
 std::string responseBuffer, pending;
 pid_t child = -1;
+pid_t ugmChild = -1;
 int input = -1, output = -1;
 fs::path resources;
 json settings;
@@ -63,7 +64,18 @@ fs::path inside(const fs::path &base,const std::string &relative) {
  auto root=fs::weakly_canonical(base),path=fs::weakly_canonical(base/rel);
  auto suffix=path.lexically_relative(root);if(suffix.empty()||*suffix.begin()=="..")throw std::runtime_error("package path escapes resources");return path;
 }
+pid_t pollUGM() {
+ pid_t state;do{state=waitpid(ugmChild,nullptr,WNOHANG);}while(state<0&&errno==EINTR);return state;
+}
+void stopUGM() {
+ if(ugmChild<=0)return;
+ pid_t already=pollUGM();if(already==ugmChild||(already<0&&errno==ECHILD)){ugmChild=-1;return;}
+ kill(ugmChild,SIGTERM);
+ for(int i=0;i<20;++i){pid_t done=pollUGM();if(done==ugmChild||(done<0&&errno==ECHILD)){ugmChild=-1;return;}usleep(50000);}
+ kill(ugmChild,SIGKILL);while(waitpid(ugmChild,nullptr,0)<0&&errno==EINTR){}ugmChild=-1;
+}
 void stop() {
+ stopUGM();
  if(child>0){kill(ownsGroup?-child:child,SIGKILL);while(waitpid(child,nullptr,0)<0&&errno==EINTR){}child=-1;}
  if(input>=0){close(input);input=-1;}if(output>=0){close(output);output=-1;}pending.clear();
  for(auto &[key,b]:backends){if(b.unload)b.unload();dlclose(b.handle);}backends.clear();
@@ -86,8 +98,41 @@ json receive(Clock::time_point deadline) {
  if(n==0)throw std::runtime_error("helper exited");if(n>0)pending.append(buf,n);else if(errno!=EAGAIN&&errno!=EINTR)throw std::runtime_error("helper read failed");
  if(pending.size()>LIMIT)throw std::runtime_error("helper response too large");}
 }
+bool startUGM(const json& params) {
+ if(params.value("wait",false)||!params.value("arguments","").empty()||!settings.contains("ugm_http_helper"))return false;
+ const auto root=inside(resources,settings.at("load").at("ghost_root").get<std::string>());
+ std::string command=params.value("command","");std::replace(command.begin(),command.end(),'\\','/');
+ // No shell parsing, quoting, extra flags, URL opening, or arbitrary executable map.
+ if(command!="localweb/ugm_server.exe"&&command!=(root/"localweb/ugm_server.exe").string())return false;
+ if(ugmChild>0){if(pollUGM()==0)return true;ugmChild=-1;}
+ const auto helper=inside(resources,settings.at("ugm_http_helper").get<std::string>());
+ int ready[2];if(pipe(ready))return false;
+ fcntl(ready[0],F_SETFD,FD_CLOEXEC);fcntl(ready[1],F_SETFD,FD_CLOEXEC);
+ posix_spawn_file_actions_t actions;posix_spawn_file_actions_init(&actions);
+ posix_spawn_file_actions_adddup2(&actions,ready[1],STDOUT_FILENO);
+ posix_spawn_file_actions_addopen(&actions,STDIN_FILENO,"/dev/null",O_RDONLY,0);
+ posix_spawn_file_actions_addopen(&actions,STDERR_FILENO,"/dev/null",O_WRONLY,0);
+ std::string executable=helper.string(),directory=root.string(),parent=std::to_string(getpid());
+ char* argv[]={executable.data(),directory.data(),parent.data(),nullptr};pid_t pid=-1;
+ int error=posix_spawn(&pid,executable.c_str(),&actions,nullptr,argv,environ);
+ posix_spawn_file_actions_destroy(&actions);close(ready[1]);
+ if(error){close(ready[0]);return false;}ugmChild=pid;
+ fcntl(ready[0],F_SETFL,O_NONBLOCK);
+ std::string reply;const auto deadline=Clock::now()+std::chrono::seconds(3);
+ while(Clock::now()<deadline&&reply.size()<100&&reply.find('\n')==std::string::npos){
+  pollfd item{ready[0],POLLIN,0};int n=poll(&item,1,100);if(n<0&&errno==EINTR)continue;if(n<0)break;if(!n)continue;
+  char buffer[100];auto count=read(ready[0],buffer,sizeof buffer);if(count>0)reply.append(buffer,count);else if(count==0)break;
+ }
+ close(ready[0]);
+ if(reply.rfind("READY ",0)==0&&reply.back()=='\n'&&pollUGM()==0)return true;
+ stopUGM();return false;
+}
 json callback(const json &message) {
  const auto denied=[](){unavailable=true;return json{{"ok",false},{"status",501},{"error","host operation unavailable in plugin adapter"}};};
+ if(message.value("host_op","")=="execute") {
+  if(startUGM(message.at("params")))return {{"ok",true},{"status",200},{"exit_code",0}};
+  return denied();
+ }
  if(message.value("host_op","")!="plugin")return denied();
  auto op=message.at("params");auto params=op.at("params");std::string key=moduleKey(params.value("module",""));
  auto configured=settings.value("saori_backends",json::object());if(!configured.contains(key))return denied();
@@ -140,7 +185,7 @@ extern "C" int32_t plugin_loadu(char *directory,size_t) {
   Dl_info info{};if(!dladdr(reinterpret_cast<void*>(&plugin_loadu),&info))return 0;
   resources=fs::path(info.dli_fname).parent_path().parent_path()/"Resources";
   std::ifstream file(resources/"adapter.json");file>>settings;
-  auto load=settings.at("load");auto root=inside(resources,load.at("ghost_root").get<std::string>());load["ghost_root"]=root.string();
+  auto load=settings.at("load");load["host_execute"]=true;auto root=inside(resources,load.at("ghost_root").get<std::string>());load["ghost_root"]=root.string();
   load["save_file"]=inside(resources,load.at("save_file").get<std::string>()).string();
   for(auto &entry:load.at("dic_entries"))inside(root,entry.at("path").get<std::string>());
   launch(inside(resources,settings.value("helper","yaya_core")),root);

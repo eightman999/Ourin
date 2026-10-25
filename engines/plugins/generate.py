@@ -85,6 +85,13 @@ def generate(args):
         else:
             shutil.copy2(args.engine_library, resources / 'libakari.dylib')
             shutil.copy2(args.adapter.parent / 'akari_helper', resources / 'akari_helper')
+        if getattr(args, 'ugm_http_helper', None):
+            if args.engine != 'yaya':
+                raise ValueError('--ugm-http-helper requires YAYA')
+            if not (source / 'localweb/html').is_dir():
+                raise ValueError('UGM requires localweb/html under the payload root')
+            shutil.copy2(args.ugm_http_helper, resources / 'ugm_http_helper')
+            manifest['ugm_http_helper'] = 'ugm_http_helper'
         for value in args.saori_backend:
             key, separator, path = value.partition('=')
             if not separator:
@@ -125,6 +132,7 @@ def main():
     parser.add_argument('--collector', type=Path)
     parser.add_argument('--engine-library', type=Path)
     parser.add_argument('--source-url')
+    parser.add_argument('--ugm-http-helper', type=Path, help='Trusted Ourin loopback-only replacement for localweb/ugm_server.exe; opt-in')
     parser.add_argument('--saori-backend', action='append', default=[])
     args = parser.parse_args()
     try:

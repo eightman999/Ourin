@@ -133,3 +133,11 @@ python3 engines/additional/test_akari_values.py --fixtures /path/to/plugin-fixtu
 2026-10-25: **5テストPASS、0失敗、0skip**（自作4回帰＋実3作品を含む1回帰）。`ukaten` は設定メニュー、`ukadonyu` / `sudohaikuyu` は初回空・2回目起動Scriptを確認しました。元辞書を書き換えず、状態保存は別一時ディレクトリ、HTTPは自作の固定JSONで置換しています。実際の気象API、SSTP、SAORI、GUI操作や作品全機能の成功を意味しません。fixture省略時は実作品の1テストが明示skipになります。
 
 `bash engines/additional/build.sh` でUniversal 2を再生成し、`libakari.dylib` のarm64/x86_64とad-hoc署名を確認しました。TMIDIのbundleも最終生成時のad-hoc署名を追加し、厳密署名検査と6回帰を通過しています。
+
+## Windows音声プラグインの再判定
+
+追加検証では、プラグイン内のEXECUTE/EXECUTE_WAITをhostへ接続し、明示mapのない外部プログラムを拒否します。CeVIO-TalkerとSSP-AIVOICEはload時に必要なWindows helperを起動できないため、以前のload成功判定を訂正しました。専用API・named pipeを含むWindows bridgeは残件です。
+
+apxxxxxxe/Bouyomiはproxy_ex.dllの`/charset`・`core.exe -l/-count/-hash`、外部実行の`-e/-g/-v`を使います。[音声一覧](https://github.com/apxxxxxxe/Bouyomi/blob/dd917482a00ba5200e0d833c29126af570b7401c/core/data/voice.go)はWindows SAPI/registry、voice設定は元YAYAテキスト保存に依存します。NightWork向けSendTalkの実装だけでは互換になりません。Windows bridgeによる音声一覧・設定・発声の往復が残件です。
+
+UGMの限定HTTP helperと実配布物での結果は[プラグイン一覧](plugin-ports.md#ugmの追加対応と検証範囲)へ。

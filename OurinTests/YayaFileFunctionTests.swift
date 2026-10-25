@@ -100,7 +100,7 @@ struct YayaFileFunctionTests {
         defer { try? fm.removeItem(at: ghost) }
         let dic = """
         Join {
-            _argv[0][0] + '|' + _argv[0][1] + '|' + _argv[0][2] + '|' + _argv[0][3]
+            _argv[0] + '|' + _argv[1] + '|' + _argv[2] + '|' + _argv[3]
         }
         Probe {
             Join(SPLITPATH('C:\\dir\\sub\\name.ext')) + '#' + Join(SPLITPATH('./profile\\debeso.db.base')) + '#' + Join(SPLITPATH('noext'))

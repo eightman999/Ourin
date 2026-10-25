@@ -845,7 +845,8 @@ std::shared_ptr<AST::Node> Parser::parseFor() {
 std::shared_ptr<AST::Node> Parser::parseForeach() {
     consume(TokenType::Foreach, "Expected 'foreach'");
     
-    // Parse: foreach array ; variable { body }
+    // Parse: foreach expression ; value { body }
+    //     or foreach expression ; key, value { body } (YAYA 600).
     // YAYA の配列には任意の式を書ける（#globaldefine で 'a,b,c' に置き換わる名前、関数の結果など）。
     skipNewlines();
     auto arrayExpr = parseExpression();
@@ -864,6 +865,18 @@ std::shared_ptr<AST::Node> Parser::parseForeach() {
     std::string varName = current().value;
     advance();
     skipNewlines();
+    std::string keyName;
+    if (check(TokenType::Comma)) {
+        advance();
+        skipNewlines();
+        keyName = varName;
+        if (!check(TokenType::Identifier)) {
+            throw std::runtime_error("Expected value identifier after ',' in foreach at line " + std::to_string(current().line));
+        }
+        varName = current().value;
+        advance();
+        skipNewlines();
+    }
     
     // Parse the body
     consume(TokenType::LeftBrace, "Expected '{' after foreach header");
@@ -879,7 +892,7 @@ std::shared_ptr<AST::Node> Parser::parseForeach() {
     }
     consume(TokenType::RightBrace, "Expected '}' after foreach body");
 
-    return std::make_shared<AST::ForeachNode>(arrayExpr, varName, body);
+    return std::make_shared<AST::ForeachNode>(arrayExpr, varName, body, keyName);
 }
 
 std::shared_ptr<AST::Node> Parser::parseBlock() {

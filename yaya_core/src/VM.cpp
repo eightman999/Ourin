@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include "Digest.hpp"
 #include "Base64.hpp"
+#include "JsonValue.hpp"
 #include <unistd.h>
 #if defined(__APPLE__)
 #include <mach/mach.h>
@@ -590,7 +591,7 @@ static bool isOutputSuppressedNode(const std::shared_ptr<AST::Node>& node) {
         "CLEARERRORLOG", "DICLOAD", "DICUNLOAD",
         "ERASEVAR", "EXECUTE", "EXECUTE_WAIT",
         "FCLOSE", "FCOPY", "FDEL", "FOPEN", "FRENAME",
-        "FSEEK", "FWRITE", "FWRITE2", "FWRITEBIN", "FWRITEDECODE",
+        "FSEEK", "FWRITE", "FWRITE2", "FWRITEBIN", "FWRITEDECODE", "FWRITEJSON",
         "FUNCDECL_ERASE", "FUNCDECL_WRITE",
         "LETTONAME", "LOADLIB", "LOGGING", "MKDIR", "RMDIR",
         "REGISTERTEMPVAR", "RESTOREVAR", "SAVEVAR", "SETDELIM",
@@ -812,13 +813,29 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         }
     } callFrameGuard{*this};
 
-    // Set _argv / _argc for this function call (now goes to local scope)
+    // User functions receive one-level-expanded array arguments (YAYA's
+    // ExecFunctionWithArgs). Builtins above retain individual Value arguments,
+    // e.g. FWRITEJSON(path, array) must not turn the array into extra arguments.
+    // Record each original argument's span for &argument writeback.
+    struct ArgumentSpan { size_t offset; size_t width; bool isArray; };
+    std::vector<ArgumentSpan> argumentSpans;
+    if (!referenceArguments.empty()) argumentSpans.reserve(args.size());
     std::vector<Value> argArray;
     for (const auto& a : args) {
-        argArray.push_back(a);
+        const size_t offset = argArray.size();
+        const bool isArray = a.getType() == Value::Type::Array;
+        if (isArray) {
+            const auto& elements = a.asArray();
+            argArray.insert(argArray.end(), elements.begin(), elements.end());
+        } else {
+            argArray.push_back(a);
+        }
+        if (!referenceArguments.empty()) {
+            argumentSpans.push_back({offset, argArray.size() - offset, isArray});
+        }
     }
     setVariable("_argv", Value(argArray));
-    setVariable("_argc", Value(static_cast<int>(args.size())));
+    setVariable("_argc", Value(static_cast<std::int64_t>(argArray.size())));
 
     // Dispatch: nonoverload (or single declaration) runs only the first enabled
     // declaration. Otherwise (YAYA overload default) every declaration runs in
@@ -868,11 +885,21 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         const Value calleeArguments = getVariable("_argv");
         for (const auto& reference : referenceArguments) {
             if (calleeArguments.getType() != Value::Type::Array ||
-                reference.argumentIndex >= calleeArguments.asArray().size()) {
+                reference.argumentIndex >= argumentSpans.size()) {
                 continue;
             }
-            writeReference(reference.target, calleeArguments.arrayGet(
-                static_cast<int>(reference.argumentIndex)));
+            const auto& span = argumentSpans[reference.argumentIndex];
+            const auto& values = calleeArguments.asArray();
+            if (span.isArray) {
+                // Reassemble only this argument's original span. If _argv was
+                // shortened, return the surviving elements (possibly empty).
+                const size_t begin = std::min(span.offset, values.size());
+                const size_t end = std::min(span.offset + span.width, values.size());
+                writeReference(reference.target, Value(std::vector<Value>(
+                    values.begin() + begin, values.begin() + end)));
+            } else if (span.offset < values.size()) {
+                writeReference(reference.target, values[span.offset]);
+            }
         }
     }
 
@@ -1173,19 +1200,29 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 }
                 arrayVal = Value(parts);
             }
-            if (arrayVal.getType() == Value::Type::Array) {
+            // YAYA 600 snapshots the source before entering the loop. Hashes yield
+            // values in the one-variable form and key/value in the two-variable
+            // form; arrays and pseudo-arrays use a zero-based integer index.
+            std::vector<std::pair<Value, Value>> entries;
+            if (arrayVal.getType() == Value::Type::Dictionary) {
+                for (const auto& [key, value] : arrayVal.asDict()) {
+                    entries.emplace_back(Value(key), value);
+                }
+            } else if (arrayVal.getType() == Value::Type::Array) {
                 const auto& arr = arrayVal.asArray();
-                // Snapshot elements so mutation of the source array mid-loop is safe.
-                std::vector<Value> elems(arr.begin(), arr.end());
-                for (const auto& elem : elems) {
-                    setVariable(feNode->varName, elem);
-                    try {
-                        result = executeBlock(feNode->body);
-                    } catch (const ContinueException&) {
-                        continue;
-                    } catch (const BreakException&) {
-                        break;
-                    }
+                for (size_t index = 0; index < arr.size(); ++index) {
+                    entries.emplace_back(Value(static_cast<std::int64_t>(index)), arr[index]);
+                }
+            }
+            for (const auto& [key, value] : entries) {
+                if (!feNode->keyName.empty()) setVariable(feNode->keyName, key);
+                setVariable(feNode->varName, value);
+                try {
+                    result = executeBlock(feNode->body);
+                } catch (const ContinueException&) {
+                    continue;
+                } catch (const BreakException&) {
+                    break;
                 }
             }
             return result;
@@ -2958,6 +2995,103 @@ void VM::registerBuiltins() {
         return (fs::path(ghostRootPath_) / candidate).lexically_normal().string();
     };
 
+    // JSON whole-file operations use their own charset (UTF-8 by default),
+    // independently of FCHARSET and the open filename registry.
+    auto jsonCharset = [this](const Value& value, bool allowEmpty) -> std::string {
+        if (allowEmpty && (value.isVoid() || (value.getType() == Value::Type::String && value.asString().empty())))
+            return "UTF-8";
+        if (value.getType() == Value::Type::Integer || value.getType() == Value::Type::Real) {
+            switch (value.asInt64()) {
+                case 0: return "CP932";
+                case 1: case 126: case 127: return "UTF-8";
+                case 2: return "EUC-JP";
+                case 3: return "CP950";
+                case 4: return "CP936";
+                case 5: return "CP949";
+                case 6: return "ISO-2022-JP";
+            }
+        } else if (value.getType() == Value::Type::String) {
+            auto name = value.asString();
+            std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return std::tolower(c); });
+            name.erase(std::remove_if(name.begin(), name.end(), [](char c) { return c == '-' || c == '_' || c == ' '; }), name.end());
+            if (name == "binary" || name == "default" || name == "utf8n" || name == "cp65001") return "UTF-8";
+            if (name == "eucjp") return "EUC-JP";
+            if (name == "jis" || name == "iso2022jp") return "ISO-2022-JP";
+            const auto normalized = normalizeEncodingNameVM(name);
+            if (normalized != "AUTO") return normalized;
+        } else { lastError_ = 9; return ""; }
+        lastError_ = 12;
+        return "";
+    };
+    auto jsonPath = [this, isPathSafe, resolveGhostPath](const std::string& path) -> std::string {
+        if (!isPathSafe(path) || path.find('\0') != std::string::npos || ghostRootPath_.empty()) return "";
+        namespace fs = std::filesystem;
+        std::error_code ec;
+        const auto root = fs::weakly_canonical(ghostRootPath_, ec);
+        if (ec) return "";
+        const auto full = fs::weakly_canonical(resolveGhostPath(path), ec);
+        if (ec) return "";
+        const auto relative = full.lexically_relative(root);
+        if (relative.empty() || relative == "." || *relative.begin() == "..") return "";
+        return full.string();
+    };
+    builtins_["PARSEJSON"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 8; return Value(); }
+        if (args[0].getType() != Value::Type::String) { lastError_ = 9; return Value(); }
+        try { return YayaJson::parse(args[0].asString()); }
+        catch (...) { lastError_ = 26; return Value(); }
+    };
+    builtins_["DUMPJSON"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 8; return Value(std::string()); }
+        try { return Value(YayaJson::encode(args[0]).dump(args.size() > 1 && args[1].asInt64() != 0 ? 4 : -1)); }
+        catch (...) { lastError_ = 27; return Value(std::string()); }
+    };
+    builtins_["FREADJSON"] = [this, jsonPath, jsonCharset](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 8; return Value(); }
+        if (args[0].getType() != Value::Type::String) { lastError_ = 9; return Value(); }
+        const auto charset = args.size() > 1 ? jsonCharset(args[1], false) : "UTF-8";
+        if (charset.empty()) return Value();
+        const auto path = jsonPath(args[0].asString());
+        std::ifstream file(path, std::ios::binary);
+        if (path.empty() || !file.is_open()) { lastError_ = 25; return Value(); }
+        std::string bytes((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        if (file.bad()) { lastError_ = 25; return Value(); }
+        if (charset != "UTF-8") {
+            std::string converted;
+            if (!convertEncodingVM(bytes, charset.c_str(), "UTF-8", converted)) { lastError_ = 26; return Value(); }
+            bytes = std::move(converted);
+        }
+        try { return YayaJson::parse(bytes); }
+        catch (...) { lastError_ = 26; return Value(); }
+    };
+    builtins_["FWRITEJSON"] = [this, jsonPath, jsonCharset](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) { lastError_ = 8; return Value(0); }
+        if (args[0].getType() != Value::Type::String) { lastError_ = 9; return Value(0); }
+        const auto charset = args.size() > 2 ? jsonCharset(args[2], true) : "UTF-8";
+        if (charset.empty()) return Value(0);
+        const auto path = jsonPath(args[0].asString());
+        if (path.empty()) { lastError_ = 25; return Value(0); }
+        std::string bytes;
+        try {
+            const bool pretty = args.size() < 4 || args[3].asInt64() != 0;
+            // Escaping all non-ASCII codepoints for legacy encodings preserves
+            // even characters the requested charset cannot represent.
+            bytes = YayaJson::encode(args[1]).dump(pretty ? 4 : -1, ' ', charset != "UTF-8");
+            if (pretty) bytes += '\n';
+            if (charset != "UTF-8") {
+                std::string encoded;
+                if (!convertEncodingVM(bytes, "UTF-8", charset.c_str(), encoded)) throw std::runtime_error("JSON charset conversion");
+                bytes = std::move(encoded);
+            }
+        } catch (...) { lastError_ = 27; return Value(0); }
+        std::ofstream file(path, std::ios::binary | std::ios::trunc);
+        if (!file.is_open()) { lastError_ = 25; return Value(0); }
+        file.write(bytes.data(), bytes.size());
+        file.close();
+        if (!file) { lastError_ = 13; return Value(0); }
+        return Value(1);
+    };
+
     // FCOPY / FMOVE のコピー先が既存のフォルダなら、その中に同じ名前で置く
     // （YAYA 本体の Windows 版は常にコピー先をフォルダとして扱い、POSIX 版はこの形）。
     auto placeInExistingDirectory = [](const std::string& src, const std::string& dst) -> std::string {
@@ -3789,13 +3923,13 @@ void VM::registerBuiltins() {
         for (const auto& v : root) {
             if (!v.is_object() || !v.contains("t") || !v["t"].is_string()) return false;
             const auto t = v["t"].get<std::string>();
-            if (t != "s" && t != "i" && t != "r" && t != "a" && t != "v") return false;
+            if (t != "s" && t != "i" && t != "r" && t != "a" && t != "d" && t != "v") return false;
         }
         return true;
     };
 
     // SAVEVAR(filename) - グローバル変数を JSON で指定ファイルへ保存する。
-    // 型情報（s=文字列, i=整数, r=実数, a=配列, v=void）を保持し RESTOREVAR で復元可能にする。
+    // 型情報（s=文字列, i=整数, r=実数, a=配列, d=hash, v=void）を保持する。
     // Phase 7: relative paths anchor under the ghost root; temp vars are excluded.
     builtins_["SAVEVAR"] = [this, persistencePath, isSaveObject](const std::vector<Value>& args) -> Value {
         const std::string full = persistencePath(args);
@@ -3811,6 +3945,13 @@ void VM::registerBuiltins() {
                     nlohmann::json a = nlohmann::json::array();
                     for (const auto& e : v.asArray()) a.push_back(toJson(e));
                     j["v"] = a;
+                    break;
+                }
+                case Value::Type::Dictionary: {
+                    j["t"] = "d";
+                    auto object = nlohmann::json::object();
+                    for (const auto& [key, value] : v.asDict()) object[key] = toJson(value);
+                    j["v"] = object;
                     break;
                 }
                 default: j["t"] = "v"; break;
@@ -3858,6 +3999,12 @@ void VM::registerBuiltins() {
                     for (const auto& e : j["v"]) arr.push_back(fromJson(e));
                 }
                 return Value(arr);
+            }
+            if (t == "d") {
+                std::map<std::string, Value> object;
+                if (j.contains("v") && j["v"].is_object())
+                    for (auto it = j["v"].begin(); it != j["v"].end(); ++it) object[it.key()] = fromJson(it.value());
+                return Value(object);
             }
             return Value();
         };
@@ -3997,8 +4144,14 @@ void VM::registerBuiltins() {
     // ===== Additional System/Utility Functions =====
     
     // EXECUTE(command) - Execute system command (non-blocking)
-    builtins_["EXECUTE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["EXECUTE"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
+        if (callback_ && callback_->requiresHostExecution()) {
+            const auto response = callback_->executeCommandWithArguments(args[0].asString(), false,
+                args.size() > 1 ? args[1].asString() : "");
+            if (!response.value("ok", false)) { lastError_ = response.value("status", 501); return Value(0); }
+            return Value(1);
+        }
         std::string command = args[0].asString();
         
         // Execute in background (non-blocking)
@@ -4008,8 +4161,14 @@ void VM::registerBuiltins() {
     };
     
     // EXECUTE_WAIT(command) - Execute and wait (blocking)
-    builtins_["EXECUTE_WAIT"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["EXECUTE_WAIT"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
+        if (callback_ && callback_->requiresHostExecution()) {
+            const auto response = callback_->executeCommandWithArguments(args[0].asString(), true,
+                args.size() > 1 ? args[1].asString() : "");
+            if (!response.value("ok", false)) { lastError_ = response.value("status", 501); return Value(-1); }
+            return Value(response.value("exit_code", 0));
+        }
         std::string command = args[0].asString();
         
         // Execute and wait for completion

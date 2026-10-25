@@ -79,9 +79,14 @@ json YayaCore::fileOperation(const std::string& op, const json& params) {
 }
 
 json YayaCore::executeCommand(const std::string& command, bool wait) {
+    return executeCommandWithArguments(command, wait, "");
+}
+
+json YayaCore::executeCommandWithArguments(const std::string& command, bool wait, const std::string& arguments) {
     json req;
     req["command"] = command;
     req["wait"] = wait;
+    req["arguments"] = arguments;
     
     std::string response = requestHostOperation("execute", req);
     try {
@@ -176,6 +181,7 @@ std::string YayaCore::processCommand(const std::string &line) {
                 response["error"] = "message_path required";
             }
         } else if (cmd == "load") {
+            hostExecution_ = req.value("host_execute", false);
             std::string ghostRoot = req.value("ghost_root", "");
             std::string encoding = req.value("encoding", "auto");
 

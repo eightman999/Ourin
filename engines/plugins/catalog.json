@@ -24,21 +24,182 @@
         "ブラウザーUI",
         "SSTP"
       ],
-      "port_strategy": "YAYA辞書を無改変で実行。Windows ugm_server.exeはGoネイティブbuildと起動経路の追加が必要。",
+      "port_strategy": "元YAYA辞書を無改変で実行。明示設定したnative helperだけでloopback HTTP配信し、shutdown/親終了/unloadで停止。",
       "source_evidence": [
         "https://github.com/lost-nd-xxx/UkagakaGhostMessenger/blob/5de6b36bfea89bf601ca527f9955ffd8a49c5437/descript.txt",
-        "https://github.com/lost-nd-xxx/UkagakaGhostMessenger/blob/5de6b36bfea89bf601ca527f9955ffd8a49c5437/LICENSE"
+        "https://github.com/lost-nd-xxx/UkagakaGhostMessenger/blob/5de6b36bfea89bf601ca527f9955ffd8a49c5437/LICENSE",
+        "https://github.com/lost-nd-xxx/UkagakaGhostMessenger/blob/5de6b36bfea89bf601ca527f9955ffd8a49c5437/localweb/__server_golang/main.go",
+        "https://github.com/YAYA-shiori/yaya-shiori/blob/3ccd7c26f23e56d71a305f1a80e5937588d27cb5/function.cpp",
+        "https://github.com/YAYA-shiori/yaya-shiori/blob/3ccd7c26f23e56d71a305f1a80e5937588d27cb5/sysfunc.cpp"
       ],
       "archive_sha256": "aba257c2e4d7a9777fc505a9650cb6bf0637c2fafa28bf5153756900d994ea47",
       "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
       "verification": {
-        "status": "unsupported",
-        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
-        "loaded": false,
-        "reloaded": false,
-        "events": [],
+        "status": "partial",
+        "layer": "native .plugin C ABI + original dictionaries + loopback HTTP + synthetic savedata",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "version",
+            "status_line": "PLUGIN/2.0 200 OK",
+            "bytes": 104,
+            "sha256": "3f8332d4f15e88e9156c850f61de78e7fa8976c9a212b4ca07cde76832554a01",
+            "header_names": [
+              "Sender",
+              "Charset",
+              "Value"
+            ]
+          },
+          {
+            "id": "OnMenuExec",
+            "status_line": "PLUGIN/2.0 200 OK",
+            "bytes": 383,
+            "sha256": "a8b5dac626664c3901057cbc8203923378308cec803bdef99a049b08e2574eeb",
+            "header_names": [
+              "Sender",
+              "Charset",
+              "Script",
+              "Event",
+              "ScriptOption",
+              "Reference0",
+              "Reference1",
+              "Reference2",
+              "Reference3",
+              "Marker"
+            ],
+            "script_has_configured_port": true,
+            "event_header_correct": true
+          }
+        ],
         "temporary_copy_deleted": true,
-        "reason": "functions.dic:753 と event.dic:209 の hash foreach（key,value）構文が未対応。11辞書中2件parse失敗を検出してload拒否。Go Webサーバー起動、FREADJSON/FWRITEJSONも未対応。"
+        "reason": "元辞書11件無改変。2cyclesのversion/menu応答、HTML/JSON配信、合成保存データの維持、終了時port解放を確認。jsstp/FMO/SEND・実GUI・旧savedata.adb移行は未検証。",
+        "followup": {
+          "cycles": [
+            {
+              "loaded": true,
+              "events": [
+                {
+                  "id": "version",
+                  "status_line": "PLUGIN/2.0 200 OK",
+                  "bytes": 104,
+                  "sha256": "3f8332d4f15e88e9156c850f61de78e7fa8976c9a212b4ca07cde76832554a01",
+                  "header_names": [
+                    "Sender",
+                    "Charset",
+                    "Value"
+                  ]
+                },
+                {
+                  "id": "OnMenuExec",
+                  "status_line": "PLUGIN/2.0 200 OK",
+                  "bytes": 383,
+                  "sha256": "a8b5dac626664c3901057cbc8203923378308cec803bdef99a049b08e2574eeb",
+                  "header_names": [
+                    "Sender",
+                    "Charset",
+                    "Script",
+                    "Event",
+                    "ScriptOption",
+                    "Reference0",
+                    "Reference1",
+                    "Reference2",
+                    "Reference3",
+                    "Marker"
+                  ],
+                  "script_has_configured_port": true,
+                  "event_header_correct": true
+                }
+              ],
+              "http": [
+                {
+                  "path": "/",
+                  "status": 200,
+                  "bytes": 2099,
+                  "sha256": "32acb1e8cbeea913b65e6546129ba357fd9adafda44b43b2d5d228de1a53824d"
+                },
+                {
+                  "path": "/res/data.json",
+                  "status": 200,
+                  "bytes": 73,
+                  "sha256": "26223883bed2b3cd66d61f1486949b0260e2f2216c60f601cb4ec0406a80f4aa",
+                  "saved_flag_visible": true
+                }
+              ],
+              "fixture_state_preserved": true,
+              "saved_state_stable_after_reload": null,
+              "running_marker_removed": true,
+              "port_closed": true
+            },
+            {
+              "loaded": true,
+              "events": [
+                {
+                  "id": "version",
+                  "status_line": "PLUGIN/2.0 200 OK",
+                  "bytes": 104,
+                  "sha256": "3f8332d4f15e88e9156c850f61de78e7fa8976c9a212b4ca07cde76832554a01",
+                  "header_names": [
+                    "Sender",
+                    "Charset",
+                    "Value"
+                  ]
+                },
+                {
+                  "id": "OnMenuExec",
+                  "status_line": "PLUGIN/2.0 200 OK",
+                  "bytes": 383,
+                  "sha256": "a8b5dac626664c3901057cbc8203923378308cec803bdef99a049b08e2574eeb",
+                  "header_names": [
+                    "Sender",
+                    "Charset",
+                    "Script",
+                    "Event",
+                    "ScriptOption",
+                    "Reference0",
+                    "Reference1",
+                    "Reference2",
+                    "Reference3",
+                    "Marker"
+                  ],
+                  "script_has_configured_port": true,
+                  "event_header_correct": true
+                }
+              ],
+              "http": [
+                {
+                  "path": "/",
+                  "status": 200,
+                  "bytes": 2099,
+                  "sha256": "32acb1e8cbeea913b65e6546129ba357fd9adafda44b43b2d5d228de1a53824d"
+                },
+                {
+                  "path": "/res/data.json",
+                  "status": 200,
+                  "bytes": 73,
+                  "sha256": "26223883bed2b3cd66d61f1486949b0260e2f2216c60f601cb4ec0406a80f4aa",
+                  "saved_flag_visible": true
+                }
+              ],
+              "fixture_state_preserved": true,
+              "saved_state_stable_after_reload": true,
+              "running_marker_removed": true,
+              "port_closed": true
+            }
+          ],
+          "sandbox": "network limited to loopback; writes limited to disposable copy",
+          "fixture": "synthetic savedata/config; original dictionaries unchanged",
+          "gui_verified": false,
+          "dictionary_count": 11,
+          "dictionary_hashes_unchanged": true,
+          "passed": true,
+          "temporary_copy_deleted": true
+        },
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "e67e56db78d8d72deac800cdd2925d4721c81b909f081b8a8bdd434e0a8f7e58",
+          "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709",
+          "Contents/Resources/ugm_http_helper": "dd23d88d7de48c8b1f90a8685f2cd4bfabe6aad48d1d8bda4751aee2244e794e"
+        }
       },
       "generated_artifact": "build/plugin-ports/ukagakaghostmessenger.plugin",
       "generated": true
@@ -140,7 +301,13 @@
           }
         ],
         "temporary_copy_deleted": true,
-        "reason": "メニューScript応答確認。スタンプ入手、玉/tamac.exe連携、実画面は未検証。"
+        "reason": "メニューScript応答確認。スタンプ入手、玉/tamac.exe連携、実画面は未検証。",
+        "rechecked_on": "2026-10-25",
+        "host_execution": "explicit host mapping; unmapped commands refused",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "81c37d0764ee439834bb7f728b3f90dbe4e2a43a8c0084ebf552b6a04b4c6c08",
+          "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709"
+        }
       },
       "generated_artifact": "build/plugin-ports/stampcollection.plugin",
       "generated": true
@@ -195,7 +362,13 @@
           }
         ],
         "temporary_copy_deleted": true,
-        "reason": "メニューScript応答確認。残高API、認証・送受金は未検証。"
+        "reason": "メニューScript応答確認。残高API、認証・送受金は未検証。",
+        "rechecked_on": "2026-10-25",
+        "host_execution": "explicit host mapping; unmapped commands refused",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "f1143e44a2c512caa7320e6f81461dbc876ce62a3ae6b98d4573dccfb26c4f10",
+          "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709"
+        }
       },
       "generated_artifact": "build/plugin-ports/wallet-of-unyu.plugin",
       "generated": true
@@ -235,7 +408,13 @@
         "reloaded": false,
         "events": [],
         "temporary_copy_deleted": true,
-        "reason": "起動時のWindows core.exe実行が未対応でload拒否。Go helperはWindows音声registry・process探索・NoInheritHandlesに依存。"
+        "reason": "proxy_ex.dll /charset・core.exeの音声一覧(-l)等が未mapでload拒否。起動(-e)・発声(-g/-v)、Windows SAPI/registry、旧YAYAテキストvoice設定に依存。TCP送信だけでは代替できない。",
+        "rechecked_on": "2026-10-25",
+        "host_execution": "explicit host mapping; unmapped commands refused",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "a85aa6915d47703f5e041ed18785bf760afb034c2a19ea5a3e9d897fc74afa90",
+          "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709"
+        }
       },
       "generated_artifact": "build/plugin-ports/bouyomi.plugin",
       "generated": true
@@ -558,23 +737,19 @@
       "archive_sha256": "f159a80c16105d04841368325ad7e1b4562fd10dc91f73af239dc36e1f4c0c6d",
       "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
       "verification": {
-        "status": "partial",
+        "status": "unsupported",
         "layer": "native .plugin C ABI + isolated helper; GUI not tested",
-        "loaded": true,
-        "reloaded": true,
-        "events": [
-          {
-            "id": "OnMenuExec",
-            "status_line": "PLUGIN/2.0 501 Host Capability Unavailable",
-            "bytes": 62,
-            "sha256": "d5a839a3162e82dbb2e00ec322c225f7ca0127e5e1acaff11a8332b8ea702de1",
-            "header_names": [
-              "Charset"
-            ]
-          }
-        ],
+        "loaded": false,
+        "reloaded": false,
+        "events": [],
         "temporary_copy_deleted": true,
-        "reason": "メニュー要求は501。CeVIO AI専用.NET API・Windows named pipe/helperが未対応。"
+        "reason": "load内EXECUTEで必要なWindows .NET helperを起動できないためload拒否。以前のロード成功判定は起動失敗を無視していたため訂正。CeVIO AI API・Windows named pipeは未対応。",
+        "rechecked_on": "2026-10-25",
+        "host_execution": "explicit host mapping; unmapped commands refused",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "ce8ca33dff0241ba32b5bc9a0fa1d2473fb2ea818c600ff268a0db7a1635f7cd",
+          "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709"
+        }
       },
       "generated_artifact": "build/plugin-ports/ukagakaplugin-cevio-talker.plugin",
       "generated": true
@@ -609,23 +784,19 @@
       "archive_sha256": "78452dba3f7090147355cb76308e1f5d60b2ea099ebe081c74bef0b0f8d636be",
       "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
       "verification": {
-        "status": "partial",
+        "status": "unsupported",
         "layer": "native .plugin C ABI + isolated helper; GUI not tested",
-        "loaded": true,
-        "reloaded": true,
-        "events": [
-          {
-            "id": "OnMenuExec",
-            "status_line": "PLUGIN/2.0 501 Host Capability Unavailable",
-            "bytes": 62,
-            "sha256": "d5a839a3162e82dbb2e00ec322c225f7ca0127e5e1acaff11a8332b8ea702de1",
-            "header_names": [
-              "Charset"
-            ]
-          }
-        ],
+        "loaded": false,
+        "reloaded": false,
+        "events": [],
         "temporary_copy_deleted": true,
-        "reason": "メニュー要求は501。A.I.VOICE Editor API・Windows named pipe/helperが未対応。"
+        "reason": "load内EXECUTEで必要なWindows helperを起動できないためload拒否。以前のロード成功判定は起動失敗を無視していたため訂正。A.I.VOICE Editor API・Windows named pipeは未対応。",
+        "rechecked_on": "2026-10-25",
+        "host_execution": "explicit host mapping; unmapped commands refused",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "a52191d14a1f1a9cdc0a36db40afea898d796e7508bbe4c2054a2a04276dc574",
+          "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709"
+        }
       },
       "generated_artifact": "build/plugin-ports/ssp-aivoice.plugin",
       "generated": true
@@ -675,7 +846,13 @@
           }
         ],
         "temporary_copy_deleted": true,
-        "reason": "macOS AX backend同梱。実要求は前面window/権限条件不足で501。実タイトル取得成功は未検証。"
+        "reason": "macOS AX backend同梱。実要求は前面window/権限条件不足で501。実タイトル取得成功は未検証。",
+        "rechecked_on": "2026-10-25",
+        "host_execution": "explicit host mapping; unmapped commands refused",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "4bb1d1f91ebc3e9dab698c109c750fe7d61911bc39139399d4db2f3d994b8818",
+          "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709"
+        }
       },
       "generated_artifact": "build/plugin-ports/ukagakaplugin-getwindowtitle.plugin",
       "generated": true
@@ -732,6 +909,12 @@
           "reloaded": true,
           "read_status": "PLUGIN/2.0 200 OK",
           "read_script_contains_self_authored_diary": true
+        },
+        "rechecked_on": "2026-10-25",
+        "host_execution": "explicit host mapping; unmapped commands refused",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "337c788e74071a1545a7833f6e21cd1b4c36574c65fa31290d6adf668a530630",
+          "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709"
         }
       },
       "generated_artifact": "build/plugin-ports/ukagakaplugin-dbdiary.plugin",
@@ -785,7 +968,13 @@
           }
         ],
         "temporary_copy_deleted": true,
-        "reason": "メニューScript応答確認。外部Webサービス/SSTPによる実イベント往復は未検証。"
+        "reason": "メニューScript応答確認。外部Webサービス/SSTPによる実イベント往復は未検証。",
+        "rechecked_on": "2026-10-25",
+        "host_execution": "explicit host mapping; unmapped commands refused",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "dae224d3fce5bae68bbeb0ff62737ad0eb1aa93943428fe43e3ac997200ea0f4",
+          "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709"
+        }
       },
       "generated_artifact": "build/plugin-ports/charamelnetwork.plugin",
       "generated": true
@@ -834,7 +1023,13 @@
           }
         ],
         "temporary_copy_deleted": true,
-        "reason": "メニューScript応答確認。実hostのバルーン一覧取得・切替とGUI表示は未検証。"
+        "reason": "メニューScript応答確認。実hostのバルーン一覧取得・切替とGUI表示は未検証。",
+        "rechecked_on": "2026-10-25",
+        "host_execution": "explicit host mapping; unmapped commands refused",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "629907c22bf19faf1b48dd3e6319c3e50dbc11d62654ec4efe6a8e7e086ecb74",
+          "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709"
+        }
       },
       "generated_artifact": "build/plugin-ports/balloonselector.plugin",
       "generated": true
@@ -887,7 +1082,13 @@
           }
         ],
         "temporary_copy_deleted": true,
-        "reason": "メニューScript応答確認。TCP SendTalk backendは実socket6回帰で検証済み。元辞書から実棒読みちゃん発声までの全経路は未検証。"
+        "reason": "メニューScript応答確認。TCP SendTalk backendは実socket6回帰で検証済み。元辞書から実棒読みちゃん発声までの全経路は未検証。",
+        "rechecked_on": "2026-10-25",
+        "host_execution": "explicit host mapping; unmapped commands refused",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "cc670ae1e7753ff64a68e1bded53db65eaabc099687e0842cdd3283a130ac25b",
+          "Contents/Resources/yaya_core": "7f17bf29dc3c7d11b3a5427e8617cdbcdacb5eaaf1d8323b2e83ad59e7302709"
+        }
       },
       "generated_artifact": "build/plugin-ports/nightwork-bouyomi-plugin.plugin",
       "generated": true
@@ -1129,5 +1330,12 @@
     "removed_entry_count": 18,
     "converted_packages_retained": 15,
     "note": "18 entries counted for YAYA acquisition; Akari raw archives/extractions/test copies also removed. The 15 private generated bundles retain payloads."
+  },
+  "followup_summary": {
+    "reviewed_on": "2026-10-25",
+    "generated": 15,
+    "loaded": 12,
+    "fully_compatible_claimed": false,
+    "correction": "CeVIO/AIVOICE were previously counted as loaded despite failed external startup; now rejected. UGM now loads and serves loopback HTTP."
   }
 }

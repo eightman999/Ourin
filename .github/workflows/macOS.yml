@@ -96,12 +96,17 @@ jobs:
           cmp engines/plugins/catalog.json docs/compatibility-corpus/plugin-ports-results.json
           bash engines/plugins/build.sh
           python3 engines/plugins/test_yaya_adapter.py -v
+          python3 engines/plugins/test_ugm_http.py -v
+          python3 engines/plugins/test_ugm_adapter.py -v
           python3 engines/plugins/test_akari_adapter.py -v
           python3 engines/plugin-native/test_native.py -v
           python3 engines/plugin-native/test_tmidi.py -v
           python3 engines/kagari/tests/test_native_modules.py --library build/engines/kagari/libkagari.dylib
           python3 engines/additional/test_akari_values.py
           python3 yaya_core/tests/test_file_persistence.py -v
+          python3 yaya_core/tests/test_hash_foreach.py -v
+          python3 yaya_core/tests/test_json_files.py -v
+          python3 yaya_core/tests/test_user_arguments.py -v
 
       - name: Upload test result bundle
         if: always()

@@ -141,7 +141,7 @@ request { "PLUGIN/2.0 200 OK%(CHR(13))%(CHR(10))Charset: UTF-8%(CHR(13))%(CHR(10
         try:self.assertTrue(plugin.request('GET PLUGIN/2.0\r\nID: OnMenuExec\r\n\r\n').startswith(b'PLUGIN/2.0 501'))
         finally:plugin.unload()
     def test_partially_parsed_dictionary_set_rejects_load(self):
-        (self.source/'broken.dic').write_text('Broken { foreach x ; key, value { "" } }')
+        (self.source/'broken.dic').write_text('Broken { foreach x ; key, { "" } }')
         (self.source/'yaya.txt').write_text('charset.dic,UTF-8\ndic,plugin.dic\ndic,broken.dic\n')
         bundle=self.package('request { "PLUGIN/2.0 200 OK%(CHR(13))%(CHR(10))%(CHR(13))%(CHR(10))" }')
         plugin=Plugin(bundle)
