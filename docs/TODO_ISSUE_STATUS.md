@@ -13,7 +13,7 @@ All 33 original PRs and integration/CI PRs #214/#215 are merged into master. The
 
 優先順と実行モデル・認証待ちは[委譲記録](DELEGATION_2026-10-25.md)、実ゴーストの判定は[検証結果](REAL_GHOST_VERIFICATION_2026-10-25.md)を参照。
 
-**最新ローカル検証:** 追加栞対応後のOurinTests 1,589実行 / 1,535集計テスト、失敗0（2026-10-25、arm64・直列）。関連6 suiteは59テスト/99実行PASS。Emily4実辞書を明示した追加回帰15件もPASS。[栞拡張検証](SHIORI_EXPANSION_VERIFICATION_2026-10-25.md)を参照。master `88b8172` のCI全5ジョブも成功（[実行記録](https://github.com/eightman999/Ourin/actions/runs/40149056400)）。追加栞のremote CI、GUIの網羅、クリーンMac・最低OS/Intel実機はこの結果と区別する。 / Latest development unit run: 1,589 executions / 1,535 aggregate tests, zero failures; remote CI and broader device/release gates are separate.
+**最新ローカル検証:** 追加栞対応後のOurinTests 1,589実行 / 1,535集計テスト、失敗0（2026-10-25、arm64・直列）。関連6 suiteは59テスト/99実行PASS。実辞書の追加回帰15件（Emily4 11件＋標準ゴースト4件）もPASS。[栞拡張検証](SHIORI_EXPANSION_VERIFICATION_2026-10-25.md)を参照。master `88b8172` のCI全5ジョブも成功（[実行記録](https://github.com/eightman999/Ourin/actions/runs/40149056400)）。追加栞のremote CI、GUIの網羅、クリーンMac・最低OS/Intel実機はこの結果と区別する。 / Latest development unit run: 1,589 executions / 1,535 aggregate tests, zero failures; remote CI and broader device/release gates are separate.
 
 ## Issue全件の照合 / Issue reconciliation
 

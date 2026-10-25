@@ -16,7 +16,7 @@ macOS 26.6.2 / Apple Silicon / Xcode 26.5 SDK、直列実行。
 | 検証 | 結果 | 確認範囲 |
 |---|---|---|
 | OurinTests全体 | **1,535テスト・1,589実行、失敗0、フレームワーク報告skip 0** | arm64・直列、UI suiteは含まない。任意fixture未指定で早期終了する試験は実ゴースト確認と区別 |
-| Emily4実辞書の追加回帰 | **15テスト、失敗0** | 既存の検証用Emily4コピーを明示して実helperで再実行。辞書は各試験の一時コピーを使用 |
+| 実辞書の追加回帰suite | **15テスト、失敗0（Emily4: 11、標準ゴースト: 4）** | YayaEmily4RegressionTestsを既存の検証用Emily4コピー指定で実行。辞書は各試験の一時コピーを使用 |
 | 関連6 suite | **59テスト・99実行、失敗0、skip 0** | GhostConfigurationTests / ShioriRuntimeTests / AdditionalShioriEngineTests / MisakaEngineTests / RishuProxyTests / ShiolinkTests |
 | 新7栞 | **PASS** | 実同梱dylib、in-processとembedded XPC、通常factory、起動・会話・終了・保存・再ロード |
 | macOS明示モジュール | **PASS** | `libyaya.dylib`をhelperへ誤認しない、実CライブラリとXPC別PID、未存在ファイルの失敗、別cache identity |
