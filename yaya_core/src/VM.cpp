@@ -11,6 +11,7 @@
 #include <limits>
 #include <chrono>
 #include <set>
+#include <optional>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -2563,10 +2564,18 @@ void VM::registerBuiltins() {
     
     // GETVARLIST() - Get list of variables
     builtins_["GETVARLIST"] = [this](const std::vector<Value>& args) -> Value {
-        (void)args;
+        // YAYA 互換: 文字列引数は先頭一致の絞り込み。`_` で始まればローカル変数、それ以外は大域変数を返す。
+        std::string prefix;
+        if (!args.empty() && args[0].getType() == Value::Type::String) prefix = args[0].asString();
         std::vector<Value> result;
-        for (const auto& pair : variables_) {
-            result.push_back(Value(pair.first));
+        auto collect = [&](const std::map<std::string, Value>& vars) {
+            for (const auto& pair : vars) {
+                if (pair.first.compare(0, prefix.size(), prefix) == 0) result.push_back(Value(pair.first));
+            }
+        };
+        if (prefix.empty() || prefix[0] != '_') collect(variables_);
+        if (prefix.empty() || prefix[0] == '_') {
+            for (const auto& scope : localScopes_) collect(scope);
         }
         return Value(result);
     };
@@ -2612,8 +2621,13 @@ void VM::registerBuiltins() {
     // File handles stored in a map for management
     
     // File handle management (shared between file operation functions)
-    static std::map<int, std::unique_ptr<std::fstream>> fileHandles;
-    static int nextHandle = 1;
+    // YAYA はファイルを「フルパス」で識別する（FOPEN/FREAD/FWRITE/FCLOSE の第1引数はファイル名）。
+    struct YayaOpenFile {
+        std::unique_ptr<std::fstream> stream;
+        bool binary = false;
+        bool firstLine = true;
+    };
+    static std::map<std::string, YayaOpenFile> openFiles;
     // Helper to validate path is within ghost directory
     auto isPathSafe = [](const std::string& path) -> bool {
         // For now, allow relative paths only (no absolute paths, no .. )
@@ -2631,119 +2645,130 @@ void VM::registerBuiltins() {
         if (candidate.is_absolute() || ghostRootPath_.empty()) return candidate.string();
         return (fs::path(ghostRootPath_) / candidate).lexically_normal().string();
     };
+
+    // YAYA の ToFullPath 相当: `\` 区切りを受け付け、相対パスはルート基準のフルパスにする。
+    auto yayaFullPath = [this](std::string path) -> std::string {
+        namespace fs = std::filesystem;
+        std::replace(path.begin(), path.end(), '\\', '/');
+        const fs::path candidate(path);
+        if (candidate.is_absolute() || ghostRootPath_.empty()) return candidate.lexically_normal().string();
+        return (fs::path(ghostRootPath_) / candidate).lexically_normal().string();
+    };
+    // 書き込みはモジュールのルート配下だけに限る（読み込みは他ゴーストのフォルダも参照できる）。
+    auto isInsideRoot = [this](const std::string& fullPath) -> bool {
+        if (ghostRootPath_.empty()) return true;
+        namespace fs = std::filesystem;
+        std::string root = fs::path(ghostRootPath_).lexically_normal().string();
+        if (!root.empty() && root.back() != '/') root += '/';
+        return fullPath.compare(0, root.size(), root) == 0;
+    };
+    // FOPEN のモード名（read/write/append[_binary][_random]）を fopen 形式へ変換する（YAYA CFile::ProcessOpenMode）。
+    auto yayaOpenMode = [](std::string mode, bool& binary, bool& writes) -> std::optional<std::ios_base::openmode> {
+        static const std::map<std::string, std::string> aliases = {
+            {"read", "r"}, {"write", "w"}, {"append", "a"},
+            {"read_binary", "rb"}, {"write_binary", "wb"}, {"append_binary", "ab"},
+            {"read_random", "r+"}, {"write_random", "w+"}, {"append_random", "a+"},
+            {"read_binary_random", "rb+"}, {"write_binary_random", "wb+"}, {"append_binary_random", "ab+"}
+        };
+        if (auto it = aliases.find(mode); it != aliases.end()) mode = it->second;
+        static const std::set<std::string> valid = {
+            "r", "w", "a", "rb", "wb", "ab", "r+", "w+", "a+", "rb+", "wb+", "ab+", "r+b", "w+b", "a+b"
+        };
+        if (!valid.count(mode)) return std::nullopt;
+        binary = mode.find('b') != std::string::npos;
+        const bool plus = mode.find('+') != std::string::npos;
+        std::ios_base::openmode m = std::ios_base::binary;
+        switch (mode[0]) {
+            case 'r': m |= std::ios_base::in; if (plus) m |= std::ios_base::out; writes = plus; break;
+            case 'w': m |= std::ios_base::out | std::ios_base::trunc; if (plus) m |= std::ios_base::in; writes = true; break;
+            default:  m |= std::ios_base::out | std::ios_base::app; if (plus) m |= std::ios_base::in; writes = true; break;
+        }
+        return m;
+    };
     
     // FOPEN(filename, mode) - Open file
-    builtins_["FOPEN"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value(-1);
-        std::string filename = args[0].asString();
-        std::string mode = args[1].asString();
-        
-        // Security check
-        if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
-            return Value(-1);
-        }
-        filename = resolveGhostPath(filename);
-        
-        // Determine open mode
-        std::ios_base::openmode openMode = std::ios_base::binary;
-        if (mode.find('r') != std::string::npos) openMode |= std::ios_base::in;
-        if (mode.find('w') != std::string::npos) openMode |= std::ios_base::out | std::ios_base::trunc;
-        if (mode.find('a') != std::string::npos) openMode |= std::ios_base::out | std::ios_base::app;
-        if (mode.find('+') != std::string::npos) openMode |= std::ios_base::in | std::ios_base::out;
-        
+    builtins_["FOPEN"] = [yayaFullPath, isInsideRoot, yayaOpenMode](const std::vector<Value>& args) -> Value {
+        // 1=成功 / 2=既にオープン済み / 0=失敗（YAYA CFile::Add）
+        if (args.size() < 2 || args[0].asString().empty()) return Value(0);
+        const std::string path = yayaFullPath(args[0].asString());
+        if (openFiles.count(path)) return Value(2);
+        bool binary = false, writes = false;
+        auto mode = yayaOpenMode(args[1].asString(), binary, writes);
+        if (!mode) return Value(0);
+        if (writes && !isInsideRoot(path)) return Value(0);
         try {
-            auto file = std::make_unique<std::fstream>(filename, openMode);
-            if (!file->is_open()) {
-                return Value(-1);
-            }
-            
-            int handle = nextHandle++;
-            fileHandles[handle] = std::move(file);
-            return Value(handle);
+            auto file = std::make_unique<std::fstream>(path, *mode);
+            if (!file->is_open()) return Value(0);
+            openFiles[path] = YayaOpenFile{std::move(file), binary, true};
+            return Value(1);
         } catch (...) {
-            return Value(-1);
+            return Value(0);
         }
     };
     
     // FCLOSE(handle) - Close file
-    builtins_["FCLOSE"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        int handle = args[0].asInt();
-        
-        auto it = fileHandles.find(handle);
-        if (it != fileHandles.end()) {
-            it->second->close();
-            fileHandles.erase(it);
-            return Value(1);
+    builtins_["FCLOSE"] = [yayaFullPath](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value();
+        auto it = openFiles.find(yayaFullPath(args[0].asString()));
+        if (it != openFiles.end()) {
+            it->second.stream->close();
+            openFiles.erase(it);
         }
-        return Value(0);
+        return Value();
     };
     
     // FREAD(handle) - Read from file
-    builtins_["FREAD"] = [this](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value("");
-        int handle = args[0].asInt();
-        
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
-            return Value("");
-        }
-        
+    builtins_["FREAD"] = [this, yayaFullPath](const std::vector<Value>& args) -> Value {
+        // 1 行読む（改行は除く）。EOF・未オープンは -1。
+        if (args.empty()) return Value(-1);
+        auto it = openFiles.find(yayaFullPath(args[0].asString()));
+        if (it == openFiles.end() || !it->second.stream->is_open()) return Value(-1);
         std::string line;
-        if (std::getline(*it->second, line)) {
-            if (fileCharset_ == 0) {
-                std::string converted;
-                if (convertEncodingVM(line, "CP932", "UTF-8", converted)) {
-                    return Value(converted);
-                }
-            }
-            return Value(line);
+        if (!std::getline(*it->second.stream, line)) return Value(-1);
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        if (it->second.firstLine) {
+            it->second.firstLine = false;
+            if (line.compare(0, 3, "\xEF\xBB\xBF") == 0) line.erase(0, 3);
         }
-        return Value("");
+        if (fileCharset_ == 0) {
+            std::string converted;
+            if (convertEncodingVM(line, "CP932", "UTF-8", converted)) return Value(converted);
+        }
+        return Value(line);
     };
     
     // FWRITE(handle, data) - Write to file
-    builtins_["FWRITE"] = [this](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value(0);
-        int handle = args[0].asInt();
-        std::string data = args[1].asString();
-        
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
-            return Value(0);
-        }
-        
-        std::string encoded = data;
+    builtins_["FWRITE"] = [this, yayaFullPath](const std::vector<Value>& args) -> Value {
+        // 改行付きで書く（YAYA は text + "\n"）
+        if (args.size() < 2) return Value();
+        auto it = openFiles.find(yayaFullPath(args[0].asString()));
+        if (it == openFiles.end() || !it->second.stream->is_open()) return Value();
+        std::string data = args[1].asString() + "\n";
         if (fileCharset_ == 0) {
-            if (!convertEncodingVM(data, "UTF-8", "CP932", encoded)) {
-                return Value(0);
-            }
+            std::string encoded;
+            if (!convertEncodingVM(data, "UTF-8", "CP932", encoded)) return Value();
+            data = encoded;
         }
-        *it->second << encoded;
-        return Value(static_cast<int>(encoded.length()));
+        it->second.stream->write(data.data(), static_cast<std::streamsize>(data.size()));
+        it->second.stream->flush();
+        return Value();
     };
     
     // FWRITE2(filename, data) - Write to file directly
-    builtins_["FWRITE2"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value(0);
-        std::string filename = args[0].asString();
+    builtins_["FWRITE2"] = [this, yayaFullPath](const std::vector<Value>& args) -> Value {
+        // 改行を付けずにオープン済みのファイルへ書く
+        if (args.size() < 2) return Value();
+        auto it = openFiles.find(yayaFullPath(args[0].asString()));
+        if (it == openFiles.end() || !it->second.stream->is_open()) return Value();
         std::string data = args[1].asString();
-        
-        // Security check
-        if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
-            return Value(0);
+        if (fileCharset_ == 0) {
+            std::string encoded;
+            if (!convertEncodingVM(data, "UTF-8", "CP932", encoded)) return Value();
+            data = encoded;
         }
-        filename = resolveGhostPath(filename);
-        
-        try {
-            std::ofstream file(filename, std::ios_base::out | std::ios_base::trunc);
-            if (!file.is_open()) return Value(0);
-            file << data;
-            file.close();
-            return Value(1);
-        } catch (...) {
-            return Value(0);
-        }
+        it->second.stream->write(data.data(), static_cast<std::streamsize>(data.size()));
+        it->second.stream->flush();
+        return Value();
     };
     
     // FSIZE(filename) - Get file size
@@ -2767,28 +2792,32 @@ void VM::registerBuiltins() {
     };
     
     // FENUM(path, pattern) - Enumerate files (simple substring match)
-    builtins_["FENUM"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
-        std::vector<Value> out;
-        if (args.size() < 2) return Value(out);
-        std::string dir = args[0].asString();
-        std::string pat = args[1].asString();
-        // YAYA ゴーストは自分の絶対パス配下を列挙するため絶対パスを許可する
-        // （macOS コンテナのサンドボックスが実境界）。親階層への .. 抜けのみ禁止。
-        if (dir.empty() || dir.find("..") != std::string::npos) return Value(out);
-        dir = resolveGhostPath(dir);
+    builtins_["FENUM"] = [yayaFullPath](const std::vector<Value>& args) -> Value {
+        // YAYA 互換: ファイルとフォルダを delimiter（既定 ","）で連結した文字列。フォルダ名の先頭には `\` を付ける。
+        // 絶対パスも可（ゴーストやプラグインは他ゴーストのフォルダも列挙する）。
+        if (args.empty()) return Value("");
+        std::string delimiter = ",";
+        if (args.size() >= 2) {
+            if (args[1].asString().empty()) return Value("");
+            delimiter = args[1].asString();
+        }
+        const std::string dir = yayaFullPath(args[0].asString());
+        std::vector<std::string> names;
         try {
-            std::string needle;
-            for (char c : pat) if (c != '*') needle += c;
             namespace fs = std::filesystem;
             for (const auto& entry : fs::directory_iterator(dir)) {
-                if (!entry.is_regular_file()) continue;
                 std::string name = entry.path().filename().string();
-                if (needle.empty() || name.find(needle) != std::string::npos) {
-                    out.emplace_back(name);
-                }
+                if (name == ".DS_Store") continue;
+                names.push_back(entry.is_directory() ? "\\" + name : name);
             }
         } catch (...) {}
-        return Value(out);
+        std::sort(names.begin(), names.end());
+        std::string result;
+        for (size_t i = 0; i < names.size(); ++i) {
+            if (i) result += delimiter;
+            result += names[i];
+        }
+        return Value(result);
     };
     
     // FCOPY(src, dst) - Copy file
@@ -2920,31 +2949,29 @@ void VM::registerBuiltins() {
     };
     
     // FSEEK(handle, pos) - Seek in file
-    builtins_["FSEEK"] = [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value(-1);
-        int handle = args[0].asInt();
-        int pos = args[1].asInt();
-        
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
-            return Value(-1);
-        }
-        
-        it->second->seekg(pos, std::ios_base::beg);
-        return Value(0);
+    builtins_["FSEEK"] = [yayaFullPath](const std::vector<Value>& args) -> Value {
+        // FSEEK(filename, offset, origin) origin は start/current/end。1=成功 / 0=失敗
+        if (args.size() < 2) return Value(0);
+        auto it = openFiles.find(yayaFullPath(args[0].asString()));
+        if (it == openFiles.end() || !it->second.stream->is_open()) return Value(0);
+        std::string origin = args.size() >= 3 ? args[2].asString() : "start";
+        std::transform(origin.begin(), origin.end(), origin.begin(), [](unsigned char c) { return std::tolower(c); });
+        std::ios_base::seekdir dir = std::ios_base::beg;
+        if (origin == "current" || origin == "seek_cur") dir = std::ios_base::cur;
+        else if (origin == "end" || origin == "seek_end") dir = std::ios_base::end;
+        auto& stream = *it->second.stream;
+        stream.clear();
+        stream.seekg(args[1].asInt(), dir);
+        stream.seekp(stream.tellg());
+        return Value(stream.fail() ? 0 : 1);
     };
     
     // FTELL(handle) - Get file position
-    builtins_["FTELL"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FTELL"] = [yayaFullPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(-1);
-        int handle = args[0].asInt();
-        
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
-            return Value(-1);
-        }
-        
-        return Value(static_cast<int>(it->second->tellg()));
+        auto it = openFiles.find(yayaFullPath(args[0].asString()));
+        if (it == openFiles.end() || !it->second.stream->is_open()) return Value(-1);
+        return Value(static_cast<int>(it->second.stream->tellg()));
     };
     
     // FCHARSET(charset) - Set the default text-file charset.
@@ -3007,53 +3034,55 @@ void VM::registerBuiltins() {
     };
     
     // FREADBIN(handle) - Read binary from file
-    builtins_["FREADBIN"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value("");
-        int handle = args[0].asInt();
-        
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
-            return Value("");
-        }
-        
-        std::string data;
-        char ch;
-        while (it->second->get(ch)) {
-            data += ch;
-        }
-        return Value(data);
+    builtins_["FREADBIN"] = [yayaFullPath](const std::vector<Value>& args) -> Value {
+        // FREADBIN(filename[, size]) オープン済みならそこから、未オープンなら一時的に開いて読む。EOF は -1
+        if (args.empty()) return Value(-1);
+        const std::string path = yayaFullPath(args[0].asString());
+        const size_t limit = args.size() >= 2 && args[1].asInt() > 0 ? static_cast<size_t>(args[1].asInt()) : SIZE_MAX;
+        auto readFrom = [limit](std::istream& in) -> Value {
+            std::string data;
+            char ch;
+            while (data.size() < limit && in.get(ch)) data += ch;
+            if (data.empty()) return Value(-1);
+            return Value(data);
+        };
+        if (auto it = openFiles.find(path); it != openFiles.end()) return readFrom(*it->second.stream);
+        std::ifstream temp(path, std::ios_base::binary);
+        if (!temp.is_open()) return Value(-1);
+        return readFrom(temp);
     };
     
     // FWRITEBIN(handle, data) - Write binary to file
-    builtins_["FWRITEBIN"] = [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value(0);
-        int handle = args[0].asInt();
-        std::string data = args[1].asString();
-        
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
-            return Value(0);
+    builtins_["FWRITEBIN"] = [yayaFullPath, isInsideRoot](const std::vector<Value>& args) -> Value {
+        // オープン済みならそこへ、未オープンなら追記で書く
+        if (args.size() < 2) return Value();
+        const std::string path = yayaFullPath(args[0].asString());
+        const std::string data = args[1].asString();
+        if (auto it = openFiles.find(path); it != openFiles.end()) {
+            it->second.stream->write(data.data(), static_cast<std::streamsize>(data.size()));
+            it->second.stream->flush();
+            return Value();
         }
-        
-        it->second->write(data.c_str(), data.length());
-        return Value(static_cast<int>(data.length()));
+        if (!isInsideRoot(path)) return Value();
+        std::ofstream temp(path, std::ios_base::binary | std::ios_base::app);
+        if (temp.is_open()) temp.write(data.data(), static_cast<std::streamsize>(data.size()));
+        return Value();
     };
     
     // FREADENCODE(handle, encoding) - 指定エンコーディングでファイル残り全体を読み込み、
     // UTF-8 に変換して返す。ハンドル不正/未オープン時は空文字列。
-    builtins_["FREADENCODE"] = [this](const std::vector<Value>& args) -> Value {
+    builtins_["FREADENCODE"] = [this, yayaFullPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
-        int handle = args[0].asInt();
         std::string encoding = args.size() >= 2 ? args[1].asString()
                                                 : (fileCharset_ == 0 ? "CP932" : "UTF-8");
 
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
+        auto it = openFiles.find(yayaFullPath(args[0].asString()));
+        if (it == openFiles.end() || !it->second.stream->is_open()) {
             return Value("");
         }
 
         std::ostringstream buffer;
-        buffer << it->second->rdbuf();
+        buffer << it->second.stream->rdbuf();
         std::string raw = buffer.str();
 
         std::string norm = normalizeEncodingNameVM(encoding);
@@ -3069,15 +3098,14 @@ void VM::registerBuiltins() {
 
     // FWRITEDECODE(handle, data, encoding) - UTF-8 の data を指定エンコーディングへ変換し
     // ファイルへ書き込む。書き込みバイト数を返す（失敗時は0）。
-    builtins_["FWRITEDECODE"] = [this](const std::vector<Value>& args) -> Value {
+    builtins_["FWRITEDECODE"] = [this, yayaFullPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
-        int handle = args[0].asInt();
         std::string data = args[1].asString();
         std::string encoding = args.size() >= 3 ? args[2].asString()
                                                 : (fileCharset_ == 0 ? "CP932" : "UTF-8");
 
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
+        auto it = openFiles.find(yayaFullPath(args[0].asString()));
+        if (it == openFiles.end() || !it->second.stream->is_open()) {
             return Value(0);
         }
 
@@ -3092,7 +3120,7 @@ void VM::registerBuiltins() {
         }
         // UTF-8 / AUTO はそのまま書き込む
 
-        it->second->write(toWrite.c_str(), toWrite.length());
+        it->second.stream->write(toWrite.c_str(), toWrite.length());
         return Value(static_cast<int>(toWrite.length()));
     };
     
@@ -3935,7 +3963,18 @@ void VM::registerBuiltins() {
     // GETSETTING(key) - Get setting value (Phase 7).
     builtins_["GETSETTING"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
-        auto it = settings_.find(args[0].asString());
+        // YAYA の coreinfo.*（path はモジュールのフォルダ、末尾区切り付き）
+        const std::string key = args[0].asString();
+        if (key == "coreinfo.path") {
+            std::string root = ghostRootPath_;
+            if (!root.empty() && root.back() != '/') root += '/';
+            return Value(root);
+        }
+        if (key == "coreinfo.name") return Value("YAYA");
+        if (key == "coreinfo.author") return Value("YAYA development team / Ourin yaya_core");
+        if (key == "coreinfo.version") return Value("YAYA for Ourin");
+        if (key == "coreinfo.mode") return Value("normal");
+        auto it = settings_.find(key);
         return (it != settings_.end()) ? it->second : Value("");
     };
 

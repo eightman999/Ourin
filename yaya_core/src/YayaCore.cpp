@@ -434,6 +434,19 @@ std::string YayaCore::processCommand(const std::string &line) {
             response["ok"] = true;
             response["status"] = 200;
             response["loaded_dics"] = loadedFiles;
+        } else if (cmd == "raw_request") {
+            // PLUGIN/2.0 等、SHIORI 以外のプロトコルで YAYA を使うモジュール（yaya.dll をプラグインとして
+            // 使う形）向け。受け取った要求文をそのまま辞書の `request` に渡し、戻り値を加工せず返す。
+            std::string raw = req.value("raw", "");
+            if (!dictManager.hasFunction("request")) {
+                response["ok"] = false;
+                response["status"] = 500;
+                response["error"] = "request function not found";
+            } else {
+                response["ok"] = true;
+                response["status"] = 200;
+                response["value"] = dictManager.execute("request", {raw});
+            }
         } else if (cmd == "unload") {
             // Call YAYA framework's `unload` function before teardown
             if (dictManager.hasFunction("unload")) {

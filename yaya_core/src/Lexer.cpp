@@ -229,6 +229,19 @@ std::vector<Token> Lexer::tokenize() {
         int startCol = column_;
         char ch = current();
         
+        // YAYA の行継続: 行末の `/`（後ろは空白のみ）は次の行と連結する。文字列外でも有効で、
+        // `'a' + 'b'/` の改行で式を続ける書き方に使われる。改行トークンを出さずに読み飛ばす。
+        if (current() == '/') {
+            size_t look = pos_ + 1;
+            while (look < source_.size() && (source_[look] == ' ' || source_[look] == '\t')) look++;
+            if (look < source_.size() && (source_[look] == '\n' || source_[look] == '\r')) {
+                while (pos_ < look) advance();
+                if (current() == '\r') advance();
+                if (current() == '\n') advance();
+                continue;
+            }
+        }
+
         // Skip comments (but check for -- operator first)
         if ((current() == '/' && (peek() == '/' || peek() == '*')) ||
             (current() == '#')) {

@@ -125,7 +125,7 @@ compatibility limits.
 | `ERASEVAR(name)` | Delete variable | `ERASEVAR("myvar")` → `1` |
 | `LETTONAME(name, value)` | Assign to variable by name | `LETTONAME("x", 42)` |
 | `GETFUNCLIST()` | Get list of user functions | `GETFUNCLIST()` → array |
-| `GETVARLIST()` | Get list of variables | `GETVARLIST()` → array |
+| `GETVARLIST([prefix])` | 変数名の一覧（文字列引数は先頭一致。`_` で始まればローカル変数） | `GETVARLIST("inv.")` → array |
 | `GETSYSTEMFUNCLIST()` | Get list of system functions | `GETSYSTEMFUNCLIST()` → 160 items |
 | `EVAL(funcname, ...)` | Execute function by name | `EVAL("OnBoot")` |
 | `DUMPVAR()` | Dump all variables (debug) | `DUMPVAR()` → string |
@@ -168,29 +168,29 @@ SLEEP(1000)  // Wait 1 second
 
 ### File Operations (20 - IMPLEMENTED with Security Restrictions)
 
-**Note**: File operations are fully implemented with security restrictions:
-- Only relative paths allowed (no absolute paths or .. traversal)
-- Designed for safe use within ghost directories
-- All standard file I/O operations work correctly
+**Note**: ファイル関数は本家 YAYA（CFile）と同じく**ファイル名（フルパス）でファイルを識別**する。
+- パスは `\` 区切りも受け付け、相対パスはモジュール（ゴースト／プラグイン）のルート基準。
+- 読み込みは絶対パスも可（他ゴーストのフォルダを読むプラグインがあるため）。書き込みはルート配下だけ。
+- FOPEN のモードは `r/w/a[b][+]` と `read/write/append[_binary][_random]`。
 
 | Function | Description | Returns | Status |
 |----------|-------------|---------|--------|
-| `FOPEN(file, mode)` | Open file | File handle (>= 0) or -1 on error | ✅ Working |
-| `FCLOSE(handle)` | Close file | 1 on success, 0 on failure | ✅ Working |
-| `FREAD(handle)` | Read line from file | String (line content) | ✅ Working |
-| `FWRITE(handle, data)` | Write to file | Bytes written | ✅ Working |
-| `FWRITE2(file, data)` | Write directly to file | 1 on success, 0 on failure | ✅ Working |
+| `FOPEN(file, mode)` | Open file | 1=成功, 2=既にオープン済み, 0=失敗 | ✅ Working |
+| `FCLOSE(file)` | Close file | なし | ✅ Working |
+| `FREAD(file)` | 1 行読む（改行を除く） | 文字列。EOF・未オープンは -1 | ✅ Working |
+| `FWRITE(file, data)` | 改行付きで書く | なし | ✅ Working |
+| `FWRITE2(file, data)` | 改行なしで書く（オープン済みのファイル） | なし | ✅ Working |
 | `FSIZE(file)` | Get file size | Size in bytes or -1 on error | ✅ Working |
-| `FSEEK(handle, pos)` | Seek in file | 0 on success, -1 on error | ✅ Working |
-| `FTELL(handle)` | Get file position | Current position or -1 | ✅ Working |
+| `FSEEK(file, offset, origin)` | Seek（origin は start/current/end） | 1 / 0 | ✅ Working |
+| `FTELL(file)` | Get file position | Current position or -1 | ✅ Working |
 | `FCHARSET(charset)` | Set text-file charset (`0`=CP932, `1`=UTF-8, `127`=OS default) | void | ✅ Working |
 | `FATTRIB(file)` | Get 11-element POSIX/Windows-compatible attribute array | `[archive,...,ctime,mtime]` or `-1` | ✅ Working |
-| `FREADBIN(handle)` | Read binary data | Binary string | ✅ Working |
-| `FWRITEBIN(handle, data)` | Write binary data | Bytes written | ✅ Working |
-| `FREADENCODE(handle, enc)` | Read with encoding | UTF-8 string | ✅ Working |
-| `FWRITEDECODE(handle, data, enc)` | Write with encoding | Bytes written | ✅ Working |
+| `FREADBIN(file[, size])` | Read binary data（未オープンなら一時的に開く） | Binary string / -1 | ✅ Working |
+| `FWRITEBIN(file, data)` | Write binary data（未オープンなら追記） | なし | ✅ Working |
+| `FREADENCODE(file, enc)` | Read with encoding | UTF-8 string | ✅ Working |
+| `FWRITEDECODE(file, data, enc)` | Write with encoding | Bytes written | ✅ Working |
 | `FDIGEST(file, algo)` | File hash/digest (`md5`/`sha1`/`crc32`) | hex string | ✅ Working |
-| `FENUM(path, pattern)` | Enumerate files | Matching filename array | ✅ Working |
+| `FENUM(path[, delimiter])` | ファイルとフォルダを列挙（フォルダは先頭 `\`） | delimiter（既定 `,`）区切りの文字列 | ✅ Working |
 | `FCOPY(src, dst)` | Copy file | 1 on success, 0 on failure | ✅ Working |
 | `FMOVE(src, dst)` | Move/rename file | 1 on success, 0 on failure | ✅ Working |
 | `FDEL(file)` | Delete file | 1 on success, 0 on failure | ✅ Working |
@@ -201,17 +201,18 @@ SLEEP(1000)  // Wait 1 second
 **Example Usage**:
 ```yaya
 // Write to file
-_handle = FOPEN("data.txt", "w")
-FWRITE(_handle, "Hello, World!\n")
-FCLOSE(_handle)
+FOPEN("data.txt", "w")
+FWRITE("data.txt", "Hello, World!")
+FCLOSE("data.txt")
 
 // Read from file
-_handle = FOPEN("data.txt", "r")
-_content = FREAD(_handle)
-FCLOSE(_handle)
-
-// Direct write
-FWRITE2("output.txt", "Direct write content")
+FOPEN("data.txt", "r")
+while 1 {
+    _line = FREAD("data.txt")
+    if _line == -1
+        break
+}
+FCLOSE("data.txt")
 
 // File operations
 _size = FSIZE("data.txt")
