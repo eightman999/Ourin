@@ -81,7 +81,9 @@ void stopUGM() {
  for(int i=0;i<20;++i){pid_t done=pollUGM();if(done==ugmChild||(done<0&&errno==ECHILD)){ugmChild=-1;return;}usleep(50000);}
  kill(ugmChild,SIGKILL);while(waitpid(ugmChild,nullptr,0)<0&&errno==EINTR){}ugmChild=-1;
 }
+namespace localtts { void stopSession(); }
 void stop() {
+ localtts::stopSession();
  stopUGM();
  if(child>0){kill(ownsGroup?-child:child,SIGKILL);while(waitpid(child,nullptr,0)<0&&errno==EINTR){}child=-1;}
  if(input>=0){close(input);input=-1;}if(output>=0){close(output);output=-1;}pending.clear();
@@ -89,6 +91,7 @@ void stop() {
 }
 using Clock=std::chrono::steady_clock;
 #include "bouyomi_backend.hpp"
+#include "local_tts_backend.hpp"
 void waitFD(int fd,short event,Clock::time_point deadline) {
  auto ms=std::chrono::duration_cast<std::chrono::milliseconds>(deadline-Clock::now()).count();
  if(ms<=0)throw std::runtime_error("helper timeout");pollfd p{fd,event,0};int n;
@@ -138,6 +141,9 @@ bool startUGM(const json& params) {
 json callback(const json &message) {
  const auto denied=[](){unavailable=true;return json{{"ok",false},{"status",501},{"error","host operation unavailable in plugin adapter"}};};
  if(message.value("host_op","")=="execute") {
+  if(localtts::enabled()) {
+   try {if(localtts::execute(message.at("params")))return {{"ok",true},{"status",200},{"exit_code",0}};}catch(...){return denied();}
+  }
   if(bouyomi::enabled()) {
    try {if(bouyomi::execute(message.at("params")))return {{"ok",true},{"status",200},{"exit_code",0}};}catch(...){return denied();}
   }
@@ -146,6 +152,12 @@ json callback(const json &message) {
  }
  if(message.value("host_op","")!="plugin")return denied();
  auto op=message.at("params");auto params=op.at("params");std::string key=moduleKey(params.value("module",""));
+ if(localtts::enabled()&&key=="dll/proxy_ex.dll") {
+  const auto operation=op.value("operation","");
+  if(operation=="saori_load"||operation=="saori_unload")return {{"ok",true}};
+  if(operation!="saori_request")return denied();
+  try {return {{"ok",true},{"status",200},{"response",localtts::saori(params.value("request",""))}};}catch(...){return denied();}
+ }
  if(bouyomi::enabled()&&key=="proxy_ex.dll") {
   const auto operation=op.value("operation","");
   if(operation=="saori_load"||operation=="saori_unload")return {{"ok",true}};
@@ -203,6 +215,7 @@ extern "C" int32_t plugin_loadu(char *directory,size_t) {
   resources=fs::path(info.dli_fname).parent_path().parent_path()/"Resources";
   std::ifstream file(resources/"adapter.json");file>>settings;
   if(bouyomi::enabled())bouyomi::configure();
+  if(localtts::enabled())localtts::configure();
   auto load=settings.at("load");load["host_execute"]=true;auto root=inside(resources,load.at("ghost_root").get<std::string>());load["ghost_root"]=root.string();
   load["save_file"]=inside(resources,load.at("save_file").get<std::string>()).string();
   for(auto &entry:load.at("dic_entries"))inside(root,entry.at("path").get<std::string>());

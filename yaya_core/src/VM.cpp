@@ -4520,6 +4520,15 @@ void VM::registerBuiltins() {
             responseText = result["result"].get<std::string>();
         }
 
+        // Ourin's parsed SAORI shim must keep a 204 response as no value.
+        // Unlike an intentional empty Result on 200, it is not an empty-string
+        // output candidate. This also matches the plugin framework's FUNCTIONEX
+        // wrapper, which emits no result when a command produces no content.
+        std::istringstream statusLine(responseText.substr(0, responseText.find("\r\n")));
+        std::string protocol, statusCode;
+        statusLine >> protocol >> statusCode;
+        if (protocol == "SAORI/1.0" && statusCode == "204") return Value();
+
         // The host may return a pre-parsed Result directly; prefer it when present.
         if (result.contains("result") && result["result"].is_string()) {
             std::string res = result["result"].get<std::string>();

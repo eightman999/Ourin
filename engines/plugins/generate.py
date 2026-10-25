@@ -32,6 +32,12 @@ def contained(root, path):
 
 
 def generate(args):
+    local_tts = getattr(args, 'local_tts_backend', None)
+    if local_tts:
+        if local_tts not in ('cevio', 'aivoice') or args.engine != 'yaya':
+            raise ValueError('--local-tts-backend requires YAYA and cevio or aivoice')
+        if getattr(args, 'bouyomi_tcp_backend', False) or getattr(args, 'ugm_http_helper', None) or args.saori_backend:
+            raise ValueError('local TTS cannot be combined with other helper backends')
     source = args.source.resolve()
     output = args.output.absolute()
     if output.exists() or output.is_symlink():
@@ -96,6 +102,8 @@ def generate(args):
             if args.engine != 'yaya':
                 raise ValueError('--bouyomi-tcp-backend requires YAYA')
             manifest['bouyomi_tcp_backend'] = True
+        if local_tts:
+            manifest['local_tts_backend'] = local_tts
         for value in args.saori_backend:
             key, separator, path = value.partition('=')
             if not separator:
@@ -138,6 +146,7 @@ def main():
     parser.add_argument('--source-url')
     parser.add_argument('--ugm-http-helper', type=Path, help='Trusted Ourin loopback-only replacement for localweb/ugm_server.exe; opt-in')
     parser.add_argument('--bouyomi-tcp-backend', action='store_true', help='Opt-in Bouyomi core/proxy TCP port; standard voices only, no Windows process/SAPI support')
+    parser.add_argument('--local-tts-backend', choices=['cevio', 'aivoice'], help='Opt-in Irodori local service replacement for the selected Windows speech helper')
     parser.add_argument('--saori-backend', action='append', default=[])
     args = parser.parse_args()
     try:

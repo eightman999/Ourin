@@ -69,6 +69,8 @@ python3 engines/plugin-native/test_native.py
 
 ### CeVIO-Talker / SSP-AIVOICE
 
+**追加のローカルTTS対応:** 明示opt-inで、元2プラグインの辞書・設定メニューをIrodoriへ接続し、各2cyclesのロード・設定復元・実音声生成と再生プロセス正常終了を確認しました。[導入手順・パラメータ互換・検証範囲](local-tts.md)を参照してください。以下のWindows依存は元製品の音声を使う場合の契約です。
+
 両作品はYAYAからproxy_ex経由でC# helperへ接続します。確認した版の通信はHTTP/TCPではありません。
 
 |作品|元実装の通信と依存|macOS側の現在の扱い|
