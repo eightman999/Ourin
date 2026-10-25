@@ -58,7 +58,7 @@ struct CalendarWindowTests {
 
         model.refresh()
 
-        #expect(model.lastRefreshMessage == "3件")
+        #expect(model.lastRefreshMessage == String(format: NSLocalizedString("%lld件", comment: ""), 3))
         #expect(model.schedules(on: selectedDate).map(\.caption) == ["early", "all day"])
         #expect(model.schedules(on: calendar.date(byAdding: .day, value: 1, to: selectedDate)!).map(\.caption) == ["other"])
         #expect(model.read(early))

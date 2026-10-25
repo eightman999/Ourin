@@ -207,7 +207,7 @@ struct InternalCryptoCipherTests {
     }
 
     @Test
-    func invalidKeysOptionsAndTamperedDataAreRejected() {
+    func invalidKeysOptionsAndTamperedDataAreRejected() throws {
         fails(call("Encrypt", ["aes-256-gcm", "short", "x"]), 400, "invalid key")
         fails(call("Encrypt", ["aes-128-gcm", key32, "x"]), 400, "invalid key") // AES-128 に 32 バイトの鍵
         fails(call("Encrypt", ["nothing", key32, "x"]), 400, "unsupported algorithm")
@@ -229,10 +229,15 @@ struct InternalCryptoCipherTests {
         bytes[bytes.count - 1] ^= 1
         fails(call("Decrypt", ["aes-256-gcm", key32, bytes.base64EncodedString()]), 500, "authentication failed")
         fails(call("Decrypt", ["aes-256-gcm", "fedcba9876543210fedcba9876543210", packed]), 500, "authentication failed")
-        // CBC はパディングが合わないとき。
-        let cbc = call("Encrypt", ["aes-256-cbc", key32, "hello"]).result ?? ""
-        // パディングがたまたま合うこともあるので、失敗の種類までは問わない。
-        #expect(call("Decrypt", ["aes-256-cbc", "fedcba9876543210fedcba9876543210", cbc]).status == 500)
+        // 5-byte plaintext has eleven 0x0b padding bytes. Flipping the IV's last
+        // byte by 0x0b makes the last decrypted byte zero: invalid PKCS#7 padding.
+        // A random wrong key can accidentally produce valid padding, so do not
+        // use wrong-key rejection as a deterministic CBC assertion.
+        let iv = String(repeating: "00", count: 16)
+        let cbc = try #require(call("Encrypt", ["aes-256-cbc", key32, "hello", "--iv=\(iv)", "--pack=none"]).result)
+        ok(call("Decrypt", ["aes-256-cbc", key32, cbc, "--iv=\(iv)", "--pack=none"]), "hello")
+        let invalidPaddingIV = String(repeating: "00", count: 15) + "0b"
+        fails(call("Decrypt", ["aes-256-cbc", key32, cbc, "--iv=\(invalidPaddingIV)", "--pack=none"]), 500, "authentication failed")
         // 復号した結果が文字列にならない（--out=text で NUL を含む）ときは not text。
         let binary = call("Encrypt", ["aes-256-gcm", key32, "00ff", "--data-in=hex"]).result ?? ""
         fails(call("Decrypt", ["aes-256-gcm", key32, binary]), 500, "not text")
