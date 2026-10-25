@@ -67,7 +67,7 @@ Run this from the Ourin repository root with Node.js, npm, Python 3, and Xcode C
 
 ```sh
 # Run from the Ourin repository root; Node.js, npm and Python 3 must be installed.
-miyo_master="$(mktemp -d /tmp/ourin-miyo-master.XXXXXX)"
+miyo_master="$(mktemp -d -t ourin-miyo-master)"
 npm install --prefix "$miyo_master" --ignore-scripts --no-audit --no-fund --save-exact \
   miyojs@2.0.3 js-yaml@3.14.1 shiolinkjs@1.0.1 shiorijk@0.0.1 es6-promise@2.3.0
 mkdir "$miyo_master/dic"
