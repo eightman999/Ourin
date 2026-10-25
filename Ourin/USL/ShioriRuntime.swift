@@ -8,6 +8,7 @@ enum ShioriRuntimeKind: String, Codable, Equatable {
     case yaya
     case satori
     case shiolink
+    case rishu
     case native
 }
 
@@ -39,6 +40,8 @@ struct ShioriRuntimeLoadContext {
     let ghostURL: URL
     let ghostRoot: URL
     let moduleName: String
+    /// Explicit shiori.macos selection must not be reinterpreted as a helper engine.
+    let nativeModuleOverride: Bool
     let dictionaryEntries: [DicEntry]
     let dictionaryEncoding: String
     /// YAYA の設定の fncdepth。nil なら yaya_core の既定（本家と同じ 32）。
@@ -49,6 +52,7 @@ struct ShioriRuntimeLoadContext {
         ghostURL: URL,
         ghostRoot: URL,
         moduleName: String,
+        nativeModuleOverride: Bool = false,
         dictionaryEntries: [DicEntry] = [],
         dictionaryEncoding: String = "auto",
         functionDepthLimit: Int? = nil,
@@ -57,6 +61,7 @@ struct ShioriRuntimeLoadContext {
         self.ghostURL = ghostURL
         self.ghostRoot = ghostRoot
         self.moduleName = moduleName
+        self.nativeModuleOverride = nativeModuleOverride
         self.dictionaryEntries = dictionaryEntries
         self.dictionaryEncoding = dictionaryEncoding
         self.functionDepthLimit = functionDepthLimit

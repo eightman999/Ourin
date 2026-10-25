@@ -1,0 +1,11 @@
+$_Variable
+{$count=0}
+
+$OnBoot
+{$count++}ourin-misaka-{$count}
+
+$OnMouseDoubleClick
+ourin-misaka-talk
+
+$OnClose
+ourin-misaka-close

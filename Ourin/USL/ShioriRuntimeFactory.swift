@@ -5,7 +5,19 @@ struct ShioriRuntimeFactory {
     /// 通常起動と再ロードで共有する、唯一のSHIORIモジュール選択規則。
     /// descript.txtを読めない旧ゴーストだけは従来互換でYAYAへフォールバックする。
     static func moduleName(for configuration: GhostConfiguration?) -> String {
-        configuration?.shiori ?? "yaya.dll"
+        if let native = nativeOverride(for: configuration) { return native }
+        return configuration?.shiori ?? "yaya.dll"
+    }
+
+    private static func nativeOverride(for configuration: GhostConfiguration?) -> String? {
+        guard let native = configuration?.shioriMacOS?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !native.isEmpty else { return nil }
+        return native
+    }
+
+    static func usesNativeOverride(moduleName: String, configuration: GhostConfiguration?) -> Bool {
+        guard let native = nativeOverride(for: configuration) else { return false }
+        return normalizedModulePath(native) == normalizedModulePath(moduleName)
     }
 
     static func kind(for moduleName: String) -> ShioriRuntimeKind {
@@ -18,6 +30,8 @@ struct ShioriRuntimeFactory {
             return .satori
         case "shiolink", "shiolink_core":
             return .shiolink
+        case "rishu_proxy":
+            return .rishu
         default:
             return .native
         }
@@ -26,7 +40,9 @@ struct ShioriRuntimeFactory {
     /// 名前で決まらない Windows の DLL は、DLL と同じフォルダの `<DLL名>.txt` が YAYA の設定なら
     /// YAYA とみなす。YAYA は自分のファイル名から設定ファイル名を決めるため、YAYA を
     /// aya.dll などの別名で同梱したゴースト（Taromati2 の shiori/aya.dll など）がある。
-    static func kind(for moduleName: String, ghostRoot: URL) -> ShioriRuntimeKind {
+    static func kind(for moduleName: String, ghostRoot: URL,
+                     configuration: GhostConfiguration? = nil) -> ShioriRuntimeKind {
+        if usesNativeOverride(moduleName: moduleName, configuration: configuration) { return .native }
         let byName = kind(for: normalizedModulePath(moduleName))
         guard byName == .native, moduleName.lowercased().hasSuffix(".dll") else { return byName }
         return isYayaConfig(at: yayaConfigURL(for: moduleName, ghostRoot: ghostRoot)) ? .yaya : .native
@@ -62,14 +78,17 @@ struct ShioriRuntimeFactory {
     }
 
     /// ゴーストのフォルダも見て、名前で決まらない YAYA を判定したうえでランタイムを生成する。
-    static func makeRuntime(for moduleName: String, ghostRoot: URL) -> GhostShioriRuntime? {
-        switch kind(for: moduleName, ghostRoot: ghostRoot) {
+    static func makeRuntime(for moduleName: String, ghostRoot: URL,
+                            configuration: GhostConfiguration? = nil) -> GhostShioriRuntime? {
+        switch kind(for: moduleName, ghostRoot: ghostRoot, configuration: configuration) {
         case .yaya:
             return YayaAdapter()
         case .satori:
             return SatoriAdapter()
         case .shiolink:
             return ShiolinkAdapter()
+        case .rishu:
+            return RishuProxyAdapter()
         case .native:
             return NativeShioriRuntime()
         }
@@ -84,6 +103,8 @@ struct ShioriRuntimeFactory {
             return SatoriAdapter()
         case .shiolink:
             return ShiolinkAdapter()
+        case .rishu:
+            return RishuProxyAdapter()
         case .native:
             return NativeShioriRuntime()
         }
@@ -115,6 +136,14 @@ final class NativeShioriRuntime: GhostShioriRuntime {
         let loadDirectory = context.ghostRoot
             .appendingPathComponent(context.moduleName.replacingOccurrences(of: "\\", with: "/"))
             .deletingLastPathComponent()
+        if context.nativeModuleOverride {
+            // An explicit platform module is a ghost-local selection, not a hint
+            // to substitute a bundled engine or the legacy yaya.dll helper.
+            let relative = context.moduleName.replacingOccurrences(of: "\\", with: "/")
+            guard let url = UkagakaModuleABI.resolveCaseInsensitive(relative, in: context.ghostRoot,
+                                                                    fileManager: .default) else { return nil }
+            return ShioriLoader(moduleURL: url, communication: context.communication, loadDirectory: loadDirectory)
+        }
         if let url = BundledShioriEngine.resolveModuleURL(
             moduleName: context.moduleName,
             ghostURL: context.ghostURL,

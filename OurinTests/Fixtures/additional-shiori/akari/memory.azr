@@ -1,0 +1,3 @@
+int count = 0;
+OnRemember(dict r) { count = 37; return "remember"; }
+OnRecall(dict r) { return count; }

@@ -271,6 +271,67 @@ struct ShioriRuntimeTests {
     }
 
     @Test
+    func explicitMacOSModuleIsNotReinterpretedAsYayaAndHasSeparateCacheIdentity() throws {
+        let root = URL(fileURLWithPath: "/tmp/native-override-fixture")
+        let config = try #require(GhostConfiguration.parse(from: [
+            "name": "fixture", "shiori": "yaya.dll", "shiori.macos": "native\\libyaya.dylib"
+        ]))
+        let module = ShioriRuntimeFactory.moduleName(for: config)
+        #expect(ShioriRuntimeFactory.kind(for: module, ghostRoot: root, configuration: config) == .native)
+        #expect(ShioriRuntimeFactory.makeRuntime(for: module, ghostRoot: root, configuration: config) is NativeShioriRuntime)
+        #expect(ShioriRuntimeFactory.kind(for: "yaya.dll", ghostRoot: root, configuration: config) == .yaya)
+        let automatic = ShioriRuntimeLoadContext(ghostURL: root, ghostRoot: root, moduleName: module)
+        let explicit = ShioriRuntimeLoadContext(ghostURL: root, ghostRoot: root, moduleName: module, nativeModuleOverride: true)
+        #expect(ShioriRuntimeCache.key(for: automatic) != ShioriRuntimeCache.key(for: explicit))
+    }
+
+    @Test
+    func missingExplicitMacOSModuleDoesNotFallBackToBundledEngine() {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let runtime = NativeShioriRuntime()
+        let context = ShioriRuntimeLoadContext(ghostURL: root, ghostRoot: root,
+                                              moduleName: "libkawari_shiori.dylib", nativeModuleOverride: true)
+        #expect(!runtime.load(context: context))
+        #expect(!runtime.isLoaded)
+    }
+
+    @MainActor
+    @Test
+    func ghostManagerLoadsExplicitMacOSModuleThroughNativeRuntime() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let master = root.appendingPathComponent("ghost/master")
+        let modules = master.appendingPathComponent("native")
+        try FileManager.default.createDirectory(at: modules, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let source = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .appendingPathComponent("Fixtures/shiori/native_fixture.c")
+        let compiler = Process()
+        compiler.executableURL = URL(fileURLWithPath: "/usr/bin/clang")
+        compiler.arguments = ["-dynamiclib", source.path, "-o", modules.appendingPathComponent("libyaya.dylib").path]
+        try compiler.run()
+        compiler.waitUntilExit()
+        try #require(compiler.terminationStatus == 0)
+        let manager = GhostManager(ghostURL: root)
+        manager.ghostConfig = GhostConfiguration.parse(from: [
+            "name": "fixture", "shiori": "yaya.dll", "shiori.macos": "native\\libyaya.dylib",
+            "shiori.version": "SHIORI/3.0"
+        ])
+        let module = ShioriRuntimeFactory.moduleName(for: manager.ghostConfig)
+        let context = manager.makeShioriLoadContext(moduleName: module, ghostRoot: master)
+        #expect(context.nativeModuleOverride)
+        #expect(context.dictionaryEntries.isEmpty)
+        let runtime = try #require(manager.createLoadedShioriRuntime(moduleName: module, ghostRoot: master))
+        defer { runtime.unload() }
+        #expect(runtime.kind == .native)
+        let reply = runtime.request(method: "GET", id: "OnBoot", headers: [:], refs: [], timeout: 5)
+        // This real native fixture advertises SHIORI/2.6 when probed, so the
+        // normal compatibility wrapper translates its Sentence response.
+        #expect(reply?.value?.contains("legacy-fixture") == true)
+        let pid = try String(contentsOf: modules.appendingPathComponent("native_loaded_pid.marker"), encoding: .utf8)
+        #expect(Int32(pid) != ProcessInfo.processInfo.processIdentifier)
+    }
+
+    @Test
     func translationContextUsesSpecifiedReasonAndReferenceDelimiters() {
         let context = ScriptTranslationContext(
             reasons: ["owned", "sstp-send"],

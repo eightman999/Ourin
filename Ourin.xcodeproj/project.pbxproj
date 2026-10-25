@@ -93,6 +93,30 @@
 			);
 			target = DF88A7EF2E35199C00644F8A /* Ourin */;
 		};
+		A50000000000000000000001 /* Authored SHIORI fixtures read from source */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Fixtures/additional-shiori/akari/akari.txt",
+				"Fixtures/additional-shiori/akari/descript.txt",
+				"Fixtures/additional-shiori/akari/memory.azr",
+				"Fixtures/additional-shiori/cases.json",
+				"Fixtures/additional-shiori/ese-shiori/descript.txt",
+				"Fixtures/additional-shiori/ese-shiori/eseai.ini",
+				"Fixtures/additional-shiori/ese-shiori/eseai_test.txt",
+				"Fixtures/additional-shiori/hisui/descript.txt",
+				"Fixtures/additional-shiori/hisui/hisui_base/fixture.tlk",
+				"Fixtures/additional-shiori/niseshiori/ai.txt",
+				"Fixtures/additional-shiori/niseshiori/descript.txt",
+				"Fixtures/additional-shiori/shino/ai_test.txt",
+				"Fixtures/additional-shiori/shino/descript.txt",
+				"Fixtures/additional-shiori/yuhna/descript.txt",
+				"Fixtures/additional-shiori/yuhna/dic.ydf",
+				"Fixtures/misaka/misaka.ini",
+				"Fixtures/misaka/misaka.txt",
+				"Fixtures/rishu/rishu_remote.pl",
+			);
+			target = DF88A7FD2E35199D00644F8A /* OurinTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -114,6 +138,9 @@
 		};
 		DF88A8012E35199D00644F8A /* OurinTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A50000000000000000000001 /* Authored SHIORI fixtures read from source */,
+			);
 			path = OurinTests;
 			sourceTree = "<group>";
 		};

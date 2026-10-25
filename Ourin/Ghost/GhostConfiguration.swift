@@ -52,6 +52,9 @@ public struct GhostConfiguration {
     /// SHIORI DLL filename (shiori)
     public var shiori: String
 
+    /// Optional macOS-native module override (shiori.macos).
+    public var shioriMacOS: String?
+
     /// MAKOTO translator filename (makoto)
     public var makoto: String?
 
@@ -315,6 +318,10 @@ public struct GhostConfiguration {
         // SHIORI configuration
         if let shiori = dict["shiori"] {
             config.shiori = shiori
+        }
+        if let native = dict["shiori.macos"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !native.isEmpty {
+            config.shioriMacOS = native
         }
         config.makoto = dict["makoto"]
         config.shioriVersion = dict["shiori.version"]

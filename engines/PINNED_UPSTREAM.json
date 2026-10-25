@@ -3,7 +3,9 @@
     "repository": "https://github.com/ukatech/kawari",
     "revision": "8098dfb8f264a60d2d917c1b128ac87222bb65ec",
     "license": "LICENSE",
-    "submodules": ["build/src/uka_regexp"],
+    "submodules": [
+      "build/src/uka_regexp"
+    ],
     "darwin_artifact": "build/engines/kawari/libkawari_shiori.dylib",
     "ourin_shiori_abi": "ukagaka-long"
   },
@@ -17,5 +19,26 @@
     },
     "darwin_artifact": "libkagari.dylib",
     "ourin_shiori_abi": "kagari"
+  },
+  "utatane_modules": {
+    "repository": "https://github.com/opera7133/utatane-modules.git",
+    "revision": "d0cc4cfa3d06aade166363d3864b56e750852328",
+    "archive_paths": [
+      "native",
+      "LICENSE"
+    ],
+    "archive_sha256": "613ca0cf0b02d68062cc66f3d743620ebdacb8c0e7c0cbcc6dbbec0c702c4054",
+    "license": "MIT (LICENSE; Copyright (c) 2026 opera7133)",
+    "products": [
+      "akari",
+      "ese-shiori",
+      "niseshiori",
+      "shino",
+      "hisui",
+      "yuhna",
+      "misaka"
+    ],
+    "deployment_target": "13.0",
+    "ourin_shiori_abi": "ukagaka-int32"
   }
 }

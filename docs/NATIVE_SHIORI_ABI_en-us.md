@@ -4,6 +4,19 @@
 
 Updated: 2026-10-25. This contract describes the development implementation, not support in previously published binaries.
 
+## Selecting a macOS module
+
+Keep the Windows `shiori` entry and explicitly select a macOS module in `descript.txt`:
+
+```text
+shiori,yaya.dll
+shiori.macos,native/libyaya.dylib
+```
+
+A nonempty `shiori.macos` takes precedence during both startup and reload. Paths are relative to `ghost/master`; Windows backslash separators are accepted. Even names such as `yaya` use the explicitly selected native file, rather than a bundled helper. An empty value uses the existing `shiori` rule; a missing explicit file fails to load. The dictionary directory is the selected module's parent. The ABI declaration below is still required.
+
+For automatic selection of a bundled compatibility engine, retain the original `shiori` without adding `shiori.macos`. See [additional engines](ADDITIONAL_SHIORI_ja-jp.md) for setup and limitations.
+
 ## Declaration
 
 For macOS `.bundle` / `.plugin` modules, set `OurinShioriABI` in `Contents/Info.plist`. For standalone libraries, append `.plist` to the library filename and place that file beside it (for example, `engine.dylib.plist`).

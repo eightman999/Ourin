@@ -1,0 +1,10 @@
+##EVNT=("OnBoot")
+boot:ese-shiori
+##EVNT=("OnRandomTalk")
+talk:ese-shiori
+##EVNT=("OnRemember")
+$PUSH("37",1,0)remember
+##EVNT=("OnRecall")
+$POP(1)
+##EVNT=("OnClose")
+close:ese-shiori

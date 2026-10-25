@@ -4,6 +4,16 @@
 
 Macネイティブの伺かベースウェア
 
+[公式サイト](https://furinlab.com/ourin/) · [使い方ガイド](https://furinlab.com/ourin/guide/) · [公開ドキュメント](https://furinlab.com/ourin/docs/) · [対応状況・互換性](https://furinlab.com/ourin/compatibility/)
+
+開発版では、灯・ese-shiori・偽栞・忍・翡翠・結奈・美坂の7栞と、Perl を別途必要とする里珠 Proxy 接続を実装しています。これらの追加対応は公開配布版には未収録です（2026-10-25）。全機能・全ゴーストの互換性は保証していません。MiyoJS は実エンジンと最小辞書、里珠は公式 echo サンプルで確認済みで、MiyoPreview や里珠の配布ゴースト全体は未確認です。
+
+Development builds implement seven additional engines—Akari, ese-shiori, Nise-shiori, Shino, Hisui, Yuhna, and Misaka—and Rishu Proxy with a separately installed Perl runtime. These additions are not in the published release as of 2026-10-25. Full compatibility with every feature or ghost is not guaranteed. MiyoJS was verified with the actual engine and a minimal dictionary; Rishu with its official echo sample. Distributed MiyoPreview and Rishu ghosts remain unverified.
+
+[User guide](https://furinlab.com/ourin/guide/) · [Published documentation](https://furinlab.com/ourin/docs/) · [Support and compatibility](https://furinlab.com/ourin/compatibility/)
+
+ソース資料 / Source documentation: [追加7栞](docs/ADDITIONAL_SHIORI_ja-jp.md) / [Additional engines](docs/ADDITIONAL_SHIORI_en-us.md) · [SHIOLINK / MiyoJS](docs/SHIOLINK_ja-jp.md) ([English](docs/SHIOLINK_en-us.md)) · [里珠 Proxy](docs/RISHU_ja-jp.md) ([English](docs/RISHU_en-us.md)) · [日本語索引](docs/README_ja-jp.md) / [English index](docs/README_en-us.md)
+
 ## 全体構造
 
 Ourinは、伺かのベースウェアとして次の層を分離して実装しています。
@@ -13,7 +23,9 @@ Ghost / Shell / Balloon
           │
 GhostManager ── GhostShioriRuntime ──┬─ YayaAdapter ── yaya_core
           │                           ├─ SatoriAdapter ── satori_core
-          │                           └─ Native SHIORI ── ShioriLoader
+          │                           ├─ ShiolinkAdapter ── external runtime
+          │                           ├─ RishuProxyAdapter ── Perl
+          │                           └─ Native SHIORI ── ShioriLoader / bundled engines
           │
      SHIORI 3.0 / SSTP / Web / XPC
           │
