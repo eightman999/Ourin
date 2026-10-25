@@ -33,9 +33,9 @@ public final class SaoriLoader {
     // POSIX-compatible modules use the equivalent malloc-owned pointer + long
     // layout (long is Int64 on macOS). The module owns and frees the input
     // buffer, and the host owns and frees the returned buffer after copying it.
-    public typealias SaoriLoadFn = @convention(c) (UnsafeMutableRawPointer?, Int64) -> Int32
+    public typealias SaoriLoadFn = UkagakaModuleABI.LoadFn
     public typealias SaoriUnloadFn = @convention(c) () -> Int32
-    public typealias SaoriRequestFn = @convention(c) (UnsafeMutableRawPointer?, UnsafeMutablePointer<Int64>?) -> UnsafeMutableRawPointer?
+    public typealias SaoriRequestFn = UkagakaModuleABI.RequestFn
 
     public let moduleURL: URL
     private var handle: UnsafeMutableRawPointer?
@@ -85,25 +85,12 @@ public final class SaoriLoader {
         }
 
         if let loadFn {
-            let directory = url.deletingLastPathComponent().path
-            let directoryData = Data(directory.utf8)
-            // SAORI modules receive ownership of this buffer. Keep a trailing
-            // NUL for modules that treat the path as a C string; the explicit
-            // length remains the authoritative size per the common ABI.
-            guard let directoryBuffer = malloc(max(directoryData.count + 1, 1)) else {
+            // SSP と同じく末尾区切り付きのディレクトリを渡す（`path + "config.txt"` 形式の連結に対応）。
+            // バッファは malloc 確保・NUL 終端で、所有権はモジュールへ移る（共通 ABI）。
+            let directoryURL = url.deletingLastPathComponent()
+            guard UkagakaModuleABI.callLoad(loadFn, directoryURL: directoryURL) else {
                 closeHandle()
-                throw SaoriLoaderError.openFailed("could not allocate module directory buffer")
-            }
-            directoryBuffer.initializeMemory(as: UInt8.self, repeating: 0, count: max(directoryData.count + 1, 1))
-            if !directoryData.isEmpty {
-                directoryData.withUnsafeBytes { raw in
-                    directoryBuffer.copyMemory(from: raw.baseAddress!, byteCount: directoryData.count)
-                }
-            }
-            let result = loadFn(directoryBuffer, Int64(directoryData.count))
-            guard result != 0 else {
-                closeHandle()
-                throw SaoriLoaderError.moduleLoadFailed(directory)
+                throw SaoriLoaderError.moduleLoadFailed(directoryURL.path)
             }
         }
     }
@@ -117,28 +104,15 @@ public final class SaoriLoader {
             throw SaoriLoaderError.requestFailed
         }
         let encoded = try SaoriProtocol.encode(requestText, charset: charset)
-        guard let requestBuffer = malloc(max(encoded.count, 1)) else {
+        // 共通 ABI: *len に入力長を入れて呼び、戻り値の長さを受け取る。入力領域はモジュールが free する。
+        guard let data = UkagakaModuleABI.callRequest(requestFn, data: encoded) else {
             throw SaoriLoaderError.requestFailed
         }
-        if !encoded.isEmpty {
-            encoded.withUnsafeBytes { raw in
-                requestBuffer.copyMemory(from: raw.baseAddress!, byteCount: encoded.count)
-            }
+        // 応答は応答側の Charset ヘッダを優先して復号する（未指定なら要求の Charset）。
+        let responseCharset = EncodingAdapter.detectCharset(in: data, default: charset)
+        if let decoded = try? SaoriProtocol.decode(data, charset: responseCharset) {
+            return decoded
         }
-
-        var outLen: Int64 = 0
-        let resultPtr = requestFn(requestBuffer, &outLen)
-        guard let resultPtr else {
-            throw SaoriLoaderError.requestFailed
-        }
-        defer {
-            free(resultPtr)
-        }
-
-        guard outLen >= 0, let resultCount = Int(exactly: outLen) else {
-            throw SaoriLoaderError.responseDecodeFailed
-        }
-        let data = Data(bytes: resultPtr, count: resultCount)
         if let decoded = try? SaoriProtocol.decode(data, charset: charset) {
             return decoded
         }

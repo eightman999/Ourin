@@ -1,4 +1,8 @@
-name: macOS CI (xcodebuild test)
+name: macOS CI (release gate)
+
+# Release gate for #96: every PR and every master push must pass these checks.
+# Branch protection must require: metadata / test / release-gate / helper-cores.
+# (See docs/RELEASE_GATES_2026-10-25.md — enabling required checks needs repo admin.)
 
 on:
   pull_request:
@@ -13,24 +17,36 @@ concurrency:
   group: macos-ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  SCHEME: Ourin
+  PROJECT: Ourin.xcodeproj
+  MIN_MACOS: "13.0"
+
 jobs:
+  # ---- #99: bundle metadata must stay consistent (version/build/min-OS/date)
+  metadata:
+    name: metadata
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check release metadata consistency
+        run: python3 scripts/check_release_metadata.py --min-os "$MIN_MACOS"
+
+  # ---- #96: Debug build + OurinTests/OurinUITests on the primary arch
   test:
+    name: test
     runs-on: macos-15
     timeout-minutes: 60
-
     env:
-      XCODE_VERSION: latest-stable
-      SCHEME: Ourin
       RESULT_BUNDLE: TestResults.xcresult
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: ${{ env.XCODE_VERSION }}
+          xcode-version: latest-stable
 
       - name: Show toolchain
         run: |
@@ -38,66 +54,20 @@ jobs:
           swift --version
           uname -m
 
-      - name: Cache SwiftPM
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.swiftpm/cache
-            ~/Library/Caches/org.swift.swiftpm
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
-
-      - name: Resolve dependencies (optional)
-        run: |
-          swift package resolve || true
-
-      - name: Install xcbeautify
+      - name: Install dependencies (cmake / nlohmann-json / xcbeautify)
         run: |
           brew update >/dev/null
-          brew install xcbeautify
-
-      - name: Install yaya_core dependencies
-        run: |
-          brew install nlohmann-json
-
-      - name: Show repo tree (depth 2)
-        run: |
-          pwd
-          find . -maxdepth 2 -type d -name "*.xcodeproj" -print
-          find . -maxdepth 2 -type d -name "*.xcworkspace" -print
-
-      - name: Detect Xcode container (project/workspace)
-        id: detect
-        shell: bash
-        run: |
-          set -euo pipefail
-          WS=$(find . -maxdepth 3 -name "*.xcworkspace" | head -n 1 || true)
-          PRJ=$(find . -maxdepth 3 -name "*.xcodeproj"   | head -n 1 || true)
-          if [[ -n "$WS" ]]; then
-            echo "type=workspace" >> "$GITHUB_OUTPUT"
-            echo "path=$WS"       >> "$GITHUB_OUTPUT"
-            echo "Detected workspace: $WS"
-          elif [[ -n "$PRJ" ]]; then
-            echo "type=project"   >> "$GITHUB_OUTPUT"
-            echo "path=$PRJ"      >> "$GITHUB_OUTPUT"
-            echo "Detected project: $PRJ"
-          else
-            echo "No .xcworkspace or .xcodeproj found"; exit 66
-          fi
+          brew list cmake >/dev/null 2>&1 || brew install cmake
+          brew list nlohmann-json >/dev/null 2>&1 || brew install nlohmann-json
+          brew list xcbeautify >/dev/null 2>&1 || brew install xcbeautify
 
       - name: List schemes
-        run: |
-          if [[ "${{ steps.detect.outputs.type }}" == "workspace" ]]; then
-            xcodebuild -list -workspace "${{ steps.detect.outputs.path }}"
-          else
-            xcodebuild -list -project "${{ steps.detect.outputs.path }}"
-          fi
+        run: xcodebuild -list -project "$PROJECT"
 
       - name: Test installer (SwiftPM)
         run: swift test --package-path Installer
 
-      - name: Build & Test (macOS)
+      - name: Build & Test (macOS, Debug)
         shell: bash
         run: |
           set -eo pipefail
@@ -106,37 +76,193 @@ jobs:
           else
             DEST="platform=macOS,arch=x86_64"
           fi
-
-          if [[ "${{ steps.detect.outputs.type }}" == "workspace" ]]; then
-            xcodebuild \
-              -workspace "${{ steps.detect.outputs.path }}" \
-              -scheme "${SCHEME}" \
-              -destination "$DEST" \
-              -enableCodeCoverage YES \
-              -resultBundlePath "${RESULT_BUNDLE}" \
-              CODE_SIGNING_ALLOWED=NO \
-              test | tee xcodebuild.log | xcbeautify
-          else
-            xcodebuild \
-              -project "${{ steps.detect.outputs.path }}" \
-              -scheme "${SCHEME}" \
-              -destination "$DEST" \
-              -enableCodeCoverage YES \
-              -resultBundlePath "${RESULT_BUNDLE}" \
-              CODE_SIGNING_ALLOWED=NO \
-              test | tee xcodebuild.log | xcbeautify
-          fi
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DEST" \
+            -enableCodeCoverage YES \
+            -resultBundlePath "$RESULT_BUNDLE" \
+            CODE_SIGNING_ALLOWED=NO \
+            test | tee xcodebuild.log | xcbeautify
 
       - name: Upload test result bundle
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.RESULT_BUNDLE }}
-          path: ${{ env.RESULT_BUNDLE }}
+          name: TestResults-${{ runner.arch }}
+          path: TestResults.xcresult
 
       - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: xcodebuild.log
+          name: xcodebuild-test-${{ runner.arch }}.log
           path: xcodebuild.log
+
+  # ---- #96: yaya_core / satori_core must build standalone and stay universal
+  helper-cores:
+    name: helper-cores
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          brew update >/dev/null
+          brew list cmake >/dev/null 2>&1 || brew install cmake
+          brew list nlohmann-json >/dev/null 2>&1 || brew install nlohmann-json
+
+      - name: Build yaya_core
+        run: ./yaya_core/build.sh
+
+      - name: Build satori_core
+        run: ./satori_core/build.sh
+
+      - name: Verify helper cores are universal Mach-O executables
+        shell: bash
+        run: |
+          set -euo pipefail
+          for core in yaya_core/build/yaya_core satori_core/build/satori_core; do
+            test -x "$core" || { echo "missing helper: $core"; exit 1; }
+            echo "== $core"
+            file "$core"
+            lipo -info "$core" | tee /tmp/lipo.txt
+            grep -q "arm64"   /tmp/lipo.txt || { echo "$core lacks arm64 slice";   exit 1; }
+            grep -q "x86_64"  /tmp/lipo.txt || { echo "$core lacks x86_64 slice";  exit 1; }
+          done
+
+  # ---- #96/#97: Release (universal) build + mechanical bundle verification
+  release-gate:
+    name: release-gate
+    runs-on: macos-15
+    timeout-minutes: 60
+    needs: [metadata]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install dependencies
+        run: |
+          brew update >/dev/null
+          brew list cmake >/dev/null 2>&1 || brew install cmake
+          brew list nlohmann-json >/dev/null 2>&1 || brew install nlohmann-json
+          brew list xcbeautify >/dev/null 2>&1 || brew install xcbeautify
+
+      # Universal Release build. CODE_SIGNING_ALLOWED=NO keeps PR CI credential-free;
+      # Developer ID signing / notarization is handled locally by scripts/release.sh.
+      - name: Build (Release, universal)
+        shell: bash
+        run: |
+          set -eo pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee xcodebuild-release.log | xcbeautify
+
+      - name: Verify app bundle contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="DerivedData/Build/Products/Release/Ourin.app"
+          test -d "$APP" || { echo "app not found: $APP"; exit 1; }
+
+          echo "== bundle executables =="
+          test -x "$APP/Contents/MacOS/Ourin"                      || { echo "missing main executable"; exit 1; }
+          test -x "$APP/Contents/MacOS/yaya_core"                 || { echo "missing bundled yaya_core"; exit 1; }
+          test -x "$APP/Contents/MacOS/satori_core"               || { echo "missing bundled satori_core"; exit 1; }
+          test -d "$APP/Contents/XPCServices/OurinShioriXPCService.xpc" \
+            || { echo "missing embedded XPC service"; exit 1; }
+          test -x "$APP/Contents/XPCServices/OurinShioriXPCService.xpc/Contents/MacOS/OurinShioriXPCService" \
+            || { echo "missing XPC executable"; exit 1; }
+          test -f "$APP/Contents/Resources/sakura.nar" \
+            || { echo "missing bundled default ghost (sakura.nar)"; exit 1; }
+
+          echo "== architectures (must be universal) =="
+          for bin in \
+            "$APP/Contents/MacOS/Ourin" \
+            "$APP/Contents/MacOS/yaya_core" \
+            "$APP/Contents/MacOS/satori_core" \
+            "$APP/Contents/XPCServices/OurinShioriXPCService.xpc/Contents/MacOS/OurinShioriXPCService"; do
+            echo "-- ${bin#$APP/}"
+            lipo -info "$bin" | tee /tmp/lipo.txt
+            grep -q "arm64"  /tmp/lipo.txt || { echo "lacks arm64: $bin";  exit 1; }
+            grep -q "x86_64" /tmp/lipo.txt || { echo "lacks x86_64: $bin"; exit 1; }
+          done
+
+          echo "== Info.plist (must match release metadata policy) =="
+          PB=/usr/libexec/PlistBuddy
+          for key in CFBundleShortVersionString CFBundleVersion LSMinimumSystemVersion CFBundleIdentifier; do
+            echo "$key = $($PB -c "Print :$key" "$APP/Contents/Info.plist")"
+          done
+          [ "$($PB -c 'Print :LSMinimumSystemVersion' "$APP/Contents/Info.plist")" = "$MIN_MACOS" ] \
+            || { echo "LSMinimumSystemVersion != $MIN_MACOS"; exit 1; }
+          XPC_PLIST="$APP/Contents/XPCServices/OurinShioriXPCService.xpc/Contents/Info.plist"
+          for key in CFBundleShortVersionString CFBundleVersion; do
+            [ "$($PB -c "Print :$key" "$XPC_PLIST")" = "$($PB -c "Print :$key" "$APP/Contents/Info.plist")" ] \
+              || { echo "XPC $key differs from app"; exit 1; }
+          done
+
+      - name: Upload unsigned Release app (QA/E2E use only)
+        if: success()
+        run: |
+          cd DerivedData/Build/Products/Release
+          ditto -c -k --keepParent Ourin.app /tmp/Ourin-unsigned.zip
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: Ourin-unsigned-release
+          path: /tmp/Ourin-unsigned.zip
+          retention-days: 14
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-release-${{ runner.arch }}.log
+          path: xcodebuild-release.log
+
+  # ---- Advisory only: x86_64 test leg under Rosetta on Apple Silicon runners.
+  # Kept non-blocking until it proves stable; the hard arch gate is the
+  # universal Release build + lipo verification in `release-gate`.
+  test-x86_64-rosetta:
+    name: test-x86_64 (advisory)
+    continue-on-error: true
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - name: Install Rosetta + dependencies
+        run: |
+          sudo softwareupdate --install-rosetta --agree-to-license
+          brew update >/dev/null
+          brew list cmake >/dev/null 2>&1 || brew install cmake
+          brew list nlohmann-json >/dev/null 2>&1 || brew install nlohmann-json
+          brew list xcbeautify >/dev/null 2>&1 || brew install xcbeautify
+      - name: Build & Test (macOS, x86_64 under Rosetta)
+        shell: bash
+        run: |
+          set -eo pipefail
+          arch -x86_64 xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination 'platform=macOS,arch=x86_64' \
+            CODE_SIGNING_ALLOWED=NO \
+            test | tee xcodebuild-x86_64.log | xcbeautify
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-x86_64.log
+          path: xcodebuild-x86_64.log

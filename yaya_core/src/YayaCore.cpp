@@ -181,6 +181,10 @@ std::string YayaCore::processCommand(const std::string &line) {
 
             // Anchor relative paths (DICLOAD / SAVEVAR / DICUNLOAD) under the ghost root.
             dictManager.setGhostRoot(ghostRoot);
+            dictManager.setSaveFilePath(req.value("save_file", std::string()));
+            // YAYA の設定の fncdepth（無指定なら本家と同じ 32）。
+            dictManager.setMaxFunctionDepth(req.contains("fncdepth") && req["fncdepth"].is_number_integer()
+                                                ? req["fncdepth"].get<int>() : VM::DEFAULT_FUNCTION_DEPTH);
 
             // Build structured entries. Prefer "dic_entries" (per-dic encoding) over flat "dic".
             std::vector<DictionaryManager::DicEntry> dicEntries;
@@ -221,6 +225,7 @@ std::string YayaCore::processCommand(const std::string &line) {
                 const auto& loadedFiles = dictManager.getLoadedDicFiles();
                 response["loaded_dics"] = loadedFiles;
 
+                dictManager.execute("RESTOREVAR", {});
                 // Call YAYA framework's `load` function if it exists (sets SHIORI3FW.Path etc.)
                 if (dictManager.hasFunction("load")) {
                     std::string ghostPath = ghostRoot;
@@ -440,6 +445,7 @@ std::string YayaCore::processCommand(const std::string &line) {
                 std::cerr << "[YayaCore] Calling YAYA framework unload()" << std::endl;
                 dictManager.execute("unload", {});
             }
+            dictManager.execute("SAVEVAR", {});
             dictManager.unload();
             response["ok"] = true;
             response["status"] = 200;

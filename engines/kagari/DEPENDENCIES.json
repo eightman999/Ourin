@@ -1,0 +1,22 @@
+{
+  "lua": {
+    "version": "5.4.4",
+    "url": "https://www.lua.org/ftp/lua-5.4.4.tar.gz",
+    "sha256": "164c7849653b80ae67bec4b7473b884bf5cc8d2dca05653475ec2ed27b9ebf61",
+    "license": "MIT",
+    "license_reference": "https://www.lua.org/license.html"
+  },
+  "sol2": {
+    "version": "3.2.2",
+    "revision": "v3.2.2",
+    "url": "https://github.com/ThePhD/sol2/archive/refs/tags/v3.2.2.tar.gz",
+    "sha256": "141790dae0c1821dd2dbac3595433de49ba72545845efc3ec7d88de8b0a3b2da",
+    "license": "MIT",
+    "repository": "https://github.com/ThePhD/sol2",
+    "include_path": "sol2-3.2.2/include",
+    "ourin_patches": [
+      "engines/kagari/patches/003-sol2-optional-ref-emplace.patch"
+    ],
+    "patch_note": "Apple Clang libc++ で optional<T&>::emplace の construct 呼び出しを修正（上流 tarball は v3.2.2 固定）"
+  }
+}

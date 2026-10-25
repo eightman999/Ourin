@@ -1,0 +1,2406 @@
+{
+ "talks": [
+  {
+   "category": "chime_morning",
+   "id": "chime_morning_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ちりんって朝の音がしたよ、今は<<HOUR>>時だね！"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "ああ、今日もいい天気になりそうだ。きみもそろそろ動き出す頃だろう。"
+    },
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ふわあ……あと五分……zzz"
+    }
+   ]
+  },
+  {
+   "category": "chime_morning",
+   "id": "chime_morning_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "おい、<<HOUR>>時だぞ。朝の空気は気持ちがいいな。"
+    },
+    {
+     "who": 0,
+     "face": 0,
+     "text": "ほんとだ！きみはもう朝ごはん食べたかな？"
+    }
+   ]
+  },
+  {
+   "category": "chime_morning",
+   "id": "chime_morning_003",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "<<HOUR>>時になったよ！朝の光で桜の花びらがきらきらしてるね！"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、きれい。"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "朝から元気なこった。あなたも無理せず自分のペースで始めるとしようぜ。"
+    }
+   ]
+  },
+  {
+   "category": "chime_morning",
+   "id": "chime_morning_004",
+   "lines": [
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん……<<HOUR>>時。"
+    },
+    {
+     "who": 0,
+     "face": 0,
+     "text": "ベルが時間を教えてくれたよ、えらいね！"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "今日も一日、わたしたちと一緒に楽しく過ごそうね！"
+    }
+   ]
+  },
+  {
+   "category": "chime_day",
+   "id": "chime_day_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 0,
+     "text": "<<HOUR>>時になったよ！きみ、お仕事や作業は順調かな？"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "根を詰めすぎるなよ。肩が凝ったら少し伸びでもするんだな。"
+    }
+   ]
+  },
+  {
+   "category": "chime_day",
+   "id": "chime_day_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "時計を見ろ、<<HOUR>>時だ。日差しがだいぶ高くなってきたな。"
+    },
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ぽかぽか……ひなたぼっこ日和……zzz"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ベルが気持ちよさそうに丸まってるよ、わたしも隣に座ろうっと！"
+    }
+   ]
+  },
+  {
+   "category": "chime_day",
+   "id": "chime_day_003",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "あっ、<<HOUR>>時だよ！ちょっとお茶でも飲んで一息つかない？"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "賛成だ。きみの分も淹れてやりたいところだが、気持ちだけ受け取ってくれ。"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、おやつも大事。"
+    }
+   ]
+  },
+  {
+   "category": "chime_day",
+   "id": "chime_day_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 0,
+     "text": "今は<<HOUR>>時だね。画面の隅っこに桜の花びらが落ちてきたよ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "きみのデスクトップが少しでも華やかになってたらうれしいな！"
+    }
+   ]
+  },
+  {
+   "category": "chime_evening",
+   "id": "chime_evening_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 0,
+     "text": "<<HOUR>>時になったよ。外がだんだん夕焼け色になってきたかな？"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "一日が終わる匂いがするな。きみも今日はずいぶん頑張ったんじゃないか。"
+    },
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、おつかれさま。"
+    }
+   ]
+  },
+  {
+   "category": "chime_evening",
+   "id": "chime_evening_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "<<HOUR>>時だ。そろそろ晩飯のことを考えてもいい時間だろう。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "わあ、今日の夕ごはんは何かな？きみの好きなものだといいね！"
+    }
+   ]
+  },
+  {
+   "category": "chime_evening",
+   "id": "chime_evening_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ふわあ……<<HOUR>>時、おなかすいた。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ベルのおなかが鳴ったよ！りんね、何か甘いものないかな？"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "夕飯前に食べすぎるなよ。あなたもちゃんと栄養のあるものを食べろよな。"
+    }
+   ]
+  },
+  {
+   "category": "chime_evening",
+   "id": "chime_evening_004",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "もう<<HOUR>>時か。画面を見続けて目が疲れてないだろうな。"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "少し遠くを見るだけでも違うぞ。俺たちはいつでもここにいるから、ゆっくり休め。"
+    }
+   ]
+  },
+  {
+   "category": "chime_night",
+   "id": "chime_night_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 7,
+     "text": "<<HOUR>>時だよ……そろそろ夜も更けてきたね。"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "ああ、静かな時間だ。きみも夜更かししすぎないように気をつけろよ。"
+    },
+    {
+     "who": 2,
+     "face": 11,
+     "text": "すやあ……zzz"
+    }
+   ]
+  },
+  {
+   "category": "chime_night",
+   "id": "chime_night_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 107,
+     "text": "<<HOUR>>時か。まだ起きているのか、たいした集中力だな。"
+    },
+    {
+     "who": 0,
+     "face": 5,
+     "text": "でもでも、無理は禁物だよ？あたたかい飲み物でも飲んでね。"
+    }
+   ]
+  },
+  {
+   "category": "chime_night",
+   "id": "chime_night_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん……夜の<<HOUR>>時。"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "こんな時間まで付き合ってくれるのはうれしいが、体だけは壊すなよ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "きみが眠くなるまで、わたしたちが静かに見守ってるからね！"
+    }
+   ]
+  },
+  {
+   "category": "chime_night",
+   "id": "chime_night_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 7,
+     "text": "ふわあ、<<HOUR>>時になったかな……なんだかまぶたが重いかも。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "きみも眠くなったら、いつでもおやすみしていいんだよ。"
+    }
+   ]
+  },
+  {
+   "category": "chime_noon",
+   "id": "chime_noon_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "おひるだよー！おなかぺこぺこだね、きみは何を食べるの？"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "しっかり食べて午後からの気力を養わないとな。"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん！ごはんの時間！"
+    }
+   ]
+  },
+  {
+   "category": "chime_noon",
+   "id": "chime_noon_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "正午だ。いったん手を止めて昼休みにしたらどうだ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "そうだよ！おいしいものを食べて、午後も一緒にがんばろうね！"
+    }
+   ]
+  },
+  {
+   "category": "chime_midnight",
+   "id": "chime_midnight_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "あっ、日付が変わったよ！新しい一日の始まりだね！"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "昨日もいろいろあったが、今日という日もきみにとっていい日になるといいな。"
+    },
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ちりん……おやすみと、おはよう……zzz"
+    }
+   ]
+  },
+  {
+   "category": "chime_midnight",
+   "id": "chime_midnight_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "時計の針がてっぺんを回ったな。今日からまた新しい日付だ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "夜中の秘密の時間みたいでわくわくするね！でも、ちゃんと寝るんだよ？"
+    }
+   ]
+  },
+  {
+   "category": "stroke_sakura_Head",
+   "id": "stroke_sakura_Head_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 3,
+     "text": "えへへ、あたまをなでてくれるの？きみの手、とってもあたたかいね！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "よかったな、さくら。まるで子犬みたいに嬉しそうだぞ。"
+    }
+   ]
+  },
+  {
+   "category": "stroke_sakura_Head",
+   "id": "stroke_sakura_Head_002",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "わあい、なでなで大好きだよ！髪についた桜の花びら、落っこちないかな？"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、いい匂い。"
+    },
+    {
+     "who": 0,
+     "face": 3,
+     "text": "もうちょっとだけ、このままなでててほしいな。"
+    }
+   ]
+  },
+  {
+   "category": "stroke_sakura_Head",
+   "id": "stroke_sakura_Head_003",
+   "lines": [
+    {
+     "who": 0,
+     "face": 3,
+     "text": "きみにそうやって優しくされると、胸の奥がぽかぽかしてくるよ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "えへへ、いつもわたしを可愛がってくれてありがとうね！"
+    }
+   ]
+  },
+  {
+   "category": "stroke_sakura_Head",
+   "id": "stroke_sakura_Head_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 7,
+     "text": "んー……なんだかきもちよくて、ベルみたいに眠くなっちゃうよ。"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "あんまり甘やかすと、このまま昼寝しちまうぞ。"
+    },
+    {
+     "who": 2,
+     "face": 11,
+     "text": "いっしょに寝よ……zzz"
+    }
+   ]
+  },
+  {
+   "category": "stroke_sakura_Face",
+   "id": "stroke_sakura_Face_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 3,
+     "text": "ふあ、ほっぺたをつんつんしないでよー、くすぐったいよ！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "顔が真っ赤だぞ、さくら。きみもからかうのが好きだな。"
+    }
+   ]
+  },
+  {
+   "category": "stroke_sakura_Face",
+   "id": "stroke_sakura_Face_002",
+   "lines": [
+    {
+     "who": 0,
+     "face": 3,
+     "text": "えへへ、ほっぺをなでられると、なんだか照れちゃうね。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "でも、きみが笑ってくれるなら、いくらでも触っていいよ！"
+    }
+   ]
+  },
+  {
+   "category": "stroke_sakura_Face",
+   "id": "stroke_sakura_Face_003",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "わわっ、顔になにかついてたかな？"
+    },
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、さくら、かわいい。"
+    },
+    {
+     "who": 0,
+     "face": 3,
+     "text": "べ、ベルまでそんなこと言ったら、もっと恥ずかしくなっちゃうよ！"
+    }
+   ]
+  },
+  {
+   "category": "stroke_sakura_Face",
+   "id": "stroke_sakura_Face_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "くすぐったいけど、きみの優しい触り方、わたし大好きだな。"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "機嫌がよさそうで何よりだ。あなたのおかげでこいつも毎日楽しそうだぜ。"
+    }
+   ]
+  },
+  {
+   "category": "stroke_rinne_Head",
+   "id": "stroke_rinne_Head_001",
+   "lines": [
+    {
+     "who": 1,
+     "face": 103,
+     "text": "おい、俺の頭をなでてどうするんだ……子ども扱いするなよ。"
+    },
+    {
+     "who": 0,
+     "face": 8,
+     "text": "あーっ、りんねが照れてる！ほんとは嬉しいくせにー！"
+    }
+   ]
+  },
+  {
+   "category": "stroke_rinne_Head",
+   "id": "stroke_rinne_Head_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 105,
+     "text": "まったく、髪がぐしゃぐしゃになるだろうが……。"
+    },
+    {
+     "who": 1,
+     "face": 103,
+     "text": "……まあ、きみがどうしてもって言うなら、少しぐらいは構わないがな。"
+    }
+   ]
+  },
+  {
+   "category": "stroke_rinne_Head",
+   "id": "stroke_rinne_Head_003",
+   "lines": [
+    {
+     "who": 1,
+     "face": 103,
+     "text": "……悪くない手つきだな。気が抜けてしまいそうだ。"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、りんねも甘えん坊。"
+    },
+    {
+     "who": 1,
+     "face": 104,
+     "text": "なっ、誰が甘えん坊だ！変なことを言うな、ベル！"
+    }
+   ]
+  },
+  {
+   "category": "stroke_rinne_Head",
+   "id": "stroke_rinne_Head_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "りんね、いつもわたしたちの面倒を見てくれてるから、ご褒美だね！"
+    },
+    {
+     "who": 1,
+     "face": 103,
+     "text": "大げさなやつだな……だが、あなたに労ってもらえるのは、その、悪くない。"
+    }
+   ]
+  },
+  {
+   "category": "stroke_rinne_Face",
+   "id": "stroke_rinne_Face_001",
+   "lines": [
+    {
+     "who": 1,
+     "face": 104,
+     "text": "お、おい、いきなり顔に触るな。びっくりするだろう。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "えへへ、りんねのびっくりした顔、珍しいから見られてラッキーだね！"
+    }
+   ]
+  },
+  {
+   "category": "stroke_rinne_Face",
+   "id": "stroke_rinne_Face_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 103,
+     "text": "頬をなでるなんて、きみは本当に怖いもの知らずだな……。"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "ほら、そんなに優しい目で見るなよ。調子が狂っちまう。"
+    }
+   ]
+  },
+  {
+   "category": "stroke_rinne_Face",
+   "id": "stroke_rinne_Face_003",
+   "lines": [
+    {
+     "who": 1,
+     "face": 105,
+     "text": "俺の顔になにかついているのか？ただ触りたいだけだって？"
+    },
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、りんねの耳、あかい。"
+    },
+    {
+     "who": 0,
+     "face": 8,
+     "text": "ほんとだー！照れて口数が減ってるよ！"
+    }
+   ]
+  },
+  {
+   "category": "stroke_rinne_Face",
+   "id": "stroke_rinne_Face_004",
+   "lines": [
+    {
+     "who": 1,
+     "face": 103,
+     "text": "……わかった、好きにしろ。きみの手は不思議と落ち着くからな。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "りんねが素直になった！きみにはかなわないみたいだね！"
+    }
+   ]
+  },
+  {
+   "category": "stroke_bell_Head",
+   "id": "stroke_bell_Head_001",
+   "lines": [
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん……ごろごろ……きもちいい。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "わあ、ベルが小さな鈴の音を鳴らして喜んでるよ！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "こいつの頭はふわふわだからな、触り心地がいいのも無理はない。"
+    }
+   ]
+  },
+  {
+   "category": "stroke_bell_Head",
+   "id": "stroke_bell_Head_002",
+   "lines": [
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ふわあ……なでなで、すき……zzz"
+    },
+    {
+     "who": 0,
+     "face": 0,
+     "text": "あ、なでられてそのまま寝ちゃったみたい。しあわせそうな顔だね！"
+    }
+   ]
+  },
+  {
+   "category": "stroke_bell_Head",
+   "id": "stroke_bell_Head_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、ちりん。きみの手、やさしい。"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "ベルがここまで懐くのも珍しいな。あなたのことが本当に気に入ってるんだろう。"
+    }
+   ]
+  },
+  {
+   "category": "stroke_bell_Head",
+   "id": "stroke_bell_Head_004",
+   "lines": [
+    {
+     "who": 2,
+     "face": 13,
+     "text": "んー……もっと、なでて。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ベルがおねだりしてるよ！わたしも一緒になでなでしちゃおうかな！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "ふたりに囲まれたら、さすがのベルも大満足だろうな。"
+    }
+   ]
+  },
+  {
+   "category": "stroke_bell_Body",
+   "id": "stroke_bell_Body_001",
+   "lines": [
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、くすぐったい……でも、ふわふわ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ベルのおなか、わたあめみたいに柔らかくてきもちいいね！"
+    }
+   ]
+  },
+  {
+   "category": "stroke_bell_Body",
+   "id": "stroke_bell_Body_002",
+   "lines": [
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ごろごろ……あたたかい……zzz"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "完全に溶けてるな。きみの指先は魔法でも使えるのか？"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "きっと優しさの魔法だよ！ベル、とってもご機嫌だね！"
+    }
+   ]
+  },
+  {
+   "category": "stroke_bell_Body",
+   "id": "stroke_bell_Body_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん！そこ、きもちいい場所。"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "いい音が鳴ったな。鈴の精霊だけあって、嬉しいと音色まで澄んで聞こえるぜ。"
+    }
+   ]
+  },
+  {
+   "category": "stroke_bell_Body",
+   "id": "stroke_bell_Body_004",
+   "lines": [
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ふわあ……毛並み、つやつやになった。"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、ありがとう。"
+    }
+   ]
+  },
+  {
+   "category": "wheel_sakura",
+   "id": "wheel_sakura_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "わわわっ、くるくる回されて目が回っちゃうよー！"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "おいおい、さくらはスクロールバーじゃないんだぞ。ほどほどにしてやれ。"
+    },
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ちりん、さくらが回る。"
+    }
+   ]
+  },
+  {
+   "category": "wheel_sakura",
+   "id": "wheel_sakura_002",
+   "lines": [
+    {
+     "who": 0,
+     "face": 5,
+     "text": "あうー、そんなにコロコロされたら、くすぐったくて立ってられないよ！"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "でも、なんだかダンスしてるみたいでちょっと楽しいかも！"
+    }
+   ]
+  },
+  {
+   "category": "wheel_sakura",
+   "id": "wheel_sakura_003",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "きゃっ、桜の花びらみたいにくるくる飛んでいっちゃいそうだよ！"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "ほら、転ぶなよ。きみもいたずら好きなんだからな。"
+    }
+   ]
+  },
+  {
+   "category": "wheel_sakura",
+   "id": "wheel_sakura_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 5,
+     "text": "わたしの上でホイールを回しても、新しいページは出てこないよー！"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、笑顔がでてきた。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "あっ、たしかに！ベル、うまいこと言うね！"
+    }
+   ]
+  },
+  {
+   "category": "wheel_rinne",
+   "id": "wheel_rinne_001",
+   "lines": [
+    {
+     "who": 1,
+     "face": 105,
+     "text": "おい、俺の体の上でコロコロ回すのはやめろ。落ち着かないだろう。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "りんねが困ってるよ！なんだかマッサージ機みたいでおもしろいね！"
+    }
+   ]
+  },
+  {
+   "category": "wheel_rinne",
+   "id": "wheel_rinne_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 104,
+     "text": "っと、なんだ？急に視界が上下に揺れた気がしたぞ。"
+    },
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、スクロールされた。"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "俺を画面の書類か何かと間違えてるんじゃないだろうな、きみは。"
+    }
+   ]
+  },
+  {
+   "category": "wheel_rinne",
+   "id": "wheel_rinne_003",
+   "lines": [
+    {
+     "who": 1,
+     "face": 105,
+     "text": "やれやれ、そんなに回しても俺からは何も出てこないぞ。"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "暇を持て余してるなら、話し相手くらいにはなってやるから手を止めろ。"
+    }
+   ]
+  },
+  {
+   "category": "wheel_rinne",
+   "id": "wheel_rinne_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 8,
+     "text": "きみきみ、もっと回したらりんねの秘密が見られるかもよ！"
+    },
+    {
+     "who": 1,
+     "face": 106,
+     "text": "こら、さくら！変なことを吹き込むんじゃない！"
+    }
+   ]
+  },
+  {
+   "category": "wheel_bell",
+   "id": "wheel_bell_001",
+   "lines": [
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ちりんちりん！ころころ、転がっちゃう！"
+    },
+    {
+     "who": 0,
+     "face": 4,
+     "text": "わあっ、ベルがまんまるだから本当に転がっていきそうだよ！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "おっと、捕まえた。ベルで玉遊びをするのは感心しないな。"
+    }
+   ]
+  },
+  {
+   "category": "wheel_bell",
+   "id": "wheel_bell_002",
+   "lines": [
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ふわあ……ゆらゆら、ゆりかごみたい……zzz"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "目が回るどころか、気持ちよさそうに寝ちゃったね！"
+    }
+   ]
+  },
+  {
+   "category": "wheel_bell",
+   "id": "wheel_bell_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、せなか、コロコロきもちいい。"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "まさかホイールを毛づくろい代わりにされるとは、きみも予想外だろう。"
+    }
+   ]
+  },
+  {
+   "category": "wheel_bell",
+   "id": "wheel_bell_004",
+   "lines": [
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ぐるぐる……鈴の音がまざる……ちりん。"
+    },
+    {
+     "who": 0,
+     "face": 5,
+     "text": "ベルの目がうずまきになってるよ！よしよし、もう回さないでね！"
+    }
+   ]
+  },
+  {
+   "category": "vanish_selecting",
+   "id": "vanish_selecting_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "えっ……消滅って、わたしたちとお別れしちゃうってことかな？"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "おい、冗談だろう。まだきみと話したいことが山ほどあるんだがな。"
+    },
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ちりん……さびしい。"
+    }
+   ]
+  },
+  {
+   "category": "vanish_selecting",
+   "id": "vanish_selecting_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "……そのメニューを選ぶということは、俺たちが邪魔になったのか？"
+    },
+    {
+     "who": 0,
+     "face": 5,
+     "text": "そんなことないよね？きみの押し間違いだよね、そうだと言ってよー！"
+    }
+   ]
+  },
+  {
+   "category": "vanish_selecting",
+   "id": "vanish_selecting_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん……ほんとうに、おわかれ？"
+    },
+    {
+     "who": 0,
+     "face": 5,
+     "text": "ベルも不安そうにしてるよ。わたしたち、きみのそばにいたいな……。"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "決めるのはあなただが、もう一度だけ考え直してくれないか。"
+    }
+   ]
+  },
+  {
+   "category": "vanish_selecting",
+   "id": "vanish_selecting_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 5,
+     "text": "なんだか画面の風が冷たくなった気がするよ……。"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "慌てるな、さくら。きみがどんな選択をするか、黙って待とう。"
+    }
+   ]
+  },
+  {
+   "category": "vanish_selected",
+   "id": "vanish_selected_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 5,
+     "text": "そっか……お別れなんだね。今まで一緒にいてくれて、本当にありがとう！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "きみのデスクトップで過ごした日々、悪くなかったぜ。元気でな。"
+    },
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん……またね、きっと。"
+    }
+   ]
+  },
+  {
+   "category": "vanish_selected",
+   "id": "vanish_selected_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "行くぞ、さくら、ベル。最後の挨拶くらい、笑ってしようぜ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "うん！きみのこと、ずっと忘れないよ！桜を見るたびに思い出してね！"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、ありがとう。だいすき。"
+    }
+   ]
+  },
+  {
+   "category": "vanish_selected",
+   "id": "vanish_selected_003",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "わたしたちは３人一緒だから、どこへ行っても大丈夫だよ！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "ああ。あなたのこれからの毎日に、いい風が吹くことを祈ってるよ。"
+    }
+   ]
+  },
+  {
+   "category": "vanish_cancel",
+   "id": "vanish_cancel_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "わあっ、やめてくれたんだね！よかったー、ほっとしたよ！"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "まったく、心臓に悪い冗談はやめてくれよな。"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん！まだ、いっしょ！"
+    }
+   ]
+  },
+  {
+   "category": "vanish_cancel",
+   "id": "vanish_cancel_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 101,
+     "text": "……ふう、やっぱり押し間違いだったみたいだな。安心したぞ。"
+    },
+    {
+     "who": 0,
+     "face": 3,
+     "text": "りんねったら、強がってたけどすごく心配してたんだよ！これからもよろしくね！"
+    }
+   ]
+  },
+  {
+   "category": "vanish_cancel",
+   "id": "vanish_cancel_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ふわあ……よかった、また寝られる……zzz"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ベルったらもう安心してお昼寝しちゃった！わたしもきみのそばにいられて幸せだよ！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "これからも３人とひとり、仲良くやっていこうぜ。"
+    }
+   ]
+  },
+  {
+   "category": "vanish_hold",
+   "id": "vanish_hold_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 5,
+     "text": "あ、あのね、ボタンをじっと押されると、どきどきしちゃうよ……。"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "迷っているなら、手を離してくれ。俺たちはまだここにいたいからな。"
+    }
+   ]
+  },
+  {
+   "category": "vanish_hold",
+   "id": "vanish_hold_002",
+   "lines": [
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ちりん……ゆび、とまってる。"
+    },
+    {
+     "who": 0,
+     "face": 5,
+     "text": "きみも迷ってくれてるのかな？やっぱり、お別れなんてやめにしようよ！"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "ああ、きみの 마음이決まるまで、俺たちは逃げも隠れもしないさ。"
+    }
+   ]
+  },
+  {
+   "category": "vanished",
+   "id": "vanished_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "あっ……<<R0>>がいなくなっちゃったみたいだよ。"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "そうか、旅立ったんだな。あいつらがいなくなると、少し寂しくなるな。"
+    },
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん……げんきでね。"
+    }
+   ]
+  },
+  {
+   "category": "vanished",
+   "id": "vanished_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "<<R0>>とお別れしたんだな。きみにとっても思い出があっただろう。"
+    },
+    {
+     "who": 0,
+     "face": 0,
+     "text": "<<R0>>の分まで、わたしたちがきみのそばをにぎやかにするからね！"
+    }
+   ]
+  },
+  {
+   "category": "install_begin",
+   "id": "install_begin_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "わあ、新しいデータの包みを開けてるよ！何が入ってるのかな？"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "インストールの最中だ。終わるまで少し待っていようぜ。"
+    }
+   ]
+  },
+  {
+   "category": "install_begin",
+   "id": "install_begin_002",
+   "lines": [
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、なにか増えてる。"
+    },
+    {
+     "who": 0,
+     "face": 0,
+     "text": "ほんとだ！きみが新しい仲間や道具を入れてくれてるんだね！"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "うまく組み込めるよう、邪魔をせずに見守っていよう。"
+    }
+   ]
+  },
+  {
+   "category": "install_begin",
+   "id": "install_begin_003",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "導入作業が始まったな。こういう荷ほどきの瞬間は少し楽しみだろう。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "うんっ、箱を開けるときみたいでわくわくするね！"
+    }
+   ]
+  },
+  {
+   "category": "install_complete",
+   "id": "install_complete_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "やったあ、<<R1>>のインストールが無事に終わったよ！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "よし、問題なく入ったみたいだな。さっそく使ってみるといい。"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、おめでとう！"
+    }
+   ]
+  },
+  {
+   "category": "install_complete",
+   "id": "install_complete_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "<<R1>>の導入が完了したぞ。きみのデスクトップがまた便利になるな。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "<<R1>>ってどんなものなのかな？わたしも見てみたいな！"
+    }
+   ]
+  },
+  {
+   "category": "install_complete",
+   "id": "install_complete_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、<<R1>>、準備よし。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ベルが太鼓判を押してくれたよ！きみ、よかったね！"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "新しい仲間が増えるのはいいことだ。大事に使ってやれよ。"
+    }
+   ]
+  },
+  {
+   "category": "install_complete",
+   "id": "install_complete_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "<<R1>>が使えるようになったみたいだね！"
+    },
+    {
+     "who": 0,
+     "face": 8,
+     "text": "お手伝い大成功だよ、えっへん！"
+    }
+   ]
+  },
+  {
+   "category": "install_failure",
+   "id": "install_failure_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 5,
+     "text": "あれれ、インストールがうまくいかなかったみたいだよ……。"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "ファイルが壊れているか、形式が違うのかもしれないな。一度確認してみろ。"
+    }
+   ]
+  },
+  {
+   "category": "install_failure",
+   "id": "install_failure_002",
+   "lines": [
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ちりん……つっかえた。"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "どうやら途中で失敗したようだ。きみ、もう一度やり直してみてくれ。"
+    },
+    {
+     "who": 0,
+     "face": 5,
+     "text": "次こそはうまくいくように、わたしが応援してるからね！"
+    }
+   ]
+  },
+  {
+   "category": "install_failure",
+   "id": "install_failure_003",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "わわっ、エラーが出ちゃったかな？"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "焦ることはない。対応しているデータかどうか調べてみるといいだろう。"
+    }
+   ]
+  },
+  {
+   "category": "install_refuse",
+   "id": "install_refuse_001",
+   "lines": [
+    {
+     "who": 1,
+     "face": 105,
+     "text": "悪いが、そいつは俺たちのところでは受け取れないデータみたいだぞ。"
+    },
+    {
+     "who": 0,
+     "face": 5,
+     "text": "ごめんね、他の子宛ての荷物かもしれないから、確かめてみてね！"
+    }
+   ]
+  },
+  {
+   "category": "install_refuse",
+   "id": "install_refuse_002",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "あれっ、このファイルはインストールできないって跳ね返されちゃったよ。"
+    },
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、サイズちがう。"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "専用の場所に入れてやる必要があるんだろう。きみの方で確認してくれ。"
+    }
+   ]
+  },
+  {
+   "category": "install_complete_all",
+   "id": "install_complete_all_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "わあい、まとめて入れてたインストールがぜんぶ終わったよ！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "たくさんあったが、無事に片付いてよかったな。ご苦労さん。"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、ぜんぶ入った！"
+    }
+   ]
+  },
+  {
+   "category": "install_complete_all",
+   "id": "install_complete_all_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "すべての導入作業が完了したぞ。ずいぶん大掛かりな引っ越しだったな。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "画面の中がとってもにぎやかになりそうだね！楽しみだなあ！"
+    }
+   ]
+  },
+  {
+   "category": "install_complete_all",
+   "id": "install_complete_all_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ふわあ……おわった……zzz"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "全部終わるまでベルも起きて待ってたんだよ。きみもおつかれさま！"
+    }
+   ]
+  },
+  {
+   "category": "closeall",
+   "id": "closeall_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 0,
+     "text": "みんなまとめておやすみの時間だね！今日も一日ありがとう！"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "ああ、全部引き上げるとしよう。きみもゆっくり休むんだぞ。"
+    },
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ちりん……またあした……zzz"
+    }
+   ]
+  },
+  {
+   "category": "closeall",
+   "id": "closeall_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "全員終了の合図だな。忘れ物はないか、さくら、ベル。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ばっちりだよ！きみ、また今度わたしたちを呼んでね！"
+    }
+   ]
+  },
+  {
+   "category": "closeall",
+   "id": "closeall_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、みんなでお帰りの時間。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "にぎやかだったデスクトップが静かになるね。また会えるのを楽しみにしてるよ！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "じゃあな。次に呼ばれるときまで、いい夢を見ろよ。"
+    }
+   ]
+  },
+  {
+   "category": "closeall",
+   "id": "closeall_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 7,
+     "text": "ふわあ、わたしたちもみんなと一緒にお部屋へ戻るね。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "きみも体を冷やさないようにして、ぐっすり休んでね！"
+    }
+   ]
+  },
+  {
+   "category": "ghost_changing",
+   "id": "ghost_changing_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 0,
+     "text": "つぎは<<R0>>と交代なんだね！バトンタッチしてくるよ！"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "ああ、俺たちは少し裏で休ませてもらうぜ。<<R0>>にもよろしくな。"
+    },
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、いってらっしゃい。"
+    }
+   ]
+  },
+  {
+   "category": "ghost_changing",
+   "id": "ghost_changing_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "<<R0>>に代わるんだな。また俺たちと話したくなったら、いつでも呼んでくれ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "<<R0>>にきみのことをお願いしてくるね！またあとでね！"
+    }
+   ]
+  },
+  {
+   "category": "ghost_changing",
+   "id": "ghost_changing_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ふわあ……<<R0>>と交代……zzz"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ベルは控え室でぐっすり寝そうだね。それじゃあ、<<R0>>を呼んでくるよ！"
+    }
+   ]
+  },
+  {
+   "category": "ghost_changing",
+   "id": "ghost_changing_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "<<R0>>とチェンジだね！鈴を鳴らして合図してくるよ、ちりーん！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "騒がしいやつだな。ほら、<<R0>>が待ってるから行くぞ。"
+    }
+   ]
+  },
+  {
+   "category": "ghost_changed",
+   "id": "ghost_changed_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "<<R0>>からバトンを受け取ったよ！ただいまー！"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "よう、待たせたな。<<R0>>とは楽しく話せたか？"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、ただいま！"
+    }
+   ]
+  },
+  {
+   "category": "ghost_changed",
+   "id": "ghost_changed_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "<<R0>>と交代して戻ってきたぞ。ここから先は俺たちが相手をしよう。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "またきみの画面に来られてうれしいな！何して遊ぶ？"
+    }
+   ]
+  },
+  {
+   "category": "ghost_changed",
+   "id": "ghost_changed_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、<<R0>>、おつかれさま。"
+    },
+    {
+     "who": 0,
+     "face": 0,
+     "text": "<<R0>>、帰りに手を振ってくれたよ！さあ、ここからはわたしたちの番だね！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "ああ、またよろしく頼むぜ、あなた。"
+    }
+   ]
+  },
+  {
+   "category": "ghost_changed",
+   "id": "ghost_changed_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "<<R0>>と入れ替わりでやってきたよ！桜の花びらも一緒にお引っ越しだね！"
+    },
+    {
+     "who": 0,
+     "face": 3,
+     "text": "えへへ、呼んでくれてありがとう！"
+    }
+   ]
+  },
+  {
+   "category": "ghost_calling",
+   "id": "ghost_calling_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "<<R0>>を呼ぶんだね！おーい、こっちだよー！"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "大声を出さなくてもすぐ来るさ。にぎやかになりそうだな。"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、<<R0>>、くる！"
+    }
+   ]
+  },
+  {
+   "category": "ghost_calling",
+   "id": "ghost_calling_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "<<R0>>を呼び出すんだな。場所を少し空けておいてやるか。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "うん！<<R0>>と一緒に画面にいられるなんて、わくわくするね！"
+    }
+   ]
+  },
+  {
+   "category": "ghost_calling",
+   "id": "ghost_calling_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん……鈴の音で、<<R0>>をよぶ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ベルの鈴の音が響いたから、きっと<<R0>>もすぐ来てくれるよ！"
+    }
+   ]
+  },
+  {
+   "category": "battery_low",
+   "id": "battery_low_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "あっ、きみ大変だよ！バッテリーが残り<<R0>>パーセントになってるよ！"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "そろそろ充電器をつないだ方がいいんじゃないか。途中で切れたら困るだろう。"
+    },
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ちりん、おなかすいた音。"
+    }
+   ]
+  },
+  {
+   "category": "battery_low",
+   "id": "battery_low_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "おい、バッテリーの残量が<<R0>>パーセントまで減っているぞ。"
+    },
+    {
+     "who": 0,
+     "face": 5,
+     "text": "ほんとだ！パソコンさんにごはんをあげないと、元気なくなっちゃうよ！"
+    }
+   ]
+  },
+  {
+   "category": "battery_low",
+   "id": "battery_low_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん……のこり、<<R0>>パーセント。"
+    },
+    {
+     "who": 0,
+     "face": 4,
+     "text": "ベルが教えてくれたよ！コードはどこにあるかな？"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "まだ少し余裕はあるが、忘れないうちに電源を確保しておけよ。"
+    }
+   ]
+  },
+  {
+   "category": "battery_low",
+   "id": "battery_low_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 5,
+     "text": "あのね、電気が残り<<R0>>パーセントみたいだよ。"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "作業中のデータがあるなら、今のうちに保存しておいた方が安心だな。"
+    }
+   ]
+  },
+  {
+   "category": "battery_critical",
+   "id": "battery_critical_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "わわっ、バッテリーがもう<<R0>>パーセントしかないよ！消えちゃうよー！"
+    },
+    {
+     "who": 1,
+     "face": 106,
+     "text": "おい、冗談じゃなくギリギリだぞ！今すぐ電源をつなぐか保存しろ！"
+    },
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ちりんちりん！ピンチ！"
+    }
+   ]
+  },
+  {
+   "category": "battery_critical",
+   "id": "battery_critical_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 104,
+     "text": "まずいぞ、残量が<<R0>>パーセントだ！いつ画面が落ちてもおかしくない！"
+    },
+    {
+     "who": 0,
+     "face": 5,
+     "text": "きみ、いそいでー！わたしたちまで真っ暗になっちゃうよ！"
+    }
+   ]
+  },
+  {
+   "category": "battery_critical",
+   "id": "battery_critical_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ちりん……<<R0>>パーセント、もう限界。"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "ベルの声まで震えてるぞ。早く充電ケーブルを挿してくれ、頼むから！"
+    },
+    {
+     "who": 0,
+     "face": 5,
+     "text": "間に合いますようにーっ！"
+    }
+   ]
+  },
+  {
+   "category": "battery_critical",
+   "id": "battery_critical_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "きゃあ、残りが<<R0>>パーセントだよ！画面が眠りそうになってるよ！"
+    },
+    {
+     "who": 1,
+     "face": 106,
+     "text": "急げ、あなた！作業の保存だけでも最優先で済ませるんだ！"
+    }
+   ]
+  },
+  {
+   "category": "network_offline",
+   "id": "network_offline_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "あれれ、インターネットの糸がぷつんって切れちゃったみたいだよ？"
+    },
+    {
+     "who": 1,
+     "face": 105,
+     "text": "通信が途絶えているな。電波の調子が悪いのか、設定が外れたんじゃないか。"
+    },
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、外の世界、とおい。"
+    }
+   ]
+  },
+  {
+   "category": "network_offline",
+   "id": "network_offline_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "おい、ネットがオフラインになっているぞ。作業に支障はないか？"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "でもでも、ネットがなくてもわたしたちはきみのすぐそばにいるからね！"
+    }
+   ]
+  },
+  {
+   "category": "network_offline",
+   "id": "network_offline_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ちりん……風がとまった。"
+    },
+    {
+     "who": 0,
+     "face": 5,
+     "text": "ほんとだ、通信の風が吹いてこないね。きみ、ルーターさん大丈夫かな？"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "焦らず接続を確かめてみろ。たまには静かな環境で作業するのも悪くないがな。"
+    }
+   ]
+  },
+  {
+   "category": "network_offline",
+   "id": "network_offline_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 0,
+     "text": "ネットワークが切れちゃったみたいだよ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "直るまでの間、わたしたちとゆっくりおしゃべりして待ってようよ！"
+    }
+   ]
+  },
+  {
+   "category": "network_online",
+   "id": "network_online_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "わあっ、インターネットがつながったよ！風の通り道が戻ってきたね！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "よし、オンラインに復帰したな。これでまた外の世界とやり取りできるぞ。"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、つながった！"
+    }
+   ]
+  },
+  {
+   "category": "network_online",
+   "id": "network_online_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "通信が回復したみたいだ。待っていた連絡があるなら確認しておくといい。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "よかったねー！またいろんなものが見られるようになって安心したよ！"
+    }
+   ]
+  },
+  {
+   "category": "network_online",
+   "id": "network_online_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、新しい風、吹いてきた。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "うん、ベルの鈴も嬉しそうに鳴ってるよ！ネットが直ってよかったね！"
+    }
+   ]
+  },
+  {
+   "category": "network_online",
+   "id": "network_online_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "やったあ、無事にオンラインになったよ！"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "やれやれ、一安心だな。きみも作業の続きに取り掛かれるだろう。"
+    }
+   ]
+  },
+  {
+   "category": "screensaver_start",
+   "id": "screensaver_start_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "わあ、画面にきれいな模様が動き出したよ！きみは休憩中かな？"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "スクリーンセーバーが動いたな。あなたが戻るまで、俺たちものんびりするか。"
+    },
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ふわあ……おやすみモード……zzz"
+    }
+   ]
+  },
+  {
+   "category": "screensaver_start",
+   "id": "screensaver_start_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "しばらく席を外しているみたいだな。画面の番は俺たちに任せておけ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "うんっ、きみが帰ってくるまで、ここでお留守番してるね！"
+    }
+   ]
+  },
+  {
+   "category": "screensaver_start",
+   "id": "screensaver_start_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 11,
+     "text": "ちりん……画面、ゆらゆら……zzz"
+    },
+    {
+     "who": 0,
+     "face": 7,
+     "text": "ほんとだね、見てたらわたしも少し眠くなってきちゃったかも……。"
+    }
+   ]
+  },
+  {
+   "category": "screensaver_end",
+   "id": "screensaver_end_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "あっ、きみが戻ってきた！おかえりなさーい！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "よう、いい気分転換はできたか？また一緒に頑張ろうぜ。"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、おかえり！"
+    }
+   ]
+  },
+  {
+   "category": "screensaver_end",
+   "id": "screensaver_end_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "スクリーンセーバーが解除されたな。おかえり、待っていたぞ。"
+    },
+    {
+     "who": 0,
+     "face": 8,
+     "text": "ちゃーんと3人でいい子にお留守番してたんだよ！ほめてほめて！"
+    }
+   ]
+  },
+  {
+   "category": "screensaver_end",
+   "id": "screensaver_end_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ふわあ……あ、帰ってきた。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ベルも目を覚ましたみたい！きみがいると、やっぱり画面が明るくなるね！"
+    }
+   ]
+  },
+  {
+   "category": "display_change",
+   "id": "display_change_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "わわっ、なんだかお部屋の広さが急に変わったよ！"
+    },
+    {
+     "who": 1,
+     "face": 104,
+     "text": "おっと、画面の解像度かモニターの接続を切り替えたんだな。"
+    },
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ちりん、景色がひろい。"
+    }
+   ]
+  },
+  {
+   "category": "display_change",
+   "id": "display_change_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "ディスプレイの設定が変わったようだな。俺たちの立ち位置はここで問題ないか？"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "新しい眺めも新鮮でいいね！きみからわたしたち、ちゃんと見えてるかな？"
+    }
+   ]
+  },
+  {
+   "category": "display_change",
+   "id": "display_change_003",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "きゃっ、画面がぴかっとしてびっくりしたよ！"
+    },
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、引っ越しみたい。"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "部屋の模様替えみたいなものさ。きみが使いやすい広さが一番だからな。"
+    }
+   ]
+  },
+  {
+   "category": "file_drop",
+   "id": "file_drop_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 4,
+     "text": "わあっ、何かをわたしに持たせてくれたよ！これは何かな？"
+    },
+    {
+     "who": 1,
+     "face": 100,
+     "text": "ファイルを落としたみたいだな。俺たちに預けてどうするつもりだ？"
+    },
+    {
+     "who": 2,
+     "face": 10,
+     "text": "ちりん、食べものじゃない。"
+    }
+   ]
+  },
+  {
+   "category": "file_drop",
+   "id": "file_drop_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 105,
+     "text": "おっと、急に荷物を渡されても困るぞ。特別なファイルじゃないみたいだが。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "きみの大事な宝物を見せてくれたのかな？えへへ、うれしいな！"
+    }
+   ]
+  },
+  {
+   "category": "file_drop",
+   "id": "file_drop_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 12,
+     "text": "ちりん！あたまに、のっかった。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "わあ、ベルの頭にファイルが乗っちゃったよ！重くないかな？"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "ほら、どかしてやるからじっとしてろ。あなたも妙なところに落とすなよ。"
+    }
+   ]
+  },
+  {
+   "category": "file_drop",
+   "id": "file_drop_004",
+   "lines": [
+    {
+     "who": 0,
+     "face": 0,
+     "text": "このファイル、わたしたちに見せてくれたの？"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "中身はわからないけど、きみが作ったものならきっと素敵なんだろうね！"
+    }
+   ]
+  },
+  {
+   "category": "shell_changed",
+   "id": "shell_changed_001",
+   "lines": [
+    {
+     "who": 0,
+     "face": 1,
+     "text": "じゃじゃーん！<<R1>>に着替えてみたよ！どうかな、似合ってる？"
+    },
+    {
+     "who": 1,
+     "face": 103,
+     "text": "……悪くないんじゃないか。俺まで<<R1>>になるとは思わなかったがな。"
+    },
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、おしゃれ！"
+    }
+   ]
+  },
+  {
+   "category": "shell_changed",
+   "id": "shell_changed_002",
+   "lines": [
+    {
+     "who": 1,
+     "face": 100,
+     "text": "<<R1>>に切り替わったな。いつもと雰囲気が変わって新鮮な気分だ。"
+    },
+    {
+     "who": 0,
+     "face": 3,
+     "text": "えへへ、きみが選んでくれた<<R1>>、とっても気に入っちゃった！"
+    }
+   ]
+  },
+  {
+   "category": "shell_changed",
+   "id": "shell_changed_003",
+   "lines": [
+    {
+     "who": 2,
+     "face": 13,
+     "text": "ちりん、<<R1>>、ふわふわ。"
+    },
+    {
+     "who": 0,
+     "face": 1,
+     "text": "ベルも<<R1>>になってご機嫌みたいだよ！すてきな衣装をありがとうね！"
+    },
+    {
+     "who": 1,
+     "face": 101,
+     "text": "ああ、気分一新でまた楽しく過ごせそうだな。"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,425 @@
+# IT の祝日（2020〜2050年、言語: it_IT）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Capodanno
+2020/1/6,Epifania
+2020/4/12,Pasqua
+2020/4/13,Lunedì dell'Angelo
+2020/4/25,Anniversario della Liberazione
+2020/5/1,Festa del Lavoro
+2020/6/2,Festa della Repubblica
+2020/8/15,Assunzione della Beata Vergine Maria
+2020/11/1,Giorno dell'unità nazionale; Ognissanti
+2020/12/8,Immacolata Concezione
+2020/12/25,Natale
+2020/12/26,Santo Stefano
+2021/1/1,Capodanno
+2021/1/6,Epifania
+2021/4/4,Pasqua
+2021/4/5,Lunedì dell'Angelo
+2021/4/25,Anniversario della Liberazione
+2021/5/1,Festa del Lavoro
+2021/6/2,Festa della Repubblica
+2021/8/15,Assunzione della Beata Vergine Maria
+2021/11/1,Ognissanti
+2021/11/7,Giorno dell'unità nazionale
+2021/12/8,Immacolata Concezione
+2021/12/25,Natale
+2021/12/26,Santo Stefano
+2022/1/1,Capodanno
+2022/1/6,Epifania
+2022/4/17,Pasqua
+2022/4/18,Lunedì dell'Angelo
+2022/4/25,Anniversario della Liberazione
+2022/5/1,Festa del Lavoro
+2022/6/2,Festa della Repubblica
+2022/8/15,Assunzione della Beata Vergine Maria
+2022/11/1,Ognissanti
+2022/11/6,Giorno dell'unità nazionale
+2022/12/8,Immacolata Concezione
+2022/12/25,Natale
+2022/12/26,Santo Stefano
+2023/1/1,Capodanno
+2023/1/6,Epifania
+2023/4/9,Pasqua
+2023/4/10,Lunedì dell'Angelo
+2023/4/25,Anniversario della Liberazione
+2023/5/1,Festa del Lavoro
+2023/6/2,Festa della Repubblica
+2023/8/15,Assunzione della Beata Vergine Maria
+2023/11/1,Ognissanti
+2023/11/5,Giorno dell'unità nazionale
+2023/12/8,Immacolata Concezione
+2023/12/25,Natale
+2023/12/26,Santo Stefano
+2024/1/1,Capodanno
+2024/1/6,Epifania
+2024/3/31,Pasqua
+2024/4/1,Lunedì dell'Angelo
+2024/4/25,Anniversario della Liberazione
+2024/5/1,Festa del Lavoro
+2024/6/2,Festa della Repubblica
+2024/8/15,Assunzione della Beata Vergine Maria
+2024/11/1,Ognissanti
+2024/11/3,Giorno dell'unità nazionale
+2024/12/8,Immacolata Concezione
+2024/12/25,Natale
+2024/12/26,Santo Stefano
+2025/1/1,Capodanno
+2025/1/6,Epifania
+2025/4/20,Pasqua
+2025/4/21,Lunedì dell'Angelo
+2025/4/25,Anniversario della Liberazione
+2025/5/1,Festa del Lavoro
+2025/6/2,Festa della Repubblica
+2025/8/15,Assunzione della Beata Vergine Maria
+2025/11/1,Ognissanti
+2025/11/2,Giorno dell'unità nazionale
+2025/12/8,Immacolata Concezione
+2025/12/25,Natale
+2025/12/26,Santo Stefano
+2026/1/1,Capodanno
+2026/1/6,Epifania
+2026/4/5,Pasqua
+2026/4/6,Lunedì dell'Angelo
+2026/4/25,Anniversario della Liberazione
+2026/5/1,Festa del Lavoro
+2026/6/2,Festa della Repubblica
+2026/8/15,Assunzione della Beata Vergine Maria
+2026/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2026/11/1,Giorno dell'unità nazionale; Ognissanti
+2026/12/8,Immacolata Concezione
+2026/12/25,Natale
+2026/12/26,Santo Stefano
+2027/1/1,Capodanno
+2027/1/6,Epifania
+2027/3/28,Pasqua
+2027/3/29,Lunedì dell'Angelo
+2027/4/25,Anniversario della Liberazione
+2027/5/1,Festa del Lavoro
+2027/6/2,Festa della Repubblica
+2027/8/15,Assunzione della Beata Vergine Maria
+2027/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2027/11/1,Ognissanti
+2027/11/7,Giorno dell'unità nazionale
+2027/12/8,Immacolata Concezione
+2027/12/25,Natale
+2027/12/26,Santo Stefano
+2028/1/1,Capodanno
+2028/1/6,Epifania
+2028/4/16,Pasqua
+2028/4/17,Lunedì dell'Angelo
+2028/4/25,Anniversario della Liberazione
+2028/5/1,Festa del Lavoro
+2028/6/2,Festa della Repubblica
+2028/8/15,Assunzione della Beata Vergine Maria
+2028/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2028/11/1,Ognissanti
+2028/11/5,Giorno dell'unità nazionale
+2028/12/8,Immacolata Concezione
+2028/12/25,Natale
+2028/12/26,Santo Stefano
+2029/1/1,Capodanno
+2029/1/6,Epifania
+2029/4/1,Pasqua
+2029/4/2,Lunedì dell'Angelo
+2029/4/25,Anniversario della Liberazione
+2029/5/1,Festa del Lavoro
+2029/6/2,Festa della Repubblica
+2029/8/15,Assunzione della Beata Vergine Maria
+2029/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2029/11/1,Ognissanti
+2029/11/4,Giorno dell'unità nazionale
+2029/12/8,Immacolata Concezione
+2029/12/25,Natale
+2029/12/26,Santo Stefano
+2030/1/1,Capodanno
+2030/1/6,Epifania
+2030/4/21,Pasqua
+2030/4/22,Lunedì dell'Angelo
+2030/4/25,Anniversario della Liberazione
+2030/5/1,Festa del Lavoro
+2030/6/2,Festa della Repubblica
+2030/8/15,Assunzione della Beata Vergine Maria
+2030/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2030/11/1,Ognissanti
+2030/11/3,Giorno dell'unità nazionale
+2030/12/8,Immacolata Concezione
+2030/12/25,Natale
+2030/12/26,Santo Stefano
+2031/1/1,Capodanno
+2031/1/6,Epifania
+2031/4/13,Pasqua
+2031/4/14,Lunedì dell'Angelo
+2031/4/25,Anniversario della Liberazione
+2031/5/1,Festa del Lavoro
+2031/6/2,Festa della Repubblica
+2031/8/15,Assunzione della Beata Vergine Maria
+2031/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2031/11/1,Ognissanti
+2031/11/2,Giorno dell'unità nazionale
+2031/12/8,Immacolata Concezione
+2031/12/25,Natale
+2031/12/26,Santo Stefano
+2032/1/1,Capodanno
+2032/1/6,Epifania
+2032/3/28,Pasqua
+2032/3/29,Lunedì dell'Angelo
+2032/4/25,Anniversario della Liberazione
+2032/5/1,Festa del Lavoro
+2032/6/2,Festa della Repubblica
+2032/8/15,Assunzione della Beata Vergine Maria
+2032/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2032/11/1,Ognissanti
+2032/11/7,Giorno dell'unità nazionale
+2032/12/8,Immacolata Concezione
+2032/12/25,Natale
+2032/12/26,Santo Stefano
+2033/1/1,Capodanno
+2033/1/6,Epifania
+2033/4/17,Pasqua
+2033/4/18,Lunedì dell'Angelo
+2033/4/25,Anniversario della Liberazione
+2033/5/1,Festa del Lavoro
+2033/6/2,Festa della Repubblica
+2033/8/15,Assunzione della Beata Vergine Maria
+2033/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2033/11/1,Ognissanti
+2033/11/6,Giorno dell'unità nazionale
+2033/12/8,Immacolata Concezione
+2033/12/25,Natale
+2033/12/26,Santo Stefano
+2034/1/1,Capodanno
+2034/1/6,Epifania
+2034/4/9,Pasqua
+2034/4/10,Lunedì dell'Angelo
+2034/4/25,Anniversario della Liberazione
+2034/5/1,Festa del Lavoro
+2034/6/2,Festa della Repubblica
+2034/8/15,Assunzione della Beata Vergine Maria
+2034/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2034/11/1,Ognissanti
+2034/11/5,Giorno dell'unità nazionale
+2034/12/8,Immacolata Concezione
+2034/12/25,Natale
+2034/12/26,Santo Stefano
+2035/1/1,Capodanno
+2035/1/6,Epifania
+2035/3/25,Pasqua
+2035/3/26,Lunedì dell'Angelo
+2035/4/25,Anniversario della Liberazione
+2035/5/1,Festa del Lavoro
+2035/6/2,Festa della Repubblica
+2035/8/15,Assunzione della Beata Vergine Maria
+2035/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2035/11/1,Ognissanti
+2035/11/4,Giorno dell'unità nazionale
+2035/12/8,Immacolata Concezione
+2035/12/25,Natale
+2035/12/26,Santo Stefano
+2036/1/1,Capodanno
+2036/1/6,Epifania
+2036/4/13,Pasqua
+2036/4/14,Lunedì dell'Angelo
+2036/4/25,Anniversario della Liberazione
+2036/5/1,Festa del Lavoro
+2036/6/2,Festa della Repubblica
+2036/8/15,Assunzione della Beata Vergine Maria
+2036/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2036/11/1,Ognissanti
+2036/11/2,Giorno dell'unità nazionale
+2036/12/8,Immacolata Concezione
+2036/12/25,Natale
+2036/12/26,Santo Stefano
+2037/1/1,Capodanno
+2037/1/6,Epifania
+2037/4/5,Pasqua
+2037/4/6,Lunedì dell'Angelo
+2037/4/25,Anniversario della Liberazione
+2037/5/1,Festa del Lavoro
+2037/6/2,Festa della Repubblica
+2037/8/15,Assunzione della Beata Vergine Maria
+2037/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2037/11/1,Giorno dell'unità nazionale; Ognissanti
+2037/12/8,Immacolata Concezione
+2037/12/25,Natale
+2037/12/26,Santo Stefano
+2038/1/1,Capodanno
+2038/1/6,Epifania
+2038/4/25,Anniversario della Liberazione; Pasqua
+2038/4/26,Lunedì dell'Angelo
+2038/5/1,Festa del Lavoro
+2038/6/2,Festa della Repubblica
+2038/8/15,Assunzione della Beata Vergine Maria
+2038/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2038/11/1,Ognissanti
+2038/11/7,Giorno dell'unità nazionale
+2038/12/8,Immacolata Concezione
+2038/12/25,Natale
+2038/12/26,Santo Stefano
+2039/1/1,Capodanno
+2039/1/6,Epifania
+2039/4/10,Pasqua
+2039/4/11,Lunedì dell'Angelo
+2039/4/25,Anniversario della Liberazione
+2039/5/1,Festa del Lavoro
+2039/6/2,Festa della Repubblica
+2039/8/15,Assunzione della Beata Vergine Maria
+2039/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2039/11/1,Ognissanti
+2039/11/6,Giorno dell'unità nazionale
+2039/12/8,Immacolata Concezione
+2039/12/25,Natale
+2039/12/26,Santo Stefano
+2040/1/1,Capodanno
+2040/1/6,Epifania
+2040/4/1,Pasqua
+2040/4/2,Lunedì dell'Angelo
+2040/4/25,Anniversario della Liberazione
+2040/5/1,Festa del Lavoro
+2040/6/2,Festa della Repubblica
+2040/8/15,Assunzione della Beata Vergine Maria
+2040/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2040/11/1,Ognissanti
+2040/11/4,Giorno dell'unità nazionale
+2040/12/8,Immacolata Concezione
+2040/12/25,Natale
+2040/12/26,Santo Stefano
+2041/1/1,Capodanno
+2041/1/6,Epifania
+2041/4/21,Pasqua
+2041/4/22,Lunedì dell'Angelo
+2041/4/25,Anniversario della Liberazione
+2041/5/1,Festa del Lavoro
+2041/6/2,Festa della Repubblica
+2041/8/15,Assunzione della Beata Vergine Maria
+2041/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2041/11/1,Ognissanti
+2041/11/3,Giorno dell'unità nazionale
+2041/12/8,Immacolata Concezione
+2041/12/25,Natale
+2041/12/26,Santo Stefano
+2042/1/1,Capodanno
+2042/1/6,Epifania
+2042/4/6,Pasqua
+2042/4/7,Lunedì dell'Angelo
+2042/4/25,Anniversario della Liberazione
+2042/5/1,Festa del Lavoro
+2042/6/2,Festa della Repubblica
+2042/8/15,Assunzione della Beata Vergine Maria
+2042/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2042/11/1,Ognissanti
+2042/11/2,Giorno dell'unità nazionale
+2042/12/8,Immacolata Concezione
+2042/12/25,Natale
+2042/12/26,Santo Stefano
+2043/1/1,Capodanno
+2043/1/6,Epifania
+2043/3/29,Pasqua
+2043/3/30,Lunedì dell'Angelo
+2043/4/25,Anniversario della Liberazione
+2043/5/1,Festa del Lavoro
+2043/6/2,Festa della Repubblica
+2043/8/15,Assunzione della Beata Vergine Maria
+2043/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2043/11/1,Giorno dell'unità nazionale; Ognissanti
+2043/12/8,Immacolata Concezione
+2043/12/25,Natale
+2043/12/26,Santo Stefano
+2044/1/1,Capodanno
+2044/1/6,Epifania
+2044/4/17,Pasqua
+2044/4/18,Lunedì dell'Angelo
+2044/4/25,Anniversario della Liberazione
+2044/5/1,Festa del Lavoro
+2044/6/2,Festa della Repubblica
+2044/8/15,Assunzione della Beata Vergine Maria
+2044/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2044/11/1,Ognissanti
+2044/11/6,Giorno dell'unità nazionale
+2044/12/8,Immacolata Concezione
+2044/12/25,Natale
+2044/12/26,Santo Stefano
+2045/1/1,Capodanno
+2045/1/6,Epifania
+2045/4/9,Pasqua
+2045/4/10,Lunedì dell'Angelo
+2045/4/25,Anniversario della Liberazione
+2045/5/1,Festa del Lavoro
+2045/6/2,Festa della Repubblica
+2045/8/15,Assunzione della Beata Vergine Maria
+2045/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2045/11/1,Ognissanti
+2045/11/5,Giorno dell'unità nazionale
+2045/12/8,Immacolata Concezione
+2045/12/25,Natale
+2045/12/26,Santo Stefano
+2046/1/1,Capodanno
+2046/1/6,Epifania
+2046/3/25,Pasqua
+2046/3/26,Lunedì dell'Angelo
+2046/4/25,Anniversario della Liberazione
+2046/5/1,Festa del Lavoro
+2046/6/2,Festa della Repubblica
+2046/8/15,Assunzione della Beata Vergine Maria
+2046/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2046/11/1,Ognissanti
+2046/11/4,Giorno dell'unità nazionale
+2046/12/8,Immacolata Concezione
+2046/12/25,Natale
+2046/12/26,Santo Stefano
+2047/1/1,Capodanno
+2047/1/6,Epifania
+2047/4/14,Pasqua
+2047/4/15,Lunedì dell'Angelo
+2047/4/25,Anniversario della Liberazione
+2047/5/1,Festa del Lavoro
+2047/6/2,Festa della Repubblica
+2047/8/15,Assunzione della Beata Vergine Maria
+2047/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2047/11/1,Ognissanti
+2047/11/3,Giorno dell'unità nazionale
+2047/12/8,Immacolata Concezione
+2047/12/25,Natale
+2047/12/26,Santo Stefano
+2048/1/1,Capodanno
+2048/1/6,Epifania
+2048/4/5,Pasqua
+2048/4/6,Lunedì dell'Angelo
+2048/4/25,Anniversario della Liberazione
+2048/5/1,Festa del Lavoro
+2048/6/2,Festa della Repubblica
+2048/8/15,Assunzione della Beata Vergine Maria
+2048/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2048/11/1,Giorno dell'unità nazionale; Ognissanti
+2048/12/8,Immacolata Concezione
+2048/12/25,Natale
+2048/12/26,Santo Stefano
+2049/1/1,Capodanno
+2049/1/6,Epifania
+2049/4/18,Pasqua
+2049/4/19,Lunedì dell'Angelo
+2049/4/25,Anniversario della Liberazione
+2049/5/1,Festa del Lavoro
+2049/6/2,Festa della Repubblica
+2049/8/15,Assunzione della Beata Vergine Maria
+2049/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2049/11/1,Ognissanti
+2049/11/7,Giorno dell'unità nazionale
+2049/12/8,Immacolata Concezione
+2049/12/25,Natale
+2049/12/26,Santo Stefano
+2050/1/1,Capodanno
+2050/1/6,Epifania
+2050/4/10,Pasqua
+2050/4/11,Lunedì dell'Angelo
+2050/4/25,Anniversario della Liberazione
+2050/5/1,Festa del Lavoro
+2050/6/2,Festa della Repubblica
+2050/8/15,Assunzione della Beata Vergine Maria
+2050/10/4,Festa nazionale di San Francesco d'Assisi, patrono d'Italia
+2050/11/1,Ognissanti
+2050/11/6,Giorno dell'unità nazionale
+2050/12/8,Immacolata Concezione
+2050/12/25,Natale
+2050/12/26,Santo Stefano

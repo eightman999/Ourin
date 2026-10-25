@@ -1,0 +1,391 @@
+# MK holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/7,Christmas Day
+2020/4/20,Easter Monday
+2020/5/1,Labor Day
+2020/5/24,Eid al-Fitr; Saints Cyril and Methodius Day
+2020/5/25,Eid al-Fitr (observed); Saints Cyril and Methodius Day (observed)
+2020/8/2,Republic Day
+2020/8/3,Republic Day (observed)
+2020/9/8,Independence Day
+2020/10/11,National Uprising Day
+2020/10/12,National Uprising Day (observed)
+2020/10/23,Macedonian Revolutionary Struggle Day
+2020/12/8,Saint Clement of Ohrid Day
+2021/1/1,New Year's Day
+2021/1/7,Christmas Day
+2021/5/1,Labor Day
+2021/5/3,Easter Monday
+2021/5/13,Eid al-Fitr
+2021/5/24,Saints Cyril and Methodius Day
+2021/8/2,Republic Day
+2021/9/8,Independence Day
+2021/10/11,National Uprising Day
+2021/10/23,Macedonian Revolutionary Struggle Day
+2021/12/8,Saint Clement of Ohrid Day
+2022/1/1,New Year's Day
+2022/1/7,Christmas Day
+2022/4/25,Easter Monday
+2022/5/1,Labor Day
+2022/5/2,Eid al-Fitr; Labor Day (observed)
+2022/5/24,Saints Cyril and Methodius Day
+2022/8/2,Republic Day
+2022/9/8,Independence Day
+2022/10/11,National Uprising Day
+2022/10/23,Macedonian Revolutionary Struggle Day
+2022/10/24,Macedonian Revolutionary Struggle Day (observed)
+2022/12/8,Saint Clement of Ohrid Day
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/1/7,Christmas Day
+2023/4/17,Easter Monday
+2023/4/21,Eid al-Fitr
+2023/5/1,Labor Day
+2023/5/24,Saints Cyril and Methodius Day
+2023/8/2,Republic Day
+2023/9/8,Independence Day
+2023/10/11,National Uprising Day
+2023/10/23,Macedonian Revolutionary Struggle Day
+2023/12/8,Saint Clement of Ohrid Day
+2024/1/1,New Year's Day
+2024/1/7,Christmas Day
+2024/1/8,Christmas Day (observed)
+2024/4/10,Eid al-Fitr
+2024/4/24,Election Day
+2024/5/1,Labor Day
+2024/5/6,Easter Monday
+2024/5/8,Election Day
+2024/5/24,Saints Cyril and Methodius Day
+2024/8/2,Republic Day
+2024/9/8,Independence Day
+2024/9/9,Independence Day (observed)
+2024/10/11,National Uprising Day
+2024/10/23,Macedonian Revolutionary Struggle Day
+2024/12/8,Saint Clement of Ohrid Day
+2024/12/9,Saint Clement of Ohrid Day (observed)
+2025/1/1,New Year's Day
+2025/1/7,Christmas Day
+2025/3/30,Eid al-Fitr
+2025/3/31,Eid al-Fitr (observed)
+2025/4/21,Easter Monday
+2025/5/1,Labor Day
+2025/5/24,Saints Cyril and Methodius Day
+2025/8/2,Republic Day
+2025/9/8,Independence Day
+2025/10/11,National Uprising Day
+2025/10/23,Macedonian Revolutionary Struggle Day
+2025/12/8,Saint Clement of Ohrid Day
+2026/1/1,New Year's Day
+2026/1/7,Christmas Day
+2026/3/20,Eid al-Fitr (estimated)
+2026/4/13,Easter Monday
+2026/5/1,Labor Day
+2026/5/24,Saints Cyril and Methodius Day
+2026/5/25,Saints Cyril and Methodius Day (observed)
+2026/8/2,Republic Day
+2026/8/3,Republic Day (observed)
+2026/9/8,Independence Day
+2026/10/11,National Uprising Day
+2026/10/12,National Uprising Day (observed)
+2026/10/23,Macedonian Revolutionary Struggle Day
+2026/12/8,Saint Clement of Ohrid Day
+2027/1/1,New Year's Day
+2027/1/7,Christmas Day
+2027/3/9,Eid al-Fitr (estimated)
+2027/5/1,Labor Day
+2027/5/3,Easter Monday
+2027/5/24,Saints Cyril and Methodius Day
+2027/8/2,Republic Day
+2027/9/8,Independence Day
+2027/10/11,National Uprising Day
+2027/10/23,Macedonian Revolutionary Struggle Day
+2027/12/8,Saint Clement of Ohrid Day
+2028/1/1,New Year's Day
+2028/1/7,Christmas Day
+2028/2/26,Eid al-Fitr (estimated)
+2028/4/17,Easter Monday
+2028/5/1,Labor Day
+2028/5/24,Saints Cyril and Methodius Day
+2028/8/2,Republic Day
+2028/9/8,Independence Day
+2028/10/11,National Uprising Day
+2028/10/23,Macedonian Revolutionary Struggle Day
+2028/12/8,Saint Clement of Ohrid Day
+2029/1/1,New Year's Day
+2029/1/7,Christmas Day
+2029/1/8,Christmas Day (observed)
+2029/2/14,Eid al-Fitr (estimated)
+2029/4/9,Easter Monday
+2029/5/1,Labor Day
+2029/5/24,Saints Cyril and Methodius Day
+2029/8/2,Republic Day
+2029/9/8,Independence Day
+2029/10/11,National Uprising Day
+2029/10/23,Macedonian Revolutionary Struggle Day
+2029/12/8,Saint Clement of Ohrid Day
+2030/1/1,New Year's Day
+2030/1/7,Christmas Day
+2030/2/4,Eid al-Fitr (estimated)
+2030/4/29,Easter Monday
+2030/5/1,Labor Day
+2030/5/24,Saints Cyril and Methodius Day
+2030/8/2,Republic Day
+2030/9/8,Independence Day
+2030/9/9,Independence Day (observed)
+2030/10/11,National Uprising Day
+2030/10/23,Macedonian Revolutionary Struggle Day
+2030/12/8,Saint Clement of Ohrid Day
+2030/12/9,Saint Clement of Ohrid Day (observed)
+2031/1/1,New Year's Day
+2031/1/7,Christmas Day
+2031/1/24,Eid al-Fitr (estimated)
+2031/4/14,Easter Monday
+2031/5/1,Labor Day
+2031/5/24,Saints Cyril and Methodius Day
+2031/8/2,Republic Day
+2031/9/8,Independence Day
+2031/10/11,National Uprising Day
+2031/10/23,Macedonian Revolutionary Struggle Day
+2031/12/8,Saint Clement of Ohrid Day
+2032/1/1,New Year's Day
+2032/1/7,Christmas Day
+2032/1/14,Eid al-Fitr (estimated)
+2032/5/1,Labor Day
+2032/5/3,Easter Monday
+2032/5/24,Saints Cyril and Methodius Day
+2032/8/2,Republic Day
+2032/9/8,Independence Day
+2032/10/11,National Uprising Day
+2032/10/23,Macedonian Revolutionary Struggle Day
+2032/12/8,Saint Clement of Ohrid Day
+2033/1/1,New Year's Day
+2033/1/2,Eid al-Fitr (estimated)
+2033/1/3,Eid al-Fitr (observed, estimated)
+2033/1/7,Christmas Day
+2033/4/25,Easter Monday
+2033/5/1,Labor Day
+2033/5/2,Labor Day (observed)
+2033/5/24,Saints Cyril and Methodius Day
+2033/8/2,Republic Day
+2033/9/8,Independence Day
+2033/10/11,National Uprising Day
+2033/10/23,Macedonian Revolutionary Struggle Day
+2033/10/24,Macedonian Revolutionary Struggle Day (observed)
+2033/12/8,Saint Clement of Ohrid Day
+2033/12/23,Eid al-Fitr (estimated)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/1/7,Christmas Day
+2034/4/10,Easter Monday
+2034/5/1,Labor Day
+2034/5/24,Saints Cyril and Methodius Day
+2034/8/2,Republic Day
+2034/9/8,Independence Day
+2034/10/11,National Uprising Day
+2034/10/23,Macedonian Revolutionary Struggle Day
+2034/12/8,Saint Clement of Ohrid Day
+2034/12/12,Eid al-Fitr (estimated)
+2035/1/1,New Year's Day
+2035/1/7,Christmas Day
+2035/1/8,Christmas Day (observed)
+2035/4/30,Easter Monday
+2035/5/1,Labor Day
+2035/5/24,Saints Cyril and Methodius Day
+2035/8/2,Republic Day
+2035/9/8,Independence Day
+2035/10/11,National Uprising Day
+2035/10/23,Macedonian Revolutionary Struggle Day
+2035/12/1,Eid al-Fitr (estimated)
+2035/12/8,Saint Clement of Ohrid Day
+2036/1/1,New Year's Day
+2036/1/7,Christmas Day
+2036/4/21,Easter Monday
+2036/5/1,Labor Day
+2036/5/24,Saints Cyril and Methodius Day
+2036/8/2,Republic Day
+2036/9/8,Independence Day
+2036/10/11,National Uprising Day
+2036/10/23,Macedonian Revolutionary Struggle Day
+2036/11/19,Eid al-Fitr (estimated)
+2036/12/8,Saint Clement of Ohrid Day
+2037/1/1,New Year's Day
+2037/1/7,Christmas Day
+2037/4/6,Easter Monday
+2037/5/1,Labor Day
+2037/5/24,Saints Cyril and Methodius Day
+2037/5/25,Saints Cyril and Methodius Day (observed)
+2037/8/2,Republic Day
+2037/8/3,Republic Day (observed)
+2037/9/8,Independence Day
+2037/10/11,National Uprising Day
+2037/10/12,National Uprising Day (observed)
+2037/10/23,Macedonian Revolutionary Struggle Day
+2037/11/8,Eid al-Fitr (estimated)
+2037/11/9,Eid al-Fitr (observed, estimated)
+2037/12/8,Saint Clement of Ohrid Day
+2038/1/1,New Year's Day
+2038/1/7,Christmas Day
+2038/4/26,Easter Monday
+2038/5/1,Labor Day
+2038/5/24,Saints Cyril and Methodius Day
+2038/8/2,Republic Day
+2038/9/8,Independence Day
+2038/10/11,National Uprising Day
+2038/10/23,Macedonian Revolutionary Struggle Day
+2038/10/29,Eid al-Fitr (estimated)
+2038/12/8,Saint Clement of Ohrid Day
+2039/1/1,New Year's Day
+2039/1/7,Christmas Day
+2039/4/18,Easter Monday
+2039/5/1,Labor Day
+2039/5/2,Labor Day (observed)
+2039/5/24,Saints Cyril and Methodius Day
+2039/8/2,Republic Day
+2039/9/8,Independence Day
+2039/10/11,National Uprising Day
+2039/10/19,Eid al-Fitr (estimated)
+2039/10/23,Macedonian Revolutionary Struggle Day
+2039/10/24,Macedonian Revolutionary Struggle Day (observed)
+2039/12/8,Saint Clement of Ohrid Day
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/1/7,Christmas Day
+2040/5/1,Labor Day
+2040/5/7,Easter Monday
+2040/5/24,Saints Cyril and Methodius Day
+2040/8/2,Republic Day
+2040/9/8,Independence Day
+2040/10/7,Eid al-Fitr (estimated)
+2040/10/8,Eid al-Fitr (observed, estimated)
+2040/10/11,National Uprising Day
+2040/10/23,Macedonian Revolutionary Struggle Day
+2040/12/8,Saint Clement of Ohrid Day
+2041/1/1,New Year's Day
+2041/1/7,Christmas Day
+2041/4/22,Easter Monday
+2041/5/1,Labor Day
+2041/5/24,Saints Cyril and Methodius Day
+2041/8/2,Republic Day
+2041/9/8,Independence Day
+2041/9/9,Independence Day (observed)
+2041/9/26,Eid al-Fitr (estimated)
+2041/10/11,National Uprising Day
+2041/10/23,Macedonian Revolutionary Struggle Day
+2041/12/8,Saint Clement of Ohrid Day
+2041/12/9,Saint Clement of Ohrid Day (observed)
+2042/1/1,New Year's Day
+2042/1/7,Christmas Day
+2042/4/14,Easter Monday
+2042/5/1,Labor Day
+2042/5/24,Saints Cyril and Methodius Day
+2042/8/2,Republic Day
+2042/9/8,Independence Day
+2042/9/15,Eid al-Fitr (estimated)
+2042/10/11,National Uprising Day
+2042/10/23,Macedonian Revolutionary Struggle Day
+2042/12/8,Saint Clement of Ohrid Day
+2043/1/1,New Year's Day
+2043/1/7,Christmas Day
+2043/5/1,Labor Day
+2043/5/4,Easter Monday
+2043/5/24,Saints Cyril and Methodius Day
+2043/5/25,Saints Cyril and Methodius Day (observed)
+2043/8/2,Republic Day
+2043/8/3,Republic Day (observed)
+2043/9/4,Eid al-Fitr (estimated)
+2043/9/8,Independence Day
+2043/10/11,National Uprising Day
+2043/10/12,National Uprising Day (observed)
+2043/10/23,Macedonian Revolutionary Struggle Day
+2043/12/8,Saint Clement of Ohrid Day
+2044/1/1,New Year's Day
+2044/1/7,Christmas Day
+2044/4/25,Easter Monday
+2044/5/1,Labor Day
+2044/5/2,Labor Day (observed)
+2044/5/24,Saints Cyril and Methodius Day
+2044/8/2,Republic Day
+2044/8/24,Eid al-Fitr (estimated)
+2044/9/8,Independence Day
+2044/10/11,National Uprising Day
+2044/10/23,Macedonian Revolutionary Struggle Day
+2044/10/24,Macedonian Revolutionary Struggle Day (observed)
+2044/12/8,Saint Clement of Ohrid Day
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/7,Christmas Day
+2045/4/10,Easter Monday
+2045/5/1,Labor Day
+2045/5/24,Saints Cyril and Methodius Day
+2045/8/2,Republic Day
+2045/8/14,Eid al-Fitr (estimated)
+2045/9/8,Independence Day
+2045/10/11,National Uprising Day
+2045/10/23,Macedonian Revolutionary Struggle Day
+2045/12/8,Saint Clement of Ohrid Day
+2046/1/1,New Year's Day
+2046/1/7,Christmas Day
+2046/1/8,Christmas Day (observed)
+2046/4/30,Easter Monday
+2046/5/1,Labor Day
+2046/5/24,Saints Cyril and Methodius Day
+2046/8/2,Republic Day
+2046/8/3,Eid al-Fitr (estimated)
+2046/9/8,Independence Day
+2046/10/11,National Uprising Day
+2046/10/23,Macedonian Revolutionary Struggle Day
+2046/12/8,Saint Clement of Ohrid Day
+2047/1/1,New Year's Day
+2047/1/7,Christmas Day
+2047/4/22,Easter Monday
+2047/5/1,Labor Day
+2047/5/24,Saints Cyril and Methodius Day
+2047/7/24,Eid al-Fitr (estimated)
+2047/8/2,Republic Day
+2047/9/8,Independence Day
+2047/9/9,Independence Day (observed)
+2047/10/11,National Uprising Day
+2047/10/23,Macedonian Revolutionary Struggle Day
+2047/12/8,Saint Clement of Ohrid Day
+2047/12/9,Saint Clement of Ohrid Day (observed)
+2048/1/1,New Year's Day
+2048/1/7,Christmas Day
+2048/4/6,Easter Monday
+2048/5/1,Labor Day
+2048/5/24,Saints Cyril and Methodius Day
+2048/5/25,Saints Cyril and Methodius Day (observed)
+2048/7/12,Eid al-Fitr (estimated)
+2048/7/13,Eid al-Fitr (observed, estimated)
+2048/8/2,Republic Day
+2048/8/3,Republic Day (observed)
+2048/9/8,Independence Day
+2048/10/11,National Uprising Day
+2048/10/12,National Uprising Day (observed)
+2048/10/23,Macedonian Revolutionary Struggle Day
+2048/12/8,Saint Clement of Ohrid Day
+2049/1/1,New Year's Day
+2049/1/7,Christmas Day
+2049/4/26,Easter Monday
+2049/5/1,Labor Day
+2049/5/24,Saints Cyril and Methodius Day
+2049/7/1,Eid al-Fitr (estimated)
+2049/8/2,Republic Day
+2049/9/8,Independence Day
+2049/10/11,National Uprising Day
+2049/10/23,Macedonian Revolutionary Struggle Day
+2049/12/8,Saint Clement of Ohrid Day
+2050/1/1,New Year's Day
+2050/1/7,Christmas Day
+2050/4/18,Easter Monday
+2050/5/1,Labor Day
+2050/5/2,Labor Day (observed)
+2050/5/24,Saints Cyril and Methodius Day
+2050/6/20,Eid al-Fitr (estimated)
+2050/8/2,Republic Day
+2050/9/8,Independence Day
+2050/10/11,National Uprising Day
+2050/10/23,Macedonian Revolutionary Struggle Day
+2050/10/24,Macedonian Revolutionary Struggle Day (observed)
+2050/12/8,Saint Clement of Ohrid Day

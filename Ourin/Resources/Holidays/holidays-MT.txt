@@ -1,0 +1,437 @@
+# MT の祝日（2020〜2050年、言語: mt）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,L-Ewwel tas-Sena
+2020/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2020/3/19,Il-Festa ta' San Ġużepp
+2020/3/31,Jum il-Ħelsien
+2020/4/10,Il-Ġimgħa l-Kbira
+2020/5/1,Jum il-Ħaddiem
+2020/6/7,Sette Giugno
+2020/6/29,Il-Festa ta' San Pietru u San Pawl
+2020/8/15,Il-Festa ta' Santa Marija
+2020/9/8,Jum il-Vitorja
+2020/9/21,Jum l-Indipendenza
+2020/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2020/12/13,Jum ir-Repubblika
+2020/12/25,Il-Milied
+2021/1/1,L-Ewwel tas-Sena
+2021/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2021/3/19,Il-Festa ta' San Ġużepp
+2021/3/31,Jum il-Ħelsien
+2021/4/2,Il-Ġimgħa l-Kbira
+2021/5/1,Jum il-Ħaddiem
+2021/6/7,Sette Giugno
+2021/6/29,Il-Festa ta' San Pietru u San Pawl
+2021/8/15,Il-Festa ta' Santa Marija
+2021/9/8,Jum il-Vitorja
+2021/9/21,Jum l-Indipendenza
+2021/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2021/12/13,Jum ir-Repubblika
+2021/12/25,Il-Milied
+2022/1/1,L-Ewwel tas-Sena
+2022/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2022/3/19,Il-Festa ta' San Ġużepp
+2022/3/31,Jum il-Ħelsien
+2022/4/15,Il-Ġimgħa l-Kbira
+2022/5/1,Jum il-Ħaddiem
+2022/6/7,Sette Giugno
+2022/6/29,Il-Festa ta' San Pietru u San Pawl
+2022/8/15,Il-Festa ta' Santa Marija
+2022/9/8,Jum il-Vitorja
+2022/9/21,Jum l-Indipendenza
+2022/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2022/12/13,Jum ir-Repubblika
+2022/12/25,Il-Milied
+2023/1/1,L-Ewwel tas-Sena
+2023/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2023/3/19,Il-Festa ta' San Ġużepp
+2023/3/31,Jum il-Ħelsien
+2023/4/7,Il-Ġimgħa l-Kbira
+2023/5/1,Jum il-Ħaddiem
+2023/6/7,Sette Giugno
+2023/6/29,Il-Festa ta' San Pietru u San Pawl
+2023/8/15,Il-Festa ta' Santa Marija
+2023/9/8,Jum il-Vitorja
+2023/9/21,Jum l-Indipendenza
+2023/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2023/12/13,Jum ir-Repubblika
+2023/12/25,Il-Milied
+2024/1/1,L-Ewwel tas-Sena
+2024/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2024/3/19,Il-Festa ta' San Ġużepp
+2024/3/29,Il-Ġimgħa l-Kbira
+2024/3/31,Jum il-Ħelsien
+2024/5/1,Jum il-Ħaddiem
+2024/6/7,Sette Giugno
+2024/6/29,Il-Festa ta' San Pietru u San Pawl
+2024/8/15,Il-Festa ta' Santa Marija
+2024/9/8,Jum il-Vitorja
+2024/9/21,Jum l-Indipendenza
+2024/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2024/12/13,Jum ir-Repubblika
+2024/12/25,Il-Milied
+2025/1/1,L-Ewwel tas-Sena
+2025/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2025/3/19,Il-Festa ta' San Ġużepp
+2025/3/31,Jum il-Ħelsien
+2025/4/18,Il-Ġimgħa l-Kbira
+2025/5/1,Jum il-Ħaddiem
+2025/6/7,Sette Giugno
+2025/6/29,Il-Festa ta' San Pietru u San Pawl
+2025/8/15,Il-Festa ta' Santa Marija
+2025/9/8,Jum il-Vitorja
+2025/9/21,Jum l-Indipendenza
+2025/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2025/12/13,Jum ir-Repubblika
+2025/12/25,Il-Milied
+2026/1/1,L-Ewwel tas-Sena
+2026/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2026/3/19,Il-Festa ta' San Ġużepp
+2026/3/31,Jum il-Ħelsien
+2026/4/3,Il-Ġimgħa l-Kbira
+2026/5/1,Jum il-Ħaddiem
+2026/6/7,Sette Giugno
+2026/6/29,Il-Festa ta' San Pietru u San Pawl
+2026/8/15,Il-Festa ta' Santa Marija
+2026/9/8,Jum il-Vitorja
+2026/9/21,Jum l-Indipendenza
+2026/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2026/12/13,Jum ir-Repubblika
+2026/12/25,Il-Milied
+2027/1/1,L-Ewwel tas-Sena
+2027/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2027/3/19,Il-Festa ta' San Ġużepp
+2027/3/26,Il-Ġimgħa l-Kbira
+2027/3/31,Jum il-Ħelsien
+2027/5/1,Jum il-Ħaddiem
+2027/6/7,Sette Giugno
+2027/6/29,Il-Festa ta' San Pietru u San Pawl
+2027/8/15,Il-Festa ta' Santa Marija
+2027/9/8,Jum il-Vitorja
+2027/9/21,Jum l-Indipendenza
+2027/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2027/12/13,Jum ir-Repubblika
+2027/12/25,Il-Milied
+2028/1/1,L-Ewwel tas-Sena
+2028/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2028/3/19,Il-Festa ta' San Ġużepp
+2028/3/31,Jum il-Ħelsien
+2028/4/14,Il-Ġimgħa l-Kbira
+2028/5/1,Jum il-Ħaddiem
+2028/6/7,Sette Giugno
+2028/6/29,Il-Festa ta' San Pietru u San Pawl
+2028/8/15,Il-Festa ta' Santa Marija
+2028/9/8,Jum il-Vitorja
+2028/9/21,Jum l-Indipendenza
+2028/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2028/12/13,Jum ir-Repubblika
+2028/12/25,Il-Milied
+2029/1/1,L-Ewwel tas-Sena
+2029/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2029/3/19,Il-Festa ta' San Ġużepp
+2029/3/30,Il-Ġimgħa l-Kbira
+2029/3/31,Jum il-Ħelsien
+2029/5/1,Jum il-Ħaddiem
+2029/6/7,Sette Giugno
+2029/6/29,Il-Festa ta' San Pietru u San Pawl
+2029/8/15,Il-Festa ta' Santa Marija
+2029/9/8,Jum il-Vitorja
+2029/9/21,Jum l-Indipendenza
+2029/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2029/12/13,Jum ir-Repubblika
+2029/12/25,Il-Milied
+2030/1/1,L-Ewwel tas-Sena
+2030/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2030/3/19,Il-Festa ta' San Ġużepp
+2030/3/31,Jum il-Ħelsien
+2030/4/19,Il-Ġimgħa l-Kbira
+2030/5/1,Jum il-Ħaddiem
+2030/6/7,Sette Giugno
+2030/6/29,Il-Festa ta' San Pietru u San Pawl
+2030/8/15,Il-Festa ta' Santa Marija
+2030/9/8,Jum il-Vitorja
+2030/9/21,Jum l-Indipendenza
+2030/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2030/12/13,Jum ir-Repubblika
+2030/12/25,Il-Milied
+2031/1/1,L-Ewwel tas-Sena
+2031/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2031/3/19,Il-Festa ta' San Ġużepp
+2031/3/31,Jum il-Ħelsien
+2031/4/11,Il-Ġimgħa l-Kbira
+2031/5/1,Jum il-Ħaddiem
+2031/6/7,Sette Giugno
+2031/6/29,Il-Festa ta' San Pietru u San Pawl
+2031/8/15,Il-Festa ta' Santa Marija
+2031/9/8,Jum il-Vitorja
+2031/9/21,Jum l-Indipendenza
+2031/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2031/12/13,Jum ir-Repubblika
+2031/12/25,Il-Milied
+2032/1/1,L-Ewwel tas-Sena
+2032/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2032/3/19,Il-Festa ta' San Ġużepp
+2032/3/26,Il-Ġimgħa l-Kbira
+2032/3/31,Jum il-Ħelsien
+2032/5/1,Jum il-Ħaddiem
+2032/6/7,Sette Giugno
+2032/6/29,Il-Festa ta' San Pietru u San Pawl
+2032/8/15,Il-Festa ta' Santa Marija
+2032/9/8,Jum il-Vitorja
+2032/9/21,Jum l-Indipendenza
+2032/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2032/12/13,Jum ir-Repubblika
+2032/12/25,Il-Milied
+2033/1/1,L-Ewwel tas-Sena
+2033/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2033/3/19,Il-Festa ta' San Ġużepp
+2033/3/31,Jum il-Ħelsien
+2033/4/15,Il-Ġimgħa l-Kbira
+2033/5/1,Jum il-Ħaddiem
+2033/6/7,Sette Giugno
+2033/6/29,Il-Festa ta' San Pietru u San Pawl
+2033/8/15,Il-Festa ta' Santa Marija
+2033/9/8,Jum il-Vitorja
+2033/9/21,Jum l-Indipendenza
+2033/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2033/12/13,Jum ir-Repubblika
+2033/12/25,Il-Milied
+2034/1/1,L-Ewwel tas-Sena
+2034/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2034/3/19,Il-Festa ta' San Ġużepp
+2034/3/31,Jum il-Ħelsien
+2034/4/7,Il-Ġimgħa l-Kbira
+2034/5/1,Jum il-Ħaddiem
+2034/6/7,Sette Giugno
+2034/6/29,Il-Festa ta' San Pietru u San Pawl
+2034/8/15,Il-Festa ta' Santa Marija
+2034/9/8,Jum il-Vitorja
+2034/9/21,Jum l-Indipendenza
+2034/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2034/12/13,Jum ir-Repubblika
+2034/12/25,Il-Milied
+2035/1/1,L-Ewwel tas-Sena
+2035/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2035/3/19,Il-Festa ta' San Ġużepp
+2035/3/23,Il-Ġimgħa l-Kbira
+2035/3/31,Jum il-Ħelsien
+2035/5/1,Jum il-Ħaddiem
+2035/6/7,Sette Giugno
+2035/6/29,Il-Festa ta' San Pietru u San Pawl
+2035/8/15,Il-Festa ta' Santa Marija
+2035/9/8,Jum il-Vitorja
+2035/9/21,Jum l-Indipendenza
+2035/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2035/12/13,Jum ir-Repubblika
+2035/12/25,Il-Milied
+2036/1/1,L-Ewwel tas-Sena
+2036/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2036/3/19,Il-Festa ta' San Ġużepp
+2036/3/31,Jum il-Ħelsien
+2036/4/11,Il-Ġimgħa l-Kbira
+2036/5/1,Jum il-Ħaddiem
+2036/6/7,Sette Giugno
+2036/6/29,Il-Festa ta' San Pietru u San Pawl
+2036/8/15,Il-Festa ta' Santa Marija
+2036/9/8,Jum il-Vitorja
+2036/9/21,Jum l-Indipendenza
+2036/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2036/12/13,Jum ir-Repubblika
+2036/12/25,Il-Milied
+2037/1/1,L-Ewwel tas-Sena
+2037/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2037/3/19,Il-Festa ta' San Ġużepp
+2037/3/31,Jum il-Ħelsien
+2037/4/3,Il-Ġimgħa l-Kbira
+2037/5/1,Jum il-Ħaddiem
+2037/6/7,Sette Giugno
+2037/6/29,Il-Festa ta' San Pietru u San Pawl
+2037/8/15,Il-Festa ta' Santa Marija
+2037/9/8,Jum il-Vitorja
+2037/9/21,Jum l-Indipendenza
+2037/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2037/12/13,Jum ir-Repubblika
+2037/12/25,Il-Milied
+2038/1/1,L-Ewwel tas-Sena
+2038/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2038/3/19,Il-Festa ta' San Ġużepp
+2038/3/31,Jum il-Ħelsien
+2038/4/23,Il-Ġimgħa l-Kbira
+2038/5/1,Jum il-Ħaddiem
+2038/6/7,Sette Giugno
+2038/6/29,Il-Festa ta' San Pietru u San Pawl
+2038/8/15,Il-Festa ta' Santa Marija
+2038/9/8,Jum il-Vitorja
+2038/9/21,Jum l-Indipendenza
+2038/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2038/12/13,Jum ir-Repubblika
+2038/12/25,Il-Milied
+2039/1/1,L-Ewwel tas-Sena
+2039/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2039/3/19,Il-Festa ta' San Ġużepp
+2039/3/31,Jum il-Ħelsien
+2039/4/8,Il-Ġimgħa l-Kbira
+2039/5/1,Jum il-Ħaddiem
+2039/6/7,Sette Giugno
+2039/6/29,Il-Festa ta' San Pietru u San Pawl
+2039/8/15,Il-Festa ta' Santa Marija
+2039/9/8,Jum il-Vitorja
+2039/9/21,Jum l-Indipendenza
+2039/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2039/12/13,Jum ir-Repubblika
+2039/12/25,Il-Milied
+2040/1/1,L-Ewwel tas-Sena
+2040/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2040/3/19,Il-Festa ta' San Ġużepp
+2040/3/30,Il-Ġimgħa l-Kbira
+2040/3/31,Jum il-Ħelsien
+2040/5/1,Jum il-Ħaddiem
+2040/6/7,Sette Giugno
+2040/6/29,Il-Festa ta' San Pietru u San Pawl
+2040/8/15,Il-Festa ta' Santa Marija
+2040/9/8,Jum il-Vitorja
+2040/9/21,Jum l-Indipendenza
+2040/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2040/12/13,Jum ir-Repubblika
+2040/12/25,Il-Milied
+2041/1/1,L-Ewwel tas-Sena
+2041/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2041/3/19,Il-Festa ta' San Ġużepp
+2041/3/31,Jum il-Ħelsien
+2041/4/19,Il-Ġimgħa l-Kbira
+2041/5/1,Jum il-Ħaddiem
+2041/6/7,Sette Giugno
+2041/6/29,Il-Festa ta' San Pietru u San Pawl
+2041/8/15,Il-Festa ta' Santa Marija
+2041/9/8,Jum il-Vitorja
+2041/9/21,Jum l-Indipendenza
+2041/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2041/12/13,Jum ir-Repubblika
+2041/12/25,Il-Milied
+2042/1/1,L-Ewwel tas-Sena
+2042/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2042/3/19,Il-Festa ta' San Ġużepp
+2042/3/31,Jum il-Ħelsien
+2042/4/4,Il-Ġimgħa l-Kbira
+2042/5/1,Jum il-Ħaddiem
+2042/6/7,Sette Giugno
+2042/6/29,Il-Festa ta' San Pietru u San Pawl
+2042/8/15,Il-Festa ta' Santa Marija
+2042/9/8,Jum il-Vitorja
+2042/9/21,Jum l-Indipendenza
+2042/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2042/12/13,Jum ir-Repubblika
+2042/12/25,Il-Milied
+2043/1/1,L-Ewwel tas-Sena
+2043/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2043/3/19,Il-Festa ta' San Ġużepp
+2043/3/27,Il-Ġimgħa l-Kbira
+2043/3/31,Jum il-Ħelsien
+2043/5/1,Jum il-Ħaddiem
+2043/6/7,Sette Giugno
+2043/6/29,Il-Festa ta' San Pietru u San Pawl
+2043/8/15,Il-Festa ta' Santa Marija
+2043/9/8,Jum il-Vitorja
+2043/9/21,Jum l-Indipendenza
+2043/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2043/12/13,Jum ir-Repubblika
+2043/12/25,Il-Milied
+2044/1/1,L-Ewwel tas-Sena
+2044/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2044/3/19,Il-Festa ta' San Ġużepp
+2044/3/31,Jum il-Ħelsien
+2044/4/15,Il-Ġimgħa l-Kbira
+2044/5/1,Jum il-Ħaddiem
+2044/6/7,Sette Giugno
+2044/6/29,Il-Festa ta' San Pietru u San Pawl
+2044/8/15,Il-Festa ta' Santa Marija
+2044/9/8,Jum il-Vitorja
+2044/9/21,Jum l-Indipendenza
+2044/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2044/12/13,Jum ir-Repubblika
+2044/12/25,Il-Milied
+2045/1/1,L-Ewwel tas-Sena
+2045/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2045/3/19,Il-Festa ta' San Ġużepp
+2045/3/31,Jum il-Ħelsien
+2045/4/7,Il-Ġimgħa l-Kbira
+2045/5/1,Jum il-Ħaddiem
+2045/6/7,Sette Giugno
+2045/6/29,Il-Festa ta' San Pietru u San Pawl
+2045/8/15,Il-Festa ta' Santa Marija
+2045/9/8,Jum il-Vitorja
+2045/9/21,Jum l-Indipendenza
+2045/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2045/12/13,Jum ir-Repubblika
+2045/12/25,Il-Milied
+2046/1/1,L-Ewwel tas-Sena
+2046/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2046/3/19,Il-Festa ta' San Ġużepp
+2046/3/23,Il-Ġimgħa l-Kbira
+2046/3/31,Jum il-Ħelsien
+2046/5/1,Jum il-Ħaddiem
+2046/6/7,Sette Giugno
+2046/6/29,Il-Festa ta' San Pietru u San Pawl
+2046/8/15,Il-Festa ta' Santa Marija
+2046/9/8,Jum il-Vitorja
+2046/9/21,Jum l-Indipendenza
+2046/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2046/12/13,Jum ir-Repubblika
+2046/12/25,Il-Milied
+2047/1/1,L-Ewwel tas-Sena
+2047/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2047/3/19,Il-Festa ta' San Ġużepp
+2047/3/31,Jum il-Ħelsien
+2047/4/12,Il-Ġimgħa l-Kbira
+2047/5/1,Jum il-Ħaddiem
+2047/6/7,Sette Giugno
+2047/6/29,Il-Festa ta' San Pietru u San Pawl
+2047/8/15,Il-Festa ta' Santa Marija
+2047/9/8,Jum il-Vitorja
+2047/9/21,Jum l-Indipendenza
+2047/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2047/12/13,Jum ir-Repubblika
+2047/12/25,Il-Milied
+2048/1/1,L-Ewwel tas-Sena
+2048/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2048/3/19,Il-Festa ta' San Ġużepp
+2048/3/31,Jum il-Ħelsien
+2048/4/3,Il-Ġimgħa l-Kbira
+2048/5/1,Jum il-Ħaddiem
+2048/6/7,Sette Giugno
+2048/6/29,Il-Festa ta' San Pietru u San Pawl
+2048/8/15,Il-Festa ta' Santa Marija
+2048/9/8,Jum il-Vitorja
+2048/9/21,Jum l-Indipendenza
+2048/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2048/12/13,Jum ir-Repubblika
+2048/12/25,Il-Milied
+2049/1/1,L-Ewwel tas-Sena
+2049/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2049/3/19,Il-Festa ta' San Ġużepp
+2049/3/31,Jum il-Ħelsien
+2049/4/16,Il-Ġimgħa l-Kbira
+2049/5/1,Jum il-Ħaddiem
+2049/6/7,Sette Giugno
+2049/6/29,Il-Festa ta' San Pietru u San Pawl
+2049/8/15,Il-Festa ta' Santa Marija
+2049/9/8,Jum il-Vitorja
+2049/9/21,Jum l-Indipendenza
+2049/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2049/12/13,Jum ir-Repubblika
+2049/12/25,Il-Milied
+2050/1/1,L-Ewwel tas-Sena
+2050/2/10,Il-Festa tan-Nawfraġju ta' San Pawl
+2050/3/19,Il-Festa ta' San Ġużepp
+2050/3/31,Jum il-Ħelsien
+2050/4/8,Il-Ġimgħa l-Kbira
+2050/5/1,Jum il-Ħaddiem
+2050/6/7,Sette Giugno
+2050/6/29,Il-Festa ta' San Pietru u San Pawl
+2050/8/15,Il-Festa ta' Santa Marija
+2050/9/8,Jum il-Vitorja
+2050/9/21,Jum l-Indipendenza
+2050/12/8,Il-Festa tal-Immakulata Kunċizzjoni
+2050/12/13,Jum ir-Repubblika
+2050/12/25,Il-Milied

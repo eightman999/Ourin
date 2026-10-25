@@ -16,25 +16,54 @@ public final class HeadlineRegistry {
 
     public init() {}
 
-    /// Discover bundles and load them
+    /// Discover modules and load them.
+    ///
+    /// - 検索パス直下の `.plugin` / `.bundle`（descript.txt は bundle の Resources）。
+    /// - SSP と同じ `headline/<name>/descript.txt` 形式のディレクトリ。`filename`（`dllname`）の
+    ///   元 DLL 名に対応する `.dylib` / `.plugin` / `.bundle` をロードする。
     public func discoverAndLoad() {
         for dir in HeadlineRegistry.searchPaths() {
             guard let items = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]) else { continue }
-            for item in items where item.pathExtension == "plugin" || item.pathExtension == "bundle" {
-                do {
-                    let mod = try HeadlineModule(url: item)
-                    if let load = mod.load {
-                        _ = load(item.path)
-                    }
-                    modules.append(mod)
-                    if let meta = HeadlineRegistry.readMeta(from: mod.bundle) {
-                        metas[mod] = meta
-                    }
-                } catch {
-                    NSLog("Headline module load failed: \(error)")
+            for item in items {
+                if item.pathExtension == "plugin" || item.pathExtension == "bundle" {
+                    loadModule(at: item,
+                               directoryURL: item,
+                               descriptURL: Bundle(url: item)?.url(forResource: "descript", withExtension: "txt"))
+                    continue
                 }
+                let descriptURL = item.appendingPathComponent("descript.txt")
+                guard FileManager.default.fileExists(atPath: descriptURL.path),
+                      let meta = HeadlineRegistry.readMeta(from: descriptURL),
+                      let moduleURL = HeadlineRegistry.resolveNativeModule(named: meta.filename, in: item) else { continue }
+                loadModule(at: moduleURL, directoryURL: item, descriptURL: descriptURL)
             }
         }
+    }
+
+    private func loadModule(at moduleURL: URL, directoryURL: URL, descriptURL: URL?) {
+        guard !modules.contains(where: { $0.url.standardizedFileURL == moduleURL.standardizedFileURL }) else { return }
+        do {
+            let mod = try HeadlineModule(url: moduleURL)
+            if !mod.load(directoryURL: directoryURL) {
+                NSLog("Headline module load() returned failure: \(moduleURL.lastPathComponent)")
+            }
+            modules.append(mod)
+            if let descriptURL, let meta = HeadlineRegistry.readMeta(from: descriptURL) {
+                metas[mod] = meta
+            }
+        } catch {
+            NSLog("Headline module load failed: \(error)")
+        }
+    }
+
+    static func resolveNativeModule(named filename: String, in directoryURL: URL) -> URL? {
+        for candidate in UkagakaModuleABI.nativeModuleCandidates(forDLLName: filename) {
+            if let url = UkagakaModuleABI.resolveCaseInsensitive(candidate, in: directoryURL),
+               !UkagakaModuleABI.isWindowsPortableExecutable(at: url) {
+                return url
+            }
+        }
+        return nil
     }
 
     public func unloadAll() {
@@ -56,8 +85,7 @@ public final class HeadlineRegistry {
         return urls
     }
 
-    private static func readMeta(from bundle: Bundle) -> HeadlineMeta? {
-        guard let url = bundle.url(forResource: "descript", withExtension: "txt") else { return nil }
+    static func readMeta(from url: URL) -> HeadlineMeta? {
         guard let raw = try? Data(contentsOf: url) else { return nil }
         // determine charset
         var encoding: String.Encoding = .utf8

@@ -1,0 +1,453 @@
+# CC の祝日（2020〜2050年、言語: en_CC）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/1/26,Australia Day
+2020/1/27,Australia Day (observed)
+2020/4/6,Act of Self Determination Day
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/4/25,ANZAC Day
+2020/4/27,ANZAC Day (observed)
+2020/5/24,Eid al-Fitr
+2020/5/25,Eid al-Fitr (observed)
+2020/6/8,Queen's Birthday
+2020/7/31,Eid al-Adha
+2020/10/29,Prophet's Birthday
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2020/12/28,Boxing Day (observed)
+2021/1/1,New Year's Day
+2021/1/26,Australia Day
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/4/6,Act of Self Determination Day
+2021/4/25,ANZAC Day
+2021/4/26,ANZAC Day (observed)
+2021/5/13,Eid al-Fitr
+2021/6/7,Queen's Birthday
+2021/7/20,Eid al-Adha
+2021/10/19,Prophet's Birthday
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Christmas Day (observed)
+2021/12/28,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/1/26,Australia Day
+2022/4/6,Act of Self Determination Day
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/4/25,ANZAC Day
+2022/5/3,Eid al-Fitr
+2022/6/6,Queen's Birthday
+2022/7/9,Eid al-Adha
+2022/7/11,Eid al-Adha (observed)
+2022/9/22,National Day of Mourning for Queen Elizabeth II
+2022/10/8,Prophet's Birthday
+2022/10/10,Prophet's Birthday (observed)
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day; Christmas Day (observed)
+2022/12/27,Boxing Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/1/26,Australia Day
+2023/4/6,Act of Self Determination Day
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/4/21,Eid al-Fitr
+2023/4/25,ANZAC Day
+2023/6/6,King's Birthday
+2023/6/28,Eid al-Adha
+2023/9/27,Prophet's Birthday
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/1/26,Australia Day
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/4/6,Act of Self Determination Day
+2024/4/8,Act of Self Determination Day (observed)
+2024/4/10,Eid al-Fitr
+2024/4/25,ANZAC Day
+2024/6/6,King's Birthday
+2024/6/17,Eid al-Adha
+2024/9/16,Prophet's Birthday
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/1/26,Australia Day
+2025/1/27,Australia Day (observed)
+2025/3/31,Eid al-Fitr
+2025/4/6,Act of Self Determination Day
+2025/4/7,Act of Self Determination Day (observed)
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/4/25,ANZAC Day
+2025/6/6,Eid al-Adha (observed)
+2025/6/7,Eid al-Adha
+2025/6/9,King's Birthday
+2025/9/5,Prophet's Birthday
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/1/26,Australia Day
+2026/3/20,Eid al-Fitr (estimated)
+2026/4/3,Good Friday
+2026/4/6,Act of Self Determination Day; Easter Monday
+2026/4/25,ANZAC Day
+2026/4/27,ANZAC Day (observed)
+2026/5/27,Eid al-Adha (estimated)
+2026/6/8,King's Birthday
+2026/8/25,Prophet's Birthday (estimated)
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2026/12/28,Boxing Day (observed)
+2027/1/1,New Year's Day
+2027/1/26,Australia Day
+2027/3/9,Eid al-Fitr (estimated)
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/4/6,Act of Self Determination Day
+2027/4/25,ANZAC Day
+2027/4/26,ANZAC Day (observed)
+2027/5/16,Eid al-Adha (estimated)
+2027/5/17,Eid al-Adha (observed, estimated)
+2027/6/14,King's Birthday
+2027/8/14,Prophet's Birthday (estimated)
+2027/8/16,Prophet's Birthday (observed, estimated)
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2027/12/27,Christmas Day (observed)
+2027/12/28,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/1/26,Australia Day
+2028/2/26,Eid al-Fitr (estimated)
+2028/2/28,Eid al-Fitr (observed, estimated)
+2028/4/6,Act of Self Determination Day
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/4/25,ANZAC Day
+2028/5/5,Eid al-Adha (estimated)
+2028/6/12,King's Birthday
+2028/8/3,Prophet's Birthday (estimated)
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/1/26,Australia Day
+2029/2/14,Eid al-Fitr (estimated)
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/4/6,Act of Self Determination Day
+2029/4/24,Eid al-Adha (estimated)
+2029/4/25,ANZAC Day
+2029/6/11,King's Birthday
+2029/7/24,Prophet's Birthday (estimated)
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/1/26,Australia Day
+2030/1/28,Australia Day (observed)
+2030/2/4,Eid al-Fitr (estimated)
+2030/4/6,Act of Self Determination Day
+2030/4/8,Act of Self Determination Day (observed)
+2030/4/13,Eid al-Adha (estimated)
+2030/4/15,Eid al-Adha (observed, estimated)
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/4/25,ANZAC Day
+2030/6/10,King's Birthday
+2030/7/13,Prophet's Birthday (estimated)
+2030/7/15,Prophet's Birthday (observed, estimated)
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/1/24,Eid al-Fitr (estimated)
+2031/1/26,Australia Day
+2031/1/27,Australia Day (observed)
+2031/4/2,Eid al-Adha (estimated)
+2031/4/6,Act of Self Determination Day
+2031/4/7,Act of Self Determination Day (observed)
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/4/25,ANZAC Day
+2031/6/9,King's Birthday
+2031/7/2,Prophet's Birthday (estimated)
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/1/14,Eid al-Fitr (estimated)
+2032/1/26,Australia Day
+2032/3/22,Eid al-Adha (estimated)
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/4/6,Act of Self Determination Day
+2032/4/25,ANZAC Day
+2032/4/26,ANZAC Day (observed)
+2032/6/14,King's Birthday
+2032/6/20,Prophet's Birthday (estimated)
+2032/6/21,Prophet's Birthday (observed, estimated)
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2032/12/27,Christmas Day (observed)
+2032/12/28,Boxing Day (observed)
+2033/1/1,New Year's Day
+2033/1/2,Eid al-Fitr (estimated)
+2033/1/3,Eid al-Fitr (observed, estimated); New Year's Day (observed)
+2033/1/26,Australia Day
+2033/3/11,Eid al-Adha (estimated)
+2033/4/6,Act of Self Determination Day
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/4/25,ANZAC Day
+2033/6/9,Prophet's Birthday (estimated)
+2033/6/13,King's Birthday
+2033/12/23,Eid al-Fitr (estimated)
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day; Christmas Day (observed)
+2033/12/27,Boxing Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/1/26,Australia Day
+2034/3/1,Eid al-Adha (estimated)
+2034/4/6,Act of Self Determination Day
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/4/25,ANZAC Day
+2034/5/30,Prophet's Birthday (estimated)
+2034/6/12,King's Birthday
+2034/12/12,Eid al-Fitr (estimated)
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/1/26,Australia Day
+2035/2/18,Eid al-Adha (estimated)
+2035/2/19,Eid al-Adha (observed, estimated)
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/4/6,Act of Self Determination Day
+2035/4/25,ANZAC Day
+2035/5/20,Prophet's Birthday (estimated)
+2035/5/21,Prophet's Birthday (observed, estimated)
+2035/6/11,King's Birthday
+2035/12/1,Eid al-Fitr (estimated)
+2035/12/3,Eid al-Fitr (observed, estimated)
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/1/26,Australia Day
+2036/1/28,Australia Day (observed)
+2036/2/7,Eid al-Adha (estimated)
+2036/4/6,Act of Self Determination Day
+2036/4/7,Act of Self Determination Day (observed)
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/4/25,ANZAC Day
+2036/5/8,Prophet's Birthday (estimated)
+2036/6/9,King's Birthday
+2036/11/19,Eid al-Fitr (estimated)
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/1/26,Australia Day; Eid al-Adha (estimated)
+2037/4/3,Good Friday
+2037/4/6,Act of Self Determination Day; Easter Monday
+2037/4/25,ANZAC Day
+2037/4/27,ANZAC Day (observed)
+2037/4/28,Prophet's Birthday (estimated)
+2037/6/8,King's Birthday
+2037/11/8,Eid al-Fitr (estimated)
+2037/11/9,Eid al-Fitr (observed, estimated)
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2037/12/28,Boxing Day (observed)
+2038/1/1,New Year's Day
+2038/1/16,Eid al-Adha (estimated)
+2038/1/18,Eid al-Adha (observed, estimated)
+2038/1/26,Australia Day
+2038/4/6,Act of Self Determination Day
+2038/4/17,Prophet's Birthday (estimated)
+2038/4/19,Prophet's Birthday (observed, estimated)
+2038/4/23,Good Friday
+2038/4/25,ANZAC Day
+2038/4/26,ANZAC Day (observed); Easter Monday
+2038/6/14,King's Birthday
+2038/10/29,Eid al-Fitr (estimated)
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2038/12/27,Christmas Day (observed)
+2038/12/28,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/1/5,Eid al-Adha (estimated)
+2039/1/26,Australia Day
+2039/4/6,Act of Self Determination Day; Prophet's Birthday (estimated)
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/4/25,ANZAC Day
+2039/6/13,King's Birthday
+2039/10/19,Eid al-Fitr (estimated)
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day; Christmas Day (observed); Eid al-Adha (estimated)
+2039/12/27,Boxing Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/1/26,Australia Day
+2040/3/25,Prophet's Birthday (estimated)
+2040/3/26,Prophet's Birthday (observed, estimated)
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/4/6,Act of Self Determination Day
+2040/4/25,ANZAC Day
+2040/6/11,King's Birthday
+2040/10/7,Eid al-Fitr (estimated)
+2040/10/8,Eid al-Fitr (observed, estimated)
+2040/12/14,Eid al-Adha (estimated)
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/1/26,Australia Day
+2041/1/28,Australia Day (observed)
+2041/3/15,Prophet's Birthday (estimated)
+2041/4/6,Act of Self Determination Day
+2041/4/8,Act of Self Determination Day (observed)
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/4/25,ANZAC Day
+2041/6/10,King's Birthday
+2041/9/26,Eid al-Fitr (estimated)
+2041/12/4,Eid al-Adha (estimated)
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/1/26,Australia Day
+2042/1/27,Australia Day (observed)
+2042/3/4,Prophet's Birthday (estimated)
+2042/4/4,Good Friday
+2042/4/6,Act of Self Determination Day
+2042/4/7,Act of Self Determination Day (observed); Easter Monday
+2042/4/25,ANZAC Day
+2042/6/9,King's Birthday
+2042/9/15,Eid al-Fitr (estimated)
+2042/11/23,Eid al-Adha (estimated)
+2042/11/24,Eid al-Adha (observed, estimated)
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/1/26,Australia Day
+2043/2/22,Prophet's Birthday (estimated)
+2043/2/23,Prophet's Birthday (observed, estimated)
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/4/6,Act of Self Determination Day
+2043/4/25,ANZAC Day
+2043/4/27,ANZAC Day (observed)
+2043/6/8,King's Birthday
+2043/9/4,Eid al-Fitr (estimated)
+2043/11/12,Eid al-Adha (estimated)
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2043/12/28,Boxing Day (observed)
+2044/1/1,New Year's Day
+2044/1/26,Australia Day
+2044/2/11,Prophet's Birthday (estimated)
+2044/4/6,Act of Self Determination Day
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/4/25,ANZAC Day
+2044/6/13,King's Birthday
+2044/8/24,Eid al-Fitr (estimated)
+2044/10/31,Eid al-Adha (estimated)
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day; Christmas Day (observed)
+2044/12/27,Boxing Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/26,Australia Day
+2045/1/30,Prophet's Birthday (estimated)
+2045/4/6,Act of Self Determination Day
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/4/25,ANZAC Day
+2045/6/12,King's Birthday
+2045/8/14,Eid al-Fitr (estimated)
+2045/10/21,Eid al-Adha (estimated)
+2045/10/23,Eid al-Adha (observed, estimated)
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/1/19,Prophet's Birthday (estimated)
+2046/1/26,Australia Day
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/4/6,Act of Self Determination Day
+2046/4/25,ANZAC Day
+2046/6/11,King's Birthday
+2046/8/3,Eid al-Fitr (estimated)
+2046/10/10,Eid al-Adha (estimated)
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/1/8,Prophet's Birthday (estimated)
+2047/1/26,Australia Day
+2047/1/28,Australia Day (observed)
+2047/4/6,Act of Self Determination Day
+2047/4/8,Act of Self Determination Day (observed)
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/4/25,ANZAC Day
+2047/6/10,King's Birthday
+2047/7/24,Eid al-Fitr (estimated)
+2047/9/30,Eid al-Adha (estimated)
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2047/12/29,Prophet's Birthday (estimated)
+2047/12/30,Prophet's Birthday (observed, estimated)
+2048/1/1,New Year's Day
+2048/1/26,Australia Day
+2048/1/27,Australia Day (observed)
+2048/4/3,Good Friday
+2048/4/6,Act of Self Determination Day; Easter Monday
+2048/4/25,ANZAC Day
+2048/4/27,ANZAC Day (observed)
+2048/6/8,King's Birthday
+2048/7/12,Eid al-Fitr (estimated)
+2048/7/13,Eid al-Fitr (observed, estimated)
+2048/9/19,Eid al-Adha (estimated)
+2048/9/21,Eid al-Adha (observed, estimated)
+2048/12/18,Prophet's Birthday (estimated)
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2048/12/28,Boxing Day (observed)
+2049/1/1,New Year's Day
+2049/1/26,Australia Day
+2049/4/6,Act of Self Determination Day
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/4/25,ANZAC Day
+2049/4/26,ANZAC Day (observed)
+2049/6/14,King's Birthday
+2049/7/1,Eid al-Fitr (estimated)
+2049/9/8,Eid al-Adha (estimated)
+2049/12/7,Prophet's Birthday (estimated)
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2049/12/27,Christmas Day (observed)
+2049/12/28,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/1/26,Australia Day
+2050/4/6,Act of Self Determination Day
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/4/25,ANZAC Day
+2050/6/13,King's Birthday
+2050/6/20,Eid al-Fitr (estimated)
+2050/8/28,Eid al-Adha (estimated)
+2050/8/29,Eid al-Adha (observed, estimated)
+2050/11/26,Prophet's Birthday (estimated)
+2050/11/28,Prophet's Birthday (observed, estimated)
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day; Christmas Day (observed)
+2050/12/27,Boxing Day (observed)

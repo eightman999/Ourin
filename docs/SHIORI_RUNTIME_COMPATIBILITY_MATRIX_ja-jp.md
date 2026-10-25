@@ -1,6 +1,6 @@
 # SHIORIランタイム互換性マトリクス
 
-**更新日:** 2026-07-15
+**更新日:** 2026-10-25
 **位置付け:** SHIORIランタイム選択・ロード・障害隔離の正本。仕様語彙はUKADOC SHIORI/3.0およびghost `descript.txt`に従う。
 
 ## 状態定義
@@ -20,6 +20,20 @@
 | Native Dylib | その他の`*.dll/*.dylib/*.so` | 済 | Loader単体＋embedded XPC | 未 | 既定で済 | macOSではWindows DLLを除外し、XPC Service内で代替moduleをロード |
 | Native XPC | 既定。`OURIN_SHIORI_ISOLATION_MODE=inprocess`でのみ無効 | 済 | 実fixtureの別PID往復 | 未 | 済 | 接続単位session、load/request/unload、5秒watchdog |
 | SHIORI 2.x | Native backendを互換ラッパーで変換 | 済 | 済 | 未 | backend依存 | `Shiori2CompatBackend`を使用 |
+
+## 2026-10-25 開発版での追加検証
+
+公開版 v0.0.1.21 には以下の新しい同梱エンジン・SHIOLINK拡張は含まれない。
+
+| 対象 | 実装・配布物 | 確認済み | 残件 |
+|---|---|---|---|
+| 華和梨 | 固定上流をUniversal 2 dylibとして同梱、macOSモジュールの無いKAWARI辞書を解決 | 実エンジンのin-process/XPC、LOBOの起動・会話・終了・保存・別process再load | Ourin GUI上の実ゴースト操作と広い辞書網羅 |
+| KAGARI | 固定上流＋Lua 5.4.4、instance-ID ABI、Universal 2同梱 | 実エンジンのin-process/XPC、最小Lua lifecycle・load失敗 | もすはmacOS版saori_universal.native不足。実ゴーストの保存・再起動は未完 |
+| SHIOLINK | 外部processアダプターを通常factoryへ接続 | 実子process fixture、実アプリのOnBootログ | MiyoJS等の実配布ゴースト、画面操作 |
+
+KAGARIのLuaSocket／luautf8／luachild／lua-iconvは検証用にmacOSビルドしたが、配布ゴースト固有の追加依存まで同梱したものではない。Windows DLLやLinux ELFはmacOSで直接実行しない。
+
+証拠: [実ゴースト検証](REAL_GHOST_VERIFICATION_2026-10-25.md)、[もすの検証](delegation/kagari-mosu-report.md)、[エンジン導入](KAWARI_KAGARI_ENGINES_ja-jp.md)。[既知の問題](KNOWN_ISSUES_ja-jp.md)と[報告手順](BUG_REPORT_GUIDE_ja-jp.md)も参照。
 
 ## P0受け入れ条件
 

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIOLINK 外部プロセス接続</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="SHIOLINK_ja-jp.html" class="active">日本語</a> | <a href="SHIOLINK_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="shiolink">SHIOLINK 外部プロセス接続</h1>
+<p><a href="SHIOLINK_en-us.html">English</a> · 更新: 2026-10-25</p>
+<p>Ourin の開発版は <code>shiori,SHIOLINK.dll</code> を SHIOLINK 外部プロセスへ接続します。Windows DLLをロードする方式ではありません。Node.js、RubyなどのmacOS用実行環境と、SHIOLINKを話すエンジンは別途用意します。MiyoJSの全辞書互換性を保証するものではありません。</p>
+<h2 id="_1">設定</h2>
+<p>DLLが置かれるディレクトリ（通常 <code>ghost/master</code>）の <code>SHIOLINK.ourin.ini</code> を優先し、存在しないときだけ <code>SHIOLINK.INI</code> を読みます。ファイル名とキーは大文字小文字を区別しません。設定ファイルは64 KiBまで、UTF-8またはShift_JISです。優先ファイルが不正なときに共通設定へ切り替えることはありません。</p>
+<p>Ourin用設定では実行ファイルと引数を分けられます。</p>
+<pre class="codehilite"><code class="language-ini">[SHIOLINK]
+executable=/opt/homebrew/bin/node
+arguments=[&quot;./node_modules/miyojs/bin/miyo-shiolink.js&quot;, &quot;./dic&quot;]
+charmode=UTF-8
+</code></pre>
+
+<p><code>arguments</code> はJSON文字列配列です。Nodeのパス・スクリプト名・辞書ディレクトリは導入した実環境に合わせてください。実行環境やnpmパッケージを自動インストールしません。</p>
+<p>共通設定の <code>commandline</code> も、引用符でまとめた引数として解釈します。</p>
+<pre class="codehilite"><code class="language-ini">[SHIOLINK]
+commandline=/opt/homebrew/bin/node &quot;./engine/main.js&quot;
+charmode=UTF-8
+</code></pre>
+
+<p>実行は <code>Process.executableURL</code> と <code>arguments</code> を使い、暗黙のシェルを挟みません。引用符の入れ子・エスケープ構文、環境変数展開、パイプ、リダイレクトは扱いません。複雑な引数にはJSON形式を使ってください。Windows形式の実行ファイル名（<code>.exe</code>、<code>.cmd</code>等）は拒否します。相対パスと作業ディレクトリはDLLのディレクトリが基準です。単独の実行名は同ディレクトリ、<code>/opt/homebrew/bin</code>、<code>/usr/local/bin</code>、<code>/usr/bin</code>、<code>/bin</code>の順で探します。</p>
+<p>外部プロセスはOurinの実行権限を引き継ぎます。専用の追加サンドボックスやSAORIの自動中継はありません。</p>
+<h2 id="_2">通信と失敗時の動作</h2>
+<ul>
+<li><code>*L:ディレクトリ</code> に続いて <code>version</code> 要求を送り、応答まで確認します。SHIOLINKにはload専用の成功応答がないため、これは通信の確認であり、辞書全体の正常性の保証ではありません。</li>
+<li>各要求で一意な <code>*S:識別子</code> のエコーを照合し、SHIORI電文を送ります。通常のGET/NOTIFYは同じ経路です。</li>
+<li><code>*U:</code> 後に正常終了を待ち、終了しない直接の子プロセスにはTERM、続いてKILLを送って回収します。</li>
+<li>初期化は既定5秒、要求は呼出元指定（最大60秒）。期限は送信・同期・受信を合わせた時間です。同期違反、EOF、応答不正、期限超過、1 MiBを超える要求／応答ではセッションを閉じます。自動再起動はせず、ゴーストの再ロードで接続し直します。</li>
+<li><code>charmode</code> はUTF-8（既定）とShift_JIS。UTF-16/32は行区切り方式に合わないため拒否します。変換できない送信文字は失敗となります。stderrは蓄積せず破棄します。</li>
+</ul>
+<p>SHIORIPROXY、里珠の専用proxy wire、Windows DLL実行はこの機能の対象外です。SHIOLINKプロセスがさらに起動した孫プロセスの管理は、そのエンジン側の責任です。</p>
+<h2 id="_3">検証</h2>
+<p><code>ShiolinkTests</code> は実際にC製のテストプロセスを起動し、Unicode往復、GET/NOTIFY、loadディレクトリ、unload、同期エラー、停止・大量出力・EOF、子プロセス回収、設定の優先順位を確認します。実際のMiyoJSゴーストの互換性試験は別途必要です。</p>
+<h2 id="_4">一次資料</h2>
+<ul>
+<li><a href="https://github.com/Narazaka/shiolinkjs/blob/master/lib/shiolink.ts">ShiolinkJS transport</a></li>
+<li><a href="https://github.com/Narazaka/shiolinkjs/blob/master/Readme.md">ShiolinkJS usage</a></li>
+<li><a href="https://github.com/Narazaka/sana/blob/master/README.md">Sana の SHIOLINK.INI 設定例</a></li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../SHIOLINK_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

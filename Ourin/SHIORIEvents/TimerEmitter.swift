@@ -67,7 +67,8 @@ final class TimerEmitter {
         let params = Self.timeEventReferences()
 
         if !isTesting {
-            handler(ShioriEvent(id: .OnIdle, params: [:]))
+            // OnIdle は時刻系イベントと同じ Reference（R3=トーク再生可否 / R4=放置秒数）を持つ。
+            handler(ShioriEvent(id: .OnIdle, refs: params))
             handler(ShioriEvent(id: .OnSecondChange, refs: params))
         }
 

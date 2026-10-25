@@ -1,4 +1,0 @@
-charset,Shift_JIS
-type,balloon
-name,Balloon for Emily/P4
-directory,emily4

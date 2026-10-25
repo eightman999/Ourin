@@ -97,7 +97,7 @@ extension GhostManager {
     /// 利用不可を明示する。
     func openAIGraph() {
         guard let runtime = shioriRuntime, runtime.isLoaded else {
-            showUtilityError(title: "AI Graph", message: "SHIORI がロードされていません。")
+            showUtilityError(title: "AI Graph", message: NSLocalizedString("SHIORI がロードされていません。", comment: "AI graph error"))
             return
         }
 
@@ -113,7 +113,7 @@ extension GhostManager {
             DispatchQueue.main.async {
                 guard let self else { return }
                 guard !state.isEmpty || !values.isEmpty else {
-                    self.showUtilityError(title: "AI Graph", message: "ゴーストが getaistate / getaistateex を提供していません。")
+                    self.showUtilityError(title: "AI Graph", message: NSLocalizedString("ゴーストが getaistate / getaistateex を提供していません。", comment: "AI graph error"))
                     return
                 }
                 self.presentUtilityWindow(
@@ -145,11 +145,11 @@ extension GhostManager {
         let title: String
         switch normalizedKind {
         case "rateofusegraphballoon":
-            title = "使用率 - バルーン（ゴースト使用率）"
+            title = NSLocalizedString("使用率 - バルーン（ゴースト使用率）", comment: "Usage window title")
         case "rateofusegraphtotal":
-            title = "使用率 - 合算"
+            title = NSLocalizedString("使用率 - 合算", comment: "Usage window title")
         default:
-            title = "使用率 - \(ghostConfig?.name ?? ghostURL.lastPathComponent)"
+            title = String(format: NSLocalizedString("使用率 - %@", comment: "Usage window title"), ghostConfig?.name ?? ghostURL.lastPathComponent)
         }
 
         presentUtilityWindow(
@@ -182,7 +182,7 @@ extension GhostManager {
         guard let url else { return }
         guard FileManager.default.fileExists(atPath: url.path),
               let image = NSImage(contentsOf: url) else {
-            showUtilityError(title: "Picture Viewer", message: "画像を読み込めませんでした:\n\(url.path)")
+            showUtilityError(title: "Picture Viewer", message: String(format: NSLocalizedString("画像を読み込めませんでした:\n%@", comment: "Picture viewer error"), url.path))
             return
         }
 
@@ -211,7 +211,7 @@ extension GhostManager {
 
         guard let url else { return }
         guard FileManager.default.fileExists(atPath: url.path) else {
-            showUtilityError(title: "Archive Viewer", message: "アーカイブが見つかりません:\n\(url.path)")
+            showUtilityError(title: "Archive Viewer", message: String(format: NSLocalizedString("アーカイブが見つかりません:\n%@", comment: "Archive viewer error"), url.path))
             return
         }
 
@@ -239,7 +239,7 @@ extension GhostManager {
     func openAddressBarURL(_ rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty else {
-            showUtilityError(title: "Address Bar", message: "URLを入力してください。")
+            showUtilityError(title: "Address Bar", message: NSLocalizedString("URLを入力してください。", comment: "Address bar error"))
             return
         }
 
@@ -253,7 +253,7 @@ extension GhostManager {
         guard let url = URL(string: candidate),
               let scheme = url.scheme?.lowercased(),
               ["http", "https", "mailto", "file"].contains(scheme) else {
-            showUtilityError(title: "Address Bar", message: "URL形式が正しくありません:\n\(value)")
+            showUtilityError(title: "Address Bar", message: String(format: NSLocalizedString("URL形式が正しくありません:\n%@", comment: "Address bar error"), value))
             return
         }
 
@@ -334,7 +334,7 @@ extension GhostManager {
             throw NSError(
                 domain: "Ourin.ArchiveViewer",
                 code: Int(process.terminationStatus),
-                userInfo: [NSLocalizedDescriptionKey: detail.isEmpty ? "アーカイブを読み込めませんでした。" : detail]
+                userInfo: [NSLocalizedDescriptionKey: detail.isEmpty ? NSLocalizedString("アーカイブを読み込めませんでした。", comment: "Archive viewer error") : detail]
             )
         }
         return output

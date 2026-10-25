@@ -1,0 +1,518 @@
+# RO の祝日（2020〜2050年、言語: ro）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Anul Nou
+2020/1/2,Anul Nou
+2020/1/24,Ziua Unirii Principatelor Române
+2020/4/17,Vinerea Mare
+2020/4/19,Paștele
+2020/4/20,Paștele
+2020/5/1,Ziua Muncii
+2020/6/1,Ziua Copilului
+2020/6/7,Rusaliile
+2020/6/8,Rusaliile
+2020/8/15,Adormirea Maicii Domnului
+2020/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2020/12/1,Ziua Națională a României
+2020/12/25,Crăciunul
+2020/12/26,Crăciunul
+2021/1/1,Anul Nou
+2021/1/2,Anul Nou
+2021/1/24,Ziua Unirii Principatelor Române
+2021/4/30,Vinerea Mare
+2021/5/1,Ziua Muncii
+2021/5/2,Paștele
+2021/5/3,Paștele
+2021/6/1,Ziua Copilului
+2021/6/20,Rusaliile
+2021/6/21,Rusaliile
+2021/8/15,Adormirea Maicii Domnului
+2021/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2021/12/1,Ziua Națională a României
+2021/12/25,Crăciunul
+2021/12/26,Crăciunul
+2022/1/1,Anul Nou
+2022/1/2,Anul Nou
+2022/1/24,Ziua Unirii Principatelor Române
+2022/4/22,Vinerea Mare
+2022/4/24,Paștele
+2022/4/25,Paștele
+2022/5/1,Ziua Muncii
+2022/6/1,Ziua Copilului
+2022/6/12,Rusaliile
+2022/6/13,Rusaliile
+2022/8/15,Adormirea Maicii Domnului
+2022/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2022/12/1,Ziua Națională a României
+2022/12/25,Crăciunul
+2022/12/26,Crăciunul
+2023/1/1,Anul Nou
+2023/1/2,Anul Nou
+2023/1/24,Ziua Unirii Principatelor Române
+2023/4/14,Vinerea Mare
+2023/4/16,Paștele
+2023/4/17,Paștele
+2023/5/1,Ziua Muncii
+2023/6/1,Ziua Copilului
+2023/6/4,Rusaliile
+2023/6/5,Rusaliile
+2023/8/15,Adormirea Maicii Domnului
+2023/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2023/12/1,Ziua Națională a României
+2023/12/25,Crăciunul
+2023/12/26,Crăciunul
+2024/1/1,Anul Nou
+2024/1/2,Anul Nou
+2024/1/6,Botezul Domnului - Boboteaza
+2024/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2024/1/24,Ziua Unirii Principatelor Române
+2024/5/1,Ziua Muncii
+2024/5/3,Vinerea Mare
+2024/5/5,Paștele
+2024/5/6,Paștele
+2024/6/1,Ziua Copilului
+2024/6/23,Rusaliile
+2024/6/24,Rusaliile
+2024/8/15,Adormirea Maicii Domnului
+2024/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2024/12/1,Ziua Națională a României
+2024/12/25,Crăciunul
+2024/12/26,Crăciunul
+2025/1/1,Anul Nou
+2025/1/2,Anul Nou
+2025/1/6,Botezul Domnului - Boboteaza
+2025/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2025/1/24,Ziua Unirii Principatelor Române
+2025/4/18,Vinerea Mare
+2025/4/20,Paștele
+2025/4/21,Paștele
+2025/5/1,Ziua Muncii
+2025/6/1,Ziua Copilului
+2025/6/8,Rusaliile
+2025/6/9,Rusaliile
+2025/8/15,Adormirea Maicii Domnului
+2025/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2025/12/1,Ziua Națională a României
+2025/12/25,Crăciunul
+2025/12/26,Crăciunul
+2026/1/1,Anul Nou
+2026/1/2,Anul Nou
+2026/1/6,Botezul Domnului - Boboteaza
+2026/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2026/1/24,Ziua Unirii Principatelor Române
+2026/4/10,Vinerea Mare
+2026/4/12,Paștele
+2026/4/13,Paștele
+2026/5/1,Ziua Muncii
+2026/5/31,Rusaliile
+2026/6/1,Rusaliile; Ziua Copilului
+2026/8/15,Adormirea Maicii Domnului
+2026/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2026/12/1,Ziua Națională a României
+2026/12/25,Crăciunul
+2026/12/26,Crăciunul
+2027/1/1,Anul Nou
+2027/1/2,Anul Nou
+2027/1/6,Botezul Domnului - Boboteaza
+2027/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2027/1/24,Ziua Unirii Principatelor Române
+2027/4/30,Vinerea Mare
+2027/5/1,Ziua Muncii
+2027/5/2,Paștele
+2027/5/3,Paștele
+2027/6/1,Ziua Copilului
+2027/6/20,Rusaliile
+2027/6/21,Rusaliile
+2027/8/15,Adormirea Maicii Domnului
+2027/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2027/12/1,Ziua Națională a României
+2027/12/25,Crăciunul
+2027/12/26,Crăciunul
+2028/1/1,Anul Nou
+2028/1/2,Anul Nou
+2028/1/6,Botezul Domnului - Boboteaza
+2028/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2028/1/24,Ziua Unirii Principatelor Române
+2028/4/14,Vinerea Mare
+2028/4/16,Paștele
+2028/4/17,Paștele
+2028/5/1,Ziua Muncii
+2028/6/1,Ziua Copilului
+2028/6/4,Rusaliile
+2028/6/5,Rusaliile
+2028/8/15,Adormirea Maicii Domnului
+2028/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2028/12/1,Ziua Națională a României
+2028/12/25,Crăciunul
+2028/12/26,Crăciunul
+2029/1/1,Anul Nou
+2029/1/2,Anul Nou
+2029/1/6,Botezul Domnului - Boboteaza
+2029/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2029/1/24,Ziua Unirii Principatelor Române
+2029/4/6,Vinerea Mare
+2029/4/8,Paștele
+2029/4/9,Paștele
+2029/5/1,Ziua Muncii
+2029/5/27,Rusaliile
+2029/5/28,Rusaliile
+2029/6/1,Ziua Copilului
+2029/8/15,Adormirea Maicii Domnului
+2029/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2029/12/1,Ziua Națională a României
+2029/12/25,Crăciunul
+2029/12/26,Crăciunul
+2030/1/1,Anul Nou
+2030/1/2,Anul Nou
+2030/1/6,Botezul Domnului - Boboteaza
+2030/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2030/1/24,Ziua Unirii Principatelor Române
+2030/4/26,Vinerea Mare
+2030/4/28,Paștele
+2030/4/29,Paștele
+2030/5/1,Ziua Muncii
+2030/6/1,Ziua Copilului
+2030/6/16,Rusaliile
+2030/6/17,Rusaliile
+2030/8/15,Adormirea Maicii Domnului
+2030/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2030/12/1,Ziua Națională a României
+2030/12/25,Crăciunul
+2030/12/26,Crăciunul
+2031/1/1,Anul Nou
+2031/1/2,Anul Nou
+2031/1/6,Botezul Domnului - Boboteaza
+2031/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2031/1/24,Ziua Unirii Principatelor Române
+2031/4/11,Vinerea Mare
+2031/4/13,Paștele
+2031/4/14,Paștele
+2031/5/1,Ziua Muncii
+2031/6/1,Rusaliile; Ziua Copilului
+2031/6/2,Rusaliile
+2031/8/15,Adormirea Maicii Domnului
+2031/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2031/12/1,Ziua Națională a României
+2031/12/25,Crăciunul
+2031/12/26,Crăciunul
+2032/1/1,Anul Nou
+2032/1/2,Anul Nou
+2032/1/6,Botezul Domnului - Boboteaza
+2032/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2032/1/24,Ziua Unirii Principatelor Române
+2032/4/30,Vinerea Mare
+2032/5/1,Ziua Muncii
+2032/5/2,Paștele
+2032/5/3,Paștele
+2032/6/1,Ziua Copilului
+2032/6/20,Rusaliile
+2032/6/21,Rusaliile
+2032/8/15,Adormirea Maicii Domnului
+2032/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2032/12/1,Ziua Națională a României
+2032/12/25,Crăciunul
+2032/12/26,Crăciunul
+2033/1/1,Anul Nou
+2033/1/2,Anul Nou
+2033/1/6,Botezul Domnului - Boboteaza
+2033/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2033/1/24,Ziua Unirii Principatelor Române
+2033/4/22,Vinerea Mare
+2033/4/24,Paștele
+2033/4/25,Paștele
+2033/5/1,Ziua Muncii
+2033/6/1,Ziua Copilului
+2033/6/12,Rusaliile
+2033/6/13,Rusaliile
+2033/8/15,Adormirea Maicii Domnului
+2033/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2033/12/1,Ziua Națională a României
+2033/12/25,Crăciunul
+2033/12/26,Crăciunul
+2034/1/1,Anul Nou
+2034/1/2,Anul Nou
+2034/1/6,Botezul Domnului - Boboteaza
+2034/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2034/1/24,Ziua Unirii Principatelor Române
+2034/4/7,Vinerea Mare
+2034/4/9,Paștele
+2034/4/10,Paștele
+2034/5/1,Ziua Muncii
+2034/5/28,Rusaliile
+2034/5/29,Rusaliile
+2034/6/1,Ziua Copilului
+2034/8/15,Adormirea Maicii Domnului
+2034/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2034/12/1,Ziua Națională a României
+2034/12/25,Crăciunul
+2034/12/26,Crăciunul
+2035/1/1,Anul Nou
+2035/1/2,Anul Nou
+2035/1/6,Botezul Domnului - Boboteaza
+2035/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2035/1/24,Ziua Unirii Principatelor Române
+2035/4/27,Vinerea Mare
+2035/4/29,Paștele
+2035/4/30,Paștele
+2035/5/1,Ziua Muncii
+2035/6/1,Ziua Copilului
+2035/6/17,Rusaliile
+2035/6/18,Rusaliile
+2035/8/15,Adormirea Maicii Domnului
+2035/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2035/12/1,Ziua Națională a României
+2035/12/25,Crăciunul
+2035/12/26,Crăciunul
+2036/1/1,Anul Nou
+2036/1/2,Anul Nou
+2036/1/6,Botezul Domnului - Boboteaza
+2036/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2036/1/24,Ziua Unirii Principatelor Române
+2036/4/18,Vinerea Mare
+2036/4/20,Paștele
+2036/4/21,Paștele
+2036/5/1,Ziua Muncii
+2036/6/1,Ziua Copilului
+2036/6/8,Rusaliile
+2036/6/9,Rusaliile
+2036/8/15,Adormirea Maicii Domnului
+2036/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2036/12/1,Ziua Națională a României
+2036/12/25,Crăciunul
+2036/12/26,Crăciunul
+2037/1/1,Anul Nou
+2037/1/2,Anul Nou
+2037/1/6,Botezul Domnului - Boboteaza
+2037/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2037/1/24,Ziua Unirii Principatelor Române
+2037/4/3,Vinerea Mare
+2037/4/5,Paștele
+2037/4/6,Paștele
+2037/5/1,Ziua Muncii
+2037/5/24,Rusaliile
+2037/5/25,Rusaliile
+2037/6/1,Ziua Copilului
+2037/8/15,Adormirea Maicii Domnului
+2037/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2037/12/1,Ziua Națională a României
+2037/12/25,Crăciunul
+2037/12/26,Crăciunul
+2038/1/1,Anul Nou
+2038/1/2,Anul Nou
+2038/1/6,Botezul Domnului - Boboteaza
+2038/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2038/1/24,Ziua Unirii Principatelor Române
+2038/4/23,Vinerea Mare
+2038/4/25,Paștele
+2038/4/26,Paștele
+2038/5/1,Ziua Muncii
+2038/6/1,Ziua Copilului
+2038/6/13,Rusaliile
+2038/6/14,Rusaliile
+2038/8/15,Adormirea Maicii Domnului
+2038/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2038/12/1,Ziua Națională a României
+2038/12/25,Crăciunul
+2038/12/26,Crăciunul
+2039/1/1,Anul Nou
+2039/1/2,Anul Nou
+2039/1/6,Botezul Domnului - Boboteaza
+2039/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2039/1/24,Ziua Unirii Principatelor Române
+2039/4/15,Vinerea Mare
+2039/4/17,Paștele
+2039/4/18,Paștele
+2039/5/1,Ziua Muncii
+2039/6/1,Ziua Copilului
+2039/6/5,Rusaliile
+2039/6/6,Rusaliile
+2039/8/15,Adormirea Maicii Domnului
+2039/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2039/12/1,Ziua Națională a României
+2039/12/25,Crăciunul
+2039/12/26,Crăciunul
+2040/1/1,Anul Nou
+2040/1/2,Anul Nou
+2040/1/6,Botezul Domnului - Boboteaza
+2040/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2040/1/24,Ziua Unirii Principatelor Române
+2040/5/1,Ziua Muncii
+2040/5/4,Vinerea Mare
+2040/5/6,Paștele
+2040/5/7,Paștele
+2040/6/1,Ziua Copilului
+2040/6/24,Rusaliile
+2040/6/25,Rusaliile
+2040/8/15,Adormirea Maicii Domnului
+2040/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2040/12/1,Ziua Națională a României
+2040/12/25,Crăciunul
+2040/12/26,Crăciunul
+2041/1/1,Anul Nou
+2041/1/2,Anul Nou
+2041/1/6,Botezul Domnului - Boboteaza
+2041/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2041/1/24,Ziua Unirii Principatelor Române
+2041/4/19,Vinerea Mare
+2041/4/21,Paștele
+2041/4/22,Paștele
+2041/5/1,Ziua Muncii
+2041/6/1,Ziua Copilului
+2041/6/9,Rusaliile
+2041/6/10,Rusaliile
+2041/8/15,Adormirea Maicii Domnului
+2041/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2041/12/1,Ziua Națională a României
+2041/12/25,Crăciunul
+2041/12/26,Crăciunul
+2042/1/1,Anul Nou
+2042/1/2,Anul Nou
+2042/1/6,Botezul Domnului - Boboteaza
+2042/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2042/1/24,Ziua Unirii Principatelor Române
+2042/4/11,Vinerea Mare
+2042/4/13,Paștele
+2042/4/14,Paștele
+2042/5/1,Ziua Muncii
+2042/6/1,Rusaliile; Ziua Copilului
+2042/6/2,Rusaliile
+2042/8/15,Adormirea Maicii Domnului
+2042/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2042/12/1,Ziua Națională a României
+2042/12/25,Crăciunul
+2042/12/26,Crăciunul
+2043/1/1,Anul Nou
+2043/1/2,Anul Nou
+2043/1/6,Botezul Domnului - Boboteaza
+2043/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2043/1/24,Ziua Unirii Principatelor Române
+2043/5/1,Vinerea Mare; Ziua Muncii
+2043/5/3,Paștele
+2043/5/4,Paștele
+2043/6/1,Ziua Copilului
+2043/6/21,Rusaliile
+2043/6/22,Rusaliile
+2043/8/15,Adormirea Maicii Domnului
+2043/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2043/12/1,Ziua Națională a României
+2043/12/25,Crăciunul
+2043/12/26,Crăciunul
+2044/1/1,Anul Nou
+2044/1/2,Anul Nou
+2044/1/6,Botezul Domnului - Boboteaza
+2044/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2044/1/24,Ziua Unirii Principatelor Române
+2044/4/22,Vinerea Mare
+2044/4/24,Paștele
+2044/4/25,Paștele
+2044/5/1,Ziua Muncii
+2044/6/1,Ziua Copilului
+2044/6/12,Rusaliile
+2044/6/13,Rusaliile
+2044/8/15,Adormirea Maicii Domnului
+2044/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2044/12/1,Ziua Națională a României
+2044/12/25,Crăciunul
+2044/12/26,Crăciunul
+2045/1/1,Anul Nou
+2045/1/2,Anul Nou
+2045/1/6,Botezul Domnului - Boboteaza
+2045/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2045/1/24,Ziua Unirii Principatelor Române
+2045/4/7,Vinerea Mare
+2045/4/9,Paștele
+2045/4/10,Paștele
+2045/5/1,Ziua Muncii
+2045/5/28,Rusaliile
+2045/5/29,Rusaliile
+2045/6/1,Ziua Copilului
+2045/8/15,Adormirea Maicii Domnului
+2045/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2045/12/1,Ziua Națională a României
+2045/12/25,Crăciunul
+2045/12/26,Crăciunul
+2046/1/1,Anul Nou
+2046/1/2,Anul Nou
+2046/1/6,Botezul Domnului - Boboteaza
+2046/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2046/1/24,Ziua Unirii Principatelor Române
+2046/4/27,Vinerea Mare
+2046/4/29,Paștele
+2046/4/30,Paștele
+2046/5/1,Ziua Muncii
+2046/6/1,Ziua Copilului
+2046/6/17,Rusaliile
+2046/6/18,Rusaliile
+2046/8/15,Adormirea Maicii Domnului
+2046/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2046/12/1,Ziua Națională a României
+2046/12/25,Crăciunul
+2046/12/26,Crăciunul
+2047/1/1,Anul Nou
+2047/1/2,Anul Nou
+2047/1/6,Botezul Domnului - Boboteaza
+2047/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2047/1/24,Ziua Unirii Principatelor Române
+2047/4/19,Vinerea Mare
+2047/4/21,Paștele
+2047/4/22,Paștele
+2047/5/1,Ziua Muncii
+2047/6/1,Ziua Copilului
+2047/6/9,Rusaliile
+2047/6/10,Rusaliile
+2047/8/15,Adormirea Maicii Domnului
+2047/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2047/12/1,Ziua Națională a României
+2047/12/25,Crăciunul
+2047/12/26,Crăciunul
+2048/1/1,Anul Nou
+2048/1/2,Anul Nou
+2048/1/6,Botezul Domnului - Boboteaza
+2048/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2048/1/24,Ziua Unirii Principatelor Române
+2048/4/3,Vinerea Mare
+2048/4/5,Paștele
+2048/4/6,Paștele
+2048/5/1,Ziua Muncii
+2048/5/24,Rusaliile
+2048/5/25,Rusaliile
+2048/6/1,Ziua Copilului
+2048/8/15,Adormirea Maicii Domnului
+2048/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2048/12/1,Ziua Națională a României
+2048/12/25,Crăciunul
+2048/12/26,Crăciunul
+2049/1/1,Anul Nou
+2049/1/2,Anul Nou
+2049/1/6,Botezul Domnului - Boboteaza
+2049/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2049/1/24,Ziua Unirii Principatelor Române
+2049/4/23,Vinerea Mare
+2049/4/25,Paștele
+2049/4/26,Paștele
+2049/5/1,Ziua Muncii
+2049/6/1,Ziua Copilului
+2049/6/13,Rusaliile
+2049/6/14,Rusaliile
+2049/8/15,Adormirea Maicii Domnului
+2049/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2049/12/1,Ziua Națională a României
+2049/12/25,Crăciunul
+2049/12/26,Crăciunul
+2050/1/1,Anul Nou
+2050/1/2,Anul Nou
+2050/1/6,Botezul Domnului - Boboteaza
+2050/1/7,Soborul Sfântului Proroc Ioan Botezătorul
+2050/1/24,Ziua Unirii Principatelor Române
+2050/4/15,Vinerea Mare
+2050/4/17,Paștele
+2050/4/18,Paștele
+2050/5/1,Ziua Muncii
+2050/6/1,Ziua Copilului
+2050/6/5,Rusaliile
+2050/6/6,Rusaliile
+2050/8/15,Adormirea Maicii Domnului
+2050/11/30,Sfântul Apostol Andrei, cel Întâi chemat, Ocrotitorul României
+2050/12/1,Ziua Națională a României
+2050/12/25,Crăciunul
+2050/12/26,Crăciunul

@@ -1,0 +1,320 @@
+# NL の祝日（2020〜2050年、言語: nl）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Nieuwjaarsdag
+2020/4/10,Goede vrijdag
+2020/4/12,Eerste paasdag
+2020/4/13,Tweede paasdag
+2020/4/27,Koningsdag
+2020/5/5,Bevrijdingsdag
+2020/5/21,Hemelvaartsdag
+2020/5/31,Eerste pinksterdag
+2020/6/1,Tweede pinksterdag
+2020/12/25,Eerste kerstdag
+2020/12/26,Tweede kerstdag
+2021/1/1,Nieuwjaarsdag
+2021/4/2,Goede vrijdag
+2021/4/4,Eerste paasdag
+2021/4/5,Tweede paasdag
+2021/4/27,Koningsdag
+2021/5/13,Hemelvaartsdag
+2021/5/23,Eerste pinksterdag
+2021/5/24,Tweede pinksterdag
+2021/12/25,Eerste kerstdag
+2021/12/26,Tweede kerstdag
+2022/1/1,Nieuwjaarsdag
+2022/4/15,Goede vrijdag
+2022/4/17,Eerste paasdag
+2022/4/18,Tweede paasdag
+2022/4/27,Koningsdag
+2022/5/26,Hemelvaartsdag
+2022/6/5,Eerste pinksterdag
+2022/6/6,Tweede pinksterdag
+2022/12/25,Eerste kerstdag
+2022/12/26,Tweede kerstdag
+2023/1/1,Nieuwjaarsdag
+2023/4/7,Goede vrijdag
+2023/4/9,Eerste paasdag
+2023/4/10,Tweede paasdag
+2023/4/27,Koningsdag
+2023/5/18,Hemelvaartsdag
+2023/5/28,Eerste pinksterdag
+2023/5/29,Tweede pinksterdag
+2023/12/25,Eerste kerstdag
+2023/12/26,Tweede kerstdag
+2024/1/1,Nieuwjaarsdag
+2024/3/29,Goede vrijdag
+2024/3/31,Eerste paasdag
+2024/4/1,Tweede paasdag
+2024/4/27,Koningsdag
+2024/5/9,Hemelvaartsdag
+2024/5/19,Eerste pinksterdag
+2024/5/20,Tweede pinksterdag
+2024/12/25,Eerste kerstdag
+2024/12/26,Tweede kerstdag
+2025/1/1,Nieuwjaarsdag
+2025/4/18,Goede vrijdag
+2025/4/20,Eerste paasdag
+2025/4/21,Tweede paasdag
+2025/4/26,Koningsdag
+2025/5/5,Bevrijdingsdag
+2025/5/29,Hemelvaartsdag
+2025/6/8,Eerste pinksterdag
+2025/6/9,Tweede pinksterdag
+2025/12/25,Eerste kerstdag
+2025/12/26,Tweede kerstdag
+2026/1/1,Nieuwjaarsdag
+2026/4/3,Goede vrijdag
+2026/4/5,Eerste paasdag
+2026/4/6,Tweede paasdag
+2026/4/27,Koningsdag
+2026/5/14,Hemelvaartsdag
+2026/5/24,Eerste pinksterdag
+2026/5/25,Tweede pinksterdag
+2026/12/25,Eerste kerstdag
+2026/12/26,Tweede kerstdag
+2027/1/1,Nieuwjaarsdag
+2027/3/26,Goede vrijdag
+2027/3/28,Eerste paasdag
+2027/3/29,Tweede paasdag
+2027/4/27,Koningsdag
+2027/5/6,Hemelvaartsdag
+2027/5/16,Eerste pinksterdag
+2027/5/17,Tweede pinksterdag
+2027/12/25,Eerste kerstdag
+2027/12/26,Tweede kerstdag
+2028/1/1,Nieuwjaarsdag
+2028/4/14,Goede vrijdag
+2028/4/16,Eerste paasdag
+2028/4/17,Tweede paasdag
+2028/4/27,Koningsdag
+2028/5/25,Hemelvaartsdag
+2028/6/4,Eerste pinksterdag
+2028/6/5,Tweede pinksterdag
+2028/12/25,Eerste kerstdag
+2028/12/26,Tweede kerstdag
+2029/1/1,Nieuwjaarsdag
+2029/3/30,Goede vrijdag
+2029/4/1,Eerste paasdag
+2029/4/2,Tweede paasdag
+2029/4/27,Koningsdag
+2029/5/10,Hemelvaartsdag
+2029/5/20,Eerste pinksterdag
+2029/5/21,Tweede pinksterdag
+2029/12/25,Eerste kerstdag
+2029/12/26,Tweede kerstdag
+2030/1/1,Nieuwjaarsdag
+2030/4/19,Goede vrijdag
+2030/4/21,Eerste paasdag
+2030/4/22,Tweede paasdag
+2030/4/27,Koningsdag
+2030/5/5,Bevrijdingsdag
+2030/5/30,Hemelvaartsdag
+2030/6/9,Eerste pinksterdag
+2030/6/10,Tweede pinksterdag
+2030/12/25,Eerste kerstdag
+2030/12/26,Tweede kerstdag
+2031/1/1,Nieuwjaarsdag
+2031/4/11,Goede vrijdag
+2031/4/13,Eerste paasdag
+2031/4/14,Tweede paasdag
+2031/4/26,Koningsdag
+2031/5/22,Hemelvaartsdag
+2031/6/1,Eerste pinksterdag
+2031/6/2,Tweede pinksterdag
+2031/12/25,Eerste kerstdag
+2031/12/26,Tweede kerstdag
+2032/1/1,Nieuwjaarsdag
+2032/3/26,Goede vrijdag
+2032/3/28,Eerste paasdag
+2032/3/29,Tweede paasdag
+2032/4/27,Koningsdag
+2032/5/6,Hemelvaartsdag
+2032/5/16,Eerste pinksterdag
+2032/5/17,Tweede pinksterdag
+2032/12/25,Eerste kerstdag
+2032/12/26,Tweede kerstdag
+2033/1/1,Nieuwjaarsdag
+2033/4/15,Goede vrijdag
+2033/4/17,Eerste paasdag
+2033/4/18,Tweede paasdag
+2033/4/27,Koningsdag
+2033/5/26,Hemelvaartsdag
+2033/6/5,Eerste pinksterdag
+2033/6/6,Tweede pinksterdag
+2033/12/25,Eerste kerstdag
+2033/12/26,Tweede kerstdag
+2034/1/1,Nieuwjaarsdag
+2034/4/7,Goede vrijdag
+2034/4/9,Eerste paasdag
+2034/4/10,Tweede paasdag
+2034/4/27,Koningsdag
+2034/5/18,Hemelvaartsdag
+2034/5/28,Eerste pinksterdag
+2034/5/29,Tweede pinksterdag
+2034/12/25,Eerste kerstdag
+2034/12/26,Tweede kerstdag
+2035/1/1,Nieuwjaarsdag
+2035/3/23,Goede vrijdag
+2035/3/25,Eerste paasdag
+2035/3/26,Tweede paasdag
+2035/4/27,Koningsdag
+2035/5/3,Hemelvaartsdag
+2035/5/5,Bevrijdingsdag
+2035/5/13,Eerste pinksterdag
+2035/5/14,Tweede pinksterdag
+2035/12/25,Eerste kerstdag
+2035/12/26,Tweede kerstdag
+2036/1/1,Nieuwjaarsdag
+2036/4/11,Goede vrijdag
+2036/4/13,Eerste paasdag
+2036/4/14,Tweede paasdag
+2036/4/26,Koningsdag
+2036/5/22,Hemelvaartsdag
+2036/6/1,Eerste pinksterdag
+2036/6/2,Tweede pinksterdag
+2036/12/25,Eerste kerstdag
+2036/12/26,Tweede kerstdag
+2037/1/1,Nieuwjaarsdag
+2037/4/3,Goede vrijdag
+2037/4/5,Eerste paasdag
+2037/4/6,Tweede paasdag
+2037/4/27,Koningsdag
+2037/5/14,Hemelvaartsdag
+2037/5/24,Eerste pinksterdag
+2037/5/25,Tweede pinksterdag
+2037/12/25,Eerste kerstdag
+2037/12/26,Tweede kerstdag
+2038/1/1,Nieuwjaarsdag
+2038/4/23,Goede vrijdag
+2038/4/25,Eerste paasdag
+2038/4/26,Tweede paasdag
+2038/4/27,Koningsdag
+2038/6/3,Hemelvaartsdag
+2038/6/13,Eerste pinksterdag
+2038/6/14,Tweede pinksterdag
+2038/12/25,Eerste kerstdag
+2038/12/26,Tweede kerstdag
+2039/1/1,Nieuwjaarsdag
+2039/4/8,Goede vrijdag
+2039/4/10,Eerste paasdag
+2039/4/11,Tweede paasdag
+2039/4/27,Koningsdag
+2039/5/19,Hemelvaartsdag
+2039/5/29,Eerste pinksterdag
+2039/5/30,Tweede pinksterdag
+2039/12/25,Eerste kerstdag
+2039/12/26,Tweede kerstdag
+2040/1/1,Nieuwjaarsdag
+2040/3/30,Goede vrijdag
+2040/4/1,Eerste paasdag
+2040/4/2,Tweede paasdag
+2040/4/27,Koningsdag
+2040/5/5,Bevrijdingsdag
+2040/5/10,Hemelvaartsdag
+2040/5/20,Eerste pinksterdag
+2040/5/21,Tweede pinksterdag
+2040/12/25,Eerste kerstdag
+2040/12/26,Tweede kerstdag
+2041/1/1,Nieuwjaarsdag
+2041/4/19,Goede vrijdag
+2041/4/21,Eerste paasdag
+2041/4/22,Tweede paasdag
+2041/4/27,Koningsdag
+2041/5/30,Hemelvaartsdag
+2041/6/9,Eerste pinksterdag
+2041/6/10,Tweede pinksterdag
+2041/12/25,Eerste kerstdag
+2041/12/26,Tweede kerstdag
+2042/1/1,Nieuwjaarsdag
+2042/4/4,Goede vrijdag
+2042/4/6,Eerste paasdag
+2042/4/7,Tweede paasdag
+2042/4/26,Koningsdag
+2042/5/15,Hemelvaartsdag
+2042/5/25,Eerste pinksterdag
+2042/5/26,Tweede pinksterdag
+2042/12/25,Eerste kerstdag
+2042/12/26,Tweede kerstdag
+2043/1/1,Nieuwjaarsdag
+2043/3/27,Goede vrijdag
+2043/3/29,Eerste paasdag
+2043/3/30,Tweede paasdag
+2043/4/27,Koningsdag
+2043/5/7,Hemelvaartsdag
+2043/5/17,Eerste pinksterdag
+2043/5/18,Tweede pinksterdag
+2043/12/25,Eerste kerstdag
+2043/12/26,Tweede kerstdag
+2044/1/1,Nieuwjaarsdag
+2044/4/15,Goede vrijdag
+2044/4/17,Eerste paasdag
+2044/4/18,Tweede paasdag
+2044/4/27,Koningsdag
+2044/5/26,Hemelvaartsdag
+2044/6/5,Eerste pinksterdag
+2044/6/6,Tweede pinksterdag
+2044/12/25,Eerste kerstdag
+2044/12/26,Tweede kerstdag
+2045/1/1,Nieuwjaarsdag
+2045/4/7,Goede vrijdag
+2045/4/9,Eerste paasdag
+2045/4/10,Tweede paasdag
+2045/4/27,Koningsdag
+2045/5/5,Bevrijdingsdag
+2045/5/18,Hemelvaartsdag
+2045/5/28,Eerste pinksterdag
+2045/5/29,Tweede pinksterdag
+2045/12/25,Eerste kerstdag
+2045/12/26,Tweede kerstdag
+2046/1/1,Nieuwjaarsdag
+2046/3/23,Goede vrijdag
+2046/3/25,Eerste paasdag
+2046/3/26,Tweede paasdag
+2046/4/27,Koningsdag
+2046/5/3,Hemelvaartsdag
+2046/5/13,Eerste pinksterdag
+2046/5/14,Tweede pinksterdag
+2046/12/25,Eerste kerstdag
+2046/12/26,Tweede kerstdag
+2047/1/1,Nieuwjaarsdag
+2047/4/12,Goede vrijdag
+2047/4/14,Eerste paasdag
+2047/4/15,Tweede paasdag
+2047/4/27,Koningsdag
+2047/5/23,Hemelvaartsdag
+2047/6/2,Eerste pinksterdag
+2047/6/3,Tweede pinksterdag
+2047/12/25,Eerste kerstdag
+2047/12/26,Tweede kerstdag
+2048/1/1,Nieuwjaarsdag
+2048/4/3,Goede vrijdag
+2048/4/5,Eerste paasdag
+2048/4/6,Tweede paasdag
+2048/4/27,Koningsdag
+2048/5/14,Hemelvaartsdag
+2048/5/24,Eerste pinksterdag
+2048/5/25,Tweede pinksterdag
+2048/12/25,Eerste kerstdag
+2048/12/26,Tweede kerstdag
+2049/1/1,Nieuwjaarsdag
+2049/4/16,Goede vrijdag
+2049/4/18,Eerste paasdag
+2049/4/19,Tweede paasdag
+2049/4/27,Koningsdag
+2049/5/27,Hemelvaartsdag
+2049/6/6,Eerste pinksterdag
+2049/6/7,Tweede pinksterdag
+2049/12/25,Eerste kerstdag
+2049/12/26,Tweede kerstdag
+2050/1/1,Nieuwjaarsdag
+2050/4/8,Goede vrijdag
+2050/4/10,Eerste paasdag
+2050/4/11,Tweede paasdag
+2050/4/27,Koningsdag
+2050/5/5,Bevrijdingsdag
+2050/5/19,Hemelvaartsdag
+2050/5/29,Eerste pinksterdag
+2050/5/30,Tweede pinksterdag
+2050/12/25,Eerste kerstdag
+2050/12/26,Tweede kerstdag

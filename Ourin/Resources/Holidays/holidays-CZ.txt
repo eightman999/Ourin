@@ -1,0 +1,406 @@
+# CZ の祝日（2020〜2050年、言語: cs）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Den obnovy samostatného českého státu; Nový rok
+2020/4/10,Velký pátek
+2020/4/13,Velikonoční pondělí
+2020/5/1,Svátek práce
+2020/5/8,Den vítězství
+2020/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2020/7/6,Den upálení mistra Jana Husa
+2020/9/28,Den české státnosti
+2020/10/28,Den vzniku samostatného československého státu
+2020/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2020/12/24,Štědrý den
+2020/12/25,1. svátek vánoční
+2020/12/26,2. svátek vánoční
+2021/1/1,Den obnovy samostatného českého státu; Nový rok
+2021/4/2,Velký pátek
+2021/4/5,Velikonoční pondělí
+2021/5/1,Svátek práce
+2021/5/8,Den vítězství
+2021/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2021/7/6,Den upálení mistra Jana Husa
+2021/9/28,Den české státnosti
+2021/10/28,Den vzniku samostatného československého státu
+2021/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2021/12/24,Štědrý den
+2021/12/25,1. svátek vánoční
+2021/12/26,2. svátek vánoční
+2022/1/1,Den obnovy samostatného českého státu; Nový rok
+2022/4/15,Velký pátek
+2022/4/18,Velikonoční pondělí
+2022/5/1,Svátek práce
+2022/5/8,Den vítězství
+2022/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2022/7/6,Den upálení mistra Jana Husa
+2022/9/28,Den české státnosti
+2022/10/28,Den vzniku samostatného československého státu
+2022/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2022/12/24,Štědrý den
+2022/12/25,1. svátek vánoční
+2022/12/26,2. svátek vánoční
+2023/1/1,Den obnovy samostatného českého státu; Nový rok
+2023/4/7,Velký pátek
+2023/4/10,Velikonoční pondělí
+2023/5/1,Svátek práce
+2023/5/8,Den vítězství
+2023/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2023/7/6,Den upálení mistra Jana Husa
+2023/9/28,Den české státnosti
+2023/10/28,Den vzniku samostatného československého státu
+2023/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2023/12/24,Štědrý den
+2023/12/25,1. svátek vánoční
+2023/12/26,2. svátek vánoční
+2024/1/1,Den obnovy samostatného českého státu; Nový rok
+2024/3/29,Velký pátek
+2024/4/1,Velikonoční pondělí
+2024/5/1,Svátek práce
+2024/5/8,Den vítězství
+2024/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2024/7/6,Den upálení mistra Jana Husa
+2024/9/28,Den české státnosti
+2024/10/28,Den vzniku samostatného československého státu
+2024/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2024/12/24,Štědrý den
+2024/12/25,1. svátek vánoční
+2024/12/26,2. svátek vánoční
+2025/1/1,Den obnovy samostatného českého státu; Nový rok
+2025/4/18,Velký pátek
+2025/4/21,Velikonoční pondělí
+2025/5/1,Svátek práce
+2025/5/8,Den vítězství
+2025/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2025/7/6,Den upálení mistra Jana Husa
+2025/9/28,Den české státnosti
+2025/10/28,Den vzniku samostatného československého státu
+2025/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2025/12/24,Štědrý den
+2025/12/25,1. svátek vánoční
+2025/12/26,2. svátek vánoční
+2026/1/1,Den obnovy samostatného českého státu; Nový rok
+2026/4/3,Velký pátek
+2026/4/6,Velikonoční pondělí
+2026/5/1,Svátek práce
+2026/5/8,Den vítězství
+2026/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2026/7/6,Den upálení mistra Jana Husa
+2026/9/28,Den české státnosti
+2026/10/28,Den vzniku samostatného československého státu
+2026/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2026/12/24,Štědrý den
+2026/12/25,1. svátek vánoční
+2026/12/26,2. svátek vánoční
+2027/1/1,Den obnovy samostatného českého státu; Nový rok
+2027/3/26,Velký pátek
+2027/3/29,Velikonoční pondělí
+2027/5/1,Svátek práce
+2027/5/8,Den vítězství
+2027/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2027/7/6,Den upálení mistra Jana Husa
+2027/9/28,Den české státnosti
+2027/10/28,Den vzniku samostatného československého státu
+2027/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2027/12/24,Štědrý den
+2027/12/25,1. svátek vánoční
+2027/12/26,2. svátek vánoční
+2028/1/1,Den obnovy samostatného českého státu; Nový rok
+2028/4/14,Velký pátek
+2028/4/17,Velikonoční pondělí
+2028/5/1,Svátek práce
+2028/5/8,Den vítězství
+2028/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2028/7/6,Den upálení mistra Jana Husa
+2028/9/28,Den české státnosti
+2028/10/28,Den vzniku samostatného československého státu
+2028/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2028/12/24,Štědrý den
+2028/12/25,1. svátek vánoční
+2028/12/26,2. svátek vánoční
+2029/1/1,Den obnovy samostatného českého státu; Nový rok
+2029/3/30,Velký pátek
+2029/4/2,Velikonoční pondělí
+2029/5/1,Svátek práce
+2029/5/8,Den vítězství
+2029/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2029/7/6,Den upálení mistra Jana Husa
+2029/9/28,Den české státnosti
+2029/10/28,Den vzniku samostatného československého státu
+2029/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2029/12/24,Štědrý den
+2029/12/25,1. svátek vánoční
+2029/12/26,2. svátek vánoční
+2030/1/1,Den obnovy samostatného českého státu; Nový rok
+2030/4/19,Velký pátek
+2030/4/22,Velikonoční pondělí
+2030/5/1,Svátek práce
+2030/5/8,Den vítězství
+2030/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2030/7/6,Den upálení mistra Jana Husa
+2030/9/28,Den české státnosti
+2030/10/28,Den vzniku samostatného československého státu
+2030/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2030/12/24,Štědrý den
+2030/12/25,1. svátek vánoční
+2030/12/26,2. svátek vánoční
+2031/1/1,Den obnovy samostatného českého státu; Nový rok
+2031/4/11,Velký pátek
+2031/4/14,Velikonoční pondělí
+2031/5/1,Svátek práce
+2031/5/8,Den vítězství
+2031/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2031/7/6,Den upálení mistra Jana Husa
+2031/9/28,Den české státnosti
+2031/10/28,Den vzniku samostatného československého státu
+2031/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2031/12/24,Štědrý den
+2031/12/25,1. svátek vánoční
+2031/12/26,2. svátek vánoční
+2032/1/1,Den obnovy samostatného českého státu; Nový rok
+2032/3/26,Velký pátek
+2032/3/29,Velikonoční pondělí
+2032/5/1,Svátek práce
+2032/5/8,Den vítězství
+2032/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2032/7/6,Den upálení mistra Jana Husa
+2032/9/28,Den české státnosti
+2032/10/28,Den vzniku samostatného československého státu
+2032/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2032/12/24,Štědrý den
+2032/12/25,1. svátek vánoční
+2032/12/26,2. svátek vánoční
+2033/1/1,Den obnovy samostatného českého státu; Nový rok
+2033/4/15,Velký pátek
+2033/4/18,Velikonoční pondělí
+2033/5/1,Svátek práce
+2033/5/8,Den vítězství
+2033/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2033/7/6,Den upálení mistra Jana Husa
+2033/9/28,Den české státnosti
+2033/10/28,Den vzniku samostatného československého státu
+2033/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2033/12/24,Štědrý den
+2033/12/25,1. svátek vánoční
+2033/12/26,2. svátek vánoční
+2034/1/1,Den obnovy samostatného českého státu; Nový rok
+2034/4/7,Velký pátek
+2034/4/10,Velikonoční pondělí
+2034/5/1,Svátek práce
+2034/5/8,Den vítězství
+2034/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2034/7/6,Den upálení mistra Jana Husa
+2034/9/28,Den české státnosti
+2034/10/28,Den vzniku samostatného československého státu
+2034/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2034/12/24,Štědrý den
+2034/12/25,1. svátek vánoční
+2034/12/26,2. svátek vánoční
+2035/1/1,Den obnovy samostatného českého státu; Nový rok
+2035/3/23,Velký pátek
+2035/3/26,Velikonoční pondělí
+2035/5/1,Svátek práce
+2035/5/8,Den vítězství
+2035/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2035/7/6,Den upálení mistra Jana Husa
+2035/9/28,Den české státnosti
+2035/10/28,Den vzniku samostatného československého státu
+2035/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2035/12/24,Štědrý den
+2035/12/25,1. svátek vánoční
+2035/12/26,2. svátek vánoční
+2036/1/1,Den obnovy samostatného českého státu; Nový rok
+2036/4/11,Velký pátek
+2036/4/14,Velikonoční pondělí
+2036/5/1,Svátek práce
+2036/5/8,Den vítězství
+2036/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2036/7/6,Den upálení mistra Jana Husa
+2036/9/28,Den české státnosti
+2036/10/28,Den vzniku samostatného československého státu
+2036/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2036/12/24,Štědrý den
+2036/12/25,1. svátek vánoční
+2036/12/26,2. svátek vánoční
+2037/1/1,Den obnovy samostatného českého státu; Nový rok
+2037/4/3,Velký pátek
+2037/4/6,Velikonoční pondělí
+2037/5/1,Svátek práce
+2037/5/8,Den vítězství
+2037/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2037/7/6,Den upálení mistra Jana Husa
+2037/9/28,Den české státnosti
+2037/10/28,Den vzniku samostatného československého státu
+2037/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2037/12/24,Štědrý den
+2037/12/25,1. svátek vánoční
+2037/12/26,2. svátek vánoční
+2038/1/1,Den obnovy samostatného českého státu; Nový rok
+2038/4/23,Velký pátek
+2038/4/26,Velikonoční pondělí
+2038/5/1,Svátek práce
+2038/5/8,Den vítězství
+2038/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2038/7/6,Den upálení mistra Jana Husa
+2038/9/28,Den české státnosti
+2038/10/28,Den vzniku samostatného československého státu
+2038/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2038/12/24,Štědrý den
+2038/12/25,1. svátek vánoční
+2038/12/26,2. svátek vánoční
+2039/1/1,Den obnovy samostatného českého státu; Nový rok
+2039/4/8,Velký pátek
+2039/4/11,Velikonoční pondělí
+2039/5/1,Svátek práce
+2039/5/8,Den vítězství
+2039/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2039/7/6,Den upálení mistra Jana Husa
+2039/9/28,Den české státnosti
+2039/10/28,Den vzniku samostatného československého státu
+2039/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2039/12/24,Štědrý den
+2039/12/25,1. svátek vánoční
+2039/12/26,2. svátek vánoční
+2040/1/1,Den obnovy samostatného českého státu; Nový rok
+2040/3/30,Velký pátek
+2040/4/2,Velikonoční pondělí
+2040/5/1,Svátek práce
+2040/5/8,Den vítězství
+2040/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2040/7/6,Den upálení mistra Jana Husa
+2040/9/28,Den české státnosti
+2040/10/28,Den vzniku samostatného československého státu
+2040/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2040/12/24,Štědrý den
+2040/12/25,1. svátek vánoční
+2040/12/26,2. svátek vánoční
+2041/1/1,Den obnovy samostatného českého státu; Nový rok
+2041/4/19,Velký pátek
+2041/4/22,Velikonoční pondělí
+2041/5/1,Svátek práce
+2041/5/8,Den vítězství
+2041/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2041/7/6,Den upálení mistra Jana Husa
+2041/9/28,Den české státnosti
+2041/10/28,Den vzniku samostatného československého státu
+2041/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2041/12/24,Štědrý den
+2041/12/25,1. svátek vánoční
+2041/12/26,2. svátek vánoční
+2042/1/1,Den obnovy samostatného českého státu; Nový rok
+2042/4/4,Velký pátek
+2042/4/7,Velikonoční pondělí
+2042/5/1,Svátek práce
+2042/5/8,Den vítězství
+2042/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2042/7/6,Den upálení mistra Jana Husa
+2042/9/28,Den české státnosti
+2042/10/28,Den vzniku samostatného československého státu
+2042/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2042/12/24,Štědrý den
+2042/12/25,1. svátek vánoční
+2042/12/26,2. svátek vánoční
+2043/1/1,Den obnovy samostatného českého státu; Nový rok
+2043/3/27,Velký pátek
+2043/3/30,Velikonoční pondělí
+2043/5/1,Svátek práce
+2043/5/8,Den vítězství
+2043/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2043/7/6,Den upálení mistra Jana Husa
+2043/9/28,Den české státnosti
+2043/10/28,Den vzniku samostatného československého státu
+2043/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2043/12/24,Štědrý den
+2043/12/25,1. svátek vánoční
+2043/12/26,2. svátek vánoční
+2044/1/1,Den obnovy samostatného českého státu; Nový rok
+2044/4/15,Velký pátek
+2044/4/18,Velikonoční pondělí
+2044/5/1,Svátek práce
+2044/5/8,Den vítězství
+2044/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2044/7/6,Den upálení mistra Jana Husa
+2044/9/28,Den české státnosti
+2044/10/28,Den vzniku samostatného československého státu
+2044/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2044/12/24,Štědrý den
+2044/12/25,1. svátek vánoční
+2044/12/26,2. svátek vánoční
+2045/1/1,Den obnovy samostatného českého státu; Nový rok
+2045/4/7,Velký pátek
+2045/4/10,Velikonoční pondělí
+2045/5/1,Svátek práce
+2045/5/8,Den vítězství
+2045/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2045/7/6,Den upálení mistra Jana Husa
+2045/9/28,Den české státnosti
+2045/10/28,Den vzniku samostatného československého státu
+2045/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2045/12/24,Štědrý den
+2045/12/25,1. svátek vánoční
+2045/12/26,2. svátek vánoční
+2046/1/1,Den obnovy samostatného českého státu; Nový rok
+2046/3/23,Velký pátek
+2046/3/26,Velikonoční pondělí
+2046/5/1,Svátek práce
+2046/5/8,Den vítězství
+2046/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2046/7/6,Den upálení mistra Jana Husa
+2046/9/28,Den české státnosti
+2046/10/28,Den vzniku samostatného československého státu
+2046/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2046/12/24,Štědrý den
+2046/12/25,1. svátek vánoční
+2046/12/26,2. svátek vánoční
+2047/1/1,Den obnovy samostatného českého státu; Nový rok
+2047/4/12,Velký pátek
+2047/4/15,Velikonoční pondělí
+2047/5/1,Svátek práce
+2047/5/8,Den vítězství
+2047/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2047/7/6,Den upálení mistra Jana Husa
+2047/9/28,Den české státnosti
+2047/10/28,Den vzniku samostatného československého státu
+2047/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2047/12/24,Štědrý den
+2047/12/25,1. svátek vánoční
+2047/12/26,2. svátek vánoční
+2048/1/1,Den obnovy samostatného českého státu; Nový rok
+2048/4/3,Velký pátek
+2048/4/6,Velikonoční pondělí
+2048/5/1,Svátek práce
+2048/5/8,Den vítězství
+2048/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2048/7/6,Den upálení mistra Jana Husa
+2048/9/28,Den české státnosti
+2048/10/28,Den vzniku samostatného československého státu
+2048/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2048/12/24,Štědrý den
+2048/12/25,1. svátek vánoční
+2048/12/26,2. svátek vánoční
+2049/1/1,Den obnovy samostatného českého státu; Nový rok
+2049/4/16,Velký pátek
+2049/4/19,Velikonoční pondělí
+2049/5/1,Svátek práce
+2049/5/8,Den vítězství
+2049/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2049/7/6,Den upálení mistra Jana Husa
+2049/9/28,Den české státnosti
+2049/10/28,Den vzniku samostatného československého státu
+2049/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2049/12/24,Štědrý den
+2049/12/25,1. svátek vánoční
+2049/12/26,2. svátek vánoční
+2050/1/1,Den obnovy samostatného českého státu; Nový rok
+2050/4/8,Velký pátek
+2050/4/11,Velikonoční pondělí
+2050/5/1,Svátek práce
+2050/5/8,Den vítězství
+2050/7/5,Den slovanských věrozvěstů Cyrila a Metoděje
+2050/7/6,Den upálení mistra Jana Husa
+2050/9/28,Den české státnosti
+2050/10/28,Den vzniku samostatného československého státu
+2050/11/17,Den boje za svobodu a demokracii a Mezinárodní den studentstva
+2050/12/24,Štědrý den
+2050/12/25,1. svátek vánoční
+2050/12/26,2. svátek vánoční

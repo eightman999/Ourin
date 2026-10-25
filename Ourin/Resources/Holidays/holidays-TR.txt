@@ -1,0 +1,440 @@
+# TR の祝日（2020〜2050年、言語: tr）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Yılbaşı
+2020/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2020/5/1,Emek ve Dayanışma Günü
+2020/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2020/5/24,Ramazan Bayramı
+2020/5/25,Ramazan Bayramı
+2020/5/26,Ramazan Bayramı
+2020/7/15,Demokrasi ve Millî Birlik Günü
+2020/7/31,Kurban Bayramı
+2020/8/1,Kurban Bayramı
+2020/8/2,Kurban Bayramı
+2020/8/3,Kurban Bayramı
+2020/8/30,Zafer Bayramı
+2020/10/29,Cumhuriyet Bayramı
+2021/1/1,Yılbaşı
+2021/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2021/5/1,Emek ve Dayanışma Günü
+2021/5/13,Ramazan Bayramı
+2021/5/14,Ramazan Bayramı
+2021/5/15,Ramazan Bayramı
+2021/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2021/7/15,Demokrasi ve Millî Birlik Günü
+2021/7/20,Kurban Bayramı
+2021/7/21,Kurban Bayramı
+2021/7/22,Kurban Bayramı
+2021/7/23,Kurban Bayramı
+2021/8/30,Zafer Bayramı
+2021/10/29,Cumhuriyet Bayramı
+2022/1/1,Yılbaşı
+2022/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2022/5/1,Emek ve Dayanışma Günü
+2022/5/2,Ramazan Bayramı
+2022/5/3,Ramazan Bayramı
+2022/5/4,Ramazan Bayramı
+2022/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2022/7/9,Kurban Bayramı
+2022/7/10,Kurban Bayramı
+2022/7/11,Kurban Bayramı
+2022/7/12,Kurban Bayramı
+2022/7/15,Demokrasi ve Millî Birlik Günü
+2022/8/30,Zafer Bayramı
+2022/10/29,Cumhuriyet Bayramı
+2023/1/1,Yılbaşı
+2023/4/21,Ramazan Bayramı
+2023/4/22,Ramazan Bayramı
+2023/4/23,Ramazan Bayramı; Ulusal Egemenlik ve Çocuk Bayramı
+2023/5/1,Emek ve Dayanışma Günü
+2023/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2023/6/28,Kurban Bayramı
+2023/6/29,Kurban Bayramı
+2023/6/30,Kurban Bayramı
+2023/7/1,Kurban Bayramı
+2023/7/15,Demokrasi ve Millî Birlik Günü
+2023/8/30,Zafer Bayramı
+2023/10/29,Cumhuriyet Bayramı
+2024/1/1,Yılbaşı
+2024/4/10,Ramazan Bayramı
+2024/4/11,Ramazan Bayramı
+2024/4/12,Ramazan Bayramı
+2024/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2024/5/1,Emek ve Dayanışma Günü
+2024/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2024/6/16,Kurban Bayramı
+2024/6/17,Kurban Bayramı
+2024/6/18,Kurban Bayramı
+2024/6/19,Kurban Bayramı
+2024/7/15,Demokrasi ve Millî Birlik Günü
+2024/8/30,Zafer Bayramı
+2024/10/29,Cumhuriyet Bayramı
+2025/1/1,Yılbaşı
+2025/3/30,Ramazan Bayramı
+2025/3/31,Ramazan Bayramı
+2025/4/1,Ramazan Bayramı
+2025/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2025/5/1,Emek ve Dayanışma Günü
+2025/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2025/6/6,Kurban Bayramı
+2025/6/7,Kurban Bayramı
+2025/6/8,Kurban Bayramı
+2025/6/9,Kurban Bayramı
+2025/7/15,Demokrasi ve Millî Birlik Günü
+2025/8/30,Zafer Bayramı
+2025/10/29,Cumhuriyet Bayramı
+2026/1/1,Yılbaşı
+2026/3/20,Ramazan Bayramı
+2026/3/21,Ramazan Bayramı
+2026/3/22,Ramazan Bayramı
+2026/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2026/5/1,Emek ve Dayanışma Günü
+2026/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2026/5/27,Kurban Bayramı
+2026/5/28,Kurban Bayramı
+2026/5/29,Kurban Bayramı
+2026/5/30,Kurban Bayramı
+2026/7/15,Demokrasi ve Millî Birlik Günü
+2026/8/30,Zafer Bayramı
+2026/10/29,Cumhuriyet Bayramı
+2027/1/1,Yılbaşı
+2027/3/9,Ramazan Bayramı
+2027/3/10,Ramazan Bayramı
+2027/3/11,Ramazan Bayramı
+2027/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2027/5/1,Emek ve Dayanışma Günü
+2027/5/16,Kurban Bayramı
+2027/5/17,Kurban Bayramı
+2027/5/18,Kurban Bayramı
+2027/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı; Kurban Bayramı
+2027/7/15,Demokrasi ve Millî Birlik Günü
+2027/8/30,Zafer Bayramı
+2027/10/29,Cumhuriyet Bayramı
+2028/1/1,Yılbaşı
+2028/2/26,Ramazan Bayramı
+2028/2/27,Ramazan Bayramı
+2028/2/28,Ramazan Bayramı
+2028/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2028/5/1,Emek ve Dayanışma Günü
+2028/5/5,Kurban Bayramı
+2028/5/6,Kurban Bayramı
+2028/5/7,Kurban Bayramı
+2028/5/8,Kurban Bayramı
+2028/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2028/7/15,Demokrasi ve Millî Birlik Günü
+2028/8/30,Zafer Bayramı
+2028/10/29,Cumhuriyet Bayramı
+2029/1/1,Yılbaşı
+2029/2/14,Ramazan Bayramı
+2029/2/15,Ramazan Bayramı
+2029/2/16,Ramazan Bayramı
+2029/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2029/4/24,Kurban Bayramı
+2029/4/25,Kurban Bayramı
+2029/4/26,Kurban Bayramı
+2029/4/27,Kurban Bayramı
+2029/5/1,Emek ve Dayanışma Günü
+2029/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2029/7/15,Demokrasi ve Millî Birlik Günü
+2029/8/30,Zafer Bayramı
+2029/10/29,Cumhuriyet Bayramı
+2030/1/1,Yılbaşı
+2030/2/4,Ramazan Bayramı
+2030/2/5,Ramazan Bayramı
+2030/2/6,Ramazan Bayramı
+2030/4/13,Kurban Bayramı
+2030/4/14,Kurban Bayramı
+2030/4/15,Kurban Bayramı
+2030/4/16,Kurban Bayramı
+2030/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2030/5/1,Emek ve Dayanışma Günü
+2030/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2030/7/15,Demokrasi ve Millî Birlik Günü
+2030/8/30,Zafer Bayramı
+2030/10/29,Cumhuriyet Bayramı
+2031/1/1,Yılbaşı
+2031/1/24,Ramazan Bayramı
+2031/1/25,Ramazan Bayramı
+2031/1/26,Ramazan Bayramı
+2031/4/2,Kurban Bayramı
+2031/4/3,Kurban Bayramı
+2031/4/4,Kurban Bayramı
+2031/4/5,Kurban Bayramı
+2031/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2031/5/1,Emek ve Dayanışma Günü
+2031/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2031/7/15,Demokrasi ve Millî Birlik Günü
+2031/8/30,Zafer Bayramı
+2031/10/29,Cumhuriyet Bayramı
+2032/1/1,Yılbaşı
+2032/1/14,Ramazan Bayramı
+2032/1/15,Ramazan Bayramı
+2032/1/16,Ramazan Bayramı
+2032/3/22,Kurban Bayramı
+2032/3/23,Kurban Bayramı
+2032/3/24,Kurban Bayramı
+2032/3/25,Kurban Bayramı
+2032/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2032/5/1,Emek ve Dayanışma Günü
+2032/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2032/7/15,Demokrasi ve Millî Birlik Günü
+2032/8/30,Zafer Bayramı
+2032/10/29,Cumhuriyet Bayramı
+2033/1/1,Yılbaşı
+2033/1/2,Ramazan Bayramı (tahmini)
+2033/1/3,Ramazan Bayramı (tahmini)
+2033/1/4,Ramazan Bayramı (tahmini)
+2033/3/11,Kurban Bayramı (tahmini)
+2033/3/12,Kurban Bayramı (tahmini)
+2033/3/13,Kurban Bayramı (tahmini)
+2033/3/14,Kurban Bayramı (tahmini)
+2033/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2033/5/1,Emek ve Dayanışma Günü
+2033/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2033/7/15,Demokrasi ve Millî Birlik Günü
+2033/8/30,Zafer Bayramı
+2033/10/29,Cumhuriyet Bayramı
+2033/12/23,Ramazan Bayramı (tahmini)
+2033/12/24,Ramazan Bayramı (tahmini)
+2033/12/25,Ramazan Bayramı (tahmini)
+2034/1/1,Yılbaşı
+2034/3/1,Kurban Bayramı (tahmini)
+2034/3/2,Kurban Bayramı (tahmini)
+2034/3/3,Kurban Bayramı (tahmini)
+2034/3/4,Kurban Bayramı (tahmini)
+2034/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2034/5/1,Emek ve Dayanışma Günü
+2034/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2034/7/15,Demokrasi ve Millî Birlik Günü
+2034/8/30,Zafer Bayramı
+2034/10/29,Cumhuriyet Bayramı
+2034/12/12,Ramazan Bayramı (tahmini)
+2034/12/13,Ramazan Bayramı (tahmini)
+2034/12/14,Ramazan Bayramı (tahmini)
+2035/1/1,Yılbaşı
+2035/2/18,Kurban Bayramı (tahmini)
+2035/2/19,Kurban Bayramı (tahmini)
+2035/2/20,Kurban Bayramı (tahmini)
+2035/2/21,Kurban Bayramı (tahmini)
+2035/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2035/5/1,Emek ve Dayanışma Günü
+2035/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2035/7/15,Demokrasi ve Millî Birlik Günü
+2035/8/30,Zafer Bayramı
+2035/10/29,Cumhuriyet Bayramı
+2035/12/1,Ramazan Bayramı (tahmini)
+2035/12/2,Ramazan Bayramı (tahmini)
+2035/12/3,Ramazan Bayramı (tahmini)
+2036/1/1,Yılbaşı
+2036/2/7,Kurban Bayramı (tahmini)
+2036/2/8,Kurban Bayramı (tahmini)
+2036/2/9,Kurban Bayramı (tahmini)
+2036/2/10,Kurban Bayramı (tahmini)
+2036/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2036/5/1,Emek ve Dayanışma Günü
+2036/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2036/7/15,Demokrasi ve Millî Birlik Günü
+2036/8/30,Zafer Bayramı
+2036/10/29,Cumhuriyet Bayramı
+2036/11/19,Ramazan Bayramı (tahmini)
+2036/11/20,Ramazan Bayramı (tahmini)
+2036/11/21,Ramazan Bayramı (tahmini)
+2037/1/1,Yılbaşı
+2037/1/26,Kurban Bayramı (tahmini)
+2037/1/27,Kurban Bayramı (tahmini)
+2037/1/28,Kurban Bayramı (tahmini)
+2037/1/29,Kurban Bayramı (tahmini)
+2037/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2037/5/1,Emek ve Dayanışma Günü
+2037/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2037/7/15,Demokrasi ve Millî Birlik Günü
+2037/8/30,Zafer Bayramı
+2037/10/29,Cumhuriyet Bayramı
+2037/11/8,Ramazan Bayramı (tahmini)
+2037/11/9,Ramazan Bayramı (tahmini)
+2037/11/10,Ramazan Bayramı (tahmini)
+2038/1/1,Yılbaşı
+2038/1/16,Kurban Bayramı (tahmini)
+2038/1/17,Kurban Bayramı (tahmini)
+2038/1/18,Kurban Bayramı (tahmini)
+2038/1/19,Kurban Bayramı (tahmini)
+2038/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2038/5/1,Emek ve Dayanışma Günü
+2038/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2038/7/15,Demokrasi ve Millî Birlik Günü
+2038/8/30,Zafer Bayramı
+2038/10/29,Cumhuriyet Bayramı; Ramazan Bayramı (tahmini)
+2038/10/30,Ramazan Bayramı (tahmini)
+2038/10/31,Ramazan Bayramı (tahmini)
+2039/1/1,Yılbaşı
+2039/1/5,Kurban Bayramı (tahmini)
+2039/1/6,Kurban Bayramı (tahmini)
+2039/1/7,Kurban Bayramı (tahmini)
+2039/1/8,Kurban Bayramı (tahmini)
+2039/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2039/5/1,Emek ve Dayanışma Günü
+2039/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2039/7/15,Demokrasi ve Millî Birlik Günü
+2039/8/30,Zafer Bayramı
+2039/10/19,Ramazan Bayramı (tahmini)
+2039/10/20,Ramazan Bayramı (tahmini)
+2039/10/21,Ramazan Bayramı (tahmini)
+2039/10/29,Cumhuriyet Bayramı
+2039/12/26,Kurban Bayramı (tahmini)
+2039/12/27,Kurban Bayramı (tahmini)
+2039/12/28,Kurban Bayramı (tahmini)
+2039/12/29,Kurban Bayramı (tahmini)
+2040/1/1,Yılbaşı
+2040/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2040/5/1,Emek ve Dayanışma Günü
+2040/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2040/7/15,Demokrasi ve Millî Birlik Günü
+2040/8/30,Zafer Bayramı
+2040/10/7,Ramazan Bayramı (tahmini)
+2040/10/8,Ramazan Bayramı (tahmini)
+2040/10/9,Ramazan Bayramı (tahmini)
+2040/10/29,Cumhuriyet Bayramı
+2040/12/14,Kurban Bayramı (tahmini)
+2040/12/15,Kurban Bayramı (tahmini)
+2040/12/16,Kurban Bayramı (tahmini)
+2040/12/17,Kurban Bayramı (tahmini)
+2041/1/1,Yılbaşı
+2041/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2041/5/1,Emek ve Dayanışma Günü
+2041/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2041/7/15,Demokrasi ve Millî Birlik Günü
+2041/8/30,Zafer Bayramı
+2041/9/26,Ramazan Bayramı (tahmini)
+2041/9/27,Ramazan Bayramı (tahmini)
+2041/9/28,Ramazan Bayramı (tahmini)
+2041/10/29,Cumhuriyet Bayramı
+2041/12/4,Kurban Bayramı (tahmini)
+2041/12/5,Kurban Bayramı (tahmini)
+2041/12/6,Kurban Bayramı (tahmini)
+2041/12/7,Kurban Bayramı (tahmini)
+2042/1/1,Yılbaşı
+2042/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2042/5/1,Emek ve Dayanışma Günü
+2042/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2042/7/15,Demokrasi ve Millî Birlik Günü
+2042/8/30,Zafer Bayramı
+2042/9/15,Ramazan Bayramı (tahmini)
+2042/9/16,Ramazan Bayramı (tahmini)
+2042/9/17,Ramazan Bayramı (tahmini)
+2042/10/29,Cumhuriyet Bayramı
+2042/11/23,Kurban Bayramı (tahmini)
+2042/11/24,Kurban Bayramı (tahmini)
+2042/11/25,Kurban Bayramı (tahmini)
+2042/11/26,Kurban Bayramı (tahmini)
+2043/1/1,Yılbaşı
+2043/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2043/5/1,Emek ve Dayanışma Günü
+2043/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2043/7/15,Demokrasi ve Millî Birlik Günü
+2043/8/30,Zafer Bayramı
+2043/9/4,Ramazan Bayramı (tahmini)
+2043/9/5,Ramazan Bayramı (tahmini)
+2043/9/6,Ramazan Bayramı (tahmini)
+2043/10/29,Cumhuriyet Bayramı
+2043/11/12,Kurban Bayramı (tahmini)
+2043/11/13,Kurban Bayramı (tahmini)
+2043/11/14,Kurban Bayramı (tahmini)
+2043/11/15,Kurban Bayramı (tahmini)
+2044/1/1,Yılbaşı
+2044/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2044/5/1,Emek ve Dayanışma Günü
+2044/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2044/7/15,Demokrasi ve Millî Birlik Günü
+2044/8/24,Ramazan Bayramı (tahmini)
+2044/8/25,Ramazan Bayramı (tahmini)
+2044/8/26,Ramazan Bayramı (tahmini)
+2044/8/30,Zafer Bayramı
+2044/10/29,Cumhuriyet Bayramı
+2044/10/31,Kurban Bayramı (tahmini)
+2044/11/1,Kurban Bayramı (tahmini)
+2044/11/2,Kurban Bayramı (tahmini)
+2044/11/3,Kurban Bayramı (tahmini)
+2045/1/1,Yılbaşı
+2045/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2045/5/1,Emek ve Dayanışma Günü
+2045/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2045/7/15,Demokrasi ve Millî Birlik Günü
+2045/8/14,Ramazan Bayramı (tahmini)
+2045/8/15,Ramazan Bayramı (tahmini)
+2045/8/16,Ramazan Bayramı (tahmini)
+2045/8/30,Zafer Bayramı
+2045/10/21,Kurban Bayramı (tahmini)
+2045/10/22,Kurban Bayramı (tahmini)
+2045/10/23,Kurban Bayramı (tahmini)
+2045/10/24,Kurban Bayramı (tahmini)
+2045/10/29,Cumhuriyet Bayramı
+2046/1/1,Yılbaşı
+2046/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2046/5/1,Emek ve Dayanışma Günü
+2046/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2046/7/15,Demokrasi ve Millî Birlik Günü
+2046/8/3,Ramazan Bayramı (tahmini)
+2046/8/4,Ramazan Bayramı (tahmini)
+2046/8/5,Ramazan Bayramı (tahmini)
+2046/8/30,Zafer Bayramı
+2046/10/10,Kurban Bayramı (tahmini)
+2046/10/11,Kurban Bayramı (tahmini)
+2046/10/12,Kurban Bayramı (tahmini)
+2046/10/13,Kurban Bayramı (tahmini)
+2046/10/29,Cumhuriyet Bayramı
+2047/1/1,Yılbaşı
+2047/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2047/5/1,Emek ve Dayanışma Günü
+2047/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2047/7/15,Demokrasi ve Millî Birlik Günü
+2047/7/24,Ramazan Bayramı (tahmini)
+2047/7/25,Ramazan Bayramı (tahmini)
+2047/7/26,Ramazan Bayramı (tahmini)
+2047/8/30,Zafer Bayramı
+2047/9/30,Kurban Bayramı (tahmini)
+2047/10/1,Kurban Bayramı (tahmini)
+2047/10/2,Kurban Bayramı (tahmini)
+2047/10/3,Kurban Bayramı (tahmini)
+2047/10/29,Cumhuriyet Bayramı
+2048/1/1,Yılbaşı
+2048/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2048/5/1,Emek ve Dayanışma Günü
+2048/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2048/7/12,Ramazan Bayramı (tahmini)
+2048/7/13,Ramazan Bayramı (tahmini)
+2048/7/14,Ramazan Bayramı (tahmini)
+2048/7/15,Demokrasi ve Millî Birlik Günü
+2048/8/30,Zafer Bayramı
+2048/9/19,Kurban Bayramı (tahmini)
+2048/9/20,Kurban Bayramı (tahmini)
+2048/9/21,Kurban Bayramı (tahmini)
+2048/9/22,Kurban Bayramı (tahmini)
+2048/10/29,Cumhuriyet Bayramı
+2049/1/1,Yılbaşı
+2049/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2049/5/1,Emek ve Dayanışma Günü
+2049/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2049/7/1,Ramazan Bayramı (tahmini)
+2049/7/2,Ramazan Bayramı (tahmini)
+2049/7/3,Ramazan Bayramı (tahmini)
+2049/7/15,Demokrasi ve Millî Birlik Günü
+2049/8/30,Zafer Bayramı
+2049/9/8,Kurban Bayramı (tahmini)
+2049/9/9,Kurban Bayramı (tahmini)
+2049/9/10,Kurban Bayramı (tahmini)
+2049/9/11,Kurban Bayramı (tahmini)
+2049/10/29,Cumhuriyet Bayramı
+2050/1/1,Yılbaşı
+2050/4/23,Ulusal Egemenlik ve Çocuk Bayramı
+2050/5/1,Emek ve Dayanışma Günü
+2050/5/19,Atatürk'ü Anma, Gençlik ve Spor Bayramı
+2050/6/20,Ramazan Bayramı (tahmini)
+2050/6/21,Ramazan Bayramı (tahmini)
+2050/6/22,Ramazan Bayramı (tahmini)
+2050/7/15,Demokrasi ve Millî Birlik Günü
+2050/8/28,Kurban Bayramı (tahmini)
+2050/8/29,Kurban Bayramı (tahmini)
+2050/8/30,Kurban Bayramı (tahmini); Zafer Bayramı
+2050/8/31,Kurban Bayramı (tahmini)
+2050/10/29,Cumhuriyet Bayramı

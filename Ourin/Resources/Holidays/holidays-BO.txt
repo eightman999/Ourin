@@ -1,0 +1,402 @@
+# BO の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2020/2/24,Carnaval
+2020/2/25,Carnaval
+2020/4/10,Viernes Santo
+2020/5/1,Día del Trabajo
+2020/6/11,Corpus Christi
+2020/6/21,Año Nuevo Aymara Amazónico
+2020/6/22,Año Nuevo Aymara Amazónico (observado)
+2020/8/6,Día de la Independencia de Bolivia
+2020/10/17,Día de la Dignidad Nacional
+2020/11/2,Día de Todos los Difuntos
+2020/12/25,Navidad
+2021/1/1,Año Nuevo
+2021/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2021/2/15,Carnaval
+2021/2/16,Carnaval
+2021/4/2,Viernes Santo
+2021/5/1,Día del Trabajo
+2021/6/3,Corpus Christi
+2021/6/21,Año Nuevo Aymara Amazónico
+2021/8/6,Día de la Independencia de Bolivia
+2021/10/17,Día de la Dignidad Nacional
+2021/11/2,Día de Todos los Difuntos
+2021/12/25,Navidad
+2022/1/1,Año Nuevo
+2022/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2022/2/28,Carnaval
+2022/3/1,Carnaval
+2022/4/15,Viernes Santo
+2022/5/1,Día del Trabajo
+2022/5/2,Día del Trabajo (observado)
+2022/6/16,Corpus Christi
+2022/6/21,Año Nuevo Aymara Amazónico
+2022/8/6,Día de la Independencia de Bolivia
+2022/10/17,Día de la Dignidad Nacional
+2022/11/2,Día de Todos los Difuntos
+2022/12/25,Navidad
+2022/12/26,Navidad (observado)
+2023/1/1,Año Nuevo
+2023/1/2,Año Nuevo (observado)
+2023/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2023/1/23,Día de la Creación del Estado Plurinacional de Bolivia (observado)
+2023/2/20,Carnaval
+2023/2/21,Carnaval
+2023/4/7,Viernes Santo
+2023/5/1,Día del Trabajo
+2023/6/8,Corpus Christi
+2023/6/21,Año Nuevo Aymara Amazónico
+2023/8/6,Día de la Independencia de Bolivia
+2023/8/7,Día de la Independencia de Bolivia (observado)
+2023/10/17,Día de la Dignidad Nacional
+2023/11/2,Día de Todos los Difuntos
+2023/12/25,Navidad
+2024/1/1,Año Nuevo
+2024/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2024/2/12,Carnaval
+2024/2/13,Carnaval
+2024/3/29,Viernes Santo
+2024/5/1,Día del Trabajo
+2024/5/30,Corpus Christi
+2024/6/21,Año Nuevo Aymara Amazónico
+2024/8/6,Día de la Independencia de Bolivia
+2024/10/17,Día de la Dignidad Nacional
+2024/11/2,Día de Todos los Difuntos
+2024/12/25,Navidad
+2025/1/1,Año Nuevo
+2025/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2025/3/3,Carnaval
+2025/3/4,Carnaval
+2025/4/18,Viernes Santo
+2025/5/1,Día del Trabajo
+2025/6/19,Corpus Christi
+2025/6/21,Año Nuevo Aymara Amazónico
+2025/8/6,Día de la Independencia de Bolivia
+2025/10/17,Día de la Dignidad Nacional
+2025/11/2,Día de Todos los Difuntos
+2025/12/25,Navidad
+2026/1/1,Año Nuevo
+2026/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2026/2/16,Carnaval
+2026/2/17,Carnaval
+2026/4/3,Viernes Santo
+2026/5/1,Día del Trabajo
+2026/6/4,Corpus Christi
+2026/6/21,Año Nuevo Aymara Amazónico
+2026/6/22,Año Nuevo Aymara Amazónico (observado)
+2026/8/6,Día de la Independencia de Bolivia
+2026/10/17,Día de la Dignidad Nacional
+2026/11/2,Día de Todos los Difuntos
+2026/12/25,Navidad
+2027/1/1,Año Nuevo
+2027/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2027/2/8,Carnaval
+2027/2/9,Carnaval
+2027/3/26,Viernes Santo
+2027/5/1,Día del Trabajo
+2027/5/27,Corpus Christi
+2027/6/21,Año Nuevo Aymara Amazónico
+2027/8/6,Día de la Independencia de Bolivia
+2027/10/17,Día de la Dignidad Nacional
+2027/11/2,Día de Todos los Difuntos
+2027/12/25,Navidad
+2028/1/1,Año Nuevo
+2028/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2028/2/28,Carnaval
+2028/2/29,Carnaval
+2028/4/14,Viernes Santo
+2028/5/1,Día del Trabajo
+2028/6/15,Corpus Christi
+2028/6/21,Año Nuevo Aymara Amazónico
+2028/8/6,Día de la Independencia de Bolivia
+2028/8/7,Día de la Independencia de Bolivia (observado)
+2028/10/17,Día de la Dignidad Nacional
+2028/11/2,Día de Todos los Difuntos
+2028/12/25,Navidad
+2029/1/1,Año Nuevo
+2029/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2029/2/12,Carnaval
+2029/2/13,Carnaval
+2029/3/30,Viernes Santo
+2029/5/1,Día del Trabajo
+2029/5/31,Corpus Christi
+2029/6/21,Año Nuevo Aymara Amazónico
+2029/8/6,Día de la Independencia de Bolivia
+2029/10/17,Día de la Dignidad Nacional
+2029/11/2,Día de Todos los Difuntos
+2029/12/25,Navidad
+2030/1/1,Año Nuevo
+2030/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2030/3/4,Carnaval
+2030/3/5,Carnaval
+2030/4/19,Viernes Santo
+2030/5/1,Día del Trabajo
+2030/6/20,Corpus Christi
+2030/6/21,Año Nuevo Aymara Amazónico
+2030/8/6,Día de la Independencia de Bolivia
+2030/10/17,Día de la Dignidad Nacional
+2030/11/2,Día de Todos los Difuntos
+2030/12/25,Navidad
+2031/1/1,Año Nuevo
+2031/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2031/2/24,Carnaval
+2031/2/25,Carnaval
+2031/4/11,Viernes Santo
+2031/5/1,Día del Trabajo
+2031/6/12,Corpus Christi
+2031/6/21,Año Nuevo Aymara Amazónico
+2031/8/6,Día de la Independencia de Bolivia
+2031/10/17,Día de la Dignidad Nacional
+2031/11/2,Día de Todos los Difuntos
+2031/12/25,Navidad
+2032/1/1,Año Nuevo
+2032/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2032/2/9,Carnaval
+2032/2/10,Carnaval
+2032/3/26,Viernes Santo
+2032/5/1,Día del Trabajo
+2032/5/27,Corpus Christi
+2032/6/21,Año Nuevo Aymara Amazónico
+2032/8/6,Día de la Independencia de Bolivia
+2032/10/17,Día de la Dignidad Nacional
+2032/11/2,Día de Todos los Difuntos
+2032/12/25,Navidad
+2033/1/1,Año Nuevo
+2033/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2033/2/28,Carnaval
+2033/3/1,Carnaval
+2033/4/15,Viernes Santo
+2033/5/1,Día del Trabajo
+2033/5/2,Día del Trabajo (observado)
+2033/6/16,Corpus Christi
+2033/6/21,Año Nuevo Aymara Amazónico
+2033/8/6,Día de la Independencia de Bolivia
+2033/10/17,Día de la Dignidad Nacional
+2033/11/2,Día de Todos los Difuntos
+2033/12/25,Navidad
+2033/12/26,Navidad (observado)
+2034/1/1,Año Nuevo
+2034/1/2,Año Nuevo (observado)
+2034/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2034/1/23,Día de la Creación del Estado Plurinacional de Bolivia (observado)
+2034/2/20,Carnaval
+2034/2/21,Carnaval
+2034/4/7,Viernes Santo
+2034/5/1,Día del Trabajo
+2034/6/8,Corpus Christi
+2034/6/21,Año Nuevo Aymara Amazónico
+2034/8/6,Día de la Independencia de Bolivia
+2034/8/7,Día de la Independencia de Bolivia (observado)
+2034/10/17,Día de la Dignidad Nacional
+2034/11/2,Día de Todos los Difuntos
+2034/12/25,Navidad
+2035/1/1,Año Nuevo
+2035/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2035/2/5,Carnaval
+2035/2/6,Carnaval
+2035/3/23,Viernes Santo
+2035/5/1,Día del Trabajo
+2035/5/24,Corpus Christi
+2035/6/21,Año Nuevo Aymara Amazónico
+2035/8/6,Día de la Independencia de Bolivia
+2035/10/17,Día de la Dignidad Nacional
+2035/11/2,Día de Todos los Difuntos
+2035/12/25,Navidad
+2036/1/1,Año Nuevo
+2036/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2036/2/25,Carnaval
+2036/2/26,Carnaval
+2036/4/11,Viernes Santo
+2036/5/1,Día del Trabajo
+2036/6/12,Corpus Christi
+2036/6/21,Año Nuevo Aymara Amazónico
+2036/8/6,Día de la Independencia de Bolivia
+2036/10/17,Día de la Dignidad Nacional
+2036/11/2,Día de Todos los Difuntos
+2036/12/25,Navidad
+2037/1/1,Año Nuevo
+2037/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2037/2/16,Carnaval
+2037/2/17,Carnaval
+2037/4/3,Viernes Santo
+2037/5/1,Día del Trabajo
+2037/6/4,Corpus Christi
+2037/6/21,Año Nuevo Aymara Amazónico
+2037/6/22,Año Nuevo Aymara Amazónico (observado)
+2037/8/6,Día de la Independencia de Bolivia
+2037/10/17,Día de la Dignidad Nacional
+2037/11/2,Día de Todos los Difuntos
+2037/12/25,Navidad
+2038/1/1,Año Nuevo
+2038/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2038/3/8,Carnaval
+2038/3/9,Carnaval
+2038/4/23,Viernes Santo
+2038/5/1,Día del Trabajo
+2038/6/21,Año Nuevo Aymara Amazónico
+2038/6/24,Corpus Christi
+2038/8/6,Día de la Independencia de Bolivia
+2038/10/17,Día de la Dignidad Nacional
+2038/11/2,Día de Todos los Difuntos
+2038/12/25,Navidad
+2039/1/1,Año Nuevo
+2039/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2039/2/21,Carnaval
+2039/2/22,Carnaval
+2039/4/8,Viernes Santo
+2039/5/1,Día del Trabajo
+2039/5/2,Día del Trabajo (observado)
+2039/6/9,Corpus Christi
+2039/6/21,Año Nuevo Aymara Amazónico
+2039/8/6,Día de la Independencia de Bolivia
+2039/10/17,Día de la Dignidad Nacional
+2039/11/2,Día de Todos los Difuntos
+2039/12/25,Navidad
+2039/12/26,Navidad (observado)
+2040/1/1,Año Nuevo
+2040/1/2,Año Nuevo (observado)
+2040/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2040/1/23,Día de la Creación del Estado Plurinacional de Bolivia (observado)
+2040/2/13,Carnaval
+2040/2/14,Carnaval
+2040/3/30,Viernes Santo
+2040/5/1,Día del Trabajo
+2040/5/31,Corpus Christi
+2040/6/21,Año Nuevo Aymara Amazónico
+2040/8/6,Día de la Independencia de Bolivia
+2040/10/17,Día de la Dignidad Nacional
+2040/11/2,Día de Todos los Difuntos
+2040/12/25,Navidad
+2041/1/1,Año Nuevo
+2041/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2041/3/4,Carnaval
+2041/3/5,Carnaval
+2041/4/19,Viernes Santo
+2041/5/1,Día del Trabajo
+2041/6/20,Corpus Christi
+2041/6/21,Año Nuevo Aymara Amazónico
+2041/8/6,Día de la Independencia de Bolivia
+2041/10/17,Día de la Dignidad Nacional
+2041/11/2,Día de Todos los Difuntos
+2041/12/25,Navidad
+2042/1/1,Año Nuevo
+2042/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2042/2/17,Carnaval
+2042/2/18,Carnaval
+2042/4/4,Viernes Santo
+2042/5/1,Día del Trabajo
+2042/6/5,Corpus Christi
+2042/6/21,Año Nuevo Aymara Amazónico
+2042/8/6,Día de la Independencia de Bolivia
+2042/10/17,Día de la Dignidad Nacional
+2042/11/2,Día de Todos los Difuntos
+2042/12/25,Navidad
+2043/1/1,Año Nuevo
+2043/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2043/2/9,Carnaval
+2043/2/10,Carnaval
+2043/3/27,Viernes Santo
+2043/5/1,Día del Trabajo
+2043/5/28,Corpus Christi
+2043/6/21,Año Nuevo Aymara Amazónico
+2043/6/22,Año Nuevo Aymara Amazónico (observado)
+2043/8/6,Día de la Independencia de Bolivia
+2043/10/17,Día de la Dignidad Nacional
+2043/11/2,Día de Todos los Difuntos
+2043/12/25,Navidad
+2044/1/1,Año Nuevo
+2044/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2044/2/29,Carnaval
+2044/3/1,Carnaval
+2044/4/15,Viernes Santo
+2044/5/1,Día del Trabajo
+2044/5/2,Día del Trabajo (observado)
+2044/6/16,Corpus Christi
+2044/6/21,Año Nuevo Aymara Amazónico
+2044/8/6,Día de la Independencia de Bolivia
+2044/10/17,Día de la Dignidad Nacional
+2044/11/2,Día de Todos los Difuntos
+2044/12/25,Navidad
+2044/12/26,Navidad (observado)
+2045/1/1,Año Nuevo
+2045/1/2,Año Nuevo (observado)
+2045/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2045/1/23,Día de la Creación del Estado Plurinacional de Bolivia (observado)
+2045/2/20,Carnaval
+2045/2/21,Carnaval
+2045/4/7,Viernes Santo
+2045/5/1,Día del Trabajo
+2045/6/8,Corpus Christi
+2045/6/21,Año Nuevo Aymara Amazónico
+2045/8/6,Día de la Independencia de Bolivia
+2045/8/7,Día de la Independencia de Bolivia (observado)
+2045/10/17,Día de la Dignidad Nacional
+2045/11/2,Día de Todos los Difuntos
+2045/12/25,Navidad
+2046/1/1,Año Nuevo
+2046/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2046/2/5,Carnaval
+2046/2/6,Carnaval
+2046/3/23,Viernes Santo
+2046/5/1,Día del Trabajo
+2046/5/24,Corpus Christi
+2046/6/21,Año Nuevo Aymara Amazónico
+2046/8/6,Día de la Independencia de Bolivia
+2046/10/17,Día de la Dignidad Nacional
+2046/11/2,Día de Todos los Difuntos
+2046/12/25,Navidad
+2047/1/1,Año Nuevo
+2047/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2047/2/25,Carnaval
+2047/2/26,Carnaval
+2047/4/12,Viernes Santo
+2047/5/1,Día del Trabajo
+2047/6/13,Corpus Christi
+2047/6/21,Año Nuevo Aymara Amazónico
+2047/8/6,Día de la Independencia de Bolivia
+2047/10/17,Día de la Dignidad Nacional
+2047/11/2,Día de Todos los Difuntos
+2047/12/25,Navidad
+2048/1/1,Año Nuevo
+2048/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2048/2/17,Carnaval
+2048/2/18,Carnaval
+2048/4/3,Viernes Santo
+2048/5/1,Día del Trabajo
+2048/6/4,Corpus Christi
+2048/6/21,Año Nuevo Aymara Amazónico
+2048/6/22,Año Nuevo Aymara Amazónico (observado)
+2048/8/6,Día de la Independencia de Bolivia
+2048/10/17,Día de la Dignidad Nacional
+2048/11/2,Día de Todos los Difuntos
+2048/12/25,Navidad
+2049/1/1,Año Nuevo
+2049/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2049/3/1,Carnaval
+2049/3/2,Carnaval
+2049/4/16,Viernes Santo
+2049/5/1,Día del Trabajo
+2049/6/17,Corpus Christi
+2049/6/21,Año Nuevo Aymara Amazónico
+2049/8/6,Día de la Independencia de Bolivia
+2049/10/17,Día de la Dignidad Nacional
+2049/11/2,Día de Todos los Difuntos
+2049/12/25,Navidad
+2050/1/1,Año Nuevo
+2050/1/22,Día de la Creación del Estado Plurinacional de Bolivia
+2050/2/21,Carnaval
+2050/2/22,Carnaval
+2050/4/8,Viernes Santo
+2050/5/1,Día del Trabajo
+2050/5/2,Día del Trabajo (observado)
+2050/6/9,Corpus Christi
+2050/6/21,Año Nuevo Aymara Amazónico
+2050/8/6,Día de la Independencia de Bolivia
+2050/10/17,Día de la Dignidad Nacional
+2050/11/2,Día de Todos los Difuntos
+2050/12/25,Navidad
+2050/12/26,Navidad (observado)

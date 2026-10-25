@@ -1,0 +1,559 @@
+# TL の祝日（2020〜2050年、言語: pt_TL）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Dia de Ano Novo
+2020/3/3,Dia dos Veteranos
+2020/4/10,Sexta-Feira Santa
+2020/5/1,Dia Mundial do Trabalhador
+2020/5/20,Dia da Restauração da Independência
+2020/5/24,Idul Fitri
+2020/6/11,Festa do Corpo de Deus
+2020/7/31,Idul Adha
+2020/8/30,Dia da Consulta Popular
+2020/11/1,Dia de Todos os Santos
+2020/11/2,Dia de Todos os Fiéis Defuntos
+2020/11/12,Dia Nacional da Juventude
+2020/11/28,Dia da Proclamação da Independência
+2020/12/7,Dia da Memória
+2020/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2020/12/25,Dia de Natal
+2020/12/31,Dia dos Heróis Nacionais
+2021/1/1,Dia de Ano Novo
+2021/3/3,Dia dos Veteranos
+2021/4/2,Sexta-Feira Santa
+2021/5/1,Dia Mundial do Trabalhador
+2021/5/13,Idul Fitri
+2021/5/20,Dia da Restauração da Independência
+2021/6/3,Festa do Corpo de Deus
+2021/7/19,Idul Adha
+2021/8/30,Dia da Consulta Popular
+2021/11/1,Dia de Todos os Santos
+2021/11/2,Dia de Todos os Fiéis Defuntos
+2021/11/12,Dia Nacional da Juventude
+2021/11/28,Dia da Proclamação da Independência
+2021/12/7,Dia da Memória
+2021/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2021/12/25,Dia de Natal
+2021/12/31,Dia dos Heróis Nacionais
+2022/1/1,Dia de Ano Novo
+2022/3/3,Dia dos Veteranos
+2022/4/15,Sexta-Feira Santa
+2022/5/1,Dia Mundial do Trabalhador
+2022/5/2,Idul Fitri
+2022/5/20,Dia da Restauração da Independência
+2022/6/16,Festa do Corpo de Deus
+2022/7/9,Idul Adha
+2022/8/30,Dia da Consulta Popular
+2022/11/1,Dia de Todos os Santos
+2022/11/2,Dia de Todos os Fiéis Defuntos
+2022/11/12,Dia Nacional da Juventude
+2022/11/28,Dia da Proclamação da Independência
+2022/12/7,Dia da Memória
+2022/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2022/12/25,Dia de Natal
+2022/12/31,Dia dos Heróis Nacionais
+2023/1/1,Dia de Ano Novo
+2023/3/3,Dia dos Veteranos
+2023/4/7,Sexta-Feira Santa
+2023/4/22,Idul Fitri
+2023/5/1,Dia Mundial do Trabalhador
+2023/5/20,Dia da Restauração da Independência
+2023/6/8,Festa do Corpo de Deus
+2023/6/29,Idul Adha
+2023/8/30,Dia da Consulta Popular
+2023/11/1,Dia de Todos os Santos
+2023/11/2,Dia de Todos os Fiéis Defuntos
+2023/11/3,Dia Nacional da Mulher
+2023/11/12,Dia Nacional da Juventude
+2023/11/28,Dia da Proclamação da Independência
+2023/12/7,Dia da Memória
+2023/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2023/12/25,Dia de Natal
+2023/12/31,Dia dos Heróis Nacionais
+2024/1/1,Dia de Ano Novo
+2024/3/3,Dia dos Veteranos
+2024/3/29,Sexta-Feira Santa
+2024/4/10,Idul Fitri
+2024/5/1,Dia Mundial do Trabalhador
+2024/5/20,Dia da Restauração da Independência
+2024/5/30,Festa do Corpo de Deus
+2024/6/17,Idul Adha
+2024/8/30,Dia da Consulta Popular
+2024/11/1,Dia de Todos os Santos
+2024/11/2,Dia de Todos os Fiéis Defuntos
+2024/11/3,Dia Nacional da Mulher
+2024/11/12,Dia Nacional da Juventude
+2024/11/28,Dia da Proclamação da Independência
+2024/12/7,Dia da Memória
+2024/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2024/12/25,Dia de Natal
+2024/12/31,Dia dos Heróis Nacionais
+2025/1/1,Dia de Ano Novo
+2025/3/3,Dia dos Veteranos
+2025/3/31,Idul Fitri
+2025/4/18,Sexta-Feira Santa
+2025/5/1,Dia Mundial do Trabalhador
+2025/5/20,Dia da Restauração da Independência
+2025/6/6,Idul Adha
+2025/6/19,Festa do Corpo de Deus
+2025/8/30,Dia da Consulta Popular
+2025/11/1,Dia de Todos os Santos
+2025/11/2,Dia de Todos os Fiéis Defuntos
+2025/11/3,Dia Nacional da Mulher
+2025/11/12,Dia Nacional da Juventude
+2025/11/28,Dia da Proclamação da Independência
+2025/12/7,Dia da Memória
+2025/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2025/12/25,Dia de Natal
+2025/12/31,Dia dos Heróis Nacionais
+2026/1/1,Dia de Ano Novo
+2026/3/3,Dia dos Veteranos
+2026/3/20,Idul Fitri (aproximada)
+2026/4/3,Sexta-Feira Santa
+2026/5/1,Dia Mundial do Trabalhador
+2026/5/20,Dia da Restauração da Independência
+2026/5/27,Idul Adha (aproximada)
+2026/6/4,Festa do Corpo de Deus
+2026/8/30,Dia da Consulta Popular
+2026/11/1,Dia de Todos os Santos
+2026/11/2,Dia de Todos os Fiéis Defuntos
+2026/11/3,Dia Nacional da Mulher
+2026/11/12,Dia Nacional da Juventude
+2026/11/28,Dia da Proclamação da Independência
+2026/12/7,Dia da Memória
+2026/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2026/12/25,Dia de Natal
+2026/12/31,Dia dos Heróis Nacionais
+2027/1/1,Dia de Ano Novo
+2027/3/3,Dia dos Veteranos
+2027/3/9,Idul Fitri (aproximada)
+2027/3/26,Sexta-Feira Santa
+2027/5/1,Dia Mundial do Trabalhador
+2027/5/16,Idul Adha (aproximada)
+2027/5/20,Dia da Restauração da Independência
+2027/5/27,Festa do Corpo de Deus
+2027/8/30,Dia da Consulta Popular
+2027/11/1,Dia de Todos os Santos
+2027/11/2,Dia de Todos os Fiéis Defuntos
+2027/11/3,Dia Nacional da Mulher
+2027/11/12,Dia Nacional da Juventude
+2027/11/28,Dia da Proclamação da Independência
+2027/12/7,Dia da Memória
+2027/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2027/12/25,Dia de Natal
+2027/12/31,Dia dos Heróis Nacionais
+2028/1/1,Dia de Ano Novo
+2028/2/26,Idul Fitri (aproximada)
+2028/3/3,Dia dos Veteranos
+2028/4/14,Sexta-Feira Santa
+2028/5/1,Dia Mundial do Trabalhador
+2028/5/5,Idul Adha (aproximada)
+2028/5/20,Dia da Restauração da Independência
+2028/6/15,Festa do Corpo de Deus
+2028/8/30,Dia da Consulta Popular
+2028/11/1,Dia de Todos os Santos
+2028/11/2,Dia de Todos os Fiéis Defuntos
+2028/11/3,Dia Nacional da Mulher
+2028/11/12,Dia Nacional da Juventude
+2028/11/28,Dia da Proclamação da Independência
+2028/12/7,Dia da Memória
+2028/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2028/12/25,Dia de Natal
+2028/12/31,Dia dos Heróis Nacionais
+2029/1/1,Dia de Ano Novo
+2029/2/14,Idul Fitri (aproximada)
+2029/3/3,Dia dos Veteranos
+2029/3/30,Sexta-Feira Santa
+2029/4/24,Idul Adha (aproximada)
+2029/5/1,Dia Mundial do Trabalhador
+2029/5/20,Dia da Restauração da Independência
+2029/5/31,Festa do Corpo de Deus
+2029/8/30,Dia da Consulta Popular
+2029/11/1,Dia de Todos os Santos
+2029/11/2,Dia de Todos os Fiéis Defuntos
+2029/11/3,Dia Nacional da Mulher
+2029/11/12,Dia Nacional da Juventude
+2029/11/28,Dia da Proclamação da Independência
+2029/12/7,Dia da Memória
+2029/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2029/12/25,Dia de Natal
+2029/12/31,Dia dos Heróis Nacionais
+2030/1/1,Dia de Ano Novo
+2030/2/4,Idul Fitri (aproximada)
+2030/3/3,Dia dos Veteranos
+2030/4/13,Idul Adha (aproximada)
+2030/4/19,Sexta-Feira Santa
+2030/5/1,Dia Mundial do Trabalhador
+2030/5/20,Dia da Restauração da Independência
+2030/6/20,Festa do Corpo de Deus
+2030/8/30,Dia da Consulta Popular
+2030/11/1,Dia de Todos os Santos
+2030/11/2,Dia de Todos os Fiéis Defuntos
+2030/11/3,Dia Nacional da Mulher
+2030/11/12,Dia Nacional da Juventude
+2030/11/28,Dia da Proclamação da Independência
+2030/12/7,Dia da Memória
+2030/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2030/12/25,Dia de Natal
+2030/12/31,Dia dos Heróis Nacionais
+2031/1/1,Dia de Ano Novo
+2031/1/24,Idul Fitri (aproximada)
+2031/3/3,Dia dos Veteranos
+2031/4/2,Idul Adha (aproximada)
+2031/4/11,Sexta-Feira Santa
+2031/5/1,Dia Mundial do Trabalhador
+2031/5/20,Dia da Restauração da Independência
+2031/6/12,Festa do Corpo de Deus
+2031/8/30,Dia da Consulta Popular
+2031/11/1,Dia de Todos os Santos
+2031/11/2,Dia de Todos os Fiéis Defuntos
+2031/11/3,Dia Nacional da Mulher
+2031/11/12,Dia Nacional da Juventude
+2031/11/28,Dia da Proclamação da Independência
+2031/12/7,Dia da Memória
+2031/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2031/12/25,Dia de Natal
+2031/12/31,Dia dos Heróis Nacionais
+2032/1/1,Dia de Ano Novo
+2032/1/14,Idul Fitri (aproximada)
+2032/3/3,Dia dos Veteranos
+2032/3/22,Idul Adha (aproximada)
+2032/3/26,Sexta-Feira Santa
+2032/5/1,Dia Mundial do Trabalhador
+2032/5/20,Dia da Restauração da Independência
+2032/5/27,Festa do Corpo de Deus
+2032/8/30,Dia da Consulta Popular
+2032/11/1,Dia de Todos os Santos
+2032/11/2,Dia de Todos os Fiéis Defuntos
+2032/11/3,Dia Nacional da Mulher
+2032/11/12,Dia Nacional da Juventude
+2032/11/28,Dia da Proclamação da Independência
+2032/12/7,Dia da Memória
+2032/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2032/12/25,Dia de Natal
+2032/12/31,Dia dos Heróis Nacionais
+2033/1/1,Dia de Ano Novo
+2033/1/2,Idul Fitri (aproximada)
+2033/3/3,Dia dos Veteranos
+2033/3/11,Idul Adha (aproximada)
+2033/4/15,Sexta-Feira Santa
+2033/5/1,Dia Mundial do Trabalhador
+2033/5/20,Dia da Restauração da Independência
+2033/6/16,Festa do Corpo de Deus
+2033/8/30,Dia da Consulta Popular
+2033/11/1,Dia de Todos os Santos
+2033/11/2,Dia de Todos os Fiéis Defuntos
+2033/11/3,Dia Nacional da Mulher
+2033/11/12,Dia Nacional da Juventude
+2033/11/28,Dia da Proclamação da Independência
+2033/12/7,Dia da Memória
+2033/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2033/12/23,Idul Fitri (aproximada)
+2033/12/25,Dia de Natal
+2033/12/31,Dia dos Heróis Nacionais
+2034/1/1,Dia de Ano Novo
+2034/3/1,Idul Adha (aproximada)
+2034/3/3,Dia dos Veteranos
+2034/4/7,Sexta-Feira Santa
+2034/5/1,Dia Mundial do Trabalhador
+2034/5/20,Dia da Restauração da Independência
+2034/6/8,Festa do Corpo de Deus
+2034/8/30,Dia da Consulta Popular
+2034/11/1,Dia de Todos os Santos
+2034/11/2,Dia de Todos os Fiéis Defuntos
+2034/11/3,Dia Nacional da Mulher
+2034/11/12,Dia Nacional da Juventude
+2034/11/28,Dia da Proclamação da Independência
+2034/12/7,Dia da Memória
+2034/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2034/12/12,Idul Fitri (aproximada)
+2034/12/25,Dia de Natal
+2034/12/31,Dia dos Heróis Nacionais
+2035/1/1,Dia de Ano Novo
+2035/2/18,Idul Adha (aproximada)
+2035/3/3,Dia dos Veteranos
+2035/3/23,Sexta-Feira Santa
+2035/5/1,Dia Mundial do Trabalhador
+2035/5/20,Dia da Restauração da Independência
+2035/5/24,Festa do Corpo de Deus
+2035/8/30,Dia da Consulta Popular
+2035/11/1,Dia de Todos os Santos
+2035/11/2,Dia de Todos os Fiéis Defuntos
+2035/11/3,Dia Nacional da Mulher
+2035/11/12,Dia Nacional da Juventude
+2035/11/28,Dia da Proclamação da Independência
+2035/12/1,Idul Fitri (aproximada)
+2035/12/7,Dia da Memória
+2035/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2035/12/25,Dia de Natal
+2035/12/31,Dia dos Heróis Nacionais
+2036/1/1,Dia de Ano Novo
+2036/2/7,Idul Adha (aproximada)
+2036/3/3,Dia dos Veteranos
+2036/4/11,Sexta-Feira Santa
+2036/5/1,Dia Mundial do Trabalhador
+2036/5/20,Dia da Restauração da Independência
+2036/6/12,Festa do Corpo de Deus
+2036/8/30,Dia da Consulta Popular
+2036/11/1,Dia de Todos os Santos
+2036/11/2,Dia de Todos os Fiéis Defuntos
+2036/11/3,Dia Nacional da Mulher
+2036/11/12,Dia Nacional da Juventude
+2036/11/19,Idul Fitri (aproximada)
+2036/11/28,Dia da Proclamação da Independência
+2036/12/7,Dia da Memória
+2036/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2036/12/25,Dia de Natal
+2036/12/31,Dia dos Heróis Nacionais
+2037/1/1,Dia de Ano Novo
+2037/1/26,Idul Adha (aproximada)
+2037/3/3,Dia dos Veteranos
+2037/4/3,Sexta-Feira Santa
+2037/5/1,Dia Mundial do Trabalhador
+2037/5/20,Dia da Restauração da Independência
+2037/6/4,Festa do Corpo de Deus
+2037/8/30,Dia da Consulta Popular
+2037/11/1,Dia de Todos os Santos
+2037/11/2,Dia de Todos os Fiéis Defuntos
+2037/11/3,Dia Nacional da Mulher
+2037/11/8,Idul Fitri (aproximada)
+2037/11/12,Dia Nacional da Juventude
+2037/11/28,Dia da Proclamação da Independência
+2037/12/7,Dia da Memória
+2037/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2037/12/25,Dia de Natal
+2037/12/31,Dia dos Heróis Nacionais
+2038/1/1,Dia de Ano Novo
+2038/1/16,Idul Adha (aproximada)
+2038/3/3,Dia dos Veteranos
+2038/4/23,Sexta-Feira Santa
+2038/5/1,Dia Mundial do Trabalhador
+2038/5/20,Dia da Restauração da Independência
+2038/6/24,Festa do Corpo de Deus
+2038/8/30,Dia da Consulta Popular
+2038/10/29,Idul Fitri (aproximada)
+2038/11/1,Dia de Todos os Santos
+2038/11/2,Dia de Todos os Fiéis Defuntos
+2038/11/3,Dia Nacional da Mulher
+2038/11/12,Dia Nacional da Juventude
+2038/11/28,Dia da Proclamação da Independência
+2038/12/7,Dia da Memória
+2038/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2038/12/25,Dia de Natal
+2038/12/31,Dia dos Heróis Nacionais
+2039/1/1,Dia de Ano Novo
+2039/1/5,Idul Adha (aproximada)
+2039/3/3,Dia dos Veteranos
+2039/4/8,Sexta-Feira Santa
+2039/5/1,Dia Mundial do Trabalhador
+2039/5/20,Dia da Restauração da Independência
+2039/6/9,Festa do Corpo de Deus
+2039/8/30,Dia da Consulta Popular
+2039/10/19,Idul Fitri (aproximada)
+2039/11/1,Dia de Todos os Santos
+2039/11/2,Dia de Todos os Fiéis Defuntos
+2039/11/3,Dia Nacional da Mulher
+2039/11/12,Dia Nacional da Juventude
+2039/11/28,Dia da Proclamação da Independência
+2039/12/7,Dia da Memória
+2039/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2039/12/25,Dia de Natal
+2039/12/26,Idul Adha (aproximada)
+2039/12/31,Dia dos Heróis Nacionais
+2040/1/1,Dia de Ano Novo
+2040/3/3,Dia dos Veteranos
+2040/3/30,Sexta-Feira Santa
+2040/5/1,Dia Mundial do Trabalhador
+2040/5/20,Dia da Restauração da Independência
+2040/5/31,Festa do Corpo de Deus
+2040/8/30,Dia da Consulta Popular
+2040/10/7,Idul Fitri (aproximada)
+2040/11/1,Dia de Todos os Santos
+2040/11/2,Dia de Todos os Fiéis Defuntos
+2040/11/3,Dia Nacional da Mulher
+2040/11/12,Dia Nacional da Juventude
+2040/11/28,Dia da Proclamação da Independência
+2040/12/7,Dia da Memória
+2040/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2040/12/14,Idul Adha (aproximada)
+2040/12/25,Dia de Natal
+2040/12/31,Dia dos Heróis Nacionais
+2041/1/1,Dia de Ano Novo
+2041/3/3,Dia dos Veteranos
+2041/4/19,Sexta-Feira Santa
+2041/5/1,Dia Mundial do Trabalhador
+2041/5/20,Dia da Restauração da Independência
+2041/6/20,Festa do Corpo de Deus
+2041/8/30,Dia da Consulta Popular
+2041/9/26,Idul Fitri (aproximada)
+2041/11/1,Dia de Todos os Santos
+2041/11/2,Dia de Todos os Fiéis Defuntos
+2041/11/3,Dia Nacional da Mulher
+2041/11/12,Dia Nacional da Juventude
+2041/11/28,Dia da Proclamação da Independência
+2041/12/4,Idul Adha (aproximada)
+2041/12/7,Dia da Memória
+2041/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2041/12/25,Dia de Natal
+2041/12/31,Dia dos Heróis Nacionais
+2042/1/1,Dia de Ano Novo
+2042/3/3,Dia dos Veteranos
+2042/4/4,Sexta-Feira Santa
+2042/5/1,Dia Mundial do Trabalhador
+2042/5/20,Dia da Restauração da Independência
+2042/6/5,Festa do Corpo de Deus
+2042/8/30,Dia da Consulta Popular
+2042/9/15,Idul Fitri (aproximada)
+2042/11/1,Dia de Todos os Santos
+2042/11/2,Dia de Todos os Fiéis Defuntos
+2042/11/3,Dia Nacional da Mulher
+2042/11/12,Dia Nacional da Juventude
+2042/11/23,Idul Adha (aproximada)
+2042/11/28,Dia da Proclamação da Independência
+2042/12/7,Dia da Memória
+2042/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2042/12/25,Dia de Natal
+2042/12/31,Dia dos Heróis Nacionais
+2043/1/1,Dia de Ano Novo
+2043/3/3,Dia dos Veteranos
+2043/3/27,Sexta-Feira Santa
+2043/5/1,Dia Mundial do Trabalhador
+2043/5/20,Dia da Restauração da Independência
+2043/5/28,Festa do Corpo de Deus
+2043/8/30,Dia da Consulta Popular
+2043/9/4,Idul Fitri (aproximada)
+2043/11/1,Dia de Todos os Santos
+2043/11/2,Dia de Todos os Fiéis Defuntos
+2043/11/3,Dia Nacional da Mulher
+2043/11/12,Dia Nacional da Juventude; Idul Adha (aproximada)
+2043/11/28,Dia da Proclamação da Independência
+2043/12/7,Dia da Memória
+2043/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2043/12/25,Dia de Natal
+2043/12/31,Dia dos Heróis Nacionais
+2044/1/1,Dia de Ano Novo
+2044/3/3,Dia dos Veteranos
+2044/4/15,Sexta-Feira Santa
+2044/5/1,Dia Mundial do Trabalhador
+2044/5/20,Dia da Restauração da Independência
+2044/6/16,Festa do Corpo de Deus
+2044/8/24,Idul Fitri (aproximada)
+2044/8/30,Dia da Consulta Popular
+2044/10/31,Idul Adha (aproximada)
+2044/11/1,Dia de Todos os Santos
+2044/11/2,Dia de Todos os Fiéis Defuntos
+2044/11/3,Dia Nacional da Mulher
+2044/11/12,Dia Nacional da Juventude
+2044/11/28,Dia da Proclamação da Independência
+2044/12/7,Dia da Memória
+2044/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2044/12/25,Dia de Natal
+2044/12/31,Dia dos Heróis Nacionais
+2045/1/1,Dia de Ano Novo
+2045/3/3,Dia dos Veteranos
+2045/4/7,Sexta-Feira Santa
+2045/5/1,Dia Mundial do Trabalhador
+2045/5/20,Dia da Restauração da Independência
+2045/6/8,Festa do Corpo de Deus
+2045/8/14,Idul Fitri (aproximada)
+2045/8/30,Dia da Consulta Popular
+2045/10/21,Idul Adha (aproximada)
+2045/11/1,Dia de Todos os Santos
+2045/11/2,Dia de Todos os Fiéis Defuntos
+2045/11/3,Dia Nacional da Mulher
+2045/11/12,Dia Nacional da Juventude
+2045/11/28,Dia da Proclamação da Independência
+2045/12/7,Dia da Memória
+2045/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2045/12/25,Dia de Natal
+2045/12/31,Dia dos Heróis Nacionais
+2046/1/1,Dia de Ano Novo
+2046/3/3,Dia dos Veteranos
+2046/3/23,Sexta-Feira Santa
+2046/5/1,Dia Mundial do Trabalhador
+2046/5/20,Dia da Restauração da Independência
+2046/5/24,Festa do Corpo de Deus
+2046/8/3,Idul Fitri (aproximada)
+2046/8/30,Dia da Consulta Popular
+2046/10/10,Idul Adha (aproximada)
+2046/11/1,Dia de Todos os Santos
+2046/11/2,Dia de Todos os Fiéis Defuntos
+2046/11/3,Dia Nacional da Mulher
+2046/11/12,Dia Nacional da Juventude
+2046/11/28,Dia da Proclamação da Independência
+2046/12/7,Dia da Memória
+2046/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2046/12/25,Dia de Natal
+2046/12/31,Dia dos Heróis Nacionais
+2047/1/1,Dia de Ano Novo
+2047/3/3,Dia dos Veteranos
+2047/4/12,Sexta-Feira Santa
+2047/5/1,Dia Mundial do Trabalhador
+2047/5/20,Dia da Restauração da Independência
+2047/6/13,Festa do Corpo de Deus
+2047/7/24,Idul Fitri (aproximada)
+2047/8/30,Dia da Consulta Popular
+2047/9/30,Idul Adha (aproximada)
+2047/11/1,Dia de Todos os Santos
+2047/11/2,Dia de Todos os Fiéis Defuntos
+2047/11/3,Dia Nacional da Mulher
+2047/11/12,Dia Nacional da Juventude
+2047/11/28,Dia da Proclamação da Independência
+2047/12/7,Dia da Memória
+2047/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2047/12/25,Dia de Natal
+2047/12/31,Dia dos Heróis Nacionais
+2048/1/1,Dia de Ano Novo
+2048/3/3,Dia dos Veteranos
+2048/4/3,Sexta-Feira Santa
+2048/5/1,Dia Mundial do Trabalhador
+2048/5/20,Dia da Restauração da Independência
+2048/6/4,Festa do Corpo de Deus
+2048/7/12,Idul Fitri (aproximada)
+2048/8/30,Dia da Consulta Popular
+2048/9/19,Idul Adha (aproximada)
+2048/11/1,Dia de Todos os Santos
+2048/11/2,Dia de Todos os Fiéis Defuntos
+2048/11/3,Dia Nacional da Mulher
+2048/11/12,Dia Nacional da Juventude
+2048/11/28,Dia da Proclamação da Independência
+2048/12/7,Dia da Memória
+2048/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2048/12/25,Dia de Natal
+2048/12/31,Dia dos Heróis Nacionais
+2049/1/1,Dia de Ano Novo
+2049/3/3,Dia dos Veteranos
+2049/4/16,Sexta-Feira Santa
+2049/5/1,Dia Mundial do Trabalhador
+2049/5/20,Dia da Restauração da Independência
+2049/6/17,Festa do Corpo de Deus
+2049/7/1,Idul Fitri (aproximada)
+2049/8/30,Dia da Consulta Popular
+2049/9/8,Idul Adha (aproximada)
+2049/11/1,Dia de Todos os Santos
+2049/11/2,Dia de Todos os Fiéis Defuntos
+2049/11/3,Dia Nacional da Mulher
+2049/11/12,Dia Nacional da Juventude
+2049/11/28,Dia da Proclamação da Independência
+2049/12/7,Dia da Memória
+2049/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2049/12/25,Dia de Natal
+2049/12/31,Dia dos Heróis Nacionais
+2050/1/1,Dia de Ano Novo
+2050/3/3,Dia dos Veteranos
+2050/4/8,Sexta-Feira Santa
+2050/5/1,Dia Mundial do Trabalhador
+2050/5/20,Dia da Restauração da Independência
+2050/6/9,Festa do Corpo de Deus
+2050/6/20,Idul Fitri (aproximada)
+2050/8/28,Idul Adha (aproximada)
+2050/8/30,Dia da Consulta Popular
+2050/11/1,Dia de Todos os Santos
+2050/11/2,Dia de Todos os Fiéis Defuntos
+2050/11/3,Dia Nacional da Mulher
+2050/11/12,Dia Nacional da Juventude
+2050/11/28,Dia da Proclamação da Independência
+2050/12/7,Dia da Memória
+2050/12/8,Dia de Nossa Senhora da Imaculada Conceição, padroeira de Timor-Leste
+2050/12/25,Dia de Natal
+2050/12/31,Dia dos Heróis Nacionais

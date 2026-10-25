@@ -1,0 +1,649 @@
+# KR holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/24,The day preceding Korean New Year
+2020/1/25,Korean New Year
+2020/1/26,The second day of Korean New Year
+2020/1/27,Alternative holiday for Korean New Year
+2020/3/1,Independence Movement Day
+2020/4/15,National Assembly Election Day
+2020/4/30,Buddha's Birthday
+2020/5/5,Children's Day
+2020/6/6,Memorial Day
+2020/8/15,Liberation Day
+2020/8/17,Temporary Public Holiday
+2020/9/30,The day preceding Chuseok
+2020/10/1,Chuseok
+2020/10/2,The second day of Chuseok
+2020/10/3,National Foundation Day
+2020/10/9,Hangul Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/2/11,The day preceding Korean New Year
+2021/2/12,Korean New Year
+2021/2/13,The second day of Korean New Year
+2021/3/1,Independence Movement Day
+2021/5/5,Children's Day
+2021/5/19,Buddha's Birthday
+2021/6/6,Memorial Day
+2021/8/15,Liberation Day
+2021/8/16,Alternative holiday for Liberation Day
+2021/9/20,The day preceding Chuseok
+2021/9/21,Chuseok
+2021/9/22,The second day of Chuseok
+2021/10/3,National Foundation Day
+2021/10/4,Alternative holiday for National Foundation Day
+2021/10/9,Hangul Day
+2021/10/11,Alternative holiday for Hangul Day
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/1/31,The day preceding Korean New Year
+2022/2/1,Korean New Year
+2022/2/2,The second day of Korean New Year
+2022/3/1,Independence Movement Day
+2022/3/9,Presidential Election Day
+2022/5/5,Children's Day
+2022/5/8,Buddha's Birthday
+2022/6/1,Local Election Day
+2022/6/6,Memorial Day
+2022/8/15,Liberation Day
+2022/9/9,The day preceding Chuseok
+2022/9/10,Chuseok
+2022/9/11,The second day of Chuseok
+2022/9/12,Alternative holiday for Chuseok
+2022/10/3,National Foundation Day
+2022/10/9,Hangul Day
+2022/10/10,Alternative holiday for Hangul Day
+2022/12/25,Christmas Day
+2023/1/1,New Year's Day
+2023/1/21,The day preceding Korean New Year
+2023/1/22,Korean New Year
+2023/1/23,The second day of Korean New Year
+2023/1/24,Alternative holiday for Korean New Year
+2023/3/1,Independence Movement Day
+2023/5/5,Children's Day
+2023/5/27,Buddha's Birthday
+2023/5/29,Alternative holiday for Buddha's Birthday
+2023/6/6,Memorial Day
+2023/8/15,Liberation Day
+2023/9/28,The day preceding Chuseok
+2023/9/29,Chuseok
+2023/9/30,The second day of Chuseok
+2023/10/2,Temporary Public Holiday
+2023/10/3,National Foundation Day
+2023/10/9,Hangul Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/2/9,The day preceding Korean New Year
+2024/2/10,Korean New Year
+2024/2/11,The second day of Korean New Year
+2024/2/12,Alternative holiday for Korean New Year
+2024/3/1,Independence Movement Day
+2024/4/10,National Assembly Election Day
+2024/5/5,Children's Day
+2024/5/6,Alternative holiday for Children's Day
+2024/5/15,Buddha's Birthday
+2024/6/6,Memorial Day
+2024/8/15,Liberation Day
+2024/9/16,The day preceding Chuseok
+2024/9/17,Chuseok
+2024/9/18,The second day of Chuseok
+2024/10/1,Armed Forces Day
+2024/10/3,National Foundation Day
+2024/10/9,Hangul Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/1/27,Temporary Public Holiday
+2025/1/28,The day preceding Korean New Year
+2025/1/29,Korean New Year
+2025/1/30,The second day of Korean New Year
+2025/3/1,Independence Movement Day
+2025/3/3,Alternative holiday for Independence Movement Day
+2025/5/5,Buddha's Birthday; Children's Day
+2025/5/6,Alternative holiday for Buddha's Birthday; Alternative holiday for Children's Day
+2025/6/3,Presidential Election Day
+2025/6/6,Memorial Day
+2025/8/15,Liberation Day
+2025/10/3,National Foundation Day
+2025/10/5,The day preceding Chuseok
+2025/10/6,Chuseok
+2025/10/7,The second day of Chuseok
+2025/10/8,Alternative holiday for Chuseok
+2025/10/9,Hangul Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/2/16,The day preceding Korean New Year
+2026/2/17,Korean New Year
+2026/2/18,The second day of Korean New Year
+2026/3/1,Independence Movement Day
+2026/3/2,Alternative holiday for Independence Movement Day
+2026/5/1,Labor Day
+2026/5/5,Children's Day
+2026/5/24,Buddha's Birthday
+2026/5/25,Alternative holiday for Buddha's Birthday
+2026/6/3,Local Election Day
+2026/6/6,Memorial Day
+2026/7/17,Constitution Day
+2026/8/15,Liberation Day
+2026/8/17,Alternative holiday for Liberation Day
+2026/9/24,The day preceding Chuseok
+2026/9/25,Chuseok
+2026/9/26,The second day of Chuseok
+2026/10/3,National Foundation Day
+2026/10/5,Alternative holiday for National Foundation Day
+2026/10/9,Hangul Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/2/6,The day preceding Korean New Year
+2027/2/7,Korean New Year
+2027/2/8,The second day of Korean New Year
+2027/2/9,Alternative holiday for Korean New Year
+2027/3/1,Independence Movement Day
+2027/5/1,Labor Day
+2027/5/3,Alternative holiday for Labor Day
+2027/5/5,Children's Day
+2027/5/13,Buddha's Birthday
+2027/6/6,Memorial Day
+2027/7/17,Constitution Day
+2027/7/19,Alternative holiday for Constitution Day
+2027/8/15,Liberation Day
+2027/8/16,Alternative holiday for Liberation Day
+2027/9/14,The day preceding Chuseok
+2027/9/15,Chuseok
+2027/9/16,The second day of Chuseok
+2027/10/3,National Foundation Day
+2027/10/4,Alternative holiday for National Foundation Day
+2027/10/9,Hangul Day
+2027/10/11,Alternative holiday for Hangul Day
+2027/12/25,Christmas Day
+2027/12/27,Alternative holiday for Christmas Day
+2028/1/1,New Year's Day
+2028/1/26,The day preceding Korean New Year
+2028/1/27,Korean New Year
+2028/1/28,The second day of Korean New Year
+2028/3/1,Independence Movement Day
+2028/4/12,National Assembly Election Day
+2028/5/1,Labor Day
+2028/5/2,Buddha's Birthday
+2028/5/5,Children's Day
+2028/6/6,Memorial Day
+2028/7/17,Constitution Day
+2028/8/15,Liberation Day
+2028/10/2,The day preceding Chuseok
+2028/10/3,Chuseok; National Foundation Day
+2028/10/4,The second day of Chuseok
+2028/10/5,Alternative holiday for Chuseok
+2028/10/9,Hangul Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/2/12,The day preceding Korean New Year
+2029/2/13,Korean New Year
+2029/2/14,The second day of Korean New Year
+2029/3/1,Independence Movement Day
+2029/5/1,Labor Day
+2029/5/5,Children's Day
+2029/5/7,Alternative holiday for Children's Day
+2029/5/20,Buddha's Birthday
+2029/5/21,Alternative holiday for Buddha's Birthday
+2029/6/6,Memorial Day
+2029/7/17,Constitution Day
+2029/8/15,Liberation Day
+2029/9/21,The day preceding Chuseok
+2029/9/22,Chuseok
+2029/9/23,The second day of Chuseok
+2029/9/24,Alternative holiday for Chuseok
+2029/10/3,National Foundation Day
+2029/10/9,Hangul Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/2/2,The day preceding Korean New Year
+2030/2/3,Korean New Year
+2030/2/4,The second day of Korean New Year
+2030/2/5,Alternative holiday for Korean New Year
+2030/3/1,Independence Movement Day
+2030/4/3,Presidential Election Day
+2030/5/1,Labor Day
+2030/5/5,Children's Day
+2030/5/6,Alternative holiday for Children's Day
+2030/5/9,Buddha's Birthday
+2030/6/6,Memorial Day
+2030/6/12,Local Election Day
+2030/7/17,Constitution Day
+2030/8/15,Liberation Day
+2030/9/11,The day preceding Chuseok
+2030/9/12,Chuseok
+2030/9/13,The second day of Chuseok
+2030/10/3,National Foundation Day
+2030/10/9,Hangul Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/1/22,The day preceding Korean New Year
+2031/1/23,Korean New Year
+2031/1/24,The second day of Korean New Year
+2031/3/1,Independence Movement Day
+2031/3/3,Alternative holiday for Independence Movement Day
+2031/5/1,Labor Day
+2031/5/5,Children's Day
+2031/5/28,Buddha's Birthday
+2031/6/6,Memorial Day
+2031/7/17,Constitution Day
+2031/8/15,Liberation Day
+2031/9/30,The day preceding Chuseok
+2031/10/1,Chuseok
+2031/10/2,The second day of Chuseok
+2031/10/3,National Foundation Day
+2031/10/9,Hangul Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/2/10,The day preceding Korean New Year
+2032/2/11,Korean New Year
+2032/2/12,The second day of Korean New Year
+2032/3/1,Independence Movement Day
+2032/4/14,National Assembly Election Day
+2032/5/1,Labor Day
+2032/5/3,Alternative holiday for Labor Day
+2032/5/5,Children's Day
+2032/5/16,Buddha's Birthday
+2032/5/17,Alternative holiday for Buddha's Birthday
+2032/6/6,Memorial Day
+2032/7/17,Constitution Day
+2032/7/19,Alternative holiday for Constitution Day
+2032/8/15,Liberation Day
+2032/8/16,Alternative holiday for Liberation Day
+2032/9/18,The day preceding Chuseok
+2032/9/19,Chuseok
+2032/9/20,The second day of Chuseok
+2032/9/21,Alternative holiday for Chuseok
+2032/10/3,National Foundation Day
+2032/10/4,Alternative holiday for National Foundation Day
+2032/10/9,Hangul Day
+2032/10/11,Alternative holiday for Hangul Day
+2032/12/25,Christmas Day
+2032/12/27,Alternative holiday for Christmas Day
+2033/1/1,New Year's Day
+2033/1/30,The day preceding Korean New Year
+2033/1/31,Korean New Year
+2033/2/1,The second day of Korean New Year
+2033/2/2,Alternative holiday for Korean New Year
+2033/3/1,Independence Movement Day
+2033/5/1,Labor Day
+2033/5/2,Alternative holiday for Labor Day
+2033/5/5,Children's Day
+2033/5/6,Buddha's Birthday
+2033/6/6,Memorial Day
+2033/7/17,Constitution Day
+2033/7/18,Alternative holiday for Constitution Day
+2033/8/15,Liberation Day
+2033/9/7,The day preceding Chuseok
+2033/9/8,Chuseok
+2033/9/9,The second day of Chuseok
+2033/10/3,National Foundation Day
+2033/10/9,Hangul Day
+2033/10/10,Alternative holiday for Hangul Day
+2033/12/25,Christmas Day
+2033/12/26,Alternative holiday for Christmas Day
+2034/1/1,New Year's Day
+2034/2/18,The day preceding Korean New Year
+2034/2/19,Korean New Year
+2034/2/20,The second day of Korean New Year
+2034/2/21,Alternative holiday for Korean New Year
+2034/3/1,Independence Movement Day
+2034/5/1,Labor Day
+2034/5/5,Children's Day
+2034/5/25,Buddha's Birthday
+2034/6/6,Memorial Day
+2034/6/14,Local Election Day
+2034/7/17,Constitution Day
+2034/8/15,Liberation Day
+2034/9/26,The day preceding Chuseok
+2034/9/27,Chuseok
+2034/9/28,The second day of Chuseok
+2034/10/3,National Foundation Day
+2034/10/9,Hangul Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/2/7,The day preceding Korean New Year
+2035/2/8,Korean New Year
+2035/2/9,The second day of Korean New Year
+2035/3/1,Independence Movement Day
+2035/4/4,Presidential Election Day
+2035/5/1,Labor Day
+2035/5/5,Children's Day
+2035/5/7,Alternative holiday for Children's Day
+2035/5/15,Buddha's Birthday
+2035/6/6,Memorial Day
+2035/7/17,Constitution Day
+2035/8/15,Liberation Day
+2035/9/15,The day preceding Chuseok
+2035/9/16,Chuseok
+2035/9/17,The second day of Chuseok
+2035/9/18,Alternative holiday for Chuseok
+2035/10/3,National Foundation Day
+2035/10/9,Hangul Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/1/27,The day preceding Korean New Year
+2036/1/28,Korean New Year
+2036/1/29,The second day of Korean New Year
+2036/1/30,Alternative holiday for Korean New Year
+2036/3/1,Independence Movement Day
+2036/3/3,Alternative holiday for Independence Movement Day
+2036/4/9,National Assembly Election Day
+2036/5/1,Labor Day
+2036/5/3,Buddha's Birthday
+2036/5/5,Children's Day
+2036/5/6,Alternative holiday for Buddha's Birthday
+2036/6/6,Memorial Day
+2036/7/17,Constitution Day
+2036/8/15,Liberation Day
+2036/10/3,National Foundation Day; The day preceding Chuseok
+2036/10/4,Chuseok
+2036/10/5,The second day of Chuseok
+2036/10/6,Alternative holiday for Chuseok
+2036/10/7,Alternative holiday for Chuseok
+2036/10/9,Hangul Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/2/14,The day preceding Korean New Year
+2037/2/15,Korean New Year
+2037/2/16,The second day of Korean New Year
+2037/2/17,Alternative holiday for Korean New Year
+2037/3/1,Independence Movement Day
+2037/3/2,Alternative holiday for Independence Movement Day
+2037/5/1,Labor Day
+2037/5/5,Children's Day
+2037/5/22,Buddha's Birthday
+2037/6/6,Memorial Day
+2037/7/17,Constitution Day
+2037/8/15,Liberation Day
+2037/8/17,Alternative holiday for Liberation Day
+2037/9/23,The day preceding Chuseok
+2037/9/24,Chuseok
+2037/9/25,The second day of Chuseok
+2037/10/3,National Foundation Day
+2037/10/5,Alternative holiday for National Foundation Day
+2037/10/9,Hangul Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/2/3,The day preceding Korean New Year
+2038/2/4,Korean New Year
+2038/2/5,The second day of Korean New Year
+2038/3/1,Independence Movement Day
+2038/5/1,Labor Day
+2038/5/3,Alternative holiday for Labor Day
+2038/5/5,Children's Day
+2038/5/11,Buddha's Birthday
+2038/6/2,Local Election Day
+2038/6/6,Memorial Day
+2038/7/17,Constitution Day
+2038/7/19,Alternative holiday for Constitution Day
+2038/8/15,Liberation Day
+2038/8/16,Alternative holiday for Liberation Day
+2038/9/12,The day preceding Chuseok
+2038/9/13,Chuseok
+2038/9/14,The second day of Chuseok
+2038/9/15,Alternative holiday for Chuseok
+2038/10/3,National Foundation Day
+2038/10/4,Alternative holiday for National Foundation Day
+2038/10/9,Hangul Day
+2038/10/11,Alternative holiday for Hangul Day
+2038/12/25,Christmas Day
+2038/12/27,Alternative holiday for Christmas Day
+2039/1/1,New Year's Day
+2039/1/23,The day preceding Korean New Year
+2039/1/24,Korean New Year
+2039/1/25,The second day of Korean New Year
+2039/1/26,Alternative holiday for Korean New Year
+2039/3/1,Independence Movement Day
+2039/4/30,Buddha's Birthday
+2039/5/1,Labor Day
+2039/5/2,Alternative holiday for Buddha's Birthday
+2039/5/3,Alternative holiday for Labor Day
+2039/5/5,Children's Day
+2039/6/6,Memorial Day
+2039/7/17,Constitution Day
+2039/7/18,Alternative holiday for Constitution Day
+2039/8/15,Liberation Day
+2039/10/1,The day preceding Chuseok
+2039/10/2,Chuseok
+2039/10/3,National Foundation Day; The second day of Chuseok
+2039/10/4,Alternative holiday for Chuseok
+2039/10/5,Alternative holiday for Chuseok
+2039/10/9,Hangul Day
+2039/10/10,Alternative holiday for Hangul Day
+2039/12/25,Christmas Day
+2039/12/26,Alternative holiday for Christmas Day
+2040/1/1,New Year's Day
+2040/2/11,The day preceding Korean New Year
+2040/2/12,Korean New Year
+2040/2/13,The second day of Korean New Year
+2040/2/14,Alternative holiday for Korean New Year
+2040/3/1,Independence Movement Day
+2040/4/4,Presidential Election Day
+2040/4/11,National Assembly Election Day
+2040/5/1,Labor Day
+2040/5/5,Children's Day
+2040/5/7,Alternative holiday for Children's Day
+2040/5/18,Buddha's Birthday
+2040/6/6,Memorial Day
+2040/7/17,Constitution Day
+2040/8/15,Liberation Day
+2040/9/20,The day preceding Chuseok
+2040/9/21,Chuseok
+2040/9/22,The second day of Chuseok
+2040/10/3,National Foundation Day
+2040/10/9,Hangul Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/1/31,The day preceding Korean New Year
+2041/2/1,Korean New Year
+2041/2/2,The second day of Korean New Year
+2041/3/1,Independence Movement Day
+2041/5/1,Labor Day
+2041/5/5,Children's Day
+2041/5/6,Alternative holiday for Children's Day
+2041/5/7,Buddha's Birthday
+2041/6/6,Memorial Day
+2041/7/17,Constitution Day
+2041/8/15,Liberation Day
+2041/9/9,The day preceding Chuseok
+2041/9/10,Chuseok
+2041/9/11,The second day of Chuseok
+2041/10/3,National Foundation Day
+2041/10/9,Hangul Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/1/21,The day preceding Korean New Year
+2042/1/22,Korean New Year
+2042/1/23,The second day of Korean New Year
+2042/3/1,Independence Movement Day
+2042/3/3,Alternative holiday for Independence Movement Day
+2042/5/1,Labor Day
+2042/5/5,Children's Day
+2042/5/26,Buddha's Birthday
+2042/6/4,Local Election Day
+2042/6/6,Memorial Day
+2042/7/17,Constitution Day
+2042/8/15,Liberation Day
+2042/9/27,The day preceding Chuseok
+2042/9/28,Chuseok
+2042/9/29,The second day of Chuseok
+2042/9/30,Alternative holiday for Chuseok
+2042/10/3,National Foundation Day
+2042/10/9,Hangul Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/2/9,The day preceding Korean New Year
+2043/2/10,Korean New Year
+2043/2/11,The second day of Korean New Year
+2043/3/1,Independence Movement Day
+2043/3/2,Alternative holiday for Independence Movement Day
+2043/5/1,Labor Day
+2043/5/5,Children's Day
+2043/5/16,Buddha's Birthday
+2043/5/18,Alternative holiday for Buddha's Birthday
+2043/6/6,Memorial Day
+2043/7/17,Constitution Day
+2043/8/15,Liberation Day
+2043/8/17,Alternative holiday for Liberation Day
+2043/9/16,The day preceding Chuseok
+2043/9/17,Chuseok
+2043/9/18,The second day of Chuseok
+2043/10/3,National Foundation Day
+2043/10/5,Alternative holiday for National Foundation Day
+2043/10/9,Hangul Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/1/29,The day preceding Korean New Year
+2044/1/30,Korean New Year
+2044/1/31,The second day of Korean New Year
+2044/2/1,Alternative holiday for Korean New Year
+2044/3/1,Independence Movement Day
+2044/4/13,National Assembly Election Day
+2044/5/1,Labor Day
+2044/5/2,Alternative holiday for Labor Day
+2044/5/5,Buddha's Birthday; Children's Day
+2044/5/6,Alternative holiday for Buddha's Birthday; Alternative holiday for Children's Day
+2044/6/6,Memorial Day
+2044/7/17,Constitution Day
+2044/7/18,Alternative holiday for Constitution Day
+2044/8/15,Liberation Day
+2044/10/3,National Foundation Day
+2044/10/4,The day preceding Chuseok
+2044/10/5,Chuseok
+2044/10/6,The second day of Chuseok
+2044/10/9,Hangul Day
+2044/10/10,Alternative holiday for Hangul Day
+2044/12/25,Christmas Day
+2044/12/26,Alternative holiday for Christmas Day
+2045/1/1,New Year's Day
+2045/2/16,The day preceding Korean New Year
+2045/2/17,Korean New Year
+2045/2/18,The second day of Korean New Year
+2045/3/1,Independence Movement Day
+2045/4/5,Presidential Election Day
+2045/5/1,Labor Day
+2045/5/5,Children's Day
+2045/5/24,Buddha's Birthday
+2045/6/6,Memorial Day
+2045/7/17,Constitution Day
+2045/8/15,Liberation Day
+2045/9/24,The day preceding Chuseok
+2045/9/25,Chuseok
+2045/9/26,The second day of Chuseok
+2045/9/27,Alternative holiday for Chuseok
+2045/10/3,National Foundation Day
+2045/10/9,Hangul Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/2/5,The day preceding Korean New Year
+2046/2/6,Korean New Year
+2046/2/7,The second day of Korean New Year
+2046/3/1,Independence Movement Day
+2046/5/1,Labor Day
+2046/5/5,Children's Day
+2046/5/7,Alternative holiday for Children's Day
+2046/5/13,Buddha's Birthday
+2046/5/14,Alternative holiday for Buddha's Birthday
+2046/6/6,Memorial Day
+2046/6/13,Local Election Day
+2046/7/17,Constitution Day
+2046/8/15,Liberation Day
+2046/9/14,The day preceding Chuseok
+2046/9/15,Chuseok
+2046/9/16,The second day of Chuseok
+2046/9/17,Alternative holiday for Chuseok
+2046/10/3,National Foundation Day
+2046/10/9,Hangul Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/1/25,The day preceding Korean New Year
+2047/1/26,Korean New Year
+2047/1/27,The second day of Korean New Year
+2047/1/28,Alternative holiday for Korean New Year
+2047/3/1,Independence Movement Day
+2047/5/1,Labor Day
+2047/5/2,Buddha's Birthday
+2047/5/5,Children's Day
+2047/5/6,Alternative holiday for Children's Day
+2047/6/6,Memorial Day
+2047/7/17,Constitution Day
+2047/8/15,Liberation Day
+2047/10/3,National Foundation Day; The day preceding Chuseok
+2047/10/4,Chuseok
+2047/10/5,The second day of Chuseok
+2047/10/7,Alternative holiday for Chuseok
+2047/10/9,Hangul Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/2/13,The day preceding Korean New Year
+2048/2/14,Korean New Year
+2048/2/15,The second day of Korean New Year
+2048/3/1,Independence Movement Day
+2048/3/2,Alternative holiday for Independence Movement Day
+2048/4/8,National Assembly Election Day
+2048/5/1,Labor Day
+2048/5/5,Children's Day
+2048/5/20,Buddha's Birthday
+2048/6/6,Memorial Day
+2048/7/17,Constitution Day
+2048/8/15,Liberation Day
+2048/8/17,Alternative holiday for Liberation Day
+2048/9/21,The day preceding Chuseok
+2048/9/22,Chuseok
+2048/9/23,The second day of Chuseok
+2048/10/3,National Foundation Day
+2048/10/5,Alternative holiday for National Foundation Day
+2048/10/9,Hangul Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/2/1,The day preceding Korean New Year
+2049/2/2,Korean New Year
+2049/2/3,The second day of Korean New Year
+2049/3/1,Independence Movement Day
+2049/5/1,Labor Day
+2049/5/3,Alternative holiday for Labor Day
+2049/5/5,Children's Day
+2049/5/9,Buddha's Birthday
+2049/5/10,Alternative holiday for Buddha's Birthday
+2049/6/6,Memorial Day
+2049/7/17,Constitution Day
+2049/7/19,Alternative holiday for Constitution Day
+2049/8/15,Liberation Day
+2049/8/16,Alternative holiday for Liberation Day
+2049/9/10,The day preceding Chuseok
+2049/9/11,Chuseok
+2049/9/12,The second day of Chuseok
+2049/9/13,Alternative holiday for Chuseok
+2049/10/3,National Foundation Day
+2049/10/4,Alternative holiday for National Foundation Day
+2049/10/9,Hangul Day
+2049/10/11,Alternative holiday for Hangul Day
+2049/12/25,Christmas Day
+2049/12/27,Alternative holiday for Christmas Day
+2050/1/1,New Year's Day
+2050/1/22,The day preceding Korean New Year
+2050/1/23,Korean New Year
+2050/1/24,The second day of Korean New Year
+2050/1/25,Alternative holiday for Korean New Year
+2050/3/1,Independence Movement Day
+2050/4/6,Presidential Election Day
+2050/5/1,Labor Day
+2050/5/2,Alternative holiday for Labor Day
+2050/5/5,Children's Day
+2050/5/28,Buddha's Birthday
+2050/5/30,Alternative holiday for Buddha's Birthday
+2050/6/1,Local Election Day
+2050/6/6,Memorial Day
+2050/7/17,Constitution Day
+2050/7/18,Alternative holiday for Constitution Day
+2050/8/15,Liberation Day
+2050/9/29,The day preceding Chuseok
+2050/9/30,Chuseok
+2050/10/1,The second day of Chuseok
+2050/10/3,National Foundation Day
+2050/10/9,Hangul Day
+2050/10/10,Alternative holiday for Hangul Day
+2050/12/25,Christmas Day
+2050/12/26,Alternative holiday for Christmas Day

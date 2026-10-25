@@ -11,6 +11,7 @@ import Testing
 @Test
 func eventReferenceTableNotifyReturnIgnoredMatchesLegacySet() {
     // 従来 EventBridge.swift にハードコードされていた UKADOC Notifyイベント（戻り値無視）セット。
+    // OnNotifyHolidayInfo（2.9.11、[NOTIFY]）は後から追加された。
     // 仕様原典: https://ssp.shillest.net/ukadoc/manual/list_shiori_event.html
     let legacy: Set<String> = [
         "basewareversion", "hwnd", "uniqueid", "capability",
@@ -22,7 +23,7 @@ func eventReferenceTableNotifyReturnIgnoredMatchesLegacySet() {
         "calendarskinpathlist", "calendarpluginpathlist",
         "rateofusegraph", "enable_log", "enable_debug",
         "OnNotifySelfInfo", "OnNotifyBalloonInfo", "OnNotifyShellInfo",
-        "OnNotifyDressupInfo", "OnNotifyUserInfo", "OnNotifyOSInfo",
+        "OnNotifyDressupInfo", "OnNotifyUserInfo", "OnNotifyHolidayInfo", "OnNotifyOSInfo",
         "OnNotifyFontInfo", "OnNotifyInternationalInfo",
         "OnLanguageChange",
     ]
@@ -298,9 +299,9 @@ func eventReferenceTablePluginAndOtherFailureReferencesMatchUkadoc() {
 
 @Test
 func eventReferenceTableTimeEventReferences() {
-    // OnSecondChange/OnMinuteChange/OnHourTimeSignal は共通 R0..R4
+    // OnSecondChange/OnMinuteChange/OnHourTimeSignal/OnIdle は共通 R0..R4
     let refs = ["uptimeHours", "mikire", "kasanari", "canTalk", "idleSecondsSSP"]
-    for id in ["OnSecondChange", "OnMinuteChange", "OnHourTimeSignal"] {
+    for id in ["OnSecondChange", "OnMinuteChange", "OnHourTimeSignal", "OnIdle"] {
         #expect(EventReferenceTable.specs[id]?.references == refs, "mismatch for \(id)")
     }
 }

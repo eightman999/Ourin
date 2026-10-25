@@ -1,0 +1,555 @@
+# JP holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/13,Coming of Age Day
+2020/2/11,Foundation Day
+2020/2/23,Emperor's Birthday
+2020/2/24,Substitute Holiday
+2020/3/20,Vernal Equinox Day
+2020/4/29,Showa Day
+2020/5/3,Constitution Day
+2020/5/4,Greenery Day
+2020/5/5,Children's Day
+2020/5/6,Substitute Holiday
+2020/7/23,Marine Day
+2020/7/24,Sports Day
+2020/8/10,Mountain Day
+2020/9/21,Respect for the Aged Day
+2020/9/22,Autumnal Equinox Day
+2020/11/3,Culture Day
+2020/11/23,Labor Thanksgiving Day
+2021/1/1,New Year's Day
+2021/1/11,Coming of Age Day
+2021/2/11,Foundation Day
+2021/2/23,Emperor's Birthday
+2021/3/20,Vernal Equinox Day
+2021/4/29,Showa Day
+2021/5/3,Constitution Day
+2021/5/4,Greenery Day
+2021/5/5,Children's Day
+2021/7/22,Marine Day
+2021/7/23,Sports Day
+2021/8/8,Mountain Day
+2021/8/9,Substitute Holiday
+2021/9/20,Respect for the Aged Day
+2021/9/23,Autumnal Equinox Day
+2021/11/3,Culture Day
+2021/11/23,Labor Thanksgiving Day
+2022/1/1,New Year's Day
+2022/1/10,Coming of Age Day
+2022/2/11,Foundation Day
+2022/2/23,Emperor's Birthday
+2022/3/21,Vernal Equinox Day
+2022/4/29,Showa Day
+2022/5/3,Constitution Day
+2022/5/4,Greenery Day
+2022/5/5,Children's Day
+2022/7/18,Marine Day
+2022/8/11,Mountain Day
+2022/9/19,Respect for the Aged Day
+2022/9/23,Autumnal Equinox Day
+2022/10/10,Sports Day
+2022/11/3,Culture Day
+2022/11/23,Labor Thanksgiving Day
+2023/1/1,New Year's Day
+2023/1/2,Substitute Holiday
+2023/1/9,Coming of Age Day
+2023/2/11,Foundation Day
+2023/2/23,Emperor's Birthday
+2023/3/21,Vernal Equinox Day
+2023/4/29,Showa Day
+2023/5/3,Constitution Day
+2023/5/4,Greenery Day
+2023/5/5,Children's Day
+2023/7/17,Marine Day
+2023/8/11,Mountain Day
+2023/9/18,Respect for the Aged Day
+2023/9/23,Autumnal Equinox Day
+2023/10/9,Sports Day
+2023/11/3,Culture Day
+2023/11/23,Labor Thanksgiving Day
+2024/1/1,New Year's Day
+2024/1/8,Coming of Age Day
+2024/2/11,Foundation Day
+2024/2/12,Substitute Holiday
+2024/2/23,Emperor's Birthday
+2024/3/20,Vernal Equinox Day
+2024/4/29,Showa Day
+2024/5/3,Constitution Day
+2024/5/4,Greenery Day
+2024/5/5,Children's Day
+2024/5/6,Substitute Holiday
+2024/7/15,Marine Day
+2024/8/11,Mountain Day
+2024/8/12,Substitute Holiday
+2024/9/16,Respect for the Aged Day
+2024/9/22,Autumnal Equinox Day
+2024/9/23,Substitute Holiday
+2024/10/14,Sports Day
+2024/11/3,Culture Day
+2024/11/4,Substitute Holiday
+2024/11/23,Labor Thanksgiving Day
+2025/1/1,New Year's Day
+2025/1/13,Coming of Age Day
+2025/2/11,Foundation Day
+2025/2/23,Emperor's Birthday
+2025/2/24,Substitute Holiday
+2025/3/20,Vernal Equinox Day
+2025/4/29,Showa Day
+2025/5/3,Constitution Day
+2025/5/4,Greenery Day
+2025/5/5,Children's Day
+2025/5/6,Substitute Holiday
+2025/7/21,Marine Day
+2025/8/11,Mountain Day
+2025/9/15,Respect for the Aged Day
+2025/9/23,Autumnal Equinox Day
+2025/10/13,Sports Day
+2025/11/3,Culture Day
+2025/11/23,Labor Thanksgiving Day
+2025/11/24,Substitute Holiday
+2026/1/1,New Year's Day
+2026/1/12,Coming of Age Day
+2026/2/11,Foundation Day
+2026/2/23,Emperor's Birthday
+2026/3/20,Vernal Equinox Day
+2026/4/29,Showa Day
+2026/5/3,Constitution Day
+2026/5/4,Greenery Day
+2026/5/5,Children's Day
+2026/5/6,Substitute Holiday
+2026/7/20,Marine Day
+2026/8/11,Mountain Day
+2026/9/21,Respect for the Aged Day
+2026/9/22,National Holiday
+2026/9/23,Autumnal Equinox Day
+2026/10/12,Sports Day
+2026/11/3,Culture Day
+2026/11/23,Labor Thanksgiving Day
+2027/1/1,New Year's Day
+2027/1/11,Coming of Age Day
+2027/2/11,Foundation Day
+2027/2/23,Emperor's Birthday
+2027/3/21,Vernal Equinox Day
+2027/3/22,Substitute Holiday
+2027/4/29,Showa Day
+2027/5/3,Constitution Day
+2027/5/4,Greenery Day
+2027/5/5,Children's Day
+2027/7/19,Marine Day
+2027/8/11,Mountain Day
+2027/9/20,Respect for the Aged Day
+2027/9/23,Autumnal Equinox Day
+2027/10/11,Sports Day
+2027/11/3,Culture Day
+2027/11/23,Labor Thanksgiving Day
+2028/1/1,New Year's Day
+2028/1/10,Coming of Age Day
+2028/2/11,Foundation Day
+2028/2/23,Emperor's Birthday
+2028/3/20,Vernal Equinox Day
+2028/4/29,Showa Day
+2028/5/3,Constitution Day
+2028/5/4,Greenery Day
+2028/5/5,Children's Day
+2028/7/17,Marine Day
+2028/8/11,Mountain Day
+2028/9/18,Respect for the Aged Day
+2028/9/22,Autumnal Equinox Day
+2028/10/9,Sports Day
+2028/11/3,Culture Day
+2028/11/23,Labor Thanksgiving Day
+2029/1/1,New Year's Day
+2029/1/8,Coming of Age Day
+2029/2/11,Foundation Day
+2029/2/12,Substitute Holiday
+2029/2/23,Emperor's Birthday
+2029/3/20,Vernal Equinox Day
+2029/4/29,Showa Day
+2029/4/30,Substitute Holiday
+2029/5/3,Constitution Day
+2029/5/4,Greenery Day
+2029/5/5,Children's Day
+2029/7/16,Marine Day
+2029/8/11,Mountain Day
+2029/9/17,Respect for the Aged Day
+2029/9/23,Autumnal Equinox Day
+2029/9/24,Substitute Holiday
+2029/10/8,Sports Day
+2029/11/3,Culture Day
+2029/11/23,Labor Thanksgiving Day
+2030/1/1,New Year's Day
+2030/1/14,Coming of Age Day
+2030/2/11,Foundation Day
+2030/2/23,Emperor's Birthday
+2030/3/20,Vernal Equinox Day
+2030/4/29,Showa Day
+2030/5/3,Constitution Day
+2030/5/4,Greenery Day
+2030/5/5,Children's Day
+2030/5/6,Substitute Holiday
+2030/7/15,Marine Day
+2030/8/11,Mountain Day
+2030/8/12,Substitute Holiday
+2030/9/16,Respect for the Aged Day
+2030/9/23,Autumnal Equinox Day
+2030/10/14,Sports Day
+2030/11/3,Culture Day
+2030/11/4,Substitute Holiday
+2030/11/23,Labor Thanksgiving Day
+2031/1/1,New Year's Day
+2031/1/13,Coming of Age Day
+2031/2/11,Foundation Day
+2031/2/23,Emperor's Birthday
+2031/2/24,Substitute Holiday
+2031/3/21,Vernal Equinox Day
+2031/4/29,Showa Day
+2031/5/3,Constitution Day
+2031/5/4,Greenery Day
+2031/5/5,Children's Day
+2031/5/6,Substitute Holiday
+2031/7/21,Marine Day
+2031/8/11,Mountain Day
+2031/9/15,Respect for the Aged Day
+2031/9/23,Autumnal Equinox Day
+2031/10/13,Sports Day
+2031/11/3,Culture Day
+2031/11/23,Labor Thanksgiving Day
+2031/11/24,Substitute Holiday
+2032/1/1,New Year's Day
+2032/1/12,Coming of Age Day
+2032/2/11,Foundation Day
+2032/2/23,Emperor's Birthday
+2032/3/20,Vernal Equinox Day
+2032/4/29,Showa Day
+2032/5/3,Constitution Day
+2032/5/4,Greenery Day
+2032/5/5,Children's Day
+2032/7/19,Marine Day
+2032/8/11,Mountain Day
+2032/9/20,Respect for the Aged Day
+2032/9/21,National Holiday
+2032/9/22,Autumnal Equinox Day
+2032/10/11,Sports Day
+2032/11/3,Culture Day
+2032/11/23,Labor Thanksgiving Day
+2033/1/1,New Year's Day
+2033/1/10,Coming of Age Day
+2033/2/11,Foundation Day
+2033/2/23,Emperor's Birthday
+2033/3/20,Vernal Equinox Day
+2033/3/21,Substitute Holiday
+2033/4/29,Showa Day
+2033/5/3,Constitution Day
+2033/5/4,Greenery Day
+2033/5/5,Children's Day
+2033/7/18,Marine Day
+2033/8/11,Mountain Day
+2033/9/19,Respect for the Aged Day
+2033/9/23,Autumnal Equinox Day
+2033/10/10,Sports Day
+2033/11/3,Culture Day
+2033/11/23,Labor Thanksgiving Day
+2034/1/1,New Year's Day
+2034/1/2,Substitute Holiday
+2034/1/9,Coming of Age Day
+2034/2/11,Foundation Day
+2034/2/23,Emperor's Birthday
+2034/3/20,Vernal Equinox Day
+2034/4/29,Showa Day
+2034/5/3,Constitution Day
+2034/5/4,Greenery Day
+2034/5/5,Children's Day
+2034/7/17,Marine Day
+2034/8/11,Mountain Day
+2034/9/18,Respect for the Aged Day
+2034/9/23,Autumnal Equinox Day
+2034/10/9,Sports Day
+2034/11/3,Culture Day
+2034/11/23,Labor Thanksgiving Day
+2035/1/1,New Year's Day
+2035/1/8,Coming of Age Day
+2035/2/11,Foundation Day
+2035/2/12,Substitute Holiday
+2035/2/23,Emperor's Birthday
+2035/3/21,Vernal Equinox Day
+2035/4/29,Showa Day
+2035/4/30,Substitute Holiday
+2035/5/3,Constitution Day
+2035/5/4,Greenery Day
+2035/5/5,Children's Day
+2035/7/16,Marine Day
+2035/8/11,Mountain Day
+2035/9/17,Respect for the Aged Day
+2035/9/23,Autumnal Equinox Day
+2035/9/24,Substitute Holiday
+2035/10/8,Sports Day
+2035/11/3,Culture Day
+2035/11/23,Labor Thanksgiving Day
+2036/1/1,New Year's Day
+2036/1/14,Coming of Age Day
+2036/2/11,Foundation Day
+2036/2/23,Emperor's Birthday
+2036/3/20,Vernal Equinox Day
+2036/4/29,Showa Day
+2036/5/3,Constitution Day
+2036/5/4,Greenery Day
+2036/5/5,Children's Day
+2036/5/6,Substitute Holiday
+2036/7/21,Marine Day
+2036/8/11,Mountain Day
+2036/9/15,Respect for the Aged Day
+2036/9/22,Autumnal Equinox Day
+2036/10/13,Sports Day
+2036/11/3,Culture Day
+2036/11/23,Labor Thanksgiving Day
+2036/11/24,Substitute Holiday
+2037/1/1,New Year's Day
+2037/1/12,Coming of Age Day
+2037/2/11,Foundation Day
+2037/2/23,Emperor's Birthday
+2037/3/20,Vernal Equinox Day
+2037/4/29,Showa Day
+2037/5/3,Constitution Day
+2037/5/4,Greenery Day
+2037/5/5,Children's Day
+2037/5/6,Substitute Holiday
+2037/7/20,Marine Day
+2037/8/11,Mountain Day
+2037/9/21,Respect for the Aged Day
+2037/9/22,National Holiday
+2037/9/23,Autumnal Equinox Day
+2037/10/12,Sports Day
+2037/11/3,Culture Day
+2037/11/23,Labor Thanksgiving Day
+2038/1/1,New Year's Day
+2038/1/11,Coming of Age Day
+2038/2/11,Foundation Day
+2038/2/23,Emperor's Birthday
+2038/3/20,Vernal Equinox Day
+2038/4/29,Showa Day
+2038/5/3,Constitution Day
+2038/5/4,Greenery Day
+2038/5/5,Children's Day
+2038/7/19,Marine Day
+2038/8/11,Mountain Day
+2038/9/20,Respect for the Aged Day
+2038/9/23,Autumnal Equinox Day
+2038/10/11,Sports Day
+2038/11/3,Culture Day
+2038/11/23,Labor Thanksgiving Day
+2039/1/1,New Year's Day
+2039/1/10,Coming of Age Day
+2039/2/11,Foundation Day
+2039/2/23,Emperor's Birthday
+2039/3/21,Vernal Equinox Day
+2039/4/29,Showa Day
+2039/5/3,Constitution Day
+2039/5/4,Greenery Day
+2039/5/5,Children's Day
+2039/7/18,Marine Day
+2039/8/11,Mountain Day
+2039/9/19,Respect for the Aged Day
+2039/9/23,Autumnal Equinox Day
+2039/10/10,Sports Day
+2039/11/3,Culture Day
+2039/11/23,Labor Thanksgiving Day
+2040/1/1,New Year's Day
+2040/1/2,Substitute Holiday
+2040/1/9,Coming of Age Day
+2040/2/11,Foundation Day
+2040/2/23,Emperor's Birthday
+2040/3/20,Vernal Equinox Day
+2040/4/29,Showa Day
+2040/4/30,Substitute Holiday
+2040/5/3,Constitution Day
+2040/5/4,Greenery Day
+2040/5/5,Children's Day
+2040/7/16,Marine Day
+2040/8/11,Mountain Day
+2040/9/17,Respect for the Aged Day
+2040/9/22,Autumnal Equinox Day
+2040/10/8,Sports Day
+2040/11/3,Culture Day
+2040/11/23,Labor Thanksgiving Day
+2041/1/1,New Year's Day
+2041/1/14,Coming of Age Day
+2041/2/11,Foundation Day
+2041/2/23,Emperor's Birthday
+2041/3/20,Vernal Equinox Day
+2041/4/29,Showa Day
+2041/5/3,Constitution Day
+2041/5/4,Greenery Day
+2041/5/5,Children's Day
+2041/5/6,Substitute Holiday
+2041/7/15,Marine Day
+2041/8/11,Mountain Day
+2041/8/12,Substitute Holiday
+2041/9/16,Respect for the Aged Day
+2041/9/23,Autumnal Equinox Day
+2041/10/14,Sports Day
+2041/11/3,Culture Day
+2041/11/4,Substitute Holiday
+2041/11/23,Labor Thanksgiving Day
+2042/1/1,New Year's Day
+2042/1/13,Coming of Age Day
+2042/2/11,Foundation Day
+2042/2/23,Emperor's Birthday
+2042/2/24,Substitute Holiday
+2042/3/20,Vernal Equinox Day
+2042/4/29,Showa Day
+2042/5/3,Constitution Day
+2042/5/4,Greenery Day
+2042/5/5,Children's Day
+2042/5/6,Substitute Holiday
+2042/7/21,Marine Day
+2042/8/11,Mountain Day
+2042/9/15,Respect for the Aged Day
+2042/9/23,Autumnal Equinox Day
+2042/10/13,Sports Day
+2042/11/3,Culture Day
+2042/11/23,Labor Thanksgiving Day
+2042/11/24,Substitute Holiday
+2043/1/1,New Year's Day
+2043/1/12,Coming of Age Day
+2043/2/11,Foundation Day
+2043/2/23,Emperor's Birthday
+2043/3/21,Vernal Equinox Day
+2043/4/29,Showa Day
+2043/5/3,Constitution Day
+2043/5/4,Greenery Day
+2043/5/5,Children's Day
+2043/5/6,Substitute Holiday
+2043/7/20,Marine Day
+2043/8/11,Mountain Day
+2043/9/21,Respect for the Aged Day
+2043/9/22,National Holiday
+2043/9/23,Autumnal Equinox Day
+2043/10/12,Sports Day
+2043/11/3,Culture Day
+2043/11/23,Labor Thanksgiving Day
+2044/1/1,New Year's Day
+2044/1/11,Coming of Age Day
+2044/2/11,Foundation Day
+2044/2/23,Emperor's Birthday
+2044/3/20,Vernal Equinox Day
+2044/3/21,Substitute Holiday
+2044/4/29,Showa Day
+2044/5/3,Constitution Day
+2044/5/4,Greenery Day
+2044/5/5,Children's Day
+2044/7/18,Marine Day
+2044/8/11,Mountain Day
+2044/9/19,Respect for the Aged Day
+2044/9/22,Autumnal Equinox Day
+2044/10/10,Sports Day
+2044/11/3,Culture Day
+2044/11/23,Labor Thanksgiving Day
+2045/1/1,New Year's Day
+2045/1/2,Substitute Holiday
+2045/1/9,Coming of Age Day
+2045/2/11,Foundation Day
+2045/2/23,Emperor's Birthday
+2045/3/20,Vernal Equinox Day
+2045/4/29,Showa Day
+2045/5/3,Constitution Day
+2045/5/4,Greenery Day
+2045/5/5,Children's Day
+2045/7/17,Marine Day
+2045/8/11,Mountain Day
+2045/9/18,Respect for the Aged Day
+2045/9/22,Autumnal Equinox Day
+2045/10/9,Sports Day
+2045/11/3,Culture Day
+2045/11/23,Labor Thanksgiving Day
+2046/1/1,New Year's Day
+2046/1/8,Coming of Age Day
+2046/2/11,Foundation Day
+2046/2/12,Substitute Holiday
+2046/2/23,Emperor's Birthday
+2046/3/20,Vernal Equinox Day
+2046/4/29,Showa Day
+2046/4/30,Substitute Holiday
+2046/5/3,Constitution Day
+2046/5/4,Greenery Day
+2046/5/5,Children's Day
+2046/7/16,Marine Day
+2046/8/11,Mountain Day
+2046/9/17,Respect for the Aged Day
+2046/9/23,Autumnal Equinox Day
+2046/9/24,Substitute Holiday
+2046/10/8,Sports Day
+2046/11/3,Culture Day
+2046/11/23,Labor Thanksgiving Day
+2047/1/1,New Year's Day
+2047/1/14,Coming of Age Day
+2047/2/11,Foundation Day
+2047/2/23,Emperor's Birthday
+2047/3/21,Vernal Equinox Day
+2047/4/29,Showa Day
+2047/5/3,Constitution Day
+2047/5/4,Greenery Day
+2047/5/5,Children's Day
+2047/5/6,Substitute Holiday
+2047/7/15,Marine Day
+2047/8/11,Mountain Day
+2047/8/12,Substitute Holiday
+2047/9/16,Respect for the Aged Day
+2047/9/23,Autumnal Equinox Day
+2047/10/14,Sports Day
+2047/11/3,Culture Day
+2047/11/4,Substitute Holiday
+2047/11/23,Labor Thanksgiving Day
+2048/1/1,New Year's Day
+2048/1/13,Coming of Age Day
+2048/2/11,Foundation Day
+2048/2/23,Emperor's Birthday
+2048/2/24,Substitute Holiday
+2048/3/20,Vernal Equinox Day
+2048/4/29,Showa Day
+2048/5/3,Constitution Day
+2048/5/4,Greenery Day
+2048/5/5,Children's Day
+2048/5/6,Substitute Holiday
+2048/7/20,Marine Day
+2048/8/11,Mountain Day
+2048/9/21,Respect for the Aged Day
+2048/9/22,Autumnal Equinox Day
+2048/10/12,Sports Day
+2048/11/3,Culture Day
+2048/11/23,Labor Thanksgiving Day
+2049/1/1,New Year's Day
+2049/1/11,Coming of Age Day
+2049/2/11,Foundation Day
+2049/2/23,Emperor's Birthday
+2049/3/20,Vernal Equinox Day
+2049/4/29,Showa Day
+2049/5/3,Constitution Day
+2049/5/4,Greenery Day
+2049/5/5,Children's Day
+2049/7/19,Marine Day
+2049/8/11,Mountain Day
+2049/9/20,Respect for the Aged Day
+2049/9/21,National Holiday
+2049/9/22,Autumnal Equinox Day
+2049/10/11,Sports Day
+2049/11/3,Culture Day
+2049/11/23,Labor Thanksgiving Day
+2050/1/1,New Year's Day
+2050/1/10,Coming of Age Day
+2050/2/11,Foundation Day
+2050/2/23,Emperor's Birthday
+2050/3/20,Vernal Equinox Day
+2050/3/21,Substitute Holiday
+2050/4/29,Showa Day
+2050/5/3,Constitution Day
+2050/5/4,Greenery Day
+2050/5/5,Children's Day
+2050/7/18,Marine Day
+2050/8/11,Mountain Day
+2050/9/19,Respect for the Aged Day
+2050/9/23,Autumnal Equinox Day
+2050/10/10,Sports Day
+2050/11/3,Culture Day
+2050/11/23,Labor Thanksgiving Day

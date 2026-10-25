@@ -546,6 +546,11 @@ final class InputMonitor {
         }
     }
 
+    /// AppKit のウィンドウ座標（左下原点）を、SERIKO のサーフェス座標（左上原点）へ変換する。
+    static func surfacePoint(fromWindowPoint point: CGPoint, windowHeight: CGFloat) -> CGPoint {
+        CGPoint(x: point.x, y: windowHeight - point.y)
+    }
+
     /// マウス系イベントの ReferenceN パラメータを構築する（UKADOC list_shiori_event 準拠）。
     /// Reference0=X座標 Reference1=Y座標 Reference2=ホイール回転量
     /// Reference3=キャラクターID Reference4=当たり判定識別子 Reference5=ボタン Reference6=デバイス種別
@@ -563,8 +568,10 @@ final class InputMonitor {
             if let id = window.identifier?.rawValue, id.hasPrefix("GhostCharacterWindow_") {
                 if let last = id.split(separator: "_").last, let s = Int(last) {
                     scope = s
+                    // 当たり判定は左上原点のサーフェス座標で定義されるため、AppKit の左下原点から変換して渡す。
+                    let surfacePoint = Self.surfacePoint(fromWindowPoint: point, windowHeight: window.frame.height)
                     if let gm = AppDelegate.resolve()?.ghostManager,
-                       let r = gm.collisionRegionName(at: point, scope: s), !r.isEmpty {
+                       let r = gm.collisionRegionName(at: surfacePoint, scope: s), !r.isEmpty {
                         region = r
                     }
                 }

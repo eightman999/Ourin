@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互換性修正レポート (2026-10-25)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="2026-10-25">互換性修正レポート (2026-10-25)</h1>
+<p><a href="https://github.com/eightman999/Ourin/issues/109">#109</a>（FINE）と<a href="https://github.com/eightman999/Ourin/issues/118">#118</a>（scriptbox）のローカル修正記録です。z.ai workerの変更を引き継ぎ、FINEの宛先選択と公開wireからの回帰試験を追加しました。委譲処理はtimeout終了であり、workerの正常完了とは扱いません。</p>
+<h2 id="109-finewire">#109 FINEのwireと単一宛先配送</h2>
+<h3 id="_1">根拠と未確定範囲</h3>
+<p>Issueに記載されたSSP 2.8.35fの<code>ProcNotifyFINE @0x68adf0</code>要約を照合対象にしています。要約内のReferenceの説明には矛盾があるため、全記述を確定仕様とは扱いません。現在の実装契約は下表とし、公開wire→実EventBridge登録fixtureへの配送を回帰試験します。SSP実プロセスとの同一入力による差分試験は未実施です。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>現在の実装契約</th>
+<th>旧実装</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>サブコマンド</td>
+<td>リクエスト行 <code>FINE &lt;subcommand&gt; [SSTP/x.y]</code></td>
+<td>Reference0</td>
+</tr>
+<tr>
+<td>MessageSendの宛先</td>
+<td>Reference0: name / sakura.name / ディレクトリ名。そこで一致しなければReference1: kero.name</td>
+<td>Reference1 / Reference2等にずれ</td>
+</tr>
+<tr>
+<td>MessageSendの本文</td>
+<td>Reference3</td>
+<td>Reference4</td>
+</tr>
+<tr>
+<td>SetScript / SetScriptPartialの初期文字列</td>
+<td>Reference0</td>
+<td>サブコマンド文字列と兼用</td>
+</tr>
+<tr>
+<td>未知・空のサブコマンド</td>
+<td>501</td>
+<td>空の場合400</td>
+</tr>
+</tbody>
+</table>
+<p><code>SSTPParser</code>はリクエスト行の第2トークンをversionスロットへ載せるため、FINEではその値をサブコマンドとして解釈し、応答を<code>SSTP/1.4</code>で返します。通常SSTPの版数解析は変更していません。</p>
+<h3 id="_2">宛先選択</h3>
+<p><code>EventBridge.playFineScript</code>が、main thread上で登録済みセッションを読み、一意の対象へだけ再生を予約します。</p>
+<ul>
+<li>さくら側の名前が一致した場合はそれを優先し、別のゴーストに一致するけろ名へも同時配送しません。</li>
+<li>さくら側に一致がない場合だけ、けろ名の一致を使います。</li>
+<li>両名未指定・一致なし・候補が複数の場合は<strong>420 Refuse、配送なし</strong>です。同じmanagerの重複登録は候補を重複計上しません。</li>
+<li>SSPの<code>GetPreferredActiveGhost</code>に相当するMessageSend fallbackは未対応です。未確認の優先選択を全ゴーストへの配信で近似しません。</li>
+<li>本文がない要求は400、一意の宛先に配送を予約できた場合は200です。</li>
+</ul>
+<p>旧Ourin独自の<code>FINE SSTP/1.4</code> + <code>Reference0: MessageSend/SetScript/...</code>は<strong>501で拒否</strong>します。未公開の統合版で確認された誤配線への暫定互換を残さず、Reference0を宛先・初期文字列・サブコマンドで兼用しないための整理です。呼び出し側はサブコマンドをリクエスト行へ移し、上表のReferenceへ合わせてください。</p>
+<p>SetScript / SetScriptPartialは既存の優先ゴースト用入力窓経路を使い、Reference0を初期値として渡します。MessageSendの宛先選択とは別の処理です。</p>
+<h3 id="_3">追加した回帰試験</h3>
+<p><code>OurinTests/SSTPCompatRegressionTests.swift</code>は<code>eventBridgeIsolated</code>で他suiteの登録セッションから分離します。<code>SSTPParser.parseRequest</code>で生wireを解析し、実EventBridgeへ一時GhostManagerと記録用runtimeを登録します。</p>
+<ul>
+<li>2体登録時、Reference0とReference1が別ゴーストへ一致しても、さくら側の1体だけへReference3本文が届くこと。Reference2/4のダミー本文は届かないこと。</li>
+<li>さくら名が空または不一致の場合に、けろ名が一意ならその1体だけへ届くこと。</li>
+<li>宛先未指定・不一致・さくら名複数一致・けろ名複数一致を420として、どのruntimeにも本文が届かないこと。</li>
+<li>SetScriptとSetScriptPartialで実入力ダイアログの<code>NSTextField.stringValue</code>がReference0と一致すること。</li>
+<li>旧Reference0サブコマンド形式を501にし、再生も入力窓生成も行わないこと。</li>
+<li>本文欠落400、未知サブコマンド501、ゴースト不在420の既存確認。</li>
+</ul>
+<p><code>OurinTests/SSTPDispatcherTests.swift</code>の関連7テストも行サブコマンド／Reference3本文へ更新しました。テストfixtureは既存app delegate・ゴーストを退避して復元し、登録・入力窓・再生を終了時に片付けます。Swift構文確認と差分検査を実行済み。追加テストを含む最終OurinTests全体は1,541実行ケース成功・失敗0件（<code>/tmp/ourin-delegated-unit-final-r4-20261025.xcresult</code>）。実入力窓の手動操作とSSP比較は未実施です。</p>
+<h2 id="118-compatinput-scriptbox-open-close">#118 [compat/Input] scriptbox の open / close 誤配線修正</h2>
+<h3 id="_4">誤り（旧実装）</h3>
+<p><code>\![open,...]</code> 用ロジックの <code>case "textareabox"</code> と <code>case "scriptbox"</code> が
+<code>\![close,...]</code> 分岐の switch 内に誤配置されていた（GhostManager.swift）。</p>
+<ul>
+<li><code>\![close,scriptbox,ID]</code> が入力窓を <strong>開く</strong>（close で open される誤配線）。</li>
+<li><code>\![close,textareabox,ID]</code> も同様に textareabox を開こうとする。</li>
+<li><code>\![open,scriptbox,...]</code> と <code>\![open,textareabox,...]</code> は case が無いため
+  default へ落ちて <code>openURL("scriptbox")</code> として扱われる。</li>
+</ul>
+<h3 id="_5">正本とイベント意味論</h3>
+<ul>
+<li>scriptbox は SSP 固有の入力種別（GetTypeText case 1、UKADOC のさくらスクリプト
+  一覧には未収録）。基本 UI とイベント発火は inputbox と同族で、決定 → OnUserInput、
+  取消／タイムアウト → OnUserInputCancel。</li>
+<li><code>\![close,inputbox]</code> 同族の close はキャンセルイベントを発生させない。</li>
+<li><code>\![open,textareabox,...]</code> は UKADOC 2.9.10（ID, 表示時間, テキスト, --placeholder 等）。</li>
+</ul>
+<h3 id="_6">修正</h3>
+<ul>
+<li><code>Ourin/Ghost/GhostManager+Input.swift</code>（新設）: scriptbox / textareabox の
+  引数解析（<code>parseInputBoxCommand</code>。inputbox と同じ位置指定／<code>--id=</code>/<code>--timeout=</code>/
+  <code>--text=</code>/<code>--placeholder=</code> の優先度）と open 関数（<code>openScriptBox</code> は inputbox と
+  同一の単一行ダイアログ、<code>openTextAreaBox</code> は既存の textareabox ダイアログ）。</li>
+<li><code>Ourin/Ghost/GhostManager.swift</code>: open 分岐へ <code>case "scriptbox"</code> /
+  <code>case "textareabox"</code> を追加（拡張へ委譲）。close 分岐から誤配置された open 用
+  case を除去し、<code>case "scriptbox"</code> は <code>\![close,inputbox]</code> と同じ
+  <code>closeInputDialog(id:)</code>（イベント無し）で閉じる。</li>
+</ul>
+<h3 id="ourintestsscriptboxtestsswift">テスト（<code>OurinTests/ScriptBoxTests.swift</code>、新設）</h3>
+<ul>
+<li>引数解析: 位置指定形式 / オプション形式 / 引数なしの default ID /
+  位置指定と <code>--id</code> の優先度 / textareabox の placeholder。</li>
+<li>open 配線: <code>\![open,scriptbox]</code> が openURL に落ちず inputbox 同族の
+  モーダレスダイアログを開くこと（実ダイアログ生成まで検証）。</li>
+<li>close 配線（回帰の核心）: 開いた scriptbox に対する <code>\![close,scriptbox,ID]</code> が
+  既存の窓を閉じ、<strong>新しい窓を開かない</strong>こと。未知 ID の close も何も開かないこと。</li>
+</ul>
+<h2 id="_7">実行</h2>
+<pre class="codehilite"><code>xcodebuild -project Ourin.xcodeproj -scheme Ourin \
+  -only-testing:OurinTests/ScriptBoxTests \
+  -only-testing:OurinTests/SSTPCompatRegressionTests test
+</code></pre>
+
+<p>Xcode プロジェクト全体の build / test は統合作業者が一括実行する。
+新規ファイルは fileSystemSynchronizedGroups（objectVersion 77）により自動取り込みされる。</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../COMPAT_FIXES_2026-10-25.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

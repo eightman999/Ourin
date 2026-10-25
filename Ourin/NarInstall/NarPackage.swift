@@ -8,7 +8,7 @@ struct NarPackage: Identifiable, Hashable {
     let installPath: String
     let installDate: Date
     
-    init(name: String, version: String = "不明", installPath: String, installDate: Date = Date()) {
+    init(name: String, version: String = NSLocalizedString("不明", comment: "Unknown version"), installPath: String, installDate: Date = Date()) {
         self.name = name
         self.version = version
         self.installPath = installPath

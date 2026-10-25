@@ -1,0 +1,418 @@
+# PA holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/9,Martyrs' Day
+2020/2/25,Carnival Tuesday
+2020/4/10,Good Friday
+2020/5/1,Labor Day
+2020/11/3,Separation Day
+2020/11/5,Colon Day
+2020/11/10,Los Santos Uprising Day
+2020/11/28,Independence Day
+2020/12/8,Mother's Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/1/9,Martyrs' Day
+2021/2/16,Carnival Tuesday
+2021/4/2,Good Friday
+2021/5/1,Labor Day
+2021/11/3,Separation Day
+2021/11/5,Colon Day
+2021/11/10,Los Santos Uprising Day
+2021/11/28,Independence Day
+2021/11/29,Independence Day (observed)
+2021/12/8,Mother's Day
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/1/9,Martyrs' Day
+2022/1/10,Martyrs' Day (observed)
+2022/3/1,Carnival Tuesday
+2022/4/15,Good Friday
+2022/5/1,Labor Day
+2022/5/2,Labor Day (observed)
+2022/11/3,Separation Day
+2022/11/5,Colon Day
+2022/11/10,Los Santos Uprising Day
+2022/11/28,Independence Day
+2022/12/8,Mother's Day
+2022/12/20,National Mourning Day
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/1/9,Martyrs' Day
+2023/2/21,Carnival Tuesday
+2023/4/7,Good Friday
+2023/5/1,Labor Day
+2023/11/3,Separation Day
+2023/11/5,Colon Day
+2023/11/6,Colon Day (observed)
+2023/11/10,Los Santos Uprising Day
+2023/11/28,Independence Day
+2023/12/8,Mother's Day
+2023/12/20,National Mourning Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/1/9,Martyrs' Day
+2024/2/13,Carnival Tuesday
+2024/3/29,Good Friday
+2024/5/1,Labor Day
+2024/7/1,Presidential Inauguration Day
+2024/11/3,Separation Day
+2024/11/4,Separation Day (observed)
+2024/11/5,Colon Day
+2024/11/10,Los Santos Uprising Day
+2024/11/11,Los Santos Uprising Day (observed)
+2024/11/28,Independence Day
+2024/12/8,Mother's Day
+2024/12/9,Mother's Day (observed)
+2024/12/20,National Mourning Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/1/9,Martyrs' Day
+2025/3/4,Carnival Tuesday
+2025/4/18,Good Friday
+2025/5/1,Labor Day
+2025/11/3,Separation Day
+2025/11/5,Colon Day
+2025/11/10,Los Santos Uprising Day
+2025/11/28,Independence Day
+2025/12/8,Mother's Day
+2025/12/20,National Mourning Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/1/9,Martyrs' Day
+2026/2/17,Carnival Tuesday
+2026/4/3,Good Friday
+2026/5/1,Labor Day
+2026/11/3,Separation Day
+2026/11/5,Colon Day
+2026/11/10,Los Santos Uprising Day
+2026/11/28,Independence Day
+2026/12/8,Mother's Day
+2026/12/20,National Mourning Day
+2026/12/21,National Mourning Day (observed)
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/1/9,Martyrs' Day
+2027/2/9,Carnival Tuesday
+2027/3/26,Good Friday
+2027/5/1,Labor Day
+2027/11/3,Separation Day
+2027/11/5,Colon Day
+2027/11/10,Los Santos Uprising Day
+2027/11/28,Independence Day
+2027/11/29,Independence Day (observed)
+2027/12/8,Mother's Day
+2027/12/20,National Mourning Day
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/1/9,Martyrs' Day
+2028/1/10,Martyrs' Day (observed)
+2028/2/29,Carnival Tuesday
+2028/4/14,Good Friday
+2028/5/1,Labor Day
+2028/11/3,Separation Day
+2028/11/5,Colon Day
+2028/11/6,Colon Day (observed)
+2028/11/10,Los Santos Uprising Day
+2028/11/28,Independence Day
+2028/12/8,Mother's Day
+2028/12/20,National Mourning Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/1/9,Martyrs' Day
+2029/2/13,Carnival Tuesday
+2029/3/30,Good Friday
+2029/5/1,Labor Day
+2029/11/3,Separation Day
+2029/11/5,Colon Day
+2029/11/10,Los Santos Uprising Day
+2029/11/28,Independence Day
+2029/12/8,Mother's Day
+2029/12/20,National Mourning Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/1/9,Martyrs' Day
+2030/3/5,Carnival Tuesday
+2030/4/19,Good Friday
+2030/5/1,Labor Day
+2030/11/3,Separation Day
+2030/11/4,Separation Day (observed)
+2030/11/5,Colon Day
+2030/11/10,Los Santos Uprising Day
+2030/11/11,Los Santos Uprising Day (observed)
+2030/11/28,Independence Day
+2030/12/8,Mother's Day
+2030/12/9,Mother's Day (observed)
+2030/12/20,National Mourning Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/1/9,Martyrs' Day
+2031/2/25,Carnival Tuesday
+2031/4/11,Good Friday
+2031/5/1,Labor Day
+2031/11/3,Separation Day
+2031/11/5,Colon Day
+2031/11/10,Los Santos Uprising Day
+2031/11/28,Independence Day
+2031/12/8,Mother's Day
+2031/12/20,National Mourning Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/1/9,Martyrs' Day
+2032/2/10,Carnival Tuesday
+2032/3/26,Good Friday
+2032/5/1,Labor Day
+2032/11/3,Separation Day
+2032/11/5,Colon Day
+2032/11/10,Los Santos Uprising Day
+2032/11/28,Independence Day
+2032/11/29,Independence Day (observed)
+2032/12/8,Mother's Day
+2032/12/20,National Mourning Day
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/1/9,Martyrs' Day
+2033/1/10,Martyrs' Day (observed)
+2033/3/1,Carnival Tuesday
+2033/4/15,Good Friday
+2033/5/1,Labor Day
+2033/5/2,Labor Day (observed)
+2033/11/3,Separation Day
+2033/11/5,Colon Day
+2033/11/10,Los Santos Uprising Day
+2033/11/28,Independence Day
+2033/12/8,Mother's Day
+2033/12/20,National Mourning Day
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/1/9,Martyrs' Day
+2034/2/21,Carnival Tuesday
+2034/4/7,Good Friday
+2034/5/1,Labor Day
+2034/11/3,Separation Day
+2034/11/5,Colon Day
+2034/11/6,Colon Day (observed)
+2034/11/10,Los Santos Uprising Day
+2034/11/28,Independence Day
+2034/12/8,Mother's Day
+2034/12/20,National Mourning Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/1/9,Martyrs' Day
+2035/2/6,Carnival Tuesday
+2035/3/23,Good Friday
+2035/5/1,Labor Day
+2035/11/3,Separation Day
+2035/11/5,Colon Day
+2035/11/10,Los Santos Uprising Day
+2035/11/28,Independence Day
+2035/12/8,Mother's Day
+2035/12/20,National Mourning Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/1/9,Martyrs' Day
+2036/2/26,Carnival Tuesday
+2036/4/11,Good Friday
+2036/5/1,Labor Day
+2036/11/3,Separation Day
+2036/11/5,Colon Day
+2036/11/10,Los Santos Uprising Day
+2036/11/28,Independence Day
+2036/12/8,Mother's Day
+2036/12/20,National Mourning Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/1/9,Martyrs' Day
+2037/2/17,Carnival Tuesday
+2037/4/3,Good Friday
+2037/5/1,Labor Day
+2037/11/3,Separation Day
+2037/11/5,Colon Day
+2037/11/10,Los Santos Uprising Day
+2037/11/28,Independence Day
+2037/12/8,Mother's Day
+2037/12/20,National Mourning Day
+2037/12/21,National Mourning Day (observed)
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/1/9,Martyrs' Day
+2038/3/9,Carnival Tuesday
+2038/4/23,Good Friday
+2038/5/1,Labor Day
+2038/11/3,Separation Day
+2038/11/5,Colon Day
+2038/11/10,Los Santos Uprising Day
+2038/11/28,Independence Day
+2038/11/29,Independence Day (observed)
+2038/12/8,Mother's Day
+2038/12/20,National Mourning Day
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/1/9,Martyrs' Day
+2039/1/10,Martyrs' Day (observed)
+2039/2/22,Carnival Tuesday
+2039/4/8,Good Friday
+2039/5/1,Labor Day
+2039/5/2,Labor Day (observed)
+2039/11/3,Separation Day
+2039/11/5,Colon Day
+2039/11/10,Los Santos Uprising Day
+2039/11/28,Independence Day
+2039/12/8,Mother's Day
+2039/12/20,National Mourning Day
+2039/12/25,Christmas Day
+2039/12/26,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/1/9,Martyrs' Day
+2040/2/14,Carnival Tuesday
+2040/3/30,Good Friday
+2040/5/1,Labor Day
+2040/11/3,Separation Day
+2040/11/5,Colon Day
+2040/11/10,Los Santos Uprising Day
+2040/11/28,Independence Day
+2040/12/8,Mother's Day
+2040/12/20,National Mourning Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/1/9,Martyrs' Day
+2041/3/5,Carnival Tuesday
+2041/4/19,Good Friday
+2041/5/1,Labor Day
+2041/11/3,Separation Day
+2041/11/4,Separation Day (observed)
+2041/11/5,Colon Day
+2041/11/10,Los Santos Uprising Day
+2041/11/11,Los Santos Uprising Day (observed)
+2041/11/28,Independence Day
+2041/12/8,Mother's Day
+2041/12/9,Mother's Day (observed)
+2041/12/20,National Mourning Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/1/9,Martyrs' Day
+2042/2/18,Carnival Tuesday
+2042/4/4,Good Friday
+2042/5/1,Labor Day
+2042/11/3,Separation Day
+2042/11/5,Colon Day
+2042/11/10,Los Santos Uprising Day
+2042/11/28,Independence Day
+2042/12/8,Mother's Day
+2042/12/20,National Mourning Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/1/9,Martyrs' Day
+2043/2/10,Carnival Tuesday
+2043/3/27,Good Friday
+2043/5/1,Labor Day
+2043/11/3,Separation Day
+2043/11/5,Colon Day
+2043/11/10,Los Santos Uprising Day
+2043/11/28,Independence Day
+2043/12/8,Mother's Day
+2043/12/20,National Mourning Day
+2043/12/21,National Mourning Day (observed)
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/1/9,Martyrs' Day
+2044/3/1,Carnival Tuesday
+2044/4/15,Good Friday
+2044/5/1,Labor Day
+2044/5/2,Labor Day (observed)
+2044/11/3,Separation Day
+2044/11/5,Colon Day
+2044/11/10,Los Santos Uprising Day
+2044/11/28,Independence Day
+2044/12/8,Mother's Day
+2044/12/20,National Mourning Day
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/9,Martyrs' Day
+2045/2/21,Carnival Tuesday
+2045/4/7,Good Friday
+2045/5/1,Labor Day
+2045/11/3,Separation Day
+2045/11/5,Colon Day
+2045/11/6,Colon Day (observed)
+2045/11/10,Los Santos Uprising Day
+2045/11/28,Independence Day
+2045/12/8,Mother's Day
+2045/12/20,National Mourning Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/1/9,Martyrs' Day
+2046/2/6,Carnival Tuesday
+2046/3/23,Good Friday
+2046/5/1,Labor Day
+2046/11/3,Separation Day
+2046/11/5,Colon Day
+2046/11/10,Los Santos Uprising Day
+2046/11/28,Independence Day
+2046/12/8,Mother's Day
+2046/12/20,National Mourning Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/1/9,Martyrs' Day
+2047/2/26,Carnival Tuesday
+2047/4/12,Good Friday
+2047/5/1,Labor Day
+2047/11/3,Separation Day
+2047/11/4,Separation Day (observed)
+2047/11/5,Colon Day
+2047/11/10,Los Santos Uprising Day
+2047/11/11,Los Santos Uprising Day (observed)
+2047/11/28,Independence Day
+2047/12/8,Mother's Day
+2047/12/9,Mother's Day (observed)
+2047/12/20,National Mourning Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/1/9,Martyrs' Day
+2048/2/18,Carnival Tuesday
+2048/4/3,Good Friday
+2048/5/1,Labor Day
+2048/11/3,Separation Day
+2048/11/5,Colon Day
+2048/11/10,Los Santos Uprising Day
+2048/11/28,Independence Day
+2048/12/8,Mother's Day
+2048/12/20,National Mourning Day
+2048/12/21,National Mourning Day (observed)
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/1/9,Martyrs' Day
+2049/3/2,Carnival Tuesday
+2049/4/16,Good Friday
+2049/5/1,Labor Day
+2049/11/3,Separation Day
+2049/11/5,Colon Day
+2049/11/10,Los Santos Uprising Day
+2049/11/28,Independence Day
+2049/11/29,Independence Day (observed)
+2049/12/8,Mother's Day
+2049/12/20,National Mourning Day
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/1/9,Martyrs' Day
+2050/1/10,Martyrs' Day (observed)
+2050/2/22,Carnival Tuesday
+2050/4/8,Good Friday
+2050/5/1,Labor Day
+2050/5/2,Labor Day (observed)
+2050/11/3,Separation Day
+2050/11/5,Colon Day
+2050/11/10,Los Santos Uprising Day
+2050/11/28,Independence Day
+2050/12/8,Mother's Day
+2050/12/20,National Mourning Day
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)

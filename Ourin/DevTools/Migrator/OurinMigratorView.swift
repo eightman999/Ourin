@@ -293,7 +293,7 @@ struct OurinMigratorView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Mode: \(displayMode.rawValue)")
                     .bold()
-                Text(displayMode.recommendation)
+                Text(LocalizedStringKey(displayMode.recommendation))
                     .foregroundColor(.secondary)
                 if let impl = impl ?? manifest.implementation {
                     Text("Implementation: \(impl)")
@@ -353,7 +353,7 @@ struct OurinMigratorView: View {
         DispatchQueue.global().async {
             guard let base = try? OurinPaths.baseDirectory() else {
                 DispatchQueue.main.async {
-                    self.scanLog = "基準ディレクトリが解決できません"
+                    self.scanLog = NSLocalizedString("基準ディレクトリが解決できません", comment: "Migrator log")
                     self.isScanning = false
                 }
                 return
@@ -362,7 +362,7 @@ struct OurinMigratorView: View {
             let found = LegacyAssetScanner.scan(roots: roots)
             DispatchQueue.main.async {
                 self.assets = found
-                self.scanLog = "スキャン完了: \(found.count) 件"
+                self.scanLog = String(format: NSLocalizedString("スキャン完了: %lld 件", comment: "Migrator log"), found.count)
                 self.isScanning = false
             }
         }
@@ -378,21 +378,21 @@ struct OurinMigratorView: View {
                          progress: { p in
             DispatchQueue.main.async {
                 switch p {
-                case .started(let name): self.analyzeProgress = "開始: \(name)"
+                case .started(let name): self.analyzeProgress = String(format: NSLocalizedString("開始: %@", comment: "Migrator progress"), name)
                 case .stdout(let s), .stderr(let s):
                     outputAccum += s
                     if let last = outputAccum.split(whereSeparator: { $0.isNewline }).last {
                         self.analyzeProgress = String(last)
                     }
-                case .finishedAnalysis(let dur): self.analyzeProgress = "完了 (\(String(format: "%.1f", dur))s)"
+                case .finishedAnalysis(let dur): self.analyzeProgress = String(format: NSLocalizedString("完了 (%.1fs)", comment: "Migrator progress"), dur)
                 case .failed(let m):
                     self.isAnalyzing = false
                     self.analyzeProgress = ""
-                    self.scanLog = "解析失敗: \(m)"
+                    self.scanLog = String(format: NSLocalizedString("解析失敗: %@", comment: "Migrator log"), m)
                 case .cancelled:
                     self.isAnalyzing = false
                     self.analyzeProgress = ""
-                    self.scanLog = "解析をキャンセルしました"
+                    self.scanLog = NSLocalizedString("解析をキャンセルしました", comment: "Migrator log")
                 }
             }
         }, completion: { result in
@@ -404,9 +404,9 @@ struct OurinMigratorView: View {
                     if let idx = self.assets.firstIndex(where: { $0.id == updated.id }) {
                         self.assets[idx] = updated
                     }
-                    self.scanLog = "解析完了: \(updated.filename)"
+                    self.scanLog = String(format: NSLocalizedString("解析完了: %@", comment: "Migrator log"), updated.filename)
                 case .failure(let err):
-                    self.scanLog = "解析失敗: \(err.localizedDescription)"
+                    self.scanLog = String(format: NSLocalizedString("解析失敗: %@", comment: "Migrator log"), err.localizedDescription)
                 }
             }
         })
@@ -461,7 +461,7 @@ struct OurinMigratorView: View {
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
         panel.allowsMultipleSelection = false
-        panel.title = "analyzeHeadless を選択"
+        panel.title = NSLocalizedString("analyzeHeadless を選択", comment: "Migrator panel")
         if let url = ghidraURL { panel.directoryURL = url.deletingLastPathComponent() }
         if panel.runModal() == .OK, let url = panel.url {
             ghidraPath = url.path
@@ -497,21 +497,21 @@ struct OurinMigratorView: View {
         }
         do {
             try manifest.write(to: asset.directoryURL.appendingPathComponent("ourin.json"))
-            scanLog = "ourin.json を生成しました"
+            scanLog = NSLocalizedString("ourin.json を生成しました", comment: "Migrator log")
             refreshStatus(of: asset)
         } catch {
-            scanLog = "ourin.json 生成失敗: \(error.localizedDescription)"
+            scanLog = String(format: NSLocalizedString("ourin.json 生成失敗: %@", comment: "Migrator log"), error.localizedDescription)
         }
     }
 
     private func performScaffold(for asset: LegacyAssetScanner.Asset, force: Bool = false) {
         if let result = PluginScaffolder.scaffold(for: asset, force: force) {
             scanLog = result.overwritten
-                ? "移行記録を上書きしました: \(result.packageURL.lastPathComponent)"
-                : "移行記録を生成しました（実行体なし）: \(result.packageURL.lastPathComponent)"
+                ? String(format: NSLocalizedString("移行記録を上書きしました: %@", comment: "Migrator log"), result.packageURL.lastPathComponent)
+                : String(format: NSLocalizedString("移行記録を生成しました（実行体なし）: %@", comment: "Migrator log"), result.packageURL.lastPathComponent)
             refreshStatus(of: asset)
         } else {
-            scanLog = "移行記録の生成をスキップしました（既存）"
+            scanLog = NSLocalizedString("移行記録の生成をスキップしました（既存）", comment: "Migrator log")
         }
     }
 
@@ -576,7 +576,7 @@ private func gridPairs(_ pairs: [(String, String)]) -> some View {
 }
 
 private func emptyText(_ s: String) -> some View {
-    Text(s).foregroundColor(.secondary).font(.caption)
+    Text(LocalizedStringKey(s)).foregroundColor(.secondary).font(.caption)
 }
 
 private func fileStatus(_ name: String, exists: Bool) -> some View {

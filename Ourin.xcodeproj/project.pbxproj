@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A30000000000000000000001 /* NativeShioriModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000002 /* NativeShioriModule.swift */; };
 		A10000000000000000000001 /* OurinShioriXPCService.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = A10000000000000000000004 /* OurinShioriXPCService.xpc */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */ = {isa = PBXBuildFile; fileRef = 8684A3B06E824388A6939F39 /* emily4.nar */; };
+		3B9ADBDA98BE41B980EF4FF3 /* sakura.nar in Resources */ = {isa = PBXBuildFile; fileRef = 8684A3B06E824388A6939F39 /* sakura.nar */; };
 		A0F475111AF14D23831E8DFA /* yaya_core in Copy yaya_core */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A20000000000000000000001 /* satori_core in Copy helper cores */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* satori_core */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		DFC17CB12EA33CC600D2F390 /* yaya_core in Resources */ = {isa = PBXBuildFile; fileRef = 4461E2FD564847458C545C0E /* yaya_core */; };
@@ -65,10 +66,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A30000000000000000000002 /* NativeShioriModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ourin/USL/NativeShioriModule.swift; sourceTree = SOURCE_ROOT; };
 		A10000000000000000000004 /* OurinShioriXPCService.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = OurinShioriXPCService.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 		4461E2FD564847458C545C0E /* yaya_core */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = yaya_core; path = yaya_core/build/yaya_core; sourceTree = "<group>"; };
 		A20000000000000000000002 /* satori_core */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = satori_core; path = satori_core/build/satori_core; sourceTree = "<group>"; };
-		8684A3B06E824388A6939F39 /* emily4.nar */ = {isa = PBXFileReference; lastKnownFileType = archive; path = emily4.nar; sourceTree = "<group>"; };
+		8684A3B06E824388A6939F39 /* sakura.nar */ = {isa = PBXFileReference; lastKnownFileType = archive; path = sakura.nar; sourceTree = "<group>"; };
 		DF88A7F02E35199C00644F8A /* Ourin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ourin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF88A7FE2E35199D00644F8A /* OurinTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF88A8082E35199D00644F8A /* OurinUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OurinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -180,7 +182,7 @@
 		DFC17AD22EA272E800D2F390 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				8684A3B06E824388A6939F39 /* emily4.nar */,
+				8684A3B06E824388A6939F39 /* sakura.nar */,
 				4461E2FD564847458C545C0E /* yaya_core */,
 				A20000000000000000000002 /* satori_core */,
 			);
@@ -223,6 +225,7 @@
 				DF88A7EE2E35199C00644F8A /* Resources */,
 				77944998B8914360ADE8454F /* Copy yaya_core */,
 				A10000000000000000000003 /* Embed XPC Services */,
+				A40000000000000000000001 /* Build and embed native SHIORI engines */,
 			);
 			buildRules = (
 			);
@@ -318,6 +321,9 @@
 				en,
 				Base,
 				ja,
+				"zh-Hans",
+				"zh-Hant",
+				ko,
 			);
 			mainGroup = DF88A7E72E35199C00644F8A;
 			minimizedProjectReferenceProxies = 1;
@@ -347,7 +353,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFC17CB12EA33CC600D2F390 /* yaya_core in Resources */,
-				3B9ADBDA98BE41B980EF4FF3 /* emily4.nar in Resources */,
+				3B9ADBDA98BE41B980EF4FF3 /* sakura.nar in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,6 +376,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		A20000000000000000000003 /* Build satori_core */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -385,10 +392,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd \"${SRCROOT}/satori_core\"\n./build.sh\n";
+			shellScript = "cd \"${SRCROOT}/satori_core\"\nneeds_build=0\nif [ ! -x \"build/satori_core\" ] || [ \"CMakeLists.txt\" -nt \"build/satori_core\" ] || [ \"build.sh\" -nt \"build/satori_core\" ]; then\n    needs_build=1\nfi\nif [ \"$needs_build\" -eq 0 ] && find src third_party tests -type f -newer \"build/satori_core\" -print -quit | grep -q .; then\n    needs_build=1\nfi\nif [ \"$needs_build\" -eq 1 ]; then\n    ./build.sh\nfi\n";
 		};
 		FB9B89652D3B4A46A677B797 /* Build yaya_core */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -406,6 +414,18 @@
 			shellPath = /bin/sh;
 			shellScript = "cd \"${SRCROOT}/yaya_core\"\nneeds_build=0\nif [ ! -x \"build/yaya_core\" ] || [ \"CMakeLists.txt\" -nt \"build/yaya_core\" ] || [ \"build.sh\" -nt \"build/yaya_core\" ]; then\n    needs_build=1\nfi\nif [ \"$needs_build\" -eq 0 ] && find src third_party -type f -newer \"build/yaya_core\" -print -quit | grep -q .; then\n    needs_build=1\nfi\nif [ \"$needs_build\" -eq 1 ]; then\n    ./build.sh\nfi\n";
 		};
+		A40000000000000000000001 /* Build and embed native SHIORI engines */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = ();
+			inputPaths = ();
+			name = "Build and embed native SHIORI engines";
+			outputPaths = ();
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "bash \"${SRCROOT}/engines/package.sh\"\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -413,6 +433,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A30000000000000000000001 /* NativeShioriModule.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -463,14 +484,14 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OurinShioriXPCService/OurinShioriXPCService.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = OurinShioriXPCService/Info.plist;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.0.1.21;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.ourin.shiori;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -484,14 +505,14 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OurinShioriXPCService/OurinShioriXPCService.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = OurinShioriXPCService/Info.plist;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.0.1.21;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.ourin.shiori;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -630,7 +651,7 @@
 				CODE_SIGN_ENTITLEMENTS = Ourin/Ourin.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 21;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
 				ENABLE_APP_SANDBOX = NO;
@@ -664,8 +685,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.0.1.21;
 				PRODUCT_BUNDLE_IDENTIFIER = "furin-lab.Ourin";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -687,7 +708,7 @@
 				CODE_SIGN_ENTITLEMENTS = Ourin/Ourin.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 21;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
 				ENABLE_APP_SANDBOX = NO;
@@ -721,8 +742,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.0.1.21;
 				PRODUCT_BUNDLE_IDENTIFIER = "furin-lab.Ourin";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -741,13 +762,13 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 21;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.0.1.21;
 				PRODUCT_BUNDLE_IDENTIFIER = "furin-lab.MacUkagakaTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -765,13 +786,13 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 21;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.0.1.21;
 				PRODUCT_BUNDLE_IDENTIFIER = "furin-lab.MacUkagakaTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -788,13 +809,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 21;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.0.1.21;
 				PRODUCT_BUNDLE_IDENTIFIER = "furin-lab.MacUkagakaUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -811,13 +832,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 21;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = XBT5U5CHS8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.0.1.21;
 				PRODUCT_BUNDLE_IDENTIFIER = "furin-lab.MacUkagakaUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;

@@ -1,0 +1,550 @@
+# AR の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/2/24,Lunes de Carnaval
+2020/2/25,Martes de Carnaval
+2020/3/23,Feriado con fines turísticos
+2020/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2020/3/31,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2020/4/9,Jueves Santo
+2020/4/10,Viernes Santo
+2020/5/1,Día del Trabajo
+2020/5/25,Día de la Revolución de Mayo
+2020/6/15,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2020/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2020/7/9,Día de la Independencia
+2020/7/10,Feriado con fines turísticos
+2020/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2020/10/12,Día del Respeto a la Diversidad Cultural
+2020/11/23,Día de la Soberanía Nacional
+2020/12/7,Feriado con fines turísticos
+2020/12/8,Inmaculada Concepción de María
+2020/12/25,Navidad
+2021/1/1,Año Nuevo
+2021/2/15,Lunes de Carnaval
+2021/2/16,Martes de Carnaval
+2021/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2021/4/1,Jueves Santo
+2021/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas; Viernes Santo
+2021/5/1,Día del Trabajo
+2021/5/24,Feriado con fines turísticos
+2021/5/25,Día de la Revolución de Mayo
+2021/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2021/6/21,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2021/7/9,Día de la Independencia
+2021/8/16,Paso a la Inmortalidad del General Don José de San Martín
+2021/10/8,Feriado con fines turísticos
+2021/10/11,Día del Respeto a la Diversidad Cultural
+2021/11/20,Día de la Soberanía Nacional
+2021/11/22,Feriado con fines turísticos
+2021/12/8,Inmaculada Concepción de María
+2021/12/25,Navidad
+2022/1/1,Año Nuevo
+2022/2/28,Lunes de Carnaval
+2022/3/1,Martes de Carnaval
+2022/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2022/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2022/4/14,Jueves Santo
+2022/4/15,Viernes Santo
+2022/5/1,Día del Trabajo
+2022/5/18,Censo Nacional 2022
+2022/5/25,Día de la Revolución de Mayo
+2022/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2022/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2022/7/9,Día de la Independencia
+2022/8/15,Paso a la Inmortalidad del General Don José de San Martín
+2022/10/7,Feriado con fines turísticos
+2022/10/10,Día del Respeto a la Diversidad Cultural
+2022/11/20,Día de la Soberanía Nacional
+2022/11/21,Feriado con fines turísticos
+2022/12/8,Inmaculada Concepción de María
+2022/12/9,Feriado con fines turísticos
+2022/12/20,Día de la Victoria de la Copa Mundial de la FIFA 2022
+2022/12/25,Navidad
+2023/1/1,Año Nuevo
+2023/2/20,Lunes de Carnaval
+2023/2/21,Martes de Carnaval
+2023/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2023/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2023/4/6,Jueves Santo
+2023/4/7,Viernes Santo
+2023/5/1,Día del Trabajo
+2023/5/25,Día de la Revolución de Mayo
+2023/5/26,Feriado con fines turísticos
+2023/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2023/6/19,Feriado con fines turísticos
+2023/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2023/7/9,Día de la Independencia
+2023/8/21,Paso a la Inmortalidad del General Don José de San Martín
+2023/10/13,Feriado con fines turísticos
+2023/10/16,Día del Respeto a la Diversidad Cultural
+2023/11/20,Día de la Soberanía Nacional
+2023/12/8,Inmaculada Concepción de María
+2023/12/25,Navidad
+2024/1/1,Año Nuevo
+2024/2/12,Lunes de Carnaval
+2024/2/13,Martes de Carnaval
+2024/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2024/3/28,Jueves Santo
+2024/3/29,Viernes Santo
+2024/4/1,Feriado con fines turísticos
+2024/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2024/5/1,Día del Trabajo
+2024/5/25,Día de la Revolución de Mayo
+2024/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2024/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2024/6/21,Feriado con fines turísticos
+2024/7/9,Día de la Independencia
+2024/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2024/10/11,Feriado con fines turísticos
+2024/10/12,Día del Respeto a la Diversidad Cultural
+2024/11/18,Día de la Soberanía Nacional
+2024/12/8,Inmaculada Concepción de María
+2024/12/25,Navidad
+2025/1/1,Año Nuevo
+2025/3/3,Lunes de Carnaval
+2025/3/4,Martes de Carnaval
+2025/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2025/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2025/4/17,Jueves Santo
+2025/4/18,Viernes Santo
+2025/5/1,Día del Trabajo
+2025/5/2,Feriado con fines turísticos
+2025/5/25,Día de la Revolución de Mayo
+2025/6/16,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2025/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2025/7/9,Día de la Independencia
+2025/8/15,Feriado con fines turísticos
+2025/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2025/10/12,Día del Respeto a la Diversidad Cultural
+2025/11/21,Feriado con fines turísticos
+2025/11/24,Día de la Soberanía Nacional
+2025/12/8,Inmaculada Concepción de María
+2025/12/25,Navidad
+2026/1/1,Año Nuevo
+2026/2/16,Lunes de Carnaval
+2026/2/17,Martes de Carnaval
+2026/3/23,Feriado con fines turísticos
+2026/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2026/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas; Jueves Santo
+2026/4/3,Viernes Santo
+2026/5/1,Día del Trabajo
+2026/5/25,Día de la Revolución de Mayo
+2026/6/15,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2026/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2026/7/9,Día de la Independencia
+2026/7/10,Feriado con fines turísticos
+2026/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2026/10/12,Día del Respeto a la Diversidad Cultural
+2026/11/9,Visita de Su Santidad el Papa León XIV
+2026/11/23,Día de la Soberanía Nacional
+2026/12/7,Feriado con fines turísticos
+2026/12/8,Inmaculada Concepción de María
+2026/12/25,Navidad
+2027/1/1,Año Nuevo
+2027/2/8,Lunes de Carnaval
+2027/2/9,Martes de Carnaval
+2027/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2027/3/25,Jueves Santo
+2027/3/26,Viernes Santo
+2027/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2027/5/1,Día del Trabajo
+2027/5/25,Día de la Revolución de Mayo
+2027/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2027/6/21,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2027/7/9,Día de la Independencia
+2027/8/16,Paso a la Inmortalidad del General Don José de San Martín
+2027/10/11,Día del Respeto a la Diversidad Cultural
+2027/11/20,Día de la Soberanía Nacional
+2027/12/8,Inmaculada Concepción de María
+2027/12/25,Navidad
+2028/1/1,Año Nuevo
+2028/2/28,Lunes de Carnaval
+2028/2/29,Martes de Carnaval
+2028/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2028/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2028/4/13,Jueves Santo
+2028/4/14,Viernes Santo
+2028/5/1,Día del Trabajo
+2028/5/25,Día de la Revolución de Mayo
+2028/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2028/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2028/7/9,Día de la Independencia
+2028/8/21,Paso a la Inmortalidad del General Don José de San Martín
+2028/10/16,Día del Respeto a la Diversidad Cultural
+2028/11/20,Día de la Soberanía Nacional
+2028/12/8,Inmaculada Concepción de María
+2028/12/25,Navidad
+2029/1/1,Año Nuevo
+2029/2/12,Lunes de Carnaval
+2029/2/13,Martes de Carnaval
+2029/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2029/3/29,Jueves Santo
+2029/3/30,Viernes Santo
+2029/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2029/5/1,Día del Trabajo
+2029/5/25,Día de la Revolución de Mayo
+2029/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2029/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2029/7/9,Día de la Independencia
+2029/8/20,Paso a la Inmortalidad del General Don José de San Martín
+2029/10/15,Día del Respeto a la Diversidad Cultural
+2029/11/19,Día de la Soberanía Nacional
+2029/12/8,Inmaculada Concepción de María
+2029/12/25,Navidad
+2030/1/1,Año Nuevo
+2030/3/4,Lunes de Carnaval
+2030/3/5,Martes de Carnaval
+2030/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2030/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2030/4/18,Jueves Santo
+2030/4/19,Viernes Santo
+2030/5/1,Día del Trabajo
+2030/5/25,Día de la Revolución de Mayo
+2030/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2030/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2030/7/9,Día de la Independencia
+2030/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2030/10/12,Día del Respeto a la Diversidad Cultural
+2030/11/18,Día de la Soberanía Nacional
+2030/12/8,Inmaculada Concepción de María
+2030/12/25,Navidad
+2031/1/1,Año Nuevo
+2031/2/24,Lunes de Carnaval
+2031/2/25,Martes de Carnaval
+2031/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2031/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2031/4/10,Jueves Santo
+2031/4/11,Viernes Santo
+2031/5/1,Día del Trabajo
+2031/5/25,Día de la Revolución de Mayo
+2031/6/16,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2031/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2031/7/9,Día de la Independencia
+2031/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2031/10/12,Día del Respeto a la Diversidad Cultural
+2031/11/24,Día de la Soberanía Nacional
+2031/12/8,Inmaculada Concepción de María
+2031/12/25,Navidad
+2032/1/1,Año Nuevo
+2032/2/9,Lunes de Carnaval
+2032/2/10,Martes de Carnaval
+2032/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2032/3/25,Jueves Santo
+2032/3/26,Viernes Santo
+2032/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2032/5/1,Día del Trabajo
+2032/5/25,Día de la Revolución de Mayo
+2032/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2032/6/21,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2032/7/9,Día de la Independencia
+2032/8/16,Paso a la Inmortalidad del General Don José de San Martín
+2032/10/11,Día del Respeto a la Diversidad Cultural
+2032/11/20,Día de la Soberanía Nacional
+2032/12/8,Inmaculada Concepción de María
+2032/12/25,Navidad
+2033/1/1,Año Nuevo
+2033/2/28,Lunes de Carnaval
+2033/3/1,Martes de Carnaval
+2033/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2033/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2033/4/14,Jueves Santo
+2033/4/15,Viernes Santo
+2033/5/1,Día del Trabajo
+2033/5/25,Día de la Revolución de Mayo
+2033/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2033/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2033/7/9,Día de la Independencia
+2033/8/15,Paso a la Inmortalidad del General Don José de San Martín
+2033/10/10,Día del Respeto a la Diversidad Cultural
+2033/11/20,Día de la Soberanía Nacional
+2033/12/8,Inmaculada Concepción de María
+2033/12/25,Navidad
+2034/1/1,Año Nuevo
+2034/2/20,Lunes de Carnaval
+2034/2/21,Martes de Carnaval
+2034/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2034/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2034/4/6,Jueves Santo
+2034/4/7,Viernes Santo
+2034/5/1,Día del Trabajo
+2034/5/25,Día de la Revolución de Mayo
+2034/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2034/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2034/7/9,Día de la Independencia
+2034/8/21,Paso a la Inmortalidad del General Don José de San Martín
+2034/10/16,Día del Respeto a la Diversidad Cultural
+2034/11/20,Día de la Soberanía Nacional
+2034/12/8,Inmaculada Concepción de María
+2034/12/25,Navidad
+2035/1/1,Año Nuevo
+2035/2/5,Lunes de Carnaval
+2035/2/6,Martes de Carnaval
+2035/3/22,Jueves Santo
+2035/3/23,Viernes Santo
+2035/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2035/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2035/5/1,Día del Trabajo
+2035/5/25,Día de la Revolución de Mayo
+2035/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2035/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2035/7/9,Día de la Independencia
+2035/8/20,Paso a la Inmortalidad del General Don José de San Martín
+2035/10/15,Día del Respeto a la Diversidad Cultural
+2035/11/19,Día de la Soberanía Nacional
+2035/12/8,Inmaculada Concepción de María
+2035/12/25,Navidad
+2036/1/1,Año Nuevo
+2036/2/25,Lunes de Carnaval
+2036/2/26,Martes de Carnaval
+2036/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2036/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2036/4/10,Jueves Santo
+2036/4/11,Viernes Santo
+2036/5/1,Día del Trabajo
+2036/5/25,Día de la Revolución de Mayo
+2036/6/16,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2036/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2036/7/9,Día de la Independencia
+2036/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2036/10/12,Día del Respeto a la Diversidad Cultural
+2036/11/24,Día de la Soberanía Nacional
+2036/12/8,Inmaculada Concepción de María
+2036/12/25,Navidad
+2037/1/1,Año Nuevo
+2037/2/16,Lunes de Carnaval
+2037/2/17,Martes de Carnaval
+2037/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2037/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas; Jueves Santo
+2037/4/3,Viernes Santo
+2037/5/1,Día del Trabajo
+2037/5/25,Día de la Revolución de Mayo
+2037/6/15,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2037/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2037/7/9,Día de la Independencia
+2037/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2037/10/12,Día del Respeto a la Diversidad Cultural
+2037/11/23,Día de la Soberanía Nacional
+2037/12/8,Inmaculada Concepción de María
+2037/12/25,Navidad
+2038/1/1,Año Nuevo
+2038/3/8,Lunes de Carnaval
+2038/3/9,Martes de Carnaval
+2038/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2038/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2038/4/22,Jueves Santo
+2038/4/23,Viernes Santo
+2038/5/1,Día del Trabajo
+2038/5/25,Día de la Revolución de Mayo
+2038/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2038/6/21,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2038/7/9,Día de la Independencia
+2038/8/16,Paso a la Inmortalidad del General Don José de San Martín
+2038/10/11,Día del Respeto a la Diversidad Cultural
+2038/11/20,Día de la Soberanía Nacional
+2038/12/8,Inmaculada Concepción de María
+2038/12/25,Navidad
+2039/1/1,Año Nuevo
+2039/2/21,Lunes de Carnaval
+2039/2/22,Martes de Carnaval
+2039/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2039/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2039/4/7,Jueves Santo
+2039/4/8,Viernes Santo
+2039/5/1,Día del Trabajo
+2039/5/25,Día de la Revolución de Mayo
+2039/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2039/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2039/7/9,Día de la Independencia
+2039/8/15,Paso a la Inmortalidad del General Don José de San Martín
+2039/10/10,Día del Respeto a la Diversidad Cultural
+2039/11/20,Día de la Soberanía Nacional
+2039/12/8,Inmaculada Concepción de María
+2039/12/25,Navidad
+2040/1/1,Año Nuevo
+2040/2/13,Lunes de Carnaval
+2040/2/14,Martes de Carnaval
+2040/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2040/3/29,Jueves Santo
+2040/3/30,Viernes Santo
+2040/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2040/5/1,Día del Trabajo
+2040/5/25,Día de la Revolución de Mayo
+2040/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2040/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2040/7/9,Día de la Independencia
+2040/8/20,Paso a la Inmortalidad del General Don José de San Martín
+2040/10/15,Día del Respeto a la Diversidad Cultural
+2040/11/19,Día de la Soberanía Nacional
+2040/12/8,Inmaculada Concepción de María
+2040/12/25,Navidad
+2041/1/1,Año Nuevo
+2041/3/4,Lunes de Carnaval
+2041/3/5,Martes de Carnaval
+2041/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2041/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2041/4/18,Jueves Santo
+2041/4/19,Viernes Santo
+2041/5/1,Día del Trabajo
+2041/5/25,Día de la Revolución de Mayo
+2041/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2041/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2041/7/9,Día de la Independencia
+2041/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2041/10/12,Día del Respeto a la Diversidad Cultural
+2041/11/18,Día de la Soberanía Nacional
+2041/12/8,Inmaculada Concepción de María
+2041/12/25,Navidad
+2042/1/1,Año Nuevo
+2042/2/17,Lunes de Carnaval
+2042/2/18,Martes de Carnaval
+2042/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2042/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2042/4/3,Jueves Santo
+2042/4/4,Viernes Santo
+2042/5/1,Día del Trabajo
+2042/5/25,Día de la Revolución de Mayo
+2042/6/16,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2042/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2042/7/9,Día de la Independencia
+2042/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2042/10/12,Día del Respeto a la Diversidad Cultural
+2042/11/24,Día de la Soberanía Nacional
+2042/12/8,Inmaculada Concepción de María
+2042/12/25,Navidad
+2043/1/1,Año Nuevo
+2043/2/9,Lunes de Carnaval
+2043/2/10,Martes de Carnaval
+2043/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2043/3/26,Jueves Santo
+2043/3/27,Viernes Santo
+2043/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2043/5/1,Día del Trabajo
+2043/5/25,Día de la Revolución de Mayo
+2043/6/15,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2043/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2043/7/9,Día de la Independencia
+2043/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2043/10/12,Día del Respeto a la Diversidad Cultural
+2043/11/23,Día de la Soberanía Nacional
+2043/12/8,Inmaculada Concepción de María
+2043/12/25,Navidad
+2044/1/1,Año Nuevo
+2044/2/29,Lunes de Carnaval
+2044/3/1,Martes de Carnaval
+2044/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2044/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2044/4/14,Jueves Santo
+2044/4/15,Viernes Santo
+2044/5/1,Día del Trabajo
+2044/5/25,Día de la Revolución de Mayo
+2044/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2044/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2044/7/9,Día de la Independencia
+2044/8/15,Paso a la Inmortalidad del General Don José de San Martín
+2044/10/10,Día del Respeto a la Diversidad Cultural
+2044/11/20,Día de la Soberanía Nacional
+2044/12/8,Inmaculada Concepción de María
+2044/12/25,Navidad
+2045/1/1,Año Nuevo
+2045/2/20,Lunes de Carnaval
+2045/2/21,Martes de Carnaval
+2045/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2045/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2045/4/6,Jueves Santo
+2045/4/7,Viernes Santo
+2045/5/1,Día del Trabajo
+2045/5/25,Día de la Revolución de Mayo
+2045/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2045/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2045/7/9,Día de la Independencia
+2045/8/21,Paso a la Inmortalidad del General Don José de San Martín
+2045/10/16,Día del Respeto a la Diversidad Cultural
+2045/11/20,Día de la Soberanía Nacional
+2045/12/8,Inmaculada Concepción de María
+2045/12/25,Navidad
+2046/1/1,Año Nuevo
+2046/2/5,Lunes de Carnaval
+2046/2/6,Martes de Carnaval
+2046/3/22,Jueves Santo
+2046/3/23,Viernes Santo
+2046/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2046/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2046/5/1,Día del Trabajo
+2046/5/25,Día de la Revolución de Mayo
+2046/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2046/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2046/7/9,Día de la Independencia
+2046/8/20,Paso a la Inmortalidad del General Don José de San Martín
+2046/10/15,Día del Respeto a la Diversidad Cultural
+2046/11/19,Día de la Soberanía Nacional
+2046/12/8,Inmaculada Concepción de María
+2046/12/25,Navidad
+2047/1/1,Año Nuevo
+2047/2/25,Lunes de Carnaval
+2047/2/26,Martes de Carnaval
+2047/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2047/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2047/4/11,Jueves Santo
+2047/4/12,Viernes Santo
+2047/5/1,Día del Trabajo
+2047/5/25,Día de la Revolución de Mayo
+2047/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2047/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2047/7/9,Día de la Independencia
+2047/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2047/10/12,Día del Respeto a la Diversidad Cultural
+2047/11/18,Día de la Soberanía Nacional
+2047/12/8,Inmaculada Concepción de María
+2047/12/25,Navidad
+2048/1/1,Año Nuevo
+2048/2/17,Lunes de Carnaval
+2048/2/18,Martes de Carnaval
+2048/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2048/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas; Jueves Santo
+2048/4/3,Viernes Santo
+2048/5/1,Día del Trabajo
+2048/5/25,Día de la Revolución de Mayo
+2048/6/15,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2048/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2048/7/9,Día de la Independencia
+2048/8/17,Paso a la Inmortalidad del General Don José de San Martín
+2048/10/12,Día del Respeto a la Diversidad Cultural
+2048/11/23,Día de la Soberanía Nacional
+2048/12/8,Inmaculada Concepción de María
+2048/12/25,Navidad
+2049/1/1,Año Nuevo
+2049/3/1,Lunes de Carnaval
+2049/3/2,Martes de Carnaval
+2049/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2049/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2049/4/15,Jueves Santo
+2049/4/16,Viernes Santo
+2049/5/1,Día del Trabajo
+2049/5/25,Día de la Revolución de Mayo
+2049/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2049/6/21,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2049/7/9,Día de la Independencia
+2049/8/16,Paso a la Inmortalidad del General Don José de San Martín
+2049/10/11,Día del Respeto a la Diversidad Cultural
+2049/11/20,Día de la Soberanía Nacional
+2049/12/8,Inmaculada Concepción de María
+2049/12/25,Navidad
+2050/1/1,Año Nuevo
+2050/2/21,Lunes de Carnaval
+2050/2/22,Martes de Carnaval
+2050/3/24,Día Nacional de la Memoria por la Verdad y la Justicia
+2050/4/2,Día del Veterano y de los Caidos en la Guerra de Malvinas
+2050/4/7,Jueves Santo
+2050/4/8,Viernes Santo
+2050/5/1,Día del Trabajo
+2050/5/25,Día de la Revolución de Mayo
+2050/6/17,Paso a la Inmortalidad del General Don Martín Miguel de Güemes
+2050/6/20,Paso a la Inmortalidad del General Don Manuel Belgrano
+2050/7/9,Día de la Independencia
+2050/8/15,Paso a la Inmortalidad del General Don José de San Martín
+2050/10/10,Día del Respeto a la Diversidad Cultural
+2050/11/20,Día de la Soberanía Nacional
+2050/12/8,Inmaculada Concepción de María
+2050/12/25,Navidad

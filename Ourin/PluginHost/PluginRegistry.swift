@@ -375,7 +375,7 @@ public final class PluginRegistry {
 
     /// 検出されたプラグイン候補。数値が小さいほど優先度が高い。
     private enum PluginCandidate {
-        case nativePackage(bundleURL: URL, packageURL: URL, installManifest: InstallManifest)
+        case nativePackage(bundleURL: URL, packageURL: URL, installManifest: InstallManifest?)
         case nativeDirect(bundleURL: URL)
         case legacy(record: LegacyPluginRecord)
 
@@ -427,7 +427,7 @@ public final class PluginRegistry {
             // package directory (install.txt 付き)
             if let installManifest = PluginRegistry.readInstallManifest(from: item),
                installManifest.type.lowercased() == "plugin" {
-                let bundles = PluginRegistry.nativePluginBundles(in: item)
+                let bundles = PluginRegistry.nativePluginModules(in: item)
                 if !bundles.isEmpty {
                     for bundleURL in bundles {
                         let id = PluginRegistry.peekID(at: item) ?? ""
@@ -448,6 +448,20 @@ public final class PluginRegistry {
                     candidates[record.meta.id, default: []].append(.legacy(record: record))
                 }
                 return
+            }
+
+            // install.txt 無しの設置済みディレクトリ（SSP の plugin/<name>/ と同形）。
+            // descript.txt の filename に対応する macOS ネイティブ実体があれば実行対象にする。
+            if let id = PluginRegistry.peekID(at: item) {
+                let modules = PluginRegistry.nativePluginModules(in: item)
+                if !modules.isEmpty {
+                    for moduleURL in modules {
+                        candidates[id, default: []].append(
+                            .nativePackage(bundleURL: moduleURL, packageURL: item, installManifest: nil)
+                        )
+                    }
+                    return
+                }
             }
 
             // legacy directory (install.txt 無し)
@@ -499,11 +513,11 @@ public final class PluginRegistry {
                                   loadPathURL: URL) {
         do {
             let plug = try Plugin(url: bundleURL)
-            if let load = plug.load {
-                _ = load(loadPathURL.path)
+            if !plug.load(directoryURL: loadPathURL) {
+                NSLog("Plugin load() returned failure: \(bundleURL.lastPathComponent)")
             }
             plugins.append(plug)
-            if let meta = PluginRegistry.readMeta(from: plug.bundle,
+            if let meta = PluginRegistry.readMeta(from: plug,
                                                   metadataRootURL: metadataRootURL,
                                                   installManifest: installManifest) {
                 metas[plug] = meta
@@ -546,20 +560,21 @@ public final class PluginRegistry {
         return urls
     }
 
-    private static func readMeta(from bundle: Bundle,
+    private static func readMeta(from plugin: Plugin,
                                  metadataRootURL: URL?,
                                  installManifest: InstallManifest?) -> PluginMeta? {
+        let bundle = plugin.bundle
         let descriptorURL = metadataRootURL?.appendingPathComponent("descript.txt")
-            ?? bundle.url(forResource: "descript", withExtension: "txt")
-        guard let descriptorURL else { return nil }
-        let directoryURL = metadataRootURL ?? bundle.bundleURL
+            ?? bundle?.url(forResource: "descript", withExtension: "txt")
+            ?? plugin.url.deletingLastPathComponent().appendingPathComponent("descript.txt")
+        let directoryURL = metadataRootURL ?? bundle?.bundleURL ?? plugin.url.deletingLastPathComponent()
         return readMetaDictionary(
             LegacyDescriptor.readDictionary(from: descriptorURL),
             directoryURL: directoryURL,
             isNative: true,
             installManifest: installManifest,
-            localizedMessages: readMessages(from: metadataRootURL) ?? readMessages(from: bundle.resourceURL),
-            executableURL: bundle.bundleURL,
+            localizedMessages: readMessages(from: metadataRootURL) ?? readMessages(from: bundle?.resourceURL),
+            executableURL: plugin.url,
             packageURL: metadataRootURL
         )
     }
@@ -639,8 +654,19 @@ public final class PluginRegistry {
         return try? InstallTxtParser.parse(data: data)
     }
 
-    private static func nativePluginBundles(in directoryURL: URL) -> [URL] {
-        allNativePluginBundles(in: directoryURL).filter {
+    /// package directory 内のロード対象。descript.txt の `filename`（元 DLL 名）に対応する
+    /// `.plugin` / `.bundle` / `.dylib` があればそれだけを返し、無ければ同梱の bundle 全てを返す。
+    private static func nativePluginModules(in directoryURL: URL) -> [URL] {
+        let descript = LegacyDescriptor.readDictionary(from: directoryURL.appendingPathComponent("descript.txt"))
+        if let filename = descript?["filename"] ?? descript?["dllname"] {
+            for candidate in UkagakaModuleABI.nativeModuleCandidates(forDLLName: filename) {
+                guard let url = UkagakaModuleABI.resolveCaseInsensitive(candidate, in: directoryURL),
+                      !UkagakaModuleABI.isWindowsPortableExecutable(at: url),
+                      !isNonExecutableMigrationBundle(at: url) else { continue }
+                return [url]
+            }
+        }
+        return allNativePluginBundles(in: directoryURL).filter {
             !isNonExecutableMigrationBundle(at: $0)
         }
     }

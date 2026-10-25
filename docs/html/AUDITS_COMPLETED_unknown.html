@@ -146,7 +146,7 @@
             <a href="index.html">← 目次に戻る</a>
         </div>
         <h1 id="ourin-audit-items-completed">Ourin 監査項目 — 完了済み / Audit Items — Completed</h1>
-<p><strong>最終更新 / Last Updated</strong>: 2026-08-15</p>
+<p><strong>最終更新 / Last Updated</strong>: 2026-10-24</p>
 <blockquote>
 <p><strong>注記 (2026-08-15)</strong>: 本ファイルの <code>file:line</code> 引用は各項目の<strong>判定時点</strong>のものです。その後のリファクタで行番号はズレている可能性があります
 （2026-08-15 の抜き取り検証10件では、ファイル・シンボル不在は0件、行番号ズレは8件でした）。シンボル名・ファイルパスを優先して参照してください。
@@ -1851,8 +1851,170 @@ Note: <code>file:line</code> citations reflect the state at audit time; line num
 <hr />
 <p><em>本ファイルは監査レポート（GLM/CODEX/CLAUDE/AGY）の完了項目を集約したものです。未完項目は <code>AUDITS_TODO.md</code> を参照してください。</em></p>
 <p><em>This file consolidates completed items from audit reports (GLM/CODEX/CLAUDE/AGY). For pending items, see <code>AUDITS_TODO.md</code>.</em></p>
+<h2 id="2026-10-24-reconciliation-and-completed-work">2026-10-24 再照合・完了移管 / Reconciliation and completed work</h2>
+<p>対象は <code>fix/yaya-compat-and-character-layout</code> @ <code>3bcf86b</code>。実装と回帰テスト定義を確認した。今回はアプリテストを再実行しておらず、過去の成功記録と現在の実行結果を区別する。GitHub issueの状態は変更していない。</p>
+<p>Scope: this branch at <code>3bcf86b</code>. Implementation and regression definitions were inspected; application tests were not rerun. Historical results are not current execution evidence. GitHub issue state was not changed.</p>
+<h3 id="github-open-implemented-with-github-issues-still-open">実装済み・GitHub open / Implemented with GitHub issues still open</h3>
+<p>これら12件は実装TODOから除外。実機副作用・完全互換の検証待ちはTODO側へ残す。#132はissueコメントにも現ブランチの<code>0a2a37d</code>とPR待ちを記録。</p>
+<p>These 12 items are removed from implementation TODOs; broader runtime verification remains separate. The #132 comment also confirms the branch implementation and pending PR closure.</p>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>完了した実装 / Completed implementation</th>
+<th>根拠 / Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/106">#106</a></td>
+<td>Sender / User-Agent 必須検証</td>
+<td><code>Ourin/SSTP/SSTPDispatcher.swift</code> (<code>refuseIfMissingSenderAndUserAgent</code>); <code>OurinTests/SSTPCompatRegressionTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/107">#107</a></td>
+<td>SHIORI status → SSTP 204 変換</td>
+<td><code>Ourin/SSTP/SSTPDispatcher.swift</code>; <code>OurinTests/SSTPCompatRegressionTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/108">#108</a></td>
+<td>X-Force-Activate-Me</td>
+<td><code>Ourin/SSTP/SSTPDispatcher.swift</code>; <code>OurinTests/SSTPCompatRegressionTests.swift</code> (実窓確認は別 / real-window check separate)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/110">#110</a></td>
+<td>X-SSTP-Return / PassThru fallback</td>
+<td><code>Ourin/SSTP/SSTPDispatcher.swift</code>; <code>OurinTests/SSTPCompatRegressionTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/112">#112</a></td>
+<td>SecurityOrigin=null</td>
+<td><code>Ourin/SSTP/SSTPDispatcher.swift</code>; <code>OurinTests/ShioriRuntimeTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/115">#115</a></td>
+<td>selfname alias</td>
+<td><code>Ourin/Property/GhostPropertyProvider.swift</code>; <code>OurinTests/PropertySystemTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/116">#116</a></td>
+<td>SERIKO interval 略称・never / abbreviations and never</td>
+<td><code>Ourin/Animation/SerikoParser.swift</code>, <code>SerikoExecutor.swift</code>; <code>OurinTests/SerikoParserTests.swift</code>, <code>SerikoExecutorTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/117">#117</a></td>
+<td>SERIKO noop / ccyr</td>
+<td><code>Ourin/Animation/SerikoParser.swift</code>; <code>OurinTests/SerikoParserTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/119">#119</a></td>
+<td>PlayTodaysEvent</td>
+<td><code>Ourin/Calendar/CalendarSchedule.swift</code>, <code>CalendarWindow.swift</code>; <code>OurinTests/CalendarScheduleTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/120">#120</a></td>
+<td>SSTP Cookie 永続化 / persistence</td>
+<td><code>Ourin/SSTP/SstpSessionStore.swift</code>; <code>OurinTests/SSTPDispatcherTests.swift</code> (Sender単位の最低要件 / minimum Sender-scoped requirement)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/123">#123</a></td>
+<td>http(s) 音声URL / audio URLs</td>
+<td><code>Ourin/Ghost/GhostManager+Display.swift</code>; <code>OurinTests/SoundPlayerTests.swift</code> (実再生は別 / actual playback separate)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/132">#132</a></td>
+<td>OnIdle Reference R0..R4</td>
+<td><code>Ourin/SHIORIEvents/TimerEmitter.swift</code>, <code>EventReferenceSpec.swift</code>; <code>OurinTests/EventObserverLifecycleTests.swift</code>, <code>EventReferenceTableTests.swift</code>; <code>0a2a37d</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="other-completed-portions">その他の完了部分 / Other completed portions</h3>
+<ul>
+<li>
+<h1 id="109-fine121ssgwireissuetodo-fine-dispatch-and-manual-ssg-importexport-exist-wire-compatibility-and-automatic-cloud-sync-remain-pending">109 FINE配送・#121手動.ssg入出力は実装済み。ただしwire互換と自動クラウド同期は未完で、issue全体はTODOに残す。 / FINE dispatch and manual .ssg import/export exist; wire compatibility and automatic cloud sync remain pending.</h1>
+</li>
+<li>
+<h1 id="98-v001212026-10-20developer-idappleuniversalzip100mactodo-the-release-reports-signed-notarized-universal-delivery-binary-verification-was-not-rerun-and-100-release-validation-remains">98: <a href="https://github.com/eightman999/Ourin/releases/tag/v0.0.1.21">v0.0.1.21</a>（2026-10-20公開）はDeveloper ID署名・Apple公証・Universalの配布をリリース本文に記載。今回ZIP実体の署名を再検証したという意味ではない。1.0.0向け再現手順・クリーンMac確認はTODOに残す。 / The release reports signed, notarized Universal delivery; binary verification was not rerun and 1.0.0 release validation remains.</h1>
+</li>
+<li>
+<h1 id="105pr-125103emily7547052-pr-125-is-merged-emily-bundling-was-removed-and-the-current-development-ghost-contains-sakura-rinne-and-bell">105前提の<a href="https://github.com/eightman999/Ourin/pull/125">PR #125</a>取り込みは完了。#103の旧Emily同梱前提は<code>7547052</code>で解消、現開発版はさくら・りんね・ベル。 / PR #125 is merged; Emily bundling was removed and the current development ghost contains Sakura, Rinne and Bell.</h1>
+</li>
+<li>closed #111はnative SHIORI wire確認、closed #113はEXECUTE native command回帰<code>210fd5d</code>を確認。旧包括issue #73/#75/#77/#79/#83/#85/#87のcloseを、最新の完全互換/全翻訳完了の根拠にしない。 / Closed umbrella issues do not establish current comprehensive compatibility or translation completion.</li>
+</ul>
+<h3 id="audit-test-baseline-001">AUDIT-TEST-BASELINE-001</h3>
+<p>旧「並列全体が未完走」は修正済みとして移管。<code>64c8a7f</code>（PropertyManager初期化deadlock）、<code>7fb98a4</code> / <code>af2f349</code>（他Ourinの強制終了回避）、<code>968ade8</code>（EventBridgeスイート排他、コミット本文に全体3回連続1176 PASS / 0 FAIL）、<code>03e5526</code>（並列fixture/時間判定）、<code>8b861a8</code>（requestlib応答読み取り）、<code>09418e4</code>（overlayフレーム検証）を照合した。</p>
+<p><a href="https://github.com/eightman999/Ourin/pull/125">PR #125</a> は通常/ASan全体PASSとmacOS CI green、<a href="https://github.com/eightman999/Ourin/pull/126">PR #126</a> は全体PASSとCI greenを記録し、いずれもマージ済み。PR #125に残る一度のheap corruption abortは未解決のため <code>AUDIT-TEST-HEAP-001</code> としてTODOへ分離。</p>
+<p>The historical parallel-suite blocker is recorded as fixed, based on the listed source changes, the three consecutive 1176-pass runs reported by <code>968ade8</code>, and merged PR #125/#126 validation reports. The intermittent heap corruption in PR #125 remains open as <code>AUDIT-TEST-HEAP-001</code>; this does not claim the current working tree has passed.</p>
+<h4 id="original-historical-entries-2026-08-15">移管元の履歴 / Original historical entries (2026-08-15)</h4>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Item</th>
+<th>Historical record</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P2</td>
+<td><strong>AUDIT-TEST-BASELINE-001</strong>: <code>OurinTests</code> 全体実行で並列時に失敗</td>
+<td><strong>未解決</strong>。実在Emily4辞書を使う <code>YayaEmily4RegressionTests</code>、<code>EventBridge.shared</code> を使う <code>DressupBindTests</code>、埋め込みXPC fixtureを使う <code>ShioriLoaderTests</code> を <code>.serialized</code> 化し、<code>SurfaceOverlayOrderingTests</code> のTimer待機をMain RunLoop駆動へ変更した。さらに <code>GhostUtilityCommandTests</code> は標準NOTIFYの正当な他ゴースト配送を除外して、raise/notify自身の誤配送だけを検証するよう修正した。Xcodeプロジェクトの <code>OurinTests</code> / <code>OurinUITests</code> の依存target参照（<code>remoteInfo</code> / <code>TEST_TARGET_NAME</code>）も現行target名 <code>Ourin</code> に修正し、<code>-showBuildSettings</code> で解決を確認した。修正後の隔離DerivedDataによる直列全体実行は <strong>OurinTests 1087 passed / 0 failed（99 suites）＋UI tests 6 passed / 0 failed</strong>。一方、同環境の全体並列はsuite列挙後にテストworkerが終了してOurinプロセスだけが残る状態を再現し、2分超で対象PIDを停止したため集計不能。最後に集計できた修正前の並列全体実行は <strong>1093 passed / 5 failed / 0 skipped / 1098 total</strong>、<code>GhostUtilityCommandTests</code>＋<code>SoundPlayerTests</code> の並列subsetは <strong>74 passed / 0 failed</strong>。並列実行の完走は未確定のまま扱う。</td>
+</tr>
+<tr>
+<td>P2</td>
+<td><strong>AUDIT-TEST-BASELINE-001</strong>: parallel <code>OurinTests</code> execution still has failures</td>
+<td><strong>Unresolved</strong>. The real-Emily4-dictionary <code>YayaEmily4RegressionTests</code>, <code>EventBridge.shared</code>-using <code>DressupBindTests</code>, and embedded-XPC-fixture <code>ShioriLoaderTests</code> suites are now <code>.serialized</code>; <code>SurfaceOverlayOrderingTests</code> drives the main RunLoop while waiting for Timer frames. <code>GhostUtilityCommandTests</code> now ignores legitimate broadcast NOTIFYs from other ghosts and checks only for misrouted raise/notify IDs. The Xcode project’s <code>OurinTests</code> / <code>OurinUITests</code> dependency references (<code>remoteInfo</code> / <code>TEST_TARGET_NAME</code>) were also corrected to the current <code>Ourin</code> target, confirmed by <code>-showBuildSettings</code>. After the fix, an isolated DerivedData serial run passed <strong>1087 <code>OurinTests</code> cases / 0 failures (99 suites) plus 6 UI tests / 0 failures</strong>. The same isolated full-parallel run still reproduced the worker-exit/parentless-Ourin condition after suite enumeration and was stopped after more than two minutes, so it produced no aggregate. The last aggregatable parallel full run before this project-reference fix was <strong>1093 passed / 5 failed / 0 skipped / 1098 total</strong> (the overlay Timer race is resolved); the parallel <code>GhostUtilityCommandTests</code> + <code>SoundPlayerTests</code> subset passed <strong>74/74</strong>. Parallel completion remains unconfirmed.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2026-10-25-delegated-work-and-engine-validation">2026-10-25 委譲成果・実エンジン検証 / Delegated work and engine validation</h2>
+<p>以下は <code>codex/ourin-pr-integration</code> の未コミット統合結果。GitHub issueのclose、PR merge、アプリの正式リリースを意味しない。最終全体テストの件数は<a href="PR_TAKEOVER_2026-10-25_unknown.html">PR引継ぎ記録</a>を正とする。</p>
+<p>These are local, uncommitted integration results, not closed GitHub issues, merged PRs or a published app release. The takeover record holds the current full-suite result.</p>
+<table>
+<thead>
+<tr>
+<th>完了部分 / Completed portion</th>
+<th>検証と残る境界 / Evidence and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude PR 33件のローカル統合</td>
+<td>head一覧・取り込み後の修正を引継ぎ記録に保存。GitHubは未変更。 / Exact heads and integration fixes are recorded; GitHub remains unchanged.</td>
+</tr>
+<tr>
+<td>華和梨/KAGARIの実ネイティブ同梱</td>
+<td>固定上流、arm64/x86_64、通常/XPC、KAGARI instance ABI、load失敗を検証。5ライセンス通知と同梱物の一致・ローカル署名検査PASS。 / Pinned Universal engines, in-process/XPC, lifecycle/failure handling, five notices and local signatures checked.</td>
+</tr>
+<tr>
+<td>実ゴーストとYAYA永続化</td>
+<td>LOBOの会話・保存・再ロード、Emily4/Taromati2の保存・別process再ロード成功。Taromati2定期イベント停止を修正。未知保存形式のimport、実SAORI、広いGUI確認は残る。 / Lifecycle and persistence passed on copied ghosts; broader compatibility remains.</td>
+</tr>
+<tr>
+<td>#109 FINE / #118 入力窓</td>
+<td>wireから単一宛先・本文・初期値を回帰検証し、open/close誤配線を修正。SSPの優先ghost fallbackは残る。 / Wire routing and input dispatch fixed; preferred-ghost fallback remains.</td>
+</tr>
+<tr>
+<td>#95 / #104 文書・報告導線</td>
+<td>CONTRIBUTING、Issue/PR templates、Known Issuesと報告手順の日英版を整備。診断自動匿名化等は残る。 / Contribution/reporting documents and templates added; diagnostic automation remains.</td>
+</tr>
+<tr>
+<td>#96 / #97 / #99 ローカルrelease gate</td>
+<td>CI設定、macOS13、版数整合を整備。正常/変異17ケースPASS。remote CI、正式署名/公証、最低OS実機は残る。 / Local gates validated; remote and release-environment checks remain.</td>
+</tr>
+<tr>
+<td>#100 / #103 部分監査</td>
+<td>HAIの信頼モデル・ライセンス監査を照合。同梱通知を現物確認。正式archive全依存の最終監査は残る。 / Audit drafts and bundled notices checked; final distribution review remains.</td>
+</tr>
+<tr>
+<td>Ourin公開サイト</td>
+<td>和モダンの紹介・使い方・資料・対応状況・ダウンロードを <code>furinlab.com/ourin/</code> へ公開。6 HTML/75参照検査とdesktop/mobile表示確認。Gemini校閲済み、Sarashinaは認証待ち。 / Five-page site deployed and checked; Gemini reviewed copy, Sarashina pending authentication.</td>
+</tr>
+</tbody>
+</table>
+<p>詳細: <a href="DELEGATION_2026-10-25_unknown.html">委譲記録</a>、<a href="REAL_GHOST_VERIFICATION_2026-10-25_unknown.html">実ゴースト結果</a>、<a href="KAWARI_KAGARI_ENGINES_ja-jp.html">栞同梱</a>、<a href="TODO_ISSUE_STATUS_unknown.html">残件</a>。</p>
         <div class="footer">
-            <p>Generated: 2026-08-15 | <a href="../AUDITS_COMPLETED.md">Source (MD)</a></p>
+            <p>Generated: 2026-10-25 | <a href="../AUDITS_COMPLETED.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

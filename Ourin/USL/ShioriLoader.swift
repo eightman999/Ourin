@@ -6,6 +6,7 @@ import Darwin
 #endif
 
 @objc public protocol OurinShioriXPC {
+    func load(_ bundlePath: String, loadDirectory: String, shiori2Compatibility: Bool, withReply reply: @escaping (Bool, String?) -> Void)
     func ping(withReply reply: @escaping () -> Void)
     func load(_ bundlePath: String, withReply reply: @escaping (Bool, String?) -> Void)
     func execute(_ request: Data, withReply reply: @escaping (Data?, String?) -> Void)
@@ -139,6 +140,10 @@ struct DicEntry: Equatable {
 final class DicCollector {
     var entries: [DicEntry] = []
     var globalCharset: String? = nil
+    /// YAYA の `basepath` 指定（最上位の設定フォルダからの相対パス）。実行時の基準フォルダになる。
+    var basePath: String? = nil
+    /// YAYA の `fncdepth`（関数の呼び出しの深さの上限。0 は無制限）。最初の指定を使う。
+    var functionDepth: Int? = nil
     /// Already-visited absolute config paths (include cycle prevention).
     private var visited: Set<String> = []
 
@@ -238,11 +243,35 @@ func collectDicEntries(content: String, baseURL: URL, sourceName: String,
             continue
         }
 
+        // "basepath, X": YAYA の基準フォルダ（dic の読み込み元・実行時のファイル操作の基準）を移す。
+        // 相対なら今の基準から。絶対パスはゴーストの外を指すので受け付けない。
+        if lower.hasPrefix("basepath,") {
+            let value = String(lineWithoutComment.dropFirst("basepath,".count))
+                .trimmingCharacters(in: .whitespaces)
+                .replacingOccurrences(of: "\\", with: "/")
+            let isAbsolute = value.hasPrefix("/") || value.dropFirst().first == ":"
+            if !value.isEmpty, !isAbsolute {
+                collector.basePath = collector.basePath.map { "\($0)/\(value)" } ?? value
+            }
+            continue
+        }
+
+        // "fncdepth, N": 関数の呼び出しの深さの上限（yaya_core へ渡す）。
+        if lower.hasPrefix("fncdepth,") {
+            let value = String(lineWithoutComment.dropFirst("fncdepth,".count)).trimmingCharacters(in: .whitespaces)
+            if collector.functionDepth == nil, let depth = Int(value) {
+                collector.functionDepth = depth
+            }
+            continue
+        }
+
         // Parse "dic, filename" or "dic, path/filename, encoding"
         if lower.hasPrefix("dic,") {
             let remainder = String(lineWithoutComment.dropFirst(4)).trimmingCharacters(in: .whitespaces)
             let parts = remainder.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-            guard let dicPath = parts.first, !dicPath.isEmpty else { continue }
+            guard let written = parts.first, !written.isEmpty else { continue }
+            // YAYA は dic を基準フォルダ（basepath で移したもの）から読む。
+            let dicPath = collector.basePath.map { "\($0)/\(written)" } ?? written
             // parts[1], if present, is the per-dic encoding
             var perDicEnc: String? = nil
             if parts.count >= 2 {
@@ -254,9 +283,12 @@ func collectDicEntries(content: String, baseURL: URL, sourceName: String,
         }
 
         // Parse "dicdir, path" — load a directory of .dic files in declared order.
+        // YAYA は _loading_order.txt を設定の場所から、フォルダの走査を基準フォルダから探す。
         if lower.hasPrefix("dicdir,") {
             let dirRel = String(lineWithoutComment.dropFirst("dicdir,".count)).trimmingCharacters(in: .whitespaces)
-            let dirURL = baseURL.appendingPathComponent(dirRel)
+            let loadDir = baseURL.appendingPathComponent(dirRel)
+            let scanDir = collector.basePath.map { baseURL.appendingPathComponent($0).appendingPathComponent(dirRel) } ?? loadDir
+            let dirURL = loadingOrderFile(in: loadDir) != nil ? loadDir : scanDir
             NSLog("[YayaBackend] Processing dicdir: \(dirRel)")
             let dirEntries = expandDicDir(dirURL: dirURL, baseURL: baseURL, globalCharset: collector.globalCharset,
                                           source: sourceName, line: lineNumber)
@@ -298,36 +330,69 @@ func collectDicEntries(content: String, baseURL: URL, sourceName: String,
     }
 }
 
+/// base から見た target の相対パス。target が base の外なら `..` で上がる。同じなら空文字列。
+private func relativePath(from base: URL, to target: URL) -> String {
+    let baseParts = base.standardizedFileURL.pathComponents
+    let targetParts = target.standardizedFileURL.pathComponents
+    var common = 0
+    while common < baseParts.count, common < targetParts.count, baseParts[common] == targetParts[common] {
+        common += 1
+    }
+    let ups = Array(repeating: "..", count: baseParts.count - common)
+    return (ups + targetParts[common...]).joined(separator: "/")
+}
+
+/// YAYA の `basepath` を反映した実行時の基準フォルダと、そこから見た辞書のパス。
+/// basepath の先が無いときは、YAYA と同じく指定を無視する。yaya_core はファイル操作を基準フォルダの中に
+/// 限っているので、ゴーストのフォルダ（limit）の外を指す basepath も無視する。
+func applyYayaBasePath(_ collector: DicCollector, root: URL, within limit: URL) -> (root: URL, entries: [DicEntry]) {
+    guard let basePath = collector.basePath else { return (root, collector.entries) }
+    let newRoot = root.appendingPathComponent(basePath, isDirectory: true).standardizedFileURL
+    let limitPath = limit.standardizedFileURL.path
+    guard newRoot.path == limitPath || newRoot.path.hasPrefix(limitPath + "/") else {
+        NSLog("[YayaBackend] basepath points outside the ghost, ignored: \(basePath)")
+        return (root, collector.entries)
+    }
+    var isDirectory: ObjCBool = false
+    guard FileManager.default.fileExists(atPath: newRoot.path, isDirectory: &isDirectory), isDirectory.boolValue else {
+        NSLog("[YayaBackend] basepath not found, ignored: \(basePath)")
+        return (root, collector.entries)
+    }
+    let entries = collector.entries.map { entry in
+        DicEntry(
+            path: relativePath(from: newRoot, to: root.appendingPathComponent(entry.path)),
+            encoding: entry.encoding,
+            sourceConfig: entry.sourceConfig,
+            sourceLine: entry.sourceLine
+        )
+    }
+    return (newRoot, entries)
+}
+
+/// dicdir の読み込み順ファイル。YAYA と同じく `_loading_order_override.txt` を優先する。
+func loadingOrderFile(in dirURL: URL) -> URL? {
+    ["_loading_order_override.txt", "_loading_order.txt"]
+        .map { dirURL.appendingPathComponent($0) }
+        .first { FileManager.default.fileExists(atPath: $0.path) }
+}
+
 /// Expand a `dicdir` directory into ordered dic entries.
 /// If `_loading_order.txt` exists, honor its enable/disable + ordering; otherwise load `.dic`
 /// files in deterministic lexical order. Paths are returned relative to baseURL (ghost/master).
-private func expandDicDir(dirURL: URL, baseURL: URL, globalCharset: String?, source: String, line: Int) -> [DicEntry] {
+private func expandDicDir(dirURL: URL, baseURL: URL, globalCharset: String?, source: String, line: Int, depth: Int = 0) -> [DicEntry] {
     let fm = FileManager.default
     guard fm.fileExists(atPath: dirURL.path) else {
         NSLog("[YayaBackend] dicdir not found: \(dirURL.path)")
         return []
     }
 
-    let loadingOrderURL = dirURL.appendingPathComponent("_loading_order.txt")
+    let loadingOrderURL = loadingOrderFile(in: dirURL) ?? dirURL.appendingPathComponent("_loading_order.txt")
 
     // Helper: build a DicEntry relative to baseURL from a filename inside dirURL.
+    // dicdir は基準フォルダの外も指せる（DLL を shiori/ に置き `dicdir, ../dic` とする YAYA ゴーストなど）。
     func entry(forFile filename: String, encoding: String?) -> DicEntry {
-        // Path relative to baseURL (ghost/master). dicdir entries are typically subpaths.
-        let fileRelToBase: String
-        if dirURL.path == baseURL.path {
-            fileRelToBase = filename
-        } else {
-            // Compute relative path dirRel/filename
-            let baseStd = baseURL.standardizedFileURL.path
-            let dirStd = dirURL.standardizedFileURL.path
-            if dirStd.hasPrefix(baseStd) {
-                let rel = String(dirStd.dropFirst(baseStd.count))
-                let cleaned = rel.hasPrefix("/") ? String(rel.dropFirst()) : rel
-                fileRelToBase = cleaned.isEmpty ? filename : "\(cleaned)/\(filename)"
-            } else {
-                fileRelToBase = filename
-            }
-        }
+        let dirRel = relativePath(from: baseURL, to: dirURL)
+        let fileRelToBase = dirRel.isEmpty ? filename : "\(dirRel)/\(filename)"
         return DicEntry(path: fileRelToBase, encoding: encoding ?? globalCharset, sourceConfig: source, sourceLine: line)
     }
 
@@ -368,6 +433,18 @@ private func expandDicDir(dirURL: URL, baseURL: URL, globalCharset: String?, sou
                 continue
             }
 
+            // 入れ子の "dicdir, sub"。YAYA は読み込み順ファイルを includeEX として読むので、
+            // sub はこのフォルダから見たパスになる。
+            if lower.hasPrefix("dicdir,") {
+                let sub = String(entryToken.dropFirst("dicdir,".count)).trimmingCharacters(in: .whitespaces)
+                guard !sub.isEmpty, depth < 16 else { continue }
+                result.append(contentsOf: expandDicDir(
+                    dirURL: dirURL.appendingPathComponent(sub), baseURL: baseURL, globalCharset: globalCharset,
+                    source: source, line: line, depth: depth + 1
+                ))
+                continue
+            }
+
             // Tolerate legacy "flag,filepath" / bare "filepath" forms.
             let parts = entryToken.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             guard let first = parts.first, !first.isEmpty else { continue }
@@ -375,6 +452,9 @@ private func expandDicDir(dirURL: URL, baseURL: URL, globalCharset: String?, sou
                 // 0,filepath (disabled) -> skip; 1,filepath (enabled) -> load
                 if flag == 0 { continue }
                 result.append(entry(forFile: parts[1], encoding: nil))
+            } else if parts.count >= 2 {
+                // 他の指定（charset など）を辞書のファイル名と取り違えない。
+                NSLog("[YayaBackend] \(dirURL.lastPathComponent)/_loading_order: skipping unsupported directive \(first)")
             } else {
                 result.append(entry(forFile: first, encoding: nil))
             }
@@ -383,11 +463,25 @@ private func expandDicDir(dirURL: URL, baseURL: URL, globalCharset: String?, sou
         // Fall through to lexical enumeration if order file was empty.
     }
 
-    // 2) Lexical fallback: enumerate .dic files in the directory (shallow).
+    // 2) Lexical fallback: enumerate .dic files in the directory.
+    //    YAYA はサブフォルダも dicdir として辿る（Taromati2 の dic/communicate/talk など）。
     NSLog("[YayaBackend] dicdir: no usable _loading_order.txt, loading .dic files lexically from \(dirURL.lastPathComponent)")
     guard let contents = try? fm.contentsOfDirectory(atPath: dirURL.path) else { return [] }
-    let dicFiles = contents.filter { $0.lowercased().hasSuffix(".dic") }.sorted()
-    return dicFiles.map { entry(forFile: $0, encoding: nil) }
+    var result: [DicEntry] = []
+    for name in contents.sorted() where !name.hasPrefix(".") {
+        var isDirectory: ObjCBool = false
+        fm.fileExists(atPath: dirURL.appendingPathComponent(name).path, isDirectory: &isDirectory)
+        if isDirectory.boolValue {
+            guard depth < 16 else { continue }
+            result.append(contentsOf: expandDicDir(
+                dirURL: dirURL.appendingPathComponent(name), baseURL: baseURL, globalCharset: globalCharset,
+                source: source, line: line, depth: depth + 1
+            ))
+        } else if name.lowercased().hasSuffix(".dic") {
+            result.append(entry(forFile: name, encoding: nil))
+        }
+    }
+    return result
 }
 
 // MARK: - YayaBackend Helpers
@@ -513,11 +607,12 @@ extension YayaBackend {
 final class XpcBackend: ShioriBackend {
     private let connection: NSXPCConnection
     private let moduleURL: URL
+    private let loadDirectory: URL
     private let timeout: TimeInterval
     private let communication: ShioriCommunicationOptions
     private let shiori2Compatibility: Bool
 
-    init(serviceName: String, moduleURL: URL, timeout: TimeInterval = 5.0,
+    init(serviceName: String, moduleURL: URL, loadDirectory: URL? = nil, timeout: TimeInterval = 5.0,
          communication: ShioriCommunicationOptions = .init(),
          shiori2Compatibility: Bool = true) throws {
         guard !serviceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -527,6 +622,7 @@ final class XpcBackend: ShioriBackend {
         self.connection.remoteObjectInterface = NSXPCInterface(with: OurinShioriXPC.self)
         self.connection.resume()
         self.moduleURL = moduleURL
+        self.loadDirectory = loadDirectory ?? moduleURL.deletingLastPathComponent()
         self.timeout = timeout
         self.communication = communication
         self.shiori2Compatibility = shiori2Compatibility
@@ -539,7 +635,9 @@ final class XpcBackend: ShioriBackend {
             throw ShioriLoaderError.xpcUnavailable("Remote proxy unavailable")
         }
         pingProxy.ping { ping.signal() }
-        guard ping.wait(timeout: .now() + 2.0) == .success else {
+        // Launching a fresh XPC service can exceed two seconds under load.
+        // Use the same configured deadline as module initialization.
+        guard ping.wait(timeout: .now() + timeout) == .success else {
             connection.invalidate()
             throw ShioriLoaderError.xpcUnavailable("Service handshake timed out")
         }
@@ -554,7 +652,7 @@ final class XpcBackend: ShioriBackend {
             connection.invalidate()
             throw ShioriLoaderError.xpcUnavailable("Remote proxy unavailable after handshake")
         }
-        loadProxy.load(moduleURL.path, shiori2Compatibility: shiori2Compatibility) { ok, error in
+        loadProxy.load(moduleURL.path, loadDirectory: loadDirectory.path, shiori2Compatibility: shiori2Compatibility) { ok, error in
             loadOK = ok
             loadError = error
             loaded.signal()
@@ -623,195 +721,28 @@ final class XpcBackend: ShioriBackend {
     }
 }
 
-// MARK: - Bundle Backend
-/// Backend for SHIORI modules loaded from .bundle/.plugin files (macOS native)
-final class BundleBackend: ShioriBackend {
-    private let bundle: CFBundle
-    private var loadFn: ShioriLoad?
-    private var requestFn: ShioriRequest?
-    private var unloadFn: ShioriUnload?
-    private var freeFn: ShioriFree?
+// Both in-process formats use the same ABI implementation as the XPC service.
+class DylibBackend: ShioriBackend {
+    private let module: NativeShioriModule
     private let communication: ShioriCommunicationOptions
-    
-    /// Path of loaded module
-    public let moduleURL: URL
-    
-    init(url: URL, communication: ShioriCommunicationOptions = .init()) throws {
-        guard let b = CFBundleCreate(kCFAllocatorDefault, url as CFURL) else {
-            throw NSError(domain: "USL.BundleBackend", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to create CFBundle from \(url.path)"])
-        }
-        guard CFBundleLoadExecutable(b) else {
-            let error = NSError(domain: NSCocoaErrorDomain, code: NSFileReadNoSuchFileError, userInfo: [NSLocalizedDescriptionKey: "Failed to load bundle executable from \(url.path)"])
-            throw error
-        }
-        
-        self.bundle = b
-        self.communication = communication
-        self.moduleURL = url
-        
-        func loadSymbol<T>(_ name: String, as type: T.Type) -> T? {
-            guard let sym = CFBundleGetFunctionPointerForName(b, name as CFString) else { return nil }
-            return unsafeBitCast(sym, to: type)
-        }
-        
-        loadFn = loadSymbol("shiori_load", as: ShioriLoad.self)
-        requestFn = loadSymbol("shiori_request", as: ShioriRequest.self)
-        unloadFn = loadSymbol("shiori_unload", as: ShioriUnload.self)
-        freeFn = loadSymbol("shiori_free", as: ShioriFree.self)
+    var moduleURL: URL { module.moduleURL }
 
-        guard requestFn != nil else {
-            throw ShioriLoaderError.missingRequiredSymbol("shiori_request")
-        }
-        guard freeFn != nil else {
-            throw ShioriLoaderError.missingRequiredSymbol("shiori_free")
-        }
-        
-        NSLog("[BundleBackend] Loaded bundle: \(url.lastPathComponent)")
-        NSLog("[BundleBackend] Found symbols: load=\(loadFn != nil), request=\(requestFn != nil), unload=\(unloadFn != nil), free=\(freeFn != nil)")
-        
-        if let l = loadFn {
-            let dirPath = url.deletingLastPathComponent().path
-            let dirCString = (dirPath as NSString).utf8String
-            _ = l(dirCString)
-            NSLog("[BundleBackend] Called shiori_load with path: \(dirPath)")
-        }
+    init(url: URL, communication: ShioriCommunicationOptions = .init(), loadDirectory: URL? = nil) throws {
+        self.communication = communication
+        module = try NativeShioriModule(url: url, loadDirectory: loadDirectory)
     }
-    
-    deinit {
-        unload()
-    }
-    
     func request(_ text: String) -> String? {
-        guard let req = requestFn else {
-            NSLog("[BundleBackend] shiori_request not available")
-            return nil
-        }
-        
-        // 要求は Charset ヘッダ（既定 UTF-8）に従ってエンコードする
         let reqCharset = communication.forceEncoding ?? communication.encoding
             ?? EncodingAdapter.detectCharset(in: Data(text.utf8))
-        let bytes = Array(EncodingAdapter.encode(text, charset: reqCharset, escapeUnknown: communication.escapeUnknown))
-        var outPtr: UnsafeMutablePointer<UInt8>? = nil
-        var outLen: Int = 0
-
-        let ok = bytes.withUnsafeBytes {
-            req($0.baseAddress?.assumingMemoryBound(to: UInt8.self), bytes.count, &outPtr, &outLen)
-        }
-
-        guard ok, let p = outPtr else {
-            NSLog("[BundleBackend] shiori_request failed")
-            return nil
-        }
-
-        let data = Data(bytes: p, count: outLen)
-        freeFn?(p)
-        // 応答は応答ヘッダの Charset に従ってデコードする（未指定時は要求 Charset）
+        let input = EncodingAdapter.encode(text, charset: reqCharset, escapeUnknown: communication.escapeUnknown)
+        guard let data = module.request(input) else { return nil }
         let respCharset = communication.forceEncoding ?? EncodingAdapter.detectCharset(in: data, default: reqCharset)
         let decoded = EncodingAdapter.decode(data, charset: respCharset) ?? String(data: data, encoding: .utf8)
         return decoded.map { communication.escapeUnknown ? EncodingAdapter.restoreEscapedUnicode(in: $0) : $0 }
     }
-    
-    func unload() {
-        if let u = unloadFn {
-            u()
-            NSLog("[BundleBackend] Called shiori_unload")
-        }
-        loadFn = nil
-        requestFn = nil
-        unloadFn = nil
-        freeFn = nil
-    }
+    func unload() { module.unload() }
 }
-
-// MARK: - Dylib Backend
-/// Backend for traditional SHIORI ghosts loaded from .dylib files.
-final class DylibBackend: ShioriBackend {
-    private var handle: UnsafeMutableRawPointer?
-    private var loadFn: ShioriLoad?
-    private var requestFn: ShioriRequest?
-    private var unloadFn: ShioriUnload?
-    private var freeFn: ShioriFree?
-    private let communication: ShioriCommunicationOptions
-
-    /// Path of loaded module
-    public let moduleURL: URL
-
-    init(url: URL, communication: ShioriCommunicationOptions = .init()) throws {
-        guard let h = dlopen(url.path, RTLD_NOW) else {
-            let detail = dlerror().map { String(cString: $0) } ?? "unknown"
-            throw ShioriLoaderError.openFailed(detail)
-        }
-        handle = h
-        self.communication = communication
-        func loadSymbol<T>(_ names: [String], as type: T.Type) -> T? {
-            for name in names {
-                if let sym = dlsym(h, name) {
-                    return unsafeBitCast(sym, to: type)
-                }
-            }
-            return nil
-        }
-        // 汎用 dylib 規約に対応: `shiori_` 接頭辞付き・無印（Windows 由来の load/unload/request）・
-        // および UTF-8 パス版 `loadu` を順に解決する。`loadu` を優先（macOS のパスは UTF-8）。
-        loadFn = loadSymbol(["shiori_loadu", "loadu", "shiori_load", "load"], as: ShioriLoad.self)
-        requestFn = loadSymbol(["shiori_request", "request"], as: ShioriRequest.self)
-        unloadFn = loadSymbol(["shiori_unloadu", "unloadu", "shiori_unload", "unload"], as: ShioriUnload.self)
-        freeFn = loadSymbol(["shiori_free", "free"], as: ShioriFree.self)
-        self.moduleURL = url
-
-        guard requestFn != nil else {
-            dlclose(h)
-            handle = nil
-            throw ShioriLoaderError.missingRequiredSymbol("shiori_request")
-        }
-        guard freeFn != nil else {
-            dlclose(h)
-            handle = nil
-            throw ShioriLoaderError.missingRequiredSymbol("shiori_free")
-        }
-
-        // call load if available
-        if let l = loadFn {
-            _ = l(url.deletingLastPathComponent().path)
-        }
-    }
-
-    deinit { unload() }
-
-    func request(_ text: String) -> String? {
-        guard let req = requestFn else { return nil }
-        let reqCharset = communication.forceEncoding ?? communication.encoding
-            ?? EncodingAdapter.detectCharset(in: Data(text.utf8))
-        let bytes = Array(EncodingAdapter.encode(text, charset: reqCharset, escapeUnknown: communication.escapeUnknown))
-        var outPtr: UnsafeMutablePointer<UInt8>? = nil
-        var outLen: Int = 0
-        let ok = bytes.withUnsafeBytes {
-            req($0.baseAddress?.assumingMemoryBound(to: UInt8.self), bytes.count, &outPtr, &outLen)
-        }
-        guard ok, let p = outPtr else { return nil }
-        let data = Data(bytes: p, count: outLen)
-        freeFn?(p)
-        let respCharset = communication.forceEncoding ?? EncodingAdapter.detectCharset(in: data, default: reqCharset)
-        let decoded = EncodingAdapter.decode(data, charset: respCharset) ?? String(data: data, encoding: .utf8)
-        return decoded.map { communication.escapeUnknown ? EncodingAdapter.restoreEscapedUnicode(in: $0) : $0 }
-    }
-
-    func unload() {
-        if let u = unloadFn { u() }
-        if let h = handle { dlclose(h); handle = nil }
-        loadFn = nil
-        requestFn = nil
-        unloadFn = nil
-        freeFn = nil
-    }
-}
-
-
-/// Function pointer types for SHIORI C-ABI
-private typealias ShioriLoad = @convention(c) (UnsafePointer<CChar>?) -> Bool
-private typealias ShioriRequest = @convention(c) (UnsafePointer<UInt8>?, Int, UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>?, UnsafeMutablePointer<Int>?) -> Bool
-private typealias ShioriUnload = @convention(c) () -> Void
-private typealias ShioriFree = @convention(c) (UnsafeMutablePointer<UInt8>?) -> Void
+final class BundleBackend: DylibBackend {}
 
 /// Dynamic loader for SHIORI modules following USL spec
 public final class ShioriLoader {
@@ -821,9 +752,6 @@ public final class ShioriLoader {
     public var moduleURL: URL? {
         if let dylib = backend as? DylibBackend {
             return dylib.moduleURL
-        }
-        if let bundle = backend as? BundleBackend {
-            return bundle.moduleURL
         }
         return nil
     }
@@ -837,13 +765,14 @@ public final class ShioriLoader {
     /// Initialize SHIORI backend from an explicit module path.
     public convenience init?(moduleURL: URL, xpcServiceName: String? = ShioriLoader.resolvedXpcServiceName(),
                              communication: ShioriCommunicationOptions = .init(),
-                             shiori2Compatibility: Bool = true) {
+                             shiori2Compatibility: Bool = true, loadDirectory: URL? = nil) {
         do {
             let backend = try ShioriLoader.makeBackend(
                 moduleURL: moduleURL,
                 xpcServiceName: xpcServiceName,
                 communication: communication,
-                shiori2Compatibility: shiori2Compatibility
+                shiori2Compatibility: shiori2Compatibility,
+                loadDirectory: loadDirectory
             )
             self.init(backend: backend)
         } catch {
@@ -854,7 +783,7 @@ public final class ShioriLoader {
 
     /// Attempt to load module by name searching typical USL paths
     public convenience init?(module name: String, base: URL, communication: ShioriCommunicationOptions = .init(),
-                             shiori2Compatibility: Bool = true) {
+                             shiori2Compatibility: Bool = true, loadDirectory: URL? = nil) {
         let shioriName = (name as NSString).lastPathComponent.lowercased()
         let backend: ShioriBackend
         
@@ -876,7 +805,8 @@ public final class ShioriLoader {
                     moduleURL: url,
                     xpcServiceName: ShioriLoader.resolvedXpcServiceName(),
                     communication: communication,
-                    shiori2Compatibility: shiori2Compatibility
+                    shiori2Compatibility: shiori2Compatibility,
+                    loadDirectory: loadDirectory
                 )
             } catch {
                 NSLog("[ShioriLoader] Failed to create backend for \(url.lastPathComponent): \(error)")
@@ -915,12 +845,13 @@ extension ShioriLoader {
 
     private static func makeBackend(moduleURL: URL, xpcServiceName: String?,
                                     communication: ShioriCommunicationOptions = .init(),
-                                    shiori2Compatibility: Bool = true) throws -> ShioriBackend {
+                                    shiori2Compatibility: Bool = true, loadDirectory: URL? = nil) throws -> ShioriBackend {
         if let xpcServiceName {
             NSLog("[ShioriLoader] Trying XPC backend (\(xpcServiceName)) for \(moduleURL.lastPathComponent)")
             let backend = try XpcBackend(
                 serviceName: xpcServiceName,
                 moduleURL: moduleURL,
+                loadDirectory: loadDirectory,
                 communication: communication,
                 shiori2Compatibility: shiori2Compatibility
             )
@@ -930,12 +861,12 @@ extension ShioriLoader {
         }
         let ext = moduleURL.pathExtension.lowercased()
         if ext == "bundle" || ext == "plugin" {
-            let backend = try BundleBackend(url: moduleURL, communication: communication)
+            let backend = try BundleBackend(url: moduleURL, communication: communication, loadDirectory: loadDirectory)
             return shiori2Compatibility
                 ? Shiori2CompatBackend(wrapping: backend, detectedVersion: communication.version)
                 : backend
         }
-        let backend = try DylibBackend(url: moduleURL, communication: communication)
+        let backend = try DylibBackend(url: moduleURL, communication: communication, loadDirectory: loadDirectory)
         return shiori2Compatibility
             ? Shiori2CompatBackend(wrapping: backend, detectedVersion: communication.version)
             : backend
@@ -963,8 +894,7 @@ extension ShioriLoader {
                 // `.dll`を先に返すとdlopen失敗後に代替候補へ到達できない。
                 if URL(fileURLWithPath: v).pathExtension.lowercased() == "dll" { continue }
                 #endif
-                let url = dir.appendingPathComponent(v)
-                if fm.fileExists(atPath: url.path) { return url }
+                if let url = UkagakaModuleABI.resolveCaseInsensitive(v, in: dir, fileManager: fm) { return url }
             }
         }
         return nil
@@ -972,7 +902,9 @@ extension ShioriLoader {
 
     /// Generate possible file names according to USL name normalization
     static func normalizedNames(for name: String) -> [String] {
-        let base = (name as NSString).lastPathComponent
+        let normalized = name.replacingOccurrences(of: "\\", with: "/")
+        let directory = (normalized as NSString).deletingLastPathComponent
+        let base = (normalized as NSString).lastPathComponent
         var stem = base
         var list: [String] = [base]
         if base.hasSuffix(".dll") {
@@ -986,7 +918,7 @@ extension ShioriLoader {
         list.append("\(stem).plugin")
         list.append("\(stem).so")
         list.append("lib\(stem).so")
-        return Array(NSOrderedSet(array: list)) as! [String]
+        return (Array(NSOrderedSet(array: list)) as! [String]).map { directory.isEmpty ? $0 : (directory as NSString).appendingPathComponent($0) }
     }
 }
 
@@ -1028,6 +960,23 @@ public final class ShioriXPCServiceHost: NSObject, NSXPCListenerDelegate, OurinS
 
     public func ping(withReply reply: @escaping () -> Void) {
         reply()
+    }
+
+    public func load(_ bundlePath: String, loadDirectory: String, shiori2Compatibility: Bool, withReply reply: @escaping (Bool, String?) -> Void) {
+        let url = URL(fileURLWithPath: bundlePath)
+        let key = loaderKey(moduleURL: url, shiori2Compatibility: shiori2Compatibility)
+        lock.lock()
+        let old = loaders.removeValue(forKey: key)
+        lock.unlock()
+        old?.unload()
+        guard let loader = ShioriLoader(moduleURL: url, xpcServiceName: nil,
+            shiori2Compatibility: shiori2Compatibility, loadDirectory: URL(fileURLWithPath: loadDirectory)) else {
+            reply(false, "Failed to load native SHIORI"); return
+        }
+        lock.lock()
+        loaders[key] = loader
+        lock.unlock()
+        reply(true, nil)
     }
 
     public func load(_ bundlePath: String, withReply reply: @escaping (Bool, String?) -> Void) {

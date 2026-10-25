@@ -1,0 +1,282 @@
+# IL holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/4/9,Pesach
+2020/4/15,Seventh day of Pesach
+2020/4/29,Independence Day
+2020/5/29,Shavuot
+2020/9/19,Rosh Hashanah
+2020/9/20,Rosh Hashanah
+2020/9/28,Yom Kippur
+2020/10/3,Sukkot
+2020/10/10,Simchat Torah / Shemini Atzeret
+2021/3/28,Pesach
+2021/4/3,Seventh day of Pesach
+2021/4/15,Independence Day (observed)
+2021/5/17,Shavuot
+2021/9/7,Rosh Hashanah
+2021/9/8,Rosh Hashanah
+2021/9/16,Yom Kippur
+2021/9/21,Sukkot
+2021/9/28,Simchat Torah / Shemini Atzeret
+2022/4/16,Pesach
+2022/4/22,Seventh day of Pesach
+2022/5/5,Independence Day (observed)
+2022/6/5,Shavuot
+2022/9/26,Rosh Hashanah
+2022/9/27,Rosh Hashanah
+2022/10/5,Yom Kippur
+2022/10/10,Sukkot
+2022/10/17,Simchat Torah / Shemini Atzeret
+2023/4/6,Pesach
+2023/4/12,Seventh day of Pesach
+2023/4/26,Independence Day
+2023/5/26,Shavuot
+2023/9/16,Rosh Hashanah
+2023/9/17,Rosh Hashanah
+2023/9/25,Yom Kippur
+2023/9/30,Sukkot
+2023/10/7,Simchat Torah / Shemini Atzeret
+2024/4/23,Pesach
+2024/4/29,Seventh day of Pesach
+2024/5/14,Independence Day (observed)
+2024/6/12,Shavuot
+2024/10/3,Rosh Hashanah
+2024/10/4,Rosh Hashanah
+2024/10/12,Yom Kippur
+2024/10/17,Sukkot
+2024/10/24,Simchat Torah / Shemini Atzeret
+2025/4/13,Pesach
+2025/4/19,Seventh day of Pesach
+2025/5/1,Independence Day (observed)
+2025/6/2,Shavuot
+2025/9/23,Rosh Hashanah
+2025/9/24,Rosh Hashanah
+2025/10/2,Yom Kippur
+2025/10/7,Sukkot
+2025/10/14,Simchat Torah / Shemini Atzeret
+2026/4/2,Pesach
+2026/4/8,Seventh day of Pesach
+2026/4/22,Independence Day
+2026/5/22,Shavuot
+2026/9/12,Rosh Hashanah
+2026/9/13,Rosh Hashanah
+2026/9/21,Yom Kippur
+2026/9/26,Sukkot
+2026/10/3,Simchat Torah / Shemini Atzeret
+2027/4/22,Pesach
+2027/4/28,Seventh day of Pesach
+2027/5/12,Independence Day
+2027/6/11,Shavuot
+2027/10/2,Rosh Hashanah
+2027/10/3,Rosh Hashanah
+2027/10/11,Yom Kippur
+2027/10/16,Sukkot
+2027/10/23,Simchat Torah / Shemini Atzeret
+2028/4/11,Pesach
+2028/4/17,Seventh day of Pesach
+2028/5/2,Independence Day (observed)
+2028/5/31,Shavuot
+2028/9/21,Rosh Hashanah
+2028/9/22,Rosh Hashanah
+2028/9/30,Yom Kippur
+2028/10/5,Sukkot
+2028/10/12,Simchat Torah / Shemini Atzeret
+2029/3/31,Pesach
+2029/4/6,Seventh day of Pesach
+2029/4/19,Independence Day (observed)
+2029/5/20,Shavuot
+2029/9/10,Rosh Hashanah
+2029/9/11,Rosh Hashanah
+2029/9/19,Yom Kippur
+2029/9/24,Sukkot
+2029/10/1,Simchat Torah / Shemini Atzeret
+2030/4/18,Pesach
+2030/4/24,Seventh day of Pesach
+2030/5/8,Independence Day
+2030/6/7,Shavuot
+2030/9/28,Rosh Hashanah
+2030/9/29,Rosh Hashanah
+2030/10/7,Yom Kippur
+2030/10/12,Sukkot
+2030/10/19,Simchat Torah / Shemini Atzeret
+2031/4/8,Pesach
+2031/4/14,Seventh day of Pesach
+2031/4/29,Independence Day (observed)
+2031/5/28,Shavuot
+2031/9/18,Rosh Hashanah
+2031/9/19,Rosh Hashanah
+2031/9/27,Yom Kippur
+2031/10/2,Sukkot
+2031/10/9,Simchat Torah / Shemini Atzeret
+2032/3/27,Pesach
+2032/4/2,Seventh day of Pesach
+2032/4/15,Independence Day (observed)
+2032/5/16,Shavuot
+2032/9/6,Rosh Hashanah
+2032/9/7,Rosh Hashanah
+2032/9/15,Yom Kippur
+2032/9/20,Sukkot
+2032/9/27,Simchat Torah / Shemini Atzeret
+2033/4/14,Pesach
+2033/4/20,Seventh day of Pesach
+2033/5/4,Independence Day
+2033/6/3,Shavuot
+2033/9/24,Rosh Hashanah
+2033/9/25,Rosh Hashanah
+2033/10/3,Yom Kippur
+2033/10/8,Sukkot
+2033/10/15,Simchat Torah / Shemini Atzeret
+2034/4/4,Pesach
+2034/4/10,Seventh day of Pesach
+2034/4/25,Independence Day (observed)
+2034/5/24,Shavuot
+2034/9/14,Rosh Hashanah
+2034/9/15,Rosh Hashanah
+2034/9/23,Yom Kippur
+2034/9/28,Sukkot
+2034/10/5,Simchat Torah / Shemini Atzeret
+2035/4/24,Pesach
+2035/4/30,Seventh day of Pesach
+2035/5/15,Independence Day (observed)
+2035/6/13,Shavuot
+2035/10/4,Rosh Hashanah
+2035/10/5,Rosh Hashanah
+2035/10/13,Yom Kippur
+2035/10/18,Sukkot
+2035/10/25,Simchat Torah / Shemini Atzeret
+2036/4/12,Pesach
+2036/4/18,Seventh day of Pesach
+2036/5/1,Independence Day (observed)
+2036/6/1,Shavuot
+2036/9/22,Rosh Hashanah
+2036/9/23,Rosh Hashanah
+2036/10/1,Yom Kippur
+2036/10/6,Sukkot
+2036/10/13,Simchat Torah / Shemini Atzeret
+2037/3/31,Pesach
+2037/4/6,Seventh day of Pesach
+2037/4/21,Independence Day (observed)
+2037/5/20,Shavuot
+2037/9/10,Rosh Hashanah
+2037/9/11,Rosh Hashanah
+2037/9/19,Yom Kippur
+2037/9/24,Sukkot
+2037/10/1,Simchat Torah / Shemini Atzeret
+2038/4/20,Pesach
+2038/4/26,Seventh day of Pesach
+2038/5/11,Independence Day (observed)
+2038/6/9,Shavuot
+2038/9/30,Rosh Hashanah
+2038/10/1,Rosh Hashanah
+2038/10/9,Yom Kippur
+2038/10/14,Sukkot
+2038/10/21,Simchat Torah / Shemini Atzeret
+2039/4/9,Pesach
+2039/4/15,Seventh day of Pesach
+2039/4/28,Independence Day (observed)
+2039/5/29,Shavuot
+2039/9/19,Rosh Hashanah
+2039/9/20,Rosh Hashanah
+2039/9/28,Yom Kippur
+2039/10/3,Sukkot
+2039/10/10,Simchat Torah / Shemini Atzeret
+2040/3/29,Pesach
+2040/4/4,Seventh day of Pesach
+2040/4/18,Independence Day
+2040/5/18,Shavuot
+2040/9/8,Rosh Hashanah
+2040/9/9,Rosh Hashanah
+2040/9/17,Yom Kippur
+2040/9/22,Sukkot
+2040/9/29,Simchat Torah / Shemini Atzeret
+2041/4/16,Pesach
+2041/4/22,Seventh day of Pesach
+2041/5/7,Independence Day (observed)
+2041/6/5,Shavuot
+2041/9/26,Rosh Hashanah
+2041/9/27,Rosh Hashanah
+2041/10/5,Yom Kippur
+2041/10/10,Sukkot
+2041/10/17,Simchat Torah / Shemini Atzeret
+2042/4/5,Pesach
+2042/4/11,Seventh day of Pesach
+2042/4/24,Independence Day (observed)
+2042/5/25,Shavuot
+2042/9/15,Rosh Hashanah
+2042/9/16,Rosh Hashanah
+2042/9/24,Yom Kippur
+2042/9/29,Sukkot
+2042/10/6,Simchat Torah / Shemini Atzeret
+2043/4/25,Pesach
+2043/5/1,Seventh day of Pesach
+2043/5/14,Independence Day (observed)
+2043/6/14,Shavuot
+2043/10/5,Rosh Hashanah
+2043/10/6,Rosh Hashanah
+2043/10/14,Yom Kippur
+2043/10/19,Sukkot
+2043/10/26,Simchat Torah / Shemini Atzeret
+2044/4/12,Pesach
+2044/4/18,Seventh day of Pesach
+2044/5/3,Independence Day (observed)
+2044/6/1,Shavuot
+2044/9/22,Rosh Hashanah
+2044/9/23,Rosh Hashanah
+2044/10/1,Yom Kippur
+2044/10/6,Sukkot
+2044/10/13,Simchat Torah / Shemini Atzeret
+2045/4/2,Pesach
+2045/4/8,Seventh day of Pesach
+2045/4/20,Independence Day (observed)
+2045/5/22,Shavuot
+2045/9/12,Rosh Hashanah
+2045/9/13,Rosh Hashanah
+2045/9/21,Yom Kippur
+2045/9/26,Sukkot
+2045/10/3,Simchat Torah / Shemini Atzeret
+2046/4/21,Pesach
+2046/4/27,Seventh day of Pesach
+2046/5/10,Independence Day (observed)
+2046/6/10,Shavuot
+2046/10/1,Rosh Hashanah
+2046/10/2,Rosh Hashanah
+2046/10/10,Yom Kippur
+2046/10/15,Sukkot
+2046/10/22,Simchat Torah / Shemini Atzeret
+2047/4/11,Pesach
+2047/4/17,Seventh day of Pesach
+2047/5/1,Independence Day
+2047/5/31,Shavuot
+2047/9/21,Rosh Hashanah
+2047/9/22,Rosh Hashanah
+2047/9/30,Yom Kippur
+2047/10/5,Sukkot
+2047/10/12,Simchat Torah / Shemini Atzeret
+2048/3/29,Pesach
+2048/4/4,Seventh day of Pesach
+2048/4/16,Independence Day (observed)
+2048/5/18,Shavuot
+2048/9/8,Rosh Hashanah
+2048/9/9,Rosh Hashanah
+2048/9/17,Yom Kippur
+2048/9/22,Sukkot
+2048/9/29,Simchat Torah / Shemini Atzeret
+2049/4/17,Pesach
+2049/4/23,Seventh day of Pesach
+2049/5/6,Independence Day (observed)
+2049/6/6,Shavuot
+2049/9/27,Rosh Hashanah
+2049/9/28,Rosh Hashanah
+2049/10/6,Yom Kippur
+2049/10/11,Sukkot
+2049/10/18,Simchat Torah / Shemini Atzeret
+2050/4/7,Pesach
+2050/4/13,Seventh day of Pesach
+2050/4/27,Independence Day
+2050/5/27,Shavuot
+2050/9/17,Rosh Hashanah
+2050/9/18,Rosh Hashanah
+2050/9/26,Yom Kippur
+2050/10/1,Sukkot
+2050/10/8,Simchat Torah / Shemini Atzeret

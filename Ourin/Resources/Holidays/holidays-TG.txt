@@ -1,0 +1,407 @@
+# TG の祝日（2020〜2050年、言語: fr）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Jour de l'an
+2020/4/13,Lundi de Pâques
+2020/4/24,Ramadan
+2020/4/27,Fête de l'indépendance
+2020/5/1,Fête du travail
+2020/5/21,Fête de l'Ascension
+2020/5/24,l'Aïd El-Fitr
+2020/6/1,Lundi de Pentecôte
+2020/6/21,Fête des Martyrs
+2020/7/31,Tabaski
+2020/8/15,Assomption
+2020/11/1,Toussaint
+2020/12/25,Noël
+2021/1/1,Jour de l'an
+2021/4/5,Lundi de Pâques
+2021/4/13,Ramadan
+2021/4/27,Fête de l'indépendance
+2021/5/1,Fête du travail
+2021/5/13,Fête de l'Ascension; l'Aïd El-Fitr
+2021/5/24,Lundi de Pentecôte
+2021/6/21,Fête des Martyrs
+2021/7/20,Tabaski
+2021/8/15,Assomption
+2021/11/1,Toussaint
+2021/12/25,Noël
+2022/1/1,Jour de l'an
+2022/4/2,Ramadan
+2022/4/18,Lundi de Pâques
+2022/4/27,Fête de l'indépendance
+2022/5/1,Fête du travail
+2022/5/2,l'Aïd El-Fitr
+2022/5/26,Fête de l'Ascension
+2022/6/6,Lundi de Pentecôte
+2022/6/21,Fête des Martyrs
+2022/7/9,Tabaski
+2022/8/15,Assomption
+2022/11/1,Toussaint
+2022/12/25,Noël
+2023/1/1,Jour de l'an
+2023/3/23,Ramadan
+2023/4/10,Lundi de Pâques
+2023/4/21,l'Aïd El-Fitr
+2023/4/27,Fête de l'indépendance
+2023/5/1,Fête du travail
+2023/5/18,Fête de l'Ascension
+2023/5/29,Lundi de Pentecôte
+2023/6/21,Fête des Martyrs
+2023/6/28,Tabaski
+2023/8/15,Assomption
+2023/11/1,Toussaint
+2023/12/25,Noël
+2024/1/1,Jour de l'an
+2024/3/11,Ramadan
+2024/4/1,Lundi de Pâques
+2024/4/10,l'Aïd El-Fitr
+2024/4/27,Fête de l'indépendance
+2024/5/1,Fête du travail
+2024/5/9,Fête de l'Ascension
+2024/5/20,Lundi de Pentecôte
+2024/6/16,Tabaski
+2024/6/21,Fête des Martyrs
+2024/8/15,Assomption
+2024/11/1,Toussaint
+2024/12/25,Noël
+2025/1/1,Jour de l'an
+2025/3/1,Ramadan
+2025/3/30,l'Aïd El-Fitr
+2025/4/21,Lundi de Pâques
+2025/4/27,Fête de l'indépendance
+2025/5/1,Fête du travail
+2025/5/29,Fête de l'Ascension
+2025/6/7,Tabaski
+2025/6/9,Lundi de Pentecôte
+2025/6/21,Fête des Martyrs
+2025/8/15,Assomption
+2025/11/1,Toussaint
+2025/12/25,Noël
+2026/1/1,Jour de l'an
+2026/2/18,Ramadan (estimé)
+2026/3/20,l'Aïd El-Fitr (estimé)
+2026/4/6,Lundi de Pâques
+2026/4/27,Fête de l'indépendance
+2026/5/1,Fête du travail
+2026/5/14,Fête de l'Ascension
+2026/5/25,Lundi de Pentecôte
+2026/5/27,Tabaski (estimé)
+2026/6/21,Fête des Martyrs
+2026/8/15,Assomption
+2026/11/1,Toussaint
+2026/12/25,Noël
+2027/1/1,Jour de l'an
+2027/2/8,Ramadan (estimé)
+2027/3/9,l'Aïd El-Fitr (estimé)
+2027/3/29,Lundi de Pâques
+2027/4/27,Fête de l'indépendance
+2027/5/1,Fête du travail
+2027/5/6,Fête de l'Ascension
+2027/5/16,Tabaski (estimé)
+2027/5/17,Lundi de Pentecôte
+2027/6/21,Fête des Martyrs
+2027/8/15,Assomption
+2027/11/1,Toussaint
+2027/12/25,Noël
+2028/1/1,Jour de l'an
+2028/1/28,Ramadan (estimé)
+2028/2/26,l'Aïd El-Fitr (estimé)
+2028/4/17,Lundi de Pâques
+2028/4/27,Fête de l'indépendance
+2028/5/1,Fête du travail
+2028/5/5,Tabaski (estimé)
+2028/5/25,Fête de l'Ascension
+2028/6/5,Lundi de Pentecôte
+2028/6/21,Fête des Martyrs
+2028/8/15,Assomption
+2028/11/1,Toussaint
+2028/12/25,Noël
+2029/1/1,Jour de l'an
+2029/1/16,Ramadan (estimé)
+2029/2/14,l'Aïd El-Fitr (estimé)
+2029/4/2,Lundi de Pâques
+2029/4/24,Tabaski (estimé)
+2029/4/27,Fête de l'indépendance
+2029/5/1,Fête du travail
+2029/5/10,Fête de l'Ascension
+2029/5/21,Lundi de Pentecôte
+2029/6/21,Fête des Martyrs
+2029/8/15,Assomption
+2029/11/1,Toussaint
+2029/12/25,Noël
+2030/1/1,Jour de l'an
+2030/1/5,Ramadan (estimé)
+2030/2/4,l'Aïd El-Fitr (estimé)
+2030/4/13,Tabaski (estimé)
+2030/4/22,Lundi de Pâques
+2030/4/27,Fête de l'indépendance
+2030/5/1,Fête du travail
+2030/5/30,Fête de l'Ascension
+2030/6/10,Lundi de Pentecôte
+2030/6/21,Fête des Martyrs
+2030/8/15,Assomption
+2030/11/1,Toussaint
+2030/12/25,Noël
+2030/12/26,Ramadan (estimé)
+2031/1/1,Jour de l'an
+2031/1/24,l'Aïd El-Fitr (estimé)
+2031/4/2,Tabaski (estimé)
+2031/4/14,Lundi de Pâques
+2031/4/27,Fête de l'indépendance
+2031/5/1,Fête du travail
+2031/5/22,Fête de l'Ascension
+2031/6/2,Lundi de Pentecôte
+2031/6/21,Fête des Martyrs
+2031/8/15,Assomption
+2031/11/1,Toussaint
+2031/12/15,Ramadan (estimé)
+2031/12/25,Noël
+2032/1/1,Jour de l'an
+2032/1/14,l'Aïd El-Fitr (estimé)
+2032/3/22,Tabaski (estimé)
+2032/3/29,Lundi de Pâques
+2032/4/27,Fête de l'indépendance
+2032/5/1,Fête du travail
+2032/5/6,Fête de l'Ascension
+2032/5/17,Lundi de Pentecôte
+2032/6/21,Fête des Martyrs
+2032/8/15,Assomption
+2032/11/1,Toussaint
+2032/12/4,Ramadan (estimé)
+2032/12/25,Noël
+2033/1/1,Jour de l'an
+2033/1/2,l'Aïd El-Fitr (estimé)
+2033/3/11,Tabaski (estimé)
+2033/4/18,Lundi de Pâques
+2033/4/27,Fête de l'indépendance
+2033/5/1,Fête du travail
+2033/5/26,Fête de l'Ascension
+2033/6/6,Lundi de Pentecôte
+2033/6/21,Fête des Martyrs
+2033/8/15,Assomption
+2033/11/1,Toussaint
+2033/11/23,Ramadan (estimé)
+2033/12/23,l'Aïd El-Fitr (estimé)
+2033/12/25,Noël
+2034/1/1,Jour de l'an
+2034/3/1,Tabaski (estimé)
+2034/4/10,Lundi de Pâques
+2034/4/27,Fête de l'indépendance
+2034/5/1,Fête du travail
+2034/5/18,Fête de l'Ascension
+2034/5/29,Lundi de Pentecôte
+2034/6/21,Fête des Martyrs
+2034/8/15,Assomption
+2034/11/1,Toussaint
+2034/11/12,Ramadan (estimé)
+2034/12/12,l'Aïd El-Fitr (estimé)
+2034/12/25,Noël
+2035/1/1,Jour de l'an
+2035/2/18,Tabaski (estimé)
+2035/3/26,Lundi de Pâques
+2035/4/27,Fête de l'indépendance
+2035/5/1,Fête du travail
+2035/5/3,Fête de l'Ascension
+2035/5/14,Lundi de Pentecôte
+2035/6/21,Fête des Martyrs
+2035/8/15,Assomption
+2035/11/1,Ramadan (estimé); Toussaint
+2035/12/1,l'Aïd El-Fitr (estimé)
+2035/12/25,Noël
+2036/1/1,Jour de l'an
+2036/2/7,Tabaski (estimé)
+2036/4/14,Lundi de Pâques
+2036/4/27,Fête de l'indépendance
+2036/5/1,Fête du travail
+2036/5/22,Fête de l'Ascension
+2036/6/2,Lundi de Pentecôte
+2036/6/21,Fête des Martyrs
+2036/8/15,Assomption
+2036/10/20,Ramadan (estimé)
+2036/11/1,Toussaint
+2036/11/19,l'Aïd El-Fitr (estimé)
+2036/12/25,Noël
+2037/1/1,Jour de l'an
+2037/1/26,Tabaski (estimé)
+2037/4/6,Lundi de Pâques
+2037/4/27,Fête de l'indépendance
+2037/5/1,Fête du travail
+2037/5/14,Fête de l'Ascension
+2037/5/25,Lundi de Pentecôte
+2037/6/21,Fête des Martyrs
+2037/8/15,Assomption
+2037/10/10,Ramadan (estimé)
+2037/11/1,Toussaint
+2037/11/8,l'Aïd El-Fitr (estimé)
+2037/12/25,Noël
+2038/1/1,Jour de l'an
+2038/1/16,Tabaski (estimé)
+2038/4/26,Lundi de Pâques
+2038/4/27,Fête de l'indépendance
+2038/5/1,Fête du travail
+2038/6/3,Fête de l'Ascension
+2038/6/14,Lundi de Pentecôte
+2038/6/21,Fête des Martyrs
+2038/8/15,Assomption
+2038/9/30,Ramadan (estimé)
+2038/10/29,l'Aïd El-Fitr (estimé)
+2038/11/1,Toussaint
+2038/12/25,Noël
+2039/1/1,Jour de l'an
+2039/1/5,Tabaski (estimé)
+2039/4/11,Lundi de Pâques
+2039/4/27,Fête de l'indépendance
+2039/5/1,Fête du travail
+2039/5/19,Fête de l'Ascension
+2039/5/30,Lundi de Pentecôte
+2039/6/21,Fête des Martyrs
+2039/8/15,Assomption
+2039/9/19,Ramadan (estimé)
+2039/10/19,l'Aïd El-Fitr (estimé)
+2039/11/1,Toussaint
+2039/12/25,Noël
+2039/12/26,Tabaski (estimé)
+2040/1/1,Jour de l'an
+2040/4/2,Lundi de Pâques
+2040/4/27,Fête de l'indépendance
+2040/5/1,Fête du travail
+2040/5/10,Fête de l'Ascension
+2040/5/21,Lundi de Pentecôte
+2040/6/21,Fête des Martyrs
+2040/8/15,Assomption
+2040/9/7,Ramadan (estimé)
+2040/10/7,l'Aïd El-Fitr (estimé)
+2040/11/1,Toussaint
+2040/12/14,Tabaski (estimé)
+2040/12/25,Noël
+2041/1/1,Jour de l'an
+2041/4/22,Lundi de Pâques
+2041/4/27,Fête de l'indépendance
+2041/5/1,Fête du travail
+2041/5/30,Fête de l'Ascension
+2041/6/10,Lundi de Pentecôte
+2041/6/21,Fête des Martyrs
+2041/8/15,Assomption
+2041/8/28,Ramadan (estimé)
+2041/9/26,l'Aïd El-Fitr (estimé)
+2041/11/1,Toussaint
+2041/12/4,Tabaski (estimé)
+2041/12/25,Noël
+2042/1/1,Jour de l'an
+2042/4/7,Lundi de Pâques
+2042/4/27,Fête de l'indépendance
+2042/5/1,Fête du travail
+2042/5/15,Fête de l'Ascension
+2042/5/26,Lundi de Pentecôte
+2042/6/21,Fête des Martyrs
+2042/8/15,Assomption
+2042/8/17,Ramadan (estimé)
+2042/9/15,l'Aïd El-Fitr (estimé)
+2042/11/1,Toussaint
+2042/11/23,Tabaski (estimé)
+2042/12/25,Noël
+2043/1/1,Jour de l'an
+2043/3/30,Lundi de Pâques
+2043/4/27,Fête de l'indépendance
+2043/5/1,Fête du travail
+2043/5/7,Fête de l'Ascension
+2043/5/18,Lundi de Pentecôte
+2043/6/21,Fête des Martyrs
+2043/8/6,Ramadan (estimé)
+2043/8/15,Assomption
+2043/9/4,l'Aïd El-Fitr (estimé)
+2043/11/1,Toussaint
+2043/11/12,Tabaski (estimé)
+2043/12/25,Noël
+2044/1/1,Jour de l'an
+2044/4/18,Lundi de Pâques
+2044/4/27,Fête de l'indépendance
+2044/5/1,Fête du travail
+2044/5/26,Fête de l'Ascension
+2044/6/6,Lundi de Pentecôte
+2044/6/21,Fête des Martyrs
+2044/7/26,Ramadan (estimé)
+2044/8/15,Assomption
+2044/8/24,l'Aïd El-Fitr (estimé)
+2044/10/31,Tabaski (estimé)
+2044/11/1,Toussaint
+2044/12/25,Noël
+2045/1/1,Jour de l'an
+2045/4/10,Lundi de Pâques
+2045/4/27,Fête de l'indépendance
+2045/5/1,Fête du travail
+2045/5/18,Fête de l'Ascension
+2045/5/29,Lundi de Pentecôte
+2045/6/21,Fête des Martyrs
+2045/7/15,Ramadan (estimé)
+2045/8/14,l'Aïd El-Fitr (estimé)
+2045/8/15,Assomption
+2045/10/21,Tabaski (estimé)
+2045/11/1,Toussaint
+2045/12/25,Noël
+2046/1/1,Jour de l'an
+2046/3/26,Lundi de Pâques
+2046/4/27,Fête de l'indépendance
+2046/5/1,Fête du travail
+2046/5/3,Fête de l'Ascension
+2046/5/14,Lundi de Pentecôte
+2046/6/21,Fête des Martyrs
+2046/7/5,Ramadan (estimé)
+2046/8/3,l'Aïd El-Fitr (estimé)
+2046/8/15,Assomption
+2046/10/10,Tabaski (estimé)
+2046/11/1,Toussaint
+2046/12/25,Noël
+2047/1/1,Jour de l'an
+2047/4/15,Lundi de Pâques
+2047/4/27,Fête de l'indépendance
+2047/5/1,Fête du travail
+2047/5/23,Fête de l'Ascension
+2047/6/3,Lundi de Pentecôte
+2047/6/21,Fête des Martyrs
+2047/6/24,Ramadan (estimé)
+2047/7/24,l'Aïd El-Fitr (estimé)
+2047/8/15,Assomption
+2047/9/30,Tabaski (estimé)
+2047/11/1,Toussaint
+2047/12/25,Noël
+2048/1/1,Jour de l'an
+2048/4/6,Lundi de Pâques
+2048/4/27,Fête de l'indépendance
+2048/5/1,Fête du travail
+2048/5/14,Fête de l'Ascension
+2048/5/25,Lundi de Pentecôte
+2048/6/12,Ramadan (estimé)
+2048/6/21,Fête des Martyrs
+2048/7/12,l'Aïd El-Fitr (estimé)
+2048/8/15,Assomption
+2048/9/19,Tabaski (estimé)
+2048/11/1,Toussaint
+2048/12/25,Noël
+2049/1/1,Jour de l'an
+2049/4/19,Lundi de Pâques
+2049/4/27,Fête de l'indépendance
+2049/5/1,Fête du travail
+2049/5/27,Fête de l'Ascension
+2049/6/2,Ramadan (estimé)
+2049/6/7,Lundi de Pentecôte
+2049/6/21,Fête des Martyrs
+2049/7/1,l'Aïd El-Fitr (estimé)
+2049/8/15,Assomption
+2049/9/8,Tabaski (estimé)
+2049/11/1,Toussaint
+2049/12/25,Noël
+2050/1/1,Jour de l'an
+2050/4/11,Lundi de Pâques
+2050/4/27,Fête de l'indépendance
+2050/5/1,Fête du travail
+2050/5/19,Fête de l'Ascension
+2050/5/22,Ramadan (estimé)
+2050/5/30,Lundi de Pentecôte
+2050/6/20,l'Aïd El-Fitr (estimé)
+2050/6/21,Fête des Martyrs
+2050/8/15,Assomption
+2050/8/28,Tabaski (estimé)
+2050/11/1,Toussaint
+2050/12/25,Noël

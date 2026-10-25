@@ -182,18 +182,7 @@ public enum SaoriProtocol {
     }
 
     public static func stringEncoding(for charset: String) -> String.Encoding? {
-        switch charset.lowercased().replacingOccurrences(of: "_", with: "-") {
-        case "utf-8", "utf8":
-            return .utf8
-        case "shift-jis", "shift_jis", "sjis", "cp932", "ms932", "windows-31j":
-            return .shiftJIS
-        case "euc-jp", "eucjp":
-            return .japaneseEUC
-        case "iso-2022-jp", "jis":
-            return .iso2022JP
-        default:
-            return nil
-        }
+        EncodingAdapter.knownEncoding(for: charset)
     }
 
     public static func statusMessage(for code: Int) -> String {

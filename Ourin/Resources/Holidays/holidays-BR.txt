@@ -1,0 +1,309 @@
+# BR の祝日（2020〜2050年、言語: pt_BR）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Confraternização Universal
+2020/4/10,Sexta-feira Santa
+2020/4/21,Tiradentes
+2020/5/1,Dia do Trabalhador
+2020/9/7,Independência do Brasil
+2020/10/12,Nossa Senhora Aparecida
+2020/11/2,Finados
+2020/11/15,Proclamação da República
+2020/12/25,Natal
+2021/1/1,Confraternização Universal
+2021/4/2,Sexta-feira Santa
+2021/4/21,Tiradentes
+2021/5/1,Dia do Trabalhador
+2021/9/7,Independência do Brasil
+2021/10/12,Nossa Senhora Aparecida
+2021/11/2,Finados
+2021/11/15,Proclamação da República
+2021/12/25,Natal
+2022/1/1,Confraternização Universal
+2022/4/15,Sexta-feira Santa
+2022/4/21,Tiradentes
+2022/5/1,Dia do Trabalhador
+2022/9/7,Independência do Brasil
+2022/10/12,Nossa Senhora Aparecida
+2022/11/2,Finados
+2022/11/15,Proclamação da República
+2022/12/25,Natal
+2023/1/1,Confraternização Universal
+2023/4/7,Sexta-feira Santa
+2023/4/21,Tiradentes
+2023/5/1,Dia do Trabalhador
+2023/9/7,Independência do Brasil
+2023/10/12,Nossa Senhora Aparecida
+2023/11/2,Finados
+2023/11/15,Proclamação da República
+2023/12/25,Natal
+2024/1/1,Confraternização Universal
+2024/3/29,Sexta-feira Santa
+2024/4/21,Tiradentes
+2024/5/1,Dia do Trabalhador
+2024/9/7,Independência do Brasil
+2024/10/12,Nossa Senhora Aparecida
+2024/11/2,Finados
+2024/11/15,Proclamação da República
+2024/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2024/12/25,Natal
+2025/1/1,Confraternização Universal
+2025/4/18,Sexta-feira Santa
+2025/4/21,Tiradentes
+2025/5/1,Dia do Trabalhador
+2025/9/7,Independência do Brasil
+2025/10/12,Nossa Senhora Aparecida
+2025/11/2,Finados
+2025/11/15,Proclamação da República
+2025/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2025/12/25,Natal
+2026/1/1,Confraternização Universal
+2026/4/3,Sexta-feira Santa
+2026/4/21,Tiradentes
+2026/5/1,Dia do Trabalhador
+2026/9/7,Independência do Brasil
+2026/10/12,Nossa Senhora Aparecida
+2026/11/2,Finados
+2026/11/15,Proclamação da República
+2026/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2026/12/25,Natal
+2027/1/1,Confraternização Universal
+2027/3/26,Sexta-feira Santa
+2027/4/21,Tiradentes
+2027/5/1,Dia do Trabalhador
+2027/9/7,Independência do Brasil
+2027/10/12,Nossa Senhora Aparecida
+2027/11/2,Finados
+2027/11/15,Proclamação da República
+2027/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2027/12/25,Natal
+2028/1/1,Confraternização Universal
+2028/4/14,Sexta-feira Santa
+2028/4/21,Tiradentes
+2028/5/1,Dia do Trabalhador
+2028/9/7,Independência do Brasil
+2028/10/12,Nossa Senhora Aparecida
+2028/11/2,Finados
+2028/11/15,Proclamação da República
+2028/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2028/12/25,Natal
+2029/1/1,Confraternização Universal
+2029/3/30,Sexta-feira Santa
+2029/4/21,Tiradentes
+2029/5/1,Dia do Trabalhador
+2029/9/7,Independência do Brasil
+2029/10/12,Nossa Senhora Aparecida
+2029/11/2,Finados
+2029/11/15,Proclamação da República
+2029/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2029/12/25,Natal
+2030/1/1,Confraternização Universal
+2030/4/19,Sexta-feira Santa
+2030/4/21,Tiradentes
+2030/5/1,Dia do Trabalhador
+2030/9/7,Independência do Brasil
+2030/10/12,Nossa Senhora Aparecida
+2030/11/2,Finados
+2030/11/15,Proclamação da República
+2030/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2030/12/25,Natal
+2031/1/1,Confraternização Universal
+2031/4/11,Sexta-feira Santa
+2031/4/21,Tiradentes
+2031/5/1,Dia do Trabalhador
+2031/9/7,Independência do Brasil
+2031/10/12,Nossa Senhora Aparecida
+2031/11/2,Finados
+2031/11/15,Proclamação da República
+2031/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2031/12/25,Natal
+2032/1/1,Confraternização Universal
+2032/3/26,Sexta-feira Santa
+2032/4/21,Tiradentes
+2032/5/1,Dia do Trabalhador
+2032/9/7,Independência do Brasil
+2032/10/12,Nossa Senhora Aparecida
+2032/11/2,Finados
+2032/11/15,Proclamação da República
+2032/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2032/12/25,Natal
+2033/1/1,Confraternização Universal
+2033/4/15,Sexta-feira Santa
+2033/4/21,Tiradentes
+2033/5/1,Dia do Trabalhador
+2033/9/7,Independência do Brasil
+2033/10/12,Nossa Senhora Aparecida
+2033/11/2,Finados
+2033/11/15,Proclamação da República
+2033/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2033/12/25,Natal
+2034/1/1,Confraternização Universal
+2034/4/7,Sexta-feira Santa
+2034/4/21,Tiradentes
+2034/5/1,Dia do Trabalhador
+2034/9/7,Independência do Brasil
+2034/10/12,Nossa Senhora Aparecida
+2034/11/2,Finados
+2034/11/15,Proclamação da República
+2034/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2034/12/25,Natal
+2035/1/1,Confraternização Universal
+2035/3/23,Sexta-feira Santa
+2035/4/21,Tiradentes
+2035/5/1,Dia do Trabalhador
+2035/9/7,Independência do Brasil
+2035/10/12,Nossa Senhora Aparecida
+2035/11/2,Finados
+2035/11/15,Proclamação da República
+2035/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2035/12/25,Natal
+2036/1/1,Confraternização Universal
+2036/4/11,Sexta-feira Santa
+2036/4/21,Tiradentes
+2036/5/1,Dia do Trabalhador
+2036/9/7,Independência do Brasil
+2036/10/12,Nossa Senhora Aparecida
+2036/11/2,Finados
+2036/11/15,Proclamação da República
+2036/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2036/12/25,Natal
+2037/1/1,Confraternização Universal
+2037/4/3,Sexta-feira Santa
+2037/4/21,Tiradentes
+2037/5/1,Dia do Trabalhador
+2037/9/7,Independência do Brasil
+2037/10/12,Nossa Senhora Aparecida
+2037/11/2,Finados
+2037/11/15,Proclamação da República
+2037/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2037/12/25,Natal
+2038/1/1,Confraternização Universal
+2038/4/21,Tiradentes
+2038/4/23,Sexta-feira Santa
+2038/5/1,Dia do Trabalhador
+2038/9/7,Independência do Brasil
+2038/10/12,Nossa Senhora Aparecida
+2038/11/2,Finados
+2038/11/15,Proclamação da República
+2038/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2038/12/25,Natal
+2039/1/1,Confraternização Universal
+2039/4/8,Sexta-feira Santa
+2039/4/21,Tiradentes
+2039/5/1,Dia do Trabalhador
+2039/9/7,Independência do Brasil
+2039/10/12,Nossa Senhora Aparecida
+2039/11/2,Finados
+2039/11/15,Proclamação da República
+2039/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2039/12/25,Natal
+2040/1/1,Confraternização Universal
+2040/3/30,Sexta-feira Santa
+2040/4/21,Tiradentes
+2040/5/1,Dia do Trabalhador
+2040/9/7,Independência do Brasil
+2040/10/12,Nossa Senhora Aparecida
+2040/11/2,Finados
+2040/11/15,Proclamação da República
+2040/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2040/12/25,Natal
+2041/1/1,Confraternização Universal
+2041/4/19,Sexta-feira Santa
+2041/4/21,Tiradentes
+2041/5/1,Dia do Trabalhador
+2041/9/7,Independência do Brasil
+2041/10/12,Nossa Senhora Aparecida
+2041/11/2,Finados
+2041/11/15,Proclamação da República
+2041/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2041/12/25,Natal
+2042/1/1,Confraternização Universal
+2042/4/4,Sexta-feira Santa
+2042/4/21,Tiradentes
+2042/5/1,Dia do Trabalhador
+2042/9/7,Independência do Brasil
+2042/10/12,Nossa Senhora Aparecida
+2042/11/2,Finados
+2042/11/15,Proclamação da República
+2042/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2042/12/25,Natal
+2043/1/1,Confraternização Universal
+2043/3/27,Sexta-feira Santa
+2043/4/21,Tiradentes
+2043/5/1,Dia do Trabalhador
+2043/9/7,Independência do Brasil
+2043/10/12,Nossa Senhora Aparecida
+2043/11/2,Finados
+2043/11/15,Proclamação da República
+2043/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2043/12/25,Natal
+2044/1/1,Confraternização Universal
+2044/4/15,Sexta-feira Santa
+2044/4/21,Tiradentes
+2044/5/1,Dia do Trabalhador
+2044/9/7,Independência do Brasil
+2044/10/12,Nossa Senhora Aparecida
+2044/11/2,Finados
+2044/11/15,Proclamação da República
+2044/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2044/12/25,Natal
+2045/1/1,Confraternização Universal
+2045/4/7,Sexta-feira Santa
+2045/4/21,Tiradentes
+2045/5/1,Dia do Trabalhador
+2045/9/7,Independência do Brasil
+2045/10/12,Nossa Senhora Aparecida
+2045/11/2,Finados
+2045/11/15,Proclamação da República
+2045/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2045/12/25,Natal
+2046/1/1,Confraternização Universal
+2046/3/23,Sexta-feira Santa
+2046/4/21,Tiradentes
+2046/5/1,Dia do Trabalhador
+2046/9/7,Independência do Brasil
+2046/10/12,Nossa Senhora Aparecida
+2046/11/2,Finados
+2046/11/15,Proclamação da República
+2046/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2046/12/25,Natal
+2047/1/1,Confraternização Universal
+2047/4/12,Sexta-feira Santa
+2047/4/21,Tiradentes
+2047/5/1,Dia do Trabalhador
+2047/9/7,Independência do Brasil
+2047/10/12,Nossa Senhora Aparecida
+2047/11/2,Finados
+2047/11/15,Proclamação da República
+2047/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2047/12/25,Natal
+2048/1/1,Confraternização Universal
+2048/4/3,Sexta-feira Santa
+2048/4/21,Tiradentes
+2048/5/1,Dia do Trabalhador
+2048/9/7,Independência do Brasil
+2048/10/12,Nossa Senhora Aparecida
+2048/11/2,Finados
+2048/11/15,Proclamação da República
+2048/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2048/12/25,Natal
+2049/1/1,Confraternização Universal
+2049/4/16,Sexta-feira Santa
+2049/4/21,Tiradentes
+2049/5/1,Dia do Trabalhador
+2049/9/7,Independência do Brasil
+2049/10/12,Nossa Senhora Aparecida
+2049/11/2,Finados
+2049/11/15,Proclamação da República
+2049/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2049/12/25,Natal
+2050/1/1,Confraternização Universal
+2050/4/8,Sexta-feira Santa
+2050/4/21,Tiradentes
+2050/5/1,Dia do Trabalhador
+2050/9/7,Independência do Brasil
+2050/10/12,Nossa Senhora Aparecida
+2050/11/2,Finados
+2050/11/15,Proclamação da República
+2050/11/20,Dia Nacional de Zumbi e da Consciência Negra
+2050/12/25,Natal

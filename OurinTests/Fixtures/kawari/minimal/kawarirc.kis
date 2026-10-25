@@ -1,0 +1,19 @@
+# Fixture ghost for the shiori suite (build/src/test/run.ps1).
+#
+# The minimum SHIORI/3.0 handler from document/start.html: an ID that starts
+# with "On" is an event (event.<ID>), anything else is a resource
+# (resource.<ID>). version / craftman / shioriid / name are answered by
+# the module itself unless this file defines them.
+# This file is ASCII only.
+
+System.Callback.OnGET: $(
+    if $(match_at ${System.Request.ID} On)
+        ${event.${System.Request.ID}}
+    else
+        ${resource.${System.Request.ID}} )
+
+event.OnBoot: \0\s[0]Hello\e
+event.OnSenderPath: ${System.Sender.Path}
+event.OnRef: r0=${System.Request.Reference0} r1=${System.Request.Reference1}
+
+resource.homeurl: http://example.invalid/

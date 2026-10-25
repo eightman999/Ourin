@@ -35,26 +35,48 @@ enum ZipUtil {
         let components = path.split(separator: "/").map(String.init)
         return components.contains { ignoredDirectories.contains($0) }
     }
-    /// 解凍先は空ディレクトリであること。/usr/bin/ditto を利用（10.15+ 標準で利用可）
+    /// 解凍先は空ディレクトリであること。/usr/bin/ditto を利用（10.15+ 標準で利用可）。
+    /// ditto は LZMA（zip の圧縮方式 14）などを展開できないため、失敗したら
+    /// /usr/bin/bsdtar（libarchive）で展開し直す。bsdtar は `..` を含む項目を拒んで失敗し、
+    /// 先頭の `/` は取り除く。設置先へは従来どおり secureCopyTree を通してコピーする。
     static func extractZip(_ zipURL: URL, to dst: URL) throws {
         let fm = FileManager.default
         try fm.createDirectory(at: dst, withIntermediateDirectories: true)
 
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
-        task.arguments = ["-x", "-k", zipURL.path, dst.path]
-        let pipe = Pipe()
-        task.standardError = pipe
-        try task.run()
-        task.waitUntilExit()
-        if task.terminationStatus != 0 {
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            let err = String(data: data, encoding: .utf8) ?? "unknown"
-            throw NarInstaller.Error.unzipFailed(err)
+        do {
+            try runExtractor("/usr/bin/ditto", arguments: ["-x", "-k", zipURL.path, dst.path])
+        } catch let dittoError {
+            // ditto が途中まで書き出したものを消してから展開し直す。
+            for child in (try? fm.contentsOfDirectory(at: dst, includingPropertiesForKeys: nil)) ?? [] {
+                try fm.removeItem(at: child)
+            }
+            do {
+                try runExtractor("/usr/bin/bsdtar", arguments: ["-x", "-f", zipURL.path, "-C", dst.path])
+            } catch NarInstaller.Error.unzipFailed(let bsdtarMessage) {
+                guard case NarInstaller.Error.unzipFailed(let dittoMessage) = dittoError else { throw dittoError }
+                throw NarInstaller.Error.unzipFailed("ditto: \(dittoMessage) / bsdtar: \(bsdtarMessage)")
+            }
         }
 
         // Windows形式のパス区切り文字（バックスラッシュ）を含むファイルを正規化
         try normalizeWindowsPaths(at: dst)
+    }
+
+    private static func runExtractor(_ path: String, arguments: [String]) throws {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: path)
+        task.arguments = arguments
+        let pipe = Pipe()
+        task.standardError = pipe
+        task.standardOutput = FileHandle.nullDevice
+        try task.run()
+        // 警告が多いとパイプが詰まるので、終了を待つ前に読み切る。
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        task.waitUntilExit()
+        if task.terminationStatus != 0 {
+            let err = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "unknown"
+            throw NarInstaller.Error.unzipFailed(err.isEmpty ? "exit \(task.terminationStatus)" : err)
+        }
     }
 
     /// Windows形式のパス（バックスラッシュ区切り）を含むファイルを、正しいディレクトリ構造に変換
@@ -96,6 +118,22 @@ enum ZipUtil {
                 try normalizeWindowsPaths(at: dirURL)
             }
         }
+    }
+
+    /// 展開した NAR の中身のルート。直下に install.txt が無く、隠しファイル（`.nar_icon` など）と
+    /// `__MACOSX` を除くとフォルダ 1 つだけで、その中に install.txt があれば、そのフォルダをルートとする。
+    /// フォルダごと圧縮した NAR（Taromati2.nar など）を、ninix-kagari と同じく 1 段上げて扱うため。
+    static func packageRoot(in extracted: URL) -> URL {
+        let fm = FileManager.default
+        if fm.fileExists(atPath: extracted.appendingPathComponent("install.txt").path) { return extracted }
+        let entries = ((try? fm.contentsOfDirectory(at: extracted, includingPropertiesForKeys: [.isDirectoryKey])) ?? [])
+            .filter { !$0.lastPathComponent.hasPrefix(".") && !shouldIgnore(directoryName: $0.lastPathComponent) }
+        guard entries.count == 1,
+              (try? entries[0].resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true,
+              fm.fileExists(atPath: entries[0].appendingPathComponent("install.txt").path) else {
+            return extracted
+        }
+        return entries[0]
     }
 
     /// Zip Slip 対策：dst 内へのコピー時に、正規化した最終パスが必ずターゲット配下であることを確認

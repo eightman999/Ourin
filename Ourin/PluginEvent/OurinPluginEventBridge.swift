@@ -45,7 +45,7 @@ final class OurinPluginEventBridge {
                     || meta.name.caseInsensitiveCompare(token) == .orderedSame
                     || meta.filename.caseInsensitiveCompare(token) == .orderedSame
             }
-            return plugin.bundle.bundleURL.deletingPathExtension().lastPathComponent.caseInsensitiveCompare(token) == .orderedSame
+            return plugin.url.deletingPathExtension().lastPathComponent.caseInsensitiveCompare(token) == .orderedSame
         }
     }
 
@@ -127,7 +127,7 @@ final class OurinPluginEventBridge {
 
     private func displayName(for plugin: Plugin) -> String {
         guard let meta = registry.metas[plugin] else {
-            return plugin.bundle.bundleURL.deletingPathExtension().lastPathComponent
+            return plugin.url.deletingPathExtension().lastPathComponent
         }
         return meta.id.isEmpty ? meta.name : meta.id
     }

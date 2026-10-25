@@ -1,0 +1,309 @@
+# BR holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,Universal Fraternization Day
+2020/4/10,Good Friday
+2020/4/21,Tiradentes' Day
+2020/5/1,Worker's Day
+2020/9/7,Independence Day
+2020/10/12,Our Lady of Aparecida
+2020/11/2,All Souls' Day
+2020/11/15,Republic Proclamation Day
+2020/12/25,Christmas Day
+2021/1/1,Universal Fraternization Day
+2021/4/2,Good Friday
+2021/4/21,Tiradentes' Day
+2021/5/1,Worker's Day
+2021/9/7,Independence Day
+2021/10/12,Our Lady of Aparecida
+2021/11/2,All Souls' Day
+2021/11/15,Republic Proclamation Day
+2021/12/25,Christmas Day
+2022/1/1,Universal Fraternization Day
+2022/4/15,Good Friday
+2022/4/21,Tiradentes' Day
+2022/5/1,Worker's Day
+2022/9/7,Independence Day
+2022/10/12,Our Lady of Aparecida
+2022/11/2,All Souls' Day
+2022/11/15,Republic Proclamation Day
+2022/12/25,Christmas Day
+2023/1/1,Universal Fraternization Day
+2023/4/7,Good Friday
+2023/4/21,Tiradentes' Day
+2023/5/1,Worker's Day
+2023/9/7,Independence Day
+2023/10/12,Our Lady of Aparecida
+2023/11/2,All Souls' Day
+2023/11/15,Republic Proclamation Day
+2023/12/25,Christmas Day
+2024/1/1,Universal Fraternization Day
+2024/3/29,Good Friday
+2024/4/21,Tiradentes' Day
+2024/5/1,Worker's Day
+2024/9/7,Independence Day
+2024/10/12,Our Lady of Aparecida
+2024/11/2,All Souls' Day
+2024/11/15,Republic Proclamation Day
+2024/11/20,National Day of Zumbi and Black Awareness
+2024/12/25,Christmas Day
+2025/1/1,Universal Fraternization Day
+2025/4/18,Good Friday
+2025/4/21,Tiradentes' Day
+2025/5/1,Worker's Day
+2025/9/7,Independence Day
+2025/10/12,Our Lady of Aparecida
+2025/11/2,All Souls' Day
+2025/11/15,Republic Proclamation Day
+2025/11/20,National Day of Zumbi and Black Awareness
+2025/12/25,Christmas Day
+2026/1/1,Universal Fraternization Day
+2026/4/3,Good Friday
+2026/4/21,Tiradentes' Day
+2026/5/1,Worker's Day
+2026/9/7,Independence Day
+2026/10/12,Our Lady of Aparecida
+2026/11/2,All Souls' Day
+2026/11/15,Republic Proclamation Day
+2026/11/20,National Day of Zumbi and Black Awareness
+2026/12/25,Christmas Day
+2027/1/1,Universal Fraternization Day
+2027/3/26,Good Friday
+2027/4/21,Tiradentes' Day
+2027/5/1,Worker's Day
+2027/9/7,Independence Day
+2027/10/12,Our Lady of Aparecida
+2027/11/2,All Souls' Day
+2027/11/15,Republic Proclamation Day
+2027/11/20,National Day of Zumbi and Black Awareness
+2027/12/25,Christmas Day
+2028/1/1,Universal Fraternization Day
+2028/4/14,Good Friday
+2028/4/21,Tiradentes' Day
+2028/5/1,Worker's Day
+2028/9/7,Independence Day
+2028/10/12,Our Lady of Aparecida
+2028/11/2,All Souls' Day
+2028/11/15,Republic Proclamation Day
+2028/11/20,National Day of Zumbi and Black Awareness
+2028/12/25,Christmas Day
+2029/1/1,Universal Fraternization Day
+2029/3/30,Good Friday
+2029/4/21,Tiradentes' Day
+2029/5/1,Worker's Day
+2029/9/7,Independence Day
+2029/10/12,Our Lady of Aparecida
+2029/11/2,All Souls' Day
+2029/11/15,Republic Proclamation Day
+2029/11/20,National Day of Zumbi and Black Awareness
+2029/12/25,Christmas Day
+2030/1/1,Universal Fraternization Day
+2030/4/19,Good Friday
+2030/4/21,Tiradentes' Day
+2030/5/1,Worker's Day
+2030/9/7,Independence Day
+2030/10/12,Our Lady of Aparecida
+2030/11/2,All Souls' Day
+2030/11/15,Republic Proclamation Day
+2030/11/20,National Day of Zumbi and Black Awareness
+2030/12/25,Christmas Day
+2031/1/1,Universal Fraternization Day
+2031/4/11,Good Friday
+2031/4/21,Tiradentes' Day
+2031/5/1,Worker's Day
+2031/9/7,Independence Day
+2031/10/12,Our Lady of Aparecida
+2031/11/2,All Souls' Day
+2031/11/15,Republic Proclamation Day
+2031/11/20,National Day of Zumbi and Black Awareness
+2031/12/25,Christmas Day
+2032/1/1,Universal Fraternization Day
+2032/3/26,Good Friday
+2032/4/21,Tiradentes' Day
+2032/5/1,Worker's Day
+2032/9/7,Independence Day
+2032/10/12,Our Lady of Aparecida
+2032/11/2,All Souls' Day
+2032/11/15,Republic Proclamation Day
+2032/11/20,National Day of Zumbi and Black Awareness
+2032/12/25,Christmas Day
+2033/1/1,Universal Fraternization Day
+2033/4/15,Good Friday
+2033/4/21,Tiradentes' Day
+2033/5/1,Worker's Day
+2033/9/7,Independence Day
+2033/10/12,Our Lady of Aparecida
+2033/11/2,All Souls' Day
+2033/11/15,Republic Proclamation Day
+2033/11/20,National Day of Zumbi and Black Awareness
+2033/12/25,Christmas Day
+2034/1/1,Universal Fraternization Day
+2034/4/7,Good Friday
+2034/4/21,Tiradentes' Day
+2034/5/1,Worker's Day
+2034/9/7,Independence Day
+2034/10/12,Our Lady of Aparecida
+2034/11/2,All Souls' Day
+2034/11/15,Republic Proclamation Day
+2034/11/20,National Day of Zumbi and Black Awareness
+2034/12/25,Christmas Day
+2035/1/1,Universal Fraternization Day
+2035/3/23,Good Friday
+2035/4/21,Tiradentes' Day
+2035/5/1,Worker's Day
+2035/9/7,Independence Day
+2035/10/12,Our Lady of Aparecida
+2035/11/2,All Souls' Day
+2035/11/15,Republic Proclamation Day
+2035/11/20,National Day of Zumbi and Black Awareness
+2035/12/25,Christmas Day
+2036/1/1,Universal Fraternization Day
+2036/4/11,Good Friday
+2036/4/21,Tiradentes' Day
+2036/5/1,Worker's Day
+2036/9/7,Independence Day
+2036/10/12,Our Lady of Aparecida
+2036/11/2,All Souls' Day
+2036/11/15,Republic Proclamation Day
+2036/11/20,National Day of Zumbi and Black Awareness
+2036/12/25,Christmas Day
+2037/1/1,Universal Fraternization Day
+2037/4/3,Good Friday
+2037/4/21,Tiradentes' Day
+2037/5/1,Worker's Day
+2037/9/7,Independence Day
+2037/10/12,Our Lady of Aparecida
+2037/11/2,All Souls' Day
+2037/11/15,Republic Proclamation Day
+2037/11/20,National Day of Zumbi and Black Awareness
+2037/12/25,Christmas Day
+2038/1/1,Universal Fraternization Day
+2038/4/21,Tiradentes' Day
+2038/4/23,Good Friday
+2038/5/1,Worker's Day
+2038/9/7,Independence Day
+2038/10/12,Our Lady of Aparecida
+2038/11/2,All Souls' Day
+2038/11/15,Republic Proclamation Day
+2038/11/20,National Day of Zumbi and Black Awareness
+2038/12/25,Christmas Day
+2039/1/1,Universal Fraternization Day
+2039/4/8,Good Friday
+2039/4/21,Tiradentes' Day
+2039/5/1,Worker's Day
+2039/9/7,Independence Day
+2039/10/12,Our Lady of Aparecida
+2039/11/2,All Souls' Day
+2039/11/15,Republic Proclamation Day
+2039/11/20,National Day of Zumbi and Black Awareness
+2039/12/25,Christmas Day
+2040/1/1,Universal Fraternization Day
+2040/3/30,Good Friday
+2040/4/21,Tiradentes' Day
+2040/5/1,Worker's Day
+2040/9/7,Independence Day
+2040/10/12,Our Lady of Aparecida
+2040/11/2,All Souls' Day
+2040/11/15,Republic Proclamation Day
+2040/11/20,National Day of Zumbi and Black Awareness
+2040/12/25,Christmas Day
+2041/1/1,Universal Fraternization Day
+2041/4/19,Good Friday
+2041/4/21,Tiradentes' Day
+2041/5/1,Worker's Day
+2041/9/7,Independence Day
+2041/10/12,Our Lady of Aparecida
+2041/11/2,All Souls' Day
+2041/11/15,Republic Proclamation Day
+2041/11/20,National Day of Zumbi and Black Awareness
+2041/12/25,Christmas Day
+2042/1/1,Universal Fraternization Day
+2042/4/4,Good Friday
+2042/4/21,Tiradentes' Day
+2042/5/1,Worker's Day
+2042/9/7,Independence Day
+2042/10/12,Our Lady of Aparecida
+2042/11/2,All Souls' Day
+2042/11/15,Republic Proclamation Day
+2042/11/20,National Day of Zumbi and Black Awareness
+2042/12/25,Christmas Day
+2043/1/1,Universal Fraternization Day
+2043/3/27,Good Friday
+2043/4/21,Tiradentes' Day
+2043/5/1,Worker's Day
+2043/9/7,Independence Day
+2043/10/12,Our Lady of Aparecida
+2043/11/2,All Souls' Day
+2043/11/15,Republic Proclamation Day
+2043/11/20,National Day of Zumbi and Black Awareness
+2043/12/25,Christmas Day
+2044/1/1,Universal Fraternization Day
+2044/4/15,Good Friday
+2044/4/21,Tiradentes' Day
+2044/5/1,Worker's Day
+2044/9/7,Independence Day
+2044/10/12,Our Lady of Aparecida
+2044/11/2,All Souls' Day
+2044/11/15,Republic Proclamation Day
+2044/11/20,National Day of Zumbi and Black Awareness
+2044/12/25,Christmas Day
+2045/1/1,Universal Fraternization Day
+2045/4/7,Good Friday
+2045/4/21,Tiradentes' Day
+2045/5/1,Worker's Day
+2045/9/7,Independence Day
+2045/10/12,Our Lady of Aparecida
+2045/11/2,All Souls' Day
+2045/11/15,Republic Proclamation Day
+2045/11/20,National Day of Zumbi and Black Awareness
+2045/12/25,Christmas Day
+2046/1/1,Universal Fraternization Day
+2046/3/23,Good Friday
+2046/4/21,Tiradentes' Day
+2046/5/1,Worker's Day
+2046/9/7,Independence Day
+2046/10/12,Our Lady of Aparecida
+2046/11/2,All Souls' Day
+2046/11/15,Republic Proclamation Day
+2046/11/20,National Day of Zumbi and Black Awareness
+2046/12/25,Christmas Day
+2047/1/1,Universal Fraternization Day
+2047/4/12,Good Friday
+2047/4/21,Tiradentes' Day
+2047/5/1,Worker's Day
+2047/9/7,Independence Day
+2047/10/12,Our Lady of Aparecida
+2047/11/2,All Souls' Day
+2047/11/15,Republic Proclamation Day
+2047/11/20,National Day of Zumbi and Black Awareness
+2047/12/25,Christmas Day
+2048/1/1,Universal Fraternization Day
+2048/4/3,Good Friday
+2048/4/21,Tiradentes' Day
+2048/5/1,Worker's Day
+2048/9/7,Independence Day
+2048/10/12,Our Lady of Aparecida
+2048/11/2,All Souls' Day
+2048/11/15,Republic Proclamation Day
+2048/11/20,National Day of Zumbi and Black Awareness
+2048/12/25,Christmas Day
+2049/1/1,Universal Fraternization Day
+2049/4/16,Good Friday
+2049/4/21,Tiradentes' Day
+2049/5/1,Worker's Day
+2049/9/7,Independence Day
+2049/10/12,Our Lady of Aparecida
+2049/11/2,All Souls' Day
+2049/11/15,Republic Proclamation Day
+2049/11/20,National Day of Zumbi and Black Awareness
+2049/12/25,Christmas Day
+2050/1/1,Universal Fraternization Day
+2050/4/8,Good Friday
+2050/4/21,Tiradentes' Day
+2050/5/1,Worker's Day
+2050/9/7,Independence Day
+2050/10/12,Our Lady of Aparecida
+2050/11/2,All Souls' Day
+2050/11/15,Republic Proclamation Day
+2050/11/20,National Day of Zumbi and Black Awareness
+2050/12/25,Christmas Day

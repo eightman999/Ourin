@@ -1,0 +1,21 @@
+--- include/sol/optional_implementation.hpp
++++ include/sol/optional_implementation.hpp
+@@ -2186,9 +2186,16 @@
+ 		template <class... Args>
+ 		T& emplace(Args&&... args) noexcept {
+ 			static_assert(std::is_constructible<T, Args&&...>::value, "T must be constructible with Args");
+ 
+-			*this = nullopt;
+-			this->construct(std::forward<Args>(args)...);
++			static_assert(sizeof...(Args) == 1, "optional<T&>::emplace requires one lvalue argument");
++			return emplace_ref(std::forward<Args>(args)...);
++		}
++
++		template <class U>
++		T& emplace_ref(U&& u) noexcept {
++			static_assert(std::is_lvalue_reference<U>::value, "U must be an lvalue reference");
++			m_value = std::addressof(u);
++			return *m_value;
+ 		}
+ 
+ 		/// Swaps this optional with the other.

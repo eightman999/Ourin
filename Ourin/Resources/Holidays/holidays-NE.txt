@@ -1,0 +1,488 @@
+# NE の祝日（2020〜2050年、言語: fr_NE）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Jour de l'An
+2020/4/13,Lundi de Pâques
+2020/4/24,Fête nationale de la Concorde
+2020/5/1,Journée internationale du travail
+2020/5/20,Laylat al-Qadr
+2020/5/23,Korité
+2020/7/31,Tabaski
+2020/8/1,Lendemain de la Tabaski
+2020/8/3,L'anniversaire de la proclamation de l'indépendance
+2020/8/21,Jour de l'An musulman
+2020/10/29,Mouloud
+2020/12/18,Fête nationale
+2020/12/25,Noël
+2021/1/1,Jour de l'An
+2021/4/5,Lundi de Pâques
+2021/4/24,Fête nationale de la Concorde
+2021/5/1,Journée internationale du travail
+2021/5/9,Laylat al-Qadr
+2021/5/10,Laylat al-Qadr (observé)
+2021/5/12,Korité
+2021/7/20,Tabaski
+2021/7/21,Lendemain de la Tabaski
+2021/8/3,L'anniversaire de la proclamation de l'indépendance
+2021/8/10,Jour de l'An musulman
+2021/10/18,Mouloud
+2021/12/18,Fête nationale
+2021/12/25,Noël
+2022/1/1,Jour de l'An
+2022/4/18,Lundi de Pâques
+2022/4/24,Fête nationale de la Concorde
+2022/4/25,Fête nationale de la Concorde (observé)
+2022/4/28,Laylat al-Qadr
+2022/5/1,Journée internationale du travail; Korité
+2022/5/2,Journée internationale du travail (observé); Korité (observé)
+2022/7/10,Tabaski
+2022/7/11,Lendemain de la Tabaski
+2022/7/30,Jour de l'An musulman
+2022/8/3,L'anniversaire de la proclamation de l'indépendance
+2022/10/8,Mouloud
+2022/12/18,Fête nationale
+2022/12/19,Fête nationale (observé)
+2022/12/25,Noël
+2022/12/26,Noël (observé)
+2023/1/1,Jour de l'An
+2023/1/2,Jour de l'An (observé)
+2023/4/10,Lundi de Pâques
+2023/4/18,Laylat al-Qadr
+2023/4/21,Korité
+2023/4/24,Fête nationale de la Concorde
+2023/5/1,Journée internationale du travail
+2023/6/28,Tabaski
+2023/6/29,Lendemain de la Tabaski
+2023/7/19,Jour de l'An musulman
+2023/8/3,L'anniversaire de la proclamation de l'indépendance
+2023/9/27,Mouloud
+2023/12/18,Fête nationale
+2023/12/25,Noël
+2024/1/1,Jour de l'An
+2024/4/1,Lundi de Pâques
+2024/4/6,Laylat al-Qadr
+2024/4/9,Korité
+2024/4/24,Fête nationale de la Concorde
+2024/5/1,Journée internationale du travail
+2024/6/16,Tabaski
+2024/6/17,Lendemain de la Tabaski
+2024/7/6,Jour de l'An musulman
+2024/7/26,Anniversaire du coup d'État du CNSP
+2024/8/3,L'anniversaire de la proclamation de l'indépendance
+2024/9/16,Mouloud
+2024/12/18,Fête nationale
+2024/12/25,Noël
+2025/1/1,Jour de l'An
+2025/3/27,Laylat al-Qadr
+2025/3/30,Korité
+2025/3/31,Korité (observé)
+2025/4/21,Lundi de Pâques
+2025/4/24,Fête nationale de la Concorde
+2025/5/1,Journée internationale du travail
+2025/6/7,Tabaski
+2025/6/8,Lendemain de la Tabaski
+2025/6/9,Lendemain de la Tabaski (observé)
+2025/6/27,Jour de l'An musulman
+2025/7/26,Anniversaire du coup d'État du CNSP
+2025/8/3,L'anniversaire de la proclamation de l'indépendance
+2025/8/4,L'anniversaire de la proclamation de l'indépendance (observé)
+2025/9/5,Mouloud
+2025/12/18,Fête nationale
+2025/12/25,Noël
+2026/1/1,Jour de l'An
+2026/3/16,Laylat al-Qadr (estimé)
+2026/3/20,Korité (estimé)
+2026/4/6,Lundi de Pâques
+2026/4/24,Fête nationale de la Concorde
+2026/5/1,Journée internationale du travail
+2026/5/27,Tabaski (estimé)
+2026/5/28,Lendemain de la Tabaski (estimé)
+2026/6/16,Jour de l'An musulman (estimé)
+2026/7/26,Anniversaire du coup d'État du CNSP
+2026/7/27,Anniversaire du coup d'État du CNSP (observé)
+2026/8/3,L'anniversaire de la proclamation de l'indépendance
+2026/8/25,Mouloud (estimé)
+2026/12/18,Fête nationale
+2026/12/25,Noël
+2027/1/1,Jour de l'An
+2027/3/6,Laylat al-Qadr (estimé)
+2027/3/9,Korité (estimé)
+2027/3/29,Lundi de Pâques
+2027/4/24,Fête nationale de la Concorde
+2027/5/1,Journée internationale du travail
+2027/5/16,Tabaski (estimé)
+2027/5/17,Lendemain de la Tabaski (estimé)
+2027/6/6,Jour de l'An musulman (estimé)
+2027/6/7,Jour de l'An musulman (observé, estimé)
+2027/7/26,Anniversaire du coup d'État du CNSP
+2027/8/3,L'anniversaire de la proclamation de l'indépendance
+2027/8/14,Mouloud (estimé)
+2027/12/18,Fête nationale
+2027/12/25,Noël
+2028/1/1,Jour de l'An
+2028/2/23,Laylat al-Qadr (estimé)
+2028/2/26,Korité (estimé)
+2028/4/17,Lundi de Pâques
+2028/4/24,Fête nationale de la Concorde
+2028/5/1,Journée internationale du travail
+2028/5/5,Tabaski (estimé)
+2028/5/6,Lendemain de la Tabaski (estimé)
+2028/5/25,Jour de l'An musulman (estimé)
+2028/7/26,Anniversaire du coup d'État du CNSP
+2028/8/3,L'anniversaire de la proclamation de l'indépendance; Mouloud (estimé)
+2028/12/18,Fête nationale
+2028/12/25,Noël
+2029/1/1,Jour de l'An
+2029/2/11,Laylat al-Qadr (estimé)
+2029/2/12,Laylat al-Qadr (observé, estimé)
+2029/2/14,Korité (estimé)
+2029/4/2,Lundi de Pâques
+2029/4/24,Fête nationale de la Concorde; Tabaski (estimé)
+2029/4/25,Lendemain de la Tabaski (estimé)
+2029/5/1,Journée internationale du travail
+2029/5/14,Jour de l'An musulman (estimé)
+2029/7/24,Mouloud (estimé)
+2029/7/26,Anniversaire du coup d'État du CNSP
+2029/8/3,L'anniversaire de la proclamation de l'indépendance
+2029/12/18,Fête nationale
+2029/12/25,Noël
+2030/1/1,Jour de l'An
+2030/1/31,Laylat al-Qadr (estimé)
+2030/2/4,Korité (estimé)
+2030/4/13,Tabaski (estimé)
+2030/4/14,Lendemain de la Tabaski (estimé)
+2030/4/15,Lendemain de la Tabaski (observé, estimé)
+2030/4/22,Lundi de Pâques
+2030/4/24,Fête nationale de la Concorde
+2030/5/1,Journée internationale du travail
+2030/5/3,Jour de l'An musulman (estimé)
+2030/7/13,Mouloud (estimé)
+2030/7/26,Anniversaire du coup d'État du CNSP
+2030/8/3,L'anniversaire de la proclamation de l'indépendance
+2030/12/18,Fête nationale
+2030/12/25,Noël
+2031/1/1,Jour de l'An
+2031/1/21,Laylat al-Qadr (estimé)
+2031/1/24,Korité (estimé)
+2031/4/2,Tabaski (estimé)
+2031/4/3,Lendemain de la Tabaski (estimé)
+2031/4/14,Lundi de Pâques
+2031/4/23,Jour de l'An musulman (estimé)
+2031/4/24,Fête nationale de la Concorde
+2031/5/1,Journée internationale du travail
+2031/7/2,Mouloud (estimé)
+2031/7/26,Anniversaire du coup d'État du CNSP
+2031/8/3,L'anniversaire de la proclamation de l'indépendance
+2031/8/4,L'anniversaire de la proclamation de l'indépendance (observé)
+2031/12/18,Fête nationale
+2031/12/25,Noël
+2032/1/1,Jour de l'An
+2032/1/10,Laylat al-Qadr (estimé)
+2032/1/14,Korité (estimé)
+2032/3/22,Tabaski (estimé)
+2032/3/23,Lendemain de la Tabaski (estimé)
+2032/3/29,Lundi de Pâques
+2032/4/11,Jour de l'An musulman (estimé)
+2032/4/12,Jour de l'An musulman (observé, estimé)
+2032/4/24,Fête nationale de la Concorde
+2032/5/1,Journée internationale du travail
+2032/6/20,Mouloud (estimé)
+2032/6/21,Mouloud (observé, estimé)
+2032/7/26,Anniversaire du coup d'État du CNSP
+2032/8/3,L'anniversaire de la proclamation de l'indépendance
+2032/12/18,Fête nationale
+2032/12/25,Noël
+2032/12/30,Laylat al-Qadr (estimé)
+2033/1/1,Jour de l'An
+2033/1/2,Korité (estimé)
+2033/1/3,Korité (observé, estimé)
+2033/3/11,Tabaski (estimé)
+2033/3/12,Lendemain de la Tabaski (estimé)
+2033/4/1,Jour de l'An musulman (estimé)
+2033/4/18,Lundi de Pâques
+2033/4/24,Fête nationale de la Concorde
+2033/4/25,Fête nationale de la Concorde (observé)
+2033/5/1,Journée internationale du travail
+2033/5/2,Journée internationale du travail (observé)
+2033/6/9,Mouloud (estimé)
+2033/7/26,Anniversaire du coup d'État du CNSP
+2033/8/3,L'anniversaire de la proclamation de l'indépendance
+2033/12/18,Fête nationale
+2033/12/19,Fête nationale (observé); Laylat al-Qadr (estimé)
+2033/12/23,Korité (estimé)
+2033/12/25,Noël
+2033/12/26,Noël (observé)
+2034/1/1,Jour de l'An
+2034/1/2,Jour de l'An (observé)
+2034/3/1,Tabaski (estimé)
+2034/3/2,Lendemain de la Tabaski (estimé)
+2034/3/21,Jour de l'An musulman (estimé)
+2034/4/10,Lundi de Pâques
+2034/4/24,Fête nationale de la Concorde
+2034/5/1,Journée internationale du travail
+2034/5/30,Mouloud (estimé)
+2034/7/26,Anniversaire du coup d'État du CNSP
+2034/8/3,L'anniversaire de la proclamation de l'indépendance
+2034/12/8,Laylat al-Qadr (estimé)
+2034/12/12,Korité (estimé)
+2034/12/18,Fête nationale
+2034/12/25,Noël
+2035/1/1,Jour de l'An
+2035/2/18,Tabaski (estimé)
+2035/2/19,Lendemain de la Tabaski (estimé)
+2035/3/11,Jour de l'An musulman (estimé)
+2035/3/12,Jour de l'An musulman (observé, estimé)
+2035/3/26,Lundi de Pâques
+2035/4/24,Fête nationale de la Concorde
+2035/5/1,Journée internationale du travail
+2035/5/20,Mouloud (estimé)
+2035/5/21,Mouloud (observé, estimé)
+2035/7/26,Anniversaire du coup d'État du CNSP
+2035/8/3,L'anniversaire de la proclamation de l'indépendance
+2035/11/27,Laylat al-Qadr (estimé)
+2035/12/1,Korité (estimé)
+2035/12/18,Fête nationale
+2035/12/25,Noël
+2036/1/1,Jour de l'An
+2036/2/7,Tabaski (estimé)
+2036/2/8,Lendemain de la Tabaski (estimé)
+2036/2/28,Jour de l'An musulman (estimé)
+2036/4/14,Lundi de Pâques
+2036/4/24,Fête nationale de la Concorde
+2036/5/1,Journée internationale du travail
+2036/5/8,Mouloud (estimé)
+2036/7/26,Anniversaire du coup d'État du CNSP
+2036/8/3,L'anniversaire de la proclamation de l'indépendance
+2036/8/4,L'anniversaire de la proclamation de l'indépendance (observé)
+2036/11/15,Laylat al-Qadr (estimé)
+2036/11/19,Korité (estimé)
+2036/12/18,Fête nationale
+2036/12/25,Noël
+2037/1/1,Jour de l'An
+2037/1/26,Tabaski (estimé)
+2037/1/27,Lendemain de la Tabaski (estimé)
+2037/2/16,Jour de l'An musulman (estimé)
+2037/4/6,Lundi de Pâques
+2037/4/24,Fête nationale de la Concorde
+2037/4/28,Mouloud (estimé)
+2037/5/1,Journée internationale du travail
+2037/7/26,Anniversaire du coup d'État du CNSP
+2037/7/27,Anniversaire du coup d'État du CNSP (observé)
+2037/8/3,L'anniversaire de la proclamation de l'indépendance
+2037/11/5,Laylat al-Qadr (estimé)
+2037/11/8,Korité (estimé)
+2037/11/9,Korité (observé, estimé)
+2037/12/18,Fête nationale
+2037/12/25,Noël
+2038/1/1,Jour de l'An
+2038/1/16,Tabaski (estimé)
+2038/1/17,Lendemain de la Tabaski (estimé)
+2038/1/18,Lendemain de la Tabaski (observé, estimé)
+2038/2/5,Jour de l'An musulman (estimé)
+2038/4/17,Mouloud (estimé)
+2038/4/24,Fête nationale de la Concorde
+2038/4/26,Lundi de Pâques
+2038/5/1,Journée internationale du travail
+2038/7/26,Anniversaire du coup d'État du CNSP
+2038/8/3,L'anniversaire de la proclamation de l'indépendance
+2038/10/26,Laylat al-Qadr (estimé)
+2038/10/29,Korité (estimé)
+2038/12/18,Fête nationale
+2038/12/25,Noël
+2039/1/1,Jour de l'An
+2039/1/5,Tabaski (estimé)
+2039/1/6,Lendemain de la Tabaski (estimé)
+2039/1/26,Jour de l'An musulman (estimé)
+2039/4/6,Mouloud (estimé)
+2039/4/11,Lundi de Pâques
+2039/4/24,Fête nationale de la Concorde
+2039/4/25,Fête nationale de la Concorde (observé)
+2039/5/1,Journée internationale du travail
+2039/5/2,Journée internationale du travail (observé)
+2039/7/26,Anniversaire du coup d'État du CNSP
+2039/8/3,L'anniversaire de la proclamation de l'indépendance
+2039/10/15,Laylat al-Qadr (estimé)
+2039/10/19,Korité (estimé)
+2039/12/18,Fête nationale
+2039/12/19,Fête nationale (observé)
+2039/12/25,Noël
+2039/12/26,Noël (observé); Tabaski (estimé)
+2039/12/27,Lendemain de la Tabaski (estimé)
+2040/1/1,Jour de l'An
+2040/1/2,Jour de l'An (observé)
+2040/1/15,Jour de l'An musulman (estimé)
+2040/1/16,Jour de l'An musulman (observé, estimé)
+2040/3/25,Mouloud (estimé)
+2040/3/26,Mouloud (observé, estimé)
+2040/4/2,Lundi de Pâques
+2040/4/24,Fête nationale de la Concorde
+2040/5/1,Journée internationale du travail
+2040/7/26,Anniversaire du coup d'État du CNSP
+2040/8/3,L'anniversaire de la proclamation de l'indépendance
+2040/10/3,Laylat al-Qadr (estimé)
+2040/10/7,Korité (estimé)
+2040/10/8,Korité (observé, estimé)
+2040/12/14,Tabaski (estimé)
+2040/12/15,Lendemain de la Tabaski (estimé)
+2040/12/18,Fête nationale
+2040/12/25,Noël
+2041/1/1,Jour de l'An
+2041/1/4,Jour de l'An musulman (estimé)
+2041/3/15,Mouloud (estimé)
+2041/4/22,Lundi de Pâques
+2041/4/24,Fête nationale de la Concorde
+2041/5/1,Journée internationale du travail
+2041/7/26,Anniversaire du coup d'État du CNSP
+2041/8/3,L'anniversaire de la proclamation de l'indépendance
+2041/9/23,Laylat al-Qadr (estimé)
+2041/9/26,Korité (estimé)
+2041/12/4,Tabaski (estimé)
+2041/12/5,Lendemain de la Tabaski (estimé)
+2041/12/18,Fête nationale
+2041/12/24,Jour de l'An musulman (estimé)
+2041/12/25,Noël
+2042/1/1,Jour de l'An
+2042/3/4,Mouloud (estimé)
+2042/4/7,Lundi de Pâques
+2042/4/24,Fête nationale de la Concorde
+2042/5/1,Journée internationale du travail
+2042/7/26,Anniversaire du coup d'État du CNSP
+2042/8/3,L'anniversaire de la proclamation de l'indépendance
+2042/8/4,L'anniversaire de la proclamation de l'indépendance (observé)
+2042/9/12,Laylat al-Qadr (estimé)
+2042/9/15,Korité (estimé)
+2042/11/23,Tabaski (estimé)
+2042/11/24,Lendemain de la Tabaski (estimé)
+2042/12/14,Jour de l'An musulman (estimé)
+2042/12/15,Jour de l'An musulman (observé, estimé)
+2042/12/18,Fête nationale
+2042/12/25,Noël
+2043/1/1,Jour de l'An
+2043/2/22,Mouloud (estimé)
+2043/2/23,Mouloud (observé, estimé)
+2043/3/30,Lundi de Pâques
+2043/4/24,Fête nationale de la Concorde
+2043/5/1,Journée internationale du travail
+2043/7/26,Anniversaire du coup d'État du CNSP
+2043/7/27,Anniversaire du coup d'État du CNSP (observé)
+2043/8/3,L'anniversaire de la proclamation de l'indépendance
+2043/9/1,Laylat al-Qadr (estimé)
+2043/9/4,Korité (estimé)
+2043/11/12,Tabaski (estimé)
+2043/11/13,Lendemain de la Tabaski (estimé)
+2043/12/3,Jour de l'An musulman (estimé)
+2043/12/18,Fête nationale
+2043/12/25,Noël
+2044/1/1,Jour de l'An
+2044/2/11,Mouloud (estimé)
+2044/4/18,Lundi de Pâques
+2044/4/24,Fête nationale de la Concorde
+2044/4/25,Fête nationale de la Concorde (observé)
+2044/5/1,Journée internationale du travail
+2044/5/2,Journée internationale du travail (observé)
+2044/7/26,Anniversaire du coup d'État du CNSP
+2044/8/3,L'anniversaire de la proclamation de l'indépendance
+2044/8/21,Laylat al-Qadr (estimé)
+2044/8/22,Laylat al-Qadr (observé, estimé)
+2044/8/24,Korité (estimé)
+2044/10/31,Tabaski (estimé)
+2044/11/1,Lendemain de la Tabaski (estimé)
+2044/11/21,Jour de l'An musulman (estimé)
+2044/12/18,Fête nationale
+2044/12/19,Fête nationale (observé)
+2044/12/25,Noël
+2044/12/26,Noël (observé)
+2045/1/1,Jour de l'An
+2045/1/2,Jour de l'An (observé)
+2045/1/30,Mouloud (estimé)
+2045/4/10,Lundi de Pâques
+2045/4/24,Fête nationale de la Concorde
+2045/5/1,Journée internationale du travail
+2045/7/26,Anniversaire du coup d'État du CNSP
+2045/8/3,L'anniversaire de la proclamation de l'indépendance
+2045/8/10,Laylat al-Qadr (estimé)
+2045/8/14,Korité (estimé)
+2045/10/21,Tabaski (estimé)
+2045/10/22,Lendemain de la Tabaski (estimé)
+2045/10/23,Lendemain de la Tabaski (observé, estimé)
+2045/11/10,Jour de l'An musulman (estimé)
+2045/12/18,Fête nationale
+2045/12/25,Noël
+2046/1/1,Jour de l'An
+2046/1/19,Mouloud (estimé)
+2046/3/26,Lundi de Pâques
+2046/4/24,Fête nationale de la Concorde
+2046/5/1,Journée internationale du travail
+2046/7/26,Anniversaire du coup d'État du CNSP
+2046/7/31,Laylat al-Qadr (estimé)
+2046/8/3,Korité (estimé); L'anniversaire de la proclamation de l'indépendance
+2046/10/10,Tabaski (estimé)
+2046/10/11,Lendemain de la Tabaski (estimé)
+2046/10/31,Jour de l'An musulman (estimé)
+2046/12/18,Fête nationale
+2046/12/25,Noël
+2047/1/1,Jour de l'An
+2047/1/8,Mouloud (estimé)
+2047/4/15,Lundi de Pâques
+2047/4/24,Fête nationale de la Concorde
+2047/5/1,Journée internationale du travail
+2047/7/20,Laylat al-Qadr (estimé)
+2047/7/24,Korité (estimé)
+2047/7/26,Anniversaire du coup d'État du CNSP
+2047/8/3,L'anniversaire de la proclamation de l'indépendance
+2047/9/30,Tabaski (estimé)
+2047/10/1,Lendemain de la Tabaski (estimé)
+2047/10/20,Jour de l'An musulman (estimé)
+2047/10/21,Jour de l'An musulman (observé, estimé)
+2047/12/18,Fête nationale
+2047/12/25,Noël
+2047/12/29,Mouloud (estimé)
+2047/12/30,Mouloud (observé, estimé)
+2048/1/1,Jour de l'An
+2048/4/6,Lundi de Pâques
+2048/4/24,Fête nationale de la Concorde
+2048/5/1,Journée internationale du travail
+2048/7/8,Laylat al-Qadr (estimé)
+2048/7/12,Korité (estimé)
+2048/7/13,Korité (observé, estimé)
+2048/7/26,Anniversaire du coup d'État du CNSP
+2048/7/27,Anniversaire du coup d'État du CNSP (observé)
+2048/8/3,L'anniversaire de la proclamation de l'indépendance
+2048/9/19,Tabaski (estimé)
+2048/9/20,Lendemain de la Tabaski (estimé)
+2048/9/21,Lendemain de la Tabaski (observé, estimé)
+2048/10/9,Jour de l'An musulman (estimé)
+2048/12/18,Fête nationale; Mouloud (estimé)
+2048/12/25,Noël
+2049/1/1,Jour de l'An
+2049/4/19,Lundi de Pâques
+2049/4/24,Fête nationale de la Concorde
+2049/5/1,Journée internationale du travail
+2049/6/28,Laylat al-Qadr (estimé)
+2049/7/1,Korité (estimé)
+2049/7/26,Anniversaire du coup d'État du CNSP
+2049/8/3,L'anniversaire de la proclamation de l'indépendance
+2049/9/8,Tabaski (estimé)
+2049/9/9,Lendemain de la Tabaski (estimé)
+2049/9/28,Jour de l'An musulman (estimé)
+2049/12/7,Mouloud (estimé)
+2049/12/18,Fête nationale
+2049/12/25,Noël
+2050/1/1,Jour de l'An
+2050/4/11,Lundi de Pâques
+2050/4/24,Fête nationale de la Concorde
+2050/4/25,Fête nationale de la Concorde (observé)
+2050/5/1,Journée internationale du travail
+2050/5/2,Journée internationale du travail (observé)
+2050/6/17,Laylat al-Qadr (estimé)
+2050/6/20,Korité (estimé)
+2050/7/26,Anniversaire du coup d'État du CNSP
+2050/8/3,L'anniversaire de la proclamation de l'indépendance
+2050/8/28,Tabaski (estimé)
+2050/8/29,Lendemain de la Tabaski (estimé)
+2050/9/17,Jour de l'An musulman (estimé)
+2050/11/26,Mouloud (estimé)
+2050/12/18,Fête nationale
+2050/12/19,Fête nationale (observé)
+2050/12/25,Noël
+2050/12/26,Noël (observé)

@@ -390,7 +390,15 @@ extension GhostManager {
             baseBalloonDir.appendingPathComponent("descript.txt").path
         ]
 
-        for path in descriptCandidates {
+        var candidatePaths = descriptCandidates
+        // ゴーストのフォルダに無ければ、インストール済みのバルーン（基準フォルダの balloon/）から探す。
+        if let base = try? OurinPaths.baseDirectory(),
+           let installed = Self.installedBalloonDirectory(
+               matching: trimmed, balloonRoot: base.appendingPathComponent("balloon", isDirectory: true)) {
+            candidatePaths.append(installed.appendingPathComponent("descript.txt").path)
+        }
+
+        for path in candidatePaths {
             guard let config = BalloonConfig.load(from: path) else { continue }
             let dirPath = (path as NSString).deletingLastPathComponent
             balloonConfig = config
@@ -403,6 +411,49 @@ extension GhostManager {
 
         Log.info("[GhostManager] Balloon not found: \(trimmed)")
         return false
+    }
+
+    /// インストール済みのバルーン（基準フォルダの balloon/）から、フォルダ名か descript.txt の name が
+    /// identifier に一致するものを探す（フォルダ名を優先）。
+    static func installedBalloonDirectory(matching identifier: String, balloonRoot: URL) -> URL? {
+        let fm = FileManager.default
+        let key = identifier.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty,
+              let dirs = try? fm.contentsOfDirectory(at: balloonRoot, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]) else {
+            return nil
+        }
+        let balloons = dirs
+            .filter { fm.fileExists(atPath: $0.appendingPathComponent("descript.txt").path) }
+            .sorted { $0.lastPathComponent < $1.lastPathComponent }
+        if let byDirectory = balloons.first(where: { $0.lastPathComponent.caseInsensitiveCompare(key) == .orderedSame }) {
+            return byDirectory
+        }
+        return balloons.first { BalloonConfig.load(from: $0.appendingPathComponent("descript.txt").path)?.name == key }
+    }
+
+    /// ゴーストの descript.txt が指定する標準のバルーン（UKADOC: 推奨 recommended.balloon.path・
+    /// recommended.balloon → 標準 default.balloon.path・balloon の順）。相対パスは基準フォルダ・その balloon/・
+    /// ゴーストのフォルダから探し、それぞれの外を指すものは使わない。
+    static func configuredBalloonDirectory(for config: GhostConfiguration, ghostURL: URL, baseDirectory: URL) -> URL? {
+        let balloonRoot = baseDirectory.appendingPathComponent("balloon", isDirectory: true)
+        func byPath(_ raw: String?) -> URL? {
+            guard let raw = raw?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else { return nil }
+            let relative = raw.replacingOccurrences(of: "\\", with: "/")
+            for root in [baseDirectory, balloonRoot, ghostURL] {
+                let rootPath = root.standardizedFileURL.path
+                let directory = root.appendingPathComponent(relative, isDirectory: true).standardizedFileURL
+                guard directory.path.hasPrefix(rootPath + "/") else { continue }
+                if FileManager.default.fileExists(atPath: directory.appendingPathComponent("descript.txt").path) {
+                    return directory
+                }
+            }
+            return nil
+        }
+        func byName(_ raw: String?) -> URL? {
+            raw.flatMap { installedBalloonDirectory(matching: $0, balloonRoot: balloonRoot) }
+        }
+        return byPath(config.recommendedBalloonPath) ?? byName(config.recommendedBalloon)
+            ?? byPath(config.defaultBalloonPath) ?? byName(config.balloon)
     }
 
     // MARK: - Desktop Alignment

@@ -1,0 +1,532 @@
+# BT holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/2,Winter Solstice
+2020/1/25,Traditional Day of Offering
+2020/2/21,Birth Anniversary of His Majesty the King
+2020/2/22,Birth Anniversary of His Majesty the King
+2020/2/23,Birth Anniversary of His Majesty the King
+2020/2/24,Losar
+2020/2/25,Losar
+2020/5/2,Birth Anniversary of the 3rd Druk Gyalpo; Death Anniversary of Zhabdrung
+2020/6/5,Lord Buddha's Parinirvana
+2020/6/30,Birth Anniversary of Guru Rinpoche
+2020/7/24,First Sermon of Lord Buddha
+2020/9/23,Blessed Rainy Day
+2020/10/26,Dassain
+2020/11/1,Coronation of His Majesty the King
+2020/11/7,Descending Day of Lord Buddha
+2020/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2020/12/17,National Day
+2021/1/2,Winter Solstice
+2021/1/14,Traditional Day of Offering
+2021/2/12,Losar
+2021/2/13,Losar
+2021/2/21,Birth Anniversary of His Majesty the King
+2021/2/22,Birth Anniversary of His Majesty the King
+2021/2/23,Birth Anniversary of His Majesty the King
+2021/4/22,Death Anniversary of Zhabdrung
+2021/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2021/5/26,Lord Buddha's Parinirvana
+2021/6/20,Birth Anniversary of Guru Rinpoche
+2021/7/14,First Sermon of Lord Buddha
+2021/9/23,Blessed Rainy Day
+2021/10/15,Dassain
+2021/10/27,Descending Day of Lord Buddha
+2021/11/1,Coronation of His Majesty the King
+2021/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2021/12/17,National Day
+2022/1/1,Winter Solstice
+2022/1/3,Traditional Day of Offering
+2022/2/21,Birth Anniversary of His Majesty the King
+2022/2/22,Birth Anniversary of His Majesty the King
+2022/2/23,Birth Anniversary of His Majesty the King
+2022/3/3,Losar
+2022/3/4,Losar
+2022/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2022/5/11,Death Anniversary of Zhabdrung
+2022/6/14,Lord Buddha's Parinirvana
+2022/7/9,Birth Anniversary of Guru Rinpoche
+2022/8/1,First Sermon of Lord Buddha
+2022/9/23,Blessed Rainy Day
+2022/10/5,Dassain
+2022/11/1,Coronation of His Majesty the King
+2022/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2022/11/15,Descending Day of Lord Buddha
+2022/12/17,National Day
+2023/1/2,Winter Solstice
+2023/1/22,Traditional Day of Offering
+2023/2/21,Birth Anniversary of His Majesty the King; Losar
+2023/2/22,Birth Anniversary of His Majesty the King; Losar
+2023/2/23,Birth Anniversary of His Majesty the King
+2023/4/30,Death Anniversary of Zhabdrung
+2023/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2023/6/4,Lord Buddha's Parinirvana
+2023/6/28,Birth Anniversary of Guru Rinpoche
+2023/7/21,First Sermon of Lord Buddha
+2023/9/24,Blessed Rainy Day
+2023/10/24,Dassain
+2023/11/1,Coronation of His Majesty the King
+2023/11/4,Descending Day of Lord Buddha
+2023/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2023/12/17,National Day
+2024/1/2,Winter Solstice
+2024/1/12,Traditional Day of Offering
+2024/2/10,Losar
+2024/2/11,Losar
+2024/2/21,Birth Anniversary of His Majesty the King
+2024/2/22,Birth Anniversary of His Majesty the King
+2024/2/23,Birth Anniversary of His Majesty the King
+2024/4/18,Death Anniversary of Zhabdrung
+2024/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2024/5/23,Lord Buddha's Parinirvana
+2024/6/16,Birth Anniversary of Guru Rinpoche
+2024/7/10,First Sermon of Lord Buddha
+2024/9/23,Blessed Rainy Day
+2024/10/12,Dassain
+2024/11/1,Coronation of His Majesty the King
+2024/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2024/11/22,Descending Day of Lord Buddha
+2024/12/17,National Day
+2025/1/2,Winter Solstice
+2025/1/30,Traditional Day of Offering
+2025/2/21,Birth Anniversary of His Majesty the King
+2025/2/22,Birth Anniversary of His Majesty the King
+2025/2/23,Birth Anniversary of His Majesty the King
+2025/2/28,Losar
+2025/3/1,Losar
+2025/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2025/5/7,Death Anniversary of Zhabdrung
+2025/6/11,Lord Buddha's Parinirvana
+2025/7/5,Birth Anniversary of Guru Rinpoche
+2025/7/28,First Sermon of Lord Buddha
+2025/9/23,Blessed Rainy Day
+2025/10/2,Dassain
+2025/11/1,Coronation of His Majesty the King
+2025/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day; Descending Day of Lord Buddha
+2025/12/17,National Day
+2026/1/2,Winter Solstice
+2026/1/19,Traditional Day of Offering
+2026/2/18,Losar
+2026/2/19,Losar
+2026/2/21,Birth Anniversary of His Majesty the King
+2026/2/22,Birth Anniversary of His Majesty the King
+2026/2/23,Birth Anniversary of His Majesty the King
+2026/4/26,Death Anniversary of Zhabdrung
+2026/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2026/5/31,Lord Buddha's Parinirvana
+2026/6/24,Birth Anniversary of Guru Rinpoche
+2026/7/18,First Sermon of Lord Buddha
+2026/9/23,Blessed Rainy Day
+2026/10/21,Dassain
+2026/11/1,Coronation of His Majesty the King; Descending Day of Lord Buddha
+2026/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2026/12/17,National Day
+2027/1/2,Winter Solstice
+2027/1/8,Traditional Day of Offering
+2027/2/7,Losar
+2027/2/8,Losar
+2027/2/21,Birth Anniversary of His Majesty the King
+2027/2/22,Birth Anniversary of His Majesty the King
+2027/2/23,Birth Anniversary of His Majesty the King
+2027/4/16,Death Anniversary of Zhabdrung
+2027/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2027/5/20,Lord Buddha's Parinirvana
+2027/6/13,Birth Anniversary of Guru Rinpoche
+2027/8/6,First Sermon of Lord Buddha
+2027/9/24,Blessed Rainy Day
+2027/10/9,Dassain (estimated)
+2027/11/1,Coronation of His Majesty the King
+2027/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2027/11/20,Descending Day of Lord Buddha
+2027/12/17,National Day
+2028/1/2,Winter Solstice
+2028/1/27,Traditional Day of Offering
+2028/2/21,Birth Anniversary of His Majesty the King
+2028/2/22,Birth Anniversary of His Majesty the King
+2028/2/23,Birth Anniversary of His Majesty the King
+2028/2/26,Losar
+2028/2/27,Losar
+2028/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2028/5/4,Death Anniversary of Zhabdrung
+2028/6/7,Lord Buddha's Parinirvana
+2028/7/1,Birth Anniversary of Guru Rinpoche
+2028/7/25,First Sermon of Lord Buddha
+2028/9/23,Blessed Rainy Day
+2028/9/27,Dassain (estimated)
+2028/11/1,Coronation of His Majesty the King
+2028/11/9,Descending Day of Lord Buddha
+2028/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2028/12/17,National Day
+2029/1/2,Winter Solstice
+2029/1/15,Traditional Day of Offering
+2029/2/14,Losar
+2029/2/15,Losar
+2029/2/21,Birth Anniversary of His Majesty the King
+2029/2/22,Birth Anniversary of His Majesty the King
+2029/2/23,Birth Anniversary of His Majesty the King
+2029/4/23,Death Anniversary of Zhabdrung
+2029/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2029/5/27,Lord Buddha's Parinirvana
+2029/6/21,Birth Anniversary of Guru Rinpoche
+2029/7/15,First Sermon of Lord Buddha
+2029/9/23,Blessed Rainy Day
+2029/10/16,Dassain (estimated)
+2029/10/29,Descending Day of Lord Buddha
+2029/11/1,Coronation of His Majesty the King
+2029/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2029/12/17,National Day
+2030/1/2,Winter Solstice
+2030/1/4,Traditional Day of Offering
+2030/2/3,Losar
+2030/2/4,Losar
+2030/2/21,Birth Anniversary of His Majesty the King
+2030/2/22,Birth Anniversary of His Majesty the King
+2030/2/23,Birth Anniversary of His Majesty the King
+2030/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2030/5/12,Death Anniversary of Zhabdrung
+2030/6/15,Lord Buddha's Parinirvana
+2030/7/10,Birth Anniversary of Guru Rinpoche
+2030/8/3,First Sermon of Lord Buddha
+2030/9/23,Blessed Rainy Day
+2030/10/6,Dassain (estimated)
+2030/11/1,Coronation of His Majesty the King
+2030/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2030/11/17,Descending Day of Lord Buddha
+2030/12/17,National Day
+2031/1/2,Winter Solstice
+2031/1/23,Traditional Day of Offering
+2031/2/21,Birth Anniversary of His Majesty the King
+2031/2/22,Birth Anniversary of His Majesty the King; Losar
+2031/2/23,Birth Anniversary of His Majesty the King; Losar
+2031/5/2,Birth Anniversary of the 3rd Druk Gyalpo; Death Anniversary of Zhabdrung
+2031/6/5,Lord Buddha's Parinirvana
+2031/6/30,Birth Anniversary of Guru Rinpoche
+2031/7/23,First Sermon of Lord Buddha
+2031/9/24,Blessed Rainy Day
+2031/10/25,Dassain (estimated)
+2031/11/1,Coronation of His Majesty the King
+2031/11/6,Descending Day of Lord Buddha
+2031/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2031/12/17,National Day
+2032/1/2,Winter Solstice
+2032/1/13,Traditional Day of Offering
+2032/2/12,Losar
+2032/2/13,Losar
+2032/2/21,Birth Anniversary of His Majesty the King
+2032/2/22,Birth Anniversary of His Majesty the King
+2032/2/23,Birth Anniversary of His Majesty the King
+2032/4/20,Death Anniversary of Zhabdrung
+2032/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2032/5/25,Lord Buddha's Parinirvana
+2032/6/18,Birth Anniversary of Guru Rinpoche
+2032/7/11,First Sermon of Lord Buddha
+2032/9/23,Blessed Rainy Day
+2032/10/14,Dassain (estimated)
+2032/10/25,Descending Day of Lord Buddha
+2032/11/1,Coronation of His Majesty the King
+2032/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2032/12/17,National Day
+2033/1/2,Winter Solstice
+2033/1/31,Traditional Day of Offering
+2033/2/21,Birth Anniversary of His Majesty the King
+2033/2/22,Birth Anniversary of His Majesty the King
+2033/2/23,Birth Anniversary of His Majesty the King
+2033/3/2,Losar
+2033/3/3,Losar
+2033/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2033/5/8,Death Anniversary of Zhabdrung
+2033/6/12,Lord Buddha's Parinirvana
+2033/7/7,Birth Anniversary of Guru Rinpoche
+2033/7/30,First Sermon of Lord Buddha
+2033/9/23,Blessed Rainy Day
+2033/10/3,Dassain (estimated)
+2033/11/1,Coronation of His Majesty the King
+2033/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2033/11/13,Descending Day of Lord Buddha
+2033/12/17,National Day
+2034/1/2,Winter Solstice
+2034/1/21,Traditional Day of Offering
+2034/2/19,Losar
+2034/2/20,Losar
+2034/2/21,Birth Anniversary of His Majesty the King
+2034/2/22,Birth Anniversary of His Majesty the King
+2034/2/23,Birth Anniversary of His Majesty the King
+2034/4/28,Death Anniversary of Zhabdrung
+2034/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2034/6/2,Lord Buddha's Parinirvana
+2034/6/26,Birth Anniversary of Guru Rinpoche
+2034/7/19,First Sermon of Lord Buddha
+2034/9/23,Blessed Rainy Day
+2034/10/22,Dassain (estimated)
+2034/11/1,Coronation of His Majesty the King
+2034/11/2,Descending Day of Lord Buddha
+2034/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2034/12/17,National Day
+2035/1/2,Winter Solstice
+2035/1/10,Traditional Day of Offering
+2035/2/9,Losar
+2035/2/10,Losar
+2035/2/21,Birth Anniversary of His Majesty the King
+2035/2/22,Birth Anniversary of His Majesty the King
+2035/2/23,Birth Anniversary of His Majesty the King
+2035/4/17,Death Anniversary of Zhabdrung
+2035/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2035/5/22,Lord Buddha's Parinirvana
+2035/6/15,Birth Anniversary of Guru Rinpoche
+2035/7/9,First Sermon of Lord Buddha
+2035/9/24,Blessed Rainy Day
+2035/10/11,Dassain (estimated)
+2035/11/1,Coronation of His Majesty the King
+2035/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2035/11/21,Descending Day of Lord Buddha
+2035/12/17,National Day
+2036/1/2,Winter Solstice
+2036/1/29,Traditional Day of Offering
+2036/2/21,Birth Anniversary of His Majesty the King
+2036/2/22,Birth Anniversary of His Majesty the King
+2036/2/23,Birth Anniversary of His Majesty the King
+2036/2/28,Losar
+2036/2/29,Losar
+2036/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2036/5/5,Death Anniversary of Zhabdrung
+2036/6/8,Lord Buddha's Parinirvana
+2036/7/3,Birth Anniversary of Guru Rinpoche
+2036/7/27,First Sermon of Lord Buddha
+2036/9/23,Blessed Rainy Day
+2036/11/1,Coronation of His Majesty the King
+2036/11/10,Descending Day of Lord Buddha
+2036/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2036/12/17,National Day
+2037/1/2,Winter Solstice
+2037/1/17,Traditional Day of Offering
+2037/2/16,Losar
+2037/2/17,Losar
+2037/2/21,Birth Anniversary of His Majesty the King
+2037/2/22,Birth Anniversary of His Majesty the King
+2037/2/23,Birth Anniversary of His Majesty the King
+2037/4/25,Death Anniversary of Zhabdrung
+2037/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2037/5/29,Lord Buddha's Parinirvana
+2037/6/22,Birth Anniversary of Guru Rinpoche
+2037/7/16,First Sermon of Lord Buddha
+2037/9/23,Blessed Rainy Day
+2037/10/31,Descending Day of Lord Buddha
+2037/11/1,Coronation of His Majesty the King
+2037/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2037/12/17,National Day
+2038/1/2,Winter Solstice
+2038/1/6,Traditional Day of Offering
+2038/2/5,Losar
+2038/2/6,Losar
+2038/2/21,Birth Anniversary of His Majesty the King
+2038/2/22,Birth Anniversary of His Majesty the King
+2038/2/23,Birth Anniversary of His Majesty the King
+2038/4/14,Death Anniversary of Zhabdrung
+2038/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2038/6/17,Lord Buddha's Parinirvana
+2038/7/11,Birth Anniversary of Guru Rinpoche
+2038/8/4,First Sermon of Lord Buddha
+2038/9/23,Blessed Rainy Day
+2038/11/1,Coronation of His Majesty the King
+2038/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2038/11/19,Descending Day of Lord Buddha
+2038/12/17,National Day
+2039/1/2,Winter Solstice
+2039/1/25,Traditional Day of Offering
+2039/2/21,Birth Anniversary of His Majesty the King
+2039/2/22,Birth Anniversary of His Majesty the King
+2039/2/23,Birth Anniversary of His Majesty the King
+2039/2/24,Losar
+2039/2/25,Losar
+2039/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2039/5/3,Death Anniversary of Zhabdrung
+2039/6/6,Lord Buddha's Parinirvana
+2039/7/1,Birth Anniversary of Guru Rinpoche
+2039/7/25,First Sermon of Lord Buddha
+2039/9/24,Blessed Rainy Day
+2039/11/1,Coronation of His Majesty the King
+2039/11/8,Descending Day of Lord Buddha
+2039/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2039/12/17,National Day
+2040/1/2,Winter Solstice
+2040/1/14,Traditional Day of Offering
+2040/2/13,Losar
+2040/2/14,Losar
+2040/2/21,Birth Anniversary of His Majesty the King
+2040/2/22,Birth Anniversary of His Majesty the King
+2040/2/23,Birth Anniversary of His Majesty the King
+2040/4/21,Death Anniversary of Zhabdrung
+2040/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2040/5/26,Lord Buddha's Parinirvana
+2040/6/20,Birth Anniversary of Guru Rinpoche
+2040/7/13,First Sermon of Lord Buddha
+2040/9/23,Blessed Rainy Day
+2040/10/27,Descending Day of Lord Buddha
+2040/11/1,Coronation of His Majesty the King
+2040/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2040/12/17,National Day
+2041/1/2,Winter Solstice
+2041/2/2,Traditional Day of Offering
+2041/2/21,Birth Anniversary of His Majesty the King
+2041/2/22,Birth Anniversary of His Majesty the King
+2041/2/23,Birth Anniversary of His Majesty the King
+2041/3/3,Losar
+2041/3/4,Losar
+2041/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2041/5/10,Death Anniversary of Zhabdrung
+2041/6/14,Lord Buddha's Parinirvana
+2041/7/8,Birth Anniversary of Guru Rinpoche
+2041/8/1,First Sermon of Lord Buddha
+2041/9/23,Blessed Rainy Day
+2041/11/1,Coronation of His Majesty the King
+2041/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2041/11/15,Descending Day of Lord Buddha
+2041/12/17,National Day
+2042/1/2,Winter Solstice
+2042/1/22,Traditional Day of Offering
+2042/2/21,Birth Anniversary of His Majesty the King; Losar
+2042/2/22,Birth Anniversary of His Majesty the King; Losar
+2042/2/23,Birth Anniversary of His Majesty the King
+2042/4/29,Death Anniversary of Zhabdrung
+2042/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2042/6/3,Lord Buddha's Parinirvana
+2042/6/28,Birth Anniversary of Guru Rinpoche
+2042/7/21,First Sermon of Lord Buddha
+2042/9/23,Blessed Rainy Day
+2042/11/1,Coronation of His Majesty the King
+2042/11/4,Descending Day of Lord Buddha
+2042/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2042/12/17,National Day
+2043/1/2,Winter Solstice
+2043/1/12,Traditional Day of Offering
+2043/2/10,Losar
+2043/2/11,Losar
+2043/2/21,Birth Anniversary of His Majesty the King
+2043/2/22,Birth Anniversary of His Majesty the King
+2043/2/23,Birth Anniversary of His Majesty the King
+2043/4/19,Death Anniversary of Zhabdrung
+2043/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2043/5/23,Lord Buddha's Parinirvana
+2043/6/17,Birth Anniversary of Guru Rinpoche
+2043/7/10,First Sermon of Lord Buddha
+2043/9/24,Blessed Rainy Day
+2043/11/1,Coronation of His Majesty the King
+2043/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2043/11/23,Descending Day of Lord Buddha
+2043/12/17,National Day
+2044/1/2,Winter Solstice
+2044/1/31,Traditional Day of Offering
+2044/2/21,Birth Anniversary of His Majesty the King
+2044/2/22,Birth Anniversary of His Majesty the King
+2044/2/23,Birth Anniversary of His Majesty the King
+2044/2/29,Losar
+2044/3/1,Losar
+2044/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2044/5/6,Death Anniversary of Zhabdrung
+2044/6/10,Lord Buddha's Parinirvana
+2044/7/4,Birth Anniversary of Guru Rinpoche
+2044/7/28,First Sermon of Lord Buddha
+2044/9/23,Blessed Rainy Day
+2044/11/1,Coronation of His Majesty the King
+2044/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day; Descending Day of Lord Buddha
+2044/12/17,National Day
+2045/1/2,Winter Solstice
+2045/1/19,Traditional Day of Offering
+2045/2/17,Losar
+2045/2/18,Losar
+2045/2/21,Birth Anniversary of His Majesty the King
+2045/2/22,Birth Anniversary of His Majesty the King
+2045/2/23,Birth Anniversary of His Majesty the King
+2045/4/26,Death Anniversary of Zhabdrung
+2045/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2045/5/30,Lord Buddha's Parinirvana
+2045/6/24,Birth Anniversary of Guru Rinpoche
+2045/7/18,First Sermon of Lord Buddha
+2045/9/23,Blessed Rainy Day
+2045/11/1,Coronation of His Majesty the King; Descending Day of Lord Buddha
+2045/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2045/12/17,National Day
+2046/1/2,Winter Solstice
+2046/1/8,Traditional Day of Offering
+2046/2/6,Losar
+2046/2/7,Losar
+2046/2/21,Birth Anniversary of His Majesty the King
+2046/2/22,Birth Anniversary of His Majesty the King
+2046/2/23,Birth Anniversary of His Majesty the King
+2046/4/16,Death Anniversary of Zhabdrung
+2046/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2046/5/20,Lord Buddha's Parinirvana
+2046/7/13,Birth Anniversary of Guru Rinpoche
+2046/8/6,First Sermon of Lord Buddha
+2046/9/23,Blessed Rainy Day
+2046/11/1,Coronation of His Majesty the King
+2046/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2046/11/20,Descending Day of Lord Buddha
+2046/12/17,National Day
+2047/1/2,Winter Solstice
+2047/1/26,Traditional Day of Offering
+2047/2/21,Birth Anniversary of His Majesty the King
+2047/2/22,Birth Anniversary of His Majesty the King
+2047/2/23,Birth Anniversary of His Majesty the King
+2047/2/25,Losar
+2047/2/26,Losar
+2047/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2047/5/5,Death Anniversary of Zhabdrung
+2047/6/8,Lord Buddha's Parinirvana
+2047/7/2,Birth Anniversary of Guru Rinpoche
+2047/7/26,First Sermon of Lord Buddha
+2047/9/24,Blessed Rainy Day
+2047/11/1,Coronation of His Majesty the King
+2047/11/9,Descending Day of Lord Buddha
+2047/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2047/12/17,National Day
+2048/1/2,Winter Solstice
+2048/1/16,Traditional Day of Offering
+2048/2/14,Losar
+2048/2/15,Losar
+2048/2/21,Birth Anniversary of His Majesty the King
+2048/2/22,Birth Anniversary of His Majesty the King
+2048/2/23,Birth Anniversary of His Majesty the King
+2048/4/23,Death Anniversary of Zhabdrung
+2048/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2048/5/27,Lord Buddha's Parinirvana
+2048/6/21,Birth Anniversary of Guru Rinpoche
+2048/7/15,First Sermon of Lord Buddha
+2048/9/23,Blessed Rainy Day
+2048/10/29,Descending Day of Lord Buddha
+2048/11/1,Coronation of His Majesty the King
+2048/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2048/12/17,National Day
+2049/1/2,Winter Solstice
+2049/1/4,Traditional Day of Offering
+2049/2/3,Losar
+2049/2/4,Losar
+2049/2/21,Birth Anniversary of His Majesty the King
+2049/2/22,Birth Anniversary of His Majesty the King
+2049/2/23,Birth Anniversary of His Majesty the King
+2049/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2049/5/12,Death Anniversary of Zhabdrung
+2049/6/15,Lord Buddha's Parinirvana
+2049/7/10,Birth Anniversary of Guru Rinpoche
+2049/8/2,First Sermon of Lord Buddha
+2049/9/23,Blessed Rainy Day
+2049/11/1,Coronation of His Majesty the King
+2049/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2049/11/16,Descending Day of Lord Buddha
+2049/12/17,National Day
+2050/1/2,Winter Solstice
+2050/1/24,Traditional Day of Offering
+2050/2/21,Birth Anniversary of His Majesty the King
+2050/2/22,Birth Anniversary of His Majesty the King; Losar
+2050/2/23,Birth Anniversary of His Majesty the King; Losar
+2050/5/1,Death Anniversary of Zhabdrung
+2050/5/2,Birth Anniversary of the 3rd Druk Gyalpo
+2050/6/5,Lord Buddha's Parinirvana
+2050/6/29,Birth Anniversary of Guru Rinpoche
+2050/7/23,First Sermon of Lord Buddha
+2050/9/23,Blessed Rainy Day
+2050/11/1,Coronation of His Majesty the King
+2050/11/5,Descending Day of Lord Buddha
+2050/11/11,Birth Anniversary of the 4th Druk Gyalpo - Constitution Day
+2050/12/17,National Day

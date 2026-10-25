@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cursor-engines / P1 #101 委譲報告</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="cursor-engines-p1-101">cursor-engines / P1 #101 委譲報告</h1>
+<p>作業日: 2026-10-25 (JST)<br />
+担当: cursor-engines (Composer)<br />
+Issue: <a href="https://github.com/eightman999/Ourin/issues/101">#101</a>（KAWARI/KAGARI 実エンジン + 互換マトリクス基盤）</p>
+<h2 id="_1">結論</h2>
+<ul>
+<li><strong>KAWARI</strong>: 上流 POSIX SHIORI（<code>ukagaka-long</code> + <code>loadu</code>）を Ourin の既存 <code>NativeShioriModule</code> でロード可能。Windows <code>*.dll</code> 名から同梱 <code>libkawari_shiori.dylib</code> へ解決する <code>BundledShioriEngine</code> を追加（親ビルド済み <code>8098dfb</code>）。</li>
+<li><strong>KAGARI</strong>: <code>engines/kagari/build.sh</code> で <strong>Lua 5.4.4 + sol2 3.2.2 を task-local 取得・ビルド</strong>し、<code>libkagari.dylib</code> + 同梱 <code>liblua.5.4.dylib</code>（<code>@loader_path</code>）を <strong>arm64 でビルド成功</strong>。POSIX instance-ID ABI + load 失敗時 <code>-1</code> パッチ適用済み。</li>
+<li><strong>実ゴースト『もす』</strong>: 一時展開で <code>kagari_load</code> まで進行。<code>socket.core</code> は luasocket v3.1.0 の macOS ビルドで解決。続きは <code>lua-utf8</code> / <code>luachild</code> / <code>iconv</code> / <code>saori_caller</code> 等 <strong>Windows 同梱 DLL の macOS ネイティブ未整備</strong>で <code>kagari_load -&gt; -1</code>（ログは <code>verify_kagari_mosu.py</code> 出力）。</li>
+</ul>
+<h2 id="_2">変更ファイル（本セッション追加分）</h2>
+<table>
+<thead>
+<tr>
+<th>ファイル</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>engines/kagari/build.sh</code></td>
+<td>Lua/sol2 取得・ハッシュ検証・パッチ・dylib 同梱ビルド</td>
+</tr>
+<tr>
+<td><code>engines/kagari/DEPENDENCIES.json</code></td>
+<td>Lua/sol2 URL・SHA256・ライセンス参照</td>
+</tr>
+<tr>
+<td><code>engines/kagari/patches/001-apple-unix.patch</code></td>
+<td><code>__APPLE__</code> で Unix パス拡張子</td>
+</tr>
+<tr>
+<td><code>engines/kagari/patches/002-kagari-unix-load-failure.patch</code></td>
+<td><code>Shiori::load</code> 失敗時 <code>-1</code></td>
+</tr>
+<tr>
+<td><code>engines/kagari/patches/003-sol2-optional-ref-emplace.patch</code></td>
+<td>sol2 3.2.2 + Apple Clang</td>
+</tr>
+<tr>
+<td><code>engines/kagari/verify_kagari_mosu.py</code></td>
+<td>最小ライフサイクル + もす NAR 検証</td>
+</tr>
+<tr>
+<td><code>docs/KAWARI_KAGARI_ENGINES_ja-jp.md</code></td>
+<td>KAGARI ビルド手順更新</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">根拠（上流・依存）</h2>
+<table>
+<thead>
+<tr>
+<th>コンポーネント</th>
+<th>revision / 版</th>
+<th>ライセンス</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kagari_shiori</td>
+<td><code>ba87ccbd850c787aeeea7d31bed293d64bc09f01</code></td>
+<td>upstream <code>LICENSE</code> → <code>LICENSE.kagari</code></td>
+</tr>
+<tr>
+<td>Lua</td>
+<td>5.4.4 (<code>164c7849…</code>)</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>sol2</td>
+<td>v3.2.2 (<code>141790da…</code>)</td>
+<td>MIT → <code>LICENSE.sol2</code></td>
+</tr>
+<tr>
+<td>luasocket（検証時のみ）</td>
+<td>v3.1.0</td>
+<td>MIT</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">実行コマンドと結果</h2>
+<pre class="codehilite"><code class="language-bash">./engines/kagari/build.sh
+# → build/engines/kagari/libkagari.dylib, liblua.5.4.dylib, DEPENDENCIES.json, LICENSE.*
+
+python3 engines/kagari/verify_kagari_mosu.py build/engines/kagari/libkagari.dylib
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>検証</th>
+<th>結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>engines/kagari/build.sh</code> (arm64)</td>
+<td><strong>PASS</strong></td>
+</tr>
+<tr>
+<td>最小 index.lua ライフサイクル（C probe）</td>
+<td><strong>PASS</strong></td>
+</tr>
+<tr>
+<td><code>kagari_load</code> 失敗パス</td>
+<td><strong>PASS</strong>（<code>-1</code>、マップに未登録）</td>
+</tr>
+<tr>
+<td>『もす』OnBoot→会話→OnClose→reload</td>
+<td><strong>INCOMPLETE</strong>（exit 2）— <code>require('lua-utf8')</code> 等</td>
+</tr>
+</tbody>
+</table>
+<h3 id="otool">otool（成果物）</h3>
+<pre class="codehilite"><code>libkagari.dylib:
+  @rpath/libkagari.dylib
+  @loader_path/liblua.5.4.dylib
+  /usr/lib/libc++.1.dylib
+  /usr/lib/libSystem.B.dylib
+
+liblua.5.4.dylib:
+  @rpath/liblua.5.4.dylib
+  /usr/lib/libSystem.B.dylib
+</code></pre>
+
+<h2 id="worker">親 worker 向け</h2>
+<ul>
+<li><code>project.pbxproj</code> は未変更（別担当）。</li>
+<li>同梱: <code>build/engines/kagari/libkagari.dylib</code> + <code>liblua.5.4.dylib</code> + <code>.plist</code> + <code>LICENSE.*</code> + <code>DEPENDENCIES.json</code></li>
+<li>Xcode 全体 test は親実行。<code>OURIN_KAGARI_ENGINE</code> で実エンジン統合テスト可能。</li>
+</ul>
+<h2 id="_5">残件</h2>
+<ul>
+<li>[ ] 『もす』完全 SHIORI: <code>lua-utf8</code>, <code>luachild</code>, <code>iconv</code>, <code>saori_caller</code> 等の macOS <code>.so</code> ビルドまたは同梱方針（#103 ライセンス表記）</li>
+<li>[ ] <code>OURIN_KAGARI_UNIVERSAL=1</code> の CI 確認（x86_64 ホスト）</li>
+<li>[ ] 互換マトリクス実測更新</li>
+</ul>
+<h2 id="_6">リスク</h2>
+<ul>
+<li>sol2 3.2.2 は Ourin パッチ前提（上流 tarball 固定のまま）。</li>
+<li>配布ゴーストの corelib は Windows DLL 前提が多く、KAGARI 実機検証はネイティブモジュール整備がボトルネック。</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../delegation/cursor-engines-issue-101-report.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,344 @@
+# GL の祝日（2020〜2050年、言語: kl）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Ukiortaaq
+2020/4/9,Sisamanngortoq illernartoq
+2020/4/10,Tallimanngorneq tannaartoq
+2020/4/12,Poorskip ullua
+2020/4/13,Poorskip-aappaa
+2020/5/8,Ulloq qinuffiusoq
+2020/5/21,Qilaliarfik
+2020/5/31,Piinsip ullua
+2020/6/1,Piinsip-aappaa
+2020/12/25,Juullip ullua
+2020/12/26,Juullip-aappaa
+2021/1/1,Ukiortaaq
+2021/4/1,Sisamanngortoq illernartoq
+2021/4/2,Tallimanngorneq tannaartoq
+2021/4/4,Poorskip ullua
+2021/4/5,Poorskip-aappaa
+2021/4/30,Ulloq qinuffiusoq
+2021/5/13,Qilaliarfik
+2021/5/23,Piinsip ullua
+2021/5/24,Piinsip-aappaa
+2021/12/25,Juullip ullua
+2021/12/26,Juullip-aappaa
+2022/1/1,Ukiortaaq
+2022/4/14,Sisamanngortoq illernartoq
+2022/4/15,Tallimanngorneq tannaartoq
+2022/4/17,Poorskip ullua
+2022/4/18,Poorskip-aappaa
+2022/5/13,Ulloq qinuffiusoq
+2022/5/26,Qilaliarfik
+2022/6/5,Piinsip ullua
+2022/6/6,Piinsip-aappaa
+2022/12/25,Juullip ullua
+2022/12/26,Juullip-aappaa
+2023/1/1,Ukiortaaq
+2023/4/6,Sisamanngortoq illernartoq
+2023/4/7,Tallimanngorneq tannaartoq
+2023/4/9,Poorskip ullua
+2023/4/10,Poorskip-aappaa
+2023/5/5,Ulloq qinuffiusoq
+2023/5/18,Qilaliarfik
+2023/5/28,Piinsip ullua
+2023/5/29,Piinsip-aappaa
+2023/12/25,Juullip ullua
+2023/12/26,Juullip-aappaa
+2024/1/1,Ukiortaaq
+2024/3/28,Sisamanngortoq illernartoq
+2024/3/29,Tallimanngorneq tannaartoq
+2024/3/31,Poorskip ullua
+2024/4/1,Poorskip-aappaa
+2024/4/26,Ulloq qinuffiusoq
+2024/5/9,Qilaliarfik
+2024/5/19,Piinsip ullua
+2024/5/20,Piinsip-aappaa
+2024/12/25,Juullip ullua
+2024/12/26,Juullip-aappaa
+2025/1/1,Ukiortaaq
+2025/4/17,Sisamanngortoq illernartoq
+2025/4/18,Tallimanngorneq tannaartoq
+2025/4/20,Poorskip ullua
+2025/4/21,Poorskip-aappaa
+2025/5/16,Ulloq qinuffiusoq
+2025/5/29,Qilaliarfik
+2025/6/8,Piinsip ullua
+2025/6/9,Piinsip-aappaa
+2025/12/25,Juullip ullua
+2025/12/26,Juullip-aappaa
+2026/1/1,Ukiortaaq
+2026/4/2,Sisamanngortoq illernartoq
+2026/4/3,Tallimanngorneq tannaartoq
+2026/4/5,Poorskip ullua
+2026/4/6,Poorskip-aappaa
+2026/5/1,Ulloq qinuffiusoq
+2026/5/14,Qilaliarfik
+2026/5/24,Piinsip ullua
+2026/5/25,Piinsip-aappaa
+2026/12/25,Juullip ullua
+2026/12/26,Juullip-aappaa
+2027/1/1,Ukiortaaq
+2027/3/25,Sisamanngortoq illernartoq
+2027/3/26,Tallimanngorneq tannaartoq
+2027/3/28,Poorskip ullua
+2027/3/29,Poorskip-aappaa
+2027/4/23,Ulloq qinuffiusoq
+2027/5/6,Qilaliarfik
+2027/5/16,Piinsip ullua
+2027/5/17,Piinsip-aappaa
+2027/12/25,Juullip ullua
+2027/12/26,Juullip-aappaa
+2028/1/1,Ukiortaaq
+2028/4/13,Sisamanngortoq illernartoq
+2028/4/14,Tallimanngorneq tannaartoq
+2028/4/16,Poorskip ullua
+2028/4/17,Poorskip-aappaa
+2028/5/12,Ulloq qinuffiusoq
+2028/5/25,Qilaliarfik
+2028/6/4,Piinsip ullua
+2028/6/5,Piinsip-aappaa
+2028/12/25,Juullip ullua
+2028/12/26,Juullip-aappaa
+2029/1/1,Ukiortaaq
+2029/3/29,Sisamanngortoq illernartoq
+2029/3/30,Tallimanngorneq tannaartoq
+2029/4/1,Poorskip ullua
+2029/4/2,Poorskip-aappaa
+2029/4/27,Ulloq qinuffiusoq
+2029/5/10,Qilaliarfik
+2029/5/20,Piinsip ullua
+2029/5/21,Piinsip-aappaa
+2029/12/25,Juullip ullua
+2029/12/26,Juullip-aappaa
+2030/1/1,Ukiortaaq
+2030/4/18,Sisamanngortoq illernartoq
+2030/4/19,Tallimanngorneq tannaartoq
+2030/4/21,Poorskip ullua
+2030/4/22,Poorskip-aappaa
+2030/5/17,Ulloq qinuffiusoq
+2030/5/30,Qilaliarfik
+2030/6/9,Piinsip ullua
+2030/6/10,Piinsip-aappaa
+2030/12/25,Juullip ullua
+2030/12/26,Juullip-aappaa
+2031/1/1,Ukiortaaq
+2031/4/10,Sisamanngortoq illernartoq
+2031/4/11,Tallimanngorneq tannaartoq
+2031/4/13,Poorskip ullua
+2031/4/14,Poorskip-aappaa
+2031/5/9,Ulloq qinuffiusoq
+2031/5/22,Qilaliarfik
+2031/6/1,Piinsip ullua
+2031/6/2,Piinsip-aappaa
+2031/12/25,Juullip ullua
+2031/12/26,Juullip-aappaa
+2032/1/1,Ukiortaaq
+2032/3/25,Sisamanngortoq illernartoq
+2032/3/26,Tallimanngorneq tannaartoq
+2032/3/28,Poorskip ullua
+2032/3/29,Poorskip-aappaa
+2032/4/23,Ulloq qinuffiusoq
+2032/5/6,Qilaliarfik
+2032/5/16,Piinsip ullua
+2032/5/17,Piinsip-aappaa
+2032/12/25,Juullip ullua
+2032/12/26,Juullip-aappaa
+2033/1/1,Ukiortaaq
+2033/4/14,Sisamanngortoq illernartoq
+2033/4/15,Tallimanngorneq tannaartoq
+2033/4/17,Poorskip ullua
+2033/4/18,Poorskip-aappaa
+2033/5/13,Ulloq qinuffiusoq
+2033/5/26,Qilaliarfik
+2033/6/5,Piinsip ullua
+2033/6/6,Piinsip-aappaa
+2033/12/25,Juullip ullua
+2033/12/26,Juullip-aappaa
+2034/1/1,Ukiortaaq
+2034/4/6,Sisamanngortoq illernartoq
+2034/4/7,Tallimanngorneq tannaartoq
+2034/4/9,Poorskip ullua
+2034/4/10,Poorskip-aappaa
+2034/5/5,Ulloq qinuffiusoq
+2034/5/18,Qilaliarfik
+2034/5/28,Piinsip ullua
+2034/5/29,Piinsip-aappaa
+2034/12/25,Juullip ullua
+2034/12/26,Juullip-aappaa
+2035/1/1,Ukiortaaq
+2035/3/22,Sisamanngortoq illernartoq
+2035/3/23,Tallimanngorneq tannaartoq
+2035/3/25,Poorskip ullua
+2035/3/26,Poorskip-aappaa
+2035/4/20,Ulloq qinuffiusoq
+2035/5/3,Qilaliarfik
+2035/5/13,Piinsip ullua
+2035/5/14,Piinsip-aappaa
+2035/12/25,Juullip ullua
+2035/12/26,Juullip-aappaa
+2036/1/1,Ukiortaaq
+2036/4/10,Sisamanngortoq illernartoq
+2036/4/11,Tallimanngorneq tannaartoq
+2036/4/13,Poorskip ullua
+2036/4/14,Poorskip-aappaa
+2036/5/9,Ulloq qinuffiusoq
+2036/5/22,Qilaliarfik
+2036/6/1,Piinsip ullua
+2036/6/2,Piinsip-aappaa
+2036/12/25,Juullip ullua
+2036/12/26,Juullip-aappaa
+2037/1/1,Ukiortaaq
+2037/4/2,Sisamanngortoq illernartoq
+2037/4/3,Tallimanngorneq tannaartoq
+2037/4/5,Poorskip ullua
+2037/4/6,Poorskip-aappaa
+2037/5/1,Ulloq qinuffiusoq
+2037/5/14,Qilaliarfik
+2037/5/24,Piinsip ullua
+2037/5/25,Piinsip-aappaa
+2037/12/25,Juullip ullua
+2037/12/26,Juullip-aappaa
+2038/1/1,Ukiortaaq
+2038/4/22,Sisamanngortoq illernartoq
+2038/4/23,Tallimanngorneq tannaartoq
+2038/4/25,Poorskip ullua
+2038/4/26,Poorskip-aappaa
+2038/5/21,Ulloq qinuffiusoq
+2038/6/3,Qilaliarfik
+2038/6/13,Piinsip ullua
+2038/6/14,Piinsip-aappaa
+2038/12/25,Juullip ullua
+2038/12/26,Juullip-aappaa
+2039/1/1,Ukiortaaq
+2039/4/7,Sisamanngortoq illernartoq
+2039/4/8,Tallimanngorneq tannaartoq
+2039/4/10,Poorskip ullua
+2039/4/11,Poorskip-aappaa
+2039/5/6,Ulloq qinuffiusoq
+2039/5/19,Qilaliarfik
+2039/5/29,Piinsip ullua
+2039/5/30,Piinsip-aappaa
+2039/12/25,Juullip ullua
+2039/12/26,Juullip-aappaa
+2040/1/1,Ukiortaaq
+2040/3/29,Sisamanngortoq illernartoq
+2040/3/30,Tallimanngorneq tannaartoq
+2040/4/1,Poorskip ullua
+2040/4/2,Poorskip-aappaa
+2040/4/27,Ulloq qinuffiusoq
+2040/5/10,Qilaliarfik
+2040/5/20,Piinsip ullua
+2040/5/21,Piinsip-aappaa
+2040/12/25,Juullip ullua
+2040/12/26,Juullip-aappaa
+2041/1/1,Ukiortaaq
+2041/4/18,Sisamanngortoq illernartoq
+2041/4/19,Tallimanngorneq tannaartoq
+2041/4/21,Poorskip ullua
+2041/4/22,Poorskip-aappaa
+2041/5/17,Ulloq qinuffiusoq
+2041/5/30,Qilaliarfik
+2041/6/9,Piinsip ullua
+2041/6/10,Piinsip-aappaa
+2041/12/25,Juullip ullua
+2041/12/26,Juullip-aappaa
+2042/1/1,Ukiortaaq
+2042/4/3,Sisamanngortoq illernartoq
+2042/4/4,Tallimanngorneq tannaartoq
+2042/4/6,Poorskip ullua
+2042/4/7,Poorskip-aappaa
+2042/5/2,Ulloq qinuffiusoq
+2042/5/15,Qilaliarfik
+2042/5/25,Piinsip ullua
+2042/5/26,Piinsip-aappaa
+2042/12/25,Juullip ullua
+2042/12/26,Juullip-aappaa
+2043/1/1,Ukiortaaq
+2043/3/26,Sisamanngortoq illernartoq
+2043/3/27,Tallimanngorneq tannaartoq
+2043/3/29,Poorskip ullua
+2043/3/30,Poorskip-aappaa
+2043/4/24,Ulloq qinuffiusoq
+2043/5/7,Qilaliarfik
+2043/5/17,Piinsip ullua
+2043/5/18,Piinsip-aappaa
+2043/12/25,Juullip ullua
+2043/12/26,Juullip-aappaa
+2044/1/1,Ukiortaaq
+2044/4/14,Sisamanngortoq illernartoq
+2044/4/15,Tallimanngorneq tannaartoq
+2044/4/17,Poorskip ullua
+2044/4/18,Poorskip-aappaa
+2044/5/13,Ulloq qinuffiusoq
+2044/5/26,Qilaliarfik
+2044/6/5,Piinsip ullua
+2044/6/6,Piinsip-aappaa
+2044/12/25,Juullip ullua
+2044/12/26,Juullip-aappaa
+2045/1/1,Ukiortaaq
+2045/4/6,Sisamanngortoq illernartoq
+2045/4/7,Tallimanngorneq tannaartoq
+2045/4/9,Poorskip ullua
+2045/4/10,Poorskip-aappaa
+2045/5/5,Ulloq qinuffiusoq
+2045/5/18,Qilaliarfik
+2045/5/28,Piinsip ullua
+2045/5/29,Piinsip-aappaa
+2045/12/25,Juullip ullua
+2045/12/26,Juullip-aappaa
+2046/1/1,Ukiortaaq
+2046/3/22,Sisamanngortoq illernartoq
+2046/3/23,Tallimanngorneq tannaartoq
+2046/3/25,Poorskip ullua
+2046/3/26,Poorskip-aappaa
+2046/4/20,Ulloq qinuffiusoq
+2046/5/3,Qilaliarfik
+2046/5/13,Piinsip ullua
+2046/5/14,Piinsip-aappaa
+2046/12/25,Juullip ullua
+2046/12/26,Juullip-aappaa
+2047/1/1,Ukiortaaq
+2047/4/11,Sisamanngortoq illernartoq
+2047/4/12,Tallimanngorneq tannaartoq
+2047/4/14,Poorskip ullua
+2047/4/15,Poorskip-aappaa
+2047/5/10,Ulloq qinuffiusoq
+2047/5/23,Qilaliarfik
+2047/6/2,Piinsip ullua
+2047/6/3,Piinsip-aappaa
+2047/12/25,Juullip ullua
+2047/12/26,Juullip-aappaa
+2048/1/1,Ukiortaaq
+2048/4/2,Sisamanngortoq illernartoq
+2048/4/3,Tallimanngorneq tannaartoq
+2048/4/5,Poorskip ullua
+2048/4/6,Poorskip-aappaa
+2048/5/1,Ulloq qinuffiusoq
+2048/5/14,Qilaliarfik
+2048/5/24,Piinsip ullua
+2048/5/25,Piinsip-aappaa
+2048/12/25,Juullip ullua
+2048/12/26,Juullip-aappaa
+2049/1/1,Ukiortaaq
+2049/4/15,Sisamanngortoq illernartoq
+2049/4/16,Tallimanngorneq tannaartoq
+2049/4/18,Poorskip ullua
+2049/4/19,Poorskip-aappaa
+2049/5/14,Ulloq qinuffiusoq
+2049/5/27,Qilaliarfik
+2049/6/6,Piinsip ullua
+2049/6/7,Piinsip-aappaa
+2049/12/25,Juullip ullua
+2049/12/26,Juullip-aappaa
+2050/1/1,Ukiortaaq
+2050/4/7,Sisamanngortoq illernartoq
+2050/4/8,Tallimanngorneq tannaartoq
+2050/4/10,Poorskip ullua
+2050/4/11,Poorskip-aappaa
+2050/5/6,Ulloq qinuffiusoq
+2050/5/19,Qilaliarfik
+2050/5/29,Piinsip ullua
+2050/5/30,Piinsip-aappaa
+2050/12/25,Juullip ullua
+2050/12/26,Juullip-aappaa

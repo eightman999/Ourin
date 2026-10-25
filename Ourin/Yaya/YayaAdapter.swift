@@ -15,16 +15,21 @@ struct YayaRequest: Codable {
     let headers: [String:String]?
     let ref: [String]?
     let message_path: String?
+    /// YAYA の設定の fncdepth（関数の呼び出しの深さの上限。0 は無制限）。nil なら yaya_core の既定。
+    let fncdepth: Int?
+    let save_file: String?
 
     // Convenience initializer that keeps existing call sites simple.
     init(cmd: String, ghost_root: String? = nil, dic: [String]? = nil, dic_entries: [[String: String]]? = nil,
          encoding: String? = nil, env: [String:String]? = nil, method: String? = nil,
          id: String? = nil, headers: [String:String]? = nil, ref: [String]? = nil,
-         messagePath: String? = nil) {
+         messagePath: String? = nil, fncdepth: Int? = nil, saveFile: String? = nil) {
         self.cmd = cmd; self.ghost_root = ghost_root; self.dic = dic; self.dic_entries = dic_entries
         self.encoding = encoding; self.env = env; self.method = method; self.id = id
         self.headers = headers; self.ref = ref
         self.message_path = messagePath
+        self.fncdepth = fncdepth
+        self.save_file = saveFile
     }
 }
 
@@ -215,7 +220,7 @@ final class YayaAdapter: GhostShioriRuntime {
     /// Load dictionaries for a ghost and perform capability handshake.
     /// - Parameter encoding: yaya.txt の charset 指定（"Shift_JIS" 等）。"auto" は自動判定（UTF-8妥当→UTF-8、それ以外はCP932変換）。
     @discardableResult
-    func load(ghostRoot: URL, dicEntries: [DicEntry], encoding: String = "auto") -> Bool {
+    func load(ghostRoot: URL, dicEntries: [DicEntry], encoding: String = "auto", functionDepthLimit: Int? = nil, saveFile: String? = nil) -> Bool {
         isLoaded = false
         guard proc.isRunning else {
             NSLog("[YayaAdapter] load() rejected because yaya_core is not running")
@@ -252,7 +257,7 @@ final class YayaAdapter: GhostShioriRuntime {
         let req = YayaRequest(cmd: "load", ghost_root: ghostRoot.path, dic: dicEntries.map { $0.path },
                               dic_entries: structured, encoding: encoding,
                               env: ["LANG":"ja_JP.UTF-8"], method: nil, id: nil,
-                              headers: ["Charset":"UTF-8"], ref: nil)
+                              headers: ["Charset":"UTF-8"], ref: nil, fncdepth: functionDepthLimit, saveFile: saveFile)
 
         // 辞書ロードはタイムアウト付きで実行する。
         // ヘルパー側のパース不具合（無限ループ等）でロードが返らなくても、
@@ -293,15 +298,39 @@ final class YayaAdapter: GhostShioriRuntime {
         return true
     }
 
+    /// YAYA stores <module>_variable.cfg beside the original module, even with basepath.
+    static func saveFilePath(for context: ShioriRuntimeLoadContext) -> String? {
+        let master = context.ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
+        let module = context.moduleName.replacingOccurrences(of: "\\", with: "/")
+        let url = master.appendingPathComponent(module).standardizedFileURL.deletingPathExtension()
+        let save = URL(fileURLWithPath: url.path + "_variable.cfg").resolvingSymlinksInPath()
+        let package = context.ghostURL.resolvingSymlinksInPath().standardizedFileURL.path + "/"
+        guard save.path.hasPrefix(package) else { return nil }
+        return save.path
+    }
+
     @discardableResult
     func load(context: ShioriRuntimeLoadContext) -> Bool {
         saoriManager.discover(under: context.ghostURL)
+        // 内蔵モジュールの `--async` の結果は、このゴーストへイベントで届ける。
+        let ghostURL = context.ghostURL
+        saoriManager.internalContext = InternalSaoriContext(
+            ghostRoot: context.ghostRoot,
+            deliverEvent: { name, params in
+                EventBridge.shared.notifyCustom(name, params: params, toGhostAt: ghostURL)
+            }
+        )
         saoriManager.addSearchPath(context.ghostRoot.appendingPathComponent(".saori", isDirectory: true))
         saoriManager.addSearchPath(context.ghostRoot.appendingPathComponent("saori", isDirectory: true))
+        // YAYA の LOADLIB 等に渡るパスは ghost/master 基準の相対パス（例: `saori\foo.dll`）。
+        // ゴースト固有の SAORI を baseware 既定の saori/ より先に探す。
+        saoriManager.addSearchPath(context.ghostRoot, prioritized: true)
         let loaded = load(
             ghostRoot: context.ghostRoot,
             dicEntries: context.dictionaryEntries,
-            encoding: context.dictionaryEncoding
+            encoding: context.dictionaryEncoding,
+            functionDepthLimit: context.functionDepthLimit,
+            saveFile: Self.saveFilePath(for: context)
         )
         if loaded {
             lastLoadContext = context
@@ -345,7 +374,9 @@ final class YayaAdapter: GhostShioriRuntime {
         let restored = load(
             ghostRoot: context.ghostRoot,
             dicEntries: context.dictionaryEntries,
-            encoding: context.dictionaryEncoding
+            encoding: context.dictionaryEncoding,
+            functionDepthLimit: context.functionDepthLimit,
+            saveFile: Self.saveFilePath(for: context)
         )
         if !restored {
             forceTerminate()
@@ -442,6 +473,16 @@ final class YayaAdapter: GhostShioriRuntime {
             guard let module = params["module"] as? String, !module.isEmpty else {
                 return ["ok": false, "error": "module parameter required"]
             }
+            // 内蔵モジュール（internal_*）は読み込み不要。名前が正しいかだけ確かめる。
+            if let internalName = SaoriManager.internalModuleName(module) {
+                return InternalSaoriRegistry.shared.module(named: internalName) != nil
+                    ? ["ok": true] : ["ok": false, "error": "unknown module"]
+            }
+            // 互換モジュール（string.dll など）は DLL を読まずに内蔵の機能を用意する。
+            if SaoriManager.compatModuleName(module) != nil {
+                saoriManager.loadCompatModule(named: module)
+                return ["ok": true]
+            }
             do {
                 _ = try saoriManager.loadModule(named: module)
                 return ["ok": true]
@@ -454,6 +495,7 @@ final class YayaAdapter: GhostShioriRuntime {
             guard let module = params["module"] as? String, !module.isEmpty else {
                 return ["ok": false, "error": "module parameter required"]
             }
+            if SaoriManager.internalModuleName(module) != nil { return ["ok": true] }
             saoriManager.unloadModule(named: module)
             return ["ok": true]
 

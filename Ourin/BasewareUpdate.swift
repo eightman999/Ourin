@@ -116,15 +116,15 @@ final class BasewareUpdateCoordinator {
         var description: String {
             switch self {
             case .invalidTarget:
-                return "更新対象の Ourin.app が見つからないか、アプリバンドルではありません"
+                return NSLocalizedString("更新対象の Ourin.app が見つからないか、アプリバンドルではありません", comment: "Baseware update error")
             case .archiveEntry(let filename):
-                return "ベースウェア更新にアーカイブは使えません: \(filename)"
+                return String(format: NSLocalizedString("ベースウェア更新にアーカイブは使えません: %@", comment: "Baseware update error"), filename)
             case .stagingDirectoryCreationFailed(let path):
-                return "ベースウェア更新のステージング領域を作成できません: \(path)"
+                return String(format: NSLocalizedString("ベースウェア更新のステージング領域を作成できません: %@", comment: "Baseware update error"), path)
             case .appCopyFailed(let reason):
-                return "ベースウェア更新用のアプリコピーに失敗しました: \(reason)"
+                return String(format: NSLocalizedString("ベースウェア更新用のアプリコピーに失敗しました: %@", comment: "Baseware update error"), reason)
             case .markerFailed(let reason):
-                return "ベースウェア更新状態を保存できません: \(reason)"
+                return String(format: NSLocalizedString("ベースウェア更新状態を保存できません: %@", comment: "Baseware update error"), reason)
             }
         }
     }
@@ -239,11 +239,11 @@ enum BasewareUpdateHelper {
 
         var description: String {
             switch self {
-            case .invalidRequest: return "ベースウェア更新ヘルパーの引数が不正です"
-            case .helperLaunchFailed(let reason): return "ベースウェア更新ヘルパーを起動できません: \(reason)"
-            case .parentDidNotExit: return "更新元の Ourin が終了しませんでした"
-            case .replacementFailed(let reason): return "ベースウェア更新の差し替えに失敗しました: \(reason)"
-            case .relaunchFailed: return "更新後の Ourin を再起動できませんでした"
+            case .invalidRequest: return NSLocalizedString("ベースウェア更新ヘルパーの引数が不正です", comment: "Baseware update error")
+            case .helperLaunchFailed(let reason): return String(format: NSLocalizedString("ベースウェア更新ヘルパーを起動できません: %@", comment: "Baseware update error"), reason)
+            case .parentDidNotExit: return NSLocalizedString("更新元の Ourin が終了しませんでした", comment: "Baseware update error")
+            case .replacementFailed(let reason): return String(format: NSLocalizedString("ベースウェア更新の差し替えに失敗しました: %@", comment: "Baseware update error"), reason)
+            case .relaunchFailed: return NSLocalizedString("更新後の Ourin を再起動できませんでした", comment: "Baseware update error")
             }
         }
     }
@@ -268,7 +268,7 @@ enum BasewareUpdateHelper {
     /// 現在のアプリを終了させる前に、同じ実行ファイルを helper モードで起動する。
     static func launch(_ request: BasewareUpdateRequest) throws {
         guard let executableURL = Bundle.main.executableURL else {
-            throw Error.helperLaunchFailed("実行ファイルが見つかりません")
+            throw Error.helperLaunchFailed(NSLocalizedString("実行ファイルが見つかりません", comment: "Baseware update error"))
         }
         let process = Process()
         process.executableURL = executableURL

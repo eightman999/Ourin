@@ -486,11 +486,7 @@ private extension GhostConfiguration {
     /// Parse a single descript.txt file
     static func parseDescriptFile(_ file: URL) throws -> [String: String] {
         let raw = try Data(contentsOf: file)
-        var text = String(data: raw, encoding: .utf8)
-        if text == nil {
-            text = String(data: raw, encoding: .shiftJIS)
-        }
-        guard let str = text else {
+        guard let str = EncodingAdapter.decodeTextDefinition(raw) else {
             throw NSError(domain: "GhostConfiguration", code: -1,
                          userInfo: [NSLocalizedDescriptionKey: "Encoding error"])
         }

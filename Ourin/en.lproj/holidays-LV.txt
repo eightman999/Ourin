@@ -1,0 +1,495 @@
+# LV holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/4/10,Good Friday
+2020/4/12,Easter Sunday
+2020/4/13,Easter Monday
+2020/5/1,Constitutional Assembly Convocation Day; Labor Day
+2020/5/4,Restoration of Independence Day
+2020/5/10,Mother's Day
+2020/5/31,Pentecost
+2020/6/22,Day off (substituted from 06/13/2020)
+2020/6/23,Midsummer Eve
+2020/6/24,Midsummer Day
+2020/11/18,Republic of Latvia Proclamation Day
+2020/12/24,Christmas Eve
+2020/12/25,Christmas Day
+2020/12/26,Second Day of Christmas
+2020/12/31,New Year's Eve
+2021/1/1,New Year's Day
+2021/4/2,Good Friday
+2021/4/4,Easter Sunday
+2021/4/5,Easter Monday
+2021/5/1,Constitutional Assembly Convocation Day; Labor Day
+2021/5/3,Day off (substituted from 05/08/2021)
+2021/5/4,Restoration of Independence Day
+2021/5/9,Mother's Day
+2021/5/23,Pentecost
+2021/6/23,Midsummer Eve
+2021/6/24,Midsummer Day
+2021/6/25,Day off (substituted from 06/19/2021)
+2021/11/18,Republic of Latvia Proclamation Day
+2021/11/19,Day off (substituted from 11/13/2021)
+2021/12/24,Christmas Eve
+2021/12/25,Christmas Day
+2021/12/26,Second Day of Christmas
+2021/12/31,New Year's Eve
+2022/1/1,New Year's Day
+2022/4/15,Good Friday
+2022/4/17,Easter Sunday
+2022/4/18,Easter Monday
+2022/5/1,Constitutional Assembly Convocation Day; Labor Day
+2022/5/4,Restoration of Independence Day
+2022/5/8,Mother's Day
+2022/6/5,Pentecost
+2022/6/23,Midsummer Eve
+2022/6/24,Midsummer Day
+2022/11/18,Republic of Latvia Proclamation Day
+2022/12/24,Christmas Eve
+2022/12/25,Christmas Day
+2022/12/26,Second Day of Christmas
+2022/12/31,New Year's Eve
+2023/1/1,New Year's Day
+2023/4/7,Good Friday
+2023/4/9,Easter Sunday
+2023/4/10,Easter Monday
+2023/5/1,Constitutional Assembly Convocation Day; Labor Day
+2023/5/4,Restoration of Independence Day
+2023/5/5,Day off (substituted from 05/20/2023)
+2023/5/14,Mother's Day
+2023/5/28,Pentecost
+2023/5/29,Day of the Latvian Ice Hockey Team's Bronze Medal Win at the 2023 IIHF World Championship
+2023/6/23,Midsummer Eve
+2023/6/24,Midsummer Day
+2023/7/10,Nationwide Latvian Song and Dance Celebration Final Day
+2023/11/18,Republic of Latvia Proclamation Day
+2023/11/20,Republic of Latvia Proclamation Day (observed)
+2023/12/24,Christmas Eve
+2023/12/25,Christmas Day
+2023/12/26,Second Day of Christmas
+2023/12/31,New Year's Eve
+2024/1/1,New Year's Day
+2024/3/29,Good Friday
+2024/3/31,Easter Sunday
+2024/4/1,Easter Monday
+2024/5/1,Constitutional Assembly Convocation Day; Labor Day
+2024/5/4,Restoration of Independence Day
+2024/5/6,Restoration of Independence Day (observed)
+2024/5/12,Mother's Day
+2024/5/19,Pentecost
+2024/6/23,Midsummer Eve
+2024/6/24,Midsummer Day
+2024/11/18,Republic of Latvia Proclamation Day
+2024/12/23,Day off (substituted from 12/14/2024)
+2024/12/24,Christmas Eve
+2024/12/25,Christmas Day
+2024/12/26,Second Day of Christmas
+2024/12/30,Day off (substituted from 12/28/2024)
+2024/12/31,New Year's Eve
+2025/1/1,New Year's Day
+2025/4/18,Good Friday
+2025/4/20,Easter Sunday
+2025/4/21,Easter Monday
+2025/5/1,Constitutional Assembly Convocation Day; Labor Day
+2025/5/2,Day off (substituted from 05/10/2025)
+2025/5/4,Restoration of Independence Day
+2025/5/5,Restoration of Independence Day (observed)
+2025/5/11,Mother's Day
+2025/6/8,Pentecost
+2025/6/23,Midsummer Eve
+2025/6/24,Midsummer Day
+2025/11/17,Day off (substituted from 11/08/2025)
+2025/11/18,Republic of Latvia Proclamation Day
+2025/12/24,Christmas Eve
+2025/12/25,Christmas Day
+2025/12/26,Second Day of Christmas
+2025/12/31,New Year's Eve
+2026/1/1,New Year's Day
+2026/1/2,Day off (substituted from 01/17/2026)
+2026/4/3,Good Friday
+2026/4/5,Easter Sunday
+2026/4/6,Easter Monday
+2026/5/1,Constitutional Assembly Convocation Day; Labor Day
+2026/5/4,Restoration of Independence Day
+2026/5/10,Mother's Day
+2026/5/24,Pentecost
+2026/6/22,Day off (substituted from 06/27/2026)
+2026/6/23,Midsummer Eve
+2026/6/24,Midsummer Day
+2026/11/18,Republic of Latvia Proclamation Day
+2026/12/24,Christmas Eve
+2026/12/25,Christmas Day
+2026/12/26,Second Day of Christmas
+2026/12/31,New Year's Eve
+2027/1/1,New Year's Day
+2027/3/26,Good Friday
+2027/3/28,Easter Sunday
+2027/3/29,Easter Monday
+2027/5/1,Constitutional Assembly Convocation Day; Labor Day
+2027/5/4,Restoration of Independence Day
+2027/5/9,Mother's Day
+2027/5/16,Pentecost
+2027/6/23,Midsummer Eve
+2027/6/24,Midsummer Day
+2027/11/18,Republic of Latvia Proclamation Day
+2027/12/24,Christmas Eve
+2027/12/25,Christmas Day
+2027/12/26,Second Day of Christmas
+2027/12/31,New Year's Eve
+2028/1/1,New Year's Day
+2028/4/14,Good Friday
+2028/4/16,Easter Sunday
+2028/4/17,Easter Monday
+2028/5/1,Constitutional Assembly Convocation Day; Labor Day
+2028/5/4,Restoration of Independence Day
+2028/5/14,Mother's Day
+2028/6/4,Pentecost
+2028/6/23,Midsummer Eve
+2028/6/24,Midsummer Day
+2028/11/18,Republic of Latvia Proclamation Day
+2028/11/20,Republic of Latvia Proclamation Day (observed)
+2028/12/24,Christmas Eve
+2028/12/25,Christmas Day
+2028/12/26,Second Day of Christmas
+2028/12/31,New Year's Eve
+2029/1/1,New Year's Day
+2029/3/30,Good Friday
+2029/4/1,Easter Sunday
+2029/4/2,Easter Monday
+2029/5/1,Constitutional Assembly Convocation Day; Labor Day
+2029/5/4,Restoration of Independence Day
+2029/5/13,Mother's Day
+2029/5/20,Pentecost
+2029/6/23,Midsummer Eve
+2029/6/24,Midsummer Day
+2029/11/18,Republic of Latvia Proclamation Day
+2029/11/19,Republic of Latvia Proclamation Day (observed)
+2029/12/24,Christmas Eve
+2029/12/25,Christmas Day
+2029/12/26,Second Day of Christmas
+2029/12/31,New Year's Eve
+2030/1/1,New Year's Day
+2030/4/19,Good Friday
+2030/4/21,Easter Sunday
+2030/4/22,Easter Monday
+2030/5/1,Constitutional Assembly Convocation Day; Labor Day
+2030/5/4,Restoration of Independence Day
+2030/5/6,Restoration of Independence Day (observed)
+2030/5/12,Mother's Day
+2030/6/9,Pentecost
+2030/6/23,Midsummer Eve
+2030/6/24,Midsummer Day
+2030/11/18,Republic of Latvia Proclamation Day
+2030/12/24,Christmas Eve
+2030/12/25,Christmas Day
+2030/12/26,Second Day of Christmas
+2030/12/31,New Year's Eve
+2031/1/1,New Year's Day
+2031/4/11,Good Friday
+2031/4/13,Easter Sunday
+2031/4/14,Easter Monday
+2031/5/1,Constitutional Assembly Convocation Day; Labor Day
+2031/5/4,Restoration of Independence Day
+2031/5/5,Restoration of Independence Day (observed)
+2031/5/11,Mother's Day
+2031/6/1,Pentecost
+2031/6/23,Midsummer Eve
+2031/6/24,Midsummer Day
+2031/11/18,Republic of Latvia Proclamation Day
+2031/12/24,Christmas Eve
+2031/12/25,Christmas Day
+2031/12/26,Second Day of Christmas
+2031/12/31,New Year's Eve
+2032/1/1,New Year's Day
+2032/3/26,Good Friday
+2032/3/28,Easter Sunday
+2032/3/29,Easter Monday
+2032/5/1,Constitutional Assembly Convocation Day; Labor Day
+2032/5/4,Restoration of Independence Day
+2032/5/9,Mother's Day
+2032/5/16,Pentecost
+2032/6/23,Midsummer Eve
+2032/6/24,Midsummer Day
+2032/11/18,Republic of Latvia Proclamation Day
+2032/12/24,Christmas Eve
+2032/12/25,Christmas Day
+2032/12/26,Second Day of Christmas
+2032/12/31,New Year's Eve
+2033/1/1,New Year's Day
+2033/4/15,Good Friday
+2033/4/17,Easter Sunday
+2033/4/18,Easter Monday
+2033/5/1,Constitutional Assembly Convocation Day; Labor Day
+2033/5/4,Restoration of Independence Day
+2033/5/8,Mother's Day
+2033/6/5,Pentecost
+2033/6/23,Midsummer Eve
+2033/6/24,Midsummer Day
+2033/11/18,Republic of Latvia Proclamation Day
+2033/12/24,Christmas Eve
+2033/12/25,Christmas Day
+2033/12/26,Second Day of Christmas
+2033/12/31,New Year's Eve
+2034/1/1,New Year's Day
+2034/4/7,Good Friday
+2034/4/9,Easter Sunday
+2034/4/10,Easter Monday
+2034/5/1,Constitutional Assembly Convocation Day; Labor Day
+2034/5/4,Restoration of Independence Day
+2034/5/14,Mother's Day
+2034/5/28,Pentecost
+2034/6/23,Midsummer Eve
+2034/6/24,Midsummer Day
+2034/11/18,Republic of Latvia Proclamation Day
+2034/11/20,Republic of Latvia Proclamation Day (observed)
+2034/12/24,Christmas Eve
+2034/12/25,Christmas Day
+2034/12/26,Second Day of Christmas
+2034/12/31,New Year's Eve
+2035/1/1,New Year's Day
+2035/3/23,Good Friday
+2035/3/25,Easter Sunday
+2035/3/26,Easter Monday
+2035/5/1,Constitutional Assembly Convocation Day; Labor Day
+2035/5/4,Restoration of Independence Day
+2035/5/13,Mother's Day; Pentecost
+2035/6/23,Midsummer Eve
+2035/6/24,Midsummer Day
+2035/11/18,Republic of Latvia Proclamation Day
+2035/11/19,Republic of Latvia Proclamation Day (observed)
+2035/12/24,Christmas Eve
+2035/12/25,Christmas Day
+2035/12/26,Second Day of Christmas
+2035/12/31,New Year's Eve
+2036/1/1,New Year's Day
+2036/4/11,Good Friday
+2036/4/13,Easter Sunday
+2036/4/14,Easter Monday
+2036/5/1,Constitutional Assembly Convocation Day; Labor Day
+2036/5/4,Restoration of Independence Day
+2036/5/5,Restoration of Independence Day (observed)
+2036/5/11,Mother's Day
+2036/6/1,Pentecost
+2036/6/23,Midsummer Eve
+2036/6/24,Midsummer Day
+2036/11/18,Republic of Latvia Proclamation Day
+2036/12/24,Christmas Eve
+2036/12/25,Christmas Day
+2036/12/26,Second Day of Christmas
+2036/12/31,New Year's Eve
+2037/1/1,New Year's Day
+2037/4/3,Good Friday
+2037/4/5,Easter Sunday
+2037/4/6,Easter Monday
+2037/5/1,Constitutional Assembly Convocation Day; Labor Day
+2037/5/4,Restoration of Independence Day
+2037/5/10,Mother's Day
+2037/5/24,Pentecost
+2037/6/23,Midsummer Eve
+2037/6/24,Midsummer Day
+2037/11/18,Republic of Latvia Proclamation Day
+2037/12/24,Christmas Eve
+2037/12/25,Christmas Day
+2037/12/26,Second Day of Christmas
+2037/12/31,New Year's Eve
+2038/1/1,New Year's Day
+2038/4/23,Good Friday
+2038/4/25,Easter Sunday
+2038/4/26,Easter Monday
+2038/5/1,Constitutional Assembly Convocation Day; Labor Day
+2038/5/4,Restoration of Independence Day
+2038/5/9,Mother's Day
+2038/6/13,Pentecost
+2038/6/23,Midsummer Eve
+2038/6/24,Midsummer Day
+2038/11/18,Republic of Latvia Proclamation Day
+2038/12/24,Christmas Eve
+2038/12/25,Christmas Day
+2038/12/26,Second Day of Christmas
+2038/12/31,New Year's Eve
+2039/1/1,New Year's Day
+2039/4/8,Good Friday
+2039/4/10,Easter Sunday
+2039/4/11,Easter Monday
+2039/5/1,Constitutional Assembly Convocation Day; Labor Day
+2039/5/4,Restoration of Independence Day
+2039/5/8,Mother's Day
+2039/5/29,Pentecost
+2039/6/23,Midsummer Eve
+2039/6/24,Midsummer Day
+2039/11/18,Republic of Latvia Proclamation Day
+2039/12/24,Christmas Eve
+2039/12/25,Christmas Day
+2039/12/26,Second Day of Christmas
+2039/12/31,New Year's Eve
+2040/1/1,New Year's Day
+2040/3/30,Good Friday
+2040/4/1,Easter Sunday
+2040/4/2,Easter Monday
+2040/5/1,Constitutional Assembly Convocation Day; Labor Day
+2040/5/4,Restoration of Independence Day
+2040/5/13,Mother's Day
+2040/5/20,Pentecost
+2040/6/23,Midsummer Eve
+2040/6/24,Midsummer Day
+2040/11/18,Republic of Latvia Proclamation Day
+2040/11/19,Republic of Latvia Proclamation Day (observed)
+2040/12/24,Christmas Eve
+2040/12/25,Christmas Day
+2040/12/26,Second Day of Christmas
+2040/12/31,New Year's Eve
+2041/1/1,New Year's Day
+2041/4/19,Good Friday
+2041/4/21,Easter Sunday
+2041/4/22,Easter Monday
+2041/5/1,Constitutional Assembly Convocation Day; Labor Day
+2041/5/4,Restoration of Independence Day
+2041/5/6,Restoration of Independence Day (observed)
+2041/5/12,Mother's Day
+2041/6/9,Pentecost
+2041/6/23,Midsummer Eve
+2041/6/24,Midsummer Day
+2041/11/18,Republic of Latvia Proclamation Day
+2041/12/24,Christmas Eve
+2041/12/25,Christmas Day
+2041/12/26,Second Day of Christmas
+2041/12/31,New Year's Eve
+2042/1/1,New Year's Day
+2042/4/4,Good Friday
+2042/4/6,Easter Sunday
+2042/4/7,Easter Monday
+2042/5/1,Constitutional Assembly Convocation Day; Labor Day
+2042/5/4,Restoration of Independence Day
+2042/5/5,Restoration of Independence Day (observed)
+2042/5/11,Mother's Day
+2042/5/25,Pentecost
+2042/6/23,Midsummer Eve
+2042/6/24,Midsummer Day
+2042/11/18,Republic of Latvia Proclamation Day
+2042/12/24,Christmas Eve
+2042/12/25,Christmas Day
+2042/12/26,Second Day of Christmas
+2042/12/31,New Year's Eve
+2043/1/1,New Year's Day
+2043/3/27,Good Friday
+2043/3/29,Easter Sunday
+2043/3/30,Easter Monday
+2043/5/1,Constitutional Assembly Convocation Day; Labor Day
+2043/5/4,Restoration of Independence Day
+2043/5/10,Mother's Day
+2043/5/17,Pentecost
+2043/6/23,Midsummer Eve
+2043/6/24,Midsummer Day
+2043/11/18,Republic of Latvia Proclamation Day
+2043/12/24,Christmas Eve
+2043/12/25,Christmas Day
+2043/12/26,Second Day of Christmas
+2043/12/31,New Year's Eve
+2044/1/1,New Year's Day
+2044/4/15,Good Friday
+2044/4/17,Easter Sunday
+2044/4/18,Easter Monday
+2044/5/1,Constitutional Assembly Convocation Day; Labor Day
+2044/5/4,Restoration of Independence Day
+2044/5/8,Mother's Day
+2044/6/5,Pentecost
+2044/6/23,Midsummer Eve
+2044/6/24,Midsummer Day
+2044/11/18,Republic of Latvia Proclamation Day
+2044/12/24,Christmas Eve
+2044/12/25,Christmas Day
+2044/12/26,Second Day of Christmas
+2044/12/31,New Year's Eve
+2045/1/1,New Year's Day
+2045/4/7,Good Friday
+2045/4/9,Easter Sunday
+2045/4/10,Easter Monday
+2045/5/1,Constitutional Assembly Convocation Day; Labor Day
+2045/5/4,Restoration of Independence Day
+2045/5/14,Mother's Day
+2045/5/28,Pentecost
+2045/6/23,Midsummer Eve
+2045/6/24,Midsummer Day
+2045/11/18,Republic of Latvia Proclamation Day
+2045/11/20,Republic of Latvia Proclamation Day (observed)
+2045/12/24,Christmas Eve
+2045/12/25,Christmas Day
+2045/12/26,Second Day of Christmas
+2045/12/31,New Year's Eve
+2046/1/1,New Year's Day
+2046/3/23,Good Friday
+2046/3/25,Easter Sunday
+2046/3/26,Easter Monday
+2046/5/1,Constitutional Assembly Convocation Day; Labor Day
+2046/5/4,Restoration of Independence Day
+2046/5/13,Mother's Day; Pentecost
+2046/6/23,Midsummer Eve
+2046/6/24,Midsummer Day
+2046/11/18,Republic of Latvia Proclamation Day
+2046/11/19,Republic of Latvia Proclamation Day (observed)
+2046/12/24,Christmas Eve
+2046/12/25,Christmas Day
+2046/12/26,Second Day of Christmas
+2046/12/31,New Year's Eve
+2047/1/1,New Year's Day
+2047/4/12,Good Friday
+2047/4/14,Easter Sunday
+2047/4/15,Easter Monday
+2047/5/1,Constitutional Assembly Convocation Day; Labor Day
+2047/5/4,Restoration of Independence Day
+2047/5/6,Restoration of Independence Day (observed)
+2047/5/12,Mother's Day
+2047/6/2,Pentecost
+2047/6/23,Midsummer Eve
+2047/6/24,Midsummer Day
+2047/11/18,Republic of Latvia Proclamation Day
+2047/12/24,Christmas Eve
+2047/12/25,Christmas Day
+2047/12/26,Second Day of Christmas
+2047/12/31,New Year's Eve
+2048/1/1,New Year's Day
+2048/4/3,Good Friday
+2048/4/5,Easter Sunday
+2048/4/6,Easter Monday
+2048/5/1,Constitutional Assembly Convocation Day; Labor Day
+2048/5/4,Restoration of Independence Day
+2048/5/10,Mother's Day
+2048/5/24,Pentecost
+2048/6/23,Midsummer Eve
+2048/6/24,Midsummer Day
+2048/11/18,Republic of Latvia Proclamation Day
+2048/12/24,Christmas Eve
+2048/12/25,Christmas Day
+2048/12/26,Second Day of Christmas
+2048/12/31,New Year's Eve
+2049/1/1,New Year's Day
+2049/4/16,Good Friday
+2049/4/18,Easter Sunday
+2049/4/19,Easter Monday
+2049/5/1,Constitutional Assembly Convocation Day; Labor Day
+2049/5/4,Restoration of Independence Day
+2049/5/9,Mother's Day
+2049/6/6,Pentecost
+2049/6/23,Midsummer Eve
+2049/6/24,Midsummer Day
+2049/11/18,Republic of Latvia Proclamation Day
+2049/12/24,Christmas Eve
+2049/12/25,Christmas Day
+2049/12/26,Second Day of Christmas
+2049/12/31,New Year's Eve
+2050/1/1,New Year's Day
+2050/4/8,Good Friday
+2050/4/10,Easter Sunday
+2050/4/11,Easter Monday
+2050/5/1,Constitutional Assembly Convocation Day; Labor Day
+2050/5/4,Restoration of Independence Day
+2050/5/8,Mother's Day
+2050/5/29,Pentecost
+2050/6/23,Midsummer Eve
+2050/6/24,Midsummer Day
+2050/11/18,Republic of Latvia Proclamation Day
+2050/12/24,Christmas Eve
+2050/12/25,Christmas Day
+2050/12/26,Second Day of Christmas
+2050/12/31,New Year's Eve

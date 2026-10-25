@@ -1,0 +1,393 @@
+# GN の祝日（2020〜2050年、言語: fr）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Fête du Nouvel an
+2020/4/3,Jour de la Deuxième République
+2020/4/13,Lundi de Pâques
+2020/5/1,Fête du Travail
+2020/5/20,Lendemain de la nuit Lailatoul Qadr
+2020/5/24,Jour de l'Aïd el-Fitr
+2020/5/25,Anniversaire de l'Union Africaine
+2020/7/31,Jour de la Tabaski
+2020/8/15,Assomption
+2020/10/2,Fête anniversaire de l'indépendance de la Guinée
+2020/10/29,Lendemain de la nuit du Maoloud
+2020/11/1,Toussaint
+2020/12/25,Fête de Noël
+2021/1/1,Fête du Nouvel an
+2021/4/3,Jour de la Deuxième République
+2021/4/5,Lundi de Pâques
+2021/5/1,Fête du Travail
+2021/5/9,Lendemain de la nuit Lailatoul Qadr
+2021/5/13,Jour de l'Aïd el-Fitr
+2021/5/25,Anniversaire de l'Union Africaine
+2021/7/20,Jour de la Tabaski
+2021/8/15,Assomption
+2021/10/2,Fête anniversaire de l'indépendance de la Guinée
+2021/10/18,Lendemain de la nuit du Maoloud
+2021/11/1,Toussaint
+2021/12/25,Fête de Noël
+2022/1/1,Fête du Nouvel an
+2022/4/18,Lundi de Pâques
+2022/4/29,Lendemain de la nuit Lailatoul Qadr
+2022/5/1,Fête du Travail
+2022/5/2,Jour de l'Aïd el-Fitr
+2022/5/25,Anniversaire de l'Union Africaine
+2022/7/10,Jour de la Tabaski
+2022/8/15,Assomption
+2022/10/2,Fête anniversaire de l'indépendance de la Guinée
+2022/10/8,Lendemain de la nuit du Maoloud
+2022/12/25,Fête de Noël
+2023/1/1,Fête du Nouvel an
+2023/1/2,Lendemain de la Fête du Nouvel an
+2023/4/10,Lundi de Pâques
+2023/4/18,Lendemain de la nuit Lailatoul Qadr
+2023/4/21,Jour de l'Aïd el-Fitr
+2023/5/1,Fête du Travail
+2023/5/25,Anniversaire de l'Union Africaine
+2023/6/28,Jour de la Tabaski
+2023/6/29,Lendemain de la Tabaski
+2023/8/15,Assomption
+2023/9/27,Lendemain de la nuit du Maoloud
+2023/10/2,Fête anniversaire de l'indépendance de la Guinée
+2023/12/25,Fête de Noël
+2024/1/1,Fête du Nouvel an
+2024/4/1,Lundi de Pâques
+2024/4/6,Lendemain de la nuit Lailatoul Qadr
+2024/4/10,Jour de l'Aïd el-Fitr
+2024/5/1,Fête du Travail
+2024/5/25,Anniversaire de l'Union Africaine
+2024/6/16,Jour de la Tabaski
+2024/6/17,Lendemain de la Tabaski
+2024/8/15,Assomption
+2024/9/15,Lendemain de la nuit du Maoloud
+2024/10/2,Fête anniversaire de l'indépendance de la Guinée
+2024/12/25,Fête de Noël
+2025/1/1,Fête du Nouvel an
+2025/3/27,Lendemain de la nuit Lailatoul Qadr
+2025/3/31,Jour de l'Aïd el-Fitr
+2025/4/21,Lundi de Pâques
+2025/5/1,Fête du Travail
+2025/5/25,Anniversaire de l'Union Africaine
+2025/6/7,Jour de la Tabaski
+2025/6/8,Lendemain de la Tabaski
+2025/8/15,Assomption
+2025/9/5,Lendemain de la nuit du Maoloud
+2025/10/2,Fête anniversaire de l'indépendance de la Guinée
+2025/12/25,Fête de Noël
+2026/1/1,Fête du Nouvel an
+2026/3/16,Lendemain de la nuit Lailatoul Qadr (estimé)
+2026/3/20,Jour de l'Aïd el-Fitr (estimé)
+2026/4/6,Lundi de Pâques
+2026/5/1,Fête du Travail
+2026/5/25,Anniversaire de l'Union Africaine
+2026/5/27,Jour de la Tabaski (estimé)
+2026/5/28,Lendemain de la Tabaski (estimé)
+2026/8/15,Assomption
+2026/8/25,Lendemain de la nuit du Maoloud (estimé)
+2026/10/2,Fête anniversaire de l'indépendance de la Guinée
+2026/12/25,Fête de Noël
+2027/1/1,Fête du Nouvel an
+2027/3/6,Lendemain de la nuit Lailatoul Qadr (estimé)
+2027/3/9,Jour de l'Aïd el-Fitr (estimé)
+2027/3/29,Lundi de Pâques
+2027/5/1,Fête du Travail
+2027/5/16,Jour de la Tabaski (estimé)
+2027/5/17,Lendemain de la Tabaski (estimé)
+2027/5/25,Anniversaire de l'Union Africaine
+2027/8/14,Lendemain de la nuit du Maoloud (estimé)
+2027/8/15,Assomption
+2027/10/2,Fête anniversaire de l'indépendance de la Guinée
+2027/12/25,Fête de Noël
+2028/1/1,Fête du Nouvel an
+2028/2/23,Lendemain de la nuit Lailatoul Qadr (estimé)
+2028/2/26,Jour de l'Aïd el-Fitr (estimé)
+2028/4/17,Lundi de Pâques
+2028/5/1,Fête du Travail
+2028/5/5,Jour de la Tabaski (estimé)
+2028/5/6,Lendemain de la Tabaski (estimé)
+2028/5/25,Anniversaire de l'Union Africaine
+2028/8/3,Lendemain de la nuit du Maoloud (estimé)
+2028/8/15,Assomption
+2028/10/2,Fête anniversaire de l'indépendance de la Guinée
+2028/12/25,Fête de Noël
+2029/1/1,Fête du Nouvel an
+2029/2/11,Lendemain de la nuit Lailatoul Qadr (estimé)
+2029/2/14,Jour de l'Aïd el-Fitr (estimé)
+2029/4/2,Lundi de Pâques
+2029/4/24,Jour de la Tabaski (estimé)
+2029/4/25,Lendemain de la Tabaski (estimé)
+2029/5/1,Fête du Travail
+2029/5/25,Anniversaire de l'Union Africaine
+2029/7/24,Lendemain de la nuit du Maoloud (estimé)
+2029/8/15,Assomption
+2029/10/2,Fête anniversaire de l'indépendance de la Guinée
+2029/12/25,Fête de Noël
+2030/1/1,Fête du Nouvel an
+2030/1/31,Lendemain de la nuit Lailatoul Qadr (estimé)
+2030/2/4,Jour de l'Aïd el-Fitr (estimé)
+2030/4/13,Jour de la Tabaski (estimé)
+2030/4/14,Lendemain de la Tabaski (estimé)
+2030/4/22,Lundi de Pâques
+2030/5/1,Fête du Travail
+2030/5/25,Anniversaire de l'Union Africaine
+2030/7/13,Lendemain de la nuit du Maoloud (estimé)
+2030/8/15,Assomption
+2030/10/2,Fête anniversaire de l'indépendance de la Guinée
+2030/12/25,Fête de Noël
+2031/1/1,Fête du Nouvel an
+2031/1/21,Lendemain de la nuit Lailatoul Qadr (estimé)
+2031/1/24,Jour de l'Aïd el-Fitr (estimé)
+2031/4/2,Jour de la Tabaski (estimé)
+2031/4/3,Lendemain de la Tabaski (estimé)
+2031/4/14,Lundi de Pâques
+2031/5/1,Fête du Travail
+2031/5/25,Anniversaire de l'Union Africaine
+2031/7/2,Lendemain de la nuit du Maoloud (estimé)
+2031/8/15,Assomption
+2031/10/2,Fête anniversaire de l'indépendance de la Guinée
+2031/12/25,Fête de Noël
+2032/1/1,Fête du Nouvel an
+2032/1/10,Lendemain de la nuit Lailatoul Qadr (estimé)
+2032/1/14,Jour de l'Aïd el-Fitr (estimé)
+2032/3/22,Jour de la Tabaski (estimé)
+2032/3/23,Lendemain de la Tabaski (estimé)
+2032/3/29,Lundi de Pâques
+2032/5/1,Fête du Travail
+2032/5/25,Anniversaire de l'Union Africaine
+2032/6/20,Lendemain de la nuit du Maoloud (estimé)
+2032/8/15,Assomption
+2032/10/2,Fête anniversaire de l'indépendance de la Guinée
+2032/12/25,Fête de Noël
+2032/12/30,Lendemain de la nuit Lailatoul Qadr (estimé)
+2033/1/1,Fête du Nouvel an
+2033/1/2,Jour de l'Aïd el-Fitr (estimé)
+2033/1/3,Lendemain de la Jour de l'Aïd el-Fitr (estimé)
+2033/3/11,Jour de la Tabaski (estimé)
+2033/3/12,Lendemain de la Tabaski (estimé)
+2033/4/18,Lundi de Pâques
+2033/5/1,Fête du Travail
+2033/5/25,Anniversaire de l'Union Africaine
+2033/6/9,Lendemain de la nuit du Maoloud (estimé)
+2033/8/15,Assomption
+2033/10/2,Fête anniversaire de l'indépendance de la Guinée
+2033/10/3,Lendemain de la Fête anniversaire de l'indépendance de la Guinée
+2033/12/19,Lendemain de la nuit Lailatoul Qadr (estimé)
+2033/12/23,Jour de l'Aïd el-Fitr (estimé)
+2033/12/25,Fête de Noël
+2034/1/1,Fête du Nouvel an
+2034/1/2,Lendemain de la Fête du Nouvel an
+2034/3/1,Jour de la Tabaski (estimé)
+2034/3/2,Lendemain de la Tabaski (estimé)
+2034/4/10,Lundi de Pâques
+2034/5/1,Fête du Travail
+2034/5/25,Anniversaire de l'Union Africaine
+2034/5/30,Lendemain de la nuit du Maoloud (estimé)
+2034/8/15,Assomption
+2034/10/2,Fête anniversaire de l'indépendance de la Guinée
+2034/12/8,Lendemain de la nuit Lailatoul Qadr (estimé)
+2034/12/12,Jour de l'Aïd el-Fitr (estimé)
+2034/12/25,Fête de Noël
+2035/1/1,Fête du Nouvel an
+2035/2/18,Jour de la Tabaski (estimé)
+2035/2/19,Lendemain de la Tabaski (estimé)
+2035/3/26,Lundi de Pâques
+2035/5/1,Fête du Travail
+2035/5/20,Lendemain de la nuit du Maoloud (estimé)
+2035/5/25,Anniversaire de l'Union Africaine
+2035/8/15,Assomption
+2035/10/2,Fête anniversaire de l'indépendance de la Guinée
+2035/11/27,Lendemain de la nuit Lailatoul Qadr (estimé)
+2035/12/1,Jour de l'Aïd el-Fitr (estimé)
+2035/12/25,Fête de Noël
+2036/1/1,Fête du Nouvel an
+2036/2/7,Jour de la Tabaski (estimé)
+2036/2/8,Lendemain de la Tabaski (estimé)
+2036/4/14,Lundi de Pâques
+2036/5/1,Fête du Travail
+2036/5/8,Lendemain de la nuit du Maoloud (estimé)
+2036/5/25,Anniversaire de l'Union Africaine
+2036/8/15,Assomption
+2036/10/2,Fête anniversaire de l'indépendance de la Guinée
+2036/11/15,Lendemain de la nuit Lailatoul Qadr (estimé)
+2036/11/19,Jour de l'Aïd el-Fitr (estimé)
+2036/12/25,Fête de Noël
+2037/1/1,Fête du Nouvel an
+2037/1/26,Jour de la Tabaski (estimé)
+2037/1/27,Lendemain de la Tabaski (estimé)
+2037/4/6,Lundi de Pâques
+2037/4/28,Lendemain de la nuit du Maoloud (estimé)
+2037/5/1,Fête du Travail
+2037/5/25,Anniversaire de l'Union Africaine
+2037/8/15,Assomption
+2037/10/2,Fête anniversaire de l'indépendance de la Guinée
+2037/11/5,Lendemain de la nuit Lailatoul Qadr (estimé)
+2037/11/8,Jour de l'Aïd el-Fitr (estimé)
+2037/11/9,Lendemain de la Jour de l'Aïd el-Fitr (estimé)
+2037/12/25,Fête de Noël
+2038/1/1,Fête du Nouvel an
+2038/1/16,Jour de la Tabaski (estimé)
+2038/1/17,Lendemain de la Tabaski (estimé)
+2038/4/17,Lendemain de la nuit du Maoloud (estimé)
+2038/4/26,Lundi de Pâques
+2038/5/1,Fête du Travail
+2038/5/25,Anniversaire de l'Union Africaine
+2038/8/15,Assomption
+2038/10/2,Fête anniversaire de l'indépendance de la Guinée
+2038/10/26,Lendemain de la nuit Lailatoul Qadr (estimé)
+2038/10/29,Jour de l'Aïd el-Fitr (estimé)
+2038/12/25,Fête de Noël
+2039/1/1,Fête du Nouvel an
+2039/1/5,Jour de la Tabaski (estimé)
+2039/1/6,Lendemain de la Tabaski (estimé)
+2039/4/6,Lendemain de la nuit du Maoloud (estimé)
+2039/4/11,Lundi de Pâques
+2039/5/1,Fête du Travail
+2039/5/25,Anniversaire de l'Union Africaine
+2039/8/15,Assomption
+2039/10/2,Fête anniversaire de l'indépendance de la Guinée
+2039/10/3,Lendemain de la Fête anniversaire de l'indépendance de la Guinée
+2039/10/15,Lendemain de la nuit Lailatoul Qadr (estimé)
+2039/10/19,Jour de l'Aïd el-Fitr (estimé)
+2039/12/25,Fête de Noël
+2039/12/26,Jour de la Tabaski (estimé)
+2039/12/27,Lendemain de la Tabaski (estimé)
+2040/1/1,Fête du Nouvel an
+2040/1/2,Lendemain de la Fête du Nouvel an
+2040/3/25,Lendemain de la nuit du Maoloud (estimé)
+2040/4/2,Lundi de Pâques
+2040/5/1,Fête du Travail
+2040/5/25,Anniversaire de l'Union Africaine
+2040/8/15,Assomption
+2040/10/2,Fête anniversaire de l'indépendance de la Guinée
+2040/10/3,Lendemain de la nuit Lailatoul Qadr (estimé)
+2040/10/7,Jour de l'Aïd el-Fitr (estimé)
+2040/10/8,Lendemain de la Jour de l'Aïd el-Fitr (estimé)
+2040/12/14,Jour de la Tabaski (estimé)
+2040/12/15,Lendemain de la Tabaski (estimé)
+2040/12/25,Fête de Noël
+2041/1/1,Fête du Nouvel an
+2041/3/15,Lendemain de la nuit du Maoloud (estimé)
+2041/4/22,Lundi de Pâques
+2041/5/1,Fête du Travail
+2041/5/25,Anniversaire de l'Union Africaine
+2041/8/15,Assomption
+2041/9/23,Lendemain de la nuit Lailatoul Qadr (estimé)
+2041/9/26,Jour de l'Aïd el-Fitr (estimé)
+2041/10/2,Fête anniversaire de l'indépendance de la Guinée
+2041/12/4,Jour de la Tabaski (estimé)
+2041/12/5,Lendemain de la Tabaski (estimé)
+2041/12/25,Fête de Noël
+2042/1/1,Fête du Nouvel an
+2042/3/4,Lendemain de la nuit du Maoloud (estimé)
+2042/4/7,Lundi de Pâques
+2042/5/1,Fête du Travail
+2042/5/25,Anniversaire de l'Union Africaine
+2042/8/15,Assomption
+2042/9/12,Lendemain de la nuit Lailatoul Qadr (estimé)
+2042/9/15,Jour de l'Aïd el-Fitr (estimé)
+2042/10/2,Fête anniversaire de l'indépendance de la Guinée
+2042/11/23,Jour de la Tabaski (estimé)
+2042/11/24,Lendemain de la Tabaski (estimé)
+2042/12/25,Fête de Noël
+2043/1/1,Fête du Nouvel an
+2043/2/22,Lendemain de la nuit du Maoloud (estimé)
+2043/3/30,Lundi de Pâques
+2043/5/1,Fête du Travail
+2043/5/25,Anniversaire de l'Union Africaine
+2043/8/15,Assomption
+2043/9/1,Lendemain de la nuit Lailatoul Qadr (estimé)
+2043/9/4,Jour de l'Aïd el-Fitr (estimé)
+2043/10/2,Fête anniversaire de l'indépendance de la Guinée
+2043/11/12,Jour de la Tabaski (estimé)
+2043/11/13,Lendemain de la Tabaski (estimé)
+2043/12/25,Fête de Noël
+2044/1/1,Fête du Nouvel an
+2044/2/11,Lendemain de la nuit du Maoloud (estimé)
+2044/4/18,Lundi de Pâques
+2044/5/1,Fête du Travail
+2044/5/25,Anniversaire de l'Union Africaine
+2044/8/15,Assomption
+2044/8/21,Lendemain de la nuit Lailatoul Qadr (estimé)
+2044/8/24,Jour de l'Aïd el-Fitr (estimé)
+2044/10/2,Fête anniversaire de l'indépendance de la Guinée
+2044/10/3,Lendemain de la Fête anniversaire de l'indépendance de la Guinée
+2044/10/31,Jour de la Tabaski (estimé)
+2044/11/1,Lendemain de la Tabaski (estimé)
+2044/12/25,Fête de Noël
+2045/1/1,Fête du Nouvel an
+2045/1/2,Lendemain de la Fête du Nouvel an
+2045/1/30,Lendemain de la nuit du Maoloud (estimé)
+2045/4/10,Lundi de Pâques
+2045/5/1,Fête du Travail
+2045/5/25,Anniversaire de l'Union Africaine
+2045/8/10,Lendemain de la nuit Lailatoul Qadr (estimé)
+2045/8/14,Jour de l'Aïd el-Fitr (estimé)
+2045/8/15,Assomption
+2045/10/2,Fête anniversaire de l'indépendance de la Guinée
+2045/10/21,Jour de la Tabaski (estimé)
+2045/10/22,Lendemain de la Tabaski (estimé)
+2045/12/25,Fête de Noël
+2046/1/1,Fête du Nouvel an
+2046/1/19,Lendemain de la nuit du Maoloud (estimé)
+2046/3/26,Lundi de Pâques
+2046/5/1,Fête du Travail
+2046/5/25,Anniversaire de l'Union Africaine
+2046/7/31,Lendemain de la nuit Lailatoul Qadr (estimé)
+2046/8/3,Jour de l'Aïd el-Fitr (estimé)
+2046/8/15,Assomption
+2046/10/2,Fête anniversaire de l'indépendance de la Guinée
+2046/10/10,Jour de la Tabaski (estimé)
+2046/10/11,Lendemain de la Tabaski (estimé)
+2046/12/25,Fête de Noël
+2047/1/1,Fête du Nouvel an
+2047/1/8,Lendemain de la nuit du Maoloud (estimé)
+2047/4/15,Lundi de Pâques
+2047/5/1,Fête du Travail
+2047/5/25,Anniversaire de l'Union Africaine
+2047/7/20,Lendemain de la nuit Lailatoul Qadr (estimé)
+2047/7/24,Jour de l'Aïd el-Fitr (estimé)
+2047/8/15,Assomption
+2047/9/30,Jour de la Tabaski (estimé)
+2047/10/1,Lendemain de la Tabaski (estimé)
+2047/10/2,Fête anniversaire de l'indépendance de la Guinée
+2047/12/25,Fête de Noël
+2047/12/29,Lendemain de la nuit du Maoloud (estimé)
+2048/1/1,Fête du Nouvel an
+2048/4/6,Lundi de Pâques
+2048/5/1,Fête du Travail
+2048/5/25,Anniversaire de l'Union Africaine
+2048/7/8,Lendemain de la nuit Lailatoul Qadr (estimé)
+2048/7/12,Jour de l'Aïd el-Fitr (estimé)
+2048/7/13,Lendemain de la Jour de l'Aïd el-Fitr (estimé)
+2048/8/15,Assomption
+2048/9/19,Jour de la Tabaski (estimé)
+2048/9/20,Lendemain de la Tabaski (estimé)
+2048/10/2,Fête anniversaire de l'indépendance de la Guinée
+2048/12/18,Lendemain de la nuit du Maoloud (estimé)
+2048/12/25,Fête de Noël
+2049/1/1,Fête du Nouvel an
+2049/4/19,Lundi de Pâques
+2049/5/1,Fête du Travail
+2049/5/25,Anniversaire de l'Union Africaine
+2049/6/28,Lendemain de la nuit Lailatoul Qadr (estimé)
+2049/7/1,Jour de l'Aïd el-Fitr (estimé)
+2049/8/15,Assomption
+2049/9/8,Jour de la Tabaski (estimé)
+2049/9/9,Lendemain de la Tabaski (estimé)
+2049/10/2,Fête anniversaire de l'indépendance de la Guinée
+2049/12/7,Lendemain de la nuit du Maoloud (estimé)
+2049/12/25,Fête de Noël
+2050/1/1,Fête du Nouvel an
+2050/4/11,Lundi de Pâques
+2050/5/1,Fête du Travail
+2050/5/25,Anniversaire de l'Union Africaine
+2050/6/17,Lendemain de la nuit Lailatoul Qadr (estimé)
+2050/6/20,Jour de l'Aïd el-Fitr (estimé)
+2050/8/15,Assomption
+2050/8/28,Jour de la Tabaski (estimé)
+2050/8/29,Lendemain de la Tabaski (estimé)
+2050/10/2,Fête anniversaire de l'indépendance de la Guinée
+2050/10/3,Lendemain de la Fête anniversaire de l'indépendance de la Guinée
+2050/11/26,Lendemain de la nuit du Maoloud (estimé)
+2050/12/25,Fête de Noël

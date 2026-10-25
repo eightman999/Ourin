@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第三者コンポーネント信頼モデル（監査ドラフト）</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="THIRD_PARTY_TRUST_MODEL_ja-jp.html" class="active">日本語</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="_1">第三者コンポーネント信頼モデル（監査ドラフト）</h1>
+<ul>
+<li>日付: 2026-10-25</li>
+<li>位置づけ: 境界整理のドラフト。法的判断・セキュリティ認証ではない。</li>
+<li>方法: 本実行では追加のファイル読取・コマンド実行を行っていない。前回実行の観測と、親セッションが提示した追加証拠のみを使用。</li>
+<li>対象: 配布アプリに同梱される第三者コード・データ・素材、およびゴースト由来コードの実行境界。</li>
+</ul>
+<h2 id="1">1. ライセンス境界</h2>
+<ul>
+<li>Ourin 独自ソースは Apache License 2.0、独自ドキュメントは CC BY-SA 4.0。</li>
+<li>第三者コンポーネントは各アップストリームのライセンスを保持し、Ourin の Apache-2.0 は及ばない。</li>
+<li>既定ゴースト（さくら・りんね・ベル）は Ourin 本体と同じライセンスと自己宣言。立ち絵は画像生成AI製と自己宣言。</li>
+<li>画像生成AIのモデル・学習データ・出力物の権利評価は、提示証拠だけでは完了しない。</li>
+</ul>
+<h2 id="2">2. 同梱ネイティブエンジン</h2>
+<ul>
+<li>現行の親セッション証拠: KAWARI（BSD-2-Clause）と uka_regexp（Unlicense）を Universal2 の署名済み dylib として <code>Contents/Frameworks</code> に同梱。</li>
+<li>同じく KAGARI（MIT）、Lua（MIT）、sol2（MIT）を署名済み dylib として同梱。</li>
+<li>ABI 情報は <code>Resources/EngineMetadata</code> の plist、完全なライセンス通知は <code>Resources/EngineLicenses</code> に配置。</li>
+<li>固定情報（前回観測の <code>engines/PINNED_UPSTREAM.json</code>）: KAWARI revision <code>8098dfb8...</code>、uka_regexp はサブモジュール、KAGARI revision <code>ba87ccbd...</code>、Lua 5.4.4、sol2 3.2.2。</li>
+<li><code>engines/package.sh</code> は arm64/x86_64 を lipo 検証し、dylib をコピー、条件付きで codesign、<code>LICENSE*</code> と <code>PINNED_UPSTREAM.json</code> を配置する。</li>
+<li>エンジンテストは XPC を含む 42 実行が成功したと親セッションから報告。本実行では再実行していない。</li>
+</ul>
+<h2 id="3">3. ゴースト・プラグイン実行の信頼境界</h2>
+<ul>
+<li>ゴースト由来の SHIORI/SAORI/プラグインは、ベースウェアの権限で動作する信頼済みコードとして扱う必要がある。</li>
+<li>yaya_core の実装文書は、<code>FOPEN</code> 等のファイルI/Oを相対パス限定・<code>..</code> 拒否と記載し、<code>SAVEVAR</code>/<code>RESTOREVAR</code> をゴーストルート配下に固定すると記載。</li>
+<li>同文書は <code>EXECUTE</code>/<code>EXECUTE_WAIT</code> を実装済みと記載。ゴーストスクリプトからの任意コマンド実行能力を意味し得るため、主要リスク。</li>
+<li>同文書は <code>FENUM</code> が macOS コンテナ sandbox 配下の絶対パスも受け付けると記載。サンドボックス依存の境界であり、無制限のファイルアクセスを許す趣旨ではない。</li>
+<li>これらは文書の記載であり、現行バイナリの動作を本実行で確認したものではない。</li>
+</ul>
+<h2 id="4">4. 外部入力とゴーストアーカイブ</h2>
+<ul>
+<li>外部 SSTP サーバは起動時に <code>ExternalServerSecuritySettings.load()</code> の設定を <code>updateConfig</code> へ適用する（前回観測）。</li>
+<li>外部由来スクリプトには <code>isExternal</code> フラグが渡り、一部操作を制限する設計。<code>allow-external</code> の解釈も存在する（前回観測）。</li>
+<li>具体的な許可・拒否項目、認証、ネットワーク露出の妥当性は本監査の範囲外。設定変更は行わない。</li>
+<li>実ゴーストアーカイブは再配布していない。LOBO と mosu の NAR は <code>/tmp</code> のテスト用コピーのみ。</li>
+<li>NAR の展開・インストール時のパス検証は、提示証拠では未確認。</li>
+</ul>
+<h2 id="5">5. 祝日データ</h2>
+<ul>
+<li><code>python-holidays</code> 0.107（MIT、Vacanza Team ほか）を <code>scripts/gen_holidays.py</code> で 2020〜2050 年分生成。</li>
+<li>日本分は内閣府の表（公共データ利用規約 1.0、出典明記条件）を加工。文字コード・改行・先頭説明・休日区分を変更し、日付と名称は保持。</li>
+<li>2028 年以降は python-holidays の日本語名で補完。</li>
+<li>同梱の <code>Holidays_JP.txt</code> と <code>Holidays_python-holidays.txt</code> に出典・条件・MIT 全文を確認（前回観測）。</li>
+<li>ユーザー配置の <code>~/Documents/Ourin/calendar/holidays-JP.txt</code> が同梱表より優先される。</li>
+</ul>
+<h2 id="6">6. 証拠の区分</h2>
+<ul>
+<li>現行証拠: 親セッションが提示した Universal2 同梱、EngineMetadata、EngineLicenses、42 テスト実行、実アーカイブ非再配布。</li>
+<li>前回実行のスナップショット: HEAD の <code>AppLicense.txt</code>、<code>LICENSE</code>、<code>README.md</code>、<code>PINNED_UPSTREAM.json</code>、<code>package.sh</code>、テスト/docs の grep。現在の HEAD と一致する保証はない。</li>
+<li>失効した証拠: 旧 DerivedData の成果物。リリース証拠として扱わない。</li>
+<li>ドリフト候補: 前回 HEAD の <code>AppLicense.txt</code>/<code>LICENSE</code> は既定ゴーストを Sakura のみと記載。README は Sakura/Rinne/Bell の3体と記載。現在の通知文との一致は未確認。</li>
+</ul>
+<h2 id="7">7. 確認できたリスク（提示証拠の範囲）</h2>
+<ol>
+<li>ゴーストコードの任意コマンド実行・ファイルアクセス境界が文書依存で、実バイナリ検証は未実施。</li>
+<li>外部 SSTP の公開範囲・認証・危険操作の拒否リストが未検証。</li>
+<li>既定ゴーストの AI 生成画像に関する権利・生成条件の説明が自己宣言に留まる。</li>
+<li>同梱通知の完全性（BSD-2 の表示保持、Unlicense、Lua/sol2 の版一致）は配置の存在確認までで、全文照合は未実施。</li>
+<li>旧 AppLicense/LICENSE と README の記載ドリフト。現行成果物では要再確認。</li>
+<li>前回スナップショットで <code>docs/DEPENDENCIES_en-us.md</code> が <code>SECURITY.md</code> を参照する一方、<code>SECURITY.md</code> が見つからなかった。脆弱性報告導線の欠落候補。</li>
+<li>リリーススクリプト/CI におけるライセンス同梱の自動検証は、前回 grep では確認できなかった。<code>package.sh</code> のコピー処理とは別に、最終 <code>.app</code> の監査が必要。</li>
+</ol>
+<h2 id="8">8. 未解決ゲート</h2>
+<ul>
+<li>法務: 第三者ライセンス全文と版の照合、AI 生成素材の権利確認、CC BY-SA 対象文書の範囲確定。</li>
+<li>セキュリティ: <code>EXECUTE</code>/<code>EXECUTE_WAIT</code>、SAORI、外部 SSTP、NAR 展開の実装レビュー。設定変更はしない。</li>
+<li>リリース: 署名済み <code>.app</code> の <code>Contents/Frameworks</code>、<code>Resources/EngineMetadata</code>、<code>Resources/EngineLicenses</code> を実物で確認。</li>
+<li>文書: <code>SECURITY.md</code> の有無、AppLicense/LICENSE/README のゴースト記載統一。</li>
+<li>テスト: 42 実行のログ・対象範囲を保存し、監査証跡化。</li>
+</ul>
+<h2 id="9">9. 次のアクション（境界付き）</h2>
+<ol>
+<li>現行 HEAD で通知文と README のゴースト記載を照合する。</li>
+<li>署名済みリリース <code>.app</code> から同梱 dylib とライセンス全文を抽出してハッシュ記録する。</li>
+<li><code>SECURITY.md</code> を整備するか、参照を削除する。</li>
+<li>ゴースト信頼モデル（信頼済み/未信頼、EXECUTE の扱い）を1ページで明文化する。</li>
+<li>法務レビューへ本ドラフトと証拠一覧を渡す。本ドラフト自体を法的判断として扱わない。</li>
+</ol>
+<h2 id="english-summary">English summary</h2>
+<p>This is a bounded draft audit, not legal or security clearance. Current parent-supplied evidence confirms signed Universal2 KAWARI/uka_regexp and KAGARI/Lua/sol2 dylibs, ABI plists, full notices, and 42 passing engine tests including XPC; no real ghost archives are redistributed. Prior-run greps are snapshot evidence and may be stale. Open gates are license-text/version verification, ghost-code execution boundaries (EXECUTE, SAORI, external SSTP, NAR extraction), AI-art provenance, SECURITY.md, and release-artifact verification. No security settings were changed.</p>
+<h2 id="2026-10-25">統合側の現物照合（2026-10-25）</h2>
+<p>ローカルDebug appの5件のライセンス通知を固定版build出力とバイト単位で照合し一致。3本のdylibはarm64/x86_64を持ち、dylib各々とapp全体の <code>codesign --verify --deep --strict</code> が成功。証跡 <code>/tmp/ourin-engine-bundle-audit-20261025.json</code>。これはDeveloper ID公証済みの正式配布物を検証した結果ではない。LICENSE/AppLicenseがSakuraのみ、READMEが3体という記載差も現物で再確認した。</p>
+<p>今回の表は全依存の最終監査ではない。既存のYAYA_Core/SATORI/Ghidra通知、nlohmann_json等の依存、既存素材を含めた最終archiveの照合は #103 に残す。ライセンス条件や権限を変更していない。</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../THIRD_PARTY_TRUST_MODEL_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

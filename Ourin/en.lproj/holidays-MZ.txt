@@ -1,0 +1,322 @@
+# MZ holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,International Fraternalism Day
+2020/2/3,Heroes' Day
+2020/4/7,Women's Day
+2020/5/1,International Workers' Day
+2020/6/25,National Independence Day
+2020/9/7,Victory Day
+2020/9/25,Armed Forces Day
+2020/10/4,Peace and Reconciliation Day
+2020/10/5,Peace and Reconciliation Day (observed)
+2020/12/25,Family Day
+2021/1/1,International Fraternalism Day
+2021/2/3,Heroes' Day
+2021/4/7,Women's Day
+2021/5/1,International Workers' Day
+2021/6/25,National Independence Day
+2021/9/7,Victory Day
+2021/9/25,Armed Forces Day
+2021/10/4,Peace and Reconciliation Day
+2021/12/25,Family Day
+2022/1/1,International Fraternalism Day
+2022/2/3,Heroes' Day
+2022/4/7,Women's Day
+2022/5/1,International Workers' Day
+2022/5/2,International Workers' Day (observed)
+2022/6/25,National Independence Day
+2022/9/7,Victory Day
+2022/9/25,Armed Forces Day
+2022/9/26,Armed Forces Day (observed)
+2022/10/4,Peace and Reconciliation Day
+2022/12/25,Family Day
+2022/12/26,Family Day (observed)
+2023/1/1,International Fraternalism Day
+2023/1/2,International Fraternalism Day (observed)
+2023/2/3,Heroes' Day
+2023/4/7,Women's Day
+2023/5/1,International Workers' Day
+2023/6/25,National Independence Day
+2023/6/26,National Independence Day (observed)
+2023/9/7,Victory Day
+2023/9/25,Armed Forces Day
+2023/10/4,Peace and Reconciliation Day
+2023/12/25,Family Day
+2024/1/1,International Fraternalism Day
+2024/2/3,Heroes' Day
+2024/4/7,Women's Day
+2024/4/8,Women's Day (observed)
+2024/5/1,International Workers' Day
+2024/6/25,National Independence Day
+2024/9/7,Victory Day
+2024/9/25,Armed Forces Day
+2024/10/4,Peace and Reconciliation Day
+2024/12/25,Family Day
+2025/1/1,International Fraternalism Day
+2025/2/3,Heroes' Day
+2025/4/7,Women's Day
+2025/5/1,International Workers' Day
+2025/6/25,National Independence Day
+2025/9/7,Victory Day
+2025/9/8,Victory Day (observed)
+2025/9/25,Armed Forces Day
+2025/10/4,Peace and Reconciliation Day
+2025/12/25,Family Day
+2026/1/1,International Fraternalism Day
+2026/2/3,Heroes' Day
+2026/4/7,Women's Day
+2026/5/1,International Workers' Day
+2026/6/25,National Independence Day
+2026/9/7,Victory Day
+2026/9/25,Armed Forces Day
+2026/10/4,Peace and Reconciliation Day
+2026/10/5,Peace and Reconciliation Day (observed)
+2026/12/25,Family Day
+2027/1/1,International Fraternalism Day
+2027/2/3,Heroes' Day
+2027/4/7,Women's Day
+2027/5/1,International Workers' Day
+2027/6/25,National Independence Day
+2027/9/7,Victory Day
+2027/9/25,Armed Forces Day
+2027/10/4,Peace and Reconciliation Day
+2027/12/25,Family Day
+2028/1/1,International Fraternalism Day
+2028/2/3,Heroes' Day
+2028/4/7,Women's Day
+2028/5/1,International Workers' Day
+2028/6/25,National Independence Day
+2028/6/26,National Independence Day (observed)
+2028/9/7,Victory Day
+2028/9/25,Armed Forces Day
+2028/10/4,Peace and Reconciliation Day
+2028/12/25,Family Day
+2029/1/1,International Fraternalism Day
+2029/2/3,Heroes' Day
+2029/4/7,Women's Day
+2029/5/1,International Workers' Day
+2029/6/25,National Independence Day
+2029/9/7,Victory Day
+2029/9/25,Armed Forces Day
+2029/10/4,Peace and Reconciliation Day
+2029/12/25,Family Day
+2030/1/1,International Fraternalism Day
+2030/2/3,Heroes' Day
+2030/2/4,Heroes' Day (observed)
+2030/4/7,Women's Day
+2030/4/8,Women's Day (observed)
+2030/5/1,International Workers' Day
+2030/6/25,National Independence Day
+2030/9/7,Victory Day
+2030/9/25,Armed Forces Day
+2030/10/4,Peace and Reconciliation Day
+2030/12/25,Family Day
+2031/1/1,International Fraternalism Day
+2031/2/3,Heroes' Day
+2031/4/7,Women's Day
+2031/5/1,International Workers' Day
+2031/6/25,National Independence Day
+2031/9/7,Victory Day
+2031/9/8,Victory Day (observed)
+2031/9/25,Armed Forces Day
+2031/10/4,Peace and Reconciliation Day
+2031/12/25,Family Day
+2032/1/1,International Fraternalism Day
+2032/2/3,Heroes' Day
+2032/4/7,Women's Day
+2032/5/1,International Workers' Day
+2032/6/25,National Independence Day
+2032/9/7,Victory Day
+2032/9/25,Armed Forces Day
+2032/10/4,Peace and Reconciliation Day
+2032/12/25,Family Day
+2033/1/1,International Fraternalism Day
+2033/2/3,Heroes' Day
+2033/4/7,Women's Day
+2033/5/1,International Workers' Day
+2033/5/2,International Workers' Day (observed)
+2033/6/25,National Independence Day
+2033/9/7,Victory Day
+2033/9/25,Armed Forces Day
+2033/9/26,Armed Forces Day (observed)
+2033/10/4,Peace and Reconciliation Day
+2033/12/25,Family Day
+2033/12/26,Family Day (observed)
+2034/1/1,International Fraternalism Day
+2034/1/2,International Fraternalism Day (observed)
+2034/2/3,Heroes' Day
+2034/4/7,Women's Day
+2034/5/1,International Workers' Day
+2034/6/25,National Independence Day
+2034/6/26,National Independence Day (observed)
+2034/9/7,Victory Day
+2034/9/25,Armed Forces Day
+2034/10/4,Peace and Reconciliation Day
+2034/12/25,Family Day
+2035/1/1,International Fraternalism Day
+2035/2/3,Heroes' Day
+2035/4/7,Women's Day
+2035/5/1,International Workers' Day
+2035/6/25,National Independence Day
+2035/9/7,Victory Day
+2035/9/25,Armed Forces Day
+2035/10/4,Peace and Reconciliation Day
+2035/12/25,Family Day
+2036/1/1,International Fraternalism Day
+2036/2/3,Heroes' Day
+2036/2/4,Heroes' Day (observed)
+2036/4/7,Women's Day
+2036/5/1,International Workers' Day
+2036/6/25,National Independence Day
+2036/9/7,Victory Day
+2036/9/8,Victory Day (observed)
+2036/9/25,Armed Forces Day
+2036/10/4,Peace and Reconciliation Day
+2036/12/25,Family Day
+2037/1/1,International Fraternalism Day
+2037/2/3,Heroes' Day
+2037/4/7,Women's Day
+2037/5/1,International Workers' Day
+2037/6/25,National Independence Day
+2037/9/7,Victory Day
+2037/9/25,Armed Forces Day
+2037/10/4,Peace and Reconciliation Day
+2037/10/5,Peace and Reconciliation Day (observed)
+2037/12/25,Family Day
+2038/1/1,International Fraternalism Day
+2038/2/3,Heroes' Day
+2038/4/7,Women's Day
+2038/5/1,International Workers' Day
+2038/6/25,National Independence Day
+2038/9/7,Victory Day
+2038/9/25,Armed Forces Day
+2038/10/4,Peace and Reconciliation Day
+2038/12/25,Family Day
+2039/1/1,International Fraternalism Day
+2039/2/3,Heroes' Day
+2039/4/7,Women's Day
+2039/5/1,International Workers' Day
+2039/5/2,International Workers' Day (observed)
+2039/6/25,National Independence Day
+2039/9/7,Victory Day
+2039/9/25,Armed Forces Day
+2039/9/26,Armed Forces Day (observed)
+2039/10/4,Peace and Reconciliation Day
+2039/12/25,Family Day
+2039/12/26,Family Day (observed)
+2040/1/1,International Fraternalism Day
+2040/1/2,International Fraternalism Day (observed)
+2040/2/3,Heroes' Day
+2040/4/7,Women's Day
+2040/5/1,International Workers' Day
+2040/6/25,National Independence Day
+2040/9/7,Victory Day
+2040/9/25,Armed Forces Day
+2040/10/4,Peace and Reconciliation Day
+2040/12/25,Family Day
+2041/1/1,International Fraternalism Day
+2041/2/3,Heroes' Day
+2041/2/4,Heroes' Day (observed)
+2041/4/7,Women's Day
+2041/4/8,Women's Day (observed)
+2041/5/1,International Workers' Day
+2041/6/25,National Independence Day
+2041/9/7,Victory Day
+2041/9/25,Armed Forces Day
+2041/10/4,Peace and Reconciliation Day
+2041/12/25,Family Day
+2042/1/1,International Fraternalism Day
+2042/2/3,Heroes' Day
+2042/4/7,Women's Day
+2042/5/1,International Workers' Day
+2042/6/25,National Independence Day
+2042/9/7,Victory Day
+2042/9/8,Victory Day (observed)
+2042/9/25,Armed Forces Day
+2042/10/4,Peace and Reconciliation Day
+2042/12/25,Family Day
+2043/1/1,International Fraternalism Day
+2043/2/3,Heroes' Day
+2043/4/7,Women's Day
+2043/5/1,International Workers' Day
+2043/6/25,National Independence Day
+2043/9/7,Victory Day
+2043/9/25,Armed Forces Day
+2043/10/4,Peace and Reconciliation Day
+2043/10/5,Peace and Reconciliation Day (observed)
+2043/12/25,Family Day
+2044/1/1,International Fraternalism Day
+2044/2/3,Heroes' Day
+2044/4/7,Women's Day
+2044/5/1,International Workers' Day
+2044/5/2,International Workers' Day (observed)
+2044/6/25,National Independence Day
+2044/9/7,Victory Day
+2044/9/25,Armed Forces Day
+2044/9/26,Armed Forces Day (observed)
+2044/10/4,Peace and Reconciliation Day
+2044/12/25,Family Day
+2044/12/26,Family Day (observed)
+2045/1/1,International Fraternalism Day
+2045/1/2,International Fraternalism Day (observed)
+2045/2/3,Heroes' Day
+2045/4/7,Women's Day
+2045/5/1,International Workers' Day
+2045/6/25,National Independence Day
+2045/6/26,National Independence Day (observed)
+2045/9/7,Victory Day
+2045/9/25,Armed Forces Day
+2045/10/4,Peace and Reconciliation Day
+2045/12/25,Family Day
+2046/1/1,International Fraternalism Day
+2046/2/3,Heroes' Day
+2046/4/7,Women's Day
+2046/5/1,International Workers' Day
+2046/6/25,National Independence Day
+2046/9/7,Victory Day
+2046/9/25,Armed Forces Day
+2046/10/4,Peace and Reconciliation Day
+2046/12/25,Family Day
+2047/1/1,International Fraternalism Day
+2047/2/3,Heroes' Day
+2047/2/4,Heroes' Day (observed)
+2047/4/7,Women's Day
+2047/4/8,Women's Day (observed)
+2047/5/1,International Workers' Day
+2047/6/25,National Independence Day
+2047/9/7,Victory Day
+2047/9/25,Armed Forces Day
+2047/10/4,Peace and Reconciliation Day
+2047/12/25,Family Day
+2048/1/1,International Fraternalism Day
+2048/2/3,Heroes' Day
+2048/4/7,Women's Day
+2048/5/1,International Workers' Day
+2048/6/25,National Independence Day
+2048/9/7,Victory Day
+2048/9/25,Armed Forces Day
+2048/10/4,Peace and Reconciliation Day
+2048/10/5,Peace and Reconciliation Day (observed)
+2048/12/25,Family Day
+2049/1/1,International Fraternalism Day
+2049/2/3,Heroes' Day
+2049/4/7,Women's Day
+2049/5/1,International Workers' Day
+2049/6/25,National Independence Day
+2049/9/7,Victory Day
+2049/9/25,Armed Forces Day
+2049/10/4,Peace and Reconciliation Day
+2049/12/25,Family Day
+2050/1/1,International Fraternalism Day
+2050/2/3,Heroes' Day
+2050/4/7,Women's Day
+2050/5/1,International Workers' Day
+2050/5/2,International Workers' Day (observed)
+2050/6/25,National Independence Day
+2050/9/7,Victory Day
+2050/9/25,Armed Forces Day
+2050/9/26,Armed Forces Day (observed)
+2050/10/4,Peace and Reconciliation Day
+2050/12/25,Family Day
+2050/12/26,Family Day (observed)

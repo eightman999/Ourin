@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO・GitHub issue照合 / TODO and GitHub Issue Reconciliation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="todogithub-issue-todo-and-github-issue-reconciliation">TODO・GitHub issue照合 / TODO and GitHub Issue Reconciliation</h1>
+<p><strong>確認日 / Checked:</strong> 2026-10-25 (JST)<br />
+<strong>対象 / Scope:</strong> <code>codex/ourin-pr-integration</code> @ <code>77500e31655a3b920c036e56fe7653050f3c0265</code> ＋統合済み・未コミット変更 / integrated uncommitted changes.</p>
+<p>10/24の現行ブランチ照合後、10/25に公開中のClaude PR 33件を専用worktreeへ統合。以下は元ブランチの状態を基礎に、統合済みPRと今回の外部委譲成果を反映したもの。GitHub issue/PRのclose・mergeは行っていない。最終検証結果とhead一覧は<a href="PR_TAKEOVER_2026-10-25_unknown.html">PR引継ぎ記録</a>を参照。</p>
+<p>After the October 24 branch audit, 33 open Claude PRs were integrated into a dedicated worktree on October 25. Integrated rows below supersede the previous branch-only status. GitHub issue/PR state remains unchanged. See the <a href="PR_TAKEOVER_2026-10-25_unknown.html">takeover record</a> for exact heads and validation.</p>
+<ul>
+<li>元ブランチで実装済み12件は<a href="AUDITS_COMPLETED_unknown.html">完了記録</a>へ整理済み。</li>
+<li>保留・対象外は #114 / #122 / #124。リリース判定・実ゴースト網羅は引き続き残件。</li>
+<li>「ローカル統合済み」は公開版やmaster反映を意味しない。 / Local integration does not mean a public release or merge into master.</li>
+</ul>
+<p>優先順と実行モデル・認証待ちは<a href="DELEGATION_2026-10-25_unknown.html">委譲記録</a>、実ゴーストの判定は<a href="REAL_GHOST_VERIFICATION_2026-10-25_unknown.html">検証結果</a>を参照。</p>
+<p><strong>最新ローカル検証:</strong> OurinTests 1,541実行 / 1,520集計テスト、失敗0（2026-10-25、arm64）。GUI・クリーンMac・Intel実機・認証待ちは別途残る。 / Latest local full unit run: 1,541 executions / 1,520 aggregate tests, zero failures; broader runtime/release gates remain.</p>
+<h2 id="open-issue-all-open-issues">Open issue全件 / All open issues</h2>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>現ブランチの判定 / Branch status</th>
+<th>根拠・残件 / Evidence and remaining work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/95">#95</a> [Process] OurinをIssue駆動開発へ移行する</td>
+<td>ローカル整備済み / Locally prepared</td>
+<td>CONTRIBUTING・Issue/PR templates追加。運用の定着は別 / templates and workflow prepared, adoption remains.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/96">#96</a> [P0][Release] master/PR に必須の macOS CI リリースゲートを導入する</td>
+<td>ローカル整備済み・CI待ち / CI pending</td>
+<td>Release/helper/metadata gateを追加。GitHub CI実行とbranch protection未確認。RELEASE_GATES_2026-10-25.md。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/97">#97</a> [P0][Bug] macOS minimum deployment target の不整合を解消する</td>
+<td>ローカル整合済み / Aligned locally</td>
+<td>app/XPC/testsをREADMEのmacOS13へ統一。metadata検査PASS。最低OS実機は未確認。公開v0.0.1.21の要件とは別。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/98">#98</a> [P0][Release] Developer ID署名・notarization・配布パッケージを確立する</td>
+<td>一部 / Partial</td>
+<td><a href="https://github.com/eightman999/Ourin/releases/tag/v0.0.1.21">v0.0.1.21</a> に署名・公証済み配布の記載。<code>scripts/release.sh</code> は未追跡。1.0.0向け再現可能な署名/公証・クリーンMac検証が残る / release reports signed/notarized delivery; reproducible 1.0.0 flow and clean-Mac verification remain.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/99">#99</a> [P0][Release] v1.0.0向けバージョン・リリースメタデータを整理する</td>
+<td>開発版整合済み / Development aligned</td>
+<td>0.0.1.21/build21を同期し、release時は3整数bundle版数を要求。正常/変異17ケースPASS。正式1.0.0への変更は未実施。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/100">#100</a> [P0][Security] 第三者ゴースト/SHIORI/SAORI実行の信頼モデルと権限制御を定義する</td>
+<td>監査文書作成・残gateあり / Audit draft</td>
+<td>HAIがTHIRD_PARTY_TRUST_MODEL_ja-jp.mdを作成。native/XPCは権限制限そのものではない。危険操作・実配布物の境界検証は残る。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/101">#101</a> [P1][Compatibility] 実ゴースト互換性マトリクスを拡充する</td>
+<td>検証拡充 / Expanded</td>
+<td>KAWARI/KAGARI Universal2同梱・実エンジンXPC成功。LOBO/Emily4/Taromati2を複製上で検証。もすnative依存・GUI/実SAORI・広い網羅は残る。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/102">#102</a> [P1][QA] クリーンMacでインストール〜NAR〜再起動までのE2Eリリース試験を整備する</td>
+<td>チェックリスト整備・実機待ち / Device pending</td>
+<td>RELEASE_GATESに手順追加。クリーンMac install→NAR→保存→再起動と最低OS実機は未確認。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/103">#103</a> [P0][Legal] v1.0.0配布物の第三者ライセンス・再配布条件を最終監査する</td>
+<td>部分監査 / Partial audit</td>
+<td>HAI監査文書と新エンジン5通知の現物一致確認。正式archive全依存監査、既定ghost通知の名称差、素材権利記録は残る。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/104">#104</a> [P1][Release] Known Issues・バグ報告導線・診断情報を整備する</td>
+<td>文書整備済み・一部残件 / Docs prepared</td>
+<td>Known Issues/報告手順の日英文書・bug template追加。toolbarログExportとDebug診断stubの差、自動匿名化などは残る。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/105">#105</a> [Meta][Release] Ourin v1.0.0-beta.1 / v1.0.0 リリーストラッカー</td>
+<td>追跡 / Tracker</td>
+<td>v1.0.0-beta.1→v1.0.0、日程未定。PR #125取込済み、P0/P1 gate残存 / PR #125 merged; release gates remain.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/106">#106</a> [compat/SSTP] Sender と User-Agent の両方無しリクエストの 400 拒否が未実装</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/SSTP/SSTPDispatcher.swift</code> (<code>refuseIfMissingSenderAndUserAgent</code>); <code>OurinTests/SSTPCompatRegressionTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/107">#107</a> [compat/SSTP] SHIORI 非標準ステータスを 204 に丸める変換が未実装</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/SSTP/SSTPDispatcher.swift</code>; <code>OurinTests/SSTPCompatRegressionTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/108">#108</a> [compat/SSTP] X-Force-Activate-Me ヘッダによるウィンドウアクティブ化が未実装</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/SSTP/SSTPDispatcher.swift</code>; <code>OurinTests/SSTPCompatRegressionTests.swift</code> (実窓確認は別 / real-window check separate)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/109">#109</a> [compat/SSTP] FINE メソッド（MessageSend/SetScript/SetScriptPartial）が未実装</td>
+<td>ローカル修正・差分残 / Locally fixed</td>
+<td>z.ai＋統合修正でFINE行subcommand/Reference3本文、単一宛先配送・wire回帰を追加。SSP優先ghost fallbackと曖昧Reference仕様は未確定。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/110">#110</a> [compat/SSTP] X-SSTP-Return- への PassThru フォールバックが未実装</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/SSTP/SSTPDispatcher.swift</code>; <code>OurinTests/SSTPCompatRegressionTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/112">#112</a> [compat/SHIORI] SecurityOrigin 無し時の 'null' 送出が未実装</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/SSTP/SSTPDispatcher.swift</code>; <code>OurinTests/ShioriRuntimeTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/114">#114</a> [compat] mcp.exe は MCP サーバであり ukagaka 互換対象外（記録）</td>
+<td>対象外 / Out of scope</td>
+<td>mcp.exe はMCP serverとして記録。伺か互換実装のTODOから除外 / excluded from compatibility implementation.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/115">#115</a> [compat/Property] selfname が sakuraname の別名として未解決</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/Property/GhostPropertyProvider.swift</code>; <code>OurinTests/PropertySystemTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/116">#116</a> [compat/SERIKO] interval 略称と never 複合の挙動が SSP と異なる</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/Animation/SerikoParser.swift</code>, <code>SerikoExecutor.swift</code>; <code>OurinTests/SerikoParserTests.swift</code>, <code>SerikoExecutorTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/117">#117</a> [compat/SERIKO] method ccyr / noop が未実装</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/Animation/SerikoParser.swift</code>; <code>OurinTests/SerikoParserTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/118">#118</a> [compat/Input] scriptbox 入力種別が未実装</td>
+<td>ローカル修正済み / Locally fixed</td>
+<td>z.aiがscriptbox/textareaboxのopen/close誤配線を修正。入力窓生成とclose回帰テスト。Macロック中で手動画面操作未確認。</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/119">#119</a> [compat/Calendar] PlayTodaysEvent（#todays event header）が未実装</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/Calendar/CalendarSchedule.swift</code>, <code>CalendarWindow.swift</code>; <code>OurinTests/CalendarScheduleTests.swift</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/120">#120</a> [compat/Cookie] SSTP Cookie のディスク永続化が未実装（メモリのみ）</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/SSTP/SstpSessionStore.swift</code>; <code>OurinTests/SSTPDispatcherTests.swift</code> (Sender単位の最低要件 / minimum Sender-scoped requirement)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/121">#121</a> [compat/SaveShare] OneDrive/Dropbox クラウドセーブ（.ssg）が未実装</td>
+<td>一部 / Partial</td>
+<td><code>Ourin/SaveShare/SaveShareManager.swift</code> とテストで手動.ssg入出力済み。cloud検出/load-unload同期が残る / manual import/export done; automatic cloud sync pending.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/122">#122</a> [compat] IP Messenger / MsgSender 連携が未実装</td>
+<td>保留 / Deferred</td>
+<td><code>1c30313</code>でIP Messenger対象外記録。必要時にMsgSenderも含め方針再検討 / revisit interoperability if required.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/123">#123</a> [compat/Sound] http(s)/ストリーミング URL 再生が未対応（ローカルのみ）</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/Ghost/GhostManager+Display.swift</code>; <code>OurinTests/SoundPlayerTests.swift</code> (実再生は別 / actual playback separate)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/124">#124</a> [compat/FMO] FineFMO 共有メモリが未実装</td>
+<td>保留 / Deferred</td>
+<td>Windows FineFMO共有メモリは未実装。通常POSIX FMOとは別契約 / FineFMO remains a platform gap, distinct from implemented POSIX FMO.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/131">#131</a> [compat/Execute] WebSocket イベントが UKADOC と不一致（Reference の並び・Failure/Reconnect/_SSLInfo・--async）</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #142を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/132">#132</a> [compat/Events] OnIdle に時刻系の Reference（トーク可否・放置秒数）を付ける</td>
+<td>実装済み / Implemented</td>
+<td><code>Ourin/SHIORIEvents/TimerEmitter.swift</code>, <code>EventReferenceSpec.swift</code>; <code>OurinTests/EventObserverLifecycleTests.swift</code>, <code>EventReferenceTableTests.swift</code>; <code>0a2a37d</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/133">#133</a> [compat/Execute] ![execute,filewatch] と OnExecuteFileWatchChange/Failure が未実装</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #143を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/134">#134</a> [compat/Events] OnDesktopWallpaperChange が未実装</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #144を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/135">#135</a> [compat/Input] textareabox と OnTextAreaInput/OnTextAreaInputCancel が未実装</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #145を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/136">#136</a> [compat/Calendar] schedule-add/delete/get と OnExecuteSchedule*、OnScheduleTodayNotify が未実装</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #147を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/137">#137</a> [compat/Execute] ical-get/ical-post と OnExecuteICal* が未実装</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #148を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/138">#138</a> [compat/Sound] OnSoundSpectrum が未実装</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #150を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/139">#139</a> [compat/SAORI] 内蔵SAORIの非同期呼び出し OnInternalSaoriComplete/Failure が未実装</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #155を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/140">#140</a> [compat/Calendar] OnNotifyHolidayInfo が未実装</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #149を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/141">#141</a> [Meta][compat/Events] UKADOC の SHIORI イベントの不足・不一致への対応</td>
+<td>追跡 / Tracker</td>
+<td>#131〜140のレビュー/統合と祝日表運用。#132は現ブランチ実装済み / review/integrate event changes; #132 implemented here.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/151">#151</a> [compat/SAORI] SAORI over DirectSSTP と内蔵モジュール（internal_*）が未実装</td>
+<td>未反映 / Not integrated</td>
+<td>現<code>Ourin/SaoriHost</code>/SSTPにinternal_*基盤なし。issueにPR #155を記載 / internal SAORI foundation not in this branch; track #155.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/152">#152</a> [compat/SAORI] internal_crypto（ハッシュ・暗号・鍵導出・署名など）が未実装</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #160を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/153">#153</a> [compat/SAORI] internal_jwt（JWT の作成と検証）が未実装</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #159を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/154">#154</a> [compat/SAORI] internal_file（MediaInfo）と互換モジュールの扱いが未実装</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #162を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/161">#161</a> ゴーストのシェル／バルーン読み込み不具合と切り替えメニューの日本語化要望</td>
+<td>検証待ち / Verification</td>
+<td>表示/メニュー改善はあるが報告ゴーストでの再現・解消未確認。#184/#192とも照合 / reproduce reported shell/balloon problems.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/163">#163</a> [compat/i18n] 日本語以外の文字コード（Big5・GBK・EUC-KR・Windows-1252 など）を読めない</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #166を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/164">#164</a> [i18n] UI の多言語化（日本語の直書きを英語・日本語で切り替え、中国語・韓国語を追加）</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #168を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/165">#165</a> [compat/Calendar] 外国の祝日（holidays-XX.txt）と言語ごとの祝日名</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #167を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/169">#169</a> NAR インストーラで LZMA 圧縮の NAR を展開できない</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #172を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/170">#170</a> 別名の DLL（aya.dll など）で同梱された YAYA を YAYA として起動する</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #173を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/171">#171</a> yaya_core で Big5・GBK・EUC-KR の辞書を読む</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #174を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/175">#175</a> yaya_core が Taromati2 の辞書の YAYA 構文を解析できない</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #178を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/176">#176</a> yaya_core が関数の呼び出しの深さに上限を持たず、再帰でスタックを使い切って落ちる</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #177を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/179">#179</a> yaya_core のファイル関数を YAYA に合わせ、ゴーストの profile フォルダを用意する</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #180取込み後、FOPEN/FREADのfilename契約・EOF・SAVEVAR既定保存先・GETVARLISTを修正。Emily4/Taromati2の保存・別process再load成功。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/181">#181</a> Xcode の増分ビルドで yaya_core・satori_core のソースの変更が反映されない</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #182を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/183">#183</a> 直下にフォルダが1つだけある NAR（Taromati2.nar など）をインストールできない</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #186を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/184">#184</a> ゴーストの descript.txt の balloon（標準バルーン）を使わない</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #187を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/185">#185</a> ![open,inputbox] などの入力ボックスがモーダルで、閉じるまでアプリ全体が止まる</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #188を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/189">#189</a> yaya_core が %(username) など SSP の環境変数と同じ名前の埋め込み要素を展開しない</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #190を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/192">#192</a> バルーンの descript.txt の font.color・font.height が、表示した最初の本文に使われない</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #193を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/issues/194">#194</a> OnSurfaceRestore がサーフェス変更の 15 秒後に送られ、選択肢待ちのバルーンを消す</td>
+<td>ローカル統合済み / Locally integrated</td>
+<td>PR #195を専用worktreeへ取り込み済み。統合テスト結果・残る制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>を参照。GitHubはopen。 / Integrated locally; see validation and limitations in the takeover record.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="closed-issue-closed-issues">Closed issue照合 / Closed issues</h2>
+<p>GitHub closed一覧は #73 / #75 / #77 / #79 / #83 / #85 / #87 / #111 / #113。古い包括issueのcloseを、最新の全互換性・全翻訳完了とは扱わない。特に #87 はclosedでも翻訳プレースホルダー20件が残る。#111はwire確認、#113はEXECUTEネイティブコマンドと回帰（<code>210fd5d</code>、<code>OurinTests/SSTPDispatcherTests.swift</code>）を完了記録へ整理する。</p>
+<p>Closed historical umbrella issues do not prove current complete compatibility or translation coverage. In particular, #87 is closed while 20 translation placeholders remain. #111 concerns native wire verification; #113 has native EXECUTE regression coverage (<code>210fd5d</code>).</p>
+<h2 id="next-work">次の着手順 / Next work</h2>
+<ol>
+<li>P0: #96/#98/#99/#100/#103 の正式リリース・remote CI・信頼境界・配布物監査の残gate。</li>
+<li>P1: #101/#102 の実ゴーストとクリーンMac。もすの追加native依存、GUI/SAORI、最低OS/Intel実機。YAYAの上流保存形式互換。</li>
+<li>P1: #109のSSP差分確認、#104の診断Exportと匿名化。#118の手動操作確認。</li>
+<li>P2/P3: 描画・音声・OSイベントの実機差分、#121の自動同期、既存翻訳20件。</li>
+</ol>
+<p>実装・設定・文書整備が完了した項目は再実装せず検証層を進める。<a href="DELEGATION_2026-10-25_unknown.html">担当・モデル・実行結果</a>を参照。GitHub priority labelは変更していない。</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../TODO_ISSUE_STATUS.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

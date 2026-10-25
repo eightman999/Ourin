@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第三者ライセンス監査 2026-10-25（ドラフト）</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="2026-10-25">第三者ライセンス監査 2026-10-25（ドラフト）</h1>
+<ul>
+<li>監査日: 2026-10-25</li>
+<li>状態: ドラフト。法的判断ではなく、完全性・セキュリティ保証でもない。</li>
+<li>方法: 本実行では追加読取・コマンド実行なし。前回実行の観測と親セッション提示の追加証拠のみ。</li>
+<li>作業ツリー: 統合 worktree。他ワーカーが稼働中のため、本監査は2文書の作成に限定。</li>
+</ul>
+<h2 id="1">1. 監査対象と判定</h2>
+<table>
+<thead>
+<tr>
+<th>コンポーネント</th>
+<th>版/固定</th>
+<th>ライセンス</th>
+<th>同梱形態</th>
+<th>証拠</th>
+<th>判定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ourin 独自コード</td>
+<td>0.0.1.21 (build 21、前回観測)</td>
+<td>Apache-2.0</td>
+<td>アプリ本体</td>
+<td>README/LICENSE</td>
+<td>自己宣言を確認</td>
+</tr>
+<tr>
+<td>Ourin 独自ドキュメント</td>
+<td>-</td>
+<td>CC BY-SA 4.0</td>
+<td>docs</td>
+<td>README</td>
+<td>自己宣言を確認。対象範囲は要確定</td>
+</tr>
+<tr>
+<td>KAWARI</td>
+<td><code>8098dfb8...</code></td>
+<td>BSD-2-Clause</td>
+<td>Universal2 署名済み dylib</td>
+<td>親証拠、PINNED_UPSTREAM</td>
+<td>現行証拠あり</td>
+</tr>
+<tr>
+<td>uka_regexp</td>
+<td>KAWARI サブモジュール</td>
+<td>Unlicense</td>
+<td>KAWARI に同梱</td>
+<td>親証拠、PINNED_UPSTREAM</td>
+<td>現行証拠あり</td>
+</tr>
+<tr>
+<td>KAGARI</td>
+<td><code>ba87ccbd...</code></td>
+<td>MIT</td>
+<td>Universal2 署名済み dylib</td>
+<td>親証拠、PINNED_UPSTREAM</td>
+<td>現行証拠あり</td>
+</tr>
+<tr>
+<td>Lua</td>
+<td>5.4.4</td>
+<td>MIT</td>
+<td>署名済み dylib</td>
+<td>親証拠、PINNED_UPSTREAM</td>
+<td>版と通知の全文照合は未実施</td>
+</tr>
+<tr>
+<td>sol2</td>
+<td>3.2.2</td>
+<td>MIT</td>
+<td>KAGARI に同梱</td>
+<td>親証拠、PINNED_UPSTREAM</td>
+<td>版と通知の全文照合は未実施</td>
+</tr>
+<tr>
+<td>python-holidays</td>
+<td>0.107</td>
+<td>MIT</td>
+<td>生成済み祝日データ</td>
+<td>Licenses/Holidays_python-holidays.txt</td>
+<td>MIT 全文を前回確認</td>
+</tr>
+<tr>
+<td>内閣府 祝日データ</td>
+<td>-</td>
+<td>PDL 1.0（出典明記）</td>
+<td>加工済み祝日データ</td>
+<td>Licenses/Holidays_JP.txt</td>
+<td>条件・加工内容を前回確認</td>
+</tr>
+<tr>
+<td>既定ゴースト さくら/りんね/ベル</td>
+<td>-</td>
+<td>Ourin と同一（自己宣言）</td>
+<td>DefaultGhost</td>
+<td>README、旧 AppLicense/LICENSE</td>
+<td>現行通知は要再確認</td>
+</tr>
+<tr>
+<td>LOBO / mosu NAR</td>
+<td>-</td>
+<td>非再配布</td>
+<td><code>/tmp</code> テストコピーのみ</td>
+<td>親証拠</td>
+<td>配布対象外</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2">2. 現行証拠として確認できたこと</h2>
+<ul>
+<li>KAWARI+uka_regexp、KAGARI+Lua+sol2 は Universal2 の署名済み dylib として <code>Contents/Frameworks</code> に同梱。</li>
+<li>ABI plist は <code>Resources/EngineMetadata</code>、完全なライセンス通知は <code>Resources/EngineLicenses</code> に配置。</li>
+<li>エンジンテストは XPC を含む 42 実行が成功（親セッション報告、本実行での再実行なし）。</li>
+<li>実ゴーストアーカイブの再配布なし。LOBO/mosu は <code>/tmp</code> のテスト用のみ。</li>
+<li>上記は「配置と実行報告」の証拠であり、ライセンス全文の内容一致や法的解釈の確認ではない。</li>
+</ul>
+<h2 id="3">3. 前回実行の観測（現在と一致する保証なし）</h2>
+<ul>
+<li><code>engines/PINNED_UPSTREAM.json</code> に KAWARI/KAGARI のリポジトリ、revision、ライセンスファイル、依存版、成果物名を確認。</li>
+<li><code>engines/package.sh</code> は lipo で arm64/x86_64 を検証し、dylib 配置、条件付き codesign、<code>LICENSE*</code> と <code>PINNED_UPSTREAM.json</code> のコピーを実施。</li>
+<li>HEAD の <code>Ourin/Resources/Licenses/AppLicense.txt</code> と <code>LICENSE</code> は既定ゴーストを Sakura のみと記載。README は Sakura/Rinne/Bell の3体と記載。</li>
+<li><code>docs/DEPENDENCIES_en-us.md</code> は <code>SECURITY.md</code> を参照するが、<code>SECURITY.md</code> は見つからなかった。</li>
+<li>リリーススクリプト/CI の grep ではライセンス同梱チェックを確認できなかった。ただし grep の否定結果は不在の証明ではない。</li>
+<li>祝日ファイルは <code>Ourin/Resources/Holidays/holidays-XX.txt</code> と <code>Ourin/en.lproj/holidays-XX.txt</code>。日本分は内閣府表の加工と python-holidays 補完。</li>
+<li>これらは前回時点のスナップショット。親セッションの追加変更後の HEAD では未確認。</li>
+</ul>
+<h2 id="4">4. 失効・誤用防止</h2>
+<ul>
+<li>旧 DerivedData の成果物は現行リリース証拠ではない。監査対象から除外。</li>
+<li>前回 HEAD の AppLicense/LICENSE の記載は、現行の親変更を反映していない可能性がある。</li>
+<li>テスト用 <code>/tmp</code> の NAR を配布物の証拠として扱わない。</li>
+<li>本監査の「確認」は提示された証拠の存在確認を指し、法的有効性の確認ではない。</li>
+</ul>
+<h2 id="5">5. リスク</h2>
+<ol>
+<li>通知の完全性: BSD-2-Clause の著作権表示・免責、Unlicense、Lua/sol2 の MIT 全文が、同梱物と版で一致するか未照合。</li>
+<li>版の一致: PINNED_UPSTREAM の Lua 5.4.4 / sol2 3.2.2 と、実際の dylib のビルド元が一致するか未確認。</li>
+<li>文書ドリフト: 既定ゴーストの名称・数・素材ライセンスがファイル間で不一致の可能性。</li>
+<li>脆弱性報告: <code>SECURITY.md</code> 不在候補。参照だけが残ると運用上の抜けになる。</li>
+<li>リリース自動検証: <code>package.sh</code> は通知をコピーするが、最終 <code>.app</code> に通知が入ったことの自動検証は未確認。</li>
+<li>AI 生成素材: 既定ゴーストの立ち絵が AI 生成である旨は自己宣言。権利・生成条件の評価は未完了。</li>
+<li>ゴーストコード: <code>EXECUTE</code>/<code>EXECUTE_WAIT</code> や SAORI、外部 SSTP、NAR 展開の信頼境界は別途レビューが必要。</li>
+<li>法務境界: Apache-2.0 と CC BY-SA 4.0 の適用範囲、第三者ライセンスの優先関係は、ドラフト段階。</li>
+</ol>
+<h2 id="6">6. 未解決ゲート</h2>
+<ul>
+<li>法務レビュー: 全文・版・帰属表示・変更通知の照合。本ドラフトは清算ではない。</li>
+<li>リリース証拠: 署名済み <code>.app</code> の Frameworks / EngineMetadata / EngineLicenses を実物確認。</li>
+<li>セキュリティ: ゴーストコード実行、外部 SSTP、NAR 展開のレビュー。認証・権限・セキュリティ設定は変更しない。</li>
+<li>文書: <code>SECURITY.md</code>、AppLicense、LICENSE、README の整合。</li>
+<li>証跡: 42 テスト実行のログと対象範囲を保存。</li>
+</ul>
+<h2 id="7">7. 次のアクション</h2>
+<ol>
+<li>現行 HEAD の通知文と README のゴースト記載を照合する。</li>
+<li>リリース <code>.app</code> から dylib とライセンスを抽出し、SHA-256 と版を記録する。</li>
+<li><code>SECURITY.md</code> を追加するか、依存文書の参照を修正する。</li>
+<li><code>package.sh</code> 後の <code>.app</code> に通知が存在することを検証するチェックを追加するか判断する。</li>
+<li>法務とセキュリティのレビュー担当へ、本ドラフトと証拠一覧を引き渡す。</li>
+</ol>
+<h2 id="english-summary">English summary</h2>
+<p>Bounded draft audit as of 2026-10-25; not legal or security clearance. Parent-supplied current evidence covers signed Universal2 KAWARI/uka_regexp and KAGARI/Lua/sol2 dylibs, ABI plists, full notices, and 42 passing engine tests including XPC; no real ghost archives are redistributed. Prior-run observations (license-file drift, missing SECURITY.md, release-pipeline checks) are snapshot evidence and may be stale. Remaining gates are license-text/version verification, execution-boundary review, AI-art provenance, and signed-release artifact inspection. No security settings were changed.</p>
+<h2 id="2026-10-25_1">統合側の現物照合（2026-10-25）</h2>
+<p>ローカルDebug appの5件のライセンス通知を固定版build出力とバイト単位で照合し一致。3本のdylibはarm64/x86_64を持ち、dylib各々とapp全体の <code>codesign --verify --deep --strict</code> が成功。証跡 <code>/tmp/ourin-engine-bundle-audit-20261025.json</code>。これはDeveloper ID公証済みの正式配布物を検証した結果ではない。LICENSE/AppLicenseがSakuraのみ、READMEが3体という記載差も現物で再確認した。</p>
+<p>今回の表は全依存の最終監査ではない。既存のYAYA_Core/SATORI/Ghidra通知、nlohmann_json等の依存、既存素材を含めた最終archiveの照合は #103 に残す。ライセンス条件や権限を変更していない。</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../THIRD_PARTY_LICENSE_AUDIT_2026-10-25.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bundled KAWARI / KAGARI engines</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="KAWARI_KAGARI_ENGINES_ja-jp.html" class="">日本語</a> | <a href="KAWARI_KAGARI_ENGINES_en-us.html" class="active">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="bundled-kawari-kagari-engines">Bundled KAWARI / KAGARI engines</h1>
+<p>Updated: 2026-10-25. Development build only; these additions are not in public v0.0.1.21.</p>
+<h2 id="pinned-upstreams">Pinned upstreams</h2>
+<p><code>engines/PINNED_UPSTREAM.json</code> records the upstream repositories and exact revisions. Build outputs retain their upstream license notices.</p>
+<table>
+<thead>
+<tr>
+<th>Engine</th>
+<th>Upstream</th>
+<th>macOS artifact</th>
+<th>OurinShioriABI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KAWARI</td>
+<td><a href="https://github.com/ukatech/kawari">ukatech/kawari</a></td>
+<td>libkawari_shiori.dylib</td>
+<td>ukagaka-long</td>
+</tr>
+<tr>
+<td>KAGARI</td>
+<td><a href="https://github.com/Tatakinov/kagari_shiori">Tatakinov/kagari_shiori</a></td>
+<td>libkagari.dylib</td>
+<td>kagari</td>
+</tr>
+</tbody>
+</table>
+<p>KAGARI uses its POSIX instance-ID ABI: kagari_load, kagari_request(id, …), kagari_unload. This differs from its Windows ABI. KAWARI uses the POSIX long-width interface, preferring loadu.</p>
+<h2 id="build">Build</h2>
+<p>Run <code>bash engines/package.sh</code> to build both engines for arm64 and x86_64. Individual scripts are <code>engines/kawari/build.sh</code> and <code>engines/kagari/build.sh</code>; the latter builds the host architecture unless <code>OURIN_KAGARI_UNIVERSAL=1</code> is set.</p>
+<p>KAGARI downloads Lua 5.4.4 and sol2 3.2.2 into a local build cache using URLs and SHA-256 values from DEPENDENCIES.json. Local patches enable Apple's Unix path, propagate load failure, and fix sol2's optional reference implementation for Apple Clang.</p>
+<p>For isolated verification, <code>OURIN_KAWARI_ENGINE</code> and <code>OURIN_KAGARI_ENGINE</code> may override the engine paths. App-bundle tests do not require these variables.</p>
+<h2 id="runtime-resolution">Runtime resolution</h2>
+<p>Ghost-supplied macOS modules retain priority. Otherwise KAWARI is selected for kawari.dll/kosui.dll, KAGARI for kagari.dll, and KAWARI for shiori.dll when its directory contains kawarirc.ini or kawarirc.kis. Windows path separators are normalized. ScriptBridge's auxiliary KAWARI parser is not a substitute for the upstream engine.</p>
+<h2 id="xcode-packaging">Xcode packaging</h2>
+<p>The app's Build and embed native SHIORI engines phase invokes package.sh. It builds when inputs change, verifies both architectures, and copies/signs three dylibs in Contents/Frameworks. ABI declarations go in Resources/EngineMetadata, and full license notices in EngineLicenses. Plain plist sidecars must not be placed in Frameworks because app signing treats its contents as nested code.</p>
+<p>KawariKagariEngineTests exercises real bundled engines in process and through XPC, KAGARI unload/reload and load failure, and the instance-ID fixture. The initial related four-suite check passed 42 executions / 35 unique tests, with no failures or skips.</p>
+<h2 id="real-ghost-evidence-and-limits">Real-ghost evidence and limits</h2>
+<ul>
+<li>LOBO passed KAWARI boot, conversation, close, save and separate-process reload. The actual Ourin app also resolved shiori.dll to the bundled engine through XPC and received OnBoot text. Visual interaction was unavailable while the Mac was locked.</li>
+<li>Mosu's genuine LuaSocket, luautf8, luachild and lua-iconv dependencies were built for macOS. Its load still fails because saori_universal.native has no available macOS implementation in the tested package. Real-ghost save/reload remains incomplete. No Lua stubs or Windows/Linux binary substitutions were used.</li>
+<li>See <a href="REAL_GHOST_VERIFICATION_2026-10-25_unknown.html">real-ghost results</a> and <a href="kagari-mosu-report_unknown.html">Mosu evidence</a>. Clean-Mac, minimum-OS, Intel hardware and GUI checks are separate gates.</li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../KAWARI_KAGARI_ENGINES_en-us.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

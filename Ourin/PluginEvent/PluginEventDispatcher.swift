@@ -32,10 +32,10 @@ final class PluginEventDispatcher {
     /// それ以外は従来通りインプロセス（CFBundle ロード）で実行する。
     private func transportSend(_ req: String, to plugin: Plugin, charset: String) -> String {
         if let xpc = xpcClient {
-            if let resp = xpc.send(req, charset: charset, bundlePath: plugin.bundle.bundleURL.path) {
+            if let resp = xpc.send(req, charset: charset, bundlePath: plugin.url.path) {
                 return resp
             }
-            logger.warning("plugin XPC send failed; bundle=\(plugin.bundle.bundleURL.lastPathComponent)")
+            logger.warning("plugin XPC send failed; bundle=\(plugin.url.lastPathComponent)")
             return ""
         }
         return plugin.send(req, charset: charset)
@@ -65,7 +65,7 @@ final class PluginEventDispatcher {
         }
         // 各プラグイン用の直列キューを生成
         for plugin in registry.plugins {
-            queues[plugin] = DispatchQueue(label: "plugin.queue." + plugin.bundle.bundleURL.lastPathComponent)
+            queues[plugin] = DispatchQueue(label: "plugin.queue." + plugin.url.lastPathComponent)
         }
         setupTimer()
         sendVersion()
@@ -131,7 +131,7 @@ final class PluginEventDispatcher {
             let start = Date()
             let resp = self?.transportSend(req, to: plugin, charset: charset) ?? ""
             let elapsed = Date().timeIntervalSince(start)
-            logger.debug("ID \(id) to \(plugin.bundle.bundleURL.lastPathComponent) (\(elapsed)s)")
+            logger.debug("ID \(id) to \(plugin.url.lastPathComponent) (\(elapsed)s)")
             if elapsed > 3 {
                 logger.warning("timeout: \(id) >3s")
             }
@@ -189,7 +189,7 @@ final class PluginEventDispatcher {
 
     private func displayName(for plugin: Plugin) -> String {
         guard let meta = registry.metas[plugin] else {
-            return plugin.bundle.bundleURL.deletingPathExtension().lastPathComponent
+            return plugin.url.deletingPathExtension().lastPathComponent
         }
         return meta.id.isEmpty ? meta.name : meta.id
     }
@@ -203,7 +203,7 @@ final class PluginEventDispatcher {
               parsed.statusCode == 200 else { return }
         guard let action = OurinPluginEventBridge.transportAction(from: parsed, notifyOnly: false) else { return }
         guard EventBridge.shared.canResolvePluginTarget(action.target, caller: callerGhost) else {
-            logger.debug("ignored target: \(action.target ?? "nil") from \(plugin.bundle.bundleURL.lastPathComponent)")
+            logger.debug("ignored target: \(action.target ?? "nil") from \(plugin.url.lastPathComponent)")
             return
         }
         OurinPluginEventBridge.deliver(
@@ -239,7 +239,7 @@ final class PluginEventDispatcher {
             let req = PluginFrame(id: "version").build()
             queues[plugin]?.async { [weak self, logger, req, plugin] in
                 let resp = self?.transportSend(req, to: plugin, charset: "UTF-8") ?? ""
-                let name = plugin.bundle.bundleURL.lastPathComponent
+                let name = plugin.url.lastPathComponent
                 // 応答の Charset ヘッダを以降の通信へ適用する(PLUGIN_EVENT/2.0M §4.1)
                 if let parsed = try? PluginProtocolParser.parseResponse(resp) {
                     self?.setCharset(parsed.charset, for: plugin)
@@ -528,7 +528,7 @@ final class PluginEventDispatcher {
                     || meta.executablePath == token
                     || meta.packagePath == token
             }
-            return plugin.bundle.bundleURL.deletingPathExtension().lastPathComponent.caseInsensitiveCompare(token) == .orderedSame
+            return plugin.url.deletingPathExtension().lastPathComponent.caseInsensitiveCompare(token) == .orderedSame
         }
     }
 }

@@ -96,7 +96,16 @@ public enum SSTPDispatcher {
         routingRegistry: SstpRoutingRegistry,
         breakPolicy: SstpBreakPolicy = LiveSstpBreakPolicy.live
     ) -> String {
-        let version = request.version.isEmpty ? "SSTP/1.4" : request.version
+        // SSP 拡張 FINE はリクエスト行が `FINE <subcommand> [SSTP/x.y]` となる
+        // （ProcNotifyFINE は FINE 直後のトークンをサブコマンドとして受ける）。
+        // SSTPParser は第2トークンを version スロットへ載せるため、SSTP/x.y で
+        // 無い場合はそれをサブコマンドとして扱い、応答は既定の SSTP/1.4 で返す。
+        var fineSubcommand: String? = nil
+        var version = request.version.isEmpty ? "SSTP/1.4" : request.version
+        if request.method.uppercased() == "FINE", !isSupportedVersion(version) {
+            fineSubcommand = version.trimmingCharacters(in: .whitespacesAndNewlines)
+            version = "SSTP/1.4"
+        }
         let charset = request.headerValue("Charset") ?? "UTF-8"
         guard isSupportedVersion(version) else {
             return buildResponse(
@@ -168,7 +177,13 @@ public enum SSTPDispatcher {
             return handleInstall(request, securityContext: effectiveSecurityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
         case "FINE":
             // SSP 拡張メソッド。ProcNotifyFINE @0x68adf0 相当。
-            return handleFine(request: request, securityContext: effectiveSecurityContext, isOwned: isOwned)
+            return handleFine(
+                request: request,
+                version: version,
+                subcommandFromRequestLine: fineSubcommand,
+                securityContext: effectiveSecurityContext,
+                isOwned: isOwned
+            )
         default:
             return buildResponse(
                 version: version,
@@ -759,24 +774,30 @@ public enum SSTPDispatcher {
 
     /// SSP 拡張 FINE メソッド（ProcNotifyFINE @0x68adf0 互換）。
     ///
-    /// - Reference0 = サブコマンド（MessageSend / SetScript / SetScriptPartial）
-    /// - MessageSend: Reference1=宛先ゴースト名, Reference2=さくら名,
-    ///   Reference3=けろ名, Reference4=内容。Reference4 のスクリプトを
-    ///   対象ゴーストで再生する（SSP は PlayScript(ghost, ref4, 0x82)）。
-    /// - SetScript / SetScriptPartial: スクリプト入力ボックスを表示する
-    ///   （SSP は ShowInputBox(id=0x1000001 / 0x3000001, initialText=Reference0)）。
+    /// リクエスト行は `FINE <subcommand> [SSTP/x.y]`（param_1 は FINE 直後の文字列）。
+    /// 行にサブコマンドの無い要求は501。Reference0をサブコマンドと兼用しない。
+    ///
+    /// - MessageSend: Reference0=宛先ゴースト名（さくら名）, Reference1=けろ名,
+    ///   Reference3=内容。宛先を FindActiveGhostFromName 相当で解決し、Reference3 の
+    ///   スクリプトを再生する（SSP は PlayScript(ghost, Reference3, 0x82)）。
+    /// - SetScript / SetScriptPartial: スクリプト入力ボックス（scriptbox）を表示する
+    ///   （SSP は ShowInputBox(id=0x1000001 / 0x3000001, 初期文字列=Reference0)）。
+    /// - 一致しないサブコマンド（空を含む）→ 501（SSP は 0x1f5 を返す）。
     private static func handleFine(
         request: SSTPRequest,
+        version: String,
+        subcommandFromRequestLine: String?,
         securityContext: ShioriSecurityContext,
         isOwned: Bool
     ) -> String {
-        let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         let charset = request.headerValue("Charset") ?? "UTF-8"
-        guard let subcommand = request.headerValue("Reference0")?.trimmingCharacters(in: .whitespacesAndNewlines),
-              !subcommand.isEmpty else {
+        let subcommand = (subcommandFromRequestLine ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !subcommand.isEmpty else {
+            // SSP は一致しないサブコマンドで 0x1f5 = 501。空もこれに含まれる。
             return buildResponse(
                 version: version,
-                status: 400,
+                status: 501,
                 charset: charset,
                 script: nil,
                 data: nil,
@@ -787,12 +808,14 @@ public enum SSTPDispatcher {
         case "MESSAGESEND":
             return handleFineMessageSend(
                 request: request,
+                version: version,
                 securityContext: securityContext,
                 isOwned: isOwned
             )
         case "SETSCRIPT", "SETSCRIPTPARTIAL":
             let isPartial = subcommand.uppercased() == "SETSCRIPTPARTIAL"
             let eventID = isPartial ? "OnFineSetScriptPartial" : "OnFineSetScript"
+            // 正本どおり ShowInputBox の初期文字列には Reference0 をそのまま渡す。
             let initialText = request.headerValue("Reference0") ?? ""
             DispatchQueue.main.async {
                 EventBridge.shared.showFineScriptInput(eventID: eventID, initialText: initialText)
@@ -806,7 +829,7 @@ public enum SSTPDispatcher {
                 responseHeaders: collectPassThruHeaders(from: request.headers)
             )
         default:
-            // SSP はサブコマンド不一致で 0x1f5 = 501。
+            // SSP は一致しないサブコマンドで 0x1f5 = 501。
             return buildResponse(
                 version: version,
                 status: 501,
@@ -820,14 +843,15 @@ public enum SSTPDispatcher {
 
     private static func handleFineMessageSend(
         request: SSTPRequest,
+        version: String,
         securityContext: ShioriSecurityContext,
         isOwned: Bool
     ) -> String {
-        let version = request.version.isEmpty ? "SSTP/1.4" : request.version
         let charset = request.headerValue("Charset") ?? "UTF-8"
-        let script = request.headerValue("Reference4")
+        // 正本: Reference0=宛先（さくら名）, Reference1=けろ名, Reference3=内容。
+        let script = request.headerValue("Reference3")
         guard let script, !script.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            // SSP は Reference4 無しで return 0（非200系）＝400 相当。
+            // SSP は内容無しで return 0（非200系）＝400 相当。
             return buildResponse(
                 version: version,
                 status: 400,
@@ -837,10 +861,10 @@ public enum SSTPDispatcher {
                 responseHeaders: collectPassThruHeaders(from: request.headers)
             )
         }
-        // SSP FindActiveGhostFromName(Reference1) → (null, Reference2, Reference3)
-        // → GetPreferredActiveGhost の順。Ourin では名前解決を経て全対象に再生する。
-        let targetName = request.headerValue("Reference1")
-            ?? request.headerValue("Reference2")
+        let sakuraName = request.headerValue("Reference0")?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let keroName = request.headerValue("Reference1")?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
         var reasons: Set<String> = ["sstp-send", "fine"]
         if securityContext.level == "external" {
             reasons.insert("remote")
@@ -860,10 +884,14 @@ public enum SSTPDispatcher {
             securityLevel: securityContext.level,
             securityOrigin: securityContext.origin
         )
-        let didPlay = EventBridge.shared.playScriptOnGhostsResolving(
-            ghostName: targetName,
+        // 名前を一意に解決できるときだけ単一対象へ送る。
+        // SSPの優先ゴースト選択は未検証のため、宛先未指定を全配信へ置き換えない。
+        let didPlay = EventBridge.shared.playFineScript(
+            script,
+            sakuraName: sakuraName,
+            keroName: keroName,
             translationContext: context
-        ) { _ in script }
+        )
         if !didPlay {
             // SSP は対象ゴースト不在で 0x1a4 = 420 Refuse。
             return buildResponse(

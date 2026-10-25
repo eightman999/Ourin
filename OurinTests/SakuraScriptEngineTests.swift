@@ -587,11 +587,11 @@ struct SakuraScriptEngineTests {
 
     @Test @MainActor
     func balloonFallbackSelectsFirstInstalledSurface() async throws {
-        let ghostRoot = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appendingPathComponent("emily4")
-        let balloonRoot = ghostRoot.appendingPathComponent("balloon")
+        let ghostRoot = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: ghostRoot) }
+        let balloonRoot = ghostRoot.appendingPathComponent("balloon", isDirectory: true)
+        // balloons0 だけが存在する（--fallback=0 の候補）。
+        try TestGhostFixture.writeSolidPNG(to: balloonRoot.appendingPathComponent("balloons0.png"), width: 8, height: 8)
         let manager = GhostManager(ghostURL: ghostRoot)
         let characterViewModel = CharacterViewModel()
         characterViewModel.currentBalloonID = 7

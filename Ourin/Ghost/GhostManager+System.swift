@@ -695,12 +695,7 @@ extension GhostManager: NSWindowDelegate {
         }
 
         private static func encoding(for raw: String) -> String.Encoding {
-            switch raw.lowercased().replacingOccurrences(of: "-", with: "_") {
-            case "shift_jis", "sjis", "cp932", "windows_31j", "ms932": return .shiftJIS
-            case "euc_jp", "eucjp": return .japaneseEUC
-            case "utf8", "utf_8": return .utf8
-            default: return .utf8
-            }
+            EncodingAdapter.encoding(for: raw)
         }
     }
 
@@ -1439,6 +1434,7 @@ extension GhostManager: NSWindowDelegate {
                     : self.choiceSourceScript
                 self.cancelInlineChoices()
                 _ = self.requestDialogEvent(eventID: "OnChoiceTimeout", references: [sourceScript])
+                self.scheduleSurfaceRestoreIfTalkEnded()
             }
         }
     }
@@ -1449,6 +1445,7 @@ extension GhostManager: NSWindowDelegate {
         let choice = pendingChoices[index]
         cancelInlineChoices()
         performChoiceSelection(choice)
+        scheduleSurfaceRestoreIfTalkEnded()
     }
 
     /// 選択肢の待ち状態を捨てる（選択・時間切れ・新しいスクリプト開始）。
@@ -1811,6 +1808,7 @@ extension GhostManager: NSWindowDelegate {
             // Clear choice state
             self.pendingChoices.removeAll()
             self.choiceHasCancelOption = false
+            self.scheduleSurfaceRestoreIfTalkEnded()
         }
     }
     
@@ -1843,6 +1841,7 @@ extension GhostManager: NSWindowDelegate {
                 return
             }
             let workspace = NSWorkspace.shared
+            DesktopWallpaperObserver.shared.noteSelfChange()
             for screen in NSScreen.screens {
                 guard let url = self.savedWallpaperURLs[self.wallpaperScreenKey(screen)] else { continue }
                 do {
@@ -1922,6 +1921,8 @@ extension GhostManager: NSWindowDelegate {
             let workspace = NSWorkspace.shared
             let options = self.wallpaperOptions(rawOptions)
             let targets = NSScreen.screens.isEmpty ? [NSScreen.main].compactMap { $0 } : NSScreen.screens
+            // この変更で検知される OnDesktopWallpaperChange のきっかけを self にする。
+            DesktopWallpaperObserver.shared.noteSelfChange()
             var failed = false
             for screen in targets {
                 do {
@@ -2337,7 +2338,7 @@ extension GhostManager: NSWindowDelegate {
                 version: .v2_0M,
                 charset: target.meta.charset
             )
-            let response = target.module.send(request)
+            let response = target.module.send(request, charset: target.meta.charset)
             guard !response.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                 _ = self.dispatchRSSFailure(reason: "can't download")
                 return
@@ -2486,12 +2487,12 @@ extension GhostManager: NSWindowDelegate {
         return targets.first {
             $0.1.name.lowercased() == normalized
                 || $0.1.filename.lowercased() == normalized
-                || $0.0.bundle.bundleURL.deletingPathExtension().lastPathComponent.lowercased() == normalized
+                || $0.0.url.deletingPathExtension().lastPathComponent.lowercased() == normalized
         }
     }
 
     private func headlineHistoryKey(for target: (module: HeadlineModule, meta: HeadlineMeta)) -> String {
-        let stableName = target.meta.name.isEmpty ? target.module.bundle.bundleURL.path : target.meta.name
+        let stableName = target.meta.name.isEmpty ? target.module.url.path : target.meta.name
         let encoded = Data(stableName.utf8).base64EncodedString()
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: "+", with: "-")
@@ -2980,11 +2981,11 @@ extension GhostManager: NSWindowDelegate {
 
     private func httpEventName(for id: EventID, customEventID: String) -> String {
         switch id {
-        case .OnExecuteHTTPComplete, .OnExecuteRSSComplete:
+        case .OnExecuteHTTPComplete, .OnExecuteRSSComplete, .OnExecuteICalComplete:
             return customEventID
-        case .OnExecuteHTTPProgress:
+        case .OnExecuteHTTPProgress, .OnExecuteICalProgress:
             return customEventID + "Progress"
-        case .OnExecuteHTTPFailure, .OnExecuteRSSFailure:
+        case .OnExecuteHTTPFailure, .OnExecuteRSSFailure, .OnExecuteICalFailure:
             return customEventID + "Failure"
         case .OnExecuteHTTPStreaming:
             return customEventID + "Streaming"
@@ -3138,6 +3139,100 @@ extension GhostManager: NSWindowDelegate {
             playbackQueue.append(.waitForHTTP(waitID))
         }
         runner.start()
+    }
+
+    // MARK: - iCal（\![execute,ical-get/ical-post]、UKADOC 2.8.90）
+
+    /// HTTP で取得した iCalendar を解析し、OnExecuteICalComplete（予定ごとに ReferenceN）で通知する。
+    /// 取得失敗は OnExecuteICalFailure（OnExecuteHTTPFailure と同じ並び。解析失敗は R4=parse、
+    /// 同じ URL の取得が進行中なら R4=downloading）。`--async` が On 始まりなら Complete は ID、
+    /// Failure は ID+Failure、Progress は ID+Progress。_SSLInfo は置き換えない。
+    func executeICal(subcommand: String, params: [String]) {
+        let options = HTTPCommandOptions(arguments: Array(params.dropFirst()), parameterRoot: httpParameterRoot())
+        let rawURL = params.first ?? ""
+        let method = subcommand == "ical-post" ? "POST" : "GET"
+        func fail(_ reason: String, data: String = "", cookie: String = "", headers: String = "", url: String? = nil) {
+            notifyHTTPEvent(.OnExecuteICalFailure, method: method, options: options, url: url ?? rawURL,
+                            data: data, result: reason, cookie: cookie, responseHeaders: headers)
+        }
+        if let inputError = options.parameterInputFileError {
+            fail("param_input_\(inputError)")
+            return
+        }
+        guard let url = URL(string: rawURL), !rawURL.isEmpty else {
+            fail("invalid_url")
+            return
+        }
+        let key = url.absoluteString
+        // 同じ URL の取得がすでに進行中なら、新しい取得は始めずに downloading で失敗させる。
+        guard icalRequests[key] == nil else {
+            fail("downloading", url: key)
+            return
+        }
+        let query = ICalQuery(options: Array(params.dropFirst()))
+        let request = makeHTTPRequest(url: url, method: method, options: options)
+        let taskID = UUID()
+        icalRequests[key] = taskID
+        let waitID = options.waitForCompletion ? UUID() : nil
+        let runner = HTTPDataTaskRunner(request: request, onData: { [weak self] _, accumulated, response in
+            guard let self, options.progressNotify else { return }
+            self.notifyHTTPEvent(.OnExecuteICalProgress, method: method, options: options, url: key,
+                                 data: self.httpEventData(options: options, data: accumulated, outputURL: nil),
+                                 result: response.map { String($0.statusCode) } ?? "0",
+                                 cookie: self.httpResponseCookie(response, url: url),
+                                 responseHeaders: self.httpResponseHeaders(response))
+        }, onComplete: { [weak self] data, response, metrics, error in
+            guard let self else { return }
+            if let waitID { self.completeHTTPWait(waitID) }
+            self.httpRequestRunners.removeValue(forKey: taskID)
+            if self.icalRequests[key] == taskID { self.icalRequests.removeValue(forKey: key) }
+            let headers = self.httpResponseHeaders(response)
+            let cookie = self.httpResponseCookie(response, url: url)
+            // 取得失敗（HTTP が 200 以外）でも SSL/TLS 接続が成功していれば通知する。
+            if url.scheme?.lowercased() == "https", self.hasTLSConnection(response: response, metrics: metrics) {
+                self.notifyHTTPSSLInfo(eventID: .OnExecuteICal_SSLInfo, asyncID: options.asyncID, url: key,
+                                       statusCode: response.map { String($0.statusCode) } ?? "0", metrics: metrics)
+            }
+            if let error {
+                fail(self.httpFailureResult(error), cookie: cookie, headers: headers, url: key)
+                return
+            }
+            guard let response else {
+                fail("invalid_response", cookie: cookie, headers: headers, url: key)
+                return
+            }
+            guard (200..<300).contains(response.statusCode) else {
+                fail(String(response.statusCode), cookie: cookie, headers: headers, url: key)
+                return
+            }
+            let text = String(decoding: data, as: UTF8.self)
+            // VCALENDAR が無い応答は、iCalendar として解析できなかったものとして扱う。
+            guard text.range(of: "BEGIN:VCALENDAR", options: .caseInsensitive) != nil else {
+                fail("parse", cookie: cookie, headers: headers, url: key)
+                return
+            }
+            let calendar = ICalendarCodec.parse(text)
+            let selection = ICalendarQuerying.select(events: calendar.events, query: query)
+            let refs = ICalendarReferences.complete(calendarInfo: calendar, selection: selection, query: query)
+            if let customEventID = options.customEventID {
+                EventBridge.shared.notifyCustom(self.httpEventName(for: .OnExecuteICalComplete, customEventID: customEventID), params: refs)
+            } else {
+                EventBridge.shared.notify(.OnExecuteICalComplete, params: refs)
+            }
+        })
+        httpRequestRunners[taskID] = runner
+        if let waitID {
+            pendingHTTPWaits.insert(waitID)
+            playbackQueue.append(.waitForHTTP(waitID))
+        }
+        runner.start()
+    }
+
+    /// `\![cancel,ical,URL]` — 進行中の取得を中断する（OnExecuteICalFailure が cancelled で届く）。
+    func cancelICal(params: [String]) {
+        guard let rawURL = params.first, let url = URL(string: rawURL),
+              let taskID = icalRequests[url.absoluteString] else { return }
+        httpRequestRunners[taskID]?.cancel()
     }
 
     private func sanitizeRSSWireValue(_ raw: String) -> String {
@@ -4416,11 +4511,11 @@ extension GhostManager: NSWindowDelegate {
 
             if query {
                 let alert = NSAlert()
-                alert.messageText = "ゴーストの消滅"
-                alert.informativeText = "「\(currentName)」を消滅させますか？\nこの操作は取り消せません。"
+                alert.messageText = NSLocalizedString("ゴーストの消滅", comment: "Vanish confirmation title")
+                alert.informativeText = String(format: NSLocalizedString("「%@」を消滅させますか？\nこの操作は取り消せません。", comment: "Vanish confirmation message"), currentName)
                 alert.alertStyle = .critical
-                alert.addButton(withTitle: "消滅")
-                alert.addButton(withTitle: "キャンセル")
+                alert.addButton(withTitle: NSLocalizedString("消滅", comment: "Vanish button"))
+                alert.addButton(withTitle: NSLocalizedString("キャンセル", comment: "Cancel"))
                 guard alert.runModal() == .alertFirstButtonReturn else {
                     _ = EventBridge.shared.requestScript(.OnVanishCancel, to: self)
                     return
@@ -6443,35 +6538,53 @@ extension GhostManager: NSWindowDelegate {
         InputDialogOptions(rawArguments: rawArguments)
     }
 
-    private func beginInputDialog(_ alert: NSAlert, id: String) {
-        activeInputAlert = alert
-        activeInputDialogID = id
-        inputDialogCloseRequested = false
+    /// 入力ボックスをモーダルにせずに開く（SSP の入力ボックスはゴーストの動きを止めない）。
+    /// 同じ ID のものが開いていれば、結果のイベントを送らずに閉じてから開く。
+    /// handler は決定・取消・タイムアウトを受け、true を返すと閉じる。
+    @discardableResult
+    private func presentInputDialog(
+        _ alert: NSAlert,
+        id: String,
+        timeoutMs: Int?,
+        handler: @escaping (ModelessInputDialog.Outcome) -> Bool
+    ) -> ModelessInputDialog {
+        closeInputDialog(id: id)
+        let dialog = ModelessInputDialog(id: id, alert: alert)
+        dialog.onClose = { [weak self, weak dialog] in
+            self?.activeInputDialogs.removeAll { $0 === dialog }
+        }
+        activeInputDialogs.append(dialog)
+        dialog.present(timeoutMs: timeoutMs, handler: handler)
+        return dialog
     }
 
-    private func endInputDialog() {
-        activeInputAlert = nil
-        activeInputDialogID = nil
-        inputDialogCloseRequested = false
+    /// OK（最初のボタン）なら決定、それ以外は取消・タイムアウトとして、入力のイベントを送って閉じる。
+    private func presentSingleValueInputDialog(
+        _ alert: NSAlert,
+        id: String,
+        timeoutMs: Int?,
+        options: InputDialogOptions,
+        supplemental: String = "",
+        value: @escaping () -> String
+    ) {
+        presentInputDialog(alert, id: id, timeoutMs: timeoutMs) { [weak self] outcome in
+            guard let self else { return true }
+            if outcome == .button(0) {
+                self.emitUserInput(id: id, value: value(), supplemental: supplemental, options: options)
+            } else {
+                self.emitUserInputCancel(id: id, timedOut: outcome == .timeout, supplemental: supplemental, options: options)
+            }
+            return true
+        }
     }
 
     @discardableResult
     func closeInputDialog(id: String) -> Bool {
-        guard let alert = activeInputAlert,
-              let activeID = activeInputDialogID,
-              id == "__SYSTEM_ALL_INPUT__" || activeID.caseInsensitiveCompare(id) == .orderedSame else {
-            return false
+        let targets = activeInputDialogs.filter {
+            id == "__SYSTEM_ALL_INPUT__" || $0.id.caseInsensitiveCompare(id) == .orderedSame
         }
-        inputDialogCloseRequested = true
-        alert.window.close()
-        NSApp.abortModal()
-        return true
-    }
-
-    private func consumeInputDialogCloseRequest() -> Bool {
-        let requested = inputDialogCloseRequested
-        inputDialogCloseRequested = false
-        return requested
+        targets.forEach { $0.dismiss() }
+        return !targets.isEmpty
     }
 
     private func beginCommunicateDialog(_ alert: NSAlert) {
@@ -6523,8 +6636,6 @@ extension GhostManager: NSWindowDelegate {
         alert.accessoryView = textField
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
 
         let limitObserver: NSObjectProtocol?
         if options.limit != nil {
@@ -6541,27 +6652,21 @@ extension GhostManager: NSWindowDelegate {
         } else {
             limitObserver = nil
         }
-        defer {
-            if let limitObserver { NotificationCenter.default.removeObserver(limitObserver) }
-        }
 
-        while true {
-            var timedOut = false
-            let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-            let response = alert.runModal()
-            timer?.invalidate()
-
-            if consumeInputDialogCloseRequest() { break }
-
-            if response == .alertFirstButtonReturn {
-                let value = options.limited(textField.stringValue)
-                emitUserInput(id: id, value: value, options: options)
-                guard options.noClose else { break }
-                if !options.noClear { textField.stringValue = "" }
-            } else {
-                emitUserInputCancel(id: id, timedOut: timedOut, options: options)
-                break
+        let dialog = presentInputDialog(alert, id: id, timeoutMs: timeoutMs) { [weak self] outcome in
+            guard let self else { return true }
+            guard outcome == .button(0) else {
+                self.emitUserInputCancel(id: id, timedOut: outcome == .timeout, options: options)
+                return true
             }
+            self.emitUserInput(id: id, value: options.limited(textField.stringValue), options: options)
+            // --option=noclose は決定しても閉じずに次の入力を待つ。
+            guard options.noClose else { return true }
+            if !options.noClear { textField.stringValue = "" }
+            return false
+        }
+        if let limitObserver {
+            dialog.addCleanup { NotificationCenter.default.removeObserver(limitObserver) }
         }
     }
 
@@ -6576,20 +6681,8 @@ extension GhostManager: NSWindowDelegate {
         alert.accessoryView = textField
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-
-        var timedOut = false
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        if response == .alertFirstButtonReturn {
-            emitUserInput(id: id, value: options.limited(textField.stringValue), options: options)
-        } else {
-            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
+        presentSingleValueInputDialog(alert, id: id, timeoutMs: timeoutMs, options: options) {
+            options.limited(textField.stringValue)
         }
     }
 
@@ -6612,22 +6705,9 @@ extension GhostManager: NSWindowDelegate {
         alert.accessoryView = datePicker
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-
-        var timedOut = false
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        if response == .alertFirstButtonReturn {
+        presentSingleValueInputDialog(alert, id: id, timeoutMs: timeoutMs, options: options) {
             let selectedComps = Calendar.current.dateComponents([.year, .month, .day], from: datePicker.dateValue)
-            let value = "\(selectedComps.year ?? 0),\(selectedComps.month ?? 0),\(selectedComps.day ?? 0)"
-            emitUserInput(id: id, value: value, options: options)
-        } else {
-            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
+            return "\(selectedComps.year ?? 0),\(selectedComps.month ?? 0),\(selectedComps.day ?? 0)"
         }
     }
 
@@ -6653,30 +6733,11 @@ extension GhostManager: NSWindowDelegate {
 
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-
-        var timedOut = false
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        if response == .alertFirstButtonReturn {
-            emitUserInput(
-                id: id,
-                value: String(slider.doubleValue),
-                supplemental: "\(minValue),\(maxValue)",
-                options: options
-            )
-        } else {
-            emitUserInputCancel(
-                id: id,
-                timedOut: timedOut,
-                supplemental: "\(minValue),\(maxValue)",
-                options: options
-            )
+        presentSingleValueInputDialog(
+            alert, id: id, timeoutMs: timeoutMs, options: options,
+            supplemental: "\(minValue),\(maxValue)"
+        ) {
+            String(slider.doubleValue)
         }
     }
 
@@ -6699,22 +6760,9 @@ extension GhostManager: NSWindowDelegate {
         alert.accessoryView = timePicker
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-
-        var timedOut = false
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        if response == .alertFirstButtonReturn {
+        presentSingleValueInputDialog(alert, id: id, timeoutMs: timeoutMs, options: options) {
             let selectedComps = Calendar.current.dateComponents([.hour, .minute, .second], from: timePicker.dateValue)
-            let value = "\(selectedComps.hour ?? 0),\(selectedComps.minute ?? 0),\(selectedComps.second ?? 0)"
-            emitUserInput(id: id, value: value, options: options)
-        } else {
-            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
+            return "\(selectedComps.hour ?? 0),\(selectedComps.minute ?? 0),\(selectedComps.second ?? 0)"
         }
     }
 
@@ -6729,20 +6777,8 @@ extension GhostManager: NSWindowDelegate {
         alert.accessoryView = textField
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "OK"))
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-
-        var timedOut = false
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        if response == .alertFirstButtonReturn {
-            emitUserInput(id: id, value: options.limited(textField.stringValue), options: options)
-        } else {
-            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
+        presentSingleValueInputDialog(alert, id: id, timeoutMs: timeoutMs, options: options) {
+            options.limited(textField.stringValue)
         }
     }
 
@@ -6761,20 +6797,14 @@ extension GhostManager: NSWindowDelegate {
         }
         alert.addButton(withTitle: NSLocalizedString("Cancel", comment: "Cancel"))
 
-        var timedOut = false
-        beginInputDialog(alert, id: id)
-        defer { endInputDialog() }
-        let timer = scheduleModalTimeout(timeoutMs: timeoutMs) { timedOut = true }
-        let response = alert.runModal()
-        timer?.invalidate()
-
-        if consumeInputDialogCloseRequest() { return }
-
-        let buttonIndex = response.rawValue - NSApplication.ModalResponse.alertFirstButtonReturn.rawValue
-        if buttonIndex >= 0 && buttonIndex < sanitized.count {
-            emitUserInput(id: id, value: sanitized[buttonIndex], options: options)
-        } else {
-            emitUserInputCancel(id: id, timedOut: timedOut, options: options)
+        presentInputDialog(alert, id: id, timeoutMs: timeoutMs) { [weak self] outcome in
+            guard let self else { return true }
+            if case .button(let index) = outcome, index < sanitized.count {
+                self.emitUserInput(id: id, value: sanitized[index], options: options)
+            } else {
+                self.emitUserInputCancel(id: id, timedOut: outcome == .timeout, options: options)
+            }
+            return true
         }
     }
 
@@ -7219,7 +7249,7 @@ extension GhostManager: NSWindowDelegate {
         }
     }
 
-    private func scheduleModalTimeout(timeoutMs: Int?, onTimeout: @escaping () -> Void) -> Timer? {
+    func scheduleModalTimeout(timeoutMs: Int?, onTimeout: @escaping () -> Void) -> Timer? {
         guard let timeoutMs, timeoutMs > 0 else { return nil }
         let timeoutSec = TimeInterval(timeoutMs) / 1000.0
         return Timer.scheduledTimer(withTimeInterval: timeoutSec, repeats: false) { _ in

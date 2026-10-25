@@ -166,7 +166,7 @@ private struct PackageDetailView: View {
     @ViewBuilder
     private func detailRow(label: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(label)
+            Text(LocalizedStringKey(label))
                 .font(.caption)
                 .foregroundColor(.secondary)
             Text(value)
@@ -216,7 +216,7 @@ struct DropZoneView: View {
                            let url = URL(dataRepresentation: urlData, relativeTo: nil) {
                             viewModel.installNar(from: url)
                         } else if let error = error {
-                            viewModel.errorMessage = "ファイルの読み込みに失敗しました: \(error.localizedDescription)"
+                            viewModel.errorMessage = String(format: NSLocalizedString("ファイルの読み込みに失敗しました: %@", comment: "NAR drop error"), error.localizedDescription)
                         }
                     }
                 }
@@ -228,7 +228,7 @@ struct DropZoneView: View {
                            let url = URL(dataRepresentation: urlData, relativeTo: nil) {
                             viewModel.installNar(from: url)
                         } else if let error = error {
-                            viewModel.errorMessage = "ファイルの読み込みに失敗しました: \(error.localizedDescription)"
+                            viewModel.errorMessage = String(format: NSLocalizedString("ファイルの読み込みに失敗しました: %@", comment: "NAR drop error"), error.localizedDescription)
                         }
                     }
                 }

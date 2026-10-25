@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAGARI / もす 実ゴースト検証 — 2026-10-25</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="kagari-2026-10-25">KAGARI / もす 実ゴースト検証 — 2026-10-25</h1>
+<h2 id="_1">結果</h2>
+<p>KAGARI の実ネイティブライブラリで、最小 Lua ゴーストの起動・ダブルクリック・終了・別プロセスからの再ロードと、存在しないパスの load 拒否を確認した。<strong>公開ゴースト『もす』の起動は未完</strong>。LuaSocket、luautf8、luachild、lua-iconv を正規ソースから macOS 向けにビルドして先へ進めたが、<code>saori_universal.native</code> が不足し <code>kagari_load</code> は <code>-1</code> を返す。実ゴーストの OnBoot / 会話 / 終了 / 保存 / 再ロードは成功していない。</p>
+<p>検証対象は ctypes から呼び出した実 KAGARI POSIX ABI。Ourin GUI・XPCでの操作を実証した記録ではない。配布 NAR と辞書の Lua ファイルは変更せず、ネイティブ依存は <code>/tmp</code> の展開コピーに追加した。ユーザーのインストール済みゴーストには触れていない。</p>
+<h2 id="_2">実行と証跡</h2>
+<p>専用 worktree のルートで実行:</p>
+<pre class="codehilite"><code class="language-sh">python3 engines/kagari/verify_kagari_mosu.py \
+  build/engines/kagari/libkagari.dylib \
+  --workdir /tmp/ourin-mosu-verified-20261025
+</code></pre>
+
+<p>結果: <strong>exit 2（実ゴースト互換未完）</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>検査</th>
+<th>結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>最小 Lua: OnBoot / OnMouseDoubleClick / OnClose</td>
+<td>PASS、200 と非空 Value</td>
+</tr>
+<tr>
+<td>最小 Lua: unload / 別プロセスからの再ロード</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>不正な load ディレクトリ</td>
+<td>PASS、-1</td>
+</tr>
+<tr>
+<td>正規依存4プロジェクトの macOS ビルド</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>もす: load</td>
+<td>FAIL、<code>saori_universal.native</code> 不足</td>
+</tr>
+<tr>
+<td>もす: OnBoot / ダブルクリック / OnClose</td>
+<td>未到達</td>
+</tr>
+<tr>
+<td>もす: 保存 / 再ロード後の値確認</td>
+<td>未到達</td>
+</tr>
+<tr>
+<td>元 NAR の SHA256 不変</td>
+<td>PASS</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>JSON結果: <code>/tmp/ourin-mosu-verified-20261025/summary.json</code></li>
+<li>実ゴースト失敗ログ: <code>/tmp/ourin-mosu-verified-20261025/ghost-first.log</code></li>
+<li>KAGARI: Universal <code>x86_64 arm64</code>、今回は arm64 Python から実行</li>
+<li>KAGARI SHA256: <code>633624e65761feecde7fd079e1c3e74826d7e1732e6dab143d09c70989ba0b56</code></li>
+<li>元 NAR: <code>/tmp/ourin-real-ghosts-20261025/mosu.nar</code></li>
+<li>元 NAR SHA256（前後一致）: <code>a663e0a32de13dd28b8b18e7a806f31a764d8e5ead7754f4901dc3838a764688</code></li>
+<li>入手先: <a href="https://tatakinov.github.io/mosu/">もす配布サイト</a></li>
+</ul>
+<h2 id="_3">追加した検証用ネイティブ依存</h2>
+<p>これらは実ゴースト検証用の一時コピーにのみ配置した。アプリへの同梱・再配布は行っていない。ビルドのソースと各成果物 SHA256 は summary.json に保存。</p>
+<table>
+<thead>
+<tr>
+<th>正規ソース</th>
+<th>固定 revision</th>
+<th>出力</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/lunarmodules/luasocket">LuaSocket</a></td>
+<td><code>95b7efa9da506ef968c1347edf3fc56370f0deed</code>（v3.1.0）</td>
+<td><code>socket/core.so</code>, <code>mime/core.so</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/starwing/luautf8">luautf8</a></td>
+<td><code>a47b1433473a2509d77ad28f59a976716d187927</code></td>
+<td><code>lua-utf8.so</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/Tatakinov/luachild">作者の luachild fork</a></td>
+<td><code>efcb09bd6059f5852313bfd431106a75344f4038</code></td>
+<td><code>luachild.so</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/ittner/lua-iconv">lua-iconv</a></td>
+<td><code>a94fdb1f6d50c22bb59330df607bb0848d0ba673</code></td>
+<td><code>iconv.so</code></td>
+</tr>
+</tbody>
+</table>
+<p>Lua 5.4.4 ヘッダーを使用。luachild は POSIX 実装を選択し、Apple Clang 用に <code>-include signal.h</code> を追加した。偽の成功値を返す stub は使っていない。</p>
+<h2 id="_4">残る障壁</h2>
+<p><code>corelib/saori_basic/init.lua</code> が <code>saori_universal.native</code> を require する段階で停止する。配布 NAR にあるのは Windows DLL。<a href="https://github.com/Tatakinov/kotori">kotori 上流</a>（確認 revision <code>f161ffc62a642b67602ffd3bc42097e3885a2b5f</code>）には <code>native.so</code> と <code>fh/init.so</code> もあるが、<code>file</code> でいずれも <strong>Linux x86-64 ELF</strong> と確認した。この調査範囲では対応するネイティブ実装のソースは見つかっていない。macOS で使用可能な正規実装またはソースを確保し、ABIとライセンスを確認して移植する必要がある。</p>
+<p><code>fh</code> も <code>process</code> から要求されるため次の候補。後段には lanes/SSL 等の依存が残る可能性があり、現在の1件を解消すれば完全対応するとは断定していない。ゴーストの Lua を書き換えて require を回避する方法は採用していない。</p>
+<h2 id="_5">検証スクリプトの修正</h2>
+<ul>
+<li>返却ポインタを <code>c_void_p</code> で受け、応答を読み取った後に <code>free</code>。以前の <code>c_char_p</code> による所有ポインタ喪失を修正。</li>
+<li>各ライフサイクルを独立した子プロセスで実行し、120秒で停止。native load/request の停止にも適用。</li>
+<li>SHIORI 200 と非空 Value を要求し、500、204、空応答、空 Value を成功にしない。</li>
+<li>OnMouseDoubleClick を実行対象に追加。</li>
+<li>もすでは OnMenu による間隔変更（30秒→1分）を行い、終了時の <code>kagari_save.lua</code> と、別プロセス再ロード後の「1分」応答を確認する構成。ただし現状は load 失敗のため未到達。</li>
+<li>元 NAR の前後 SHA256、各工程の JSON、標準出力を保存。</li>
+<li>ZIP 展開パスが検証ディレクトリから外れないことを確認。</li>
+</ul>
+<p>検証ハーネス自身について、空応答/500/204/空 Value の拒否、正常200の受理を確認した。無限ループする使い捨て Lua の load を0.5秒のテスト設定で停止し、timeout を FAIL とすることも確認した。最小ゴーストの成功と実ゴースト未完を同じ成功状態にまとめない。</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../delegation/kagari-mosu-report.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

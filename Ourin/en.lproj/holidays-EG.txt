@@ -1,0 +1,506 @@
+# EG holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/7,Coptic Christmas Day
+2020/1/25,January 25th Revolution and National Police Day
+2020/4/20,Spring Festival
+2020/4/25,Sinai Liberation Day
+2020/5/1,Labor Day
+2020/5/24,Eid al-Fitr
+2020/5/25,Eid al-Fitr
+2020/7/2,June 30 Revolution Day (observed)
+2020/7/23,July 23 Revolution Day
+2020/7/30,Day of Arafah
+2020/7/31,Eid al-Adha
+2020/8/1,Eid al-Adha
+2020/8/2,Eid al-Adha
+2020/8/20,Islamic New Year
+2020/10/8,Armed Forces Day (observed)
+2020/10/29,Prophet's Birthday
+2021/1/7,Coptic Christmas Day
+2021/1/28,January 25th Revolution and National Police Day (observed)
+2021/4/29,Sinai Liberation Day (observed)
+2021/5/1,Labor Day
+2021/5/3,Spring Festival
+2021/5/13,Eid al-Fitr
+2021/5/14,Eid al-Fitr
+2021/7/1,June 30 Revolution Day (observed)
+2021/7/17,Eid al-Adha
+2021/7/18,Eid al-Adha
+2021/7/19,Day of Arafah
+2021/7/20,Eid al-Adha
+2021/7/21,Eid al-Adha
+2021/7/22,Eid al-Adha
+2021/7/23,July 23 Revolution Day
+2021/8/12,Islamic New Year (observed)
+2021/10/7,Armed Forces Day (observed)
+2021/10/18,Prophet's Birthday
+2022/1/6,Coptic Christmas Day (observed)
+2022/1/27,January 25th Revolution and National Police Day (observed)
+2022/4/25,Sinai Liberation Day; Spring Festival
+2022/5/1,Eid al-Fitr
+2022/5/2,Eid al-Fitr
+2022/5/4,Eid al-Fitr (observed)
+2022/5/5,Labor Day (observed)
+2022/6/30,June 30 Revolution Day
+2022/7/9,Day of Arafah
+2022/7/10,Eid al-Adha
+2022/7/11,Eid al-Adha
+2022/7/12,Eid al-Adha
+2022/7/13,Eid al-Adha
+2022/7/14,Eid al-Adha
+2022/7/23,July 23 Revolution Day
+2022/7/30,Islamic New Year
+2022/10/6,Armed Forces Day
+2022/10/8,Prophet's Birthday
+2023/1/8,Coptic Christmas Day (observed)
+2023/1/26,January 25th Revolution and National Police Day (observed)
+2023/4/17,Spring Festival
+2023/4/21,Eid al-Fitr
+2023/4/22,Eid al-Fitr
+2023/4/24,Eid al-Fitr (observed)
+2023/4/27,Sinai Liberation Day (observed)
+2023/5/4,Labor Day (observed)
+2023/6/27,Day of Arafah
+2023/6/28,Eid al-Adha
+2023/6/29,Eid al-Adha
+2023/6/30,Eid al-Adha; June 30 Revolution Day
+2023/7/2,June 30 Revolution Day (observed)
+2023/7/3,Eid al-Adha (observed)
+2023/7/20,Islamic New Year (observed)
+2023/7/23,July 23 Revolution Day
+2023/9/28,Prophet's Birthday
+2023/10/6,Armed Forces Day
+2024/1/7,Coptic Christmas Day
+2024/1/25,January 25th Revolution and National Police Day
+2024/4/10,Eid al-Fitr
+2024/4/11,Eid al-Fitr
+2024/4/25,Sinai Liberation Day
+2024/5/5,Labor Day (observed)
+2024/5/6,Spring Festival
+2024/6/15,Day of Arafah
+2024/6/16,Eid al-Adha
+2024/6/17,Eid al-Adha
+2024/6/18,Eid al-Adha
+2024/6/30,June 30 Revolution Day
+2024/7/11,Islamic New Year (observed)
+2024/7/25,July 23 Revolution Day (observed)
+2024/9/15,Prophet's Birthday
+2024/10/6,Armed Forces Day
+2025/1/7,Coptic Christmas Day
+2025/1/25,January 25th Revolution and National Police Day
+2025/3/30,Eid al-Fitr
+2025/3/31,Eid al-Fitr
+2025/4/21,Spring Festival
+2025/4/25,Sinai Liberation Day
+2025/5/1,Labor Day
+2025/6/5,Day of Arafah
+2025/6/6,Eid al-Adha
+2025/6/7,Eid al-Adha
+2025/6/8,Eid al-Adha
+2025/6/26,Islamic New Year
+2025/7/3,June 30 Revolution Day (observed)
+2025/7/24,July 23 Revolution Day (observed)
+2025/9/4,Prophet's Birthday
+2025/10/9,Armed Forces Day (observed)
+2026/1/7,Coptic Christmas Day
+2026/1/29,January 25th Revolution and National Police Day (observed)
+2026/3/20,Eid al-Fitr
+2026/3/21,Eid al-Fitr
+2026/4/13,Spring Festival
+2026/4/25,Sinai Liberation Day
+2026/5/1,Labor Day
+2026/5/26,Day of Arafah (estimated)
+2026/5/27,Eid al-Adha (estimated)
+2026/5/28,Eid al-Adha (estimated)
+2026/5/29,Eid al-Adha (estimated)
+2026/6/18,Islamic New Year (observed, estimated)
+2026/7/2,June 30 Revolution Day (observed)
+2026/7/23,July 23 Revolution Day
+2026/8/25,Prophet's Birthday (estimated)
+2026/10/8,Armed Forces Day (observed)
+2027/1/7,Coptic Christmas Day
+2027/1/28,January 25th Revolution and National Police Day (observed)
+2027/3/9,Eid al-Fitr (estimated)
+2027/3/10,Eid al-Fitr (estimated)
+2027/4/29,Sinai Liberation Day (observed)
+2027/5/1,Labor Day
+2027/5/3,Spring Festival
+2027/5/15,Day of Arafah (estimated)
+2027/5/16,Eid al-Adha (estimated)
+2027/5/17,Eid al-Adha (estimated)
+2027/5/18,Eid al-Adha (estimated)
+2027/6/10,Islamic New Year (observed, estimated)
+2027/7/1,June 30 Revolution Day (observed)
+2027/7/23,July 23 Revolution Day
+2027/8/14,Prophet's Birthday (estimated)
+2027/10/7,Armed Forces Day (observed)
+2028/1/7,Coptic Christmas Day
+2028/1/27,January 25th Revolution and National Police Day (observed)
+2028/2/26,Eid al-Fitr (estimated)
+2028/2/27,Eid al-Fitr (estimated)
+2028/4/17,Spring Festival
+2028/4/27,Sinai Liberation Day (observed)
+2028/5/4,Day of Arafah (estimated); Labor Day (observed)
+2028/5/5,Eid al-Adha (estimated)
+2028/5/6,Eid al-Adha (estimated)
+2028/5/7,Eid al-Adha (estimated)
+2028/5/25,Islamic New Year (estimated)
+2028/6/30,June 30 Revolution Day
+2028/7/27,July 23 Revolution Day (observed)
+2028/8/3,Prophet's Birthday (estimated)
+2028/10/6,Armed Forces Day
+2029/1/7,Coptic Christmas Day
+2029/1/25,January 25th Revolution and National Police Day
+2029/2/14,Eid al-Fitr (estimated)
+2029/2/15,Eid al-Fitr (estimated)
+2029/4/9,Spring Festival
+2029/4/23,Day of Arafah (estimated)
+2029/4/24,Eid al-Adha (estimated)
+2029/4/25,Eid al-Adha (estimated)
+2029/4/26,Eid al-Adha (estimated); Sinai Liberation Day (observed)
+2029/5/3,Labor Day (observed)
+2029/5/17,Islamic New Year (observed, estimated)
+2029/6/30,June 30 Revolution Day
+2029/7/24,Prophet's Birthday (estimated)
+2029/7/26,July 23 Revolution Day (observed)
+2029/10/6,Armed Forces Day
+2030/1/7,Coptic Christmas Day
+2030/1/25,January 25th Revolution and National Police Day
+2030/2/4,Eid al-Fitr (estimated)
+2030/2/5,Eid al-Fitr (estimated)
+2030/4/12,Day of Arafah (estimated)
+2030/4/13,Eid al-Adha (estimated)
+2030/4/14,Eid al-Adha (estimated)
+2030/4/15,Eid al-Adha (estimated)
+2030/4/25,Sinai Liberation Day
+2030/4/29,Spring Festival
+2030/5/2,Labor Day (observed)
+2030/5/3,Islamic New Year (estimated)
+2030/7/4,June 30 Revolution Day (observed)
+2030/7/13,Prophet's Birthday (estimated)
+2030/7/25,July 23 Revolution Day (observed)
+2030/10/10,Armed Forces Day (observed)
+2031/1/7,Coptic Christmas Day
+2031/1/24,Eid al-Fitr (estimated)
+2031/1/25,Eid al-Fitr (estimated); January 25th Revolution and National Police Day
+2031/4/1,Day of Arafah (estimated)
+2031/4/2,Eid al-Adha (estimated)
+2031/4/3,Eid al-Adha (estimated)
+2031/4/4,Eid al-Adha (estimated)
+2031/4/14,Spring Festival
+2031/4/24,Islamic New Year (observed, estimated)
+2031/4/25,Sinai Liberation Day
+2031/5/1,Labor Day
+2031/7/2,Prophet's Birthday (estimated)
+2031/7/3,June 30 Revolution Day (observed)
+2031/7/24,July 23 Revolution Day (observed)
+2031/10/9,Armed Forces Day (observed)
+2032/1/7,Coptic Christmas Day
+2032/1/14,Eid al-Fitr (estimated)
+2032/1/15,Eid al-Fitr (estimated)
+2032/1/29,January 25th Revolution and National Police Day (observed)
+2032/3/21,Day of Arafah (estimated)
+2032/3/22,Eid al-Adha (estimated)
+2032/3/23,Eid al-Adha (estimated)
+2032/3/24,Eid al-Adha (estimated)
+2032/4/15,Islamic New Year (observed, estimated)
+2032/4/29,Sinai Liberation Day (observed)
+2032/5/1,Labor Day
+2032/5/3,Spring Festival
+2032/6/20,Prophet's Birthday (estimated)
+2032/7/1,June 30 Revolution Day (observed)
+2032/7/23,July 23 Revolution Day
+2032/10/7,Armed Forces Day (observed)
+2033/1/2,Eid al-Fitr (estimated)
+2033/1/3,Eid al-Fitr (estimated)
+2033/1/7,Coptic Christmas Day
+2033/1/27,January 25th Revolution and National Police Day (observed)
+2033/3/10,Day of Arafah (estimated)
+2033/3/11,Eid al-Adha (estimated)
+2033/3/12,Eid al-Adha (estimated)
+2033/3/13,Eid al-Adha (estimated)
+2033/4/1,Islamic New Year (estimated)
+2033/4/25,Spring Festival
+2033/4/28,Sinai Liberation Day (observed)
+2033/5/5,Labor Day (observed)
+2033/6/9,Prophet's Birthday (estimated)
+2033/6/30,June 30 Revolution Day
+2033/7/23,July 23 Revolution Day
+2033/10/6,Armed Forces Day
+2033/12/23,Eid al-Fitr (estimated)
+2033/12/24,Eid al-Fitr (estimated)
+2034/1/7,Coptic Christmas Day
+2034/1/26,January 25th Revolution and National Police Day (observed)
+2034/2/28,Day of Arafah (estimated)
+2034/3/1,Eid al-Adha (estimated)
+2034/3/2,Eid al-Adha (estimated)
+2034/3/3,Eid al-Adha (estimated)
+2034/3/23,Islamic New Year (observed, estimated)
+2034/4/10,Spring Festival
+2034/4/27,Sinai Liberation Day (observed)
+2034/5/4,Labor Day (observed)
+2034/5/30,Prophet's Birthday (estimated)
+2034/6/30,June 30 Revolution Day
+2034/7/27,July 23 Revolution Day (observed)
+2034/10/6,Armed Forces Day
+2034/12/12,Eid al-Fitr (estimated)
+2034/12/13,Eid al-Fitr (estimated)
+2035/1/7,Coptic Christmas Day
+2035/1/25,January 25th Revolution and National Police Day
+2035/2/17,Day of Arafah (estimated)
+2035/2/18,Eid al-Adha (estimated)
+2035/2/19,Eid al-Adha (estimated)
+2035/2/20,Eid al-Adha (estimated)
+2035/3/15,Islamic New Year (observed, estimated)
+2035/4/26,Sinai Liberation Day (observed)
+2035/4/30,Spring Festival
+2035/5/3,Labor Day (observed)
+2035/5/20,Prophet's Birthday (estimated)
+2035/6/30,June 30 Revolution Day
+2035/7/26,July 23 Revolution Day (observed)
+2035/10/6,Armed Forces Day
+2035/12/1,Eid al-Fitr (estimated)
+2035/12/2,Eid al-Fitr (estimated)
+2036/1/7,Coptic Christmas Day
+2036/1/25,January 25th Revolution and National Police Day
+2036/2/6,Day of Arafah (estimated)
+2036/2/7,Eid al-Adha (estimated)
+2036/2/8,Eid al-Adha (estimated)
+2036/2/9,Eid al-Adha (estimated)
+2036/2/28,Islamic New Year (estimated)
+2036/4/21,Spring Festival
+2036/4/25,Sinai Liberation Day
+2036/5/1,Labor Day
+2036/5/8,Prophet's Birthday (estimated)
+2036/7/3,June 30 Revolution Day (observed)
+2036/7/24,July 23 Revolution Day (observed)
+2036/10/9,Armed Forces Day (observed)
+2036/11/19,Eid al-Fitr (estimated)
+2036/11/20,Eid al-Fitr (estimated)
+2037/1/7,Coptic Christmas Day
+2037/1/25,Day of Arafah (estimated)
+2037/1/26,Eid al-Adha (estimated)
+2037/1/27,Eid al-Adha (estimated)
+2037/1/28,Eid al-Adha (estimated)
+2037/1/29,January 25th Revolution and National Police Day (observed)
+2037/2/19,Islamic New Year (observed, estimated)
+2037/4/6,Spring Festival
+2037/4/25,Sinai Liberation Day
+2037/4/28,Prophet's Birthday (estimated)
+2037/5/1,Labor Day
+2037/7/2,June 30 Revolution Day (observed)
+2037/7/23,July 23 Revolution Day
+2037/10/8,Armed Forces Day (observed)
+2037/11/8,Eid al-Fitr (estimated)
+2037/11/9,Eid al-Fitr (estimated)
+2038/1/7,Coptic Christmas Day
+2038/1/15,Day of Arafah (estimated)
+2038/1/16,Eid al-Adha (estimated)
+2038/1/17,Eid al-Adha (estimated)
+2038/1/18,Eid al-Adha (estimated)
+2038/1/28,January 25th Revolution and National Police Day (observed)
+2038/2/5,Islamic New Year (estimated)
+2038/4/17,Prophet's Birthday (estimated)
+2038/4/26,Spring Festival
+2038/4/29,Sinai Liberation Day (observed)
+2038/5/1,Labor Day
+2038/7/1,June 30 Revolution Day (observed)
+2038/7/23,July 23 Revolution Day
+2038/10/7,Armed Forces Day (observed)
+2038/10/29,Eid al-Fitr (estimated)
+2038/10/30,Eid al-Fitr (estimated)
+2039/1/4,Day of Arafah (estimated)
+2039/1/5,Eid al-Adha (estimated)
+2039/1/6,Eid al-Adha (estimated)
+2039/1/7,Coptic Christmas Day; Eid al-Adha (estimated)
+2039/1/27,Islamic New Year (observed, estimated); January 25th Revolution and National Police Day (observed)
+2039/4/6,Prophet's Birthday (estimated)
+2039/4/18,Spring Festival
+2039/4/28,Sinai Liberation Day (observed)
+2039/5/5,Labor Day (observed)
+2039/6/30,June 30 Revolution Day
+2039/7/23,July 23 Revolution Day
+2039/10/6,Armed Forces Day
+2039/10/19,Eid al-Fitr (estimated)
+2039/10/20,Eid al-Fitr (estimated)
+2039/12/25,Day of Arafah (estimated)
+2039/12/26,Eid al-Adha (estimated)
+2039/12/27,Eid al-Adha (estimated)
+2039/12/28,Eid al-Adha (estimated)
+2040/1/7,Coptic Christmas Day
+2040/1/19,Islamic New Year (observed, estimated)
+2040/1/26,January 25th Revolution and National Police Day (observed)
+2040/3/25,Prophet's Birthday (estimated)
+2040/4/26,Sinai Liberation Day (observed)
+2040/5/3,Labor Day (observed)
+2040/5/7,Spring Festival
+2040/6/30,June 30 Revolution Day
+2040/7/26,July 23 Revolution Day (observed)
+2040/10/6,Armed Forces Day
+2040/10/7,Eid al-Fitr (estimated)
+2040/10/8,Eid al-Fitr (estimated)
+2040/12/13,Day of Arafah (estimated)
+2040/12/14,Eid al-Adha (estimated)
+2040/12/15,Eid al-Adha (estimated)
+2040/12/16,Eid al-Adha (estimated)
+2041/1/4,Islamic New Year (estimated)
+2041/1/7,Coptic Christmas Day
+2041/1/25,January 25th Revolution and National Police Day
+2041/3/15,Prophet's Birthday (estimated)
+2041/4/22,Spring Festival
+2041/4/25,Sinai Liberation Day
+2041/5/2,Labor Day (observed)
+2041/7/4,June 30 Revolution Day (observed)
+2041/7/25,July 23 Revolution Day (observed)
+2041/9/26,Eid al-Fitr (estimated)
+2041/9/27,Eid al-Fitr (estimated)
+2041/10/10,Armed Forces Day (observed)
+2041/12/3,Day of Arafah (estimated)
+2041/12/4,Eid al-Adha (estimated)
+2041/12/5,Eid al-Adha (estimated)
+2041/12/6,Eid al-Adha (estimated)
+2041/12/26,Islamic New Year (observed, estimated)
+2042/1/7,Coptic Christmas Day
+2042/1/25,January 25th Revolution and National Police Day
+2042/3/4,Prophet's Birthday (estimated)
+2042/4/14,Spring Festival
+2042/4/25,Sinai Liberation Day
+2042/5/1,Labor Day
+2042/7/3,June 30 Revolution Day (observed)
+2042/7/24,July 23 Revolution Day (observed)
+2042/9/15,Eid al-Fitr (estimated)
+2042/9/16,Eid al-Fitr (estimated)
+2042/10/9,Armed Forces Day (observed)
+2042/11/22,Day of Arafah (estimated)
+2042/11/23,Eid al-Adha (estimated)
+2042/11/24,Eid al-Adha (estimated)
+2042/11/25,Eid al-Adha (estimated)
+2042/12/18,Islamic New Year (observed, estimated)
+2043/1/7,Coptic Christmas Day
+2043/1/29,January 25th Revolution and National Police Day (observed)
+2043/2/22,Prophet's Birthday (estimated)
+2043/4/25,Sinai Liberation Day
+2043/5/1,Labor Day
+2043/5/4,Spring Festival
+2043/7/2,June 30 Revolution Day (observed)
+2043/7/23,July 23 Revolution Day
+2043/9/4,Eid al-Fitr (estimated)
+2043/9/5,Eid al-Fitr (estimated)
+2043/10/8,Armed Forces Day (observed)
+2043/11/11,Day of Arafah (estimated)
+2043/11/12,Eid al-Adha (estimated)
+2043/11/13,Eid al-Adha (estimated)
+2043/11/14,Eid al-Adha (estimated)
+2043/12/3,Islamic New Year (estimated)
+2044/1/7,Coptic Christmas Day
+2044/1/28,January 25th Revolution and National Police Day (observed)
+2044/2/11,Prophet's Birthday (estimated)
+2044/4/25,Spring Festival
+2044/4/28,Sinai Liberation Day (observed)
+2044/5/5,Labor Day (observed)
+2044/6/30,June 30 Revolution Day
+2044/7/23,July 23 Revolution Day
+2044/8/24,Eid al-Fitr (estimated)
+2044/8/25,Eid al-Fitr (estimated)
+2044/10/6,Armed Forces Day
+2044/10/30,Day of Arafah (estimated)
+2044/10/31,Eid al-Adha (estimated)
+2044/11/1,Eid al-Adha (estimated)
+2044/11/2,Eid al-Adha (estimated)
+2044/11/24,Islamic New Year (observed, estimated)
+2045/1/7,Coptic Christmas Day
+2045/1/26,January 25th Revolution and National Police Day (observed)
+2045/1/30,Prophet's Birthday (estimated)
+2045/4/10,Spring Festival
+2045/4/27,Sinai Liberation Day (observed)
+2045/5/4,Labor Day (observed)
+2045/6/30,June 30 Revolution Day
+2045/7/27,July 23 Revolution Day (observed)
+2045/8/14,Eid al-Fitr (estimated)
+2045/8/15,Eid al-Fitr (estimated)
+2045/10/6,Armed Forces Day
+2045/10/20,Day of Arafah (estimated)
+2045/10/21,Eid al-Adha (estimated)
+2045/10/22,Eid al-Adha (estimated)
+2045/10/23,Eid al-Adha (estimated)
+2045/11/10,Islamic New Year (estimated)
+2046/1/7,Coptic Christmas Day
+2046/1/19,Prophet's Birthday (estimated)
+2046/1/25,January 25th Revolution and National Police Day
+2046/4/26,Sinai Liberation Day (observed)
+2046/4/30,Spring Festival
+2046/5/3,Labor Day (observed)
+2046/6/30,June 30 Revolution Day
+2046/7/26,July 23 Revolution Day (observed)
+2046/8/3,Eid al-Fitr (estimated)
+2046/8/4,Eid al-Fitr (estimated)
+2046/10/6,Armed Forces Day
+2046/10/9,Day of Arafah (estimated)
+2046/10/10,Eid al-Adha (estimated)
+2046/10/11,Eid al-Adha (estimated)
+2046/10/12,Eid al-Adha (estimated)
+2046/11/1,Islamic New Year (observed, estimated)
+2047/1/7,Coptic Christmas Day
+2047/1/8,Prophet's Birthday (estimated)
+2047/1/25,January 25th Revolution and National Police Day
+2047/4/22,Spring Festival
+2047/4/25,Sinai Liberation Day
+2047/5/2,Labor Day (observed)
+2047/7/4,June 30 Revolution Day (observed)
+2047/7/24,Eid al-Fitr (estimated)
+2047/7/25,Eid al-Fitr (estimated); July 23 Revolution Day (observed)
+2047/9/29,Day of Arafah (estimated)
+2047/9/30,Eid al-Adha (estimated)
+2047/10/1,Eid al-Adha (estimated)
+2047/10/2,Eid al-Adha (estimated)
+2047/10/10,Armed Forces Day (observed)
+2047/10/24,Islamic New Year (observed, estimated)
+2047/12/29,Prophet's Birthday (estimated)
+2048/1/7,Coptic Christmas Day
+2048/1/25,January 25th Revolution and National Police Day
+2048/4/6,Spring Festival
+2048/4/25,Sinai Liberation Day
+2048/5/1,Labor Day
+2048/7/2,June 30 Revolution Day (observed)
+2048/7/12,Eid al-Fitr (estimated)
+2048/7/13,Eid al-Fitr (estimated)
+2048/7/23,July 23 Revolution Day
+2048/9/18,Day of Arafah (estimated)
+2048/9/19,Eid al-Adha (estimated)
+2048/9/20,Eid al-Adha (estimated)
+2048/9/21,Eid al-Adha (estimated)
+2048/10/8,Armed Forces Day (observed)
+2048/10/9,Islamic New Year (estimated)
+2048/12/18,Prophet's Birthday (estimated)
+2049/1/7,Coptic Christmas Day
+2049/1/28,January 25th Revolution and National Police Day (observed)
+2049/4/26,Spring Festival
+2049/4/29,Sinai Liberation Day (observed)
+2049/5/1,Labor Day
+2049/7/1,Eid al-Fitr (estimated); June 30 Revolution Day (observed)
+2049/7/2,Eid al-Fitr (estimated)
+2049/7/23,July 23 Revolution Day
+2049/9/7,Day of Arafah (estimated)
+2049/9/8,Eid al-Adha (estimated)
+2049/9/9,Eid al-Adha (estimated)
+2049/9/10,Eid al-Adha (estimated)
+2049/9/30,Islamic New Year (observed, estimated)
+2049/10/7,Armed Forces Day (observed)
+2049/12/7,Prophet's Birthday (estimated)
+2050/1/7,Coptic Christmas Day
+2050/1/27,January 25th Revolution and National Police Day (observed)
+2050/4/18,Spring Festival
+2050/4/28,Sinai Liberation Day (observed)
+2050/5/5,Labor Day (observed)
+2050/6/20,Eid al-Fitr (estimated)
+2050/6/21,Eid al-Fitr (estimated)
+2050/6/30,June 30 Revolution Day
+2050/7/23,July 23 Revolution Day
+2050/8/27,Day of Arafah (estimated)
+2050/8/28,Eid al-Adha (estimated)
+2050/8/29,Eid al-Adha (estimated)
+2050/8/30,Eid al-Adha (estimated)
+2050/9/17,Islamic New Year (estimated)
+2050/10/6,Armed Forces Day
+2050/11/26,Prophet's Birthday (estimated)

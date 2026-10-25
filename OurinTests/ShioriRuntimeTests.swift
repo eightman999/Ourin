@@ -161,6 +161,108 @@ struct ShioriRuntimeTests {
         #expect(ShioriRuntimeFactory.kind(for: "shiori.bundle") == .native)
     }
 
+    /// Taromati2 と同じ構成: descript.txt は `shiori,shiori/aya.dll`、設定は shiori/aya.txt（#170）。
+    private func makeRenamedYayaGhost(config: String?) throws -> URL {
+        let fm = FileManager.default
+        let ghostRoot = fm.temporaryDirectory
+            .appendingPathComponent("Ourin-RenamedYaya-\(UUID().uuidString)/ghost/master", isDirectory: true)
+        let shiori = ghostRoot.appendingPathComponent("shiori", isDirectory: true)
+        try fm.createDirectory(at: shiori, withIntermediateDirectories: true)
+        try Data([0x4D, 0x5A]).write(to: shiori.appendingPathComponent("aya.dll"))
+        if let config {
+            try config.write(to: shiori.appendingPathComponent("aya.txt"), atomically: true, encoding: .utf8)
+        }
+        return ghostRoot
+    }
+
+    @Test
+    func renamedYayaDllIsRecognizedByItsConfigFile() throws {
+        let yaya = try makeRenamedYayaGhost(config: "// 設定\r\ninclude, aya_common.txt\r\n")
+        defer { try? FileManager.default.removeItem(at: yaya.deletingLastPathComponent().deletingLastPathComponent()) }
+        #expect(ShioriRuntimeFactory.kind(for: "shiori/aya.dll", ghostRoot: yaya) == .yaya)
+        #expect(ShioriRuntimeFactory.kind(for: "shiori\\aya.dll", ghostRoot: yaya) == .yaya)
+        #expect(ShioriRuntimeFactory.makeRuntime(for: "shiori/aya.dll", ghostRoot: yaya) is YayaAdapter)
+        #expect(ShioriRuntimeFactory.yayaConfigURL(for: "shiori/aya.dll", ghostRoot: yaya).path
+            == yaya.appendingPathComponent("shiori/aya.txt").path)
+
+        // 設定が無い、または辞書の指定が無いものは、名前どおり別の SHIORI として扱う。
+        let missing = try makeRenamedYayaGhost(config: nil)
+        defer { try? FileManager.default.removeItem(at: missing.deletingLastPathComponent().deletingLastPathComponent()) }
+        #expect(ShioriRuntimeFactory.kind(for: "shiori/aya.dll", ghostRoot: missing) == .native)
+        let other = try makeRenamedYayaGhost(config: "replace, foo\r\n// dic, commented.dic\r\n")
+        defer { try? FileManager.default.removeItem(at: other.deletingLastPathComponent().deletingLastPathComponent()) }
+        #expect(ShioriRuntimeFactory.kind(for: "shiori/aya.dll", ghostRoot: other) == .native)
+
+        // 名前で決まるものと、DLL でないものは変わらない。
+        #expect(ShioriRuntimeFactory.kind(for: "yaya.dll", ghostRoot: other) == .yaya)
+        #expect(ShioriRuntimeFactory.kind(for: "shiori/aya.bundle", ghostRoot: yaya) == .native)
+    }
+
+    @MainActor
+    @Test
+    func renamedYayaLoadsItsConfigRelativeToTheDllFolder() throws {
+        let ghostRoot = try makeRenamedYayaGhost(config: "include, aya_common.txt\r\n")
+        defer { try? FileManager.default.removeItem(at: ghostRoot.deletingLastPathComponent().deletingLastPathComponent()) }
+        let shiori = ghostRoot.appendingPathComponent("shiori")
+        try "charset, UTF-8\r\ndicdir, ../dic\r\ndic, local.dic\r\n"
+            .write(to: shiori.appendingPathComponent("aya_common.txt"), atomically: true, encoding: .utf8)
+        let dic = ghostRoot.appendingPathComponent("dic")
+        try FileManager.default.createDirectory(at: dic, withIntermediateDirectories: true)
+        try "OnBoot { 'hello' }".write(to: dic.appendingPathComponent("boot.dic"), atomically: true, encoding: .utf8)
+        try "".write(to: shiori.appendingPathComponent("local.dic"), atomically: true, encoding: .utf8)
+
+        let manager = GhostManager(ghostURL: ghostRoot.deletingLastPathComponent().deletingLastPathComponent())
+        let context = manager.makeShioriLoadContext(moduleName: "shiori/aya.dll", ghostRoot: ghostRoot)
+
+        // YAYA の基準は DLL のあるフォルダ（SHIORI の load に渡すモジュールのフォルダ）。
+        #expect(context.ghostRoot.standardizedFileURL.path == shiori.standardizedFileURL.path)
+        #expect(context.dictionaryEncoding == "UTF-8")
+        let paths = context.dictionaryEntries.map(\.path)
+        #expect(paths.contains("local.dic"))
+        #expect(paths.contains { $0.hasSuffix("dic/boot.dic") }, "\(paths)")
+        for path in paths {
+            #expect(FileManager.default.fileExists(atPath: context.ghostRoot.appendingPathComponent(path).path), "\(path)")
+        }
+    }
+
+    /// Taromati2 の構成: aya_base.txt の `basepath, ..` で基準を ghost/master へ移し、
+    /// dic/_loading_order.txt の中で `dicdir, sub` を入れ子にする。
+    @MainActor
+    @Test
+    func renamedYayaHonorsBasePathAndNestedLoadingOrder() throws {
+        let ghostRoot = try makeRenamedYayaGhost(config: "include, aya_common.txt\r\n")
+        defer { try? FileManager.default.removeItem(at: ghostRoot.deletingLastPathComponent().deletingLastPathComponent()) }
+        let shiori = ghostRoot.appendingPathComponent("shiori")
+        try "include, aya_base.txt\r\ndicdir, ../dic\r\n"
+            .write(to: shiori.appendingPathComponent("aya_common.txt"), atomically: true, encoding: .utf8)
+        try "basepath, ..\r\ncharset, UTF-8\r\n"
+            .write(to: shiori.appendingPathComponent("aya_base.txt"), atomically: true, encoding: .utf8)
+        let sub = ghostRoot.appendingPathComponent("dic/sub")
+        try FileManager.default.createDirectory(at: sub, withIntermediateDirectories: true)
+        try "dicdir, sub\r\ncharset, UTF-8\r\ndicdir, scan\r\n"
+            .write(to: ghostRoot.appendingPathComponent("dic/_loading_order.txt"), atomically: true, encoding: .utf8)
+        try "dic, a.dic\r\n".write(to: sub.appendingPathComponent("_loading_order.txt"), atomically: true, encoding: .utf8)
+        try "OnBoot { 'a' }".write(to: sub.appendingPathComponent("a.dic"), atomically: true, encoding: .utf8)
+        // 読み込み順ファイルの無いフォルダは、サブフォルダも辿って .dic を読む。
+        let deep = ghostRoot.appendingPathComponent("dic/scan/deep")
+        try FileManager.default.createDirectory(at: deep, withIntermediateDirectories: true)
+        try "".write(to: deep.appendingPathComponent("y.dic"), atomically: true, encoding: .utf8)
+        try "".write(to: ghostRoot.appendingPathComponent("dic/scan/x.dic"), atomically: true, encoding: .utf8)
+        try "".write(to: ghostRoot.appendingPathComponent("dic/scan/readme.txt"), atomically: true, encoding: .utf8)
+
+        let manager = GhostManager(ghostURL: ghostRoot.deletingLastPathComponent().deletingLastPathComponent())
+        let context = manager.makeShioriLoadContext(moduleName: "shiori/aya.dll", ghostRoot: ghostRoot)
+
+        #expect(context.ghostRoot.standardizedFileURL.path == ghostRoot.standardizedFileURL.path)
+        #expect(context.dictionaryEntries.map(\.path) == ["dic/sub/a.dic", "dic/scan/deep/y.dic", "dic/scan/x.dic"])
+
+        // ゴーストのフォルダの外を指す basepath は無視する（yaya_core のファイル操作の範囲を広げない）。
+        let escape = DicCollector()
+        escape.basePath = "../../../.."
+        let ignored = applyYayaBasePath(escape, root: shiori, within: ghostRoot.deletingLastPathComponent().deletingLastPathComponent())
+        #expect(ignored.root == shiori)
+    }
+
     @Test
     func configuredModuleNameIsPassedThroughUnchanged() {
         let config = GhostConfiguration(name: "fixture", shiori: "custom_shiori.bundle")

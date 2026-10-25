@@ -75,7 +75,7 @@ struct SaveSharePane: View {
     private func export() {
         guard let ghost = selectedGhost, let profile = profileURL() else { return }
         let panel = NSSavePanel()
-        panel.title = "セーブデータをエクスポート"
+        panel.title = NSLocalizedString("セーブデータをエクスポート", comment: "SaveShare export panel")
         panel.nameFieldStringValue = "\(ghost).ssg"
         panel.allowedContentTypes = [ssgType]
         panel.begin { response in
@@ -87,11 +87,11 @@ struct SaveSharePane: View {
                     profileURL: profile,
                     to: url
                 )
-                statusMessage = "エクスポート完了: \(url.lastPathComponent) (\(included.count) ファイル)"
+                statusMessage = String(format: NSLocalizedString("エクスポート完了: %@ (%lld ファイル)", comment: "SaveShare export done"), url.lastPathComponent, included.count)
                 errorMessage = nil
                 logger.info("SaveShare export \(ghost) -> \(url.path): \(included)")
             } catch {
-                errorMessage = "エクスポート失敗: \(error.localizedDescription)"
+                errorMessage = String(format: NSLocalizedString("エクスポート失敗: %@", comment: "SaveShare export failed"), error.localizedDescription)
                 logger.error("SaveShare export failed: \(error)")
             }
         }
@@ -100,18 +100,18 @@ struct SaveSharePane: View {
     private func importFromPicker() {
         guard let ghost = selectedGhost, let profile = profileURL() else { return }
         let panel = NSOpenPanel()
-        panel.title = "セーブデータをインポート"
+        panel.title = NSLocalizedString("セーブデータをインポート", comment: "SaveShare import panel")
         panel.allowedContentTypes = [ssgType]
         panel.allowsMultipleSelection = false
         panel.begin { response in
             guard response == .OK, let url = panel.url else { return }
             do {
                 let restored = try SaveShareManager.importSSG(from: url, to: profile)
-                statusMessage = "インポート完了: \(url.lastPathComponent) (\(restored.count) ファイル復元)"
+                statusMessage = String(format: NSLocalizedString("インポート完了: %@ (%lld ファイル復元)", comment: "SaveShare import done"), url.lastPathComponent, restored.count)
                 errorMessage = nil
                 logger.info("SaveShare import \(url.path) -> \(ghost): \(restored)")
             } catch {
-                errorMessage = "インポート失敗: \(error.localizedDescription)"
+                errorMessage = String(format: NSLocalizedString("インポート失敗: %@", comment: "SaveShare import failed"), error.localizedDescription)
                 logger.error("SaveShare import failed: \(error)")
             }
         }

@@ -1,0 +1,519 @@
+# PE の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/4/9,Jueves Santo
+2020/4/10,Viernes Santo
+2020/4/12,Domingo de Resurrección
+2020/5/1,Día del Trabajo
+2020/6/29,San Pedro y San Pablo
+2020/7/28,Día de la Independencia
+2020/7/29,Día de la Gran Parada Militar
+2020/8/30,Santa Rosa de Lima
+2020/10/8,Combate de Angamos
+2020/11/1,Todos Los Santos
+2020/12/8,Inmaculada Concepción
+2020/12/25,Navidad del Señor
+2021/1/1,Año Nuevo
+2021/4/1,Jueves Santo
+2021/4/2,Viernes Santo
+2021/4/4,Domingo de Resurrección
+2021/5/1,Día del Trabajo
+2021/6/29,San Pedro y San Pablo
+2021/7/28,Día de la Independencia
+2021/7/29,Día de la Gran Parada Militar
+2021/8/30,Santa Rosa de Lima
+2021/10/8,Combate de Angamos
+2021/11/1,Todos Los Santos
+2021/12/8,Inmaculada Concepción
+2021/12/25,Navidad del Señor
+2022/1/1,Año Nuevo
+2022/4/14,Jueves Santo
+2022/4/15,Viernes Santo
+2022/4/17,Domingo de Resurrección
+2022/5/1,Día del Trabajo
+2022/6/29,San Pedro y San Pablo
+2022/7/28,Día de la Independencia
+2022/7/29,Día de la Gran Parada Militar
+2022/8/6,Batalla de Junín
+2022/8/30,Santa Rosa de Lima
+2022/10/8,Combate de Angamos
+2022/11/1,Todos Los Santos
+2022/12/8,Inmaculada Concepción
+2022/12/9,Batalla de Ayacucho
+2022/12/25,Navidad del Señor
+2023/1/1,Año Nuevo
+2023/4/6,Jueves Santo
+2023/4/7,Viernes Santo
+2023/4/9,Domingo de Resurrección
+2023/5/1,Día del Trabajo
+2023/6/29,San Pedro y San Pablo
+2023/7/23,Día de la Fuerza Aérea del Perú
+2023/7/28,Día de la Independencia
+2023/7/29,Día de la Gran Parada Militar
+2023/8/6,Batalla de Junín
+2023/8/30,Santa Rosa de Lima
+2023/10/8,Combate de Angamos
+2023/11/1,Todos Los Santos
+2023/12/8,Inmaculada Concepción
+2023/12/9,Batalla de Ayacucho
+2023/12/25,Navidad del Señor
+2024/1/1,Año Nuevo
+2024/3/28,Jueves Santo
+2024/3/29,Viernes Santo
+2024/3/31,Domingo de Resurrección
+2024/5/1,Día del Trabajo
+2024/6/7,Batalla de Arica y Día de la Bandera
+2024/6/29,San Pedro y San Pablo
+2024/7/23,Día de la Fuerza Aérea del Perú
+2024/7/28,Día de la Independencia
+2024/7/29,Día de la Gran Parada Militar
+2024/8/6,Batalla de Junín
+2024/8/30,Santa Rosa de Lima
+2024/10/8,Combate de Angamos
+2024/11/1,Todos Los Santos
+2024/12/8,Inmaculada Concepción
+2024/12/9,Batalla de Ayacucho
+2024/12/25,Navidad del Señor
+2025/1/1,Año Nuevo
+2025/4/17,Jueves Santo
+2025/4/18,Viernes Santo
+2025/4/20,Domingo de Resurrección
+2025/5/1,Día del Trabajo
+2025/6/7,Batalla de Arica y Día de la Bandera
+2025/6/29,San Pedro y San Pablo
+2025/7/23,Día de la Fuerza Aérea del Perú
+2025/7/28,Día de la Independencia
+2025/7/29,Día de la Gran Parada Militar
+2025/8/6,Batalla de Junín
+2025/8/30,Santa Rosa de Lima
+2025/10/8,Combate de Angamos
+2025/11/1,Todos Los Santos
+2025/12/8,Inmaculada Concepción
+2025/12/9,Batalla de Ayacucho
+2025/12/25,Navidad del Señor
+2026/1/1,Año Nuevo
+2026/4/2,Jueves Santo
+2026/4/3,Viernes Santo
+2026/4/5,Domingo de Resurrección
+2026/5/1,Día del Trabajo
+2026/6/7,Batalla de Arica y Día de la Bandera
+2026/6/29,San Pedro y San Pablo
+2026/7/23,Día de la Fuerza Aérea del Perú
+2026/7/28,Día de la Independencia
+2026/7/29,Día de la Gran Parada Militar
+2026/8/6,Batalla de Junín
+2026/8/30,Santa Rosa de Lima
+2026/10/8,Combate de Angamos
+2026/11/1,Todos Los Santos
+2026/12/8,Inmaculada Concepción
+2026/12/9,Batalla de Ayacucho
+2026/12/25,Navidad del Señor
+2027/1/1,Año Nuevo
+2027/3/25,Jueves Santo
+2027/3/26,Viernes Santo
+2027/3/28,Domingo de Resurrección
+2027/5/1,Día del Trabajo
+2027/6/7,Batalla de Arica y Día de la Bandera
+2027/6/29,San Pedro y San Pablo
+2027/7/23,Día de la Fuerza Aérea del Perú
+2027/7/28,Día de la Independencia
+2027/7/29,Día de la Gran Parada Militar
+2027/8/6,Batalla de Junín
+2027/8/30,Santa Rosa de Lima
+2027/10/8,Combate de Angamos
+2027/11/1,Todos Los Santos
+2027/12/8,Inmaculada Concepción
+2027/12/9,Batalla de Ayacucho
+2027/12/25,Navidad del Señor
+2028/1/1,Año Nuevo
+2028/4/13,Jueves Santo
+2028/4/14,Viernes Santo
+2028/4/16,Domingo de Resurrección
+2028/5/1,Día del Trabajo
+2028/6/7,Batalla de Arica y Día de la Bandera
+2028/6/29,San Pedro y San Pablo
+2028/7/23,Día de la Fuerza Aérea del Perú
+2028/7/28,Día de la Independencia
+2028/7/29,Día de la Gran Parada Militar
+2028/8/6,Batalla de Junín
+2028/8/30,Santa Rosa de Lima
+2028/10/8,Combate de Angamos
+2028/11/1,Todos Los Santos
+2028/12/8,Inmaculada Concepción
+2028/12/9,Batalla de Ayacucho
+2028/12/25,Navidad del Señor
+2029/1/1,Año Nuevo
+2029/3/29,Jueves Santo
+2029/3/30,Viernes Santo
+2029/4/1,Domingo de Resurrección
+2029/5/1,Día del Trabajo
+2029/6/7,Batalla de Arica y Día de la Bandera
+2029/6/29,San Pedro y San Pablo
+2029/7/23,Día de la Fuerza Aérea del Perú
+2029/7/28,Día de la Independencia
+2029/7/29,Día de la Gran Parada Militar
+2029/8/6,Batalla de Junín
+2029/8/30,Santa Rosa de Lima
+2029/10/8,Combate de Angamos
+2029/11/1,Todos Los Santos
+2029/12/8,Inmaculada Concepción
+2029/12/9,Batalla de Ayacucho
+2029/12/25,Navidad del Señor
+2030/1/1,Año Nuevo
+2030/4/18,Jueves Santo
+2030/4/19,Viernes Santo
+2030/4/21,Domingo de Resurrección
+2030/5/1,Día del Trabajo
+2030/6/7,Batalla de Arica y Día de la Bandera
+2030/6/29,San Pedro y San Pablo
+2030/7/23,Día de la Fuerza Aérea del Perú
+2030/7/28,Día de la Independencia
+2030/7/29,Día de la Gran Parada Militar
+2030/8/6,Batalla de Junín
+2030/8/30,Santa Rosa de Lima
+2030/10/8,Combate de Angamos
+2030/11/1,Todos Los Santos
+2030/12/8,Inmaculada Concepción
+2030/12/9,Batalla de Ayacucho
+2030/12/25,Navidad del Señor
+2031/1/1,Año Nuevo
+2031/4/10,Jueves Santo
+2031/4/11,Viernes Santo
+2031/4/13,Domingo de Resurrección
+2031/5/1,Día del Trabajo
+2031/6/7,Batalla de Arica y Día de la Bandera
+2031/6/29,San Pedro y San Pablo
+2031/7/23,Día de la Fuerza Aérea del Perú
+2031/7/28,Día de la Independencia
+2031/7/29,Día de la Gran Parada Militar
+2031/8/6,Batalla de Junín
+2031/8/30,Santa Rosa de Lima
+2031/10/8,Combate de Angamos
+2031/11/1,Todos Los Santos
+2031/12/8,Inmaculada Concepción
+2031/12/9,Batalla de Ayacucho
+2031/12/25,Navidad del Señor
+2032/1/1,Año Nuevo
+2032/3/25,Jueves Santo
+2032/3/26,Viernes Santo
+2032/3/28,Domingo de Resurrección
+2032/5/1,Día del Trabajo
+2032/6/7,Batalla de Arica y Día de la Bandera
+2032/6/29,San Pedro y San Pablo
+2032/7/23,Día de la Fuerza Aérea del Perú
+2032/7/28,Día de la Independencia
+2032/7/29,Día de la Gran Parada Militar
+2032/8/6,Batalla de Junín
+2032/8/30,Santa Rosa de Lima
+2032/10/8,Combate de Angamos
+2032/11/1,Todos Los Santos
+2032/12/8,Inmaculada Concepción
+2032/12/9,Batalla de Ayacucho
+2032/12/25,Navidad del Señor
+2033/1/1,Año Nuevo
+2033/4/14,Jueves Santo
+2033/4/15,Viernes Santo
+2033/4/17,Domingo de Resurrección
+2033/5/1,Día del Trabajo
+2033/6/7,Batalla de Arica y Día de la Bandera
+2033/6/29,San Pedro y San Pablo
+2033/7/23,Día de la Fuerza Aérea del Perú
+2033/7/28,Día de la Independencia
+2033/7/29,Día de la Gran Parada Militar
+2033/8/6,Batalla de Junín
+2033/8/30,Santa Rosa de Lima
+2033/10/8,Combate de Angamos
+2033/11/1,Todos Los Santos
+2033/12/8,Inmaculada Concepción
+2033/12/9,Batalla de Ayacucho
+2033/12/25,Navidad del Señor
+2034/1/1,Año Nuevo
+2034/4/6,Jueves Santo
+2034/4/7,Viernes Santo
+2034/4/9,Domingo de Resurrección
+2034/5/1,Día del Trabajo
+2034/6/7,Batalla de Arica y Día de la Bandera
+2034/6/29,San Pedro y San Pablo
+2034/7/23,Día de la Fuerza Aérea del Perú
+2034/7/28,Día de la Independencia
+2034/7/29,Día de la Gran Parada Militar
+2034/8/6,Batalla de Junín
+2034/8/30,Santa Rosa de Lima
+2034/10/8,Combate de Angamos
+2034/11/1,Todos Los Santos
+2034/12/8,Inmaculada Concepción
+2034/12/9,Batalla de Ayacucho
+2034/12/25,Navidad del Señor
+2035/1/1,Año Nuevo
+2035/3/22,Jueves Santo
+2035/3/23,Viernes Santo
+2035/3/25,Domingo de Resurrección
+2035/5/1,Día del Trabajo
+2035/6/7,Batalla de Arica y Día de la Bandera
+2035/6/29,San Pedro y San Pablo
+2035/7/23,Día de la Fuerza Aérea del Perú
+2035/7/28,Día de la Independencia
+2035/7/29,Día de la Gran Parada Militar
+2035/8/6,Batalla de Junín
+2035/8/30,Santa Rosa de Lima
+2035/10/8,Combate de Angamos
+2035/11/1,Todos Los Santos
+2035/12/8,Inmaculada Concepción
+2035/12/9,Batalla de Ayacucho
+2035/12/25,Navidad del Señor
+2036/1/1,Año Nuevo
+2036/4/10,Jueves Santo
+2036/4/11,Viernes Santo
+2036/4/13,Domingo de Resurrección
+2036/5/1,Día del Trabajo
+2036/6/7,Batalla de Arica y Día de la Bandera
+2036/6/29,San Pedro y San Pablo
+2036/7/23,Día de la Fuerza Aérea del Perú
+2036/7/28,Día de la Independencia
+2036/7/29,Día de la Gran Parada Militar
+2036/8/6,Batalla de Junín
+2036/8/30,Santa Rosa de Lima
+2036/10/8,Combate de Angamos
+2036/11/1,Todos Los Santos
+2036/12/8,Inmaculada Concepción
+2036/12/9,Batalla de Ayacucho
+2036/12/25,Navidad del Señor
+2037/1/1,Año Nuevo
+2037/4/2,Jueves Santo
+2037/4/3,Viernes Santo
+2037/4/5,Domingo de Resurrección
+2037/5/1,Día del Trabajo
+2037/6/7,Batalla de Arica y Día de la Bandera
+2037/6/29,San Pedro y San Pablo
+2037/7/23,Día de la Fuerza Aérea del Perú
+2037/7/28,Día de la Independencia
+2037/7/29,Día de la Gran Parada Militar
+2037/8/6,Batalla de Junín
+2037/8/30,Santa Rosa de Lima
+2037/10/8,Combate de Angamos
+2037/11/1,Todos Los Santos
+2037/12/8,Inmaculada Concepción
+2037/12/9,Batalla de Ayacucho
+2037/12/25,Navidad del Señor
+2038/1/1,Año Nuevo
+2038/4/22,Jueves Santo
+2038/4/23,Viernes Santo
+2038/4/25,Domingo de Resurrección
+2038/5/1,Día del Trabajo
+2038/6/7,Batalla de Arica y Día de la Bandera
+2038/6/29,San Pedro y San Pablo
+2038/7/23,Día de la Fuerza Aérea del Perú
+2038/7/28,Día de la Independencia
+2038/7/29,Día de la Gran Parada Militar
+2038/8/6,Batalla de Junín
+2038/8/30,Santa Rosa de Lima
+2038/10/8,Combate de Angamos
+2038/11/1,Todos Los Santos
+2038/12/8,Inmaculada Concepción
+2038/12/9,Batalla de Ayacucho
+2038/12/25,Navidad del Señor
+2039/1/1,Año Nuevo
+2039/4/7,Jueves Santo
+2039/4/8,Viernes Santo
+2039/4/10,Domingo de Resurrección
+2039/5/1,Día del Trabajo
+2039/6/7,Batalla de Arica y Día de la Bandera
+2039/6/29,San Pedro y San Pablo
+2039/7/23,Día de la Fuerza Aérea del Perú
+2039/7/28,Día de la Independencia
+2039/7/29,Día de la Gran Parada Militar
+2039/8/6,Batalla de Junín
+2039/8/30,Santa Rosa de Lima
+2039/10/8,Combate de Angamos
+2039/11/1,Todos Los Santos
+2039/12/8,Inmaculada Concepción
+2039/12/9,Batalla de Ayacucho
+2039/12/25,Navidad del Señor
+2040/1/1,Año Nuevo
+2040/3/29,Jueves Santo
+2040/3/30,Viernes Santo
+2040/4/1,Domingo de Resurrección
+2040/5/1,Día del Trabajo
+2040/6/7,Batalla de Arica y Día de la Bandera
+2040/6/29,San Pedro y San Pablo
+2040/7/23,Día de la Fuerza Aérea del Perú
+2040/7/28,Día de la Independencia
+2040/7/29,Día de la Gran Parada Militar
+2040/8/6,Batalla de Junín
+2040/8/30,Santa Rosa de Lima
+2040/10/8,Combate de Angamos
+2040/11/1,Todos Los Santos
+2040/12/8,Inmaculada Concepción
+2040/12/9,Batalla de Ayacucho
+2040/12/25,Navidad del Señor
+2041/1/1,Año Nuevo
+2041/4/18,Jueves Santo
+2041/4/19,Viernes Santo
+2041/4/21,Domingo de Resurrección
+2041/5/1,Día del Trabajo
+2041/6/7,Batalla de Arica y Día de la Bandera
+2041/6/29,San Pedro y San Pablo
+2041/7/23,Día de la Fuerza Aérea del Perú
+2041/7/28,Día de la Independencia
+2041/7/29,Día de la Gran Parada Militar
+2041/8/6,Batalla de Junín
+2041/8/30,Santa Rosa de Lima
+2041/10/8,Combate de Angamos
+2041/11/1,Todos Los Santos
+2041/12/8,Inmaculada Concepción
+2041/12/9,Batalla de Ayacucho
+2041/12/25,Navidad del Señor
+2042/1/1,Año Nuevo
+2042/4/3,Jueves Santo
+2042/4/4,Viernes Santo
+2042/4/6,Domingo de Resurrección
+2042/5/1,Día del Trabajo
+2042/6/7,Batalla de Arica y Día de la Bandera
+2042/6/29,San Pedro y San Pablo
+2042/7/23,Día de la Fuerza Aérea del Perú
+2042/7/28,Día de la Independencia
+2042/7/29,Día de la Gran Parada Militar
+2042/8/6,Batalla de Junín
+2042/8/30,Santa Rosa de Lima
+2042/10/8,Combate de Angamos
+2042/11/1,Todos Los Santos
+2042/12/8,Inmaculada Concepción
+2042/12/9,Batalla de Ayacucho
+2042/12/25,Navidad del Señor
+2043/1/1,Año Nuevo
+2043/3/26,Jueves Santo
+2043/3/27,Viernes Santo
+2043/3/29,Domingo de Resurrección
+2043/5/1,Día del Trabajo
+2043/6/7,Batalla de Arica y Día de la Bandera
+2043/6/29,San Pedro y San Pablo
+2043/7/23,Día de la Fuerza Aérea del Perú
+2043/7/28,Día de la Independencia
+2043/7/29,Día de la Gran Parada Militar
+2043/8/6,Batalla de Junín
+2043/8/30,Santa Rosa de Lima
+2043/10/8,Combate de Angamos
+2043/11/1,Todos Los Santos
+2043/12/8,Inmaculada Concepción
+2043/12/9,Batalla de Ayacucho
+2043/12/25,Navidad del Señor
+2044/1/1,Año Nuevo
+2044/4/14,Jueves Santo
+2044/4/15,Viernes Santo
+2044/4/17,Domingo de Resurrección
+2044/5/1,Día del Trabajo
+2044/6/7,Batalla de Arica y Día de la Bandera
+2044/6/29,San Pedro y San Pablo
+2044/7/23,Día de la Fuerza Aérea del Perú
+2044/7/28,Día de la Independencia
+2044/7/29,Día de la Gran Parada Militar
+2044/8/6,Batalla de Junín
+2044/8/30,Santa Rosa de Lima
+2044/10/8,Combate de Angamos
+2044/11/1,Todos Los Santos
+2044/12/8,Inmaculada Concepción
+2044/12/9,Batalla de Ayacucho
+2044/12/25,Navidad del Señor
+2045/1/1,Año Nuevo
+2045/4/6,Jueves Santo
+2045/4/7,Viernes Santo
+2045/4/9,Domingo de Resurrección
+2045/5/1,Día del Trabajo
+2045/6/7,Batalla de Arica y Día de la Bandera
+2045/6/29,San Pedro y San Pablo
+2045/7/23,Día de la Fuerza Aérea del Perú
+2045/7/28,Día de la Independencia
+2045/7/29,Día de la Gran Parada Militar
+2045/8/6,Batalla de Junín
+2045/8/30,Santa Rosa de Lima
+2045/10/8,Combate de Angamos
+2045/11/1,Todos Los Santos
+2045/12/8,Inmaculada Concepción
+2045/12/9,Batalla de Ayacucho
+2045/12/25,Navidad del Señor
+2046/1/1,Año Nuevo
+2046/3/22,Jueves Santo
+2046/3/23,Viernes Santo
+2046/3/25,Domingo de Resurrección
+2046/5/1,Día del Trabajo
+2046/6/7,Batalla de Arica y Día de la Bandera
+2046/6/29,San Pedro y San Pablo
+2046/7/23,Día de la Fuerza Aérea del Perú
+2046/7/28,Día de la Independencia
+2046/7/29,Día de la Gran Parada Militar
+2046/8/6,Batalla de Junín
+2046/8/30,Santa Rosa de Lima
+2046/10/8,Combate de Angamos
+2046/11/1,Todos Los Santos
+2046/12/8,Inmaculada Concepción
+2046/12/9,Batalla de Ayacucho
+2046/12/25,Navidad del Señor
+2047/1/1,Año Nuevo
+2047/4/11,Jueves Santo
+2047/4/12,Viernes Santo
+2047/4/14,Domingo de Resurrección
+2047/5/1,Día del Trabajo
+2047/6/7,Batalla de Arica y Día de la Bandera
+2047/6/29,San Pedro y San Pablo
+2047/7/23,Día de la Fuerza Aérea del Perú
+2047/7/28,Día de la Independencia
+2047/7/29,Día de la Gran Parada Militar
+2047/8/6,Batalla de Junín
+2047/8/30,Santa Rosa de Lima
+2047/10/8,Combate de Angamos
+2047/11/1,Todos Los Santos
+2047/12/8,Inmaculada Concepción
+2047/12/9,Batalla de Ayacucho
+2047/12/25,Navidad del Señor
+2048/1/1,Año Nuevo
+2048/4/2,Jueves Santo
+2048/4/3,Viernes Santo
+2048/4/5,Domingo de Resurrección
+2048/5/1,Día del Trabajo
+2048/6/7,Batalla de Arica y Día de la Bandera
+2048/6/29,San Pedro y San Pablo
+2048/7/23,Día de la Fuerza Aérea del Perú
+2048/7/28,Día de la Independencia
+2048/7/29,Día de la Gran Parada Militar
+2048/8/6,Batalla de Junín
+2048/8/30,Santa Rosa de Lima
+2048/10/8,Combate de Angamos
+2048/11/1,Todos Los Santos
+2048/12/8,Inmaculada Concepción
+2048/12/9,Batalla de Ayacucho
+2048/12/25,Navidad del Señor
+2049/1/1,Año Nuevo
+2049/4/15,Jueves Santo
+2049/4/16,Viernes Santo
+2049/4/18,Domingo de Resurrección
+2049/5/1,Día del Trabajo
+2049/6/7,Batalla de Arica y Día de la Bandera
+2049/6/29,San Pedro y San Pablo
+2049/7/23,Día de la Fuerza Aérea del Perú
+2049/7/28,Día de la Independencia
+2049/7/29,Día de la Gran Parada Militar
+2049/8/6,Batalla de Junín
+2049/8/30,Santa Rosa de Lima
+2049/10/8,Combate de Angamos
+2049/11/1,Todos Los Santos
+2049/12/8,Inmaculada Concepción
+2049/12/9,Batalla de Ayacucho
+2049/12/25,Navidad del Señor
+2050/1/1,Año Nuevo
+2050/4/7,Jueves Santo
+2050/4/8,Viernes Santo
+2050/4/10,Domingo de Resurrección
+2050/5/1,Día del Trabajo
+2050/6/7,Batalla de Arica y Día de la Bandera
+2050/6/29,San Pedro y San Pablo
+2050/7/23,Día de la Fuerza Aérea del Perú
+2050/7/28,Día de la Independencia
+2050/7/29,Día de la Gran Parada Militar
+2050/8/6,Batalla de Junín
+2050/8/30,Santa Rosa de Lima
+2050/10/8,Combate de Angamos
+2050/11/1,Todos Los Santos
+2050/12/8,Inmaculada Concepción
+2050/12/9,Batalla de Ayacucho
+2050/12/25,Navidad del Señor

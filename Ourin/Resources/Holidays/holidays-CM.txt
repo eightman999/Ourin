@@ -1,0 +1,389 @@
+# CM の祝日（2020〜2050年、言語: en）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/2/11,Youth Day
+2020/4/10,Good Friday
+2020/5/1,Labour Day
+2020/5/20,National Day
+2020/5/21,Ascension Day
+2020/5/24,Eid al-Fitr
+2020/5/25,Eid al-Fitr (observed)
+2020/7/31,Eid al-Adha
+2020/8/15,Assumption Day
+2020/10/29,Mawlid
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/2/11,Youth Day
+2021/4/2,Good Friday
+2021/5/1,Labour Day
+2021/5/13,Ascension Day; Eid al-Fitr
+2021/5/14,Public Holiday
+2021/5/20,National Day
+2021/7/19,Public Holiday
+2021/7/20,Eid al-Adha
+2021/8/15,Assumption Day
+2021/8/16,Assumption Day (observed)
+2021/10/19,Mawlid
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/2/11,Youth Day
+2022/4/15,Good Friday
+2022/5/1,Labour Day
+2022/5/2,Eid al-Fitr
+2022/5/3,Labour Day (observed)
+2022/5/20,National Day
+2022/5/26,Ascension Day
+2022/7/9,Eid al-Adha
+2022/8/15,Assumption Day
+2022/10/8,Mawlid
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/2/11,Youth Day
+2023/4/7,Good Friday
+2023/4/21,Eid al-Fitr
+2023/5/1,Labour Day
+2023/5/18,Ascension Day
+2023/5/20,National Day
+2023/6/28,Eid al-Adha
+2023/8/15,Assumption Day
+2023/9/27,Mawlid (estimated)
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/2/11,Youth Day
+2024/2/12,Youth Day (observed)
+2024/3/29,Good Friday
+2024/4/10,Eid al-Fitr
+2024/5/1,Labour Day
+2024/5/9,Ascension Day
+2024/5/20,National Day
+2024/6/16,Eid al-Adha (estimated)
+2024/6/17,Eid al-Adha (observed, estimated)
+2024/8/15,Assumption Day
+2024/9/15,Mawlid (estimated)
+2024/9/16,Mawlid (observed, estimated)
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/2/11,Youth Day
+2025/3/30,Eid al-Fitr (estimated)
+2025/3/31,Eid al-Fitr (observed, estimated)
+2025/4/18,Good Friday
+2025/5/1,Labour Day
+2025/5/20,National Day
+2025/5/29,Ascension Day
+2025/6/6,Eid al-Adha (estimated)
+2025/8/15,Assumption Day
+2025/9/4,Mawlid (estimated)
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/2/11,Youth Day
+2026/3/20,Eid al-Fitr (estimated)
+2026/4/3,Good Friday
+2026/5/1,Labour Day
+2026/5/14,Ascension Day
+2026/5/20,National Day
+2026/5/27,Eid al-Adha (estimated)
+2026/8/15,Assumption Day
+2026/8/25,Mawlid (estimated)
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/2/11,Youth Day
+2027/3/9,Eid al-Fitr (estimated)
+2027/3/26,Good Friday
+2027/5/1,Labour Day
+2027/5/6,Ascension Day
+2027/5/16,Eid al-Adha (estimated)
+2027/5/17,Eid al-Adha (observed, estimated)
+2027/5/20,National Day
+2027/8/14,Mawlid (estimated)
+2027/8/15,Assumption Day
+2027/8/16,Assumption Day (observed)
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/2/11,Youth Day
+2028/2/26,Eid al-Fitr (estimated)
+2028/4/14,Good Friday
+2028/5/1,Labour Day
+2028/5/5,Eid al-Adha (estimated)
+2028/5/20,National Day
+2028/5/25,Ascension Day
+2028/8/3,Mawlid (estimated)
+2028/8/15,Assumption Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/2/11,Youth Day
+2029/2/12,Youth Day (observed)
+2029/2/14,Eid al-Fitr (estimated)
+2029/3/30,Good Friday
+2029/4/24,Eid al-Adha (estimated)
+2029/5/1,Labour Day
+2029/5/10,Ascension Day
+2029/5/20,National Day
+2029/5/21,National Day (observed)
+2029/7/24,Mawlid (estimated)
+2029/8/15,Assumption Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/2/4,Eid al-Fitr (estimated)
+2030/2/11,Youth Day
+2030/4/13,Eid al-Adha (estimated)
+2030/4/19,Good Friday
+2030/5/1,Labour Day
+2030/5/20,National Day
+2030/5/30,Ascension Day
+2030/7/13,Mawlid (estimated)
+2030/8/15,Assumption Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/1/24,Eid al-Fitr (estimated)
+2031/2/11,Youth Day
+2031/4/2,Eid al-Adha (estimated)
+2031/4/11,Good Friday
+2031/5/1,Labour Day
+2031/5/20,National Day
+2031/5/22,Ascension Day
+2031/7/2,Mawlid (estimated)
+2031/8/15,Assumption Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/1/14,Eid al-Fitr (estimated)
+2032/2/11,Youth Day
+2032/3/22,Eid al-Adha (estimated)
+2032/3/26,Good Friday
+2032/5/1,Labour Day
+2032/5/6,Ascension Day
+2032/5/20,National Day
+2032/6/20,Mawlid (estimated)
+2032/6/21,Mawlid (observed, estimated)
+2032/8/15,Assumption Day
+2032/8/16,Assumption Day (observed)
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/1/2,Eid al-Fitr (estimated)
+2033/1/3,Eid al-Fitr (observed, estimated)
+2033/2/11,Youth Day
+2033/3/11,Eid al-Adha (estimated)
+2033/4/15,Good Friday
+2033/5/1,Labour Day
+2033/5/2,Labour Day (observed)
+2033/5/20,National Day
+2033/5/26,Ascension Day
+2033/6/9,Mawlid (estimated)
+2033/8/15,Assumption Day
+2033/12/23,Eid al-Fitr (estimated)
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/2/11,Youth Day
+2034/3/1,Eid al-Adha (estimated)
+2034/4/7,Good Friday
+2034/5/1,Labour Day
+2034/5/18,Ascension Day
+2034/5/20,National Day
+2034/5/30,Mawlid (estimated)
+2034/8/15,Assumption Day
+2034/12/12,Eid al-Fitr (estimated)
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/2/11,Youth Day
+2035/2/12,Youth Day (observed)
+2035/2/18,Eid al-Adha (estimated)
+2035/2/19,Eid al-Adha (observed, estimated)
+2035/3/23,Good Friday
+2035/5/1,Labour Day
+2035/5/3,Ascension Day
+2035/5/20,Mawlid (estimated); National Day
+2035/5/21,Mawlid (observed, estimated); National Day (observed)
+2035/8/15,Assumption Day
+2035/12/1,Eid al-Fitr (estimated)
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/2/7,Eid al-Adha (estimated)
+2036/2/11,Youth Day
+2036/4/11,Good Friday
+2036/5/1,Labour Day
+2036/5/8,Mawlid (estimated)
+2036/5/20,National Day
+2036/5/22,Ascension Day
+2036/8/15,Assumption Day
+2036/11/19,Eid al-Fitr (estimated)
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/1/26,Eid al-Adha (estimated)
+2037/2/11,Youth Day
+2037/4/3,Good Friday
+2037/4/28,Mawlid (estimated)
+2037/5/1,Labour Day
+2037/5/14,Ascension Day
+2037/5/20,National Day
+2037/8/15,Assumption Day
+2037/11/8,Eid al-Fitr (estimated)
+2037/11/9,Eid al-Fitr (observed, estimated)
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/1/16,Eid al-Adha (estimated)
+2038/2/11,Youth Day
+2038/4/17,Mawlid (estimated)
+2038/4/23,Good Friday
+2038/5/1,Labour Day
+2038/5/20,National Day
+2038/6/3,Ascension Day
+2038/8/15,Assumption Day
+2038/8/16,Assumption Day (observed)
+2038/10/29,Eid al-Fitr (estimated)
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/1/5,Eid al-Adha (estimated)
+2039/2/11,Youth Day
+2039/4/6,Mawlid (estimated)
+2039/4/8,Good Friday
+2039/5/1,Labour Day
+2039/5/2,Labour Day (observed)
+2039/5/19,Ascension Day
+2039/5/20,National Day
+2039/8/15,Assumption Day
+2039/10/19,Eid al-Fitr (estimated)
+2039/12/25,Christmas Day
+2039/12/26,Eid al-Adha (estimated)
+2039/12/27,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/2/11,Youth Day
+2040/3/25,Mawlid (estimated)
+2040/3/26,Mawlid (observed, estimated)
+2040/3/30,Good Friday
+2040/5/1,Labour Day
+2040/5/10,Ascension Day
+2040/5/20,National Day
+2040/5/21,National Day (observed)
+2040/8/15,Assumption Day
+2040/10/7,Eid al-Fitr (estimated)
+2040/10/8,Eid al-Fitr (observed, estimated)
+2040/12/14,Eid al-Adha (estimated)
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/2/11,Youth Day
+2041/3/15,Mawlid (estimated)
+2041/4/19,Good Friday
+2041/5/1,Labour Day
+2041/5/20,National Day
+2041/5/30,Ascension Day
+2041/8/15,Assumption Day
+2041/9/26,Eid al-Fitr (estimated)
+2041/12/4,Eid al-Adha (estimated)
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/2/11,Youth Day
+2042/3/4,Mawlid (estimated)
+2042/4/4,Good Friday
+2042/5/1,Labour Day
+2042/5/15,Ascension Day
+2042/5/20,National Day
+2042/8/15,Assumption Day
+2042/9/15,Eid al-Fitr (estimated)
+2042/11/23,Eid al-Adha (estimated)
+2042/11/24,Eid al-Adha (observed, estimated)
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/2/11,Youth Day
+2043/2/22,Mawlid (estimated)
+2043/2/23,Mawlid (observed, estimated)
+2043/3/27,Good Friday
+2043/5/1,Labour Day
+2043/5/7,Ascension Day
+2043/5/20,National Day
+2043/8/15,Assumption Day
+2043/9/4,Eid al-Fitr (estimated)
+2043/11/12,Eid al-Adha (estimated)
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/2/11,Mawlid (estimated); Youth Day
+2044/4/15,Good Friday
+2044/5/1,Labour Day
+2044/5/2,Labour Day (observed)
+2044/5/20,National Day
+2044/5/26,Ascension Day
+2044/8/15,Assumption Day
+2044/8/24,Eid al-Fitr (estimated)
+2044/10/31,Eid al-Adha (estimated)
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/30,Mawlid (estimated)
+2045/2/11,Youth Day
+2045/4/7,Good Friday
+2045/5/1,Labour Day
+2045/5/18,Ascension Day
+2045/5/20,National Day
+2045/8/14,Eid al-Fitr (estimated)
+2045/8/15,Assumption Day
+2045/10/21,Eid al-Adha (estimated)
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/1/19,Mawlid (estimated)
+2046/2/11,Youth Day
+2046/2/12,Youth Day (observed)
+2046/3/23,Good Friday
+2046/5/1,Labour Day
+2046/5/3,Ascension Day
+2046/5/20,National Day
+2046/5/21,National Day (observed)
+2046/8/3,Eid al-Fitr (estimated)
+2046/8/15,Assumption Day
+2046/10/10,Eid al-Adha (estimated)
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/1/8,Mawlid (estimated)
+2047/2/11,Youth Day
+2047/4/12,Good Friday
+2047/5/1,Labour Day
+2047/5/20,National Day
+2047/5/23,Ascension Day
+2047/7/24,Eid al-Fitr (estimated)
+2047/8/15,Assumption Day
+2047/9/30,Eid al-Adha (estimated)
+2047/12/25,Christmas Day
+2047/12/29,Mawlid (estimated)
+2047/12/30,Mawlid (observed, estimated)
+2048/1/1,New Year's Day
+2048/2/11,Youth Day
+2048/4/3,Good Friday
+2048/5/1,Labour Day
+2048/5/14,Ascension Day
+2048/5/20,National Day
+2048/7/12,Eid al-Fitr (estimated)
+2048/7/13,Eid al-Fitr (observed, estimated)
+2048/8/15,Assumption Day
+2048/9/19,Eid al-Adha (estimated)
+2048/12/18,Mawlid (estimated)
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/2/11,Youth Day
+2049/4/16,Good Friday
+2049/5/1,Labour Day
+2049/5/20,National Day
+2049/5/27,Ascension Day
+2049/7/1,Eid al-Fitr (estimated)
+2049/8/15,Assumption Day
+2049/8/16,Assumption Day (observed)
+2049/9/8,Eid al-Adha (estimated)
+2049/12/7,Mawlid (estimated)
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/2/11,Youth Day
+2050/4/8,Good Friday
+2050/5/1,Labour Day
+2050/5/2,Labour Day (observed)
+2050/5/19,Ascension Day
+2050/5/20,National Day
+2050/6/20,Eid al-Fitr (estimated)
+2050/8/15,Assumption Day
+2050/8/28,Eid al-Adha (estimated)
+2050/8/29,Eid al-Adha (observed, estimated)
+2050/11/26,Mawlid (estimated)
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)

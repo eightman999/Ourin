@@ -14,7 +14,13 @@ public final class SaoriRegistry {
         searchPaths = paths
     }
 
-    public func addSearchPath(_ path: URL) {
+    /// - Parameter prioritized: true ならゴースト固有のパスとして既定パスより先に探す。
+    public func addSearchPath(_ path: URL, prioritized: Bool = false) {
+        if prioritized {
+            searchPaths.removeAll { $0 == path }
+            searchPaths.insert(path, at: 0)
+            return
+        }
         guard !searchPaths.contains(path) else { return }
         searchPaths.append(path)
     }
@@ -30,15 +36,51 @@ public final class SaoriRegistry {
         }
     }
 
+    /// SAORI 名（ゴーストが LOADLIB 等に渡す Windows 形式の相対パス）を macOS のモジュールへ解決する。
+    ///
+    /// 優先順:
+    /// 1. 各検索パスからの相対パス（`saori\foo.dll` の区切りを保つ）で、macOS ネイティブ候補
+    ///    （`.dylib` / `lib*.dylib` / `.plugin` / `.bundle` / `.so`）。大小文字は区別しない。
+    /// 2. 同じくファイル名だけでの候補（旧来の basename 解決）。
+    /// 3. 指定名そのもの。ただし Windows PE 形式（`MZ`）の `.dll` は読み込めないので除外する。
     public func resolveModuleURL(named name: String) -> URL? {
-        let variants = Self.normalizedModuleNames(for: name)
+        let normalized = name.replacingOccurrences(of: "\\", with: "/")
+        if normalized.hasPrefix("/") {
+            return resolveAbsolute(normalized)
+        }
+        let relativeCandidates = UkagakaModuleABI.nativeModuleCandidates(forDLLName: normalized)
+        let basename = (normalized as NSString).lastPathComponent
+        let basenameCandidates = UkagakaModuleABI.nativeModuleCandidates(forDLLName: basename)
+        for variants in [relativeCandidates, basenameCandidates] {
+            for path in searchPaths {
+                for variant in variants {
+                    if let candidate = UkagakaModuleABI.resolveCaseInsensitive(variant, in: path, fileManager: fm) {
+                        return candidate
+                    }
+                }
+            }
+        }
         for path in searchPaths {
-            for variant in variants {
-                let candidate = path.appendingPathComponent(variant)
-                if fm.fileExists(atPath: candidate.path) {
+            for variant in [normalized, basename] {
+                if let candidate = UkagakaModuleABI.resolveCaseInsensitive(variant, in: path, fileManager: fm),
+                   !UkagakaModuleABI.isWindowsPortableExecutable(at: candidate) {
                     return candidate
                 }
             }
+        }
+        return nil
+    }
+
+    private func resolveAbsolute(_ path: String) -> URL? {
+        let url = URL(fileURLWithPath: path)
+        let directory = url.deletingLastPathComponent()
+        for variant in UkagakaModuleABI.nativeModuleCandidates(forDLLName: url.lastPathComponent) {
+            if let candidate = UkagakaModuleABI.resolveCaseInsensitive(variant, in: directory, fileManager: fm) {
+                return candidate
+            }
+        }
+        if fm.fileExists(atPath: url.path), !UkagakaModuleABI.isWindowsPortableExecutable(at: url) {
+            return url
         }
         return nil
     }
@@ -58,6 +100,12 @@ public final class SaoriRegistry {
         let loader = try SaoriLoader(url: url)
         cache[key] = loader
         return loader
+    }
+
+    /// 既にロード済みのローダー（未ロードなら nil）。
+    public func loadedModule(named name: String) -> SaoriLoader? {
+        guard let url = resolveModuleURL(named: name) else { return nil }
+        return cache[cacheKey(for: url)]
     }
 
     public func unloadModule(named name: String) {
@@ -88,25 +136,5 @@ public final class SaoriRegistry {
             paths.append(appURL.appendingPathComponent("Contents/Resources/saori", isDirectory: true))
         }
         return paths
-    }
-
-    private static func normalizedModuleNames(for name: String) -> [String] {
-        let base = URL(fileURLWithPath: name).lastPathComponent
-        let stem: String
-        if let dot = base.lastIndex(of: ".") {
-            stem = String(base[..<dot])
-        } else {
-            stem = base
-        }
-        let variants = [
-            base,
-            "\(stem).dylib",
-            "lib\(stem).dylib",
-            "\(stem).so",
-            "lib\(stem).so",
-            "\(stem).bundle",
-            "\(stem).plugin"
-        ]
-        return Array(NSOrderedSet(array: variants)) as? [String] ?? variants
     }
 }
