@@ -1,0 +1,1133 @@
+{
+  "schema": 1,
+  "reviewed_on": "2026-10-25",
+  "items": [
+    {
+      "id": "ukagakaghostmessenger",
+      "name": "UkagakaGhostMessenger",
+      "kind": "plugin",
+      "source_url": "https://github.com/lost-nd-xxx/UkagakaGhostMessenger/releases/tag/2.0.1",
+      "download_url": "https://github.com/lost-nd-xxx/UkagakaGhostMessenger/releases/download/2.0.1/UkagakaGhostMessenger.nar",
+      "author": "ろすえん / lost_nd_xxx",
+      "engine": "yaya",
+      "implementation_languages": [
+        "YAYA",
+        "Go",
+        "HTML/JavaScript"
+      ],
+      "license_summary": "MIT（本体）・画像等は個別条件",
+      "license_evidence": "https://github.com/lost-nd-xxx/UkagakaGhostMessenger/blob/5de6b36bfea89bf601ca527f9955ffd8a49c5437/LICENSE",
+      "upstream_revision": "5de6b36bfea89bf601ca527f9955ffd8a49c5437",
+      "upstream_source": "https://github.com/lost-nd-xxx/UkagakaGhostMessenger",
+      "dependencies": [
+        "GoローカルWebサーバー",
+        "ブラウザーUI",
+        "SSTP"
+      ],
+      "port_strategy": "YAYA辞書を無改変で実行。Windows ugm_server.exeはGoネイティブbuildと起動経路の追加が必要。",
+      "source_evidence": [
+        "https://github.com/lost-nd-xxx/UkagakaGhostMessenger/blob/5de6b36bfea89bf601ca527f9955ffd8a49c5437/descript.txt",
+        "https://github.com/lost-nd-xxx/UkagakaGhostMessenger/blob/5de6b36bfea89bf601ca527f9955ffd8a49c5437/LICENSE"
+      ],
+      "archive_sha256": "aba257c2e4d7a9777fc505a9650cb6bf0637c2fafa28bf5153756900d994ea47",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "unsupported",
+        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
+        "loaded": false,
+        "reloaded": false,
+        "events": [],
+        "temporary_copy_deleted": true,
+        "reason": "functions.dic:753 と event.dic:209 の hash foreach（key,value）構文が未対応。11辞書中2件parse失敗を検出してload拒否。Go Webサーバー起動、FREADJSON/FWRITEJSONも未対応。"
+      },
+      "generated_artifact": "build/plugin-ports/ukagakaghostmessenger.plugin",
+      "generated": true
+    },
+    {
+      "id": "tmidi-msg",
+      "name": "tmidi_msg",
+      "kind": "plugin",
+      "source_url": "https://github.com/JiayuYangX/tmidi_msg/releases/tag/v1.1.0",
+      "download_url": "https://github.com/JiayuYangX/tmidi_msg/releases/download/v1.1.0/tmidi_msg.nar",
+      "author": "JiayuYangX",
+      "engine": "native",
+      "implementation_languages": [
+        "C++/Win32"
+      ],
+      "license_summary": "作者READMEにpluginコードの利用・改変許可（SPDX明示なし）",
+      "license_evidence": "https://github.com/JiayuYangX/tmidi_msg/blob/e70cc6bc0cd8006ba48e82326fafe9042d25bd96/README.en.md",
+      "upstream_revision": "e70cc6bc0cd8006ba48e82326fafe9042d25bd96",
+      "upstream_source": "https://github.com/JiayuYangX/tmidi_msg",
+      "dependencies": [
+        "Windows DDE",
+        "TMIDI Player"
+      ],
+      "port_strategy": "macOS native受信部へ移植。DDE producerはWindows側bridgeが必要。未接続を503で示す。",
+      "source_evidence": [
+        "https://github.com/JiayuYangX/tmidi_msg/blob/e70cc6bc0cd8006ba48e82326fafe9042d25bd96/docs/descript.txt",
+        "https://github.com/JiayuYangX/tmidi_msg/blob/e70cc6bc0cd8006ba48e82326fafe9042d25bd96/README.en.md"
+      ],
+      "archive_sha256": "fc62dfe311e7358036f289128157ae4a48d8b0681c6ace4a6537e61f859d9d11",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + real loopback TCP fixture",
+        "loaded": true,
+        "tests_passed": 6,
+        "tests_failed": 0,
+        "unconfigured_status": 503,
+        "windows_dde_verified": false,
+        "gui_verified": false,
+        "reason": "実loopback TCPで曲変更通知・停止/再開・複数instance・テンプレートを確認。Windows DDE producerとTMIDI実機は未検証。",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinTMIDI": "0c4e99dc02633906bc02fb91db85699df78cd5733ea79a42286d82826db499fc"
+        }
+      },
+      "generated_artifact": "build/plugin-ports/tmidi-msg.plugin",
+      "generated": true,
+      "archive_evidence": "Initial 92-item corpus; native TMIDI adapter is an Ourin implementation, not a repackaged Windows DLL."
+    },
+    {
+      "id": "stampcollection",
+      "name": "stampcollection",
+      "kind": "plugin",
+      "source_url": "https://github.com/YAYA-shiori/stampcollection/releases/tag/v20260330102740-79221c6",
+      "download_url": "https://github.com/YAYA-shiori/stampcollection/releases/download/v20260330102740-79221c6/stampcollection.nar",
+      "author": "postic / YAYA-shiori整備班",
+      "engine": "yaya",
+      "implementation_languages": [
+        "YAYA"
+      ],
+      "license_summary": "作者readmeで再配布・改変配布可",
+      "license_evidence": "https://github.com/YAYA-shiori/stampcollection/blob/79221c64fef156106eacafe89f8189bc0a4a5811/readme.txt",
+      "upstream_revision": "79221c64fef156106eacafe89f8189bc0a4a5811",
+      "upstream_source": "https://github.com/YAYA-shiori/stampcollection",
+      "dependencies": [
+        "YAYA",
+        "画像",
+        "tamac.exe（補助）"
+      ],
+      "port_strategy": "汎用YAYA adapterで辞書実行。スタンプ取得イベント・保存・再loadを検証する。",
+      "source_evidence": [
+        "https://github.com/YAYA-shiori/stampcollection/blob/79221c64fef156106eacafe89f8189bc0a4a5811/descript.txt",
+        "https://github.com/YAYA-shiori/stampcollection/blob/79221c64fef156106eacafe89f8189bc0a4a5811/readme.txt"
+      ],
+      "archive_sha256": "35e9de55a82627871e38b4c55f2f1bd75a97113a82cc35aeca47687abc6fdbef",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "OnMenuExec",
+            "status_line": "PLUGIN/2.0 200 OK",
+            "bytes": 367,
+            "sha256": "f04d0d8ecce6c4ebe0dc8f26f7944994a90e8774606f083c68211d5c5fcc4dd3",
+            "header_names": [
+              "Sender",
+              "Charset",
+              "Target",
+              "Event",
+              "Reference0",
+              "Reference1",
+              "Reference3",
+              "Reference4",
+              "Marker",
+              "Script"
+            ]
+          }
+        ],
+        "temporary_copy_deleted": true,
+        "reason": "メニューScript応答確認。スタンプ入手、玉/tamac.exe連携、実画面は未検証。"
+      },
+      "generated_artifact": "build/plugin-ports/stampcollection.plugin",
+      "generated": true
+    },
+    {
+      "id": "wallet-of-unyu",
+      "name": "Wallet of Unyu",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/wallet_of_unyu/releases/tag/v1.2.0",
+      "download_url": "https://github.com/nikolat/wallet_of_unyu/releases/download/v1.2.0/wallet_of_unyu.nar",
+      "author": "Don / nikolat",
+      "engine": "yaya",
+      "implementation_languages": [
+        "YAYA"
+      ],
+      "license_summary": "CC0-1.0（本体）",
+      "license_evidence": "https://github.com/nikolat/wallet_of_unyu/blob/1b583968bd4ff7a245b4fb21489e3e1e1ab1817c/LICENSE",
+      "upstream_revision": "1b583968bd4ff7a245b4fb21489e3e1e1ab1817c",
+      "upstream_source": "https://github.com/nikolat/wallet_of_unyu",
+      "dependencies": [
+        "UNYUネットワークサービス",
+        "HTTP連携"
+      ],
+      "port_strategy": "辞書実行とメニューの移植。残高・送受金はサービス接続未検証、金銭相当操作は実行しない。",
+      "source_evidence": [
+        "https://github.com/nikolat/wallet_of_unyu/blob/1b583968bd4ff7a245b4fb21489e3e1e1ab1817c/descript.txt",
+        "https://github.com/nikolat/wallet_of_unyu/blob/1b583968bd4ff7a245b4fb21489e3e1e1ab1817c/LICENSE"
+      ],
+      "archive_sha256": "c62b22654b4edcfb74312783ccfbc9f9595005f51f9cad9d4d3c29a747200d3f",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "OnMenuExec",
+            "status_line": "PLUGIN/2.0 200 OK",
+            "bytes": 240,
+            "sha256": "98f74cb0bdac89d67101bde8f03128a1de36ce6e6542190cb11a2fa0d34e1b2c",
+            "header_names": [
+              "Sender",
+              "Charset",
+              "Script",
+              "Event",
+              "ScriptOption",
+              "Reference0",
+              "Reference1",
+              "Marker"
+            ]
+          }
+        ],
+        "temporary_copy_deleted": true,
+        "reason": "メニューScript応答確認。残高API、認証・送受金は未検証。"
+      },
+      "generated_artifact": "build/plugin-ports/wallet-of-unyu.plugin",
+      "generated": true
+    },
+    {
+      "id": "bouyomi",
+      "name": "Bouyomi",
+      "kind": "plugin",
+      "source_url": "https://github.com/apxxxxxxe/Bouyomi/releases/tag/v1.5.1",
+      "download_url": "https://github.com/apxxxxxxe/Bouyomi/releases/download/v1.5.1/Bouyomi.nar",
+      "author": "日野つみ / HinoTsumi",
+      "engine": "yaya",
+      "implementation_languages": [
+        "YAYA",
+        "Go"
+      ],
+      "license_summary": "明示ライセンス未確認",
+      "license_evidence": "https://github.com/apxxxxxxe/Bouyomi/blob/dd917482a00ba5200e0d833c29126af570b7401c/readme.txt",
+      "upstream_revision": "dd917482a00ba5200e0d833c29126af570b7401c",
+      "upstream_source": "https://github.com/apxxxxxxe/Bouyomi",
+      "dependencies": [
+        "proxy_ex.dll",
+        "core.exe",
+        "棒読みちゃんTCP"
+      ],
+      "port_strategy": "YAYA辞書を保持しGo coreをmacOSでbuild。元proxy_ex呼出を限定native backendへ接続する必要あり。",
+      "source_evidence": [
+        "https://github.com/apxxxxxxe/Bouyomi/blob/dd917482a00ba5200e0d833c29126af570b7401c/descript.txt",
+        "https://github.com/apxxxxxxe/Bouyomi/blob/dd917482a00ba5200e0d833c29126af570b7401c/readme.txt"
+      ],
+      "archive_sha256": "e2921a6e21cc2e0f78162e9cecec7eb1f587a69bf54d1505b64a3d995134ce0c",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "unsupported",
+        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
+        "loaded": false,
+        "reloaded": false,
+        "events": [],
+        "temporary_copy_deleted": true,
+        "reason": "起動時のWindows core.exe実行が未対応でload拒否。Go helperはWindows音声registry・process探索・NoInheritHandlesに依存。"
+      },
+      "generated_artifact": "build/plugin-ports/bouyomi.plugin",
+      "generated": true
+    },
+    {
+      "id": "ukaten",
+      "name": "うかてん",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/ukaten/releases/tag/v1.0",
+      "download_url": "https://github.com/nikolat/ukaten/releases/download/v1.0/ukaten.nar",
+      "author": "Don / nikolat",
+      "engine": "akari",
+      "implementation_languages": [
+        "灯（Akari）辞書"
+      ],
+      "license_summary": "辞書はpublic domain宣言",
+      "license_evidence": "https://github.com/nikolat/ukaten/blob/6bc355842625d7c9cf5c7e75f523759bd77ef9e2/readme.txt",
+      "upstream_revision": "6bc355842625d7c9cf5c7e75f523759bd77ef9e2",
+      "upstream_source": "https://github.com/nikolat/ukaten",
+      "dependencies": [
+        "気象庁HTTP API"
+      ],
+      "port_strategy": "同梱libakariのPLUGIN entryで辞書実行。天気取得はAPIとhost通信の検証を分離。",
+      "source_evidence": [
+        "https://github.com/nikolat/ukaten/blob/6bc355842625d7c9cf5c7e75f523759bd77ef9e2/descript.txt",
+        "https://github.com/nikolat/ukaten/blob/6bc355842625d7c9cf5c7e75f523759bd77ef9e2/readme.txt"
+      ],
+      "archive_sha256": "deb17425aa18a77d94df6fb75d48270dd0fc970d6874ed571f44195e3757d1fa",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated Akari helper",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "version",
+            "status": "PLUGIN/2.0 200 OK",
+            "headers": {
+              "Sender": {
+                "length": 5,
+                "sha256": "df188e4cbd0d623147fde16a8bf146e5c413e95790330cdb8c1594e7a2d447a2"
+              },
+              "Charset": {
+                "length": 5,
+                "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+              },
+              "Script": {
+                "length": 10,
+                "sha256": "87974cf357023989f90feaa15813e6638429cec6d680a1962de2549f3fb51772"
+              },
+              "Event": {
+                "length": 12,
+                "sha256": "a073ddbfd913fe058e004e62c2380d5a9a53f5ae815d4461fb5a7de9deb5bace"
+              },
+              "Reference0": {
+                "length": 18,
+                "sha256": "bdac31d430ec70b7d7b291160de8edee77891a92861655238bc60c9f24f7d9e6"
+              },
+              "Reference1": {
+                "length": 9,
+                "sha256": "36cb05893c42a82bd747ea33ddb28443379e4ec4e194e20dc7e1130878d3b443"
+              },
+              "Reference2": {
+                "length": 17,
+                "sha256": "7d087d66726cba9ed79cbd67abb43c3206df6b809b926aca8e1835955235ced0"
+              },
+              "Reference3": {
+                "length": 13,
+                "sha256": "e2f3794d1ba66eb22275792bb4a3bc8add297312a5af2d3bd2f40ce4d9a7a6dc"
+              },
+              "Reference4": {
+                "length": 1,
+                "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+              },
+              "Reference5": {
+                "length": 5,
+                "sha256": "4bf2cfce5f541ad5b6bfc59a72a5047bbde8224a25d6c2d73edb0650c4ad1c31"
+              },
+              "Reference6": {
+                "length": 6,
+                "sha256": "fc613b4dfd6736a7bd268c8a0e74ed0d1c04a959f59dd74ef2874983fd443fc9"
+              },
+              "Reference7": {
+                "length": 7,
+                "sha256": "f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d"
+              },
+              "Reference8": {
+                "length": 1,
+                "sha256": "cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8"
+              },
+              "Reference9": {
+                "length": 4,
+                "sha256": "398991009da1d251792eb353a0b7b185bc83e71e12e489e73228b554fc6cebc5"
+              },
+              "Value": {
+                "length": 10,
+                "sha256": "87974cf357023989f90feaa15813e6638429cec6d680a1962de2549f3fb51772"
+              }
+            }
+          },
+          {
+            "id": "OnMenuExec",
+            "status": "PLUGIN/2.0 204 No Content",
+            "headers": {}
+          },
+          {
+            "id": "OnMenuExec",
+            "status": "PLUGIN/2.0 204 No Content",
+            "headers": {}
+          },
+          {
+            "id": "OnSecondChange",
+            "status": "PLUGIN/2.0 204 No Content",
+            "headers": {}
+          }
+        ],
+        "menu_with_fixture_http": true,
+        "network_allowed": false,
+        "temporary_copy_deleted": true,
+        "reason": "固定HTTP応答でメニューを確認。実bundleのネットワーク禁止時はOnMenuExec 204。実気象API・実画面未検証。",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "212184019a2f571e73756770025c5d446a4ade992bf323f86413bedd2af7f49a",
+          "Contents/Resources/akari_helper": "a4d874106b49c8fce3f20cad5cacaa7029de1a164874b723b17f750630bb8e97",
+          "Contents/Resources/libakari.dylib": "85970e01635e3bcee186cede1a0ce2d6e0966fec2c4e94db8c63b53428e246bc"
+        }
+      },
+      "generated_artifact": "build/plugin-ports/ukaten.plugin",
+      "generated": true
+    },
+    {
+      "id": "ukadonyu",
+      "name": "うかどんゅう",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/ukadonyu/releases/tag/v2.2",
+      "download_url": "https://github.com/nikolat/ukadonyu/releases/download/v2.2/ukadonyu.nar",
+      "author": "Don / nikolat",
+      "engine": "akari",
+      "implementation_languages": [
+        "灯（Akari）辞書",
+        "YAYA補助"
+      ],
+      "license_summary": "NYSDL 0.9982（辞書）・各モジュール別条件",
+      "license_evidence": "https://github.com/nikolat/ukadonyu/blob/497bcc9c3a5ac224f3946abc9210b2f9026dd560/licence.txt",
+      "upstream_revision": "497bcc9c3a5ac224f3946abc9210b2f9026dd560",
+      "upstream_source": "https://github.com/nikolat/ukadonyu",
+      "dependencies": [
+        "Mastodon API",
+        "HandUtil",
+        "httpc",
+        "imgctl",
+        "textcopy2",
+        "YAYA"
+      ],
+      "port_strategy": "Akari PLUGIN adapter。Windows SAORIをネイティブ機能へ段階置換。認証・投稿は未実行。",
+      "source_evidence": [
+        "https://github.com/nikolat/ukadonyu/blob/497bcc9c3a5ac224f3946abc9210b2f9026dd560/descript.txt",
+        "https://github.com/nikolat/ukadonyu/blob/497bcc9c3a5ac224f3946abc9210b2f9026dd560/licence.txt"
+      ],
+      "archive_sha256": "2efac38da34fe2d0f1d6c97b6f76ed1c953760991c010ad65041e8fee019930f",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated Akari helper",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "version",
+            "status": "PLUGIN/2.0 200 OK",
+            "headers": {
+              "Sender": {
+                "length": 5,
+                "sha256": "df188e4cbd0d623147fde16a8bf146e5c413e95790330cdb8c1594e7a2d447a2"
+              },
+              "Charset": {
+                "length": 5,
+                "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+              },
+              "Value": {
+                "length": 12,
+                "sha256": "0126f586ce72231e2381c9a5cd8c4a5f2a4eb10ab448c03165a784444331e6f1"
+              }
+            }
+          },
+          {
+            "id": "OnMenuExec",
+            "status": "PLUGIN/2.0 200 OK",
+            "headers": {
+              "Sender": {
+                "length": 5,
+                "sha256": "df188e4cbd0d623147fde16a8bf146e5c413e95790330cdb8c1594e7a2d447a2"
+              },
+              "Charset": {
+                "length": 5,
+                "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+              }
+            }
+          },
+          {
+            "id": "OnMenuExec",
+            "status": "PLUGIN/2.0 200 OK",
+            "headers": {
+              "Sender": {
+                "length": 5,
+                "sha256": "df188e4cbd0d623147fde16a8bf146e5c413e95790330cdb8c1594e7a2d447a2"
+              },
+              "Charset": {
+                "length": 5,
+                "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+              },
+              "Script": {
+                "length": 50,
+                "sha256": "c467642e40b81f4a8807bb819b974da06da76589f87c91569bb7b819383d5802"
+              },
+              "Target": {
+                "length": 5,
+                "sha256": "4bf2cfce5f541ad5b6bfc59a72a5047bbde8224a25d6c2d73edb0650c4ad1c31"
+              },
+              "Event": {
+                "length": 12,
+                "sha256": "a073ddbfd913fe058e004e62c2380d5a9a53f5ae815d4461fb5a7de9deb5bace"
+              },
+              "ScriptOption": {
+                "length": 19,
+                "sha256": "7ad62ca14e6855cb8519a1b52922c4c73679ccefd4b004ed15c336b474361f40"
+              },
+              "Reference0": {
+                "length": 20,
+                "sha256": "392facbd4b93b29d02c3b96983ee6956d2453111258698d2052a59f96d614c6f"
+              },
+              "Reference1": {
+                "length": 11,
+                "sha256": "cb6da1d64c3fbd3b7242dda3ff3e1d45d43c6c7eeab719c147376c355e8c9b56"
+              },
+              "Reference2": {
+                "length": 57,
+                "sha256": "2b71fe6d3e1f59247f532a40f0959d3b6726e7cd5b37ffe77efe105290656e90"
+              },
+              "Reference3": {
+                "length": 16,
+                "sha256": "f529ddc4df34c49bb715365aa9feed80c6e19eecbc5d8e514cec875ea7386bfb"
+              },
+              "Reference4": {
+                "length": 1,
+                "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+              },
+              "Reference5": {
+                "length": 5,
+                "sha256": "4bf2cfce5f541ad5b6bfc59a72a5047bbde8224a25d6c2d73edb0650c4ad1c31"
+              },
+              "Reference6": {
+                "length": 6,
+                "sha256": "fc613b4dfd6736a7bd268c8a0e74ed0d1c04a959f59dd74ef2874983fd443fc9"
+              },
+              "Reference7": {
+                "length": 7,
+                "sha256": "f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d"
+              },
+              "Reference8": {
+                "length": 1,
+                "sha256": "cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8"
+              },
+              "Reference9": {
+                "length": 4,
+                "sha256": "398991009da1d251792eb353a0b7b185bc83e71e12e489e73228b554fc6cebc5"
+              },
+              "Marker": {
+                "length": 12,
+                "sha256": "0126f586ce72231e2381c9a5cd8c4a5f2a4eb10ab448c03165a784444331e6f1"
+              }
+            }
+          },
+          {
+            "id": "OnSecondChange",
+            "status": "PLUGIN/2.0 204 No Content",
+            "headers": {}
+          }
+        ],
+        "menu_with_fixture_http": true,
+        "network_allowed": false,
+        "temporary_copy_deleted": true,
+        "reason": "初回OnMenuExecは仕様どおり空、2回目にbooting Script。SNS認証・投稿、Windows SAORI、実画面未検証。",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "90635e2776e2391cd36cbfb9bffd4a05cb8651c9ef1a4855f0cd101c67432c38",
+          "Contents/Resources/akari_helper": "a4d874106b49c8fce3f20cad5cacaa7029de1a164874b723b17f750630bb8e97",
+          "Contents/Resources/libakari.dylib": "85970e01635e3bcee186cede1a0ce2d6e0966fec2c4e94db8c63b53428e246bc"
+        }
+      },
+      "generated_artifact": "build/plugin-ports/ukadonyu.plugin",
+      "generated": true
+    },
+    {
+      "id": "ukagakaplugin-cevio-talker",
+      "name": "ukagakaPlugin_CeVIO-Talker",
+      "kind": "plugin",
+      "source_url": "https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/releases/tag/version1.0.7",
+      "download_url": "https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/releases/download/version1.0.7/ukagakaPlugin_CeVIO-Talker.nar",
+      "author": "ambergon",
+      "engine": "yaya",
+      "implementation_languages": [
+        "YAYA",
+        "C#"
+      ],
+      "license_summary": "明示ライセンス未確認",
+      "license_evidence": "https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/blob/eb7a36d30ef329da97e6c8a6e9f41ad14af25044/readme.md",
+      "upstream_revision": "eb7a36d30ef329da97e6c8a6e9f41ad14af25044",
+      "upstream_source": "https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker",
+      "dependencies": [
+        "CeVIO AI Windows API",
+        "proxy_ex.dll",
+        "C# helper",
+        "Windows named pipe"
+      ],
+      "port_strategy": "辞書を包む.pluginは生成。Windows専用音声APIの代替bridgeが必要で、音声機能を対応済みにしない。",
+      "source_evidence": [
+        "https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/blob/eb7a36d30ef329da97e6c8a6e9f41ad14af25044/descript.txt",
+        "https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/blob/eb7a36d30ef329da97e6c8a6e9f41ad14af25044/readme.md"
+      ],
+      "archive_sha256": "f159a80c16105d04841368325ad7e1b4562fd10dc91f73af239dc36e1f4c0c6d",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "OnMenuExec",
+            "status_line": "PLUGIN/2.0 501 Host Capability Unavailable",
+            "bytes": 62,
+            "sha256": "d5a839a3162e82dbb2e00ec322c225f7ca0127e5e1acaff11a8332b8ea702de1",
+            "header_names": [
+              "Charset"
+            ]
+          }
+        ],
+        "temporary_copy_deleted": true,
+        "reason": "メニュー要求は501。CeVIO AI専用.NET API・Windows named pipe/helperが未対応。"
+      },
+      "generated_artifact": "build/plugin-ports/ukagakaplugin-cevio-talker.plugin",
+      "generated": true
+    },
+    {
+      "id": "ssp-aivoice",
+      "name": "SSP-AIVOICE",
+      "kind": "plugin",
+      "source_url": "https://github.com/opera7133/SSP-AIVOICE/releases/tag/v1.0.2",
+      "download_url": "https://github.com/opera7133/SSP-AIVOICE/releases/download/v1.0.2/AIVOICE.nar",
+      "author": "wamo / opera7133",
+      "engine": "yaya",
+      "implementation_languages": [
+        "YAYA",
+        "C#"
+      ],
+      "license_summary": "明示ライセンス未確認",
+      "license_evidence": "https://github.com/opera7133/SSP-AIVOICE/blob/9b9911f07e5143c98d19dbd5d8cbc08a54dff86b/readme.md",
+      "upstream_revision": "9b9911f07e5143c98d19dbd5d8cbc08a54dff86b",
+      "upstream_source": "https://github.com/opera7133/SSP-AIVOICE",
+      "dependencies": [
+        "AI.Talk.Editor.Api.dll",
+        "Newtonsoft.Json",
+        "proxy_ex.dll",
+        "Windows named pipe"
+      ],
+      "port_strategy": "辞書を包む.pluginは生成。A.I.VOICE Windows API bridgeが必要、音声生成未検証。",
+      "source_evidence": [
+        "https://github.com/opera7133/SSP-AIVOICE/blob/9b9911f07e5143c98d19dbd5d8cbc08a54dff86b/descript.txt",
+        "https://github.com/opera7133/SSP-AIVOICE/blob/9b9911f07e5143c98d19dbd5d8cbc08a54dff86b/readme.md"
+      ],
+      "archive_sha256": "78452dba3f7090147355cb76308e1f5d60b2ea099ebe081c74bef0b0f8d636be",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "OnMenuExec",
+            "status_line": "PLUGIN/2.0 501 Host Capability Unavailable",
+            "bytes": 62,
+            "sha256": "d5a839a3162e82dbb2e00ec322c225f7ca0127e5e1acaff11a8332b8ea702de1",
+            "header_names": [
+              "Charset"
+            ]
+          }
+        ],
+        "temporary_copy_deleted": true,
+        "reason": "メニュー要求は501。A.I.VOICE Editor API・Windows named pipe/helperが未対応。"
+      },
+      "generated_artifact": "build/plugin-ports/ssp-aivoice.plugin",
+      "generated": true
+    },
+    {
+      "id": "ukagakaplugin-getwindowtitle",
+      "name": "ukagakaPlugin_getWindowTitle",
+      "kind": "plugin",
+      "source_url": "https://github.com/ambergon/ukagakaPlugin_getWindowTitle/releases/tag/1.0.0",
+      "download_url": "https://github.com/ambergon/ukagakaPlugin_getWindowTitle/releases/download/1.0.0/ukagakaPlugin_getWindowTitle.nar",
+      "author": "ambergon",
+      "engine": "yaya",
+      "implementation_languages": [
+        "YAYA",
+        "C#"
+      ],
+      "license_summary": "作者READMEに同梱利用許可（SPDX明示なし）",
+      "license_evidence": "https://github.com/ambergon/ukagakaPlugin_getWindowTitle/blob/236f0057a13631cddf871ad66e2ddcbdea8f90a9/readme.md",
+      "upstream_revision": "236f0057a13631cddf871ad66e2ddcbdea8f90a9",
+      "upstream_source": "https://github.com/ambergon/ukagakaPlugin_getWindowTitle",
+      "dependencies": [
+        "proxy_ex.dll",
+        "GetForegroundWindow",
+        "macOS Accessibility"
+      ],
+      "port_strategy": "辞書を保持し限定proxy backendでAX APIへ接続。権限不足/取得不能は非200、勝手に権限変更しない。",
+      "source_evidence": [
+        "https://github.com/ambergon/ukagakaPlugin_getWindowTitle/blob/236f0057a13631cddf871ad66e2ddcbdea8f90a9/descript.txt",
+        "https://github.com/ambergon/ukagakaPlugin_getWindowTitle/blob/236f0057a13631cddf871ad66e2ddcbdea8f90a9/readme.md"
+      ],
+      "archive_sha256": "b00995fb4589b3fe81832baf40d57cca25cfe44475119b0736f884415776712f",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "OnGetWindowTitle",
+            "status_line": "PLUGIN/2.0 501 Host Capability Unavailable",
+            "bytes": 62,
+            "sha256": "d5a839a3162e82dbb2e00ec322c225f7ca0127e5e1acaff11a8332b8ea702de1",
+            "header_names": [
+              "Charset"
+            ]
+          }
+        ],
+        "temporary_copy_deleted": true,
+        "reason": "macOS AX backend同梱。実要求は前面window/権限条件不足で501。実タイトル取得成功は未検証。"
+      },
+      "generated_artifact": "build/plugin-ports/ukagakaplugin-getwindowtitle.plugin",
+      "generated": true
+    },
+    {
+      "id": "ukagakaplugin-dbdiary",
+      "name": "UkagakaPlugin_DBdiary",
+      "kind": "plugin",
+      "source_url": "https://github.com/ambergon/UkagakaPlugin_DBdiary/releases/tag/1.0.1",
+      "download_url": "https://github.com/ambergon/UkagakaPlugin_DBdiary/releases/download/1.0.1/UkagakaPlugin_DBdiary.nar",
+      "author": "ambergon",
+      "engine": "yaya",
+      "implementation_languages": [
+        "YAYA"
+      ],
+      "license_summary": "作者READMEに同梱配布・main.uka改変許可（SPDX明示なし）",
+      "license_evidence": "https://github.com/ambergon/UkagakaPlugin_DBdiary/blob/690a9d78f1aaf91c22b5d2aef8cf0edd9a166038/readme.md",
+      "upstream_revision": "690a9d78f1aaf91c22b5d2aef8cf0edd9a166038",
+      "upstream_source": "https://github.com/ambergon/UkagakaPlugin_DBdiary",
+      "dependencies": [
+        "YAYAファイル入出力"
+      ],
+      "port_strategy": "汎用adapterで入力UI Script・日記保存・取得を実行。元辞書に回避策を加えない。",
+      "source_evidence": [
+        "https://github.com/ambergon/UkagakaPlugin_DBdiary/blob/690a9d78f1aaf91c22b5d2aef8cf0edd9a166038/descript.txt",
+        "https://github.com/ambergon/UkagakaPlugin_DBdiary/blob/690a9d78f1aaf91c22b5d2aef8cf0edd9a166038/readme.md"
+      ],
+      "archive_sha256": "afd10bc9eda37b408b21b5facbc3e74f269824e72ce91d89728e502b87f51489",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "OnCallInputBeautifulDiary",
+            "status_line": "PLUGIN/2.0 200 OK",
+            "bytes": 99,
+            "sha256": "9d34d189a8c6533ccd8604e0ef358568b56f01a1b1b6e7892feddfc5a286cb00",
+            "header_names": [
+              "Sender",
+              "Charset",
+              "Script"
+            ]
+          }
+        ],
+        "temporary_copy_deleted": true,
+        "reason": "入力用Script、日記実ファイル保存、unload/reload後の再読取を確認。Ourin GUI入力欄との往復は未検証。",
+        "persistence": {
+          "loaded": true,
+          "input_status": "PLUGIN/2.0 204 No Content",
+          "saved_file_observed": true,
+          "reloaded": true,
+          "read_status": "PLUGIN/2.0 200 OK",
+          "read_script_contains_self_authored_diary": true
+        }
+      },
+      "generated_artifact": "build/plugin-ports/ukagakaplugin-dbdiary.plugin",
+      "generated": true
+    },
+    {
+      "id": "charamelnetwork",
+      "name": "CharameLNetwork",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/CharameLNetwork/releases/tag/v0.5",
+      "download_url": "https://github.com/nikolat/CharameLNetwork/releases/download/v0.5/CharameLNetwork.nar",
+      "author": "Don / nikolat",
+      "engine": "yaya",
+      "implementation_languages": [
+        "YAYA",
+        "HTML/CSS"
+      ],
+      "license_summary": "NYSDL 0.9982（辞書）",
+      "license_evidence": "https://github.com/nikolat/CharameLNetwork/blob/e11b8210c5a635e7c34efa7880e5787842592655/readme.txt",
+      "upstream_revision": "e11b8210c5a635e7c34efa7880e5787842592655",
+      "upstream_source": "https://github.com/nikolat/CharameLNetwork",
+      "dependencies": [
+        "CharameL/SSTP連携",
+        "Web UI"
+      ],
+      "port_strategy": "YAYA辞書を実行。外部SNS/ブラウザー連携は別途必要。",
+      "source_evidence": [
+        "https://github.com/nikolat/CharameLNetwork/blob/e11b8210c5a635e7c34efa7880e5787842592655/descript.txt",
+        "https://github.com/nikolat/CharameLNetwork/blob/e11b8210c5a635e7c34efa7880e5787842592655/readme.txt"
+      ],
+      "archive_sha256": "3a1691a0a0dad062d5e91838465d6e08593cb0c5e680fe6e7c0b4793c0d6a8da",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "OnMenuExec",
+            "status_line": "PLUGIN/2.0 200 OK",
+            "bytes": 164,
+            "sha256": "e4144c33f20e886b26087b127ce4eeb179318993d5c1774de71859c16137db2d",
+            "header_names": [
+              "Sender",
+              "Charset",
+              "Event",
+              "ScriptOption",
+              "Script"
+            ]
+          }
+        ],
+        "temporary_copy_deleted": true,
+        "reason": "メニューScript応答確認。外部Webサービス/SSTPによる実イベント往復は未検証。"
+      },
+      "generated_artifact": "build/plugin-ports/charamelnetwork.plugin",
+      "generated": true
+    },
+    {
+      "id": "balloonselector",
+      "name": "balloonselector",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/balloonselector/releases/tag/v2.4.0",
+      "download_url": "https://github.com/nikolat/balloonselector/releases/download/v2.4.0/balloonselector.nar",
+      "author": "Don / nikolat",
+      "engine": "yaya",
+      "implementation_languages": [
+        "YAYA"
+      ],
+      "license_summary": "Unlicense（本体）・YAYA BSD-3-Clause",
+      "license_evidence": "https://github.com/nikolat/balloonselector/blob/04ac6c086a03f1394c572d0748e4bdd190046c77/LICENSE",
+      "upstream_revision": "04ac6c086a03f1394c572d0748e4bdd190046c77",
+      "upstream_source": "https://github.com/nikolat/balloonselector",
+      "dependencies": [
+        "ベースウェアのバルーン一覧・切替イベント"
+      ],
+      "port_strategy": "YAYA adapter経由でメニュー/Scriptを確認。実画面のバルーン切替はPluginHost統合で確認。",
+      "source_evidence": [
+        "https://github.com/nikolat/balloonselector/blob/04ac6c086a03f1394c572d0748e4bdd190046c77/descript.txt",
+        "https://github.com/nikolat/balloonselector/blob/04ac6c086a03f1394c572d0748e4bdd190046c77/LICENSE"
+      ],
+      "archive_sha256": "ff0c399ea3facc925b0e0c834cc62bd738ba295bc038a06f2ad9bf4668695cfe",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "OnMenuExec",
+            "status_line": "PLUGIN/2.0 200 OK",
+            "bytes": 192,
+            "sha256": "18c0957269181d510195e87d02880774b5154c24ecabc5eea2691f66b44a1837",
+            "header_names": [
+              "Sender",
+              "Charset",
+              "Script"
+            ]
+          }
+        ],
+        "temporary_copy_deleted": true,
+        "reason": "メニューScript応答確認。実hostのバルーン一覧取得・切替とGUI表示は未検証。"
+      },
+      "generated_artifact": "build/plugin-ports/balloonselector.plugin",
+      "generated": true
+    },
+    {
+      "id": "nightwork-bouyomi-plugin",
+      "name": "棒読みちゃん連携プラグイン",
+      "kind": "plugin",
+      "source_url": "https://nightwork.sakura.ne.jp/ukagaka/tools/BouyomiChan_PLUGIN/BouyomiChan_PLUGIN.html",
+      "download_url": "https://nightwork.sakura.ne.jp/ukagaka/tools/BouyomiChan_PLUGIN/BouyomiChan_PLUGIN(20241208).nar",
+      "author": "NightWork",
+      "engine": "yaya",
+      "implementation_languages": [
+        "YAYA",
+        "Windows送信helper"
+      ],
+      "license_summary": "明示ライセンス未確認",
+      "license_evidence": "https://nightwork.sakura.ne.jp/ukagaka/tools/BouyomiChan_PLUGIN/BouyomiChan_PLUGIN.html",
+      "upstream_revision": null,
+      "upstream_source": "https://nightwork.sakura.ne.jp/ukagaka/tools/BouyomiChan_PLUGIN/BouyomiChan_PLUGIN.html",
+      "dependencies": [
+        "exec\\exec.dll",
+        "SendTalk.exe",
+        "棒読みちゃんTCP 50001"
+      ],
+      "port_strategy": "辞書を保持しSendTalk限定native backendへ置換。実loopback packet確認と実音声出力は区別。",
+      "source_evidence": [
+        "https://nightwork.sakura.ne.jp/ukagaka/tools/BouyomiChan_PLUGIN/BouyomiChan_PLUGIN.html"
+      ],
+      "archive_sha256": "66db2fec2de9bd0a47f9d7fcc41c078edb754ca3583b926474d4f5643cf551c8",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated helper; GUI not tested",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "OnMenuExec",
+            "status_line": "PLUGIN/2.0 200 OK",
+            "bytes": 345,
+            "sha256": "1bb45d2abba5c3046539963041bec92c76351d8bf0bca7938fed3374ff211298",
+            "header_names": [
+              "Sender",
+              "Charset",
+              "ScriptOption",
+              "Marker",
+              "Script"
+            ]
+          }
+        ],
+        "temporary_copy_deleted": true,
+        "reason": "メニューScript応答確認。TCP SendTalk backendは実socket6回帰で検証済み。元辞書から実棒読みちゃん発声までの全経路は未検証。"
+      },
+      "generated_artifact": "build/plugin-ports/nightwork-bouyomi-plugin.plugin",
+      "generated": true
+    },
+    {
+      "id": "sudohaikuyu",
+      "name": "すどはいくゅう",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/sudohaikuyu/releases/tag/v0.4",
+      "download_url": "https://github.com/nikolat/sudohaikuyu/releases/download/v0.4/sudohaikuyu.nar",
+      "author": "Don / nikolat",
+      "engine": "akari",
+      "implementation_languages": [
+        "灯（Akari）辞書"
+      ],
+      "license_summary": "NYSDL 0.9982（辞書）・各モジュール別条件",
+      "license_evidence": "https://github.com/nikolat/sudohaikuyu/blob/998d8f65c86cc541a34c6fbec2e721fcb0ba0ba2/licence.txt",
+      "upstream_revision": "998d8f65c86cc541a34c6fbec2e721fcb0ba0ba2",
+      "upstream_source": "https://github.com/nikolat/sudohaikuyu",
+      "dependencies": [
+        "スドハイクAPI",
+        "HandUtil",
+        "httpc",
+        "imgctl",
+        "textcopy2"
+      ],
+      "port_strategy": "Akari PLUGIN adapter。SAORI/API未実装は明示し認証・投稿は実行しない。",
+      "source_evidence": [
+        "https://github.com/nikolat/sudohaikuyu/blob/998d8f65c86cc541a34c6fbec2e721fcb0ba0ba2/descript.txt",
+        "https://github.com/nikolat/sudohaikuyu/blob/998d8f65c86cc541a34c6fbec2e721fcb0ba0ba2/licence.txt"
+      ],
+      "archive_sha256": "e8b74881ce62e0f76c87076a95478f2f42939393f7e46a06e49ecde40f4fcd0e",
+      "redistribution": "No original payload distributed by Ourin; user-local package conversion only",
+      "verification": {
+        "status": "partial",
+        "layer": "native .plugin C ABI + isolated Akari helper",
+        "loaded": true,
+        "reloaded": true,
+        "events": [
+          {
+            "id": "version",
+            "status": "PLUGIN/2.0 200 OK",
+            "headers": {
+              "Sender": {
+                "length": 5,
+                "sha256": "df188e4cbd0d623147fde16a8bf146e5c413e95790330cdb8c1594e7a2d447a2"
+              },
+              "Charset": {
+                "length": 5,
+                "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+              },
+              "Value": {
+                "length": 15,
+                "sha256": "a0c661ce10caa32f7ba6e3db2197b3722b7bb0150a45042d7dd60151751b0f8a"
+              }
+            }
+          },
+          {
+            "id": "OnMenuExec",
+            "status": "PLUGIN/2.0 200 OK",
+            "headers": {
+              "Sender": {
+                "length": 5,
+                "sha256": "df188e4cbd0d623147fde16a8bf146e5c413e95790330cdb8c1594e7a2d447a2"
+              },
+              "Charset": {
+                "length": 5,
+                "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+              }
+            }
+          },
+          {
+            "id": "OnMenuExec",
+            "status": "PLUGIN/2.0 200 OK",
+            "headers": {
+              "Sender": {
+                "length": 5,
+                "sha256": "df188e4cbd0d623147fde16a8bf146e5c413e95790330cdb8c1594e7a2d447a2"
+              },
+              "Charset": {
+                "length": 5,
+                "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+              },
+              "Script": {
+                "length": 50,
+                "sha256": "c467642e40b81f4a8807bb819b974da06da76589f87c91569bb7b819383d5802"
+              },
+              "Target": {
+                "length": 5,
+                "sha256": "4bf2cfce5f541ad5b6bfc59a72a5047bbde8224a25d6c2d73edb0650c4ad1c31"
+              },
+              "Event": {
+                "length": 12,
+                "sha256": "a073ddbfd913fe058e004e62c2380d5a9a53f5ae815d4461fb5a7de9deb5bace"
+              },
+              "ScriptOption": {
+                "length": 19,
+                "sha256": "7ad62ca14e6855cb8519a1b52922c4c73679ccefd4b004ed15c336b474361f40"
+              },
+              "Reference0": {
+                "length": 23,
+                "sha256": "07107c33b8429c30d73aa85de6419720723aa672537671a24d5222e8cb0f6adb"
+              },
+              "Reference1": {
+                "length": 12,
+                "sha256": "fbbda76725716e258e7d80b0e6e1a4c6820fecdace0d3f5394cdf00186aa8890"
+              },
+              "Reference2": {
+                "length": 57,
+                "sha256": "2b71fe6d3e1f59247f532a40f0959d3b6726e7cd5b37ffe77efe105290656e90"
+              },
+              "Reference3": {
+                "length": 16,
+                "sha256": "f529ddc4df34c49bb715365aa9feed80c6e19eecbc5d8e514cec875ea7386bfb"
+              },
+              "Reference4": {
+                "length": 1,
+                "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+              },
+              "Reference5": {
+                "length": 5,
+                "sha256": "4bf2cfce5f541ad5b6bfc59a72a5047bbde8224a25d6c2d73edb0650c4ad1c31"
+              },
+              "Reference6": {
+                "length": 6,
+                "sha256": "fc613b4dfd6736a7bd268c8a0e74ed0d1c04a959f59dd74ef2874983fd443fc9"
+              },
+              "Reference7": {
+                "length": 7,
+                "sha256": "f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d"
+              },
+              "Reference8": {
+                "length": 1,
+                "sha256": "cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8"
+              },
+              "Reference9": {
+                "length": 4,
+                "sha256": "398991009da1d251792eb353a0b7b185bc83e71e12e489e73228b554fc6cebc5"
+              },
+              "Marker": {
+                "length": 15,
+                "sha256": "a0c661ce10caa32f7ba6e3db2197b3722b7bb0150a45042d7dd60151751b0f8a"
+              }
+            }
+          },
+          {
+            "id": "OnSecondChange",
+            "status": "PLUGIN/2.0 204 No Content",
+            "headers": {}
+          }
+        ],
+        "menu_with_fixture_http": true,
+        "network_allowed": false,
+        "temporary_copy_deleted": true,
+        "reason": "初回OnMenuExecは仕様どおり空、2回目にbooting Script。SNS認証・投稿、Windows SAORI、実画面未検証。",
+        "native_artifacts_sha256": {
+          "Contents/MacOS/OurinPluginAdapter": "acd95537cc7ec85aca2b31f4a3e069f74718f9d78a35e55e5f9f0a381a953786",
+          "Contents/Resources/akari_helper": "a4d874106b49c8fce3f20cad5cacaa7029de1a164874b723b17f750630bb8e97",
+          "Contents/Resources/libakari.dylib": "85970e01635e3bcee186cede1a0ce2d6e0966fec2c4e94db8c63b53428e246bc"
+        }
+      },
+      "generated_artifact": "build/plugin-ports/sudohaikuyu.plugin",
+      "generated": true
+    }
+  ],
+  "verification_scope": {
+    "generated": {
+      "numerator": 15,
+      "denominator": 15
+    },
+    "yaya_load_and_reload": {
+      "numerator": 9,
+      "denominator": 11
+    },
+    "yaya_script_response": {
+      "numerator": 6,
+      "denominator": 11
+    },
+    "yaya_load_rejected": {
+      "numerator": 2,
+      "denominator": 11
+    },
+    "gui_verified": 0,
+    "note": "生成成功、ロード、特定イベント応答、実機能、GUIは別集計。完全互換率ではない。",
+    "native_load": {
+      "numerator": 13,
+      "denominator": 15
+    },
+    "akari_load_and_reload": {
+      "numerator": 3,
+      "denominator": 3
+    }
+  },
+  "test_evidence": {
+    "adapter_tests": {
+      "passed": 11,
+      "failed": 0,
+      "log_sha256": "d4405c94bf4ef471d6458f719dee0ff43aaf1ae8e18a495a2875f2e26ee6f60f"
+    },
+    "file_persistence_tests": {
+      "passed": 9,
+      "failed": 0,
+      "log_sha256": "6ac6dfa572baba542b687c94f37132361c62f9b8d2c1fb5aea8ea099013aab79"
+    },
+    "akari_adapter_tests": {
+      "passed": 6,
+      "failed": 0
+    },
+    "akari_dictionary_tests": {
+      "passed": 5,
+      "failed": 0,
+      "real_plugins": 3,
+      "http": "synthetic fixed response"
+    },
+    "tmidi_bridge_tests": {
+      "passed": 6,
+      "failed": 0
+    },
+    "native_saori_tests": {
+      "passed": 6,
+      "failed": 0
+    },
+    "xcode_affected": {
+      "suites": 18,
+      "tests_passed": 192,
+      "executions_passed": 226,
+      "failed": 0,
+      "skipped": 0,
+      "architecture": "arm64"
+    },
+    "xcode_full": {
+      "status": "interrupted",
+      "reason": "Repeated macOS AudioQueue output-start timeouts in SoundPlayerTests; no full-suite pass claim."
+    }
+  },
+  "temporary_acquisition_cleanup": {
+    "download_archives_and_extracted_sources_deleted": true,
+    "review_source_copies_deleted": true,
+    "removed_entry_count": 18,
+    "converted_packages_retained": 15,
+    "note": "18 entries counted for YAYA acquisition; Akari raw archives/extractions/test copies also removed. The 15 private generated bundles retain payloads."
+  }
+}

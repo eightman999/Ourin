@@ -89,6 +89,20 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             test | tee xcodebuild.log | xcbeautify
 
+      - name: Verify native plugin adapters and KAGARI modules
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          cmp engines/plugins/catalog.json docs/compatibility-corpus/plugin-ports-results.json
+          bash engines/plugins/build.sh
+          python3 engines/plugins/test_yaya_adapter.py -v
+          python3 engines/plugins/test_akari_adapter.py -v
+          python3 engines/plugin-native/test_native.py -v
+          python3 engines/plugin-native/test_tmidi.py -v
+          python3 engines/kagari/tests/test_native_modules.py --library build/engines/kagari/libkagari.dylib
+          python3 engines/additional/test_akari_values.py
+          python3 yaya_core/tests/test_file_persistence.py -v
+
       - name: Upload test result bundle
         if: always()
         uses: actions/upload-artifact@v4

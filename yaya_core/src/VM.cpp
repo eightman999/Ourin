@@ -540,6 +540,25 @@ static void yayaElementSet(Value& container, std::int64_t index, const Value& va
     }
 }
 
+// String-key hashes retain numeric array indexing on the existing path.
+static Value yayaIndexedGet(const Value& container, const Value& key, const std::string& delimiter) {
+    if (container.getType() != Value::Type::Dictionary)
+        return yayaElementGet(container, key.asInt64(), delimiter);
+    const auto& values = container.asDict();
+    const auto found = values.find(key.asString());
+    return found == values.end() ? Value() : found->second;
+}
+static void yayaIndexedSet(Value& container, const Value& key, const Value& value,
+                           const std::string& delimiter, bool spread) {
+    if (container.getType() != Value::Type::Dictionary) {
+        yayaElementSet(container, key.asInt64(), value, delimiter, spread);
+        return;
+    }
+    auto values = container.asDict();
+    values[key.asString()] = value;
+    container = Value(values);
+}
+
 // These AST calls mutate a variable and are statement-like in YAYA. Their
 // return value is useful when nested inside an expression, but must not become
 // an output candidate when the call is a standalone statement.
@@ -1295,8 +1314,9 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
 
                     // 変数でない項（文字列リテラル、多次元の手前の要素など）の簡易配列は既定の区切り ","。
                     if (base.getType() == Value::Type::Array || base.getType() == Value::Type::String ||
-                        base.getType() == Value::Type::Integer || base.getType() == Value::Type::Real) {
-                        return yayaElementGet(base, idxV.asInt64(), ",");
+                        base.getType() == Value::Type::Integer || base.getType() == Value::Type::Real ||
+                        base.getType() == Value::Type::Dictionary) {
+                        return yayaIndexedGet(base, idxV, ",");
                     }
 
                     // Special handling if base was a variable named 'reference'
@@ -1500,8 +1520,8 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             }
             // 文字列は簡易配列（変数の区切りで分けた要素）、整数・実数は [0] だけその値（YAYA）。
             if (arrayVar.getType() == Value::Type::String || arrayVar.getType() == Value::Type::Integer ||
-                arrayVar.getType() == Value::Type::Real) {
-                return yayaElementGet(arrayVar, indexVal.asInt64(), variableDelimiter(access->arrayName));
+                arrayVar.getType() == Value::Type::Real || arrayVar.getType() == Value::Type::Dictionary) {
+                return yayaIndexedGet(arrayVar, indexVal, variableDelimiter(access->arrayName));
             }
 
             if (access->arrayName == "reference" &&
@@ -1849,7 +1869,7 @@ std::optional<VM::ElementLvalue> VM::resolveElementLvalue(const std::shared_ptr<
     ElementLvalue target;
     target.varName = access->arrayName;
     for (auto it = indexNodes.rbegin(); it != indexNodes.rend(); ++it) {
-        target.indices.push_back(executeNode(*it).asInt64());
+        target.indices.push_back(executeNode(*it));
     }
     return target;
 }
@@ -1860,7 +1880,7 @@ Value VM::readElementLvalue(const ElementLvalue& target) {
     for (size_t level = 0; level < target.indices.size(); ++level) {
         // 簡易配列の区切りは、変数に直接付けた添字だけがその変数の区切りを使う。
         const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
-        value = yayaElementGet(value, target.indices[level], delimiter);
+        value = yayaIndexedGet(value, target.indices[level], delimiter);
     }
     return value;
 }
@@ -1875,12 +1895,12 @@ void VM::writeElementLvalue(const ElementLvalue& target, const Value& value) {
     std::vector<Value> containers{ getVariable(target.varName) };
     for (size_t level = 0; level + 1 < target.indices.size(); ++level) {
         const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
-        containers.push_back(yayaElementGet(containers[level], target.indices[level], delimiter));
+        containers.push_back(yayaIndexedGet(containers[level], target.indices[level], delimiter));
     }
     for (size_t level = target.indices.size(); level-- > 0;) {
         const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
         const bool innermost = level + 1 == target.indices.size();
-        yayaElementSet(containers[level], target.indices[level],
+        yayaIndexedSet(containers[level], target.indices[level],
                        innermost ? value : containers[level + 1], delimiter, innermost);
     }
     setVariable(target.varName, containers[0]);
@@ -2147,6 +2167,35 @@ void VM::registerBuiltins() {
         return Value(std::vector<Value>());
     };
     
+    // YAYA 600 string-key hashes. IHASH keeps the first duplicate key.
+    builtins_["IHASH"] = [this](const std::vector<Value>& args) -> Value {
+        std::map<std::string, Value> values;
+        for (size_t i = 0; i < args.size(); i += 2)
+            values.emplace(args[i].asString(), i + 1 < args.size() ? args[i + 1] : Value());
+        if (args.size() % 2) lastError_ = 20;
+        return Value(values);
+    };
+    builtins_["HASH_EXIST"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) { lastError_ = 8; return Value(); }
+        if (args[1].getType() != Value::Type::Dictionary) { lastError_ = 9; return Value(); }
+        return Value(args[1].asDict().count(args[0].asString()) ? 1 : 0);
+    };
+    builtins_["HASH_SIZE"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 8; return Value(); }
+        if (args[0].getType() != Value::Type::Dictionary) { lastError_ = 9; return Value(); }
+        return Value(static_cast<std::int64_t>(args[0].asDict().size()));
+    };
+    for (const std::string name : {"HASH_KEYS", "HASH_VALUES"}) {
+        builtins_[name] = [this, name](const std::vector<Value>& args) -> Value {
+            if (args.empty()) { lastError_ = 8; return Value(); }
+            if (args[0].getType() != Value::Type::Dictionary) { lastError_ = 9; return Value(); }
+            std::vector<Value> result;
+            for (const auto& pair : args[0].asDict())
+                result.push_back(name == "HASH_KEYS" ? Value(pair.first) : pair.second);
+            return Value(result);
+        };
+    }
+
     // ===== Type Conversion Functions =====
     
     // TOINT(value) - Convert to integer
@@ -4522,6 +4571,41 @@ void VM::registerBuiltins() {
     builtins_["TOAUTOEX"] = [autoConvert](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value();
         return autoConvert(args[0], true);
+    };
+
+    // YAYA 600 PARSEHEADER: preserve header spelling/order and raw body;
+    // repeated headers remain in arrays while the header hash is last-wins.
+    builtins_["PARSEHEADER"] = [this, autoConvert](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 8; return Value(); }
+        if (args[0].getType() != Value::Type::String) { lastError_ = 9; return Value(); }
+        const auto text = args[0].asString();
+        const bool convert = args.size() > 1 && args[1].asInt64() != 0;
+        std::map<std::string, Value> headers;
+        std::vector<Value> keys, values, raw;
+        std::string start, body;
+        size_t offset = 0, lineNumber = 0;
+        while (offset < text.size()) {
+            const auto end = text.find('\n', offset);
+            auto line = text.substr(offset, end == std::string::npos ? end : end - offset);
+            offset = end == std::string::npos ? text.size() : end + 1;
+            if (!line.empty() && line.back() == '\r') line.pop_back();
+            if (line.empty()) { body = text.substr(offset); break; }
+            const auto colon = line.find(':');
+            const auto whitespace = line.find_first_of(" \t");
+            if (colon != std::string::npos && colon > 0 &&
+                (whitespace == std::string::npos || whitespace > colon)) {
+                const auto key = line.substr(0, colon);
+                size_t valueStart = colon + 1;
+                if (valueStart < line.size() && (line[valueStart] == ' ' || line[valueStart] == '\t')) ++valueStart;
+                const auto original = Value(line.substr(valueStart));
+                const auto value = convert ? autoConvert(original, true) : original;
+                headers[key] = value;
+                keys.emplace_back(key); values.push_back(value); raw.push_back(original);
+            } else if (lineNumber == 0) start = line;
+            ++lineNumber;
+        }
+        return Value(std::map<std::string, Value>{{"start", Value(start)}, {"header", Value(headers)},
+            {"key", Value(keys)}, {"value", Value(values)}, {"rawvalue", Value(raw)}, {"body", Value(body)}});
     };
 
     // CVAUTO, CVAUTOEX は VM の値渡し API では代入先参照を受け取れないため、

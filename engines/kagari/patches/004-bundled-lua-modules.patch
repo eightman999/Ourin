@@ -1,0 +1,19 @@
+--- a/kagari.cpp
++++ b/kagari.cpp
+@@ -1,6 +1,8 @@
+ #include "kagari.h"
+ 
+ #include <iostream>
++
++extern "C" void ourin_kagari_preload_modules(lua_State*, const char*);
+ 
+ namespace {
+ #if defined(_WIN32)
+@@ -30,6 +32,7 @@
+         sol::lib::io,
+         sol::lib::debug
+     );
++    ourin_kagari_preload_modules(lua_, path.c_str());
+     std::string package_path    = lua_["package"]["path"];
+     package_path    = path + "?.lua;"
+         + path + "?" + kDirSep + "init.lua;"

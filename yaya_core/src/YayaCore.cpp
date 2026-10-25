@@ -236,6 +236,36 @@ std::string YayaCore::processCommand(const std::string &line) {
                     dictManager.execute("load", {ghostPath});
                 }
             }
+        } else if (cmd == "plugin_request") {
+            // PLUGIN has its own framework and response headers. Preserve the
+            // complete wire text; never route through SHIORI fallback dispatch.
+            const std::string wire = req.value("wire", "");
+            const auto firstEnd = wire.find("\r\n");
+            const std::string first = wire.substr(0, firstEnd);
+            const bool validFirst = first == "GET PLUGIN/2.0" || first == "NOTIFY PLUGIN/2.0" ||
+                                    first == "GET PLUGIN/2.0M" || first == "NOTIFY PLUGIN/2.0M";
+            if (!validFirst || wire.size() > 1024 * 1024 || wire.find('\0') != std::string::npos ||
+                wire.find("\r\n\r\n") == std::string::npos) {
+                response = {{"ok", false}, {"status", 400}, {"error", "invalid PLUGIN request framing"}};
+            } else if (!dictManager.hasFunction("request")) {
+                response = {{"ok", false}, {"status", 501}, {"error", "PLUGIN request framework missing"}};
+            } else {
+                const std::string raw = dictManager.execute("request", {wire});
+                const auto space = raw.find(' ');
+                const std::string protocol = raw.substr(0, space);
+                int status = 0;
+                if (space != std::string::npos) {
+                    const std::string code = raw.substr(space + 1, 3);
+                    if (code.size() == 3 && std::all_of(code.begin(), code.end(), [](unsigned char c) { return std::isdigit(c); }))
+                        status = std::stoi(code);
+                }
+                if ((protocol != "PLUGIN/2.0" && protocol != "PLUGIN/2.0M") || status < 100 || status > 599 ||
+                    raw.size() > 1024 * 1024 || raw.find("\r\n\r\n") == std::string::npos) {
+                    response = {{"ok", false}, {"status", 502}, {"error", "invalid PLUGIN framework response"}};
+                } else {
+                    response = {{"ok", true}, {"status", status}, {"wire", raw}};
+                }
+            }
         } else if (cmd == "request") {
             std::string id = req.value("id", "");
             auto refs = req.value("ref", std::vector<std::string>{});

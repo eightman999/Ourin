@@ -78,7 +78,7 @@ ensure_kagari_src() {
   fi
   git -C "$SRC" fetch --depth 1 origin "$REV"
   git -C "$SRC" checkout --force --detach "$REV"
-  for p in "$PATCH_DIR"/00[12]-*.patch; do
+  for p in "$PATCH_DIR"/00[124]-*.patch; do
     [[ -f "$p" ]] || continue
     if ! patch -d "$SRC" -p1 -N --forward -i "$p"; then
       if ! grep -q 'defined(__APPLE__)' "$SRC/kagari.cpp" 2>/dev/null \
@@ -88,6 +88,10 @@ ensure_kagari_src() {
       fi
       if ! grep -q 'instance->load(p)' "$SRC/kagari_unix.cpp" 2>/dev/null \
         && [[ "$(basename "$p")" == "002-kagari-unix-load-failure.patch" ]]; then
+        echo "Failed to apply $p" >&2
+        exit 4
+      fi
+      if [[ "$(basename "$p")" == "004-bundled-lua-modules.patch" ]] && ! grep -q "ourin_kagari_preload_modules(lua_, path.c_str())" "$SRC/kagari.cpp"; then
         echo "Failed to apply $p" >&2
         exit 4
       fi
@@ -129,9 +133,11 @@ build_kagari_dylib() {
   local flags=(-std=c++17 -O2 -fPIC -mmacosx-version-min=13.0 -arch "$arch" -I"$SRC" -I"$sol_inc" -I"$lua_inc")
   local lua_dir
   lua_dir="$(dirname "$luadylib")"
+  python3 "$ENGINE_DIR/modules/build.py" --arch "$arch" --lua-include "$lua_inc" \
+    --cache "$DEPS/modules" --objects "$objdir/modules" --output "$OUT"
   "$CXX" "${flags[@]}" -c "$SRC/kagari.cpp" -o "$objdir/kagari.o"
   "$CXX" "${flags[@]}" -c "$SRC/kagari_unix.cpp" -o "$objdir/kagari_unix.o"
-  "$CXX" "${flags[@]}" -shared -o "$outdylib" "$objdir/kagari.o" "$objdir/kagari_unix.o" \
+  "$CXX" "${flags[@]}" -shared -o "$outdylib" "$objdir/kagari.o" "$objdir/kagari_unix.o" "$objdir/modules/"*.o -liconv -framework ApplicationServices \
     "$lua_dir/liblua.5.4.dylib" \
     -install_name '@rpath/libkagari.dylib' \
     -Wl,-rpath,'@loader_path' \

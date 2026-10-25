@@ -236,7 +236,7 @@ private:
     // 代入の左辺になる変数の要素（`a[i]`、`a[i][j]` ...）。添字は解決時に評価する。
     struct ElementLvalue {
         std::string varName;
-        std::vector<std::int64_t> indices;
+        std::vector<Value> indices;
     };
     std::optional<ElementLvalue> resolveElementLvalue(const std::shared_ptr<AST::Node>& node);
     Value readElementLvalue(const ElementLvalue& target);

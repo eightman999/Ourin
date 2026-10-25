@@ -20,3 +20,10 @@
 
 /engines/kagari/__pycache__/
 /yaya_core/tests/__pycache__/
+
+# Private converted third-party packages and local Python bytecode
+/build/plugin-ports/
+/engines/plugins/__pycache__/
+/scripts/corpus_probe/__pycache__/
+
+/engines/additional/__pycache__/

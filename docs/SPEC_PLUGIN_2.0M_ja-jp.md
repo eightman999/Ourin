@@ -123,7 +123,7 @@ PLUGIN request の `Target` 解決では、native としてロード済みの pl
 - **メモリ管理**：既定は **呼び出し側（ホスト）でコピー/破棄**。必要なら `plugin_free()` を任意提供。
   ホストは応答を複製するだけで `plugin_free()` を自動では呼ばない（静的バッファを返す実装と両立させるため）。
 - **load の引数**：ホストは `malloc` 確保・NUL 終端・**末尾 `/` 付き**のディレクトリを `load(ptr, len)` 形式で渡す。
-  所有権はモジュールへ移るので `free()` してよい。`int load(const char*)` の実装もそのまま受け取れる。戻り値 0 はログに残すがロードは継続する。
+  所有権はモジュールへ移るので `free()` してよい。`int load(const char*)` の実装もそのまま受け取れる。戻り値 0 はロード失敗として記録し、実行対象から除外する。メタデータは一覧に残すが request / unload は呼び出さない。
 - **Windows DLL 互換 ABI（任意）**：DLL のソースを変えずに移植する場合、Windows と同じ
   ```c
   int   load(void *h, long len);      // h は free する

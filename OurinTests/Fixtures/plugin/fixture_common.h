@@ -123,14 +123,15 @@ static const unsigned char *ourin_fixture_response_with_value(
     return out;
 }
 
+// Match the host contract: consume the owned path and return nonzero on success.
 #define OURIN_FIXTURE_DECLARE_LIFECYCLE() \
     OURIN_FIXTURE_EXPORT int OURIN_FIXTURE_SYMBOL(load)(const char *plugin_dir_utf8) { \
-        (void)plugin_dir_utf8; \
-        return 0; \
+        free((void *)plugin_dir_utf8); \
+        return 1; \
     } \
     OURIN_FIXTURE_EXPORT int OURIN_FIXTURE_SYMBOL(loadu)(const char *plugin_dir_utf8) { \
-        (void)plugin_dir_utf8; \
-        return 0; \
+        free((void *)plugin_dir_utf8); \
+        return 1; \
     } \
     OURIN_FIXTURE_EXPORT void OURIN_FIXTURE_SYMBOL(unload)(void) {} \
     OURIN_FIXTURE_EXPORT void OURIN_FIXTURE_SYMBOL(plugin_free)(void *p) { \

@@ -10,7 +10,7 @@ import hashlib, sys
 root = Path(sys.argv[1])
 h = hashlib.sha256()
 for path in sorted(root.rglob('*')):
-    if path.is_file() and path.suffix in {'.sh', '.json', '.patch'}:
+    if path.is_file() and path.suffix in {'.sh', '.json', '.patch', '.cpp', '.c', '.h', '.py'}:
         h.update(str(path.relative_to(root)).encode())
         h.update(path.read_bytes())
 print(h.hexdigest())

@@ -1,0 +1,34 @@
+[
+  {
+    "name": "luachild",
+    "repository": "https://github.com/Tatakinov/luachild",
+    "revision": "efcb09bd6059f5852313bfd431106a75344f4038",
+    "url": "https://codeload.github.com/Tatakinov/luachild/tar.gz/efcb09bd6059f5852313bfd431106a75344f4038",
+    "sha256": "36211e75d7fc77b2c348e8e1820e69cfb2f3f5cd29e550568c79185e624c9a3d",
+    "license": "MIT AND Unlicense"
+  },
+  {
+    "name": "luautf8",
+    "repository": "https://github.com/starwing/luautf8",
+    "revision": "a47b1433473a2509d77ad28f59a976716d187927",
+    "url": "https://codeload.github.com/starwing/luautf8/tar.gz/a47b1433473a2509d77ad28f59a976716d187927",
+    "sha256": "e140cbbf8cd26dce3fe0b52a364ec241bf0b1eae9e3182dc9049790e5df71239",
+    "license": "MIT"
+  },
+  {
+    "name": "luasocket",
+    "repository": "https://github.com/lunarmodules/luasocket",
+    "revision": "95b7efa9da506ef968c1347edf3fc56370f0deed",
+    "url": "https://codeload.github.com/lunarmodules/luasocket/tar.gz/95b7efa9da506ef968c1347edf3fc56370f0deed",
+    "sha256": "076e45e5c7b8e59d2bcda06f0bd4c227b49717f602abe23f7c1e0494fc2fa681",
+    "license": "MIT"
+  },
+  {
+    "name": "lpeg",
+    "repository": "https://www.inf.puc-rio.br/~roberto/lpeg/",
+    "revision": "1.1.0",
+    "url": "https://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.1.0.tar.gz",
+    "sha256": "4b155d67d2246c1ffa7ad7bc466c1ea899bbc40fef0257cc9c03cecbaed4352a",
+    "license": "MIT"
+  }
+]
